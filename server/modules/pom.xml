@@ -11,5 +11,17 @@
 	<groupId>org.argeo.commons.server</groupId>
 	<artifactId>modules</artifactId>
 	<name>Commons Server Modules</name>
-	<packaging>pom</packaging>
+	<packaging>bundles</packaging>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.argeo.maven.plugins</groupId>
+				<artifactId>maven-argeo-osgi-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<bundlesPomArtifactId>org.argeo.slc.modules.server.bundles</bundlesPomArtifactId>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

@@ -8,33 +8,139 @@
 	<name>Argeo Commons</name>
 	<packaging>pom</packaging>
 	<properties>
+		<developmentCycle>0.1</developmentCycle>
 		<version.slc>0.12.1-SNAPSHOT</version.slc>
+		<version.maven-argeo-osgi>0.1.21</version.maven-argeo-osgi>
 	</properties>
+	<scm>
+		<connection>scm:svn:https://www.argeo.org/svn/commons/trunk</connection>
+		<developerConnection>scm:svn:https://www.argeo.org/svn/commons/trunk</developerConnection>
+		<url>https://www.argeo.org/svn/commons/trunk</url>
+	</scm>
+	<issueManagement>
+		<system>Bugzilla</system>
+		<url>https://www.argeo.org/bugzilla/</url>
+	</issueManagement>
+	<licenses>
+		<license>
+			<name>Apache 2</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+			<comments><![CDATA[
+SLC - Software LifeCycle framework
+			   
+Copyright 2008 Mathieu Baudier - Argeo e.U.
+
+Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+]]>
+			</comments>
+		</license>
+	</licenses>
+	<organization>
+		<name>Argeo</name>
+		<url>http://www.argeo.org</url>
+	</organization>
+	<developers>
+		<developer>
+			<id>mbaudier</id>
+			<name>Mathieu Baudier</name>
+			<email><![CDATA[http://mailhide.recaptcha.net/d?k=01EM7GpnvY3k8woQ2tnnZLUA==&c=crsNpHjhOBDPswHG6HD_gXaqymhC69wmBf7wlagcSHw=]]></email>
+			<organization>Argeo</organization>
+			<organizationUrl>http://www.argeo.org</organizationUrl>
+			<roles>
+				<role>architect</role>
+				<role>developer</role>
+				<role>QA</role>
+			</roles>
+		</developer>
+	</developers>
 	<modules>
 		<module>server</module>
 	</modules>
 	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+						<source>1.5</source>
+						<target>1.5</target>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<phase>package</phase>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.argeo.maven.plugins</groupId>
+					<artifactId>maven-argeo-osgi-plugin</artifactId>
+					<version>${version.maven-argeo-osgi}</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<version>1.0-beta-3</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
+					<doCheck>false</doCheck>
+					<doUpdate>false</doUpdate>
+					<useLastCommittedRevision>true</useLastCommittedRevision>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<phase>package</phase>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
+				<artifactId>maven-resources-plugin</artifactId>
+				<configuration>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>2.0-beta-5</version>
+				<!--
+					The site plugin is buggy with multi modules.
+					http://jira.codehaus.org/browse/MSITE-276
+				-->
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<configuration>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<releaseProfiles>release</releaseProfiles>
+					<goals>deploy</goals>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
@@ -133,4 +239,18 @@
 			</snapshots>
 		</repository>
 	</repositories>
+	<distributionManagement>
+		<repository>
+			<uniqueVersion>false</uniqueVersion>
+			<id>argeo-restricted</id>
+			<name>Argeo FOSS Repository</name>
+			<url>file:///var/argeo/maven2/argeo</url>
+		</repository>
+		<snapshotRepository>
+			<uniqueVersion>true</uniqueVersion>
+			<id>argeo-snapshots-restricted</id>
+			<name>Argeo FOSS Snapshots Repository</name>
+			<url>file:///var/argeo/maven2/argeo-snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>
