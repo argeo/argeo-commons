@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/osgi"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="http://www.springframework.org/schema/osgi  
+       http://www.springframework.org/schema/osgi/spring-osgi-1.1.xsd
+       http://www.springframework.org/schema/beans   
+       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<reference id="marshaller" interface="org.springframework.oxm.Marshaller" />
+	<reference id="unmarshaller" interface="org.springframework.oxm.Unmarshaller" />
+
+	<reference interface="org.argeo.slc.dao.test.tree.TreeTestResultDao"
+		id="testResultDao" />
+	<reference interface="org.argeo.slc.dao.test.tree.TreeTestResultCollectionDao"
+		id="testResultCollectionDao" />
+	<reference interface="org.argeo.slc.dao.test.TestRunDescriptorDao"
+		id="testRunDescriptorDao" />
+	<reference interface="org.argeo.slc.dao.process.SlcExecutionDao"
+		id="slcExecutionDao" />
+	<reference interface="org.argeo.slc.dao.runtime.SlcAgentDescriptorDao"
+		id="slcAgentDescriptorDao" />
+
+	<reference interface="org.hibernate.SessionFactory" id="sessionFactory" />
+
+	<!--
+		<reference interface="org.argeo.slc.execution.ExecutionModulesManager"
+		id="modulesManager" />
+	-->
+	<reference id="testManagerService"
+		interface="org.argeo.slc.services.TestManagerService" />
+	<reference id="agentService" interface="org.argeo.slc.services.AgentService" />
+	<reference id="slcExecutionService"
+		interface="org.argeo.slc.services.SlcExecutionService" />
+
+	<reference id="hibernateTransactionManager"
+		interface="org.springframework.transaction.PlatformTransactionManager"
+		bean-name="hibernateTransactionManager" />
+
+	<reference id="agentFactory" interface="org.argeo.slc.runtime.SlcAgentFactory" />
+
+	<reference id="eventListener" interface="org.argeo.slc.msg.event.SlcEventListener" />
+
+	<reference id="attachmentsStorage"
+		interface="org.argeo.slc.core.attachment.AttachmentsStorage" />
+
+	<!-- Runtime -->
+	<reference id="dynamicRuntime" interface="org.argeo.slc.deploy.DynamicRuntime" />
+
+	<!-- Provisioning -->
+	<set id="modularDistributions" interface="org.argeo.slc.build.ModularDistribution"
+		cardinality="0..N" />
+
+</beans:beans>

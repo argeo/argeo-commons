@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Require-Bundle: org.argeo.slc.specs,org.argeo.slc.core,org.argeo.slc.s
+ erver,org.argeo.slc.support.activemq,org.springframework.core,org.spr
+ ingframework.context,org.springframework.beans,org.springframework.ox
+ m,org.springframework.jms,com.springsource.org.castor,org.argeo.dep.o
+ sgi.activemq
+Bundle-Version: 0.12.1.SNAPSHOT
+Bundle-SymbolicName: org.argeo.slc.server.jms
+Import-Package: javax.jms,javax.management.j2ee.statistics,org.apache.
+ commons.logging,org.springframework.transaction

@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-Version: 0.12.1.SNAPSHOT
+Bundle-SymbolicName: org.argeo.slc.server.hsqldb
+Import-Package: org.argeo.slc.hibernate,org.hibernate,org.springframew
+ ork.orm.hibernate3,org.argeo.slc.runtime,org.argeo.slc.process,org.ar
+ geo.slc.test,org.argeo.slc.core.attachment,org.argeo.slc.core.test.tr
+ ee,org.argeo.slc.core.structure,org.argeo.slc.core.structure.tree,org
+ .argeo.slc.hibernate.test.tree,org.argeo.slc.hibernate.runtime,org.ar
+ geo.slc.hibernate.process,org.argeo.slc.hibernate.test,org.argeo.slc.
+ hibernate.structure,org.argeo.slc.hibernate.attachment,org.aopallianc
+ e.aop,org.argeo.slc.core.test,org.springframework.cache.ehcache,net.s
+ f.ehcache.hibernate,org.hsqldb.jdbc,org.springframework.beans.factory
+ .config

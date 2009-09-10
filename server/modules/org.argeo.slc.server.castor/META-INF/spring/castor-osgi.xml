@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:osgi="http://www.springframework.org/schema/osgi"
+	xsi:schemaLocation="http://www.springframework.org/schema/osgi  
+       http://www.springframework.org/schema/osgi/spring-osgi-1.1.xsd
+       http://www.springframework.org/schema/beans   
+       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<import resource="classpath:org/argeo/slc/castor/spring.xml" />
+
+	<osgi:service ref="slcDefault.castor.marshaller">
+		<osgi:interfaces>
+			<value>org.springframework.oxm.Marshaller
+			</value>
+			<value>org.springframework.oxm.Unmarshaller
+			</value>
+		</osgi:interfaces>
+	</osgi:service>
+</beans>

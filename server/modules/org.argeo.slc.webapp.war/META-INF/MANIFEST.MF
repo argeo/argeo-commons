@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Bundle-ClassPath: WEB-INF/classes
+Bundle-Version: 0.12.1.SNAPSHOT
+Bundle-Name: SLC Webapp
+Web-ContextPath: org.argeo.slc.webapp
+Bundle-SymbolicName: org.argeo.slc.webapp
+Import-Package: net.sf.cglib.core,net.sf.cglib.proxy,net.sf.cglib.refl
+ ect,org.aopalliance.aop,org.argeo.slc.build,org.argeo.slc.core.attach
+ ment,org.argeo.slc.core.test.tree,org.argeo.slc.dao.process,org.argeo
+ .slc.dao.runtime,org.argeo.slc.dao.test,org.argeo.slc.dao.test.tree,o
+ rg.argeo.slc.deploy,org.argeo.slc.msg.event,org.argeo.slc.runtime,org
+ .argeo.slc.services,org.argeo.slc.web.mvc,org.argeo.slc.web.mvc.attac
+ hment,org.argeo.slc.web.mvc.event,org.argeo.slc.web.mvc.execution,org
+ .argeo.slc.web.mvc.management,org.argeo.slc.web.mvc.process,org.argeo
+ .slc.web.mvc.provisioning,org.argeo.slc.web.mvc.result,org.argeo.slc.
+ web.mvc.runtime,org.hibernate,org.hibernate.hql.ast,org.hibernate.jdb
+ c,org.springframework.aop,org.springframework.aop.framework,org.sprin
+ gframework.aop.scope,org.springframework.beans.factory.support,org.sp
+ ringframework.orm.hibernate3.support,org.springframework.osgi.web.con
+ text.support,org.springframework.oxm,org.springframework.security.con
+ text,org.springframework.security.providers,org.springframework.secur
+ ity.ui.webapp,org.springframework.security.userdetails.memory,org.spr
+ ingframework.transaction,org.springframework.web.context,org.springfr
+ amework.web.context.request,org.springframework.web.context.support,o
+ rg.springframework.web.filter,org.springframework.web.servlet,org.spr
+ ingframework.web.servlet.handler,org.springframework.web.servlet.mvc

@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Require-Bundle: org.argeo.slc.specs,org.argeo.slc.core
+Bundle-Version: 0.12.1.SNAPSHOT
+Bundle-Name: Argeo SLC MySQL
+Bundle-SymbolicName: org.argeo.slc.server.mysql
+Import-Package: com.mysql.jdbc,net.sf.ehcache.hibernate,org.hibernate,
+ org.springframework.cache.ehcache,org.springframework.jdbc.datasource
+ ,org.springframework.orm.hibernate3,org.apache.commons.dbcp,org.sprin
+ gframework.beans.factory.config

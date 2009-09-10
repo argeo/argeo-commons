@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+	<bean
+		class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping">
+		<property name="interceptors">
+			<list>
+				<ref bean="osivInterceptor" />
+			</list>
+		</property>
+	</bean>
+
+
+	<bean id="viewResolverXslt" class="org.argeo.slc.web.mvc.XsltMarshallerViewResolver">
+		<property name="viewClass">
+			<value>org.argeo.slc.web.mvc.XsltMarshallerView
+			</value>
+		</property>
+		<property name="prefix">
+			<value>WEB-INF/xslt/</value>
+		</property>
+		<property name="suffix">
+			<value>.xsl</value>
+		</property>
+		<property name="marshaller" ref="marshaller" />
+	</bean>
+
+
+	<bean name="/resultView.xslt" class="org.argeo.slc.web.mvc.result.GetResultController">
+		<constructor-arg ref="testResultDao" />
+		<property name="viewName" value="resultView" />
+	</bean>
+
+	<bean name="/resultViewXml.xslt" class="org.argeo.slc.web.mvc.result.GetResultController">
+		<constructor-arg ref="testResultDao" />
+		<property name="viewName" value="viewXml" />
+	</bean>
+
+	<bean name="/resultCollectionViewXml.xslt"
+		class="org.argeo.slc.web.mvc.result.GetResultCollectionController">
+		<constructor-arg ref="testResultCollectionDao" />
+		<property name="viewName" value="viewXml" />
+	</bean>
+
+
+</beans>

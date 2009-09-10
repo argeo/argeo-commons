@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-Version: 0.12.1.SNAPSHOT
+Bundle-SymbolicName: org.argeo.slc.server.agentproxy
+Import-Package: org.argeo.slc.jms,org.argeo.slc.activemq,org.apache.ac
+ tivemq.command,org.springframework.jms.core,javax.jms,org.springframe
+ work.jms.support.converter,org.springframework.beans.factory.config,o
+ rg.argeo.slc.runtime

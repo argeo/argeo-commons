@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="locations">
+			<value>osgibundle:services.properties
+			</value>
+		</property>
+	</bean>
+
+	<!-- Attachments -->
+	<bean id="attachmentsStorage" class="org.argeo.slc.core.attachment.FileAttachmentsStorage"></bean>
+
+	<!-- Events -->
+	<aop:aspectj-autoproxy />
+
+	<bean id="eventPublisherAspect" class="org.argeo.slc.services.EventPublisherAspect">
+		<property name="eventPublishers" ref="eventPublishers" />
+	</bean>
+
+	<!-- Services -->
+	<bean id="testManagerService" class="org.argeo.slc.services.impl.TestManagerServiceImpl">
+		<constructor-arg ref="testResultDao" />
+		<constructor-arg ref="testRunDescriptorDao" />
+		<constructor-arg ref="slcExecutionDao" />
+		<constructor-arg ref="testResultCollectionDao" />
+	</bean>
+
+	<bean id="agentService" class="org.argeo.slc.services.impl.AgentServiceImpl">
+		<constructor-arg ref="slcAgentDescriptorDao" />
+		<constructor-arg ref="agentFactory" />
+		<property name="pingCycle" value="${slc.server.services.pingCycle}" />
+	</bean>
+
+	<bean id="slcExecutionService"
+		class="org.argeo.slc.services.impl.SlcExecutionServiceImpl">
+		<constructor-arg ref="slcExecutionDao" />
+	</bean>
+
+</beans>

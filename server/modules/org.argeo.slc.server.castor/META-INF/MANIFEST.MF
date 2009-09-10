@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-Version: 0.12.1.SNAPSHOT
+Bundle-SymbolicName: org.argeo.slc.server.castor
+Import-Package: org.springframework.oxm,org.argeo.slc.castor,org.sprin
+ gframework.oxm.castor

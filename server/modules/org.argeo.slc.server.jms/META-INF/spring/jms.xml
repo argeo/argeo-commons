@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<import resource="classpath:org/argeo/slc/activemq/destinations.xml" />
+
+	<!-- Attachments -->
+
+	<bean id="attachmentStorage.jmsContainer.add" parent="listenerContainer">
+		<property name="destination" ref="slcJms.destination.attachment.add" />
+		<property name="messageListener">
+			<bean class="org.argeo.slc.jms.JmsAttachmentListener">
+				<property name="attachmentsStorage" ref="attachmentsStorage" />
+			</bean>
+		</property>
+	</bean>
+
+	<!-- Events -->
+	<bean id="jmsEventListener" class="org.argeo.slc.jms.JmsSlcEventListener"
+		init-method="init" destroy-method="close">
+		<property name="jmsConnectionFactory">
+			<!--
+				Need its own connection factory in order to set client ids (not
+				possible on pool)
+			-->
+			<bean class="org.apache.activemq.ActiveMQConnectionFactory">
+				<property name="brokerURL">
+					<value>vm://localhost</value>
+				</property>
+			</bean>
+		</property>
+		<property name="eventsDestination" ref="slcJms.destination.events" />
+		<property name="messageConverter" ref="jmsMessageConverter" />
+	</bean>
+
+	<bean id="jmsEventPublisher" class="org.argeo.slc.jms.JmsSlcEventPublisher">
+		<property name="jmsTemplate" ref="jmsTemplate" />
+		<property name="eventsDestination" ref="slcJms.destination.events" />
+	</bean>
+
+	<!-- Agent Service -->
+	<bean id="agentService.jmsContainer.register" parent="listenerContainer">
+		<property name="destination" ref="slcJms.destination.agent.register" />
+		<property name="messageListener">
+			<bean parent="listenerAdapterCastor">
+				<constructor-arg ref="agentService" />
+				<property name="defaultListenerMethod" value="register" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="agentService.jmsContainer.unregister" parent="listenerContainer">
+		<property name="destination" ref="slcJms.destination.agent.unregister" />
+		<property name="messageListener">
+			<bean parent="listenerAdapterCastor">
+				<constructor-arg ref="agentService" />
+				<property name="defaultListenerMethod" value="unregister" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean parent="listenerContainer">
+		<property name="destination" ref="slcJms.destination.execution.event" />
+		<property name="messageListener">
+			<bean class="org.argeo.slc.jms.JmsExecutionHandler">
+				<property name="messageConverter" ref="jmsMessageConverter" />
+				<property name="serviceMsgHandler">
+					<bean class="org.argeo.slc.services.ServiceMsgHandler">
+						<property name="slcExecutionService" ref="slcExecutionService" />
+						<property name="testManagerService" ref="testManagerService" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<!-- Common -->
+	<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="messageConverter" ref="jmsMessageConverter" />
+		<property name="connectionFactory" ref="jmsConnectionFactory" />
+	</bean>
+
+	<!-- Templates -->
+	<bean id="listenerContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer"
+		abstract="true">
+		<property name="connectionFactory" ref="jmsConnectionFactory" />
+		<!--
+			<property name="transactionManager" ref="jmsTransactionManager" />
+		-->
+	</bean>
+
+	<bean id="listenerAdapterCastor"
+		class="org.springframework.jms.listener.adapter.MessageListenerAdapter"
+		abstract="true">
+		<property name="messageConverter" ref="jmsMessageConverter" />
+	</bean>
+
+</beans>
