@@ -17,7 +17,7 @@
 	<!-- Embedded broker -->
 	<amq:broker id="broker" useJmx="false" persistent="false">
 		<amq:transportConnectors>
-			<amq:transportConnector uri="${slc.server.jms.url}" />
+			<amq:transportConnector uri="${argeo.server.jms.url}" />
 			<!-- <amq:transportConnector uri="xmpp://localhost:61222" /> -->
 		</amq:transportConnectors>
 	</amq:broker>
