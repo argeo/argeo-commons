@@ -33,9 +33,9 @@
 	</bean>
 
 	<bean id="dataSource" class="org.hsqldb.jdbc.jdbcDataSource">
-		<property name="database" value="${jdbc.url}" />
-		<property name="user" value="${jdbc.username}" />
-		<property name="password" value="${jdbc.password}" />
+		<property name="database" value="${argeo.server.jdbc.url}" />
+		<property name="user" value="${argeo.server.jdbc.username}" />
+		<property name="password" value="${argeo.server.jdbc.password}" />
 
 	</bean>
 </beans>
