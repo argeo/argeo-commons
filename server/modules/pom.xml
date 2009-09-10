@@ -1,13 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.argeo.slc</groupId>
-		<artifactId>modules</artifactId>
-		<version>0.12.1-SNAPSHOT</version>
+		<groupId>org.argeo.commons</groupId>
+		<version>0.1.1-SNAPSHOT</version>
+		<artifactId>server</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<groupId>org.argeo.slc.modules</groupId>
-	<artifactId>server</artifactId>
+	<groupId>org.argeo.server</groupId>
+	<artifactId>modules</artifactId>
 	<packaging>bundles</packaging>
 	<name>SLC Modules Server</name>
 	<build>
@@ -17,17 +17,9 @@
 				<artifactId>maven-argeo-osgi-plugin</artifactId>
 				<extensions>true</extensions>
 				<configuration>
-					<bundlesPomArtifactId>org.argeo.slc.modules.server.bundles</bundlesPomArtifactId>
+					<bundlesPomArtifactId>org.argeo.server.modules</bundlesPomArtifactId>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-	<dependencies>
-		<dependency>
-			<groupId>org.argeo.slc.dep</groupId>
-			<artifactId>org.argeo.slc.dep.server</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
 </project>

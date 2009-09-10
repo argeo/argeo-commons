@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-Bundle-Version: 0.12.1.SNAPSHOT
-Bundle-SymbolicName: org.argeo.slc.server.activemq
-Import-Package: javax.jms,org.apache.activemq,org.springframework.jms.
- connection,org.springframework.oxm,org.argeo.slc.jms,org.springframew
- ork.jms.support.converter,org.springframework.beans.factory.config
