@@ -29,6 +29,8 @@
 					<systemProperties>
 						<slc.osgi.start>
 							org.springframework.osgi.extender,
+							org.springframework.osgi.web.extender,
+							org.argeo.dep.osgi.catalina.start,
 							org.argeo.server.demo.miniwebapp
 						</slc.osgi.start>
 						<slc.osgi.bundles>
@@ -123,8 +125,6 @@
 			<groupId>javax.xml.stream</groupId>
 			<artifactId>com.springsource.javax.xml.stream</artifactId>
 		</dependency>
-
-		<!-- JSP -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>com.springsource.javax.servlet.jsp</artifactId>
@@ -138,13 +138,20 @@
 			<artifactId>com.springsource.javax.el</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.el</groupId>
-			<artifactId>com.springsource.org.apache.el</artifactId>
+			<groupId>javax.xml.ws</groupId>
+			<artifactId>com.springsource.javax.xml.ws</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>com.springsource.javax.xml.bind</artifactId>
+		</dependency>
+
+		<!-- Taglibs
 		<dependency>
 			<groupId>org.apache.taglibs</groupId>
 			<artifactId>com.springsource.org.apache.taglibs.standard</artifactId>
-		</dependency>
+		</dependency> -->
+
 
 		<!-- Tomcat -->
 		<dependency>
@@ -160,12 +167,13 @@
 			<artifactId>com.springsource.org.apache.jasper</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.xml.ws</groupId>
-			<artifactId>com.springsource.javax.xml.ws</artifactId>
+			<groupId>org.apache.el</groupId>
+			<artifactId>com.springsource.org.apache.el</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>com.springsource.javax.xml.bind</artifactId>
-		</dependency>
+
+		<!--
+			ActiveMQ <dependency> <groupId>org.argeo.dep.osgi</groupId>
+			<artifactId>org.argeo.dep.osgi.activemq</artifactId> </dependency>
+		-->
 	</dependencies>
 </project>

@@ -3,6 +3,8 @@ Fragment-Host: com.springsource.org.apache.catalina;bundle-version="[6
  .0.16,7.0.0)"
 Bundle-Version: 0.1.1.SNAPSHOT
 Bundle-SymbolicName: org.argeo.server.catalina
-Import-Package: org.springframework.security,org.springframework.secur
- ity.providers,org.springframework.security.ui,org.springframework.sec
- urity.userdetails,org.springframework.security.ui.savedrequest
+Import-Package: org.springframework.security;resolution:=optional,
+ org.springframework.security.providers;resolution:=optional,
+ org.springframework.security.ui;resolution:=optional,
+ org.springframework.security.ui.savedrequest;resolution:=optional,
+ org.springframework.security.userdetails;resolution:=optional
