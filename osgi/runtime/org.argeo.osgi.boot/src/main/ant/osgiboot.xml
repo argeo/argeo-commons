@@ -1,0 +1,99 @@
+<project default="launch">
+	<dirname property="baseDir" file="${ant.file}" />
+	<dirname property="equinoxDir" file="${ant.file}" />
+	<property name="equinoxJar" location="${equinoxDir}/org.eclipse.osgi.jar" />
+	<property name="equinoxArgs" value="-console -clean -noExit" />
+	<property name="osgiBootBundle" value="org.argeo.slc.osgiboot.jar" />
+	<property name="configurationDir" location="${equinoxDir}/configuration" />
+	<property name="configurationFile" location="${configurationDir}/config.ini" />
+
+	<path id="slc.osgi.locations.raw.default">
+		<fileset dir="${baseDir}/lib">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<target name="launch" description="Launch Equinox" depends="prepareDefault,writeConfiguration,start">
+
+	</target>
+
+	<target name="prepareDefault" unless="slc.osgi.locations">
+		<pathconvert dirsep="/" property="slc.osgi.locations" refid="slc.osgi.locations.raw.default" />
+
+		<property name="slc.osgi.start" value="org.springframework.osgi.extender" />
+	</target>
+
+	<target name="writeConfiguration" description="Generate configuration based on properties">
+		<echo message="equinoxJar=${equinoxJar}" />
+		<echo message="configurationDir=${configurationDir}" />
+		<mkdir dir="${configurationDir}" />
+		<echo message="osgiBootBundle=${osgiBootBundle}" />
+		<echo file="${configurationFile}">
+			<![CDATA[
+osgi.bundles=reference:file:${osgiBootBundle}@start
+]]>
+		</echo>
+
+		<addProperty name="slc.osgi.locations" />
+		<addProperty name="slc.osgi.start" />
+		<addProperty name="slc.osgi.bundles" />
+		<addProperty name="slc.osgi.devBases" />
+		<addProperty name="slc.osgi.devPatterns" />
+		<addProperty name="slc.maven.dependencyFile" />
+	</target>
+
+	<target name="start.java" description="Start Equinox runtime based on generated config">
+		<java classname="org.eclipse.core.runtime.adaptor.EclipseStarter" fork="true" dir="${equinoxDir}" classpath="${equinoxJar}">
+			<arg value="-console" />
+			<arg value="-noExit" />
+			<arg value="-clean" />
+			<arg value="-debug" />
+			<arg value="-configuration" />
+			<arg value="${configurationDir}" />
+		</java>
+	</target>
+
+	<target name="start">
+		<property name="commandArgs" value="-cp ${equinoxJar} org.eclipse.core.runtime.adaptor.EclipseStarter ${equinoxArgs} -configuration ${configurationDir}" />
+
+		<condition property="starter" value="gnome-terminal">
+			<and>
+				<os family="unix" />
+			</and>
+		</condition>
+		<condition property="starterArgs" value="--maximize -x">
+			<and>
+				<os family="unix" />
+			</and>
+		</condition>
+		<condition property="starter" value="start">
+			<os family="windows" />
+		</condition>
+		<condition property="vmlauncher" value="false">
+			<os family="windows" />
+		</condition>
+		<property name="starterArgs" value="" />
+		<property name="javaCommand" value="java" />
+		<property name="vmlauncher" value="true" />
+
+		<echo message="commandArgs=${commandArgs}" />
+		<echo message="${javaCommand} ${commandArgs}" file="${equinoxDir}/launch.bat" />
+		<echo message="${javaCommand} ${commandArgs}" file="${equinoxDir}/launch.sh" />
+		<exec executable="${starter}" dir="${equinoxDir}" vmlauncher="${vmlauncher}">
+			<arg line="${starterArgs}" />
+			<arg line="${javaCommand}" />
+			<arg line="${commandArgs}" />
+		</exec>
+	</target>
+
+	<macrodef name="addProperty">
+		<attribute name="name" />
+		<sequential>
+			<property name="@{name}" value="" />
+			<echo message="@{name}=${@{name}}" />
+			<echo file="${configurationFile}" append="true">
+				<![CDATA[@{name}=${@{name}}]]>
+			</echo>
+		</sequential>
+	</macrodef>
+</project>
