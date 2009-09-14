@@ -98,6 +98,37 @@ limitations under the License.
 					<artifactId>maven-argeo-osgi-plugin</artifactId>
 					<version>${version.maven-argeo-osgi}</version>
 				</plugin>
+				<plugin>
+					<artifactId>maven-jar-plugin</artifactId>
+					<configuration>
+						<archive>
+							<manifestFile>target/classes/META-INF/MANIFEST.MF</manifestFile>
+						</archive>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>${version.maven-bundle-plugin}</version>
+					<extensions>true</extensions>
+					<configuration>
+						<manifestLocation>target/classes/META-INF</manifestLocation>
+						<instructions>
+							<Bundle-Version>${project.version}-r${buildNumber}</Bundle-Version>
+							<Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
+							<_removeheaders>Bnd-LastModified</_removeheaders>
+						</instructions>
+					</configuration>
+					<executions>
+						<execution>
+							<id>bundle-manifest</id>
+							<phase>process-classes</phase>
+							<goals>
+								<goal>manifest</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>

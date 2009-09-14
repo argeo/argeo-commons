@@ -26,6 +26,7 @@
 				<artifactId>maven-argeo-osgi-plugin</artifactId>
 				<configuration>
 					<execDir>target/exec/server</execDir>
+					<osgiBootArtifactId>org.argeo.osgi.boot</osgiBootArtifactId>
 					<systemProperties>
 						<slc.osgi.start>
 							org.springframework.osgi.extender,
@@ -51,9 +52,9 @@
 			<artifactId>org.eclipse.osgi</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.slc.runtime</groupId>
-			<artifactId>org.argeo.slc.osgiboot</artifactId>
-			<version>${version.slc}</version>
+			<groupId>org.argeo.commons.osgi</groupId>
+			<artifactId>org.argeo.osgi.boot</artifactId>
+			<version>0.1.1-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Logging -->
