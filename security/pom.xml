@@ -12,6 +12,6 @@
 	<name>Commons Security</name>
 	<packaging>pom</packaging>
 	<modules>
-		<module>ria</module>
+		<module>runtime</module>
 	</modules>
 </project>
