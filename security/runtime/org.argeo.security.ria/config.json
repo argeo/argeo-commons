@@ -1,0 +1,221 @@
+{
+  "name"    : "ria",
+
+  "include" :
+  [
+    {
+      "path" : "${QOOXDOO_PATH}/component/apiviewer/api.json",
+      "as"   : "apiconf"
+    },
+    {
+      "path" : "${QOOXDOO_PATH}/component/testrunner/testrunner.json",
+      "as"   : "testrunner"
+    }    
+  ],
+  
+  "let" :
+  {
+    "APPLICATION"  : "org.argeo.ria",
+    "QOOXDOO_PATH" : "src/qooxdoo-sdk",
+    "QXTHEME"      : "org.argeo.ria.theme.RiaTheme",
+    "API_EXCLUDE"  : ["qx.legacy.*"],
+    "LOCALES"      : [ "en" ],
+    "ROOT"         : "src/argeo-ria-src",
+	"BUILD_PATH"   : "target/classes/argeo-ria",
+	"RIA_LIB_PATH" : "src/argeo-ria-lib",
+	"RIA_LIB_URI"  : "../argeo-ria-lib",
+	"CACHE"		   : "cache" ,
+	"CUSTOM_PACKAGE" : "org.argeo.security.ria"
+  },
+
+  "jobs" : 
+  {
+    "common" :
+    {
+      "library" :
+      [
+        {
+          "manifest" : "${QOOXDOO_PATH}/framework/Manifest.json"
+        },
+        {
+          "manifest" : "${RIA_LIB_PATH}/security/Manifest.json"
+        },
+        {
+          "manifest" : "${ROOT}/Manifest.json"
+        }
+      ],
+
+      "include" :
+      [
+        "${APPLICATION}.Application",
+        "${CUSTOM_PACKAGE}.*",
+        "${QXTHEME}"
+      ],
+
+      "cache" :
+      {
+        "compile" :  "${CACHE}"
+      },
+
+      "settings" :
+      {
+        "qx.version"     : "${QXVERSION}",
+        "qx.theme"       : "${QXTHEME}",
+        "qx.application" : "${APPLICATION}.Application",
+        "ria.auth.enableAuth"		: "false",
+        "ria.auth.credentialsURI"	: "/org.argeo.slc.webapp/getCredentials.ria",
+        "ria.auth.loginURI"			: "/org.argeo.slc.webapp/authService.ria",
+        "ria.auth.logoutURI"		: "/org.argeo.slc.webapp/authService.ria?logout=true",
+        "ria.StartupPerspective":"org.argeo.slc.web.LauncherPerspective"		
+      }
+    },
+
+    // -- source jobs --------------------------------------------------
+
+    "source-script" :
+    {
+      "extend" : ["common"],
+
+      "compile-source" :
+      {
+        "file" : "${ROOT}/script/${APPLICATION}.js",
+        "locales" : "${LOCALES}",
+        "root" : "${ROOT}",
+        "gzip" : false
+      }
+    },
+
+
+    "slc-source" :
+    {
+      "run" :
+      [
+        "source-script"
+      ]
+    },
+
+    // -- build jobs --------------------------------------------------
+
+    "build-script" :
+    {
+      "extend" : ["common"],
+
+      "variants" :
+      {
+        "qx.debug" : ["off"]
+      },
+
+      "compile-dist" :
+      {
+		  "paths" :
+		  {
+	        "file" : "${BUILD_PATH}/script/${APPLICATION}.js",
+		    "gzip"     : false
+		  },
+		  "uris" :
+		  {
+		    "script"   : "script",
+		    "resource" : "resource"
+		  },
+		  "code" :
+		  {
+		    "format"   : true,
+		    "locales"  : "${LOCALES}",
+		    "optimize" : ["variables", "basecalls", "privates", "strings"]
+		  }
+      /*
+      "file" : "${BUILD_PATH}/script/${APPLICATION}.js",
+        "target" : "${BUILD_PATH}",
+        "uri"  : "script/${APPLICATION}.js",
+        "root" : "${BUILD_PATH}",
+        "format" : "on",
+        "locales" : "${LOCALES}",
+        "optimize" : ["basecalls", "variables", "privates", "strings"]
+       */
+      }
+    },
+
+
+    "build-resources":
+    {
+      "extend" : ["common"],
+
+      "copy-resources" :
+      {
+        "target"          : "${BUILD_PATH}",
+        "resource-filter" : true
+      }
+    },
+
+    "my-build-files" :
+    {
+      "extend" : ["common"],
+
+      "copy-files" :
+      {
+        "files" :
+        [
+          "index.html"
+        ],
+		"source" : "${ROOT}",
+        "target" : "${BUILD_PATH}"
+      }
+    },
+	
+    "slc-build" :
+    {
+      "run" :
+      [
+        "build-script",
+        "my-build-files",
+        "build-resources"
+      ]
+    },
+    
+    "slc-api" :
+    {
+      "extend" : ["apiconf::build"],
+
+      "let" :
+      {
+        "APIVIEWER_ROOT" : "${QOOXDOO_PATH}/component/apiviewer",
+        "BUILD_PATH" : "./target/site/argeo-ria-api/",
+        "API_INCLUDE" : ["${APPLICATION}.*", "${CUSTOM_PACKAGE}.*"]
+      },
+
+      "library" :
+      [
+        {
+          "manifest" : "${ROOT}/Manifest.json",
+          "uri"      : ".."
+        },
+        {
+          "manifest" : "${RIA_LIB_PATH}/security/Manifest.json",
+          "uri"      : "${RIA_LIB_URI}/security"
+        }       
+      ]
+    },
+    
+    "slc-test" :
+    {
+      "extend" : ["testrunner::build"],
+
+      "let" :
+      {
+        "TESTRUNNER_ROOT" : "${QOOXDOO_PATH}/component/testrunner",
+        "TEST_INCLUDE"    : "${APPLICATION}.test.*",
+        "BUILD_PATH"      : "./target/site/argeo-ria-test/"
+      },
+
+      "library" :
+      [
+        {
+          "manifest" : "${ROOT}/Manifest.json",
+          "uri"      : ".."
+        }
+      ]
+    }
+    
+	
+  }
+}

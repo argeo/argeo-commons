@@ -1,0 +1,34 @@
+{
+  "info" : 
+  {
+    "name" : "org.argeo.security.ria",
+
+    "summary" : "Ria library for security management",
+    "description" : "Ria library for security management",
+    
+    "homepage" : "http://www.argeo.org/",
+
+    "license" : "LGPL",
+    "authors" : 
+    [
+      {
+        "name" : "Charles du Jeu",
+        "email" : "charles.dujeu@argeo.org"
+      }
+    ],
+
+    "version" : "trunk",
+    "qooxdoo-versions": ["0.8"]
+  },
+  
+  "provides" : 
+  {
+    "namespace"   : "org.argeo.security.ria",
+    "encoding"    : "utf-8",
+    "class"       : "class",
+    "resource"    : "resource",
+    "translation" : "translation",
+    "type"        : "library"
+  }
+}
+
