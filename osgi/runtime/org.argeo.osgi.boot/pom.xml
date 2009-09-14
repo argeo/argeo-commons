@@ -1,15 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.argeo.slc</groupId>
+		<groupId>org.argeo.commons.osgi</groupId>
+		<version>0.1.1-SNAPSHOT</version>
 		<artifactId>runtime</artifactId>
-		<version>0.12.1-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
-	<groupId>org.argeo.slc.runtime</groupId>
-	<artifactId>org.argeo.slc.osgiboot</artifactId>
+	<artifactId>org.argeo.osgi.boot</artifactId>
 	<packaging>jar</packaging>
-	<name>SLC OSGi Boot</name>
+	<name>Commons OSGi Boot</name>
 	<build>
 		<plugins>
 			<plugin>
@@ -32,26 +31,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 			</plugin>
-			<!-- 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<descriptors>
-						<descriptor>src/assembly/osgiboot.xml</descriptor>
-					</descriptors>
-				</configuration>
-				<executions>
-					<execution>
-						<id>assembly-osgiboot</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			 -->
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
@@ -62,31 +41,6 @@
 					</instructions>
 				</configuration>
 			</plugin>
-			<!-- 
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.1</version>
-				<executions>
-					<execution>
-						<id>attach-artifacts</id>
-						<phase>package</phase>
-						<goals>
-							<goal>attach-artifact</goal>
-						</goals>
-						<configuration>
-							<artifacts>
-								<artifact>
-									<file>src/main/ant/osgiboot.xml</file>
-									<type>xml</type>
-									<classifier>osgiboot</classifier>
-								</artifact>
-							</artifacts>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
- -->
 		</plugins>
 	</build>
 	<dependencies>
