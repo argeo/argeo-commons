@@ -9,7 +9,7 @@
 	<groupId>org.argeo.server</groupId>
 	<artifactId>modules</artifactId>
 	<packaging>bundles</packaging>
-	<name>SLC Modules Server</name>
+	<name>Commons Server Modules</name>
 	<build>
 		<plugins>
 			<plugin>
