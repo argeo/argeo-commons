@@ -9,8 +9,8 @@
 		<relativePath>..</relativePath>
 	</parent>
 	<groupId>org.argeo.commons.security</groupId>
-	<artifactId>ria</artifactId>
-	<name>Commons Security RIA</name>
+	<artifactId>runtime</artifactId>
+	<name>Commons Security Runtime</name>
 	<packaging>pom</packaging>
 	<modules>
 		<!-- <module>org.argeo.security.ria</module> -->
