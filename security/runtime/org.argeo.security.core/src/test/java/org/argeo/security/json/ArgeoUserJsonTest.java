@@ -61,8 +61,30 @@ public class ArgeoUserJsonTest extends TestCase {
 		// BasicArgeoUser aud = objectMapper.readValue(audJo,
 		// BasicArgeoUser.class);
 
-		ArgeoUserMapper argeoUserMapper = new ArgeoUserMapper();
-		ArgeoUser argeoUserDes = argeoUserMapper.parse(audJo);
+		ArgeoUserMapper aum = new ArgeoUserMapper();
+		ArgeoUser aud = aum.parse(audJo);
+
+		assertEquals(argeoUser.getUsername(), aud.getUsername());
+		assertEquals(argeoUser.getRoles().size(), aud.getRoles().size());
+		assertEquals(argeoUser.getUserNatures().size(), aud.getUserNatures()
+				.size());
+
+		assertSimpleUserNature((SimpleUserNature) argeoUser.getUserNatures()
+				.get(0), (SimpleUserNature) aud.getUserNatures().get(0));
+		assertCoworkerNature(
+				(CoworkerNature) argeoUser.getUserNatures().get(1),
+				(CoworkerNature) aud.getUserNatures().get(1));
+
+	}
+
+	public static void assertSimpleUserNature(SimpleUserNature expected,
+			SimpleUserNature reached) {
+		assertEquals(expected.getEmail(), reached.getEmail());
+	}
+
+	public static void assertCoworkerNature(CoworkerNature expected,
+			CoworkerNature reached) {
+		assertEquals(expected.getMobile(), reached.getMobile());
 	}
 
 	public void testSeriDeserialize() {
