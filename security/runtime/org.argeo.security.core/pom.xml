@@ -56,6 +56,13 @@
 			<artifactId>org.springframework.security</artifactId>
 		</dependency>
 
+		<!-- JSON  -->
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>com.springsource.org.codehaus.jackson.mapper</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
 		<dependency>
 			<groupId>com.springsource.json</groupId>
 			<artifactId>com.springsource.json</artifactId>
@@ -64,6 +71,15 @@
 		<dependency>
 			<groupId>org.antlr</groupId>
 			<artifactId>com.springsource.org.antlr</artifactId>
+		</dependency>
+
+
+
+		<!-- TEST -->
+		<dependency>
+			<groupId>org.junit</groupId>
+			<artifactId>com.springsource.junit</artifactId>
+			<scope>test</scope>
 		</dependency>
 
 	</dependencies>

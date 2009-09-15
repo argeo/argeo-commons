@@ -12,14 +12,14 @@ import org.springframework.security.userdetails.User;
 public class ArgeoUserDetails extends User implements ArgeoUser {
 	private static final long serialVersionUID = 1L;
 
-	private final List<UserNature> userInfos;
+	private final List<UserNature> userNatures;
 	private final List<String> roles;
 
-	public ArgeoUserDetails(String username, List<UserNature> userInfos,
+	public ArgeoUserDetails(String username, List<UserNature> userNatures,
 			String password, GrantedAuthority[] authorities)
 			throws IllegalArgumentException {
 		super(username, password, true, true, true, true, authorities);
-		this.userInfos = Collections.unmodifiableList(userInfos);
+		this.userNatures = Collections.unmodifiableList(userNatures);
 		
 		// Roles
 		List<String> roles = new ArrayList<String>();
@@ -30,7 +30,7 @@ public class ArgeoUserDetails extends User implements ArgeoUser {
 	}
 
 	public List<UserNature> getUserNatures() {
-		return userInfos;
+		return userNatures;
 	}
 
 	public List<String> getRoles() {
