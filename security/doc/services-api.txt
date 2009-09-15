@@ -20,9 +20,6 @@ getUserDetails.security
 createUser.security
 > params : userName <string>, password <string> 
 
-updateUserNature.security
-> param : userName <string>,  userDetails <json>
-
 updateUserPassword.security
 > param : userName <string>, password <string>, [oldpassword <string>] (depends on the admin being logged in or not)
 
