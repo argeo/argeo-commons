@@ -4,11 +4,12 @@
               http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.4.xsd">
 
 	<http realm="User Interface" >
-		<intercept-url pattern="/**" access="ROLE_USER,ROLE_ADMIN" />
+		<intercept-url pattern="/**" access="ROLE_REGISTEREDUSERS,ROLE_USER,ROLE_ADMIN" />
 		<http-basic />
 		<anonymous />
 	</http>
-
+	
+<!-- 
 	<authentication-provider>
 		<user-service>
 			<user name="mbaudier" password="mbaudier" authorities="ROLE_USER,ROLE_ADMIN" />
@@ -17,5 +18,5 @@
 			<user name="demo" password="demo" authorities="ROLE_USER" />
 		</user-service>
 	</authentication-provider>
-
+ -->
 </beans:beans>

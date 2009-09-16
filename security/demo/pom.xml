@@ -16,6 +16,7 @@
 			<plugin>
 				<groupId>org.argeo.maven.plugins</groupId>
 				<artifactId>maven-argeo-osgi-plugin</artifactId>
+				<version>${version.maven-argeo-osgi}</version>
 				<extensions>true</extensions>
 				<configuration>
 					<bundlesPomArtifactId>org.argeo.security.demo</bundlesPomArtifactId>
@@ -24,6 +25,7 @@
 			<plugin>
 				<groupId>org.argeo.maven.plugins</groupId>
 				<artifactId>maven-argeo-osgi-plugin</artifactId>
+				<version>${version.maven-argeo-osgi}</version>
 				<configuration>
 					<execDir>target/exec</execDir>
 					<osgiBootArtifactId>org.argeo.osgi.boot</osgiBootArtifactId>
@@ -193,5 +195,31 @@
 			ActiveMQ <dependency> <groupId>org.argeo.dep.osgi</groupId>
 			<artifactId>org.argeo.dep.osgi.activemq</artifactId> </dependency>
 		-->
+
+		<!-- Apache Directory -->
+		<dependency>
+			<groupId>org.apache.directory</groupId>
+			<artifactId>com.springsource.org.apache.directory.server.core</artifactId>
+			<version>1.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.directory</groupId>
+			<artifactId>com.springsource.org.apache.directory.server.jndi</artifactId>
+			<version>1.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sourceforge.jdbm</groupId>
+			<artifactId>com.springsource.jdbm</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<!--
+			TODO: version 2.4.0 is required by Spring-LDAP while Apache Directory
+			takes 2.1.0
+		-->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>com.springsource.org.apache.commons.lang</artifactId>
+			<version>2.4.0</version>
+		</dependency>
 	</dependencies>
 </project>

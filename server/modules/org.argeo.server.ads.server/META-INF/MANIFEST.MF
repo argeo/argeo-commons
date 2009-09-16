@@ -1,0 +1,8 @@
+Bundle-Version: 0.1.1.SNAPSHOT
+Bundle-SymbolicName: org.argeo.server.ads.server
+Import-Package: org.apache.directory.server.configuration,
+ org.apache.directory.server.core.partition.impl.btree,
+ org.apache.directory.server.jndi,
+ org.apache.directory.shared.asn1.codec,
+ org.springframework.security.config,
+ org.springframework.security.ldap

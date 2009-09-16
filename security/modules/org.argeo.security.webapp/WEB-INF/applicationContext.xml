@@ -11,6 +11,7 @@
 		<import resource="classpath:/org/argeo/slc/server/spring/jmx.xml" />
 	-->
 	<import resource="security.xml" />
+	<import resource="ldap.xml" />
 
 	<import resource="osgi.xml" />
 
