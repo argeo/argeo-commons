@@ -34,7 +34,7 @@ qx.Class.define("org.argeo.security.ria.Perspective", {
 			viewsManager.registerViewPane(rolesPane);
 			var usersPane = new org.argeo.ria.components.ViewPane("users", "Users");
 			viewsManager.registerViewPane(usersPane);
-			var editorPane = new org.argeo.ria.components.ViewPane("editor", "Editor");
+			var editorPane = new org.argeo.ria.components.TabbedViewPane("editor", "Editor");
 			viewsManager.registerViewPane(editorPane);
 			
 			this._firstSplit.add(rolesPane, 1);
@@ -48,11 +48,12 @@ qx.Class.define("org.argeo.security.ria.Perspective", {
 
 		initViews : function(viewsManager) {
 
+			var rolesView = viewsManager.initIViewClass(org.argeo.security.ria.RolesApplet, "roles");
+			rolesView.load();
+			
 			var usersView = viewsManager.initIViewClass(org.argeo.security.ria.UsersApplet, "users");
 			usersView.load();
 			
-			var rolesView = viewsManager.initIViewClass(org.argeo.security.ria.RolesApplet, "roles");
-			rolesView.load();
 		},
 
 		remove : function(viewsManager) {

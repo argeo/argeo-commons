@@ -28,21 +28,69 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   	 */
   	commands : {
   		init : {
-  			"close" : {
-  				label	 	: "Close", 
+  			"new_user" : {
+  				label	 	: "Create User", 
   				icon 		: "ria/window-close.png",
-  				shortcut 	: "Control+w",
+  				shortcut 	: "Control+n",
   				enabled  	: true,
-  				menu	   	: "Applet",
-  				toolbar  	: "result",
+  				menu	   	: "Users",
+  				toolbar  	: "user",
   				callback	: function(e){
   					// Call service to delete
-  					this.getView().empty();  					
+  					var classObj = org.argeo.security.ria.UserEditorApplet;
+					var iView = org.argeo.ria.components.ViewsManager.getInstance().initIViewClass(classObj, "editor");
+					iView.load();
   				},
   				command 	: null
-  			}  			
+  			},   			
+  			"edit_user" : {
+  				label	 	: "Edit User", 
+  				icon 		: "ria/window-close.png",
+  				shortcut 	: "Control+u",
+  				enabled  	: true,
+  				menu	   	: "Users",
+  				toolbar  	: "user",
+  				callback	: function(e){
+  					// Call service to delete
+					var crtUser = this.getViewSelection().getNodes()[0];
+  					var classObj = org.argeo.security.ria.UserEditorApplet;
+					var iView = org.argeo.ria.components.ViewsManager.getInstance().initIViewClass(classObj, "editor", crtUser);
+					iView.load(crtUser);					
+  				},
+  				selectionChange : function(viewName, data){
+  					if(viewName != "users") return;
+  					this.setEnabled(!(data == null || !data.length || data.length > 1));  					
+  				},
+  				command 	: null
+  			},			
+  			"delete_user" : {
+  				label	 	: "Delete User", 
+  				icon 		: "ria/window-close.png",
+  				shortcut 	: "Control+s",
+  				enabled  	: true,
+  				menu	   	: "Users",
+  				toolbar  	: "user",
+  				callback	: function(e){
+  					// Call service to delete
+					var crtUsers = this.getViewSelection().getNodes();
+					for(var i=0;i<crtUsers.length;i++){
+						alert("Delete " + crtUsers[i]);
+					}
+  				},
+  				selectionChange : function(viewName, data){
+  					if(viewName != "users") return;
+  					this.setEnabled(!(data == null || !data.length));  					
+  				},
+  				command 	: null
+  			}			
   		}
   	},
+  	
+  	guiMode : {
+  		init : "filter",
+  		apply : "_applyGuiMode"
+  	},
+  	
   	viewSelection : {
   		nullable:false, 
   		check:"org.argeo.ria.components.ViewSelection"
@@ -67,8 +115,50 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
 					return new qx.ui.table.columnmodel.Resize(obj)
 				}
 			});
-  		this.table.setStatusBarVisible(false);  		
+  		this.table.setStatusBarVisible(false);
+  		this.table.setShowCellFocusIndicator(false);
+  		this.table.setColumnVisibilityButtonVisible(false);
+  		this.table.highlightFocusedRow(false);  		
   		viewPane.add(this.table, {height:"100%"});
+  		this.table.getSelectionModel().addListener("changeSelection", function(){
+  			this._selectionToValues(this.table.getSelectionModel(), this.getViewSelection());
+  		}, this);
+  		
+  		this.setGuiMode("chooser");
+  	},
+  	
+  	_applyGuiMode : function(newMode, oldMode){
+  		this.table.getSelectionModel().clearSelection();
+		this.resetHiddenRows();
+  		if(newMode == "filter"){
+  			this.table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.SINGLE_INTERVAL_SELECTION);
+  		}else if(newMode == "chooser"){
+  			this.table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.MULTIPLE_INTERVAL_SELECTION_TOGGLE);
+  		}else if(newMode == "clear"){
+  			this.table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.SINGLE_INTERVAL_SELECTION);
+  		}
+  	},
+  	
+  	_selectionToValues : function(selectionModel, viewSelection){  		
+  		if(viewSelection){
+  			viewSelection.setBatchMode(true);
+  			viewSelection.clear();
+  		}
+  		if(!selectionModel.getSelectedCount()) return [];
+		var ranges = selectionModel.getSelectedRanges();
+		var values = [];
+		for(var i=0;i<ranges.length;i++){
+			for(var j=ranges[i].minIndex;j<=ranges[i].maxIndex;j++){  					
+				values.push(this.tableModel.getData()[j][0]);
+				if(viewSelection){
+					viewSelection.addNode(this.tableModel.getData()[j][0]);
+				}
+			}
+		}
+  		if(viewSelection){
+  			viewSelection.setBatchMode(false);
+  		}
+  		return values;
   	},
   	
   	/**
@@ -76,13 +166,33 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   	 * @param data {Element} The text xml description. 
   	 */
   	load : function(){  		
-  		var data = [["mbaudier", "ROLE_ADMIN,ROLE_USER"], ["cdujeu","ROLE_USER"]];
-  		this.tableModel.setData(data);
-  		this.applyFilter("ROLE_ADMIN", "roles", true);
+  		var data = [["root", "ROLE_ADMIN"], ["mbaudier", "ROLE_ADMIN,ROLE_USER"], ["cdujeu","ROLE_USER"], ["anonymous", ""]];
+  		this.tableModel.setData(data);  		
   	},
   	
-  	applyFilter : function(filterValue, target, ignoreCase){
-  		this.tableModel.addRegex("^((?!"+filterValue+").)*$", target, ignoreCase);
+  	applySelection : function(selectionValues, target){
+  		var selectionModel = this.table.getSelectionModel();  		
+  		selectionModel.clearSelection();
+  		if(!selectionValues){
+  			return;
+  		}
+  		selectionModel.setBatchMode(true);
+  		var data = this.tableModel.getData();
+  		for(var i=0;i<this.tableModel.getRowCount();i++){
+  			var value = this.tableModel.getRowDataAsMap(i)[target];
+  			if(qx.lang.Array.contains(selectionValues, value)){
+  				selectionModel.addSelectionInterval(i, i);
+  			}
+  		}
+  		selectionModel.setBatchMode(false);
+  	},
+  	
+  	applyFilter : function(filterValues, target, ignoreCase){
+  		this.table.clearSelection();
+  		this.resetHiddenRows();  		
+  		for(var i=0;i<filterValues.length;i++){
+	  		this.tableModel.addRegex("^((?!"+filterValues[i]+").)*$", target, ignoreCase);
+  		}
   		this.tableModel.applyFilters();
   	},
   	
