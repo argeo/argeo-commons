@@ -7,4 +7,5 @@ Import-Package: org.springframework.security;resolution:=optional,
  org.springframework.security.providers;resolution:=optional,
  org.springframework.security.ui;resolution:=optional,
  org.springframework.security.ui.savedrequest;resolution:=optional,
- org.springframework.security.userdetails;resolution:=optional
+ org.springframework.security.userdetails;resolution:=optional,
+ org.springframework.security.context;resolution:=optional

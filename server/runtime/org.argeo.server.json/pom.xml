@@ -38,6 +38,13 @@
 		</plugins>
 	</build>
 	<dependencies>
+		<!-- Argeo Commons -->
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.core</artifactId>
+			<version>0.1.1-SNAPSHOT</version>
+		</dependency>
+
 		<!-- JSON  -->
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>

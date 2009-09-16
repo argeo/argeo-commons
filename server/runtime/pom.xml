@@ -13,6 +13,7 @@
 	<name>Commons Security Runtime</name>
 	<packaging>pom</packaging>
 	<modules>
+		<module>org.argeo.server.core</module>
 		<module>org.argeo.server.json</module>
 	</modules>
 </project>

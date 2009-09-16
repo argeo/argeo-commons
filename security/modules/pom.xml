@@ -9,7 +9,7 @@
 	<groupId>org.argeo.security</groupId>
 	<artifactId>modules</artifactId>
 	<packaging>bundles</packaging>
-	<name>Commons Server Modules</name>
+	<name>Commons Security Modules</name>
 	<build>
 		<plugins>
 			<plugin>

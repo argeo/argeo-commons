@@ -1,0 +1,3 @@
+Bundle-SymbolicName: org.argeo.server.demo.log4j
+Bundle-Version: 0.1.1.SNAPSHOT
+Fragment-Host: com.springsource.org.apache.log4j

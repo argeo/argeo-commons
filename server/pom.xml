@@ -12,6 +12,7 @@
 	<name>Commons Server</name>
 	<packaging>pom</packaging>
 	<modules>
+		<module>runtime</module>
 		<module>modules</module>
 	</modules>
 </project>
