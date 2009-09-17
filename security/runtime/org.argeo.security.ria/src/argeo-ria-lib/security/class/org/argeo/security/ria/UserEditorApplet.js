@@ -12,8 +12,7 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
 
   construct : function(){
   	this.base(arguments);
-	this.setLayout(new qx.ui.layout.VBox());
-	//this.setDecorator("tabview-pane");
+	this.setLayout(new qx.ui.layout.VBox(5));
   },
 
   properties : 
@@ -78,7 +77,8 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   		check:"org.argeo.ria.components.ViewSelection"
   	},
   	modified : {
-  		init : false
+  		init : false,
+  		apply : "_applyModified"
   	},
   	rolesList : {
   		
@@ -103,7 +103,11 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
 	  		this.setInstanceLabel("User " + data);
   		}
   		this.setView(viewPane);
-  		this.setViewSelection(new org.argeo.ria.components.ViewSelection(viewPane.getViewId()));
+  		this.setViewSelection(new org.argeo.ria.components.ViewSelection(viewPane.getViewId()));  		
+  		
+  		// TOOLBAR
+  		this.buttonGB = new qx.ui.container.Composite(new qx.ui.layout.HBox(5, "right"));
+  		this.add(this.buttonGB);
   		
   		// GROUPBOXES
   		this.basicGB = new qx.ui.groupbox.GroupBox("Base Informations");
@@ -170,6 +174,10 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   		groupBox.getChildrenContainer().setPadding(8);  		
   	},
   	
+  	_applyModified : function(value){
+  		if(value) this.getViewSelection().triggerEvent();
+  	},
+  	
   	/**
   	 * Load a given row : the data passed must be a simple data array.
   	 * @param data {Element} The text xml description. 
@@ -180,6 +188,16 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   		}
   		this.setRolesList(["ROLE_ADMIN", "ROLE_USER"]);
   		this._attachListeners();
+  		var title = new qx.ui.basic.Atom(this.getInstanceLabel(), "org.argeo.security.ria/preferences-user.png");
+  		title.setFont(qx.bom.Font.fromString("16px sans-serif bold"));  		
+  		this.buttonGB.add(title);
+  		this.buttonGB.add(new qx.ui.core.Spacer(), {flex:1});
+  		var commands = this.getCommands();
+  		var button = new qx.ui.form.Button("Save", "org.argeo.security.ria/document-save.png", commands["save_user"].command);  		
+  		var button2 = new qx.ui.form.Button("Close", "org.argeo.security.ria/window-close.png", commands["close"].command);  		
+  		this.buttonGB.add(button);
+  		this.buttonGB.add(button2);
+  		
   	},
   	  	 
 	addScroll : function(){

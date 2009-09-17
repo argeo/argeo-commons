@@ -40,8 +40,8 @@ qx.Class.define("org.argeo.security.ria.Perspective", {
 			this._firstSplit.add(rolesPane, 1);
 			this._firstSplit.add(this._secondSplit, 4);
 			
-			this._secondSplit.add(usersPane, 4);
-			this._secondSplit.add(editorPane, 3);
+			this._secondSplit.add(usersPane, 3);
+			this._secondSplit.add(editorPane, 4);
 			
 			viewsManager.getViewPanesContainer().add(this._firstSplit, {flex : 1});
 		},

@@ -34,7 +34,7 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   				shortcut 	: "Control+n",
   				enabled  	: true,
   				menu	   	: "Roles",
-  				toolbar  	: "role",
+  				toolbar  	: null,
   				callback	: function(e){
   					// Prompt for new name
   				},
@@ -46,7 +46,7 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   				shortcut 	: "Control+s",
   				enabled  	: true,
   				menu	   	: "Roles",
-  				toolbar  	: "role",
+  				toolbar  	: null,
   				callback	: function(e){
   					// Call service to delete
 					var crtUsers = this.getViewSelection().getNodes();
@@ -55,7 +55,7 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
 					}
   				},
   				selectionChange : function(viewName, data){
-  					if(viewName != "role") return;
+  					if(viewName != "roles") return;
   					this.setEnabled(!(data == null || !data.length));  					
   				},
   				command 	: null
@@ -66,7 +66,7 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   				shortcut 	: "Control+r",
   				enabled  	: true,
   				menu	   	: "Roles",
-  				toolbar  	: "role",
+  				toolbar  	: null,
   				callback	: function(e){
   					// Call service to delete
 					this.setGuiMode("edit");
@@ -103,7 +103,13 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   	 */
   	init : function(viewPane){
   		this.setView(viewPane);
-  		this.setViewSelection(new org.argeo.ria.components.ViewSelection(viewPane.getViewId()));  		
+  		this.setViewSelection(new org.argeo.ria.components.ViewSelection(viewPane.getViewId()));
+  		
+  		this.toolBar = new qx.ui.toolbar.ToolBar();
+  		this.toolBarPart = new qx.ui.toolbar.Part();
+  		this.toolBar.add(this.toolBarPart);  		
+  		viewPane.add(this.toolBar);
+  		
   		this.tableModel = new qx.ui.table.model.Simple();
   		this.tableModel.setColumns(["Role Name"]);
   		this.table = new qx.ui.table.Table(this.tableModel, {
@@ -120,21 +126,14 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   			this._selectionToValues(this.table.getSelectionModel(), this.getViewSelection());
   		}, this);
   		
-  		
   		this.rolesUsersStub = {"ROLE_ADMIN":["root","mbaudier"],"ROLE_USER":["mbaudier","cdujeu"]};
-  		  		
-  		var buttonPane = new qx.ui.container.Composite(new qx.ui.layout.HBox(2, "right"));
-  		this.getView().header.setPadding(0);
-  		if(this.getView().headerLabel) this.getView().headerLabel.setMargin(8);
-  		this.getView().header.add(buttonPane, {edge:"east"});
-  	
+  		  		  	
   		this.toggleButton = new qx.ui.form.ToggleButton("Filter", "org.argeo.security.ria/go-next.png");
   		this.toggleButton.set({
   			show:"icon",
   			margin:2,
   			toolTip :new qx.ui.tooltip.ToolTip("Apply automatic filtering on Users list")  			
   		});
-  		buttonPane.add(this.toggleButton);
   		  		
   		// TOGGLE THE GUI MODES  		
   		this.toggleButton.addListener("changeChecked", function(event){
@@ -148,7 +147,6 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   			toolTip :new qx.ui.tooltip.ToolTip("Save changes"),
   			visibility : "excluded"
   		});
-  		buttonPane.add(this.saveButton);		
 		
 		this.cancelButton = new qx.ui.form.Button("Cancel", "org.argeo.security.ria/window-close.png");
   		this.cancelButton.set({
@@ -157,7 +155,6 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   			toolTip :new qx.ui.tooltip.ToolTip("Cancel changes"),
   			visibility : "excluded"  			
   		});
-  		buttonPane.add(this.cancelButton);		
 		
   		this.saveButton.addListener("execute", function(){
   			alert("Saving changes...");
@@ -292,6 +289,17 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   	load : function(){  		
   		var data = [["ROLE_ADMIN"],["ROLE_USER"]];
   		this.tableModel.setData(data);
+  		
+  		var commands = this.getCommands();
+  		this.toolBarPart.add(commands["new_role"].command.getToolbarButton());
+  		this.toolBarPart.add(commands["delete_role"].command.getToolbarButton());
+  		this.toolBarPart.add(commands["edit_role"].command.getToolbarButton());  		
+  		this.toolBar.addSpacer();
+  		this.toolBar.add(this.toggleButton);
+  		this.toolBar.add(this.saveButton);		
+  		this.toolBar.add(this.cancelButton);		  		
+  		this.toolBar.setShow("icon");
+  		
   	},
   	  	 
 	addScroll : function(){

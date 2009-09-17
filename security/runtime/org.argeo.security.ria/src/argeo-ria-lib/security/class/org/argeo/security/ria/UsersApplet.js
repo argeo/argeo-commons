@@ -34,7 +34,7 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   				shortcut 	: "Control+n",
   				enabled  	: true,
   				menu	   	: "Users",
-  				toolbar  	: "userslist",
+  				toolbar  	: null,
   				callback	: function(e){
   					// Call service to delete
   					var classObj = org.argeo.security.ria.UserEditorApplet;
@@ -49,7 +49,7 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   				shortcut 	: "Control+s",
   				enabled  	: true,
   				menu	   	: "Users",
-  				toolbar  	: "userslist",
+  				toolbar  	: null,
   				callback	: function(e){
   					// Call service to delete
 					var crtUsers = this.getViewSelection().getNodes();
@@ -69,7 +69,7 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   				shortcut 	: "Control+u",
   				enabled  	: true,
   				menu	   	: "Users",
-  				toolbar  	: "userslist",
+  				toolbar  	: null,
   				callback	: function(e){
   					// Call service to delete
 					var crtUser = this.getViewSelection().getNodes()[0];
@@ -107,7 +107,13 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   	 */
   	init : function(viewPane){
   		this.setView(viewPane);
-  		this.setViewSelection(new org.argeo.ria.components.ViewSelection(viewPane.getViewId()));  		
+  		this.setViewSelection(new org.argeo.ria.components.ViewSelection(viewPane.getViewId()));
+  		
+  		this.toolBar = new qx.ui.toolbar.ToolBar();
+  		this.toolBarPart = new qx.ui.toolbar.Part();
+  		this.toolBar.add(this.toolBarPart);  		
+  		viewPane.add(this.toolBar);
+  		  		
   		this.tableModel = new qx.ui.table.model.Filtered();
   		this.tableModel.setColumns(["username", "roles"]);
   		this.table = new qx.ui.table.Table(this.tableModel, {
@@ -171,6 +177,12 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   	load : function(){  		
   		var data = [["root", "ROLE_ADMIN"], ["mbaudier", "ROLE_ADMIN,ROLE_USER"], ["cdujeu","ROLE_USER"], ["anonymous", ""]];
   		this.tableModel.setData(data);  		
+  		var commands = this.getCommands();
+  		this.toolBarPart.add(commands["new_user"].command.getToolbarButton());
+  		this.toolBarPart.add(commands["delete_user"].command.getToolbarButton());
+  		this.toolBarPart.add(commands["edit_user"].command.getToolbarButton());  		
+  		this.toolBar.setShow("icon");
+  		
   	},
   	
   	applySelection : function(selectionValues, target){
