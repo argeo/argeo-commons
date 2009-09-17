@@ -9,6 +9,7 @@ import org.argeo.security.BasicArgeoUser;
 import org.argeo.security.UserNature;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 
@@ -29,6 +30,12 @@ public class ArgeoUserDetails extends User implements ArgeoUser {
 				getAuthorities(), new ArrayList<String>()));
 	}
 
+	public ArgeoUserDetails(ArgeoUser argeoUser) {
+		// TODO: password
+		this(argeoUser.getUsername(), argeoUser.getUserNatures(), null,
+				rolesToAuthorities(argeoUser.getRoles()));
+	}
+
 	public List<UserNature> getUserNatures() {
 		return userNatures;
 	}
@@ -46,6 +53,14 @@ public class ArgeoUserDetails extends User implements ArgeoUser {
 		return roles;
 	}
 
+	protected static GrantedAuthority[] rolesToAuthorities(List<String> roles) {
+		GrantedAuthority[] arr = new GrantedAuthority[roles.size()];
+		for (int i = 0; i < roles.size(); i++) {
+			arr[i] = new GrantedAuthorityImpl(roles.get(i));
+		}
+		return arr;
+	}
+
 	public static BasicArgeoUser createBasicArgeoUser(UserDetails userDetails) {
 		BasicArgeoUser argeoUser = new BasicArgeoUser();
 		argeoUser.setUsername(userDetails.getUsername());
@@ -54,12 +69,15 @@ public class ArgeoUserDetails extends User implements ArgeoUser {
 		return argeoUser;
 	}
 
-	public static BasicArgeoUser createBasicArgeoUser(
-			Authentication authentication) {
-		BasicArgeoUser argeoUser = new BasicArgeoUser();
-		argeoUser.setUsername(authentication.getName());
-		addAuthoritiesToRoles(authentication.getAuthorities(), argeoUser
-				.getRoles());
-		return argeoUser;
+	public static ArgeoUser asArgeoUser(Authentication authentication) {
+		if (authentication.getPrincipal() instanceof ArgeoUser) {
+			return (ArgeoUser) authentication.getPrincipal();
+		} else {
+			BasicArgeoUser argeoUser = new BasicArgeoUser();
+			argeoUser.setUsername(authentication.getName());
+			addAuthoritiesToRoles(authentication.getAuthorities(), argeoUser
+					.getRoles());
+			return argeoUser;
+		}
 	}
 }

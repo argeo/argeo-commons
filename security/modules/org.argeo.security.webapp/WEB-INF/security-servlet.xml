@@ -9,7 +9,9 @@
 
 	<context:component-scan base-package="org.argeo.security.mvc" />
 
-	<bean id="controller" class="org.argeo.security.mvc.UsersRolesController"></bean>
+	<bean id="controller" class="org.argeo.security.mvc.UsersRolesController">
+		<property name="userDao" ref="userDao" />
+	</bean>
 
 	<bean id="viewResolver" class="org.argeo.server.json.mvc.JsonViewResolver">
 	</bean>

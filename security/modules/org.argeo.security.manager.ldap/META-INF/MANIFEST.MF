@@ -1,10 +1,13 @@
 Bundle-SymbolicName: org.argeo.security.manager.ldap
 Bundle-Version: 0.1.1.SNAPSHOT
-Import-Package: org.springframework.security.ldap,
+Import-Package: org.argeo.security.dao,
+ org.argeo.security.ldap,
+ org.springframework.ldap.core.support,
+ org.springframework.security,
+ org.springframework.security.ldap,
+ org.springframework.security.ldap.populator,
  org.springframework.security.providers,
  org.springframework.security.providers.ldap,
  org.springframework.security.providers.ldap.authenticator,
- org.springframework.security.ldap.populator,
- org.springframework.security.userdetails.ldap,
- org.springframework.security,
- org.springframework.ldap.core.support
+ org.springframework.security.userdetails,
+ org.springframework.security.userdetails.ldap

@@ -12,6 +12,7 @@ public class SimpleUserNatureMapper implements UserNatureMapper {
 		basicUserInfo.setLastName(ctx.getStringAttribute("sn"));
 		basicUserInfo.setFirstName(ctx.getStringAttribute("givenName"));
 		basicUserInfo.setEmail(ctx.getStringAttribute("mail"));
+		basicUserInfo.setUuid(ctx.getStringAttribute("seeAlso"));
 		return basicUserInfo;
 	}
 
@@ -23,6 +24,8 @@ public class SimpleUserNatureMapper implements UserNatureMapper {
 		ctx.setAttributeValue("sn", userInfo.getLastName());
 		ctx.setAttributeValue("givenName", userInfo.getFirstName());
 		ctx.setAttributeValue("mail", userInfo.getEmail());
+		// TODO: find a cleaner way?
+		ctx.setAttributeValue("seeAlso", userInfo.getUuid());
 	}
 
 	public Boolean supports(UserNature userInfo) {

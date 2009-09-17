@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.security.ArgeoUser;
 import org.argeo.security.UserNature;
 import org.argeo.security.core.ArgeoUserDetails;
@@ -14,7 +16,10 @@ import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.ldap.UserDetailsContextMapper;
 
 public class ArgeoUserDetailsContextMapper implements UserDetailsContextMapper {
-	private List<UserNatureMapper> userInfoMappers = new ArrayList<UserNatureMapper>();
+	private final static Log log = LogFactory
+			.getLog(ArgeoUserDetailsContextMapper.class);
+
+	private List<UserNatureMapper> userNatureMappers = new ArrayList<UserNatureMapper>();
 
 	public UserDetails mapUserFromContext(DirContextOperations ctx,
 			String username, GrantedAuthority[] authorities) {
@@ -23,8 +28,11 @@ public class ArgeoUserDetailsContextMapper implements UserDetailsContextMapper {
 		String password = new String(arr);
 
 		List<UserNature> userInfos = new ArrayList<UserNature>();
-		for (UserNatureMapper userInfoMapper : userInfoMappers) {
-			userInfos.add(userInfoMapper.mapUserInfoFromContext(ctx));
+		for (UserNatureMapper userInfoMapper : userNatureMappers) {
+			UserNature userNature = userInfoMapper.mapUserInfoFromContext(ctx);
+			if (log.isDebugEnabled())
+				log.debug("Add user nature " + userNature);
+			userInfos.add(userNature);
 		}
 
 		return new ArgeoUserDetails(username, Collections
@@ -38,7 +46,7 @@ public class ArgeoUserDetailsContextMapper implements UserDetailsContextMapper {
 		if (user instanceof ArgeoUser) {
 			ArgeoUser argeoUser = (ArgeoUser) user;
 			for (UserNature userInfo : argeoUser.getUserNatures()) {
-				for (UserNatureMapper userInfoMapper : userInfoMappers) {
+				for (UserNatureMapper userInfoMapper : userNatureMappers) {
 					if (userInfoMapper.supports(userInfo)) {
 						userInfoMapper.mapUserInfoToContext(userInfo, ctx);
 						break;// use the first mapper found an no others
@@ -48,8 +56,8 @@ public class ArgeoUserDetailsContextMapper implements UserDetailsContextMapper {
 		}
 	}
 
-	public void setUserInfoMappers(List<UserNatureMapper> userInfoMappers) {
-		this.userInfoMappers = userInfoMappers;
+	public void setUserNatureMappers(List<UserNatureMapper> userNatureMappers) {
+		this.userNatureMappers = userNatureMappers;
 	}
 
 }

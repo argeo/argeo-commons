@@ -1,4 +1,3 @@
-Web-ContextPath: org.argeo.security.webapp
 Bundle-SymbolicName: org.argeo.security.webapp
 Bundle-Version: 0.1.1.SNAPSHOT
 Import-Package: javax.servlet,
@@ -12,4 +11,6 @@ Import-Package: javax.servlet,
  org.springframework.web.context,
  org.springframework.web.context.support,
  org.springframework.web.filter,
- org.springframework.web.servlet
+ org.springframework.web.servlet,
+ org.argeo.security.dao
+Web-ContextPath: org.argeo.security.webapp

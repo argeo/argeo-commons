@@ -1,13 +1,13 @@
 package org.argeo.security;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 //@JsonAutoDetect(value = { JsonMethod.GETTER, JsonMethod.SETTER })
-public class UserNature {
-	private final static Log log = LogFactory.getLog(UserNature.class);
+public class UserNature implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	// private final static Log log = LogFactory.getLog(UserNature.class);
 
 	private String uuid = UUID.randomUUID().toString();
 	private String type;
@@ -31,10 +31,10 @@ public class UserNature {
 		this.type = type;
 	}
 
-//	@JsonAnySetter
-//	public void anySetter(String key, Object obj) {
-//		if (obj != null)
-//			log.info("anySetter: " + key + "=" + obj + " (" + obj.getClass()
-//					+ "), natureType=" + type);
-//	}
+	// @JsonAnySetter
+	// public void anySetter(String key, Object obj) {
+	// if (obj != null)
+	// log.info("anySetter: " + key + "=" + obj + " (" + obj.getClass()
+	// + "), natureType=" + type);
+	// }
 }

@@ -13,11 +13,14 @@ public class CoworkerUserNatureMapper implements UserNatureMapper {
 		basicUserInfo.setMobile(ctx.getStringAttribute("mobile"));
 		basicUserInfo.setTelephoneNumber(ctx
 				.getStringAttribute("telephoneNumber"));
+		basicUserInfo.setUuid(ctx.getStringAttribute("employeeNumber"));
 		return basicUserInfo;
 	}
 
-	public void mapUserInfoToContext(UserNature userInfoArg, DirContextAdapter ctx) {
+	public void mapUserInfoToContext(UserNature userInfoArg,
+			DirContextAdapter ctx) {
 		CoworkerNature userInfo = (CoworkerNature) userInfoArg;
+		ctx.setAttributeValue("employeeNumber", userInfo.getUuid());
 		if (userInfo.getDescription() != null) {
 			ctx.setAttributeValue("description", userInfo.getDescription());
 		}

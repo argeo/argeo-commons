@@ -8,4 +8,7 @@
 
 	<reference id="_authenticationManager"
 		interface="org.springframework.security.AuthenticationManager" />
+
+	<reference id="userDao" interface="org.argeo.security.dao.UserDao" />
+
 </beans:beans>
