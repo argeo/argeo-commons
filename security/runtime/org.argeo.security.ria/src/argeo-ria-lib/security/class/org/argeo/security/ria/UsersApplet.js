@@ -133,18 +133,18 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
 			this.getCommands()["edit_user"].command.execute();
 		}, this);
   		
-  		this.setGuiMode("chooser");
+  		this.setGuiMode("clear");
   	},
   	
   	_applyGuiMode : function(newMode, oldMode){
   		this.table.getSelectionModel().clearSelection();
 		this.resetHiddenRows();
   		if(newMode == "filter"){
-  			this.table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.SINGLE_INTERVAL_SELECTION);
+  			this.table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.SINGLE_SELECTION);
   		}else if(newMode == "chooser"){
   			this.table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.MULTIPLE_INTERVAL_SELECTION_TOGGLE);
   		}else if(newMode == "clear"){
-  			this.table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.SINGLE_INTERVAL_SELECTION);
+  			this.table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.SINGLE_SELECTION);
   		}
   	},
   	

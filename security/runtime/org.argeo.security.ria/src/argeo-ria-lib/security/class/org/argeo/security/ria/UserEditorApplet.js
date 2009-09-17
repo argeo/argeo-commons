@@ -147,12 +147,19 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   		this.passGB.add(this.passPane.getContainer());
   		
   		this.naturesTab = new qx.ui.tabview.TabView("top");
-  		this.simpleNature = new org.argeo.security.ria.components.SimpleUserNatureImpl();
   		
+  		this.simpleNature = new org.argeo.security.ria.components.SimpleUserNatureImpl();  		
   		var page1 = new qx.ui.tabview.Page(this.simpleNature.getNatureLabel());
   		page1.setLayout(new qx.ui.layout.Dock());
   		page1.add(this.simpleNature.getContainer(), {edge:"center"});
   		this.naturesTab.add(page1);
+  		
+  		this.coWorkerNature = new org.argeo.security.ria.components.CoworkerNatureImpl();  		
+  		var page2 = new qx.ui.tabview.Page(this.coWorkerNature.getNatureLabel());
+  		page2.setLayout(new qx.ui.layout.Dock());
+  		page2.add(this.coWorkerNature.getContainer(), {edge:"center"});
+  		this.naturesTab.add(page2);
+  		
   		this.naturesGB.add(this.naturesTab, {edge:"center"});
   		  	  		
   	},
@@ -168,6 +175,9 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   			this.setModified(true);
   		}, this);
   		this.simpleNature.addListener("modified", function(){
+  			this.setModified(true);
+  		}, this);  		
+  		this.coWorkerNature.addListener("modified", function(){
   			this.setModified(true);
   		}, this);  		
   	},
