@@ -1,0 +1,69 @@
+dn: dc=demo,dc=argeo,dc=org
+objectClass: domain
+objectClass: extensibleObject
+objectClass: top
+dc: springsecurity
+
+dn: ou=groups,dc=demo,dc=argeo,dc=org
+objectClass: organizationalUnit
+objectClass: top
+ou: groups
+
+dn: ou=users,dc=demo,dc=argeo,dc=org
+objectClass: organizationalUnit
+objectClass: top
+ou: users
+
+dn: uid=demo,ou=users,dc=demo,dc=argeo,dc=org
+objectClass: organizationalPerson
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: top
+cn: demo User
+description: Demo user
+givenname: Demo
+mail: demo@localhost
+sn: User
+uid: demo
+userpassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
+
+dn: uid=frodo,ou=users,dc=demo,dc=argeo,dc=org
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: top
+cn: demo User
+description: Heroe
+givenname: Frodo
+mail: frodo@localhost
+sn: User
+uid: frodo
+userpassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
+
+dn: uid=gandalf,ou=users,dc=demo,dc=argeo,dc=org
+objectClass: organizationalPerson
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: top
+cn: root User
+description: Superuser
+givenname: Gandalf
+mail: admin@localhost
+sn: User
+uid: gandalf
+userpassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
+
+dn: cn=admin,ou=groups,dc=demo,dc=argeo,dc=org
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: admin
+uniquemember: uid=gandalf,ou=users,dc=demo,dc=argeo,dc=org
+
+dn: cn=user,ou=groups,dc=demo,dc=argeo,dc=org
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: user
+uniquemember: uid=gandalf,ou=users,dc=demo,dc=argeo,dc=org
+uniquemember: uid=demo,ou=users,dc=demo,dc=argeo,dc=org
+uniquemember: uid=frodo,ou=users,dc=demo,dc=argeo,dc=org
+

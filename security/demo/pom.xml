@@ -38,7 +38,8 @@
 							org.springframework.osgi.extender,
 							org.springframework.osgi.web.extender,
 							org.argeo.dep.osgi.catalina.start,
-							org.argeo.security.webapp
+							org.argeo.security.webapp,
+							org.argeo.server.ads.server
 						</slc.osgi.start>
 						<slc.osgi.bundles>
 							${basedir};in=*;ex=pom.xml;ex=target;ex=.*,
@@ -201,6 +202,16 @@
 			<groupId>org.apache.directory</groupId>
 			<artifactId>com.springsource.org.apache.directory.server.core</artifactId>
 			<version>1.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.dep.osgi</groupId>
+			<artifactId>org.argeo.dep.osgi.directory.shared.asn.codec</artifactId>
+			<version>0.9.5.5.0001</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.dep.osgi</groupId>
+			<artifactId>org.argeo.dep.osgi.mina.filter.ssl</artifactId>
+			<version>1.0.2.0001</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.directory</groupId>
