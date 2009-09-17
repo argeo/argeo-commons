@@ -4,8 +4,10 @@ qx.Interface.define("org.argeo.security.ria.components.IUserDataPane", {
 		getData    : function(format){return true;},
 		validate : function(){return true;}
 	},
+	properties : {
+		valid : {}
+	},
 	events : {
-		"modified" : "qx.event.type.Event"
-			
+		"modified" : "qx.event.type.Event"			
 	}
 });

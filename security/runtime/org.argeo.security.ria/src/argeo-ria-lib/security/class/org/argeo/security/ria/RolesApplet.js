@@ -28,9 +28,41 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   	 */
   	commands : {
   		init : {
+  			"new_role" : {
+  				label	 	: "Create Role", 
+  				icon 		: "org.argeo.security.ria/list-add.png",
+  				shortcut 	: "Control+n",
+  				enabled  	: true,
+  				menu	   	: "Roles",
+  				toolbar  	: "role",
+  				callback	: function(e){
+  					// Prompt for new name
+  				},
+  				command 	: null
+  			},   	
+  			"delete_role" : {
+  				label	 	: "Delete Role", 
+  				icon 		: "org.argeo.security.ria/list-remove.png",
+  				shortcut 	: "Control+s",
+  				enabled  	: true,
+  				menu	   	: "Roles",
+  				toolbar  	: "role",
+  				callback	: function(e){
+  					// Call service to delete
+					var crtUsers = this.getViewSelection().getNodes();
+					for(var i=0;i<crtUsers.length;i++){
+						alert("Delete " + crtUsers[i]);
+					}
+  				},
+  				selectionChange : function(viewName, data){
+  					if(viewName != "role") return;
+  					this.setEnabled(!(data == null || !data.length));  					
+  				},
+  				command 	: null
+  			},  			  			
   			"edit_role" : {
   				label	 	: "Edit Role", 
-  				icon 		: "ria/window-close.png",
+  				icon 		: "org.argeo.security.ria/document-properties.png",
   				shortcut 	: "Control+r",
   				enabled  	: true,
   				menu	   	: "Roles",
@@ -96,7 +128,7 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   		if(this.getView().headerLabel) this.getView().headerLabel.setMargin(8);
   		this.getView().header.add(buttonPane, {edge:"east"});
   	
-  		this.toggleButton = new qx.ui.form.ToggleButton("Filter", "ria/go-right.png");
+  		this.toggleButton = new qx.ui.form.ToggleButton("Filter", "org.argeo.security.ria/go-next.png");
   		this.toggleButton.set({
   			show:"icon",
   			margin:2,
@@ -109,29 +141,40 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   			this.setGuiMode(event.getData()?"filter":"clear");
   		}, this);
 		
-		this.saveButton = new qx.ui.form.Button("Save");
+		this.saveButton = new qx.ui.form.Button("Save", "org.argeo.security.ria/document-save.png");
   		this.saveButton.set({
-  			show:"label",
+  			show:"icon",
   			margin:2,
   			toolTip :new qx.ui.tooltip.ToolTip("Save changes"),
   			visibility : "excluded"
   		});
   		buttonPane.add(this.saveButton);		
 		
-		this.cancelButton = new qx.ui.form.Button("Cancel");
+		this.cancelButton = new qx.ui.form.Button("Cancel", "org.argeo.security.ria/window-close.png");
   		this.cancelButton.set({
-  			show:"label",
+  			show:"icon",
   			margin:2,
   			toolTip :new qx.ui.tooltip.ToolTip("Cancel changes"),
   			visibility : "excluded"  			
   		});
   		buttonPane.add(this.cancelButton);		
 		
-  		var listener = function(){
+  		this.saveButton.addListener("execute", function(){
+  			alert("Saving changes...");
   			this.setGuiMode(this.initialState);
-  		};
-  		this.saveButton.addListener("execute", listener, this);
-  		this.cancelButton.addListener("execute", listener, this);
+  		}, this);
+  		this.cancelButton.addListener("execute", function(){
+  			if(!this.getChooserSelectionModified()){
+  				this.setGuiMode(this.initialState);
+  				return;
+  			}
+			var modal = new org.argeo.ria.components.Modal("Warning");
+			modal.addConfirm("There are unsaved changes!\n Are you sure you want to close?");
+			modal.addListener("ok", function(){
+				this.setGuiMode(this.initialState);
+			}, this);
+			modal.attachAndShow();  		
+  		}, this);
   		
 		this.table.addListener("cellDblclick", function(cellEvent){
 			this.setGuiMode("edit");

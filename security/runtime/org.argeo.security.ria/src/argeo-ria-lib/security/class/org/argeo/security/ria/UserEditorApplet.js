@@ -3,7 +3,7 @@
  * The only associated command is the "Close" command.
  */
 /* *************************************************
-#asset(resource/org.argeo.ria.sample/window-close.png)
+#asset(resource/org.argeo.security.ria/*)
 ****************************************************/
 qx.Class.define("org.argeo.security.ria.UserEditorApplet",
 {
@@ -31,7 +31,7 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   		init : {
   			"save_user" : {
   				label	 	: "Save", 
-  				icon 		: "ria/window-close.png",
+  				icon 		: "org.argeo.security.ria/document-save.png",
   				shortcut 	: "Control+s",
   				enabled  	: true,
   				menu	   	: "Users",
@@ -50,14 +50,24 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   			},
   			"close" : {
   				label	 	: "Close", 
-  				icon 		: "org.argeo.ria.sample/window-close.png",
+  				icon 		: "org.argeo.security.ria/window-close.png",
   				shortcut 	: "Control+w",
   				enabled  	: true,
   				menu	   	: "Users",
   				toolbar  	: "user",
   				callback	: function(e){
   					// Call service to delete
-  					this.getView().closeCurrent();  					
+					var iApplet = org.argeo.ria.components.ViewsManager.getInstance().getViewPaneById("editor").getContent();
+					if(!iApplet.getModified()){
+						this.getView().closeCurrent();
+						return;
+					}
+  					var modal = new org.argeo.ria.components.Modal("Warning");
+  					modal.addConfirm("There are unsaved changes!\n Are you sure you want to close?");
+  					modal.addListener("ok", function(){
+  						this.getView().closeCurrent();
+  					}, this);
+  					modal.attachAndShow();
   				},
   				command 	: null
   			}  			  			
@@ -118,10 +128,6 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   		
   		// FIELDS
   		this.usernameField = new qx.ui.form.TextField();
-  		this.usernameField.addListener("changeValue", function(){
-  			this.setModified(true);
-  			this.getViewSelection().triggerEvent();
-  		}, this);
   		this.basicGB.add(new qx.ui.basic.Label("Username"), {row:0,column:0});  		
   		this.basicGB.add(this.usernameField, {row:0,column:1});
   		
@@ -135,14 +141,30 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   		
   		this.naturesTab = new qx.ui.tabview.TabView("top");
   		this.simpleNature = new org.argeo.security.ria.components.SimpleUserNatureImpl();
+  		
   		var page1 = new qx.ui.tabview.Page(this.simpleNature.getNatureLabel());
   		page1.setLayout(new qx.ui.layout.Dock());
   		page1.add(this.simpleNature.getContainer(), {edge:"center"});
   		this.naturesTab.add(page1);
   		this.naturesGB.add(this.naturesTab, {edge:"center"});
-  		  		
+  		  	  		
   	},
   	  	
+  	_attachListeners : function(){
+  		this.usernameField.addListener("changeValue", function(){
+  			this.setModified(true);
+  		}, this);
+  		this.rolesField.addListener("changeValue", function(){
+  			this.setModified(true);
+  		}, this);
+  		this.passPane.addListener("modified", function(){
+  			this.setModified(true);
+  		}, this);
+  		this.simpleNature.addListener("modified", function(){
+  			this.setModified(true);
+  		}, this);  		
+  	},
+  	
   	_initializeGroupBox: function(groupBox){
   		groupBox.setPadding(0);
   		groupBox.getChildrenContainer().setPadding(8);  		
@@ -157,6 +179,7 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
 	  		this.usernameField.setValue(userData);
   		}
   		this.setRolesList(["ROLE_ADMIN", "ROLE_USER"]);
+  		this._attachListeners();
   	},
   	  	 
 	addScroll : function(){

@@ -3,7 +3,7 @@
  * The only associated command is the "Close" command.
  */
 /* *************************************************
-#asset(resource/org.argeo.ria.sample/window-close.png)
+#asset(resource/org.argeo.security.ria/*)
 ****************************************************/
 qx.Class.define("org.argeo.security.ria.UsersApplet",
 {
@@ -29,12 +29,12 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   	commands : {
   		init : {
   			"new_user" : {
-  				label	 	: "Create User", 
-  				icon 		: "ria/window-close.png",
+  				label	 	: "New User", 
+  				icon 		: "org.argeo.security.ria/list-add.png",
   				shortcut 	: "Control+n",
   				enabled  	: true,
   				menu	   	: "Users",
-  				toolbar  	: "user",
+  				toolbar  	: "userslist",
   				callback	: function(e){
   					// Call service to delete
   					var classObj = org.argeo.security.ria.UserEditorApplet;
@@ -42,34 +42,14 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
 					iView.load();
   				},
   				command 	: null
-  			},   			
-  			"edit_user" : {
-  				label	 	: "Edit User", 
-  				icon 		: "ria/window-close.png",
-  				shortcut 	: "Control+u",
-  				enabled  	: true,
-  				menu	   	: "Users",
-  				toolbar  	: "user",
-  				callback	: function(e){
-  					// Call service to delete
-					var crtUser = this.getViewSelection().getNodes()[0];
-  					var classObj = org.argeo.security.ria.UserEditorApplet;
-					var iView = org.argeo.ria.components.ViewsManager.getInstance().initIViewClass(classObj, "editor", crtUser);
-					iView.load(crtUser);					
-  				},
-  				selectionChange : function(viewName, data){
-  					if(viewName != "users") return;
-  					this.setEnabled(!(data == null || !data.length || data.length > 1));  					
-  				},
-  				command 	: null
-  			},			
+  			},   	
   			"delete_user" : {
   				label	 	: "Delete User", 
-  				icon 		: "ria/window-close.png",
+  				icon 		: "org.argeo.security.ria/list-remove.png",
   				shortcut 	: "Control+s",
   				enabled  	: true,
   				menu	   	: "Users",
-  				toolbar  	: "user",
+  				toolbar  	: "userslist",
   				callback	: function(e){
   					// Call service to delete
 					var crtUsers = this.getViewSelection().getNodes();
@@ -82,7 +62,27 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   					this.setEnabled(!(data == null || !data.length));  					
   				},
   				command 	: null
-  			}			
+  			},  			
+  			"edit_user" : {
+  				label	 	: "Edit User", 
+  				icon 		: "org.argeo.security.ria/document-properties.png",
+  				shortcut 	: "Control+u",
+  				enabled  	: true,
+  				menu	   	: "Users",
+  				toolbar  	: "userslist",
+  				callback	: function(e){
+  					// Call service to delete
+					var crtUser = this.getViewSelection().getNodes()[0];
+  					var classObj = org.argeo.security.ria.UserEditorApplet;
+					var iView = org.argeo.ria.components.ViewsManager.getInstance().initIViewClass(classObj, "editor", crtUser);
+					iView.load(crtUser);					
+  				},
+  				selectionChange : function(viewName, data){
+  					if(viewName != "users") return;
+  					this.setEnabled(!(data == null || !data.length || data.length > 1));  					
+  				},
+  				command 	: null
+  			}
   		}
   	},
   	
