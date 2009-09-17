@@ -123,6 +123,9 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   		this.table.getSelectionModel().addListener("changeSelection", function(){
   			this._selectionToValues(this.table.getSelectionModel(), this.getViewSelection());
   		}, this);
+		this.table.addListener("cellDblclick", function(cellEvent){
+			this.getCommands()["edit_user"].command.execute();
+		}, this);
   		
   		this.setGuiMode("chooser");
   	},
