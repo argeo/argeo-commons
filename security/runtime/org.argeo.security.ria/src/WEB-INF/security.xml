@@ -3,15 +3,9 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
               http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.4.xsd">
 
-	<http realm="User Interface">
-		<intercept-url pattern="/**" access="ROLE_ANONYMOUS" />
+	<http realm="User Interface" >
+		<intercept-url pattern="/**" access="ROLE_USER" />
 		<http-basic />
 	</http>
-	<authentication-provider>
-		<user-service>
-			<user name="test" password="test" authorities="ROLE_USER" />
-			<user name="demo" password="demo" authorities="ROLE_USER" />
-		</user-service>
-	</authentication-provider>
 
 </beans:beans>

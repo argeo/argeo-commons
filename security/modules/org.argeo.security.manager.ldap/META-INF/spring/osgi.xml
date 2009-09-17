@@ -6,6 +6,8 @@
        http://www.springframework.org/schema/beans   
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<reference id="_authenticationManager"
+	<service ref="_authenticationManager"
 		interface="org.springframework.security.AuthenticationManager" />
+	<!-- <service ref="authenticationProvider"
+		interface="org.springframework.security.providers.AuthenticationProvider" /> -->
 </beans:beans>

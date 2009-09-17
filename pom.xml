@@ -10,6 +10,7 @@
 	<properties>
 		<developmentCycle>0.1</developmentCycle>
 		<version.slc>0.12.1-SNAPSHOT</version.slc>
+		<version.argeo-ria>0.12.1-SNAPSHOT</version.argeo-ria>
 		<version.maven-argeo-osgi>0.1.21</version.maven-argeo-osgi>
 		<version.maven-bundle-plugin>2.0.0</version.maven-bundle-plugin>
 		<version.maven-argeo-qooxdoo>0.8.2.1</version.maven-argeo-qooxdoo>

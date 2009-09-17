@@ -38,11 +38,13 @@
 							org.springframework.osgi.extender,
 							org.springframework.osgi.web.extender,
 							org.argeo.dep.osgi.catalina.start,
+							org.argeo.security.manager.ldap,
 							org.argeo.security.webapp,
+							org.argeo.security.ria,
 							org.argeo.server.ads.server
 						</slc.osgi.start>
 						<slc.osgi.bundles>
-							${basedir};in=*;ex=pom.xml;ex=target;ex=.*,
+							${basedir};in=*;ex=pom.xml;ex=target;ex=.*;ex=*.ldif,
 							${basedir}/../modules;in=*;ex=pom.xml;ex=target;ex=.*,
 							${basedir}/../../server/modules;in=*;ex=pom.xml;ex=target;ex=.*,
 						</slc.osgi.bundles>
@@ -56,6 +58,11 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.mvc</artifactId>
+			<version>0.1.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.ria</artifactId>
 			<version>0.1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>

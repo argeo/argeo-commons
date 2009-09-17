@@ -116,7 +116,8 @@
 							org.springframework.web.context,
 							org.springframework.osgi.web.context.support,
 							org.springframework.web.filter,
-							org.springframework.security.context
+							org.springframework.ldap.core.support,
+							org.springframework.security
 						</Import-Package>
 						<Web-ContextPath>org.argeo.security.ria</Web-ContextPath>
 					</instructions>
