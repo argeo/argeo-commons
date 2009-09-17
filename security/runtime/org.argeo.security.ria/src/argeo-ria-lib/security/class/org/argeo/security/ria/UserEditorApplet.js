@@ -84,7 +84,10 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   		
   	},
   	instanceId : {init:""},
-  	instanceLabel : {init:"Editor"}  	
+  	instanceLabel : {init:"Editor"},
+  	loaded : {
+  		init : false
+  	}
   },
 
   members :
@@ -183,6 +186,9 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   	 * @param data {Element} The text xml description. 
   	 */
   	load : function(userData){
+  		if(this.getLoaded()){
+  			return;
+  		}
   		if(userData){
 	  		this.usernameField.setValue(userData);
   		}
@@ -197,6 +203,7 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   		var button2 = new qx.ui.form.Button("Close", "org.argeo.security.ria/window-close.png", commands["close"].command);  		
   		this.buttonGB.add(button);
   		this.buttonGB.add(button2);
+  		this.setLoaded(true);
   		
   	},
   	  	 
