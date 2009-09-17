@@ -15,5 +15,6 @@
 	<modules>
 		<module>org.argeo.security.core</module>
 		<module>org.argeo.security.mvc</module>
+		<module>org.argeo.security.ria</module>
 	</modules>
 </project>

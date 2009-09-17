@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
@@ -9,17 +10,15 @@
 	<groupId>org.argeo.commons.security</groupId>
 	<artifactId>org.argeo.security.ria</artifactId>
 	<packaging>jar</packaging>
-	<name>Argeo Security Management</name>
+	<name>Commons Security RIA</name>
 	<build>
 		<resources>
 			<resource>
 				<directory>src</directory>
-				<!--
 				<includes>
 					<include>index.jsp</include>
 					<include>WEB-INF/*</include>
 				</includes>
-				-->
 			</resource>
 		</resources>
 		<plugins>
@@ -119,7 +118,7 @@
 							org.springframework.web.filter,
 							org.springframework.security.context
 						</Import-Package>
-						<Web-ContextPath>org.argeo.slc.ria</Web-ContextPath>
+						<Web-ContextPath>org.argeo.security.ria</Web-ContextPath>
 					</instructions>
 				</configuration>
 				<executions>
@@ -163,14 +162,14 @@
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>assembly-ria-slc</id>
+						<id>assembly-ria</id>
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
 						</goals>
 						<configuration>
 							<descriptors>
-								<descriptor>assembly/ria-slc.xml</descriptor>
+								<descriptor>assembly/ria-security.xml</descriptor>
 							</descriptors>
 						</configuration>
 					</execution>
@@ -178,4 +177,13 @@
 			</plugin>
 		</plugins>
 	</build>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.argeo.ria</groupId>
+				<artifactId>org.argeo.ria.core</artifactId>
+				<version>${version.argeo-ria}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>
