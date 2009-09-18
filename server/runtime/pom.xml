@@ -15,5 +15,6 @@
 	<modules>
 		<module>org.argeo.server.core</module>
 		<module>org.argeo.server.json</module>
+		<module>org.argeo.server.osgi</module>
 	</modules>
 </project>
