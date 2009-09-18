@@ -68,6 +68,7 @@ limitations under the License.
 		</developer>
 	</developers>
 	<modules>
+		<module>basic</module>
 		<module>osgi</module>
 		<module>server</module>
 		<module>security</module>

@@ -14,5 +14,7 @@
 	<modules>
 		<module>runtime</module>
 		<module>modules</module>
+		<module>dep</module>
+		<module>demo</module>
 	</modules>
 </project>

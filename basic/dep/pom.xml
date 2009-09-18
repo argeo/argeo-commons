@@ -5,15 +5,14 @@
 	<parent>
 		<groupId>org.argeo.commons</groupId>
 		<version>0.1.1-SNAPSHOT</version>
-		<artifactId>server</artifactId>
+		<artifactId>basic</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<groupId>org.argeo.commons.server</groupId>
-	<artifactId>runtime</artifactId>
-	<name>Commons Server Runtime</name>
+	<groupId>org.argeo.commons.basic</groupId>
+	<artifactId>dep</artifactId>
+	<name>Commons Basic Dependencies</name>
 	<packaging>pom</packaging>
 	<modules>
-		<module>org.argeo.server.core</module>
-		<module>org.argeo.server.json</module>
+		<module>org.argeo.basic.dep.log4j</module>
 	</modules>
 </project>

@@ -9,11 +9,10 @@
 		<relativePath>..</relativePath>
 	</parent>
 	<groupId>org.argeo.commons.server</groupId>
-	<artifactId>runtime</artifactId>
-	<name>Commons Server Runtime</name>
+	<artifactId>dep</artifactId>
+	<name>Commons Server Dependencies</name>
 	<packaging>pom</packaging>
 	<modules>
-		<module>org.argeo.server.core</module>
-		<module>org.argeo.server.json</module>
+		<module>org.argeo.server.dep.tomcat</module>
 	</modules>
 </project>
