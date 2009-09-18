@@ -1,10 +1,9 @@
 qx.Class.define("org.argeo.security.ria.components.CoworkerNatureImpl", {
 	extend : org.argeo.security.ria.components.SimpleUserNatureImpl,
-	properties : {
-		natureType : {
-			refine : true,
-			init : "Coworker"
-		}
+	statics : {
+		NATURE_TYPE : "org.argeo.security.nature.CoworkerNature",
+		NATURE_LABEL : "Co-Worker",
+		NATURE_ICON : ""
 	},
 	
 	construct : function(){
@@ -39,10 +38,6 @@ qx.Class.define("org.argeo.security.ria.components.CoworkerNatureImpl", {
 	  			this.add(this.fields[key], {row:j,column:1});
 	  			j++;
 	  		}			
-		},
-		
-		getNatureLabel : function(){
-			return "Co-Worker";
-		}
+		}		
 	}
 });

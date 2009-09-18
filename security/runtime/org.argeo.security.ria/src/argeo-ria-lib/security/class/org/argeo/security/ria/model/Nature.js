@@ -1,9 +1,6 @@
 qx.Class.define("org.argeo.security.ria.model.Nature", {
 	extend : qx.core.Object,
 	properties : {
-		uuid : {
-			check : "String"
-		},
 		type : {
 			check : "String"
 		},
@@ -16,7 +13,7 @@ qx.Class.define("org.argeo.security.ria.model.Nature", {
 	},
 	members : {
 		load : function(data, format){
-			
+			this.setData(data);
 		}
 	}	
 });

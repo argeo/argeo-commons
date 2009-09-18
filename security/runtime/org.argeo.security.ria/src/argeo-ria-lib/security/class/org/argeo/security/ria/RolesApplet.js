@@ -126,7 +126,7 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   			this._selectionToValues(this.table.getSelectionModel(), this.getViewSelection());
   		}, this);
   		
-  		this.rolesUsersStub = {"ROLE_ADMIN":["root","mbaudier"],"ROLE_USER":["mbaudier","cdujeu"]};
+  		this.rolesUsersStub = {"ROLE_ADMIN":["gandalf"],"ROLE_USER":["demo","frodo","gandalf"]};
   		  		  	
   		this.toggleButton = new qx.ui.form.ToggleButton("Filter", "org.argeo.security.ria/go-next.png");
   		this.toggleButton.set({
@@ -157,8 +157,14 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   		});
 		
   		this.saveButton.addListener("execute", function(){
-  			alert("Saving changes...");
-  			this.setGuiMode(this.initialState);
+  			if(!this.usersAppletReference){
+  				this.setGuiMode(this.initialState);
+  				return;
+  			}
+  			var newSelection = this.usersAppletReference.getViewSelection().getNodes();
+  			var diff = this._selectionDiff(this.getChooserOriginalSelection(), newSelection);
+  			this.saveRoleModifications(diff.deltaPlus, diff.deltaMinus);
+			this.setGuiMode(this.initialState);
   		}, this);
   		this.cancelButton.addListener("execute", function(){
   			if(!this.getChooserSelectionModified()){
@@ -224,13 +230,17 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   		}
   	},
   	
+  	saveRoleModifications : function(deltaPlus, deltaMinus){
+  		console.log(deltaPlus);
+  		console.log(deltaMinus);
+  	},
+  	
   	monitorChooserSelectionChanges : function(event){
   		if(!this.usersAppletReference || this.getChooserSelectionModified()) return;
   		var initialSelection = this.getChooserOriginalSelection();
   		var crtSelection = event.getTarget().getNodes();
   		if(!qx.lang.Array.equals(initialSelection.sort(), crtSelection.sort())){
-  			this.setChooserSelectionModified(true);
-  			console.log("Changed!");
+  			this.setChooserSelectionModified(true);  			
   			this.saveButton.setEnabled(true);
   		}
   	},
@@ -280,6 +290,14 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   			viewSelection.setBatchMode(false);
   		}
   		return values;
+  	},
+  	
+  	_selectionDiff : function(initialSelection, modifiedSelection){
+  		var deltaMinus = qx.lang.Array.clone(initialSelection);
+  		var deltaPlus = qx.lang.Array.clone(modifiedSelection);
+  		qx.lang.Array.exclude(deltaPlus, initialSelection);
+  		qx.lang.Array.exclude(deltaMinus, modifiedSelection);
+  		return {deltaPlus : deltaPlus, deltaMinus : deltaMinus};
   	},
   	
   	/**

@@ -36,14 +36,62 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   				menu	   	: "Users",
   				toolbar  	: "user",
   				callback	: function(e){
-  					
+  					// CALL SERVICE AND GET UP TO DATE USER
+  					this.saveUser();
+  				},
+				selectionChange : function(viewName, data){
+  					if(viewName != "editor") return;
+  					var iApplet = org.argeo.ria.components.ViewsManager.getInstance().getViewPaneById("editor").getContent();
+  					this.setEnabled(iApplet.getModified());
+				},
+				command 	: null
+  			},
+  			"add_nature" : {
+  				label	 	: "Add Nature ...", 
+  				icon 		: "org.argeo.security.ria/list-add.png",
+  				shortcut 	: null,
+  				enabled  	: true,
+  				menu	   	: "Natures",
+  				toolbar  	: null,
+  				callback	: function(e){
+  				},
+  				submenuCallback : function(commandClass){
+  					this._addNatureTab(commandClass, null, true);
+  				},
+  				submenu		: [
+  					{"label" : "Totot", "icon":"","commandId" : "toto"},
+  					{"label" : "Totot", "icon":"","commandId" : "toto"}
+  				],
+  				selectionChange : function(viewName, data){
+  					if(viewName != "editor") return;
+  					var iApplet = org.argeo.ria.components.ViewsManager.getInstance().getViewPaneById("editor").getContent();
+  					if(iApplet && iApplet.getCurrentNatureTabs() && iApplet.getAvailableNatures()
+  						&& iApplet.getCurrentNatureTabs().length < qx.lang.Object.getLength(iApplet.getAvailableNatures())){
+  						this.setEnabled(true);
+  					}else{
+  						this.setEnabled(false);
+  					}
+  				},
+  				command 	: null  				
+  			},
+  			"remove_nature" : {
+  				label	 	: "Remove Nature", 
+  				icon 		: "org.argeo.security.ria/list-remove.png",
+  				shortcut 	: null,
+  				enabled  	: true,
+  				menu	   	: "Natures",
+  				toolbar  	: null,
+  				callback	: function(e){
+  					this.removeSelectedTab();
   				},
   				selectionChange : function(viewName, data){
   					if(viewName != "editor") return;
   					var iApplet = org.argeo.ria.components.ViewsManager.getInstance().getViewPaneById("editor").getContent();
-  					if(iApplet == null) this.setEnabled(true);
-  					this.setEnabled(iApplet.getModified());
-  					//this.setEnabled(!(data == null || !data.length || data.length > 1));  					
+  					if(iApplet && iApplet.getSelectedNatureTab() && iApplet.getSelectedNatureTab().getUserData("NATURE_CLASS")){
+  						this.setEnabled(true);
+  					}else{
+  						this.setEnabled(false);
+  					}
   				},
   				command 	: null
   			},
@@ -57,7 +105,7 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   				callback	: function(e){
   					// Call service to delete
 					var iApplet = org.argeo.ria.components.ViewsManager.getInstance().getViewPaneById("editor").getContent();
-					if(!iApplet.getModified()){
+					if(!iApplet.getModified() && !iApplet.getNaturesModified()){
 						this.getView().closeCurrent();
 						return;
 					}
@@ -78,7 +126,11 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   	},
   	modified : {
   		init : false,
-  		apply : "_applyModified"
+  		apply : "_applyDetailsModified"
+  	},
+  	naturesModified : {
+  		init : false,
+  		apply : "_applyNaturesModified"
   	},
   	rolesList : {
   		
@@ -87,6 +139,16 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   	instanceLabel : {init:"Editor"},
   	loaded : {
   		init : false
+  	},
+  	currentNatureTabs : {  		
+  	},
+  	availableNatures : {  		
+  	},
+  	selectedNatureTab : {  	
+  		nullable : true
+  	},
+  	currentUser : {
+  		
   	}
   },
 
@@ -106,13 +168,28 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
 	  		this.setInstanceLabel("User " + data);
   		}
   		this.setView(viewPane);
-  		this.setViewSelection(new org.argeo.ria.components.ViewSelection(viewPane.getViewId()));  		
+  		this.setViewSelection(new org.argeo.ria.components.ViewSelection(viewPane.getViewId()));
+
+  		this.naturesManager = new org.argeo.security.ria.components.NaturesManager();
+  		var detectedNatures = this.naturesManager.getDetectedNatures();
+  		this.setAvailableNatures(detectedNatures);
   		
   		// TOOLBAR
   		this.buttonGB = new qx.ui.container.Composite(new qx.ui.layout.HBox(5, "right"));
   		this.add(this.buttonGB);
   		
+  		this.setCurrentNatureTabs([]);
+  		this.naturesTab = new qx.ui.tabview.TabView("top");
+  		this.naturesTab.addListener("changeSelected", function(e){
+  			this.setSelectedNatureTab(e.getData());
+  			this.getViewSelection().triggerEvent();
+  		}, this);
+  		
+  		this.basicPage = new qx.ui.tabview.Page("Basic Information");
+  		this.basicPage.setLayout(new qx.ui.layout.VBox(5));
+  		
   		// GROUPBOXES
+  		
   		this.basicGB = new qx.ui.groupbox.GroupBox("Base Informations");
   		var grid = new qx.ui.layout.Grid(5,5);
   		this.basicGB.setLayout(grid);
@@ -125,13 +202,8 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   		this.passGB.setLayout(new qx.ui.layout.VBox());
   		this._initializeGroupBox(this.passGB);
 
-  		this.naturesGB = new qx.ui.groupbox.GroupBox("User Natures");
-  		this.naturesGB.setLayout(new qx.ui.layout.Dock());
-  		this._initializeGroupBox(this.naturesGB);
-  		
   		this.add(this.basicGB);
   		this.add(this.passGB);
-  		this.add(this.naturesGB, {flex:1});  		
   		
   		// FIELDS
   		this.usernameField = new qx.ui.form.TextField();
@@ -146,22 +218,136 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   		this.passPane = new org.argeo.security.ria.components.PasswordCredentialImpl();
   		this.passGB.add(this.passPane.getContainer());
   		
-  		this.naturesTab = new qx.ui.tabview.TabView("top");
+  		//this.naturesTab.add(this.basicPage);
+  		this.natureButtonGB = new qx.ui.container.Composite(new qx.ui.layout.HBox(5, "right"));
+  		this.natureButtonGB.setMarginTop(15);
+  		this.add(this.natureButtonGB);
   		
-  		this.simpleNature = new org.argeo.security.ria.components.SimpleUserNatureImpl();  		
-  		var page1 = new qx.ui.tabview.Page(this.simpleNature.getNatureLabel());
-  		page1.setLayout(new qx.ui.layout.Dock());
-  		page1.add(this.simpleNature.getContainer(), {edge:"center"});
-  		this.naturesTab.add(page1);
+	
+  		this.add(this.naturesTab, {flex:1});
   		
-  		this.coWorkerNature = new org.argeo.security.ria.components.CoworkerNatureImpl();  		
-  		var page2 = new qx.ui.tabview.Page(this.coWorkerNature.getNatureLabel());
-  		page2.setLayout(new qx.ui.layout.Dock());
-  		page2.add(this.coWorkerNature.getContainer(), {edge:"center"});
-  		this.naturesTab.add(page2);
+		this.naturesTab.setVisibility("excluded");
+		this.fakePane = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
+		this.fakePane.setVisibility("visible");
+		this.fakePane.setDecorator("tabview-pane");
+		this.fakePane.setMarginTop(30);
+		this.add(this.fakePane, {flex:1});
   		
-  		this.naturesGB.add(this.naturesTab, {edge:"center"});
+  		title = new qx.ui.basic.Atom("User Details", "org.argeo.security.ria/preferences-users.png");
+  		title.setFont(qx.bom.Font.fromString("16px sans-serif bold"));  		
+  		this.buttonGB.add(title);
+  		this.buttonGB.add(new qx.ui.core.Spacer(), {flex:1});
+
+  		var title2 = new qx.ui.basic.Atom("User Natures", "org.argeo.security.ria/identity.png");
+  		title2.setFont(qx.bom.Font.fromString("16px sans-serif bold"));  		
+  		this.natureButtonGB.add(title2);
+  		this.natureButtonGB.add(new qx.ui.core.Spacer(), {flex:1});  		
+		
   		  	  		
+  	},
+  	
+  	saveUser : function(){
+  		var user = this.getCurrentUser();
+  		user.setName(this.usernameField.getValue());
+  		user.setRoles((this.rolesField.getValue()||"").split(","));
+  		// GO TO AND RETURN FROM SERVER  		
+  		user.setNatures([
+	  		{
+			    "email" : "",
+			    "firstName" : "",
+			    "lastName" : "",
+			    "type" : "org.argeo.security.nature.SimpleUserNature"
+			}]
+  		);
+  		this.partialRefreshUser(user, ["details","natures"]);
+		this.setModified(false);  		
+  	},
+  	
+  	_addNatureTab : function(natureClass, natureData, select){
+  		var crtTabs = this.getCurrentNatureTabs();
+  		if(qx.lang.Array.contains(crtTabs, natureClass.NATURE_TYPE)){
+  			this.error("There can only be one instance of a given nature type!");
+  			return null;
+  		}
+  		if(!this.naturesTab.isVisible()){
+  			if(this.fakePane) this.fakePane.setVisibility("excluded");
+  			this.naturesTab.setVisibility("visible");
+  		}
+  		var page = new qx.ui.tabview.Page("Nature : " + natureClass.NATURE_LABEL);
+  		page.setLayout(new qx.ui.layout.Dock());
+  		page.setUserData("NATURE_CLASS", natureClass);
+		var newClass = new natureClass();
+  		page.add(newClass.getContainer(), {edge:"center"});
+  		
+  		buttons = new qx.ui.container.Composite(new qx.ui.layout.HBox(5, "center"));
+  		var editB = new qx.ui.form.Button("Edit this Nature", "org.argeo.security.ria/document-properties-22.png");
+  		var saveB = new qx.ui.form.Button("Save", "org.argeo.security.ria/dialog-apply.png");
+  		var cancelB = new qx.ui.form.Button("Cancel", "org.argeo.security.ria/dialog-cancel.png");
+  		buttons.add(editB);
+  		buttons.add(saveB);
+  		buttons.add(cancelB);
+  		page.add(buttons, {edge:"south"});
+  		editB.addListener("execute", function(){
+  			newClass.setEditMode(true);
+  			editB.setVisibility("excluded");
+  			saveB.setVisibility("visible");
+  			cancelB.setVisibility("visible");
+  		});
+  		cancelB.addListener("execute", function(){
+  			newClass.setEditMode(false);
+  			editB.setVisibility("visible");
+  			saveB.setVisibility("excluded");
+  			cancelB.setVisibility("excluded");
+  		});
+  		saveB.addListener("execute", function(){
+  			// SAVE CURRENT NATURE
+  			this.setNaturesModified(false);
+  			newClass.setEditMode(false);
+  			editB.setVisibility("visible");
+  			saveB.setVisibility("excluded");
+  			cancelB.setVisibility("excluded");
+  		}, this);
+  		if(natureData){
+  			newClass.setData(natureData);
+  			cancelB.execute();
+  		}else{
+  			editB.execute();
+  		}
+  		this.naturesTab.add(page);
+  		crtTabs.push(natureClass.NATURE_TYPE);
+  		this.getViewSelection().triggerEvent();
+  		newClass.addListener("modified", function(){
+  			this.setNaturesModified(true);
+  		}, this);  
+  		if(select){
+  			this.naturesTab.setSelected(page);
+  		}
+  		return page;
+  	},
+  	
+  	_removeNatureTab : function(natureClass){
+  		this.naturesTab.getChildren().forEach(function(el){
+  			if(el.getUserData("NATURE_CLASS") == natureClass){
+  				this.naturesTab.remove(el);
+  				qx.lang.Array.remove(this.getCurrentNatureTabs(), natureClass.NATURE_TYPE);
+  				this.getViewSelection().triggerEvent();
+  			}
+  		}, this);
+  		if(this.naturesTab.getChildren().length == 0){
+  			this.naturesTab.setVisibility("excluded");
+  			this.fakePane.setVisibility("visible");
+  		}
+  	},
+  	
+  	removeSelectedTab : function(){
+  		var selected = this.naturesTab.getSelected();
+  		this._removeNatureTab(selected.getUserData("NATURE_CLASS"));
+  	},
+  	
+  	removeAllTabs : function(){
+  		while(this.naturesTab.getSelected()){
+  			this._removeNatureTab(this.naturesTab.getSelected().getUserData("NATURE_CLASS"));
+  		}
   	},
   	  	
   	_attachListeners : function(){
@@ -174,12 +360,6 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   		this.passPane.addListener("modified", function(){
   			this.setModified(true);
   		}, this);
-  		this.simpleNature.addListener("modified", function(){
-  			this.setModified(true);
-  		}, this);  		
-  		this.coWorkerNature.addListener("modified", function(){
-  			this.setModified(true);
-  		}, this);  		
   	},
   	
   	_initializeGroupBox: function(groupBox){
@@ -187,32 +367,91 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   		groupBox.getChildrenContainer().setPadding(8);  		
   	},
   	
-  	_applyModified : function(value){
+  	_applyDetailsModified : function(value){  		
   		if(value) this.getViewSelection().triggerEvent();
+  	},
+  	
+  	_applyNaturesModified : function(value){
+  		if(value) this.getViewSelection().triggerEvent();
+  	},
+  	
+  	loadUserData : function(user){
+  		this.setCurrentUser(user);
+  		this.usernameField.setValue(user.getName());
+  		this.usernameField.setReadOnly(true);
+  		this.rolesField.setValue(user.getRoles());
+		var userNatureTabs = this.naturesManager.detectNaturesInData(user.getNatures());
+		if(userNatureTabs.length){
+			userNatureTabs.forEach(function(el){
+				this._addNatureTab(el.NATURE_CLASS, el.NATURE_DATA);
+			}, this);
+		}  		
+  	},
+  	
+  	partialRefreshUser : function(user, target){
+  		if(!qx.lang.Array.isArray(target)) target = [target];
+  		
+  		if(qx.lang.Array.contains(target,"natures")){
+  			this.removeAllTabs();
+			var userNatureTabs = this.naturesManager.detectNaturesInData(user.getNatures());
+			if(userNatureTabs.length){
+				userNatureTabs.forEach(function(el){
+					this._addNatureTab(el.NATURE_CLASS, el.NATURE_DATA);
+				}, this);
+			}  		  			
+  		}
+  		if(qx.lang.Array.contains(target,"details")){
+  			this.setInstanceLabel("User "+user.getName());
+	  		this.usernameField.setValue(user.getName());
+	  		this.rolesField.setValue(user.getRoles());  
+	  		this.usernameField.setReadOnly(true);
+  		}
   	},
   	
   	/**
   	 * Load a given row : the data passed must be a simple data array.
   	 * @param data {Element} The text xml description. 
   	 */
-  	load : function(userData){
+  	load : function(user){
   		if(this.getLoaded()){
   			return;
   		}
-  		if(userData){
-	  		this.usernameField.setValue(userData);
-  		}
   		this.setRolesList(["ROLE_ADMIN", "ROLE_USER"]);
-  		this._attachListeners();
-  		var title = new qx.ui.basic.Atom(this.getInstanceLabel(), "org.argeo.security.ria/preferences-user.png");
-  		title.setFont(qx.bom.Font.fromString("16px sans-serif bold"));  		
-  		this.buttonGB.add(title);
-  		this.buttonGB.add(new qx.ui.core.Spacer(), {flex:1});
+  		
+  		// MUST BE DONE AFTER COMMANDS ARE INITIALIZED! 
   		var commands = this.getCommands();
-  		var button = new qx.ui.form.Button("Save", "org.argeo.security.ria/document-save.png", commands["save_user"].command);  		
-  		var button2 = new qx.ui.form.Button("Close", "org.argeo.security.ria/window-close.png", commands["close"].command);  		
-  		this.buttonGB.add(button);
-  		this.buttonGB.add(button2);
+  		var saveButton = commands["save_user"].command.getFormButton(); 
+  		var closeButton = commands["close"].command.getFormButton(); 
+  		var removeButton = commands["remove_nature"].command.getFormButton();
+  		var natureButton = commands["add_nature"].command.getFormButton();
+  		
+  		var detectedNatures = this.getAvailableNatures();
+  		var newMenu = [];
+  		for(var key in detectedNatures){
+  			newMenu.push({"label" : detectedNatures[key].NATURE_LABEL, "icon":"", "commandId" : detectedNatures[key]});
+  		}
+  		commands["add_nature"].command.setMenu(newMenu);
+  		
+  		natureButton.setShow("icon");
+  		removeButton.setShow("icon");
+  		saveButton.setShow("icon");
+  		closeButton.setShow("icon");
+  		
+  		this.buttonGB.add(saveButton);
+  		this.buttonGB.add(closeButton);  		
+  		this.natureButtonGB.add(natureButton);
+  		this.natureButtonGB.add(removeButton);
+  		
+  		if(user){
+  			this.loadUserData(user);
+	  		this._attachListeners();
+  		}else{
+  			this.setCurrentUser(new org.argeo.security.ria.model.User());
+	  		this._attachListeners();
+  			this.setModified(true);
+  		}
+  		
+  		
   		this.setLoaded(true);
   		
   	},

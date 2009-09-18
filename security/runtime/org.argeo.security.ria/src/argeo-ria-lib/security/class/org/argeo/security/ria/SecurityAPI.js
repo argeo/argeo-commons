@@ -2,7 +2,7 @@ qx.Class.define("org.argeo.security.ria.SecurityAPI", {
 	extend : qx.core.Object,
 	statics : {
 		
-		DEFAULT_CONTEXT : "org.argeo.security.ria",
+		DEFAULT_CONTEXT : "/org.argeo.security.webapp",
 		
 		USERS_LIST_SERVICE : "getUsersList.security",
 		USER_EXISTS_SERVICE : "userExists.security",		
@@ -31,7 +31,7 @@ qx.Class.define("org.argeo.security.ria.SecurityAPI", {
 		getServiceRequest : function(serviceName) {
 			var serviceManager = org.argeo.ria.remote.RequestManager.getInstance();
 			return serviceManager.getRequest(
-				org.argeo.slc.ria.SlcApi.DEFAULT_CONTEXT + "/" + serviceName, 
+				org.argeo.security.ria.SecurityAPI.DEFAULT_CONTEXT + "/" + serviceName, 
 				"GET",
 				"application/json");
 		},

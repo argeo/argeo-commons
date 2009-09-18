@@ -4,27 +4,32 @@ qx.Class.define("org.argeo.security.ria.components.SimpleUserNatureImpl", {
 	events : {
 		"modified" : "qx.event.type.Event"		
 	},
+	statics : {
+		NATURE_TYPE : "org.argeo.security.nature.SimpleUserNature",
+		NATURE_LABEL : "Simple User",
+		NATURE_ICON : ""
+	},
 	properties : {
 		valid : {
 			init : false
 		},
-		natureUuid : {
-			init : ""
-		},
-		natureType : {
-			init : "SimpleUser"
-		},
 		dataMap : {
 			
-		}
+		},
+		editMode : {
+			init : true,
+			apply : "_applyEditMode",
+			event : "changeEditMode"
+		}		
 	},
 	
 	construct : function(){
 		this.base(arguments);  	
 		this._createGui();
+ 		this.setEditMode(false);		
 	},
 		
-	members : {
+	members : {		
 		
 		_createGui : function(){
 	  		var grid = new qx.ui.layout.Grid(5,5);
@@ -52,17 +57,19 @@ qx.Class.define("org.argeo.security.ria.components.SimpleUserNatureImpl", {
 	  			this.fields[key].addListener("changeValue", function(e){this.fireEvent("modified");}, this);
 	  			this.add(this.fields[key], {row:j,column:1});
 	  			j++;
-	  		}			
+	  		}	
 		},
+		
+		_applyEditMode : function(value){
+			for(var key in this.fields){
+				this.fields[key].setEnabled(value);
+			}
+		},
+		
 		getContainer  : function(){
 			return this;
 		},
-		getNatureLabel : function(){
-			return "Simple User";
-		},
 		setData    : function(dataMap, format){
-			this.setNatureUuid(dataMap["uuid"]);
-			this.setNatureType(dataMap["type"]);
 			for(var key in this.fields){
 				if(dataMap[key]){
 					this.fields[key].setValue(dataMap[key]);

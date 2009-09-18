@@ -73,9 +73,10 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   				callback	: function(e){
   					// Call service to delete
 					var crtUser = this.getViewSelection().getNodes()[0];
+					var userObject = this.getUsersList()[crtUser];
   					var classObj = org.argeo.security.ria.UserEditorApplet;
 					var iView = org.argeo.ria.components.ViewsManager.getInstance().initIViewClass(classObj, "editor", crtUser);
-					iView.load(crtUser);					
+					iView.load(userObject);					
   				},
   				selectionChange : function(viewName, data){
   					if(viewName != "users") return;
@@ -95,6 +96,10 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   		nullable:false, 
   		check:"org.argeo.ria.components.ViewSelection"
   	},
+  	usersList : {
+  		check : "Map",
+  		event : "changeUsersList"
+  	},
   	instanceId : {init:""},
   	instanceLabel : {init:""}
   },
@@ -109,6 +114,7 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   		this.setView(viewPane);
   		this.setViewSelection(new org.argeo.ria.components.ViewSelection(viewPane.getViewId()));
   		
+  		this.setUsersList({});
   		this.toolBar = new qx.ui.toolbar.ToolBar();
   		this.toolBarPart = new qx.ui.toolbar.Part();
   		this.toolBar.add(this.toolBarPart);  		
@@ -132,7 +138,9 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
 		this.table.addListener("cellDblclick", function(cellEvent){
 			this.getCommands()["edit_user"].command.execute();
 		}, this);
-  		
+  		this.addListener("changeUsersList", function(){
+			this._updateTableModel();  		
+  		}, this);
   		this.setGuiMode("clear");
   	},
   	
@@ -175,14 +183,33 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   	 * @param data {Element} The text xml description. 
   	 */
   	load : function(){  		
-  		var data = [["root", "ROLE_ADMIN"], ["mbaudier", "ROLE_ADMIN,ROLE_USER"], ["cdujeu","ROLE_USER"], ["anonymous", ""]];
-  		this.tableModel.setData(data);  		
   		var commands = this.getCommands();
   		this.toolBarPart.add(commands["new_user"].command.getToolbarButton());
   		this.toolBarPart.add(commands["delete_user"].command.getToolbarButton());
   		this.toolBarPart.add(commands["edit_user"].command.getToolbarButton());  		
   		this.toolBar.setShow("icon");
-  		
+
+  		var request = org.argeo.security.ria.SecurityAPI.getListUsersService();
+  		request.addListener("completed", function(response){
+  			var jSon = response.getContent();
+  			var usMap = {};
+  			for(var i=0;i<jSon.length;i++){
+  				var user = new org.argeo.security.ria.model.User();
+  				user.load(jSon[i], "json");
+  				usMap[user.getName()] = user;
+  			}
+  			this.setUsersList(usMap);  			
+  		}, this);
+  		request.send();
+  	},
+  	
+  	_updateTableModel : function(){
+  		var usList = this.getUsersList();
+  		var data = [];
+  		qx.lang.Object.getValues(usList).forEach(function(usObject){
+  			data.push([usObject.getName(), usObject.getRoles().join(",")]);
+  		});
+  		this.tableModel.setData(data);  		  		
   	},
   	
   	applySelection : function(selectionValues, target){
