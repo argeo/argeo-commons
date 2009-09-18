@@ -32,6 +32,9 @@
 						<Export-Package>
 							org.argeo.security.*
 						</Export-Package>
+						<Import-Package>*,
+							org.argeo.server.json;resolution:=optional
+						</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>

@@ -6,12 +6,6 @@
        http://www.springframework.org/schema/beans   
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<reference id="_authenticationManager"
-		interface="org.springframework.security.AuthenticationManager" />
+	<service ref="jsonObjectFactory" interface="org.argeo.server.json.JsonObjectFactory" />
 
-	<reference id="userDao" interface="org.argeo.security.dao.UserDao" />
-	<reference id="roleDao" interface="org.argeo.security.dao.RoleDao" />
-
-	<list id="objectFactories" interface="org.argeo.server.json.JsonObjectFactory"
-		cardinality="0..N" />
 </beans:beans>

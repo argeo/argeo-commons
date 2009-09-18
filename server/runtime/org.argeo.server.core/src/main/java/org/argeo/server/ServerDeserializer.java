@@ -1,7 +1,8 @@
 package org.argeo.server;
 
-import javax.servlet.http.HttpServletRequest;
+import java.io.Reader;
+
 
 public interface ServerDeserializer {
-	public Object deserialize(Object obj, HttpServletRequest request);
+	public Object deserialize(Reader str);
 }

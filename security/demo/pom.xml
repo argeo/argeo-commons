@@ -34,6 +34,7 @@
 							org.argeo.security.manager.ldap,
 							org.argeo.security.webapp,
 							org.argeo.security.ria,
+							org.argeo.security.core,
 							org.argeo.server.ads.server
 						</slc.osgi.start>
 						<slc.osgi.bundles>

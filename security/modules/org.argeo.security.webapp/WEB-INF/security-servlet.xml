@@ -12,6 +12,20 @@
 	<bean id="controller" class="org.argeo.security.mvc.UsersRolesController">
 		<property name="userDao" ref="userDao" />
 		<property name="roleDao" ref="roleDao" />
+		<property name="userDeserializer">
+			<bean class="org.argeo.server.json.JsonServerMapper">
+				<property name="targetClass" value="org.argeo.security.BasicArgeoUser" />
+				<property name="deserializers">
+					<map>
+						<entry key="org.argeo.security.UserNature">
+							<bean class="org.argeo.server.json.GenericJsonDeserializer">
+								<property name="objectFactories" ref="objectFactories" />
+							</bean>
+						</entry>
+					</map>
+				</property>
+			</bean>
+		</property>
 	</bean>
 
 	<bean id="viewResolver" class="org.argeo.server.mvc.SerializingViewResolver">

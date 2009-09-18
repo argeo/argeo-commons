@@ -69,4 +69,9 @@ public class ServerAnswer {
 		return new ServerAnswer(OK, message);
 	}
 
+	@Override
+	public String toString() {
+		return "ServerAnswer{status:"+status+", message:"+message+"}";
+	}
+
 }
