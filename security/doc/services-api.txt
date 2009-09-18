@@ -41,19 +41,19 @@ createRole.security
 deleteRole.security
 > param : roleName  <string>
 
+updateUserRoleLink.security
+> params : <string> roleName,  <string> username, <string> action="set|unset"
+
 
 ************************
 LINKS & NATURES
 ************************
-updateUserRoleLink.security
-> params : <string> roleName,  <string> username, <string> action="set|unset"
 
 createUserNature.security
 > params : natureObject <json>, userName <string>
-> returns : new uuid
 
 deleteUserNature.security
-> params : natureUuid <string>
+> params : natureObject <json>, userName <string>
 
 updateUserNature.security
-> params : natureUuid <string>, natureObject <json>
+> params : natureObject <json>, userName <string>
