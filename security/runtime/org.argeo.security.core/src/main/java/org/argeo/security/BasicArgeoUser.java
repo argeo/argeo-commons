@@ -8,6 +8,7 @@ public class BasicArgeoUser implements ArgeoUser, Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private String username;
+	private String password;
 	private List<UserNature> userNatures = new ArrayList<UserNature>();
 	private List<String> roles = new ArrayList<String>();
 
@@ -43,5 +44,13 @@ public class BasicArgeoUser implements ArgeoUser, Serializable {
 
 	public void setRoles(List<String> roles) {
 		this.roles = roles;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 }

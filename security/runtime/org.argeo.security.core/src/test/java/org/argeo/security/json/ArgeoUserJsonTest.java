@@ -14,6 +14,7 @@ import org.argeo.security.UserNature;
 import org.argeo.security.core.ArgeoUserDetails;
 import org.argeo.security.nature.CoworkerNature;
 import org.argeo.security.nature.SimpleUserNature;
+import org.argeo.server.json.JsonServerMapper;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -61,8 +62,8 @@ public class ArgeoUserJsonTest extends TestCase {
 		// BasicArgeoUser aud = objectMapper.readValue(audJo,
 		// BasicArgeoUser.class);
 
-		ArgeoUserMapper aum = new ArgeoUserMapper();
-		ArgeoUser aud = aum.parse(audJo);
+		JsonServerMapper mapper = JsonServerMapperTest.createJsonServerMapper();
+		ArgeoUser aud = (ArgeoUser) mapper.deserialize(audJo);
 
 		assertEquals(argeoUser.getUsername(), aud.getUsername());
 		assertEquals(argeoUser.getRoles().size(), aud.getRoles().size());

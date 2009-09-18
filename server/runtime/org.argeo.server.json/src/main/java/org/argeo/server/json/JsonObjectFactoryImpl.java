@@ -18,7 +18,7 @@ public class JsonObjectFactoryImpl implements JsonObjectFactory,
 			.getLog(JsonObjectFactoryImpl.class);
 
 	private BundleContext bundleContext;
-	private BundleDelegatingClassLoader classLoader;
+	private ClassLoader classLoader = getClass().getClassLoader();
 
 	private ObjectMapper objectMapper = new ObjectMapper();
 	private Map<String, Class> supportedTypes = new HashMap<String, Class>();

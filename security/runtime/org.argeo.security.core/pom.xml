@@ -93,6 +93,12 @@
 			<artifactId>com.springsource.junit</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.json</artifactId>
+			<version>0.1.1-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
 
 	</dependencies>
 </project>

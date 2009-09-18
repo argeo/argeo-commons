@@ -31,8 +31,7 @@ public class ArgeoUserDetails extends User implements ArgeoUser {
 	}
 
 	public ArgeoUserDetails(ArgeoUser argeoUser) {
-		// TODO: password
-		this(argeoUser.getUsername(), argeoUser.getUserNatures(), null,
+		this(argeoUser.getUsername(), argeoUser.getUserNatures(), argeoUser.getPassword(),
 				rolesToAuthorities(argeoUser.getRoles()));
 	}
 

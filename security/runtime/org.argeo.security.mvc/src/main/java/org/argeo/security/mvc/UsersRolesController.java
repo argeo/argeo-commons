@@ -66,23 +66,23 @@ public class UsersRolesController implements MvcConstants {
 
 	@RequestMapping("/createUser.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
-	public ServerAnswer createUser(Reader reader) {
+	public ArgeoUser createUser(Reader reader) {
 		ArgeoUser user = (ArgeoUser) userDeserializer.deserialize(reader);
 		userDao.create(user);
-		return ServerAnswer.ok("User " + user.getUsername() + " created");
+		return userDao.getUser(user.getUsername());
 	}
 
 	@RequestMapping("/updateUser.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
-	public ServerAnswer updateUser(Reader reader) {
+	public ArgeoUser updateUser(Reader reader) {
 		ArgeoUser user = (ArgeoUser) userDeserializer.deserialize(reader);
 		userDao.update(user);
-		return ServerAnswer.ok("User " + user.getUsername() + " updated");
+		return userDao.getUser(user.getUsername());
 	}
 
 	@RequestMapping("/createUser2.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
-	public ServerAnswer createUser(@RequestParam("body") String body) {
+	public ArgeoUser createUser(@RequestParam("body") String body) {
 		if (log.isDebugEnabled())
 			log.debug("body:\n" + body);
 		StringReader reader = new StringReader(body);
@@ -93,7 +93,7 @@ public class UsersRolesController implements MvcConstants {
 			IOUtils.closeQuietly(reader);
 		}
 		userDao.create(user);
-		return ServerAnswer.ok("User " + user.getUsername() + " created");
+		return userDao.getUser(user.getUsername());
 	}
 
 	@RequestMapping("/deleteUser.security")

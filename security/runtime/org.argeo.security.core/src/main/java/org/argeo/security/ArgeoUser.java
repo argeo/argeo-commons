@@ -8,4 +8,6 @@ public interface ArgeoUser {
 	public List<UserNature> getUserNatures();
 
 	public List<String> getRoles();
+	
+	public String getPassword();
 }

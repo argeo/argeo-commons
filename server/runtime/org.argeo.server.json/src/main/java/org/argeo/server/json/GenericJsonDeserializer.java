@@ -70,4 +70,8 @@ public class GenericJsonDeserializer<T> extends JsonDeserializer<T> {
 		this.objectFactories = objectFactories;
 	}
 
+	public List<JsonObjectFactory> getObjectFactories() {
+		return objectFactories;
+	}
+
 }

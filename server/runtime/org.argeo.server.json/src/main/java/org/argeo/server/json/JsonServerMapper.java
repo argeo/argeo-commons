@@ -2,9 +2,11 @@ package org.argeo.server.json;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.server.ArgeoServerException;
@@ -21,10 +23,11 @@ public class JsonServerMapper extends JsonServerSerializer implements
 		ServerDeserializer, InitializingBean {
 	private final static Log log = LogFactory.getLog(JsonServerMapper.class);
 
-	private Class targetClass;
+	private Class<?> targetClass;
 
-	private Map<Class, JsonDeserializer> deserializers = new HashMap<Class, JsonDeserializer>();
+	private Map<Class<?>, JsonDeserializer<?>> deserializers = new HashMap<Class<?>, JsonDeserializer<?>>();
 
+	@SuppressWarnings("unchecked")
 	public void afterPropertiesSet() throws Exception {
 		CustomDeserializerFactory dsf = new CustomDeserializerFactory();
 		for (Class clss : deserializers.keySet()) {
@@ -40,8 +43,9 @@ public class JsonServerMapper extends JsonServerSerializer implements
 							JsonDeserializer<?> deserializer, Object bean,
 							String propertyName) throws IOException,
 							JsonProcessingException {
-						if (log.isDebugEnabled())
+						if (log.isTraceEnabled())
 							log.debug("Ignore property " + propertyName);
+						ctxt.getParser().skipChildren();
 						return true;
 					}
 				});
@@ -67,12 +71,29 @@ public class JsonServerMapper extends JsonServerSerializer implements
 
 	}
 
-	public void setTargetClass(Class targetClass) {
+	public Object deserialize(String content) {
+		StringReader reader = new StringReader(content);
+		try {
+			return deserialize(reader);
+		} finally {
+			IOUtils.closeQuietly(reader);
+		}
+	}
+
+	public void setTargetClass(Class<?> targetClass) {
 		this.targetClass = targetClass;
 	}
 
-	public void setDeserializers(Map<Class, JsonDeserializer> deserializers) {
+	public void setDeserializers(Map<Class<?>, JsonDeserializer<?>> deserializers) {
 		this.deserializers = deserializers;
+	}
+
+	public Class<?> getTargetClass() {
+		return targetClass;
+	}
+
+	public Map<Class<?>, JsonDeserializer<?>> getDeserializers() {
+		return deserializers;
 	}
 
 }
