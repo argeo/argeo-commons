@@ -2,9 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.argeo</groupId>
+		<artifactId>parent</artifactId>
+		<version>1.0.0</version>
+	</parent>
 	<groupId>org.argeo.commons</groupId>
-	<version>0.1.1-SNAPSHOT</version>
 	<artifactId>argeo-commons</artifactId>
+	<version>0.1.1-SNAPSHOT</version>
 	<name>Argeo Commons</name>
 	<packaging>pom</packaging>
 	<properties>
@@ -20,10 +25,6 @@
 		<developerConnection>scm:svn:https://www.argeo.org/svn/commons/trunk</developerConnection>
 		<url>https://www.argeo.org/svn/commons/trunk</url>
 	</scm>
-	<issueManagement>
-		<system>Bugzilla</system>
-		<url>https://www.argeo.org/bugzilla/</url>
-	</issueManagement>
 	<licenses>
 		<license>
 			<name>Apache 2</name>
@@ -49,10 +50,6 @@ limitations under the License.
 			</comments>
 		</license>
 	</licenses>
-	<organization>
-		<name>Argeo</name>
-		<url>http://www.argeo.org</url>
-	</organization>
 	<developers>
 		<developer>
 			<id>mbaudier</id>
@@ -184,9 +181,9 @@ limitations under the License.
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>org.argeo.slc</groupId>
-				<artifactId>argeo-slc</artifactId>
-				<version>${version.slc}</version>
+				<groupId>org.argeo.dep</groupId>
+				<artifactId>versions</artifactId>
+				<version>1.0.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -194,60 +191,6 @@ limitations under the License.
 	</dependencyManagement>
 	<repositories>
 		<repository>
-			<id>central</id>
-			<url>http://repo1.maven.org/maven2</url>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
-				<checksumPolicy>warn</checksumPolicy>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-				<updatePolicy>never</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>com.springsource.repository.bundles.release</id>
-			<name>
-				SpringSource Enterprise Bundle Repository - SpringSource
-				Bundle Releases
-			</name>
-			<url>
-				http://repository.springsource.com/maven/bundles/release
-			</url>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-				<updatePolicy>never</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>com.springsource.repository.bundles.external</id>
-			<name>
-				SpringSource Enterprise Bundle Repository - External
-				Bundle Releases
-			</name>
-			<url>
-				http://repository.springsource.com/maven/bundles/external
-			</url>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-				<updatePolicy>never</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</snapshots>
-		</repository>
-		<repository>
 			<id>argeo</id>
 			<url>http://www.argeo.org/maven/argeo</url>
 			<releases>
@@ -258,66 +201,8 @@ limitations under the License.
 			<snapshots>
 				<enabled>false</enabled>
 				<updatePolicy>never</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>argeo-snapshots</id>
-			<url>http://www.argeo.org/maven/argeo-snapshots</url>
-			<releases>
-				<enabled>false</enabled>
-				<updatePolicy>never</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
 				<checksumPolicy>fail</checksumPolicy>
 			</snapshots>
 		</repository>
 	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>argeo</id>
-			<url>http://www.argeo.org/maven/argeo</url>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-				<updatePolicy>never</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</snapshots>
-		</pluginRepository>
-		<pluginRepository>
-			<id>argeo-snapshots</id>
-			<url>http://www.argeo.org/maven/argeo-snapshots</url>
-			<releases>
-				<enabled>false</enabled>
-				<updatePolicy>never</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
-	<distributionManagement>
-		<repository>
-			<uniqueVersion>false</uniqueVersion>
-			<id>argeo-restricted</id>
-			<name>Argeo FOSS Repository</name>
-			<url>file:///var/argeo/maven2/argeo</url>
-		</repository>
-		<snapshotRepository>
-			<uniqueVersion>true</uniqueVersion>
-			<id>argeo-snapshots-restricted</id>
-			<name>Argeo FOSS Snapshots Repository</name>
-			<url>file:///var/argeo/maven2/argeo-snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
 </project>

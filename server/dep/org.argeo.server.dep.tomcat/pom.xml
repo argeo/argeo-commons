@@ -16,6 +16,7 @@
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.dep.log4j</artifactId>
 			<version>0.1.1-SNAPSHOT</version>
+			<type>pom</type>
 		</dependency>
 
 		<!-- JEE -->

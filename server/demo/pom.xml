@@ -16,15 +16,10 @@
 			<plugin>
 				<groupId>org.argeo.maven.plugins</groupId>
 				<artifactId>maven-argeo-osgi-plugin</artifactId>
+				<version>${version.maven-argeo-osgi}</version>
 				<extensions>true</extensions>
 				<configuration>
 					<bundlesPomArtifactId>org.argeo.server.demo</bundlesPomArtifactId>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.argeo.maven.plugins</groupId>
-				<artifactId>maven-argeo-osgi-plugin</artifactId>
-				<configuration>
 					<execDir>target/exec/server</execDir>
 					<osgiBootArtifactId>org.argeo.osgi.boot</osgiBootArtifactId>
 					<systemProperties>
@@ -44,31 +39,19 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<!--  Third Parties -->
-
 		<!-- OSGi -->
-		<dependency>
-			<groupId>org.eclipse.osgi</groupId>
-			<artifactId>org.eclipse.osgi</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.osgi</groupId>
 			<artifactId>org.argeo.osgi.boot</artifactId>
 			<version>0.1.1-SNAPSHOT</version>
 		</dependency>
 
-		<!-- Logging -->
+		<!--  Commons Dep -->
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>com.springsource.slf4j.org.apache.commons.logging</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.log4j</groupId>
-			<artifactId>com.springsource.org.apache.log4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>com.springsource.slf4j.log4j</artifactId>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.dep.tomcat</artifactId>
+			<version>0.1.1-SNAPSHOT</version>
+			<type>pom</type>
 		</dependency>
 
 		<!-- Spring -->
@@ -76,105 +59,6 @@
 			<groupId>org.springframework.osgi</groupId>
 			<artifactId>org.springframework.osgi.web.extender</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.osgi</groupId>
-			<artifactId>org.springframework.osgi.extender</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.osgi</groupId>
-			<artifactId>org.springframework.osgi.web</artifactId>
-		</dependency>
 
-		<!-- JEE -->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>com.springsource.javax.servlet</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.annotation</groupId>
-			<artifactId>com.springsource.javax.annotation</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.persistence</groupId>
-			<artifactId>com.springsource.javax.persistence</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.activation</groupId>
-			<artifactId>com.springsource.javax.activation</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.geronimo.specs</groupId>
-			<artifactId>com.springsource.javax.management.j2ee</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.ejb</groupId>
-			<artifactId>com.springsource.javax.ejb</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.xml.rpc</groupId>
-			<artifactId>com.springsource.javax.xml.rpc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.xml.soap</groupId>
-			<artifactId>com.springsource.javax.xml.soap</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.transaction</groupId>
-			<artifactId>com.springsource.javax.transaction</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.xml.stream</groupId>
-			<artifactId>com.springsource.javax.xml.stream</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>com.springsource.javax.servlet.jsp</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>com.springsource.javax.servlet.jsp.jstl</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.el</groupId>
-			<artifactId>com.springsource.javax.el</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.xml.ws</groupId>
-			<artifactId>com.springsource.javax.xml.ws</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>com.springsource.javax.xml.bind</artifactId>
-		</dependency>
-
-		<!-- Taglibs
-		<dependency>
-			<groupId>org.apache.taglibs</groupId>
-			<artifactId>com.springsource.org.apache.taglibs.standard</artifactId>
-		</dependency> -->
-
-
-		<!-- Tomcat -->
-		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.catalina.start</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.catalina</groupId>
-			<artifactId>com.springsource.org.apache.catalina</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.jasper</groupId>
-			<artifactId>com.springsource.org.apache.jasper</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.el</groupId>
-			<artifactId>com.springsource.org.apache.el</artifactId>
-		</dependency>
-
-		<!--
-			ActiveMQ <dependency> <groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.activemq</artifactId> </dependency>
-		-->
 	</dependencies>
 </project>
