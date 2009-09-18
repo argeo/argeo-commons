@@ -57,6 +57,10 @@
 		<!-- Spring -->
 		<dependency>
 			<groupId>org.springframework.osgi</groupId>
+			<artifactId>org.springframework.osgi.extender</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.osgi</groupId>
 			<artifactId>org.springframework.osgi.web.extender</artifactId>
 		</dependency>
 
