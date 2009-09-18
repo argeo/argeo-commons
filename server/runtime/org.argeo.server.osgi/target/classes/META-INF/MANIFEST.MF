@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-Vendor: Argeo
+Bundle-Version: 0.1.1.SNAPSHOT-r2967
+Tool: Bnd-0.0.311
+Bundle-Name: Commons Server OSGi
+Created-By: 1.6.0_0 (Sun Microsystems Inc.)
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-DocURL: http://www.argeo.org
+Bundle-SymbolicName: org.argeo.server.osgi
+
