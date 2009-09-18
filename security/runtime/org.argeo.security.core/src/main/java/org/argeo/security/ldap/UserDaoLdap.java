@@ -2,14 +2,8 @@ package org.argeo.security.ldap;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-import javax.naming.NamingException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.security.ArgeoUser;
-import org.argeo.security.BasicArgeoUser;
 import org.argeo.security.core.ArgeoUserDetails;
 import org.argeo.security.dao.UserDao;
 import org.springframework.ldap.core.ContextMapper;
@@ -17,16 +11,17 @@ import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsManager;
 
 public class UserDaoLdap implements UserDao {
-	private final static Log log = LogFactory.getLog(UserDaoLdap.class);
+	// private final static Log log = LogFactory.getLog(UserDaoLdap.class);
 
 	private UserDetailsManager userDetailsManager;
-	private DefaultLdapAuthoritiesPopulator authoritiesPopulator;
 	private String userBase = "ou=users";
+	private String usernameAttribute = "uid";
 
 	private final LdapTemplate ldapTemplate;
 
@@ -35,7 +30,7 @@ public class UserDaoLdap implements UserDao {
 	}
 
 	public void create(ArgeoUser user) {
-		userDetailsManager.createUser((UserDetails) user);
+		userDetailsManager.createUser(new ArgeoUserDetails(user));
 	}
 
 	public ArgeoUser getUser(String uname) {
@@ -45,7 +40,13 @@ public class UserDaoLdap implements UserDao {
 	@SuppressWarnings("unchecked")
 	public List<ArgeoUser> listUsers() {
 		List<String> usernames = (List<String>) ldapTemplate.listBindings(
-				new DistinguishedName(userBase), new UserContextMapper());
+				new DistinguishedName(userBase), new ContextMapper() {
+					public Object mapFromContext(Object ctxArg) {
+						DirContextAdapter ctx = (DirContextAdapter) ctxArg;
+						return ctx.getStringAttribute(usernameAttribute);
+					}
+				});
+
 		List<ArgeoUser> lst = new ArrayList<ArgeoUser>();
 		for (String username : usernames) {
 			UserDetails userDetails = userDetailsManager
@@ -71,41 +72,29 @@ public class UserDaoLdap implements UserDao {
 		return userDetailsManager.userExists(username);
 	}
 
-	public void setUserDetailsManager(UserDetailsManager userDetailsManager) {
-		this.userDetailsManager = userDetailsManager;
+	public void addRoles(String username, List<String> roles) {
+		GrantedAuthority[] auths = new GrantedAuthority[roles.size()];
+		for (int i = 0; i < roles.size(); i++)
+			auths[i] = new GrantedAuthorityImpl(roles.get(i));
+		ArgeoUserDetails user = (ArgeoUserDetails) userDetailsManager
+				.loadUserByUsername(username);
+		throw new UnsupportedOperationException();
+		//userDetailsManager.
 	}
 
-	public void setAuthoritiesPopulator(
-			DefaultLdapAuthoritiesPopulator authoritiesPopulator) {
-		this.authoritiesPopulator = authoritiesPopulator;
+	public void removeRoles(String username, List<String> roles) {
+		throw new UnsupportedOperationException();
+	}
+
+	public void setUserDetailsManager(UserDetailsManager userDetailsManager) {
+		this.userDetailsManager = userDetailsManager;
 	}
 
 	public void setUserBase(String userBase) {
 		this.userBase = userBase;
 	}
 
-	class UserContextMapper implements ContextMapper {
-		public Object mapFromContext(Object ctxArg) {
-			DirContextAdapter ctx = (DirContextAdapter) ctxArg;
-			// BasicArgeoUser user = new BasicArgeoUser();
-			return ctx.getStringAttribute("uid");
-
-			// log.debug("dn# " + ctx.getDn());
-			// log.debug("NameInNamespace# " + ctx.getNameInNamespace());
-			// log.debug("toString# " + ctx.toString());
-
-			// Set<String> roles = authoritiesPopulator.getGroupMembershipRoles(
-			// ctx.composeName(user.getUsername(), userBase), user
-			// .getUsername());
-			// user.setRoles(new ArrayList<String>(roles));
-			// GrantedAuthority[] auths = authoritiesPopulator
-			// .getGrantedAuthorities(ldapTemplate.,
-			// user.getUsername());
-			// for (GrantedAuthority auth : auths) {
-			// user.getRoles().add(auth.getAuthority());
-			// }
-			// return user;
-		}
+	public void setUsernameAttribute(String usernameAttribute) {
+		this.usernameAttribute = usernameAttribute;
 	}
-
 }

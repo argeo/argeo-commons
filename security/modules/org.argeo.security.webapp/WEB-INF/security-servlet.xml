@@ -11,9 +11,16 @@
 
 	<bean id="controller" class="org.argeo.security.mvc.UsersRolesController">
 		<property name="userDao" ref="userDao" />
+		<property name="roleDao" ref="roleDao" />
 	</bean>
 
-	<bean id="viewResolver" class="org.argeo.server.json.mvc.JsonViewResolver">
+	<bean id="viewResolver" class="org.argeo.server.mvc.SerializingViewResolver">
+		<property name="serializer" ref="serverMapper" />
 	</bean>
+
+	<bean id="serverMapper" class="org.argeo.server.json.JsonServerMapper">
+	</bean>
+
+	<bean class="org.argeo.server.mvc.DefaultHandlerExceptionResolver" />
 
 </beans>

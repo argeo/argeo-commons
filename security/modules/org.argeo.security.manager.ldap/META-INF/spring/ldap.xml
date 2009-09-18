@@ -52,8 +52,7 @@
 		<property name="userDetailsContextMapper" ref="userDetailsMapper" />
 	</bean>
 
-	<bean id="authoritiesPopulator"
-		class="org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator">
+	<bean id="authoritiesPopulator" class="org.argeo.security.ldap.ArgeoLdapAuthoritiesPopulator">
 		<constructor-arg ref="contextSource" />
 		<constructor-arg value="ou=groups" />
 		<!-- <property name="defaultRole" value="ROLE_USER" /> -->

@@ -8,6 +8,10 @@
 	<bean id="userDao" class="org.argeo.security.ldap.UserDaoLdap">
 		<constructor-arg ref="contextSource" />
 		<property name="userDetailsManager" ref="userDetailsManager" />
+	</bean>
+
+	<bean id="roleDao" class="org.argeo.security.ldap.RoleDaoLdap">
+		<constructor-arg ref="contextSource" />
 		<property name="authoritiesPopulator" ref="authoritiesPopulator" />
 	</bean>
 

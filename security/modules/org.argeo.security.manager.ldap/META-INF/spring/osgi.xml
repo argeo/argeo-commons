@@ -10,4 +10,5 @@
 		interface="org.springframework.security.AuthenticationManager" />
 
 	<service ref="userDao" interface="org.argeo.security.dao.UserDao" />
+	<service ref="roleDao" interface="org.argeo.security.dao.RoleDao" />
 </beans:beans>
