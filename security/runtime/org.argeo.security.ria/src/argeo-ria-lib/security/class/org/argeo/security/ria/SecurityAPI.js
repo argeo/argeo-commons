@@ -9,6 +9,7 @@ qx.Class.define("org.argeo.security.ria.SecurityAPI", {
 		USERS_LIST_SERVICE : "getUsersList.security",
 		USER_EXISTS_SERVICE : "userExists.security",		
 		DELETE_USER_SERVICE : "deleteUser.security",
+		UPDATE_USER_SERVICE : "updateUser.security",
 		GET_USER_DETAILS_SERVICE : "getUserDetails.security",
 		CREATE_USER_SERVICE : "createUser.security",
 		UPDATE_USER_PASS_SERVICE : "updateUserPassword.security",
@@ -95,6 +96,18 @@ qx.Class.define("org.argeo.security.ria.SecurityAPI", {
 			var req = org.argeo.security.ria.SecurityAPI.getServiceRequest(org.argeo.security.ria.SecurityAPI.DELETE_USER_SERVICE);
 			org.argeo.security.ria.SecurityAPI.parseOptionalArguments(req, arguments, 1);
 			req.setParameter("username", userName);
+			return req;
+		},
+		
+		/**
+		 * @return  {qx.io.remote.Request}
+		 */
+		getUpdateUserService : function(userObject){
+			var req = org.argeo.security.ria.SecurityAPI.getServiceRequest(org.argeo.security.ria.SecurityAPI.UPDATE_USER_SERVICE);
+			req.setMethod("POST");
+			org.argeo.security.ria.SecurityAPI.parseOptionalArguments(req, arguments, 1);
+			var jsonString = qx.util.Json.stringify(userObject);
+			req.setData(jsonString);
 			return req;
 		},
 		

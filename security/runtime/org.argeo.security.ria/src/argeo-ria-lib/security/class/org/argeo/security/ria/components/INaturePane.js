@@ -10,6 +10,10 @@ qx.Interface.define("org.argeo.security.ria.components.INaturePane", {
 			init : true,
 			apply : "_applyEditMode",			
 			event : "changeEditMode"
+		},
+		isNew	: {
+			init : false,
+			check : "Boolean"
 		}
 	},
 	members : {

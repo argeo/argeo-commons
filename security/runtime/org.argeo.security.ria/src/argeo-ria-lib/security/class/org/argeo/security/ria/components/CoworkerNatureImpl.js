@@ -7,7 +7,10 @@ qx.Class.define("org.argeo.security.ria.components.CoworkerNatureImpl", {
 	},
 	
 	construct : function(){
-		this.base(arguments);  		
+		this.base(arguments);
+		this.setDataMap({
+			type:"org.argeo.security.nature.CoworkerNature"
+		});		
 	},
 		
 	members : {

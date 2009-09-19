@@ -50,7 +50,8 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   				callback	: function(e){
   					// Call service to delete
   					var classObj = org.argeo.security.ria.UserEditorApplet;
-					var iView = org.argeo.ria.components.ViewsManager.getInstance().initIViewClass(classObj, "editor");
+  					var initData = {USER:null,ROLES_LIST:this.getRolesList()};
+					var iView = org.argeo.ria.components.ViewsManager.getInstance().initIViewClass(classObj, "editor", initData);
 					iView.load();
   				},
   				command 	: null
@@ -87,7 +88,8 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
 					var crtUser = this.getViewSelection().getNodes()[0];
 					var userObject = this.getUsersList()[crtUser];
   					var classObj = org.argeo.security.ria.UserEditorApplet;
-					var iView = org.argeo.ria.components.ViewsManager.getInstance().initIViewClass(classObj, "editor", crtUser);
+  					var initData = {USER:crtUser,ROLES_LIST:this.getRolesList()};
+					var iView = org.argeo.ria.components.ViewsManager.getInstance().initIViewClass(classObj, "editor", initData);
 					iView.load(userObject);					
   				},
   				selectionChange : function(viewName, data){
@@ -114,8 +116,7 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   		event : "changeUsersList"
   	},
   	rolesList : {
-  		check : "Array",
-  		event : "changeRolesList"
+  		check : "Array"
   	},
   	instanceId : {init:""},
   	instanceLabel : {init:""}
@@ -155,6 +156,7 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
 			this.getCommands()["edit_user"].command.execute();
 		}, this);
 		
+		this.setRolesList([]);
   		this.setUsersList({});		
   		this.setGuiMode("clear");
   	},
@@ -204,6 +206,13 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   		this.toolBarPart.add(commands["edit_user"].command.getToolbarButton());  		
   		this.toolBar.setShow("icon");
 		this.loadUsersList();
+		
+		var rolesApplet = org.argeo.ria.components.ViewsManager.getInstance().getViewPaneById("roles").getContent();
+		rolesApplet.addListener("changeRolesList", function(e){
+			this.setRolesList(e.getData());
+			this.loadUsersList();
+		}, this);
+		
   	},
   	
   	loadUsersList : function(){
@@ -223,13 +232,9 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   	
   	_applyUsersList : function(usList){
   		var data = [];
-  		var rolesList = [];
   		qx.lang.Object.getValues(usList).forEach(function(usObject){
-  			var roles = usObject.getRoles();
-  			rolesList = qx.lang.Array.unique(rolesList.concat(roles));
   			data.push([usObject.getName(), usObject.getRoles().join(",")]);
   		});
-  		this.setRolesList(rolesList);
   		this.tableModel.setData(data);  		  		
   	},
   	  	

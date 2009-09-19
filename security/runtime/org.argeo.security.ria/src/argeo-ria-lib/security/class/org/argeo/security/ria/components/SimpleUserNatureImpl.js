@@ -20,11 +20,18 @@ qx.Class.define("org.argeo.security.ria.components.SimpleUserNatureImpl", {
 			init : true,
 			apply : "_applyEditMode",
 			event : "changeEditMode"
+		},
+		isNew	: {
+			init : false,
+			check : "Boolean"
 		}		
 	},
 	
 	construct : function(){
 		this.base(arguments);  	
+		this.setDataMap({
+			type:"org.argeo.security.nature.SimpleUserNature"
+		});
 		this._createGui();
  		this.setEditMode(false);		
 	},
@@ -79,10 +86,8 @@ qx.Class.define("org.argeo.security.ria.components.SimpleUserNatureImpl", {
 		},
 		getData    : function(format){
 			var dataMap = this.getDataMap();
-			for(var key in dataMap){
-				if(this.fields[key]){
-					dataMap[key] = this.fields[key].getValue();
-				}
+			for(var key in this.fields){
+				dataMap[key] = this.fields[key].getValue();
 			}
 			this.setDataMap(dataMap);
 			return dataMap;

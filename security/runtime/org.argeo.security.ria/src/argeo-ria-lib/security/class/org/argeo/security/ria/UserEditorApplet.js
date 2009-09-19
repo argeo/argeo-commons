@@ -159,13 +159,13 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   	 * @param viewPane {org.argeo.ria.components.ViewPane} The viewPane.
   	 */
   	init : function(viewPane, data){
-  		if(!data){
+  		if(!data.USER){
   			var now = new Date();
 	  		this.setInstanceId(now.getTime());
 	  		this.setInstanceLabel("New User");  			
   		}else{
-	  		this.setInstanceId(data);
-	  		this.setInstanceLabel("User " + data);
+	  		this.setInstanceId(data.USER);
+	  		this.setInstanceLabel("User " + data.USER);
   		}
   		this.setView(viewPane);
   		this.setViewSelection(new org.argeo.ria.components.ViewSelection(viewPane.getViewId()));
@@ -211,7 +211,7 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   		this.basicGB.add(this.usernameField, {row:0,column:1});
   		
   		this.rolesField = new org.argeo.ria.components.ui.MultipleComboBox();
-  		this.rolesField.setChoiceValues(["ROLE_ADMIN", "ROLE_USER", "ROLE_USER1"]);
+  		this.rolesField.setChoiceValues(data.ROLES_LIST);
   		this.basicGB.add(new qx.ui.basic.Label("Roles"), {row:1,column:0});  		
   		this.basicGB.add(this.rolesField, {row:1,column:1});
   		
@@ -250,17 +250,14 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   		var user = this.getCurrentUser();
   		user.setName(this.usernameField.getValue());
   		user.setRoles((this.rolesField.getValue()||"").split(","));
-  		// GO TO AND RETURN FROM SERVER  		
-  		user.setNatures([
-	  		{
-			    "email" : "",
-			    "firstName" : "",
-			    "lastName" : "",
-			    "type" : "org.argeo.security.nature.SimpleUserNature"
-			}]
-  		);
-  		this.partialRefreshUser(user, ["details","natures"]);
-		this.setModified(false);  		
+  		// GO TO AND RETURN FROM SERVER
+  		var userService = user.getSaveService();
+  		userService.send();
+  		userService.addListener("completed", function(e){
+  			this.partialRefreshUser(user, ["details","natures"]);
+			this.setModified(false);
+			this.getViewSelection().triggerEvent();
+  		}, this);
   	},
   	
   	_addNatureTab : function(natureClass, natureData, select){
@@ -294,13 +291,23 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   			cancelB.setVisibility("visible");
   		});
   		cancelB.addListener("execute", function(){
+  			if(newClass.getIsNew()){
+  				this._removeNatureTab(natureClass);
+  			}
   			newClass.setEditMode(false);
   			editB.setVisibility("visible");
   			saveB.setVisibility("excluded");
   			cancelB.setVisibility("excluded");
-  		});
+  		}, this);
   		saveB.addListener("execute", function(){
   			// SAVE CURRENT NATURE
+  			var data = newClass.getData();
+  			if(newClass.getIsNew()){
+  				this.getCurrentUser().addNature(data);
+  			}else{
+  				this.getCurrentUser().updateNature(data);
+  			}
+  			this.saveUser();
   			this.setNaturesModified(false);
   			newClass.setEditMode(false);
   			editB.setVisibility("visible");
@@ -308,9 +315,10 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   			cancelB.setVisibility("excluded");
   		}, this);
   		if(natureData){
-  			newClass.setData(natureData);
+  			newClass.setData(natureData);  			
   			cancelB.execute();
   		}else{
+  			newClass.setIsNew(true);
   			editB.execute();
   		}
   		this.naturesTab.add(page);
@@ -341,7 +349,11 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   	
   	removeSelectedTab : function(){
   		var selected = this.naturesTab.getSelected();
-  		this._removeNatureTab(selected.getUserData("NATURE_CLASS"));
+  		var tabClass = selected.getUserData("NATURE_CLASS");
+  		var user = this.getCurrentUser();
+  		user.removeNature(tabClass.NATURE_TYPE);
+  		this.saveUser();
+  		this._removeNatureTab(tabClass);
   	},
   	
   	removeAllTabs : function(){
@@ -415,9 +427,7 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   	load : function(user){
   		if(this.getLoaded()){
   			return;
-  		}
-  		this.setRolesList(["ROLE_ADMIN", "ROLE_USER"]);
-  		
+  		}  		
   		// MUST BE DONE AFTER COMMANDS ARE INITIALIZED! 
   		var commands = this.getCommands();
   		var saveButton = commands["save_user"].command.getFormButton(); 

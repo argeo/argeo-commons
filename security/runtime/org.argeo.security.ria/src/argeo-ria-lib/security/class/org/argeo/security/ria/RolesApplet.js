@@ -37,6 +37,15 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   				toolbar  	: null,
   				callback	: function(e){
   					// Prompt for new name
+  					var modal = new org.argeo.ria.components.Modal();
+  					modal.makePromptForm("Please enter a role name", function(roleName){
+  						var service = org.argeo.security.ria.SecurityAPI.getCreateRoleService(roleName);
+  						service.addListener("completed", function(response){
+  							this.loadRolesList();
+  						}, this);
+  						service.send();
+  					}, this);
+  					modal.attachAndShow();
   				},
   				command 	: null
   			},   	
@@ -49,9 +58,13 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   				toolbar  	: null,
   				callback	: function(e){
   					// Call service to delete
-					var crtUsers = this.getViewSelection().getNodes();
-					for(var i=0;i<crtUsers.length;i++){
-						alert("Delete " + crtUsers[i]);
+					var roles = this.getViewSelection().getNodes();
+					for(var i=0;i<roles.length;i++){
+  						var service = org.argeo.security.ria.SecurityAPI.getDeleteRoleService(roles[i]);
+  						service.addListener("completed", function(response){
+  							this.loadRolesList();
+  						}, this);
+  						service.send();
 					}
   				},
   				selectionChange : function(viewName, data){
@@ -86,6 +99,10 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   	guiMode : {
   		apply : "_applyGuiMode"
   	},
+  	rolesList : {
+  		check : "Array",
+  		event : "changeRolesList"
+  	},  	
   	chooserOriginalSelection : {},
   	chooserSelectionModified : {
   		init:false,
@@ -182,6 +199,11 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
 		this.table.addListener("cellDblclick", function(cellEvent){
 			this.setGuiMode("edit");
 		}, this);
+		this.addListener("changeRolesList", function(event){
+  			var data = [];
+  			event.getData().forEach(function(el){data.push([el]);});
+  			this.tableModel.setData(data);  						
+		}, this);
 		
 		this.setGuiMode("clear");
   	},
@@ -231,8 +253,34 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   	},
   	
   	saveRoleModifications : function(deltaPlus, deltaMinus){
-  		console.log(deltaPlus);
-  		console.log(deltaMinus);
+  		//console.log(deltaPlus);
+  		//console.log(deltaMinus);
+  		// LOAD CONCERNED USERS
+  		var selectionModel = this.table.getSelectionModel();
+		if(!selectionModel.getSelectedCount()){
+			return;
+		}
+		var roleValue = this._selectionToValues(selectionModel)[0];
+  		
+  		var users = deltaPlus.concat(deltaMinus);
+  		for(var i=0;i<users.length;i++){
+  			var user = users[i];
+  			var userDetailService = org.argeo.security.ria.SecurityAPI.getUserDetailsService(users[i]);
+  			userDetailService.addListener("completed", function(response){
+  				var userRoles = response.getContent().roles;
+  				if(qx.lang.Array.contains(deltaPlus, user)){
+  					userRoles.push(roleValue);
+  				}else if(qx.lang.Array.contains(deltaMinus, user)){
+  					qx.lang.Array.remove(userRoles, roleValue);
+  				}
+  				var userSaveService = org.argeo.security.ria.SecurityAPI.getUpdateUserService(response.getContent());
+  				userSaveService.addListener("completed", function(e){
+  					this.fireDataEvent("changeRolesList", this.getRolesList());
+  				}, this);
+  				userSaveService.send();
+  			}, this);
+  			userDetailService.send();
+  		}
   	},
   	
   	monitorChooserSelectionChanges : function(event){
@@ -307,14 +355,6 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   	 */
   	load : function(){
   		
-  		var service = org.argeo.security.ria.SecurityAPI.getListRolesService();
-  		service.addListener("completed", function(response){
-  			var data = [];
-  			response.getContent().forEach(function(el){data.push([el]);});
-  			this.tableModel.setData(data);  			
-  		}, this);
-  		service.send();
-  		
   		var commands = this.getCommands();
   		this.toolBarPart.add(commands["new_role"].command.getToolbarButton());
   		this.toolBarPart.add(commands["delete_role"].command.getToolbarButton());
@@ -325,6 +365,17 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   		this.toolBar.add(this.cancelButton);		  		
   		this.toolBar.setShow("icon");
   		
+  		this.loadRolesList();
+  		
+  	},
+  	
+  	loadRolesList : function(){
+  		this.setRolesList([]);
+  		var service = org.argeo.security.ria.SecurityAPI.getListRolesService();
+  		service.addListener("completed", function(response){
+  			this.setRolesList(response.getContent());
+  		}, this);
+  		service.send();  		
   	},
   	  	 
 	addScroll : function(){
