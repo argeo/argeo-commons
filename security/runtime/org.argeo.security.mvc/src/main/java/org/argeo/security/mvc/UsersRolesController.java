@@ -9,7 +9,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
-import org.argeo.security.BasicArgeoUser;
+import org.argeo.security.SimpleArgeoUser;
 import org.argeo.security.core.ArgeoUserDetails;
 import org.argeo.server.BooleanAnswer;
 import org.argeo.server.DeserializingEditor;
@@ -36,7 +36,7 @@ public class UsersRolesController implements MvcConstants {
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
-		binder.registerCustomEditor(BasicArgeoUser.class,
+		binder.registerCustomEditor(SimpleArgeoUser.class,
 				new DeserializingEditor(userDeserializer));
 	}
 

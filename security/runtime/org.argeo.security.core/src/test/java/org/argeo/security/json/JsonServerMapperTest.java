@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.argeo.security.ArgeoUser;
-import org.argeo.security.BasicArgeoUser;
+import org.argeo.security.SimpleArgeoUser;
 import org.argeo.security.UserNature;
 import org.argeo.server.json.GenericJsonDeserializer;
 import org.argeo.server.json.JsonObjectFactoryImpl;
@@ -36,7 +36,7 @@ public class JsonServerMapperTest extends TestCase {
 	@SuppressWarnings("unchecked")
 	public static JsonServerMapper createJsonServerMapper() throws Exception {
 		JsonServerMapper mapper = new JsonServerMapper();
-		mapper.setTargetClass(BasicArgeoUser.class);
+		mapper.setTargetClass(SimpleArgeoUser.class);
 		GenericJsonDeserializer jsonDeserializer = new GenericJsonDeserializer();
 		jsonDeserializer.getObjectFactories().add(new JsonObjectFactoryImpl());
 		mapper.getDeserializers().put(UserNature.class, jsonDeserializer);

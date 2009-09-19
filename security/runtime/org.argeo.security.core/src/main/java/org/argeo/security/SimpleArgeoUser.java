@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BasicArgeoUser implements ArgeoUser, Serializable {
+public class SimpleArgeoUser implements ArgeoUser, Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private String username;
@@ -12,11 +12,11 @@ public class BasicArgeoUser implements ArgeoUser, Serializable {
 	private List<UserNature> userNatures = new ArrayList<UserNature>();
 	private List<String> roles = new ArrayList<String>();
 
-	public BasicArgeoUser() {
+	public SimpleArgeoUser() {
 
 	}
 
-	public BasicArgeoUser(ArgeoUser argeoUser) {
+	public SimpleArgeoUser(ArgeoUser argeoUser) {
 		username = argeoUser.getUsername();
 		password = argeoUser.getPassword();
 		userNatures = new ArrayList<UserNature>(argeoUser.getUserNatures());

@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.security.ArgeoUser;
-import org.argeo.security.BasicArgeoUser;
+import org.argeo.security.SimpleArgeoUser;
 import org.argeo.security.UserNature;
 import org.argeo.security.core.ArgeoUserDetails;
 import org.argeo.security.nature.CoworkerNature;
@@ -44,7 +44,7 @@ public class ArgeoUserJsonTest extends TestCase {
 		ArgeoUserDetails argeoUserDetails = new ArgeoUserDetails("USER",
 				natures, "PASSWORD", roles);
 
-		BasicArgeoUser argeoUser = new BasicArgeoUser(argeoUserDetails);
+		SimpleArgeoUser argeoUser = new SimpleArgeoUser(argeoUserDetails);
 
 		StringWriter writer = new StringWriter();
 

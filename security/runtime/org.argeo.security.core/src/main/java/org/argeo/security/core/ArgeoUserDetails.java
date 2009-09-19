@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.argeo.security.ArgeoUser;
-import org.argeo.security.BasicArgeoUser;
+import org.argeo.security.SimpleArgeoUser;
 import org.argeo.security.UserNature;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
@@ -60,11 +60,11 @@ public class ArgeoUserDetails extends User implements ArgeoUser {
 		return arr;
 	}
 
-	public static BasicArgeoUser createBasicArgeoUser(UserDetails userDetails) {
+	public static SimpleArgeoUser createBasicArgeoUser(UserDetails userDetails) {
 		if (userDetails instanceof ArgeoUser) {
-			return new BasicArgeoUser((ArgeoUser) userDetails);
+			return new SimpleArgeoUser((ArgeoUser) userDetails);
 		} else {
-			BasicArgeoUser argeoUser = new BasicArgeoUser();
+			SimpleArgeoUser argeoUser = new SimpleArgeoUser();
 			argeoUser.setUsername(userDetails.getUsername());
 			addAuthoritiesToRoles(userDetails.getAuthorities(), argeoUser
 					.getRoles());
@@ -74,9 +74,9 @@ public class ArgeoUserDetails extends User implements ArgeoUser {
 
 	public static ArgeoUser asArgeoUser(Authentication authentication) {
 		if (authentication.getPrincipal() instanceof ArgeoUser) {
-			return (ArgeoUser) authentication.getPrincipal();
+			return new SimpleArgeoUser((ArgeoUser) authentication.getPrincipal());
 		} else {
-			BasicArgeoUser argeoUser = new BasicArgeoUser();
+			SimpleArgeoUser argeoUser = new SimpleArgeoUser();
 			argeoUser.setUsername(authentication.getName());
 			addAuthoritiesToRoles(authentication.getAuthorities(), argeoUser
 					.getRoles());

@@ -20,8 +20,11 @@ getUserDetails.security
 > param : userName <string>
 > return : userDetails <json> : full details (roles, natures, etc).
 
-createUser.security (ADMIN only)
-> params : username <string>, password <string> 
+createUser.security (ADMIN only, POST)
+> params : userDetails <json> 
+
+updateUser.security (POST)
+> params : userDetails <json> 
 
 updateUserPassword.security (ADMIN only)
 > param : username <string>, password <string>

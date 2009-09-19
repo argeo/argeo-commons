@@ -33,7 +33,8 @@
 							org.argeo.security.*
 						</Export-Package>
 						<Import-Package>*,
-							org.argeo.server.json;resolution:=optional
+							org.argeo.server.json;resolution:=optional,
+							org.springframework.ldap.core.support;resolution:=optional
 						</Import-Package>
 					</instructions>
 				</configuration>
