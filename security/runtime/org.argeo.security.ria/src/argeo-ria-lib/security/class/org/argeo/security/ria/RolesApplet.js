@@ -306,20 +306,15 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   	 * @param data {Element} The text xml description. 
   	 */
   	load : function(){
-  		// WARNING, THE USERS APPLET MUST BE LOADED!
-		var vManager = org.argeo.ria.components.ViewsManager.getInstance();
-		this.usersAppletReference = vManager.getViewPaneById("users").getContent();
   		
-  		this.usersAppletReference.addListener("changeRolesList", function(event){
-  			var rolesList = event.getData();
+  		var service = org.argeo.security.ria.SecurityAPI.getListRolesService();
+  		service.addListener("completed", function(response){
   			var data = [];
-  			rolesList.forEach(function(el){data.push([el]);});
-  			this.tableModel.setData(data);
+  			response.getContent().forEach(function(el){data.push([el]);});
+  			this.tableModel.setData(data);  			
   		}, this);
-  		/*
-  		var data = [["ROLE_ADMIN"],["ROLE_USER"]];
-  		this.tableModel.setData(data);
-  		*/
+  		service.send();
+  		
   		var commands = this.getCommands();
   		this.toolBarPart.add(commands["new_role"].command.getToolbarButton());
   		this.toolBarPart.add(commands["delete_role"].command.getToolbarButton());
