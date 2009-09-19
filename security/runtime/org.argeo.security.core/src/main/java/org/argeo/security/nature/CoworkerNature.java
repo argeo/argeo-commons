@@ -3,6 +3,7 @@ package org.argeo.security.nature;
 import org.argeo.security.UserNature;
 
 public class CoworkerNature extends UserNature {
+	private static final long serialVersionUID = 1L;
 	private String description;
 	private String mobile;
 	private String telephoneNumber;

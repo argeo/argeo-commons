@@ -30,7 +30,7 @@ public class ArgeoUserDetailsContextMapper implements UserDetailsContextMapper {
 		List<UserNature> userInfos = new ArrayList<UserNature>();
 		for (UserNatureMapper userInfoMapper : userNatureMappers) {
 			UserNature userNature = userInfoMapper.mapUserInfoFromContext(ctx);
-			if (log.isDebugEnabled())
+			if (log.isTraceEnabled())
 				log.debug("Add user nature " + userNature);
 			userInfos.add(userNature);
 		}
@@ -49,7 +49,7 @@ public class ArgeoUserDetailsContextMapper implements UserDetailsContextMapper {
 				for (UserNatureMapper userInfoMapper : userNatureMappers) {
 					if (userInfoMapper.supports(userInfo)) {
 						userInfoMapper.mapUserInfoToContext(userInfo, ctx);
-						break;// use the first mapper found an no others
+						break;// use the first mapper found and no others
 					}
 				}
 			}

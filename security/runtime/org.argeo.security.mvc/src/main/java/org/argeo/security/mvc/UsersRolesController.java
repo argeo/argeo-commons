@@ -7,11 +7,10 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
 import org.argeo.security.BasicArgeoUser;
 import org.argeo.security.core.ArgeoUserDetails;
-import org.argeo.security.dao.RoleDao;
-import org.argeo.security.dao.UserDao;
 import org.argeo.server.BooleanAnswer;
 import org.argeo.server.DeserializingEditor;
 import org.argeo.server.ServerAnswer;
@@ -31,8 +30,7 @@ public class UsersRolesController implements MvcConstants {
 	private final static Log log = LogFactory
 			.getLog(UsersRolesController.class);
 
-	private UserDao userDao;
-	private RoleDao roleDao;
+	private ArgeoSecurityService securityService;
 
 	private ServerDeserializer userDeserializer = null;
 
@@ -55,29 +53,31 @@ public class UsersRolesController implements MvcConstants {
 	@RequestMapping("/getUsersList.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public List<ArgeoUser> getUsersList() {
-		return userDao.listUsers();
+		return securityService.getSecurityDao().listUsers();
 	}
 
 	@RequestMapping("/userExists.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public BooleanAnswer userExists(@RequestParam("username") String username) {
-		return new BooleanAnswer(userDao.userExists(username));
+		return new BooleanAnswer(securityService.getSecurityDao().userExists(
+				username));
 	}
 
 	@RequestMapping("/createUser.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public ArgeoUser createUser(Reader reader) {
 		ArgeoUser user = (ArgeoUser) userDeserializer.deserialize(reader);
-		userDao.create(user);
-		return userDao.getUser(user.getUsername());
+		cleanUserBeforeCreate(user);
+		securityService.newUser(user);
+		return securityService.getSecurityDao().getUser(user.getUsername());
 	}
 
 	@RequestMapping("/updateUser.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public ArgeoUser updateUser(Reader reader) {
 		ArgeoUser user = (ArgeoUser) userDeserializer.deserialize(reader);
-		userDao.update(user);
-		return userDao.getUser(user.getUsername());
+		securityService.getSecurityDao().update(user);
+		return securityService.getSecurityDao().getUser(user.getUsername());
 	}
 
 	@RequestMapping("/createUser2.security")
@@ -92,54 +92,56 @@ public class UsersRolesController implements MvcConstants {
 		} finally {
 			IOUtils.closeQuietly(reader);
 		}
-		userDao.create(user);
-		return userDao.getUser(user.getUsername());
+		cleanUserBeforeCreate(user);
+		securityService.newUser(user);
+		return securityService.getSecurityDao().getUser(user.getUsername());
 	}
 
 	@RequestMapping("/deleteUser.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public ServerAnswer deleteUser(@RequestParam("username") String username) {
-		userDao.delete(username);
+		securityService.getSecurityDao().delete(username);
 		return ServerAnswer.ok("User " + username + " deleted");
 	}
 
 	@RequestMapping("/getUserDetails.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public ArgeoUser getUserDetails(@RequestParam("username") String username) {
-		return userDao.getUser(username);
+		return securityService.getSecurityDao().getUser(username);
 	}
 
 	/* ROLE */
 	@RequestMapping("/getRolesList.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public List<String> getEditableRolesList() {
-		return roleDao.listEditableRoles();
+		return securityService.getSecurityDao().listEditableRoles();
 	}
 
 	@RequestMapping("/createRole.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public ServerAnswer createRole(@RequestParam("role") String role) {
-		roleDao.create(role);
+		securityService.newRole(role);
 		return ServerAnswer.ok("Role " + role + " created");
 	}
 
 	@RequestMapping("/deleteRole.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public ServerAnswer deleteRole(@RequestParam("role") String role) {
-		roleDao.delete(role);
+		securityService.getSecurityDao().deleteRole(role);
 		return ServerAnswer.ok("Role " + role + " created");
 	}
 
-	public void setUserDao(UserDao userDao) {
-		this.userDao = userDao;
-	}
-
-	public void setRoleDao(RoleDao roleDao) {
-		this.roleDao = roleDao;
+	protected void cleanUserBeforeCreate(ArgeoUser user) {
+		user.getUserNatures().clear();
+		user.getRoles().clear();
 	}
 
 	public void setUserDeserializer(ServerDeserializer userDeserializer) {
 		this.userDeserializer = userDeserializer;
+	}
+
+	public void setSecurityService(ArgeoSecurityService securityService) {
+		this.securityService = securityService;
 	}
 
 }

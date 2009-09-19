@@ -9,6 +9,8 @@
 	<service ref="_authenticationManager"
 		interface="org.springframework.security.AuthenticationManager" />
 
-	<service ref="userDao" interface="org.argeo.security.dao.UserDao" />
-	<service ref="roleDao" interface="org.argeo.security.dao.RoleDao" />
+	<service ref="securityDao" interface="org.argeo.security.ArgeoSecurityDao" />
+
+	<list id="userNatureMappers" interface="org.argeo.security.ldap.UserNatureMapper"
+		cardinality="0..N" />
 </beans:beans>

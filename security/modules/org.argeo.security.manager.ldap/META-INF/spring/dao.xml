@@ -5,14 +5,9 @@
               http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.4.xsd">
 
 
-	<bean id="userDao" class="org.argeo.security.ldap.UserDaoLdap">
+	<bean id="securityDao" class="org.argeo.security.ldap.SecurityDaoLdap">
 		<constructor-arg ref="contextSource" />
 		<property name="userDetailsManager" ref="userDetailsManager" />
-	</bean>
-
-	<bean id="roleDao" class="org.argeo.security.ldap.RoleDaoLdap">
-		<constructor-arg ref="contextSource" />
 		<property name="authoritiesPopulator" ref="authoritiesPopulator" />
 	</bean>
-
 </beans>

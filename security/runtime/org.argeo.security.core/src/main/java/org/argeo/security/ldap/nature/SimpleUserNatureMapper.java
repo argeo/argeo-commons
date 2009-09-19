@@ -1,6 +1,7 @@
-package org.argeo.security.ldap;
+package org.argeo.security.ldap.nature;
 
 import org.argeo.security.UserNature;
+import org.argeo.security.ldap.UserNatureMapper;
 import org.argeo.security.nature.SimpleUserNature;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;

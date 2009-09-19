@@ -58,12 +58,3 @@ objectClass: groupOfUniqueNames
 objectClass: top
 cn: admin
 uniquemember: uid=gandalf,ou=users,dc=demo,dc=argeo,dc=org
-
-dn: cn=user,ou=groups,dc=demo,dc=argeo,dc=org
-objectClass: groupOfUniqueNames
-objectClass: top
-cn: user
-uniquemember: uid=gandalf,ou=users,dc=demo,dc=argeo,dc=org
-uniquemember: uid=demo,ou=users,dc=demo,dc=argeo,dc=org
-uniquemember: uid=frodo,ou=users,dc=demo,dc=argeo,dc=org
-

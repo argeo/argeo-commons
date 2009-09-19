@@ -3,29 +3,30 @@ package org.argeo.security.ldap;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.naming.Name;
+
+import org.argeo.security.ArgeoSecurityDao;
 import org.argeo.security.ArgeoUser;
 import org.argeo.security.core.ArgeoUserDetails;
-import org.argeo.security.dao.UserDao;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsManager;
 
-public class UserDaoLdap implements UserDao {
+public class SecurityDaoLdap implements ArgeoSecurityDao {
 	// private final static Log log = LogFactory.getLog(UserDaoLdap.class);
 
 	private UserDetailsManager userDetailsManager;
+	private ArgeoLdapAuthoritiesPopulator authoritiesPopulator;
 	private String userBase = "ou=users";
 	private String usernameAttribute = "uid";
 
 	private final LdapTemplate ldapTemplate;
 
-	public UserDaoLdap(ContextSource contextSource) {
+	public SecurityDaoLdap(ContextSource contextSource) {
 		ldapTemplate = new LdapTemplate(contextSource);
 	}
 
@@ -56,6 +57,21 @@ public class UserDaoLdap implements UserDao {
 		return lst;
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<String> listEditableRoles() {
+		return (List<String>) ldapTemplate.listBindings(authoritiesPopulator
+				.getGroupSearchBase(), new ContextMapper() {
+			public Object mapFromContext(Object ctxArg) {
+				String groupName = ((DirContextAdapter) ctxArg)
+						.getStringAttribute(authoritiesPopulator
+								.getGroupRoleAttribute());
+				String roleName = authoritiesPopulator
+						.convertGroupToRole(groupName);
+				return roleName;
+			}
+		});
+	}
+
 	public void update(ArgeoUser user) {
 		userDetailsManager.updateUser(new ArgeoUserDetails(user));
 	}
@@ -72,19 +88,23 @@ public class UserDaoLdap implements UserDao {
 		return userDetailsManager.userExists(username);
 	}
 
-	public void addRoles(String username, List<String> roles) {
-		GrantedAuthority[] auths = new GrantedAuthority[roles.size()];
-		for (int i = 0; i < roles.size(); i++)
-			auths[i] = new GrantedAuthorityImpl(roles.get(i));
-		ArgeoUserDetails user = (ArgeoUserDetails) userDetailsManager
-				.loadUserByUsername(username);
-		throw new UnsupportedOperationException();
-		//userDetailsManager.
+	public void deleteRole(String role) {
+		if(true)
+			throw new UnsupportedOperationException();
+		
+		Name dn = buildRoleDn(role);
+		DirContextAdapter context = new DirContextAdapter();
+		context.setAttributeValues("objectClass", new String[] { "top",
+				"groupOfUniqueNames" });
+		context.setAttributeValue("cn", role);
+		ldapTemplate.bind(dn, context, null);
+	}
+	
+	protected Name buildRoleDn(String name) {
+		return new DistinguishedName("cn=" + name + ","
+				+ authoritiesPopulator.getGroupSearchBase());
 	}
 
-	public void removeRoles(String username, List<String> roles) {
-		throw new UnsupportedOperationException();
-	}
 
 	public void setUserDetailsManager(UserDetailsManager userDetailsManager) {
 		this.userDetailsManager = userDetailsManager;
@@ -96,5 +116,10 @@ public class UserDaoLdap implements UserDao {
 
 	public void setUsernameAttribute(String usernameAttribute) {
 		this.usernameAttribute = usernameAttribute;
+	}
+
+	public void setAuthoritiesPopulator(
+			ArgeoLdapAuthoritiesPopulator authoritiesPopulator) {
+		this.authoritiesPopulator = authoritiesPopulator;
 	}
 }

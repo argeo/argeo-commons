@@ -29,6 +29,7 @@ public class GenericJsonDeserializer<T> extends JsonDeserializer<T> {
 
 	private List<JsonObjectFactory> objectFactories = new ArrayList<JsonObjectFactory>();
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public T deserialize(JsonParser parser, DeserializationContext ctxt)
 			throws IOException, JsonProcessingException {
@@ -44,7 +45,7 @@ public class GenericJsonDeserializer<T> extends JsonDeserializer<T> {
 		generator.writeTree(root);
 		String str = writer.toString();
 
-		if (log.isDebugEnabled())
+		if (log.isTraceEnabled())
 			log.debug("Deserialize object of type=" + type + ", str=" + str);
 
 		JsonObjectFactory objectFactory = null;
@@ -59,7 +60,7 @@ public class GenericJsonDeserializer<T> extends JsonDeserializer<T> {
 			throw new ArgeoServerException(
 					"Cannot find JSON object factory for type " + type);
 
-		return (T) objectFactory.readValue(type, str);
+		return (T)objectFactory.readValue(type, str);
 	}
 
 	public void setTypeField(String typeField) {

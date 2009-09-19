@@ -1,6 +1,6 @@
 Bundle-SymbolicName: org.argeo.security.manager.ldap
 Bundle-Version: 0.1.1.SNAPSHOT
-Import-Package: org.argeo.security.dao,
+Import-Package: org.argeo.security,
  org.argeo.security.ldap,
  org.springframework.ldap.core.support,
  org.springframework.security,

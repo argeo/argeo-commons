@@ -21,37 +21,24 @@ public class JsonObjectFactoryImpl implements JsonObjectFactory,
 	private ClassLoader classLoader = getClass().getClassLoader();
 
 	private ObjectMapper objectMapper = new ObjectMapper();
-	private Map<String, Class> supportedTypes = new HashMap<String, Class>();
+	private Map<String, Class<?>> supportedTypes = new HashMap<String,  Class<?>>();
 
 	public Boolean supports(String type) {
 		if (supportedTypes.containsKey(type))
 			return true;
 
 		return loadClass(type) != null ? true : false;
-		// try {
-		// // Class.forName(type);
-		// Thread.currentThread().getContextClassLoader().loadClass(type);
-		// return true;
-		// } catch (ClassNotFoundException e) {
-		// return false;
-		// }
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T> T readValue(String type, String str) {
-		final Class clss;
+		final  Class<?> clss;
 		if (supportedTypes.containsKey(type))
 			clss = supportedTypes.get(type);
 		else {
 			clss = loadClass(type);
 			if (clss == null)
 				throw new ArgeoServerException("Cannot find type " + type);
-			// try {
-			// // clss = Class.forName(type);
-			// clss = Thread.currentThread().getContextClassLoader()
-			// .loadClass(type);
-			// } catch (ClassNotFoundException e) {
-			// throw new ArgeoServerException("Cannot find type " + type, e);
-			// }
 		}
 
 		try {
@@ -62,12 +49,11 @@ public class JsonObjectFactoryImpl implements JsonObjectFactory,
 		}
 	}
 
-	public void setSupportedTypes(Map<String, Class> supportedTypes) {
+	public void setSupportedTypes(Map<String,  Class<?>> supportedTypes) {
 		this.supportedTypes = supportedTypes;
 	}
 
-	protected Class loadClass(String type) {
-		Class clss;
+	protected  Class<?> loadClass(String type) {
 //		try {
 //			return Class.forName(type);
 //		} catch (ClassNotFoundException e) {

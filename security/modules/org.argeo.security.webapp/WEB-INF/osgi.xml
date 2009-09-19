@@ -9,8 +9,7 @@
 	<reference id="_authenticationManager"
 		interface="org.springframework.security.AuthenticationManager" />
 
-	<reference id="userDao" interface="org.argeo.security.dao.UserDao" />
-	<reference id="roleDao" interface="org.argeo.security.dao.RoleDao" />
+	<reference id="securityService" interface="org.argeo.security.ArgeoSecurityService" />
 
 	<list id="objectFactories" interface="org.argeo.server.json.JsonObjectFactory"
 		cardinality="0..N" />
