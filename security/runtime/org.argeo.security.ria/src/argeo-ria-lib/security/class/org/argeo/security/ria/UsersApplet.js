@@ -28,6 +28,18 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   	 */
   	commands : {
   		init : {
+  			"load_users" : {
+  				label 		: "Reload Users",
+  				icon 		: "org.argeo.security.ria/view-refresh.png",
+  				shortcut	: "Control+h",
+  				enabled 	: true,
+  				menu		: "Users",
+  				toolbar		: "users",
+  				callback	: function(e){
+  					this.loadUsersList();
+  				},
+  				command		: null
+  			},
   			"new_user" : {
   				label	 	: "New User", 
   				icon 		: "org.argeo.security.ria/list-add.png",
@@ -98,7 +110,12 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   	},
   	usersList : {
   		check : "Map",
+  		apply : "_applyUsersList",
   		event : "changeUsersList"
+  	},
+  	rolesList : {
+  		check : "Array",
+  		event : "changeRolesList"
   	},
   	instanceId : {init:""},
   	instanceLabel : {init:""}
@@ -114,7 +131,6 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   		this.setView(viewPane);
   		this.setViewSelection(new org.argeo.ria.components.ViewSelection(viewPane.getViewId()));
   		
-  		this.setUsersList({});
   		this.toolBar = new qx.ui.toolbar.ToolBar();
   		this.toolBarPart = new qx.ui.toolbar.Part();
   		this.toolBar.add(this.toolBarPart);  		
@@ -138,9 +154,8 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
 		this.table.addListener("cellDblclick", function(cellEvent){
 			this.getCommands()["edit_user"].command.execute();
 		}, this);
-  		this.addListener("changeUsersList", function(){
-			this._updateTableModel();  		
-  		}, this);
+		
+  		this.setUsersList({});		
   		this.setGuiMode("clear");
   	},
   	
@@ -188,7 +203,10 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   		this.toolBarPart.add(commands["delete_user"].command.getToolbarButton());
   		this.toolBarPart.add(commands["edit_user"].command.getToolbarButton());  		
   		this.toolBar.setShow("icon");
-
+		this.loadUsersList();
+  	},
+  	
+  	loadUsersList : function(){
   		var request = org.argeo.security.ria.SecurityAPI.getListUsersService();
   		request.addListener("completed", function(response){
   			var jSon = response.getContent();
@@ -200,29 +218,33 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   			}
   			this.setUsersList(usMap);  			
   		}, this);
-  		request.send();
+  		request.send();  		
   	},
   	
-  	_updateTableModel : function(){
-  		var usList = this.getUsersList();
+  	_applyUsersList : function(usList){
   		var data = [];
+  		var rolesList = [];
   		qx.lang.Object.getValues(usList).forEach(function(usObject){
+  			var roles = usObject.getRoles();
+  			rolesList = qx.lang.Array.unique(rolesList.concat(roles));
   			data.push([usObject.getName(), usObject.getRoles().join(",")]);
   		});
+  		this.setRolesList(rolesList);
   		this.tableModel.setData(data);  		  		
   	},
-  	
-  	applySelection : function(selectionValues, target){
+  	  	
+  	applySelection : function(selectionValue, target, ignoreCase){
   		var selectionModel = this.table.getSelectionModel();  		
   		selectionModel.clearSelection();
-  		if(!selectionValues){
+  		if(!selectionValue){
   			return;
   		}
   		selectionModel.setBatchMode(true);
   		var data = this.tableModel.getData();
   		for(var i=0;i<this.tableModel.getRowCount();i++){
   			var value = this.tableModel.getRowDataAsMap(i)[target];
-  			if(qx.lang.Array.contains(selectionValues, value)){
+  			var pattern = new RegExp(selectionValue, "g"+(ignoreCase?"i":""));
+  			if(pattern.test(value)){
   				selectionModel.addSelectionInterval(i, i);
   			}
   		}

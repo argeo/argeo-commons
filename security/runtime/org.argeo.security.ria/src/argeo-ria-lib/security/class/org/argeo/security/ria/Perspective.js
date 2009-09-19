@@ -49,9 +49,9 @@ qx.Class.define("org.argeo.security.ria.Perspective", {
 		initViews : function(viewsManager) {
 
 			var rolesView = viewsManager.initIViewClass(org.argeo.security.ria.RolesApplet, "roles");
-			rolesView.load();
-			
 			var usersView = viewsManager.initIViewClass(org.argeo.security.ria.UsersApplet, "users");
+			
+			rolesView.load();			
 			usersView.load();
 			
 		},

@@ -263,10 +263,11 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
 			return;
 		}
 		var uniqueValue = this._selectionToValues(selectionModel)[0];
-		var initSelection = this.rolesUsersStub[uniqueValue];
+		//var initSelection = this.rolesUsersStub[uniqueValue];
+		this.usersAppletReference.applySelection(uniqueValue, "roles");
+		var initSelection = this.usersAppletReference.getViewSelection().getNodes(); 
 		this.setChooserOriginalSelection(initSelection);
 		this.setChooserSelectionModified(false);
-		this.usersAppletReference.applySelection(initSelection, "username");
 		this.saveButton.setEnabled(false);
   	},
   	
@@ -304,10 +305,21 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   	 * Load a given row : the data passed must be a simple data array.
   	 * @param data {Element} The text xml description. 
   	 */
-  	load : function(){  		
+  	load : function(){
+  		// WARNING, THE USERS APPLET MUST BE LOADED!
+		var vManager = org.argeo.ria.components.ViewsManager.getInstance();
+		this.usersAppletReference = vManager.getViewPaneById("users").getContent();
+  		
+  		this.usersAppletReference.addListener("changeRolesList", function(event){
+  			var rolesList = event.getData();
+  			var data = [];
+  			rolesList.forEach(function(el){data.push([el]);});
+  			this.tableModel.setData(data);
+  		}, this);
+  		/*
   		var data = [["ROLE_ADMIN"],["ROLE_USER"]];
   		this.tableModel.setData(data);
-  		
+  		*/
   		var commands = this.getCommands();
   		this.toolBarPart.add(commands["new_role"].command.getToolbarButton());
   		this.toolBarPart.add(commands["delete_role"].command.getToolbarButton());
