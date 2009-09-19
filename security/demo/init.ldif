@@ -27,6 +27,19 @@ sn: User
 uid: demo
 userpassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
 
+dn: uid=root,ou=users,dc=demo,dc=argeo,dc=org
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: top
+cn: demo User
+description: Superuser
+givenname: Root
+mail: root@localhost
+sn: Root
+uid: root
+userpassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
+
 dn: uid=frodo,ou=users,dc=demo,dc=argeo,dc=org
 objectClass: person
 objectClass: inetOrgPerson
@@ -58,3 +71,4 @@ objectClass: groupOfUniqueNames
 objectClass: top
 cn: admin
 uniquemember: uid=gandalf,ou=users,dc=demo,dc=argeo,dc=org
+uniquemember: uid=root,ou=users,dc=demo,dc=argeo,dc=org

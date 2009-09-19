@@ -4,6 +4,7 @@ import org.argeo.security.ArgeoSecurity;
 import org.argeo.security.ArgeoSecurityDao;
 import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
+import org.argeo.security.BasicArgeoUser;
 
 public class DefaultSecurityService implements ArgeoSecurityService {
 	private ArgeoSecurity argeoSecurity = new DefaultArgeoSecurity();
@@ -14,9 +15,13 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 	}
 
 	public void newRole(String role) {
-		ArgeoUser superUser = securityDao.getUser(argeoSecurity.getSuperUsername());
-		superUser.getRoles().add(role);
-		securityDao.update(superUser);
+		securityDao.createRole(role, argeoSecurity.getSuperUsername());
+	}
+
+	public void updateUserPassword(String username, String password) {
+		BasicArgeoUser user = new BasicArgeoUser(securityDao.getUser(username));
+		user.setPassword(password);
+		securityDao.update(user);
 	}
 
 	public void newUser(ArgeoUser user) {

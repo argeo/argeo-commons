@@ -128,7 +128,25 @@ public class UsersRolesController implements MvcConstants {
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public ServerAnswer deleteRole(@RequestParam("role") String role) {
 		securityService.getSecurityDao().deleteRole(role);
-		return ServerAnswer.ok("Role " + role + " created");
+		return ServerAnswer.ok("Role " + role + " deleted");
+	}
+
+	@RequestMapping("/updateUserPassword.security")
+	@ModelAttribute(ANSWER_MODEL_KEY)
+	public ServerAnswer updateUserPassword(
+			@RequestParam("username") String username,
+			@RequestParam("password") String password) {
+		securityService.updateUserPassword(username, password);
+		return ServerAnswer.ok("Password updated for user " + username);
+	}
+
+	@RequestMapping("/updatePassword.security")
+	@ModelAttribute(ANSWER_MODEL_KEY)
+	public ServerAnswer updatePassword(
+			@RequestParam("password") String password,
+			@RequestParam("oldPassword") String oldPassword) {
+		securityService.getSecurityDao().updatePassword(oldPassword, password);
+		return ServerAnswer.ok("Password updated");
 	}
 
 	protected void cleanUserBeforeCreate(ArgeoUser user) {

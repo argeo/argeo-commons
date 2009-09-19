@@ -13,6 +13,8 @@ public interface ArgeoSecurityDao {
 
 	public void delete(String username);
 
+	public void createRole(String role, String superuserName);
+
 	public void deleteRole(String role);
 
 	public void updatePassword(String oldPassword, String newPassword);

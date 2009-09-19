@@ -18,6 +18,7 @@ public class BasicArgeoUser implements ArgeoUser, Serializable {
 
 	public BasicArgeoUser(ArgeoUser argeoUser) {
 		username = argeoUser.getUsername();
+		password = argeoUser.getPassword();
 		userNatures = new ArrayList<UserNature>(argeoUser.getUserNatures());
 		roles = new ArrayList<String>(argeoUser.getRoles());
 	}

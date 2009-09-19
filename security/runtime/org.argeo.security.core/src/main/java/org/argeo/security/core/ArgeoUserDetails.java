@@ -31,8 +31,8 @@ public class ArgeoUserDetails extends User implements ArgeoUser {
 	}
 
 	public ArgeoUserDetails(ArgeoUser argeoUser) {
-		this(argeoUser.getUsername(), argeoUser.getUserNatures(), argeoUser.getPassword(),
-				rolesToAuthorities(argeoUser.getRoles()));
+		this(argeoUser.getUsername(), argeoUser.getUserNatures(), argeoUser
+				.getPassword(), rolesToAuthorities(argeoUser.getRoles()));
 	}
 
 	public List<UserNature> getUserNatures() {
@@ -61,11 +61,15 @@ public class ArgeoUserDetails extends User implements ArgeoUser {
 	}
 
 	public static BasicArgeoUser createBasicArgeoUser(UserDetails userDetails) {
-		BasicArgeoUser argeoUser = new BasicArgeoUser();
-		argeoUser.setUsername(userDetails.getUsername());
-		addAuthoritiesToRoles(userDetails.getAuthorities(), argeoUser
-				.getRoles());
-		return argeoUser;
+		if (userDetails instanceof ArgeoUser) {
+			return new BasicArgeoUser((ArgeoUser) userDetails);
+		} else {
+			BasicArgeoUser argeoUser = new BasicArgeoUser();
+			argeoUser.setUsername(userDetails.getUsername());
+			addAuthoritiesToRoles(userDetails.getAuthorities(), argeoUser
+					.getRoles());
+			return argeoUser;
+		}
 	}
 
 	public static ArgeoUser asArgeoUser(Authentication authentication) {

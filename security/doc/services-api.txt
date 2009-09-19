@@ -3,6 +3,9 @@ Security RIA API
 ******************
 USERS
 ******************
+getCredentials.security
+> return : userDetails <json> of the logged user
+
 getUsersList.security
 > param : getNatures <true|false>
 > return : users[] <json> : containing username and roles, and depending on the value of getNatures, the natures.
@@ -10,18 +13,21 @@ getUsersList.security
 userExists.security
 > param : userName <string>
 
-deleteUser.security
+deleteUser.security (ADMIN only)
 > param : userName <string>
 
 getUserDetails.security
 > param : userName <string>
 > return : userDetails <json> : full details (roles, natures, etc).
 
-createUser.security
+createUser.security (ADMIN only)
 > params : userName <string>, password <string> 
 
-updateUserPassword.security
-> param : userName <string>, password <string>, [oldpassword <string>] (depends on the admin being logged in or not)
+updateUserPassword.security (ADMIN only)
+> param : userName <string>, password <string>
+
+updatePassword.security
+> param : password <string>, oldpassword <string>
 
 
 ******************
@@ -31,17 +37,17 @@ getRolesList.security
 > param : aucun
 > return : roles[] <json>
 
-getUsersForRole.security
+#getUsersForRole.security
 > param : roleName <string>, getNatures <true|false>
 > return : users[] <json> (username and eventually natures)
 
-createRole.security
+createRole.security (ADMIN only)
 > param : roleName  <string>
 
-deleteRole.security
+deleteRole.security (ADMIN only)
 > param : roleName  <string>
 
-updateUserRoleLink.security
+#updateUserRoleLink.security
 > params : <string> roleName,  <string> username, <string> action="set|unset"
 
 
@@ -49,11 +55,11 @@ updateUserRoleLink.security
 LINKS & NATURES
 ************************
 
-createUserNature.security
+#createUserNature.security
 > params : natureObject <json>, userName <string>
 
-deleteUserNature.security
+#deleteUserNature.security
 > params : natureObject <json>, userName <string>
 
-updateUserNature.security
+#updateUserNature.security
 > params : natureObject <json>, userName <string>
