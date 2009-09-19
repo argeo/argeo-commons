@@ -3,6 +3,8 @@ package org.argeo.security;
 import java.util.List;
 
 public interface ArgeoSecurityDao {
+	public ArgeoUser getCurrentUser();
+	
 	public List<ArgeoUser> listUsers();
 
 	public List<String> listEditableRoles();

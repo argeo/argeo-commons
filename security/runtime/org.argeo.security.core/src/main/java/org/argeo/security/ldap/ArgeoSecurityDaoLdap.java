@@ -19,6 +19,8 @@ import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.security.Authentication;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.ldap.DefaultLdapUsernameToDnMapper;
 import org.springframework.security.ldap.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.LdapUsernameToDnMapper;
@@ -90,6 +92,15 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 
 	public ArgeoUser getUser(String uname) {
 		return createBasicArgeoUser(getDetails(uname));
+	}
+
+	public ArgeoUser getCurrentUser() {
+		Authentication authentication = SecurityContextHolder.getContext()
+				.getAuthentication();
+		ArgeoUser argeoUser = ArgeoUserDetails.asArgeoUser(authentication);
+		if (argeoUser.getRoles().contains(defaultRole))
+			argeoUser.getRoles().remove(defaultRole);
+		return argeoUser;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -246,5 +257,9 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 
 	public void setUserNatureMappers(List<UserNatureMapper> userNatureMappers) {
 		this.userNatureMappers = userNatureMappers;
+	}
+
+	public String getDefaultRole() {
+		return defaultRole;
 	}
 }

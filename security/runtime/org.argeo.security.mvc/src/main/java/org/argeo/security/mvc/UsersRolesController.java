@@ -9,18 +9,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
-import org.argeo.security.SimpleArgeoUser;
-import org.argeo.security.core.ArgeoUserDetails;
 import org.argeo.server.BooleanAnswer;
-import org.argeo.server.DeserializingEditor;
 import org.argeo.server.ServerAnswer;
 import org.argeo.server.ServerDeserializer;
 import org.argeo.server.mvc.MvcConstants;
-import org.springframework.security.Authentication;
-import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,20 +27,18 @@ public class UsersRolesController implements MvcConstants {
 
 	private ServerDeserializer userDeserializer = null;
 
-	@InitBinder
-	public void initBinder(WebDataBinder binder) {
-		binder.registerCustomEditor(SimpleArgeoUser.class,
-				new DeserializingEditor(userDeserializer));
-	}
+	// @InitBinder
+	// public void initBinder(WebDataBinder binder) {
+	// binder.registerCustomEditor(SimpleArgeoUser.class,
+	// new DeserializingEditor(userDeserializer));
+	// }
 
 	/* USER */
 
 	@RequestMapping("/getCredentials.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public ArgeoUser getCredentials() {
-		Authentication authentication = SecurityContextHolder.getContext()
-				.getAuthentication();
-		return ArgeoUserDetails.asArgeoUser(authentication);
+		return securityService.getSecurityDao().getCurrentUser();
 	}
 
 	@RequestMapping("/getUsersList.security")
