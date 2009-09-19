@@ -20,28 +20,64 @@ import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.security.ldap.DefaultLdapUsernameToDnMapper;
+import org.springframework.security.ldap.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.LdapUsernameToDnMapper;
 import org.springframework.security.ldap.LdapUtils;
+import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsManager;
+import org.springframework.security.userdetails.ldap.LdapUserDetailsManager;
+import org.springframework.security.userdetails.ldap.UserDetailsContextMapper;
 
 public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean {
 	// private final static Log log = LogFactory.getLog(UserDaoLdap.class);
 
 	private UserDetailsManager userDetailsManager;
-	private ArgeoLdapAuthoritiesPopulator authoritiesPopulator;
+	private LdapAuthoritiesPopulator authoritiesPopulator;
 	private String userBase = "ou=users";
-	private String usernameAttribute = "uid";
+	private String usernameAttributeName = "uid";
+	private String groupBase = "ou=groups";
+	private String groupRoleAttributeName = "cn";
+	private String groupMemberAttributeName = "uniquemember";
+	private String defaultRole = "ROLE_USER";
+	private String rolePrefix = "ROLE_";
 
 	private final LdapTemplate ldapTemplate;
 
-	/* TODO: factorize with user details manager */
 	private LdapUsernameToDnMapper usernameMapper = null;
+
+	private UserDetailsContextMapper userDetailsMapper;
+	private List<UserNatureMapper> userNatureMappers;
 
 	public void afterPropertiesSet() throws Exception {
 		if (usernameMapper == null)
 			usernameMapper = new DefaultLdapUsernameToDnMapper(userBase,
-					usernameAttribute);
+					usernameAttributeName);
+
+		if (authoritiesPopulator == null) {
+			DefaultLdapAuthoritiesPopulator ap = new DefaultLdapAuthoritiesPopulator(
+					ldapTemplate.getContextSource(), groupBase);
+			ap.setDefaultRole(defaultRole);
+			ap.setGroupSearchFilter(groupMemberAttributeName + "={0}");
+			authoritiesPopulator = ap;
+		}
+
+		if (userDetailsMapper == null) {
+			ArgeoUserDetailsContextMapper audm = new ArgeoUserDetailsContextMapper();
+			audm.setUserNatureMappers(userNatureMappers);
+			userDetailsMapper = audm;
+		}
+
+		if (userDetailsManager == null) {
+			LdapUserDetailsManager ludm = new LdapUserDetailsManager(
+					ldapTemplate.getContextSource());
+			ludm.setGroupSearchBase(groupBase);
+			ludm.setUserDetailsMapper(userDetailsMapper);
+			ludm.setUsernameMapper(usernameMapper);
+			ludm.setGroupMemberAttributeName(groupMemberAttributeName);
+			userDetailsManager = ludm;
+		}
+
 	}
 
 	public ArgeoSecurityDaoLdap(ContextSource contextSource) {
@@ -62,7 +98,7 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 				new DistinguishedName(userBase), new ContextMapper() {
 					public Object mapFromContext(Object ctxArg) {
 						DirContextAdapter ctx = (DirContextAdapter) ctxArg;
-						return ctx.getStringAttribute(usernameAttribute);
+						return ctx.getStringAttribute(usernameAttributeName);
 					}
 				});
 
@@ -75,17 +111,15 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 
 	@SuppressWarnings("unchecked")
 	public List<String> listEditableRoles() {
-		return (List<String>) ldapTemplate.listBindings(authoritiesPopulator
-				.getGroupSearchBase(), new ContextMapper() {
-			public Object mapFromContext(Object ctxArg) {
-				String groupName = ((DirContextAdapter) ctxArg)
-						.getStringAttribute(authoritiesPopulator
-								.getGroupRoleAttribute());
-				String roleName = authoritiesPopulator
-						.convertGroupToRole(groupName);
-				return roleName;
-			}
-		});
+		return (List<String>) ldapTemplate.listBindings(groupBase,
+				new ContextMapper() {
+					public Object mapFromContext(Object ctxArg) {
+						String groupName = ((DirContextAdapter) ctxArg)
+								.getStringAttribute(groupRoleAttributeName);
+						String roleName = convertGroupToRole(groupName);
+						return roleName;
+					}
+				});
 	}
 
 	public void update(ArgeoUser user) {
@@ -134,18 +168,23 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 	}
 
 	protected String convertRoleToGroup(String role) {
-		// FIXME: factorize with spring security
 		String group = role;
-		if (group.startsWith("ROLE_")) {
-			group = group.substring("ROLE_".length());
+		if (group.startsWith(rolePrefix)) {
+			group = group.substring(rolePrefix.length());
 			group = group.toLowerCase();
 		}
 		return group;
 	}
 
+	public String convertGroupToRole(String groupName) {
+		groupName = groupName.toUpperCase();
+
+		return rolePrefix + groupName;
+	}
+
 	protected Name buildGroupDn(String name) {
-		return new DistinguishedName("cn=" + name + ","
-				+ authoritiesPopulator.getGroupSearchBase());
+		return new DistinguishedName(groupRoleAttributeName + "=" + name + ","
+				+ groupBase);
 	}
 
 	public void setUserDetailsManager(UserDetailsManager userDetailsManager) {
@@ -156,16 +195,56 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 		this.userBase = userBase;
 	}
 
-	public void setUsernameAttribute(String usernameAttribute) {
-		this.usernameAttribute = usernameAttribute;
+	public void setUsernameAttributeName(String usernameAttribute) {
+		this.usernameAttributeName = usernameAttribute;
 	}
 
 	public void setAuthoritiesPopulator(
-			ArgeoLdapAuthoritiesPopulator authoritiesPopulator) {
+			LdapAuthoritiesPopulator authoritiesPopulator) {
 		this.authoritiesPopulator = authoritiesPopulator;
 	}
 
 	protected UserDetails getDetails(String username) {
 		return userDetailsManager.loadUserByUsername(username);
+	}
+
+	public void setGroupBase(String groupBase) {
+		this.groupBase = groupBase;
+	}
+
+	public void setGroupRoleAttributeName(String groupRoleAttributeName) {
+		this.groupRoleAttributeName = groupRoleAttributeName;
+	}
+
+	public void setGroupMemberAttributeName(String groupMemberAttributeName) {
+		this.groupMemberAttributeName = groupMemberAttributeName;
+	}
+
+	public void setDefaultRole(String defaultRole) {
+		this.defaultRole = defaultRole;
+	}
+
+	public void setRolePrefix(String rolePrefix) {
+		this.rolePrefix = rolePrefix;
+	}
+
+	public void setUsernameMapper(LdapUsernameToDnMapper usernameMapper) {
+		this.usernameMapper = usernameMapper;
+	}
+
+	public void setUserDetailsMapper(UserDetailsContextMapper userDetailsMapper) {
+		this.userDetailsMapper = userDetailsMapper;
+	}
+
+	public LdapAuthoritiesPopulator getAuthoritiesPopulator() {
+		return authoritiesPopulator;
+	}
+
+	public UserDetailsContextMapper getUserDetailsMapper() {
+		return userDetailsMapper;
+	}
+
+	public void setUserNatureMappers(List<UserNatureMapper> userNatureMappers) {
+		this.userNatureMappers = userNatureMappers;
 	}
 }
