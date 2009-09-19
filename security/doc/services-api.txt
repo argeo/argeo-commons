@@ -11,20 +11,20 @@ getUsersList.security
 > return : users[] <json> : containing username and roles, and depending on the value of getNatures, the natures.
 
 userExists.security
-> param : userName <string>
+> param : username <string>
 
 deleteUser.security (ADMIN only)
-> param : userName <string>
+> param : username <string>
 
 getUserDetails.security
 > param : userName <string>
 > return : userDetails <json> : full details (roles, natures, etc).
 
 createUser.security (ADMIN only)
-> params : userName <string>, password <string> 
+> params : username <string>, password <string> 
 
 updateUserPassword.security (ADMIN only)
-> param : userName <string>, password <string>
+> param : username <string>, password <string>
 
 updatePassword.security
 > param : password <string>, oldpassword <string>
@@ -35,17 +35,17 @@ ROLES
 ******************
 getRolesList.security
 > param : aucun
-> return : roles[] <json>
+> return : roles[] <string>
 
 #getUsersForRole.security
 > param : roleName <string>, getNatures <true|false>
 > return : users[] <json> (username and eventually natures)
 
 createRole.security (ADMIN only)
-> param : roleName  <string>
+> param : role  <string>
 
 deleteRole.security (ADMIN only)
-> param : roleName  <string>
+> param : role  <string>
 
 #updateUserRoleLink.security
 > params : <string> roleName,  <string> username, <string> action="set|unset"
