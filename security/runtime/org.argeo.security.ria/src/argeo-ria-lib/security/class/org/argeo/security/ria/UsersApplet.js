@@ -53,6 +53,9 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   					var initData = {USER:null,ROLES_LIST:this.getRolesList()};
 					var iView = org.argeo.ria.components.ViewsManager.getInstance().initIViewClass(classObj, "editor", initData);
 					iView.load();
+					iView.addListener("savedUser", function(e){
+						this.refreshUserEntry(e.getData());
+					}, this);					
   				},
   				command 	: null
   			},   	
@@ -65,14 +68,44 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   				toolbar  	: null,
   				callback	: function(e){
   					// Call service to delete
-					var crtUsers = this.getViewSelection().getNodes();
-					for(var i=0;i<crtUsers.length;i++){
-						alert("Delete " + crtUsers[i]);
+					var username = this.getViewSelection().getNodes()[0];					
+					var deleteService = org.argeo.security.ria.SecurityAPI.getDeleteUserService(username);
+					deleteService.addListener("completed", function(response){
+						if(response.getContent().status && response.getContent().status == "OK"){
+							this.loadUsersList();
+						}
+					}, this);
+					// Check if tab is opened before closing!
+					var editorTabPane = org.argeo.ria.components.ViewsManager.getInstance().getViewPaneById("editor");
+					var iApplet = editorTabPane.contentExists(username);
+					var modal = new org.argeo.ria.components.Modal("Delete");
+					if(iApplet){
+ 						if(iApplet.getModified()){
+ 							modal.addConfirm("There are unsaved changes, are you sure you want to delete this user?");
+ 							modal.addListener("ok", function(e){
+ 								editorTabPane.closeCurrent();
+ 								deleteService.send();
+ 							}, this);
+ 							modal.attachAndShow();
+ 						}else{
+ 							modal.addConfirm("Are you sure you want to delete user " + username + "?");
+ 							modal.addListener("ok", function(e){
+ 								editorTabPane.closeCurrent();
+ 								deleteService.send();
+ 							}, this);
+ 							modal.attachAndShow();
+ 						}
+					}else{
+						modal.addConfirm("Are you sure you want to delete user " + username + "?");
+						modal.addListener("ok", function(e){
+							deleteService.send();
+						}, this);
+						modal.attachAndShow();
 					}
   				},
   				selectionChange : function(viewName, data){
   					if(viewName != "users") return;
-  					this.setEnabled(!(data == null || !data.length));  					
+  					this.setEnabled(!(data == null || !data.length || data.length>1));  					
   				},
   				command 	: null
   			},  			
@@ -85,12 +118,14 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   				toolbar  	: null,
   				callback	: function(e){
   					// Call service to delete
-					var crtUser = this.getViewSelection().getNodes()[0];
-					var userObject = this.getUsersList()[crtUser];
+					var crtUser = this.getViewSelection().getNodes()[0];					
   					var classObj = org.argeo.security.ria.UserEditorApplet;
   					var initData = {USER:crtUser,ROLES_LIST:this.getRolesList()};
 					var iView = org.argeo.ria.components.ViewsManager.getInstance().initIViewClass(classObj, "editor", initData);
-					iView.load(userObject);					
+					iView.load(crtUser);
+					iView.addListener("savedUser", function(e){
+						this.refreshUserEntry(e.getData());
+					}, this);
   				},
   				selectionChange : function(viewName, data){
   					if(viewName != "users") return;
@@ -216,6 +251,8 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   	},
   	
   	loadUsersList : function(){
+  		var selectionModel = this.table.getSelectionModel();  		
+  		selectionModel.clearSelection();  		
   		var request = org.argeo.security.ria.SecurityAPI.getListUsersService();
   		request.addListener("completed", function(response){
   			var jSon = response.getContent();
@@ -228,6 +265,29 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   			this.setUsersList(usMap);  			
   		}, this);
   		request.send();  		
+  	},
+  	
+  	/**
+  	 * 
+  	 * @param {org.argeo.security.ria.model.User} userObject
+  	 */
+  	refreshUserEntry : function(userObject){
+  		var userName = userObject.getName();
+  		var data = this.tableModel.getDataAsMapArray();
+  		var index = 0;
+  		var found = false;
+  		for(index=0;index<data.length;index++){
+  			if(data[index].username == userName){
+  				found =true;
+  				break;
+  			}
+  		}
+  		var newRows = [{username:userName,roles:userObject.getRoles().join(",")}];
+		if(found){
+			this.tableModel.setRowsAsMapArray(newRows, index);
+		}else{
+			this.tableModel.setRowsAsMapArray(newRows, index);
+		}
   	},
   	
   	_applyUsersList : function(usList){

@@ -46,8 +46,8 @@ qx.Class.define("org.argeo.security.ria.SecurityAPI", {
 				var jSonContent = response.getContent();  
 				if(typeof jSonContent == "object" && jSonContent.status && jSonContent.status == "ERROR"){
 					org.argeo.ria.components.Logger.getInstance().error(jSonContent.message);
-				}
-				request.setState("failed");
+					response.getTarget().abort();
+				}				
 			});
 
 			// Attach ILoadStatusables & reloadEvents
@@ -124,11 +124,12 @@ qx.Class.define("org.argeo.security.ria.SecurityAPI", {
 		/**
 		 * @return  {qx.io.remote.Request}
 		 */
-		getCreateUserService : function(userName, password){
+		getCreateUserService : function(userObject){
 			var req = org.argeo.security.ria.SecurityAPI.getServiceRequest(org.argeo.security.ria.SecurityAPI.CREATE_USER_SERVICE);
-			org.argeo.security.ria.SecurityAPI.parseOptionalArguments(req, arguments, 2);
-			req.setParameter("username", userName);
-			req.setParameter("password", password);
+			req.setMethod("POST");
+			org.argeo.security.ria.SecurityAPI.parseOptionalArguments(req, arguments, 1);
+			var jsonString = qx.util.Json.stringify(userObject);
+			req.setData(jsonString);
 			return req;
 		},
 		

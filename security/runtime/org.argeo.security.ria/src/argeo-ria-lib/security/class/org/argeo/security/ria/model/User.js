@@ -13,22 +13,32 @@ qx.Class.define("org.argeo.security.ria.model.User", {
 		},
 		rawData : {
 			
+		},
+		create : {
+			check : "Boolean",
+			init : true
 		}
 	},
 	construct : function(){
 		this.base(arguments);
 		this.setRoles([]);
 		this.setNatures([]);
+		this.setRawData({"password":"{SHA}ieSV55Qc+eQOaYDRSha/AjzNTJE="});
 	},
 	members : {
 		load : function(data, format){
+			this.setCreate(false);
 			this.setName(data.username);
 			this.setRoles(data.roles);
 			this.setNatures(data.userNatures);
 			this.setRawData(data);
 		},
 		getSaveService : function(){
-	  		var userService = org.argeo.security.ria.SecurityAPI.getUpdateUserService(this.toJSON());
+			if(this.isCreate()){
+		  		var userService = org.argeo.security.ria.SecurityAPI.getCreateUserService(this.toJSON());			
+			}else{
+		  		var userService = org.argeo.security.ria.SecurityAPI.getUpdateUserService(this.toJSON());				
+			}
 	  		userService.addListener("completed", function(response){
 	  			if(!response || !response.username) return;
 	  			this.load(response.getContent(), "json");

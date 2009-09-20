@@ -20,8 +20,9 @@ qx.Class.define("org.argeo.security.ria.components.CoworkerNatureImpl", {
 	  		grid.setColumnFlex(0,1);
 	  		grid.setColumnAlign(0,"right", "middle");
 	  		grid.setColumnFlex(1,3);
-			  		
-	  		this.descField = new qx.ui.form.TextField();
+			
+	  		grid.setRowAlign(0, "right", "top");
+	  		this.descField = new qx.ui.form.TextArea();
 	  		this.mobileField = new qx.ui.form.TextField();
 	  		this.phoneField = new qx.ui.form.TextField();
 	  		
