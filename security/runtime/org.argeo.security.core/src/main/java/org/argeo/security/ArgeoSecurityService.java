@@ -2,6 +2,8 @@ package org.argeo.security;
 
 public interface ArgeoSecurityService {
 	public void newUser(ArgeoUser argeoUser);
+	
+	public void updateUser(ArgeoUser user);
 
 	public void updateUserPassword(String username, String password);
 

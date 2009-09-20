@@ -57,7 +57,7 @@ public class UsersRolesController implements MvcConstants {
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public ArgeoUser updateUser(Reader reader) {
 		ArgeoUser user = (ArgeoUser) userDeserializer.deserialize(reader);
-		securityService.getSecurityDao().update(user);
+		securityService.updateUser(user);
 		return securityService.getSecurityDao().getUser(user.getUsername());
 	}
 /*
