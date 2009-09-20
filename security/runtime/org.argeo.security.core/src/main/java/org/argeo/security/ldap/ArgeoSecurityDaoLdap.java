@@ -1,6 +1,6 @@
 package org.argeo.security.ldap;
 
-import static org.argeo.security.core.ArgeoUserDetails.createBasicArgeoUser;
+import static org.argeo.security.core.ArgeoUserDetails.createSimpleArgeoUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +11,7 @@ import javax.naming.directory.DirContext;
 
 import org.argeo.security.ArgeoSecurityDao;
 import org.argeo.security.ArgeoUser;
+import org.argeo.security.SimpleArgeoUser;
 import org.argeo.security.core.ArgeoUserDetails;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.ldap.core.ContextExecutor;
@@ -91,7 +92,13 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 	}
 
 	public ArgeoUser getUser(String uname) {
-		return createBasicArgeoUser(getDetails(uname));
+		SimpleArgeoUser user = createSimpleArgeoUser(getDetails(uname));
+		user.setPassword(null);
+		return user;
+	}
+
+	public ArgeoUser getUserWithPassword(String uname) {
+		return createSimpleArgeoUser(getDetails(uname));
 	}
 
 	public ArgeoUser getCurrentUser() {
@@ -115,7 +122,7 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 
 		List<ArgeoUser> lst = new ArrayList<ArgeoUser>();
 		for (String username : usernames) {
-			lst.add(createBasicArgeoUser(getDetails(username)));
+			lst.add(createSimpleArgeoUser(getDetails(username)));
 		}
 		return lst;
 	}

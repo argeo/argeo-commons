@@ -1,6 +1,7 @@
 package org.argeo.server.json;
 
 import java.io.IOException;
+import java.io.StringWriter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,14 +29,28 @@ public class JsonServerSerializer implements ServerSerializer {
 		try {
 			response.setContentType("application/json");
 
-			jsonGenerator = jsonFactory.createJsonGenerator(response
-					.getWriter());
+			StringWriter stringWriter = null;
+			if (log.isTraceEnabled()) {
+				stringWriter = new StringWriter();
+				jsonGenerator = jsonFactory.createJsonGenerator(stringWriter);
+			} else {
+				jsonGenerator = jsonFactory.createJsonGenerator(response
+						.getWriter());
+			}
+
 			if (prettyPrint)
 				jsonGenerator.useDefaultPrettyPrinter();
 
 			objectMapper.writeValue(jsonGenerator, obj);
 
 			jsonGenerator.close();
+
+			if (stringWriter != null) {
+				if (log.isTraceEnabled())
+					log.debug(stringWriter.toString());
+				response.getWriter().append(stringWriter.toString());
+			}
+
 		} catch (Exception e) {
 			throw new ArgeoServerException("Cannot serialize " + obj, e);
 		} finally {

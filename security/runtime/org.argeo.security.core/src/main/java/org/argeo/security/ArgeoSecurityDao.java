@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface ArgeoSecurityDao {
 	public ArgeoUser getCurrentUser();
-	
+
 	public List<ArgeoUser> listUsers();
 
 	public List<String> listEditableRoles();
@@ -24,4 +24,6 @@ public interface ArgeoSecurityDao {
 	public Boolean userExists(String username);
 
 	public ArgeoUser getUser(String username);
+
+	public ArgeoUser getUserWithPassword(String username);
 }

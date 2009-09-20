@@ -9,28 +9,25 @@ import org.springframework.ldap.core.DirContextOperations;
 public class SimpleUserNatureMapper implements UserNatureMapper {
 
 	public UserNature mapUserInfoFromContext(DirContextOperations ctx) {
-		SimpleUserNature basicUserInfo = new SimpleUserNature();
-		basicUserInfo.setLastName(ctx.getStringAttribute("sn"));
-		basicUserInfo.setFirstName(ctx.getStringAttribute("givenName"));
-		basicUserInfo.setEmail(ctx.getStringAttribute("mail"));
-		basicUserInfo.setUuid(ctx.getStringAttribute("seeAlso"));
-		return basicUserInfo;
+		SimpleUserNature nature = new SimpleUserNature();
+		nature.setLastName(ctx.getStringAttribute("sn"));
+		nature.setFirstName(ctx.getStringAttribute("givenName"));
+		nature.setEmail(ctx.getStringAttribute("mail"));
+		return nature;
 	}
 
 	public void mapUserInfoToContext(UserNature userInfoArg,
 			DirContextAdapter ctx) {
-		SimpleUserNature userInfo = (SimpleUserNature) userInfoArg;
-		ctx.setAttributeValue("cn", userInfo.getFirstName() + " "
-				+ userInfo.getLastName());
-		ctx.setAttributeValue("sn", userInfo.getLastName());
-		ctx.setAttributeValue("givenName", userInfo.getFirstName());
-		ctx.setAttributeValue("mail", userInfo.getEmail());
-		// TODO: find a cleaner way?
-		ctx.setAttributeValue("seeAlso", userInfo.getUuid());
+		SimpleUserNature nature = (SimpleUserNature) userInfoArg;
+		ctx.setAttributeValue("cn", nature.getFirstName() + " "
+				+ nature.getLastName());
+		ctx.setAttributeValue("sn", nature.getLastName());
+		ctx.setAttributeValue("givenName", nature.getFirstName());
+		ctx.setAttributeValue("mail", nature.getEmail());
 	}
 
-	public Boolean supports(UserNature userInfo) {
-		return userInfo instanceof SimpleUserNature;
+	public Boolean supports(UserNature userNature) {
+		return userNature instanceof SimpleUserNature;
 	}
 
 }

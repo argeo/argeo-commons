@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.security.ArgeoUser;
 import org.argeo.security.SimpleArgeoUser;
 import org.argeo.security.UserNature;
@@ -15,6 +17,7 @@ import org.springframework.security.userdetails.UserDetails;
 
 public class ArgeoUserDetails extends User implements ArgeoUser {
 	private static final long serialVersionUID = 1L;
+	private final static Log log = LogFactory.getLog(ArgeoUserDetails.class);
 
 	private final List<UserNature> userNatures;
 	private final List<String> roles;
@@ -55,12 +58,16 @@ public class ArgeoUserDetails extends User implements ArgeoUser {
 	protected static GrantedAuthority[] rolesToAuthorities(List<String> roles) {
 		GrantedAuthority[] arr = new GrantedAuthority[roles.size()];
 		for (int i = 0; i < roles.size(); i++) {
-			arr[i] = new GrantedAuthorityImpl(roles.get(i));
+			String role = roles.get(i);
+			if (log.isTraceEnabled())
+				log.debug("Convert role " + role + " to authority (i=" + i
+						+ ")");
+			arr[i] = new GrantedAuthorityImpl(role);
 		}
 		return arr;
 	}
 
-	public static SimpleArgeoUser createBasicArgeoUser(UserDetails userDetails) {
+	public static SimpleArgeoUser createSimpleArgeoUser(UserDetails userDetails) {
 		if (userDetails instanceof ArgeoUser) {
 			return new SimpleArgeoUser((ArgeoUser) userDetails);
 		} else {
@@ -74,7 +81,8 @@ public class ArgeoUserDetails extends User implements ArgeoUser {
 
 	public static ArgeoUser asArgeoUser(Authentication authentication) {
 		if (authentication.getPrincipal() instanceof ArgeoUser) {
-			return new SimpleArgeoUser((ArgeoUser) authentication.getPrincipal());
+			return new SimpleArgeoUser((ArgeoUser) authentication
+					.getPrincipal());
 		} else {
 			SimpleArgeoUser argeoUser = new SimpleArgeoUser();
 			argeoUser.setUsername(authentication.getName());

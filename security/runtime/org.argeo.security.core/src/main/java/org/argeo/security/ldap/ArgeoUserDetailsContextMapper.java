@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.security.ArgeoUser;
 import org.argeo.security.UserNature;
 import org.argeo.security.core.ArgeoUserDetails;
@@ -16,8 +14,8 @@ import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.ldap.UserDetailsContextMapper;
 
 public class ArgeoUserDetailsContextMapper implements UserDetailsContextMapper {
-	private final static Log log = LogFactory
-			.getLog(ArgeoUserDetailsContextMapper.class);
+//	private final static Log log = LogFactory
+//			.getLog(ArgeoUserDetailsContextMapper.class);
 
 	private List<UserNatureMapper> userNatureMappers = new ArrayList<UserNatureMapper>();
 
@@ -27,16 +25,15 @@ public class ArgeoUserDetailsContextMapper implements UserDetailsContextMapper {
 				.first();
 		String password = new String(arr);
 
-		List<UserNature> userInfos = new ArrayList<UserNature>();
+		List<UserNature> userNatures = new ArrayList<UserNature>();
 		for (UserNatureMapper userInfoMapper : userNatureMappers) {
 			UserNature userNature = userInfoMapper.mapUserInfoFromContext(ctx);
-			if (log.isTraceEnabled())
-				log.debug("Add user nature " + userNature);
-			userInfos.add(userNature);
+			if (userNature != null)
+				userNatures.add(userNature);
 		}
 
 		return new ArgeoUserDetails(username, Collections
-				.unmodifiableList(userInfos), password, authorities);
+				.unmodifiableList(userNatures), password, authorities);
 	}
 
 	public void mapUserToContext(UserDetails user, DirContextAdapter ctx) {
@@ -45,10 +42,10 @@ public class ArgeoUserDetailsContextMapper implements UserDetailsContextMapper {
 		ctx.setAttributeValue("userPassword", user.getPassword());
 		if (user instanceof ArgeoUser) {
 			ArgeoUser argeoUser = (ArgeoUser) user;
-			for (UserNature userInfo : argeoUser.getUserNatures()) {
+			for (UserNature userNature : argeoUser.getUserNatures()) {
 				for (UserNatureMapper userInfoMapper : userNatureMappers) {
-					if (userInfoMapper.supports(userInfo)) {
-						userInfoMapper.mapUserInfoToContext(userInfo, ctx);
+					if (userInfoMapper.supports(userNature)) {
+						userInfoMapper.mapUserInfoToContext(userNature, ctx);
 						break;// use the first mapper found and no others
 					}
 				}

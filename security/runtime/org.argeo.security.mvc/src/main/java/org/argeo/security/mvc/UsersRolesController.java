@@ -1,12 +1,8 @@
 package org.argeo.security.mvc;
 
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
 import org.argeo.server.BooleanAnswer;
@@ -20,18 +16,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class UsersRolesController implements MvcConstants {
-	private final static Log log = LogFactory
-			.getLog(UsersRolesController.class);
+//	private final static Log log = LogFactory
+//			.getLog(UsersRolesController.class);
 
 	private ArgeoSecurityService securityService;
 
 	private ServerDeserializer userDeserializer = null;
-
-	// @InitBinder
-	// public void initBinder(WebDataBinder binder) {
-	// binder.registerCustomEditor(SimpleArgeoUser.class,
-	// new DeserializingEditor(userDeserializer));
-	// }
 
 	/* USER */
 
@@ -58,7 +48,7 @@ public class UsersRolesController implements MvcConstants {
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public ArgeoUser createUser(Reader reader) {
 		ArgeoUser user = (ArgeoUser) userDeserializer.deserialize(reader);
-		cleanUserBeforeCreate(user);
+		//cleanUserBeforeCreate(user);
 		securityService.newUser(user);
 		return securityService.getSecurityDao().getUser(user.getUsername());
 	}
@@ -70,7 +60,7 @@ public class UsersRolesController implements MvcConstants {
 		securityService.getSecurityDao().update(user);
 		return securityService.getSecurityDao().getUser(user.getUsername());
 	}
-
+/*
 	@RequestMapping("/createUser2.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public ArgeoUser createUser(@RequestParam("body") String body) {
@@ -86,7 +76,7 @@ public class UsersRolesController implements MvcConstants {
 		cleanUserBeforeCreate(user);
 		securityService.newUser(user);
 		return securityService.getSecurityDao().getUser(user.getUsername());
-	}
+	}*/
 
 	@RequestMapping("/deleteUser.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
@@ -140,10 +130,9 @@ public class UsersRolesController implements MvcConstants {
 		return ServerAnswer.ok("Password updated");
 	}
 
-	protected void cleanUserBeforeCreate(ArgeoUser user) {
-		user.getUserNatures().clear();
-		user.getRoles().clear();
-	}
+//	protected void cleanUserBeforeCreate(ArgeoUser user) {
+//		user.getUserNatures().clear();
+//	}
 
 	public void setUserDeserializer(ServerDeserializer userDeserializer) {
 		this.userDeserializer = userDeserializer;

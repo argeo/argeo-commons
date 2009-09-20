@@ -53,17 +53,12 @@ public class JsonServerMapper extends JsonServerSerializer implements
 
 	public Object deserialize(Reader reader) {
 		try {
-			// String body = request.getParameter("body");
-			// if (body == null) {
-			// // lets read the message body instead
-			// BufferedReader reader = request.getReader();
-			// StringBuffer buffer = new StringBuffer();
-			// String line = null;
-			// while (((line = reader.readLine()) != null)) {
-			// buffer.append(line);
-			// }
-			// body = buffer.toString();
-			// }
+			if (log.isTraceEnabled()) {
+				String str = IOUtils.toString(reader);
+				log.debug(str);
+				reader = new StringReader(str);
+			}
+
 			return getObjectMapper().readValue(reader, targetClass);
 		} catch (Exception e) {
 			throw new ArgeoServerException("Cannot deserialize " + reader, e);
@@ -84,7 +79,8 @@ public class JsonServerMapper extends JsonServerSerializer implements
 		this.targetClass = targetClass;
 	}
 
-	public void setDeserializers(Map<Class<?>, JsonDeserializer<?>> deserializers) {
+	public void setDeserializers(
+			Map<Class<?>, JsonDeserializer<?>> deserializers) {
 		this.deserializers = deserializers;
 	}
 

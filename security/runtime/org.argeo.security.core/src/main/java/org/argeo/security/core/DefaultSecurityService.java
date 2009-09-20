@@ -19,14 +19,24 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 	}
 
 	public void updateUserPassword(String username, String password) {
-		SimpleArgeoUser user = new SimpleArgeoUser(securityDao.getUser(username));
+		SimpleArgeoUser user = new SimpleArgeoUser(securityDao
+				.getUser(username));
 		user.setPassword(password);
 		securityDao.update(user);
 	}
 
 	public void newUser(ArgeoUser user) {
+		user.getUserNatures().clear();
 		argeoSecurity.beforeCreate(user);
 		securityDao.create(user);
+	}
+
+	public void updateUser(ArgeoUser user) {
+		String password = securityDao.getUserWithPassword(user.getUsername())
+				.getPassword();
+		SimpleArgeoUser simpleArgeoUser = new SimpleArgeoUser(user);
+		simpleArgeoUser.setPassword(password);
+		securityDao.update(user);
 	}
 
 	public void setArgeoSecurity(ArgeoSecurity argeoSecurity) {
