@@ -62,7 +62,7 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   			"delete_user" : {
   				label	 	: "Delete User", 
   				icon 		: "org.argeo.security.ria/list-remove.png",
-  				shortcut 	: "Control+s",
+  				shortcut 	: "Control+d",
   				enabled  	: true,
   				menu	   	: "Users",
   				toolbar  	: null,
