@@ -253,7 +253,14 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   	saveUser : function(){
   		var user = this.getCurrentUser();
   		user.setName(this.usernameField.getValue());
-  		user.setRoles((this.rolesField.getValue()||"").split(","));
+  		var roles = this.rolesField.getValue();
+  		if(roles && roles != ""){
+	  		user.setRoles(roles.split(","));
+  		}else{
+  			user.setRoles([]);
+  		}
+  		user.setPassword(this.passPane.getData());
+  		
   		// GO TO AND RETURN FROM SERVER
   		if(user.isCreate()){
   			var userExists = false;
