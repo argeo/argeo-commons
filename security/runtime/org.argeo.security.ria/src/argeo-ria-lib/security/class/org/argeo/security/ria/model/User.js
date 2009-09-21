@@ -5,6 +5,10 @@ qx.Class.define("org.argeo.security.ria.model.User", {
 			init : "",
 			check : "String"
 		},
+		password : {
+			nullable : true,
+			check : "String"
+		},
 		roles : {
 			check : "Array"
 		},
@@ -23,7 +27,7 @@ qx.Class.define("org.argeo.security.ria.model.User", {
 		this.base(arguments);
 		this.setRoles([]);
 		this.setNatures([]);
-		this.setRawData({"password":"{SHA}ieSV55Qc+eQOaYDRSha/AjzNTJE="});
+		this.setRawData({password:null});
 	},
 	members : {
 		load : function(data, format){
@@ -35,7 +39,7 @@ qx.Class.define("org.argeo.security.ria.model.User", {
 		},
 		getSaveService : function(){
 			if(this.isCreate()){
-		  		var userService = org.argeo.security.ria.SecurityAPI.getCreateUserService(this.toJSON());			
+		  		var userService = org.argeo.security.ria.SecurityAPI.getCreateUserService(this.toJSON(true));			
 			}else{
 		  		var userService = org.argeo.security.ria.SecurityAPI.getUpdateUserService(this.toJSON());				
 			}
@@ -45,11 +49,12 @@ qx.Class.define("org.argeo.security.ria.model.User", {
 	  		}, this);
 	  		return userService;	  		
 		},
-		toJSON : function(){
+		toJSON : function(create){
 			var rawData = this.getRawData();
 			rawData.username = this.getName();
 			rawData.roles = this.getRoles();
 			rawData.userNatures = this.getNatures();
+			if(create) rawData.password = this.getPassword();
 			return rawData;
 		},
 		_getNatureByType : function(natureType){

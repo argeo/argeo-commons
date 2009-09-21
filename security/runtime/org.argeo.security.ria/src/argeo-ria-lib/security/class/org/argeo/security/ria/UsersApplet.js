@@ -28,18 +28,6 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   	 */
   	commands : {
   		init : {
-  			"load_users" : {
-  				label 		: "Reload Users",
-  				icon 		: "org.argeo.security.ria/view-refresh.png",
-  				shortcut	: "Control+h",
-  				enabled 	: true,
-  				menu		: "Users",
-  				toolbar		: "users",
-  				callback	: function(e){
-  					this.loadUsersList();
-  				},
-  				command		: null
-  			},
   			"new_user" : {
   				label	 	: "New User", 
   				icon 		: "org.argeo.security.ria/list-add.png",

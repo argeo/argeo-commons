@@ -139,8 +139,14 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   	rolesList : {
   		
   	},
-  	instanceId : {init:""},
-  	instanceLabel : {init:"Editor"},
+  	instanceId : {
+  		init:"",
+  		event : "changeInstanceId"
+  	},
+  	instanceLabel : {
+  		init:"Editor",
+  		event : "changeInstanceLabel"
+  	},
   	loaded : {
   		init : false
   	},
@@ -259,10 +265,15 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   		}else{
   			user.setRoles([]);
   		}
-  		user.setPassword(this.passPane.getData());
   		
   		// GO TO AND RETURN FROM SERVER
   		if(user.isCreate()){
+  			if(!this.passPane.validate()){
+  				this.error("Warning, passwords differ!");
+  				return;
+  			}
+  			user.setPassword(this.passPane.getData());
+  			var create = true;
   			var userExists = false;
   			var req = org.argeo.security.ria.SecurityAPI.getUserExistsService(user.getName());
   			req.addListener("completed", function(response){
@@ -274,20 +285,45 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   				this.error("User already exists, choose another name!");
   				return;
   			}
+  		}else{
+  			var pass = this.passPane.getData();
+  			if(pass != null && !this.passPane.validate()){
+  				this.error("Warning, passwords differ!");
+  				return;  				
+  			}
   		}
+  		this.passPane.clear();
+  		var saveCompletedCallback = qx.lang.Function.bind(function(){
+  			if(create){
+  				this.setInstanceLabel("User " + user.getName());
+  				this.setInstanceId(user.getName());
+  			}
+			this._setGuiInCreateMode(false);
+  			this.partialRefreshUser(user, ["details","natures"]);
+			this.setModified(false);
+			this.getViewSelection().triggerEvent();
+			this.fireDataEvent("savedUser", user);  			
+  		}, this);
   		var userService = user.getSaveService();
-  		userService.send();
   		userService.addListener("completed", function(response){
   			if(response.getContent().status && response.getContent().status == "ERROR"){
   				return;
   			}
-			this._setGuiInCreateMode(false);
   			user.load(response.getContent(), "json");
-  			this.partialRefreshUser(user, ["details","natures"]);
-			this.setModified(false);
-			this.getViewSelection().triggerEvent();
-			this.fireDataEvent("savedUser", user);
-  		}, this);
+  			if(pass!=null){
+  				var passService = org.argeo.security.ria.SecurityAPI.getUpdateUserPassService(user.getName(), pass);
+  				passService.addListener("completed", function(response){
+  					if(response.getContent().status){
+  						this.info(response.getContent().message);
+  					}
+  					saveCompletedCallback();
+  				}, this);
+  				passService.send();
+  			}else{
+	  			saveCompletedCallback();
+  			}
+  		}, this);  		
+  		userService.send();
   	},
   	
   	_addNatureTab : function(natureClass, natureData, select){

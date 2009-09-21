@@ -28,6 +28,18 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   	 */
   	commands : {
   		init : {
+  			"reload" : {
+  				label 		: "Reload Data",
+  				icon 		: "org.argeo.security.ria/view-refresh.png",
+  				shortcut	: "Control+h",
+  				enabled 	: true,
+  				menu		: "Roles",
+  				toolbar		: "roles",
+  				callback	: function(e){
+  					this.loadRolesList();
+  				},
+  				command		: null
+  			},  			
   			"new_role" : {
   				label	 	: "Create Role", 
   				icon 		: "org.argeo.security.ria/list-add.png",
@@ -232,7 +244,13 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
 				viewSel.removeListener("changeSelection", this.monitorChooserSelectionChanges, this);			
 			}
 			selectionModel.addListener("changeSelection", this.selectionToFilter, this);
+			if(selectionModel.getSelectedCount()){
+				var orig = selectionModel.getSelectedRanges()[0].minIndex;
+			}
 			selectionModel.setSelectionMode(qx.ui.table.selection.Model.MULTIPLE_INTERVAL_SELECTION_TOGGLE);
+			if(orig){
+				selectionModel.addSelectionInterval(orig, orig);
+			}
 			this.selectionToFilter();  			
   		}else if(guiMode == "edit"){
 			if(!this.usersAppletReference) return;
@@ -253,7 +271,13 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
 			}
 			this.table.setEnabled(true);
 			selectionModel.removeListener("changeSelection", this.selectionToFilter, this);
+			if(selectionModel.getSelectedCount()){
+				var orig = selectionModel.getSelectedRanges()[0].minIndex;
+			}
 			selectionModel.setSelectionMode(qx.ui.table.selection.Model.SINGLE_SELECTION);  			
+			if(orig){
+				selectionModel.addSelectionInterval(orig, orig);
+			}
   		}
   	},
   	
