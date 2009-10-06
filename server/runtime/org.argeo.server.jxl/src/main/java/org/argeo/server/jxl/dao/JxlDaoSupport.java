@@ -9,6 +9,7 @@ import java.util.Map;
 
 import jxl.Cell;
 import jxl.FormulaCell;
+import jxl.JXLException;
 import jxl.Sheet;
 import jxl.Workbook;
 
@@ -32,112 +33,169 @@ public class JxlDaoSupport implements ApplicationContextAware {
 
 	private Map<String, Object> externalRefs = new HashMap<String, Object>();
 
-	public void load(InputStream in) {
+	private List<String> scannedPackages = new ArrayList<String>();
 
+	public void load(InputStream in) {
 		try {
 			// used to resolve inner references
 			Map<String, List<Object>> tempRefs = new HashMap<String, List<Object>>();
-			List<Reference> links = new ArrayList<Reference>();
+
+			List<Reference> references = new ArrayList<Reference>();
 
 			Workbook workbook = Workbook.getWorkbook(in);
 
 			for (Sheet sheet : workbook.getSheets()) {
-				if (log.isTraceEnabled())
-					log.debug("Instantiate sheet " + sheet.getName());
-
-				Cell[] firstRow = sheet.getRow(0);
-
-				// TODO: ability to map sheet names and class names
-				String className = sheet.getName();
-				Class<?> clss = classLoader.loadClass(className);
-				model.put(clss, new HashMap<Object, Object>());
-
-				tempRefs.put(sheet.getName(), new ArrayList<Object>());
-
-				String keyProperty = firstRow[0].getContents();
-				for (int row = 1; row < sheet.getRows(); row++) {
-					if (log.isTraceEnabled())
-						log.trace(" row " + row);
-
-					Cell[] currentRow = sheet.getRow(row);
-					BeanWrapper bw = new BeanWrapperImpl(clss);
-					for (int col = 0; col < firstRow.length; col++) {
-						String pName = firstRow[col].getContents();
-
-						Cell cell = currentRow[col];
-						if (cell instanceof FormulaCell) {
-							String formula = ((FormulaCell) cell).getFormula();
-							int index = formula.indexOf('!');
-							String targetSheet = formula.substring(0, index);
-							// assume no double letters!!
-							String targetRowStr = formula.substring(index + 2);
-							if (targetRowStr.charAt(0) == '$')
-								targetRowStr = targetRowStr.substring(1);
-							Integer targetRow = Integer.parseInt(targetRowStr);
-							links.add(new Reference(bw.getWrappedInstance(),
-									pName, targetSheet, targetRow));
-
-							if (log.isTraceEnabled())
-								log.debug("  formula: " + formula
-										+ " | content: " + cell.getContents()
-										+ " | targetSheet=" + targetSheet
-										+ ", targetRow=" + targetRow);
-						} else {
-							String contents = cell.getContents();
-							if (pName.equals(keyProperty)
-									&& !StringUtils.hasText(contents)) {
-								// auto allocate key column if empty
-								contents = Integer.toString(row);
-							}
-
-							if (pName.charAt(0) == '#') {// externalRef
-								links.add(new Reference(
-										bw.getWrappedInstance(), pName
-												.substring(1), contents));
-							} else {
-								bw.setPropertyValue(pName, contents);
-							}
-
-							if (log.isTraceEnabled())
-								log.debug("  " + pName + "=" + contents);
-						}
-					}// properties set
-
-					model.get(clss).put(bw.getPropertyValue(keyProperty),
-							bw.getWrappedInstance());
-					tempRefs.get(sheet.getName()).add(bw.getWrappedInstance());
-				}
-
-				if (log.isDebugEnabled())
-					log.debug(model.get(clss).size() + " objects of type "
-							+ clss + " instantiated");
+				loadSheet(sheet, references, tempRefs);
 			}
 
-			for (Reference link : links) {
-				BeanWrapper bw = new BeanWrapperImpl(link.object);
-				Object targetObject;
-				if (link.getExternalRef() != null) {
-					String ref = link.getExternalRef();
-					if (externalRefs.containsKey(ref))
-						targetObject = externalRefs.get(ref);
-					else if (applicationContext != null)
-						targetObject = applicationContext.getBean(ref);
-					else {
-						targetObject = null;
-						log.warn("Ref " + ref + " not found");
-					}
-				} else {
-					targetObject = tempRefs.get(link.getTargetSheet()).get(
-							link.targetRow - 2);
-				}
-				bw.setPropertyValue(link.property, targetObject);
+			for (Reference ref : references) {
+				injectReference(ref, tempRefs);
 			}
 			if (log.isDebugEnabled())
-				log.debug(links.size() + " references linked");
+				log.debug(references.size() + " references linked");
 
 		} catch (Exception e) {
 			throw new ArgeoServerException("Cannot load workbook", e);
 		}
+	}
+
+	protected void loadSheet(Sheet sheet, List<Reference> references,
+			Map<String, List<Object>> tempRefs) throws JXLException {
+		if (log.isTraceEnabled())
+			log.debug("Instantiate sheet " + sheet.getName());
+
+		Cell[] firstRow = sheet.getRow(0);
+
+		Class<?> clss = findClassToInstantiate(sheet);
+		model.put(clss, new HashMap<Object, Object>());
+
+		tempRefs.put(sheet.getName(), new ArrayList<Object>());
+
+		String keyProperty = firstRow[0].getContents();
+		for (int row = 1; row < sheet.getRows(); row++) {
+			if (log.isTraceEnabled())
+				log.trace(" row " + row);
+
+			Cell[] currentRow = sheet.getRow(row);
+			BeanWrapper bw = new BeanWrapperImpl(clss);
+			cells: for (int col = 0; col < firstRow.length; col++) {
+				String pName = firstRow[col].getContents();
+
+				if (col < currentRow.length) {
+					Cell cell = currentRow[col];
+					if (overrideCell(cell, bw, pName, keyProperty, row,
+							references, tempRefs))
+						continue cells;
+					loadCell(cell, bw, pName, keyProperty, row, references);
+				}
+			}// cells
+
+			model.get(clss).put(bw.getPropertyValue(keyProperty),
+					bw.getWrappedInstance());
+			tempRefs.get(sheet.getName()).add(bw.getWrappedInstance());
+		}
+
+		if (log.isDebugEnabled())
+			log.debug(model.get(clss).size() + " objects of type " + clss
+					+ " instantiated");
+
+	}
+
+	protected void loadCell(Cell cell, BeanWrapper bw, String propertyName,
+			String keyProperty, Integer row, List<Reference> references)
+			throws JXLException {
+
+		if (cell instanceof FormulaCell) {
+			String formula = ((FormulaCell) cell).getFormula();
+			int index = formula.indexOf('!');
+			String targetSheet = formula.substring(0, index);
+			// assume no double letters!!
+			String targetRowStr = formula.substring(index + 2);
+			if (targetRowStr.charAt(0) == '$')
+				targetRowStr = targetRowStr.substring(1);
+			Integer targetRow = Integer.parseInt(targetRowStr);
+			references.add(new Reference(bw.getWrappedInstance(), propertyName,
+					targetSheet, targetRow));
+
+			if (log.isTraceEnabled())
+				log.debug("  formula: " + formula + " | content: "
+						+ cell.getContents() + " | targetSheet=" + targetSheet
+						+ ", targetRow=" + targetRow);
+		} else {
+			String contents = cell.getContents();
+			if (propertyName.equals(keyProperty)
+					&& !StringUtils.hasText(contents)) {
+				// auto allocate key column if empty
+				contents = Integer.toString(row);
+			}
+
+			if (propertyName.charAt(0) == '#') {// externalRef
+				references.add(new Reference(bw.getWrappedInstance(),
+						propertyName.substring(1), contents));
+			} else {
+				bw.setPropertyValue(propertyName, contents);
+			}
+
+			if (log.isTraceEnabled())
+				log.debug("  " + propertyName + "=" + contents);
+		}
+
+	}
+
+	/** Returns true if property was set (thus bypassing standard process). */
+	protected Boolean overrideCell(Cell cell, BeanWrapper bw,
+			String propertyName, String keyProperty, Integer row,
+			List<Reference> references, Map<String, List<Object>> tempRefs) {
+		return false;
+	}
+
+	protected void injectReference(Reference reference,
+			Map<String, List<Object>> tempRefs) {
+		BeanWrapper bw = new BeanWrapperImpl(reference.object);
+		Object targetObject;
+		if (reference.getExternalRef() != null) {
+			String ref = reference.getExternalRef();
+			if (externalRefs.containsKey(ref))
+				targetObject = externalRefs.get(ref);
+			else if (applicationContext != null)
+				targetObject = applicationContext.getBean(ref);
+			else {
+				targetObject = null;
+				log.warn("Ref " + ref + " not found");
+			}
+		} else {
+			targetObject = tempRefs.get(reference.getTargetSheet()).get(
+					reference.targetRow - 2);
+		}
+		bw.setPropertyValue(reference.property, targetObject);
+
+	}
+
+	protected Class<?> findClassToInstantiate(Sheet sheet) {
+		// TODO: ability to map sheet names and class names
+		String className = sheet.getName();
+		Class<?> clss = null;
+		try {
+			clss = classLoader.loadClass(className);
+			return clss;
+		} catch (ClassNotFoundException e) {
+			// silent
+		}
+
+		scannedPkgs: for (String pkg : scannedPackages) {
+			try {
+				clss = classLoader.loadClass(pkg + "." + className);
+				break scannedPkgs;
+			} catch (ClassNotFoundException e) {
+				// silent
+			}
+		}
+
+		if (clss == null)
+			throw new ArgeoServerException("Cannot find a class for sheet "
+					+ sheet.getName());
+
+		return clss;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -175,6 +233,14 @@ public class JxlDaoSupport implements ApplicationContextAware {
 
 	public Map<String, Object> getExternalRefs() {
 		return externalRefs;
+	}
+
+	public void setScannedPackages(List<String> scannedPackages) {
+		this.scannedPackages = scannedPackages;
+	}
+
+	public List<String> getScannedPackages() {
+		return scannedPackages;
 	}
 
 	public static class Reference {
