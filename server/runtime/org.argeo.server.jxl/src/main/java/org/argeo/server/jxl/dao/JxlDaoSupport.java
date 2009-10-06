@@ -13,17 +13,20 @@ import jxl.JXLException;
 import jxl.Sheet;
 import jxl.Workbook;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.server.ArgeoServerException;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 
-public class JxlDaoSupport implements ApplicationContextAware {
+public class JxlDaoSupport implements ApplicationContextAware, InitializingBean {
 	private final static Log log = LogFactory.getLog(JxlDaoSupport.class);
 
 	private ClassLoader classLoader = getClass().getClassLoader();
@@ -34,6 +37,21 @@ public class JxlDaoSupport implements ApplicationContextAware {
 	private Map<String, Object> externalRefs = new HashMap<String, Object>();
 
 	private List<String> scannedPackages = new ArrayList<String>();
+
+	private List<Resource> workbooks = new ArrayList<Resource>();
+
+	public void afterPropertiesSet() throws Exception {
+		for (Resource res : workbooks) {
+			InputStream in = null;
+			try {
+				in = res.getInputStream();
+				load(in);
+			} finally {
+				IOUtils.closeQuietly(in);
+			}
+		}
+
+	}
 
 	public void load(InputStream in) {
 		try {
@@ -184,10 +202,12 @@ public class JxlDaoSupport implements ApplicationContextAware {
 
 		scannedPkgs: for (String pkg : scannedPackages) {
 			try {
-				clss = classLoader.loadClass(pkg + "." + className);
+				clss = classLoader.loadClass(pkg.trim() + "." + className);
 				break scannedPkgs;
 			} catch (ClassNotFoundException e) {
 				// silent
+				if (log.isTraceEnabled())
+					log.trace(e.getMessage());
 			}
 		}
 
@@ -241,6 +261,18 @@ public class JxlDaoSupport implements ApplicationContextAware {
 
 	public List<String> getScannedPackages() {
 		return scannedPackages;
+	}
+
+	public void setWorkbooks(List<Resource> workbooks) {
+		this.workbooks = workbooks;
+	}
+
+	public List<Resource> getWorkbooks() {
+		return workbooks;
+	}
+
+	public void setClassLoader(ClassLoader classLoader) {
+		this.classLoader = classLoader;
 	}
 
 	public static class Reference {
