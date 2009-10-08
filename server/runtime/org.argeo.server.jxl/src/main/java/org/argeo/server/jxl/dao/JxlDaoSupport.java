@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import jxl.Cell;
 import jxl.FormulaCell;
@@ -17,16 +18,19 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.server.ArgeoServerException;
+import org.argeo.server.dao.LightDaoSupport;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.generic.GenericBeanFactoryAccessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 
-public class JxlDaoSupport implements ApplicationContextAware, InitializingBean {
+public class JxlDaoSupport implements LightDaoSupport, ApplicationContextAware,
+		InitializingBean {
 	private final static Log log = LogFactory.getLog(JxlDaoSupport.class);
 
 	private ClassLoader classLoader = getClass().getClassLoader();
@@ -85,7 +89,7 @@ public class JxlDaoSupport implements ApplicationContextAware, InitializingBean 
 		Cell[] firstRow = sheet.getRow(0);
 
 		Class<?> clss = findClassToInstantiate(sheet);
-		model.put(clss, new HashMap<Object, Object>());
+		model.put(clss, new TreeMap<Object, Object>());
 
 		tempRefs.put(sheet.getName(), new ArrayList<Object>());
 
@@ -223,10 +227,36 @@ public class JxlDaoSupport implements ApplicationContextAware, InitializingBean 
 		return (T) model.get(findClass(clss)).get(key);
 	}
 
+	/**
+	 * Slow.
+	 * 
+	 * @return the first found
+	 */
+	public <T> T getByField(Class<T> clss, String field, Object value) {
+		List<T> all = list(clss, null);
+		T res = null;
+		for (T obj : all) {
+			if (new BeanWrapperImpl(obj).getPropertyValue(field).equals(value)) {
+				res = obj;
+				break;
+			}
+		}
+		return res;
+	}
+
 	@SuppressWarnings("unchecked")
 	public <T> List<T> list(Class<T> clss, Object filter) {
-		return new ArrayList<T>((Collection<T>) model.get(findClass(clss))
-				.values());
+		List<T> res = new ArrayList<T>();
+
+		Class classToUse = findClass(clss);
+		if (classToUse != null)
+			res.addAll((Collection<T>) model.get(classToUse).values());
+
+		if (applicationContext != null)
+			res.addAll(new GenericBeanFactoryAccessor(applicationContext)
+					.getBeansOfType(clss).values());
+
+		return res;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -238,8 +268,7 @@ public class JxlDaoSupport implements ApplicationContextAware, InitializingBean 
 			if (parent.isAssignableFrom(clss))
 				return clss;// return the first found
 		}
-		throw new ArgeoServerException("No implementing class found for "
-				+ parent);
+		return null;
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext)
