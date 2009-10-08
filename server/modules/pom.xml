@@ -6,7 +6,7 @@
 		<artifactId>server</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<groupId>org.argeo.server</groupId>
+	<groupId>org.argeo.commons.server</groupId>
 	<artifactId>modules</artifactId>
 	<packaging>bundles</packaging>
 	<name>Commons Server Modules</name>
