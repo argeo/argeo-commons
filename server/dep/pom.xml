@@ -15,5 +15,6 @@
 	<modules>
 		<module>org.argeo.server.dep.tomcat</module>
 		<module>org.argeo.server.dep.ads</module>
+		<module>org.argeo.server.dep.hibernate</module>
 	</modules>
 </project>

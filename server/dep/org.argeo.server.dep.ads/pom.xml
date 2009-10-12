@@ -9,7 +9,7 @@
 	</parent>
 	<artifactId>org.argeo.server.dep.ads</artifactId>
 	<packaging>pom</packaging>
-	<name>Apache Directory Server</name>
+	<name>Dep Apache Directory Server</name>
 	<dependencies>
 		<!--  Commons Dep -->
 		<dependency>
