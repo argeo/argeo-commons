@@ -15,6 +15,20 @@
 	<modules>
 		<module>org.argeo.security.core</module>
 		<module>org.argeo.security.mvc</module>
-		<module>org.argeo.security.ria</module>
 	</modules>
+	<profiles>
+		<profile>
+			<id>withRia</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<modules>
+				<module>org.argeo.slc.ria</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>withoutRia</id>
+		</profile>
+	</profiles>
+
 </project>
