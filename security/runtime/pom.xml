@@ -23,7 +23,7 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<modules>
-				<module>org.argeo.slc.ria</module>
+				<module>org.argeo.security.ria</module>
 			</modules>
 		</profile>
 		<profile>
