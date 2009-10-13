@@ -45,37 +45,42 @@ public class JxlDaoSupport implements LightDaoSupport, ApplicationContextAware,
 	private List<Resource> workbooks = new ArrayList<Resource>();
 
 	public void afterPropertiesSet() throws Exception {
+		init();
+	}
+
+	public void init() {
+		// used to resolve inner references
+		Map<String, List<Object>> tempRefs = new HashMap<String, List<Object>>();
+
+		List<Reference> references = new ArrayList<Reference>();
+
 		for (Resource res : workbooks) {
 			InputStream in = null;
 			try {
 				in = res.getInputStream();
-				load(in);
+				load(in, references, tempRefs);
+			} catch (Exception e) {
+				throw new ArgeoServerException("Cannot load stream", e);
 			} finally {
 				IOUtils.closeQuietly(in);
 			}
 		}
 
+		// Inject references
+		for (Reference ref : references) {
+			injectReference(ref, tempRefs);
+		}
+		if (log.isDebugEnabled())
+			log.debug(references.size() + " references linked");
 	}
 
-	public void load(InputStream in) {
+	public void load(InputStream in, List<Reference> references,
+			Map<String, List<Object>> tempRefs) {
 		try {
-			// used to resolve inner references
-			Map<String, List<Object>> tempRefs = new HashMap<String, List<Object>>();
-
-			List<Reference> references = new ArrayList<Reference>();
-
 			Workbook workbook = Workbook.getWorkbook(in);
-
 			for (Sheet sheet : workbook.getSheets()) {
 				loadSheet(sheet, references, tempRefs);
 			}
-
-			for (Reference ref : references) {
-				injectReference(ref, tempRefs);
-			}
-			if (log.isDebugEnabled())
-				log.debug(references.size() + " references linked");
-
 		} catch (Exception e) {
 			throw new ArgeoServerException("Cannot load workbook", e);
 		}
@@ -130,6 +135,10 @@ public class JxlDaoSupport implements LightDaoSupport, ApplicationContextAware,
 		if (cell instanceof FormulaCell) {
 			String formula = ((FormulaCell) cell).getFormula();
 			int index = formula.indexOf('!');
+			if (index < 0)
+				throw new ArgeoServerException("Cannot interpret formula "
+						+ formula);
+			;
 			String targetSheet = formula.substring(0, index);
 			// assume no double letters!!
 			String targetRowStr = formula.substring(index + 2);

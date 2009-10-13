@@ -5,14 +5,14 @@
 	<parent>
 		<groupId>org.argeo.commons</groupId>
 		<version>0.1.1-SNAPSHOT</version>
-		<artifactId>argeo-commons</artifactId>
+		<artifactId>basic</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>basic</artifactId>
-	<name>Commons Basic</name>
+	<groupId>org.argeo.commons.basic</groupId>
+	<artifactId>runtime</artifactId>
+	<name>Commons Basic Runtime</name>
 	<packaging>pom</packaging>
 	<modules>
-		<module>dep</module>
-		<module>runtime</module>
+		<module>org.argeo.support.junit</module>
 	</modules>
 </project>
