@@ -8,4 +8,6 @@ public interface LightDaoSupport {
 	public <T> T getByField(Class<T> clss, String field, Object value);
 
 	public <T> List<T> list(Class<T> clss, Object filter);
+
+	public List<Class<?>> getSupportedClasses();
 }

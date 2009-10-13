@@ -35,6 +35,7 @@ public class JxlDaoSupport implements LightDaoSupport, ApplicationContextAware,
 
 	private ClassLoader classLoader = getClass().getClassLoader();
 	private ApplicationContext applicationContext;
+	private List<Class<?>> additionalClasses = new ArrayList<Class<?>>();
 
 	private Map<Class<?>, Map<Object, Object>> model = new HashMap<Class<?>, Map<Object, Object>>();
 
@@ -72,6 +73,13 @@ public class JxlDaoSupport implements LightDaoSupport, ApplicationContextAware,
 		}
 		if (log.isDebugEnabled())
 			log.debug(references.size() + " references linked");
+	}
+
+	public List<Class<?>> getSupportedClasses() {
+		List<Class<?>> res = new ArrayList<Class<?>>();
+		res.addAll(additionalClasses);
+		res.addAll(model.keySet());
+		return res;
 	}
 
 	public void load(InputStream in, List<Reference> references,
