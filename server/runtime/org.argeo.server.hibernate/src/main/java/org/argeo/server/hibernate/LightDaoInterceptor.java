@@ -41,12 +41,12 @@ public class LightDaoInterceptor extends EmptyInterceptor {
 				String field = businessIdFields.get(clss);
 				Object value = bidMappings.get(clss).get(id);
 				res = lightDaoSupport.getByField(clss, field, value);
-				if (log.isDebugEnabled())
+				if (log.isTraceEnabled())
 					log.debug("Got entity " + clss + " (" + field + "=" + value
 							+ ")");
 			} else {
 				res = lightDaoSupport.getByKey(clss, id);
-				if (log.isDebugEnabled())
+				if (log.isTraceEnabled())
 					log.debug("Got entity " + clss + " (id=" + id + ")");
 			}
 		} else {
@@ -75,7 +75,7 @@ public class LightDaoInterceptor extends EmptyInterceptor {
 				BeanWrapper bw = new BeanWrapperImpl(entity);
 				Object bid = bw.getPropertyValue(businessIdFields.get(clss));
 				bidMappings.get(clss).put(id, bid);
-				if (log.isDebugEnabled())
+				if (log.isTraceEnabled())
 					log.debug("Mapped tid " + id + " with bid " + bid + " for "
 							+ clss);
 			}
