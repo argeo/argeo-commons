@@ -35,15 +35,24 @@ public class LightDaoInterceptor extends EmptyInterceptor {
 	@Override
 	public Object getEntity(String entityName, Serializable id) {
 		Class<?> clss = findSupportingClass(entityName);
+		Object res = null;
 		if (clss != null) {
-			if (businessIdFields.containsKey(clss))
-				return lightDaoSupport.getByField(clss, businessIdFields
-						.get(clss), bidMappings.get(clss).get(id));
-			else
-				return lightDaoSupport.getByKey(clss, id);
+			if (businessIdFields.containsKey(clss)) {
+				String field = businessIdFields.get(clss);
+				Object value = bidMappings.get(clss).get(id);
+				res = lightDaoSupport.getByField(clss, field, value);
+				if (log.isDebugEnabled())
+					log.debug("Got entity " + clss + " (" + field + "=" + value
+							+ ")");
+			} else {
+				res = lightDaoSupport.getByKey(clss, id);
+				if (log.isDebugEnabled())
+					log.debug("Got entity " + clss + " (id=" + id + ")");
+			}
 		} else {
-			return super.getEntity(entityName, id);
+			res = super.getEntity(entityName, id);
 		}
+		return res;
 	}
 
 	@Override
