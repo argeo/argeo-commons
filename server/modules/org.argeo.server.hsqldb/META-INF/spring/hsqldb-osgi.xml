@@ -6,6 +6,6 @@
        http://www.springframework.org/schema/beans   
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<service ref="sessionFactory" interface="org.hibernate.SessionFactory" />
+	<service ref="dataSource" interface="javax.sql.DataSource" />
 
 </beans:beans>
