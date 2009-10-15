@@ -1,7 +1,6 @@
 package org.argeo.server.jxl.dao;
 
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,8 +9,11 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import jxl.Cell;
+import jxl.CellType;
 import jxl.FormulaCell;
 import jxl.JXLException;
+import jxl.LabelCell;
+import jxl.NumberCell;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
@@ -168,6 +170,17 @@ public class JxlDaoSupport implements LightDaoSupport, ApplicationContextAware,
 						+ ", targetRow=" + targetRow);
 		} else {
 			String contents = cell.getContents();
+
+//			if (cell.getType() == CellType.LABEL) {
+//				LabelCell lc = (LabelCell) cell;
+//				contents = lc.getString();
+//			} else if (cell.getType() == CellType.NUMBER) {
+//				NumberCell nc = (NumberCell) cell;
+//				contents = new Double(nc.getValue()).toString();
+//			} else {
+//				contents = cell.getContents();
+//			}
+
 			if (propertyName.equals(keyProperty)
 					&& !StringUtils.hasText(contents)) {
 				// auto allocate key column if empty
