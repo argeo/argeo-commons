@@ -1,5 +1,6 @@
 package org.argeo.server.hibernate;
 
+import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,6 +82,48 @@ public class LightDaoInterceptor extends EmptyInterceptor {
 			}
 		}
 		return super.onSave(entity, id, state, propertyNames, types);
+	}
+
+	@Override
+	public boolean onLoad(Object entity, Serializable id, Object[] state,
+			String[] propertyNames, Type[] types) {
+		Class<?> clss = entity.getClass();
+		Object source = null;
+		if (lightDaoSupport.getSupportedClasses().contains(clss)) {
+			if (businessIdFields.containsKey(clss)) {
+				String field = businessIdFields.get(clss);
+				Object value = bidMappings.get(clss).get(id);
+				source = lightDaoSupport.getByField(clss, field, value);
+				if (log.isTraceEnabled())
+					log.debug("Loading entity " + clss + " (" + field + "="
+							+ value + ")");
+			} else {
+				source = lightDaoSupport.getByKey(clss, id);
+				if (log.isTraceEnabled())
+					log.debug("Loading entity " + clss + " (id=" + id + ")");
+			}
+		}
+
+		if (source != null) {
+			BeanWrapper bwTarget = new BeanWrapperImpl(entity);
+			BeanWrapper bwSource = new BeanWrapperImpl(source);
+			for (PropertyDescriptor pd : bwTarget.getPropertyDescriptors()) {
+				String propName = pd.getName();
+				if (bwSource.isReadableProperty(propName)
+						&& bwTarget.isWritableProperty(propName)) {
+					bwTarget.setPropertyValue(propName, bwSource
+							.getPropertyValue(propName));
+					if (log.isTraceEnabled())
+						log.debug("Loaded property " + propName + " for class "
+								+ clss + " (id=" + id + ")");
+				}
+			}
+
+			return true;
+		} else {
+			// res = super.getEntity(entityName, id);
+			return super.onLoad(entity, id, state, propertyNames, types);
+		}
 	}
 
 	protected Boolean supports(Object object) {
