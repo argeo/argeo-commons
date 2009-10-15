@@ -1,6 +1,7 @@
 package org.argeo.server.jxl.dao;
 
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import jxl.FormulaCell;
 import jxl.JXLException;
 import jxl.Sheet;
 import jxl.Workbook;
+import jxl.WorkbookSettings;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -44,6 +46,8 @@ public class JxlDaoSupport implements LightDaoSupport, ApplicationContextAware,
 	private List<String> scannedPackages = new ArrayList<String>();
 
 	private List<Resource> workbooks = new ArrayList<Resource>();
+
+	private Integer charset = 0;
 
 	public void afterPropertiesSet() throws Exception {
 		init();
@@ -85,7 +89,9 @@ public class JxlDaoSupport implements LightDaoSupport, ApplicationContextAware,
 	public void load(InputStream in, List<Reference> references,
 			Map<String, List<Object>> tempRefs) {
 		try {
-			Workbook workbook = Workbook.getWorkbook(in);
+			WorkbookSettings workbookSettings = new WorkbookSettings();
+			workbookSettings.setCharacterSet(charset);
+			Workbook workbook = Workbook.getWorkbook(in, workbookSettings);
 			for (Sheet sheet : workbook.getSheets()) {
 				loadSheet(sheet, references, tempRefs);
 			}
@@ -319,6 +325,18 @@ public class JxlDaoSupport implements LightDaoSupport, ApplicationContextAware,
 
 	public void setClassLoader(ClassLoader classLoader) {
 		this.classLoader = classLoader;
+	}
+
+	public List<Class<?>> getAdditionalClasses() {
+		return additionalClasses;
+	}
+
+	public void setAdditionalClasses(List<Class<?>> additionalClasses) {
+		this.additionalClasses = additionalClasses;
+	}
+
+	public void setCharset(Integer charset) {
+		this.charset = charset;
 	}
 
 	public static class Reference {

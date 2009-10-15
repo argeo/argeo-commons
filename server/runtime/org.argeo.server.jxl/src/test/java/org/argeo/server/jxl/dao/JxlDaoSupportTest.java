@@ -28,6 +28,6 @@ public class JxlDaoSupportTest extends TestCase {
 				.getString());
 
 		List<SimpleObject> simpleObjects = jsd.list(SimpleObject.class, null);
-		assertEquals(2, simpleObjects.size());
+		assertEquals(4, simpleObjects.size());
 	}
 }

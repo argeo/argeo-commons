@@ -21,22 +21,31 @@ public class JsonServerSerializer implements ServerSerializer {
 	private JsonFactory jsonFactory = new JsonFactory();
 	private ObjectMapper objectMapper = new ObjectMapper();
 
-	private Boolean prettyPrint = true;
+	private Boolean prettyPrint = false;
+
+	// private String encoding = "UTF8";
 
 	public void serialize(Object obj, HttpServletRequest request,
 			HttpServletResponse response) {
 		JsonGenerator jsonGenerator = null;
 		try {
 			response.setContentType("application/json");
+			// response.setHeader("Content-Encoding", "UTF-8");
 
 			StringWriter stringWriter = null;
 			if (log.isTraceEnabled()) {
 				stringWriter = new StringWriter();
-				jsonGenerator = jsonFactory.createJsonGenerator(stringWriter);
-			} else {
-				jsonGenerator = jsonFactory.createJsonGenerator(response
-						.getWriter());
+				JsonGenerator jsonGeneratorLog = jsonFactory
+						.createJsonGenerator(stringWriter);
+				jsonGeneratorLog.useDefaultPrettyPrinter();
+				objectMapper.writeValue(jsonGenerator, obj);
+				jsonGeneratorLog.close();
 			}
+
+			// jsonGenerator = jsonFactory.createJsonGenerator(response
+			// .getOutputStream(), JsonEncoding.valueOf(encoding));
+			jsonGenerator = jsonFactory.createJsonGenerator(response
+					.getWriter());
 
 			if (prettyPrint)
 				jsonGenerator.useDefaultPrettyPrinter();
