@@ -10,6 +10,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.server.ArgeoServerException;
+import org.argeo.server.Deserializer;
 import org.argeo.server.ServerDeserializer;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.DeserializationContext;
@@ -20,7 +21,7 @@ import org.codehaus.jackson.map.deser.StdDeserializerProvider;
 import org.springframework.beans.factory.InitializingBean;
 
 public class JsonServerMapper extends JsonServerSerializer implements
-		ServerDeserializer, InitializingBean {
+		ServerDeserializer, Deserializer, InitializingBean {
 	private final static Log log = LogFactory.getLog(JsonServerMapper.class);
 
 	private Class<?> targetClass;
@@ -60,6 +61,21 @@ public class JsonServerMapper extends JsonServerSerializer implements
 			}
 
 			return getObjectMapper().readValue(reader, targetClass);
+		} catch (Exception e) {
+			throw new ArgeoServerException("Cannot deserialize " + reader, e);
+		}
+
+	}
+
+	public <T> T deserialize(Reader reader, Class<T> clss) {
+		try {
+			if (log.isTraceEnabled()) {
+				String str = IOUtils.toString(reader);
+				log.debug(str);
+				reader = new StringReader(str);
+			}
+
+			return getObjectMapper().readValue(reader, clss);
 		} catch (Exception e) {
 			throw new ArgeoServerException("Cannot deserialize " + reader, e);
 		}
