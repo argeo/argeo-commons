@@ -33,6 +33,8 @@ public class JsonServerMapper extends JsonServerSerializer implements
 		CustomDeserializerFactory dsf = new CustomDeserializerFactory();
 		for (Class clss : deserializers.keySet()) {
 			dsf.addSpecificMapping(clss, deserializers.get(clss));
+			if (log.isDebugEnabled())
+				log.debug("Add JSON mapping for " + clss);
 		}
 		StdDeserializerProvider sdp = new StdDeserializerProvider(dsf);
 		getObjectMapper().setDeserializerProvider(sdp);

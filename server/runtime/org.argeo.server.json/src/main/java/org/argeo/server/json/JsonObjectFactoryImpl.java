@@ -21,7 +21,7 @@ public class JsonObjectFactoryImpl implements JsonObjectFactory,
 	private ClassLoader classLoader = getClass().getClassLoader();
 
 	private ObjectMapper objectMapper = new ObjectMapper();
-	private Map<String, Class<?>> supportedTypes = new HashMap<String,  Class<?>>();
+	private Map<String, Class<?>> supportedTypes = new HashMap<String, Class<?>>();
 
 	public Boolean supports(String type) {
 		if (supportedTypes.containsKey(type))
@@ -32,7 +32,7 @@ public class JsonObjectFactoryImpl implements JsonObjectFactory,
 
 	@SuppressWarnings("unchecked")
 	public <T> T readValue(String type, String str) {
-		final  Class<?> clss;
+		final Class<?> clss;
 		if (supportedTypes.containsKey(type))
 			clss = supportedTypes.get(type);
 		else {
@@ -49,35 +49,11 @@ public class JsonObjectFactoryImpl implements JsonObjectFactory,
 		}
 	}
 
-	public void setSupportedTypes(Map<String,  Class<?>> supportedTypes) {
+	public void setSupportedTypes(Map<String, Class<?>> supportedTypes) {
 		this.supportedTypes = supportedTypes;
 	}
 
-	protected  Class<?> loadClass(String type) {
-//		try {
-//			return Class.forName(type);
-//		} catch (ClassNotFoundException e) {
-//			if (log.isDebugEnabled())
-//				log.debug("Class.forName failed: " + e);
-//		}
-//
-//		try {
-//			return Thread.currentThread().getContextClassLoader().loadClass(
-//					type);
-//		} catch (ClassNotFoundException e) {
-//			if (log.isDebugEnabled())
-//				log
-//						.debug("Thread.currentThread().getContextClassLoader().loadClass failed: "
-//								+ e);
-//		}
-//
-//		try {
-//			return getClass().getClassLoader().loadClass(type);
-//		} catch (ClassNotFoundException e) {
-//			if (log.isDebugEnabled())
-//				log.debug("getClass().getClassLoader().loadClass failed: " + e);
-//		}
-//
+	protected Class<?> loadClass(String type) {
 		try {
 			return classLoader.loadClass(type);
 		} catch (ClassNotFoundException e) {

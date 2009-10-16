@@ -24,6 +24,7 @@ public class GenericJsonDeserializer<T> extends JsonDeserializer<T> {
 
 	private JsonFactory jsonFactory = new JsonFactory();
 	private ObjectCodec objectCodec = new ObjectMapper();
+	private JsonObjectFactory defaultObjectFactory = new JsonObjectFactoryImpl();
 
 	private String typeField = "type";
 
@@ -57,10 +58,13 @@ public class GenericJsonDeserializer<T> extends JsonDeserializer<T> {
 		}
 
 		if (objectFactory == null)
+			objectFactory = defaultObjectFactory;
+
+		if (objectFactory == null || !objectFactory.supports(type))
 			throw new ArgeoServerException(
 					"Cannot find JSON object factory for type " + type);
 
-		return (T)objectFactory.readValue(type, str);
+		return (T) objectFactory.readValue(type, str);
 	}
 
 	public void setTypeField(String typeField) {
