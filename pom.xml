@@ -14,7 +14,6 @@
 	<packaging>pom</packaging>
 	<properties>
 		<developmentCycle>0.1</developmentCycle>
-		<version.slc>0.12.1-SNAPSHOT</version.slc>
 		<version.argeo-ria>0.12.1</version.argeo-ria>
 		<version.maven-argeo-osgi>0.1.21</version.maven-argeo-osgi>
 		<version.maven-bundle-plugin>2.0.0</version.maven-bundle-plugin>
