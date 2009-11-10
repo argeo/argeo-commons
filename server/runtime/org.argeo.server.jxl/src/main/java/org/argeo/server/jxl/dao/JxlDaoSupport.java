@@ -3,12 +3,15 @@ package org.argeo.server.jxl.dao;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import jxl.Cell;
 import jxl.CellType;
 import jxl.FormulaCell;
 import jxl.JXLException;
+import jxl.LabelCell;
+import jxl.NumberCell;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
@@ -27,12 +30,15 @@ public class JxlDaoSupport extends AbstractTabularDaoSupport implements
 		LightDaoSupport, ApplicationContextAware, InitializingBean {
 	private final static Log log = LogFactory.getLog(JxlDaoSupport.class);
 
-	private Integer charset = 0;
+	private String encoding = "cp1252";
+	private Locale locale = null;
 
 	protected void load(InputStream in, List<Reference> references) {
 		try {
 			WorkbookSettings workbookSettings = new WorkbookSettings();
-			workbookSettings.setCharacterSet(charset);
+			workbookSettings.setEncoding(encoding);
+			if (locale != null)
+				workbookSettings.setLocale(locale);
 			Workbook workbook = Workbook.getWorkbook(in, workbookSettings);
 			for (Sheet sheet : workbook.getSheets()) {
 				loadSheet(sheet, references);
@@ -129,13 +135,8 @@ public class JxlDaoSupport extends AbstractTabularDaoSupport implements
 							log.trace("   row=" + row + ", firstColContents="
 									+ firstColContents + ", key=" + key
 									+ ", type=" + type);
-						if (type.equals(CellType.NUMBER)) {
-							map
-									.put(key, Double.parseDouble(cell
-											.getContents()));
-						} else {
-							map.put(key, cell.getContents());
-						}
+						Object cellValue = getCellValue(cell);
+						map.put(key, cellValue);
 
 						// check next row too see if one should break
 						if (row < firstColumn.length - 1)
@@ -190,35 +191,39 @@ public class JxlDaoSupport extends AbstractTabularDaoSupport implements
 						+ cell.getContents() + " | targetSheet=" + targetSheet
 						+ ", targetRow=" + targetRow);
 		} else {
-			String contents = cell.getContents();
-
-			// if (cell.getType() == CellType.LABEL) {
-			// LabelCell lc = (LabelCell) cell;
-			// contents = lc.getString();
-			// } else if (cell.getType() == CellType.NUMBER) {
-			// NumberCell nc = (NumberCell) cell;
-			// contents = new Double(nc.getValue()).toString();
-			// } else {
-			// contents = cell.getContents();
-			// }
+			Object cellValue = getCellValue(cell);
 
 			if (propertyName.equals(keyProperty)
-					&& !StringUtils.hasText(contents)) {
+					&& !StringUtils.hasText(cellValue.toString())) {
 				// auto allocate key column if empty
-				contents = Integer.toString(row);
+				cellValue = Integer.toString(row);
 			}
 
 			if (propertyName.charAt(0) == '#') {// externalRef
 				references.add(new Reference(bw.getWrappedInstance(),
-						propertyName.substring(1), contents));
+						propertyName.substring(1), cellValue.toString()));
 			} else {
-				bw.setPropertyValue(propertyName, contents);
+				bw.setPropertyValue(propertyName, cellValue);
 			}
 
 			if (log.isTraceEnabled())
-				log.debug("  " + propertyName + "=" + contents);
+				log.debug("  " + propertyName + "=" + cellValue);
 		}
 
+	}
+
+	protected Object getCellValue(Cell cell) {
+		Object contents;
+		if (cell.getType() == CellType.LABEL) {
+			LabelCell lc = (LabelCell) cell;
+			contents = lc.getString();
+		} else if (cell.getType() == CellType.NUMBER) {
+			NumberCell nc = (NumberCell) cell;
+			contents = nc.getValue();
+		} else {
+			contents = cell.getContents();
+		}
+		return contents;
 	}
 
 	/** Returns true if property was set (thus bypassing standard process). */
@@ -268,7 +273,12 @@ public class JxlDaoSupport extends AbstractTabularDaoSupport implements
 		return clss;
 	}
 
-	public void setCharset(Integer charset) {
-		this.charset = charset;
+	public void setEncoding(String encoding) {
+		this.encoding = encoding;
 	}
+
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
+
 }
