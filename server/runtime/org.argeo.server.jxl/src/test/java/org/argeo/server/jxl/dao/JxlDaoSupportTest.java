@@ -29,5 +29,9 @@ public class JxlDaoSupportTest extends TestCase {
 
 		List<SimpleObject> simpleObjects = jsd.list(SimpleObject.class, null);
 		assertEquals(4, simpleObjects.size());
+
+		List<CollectionsObject> collectionsObjects = jsd.list(
+				CollectionsObject.class, null);
+		assertEquals(3, collectionsObjects.size());
 	}
 }

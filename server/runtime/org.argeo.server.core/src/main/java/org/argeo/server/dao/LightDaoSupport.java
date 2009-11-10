@@ -10,4 +10,6 @@ public interface LightDaoSupport {
 	public <T> List<T> list(Class<T> clss, Object filter);
 
 	public List<Class<?>> getSupportedClasses();
+
+	public void saveOrUpdate(Object key, Object value, Class<?> clss);
 }

@@ -37,4 +37,15 @@ public class SimpleObject {
 	public void setAnotherObject(OtherObject anotherObject) {
 		this.anotherObject = anotherObject;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return string.equals(((SimpleObject) obj).string);
+	}
+
+	@Override
+	public int hashCode() {
+		return string.hashCode();
+	}
+
 }
