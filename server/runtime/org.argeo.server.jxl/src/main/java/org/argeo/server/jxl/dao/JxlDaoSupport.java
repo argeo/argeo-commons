@@ -215,6 +215,8 @@ public class JxlDaoSupport extends AbstractTabularDaoSupport implements
 					for (int col = 1; col < currentRow.length; col++) {
 						subKeys.add(getCellValue(currentRow[col]));
 					}
+					if (log.isTraceEnabled())
+						log.trace("   subKeys=" + subKeys);
 					row++;
 					String firstColContents = firstColumn[row].getContents();
 					mapRows: for (; row < firstColumn.length; row++) {
@@ -223,9 +225,9 @@ public class JxlDaoSupport extends AbstractTabularDaoSupport implements
 						Object key = firstColContents;
 						Map<Object, Object> subMap = new HashMap<Object, Object>();
 
-						for (int col = 0; col < currentRow.length
-								&& col < subKeys.size(); col++) {
-							Object subKey = subKeys.get(col);
+						for (int col = 1; col < currentRow.length
+								&& col < subKeys.size() + 1; col++) {
+							Object subKey = subKeys.get(col - 1);
 							Cell cell = currentRow[col];
 							if (log.isTraceEnabled())
 								log.trace("   row=" + row
@@ -244,6 +246,7 @@ public class JxlDaoSupport extends AbstractTabularDaoSupport implements
 						if (bw.isWritableProperty(firstColContents)
 								|| firstColContents.trim().equals("")
 								|| row == firstColumn.length - 1) {
+							log.trace(map);
 							bw.setPropertyValue(propertyName, map);
 							if (log.isTraceEnabled())
 								log.trace(" set map " + propertyName
