@@ -37,7 +37,7 @@ public abstract class AbstractMemoryDaoSupport implements LightDaoSupport,
 
 	private List<String> scannedPackages = new ArrayList<String>();
 
-	private List<Resource> workbooks = new ArrayList<Resource>();
+	private List<Resource> resources = new ArrayList<Resource>();
 
 	private Map<Class<?>, PropertyEditor> customEditors = new HashMap<Class<?>, PropertyEditor>();;
 
@@ -50,13 +50,15 @@ public abstract class AbstractMemoryDaoSupport implements LightDaoSupport,
 	}
 
 	public void init() {
-		// used to resolve inner references
-		// Map<String, List<Object>> tempRefs = new HashMap<String,
-		// List<Object>>();
+		for (PropertyEditor propertyEditor : customEditors.values())
+			if (propertyEditor instanceof LightDaoAware) {
+				((LightDaoAware) propertyEditor).setLightDaoSupport(this);
+			}
 
+		// Load data
 		List<Reference> references = new ArrayList<Reference>();
 
-		for (Resource res : workbooks) {
+		for (Resource res : resources) {
 			InputStream in = null;
 			try {
 				in = res.getInputStream();
@@ -196,12 +198,12 @@ public abstract class AbstractMemoryDaoSupport implements LightDaoSupport,
 		return scannedPackages;
 	}
 
-	public void setWorkbooks(List<Resource> workbooks) {
-		this.workbooks = workbooks;
+	public void setResources(List<Resource> workbooks) {
+		this.resources = workbooks;
 	}
 
-	public List<Resource> getWorkbooks() {
-		return workbooks;
+	public List<Resource> getResources() {
+		return resources;
 	}
 
 	public void setClassLoader(ClassLoader classLoader) {

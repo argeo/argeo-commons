@@ -11,7 +11,7 @@ public class JxlDaoSupportTest extends TestCase {
 		JxlDaoSupport jsd = new JxlDaoSupport();
 		jsd.getExternalRefs().put("test", new OtherObject());
 
-		jsd.getWorkbooks().add(new ClassPathResource("/dao/simple.xls"));
+		jsd.getResources().add(new ClassPathResource("/dao/simple.xls"));
 		jsd.init();
 
 		SimpleObject soAaa = jsd.getByKey(SimpleObject.class, "aaa");
@@ -32,6 +32,6 @@ public class JxlDaoSupportTest extends TestCase {
 
 		List<CollectionsObject> collectionsObjects = jsd.list(
 				CollectionsObject.class, null);
-		assertEquals(3, collectionsObjects.size());
+		assertEquals(4, collectionsObjects.size());
 	}
 }

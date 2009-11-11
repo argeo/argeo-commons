@@ -5,8 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.argeo.server.ArgeoServerException;
+
 public abstract class AbstractTabularDaoSupport extends
 		AbstractMemoryDaoSupport {
+	private final static Log log = LogFactory
+			.getLog(AbstractTabularDaoSupport.class);
+	
 	private Map<String, List<Object>> tabularView = new HashMap<String, List<Object>>();
 
 	@Override
@@ -24,6 +31,35 @@ public abstract class AbstractTabularDaoSupport extends
 		if (!tabularView.containsKey(tableName))
 			tabularView.put(tableName, new ArrayList<Object>());
 		tabularView.get(tableName).add(object);
+	}
+
+	protected Class<?> findClassToInstantiate(String tableName) {
+		// TODO: ability to map sheet names and class names
+		String className = tableName;
+		Class<?> clss = null;
+		try {
+			clss = getClassLoader().loadClass(className);
+			return clss;
+		} catch (ClassNotFoundException e) {
+			// silent
+		}
+
+		scannedPkgs: for (String pkg : getScannedPackages()) {
+			try {
+				clss = getClassLoader().loadClass(pkg.trim() + "." + className);
+				break scannedPkgs;
+			} catch (ClassNotFoundException e) {
+				// silent
+				if (log.isTraceEnabled())
+					log.trace(e.getMessage());
+			}
+		}
+
+		if (clss == null)
+			throw new ArgeoServerException("Cannot find a class for table "
+					+ tableName);
+
+		return clss;
 	}
 
 	protected static class TabularInternalReference extends Reference {

@@ -12,6 +12,7 @@ public class CollectionsObject {
 	private List<String> stringList = new ArrayList<String>();
 	private Map<String, Float> floatMap = new HashMap<String, Float>();
 	private Map<SimpleObject, String> objectMap = new HashMap<SimpleObject, String>();
+	private Map<String, Map<String, String>> mapOfMaps = new HashMap<String, Map<String, String>>();
 
 	public String getId() {
 		return id;
@@ -59,5 +60,13 @@ public class CollectionsObject {
 
 	public void setObjectMap(Map<SimpleObject, String> objectMap) {
 		this.objectMap = objectMap;
+	}
+
+	public Map<String, Map<String, String>> getMapOfMaps() {
+		return mapOfMaps;
+	}
+
+	public void setMapOfMaps(Map<String, Map<String, String>> mapOfMaps) {
+		this.mapOfMaps = mapOfMaps;
 	}
 }

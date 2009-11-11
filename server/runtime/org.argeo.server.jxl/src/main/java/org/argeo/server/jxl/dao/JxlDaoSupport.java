@@ -1,10 +1,12 @@
 package org.argeo.server.jxl.dao;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import jxl.Cell;
 import jxl.CellType;
@@ -24,6 +26,7 @@ import org.argeo.server.dao.LightDaoSupport;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 
 public class JxlDaoSupport extends AbstractTabularDaoSupport implements
@@ -50,23 +53,52 @@ public class JxlDaoSupport extends AbstractTabularDaoSupport implements
 
 	protected void loadSheet(Sheet sheet, List<Reference> references)
 			throws JXLException {
+		String sheetName = sheet.getName();
 		if (log.isTraceEnabled())
-			log.debug("Instantiate sheet " + sheet.getName());
+			log.debug("Instantiate sheet " + sheetName);
 
-		Cell[] firstRow = sheet.getRow(0);
-
-		Class<?> clss = findClassToInstantiate(sheet);
-		// model.put(clss, new TreeMap<Object, Object>());
-
-		// tempRefs.put(sheet.getName(), new ArrayList<Object>());
-
-		String keyProperty = firstRow[0].getContents();
-
-		if (keyProperty.charAt(keyProperty.length() - 1) == '>') {
-			loadAsColumns(clss, keyProperty.substring(0,
-					keyProperty.length() - 1), sheet, firstRow, references);
+		String tableName;
+		int hashIndex = sheetName.lastIndexOf('#');
+		if (hashIndex >= 0) {
+			tableName = sheetName.substring(0, hashIndex);
 		} else {
-			loadAsRows(clss, keyProperty, sheet, firstRow, references);
+			tableName = sheetName;
+		}
+
+		Class<?> clss = findClassToInstantiate(tableName);
+
+		if (hashIndex >= 0) {
+			// see
+			// http://stackoverflow.com/questions/451452/valid-characters-for-excel-sheet-names
+			BeanWrapper bw = newBeanWrapper(clss);
+			StringTokenizer espSt = new StringTokenizer(sheetName
+					.substring(hashIndex + 1), "&=");
+			String keyProperty = null;
+			while (espSt.hasMoreTokens()) {
+				String fieldName = espSt.nextToken();
+				if (keyProperty == null)
+					keyProperty = fieldName;
+				if (!espSt.hasMoreTokens())
+					throw new ArgeoServerException("Badly formatted sheetname "
+							+ sheetName);
+				String fieldValue = espSt.nextToken();
+				bw.setPropertyValue(fieldName, fieldValue);
+				loadAsObject(bw, sheet, references);
+				saveOrUpdate(bw.getPropertyValue(keyProperty), bw
+						.getWrappedInstance(), clss);
+			}
+
+		} else {
+
+			Cell[] firstRow = sheet.getRow(0);
+			String keyProperty = firstRow[0].getContents();
+
+			if (keyProperty.charAt(keyProperty.length() - 1) == '>') {
+				loadAsColumns(clss, keyProperty.substring(0, keyProperty
+						.length() - 1), sheet, firstRow, references);
+			} else {
+				loadAsRows(clss, keyProperty, sheet, firstRow, references);
+			}
 		}
 	}
 
@@ -128,13 +160,11 @@ public class JxlDaoSupport extends AbstractTabularDaoSupport implements
 					String firstColContents = firstColumn[row].getContents();
 					mapRows: for (; row < column.length; row++) {
 						cell = column[row];
-
 						Object key = firstColContents;
-						CellType type = cell.getType();
 						if (log.isTraceEnabled())
 							log.trace("   row=" + row + ", firstColContents="
 									+ firstColContents + ", key=" + key
-									+ ", type=" + type);
+									+ ", type=" + cell.getType());
 						Object cellValue = getCellValue(cell);
 						map.put(key, cellValue);
 
@@ -163,6 +193,72 @@ public class JxlDaoSupport extends AbstractTabularDaoSupport implements
 			// tempRefs.get(sheet.getName()).add(bw.getWrappedInstance());
 			registerInTabularView(sheet.getName(), bw.getWrappedInstance());
 		}// columns
+	}
+
+	protected void loadAsObject(BeanWrapper bw, Sheet sheet,
+			List<Reference> references) {
+		Cell[] firstColumn = sheet.getColumn(0);
+		for (int row = 0; row < firstColumn.length; row++) {
+			if (log.isTraceEnabled())
+				log.trace(" row " + row);
+			Cell[] currentRow = sheet.getRow(row);
+			String propertyName = firstColumn[row].getContents();
+			Class<?> rowType = bw.getPropertyType(propertyName);
+			if (Map.class.isAssignableFrom(rowType)) {
+				Map<Object, Object> map = new HashMap<Object, Object>();
+				if (currentRow.length == 1
+						|| currentRow[1].getContents().trim().equals("")) {
+					// simple map
+				} else {
+					// map of maps
+					List<Object> subKeys = new ArrayList<Object>();
+					for (int col = 1; col < currentRow.length; col++) {
+						subKeys.add(getCellValue(currentRow[col]));
+					}
+					row++;
+					String firstColContents = firstColumn[row].getContents();
+					mapRows: for (; row < firstColumn.length; row++) {
+						currentRow = sheet.getRow(row);
+
+						Object key = firstColContents;
+						Map<Object, Object> subMap = new HashMap<Object, Object>();
+
+						for (int col = 0; col < currentRow.length
+								&& col < subKeys.size(); col++) {
+							Object subKey = subKeys.get(col);
+							Cell cell = currentRow[col];
+							if (log.isTraceEnabled())
+								log.trace("   row=" + row
+										+ ", firstColContents="
+										+ firstColContents + ", subKey="
+										+ subKey + ", type=" + cell.getType());
+							Object cellValue = getCellValue(cell);
+							subMap.put(subKey, cellValue);
+						}
+						map.put(key, subMap);
+
+						// check next row too see if one should break
+						if (row < firstColumn.length - 1)
+							firstColContents = firstColumn[row + 1]
+									.getContents();
+						if (bw.isWritableProperty(firstColContents)
+								|| firstColContents.trim().equals("")
+								|| row == firstColumn.length - 1) {
+							bw.setPropertyValue(propertyName, map);
+							if (log.isTraceEnabled())
+								log.trace(" set map " + propertyName
+										+ " of size " + map.size());
+							break mapRows;// map is over
+						}
+					}
+
+				}
+			} else if (List.class.isAssignableFrom(rowType)) {
+				throw new UnsupportedOperationException();
+			} else {
+				bw.setPropertyValue(propertyName, getCellValue(currentRow[1]));
+			}
+		}
 	}
 
 	protected void loadCell(Cell cell, BeanWrapper bw, String propertyName,
@@ -244,35 +340,6 @@ public class JxlDaoSupport extends AbstractTabularDaoSupport implements
 		throw new UnsupportedOperationException();
 	}
 
-	protected Class<?> findClassToInstantiate(Sheet sheet) {
-		// TODO: ability to map sheet names and class names
-		String className = sheet.getName();
-		Class<?> clss = null;
-		try {
-			clss = getClassLoader().loadClass(className);
-			return clss;
-		} catch (ClassNotFoundException e) {
-			// silent
-		}
-
-		scannedPkgs: for (String pkg : getScannedPackages()) {
-			try {
-				clss = getClassLoader().loadClass(pkg.trim() + "." + className);
-				break scannedPkgs;
-			} catch (ClassNotFoundException e) {
-				// silent
-				if (log.isTraceEnabled())
-					log.trace(e.getMessage());
-			}
-		}
-
-		if (clss == null)
-			throw new ArgeoServerException("Cannot find a class for sheet "
-					+ sheet.getName());
-
-		return clss;
-	}
-
 	public void setEncoding(String encoding) {
 		this.encoding = encoding;
 	}
@@ -281,4 +348,11 @@ public class JxlDaoSupport extends AbstractTabularDaoSupport implements
 		this.locale = locale;
 	}
 
+	/** @deprecated use {@link #setResources(List)} instead. */
+	public void setWorkbooks(List<Resource> workbooks) {
+		setResources(workbooks);
+		log.warn("###\n" + "### Use of the 'workbooks' property is deprecated!"
+				+ " It will be removed in one of the next releases."
+				+ " Use the 'resources' property instead." + "\n###");
+	}
 }
