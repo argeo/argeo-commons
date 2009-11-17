@@ -332,17 +332,6 @@ public class JxlDaoSupport extends AbstractTabularDaoSupport implements
 		return false;
 	}
 
-	/**
-	 * @deprecated use
-	 *             {@link #overrideCell(Cell, BeanWrapper, String, String, Integer, List)}
-	 *             instead. This method is not called anymore.
-	 */
-	protected Boolean overrideCell(Cell cell, BeanWrapper bw,
-			String propertyName, String keyProperty, Integer row,
-			List<Reference> references, Map<String, List<Object>> tempRefs) {
-		throw new UnsupportedOperationException();
-	}
-
 	public void setEncoding(String encoding) {
 		this.encoding = encoding;
 	}
@@ -351,11 +340,4 @@ public class JxlDaoSupport extends AbstractTabularDaoSupport implements
 		this.locale = locale;
 	}
 
-	/** @deprecated use {@link #setResources(List)} instead. */
-	public void setWorkbooks(List<Resource> workbooks) {
-		setResources(workbooks);
-		log.warn("###\n" + "### Use of the 'workbooks' property is deprecated!"
-				+ " It will be removed in one of the next releases."
-				+ " Use the 'resources' property instead." + "\n###");
-	}
 }
