@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<!-- 
+		<property name="locations">
+			<value>osgibundle:jackrabbit.properties </value>
+		</property>
+		 -->
+	</bean>
+
+	<bean id="repository" class="org.apache.jackrabbit.core.RepositoryImpl"
+		factory-method="create">
+		<constructor-arg ref="repositoryConfig" />
+	</bean>
+
+	<bean id="repositoryConfig" class="org.apache.jackrabbit.core.config.RepositoryConfig"
+		factory-method="create">
+		<!--  -->
+		<constructor-arg value="osgibundle:repository.xml"
+			type="java.io.InputStream" />
+		<constructor-arg value="${argeo.osgi.data.dir}/jackrabbit" type="java.lang.String" />
+		
+		<!-- <constructor-arg value="${osgi.instance.area}" type="java.io.File" />-->
+	</bean>
+
+</beans>
