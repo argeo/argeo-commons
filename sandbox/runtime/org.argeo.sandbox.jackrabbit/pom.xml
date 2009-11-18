@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>org.argeo.dep.osgi</groupId>
 			<artifactId>org.argeo.dep.osgi.jackrabbit</artifactId>
-			<version>1.6.0.0002-SNAPSHOT</version>
+			<version>1.6.0.0002</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
