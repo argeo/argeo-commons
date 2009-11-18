@@ -1,9 +1,13 @@
 package jcr;
 
-import org.apache.jackrabbit.core.TransientRepository;
-
-import javax.jcr.*;
 import java.io.IOException;
+
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
+
+import org.apache.jackrabbit.core.TransientRepository;
 
 public abstract class Base {
     public Repository getRepository() throws IOException {
