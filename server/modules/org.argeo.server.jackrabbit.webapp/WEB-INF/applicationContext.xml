@@ -9,4 +9,5 @@
 
 	<import resource="osgi.xml" />
 
+	<bean class="org.apache.jackrabbit.j2ee.SimpleWebdavServlet"></bean>
 </beans>

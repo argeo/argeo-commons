@@ -32,19 +32,19 @@ public class UsersRolesController implements MvcConstants {
 		return securityService.getSecurityDao().getCurrentUser();
 	}
 
-	@RequestMapping("/login.security")
-	@ModelAttribute(ANSWER_MODEL_KEY)
-	public ArgeoUser login(@RequestParam("username") String username,
-			@RequestParam("password") String password) {
-		//SecurityContextHolder.getContext().getAuthentication().
-		return securityService.getSecurityDao().getCurrentUser();
-	}
-
-	@RequestMapping("/logout.security")
-	@ModelAttribute(ANSWER_MODEL_KEY)
-	public ServerAnswer logout() {
-		return ServerAnswer.ok("Logged out");
-	}
+//	@RequestMapping("/login.security")
+//	@ModelAttribute(ANSWER_MODEL_KEY)
+//	public ArgeoUser login(@RequestParam("username") String username,
+//			@RequestParam("password") String password) {
+//		//SecurityContextHolder.getContext().getAuthentication().
+//		return securityService.getSecurityDao().getCurrentUser();
+//	}
+//
+//	@RequestMapping("/logout.security")
+//	@ModelAttribute(ANSWER_MODEL_KEY)
+//	public ServerAnswer logout() {
+//		return ServerAnswer.ok("Logged out");
+//	}
 
 	@RequestMapping("/getUsersList.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)

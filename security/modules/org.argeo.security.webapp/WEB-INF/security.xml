@@ -1,12 +1,31 @@
-<beans:beans xmlns="http://www.springframework.org/schema/security"
-	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-              http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.4.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.4.xsd">
 
-	<http realm="User Interface">
-		<intercept-url pattern="/**" access="ROLE_USER,ROLE_ADMIN" />
-		<http-basic />
-		<anonymous />
-	</http>
+	<bean id="authenticationProcessingFilterEntryPoint"
+		class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+		<property name="loginFormUrl" value="/getCredentials.security" />
+		<property name="forceHttps" value="false" />
+	</bean>
 
-</beans:beans>
+	<security:http entry-point-ref="authenticationProcessingFilterEntryPoint">
+		<security:intercept-url pattern="/**"
+			access="ROLE_USER,ROLE_ADMIN" />
+		<security:logout logout-url="/logout.ria" />
+	</security:http>
+
+	<bean id="authenticationProcessingFilter"
+		class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
+		<security:custom-filter position="AUTHENTICATION_PROCESSING_FILTER" />
+		<property name="authenticationManager" ref="_authenticationManager" />
+		<property name="authenticationFailureUrl" value="/getCredentials.security" />
+		<property name="defaultTargetUrl" value="/getCredentials.security" />
+		<property name="filterProcessesUrl" value="/login.ria" />
+		<property name="usernameParameter" value="username" />
+		<property name="passwordParameter" value="password" />
+	</bean>
+</beans>
