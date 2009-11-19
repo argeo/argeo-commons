@@ -62,6 +62,7 @@
         "qx.version"     : "${QXVERSION}",
         "qx.theme"       : "${QXTHEME}",
         "qx.application" : "${APPLICATION}.Application",
+        "ria.splashScreen"			: "org.argeo.security.ria/ArgeoLogo.png",
         "ria.auth.enableAuth"		: "true",
         "ria.auth.credentialsURI"	: "/org.argeo.security.webapp/getCredentials.ria",
         "ria.auth.loginURI"			: "/org.argeo.security.webapp/login.ria",
