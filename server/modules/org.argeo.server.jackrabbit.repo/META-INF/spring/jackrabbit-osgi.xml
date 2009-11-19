@@ -6,6 +6,7 @@
        http://www.springframework.org/schema/beans   
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<service ref="repository" interface="javax.jcr.Repository" />
+	<service ref="repository" interface="javax.jcr.Repository"
+		context-class-loader="service-provider" />
 
 </beans:beans>

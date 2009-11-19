@@ -22,7 +22,7 @@
 
 	<!-- Simple Webdav -->
 	<servlet>
-		<servlet-name>Webdav</servlet-name>
+		<servlet-name>webdav</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<init-param>
 			<param-name>contextClass</param-name>
@@ -32,8 +32,8 @@
 	</servlet>
 
     <servlet-mapping>
-        <servlet-name>Webdav</servlet-name>
-        <url-pattern>/repository/*</url-pattern>
+        <servlet-name>webdav</servlet-name>
+        <url-pattern>/default/*</url-pattern>
     </servlet-mapping>
 
 </web-app>
