@@ -9,6 +9,7 @@ import org.argeo.server.BooleanAnswer;
 import org.argeo.server.ServerAnswer;
 import org.argeo.server.ServerDeserializer;
 import org.argeo.server.mvc.MvcConstants;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +36,7 @@ public class UsersRolesController implements MvcConstants {
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public ArgeoUser login(@RequestParam("username") String username,
 			@RequestParam("password") String password) {
+		//SecurityContextHolder.getContext().getAuthentication().
 		return securityService.getSecurityDao().getCurrentUser();
 	}
 
