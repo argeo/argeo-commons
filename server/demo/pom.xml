@@ -20,6 +20,9 @@
 				<configuration>
 					<bundlesPomArtifactId>org.argeo.server.demo</bundlesPomArtifactId>
 					<execDir>target/exec/server</execDir>
+					<argsToAppend>
+						<arg>-clean</arg>
+					</argsToAppend>
 					<osgiBootArtifactId>org.argeo.osgi.boot</osgiBootArtifactId>
 					<systemProperties>
 						<slc.osgi.start>

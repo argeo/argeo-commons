@@ -4,5 +4,6 @@ Import-Package: org.apache.directory.server.configuration,
  org.apache.directory.server.core.partition.impl.btree,
  org.apache.directory.server.jndi,
  org.apache.directory.shared.asn1.codec,
+ org.springframework.ldap.core.support,
  org.springframework.security.config,
  org.springframework.security.ldap

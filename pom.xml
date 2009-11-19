@@ -181,7 +181,7 @@ limitations under the License.
 			<dependency>
 				<groupId>org.argeo.dep</groupId>
 				<artifactId>versions</artifactId>
-				<version>1.0.0</version>
+				<version>1.0.1-SNAPSHOT</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

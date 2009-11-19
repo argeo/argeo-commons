@@ -22,27 +22,22 @@
 		<dependency>
 			<groupId>org.apache.directory</groupId>
 			<artifactId>com.springsource.org.apache.directory.server.core</artifactId>
-			<version>1.0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.dep.osgi</groupId>
 			<artifactId>org.argeo.dep.osgi.directory.shared.asn.codec</artifactId>
-			<version>0.9.5.5.0001</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.dep.osgi</groupId>
 			<artifactId>org.argeo.dep.osgi.mina.filter.ssl</artifactId>
-			<version>1.0.2.0001</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.directory</groupId>
 			<artifactId>com.springsource.org.apache.directory.server.jndi</artifactId>
-			<version>1.0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.jdbm</groupId>
 			<artifactId>com.springsource.jdbm</artifactId>
-			<version>1.0.0</version>
 		</dependency>
 		<!--
 			TODO: version 2.4.0 is required by Spring-LDAP while Apache Directory
@@ -51,7 +46,6 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>com.springsource.org.apache.commons.lang</artifactId>
-			<version>2.4.0</version>
 		</dependency>
 	</dependencies>
 </project>

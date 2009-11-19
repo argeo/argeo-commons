@@ -44,7 +44,6 @@
 		<dependency>
 			<groupId>org.argeo.dep.osgi</groupId>
 			<artifactId>org.argeo.dep.osgi.jackrabbit</artifactId>
-			<version>1.6.0.0003-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
@@ -55,7 +54,6 @@
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>com.springsource.org.apache.derby</artifactId>
-			<version>10.5.1000001.764942</version>
 		</dependency>
 
 		<!-- TEST -->

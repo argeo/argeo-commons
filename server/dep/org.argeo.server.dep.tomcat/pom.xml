@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
@@ -22,6 +23,10 @@
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>com.springsource.javax.servlet</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>com.springsource.javax.servlet.jsp</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>javax.annotation</groupId>
@@ -92,16 +97,20 @@
 			<artifactId>org.argeo.dep.osgi.catalina.start</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.catalina</groupId>
-			<artifactId>com.springsource.org.apache.catalina</artifactId>
+			<groupId>org.apache.coyote.springsource</groupId>
+			<artifactId>com.springsource.org.apache.coyote.springsource</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.jasper</groupId>
-			<artifactId>com.springsource.org.apache.jasper</artifactId>
+			<groupId>org.apache.catalina.springsource</groupId>
+			<artifactId>com.springsource.org.apache.catalina.springsource</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.el</groupId>
-			<artifactId>com.springsource.org.apache.el</artifactId>
+			<groupId>org.apache.jasper.springsource</groupId>
+			<artifactId>com.springsource.org.apache.jasper.springsource</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.el.springsource</groupId>
+			<artifactId>com.springsource.org.apache.el.springsource</artifactId>
 		</dependency>
 	</dependencies>
 </project>

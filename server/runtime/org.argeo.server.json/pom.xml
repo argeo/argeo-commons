@@ -48,7 +48,6 @@
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>com.springsource.org.codehaus.jackson.mapper</artifactId>
-			<version>1.0.0</version>
 		</dependency>
 
 		<!-- Spring -->

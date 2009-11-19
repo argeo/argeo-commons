@@ -45,7 +45,6 @@
 		<dependency>
 			<groupId>org.argeo.dep.osgi</groupId>
 			<artifactId>org.argeo.dep.osgi.springframework.ldap</artifactId>
-			<version>1.3.0.0003</version>
 		</dependency>
 
 		<!-- Security -->
@@ -72,20 +71,16 @@
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>com.springsource.org.codehaus.jackson.mapper</artifactId>
-			<version>1.0.0</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.springsource.json</groupId>
 			<artifactId>com.springsource.json</artifactId>
-			<version>1.0.1.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>org.antlr</groupId>
 			<artifactId>com.springsource.org.antlr</artifactId>
 		</dependency>
-
-
 
 		<!-- TEST -->
 		<dependency>
