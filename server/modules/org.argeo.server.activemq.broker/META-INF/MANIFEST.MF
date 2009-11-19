@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bundle-Version: 0.1.1.SNAPSHOT
+Bundle-Version: 0.1.2.SNAPSHOT
 Bundle-SymbolicName: org.argeo.server.activemq.broker
 Import-Package: jabber.client;resolution:=optional,jabber.iq._private;
  resolution:=optional,jabber.iq.auth;resolution:=optional,jabber.iq.ro

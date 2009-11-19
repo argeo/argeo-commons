@@ -24,7 +24,11 @@
 					</argsToAppend>
 					<systemProperties>
 						<slc.osgi.start>
+							org.argeo.dep.osgi.jackrabbit,
 							org.springframework.osgi.extender,
+							org.springframework.osgi.web.extender,
+							org.argeo.dep.osgi.catalina.start,
+							org.argeo.server.jackrabbit.webapp,
 							org.argeo.server.jackrabbit.repo
 						</slc.osgi.start>
 						<slc.osgi.bundles>
@@ -40,7 +44,7 @@
 		<dependency>
 			<groupId>org.argeo.dep.osgi</groupId>
 			<artifactId>org.argeo.dep.osgi.jackrabbit</artifactId>
-			<version>1.6.0.0002</version>
+			<version>1.6.0.0003-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
@@ -61,11 +65,25 @@
 			<version>0.1.2-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
+		<!--  Commons Dep -->
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.dep.tomcat</artifactId>
+			<version>0.1.2-SNAPSHOT</version>
+			<type>pom</type>
+		</dependency>
 		<!-- Spring -->
 		<dependency>
 			<groupId>org.springframework.osgi</groupId>
 			<artifactId>org.springframework.osgi.extender</artifactId>
 		</dependency>
+		
+		<!--  -->
+		<dependency>
+			<groupId>org.springframework.osgi</groupId>
+			<artifactId>org.springframework.osgi.web.extender</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.apache.xerces</groupId>
 			<artifactId>com.springsource.org.apache.xerces</artifactId>

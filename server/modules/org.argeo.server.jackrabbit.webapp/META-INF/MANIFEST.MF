@@ -1,0 +1,8 @@
+Bundle-SymbolicName: org.argeo.server.jackrabbit.webapp
+Bundle-Version: 0.1.2.SNAPSHOT
+Web-ContextPath: org.argeo.server.jackrabbit.webapp
+Import-Package: javax.jcr,
+ javax.servlet,
+ javax.servlet.http,
+ javax.servlet.resources,
+ org.apache.jackrabbit.j2ee

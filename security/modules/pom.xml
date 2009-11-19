@@ -3,10 +3,10 @@
 	<parent>
 		<groupId>org.argeo.commons</groupId>
 		<version>0.1.2-SNAPSHOT</version>
-		<artifactId>server</artifactId>
+		<artifactId>security</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<groupId>org.argeo.security</groupId>
+	<groupId>org.argeo.commons.security</groupId>
 	<artifactId>modules</artifactId>
 	<packaging>bundles</packaging>
 	<name>Commons Security Modules</name>
