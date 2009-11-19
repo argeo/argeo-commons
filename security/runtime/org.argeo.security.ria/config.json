@@ -63,10 +63,10 @@
         "qx.theme"       : "${QXTHEME}",
         "qx.application" : "${APPLICATION}.Application",
         "ria.auth.enableAuth"		: "true",
-        "ria.auth.credentialsURI"	: "/org.argeo.security.webapp/getCredentials.security",
-        "ria.auth.loginURI"			: "/org.argeo.slc.webapp/authService.ria",
-        "ria.auth.logoutURI"		: "/org.argeo.slc.webapp/authService.ria?logout=true",
-        "ria.StartupPerspective":"org.argeo.security.ria.Perspective"		
+        "ria.auth.credentialsURI"	: "/org.argeo.security.webapp/getCredentials.ria",
+        "ria.auth.loginURI"			: "/org.argeo.security.webapp/login.ria",
+        "ria.auth.logoutURI"		: "/org.argeo.security.webapp/logout.ria",
+        "ria.StartupPerspective"	: "org.argeo.security.ria.Perspective"		
       }
     },
 
