@@ -57,8 +57,7 @@ qx.Class.define("org.argeo.security.ria.Perspective", {
 		},
 
 		remove : function(viewsManager) {
-			viewsManager.getViewPaneById("applet").empty();
-			viewsManager.getViewPanesContainer().remove(this.splitPane);
+			viewsManager.getViewPanesContainer().remove(this._firstSplit);
 		}
 
 	}
