@@ -190,8 +190,8 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   		
   		this.setCurrentNatureTabs([]);
   		this.naturesTab = new qx.ui.tabview.TabView("top");
-  		this.naturesTab.addListener("changeSelected", function(e){
-  			this.setSelectedNatureTab(e.getData());
+  		this.naturesTab.addListener("changeSelection", function(e){
+  			this.setSelectedNatureTab(e.getData()[0] || null);
   			this.getViewSelection().triggerEvent();
   		}, this);
   		
@@ -394,7 +394,7 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   			this.setNaturesModified(true);
   		}, this);  
   		if(select){
-  			this.naturesTab.setSelected(page);
+  			this.naturesTab.setSelection([page]);
   		}
   		return page;
   	},
@@ -414,7 +414,8 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   	},
   	
   	removeSelectedTab : function(){
-  		var selected = this.naturesTab.getSelected();
+  		if(this.naturesTab.isSelectionEmpty()) return;
+  		var selected = this.naturesTab.getSelection()[0];
   		var tabClass = selected.getUserData("NATURE_CLASS");
   		var user = this.getCurrentUser();
   		user.removeNature(tabClass.NATURE_TYPE);
@@ -423,8 +424,8 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   	},
   	
   	removeAllTabs : function(){
-  		while(this.naturesTab.getSelected()){
-  			this._removeNatureTab(this.naturesTab.getSelected().getUserData("NATURE_CLASS"));
+  		while(!this.naturesTab.isSelectionEmpty()){
+  			this._removeNatureTab(this.naturesTab.getSelection()[0].getUserData("NATURE_CLASS"));
   		}
   	},
   	  
@@ -486,7 +487,7 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   	},
   	
   	partialRefreshUser : function(user, target){
-  		if(!qx.lang.Array.isArray(target)) target = [target];
+  		if(!qx.lang.Type.isArray(target)) target = [target];
   		
   		if(qx.lang.Array.contains(target,"natures")){
   			if(this.getSelectedNatureTab()){

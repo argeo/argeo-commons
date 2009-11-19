@@ -170,7 +170,7 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   		});
   		  		
   		// TOGGLE THE GUI MODES  		
-  		this.toggleButton.addListener("changeChecked", function(event){
+  		this.toggleButton.addListener("changeValue", function(event){
   			this.setGuiMode(event.getData()?"filter":"clear");
   		}, this);
 		
