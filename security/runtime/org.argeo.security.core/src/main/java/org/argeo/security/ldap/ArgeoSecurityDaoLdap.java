@@ -105,6 +105,8 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 		Authentication authentication = SecurityContextHolder.getContext()
 				.getAuthentication();
 		ArgeoUser argeoUser = ArgeoUserDetails.asArgeoUser(authentication);
+		if (argeoUser == null)
+			return null;
 		if (argeoUser.getRoles().contains(defaultRole))
 			argeoUser.getRoles().remove(defaultRole);
 		return argeoUser;

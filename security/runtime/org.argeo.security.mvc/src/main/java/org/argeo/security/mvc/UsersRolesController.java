@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
+import org.argeo.security.SimpleArgeoUser;
 import org.argeo.server.BooleanAnswer;
 import org.argeo.server.ServerAnswer;
 import org.argeo.server.ServerDeserializer;
@@ -26,25 +27,29 @@ public class UsersRolesController implements MvcConstants {
 
 	/* USER */
 
-	@RequestMapping("/getCredentials.security")
+	@RequestMapping("/getCredentials.ria")
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public ArgeoUser getCredentials() {
-		return securityService.getSecurityDao().getCurrentUser();
+		ArgeoUser argeoUser = securityService.getSecurityDao().getCurrentUser();
+		if (argeoUser == null)
+			return new SimpleArgeoUser();
+		else
+			return argeoUser;
 	}
 
-//	@RequestMapping("/login.security")
-//	@ModelAttribute(ANSWER_MODEL_KEY)
-//	public ArgeoUser login(@RequestParam("username") String username,
-//			@RequestParam("password") String password) {
-//		//SecurityContextHolder.getContext().getAuthentication().
-//		return securityService.getSecurityDao().getCurrentUser();
-//	}
-//
-//	@RequestMapping("/logout.security")
-//	@ModelAttribute(ANSWER_MODEL_KEY)
-//	public ServerAnswer logout() {
-//		return ServerAnswer.ok("Logged out");
-//	}
+	// @RequestMapping("/login.security")
+	// @ModelAttribute(ANSWER_MODEL_KEY)
+	// public ArgeoUser login(@RequestParam("username") String username,
+	// @RequestParam("password") String password) {
+	// //SecurityContextHolder.getContext().getAuthentication().
+	// return securityService.getSecurityDao().getCurrentUser();
+	// }
+	//
+	// @RequestMapping("/logout.security")
+	// @ModelAttribute(ANSWER_MODEL_KEY)
+	// public ServerAnswer logout() {
+	// return ServerAnswer.ok("Logged out");
+	// }
 
 	@RequestMapping("/getUsersList.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)

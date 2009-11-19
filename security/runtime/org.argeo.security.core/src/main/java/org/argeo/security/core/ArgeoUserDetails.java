@@ -80,6 +80,9 @@ public class ArgeoUserDetails extends User implements ArgeoUser {
 	}
 
 	public static ArgeoUser asArgeoUser(Authentication authentication) {
+		if (authentication == null)
+			return null;
+
 		if (authentication.getPrincipal() instanceof ArgeoUser) {
 			return new SimpleArgeoUser((ArgeoUser) authentication
 					.getPrincipal());
