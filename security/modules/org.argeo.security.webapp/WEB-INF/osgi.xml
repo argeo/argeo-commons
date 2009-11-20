@@ -13,4 +13,8 @@
 
 	<list id="objectFactories" interface="org.argeo.server.json.JsonObjectFactory"
 		cardinality="0..N" />
+
+<!-- 
+	<service ref="authenticationProcessingFilterEntryPoint"
+		interface="org.springframework.security.ui.AuthenticationEntryPoint" /> -->
 </beans:beans>

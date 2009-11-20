@@ -4,16 +4,15 @@
 	<parent>
 		<groupId>org.argeo.commons</groupId>
 		<version>0.1.2-SNAPSHOT</version>
-		<artifactId>argeo-commons</artifactId>
+		<artifactId>server</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>security</artifactId>
-	<name>Commons Security</name>
+	<groupId>org.argeo.commons.security</groupId>
+	<artifactId>dep</artifactId>
+	<name>Commons Security Dependencies</name>
 	<packaging>pom</packaging>
 	<modules>
-		<module>runtime</module>
-		<module>modules</module>
-		<module>dep</module>
-		<module>demo</module>
+		<module>org.argeo.security.dep.ldap</module>
+		<module>org.argeo.security.dep.ads</module>
 	</modules>
 </project>
