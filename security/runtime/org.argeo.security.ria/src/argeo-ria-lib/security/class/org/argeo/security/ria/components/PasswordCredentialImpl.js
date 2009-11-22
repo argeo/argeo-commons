@@ -37,7 +37,7 @@ qx.Class.define("org.argeo.security.ria.components.PasswordCredentialImpl", {
 		},
 		getData : function(format){
 			var encoded = null;
-			if(this.pass1.getValue() != ""){
+			if(this.pass1.getValue() != null && this.pass1.getValue() != ""){
 				var encoder = this.getEncoderCallback();
 				encoded = encoder(this.pass1.getValue()); 
 			}
@@ -48,12 +48,13 @@ qx.Class.define("org.argeo.security.ria.components.PasswordCredentialImpl", {
 			this.pass2.setValue("");			
 		},
 		validate : function(){
-			if(this.pass1.getValue() != this.pass2.getValue() || this.pass1.getValue() == ""){
-				// TODO WHEN TESTING 0.8.3
-				//this.pass1.setValid(false);
-				//this.pass2.setValid(false); 
+			if(this.pass1.getValue() != this.pass2.getValue()){
+				this.pass1.setValid(false);
+				this.pass2.setValid(false); 
 				this.setValid(false);
 			}else{
+				this.pass1.setValid(true);
+				this.pass2.setValid(true); 
 				this.setValid(true);
 			}
 			return this.getValid();
