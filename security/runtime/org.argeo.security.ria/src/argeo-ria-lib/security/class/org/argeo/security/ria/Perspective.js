@@ -19,7 +19,7 @@ qx.Class.define("org.argeo.security.ria.Perspective", {
 	statics : {
 	  	LABEL : "RIA Security",
 	  	ICON : "org.argeo.security.ria/preferences-security.png",
-	  	ACCESS:"ROLE_ADMIN"
+	  	ACCESS:"!ROLE_ANONYMOUS"
 	},
 	
 
