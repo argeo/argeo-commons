@@ -17,5 +17,6 @@
 		<module>org.argeo.server.osgi</module>
 		<module>org.argeo.server.jxl</module>
 		<module>org.argeo.server.hibernate</module>
+		<module>org.argeo.server.ads</module>
 	</modules>
 </project>

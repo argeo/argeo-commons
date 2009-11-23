@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
@@ -26,7 +27,7 @@
 					</argsToAppend>
 					<fork>false</fork>
 					<systemProperties>
-						<slc.osgi.start>
+						<argeo.osgi.start>
 							org.springframework.osgi.extender,
 							org.springframework.osgi.web.extender,
 							org.argeo.dep.osgi.catalina.start,
@@ -35,12 +36,12 @@
 							org.argeo.security.ria,
 							org.argeo.security.core,
 							org.argeo.server.ads.server
-						</slc.osgi.start>
-						<slc.osgi.bundles>
+						</argeo.osgi.start>
+						<argeo.osgi.bundles>
 							${basedir};in=*;ex=pom.xml;ex=target;ex=.*;ex=*.ldif,
 							${basedir}/../modules;in=*;ex=pom.xml;ex=target;ex=.*,
 							${basedir}/../../server/modules;in=*;ex=pom.xml;ex=target;ex=.*,
-						</slc.osgi.bundles>
+						</argeo.osgi.bundles>
 					</systemProperties>
 				</configuration>
 			</plugin>
@@ -94,5 +95,13 @@
 			<groupId>org.springframework.osgi</groupId>
 			<artifactId>org.springframework.osgi.web.extender</artifactId>
 		</dependency>
+
+		<!-- Used to start the Apache Directory server -->
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.ads</artifactId>
+			<version>0.1.2-SNAPSHOT</version>
+		</dependency>
+
 	</dependencies>
 </project>

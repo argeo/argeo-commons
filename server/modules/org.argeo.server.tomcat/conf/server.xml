@@ -124,7 +124,7 @@
 			-->
 			<Host name="localhost" appBase="webapps" unpackWARs="true"
 				autoDeploy="true" xmlValidation="false" xmlNamespaceAware="false"
-				workDir="${slc.osgi.dataDir}/tomcat/work">
+				workDir="${argeo.osgi.data.dir}/tomcat/work">
 
 				<!--
 					SingleSignOn valve, share authentication between web applications

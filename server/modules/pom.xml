@@ -30,5 +30,13 @@
 			<version>0.1.2-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
+
+		<!-- Used to start the Apache Directory server -->
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.ads</artifactId>
+			<version>0.1.2-SNAPSHOT</version>
+		</dependency>
+
 	</dependencies>
 </project>

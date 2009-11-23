@@ -5,6 +5,16 @@
               http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.4.xsd">
 
 
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="locations">
+			<value>osgibundle:ldap.properties
+			</value>
+		</property>
+	</bean>
+
 	<bean id="_authenticationManager" class="org.springframework.security.providers.ProviderManager">
 		<property name="providers">
 			<list>
@@ -15,9 +25,10 @@
 
 	<bean id="contextSource"
 		class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
-		<constructor-arg value="ldap://localhost:10389/dc=demo,dc=argeo,dc=org" />
-		<property name="userDn" value="uid=admin,ou=system" />
-		<property name="password" value="secret" />
+		<constructor-arg
+			value="ldap://${argeo.ldap.host}:${argeo.ldap.port}/${argeo.ldap.rootdn}" />
+		<property name="userDn" value="${argeo.ldap.manager.userdn}" />
+		<property name="password" value="${argeo.ldap.manager.password}" />
 	</bean>
 
 	<bean id="authenticationProvider"
@@ -66,9 +77,8 @@
 		name="usernameMapper"> <bean
 		class="org.springframework.security.ldap.DefaultLdapUsernameToDnMapper">
 		<constructor-arg value="ou=users" /> <constructor-arg value="uid" />
-		</bean> </property> </bean>
-	<bean id="userDetailsMapper" class="org.argeo.security.ldap.ArgeoUserDetailsContextMapper">
-		<property name="userNatureMappers" ref="userNatureMappers" />
-	</bean>
+		</bean> </property> </bean> <bean id="userDetailsMapper"
+		class="org.argeo.security.ldap.ArgeoUserDetailsContextMapper">
+		<property name="userNatureMappers" ref="userNatureMappers" /> </bean>
 	-->
 </beans>
