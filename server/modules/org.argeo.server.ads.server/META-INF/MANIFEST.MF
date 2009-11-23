@@ -1,9 +1,23 @@
 Bundle-Version: 0.1.2.SNAPSHOT
 Bundle-SymbolicName: org.argeo.server.ads.server
 Import-Package: org.apache.directory.server.configuration,
+ org.apache.directory.server.core.authn,
+ org.apache.directory.server.core.authz,
+ org.apache.directory.server.core.collective,
+ org.apache.directory.server.core.configuration,
+ org.apache.directory.server.core.event,
+ org.apache.directory.server.core.exception,
+ org.apache.directory.server.core.normalization,
+ org.apache.directory.server.core.operational,
  org.apache.directory.server.core.partition.impl.btree,
+ org.apache.directory.server.core.referral,
+ org.apache.directory.server.core.schema,
+ org.apache.directory.server.core.schema.bootstrap,
+ org.apache.directory.server.core.subtree,
  org.apache.directory.server.jndi,
+ org.apache.directory.server.ldap.support.extended,
  org.apache.directory.shared.asn1.codec,
+ org.springframework.beans.factory.config,
  org.springframework.ldap.core.support,
  org.springframework.security.config,
  org.springframework.security.ldap
