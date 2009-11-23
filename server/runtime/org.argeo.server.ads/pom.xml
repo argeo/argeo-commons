@@ -42,6 +42,16 @@
 		<dependency>
 			<groupId>org.apache.directory</groupId>
 			<artifactId>com.springsource.org.apache.directory.server.jndi</artifactId>
+			<exclusions>
+				<!--
+					Workaround for a weird issue where the underlying version from
+					slf4j get taken instead of the one we want
+				-->
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>com.springsource.slf4j.api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- Apache Commons -->
@@ -60,6 +70,10 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>com.springsource.slf4j.org.apache.commons.logging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>com.springsource.slf4j.api</artifactId>
 		</dependency>
 	</dependencies>
 </project>

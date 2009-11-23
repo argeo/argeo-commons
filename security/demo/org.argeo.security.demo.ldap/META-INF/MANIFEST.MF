@@ -1,3 +1,0 @@
-Bundle-SymbolicName: org.argeo.security.demo.ldap
-Bundle-Version: 0.1.2.SNAPSHOT
-Fragment-Host: org.argeo.security.manager.ldap

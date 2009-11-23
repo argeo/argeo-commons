@@ -1,6 +1,8 @@
 package org.argeo.server.ads;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -11,6 +13,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.InitialDirContext;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.directory.server.configuration.MutableServerStartupConfiguration;
@@ -55,15 +58,23 @@ public class AdsContainer implements InitializingBean, DisposableBean {
 					.getAbsolutePath()
 					+ File.separator + "ldif"));
 
+		// Deals with provided LDIF files
 		if (ldifs.size() > 0)
 			configuration.getLdifDirectory().mkdirs();
 		for (Resource ldif : ldifs) {
-			FileUtils.copyURLToFile(ldif.getURL(), new File(configuration
-					.getLdifDirectory().getAbsolutePath()
-					+ File.separator + ldif.getFilename().replace(':', '_')));
-			if (log.isDebugEnabled())
-				log.debug("Copied " + ldif + " to LDIF directory "
-						+ configuration.getLdifDirectory());
+			File targetFile = new File(configuration.getLdifDirectory()
+					.getAbsolutePath()
+					+ File.separator + ldif.getFilename().replace(':', '_'));
+			OutputStream output = null;
+			try {
+				output = new FileOutputStream(targetFile);
+				IOUtils.copy(ldif.getInputStream(), output);
+				if (log.isDebugEnabled())
+					log.debug("Copied " + ldif + " to LDIF directory "
+							+ configuration.getLdifDirectory());
+			} finally {
+				IOUtils.closeQuietly(output);
+			}
 		}
 
 		Properties env = new Properties();

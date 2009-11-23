@@ -19,7 +19,7 @@
 		<property name="environment" ref="environment" />
 		<property name="ldifs">
 			<list>
-				<value>osgibundle:init.ldif</value>
+				<value>${argeo.ads.init.ldif}</value>
 			</list>
 		</property>
 	</bean>
