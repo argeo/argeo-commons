@@ -15,7 +15,11 @@
 	</bean>
 
 	<!-- Embedded broker -->
-	<amq:broker id="broker" useJmx="false" persistent="false">
+	<amq:broker id="broker" useJmx="false" persistent="true">
+		<amq:persistenceAdapter>
+			<amq:amqPersistenceAdapter directory="${argeo.osgi.data.dir}/activemq-data"
+				maxFileLength="32mb" />
+		</amq:persistenceAdapter>
 		<amq:transportConnectors>
 			<amq:transportConnector uri="${argeo.server.jms.url}" />
 			<!-- <amq:transportConnector uri="xmpp://localhost:61222" /> -->
