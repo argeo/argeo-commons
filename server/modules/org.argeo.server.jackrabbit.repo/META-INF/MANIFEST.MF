@@ -3,4 +3,5 @@ Bundle-Version: 0.1.2.SNAPSHOT
 Import-Package: javax.jcr,
  org.apache.jackrabbit.core,
  org.apache.jackrabbit.core.config,
+ org.argeo.server.jackrabbit,
  org.springframework.beans.factory.config

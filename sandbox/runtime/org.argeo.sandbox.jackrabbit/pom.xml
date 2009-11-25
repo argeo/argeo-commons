@@ -23,24 +23,29 @@
 						<arg>-clean</arg>
 					</argsToAppend>
 					<systemProperties>
-						<slc.osgi.start>
+						<argeo.osgi.start>
 							org.argeo.dep.osgi.jackrabbit,
 							org.springframework.osgi.extender,
 							org.springframework.osgi.web.extender,
 							org.argeo.dep.osgi.catalina.start,
 							org.argeo.server.jackrabbit.webapp,
 							org.argeo.server.jackrabbit.repo
-						</slc.osgi.start>
-						<slc.osgi.bundles>
+						</argeo.osgi.start>
+						<argeo.osgi.bundles>
 							${basedir}/../../../server/modules;in=*;ex=pom.xml;ex=target;ex=.*,
 							${basedir}/../../../server/demo;in=*;ex=pom.xml;ex=target;ex=.*,
-						</slc.osgi.bundles>
+						</argeo.osgi.bundles>
 					</systemProperties>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.jackrabbit</artifactId>
+			<version>0.1.2-SNAPSHOT</version>
+		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.jackrabbit.server</artifactId>
@@ -77,7 +82,7 @@
 			<groupId>org.springframework.osgi</groupId>
 			<artifactId>org.springframework.osgi.extender</artifactId>
 		</dependency>
-		
+
 		<!--  -->
 		<dependency>
 			<groupId>org.springframework.osgi</groupId>

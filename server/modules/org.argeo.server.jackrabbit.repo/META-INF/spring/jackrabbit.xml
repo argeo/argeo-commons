@@ -7,26 +7,24 @@
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
 		<property name="ignoreUnresolvablePlaceholders" value="true" />
-		<!-- 
 		<property name="locations">
-			<value>osgibundle:jackrabbit.properties </value>
+			<value>osgibundle:jackrabbit.properties</value>
 		</property>
-		 -->
 	</bean>
 
-	<bean id="repository" class="org.apache.jackrabbit.core.RepositoryImpl"
-		factory-method="create">
-		<constructor-arg ref="repositoryConfig" />
+	<bean id="repository" class="org.argeo.server.jackrabbit.JackrabbitContainer">
+		<property name="homeDirectory" value="${argeo.osgi.data.dir}/jackrabbit" />
+		<property name="configuration" value="${argeo.jackrabbit.repo.configuration}" />
 	</bean>
-
-	<bean id="repositoryConfig" class="org.apache.jackrabbit.core.config.RepositoryConfig"
-		factory-method="create">
-		<!--  -->
-		<constructor-arg value="osgibundle:repository.xml"
-			type="java.io.InputStream" />
-		<constructor-arg value="${argeo.osgi.data.dir}/jackrabbit" type="java.lang.String" />
-		
-		<!-- <constructor-arg value="${osgi.instance.area}" type="java.io.File" />-->
-	</bean>
-
+	<!--
+		<bean id="repository"
+		class="org.apache.jackrabbit.core.RepositoryImpl"
+		factory-method="create"> <constructor-arg ref="repositoryConfig" />
+		</bean> <bean id="repositoryConfig"
+		class="org.apache.jackrabbit.core.config.RepositoryConfig"
+		factory-method="create"> <constructor-arg
+		value="osgibundle:repository.xml" type="java.io.InputStream" />
+		<constructor-arg value="${argeo.osgi.data.dir}/jackrabbit"
+		type="java.lang.String" /> </bean>
+	-->
 </beans>

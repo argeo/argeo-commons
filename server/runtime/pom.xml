@@ -18,5 +18,6 @@
 		<module>org.argeo.server.jxl</module>
 		<module>org.argeo.server.hibernate</module>
 		<module>org.argeo.server.ads</module>
+		<module>org.argeo.server.jackrabbit</module>
 	</modules>
 </project>
