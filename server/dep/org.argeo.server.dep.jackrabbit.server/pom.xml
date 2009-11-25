@@ -15,9 +15,15 @@
 			<groupId>org.argeo.dep.osgi</groupId>
 			<artifactId>org.argeo.dep.osgi.jackrabbit</artifactId>
 		</dependency>
+
+		<!--  For webdav -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>org.springframework.web.servlet</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>com.springsource.javax.servlet</artifactId>
 		</dependency>
 	</dependencies>
 </project>

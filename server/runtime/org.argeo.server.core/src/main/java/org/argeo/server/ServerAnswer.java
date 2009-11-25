@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.apache.commons.io.IOUtils;
+import org.argeo.ArgeoException;
 
 /** Answer to an execution of a remote service which performed changes. */
 public class ServerAnswer {
@@ -17,7 +18,7 @@ public class ServerAnswer {
 	public ServerAnswer(String status, String message) {
 		setStatus(status);
 		if (message == null)
-			throw new ArgeoServerException("Message cannot be null");
+			throw new ArgeoException("Message cannot be null");
 		this.message = message;
 	}
 
@@ -31,7 +32,7 @@ public class ServerAnswer {
 
 	public void setStatus(String status) {
 		if (status == null || (!status.equals(OK) && !status.equals(ERROR)))
-			throw new ArgeoServerException("Bad status format: " + status);
+			throw new ArgeoException("Bad status format: " + status);
 		this.status = status;
 	}
 
@@ -71,7 +72,7 @@ public class ServerAnswer {
 
 	@Override
 	public String toString() {
-		return "ServerAnswer{status:"+status+", message:"+message+"}";
+		return "ServerAnswer{status:" + status + ", message:" + message + "}";
 	}
 
 }

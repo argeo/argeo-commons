@@ -12,7 +12,7 @@ import java.util.TreeMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.server.ArgeoServerException;
+import org.argeo.ArgeoException;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
@@ -64,7 +64,7 @@ public abstract class AbstractMemoryDaoSupport implements LightDaoSupport,
 				in = res.getInputStream();
 				load(in, references);
 			} catch (Exception e) {
-				throw new ArgeoServerException("Cannot load stream", e);
+				throw new ArgeoException("Cannot load stream", e);
 			} finally {
 				IOUtils.closeQuietly(in);
 			}

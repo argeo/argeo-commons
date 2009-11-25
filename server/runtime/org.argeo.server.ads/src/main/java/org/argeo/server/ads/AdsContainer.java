@@ -19,6 +19,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.directory.server.configuration.MutableServerStartupConfiguration;
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.jndi.ServerContextFactory;
+import org.argeo.ArgeoException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
@@ -87,8 +88,8 @@ public class AdsContainer implements InitializingBean, DisposableBean {
 		try {
 			new InitialDirContext(env);
 		} catch (NamingException e) {
-			throw new RuntimeException(
-					"Failed to start Apache Directory server", e);
+			throw new ArgeoException("Failed to start Apache Directory server",
+					e);
 		}
 	}
 
@@ -110,8 +111,8 @@ public class AdsContainer implements InitializingBean, DisposableBean {
 		try {
 			new InitialContext(env);
 		} catch (NamingException e) {
-			throw new RuntimeException(
-					"Failed to stop Apache Directory server", e);
+			throw new ArgeoException("Failed to stop Apache Directory server",
+					e);
 		}
 
 		if (workingDirectory.exists() && deleteWorkingDirOnExit) {

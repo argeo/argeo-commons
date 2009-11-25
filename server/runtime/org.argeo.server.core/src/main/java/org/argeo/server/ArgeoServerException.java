@@ -1,6 +1,9 @@
 package org.argeo.server;
 
-public class ArgeoServerException extends RuntimeException {
+import org.argeo.ArgeoException;
+
+/** @deprecated use {@link ArgeoException} instead */
+public class ArgeoServerException extends ArgeoException {
 	private static final long serialVersionUID = 1L;
 
 	public ArgeoServerException() {

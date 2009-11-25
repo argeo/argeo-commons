@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.server.ArgeoServerException;
+import org.argeo.ArgeoException;
 
 public abstract class AbstractTabularDaoSupport extends
 		AbstractMemoryDaoSupport {
@@ -56,7 +56,7 @@ public abstract class AbstractTabularDaoSupport extends
 		}
 
 		if (clss == null)
-			throw new ArgeoServerException("Cannot find a class for table "
+			throw new ArgeoException("Cannot find a class for table "
 					+ tableName);
 
 		return clss;

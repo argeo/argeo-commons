@@ -12,9 +12,13 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.jackrabbit.webdav.client.methods.CheckoutMethod;
 import org.apache.jackrabbit.webdav.client.methods.PutMethod;
 
 public class WebDavTest {
+	private final static Log log = LogFactory.getLog(WebDavTest.class);
 
 	/**
 	 * @param args
@@ -35,18 +39,22 @@ public class WebDavTest {
 			client.setHostConfiguration(hostConfig);
 			// return client;
 
+			String baseUrl = "http://localhost:7070/org.argeo.server.jackrabbit.webapp/default/";
+
 			String fileName = "test.xml";
-			PutMethod pm = new PutMethod(
-					"http://localhost:7070/org.argeo.server.jackrabbit.webapp/default/"
-							+ fileName);
-			// String text = "this is the document content";
+
+			// PUT
+			PutMethod pm = new PutMethod(baseUrl + fileName);
 			RequestEntity requestEntity = new InputStreamRequestEntity(
 					new FileInputStream(fileName));
-			// pm.setRequestEntity(new StringRequestEntity(text, "text/plain",
-			// null));
-			// pm.setRequestBody(text);
 			pm.setRequestEntity(requestEntity);
 			client.executeMethod(pm);
+
+			// GET
+			CheckoutMethod gm = new CheckoutMethod(baseUrl + fileName);
+			client.executeMethod(gm);
+			String responseGet = gm.getResponseBodyAsString();
+			log.debug("CHECKOUT: " + responseGet);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

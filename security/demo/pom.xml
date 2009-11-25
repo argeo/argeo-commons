@@ -42,6 +42,7 @@
 							${basedir}/../modules;in=*;ex=pom.xml;ex=target;ex=.*,
 							${basedir}/../../server/modules;in=*;ex=pom.xml;ex=target;ex=.*,
 						</argeo.osgi.bundles>
+						<org.osgi.framework.bootdelegation>com.sun.jndi.ldap</org.osgi.framework.bootdelegation>
 					</systemProperties>
 				</configuration>
 			</plugin>

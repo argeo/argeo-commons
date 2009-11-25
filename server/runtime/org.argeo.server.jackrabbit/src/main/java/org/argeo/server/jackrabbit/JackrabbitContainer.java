@@ -54,23 +54,23 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 	}
 
 	public Session login() throws LoginException, RepositoryException {
-		return login();
+		return repository.login();
 	}
 
 	public Session login(Credentials credentials, String workspaceName)
 			throws LoginException, NoSuchWorkspaceException,
 			RepositoryException {
-		return login(credentials, workspaceName);
+		return repository.login(credentials, workspaceName);
 	}
 
 	public Session login(Credentials credentials) throws LoginException,
 			RepositoryException {
-		return login(credentials);
+		return repository.login(credentials);
 	}
 
 	public Session login(String workspaceName) throws LoginException,
 			NoSuchWorkspaceException, RepositoryException {
-		return login(workspaceName);
+		return repository.login(workspaceName);
 	}
 
 	// BEANS METHODS

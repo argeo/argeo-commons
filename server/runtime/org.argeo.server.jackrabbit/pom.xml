@@ -39,8 +39,19 @@
 	</build>
 	<dependencies>
 		<dependency>
+			<groupId>org.argeo.commons.basic</groupId>
+			<artifactId>org.argeo.basic.nodeps</artifactId>
+			<version>0.1.2-SNAPSHOT</version>
+		</dependency>
+
+		<!-- Jack Rabbit -->
+		<dependency>
 			<groupId>org.argeo.dep.osgi</groupId>
 			<artifactId>org.argeo.dep.osgi.jackrabbit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>com.springsource.javax.servlet</artifactId>
 		</dependency>
 
 		<!-- Apache Commons -->

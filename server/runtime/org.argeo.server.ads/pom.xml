@@ -38,6 +38,12 @@
 		</plugins>
 	</build>
 	<dependencies>
+		<dependency>
+			<groupId>org.argeo.commons.basic</groupId>
+			<artifactId>org.argeo.basic.nodeps</artifactId>
+			<version>0.1.2-SNAPSHOT</version>
+		</dependency>
+
 		<!-- Apache DS -->
 		<dependency>
 			<groupId>org.apache.directory</groupId>

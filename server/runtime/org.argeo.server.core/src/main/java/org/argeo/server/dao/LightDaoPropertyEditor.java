@@ -2,7 +2,7 @@ package org.argeo.server.dao;
 
 import java.beans.PropertyEditorSupport;
 
-import org.argeo.server.ArgeoServerException;
+import org.argeo.ArgeoException;
 
 public class LightDaoPropertyEditor extends PropertyEditorSupport implements
 		LightDaoAware {
@@ -20,7 +20,7 @@ public class LightDaoPropertyEditor extends PropertyEditorSupport implements
 	@Override
 	public void setAsText(String text) throws IllegalArgumentException {
 		if (targetClass == null)
-			throw new ArgeoServerException("Target class cannot be null");
+			throw new ArgeoException("Target class cannot be null");
 
 		if (businessIdField != null)
 			setValue(lightDaoSupport.getByField(targetClass, businessIdField,

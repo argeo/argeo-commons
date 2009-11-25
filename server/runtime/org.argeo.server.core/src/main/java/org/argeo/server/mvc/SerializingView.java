@@ -6,7 +6,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.argeo.server.ArgeoServerException;
+import org.argeo.ArgeoException;
 import org.argeo.server.ServerSerializer;
 import org.springframework.web.servlet.view.AbstractView;
 
@@ -36,7 +36,7 @@ public class SerializingView extends AbstractView implements MvcConstants {
 		} else if (model.containsKey(viewName)) {
 			answer = model.get(viewName);
 		} else {
-			throw new ArgeoServerException(
+			throw new ArgeoException(
 					"Model has a size different from 1. Specify a modelKey.");
 		}
 
