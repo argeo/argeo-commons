@@ -20,13 +20,12 @@ import jxl.WorkbookSettings;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.server.ArgeoServerException;
+import org.argeo.ArgeoException;
 import org.argeo.server.dao.AbstractTabularDaoSupport;
 import org.argeo.server.dao.LightDaoSupport;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 
 public class JxlDaoSupport extends AbstractTabularDaoSupport implements
@@ -47,7 +46,7 @@ public class JxlDaoSupport extends AbstractTabularDaoSupport implements
 				loadSheet(sheet, references);
 			}
 		} catch (Exception e) {
-			throw new ArgeoServerException("Cannot load workbook", e);
+			throw new ArgeoException("Cannot load workbook", e);
 		}
 	}
 
@@ -79,7 +78,7 @@ public class JxlDaoSupport extends AbstractTabularDaoSupport implements
 				if (keyProperty == null)
 					keyProperty = fieldName;
 				if (!espSt.hasMoreTokens())
-					throw new ArgeoServerException("Badly formatted sheetname "
+					throw new ArgeoException("Badly formatted sheetname "
 							+ sheetName);
 				String fieldValue = espSt.nextToken();
 				bw.setPropertyValue(fieldName, fieldValue);
@@ -272,7 +271,7 @@ public class JxlDaoSupport extends AbstractTabularDaoSupport implements
 			String formula = ((FormulaCell) cell).getFormula();
 			int index = formula.indexOf('!');
 			if (index < 0)
-				throw new ArgeoServerException("Cannot interpret formula "
+				throw new ArgeoException("Cannot interpret formula "
 						+ formula);
 			;
 			String targetSheet = formula.substring(0, index);
