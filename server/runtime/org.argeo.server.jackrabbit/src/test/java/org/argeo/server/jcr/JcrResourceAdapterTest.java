@@ -51,8 +51,14 @@ public class JcrResourceAdapterTest extends TestCase {
 		jra.update(filePath, res02);
 
 		List<Calendar> versions = jra.listVersions(filePath);
-		for (Calendar version : versions)
-			log.debug(sdf.format(version.getTime()));
+		log.debug("Versions of " + filePath);
+		int count = 0;
+		for (Calendar version : versions) {
+			log.debug(" " + (count == 0 ? "base" : count - 1) + "\t"
+					+ sdf.format(version.getTime()));
+			count++;
+		}
+
 		assertEquals(4, versions.size());
 
 		InputStream in = jra.retrieve(filePath, 1);
