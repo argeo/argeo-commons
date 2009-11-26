@@ -88,4 +88,12 @@ public class DefaultJcrListener implements EventListener {
 		this.password = password;
 	}
 
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public void setDeep(Boolean deep) {
+		this.deep = deep;
+	}
+
 }
