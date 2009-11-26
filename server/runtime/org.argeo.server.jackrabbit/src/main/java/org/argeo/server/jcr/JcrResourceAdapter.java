@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import javax.activation.MimetypesFileTypeMap;
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
@@ -19,6 +20,7 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
@@ -81,6 +83,8 @@ public class JcrResourceAdapter implements InitializingBean, DisposableBean {
 
 			int index = path.lastIndexOf('/');
 			String parentPath = path.substring(0, index);
+			if (parentPath.equals(""))
+				parentPath = "/";
 			String fileName = path.substring(index + 1);
 			if (!session().itemExists(parentPath))
 				throw new ArgeoException("Parent folder of node " + path
@@ -127,7 +131,9 @@ public class JcrResourceAdapter implements InitializingBean, DisposableBean {
 		try {
 
 			if (!session().itemExists(path)) {
-				create(path, in, null);
+				String type = new MimetypesFileTypeMap()
+						.getContentType(FilenameUtils.getName(path));
+				create(path, in, type);
 				return;
 			}
 

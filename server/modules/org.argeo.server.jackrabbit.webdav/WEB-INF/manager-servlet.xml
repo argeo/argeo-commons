@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+
+	<context:component-scan base-package="org.argeo.server.jcr.mvc" />
+
+	<bean id="controller" class="org.argeo.server.jcr.mvc.JcrManagerController">
+		<property name="resourceAdapter" ref="resourceAdapter" />
+	</bean>
+
+	<bean id="resourceAdapter" class="org.argeo.server.jcr.JcrResourceAdapter">
+		<property name="repository" ref="repository" />
+		<property name="username" value="demo" />
+		<property name="password" value="demo" />
+	</bean>
+
+	<bean id="viewResolver" class="org.argeo.server.mvc.SerializingViewResolver">
+		<property name="serializer" ref="serverMapper" />
+	</bean>
+
+	<bean id="serverMapper" class="org.argeo.server.json.JsonServerMapper">
+	</bean>
+
+	<bean class="org.argeo.server.mvc.DefaultHandlerExceptionResolver" />
+
+</beans>

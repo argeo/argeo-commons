@@ -56,12 +56,12 @@ public class WebDavServlet extends SimpleWebdavServlet {
 	@Override
 	protected void service(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		if (log.isDebugEnabled())
+		if (log.isTraceEnabled())
 			log.debug("Received request with method '" + request.getMethod()
 					+ "'");
 		super.service(request, response);
 
-		if (log.isDebugEnabled()) {
+		if (log.isTraceEnabled()) {
 			log.debug("Webdav response: " + response);
 			// response.
 		}
