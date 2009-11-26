@@ -28,12 +28,13 @@
 							org.springframework.osgi.extender,
 							org.springframework.osgi.web.extender,
 							org.argeo.dep.osgi.catalina.start,
-							org.argeo.server.jackrabbit.webapp,
+							org.argeo.server.jackrabbit.webdav,
 							org.argeo.server.jackrabbit.repo
 						</argeo.osgi.start>
 						<argeo.osgi.bundles>
 							${basedir}/../../../server/modules;in=*;ex=pom.xml;ex=target;ex=.*,
 							${basedir}/../../../server/demo;in=*;ex=pom.xml;ex=target;ex=.*,
+							${basedir}/../../../server/runtime;in=*/target/classes,
 						</argeo.osgi.bundles>
 					</systemProperties>
 				</configuration>

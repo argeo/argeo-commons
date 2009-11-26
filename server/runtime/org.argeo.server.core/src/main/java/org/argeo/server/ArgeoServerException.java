@@ -6,9 +6,6 @@ import org.argeo.ArgeoException;
 public class ArgeoServerException extends ArgeoException {
 	private static final long serialVersionUID = 1L;
 
-	public ArgeoServerException() {
-	}
-
 	public ArgeoServerException(String message) {
 		super(message);
 	}

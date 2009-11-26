@@ -19,7 +19,7 @@ public class ExtendedDispatcherServlet extends DispatcherServlet {
 			throws ServletException, java.io.IOException {
 		// see http://forum.springsource.org/showthread.php?t=53472
 		try {
-			if (log.isDebugEnabled())
+			if (log.isTraceEnabled())
 				log.debug("Received request with method '" + req.getMethod()
 						+ "'");
 			doService(req, resp);

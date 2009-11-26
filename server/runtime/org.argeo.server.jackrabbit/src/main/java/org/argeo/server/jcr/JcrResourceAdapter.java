@@ -1,5 +1,6 @@
 package org.argeo.server.jcr;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -66,8 +67,17 @@ public class JcrResourceAdapter implements InitializingBean, DisposableBean {
 
 	public void create(String path, Resource file, String mimeType) {
 		try {
-			if (session().itemExists(path))
+			create(path, file.getInputStream(), mimeType);
+		} catch (IOException e) {
+			throw new ArgeoException("Cannot read " + file, e);
+		}
+	}
+
+	public void create(String path, InputStream in, String mimeType) {
+		try {
+			if (session().itemExists(path)) {
 				throw new ArgeoException("Node " + path + " already exists.");
+			}
 
 			int index = path.lastIndexOf('/');
 			String parentPath = path.substring(0, index);
@@ -80,11 +90,12 @@ public class JcrResourceAdapter implements InitializingBean, DisposableBean {
 			Node fileNode = folderNode.addNode(fileName, "nt:file");
 
 			Node contentNode = fileNode.addNode("jcr:content", "nt:resource");
-			contentNode.setProperty("jcr:mimeType", mimeType);
+			if (mimeType != null)
+				contentNode.setProperty("jcr:mimeType", mimeType);
 			contentNode.setProperty("jcr:encoding", defaultEncoding);
-			contentNode.setProperty("jcr:data", file.getInputStream());
+			contentNode.setProperty("jcr:data", in);
 			Calendar lastModified = Calendar.getInstance();
-			lastModified.setTimeInMillis(file.lastModified());
+			// lastModified.setTimeInMillis(file.lastModified());
 			contentNode.setProperty("jcr:lastModified", lastModified);
 			// resNode.addMixin("mix:referenceable");
 
@@ -97,32 +108,44 @@ public class JcrResourceAdapter implements InitializingBean, DisposableBean {
 				fileNode.checkin();
 
 			if (log.isDebugEnabled())
-				log.debug("Created " + path + " from " + file);
+				log.debug("Created " + path);
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot create node from resource " + file
-					+ " under " + path, e);
+			throw new ArgeoException("Cannot create node for " + path, e);
 		}
 
 	}
 
 	public void update(String path, Resource file) {
 		try {
+			update(path, file.getInputStream());
+		} catch (IOException e) {
+			throw new ArgeoException("Cannot read " + file, e);
+		}
+	}
+
+	public void update(String path, InputStream in) {
+		try {
+
+			if (!session().itemExists(path)) {
+				create(path, in, null);
+				return;
+			}
+
 			Node fileNode = (Node) session().getItem(path);
 			Node contentNode = fileNode.getNode("jcr:content");
 			fileNode.checkout();
-			contentNode.setProperty("jcr:data", file.getInputStream());
+			contentNode.setProperty("jcr:data", in);
 			Calendar lastModified = Calendar.getInstance();
-			lastModified.setTimeInMillis(file.lastModified());
+			// lastModified.setTimeInMillis(file.lastModified());
 			contentNode.setProperty("jcr:lastModified", lastModified);
 
 			session().save();
 			fileNode.checkin();
 
 			if (log.isDebugEnabled())
-				log.debug("Updated " + path + " from " + file);
+				log.debug("Updated " + path);
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot update node " + path
-					+ " from resource" + file, e);
+			throw new ArgeoException("Cannot update node " + path, e);
 		}
 	}
 

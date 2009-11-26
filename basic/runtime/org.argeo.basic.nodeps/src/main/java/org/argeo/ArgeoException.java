@@ -3,9 +3,6 @@ package org.argeo;
 public class ArgeoException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
-	public ArgeoException() {
-	}
-
 	public ArgeoException(String message) {
 		super(message);
 	}

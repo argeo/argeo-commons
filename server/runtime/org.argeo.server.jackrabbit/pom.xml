@@ -45,6 +45,12 @@
 			<version>0.1.2-SNAPSHOT</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.core</artifactId>
+			<version>0.1.2-SNAPSHOT</version>
+		</dependency>
+
 		<!-- Jack Rabbit -->
 		<dependency>
 			<groupId>org.argeo.dep.osgi</groupId>
@@ -78,6 +84,11 @@
 			<artifactId>com.springsource.slf4j.org.apache.commons.logging</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>com.springsource.org.apache.commons.fileupload</artifactId>
+		</dependency>
+
 		<!-- TEST -->
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
@@ -92,6 +103,5 @@
 			<type>pom</type>
 			<scope>test</scope>
 		</dependency>
-
 	</dependencies>
 </project>
