@@ -41,8 +41,11 @@ public class SerializingView extends AbstractView implements MvcConstants {
 		} else if (model.containsKey(viewName)) {
 			answer = model.get(viewName);
 		} else {
-			throw new ArgeoException(
-					"Model has a size different from 1. Specify a modelKey.");
+			if (model.size() == 0)
+				throw new ArgeoException("Model is empty.");
+			else
+				throw new ArgeoException(
+						"Model has a size different from 1. Specify a modelKey.");
 		}
 
 		if ((answer instanceof ServerAnswer) && serverAnswersAsHtml) {
