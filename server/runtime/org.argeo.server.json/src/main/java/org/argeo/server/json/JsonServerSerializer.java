@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.server.ArgeoServerException;
+import org.argeo.ArgeoException;
 import org.argeo.server.Serializer;
 import org.argeo.server.ServerSerializer;
 import org.codehaus.jackson.JsonFactory;
@@ -25,15 +25,27 @@ public class JsonServerSerializer implements ServerSerializer, Serializer {
 
 	private Boolean prettyPrint = false;
 
+	private Boolean asHtml = false;
+
 	// private String encoding = "UTF8";
 
 	public void serialize(Object obj, HttpServletRequest request,
 			HttpServletResponse response) {
-		response.setContentType("application/json");
+		if (asHtml)
+			response.setContentType("text/html");
+		else
+			response.setContentType("application/json");
 		try {
+			if (asHtml)
+				response.getWriter().append("<pre>");
+
 			serialize(response.getWriter(), obj);
+
+			if (asHtml)
+				response.getWriter().append("</pre>");
+
 		} catch (IOException e) {
-			throw new ArgeoServerException("Cannot open response stream.", e);
+			throw new ArgeoException("Cannot open response stream.", e);
 		}
 	}
 
@@ -52,7 +64,7 @@ public class JsonServerSerializer implements ServerSerializer, Serializer {
 
 			objectMapper.writeValue(jsonGenerator, obj);
 		} catch (Exception e) {
-			throw new ArgeoServerException("Cannot serialize " + obj, e);
+			throw new ArgeoException("Cannot serialize " + obj, e);
 		} finally {
 			if (jsonGenerator != null)
 				try {
@@ -77,7 +89,7 @@ public class JsonServerSerializer implements ServerSerializer, Serializer {
 			jsonGenerator.close();
 			log.debug(stringWriter.toString());
 		} catch (Exception e) {
-			throw new ArgeoServerException("Cannot log JSON", e);
+			throw new ArgeoException("Cannot log JSON", e);
 		} finally {
 			if (jsonGenerator != null)
 				try {

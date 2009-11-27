@@ -35,7 +35,7 @@ public class JcrManagerController implements MvcConstants {
 
 	@SuppressWarnings("unchecked")
 	@RequestMapping("/upload/**")
-	@ModelAttribute(ANSWER_MODEL_KEY)
+	@ModelAttribute(ANSWER_MODEL_KEY_AS_HTML)
 	public ServerAnswer upload(HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 		// Parse the request
@@ -50,7 +50,7 @@ public class JcrManagerController implements MvcConstants {
 		}
 
 		ByteArrayResource res = new ByteArrayResource(arr);
-//		String pathInfo = request.getPathInfo();
+		// String pathInfo = request.getPathInfo();
 
 		StringBuffer path = new StringBuffer("/");
 		StringTokenizer st = new StringTokenizer(request.getPathInfo(), "/");

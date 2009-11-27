@@ -9,7 +9,7 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.server.ArgeoServerException;
+import org.argeo.ArgeoException;
 import org.argeo.server.Deserializer;
 import org.argeo.server.ServerDeserializer;
 import org.codehaus.jackson.JsonProcessingException;
@@ -64,7 +64,7 @@ public class JsonServerMapper extends JsonServerSerializer implements
 
 			return getObjectMapper().readValue(reader, targetClass);
 		} catch (Exception e) {
-			throw new ArgeoServerException("Cannot deserialize " + reader, e);
+			throw new ArgeoException("Cannot deserialize " + reader, e);
 		}
 
 	}
@@ -79,7 +79,7 @@ public class JsonServerMapper extends JsonServerSerializer implements
 
 			return getObjectMapper().readValue(reader, clss);
 		} catch (Exception e) {
-			throw new ArgeoServerException("Cannot deserialize " + reader, e);
+			throw new ArgeoException("Cannot deserialize " + reader, e);
 		}
 
 	}

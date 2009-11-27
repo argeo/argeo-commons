@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.server.ArgeoServerException;
+import org.argeo.ArgeoException;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonNode;
@@ -61,7 +61,7 @@ public class GenericJsonDeserializer<T> extends JsonDeserializer<T> {
 			objectFactory = defaultObjectFactory;
 
 		if (objectFactory == null || !objectFactory.supports(type))
-			throw new ArgeoServerException(
+			throw new ArgeoException(
 					"Cannot find JSON object factory for type " + type);
 
 		return (T) objectFactory.readValue(type, str);

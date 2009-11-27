@@ -14,6 +14,8 @@ public class ServerAnswer {
 	private String status = OK;
 	private String message = "";
 
+	// TODO: add an exception field
+
 	/** Canonical constructor */
 	public ServerAnswer(String status, String message) {
 		setStatus(status);
