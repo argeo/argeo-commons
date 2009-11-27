@@ -47,7 +47,8 @@ public class JsonServerMapper extends JsonServerSerializer implements
 							String propertyName) throws IOException,
 							JsonProcessingException {
 						if (log.isTraceEnabled())
-							log.debug("Ignore property " + propertyName);
+							log.debug("Ignore property " + propertyName
+									+ " in bean " + bean);
 						ctxt.getParser().skipChildren();
 						return true;
 					}

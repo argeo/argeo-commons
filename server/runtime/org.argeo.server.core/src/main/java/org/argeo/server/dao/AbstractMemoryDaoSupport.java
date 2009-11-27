@@ -114,6 +114,8 @@ public abstract class AbstractMemoryDaoSupport implements LightDaoSupport,
 
 	@SuppressWarnings("unchecked")
 	public <T> T getByKey(Class<T> clss, Object key) {
+		if (key == null)
+			throw new ArgeoException("Key is null for " + clss);
 		return (T) model.get(findClass(clss)).get(key);
 	}
 
