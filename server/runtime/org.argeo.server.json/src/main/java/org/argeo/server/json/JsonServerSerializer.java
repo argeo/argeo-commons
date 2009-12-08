@@ -27,14 +27,16 @@ public class JsonServerSerializer implements ServerSerializer, Serializer {
 
 	private Boolean asHtml = false;
 
-	// private String encoding = "UTF8";
+	private String contentTypeCharset = "UTF-8";
 
 	public void serialize(Object obj, HttpServletRequest request,
 			HttpServletResponse response) {
 		if (asHtml)
-			response.setContentType("text/html");
+			response.setContentType("text/html;charset=" + contentTypeCharset);
 		else
-			response.setContentType("application/json");
+			response.setContentType("application/json;charset="
+					+ contentTypeCharset);
+
 		try {
 			if (asHtml)
 				response.getWriter().append("<pre>");
@@ -54,9 +56,6 @@ public class JsonServerSerializer implements ServerSerializer, Serializer {
 
 		JsonGenerator jsonGenerator = null;
 		try {
-
-			// jsonGenerator = jsonFactory.createJsonGenerator(response
-			// .getOutputStream(), JsonEncoding.valueOf(encoding));
 			jsonGenerator = jsonFactory.createJsonGenerator(writer);
 
 			if (prettyPrint)

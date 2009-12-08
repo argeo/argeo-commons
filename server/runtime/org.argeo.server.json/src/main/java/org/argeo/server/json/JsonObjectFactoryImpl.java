@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.server.ArgeoServerException;
+import org.argeo.ArgeoException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.osgi.framework.BundleContext;
 import org.springframework.beans.factory.InitializingBean;
@@ -38,13 +38,13 @@ public class JsonObjectFactoryImpl implements JsonObjectFactory,
 		else {
 			clss = loadClass(type);
 			if (clss == null)
-				throw new ArgeoServerException("Cannot find type " + type);
+				throw new ArgeoException("Cannot find type " + type);
 		}
 
 		try {
 			return (T) objectMapper.readValue(str, clss);
 		} catch (Exception e) {
-			throw new ArgeoServerException("Cannot deserialize " + str
+			throw new ArgeoException("Cannot deserialize " + str
 					+ " (type=" + type + ")", e);
 		}
 	}
