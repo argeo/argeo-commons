@@ -108,4 +108,9 @@ public class JsonServerSerializer implements ServerSerializer, Serializer {
 	protected ObjectMapper getObjectMapper() {
 		return objectMapper;
 	}
+
+	public void setContentTypeCharset(String contentTypeCharset) {
+		this.contentTypeCharset = contentTypeCharset;
+	}
+
 }
