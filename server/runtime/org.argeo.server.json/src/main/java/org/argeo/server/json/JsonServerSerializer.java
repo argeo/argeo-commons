@@ -14,7 +14,13 @@ import org.argeo.server.Serializer;
 import org.argeo.server.ServerSerializer;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
+import org.codehaus.jackson.map.SerializerFactory;
+import org.codehaus.jackson.map.SerializerProvider;
+import org.codehaus.jackson.map.ser.StdSerializerProvider;
 
 public class JsonServerSerializer implements ServerSerializer, Serializer {
 	private final static Log log = LogFactory
@@ -22,12 +28,20 @@ public class JsonServerSerializer implements ServerSerializer, Serializer {
 
 	private JsonFactory jsonFactory = new JsonFactory();
 	private ObjectMapper objectMapper = new ObjectMapper();
+	private SerializerProvider serializerProvider = new CustomSerializerProvider();
 
 	private Boolean prettyPrint = false;
 
 	private Boolean asHtml = false;
 
 	private String contentTypeCharset = "UTF-8";
+
+	// private Map<Class<?>,String> ignoredFields = new HashMap<Class<?>,
+	// String>();
+
+	public JsonServerSerializer() {
+		objectMapper.setSerializerProvider(serializerProvider);
+	}
 
 	public void serialize(Object obj, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -62,6 +76,7 @@ public class JsonServerSerializer implements ServerSerializer, Serializer {
 				jsonGenerator.useDefaultPrettyPrinter();
 
 			objectMapper.writeValue(jsonGenerator, obj);
+			jsonGenerator.flush();
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot serialize " + obj, e);
 		} finally {
@@ -113,4 +128,43 @@ public class JsonServerSerializer implements ServerSerializer, Serializer {
 		this.contentTypeCharset = contentTypeCharset;
 	}
 
+	static class CustomSerializerProvider extends StdSerializerProvider {
+
+		public CustomSerializerProvider() {
+			super();
+		}
+
+		public CustomSerializerProvider(SerializationConfig config,
+				StdSerializerProvider src, SerializerFactory f) {
+			super(config, src, f);
+		}
+
+		protected StdSerializerProvider createInstance(
+				SerializationConfig config, SerializerFactory jsf) {
+			return new CustomSerializerProvider(config, this, jsf);
+		}
+
+		@Override
+		public JsonSerializer<Object> getUnknownTypeSerializer(
+				Class<?> unknownType) {
+			JsonSerializer<Object> res = new JsonSerializer<Object>() {
+				public void serialize(Object value, JsonGenerator jgen,
+						SerializerProvider provider)
+						throws JsonMappingException {
+					if (log.isDebugEnabled())
+						log.warn("Unknown serializer for "
+								+ value.getClass().getName());
+					try {
+						jgen.writeNull();
+					} catch (Exception e) {
+						throw new ArgeoException("Cannot write null", e);
+					}
+				}
+
+			};
+
+			return res;
+		}
+
+	}
 }
