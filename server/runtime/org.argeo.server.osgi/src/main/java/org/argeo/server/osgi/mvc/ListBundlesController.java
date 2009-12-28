@@ -15,7 +15,7 @@ public class ListBundlesController extends AbstractController implements
 	@Override
 	protected ModelAndView handleRequestInternal(HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
-		// TODO Auto-generated method stub
+		bundleContext.getBundles();
 		return null;
 	}
 

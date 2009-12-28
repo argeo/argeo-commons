@@ -7,10 +7,9 @@ import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
 import org.argeo.security.SimpleArgeoUser;
 import org.argeo.server.BooleanAnswer;
+import org.argeo.server.Deserializer;
 import org.argeo.server.ServerAnswer;
-import org.argeo.server.ServerDeserializer;
 import org.argeo.server.mvc.MvcConstants;
-import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +22,7 @@ public class UsersRolesController implements MvcConstants {
 
 	private ArgeoSecurityService securityService;
 
-	private ServerDeserializer userDeserializer = null;
+	private Deserializer userDeserializer = null;
 
 	/* USER */
 
@@ -67,7 +66,7 @@ public class UsersRolesController implements MvcConstants {
 	@RequestMapping("/createUser.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public ArgeoUser createUser(Reader reader) {
-		ArgeoUser user = (ArgeoUser) userDeserializer.deserialize(reader);
+		ArgeoUser user = userDeserializer.deserialize(reader, ArgeoUser.class);
 		// cleanUserBeforeCreate(user);
 		securityService.newUser(user);
 		return securityService.getSecurityDao().getUser(user.getUsername());
@@ -76,7 +75,7 @@ public class UsersRolesController implements MvcConstants {
 	@RequestMapping("/updateUser.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public ArgeoUser updateUser(Reader reader) {
-		ArgeoUser user = (ArgeoUser) userDeserializer.deserialize(reader);
+		ArgeoUser user = userDeserializer.deserialize(reader, ArgeoUser.class);
 		securityService.updateUser(user);
 		return securityService.getSecurityDao().getUser(user.getUsername());
 	}
@@ -150,7 +149,7 @@ public class UsersRolesController implements MvcConstants {
 	// user.getUserNatures().clear();
 	// }
 
-	public void setUserDeserializer(ServerDeserializer userDeserializer) {
+	public void setUserDeserializer(Deserializer userDeserializer) {
 		this.userDeserializer = userDeserializer;
 	}
 

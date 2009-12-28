@@ -11,7 +11,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.server.Deserializer;
-import org.argeo.server.ServerDeserializer;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.DeserializationContext;
 import org.codehaus.jackson.map.DeserializationProblemHandler;
@@ -21,7 +20,7 @@ import org.codehaus.jackson.map.deser.StdDeserializerProvider;
 import org.springframework.beans.factory.InitializingBean;
 
 public class JsonServerMapper extends JsonServerSerializer implements
-		ServerDeserializer, Deserializer, InitializingBean {
+		Deserializer, InitializingBean {
 	private final static Log log = LogFactory.getLog(JsonServerMapper.class);
 
 	private Class<?> targetClass;
