@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
-		<version>0.1.2</version>
+		<version>0.1.3-SNAPSHOT</version>
 		<artifactId>server</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -45,14 +45,14 @@
 		<dependency>
 			<groupId>org.argeo.commons.osgi</groupId>
 			<artifactId>org.argeo.osgi.boot</artifactId>
-			<version>0.1.2</version>
+			<version>0.1.3-SNAPSHOT</version>
 		</dependency>
 
 		<!--  Commons Dep -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.tomcat</artifactId>
-			<version>0.1.2</version>
+			<version>0.1.3-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
 
