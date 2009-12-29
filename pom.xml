@@ -170,6 +170,7 @@ limitations under the License.
 				<configuration>
 					<autoVersionSubmodules>true</autoVersionSubmodules>
 					<releaseProfiles>release</releaseProfiles>
+					<preparationGoals>clean install</preparationGoals>
 				</configuration>
 			</plugin>
 		</plugins>
