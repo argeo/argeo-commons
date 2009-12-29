@@ -22,6 +22,7 @@
 		<site.repoBase>file:///var/argeo/projects/commons/www/site</site.repoBase>
 		<site.urlBase>http://www.argeo.org/projects/commons/site</site.urlBase>
 	</properties>
+	<url>${site.urlBase}/${developmentCycle}</url>
 	<scm>
 		<connection>scm:svn:https://www.argeo.org/svn/commons/trunk</connection>
 		<developerConnection>scm:svn:https://www.argeo.org/svn/commons/trunk</developerConnection>
