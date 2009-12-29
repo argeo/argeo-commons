@@ -19,18 +19,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.modules</artifactId>
-			<version>0.1.2-SNAPSHOT</version>
-			<type>pom</type>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.modules</artifactId>
-			<version>0.1.2-SNAPSHOT</version>
-			<type>pom</type>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.ads</artifactId>
 			<version>0.1.2-SNAPSHOT</version>
 			<type>pom</type>
