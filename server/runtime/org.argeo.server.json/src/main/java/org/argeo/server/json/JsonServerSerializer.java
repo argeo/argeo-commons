@@ -55,7 +55,7 @@ public class JsonServerSerializer implements ServerSerializer, Serializer {
 			if (asHtml)
 				response.getWriter().append("<pre>");
 
-			serialize(response.getWriter(), obj);
+			serialize(obj, response.getWriter());
 
 			if (asHtml)
 				response.getWriter().append("</pre>");
@@ -65,7 +65,7 @@ public class JsonServerSerializer implements ServerSerializer, Serializer {
 		}
 	}
 
-	public void serialize(Writer writer, Object obj) {
+	public void serialize(Object obj, Writer writer) {
 		serializeAndLog(obj);
 
 		JsonGenerator jsonGenerator = null;
@@ -88,6 +88,11 @@ public class JsonServerSerializer implements ServerSerializer, Serializer {
 						log.error("Cannot close JSON generator", e);
 				}
 		}
+	}
+
+	@Deprecated
+	public void serialize(Writer writer, Object obj) {
+		serialize(obj, writer);
 	}
 
 	protected void serializeAndLog(Object obj) {
