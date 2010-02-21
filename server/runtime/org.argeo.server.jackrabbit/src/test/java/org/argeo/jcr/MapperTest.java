@@ -22,7 +22,7 @@ public class MapperTest extends AbstractJcrTestCase {
 
 		BeanNodeMapper bnm = new BeanNodeMapper();
 
-		Node node = bnm.saveOrUpdate(session(), mySo);
+		Node node = bnm.save(session(), mySo);
 		session().save();
 		JcrUtils.debug(node);
 	}

@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import javax.jcr.Item;
 import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -44,6 +43,8 @@ public class BeanNodeMapper {
 	private Boolean strictUuidReference = false;
 	private String primaryNodeType = null;
 
+	private ClassLoader classLoader = getClass().getClassLoader();
+
 	public String storagePath(Object obj) {
 		String clss = obj.getClass().getName();
 		StringBuffer buf = new StringBuffer("/objects/");
@@ -55,37 +56,39 @@ public class BeanNodeMapper {
 		return buf.toString();
 	}
 
-	public Node saveOrUpdate(Session session, Object obj) {
-		return saveOrUpdate(session, storagePath(obj), obj);
+	public Node save(Session session, Object obj) {
+		return save(session, storagePath(obj), obj);
 	}
 
-	public Node saveOrUpdate(Session session, String path, Object obj) {
+	public void update(Node node, Object obj) {
+		try {
+			beanToNode(createBeanWrapper(obj), node);
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot update node " + node + " with "
+					+ obj, e);
+		}
+	}
+
+	public Node save(Session session, String path, Object obj) {
 		try {
 			BeanWrapper beanWrapper = createBeanWrapper(obj);
 			final Node node;
-			if (session.itemExists(path)) {
-				Item item = session.getItem(path);
-				if (!item.isNode())
-					throw new ArgeoException("An item exist under " + path
-							+ " but it is not a node: " + item);
-				node = (Node) item;
-			} else {
-				String parentPath = JcrUtils.parentPath(path);
-				Node parentNode;
-				if (session.itemExists(path))
-					parentNode = (Node) session.getItem(parentPath);
-				else
-					parentNode = JcrUtils.mkdirs(session, parentPath, null,
-							versioning);
-				// create node
-				if (primaryNodeType != null)
-					node = parentNode.addNode(JcrUtils.lastPathElement(path),
-							primaryNodeType);
-				else
-					node = parentNode.addNode(JcrUtils.lastPathElement(path));
-			}
+			String parentPath = JcrUtils.parentPath(path);
+			// find or create parent node
+			Node parentNode;
+			if (session.itemExists(path))
+				parentNode = (Node) session.getItem(parentPath);
+			else
+				parentNode = JcrUtils.mkdirs(session, parentPath, null,
+						versioning);
+			// create node
+			if (primaryNodeType != null)
+				node = parentNode.addNode(JcrUtils.lastPathElement(path),
+						primaryNodeType);
+			else
+				node = parentNode.addNode(JcrUtils.lastPathElement(path));
 
-			beanToNode(session, beanWrapper, node);
+			beanToNode(beanWrapper, node);
 			return node;
 		} catch (ArgeoException e) {
 			throw e;
@@ -104,15 +107,7 @@ public class BeanNodeMapper {
 		if (log.isDebugEnabled())
 			log.debug("Map node " + node.getPath() + " to bean " + clssName);
 
-		BeanWrapper beanWrapper;
-		try {
-			// FIXME: use OSGi compatible class loading
-			Class clss = Class.forName(clssName);
-			beanWrapper = new BeanWrapperImpl(clss);
-		} catch (ClassNotFoundException e1) {
-			throw new ArgeoException("Cannot initialize been wrapper for node "
-					+ node.getPath(), e1);
-		}
+		BeanWrapper beanWrapper = createBeanWrapper(loadClass(clssName));
 
 		// process properties
 		PropertyIterator propIt = node.getProperties();
@@ -157,10 +152,9 @@ public class BeanNodeMapper {
 			if (propClass != null && List.class.isAssignableFrom(propClass)) {
 				String lstClass = childNode.getProperty(classProperty)
 						.getString();
-				// FIXME: use OSGi compatible class loading
 				List<Object> lst;
 				try {
-					lst = (List<Object>) Class.forName(lstClass).newInstance();
+					lst = (List<Object>) loadClass(lstClass).newInstance();
 				} catch (Exception e) {
 					lst = new ArrayList<Object>();
 				}
@@ -179,10 +173,9 @@ public class BeanNodeMapper {
 			if (propClass != null && Map.class.isAssignableFrom(propClass)) {
 				String mapClass = childNode.getProperty(classProperty)
 						.getString();
-				// FIXME: use OSGi compatible class loading
 				Map<Object, Object> map;
 				try {
-					map = (Map<Object, Object>) Class.forName(mapClass)
+					map = (Map<Object, Object>) loadClass(mapClass)
 							.newInstance();
 				} catch (Exception e) {
 					map = new HashMap<Object, Object>();
@@ -228,8 +221,8 @@ public class BeanNodeMapper {
 		return beanWrapper.getWrappedInstance();
 	}
 
-	protected void beanToNode(Session session, BeanWrapper beanWrapper,
-			Node node) throws RepositoryException {
+	protected void beanToNode(BeanWrapper beanWrapper, Node node)
+			throws RepositoryException {
 		if (log.isDebugEnabled())
 			log.debug("Map bean to node " + node.getPath());
 
@@ -241,8 +234,15 @@ public class BeanNodeMapper {
 				continue properties;// skip
 
 			Object value = beanWrapper.getPropertyValue(name);
-			if (value == null)
-				continue properties;// skip
+			if (value == null) {
+				// remove values when updating
+				if (node.hasProperty(name))
+					node.setProperty(name, (Value) null);
+				if (node.hasNode(name))
+					node.getNode(name).remove();
+
+				continue properties;
+			}
 
 			// if (uuidProperty != null && uuidProperty.equals(name)) {
 			// // node.addMixin(ArgeoJcrConstants.MIX_REFERENCEABLE);
@@ -264,7 +264,7 @@ public class BeanNodeMapper {
 				continue properties;
 			}
 
-			Value val = asValue(session, value);
+			Value val = asValue(node.getSession(), value);
 			if (val != null) {
 				node.setProperty(name, val);
 				continue properties;
@@ -272,51 +272,57 @@ public class BeanNodeMapper {
 
 			if (value instanceof List<?>) {
 				List<?> lst = (List<?>) value;
-				addList(session, node, name, lst);
+				addList(node, name, lst);
 				continue properties;
 			}
 
 			if (value instanceof Map<?, ?>) {
 				Map<?, ?> map = (Map<?, ?>) value;
-				addMap(session, node, name, map);
+				addMap(node, name, map);
 				continue properties;
 			}
 
 			BeanWrapper child = createBeanWrapper(value);
 			// TODO: delegate to another mapper
 
-			Node childNode = findChildReference(session, child);
-			if (childNode != null) {
-				node.setProperty(name, childNode);
-				continue properties;
-			}
+			// TODO: deal with references
+			// Node childNode = findChildReference(session, child);
+			// if (childNode != null) {
+			// node.setProperty(name, childNode);
+			// continue properties;
+			// }
 
 			// default case (recursive)
-			childNode = node.addNode(name);
-			beanToNode(session, child, childNode);
-			// if (childNode.isNodeType(ArgeoJcrConstants.MIX_REFERENCEABLE)) {
-			// log.debug("Add reference to  " + childNode.getPath());
-			// node.setProperty(name, childNode);
-			// }
+			if (node.hasNode(name)) {// update
+				// TODO: optimize
+				node.getNode(name).remove();
+			}
+			Node childNode = node.addNode(name);
+			beanToNode(child, childNode);
 		}
 	}
 
-	protected void addList(Session session, Node node, String name, List<?> lst)
+	protected void addList(Node node, String name, List<?> lst)
 			throws RepositoryException {
+		if (node.hasNode(name)) {// update
+			// TODO: optimize
+			node.getNode(name).remove();
+		}
+
 		Node listNode = node.addNode(name);
 		listNode.setProperty(classProperty, lst.getClass().getName());
 		Value[] values = new Value[lst.size()];
 		boolean atLeastOneSet = false;
 		for (int i = 0; i < lst.size(); i++) {
 			Object lstValue = lst.get(i);
-			values[i] = asValue(session, lstValue);
+			values[i] = asValue(node.getSession(), lstValue);
 			if (values[i] != null) {
 				atLeastOneSet = true;
 			} else {
-				Node childNode = findChildReference(session,
+				Node childNode = findChildReference(node.getSession(),
 						createBeanWrapper(lstValue));
 				if (childNode != null) {
-					values[i] = session.getValueFactory()
+					values[i] = node.getSession().getValueFactory()
 							.createValue(childNode);
 					atLeastOneSet = true;
 				}
@@ -327,16 +333,20 @@ public class BeanNodeMapper {
 		if (!atLeastOneSet && lst.size() != 0) {
 			for (Object lstValue : lst) {
 				Node childNode = listNode.addNode(NODE_VALUE);
-				beanToNode(session, createBeanWrapper(lstValue), childNode);
+				beanToNode(createBeanWrapper(lstValue), childNode);
 			}
 		} else {
 			listNode.setProperty(name, values);
 		}
 	}
 
-	protected void addMap(Session session, Node node, String name, Map<?, ?> map)
+	protected void addMap(Node node, String name, Map<?, ?> map)
 			throws RepositoryException {
-		// TODO: add map specific type
+		if (node.hasNode(name)) {// update
+			// TODO: optimize
+			node.getNode(name).remove();
+		}
+
 		Node mapNode = node.addNode(name);
 		mapNode.setProperty(classProperty, map.getClass().getName());
 		for (Object key : map.keySet()) {
@@ -357,12 +367,12 @@ public class BeanNodeMapper {
 			// }
 			// TODO: check string format
 
-			Value mapVal = asValue(session, mapValue);
+			Value mapVal = asValue(node.getSession(), mapValue);
 			if (mapVal != null)
 				mapNode.setProperty(keyStr, mapVal);
 			else {
 				Node entryNode = mapNode.addNode(keyStr);
-				beanToNode(session, createBeanWrapper(mapValue), entryNode);
+				beanToNode(createBeanWrapper(mapValue), entryNode);
 			}
 
 		}
@@ -371,6 +381,10 @@ public class BeanNodeMapper {
 
 	protected BeanWrapper createBeanWrapper(Object obj) {
 		return new BeanWrapperImpl(obj);
+	}
+
+	protected BeanWrapper createBeanWrapper(Class<?> clss) {
+		return new BeanWrapperImpl(clss);
 	}
 
 	/** Returns null if value cannot be found */
@@ -462,12 +476,40 @@ public class BeanNodeMapper {
 		return null;
 	}
 
+	protected Class<?> loadClass(String name) {
+		try {
+			return classLoader.loadClass(name);
+		} catch (ClassNotFoundException e) {
+			throw new ArgeoException("Cannot load class " + name, e);
+		}
+	}
+
 	protected String propertyName(String name) {
 		return name;
 	}
 
 	public void setVersioning(Boolean versioning) {
 		this.versioning = versioning;
+	}
+
+	public void setUuidProperty(String uuidProperty) {
+		this.uuidProperty = uuidProperty;
+	}
+
+	public void setClassProperty(String classProperty) {
+		this.classProperty = classProperty;
+	}
+
+	public void setStrictUuidReference(Boolean strictUuidReference) {
+		this.strictUuidReference = strictUuidReference;
+	}
+
+	public void setPrimaryNodeType(String primaryNodeType) {
+		this.primaryNodeType = primaryNodeType;
+	}
+
+	public void setClassLoader(ClassLoader classLoader) {
+		this.classLoader = classLoader;
 	}
 
 }

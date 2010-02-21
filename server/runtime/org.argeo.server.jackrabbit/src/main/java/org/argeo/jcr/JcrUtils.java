@@ -10,6 +10,8 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryResult;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,6 +19,25 @@ import org.argeo.ArgeoException;
 
 public class JcrUtils {
 	private final static Log log = LogFactory.getLog(JcrUtils.class);
+
+	public static Node querySingleNode(Query query) {
+		NodeIterator nodeIterator;
+		try {
+			QueryResult queryResult = query.execute();
+			nodeIterator = queryResult.getNodes();
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot execute query " + query, e);
+		}
+		Node node;
+		if (nodeIterator.hasNext())
+			node = nodeIterator.nextNode();
+		else
+			return null;
+
+		if (nodeIterator.hasNext())
+			throw new ArgeoException("Query returned more than one node.");
+		return node;
+	}
 
 	public static String parentPath(String path) {
 		if (path.equals("/"))
