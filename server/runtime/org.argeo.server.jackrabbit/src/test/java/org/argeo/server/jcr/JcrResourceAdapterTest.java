@@ -1,22 +1,18 @@
 package org.argeo.server.jcr;
 
-import java.io.File;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
-import junit.framework.TestCase;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.jackrabbit.core.TransientRepository;
+import org.argeo.jcr.AbstractJcrTestCase;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-public class JcrResourceAdapterTest extends TestCase {
+public class JcrResourceAdapterTest extends AbstractJcrTestCase {
 	private static SimpleDateFormat sdf = new SimpleDateFormat(
 			"yyyyMMdd:hhmmss.SSS");
 
@@ -24,7 +20,6 @@ public class JcrResourceAdapterTest extends TestCase {
 			.getLog(JcrResourceAdapterTest.class);
 
 	private JcrResourceAdapter jra;
-	private TransientRepository repository;
 
 	public void testCreate() throws Exception {
 		String basePath = "/test/subdir";
@@ -76,15 +71,9 @@ public class JcrResourceAdapterTest extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		File homeDir = new File(System.getProperty("java.io.tmpdir"),
-				JcrResourceAdapterTest.class.getSimpleName());
-		FileUtils.deleteDirectory(homeDir);
-		Resource res = new ClassPathResource(
-				"org/argeo/server/jcr/repository.xml");
-		repository = new TransientRepository(res.getFile(), homeDir);
-
+		super.setUp();
 		jra = new JcrResourceAdapter();
-		jra.setRepository(repository);
+		jra.setRepository(getRepository());
 		jra.setUsername("demo");
 		jra.setPassword("demo");
 		jra.afterPropertiesSet();
@@ -92,8 +81,8 @@ public class JcrResourceAdapterTest extends TestCase {
 
 	@Override
 	protected void tearDown() throws Exception {
+		super.tearDown();
 		jra.destroy();
-		// repository.shutdown();
 	}
 
 }

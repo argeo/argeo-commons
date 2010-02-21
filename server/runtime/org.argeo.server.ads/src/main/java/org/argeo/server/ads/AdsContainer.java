@@ -25,6 +25,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 
+@SuppressWarnings("restriction")
 public class AdsContainer implements InitializingBean, DisposableBean {
 	private final static Log log = LogFactory.getLog(AdsContainer.class);
 

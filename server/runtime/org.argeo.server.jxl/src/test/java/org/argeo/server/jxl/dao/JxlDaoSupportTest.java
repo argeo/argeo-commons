@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 
 import org.springframework.core.io.ClassPathResource;
 
+@SuppressWarnings("restriction")
 public class JxlDaoSupportTest extends TestCase {
 	public void testBasic() throws Exception {
 		JxlDaoSupport jsd = new JxlDaoSupport();

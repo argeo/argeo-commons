@@ -5,17 +5,14 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.jcr.Node;
 import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
-import javax.jcr.Value;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
@@ -24,6 +21,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
+import org.argeo.jcr.JcrUtils;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
@@ -44,27 +42,7 @@ public class JcrResourceAdapter implements InitializingBean, DisposableBean {
 	// private String restoreBase = "/.restore";
 
 	public void mkdirs(String path) {
-		try {
-			StringTokenizer st = new StringTokenizer(path, "/");
-			StringBuffer current = new StringBuffer("/");
-			Node currentNode = session().getRootNode();
-			while (st.hasMoreTokens()) {
-				String part = st.nextToken();
-				current.append(part).append('/');
-				if (!session().itemExists(current.toString())) {
-					currentNode = currentNode.addNode(part, "nt:folder");
-					if (versioning)
-						currentNode.addMixin("mix:versionable");
-					if (log.isTraceEnabled())
-						log.debug("Added folder " + part + " as " + current);
-				} else {
-					currentNode = (Node) session().getItem(current.toString());
-				}
-			}
-			session().save();
-		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot mkdirs " + path, e);
-		}
+		JcrUtils.mkdirs(session(), path, "nt:folder", versioning);
 	}
 
 	public void create(String path, Resource file, String mimeType) {
@@ -193,14 +171,6 @@ public class JcrResourceAdapter implements InitializingBean, DisposableBean {
 
 		try {
 			Node fileNode = (Node) session().getItem(path);
-
-			// if (revision == 0) {
-			// InputStream in = fromVersion(fileNode.getBaseVersion());
-			// if (log.isDebugEnabled())
-			// log.debug("Retrieved " + path + " at base revision ");
-			// return in;
-			// }
-
 			VersionHistory history = fileNode.getVersionHistory();
 			int count = 0;
 			Version version = null;
@@ -231,22 +201,6 @@ public class JcrResourceAdapter implements InitializingBean, DisposableBean {
 				"jcr:data").getStream();
 		return in;
 	}
-
-	// protected InputStream restoreOrGetRevision(Node fileNode, Version
-	// version,
-	// Integer revision) throws RepositoryException {
-	// Node parentFolder = (Node) fileNode
-	// .getAncestor(fileNode.getDepth() - 1);
-	// String restoreFolderPath = restoreBase + parentFolder.getPath();
-	// mkdirs(restoreFolderPath);
-	// String subNodeName = fileNode.getName() + "__" + fill(revision);
-	// Node restoreFolder = (Node) session().getItem(restoreFolderPath);
-	// if (!restoreFolder.hasNode(subNodeName)) {
-	// parentFolder.restore(version, subNodeName, true);
-	// }
-	// return parentFolder.getNode(subNodeName + "/jcr:content").getProperty(
-	// "jcr:data").getStream();
-	// }
 
 	protected Session session() {
 		return session;
@@ -279,34 +233,6 @@ public class JcrResourceAdapter implements InitializingBean, DisposableBean {
 
 	public void setDefaultEncoding(String defaultEncoding) {
 		this.defaultEncoding = defaultEncoding;
-	}
-
-	/** Recursively outputs the contents of the given node. */
-	public static void debug(Node node) throws RepositoryException {
-		// First output the node path
-		log.debug(node.getPath());
-		// Skip the virtual (and large!) jcr:system subtree
-		if (node.getName().equals("jcr:system")) {
-			return;
-		}
-
-		// Then output the properties
-		PropertyIterator properties = node.getProperties();
-		while (properties.hasNext()) {
-			Property property = properties.nextProperty();
-			if (property.getDefinition().isMultiple()) {
-				// A multi-valued property, print all values
-				Value[] values = property.getValues();
-				for (int i = 0; i < values.length; i++) {
-					log.debug(property.getPath() + " = "
-							+ values[i].getString());
-				}
-			} else {
-				// A single-valued property
-				log.debug(property.getPath() + " = " + property.getString());
-			}
-		}
-
 	}
 
 	protected String fill(Integer number) {

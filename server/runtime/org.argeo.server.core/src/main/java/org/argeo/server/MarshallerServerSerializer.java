@@ -14,6 +14,7 @@ public class MarshallerServerSerializer implements ServerSerializer, Serializer 
 	private Marshaller marshaller;
 	private String contentTypeCharset = "UTF-8";
 
+	@SuppressWarnings("restriction")
 	public void serialize(Object obj, HttpServletRequest request,
 			HttpServletResponse response) {
 		response.setContentType("text/xml;charset=" + contentTypeCharset);

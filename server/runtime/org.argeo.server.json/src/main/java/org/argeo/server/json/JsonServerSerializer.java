@@ -43,6 +43,7 @@ public class JsonServerSerializer implements ServerSerializer, Serializer {
 		objectMapper.setSerializerProvider(serializerProvider);
 	}
 
+	@SuppressWarnings("restriction")
 	public void serialize(Object obj, HttpServletRequest request,
 			HttpServletResponse response) {
 		if (asHtml)

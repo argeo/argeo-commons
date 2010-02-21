@@ -25,7 +25,7 @@ public class SerializingView extends AbstractView implements MvcConstants {
 		this.serializer = serializer;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "restriction" })
 	@Override
 	protected void renderMergedOutputModel(Map model,
 			HttpServletRequest request, HttpServletResponse response)

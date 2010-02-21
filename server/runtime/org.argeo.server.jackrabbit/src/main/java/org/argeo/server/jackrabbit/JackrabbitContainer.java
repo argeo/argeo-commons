@@ -17,6 +17,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
 
+@SuppressWarnings("restriction")
 public class JackrabbitContainer implements InitializingBean, DisposableBean,
 		Repository {
 	private Resource configuration;
