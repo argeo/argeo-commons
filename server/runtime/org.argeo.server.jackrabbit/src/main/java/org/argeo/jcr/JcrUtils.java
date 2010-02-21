@@ -1,5 +1,6 @@
 package org.argeo.jcr;
 
+import java.util.Calendar;
 import java.util.StringTokenizer;
 
 import javax.jcr.Node;
@@ -30,6 +31,24 @@ public class JcrUtils {
 		return pathT.substring(0, index);
 	}
 
+	public static String dateAsPath(Calendar cal) {
+		StringBuffer buf = new StringBuffer(11);
+		buf.append(cal.get(Calendar.YEAR));// 4
+		buf.append('/');// 1
+		int month = cal.get(Calendar.MONTH) + 1;
+		if (month < 10)
+			buf.append(0);
+		buf.append(month);// 2
+		buf.append('/');// 1
+		int day = cal.get(Calendar.DAY_OF_MONTH);
+		if (day < 10)
+			buf.append(0);
+		buf.append(day);// 2
+		buf.append('/');// 1
+		return buf.toString();
+
+	}
+
 	public static String lastPathElement(String path) {
 		if (path.charAt(path.length() - 1) == '/')
 			throw new ArgeoException("Path " + path + " cannot end with '/'");
@@ -38,6 +57,10 @@ public class JcrUtils {
 			throw new ArgeoException("Cannot find last path element for "
 					+ path);
 		return path.substring(index + 1);
+	}
+
+	public static Node mkdirs(Session session, String path) {
+		return mkdirs(session, path, null, false);
 	}
 
 	public static Node mkdirs(Session session, String path, String type,

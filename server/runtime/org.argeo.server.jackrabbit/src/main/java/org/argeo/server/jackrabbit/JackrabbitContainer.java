@@ -10,20 +10,23 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.core.RepositoryImpl;
+import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
 
-@SuppressWarnings("restriction")
 public class JackrabbitContainer implements InitializingBean, DisposableBean,
 		Repository {
 	private Resource configuration;
 	private File homeDirectory;
 
-	private RepositoryImpl repository;
+	private Boolean inMemory = false;
+
+	private Repository repository;
 
 	public void afterPropertiesSet() throws Exception {
 		RepositoryConfig config;
@@ -37,12 +40,21 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 			IOUtils.closeQuietly(in);
 		}
 
-		repository = RepositoryImpl.create(config);
+		if (inMemory)
+			repository = new TransientRepository(config);
+		else
+			repository = RepositoryImpl.create(config);
 	}
 
 	public void destroy() throws Exception {
-		if (repository != null)
-			repository.shutdown();
+		if (repository != null) {
+			if (repository instanceof RepositoryImpl)
+				((RepositoryImpl) repository).shutdown();
+		}
+
+		if (inMemory)
+			if (homeDirectory.exists())
+				FileUtils.deleteDirectory(homeDirectory);
 	}
 
 	// JCR REPOSITORY (delegated)

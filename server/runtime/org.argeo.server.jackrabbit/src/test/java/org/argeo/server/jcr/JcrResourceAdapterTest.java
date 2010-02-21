@@ -8,7 +8,7 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.jcr.AbstractJcrTestCase;
+import org.argeo.server.jackrabbit.unit.AbstractJcrTestCase;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -81,8 +81,8 @@ public class JcrResourceAdapterTest extends AbstractJcrTestCase {
 
 	@Override
 	protected void tearDown() throws Exception {
-		super.tearDown();
 		jra.destroy();
+		super.tearDown();
 	}
 
 }

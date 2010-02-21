@@ -1,8 +1,8 @@
 package org.argeo.jcr;
 
 import javax.jcr.Node;
-import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
+
+import org.argeo.server.jackrabbit.unit.AbstractJcrTestCase;
 
 public class MapperTest extends AbstractJcrTestCase {
 	public void testSimpleObject() throws Exception {
@@ -20,12 +20,10 @@ public class MapperTest extends AbstractJcrTestCase {
 		oo2.setValue(new SimpleObject());
 		mySo.setAnotherObject(oo2);
 
-		Session session = getRepository().login(
-				new SimpleCredentials("demo", "demo".toCharArray()));
 		BeanNodeMapper bnm = new BeanNodeMapper();
 
-		Node node = bnm.saveOrUpdate(session, mySo);
-		session.save();
+		Node node = bnm.saveOrUpdate(session(), mySo);
+		session().save();
 		JcrUtils.debug(node);
 	}
 }
