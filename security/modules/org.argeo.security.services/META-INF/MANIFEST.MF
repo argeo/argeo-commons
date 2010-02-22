@@ -1,0 +1,8 @@
+Bundle-SymbolicName: org.argeo.security.services
+Bundle-Version: 0.1.2.SNAPSHOT
+Import-Package: org.argeo.security,
+ org.argeo.security.core,
+ org.argeo.security.ldap,
+ org.argeo.security.ldap.nature,
+ org.argeo.server.json
+Bundle-Name: Security Services
