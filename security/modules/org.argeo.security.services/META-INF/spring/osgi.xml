@@ -9,7 +9,8 @@
 	<service ref="jsonObjectFactory" interface="org.argeo.server.json.JsonObjectFactory" />
 	<service ref="securityService" interface="org.argeo.security.ArgeoSecurityService" />
 
-	<reference id="securityDao" interface="org.argeo.security.ArgeoSecurityDao" />
+	<reference id="securityDao" interface="org.argeo.security.ArgeoSecurityDao"
+		context-class-loader="service-provider" />
 
 	<service interface="org.argeo.security.ldap.UserNatureMapper">
 		<beans:bean class="org.argeo.security.ldap.nature.SimpleUserNatureMapper" />

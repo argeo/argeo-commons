@@ -2,7 +2,7 @@ dn: dc=demo,dc=argeo,dc=org
 objectClass: domain
 objectClass: extensibleObject
 objectClass: top
-dc: springsecurity
+dc: demo
 
 dn: ou=groups,dc=demo,dc=argeo,dc=org
 objectClass: organizationalUnit

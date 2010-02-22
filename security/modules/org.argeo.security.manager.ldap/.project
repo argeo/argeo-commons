@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.argeo.security.modules</name>
+	<name>org.argeo.security.manager.ldap</name>
 	<comment></comment>
 	<projects>
 	</projects>
 	<buildSpec>
 		<buildCommand>
-			<name>org.eclipse.jdt.core.javabuilder</name>
+			<name>org.eclipse.pde.ManifestBuilder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>org.maven.ide.eclipse.maven2Builder</name>
+			<name>org.eclipse.pde.SchemaBuilder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
 	</buildSpec>
 	<natures>
-		<nature>org.maven.ide.eclipse.maven2Nature</nature>
-		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>org.eclipse.pde.PluginNature</nature>
 	</natures>
 </projectDescription>

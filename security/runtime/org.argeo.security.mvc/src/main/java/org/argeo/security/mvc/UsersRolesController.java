@@ -66,7 +66,8 @@ public class UsersRolesController implements MvcConstants {
 	@RequestMapping("/createUser.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public ArgeoUser createUser(Reader reader) {
-		ArgeoUser user = userDeserializer.deserialize(reader, ArgeoUser.class);
+		ArgeoUser user = userDeserializer.deserialize(reader,
+				SimpleArgeoUser.class);
 		// cleanUserBeforeCreate(user);
 		securityService.newUser(user);
 		return securityService.getSecurityDao().getUser(user.getUsername());
@@ -75,7 +76,8 @@ public class UsersRolesController implements MvcConstants {
 	@RequestMapping("/updateUser.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public ArgeoUser updateUser(Reader reader) {
-		ArgeoUser user = userDeserializer.deserialize(reader, ArgeoUser.class);
+		ArgeoUser user = userDeserializer.deserialize(reader,
+				SimpleArgeoUser.class);
 		securityService.updateUser(user);
 		return securityService.getSecurityDao().getUser(user.getUsername());
 	}

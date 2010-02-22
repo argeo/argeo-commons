@@ -1,4 +1,4 @@
-Bundle-Version: 0.1.2.SNAPSHOT
+Bundle-Version: 0.1.3.SNAPSHOT
 Bundle-SymbolicName: org.argeo.server.ads.server
 Import-Package: org.apache.directory.server.configuration,
  org.apache.directory.server.core.authn,

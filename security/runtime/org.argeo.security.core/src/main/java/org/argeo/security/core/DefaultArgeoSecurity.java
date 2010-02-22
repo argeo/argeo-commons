@@ -9,7 +9,7 @@ public class DefaultArgeoSecurity implements ArgeoSecurity {
 
 	public void beforeCreate(ArgeoUser user) {
 		SimpleUserNature simpleUserNature = new SimpleUserNature();
-		simpleUserNature.setLastName("");// to prevent issue with sn in LDAP
+		simpleUserNature.setLastName("empty");// to prevent issue with sn in LDAP
 		user.getUserNatures().add(simpleUserNature);
 	}
 

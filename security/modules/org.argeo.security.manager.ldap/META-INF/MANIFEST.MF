@@ -1,5 +1,5 @@
 Bundle-SymbolicName: org.argeo.security.manager.ldap
-Bundle-Version: 0.1.2.SNAPSHOT
+Bundle-Version: 0.1.3.SNAPSHOT
 Import-Package: com.sun.jndi.ldap;resolution:=optional,
  org.argeo.security,
  org.argeo.security.ldap,
@@ -13,3 +13,4 @@ Import-Package: com.sun.jndi.ldap;resolution:=optional,
  org.springframework.security.providers.ldap.authenticator,
  org.springframework.security.userdetails,
  org.springframework.security.userdetails.ldap
+Bundle-Name: Security Manager LDAP
