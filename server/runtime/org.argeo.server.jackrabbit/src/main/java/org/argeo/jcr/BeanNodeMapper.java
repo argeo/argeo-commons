@@ -28,8 +28,6 @@ import org.argeo.ArgeoException;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
-//import org.springframework.beans.BeanWrapperImpl;
-
 public class BeanNodeMapper {
 	private final static Log log = LogFactory.getLog(BeanNodeMapper.class);
 
@@ -104,7 +102,7 @@ public class BeanNodeMapper {
 		String clssName = node.getProperty(classProperty).getValue()
 				.getString();
 
-		if (log.isDebugEnabled())
+		if (log.isTraceEnabled())
 			log.debug("Map node " + node.getPath() + " to bean " + clssName);
 
 		BeanWrapper beanWrapper = createBeanWrapper(loadClass(clssName));
@@ -146,8 +144,6 @@ public class BeanNodeMapper {
 
 			PropertyDescriptor pd = beanWrapper.getPropertyDescriptor(name);
 			Class propClass = pd.getPropertyType();
-
-			log.debug(childNode.getName() + "=" + propClass);
 
 			if (propClass != null && List.class.isAssignableFrom(propClass)) {
 				String lstClass = childNode.getProperty(classProperty)
@@ -223,7 +219,7 @@ public class BeanNodeMapper {
 
 	protected void beanToNode(BeanWrapper beanWrapper, Node node)
 			throws RepositoryException {
-		if (log.isDebugEnabled())
+		if (log.isTraceEnabled())
 			log.debug("Map bean to node " + node.getPath());
 
 		properties: for (PropertyDescriptor pd : beanWrapper
@@ -477,6 +473,7 @@ public class BeanNodeMapper {
 	}
 
 	protected Class<?> loadClass(String name) {
+		//log.debug("Class loader: " + classLoader);
 		try {
 			return classLoader.loadClass(name);
 		} catch (ClassNotFoundException e) {

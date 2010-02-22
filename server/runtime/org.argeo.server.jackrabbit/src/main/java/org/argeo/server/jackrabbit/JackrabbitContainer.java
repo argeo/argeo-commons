@@ -50,6 +50,8 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 		if (repository != null) {
 			if (repository instanceof RepositoryImpl)
 				((RepositoryImpl) repository).shutdown();
+			else if (repository instanceof TransientRepository)
+				((TransientRepository) repository).shutdown();
 		}
 
 		if (inMemory)
