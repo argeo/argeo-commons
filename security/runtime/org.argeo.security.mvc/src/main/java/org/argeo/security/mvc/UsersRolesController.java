@@ -82,18 +82,17 @@ public class UsersRolesController implements MvcConstants {
 		return securityService.getSecurityDao().getUser(user.getUsername());
 	}
 
-	/*
-	 * @RequestMapping("/createUser2.security")
-	 * 
-	 * @ModelAttribute(ANSWER_MODEL_KEY) public ArgeoUser
-	 * createUser(@RequestParam("body") String body) { if (log.isDebugEnabled())
-	 * log.debug("body:\n" + body); StringReader reader = new
-	 * StringReader(body); ArgeoUser user = null; try { user = (ArgeoUser)
-	 * userDeserializer.deserialize(reader); } finally {
-	 * IOUtils.closeQuietly(reader); } cleanUserBeforeCreate(user);
-	 * securityService.newUser(user); return
-	 * securityService.getSecurityDao().getUser(user.getUsername()); }
-	 */
+	@RequestMapping("/updateUserSelf.security")
+	@ModelAttribute(ANSWER_MODEL_KEY)
+	/** Will only update the user natures.*/
+	public ArgeoUser updateUserSelf(Reader reader) {
+		ArgeoUser user = securityService.getSecurityDao().getCurrentUser();
+		ArgeoUser userForNatures = userDeserializer.deserialize(reader,
+				SimpleArgeoUser.class);
+		user.updateUserNatures(userForNatures.getUserNatures());
+		securityService.updateUser(user);
+		return securityService.getSecurityDao().getUser(user.getUsername());
+	}
 
 	@RequestMapping("/deleteUser.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
@@ -146,10 +145,6 @@ public class UsersRolesController implements MvcConstants {
 		securityService.getSecurityDao().updatePassword(oldPassword, password);
 		return ServerAnswer.ok("Password updated");
 	}
-
-	// protected void cleanUserBeforeCreate(ArgeoUser user) {
-	// user.getUserNatures().clear();
-	// }
 
 	public void setUserDeserializer(Deserializer userDeserializer) {
 		this.userDeserializer = userDeserializer;

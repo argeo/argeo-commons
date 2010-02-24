@@ -7,7 +7,10 @@ public interface ArgeoUser {
 
 	public List<UserNature> getUserNatures();
 
+	/** Implementation should refuse to add new user natures via this method. */
+	public void updateUserNatures(List<UserNature> userNatures);
+
 	public List<String> getRoles();
-	
+
 	public String getPassword();
 }

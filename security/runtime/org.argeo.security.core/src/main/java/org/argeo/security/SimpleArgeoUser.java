@@ -27,6 +27,10 @@ public class SimpleArgeoUser implements ArgeoUser, Serializable {
 		return userNatures;
 	}
 
+	public void updateUserNatures(List<UserNature> userNaturesData) {
+		UserNature.updateUserNaturesWithCheck(userNatures, userNaturesData);
+	}
+
 	public List<String> getRoles() {
 		return roles;
 	}
