@@ -37,11 +37,11 @@ qx.Class.define("org.argeo.security.ria.model.User", {
 			this.setNatures(data.userNatures);
 			this.setRawData(data);
 		},
-		getSaveService : function(){
+		getSaveService : function(self){
 			if(this.isCreate()){
 		  		var userService = org.argeo.security.ria.SecurityAPI.getCreateUserService(this.toJSON(true));			
 			}else{
-		  		var userService = org.argeo.security.ria.SecurityAPI.getUpdateUserService(this.toJSON());				
+		  		var userService = org.argeo.security.ria.SecurityAPI.getUpdateUserService(this.toJSON(), self);				
 			}
 	  		userService.addListener("completed", function(response){
 	  			if(!response || !response.username) return;

@@ -5,7 +5,8 @@ qx.Class.define("org.argeo.security.ria.components.UserEditorPrefPane", {
 	  
 	construct : function(){
 		this.base(arguments);
-		this.initGUI();
+		this.setSelfEdition(true);
+		this.initGUI();		
 		this.basicGB.setVisibility("excluded");
 		var saveButton = new qx.ui.form.Button("Save", "org.argeo.security.ria/document-save.png");
 		saveButton.addListener("execute", this.saveUser, this);

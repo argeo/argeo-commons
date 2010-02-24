@@ -10,6 +10,7 @@ qx.Class.define("org.argeo.security.ria.SecurityAPI", {
 		USER_EXISTS_SERVICE : "userExists.security",		
 		DELETE_USER_SERVICE : "deleteUser.security",
 		UPDATE_USER_SERVICE : "updateUser.security",
+		UPDATE_USER_SELF_SERVICE : "updateUserSelf.security",
 		GET_USER_DETAILS_SERVICE : "getUserDetails.security",
 		CREATE_USER_SERVICE : "createUser.security",
 		UPDATE_USER_PASS_SERVICE : "updateUserPassword.security",
@@ -55,7 +56,7 @@ qx.Class.define("org.argeo.security.ria.SecurityAPI", {
 			var serviceManager = org.argeo.ria.remote.RequestManager.getInstance();
 			for(var i=startIndex;i<argumentsArray.length;i++){
 				var argument = argumentsArray[i];
-				if(qx.lang.Array.isArray(argument)){
+				if(qx.lang.Type.isArray(argument)){
 					serviceManager.attachILoadStatusables(request, argument);
 				}else if(typeof argument == "string"){
 					serviceManager.attachReloadEventType(request, argument);
@@ -102,8 +103,9 @@ qx.Class.define("org.argeo.security.ria.SecurityAPI", {
 		/**
 		 * @return  {qx.io.remote.Request}
 		 */
-		getUpdateUserService : function(userObject){
-			var req = org.argeo.security.ria.SecurityAPI.getServiceRequest(org.argeo.security.ria.SecurityAPI.UPDATE_USER_SERVICE);
+		getUpdateUserService : function(userObject, self){
+			var service = (self?org.argeo.security.ria.SecurityAPI.UPDATE_USER_SELF_SERVICE:org.argeo.security.ria.SecurityAPI.UPDATE_USER_SERVICE);
+			var req = org.argeo.security.ria.SecurityAPI.getServiceRequest(service);
 			req.setMethod("POST");
 			org.argeo.security.ria.SecurityAPI.parseOptionalArguments(req, arguments, 1);
 			var jsonString = qx.util.Json.stringify(userObject);
@@ -137,10 +139,10 @@ qx.Class.define("org.argeo.security.ria.SecurityAPI", {
 		 * @return  {qx.io.remote.Request}
 		 */
 		getUpdatePassService : function(oldPassword, newPassword){
-			var req = org.argeo.security.ria.SecurityAPI.getServiceRequest(org.argeo.security.ria.SecurityAPI.UPDATE_USER_PASS_SERVICE);
+			var req = org.argeo.security.ria.SecurityAPI.getServiceRequest(org.argeo.security.ria.SecurityAPI.UPDATE_PASS_SERVICE);
 			org.argeo.security.ria.SecurityAPI.parseOptionalArguments(req, arguments, 2);
 			req.setParameter("password", newPassword);
-			req.setParameter("oldpassword", oldPassword);
+			req.setParameter("oldPassword", oldPassword);
 			return req;
 		},
 		

@@ -20,6 +20,9 @@ qx.Class.define("org.argeo.security.ria.components.UserEditor",
   
   properties : 
   {
+  	selfEdition : {
+  		init : false
+  	},
   	modified : {
   		init : false,
   		apply : "_applyDetailsModified"
@@ -95,7 +98,7 @@ qx.Class.define("org.argeo.security.ria.components.UserEditor",
   		this.basicGB.add(new qx.ui.basic.Label("Roles"), {row:1,column:0});  		
   		this.basicGB.add(this.rolesField, {row:1,column:1});
   		
-  		this.passPane = new org.argeo.security.ria.components.PasswordCredentialImpl();
+  		this.passPane = new org.argeo.security.ria.components.PasswordCredentialImpl(this.getSelfEdition());
   		this.passGB.add(this.passPane.getContainer());
   		
   		//this.naturesTab.add(this.basicPage);
@@ -162,7 +165,7 @@ qx.Class.define("org.argeo.security.ria.components.UserEditor",
   			if(pass != null && !this.passPane.validate()){
   				this.error("Warning, passwords differ!");
   				return;  				
-  			}
+  			}  			
   		}
   		this.passPane.clear();
   		var saveCompletedCallback = qx.lang.Function.bind(function(){
@@ -171,16 +174,21 @@ qx.Class.define("org.argeo.security.ria.components.UserEditor",
 			this.setModified(false);
 			this.fireDataEvent("savedUser", user);  			
   		}, this);
-  		var userService = user.getSaveService();
+  		var userService = user.getSaveService(this.getSelfEdition());
   		userService.addListener("completed", function(response){
   			if(response.getContent().status && response.getContent().status == "ERROR"){
   				return;
   			}
   			user.load(response.getContent(), "json");
   			if(pass!=null){
-  				var passService = org.argeo.security.ria.SecurityAPI.getUpdateUserPassService(user.getName(), pass);
+  				var passService;
+  				if(!this.getSelfEdition()){
+  					passService = org.argeo.security.ria.SecurityAPI.getUpdateUserPassService(user.getName(), pass);
+  				}else{
+  					passService = org.argeo.security.ria.SecurityAPI.getUpdatePassService(pass.oldPass, pass.newPass);
+  				}
   				passService.addListener("completed", function(response){
-  					if(response.getContent().status){
+  					if(response.getContent().status != "ERROR"){
   						this.info(response.getContent().message);
   					}
   					saveCompletedCallback();

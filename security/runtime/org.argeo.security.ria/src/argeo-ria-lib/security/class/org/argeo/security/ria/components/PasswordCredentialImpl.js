@@ -8,6 +8,9 @@ qx.Class.define("org.argeo.security.ria.components.PasswordCredentialImpl", {
 		valid : {
 			init : false
 		},
+		selfEdition : {
+			init : false
+		},
 		encoderCallback : {
 			init : function(string){
 				var encoderShort = org.argeo.ria.util.Encoder;
@@ -17,13 +20,23 @@ qx.Class.define("org.argeo.security.ria.components.PasswordCredentialImpl", {
 		}
 	},
 	
-	construct : function(){
+	construct : function(selfEdition){
 		this.base(arguments);
+		if(selfEdition){
+			this.setSelfEdition(selfEdition);
+		}
 		this.setLayout(new qx.ui.layout.HBox(5, "center"));
-		this.add(new qx.ui.basic.Label("Password"), {flex:1});
+		this.getLayout().setAlignY("middle");
+		if(this.getSelfEdition()){
+			this.oldPass = new qx.ui.form.PasswordField();
+			this.add(new qx.ui.basic.Label("Old"), {flex:1});
+			this.add(this.oldPass, {flex:2});
+			this.oldPass.addListener("changeValue", function(){this.fireEvent("modified");}, this);
+		}
+		this.add(new qx.ui.basic.Label((selfEdition?"New":"Password")), {flex:1});
 		this.pass1 = new qx.ui.form.PasswordField();
 		this.add(this.pass1, {flex:2});
-		this.add(new qx.ui.basic.Label("Confirm Password"), {flex:1});
+		this.add(new qx.ui.basic.Label((selfEdition?"Confirm":"Confirm Password")), {flex:1});
 		this.pass2 = new qx.ui.form.PasswordField();
 		this.add(this.pass2, {flex:2});
 		this.pass1.addListener("changeValue", function(){this.fireEvent("modified");}, this);
@@ -36,22 +49,28 @@ qx.Class.define("org.argeo.security.ria.components.PasswordCredentialImpl", {
 			return this;
 		},
 		getData : function(format){
-			var encoded = null;
+			var encoder = this.getEncoderCallback();
+			var encoded = null;			
 			if(this.pass1.getValue() != null && this.pass1.getValue() != ""){
-				var encoder = this.getEncoderCallback();
 				encoded = encoder(this.pass1.getValue()); 
+			}
+			if(this.getSelfEdition() && encoded && this.oldPass.getValue()!=""){
+				return {oldPass:encoder(this.oldPass.getValue()), newPass:encoded};
 			}
 			return encoded;
 		},
 		clear : function(){
 			this.pass1.setValue("");
-			this.pass2.setValue("");			
+			this.pass2.setValue("");		
+			if(this.getSelfEdition()){
+				this.oldPass.setValue("");
+			}
 		},
 		validate : function(){
 			if(this.pass1.getValue() != this.pass2.getValue()){
 				this.pass1.setValid(false);
-				this.pass2.setValid(false); 
-				this.setValid(false);
+				this.pass2.setValid(false);
+				this.setValid(false);				
 			}else{
 				this.pass1.setValid(true);
 				this.pass2.setValid(true); 
