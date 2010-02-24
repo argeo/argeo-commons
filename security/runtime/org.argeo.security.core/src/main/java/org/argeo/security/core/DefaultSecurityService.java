@@ -1,5 +1,6 @@
 package org.argeo.security.core;
 
+import org.argeo.ArgeoException;
 import org.argeo.security.ArgeoSecurity;
 import org.argeo.security.ArgeoSecurityDao;
 import org.argeo.security.ArgeoSecurityService;
@@ -22,6 +23,14 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 		SimpleArgeoUser user = new SimpleArgeoUser(securityDao
 				.getUser(username));
 		user.setPassword(password);
+		securityDao.update(user);
+	}
+
+	public void updateCurrentUserPassword(String oldPassword, String newPassword) {
+		SimpleArgeoUser user = new SimpleArgeoUser(securityDao.getCurrentUser());
+		if (!user.getPassword().equals(oldPassword))
+			throw new ArgeoException("Old password is not correct.");
+		user.setPassword(newPassword);
 		securityDao.update(user);
 	}
 

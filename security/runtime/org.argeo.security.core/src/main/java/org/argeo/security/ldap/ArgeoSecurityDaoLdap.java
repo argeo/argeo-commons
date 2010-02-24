@@ -150,10 +150,6 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 		userDetailsManager.deleteUser(username);
 	}
 
-	public void updatePassword(String oldPassword, String newPassword) {
-		userDetailsManager.changePassword(oldPassword, newPassword);
-	}
-
 	public Boolean userExists(String username) {
 		return userDetailsManager.userExists(username);
 	}

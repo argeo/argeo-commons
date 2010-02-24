@@ -19,8 +19,6 @@ public interface ArgeoSecurityDao {
 
 	public void deleteRole(String role);
 
-	public void updatePassword(String oldPassword, String newPassword);
-
 	public Boolean userExists(String username);
 
 	public ArgeoUser getUser(String username);

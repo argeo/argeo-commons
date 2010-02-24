@@ -10,8 +10,15 @@
 		interface="org.springframework.security.AuthenticationManager"
 		context-class-loader="service-provider" />
 
-	<service ref="securityDao" interface="org.argeo.security.ArgeoSecurityDao" />
+	<service ref="securityDao" interface="org.argeo.security.ArgeoSecurityDao"
+		context-class-loader="service-provider" />
 
 	<list id="userNatureMappers" interface="org.argeo.security.ldap.UserNatureMapper"
 		cardinality="0..N" />
+
+	<!-- Provides deserialization -->
+	<service interface="org.argeo.server.json.JsonObjectFactory">
+		<beans:bean class="org.argeo.server.json.JsonObjectFactoryImpl" />
+	</service>
+
 </beans:beans>

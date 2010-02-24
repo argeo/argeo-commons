@@ -6,9 +6,8 @@
        http://www.springframework.org/schema/beans   
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<service ref="jsonObjectFactory" interface="org.argeo.server.json.JsonObjectFactory" />
 	<service ref="securityService" interface="org.argeo.security.ArgeoSecurityService" />
 
 	<reference id="securityDao" interface="org.argeo.security.ArgeoSecurityDao"
-		context-class-loader="service-provider" />
+		 />
 </beans:beans>

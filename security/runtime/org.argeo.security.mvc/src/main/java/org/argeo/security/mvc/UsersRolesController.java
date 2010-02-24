@@ -36,20 +36,6 @@ public class UsersRolesController implements MvcConstants {
 			return argeoUser;
 	}
 
-	// @RequestMapping("/login.security")
-	// @ModelAttribute(ANSWER_MODEL_KEY)
-	// public ArgeoUser login(@RequestParam("username") String username,
-	// @RequestParam("password") String password) {
-	// //SecurityContextHolder.getContext().getAuthentication().
-	// return securityService.getSecurityDao().getCurrentUser();
-	// }
-	//
-	// @RequestMapping("/logout.security")
-	// @ModelAttribute(ANSWER_MODEL_KEY)
-	// public ServerAnswer logout() {
-	// return ServerAnswer.ok("Logged out");
-	// }
-
 	@RequestMapping("/getUsersList.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public List<ArgeoUser> getUsersList() {
@@ -140,9 +126,9 @@ public class UsersRolesController implements MvcConstants {
 	@RequestMapping("/updatePassword.security")
 	@ModelAttribute(ANSWER_MODEL_KEY)
 	public ServerAnswer updatePassword(
-			@RequestParam("password") String password,
-			@RequestParam("oldPassword") String oldPassword) {
-		securityService.getSecurityDao().updatePassword(oldPassword, password);
+			@RequestParam("oldPassword") String oldPassword,
+			@RequestParam("password") String password) {
+		securityService.updateCurrentUserPassword(oldPassword, password);
 		return ServerAnswer.ok("Password updated");
 	}
 
