@@ -207,7 +207,7 @@ qx.Class.define("org.argeo.security.ria.components.UserEditor",
   		page.setLayout(new qx.ui.layout.Dock());
   		page.setUserData("NATURE_CLASS", natureClass);
 		var newClass = new natureClass();
-  		page.add(newClass.getContainer(), {edge:"center"});
+  		page.add(new qx.ui.container.Scroll(newClass.getContainer()), {edge:"center"});
   		
   		buttons = new qx.ui.container.Composite(new qx.ui.layout.HBox(5, "center"));
   		var editB = new qx.ui.form.Button("Edit this Nature", "org.argeo.security.ria/document-properties-22.png");
