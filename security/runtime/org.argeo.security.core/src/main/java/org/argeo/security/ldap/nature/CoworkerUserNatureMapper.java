@@ -10,11 +10,10 @@ public class CoworkerUserNatureMapper implements UserNatureMapper {
 
 	public UserNature mapUserInfoFromContext(DirContextOperations ctx) {
 		CoworkerNature nature = new CoworkerNature();
-		nature.setDescription(ctx.getStringAttribute("description"));
 		nature.setMobile(ctx.getStringAttribute("mobile"));
 		nature.setTelephoneNumber(ctx.getStringAttribute("telephoneNumber"));
 
-		if (nature.getDescription() == null && nature.getMobile() == null
+		if (nature.getMobile() == null
 				&& nature.getTelephoneNumber() == null)
 			return null;
 		else
@@ -24,9 +23,6 @@ public class CoworkerUserNatureMapper implements UserNatureMapper {
 	public void mapUserInfoToContext(UserNature userInfoArg,
 			DirContextAdapter ctx) {
 		CoworkerNature nature = (CoworkerNature) userInfoArg;
-		if (nature.getDescription() != null) {
-			ctx.setAttributeValue("description", nature.getDescription());
-		}
 		if (nature.getMobile() == null || !nature.getMobile().equals("")) {
 			ctx.setAttributeValue("mobile", nature.getMobile());
 		}

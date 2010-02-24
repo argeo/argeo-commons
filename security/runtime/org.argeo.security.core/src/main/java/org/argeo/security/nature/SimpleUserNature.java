@@ -7,6 +7,7 @@ public class SimpleUserNature extends UserNature {
 	private String email;
 	private String firstName;
 	private String lastName;
+	private String description;
 
 	public String getEmail() {
 		return email;
@@ -30,6 +31,14 @@ public class SimpleUserNature extends UserNature {
 
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 }
