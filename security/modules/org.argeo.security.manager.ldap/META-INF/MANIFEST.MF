@@ -3,6 +3,7 @@ Bundle-Version: 0.1.3.SNAPSHOT
 Import-Package: com.sun.jndi.ldap;resolution:=optional,
  org.argeo.security,
  org.argeo.security.ldap,
+ org.argeo.security.ldap.nature,
  org.springframework.beans.factory.config,
  org.springframework.ldap.core.support,
  org.springframework.security,

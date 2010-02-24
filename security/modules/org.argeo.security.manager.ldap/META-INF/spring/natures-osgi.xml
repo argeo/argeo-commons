@@ -6,9 +6,12 @@
        http://www.springframework.org/schema/beans   
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<service ref="jsonObjectFactory" interface="org.argeo.server.json.JsonObjectFactory" />
-	<service ref="securityService" interface="org.argeo.security.ArgeoSecurityService" />
+	<service interface="org.argeo.security.ldap.UserNatureMapper">
+		<beans:bean class="org.argeo.security.ldap.nature.SimpleUserNatureMapper" />
+	</service>
 
-	<reference id="securityDao" interface="org.argeo.security.ArgeoSecurityDao"
-		context-class-loader="service-provider" />
+	<service interface="org.argeo.security.ldap.UserNatureMapper">
+		<beans:bean class="org.argeo.security.ldap.nature.CoworkerUserNatureMapper" />
+	</service>
+
 </beans:beans>
