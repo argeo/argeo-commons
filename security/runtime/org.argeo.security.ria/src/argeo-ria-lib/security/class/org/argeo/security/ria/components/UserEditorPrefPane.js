@@ -10,7 +10,15 @@ qx.Class.define("org.argeo.security.ria.components.UserEditorPrefPane", {
 		var saveButton = new qx.ui.form.Button("Save", "org.argeo.security.ria/document-save.png");
 		saveButton.addListener("execute", this.saveUser, this);
 		this.buttonGB.add(saveButton);
-		this.loadUserData(org.argeo.ria.session.AuthService.getInstance().getUser());
+		var authService = org.argeo.ria.session.AuthService.getInstance();
+		this.loadUserData(authService.getUser());
+		authService.addListener("changeUser", function(){
+			if(authService.getUser() == "anonymous"){
+				this.clearUserData();
+			}else{
+				this.loadUserData(authService.getUser());
+			}
+		}, this);
 	},
 	
 	members : {

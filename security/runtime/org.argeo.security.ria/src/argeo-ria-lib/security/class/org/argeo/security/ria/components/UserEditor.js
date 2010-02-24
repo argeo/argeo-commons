@@ -343,6 +343,12 @@ qx.Class.define("org.argeo.security.ria.components.UserEditor",
   		userDataService.send();
   	},
   	
+  	clearUserData : function(){
+  		this.usernameField.setValue("");
+  		this.rolesField.setValue([]);
+  		this.removeAllTabs();
+  	},
+  	
   	partialRefreshUser : function(user, target){
   		if(!qx.lang.Type.isArray(target)) target = [target];
   		
