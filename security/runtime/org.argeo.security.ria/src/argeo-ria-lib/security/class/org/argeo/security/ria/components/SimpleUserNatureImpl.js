@@ -48,12 +48,14 @@ qx.Class.define("org.argeo.security.ria.components.SimpleUserNatureImpl", {
 	  		this.mailField = new qx.ui.form.TextField();
 	  		this.fNameField = new qx.ui.form.TextField();
 	  		this.nameField = new qx.ui.form.TextField();
+	  		this.descriptionField = new qx.ui.form.TextArea();
 	  		
-	  		var labels = ["Email", "First Name", "Last Name"]; 
+	  		var labels = ["Email", "First Name", "Last Name", "Description"]; 
 	  		this.fields = {
 	  			"email" : this.mailField, 
 	  			"firstName": this.fNameField, 
-	  			"lastName" : this.nameField
+	  			"lastName" : this.nameField,
+	  			"description" : this.descriptionField
 	  		};
 	  		
 	  		for(var i=0;i<labels.length;i++){
