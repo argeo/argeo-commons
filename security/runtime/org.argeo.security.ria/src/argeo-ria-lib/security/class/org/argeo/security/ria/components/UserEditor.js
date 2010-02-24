@@ -39,7 +39,8 @@ qx.Class.define("org.argeo.security.ria.components.UserEditor",
   	},
   	currentNatureTabs : {  		
   	},
-  	availableNatures : {  		
+  	naturesManager : { 
+  		check : "org.argeo.security.ria.components.NaturesManager"
   	},
   	selectedNatureTab : {  	
   		nullable : true
@@ -52,9 +53,8 @@ qx.Class.define("org.argeo.security.ria.components.UserEditor",
   {
   	initGUI : function(ROLES_LIST){
 
-  		this.naturesManager = new org.argeo.security.ria.components.NaturesManager();
-  		var detectedNatures = this.naturesManager.getDetectedNatures();
-  		this.setAvailableNatures(detectedNatures);
+  		var naturesManager = new org.argeo.security.ria.components.NaturesManager();
+  		this.setNaturesManager(naturesManager);
   		
   		// TOOLBAR
   		this.buttonGB = new qx.ui.container.Composite(new qx.ui.layout.HBox(5, "right"));
@@ -340,7 +340,7 @@ qx.Class.define("org.argeo.security.ria.components.UserEditor",
 	  		this.usernameField.setValue(user.getName());
 	  		this.usernameField.setReadOnly(true);
 	  		this.rolesField.setValue(user.getRoles());
-			var userNatureTabs = this.naturesManager.detectNaturesInData(user.getNatures());
+			var userNatureTabs = this.getNaturesManager().detectNaturesInData(user.getNatures());
 			if(userNatureTabs.length){
 				userNatureTabs.forEach(function(el){
 					this._addNatureTab(el.NATURE_CLASS, el.NATURE_DATA);
@@ -365,7 +365,7 @@ qx.Class.define("org.argeo.security.ria.components.UserEditor",
   				var selectedTab = this.getSelectedNatureTab().getUserData("NATURE_CLASS");
   			}
   			this.removeAllTabs();
-			var userNatureTabs = this.naturesManager.detectNaturesInData(user.getNatures());
+			var userNatureTabs = this.getNaturesManager().detectNaturesInData(user.getNatures());
 			if(userNatureTabs.length){
 				userNatureTabs.forEach(function(el){
 					this._addNatureTab(el.NATURE_CLASS, el.NATURE_DATA, (selectedTab && selectedTab == el.NATURE_CLASS));

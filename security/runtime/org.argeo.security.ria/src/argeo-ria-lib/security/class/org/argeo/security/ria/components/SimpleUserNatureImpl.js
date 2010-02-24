@@ -7,7 +7,8 @@ qx.Class.define("org.argeo.security.ria.components.SimpleUserNatureImpl", {
 	statics : {
 		NATURE_TYPE : "org.argeo.security.nature.SimpleUserNature",
 		NATURE_LABEL : "Simple User",
-		NATURE_ICON : ""
+		NATURE_ICON : "",
+		NATURE_RANK	: 0		
 	},
 	properties : {
 		valid : {
@@ -71,7 +72,8 @@ qx.Class.define("org.argeo.security.ria.components.SimpleUserNatureImpl", {
 		
 		_applyEditMode : function(value){
 			for(var key in this.fields){
-				this.fields[key].setEnabled(value);
+				if(value && this.fields[key].getReadOnly && this.fields[key].getReadOnly()) continue;
+				this.fields[key].setEnabled(value);				
 			}
 		},
 		
@@ -81,7 +83,11 @@ qx.Class.define("org.argeo.security.ria.components.SimpleUserNatureImpl", {
 		setData    : function(dataMap, format){
 			for(var key in this.fields){
 				if(dataMap[key]){
-					this.fields[key].setValue(dataMap[key]);
+					if(qx.Class.hasInterface(qx.Class.getByName(this.fields[key].classname), qx.ui.form.IModelSelection)){
+						this.fields[key].setModelSelection([dataMap[key]]);
+					}else{
+						this.fields[key].setValue(dataMap[key]);
+					}
 				}
 			}
 			this.setDataMap(dataMap);
@@ -89,7 +95,12 @@ qx.Class.define("org.argeo.security.ria.components.SimpleUserNatureImpl", {
 		getData    : function(format){
 			var dataMap = this.getDataMap();
 			for(var key in this.fields){
-				dataMap[key] = this.fields[key].getValue();
+				if(qx.Class.hasInterface(qx.Class.getByName(this.fields[key].classname), qx.ui.form.IModelSelection)){
+					var sel = this.fields[key].getModelSelection();
+					if(sel && qx.lang.Type.isArray(sel)) dataMap[key] = sel[0];					
+				}else{
+					dataMap[key] = this.fields[key].getValue();
+				}
 			}
 			this.setDataMap(dataMap);
 			return dataMap;

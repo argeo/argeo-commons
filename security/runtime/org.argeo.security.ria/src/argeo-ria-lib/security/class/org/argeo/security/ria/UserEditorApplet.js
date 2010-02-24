@@ -64,8 +64,8 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   				selectionChange : function(viewName, data){
   					if(viewName != "editor") return;
   					var iApplet = org.argeo.ria.components.ViewsManager.getInstance().getViewPaneById("editor").getContent();
-  					if(iApplet && iApplet.getCurrentNatureTabs() && iApplet.getAvailableNatures()
-  						&& iApplet.getCurrentNatureTabs().length < qx.lang.Object.getLength(iApplet.getAvailableNatures())){
+  					if(iApplet && iApplet.getCurrentNatureTabs() && iApplet.getNaturesManager().getDetectedNatures()
+  						&& iApplet.getCurrentNatureTabs().length < qx.lang.Object.getLength(iApplet.getNaturesManager().getDetectedNatures())){
   						this.setEnabled(true);
   					}else{
   						this.setEnabled(false);
@@ -177,12 +177,18 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   		var removeButton = commands["remove_nature"].command.getFormButton();
   		var natureButton = commands["add_nature"].command.getFormButton();
   		
-  		var detectedNatures = this.getAvailableNatures();
-  		var newMenu = [];
-  		for(var key in detectedNatures){
-  			newMenu.push({"label" : detectedNatures[key].NATURE_LABEL, "icon":"", "commandId" : detectedNatures[key]});
-  		}
-  		commands["add_nature"].command.setMenu(newMenu);
+  		this.getNaturesManager().addListener("changeNonAssignedNatures", function(event){
+  			var natures = event.getData();
+	  		var newMenu = [];
+	  		for(var key in natures){
+	  			newMenu.push({
+	  				"label" : natures[key].NATURE_LABEL, 
+	  				"icon":"", 
+	  				"commandId" : natures[key]
+	  				});
+	  		}
+	  		commands["add_nature"].command.setMenu(newMenu);  		
+  		}, this);
   		
   		natureButton.setShow("icon");
   		removeButton.setShow("icon");

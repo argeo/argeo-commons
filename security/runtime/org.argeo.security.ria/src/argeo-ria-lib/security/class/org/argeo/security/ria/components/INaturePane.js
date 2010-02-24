@@ -3,7 +3,8 @@ qx.Interface.define("org.argeo.security.ria.components.INaturePane", {
 	statics : {
 		NATURE_TYPE : "",
 		NATURE_LABEL : "",
-		NATURE_ICON : ""
+		NATURE_ICON : "",
+		NATURE_RANK	: 0
 	},
 	properties : {
 		editMode : {

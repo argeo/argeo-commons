@@ -3,7 +3,8 @@ qx.Class.define("org.argeo.security.ria.components.CoworkerNatureImpl", {
 	statics : {
 		NATURE_TYPE : "org.argeo.security.nature.CoworkerNature",
 		NATURE_LABEL : "Co-Worker",
-		NATURE_ICON : ""
+		NATURE_ICON : "",
+		NATURE_RANK : 1
 	},
 	
 	construct : function(){
