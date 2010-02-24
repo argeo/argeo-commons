@@ -42,6 +42,12 @@
 		</plugins>
 	</build>
 	<dependencies>
+		<dependency>
+			<groupId>org.argeo.commons.basic</groupId>
+			<artifactId>org.argeo.basic.nodeps</artifactId>
+			<version>0.1.3-SNAPSHOT</version>
+		</dependency>
+
 		<!-- Spring LDAP -->
 		<dependency>
 			<groupId>org.argeo.dep.osgi</groupId>
