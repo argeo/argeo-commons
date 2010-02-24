@@ -22,13 +22,11 @@ qx.Class.define("org.argeo.security.ria.components.CoworkerNatureImpl", {
 	  		grid.setColumnFlex(1,3);
 			
 	  		grid.setRowAlign(0, "right", "top");
-	  		this.descField = new qx.ui.form.TextArea();
 	  		this.mobileField = new qx.ui.form.TextField();
 	  		this.phoneField = new qx.ui.form.TextField();
 	  		
-	  		var labels = ["Description", "Mobile Phone", "Home Phone"]; 
+	  		var labels = ["Mobile Phone", "Home Phone"]; 
 	  		this.fields = {
-	  			"description" : this.descField, 
 	  			"mobile": this.mobileField, 
 	  			"telephoneNumber" : this.phoneField
 	  		};
