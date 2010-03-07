@@ -26,7 +26,7 @@
 	<bean id="contextSource"
 		class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
 		<constructor-arg
-			value="ldap://${argeo.ldap.host}:${argeo.ldap.port}/${argeo.ldap.rootdn}" />
+			value="${argeo.ldap.protocol}://${argeo.ldap.host}:${argeo.ldap.port}/${argeo.ldap.rootdn}" />
 		<property name="userDn" value="${argeo.ldap.manager.userdn}" />
 		<property name="password" value="${argeo.ldap.manager.password}" />
 	</bean>
