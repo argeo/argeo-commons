@@ -4,17 +4,17 @@ objectClass: extensibleObject
 objectClass: top
 dc: demo
 
-dn: ou=groups,dc=demo,dc=argeo,dc=org
+dn: ou=Roles,dc=demo,dc=argeo,dc=org
 objectClass: organizationalUnit
 objectClass: top
-ou: groups
+ou: Roles
 
-dn: ou=users,dc=demo,dc=argeo,dc=org
+dn: ou=People,dc=demo,dc=argeo,dc=org
 objectClass: organizationalUnit
 objectClass: top
-ou: users
+ou: People
 
-dn: uid=demo,ou=users,dc=demo,dc=argeo,dc=org
+dn: uid=demo,ou=People,dc=demo,dc=argeo,dc=org
 objectClass: organizationalPerson
 objectClass: person
 objectClass: inetOrgPerson
@@ -27,7 +27,7 @@ sn: User
 uid: demo
 userpassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
 
-dn: uid=root,ou=users,dc=demo,dc=argeo,dc=org
+dn: uid=root,ou=People,dc=demo,dc=argeo,dc=org
 objectClass: person
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
@@ -40,8 +40,8 @@ sn: Root
 uid: root
 userpassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
 
-dn: cn=admin,ou=groups,dc=demo,dc=argeo,dc=org
-objectClass: groupOfUniqueNames
+dn: cn=admin,ou=Roles,dc=demo,dc=argeo,dc=org
+objectClass: groupOfNames
 objectClass: top
 cn: admin
-uniquemember: uid=root,ou=users,dc=demo,dc=argeo,dc=org
+member: uid=root,ou=People,dc=demo,dc=argeo,dc=org

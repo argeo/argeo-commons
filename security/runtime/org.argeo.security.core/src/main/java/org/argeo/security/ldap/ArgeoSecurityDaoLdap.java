@@ -37,11 +37,12 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 
 	private UserDetailsManager userDetailsManager;
 	private LdapAuthoritiesPopulator authoritiesPopulator;
-	private String userBase = "ou=users";
+	private String userBase = "ou=People";
 	private String usernameAttributeName = "uid";
-	private String groupBase = "ou=groups";
+	private String groupBase = "ou=Roles";
+	private String[] groupClasses = { "top", "groupOfNames" };
 	private String groupRoleAttributeName = "cn";
-	private String groupMemberAttributeName = "uniquemember";
+	private String groupMemberAttributeName = "member";
 	private String defaultRole = "ROLE_USER";
 	private String rolePrefix = "ROLE_";
 
@@ -167,12 +168,12 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 
 		Name groupDn = buildGroupDn(group);
 		DirContextAdapter context = new DirContextAdapter();
-		context.setAttributeValues("objectClass", new String[] { "top",
-				"groupOfUniqueNames" });
+		context.setAttributeValues("objectClass", groupClasses);
 		context.setAttributeValue("cn", group);
 
 		// Add superuser because cannot create empty group
-		context.setAttributeValue("uniqueMember", superuserDn.toString());
+		context.setAttributeValue(groupMemberAttributeName, superuserDn
+				.toString());
 
 		ldapTemplate.bind(groupDn, context, null);
 	}
@@ -266,5 +267,9 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 
 	public String getDefaultRole() {
 		return defaultRole;
+	}
+
+	public void setGroupClasses(String[] groupClasses) {
+		this.groupClasses = groupClasses;
 	}
 }

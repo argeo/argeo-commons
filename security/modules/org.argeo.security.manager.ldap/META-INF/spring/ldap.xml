@@ -52,7 +52,7 @@
 		<constructor-arg ref="contextSource" />
 		<property name="userDnPatterns">
 			<list>
-				<value>uid={0},ou=users</value>
+				<value>uid={0},ou=People</value>
 			</list>
 		</property>
 		<property name="passwordEncoder">
@@ -60,25 +60,4 @@
 				class="org.springframework.security.providers.ldap.authenticator.LdapShaPasswordEncoder" />
 		</property>
 	</bean>
-
-
-	<!--
-		<bean id="authoritiesPopulator"
-		class="org.argeo.security.ldap.ArgeoLdapAuthoritiesPopulator">
-		<constructor-arg ref="contextSource" /> <constructor-arg
-		value="ou=groups" /> <property name="defaultRole" value="ROLE_USER" />
-		<property name="groupSearchFilter" value="uniqueMember={0}" /> </bean>
-
-		<bean id="userDetailsManager"
-		class="org.springframework.security.userdetails.ldap.LdapUserDetailsManager">
-		<constructor-arg ref="contextSource" /> <property
-		name="userDetailsMapper" ref="userDetailsMapper" /> <property
-		name="groupSearchBase" value="ou=groups" /> <property
-		name="usernameMapper"> <bean
-		class="org.springframework.security.ldap.DefaultLdapUsernameToDnMapper">
-		<constructor-arg value="ou=users" /> <constructor-arg value="uid" />
-		</bean> </property> </bean> <bean id="userDetailsMapper"
-		class="org.argeo.security.ldap.ArgeoUserDetailsContextMapper">
-		<property name="userNatureMappers" ref="userNatureMappers" /> </bean>
-	-->
 </beans>
