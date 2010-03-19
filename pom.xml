@@ -71,6 +71,7 @@ limitations under the License.
 		<module>osgi</module>
 		<module>server</module>
 		<module>security</module>
+		<module>sandbox</module>
 	</modules>
 	<build>
 		<pluginManagement>
