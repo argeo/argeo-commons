@@ -10,7 +10,7 @@ public class Throughput {
 	private final static NumberFormat usNumberFormat = NumberFormat
 			.getInstance(Locale.US);
 
-	enum Unit {
+	public enum Unit {
 		s, m, h, d
 	}
 
@@ -19,6 +19,20 @@ public class Throughput {
 
 	public Throughput(Double value, Unit unit) {
 		this.value = value;
+		this.unit = unit;
+	}
+
+	public Throughput(Long periodMs, Long count, Unit unit) {
+		if (unit.equals(Unit.s))
+			value = ((double) count * 1000d) / periodMs;
+		else if (unit.equals(Unit.m))
+			value = ((double) count * 60d * 1000d) / periodMs;
+		else if (unit.equals(Unit.h))
+			value = ((double) count * 60d * 60d * 1000d) / periodMs;
+		else if (unit.equals(Unit.d))
+			value = ((double) count * 24d * 60d * 60d * 1000d) / periodMs;
+		else
+			throw new ArgeoException("Unsupported unit " + unit);
 		this.unit = unit;
 	}
 
