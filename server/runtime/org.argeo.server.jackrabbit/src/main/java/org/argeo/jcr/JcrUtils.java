@@ -74,7 +74,7 @@ public class JcrUtils {
 		if (path.charAt(path.length() - 1) == '/')
 			throw new ArgeoException("Path " + path + " cannot end with '/'");
 		int index = path.lastIndexOf('/');
-		if (index <= 0)
+		if (index < 0)
 			throw new ArgeoException("Cannot find last path element for "
 					+ path);
 		return path.substring(index + 1);

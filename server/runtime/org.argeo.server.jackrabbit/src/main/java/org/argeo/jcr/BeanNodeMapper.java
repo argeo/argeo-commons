@@ -28,7 +28,7 @@ import org.argeo.ArgeoException;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
-public class BeanNodeMapper {
+public class BeanNodeMapper implements NodeMapper, NodeMapperProvider {
 	private final static Log log = LogFactory.getLog(BeanNodeMapper.class);
 
 	private final static String NODE_VALUE = "value";
@@ -42,6 +42,17 @@ public class BeanNodeMapper {
 	private String primaryNodeType = null;
 
 	private ClassLoader classLoader = getClass().getClassLoader();
+
+	private NodeMapperProvider nodeMapperProvider;
+
+	public void update(Node node, Object obj) {
+		try {
+			beanToNode(createBeanWrapper(obj), node);
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot update node " + node + " with "
+					+ obj, e);
+		}
+	}
 
 	public String storagePath(Object obj) {
 		String clss = obj.getClass().getName();
@@ -57,16 +68,6 @@ public class BeanNodeMapper {
 	public Node save(Session session, Object obj) {
 		return save(session, storagePath(obj), obj);
 	}
-
-	public void update(Node node, Object obj) {
-		try {
-			beanToNode(createBeanWrapper(obj), node);
-		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot update node " + node + " with "
-					+ obj, e);
-		}
-	}
-
 	public Node save(Session session, String path, Object obj) {
 		try {
 			BeanWrapper beanWrapper = createBeanWrapper(obj);
@@ -96,8 +97,23 @@ public class BeanNodeMapper {
 		}
 	}
 
+	public Object load(Node node) {
+		try {
+			return nodeToBean(node);
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot load object from node " + node, e);
+		}
+	}
+
 	@SuppressWarnings("unchecked")
+	/** Transforms an object into a node*/
 	public Object nodeToBean(Node node) throws RepositoryException {
+		if (nodeMapperProvider != null) {
+			NodeMapper nodeMapper = nodeMapperProvider.findNodeMapper(node);
+			if (nodeMapper != null) {
+				return nodeMapper.load(node);
+			}
+		}
 
 		String clssName = node.getProperty(classProperty).getValue()
 				.getString();
@@ -118,7 +134,7 @@ public class BeanNodeMapper {
 					.getName());
 			Class propClass = pd.getPropertyType();
 
-			// list
+			// primitive list
 			if (propClass != null && List.class.isAssignableFrom(propClass)) {
 				List<Object> lst = new ArrayList<Object>();
 				Class<?> valuesClass = classFromProperty(prop);
@@ -145,6 +161,7 @@ public class BeanNodeMapper {
 			PropertyDescriptor pd = beanWrapper.getPropertyDescriptor(name);
 			Class propClass = pd.getPropertyType();
 
+			// objects list
 			if (propClass != null && List.class.isAssignableFrom(propClass)) {
 				String lstClass = childNode.getProperty(classProperty)
 						.getString();
@@ -166,6 +183,7 @@ public class BeanNodeMapper {
 				continue nodes;
 			}
 
+			// objects map
 			if (propClass != null && Map.class.isAssignableFrom(propClass)) {
 				String mapClass = childNode.getProperty(classProperty)
 						.getString();
@@ -219,6 +237,15 @@ public class BeanNodeMapper {
 
 	protected void beanToNode(BeanWrapper beanWrapper, Node node)
 			throws RepositoryException {
+
+		if (nodeMapperProvider != null) {
+			NodeMapper nodeMapper = nodeMapperProvider.findNodeMapper(node);
+			if (nodeMapper != null) {
+				nodeMapper.update(node, beanWrapper.getWrappedInstance());
+				return;
+			}
+		}
+
 		if (log.isTraceEnabled())
 			log.debug("Map bean to node " + node.getPath());
 
@@ -473,12 +500,17 @@ public class BeanNodeMapper {
 	}
 
 	protected Class<?> loadClass(String name) {
-		//log.debug("Class loader: " + classLoader);
+		// log.debug("Class loader: " + classLoader);
 		try {
 			return classLoader.loadClass(name);
 		} catch (ClassNotFoundException e) {
 			throw new ArgeoException("Cannot load class " + name, e);
 		}
+	}
+
+	/** Returns itself. */
+	public NodeMapper findNodeMapper(Node node) {
+		return this;
 	}
 
 	protected String propertyName(String name) {
@@ -507,6 +539,10 @@ public class BeanNodeMapper {
 
 	public void setClassLoader(ClassLoader classLoader) {
 		this.classLoader = classLoader;
+	}
+
+	public void setNodeMapperProvider(NodeMapperProvider nodeMapperProvider) {
+		this.nodeMapperProvider = nodeMapperProvider;
 	}
 
 }
