@@ -28,7 +28,7 @@ import org.argeo.ArgeoException;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
-public class BeanNodeMapper implements NodeMapper, NodeMapperProvider {
+public class BeanNodeMapper implements NodeMapper {
 	private final static Log log = LogFactory.getLog(BeanNodeMapper.class);
 
 	private final static String NODE_VALUE = "value";
@@ -39,21 +39,108 @@ public class BeanNodeMapper implements NodeMapper, NodeMapperProvider {
 
 	private Boolean versioning = false;
 	private Boolean strictUuidReference = false;
+
+	// TODO define a primaryNodeType Strategy
 	private String primaryNodeType = null;
 
 	private ClassLoader classLoader = getClass().getClassLoader();
 
 	private NodeMapperProvider nodeMapperProvider;
 
+	/**
+	 * exposed method to retrieve a bean from a node
+	 */
+	public Object load(Node node) {
+		try {
+			if (nodeMapperProvider != null) {
+				NodeMapper nodeMapper = nodeMapperProvider.findNodeMapper(node);
+				if (nodeMapper != this) {
+					return nodeMapper.load(node);
+				}
+			}
+			return nodeToBean(node);
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot load object from node " + node, e);
+		}
+	}
+
+	/** Update an existing node with an object */
 	public void update(Node node, Object obj) {
 		try {
-			beanToNode(createBeanWrapper(obj), node);
+			if (nodeMapperProvider != null) {
+
+				NodeMapper nodeMapper = nodeMapperProvider.findNodeMapper(node);
+				if (nodeMapper != this) {
+					nodeMapper.update(node, obj);
+				} else
+					beanToNode(createBeanWrapper(obj), node);
+			} else
+				beanToNode(createBeanWrapper(obj), node);
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot update node " + node + " with "
 					+ obj, e);
 		}
 	}
 
+	/**
+	 * if no storage path is given; we use canonical path
+	 * 
+	 * @see this.storagePath()
+	 */
+	public Node save(Session session, Object obj) {
+		return save(session, storagePath(obj), obj);
+	}
+
+	/**
+	 * Create a new node to store an object. If the parentNode doesn't exist, it
+	 * is created
+	 * 
+	 * the primaryNodeType may be initialized before
+	 */
+	public Node save(Session session, String path, Object obj) {
+		try {
+			BeanWrapper beanWrapper = createBeanWrapper(obj);
+			final Node node;
+			String parentPath = JcrUtils.parentPath(path);
+			// find or create parent node
+			Node parentNode;
+			if (session.itemExists(path))
+				parentNode = (Node) session.getItem(parentPath);
+			else {
+				parentNode = JcrUtils.mkdirs(session, parentPath, null,
+						versioning);
+			}
+			// create node
+
+			if (primaryNodeType != null)
+				node = parentNode.addNode(JcrUtils.lastPathElement(path),
+						primaryNodeType);
+			else
+				node = parentNode.addNode(JcrUtils.lastPathElement(path));
+
+			// Check specific cases
+			if (nodeMapperProvider != null) {
+
+				NodeMapper nodeMapper = nodeMapperProvider.findNodeMapper(node);
+				if (nodeMapper != this) {
+					nodeMapper.update(node, obj);
+					return node;
+				}
+			}
+			update(node, obj);
+			return node;
+		} catch (ArgeoException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot save or update " + obj + " under "
+					+ path, e);
+		}
+	}
+
+	/**
+	 * Parse the FQN of a class to string with '/' delimiters Prefix the
+	 * returned string with "/objects/"
+	 */
 	public String storagePath(Object obj) {
 		String clss = obj.getClass().getName();
 		StringBuffer buf = new StringBuffer("/objects/");
@@ -65,61 +152,14 @@ public class BeanNodeMapper implements NodeMapper, NodeMapperProvider {
 		return buf.toString();
 	}
 
-	public Node save(Session session, Object obj) {
-		return save(session, storagePath(obj), obj);
-	}
-	public Node save(Session session, String path, Object obj) {
-		try {
-			BeanWrapper beanWrapper = createBeanWrapper(obj);
-			final Node node;
-			String parentPath = JcrUtils.parentPath(path);
-			// find or create parent node
-			Node parentNode;
-			if (session.itemExists(path))
-				parentNode = (Node) session.getItem(parentPath);
-			else
-				parentNode = JcrUtils.mkdirs(session, parentPath, null,
-						versioning);
-			// create node
-			if (primaryNodeType != null)
-				node = parentNode.addNode(JcrUtils.lastPathElement(path),
-						primaryNodeType);
-			else
-				node = parentNode.addNode(JcrUtils.lastPathElement(path));
-
-			beanToNode(beanWrapper, node);
-			return node;
-		} catch (ArgeoException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new ArgeoException("Cannot save or update " + obj + " under "
-					+ path, e);
-		}
-	}
-
-	public Object load(Node node) {
-		try {
-			return nodeToBean(node);
-		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot load object from node " + node, e);
-		}
-	}
-
 	@SuppressWarnings("unchecked")
-	/** Transforms an object into a node*/
-	public Object nodeToBean(Node node) throws RepositoryException {
-		if (nodeMapperProvider != null) {
-			NodeMapper nodeMapper = nodeMapperProvider.findNodeMapper(node);
-			if (nodeMapper != null) {
-				return nodeMapper.load(node);
-			}
-		}
+	/** 
+	 * Transforms a node into an object of the class defined by classProperty Property
+	 */
+	protected Object nodeToBean(Node node) throws RepositoryException {
 
 		String clssName = node.getProperty(classProperty).getValue()
 				.getString();
-
-		if (log.isTraceEnabled())
-			log.debug("Map node " + node.getPath() + " to bean " + clssName);
 
 		BeanWrapper beanWrapper = createBeanWrapper(loadClass(clssName));
 
@@ -134,6 +174,7 @@ public class BeanNodeMapper implements NodeMapper, NodeMapperProvider {
 					.getName());
 			Class propClass = pd.getPropertyType();
 
+			// Process case of List and its derived classes
 			// primitive list
 			if (propClass != null && List.class.isAssignableFrom(propClass)) {
 				List<Object> lst = new ArrayList<Object>();
@@ -145,6 +186,8 @@ public class BeanNodeMapper implements NodeMapper, NodeMapperProvider {
 				continue props;
 			}
 
+			// Case of other type of property accepted by jcr
+			// Long, Double, String, Binary, Date, Boolean, Name
 			Object value = asObject(prop.getValue(), pd.getPropertyType());
 			if (value != null)
 				beanWrapper.setPropertyValue(prop.getName(), value);
@@ -235,24 +278,18 @@ public class BeanNodeMapper implements NodeMapper, NodeMapperProvider {
 		return beanWrapper.getWrappedInstance();
 	}
 
+	/**
+	 * Transforms an object to the specified jcr Node in order to persist it.
+	 * 
+	 * @param beanWrapper
+	 * @param node
+	 * @throws RepositoryException
+	 */
 	protected void beanToNode(BeanWrapper beanWrapper, Node node)
 			throws RepositoryException {
-
-		if (nodeMapperProvider != null) {
-			NodeMapper nodeMapper = nodeMapperProvider.findNodeMapper(node);
-			if (nodeMapper != null) {
-				nodeMapper.update(node, beanWrapper.getWrappedInstance());
-				return;
-			}
-		}
-
-		if (log.isTraceEnabled())
-			log.debug("Map bean to node " + node.getPath());
-
 		properties: for (PropertyDescriptor pd : beanWrapper
 				.getPropertyDescriptors()) {
 			String name = pd.getName();
-
 			if (!beanWrapper.isReadableProperty(name))
 				continue properties;// skip
 
@@ -282,6 +319,7 @@ public class BeanNodeMapper implements NodeMapper, NodeMapperProvider {
 				continue properties;
 			}
 
+			// Some bean reference other classes. We must deal with this case
 			if (value instanceof Class<?>) {
 				node.setProperty(name, ((Class<?>) value).getName());
 				continue properties;
@@ -325,6 +363,14 @@ public class BeanNodeMapper implements NodeMapper, NodeMapperProvider {
 		}
 	}
 
+	/**
+	 * Process specific case of list
+	 * 
+	 * @param node
+	 * @param name
+	 * @param lst
+	 * @throws RepositoryException
+	 */
 	protected void addList(Node node, String name, List<?> lst)
 			throws RepositoryException {
 		if (node.hasNode(name)) {// update
@@ -363,6 +409,14 @@ public class BeanNodeMapper implements NodeMapper, NodeMapperProvider {
 		}
 	}
 
+	/**
+	 * Process specific case of maps.
+	 * 
+	 * @param node
+	 * @param name
+	 * @param map
+	 * @throws RepositoryException
+	 */
 	protected void addMap(Node node, String name, Map<?, ?> map)
 			throws RepositoryException {
 		if (node.hasNode(name)) {// update
@@ -508,11 +562,6 @@ public class BeanNodeMapper implements NodeMapper, NodeMapperProvider {
 		}
 	}
 
-	/** Returns itself. */
-	public NodeMapper findNodeMapper(Node node) {
-		return this;
-	}
-
 	protected String propertyName(String name) {
 		return name;
 	}
@@ -545,4 +594,11 @@ public class BeanNodeMapper implements NodeMapper, NodeMapperProvider {
 		this.nodeMapperProvider = nodeMapperProvider;
 	}
 
+	public String getPrimaryNodeType() {
+		return this.primaryNodeType;
+	}
+
+	public String getClassProperty() {
+		return this.classProperty;
+	}
 }

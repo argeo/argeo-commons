@@ -9,4 +9,6 @@ public interface NodeMapper {
 	public void update(Node node, Object obj);
 
 	public Node save(Session session, String path, Object obj);
+	
+	public void setNodeMapperProvider(NodeMapperProvider nmp);
 }

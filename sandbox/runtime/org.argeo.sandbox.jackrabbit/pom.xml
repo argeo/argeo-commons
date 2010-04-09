@@ -38,6 +38,9 @@
 							${basedir}/../../../server/demo;in=*;ex=pom.xml;ex=target;ex=.*,
 							${basedir}/../../../server/runtime;in=*/target/classes,
 						</argeo.osgi.bundles>
+						
+						
+						
 					</systemProperties>
 				</configuration>
 			</plugin>

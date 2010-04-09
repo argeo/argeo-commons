@@ -70,6 +70,12 @@ public class JcrUtils {
 
 	}
 
+	public static String hostAsPath(String host) {
+		// TODO : inverse order of the elements (to have org/argeo/test IO
+		// test/argeo/org
+		return host.replace('.', '/');
+	}
+
 	public static String lastPathElement(String path) {
 		if (path.charAt(path.length() - 1) == '/')
 			throw new ArgeoException("Path " + path + " cannot end with '/'");
@@ -134,6 +140,8 @@ public class JcrUtils {
 
 		// Then output the properties
 		PropertyIterator properties = node.getProperties();
+		//log.debug("Property are : ");
+		
 		while (properties.hasNext()) {
 			Property property = properties.nextProperty();
 			if (property.getDefinition().isMultiple()) {
