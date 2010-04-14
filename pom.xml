@@ -15,7 +15,7 @@
 		<developmentCycle>0.1</developmentCycle>
 		<version.argeo-distribution>1.0.4-SNAPSHOT</version.argeo-distribution>
 		<version.argeo-ria>0.12.4-SNAPSHOT</version.argeo-ria>
-		<version.maven-argeo-osgi>0.1.27</version.maven-argeo-osgi>
+		<version.maven-argeo-osgi>0.1.28-SNAPSHOT</version.maven-argeo-osgi>
 		<version.maven-bundle-plugin>2.0.1</version.maven-bundle-plugin>
 		<version.maven-argeo-qooxdoo>0.8.3.0</version.maven-argeo-qooxdoo>
 		<site.repoBase>file:///var/argeo/projects/commons/www/site</site.repoBase>

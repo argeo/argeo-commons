@@ -20,8 +20,13 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.packageadmin.PackageAdmin;
 
 public class OsgiBoot {
+	public final static String SYMBOLIC_NAME_OSGI_BOOT = "org.argeo.osgi.boot";
+	public final static String SYMBOLIC_NAME_EQUINOX = "org.eclipse.osgi";
+
 	public final static String PROP_ARGEO_OSGI_DATA_DIR = "argeo.osgi.data.dir";
 
 	public final static String PROP_ARGEO_OSGI_START = "argeo.osgi.start";
@@ -101,7 +106,6 @@ public class OsgiBoot {
 		}
 
 		System.setProperty(PROP_ARGEO_OSGI_DATA_DIR, dataDir.getAbsolutePath());
-		info(PROP_ARGEO_OSGI_DATA_DIR + "=" + dataDir.getAbsolutePath());
 	}
 
 	public static String removeFilePrefix(String url) {
@@ -114,12 +118,18 @@ public class OsgiBoot {
 	}
 
 	public void bootstrap() {
-		info("SLC OSGi bootstrap starting...");
+		System.out.println();
+		info("OSGi bootstrap starting...");
+		info("Writable data directory : "
+				+ System.getProperty(PROP_ARGEO_OSGI_DATA_DIR)
+				+ " (set as system property " + PROP_ARGEO_OSGI_DATA_DIR + ")");
 		installUrls(getBundlesUrls());
 		installUrls(getLocationsUrls());
 		installUrls(getModulesUrls());
+		checkUnresolved();
 		startBundles();
-		info("SLC OSGi bootstrap completed");
+		info("OSGi bootstrap completed");
+		System.out.println();
 	}
 
 	public void installUrls(List urls) {
@@ -140,8 +150,17 @@ public class OsgiBoot {
 								+ " from " + url);
 				}
 			} catch (BundleException e) {
-				warn("Could not install bundle from " + url + ": "
-						+ e.getMessage());
+				String message = e.getMessage();
+				if ((message.contains("Bundle \"" + SYMBOLIC_NAME_OSGI_BOOT
+						+ "\"") || message.contains("Bundle \""
+						+ SYMBOLIC_NAME_EQUINOX + "\""))
+						&& message.contains("has already been installed")) {
+					// silent, in order to avoid warnings: we know that both
+					// have already been installed...
+				} else {
+					warn("Could not install bundle from " + url + ": "
+							+ message);
+				}
 				if (debug)
 					e.printStackTrace();
 			}
@@ -245,6 +264,28 @@ public class OsgiBoot {
 		for (int i = 0; i < notFoundBundles.size(); i++)
 			warn("Bundle " + notFoundBundles.get(i)
 					+ " not started because it was not found.");
+	}
+
+	protected void checkUnresolved() {
+		// Refresh
+		ServiceReference packageAdminRef = bundleContext
+				.getServiceReference(PackageAdmin.class.getName());
+		PackageAdmin packageAdmin = (PackageAdmin) bundleContext
+				.getService(packageAdminRef);
+		packageAdmin.resolveBundles(null);
+
+		Bundle[] bundles = bundleContext.getBundles();
+		List /* Bundle */unresolvedBundles = new ArrayList();
+		for (int i = 0; i < bundles.length; i++) {
+			int bundleState = bundles[i].getState();
+			if (!(bundleState == Bundle.ACTIVE
+					|| bundleState == Bundle.RESOLVED || bundleState == Bundle.STARTING))
+				unresolvedBundles.add(bundles[i]);
+		}
+
+		if (unresolvedBundles.size() != 0) {
+			warn("Unresolved bundles " + unresolvedBundles);
+		}
 	}
 
 	protected void waitForBundleResolvedOrActive(long startBegin, Bundle bundle)
@@ -590,16 +631,16 @@ public class OsgiBoot {
 	}
 
 	protected static void info(Object obj) {
-		System.out.println("#OSGiBOOT# " + obj);
+		System.out.println("# OSGiBOOT      # " + obj);
 	}
 
 	protected void debug(Object obj) {
 		if (debug)
-			System.out.println("#OSGiBOOT DEBUG# " + obj);
+			System.out.println("# OSGiBOOT DBG  # " + obj);
 	}
 
 	protected void warn(Object obj) {
-		System.out.println("# WARN " + obj);
+		System.out.println("# OSGiBOOT WARN # " + obj);
 		// Because of a weird bug under Windows when starting it in a forked VM
 		// if (System.getProperty("os.name").contains("Windows"))
 		// System.out.println("# WARN " + obj);
