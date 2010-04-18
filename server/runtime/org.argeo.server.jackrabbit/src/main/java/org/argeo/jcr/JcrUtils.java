@@ -38,6 +38,12 @@ public class JcrUtils {
 			throw new ArgeoException("Query returned more than one node.");
 		return node;
 	}
+	
+	public static String removeForbiddenCharacters(String str){
+		return str.replace('[', '_').replace(']', '_')
+		.replace('/', '_').replace('*', '_');
+
+	}
 
 	public static String parentPath(String path) {
 		if (path.equals("/"))
