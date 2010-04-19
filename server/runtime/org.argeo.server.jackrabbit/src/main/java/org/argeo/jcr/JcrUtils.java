@@ -38,10 +38,10 @@ public class JcrUtils {
 			throw new ArgeoException("Query returned more than one node.");
 		return node;
 	}
-	
-	public static String removeForbiddenCharacters(String str){
-		return str.replace('[', '_').replace(']', '_')
-		.replace('/', '_').replace('*', '_');
+
+	public static String removeForbiddenCharacters(String str) {
+		return str.replace('[', '_').replace(']', '_').replace('/', '_')
+				.replace('*', '_');
 
 	}
 
@@ -146,8 +146,8 @@ public class JcrUtils {
 
 		// Then output the properties
 		PropertyIterator properties = node.getProperties();
-		//log.debug("Property are : ");
-		
+		// log.debug("Property are : ");
+
 		while (properties.hasNext()) {
 			Property property = properties.nextProperty();
 			if (property.getDefinition().isMultiple()) {

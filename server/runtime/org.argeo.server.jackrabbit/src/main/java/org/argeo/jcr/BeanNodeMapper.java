@@ -22,14 +22,12 @@ import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.ValueFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
 public class BeanNodeMapper implements NodeMapper {
-	private final static Log log = LogFactory.getLog(BeanNodeMapper.class);
+	// private final static Log log = LogFactory.getLog(BeanNodeMapper.class);
 
 	private final static String NODE_VALUE = "value";
 
@@ -99,7 +97,6 @@ public class BeanNodeMapper implements NodeMapper {
 	 */
 	public Node save(Session session, String path, Object obj) {
 		try {
-			BeanWrapper beanWrapper = createBeanWrapper(obj);
 			final Node node;
 			String parentPath = JcrUtils.parentPath(path);
 			// find or create parent node
@@ -120,7 +117,6 @@ public class BeanNodeMapper implements NodeMapper {
 
 			// Check specific cases
 			if (nodeMapperProvider != null) {
-
 				NodeMapper nodeMapper = nodeMapperProvider.findNodeMapper(node);
 				if (nodeMapper != this) {
 					nodeMapper.update(node, obj);
@@ -158,124 +154,128 @@ public class BeanNodeMapper implements NodeMapper {
 	 */
 	protected Object nodeToBean(Node node) throws RepositoryException {
 
-		String clssName = node.getProperty(classProperty).getValue()
-				.getString();
+		try {
+			String clssName = node.getProperty(classProperty).getValue()
+					.getString();
 
-		BeanWrapper beanWrapper = createBeanWrapper(loadClass(clssName));
+			BeanWrapper beanWrapper = createBeanWrapper(loadClass(clssName));
 
-		// process properties
-		PropertyIterator propIt = node.getProperties();
-		props: while (propIt.hasNext()) {
-			Property prop = propIt.nextProperty();
-			if (!beanWrapper.isWritableProperty(prop.getName()))
-				continue props;
+			// process properties
+			PropertyIterator propIt = node.getProperties();
+			props: while (propIt.hasNext()) {
+				Property prop = propIt.nextProperty();
+				if (!beanWrapper.isWritableProperty(prop.getName()))
+					continue props;
 
-			PropertyDescriptor pd = beanWrapper.getPropertyDescriptor(prop
-					.getName());
-			Class propClass = pd.getPropertyType();
+				PropertyDescriptor pd = beanWrapper.getPropertyDescriptor(prop
+						.getName());
+				Class propClass = pd.getPropertyType();
 
-			// Process case of List and its derived classes
-			// primitive list
-			if (propClass != null && List.class.isAssignableFrom(propClass)) {
-				List<Object> lst = new ArrayList<Object>();
-				Class<?> valuesClass = classFromProperty(prop);
-				if (valuesClass != null)
-					for (Value value : prop.getValues()) {
-						lst.add(asObject(value, valuesClass));
+				// Process case of List and its derived classes
+				// primitive list
+				if (propClass != null && List.class.isAssignableFrom(propClass)) {
+					List<Object> lst = new ArrayList<Object>();
+					Class<?> valuesClass = classFromProperty(prop);
+					if (valuesClass != null)
+						for (Value value : prop.getValues()) {
+							lst.add(asObject(value, valuesClass));
+						}
+					continue props;
+				}
+
+				// Case of other type of property accepted by jcr
+				// Long, Double, String, Binary, Date, Boolean, Name
+				Object value = asObject(prop.getValue(), pd.getPropertyType());
+				if (value != null)
+					beanWrapper.setPropertyValue(prop.getName(), value);
+			}
+
+			// process children nodes
+			NodeIterator nodeIt = node.getNodes();
+			nodes: while (nodeIt.hasNext()) {
+				Node childNode = nodeIt.nextNode();
+				String name = childNode.getName();
+				if (!beanWrapper.isWritableProperty(name))
+					continue nodes;
+
+				PropertyDescriptor pd = beanWrapper.getPropertyDescriptor(name);
+				Class propClass = pd.getPropertyType();
+
+				// objects list
+				if (propClass != null && List.class.isAssignableFrom(propClass)) {
+					String lstClass = childNode.getProperty(classProperty)
+							.getString();
+					List<Object> lst;
+					try {
+						lst = (List<Object>) loadClass(lstClass).newInstance();
+					} catch (Exception e) {
+						lst = new ArrayList<Object>();
 					}
-				continue props;
-			}
 
-			// Case of other type of property accepted by jcr
-			// Long, Double, String, Binary, Date, Boolean, Name
-			Object value = asObject(prop.getValue(), pd.getPropertyType());
-			if (value != null)
-				beanWrapper.setPropertyValue(prop.getName(), value);
-		}
+					NodeIterator valuesIt = childNode.getNodes();
+					while (valuesIt.hasNext()) {
+						Node lstValueNode = valuesIt.nextNode();
+						Object lstValue = nodeToBean(lstValueNode);
+						lst.add(lstValue);
+					}
 
-		// process children nodes
-		NodeIterator nodeIt = node.getNodes();
-		nodes: while (nodeIt.hasNext()) {
-			Node childNode = nodeIt.nextNode();
-			String name = childNode.getName();
-			if (!beanWrapper.isWritableProperty(name))
-				continue nodes;
-
-			PropertyDescriptor pd = beanWrapper.getPropertyDescriptor(name);
-			Class propClass = pd.getPropertyType();
-
-			// objects list
-			if (propClass != null && List.class.isAssignableFrom(propClass)) {
-				String lstClass = childNode.getProperty(classProperty)
-						.getString();
-				List<Object> lst;
-				try {
-					lst = (List<Object>) loadClass(lstClass).newInstance();
-				} catch (Exception e) {
-					lst = new ArrayList<Object>();
+					beanWrapper.setPropertyValue(name, lst);
+					continue nodes;
 				}
 
-				NodeIterator valuesIt = childNode.getNodes();
-				while (valuesIt.hasNext()) {
-					Node lstValueNode = valuesIt.nextNode();
-					Object lstValue = nodeToBean(lstValueNode);
-					lst.add(lstValue);
-				}
+				// objects map
+				if (propClass != null && Map.class.isAssignableFrom(propClass)) {
+					String mapClass = childNode.getProperty(classProperty)
+							.getString();
+					Map<Object, Object> map;
+					try {
+						map = (Map<Object, Object>) loadClass(mapClass)
+								.newInstance();
+					} catch (Exception e) {
+						map = new HashMap<Object, Object>();
+					}
 
-				beanWrapper.setPropertyValue(name, lst);
-				continue nodes;
-			}
+					// properties
+					PropertyIterator keysPropIt = childNode.getProperties();
+					keyProps: while (keysPropIt.hasNext()) {
+						Property keyProp = keysPropIt.nextProperty();
+						// FIXME: use property editor
+						String key = keyProp.getName();
+						if (classProperty.equals(key))
+							continue keyProps;
 
-			// objects map
-			if (propClass != null && Map.class.isAssignableFrom(propClass)) {
-				String mapClass = childNode.getProperty(classProperty)
-						.getString();
-				Map<Object, Object> map;
-				try {
-					map = (Map<Object, Object>) loadClass(mapClass)
-							.newInstance();
-				} catch (Exception e) {
-					map = new HashMap<Object, Object>();
-				}
+						Class keyPropClass = classFromProperty(keyProp);
+						if (keyPropClass != null) {
+							Object mapValue = asObject(keyProp.getValue(),
+									keyPropClass);
+							map.put(key, mapValue);
+						}
+					}
 
-				// properties
-				PropertyIterator keysPropIt = childNode.getProperties();
-				keyProps: while (keysPropIt.hasNext()) {
-					Property keyProp = keysPropIt.nextProperty();
-					// FIXME: use property editor
-					String key = keyProp.getName();
-					if (classProperty.equals(key))
-						continue keyProps;
+					// node
+					NodeIterator keysIt = childNode.getNodes();
+					while (keysIt.hasNext()) {
+						Node mapValueNode = keysIt.nextNode();
+						// FIXME: use property editor
+						Object key = mapValueNode.getName();
 
-					Class keyPropClass = classFromProperty(keyProp);
-					if (keyPropClass != null) {
-						Object mapValue = asObject(keyProp.getValue(),
-								keyPropClass);
+						Object mapValue = nodeToBean(mapValueNode);
+
 						map.put(key, mapValue);
 					}
+					beanWrapper.setPropertyValue(name, map);
+					continue nodes;
 				}
 
-				// node
-				NodeIterator keysIt = childNode.getNodes();
-				while (keysIt.hasNext()) {
-					Node mapValueNode = keysIt.nextNode();
-					// FIXME: use property editor
-					Object key = mapValueNode.getName();
+				// default
+				Object value = nodeToBean(childNode);
+				beanWrapper.setPropertyValue(name, value);
 
-					Object mapValue = nodeToBean(mapValueNode);
-
-					map.put(key, mapValue);
-				}
-				beanWrapper.setPropertyValue(name, map);
-				continue nodes;
 			}
-
-			// default
-			Object value = nodeToBean(childNode);
-			beanWrapper.setPropertyValue(name, value);
-
+			return beanWrapper.getWrappedInstance();
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot map node " + node, e);
 		}
-		return beanWrapper.getWrappedInstance();
 	}
 
 	/**
