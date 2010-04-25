@@ -272,4 +272,9 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 	public void setGroupClasses(String[] groupClasses) {
 		this.groupClasses = groupClasses;
 	}
+
+	public UserDetailsManager getUserDetailsManager() {
+		return userDetailsManager;
+	}
+
 }

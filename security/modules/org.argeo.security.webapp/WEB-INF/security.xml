@@ -21,7 +21,15 @@
 			logout-success-url="/getCredentials.ria" />
 		<security:anonymous username="anonymous"
 			granted-authority="ROLE_ANONYMOUS" />
+		<security:remember-me key="argeo" services-ref="rememberMeServices" />
 	</security:http>
+
+	<bean id="rememberMeServices" class="org.argeo.security.mvc.ArgeoRememberMeServices">
+		<property name="alwaysRemember" value="true" />
+		<property name="userDetailsService" ref="userDetailsService" />
+		<property name="key" value="${argeo.security.systemKey}" />
+	</bean>
+
 
 	<bean id="authenticationProcessingFilter"
 		class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">

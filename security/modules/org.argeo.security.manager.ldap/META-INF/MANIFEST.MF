@@ -9,11 +9,13 @@ Import-Package: com.sun.jndi.ldap;resolution:=optional,
  org.springframework.beans.factory.config,
  org.springframework.ldap.core.support,
  org.springframework.security,
+ org.springframework.security.adapters;specification-version="2.0.4.A",
  org.springframework.security.ldap,
  org.springframework.security.ldap.populator,
  org.springframework.security.providers,
  org.springframework.security.providers.ldap,
  org.springframework.security.providers.ldap.authenticator,
+ org.springframework.security.providers.rememberme;specification-version="2.0.4.A",
  org.springframework.security.userdetails,
  org.springframework.security.userdetails.ldap
 Bundle-Name: Security Manager LDAP

@@ -8,13 +8,17 @@
 
 	<reference id="_authenticationManager"
 		interface="org.springframework.security.AuthenticationManager" />
+	<reference id="userDetailsService"
+		interface="org.springframework.security.userdetails.UserDetailsService" />
 
 	<reference id="securityService" interface="org.argeo.security.ArgeoSecurityService" />
 
 	<list id="objectFactories" interface="org.argeo.server.json.JsonObjectFactory"
 		cardinality="0..N" />
 
-<!-- 
-	<service ref="authenticationProcessingFilterEntryPoint"
-		interface="org.springframework.security.ui.AuthenticationEntryPoint" /> -->
+	<!--
+		<service ref="authenticationProcessingFilterEntryPoint"
+		interface="org.springframework.security.ui.AuthenticationEntryPoint"
+		/>
+	-->
 </beans:beans>

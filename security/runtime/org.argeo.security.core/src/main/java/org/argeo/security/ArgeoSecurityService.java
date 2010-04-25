@@ -2,7 +2,7 @@ package org.argeo.security;
 
 public interface ArgeoSecurityService {
 	public void newUser(ArgeoUser argeoUser);
-	
+
 	public void updateUser(ArgeoUser user);
 
 	public void updateUserPassword(String username, String password);
@@ -12,4 +12,6 @@ public interface ArgeoSecurityService {
 	public void newRole(String role);
 
 	public ArgeoSecurityDao getSecurityDao();
+
+	public Runnable wrapWithSystemAuthentication(final Runnable runnable);
 }

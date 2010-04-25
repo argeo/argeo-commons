@@ -15,6 +15,5 @@
 		class="org.springframework.web.context.support.ServletContextPropertyPlaceholderConfigurer"
 		lazy-init="false">
 		<property name="contextOverride" value="true" />
-		<property name="ignoreUnresolvablePlaceholders" value="true" />
 	</bean>
 </beans>

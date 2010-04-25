@@ -8,6 +8,6 @@
 
 	<service ref="securityService" interface="org.argeo.security.ArgeoSecurityService" />
 
-	<reference id="securityDao" interface="org.argeo.security.ArgeoSecurityDao"
-		 />
+	<reference id="securityDao" interface="org.argeo.security.ArgeoSecurityDao" />
+	<reference id="authenticationManager" interface="org.springframework.security.AuthenticationManager" />
 </beans:beans>

@@ -12,6 +12,9 @@
 
 	<service ref="securityDao" interface="org.argeo.security.ArgeoSecurityDao"
 		context-class-loader="service-provider" />
+	<service ref="userDetailsManager"
+		interface="org.springframework.security.userdetails.UserDetailsService"
+		context-class-loader="service-provider" />
 
 	<list id="userNatureMappers" interface="org.argeo.security.ldap.UserNatureMapper"
 		cardinality="0..N" />
