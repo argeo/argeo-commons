@@ -3,6 +3,7 @@ package org.argeo.jcr;
 import java.util.Calendar;
 import java.util.StringTokenizer;
 
+import javax.jcr.NamespaceRegistry;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Property;
@@ -59,18 +60,19 @@ public class JcrUtils {
 	}
 
 	public static String dateAsPath(Calendar cal) {
-		StringBuffer buf = new StringBuffer(11);
-		buf.append(cal.get(Calendar.YEAR));// 4
+		StringBuffer buf = new StringBuffer(14);
+		buf.append('Y').append(cal.get(Calendar.YEAR));// 5
 		buf.append('/');// 1
 		int month = cal.get(Calendar.MONTH) + 1;
+		buf.append('M');
 		if (month < 10)
 			buf.append(0);
-		buf.append(month);// 2
+		buf.append(month);// 3
 		buf.append('/');// 1
 		int day = cal.get(Calendar.DAY_OF_MONTH);
 		if (day < 10)
 			buf.append(0);
-		buf.append(day);// 2
+		buf.append('D').append(day);// 3
 		buf.append('/');// 1
 		return buf.toString();
 
@@ -125,6 +127,39 @@ public class JcrUtils {
 			return currentNode;
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot mkdirs " + path, e);
+		}
+	}
+
+	public static void registerNamespaceSafely(Session session, String prefix,
+			String uri) {
+		try {
+			registerNamespaceSafely(session.getWorkspace()
+					.getNamespaceRegistry(), prefix, uri);
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot find namespace registry", e);
+		}
+	}
+
+	public static void registerNamespaceSafely(NamespaceRegistry nr,
+			String prefix, String uri) {
+		try {
+			String[] prefixes = nr.getPrefixes();
+			for (String pref : prefixes)
+				if (pref.equals(prefix)) {
+					String registeredUri = nr.getURI(pref);
+					if (!registeredUri.equals(uri))
+						throw new ArgeoException("Prefix " + pref
+								+ " already registered for URI "
+								+ registeredUri
+								+ " which is different from provided URI "
+								+ uri);
+					else
+						return;// skip
+				}
+			nr.registerNamespace(prefix, uri);
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot register namespace " + uri
+					+ " under prefix " + prefix, e);
 		}
 	}
 

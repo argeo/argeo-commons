@@ -5,10 +5,12 @@ import javax.jcr.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.context.request.WebRequestInterceptor;
 
-public class OpenSessionInViewJcrInterceptor implements WebRequestInterceptor {
+public class OpenSessionInViewJcrInterceptor implements WebRequestInterceptor,
+		JcrMvcConstants {
 	private final static Log log = LogFactory
 			.getLog(OpenSessionInViewJcrInterceptor.class);
 
@@ -27,7 +29,9 @@ public class OpenSessionInViewJcrInterceptor implements WebRequestInterceptor {
 
 		// FIXME: find a safer way to initialize
 		// FIXME: not really needed to initialize here
-		//session.getRepository();
+		// session.getRepository();
+		request.setAttribute(REQUEST_ATTR_SESSION, session,
+				RequestAttributes.SCOPE_REQUEST);
 	}
 
 	public void postHandle(WebRequest request, ModelMap model) throws Exception {
