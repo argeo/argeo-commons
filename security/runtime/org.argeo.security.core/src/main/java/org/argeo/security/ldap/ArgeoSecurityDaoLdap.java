@@ -51,6 +51,7 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 	private LdapUsernameToDnMapper usernameMapper = null;
 
 	private UserDetailsContextMapper userDetailsMapper;
+//	private LdapUserDetailsService ldapUserDetailsService;
 	private List<UserNatureMapper> userNatureMappers;
 
 	public void afterPropertiesSet() throws Exception {
@@ -82,6 +83,11 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 			userDetailsManager = ludm;
 		}
 
+//		if (ldapUserDetailsService == null) {
+//			ldapUserDetailsService = new LdapUserDetailsService(null,
+//					authoritiesPopulator);
+//			ldapUserDetailsService.setUserDetailsMapper(userDetailsMapper);
+//		}
 	}
 
 	public ArgeoSecurityDaoLdap(ContextSource contextSource) {

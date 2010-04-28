@@ -96,20 +96,20 @@
 			<artifactId>org.argeo.dep.osgi.catalina.start</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.coyote.springsource</groupId>
-			<artifactId>com.springsource.org.apache.coyote.springsource</artifactId>
+			<groupId>org.apache.coyote</groupId>
+			<artifactId>com.springsource.org.apache.coyote</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.catalina.springsource</groupId>
-			<artifactId>com.springsource.org.apache.catalina.springsource</artifactId>
+			<groupId>org.apache.catalina</groupId>
+			<artifactId>com.springsource.org.apache.catalina</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.jasper.springsource</groupId>
-			<artifactId>com.springsource.org.apache.jasper.springsource</artifactId>
+			<groupId>org.apache.jasper</groupId>
+			<artifactId>com.springsource.org.apache.jasper</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.el.springsource</groupId>
-			<artifactId>com.springsource.org.apache.el.springsource</artifactId>
+			<groupId>org.apache.el</groupId>
+			<artifactId>com.springsource.org.apache.el</artifactId>
 		</dependency>
 	</dependencies>
 </project>

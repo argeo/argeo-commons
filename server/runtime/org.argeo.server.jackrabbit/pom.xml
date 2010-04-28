@@ -92,7 +92,7 @@
 
 		<dependency>
 			<groupId>org.springframework.security</groupId>
-			<artifactId>org.springframework.security</artifactId>
+			<artifactId>org.springframework.security.core</artifactId>
 		</dependency>
 
 		<!-- Logging -->
