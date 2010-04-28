@@ -16,10 +16,10 @@ import org.argeo.security.core.ArgeoUserDetails;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.ldap.core.ContextMapper;
-import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.ldap.DefaultLdapUsernameToDnMapper;
@@ -27,9 +27,12 @@ import org.springframework.security.ldap.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.LdapUsernameToDnMapper;
 import org.springframework.security.ldap.LdapUtils;
 import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
+import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsManager;
+import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.ldap.LdapUserDetailsManager;
+import org.springframework.security.userdetails.ldap.LdapUserDetailsService;
 import org.springframework.security.userdetails.ldap.UserDetailsContextMapper;
 
 public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean {
@@ -46,12 +49,13 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 	private String defaultRole = "ROLE_USER";
 	private String rolePrefix = "ROLE_";
 
+	private final BaseLdapPathContextSource contextSource;
 	private final LdapTemplate ldapTemplate;
 
 	private LdapUsernameToDnMapper usernameMapper = null;
 
 	private UserDetailsContextMapper userDetailsMapper;
-//	private LdapUserDetailsService ldapUserDetailsService;
+	private LdapUserDetailsService ldapUserDetailsService;
 	private List<UserNatureMapper> userNatureMappers;
 
 	public void afterPropertiesSet() throws Exception {
@@ -83,15 +87,19 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 			userDetailsManager = ludm;
 		}
 
-//		if (ldapUserDetailsService == null) {
-//			ldapUserDetailsService = new LdapUserDetailsService(null,
-//					authoritiesPopulator);
-//			ldapUserDetailsService.setUserDetailsMapper(userDetailsMapper);
-//		}
+		if (ldapUserDetailsService == null) {
+			FilterBasedLdapUserSearch ldapUserSearch = new FilterBasedLdapUserSearch(
+					userBase, "(" + usernameAttributeName + "={0})",
+					contextSource);
+			ldapUserDetailsService = new LdapUserDetailsService(ldapUserSearch,
+					authoritiesPopulator);
+			ldapUserDetailsService.setUserDetailsMapper(userDetailsMapper);
+		}
 	}
 
-	public ArgeoSecurityDaoLdap(ContextSource contextSource) {
-		ldapTemplate = new LdapTemplate(contextSource);
+	public ArgeoSecurityDaoLdap(BaseLdapPathContextSource contextSource) {
+		this.contextSource = contextSource;
+		ldapTemplate = new LdapTemplate(this.contextSource);
 	}
 
 	public void create(ArgeoUser user) {
@@ -279,8 +287,8 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 		this.groupClasses = groupClasses;
 	}
 
-	public UserDetailsManager getUserDetailsManager() {
-		return userDetailsManager;
+	public UserDetailsService getUserDetailsService() {
+		return ldapUserDetailsService;
 	}
 
 }

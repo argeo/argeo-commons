@@ -12,7 +12,7 @@
 
 	<service ref="securityDao" interface="org.argeo.security.ArgeoSecurityDao"
 		context-class-loader="service-provider" />
-	<service ref="userDetailsManager"
+	<service ref="userDetailsService"
 		interface="org.springframework.security.userdetails.UserDetailsService"
 		context-class-loader="service-provider" />
 

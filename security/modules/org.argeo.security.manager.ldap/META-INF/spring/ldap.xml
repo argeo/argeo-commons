@@ -53,8 +53,8 @@
 		<property name="userNatureMappers" ref="userNatureMappers" />
 	</bean>
 
-	<bean id="userDetailsManager" factory-bean="securityDao"
-		factory-method="getUserDetailsManager">
+	<bean id="userDetailsService" factory-bean="securityDao"
+		factory-method="getUserDetailsService">
 	</bean>
 
 	<bean id="ldapAuthenticator"
