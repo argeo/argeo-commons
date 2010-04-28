@@ -1,18 +1,31 @@
 package org.argeo.server.jcr.mvc;
 
-import java.io.OutputStream;
-import java.util.Set;
-
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.RepositoryException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.argeo.ArgeoException;
 import org.argeo.server.ServerSerializer;
-import org.xml.sax.helpers.DefaultHandler;
+import org.springframework.xml.dom.DomContentHandler;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 public class JcrXmlServerSerializer implements ServerSerializer {
 	private String contentTypeCharset = "UTF-8";
+
+	private final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory
+			.newInstance();
+	private final TransformerFactory transformerFactory = TransformerFactory
+			.newInstance();
 
 	public void serialize(Object obj, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -22,15 +35,60 @@ public class JcrXmlServerSerializer implements ServerSerializer {
 		String noRecurseStr = request.getParameter("noRecurse");
 		boolean noRecurse = noRecurseStr != null && noRecurseStr.equals("true");
 
+		String depthStr = request.getParameter("depth");
 		Node node = (Node) obj;
-		response.setContentType("text/xml;charset=" + contentTypeCharset);
 		try {
-			node.getSession().exportDocumentView(node.getPath(),
-					response.getOutputStream(), true, noRecurse);
+			if (depthStr == null) {
+				response.setContentType("text/xml;charset="
+						+ contentTypeCharset);
+				node.getSession().exportDocumentView(node.getPath(),
+						response.getOutputStream(), true, noRecurse);
+			} else {
+				int depth = Integer.parseInt(depthStr);
+				Document document = documentBuilderFactory.newDocumentBuilder()
+						.newDocument();
+				serializeLevelToDom(node, document, 0, depth);
+				Transformer transformer = transformerFactory.newTransformer();
+				transformer.transform(new DOMSource(document),
+						new StreamResult(response.getOutputStream()));
+			}
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot serialize " + node, e);
 		}
+	}
 
+	protected void serializeLevelToDom(Node currentJcrNode,
+			org.w3c.dom.Node currentDomNode, int currentDepth, int targetDepth)
+			throws RepositoryException, SAXException {
+		DomContentHandler domContentHandler = new DomContentHandler(
+				currentDomNode);
+		currentJcrNode.getSession().exportDocumentView(
+				currentJcrNode.getPath(), domContentHandler, true, true);
+
+		if (currentDepth == targetDepth)
+			return;
+
+		// TODO: filter
+		NodeIterator nit = currentJcrNode.getNodes();
+		while (nit.hasNext()) {
+			Node nextJcrNode = nit.nextNode();
+			org.w3c.dom.Node nextDomNode;
+			if (currentDomNode instanceof Document)
+				nextDomNode = ((Document) currentDomNode).getDocumentElement();
+			else {
+				String name = currentJcrNode.getName();
+				NodeList nodeList = ((Element) currentDomNode)
+						.getElementsByTagName(name);
+				if (nodeList.getLength() < 1)
+					throw new ArgeoException("No elment named " + name
+							+ " under " + currentDomNode);
+				// we know it is the last one added
+				nextDomNode = nodeList.item(nodeList.getLength() - 1);
+			}
+			// recursive call
+			serializeLevelToDom(nextJcrNode, nextDomNode, currentDepth + 1,
+					targetDepth);
+		}
 	}
 
 	public void setContentTypeCharset(String contentTypeCharset) {
