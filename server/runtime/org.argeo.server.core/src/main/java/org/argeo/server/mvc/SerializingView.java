@@ -10,13 +10,23 @@ import org.argeo.ArgeoException;
 import org.argeo.server.ServerAnswer;
 import org.argeo.server.ServerSerializer;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.AbstractView;
 
+/**
+ * Can be used as a standalone {@link View} or using
+ * {@link SerializingViewResolver}
+ */
 public class SerializingView extends AbstractView implements MvcConstants {
 	private final String viewName;
 	private final Locale locale;
 
-	private final ServerSerializer serializer;
+	private ServerSerializer serializer;
+
+	public SerializingView() {
+		this.viewName = null;
+		this.locale = Locale.getDefault();
+	}
 
 	public SerializingView(String viewName, Locale locale,
 			ServerSerializer serializer) {
@@ -25,7 +35,7 @@ public class SerializingView extends AbstractView implements MvcConstants {
 		this.serializer = serializer;
 	}
 
-	@SuppressWarnings({ "unchecked", "restriction" })
+	@SuppressWarnings( { "unchecked", "restriction" })
 	@Override
 	protected void renderMergedOutputModel(Map model,
 			HttpServletRequest request, HttpServletResponse response)
@@ -68,7 +78,7 @@ public class SerializingView extends AbstractView implements MvcConstants {
 			return model.get(ANSWER_MODEL_KEY);
 		} else if (model.containsKey(ANSWER_MODEL_KEY_AS_HTML)) {
 			return model.get(ANSWER_MODEL_KEY_AS_HTML);
-		} else if (model.containsKey(viewName)) {
+		} else if (viewName != null && model.containsKey(viewName)) {
 			return model.get(viewName);
 		} else {
 			if (model.size() == 0)
@@ -85,6 +95,10 @@ public class SerializingView extends AbstractView implements MvcConstants {
 
 	public Locale getLocale() {
 		return locale;
+	}
+
+	public void setSerializer(ServerSerializer serializer) {
+		this.serializer = serializer;
 	}
 
 }
