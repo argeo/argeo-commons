@@ -36,11 +36,26 @@ public class JcrXmlServerSerializer implements ServerSerializer {
 		boolean noRecurse = noRecurseStr != null && noRecurseStr.equals("true");
 
 		String depthStr = request.getParameter("depth");
+		String downloadStr = request.getParameter("download");
+
 		Node node = (Node) obj;
+
 		try {
+			String contentType = "text/xml;charset=" + contentTypeCharset;
+			// download case
+			if (downloadStr != null && downloadStr.equals("true")) {
+				String fileName = node.getName().replace(':', '_') + ".xml";
+				contentType = contentType + ";name=\"" + fileName + "\"";
+				response.setHeader("Content-Disposition",
+						"attachment; filename=\"" + fileName + "\"");
+				response.setHeader("Expires", "0");
+				response
+						.setHeader("Cache-Control", "no-cache, must-revalidate");
+				response.setHeader("Pragma", "no-cache");
+			}
+
+			response.setContentType(contentType);
 			if (depthStr == null) {
-				response.setContentType("text/xml;charset="
-						+ contentTypeCharset);
 				node.getSession().exportDocumentView(node.getPath(),
 						response.getOutputStream(), true, noRecurse);
 			} else {
