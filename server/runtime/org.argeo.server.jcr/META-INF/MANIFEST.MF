@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Created-By: 1.5.0_16 (Sun Microsystems Inc.)
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Version: 0.1.3.SNAPSHOT-r3539
+Bundle-Name: Commons Server JCR
+Bundle-DocURL: http://www.argeo.org
+Bundle-ManifestVersion: 2
+Bundle-Vendor: Argeo
+Fragment-Host: org.argeo.dep.osgi.jackrabbit
+Bundle-SymbolicName: org.argeo.server.jcr
+Tool: Bnd-0.0.357
+
