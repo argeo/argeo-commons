@@ -8,5 +8,5 @@
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
-	<reference id="repository" interface="javax.jcr.Repository" />
+	<reference id="jcrRepository" interface="javax.jcr.Repository" />
 </beans:beans>

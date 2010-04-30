@@ -15,14 +15,14 @@ public class ExtendedDispatcherServlet extends DispatcherServlet {
 	private final static Log log = LogFactory
 			.getLog(ExtendedDispatcherServlet.class);
 
-	protected void service(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, java.io.IOException {
+	protected void service(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException,
+			java.io.IOException {
 		// see http://forum.springsource.org/showthread.php?t=53472
 		try {
 			if (log.isTraceEnabled())
-				log.debug("Received request with method '" + req.getMethod()
-						+ "'");
-			doService(req, resp);
+				log.trace("Received request " + request);
+			doService(request, response);
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot process request", e);
 		}

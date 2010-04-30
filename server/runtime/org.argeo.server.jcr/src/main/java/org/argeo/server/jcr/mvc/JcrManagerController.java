@@ -3,6 +3,7 @@ package org.argeo.server.jcr.mvc;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import javax.jcr.Session;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -19,13 +20,13 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.WebRequest;
 
 @Controller
-public class JcrManagerController implements MvcConstants {
+public class JcrManagerController implements MvcConstants, JcrMvcConstants {
 	private final static Log log = LogFactory
 			.getLog(JcrManagerController.class);
-
-	private JcrResourceAdapter resourceAdapter;
 
 	// Create a factory for disk-based file items
 	private FileItemFactory factory = new DiskFileItemFactory();
@@ -36,8 +37,13 @@ public class JcrManagerController implements MvcConstants {
 	@SuppressWarnings("unchecked")
 	@RequestMapping("/upload/**")
 	@ModelAttribute(ANSWER_MODEL_KEY_AS_HTML)
-	public ServerAnswer upload(HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
+	public ServerAnswer upload(WebRequest webRequest,
+			HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+
+		Session session = ((Session) webRequest.getAttribute(
+				REQUEST_ATTR_SESSION, RequestAttributes.SCOPE_REQUEST));
+		JcrResourceAdapter resourceAdapter = new JcrResourceAdapter(session);
 		// Parse the request
 		List<FileItem> items = upload.parseRequest(request);
 
@@ -70,10 +76,6 @@ public class JcrManagerController implements MvcConstants {
 			log.debug("Upload to " + path);
 		resourceAdapter.update(path.toString(), res);
 		return ServerAnswer.ok("File " + path + " imported");
-	}
-
-	public void setResourceAdapter(JcrResourceAdapter resourceAdapter) {
-		this.resourceAdapter = resourceAdapter;
 	}
 
 }

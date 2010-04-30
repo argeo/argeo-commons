@@ -31,6 +31,13 @@ public class JcrResourceAdapter {
 
 	// private String restoreBase = "/.restore";
 
+	public JcrResourceAdapter() {
+	}
+
+	public JcrResourceAdapter(Session session) {
+		this.session = session;
+	}
+
 	public void mkdirs(String path) {
 		JcrUtils.mkdirs(session(), path, "nt:folder", versioning);
 	}
@@ -216,6 +223,5 @@ public class JcrResourceAdapter {
 	public void setSession(Session session) {
 		this.session = session;
 	}
-	
-	
+
 }
