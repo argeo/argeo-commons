@@ -6,8 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
-import javax.jcr.SimpleCredentials;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -77,13 +75,12 @@ public class JcrResourceAdapterTest extends AbstractJcrTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		jra = new JcrResourceAdapter();
-		jra.setSession(getRepository().login(
-				new SimpleCredentials("demo", "demo".toCharArray())));
+		jra.setSession(session());
 	}
 
 	protected File getRepositoryFile() throws Exception {
 		Resource res = new ClassPathResource(
-				"org/argeo/server/jcr/repository-inMemory.xml");
+				"org/argeo/server/jcr/repository.xml");
 		return res.getFile();
 	}
 

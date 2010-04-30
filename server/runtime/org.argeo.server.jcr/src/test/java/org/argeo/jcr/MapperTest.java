@@ -33,7 +33,7 @@ public class MapperTest extends AbstractJcrTestCase {
 
 	protected File getRepositoryFile() throws Exception {
 		Resource res = new ClassPathResource(
-				"org/argeo/server/jcr/repository-inMemory.xml");
+				"org/argeo/server/jcr/repository.xml");
 		return res.getFile();
 	}
 
