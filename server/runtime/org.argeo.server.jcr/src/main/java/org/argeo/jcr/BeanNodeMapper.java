@@ -22,12 +22,14 @@ import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.ValueFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
 public class BeanNodeMapper implements NodeMapper {
-	// private final static Log log = LogFactory.getLog(BeanNodeMapper.class);
+	private final static Log log = LogFactory.getLog(BeanNodeMapper.class);
 
 	private final static String NODE_VALUE = "value";
 
@@ -153,6 +155,8 @@ public class BeanNodeMapper implements NodeMapper {
 	 * Transforms a node into an object of the class defined by classProperty Property
 	 */
 	protected Object nodeToBean(Node node) throws RepositoryException {
+		if (log.isTraceEnabled())
+			log.trace("Load     " + node);
 
 		try {
 			String clssName = node.getProperty(classProperty).getValue()
@@ -171,7 +175,10 @@ public class BeanNodeMapper implements NodeMapper {
 						.getName());
 				Class propClass = pd.getPropertyType();
 
-				// Process case of List and its derived classes
+				if (log.isTraceEnabled())
+					log.trace("Load " + prop + ", propClass=" + propClass
+							+ ", property descriptor=" + pd);
+
 				// primitive list
 				if (propClass != null && List.class.isAssignableFrom(propClass)) {
 					List<Object> lst = new ArrayList<Object>();
@@ -212,13 +219,30 @@ public class BeanNodeMapper implements NodeMapper {
 						lst = new ArrayList<Object>();
 					}
 
-					NodeIterator valuesIt = childNode.getNodes();
-					while (valuesIt.hasNext()) {
-						Node lstValueNode = valuesIt.nextNode();
-						Object lstValue = nodeToBean(lstValueNode);
-						lst.add(lstValue);
+					if (childNode.hasNodes()) {
+						// Look for children nodes
+						NodeIterator valuesIt = childNode.getNodes();
+						while (valuesIt.hasNext()) {
+							Node lstValueNode = valuesIt.nextNode();
+							Object lstValue = nodeToBean(lstValueNode);
+							lst.add(lstValue);
+						}
+					} else {
+						// look for a property with the same name which will
+						// provide
+						// primitives
+						Property childProp = childNode.getProperty(childNode
+								.getName());
+						Class<?> valuesClass = classFromProperty(childProp);
+						if (valuesClass != null)
+							if (childProp.getDefinition().isMultiple())
+								for (Value value : childProp.getValues()) {
+									lst.add(asObject(value, valuesClass));
+								}
+							else
+								lst.add(asObject(childProp.getValue(),
+										valuesClass));
 					}
-
 					beanWrapper.setPropertyValue(name, lst);
 					continue nodes;
 				}
