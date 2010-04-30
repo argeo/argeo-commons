@@ -11,12 +11,12 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.argeo.ArgeoException;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 
 public abstract class AbstractJcrTestCase extends TestCase {
 	private TransientRepository repository;
 	private Session session = null;
+
+	protected abstract File getRepositoryFile() throws Exception;
 
 	@Override
 	protected void setUp() throws Exception {
@@ -42,12 +42,6 @@ public abstract class AbstractJcrTestCase extends TestCase {
 			}
 		}
 		return session;
-	}
-
-	protected File getRepositoryFile() throws Exception {
-		Resource res = new ClassPathResource(
-				"org/argeo/server/jackrabbit/repository-inMemory.xml");
-		return res.getFile();
 	}
 
 	protected Repository getRepository() {

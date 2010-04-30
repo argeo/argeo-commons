@@ -1,5 +1,6 @@
 package org.argeo.server.jcr;
 
+import java.io.File;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -83,6 +84,12 @@ public class JcrResourceAdapterTest extends AbstractJcrTestCase {
 	protected void tearDown() throws Exception {
 		jra.destroy();
 		super.tearDown();
+	}
+
+	protected File getRepositoryFile() throws Exception {
+		Resource res = new ClassPathResource(
+				"org/argeo/server/jcr/repository-inMemory.xml");
+		return res.getFile();
 	}
 
 }
