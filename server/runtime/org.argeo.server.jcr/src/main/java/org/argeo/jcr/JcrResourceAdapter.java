@@ -1,4 +1,4 @@
-package org.argeo.server.jcr;
+package org.argeo.jcr;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,10 +9,8 @@ import java.util.List;
 import javax.activation.MimetypesFileTypeMap;
 import javax.jcr.Node;
 import javax.jcr.Property;
-import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
@@ -21,18 +19,10 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
-import org.argeo.jcr.JcrUtils;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
 
-public class JcrResourceAdapter implements InitializingBean, DisposableBean {
+public class JcrResourceAdapter {
 	private final static Log log = LogFactory.getLog(JcrResourceAdapter.class);
-
-	private Repository repository;
-
-	private String username;
-	private String password;
 
 	private Session session;
 
@@ -206,27 +196,6 @@ public class JcrResourceAdapter implements InitializingBean, DisposableBean {
 		return session;
 	}
 
-	public void afterPropertiesSet() throws Exception {
-		session = repository.login(new SimpleCredentials(username, password
-				.toCharArray()));
-	}
-
-	public void destroy() throws Exception {
-		session.logout();
-	}
-
-	public void setRepository(Repository repository) {
-		this.repository = repository;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
 	public void setVersioning(Boolean versioning) {
 		this.versioning = versioning;
 	}
@@ -243,4 +212,10 @@ public class JcrResourceAdapter implements InitializingBean, DisposableBean {
 		}
 		return str;
 	}
+
+	public void setSession(Session session) {
+		this.session = session;
+	}
+	
+	
 }

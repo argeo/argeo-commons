@@ -6,9 +6,12 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.jcr.SimpleCredentials;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.jcr.JcrResourceAdapter;
 import org.argeo.server.jackrabbit.unit.AbstractJcrTestCase;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -74,16 +77,8 @@ public class JcrResourceAdapterTest extends AbstractJcrTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		jra = new JcrResourceAdapter();
-		jra.setRepository(getRepository());
-		jra.setUsername("demo");
-		jra.setPassword("demo");
-		jra.afterPropertiesSet();
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		jra.destroy();
-		super.tearDown();
+		jra.setSession(getRepository().login(
+				new SimpleCredentials("demo", "demo".toCharArray())));
 	}
 
 	protected File getRepositoryFile() throws Exception {

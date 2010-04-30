@@ -1,9 +1,7 @@
-package org.argeo.server.jcr;
+package org.argeo.jcr;
 
-import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
 import javax.jcr.observation.Event;
 import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.EventListener;
@@ -17,11 +15,8 @@ import org.argeo.ArgeoException;
 public class DefaultJcrListener implements EventListener {
 	private final static Log log = LogFactory.getLog(DefaultJcrListener.class);
 	private Session session;
-	private Repository repository;
 	private String path = "/";
 	private Boolean deep = true;
-	private String username = "demo";
-	private String password = "demo";
 
 	public void start() {
 		try {
@@ -65,27 +60,8 @@ public class DefaultJcrListener implements EventListener {
 				null, null, false);
 	}
 
-	protected Session session() {
-		if (session == null)
-			try {
-				session = repository.login(new SimpleCredentials(username,
-						password.toCharArray()));
-			} catch (Exception e) {
-				throw new ArgeoException("Cannot open session", e);
-			}
+	private Session session() {
 		return session;
-	}
-
-	public void setRepository(Repository repository) {
-		this.repository = repository;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
 	}
 
 	public void setPath(String path) {
@@ -94,6 +70,10 @@ public class DefaultJcrListener implements EventListener {
 
 	public void setDeep(Boolean deep) {
 		this.deep = deep;
+	}
+
+	public void setSession(Session session) {
+		this.session = session;
 	}
 
 }

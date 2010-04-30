@@ -13,10 +13,12 @@
 		<property name="resourceAdapter" ref="resourceAdapter" />
 	</bean>
 
-	<bean id="resourceAdapter" class="org.argeo.server.jcr.JcrResourceAdapter">
-		<property name="repository" ref="repository" />
-		<property name="username" value="demo" />
-		<property name="password" value="demo" />
+	<bean id="resourceAdapter" class="org.argeo.jcr.JcrResourceAdapter">
+		<property name="session" ref="jcrSession" />
+	</bean>
+
+	<bean id="jcrSession" class="org.argeo.jcr.ThreadBoundJcrSessionFactory">
+		<property name="repository" ref="jcrRepository" />
 	</bean>
 
 	<bean id="viewResolver" class="org.argeo.server.mvc.SerializingViewResolver">
