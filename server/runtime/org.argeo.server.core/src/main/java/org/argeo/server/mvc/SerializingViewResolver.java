@@ -19,8 +19,8 @@ public class SerializingViewResolver extends AbstractCachingViewResolver {
 
 	@Override
 	protected View loadView(String viewName, Locale locale) throws Exception {
-		if (log.isDebugEnabled())
-			log.debug("viewName=" + viewName);
+		if (log.isTraceEnabled())
+			log.trace("viewName=" + viewName);
 		return new SerializingView(viewName, locale, serializer);
 	}
 
