@@ -106,6 +106,12 @@
 			<artifactId>com.springsource.org.antlr</artifactId>
 		</dependency>
 
+		<!-- JMS -->
+		<dependency>
+			<groupId>org.argeo.dep.osgi</groupId>
+			<artifactId>org.argeo.dep.osgi.activemq</artifactId>
+		</dependency>
+
 		<!-- TEST -->
 		<dependency>
 			<groupId>org.junit</groupId>

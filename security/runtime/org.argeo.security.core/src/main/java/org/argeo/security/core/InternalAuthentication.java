@@ -6,16 +6,21 @@ import org.springframework.security.adapters.PrincipalSpringSecurityUserToken;
 
 public class InternalAuthentication extends PrincipalSpringSecurityUserToken {
 	private static final long serialVersionUID = -6783376375615949315L;
-	private final static String SYSTEM_USERNAME = "system";
-	private final static String SYSTEM_ROLE = "ROLE_SYSTEM";
+	public final static String DEFAULT_SYSTEM_USERNAME = "system";
+	public final static String DEFAULT_SYSTEM_ROLE = "ROLE_SYSTEM";
 
-	public InternalAuthentication(String key) {
+	public InternalAuthentication(String key, String systemUsername,
+			String systemRole) {
 		super(
 				key,
-				SYSTEM_USERNAME,
+				systemUsername,
 				key,
-				new GrantedAuthority[] { new GrantedAuthorityImpl(SYSTEM_ROLE) },
-				SYSTEM_USERNAME);
+				new GrantedAuthority[] { new GrantedAuthorityImpl(systemRole) },
+				systemUsername);
+	}
+
+	public InternalAuthentication(String key) {
+		this(key, DEFAULT_SYSTEM_USERNAME, DEFAULT_SYSTEM_ROLE);
 	}
 
 }
