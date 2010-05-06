@@ -35,7 +35,7 @@
 						<Import-Package>*,
 							org.springframework.context,
 							org.argeo.server.json;resolution:=optional,
-							org.springframework.ldap.core.support;resolution:=optional
+							org.springframework.ldap.core.support;resolution:=optional,
 						</Import-Package>
 					</instructions>
 				</configuration>
