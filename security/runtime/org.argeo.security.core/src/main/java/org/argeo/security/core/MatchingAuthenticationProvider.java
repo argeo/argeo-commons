@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.BadCredentialsException;
@@ -31,7 +30,7 @@ public class MatchingAuthenticationProvider extends
 		try {
 			properties.load(propIn);
 		} finally {
-			IOUtils.closeQuietly(propIn);
+			propIn.close();
 		}
 	}
 

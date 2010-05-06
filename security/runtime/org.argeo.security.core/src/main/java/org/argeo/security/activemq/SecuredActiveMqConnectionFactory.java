@@ -200,4 +200,8 @@ public class SecuredActiveMqConnectionFactory implements ConnectionFactory,
 		this.brokerURL = brokerUrl;
 	}
 
+	public void setAuthenticationMode(String authenticationMode) {
+		this.authenticationMode = authenticationMode;
+	}
+
 }

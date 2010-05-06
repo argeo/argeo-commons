@@ -33,6 +33,7 @@
 							org.argeo.security.*
 						</Export-Package>
 						<Import-Package>*,
+							org.springframework.context,
 							org.argeo.server.json;resolution:=optional,
 							org.springframework.ldap.core.support;resolution:=optional
 						</Import-Package>
@@ -48,12 +49,16 @@
 			<version>0.1.3-SNAPSHOT</version>
 		</dependency>
 
-		<!-- Spring LDAP -->
-		<!--
-			<dependency> <groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.springframework.ldap</artifactId>
-			</dependency>
-		-->
+		<dependency>
+			<!--
+				Force inclusion of commons.lang to prevent v2.1.0 to be taken by
+				Spring Security
+			-->
+			<groupId>org.apache.commons</groupId>
+			<artifactId>com.springsource.org.apache.commons.lang</artifactId>
+		</dependency>
+
+		<!-- Spring -->
 		<dependency>
 			<groupId>org.springframework.ldap</groupId>
 			<artifactId>org.springframework.ldap</artifactId>
@@ -62,15 +67,9 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>org.springframework.transaction</artifactId>
 		</dependency>
-
-		<!-- Security -->
 		<dependency>
-			<!--
-				Force inclusion of commons.lang to prevent v2.1.0 to be taken by
-				Spring Security
-			-->
-			<groupId>org.apache.commons</groupId>
-			<artifactId>com.springsource.org.apache.commons.lang</artifactId>
+			<groupId>org.springframework</groupId>
+			<artifactId>org.springframework.jms</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -110,6 +109,10 @@
 		<dependency>
 			<groupId>org.argeo.dep.osgi</groupId>
 			<artifactId>org.argeo.dep.osgi.activemq</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.jms</groupId>
+			<artifactId>com.springsource.javax.jms</artifactId>
 		</dependency>
 
 		<!-- TEST -->
