@@ -118,6 +118,7 @@ public class OsgiBoot {
 	}
 
 	public void bootstrap() {
+		long begin = System.currentTimeMillis();
 		System.out.println();
 		info("OSGi bootstrap starting...");
 		info("Writable data directory : "
@@ -128,7 +129,10 @@ public class OsgiBoot {
 		installUrls(getModulesUrls());
 		checkUnresolved();
 		startBundles();
-		info("OSGi bootstrap completed");
+		long duration = System.currentTimeMillis() - begin;
+		info("OSGi bootstra completed in "
+				+ Math.round(((double) duration) / 1000) + "s (" + duration
+				+ "ms), " + bundleContext.getBundles().length + " bundles");
 		System.out.println();
 	}
 
