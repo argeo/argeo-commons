@@ -106,6 +106,10 @@ public class OsgiBoot {
 		}
 
 		System.setProperty(PROP_ARGEO_OSGI_DATA_DIR, dataDir.getAbsolutePath());
+
+		// TODO: Load additional system properties from file
+		// Properties additionalSystemProperties = new Properties();
+		
 	}
 
 	public static String removeFilePrefix(String url) {
@@ -130,7 +134,7 @@ public class OsgiBoot {
 		checkUnresolved();
 		startBundles();
 		long duration = System.currentTimeMillis() - begin;
-		info("OSGi bootstra completed in "
+		info("OSGi bootstrap completed in "
 				+ Math.round(((double) duration) / 1000) + "s (" + duration
 				+ "ms), " + bundleContext.getBundles().length + " bundles");
 		System.out.println();
