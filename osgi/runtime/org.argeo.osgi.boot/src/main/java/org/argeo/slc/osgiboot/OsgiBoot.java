@@ -39,7 +39,9 @@ public class OsgiBoot {
 	public final static String PROP_ARGEO_OSGI_BOOT_DEFAULT_TIMEOUT = "argeo.osgi.boot.defaultTimeout";
 	public final static String PROP_ARGEO_OSGI_BOOT_MODULES_URL_SEPARATOR = "argeo.osgi.boot.modulesUrlSeparator";
 	public final static String PROP_ARGEO_OSGI_BOOT_SYSTEM_PROPERTIES_FILE = "argeo.osgi.boot.systemPropertiesFile";
-
+	public final static String PROP_ARGEO_OSGI_BOOT_APPCLASS = "argeo.osgi.boot.appclass";
+	public final static String PROP_ARGEO_OSGI_BOOT_APPARGS = "argeo.osgi.boot.appargs";
+	
 	/** @deprecated */
 	public final static String PROP_SLC_OSGI_START = "slc.osgi.start";
 	/** @deprecated */
@@ -59,7 +61,13 @@ public class OsgiBoot {
 	public final static String PROP_SLC_OSGIBOOT_MODULES_URL_SEPARATOR = "slc.osgiboot.modulesUrlSeparator";
 	/** @deprecated */
 	public final static String PROP_SLC_OSGIBOOT_SYSTEM_PROPERTIES_FILE = "slc.osgiboot.systemPropertiesFile";
+	/** @deprecated */
+	public final static String PROP_SLC_OSGIBOOT_APPCLASS = "slc.osgiboot.appclass";
+	/** @deprecated */
+	public final static String PROP_SLC_OSGIBOOT_APPARGS = "slc.osgiboot.appargs";
 
+	
+	
 	public final static String DEFAULT_BASE_URL = "reference:file:";
 	public final static String EXCLUDES_SVN_PATTERN = "**/.svn/**";
 
@@ -77,10 +85,10 @@ public class OsgiBoot {
 
 	public OsgiBoot(BundleContext bundleContext) {
 		this.bundleContext = bundleContext;
-		defaultTimeout = Long.parseLong(getPropertyCompat(
+		defaultTimeout = Long.parseLong(OsgiBootUtils.getPropertyCompat(
 				PROP_ARGEO_OSGI_BOOT_DEFAULT_TIMEOUT,
 				PROP_SLC_OSGIBOOT_DEFAULT_TIMEOUT, "10000"));
-		modulesUrlSeparator = getPropertyCompat(
+		modulesUrlSeparator = OsgiBootUtils.getPropertyCompat(
 				PROP_ARGEO_OSGI_BOOT_MODULES_URL_SEPARATOR,
 				PROP_SLC_OSGIBOOT_MODULES_URL_SEPARATOR, ",");
 		initSystemProperties();
@@ -124,8 +132,8 @@ public class OsgiBoot {
 	public void bootstrap() {
 		long begin = System.currentTimeMillis();
 		System.out.println();
-		info("OSGi bootstrap starting...");
-		info("Writable data directory : "
+		OsgiBootUtils.info("OSGi bootstrap starting...");
+		OsgiBootUtils.info("Writable data directory : "
 				+ System.getProperty(PROP_ARGEO_OSGI_DATA_DIR)
 				+ " (set as system property " + PROP_ARGEO_OSGI_DATA_DIR + ")");
 		installUrls(getBundlesUrls());
@@ -134,7 +142,7 @@ public class OsgiBoot {
 		checkUnresolved();
 		startBundles();
 		long duration = System.currentTimeMillis() - begin;
-		info("OSGi bootstrap completed in "
+		OsgiBootUtils.info("OSGi bootstrap completed in "
 				+ Math.round(((double) duration) / 1000) + "s (" + duration
 				+ "ms), " + bundleContext.getBundles().length + " bundles");
 		System.out.println();
@@ -166,7 +174,7 @@ public class OsgiBoot {
 					// silent, in order to avoid warnings: we know that both
 					// have already been installed...
 				} else {
-					warn("Could not install bundle from " + url + ": "
+					OsgiBootUtils.warn("Could not install bundle from " + url + ": "
 							+ message);
 				}
 				if (debug)
@@ -189,7 +197,7 @@ public class OsgiBoot {
 					URL url = new URL(urlStr);
 					in = url.openStream();
 					bundle.update(in);
-					info("Updated bundle " + moduleName + " from " + urlStr);
+					OsgiBootUtils.info("Updated bundle " + moduleName + " from " + urlStr);
 				} catch (Exception e) {
 					throw new RuntimeException("Cannot update " + moduleName
 							+ " from " + urlStr);
@@ -207,7 +215,7 @@ public class OsgiBoot {
 						debug("Installed bundle " + bundle.getSymbolicName()
 								+ " from " + urlStr);
 				} catch (BundleException e) {
-					warn("Could not install bundle from " + urlStr + ": "
+					OsgiBootUtils.warn("Could not install bundle from " + urlStr + ": "
 							+ e.getMessage());
 				}
 			}
@@ -216,7 +224,7 @@ public class OsgiBoot {
 	}
 
 	public void startBundles() {
-		String bundlesToStart = getPropertyCompat(PROP_ARGEO_OSGI_START,
+		String bundlesToStart = OsgiBootUtils.getPropertyCompat(PROP_ARGEO_OSGI_START,
 				PROP_SLC_OSGI_START);
 		startBundles(bundlesToStart);
 	}
@@ -251,7 +259,7 @@ public class OsgiBoot {
 					try {
 						bundle.start();
 					} catch (Exception e) {
-						warn("Start of bundle " + symbolicName
+						OsgiBootUtils.warn("Start of bundle " + symbolicName
 								+ " failed because of " + e
 								+ ", maybe bundle is not yet resolved,"
 								+ " waiting and trying again.");
@@ -260,7 +268,7 @@ public class OsgiBoot {
 					}
 					notFoundBundles.remove(symbolicName);
 				} catch (Exception e) {
-					warn("Bundle " + symbolicName + " cannot be started: "
+					OsgiBootUtils.warn("Bundle " + symbolicName + " cannot be started: "
 							+ e.getMessage());
 					if (debug)
 						e.printStackTrace();
@@ -270,7 +278,7 @@ public class OsgiBoot {
 		}
 
 		for (int i = 0; i < notFoundBundles.size(); i++)
-			warn("Bundle " + notFoundBundles.get(i)
+			OsgiBootUtils.warn("Bundle " + notFoundBundles.get(i)
 					+ " not started because it was not found.");
 	}
 
@@ -292,7 +300,7 @@ public class OsgiBoot {
 		}
 
 		if (unresolvedBundles.size() != 0) {
-			warn("Unresolved bundles " + unresolvedBundles);
+			OsgiBootUtils.warn("Unresolved bundles " + unresolvedBundles);
 		}
 	}
 
@@ -365,21 +373,21 @@ public class OsgiBoot {
 	}
 
 	public List getLocationsUrls() {
-		String baseUrl = getPropertyCompat(PROP_ARGEO_OSGI_BASE_URL,
+		String baseUrl = OsgiBootUtils.getPropertyCompat(PROP_ARGEO_OSGI_BASE_URL,
 				PROP_SLC_OSGI_BASE_URL, DEFAULT_BASE_URL);
-		String bundleLocations = getPropertyCompat(PROP_ARGEO_OSGI_LOCATIONS,
+		String bundleLocations = OsgiBootUtils.getPropertyCompat(PROP_ARGEO_OSGI_LOCATIONS,
 				PROP_SLC_OSGI_LOCATIONS);
 		return getLocationsUrls(baseUrl, bundleLocations);
 	}
 
 	public List getModulesUrls() {
 		List urls = new ArrayList();
-		String modulesUrlStr = getPropertyCompat(PROP_ARGEO_OSGI_MODULES_URL,
+		String modulesUrlStr = OsgiBootUtils.getPropertyCompat(PROP_ARGEO_OSGI_MODULES_URL,
 				PROP_SLC_OSGI_MODULES_URL);
 		if (modulesUrlStr == null)
 			return urls;
 
-		String baseUrl = getPropertyCompat(PROP_ARGEO_OSGI_BASE_URL,
+		String baseUrl = OsgiBootUtils.getPropertyCompat(PROP_ARGEO_OSGI_BASE_URL,
 				PROP_SLC_OSGI_BASE_URL);
 
 		Map installedBundles = getBundles();
@@ -405,13 +413,13 @@ public class OsgiBoot {
 							Constants.BUNDLE_VERSION).toString();
 					int comp = compareVersions(bundleVersion, moduleVersion);
 					if (comp > 0) {
-						warn("Installed version " + bundleVersion
+						OsgiBootUtils.warn("Installed version " + bundleVersion
 								+ " of bundle " + moduleName
 								+ " is newer than  provided version "
 								+ moduleVersion);
 					} else if (comp < 0) {
 						urls.add(url);
-						info("Updated bundle " + moduleName + " with version "
+						OsgiBootUtils.info("Updated bundle " + moduleName + " with version "
 								+ moduleVersion + " (old version was "
 								+ bundleVersion + ")");
 					} else {
@@ -505,9 +513,9 @@ public class OsgiBoot {
 	}
 
 	public List getBundlesUrls() {
-		String baseUrl = getPropertyCompat(PROP_ARGEO_OSGI_BASE_URL,
+		String baseUrl = OsgiBootUtils.getPropertyCompat(PROP_ARGEO_OSGI_BASE_URL,
 				PROP_SLC_OSGI_BASE_URL, DEFAULT_BASE_URL);
-		String bundlePatterns = getPropertyCompat(PROP_ARGEO_OSGI_BUNDLES,
+		String bundlePatterns = OsgiBootUtils.getPropertyCompat(PROP_ARGEO_OSGI_BUNDLES,
 				PROP_SLC_OSGI_BUNDLES);
 		return getBundlesUrls(baseUrl, bundlePatterns);
 	}
@@ -565,7 +573,7 @@ public class OsgiBoot {
 			File[] files = baseDir.listFiles();
 
 			if (files == null) {
-				warn("Base dir " + baseDir + " has no children, exists="
+				OsgiBootUtils.warn("Base dir " + baseDir + " has no children, exists="
 						+ baseDir.exists() + ", isDirectory="
 						+ baseDir.isDirectory());
 				return;
@@ -638,71 +646,9 @@ public class OsgiBoot {
 		return (basePath + '/' + relativePath).replace('/', File.separatorChar);
 	}
 
-	protected static void info(Object obj) {
-		System.out.println("# OSGiBOOT      # " + obj);
-	}
-
 	protected void debug(Object obj) {
 		if (debug)
-			System.out.println("# OSGiBOOT DBG  # " + obj);
-	}
-
-	protected void warn(Object obj) {
-		System.out.println("# OSGiBOOT WARN # " + obj);
-		// Because of a weird bug under Windows when starting it in a forked VM
-		// if (System.getProperty("os.name").contains("Windows"))
-		// System.out.println("# WARN " + obj);
-		// else
-		// System.err.println("# WARN " + obj);
-	}
-
-	protected String getProperty(String name, String defaultValue) {
-		final String value;
-		if (defaultValue != null)
-			value = System.getProperty(name, defaultValue);
-		else
-			value = System.getProperty(name);
-
-		if (value == null || value.equals(""))
-			return null;
-		else
-			return value;
-	}
-
-	protected String getProperty(String name) {
-		return getProperty(name, null);
-	}
-
-	protected String getPropertyCompat(String name, String oldName) {
-		return getPropertyCompat(name, oldName, null);
-	}
-
-	protected String getPropertyCompat(String name, String oldName,
-			String defaultValue) {
-		String res = null;
-
-		if (defaultValue != null) {
-			res = getProperty(name, defaultValue);
-			if (res.equals(defaultValue)) {
-				res = getProperty(oldName, defaultValue);
-				if (!res.equals(defaultValue))
-					warnDeprecated(name, oldName);
-			}
-		} else {
-			res = getProperty(name, null);
-			if (res == null) {
-				res = getProperty(oldName, null);
-				if (res != null)
-					warnDeprecated(name, oldName);
-			}
-		}
-		return res;
-	}
-
-	protected void warnDeprecated(String name, String oldName) {
-		warn("Property '" + oldName
-				+ "' is deprecated and will be removed soon, use '" + name
-				+ "' instead.");
+			OsgiBootUtils.debug(obj);
 	}
 
 	public boolean getDebug() {

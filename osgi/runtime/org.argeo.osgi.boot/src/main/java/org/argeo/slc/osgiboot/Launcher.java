@@ -4,7 +4,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Properties;
 import java.util.Vector;
 
 import org.eclipse.core.runtime.adaptor.EclipseStarter;
@@ -14,8 +13,9 @@ public class Launcher {
 
 	public static void main(String[] args) {
 		// Try to load system properties
-		String systemPropertiesFilePath = System
-				.getProperty(OsgiBoot.PROP_SLC_OSGIBOOT_SYSTEM_PROPERTIES_FILE);
+		String systemPropertiesFilePath = OsgiBootUtils.getPropertyCompat(
+				OsgiBoot.PROP_ARGEO_OSGI_BOOT_SYSTEM_PROPERTIES_FILE,
+				OsgiBoot.PROP_SLC_OSGIBOOT_SYSTEM_PROPERTIES_FILE);
 		if (systemPropertiesFilePath != null) {
 			FileInputStream in;
 			try {
@@ -52,13 +52,23 @@ public class Launcher {
 	}
 
 	protected static void startMainClass() {
-		Properties config = System.getProperties();
-		String className = config.getProperty("slc.osgiboot.appclass");
+		// Properties config = System.getProperties();
+		// String className = config.getProperty("slc.osgiboot.appclass");
+		String className = OsgiBootUtils.getPropertyCompat(
+				OsgiBoot.PROP_ARGEO_OSGI_BOOT_APPCLASS,
+				OsgiBoot.PROP_SLC_OSGIBOOT_APPCLASS);
 		if (className == null)
 			return;
 
-		String[] uiArgs = readArgumentsFromLine(config.getProperty(
-				"slc.osgiboot.appargs", ""));
+		// should use OsgiBootUtils.getPropertyCompat(), but it does not 
+		// work for "" as default value
+		// so no warning displayed if PROP_SLC_OSGIBOOT_APPARGS is used
+		// FIXME: change OsgiBootUtils.getPropertyCompat()
+		String line = System.getProperty(OsgiBoot.PROP_ARGEO_OSGI_BOOT_APPARGS, 
+				System.getProperty(OsgiBoot.PROP_SLC_OSGIBOOT_APPARGS, ""));		
+		
+		String[] uiArgs = readArgumentsFromLine(line);
+		
 		try {
 			// Launch main method using reflection
 			Class clss = Class.forName(className);
