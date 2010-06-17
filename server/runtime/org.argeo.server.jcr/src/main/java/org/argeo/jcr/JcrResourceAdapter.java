@@ -114,14 +114,16 @@ public class JcrResourceAdapter {
 
 			Node fileNode = (Node) session().getItem(path);
 			Node contentNode = fileNode.getNode("jcr:content");
-			fileNode.checkout();
+			if (versioning)
+				fileNode.checkout();
 			contentNode.setProperty("jcr:data", in);
 			Calendar lastModified = Calendar.getInstance();
 			// lastModified.setTimeInMillis(file.lastModified());
 			contentNode.setProperty("jcr:lastModified", lastModified);
 
 			session().save();
-			fileNode.checkin();
+			if (versioning)
+				fileNode.checkin();
 
 			if (log.isDebugEnabled())
 				log.debug("Updated " + path);

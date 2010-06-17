@@ -10,6 +10,7 @@ import java.util.List;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -62,7 +63,9 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 
 	protected Session login() {
 		try {
-			Session sess = repository.login();
+			SimpleCredentials sc = new SimpleCredentials("demo", "demo"
+					.toCharArray());
+			Session sess = repository.login(sc);
 			if (log.isTraceEnabled())
 				log.trace("Log in to JCR session " + sess + "; userId="
 						+ sess.getUserID());

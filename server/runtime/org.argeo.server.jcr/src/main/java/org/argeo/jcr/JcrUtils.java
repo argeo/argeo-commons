@@ -18,9 +18,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 
+/** Utility methods to simplify common JCR operations. */
 public class JcrUtils {
 	private final static Log log = LogFactory.getLog(JcrUtils.class);
 
+	/**
+	 * Queries one single node.
+	 * 
+	 * @return one single node or null if none was found
+	 * @throws ArgeoException
+	 *             if more than one node was found
+	 */
 	public static Node querySingleNode(Query query) {
 		NodeIterator nodeIterator;
 		try {
@@ -40,12 +48,14 @@ public class JcrUtils {
 		return node;
 	}
 
+	/** Removes forbidden characters from a path, replacing them with '_' */
 	public static String removeForbiddenCharacters(String str) {
 		return str.replace('[', '_').replace(']', '_').replace('/', '_')
 				.replace('*', '_');
 
 	}
 
+	/** Retrieves the parent path of the provided path */
 	public static String parentPath(String path) {
 		if (path.equals("/"))
 			throw new ArgeoException("Root path '/' has no parent path");
@@ -59,7 +69,13 @@ public class JcrUtils {
 		return pathT.substring(0, index);
 	}
 
+	/** The provided data as a path ('/' at the end, not the beginning) */
 	public static String dateAsPath(Calendar cal) {
+		return dateAsPath(cal, false);
+	}
+
+	/** The provided data as a path ('/' at the end, not the beginning) */
+	public static String dateAsPath(Calendar cal, Boolean addHour) {
 		StringBuffer buf = new StringBuffer(14);
 		buf.append('Y').append(cal.get(Calendar.YEAR));// 5
 		buf.append('/');// 1
@@ -74,6 +90,13 @@ public class JcrUtils {
 			buf.append(0);
 		buf.append('D').append(day);// 3
 		buf.append('/');// 1
+		if (addHour) {
+			int hour = cal.get(Calendar.HOUR_OF_DAY);
+			if (hour < 10)
+				buf.append(0);
+			buf.append('H').append(hour);// 3
+			buf.append('/');// 1
+		}
 		return buf.toString();
 
 	}
@@ -94,10 +117,12 @@ public class JcrUtils {
 		return path.substring(index + 1);
 	}
 
+	/** Creates the nodes making path, if they don't exist. */
 	public static Node mkdirs(Session session, String path) {
 		return mkdirs(session, path, null, false);
 	}
 
+	/** Creates the nodes making path, if they don't exist. */
 	public static Node mkdirs(Session session, String path, String type,
 			Boolean versioning) {
 		try {
@@ -164,37 +189,42 @@ public class JcrUtils {
 	}
 
 	/** Recursively outputs the contents of the given node. */
-	public static void debug(Node node) throws RepositoryException {
-		// First output the node path
-		log.debug(node.getPath());
-		// Skip the virtual (and large!) jcr:system subtree
-		if (node.getName().equals(ArgeoJcrConstants.JCR_SYSTEM)) {
-			return;
-		}
-
-		// Then the children nodes (recursive)
-		NodeIterator it = node.getNodes();
-		while (it.hasNext()) {
-			Node childNode = it.nextNode();
-			debug(childNode);
-		}
-
-		// Then output the properties
-		PropertyIterator properties = node.getProperties();
-		// log.debug("Property are : ");
-
-		while (properties.hasNext()) {
-			Property property = properties.nextProperty();
-			if (property.getDefinition().isMultiple()) {
-				// A multi-valued property, print all values
-				Value[] values = property.getValues();
-				for (int i = 0; i < values.length; i++) {
-					log.debug(property.getPath() + "=" + values[i].getString());
-				}
-			} else {
-				// A single-valued property
-				log.debug(property.getPath() + "=" + property.getString());
+	public static void debug(Node node) {
+		try {
+			// First output the node path
+			log.debug(node.getPath());
+			// Skip the virtual (and large!) jcr:system subtree
+			if (node.getName().equals(ArgeoJcrConstants.JCR_SYSTEM)) {
+				return;
 			}
+
+			// Then the children nodes (recursive)
+			NodeIterator it = node.getNodes();
+			while (it.hasNext()) {
+				Node childNode = it.nextNode();
+				debug(childNode);
+			}
+
+			// Then output the properties
+			PropertyIterator properties = node.getProperties();
+			// log.debug("Property are : ");
+
+			while (properties.hasNext()) {
+				Property property = properties.nextProperty();
+				if (property.getDefinition().isMultiple()) {
+					// A multi-valued property, print all values
+					Value[] values = property.getValues();
+					for (int i = 0; i < values.length; i++) {
+						log.debug(property.getPath() + "="
+								+ values[i].getString());
+					}
+				} else {
+					// A single-valued property
+					log.debug(property.getPath() + "=" + property.getString());
+				}
+			}
+		} catch (Exception e) {
+			log.error("Could not debug " + node, e);
 		}
 
 	}

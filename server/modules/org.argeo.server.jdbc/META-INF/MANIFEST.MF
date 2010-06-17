@@ -9,3 +9,4 @@ Import-Package: com.microsoft.sqlserver.jdbc;resolution:=optional,
  org.apache.derby.jdbc;resolution:=optional,
  org.hsqldb;resolution:=optional,
  org.postgresql;resolution:=optional
+Bundle-Name: Argeo Spring JDBC Extension
