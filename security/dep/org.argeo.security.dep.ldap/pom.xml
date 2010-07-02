@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
-		<version>0.2.0</version>
+		<version>0.2.1-SNAPSHOT</version>
 		<artifactId>dep</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -13,12 +13,12 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.mvc</artifactId>
-			<version>0.2.0</version>
+			<version>0.2.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.json</artifactId>
-			<version>0.2.0</version>
+			<version>0.2.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>
