@@ -12,7 +12,7 @@
 	<name>Argeo Commons</name>
 	<packaging>pom</packaging>
 	<properties>
-		<developmentCycle>0.1</developmentCycle>
+		<developmentCycle>0.2</developmentCycle>
 		<version.argeo-distribution>1.0.4</version.argeo-distribution>
 		<version.argeo-ria>0.12.4</version.argeo-ria>
 		<version.maven-argeo-osgi>0.1.28</version.maven-argeo-osgi>
