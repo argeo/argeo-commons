@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
-		<version>0.1.3-SNAPSHOT</version>
+		<version>0.2.0</version>
 		<artifactId>basic</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
