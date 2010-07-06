@@ -37,7 +37,8 @@ public abstract class AbstractJcrTestCase extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		File homeDir = new File(System.getProperty("java.io.tmpdir"),
-				AbstractJcrTestCase.class.getSimpleName());
+				AbstractJcrTestCase.class.getSimpleName() + "-"
+						+ System.getProperty("user.name"));
 		FileUtils.deleteDirectory(homeDir);
 		repository = new TransientRepository(getRepositoryFile(), homeDir);
 	}
