@@ -13,7 +13,7 @@
 	<packaging>pom</packaging>
 	<properties>
 		<developmentCycle>0.2</developmentCycle>
-		<version.argeo-distribution>1.0.4</version.argeo-distribution>
+		<version.argeo-distribution>1.1.0-SNAPSHOT</version.argeo-distribution>
 		<version.argeo-ria>0.12.4</version.argeo-ria>
 		<version.maven-argeo-osgi>0.1.28</version.maven-argeo-osgi>
 		<version.maven-bundle-plugin>2.0.1</version.maven-bundle-plugin>

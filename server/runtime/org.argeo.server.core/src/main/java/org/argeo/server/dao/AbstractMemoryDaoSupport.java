@@ -33,7 +33,6 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.generic.GenericBeanFactoryAccessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
@@ -161,8 +160,7 @@ public abstract class AbstractMemoryDaoSupport implements LightDaoSupport,
 			res.addAll((Collection<T>) model.get(classToUse).values());
 
 		if (applicationContext != null)
-			res.addAll(new GenericBeanFactoryAccessor(applicationContext)
-					.getBeansOfType(clss).values());
+			res.addAll(applicationContext.getBeansOfType(clss).values());
 
 		return res;
 	}
