@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Catalina
+Bundle-SymbolicName: org.argeo.server.catalina
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: org.apache.catalina;version="6.0.24",
+ org.apache.catalina.connector;version="6.0.24",
+ org.apache.catalina.core;version="6.0.24",
+ org.apache.catalina.util;version="6.0.24",
+ org.apache.commons.logging;version="1.1.1",
+ org.apache.naming.resources;version="6.0.24",
+ org.osgi.framework;version="1.5.0",
+ org.osgi.service.url;version="1.0.0",
+ org.springframework.beans.factory;version="2.5.6.SEC01"
