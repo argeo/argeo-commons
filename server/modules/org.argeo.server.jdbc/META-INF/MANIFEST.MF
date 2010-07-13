@@ -7,6 +7,7 @@ Import-Package: com.microsoft.sqlserver.jdbc;resolution:=optional,
  net.sourceforge.jtds.jdbc;resolution:=optional,
  oracle.jdbc;resolution:=optional,
  org.apache.derby.jdbc;resolution:=optional,
+ org.h2;resolution:=optional,
  org.hsqldb;resolution:=optional,
  org.postgresql;resolution:=optional
 Bundle-Name: Argeo Spring JDBC Extension
