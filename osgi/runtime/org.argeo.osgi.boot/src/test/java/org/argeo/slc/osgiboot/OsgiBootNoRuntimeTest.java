@@ -21,7 +21,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.argeo.slc.osgiboot.OsgiBoot;
+import org.argeo.osgi.boot.OsgiBoot;
 
 public class OsgiBootNoRuntimeTest extends TestCase {
 	public final static String BUNDLES = "src/test/bundles/some;in=*;ex=excluded,"

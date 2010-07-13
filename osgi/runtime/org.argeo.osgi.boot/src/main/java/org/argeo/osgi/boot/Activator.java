@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.argeo.slc.osgiboot;
+package org.argeo.osgi.boot;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

@@ -22,6 +22,7 @@ import java.util.TreeMap;
 
 import junit.framework.TestCase;
 
+import org.argeo.osgi.boot.OsgiBoot;
 import org.eclipse.core.runtime.adaptor.EclipseStarter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;

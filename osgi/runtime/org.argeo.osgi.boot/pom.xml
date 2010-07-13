@@ -37,7 +37,7 @@
 				<version>${version.maven-bundle-plugin}</version>
 				<configuration>
 					<instructions>
-						<Bundle-Activator>org.argeo.slc.osgiboot.Activator</Bundle-Activator>
+						<Bundle-Activator>org.argeo.osgi.boot.Activator</Bundle-Activator>
 					</instructions>
 				</configuration>
 			</plugin>

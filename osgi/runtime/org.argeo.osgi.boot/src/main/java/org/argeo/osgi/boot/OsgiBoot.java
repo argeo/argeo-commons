@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.argeo.slc.osgiboot;
+package org.argeo.osgi.boot;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -29,9 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.argeo.slc.osgiboot.internal.springutil.AntPathMatcher;
-import org.argeo.slc.osgiboot.internal.springutil.PathMatcher;
-import org.argeo.slc.osgiboot.internal.springutil.SystemPropertyUtils;
+import org.argeo.osgi.boot.internal.springutil.AntPathMatcher;
+import org.argeo.osgi.boot.internal.springutil.PathMatcher;
+import org.argeo.osgi.boot.internal.springutil.SystemPropertyUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;

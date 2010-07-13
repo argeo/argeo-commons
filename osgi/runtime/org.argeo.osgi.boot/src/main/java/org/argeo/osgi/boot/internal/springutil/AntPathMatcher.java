@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.argeo.slc.osgiboot.internal.springutil;
+package org.argeo.osgi.boot.internal.springutil;
 
 /**
  * PathMatcher implementation for Ant-style path patterns.

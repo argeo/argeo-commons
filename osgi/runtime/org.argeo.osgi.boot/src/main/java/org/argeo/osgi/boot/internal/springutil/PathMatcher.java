@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.argeo.slc.osgiboot.internal.springutil;
+package org.argeo.osgi.boot.internal.springutil;
 
 /**
  * Strategy interface for <code>String</code>-based path matching.
