@@ -17,7 +17,7 @@
 		<version.argeo-ria>0.12.4</version.argeo-ria>
 		<version.maven-argeo-osgi>0.1.28</version.maven-argeo-osgi>
 		<version.maven-bundle-plugin>2.0.1</version.maven-bundle-plugin>
-		<version.maven-argeo-qooxdoo>0.8.3.0</version.maven-argeo-qooxdoo>
+		<version.maven-argeo-qooxdoo>1.1.0-SNAPSHOT</version.maven-argeo-qooxdoo>
 		<site.repoBase>file:///var/argeo/projects/commons/www/site</site.repoBase>
 		<site.urlBase>http://www.argeo.org/projects/commons/site</site.urlBase>
 	</properties>
