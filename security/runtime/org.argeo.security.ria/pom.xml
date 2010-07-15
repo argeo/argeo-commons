@@ -26,7 +26,7 @@
 				<artifactId>maven-argeo-qooxdoo-plugin</artifactId>
 				<version>${version.maven-argeo-qooxdoo}</version>
 				<configuration>
-					<sdkVersion>0.8.3</sdkVersion>
+					<sdkVersion>1.1.0</sdkVersion>
 				</configuration>
 				<executions>
 					<execution>

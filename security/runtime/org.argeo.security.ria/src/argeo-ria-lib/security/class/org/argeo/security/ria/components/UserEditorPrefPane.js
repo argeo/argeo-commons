@@ -8,7 +8,7 @@ qx.Class.define("org.argeo.security.ria.components.UserEditorPrefPane", {
 		this.setSelfEdition(true);
 		this.initGUI();		
 		this.basicGB.setVisibility("excluded");
-		var saveButton = new qx.ui.form.Button("Save", "org.argeo.security.ria/document-save.png");
+		var saveButton = new qx.ui.form.Button("Save", "org/argeo/security/ria/document-save.png");
 		saveButton.addListener("execute", this.saveUser, this);
 		this.buttonGB.add(saveButton);
 		var authService = org.argeo.ria.session.AuthService.getInstance();
@@ -33,7 +33,7 @@ qx.Class.define("org.argeo.security.ria.components.UserEditorPrefPane", {
 		},
 		
 		getPrefIcon : function(){
-			return "org.argeo.security.ria/preferences-users.png";
+			return "org/argeo/security/ria/preferences-users.png";
 		}  			
 	}
 });

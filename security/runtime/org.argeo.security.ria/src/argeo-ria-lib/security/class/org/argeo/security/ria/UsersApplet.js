@@ -3,7 +3,7 @@
  * The only associated command is the "Close" command.
  */
 /* *************************************************
-#asset(resource/org.argeo.security.ria/*)
+#asset(org/argeo/security/ria/*)
 ****************************************************/
 qx.Class.define("org.argeo.security.ria.UsersApplet",
 {
@@ -30,7 +30,7 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   		init : {
   			"new_user" : {
   				label	 	: "New User", 
-  				icon 		: "org.argeo.security.ria/list-add.png",
+  				icon 		: "org/argeo/security/ria/list-add.png",
   				shortcut 	: "Control+n",
   				enabled  	: true,
   				menu	   	: "Users",
@@ -49,7 +49,7 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   			},   	
   			"delete_user" : {
   				label	 	: "Delete User", 
-  				icon 		: "org.argeo.security.ria/list-remove.png",
+  				icon 		: "org/argeo/security/ria/list-remove.png",
   				shortcut 	: "Control+d",
   				enabled  	: true,
   				menu	   	: "Users",
@@ -99,7 +99,7 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   			},  			
   			"edit_user" : {
   				label	 	: "Edit User", 
-  				icon 		: "org.argeo.security.ria/document-properties.png",
+  				icon 		: "org/argeo/security/ria/document-properties.png",
   				shortcut 	: "Control+u",
   				enabled  	: true,
   				menu	   	: "Users",
@@ -185,7 +185,7 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   	},
   	
   	_applyGuiMode : function(newMode, oldMode){
-  		this.table.getSelectionModel().clearSelection();
+  		this.table.getSelectionModel().resetSelection();
 		this.resetHiddenRows();
   		if(newMode == "filter"){
   			this.table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.SINGLE_SELECTION);
@@ -240,7 +240,7 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   	
   	loadUsersList : function(){
   		var selectionModel = this.table.getSelectionModel();  		
-  		selectionModel.clearSelection();  		
+  		selectionModel.resetSelection();  		
   		var request = org.argeo.security.ria.SecurityAPI.getListUsersService();
   		request.addListener("completed", function(response){
   			var jSon = response.getContent();
@@ -288,7 +288,7 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   	  	
   	applySelection : function(selectionValue, target, ignoreCase){
   		var selectionModel = this.table.getSelectionModel();  		
-  		selectionModel.clearSelection();
+  		selectionModel.resetSelection();
   		if(!selectionValue){
   			return;
   		}
@@ -305,7 +305,7 @@ qx.Class.define("org.argeo.security.ria.UsersApplet",
   	},
   	
   	applyFilter : function(filterValues, target, ignoreCase){
-  		this.table.clearSelection();
+  		this.table.resetSelection();
   		this.resetHiddenRows();  		
   		for(var i=0;i<filterValues.length;i++){
 	  		this.tableModel.addRegex("^((?!"+filterValues[i]+").)*$", target, ignoreCase);

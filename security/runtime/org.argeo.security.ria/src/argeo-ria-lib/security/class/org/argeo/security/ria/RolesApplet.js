@@ -3,7 +3,7 @@
  * The only associated command is the "Close" command.
  */
 /* *************************************************
-#asset(resource/org.argeo.ria.sample/window-close.png)
+#asset(org/argeo/ria/sample/window-close.png)
 ****************************************************/
 qx.Class.define("org.argeo.security.ria.RolesApplet",
 {
@@ -30,7 +30,7 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   		init : {
   			"reload" : {
   				label 		: "Reload Data",
-  				icon 		: "org.argeo.security.ria/view-refresh.png",
+  				icon 		: "org/argeo/security/ria/view-refresh.png",
   				shortcut	: "Control+h",
   				enabled 	: true,
   				menu		: "Roles",
@@ -42,7 +42,7 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   			},  			
   			"new_role" : {
   				label	 	: "Create Role", 
-  				icon 		: "org.argeo.security.ria/list-add.png",
+  				icon 		: "org/argeo/security/ria/list-add.png",
   				shortcut 	: null,
   				enabled  	: true,
   				menu	   	: "Roles",
@@ -63,7 +63,7 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   			},   	
   			"delete_role" : {
   				label	 	: "Delete Role", 
-  				icon 		: "org.argeo.security.ria/list-remove.png",
+  				icon 		: "org/argeo/security/ria/list-remove.png",
   				shortcut 	: null,
   				enabled  	: true,
   				menu	   	: "Roles",
@@ -92,7 +92,7 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   			},  			  			
   			"edit_role" : {
   				label	 	: "Edit Role", 
-  				icon 		: "org.argeo.security.ria/document-properties.png",
+  				icon 		: "org/argeo/security/ria/document-properties.png",
   				shortcut 	: "Control+r",
   				enabled  	: true,
   				menu	   	: "Roles",
@@ -162,7 +162,7 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   		
   		this.rolesUsersStub = {"ROLE_ADMIN":["gandalf"],"ROLE_USER":["demo","frodo","gandalf"]};
   		  		  	
-  		this.toggleButton = new qx.ui.form.ToggleButton("Filter", "org.argeo.security.ria/go-next.png");
+  		this.toggleButton = new qx.ui.form.ToggleButton("Filter", "org/argeo/security/ria/go-next.png");
   		this.toggleButton.set({
   			show:"icon",
   			margin:2,
@@ -174,7 +174,7 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   			this.setGuiMode(event.getData()?"filter":"clear");
   		}, this);
 		
-		this.saveButton = new qx.ui.form.Button("Save", "org.argeo.security.ria/document-save.png");
+		this.saveButton = new qx.ui.form.Button("Save", "org/argeo/security/ria/document-save.png");
   		this.saveButton.set({
   			show:"icon",
   			margin:2,
@@ -182,7 +182,7 @@ qx.Class.define("org.argeo.security.ria.RolesApplet",
   			visibility : "excluded"
   		});
 		
-		this.cancelButton = new qx.ui.form.Button("Cancel", "org.argeo.security.ria/window-close.png");
+		this.cancelButton = new qx.ui.form.Button("Cancel", "org/argeo/security/ria/window-close.png");
   		this.cancelButton.set({
   			show:"icon",
   			margin:2,

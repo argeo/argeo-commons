@@ -3,7 +3,7 @@
  * The only associated command is the "Close" command.
  */
 /* *************************************************
-#asset(resource/org.argeo.security.ria/*)
+#asset(resource/org/argeo/security/ria/*)
 ****************************************************/
 qx.Class.define("org.argeo.security.ria.components.UserEditor",
 {
@@ -116,12 +116,12 @@ qx.Class.define("org.argeo.security.ria.components.UserEditor",
 		this.fakePane.setMarginTop(30);
 		this.add(this.fakePane, {flex:1});
   		
-  		title = new qx.ui.basic.Atom("User Details", "org.argeo.security.ria/preferences-users.png");
+  		title = new qx.ui.basic.Atom("User Details", "org/argeo/security/ria/preferences-users.png");
   		title.setFont(qx.bom.Font.fromString("16px sans-serif bold"));  		
   		this.buttonGB.add(title);
   		this.buttonGB.add(new qx.ui.core.Spacer(), {flex:1});
 
-  		var title2 = new qx.ui.basic.Atom("User Natures", "org.argeo.security.ria/identity.png");
+  		var title2 = new qx.ui.basic.Atom("User Natures", "org/argeo/security/ria/identity.png");
   		title2.setFont(qx.bom.Font.fromString("16px sans-serif bold"));  		
   		this.natureButtonGB.add(title2);
   		this.natureButtonGB.add(new qx.ui.core.Spacer(), {flex:1});  		
@@ -218,9 +218,9 @@ qx.Class.define("org.argeo.security.ria.components.UserEditor",
   		page.add(new qx.ui.container.Scroll(newClass.getContainer()), {edge:"center"});
   		
   		buttons = new qx.ui.container.Composite(new qx.ui.layout.HBox(5, "center"));
-  		var editB = new qx.ui.form.Button("Edit this Nature", "org.argeo.security.ria/document-properties-22.png");
-  		var saveB = new qx.ui.form.Button("Save", "org.argeo.security.ria/dialog-apply.png");
-  		var cancelB = new qx.ui.form.Button("Cancel", "org.argeo.security.ria/dialog-cancel.png");
+  		var editB = new qx.ui.form.Button("Edit this Nature", "org/argeo/security/ria/document-properties-22.png");
+  		var saveB = new qx.ui.form.Button("Save", "org/argeo/security/ria/dialog-apply.png");
+  		var cancelB = new qx.ui.form.Button("Cancel", "org/argeo/security/ria/dialog-cancel.png");
   		buttons.add(editB);
   		buttons.add(saveB);
   		buttons.add(cancelB);

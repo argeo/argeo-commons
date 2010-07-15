@@ -3,7 +3,7 @@
  * The only associated command is the "Close" command.
  */
 /* *************************************************
-#asset(resource/org.argeo.security.ria/*)
+#asset(org/argeo/security/ria/*)
 ****************************************************/
 qx.Class.define("org.argeo.security.ria.UserEditorApplet",
 {
@@ -29,7 +29,7 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   		init : {
   			"save_user" : {
   				label	 	: "Save", 
-  				icon 		: "org.argeo.security.ria/document-save.png",
+  				icon 		: "org/argeo/security/ria/document-save.png",
   				shortcut 	: "Control+s",
   				enabled  	: true,
   				menu	   	: "Users",
@@ -47,7 +47,7 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   			},
   			"add_nature" : {
   				label	 	: "Add Nature ...", 
-  				icon 		: "org.argeo.security.ria/list-add.png",
+  				icon 		: "org/argeo/security/ria/list-add.png",
   				shortcut 	: null,
   				enabled  	: true,
   				menu	   	: "Natures",
@@ -75,7 +75,7 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   			},
   			"remove_nature" : {
   				label	 	: "Remove Nature", 
-  				icon 		: "org.argeo.security.ria/list-remove.png",
+  				icon 		: "org/argeo/security/ria/list-remove.png",
   				shortcut 	: null,
   				enabled  	: true,
   				menu	   	: "Natures",
@@ -96,7 +96,7 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
   			},
   			"close" : {
   				label	 	: "Close", 
-  				icon 		: "org.argeo.security.ria/window-close.png",
+  				icon 		: "org/argeo/security/ria/window-close.png",
   				shortcut 	: "Control+w",
   				enabled  	: true,
   				menu	   	: "Users",
@@ -187,7 +187,7 @@ qx.Class.define("org.argeo.security.ria.UserEditorApplet",
 	  				"commandId" : natures[key]
 	  				});
 	  		}
-	  		commands["add_nature"].command.setMenu(newMenu);  		
+	  		commands["add_nature"].command.setMenuDef(newMenu);  		
   		}, this);
   		
   		natureButton.setShow("icon");

@@ -35,13 +35,16 @@
       "library" :
       [
         {
-          "manifest" : "${QOOXDOO_PATH}/framework/Manifest.json"
+          "manifest" : "${QOOXDOO_PATH}/framework/Manifest.json",
+          "uri"		 : "../qooxdoo-sdk/framework"
         },
         {
-          "manifest" : "${RIA_LIB_PATH}/security/Manifest.json"
+          "manifest" : "${RIA_LIB_PATH}/security/Manifest.json",
+          "uri"		 : "${RIA_LIB_URI}/security"
         },
         {
-          "manifest" : "${ROOT}/Manifest.json"
+          "manifest" : "${ROOT}/Manifest.json",
+          "uri"		 : "."
         }
       ],
 
@@ -79,13 +82,22 @@
     {
       "extend" : ["common"],
 
-      "compile-source" :
+      "compile-options" :
       {
-        "file" : "${ROOT}/script/${APPLICATION}.js",
-        "locales" : "${LOCALES}",
-        "root" : "${ROOT}",
-        "gzip" : false
-      }
+      	"paths" : 
+      	{
+      		"file" : "${ROOT}/script/${APPLICATION}.js",
+      		"root" : "${ROOT}",
+      		"resource" : "resource",
+      		"gzip"	: false
+      	},
+      	"code" : 
+      	{
+      		"locales" :  "${LOCALES}"
+      	}
+      },
+      
+      "compile" : { "type" : "source" }
     },
 
 
@@ -108,7 +120,7 @@
         "qx.debug" : ["off"]
       },
 
-      "compile-dist" :
+      "compile-options" :
       {
 		  "paths" :
 		  {
@@ -126,16 +138,8 @@
 		    "locales"  : "${LOCALES}",
 		    "optimize" : ["variables", "basecalls", "privates", "strings"]
 		  }
-      /*
-      "file" : "${BUILD_PATH}/script/${APPLICATION}.js",
-        "target" : "${BUILD_PATH}",
-        "uri"  : "script/${APPLICATION}.js",
-        "root" : "${BUILD_PATH}",
-        "format" : "on",
-        "locales" : "${LOCALES}",
-        "optimize" : ["basecalls", "variables", "privates", "strings"]
-       */
-      }
+      },
+      "compile" : { "type" : "build" }
     },
 
 

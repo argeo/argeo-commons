@@ -4,7 +4,7 @@
  */
 /* ************************************************************************
 
-#asset(resource/org.argeo.security.ria/*)
+#asset(org/argeo/security/ria/*)
 
 ************************************************************************ */
 
@@ -18,7 +18,7 @@ qx.Class.define("org.argeo.security.ria.Perspective", {
 
 	statics : {
 	  	LABEL : "RIA Security",
-	  	ICON : "org.argeo.security.ria/preferences-security.png",
+	  	ICON : "org/argeo/security/ria/preferences-security.png",
 	  	ACCESS:"!ROLE_ANONYMOUS"
 	},
 	
