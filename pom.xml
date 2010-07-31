@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo</groupId>
@@ -15,7 +16,7 @@
 		<developmentCycle>0.2</developmentCycle>
 		<version.argeo-distribution>1.1.0-SNAPSHOT</version.argeo-distribution>
 		<version.argeo-ria>0.12.4</version.argeo-ria>
-		<version.maven-argeo-osgi>0.1.28</version.maven-argeo-osgi>
+		<version.maven-argeo-osgi>0.1.29-SNAPSHOT</version.maven-argeo-osgi>
 		<version.maven-bundle-plugin>2.0.1</version.maven-bundle-plugin>
 		<version.maven-argeo-qooxdoo>1.1.0-SNAPSHOT</version.maven-argeo-qooxdoo>
 		<site.repoBase>file:///var/argeo/projects/commons/www/site</site.repoBase>
@@ -71,6 +72,7 @@ limitations under the License.
 		<module>osgi</module>
 		<module>server</module>
 		<module>security</module>
+		<module>eclipse</module>
 		<module>sandbox</module>
 	</modules>
 	<build>

@@ -46,7 +46,8 @@ public class SecuredActiveMqConnectionFactory implements ConnectionFactory,
 	public final static String AUTHMODE_UI = "ui";
 	public final static String AUTHMODE_OS = "os";
 	public final static String AUTHMODE_DEFAULT = AUTHMODE_OS;
-//	private final static String LOGIN_CONFIG_PROPERTY = "java.security.auth.login.config";
+	// private final static String LOGIN_CONFIG_PROPERTY =
+	// "java.security.auth.login.config";
 
 	private final static Log log = LogFactory
 			.getLog(SecuredActiveMqConnectionFactory.class);
@@ -77,6 +78,7 @@ public class SecuredActiveMqConnectionFactory implements ConnectionFactory,
 		uccfa.setTargetConnectionFactory(activeMQSslConnectionFactory);
 		cachingConnectionFactory = new CachingConnectionFactory();
 		cachingConnectionFactory.setTargetConnectionFactory(uccfa);
+		cachingConnectionFactory.setCacheConsumers(false);
 
 		initConnectionFactoryCredentials(uccfa);
 		cachingConnectionFactory.initConnection();
@@ -92,64 +94,64 @@ public class SecuredActiveMqConnectionFactory implements ConnectionFactory,
 			authenticationMode = AUTHMODE_DEFAULT;
 
 		if (AUTHMODE_OS.equals(authenticationMode)) {
-//			if (false) {
-//				// Cache previous value of login conf location
-//				String oldLoginConfLocation = System
-//						.getProperty(LOGIN_CONFIG_PROPERTY);
-//				// Find OS family
-//				String osName = System.getProperty("os.name");
-//				final String auth;
-//				if (osName.startsWith("Windows"))
-//					auth = "Windows";
-//				else if (osName.startsWith("SunOS")
-//						|| osName.startsWith("Solaris"))
-//					auth = "Solaris";
-//				else
-//					auth = "Unix";
-//
-//				Subject subject;
-//				// see http://old.nabble.com/osgi-and-jaas-td23485885.html
-//				ClassLoader ccl = Thread.currentThread()
-//						.getContextClassLoader();
-//				try {
-//					Thread.currentThread().setContextClassLoader(
-//							getClass().getClassLoader());
-//					URL url = getClass().getResource(
-//							"/org/argeo/security/activemq/osLogin.conf");
-//
-//					System.setProperty(LOGIN_CONFIG_PROPERTY, url.toString());
-//					LoginContext lc = new LoginContext(auth);
-//					lc.login();
-//					subject = lc.getSubject();
-//				} catch (LoginException le) {
-//					throw new ArgeoException("OS authentication failed", le);
-//				} finally {
-//					if (oldLoginConfLocation != null)
-//						System.setProperty(LOGIN_CONFIG_PROPERTY,
-//								oldLoginConfLocation);
-//					Thread.currentThread().setContextClassLoader(ccl);
-//				}
-//				// Extract user name
-//				String osUsername = null;
-//				for (Principal principal : subject.getPrincipals()) {
-//					String className = principal.getClass().getName();
-//					if ("Unix".equals(auth)
-//							&& "com.sun.security.auth.UnixPrincipal"
-//									.equals(className))
-//						osUsername = principal.getName();
-//					else if ("Windows".equals(auth)
-//							&& "com.sun.security.auth.NTUserPrincipal"
-//									.equals(className))
-//						osUsername = principal.getName();
-//					else if ("Solaris".equals(auth)
-//							&& "com.sun.security.auth.SolarisPrincipal"
-//									.equals(className))
-//						osUsername = principal.getName();
-//				}
-//
-//				if (osUsername == null)
-//					throw new ArgeoException("Could not find OS user name");
-//			}
+			// if (false) {
+			// // Cache previous value of login conf location
+			// String oldLoginConfLocation = System
+			// .getProperty(LOGIN_CONFIG_PROPERTY);
+			// // Find OS family
+			// String osName = System.getProperty("os.name");
+			// final String auth;
+			// if (osName.startsWith("Windows"))
+			// auth = "Windows";
+			// else if (osName.startsWith("SunOS")
+			// || osName.startsWith("Solaris"))
+			// auth = "Solaris";
+			// else
+			// auth = "Unix";
+			//
+			// Subject subject;
+			// // see http://old.nabble.com/osgi-and-jaas-td23485885.html
+			// ClassLoader ccl = Thread.currentThread()
+			// .getContextClassLoader();
+			// try {
+			// Thread.currentThread().setContextClassLoader(
+			// getClass().getClassLoader());
+			// URL url = getClass().getResource(
+			// "/org/argeo/security/activemq/osLogin.conf");
+			//
+			// System.setProperty(LOGIN_CONFIG_PROPERTY, url.toString());
+			// LoginContext lc = new LoginContext(auth);
+			// lc.login();
+			// subject = lc.getSubject();
+			// } catch (LoginException le) {
+			// throw new ArgeoException("OS authentication failed", le);
+			// } finally {
+			// if (oldLoginConfLocation != null)
+			// System.setProperty(LOGIN_CONFIG_PROPERTY,
+			// oldLoginConfLocation);
+			// Thread.currentThread().setContextClassLoader(ccl);
+			// }
+			// // Extract user name
+			// String osUsername = null;
+			// for (Principal principal : subject.getPrincipals()) {
+			// String className = principal.getClass().getName();
+			// if ("Unix".equals(auth)
+			// && "com.sun.security.auth.UnixPrincipal"
+			// .equals(className))
+			// osUsername = principal.getName();
+			// else if ("Windows".equals(auth)
+			// && "com.sun.security.auth.NTUserPrincipal"
+			// .equals(className))
+			// osUsername = principal.getName();
+			// else if ("Solaris".equals(auth)
+			// && "com.sun.security.auth.SolarisPrincipal"
+			// .equals(className))
+			// osUsername = principal.getName();
+			// }
+			//
+			// if (osUsername == null)
+			// throw new ArgeoException("Could not find OS user name");
+			// }
 
 			uccfa.setUsername(System.getProperty("user.name"));
 			uccfa.setPassword(null);
@@ -201,7 +203,7 @@ public class SecuredActiveMqConnectionFactory implements ConnectionFactory,
 					new SecureRandom());
 		} catch (Exception e) {
 			throw new ArgeoException(
-					"Cannot initailize JMS conneciton factory", e);
+					"Cannot initialize JMS connection factory", e);
 		}
 
 	}
