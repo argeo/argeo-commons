@@ -1,14 +1,10 @@
 package org.argeo.eclipse.spring;
 
-import org.argeo.eclipse.ui.ArgeoUiPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IExecutableExtensionFactory;
 import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.Platform;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleException;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -43,7 +39,8 @@ public class SpringExtensionFactory implements IExecutableExtensionFactory,
 	public void setInitializationData(IConfigurationElement config,
 			String propertyName, Object data) throws CoreException {
 		String beanName = getBeanName(data, config);
-		ApplicationContext appContext = getApplicationContext(config);
+		ApplicationContext appContext = ApplicationContextTracker
+				.getApplicationContext(config.getContributor().getName());
 
 		if (beanName != null && appContext != null) {
 			this.bean = appContext.getBean(beanName);
@@ -55,7 +52,7 @@ public class SpringExtensionFactory implements IExecutableExtensionFactory,
 	}
 
 	private String getBeanName(Object data, IConfigurationElement config) {
-		
+
 		// try the specific bean id the extension defines
 		if (data != null && data.toString().length() > 0) {
 			return data.toString();
@@ -74,32 +71,6 @@ public class SpringExtensionFactory implements IExecutableExtensionFactory,
 		}
 
 		return null;
-	}
-
-	private ApplicationContext getApplicationContext(
-			IConfigurationElement config) {
-		String contributorName = config.getContributor().getName();
-		Bundle contributorBundle = Platform.getBundle(contributorName);
-
-		if (contributorBundle.getState() != Bundle.ACTIVE && contributorBundle.getState() != Bundle.STARTING) {
-			try {
-				System.out.println("starting bundle: " + contributorBundle.getSymbolicName());
-				contributorBundle.start();
-			} catch (BundleException e) {
-				e.printStackTrace();
-			}
-		}
-
-		final ApplicationContextTracker applicationContextTracker = new ApplicationContextTracker(
-				contributorBundle, ArgeoUiPlugin.getDefault().getBundleContext());
-		ApplicationContext applicationContext = null;
-		try {
-			applicationContext = applicationContextTracker
-					.getApplicationContext();
-		} finally {
-			applicationContextTracker.close();
-		}
-		return applicationContext;
 	}
 
 }
