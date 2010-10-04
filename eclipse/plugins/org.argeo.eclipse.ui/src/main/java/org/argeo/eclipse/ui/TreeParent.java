@@ -38,6 +38,14 @@ public class TreeParent extends TreeObject {
 		return children.size() > 0;
 	}
 
+	public TreeObject getChildByName(String name) {
+		for (TreeObject child : children) {
+			if (child.getName().equals(name))
+				return child;
+		}
+		return null;
+	}
+
 	public synchronized Boolean isLoaded() {
 		return loaded;
 	}
