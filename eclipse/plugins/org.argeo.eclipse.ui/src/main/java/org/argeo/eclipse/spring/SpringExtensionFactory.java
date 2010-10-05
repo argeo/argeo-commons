@@ -25,7 +25,11 @@ import org.springframework.context.ApplicationContext;
  * spring extension factory uses the id of the extension itself to identify the
  * bean.
  * 
+ * original code from: <a href="http://martinlippert.blogspot.com/2008/10/new-version-of-spring-extension-factory.html"
+ * >Blog entry</a>
+ * 
  * @author Martin Lippert
+ * @author mbaudier
  */
 public class SpringExtensionFactory implements IExecutableExtensionFactory,
 		IExecutableExtension {
