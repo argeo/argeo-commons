@@ -21,6 +21,8 @@ import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 
 public interface UserNatureMapper {
+	public String getName();
+	
 	public void mapUserInfoToContext(UserNature userInfo, DirContextAdapter ctx);
 
 	public UserNature mapUserInfoFromContext(DirContextOperations ctx);

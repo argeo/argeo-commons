@@ -17,14 +17,15 @@
 package org.argeo.security;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ArgeoUser {
 	public String getUsername();
 
-	public List<UserNature> getUserNatures();
+	public Map<String,UserNature> getUserNatures();
 
 	/** Implementation should refuse to add new user natures via this method. */
-	public void updateUserNatures(List<UserNature> userNatures);
+	public void updateUserNatures(Map<String,UserNature> userNatures);
 
 	public List<String> getRoles();
 

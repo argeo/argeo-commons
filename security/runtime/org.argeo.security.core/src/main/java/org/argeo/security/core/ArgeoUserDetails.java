@@ -19,6 +19,7 @@ package org.argeo.security.core;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,6 +29,7 @@ import org.argeo.security.UserNature;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 
@@ -35,14 +37,14 @@ public class ArgeoUserDetails extends User implements ArgeoUser {
 	private static final long serialVersionUID = 1L;
 	private final static Log log = LogFactory.getLog(ArgeoUserDetails.class);
 
-	private final List<UserNature> userNatures;
+	private final Map<String, UserNature> userNatures;
 	private final List<String> roles;
 
-	public ArgeoUserDetails(String username, List<UserNature> userNatures,
+	public ArgeoUserDetails(String username, Map<String, UserNature> userNatures,
 			String password, GrantedAuthority[] authorities)
 			throws IllegalArgumentException {
 		super(username, password, true, true, true, true, authorities);
-		this.userNatures = Collections.unmodifiableList(userNatures);
+		this.userNatures = Collections.unmodifiableMap(userNatures);
 
 		// Roles
 		this.roles = Collections.unmodifiableList(addAuthoritiesToRoles(
@@ -54,11 +56,11 @@ public class ArgeoUserDetails extends User implements ArgeoUser {
 				.getPassword(), rolesToAuthorities(argeoUser.getRoles()));
 	}
 
-	public List<UserNature> getUserNatures() {
+	public Map<String, UserNature> getUserNatures() {
 		return userNatures;
 	}
 
-	public void updateUserNatures(List<UserNature> userNaturesData) {
+	public void updateUserNatures(Map<String, UserNature> userNaturesData) {
 		UserNature.updateUserNaturesWithCheck(userNatures, userNaturesData);
 	}
 
@@ -93,25 +95,34 @@ public class ArgeoUserDetails extends User implements ArgeoUser {
 		} else {
 			SimpleArgeoUser argeoUser = new SimpleArgeoUser();
 			argeoUser.setUsername(userDetails.getUsername());
-			addAuthoritiesToRoles(userDetails.getAuthorities(), argeoUser
-					.getRoles());
+			addAuthoritiesToRoles(userDetails.getAuthorities(),
+					argeoUser.getRoles());
 			return argeoUser;
 		}
 	}
 
+	/** Creates an argeo user based on spring authentication */
 	public static ArgeoUser asArgeoUser(Authentication authentication) {
 		if (authentication == null)
 			return null;
 
 		if (authentication.getPrincipal() instanceof ArgeoUser) {
-			return new SimpleArgeoUser((ArgeoUser) authentication
-					.getPrincipal());
+			return new SimpleArgeoUser(
+					(ArgeoUser) authentication.getPrincipal());
 		} else {
 			SimpleArgeoUser argeoUser = new SimpleArgeoUser();
 			argeoUser.setUsername(authentication.getName());
-			addAuthoritiesToRoles(authentication.getAuthorities(), argeoUser
-					.getRoles());
+			addAuthoritiesToRoles(authentication.getAuthorities(),
+					argeoUser.getRoles());
 			return argeoUser;
 		}
+	}
+
+	/** The Spring security context as an argeo user */
+	public static ArgeoUser securityContextUser() {
+		Authentication authentication = SecurityContextHolder.getContext()
+				.getAuthentication();
+		ArgeoUser argeoUser = ArgeoUserDetails.asArgeoUser(authentication);
+		return argeoUser;
 	}
 }

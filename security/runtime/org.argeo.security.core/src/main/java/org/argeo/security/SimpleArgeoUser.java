@@ -18,14 +18,16 @@ package org.argeo.security;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SimpleArgeoUser implements ArgeoUser, Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private String username;
 	private String password;
-	private List<UserNature> userNatures = new ArrayList<UserNature>();
+	private Map<String, UserNature> userNatures = new HashMap<String, UserNature>();
 	private List<String> roles = new ArrayList<String>();
 
 	public SimpleArgeoUser() {
@@ -35,15 +37,16 @@ public class SimpleArgeoUser implements ArgeoUser, Serializable {
 	public SimpleArgeoUser(ArgeoUser argeoUser) {
 		username = argeoUser.getUsername();
 		password = argeoUser.getPassword();
-		userNatures = new ArrayList<UserNature>(argeoUser.getUserNatures());
+		userNatures = new HashMap<String, UserNature>(
+				argeoUser.getUserNatures());
 		roles = new ArrayList<String>(argeoUser.getRoles());
 	}
 
-	public List<UserNature> getUserNatures() {
+	public Map<String, UserNature> getUserNatures() {
 		return userNatures;
 	}
 
-	public void updateUserNatures(List<UserNature> userNaturesData) {
+	public void updateUserNatures(Map<String, UserNature> userNaturesData) {
 		UserNature.updateUserNaturesWithCheck(userNatures, userNaturesData);
 	}
 
@@ -59,7 +62,7 @@ public class SimpleArgeoUser implements ArgeoUser, Serializable {
 		this.username = username;
 	}
 
-	public void setUserNatures(List<UserNature> userNatures) {
+	public void setUserNatures(Map<String, UserNature> userNatures) {
 		this.userNatures = userNatures;
 	}
 

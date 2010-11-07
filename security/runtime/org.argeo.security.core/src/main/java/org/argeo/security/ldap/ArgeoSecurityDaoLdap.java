@@ -133,9 +133,7 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 	}
 
 	public ArgeoUser getCurrentUser() {
-		Authentication authentication = SecurityContextHolder.getContext()
-				.getAuthentication();
-		ArgeoUser argeoUser = ArgeoUserDetails.asArgeoUser(authentication);
+		ArgeoUser argeoUser = ArgeoUserDetails.securityContextUser();
 		if (argeoUser == null)
 			return null;
 		if (argeoUser.getRoles().contains(defaultRole))
@@ -191,8 +189,8 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 				.executeReadWrite(new ContextExecutor() {
 					public Object executeWithContext(DirContext ctx)
 							throws NamingException {
-						return LdapUtils.getFullDn(usernameMapper
-								.buildDn(superuserName), ctx);
+						return LdapUtils.getFullDn(
+								usernameMapper.buildDn(superuserName), ctx);
 					}
 				});
 
@@ -202,8 +200,8 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 		context.setAttributeValue("cn", group);
 
 		// Add superuser because cannot create empty group
-		context.setAttributeValue(groupMemberAttributeName, superuserDn
-				.toString());
+		context.setAttributeValue(groupMemberAttributeName,
+				superuserDn.toString());
 
 		ldapTemplate.bind(groupDn, context, null);
 	}

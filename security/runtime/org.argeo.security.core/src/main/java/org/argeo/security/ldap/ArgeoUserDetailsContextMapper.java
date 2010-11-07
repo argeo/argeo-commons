@@ -18,7 +18,9 @@ package org.argeo.security.ldap;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.argeo.security.ArgeoUser;
 import org.argeo.security.UserNature;
@@ -30,8 +32,8 @@ import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.ldap.UserDetailsContextMapper;
 
 public class ArgeoUserDetailsContextMapper implements UserDetailsContextMapper {
-//	private final static Log log = LogFactory
-//			.getLog(ArgeoUserDetailsContextMapper.class);
+	// private final static Log log = LogFactory
+	// .getLog(ArgeoUserDetailsContextMapper.class);
 
 	private List<UserNatureMapper> userNatureMappers = new ArrayList<UserNatureMapper>();
 
@@ -41,15 +43,15 @@ public class ArgeoUserDetailsContextMapper implements UserDetailsContextMapper {
 				.first();
 		String password = new String(arr);
 
-		List<UserNature> userNatures = new ArrayList<UserNature>();
+		Map<String, UserNature> userNatures = new HashMap<String, UserNature>();
 		for (UserNatureMapper userInfoMapper : userNatureMappers) {
 			UserNature userNature = userInfoMapper.mapUserInfoFromContext(ctx);
 			if (userNature != null)
-				userNatures.add(userNature);
+				userNatures.put(userInfoMapper.getName(), userNature);
 		}
 
-		return new ArgeoUserDetails(username, Collections
-				.unmodifiableList(userNatures), password, authorities);
+		return new ArgeoUserDetails(username,
+				Collections.unmodifiableMap(userNatures), password, authorities);
 	}
 
 	public void mapUserToContext(UserDetails user, DirContextAdapter ctx) {
@@ -58,7 +60,7 @@ public class ArgeoUserDetailsContextMapper implements UserDetailsContextMapper {
 		ctx.setAttributeValue("userPassword", user.getPassword());
 		if (user instanceof ArgeoUser) {
 			ArgeoUser argeoUser = (ArgeoUser) user;
-			for (UserNature userNature : argeoUser.getUserNatures()) {
+			for (UserNature userNature : argeoUser.getUserNatures().values()) {
 				for (UserNatureMapper userInfoMapper : userNatureMappers) {
 					if (userInfoMapper.supports(userNature)) {
 						userInfoMapper.mapUserInfoToContext(userNature, ctx);

@@ -24,13 +24,16 @@ import org.springframework.ldap.core.DirContextOperations;
 
 public class CoworkerUserNatureMapper implements UserNatureMapper {
 
+	public String getName() {
+		return "coworker";
+	}
+
 	public UserNature mapUserInfoFromContext(DirContextOperations ctx) {
 		CoworkerNature nature = new CoworkerNature();
 		nature.setMobile(ctx.getStringAttribute("mobile"));
 		nature.setTelephoneNumber(ctx.getStringAttribute("telephoneNumber"));
 
-		if (nature.getMobile() == null
-				&& nature.getTelephoneNumber() == null)
+		if (nature.getMobile() == null && nature.getTelephoneNumber() == null)
 			return null;
 		else
 			return nature;
@@ -44,8 +47,8 @@ public class CoworkerUserNatureMapper implements UserNatureMapper {
 		}
 		if (nature.getTelephoneNumber() == null
 				|| !nature.getTelephoneNumber().equals("")) {
-			ctx.setAttributeValue("telephoneNumber", nature
-					.getTelephoneNumber());
+			ctx.setAttributeValue("telephoneNumber",
+					nature.getTelephoneNumber());
 		}
 	}
 

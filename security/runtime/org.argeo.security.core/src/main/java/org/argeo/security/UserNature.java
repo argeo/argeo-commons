@@ -18,6 +18,7 @@ package org.argeo.security;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import org.argeo.ArgeoException;
 
@@ -38,7 +39,8 @@ public class UserNature implements Serializable {
 	}
 
 	public final static void updateUserNaturesWithCheck(
-			List<UserNature> userNatures, List<UserNature> userNaturesData) {
+			Map<String, UserNature> userNatures,
+			Map<String, UserNature> userNaturesData) {
 		if (userNatures.size() != userNaturesData.size())
 			throw new ArgeoException(
 					"It is forbidden to add or remove user natures via this method");
@@ -55,8 +57,8 @@ public class UserNature implements Serializable {
 						"Could not find a user nature of type " + type);
 		}
 
-		for (int i = 0; i < userNatures.size(); i++) {
-			userNatures.set(i, userNaturesData.get(i));
+		for (String key : userNatures.keySet()) {
+			userNatures.put(key, userNaturesData.get(key));
 		}
 	}
 }

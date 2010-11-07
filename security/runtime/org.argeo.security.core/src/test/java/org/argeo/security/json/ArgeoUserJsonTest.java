@@ -17,8 +17,8 @@
 package org.argeo.security.json;
 
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -44,16 +44,14 @@ public class ArgeoUserJsonTest extends TestCase {
 	private static Log log = LogFactory.getLog(ArgeoUserJsonTest.class);
 
 	public void testMapper() throws Exception {
-		List<UserNature> natures = new ArrayList<UserNature>();
-
+		Map<String, UserNature> natures = new HashMap<String, UserNature>();
 		SimpleUserNature sun = new SimpleUserNature();
 		sun.setFirstName("Mickey");
 		sun.setEmail("username@domain.com");
-		natures.add(sun);
-
+		natures.put("simple",sun);
 		CoworkerNature cwn = new CoworkerNature();
 		cwn.setMobile("+123456789");
-		natures.add(cwn);
+		natures.put("coworker",cwn);
 
 		GrantedAuthority[] roles = { new GrantedAuthorityImpl("ROLE1"),
 				new GrantedAuthorityImpl("ROLE2") };
@@ -105,17 +103,17 @@ public class ArgeoUserJsonTest extends TestCase {
 	}
 
 	public void testSeriDeserialize() {
-		List<UserNature> natures = new ArrayList<UserNature>();
+		Map<String, UserNature> natures = new HashMap<String, UserNature>();
 		JSONArray naturesJo = new JSONArray();
 
 		SimpleUserNature sun = new SimpleUserNature();
 		sun.setEmail("username@domain.com");
-		natures.add(sun);
+		natures.put("simple",sun);
 		naturesJo.put(new JSONObject(sun));
 
 		CoworkerNature cwn = new CoworkerNature();
 		cwn.setMobile("+123456789");
-		natures.add(cwn);
+		natures.put("coworker",cwn);
 		naturesJo.put(new JSONObject(cwn));
 
 		GrantedAuthority[] roles = { new GrantedAuthorityImpl("ROLE1"),

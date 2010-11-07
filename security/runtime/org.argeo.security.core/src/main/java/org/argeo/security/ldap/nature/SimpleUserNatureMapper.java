@@ -23,6 +23,9 @@ import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 
 public class SimpleUserNatureMapper implements UserNatureMapper {
+	public String getName() {
+		return "simple";
+	}
 
 	public UserNature mapUserInfoFromContext(DirContextOperations ctx) {
 		SimpleUserNature nature = new SimpleUserNature();
@@ -36,8 +39,8 @@ public class SimpleUserNatureMapper implements UserNatureMapper {
 	public void mapUserInfoToContext(UserNature userInfoArg,
 			DirContextAdapter ctx) {
 		SimpleUserNature nature = (SimpleUserNature) userInfoArg;
-		ctx.setAttributeValue("cn", nature.getFirstName() + " "
-				+ nature.getLastName());
+		ctx.setAttributeValue("cn",
+				nature.getFirstName() + " " + nature.getLastName());
 		ctx.setAttributeValue("sn", nature.getLastName());
 		ctx.setAttributeValue("givenName", nature.getFirstName());
 		ctx.setAttributeValue("mail", nature.getEmail());
