@@ -24,7 +24,7 @@ import org.springframework.ldap.core.DirContextOperations;
 
 public class SimpleUserNatureMapper implements UserNatureMapper {
 	public String getName() {
-		return "simple";
+		return "simpleUser";
 	}
 
 	public UserNature mapUserInfoFromContext(DirContextOperations ctx) {

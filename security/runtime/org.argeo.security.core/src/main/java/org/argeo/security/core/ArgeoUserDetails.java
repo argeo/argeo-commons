@@ -69,7 +69,7 @@ public class ArgeoUserDetails extends User implements ArgeoUser {
 	}
 
 	/** The provided list, for chaining using {@link Collections} */
-	protected static List<String> addAuthoritiesToRoles(
+	public static List<String> addAuthoritiesToRoles(
 			GrantedAuthority[] authorities, List<String> roles) {
 		for (GrantedAuthority authority : authorities) {
 			roles.add(authority.getAuthority());
@@ -77,7 +77,7 @@ public class ArgeoUserDetails extends User implements ArgeoUser {
 		return roles;
 	}
 
-	protected static GrantedAuthority[] rolesToAuthorities(List<String> roles) {
+	public static GrantedAuthority[] rolesToAuthorities(List<String> roles) {
 		GrantedAuthority[] arr = new GrantedAuthority[roles.size()];
 		for (int i = 0; i < roles.size(); i++) {
 			String role = roles.get(i);

@@ -7,11 +7,11 @@
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
 	<service interface="org.argeo.security.ldap.UserNatureMapper">
-		<beans:bean class="org.argeo.security.ldap.nature.SimpleUserNatureMapper" />
+		<beans:bean name="simpleUser" class="org.argeo.security.ldap.nature.SimpleUserNatureMapper" />
 	</service>
 
 	<service interface="org.argeo.security.ldap.UserNatureMapper">
-		<beans:bean class="org.argeo.security.ldap.nature.CoworkerUserNatureMapper" />
+		<beans:bean name="coworker" class="org.argeo.security.ldap.nature.CoworkerUserNatureMapper" />
 	</service>
 
 </beans:beans>

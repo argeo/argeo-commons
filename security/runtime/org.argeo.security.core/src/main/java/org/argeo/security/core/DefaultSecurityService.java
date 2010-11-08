@@ -36,6 +36,15 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 
 	private String systemAuthenticationKey;
 
+	public ArgeoUser getCurrentUser() {
+		ArgeoUser argeoUser = ArgeoUserDetails.securityContextUser();
+		if (argeoUser == null)
+			return null;
+		if (argeoUser.getRoles().contains(securityDao.getDefaultRole()))
+			argeoUser.getRoles().remove(securityDao.getDefaultRole());
+		return argeoUser;
+	}
+
 	public ArgeoSecurityDao getSecurityDao() {
 		return securityDao;
 	}
@@ -45,14 +54,14 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 	}
 
 	public void updateUserPassword(String username, String password) {
-		SimpleArgeoUser user = new SimpleArgeoUser(securityDao
-				.getUser(username));
+		SimpleArgeoUser user = new SimpleArgeoUser(
+				securityDao.getUser(username));
 		user.setPassword(password);
 		securityDao.update(user);
 	}
 
 	public void updateCurrentUserPassword(String oldPassword, String newPassword) {
-		SimpleArgeoUser user = new SimpleArgeoUser(securityDao.getCurrentUser());
+		SimpleArgeoUser user = new SimpleArgeoUser(getCurrentUser());
 		if (!user.getPassword().equals(oldPassword))
 			throw new ArgeoException("Old password is not correct.");
 		user.setPassword(newPassword);
@@ -122,5 +131,4 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 	public void setSystemAuthenticationKey(String systemAuthenticationKey) {
 		this.systemAuthenticationKey = systemAuthenticationKey;
 	}
-
 }

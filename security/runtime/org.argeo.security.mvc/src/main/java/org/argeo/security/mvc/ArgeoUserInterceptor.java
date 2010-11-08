@@ -13,8 +13,7 @@ public class ArgeoUserInterceptor extends HandlerInterceptorAdapter {
 	@Override
 	public boolean preHandle(HttpServletRequest request,
 			HttpServletResponse response, Object handler) throws Exception {
-		request.setAttribute("argeoUser", securityService.getSecurityDao()
-				.getCurrentUser());
+		request.setAttribute("argeoUser", securityService.getCurrentUser());
 		return super.preHandle(request, response, handler);
 	}
 

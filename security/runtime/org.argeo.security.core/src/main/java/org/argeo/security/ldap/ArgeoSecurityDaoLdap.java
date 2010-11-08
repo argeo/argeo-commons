@@ -36,7 +36,6 @@ import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
-import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.ldap.DefaultLdapUsernameToDnMapper;
 import org.springframework.security.ldap.LdapAuthoritiesPopulator;
@@ -44,6 +43,7 @@ import org.springframework.security.ldap.LdapUsernameToDnMapper;
 import org.springframework.security.ldap.LdapUtils;
 import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsManager;
 import org.springframework.security.userdetails.UserDetailsService;
@@ -118,31 +118,31 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 		ldapTemplate = new LdapTemplate(this.contextSource);
 	}
 
-	public void create(ArgeoUser user) {
+	public synchronized void create(ArgeoUser user) {
 		userDetailsManager.createUser(new ArgeoUserDetails(user));
 	}
 
-	public ArgeoUser getUser(String uname) {
+	public synchronized ArgeoUser getUser(String uname) {
 		SimpleArgeoUser user = createSimpleArgeoUser(getDetails(uname));
 		user.setPassword(null);
 		return user;
 	}
 
-	public ArgeoUser getUserWithPassword(String uname) {
+	public synchronized ArgeoUser getUserWithPassword(String uname) {
 		return createSimpleArgeoUser(getDetails(uname));
 	}
 
-	public ArgeoUser getCurrentUser() {
-		ArgeoUser argeoUser = ArgeoUserDetails.securityContextUser();
-		if (argeoUser == null)
-			return null;
-		if (argeoUser.getRoles().contains(defaultRole))
-			argeoUser.getRoles().remove(defaultRole);
-		return argeoUser;
-	}
+//	public ArgeoUser getCurrentUser() {
+//		ArgeoUser argeoUser = ArgeoUserDetails.securityContextUser();
+//		if (argeoUser == null)
+//			return null;
+//		if (argeoUser.getRoles().contains(defaultRole))
+//			argeoUser.getRoles().remove(defaultRole);
+//		return argeoUser;
+//	}
 
 	@SuppressWarnings("unchecked")
-	public List<ArgeoUser> listUsers() {
+	public synchronized List<ArgeoUser> listUsers() {
 		List<String> usernames = (List<String>) ldapTemplate.listBindings(
 				new DistinguishedName(userBase), new ContextMapper() {
 					public Object mapFromContext(Object ctxArg) {
@@ -171,15 +171,23 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 				});
 	}
 
-	public void update(ArgeoUser user) {
+	public synchronized void update(ArgeoUser user) {
+		ArgeoUserDetails argeoUserDetails = new ArgeoUserDetails(user);
 		userDetailsManager.updateUser(new ArgeoUserDetails(user));
+		// refresh logged in user
+		if (ArgeoUserDetails.securityContextUser().getUsername()
+				.equals(argeoUserDetails.getUsername())) {
+			SecurityContextHolder.getContext().setAuthentication(
+					new UsernamePasswordAuthenticationToken(argeoUserDetails,
+							null, argeoUserDetails.getAuthorities()));
+		}
 	}
 
-	public void delete(String username) {
+	public synchronized void delete(String username) {
 		userDetailsManager.deleteUser(username);
 	}
 
-	public Boolean userExists(String username) {
+	public synchronized Boolean userExists(String username) {
 		return userDetailsManager.userExists(username);
 	}
 

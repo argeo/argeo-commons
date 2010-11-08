@@ -50,7 +50,7 @@ public class UsersRolesController implements MvcConstants {
 	@RequestMapping("/getCredentials.*")
 	@ModelAttribute("user")
 	public ArgeoUser getCredentials() {
-		ArgeoUser argeoUser = securityService.getSecurityDao().getCurrentUser();
+		ArgeoUser argeoUser = securityService.getCurrentUser();
 		if (argeoUser == null)
 			return new SimpleArgeoUser();
 		else
@@ -92,7 +92,7 @@ public class UsersRolesController implements MvcConstants {
 	@ModelAttribute("user")
 	/** Will only update the user natures.*/
 	public ArgeoUser updateUserSelf(Reader reader) {
-		ArgeoUser user = securityService.getSecurityDao().getCurrentUser();
+		ArgeoUser user = securityService.getCurrentUser();
 		ArgeoUser userForNatures = userDeserializer.deserialize(reader,
 				SimpleArgeoUser.class);
 		user.updateUserNatures(userForNatures.getUserNatures());

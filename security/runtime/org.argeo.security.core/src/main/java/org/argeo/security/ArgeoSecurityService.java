@@ -17,6 +17,8 @@
 package org.argeo.security;
 
 public interface ArgeoSecurityService {
+	public ArgeoUser getCurrentUser();
+
 	public void newUser(ArgeoUser argeoUser);
 
 	public void updateUser(ArgeoUser user);

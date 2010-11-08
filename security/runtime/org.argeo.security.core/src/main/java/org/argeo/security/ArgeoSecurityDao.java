@@ -19,7 +19,7 @@ package org.argeo.security;
 import java.util.List;
 
 public interface ArgeoSecurityDao {
-	public ArgeoUser getCurrentUser();
+//	public ArgeoUser getCurrentUser();
 
 	public List<ArgeoUser> listUsers();
 
@@ -40,4 +40,6 @@ public interface ArgeoSecurityDao {
 	public ArgeoUser getUser(String username);
 
 	public ArgeoUser getUserWithPassword(String username);
+	
+	public String getDefaultRole();
 }
