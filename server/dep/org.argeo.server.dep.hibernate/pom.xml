@@ -33,6 +33,10 @@
 			<groupId>edu.emory.mathcs.backport</groupId>
 			<artifactId>com.springsource.edu.emory.mathcs.backport</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>javax.xml.stream</groupId>
+			<artifactId>com.springsource.javax.xml.stream</artifactId>
+		</dependency>
 
 	</dependencies>
 </project>
