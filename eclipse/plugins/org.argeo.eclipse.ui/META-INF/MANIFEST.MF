@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Argeo Eclipse UI
 Bundle-SymbolicName: org.argeo.eclipse.ui
-Bundle-Version: 0.2.1.SNAPSHOT
+Bundle-Version: 0.2.2.SNAPSHOT
 Bundle-Activator: org.argeo.eclipse.ui.ArgeoUiPlugin
 Bundle-Vendor: Argeo
 Require-Bundle: org.eclipse.ui,
