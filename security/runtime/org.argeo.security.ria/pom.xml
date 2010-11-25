@@ -73,16 +73,6 @@
 							<job>slc-test</job>
 						</configuration>
 					</execution>
-					<execution>
-						<id>slc-api</id>
-						<phase>site</phase>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<configuration>
-							<job>slc-api</job>
-						</configuration>
-					</execution>
 				</executions>
 			</plugin>
 			<plugin>
