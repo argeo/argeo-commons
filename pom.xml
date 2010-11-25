@@ -36,7 +36,7 @@
 			<comments><![CDATA[
 SLC - Software LifeCycle framework
 			   
-Copyright 2008 Mathieu Baudier - Argeo e.U.
+Copyright 2010 Mathieu Baudier
 
 Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
 you may not use this file except in compliance with the License.
@@ -179,6 +179,7 @@ limitations under the License.
 			<plugin>
 				<groupId>com.mycila.maven-license-plugin</groupId>
 				<artifactId>maven-license-plugin</artifactId>
+				<version>1.8.0</version>
 				<configuration>
 					<header>license-apache2-header.txt</header>
 					<failIfMissing>true</failIfMissing>
