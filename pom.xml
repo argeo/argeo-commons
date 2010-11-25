@@ -8,7 +8,7 @@
 	</parent>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
-	<version>0.2.1</version>
+	<version>0.2.2-SNAPSHOT</version>
 	<name>Argeo Commons</name>
 	<packaging>pom</packaging>
 	<properties>
@@ -23,9 +23,9 @@
 	</properties>
 	<url>${site.urlBase}/${developmentCycle}</url>
 	<scm>
-		<connection>scm:svn:https://svn.argeo.org/commons/tags/argeo-commons-0.2.1</connection>
-		<developerConnection>scm:svn:https://svn.argeo.org/commons/tags/argeo-commons-0.2.1</developerConnection>
-		<url>https://svn.argeo.org/commons/tags/argeo-commons-0.2.1</url>
+		<connection>scm:svn:https://svn.argeo.org/commons/trunk</connection>
+		<developerConnection>scm:svn:https://svn.argeo.org/commons/trunk</developerConnection>
+		<url>https://svn.argeo.org/commons/trunk</url>
 	</scm>
 	<licenses>
 		<license>
