@@ -25,10 +25,14 @@ import javax.jcr.SimpleCredentials;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.argeo.ArgeoException;
 
 public abstract class AbstractJcrTestCase extends TestCase {
+	private final static Log log = LogFactory.getLog(AbstractJcrTestCase.class);
+
 	private TransientRepository repository;
 	private Session session = null;
 
@@ -45,13 +49,18 @@ public abstract class AbstractJcrTestCase extends TestCase {
 
 	@Override
 	protected void tearDown() throws Exception {
-		if (session != null)
+		if (session != null) {
 			session.logout();
+			if (log.isDebugEnabled())
+				log.debug("Logout session");
+		}
 	}
 
 	protected Session session() {
 		if (session == null) {
 			try {
+				if (log.isDebugEnabled())
+					log.debug("Login session");
 				session = getRepository().login(
 						new SimpleCredentials("demo", "demo".toCharArray()));
 			} catch (Exception e) {

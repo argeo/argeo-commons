@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
@@ -35,6 +36,22 @@
 					</instructions>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.argeo.maven.plugins</groupId>
+				<artifactId>maven-argeo-osgi-plugin</artifactId>
+				<version>${version.maven-argeo-osgi}</version>
+				<configuration>
+					<useDependencies>true</useDependencies>
+					<onlyCheck>true</onlyCheck>
+					<argsToAppend>
+						<arg>-clean</arg>
+					</argsToAppend>
+					<systemProperties>
+						<!-- Make sure that no bundle will be started -->
+						<argeo.osgi.start>XXX</argeo.osgi.start>
+					</systemProperties>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
@@ -52,8 +69,8 @@
 
 		<!-- JCR -->
 		<dependency>
-			<groupId>javax.jcr</groupId>
-			<artifactId>com.springsource.javax.jcr</artifactId>
+			<groupId>org.argeo.dep.osgi</groupId>
+			<artifactId>org.argeo.dep.osgi.jcr</artifactId>
 		</dependency>
 
 		<!-- Spring -->
@@ -117,6 +134,12 @@
 			<artifactId>org.argeo.basic.dep.log4j</artifactId>
 			<version>0.2.2-SNAPSHOT</version>
 			<type>pom</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.osgi</groupId>
+			<artifactId>org.argeo.osgi.boot</artifactId>
+			<version>0.2.2-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

@@ -59,8 +59,10 @@
 
 		<!-- Jack Rabbit -->
 		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.jackrabbit</artifactId>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.dep.jackrabbit.server</artifactId>
+			<version>${project.version}</version>
+			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>

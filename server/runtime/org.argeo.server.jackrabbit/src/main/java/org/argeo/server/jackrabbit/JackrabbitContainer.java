@@ -25,6 +25,7 @@ import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.Value;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -120,6 +121,26 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 	public Session login(String workspaceName) throws LoginException,
 			NoSuchWorkspaceException, RepositoryException {
 		return repository.login(workspaceName);
+	}
+
+	public boolean isStandardDescriptor(String key) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean isSingleValueDescriptor(String key) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public Value getDescriptorValue(String key) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Value[] getDescriptorValues(String key) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	// BEANS METHODS

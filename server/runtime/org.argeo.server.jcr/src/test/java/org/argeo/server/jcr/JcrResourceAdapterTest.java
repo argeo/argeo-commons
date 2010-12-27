@@ -89,9 +89,16 @@ public class JcrResourceAdapterTest extends AbstractJcrTestCase {
 
 	@Override
 	protected void setUp() throws Exception {
+		log.debug("SET UP");
 		super.setUp();
 		jra = new JcrResourceAdapter();
 		jra.setSession(session());
+	}
+
+	@Override
+	protected void tearDown() throws Exception {
+		log.debug("TEAR DOWN");
+		super.tearDown();
 	}
 
 	protected File getRepositoryFile() throws Exception {

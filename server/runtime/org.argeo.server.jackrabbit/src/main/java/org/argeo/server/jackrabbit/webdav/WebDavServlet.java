@@ -47,7 +47,7 @@ public class WebDavServlet extends SimpleWebdavServlet {
 		super.init();
 
 		if (resourceConfiguration != null) {
-			ResourceConfig resourceConfig = new ResourceConfig();
+			ResourceConfig resourceConfig = new ResourceConfig(null);
 			try {
 				resourceConfig.parse(resourceConfiguration.getURL());
 			} catch (IOException e) {
