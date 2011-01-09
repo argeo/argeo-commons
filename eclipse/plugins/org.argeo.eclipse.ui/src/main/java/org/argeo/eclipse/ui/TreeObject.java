@@ -16,7 +16,7 @@
 
 package org.argeo.eclipse.ui;
 
-public class TreeObject {
+public class TreeObject implements Comparable<TreeObject> {
 	private String name;
 	private TreeParent parent;
 
@@ -39,4 +39,19 @@ public class TreeObject {
 	public String toString() {
 		return getName();
 	}
+
+	public int compareTo(TreeObject o) {
+		return name.compareTo(o.name);
+	}
+
+	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return name.equals(obj.toString());
+	}
+
 }
