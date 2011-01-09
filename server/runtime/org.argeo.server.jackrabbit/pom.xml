@@ -57,7 +57,7 @@
 			<version>0.2.2-SNAPSHOT</version>
 		</dependency>
 
-		<!-- Jack Rabbit -->
+		<!-- Jackrabbit -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.jackrabbit.server</artifactId>
@@ -110,12 +110,6 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>com.springsource.org.apache.commons.fileupload</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.junit</groupId>
-			<artifactId>com.springsource.junit</artifactId>
-			<optional>true</optional>
 		</dependency>
 
 		<!-- TEST -->

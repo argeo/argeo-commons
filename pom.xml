@@ -142,9 +142,10 @@ limitations under the License.
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>buildnumber-maven-plugin</artifactId>
+				<version>1.0-beta-4</version>
 				<executions>
 					<execution>
-						<phase>validate</phase>
+						<phase>generate-resources</phase>
 						<goals>
 							<goal>create</goal>
 						</goals>
@@ -153,7 +154,14 @@ limitations under the License.
 				<configuration>
 					<doCheck>false</doCheck>
 					<doUpdate>false</doUpdate>
-					<useLastCommittedRevision>true</useLastCommittedRevision>
+					<format>{0,date,yyyyMMdd_HHmmss}</format>
+					<items>
+						<item>timestamp</item>
+					</items>
+					<revisionOnScmFailure>git</revisionOnScmFailure>
+					<providerImplementations>
+						<git>svn</git>
+					</providerImplementations>
 				</configuration>
 			</plugin>
 			<plugin>

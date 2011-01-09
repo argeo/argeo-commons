@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.argeo.server.jackrabbit.unit;
+package org.argeo.jcr.unit;
 
 import java.io.File;
 
@@ -27,24 +27,30 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.jackrabbit.core.TransientRepository;
 import org.argeo.ArgeoException;
 
 public abstract class AbstractJcrTestCase extends TestCase {
 	private final static Log log = LogFactory.getLog(AbstractJcrTestCase.class);
 
-	private TransientRepository repository;
+	private Repository repository;
 	private Session session = null;
 
 	protected abstract File getRepositoryFile() throws Exception;
 
+	protected abstract Repository createRepository() throws Exception;
+
 	@Override
 	protected void setUp() throws Exception {
+		File homeDir = getHomeDir();
+		FileUtils.deleteDirectory(homeDir);
+		repository = createRepository();
+	}
+
+	protected File getHomeDir() {
 		File homeDir = new File(System.getProperty("java.io.tmpdir"),
 				AbstractJcrTestCase.class.getSimpleName() + "-"
 						+ System.getProperty("user.name"));
-		FileUtils.deleteDirectory(homeDir);
-		repository = new TransientRepository(getRepositoryFile(), homeDir);
+		return homeDir;
 	}
 
 	@Override

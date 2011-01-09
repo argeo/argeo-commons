@@ -22,11 +22,14 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.jcr.Repository;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.jackrabbit.core.TransientRepository;
 import org.argeo.jcr.JcrResourceAdapter;
-import org.argeo.server.jackrabbit.unit.AbstractJcrTestCase;
+import org.argeo.jcr.unit.AbstractJcrTestCase;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -105,6 +108,12 @@ public class JcrResourceAdapterTest extends AbstractJcrTestCase {
 		Resource res = new ClassPathResource(
 				"org/argeo/server/jcr/repository.xml");
 		return res.getFile();
+	}
+
+	protected Repository createRepository() throws Exception {
+		Repository repository = new TransientRepository(getRepositoryFile(),
+				getHomeDir());
+		return repository;
 	}
 
 }

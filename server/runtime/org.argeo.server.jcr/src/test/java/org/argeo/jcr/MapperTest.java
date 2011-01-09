@@ -19,8 +19,10 @@ package org.argeo.jcr;
 import java.io.File;
 
 import javax.jcr.Node;
+import javax.jcr.Repository;
 
-import org.argeo.server.jackrabbit.unit.AbstractJcrTestCase;
+import org.apache.jackrabbit.core.TransientRepository;
+import org.argeo.jcr.unit.AbstractJcrTestCase;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -53,4 +55,10 @@ public class MapperTest extends AbstractJcrTestCase {
 		return res.getFile();
 	}
 
+	protected Repository createRepository() throws Exception{
+		Repository repository = new TransientRepository(getRepositoryFile(), getHomeDir());
+		return repository;
+	}
+
+	
 }
