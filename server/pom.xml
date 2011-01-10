@@ -11,8 +11,8 @@
 	<name>Commons Server</name>
 	<packaging>pom</packaging>
 	<modules>
-		<module>runtime</module>
 		<module>modules</module>
+		<module>runtime</module>
 		<module>dep</module>
 		<module>demo</module>
 	</modules>

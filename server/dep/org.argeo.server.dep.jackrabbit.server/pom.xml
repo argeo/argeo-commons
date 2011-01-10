@@ -45,6 +45,11 @@
 			<artifactId>org.argeo.dep.osgi.jackrabbit</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.tika.jackrabbit</artifactId>
+			<version>0.2.2-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.xalan</groupId>
 			<artifactId>com.springsource.org.apache.xalan</artifactId>
 		</dependency>

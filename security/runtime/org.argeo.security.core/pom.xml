@@ -34,6 +34,13 @@
 						<Import-Package>*,
 							org.springframework.context,
 							org.argeo.server.json;resolution:=optional,
+							javax.jms;resolution:=optional,
+							org.apache.activemq;resolution:=optional,
+							org.apache.activemq.broker;resolution:=optional,
+							org.apache.activemq.command;resolution:=optional,
+							org.apache.activemq.security;resolution:=optional,
+							org.springframework.jms.connection;resolution:=optional,
+							org.springframework.ldap.core;resolution:=optional,
 							org.springframework.ldap.core.support;resolution:=optional,
 						</Import-Package>
 					</instructions>
@@ -65,10 +72,6 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>org.springframework.transaction</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.jms</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -108,10 +111,17 @@
 		<dependency>
 			<groupId>org.argeo.dep.osgi</groupId>
 			<artifactId>org.argeo.dep.osgi.activemq</artifactId>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>javax.jms</groupId>
 			<artifactId>com.springsource.javax.jms</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>org.springframework.jms</artifactId>
+			<optional>true</optional>
 		</dependency>
 
 		<!-- TEST -->
