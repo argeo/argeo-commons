@@ -38,6 +38,10 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
 
+/**
+ * Wrapper around a Jackrabbit repository which allows to configure it in Spring
+ * and expose it as a {@link Repository}.
+ */
 public class JackrabbitContainer implements InitializingBean, DisposableBean,
 		Repository {
 	private Log log = LogFactory.getLog(JackrabbitContainer.class);
@@ -58,8 +62,8 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 		RepositoryConfig config;
 		InputStream in = configuration.getInputStream();
 		try {
-			config = RepositoryConfig.create(in, homeDirectory
-					.getCanonicalPath());
+			config = RepositoryConfig.create(in,
+					homeDirectory.getCanonicalPath());
 		} catch (Exception e) {
 			throw new RuntimeException("Cannot read configuration", e);
 		} finally {
@@ -124,23 +128,19 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 	}
 
 	public boolean isStandardDescriptor(String key) {
-		// TODO Auto-generated method stub
-		return false;
+		return repository.isStandardDescriptor(key);
 	}
 
 	public boolean isSingleValueDescriptor(String key) {
-		// TODO Auto-generated method stub
-		return false;
+		return repository.isSingleValueDescriptor(key);
 	}
 
 	public Value getDescriptorValue(String key) {
-		// TODO Auto-generated method stub
-		return null;
+		return repository.getDescriptorValue(key);
 	}
 
 	public Value[] getDescriptorValues(String key) {
-		// TODO Auto-generated method stub
-		return null;
+		return repository.getDescriptorValues(key);
 	}
 
 	// BEANS METHODS
