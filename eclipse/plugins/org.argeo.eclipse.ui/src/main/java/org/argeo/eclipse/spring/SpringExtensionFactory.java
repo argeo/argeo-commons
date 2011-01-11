@@ -16,6 +16,7 @@
 
 package org.argeo.eclipse.spring;
 
+import org.argeo.ArgeoException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExecutableExtension;
@@ -41,7 +42,8 @@ import org.springframework.context.ApplicationContext;
  * spring extension factory uses the id of the extension itself to identify the
  * bean.
  * 
- * original code from: <a href="http://martinlippert.blogspot.com/2008/10/new-version-of-spring-extension-factory.html"
+ * original code from: <a href=
+ * "http://martinlippert.blogspot.com/2008/10/new-version-of-spring-extension-factory.html"
  * >Blog entry</a>
  * 
  * @author Martin Lippert
@@ -53,21 +55,30 @@ public class SpringExtensionFactory implements IExecutableExtensionFactory,
 	private Object bean;
 
 	public Object create() throws CoreException {
+		if (bean == null)
+			throw new ArgeoException("No underlying bean for extension");
 		return bean;
 	}
 
 	public void setInitializationData(IConfigurationElement config,
 			String propertyName, Object data) throws CoreException {
 		String beanName = getBeanName(data, config);
-		ApplicationContext appContext = ApplicationContextTracker
-				.getApplicationContext(config.getContributor().getName());
+		if (beanName == null)
+			throw new ArgeoException("Cannot find bean name for extension "
+					+ config);
 
-		if (beanName != null && appContext != null) {
-			this.bean = appContext.getBean(beanName);
-			if (this.bean instanceof IExecutableExtension) {
-				((IExecutableExtension) this.bean).setInitializationData(
-						config, propertyName, data);
-			}
+		String bundleSymbolicName = config.getContributor().getName();
+		ApplicationContext appContext = ApplicationContextTracker
+				.getApplicationContext(bundleSymbolicName);
+		if (appContext == null)
+			throw new ArgeoException(
+					"Cannot find application context for bundle "
+							+ bundleSymbolicName);
+
+		this.bean = appContext.getBean(beanName);
+		if (this.bean instanceof IExecutableExtension) {
+			((IExecutableExtension) this.bean).setInitializationData(config,
+					propertyName, data);
 		}
 	}
 

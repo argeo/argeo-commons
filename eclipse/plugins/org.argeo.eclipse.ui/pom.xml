@@ -47,6 +47,13 @@
 		</plugins>
 	</build>
 	<dependencies>
+		<!-- Commons -->
+		<dependency>
+			<groupId>org.argeo.commons.basic</groupId>
+			<artifactId>org.argeo.basic.nodeps</artifactId>
+			<version>0.2.2-SNAPSHOT</version>
+		</dependency>
+
 		<!-- Eclipse -->
 		<dependency>
 			<groupId>org.eclipse.ui</groupId>
@@ -111,6 +118,7 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>org.springframework.context</artifactId>
 		</dependency>
+		
 		<!-- Others -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
