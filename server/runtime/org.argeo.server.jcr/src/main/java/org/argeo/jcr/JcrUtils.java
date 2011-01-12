@@ -90,7 +90,14 @@ public class JcrUtils {
 		return dateAsPath(cal, false);
 	}
 
-	/** The provided data as a path ('/' at the end, not the beginning) */
+	/**
+	 * The provided data as a path ('/' at the end, not the beginning)
+	 * 
+	 * @param cal
+	 *            the date
+	 * @param addHour
+	 *            whether to add hour as well
+	 */
 	public static String dateAsPath(Calendar cal, Boolean addHour) {
 		StringBuffer buf = new StringBuffer(14);
 		buf.append('Y').append(cal.get(Calendar.YEAR));// 5

@@ -16,19 +16,24 @@
 
 package org.argeo;
 
+/** Argeo Commons specific exception. */
 public class ArgeoException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
+	/** Creates an exception with a message. */
 	public ArgeoException(String message) {
 		super(message);
 	}
 
-	public ArgeoException(Throwable cause) {
-		super(cause);
+	/** Creates an exception with a message and a root cause. */
+	public ArgeoException(String message, Throwable e) {
+		super(message, e);
 	}
 
-	public ArgeoException(String message, Throwable cause) {
-		super(message, cause);
+	/** @deprecated use {@link #ArgeoException(String, Throwable)} instead. */
+	@Deprecated
+	public ArgeoException(Throwable cause) {
+		super(cause);
 	}
 
 }

@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
@@ -56,18 +57,16 @@
 		</dependency>
 
 		<dependency>
-			<!--
-				Force inclusion of commons.lang to prevent v2.1.0 to be taken by
-				Spring Security
-			-->
+			<!-- Force inclusion of commons.lang to prevent v2.1.0 to be taken by 
+				Spring Security -->
 			<groupId>org.apache.commons</groupId>
 			<artifactId>com.springsource.org.apache.commons.lang</artifactId>
 		</dependency>
 
 		<!-- Spring -->
 		<dependency>
-				<groupId>org.argeo.dep.osgi</groupId>
-				<artifactId>org.argeo.dep.osgi.springframework.ldap</artifactId>
+			<groupId>org.argeo.dep.osgi</groupId>
+			<artifactId>org.argeo.dep.osgi.springframework.ldap</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -92,7 +91,7 @@
 			<artifactId>com.springsource.slf4j.log4j</artifactId>
 		</dependency>
 
-		<!-- JSON  -->
+		<!-- JSON -->
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>com.springsource.org.codehaus.jackson.mapper</artifactId>

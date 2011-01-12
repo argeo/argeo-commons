@@ -34,6 +34,7 @@ import org.argeo.ArgeoException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 
+/** Proxy JCR sessions and attach them to calling threads. */
 public class ThreadBoundJcrSessionFactory implements FactoryBean,
 		DisposableBean {
 	private final static Log log = LogFactory
@@ -46,6 +47,9 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 	private ThreadLocal<Session> session = new ThreadLocal<Session>();
 	private boolean destroying = false;
 	private final Session proxiedSession;
+
+	private String defaultUsername = "demo";
+	private String defaultPassword = "demo";
 
 	public ThreadBoundJcrSessionFactory() {
 		Class<?>[] interfaces = { Session.class };
@@ -79,8 +83,8 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 
 	protected Session login() {
 		try {
-			SimpleCredentials sc = new SimpleCredentials("demo", "demo"
-					.toCharArray());
+			SimpleCredentials sc = new SimpleCredentials(defaultUsername,
+					defaultPassword.toCharArray());
 			Session sess = repository.login(sc);
 			if (log.isTraceEnabled())
 				log.trace("Log in to JCR session " + sess + "; userId="
@@ -119,6 +123,14 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 
 	public void setRepository(Repository repository) {
 		this.repository = repository;
+	}
+
+	public void setDefaultUsername(String defaultUsername) {
+		this.defaultUsername = defaultUsername;
+	}
+
+	public void setDefaultPassword(String defaultPassword) {
+		this.defaultPassword = defaultPassword;
 	}
 
 }

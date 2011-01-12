@@ -18,6 +18,8 @@ package org.argeo.server.jackrabbit;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.jcr.Credentials;
 import javax.jcr.LoginException;
@@ -31,9 +33,11 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.jackrabbit.commons.NamespaceHelper;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
+import org.argeo.ArgeoException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
@@ -52,6 +56,9 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 	private Boolean inMemory = false;
 
 	private Repository repository;
+
+	/** Namespaces to register: key is prefix, value namespace */
+	private Map<String, String> namespaces = new HashMap<String, String>();
 
 	public void afterPropertiesSet() throws Exception {
 		if (inMemory && homeDirectory.exists()) {
@@ -108,23 +115,40 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 	}
 
 	public Session login() throws LoginException, RepositoryException {
-		return repository.login();
+		Session session = repository.login();
+		processNewSession(session);
+		return session;
 	}
 
 	public Session login(Credentials credentials, String workspaceName)
 			throws LoginException, NoSuchWorkspaceException,
 			RepositoryException {
-		return repository.login(credentials, workspaceName);
+		Session session = repository.login(credentials, workspaceName);
+		processNewSession(session);
+		return session;
 	}
 
 	public Session login(Credentials credentials) throws LoginException,
 			RepositoryException {
-		return repository.login(credentials);
+		Session session = repository.login(credentials);
+		processNewSession(session);
+		return session;
 	}
 
 	public Session login(String workspaceName) throws LoginException,
 			NoSuchWorkspaceException, RepositoryException {
-		return repository.login(workspaceName);
+		Session session = repository.login(workspaceName);
+		processNewSession(session);
+		return session;
+	}
+
+	protected void processNewSession(Session session) {
+		try {
+			NamespaceHelper namespaceHelper = new NamespaceHelper(session);
+			namespaceHelper.registerNamespaces(namespaces);
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot process new session", e);
+		}
 	}
 
 	public boolean isStandardDescriptor(String key) {
@@ -154,6 +178,10 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 
 	public void setInMemory(Boolean inMemory) {
 		this.inMemory = inMemory;
+	}
+
+	public void setNamespaces(Map<String, String> namespaces) {
+		this.namespaces = namespaces;
 	}
 
 }
