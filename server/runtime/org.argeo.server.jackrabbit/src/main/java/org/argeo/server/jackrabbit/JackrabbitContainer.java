@@ -142,7 +142,7 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 		return session;
 	}
 
-	protected void processNewSession(Session session) {
+	protected synchronized void processNewSession(Session session) {
 		try {
 			NamespaceHelper namespaceHelper = new NamespaceHelper(session);
 			namespaceHelper.registerNamespaces(namespaces);
