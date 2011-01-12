@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-Vendor: Argeo
+Private-Package: .;version="0.2.2-SNAPSHOT-r20110112_162633"
+Bundle-Version: 0.2.2.SNAPSHOT-r20110112_162633
+Tool: Bnd-0.0.357
+Bundle-Name: Argeo Commons RCP Dependencies
+Created-By: 1.6.0_17 (Sun Microsystems Inc.)
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-DocURL: http://www.argeo.org
+Bundle-SymbolicName: org.argeo.eclipse.dep.rcp
+

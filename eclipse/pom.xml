@@ -7,10 +7,12 @@
 		<artifactId>argeo-commons</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
+	<groupId>org.argeo.commons.eclipse</groupId>
 	<artifactId>eclipse</artifactId>
 	<name>Commons Eclipse</name>
 	<packaging>pom</packaging>
 	<modules>
+		<module>features</module>
 		<module>plugins</module>
 	</modules>
 </project>

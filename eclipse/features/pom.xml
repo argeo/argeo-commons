@@ -1,47 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.eclipse</groupId>
-		<version>0.2.2-SNAPSHOT</version>
 		<artifactId>eclipse</artifactId>
+		<version>0.2.2-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>plugins</artifactId>
-	<name>Commons Eclipse plugins</name>
+	<artifactId>features</artifactId>
+	<name>Commons Eclipse Dependencies</name>
 	<packaging>pom</packaging>
 	<modules>
-		<module>org.argeo.eclipse.ui</module>
+		<module>org.argeo.eclipse.dep.common</module>
+		<module>org.argeo.eclipse.dep.rcp</module>
 	</modules>
 	<build>
 		<resources>
 			<resource>
-				<directory>src/main/resources</directory>
-			</resource>
-			<resource>
 				<directory>.</directory>
 				<includes>
-					<include>plugin.xml</include>
-					<include>META-INF/**</include>
+					<include>*.inf</include>
 				</includes>
 			</resource>
 		</resources>
 		<plugins>
 			<plugin>
-				<artifactId>maven-clean-plugin</artifactId>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
 				<configuration>
-					<filesets>
-						<fileset>
-							<directory>META-INF</directory>
-							<includes>
-								<include>MANIFEST.MF</include>
-							</includes>
-						</fileset>
-					</filesets>
+					<useLastCommittedRevision>false</useLastCommittedRevision>
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<configuration>
 					<archive>
@@ -50,37 +41,47 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
 				<version>${version.maven-bundle-plugin}</version>
-				<extensions>true</extensions>
 				<configuration>
 					<manifestLocation>META-INF</manifestLocation>
 					<instructions>
+						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Bundle-Version>${project.version}-r${buildNumber}</Bundle-Version>
-						<Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
-						<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
-						<_removeheaders>Bnd-LastModified</_removeheaders>
 					</instructions>
 				</configuration>
 				<executions>
 					<execution>
 						<id>bundle-manifest</id>
-						<phase>process-classes</phase>
+						<phase>process-resources</phase>
 						<goals>
 							<goal>manifest</goal>
 						</goals>
 					</execution>
 				</executions>
 			</plugin>
+
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.argeo.maven.plugins</groupId>
+					<artifactId>maven-argeo-osgi-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>generate-descriptors</id>
+							<goals>
+								<goal>descriptors</goal>
+							</goals>
+							<phase>generate-resources</phase>
+						</execution>
+						<!-- <execution> <id>check-osgi</id> <phase>test</phase> <goals> <goal>equinox</goal> 
+							</goals> <configuration> <onlyCheck>true</onlyCheck> <argsToAppend> <arg>-clean</arg> 
+							</argsToAppend> </configuration> </execution> -->
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 </project>
