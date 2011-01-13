@@ -13,6 +13,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>org.argeo.eclipse.dep.common</module>
+		<module>org.argeo.eclipse.dep.rap</module>
 		<module>org.argeo.eclipse.dep.rcp</module>
 	</modules>
 	<build>
