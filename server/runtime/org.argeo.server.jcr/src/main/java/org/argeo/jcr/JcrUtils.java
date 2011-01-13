@@ -152,6 +152,19 @@ public class JcrUtils {
 			if (path.equals('/'))
 				return session.getRootNode();
 
+			if (session.itemExists(path)) {
+				Node node = session.getNode(path);
+				// check type
+				if (type != null
+						&& !type.equals(node.getPrimaryNodeType().getName()))
+					throw new ArgeoException("Node " + node
+							+ " exists but is of type "
+							+ node.getPrimaryNodeType().getName()
+							+ " not of type " + type);
+				// TODO: check versioning
+				return node;
+			}
+
 			StringTokenizer st = new StringTokenizer(path, "/");
 			StringBuffer current = new StringBuffer("/");
 			Node currentNode = session.getRootNode();
