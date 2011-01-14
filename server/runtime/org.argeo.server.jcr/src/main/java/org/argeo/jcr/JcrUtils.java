@@ -16,7 +16,11 @@
 
 package org.argeo.jcr;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.StringTokenizer;
 
 import javax.jcr.NamespaceRegistry;
@@ -124,12 +128,28 @@ public class JcrUtils {
 
 	}
 
+	/** Converts in one call a string into a gregorian calendar. */
+	public static Calendar parseCalendar(DateFormat dateFormat, String value) {
+		try {
+			Date date = dateFormat.parse(value);
+			Calendar calendar = new GregorianCalendar();
+			calendar.setTime(date);
+			return calendar;
+		} catch (ParseException e) {
+			throw new ArgeoException("Cannot parse " + value
+					+ " with date format " + dateFormat, e);
+		}
+
+	}
+
+	/** Converts the FQDN of an host into a path (converts '.' into '/'). */
 	public static String hostAsPath(String host) {
 		// TODO : inverse order of the elements (to have org/argeo/test IO
 		// test/argeo/org
 		return host.replace('.', '/');
 	}
 
+	/** The last element of a path. */
 	public static String lastPathElement(String path) {
 		if (path.charAt(path.length() - 1) == '/')
 			throw new ArgeoException("Path " + path + " cannot end with '/'");
@@ -191,6 +211,10 @@ public class JcrUtils {
 		}
 	}
 
+	/**
+	 * Safe and repository implementation independent registration of a
+	 * namespace.
+	 */
 	public static void registerNamespaceSafely(Session session, String prefix,
 			String uri) {
 		try {
@@ -201,6 +225,10 @@ public class JcrUtils {
 		}
 	}
 
+	/**
+	 * Safe and repository implementation independent registration of a
+	 * namespace.
+	 */
 	public static void registerNamespaceSafely(NamespaceRegistry nr,
 			String prefix, String uri) {
 		try {
