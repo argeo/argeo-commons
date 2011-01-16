@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.argeo.security.ui.SecurityPerspective"
+            id="org.argeo.security.ui.securityPerspective"
+            name="Security">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="org.argeo.eclipse.spring.SpringExtensionFactory"
+            id="org.argeo.security.ui.usersView"
+            name="Users"
+            restorable="false">
+      </view>
+      <view
+            class="org.argeo.eclipse.spring.SpringExtensionFactory"
+            id="org.argeo.security.ui.currentUserView"
+            name="Current User"
+            restorable="false">
+      </view>
+   </extension>
+   
+   <!-- Security -->
+   <extension
+         id="defaultLoginDialog"
+         name="Default Login Dialog"
+         point="org.eclipse.equinox.security.callbackHandler">
+      <callbackHandler
+            class="org.argeo.security.ui.dialogs.DefaultLoginDialog">
+      </callbackHandler>
+   </extension>
+   <extension
+         point="org.eclipse.equinox.security.callbackHandlerMapping">
+      <callbackHandlerMapping
+            callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
+            configName="SPRING">
+      </callbackHandlerMapping>
+   </extension>
+   <extension
+         point="org.eclipse.equinox.security.callbackHandlerMapping">
+         <callbackHandlerMapping
+            callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
+            configName="UNIX">
+      </callbackHandlerMapping>
+   </extension>
+   <extension
+         point="org.eclipse.equinox.security.callbackHandlerMapping">
+      <callbackHandlerMapping
+            callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
+            configName="SPRING_SECURITY_CONTEXT">
+      </callbackHandlerMapping>
+   </extension>
+ </plugin>

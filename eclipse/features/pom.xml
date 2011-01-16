@@ -45,24 +45,7 @@
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
 				<version>${version.maven-bundle-plugin}</version>
-				<configuration>
-					<manifestLocation>META-INF</manifestLocation>
-					<instructions>
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Bundle-Version>${project.version}-r${buildNumber}</Bundle-Version>
-					</instructions>
-				</configuration>
-				<executions>
-					<execution>
-						<id>bundle-manifest</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>manifest</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
-
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -71,18 +54,43 @@
 					<artifactId>maven-argeo-osgi-plugin</artifactId>
 					<executions>
 						<execution>
+							<id>resolve-pde-sources</id>
+							<goals>
+								<goal>pde-sources</goal>
+							</goals>
+							<phase>generate-resources</phase>
+						</execution>
+						<execution>
 							<id>generate-descriptors</id>
 							<goals>
 								<goal>descriptors</goal>
 							</goals>
 							<phase>generate-resources</phase>
 						</execution>
-						<!-- <execution> <id>check-osgi</id> <phase>test</phase> <goals> <goal>equinox</goal> 
-							</goals> <configuration> <onlyCheck>true</onlyCheck> <argsToAppend> <arg>-clean</arg> 
-							</argsToAppend> </configuration> </execution> -->
+						<execution>
+							<id>check-osgi</id>
+							<phase>test</phase>
+							<goals>
+								<goal>equinox</goal>
+							</goals>
+							<configuration>
+								<onlyCheck>true</onlyCheck>
+								<argsToAppend>
+									<arg>-clean</arg>
+								</argsToAppend>
+							</configuration>
+						</execution>
 					</executions>
 				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.argeo.commons.osgi</groupId>
+			<artifactId>org.argeo.osgi.boot</artifactId>
+			<version>0.2.2-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 </project>

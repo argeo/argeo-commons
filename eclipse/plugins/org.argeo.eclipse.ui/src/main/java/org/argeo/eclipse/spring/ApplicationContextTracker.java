@@ -20,7 +20,6 @@ import static java.text.MessageFormat.format;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.eclipse.ui.ArgeoUiPlugin;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -54,8 +53,8 @@ class ApplicationContextTracker {
 	 */
 	public ApplicationContextTracker(final Bundle contributorBundle,
 			final BundleContext factoryBundleContext) {
-		final String filter = format(FILTER, contributorBundle
-				.getSymbolicName());
+		final String filter = format(FILTER,
+				contributorBundle.getSymbolicName());
 		try {
 			applicationContextServiceTracker = new ServiceTracker(
 					factoryBundleContext, FrameworkUtil.createFilter(filter),
@@ -98,9 +97,7 @@ class ApplicationContextTracker {
 
 	static ApplicationContext getApplicationContext(Bundle contributorBundle) {
 		if (log.isTraceEnabled())
-			log
-					.trace("Get application context for bundle "
-							+ contributorBundle);
+			log.trace("Get application context for bundle " + contributorBundle);
 
 		if (contributorBundle.getState() != Bundle.ACTIVE
 				&& contributorBundle.getState() != Bundle.STARTING) {
@@ -114,8 +111,7 @@ class ApplicationContextTracker {
 		}
 
 		final ApplicationContextTracker applicationContextTracker = new ApplicationContextTracker(
-				contributorBundle, ArgeoUiPlugin.getDefault()
-						.getBundleContext());
+				contributorBundle, contributorBundle.getBundleContext());
 		ApplicationContext applicationContext = null;
 		try {
 			applicationContext = applicationContextTracker

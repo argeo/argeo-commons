@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         id="secureUi"
+         name="Argeo Secure UI"
+         point="org.eclipse.core.runtime.applications">
+      <application cardinality="singleton-global"
+         thread="main"
+         visible="true">
+         <run
+               class="org.argeo.security.ui.rcp.SecureRcp">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="secureWebUi"
+         name="Argeo Secure Web UI"
+         point="org.eclipse.core.runtime.applications">
+      <application cardinality="singleton-global"
+         thread="main"
+         visible="true">
+         <run
+               class="org.argeo.security.ui.rcp.SecureRap">
+         </run>
+      </application>
+   </extension>
+
+</plugin>

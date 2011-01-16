@@ -5,15 +5,13 @@
 	<bean
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
-		<property name="ignoreUnresolvablePlaceholders" value="false" />
 		<property name="locations">
-			<value>osgibundle:ads.properties
-			</value>
+			<value>osgibundle:ads.properties</value>
 		</property>
 	</bean>
 
 	<bean class="org.argeo.server.ads.AdsContainer">
-		<property name="workingDirectory" value="${argeo.osgi.data.dir}/apacheds" />
+		<property name="workingDirectory" value="${osgi.instance.area}/apacheds" />
 		<property name="deleteWorkingDirOnExit" value="true" />
 		<property name="configuration" ref="configuration" />
 		<property name="environment" ref="environment" />
@@ -31,26 +29,17 @@
 				<prop key="java.naming.security.authentication">simple</prop>
 				<prop key="java.naming.security.principal">${argeo.ldap.manager.userdn}</prop>
 				<prop key="java.naming.security.credentials">${argeo.ldap.manager.password}</prop>
-				<!--<prop key="kdc.entryBaseDn">ou=users,dc=example,dc=com</prop>-->
-				<!--<prop key="kdc.java.naming.security.credentials">secret</prop>-->
-				<!--
-					<prop key="changepw.entryBaseDn">ou=users,dc=example,dc=com</prop>
-				-->
-				<!--
-					<prop key="changepw.java.naming.security.credentials">secret</prop>
-				-->
-				<!--
-					Set this key to a space delimited set of attributeType descriptions
-					and their OID's if you want an attributeType to be handled as
-					binary content. The server will use the schema to derive the set of
-					attributeTypes to treat as binary. The union if the values you
-					provide here will be taken as the set of binaries. Note to be
-					consistent you must add both the OID and all the names an
-					attributeType can have.
-				-->
-				<!--
-					<prop key="java.naming.ldap.attributes.binary"></prop>
-				-->
+				<!--<prop key="kdc.entryBaseDn">ou=users,dc=example,dc=com</prop> -->
+				<!--<prop key="kdc.java.naming.security.credentials">secret</prop> -->
+				<!-- <prop key="changepw.entryBaseDn">ou=users,dc=example,dc=com</prop> -->
+				<!-- <prop key="changepw.java.naming.security.credentials">secret</prop> -->
+				<!-- Set this key to a space delimited set of attributeType descriptions 
+					and their OID's if you want an attributeType to be handled as binary content. 
+					The server will use the schema to derive the set of attributeTypes to treat 
+					as binary. The union if the values you provide here will be taken as the 
+					set of binaries. Note to be consistent you must add both the OID and all 
+					the names an attributeType can have. -->
+				<!-- <prop key="java.naming.ldap.attributes.binary"></prop> -->
 			</props>
 		</property>
 	</bean>

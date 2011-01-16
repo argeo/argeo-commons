@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo</groupId>
@@ -82,6 +83,7 @@ limitations under the License.
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
+					<version>2.3.2</version>
 					<configuration>
 						<source>1.5</source>
 						<target>1.5</target>
@@ -90,6 +92,7 @@ limitations under the License.
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
+					<version>2.1.2</version>
 					<executions>
 						<execution>
 							<id>attach-sources</id>
@@ -107,6 +110,7 @@ limitations under the License.
 				</plugin>
 				<plugin>
 					<artifactId>maven-jar-plugin</artifactId>
+					<version>2.3.1</version>
 					<configuration>
 						<archive>
 							<manifestFile>target/classes/META-INF/MANIFEST.MF</manifestFile>
@@ -123,6 +127,7 @@ limitations under the License.
 						<instructions>
 							<Bundle-Version>${project.version}-r${buildNumber}</Bundle-Version>
 							<Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
+							<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 							<_removeheaders>Bnd-LastModified</_removeheaders>
 						</instructions>
 					</configuration>
@@ -167,6 +172,7 @@ limitations under the License.
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.4.3</version>
 				<configuration>
 					<encoding>UTF-8</encoding>
 				</configuration>
@@ -249,6 +255,7 @@ limitations under the License.
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.3.1</version>
 				<reportSets>
 					<reportSet>
 						<reports>
@@ -271,6 +278,7 @@ limitations under the License.
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.7</version>
 				<inherited>false</inherited>
 				<configuration>
 					<aggregate>true</aggregate>
@@ -280,6 +288,7 @@ limitations under the License.
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jxr-plugin</artifactId>
+				<version>2.2</version>
 				<configuration>
 					<aggregate>true</aggregate>
 				</configuration>
@@ -287,6 +296,7 @@ limitations under the License.
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>2.7.1</version>
 				<inherited>false</inherited>
 				<configuration>
 					<aggregate>true</aggregate>
@@ -295,6 +305,7 @@ limitations under the License.
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>taglist-maven-plugin</artifactId>
+				<version>2.4</version>
 				<configuration>
 					<aggregate>true</aggregate>
 					<tags>
@@ -307,6 +318,7 @@ limitations under the License.
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-changelog-plugin</artifactId>
+				<version>2.2</version>
 				<inherited>false</inherited>
 			</plugin>
 			<plugin>

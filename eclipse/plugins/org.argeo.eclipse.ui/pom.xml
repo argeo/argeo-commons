@@ -74,6 +74,10 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>org.springframework.context</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.osgi</groupId>
+			<artifactId>org.springframework.osgi.extender</artifactId>
+		</dependency>
 
 		<!-- Others -->
 		<dependency>

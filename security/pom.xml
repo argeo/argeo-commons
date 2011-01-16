@@ -13,6 +13,7 @@
 	<modules>
 		<module>runtime</module>
 		<module>modules</module>
+		<module>eclipse</module>
 		<module>dep</module>
 		<module>demo</module>
 	</modules>
