@@ -11,28 +11,20 @@ public class EquinoxSecurity implements BundleActivator {
 	public final static String CONTEXT_SPRING = "SPRING";
 	private static final String JAAS_CONFIG_FILE = "jaas/jaas_default.txt";
 
-	private static BundleContext bundleContext;
+	private static ILoginContext loginContext = null;
 
-	public void start(BundleContext context) throws Exception {
-		bundleContext = context;
-		// URL url = new URL(
-		// "file:////home/mbaudier/dev/src/commons/security/eclipse/plugins/org.argeo.security.ui.rcp/jaas_config.txt");
-		// // URL url = new URL(
-		// //
-		// "file:////home/mbaudier/dev/src/commons/security/eclipse/plugins/org.argeo.security.ui.rcp/jaas_config.txt");
-		// ILoginContext secureContext = LoginContextFactory.createContext(
-		// configName, url);
-		getLoginContext();
+	public void start(BundleContext bundleContext) throws Exception {
+		// getLoginContext();
+		URL configUrl = bundleContext.getBundle().getEntry(JAAS_CONFIG_FILE);
+		loginContext = LoginContextFactory.createContext(CONTEXT_SPRING,
+				configUrl);
 	}
 
 	public void stop(BundleContext context) throws Exception {
-		bundleContext = null;
 	}
 
 	static ILoginContext getLoginContext() {
-		String configName = CONTEXT_SPRING;
-		URL configUrl = bundleContext.getBundle().getEntry(JAAS_CONFIG_FILE);
-		return LoginContextFactory.createContext(configName, configUrl);
+		return loginContext;
 	}
 
 }

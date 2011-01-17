@@ -13,25 +13,39 @@ import org.eclipse.ui.application.IActionBarConfigurer;
 
 public class SecureActionBarAdvisor extends ActionBarAdvisor {
 	private IWorkbenchAction exitAction;
-	// private IWorkbenchAction aboutAction;
+	private IWorkbenchAction openPerspectiveDialogAction;
+	private IWorkbenchAction showViewMenuAction;
 	private IWorkbenchAction newWindowAction;
-	private IWorkbenchAction preferences = null;
+	private IWorkbenchAction preferences;
+	private IWorkbenchAction helpContentAction;
+	// private IWorkbenchAction aboutAction;
 
-	public SecureActionBarAdvisor(IActionBarConfigurer configurer) {
+	private final Boolean isRcp;
+
+	public SecureActionBarAdvisor(IActionBarConfigurer configurer, Boolean isRcp) {
 		super(configurer);
+		this.isRcp = isRcp;
 	}
 
 	protected void makeActions(IWorkbenchWindow window) {
 		preferences = ActionFactory.PREFERENCES.create(window);
 		register(preferences);
+		openPerspectiveDialogAction = ActionFactory.OPEN_PERSPECTIVE_DIALOG
+				.create(window);
+		register(openPerspectiveDialogAction);
+		showViewMenuAction = ActionFactory.SHOW_VIEW_MENU.create(window);
+		register(showViewMenuAction);
+		helpContentAction = ActionFactory.HELP_CONTENTS.create(window);
+		register(helpContentAction);
+
 		exitAction = ActionFactory.QUIT.create(window);
 		register(exitAction);
-
-		// aboutAction = ActionFactory.ABOUT.create(window);
-		// register(aboutAction);
-
-		newWindowAction = ActionFactory.OPEN_NEW_WINDOW.create(window);
-		register(newWindowAction);
+		if (isRcp) {
+			// aboutAction = ActionFactory.ABOUT.create(window);
+			// register(aboutAction);
+			newWindowAction = ActionFactory.OPEN_NEW_WINDOW.create(window);
+			register(newWindowAction);
+		}
 	}
 
 	protected void fillMenuBar(IMenuManager menuBar) {
@@ -39,24 +53,34 @@ public class SecureActionBarAdvisor extends ActionBarAdvisor {
 				IWorkbenchActionConstants.M_FILE);
 		MenuManager editMenu = new MenuManager("&Edit",
 				IWorkbenchActionConstants.M_EDIT);
+		MenuManager windowMenu = new MenuManager("&Window",
+				IWorkbenchActionConstants.M_WINDOW);
 		MenuManager helpMenu = new MenuManager("&Help",
 				IWorkbenchActionConstants.M_HELP);
 
 		menuBar.add(fileMenu);
 		menuBar.add(editMenu);
+		menuBar.add(windowMenu);
 		// Add a group marker indicating where action set menus will appear.
 		menuBar.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
 		menuBar.add(helpMenu);
 
 		// File
-		fileMenu.add(newWindowAction);
-		fileMenu.add(new Separator());
+		if (isRcp) {
+			fileMenu.add(newWindowAction);
+			fileMenu.add(new Separator());
+		}
 		fileMenu.add(exitAction);
 
 		// Edit
 		editMenu.add(preferences);
 
+		// Window
+		windowMenu.add(openPerspectiveDialogAction);
+		windowMenu.add(showViewMenuAction);
+
 		// Help
+		helpMenu.add(helpContentAction);
 		// helpMenu.add(aboutAction);
 	}
 

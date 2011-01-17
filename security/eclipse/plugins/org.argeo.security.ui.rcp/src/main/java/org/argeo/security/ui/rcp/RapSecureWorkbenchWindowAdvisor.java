@@ -4,6 +4,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.application.ActionBarAdvisor;
+import org.eclipse.ui.application.IActionBarConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 
 public class RapSecureWorkbenchWindowAdvisor extends
@@ -13,12 +15,18 @@ public class RapSecureWorkbenchWindowAdvisor extends
 		super(configurer);
 	}
 
+	@Override
+	public ActionBarAdvisor createActionBarAdvisor(
+			IActionBarConfigurer configurer) {
+		return new SecureActionBarAdvisor(configurer, false);
+	}
+
 	public void preWindowOpen() {
 		IWorkbenchWindowConfigurer configurer = getWindowConfigurer();
-//		configurer.setInitialSize(new Point(800, 600));
+		// configurer.setInitialSize(new Point(800, 600));
 		configurer.setShowCoolBar(false);
 		configurer.setShowMenuBar(true);
-		configurer.setShowStatusLine(true);
+		configurer.setShowStatusLine(false);
 		configurer.setShowPerspectiveBar(true);
 		configurer.setTitle("Argeo Secure UI"); //$NON-NLS-1$
 		// Full screen, see

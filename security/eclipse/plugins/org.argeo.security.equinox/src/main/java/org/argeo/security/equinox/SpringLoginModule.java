@@ -10,15 +10,17 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.TextOutputCallback;
 import javax.security.auth.login.LoginException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
-import org.springframework.security.BadCredentialsException;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.jaas.SecurityContextLoginModule;
 
 public class SpringLoginModule extends SecurityContextLoginModule {
+	private final static Log log = LogFactory.getLog(SpringLoginModule.class);
+
 	private AuthenticationManager authenticationManager;
 	private Subject subject;
 
@@ -58,8 +60,8 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 					"Password", false);
 
 			if (callbackHandler == null) {
-				// throw new LoginException("No call back handler available");
-				return false;
+				throw new LoginException("No call back handler available");
+				// return false;
 			}
 			try {
 				callbackHandler.handle(new Callback[] { label, nameCallback,
@@ -92,6 +94,14 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 				throw loginException;
 			}
 		}
+	}
+
+	@Override
+	public boolean logout() throws LoginException {
+		if (log.isDebugEnabled())
+			log.debug("Log out "
+					+ subject.getPrincipals().iterator().next().getName());
+		return super.logout();
 	}
 
 	/**

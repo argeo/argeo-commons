@@ -14,7 +14,7 @@ public class SecureWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
 	public ActionBarAdvisor createActionBarAdvisor(
 			IActionBarConfigurer configurer) {
-		return new SecureActionBarAdvisor(configurer);
+		return new SecureActionBarAdvisor(configurer, true);
 	}
 
 	public void preWindowOpen() {
@@ -22,7 +22,7 @@ public class SecureWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		configurer.setInitialSize(new Point(800, 600));
 		configurer.setShowCoolBar(false);
 		configurer.setShowMenuBar(true);
-		configurer.setShowStatusLine(true);
+		configurer.setShowStatusLine(false);
 		configurer.setShowPerspectiveBar(true);
 		configurer.setTitle("Argeo Secure UI"); //$NON-NLS-1$
 	}

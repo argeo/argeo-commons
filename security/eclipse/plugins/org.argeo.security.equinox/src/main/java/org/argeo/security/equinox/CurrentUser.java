@@ -1,14 +1,16 @@
 package org.argeo.security.equinox;
 
+import java.security.AccessController;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
 
+import org.argeo.ArgeoException;
 import org.eclipse.equinox.security.auth.ILoginContext;
-import org.eclipse.equinox.security.auth.LoginContextFactory;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 
@@ -34,8 +36,8 @@ public class CurrentUser {
 
 	private final static ILoginContext getLoginContext() {
 		return EquinoxSecurity.getLoginContext();
-//		return LoginContextFactory
-//				.createContext(EquinoxSecurity.CONTEXT_SPRING);
+		// return LoginContextFactory
+		// .createContext(EquinoxSecurity.CONTEXT_SPRING);
 	}
 
 	// private static void login() {
@@ -48,17 +50,25 @@ public class CurrentUser {
 
 	public final static Subject getSubject() {
 
-		Subject subject = null;
+		Subject subject = Subject.getSubject(AccessController.getContext());
 		// subject = Subject.getSubject(AccessController.getContext());
-		try {
-			getLoginContext().login();
-			subject = getLoginContext().getSubject();
-		} catch (Exception e) {
-			throw new RuntimeException("Cannot retrieve subject", e);
-		}
+		if (subject == null)
+			try {
+				getLoginContext().login();
+				subject = getLoginContext().getSubject();
+			} catch (Exception e) {
+				throw new ArgeoException("Cannot retrieve subject", e);
+			}
 
 		return subject;
 
 	}
 
+	public static void logout() {
+		try {
+			getLoginContext().logout();
+		} catch (LoginException e) {
+			throw new ArgeoException("Cannot log out", e);
+		}
+	}
 }
