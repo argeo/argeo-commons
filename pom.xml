@@ -104,6 +104,16 @@ limitations under the License.
 					</executions>
 				</plugin>
 				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>2.4.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.7.1</version>
+				</plugin>
+				<plugin>
 					<groupId>org.argeo.maven.plugins</groupId>
 					<artifactId>maven-argeo-osgi-plugin</artifactId>
 					<version>${version.maven-argeo-osgi}</version>
