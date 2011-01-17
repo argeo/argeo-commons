@@ -28,7 +28,6 @@
 				<version>${version.maven-bundle-plugin}</version>
 				<configuration>
 					<instructions>
-						<Fragment-Host>org.argeo.dep.osgi.jackrabbit</Fragment-Host>
 						<Export-Package>
 							org.argeo.jcr.*,
 							org.argeo.server.jackrabbit.*,
