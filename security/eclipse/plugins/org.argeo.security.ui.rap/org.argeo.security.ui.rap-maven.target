@@ -129,14 +129,8 @@
 <location path="${system_property:user.home}/.m2/repository/org/eclipse/equinox/org.eclipse.equinox.registry.source/3.5.0.v20100503" type="Directory"/>
 <location path="${system_property:user.home}/.m2/repository/org/eclipse/equinox/org.eclipse.equinox.security/1.0.200" type="Directory"/>
 <location path="${system_property:user.home}/.m2/repository/org/eclipse/equinox/org.eclipse.equinox.security.source/1.0.200" type="Directory"/>
-<location path="${system_property:user.home}/.m2/repository/org/eclipse/equinox/org.eclipse.equinox.security.ui/1.0.200" type="Directory"/>
-<location path="${system_property:user.home}/.m2/repository/org/eclipse/equinox/org.eclipse.equinox.security.ui.source/1.0.200" type="Directory"/>
 <location path="${system_property:user.home}/.m2/repository/org/eclipse/help/org.eclipse.help/3.5.0" type="Directory"/>
 <location path="${system_property:user.home}/.m2/repository/org/eclipse/help/org.eclipse.help.source/3.5.0" type="Directory"/>
-<location path="${system_property:user.home}/.m2/repository/org/eclipse/jface/org.eclipse.jface/3.6.1" type="Directory"/>
-<location path="${system_property:user.home}/.m2/repository/org/eclipse/jface/org.eclipse.jface.source/3.6.1" type="Directory"/>
-<location path="${system_property:user.home}/.m2/repository/org/eclipse/jface/org.eclipse.jface.databinding/1.4.0" type="Directory"/>
-<location path="${system_property:user.home}/.m2/repository/org/eclipse/jface/org.eclipse.jface.databinding.source/1.4.0" type="Directory"/>
 <location path="${system_property:user.home}/.m2/repository/org/eclipse/osgi/org.eclipse.osgi/3.6.1" type="Directory"/>
 <location path="${system_property:user.home}/.m2/repository/org/eclipse/osgi/org.eclipse.osgi.source/3.6.1" type="Directory"/>
 <location path="${system_property:user.home}/.m2/repository/org/eclipse/osgi/org.eclipse.osgi.services/3.3.0.v20101018" type="Directory"/>
@@ -165,11 +159,6 @@
 <location path="${system_property:user.home}/.m2/repository/org/eclipse/rap/org.eclipse.rap.ui.views.source/1.3.1" type="Directory"/>
 <location path="${system_property:user.home}/.m2/repository/org/eclipse/rap/org.eclipse.rap.ui.workbench/1.3.1" type="Directory"/>
 <location path="${system_property:user.home}/.m2/repository/org/eclipse/rap/org.eclipse.rap.ui.workbench.source/1.3.1" type="Directory"/>
-<location path="${system_property:user.home}/.m2/repository/org/eclipse/swt/org.eclipse.swt/3.6.1" type="Directory"/>
-<location path="${system_property:user.home}/.m2/repository/org/eclipse/ui/org.eclipse.ui/3.6.1" type="Directory"/>
-<location path="${system_property:user.home}/.m2/repository/org/eclipse/ui/org.eclipse.ui.source/3.6.1" type="Directory"/>
-<location path="${system_property:user.home}/.m2/repository/org/eclipse/ui/org.eclipse.ui.workbench/3.6.1" type="Directory"/>
-<location path="${system_property:user.home}/.m2/repository/org/eclipse/ui/org.eclipse.ui.workbench.source/3.6.1" type="Directory"/>
 <location path="${system_property:user.home}/.m2/repository/org/junit/com.springsource.junit/3.8.2" type="Directory"/>
 <location path="${system_property:user.home}/.m2/repository/org/junit/com.springsource.junit.source/3.8.2" type="Directory"/>
 <location path="${system_property:user.home}/.m2/repository/org/mortbay/jetty/org.mortbay.jetty.server/6.1.23" type="Directory"/>
@@ -337,14 +326,8 @@
 <plugin id="org.eclipse.equinox.registry.source"/>
 <plugin id="org.eclipse.equinox.security"/>
 <plugin id="org.eclipse.equinox.security.source"/>
-<plugin id="org.eclipse.equinox.security.ui"/>
-<plugin id="org.eclipse.equinox.security.ui.source"/>
 <plugin id="org.eclipse.help"/>
 <plugin id="org.eclipse.help.source"/>
-<plugin id="org.eclipse.jface"/>
-<plugin id="org.eclipse.jface.source"/>
-<plugin id="org.eclipse.jface.databinding"/>
-<plugin id="org.eclipse.jface.databinding.source"/>
 <plugin id="org.eclipse.osgi"/>
 <plugin id="org.eclipse.osgi.source"/>
 <plugin id="org.eclipse.osgi.services"/>
@@ -373,11 +356,6 @@
 <plugin id="org.eclipse.rap.ui.views.source"/>
 <plugin id="org.eclipse.rap.ui.workbench"/>
 <plugin id="org.eclipse.rap.ui.workbench.source"/>
-<plugin id="org.eclipse.swt"/>
-<plugin id="org.eclipse.ui"/>
-<plugin id="org.eclipse.ui.source"/>
-<plugin id="org.eclipse.ui.workbench"/>
-<plugin id="org.eclipse.ui.workbench.source"/>
 <plugin id="com.springsource.junit"/>
 <plugin id="com.springsource.junit.source"/>
 <plugin id="org.mortbay.jetty.server"/>

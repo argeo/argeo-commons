@@ -47,9 +47,5 @@
 			<groupId>org.eclipse.equinox</groupId>
 			<artifactId>org.eclipse.equinox.security</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.eclipse.equinox</groupId>
-			<artifactId>org.eclipse.equinox.security.ui</artifactId>
-		</dependency>
 	</dependencies>
 </project>

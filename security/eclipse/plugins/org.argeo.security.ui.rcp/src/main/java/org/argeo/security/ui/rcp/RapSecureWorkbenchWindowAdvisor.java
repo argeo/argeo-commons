@@ -23,9 +23,9 @@ public class RapSecureWorkbenchWindowAdvisor extends
 		configurer.setTitle("Argeo Secure UI"); //$NON-NLS-1$
 		// Full screen, see
 		// http://dev.eclipse.org/newslists/news.eclipse.technology.rap/msg02697.html
-//		configurer.setShellStyle(SWT.NONE);
-//		Rectangle bounds = Display.getDefault().getBounds();
-//		configurer.setInitialSize(new Point(bounds.width, bounds.height));
+		configurer.setShellStyle(SWT.NONE);
+		Rectangle bounds = Display.getDefault().getBounds();
+		configurer.setInitialSize(new Point(bounds.width, bounds.height));
 	}
 
 }
