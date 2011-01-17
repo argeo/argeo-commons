@@ -93,6 +93,7 @@
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.ads.server</artifactId>
 			<version>0.2.2-SNAPSHOT</version>
+			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
