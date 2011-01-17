@@ -62,7 +62,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.ui.rcp</artifactId>
+			<artifactId>org.argeo.security.ui.application</artifactId>
 			<version>0.2.2-SNAPSHOT</version>
 			<type>pom</type>
 			<exclusions>

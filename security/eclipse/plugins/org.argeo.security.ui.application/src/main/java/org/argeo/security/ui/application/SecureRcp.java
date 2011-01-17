@@ -1,4 +1,4 @@
-package org.argeo.security.ui.rcp;
+package org.argeo.security.ui.application;
 
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.ui.PlatformUI;

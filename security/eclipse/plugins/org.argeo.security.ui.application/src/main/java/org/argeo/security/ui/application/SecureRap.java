@@ -1,4 +1,4 @@
-package org.argeo.security.ui.rcp;
+package org.argeo.security.ui.application;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;

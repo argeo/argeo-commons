@@ -7,8 +7,8 @@
 		<artifactId>plugins</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>org.argeo.security.ui.rcp</artifactId>
-	<name>Commons Security UI RCP</name>
+	<artifactId>org.argeo.security.ui.application</artifactId>
+	<name>Commons Security UI Application</name>
 	<packaging>jar</packaging>
 	<build>
 		<plugins>
@@ -126,13 +126,6 @@
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.json</artifactId>
 			<version>0.2.2-SNAPSHOT</version>
-		</dependency>
-
-		<!-- RCP only dependency, needed at compile time -->
-		<dependency>
-			<groupId>org.eclipse.ui</groupId>
-			<artifactId>org.eclipse.ui</artifactId>
-			<scope>provided</scope>
 		</dependency>
 
 		<!-- Commons -->

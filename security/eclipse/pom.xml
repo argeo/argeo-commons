@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.argeo.commons</groupId>
 		<version>0.2.2-SNAPSHOT</version>
-		<artifactId>argeo-commons</artifactId>
+		<artifactId>security</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
 	<groupId>org.argeo.commons.security</groupId>

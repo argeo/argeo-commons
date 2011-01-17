@@ -10,7 +10,7 @@
          thread="main"
          visible="true">
          <run
-               class="org.argeo.security.ui.rcp.SecureRcp">
+               class="org.argeo.security.ui.application.SecureRcp">
          </run>
       </application>
    </extension>
@@ -22,7 +22,7 @@
          thread="main"
          visible="true">
          <run
-               class="org.argeo.security.ui.rcp.SecureRap">
+               class="org.argeo.security.ui.application.SecureRap">
          </run>
       </application>
    </extension>

@@ -1,4 +1,4 @@
-package org.argeo.security.ui.rcp;
+package org.argeo.security.ui.application;
 
 import java.security.PrivilegedAction;
 
@@ -12,10 +12,17 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.dialogs.ErrorSupportProvider;
+import org.eclipse.jface.util.Policy;
+import org.eclipse.jface.window.Window.IExceptionHandler;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.application.WorkbenchAdvisor;
+import org.eclipse.ui.internal.statushandlers.StackTraceSupportArea;
+import org.eclipse.ui.statushandlers.WorkbenchStatusDialogManager;
 
 public abstract class AbstractSecureApplication implements IApplication {
 	private static final Log log = LogFactory
@@ -29,11 +36,24 @@ public abstract class AbstractSecureApplication implements IApplication {
 		Display display = PlatformUI.createDisplay();
 
 		// Force login
-		String username = CurrentUser.getUsername();
-		if (log.isDebugEnabled())
-			log.debug("Logged in as " + username);
 
 		try {
+			String username = null;
+			Exception loginException = null;
+			try {
+				username = CurrentUser.getUsername();
+			} catch (Exception e) {
+				loginException = e;
+			}
+			if (username == null) {
+				IStatus status = new Status(IStatus.ERROR,
+						"org.argeo.security.application", "Login is mandatory",
+						loginException);
+				ErrorDialog.openError(null, "Error", "Shutdown...", status);
+				return status.getSeverity();
+			}
+			if (log.isDebugEnabled())
+				log.debug("Logged in as " + username);
 			returnCode = (Integer) Subject.doAs(CurrentUser.getSubject(),
 					getRunAction(display));
 			if (log.isDebugEnabled())
@@ -44,7 +64,7 @@ public abstract class AbstractSecureApplication implements IApplication {
 			// e.printStackTrace();
 			IStatus status = new Status(IStatus.ERROR,
 					"org.argeo.security.rcp", "Login failed", e);
-			ErrorDialog.openError(null, "Error", "Login failed", status);
+			ErrorDialog.openError(null, "Error", "Shutdown...", status);
 			return returnCode;
 		} finally {
 			display.dispose();

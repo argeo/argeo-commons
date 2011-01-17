@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationManager;
+import org.springframework.security.BadCredentialsException;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.jaas.SecurityContextLoginModule;
@@ -87,6 +88,8 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 						.authenticate(credentials);
 				registerAuthentication(authentication);
 				return super.login();
+			} catch (BadCredentialsException bce) {
+				throw bce;
 			} catch (Exception e) {
 				LoginException loginException = new LoginException(
 						"Bad credentials");
