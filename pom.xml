@@ -136,7 +136,7 @@ limitations under the License.
 						<manifestLocation>target/classes/META-INF</manifestLocation>
 						<instructions>
 							<Bundle-Version>${project.version}-r${buildNumber}</Bundle-Version>
-							<Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
+							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 							<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 							<_removeheaders>Bnd-LastModified</_removeheaders>
 						</instructions>
