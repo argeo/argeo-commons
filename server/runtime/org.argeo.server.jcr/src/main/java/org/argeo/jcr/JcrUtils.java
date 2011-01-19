@@ -292,4 +292,42 @@ public class JcrUtils {
 		}
 
 	}
+
+	/**
+	 * Copies recursively the content of a node to another one. Mixin are NOT
+	 * copied.
+	 */
+	public static void copy(Node fromNode, Node toNode) {
+		try {
+			PropertyIterator pit = fromNode.getProperties();
+			properties: while (pit.hasNext()) {
+				Property fromProperty = pit.nextProperty();
+				String propertyName = fromProperty.getName();
+				if (toNode.hasProperty(propertyName)
+						&& toNode.getProperty(propertyName).getDefinition()
+								.isProtected())
+					continue properties;
+
+				toNode.setProperty(fromProperty.getName(),
+						fromProperty.getValue());
+			}
+
+			NodeIterator nit = fromNode.getNodes();
+			while (nit.hasNext()) {
+				Node fromChild = nit.nextNode();
+				Integer index = fromChild.getIndex();
+				String nodeRelPath = fromChild.getName() + "[" + index + "]";
+				Node toChild;
+				if (toNode.hasNode(nodeRelPath))
+					toChild = toNode.getNode(nodeRelPath);
+				else
+					toChild = toNode.addNode(fromChild.getName(), fromChild
+							.getPrimaryNodeType().getName());
+				copy(fromChild, toChild);
+			}
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot copy " + fromNode + " to "
+					+ toNode, e);
+		}
+	}
 }
