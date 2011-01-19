@@ -330,4 +330,28 @@ public class JcrUtils {
 					+ toNode, e);
 		}
 	}
+
+	/**
+	 * Check whether all first-level properties (except jcr:* properties) are
+	 * equal.
+	 */
+	public static Boolean allPropertiesEquals(Node node1, Node node2) {
+		try {
+			PropertyIterator pit = node1.getProperties();
+			while (pit.hasNext()) {
+				Property prop1 = pit.nextProperty();
+				String propName = prop1.getName();
+				if (!node2.hasProperty(propName))
+					return false;
+				// TODO: deal with multiple property values?
+				if (!node2.getProperty(propName).getValue()
+						.equals(prop1.getValue()))
+					return false;
+			}
+			return true;
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot check all properties equals of "
+					+ node1 + " and " + node2, e);
+		}
+	}
 }
