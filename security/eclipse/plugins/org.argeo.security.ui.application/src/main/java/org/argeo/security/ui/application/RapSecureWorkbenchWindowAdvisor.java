@@ -24,7 +24,7 @@ public class RapSecureWorkbenchWindowAdvisor extends
 	public void preWindowOpen() {
 		IWorkbenchWindowConfigurer configurer = getWindowConfigurer();
 		// configurer.setInitialSize(new Point(800, 600));
-		configurer.setShowCoolBar(false);
+		configurer.setShowCoolBar(true);
 		configurer.setShowMenuBar(true);
 		configurer.setShowStatusLine(false);
 		configurer.setShowPerspectiveBar(true);

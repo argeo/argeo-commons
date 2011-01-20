@@ -19,12 +19,14 @@ public class SecureWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
 	public void preWindowOpen() {
 		IWorkbenchWindowConfigurer configurer = getWindowConfigurer();
-		configurer.setInitialSize(new Point(800, 600));
-		configurer.setShowCoolBar(false);
+		configurer.setInitialSize(new Point(1200, 900));
+		configurer.setShowCoolBar(true);
 		configurer.setShowMenuBar(true);
 		configurer.setShowStatusLine(false);
+
 		configurer.setShowPerspectiveBar(true);
 		configurer.setTitle("Argeo Secure UI"); //$NON-NLS-1$
+
 	}
 
 }

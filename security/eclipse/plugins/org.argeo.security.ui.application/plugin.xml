@@ -2,6 +2,39 @@
 <?eclipse version="3.4"?>
 <plugin>
 
+	<!-- We use the product to define some of the product preferences 
+	see http://dev.eclipse.org/viewcvs/viewvc.cgi/platform-ui-home/rcp/faq.html?revision=1.6#customPrefs --> 
+	<extension
+         id="org.argeo.security.ui.product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            name="ArgeoProduct" application="org.argeo.security.ui.application.secureUi">
+          <property
+               name="appName"
+               value="Secure UI">
+         </property>
+ 	     <property
+               name="preferenceCustomization"
+               value="plugin_customization.ini"/>
+      </product>
+   </extension>
+
+	<extension
+         id="org.argeo.security.webui.product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            name="ArgeoProduct" application="org.argeo.security.ui.application.secureWebUi">
+          <property
+               name="appName"
+               value="Secure Web UI">
+         </property>
+ 	     <property
+               name="preferenceCustomization"
+               value="plugin_customization.ini"/>
+      </product>
+   </extension>
+  
+
    <extension
          id="secureUi"
          name="Argeo Secure UI"
