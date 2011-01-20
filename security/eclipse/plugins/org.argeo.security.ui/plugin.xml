@@ -25,6 +25,13 @@
             name="Current User"
             restorable="false">
       </view>
+      <view
+            class="org.argeo.eclipse.spring.SpringExtensionFactory"
+            icon="icons/role.gif"
+            id="org.argeo.security.ui.rolesView"
+            name="Roles"
+            restorable="false">
+      </view>
    </extension>
    
    <!-- Security -->
@@ -78,5 +85,43 @@
          		name="Username">
   	 		</commandParameter>
       </command>
+      <command
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            id="org.argeo.security.ui.saveArgeoUser"
+            name="SaveArgeoUser">
+      </command>
+      <command
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            id="org.argeo.security.ui.addRole"
+            name="AddRole">
+      </command>
     </extension>
+     <extension
+         id="menu:org.eclipse.ui.main.menu"
+         point="org.eclipse.ui.menus">
+      	<menuContribution
+            locationURI="toolbar:org.argeo.security.ui.rolesView">
+            <command
+                  commandId="org.argeo.security.ui.addRole"
+                  icon="icons/add.gif"
+                  label="Add Role"
+                  tooltip="Add new role">
+            </command>
+        </menuContribution>
+        <menuContribution
+                allPopups="false"
+                locationURI="toolbar:org.eclipse.ui.main.toolbar">
+             <toolbar
+                   id="org.argeo.security.ui.mainToolbar">
+                <command
+                      commandId="org.argeo.security.ui.saveArgeoUser"
+                      disabledIcon="icons/user.gif"
+                      icon="icons/user.gif"
+                      label="Save user"
+                      style="push"
+                      tooltip="Save user">
+                </command>
+             </toolbar>
+          </menuContribution>
+  </extension>
  </plugin>

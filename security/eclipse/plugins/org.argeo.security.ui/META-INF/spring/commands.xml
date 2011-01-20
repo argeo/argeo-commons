@@ -5,6 +5,11 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="org.argeo.security.ui.openArgeoUserEditor" class="org.argeo.security.ui.commands.OpenArgeoUserEditor"
+		scope="prototype" />
+	<bean id="org.argeo.security.ui.saveArgeoUser" class="org.argeo.security.ui.commands.SaveArgeoUser"
+		scope="prototype" />
+	<bean id="org.argeo.security.ui.addRole" class="org.argeo.security.ui.commands.AddRole"
 		scope="prototype">
+		<property name="securityService" ref="securityService" />
 	</bean>
 </beans>

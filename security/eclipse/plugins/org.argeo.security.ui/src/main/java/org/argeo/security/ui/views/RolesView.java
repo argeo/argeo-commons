@@ -5,9 +5,8 @@ import java.util.ArrayList;
 import org.argeo.ArgeoException;
 import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
-import org.argeo.security.equinox.CurrentUser;
-import org.argeo.security.nature.SimpleUserNature;
 import org.argeo.security.ui.SecurityUiPlugin;
+import org.argeo.security.ui.commands.AddRole;
 import org.argeo.security.ui.commands.OpenArgeoUserEditor;
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.IParameter;
@@ -23,48 +22,69 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
 
-/** List all users. */
-public class UsersView extends ViewPart {
+/** List all roles. */
+public class RolesView extends ViewPart {
+	public final static String ID = "org.argeo.security.ui.rolesView";
+
+	private Text newRole;
+
 	private TableViewer viewer;
 	private ArgeoSecurityService securityService;
 
-	private String simpleNatureType = null;
+	private String addNewRoleText = "<add new role here>";
 
 	@Override
 	public void createPartControl(Composite parent) {
-		viewer = new TableViewer(createTable(parent));
-		viewer.setContentProvider(new UsersContentProvider());
-		viewer.setLabelProvider(new UsersLabelProvider());
-		viewer.addDoubleClickListener(new ViewDoubleClickListener());
-		viewer.setInput(getViewSite());
-	}
+		parent.setLayout(new GridLayout(1, false));
 
-	protected Table createTable(Composite parent) {
-		Table table = new Table(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-		table.setLinesVisible(true);
-		table.setHeaderVisible(true);
-		TableColumn column = new TableColumn(table, SWT.LEFT, 0);
-		column.setText("User");
-		column.setWidth(50);
-		column = new TableColumn(table, SWT.LEFT, 1);
-		column.setText("First Name");
-		column.setWidth(100);
-		column = new TableColumn(table, SWT.LEFT, 2);
-		column.setText("Last Name");
-		column.setWidth(100);
-		column = new TableColumn(table, SWT.LEFT, 3);
-		column.setText("E-mail");
-		column.setWidth(100);
-		return table;
+		// new role text field
+		newRole = new Text(parent, SWT.BORDER);
+		newRole.setText(addNewRoleText);
+		newRole.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		// default action is add role
+		newRole.addListener(SWT.DefaultSelection, new Listener() {
+			public void handleEvent(Event evt) {
+				IWorkbench iw = SecurityUiPlugin.getDefault().getWorkbench();
+				IHandlerService handlerService = (IHandlerService) iw
+						.getService(IHandlerService.class);
+				try {
+					handlerService.executeCommand(AddRole.COMMAND_ID, evt);
+				} catch (Exception e) {
+					throw new ArgeoException("Cannot execute add role command",
+							e);
+				}
+			}
+		});
+		// select all on focus
+		newRole.addListener(SWT.FocusIn, new Listener() {
+			public void handleEvent(Event e) {
+				newRole.selectAll();
+			}
+		});
+
+		// roles table
+		Table table = new Table(parent, SWT.V_SCROLL | SWT.BORDER);
+		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		table.setLinesVisible(false);
+		table.setHeaderVisible(false);
+		viewer = new TableViewer(table);
+		viewer.setContentProvider(new RolesContentProvider());
+		viewer.setLabelProvider(new UsersLabelProvider());
+		viewer.setInput(getViewSite());
+		viewer.addDoubleClickListener(new ViewDoubleClickListener());
 	}
 
 	@Override
@@ -76,14 +96,15 @@ public class UsersView extends ViewPart {
 		this.securityService = securityService;
 	}
 
-	public void setSimpleNatureType(String simpleNatureType) {
-		this.simpleNatureType = simpleNatureType;
+	public String getAddNewRoleText() {
+		return addNewRoleText;
 	}
 
-	private class UsersContentProvider implements IStructuredContentProvider {
+	private class RolesContentProvider implements IStructuredContentProvider {
 
 		public Object[] getElements(Object inputElement) {
-			return securityService.getSecurityDao().listUsers().toArray();
+			return securityService.getSecurityDao().listEditableRoles()
+					.toArray();
 		}
 
 		public void dispose() {
@@ -97,29 +118,10 @@ public class UsersView extends ViewPart {
 	private class UsersLabelProvider extends LabelProvider implements
 			ITableLabelProvider {
 		public String getColumnText(Object element, int columnIndex) {
-			String currentUsername = CurrentUser.getUsername();
-			ArgeoUser user = (ArgeoUser) element;
-			SimpleUserNature simpleNature = SecurityUiPlugin
-					.findSimpleUserNature(user, simpleNatureType);
-			switch (columnIndex) {
-			case 0:
-				String userName = user.getUsername();
-				if (userName.equals(currentUsername))
-					userName = userName + "*";
-				return userName;
-			case 1:
-				return simpleNature.getFirstName();
-			case 2:
-				return simpleNature.getLastName();
-			case 3:
-				return simpleNature.getEmail();
-			default:
-				throw new ArgeoException("Unmanaged column " + columnIndex);
-			}
+			return element.toString();
 		}
 
 		public Image getColumnImage(Object element, int columnIndex) {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
@@ -165,4 +167,12 @@ public class UsersView extends ViewPart {
 		}
 	}
 
+	public String getNewRole() {
+		return newRole.getText();
+	}
+
+	public void refresh() {
+		viewer.refresh();
+		newRole.setText(addNewRoleText);
+	}
 }

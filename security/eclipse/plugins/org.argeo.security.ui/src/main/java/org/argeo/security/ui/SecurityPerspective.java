@@ -12,9 +12,10 @@ public class SecurityPerspective implements IPerspectiveFactory {
 		layout.setFixed(false);
 
 		IFolderLayout left = layout.createFolder("left", IPageLayout.LEFT,
-				0.3f, editorArea);
+				0.4f, editorArea);
 
 		left.addView("org.argeo.security.ui.usersView");
+		left.addView("org.argeo.security.ui.rolesView");
 		left.addView("org.argeo.security.ui.currentUserView");
 	}
 

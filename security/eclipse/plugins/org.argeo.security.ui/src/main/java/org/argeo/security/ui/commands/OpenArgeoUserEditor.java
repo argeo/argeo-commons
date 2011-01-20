@@ -21,7 +21,7 @@ public class OpenArgeoUserEditor extends AbstractHandler {
 					event).getActivePage();
 			activePage.openEditor(editorInput, ArgeoUserEditor.ID);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ExecutionException("Cannot open editor", e);
 		}
 		return null;
 	}

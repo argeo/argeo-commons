@@ -8,6 +8,10 @@
 		scope="prototype">
 		<property name="securityService" ref="securityService" />
 	</bean>
+	<bean id="org.argeo.security.ui.rolesView" class="org.argeo.security.ui.views.RolesView"
+		scope="prototype">
+		<property name="securityService" ref="securityService" />
+	</bean>
 	<bean id="org.argeo.security.ui.currentUserView" class="org.argeo.security.ui.views.CurrentUserView"
 		scope="prototype">
 	</bean>

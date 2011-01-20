@@ -25,16 +25,26 @@ import java.util.List;
 public interface ArgeoSecurityDao {
 	// public ArgeoUser getCurrentUser();
 
+	/** List all users */
 	public List<ArgeoUser> listUsers();
 
+	/** List roles that can be modified */
 	public List<String> listEditableRoles();
 
+	/**
+	 * Creates a new user in the underlying storage. <b>DO NOT CALL DIRECTLY</b>
+	 * use {@link ArgeoSecurityService#newUser(ArgeoUser)} instead.
+	 */
 	public void create(ArgeoUser user);
 
 	public void update(ArgeoUser user);
 
 	public void delete(String username);
 
+	/**
+	 * Creates a new role in the underlying storage. <b>DO NOT CALL DIRECTLY</b>
+	 * use {@link ArgeoSecurityService#newRole(String)} instead.
+	 */
 	public void createRole(String role, String superuserName);
 
 	public void deleteRole(String role);

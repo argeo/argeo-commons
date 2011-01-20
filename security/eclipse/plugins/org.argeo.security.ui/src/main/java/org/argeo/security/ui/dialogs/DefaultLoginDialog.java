@@ -30,14 +30,15 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 	}
 
 	protected Point getInitialSize() {
-		return new Point(300, 280);
+		return new Point(300, 200);
 	}
 
 	protected Control createDialogArea(Composite parent) {
 		Composite dialogarea = (Composite) super.createDialogArea(parent);
-		dialogarea.setLayoutData(new GridData(GridData.FILL_BOTH));
+		dialogarea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		Composite composite = new Composite(dialogarea, SWT.NONE);
 		composite.setLayout(new GridLayout(2, false));
+		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		createCallbackHandlers(composite);
 		return composite;
 	}
@@ -63,7 +64,8 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 		label.setText(callback.getPrompt());
 		final Text passwordText = new Text(composite, SWT.SINGLE | SWT.LEAD
 				| SWT.PASSWORD | SWT.BORDER);
-		//passwordText.setLayoutData(new GridData(GridData.FILL_BOTH));
+		passwordText
+				.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		passwordText.addModifyListener(new ModifyListener() {
 
 			public void modifyText(ModifyEvent event) {
@@ -78,7 +80,7 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 		label.setText(callback.getPrompt());
 		final Text text = new Text(composite, SWT.SINGLE | SWT.LEAD
 				| SWT.BORDER);
-		//text.setLayoutData(new GridData(GridData.FILL_BOTH));
+		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		text.addModifyListener(new ModifyListener() {
 
 			public void modifyText(ModifyEvent event) {

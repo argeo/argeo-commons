@@ -1,17 +1,23 @@
 package org.argeo.security.ui.editors;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
-import org.argeo.security.UserNature;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.forms.editor.FormEditor;
+import org.eclipse.ui.forms.widgets.FormToolkit;
 
 /** Editor for an Argeo user. */
 public class ArgeoUserEditor extends FormEditor {
+	private final static Log log = LogFactory.getLog(ArgeoUserEditor.class);
+
 	public final static String ID = "org.argeo.security.ui.argeoUserEditor";
 
 	private ArgeoUser user;
@@ -28,8 +34,8 @@ public class ArgeoUserEditor extends FormEditor {
 
 	protected void addPages() {
 		try {
-			addPage(new DefaultUserMainPage(this, user));
-				
+			addPage(new DefaultUserMainPage(this, securityService, user));
+
 		} catch (PartInitException e) {
 			throw new ArgeoException("Not able to add page ", e);
 		}
@@ -37,24 +43,30 @@ public class ArgeoUserEditor extends FormEditor {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		// TODO Auto-generated method stub
-
+		log.debug("doSave called");
+		securityService.updateUser(user);
 	}
 
 	@Override
 	public void doSaveAs() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public boolean isSaveAsAllowed() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	public void setSecurityService(ArgeoSecurityService securityService) {
 		this.securityService = securityService;
+	}
+	
+	
+	private class DirtyListener implements ModifyListener {
+
+		public void modifyText(ModifyEvent e) {
+			
+		}
+		
 	}
 
 }
