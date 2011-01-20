@@ -5,6 +5,7 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             class="org.argeo.security.ui.SecurityPerspective"
+            icon="icons/security.gif"
             id="org.argeo.security.ui.securityPerspective"
             name="Security">
       </perspective>
@@ -13,6 +14,7 @@
          point="org.eclipse.ui.views">
       <view
             class="org.argeo.eclipse.spring.SpringExtensionFactory"
+            icon="icons/users.gif"
             id="org.argeo.security.ui.usersView"
             name="Users"
             restorable="false">
@@ -55,4 +57,26 @@
             configName="SPRING_SECURITY_CONTEXT">
       </callbackHandlerMapping>
    </extension>
+   <extension
+           point="org.eclipse.ui.editors">
+	        <editor
+	          class="org.argeo.eclipse.spring.SpringExtensionFactory"
+              id="org.argeo.security.ui.argeoUserEditor"
+              name="User"
+              icon="icons/user.gif"
+              default="false">
+        </editor>
+     </extension>
+    <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            id="org.argeo.security.ui.openArgeoUserEditor"
+            name="OpenArgeoUserEditor">
+   			<commandParameter
+         		id="org.argeo.security.ui.username"
+         		name="Username">
+  	 		</commandParameter>
+      </command>
+    </extension>
  </plugin>
