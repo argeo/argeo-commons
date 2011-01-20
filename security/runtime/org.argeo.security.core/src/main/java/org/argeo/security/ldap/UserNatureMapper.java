@@ -20,9 +20,10 @@ import org.argeo.security.UserNature;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 
+/** Maps a user nature from LDAP. */
 public interface UserNatureMapper {
 	public String getName();
-	
+
 	public void mapUserInfoToContext(UserNature userInfo, DirContextAdapter ctx);
 
 	public UserNature mapUserInfoFromContext(DirContextOperations ctx);

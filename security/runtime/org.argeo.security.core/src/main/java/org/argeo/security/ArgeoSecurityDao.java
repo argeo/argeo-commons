@@ -18,8 +18,12 @@ package org.argeo.security;
 
 import java.util.List;
 
+/**
+ * Access to the users and roles referential (dependent from the underlying
+ * storage, e.g. LDAP).
+ */
 public interface ArgeoSecurityDao {
-//	public ArgeoUser getCurrentUser();
+	// public ArgeoUser getCurrentUser();
 
 	public List<ArgeoUser> listUsers();
 
@@ -40,6 +44,6 @@ public interface ArgeoSecurityDao {
 	public ArgeoUser getUser(String username);
 
 	public ArgeoUser getUserWithPassword(String username);
-	
+
 	public String getDefaultRole();
 }

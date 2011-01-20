@@ -3,6 +3,7 @@ package org.argeo.security.ui.editors;
 import org.argeo.ArgeoException;
 import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
+import org.argeo.security.UserNature;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
@@ -27,7 +28,8 @@ public class ArgeoUserEditor extends FormEditor {
 
 	protected void addPages() {
 		try {
-			addPage(new ArgeoUserMainPage(this, user));
+			addPage(new DefaultUserMainPage(this, user));
+				
 		} catch (PartInitException e) {
 			throw new ArgeoException("Not able to add page ", e);
 		}

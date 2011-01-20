@@ -31,6 +31,10 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.ldap.UserDetailsContextMapper;
 
+/**
+ * Performs the mapping between LDAP and the user natures, using
+ * {@link UserNatureMapper}.
+ */
 public class ArgeoUserDetailsContextMapper implements UserDetailsContextMapper {
 	// private final static Log log = LogFactory
 	// .getLog(ArgeoUserDetailsContextMapper.class);

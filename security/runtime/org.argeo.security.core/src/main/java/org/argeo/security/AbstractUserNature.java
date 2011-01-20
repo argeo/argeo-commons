@@ -16,19 +16,22 @@
 
 package org.argeo.security;
 
-import java.util.List;
-import java.util.Map;
 
-/** Abstraction for a user. */
-public interface ArgeoUser {
-	public String getUsername();
+/** A set of specific data attached to a user. */
+public abstract class AbstractUserNature implements UserNature {
+	private static final long serialVersionUID = 1169323440459736478L;
+	
+	private String type;
 
-	public Map<String, UserNature> getUserNatures();
+	public String getType() {
+		if (type != null)
+			return type;
+		else
+			return getClass().getName();
+	}
 
-	/** Implementation should refuse to add new user natures via this method. */
-	public void updateUserNatures(Map<String, UserNature> userNatures);
+	public void setType(String type) {
+		this.type = type;
+	}
 
-	public List<String> getRoles();
-
-	public String getPassword();
 }

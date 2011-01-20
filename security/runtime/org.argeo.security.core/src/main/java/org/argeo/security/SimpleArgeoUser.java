@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.argeo.ArgeoException;
+
 public class SimpleArgeoUser implements ArgeoUser, Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -47,7 +49,44 @@ public class SimpleArgeoUser implements ArgeoUser, Serializable {
 	}
 
 	public void updateUserNatures(Map<String, UserNature> userNaturesData) {
-		UserNature.updateUserNaturesWithCheck(userNatures, userNaturesData);
+		updateUserNaturesWithCheck(userNatures, userNaturesData);
+	}
+
+	public static void updateUserNaturesWithCheck(
+			Map<String, UserNature> userNatures,
+			Map<String, UserNature> userNaturesData) {
+		// checks consistency
+		if (userNatures.size() != userNaturesData.size())
+			throw new ArgeoException(
+					"It is forbidden to add or remove user natures via this method");
+
+		for (String type : userNatures.keySet()) {
+			if (!userNaturesData.containsKey(type))
+				throw new ArgeoException(
+						"Could not find a user nature of type " + type);
+		}
+
+		// for (int i = 0; i < userNatures.size(); i++) {
+		// String type = userNatures.get(i).getType();
+		// boolean found = false;
+		// for (int j = 0; j < userNatures.size(); j++) {
+		// String newType = userNaturesData.get(j).getType();
+		// if (type.equals(newType))
+		// found = true;
+		// }
+		// if (!found)
+		// throw new ArgeoException(
+		// "Could not find a user nature of type " + type);
+		// }
+
+		for (String key : userNatures.keySet()) {
+			userNatures.put(key, userNaturesData.get(key));
+		}
+	}
+
+	@Override
+	public String toString() {
+		return username;
 	}
 
 	public List<String> getRoles() {

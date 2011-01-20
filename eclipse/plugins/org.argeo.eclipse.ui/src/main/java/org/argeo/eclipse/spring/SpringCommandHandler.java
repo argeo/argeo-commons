@@ -35,36 +35,14 @@ public class SpringCommandHandler implements IHandler {
 	}
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
+		String commandId = event.getCommand().getId();
+		String bundleSymbolicName = commandId.substring(0,
+				commandId.lastIndexOf('.'));
 		try {
-			if (log.isDebugEnabled())
-				log.debug("Execute " + event + " via spring command handler "
+			if (log.isTraceEnabled())
+				log.trace("Execute " + event + " via spring command handler "
 						+ this);
-
-			// Find the application context of the bundle defining the command
-			// extension
-			// ICommandService commandService =
-			// (ICommandService)ArgeoUiPlugin.getDefault().getWorkbench().getService(ICommandService.class);
-			//		
-			// Command command =
-			// commandService.getCommand(event.getCommand().getId());
-			// log.debug("command=" + command);
-			// log.debug("Command id " + command.getId());
-			//		
-			// Platform.getExtensionRegistry().getE
-			//		
-			// IExtension extension =
-			// Platform.getExtensionRegistry().getExtension(
-			// "org.eclipse.ui.commands", command.getId());
-			// log.debug("extension=" + extension);
-			// String bundleSymbolicName = extension.getContributor().getName();
-
-			// Assume that the defining bundle name is the first part of the
-			// command
-			// id
 			// TODO: make it more flexible and robust
-			String commandId = event.getCommand().getId();
-			String bundleSymbolicName = commandId.substring(0, commandId
-					.lastIndexOf('.'));
 			ApplicationContext applicationContext = ApplicationContextTracker
 					.getApplicationContext(bundleSymbolicName);
 
@@ -84,8 +62,9 @@ public class SpringCommandHandler implements IHandler {
 			return handler.execute(event);
 		} catch (Exception e) {
 			// TODO: use eclipse error management
-			log.error(e);
-			return null;
+//			log.error(e);
+			throw new ExecutionException("Cannot execute Spring command "
+					+ commandId + " in bundle " + bundleSymbolicName, e);
 		}
 	}
 

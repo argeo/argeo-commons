@@ -2,7 +2,10 @@ package org.argeo.security.ui.editors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.ArgeoException;
 import org.argeo.security.ArgeoUser;
+import org.argeo.security.UserNature;
+import org.argeo.security.nature.SimpleUserNature;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -22,17 +25,31 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
  * 
  *         This page display main info of a specified Ebi. Roles enable the
  */
-public class ArgeoUserMainPage extends FormPage {
-	private final static Log log = LogFactory.getLog(ArgeoUserMainPage.class);
+public class DefaultUserMainPage extends FormPage {
+	private final static Log log = LogFactory.getLog(DefaultUserMainPage.class);
 
 	private ArgeoUser user;
+	private SimpleUserNature simpleNature;
 
-	private Text text;
-	private Combo combo;
+	private String simpleNatureType;
 
-	public ArgeoUserMainPage(FormEditor editor, ArgeoUser user) {
+	private Text email;
+	private Text description;
+
+	public DefaultUserMainPage(FormEditor editor, ArgeoUser user) {
 		super(editor, "argeoUserEditor.mainPage", "Main");
 		this.user = user;
+
+		if (simpleNatureType != null)
+			simpleNature = (SimpleUserNature) user.getUserNatures().get(
+					simpleNatureType);
+		else
+			for (UserNature userNature : user.getUserNatures().values())
+				if (userNature instanceof SimpleUserNature)
+					simpleNature = (SimpleUserNature) userNature;
+
+		if (simpleNature == null)
+			throw new ArgeoException("No simple user nature in user " + user);
 	}
 
 	protected void createFormContent(IManagedForm managedForm) {
@@ -40,7 +57,8 @@ public class ArgeoUserMainPage extends FormPage {
 			ScrolledForm form = managedForm.getForm();
 
 			// Set the title of the current form
-			form.setText(user.toString());
+			form.setText(simpleNature.getFirstName() + " "
+					+ simpleNature.getLastName());
 
 			ColumnLayout mainLayout = new ColumnLayout();
 			mainLayout.minNumColumns = 1;
@@ -60,35 +78,23 @@ public class ArgeoUserMainPage extends FormPage {
 			body.setLayout(layout);
 
 			// Comments
-			toolkit.createLabel(body, "Label1");
-			text = toolkit.createText(body, user.getUsername(), SWT.WRAP
+			toolkit.createLabel(body, "Username");
+			toolkit.createLabel(body, user.getUsername());
+			toolkit.createLabel(body, "Email");
+			email = toolkit.createText(body, simpleNature.getEmail(), SWT.WRAP
 					| SWT.BORDER);
-
-			// Project Status
-			// A combo Box
-			toolkit.createLabel(body, "Statut du Projet");
-			// TIP : we have to create a composite to wrap the combo box that
-			// cannot be handled directly by the toolkit.
-			Composite subBody = toolkit.createComposite(body);
-
-			GridLayout subLayout = new GridLayout();
-			subLayout.marginWidth = 3;
-			layout.numColumns = 2;
-			subBody.setLayout(subLayout);
-
-			// The subBody fills 2 columns and a row
-			GridData gd;
-			gd = new GridData(GridData.FILL_BOTH);
-			gd.horizontalSpan = 2;
-			subBody.setLayoutData(gd);
-
-			toolkit.adapt(subBody, true, true);
-
-			toolkit.createLabel(body, "Some more text");
-			toolkit.createLabel(body, "And Again");
+			toolkit.createLabel(body, "Description");
+			description = toolkit.createText(body,
+					simpleNature.getDescription(), SWT.MULTI | SWT.WRAP
+							| SWT.BORDER);
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+
+	public void setSimpleNatureType(String simpleNatureType) {
+		this.simpleNatureType = simpleNatureType;
+	}
+
 }

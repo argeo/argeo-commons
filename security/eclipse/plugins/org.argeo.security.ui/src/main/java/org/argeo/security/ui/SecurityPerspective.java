@@ -8,16 +8,14 @@ public class SecurityPerspective implements IPerspectiveFactory {
 
 	public void createInitialLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();
-		layout.setEditorAreaVisible(false);
+		layout.setEditorAreaVisible(true);
 		layout.setFixed(false);
 
-		IFolderLayout main = layout.createFolder("main", IPageLayout.RIGHT,
-				0.3f, editorArea);
 		IFolderLayout left = layout.createFolder("left", IPageLayout.LEFT,
 				0.3f, editorArea);
 
 		left.addView("org.argeo.security.ui.usersView");
-		main.addView("org.argeo.security.ui.currentUserView");
+		left.addView("org.argeo.security.ui.currentUserView");
 	}
 
 }

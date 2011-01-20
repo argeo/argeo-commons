@@ -16,6 +16,10 @@
 
 package org.argeo.security;
 
+/**
+ * High level access to the user referential (independent from the underlying
+ * storage).
+ */
 public interface ArgeoSecurityService {
 	public ArgeoUser getCurrentUser();
 

@@ -16,9 +16,9 @@
 
 package org.argeo.security.nature;
 
-import org.argeo.security.UserNature;
+import org.argeo.security.AbstractUserNature;
 
-public class CoworkerNature extends UserNature {
+public class CoworkerNature extends AbstractUserNature {
 	private static final long serialVersionUID = 1L;
 	private String mobile;
 	private String telephoneNumber;

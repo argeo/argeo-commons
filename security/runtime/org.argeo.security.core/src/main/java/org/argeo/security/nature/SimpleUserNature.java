@@ -16,9 +16,15 @@
 
 package org.argeo.security.nature;
 
-import org.argeo.security.UserNature;
+import org.argeo.security.AbstractUserNature;
 
-public class SimpleUserNature extends UserNature {
+public class SimpleUserNature extends AbstractUserNature {
+	/**
+	 * No PAI, for internal use within the Argeo Security framework. Will
+	 * probably be removed.
+	 */
+	public final static String TYPE = "simpleUser";
+
 	private static final long serialVersionUID = 1L;
 	private String email;
 	private String firstName;

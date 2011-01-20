@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.security.ArgeoUser;
 import org.argeo.security.SimpleArgeoUser;
 import org.argeo.security.UserNature;
+import org.argeo.security.nature.SimpleUserNature;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
@@ -40,9 +41,9 @@ public class ArgeoUserDetails extends User implements ArgeoUser {
 	private final Map<String, UserNature> userNatures;
 	private final List<String> roles;
 
-	public ArgeoUserDetails(String username, Map<String, UserNature> userNatures,
-			String password, GrantedAuthority[] authorities)
-			throws IllegalArgumentException {
+	public ArgeoUserDetails(String username,
+			Map<String, UserNature> userNatures, String password,
+			GrantedAuthority[] authorities) throws IllegalArgumentException {
 		super(username, password, true, true, true, true, authorities);
 		this.userNatures = Collections.unmodifiableMap(userNatures);
 
@@ -61,7 +62,8 @@ public class ArgeoUserDetails extends User implements ArgeoUser {
 	}
 
 	public void updateUserNatures(Map<String, UserNature> userNaturesData) {
-		UserNature.updateUserNaturesWithCheck(userNatures, userNaturesData);
+		SimpleArgeoUser
+				.updateUserNaturesWithCheck(userNatures, userNaturesData);
 	}
 
 	public List<String> getRoles() {
