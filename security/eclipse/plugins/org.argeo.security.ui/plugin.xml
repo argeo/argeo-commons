@@ -125,4 +125,16 @@
                 </command>
           </menuContribution>
   </extension>
+     <extension
+           id="product"
+           point="org.eclipse.core.runtime.products">
+        <product
+              application="org.argeo.security.ui.application.secureUi"
+              name="Agfa Sebi">
+           <property
+                 name="appName"
+                 value="Agfa Sebi">
+           </property>
+        </product>
+     </extension>
  </plugin>
