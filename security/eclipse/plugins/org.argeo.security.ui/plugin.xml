@@ -102,7 +102,6 @@
       </command>
     </extension>
      <extension
-         id="menu:org.eclipse.ui.main.menu"
          point="org.eclipse.ui.menus">
       	<menuContribution
             locationURI="toolbar:org.argeo.security.ui.rolesView">
@@ -115,24 +114,7 @@
         </menuContribution>
         <menuContribution
                 allPopups="false"
-                locationURI="toolbar:org.eclipse.ui.main.toolbar">
-             <toolbar
-                   id="org.argeo.security.ui.mainToolbar">
-                <command
-                      commandId="org.argeo.security.ui.saveArgeoUser"
-                      disabledIcon="icons/user.gif"
-                      icon="icons/user.gif"
-                      label="Save user"
-                      style="push"
-                      tooltip="Save user">
-                </command>
-             </toolbar>
-          </menuContribution>
-        <menuContribution
-                allPopups="false"
-                locationURI="toolbar:org.eclipse.ui.main.toolbar">
-             <toolbar
-                   id="org.argeo.security.ui.mainToolbar">
+                locationURI="menu:file?after=additions">
                 <command
                       commandId="org.argeo.security.ui.openChangePasswordDialog"
                       disabledIcon="icons/password.gif"
@@ -141,7 +123,6 @@
                       style="push"
                       tooltip="Change password">
                 </command>
-             </toolbar>
           </menuContribution>
   </extension>
  </plugin>

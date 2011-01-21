@@ -24,6 +24,10 @@ import java.util.Map;
 
 import org.argeo.ArgeoException;
 
+/**
+ * Read-write implementation of an Argeo user. Typically initialized with a
+ * generic instance (read-only9 in order to modify a user.
+ */
 public class SimpleArgeoUser implements ArgeoUser, Serializable {
 	private static final long serialVersionUID = 1L;
 
