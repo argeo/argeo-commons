@@ -95,6 +95,11 @@
             id="org.argeo.security.ui.addRole"
             name="AddRole">
       </command>
+      <command
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            id="org.argeo.security.ui.openChangePasswordDialog"
+            name="OpenChangePasswordDialog">
+      </command>
     </extension>
      <extension
          id="menu:org.eclipse.ui.main.menu"
@@ -120,6 +125,21 @@
                       label="Save user"
                       style="push"
                       tooltip="Save user">
+                </command>
+             </toolbar>
+          </menuContribution>
+        <menuContribution
+                allPopups="false"
+                locationURI="toolbar:org.eclipse.ui.main.toolbar">
+             <toolbar
+                   id="org.argeo.security.ui.mainToolbar">
+                <command
+                      commandId="org.argeo.security.ui.openChangePasswordDialog"
+                      disabledIcon="icons/password.gif"
+                      icon="icons/password.gif"
+                      label="Change password"
+                      style="push"
+                      tooltip="Change password">
                 </command>
              </toolbar>
           </menuContribution>

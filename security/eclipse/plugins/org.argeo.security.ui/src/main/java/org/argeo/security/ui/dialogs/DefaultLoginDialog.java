@@ -30,16 +30,18 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 	}
 
 	protected Point getInitialSize() {
-		return new Point(300, 200);
+		return new Point(300, 250);
 	}
 
 	protected Control createDialogArea(Composite parent) {
 		Composite dialogarea = (Composite) super.createDialogArea(parent);
-		dialogarea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		// dialogarea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
+		// true));
 		Composite composite = new Composite(dialogarea, SWT.NONE);
 		composite.setLayout(new GridLayout(2, false));
-		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		createCallbackHandlers(composite);
+		parent.pack();
 		return composite;
 	}
 

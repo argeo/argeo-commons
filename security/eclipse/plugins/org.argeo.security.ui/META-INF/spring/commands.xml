@@ -12,4 +12,8 @@
 		scope="prototype">
 		<property name="securityService" ref="securityService" />
 	</bean>
+	<bean id="org.argeo.security.ui.openChangePasswordDialog" class="org.argeo.security.ui.commands.OpenChangePasswordDialog"
+		scope="prototype">
+		<property name="securityService" ref="securityService" />
+	</bean>
 </beans>

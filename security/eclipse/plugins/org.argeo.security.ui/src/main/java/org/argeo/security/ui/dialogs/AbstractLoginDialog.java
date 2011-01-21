@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -102,6 +104,13 @@ public abstract class AbstractLoginDialog extends TitleAreaDialog implements
 					// Call the adapter to handle the callbacks
 					if (!isCancelled())
 						internalHandle();
+					else
+						// clear callbacks are when cancelling
+						for (Callback callback : callbacks)
+							if (callback instanceof PasswordCallback)
+								((PasswordCallback) callback).setPassword(null);
+							else if (callback instanceof NameCallback)
+								((NameCallback) callback).setName(null);
 				}
 			}, true, new NullProgressMonitor(), Display.getDefault());
 		} catch (final Exception e) {

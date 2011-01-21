@@ -18,8 +18,11 @@ package org.argeo.security.ldap;
 
 import static org.argeo.security.core.ArgeoUserDetails.createSimpleArgeoUser;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -44,6 +47,7 @@ import org.springframework.security.ldap.LdapUtils;
 import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.ldap.authenticator.LdapShaPasswordEncoder;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsManager;
 import org.springframework.security.userdetails.UserDetailsService;
@@ -73,6 +77,19 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 	private UserDetailsContextMapper userDetailsMapper;
 	private LdapUserDetailsService ldapUserDetailsService;
 	private List<UserNatureMapper> userNatureMappers;
+
+	private LdapShaPasswordEncoder ldapShaPasswordEncoder = new LdapShaPasswordEncoder();
+	private Random random;
+
+	public ArgeoSecurityDaoLdap(BaseLdapPathContextSource contextSource) {
+		this.contextSource = contextSource;
+		ldapTemplate = new LdapTemplate(this.contextSource);
+		try {
+			random = SecureRandom.getInstance("SHA1PRNG");
+		} catch (NoSuchAlgorithmException e) {
+			random = new Random(System.currentTimeMillis());
+		}
+	}
 
 	public void afterPropertiesSet() throws Exception {
 		if (usernameMapper == null)
@@ -113,11 +130,6 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 		}
 	}
 
-	public ArgeoSecurityDaoLdap(BaseLdapPathContextSource contextSource) {
-		this.contextSource = contextSource;
-		ldapTemplate = new LdapTemplate(this.contextSource);
-	}
-
 	public synchronized void create(ArgeoUser user) {
 		userDetailsManager.createUser(new ArgeoUserDetails(user));
 	}
@@ -132,14 +144,14 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 		return createSimpleArgeoUser(getDetails(uname));
 	}
 
-//	public ArgeoUser getCurrentUser() {
-//		ArgeoUser argeoUser = ArgeoUserDetails.securityContextUser();
-//		if (argeoUser == null)
-//			return null;
-//		if (argeoUser.getRoles().contains(defaultRole))
-//			argeoUser.getRoles().remove(defaultRole);
-//		return argeoUser;
-//	}
+	// public ArgeoUser getCurrentUser() {
+	// ArgeoUser argeoUser = ArgeoUserDetails.securityContextUser();
+	// if (argeoUser == null)
+	// return null;
+	// if (argeoUser.getRoles().contains(defaultRole))
+	// argeoUser.getRoles().remove(defaultRole);
+	// return argeoUser;
+	// }
 
 	@SuppressWarnings("unchecked")
 	public synchronized List<ArgeoUser> listUsers() {
@@ -218,6 +230,18 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 		String group = convertRoleToGroup(role);
 		Name dn = buildGroupDn(group);
 		ldapTemplate.unbind(dn);
+	}
+
+	public Boolean isPasswordValid(String encoded, String raw) {
+		return ldapShaPasswordEncoder.isPasswordValid(encoded, raw, null);
+	}
+
+	public String encodePassword(String raw) {
+		byte[] salt = null;
+		// TODO: check that Linux auth supports SSHA
+		// byte[] salt = new byte[16];
+		// random.nextBytes(salt);
+		return ldapShaPasswordEncoder.encodePassword(raw, salt);
 	}
 
 	protected String convertRoleToGroup(String role) {

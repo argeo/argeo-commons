@@ -18,6 +18,7 @@ public class SecureActionBarAdvisor extends ActionBarAdvisor {
 	private IWorkbenchAction newWindowAction;
 	private IWorkbenchAction preferences;
 	private IWorkbenchAction helpContentAction;
+	private IWorkbenchAction changePassword;
 	// private IWorkbenchAction aboutAction;
 
 	private final Boolean isRcp;
@@ -46,6 +47,7 @@ public class SecureActionBarAdvisor extends ActionBarAdvisor {
 			newWindowAction = ActionFactory.OPEN_NEW_WINDOW.create(window);
 			register(newWindowAction);
 		}
+		
 	}
 
 	protected void fillMenuBar(IMenuManager menuBar) {

@@ -62,9 +62,9 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 
 	public void updateCurrentUserPassword(String oldPassword, String newPassword) {
 		SimpleArgeoUser user = new SimpleArgeoUser(getCurrentUser());
-		if (!user.getPassword().equals(oldPassword))
+		if (!securityDao.isPasswordValid(user.getPassword(), oldPassword))
 			throw new ArgeoException("Old password is not correct.");
-		user.setPassword(newPassword);
+		user.setPassword(securityDao.encodePassword(newPassword));
 		securityDao.update(user);
 	}
 

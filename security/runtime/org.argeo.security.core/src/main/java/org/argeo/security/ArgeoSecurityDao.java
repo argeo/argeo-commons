@@ -56,4 +56,10 @@ public interface ArgeoSecurityDao {
 	public ArgeoUser getUserWithPassword(String username);
 
 	public String getDefaultRole();
+
+	/** Validates a raw password against an encoded one. */
+	public Boolean isPasswordValid(String encoded, String raw);
+
+	/** Encodes a raw password. */
+	public String encodePassword(String raw);
 }
