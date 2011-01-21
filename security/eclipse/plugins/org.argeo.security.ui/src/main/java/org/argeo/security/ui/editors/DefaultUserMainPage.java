@@ -1,5 +1,7 @@
 package org.argeo.security.ui.editors;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
 import org.argeo.security.nature.SimpleUserNature;
@@ -9,8 +11,6 @@ import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
@@ -24,34 +24,35 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.forms.AbstractFormPart;
 import org.eclipse.ui.forms.IManagedForm;
+import org.eclipse.ui.forms.SectionPart;
 import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.forms.editor.FormPage;
 import org.eclipse.ui.forms.widgets.ColumnLayout;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
+import org.eclipse.ui.forms.widgets.Section;
 
+/**
+ * Display/edit the properties common to all {@link ArgeoUser} (username and
+ * roles) as well as the properties of the {@link SimpleUserNature}.
+ */
 public class DefaultUserMainPage extends FormPage {
-	// We use icons
-	private static final Image CHECKED = SecurityUiPlugin.getImageDescriptor(
-			"icons/security.gif").createImage();
+	final static String ID = "argeoUserEditor.mainPage";
+
+	private final static Image ROLE_CHECKED = SecurityUiPlugin
+			.getImageDescriptor("icons/security.gif").createImage();
+	private final static Log log = LogFactory.getLog(ArgeoUserEditor.class);
 
 	private ArgeoUser user;
 	private SimpleUserNature simpleNature;
-
 	private String simpleNatureType;
-
-	private Text firstName;
-	private Text lastName;
-	private Text email;
-	private Text description;
-	private TableViewer rolesViewer;
-
 	private ArgeoSecurityService securityService;
 
 	public DefaultUserMainPage(FormEditor editor,
 			ArgeoSecurityService securityService, ArgeoUser user) {
-		super(editor, "argeoUserEditor.mainPage", "Main");
+		super(editor, ID, "Main");
 		this.securityService = securityService;
 		this.user = user;
 		this.simpleNature = SecurityUiPlugin.findSimpleUserNature(user,
@@ -60,51 +61,95 @@ public class DefaultUserMainPage extends FormPage {
 
 	protected void createFormContent(final IManagedForm mf) {
 		ScrolledForm form = mf.getForm();
-
-		// Set the title of the current form
 		form.setText(simpleNature.getFirstName() + " "
 				+ simpleNature.getLastName());
-
 		ColumnLayout mainLayout = new ColumnLayout();
 		mainLayout.minNumColumns = 1;
 		mainLayout.maxNumColumns = 4;
-
 		mainLayout.topMargin = 0;
 		mainLayout.bottomMargin = 5;
 		mainLayout.leftMargin = mainLayout.rightMargin = mainLayout.horizontalSpacing = mainLayout.verticalSpacing = 10;
 		form.getBody().setLayout(mainLayout);
 
-		FormToolkit tk = mf.getToolkit();
+		createGeneralPart(form.getBody());
+		createRolesPart(form.getBody());
+	}
 
-		Composite body = tk.createComposite(form.getBody());
+	/** Creates the general section */
+	protected void createGeneralPart(Composite parent) {
+		FormToolkit tk = getManagedForm().getToolkit();
+		Section section = tk.createSection(parent, Section.TITLE_BAR);
+		section.setText("General");
+
+		Composite body = tk.createComposite(section, SWT.WRAP);
+		section.setClient(body);
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = layout.marginHeight = 0;
 		layout.numColumns = 2;
 		body.setLayout(layout);
 
-		// Comments
+		// add widgets (view)
 		tk.createLabel(body, "Username");
 		tk.createLabel(body, user.getUsername());
-
-		firstName = createLT(mf, body, "First name",
+		final Text firstName = createLT(body, "First name",
 				simpleNature.getFirstName());
-		lastName = createLT(mf, body, "Last name", simpleNature.getLastName());
-		email = createLT(mf, body, "Email", simpleNature.getEmail());
-		description = createLT(mf, body, "Description",
+		final Text lastName = createLT(body, "Last name",
+				simpleNature.getLastName());
+		final Text email = createLT(body, "Email", simpleNature.getEmail());
+		final Text description = createLT(body, "Description",
 				simpleNature.getDescription());
 
-		// Roles table
-		tk.createLabel(body, "Roles");
-		Table table = new Table(body, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		// create form part (controller)
+		AbstractFormPart part = new SectionPart(section) {
+			public void commit(boolean onSave) {
+				simpleNature.setFirstName(firstName.getText());
+				simpleNature.setLastName(lastName.getText());
+				simpleNature.setEmail(email.getText());
+				simpleNature.setDescription(description.getText());
+				super.commit(onSave);
+				if (log.isDebugEnabled())
+					log.debug("General part committed");
+			}
+		};
+		firstName.addModifyListener(new FormPartML(part));
+		lastName.addModifyListener(new FormPartML(part));
+		email.addModifyListener(new FormPartML(part));
+		description.addModifyListener(new FormPartML(part));
+		getManagedForm().addPart(part);
+	}
+
+	/** Creates the role section */
+	protected void createRolesPart(Composite parent) {
+		FormToolkit tk = getManagedForm().getToolkit();
+		Section section = tk.createSection(parent, Section.DESCRIPTION
+				| Section.TITLE_BAR);
+		section.setText("Roles");
+		section.setDescription("Roles define "
+				+ "the authorizations for this user.");
+		Table table = new Table(section, SWT.MULTI | SWT.H_SCROLL
+				| SWT.V_SCROLL);
+		section.setClient(table);
+
+		AbstractFormPart part = new SectionPart(section) {
+			public void commit(boolean onSave) {
+				// roles have already been modified in editing
+				super.commit(onSave);
+				if (log.isDebugEnabled())
+					log.debug("Role part committed");
+			}
+		};
+		getManagedForm().addPart(part);
+
 		GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gridData.verticalSpan = 20;
 		table.setLayoutData(gridData);
 		table.setLinesVisible(true);
 		table.setHeaderVisible(false);
-		rolesViewer = new TableViewer(table);
+		TableViewer viewer = new TableViewer(table);
 
 		// check column
-		TableViewerColumn column = createTableViewerColumn("checked", 20);
+		TableViewerColumn column = createTableViewerColumn(viewer, "checked",
+				20);
 		column.setLabelProvider(new ColumnLabelProvider() {
 			public String getText(Object element) {
 				return null;
@@ -113,16 +158,16 @@ public class DefaultUserMainPage extends FormPage {
 			public Image getImage(Object element) {
 				String role = element.toString();
 				if (user.getRoles().contains(role)) {
-					return CHECKED;
+					return ROLE_CHECKED;
 				} else {
 					return null;
 				}
 			}
 		});
-		column.setEditingSupport(new RoleEditingSupport(rolesViewer));
+		column.setEditingSupport(new RoleEditingSupport(viewer, part));
 
 		// role column
-		column = createTableViewerColumn("Role", 200);
+		column = createTableViewerColumn(viewer, "Role", 200);
 		column.setLabelProvider(new ColumnLabelProvider() {
 			public String getText(Object element) {
 				return element.toString();
@@ -132,14 +177,14 @@ public class DefaultUserMainPage extends FormPage {
 				return null;
 			}
 		});
-		rolesViewer.setContentProvider(new RolesContentProvider());
-		rolesViewer.setInput(getEditorSite());
-
+		viewer.setContentProvider(new RolesContentProvider());
+		viewer.setInput(getEditorSite());
 	}
 
-	protected TableViewerColumn createTableViewerColumn(String title, int bound) {
-		final TableViewerColumn viewerColumn = new TableViewerColumn(
-				rolesViewer, SWT.NONE);
+	protected TableViewerColumn createTableViewerColumn(TableViewer viewer,
+			String title, int bound) {
+		final TableViewerColumn viewerColumn = new TableViewerColumn(viewer,
+				SWT.NONE);
 		final TableColumn column = viewerColumn.getColumn();
 		column.setText(title);
 		column.setWidth(bound);
@@ -150,22 +195,29 @@ public class DefaultUserMainPage extends FormPage {
 	}
 
 	/** Creates label and text. */
-	protected Text createLT(final IManagedForm managedForm, Composite body,
-			String label, String value) {
-		FormToolkit toolkit = managedForm.getToolkit();
+	protected Text createLT(Composite body, String label, String value) {
+		FormToolkit toolkit = getManagedForm().getToolkit();
 		toolkit.createLabel(body, label);
 		Text text = toolkit.createText(body, value, SWT.BORDER);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		text.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
-				managedForm.dirtyStateChanged();
-			}
-		});
 		return text;
 	}
 
 	public void setSimpleNatureType(String simpleNatureType) {
 		this.simpleNatureType = simpleNatureType;
+	}
+
+	private class FormPartML implements ModifyListener {
+		private AbstractFormPart formPart;
+
+		public FormPartML(AbstractFormPart generalPart) {
+			this.formPart = generalPart;
+		}
+
+		public void modifyText(ModifyEvent e) {
+			formPart.markDirty();
+		}
+
 	}
 
 	private class RolesContentProvider implements IStructuredContentProvider {
@@ -181,35 +233,16 @@ public class DefaultUserMainPage extends FormPage {
 		}
 	}
 
-	private class RolesLabelProvider extends LabelProvider implements
-			ITableLabelProvider {
-		public String getColumnText(Object element, int columnIndex) {
-			// Principal argeoUser = (Principal) element;
-			// switch (columnIndex) {
-			// case 0:
-			// return argeoUser.getName();
-			// case 1:
-			// return argeoUser.toString();
-			// default:
-			// throw new ArgeoException("Unmanaged column " + columnIndex);
-			// }
-			return element.toString();
-		}
-
-		public Image getColumnImage(Object element, int columnIndex) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-	}
-
+	/** Select the columns by editing the checkbox in the first column */
 	class RoleEditingSupport extends EditingSupport {
 
 		private final TableViewer viewer;
+		private final AbstractFormPart formPart;
 
-		public RoleEditingSupport(TableViewer viewer) {
+		public RoleEditingSupport(TableViewer viewer, AbstractFormPart formPart) {
 			super(viewer);
 			this.viewer = viewer;
+			this.formPart = formPart;
 		}
 
 		@Override
@@ -234,10 +267,13 @@ public class DefaultUserMainPage extends FormPage {
 		protected void setValue(Object element, Object value) {
 			Boolean inRole = (Boolean) value;
 			String role = element.toString();
-			if (inRole && !user.getRoles().contains(role))
+			if (inRole && !user.getRoles().contains(role)) {
 				user.getRoles().add(role);
-			else if (!inRole && user.getRoles().contains(role))
+				formPart.markDirty();
+			} else if (!inRole && user.getRoles().contains(role)) {
 				user.getRoles().remove(role);
+				formPart.markDirty();
+			}
 			viewer.refresh();
 		}
 	}

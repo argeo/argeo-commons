@@ -6,13 +6,10 @@ import org.argeo.ArgeoException;
 import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.forms.editor.FormEditor;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 
 /** Editor for an Argeo user. */
 public class ArgeoUserEditor extends FormEditor {
@@ -30,6 +27,7 @@ public class ArgeoUserEditor extends FormEditor {
 				.getUsername();
 		user = securityService.getSecurityDao().getUser(username);
 		this.setPartProperty("name", username);
+		setPartName(username);
 	}
 
 	protected void addPages() {
@@ -43,8 +41,17 @@ public class ArgeoUserEditor extends FormEditor {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		log.debug("doSave called");
+		if (log.isDebugEnabled())
+			log.debug("doSave called");
+		// for (int i = 0; i < getPageCount(); i++) {
+		// IEditorPart editor = getEditor(i);
+		// if (editor != null)
+		// editor.doSave(monitor);
+		// }
+		findPage(DefaultUserMainPage.ID).doSave(monitor);
+
 		securityService.updateUser(user);
+		firePropertyChange(PROP_DIRTY);
 	}
 
 	@Override
@@ -59,14 +66,4 @@ public class ArgeoUserEditor extends FormEditor {
 	public void setSecurityService(ArgeoSecurityService securityService) {
 		this.securityService = securityService;
 	}
-	
-	
-	private class DirtyListener implements ModifyListener {
-
-		public void modifyText(ModifyEvent e) {
-			
-		}
-		
-	}
-
 }
