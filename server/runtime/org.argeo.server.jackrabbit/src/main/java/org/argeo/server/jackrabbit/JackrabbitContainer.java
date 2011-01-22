@@ -170,7 +170,7 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 
 			for (byte[] arr : cnds)
 				CndImporter.registerNodeTypes(new InputStreamReader(
-						new ByteArrayInputStream(arr)), session);
+						new ByteArrayInputStream(arr)), session, true);
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot process new session", e);
 		}
