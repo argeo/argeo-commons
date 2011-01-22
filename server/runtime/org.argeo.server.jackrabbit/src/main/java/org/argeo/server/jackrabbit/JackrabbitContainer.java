@@ -16,9 +16,13 @@
 
 package org.argeo.server.jackrabbit;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.jcr.Credentials;
@@ -34,20 +38,23 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.NamespaceHelper;
+import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.argeo.ArgeoException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 
 /**
  * Wrapper around a Jackrabbit repository which allows to configure it in Spring
  * and expose it as a {@link Repository}.
  */
 public class JackrabbitContainer implements InitializingBean, DisposableBean,
-		Repository {
+		Repository, ResourceLoaderAware {
 	private Log log = LogFactory.getLog(JackrabbitContainer.class);
 
 	private Resource configuration;
@@ -57,10 +64,24 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 
 	private Repository repository;
 
+	private ResourceLoader resourceLoader;
+
+	/** Node type definitions in CND format */
+	private List<byte[]> cnds = new ArrayList<byte[]>();
+	private List<String> cndFiles = new ArrayList<String>();
+
 	/** Namespaces to register: key is prefix, value namespace */
 	private Map<String, String> namespaces = new HashMap<String, String>();
 
 	public void afterPropertiesSet() throws Exception {
+		// Load cnds as resources
+		for (String resUrl : cndFiles) {
+
+			Resource res = resourceLoader.getResource(resUrl);
+			byte[] arr = IOUtils.toByteArray(res.getInputStream());
+			cnds.add(arr);
+		}
+
 		if (inMemory && homeDirectory.exists()) {
 			FileUtils.deleteDirectory(homeDirectory);
 			log.warn("Deleted Jackrabbit home directory " + homeDirectory);
@@ -146,9 +167,17 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 		try {
 			NamespaceHelper namespaceHelper = new NamespaceHelper(session);
 			namespaceHelper.registerNamespaces(namespaces);
-		} catch (RepositoryException e) {
+
+			for (byte[] arr : cnds)
+				CndImporter.registerNodeTypes(new InputStreamReader(
+						new ByteArrayInputStream(arr)), session);
+		} catch (Exception e) {
 			throw new ArgeoException("Cannot process new session", e);
 		}
+	}
+
+	public void setResourceLoader(ResourceLoader resourceLoader) {
+		this.resourceLoader = resourceLoader;
 	}
 
 	public boolean isStandardDescriptor(String key) {
@@ -182,6 +211,10 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 
 	public void setNamespaces(Map<String, String> namespaces) {
 		this.namespaces = namespaces;
+	}
+
+	public void setCndFiles(List<String> cndFiles) {
+		this.cndFiles = cndFiles;
 	}
 
 }

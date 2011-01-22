@@ -7,8 +7,8 @@
 		<artifactId>plugins</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>org.argeo.eclipse.ui</artifactId>
-	<name>Commons Eclipse UI</name>
+	<artifactId>org.argeo.eclipse.ui.jcr</artifactId>
+	<name>Commons Eclipse UI JCR</name>
 	<packaging>jar</packaging>
 	<build>
 		<plugins>
@@ -31,14 +31,8 @@
 				<configuration>
 					<instructions>
 						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
-						<Bundle-Activator>org.argeo.eclipse.ui.ArgeoUiPlugin</Bundle-Activator>
-						<Require-Bundle>org.eclipse.ui;resolution:=optional,org.eclipse.rap.ui;resolution:=optional,org.eclipse.core.runtime</Require-Bundle>
 						<Import-Package>
-							org.springframework.beans.factory,
-							org.springframework.core.io.support,
-							!org.eclipse.core.runtime,
-							!org.eclipse.core.commands,
-							!org.eclipse.ui.plugin,
+							org.eclipse.swt,
 							*
 						</Import-Package>
 					</instructions>
@@ -74,16 +68,6 @@
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.nodeps</artifactId>
 			<version>0.2.2-SNAPSHOT</version>
-		</dependency>
-
-		<!-- Spring -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.context</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.osgi</groupId>
-			<artifactId>org.springframework.osgi.extender</artifactId>
 		</dependency>
 
 		<!-- Others -->

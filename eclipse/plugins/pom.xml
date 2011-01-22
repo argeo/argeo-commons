@@ -12,6 +12,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>org.argeo.eclipse.ui</module>
+		<module>org.argeo.eclipse.ui.jcr</module>
 	</modules>
 	<build>
 		<resources>
