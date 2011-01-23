@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import javax.activation.MimetypesFileTypeMap;
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
@@ -31,12 +30,15 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.springframework.core.io.Resource;
 
+/**
+ * Bridge Spring resources and JCR folder / files semantics (nt:folder / nt:file),
+ * supporting versioning as well.
+ */
 public class JcrResourceAdapter {
 	private final static Log log = LogFactory.getLog(JcrResourceAdapter.class);
 
@@ -122,8 +124,11 @@ public class JcrResourceAdapter {
 		try {
 
 			if (!session().itemExists(path)) {
-				String type = new MimetypesFileTypeMap()
-						.getContentType(FilenameUtils.getName(path));
+				String type = null;
+				// FIXME: using javax.activation leads to conflict between Java
+				// 1.5 and 1.6 (since javax.activation was included in Java 1.6)
+				// String type = new MimetypesFileTypeMap()
+				// .getContentType(FilenameUtils.getName(path));
 				create(path, in, type);
 				return;
 			}
@@ -212,8 +217,8 @@ public class JcrResourceAdapter {
 	protected InputStream fromVersion(Version version)
 			throws RepositoryException {
 		Node frozenNode = version.getNode("jcr:frozenNode");
-		InputStream in = frozenNode.getNode("jcr:content").getProperty(
-				"jcr:data").getStream();
+		InputStream in = frozenNode.getNode("jcr:content")
+				.getProperty("jcr:data").getStream();
 		return in;
 	}
 

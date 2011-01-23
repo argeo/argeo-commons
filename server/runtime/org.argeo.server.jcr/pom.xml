@@ -94,11 +94,6 @@
 			<artifactId>org.springframework.xml</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>javax.activation</groupId>
-			<artifactId>com.springsource.javax.activation</artifactId>
-		</dependency>
-
 		<!-- Logging -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
