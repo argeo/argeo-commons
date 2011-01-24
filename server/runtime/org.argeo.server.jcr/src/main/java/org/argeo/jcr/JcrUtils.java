@@ -21,7 +21,9 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.Node;
@@ -333,25 +335,102 @@ public class JcrUtils {
 
 	/**
 	 * Check whether all first-level properties (except jcr:* properties) are
-	 * equal.
+	 * equal. Skip jcr:* properties
 	 */
-	public static Boolean allPropertiesEquals(Node node1, Node node2) {
+	public static Boolean allPropertiesEquals(Node reference, Node observed,
+			Boolean onlyCommonProperties) {
 		try {
-			PropertyIterator pit = node1.getProperties();
-			while (pit.hasNext()) {
-				Property prop1 = pit.nextProperty();
-				String propName = prop1.getName();
-				if (!node2.hasProperty(propName))
-					return false;
+			PropertyIterator pit = reference.getProperties();
+			props: while (pit.hasNext()) {
+				Property propReference = pit.nextProperty();
+				String propName = propReference.getName();
+				if (propName.startsWith("jcr:"))
+					continue props;
+
+				if (!observed.hasProperty(propName))
+					if (onlyCommonProperties)
+						continue props;
+					else
+						return false;
 				// TODO: deal with multiple property values?
-				if (!node2.getProperty(propName).getValue()
-						.equals(prop1.getValue()))
+				if (!observed.getProperty(propName).getValue()
+						.equals(propReference.getValue()))
 					return false;
 			}
 			return true;
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot check all properties equals of "
-					+ node1 + " and " + node2, e);
+					+ reference + " and " + observed, e);
 		}
+	}
+
+	public static Map<String, PropertyDiff> diffProperties(Node reference,
+			Node observed) {
+		Map<String, PropertyDiff> diffs = new TreeMap<String, PropertyDiff>();
+		diffPropertiesLevel(diffs, null, reference, observed);
+		return diffs;
+	}
+
+	/**
+	 * Compare the properties of two nodes. Recursivity to child nodes is not
+	 * yet supported. Skip jcr:* properties.
+	 */
+	static void diffPropertiesLevel(Map<String, PropertyDiff> diffs,
+			String baseRelPath, Node reference, Node observed) {
+		try {
+			// check removed and modified
+			PropertyIterator pit = reference.getProperties();
+			props: while (pit.hasNext()) {
+				Property p = pit.nextProperty();
+				String name = p.getName();
+				if (name.startsWith("jcr:"))
+					continue props;
+
+				if (!observed.hasProperty(name)) {
+					String relPath = propertyRelPath(baseRelPath, name);
+					PropertyDiff pDiff = new PropertyDiff(PropertyDiff.REMOVED,
+							relPath, p.getValue(), null);
+					diffs.put(relPath, pDiff);
+				} else {
+					if (p.isMultiple())
+						continue props;
+					Value referenceValue = p.getValue();
+					Value newValue = observed.getProperty(name).getValue();
+					if (!referenceValue.equals(newValue)) {
+						String relPath = propertyRelPath(baseRelPath, name);
+						PropertyDiff pDiff = new PropertyDiff(
+								PropertyDiff.MODIFIED, relPath, referenceValue,
+								newValue);
+						diffs.put(relPath, pDiff);
+					}
+				}
+			}
+			// check added
+			pit = observed.getProperties();
+			props: while (pit.hasNext()) {
+				Property p = pit.nextProperty();
+				String name = p.getName();
+				if (name.startsWith("jcr:"))
+					continue props;
+				if (!reference.hasProperty(name)) {
+					String relPath = propertyRelPath(baseRelPath, name);
+					PropertyDiff pDiff = new PropertyDiff(PropertyDiff.ADDED,
+							relPath, null, p.getValue());
+					diffs.put(relPath, pDiff);
+				}
+			}
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot diff " + reference + " and "
+					+ observed, e);
+		}
+	}
+
+	/** Builds a property relPath to be used in the diff. */
+	private static String propertyRelPath(String baseRelPath,
+			String propertyName) {
+		if (baseRelPath == null)
+			return propertyName;
+		else
+			return baseRelPath + '/' + propertyName;
 	}
 }
