@@ -3,11 +3,12 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
 Bundle-Vendor: %Bundle-Vendor
 Bundle-SymbolicName: org.eclipse.rwt.widgets.upload;singleton:=true
-Bundle-Version: 1.0.0.qualifier
-Require-Bundle: org.eclipse.rap.rwt,
- org.apache.commons.fileupload;bundle-version="1.2.0",
- org.apache.commons.io;bundle-version="1.3.2"
+Bundle-Version: 1.0.0.argeo001
+Require-Bundle: org.eclipse.rap.rwt,com.springsource.org.apache.commons.io
 Export-Package: org.eclipse.rwt.widgets
 Import-Package: javax.servlet;version="[2.3.0,3.0.0]",
- javax.servlet.http;version="[2.3.0,3.0.0]"
+ javax.servlet.http;version="[2.3.0,3.0.0]",
+ org.apache.commons.fileupload;version="1.2.1",
+ org.apache.commons.fileupload.disk;version="1.2.1",
+ org.apache.commons.fileupload.servlet;version="1.2.1"
 Bundle-RequiredExecutionEnvironment: J2SE-1.4
