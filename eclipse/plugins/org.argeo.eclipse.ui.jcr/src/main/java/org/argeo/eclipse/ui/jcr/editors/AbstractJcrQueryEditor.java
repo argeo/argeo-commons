@@ -70,7 +70,7 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 
 		Composite bottom = new Composite(sashForm, SWT.NONE);
 		bottom.setLayout(new GridLayout(1, false));
-		sashForm.setWeights(new int[] { 30, 70 });
+		sashForm.setWeights(getWeights());
 
 		viewer = new TableViewer(bottom);
 		viewer.getTable().setLayoutData(
@@ -79,6 +79,18 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 		viewer.setContentProvider(new QueryResultContentProvider());
 		// viewer.setLabelProvider(new QueryResultLabelProvider());
 		viewer.setInput(getEditorSite());
+
+		// viewer.addDoubleClickListener(new QueryResultDoubleClickListener());
+
+	}
+
+	/**
+	 * To be overidden to adapt size of form and result frames.
+	 * 
+	 * @return
+	 */
+	protected int[] getWeights() {
+		return new int[] { 30, 70 };
 	}
 
 	protected void executeQuery(String statement) {
@@ -92,8 +104,7 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 
 			for (final String columnName : qr.getColumnNames()) {
 				TableViewerColumn tvc = new TableViewerColumn(viewer, SWT.NONE);
-				tvc.getColumn().setWidth(50);
-				tvc.getColumn().setText(columnName);
+				configureColumn(columnName, tvc);
 				tvc.setLabelProvider(new ColumnLabelProvider() {
 
 					public String getText(Object element) {
@@ -121,6 +132,13 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 			// throw new ArgeoException("Cannot execute JCR query " + statement,
 			// e);
 		}
+	}
+
+	/** To be overridden in order to configure the columns. */
+	protected void configureColumn(String jcrColumnName,
+			TableViewerColumn column) {
+		column.getColumn().setWidth(50);
+		column.getColumn().setText(jcrColumnName);
 	}
 
 	private class QueryResultContentProvider implements
@@ -194,6 +212,7 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 		return false;
 	}
 
+	// IoC
 	public void setSession(Session session) {
 		this.session = session;
 	}
