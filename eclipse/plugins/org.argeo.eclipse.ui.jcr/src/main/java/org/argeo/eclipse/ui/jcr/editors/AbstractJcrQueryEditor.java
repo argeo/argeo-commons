@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -80,7 +81,8 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 		// viewer.setLabelProvider(new QueryResultLabelProvider());
 		viewer.setInput(getEditorSite());
 
-		// viewer.addDoubleClickListener(new QueryResultDoubleClickListener());
+		if (getTableDoubleClickListener() != null)
+			viewer.addDoubleClickListener(getTableDoubleClickListener());
 
 	}
 
@@ -91,6 +93,16 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 	 */
 	protected int[] getWeights() {
 		return new int[] { 30, 70 };
+	}
+
+	/**
+	 * To be overidden to implement a doubleclick Listener on one of the rows of
+	 * the table.
+	 * 
+	 * @return
+	 */
+	protected IDoubleClickListener getTableDoubleClickListener() {
+		return null;
 	}
 
 	protected void executeQuery(String statement) {
