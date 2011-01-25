@@ -12,17 +12,10 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.jface.dialogs.ErrorSupportProvider;
-import org.eclipse.jface.util.Policy;
-import org.eclipse.jface.window.Window.IExceptionHandler;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.application.WorkbenchAdvisor;
-import org.eclipse.ui.internal.statushandlers.StackTraceSupportArea;
-import org.eclipse.ui.statushandlers.WorkbenchStatusDialogManager;
 
 public abstract class AbstractSecureApplication implements IApplication {
 	private static final Log log = LogFactory

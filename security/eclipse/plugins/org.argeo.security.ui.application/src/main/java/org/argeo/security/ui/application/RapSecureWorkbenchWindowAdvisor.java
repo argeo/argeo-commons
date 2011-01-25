@@ -1,5 +1,7 @@
 package org.argeo.security.ui.application;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -10,6 +12,8 @@ import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 
 public class RapSecureWorkbenchWindowAdvisor extends
 		SecureWorkbenchWindowAdvisor {
+	private final static Log log = LogFactory
+			.getLog(RapSecureWorkbenchWindowAdvisor.class);
 
 	public RapSecureWorkbenchWindowAdvisor(IWorkbenchWindowConfigurer configurer) {
 		super(configurer);
@@ -24,6 +28,10 @@ public class RapSecureWorkbenchWindowAdvisor extends
 	public void preWindowOpen() {
 		IWorkbenchWindowConfigurer configurer = getWindowConfigurer();
 		// configurer.setInitialSize(new Point(800, 600));
+
+//		if (log.isDebugEnabled())
+//			log.debug("CHAR ENCODING"
+//					+ System.getProperty("file.encoding"));
 		configurer.setShowCoolBar(true);
 		configurer.setShowMenuBar(true);
 		configurer.setShowStatusLine(false);
