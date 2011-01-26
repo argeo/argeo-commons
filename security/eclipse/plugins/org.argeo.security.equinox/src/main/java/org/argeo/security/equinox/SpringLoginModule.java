@@ -19,11 +19,12 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.jaas.SecurityContextLoginModule;
 
+/** Login module which caches one subject per thread. */
 public class SpringLoginModule extends SecurityContextLoginModule {
 	private final static Log log = LogFactory.getLog(SpringLoginModule.class);
 
 	private AuthenticationManager authenticationManager;
-	private Subject subject;
+//	private ThreadLocal<Subject> subject;
 
 	private CallbackHandler callbackHandler;
 
@@ -35,7 +36,7 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 	public void initialize(Subject subject, CallbackHandler callbackHandler,
 			Map sharedState, Map options) {
 		super.initialize(subject, callbackHandler, sharedState, options);
-		this.subject = subject;
+//		this.subject.set(subject);
 		this.callbackHandler = callbackHandler;
 	}
 
@@ -44,15 +45,15 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 		if (SecurityContextHolder.getContext().getAuthentication() != null)
 			return super.login();
 
-		if (subject.getPrincipals(Authentication.class).size() == 1) {
-			registerAuthentication(subject.getPrincipals(Authentication.class)
-					.iterator().next());
-			return super.login();
-		} else if (subject.getPrincipals(Authentication.class).size() > 1) {
-			throw new LoginException(
-					"Multiple Authentication principals not supported: "
-							+ subject.getPrincipals(Authentication.class));
-		} else {
+//		if (getSubject().getPrincipals(Authentication.class).size() == 1) {
+//			registerAuthentication(getSubject()
+//					.getPrincipals(Authentication.class).iterator().next());
+//			return super.login();
+//		} else if (getSubject().getPrincipals(Authentication.class).size() > 1) {
+//			throw new LoginException(
+//					"Multiple Authentication principals not supported: "
+//							+ getSubject().getPrincipals(Authentication.class));
+//		} else {
 			// ask for username and password
 			Callback label = new TextOutputCallback(
 					TextOutputCallback.INFORMATION, "Required login");
@@ -87,7 +88,10 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 				Authentication authentication = authenticationManager
 						.authenticate(credentials);
 				registerAuthentication(authentication);
-				return super.login();
+				boolean res = super.login();
+//				if (log.isDebugEnabled())
+//					log.debug("User " + username + " logged in");
+				return res;
 			} catch (BadCredentialsException bce) {
 				throw bce;
 			} catch (Exception e) {
@@ -96,14 +100,13 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 				loginException.initCause(e);
 				throw loginException;
 			}
-		}
+//		}
 	}
 
 	@Override
 	public boolean logout() throws LoginException {
 		if (log.isDebugEnabled())
-			log.debug("Log out "
-					+ subject.getPrincipals().iterator().next().getName());
+			log.debug("Log out "+CurrentUser.getUsername());
 		return super.logout();
 	}
 
@@ -122,5 +125,9 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 			AuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
 	}
+
+//	protected Subject getSubject() {
+//		return subject.get();
+//	}
 
 }
