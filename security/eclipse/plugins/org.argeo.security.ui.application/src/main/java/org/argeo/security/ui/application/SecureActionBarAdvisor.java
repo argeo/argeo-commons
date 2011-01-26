@@ -23,6 +23,7 @@ public class SecureActionBarAdvisor extends ActionBarAdvisor {
 	private IWorkbenchAction helpContentAction;
 	private IWorkbenchAction saveAction;
 	private IWorkbenchAction saveAllAction;
+	private IWorkbenchAction closeAllAction;
 
 	// private final Boolean isRcp;
 
@@ -50,6 +51,8 @@ public class SecureActionBarAdvisor extends ActionBarAdvisor {
 		register(saveAction);
 		saveAllAction = ActionFactory.SAVE_ALL.create(window);
 		register(saveAllAction);
+		closeAllAction = ActionFactory.CLOSE_ALL.create(window);
+		register(closeAllAction);
 
 	}
 
@@ -73,6 +76,7 @@ public class SecureActionBarAdvisor extends ActionBarAdvisor {
 		// File
 		fileMenu.add(saveAction);
 		fileMenu.add(saveAllAction);
+		fileMenu.add(closeAllAction);
 		fileMenu.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
 		fileMenu.add(new Separator());
 		fileMenu.add(exitAction);
