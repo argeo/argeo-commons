@@ -59,11 +59,13 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 		parent.setLayout(new FillLayout());
 
 		SashForm sashForm = new SashForm(parent, SWT.VERTICAL);
-		sashForm.setSashWidth(2);
+		sashForm.setSashWidth(4);
 		sashForm.setLayout(new FillLayout());
 
 		Composite top = new Composite(sashForm, SWT.NONE);
-		top.setLayout(new GridLayout(1, false));
+		GridLayout gl = new GridLayout(1, false);
+		top.setLayout(gl);
+
 		// Device device = Display.getCurrent();
 		// Color red = new Color(device, 255, 0, 0);
 		// top.setBackground(red);
