@@ -16,6 +16,9 @@
 
 package org.argeo.security.core;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.argeo.ArgeoException;
 import org.argeo.security.ArgeoSecurity;
 import org.argeo.security.ArgeoSecurityDao;
@@ -113,6 +116,19 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 				runnable.run();
 			}
 		};
+	}
+
+	public List<ArgeoUser> listUsersInRole(String role) {
+		List<ArgeoUser> lst = securityDao.listUsersInRole(role);
+		Iterator<ArgeoUser> it = lst.iterator();
+		while (it.hasNext()) {
+			if (it.next().getUsername()
+					.equals(argeoSecurity.getSuperUsername())) {
+				it.remove();
+				break;
+			}
+		}
+		return lst;
 	}
 
 	public void setArgeoSecurity(ArgeoSecurity argeoSecurity) {

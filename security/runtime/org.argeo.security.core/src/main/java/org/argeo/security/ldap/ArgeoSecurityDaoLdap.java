@@ -183,6 +183,26 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 				});
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<ArgeoUser> listUsersInRole(String role) {
+		return (List<ArgeoUser>) ldapTemplate.lookup(
+				buildGroupDn(convertRoleToGroup(role)), new ContextMapper() {
+					public Object mapFromContext(Object ctxArg) {
+						DirContextAdapter ctx = (DirContextAdapter) ctxArg;
+						String[] userDns = ctx
+								.getStringAttributes(groupMemberAttributeName);
+						List<ArgeoUser> lst = new ArrayList<ArgeoUser>();
+						for (String userDn : userDns) {
+							DistinguishedName dn = new DistinguishedName(userDn);
+							String username = dn
+									.getValue(usernameAttributeName);
+							lst.add(createSimpleArgeoUser(getDetails(username)));
+						}
+						return lst;
+					}
+				});
+	}
+
 	public synchronized void update(ArgeoUser user) {
 		ArgeoUserDetails argeoUserDetails = new ArgeoUserDetails(user);
 		userDetailsManager.updateUser(new ArgeoUserDetails(user));

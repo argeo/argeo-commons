@@ -16,7 +16,10 @@
 
 package org.argeo.security.nature;
 
+import org.argeo.ArgeoException;
 import org.argeo.security.AbstractUserNature;
+import org.argeo.security.ArgeoUser;
+import org.argeo.security.UserNature;
 
 public class SimpleUserNature extends AbstractUserNature {
 	/**
@@ -61,6 +64,38 @@ public class SimpleUserNature extends AbstractUserNature {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	/*
+	 * SECURITY UTILITIES
+	 */
+	/**
+	 * Finds a user nature extending {@link SimpleUserNature} in the provided
+	 * user.
+	 * 
+	 * @param user
+	 *            the user to scan
+	 * @param simpleNatureType
+	 *            the type under which a {@link SimpleUserNature} is registered,
+	 *            useful if there are many. can be null.
+	 * @return the {@link SimpleUserNature}
+	 * @throws ArgeoException
+	 *             if no simple user nature was found
+	 */
+	public final static SimpleUserNature findSimpleUserNature(ArgeoUser user,
+			String simpleNatureType) {
+		SimpleUserNature simpleNature = null;
+		if (simpleNatureType != null)
+			simpleNature = (SimpleUserNature) user.getUserNatures().get(
+					simpleNatureType);
+		else
+			for (UserNature userNature : user.getUserNatures().values())
+				if (userNature instanceof SimpleUserNature)
+					simpleNature = (SimpleUserNature) userNature;
+
+		if (simpleNature == null)
+			throw new ArgeoException("No simple user nature in user " + user);
+		return simpleNature;
 	}
 
 }

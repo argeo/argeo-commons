@@ -99,7 +99,7 @@ public class UsersView extends ViewPart {
 		public String getColumnText(Object element, int columnIndex) {
 			String currentUsername = CurrentUser.getUsername();
 			ArgeoUser user = (ArgeoUser) element;
-			SimpleUserNature simpleNature = SecurityUiPlugin
+			SimpleUserNature simpleNature = SimpleUserNature
 					.findSimpleUserNature(user, simpleNatureType);
 			switch (columnIndex) {
 			case 0:

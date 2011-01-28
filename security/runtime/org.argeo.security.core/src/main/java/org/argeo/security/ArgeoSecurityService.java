@@ -16,6 +16,8 @@
 
 package org.argeo.security;
 
+import java.util.List;
+
 /**
  * High level access to the user referential (independent from the underlying
  * storage).
@@ -36,4 +38,8 @@ public interface ArgeoSecurityService {
 	public ArgeoSecurityDao getSecurityDao();
 
 	public Runnable wrapWithSystemAuthentication(final Runnable runnable);
+	
+	/** List users having this role (except the super user). */
+	public List<ArgeoUser> listUsersInRole(String role);
+
 }

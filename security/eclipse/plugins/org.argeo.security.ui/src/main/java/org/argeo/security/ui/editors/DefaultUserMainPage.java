@@ -55,7 +55,7 @@ public class DefaultUserMainPage extends FormPage {
 		super(editor, ID, "Main");
 		this.securityService = securityService;
 		this.user = user;
-		this.simpleNature = SecurityUiPlugin.findSimpleUserNature(user,
+		this.simpleNature = SimpleUserNature.findSimpleUserNature(user,
 				simpleNatureType);
 	}
 

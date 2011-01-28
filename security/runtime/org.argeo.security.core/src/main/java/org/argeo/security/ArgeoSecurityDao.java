@@ -49,6 +49,9 @@ public interface ArgeoSecurityDao {
 
 	public void deleteRole(String role);
 
+	/** List all users having this role. */
+	public List<ArgeoUser> listUsersInRole(String role);
+
 	public Boolean userExists(String username);
 
 	public ArgeoUser getUser(String username);
