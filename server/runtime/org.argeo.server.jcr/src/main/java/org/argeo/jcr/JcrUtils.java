@@ -21,6 +21,8 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
@@ -423,6 +425,46 @@ public class JcrUtils {
 			throw new ArgeoException("Cannot diff " + reference + " and "
 					+ observed, e);
 		}
+	}
+
+	/**
+	 * Compare only a restricted list of properties of two nodes. No
+	 * recursivity.
+	 * 
+	 */
+	public static Map<String, PropertyDiff> diffProperties(Node reference,
+			Node observed, List<String> properties) {
+		Map<String, PropertyDiff> diffs = new TreeMap<String, PropertyDiff>();
+		try {
+			Iterator<String> pit = properties.iterator();
+
+			while (pit.hasNext()) {
+				String name = pit.next();
+				if (!observed.hasProperty(name)) {
+					PropertyDiff pDiff = new PropertyDiff(PropertyDiff.REMOVED,
+							name, reference.getProperty(name).getValue(), null);
+					diffs.put(name, pDiff);
+				} else if (!reference.hasProperty(name)) {
+					PropertyDiff pDiff = new PropertyDiff(PropertyDiff.ADDED,
+							name, null, observed.getProperty(name).getValue());
+					diffs.put(name, pDiff);
+				} else {
+					Value referenceValue = reference.getProperty(name)
+							.getValue();
+					Value newValue = observed.getProperty(name).getValue();
+					if (!referenceValue.equals(newValue)) {
+						PropertyDiff pDiff = new PropertyDiff(
+								PropertyDiff.MODIFIED, name, referenceValue,
+								newValue);
+						diffs.put(name, pDiff);
+					}
+				}
+			}
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot diff " + reference + " and "
+					+ observed, e);
+		}
+		return diffs;
 	}
 
 	/** Builds a property relPath to be used in the diff. */

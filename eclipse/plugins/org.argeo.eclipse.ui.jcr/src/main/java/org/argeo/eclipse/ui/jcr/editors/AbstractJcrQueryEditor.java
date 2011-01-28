@@ -119,22 +119,7 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 			for (final String columnName : qr.getColumnNames()) {
 				TableViewerColumn tvc = new TableViewerColumn(viewer, SWT.NONE);
 				configureColumn(columnName, tvc);
-				tvc.setLabelProvider(new ColumnLabelProvider() {
-
-					public String getText(Object element) {
-						Row row = (Row) element;
-						try {
-							return row.getValue(columnName).getString();
-						} catch (RepositoryException e) {
-							throw new ArgeoException("Cannot display row "
-									+ row, e);
-						}
-					}
-
-					public Image getImage(Object element) {
-						return null;
-					}
-				});
+				tvc.setLabelProvider(getLabelProvider(columnName));
 				tableViewerColumns.add(tvc);
 			}
 
@@ -146,6 +131,26 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 			// throw new ArgeoException("Cannot execute JCR query " + statement,
 			// e);
 		}
+	}
+
+	/**
+	 * To be overridden in order to configure column label providers .
+	 */
+	protected ColumnLabelProvider getLabelProvider(final String columnName) {
+		return new ColumnLabelProvider() {
+			public String getText(Object element) {
+				Row row = (Row) element;
+				try {
+					return row.getValue(columnName).getString();
+				} catch (RepositoryException e) {
+					throw new ArgeoException("Cannot display row " + row, e);
+				}
+			}
+
+			public Image getImage(Object element) {
+				return null;
+			}
+		};
 	}
 
 	/** To be overridden in order to configure the columns. */
