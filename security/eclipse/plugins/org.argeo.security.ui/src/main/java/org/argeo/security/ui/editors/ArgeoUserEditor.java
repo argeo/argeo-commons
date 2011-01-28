@@ -5,6 +5,8 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
+import org.argeo.security.SimpleArgeoUser;
+import org.argeo.security.nature.SimpleUserNature;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
@@ -25,9 +27,14 @@ public class ArgeoUserEditor extends FormEditor {
 		super.init(site, input);
 		String username = ((ArgeoUserEditorInput) getEditorInput())
 				.getUsername();
-		user = securityService.getSecurityDao().getUser(username);
-		this.setPartProperty("name", username);
-		setPartName(username);
+		if (username == null) {// new
+			user = new SimpleArgeoUser();
+			user.getUserNatures().put(SimpleUserNature.TYPE,
+					new SimpleUserNature());
+		} else
+			user = securityService.getSecurityDao().getUser(username);
+		this.setPartProperty("name", username != null ? username : "<new user>");
+		setPartName(username != null ? username : "<new user>");
 	}
 
 	protected void addPages() {
@@ -41,16 +48,23 @@ public class ArgeoUserEditor extends FormEditor {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		if (log.isDebugEnabled())
-			log.debug("doSave called");
-		// for (int i = 0; i < getPageCount(); i++) {
-		// IEditorPart editor = getEditor(i);
-		// if (editor != null)
-		// editor.doSave(monitor);
-		// }
+		// list pages
+		// TODO: make it more generic
 		findPage(DefaultUserMainPage.ID).doSave(monitor);
 
-		securityService.updateUser(user);
+		if (securityService.getSecurityDao().userExists(user.getUsername()))
+			securityService.updateUser(user);
+		else {
+			try {
+				// FIXME: make it cleaner
+				((SimpleArgeoUser)user).setPassword(user.getUsername());
+				securityService.newUser(user);
+				setPartName(user.getUsername());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		firePropertyChange(PROP_DIRTY);
 	}
 

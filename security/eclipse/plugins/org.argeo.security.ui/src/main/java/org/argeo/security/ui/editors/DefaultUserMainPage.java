@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
+import org.argeo.security.SimpleArgeoUser;
 import org.argeo.security.nature.SimpleUserNature;
 import org.argeo.security.ui.SecurityUiPlugin;
 import org.eclipse.jface.viewers.CellEditor;
@@ -89,8 +90,14 @@ public class DefaultUserMainPage extends FormPage {
 		body.setLayout(layout);
 
 		// add widgets (view)
-		tk.createLabel(body, "Username");
-		tk.createLabel(body, user.getUsername());
+		final Text username;
+		if (user.getUsername() != null) {
+			tk.createLabel(body, "Username");
+			tk.createLabel(body, user.getUsername());
+			username = null;
+		} else {
+			username = createLT(body, "Username", "");
+		}
 		final Text firstName = createLT(body, "First name",
 				simpleNature.getFirstName());
 		final Text lastName = createLT(body, "Last name",
@@ -102,6 +109,11 @@ public class DefaultUserMainPage extends FormPage {
 		// create form part (controller)
 		AbstractFormPart part = new SectionPart(section) {
 			public void commit(boolean onSave) {
+				if (username != null) {
+					((SimpleArgeoUser) user).setUsername(username.getText());
+					username.setEditable(false);
+					username.setEnabled(false);
+				}
 				simpleNature.setFirstName(firstName.getText());
 				simpleNature.setLastName(lastName.getText());
 				simpleNature.setEmail(email.getText());

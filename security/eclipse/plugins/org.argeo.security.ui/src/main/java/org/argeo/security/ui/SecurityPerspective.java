@@ -16,7 +16,7 @@ public class SecurityPerspective implements IPerspectiveFactory {
 
 		left.addView("org.argeo.security.ui.usersView");
 		left.addView("org.argeo.security.ui.rolesView");
-		left.addView("org.argeo.security.ui.currentUserView");
+		//left.addView("org.argeo.security.ui.currentUserView");
 	}
 
 }

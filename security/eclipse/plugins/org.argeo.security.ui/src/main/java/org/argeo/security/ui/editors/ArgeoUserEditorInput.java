@@ -12,13 +12,12 @@ public class ArgeoUserEditorInput implements IEditorInput {
 		this.username = username;
 	}
 
-	public Object getAdapter(Class adapter) {
+	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
 		return null;
 	}
 
 	public boolean exists() {
-		// TODO: use security service?
-		return true;
+		return username != null;
 	}
 
 	public ImageDescriptor getImageDescriptor() {
@@ -26,16 +25,15 @@ public class ArgeoUserEditorInput implements IEditorInput {
 	}
 
 	public String getName() {
-		return username;
+		return username != null ? username : "<new user>";
 	}
 
 	public IPersistableElement getPersistable() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public String getToolTipText() {
-		return username;
+		return username != null ? username : "<new user>";
 	}
 
 	public boolean equals(Object obj) {
