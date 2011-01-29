@@ -49,6 +49,12 @@
 			<version>0.2.2-SNAPSHOT</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.argeo.commons.eclipse</groupId>
+			<artifactId>org.argeo.eclipse.ui</artifactId>
+			<version>0.2.2-SNAPSHOT</version>
+		</dependency>
+
 		<!-- JCR -->
 		<dependency>
 			<groupId>org.argeo.dep.osgi</groupId>
