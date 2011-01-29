@@ -10,6 +10,7 @@ import javax.jcr.query.Row;
 import javax.jcr.query.RowIterator;
 
 import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.GenericTableComparator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -22,11 +23,14 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
@@ -34,13 +38,16 @@ import org.eclipse.ui.part.EditorPart;
 
 /** Executes any JCR query. */
 public abstract class AbstractJcrQueryEditor extends EditorPart {
+
 	protected String initialQuery;
 	protected String initialQueryType;
 
+	// IoC
 	private Session session;
 
 	private TableViewer viewer;
 	private List<TableViewerColumn> tableViewerColumns = new ArrayList<TableViewerColumn>();
+	private GenericTableComparator comparator;
 
 	protected abstract void createQueryForm(Composite parent);
 
@@ -66,9 +73,6 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 		GridLayout gl = new GridLayout(1, false);
 		top.setLayout(gl);
 
-		// Device device = Display.getCurrent();
-		// Color red = new Color(device, 255, 0, 0);
-		// top.setBackground(red);
 		createQueryForm(top);
 
 		Composite bottom = new Composite(sashForm, SWT.NONE);
@@ -79,32 +83,16 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 		viewer.getTable().setLayoutData(
 				new GridData(SWT.FILL, SWT.FILL, true, true));
 		viewer.getTable().setHeaderVisible(true);
-		viewer.setContentProvider(new QueryResultContentProvider());
-		// viewer.setLabelProvider(new QueryResultLabelProvider());
+		viewer.setContentProvider(getQueryResultContentProvider());
 		viewer.setInput(getEditorSite());
 
+		if (getComparator() != null) {
+			comparator = getComparator();
+			viewer.setComparator(comparator);
+		}
 		if (getTableDoubleClickListener() != null)
 			viewer.addDoubleClickListener(getTableDoubleClickListener());
 
-	}
-
-	/**
-	 * To be overidden to adapt size of form and result frames.
-	 * 
-	 * @return
-	 */
-	protected int[] getWeights() {
-		return new int[] { 30, 70 };
-	}
-
-	/**
-	 * To be overidden to implement a doubleclick Listener on one of the rows of
-	 * the table.
-	 * 
-	 * @return
-	 */
-	protected IDoubleClickListener getTableDoubleClickListener() {
-		return null;
 	}
 
 	protected void executeQuery(String statement) {
@@ -131,6 +119,47 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 			// throw new ArgeoException("Cannot execute JCR query " + statement,
 			// e);
 		}
+	}
+
+	/**
+	 * To be overidden to adapt size of form and result frames.
+	 * 
+	 * @return
+	 */
+	protected int[] getWeights() {
+		return new int[] { 30, 70 };
+	}
+
+	/**
+	 * To be overidden to implement a doubleclick Listener on one of the rows of
+	 * the table.
+	 * 
+	 * @return
+	 */
+	protected IDoubleClickListener getTableDoubleClickListener() {
+		return null;
+	}
+
+	/**
+	 * To be overiden in order to implement a specific
+	 * QueryResultContentProvider
+	 */
+	protected IStructuredContentProvider getQueryResultContentProvider() {
+		return new QueryResultContentProvider();
+	}
+
+	/**
+	 * Enable specific implementation for columns
+	 */
+	protected List<TableViewerColumn> getTableViewerColumns() {
+		return tableViewerColumns;
+	}
+
+	/**
+	 * Enable specific implementation for columns
+	 */
+	protected TableViewer getTableViewer() {
+		return viewer;
 	}
 
 	/**
@@ -194,22 +223,52 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 
 	}
 
-	// private class QueryResultLabelProvider extends LabelProvider implements
-	// ITableLabelProvider {
-	// public String getColumnText(Object element, int columnIndex) {
-	// Row row = (Row) element;
-	// try {
-	// return row.getValues()[columnIndex].toString();
-	// } catch (RepositoryException e) {
-	// throw new ArgeoException("Cannot display row " + row, e);
-	// }
-	// }
-	//
-	// public Image getColumnImage(Object element, int columnIndex) {
-	// return null;
-	// }
-	//
-	// }
+	/**
+	 * Might be used by children classes to sort columns.
+	 * 
+	 * @param column
+	 * @param index
+	 * @return
+	 */
+	protected SelectionAdapter getSelectionAdapter(final TableColumn column,
+			final int index) {
+
+		SelectionAdapter selectionAdapter = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+
+				if (true)
+					return;
+				try {
+
+					comparator.setColumn(index);
+					int dir = viewer.getTable().getSortDirection();
+					if (viewer.getTable().getSortColumn() == column) {
+						dir = dir == SWT.UP ? SWT.DOWN : SWT.UP;
+					} else {
+
+						dir = SWT.DOWN;
+					}
+					viewer.getTable().setSortDirection(dir);
+					viewer.getTable().setSortColumn(column);
+					viewer.refresh();
+				} catch (Exception exc) {
+					exc.printStackTrace();
+				}
+			}
+		};
+		return selectionAdapter;
+	}
+
+	/**
+	 * To be overriden to enable sorting.
+	 * 
+	 * @author bsinou
+	 * 
+	 */
+	protected GenericTableComparator getComparator() {
+		return null;
+	}
 
 	@Override
 	public boolean isDirty() {
@@ -235,5 +294,4 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 	public void setSession(Session session) {
 		this.session = session;
 	}
-
 }

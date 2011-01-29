@@ -438,15 +438,25 @@ public class JcrUtils {
 		try {
 			Iterator<String> pit = properties.iterator();
 
-			while (pit.hasNext()) {
+			props: while (pit.hasNext()) {
 				String name = pit.next();
-				if (!observed.hasProperty(name)) {
+				if (!reference.hasProperty(name)) {
+					if (!observed.hasProperty(name))
+						continue props;
+					Value val = observed.getProperty(name).getValue();
+					try {
+						// empty String but not null
+						if ("".equals(val.getString()))
+							continue props;
+					} catch (Exception e) {
+						// not parseable as String, silent
+					}
+					PropertyDiff pDiff = new PropertyDiff(PropertyDiff.ADDED,
+							name, null, val);
+					diffs.put(name, pDiff);
+				} else if (!observed.hasProperty(name)) {
 					PropertyDiff pDiff = new PropertyDiff(PropertyDiff.REMOVED,
 							name, reference.getProperty(name).getValue(), null);
-					diffs.put(name, pDiff);
-				} else if (!reference.hasProperty(name)) {
-					PropertyDiff pDiff = new PropertyDiff(PropertyDiff.ADDED,
-							name, null, observed.getProperty(name).getValue());
 					diffs.put(name, pDiff);
 				} else {
 					Value referenceValue = reference.getProperty(name)
