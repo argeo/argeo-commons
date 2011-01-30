@@ -34,6 +34,8 @@ import org.eclipse.ui.part.ViewPart;
 
 /** List all users. */
 public class UsersView extends ViewPart {
+	public final static String ID = "org.argeo.security.ui.usersView";
+
 	private TableViewer viewer;
 	private ArgeoSecurityService securityService;
 
@@ -78,6 +80,10 @@ public class UsersView extends ViewPart {
 
 	public void setSimpleNatureType(String simpleNatureType) {
 		this.simpleNatureType = simpleNatureType;
+	}
+
+	public void refresh() {
+		viewer.refresh();
 	}
 
 	private class UsersContentProvider implements IStructuredContentProvider {

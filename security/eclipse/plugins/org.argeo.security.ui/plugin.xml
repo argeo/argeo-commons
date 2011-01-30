@@ -100,6 +100,11 @@
             id="org.argeo.security.ui.openChangePasswordDialog"
             name="OpenChangePasswordDialog">
       </command>
+      <command
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            id="org.argeo.security.ui.refreshUsersList"
+            name="refreshUsersList">
+      </command>
     </extension>
      <extension
          point="org.eclipse.ui.menus">
@@ -119,6 +124,12 @@
                   icon="icons/add.gif"
                   label="Add User"
                   tooltip="Add new user">
+            </command>
+            <command
+                  commandId="org.argeo.security.ui.refreshUsersList"
+                  icon="icons/refresh.png"
+                  label="Refresh"
+                  tooltip="Refresh user list">
             </command>
         </menuContribution>
         <menuContribution

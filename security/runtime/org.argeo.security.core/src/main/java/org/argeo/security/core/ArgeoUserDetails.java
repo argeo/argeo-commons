@@ -26,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.security.ArgeoUser;
 import org.argeo.security.SimpleArgeoUser;
 import org.argeo.security.UserNature;
-import org.argeo.security.nature.SimpleUserNature;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;

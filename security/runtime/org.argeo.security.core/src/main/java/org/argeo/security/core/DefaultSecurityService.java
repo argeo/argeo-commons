@@ -72,7 +72,7 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 	}
 
 	public void newUser(ArgeoUser user) {
-		user.getUserNatures().clear();
+//		user.getUserNatures().clear();
 		argeoSecurity.beforeCreate(user);
 		securityDao.create(user);
 	}

@@ -16,4 +16,6 @@
 		scope="prototype">
 		<property name="securityService" ref="securityService" />
 	</bean>
+	<bean id="org.argeo.security.ui.refreshUsersList" class="org.argeo.security.ui.commands.RefreshUsersList"
+		scope="prototype" />
 </beans>

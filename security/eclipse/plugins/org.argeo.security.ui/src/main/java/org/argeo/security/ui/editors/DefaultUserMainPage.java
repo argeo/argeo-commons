@@ -42,9 +42,9 @@ import org.eclipse.ui.forms.widgets.Section;
 public class DefaultUserMainPage extends FormPage {
 	final static String ID = "argeoUserEditor.mainPage";
 
+	private final static Log log = LogFactory.getLog(DefaultUserMainPage.class);
 	private final static Image ROLE_CHECKED = SecurityUiPlugin
 			.getImageDescriptor("icons/security.gif").createImage();
-	private final static Log log = LogFactory.getLog(ArgeoUserEditor.class);
 
 	private ArgeoUser user;
 	private SimpleUserNature simpleNature;
@@ -119,8 +119,8 @@ public class DefaultUserMainPage extends FormPage {
 				simpleNature.setEmail(email.getText());
 				simpleNature.setDescription(description.getText());
 				super.commit(onSave);
-				if (log.isDebugEnabled())
-					log.debug("General part committed");
+				if (log.isTraceEnabled())
+					log.trace("General part committed");
 			}
 		};
 		firstName.addModifyListener(new FormPartML(part));
@@ -146,8 +146,8 @@ public class DefaultUserMainPage extends FormPage {
 			public void commit(boolean onSave) {
 				// roles have already been modified in editing
 				super.commit(onSave);
-				if (log.isDebugEnabled())
-					log.debug("Role part committed");
+				if (log.isTraceEnabled())
+					log.trace("Role part committed");
 			}
 		};
 		getManagedForm().addPart(part);

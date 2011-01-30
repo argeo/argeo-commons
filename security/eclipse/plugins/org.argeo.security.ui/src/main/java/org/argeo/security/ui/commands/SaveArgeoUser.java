@@ -3,6 +3,8 @@ package org.argeo.security.ui.commands;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -21,7 +23,8 @@ public class SaveArgeoUser extends AbstractHandler {
 			IEditorPart editor = (IEditorPart) iwp;
 			editor.doSave(null);
 		} catch (Exception e) {
-			throw new ExecutionException("Cannot save user", e);
+			MessageDialog.openError(Display.getDefault().getActiveShell(),
+					"Error", "Cannot save user: " + e.getMessage());
 		}
 		return null;
 	}

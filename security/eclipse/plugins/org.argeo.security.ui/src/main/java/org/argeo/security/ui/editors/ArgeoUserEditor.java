@@ -1,7 +1,5 @@
 package org.argeo.security.ui.editors;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
@@ -15,8 +13,6 @@ import org.eclipse.ui.forms.editor.FormEditor;
 
 /** Editor for an Argeo user. */
 public class ArgeoUserEditor extends FormEditor {
-	private final static Log log = LogFactory.getLog(ArgeoUserEditor.class);
-
 	public final static String ID = "org.argeo.security.ui.argeoUserEditor";
 
 	private ArgeoUser user;
