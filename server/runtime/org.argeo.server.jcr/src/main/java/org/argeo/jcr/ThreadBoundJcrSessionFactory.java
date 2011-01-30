@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.jcr.LoginException;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -82,19 +83,36 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 	}
 
 	protected Session login() {
+		Session newSession = null;
+		// first try to login without credentials, assuming the underlying login
+		// module will have dealt with authentication (typically using Spring
+		// Security)
 		try {
-			SimpleCredentials sc = new SimpleCredentials(defaultUsername,
-					defaultPassword.toCharArray());
-			Session sess = repository.login(sc);
-			if (log.isTraceEnabled())
-				log.trace("Log in to JCR session " + sess + "; userId="
-						+ sess.getUserID());
-			// Thread.dumpStack();
-			activeSessions.add(sess);
-			return sess;
-		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot log in to repository", e);
+			newSession = repository.login();
+		} catch (LoginException e1) {
+			log.warn("Cannot login without credentials: " + e1.getMessage());
+			// invalid credentials, go to the next step
+		} catch (RepositoryException e1) {
+			// other kind of exception, fail
+			throw new ArgeoException("Cannot log in to repository", e1);
 		}
+
+		// log using default username / password (useful for testing purposes)
+		if (newSession == null)
+			try {
+				SimpleCredentials sc = new SimpleCredentials(defaultUsername,
+						defaultPassword.toCharArray());
+				newSession = repository.login(sc);
+			} catch (RepositoryException e) {
+				throw new ArgeoException("Cannot log in to repository", e);
+			}
+
+		// Log and monitor new session
+		if (log.isTraceEnabled())
+			log.trace("Logged in to JCR session " + newSession + "; userId="
+					+ newSession.getUserID());
+		activeSessions.add(newSession);
+		return newSession;
 	}
 
 	public Object getObject() {

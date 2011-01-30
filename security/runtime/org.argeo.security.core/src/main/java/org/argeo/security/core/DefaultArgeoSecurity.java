@@ -20,13 +20,25 @@ import org.argeo.security.ArgeoUser;
 import org.argeo.security.ArgeoSecurity;
 import org.argeo.security.nature.SimpleUserNature;
 
+/** Holds deployment specific security information. */
 public class DefaultArgeoSecurity implements ArgeoSecurity {
 	private String superUsername = "root";
 
 	public void beforeCreate(ArgeoUser user) {
-		SimpleUserNature simpleUserNature = new SimpleUserNature();
-		simpleUserNature.setLastName("empty");// to prevent issue with sn in LDAP
-		user.getUserNatures().put("simpleUserNature",simpleUserNature);
+		SimpleUserNature simpleUserNature;
+		try {
+			simpleUserNature = SimpleUserNature
+					.findSimpleUserNature(user, null);
+		} catch (Exception e) {
+			simpleUserNature = new SimpleUserNature();
+			user.getUserNatures().put("simpleUserNature", simpleUserNature);
+		}
+
+		if (simpleUserNature.getLastName() == null
+				|| simpleUserNature.getLastName().equals(""))
+			simpleUserNature.setLastName("empty");// to prevent issue with sn in
+													// LDAP
+
 	}
 
 	public String getSuperUsername() {
