@@ -23,6 +23,7 @@ public abstract class AbstractSecureApplication implements IApplication {
 
 	protected abstract WorkbenchAdvisor createWorkbenchAdvisor();
 
+	@SuppressWarnings("unchecked")
 	public Object start(IApplicationContext context) throws Exception {
 
 		Integer returnCode = null;
@@ -49,8 +50,6 @@ public abstract class AbstractSecureApplication implements IApplication {
 				log.debug("Logged in as " + username);
 			returnCode = (Integer) Subject.doAs(CurrentUser.getSubject(),
 					getRunAction(display));
-			if (log.isDebugEnabled())
-				log.debug("secure action completed");
 			CurrentUser.logout();
 			return processReturnCode(returnCode);
 		} catch (Exception e) {

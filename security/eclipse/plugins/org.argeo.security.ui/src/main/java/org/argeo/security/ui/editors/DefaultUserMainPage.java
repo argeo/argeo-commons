@@ -74,6 +74,7 @@ public class DefaultUserMainPage extends FormPage {
 
 		createGeneralPart(form.getBody());
 		createRolesPart(form.getBody());
+		createPassworPart(form.getBody());
 	}
 
 	/** Creates the general section */
@@ -123,10 +124,45 @@ public class DefaultUserMainPage extends FormPage {
 					log.trace("General part committed");
 			}
 		};
+		if (username != null)
+			username.addModifyListener(new FormPartML(part));
 		firstName.addModifyListener(new FormPartML(part));
 		lastName.addModifyListener(new FormPartML(part));
 		email.addModifyListener(new FormPartML(part));
 		description.addModifyListener(new FormPartML(part));
+		getManagedForm().addPart(part);
+	}
+
+	/** Creates the password section */
+	protected void createPassworPart(Composite parent) {
+		FormToolkit tk = getManagedForm().getToolkit();
+		Section section = tk.createSection(parent, Section.TITLE_BAR);
+		section.setText("Password");
+
+		Composite body = tk.createComposite(section, SWT.WRAP);
+		section.setClient(body);
+		GridLayout layout = new GridLayout();
+		layout.marginWidth = layout.marginHeight = 0;
+		layout.numColumns = 2;
+		body.setLayout(layout);
+
+		// add widgets (view)
+		final Text password1 = createLP(body, "New password", "");
+		final Text password2 = createLP(body, "Repeat password", "");
+		// create form part (controller)
+		AbstractFormPart part = new SectionPart(section) {
+			public void commit(boolean onSave) {
+				if (!password1.getText().equals("")
+						&& password1.getText().equals(password2.getText())) {
+					((SimpleArgeoUser) user).setPassword(password1.getText());
+				}
+				super.commit(onSave);
+				if (log.isTraceEnabled())
+					log.trace("Password part committed");
+			}
+		};
+		password1.addModifyListener(new FormPartML(part));
+		password2.addModifyListener(new FormPartML(part));
 		getManagedForm().addPart(part);
 	}
 
@@ -211,6 +247,15 @@ public class DefaultUserMainPage extends FormPage {
 		FormToolkit toolkit = getManagedForm().getToolkit();
 		toolkit.createLabel(body, label);
 		Text text = toolkit.createText(body, value, SWT.BORDER);
+		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		return text;
+	}
+
+	/** Creates label and password. */
+	protected Text createLP(Composite body, String label, String value) {
+		FormToolkit toolkit = getManagedForm().getToolkit();
+		toolkit.createLabel(body, label);
+		Text text = toolkit.createText(body, value, SWT.BORDER | SWT.PASSWORD);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		return text;
 	}

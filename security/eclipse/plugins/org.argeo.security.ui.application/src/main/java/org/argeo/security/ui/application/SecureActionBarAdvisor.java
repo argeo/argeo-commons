@@ -20,7 +20,6 @@ public class SecureActionBarAdvisor extends ActionBarAdvisor {
 	private IWorkbenchAction openPerspectiveDialogAction;
 	private IWorkbenchAction showViewMenuAction;
 	private IWorkbenchAction preferences;
-	private IWorkbenchAction helpContentAction;
 	private IWorkbenchAction saveAction;
 	private IWorkbenchAction saveAllAction;
 	private IWorkbenchAction closeAllAction;
@@ -40,8 +39,6 @@ public class SecureActionBarAdvisor extends ActionBarAdvisor {
 		register(openPerspectiveDialogAction);
 		showViewMenuAction = ActionFactory.SHOW_VIEW_MENU.create(window);
 		register(showViewMenuAction);
-		helpContentAction = ActionFactory.HELP_CONTENTS.create(window);
-		register(helpContentAction);
 
 		exitAction = ActionFactory.QUIT.create(window);
 		register(exitAction);
@@ -63,15 +60,12 @@ public class SecureActionBarAdvisor extends ActionBarAdvisor {
 				IWorkbenchActionConstants.M_EDIT);
 		MenuManager windowMenu = new MenuManager("&Window",
 				IWorkbenchActionConstants.M_WINDOW);
-		MenuManager helpMenu = new MenuManager("&Help",
-				IWorkbenchActionConstants.M_HELP);
 
 		menuBar.add(fileMenu);
 		menuBar.add(editMenu);
 		menuBar.add(windowMenu);
 		// Add a group marker indicating where action set menus will appear.
 		menuBar.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
-		menuBar.add(helpMenu);
 
 		// File
 		fileMenu.add(saveAction);
@@ -87,10 +81,6 @@ public class SecureActionBarAdvisor extends ActionBarAdvisor {
 		// Window
 		windowMenu.add(openPerspectiveDialogAction);
 		windowMenu.add(showViewMenuAction);
-
-		// Help
-		helpMenu.add(helpContentAction);
-		// helpMenu.add(aboutAction);
 	}
 
 	@Override

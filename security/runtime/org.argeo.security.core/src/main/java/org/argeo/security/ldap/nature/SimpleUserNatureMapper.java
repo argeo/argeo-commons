@@ -44,7 +44,8 @@ public class SimpleUserNatureMapper implements UserNatureMapper {
 		ctx.setAttributeValue("sn", nature.getLastName());
 		ctx.setAttributeValue("givenName", nature.getFirstName());
 		ctx.setAttributeValue("mail", nature.getEmail());
-		if (nature.getDescription() != null) {
+		if (nature.getDescription() != null
+				&& !nature.getDescription().equals("")) {
 			ctx.setAttributeValue("description", nature.getDescription());
 		}
 	}

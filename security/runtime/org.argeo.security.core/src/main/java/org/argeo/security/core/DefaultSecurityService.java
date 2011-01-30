@@ -59,7 +59,7 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 	public void updateUserPassword(String username, String password) {
 		SimpleArgeoUser user = new SimpleArgeoUser(
 				securityDao.getUser(username));
-		user.setPassword(password);
+		user.setPassword(securityDao.encodePassword(password));
 		securityDao.update(user);
 	}
 
@@ -72,14 +72,26 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 	}
 
 	public void newUser(ArgeoUser user) {
-//		user.getUserNatures().clear();
 		argeoSecurity.beforeCreate(user);
+		// normalize password
+		if (user instanceof SimpleArgeoUser) {
+			if (user.getPassword() == null || user.getPassword().equals(""))
+				((SimpleArgeoUser) user).setPassword(securityDao
+						.encodePassword(user.getUsername()));
+			else if (!user.getPassword().startsWith("{"))
+				((SimpleArgeoUser) user).setPassword(securityDao
+						.encodePassword(user.getPassword()));
+		}
 		securityDao.create(user);
 	}
 
 	public void updateUser(ArgeoUser user) {
-		String password = securityDao.getUserWithPassword(user.getUsername())
-				.getPassword();
+		String password = user.getPassword();
+		if (password == null)
+			password = securityDao.getUserWithPassword(user.getUsername())
+					.getPassword();
+		if (!password.startsWith("{"))
+			password = securityDao.encodePassword(user.getPassword());
 		SimpleArgeoUser simpleArgeoUser = new SimpleArgeoUser(user);
 		simpleArgeoUser.setPassword(password);
 		securityDao.update(simpleArgeoUser);

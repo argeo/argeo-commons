@@ -51,15 +51,8 @@ public class ArgeoUserEditor extends FormEditor {
 		if (securityService.getSecurityDao().userExists(user.getUsername()))
 			securityService.updateUser(user);
 		else {
-			try {
-				// FIXME: make it cleaner
-				((SimpleArgeoUser)user).setPassword(user.getUsername());
-				securityService.newUser(user);
-				setPartName(user.getUsername());
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			securityService.newUser(user);
+			setPartName(user.getUsername());
 		}
 		firePropertyChange(PROP_DIRTY);
 	}
