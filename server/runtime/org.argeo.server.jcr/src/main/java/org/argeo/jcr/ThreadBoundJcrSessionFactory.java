@@ -51,6 +51,7 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 
 	private String defaultUsername = "demo";
 	private String defaultPassword = "demo";
+	private Boolean forceDefaultCredentials = false;
 
 	public ThreadBoundJcrSessionFactory() {
 		Class<?>[] interfaces = { Session.class };
@@ -87,15 +88,16 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 		// first try to login without credentials, assuming the underlying login
 		// module will have dealt with authentication (typically using Spring
 		// Security)
-		try {
-			newSession = repository.login();
-		} catch (LoginException e1) {
-			log.warn("Cannot login without credentials: " + e1.getMessage());
-			// invalid credentials, go to the next step
-		} catch (RepositoryException e1) {
-			// other kind of exception, fail
-			throw new ArgeoException("Cannot log in to repository", e1);
-		}
+		if (!forceDefaultCredentials)
+			try {
+				newSession = repository.login();
+			} catch (LoginException e1) {
+				log.warn("Cannot login without credentials: " + e1.getMessage());
+				// invalid credentials, go to the next step
+			} catch (RepositoryException e1) {
+				// other kind of exception, fail
+				throw new ArgeoException("Cannot log in to repository", e1);
+			}
 
 		// log using default username / password (useful for testing purposes)
 		if (newSession == null)
@@ -149,6 +151,10 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 
 	public void setDefaultPassword(String defaultPassword) {
 		this.defaultPassword = defaultPassword;
+	}
+
+	public void setForceDefaultCredentials(Boolean forceDefaultCredentials) {
+		this.forceDefaultCredentials = forceDefaultCredentials;
 	}
 
 }
