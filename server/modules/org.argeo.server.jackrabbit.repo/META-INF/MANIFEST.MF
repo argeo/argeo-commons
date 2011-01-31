@@ -1,5 +1,5 @@
 Bundle-SymbolicName: org.argeo.server.jackrabbit.repo
-Bundle-Version: 0.2.2.SNAPSHOT
+Bundle-Version: 0.2.2
 Import-Package: javax.jcr,
  org.apache.jackrabbit.core,
  org.apache.jackrabbit.core.config,
