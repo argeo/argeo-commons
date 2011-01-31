@@ -1,6 +1,6 @@
 Web-ContextPath: org.argeo.server.osgi.monitor
 Bundle-SymbolicName: org.argeo.server.osgi.monitor
-Bundle-Version: 0.2.3-SNAPSHOT
+Bundle-Version: 0.2.3.SNAPSHOT
 Import-Package: javax.servlet,
  javax.servlet.http,
  javax.servlet.jsp,

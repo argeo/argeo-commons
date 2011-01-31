@@ -1,5 +1,5 @@
 Bundle-SymbolicName: org.argeo.server.jackrabbit.webdav
-Bundle-Version: 0.2.3-SNAPSHOT
+Bundle-Version: 0.2.3.SNAPSHOT
 Web-ContextPath: webdav
 Import-Package: javax.jcr,
  javax.servlet,

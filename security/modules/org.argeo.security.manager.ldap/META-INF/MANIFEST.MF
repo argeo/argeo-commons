@@ -1,5 +1,5 @@
 Bundle-SymbolicName: org.argeo.security.manager.ldap
-Bundle-Version: 0.2.3-SNAPSHOT
+Bundle-Version: 0.2.3.SNAPSHOT
 Import-Package: com.sun.jndi.ldap;resolution:=optional,
  org.argeo.security,
  org.argeo.security.ldap,

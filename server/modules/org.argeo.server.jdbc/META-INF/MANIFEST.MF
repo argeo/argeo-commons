@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Fragment-Host: org.springframework.jdbc
-Bundle-Version: 0.2.3-SNAPSHOT
+Bundle-Version: 0.2.3.SNAPSHOT
 Bundle-SymbolicName: org.argeo.server.jdbc
 Import-Package: com.microsoft.sqlserver.jdbc;resolution:=optional,
  com.mysql.jdbc;resolution:=optional,

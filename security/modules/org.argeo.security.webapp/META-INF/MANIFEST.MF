@@ -1,5 +1,5 @@
 Bundle-SymbolicName: org.argeo.security.webapp
-Bundle-Version: 0.2.3-SNAPSHOT
+Bundle-Version: 0.2.3.SNAPSHOT
 Web-ContextPath: org.argeo.security.webapp
 Import-Package: javax.servlet,
  javax.servlet.http,
