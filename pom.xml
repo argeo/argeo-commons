@@ -14,7 +14,7 @@
 	<properties>
 		<developmentCycle>0.2</developmentCycle>
 		<version.argeo-distribution>1.1.2</version.argeo-distribution>
-		<version.argeo-commons>0.2.2</version.argeo-commons>
+		<version.argeo-commons>0.2.3-SNAPSHOT</version.argeo-commons>
 		<version.argeo-ria>0.12.5</version.argeo-ria>
 		<version.equinox>3.6.1</version.equinox>
 		<version.maven-argeo-osgi>0.1.30</version.maven-argeo-osgi>
@@ -194,6 +194,7 @@ limitations under the License.
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
+				<version>2.1</version>
 				<configuration>
 					<autoVersionSubmodules>true</autoVersionSubmodules>
 					<releaseProfiles>release</releaseProfiles>

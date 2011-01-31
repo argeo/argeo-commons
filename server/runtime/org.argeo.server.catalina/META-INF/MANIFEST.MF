@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Catalina
 Bundle-SymbolicName: org.argeo.server.catalina
-Bundle-Version: 0.2.2
+Bundle-Version: 0.2.3-SNAPSHOT
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: org.apache.catalina;version="6.0.24",
  org.apache.catalina.connector;version="6.0.24",
