@@ -51,13 +51,27 @@ public abstract class CsvParser {
 				if (headerStr == null)// empty file
 					return;
 				lineCount++;
-				header = Collections.unmodifiableList(parseLine(headerStr));
+				header = new ArrayList<String>();
+				StringBuffer currStr = new StringBuffer("");
+				Boolean wasInquote = false;
+				while (parseLine(headerStr, header, currStr, wasInquote)) {
+					wasInquote = true;
+				}
+				header = Collections.unmodifiableList(header);
 			}
 
 			String line = null;
 			lines: while ((line = reader.readLine()) != null) {
 				lineCount++;
-				List<String> tokens = parseLine(line);
+				List<String> tokens = new ArrayList<String>();
+				StringBuffer currStr = new StringBuffer("");
+				Boolean wasInquote = false;
+				while (parseLine(line, tokens, currStr, wasInquote)) {
+					line = reader.readLine();
+					if (line == null)
+						break;
+					wasInquote = true;
+				}
 				if (!noHeader && strictLineAsLongAsHeader) {
 					int headerSize = header.size();
 					int tokenSize = tokens.size();
@@ -88,19 +102,30 @@ public abstract class CsvParser {
 		}
 	}
 
-	/** Parses a line character by character for performance purpose */
-	protected List<String> parseLine(String str) {
-		List<String> tokens = new ArrayList<String>();
+	/**
+	 * Parses a line character by character for performance purpose
+	 * 
+	 * @return whether to continue parsing this line
+	 */
+	protected Boolean parseLine(String str, List<String> tokens,
+			StringBuffer currStr, Boolean wasInquote) {
+		// List<String> tokens = new ArrayList<String>();
+
+		//System.out.println("#LINE: " + str);
+
+		if (wasInquote)
+			currStr.append('\n');
 
 		char[] arr = str.toCharArray();
-		boolean inQuote = false;
-		StringBuffer currStr = new StringBuffer("");
+		boolean inQuote = wasInquote;
+		// StringBuffer currStr = new StringBuffer("");
 		for (int i = 0; i < arr.length; i++) {
 			char c = arr[i];
 			if (c == separator) {
 				if (!inQuote) {
 					tokens.add(currStr.toString());
-					currStr = new StringBuffer("");
+					//System.out.println("# TOKEN: " + currStr);
+					currStr.delete(0, currStr.length());
 				}
 			} else if (c == quote) {
 				if (inQuote && (i + 1) < arr.length && arr[i + 1] == quote) {
@@ -114,11 +139,19 @@ public abstract class CsvParser {
 				currStr.append(c);
 			}
 		}
-		tokens.add(currStr.toString());
+
+		if (!inQuote) {
+			tokens.add(currStr.toString());
+			//System.out.println("# TOKEN: " + currStr);
+		}
+		// if (inQuote)
+		// throw new ArgeoException("Missing quote at the end of the line "
+		// + str + " (parsed: " + tokens + ")");
 		if (inQuote)
-			throw new ArgeoException("Missing quote at the end of the line "
-					+ str + " (parsed: " + tokens + ")");
-		return tokens;
+			return true;
+		else
+			return false;
+		// return tokens;
 	}
 
 	public char getSeparator() {
