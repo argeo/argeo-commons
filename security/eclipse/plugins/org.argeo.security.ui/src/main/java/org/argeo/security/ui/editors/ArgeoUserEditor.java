@@ -28,7 +28,7 @@ public class ArgeoUserEditor extends FormEditor {
 			user.getUserNatures().put(SimpleUserNature.TYPE,
 					new SimpleUserNature());
 		} else
-			user = securityService.getSecurityDao().getUser(username);
+			user = securityService.getUser(username);
 		this.setPartProperty("name", username != null ? username : "<new user>");
 		setPartName(username != null ? username : "<new user>");
 	}
@@ -48,7 +48,7 @@ public class ArgeoUserEditor extends FormEditor {
 		// TODO: make it more generic
 		findPage(DefaultUserMainPage.ID).doSave(monitor);
 
-		if (securityService.getSecurityDao().userExists(user.getUsername()))
+		if (securityService.userExists(user.getUsername()))
 			securityService.updateUser(user);
 		else {
 			securityService.newUser(user);

@@ -89,7 +89,7 @@ public class UsersView extends ViewPart {
 	private class UsersContentProvider implements IStructuredContentProvider {
 
 		public Object[] getElements(Object inputElement) {
-			return securityService.getSecurityDao().listUsers().toArray();
+			return securityService.listUsers().toArray();
 		}
 
 		public void dispose() {

@@ -17,7 +17,8 @@
 package org.argeo.security.core;
 
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.argeo.ArgeoException;
 import org.argeo.security.ArgeoSecurity;
@@ -25,6 +26,7 @@ import org.argeo.security.ArgeoSecurityDao;
 import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
 import org.argeo.security.SimpleArgeoUser;
+import org.argeo.security.UserNature;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.Authentication;
@@ -60,7 +62,7 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 		SimpleArgeoUser user = new SimpleArgeoUser(
 				securityDao.getUser(username));
 		user.setPassword(securityDao.encodePassword(password));
-		securityDao.update(user);
+		securityDao.updateUser(user);
 	}
 
 	public void updateCurrentUserPassword(String oldPassword, String newPassword) {
@@ -68,7 +70,7 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 		if (!securityDao.isPasswordValid(user.getPassword(), oldPassword))
 			throw new ArgeoException("Old password is not correct.");
 		user.setPassword(securityDao.encodePassword(newPassword));
-		securityDao.update(user);
+		securityDao.updateUser(user);
 	}
 
 	public void newUser(ArgeoUser user) {
@@ -82,7 +84,15 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 				((SimpleArgeoUser) user).setPassword(securityDao
 						.encodePassword(user.getPassword()));
 		}
-		securityDao.create(user);
+		securityDao.createUser(user);
+	}
+
+	public ArgeoUser getUser(String username) {
+		return securityDao.getUser(username);
+	}
+
+	public Boolean userExists(String username) {
+		return securityDao.userExists(username);
 	}
 
 	public void updateUser(ArgeoUser user) {
@@ -94,7 +104,16 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 			password = securityDao.encodePassword(user.getPassword());
 		SimpleArgeoUser simpleArgeoUser = new SimpleArgeoUser(user);
 		simpleArgeoUser.setPassword(password);
-		securityDao.update(simpleArgeoUser);
+		securityDao.updateUser(simpleArgeoUser);
+	}
+
+	public void deleteUser(String username) {
+		securityDao.deleteUser(username);
+
+	}
+
+	public void deleteRole(String role) {
+		securityDao.deleteRole(role);
 	}
 
 	public TaskExecutor createSystemAuthenticatedTaskExecutor() {
@@ -130,8 +149,8 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 		};
 	}
 
-	public List<ArgeoUser> listUsersInRole(String role) {
-		List<ArgeoUser> lst = securityDao.listUsersInRole(role);
+	public Set<ArgeoUser> listUsersInRole(String role) {
+		Set<ArgeoUser> lst = securityDao.listUsersInRole(role);
 		Iterator<ArgeoUser> it = lst.iterator();
 		while (it.hasNext()) {
 			if (it.next().getUsername()
@@ -141,6 +160,20 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 			}
 		}
 		return lst;
+	}
+
+	public void updateCurrentUserNatures(Map<String, UserNature> userNatures) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public Set<ArgeoUser> listUsers() {
+		return securityDao.listUsers();
+	}
+
+	public Set<String> listEditableRoles() {
+		// TODO Auto-generated method stub
+		return securityDao.listEditableRoles();
 	}
 
 	public void setArgeoSecurity(ArgeoSecurity argeoSecurity) {

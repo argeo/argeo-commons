@@ -20,9 +20,11 @@ import static org.argeo.security.core.ArgeoUserDetails.createSimpleArgeoUser;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -130,7 +132,7 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 		}
 	}
 
-	public synchronized void create(ArgeoUser user) {
+	public synchronized void createUser(ArgeoUser user) {
 		userDetailsManager.createUser(new ArgeoUserDetails(user));
 	}
 
@@ -154,7 +156,7 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 	// }
 
 	@SuppressWarnings("unchecked")
-	public synchronized List<ArgeoUser> listUsers() {
+	public synchronized Set<ArgeoUser> listUsers() {
 		List<String> usernames = (List<String>) ldapTemplate.listBindings(
 				new DistinguishedName(userBase), new ContextMapper() {
 					public Object mapFromContext(Object ctxArg) {
@@ -163,47 +165,47 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 					}
 				});
 
-		List<ArgeoUser> lst = new ArrayList<ArgeoUser>();
+		TreeSet<ArgeoUser> lst = new TreeSet<ArgeoUser>();
 		for (String username : usernames) {
 			lst.add(createSimpleArgeoUser(getDetails(username)));
 		}
-		return lst;
+		return Collections.unmodifiableSortedSet(lst);
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<String> listEditableRoles() {
-		return (List<String>) ldapTemplate.listBindings(groupBase,
-				new ContextMapper() {
+	public Set<String> listEditableRoles() {
+		return Collections.unmodifiableSortedSet(new TreeSet<String>(
+				ldapTemplate.listBindings(groupBase, new ContextMapper() {
 					public Object mapFromContext(Object ctxArg) {
 						String groupName = ((DirContextAdapter) ctxArg)
 								.getStringAttribute(groupRoleAttributeName);
 						String roleName = convertGroupToRole(groupName);
 						return roleName;
 					}
-				});
+				})));
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<ArgeoUser> listUsersInRole(String role) {
-		return (List<ArgeoUser>) ldapTemplate.lookup(
+	public Set<ArgeoUser> listUsersInRole(String role) {
+		return (Set<ArgeoUser>) ldapTemplate.lookup(
 				buildGroupDn(convertRoleToGroup(role)), new ContextMapper() {
 					public Object mapFromContext(Object ctxArg) {
 						DirContextAdapter ctx = (DirContextAdapter) ctxArg;
 						String[] userDns = ctx
 								.getStringAttributes(groupMemberAttributeName);
-						List<ArgeoUser> lst = new ArrayList<ArgeoUser>();
+						TreeSet<ArgeoUser> set = new TreeSet<ArgeoUser>();
 						for (String userDn : userDns) {
 							DistinguishedName dn = new DistinguishedName(userDn);
 							String username = dn
 									.getValue(usernameAttributeName);
-							lst.add(createSimpleArgeoUser(getDetails(username)));
+							set.add(createSimpleArgeoUser(getDetails(username)));
 						}
-						return lst;
+						return Collections.unmodifiableSortedSet(set);
 					}
 				});
 	}
 
-	public synchronized void update(ArgeoUser user) {
+	public synchronized void updateUser(ArgeoUser user) {
 		ArgeoUserDetails argeoUserDetails = new ArgeoUserDetails(user);
 		userDetailsManager.updateUser(new ArgeoUserDetails(user));
 		// refresh logged in user
@@ -215,7 +217,7 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 		}
 	}
 
-	public synchronized void delete(String username) {
+	public synchronized void deleteUser(String username) {
 		userDetailsManager.deleteUser(username);
 	}
 

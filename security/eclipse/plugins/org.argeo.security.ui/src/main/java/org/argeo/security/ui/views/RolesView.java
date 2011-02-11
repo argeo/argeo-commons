@@ -103,8 +103,7 @@ public class RolesView extends ViewPart {
 	private class RolesContentProvider implements IStructuredContentProvider {
 
 		public Object[] getElements(Object inputElement) {
-			return securityService.getSecurityDao().listEditableRoles()
-					.toArray();
+			return securityService.listEditableRoles().toArray();
 		}
 
 		public void dispose() {

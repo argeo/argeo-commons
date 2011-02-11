@@ -28,7 +28,8 @@ import org.argeo.ArgeoException;
  * Read-write implementation of an Argeo user. Typically initialized with a
  * generic instance (read-only9 in order to modify a user.
  */
-public class SimpleArgeoUser implements ArgeoUser, Serializable {
+public class SimpleArgeoUser implements ArgeoUser, Serializable,
+		Comparable<ArgeoUser> {
 	private static final long serialVersionUID = 1L;
 
 	private String username;
@@ -70,22 +71,25 @@ public class SimpleArgeoUser implements ArgeoUser, Serializable {
 						"Could not find a user nature of type " + type);
 		}
 
-		// for (int i = 0; i < userNatures.size(); i++) {
-		// String type = userNatures.get(i).getType();
-		// boolean found = false;
-		// for (int j = 0; j < userNatures.size(); j++) {
-		// String newType = userNaturesData.get(j).getType();
-		// if (type.equals(newType))
-		// found = true;
-		// }
-		// if (!found)
-		// throw new ArgeoException(
-		// "Could not find a user nature of type " + type);
-		// }
-
 		for (String key : userNatures.keySet()) {
 			userNatures.put(key, userNaturesData.get(key));
 		}
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof ArgeoUser))
+			return false;
+		return ((ArgeoUser) obj).getUsername().equals(username);
+	}
+
+	public int compareTo(ArgeoUser o) {
+		return username.compareTo(o.getUsername());
+	}
+
+	@Override
+	public int hashCode() {
+		return username.hashCode();
 	}
 
 	@Override

@@ -279,8 +279,7 @@ public class DefaultUserMainPage extends FormPage {
 
 	private class RolesContentProvider implements IStructuredContentProvider {
 		public Object[] getElements(Object inputElement) {
-			return securityService.getSecurityDao().listEditableRoles()
-					.toArray();
+			return securityService.listEditableRoles().toArray();
 		}
 
 		public void dispose() {

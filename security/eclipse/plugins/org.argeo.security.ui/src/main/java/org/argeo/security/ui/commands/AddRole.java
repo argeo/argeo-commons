@@ -26,7 +26,7 @@ public class AddRole extends AbstractHandler {
 		role = role.trim().toUpperCase();
 		if (!role.startsWith(rolePrefix))
 			role = rolePrefix + role;
-		if (securityService.getSecurityDao().listEditableRoles().contains(role))
+		if (securityService.listEditableRoles().contains(role))
 			throw new ArgeoException("Role " + role + " already exists");
 		securityService.newRole(role);
 		rolesView.refresh();

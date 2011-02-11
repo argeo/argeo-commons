@@ -17,11 +17,8 @@
 package org.argeo.security.mvc;
 
 import java.io.Reader;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
+import java.util.Set;
 
-import org.apache.commons.codec.binary.Base64;
 import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
 import org.argeo.security.SimpleArgeoUser;
@@ -39,7 +36,7 @@ public class UsersRolesController implements MvcConstants {
 	// private final static Log log = LogFactory
 	// .getLog(UsersRolesController.class);
 
-	private String digestType = "SHA";
+	// private String digestType = "SHA";
 
 	private ArgeoSecurityService securityService;
 
@@ -59,14 +56,13 @@ public class UsersRolesController implements MvcConstants {
 
 	@RequestMapping("/getUsersList.*")
 	@ModelAttribute("users")
-	public List<ArgeoUser> getUsersList() {
-		return securityService.getSecurityDao().listUsers();
+	public Set<ArgeoUser> getUsersList() {
+		return securityService.listUsers();
 	}
 
 	@RequestMapping("/userExists.*")
 	public BooleanAnswer userExists(@RequestParam("username") String username) {
-		return new BooleanAnswer(securityService.getSecurityDao().userExists(
-				username));
+		return new BooleanAnswer(securityService.userExists(username));
 	}
 
 	@RequestMapping("/createUser.*")
@@ -76,7 +72,7 @@ public class UsersRolesController implements MvcConstants {
 				SimpleArgeoUser.class);
 		// cleanUserBeforeCreate(user);
 		securityService.newUser(user);
-		return securityService.getSecurityDao().getUser(user.getUsername());
+		return securityService.getUser(user.getUsername());
 	}
 
 	@RequestMapping("/updateUser.*")
@@ -85,7 +81,7 @@ public class UsersRolesController implements MvcConstants {
 		ArgeoUser user = userDeserializer.deserialize(reader,
 				SimpleArgeoUser.class);
 		securityService.updateUser(user);
-		return securityService.getSecurityDao().getUser(user.getUsername());
+		return securityService.getUser(user.getUsername());
 	}
 
 	@RequestMapping("/updateUserSelf.*")
@@ -97,26 +93,26 @@ public class UsersRolesController implements MvcConstants {
 				SimpleArgeoUser.class);
 		user.updateUserNatures(userForNatures.getUserNatures());
 		securityService.updateUser(user);
-		return securityService.getSecurityDao().getUser(user.getUsername());
+		return securityService.getUser(user.getUsername());
 	}
 
 	@RequestMapping("/deleteUser.*")
 	public ServerAnswer deleteUser(@RequestParam("username") String username) {
-		securityService.getSecurityDao().delete(username);
+		securityService.deleteUser(username);
 		return ServerAnswer.ok("User " + username + " deleted");
 	}
 
 	@RequestMapping("/getUserDetails.*")
 	@ModelAttribute("user")
 	public ArgeoUser getUserDetails(@RequestParam("username") String username) {
-		return securityService.getSecurityDao().getUser(username);
+		return securityService.getUser(username);
 	}
 
 	/* ROLE */
 	@RequestMapping("/getRolesList.*")
 	@ModelAttribute("roles")
-	public List<String> getEditableRolesList() {
-		return securityService.getSecurityDao().listEditableRoles();
+	public Set<String> getEditableRolesList() {
+		return securityService.listEditableRoles();
 	}
 
 	@RequestMapping("/createRole.*")
@@ -127,7 +123,7 @@ public class UsersRolesController implements MvcConstants {
 
 	@RequestMapping("/deleteRole.*")
 	public ServerAnswer deleteRole(@RequestParam("role") String role) {
-		securityService.getSecurityDao().deleteRole(role);
+		securityService.deleteRole(role);
 		return ServerAnswer.ok("Role " + role + " deleted");
 	}
 
@@ -135,8 +131,7 @@ public class UsersRolesController implements MvcConstants {
 	public ServerAnswer updateUserPassword(
 			@RequestParam("username") String username,
 			@RequestParam("password") String password) {
-		securityService.updateUserPassword(username,
-				digestIfNecessary(password));
+		securityService.updateUserPassword(username, password);
 		return ServerAnswer.ok("Password updated for user " + username);
 	}
 
@@ -144,29 +139,29 @@ public class UsersRolesController implements MvcConstants {
 	public ServerAnswer updatePassword(
 			@RequestParam("oldPassword") String oldPassword,
 			@RequestParam("password") String password) {
-		securityService.updateCurrentUserPassword(
-				digestIfNecessary(oldPassword), digestIfNecessary(password));
+		securityService.updateCurrentUserPassword(oldPassword, password);
 		return ServerAnswer.ok("Password updated");
 	}
 
-	protected String digestIfNecessary(String str) {
-		if (!str.startsWith("{" + digestType + "}"))
-			return digest(str);
-		else
-			return str;
-	}
+	// protected String digestIfNecessary(String str) {
+	//
+	// if (!str.startsWith("{" + digestType + "}"))
+	// return digest(str);
+	// else
+	// return str;
+	// }
 
-	protected String digest(String nonEncrypted) {
-		try {
-			MessageDigest md = MessageDigest.getInstance(digestType);
-			byte[] dig = md.digest(nonEncrypted.getBytes());
-			return "{" + digestType + "}"
-					+ new String(Base64.encodeBase64(dig));
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(
-					"Unexpected exception while digesting password");
-		}
-	}
+	// protected String digest(String nonEncrypted) {
+	// try {
+	// MessageDigest md = MessageDigest.getInstance(digestType);
+	// byte[] dig = md.digest(nonEncrypted.getBytes());
+	// return "{" + digestType + "}"
+	// + new String(Base64.encodeBase64(dig));
+	// } catch (NoSuchAlgorithmException e) {
+	// throw new RuntimeException(
+	// "Unexpected exception while digesting password");
+	// }
+	// }
 
 	public void setUserDeserializer(Deserializer userDeserializer) {
 		this.userDeserializer = userDeserializer;

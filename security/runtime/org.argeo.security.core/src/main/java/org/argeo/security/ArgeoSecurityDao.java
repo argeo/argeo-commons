@@ -16,7 +16,7 @@
 
 package org.argeo.security;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Access to the users and roles referential (dependent from the underlying
@@ -26,20 +26,20 @@ public interface ArgeoSecurityDao {
 	// public ArgeoUser getCurrentUser();
 
 	/** List all users */
-	public List<ArgeoUser> listUsers();
+	public Set<ArgeoUser> listUsers();
 
 	/** List roles that can be modified */
-	public List<String> listEditableRoles();
+	public Set<String> listEditableRoles();
 
 	/**
 	 * Creates a new user in the underlying storage. <b>DO NOT CALL DIRECTLY</b>
 	 * use {@link ArgeoSecurityService#newUser(ArgeoUser)} instead.
 	 */
-	public void create(ArgeoUser user);
+	public void createUser(ArgeoUser user);
 
-	public void update(ArgeoUser user);
+	public void updateUser(ArgeoUser user);
 
-	public void delete(String username);
+	public void deleteUser(String username);
 
 	/**
 	 * Creates a new role in the underlying storage. <b>DO NOT CALL DIRECTLY</b>
@@ -50,7 +50,7 @@ public interface ArgeoSecurityDao {
 	public void deleteRole(String role);
 
 	/** List all users having this role. */
-	public List<ArgeoUser> listUsersInRole(String role);
+	public Set<ArgeoUser> listUsersInRole(String role);
 
 	public Boolean userExists(String username);
 
