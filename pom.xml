@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo</groupId>
@@ -122,7 +123,7 @@ limitations under the License.
 					<version>2.3.1</version>
 					<configuration>
 						<archive>
-							<manifestFile>target/classes/META-INF/MANIFEST.MF</manifestFile>
+							<manifestFile>META-INF/MANIFEST.MF</manifestFile>
 						</archive>
 					</configuration>
 				</plugin>
@@ -132,7 +133,7 @@ limitations under the License.
 					<version>${version.maven-bundle-plugin}</version>
 					<extensions>true</extensions>
 					<configuration>
-						<manifestLocation>target/classes/META-INF</manifestLocation>
+						<manifestLocation>META-INF</manifestLocation>
 						<instructions>
 							<Bundle-Version>${project.version}-r${buildNumber}</Bundle-Version>
 							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>

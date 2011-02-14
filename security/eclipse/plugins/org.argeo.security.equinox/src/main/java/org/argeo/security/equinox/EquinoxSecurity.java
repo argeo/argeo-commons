@@ -9,7 +9,7 @@ import org.osgi.framework.BundleContext;
 
 public class EquinoxSecurity implements BundleActivator {
 	public final static String CONTEXT_SPRING = "SPRING";
-	private static final String JAAS_CONFIG_FILE = "jaas/jaas_default.txt";
+	private static final String JAAS_CONFIG_FILE = "org/argeo/security/equinox/jaas_default.txt";
 
 	private static ILoginContext loginContext = null;
 
