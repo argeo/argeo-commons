@@ -33,7 +33,6 @@ import org.apache.activemq.ActiveMQSslConnectionFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
-import org.argeo.security.core.UserPasswordDialog;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
@@ -198,8 +197,8 @@ public class SecuredActiveMqConnectionFactory implements ConnectionFactory,
 					.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 			keyManagerFactory.init(keyStoreKs, keyStorePassword.toCharArray());
 
-			connectionFactory.setKeyAndTrustManagers(keyManagerFactory
-					.getKeyManagers(), tmf.getTrustManagers(),
+			connectionFactory.setKeyAndTrustManagers(
+					keyManagerFactory.getKeyManagers(), tmf.getTrustManagers(),
 					new SecureRandom());
 		} catch (Exception e) {
 			throw new ArgeoException(

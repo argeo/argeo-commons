@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.jcr.Credentials;
 import javax.jcr.LoginException;
@@ -42,12 +43,14 @@ import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
+import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
 import org.argeo.ArgeoException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.xml.sax.InputSource;
 
 /**
  * Wrapper around a Jackrabbit repository which allows to configure it in Spring
@@ -59,6 +62,7 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 
 	private Resource configuration;
 	private File homeDirectory;
+	private Resource variables;
 
 	private Boolean inMemory = false;
 
@@ -89,13 +93,23 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 
 		RepositoryConfig config;
 		InputStream in = configuration.getInputStream();
+		InputStream propsIn = null;
 		try {
-			config = RepositoryConfig.create(in,
+			Properties vars = new Properties();
+			if (variables != null) {
+				propsIn = variables.getInputStream();
+				vars.load(propsIn);
+			}
+			// override with system properties
+			vars.putAll(System.getProperties());
+			vars.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE,
 					homeDirectory.getCanonicalPath());
+			config = RepositoryConfig.create(new InputSource(in), vars);
 		} catch (Exception e) {
 			throw new RuntimeException("Cannot read configuration", e);
 		} finally {
 			IOUtils.closeQuietly(in);
+			IOUtils.closeQuietly(propsIn);
 		}
 
 		if (inMemory)
@@ -215,6 +229,10 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 
 	public void setCndFiles(List<String> cndFiles) {
 		this.cndFiles = cndFiles;
+	}
+
+	public void setVariables(Resource variables) {
+		this.variables = variables;
 	}
 
 }

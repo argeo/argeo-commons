@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.argeo.security.core;
+package org.argeo.security.activemq;
 
 import java.awt.Container;
 import java.awt.GridLayout;

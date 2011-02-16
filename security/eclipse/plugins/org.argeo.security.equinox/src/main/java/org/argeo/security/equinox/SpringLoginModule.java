@@ -10,8 +10,6 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.TextOutputCallback;
 import javax.security.auth.login.LoginException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.BadCredentialsException;
@@ -21,10 +19,7 @@ import org.springframework.security.providers.jaas.SecurityContextLoginModule;
 
 /** Login module which caches one subject per thread. */
 public class SpringLoginModule extends SecurityContextLoginModule {
-	private final static Log log = LogFactory.getLog(SpringLoginModule.class);
-
 	private AuthenticationManager authenticationManager;
-//	private ThreadLocal<Subject> subject;
 
 	private CallbackHandler callbackHandler;
 
@@ -36,7 +31,7 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 	public void initialize(Subject subject, CallbackHandler callbackHandler,
 			Map sharedState, Map options) {
 		super.initialize(subject, callbackHandler, sharedState, options);
-//		this.subject.set(subject);
+		// this.subject.set(subject);
 		this.callbackHandler = callbackHandler;
 	}
 
@@ -45,68 +40,66 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 		if (SecurityContextHolder.getContext().getAuthentication() != null)
 			return super.login();
 
-//		if (getSubject().getPrincipals(Authentication.class).size() == 1) {
-//			registerAuthentication(getSubject()
-//					.getPrincipals(Authentication.class).iterator().next());
-//			return super.login();
-//		} else if (getSubject().getPrincipals(Authentication.class).size() > 1) {
-//			throw new LoginException(
-//					"Multiple Authentication principals not supported: "
-//							+ getSubject().getPrincipals(Authentication.class));
-//		} else {
-			// ask for username and password
-			Callback label = new TextOutputCallback(
-					TextOutputCallback.INFORMATION, "Required login");
-			NameCallback nameCallback = new NameCallback("User");
-			PasswordCallback passwordCallback = new PasswordCallback(
-					"Password", false);
+		// if (getSubject().getPrincipals(Authentication.class).size() == 1) {
+		// registerAuthentication(getSubject()
+		// .getPrincipals(Authentication.class).iterator().next());
+		// return super.login();
+		// } else if (getSubject().getPrincipals(Authentication.class).size() >
+		// 1) {
+		// throw new LoginException(
+		// "Multiple Authentication principals not supported: "
+		// + getSubject().getPrincipals(Authentication.class));
+		// } else {
+		// ask for username and password
+		Callback label = new TextOutputCallback(TextOutputCallback.INFORMATION,
+				"Required login");
+		NameCallback nameCallback = new NameCallback("User");
+		PasswordCallback passwordCallback = new PasswordCallback("Password",
+				false);
 
-			if (callbackHandler == null) {
-				throw new LoginException("No call back handler available");
-				// return false;
-			}
-			try {
-				callbackHandler.handle(new Callback[] { label, nameCallback,
-						passwordCallback });
-			} catch (Exception e) {
-				LoginException le = new LoginException(
-						"Callback handling failed");
-				le.initCause(e);
-				throw le;
-			}
+		if (callbackHandler == null) {
+			throw new LoginException("No call back handler available");
+			// return false;
+		}
+		try {
+			callbackHandler.handle(new Callback[] { label, nameCallback,
+					passwordCallback });
+		} catch (Exception e) {
+			LoginException le = new LoginException("Callback handling failed");
+			le.initCause(e);
+			throw le;
+		}
 
-			// Set user name and password
-			String username = nameCallback.getName();
-			String password = "";
-			if (passwordCallback.getPassword() != null) {
-				password = String.valueOf(passwordCallback.getPassword());
-			}
-			UsernamePasswordAuthenticationToken credentials = new UsernamePasswordAuthenticationToken(
-					username, password);
+		// Set user name and password
+		String username = nameCallback.getName();
+		String password = "";
+		if (passwordCallback.getPassword() != null) {
+			password = String.valueOf(passwordCallback.getPassword());
+		}
+		UsernamePasswordAuthenticationToken credentials = new UsernamePasswordAuthenticationToken(
+				username, password);
 
-			try {
-				Authentication authentication = authenticationManager
-						.authenticate(credentials);
-				registerAuthentication(authentication);
-				boolean res = super.login();
-//				if (log.isDebugEnabled())
-//					log.debug("User " + username + " logged in");
-				return res;
-			} catch (BadCredentialsException bce) {
-				throw bce;
-			} catch (Exception e) {
-				LoginException loginException = new LoginException(
-						"Bad credentials");
-				loginException.initCause(e);
-				throw loginException;
-			}
-//		}
+		try {
+			Authentication authentication = authenticationManager
+					.authenticate(credentials);
+			registerAuthentication(authentication);
+			boolean res = super.login();
+			// if (log.isDebugEnabled())
+			// log.debug("User " + username + " logged in");
+			return res;
+		} catch (BadCredentialsException bce) {
+			throw bce;
+		} catch (Exception e) {
+			LoginException loginException = new LoginException(
+					"Bad credentials");
+			loginException.initCause(e);
+			throw loginException;
+		}
+		// }
 	}
 
 	@Override
 	public boolean logout() throws LoginException {
-		if (log.isDebugEnabled())
-			log.debug("Log out "+CurrentUser.getUsername());
 		return super.logout();
 	}
 
@@ -126,8 +119,8 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 		this.authenticationManager = authenticationManager;
 	}
 
-//	protected Subject getSubject() {
-//		return subject.get();
-//	}
+	// protected Subject getSubject() {
+	// return subject.get();
+	// }
 
 }

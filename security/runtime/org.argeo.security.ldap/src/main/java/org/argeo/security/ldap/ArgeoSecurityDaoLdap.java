@@ -260,7 +260,6 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 
 	public String encodePassword(String raw) {
 		byte[] salt = null;
-		// TODO: check that Linux auth supports SSHA
 		// byte[] salt = new byte[16];
 		// random.nextBytes(salt);
 		return ldapShaPasswordEncoder.encodePassword(raw, salt);

@@ -18,7 +18,7 @@
 		<version.argeo-commons>0.2.3-SNAPSHOT</version.argeo-commons>
 		<version.argeo-ria>0.12.5</version.argeo-ria>
 		<version.equinox>3.6.1</version.equinox>
-		<version.maven-argeo-osgi>0.1.30</version.maven-argeo-osgi>
+		<version.maven-argeo-osgi>0.1.31-SNAPSHOT</version.maven-argeo-osgi>
 		<version.maven-bundle-plugin>2.2.0</version.maven-bundle-plugin>
 		<version.maven-argeo-qooxdoo>1.1.1</version.maven-argeo-qooxdoo>
 		<site.repoBase>file:///srv/projects/www/commons/site</site.repoBase>
@@ -73,8 +73,8 @@ limitations under the License.
 		<module>basic</module>
 		<module>osgi</module>
 		<module>server</module>
-		<module>security</module>
 		<module>eclipse</module>
+		<module>security</module>
 		<module>sandbox</module>
 	</modules>
 	<build>

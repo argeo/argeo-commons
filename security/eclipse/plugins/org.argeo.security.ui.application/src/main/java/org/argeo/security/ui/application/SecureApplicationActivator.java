@@ -1,4 +1,4 @@
-package org.argeo.security.equinox;
+package org.argeo.security.ui.application;
 
 import java.net.URL;
 
@@ -7,14 +7,14 @@ import org.eclipse.equinox.security.auth.LoginContextFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
-public class EquinoxSecurity implements BundleActivator {
+public class SecureApplicationActivator implements BundleActivator {
+
 	public final static String CONTEXT_SPRING = "SPRING";
-	private static final String JAAS_CONFIG_FILE = "org/argeo/security/equinox/jaas_default.txt";
+	private static final String JAAS_CONFIG_FILE = "/META-INF/jaas_default.txt";
 
 	private static ILoginContext loginContext = null;
 
 	public void start(BundleContext bundleContext) throws Exception {
-		// getLoginContext();
 		URL configUrl = bundleContext.getBundle().getEntry(JAAS_CONFIG_FILE);
 		loginContext = LoginContextFactory.createContext(CONTEXT_SPRING,
 				configUrl);
@@ -26,5 +26,4 @@ public class EquinoxSecurity implements BundleActivator {
 	static ILoginContext getLoginContext() {
 		return loginContext;
 	}
-
 }

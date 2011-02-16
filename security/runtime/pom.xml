@@ -14,6 +14,8 @@
 	<modules>
 		<module>org.argeo.security.core</module>
 		<module>org.argeo.security.mvc</module>
+		<module>org.argeo.security.ldap</module>
+		<module>org.argeo.security.activemq</module>
 	</modules>
 	<build>
 		<resources>

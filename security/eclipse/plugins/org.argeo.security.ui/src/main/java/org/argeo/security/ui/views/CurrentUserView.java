@@ -1,6 +1,6 @@
 package org.argeo.security.ui.views;
 
-import org.argeo.security.equinox.CurrentUser;
+import org.argeo.security.ui.CurrentUser;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -46,9 +46,9 @@ public class CurrentUserView extends ViewPart {
 		column.setText("ID");
 		column.setWidth(100);
 
-//		column = new TableColumn(table, SWT.LEFT, 1);
-//		column.setText("Password");
-//		column.setWidth(200);
+		// column = new TableColumn(table, SWT.LEFT, 1);
+		// column.setText("Password");
+		// column.setWidth(200);
 
 		// column = new TableColumn(table, SWT.LEFT, 2);
 		// column.setText("Roles");
@@ -69,26 +69,26 @@ public class CurrentUserView extends ViewPart {
 		}
 
 		public Object[] getChildren(Object parentElement) {
-//			ILoginContext secureContext = LoginContextFactory
-//					.createContext("SPRING");
-//			try {
-//				secureContext.login();
-//			} catch (LoginException e) {
-//				// login failed
-//			}
-//
-//			Subject subject = null;
-//			// subject = Subject.getSubject(AccessController.getContext());
-//			try {
-//				subject = secureContext.getSubject();
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//				throw new ArgeoException("Cannot retrieve subject", e);
-//			}
-//
-//			if (subject == null)
-//				throw new ArgeoException("No subject found");
-//			return subject.getPrincipals().toArray();
+			// ILoginContext secureContext = LoginContextFactory
+			// .createContext("SPRING");
+			// try {
+			// secureContext.login();
+			// } catch (LoginException e) {
+			// // login failed
+			// }
+			//
+			// Subject subject = null;
+			// // subject = Subject.getSubject(AccessController.getContext());
+			// try {
+			// subject = secureContext.getSubject();
+			// } catch (Exception e) {
+			// e.printStackTrace();
+			// throw new ArgeoException("Cannot retrieve subject", e);
+			// }
+			//
+			// if (subject == null)
+			// throw new ArgeoException("No subject found");
+			// return subject.getPrincipals().toArray();
 			return CurrentUser.roles().toArray();
 		}
 
@@ -107,15 +107,15 @@ public class CurrentUserView extends ViewPart {
 	private class UsersLabelProvider extends LabelProvider implements
 			ITableLabelProvider {
 		public String getColumnText(Object element, int columnIndex) {
-//			Principal argeoUser = (Principal) element;
-//			switch (columnIndex) {
-//			case 0:
-//				return argeoUser.getName();
-//			case 1:
-//				return argeoUser.toString();
-//			default:
-//				throw new ArgeoException("Unmanaged column " + columnIndex);
-//			}
+			// Principal argeoUser = (Principal) element;
+			// switch (columnIndex) {
+			// case 0:
+			// return argeoUser.getName();
+			// case 1:
+			// return argeoUser.toString();
+			// default:
+			// throw new ArgeoException("Unmanaged column " + columnIndex);
+			// }
 			return element.toString();
 		}
 

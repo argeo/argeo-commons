@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
@@ -31,17 +32,10 @@
 						<Export-Package>
 							org.argeo.security.*
 						</Export-Package>
-						<Import-Package>*,
+						<Import-Package>
 							org.springframework.context,
-							org.argeo.server.json;resolution:=optional,
-							javax.jms;resolution:=optional,
-							org.apache.activemq;resolution:=optional,
-							org.apache.activemq.broker;resolution:=optional,
-							org.apache.activemq.command;resolution:=optional,
-							org.apache.activemq.security;resolution:=optional,
-							org.springframework.jms.connection;resolution:=optional,
-							org.springframework.ldap.core;resolution:=optional,
-							org.springframework.ldap.core.support;resolution:=optional,
+							org.springframework.beans.factory,
+							*
 						</Import-Package>
 					</instructions>
 				</configuration>
@@ -55,21 +49,14 @@
 			<version>0.2.3-SNAPSHOT</version>
 		</dependency>
 
-		<dependency>
-			<!-- Force inclusion of commons.lang to prevent v2.1.0 to be taken by 
-				Spring Security -->
-			<groupId>org.apache.commons</groupId>
-			<artifactId>com.springsource.org.apache.commons.lang</artifactId>
-		</dependency>
-
 		<!-- Spring -->
 		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.springframework.ldap</artifactId>
+			<groupId>org.springframework</groupId>
+			<artifactId>org.springframework.beans</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.transaction</artifactId>
+			<artifactId>org.springframework.context</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -81,51 +68,6 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>com.springsource.slf4j.org.apache.commons.logging</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.log4j</groupId>
-			<artifactId>com.springsource.org.apache.log4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>com.springsource.slf4j.log4j</artifactId>
-		</dependency>
-
-		<!-- JSON -->
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>com.springsource.org.codehaus.jackson.mapper</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>com.springsource.json</groupId>
-			<artifactId>com.springsource.json</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.antlr</groupId>
-			<artifactId>com.springsource.org.antlr</artifactId>
-		</dependency>
-
-		<!-- JMS -->
-		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.activemq</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>javax.jms</groupId>
-			<artifactId>com.springsource.javax.jms</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.jms</artifactId>
-			<optional>true</optional>
-		</dependency>
-
-<!--		<dependency>-->
-<!--			<groupId>org.apache.commons</groupId>-->
-<!--			<artifactId>com.springsource.org.apache.commons.codec</artifactId>-->
-<!--		</dependency>-->
 
 		<!-- TEST -->
 		<dependency>
@@ -134,9 +76,21 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.argeo.commons.basic</groupId>
+			<artifactId>org.argeo.basic.dep.log4j</artifactId>
+			<version>0.2.3-SNAPSHOT</version>
+			<type>pom</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.json</artifactId>
 			<version>0.2.3-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.springsource.json</groupId>
+			<artifactId>com.springsource.json</artifactId>
 			<scope>test</scope>
 		</dependency>
 

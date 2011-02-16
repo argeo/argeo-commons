@@ -6,7 +6,6 @@ import javax.security.auth.Subject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.security.equinox.CurrentUser;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.app.IApplication;
@@ -34,12 +33,18 @@ public abstract class AbstractSecureApplication implements IApplication {
 		try {
 			String username = null;
 			Exception loginException = null;
+			Subject subject = null;
 			try {
-				username = CurrentUser.getUsername();
+				SecureApplicationActivator.getLoginContext().login();
+				subject = SecureApplicationActivator.getLoginContext()
+						.getSubject();
+
+				// username = CurrentUser.getUsername();
 			} catch (Exception e) {
 				loginException = e;
+				e.printStackTrace();
 			}
-			if (username == null) {
+			if (subject == null) {
 				IStatus status = new Status(IStatus.ERROR,
 						"org.argeo.security.application", "Login is mandatory",
 						loginException);
@@ -48,9 +53,8 @@ public abstract class AbstractSecureApplication implements IApplication {
 			}
 			if (log.isDebugEnabled())
 				log.debug("Logged in as " + username);
-			returnCode = (Integer) Subject.doAs(CurrentUser.getSubject(),
-					getRunAction(display));
-			CurrentUser.logout();
+			returnCode = (Integer) Subject.doAs(subject, getRunAction(display));
+			SecureApplicationActivator.getLoginContext().logout();
 			return processReturnCode(returnCode);
 		} catch (Exception e) {
 			// e.printStackTrace();
@@ -104,9 +108,9 @@ public abstract class AbstractSecureApplication implements IApplication {
 
 		if (log.isDebugEnabled())
 			log.debug("workbench stopped");
-		String username = CurrentUser.getUsername();
-		if (log.isDebugEnabled())
-			log.debug("workbench stopped, logged in as " + username);
+		// String username = CurrentUser.getUsername();
+		// if (log.isDebugEnabled())
+		// log.debug("workbench stopped, logged in as " + username);
 
 	}
 

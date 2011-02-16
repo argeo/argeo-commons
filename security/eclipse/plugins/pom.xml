@@ -80,5 +80,10 @@
 			<version>0.2.3-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>javax.xml.stream</groupId>
+			<artifactId>com.springsource.javax.xml.stream</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>

@@ -1,6 +1,5 @@
 package org.argeo.security.ui;
 
-import org.argeo.security.equinox.CurrentUser;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IFolderLayout;
