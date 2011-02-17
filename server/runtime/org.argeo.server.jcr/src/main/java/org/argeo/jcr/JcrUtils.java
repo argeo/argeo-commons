@@ -35,6 +35,7 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
+import javax.jcr.nodetype.NodeType;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 
@@ -201,7 +202,7 @@ public class JcrUtils {
 					else
 						currentNode = currentNode.addNode(part);
 					if (versioning)
-						currentNode.addMixin(ArgeoJcrConstants.MIX_VERSIONABLE);
+						currentNode.addMixin(NodeType.MIX_VERSIONABLE);
 					if (log.isTraceEnabled())
 						log.debug("Added folder " + part + " as " + current);
 				} else {
@@ -262,7 +263,7 @@ public class JcrUtils {
 			// First output the node path
 			log.debug(node.getPath());
 			// Skip the virtual (and large!) jcr:system subtree
-			if (node.getName().equals(ArgeoJcrConstants.JCR_SYSTEM)) {
+			if (node.getName().equals("jcr:system")) {
 				return;
 			}
 

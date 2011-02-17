@@ -158,7 +158,12 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 	public Session login(Credentials credentials, String workspaceName)
 			throws LoginException, NoSuchWorkspaceException,
 			RepositoryException {
-		Session session = repository.login(credentials, workspaceName);
+		Session session;
+		try {
+			session = repository.login(credentials, workspaceName);
+		} catch (NoSuchWorkspaceException e) {
+			session = createWorkspaceAndLogsIn(credentials, workspaceName);
+		}
 		processNewSession(session);
 		return session;
 	}
@@ -172,7 +177,12 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 
 	public Session login(String workspaceName) throws LoginException,
 			NoSuchWorkspaceException, RepositoryException {
-		Session session = repository.login(workspaceName);
+		Session session;
+		try {
+			session = repository.login(workspaceName);
+		} catch (NoSuchWorkspaceException e) {
+			session = createWorkspaceAndLogsIn(null, workspaceName);
+		}
 		processNewSession(session);
 		return session;
 	}
@@ -188,6 +198,20 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot process new session", e);
 		}
+	}
+
+	/**
+	 * Logs in to the default workspace, creates the required workspace, logs
+	 * out, logs in to the required workspace.
+	 */
+	protected Session createWorkspaceAndLogsIn(Credentials credentials,
+			String workspaceName) throws RepositoryException {
+		if (workspaceName == null)
+			throw new ArgeoException("No workspace specified.");
+		Session session = repository.login(credentials);
+		session.getWorkspace().createWorkspace(workspaceName);
+		session.logout();
+		return repository.login(credentials, workspaceName);
 	}
 
 	public void setResourceLoader(ResourceLoader resourceLoader) {

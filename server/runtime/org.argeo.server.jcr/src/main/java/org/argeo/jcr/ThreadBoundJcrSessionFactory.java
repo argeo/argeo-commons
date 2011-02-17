@@ -42,12 +42,14 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 			.getLog(ThreadBoundJcrSessionFactory.class);
 
 	private Repository repository;
-	private List<Session> activeSessions = Collections
+	private final List<Session> activeSessions = Collections
 			.synchronizedList(new ArrayList<Session>());
 
 	private ThreadLocal<Session> session = new ThreadLocal<Session>();
 	private boolean destroying = false;
 	private final Session proxiedSession;
+	/** If workspace is null, default will be used. */
+	private String workspace = null;
 
 	private String defaultUsername = "demo";
 	private String defaultPassword = "demo";
@@ -56,33 +58,11 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 	public ThreadBoundJcrSessionFactory() {
 		Class<?>[] interfaces = { Session.class };
 		proxiedSession = (Session) Proxy.newProxyInstance(getClass()
-				.getClassLoader(), interfaces, new InvocationHandler() {
-
-			public Object invoke(Object proxy, Method method, Object[] args)
-					throws Throwable {
-				Session threadSession = session.get();
-				if (threadSession == null) {
-					if ("logout".equals(method.getName()))// no need to login
-						return Void.TYPE;
-					threadSession = login();
-					session.set(threadSession);
-				}
-
-				Object ret = method.invoke(threadSession, args);
-				if ("logout".equals(method.getName())) {
-					session.remove();
-					if (!destroying)
-						activeSessions.remove(threadSession);
-					if (log.isTraceEnabled())
-						log.trace("Logged out from JCR session "
-								+ threadSession + "; userId="
-								+ threadSession.getUserID());
-				}
-				return ret;
-			}
-		});
+				.getClassLoader(), interfaces,
+				new JcrSessionInvocationHandler());
 	}
 
+	/** Logs in to the repository using various strategies. */
 	protected Session login() {
 		Session newSession = null;
 		// first try to login without credentials, assuming the underlying login
@@ -90,7 +70,7 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 		// Security)
 		if (!forceDefaultCredentials)
 			try {
-				newSession = repository.login();
+				newSession = repository.login(workspace);
 			} catch (LoginException e1) {
 				log.warn("Cannot login without credentials: " + e1.getMessage());
 				// invalid credentials, go to the next step
@@ -104,7 +84,7 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 			try {
 				SimpleCredentials sc = new SimpleCredentials(defaultUsername,
 						defaultPassword.toCharArray());
-				newSession = repository.login(sc);
+				newSession = repository.login(sc, workspace);
 			} catch (RepositoryException e) {
 				throw new ArgeoException("Cannot log in to repository", e);
 			}
@@ -157,4 +137,34 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 		this.forceDefaultCredentials = forceDefaultCredentials;
 	}
 
+	public void setWorkspace(String workspace) {
+		this.workspace = workspace;
+	}
+
+	protected class JcrSessionInvocationHandler implements InvocationHandler {
+
+		public Object invoke(Object proxy, Method method, Object[] args)
+				throws Throwable {
+			Session threadSession = session.get();
+			if (threadSession == null) {
+				if ("logout".equals(method.getName()))// no need to login
+					return Void.TYPE;
+				else if ("toString".equals(method.getName()))// maybe logging
+					return "Uninitialized Argeo thread bound JCR session";
+				threadSession = login();
+				session.set(threadSession);
+			}
+
+			Object ret = method.invoke(threadSession, args);
+			if ("logout".equals(method.getName())) {
+				session.remove();
+				if (!destroying)
+					activeSessions.remove(threadSession);
+				if (log.isTraceEnabled())
+					log.trace("Logged out from JCR session " + threadSession
+							+ "; userId=" + threadSession.getUserID());
+			}
+			return ret;
+		}
+	}
 }
