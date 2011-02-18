@@ -17,8 +17,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -40,7 +38,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
 public class GenericJcrBrowser extends ViewPart {
-	private final static Log log = LogFactory.getLog(GenericJcrBrowser.class);
+	// private final static Log log =
+	// LogFactory.getLog(GenericJcrBrowser.class);
 
 	private TreeViewer nodesViewer;
 	private TableViewer propertiesViewer;
@@ -82,7 +81,6 @@ public class GenericJcrBrowser extends ViewPart {
 						if (!event.getSelection().isEmpty()) {
 							IStructuredSelection sel = (IStructuredSelection) event
 									.getSelection();
-							log.debug(sel.getFirstElement().getClass());
 							propertiesViewer.setInput(sel.getFirstElement());
 						} else {
 							propertiesViewer.setInput(getViewSite());
@@ -186,11 +184,15 @@ public class GenericJcrBrowser extends ViewPart {
 		public Object[] getChildren(Object parentElement) {
 			try {
 				if (parentElement instanceof Node) {
-					Set<Node> children = new TreeSet<Node>(itemComparator);
+					List<Node> children = new ArrayList<Node>();
 					NodeIterator nit = ((Node) parentElement).getNodes();
-					while (nit.hasNext())
-						children.add(nit.nextNode());
-					return children.toArray();
+					while (nit.hasNext()) {
+						Node node = nit.nextNode();
+						children.add(node);
+					}
+					Node[] arr = children.toArray(new Node[children.size()]);
+					Arrays.sort(arr, itemComparator);
+					return arr;
 				} else {
 					return null;
 				}
@@ -238,13 +240,24 @@ public class GenericJcrBrowser extends ViewPart {
 			try {
 				if (element instanceof Node) {
 					Node node = (Node) element;
+					String label = node.getName();
+					// try {
+					// Item primaryItem = node.getPrimaryItem();
+					// label = primaryItem instanceof Property ? ((Property)
+					// primaryItem)
+					// .getValue().getString()
+					// + " ("
+					// + node.getName()
+					// + ")" : node.getName();
+					// } catch (RepositoryException e) {
+					// label = node.getName();
+					// }
 					StringBuffer mixins = new StringBuffer("");
 					for (NodeType type : node.getMixinNodeTypes())
 						mixins.append(' ').append(type.getName());
 
-					return node.getName() + " ["
-							+ node.getPrimaryNodeType().getName() + mixins
-							+ "]";
+					return label + " [" + node.getPrimaryNodeType().getName()
+							+ mixins + "]";
 				}
 				return element.toString();
 			} catch (RepositoryException e) {
