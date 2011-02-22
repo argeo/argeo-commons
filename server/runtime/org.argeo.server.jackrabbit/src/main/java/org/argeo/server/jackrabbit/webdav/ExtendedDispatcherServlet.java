@@ -26,7 +26,7 @@ import org.argeo.ArgeoException;
 import org.springframework.web.servlet.DispatcherServlet;
 
 public class ExtendedDispatcherServlet extends DispatcherServlet {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -5584673209855752009L;
 
 	private final static Log log = LogFactory
 			.getLog(ExtendedDispatcherServlet.class);

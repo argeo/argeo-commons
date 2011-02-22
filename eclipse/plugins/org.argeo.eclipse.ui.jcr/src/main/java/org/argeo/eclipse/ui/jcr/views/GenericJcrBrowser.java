@@ -4,21 +4,28 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import javax.jcr.Item;
+import javax.jcr.LoginException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 
 import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.TreeParent;
+import org.argeo.jcr.RepositoryRegister;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -27,6 +34,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.TreeNode;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
@@ -44,7 +52,8 @@ public class GenericJcrBrowser extends ViewPart {
 	private TreeViewer nodesViewer;
 	private TableViewer propertiesViewer;
 
-	private Session jcrSession;
+	// private Session jcrSession;
+	private RepositoryRegister repositoryRegister;
 
 	private Comparator<Item> itemComparator = new Comparator<Item>() {
 		public int compare(Item o1, Item o2) {
@@ -87,11 +96,19 @@ public class GenericJcrBrowser extends ViewPart {
 						}
 					}
 				});
-		try {
-			nodesViewer.setInput(jcrSession.getRootNode());
-		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot initialize view", e);
-		}
+		nodesViewer.addDoubleClickListener(new IDoubleClickListener() {
+			public void doubleClick(DoubleClickEvent event) {
+				Object obj = ((IStructuredSelection) event.getSelection())
+						.getFirstElement();
+				if (obj instanceof RepositoryNode) {
+					((RepositoryNode) obj).login();
+				} else if (obj instanceof WorkspaceNode) {
+					((WorkspaceNode) obj).login();
+				}
+
+			}
+		});
+		nodesViewer.setInput(repositoryRegister);
 
 		Composite bottom = new Composite(sashForm, SWT.NONE);
 		bottom.setLayout(new GridLayout(1, false));
@@ -168,13 +185,29 @@ public class GenericJcrBrowser extends ViewPart {
 		return new int[] { 70, 30 };
 	}
 
-	public void setJcrSession(Session jcrSession) {
-		this.jcrSession = jcrSession;
+	public void setRepositoryRegister(RepositoryRegister repositoryRegister) {
+		this.repositoryRegister = repositoryRegister;
 	}
 
 	/*
 	 * NODES
 	 */
+	protected Object[] childrenNodes(Node parentNode) {
+		try {
+			List<Node> children = new ArrayList<Node>();
+			NodeIterator nit = parentNode.getNodes();
+			while (nit.hasNext()) {
+				Node node = nit.nextNode();
+				children.add(node);
+			}
+			Node[] arr = children.toArray(new Node[children.size()]);
+			Arrays.sort(arr, itemComparator);
+			return arr;
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot list children of " + parentNode, e);
+		}
+	}
+
 	private class NodeContentProvider implements ITreeContentProvider {
 
 		public Object[] getElements(Object inputElement) {
@@ -182,23 +215,32 @@ public class GenericJcrBrowser extends ViewPart {
 		}
 
 		public Object[] getChildren(Object parentElement) {
-			try {
-				if (parentElement instanceof Node) {
-					List<Node> children = new ArrayList<Node>();
-					NodeIterator nit = ((Node) parentElement).getNodes();
-					while (nit.hasNext()) {
-						Node node = nit.nextNode();
-						children.add(node);
-					}
-					Node[] arr = children.toArray(new Node[children.size()]);
-					Arrays.sort(arr, itemComparator);
-					return arr;
-				} else {
-					return null;
+			if (parentElement instanceof Node) {
+				return childrenNodes((Node) parentElement);
+			} else if (parentElement instanceof RepositoryNode) {
+				return ((RepositoryNode) parentElement).getChildren();
+			} else if (parentElement instanceof WorkspaceNode) {
+				Session session = ((WorkspaceNode) parentElement).getSession();
+				if (session == null)
+					return new Object[0];
+
+				try {
+					return childrenNodes(session.getRootNode());
+				} catch (RepositoryException e) {
+					throw new ArgeoException("Cannot retrieve root node of "
+							+ session, e);
 				}
-			} catch (RepositoryException e) {
-				throw new ArgeoException("Cannot retrieve children for "
-						+ parentElement, e);
+			} else if (parentElement instanceof RepositoryRegister) {
+				RepositoryRegister repositoryRegister = (RepositoryRegister) parentElement;
+				List<RepositoryNode> nodes = new ArrayList<RepositoryNode>();
+				Map<String, Repository> repositories = repositoryRegister
+						.getRepositories();
+				for (String name : repositories.keySet()) {
+					nodes.add(new RepositoryNode(name, repositories.get(name)));
+				}
+				return nodes.toArray();
+			} else {
+				return new Object[0];
 			}
 		}
 
@@ -218,6 +260,10 @@ public class GenericJcrBrowser extends ViewPart {
 			try {
 				if (element instanceof Node) {
 					return ((Node) element).hasNodes();
+				} else if (element instanceof RepositoryNode) {
+					return ((RepositoryNode) element).hasChildren();
+				} else if (element instanceof WorkspaceNode) {
+					return ((WorkspaceNode) element).getSession() != null;
 				}
 				return false;
 			} catch (RepositoryException e) {
@@ -293,6 +339,80 @@ public class GenericJcrBrowser extends ViewPart {
 			} catch (RepositoryException e) {
 				throw new ArgeoException("Cannot get element for "
 						+ inputElement, e);
+			}
+		}
+
+	}
+
+	private class RepositoryNode extends TreeParent {
+		private final String name;
+		private final Repository repository;
+		private Session defaultSession = null;
+
+		public RepositoryNode(String name, Repository repository) {
+			super(name);
+			this.name = name;
+			this.repository = repository;
+		}
+
+		public Repository getRepository() {
+			return repository;
+		}
+
+		public Session getDefaultSession() {
+			return defaultSession;
+		}
+
+		public void login() {
+			try {
+				defaultSession = repository.login();
+				String[] wkpNames = defaultSession.getWorkspace()
+						.getAccessibleWorkspaceNames();
+				for (String wkpName : wkpNames) {
+					if (wkpName.equals(defaultSession.getWorkspace().getName()))
+						addChild(new WorkspaceNode(repository, wkpName,
+								defaultSession));
+					else
+						addChild(new WorkspaceNode(repository, wkpName));
+				}
+				nodesViewer.refresh(this);
+			} catch (RepositoryException e) {
+				throw new ArgeoException(
+						"Cannot connect to repository " + name, e);
+			}
+		}
+	}
+
+	private class WorkspaceNode extends TreeParent {
+		private final String name;
+		private final Repository repository;
+		private Session session = null;
+
+		public WorkspaceNode(Repository repository, String name) {
+			this(repository, name, null);
+		}
+
+		public WorkspaceNode(Repository repository, String name, Session session) {
+			super(name);
+			this.name = name;
+			this.repository = repository;
+			this.session = session;
+		}
+
+		public Session getSession() {
+			return session;
+		}
+
+		public void login() {
+			try {
+				if (session != null)
+					session.logout();
+
+				session = repository.login(name);
+				nodesViewer.refresh(this);
+			} catch (RepositoryException e) {
+				throw new ArgeoException(
+						"Cannot connect to repository " + name, e);
 			}
 		}
 

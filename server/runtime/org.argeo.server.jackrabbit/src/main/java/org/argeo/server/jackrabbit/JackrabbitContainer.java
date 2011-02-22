@@ -77,6 +77,8 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 	/** Namespaces to register: key is prefix, value namespace */
 	private Map<String, String> namespaces = new HashMap<String, String>();
 
+	private Boolean autocreateWorkspaces = false;
+
 	public void afterPropertiesSet() throws Exception {
 		// Load cnds as resources
 		for (String resUrl : cndFiles) {
@@ -162,7 +164,10 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 		try {
 			session = repository.login(credentials, workspaceName);
 		} catch (NoSuchWorkspaceException e) {
-			session = createWorkspaceAndLogsIn(credentials, workspaceName);
+			if (autocreateWorkspaces)
+				session = createWorkspaceAndLogsIn(credentials, workspaceName);
+			else
+				throw e;
 		}
 		processNewSession(session);
 		return session;
@@ -181,7 +186,10 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 		try {
 			session = repository.login(workspaceName);
 		} catch (NoSuchWorkspaceException e) {
-			session = createWorkspaceAndLogsIn(null, workspaceName);
+			if (autocreateWorkspaces)
+				session = createWorkspaceAndLogsIn(null, workspaceName);
+			else
+				throw e;
 		}
 		processNewSession(session);
 		return session;
