@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.jcr.Credentials;
 import javax.jcr.LoginException;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -22,6 +23,15 @@ public class CachingSessionProvider implements SessionProvider {
 	private final static Log log = LogFactory
 			.getLog(CachingSessionProvider.class);
 
+	private Credentials credentials = null;
+
+	public CachingSessionProvider() {
+	}
+
+	public CachingSessionProvider(Credentials credentials) {
+		this.credentials = credentials;
+	}
+
 	@SuppressWarnings("unchecked")
 	public Session getSession(HttpServletRequest request, Repository rep,
 			String workspace) throws LoginException, ServletException,
@@ -36,13 +46,15 @@ public class CachingSessionProvider implements SessionProvider {
 		Map<String, Session> sessions = (Map<String, Session>) httpSession
 				.getAttribute(JCR_SESSIONS_ATTRIBUTE);
 		if (!sessions.containsKey(workspace)) {
-			Session session = rep.login(workspace);
+			Session session = rep.login(credentials, workspace);
 			sessions.put(workspace, session);
 			return session;
 		} else {
 			Session session = sessions.get(workspace);
 			if (!session.isLive()) {
-				session = rep.login(workspace);
+				sessions.remove(workspace);
+				session = rep.login(credentials, workspace);
+				sessions.put(workspace, session);
 			}
 			return session;
 		}
@@ -51,7 +63,8 @@ public class CachingSessionProvider implements SessionProvider {
 	public void releaseSession(Session session) {
 		if (log.isDebugEnabled())
 			log.debug("Releasing JCR session " + session);
-		session.logout();
+		// session.logout();
+		// FIXME: find a way to log out when the HTTP session is expired
 	}
 
 }

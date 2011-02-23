@@ -6,12 +6,14 @@ import java.util.Properties;
 import javax.jcr.Repository;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.webdav.jcr.JCRWebdavServerServlet;
+import org.argeo.ArgeoException;
 import org.argeo.jcr.RepositoryRegister;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -20,7 +22,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.HandlerMapping;
-import org.springframework.web.servlet.mvc.ServletWrappingController;
 
 public class MultipleRepositoryHandlerMapping implements HandlerMapping,
 		ApplicationContextAware, ServletContextAware {
@@ -34,32 +35,59 @@ public class MultipleRepositoryHandlerMapping implements HandlerMapping,
 
 	public HandlerExecutionChain getHandler(HttpServletRequest request)
 			throws Exception {
-		log.debug(request);
-		log.debug("getContextPath=" + request.getContextPath());
-		log.debug("getServletPath=" + request.getServletPath());
-		log.debug("getPathInfo=" + request.getPathInfo());
+		if (log.isTraceEnabled()) {
+			log.trace("getContextPath=" + request.getContextPath());
+			log.trace("getServletPath=" + request.getServletPath());
+			log.trace("getPathInfo=" + request.getPathInfo());
+		}
 
-		String repositoryName = "repo";
-		String pathPrefix = "/remoting/repo";
-		String beanName = "remoting_" + repositoryName;
+		String repositoryName = extractRepositoryName(request);
+		String pathPrefix = request.getServletPath() + '/' + repositoryName;
+		String beanName = pathPrefix;
 
 		if (!applicationContext.containsBean(beanName)) {
 			Repository repository = repositoryRegister.getRepositories().get(
 					repositoryName);
-			JcrRemotingServlet jcrRemotingServlet = new JcrRemotingServlet(
-					repository);
-			Properties initParameters = new Properties();
-			initParameters.setProperty(
-					JCRWebdavServerServlet.INIT_PARAM_RESOURCE_PATH_PREFIX,
-					pathPrefix);
-			jcrRemotingServlet.init(new DelegatingServletConfig(beanName,
-					initParameters));
+			HttpServlet servlet = createServlet(repository, pathPrefix);
 			applicationContext.getBeanFactory().registerSingleton(beanName,
-					jcrRemotingServlet);
+					servlet);
+			// TODO: unregister it as well
 		}
 		HttpServlet remotingServlet = (HttpServlet) applicationContext
 				.getBean(beanName);
 		return new HandlerExecutionChain(remotingServlet);
+	}
+
+	protected HttpServlet createServlet(Repository repository, String pathPrefix)
+			throws ServletException {
+		JcrRemotingServlet jcrRemotingServlet = new JcrRemotingServlet(
+				repository);
+		Properties initParameters = new Properties();
+		initParameters.setProperty(
+				JCRWebdavServerServlet.INIT_PARAM_RESOURCE_PATH_PREFIX,
+				pathPrefix);
+		jcrRemotingServlet.init(new DelegatingServletConfig(pathPrefix.replace(
+				'/', '_'), initParameters));
+		return jcrRemotingServlet;
+	}
+
+	/** The repository name is the first part of the path info */
+	protected String extractRepositoryName(HttpServletRequest request) {
+		String pathInfo = request.getPathInfo();
+		// TODO: optimize by checking character by character
+		String[] tokens = pathInfo.split("/");
+		StringBuffer currName = new StringBuffer("");
+		tokens: for (String token : tokens) {
+			if (token.equals(""))
+				continue tokens;
+			currName.append(token);
+			if (repositoryRegister.getRepositories().containsKey(
+					currName.toString()))
+				return currName.toString();
+			currName.append('/');
+		}
+		throw new ArgeoException("No repository can be found for request "
+				+ pathInfo);
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext)

@@ -1,6 +1,7 @@
 package org.argeo.jcr;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
 import java.util.SortedMap;
@@ -17,8 +18,9 @@ public class DefaultRepositoryRegister extends Observable implements
 	private final static Log log = LogFactory
 			.getLog(DefaultRepositoryRegister.class);
 
-	private SortedMap<String, Repository> repositories = Collections
-			.synchronizedSortedMap(new TreeMap<String, Repository>());
+	/** Read only map which will be directly exposed. */
+	private Map<String, Repository> repositories = Collections
+			.unmodifiableMap(new TreeMap<String, Repository>());
 
 	@SuppressWarnings("rawtypes")
 	public synchronized Repository getRepository(Map parameters)
@@ -34,8 +36,9 @@ public class DefaultRepositoryRegister extends Observable implements
 		return repositories.get(name);
 	}
 
-	public Map<String, Repository> getRepositories() {
-		return new TreeMap<String, Repository>(repositories);
+	/** Access to the read-only map */
+	public synchronized Map<String, Repository> getRepositories() {
+		return repositories;
 	}
 
 	/** Registers a service, typically called when OSGi services are bound. */
@@ -49,7 +52,10 @@ public class DefaultRepositoryRegister extends Observable implements
 		}
 
 		String name = properties.get(JCR_REPOSITORY_NAME).toString();
-		repositories.put(name, repository);
+		Map<String, Repository> map = new TreeMap<String, Repository>(
+				repositories);
+		map.put(name, repository);
+		repositories = Collections.unmodifiableMap(map);
 		setChanged();
 		notifyObservers(repository);
 	}
@@ -65,7 +71,10 @@ public class DefaultRepositoryRegister extends Observable implements
 		}
 
 		String name = properties.get(JCR_REPOSITORY_NAME).toString();
-		repositories.remove(name);
+		Map<String, Repository> map = new TreeMap<String, Repository>(
+				repositories);
+		map.put(name, repository);
+		repositories = Collections.unmodifiableMap(map);
 		setChanged();
 		notifyObservers(repository);
 	}

@@ -1,8 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Repo
 Bundle-SymbolicName: org.argeo.server.jackrabbit.repo
 Bundle-Version: 0.2.3.SNAPSHOT
 Import-Package: javax.jcr,
  org.apache.jackrabbit.core,
  org.apache.jackrabbit.core.config,
+ org.apache.lucene.util;version="2.4.1",
  org.apache.xalan.processor,
  org.argeo.server.jackrabbit,
  org.springframework.beans.factory.config

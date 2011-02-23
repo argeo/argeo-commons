@@ -38,12 +38,16 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.jackrabbit.api.JackrabbitRepository;
+import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.jackrabbit.commons.NamespaceHelper;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
+import org.apache.jackrabbit.core.RepositoryFactoryImpl;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
+import org.apache.jackrabbit.jcr2dav.Jcr2davRepositoryFactory;
 import org.argeo.ArgeoException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -65,6 +69,7 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 	private Resource variables;
 
 	private Boolean inMemory = false;
+	private String uri = null;
 
 	private Repository repository;
 
@@ -82,50 +87,66 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 	public void afterPropertiesSet() throws Exception {
 		// Load cnds as resources
 		for (String resUrl : cndFiles) {
-
 			Resource res = resourceLoader.getResource(resUrl);
 			byte[] arr = IOUtils.toByteArray(res.getInputStream());
 			cnds.add(arr);
 		}
 
-		if (inMemory && homeDirectory.exists()) {
-			FileUtils.deleteDirectory(homeDirectory);
-			log.warn("Deleted Jackrabbit home directory " + homeDirectory);
-		}
-
-		RepositoryConfig config;
-		InputStream in = configuration.getInputStream();
-		InputStream propsIn = null;
-		try {
-			Properties vars = new Properties();
-			if (variables != null) {
-				propsIn = variables.getInputStream();
-				vars.load(propsIn);
+		if (uri != null) {
+			// Thread.currentThread().setContextClassLoader(
+			// getClass().getClassLoader());
+			// repository = JcrUtils.getRepository(uri);
+			Map<String, String> params = new HashMap<String, String>();
+			params.put(JcrUtils.REPOSITORY_URI, uri);
+			repository = new Jcr2davRepositoryFactory().getRepository(params);
+			if (repository == null)
+				throw new ArgeoException("Remote Davex repository " + uri
+						+ " not found");
+			log.info("Initialized Jackrabbit repository " + repository
+					+ " from uri " + uri);
+		} else {
+			if (inMemory && homeDirectory.exists()) {
+				FileUtils.deleteDirectory(homeDirectory);
+				log.warn("Deleted Jackrabbit home directory " + homeDirectory);
 			}
-			// override with system properties
-			vars.putAll(System.getProperties());
-			vars.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE,
-					homeDirectory.getCanonicalPath());
-			config = RepositoryConfig.create(new InputSource(in), vars);
-		} catch (Exception e) {
-			throw new RuntimeException("Cannot read configuration", e);
-		} finally {
-			IOUtils.closeQuietly(in);
-			IOUtils.closeQuietly(propsIn);
+
+			RepositoryConfig config;
+			InputStream in = configuration.getInputStream();
+			InputStream propsIn = null;
+			try {
+				Properties vars = new Properties();
+				if (variables != null) {
+					propsIn = variables.getInputStream();
+					vars.load(propsIn);
+				}
+				// override with system properties
+				vars.putAll(System.getProperties());
+				vars.put(
+						RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE,
+						homeDirectory.getCanonicalPath());
+				config = RepositoryConfig.create(new InputSource(in), vars);
+			} catch (Exception e) {
+				throw new RuntimeException("Cannot read configuration", e);
+			} finally {
+				IOUtils.closeQuietly(in);
+				IOUtils.closeQuietly(propsIn);
+			}
+
+			if (inMemory)
+				repository = new TransientRepository(config);
+			else
+				repository = RepositoryImpl.create(config);
+
+			log.info("Initialized Jackrabbit repository " + repository + " in "
+					+ homeDirectory + " with config " + configuration);
 		}
-
-		if (inMemory)
-			repository = new TransientRepository(config);
-		else
-			repository = RepositoryImpl.create(config);
-
-		log.info("Initialized Jackrabbit repository " + repository + " in "
-				+ homeDirectory + " with config " + configuration);
 	}
 
 	public void destroy() throws Exception {
 		if (repository != null) {
-			if (repository instanceof RepositoryImpl)
+			if (repository instanceof JackrabbitRepository)
+				((JackrabbitRepository) repository).shutdown();
+			else if (repository instanceof RepositoryImpl)
 				((RepositoryImpl) repository).shutdown();
 			else if (repository instanceof TransientRepository)
 				((TransientRepository) repository).shutdown();
@@ -138,8 +159,12 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 					log.debug("Deleted Jackrabbit home directory "
 							+ homeDirectory);
 			}
-		log.info("Destroyed Jackrabbit repository " + repository + " in "
-				+ homeDirectory + " with config " + configuration);
+
+		if (uri != null)
+			log.info("Destroyed Jackrabbit repository with uri " + uri);
+		else
+			log.info("Destroyed Jackrabbit repository " + repository + " in "
+					+ homeDirectory + " with config " + configuration);
 	}
 
 	// JCR REPOSITORY (delegated)
@@ -265,6 +290,10 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 
 	public void setVariables(Resource variables) {
 		this.variables = variables;
+	}
+
+	public void setUri(String uri) {
+		this.uri = uri;
 	}
 
 }

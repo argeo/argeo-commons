@@ -6,7 +6,11 @@
        http://www.springframework.org/schema/beans   
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<service ref="repository" interface="javax.jcr.Repository"
-		context-class-loader="service-provider" />
+	<service ref="remoteJcrRepository" interface="javax.jcr.Repository">
+		<service-properties>
+			<beans:entry key="argeo.jcr.repository.name" value="remote_repo" />
+		</service-properties>
+	</service>
+
 
 </beans:beans>

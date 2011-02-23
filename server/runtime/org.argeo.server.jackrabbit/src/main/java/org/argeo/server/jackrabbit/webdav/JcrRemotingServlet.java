@@ -1,13 +1,9 @@
 package org.argeo.server.jackrabbit.webdav;
 
-import java.util.Enumeration;
-
 import javax.jcr.Repository;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
+import javax.jcr.SimpleCredentials;
 
 import org.apache.jackrabbit.server.SessionProvider;
-import org.springframework.web.servlet.mvc.ServletWrappingController;
 
 public class JcrRemotingServlet extends
 		org.apache.jackrabbit.server.remoting.davex.JcrRemotingServlet {
@@ -27,7 +23,8 @@ public class JcrRemotingServlet extends
 
 	@Override
 	protected SessionProvider getSessionProvider() {
-		return new CachingSessionProvider();
+		return new CachingSessionProvider(new SimpleCredentials("demo",
+				"demo".toCharArray()));
 	}
 
 }
