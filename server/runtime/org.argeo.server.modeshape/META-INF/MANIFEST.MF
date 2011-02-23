@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Modeshape
-Bundle-SymbolicName: org.argeo.server.modeshape
-Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: Argeo
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
