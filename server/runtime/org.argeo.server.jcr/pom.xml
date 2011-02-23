@@ -120,8 +120,9 @@
 		<!-- TEST -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.jackrabbit</artifactId>
+			<artifactId>org.argeo.server.dep.jackrabbit.server</artifactId>
 			<version>0.2.3-SNAPSHOT</version>
+			<type>pom</type>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

@@ -57,12 +57,17 @@
 			<artifactId>org.argeo.server.core</artifactId>
 			<version>0.2.3-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.jcr</artifactId>
+			<version>0.2.3-SNAPSHOT</version>
+		</dependency>
 
 		<!-- Jackrabbit -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.jackrabbit.server</artifactId>
-			<version>${project.version}</version>
+			<version>0.2.3-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>

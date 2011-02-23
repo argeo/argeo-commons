@@ -59,6 +59,11 @@
 			<groupId>org.argeo.dep.osgi</groupId>
 			<artifactId>org.argeo.dep.osgi.jcr</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.jcr</artifactId>
+			<version>0.2.3-SNAPSHOT</version>
+		</dependency>
 
 		<!-- RCP only dependency, needed at compile time -->
 		<dependency>
