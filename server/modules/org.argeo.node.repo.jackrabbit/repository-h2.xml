@@ -6,11 +6,11 @@
 	<DataSources>
 		<DataSource name="dataSource">
 			<param name="driver" value="org.h2.Driver" />
-			<param name="url" value="${argeo.noderepo.dburl}" />
-			<param name="user" value="${argeo.noderepo.dbuser}" />
-			<param name="password" value="${argeo.noderepo.dbpassword}" />
+			<param name="url" value="${argeo.node.repo.dburl}" />
+			<param name="user" value="${argeo.node.repo.dbuser}" />
+			<param name="password" value="${argeo.node.repo.dbpassword}" />
 			<param name="databaseType" value="h2" />
-			<param name="maxPoolSize" value="${argeo.noderepo.maxPoolSize}" />
+			<param name="maxPoolSize" value="${argeo.node.repo.maxPoolSize}" />
 		</DataSource>
 	</DataSources>
 

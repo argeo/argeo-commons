@@ -12,9 +12,9 @@
 	</bean>
 
 	<bean id="localJcrRepository" class="org.argeo.jackrabbit.JackrabbitContainer">
-		<property name="uri" value="${argeo.noderepo.uri}" />
-		<property name="homeDirectory" value="${argeo.noderepo.home}" />
-		<property name="configuration" value="${argeo.noderepo.configuration}" />
+		<property name="uri" value="${argeo.node.repo.uri}" />
+		<property name="homeDirectory" value="${argeo.node.repo.home}" />
+		<property name="configuration" value="${argeo.node.repo.configuration}" />
 		<property name="variables" value="osgibundle:/noderepo.properties" />
 		<property name="namespaces">
 			<map>
