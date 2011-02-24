@@ -10,7 +10,7 @@
 	<name>Commons Eclipse plugins</name>
 	<packaging>pom</packaging>
 	<modules>
-		<module>org.argeo.eclipse.ui.jcr.explorer</module>
+		<module>org.argeo.jcr.ui.explorer</module>
 	</modules>
 	<build>
 		<resources>

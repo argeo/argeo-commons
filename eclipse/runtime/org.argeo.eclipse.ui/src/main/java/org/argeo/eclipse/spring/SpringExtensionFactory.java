@@ -62,11 +62,6 @@ public class SpringExtensionFactory implements IExecutableExtensionFactory,
 
 	public void setInitializationData(IConfigurationElement config,
 			String propertyName, Object data) throws CoreException {
-		String beanName = getBeanName(data, config);
-		if (beanName == null)
-			throw new ArgeoException("Cannot find bean name for extension "
-					+ config);
-
 		String bundleSymbolicName = config.getContributor().getName();
 		ApplicationContext appContext = ApplicationContextTracker
 				.getApplicationContext(bundleSymbolicName);
@@ -74,6 +69,11 @@ public class SpringExtensionFactory implements IExecutableExtensionFactory,
 			throw new ArgeoException(
 					"Cannot find application context for bundle "
 							+ bundleSymbolicName);
+
+		String beanName = getBeanName(data, config);
+		if (beanName == null)
+			throw new ArgeoException("Cannot find bean name for extension "
+					+ config);
 
 		this.bean = appContext.getBean(beanName);
 		if (this.bean instanceof IExecutableExtension) {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.argeo.eclipse.ui.jcr.explorer</name>
+	<name>org.argeo.jcr.ui.explorer</name>
 	<comment></comment>
 	<projects>
 	</projects>
