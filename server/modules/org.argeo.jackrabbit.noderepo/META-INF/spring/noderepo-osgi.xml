@@ -11,7 +11,7 @@
 
 	<service ref="localJcrRepository" interface="javax.jcr.Repository">
 		<service-properties>
-			<beans:entry value="local">
+			<beans:entry value="node">
 				<beans:key>
 					<util:constant
 						static-field="org.argeo.jcr.ArgeoJcrConstants.JCR_REPOSITORY_ALIAS" />
