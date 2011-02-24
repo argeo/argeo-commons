@@ -3,10 +3,13 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Jackrabbit Local Repository
 Bundle-SymbolicName: org.argeo.jackrabbit.localrepo
 Bundle-Version: 0.2.3.SNAPSHOT
-Import-Package: javax.jcr,
- org.apache.jackrabbit.core,
- org.apache.jackrabbit.core.config,
- org.apache.lucene.util;version="2.4.1",
+Import-Package: com.mysql.jdbc;version="[5.0.0,6.0.0)";resolution:=optional,
+ javax.jcr;version="[2.0.0,3.0.0)",
+ org.apache.jackrabbit.core;version="[2.0.0,3.0.0)",
+ org.apache.jackrabbit.core.config;version="[2.0.0,3.0.0)",
  org.apache.xalan.processor,
  org.argeo.jackrabbit,
+ org.argeo.jcr,
+ org.h2;version="[1.0.0,2.0.0)";resolution:=optional,
+ org.postgresql;version="[8.0.0,9.0.0)";resolution:=optional,
  org.springframework.beans.factory.config

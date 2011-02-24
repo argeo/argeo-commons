@@ -1,10 +1,8 @@
 package org.argeo.jcr;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.jcr.Repository;
@@ -25,15 +23,15 @@ public class DefaultRepositoryRegister extends Observable implements
 	@SuppressWarnings("rawtypes")
 	public synchronized Repository getRepository(Map parameters)
 			throws RepositoryException {
-		if (!parameters.containsKey(JCR_REPOSITORY_NAME))
-			throw new RepositoryException("Parameter " + JCR_REPOSITORY_NAME
+		if (!parameters.containsKey(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS))
+			throw new RepositoryException("Parameter " + ArgeoJcrConstants.JCR_REPOSITORY_ALIAS
 					+ " has to be defined.");
-		String name = parameters.get(JCR_REPOSITORY_NAME).toString();
-		if (!repositories.containsKey(name))
-			throw new RepositoryException("No repository registered with name "
-					+ name);
+		String alias = parameters.get(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS).toString();
+		if (!repositories.containsKey(alias))
+			throw new RepositoryException(
+					"No repository registered with alias " + alias);
 
-		return repositories.get(name);
+		return repositories.get(alias);
 	}
 
 	/** Access to the read-only map */
@@ -45,37 +43,37 @@ public class DefaultRepositoryRegister extends Observable implements
 	@SuppressWarnings("rawtypes")
 	public synchronized void register(Repository repository, Map properties) {
 		// TODO: also check bean name?
-		if (properties == null || !properties.containsKey(JCR_REPOSITORY_NAME)) {
+		if (properties == null || !properties.containsKey(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS)) {
 			log.warn("Cannot register a repository without property "
-					+ JCR_REPOSITORY_NAME);
+					+ ArgeoJcrConstants.JCR_REPOSITORY_ALIAS);
 			return;
 		}
 
-		String name = properties.get(JCR_REPOSITORY_NAME).toString();
+		String alias = properties.get(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS).toString();
 		Map<String, Repository> map = new TreeMap<String, Repository>(
 				repositories);
-		map.put(name, repository);
+		map.put(alias, repository);
 		repositories = Collections.unmodifiableMap(map);
 		setChanged();
-		notifyObservers(repository);
+		notifyObservers(alias);
 	}
 
 	/** Unregisters a service, typically called when OSGi services are unbound. */
 	@SuppressWarnings("rawtypes")
 	public synchronized void unregister(Repository repository, Map properties) {
 		// TODO: also check bean name?
-		if (properties == null || !properties.containsKey(JCR_REPOSITORY_NAME)) {
+		if (properties == null || !properties.containsKey(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS)) {
 			log.warn("Cannot unregister a repository without property "
-					+ JCR_REPOSITORY_NAME);
+					+ ArgeoJcrConstants.JCR_REPOSITORY_ALIAS);
 			return;
 		}
 
-		String name = properties.get(JCR_REPOSITORY_NAME).toString();
+		String alias = properties.get(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS).toString();
 		Map<String, Repository> map = new TreeMap<String, Repository>(
 				repositories);
-		map.put(name, repository);
+		map.put(alias, repository);
 		repositories = Collections.unmodifiableMap(map);
 		setChanged();
-		notifyObservers(repository);
+		notifyObservers(alias);
 	}
 }

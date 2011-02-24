@@ -6,11 +6,11 @@
 	<DataSources>
 		<DataSource name="dataSource">
 			<param name="driver" value="org.postgresql.Driver" />
-			<param name="url" value="${slc.jackrabbit.dburl}" />
-			<param name="user" value="${slc.jackrabbit.dbuser}" />
-			<param name="password" value="${slc.jackrabbit.dbpassword}" />
+			<param name="url" value="${argeo.localrepo.dburl}" />
+			<param name="user" value="${argeo.localrepo.dbuser}" />
+			<param name="password" value="${argeo.localrepo.dbpassword}" />
 			<param name="databaseType" value="postgresql" />
-			<param name="maxPoolSize" value="10" />
+			<param name="maxPoolSize" value="${argeo.localrepo.maxPoolSize}" />
 		</DataSource>
 	</DataSources>
 
@@ -74,13 +74,8 @@
 		<AccessManager
 			class="org.apache.jackrabbit.core.security.simple.SimpleAccessManager">
 		</AccessManager>
-<!--		 <LoginModule -->
-<!--		 class="org.springframework.security.providers.jaas.SecurityContextLoginModule"> -->
-<!--		 </LoginModule> -->
 		<LoginModule
-			class="org.apache.jackrabbit.core.security.simple.SimpleLoginModule">
-			<param name="anonymousId" value="anonymous" />
-			<param name="adminId" value="admin" />
+			class="org.springframework.security.providers.jaas.SecurityContextLoginModule">
 		</LoginModule>
 	</Security>
 </Repository>

@@ -6,18 +6,16 @@
 	<bean
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
-		<property name="ignoreUnresolvablePlaceholders" value="true" />
 		<property name="locations">
-			<value>osgibundle:jackrabbit.properties</value>
+			<value>osgibundle:localrepo.properties</value>
 		</property>
 	</bean>
 
 	<bean id="localJcrRepository" class="org.argeo.jackrabbit.JackrabbitContainer">
-		<property name="uri"
-			value="http://localhost:7070/org.argeo.server.jcr.webapp/remoting/repo" />
-		<property name="homeDirectory" value="${slc.jackrabbit.home}" />
-		<property name="configuration" value="${slc.jackrabbit.configuration}" />
-		<property name="variables" value="osgibundle:/jackrabbit.properties" />
+		<property name="uri" value="${argeo.localrepo.uri}" />
+		<property name="homeDirectory" value="${argeo.localrepo.home}" />
+		<property name="configuration" value="${argeo.localrepo.configuration}" />
+		<property name="variables" value="osgibundle:/localrepo.properties" />
 		<property name="namespaces">
 			<map>
 				<entry key="argeo" value="http://www.argeo.org/argeo" />
