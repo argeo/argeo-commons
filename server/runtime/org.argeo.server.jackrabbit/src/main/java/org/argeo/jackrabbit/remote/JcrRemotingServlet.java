@@ -1,4 +1,4 @@
-package org.argeo.jackrabbit.webdav;
+package org.argeo.jackrabbit.remote;
 
 import javax.jcr.Repository;
 import javax.jcr.SimpleCredentials;

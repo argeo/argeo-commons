@@ -1,4 +1,4 @@
-package org.argeo.jackrabbit.webdav;
+package org.argeo.jackrabbit.remote;
 
 import java.util.Enumeration;
 import java.util.Properties;

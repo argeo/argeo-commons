@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.argeo.jackrabbit.webdav;
+package org.argeo.jackrabbit.remote;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
