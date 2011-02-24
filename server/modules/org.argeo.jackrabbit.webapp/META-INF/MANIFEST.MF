@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Webapp
-Bundle-SymbolicName: org.argeo.server.jackrabbit.webapp
+Bundle-SymbolicName: org.argeo.jackrabbit.webapp
 Bundle-Version: 1.0.0.qualifier
-Web-ContextPath: org.argeo.server.jcr.webapp
+Web-ContextPath: org.argeo.jcr.webapp
 Bundle-Vendor: Argeo
 Import-Package: javax.jcr,
  javax.servlet,

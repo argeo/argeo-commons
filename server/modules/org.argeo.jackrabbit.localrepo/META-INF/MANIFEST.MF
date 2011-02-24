@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Repo
-Bundle-SymbolicName: org.argeo.server.jackrabbit.repo
+Bundle-Name: Jackrabbit Local Repository
+Bundle-SymbolicName: org.argeo.jackrabbit.localrepo
 Bundle-Version: 0.2.3.SNAPSHOT
 Import-Package: javax.jcr,
  org.apache.jackrabbit.core,

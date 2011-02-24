@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.argeo.server.jackrabbit.repo</name>
+	<name>org.argeo.jackrabbit.webapp</name>
 	<comment></comment>
 	<projects>
 	</projects>
