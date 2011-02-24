@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="jcrExplorerPerspective">
+         <view
+               relative="upperLeft"
+               relationship="stack"
+               id="browserView">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.argeo.eclipse.ui.jcr.explorer.JcrExplorerPerspective"
+            icon="icons/nodes.gif"
+            id="jcrExplorerPerspective"
+            name="JCR Explorer">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+	   <view
+	         class="org.argeo.eclipse.spring.SpringExtensionFactory"
+	         id="browserView"
+	         name="Browser">
+	   </view>
+   </extension>
+   <extension
+           point="org.eclipse.ui.editors">
+	     <editor
+	          class="org.argeo.eclipse.spring.SpringExtensionFactory"
+              id="genericJcrQueryEditor"
+              name="JCR Query"
+              icon="icons/nodes.gif"
+              default="false">
+        </editor>
+     </extension>
+   	<extension
+         point="org.eclipse.ui.commands">
+		<command
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            id="openGenericJcrQueryEditor"
+            name="OpenGenericJcrQueryEditor ">
+    	</command>
+    </extension>
+	<extension
+         id="menu:org.eclipse.ui.main.menu"
+         point="org.eclipse.ui.menus">
+        <!-- Queries --> 
+		<menuContribution
+                allPopups="false"
+                locationURI="menu:org.eclipse.ui.main.menu?after=edit">
+        	<menu label="Queries"
+              mnemonic="Queries"
+              id="queryMenu">
+                <command
+                      commandId="openGenericJcrQueryEditor"
+                      disabledIcon="icons/saveDisabled.gif"
+                      icon="icons/results.gif"
+                      label="JCR Query"
+                      style="push"
+                      tooltip="Open JCR query editor">
+                </command>
+             </menu>
+          </menuContribution>
+	</extension>
+</plugin>
