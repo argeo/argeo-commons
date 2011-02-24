@@ -10,8 +10,7 @@
 	<name>Commons Eclipse plugins</name>
 	<packaging>pom</packaging>
 	<modules>
-		<module>org.argeo.eclipse.ui</module>
-		<module>org.argeo.eclipse.ui.jcr</module>
+		<module>org.argeo.eclipse.ui.jcr.explorer</module>
 	</modules>
 	<build>
 		<resources>
@@ -28,26 +27,8 @@
 		</resources>
 		<plugins>
 			<plugin>
-				<artifactId>maven-clean-plugin</artifactId>
-				<configuration>
-					<filesets>
-						<fileset>
-							<directory>META-INF</directory>
-							<includes>
-								<include>MANIFEST.MF</include>
-							</includes>
-						</fileset>
-					</filesets>
-				</configuration>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifestFile>META-INF/MANIFEST.MF</manifestFile>
-					</archive>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -56,24 +37,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<version>${version.maven-bundle-plugin}</version>
-				<extensions>true</extensions>
-				<configuration>
-					<manifestLocation>META-INF</manifestLocation>
-				</configuration>
-				<executions>
-					<execution>
-						<id>bundle-manifest</id>
-						<phase>process-classes</phase>
-						<goals>
-							<goal>manifest</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>

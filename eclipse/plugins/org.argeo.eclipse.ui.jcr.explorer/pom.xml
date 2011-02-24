@@ -9,60 +9,10 @@
 	<artifactId>org.argeo.eclipse.ui.jcr.explorer</artifactId>
 	<name>Commons JCR Explorer</name>
 	<packaging>jar</packaging>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<version>${version.maven-bundle-plugin}</version>
-				<configuration>
-					<instructions>
-						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
-						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
-						<Import-Package>
-							org.eclipse.swt,
-							*
-						</Import-Package>
-					</instructions>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 	<dependencies>
-
-		<!-- Argeo Eclipse distribution (common dependencies for both RAP and RCP) -->
 		<dependency>
 			<groupId>org.argeo.commons.eclipse</groupId>
-			<artifactId>org.argeo.eclipse.dep.common</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.argeo.commons.eclipse</groupId>
-			<artifactId>org.argeo.eclipse.ui</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
-		</dependency>
-
-		<!-- JCR -->
-		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.jcr</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.jcr</artifactId>
+			<artifactId>org.argeo.eclipse.ui.jucr</artifactId>
 			<version>0.2.3-SNAPSHOT</version>
 		</dependency>
 
@@ -72,19 +22,6 @@
 			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
 			<version>0.2.3-SNAPSHOT</version>
 			<scope>provided</scope>
-		</dependency>
-
-		<!-- Argeo Commons -->
-		<dependency>
-			<groupId>org.argeo.commons.basic</groupId>
-			<artifactId>org.argeo.basic.nodeps</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
-		</dependency>
-
-		<!-- Logging -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>com.springsource.slf4j.org.apache.commons.logging</artifactId>
 		</dependency>
 	</dependencies>
 </project>
