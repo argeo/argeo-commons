@@ -12,18 +12,21 @@
 		</property>
 	</bean>
 
-	<bean id="remoteJcrRepository" class="org.argeo.server.jackrabbit.JackrabbitContainer">
+	<bean id="localJcrRepository" class="org.argeo.jackrabbit.JackrabbitContainer">
 		<property name="uri"
 			value="http://localhost:7070/org.argeo.server.jcr.webapp/remoting/repo" />
-<!--		<property name="namespaces">-->
-<!--			<map>-->
-<!--				<entry key="slc" value="http://www.argeo.org/slc" />-->
-<!--			</map>-->
-<!--		</property>-->
-<!--		<property name="cndFiles">-->
-<!--			<list>-->
-<!--				<value>classpath:/org/argeo/slc/repo/repo.cnd</value>-->
-<!--			</list>-->
-<!--		</property>-->
+		<property name="homeDirectory" value="${slc.jackrabbit.home}" />
+		<property name="configuration" value="${slc.jackrabbit.configuration}" />
+		<property name="variables" value="osgibundle:/jackrabbit.properties" />
+		<property name="namespaces">
+			<map>
+				<entry key="argeo" value="http://www.argeo.org/argeo" />
+			</map>
+		</property>
+		<property name="cndFiles">
+			<list>
+				<value>classpath:/org/argeo/jcr/argeo.cnd</value>
+			</list>
+		</property>
 	</bean>
 </beans>

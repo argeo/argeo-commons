@@ -8,7 +8,7 @@
 
 	<service ref="remoteJcrRepository" interface="javax.jcr.Repository">
 		<service-properties>
-			<beans:entry key="argeo.jcr.repository.name" value="remote_repo" />
+			<beans:entry key="argeo.jcr.repository.name" value="local" />
 		</service-properties>
 	</service>
 

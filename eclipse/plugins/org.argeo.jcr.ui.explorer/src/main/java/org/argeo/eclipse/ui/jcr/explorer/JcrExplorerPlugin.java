@@ -6,23 +6,26 @@ import org.osgi.framework.BundleContext;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class JcrExplorerActivator extends AbstractUIPlugin {
+public class JcrExplorerPlugin extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.argeo.eclipse.ui.jcr.explorer"; //$NON-NLS-1$
+	public static final String ID = "org.argeo.jcr.ui.explorer"; //$NON-NLS-1$
 
 	// The shared instance
-	private static JcrExplorerActivator plugin;
-	
+	private static JcrExplorerPlugin plugin;
+
 	/**
 	 * The constructor
 	 */
-	public JcrExplorerActivator() {
+	public JcrExplorerPlugin() {
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
+	 * 
+	 * @see
+	 * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
+	 * )
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
@@ -31,7 +34,10 @@ public class JcrExplorerActivator extends AbstractUIPlugin {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
+	 * 
+	 * @see
+	 * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
+	 * )
 	 */
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
@@ -40,10 +46,10 @@ public class JcrExplorerActivator extends AbstractUIPlugin {
 
 	/**
 	 * Returns the shared instance
-	 *
+	 * 
 	 * @return the shared instance
 	 */
-	public static JcrExplorerActivator getDefault() {
+	public static JcrExplorerPlugin getDefault() {
 		return plugin;
 	}
 

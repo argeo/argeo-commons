@@ -1,0 +1,9 @@
+<argeo = 'http://www.argeo.org/argeo'>
+
+// HOME DIRECTORIES
+[argeo:home] > nt:base, mix:created, mix:lastModified
++ * (argeo:userHome) *
+
+[argeo:userHome] > mix:created, mix:lastModified
+mixin
+- argeo:userId (STRING)

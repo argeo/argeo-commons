@@ -2,22 +2,11 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="org.eclipse.ui.perspectiveExtensions">
-      <perspectiveExtension
-            targetID="jcrExplorerPerspective">
-         <view
-               relative="upperLeft"
-               relationship="stack"
-               id="browserView">
-         </view>
-      </perspectiveExtension>
-   </extension>
-   <extension
          point="org.eclipse.ui.perspectives">
       <perspective
             class="org.argeo.eclipse.ui.jcr.explorer.JcrExplorerPerspective"
             icon="icons/nodes.gif"
-            id="jcrExplorerPerspective"
+            id="org.argeo.jcr.ui.explorer.perspective"
             name="JCR Explorer">
       </perspective>
    </extension>
@@ -25,15 +14,15 @@
          point="org.eclipse.ui.views">
 	   <view
 	         class="org.argeo.eclipse.spring.SpringExtensionFactory"
-	         id="browserView"
-	         name="Browser">
+	         id="org.argeo.jcr.ui.explorer.browserView"
+	         name="JCR Browser">
 	   </view>
    </extension>
    <extension
            point="org.eclipse.ui.editors">
 	     <editor
 	          class="org.argeo.eclipse.spring.SpringExtensionFactory"
-              id="genericJcrQueryEditor"
+              id="org.argeo.jcr.ui.explorer.genericJcrQueryEditor"
               name="JCR Query"
               icon="icons/nodes.gif"
               default="false">
@@ -43,7 +32,7 @@
          point="org.eclipse.ui.commands">
 		<command
             defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            id="openGenericJcrQueryEditor"
+            id="org.argeo.jcr.ui.explorer.openGenericJcrQueryEditor"
             name="OpenGenericJcrQueryEditor ">
     	</command>
     </extension>
@@ -58,7 +47,7 @@
               mnemonic="Queries"
               id="queryMenu">
                 <command
-                      commandId="openGenericJcrQueryEditor"
+                      commandId="org.argeo.jcr.ui.explorer.openGenericJcrQueryEditor"
                       disabledIcon="icons/saveDisabled.gif"
                       icon="icons/results.gif"
                       label="JCR Query"

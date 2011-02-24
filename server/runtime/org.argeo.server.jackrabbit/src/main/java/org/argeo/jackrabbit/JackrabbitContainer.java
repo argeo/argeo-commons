@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.argeo.server.jackrabbit;
+package org.argeo.jackrabbit;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -92,10 +92,7 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 			cnds.add(arr);
 		}
 
-		if (uri != null) {
-			// Thread.currentThread().setContextClassLoader(
-			// getClass().getClassLoader());
-			// repository = JcrUtils.getRepository(uri);
+		if (uri != null && !uri.trim().equals("")) {
 			Map<String, String> params = new HashMap<String, String>();
 			params.put(JcrUtils.REPOSITORY_URI, uri);
 			repository = new Jcr2davRepositoryFactory().getRepository(params);

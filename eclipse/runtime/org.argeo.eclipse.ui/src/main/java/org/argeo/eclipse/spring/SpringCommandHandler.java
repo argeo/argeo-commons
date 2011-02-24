@@ -48,6 +48,13 @@ public class SpringCommandHandler implements IHandler {
 
 			// retrieve the command via its id
 			String beanName = event.getCommand().getId();
+
+			if (!applicationContext.containsBean(beanName)) {
+				if (beanName.startsWith(bundleSymbolicName))
+					beanName = beanName
+							.substring(bundleSymbolicName.length() + 1);
+			}
+
 			if (!applicationContext.containsBean(beanName))
 				throw new ExecutionException("No bean found with name "
 						+ beanName + " in bundle " + bundleSymbolicName);
@@ -62,7 +69,7 @@ public class SpringCommandHandler implements IHandler {
 			return handler.execute(event);
 		} catch (Exception e) {
 			// TODO: use eclipse error management
-//			log.error(e);
+			// log.error(e);
 			throw new ExecutionException("Cannot execute Spring command "
 					+ commandId + " in bundle " + bundleSymbolicName, e);
 		}

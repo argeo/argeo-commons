@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.argeo.server.jackrabbit.webdav;
+package org.argeo.jackrabbit.webdav;
 
 import java.io.IOException;
 
