@@ -1,5 +1,6 @@
 package org.argeo.eclipse.ui.jcr.explorer;
 
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -51,6 +52,10 @@ public class JcrExplorerPlugin extends AbstractUIPlugin {
 	 */
 	public static JcrExplorerPlugin getDefault() {
 		return plugin;
+	}
+
+	public static ImageDescriptor getImageDescriptor(String path) {
+		return imageDescriptorFromPlugin(ID, path);
 	}
 
 }

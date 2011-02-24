@@ -11,7 +11,7 @@
 		</property>
 	</bean>
 
-	<bean id="localJcrRepository" class="org.argeo.jackrabbit.JackrabbitContainer">
+	<bean id="nodeJcrRepository" class="org.argeo.jackrabbit.JackrabbitContainer">
 		<property name="uri" value="${argeo.node.repo.uri}" />
 		<property name="homeDirectory" value="${argeo.node.repo.home}" />
 		<property name="configuration" value="${argeo.node.repo.configuration}" />
@@ -27,4 +27,10 @@
 			</list>
 		</property>
 	</bean>
+
+	<bean id="nodeJcrSession" class="org.argeo.jcr.ThreadBoundJcrSessionFactory">
+		<property name="repository" ref="nodeJcrRepository" />
+		<property name="workspace" value="${argeo.node.repo.workspace}" />
+	</bean>
+
 </beans>

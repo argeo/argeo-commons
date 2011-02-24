@@ -9,7 +9,18 @@
        http://www.springframework.org/schema/util
        http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
-	<service ref="localJcrRepository" interface="javax.jcr.Repository">
+	<service ref="nodeJcrRepository" interface="javax.jcr.Repository">
+		<service-properties>
+			<beans:entry value="node">
+				<beans:key>
+					<util:constant
+						static-field="org.argeo.jcr.ArgeoJcrConstants.JCR_REPOSITORY_ALIAS" />
+				</beans:key>
+			</beans:entry>
+		</service-properties>
+	</service>
+
+	<service ref="nodeJcrSession" interface="javax.jcr.Session">
 		<service-properties>
 			<beans:entry value="node">
 				<beans:key>

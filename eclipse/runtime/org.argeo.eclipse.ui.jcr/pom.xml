@@ -34,6 +34,7 @@
 							org.eclipse.swt,
 							*
 						</Import-Package>
+						<Require-Bundle>org.eclipse.ui;resolution:=optional,org.eclipse.rap.ui;resolution:=optional,org.eclipse.core.runtime</Require-Bundle>
 					</instructions>
 				</configuration>
 			</plugin>

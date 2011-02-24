@@ -239,22 +239,22 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 
 				if (true)
 					return;
-				try {
-
-					comparator.setColumn(index);
-					int dir = viewer.getTable().getSortDirection();
-					if (viewer.getTable().getSortColumn() == column) {
-						dir = dir == SWT.UP ? SWT.DOWN : SWT.UP;
-					} else {
-
-						dir = SWT.DOWN;
-					}
-					viewer.getTable().setSortDirection(dir);
-					viewer.getTable().setSortColumn(column);
-					viewer.refresh();
-				} catch (Exception exc) {
-					exc.printStackTrace();
-				}
+//				try {
+//
+//					comparator.setColumn(index);
+//					int dir = viewer.getTable().getSortDirection();
+//					if (viewer.getTable().getSortColumn() == column) {
+//						dir = dir == SWT.UP ? SWT.DOWN : SWT.UP;
+//					} else {
+//
+//						dir = SWT.DOWN;
+//					}
+//					viewer.getTable().setSortDirection(dir);
+//					viewer.getTable().setSortColumn(column);
+//					viewer.refresh();
+//				} catch (Exception exc) {
+//					exc.printStackTrace();
+//				}
 			}
 		};
 		return selectionAdapter;

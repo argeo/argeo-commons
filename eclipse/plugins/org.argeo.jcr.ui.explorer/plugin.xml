@@ -13,9 +13,10 @@
    <extension
          point="org.eclipse.ui.views">
 	   <view
-	         class="org.argeo.eclipse.spring.SpringExtensionFactory"
-	         id="org.argeo.jcr.ui.explorer.browserView"
-	         name="JCR Browser">
+          class="org.argeo.eclipse.spring.SpringExtensionFactory"
+          icon="icons/browser.gif"
+          id="org.argeo.jcr.ui.explorer.browserView"
+          name="JCR Browser">
 	   </view>
    </extension>
    <extension
@@ -24,7 +25,7 @@
 	          class="org.argeo.eclipse.spring.SpringExtensionFactory"
               id="org.argeo.jcr.ui.explorer.genericJcrQueryEditor"
               name="JCR Query"
-              icon="icons/nodes.gif"
+              icon="icons/query.png"
               default="false">
         </editor>
      </extension>
@@ -33,28 +34,73 @@
 		<command
             defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
             id="org.argeo.jcr.ui.explorer.openGenericJcrQueryEditor"
-            name="OpenGenericJcrQueryEditor ">
+            name="New generic JCR query">
     	</command>
+  <command
+        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+        id="org.argeo.jcr.ui.explorer.addFileFolder"
+        name="Add file folder...">
+  </command>
+  <command
+        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+        id="org.argeo.jcr.ui.explorer.initUserHome"
+        name="Initialize user home">
+  </command>
+  <command
+        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+        id="org.argeo.jcr.ui.explorer.refresh"
+        name="Refresh">
+  </command>
+  <command
+        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+        id="org.argeo.jcr.ui.explorer.deleteNode"
+        name="Delete node">
+  </command>
+  <command
+        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+        id="org.argeo.jcr.ui.explorer.importFileSystem"
+        name="Import files...">
+  </command>
     </extension>
-	<extension
-         id="menu:org.eclipse.ui.main.menu"
-         point="org.eclipse.ui.menus">
-        <!-- Queries --> 
+	<extension point="org.eclipse.ui.menus">
 		<menuContribution
                 allPopups="false"
-                locationURI="menu:org.eclipse.ui.main.menu?after=edit">
-        	<menu label="Queries"
-              mnemonic="Queries"
-              id="queryMenu">
+                locationURI="menu:org.argeo.jcr.ui.explorer.browserView">
                 <command
                       commandId="org.argeo.jcr.ui.explorer.openGenericJcrQueryEditor"
-                      disabledIcon="icons/saveDisabled.gif"
-                      icon="icons/results.gif"
-                      label="JCR Query"
-                      style="push"
-                      tooltip="Open JCR query editor">
+                      icon="icons/query.png"
+                      style="push">
                 </command>
-             </menu>
+			     <command
+			           commandId="org.argeo.jcr.ui.explorer.initUserHome"
+			           style="push"
+			           tooltip="Initializes the user specific area within this node">
+			     </command>
           </menuContribution>
+  <menuContribution
+        allPopups="false"
+        locationURI="popup:org.argeo.jcr.ui.explorer.browserView">
+     <command
+           commandId="org.argeo.jcr.ui.explorer.refresh"
+           icon="icons/refresh.png"
+           style="push">
+     </command>
+     <command
+           commandId="org.argeo.jcr.ui.explorer.addFileFolder"
+           icon="icons/add.gif"
+           style="push">
+     </command>
+     <command
+           commandId="org.argeo.jcr.ui.explorer.deleteNode"
+           icon="icons/remove.gif"
+           style="push">
+     </command>
+     <command
+           commandId="org.argeo.jcr.ui.explorer.importFileSystem"
+           icon="icons/import_fs.png"
+           style="push"
+           tooltip="Import files from the files sytem to the repository">
+     </command>
+  </menuContribution>
 	</extension>
 </plugin>
