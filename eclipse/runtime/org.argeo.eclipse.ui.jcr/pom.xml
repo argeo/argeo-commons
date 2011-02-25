@@ -86,5 +86,6 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>com.springsource.slf4j.org.apache.commons.logging</artifactId>
 		</dependency>
+		
 	</dependencies>
 </project>

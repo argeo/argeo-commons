@@ -30,12 +30,11 @@
 				<configuration>
 					<instructions>
 						<Export-Package>
-							org.argeo.jcr.*,
-							org.argeo.server.jackrabbit.*,
-							org.argeo.server.jcr.*
+							org.argeo.jackrabbit.*,
 						</Export-Package>
 						<Import-Package>
 							org.xml.sax;version="0.0.0",
+							org.apache.jackrabbit.webdav.jcr,
 							org.springframework.security.providers.jaas;resolution:="optional",
 							junit.framework;resolution:="optional",
 							*

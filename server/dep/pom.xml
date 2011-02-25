@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
@@ -12,10 +13,41 @@
 	<name>Commons Server Dependencies</name>
 	<packaging>pom</packaging>
 	<modules>
+		<module>org.argeo.server.dep.javax</module>
 		<module>org.argeo.server.dep.tomcat</module>
 		<module>org.argeo.server.dep.ads</module>
 		<module>org.argeo.server.dep.hibernate</module>
 		<module>org.argeo.server.dep.jackrabbit.server</module>
 		<module>org.argeo.server.dep.activemq</module>
 	</modules>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.argeo.maven.plugins</groupId>
+				<artifactId>maven-argeo-osgi-plugin</artifactId>
+				<version>${version.maven-argeo-osgi}</version>
+				<executions>
+					<execution>
+						<id>check-osgi</id>
+						<phase>test</phase>
+						<goals>
+							<goal>equinox</goal>
+						</goals>
+						<configuration>
+							<onlyCheck>true</onlyCheck>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<!-- OSGi test -->
+		<dependency>
+			<groupId>org.argeo.commons.osgi</groupId>
+			<artifactId>org.argeo.osgi.boot</artifactId>
+			<version>0.2.3-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 </project>

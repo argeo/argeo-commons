@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="SecureRCP" application="org.argeo.security.ui.application.secureUi" useFeatures="false" includeLaunchers="true">
+<product application="org.argeo.security.ui.application.secureUi" useFeatures="false" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
 
    <launcherArgs>
-      <programArgs>-console -clean</programArgs>
-      <vmArgs>-Dlog4j.configuration=file:${system_property:user.home}/dev/src/commons/security/eclipse/plugins/org.argeo.security.ui.application/log4j.properties</vmArgs>
+      <vmArgs>-Dlog4j.configuration=file:${system_property:user.home}/dev/src/commons/eclipse/plugins/org.argeo.jcr.ui.explorer/log4j.properties</vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
@@ -25,17 +24,40 @@
    <plugins>
       <plugin id="com.ibm.icu"/>
       <plugin id="com.springsource.antlr"/>
+      <plugin id="com.springsource.com.mysql.jdbc"/>
+      <plugin id="com.springsource.com.sun.syndication"/>
       <plugin id="com.springsource.edu.emory.mathcs.backport"/>
+      <plugin id="com.springsource.edu.oswego.cs.dl.util.concurrent"/>
+      <plugin id="com.springsource.javax.activation"/>
+      <plugin id="com.springsource.javax.annotation"/>
+      <plugin id="com.springsource.javax.ejb"/>
+      <plugin id="com.springsource.javax.el"/>
+      <plugin id="com.springsource.javax.mail"/>
+      <plugin id="com.springsource.javax.management.j2ee"/>
+      <plugin id="com.springsource.javax.persistence"/>
       <plugin id="com.springsource.javax.servlet"/>
+      <plugin id="com.springsource.javax.servlet.jsp"/>
+      <plugin id="com.springsource.javax.servlet.jsp.jstl"/>
+      <plugin id="com.springsource.javax.transaction"/>
+      <plugin id="com.springsource.javax.xml.bind"/>
+      <plugin id="com.springsource.javax.xml.rpc"/>
+      <plugin id="com.springsource.javax.xml.soap"/>
       <plugin id="com.springsource.javax.xml.stream"/>
+      <plugin id="com.springsource.javax.xml.ws"/>
       <plugin id="com.springsource.jdbm"/>
       <plugin id="com.springsource.junit"/>
       <plugin id="com.springsource.org.aopalliance"/>
+      <plugin id="com.springsource.org.apache.catalina"/>
       <plugin id="com.springsource.org.apache.commons.codec"/>
       <plugin id="com.springsource.org.apache.commons.collections"/>
+      <plugin id="com.springsource.org.apache.commons.compress"/>
+      <plugin id="com.springsource.org.apache.commons.dbcp"/>
+      <plugin id="com.springsource.org.apache.commons.fileupload"/>
+      <plugin id="com.springsource.org.apache.commons.httpclient"/>
       <plugin id="com.springsource.org.apache.commons.io"/>
       <plugin id="com.springsource.org.apache.commons.lang"/>
       <plugin id="com.springsource.org.apache.commons.pool"/>
+      <plugin id="com.springsource.org.apache.coyote" fragment="true"/>
       <plugin id="com.springsource.org.apache.directory.server.changepw"/>
       <plugin id="com.springsource.org.apache.directory.server.core" fragment="true"/>
       <plugin id="com.springsource.org.apache.directory.server.core.shared"/>
@@ -47,31 +69,72 @@
       <plugin id="com.springsource.org.apache.directory.server.protocol.shared"/>
       <plugin id="com.springsource.org.apache.directory.shared.asn1"/>
       <plugin id="com.springsource.org.apache.directory.shared.ldap"/>
+      <plugin id="com.springsource.org.apache.el"/>
+      <plugin id="com.springsource.org.apache.jasper" fragment="true"/>
+      <plugin id="com.springsource.org.apache.jasper.org.eclipse.jdt"/>
+      <plugin id="com.springsource.org.apache.juli.extras"/>
       <plugin id="com.springsource.org.apache.log4j"/>
+      <plugin id="com.springsource.org.apache.lucene"/>
       <plugin id="com.springsource.org.apache.mina"/>
+      <plugin id="com.springsource.org.apache.regexp"/>
+      <plugin id="com.springsource.org.apache.taglibs.standard"/>
       <plugin id="com.springsource.org.apache.ws.commons.schema"/>
+      <plugin id="com.springsource.org.apache.xalan"/>
+      <plugin id="com.springsource.org.apache.xerces" fragment="true"/>
+      <plugin id="com.springsource.org.apache.xml.resolver"/>
+      <plugin id="com.springsource.org.apache.xml.serializer"/>
+      <plugin id="com.springsource.org.apache.xmlbeans"/>
+      <plugin id="com.springsource.org.apache.xmlcommons"/>
       <plugin id="com.springsource.org.codehaus.jackson"/>
       <plugin id="com.springsource.org.codehaus.jackson.mapper"/>
+      <plugin id="com.springsource.org.cyberneko.html"/>
+      <plugin id="com.springsource.org.dom4j"/>
+      <plugin id="com.springsource.org.h2"/>
+      <plugin id="com.springsource.org.jaxen"/>
+      <plugin id="com.springsource.org.jdom"/>
+      <plugin id="com.springsource.org.objectweb.asm"/>
+      <plugin id="com.springsource.org.postgresql.jdbc3"/>
+      <plugin id="com.springsource.org.xmlpull"/>
       <plugin id="com.springsource.slf4j.api"/>
       <plugin id="com.springsource.slf4j.log4j" fragment="true"/>
       <plugin id="com.springsource.slf4j.org.apache.commons.logging"/>
       <plugin id="org.argeo.basic.nodeps"/>
+      <plugin id="org.argeo.dep.osgi.boilerpipe"/>
+      <plugin id="org.argeo.dep.osgi.bouncycastle.jdk15"/>
+      <plugin id="org.argeo.dep.osgi.catalina.start"/>
       <plugin id="org.argeo.dep.osgi.directory.shared.asn.codec" fragment="true"/>
+      <plugin id="org.argeo.dep.osgi.drewnoakes.metadata_extractor"/>
+      <plugin id="org.argeo.dep.osgi.jackrabbit"/>
+      <plugin id="org.argeo.dep.osgi.jcr"/>
       <plugin id="org.argeo.dep.osgi.mina.filter.ssl" fragment="true"/>
+      <plugin id="org.argeo.dep.osgi.netcdf"/>
+      <plugin id="org.argeo.dep.osgi.pdfbox"/>
+      <plugin id="org.argeo.dep.osgi.poi"/>
       <plugin id="org.argeo.dep.osgi.springframework.ldap"/>
+      <plugin id="org.argeo.dep.osgi.tagsoup"/>
+      <plugin id="org.argeo.dep.osgi.tika"/>
       <plugin id="org.argeo.eclipse.ui"/>
+      <plugin id="org.argeo.eclipse.ui.jcr"/>
+      <plugin id="org.argeo.jackrabbit.webapp"/>
+      <plugin id="org.argeo.jcr.ui.explorer"/>
+      <plugin id="org.argeo.node.repo.jackrabbit"/>
       <plugin id="org.argeo.security.core"/>
       <plugin id="org.argeo.security.equinox"/>
       <plugin id="org.argeo.security.ldap"/>
       <plugin id="org.argeo.security.manager.ldap"/>
+      <plugin id="org.argeo.security.mvc"/>
       <plugin id="org.argeo.security.services"/>
       <plugin id="org.argeo.security.ui"/>
       <plugin id="org.argeo.security.ui.application"/>
       <plugin id="org.argeo.server.ads"/>
       <plugin id="org.argeo.server.ads.server"/>
+      <plugin id="org.argeo.server.catalina" fragment="true"/>
       <plugin id="org.argeo.server.core"/>
+      <plugin id="org.argeo.server.jackrabbit"/>
+      <plugin id="org.argeo.server.jcr"/>
       <plugin id="org.argeo.server.json"/>
-      <plugin id="org.argeo.slc.demo.log4j" fragment="true"/>
+      <plugin id="org.argeo.server.tika.jackrabbit" fragment="true"/>
+      <plugin id="org.argeo.server.tomcat" fragment="true"/>
       <plugin id="org.eclipse.core.commands"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.databinding"/>
@@ -102,20 +165,26 @@
       <plugin id="org.springframework.osgi.core"/>
       <plugin id="org.springframework.osgi.extender"/>
       <plugin id="org.springframework.osgi.io"/>
+      <plugin id="org.springframework.osgi.web"/>
+      <plugin id="org.springframework.osgi.web.extender"/>
       <plugin id="org.springframework.oxm"/>
       <plugin id="org.springframework.security.core"/>
       <plugin id="org.springframework.transaction"/>
+      <plugin id="org.springframework.web"/>
       <plugin id="org.springframework.web.servlet"/>
       <plugin id="org.springframework.xml"/>
    </plugins>
 
    <configurations>
+      <plugin id="org.argeo.dep.osgi.catalina.start" autoStart="true" startLevel="0" />
+      <plugin id="org.argeo.jackrabbit.webapp" autoStart="true" startLevel="0" />
+      <plugin id="org.argeo.node.repo.jackrabbit" autoStart="true" startLevel="0" />
+      <plugin id="org.argeo.security.equinox" autoStart="true" startLevel="0" />
       <plugin id="org.argeo.security.manager.ldap" autoStart="true" startLevel="0" />
       <plugin id="org.argeo.security.services" autoStart="true" startLevel="0" />
-      <plugin id="org.argeo.security.ui" autoStart="true" startLevel="0" />
       <plugin id="org.argeo.server.ads.server" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.equinox.preferences" autoStart="true" startLevel="0" />
       <plugin id="org.springframework.osgi.extender" autoStart="true" startLevel="0" />
+      <plugin id="org.springframework.osgi.web.extender" autoStart="true" startLevel="0" />
    </configurations>
 
 </product>

@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
@@ -13,14 +14,63 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.dep.ldap</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.ads</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 			<type>pom</type>
 		</dependency>
+
+
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.ads.server</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.services</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.ldap</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.manager.ldap</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.ads</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.dep.osgi</groupId>
+			<artifactId>org.argeo.dep.osgi.springframework.ldap</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.basic</groupId>
+			<artifactId>org.argeo.basic.dep.log4j</artifactId>
+			<version>${version.argeo-commons}</version>
+			<type>pom</type>
+		</dependency>
+		<dependency>
+			<groupId>net.sourceforge.jdbm</groupId>
+			<artifactId>com.springsource.jdbm</artifactId>
+		</dependency>
+
+		<!-- TODO remove it? -->
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.json</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+
 	</dependencies>
 </project>

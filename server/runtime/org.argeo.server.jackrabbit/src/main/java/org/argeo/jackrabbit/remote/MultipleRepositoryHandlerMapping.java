@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.jackrabbit.webdav.jcr.JCRWebdavServerServlet;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.RepositoryRegister;
 import org.springframework.beans.BeansException;
@@ -23,8 +22,8 @@ import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.HandlerMapping;
 
-public class MultipleRepositoryHandlerMapping implements HandlerMapping,
-		ApplicationContextAware, ServletContextAware {
+public abstract class MultipleRepositoryHandlerMapping implements
+		HandlerMapping, ApplicationContextAware, ServletContextAware {
 	private final static Log log = LogFactory
 			.getLog(MultipleRepositoryHandlerMapping.class);
 
@@ -32,6 +31,10 @@ public class MultipleRepositoryHandlerMapping implements HandlerMapping,
 	private ServletContext servletContext;
 
 	private RepositoryRegister repositoryRegister;
+
+	/** Actually creates the servlet to be registered. */
+	protected abstract HttpServlet createServlet(Repository repository,
+			String pathPrefix) throws ServletException;
 
 	public HandlerExecutionChain getHandler(HttpServletRequest request)
 			throws Exception {
@@ -56,19 +59,6 @@ public class MultipleRepositoryHandlerMapping implements HandlerMapping,
 		HttpServlet remotingServlet = (HttpServlet) applicationContext
 				.getBean(beanName);
 		return new HandlerExecutionChain(remotingServlet);
-	}
-
-	protected HttpServlet createServlet(Repository repository, String pathPrefix)
-			throws ServletException {
-		JcrRemotingServlet jcrRemotingServlet = new JcrRemotingServlet(
-				repository);
-		Properties initParameters = new Properties();
-		initParameters.setProperty(
-				JCRWebdavServerServlet.INIT_PARAM_RESOURCE_PATH_PREFIX,
-				pathPrefix);
-		jcrRemotingServlet.init(new DelegatingServletConfig(pathPrefix.replace(
-				'/', '_'), initParameters));
-		return jcrRemotingServlet;
 	}
 
 	/** The repository name is the first part of the path info */
@@ -103,7 +93,7 @@ public class MultipleRepositoryHandlerMapping implements HandlerMapping,
 		this.repositoryRegister = repositoryRegister;
 	}
 
-	private class DelegatingServletConfig implements ServletConfig {
+	protected class DelegatingServletConfig implements ServletConfig {
 		private String name;
 		private Properties initParameters;
 
@@ -125,6 +115,7 @@ public class MultipleRepositoryHandlerMapping implements HandlerMapping,
 			return initParameters.getProperty(paramName);
 		}
 
+		@SuppressWarnings("rawtypes")
 		public Enumeration getInitParameterNames() {
 			return initParameters.keys();
 		}

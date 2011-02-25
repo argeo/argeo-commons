@@ -23,7 +23,7 @@
 	<!-- Remoting -->
 	<servlet>
 		<servlet-name>remoting</servlet-name>
-		<servlet-class>org.argeo.server.jackrabbit.webdav.ExtendedDispatcherServlet</servlet-class>
+		<servlet-class>org.argeo.jackrabbit.remote.ExtendedDispatcherServlet</servlet-class>
 		<init-param>
 			<param-name>contextClass</param-name>
 			<param-value>org.springframework.osgi.web.context.support.OsgiBundleXmlWebApplicationContext</param-value>
