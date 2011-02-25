@@ -11,7 +11,7 @@
 	<osgi:reference id="tomcatServer" interface="org.apache.catalina.Service"
 		cardinality="0..1" timeout="300000" />
 
-	<bean id="warDeployer" class="org.argeo.server.catalina.TomcatDeployer"
+	<bean id="warDeployer" class="org.argeo.server.webextender.TomcatDeployer"
 		p:service-ref="tomcatServer" />
 
 </beans>

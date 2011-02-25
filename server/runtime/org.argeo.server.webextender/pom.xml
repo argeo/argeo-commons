@@ -30,10 +30,9 @@
 				<version>${version.maven-bundle-plugin}</version>
 				<configuration>
 					<instructions>
-
-						<Export-Package>
-							org.argeo.server.*
-						</Export-Package>
+						<Fragment-Host>org.springframework.osgi.web.extender</Fragment-Host>
+						<Export-Package>org.argeo.server.webextender.*</Export-Package>
+						<Import-Package>org.springframework.beans.factory,*</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>
@@ -43,7 +42,15 @@
 		<!-- Spring -->
 		<dependency>
 			<groupId>org.springframework.osgi</groupId>
-			<artifactId>org.springframework.web.extender</artifactId>
+			<artifactId>org.springframework.osgi.web.extender</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.catalina</groupId>
+			<artifactId>com.springsource.org.apache.catalina</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>org.springframework.beans</artifactId>
 		</dependency>
 	</dependencies>
 </project>
