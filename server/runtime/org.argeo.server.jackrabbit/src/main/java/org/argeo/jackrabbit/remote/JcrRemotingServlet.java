@@ -1,7 +1,6 @@
 package org.argeo.jackrabbit.remote;
 
 import javax.jcr.Repository;
-import javax.jcr.SimpleCredentials;
 
 import org.apache.jackrabbit.server.SessionProvider;
 
@@ -11,9 +10,12 @@ public class JcrRemotingServlet extends
 	private static final long serialVersionUID = 3131835511468341309L;
 
 	private final Repository repository;
+	private final SessionProvider sessionProvider;
 
-	public JcrRemotingServlet(Repository repository) {
+	public JcrRemotingServlet(Repository repository,
+			SessionProvider sessionProvider) {
 		this.repository = repository;
+		this.sessionProvider = sessionProvider;
 	}
 
 	@Override
@@ -23,8 +25,7 @@ public class JcrRemotingServlet extends
 
 	@Override
 	protected SessionProvider getSessionProvider() {
-		return new CachingSessionProvider(new SimpleCredentials("demo",
-				"demo".toCharArray()));
+		return sessionProvider;
 	}
 
 }

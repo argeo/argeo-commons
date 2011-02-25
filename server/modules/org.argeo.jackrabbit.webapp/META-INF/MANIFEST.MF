@@ -5,15 +5,20 @@ Bundle-SymbolicName: org.argeo.jackrabbit.webapp
 Bundle-Version: 0.2.3.SNAPSHOT
 Web-ContextPath: org.argeo.jcr.webapp
 Bundle-Vendor: Argeo
+DynamicImport-Package: *
 Import-Package: javax.jcr,
  javax.servlet,
  javax.servlet.http,
  javax.servlet.resources,
+ org.aopalliance.aop;version="1.0.0",
  org.argeo.jackrabbit.remote,
  org.argeo.jcr,
  org.argeo.jcr.mvc,
  org.argeo.server.json,
  org.argeo.server.mvc,
+ org.springframework.aop;version="2.5.6.SEC01",
+ org.springframework.aop.framework;version="2.5.6.SEC01",
+ org.springframework.aop.scope;version="2.5.6.SEC01",
  org.springframework.osgi.web.context.support;version="1.2.1",
  org.springframework.security;version="2.0.6.RELEASE",
  org.springframework.security.ui.webapp;version="2.0.6.RELEASE",

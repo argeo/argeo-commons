@@ -34,6 +34,8 @@
 						</Export-Package>
 						<Import-Package>
 							javax.servlet,
+							org.apache.jackrabbit.webdav.server,
+							org.springframework.web.context,
 							org.xml.sax;version="0.0.0",
 							org.apache.jackrabbit.webdav.jcr,
 							org.springframework.security.providers.jaas;resolution:="optional",
