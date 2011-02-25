@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.argeo.server.jcr.mvc;
+package org.argeo.jcr.mvc;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;

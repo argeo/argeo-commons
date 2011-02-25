@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.argeo.server.jcr.mvc;
+package org.argeo.jcr.mvc;
 
 public interface JcrMvcConstants {
 	public final static String REQUEST_ATTR_SESSION = "jcrSession";
