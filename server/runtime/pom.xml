@@ -19,6 +19,7 @@
 		<module>org.argeo.server.hibernate</module>
 		<module>org.argeo.server.ads</module>
 		<module>org.argeo.server.jcr</module>
+		<module>org.argeo.server.jcr.mvc</module>
 		<module>org.argeo.server.jackrabbit</module>
 		<module>org.argeo.server.modeshape</module>
 	</modules>

@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
@@ -60,16 +61,15 @@
 			<version>0.2.3-SNAPSHOT</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.core</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
-		</dependency>
-
 		<!-- JCR -->
 		<dependency>
 			<groupId>org.argeo.dep.osgi</groupId>
 			<artifactId>org.argeo.dep.osgi.jcr</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>com.springsource.org.apache.commons.io</artifactId>
 		</dependency>
 
 		<!-- Spring -->
@@ -78,21 +78,6 @@
 			<artifactId>org.springframework.beans</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.web.servlet</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>org.springframework.security.core</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.ws</groupId>
-			<artifactId>org.springframework.xml</artifactId>
-		</dependency>
-		
 		<!-- OSGi -->
 		<dependency>
 			<groupId>org.eclipse.osgi</groupId>
@@ -104,11 +89,6 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>com.springsource.slf4j.org.apache.commons.logging</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>com.springsource.org.apache.commons.fileupload</artifactId>
 		</dependency>
 
 		<dependency>
