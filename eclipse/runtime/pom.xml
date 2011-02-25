@@ -7,7 +7,7 @@
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>runtime</artifactId>
-	<name>Commons Eclipse runtime</name>
+	<name>Commons Eclipse Runtime</name>
 	<packaging>pom</packaging>
 	<modules>
 		<module>org.argeo.eclipse.ui</module>

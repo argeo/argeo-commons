@@ -8,7 +8,7 @@
 	</parent>
 	<artifactId>org.argeo.basic.dep.log4j</artifactId>
 	<packaging>pom</packaging>
-	<name>Apache Log4j (SLF4J)</name>
+	<name>Commons Apache Log4j (SLF4J) Dependencies</name>
 	<dependencies>
 		<dependency>
 			<groupId>org.slf4j</groupId>

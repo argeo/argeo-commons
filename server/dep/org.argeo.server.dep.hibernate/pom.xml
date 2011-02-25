@@ -8,7 +8,7 @@
 	</parent>
 	<artifactId>org.argeo.server.dep.hibernate</artifactId>
 	<packaging>pom</packaging>
-	<name>Dep Hibernate</name>
+	<name>Commons Hibernate Dependencies</name>
 	<dependencies>
 		<!--  Commons Dep -->
 		<dependency>

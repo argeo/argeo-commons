@@ -52,5 +52,9 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>org.springframework.beans</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>com.springsource.slf4j.org.apache.commons.logging</artifactId>
+		</dependency>
 	</dependencies>
 </project>

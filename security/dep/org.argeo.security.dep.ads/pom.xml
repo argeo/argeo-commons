@@ -9,7 +9,7 @@
 	</parent>
 	<artifactId>org.argeo.security.dep.ads</artifactId>
 	<packaging>pom</packaging>
-	<name>Dep Security Apache Directory Server</name>
+	<name>Commons Security ADS Dependencies</name>
 	<dependencies>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>

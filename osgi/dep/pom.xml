@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>org.argeo.commons.osgi</groupId>
 	<artifactId>dep</artifactId>
-	<name>Commons Server Dependencies</name>
+	<name>Commons OSGi Dependencies</name>
 	<packaging>pom</packaging>
 	<modules>
 		<module>org.argeo.osgi.dep.stdruntime</module>

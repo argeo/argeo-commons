@@ -9,7 +9,7 @@
 	</parent>
 	<artifactId>org.argeo.server.dep.tomcat</artifactId>
 	<packaging>pom</packaging>
-	<name>Dep Apache Tomcat</name>
+	<name>Commons Tomcat Dependencies</name>
 	<dependencies>
 		<!-- Commons Dep -->
 		<dependency>

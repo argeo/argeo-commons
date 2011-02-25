@@ -9,7 +9,7 @@
 	</parent>
 	<artifactId>org.argeo.server.dep.javax</artifactId>
 	<packaging>pom</packaging>
-	<name>Dep Javax</name>
+	<name>Commons Provided Javax Dependencies</name>
 	<description>Component provided by Java 6</description>
 	<dependencies>
 		<dependency>

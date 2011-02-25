@@ -8,7 +8,7 @@
 	</parent>
 	<artifactId>org.argeo.osgi.dep.stdruntime</artifactId>
 	<packaging>pom</packaging>
-	<name>Dep OSGi Runtime</name>
+	<name>Commons OSGi Standard Runtime Dependencies</name>
 	<dependencies>
 		<!-- OSGi Boot (and Equinox) -->
 		<dependency>

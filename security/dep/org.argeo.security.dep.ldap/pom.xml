@@ -8,7 +8,7 @@
 	</parent>
 	<artifactId>org.argeo.security.dep.ldap</artifactId>
 	<packaging>pom</packaging>
-	<name>Dep Security LDAP</name>
+	<name>Commons Security LDAP Dependencies</name>
 	<dependencies>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>

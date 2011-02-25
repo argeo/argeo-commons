@@ -9,7 +9,7 @@
 	</parent>
 	<artifactId>org.argeo.server.dep.jackrabbit.server</artifactId>
 	<packaging>pom</packaging>
-	<name>Dep Jack Rabbit Server</name>
+	<name>Commons Jackrabbit Dependencies</name>
 	<dependencies>
 		<dependency>
 			<groupId>org.argeo.dep.osgi</groupId>
