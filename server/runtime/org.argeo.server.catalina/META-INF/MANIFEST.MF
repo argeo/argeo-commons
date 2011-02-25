@@ -15,5 +15,7 @@ Import-Package: org.apache.catalina;version="6.0.24",
  org.osgi.service.url;version="1.0.0",
  org.springframework.aop;version="2.5.6.SEC01",
  org.springframework.beans.factory;version="2.5.6.SEC01",
+ org.springframework.osgi.context;version="1.2.1",
  org.springframework.osgi.web.deployer;version="1.2.1",
  org.springframework.osgi.web.deployer.tomcat;version="1.2.1"
+Export-Package: org.argeo.server.catalina
