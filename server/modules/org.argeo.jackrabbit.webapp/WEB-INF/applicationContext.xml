@@ -12,4 +12,9 @@
 
 	<bean id="repositoryRegister" class="org.argeo.jcr.DefaultRepositoryRegister" />
 
+	<bean id="osivInterceptor"
+		class="org.argeo.jcr.mvc.OpenSessionInViewJcrInterceptor">
+<!--		<property name="session" ref="jcrSession" />-->
+	</bean>
+
 </beans>

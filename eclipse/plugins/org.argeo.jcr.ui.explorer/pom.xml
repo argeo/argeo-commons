@@ -114,6 +114,12 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.jcr.mvc</artifactId>
+			<version>${version.argeo-commons}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.jackrabbit.server</artifactId>
 			<version>${version.argeo-commons}</version>
 			<type>pom</type>

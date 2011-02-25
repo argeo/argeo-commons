@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+
+	<context:component-scan base-package="org.argeo.jcr.mvc" />
+
+	<bean name="**" class="org.argeo.jcr.mvc.JcrManagerController">
+	</bean>
+
+	<bean id="viewResolver" class="org.argeo.server.mvc.SerializingViewResolver">
+		<property name="serializer" ref="serverMapper" />
+	</bean>
+
+	<bean id="serverMapper" class="org.argeo.server.json.JsonServerMapper">
+	</bean>
+
+	<bean class="org.argeo.server.mvc.DefaultHandlerExceptionResolver" />
+
+	<bean id="handlerMapping"
+		class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping">
+		<property name="interceptors">
+			<list>
+				<ref bean="osivInterceptor" />
+			</list>
+		</property>
+	</bean>
+
+</beans>
