@@ -1,4 +1,4 @@
-package org.argeo.jackrabbit.remote;
+package org.argeo.jcr.mvc;
 
 import java.util.Enumeration;
 import java.util.Properties;

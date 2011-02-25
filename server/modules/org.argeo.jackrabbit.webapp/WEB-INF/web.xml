@@ -40,7 +40,7 @@
 		<url-pattern>/remoting/*</url-pattern>
 	</servlet-mapping>
 
-	<!-- XML rmeoting -->
+	<!-- XML remoting -->
 	<servlet>
 		<servlet-name>xmlremoting</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
@@ -72,7 +72,7 @@
 
 	<servlet-mapping>
 		<servlet-name>webdav</servlet-name>
-		<url-pattern>/default/*</url-pattern>
+		<url-pattern>/webdav/*</url-pattern>
 	</servlet-mapping>
 
 	<!-- JCR-MANAGER servlet -->

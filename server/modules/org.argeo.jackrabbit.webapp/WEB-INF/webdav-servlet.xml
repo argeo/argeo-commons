@@ -7,11 +7,6 @@
        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
 
-	<bean id="webdavServlet" class="org.argeo.jackrabbit.remote.WebDavServlet">
-<!--		<property name="repository" ref="jcrRepository" />-->
-		<property name="resourceConfiguration" value="osgibundle:/WEB-INF/webdav-config.xml" />
-	</bean>
-
 	<bean
 		class="org.springframework.web.servlet.handler.SimpleServletPostProcessor" />
 
@@ -19,12 +14,9 @@
 		class="org.springframework.web.servlet.handler.SimpleServletHandlerAdapter" />
 
 	<bean id="urlMapping"
-		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
-		<property name="mappings">
-			<props>
-				<prop key="**">webdavServlet</prop>
-			</props>
-		</property>
+		class="org.argeo.jackrabbit.remote.WebdavHandlerMapping">
+		<property name="repositoryRegister" ref="repositoryRegister" />
+		<property name="configuration" value="osgibundle:/WEB-INF/webdav-config.xml" />
 	</bean>
 
 </beans>

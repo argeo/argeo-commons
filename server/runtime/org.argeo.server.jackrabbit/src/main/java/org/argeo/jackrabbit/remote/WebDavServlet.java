@@ -19,12 +19,14 @@ package org.argeo.jackrabbit.remote;
 import java.io.IOException;
 
 import javax.jcr.Repository;
+import javax.jcr.SimpleCredentials;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.jackrabbit.server.SessionProvider;
 import org.apache.jackrabbit.webdav.simple.ResourceConfig;
 import org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet;
 import org.argeo.ArgeoException;
@@ -35,11 +37,12 @@ public class WebDavServlet extends SimpleWebdavServlet {
 	private static final long serialVersionUID = 1L;
 	private final static Log log = LogFactory.getLog(WebDavServlet.class);
 
-	private Repository repository;
-	private Resource resourceConfiguration;
+	private final Repository repository;
+	private final Resource resourceConfiguration;
 
-	public WebDavServlet() {
-
+	public WebDavServlet(Repository repository, Resource configuration) {
+		this.repository = repository;
+		this.resourceConfiguration = configuration;
 	}
 
 	@Override
@@ -75,12 +78,10 @@ public class WebDavServlet extends SimpleWebdavServlet {
 		return repository;
 	}
 
-	public void setRepository(Repository repository) {
-		this.repository = repository;
-	}
-
-	public void setResourceConfiguration(Resource resourceConfig) {
-		this.resourceConfiguration = resourceConfig;
+	@Override
+	public SessionProvider getSessionProvider() {
+		return new CachingSessionProvider(new SimpleCredentials("demo",
+				"demo".toCharArray()));
 	}
 
 }

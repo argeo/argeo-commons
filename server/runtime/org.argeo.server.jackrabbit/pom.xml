@@ -33,6 +33,7 @@
 							org.argeo.jackrabbit.*,
 						</Export-Package>
 						<Import-Package>
+							javax.servlet,
 							org.xml.sax;version="0.0.0",
 							org.apache.jackrabbit.webdav.jcr,
 							org.springframework.security.providers.jaas;resolution:="optional",
@@ -58,7 +59,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.jcr</artifactId>
+			<artifactId>org.argeo.server.jcr.mvc</artifactId>
 			<version>0.2.3-SNAPSHOT</version>
 		</dependency>
 

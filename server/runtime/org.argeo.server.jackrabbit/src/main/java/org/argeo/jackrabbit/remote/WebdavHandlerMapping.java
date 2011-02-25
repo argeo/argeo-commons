@@ -8,11 +8,15 @@ import javax.servlet.http.HttpServlet;
 
 import org.apache.jackrabbit.webdav.jcr.JCRWebdavServerServlet;
 import org.argeo.jcr.mvc.MultipleRepositoryHandlerMapping;
+import org.springframework.core.io.Resource;
 
-public class JcrRemotingHandlerMapping extends MultipleRepositoryHandlerMapping {
+public class WebdavHandlerMapping extends MultipleRepositoryHandlerMapping {
+	private Resource configuration;
+
 	protected HttpServlet createServlet(Repository repository, String pathPrefix)
 			throws ServletException {
-		JcrRemotingServlet servlet = new JcrRemotingServlet(repository);
+
+		WebDavServlet servlet = new WebDavServlet(repository, configuration);
 		Properties initParameters = new Properties();
 		initParameters.setProperty(
 				JCRWebdavServerServlet.INIT_PARAM_RESOURCE_PATH_PREFIX,
@@ -21,4 +25,9 @@ public class JcrRemotingHandlerMapping extends MultipleRepositoryHandlerMapping 
 				initParameters));
 		return servlet;
 	}
+
+	public void setConfiguration(Resource configuration) {
+		this.configuration = configuration;
+	}
+
 }
