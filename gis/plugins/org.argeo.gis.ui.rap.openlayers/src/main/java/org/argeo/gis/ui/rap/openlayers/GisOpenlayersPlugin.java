@@ -9,7 +9,7 @@ import org.osgi.framework.BundleContext;
 public class GisOpenlayersPlugin extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.argeo.gis.ui.rap"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "org.argeo.gis.ui.rap.openlayers"; //$NON-NLS-1$
 
 	// The shared instance
 	private static GisOpenlayersPlugin plugin;

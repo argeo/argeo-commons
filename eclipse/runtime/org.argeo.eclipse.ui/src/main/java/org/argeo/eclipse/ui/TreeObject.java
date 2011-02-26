@@ -16,7 +16,7 @@
 
 package org.argeo.eclipse.ui;
 
-public class TreeObject implements Comparable<TreeObject> {
+class TreeObject implements Comparable<TreeObject> {
 	private String name;
 	private TreeParent parent;
 

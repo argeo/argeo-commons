@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ui
-Bundle-SymbolicName: org.argeo.gis.ui
+Bundle-SymbolicName: org.argeo.gis.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.argeo.gis.ui.GisUiPlugin
 Bundle-Vendor: Argeo
@@ -10,3 +10,17 @@ Require-Bundle: org.eclipse.ui;resolution:=optional,
  org.eclipse.core.runtime
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
+Import-Package: org.apache.commons.logging;version="1.1.1",
+ org.argeo,
+ org.argeo.eclipse.spring,
+ org.argeo.eclipse.ui,
+ org.argeo.eclipse.ui.dialogs,
+ org.geotools.data,
+ org.geotools.map,
+ org.geotools.map.event,
+ org.opengis.feature.simple,
+ org.opengis.feature.type
+Export-Package: org.argeo.gis.ui,
+ org.argeo.gis.ui.commands,
+ org.argeo.gis.ui.editors,
+ org.argeo.gis.ui.views
