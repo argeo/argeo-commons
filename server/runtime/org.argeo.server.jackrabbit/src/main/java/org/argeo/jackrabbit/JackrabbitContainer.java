@@ -156,7 +156,7 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 							+ homeDirectory);
 			}
 
-		if (uri != null)
+		if (uri != null && !uri.trim().equals(""))
 			log.info("Destroyed Jackrabbit repository with uri " + uri);
 		else
 			log.info("Destroyed Jackrabbit repository " + repository + " in "
