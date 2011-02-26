@@ -6,18 +6,18 @@ import org.osgi.framework.BundleContext;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class GisRapPlugin extends AbstractUIPlugin {
+public class GisOpenlayersPlugin extends AbstractUIPlugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.argeo.gis.ui.rap"; //$NON-NLS-1$
 
 	// The shared instance
-	private static GisRapPlugin plugin;
+	private static GisOpenlayersPlugin plugin;
 	
 	/**
 	 * The constructor
 	 */
-	public GisRapPlugin() {
+	public GisOpenlayersPlugin() {
 	}
 
 	/*
@@ -43,7 +43,7 @@ public class GisRapPlugin extends AbstractUIPlugin {
 	 *
 	 * @return the shared instance
 	 */
-	public static GisRapPlugin getDefault() {
+	public static GisOpenlayersPlugin getDefault() {
 		return plugin;
 	}
 

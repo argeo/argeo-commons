@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Rap
 Bundle-SymbolicName: org.argeo.gis.ui.rap.openlayers
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.argeo.gis.ui.rap.openlayers.GisRapPlugin
+Bundle-Activator: org.argeo.gis.ui.rap.openlayers.GisOpenlayersPlugin
 Bundle-Vendor: Argeo
 Require-Bundle: org.eclipse.rap.ui,
  org.eclipse.core.runtime
