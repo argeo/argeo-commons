@@ -1,4 +1,4 @@
-package org.argeo.gis.ui.rap;
+package org.argeo.gis.ui.rap.openlayers;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
