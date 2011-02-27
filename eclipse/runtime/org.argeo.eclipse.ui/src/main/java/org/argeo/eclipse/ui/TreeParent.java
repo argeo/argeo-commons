@@ -20,23 +20,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TreeParent extends TreeObject {
-	private List<TreeObject> children;
+	private List<TreeParent> children;
 
 	private boolean loaded;
 
 	public TreeParent(String name) {
 		super(name);
-		children = new ArrayList<TreeObject>();
+		children = new ArrayList<TreeParent>();
 		loaded = false;
 	}
 
-	public synchronized void addChild(TreeObject child) {
+	public synchronized void addChild(TreeParent child) {
 		loaded = true;
 		children.add(child);
 		child.setParent(this);
 	}
 
-	public synchronized void removeChild(TreeObject child) {
+	public synchronized void removeChild(TreeParent child) {
 		children.remove(child);
 		child.setParent(null);
 	}
@@ -47,15 +47,15 @@ public class TreeParent extends TreeObject {
 	}
 
 	public synchronized TreeObject[] getChildren() {
-		return (TreeObject[]) children.toArray(new TreeObject[children.size()]);
+		return (TreeObject[]) children.toArray(new TreeParent[children.size()]);
 	}
 
 	public synchronized boolean hasChildren() {
 		return children.size() > 0;
 	}
 
-	public TreeObject getChildByName(String name) {
-		for (TreeObject child : children) {
+	public TreeParent getChildByName(String name) {
+		for (TreeParent child : children) {
 			if (child.getName().equals(name))
 				return child;
 		}
