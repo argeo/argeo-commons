@@ -14,5 +14,6 @@
 	<modules>
 		<module>org.argeo.security.dep.ldap</module>
 		<module>org.argeo.security.dep.ads</module>
+		<module>org.argeo.security.dep.node</module>
 	</modules>
 </project>

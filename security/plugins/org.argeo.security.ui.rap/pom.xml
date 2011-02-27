@@ -63,7 +63,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.ui.application</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.argeo.commons.eclipse</groupId>
@@ -75,57 +75,15 @@
 		<dependency>
 			<groupId>org.argeo.commons.eclipse</groupId>
 			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 		</dependency>
 
-
-		<!-- TODO: factorize with application.ui -->
-		<!-- For testing and target platform generation -->
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.ads.server</artifactId>
-			<version>${version.argeo-commons}</version>
-			<scope>test</scope>
-		</dependency>
+		<!-- Target platform generation -->
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.services</artifactId>
+			<artifactId>org.argeo.security.dep.node</artifactId>
 			<version>${version.argeo-commons}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.ldap</artifactId>
-			<version>${version.argeo-commons}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.manager.ldap</artifactId>
-			<version>${version.argeo-commons}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.ads</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.springframework.ldap</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.basic</groupId>
-			<artifactId>org.argeo.basic.dep.log4j</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
 			<type>pom</type>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>net.sourceforge.jdbm</groupId>
-			<artifactId>com.springsource.jdbm</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

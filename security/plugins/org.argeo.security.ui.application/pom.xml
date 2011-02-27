@@ -77,19 +77,19 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.ui</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.equinox</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 		</dependency>
 
 		<!-- Argeo Eclipse distribution (common dependencies for both RAP and RCP) -->
 		<dependency>
 			<groupId>org.argeo.commons.eclipse</groupId>
 			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -97,7 +97,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.nodeps</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 		</dependency>
 
 
@@ -106,12 +106,11 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>com.springsource.slf4j.org.apache.commons.logging</artifactId>
 		</dependency>
-
-		<!-- For testing and target platform generation -->
-		<!--  LDAP server and security services -->
+		
+		<!-- Target platform generation -->
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.dep.ads</artifactId>
+			<artifactId>org.argeo.security.dep.node</artifactId>
 			<version>${version.argeo-commons}</version>
 			<type>pom</type>
 			<scope>test</scope>

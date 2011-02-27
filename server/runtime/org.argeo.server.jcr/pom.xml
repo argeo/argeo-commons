@@ -29,10 +29,7 @@
 				<version>${version.maven-bundle-plugin}</version>
 				<configuration>
 					<instructions>
-						<Export-Package>
-							org.argeo.jcr.*,
-							org.argeo.server.jcr.*
-						</Export-Package>
+						<Export-Package>org.argeo.jcr.*</Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>

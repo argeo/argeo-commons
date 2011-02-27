@@ -4,18 +4,15 @@
 	<parent>
 		<groupId>org.argeo.commons</groupId>
 		<version>0.2.3-SNAPSHOT</version>
-		<artifactId>security</artifactId>
+		<artifactId>gis</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<groupId>org.argeo.commons.security</groupId>
+	<groupId>org.argeo.commons.gis</groupId>
 	<artifactId>runtime</artifactId>
-	<name>Commons Security Runtime</name>
+	<name>Commons GIS Runtime</name>
 	<packaging>pom</packaging>
 	<modules>
-		<module>org.argeo.security.core</module>
-		<module>org.argeo.security.mvc</module>
-		<module>org.argeo.security.ldap</module>
-		<module>org.argeo.security.activemq</module>
+		<module>org.argeo.gis.geotools</module>
 	</modules>
 	<build>
 		<resources>
@@ -58,24 +55,8 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<version>${version.maven-bundle-plugin}</version>
 				<extensions>true</extensions>
 			</plugin>
 		</plugins>
 	</build>
-	<profiles>
-		<profile>
-			<id>withRia</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<modules>
-				<module>org.argeo.security.ria</module>
-			</modules>
-		</profile>
-		<profile>
-			<id>withoutRia</id>
-		</profile>
-	</profiles>
-
 </project>

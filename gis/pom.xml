@@ -11,6 +11,7 @@
 	<name>Commons GIS</name>
 	<packaging>pom</packaging>
 	<modules>
+		<module>runtime</module>
 		<module>plugins</module>
 	</modules>
 </project>

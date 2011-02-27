@@ -73,8 +73,9 @@ limitations under the License.
 		<module>basic</module>
 		<module>osgi</module>
 		<module>server</module>
-		<module>security</module>
 		<module>eclipse</module>
+		<module>security</module>
+		<module>gis</module>
 		<module>sandbox</module>
 	</modules>
 	<build>

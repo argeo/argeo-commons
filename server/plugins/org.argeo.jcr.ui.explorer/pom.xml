@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.argeo.commons.eclipse</groupId>
+		<groupId>org.argeo.commons.server</groupId>
 		<version>0.2.3-SNAPSHOT</version>
 		<artifactId>plugins</artifactId>
 		<relativePath>..</relativePath>
@@ -61,101 +61,12 @@
 			<scope>provided</scope>
 		</dependency>
 
-
 		<!-- Testing and target platform -->
 		<dependency>
-			<groupId>org.argeo.commons.osgi</groupId>
-			<artifactId>org.argeo.osgi.boot</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.dep.javax</artifactId>
+			<artifactId>org.argeo.server.dep.node</artifactId>
 			<version>${version.argeo-commons}</version>
 			<type>pom</type>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.xmlcommons</groupId>
-			<artifactId>com.springsource.org.apache.xmlcommons</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<!-- LDAP server and security services -->
-		<dependency>
-			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.dep.ads</artifactId>
-			<version>${version.argeo-commons}</version>
-			<type>pom</type>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.ui.application</artifactId>
-			<version>${version.argeo-commons}</version>
-			<scope>test</scope>
-		</dependency>
-		<!-- Tomcat -->
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.dep.tomcat</artifactId>
-			<version>${version.argeo-commons}</version>
-			<type>pom</type>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.osgi</groupId>
-			<artifactId>org.springframework.osgi.web.extender</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.osgi</groupId>
-			<artifactId>org.springframework.osgi.web</artifactId>
-		</dependency>
-		<!-- Jackrabbit -->
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.jackrabbit</artifactId>
-			<version>${version.argeo-commons}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.jcr.mvc</artifactId>
-			<version>${version.argeo-commons}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.dep.jackrabbit.server</artifactId>
-			<version>${version.argeo-commons}</version>
-			<type>pom</type>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.jackrabbit.webapp</artifactId>
-			<version>${version.argeo-commons}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.node.repo.jackrabbit</artifactId>
-			<version>${version.argeo-commons}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>com.springsource.org.h2</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.mysql.jdbc</groupId>
-			<artifactId>com.springsource.com.mysql.jdbc</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>com.springsource.org.postgresql.jdbc3</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
