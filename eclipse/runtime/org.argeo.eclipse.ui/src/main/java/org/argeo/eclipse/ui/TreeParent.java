@@ -46,8 +46,8 @@ public class TreeParent extends TreeObject {
 		children.clear();
 	}
 
-	public synchronized TreeObject[] getChildren() {
-		return (TreeObject[]) children.toArray(new TreeParent[children.size()]);
+	public synchronized TreeParent[] getChildren() {
+		return children.toArray(new TreeParent[children.size()]);
 	}
 
 	public synchronized boolean hasChildren() {
