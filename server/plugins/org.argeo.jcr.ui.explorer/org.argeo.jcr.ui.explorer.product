@@ -8,7 +8,7 @@
 
    <launcherArgs>
       <programArgs>-console</programArgs>
-      <vmArgs>-Dlog4j.configuration=file:${system_property:user.home}/dev/src/commons/eclipse/plugins/org.argeo.jcr.ui.explorer/log4j.properties -Dorg.argeo.security.ui.initialPerspective=org.argeo.jcr.ui.explorer.perspective</vmArgs>
+      <vmArgs>&quot;-Dlog4j.configuration=file:${system_property:user.home}/dev/src/commons/server/plugins/org.argeo.jcr.ui.explorer/log4j.properties&quot; -Dorg.argeo.security.ui.initialPerspective=org.argeo.jcr.ui.explorer.perspective</vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
