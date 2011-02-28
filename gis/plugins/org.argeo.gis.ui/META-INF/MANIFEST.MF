@@ -19,7 +19,8 @@ Import-Package: org.apache.commons.logging;version="1.1.1",
  org.geotools.map,
  org.geotools.map.event,
  org.opengis.feature.simple,
- org.opengis.feature.type
+ org.opengis.feature.type,
+ org.postgresql;resolution:=optional
 Export-Package: org.argeo.gis.ui,
  org.argeo.gis.ui.commands,
  org.argeo.gis.ui.editors,
