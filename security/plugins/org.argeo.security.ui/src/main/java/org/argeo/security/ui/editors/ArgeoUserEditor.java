@@ -13,7 +13,7 @@ import org.eclipse.ui.forms.editor.FormEditor;
 
 /** Editor for an Argeo user. */
 public class ArgeoUserEditor extends FormEditor {
-	public final static String ID = "org.argeo.security.ui.argeoUserEditor";
+	public final static String ID = "org.argeo.security.ui.adminArgeoUserEditor";
 
 	private ArgeoUser user;
 	private ArgeoSecurityService securityService;

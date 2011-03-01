@@ -1,4 +1,4 @@
-package org.argeo.security.ui;
+package org.argeo.security.ui.internal;
 
 import java.security.AccessController;
 import java.security.Principal;

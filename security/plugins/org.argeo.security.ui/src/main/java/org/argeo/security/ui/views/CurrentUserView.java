@@ -1,6 +1,6 @@
 package org.argeo.security.ui.views;
 
-import org.argeo.security.ui.CurrentUser;
+import org.argeo.security.ui.internal.CurrentUser;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;

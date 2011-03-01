@@ -56,6 +56,10 @@
 							org.argeo.eclipse.spring,
 							*
 						</Import-Package>
+						<Export-Package>
+							!org.argeo.security.ui.internal.*,
+							org.argeo.security.ui.*
+						</Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>

@@ -6,7 +6,7 @@
       <perspective
             class="org.argeo.security.ui.SecurityPerspective"
             icon="icons/security.gif"
-            id="org.argeo.security.ui.securityPerspective"
+            id="org.argeo.security.ui.adminSecurityPerspective"
             name="Security">
       </perspective>
    </extension>
@@ -15,20 +15,14 @@
       <view
             class="org.argeo.eclipse.spring.SpringExtensionFactory"
             icon="icons/users.gif"
-            id="org.argeo.security.ui.usersView"
+            id="org.argeo.security.ui.adminUsersView"
             name="Users"
             restorable="false">
       </view>
       <view
             class="org.argeo.eclipse.spring.SpringExtensionFactory"
-            id="org.argeo.security.ui.currentUserView"
-            name="Current User"
-            restorable="false">
-      </view>
-      <view
-            class="org.argeo.eclipse.spring.SpringExtensionFactory"
             icon="icons/role.gif"
-            id="org.argeo.security.ui.rolesView"
+            id="org.argeo.security.ui.adminRolesView"
             name="Roles"
             restorable="false">
       </view>
@@ -68,7 +62,7 @@
            point="org.eclipse.ui.editors">
 	        <editor
 	          class="org.argeo.eclipse.spring.SpringExtensionFactory"
-              id="org.argeo.security.ui.argeoUserEditor"
+              id="org.argeo.security.ui.adminArgeoUserEditor"
               name="User"
               icon="icons/user.gif"
               default="false">
@@ -133,11 +127,9 @@
             </command>
         </menuContribution>
         <menuContribution
-                allPopups="false"
                 locationURI="menu:file?after=additions">
                 <command
                       commandId="org.argeo.security.ui.openChangePasswordDialog"
-                      disabledIcon="icons/password.gif"
                       icon="icons/password.gif"
                       label="Change password"
                       style="push"
@@ -156,5 +148,35 @@
                  value="Agfa Sebi">
            </property>
         </product>
+     </extension>
+     <extension
+           point="org.eclipse.ui.services">
+        <sourceProvider
+              provider="org.argeo.security.ui.RolesSourceProvider">
+           <variable
+                 name="org.argeo.security.ui.rolesVariable"
+                 priorityLevel="workbench">
+           </variable>
+        </sourceProvider>
+     </extension>
+     <extension
+           point="org.eclipse.ui.activities">
+        <activity
+              description="Only for admins"
+              id="org.argeo.security.ui.adminActivity"
+              name="Admin">
+		  <enabledWhen>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="ROLE_ADMIN" />
+		      </iterate>
+		    </with>
+		  </enabledWhen>
+        </activity>
+        <activityPatternBinding
+              activityId="org.argeo.security.ui.adminActivity"
+              isEqualityPattern="true"
+              pattern="org.argeo.security.ui/.*admin.*">
+        </activityPatternBinding>
      </extension>
  </plugin>
