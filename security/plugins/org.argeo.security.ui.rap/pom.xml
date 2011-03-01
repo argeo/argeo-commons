@@ -77,6 +77,11 @@
 			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
 			<version>${version.argeo-commons}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.osgi.webapp</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
 
 		<!-- Target platform generation -->
 		<dependency>

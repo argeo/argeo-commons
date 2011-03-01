@@ -64,6 +64,11 @@
 			<type>pom</type>
 		</dependency>
 		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.webextender</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.osgi</groupId>
 			<artifactId>org.springframework.osgi.web.extender</artifactId>
 		</dependency>

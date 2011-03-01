@@ -54,10 +54,15 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<!-- JCR -->
+		<!-- Commons -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.jcr</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.core</artifactId>
 			<version>${version.argeo-commons}</version>
 		</dependency>
 

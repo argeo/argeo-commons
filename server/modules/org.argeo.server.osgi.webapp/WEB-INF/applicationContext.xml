@@ -6,6 +6,6 @@
        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
 
 	<import resource="osgi.xml" />
-	<import resource="security.xml" />
+<!--	<import resource="security.xml" />-->
 
 </beans>

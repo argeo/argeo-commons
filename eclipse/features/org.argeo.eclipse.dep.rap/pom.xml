@@ -33,10 +33,10 @@
 			<groupId>javax.servlet</groupId>
 			<artifactId>com.springsource.javax.servlet</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.eclipse.equinox</groupId>
-			<artifactId>org.eclipse.equinox.http.jetty</artifactId>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.eclipse.equinox</groupId>-->
+<!--			<artifactId>org.eclipse.equinox.http.jetty</artifactId>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>org.eclipse.equinox</groupId>
 			<artifactId>org.eclipse.equinox.http.registry</artifactId>
@@ -45,10 +45,6 @@
 			<groupId>org.eclipse.equinox</groupId>
 			<artifactId>org.eclipse.equinox.http.servlet</artifactId>
 		</dependency>
-		<!-- <dependency> <groupId>org.eclipse.rap</groupId> <artifactId>org.eclipse.rap.demo.databinding</artifactId> 
-			</dependency> <dependency> <groupId>org.eclipse.rap</groupId> <artifactId>org.eclipse.rap.demo</artifactId> 
-			</dependency> <dependency> <groupId>org.eclipse.rap</groupId> <artifactId>org.eclipse.rap.design.example</artifactId> 
-			</dependency> -->
 		<dependency>
 			<groupId>org.eclipse.rap</groupId>
 			<artifactId>org.eclipse.rap.jface.databinding</artifactId>
@@ -69,14 +65,14 @@
 			<groupId>org.eclipse.rap</groupId>
 			<artifactId>org.eclipse.rap.ui.views</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.mortbay.jetty</groupId>
-			<artifactId>org.mortbay.jetty.server</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.mortbay.jetty</groupId>
-			<artifactId>org.mortbay.jetty.util</artifactId>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.mortbay.jetty</groupId>-->
+<!--			<artifactId>org.mortbay.jetty.server</artifactId>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>org.mortbay.jetty</groupId>-->
+<!--			<artifactId>org.mortbay.jetty.util</artifactId>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>org.eclipse.core</groupId>
 			<artifactId>org.eclipse.core.databinding</artifactId>
