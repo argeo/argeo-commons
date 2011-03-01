@@ -22,7 +22,7 @@ public class WorkspaceNode extends TreeParent implements EventListener {
 	.getImageDescriptor("icons/workspace_connected.png").createImage();
 
 	public WorkspaceNode(Repository repository, String name) {
-		this(repository, name, null);
+		this(repository, name, null); 
 	}
 
 	public WorkspaceNode(Repository repository, String name, Session session) {
