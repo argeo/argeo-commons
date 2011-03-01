@@ -21,6 +21,11 @@
 			<version>${version.argeo-commons}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.ext.jackrabbit</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.xalan</groupId>
 			<artifactId>com.springsource.org.apache.xalan</artifactId>
 		</dependency>

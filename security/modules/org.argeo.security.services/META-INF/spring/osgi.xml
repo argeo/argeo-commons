@@ -6,8 +6,21 @@
        http://www.springframework.org/schema/beans   
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<service ref="securityService" interface="org.argeo.security.ArgeoSecurityService" />
+	<!-- REFERENCES -->
+	<reference id="passwordEncoder"
+		interface="org.springframework.security.providers.encoding.PasswordEncoder" />
 
 	<reference id="securityDao" interface="org.argeo.security.ArgeoSecurityDao" />
-	<reference id="authenticationManager" interface="org.springframework.security.AuthenticationManager" />
+
+	<reference id="authenticationProvider"
+		interface="org.springframework.security.providers.AuthenticationProvider" />
+
+	<!-- SERVICES -->
+	<service ref="securityService" interface="org.argeo.security.ArgeoSecurityService" />
+	<service ref="securityService" interface="org.argeo.security.CurrentUserService" />
+	<service ref="securityService" interface="org.argeo.security.UserAdminService" />
+	<service ref="systemExecutionService" interface="org.argeo.security.SystemExecutionService" />
+
+	<service ref="authenticationManager"
+		interface="org.springframework.security.AuthenticationManager" />
 </beans:beans>

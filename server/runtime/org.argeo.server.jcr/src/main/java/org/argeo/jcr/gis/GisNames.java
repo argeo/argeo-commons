@@ -1,0 +1,12 @@
+package org.argeo.jcr.gis;
+
+/** JCR names in the http://www.argeo.org/gis namespace */
+public interface GisNames {
+	public final static String GIS_NAMESPACE = "http://www.argeo.org/gis";
+	public final static String GIS_ = "gis:";
+	
+	public final static String GIS_SRS = "gis:srs";
+	public final static String GIS_X = "gis:x";
+	public final static String GIS_Y = "gis:y";
+	public final static String GIS_Z = "gis:z";
+}

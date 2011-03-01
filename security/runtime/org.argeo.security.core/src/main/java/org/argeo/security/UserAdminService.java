@@ -35,5 +35,7 @@ public interface UserAdminService {
 	/*
 	 * SYSTEM
 	 */
+	@Deprecated
+	/** @deprecated Use ${link SystemExecutionService} instead.*/
 	public Runnable wrapWithSystemAuthentication(final Runnable runnable);
 }

@@ -21,6 +21,7 @@ package org.argeo.security;
  * High level access to the user referential (independent from the underlying
  * storage).
  */
+@Deprecated
 public interface ArgeoSecurityService extends CurrentUserService,
 		UserAdminService {
 }

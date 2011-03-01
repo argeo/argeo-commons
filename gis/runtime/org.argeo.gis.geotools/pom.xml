@@ -30,6 +30,7 @@
 				<configuration>
 					<instructions>
 						<Export-Package>org.argeo.geotools.*</Export-Package>
+						<Import-Package>org.argeo.jcr.gis,*</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>
@@ -53,7 +54,14 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<!-- Geotools -->
+		<!-- JCR -->
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.jcr</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+
+		<!-- Geotools, JTS, etc. -->
 		<dependency>
 			<groupId>org.argeo.dep.osgi</groupId>
 			<artifactId>org.argeo.dep.osgi.geotools</artifactId>
@@ -81,6 +89,11 @@
 		<dependency>
 			<groupId>org.argeo.dep.osgi</groupId>
 			<artifactId>org.argeo.dep.osgi.java3d</artifactId>
+		</dependency>
+		<!-- For EPSG database -->
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>com.springsource.org.hsqldb</artifactId>
 		</dependency>
 		<!-- Apache Commons -->
 		<dependency>

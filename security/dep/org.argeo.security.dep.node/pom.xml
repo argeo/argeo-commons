@@ -78,10 +78,20 @@
 			<version>${version.argeo-commons}</version>
 			<type>pom</type>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.activemq</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
 		<!-- Jackrabbit -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.jackrabbit</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.jackrabbit</artifactId>
 			<version>${version.argeo-commons}</version>
 		</dependency>
 		<dependency>

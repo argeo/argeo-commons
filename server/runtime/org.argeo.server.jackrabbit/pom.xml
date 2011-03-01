@@ -38,8 +38,6 @@
 							org.springframework.web.context,
 							org.xml.sax;version="0.0.0",
 							org.apache.jackrabbit.webdav.jcr,
-							org.springframework.security.providers.jaas;resolution:="optional",
-							junit.framework;resolution:="optional",
 							*
 						</Import-Package>
 					</instructions>
@@ -51,25 +49,25 @@
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.nodeps</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.core</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.jcr.mvc</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 		</dependency>
 
 		<!-- Jackrabbit -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.jackrabbit.server</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
@@ -95,11 +93,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>org.springframework.security.core</artifactId>
-		</dependency>
-
-		<dependency>
 			<groupId>org.springframework.ws</groupId>
 			<artifactId>org.springframework.xml</artifactId>
 		</dependency>
@@ -119,13 +112,13 @@
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.support.junit</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.dep.log4j</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 			<type>pom</type>
 			<scope>test</scope>
 		</dependency>

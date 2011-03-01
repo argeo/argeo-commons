@@ -19,8 +19,8 @@
    </extension>
   <extension
         id="springLoginModule"
-        point="org.eclipse.equinox.security.loginModule">
-        name="Spring Login Module"
+        point="org.eclipse.equinox.security.loginModule"
+        name="Spring Login Module">
      <loginModule
            class="org.argeo.eclipse.spring.SpringExtensionFactory"
            description="Spring Login Module">

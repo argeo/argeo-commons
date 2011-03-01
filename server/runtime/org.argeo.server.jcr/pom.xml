@@ -30,6 +30,7 @@
 				<configuration>
 					<instructions>
 						<Export-Package>org.argeo.jcr.*</Export-Package>
+						<Import-Package>junit.framework;resolution:=optional,*</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>
@@ -55,7 +56,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.nodeps</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 		</dependency>
 
 		<!-- JCR -->
@@ -98,7 +99,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.jackrabbit.server</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 			<type>pom</type>
 			<scope>test</scope>
 		</dependency>
@@ -109,20 +110,20 @@
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.support.junit</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.dep.log4j</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 			<type>pom</type>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.osgi</groupId>
 			<artifactId>org.argeo.osgi.boot</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

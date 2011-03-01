@@ -16,53 +16,11 @@
 
 package org.argeo.security;
 
-import java.util.Set;
 
 /**
  * Access to the users and roles referential (dependent from the underlying
  * storage, e.g. LDAP).
  */
-public interface ArgeoSecurityDao {
-	// public ArgeoUser getCurrentUser();
-
-	/** List all users */
-	public Set<ArgeoUser> listUsers();
-
-	/** List roles that can be modified */
-	public Set<String> listEditableRoles();
-
-	/**
-	 * Creates a new user in the underlying storage. <b>DO NOT CALL DIRECTLY</b>
-	 * use {@link ArgeoSecurityService#newUser(ArgeoUser)} instead.
-	 */
-	public void createUser(ArgeoUser user);
-
-	public void updateUser(ArgeoUser user);
-
-	public void deleteUser(String username);
-
-	/**
-	 * Creates a new role in the underlying storage. <b>DO NOT CALL DIRECTLY</b>
-	 * use {@link ArgeoSecurityService#newRole(String)} instead.
-	 */
-	public void createRole(String role, String superuserName);
-
-	public void deleteRole(String role);
-
-	/** List all users having this role. */
-	public Set<ArgeoUser> listUsersInRole(String role);
-
-	public Boolean userExists(String username);
-
-	public ArgeoUser getUser(String username);
-
-	public ArgeoUser getUserWithPassword(String username);
-
-	public String getDefaultRole();
-
-	/** Validates a raw password against an encoded one. */
-	public Boolean isPasswordValid(String encoded, String raw);
-
-	/** Encodes a raw password. */
-	public String encodePassword(String raw);
+@Deprecated
+public interface ArgeoSecurityDao extends CurrentUserDao,UserAdminDao{
 }

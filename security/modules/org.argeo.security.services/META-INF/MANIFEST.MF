@@ -3,5 +3,9 @@ Bundle-Version: 0.2.3.SNAPSHOT
 Import-Package: org.argeo.security,
  org.argeo.security.core,
  org.springframework.beans.factory.config;specification-version="2.5.6.SEC01",
- org.springframework.security;specification-version="2.0.4.A"
+ org.springframework.security;specification-version="2.0.4.A",
+ org.springframework.security.adapters;specification-version="2.0.6.RELEASE",
+ org.springframework.security.providers;specification-version="2.0.6.RELEASE",
+ org.springframework.security.providers.encoding;specification-version="2.0.6.RELEASE",
+ org.springframework.security.providers.rememberme;specification-version="2.0.6.RELEASE"
 Bundle-Name: Security Services

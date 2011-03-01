@@ -486,4 +486,12 @@ public class JcrUtils {
 		else
 			return baseRelPath + '/' + propertyName;
 	}
+
+	/**
+	 * Normalize a name so taht it can be stores in contexts not supporting
+	 * names with ':' (typically databases). Replaces ':' by '_'.
+	 */
+	public static String normalize(String name) {
+		return name.replace(':', '_');
+	}
 }

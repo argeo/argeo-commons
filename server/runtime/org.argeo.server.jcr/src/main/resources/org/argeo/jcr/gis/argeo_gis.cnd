@@ -1,0 +1,16 @@
+<gis = 'http://www.argeo.org/gis'>
+
+// GEOMETRIES (based on JTS http://www.vividsolutions.com/jts/JTSHome.htm) 
+[gis:coordinate] > nt:base
+mixin
+- gis:x (DOUBLE) m
+- gis:y (DOUBLE) m
+- gis:z (DOUBLE)
+
+[gis:geometry] > mix:created, mix:lastModified
+mixin
+// either an EPSG code (EPSG:4326 for WGS 84) or a WKT representation
+- gis:srs (STRING)
+
+[gis:point] > gis:geometry, gis:coordinate
+mixin

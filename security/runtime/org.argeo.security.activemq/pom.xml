@@ -41,12 +41,12 @@
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.nodeps</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.core</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 		</dependency>
 
 		<!-- Spring -->

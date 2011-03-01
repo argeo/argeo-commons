@@ -16,13 +16,16 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 
+/**
+ * Common base class for authenticated access to the Eclipse UI framework (RAP and
+ * RCP)
+ */
 public abstract class AbstractSecureApplication implements IApplication {
 	private static final Log log = LogFactory
 			.getLog(AbstractSecureApplication.class);
 
 	protected abstract WorkbenchAdvisor createWorkbenchAdvisor();
 
-	@SuppressWarnings("unchecked")
 	public Object start(IApplicationContext context) throws Exception {
 
 		Integer returnCode = null;
@@ -51,8 +54,7 @@ public abstract class AbstractSecureApplication implements IApplication {
 				ErrorDialog.openError(null, "Error", "Shutdown...", status);
 				return status.getSeverity();
 			}
-			if (log.isDebugEnabled())
-				log.debug("Logged in as " + username);
+
 			returnCode = (Integer) Subject.doAs(subject, getRunAction(display));
 			SecureApplicationActivator.getLoginContext().logout();
 			return processReturnCode(returnCode);

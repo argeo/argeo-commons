@@ -17,16 +17,14 @@
 package org.argeo.security.core;
 
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
-import org.argeo.ArgeoException;
 import org.argeo.security.ArgeoSecurity;
 import org.argeo.security.ArgeoSecurityDao;
 import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
 import org.argeo.security.SimpleArgeoUser;
-import org.argeo.security.UserNature;
+import org.argeo.security.UserAdminService;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.Authentication;
@@ -34,21 +32,13 @@ import org.springframework.security.AuthenticationManager;
 import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
 
-public class DefaultSecurityService implements ArgeoSecurityService {
+public class DefaultSecurityService extends DefaultCurrentUserService implements
+		UserAdminService, ArgeoSecurityService {
 	private ArgeoSecurity argeoSecurity = new DefaultArgeoSecurity();
 	private ArgeoSecurityDao securityDao;
 	private AuthenticationManager authenticationManager;
 
 	private String systemAuthenticationKey;
-
-	public ArgeoUser getCurrentUser() {
-		ArgeoUser argeoUser = ArgeoUserDetails.securityContextUser();
-		if (argeoUser == null)
-			return null;
-		if (argeoUser.getRoles().contains(securityDao.getDefaultRole()))
-			argeoUser.getRoles().remove(securityDao.getDefaultRole());
-		return argeoUser;
-	}
 
 	public ArgeoSecurityDao getSecurityDao() {
 		return securityDao;
@@ -61,15 +51,7 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 	public void updateUserPassword(String username, String password) {
 		SimpleArgeoUser user = new SimpleArgeoUser(
 				securityDao.getUser(username));
-		user.setPassword(securityDao.encodePassword(password));
-		securityDao.updateUser(user);
-	}
-
-	public void updateCurrentUserPassword(String oldPassword, String newPassword) {
-		SimpleArgeoUser user = new SimpleArgeoUser(getCurrentUser());
-		if (!securityDao.isPasswordValid(user.getPassword(), oldPassword))
-			throw new ArgeoException("Old password is not correct.");
-		user.setPassword(securityDao.encodePassword(newPassword));
+		user.setPassword(encodePassword(password));
 		securityDao.updateUser(user);
 	}
 
@@ -78,11 +60,11 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 		// normalize password
 		if (user instanceof SimpleArgeoUser) {
 			if (user.getPassword() == null || user.getPassword().equals(""))
-				((SimpleArgeoUser) user).setPassword(securityDao
-						.encodePassword(user.getUsername()));
+				((SimpleArgeoUser) user).setPassword(encodePassword(user
+						.getUsername()));
 			else if (!user.getPassword().startsWith("{"))
-				((SimpleArgeoUser) user).setPassword(securityDao
-						.encodePassword(user.getPassword()));
+				((SimpleArgeoUser) user).setPassword(encodePassword(user
+						.getPassword()));
 		}
 		securityDao.createUser(user);
 	}
@@ -101,7 +83,7 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 			password = securityDao.getUserWithPassword(user.getUsername())
 					.getPassword();
 		if (!password.startsWith("{"))
-			password = securityDao.encodePassword(user.getPassword());
+			password = encodePassword(user.getPassword());
 		SimpleArgeoUser simpleArgeoUser = new SimpleArgeoUser(user);
 		simpleArgeoUser.setPassword(password);
 		securityDao.updateUser(simpleArgeoUser);
@@ -116,6 +98,7 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 		securityDao.deleteRole(role);
 	}
 
+	@Deprecated
 	public TaskExecutor createSystemAuthenticatedTaskExecutor() {
 		return new SimpleAsyncTaskExecutor() {
 			private static final long serialVersionUID = -8126773862193265020L;
@@ -133,6 +116,7 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 	 * Wraps another runnable, adding security context <br/>
 	 * TODO: secure the call to this method with Java Security
 	 */
+	@Deprecated
 	public Runnable wrapWithSystemAuthentication(final Runnable runnable) {
 		return new Runnable() {
 
@@ -162,11 +146,6 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 		return lst;
 	}
 
-	public void updateCurrentUserNatures(Map<String, UserNature> userNatures) {
-		// TODO Auto-generated method stub
-
-	}
-
 	public Set<ArgeoUser> listUsers() {
 		return securityDao.listUsers();
 	}
@@ -182,6 +161,7 @@ public class DefaultSecurityService implements ArgeoSecurityService {
 
 	public void setSecurityDao(ArgeoSecurityDao dao) {
 		this.securityDao = dao;
+		setCurrentUserDao(dao);
 	}
 
 	public void setAuthenticationManager(

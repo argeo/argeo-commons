@@ -18,11 +18,8 @@ package org.argeo.security.ldap;
 
 import static org.argeo.security.core.ArgeoUserDetails.createSimpleArgeoUser;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -32,7 +29,9 @@ import javax.naming.directory.DirContext;
 
 import org.argeo.security.ArgeoSecurityDao;
 import org.argeo.security.ArgeoUser;
+import org.argeo.security.CurrentUserDao;
 import org.argeo.security.SimpleArgeoUser;
+import org.argeo.security.UserAdminDao;
 import org.argeo.security.core.ArgeoUserDetails;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.ldap.core.ContextExecutor;
@@ -49,7 +48,6 @@ import org.springframework.security.ldap.LdapUtils;
 import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.ldap.authenticator.LdapShaPasswordEncoder;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsManager;
 import org.springframework.security.userdetails.UserDetailsService;
@@ -57,7 +55,8 @@ import org.springframework.security.userdetails.ldap.LdapUserDetailsManager;
 import org.springframework.security.userdetails.ldap.LdapUserDetailsService;
 import org.springframework.security.userdetails.ldap.UserDetailsContextMapper;
 
-public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean {
+public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, CurrentUserDao,
+		UserAdminDao, InitializingBean {
 	// private final static Log log = LogFactory.getLog(UserDaoLdap.class);
 
 	private UserDetailsManager userDetailsManager;
@@ -80,17 +79,9 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 	private LdapUserDetailsService ldapUserDetailsService;
 	private List<UserNatureMapper> userNatureMappers;
 
-	private LdapShaPasswordEncoder ldapShaPasswordEncoder = new LdapShaPasswordEncoder();
-	private Random random;
-
 	public ArgeoSecurityDaoLdap(BaseLdapPathContextSource contextSource) {
 		this.contextSource = contextSource;
 		ldapTemplate = new LdapTemplate(this.contextSource);
-		try {
-			random = SecureRandom.getInstance("SHA1PRNG");
-		} catch (NoSuchAlgorithmException e) {
-			random = new Random(System.currentTimeMillis());
-		}
 	}
 
 	public void afterPropertiesSet() throws Exception {
@@ -252,17 +243,6 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, InitializingBean 
 		String group = convertRoleToGroup(role);
 		Name dn = buildGroupDn(group);
 		ldapTemplate.unbind(dn);
-	}
-
-	public Boolean isPasswordValid(String encoded, String raw) {
-		return ldapShaPasswordEncoder.isPasswordValid(encoded, raw, null);
-	}
-
-	public String encodePassword(String raw) {
-		byte[] salt = null;
-		// byte[] salt = new byte[16];
-		// random.nextBytes(salt);
-		return ldapShaPasswordEncoder.encodePassword(raw, salt);
 	}
 
 	protected String convertRoleToGroup(String role) {

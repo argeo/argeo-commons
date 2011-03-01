@@ -16,11 +16,13 @@
 
 package org.argeo.security.core;
 
+import org.argeo.security.SystemAuthentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.adapters.PrincipalSpringSecurityUserToken;
 
-public class InternalAuthentication extends PrincipalSpringSecurityUserToken {
+public class InternalAuthentication extends PrincipalSpringSecurityUserToken
+		implements SystemAuthentication {
 	private static final long serialVersionUID = -6783376375615949315L;
 	public final static String DEFAULT_SYSTEM_USERNAME = "system";
 	public final static String DEFAULT_SYSTEM_ROLE = "ROLE_SYSTEM";
