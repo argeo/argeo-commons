@@ -36,6 +36,9 @@
 						<Import-Package>
 							org.springframework.beans.factory,
 							org.springframework.core.io.support,
+							org.apache.commons.io,
+							org.argeo,
+							org.argeo.eclipse.ui.dialogs,
 							!org.eclipse.core.runtime,
 							!org.eclipse.core.commands,
 							!org.eclipse.ui.plugin,
@@ -53,5 +56,10 @@
 			<artifactId>org.argeo.eclipse.ui</artifactId>
 			<version>0.2.3-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>com.springsource.org.apache.commons.io</artifactId>
+		</dependency>
+
 	</dependencies>
 </project>
