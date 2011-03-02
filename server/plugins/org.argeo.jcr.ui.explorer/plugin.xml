@@ -61,6 +61,14 @@
         id="org.argeo.jcr.ui.explorer.importFileSystem"
         name="Import files...">
   </command>
+  <!-- TEST --> 
+  <command
+        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+        id="org.argeo.jcr.ui.explorer.openFile"
+        name="Open current file">
+  </command>
+  <!-- TEST END --> 
+  
     </extension>
 	<extension point="org.eclipse.ui.menus">
 		<menuContribution

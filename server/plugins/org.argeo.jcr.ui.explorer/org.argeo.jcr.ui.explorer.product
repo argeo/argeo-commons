@@ -116,6 +116,7 @@
       <plugin id="org.argeo.dep.osgi.tika"/>
       <plugin id="org.argeo.eclipse.ui"/>
       <plugin id="org.argeo.eclipse.ui.jcr"/>
+      <plugin id="org.argeo.eclipse.ui.rcp"/>
       <plugin id="org.argeo.jackrabbit.webapp"/>
       <plugin id="org.argeo.jcr.ui.explorer"/>
       <plugin id="org.argeo.node.repo.jackrabbit"/>

@@ -1,5 +1,7 @@
 package org.argeo.eclipse.ui.jcr.views;
 
+import java.io.BufferedInputStream;
+import java.io.File;
 import java.util.Arrays;
 
 import javax.jcr.Node;
@@ -7,12 +9,15 @@ import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
+import org.apache.commons.io.IOUtils;
 import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.dialogs.Error;
 import org.argeo.eclipse.ui.jcr.browser.NodeContentProvider;
 import org.argeo.eclipse.ui.jcr.browser.NodeLabelProvider;
 import org.argeo.eclipse.ui.jcr.browser.PropertiesContentProvider;
 import org.argeo.eclipse.ui.jcr.browser.RepositoryNode;
 import org.argeo.eclipse.ui.jcr.browser.WorkspaceNode;
+import org.argeo.eclipse.ui.specific.FileHandler;
 import org.argeo.jcr.RepositoryRegister;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -83,6 +88,44 @@ public class GenericJcrBrowser extends ViewPart {
 				} else if (obj instanceof WorkspaceNode) {
 					((WorkspaceNode) obj).login();
 					nodesViewer.refresh(obj);
+				} // call the openFile commands on node
+				else if (obj instanceof Node) {
+					Node node = (Node) obj;
+					try {
+						if (node.isNodeType("nt:file")) {
+
+							Node child = node.getNodes().nextNode();
+							if (!child.isNodeType("nt:resource")) {
+								Error.show("Cannot open file children Node that are not of 'nt:resource' type.");
+								return;
+							}
+							BufferedInputStream fis = null;
+
+							try {
+								fis = (BufferedInputStream) child
+										.getProperty("jcr:data").getBinary()
+										.getStream();
+
+								String name = node.getName();
+								
+								// Instantiate the generic object that fits for
+								// both
+								// RCP & RAP.
+								FileHandler fh = new FileHandler();
+								fh.openFile(name,
+										fis);
+								//fh.openFile(file);
+							} catch (Exception e) {
+								throw new ArgeoException(
+										"Stream error while opening file", e);
+							} finally {
+								IOUtils.closeQuietly(fis);
+							}
+						}
+					} catch (RepositoryException re) {
+						re.printStackTrace();
+
+					}
 				}
 
 			}
