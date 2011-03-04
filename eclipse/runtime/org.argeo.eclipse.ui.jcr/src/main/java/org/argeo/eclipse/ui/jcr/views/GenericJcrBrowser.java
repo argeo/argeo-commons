@@ -1,8 +1,9 @@
 package org.argeo.eclipse.ui.jcr.views;
 
-import java.io.BufferedInputStream;
-import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
@@ -10,6 +11,8 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.dialogs.Error;
 import org.argeo.eclipse.ui.jcr.browser.NodeContentProvider;
@@ -26,6 +29,7 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -39,6 +43,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.part.ViewPart;
 
 public class GenericJcrBrowser extends ViewPart {
+	private static Log log = LogFactory.getLog(GenericJcrBrowser.class);
+
 	private TreeViewer nodesViewer;
 	private TableViewer propertiesViewer;
 
@@ -99,22 +105,21 @@ public class GenericJcrBrowser extends ViewPart {
 								Error.show("Cannot open file children Node that are not of 'nt:resource' type.");
 								return;
 							}
-							BufferedInputStream fis = null;
+							InputStream fis = null;
 
 							try {
-								fis = (BufferedInputStream) child
+								fis = (InputStream) child
 										.getProperty("jcr:data").getBinary()
 										.getStream();
 
 								String name = node.getName();
-								
+
 								// Instantiate the generic object that fits for
 								// both
 								// RCP & RAP.
 								FileHandler fh = new FileHandler();
-								fh.openFile(name,
-										fis);
-								//fh.openFile(file);
+								fh.openFile(name, fis);
+								// fh.openFile(file);
 							} catch (Exception e) {
 								throw new ArgeoException(
 										"Stream error while opening file", e);
@@ -229,7 +234,69 @@ public class GenericJcrBrowser extends ViewPart {
 	}
 
 	public void nodeRemoved(Node parentNode) {
-		nodesViewer.refresh(parentNode);
+
+		List<Node> al = new ArrayList<Node>();
+		al.add(parentNode);
+
+		IStructuredSelection newSel = new StructuredSelection(al);
+		// IStructuredSelection newSel = new StructuredSelection(parentNode);
+
+		if (log.isDebugEnabled())
+			log.debug("new selection size = " + newSel.size());
+
+		nodesViewer.setSelection(newSel, true);
+		IStructuredSelection tmpSel = (IStructuredSelection) nodesViewer
+				.getSelection();
+
+		if (log.isDebugEnabled())
+			log.debug("set selection size = " + tmpSel.size());
+
+		nodesViewer.refresh();
+
+		//
+		// log.debug(" Class selected (Parent 1ST element) : "
+		// + tmpSel.getFirstElement().getClass());
+		// setFocus();
+		//
+		// nodesViewer.refresh(parentNode);
+
+		// // Call the refresh node command
+		// try {
+		// IWorkbench iw = JcrUiPlugin.getDefault().getWorkbench();
+		// IHandlerService handlerService = (IHandlerService) iw
+		// .getService(IHandlerService.class);
+		//
+		// // get the command from plugin.xml
+		// IWorkbenchWindow window = iw.getActiveWorkbenchWindow();
+		// ICommandService cmdService = (ICommandService) window
+		// .getService(ICommandService.class);
+		// Command cmd = cmdService
+		// .getCommand(OpenEbiDetailsEditor.COMMAND_NAME);
+		//
+		// // log.debug("cmd : " + cmd);
+		// ArrayList<Parameterization> parameters = new
+		// ArrayList<Parameterization>();
+		//
+		// // get the parameter
+		// IParameter iparam = cmd
+		// .getParameter(OpenEbiDetailsEditor.PARAM_UUID);
+		//
+		// Parameterization params = new Parameterization(iparam,
+		// ((String[]) obj)[0]);
+		// parameters.add(params);
+		//
+		// // build the parameterized command
+		// ParameterizedCommand pc = new ParameterizedCommand(cmd,
+		// parameters.toArray(new Parameterization[parameters.size()]));
+		//
+		// // execute the command
+		// handlerService = (IHandlerService) window
+		// .getService(IHandlerService.class);
+		// handlerService.executeCommand(pc, null);
+		//
+		// } catch (Exception e) {
+		// throw new ArgeoException("Error opening EBI", e);
+		// }
 	}
 
 	public void setRepositoryRegister(RepositoryRegister repositoryRegister) {

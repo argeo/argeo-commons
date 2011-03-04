@@ -9,17 +9,17 @@ import javax.jcr.Property;
 import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.dialogs.Error;
+import org.argeo.eclipse.ui.specific.ImportFileSystemHandler;
+import org.argeo.eclipse.ui.specific.ImportFileSystemWizardPage;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.swt.widgets.Composite;
 
 public class ImportFileSystemWizard extends Wizard {
 	private final static Log log = LogFactory
@@ -28,9 +28,11 @@ public class ImportFileSystemWizard extends Wizard {
 	private ImportFileSystemWizardPage page1;
 	private final Node folder;
 
+	private ImportFileSystemHandler ifsh = new ImportFileSystemHandler();
+
 	public ImportFileSystemWizard(Node folder) {
 		this.folder = folder;
-		setNeedsProgressMonitor(true);
+		setNeedsProgressMonitor(ifsh.getNeedsProgressMonitor());
 		setWindowTitle("Import from file system");
 	}
 
@@ -40,62 +42,99 @@ public class ImportFileSystemWizard extends Wizard {
 		addPage(page1);
 	}
 
+	/**
+	 * Called when the user click on 'Finish' in the wizard. The real upload to
+	 * the JCR repository is done here.
+	 */
 	@Override
 	public boolean performFinish() {
-		final String directory = page1.getDirectory();
-		if (directory == null || !new File(directory).exists()) {
-			Error.show("Directory " + directory + " does not exist");
-			return false;
-		}
 
-		Boolean failed = false;
-		final File dir = new File(directory).getAbsoluteFile();
-		final Long sizeB = directorySize(dir, 0l);
-		final Stats stats = new Stats();
-		Long begin = System.currentTimeMillis();
-		try {
-			getContainer().run(true, true, new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) {
-					try {
-						Integer sizeKB = (int) (sizeB / FileUtils.ONE_KB);
-						monitor.beginTask("", sizeKB);
-						importDirectory(folder, dir, monitor, stats);
-						monitor.done();
-					} catch (Exception e) {
-						if (e instanceof RuntimeException)
-							throw (RuntimeException) e;
-						else
-							throw new ArgeoException("Cannot import "
-									+ directory, e);
-					}
+		// Initialization
+		final String objectType = page1.getObjectType();
+		final String objectPath = page1.getObjectPath();
+
+		// We do not display a progress bar for one file only
+		if ("nt:file".equals(objectType)) {
+			// In Rap we must force the "real" upload of the file
+			page1.performFinish();
+			try {
+				Node fileNode = folder.addNode(page1.getObjectName(),
+						NodeType.NT_FILE);
+				Node resNode = fileNode.addNode(Property.JCR_CONTENT,
+						NodeType.NT_RESOURCE);
+				Binary binary = null;
+				try {
+					binary = folder.getSession().getValueFactory()
+							.createBinary(page1.getFileInputStream());
+					resNode.setProperty(Property.JCR_DATA, binary);
+				} finally {
+					if (binary != null)
+						binary.dispose();
+					IOUtils.closeQuietly(page1.getFileInputStream());
 				}
-			});
-		} catch (Exception e) {
-			Error.show("Cannot import " + directory, e);
-			failed = true;
+				folder.getSession().save();
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+			}
+			return true;
+		} else if ("nt:folder".equals(objectType)) {
+			if (objectPath == null || !new File(objectPath).exists()) {
+				Error.show("Directory " + objectPath + " does not exist");
+				return false;
+			}
+
+			Boolean failed = false;
+			final File dir = new File(objectPath).getAbsoluteFile();
+			final Long sizeB = directorySize(dir, 0l);
+			final Stats stats = new Stats();
+			Long begin = System.currentTimeMillis();
+			try {
+				getContainer().run(true, true, new IRunnableWithProgress() {
+					public void run(IProgressMonitor monitor) {
+						try {
+							Integer sizeKB = (int) (sizeB / FileUtils.ONE_KB);
+							monitor.beginTask("", sizeKB);
+							importDirectory(folder, dir, monitor, stats);
+							monitor.done();
+						} catch (Exception e) {
+							if (e instanceof RuntimeException)
+								throw (RuntimeException) e;
+							else
+								throw new ArgeoException("Cannot import "
+										+ objectPath, e);
+						}
+					}
+				});
+			} catch (Exception e) {
+				Error.show("Cannot import " + objectPath, e);
+				failed = true;
+			}
+
+			Long duration = System.currentTimeMillis() - begin;
+			Long durationS = duration / 1000l;
+			String durationStr = (durationS / 60) + " min " + (durationS % 60)
+					+ " s";
+			StringBuffer message = new StringBuffer("Imported\n");
+			message.append(stats.fileCount).append(" files\n");
+			message.append(stats.dirCount).append(" directories\n");
+			message.append(FileUtils.byteCountToDisplaySize(stats.sizeB));
+			if (failed)
+				message.append(" of planned ").append(
+						FileUtils.byteCountToDisplaySize(sizeB));
+			message.append("\n");
+			message.append("in ").append(durationStr).append("\n");
+			if (failed)
+				MessageDialog.openError(getShell(), "Import failed",
+						message.toString());
+			else
+				MessageDialog.openInformation(getShell(), "Import successful",
+						message.toString());
+
+			return true;
 		}
+		return false;
 
-		Long duration = System.currentTimeMillis() - begin;
-		Long durationS = duration / 1000l;
-		String durationStr = (durationS / 60) + " min " + (durationS % 60)
-				+ " s";
-		StringBuffer message = new StringBuffer("Imported\n");
-		message.append(stats.fileCount).append(" files\n");
-		message.append(stats.dirCount).append(" directories\n");
-		message.append(FileUtils.byteCountToDisplaySize(stats.sizeB));
-		if (failed)
-			message.append(" of planned ").append(
-					FileUtils.byteCountToDisplaySize(sizeB));
-		message.append("\n");
-		message.append("in ").append(durationStr).append("\n");
-		if (failed)
-			MessageDialog.openError(getShell(), "Import failed",
-					message.toString());
-		else
-			MessageDialog.openInformation(getShell(), "Import successful",
-					message.toString());
-
-		return true;
 	}
 
 	/** Recursively computes the size of the directory in bytes. */
@@ -112,7 +151,9 @@ public class ImportFileSystemWizard extends Wizard {
 		return size;
 	}
 
-	/** Recursively computes the size of the directory in bytes. */
+	/**
+	 * Import recursively a directory and its content to the repository.
+	 */
 	protected void importDirectory(Node folder, File dir,
 			IProgressMonitor monitor, Stats stats) {
 		try {
@@ -126,59 +167,52 @@ public class ImportFileSystemWizard extends Wizard {
 					stats.dirCount++;
 				} else {
 					Long fileSize = file.length();
-					monitor.subTask(file.getName() + " ("
-							+ FileUtils.byteCountToDisplaySize(fileSize) + ") "
-							+ file.getCanonicalPath());
-					try {
-						Node fileNode = folder.addNode(file.getName(),
-								NodeType.NT_FILE);
-						Node resNode = fileNode.addNode(Property.JCR_CONTENT,
-								NodeType.NT_RESOURCE);
-						Binary binary = null;
-						try {
-							binary = folder.getSession().getValueFactory()
-									.createBinary(new FileInputStream(file));
-							resNode.setProperty(Property.JCR_DATA, binary);
-						} finally {
-							if (binary != null)
-								binary.dispose();
-						}
-						folder.getSession().save();
-						stats.fileCount++;
-						stats.sizeB = stats.sizeB + fileSize;
-					} catch (Exception e) {
-						log.warn("Import of " + file + " ("
+
+					// we skip tempory files that are created by apps when a
+					// file is being edited.
+					// TODO : make this configurable.
+					if (file.getName().lastIndexOf('~') != file.getName()
+							.length() - 1) {
+
+						monitor.subTask(file.getName() + " ("
 								+ FileUtils.byteCountToDisplaySize(fileSize)
-								+ ") failed: " + e);
-						folder.getSession().refresh(false);
+								+ ") " + file.getCanonicalPath());
+						try {
+							Node fileNode = folder.addNode(file.getName(),
+									NodeType.NT_FILE);
+							Node resNode = fileNode.addNode(
+									Property.JCR_CONTENT, NodeType.NT_RESOURCE);
+							Binary binary = null;
+							try {
+								binary = folder
+										.getSession()
+										.getValueFactory()
+										.createBinary(new FileInputStream(file));
+								resNode.setProperty(Property.JCR_DATA, binary);
+							} finally {
+								if (binary != null)
+									binary.dispose();
+							}
+							folder.getSession().save();
+							stats.fileCount++;
+							stats.sizeB = stats.sizeB + fileSize;
+						} catch (Exception e) {
+							log.warn("Import of "
+									+ file
+									+ " ("
+									+ FileUtils
+											.byteCountToDisplaySize(fileSize)
+									+ ") failed: " + e);
+							folder.getSession().refresh(false);
+						}
+						monitor.worked((int) (fileSize / FileUtils.ONE_KB));
 					}
-					monitor.worked((int) (fileSize / FileUtils.ONE_KB));
 				}
 			}
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot import " + dir + " to " + folder,
 					e);
 		}
-	}
-
-	protected class ImportFileSystemWizardPage extends WizardPage {
-		private DirectoryFieldEditor dfe;
-
-		public ImportFileSystemWizardPage() {
-			super("Import from file system");
-			setDescription("Import files from the local file system into the JCR repository");
-		}
-
-		public void createControl(Composite parent) {
-			dfe = new DirectoryFieldEditor("directory", "From",
-					parent);
-			setControl(dfe.getTextControl(parent));
-		}
-
-		public String getDirectory() {
-			return dfe.getStringValue();
-		}
-
 	}
 
 	static class Stats {

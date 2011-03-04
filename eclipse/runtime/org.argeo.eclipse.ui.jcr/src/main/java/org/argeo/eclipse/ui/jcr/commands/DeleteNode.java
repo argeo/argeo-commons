@@ -4,6 +4,8 @@ import java.util.Iterator;
 
 import javax.jcr.Node;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.eclipse.ui.dialogs.Error;
 import org.argeo.eclipse.ui.jcr.views.GenericJcrBrowser;
 import org.eclipse.core.commands.AbstractHandler;
@@ -15,6 +17,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 /** Deletes the selected nodes */
 public class DeleteNode extends AbstractHandler {
+	private static Log log = LogFactory.getLog(DeleteNode.class);
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ISelection selection = HandlerUtil.getActiveWorkbenchWindow(event)
@@ -24,7 +27,6 @@ public class DeleteNode extends AbstractHandler {
 				.findView(HandlerUtil.getActivePartId(event));
 		if (selection != null && selection instanceof IStructuredSelection) {
 			Iterator<?> it = ((IStructuredSelection) selection).iterator();
-
 			Object obj = null;
 			try {
 				while (it.hasNext()) {
@@ -32,9 +34,17 @@ public class DeleteNode extends AbstractHandler {
 					if (obj instanceof Node) {
 						Node node = (Node) obj;
 						Node parentNode = node.getParent();
+						log.debug("Node ids : node :" + node.getIdentifier()
+								+ " - pNode : " + parentNode.getIdentifier());
 						node.remove();
-						view.nodeRemoved(parentNode);
+
+						// Postpone the refresh after the session.save
+						// view.nodeRemoved(parentNode);
+
 						node.getSession().save();
+						if (log.isDebugEnabled())
+							log.debug("session saved");
+						view.nodeRemoved(parentNode);
 					}
 				}
 			} catch (Exception e) {
@@ -43,5 +53,4 @@ public class DeleteNode extends AbstractHandler {
 		}
 		return null;
 	}
-
 }

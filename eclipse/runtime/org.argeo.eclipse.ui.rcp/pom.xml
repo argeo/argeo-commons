@@ -56,15 +56,25 @@
 			<version>0.2.3-SNAPSHOT</version>
 		</dependency>
 
+		<!-- Argeo Commons third party distribution for RCP projects -->
+		<dependency>
+			<groupId>org.argeo.commons.eclipse</groupId>
+			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+
+
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.nodeps</artifactId>
 			<version>0.2.3-SNAPSHOT</version>
 		</dependency>
 
+		<!-- Others. -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>com.springsource.org.apache.commons.io</artifactId>
 		</dependency>
+
 	</dependencies>
 </project>
