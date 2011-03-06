@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ui
 Bundle-SymbolicName: org.argeo.gis.ui;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 0.2.3.SNAPSHOT
 Bundle-Activator: org.argeo.gis.ui.GisUiPlugin
 Bundle-Vendor: Argeo
 Require-Bundle: org.eclipse.ui;resolution:=optional,
@@ -10,11 +10,17 @@ Require-Bundle: org.eclipse.ui;resolution:=optional,
  org.eclipse.core.runtime
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
-Import-Package: org.apache.commons.logging;version="1.1.1",
+Import-Package: javax.jcr;version="2.0.0",
+ javax.jcr.nodetype;version="2.0.0",
+ org.apache.commons.logging;version="1.1.1",
  org.argeo,
  org.argeo.eclipse.spring,
  org.argeo.eclipse.ui,
  org.argeo.eclipse.ui.dialogs,
+ org.argeo.eclipse.ui.jcr,
+ org.argeo.geotools.jcr,
+ org.argeo.jcr,
+ org.argeo.jcr.gis,
  org.geotools.data,
  org.geotools.map,
  org.geotools.map.event,

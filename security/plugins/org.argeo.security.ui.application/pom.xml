@@ -88,6 +88,11 @@
 		<!-- Argeo Eclipse distribution (common dependencies for both RAP and RCP) -->
 		<dependency>
 			<groupId>org.argeo.commons.eclipse</groupId>
+			<artifactId>org.argeo.eclipse.ui.rcp</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.eclipse</groupId>
 			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
 			<version>${version.argeo-commons}</version>
 			<scope>provided</scope>

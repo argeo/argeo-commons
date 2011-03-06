@@ -23,7 +23,7 @@ public class LayersView extends ViewPart implements MapLayerListListener {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		viewer = new TreeViewer(parent, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
 		viewer.setContentProvider(new MapContextContentProvider());
 		viewer.setLabelProvider(new MapContextLabelProvider());
 		viewer.setInput(getViewSite());

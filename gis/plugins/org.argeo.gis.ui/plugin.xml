@@ -11,10 +11,10 @@
             id="org.argeo.gis.ui.layersView">
       </view>
       <view
-            name="Data Stores"
+            name="GIS Data"
             icon="icons/gis_add_data.gif"
             class="org.argeo.eclipse.spring.SpringExtensionFactory"
-            id="org.argeo.gis.ui.dataStoresView">
+            id="org.argeo.gis.ui.featureSourcesView">
       </view>
    </extension>
    <extension
@@ -34,10 +34,14 @@
             id="org.argeo.gis.ui.newMap"
             name="New Map">
     	</command>
+		<command
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            id="org.argeo.gis.ui.addFeatureSources"
+            name="Add Feature Sources">
+    	</command>
     </extension>
 	<extension
          point="org.eclipse.ui.menus">
-        <!-- Queries --> 
 		<menuContribution
                 locationURI="toolbar:org.argeo.gis.ui.layersView">
              <command
@@ -47,6 +51,14 @@
                   label="New Map"
                   style="push"
                   tooltip="New Map">
+            </command>
+             <command
+                  commandId="org.argeo.gis.ui.addFeatureSources"
+                  disabledIcon="icons/sample.gif"
+                  icon="icons/earth_edit.gif"
+                  label="Add Feature Sources"
+                  style="push"
+                  tooltip="Add Feature Sources">
             </command>
         </menuContribution>
 	</extension>

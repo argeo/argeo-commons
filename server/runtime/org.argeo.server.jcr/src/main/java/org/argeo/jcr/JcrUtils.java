@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
+import javax.jcr.Binary;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -493,5 +494,11 @@ public class JcrUtils {
 	 */
 	public static String normalize(String name) {
 		return name.replace(':', '_');
+	}
+	
+	public static void closeQuietly(Binary binary){
+		if(binary==null)
+			return;
+		binary.dispose();
 	}
 }

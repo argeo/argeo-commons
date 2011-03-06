@@ -59,5 +59,17 @@
          </run>
       </application>
    </extension>
+   <extension
+         id="secureWebUi2"
+         name="Argeo Secure Web UI"
+         point="org.eclipse.core.runtime.applications">
+      <application cardinality="singleton-global"
+         thread="main"
+         visible="true">
+         <run
+               class="org.argeo.security.ui.application.SecureRap">
+         </run>
+      </application>
+   </extension>
 
 </plugin>

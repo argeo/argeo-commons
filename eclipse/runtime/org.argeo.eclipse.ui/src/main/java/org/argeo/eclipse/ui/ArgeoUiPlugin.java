@@ -16,6 +16,10 @@
 
 package org.argeo.eclipse.ui;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.eclipse.core.runtime.ILogListener;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
@@ -24,12 +28,14 @@ import org.osgi.framework.BundleContext;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class ArgeoUiPlugin extends AbstractUIPlugin {
+public class ArgeoUiPlugin extends AbstractUIPlugin implements ILogListener {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.argeo.eclipse.ui";
 
 	private final static String SPRING_OSGI_EXTENDER = "org.springframework.osgi.extender";
+
+	private final static Log log = LogFactory.getLog(ArgeoUiPlugin.class);
 
 	// The shared instance
 	private static ArgeoUiPlugin plugin;
@@ -54,12 +60,16 @@ public class ArgeoUiPlugin extends AbstractUIPlugin {
 		plugin = this;
 		bundleContext = context;
 
+		Platform.addLogListener(this);
+		log.debug("Eclipse logging now directed to standard logging");
+
 		// Make sure that the Spring OSGi extender is started
 		Bundle osgiExtBundle = Platform.getBundle(SPRING_OSGI_EXTENDER);
 		if (osgiExtBundle != null)
 			osgiExtBundle.start();
 		else
-			throw new Exception("Spring OSGi Extender not found");
+			log.error("Spring OSGi Extender not found");
+
 	}
 
 	/*
@@ -70,6 +80,9 @@ public class ArgeoUiPlugin extends AbstractUIPlugin {
 	 * )
 	 */
 	public void stop(BundleContext context) throws Exception {
+		Platform.removeLogListener(this);
+		log.debug("Eclipse logging not directed anymore to standard logging");
+
 		plugin = null;
 		super.stop(context);
 	}
@@ -85,6 +98,21 @@ public class ArgeoUiPlugin extends AbstractUIPlugin {
 
 	public BundleContext getBundleContext() {
 		return bundleContext;
+	}
+
+	public void logging(IStatus status, String plugin) {
+		Log pluginLog = LogFactory.getLog(plugin);
+		Integer severity = status.getSeverity();
+		if (severity == IStatus.ERROR)
+			pluginLog.error(status.getMessage(), status.getException());
+		else if (severity == IStatus.WARNING)
+			pluginLog.warn(status.getMessage(), status.getException());
+		else if (severity == IStatus.INFO)
+			pluginLog.info(status.getMessage(), status.getException());
+		else if (severity == IStatus.CANCEL)
+			if (pluginLog.isDebugEnabled())
+				pluginLog.debug(status.getMessage(), status.getException());
+
 	}
 
 }

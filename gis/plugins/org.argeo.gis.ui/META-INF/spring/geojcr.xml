@@ -4,11 +4,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="newMap" class="org.argeo.gis.ui.commands.NewMap" scope="prototype">
-	</bean>
-	
-	<bean id="addFeatureSources" class="org.argeo.gis.ui.commands.AddFeatureSources"
-		scope="prototype">
-		<property name="geoJcrMapper" ref="geoJcrMapper" />
+	<bean id="geoJcrMapper" class="org.argeo.geotools.jcr.SimpleGeoJcrMapper">
+		<property name="session" ref="jcrSession"/>
 	</bean>
 </beans>

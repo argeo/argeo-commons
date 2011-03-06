@@ -69,9 +69,9 @@ public class GeoJcrUtils {
 	public static CoordinateReferenceSystem getCoordinateReferenceSystem(
 			Node node) {
 		try {
-			if (!node.isNodeType(GisTypes.GIS_GEOMETRY))
+			if (!node.isNodeType(GisTypes.GIS_LOCATED))
 				throw new ArgeoException(node + " is not of type "
-						+ GisTypes.GIS_GEOMETRY);
+						+ GisTypes.GIS_LOCATED);
 			// Coordinate reference system
 			String srs = node.getProperty(GisNames.GIS_SRS).getString();
 			CoordinateReferenceSystem crs;

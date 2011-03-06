@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Rap
 Bundle-SymbolicName: org.argeo.gis.ui.rap.openlayers;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 0.2.3.SNAPSHOT
 Bundle-Activator: org.argeo.gis.ui.rap.openlayers.GisOpenlayersPlugin
 Bundle-Vendor: Argeo
 Require-Bundle: org.eclipse.rap.ui,
@@ -13,6 +13,7 @@ Bundle-ActivationPolicy: lazy
 Import-Package: com.vividsolutions.jts.geom;version="1.10.0",
  org.apache.commons.logging;version="1.1.1",
  org.argeo.eclipse.spring,
+ org.argeo.geotools,
  org.argeo.gis.ui,
  org.argeo.gis.ui.editors,
  org.geotools.data,
@@ -22,6 +23,8 @@ Import-Package: com.vividsolutions.jts.geom;version="1.10.0",
  org.opengis.feature,
  org.opengis.feature.simple,
  org.opengis.feature.type,
+ org.opengis.filter,
+ org.opengis.filter.identity,
  org.polymap.openlayers.rap.widget,
  org.polymap.openlayers.rap.widget.base,
  org.polymap.openlayers.rap.widget.base_types,

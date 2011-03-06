@@ -20,6 +20,7 @@ import org.argeo.geotools.GeoToolsUtils;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.gis.GisNames;
 import org.argeo.jcr.gis.GisTypes;
+import org.argeo.jts.jcr.JtsJcrUtils;
 import org.argeo.security.SystemExecutionService;
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultTransaction;
@@ -30,66 +31,52 @@ import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.FilterFactoryImpl;
-import org.geotools.referencing.CRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.identity.FeatureId;
-import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 public class GeoJcrIndex implements EventListener {
-	public final static SimpleFeatureType JCR_POINT;
-
-	final static String JCR_POINT_NAME = "JCR_POINT";
+	final static String GEOJCR_INDEX = "GEOJCR_INDEX";
 	// PostGIS convention
 	final static String DEFAULT_GEOM_NAME = "the_geom";
 
 	private final static Log log = LogFactory.getLog(GeoJcrIndex.class);
 
-	static {
+	public static SimpleFeatureType getWorkspaceGeoIndex(String workspaceName) {
 		SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
 		builder.setNamespaceURI(GisNames.GIS_NAMESPACE);
-		builder.setName(JCR_POINT_NAME);
+		builder.setName(workspaceName.toUpperCase() + "_" + GEOJCR_INDEX);
 
-		builder.setDefaultGeometry(DEFAULT_GEOM_NAME);
-		builder.add(DEFAULT_GEOM_NAME, Point.class);
+		builder.setDefaultGeometry(JcrUtils.normalize(GisNames.GIS_BBOX));
+		builder.add(JcrUtils.normalize(GisNames.GIS_BBOX), Polygon.class);
+		builder.add(JcrUtils.normalize(GisNames.GIS_CENTROID), Point.class);
 
 		builder.add(JcrUtils.normalize(Property.JCR_UUID), String.class);
 		builder.add(JcrUtils.normalize(Property.JCR_PATH), String.class);
 		builder.add(JcrUtils.normalize(Property.JCR_PRIMARY_TYPE), String.class);
-		// mix:created
-		// builder.add(JcrUtils.normalize(Property.JCR_CREATED), Date.class);
-		// builder.add(JcrUtils.normalize(Property.JCR_CREATED_BY),
-		// String.class);
 		// mix:lastModified
 		builder.add(JcrUtils.normalize(Property.JCR_LAST_MODIFIED), Date.class);
 		builder.add(JcrUtils.normalize(Property.JCR_LAST_MODIFIED_BY),
 				String.class);
 
-		JCR_POINT = builder.buildFeatureType();
+		return builder.buildFeatureType();
 	}
 
 	private DataStore dataStore;
-	private FeatureStore<SimpleFeatureType, SimpleFeature> pointsIndex;
 	private Session session;
 	private SystemExecutionService systemExecutionService;
 
 	// TODO: use common factory finder?
 	private FilterFactory2 ff = new FilterFactoryImpl();
 
-	// TODO: use finder?
-	private GeometryFactory geometryFactory = new GeometryFactory();
-
 	public void init() {
-		GeoToolsUtils.createSchemaIfNeeded(dataStore, JCR_POINT);
-		pointsIndex = GeoToolsUtils.getFeatureStore(dataStore,
-				JCR_POINT.getName());
 
 		systemExecutionService.executeAsSystem(new Runnable() {
 			public void run() {
@@ -99,7 +86,7 @@ public class GeoJcrIndex implements EventListener {
 							.addEventListener(GeoJcrIndex.this,
 									Event.NODE_ADDED | Event.NODE_REMOVED, "/",
 									true, null,
-									new String[] { GisTypes.GIS_GEOMETRY },
+									new String[] { GisTypes.GIS_INDEXED },
 									false);
 				} catch (RepositoryException e) {
 					throw new ArgeoException("Cannot initialize GeoJcr index",
@@ -114,9 +101,15 @@ public class GeoJcrIndex implements EventListener {
 	}
 
 	public void onEvent(EventIterator events) {
-		FeatureCollection<SimpleFeatureType, SimpleFeature> pointsToAdd = FeatureCollections
+		SimpleFeatureType indexType = getWorkspaceGeoIndex(session
+				.getWorkspace().getName());
+		GeoToolsUtils.createSchemaIfNeeded(dataStore, indexType);
+		FeatureStore<SimpleFeatureType, SimpleFeature> geoJcrIndex = GeoToolsUtils
+				.getFeatureStore(dataStore, indexType.getName());
+
+		FeatureCollection<SimpleFeatureType, SimpleFeature> toAdd = FeatureCollections
 				.newCollection();
-		Set<FeatureId> pointsToRemove = new HashSet<FeatureId>();
+		Set<FeatureId> toRemove = new HashSet<FeatureId>();
 		while (events.hasNext()) {
 			Event event = events.nextEvent();
 			try {
@@ -124,18 +117,14 @@ public class GeoJcrIndex implements EventListener {
 				if (Event.NODE_ADDED == eventType) {
 					Node node = session.getNodeByIdentifier(event
 							.getIdentifier());
-					if (node.isNodeType(GisTypes.GIS_POINT)) {
-						Point point = nodeToPoint(node);
-						SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(
-								JCR_POINT);
-						featureBuilder.set(DEFAULT_GEOM_NAME, point);
-						mapNodeToFeature(node, featureBuilder);
-						pointsToAdd.add(featureBuilder.buildFeature(node
-								.getIdentifier()));
+					if (node.isNodeType(GisTypes.GIS_LOCATED)) {
+						SimpleFeature feature = mapNodeToFeature(node,
+								indexType);
+						toAdd.add(feature);
 					}
 				} else if (Event.NODE_REMOVED == eventType) {
 					String id = event.getIdentifier();
-					pointsToRemove.add(ff.featureId(id));
+					toRemove.add(ff.featureId(id));
 				}
 			} catch (Exception e) {
 				log.error("Cannot process event " + event, e);
@@ -147,12 +136,12 @@ public class GeoJcrIndex implements EventListener {
 		// but we will loose modifications on all nodes if one fails
 		try {
 			Transaction transaction = new DefaultTransaction();
-			pointsIndex.setTransaction(transaction);
+			geoJcrIndex.setTransaction(transaction);
 			try {
 				// points
-				pointsIndex.addFeatures(pointsToAdd);
-				if (pointsToRemove.size() != 0)
-					pointsIndex.removeFeatures(ff.id(pointsToRemove));
+				geoJcrIndex.addFeatures(toAdd);
+				if (toRemove.size() != 0)
+					geoJcrIndex.removeFeatures(ff.id(toRemove));
 				transaction.commit();
 			} catch (Exception e) {
 				transaction.rollback();
@@ -167,55 +156,97 @@ public class GeoJcrIndex implements EventListener {
 		}
 	}
 
-	protected void mapNodeToFeature(Node node,
-			SimpleFeatureBuilder featureBuilder) {
+	protected SimpleFeature mapNodeToFeature(Node node, SimpleFeatureType type) {
 		try {
-			featureBuilder.set(JcrUtils.normalize(Property.JCR_UUID),
+			SimpleFeatureBuilder builder = new SimpleFeatureBuilder(type);
+
+			Node locatedNode;
+			if (node.isNodeType(GisTypes.GIS_LOCATED)) {
+				locatedNode = node;
+			} else if (node.isNodeType(GisTypes.GIS_INDEXED)) {
+				locatedNode = findLocatedparent(node);
+			} else {
+				throw new ArgeoException("Unsupported node " + node);
+			}
+
+			// TODO: reproject to the feature store SRS
+			Polygon bbox = (Polygon) JtsJcrUtils.readWkb(locatedNode
+					.getProperty(GisNames.GIS_BBOX));
+			builder.set(JcrUtils.normalize(GisNames.GIS_BBOX), bbox);
+			Polygon centroid = (Polygon) JtsJcrUtils.readWkb(locatedNode
+					.getProperty(GisNames.GIS_CENTROID));
+			builder.set(JcrUtils.normalize(GisNames.GIS_CENTROID), centroid);
+
+			builder.set(JcrUtils.normalize(Property.JCR_UUID),
 					node.getIdentifier());
-			featureBuilder.set(JcrUtils.normalize(Property.JCR_PATH),
-					node.getPath());
-			featureBuilder.set(JcrUtils.normalize(Property.JCR_PRIMARY_TYPE),
-					node.getPrimaryNodeType().getName());
+			builder.set(JcrUtils.normalize(Property.JCR_PATH), node.getPath());
+			builder.set(JcrUtils.normalize(Property.JCR_PRIMARY_TYPE), node
+					.getPrimaryNodeType().getName());
 			if (node.hasProperty(Property.JCR_LAST_MODIFIED))
-				featureBuilder.set(
-						JcrUtils.normalize(Property.JCR_LAST_MODIFIED), node
-								.getProperty(Property.JCR_LAST_MODIFIED)
-								.getDate().getTime());
+				builder.set(JcrUtils.normalize(Property.JCR_LAST_MODIFIED),
+						node.getProperty(Property.JCR_LAST_MODIFIED).getDate()
+								.getTime());
 			if (node.hasProperty(Property.JCR_LAST_MODIFIED_BY))
-				featureBuilder
-						.set(JcrUtils.normalize(Property.JCR_LAST_MODIFIED_BY),
-								node.getProperty(Property.JCR_LAST_MODIFIED_BY)
-										.getString());
+				builder.set(JcrUtils.normalize(Property.JCR_LAST_MODIFIED_BY),
+						node.getProperty(Property.JCR_LAST_MODIFIED_BY)
+								.getString());
+			return builder.buildFeature(node.getIdentifier());
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot map " + node + " to "
-					+ featureBuilder.getFeatureType(), e);
+			throw new ArgeoException("Cannot map " + node + " to " + type, e);
 		}
 	}
 
-	/** Return the node as a point in the CRS of the related feature store. */
-	protected Point nodeToPoint(Node node) {
-		CoordinateReferenceSystem featureStoreCrs = pointsIndex.getSchema()
-				.getCoordinateReferenceSystem();
-		DirectPosition nodePosition = GeoJcrUtils.nodeToPosition(node);
-		CoordinateReferenceSystem nodeCrs = nodePosition
-				.getCoordinateReferenceSystem();
-
-		// transform if not same CRS
-		DirectPosition targetPosition;
-		if (!featureStoreCrs.getIdentifiers().contains(nodeCrs.getName())) {
-			MathTransform transform;
-			try {
-				transform = CRS.findMathTransform(nodeCrs, featureStoreCrs);
-				targetPosition = transform.transform(nodePosition, null);
-			} catch (Exception e) {
-				throw new ArgeoException("Cannot transform from " + nodeCrs
-						+ " to " + featureStoreCrs, e);
-			}
-		} else {
-			targetPosition = nodePosition;
+	protected Node findLocatedparent(Node child) {
+		try {
+			if (child.getParent().isNodeType(GisTypes.GIS_LOCATED))
+				return child.getParent();
+			else
+				return findLocatedparent(child.getParent());
+		} catch (Exception e) {
+			// also if child is root node
+			throw new ArgeoException("Cannot find located parent", e);
 		}
-		double[] coo = targetPosition.getCoordinate();
-		return geometryFactory.createPoint(new Coordinate(coo[0], coo[1]));
+	}
+
+	/** Returns the node as a point in the CRS of the related feature store. */
+	protected Geometry reproject(CoordinateReferenceSystem crs,
+			Geometry geometry, CoordinateReferenceSystem targetCrs) {
+		// transform if not same CRS
+		// FIXME: there is certainly a more standard way to reproject
+		if (!targetCrs.getIdentifiers().contains(crs.getName())) {
+			throw new ArgeoException("Reprojection not yet supported");
+			// MathTransform transform;
+			// try {
+			// transform = CRS.findMathTransform(nodeCrs, featureStoreCrs);
+			// if (geometry instanceof Point) {
+			// Point point = (Point) geometry;
+			// DirectPosition2D pos = new DirectPosition2D(nodeCrs,
+			// point.getX(), point.getY());
+			// DirectPosition targetPos = transform.transform(pos, null);
+			// return geometryFactory.createPoint(new Coordinate(targetPos
+			// .getCoordinate()[0], targetPos.getCoordinate()[1]));
+			// } else if (geometry instanceof Polygon) {
+			// Polygon polygon = (Polygon) geometry;
+			// List<Coordinate> coordinates = new ArrayList<Coordinate>();
+			// for (Coordinate coo : polygon.getExteriorRing()) {
+			// DirectPosition pos = new DirectPosition2D(nodeCrs,
+			// coo.x, coo.y);
+			// DirectPosition targetPos = transform.transform(pos,
+			// null);
+			// // coordinates.add(o)
+			// }
+			// LinearRing ring = geometryFactory
+			// .createLinearRing(coordinates
+			// .toArray(new Coordinate[coordinates.size()]));
+			// return geometryFactory.createPolygon(ring, null);
+			// }
+			// } catch (Exception e) {
+			// throw new ArgeoException("Cannot transform from " + nodeCrs
+			// + " to " + featureStoreCrs, e);
+			// }
+		} else {
+			return geometry;
+		}
 	}
 
 	public void setDataStore(DataStore dataStore) {

@@ -69,12 +69,21 @@
 					<groupId>org.argeo.commons.eclipse</groupId>
 					<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.commons.eclipse</groupId>
+					<artifactId>org.argeo.eclipse.ui.rcp</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<!-- RAP -->
 		<dependency>
 			<groupId>org.argeo.commons.eclipse</groupId>
 			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.eclipse</groupId>
+			<artifactId>org.argeo.eclipse.ui.rap</artifactId>
 			<version>${version.argeo-commons}</version>
 		</dependency>
 		<dependency>

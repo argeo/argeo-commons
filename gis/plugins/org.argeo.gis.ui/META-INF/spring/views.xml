@@ -9,9 +9,10 @@
 		scope="prototype">
 	</bean>
 
-	<bean id="dataStoresView" class="org.argeo.gis.ui.views.DataStoresView"
+	<bean id="featureSourcesView" class="org.argeo.gis.ui.views.FeatureSourcesView"
 		scope="prototype">
-		<property name="dataStores" ref="dataStores" />
+		<property name="session" ref="jcrSession"/>
+		<property name="geoJcrMapper" ref="geoJcrMapper"/>
 	</bean>
 
 </beans>

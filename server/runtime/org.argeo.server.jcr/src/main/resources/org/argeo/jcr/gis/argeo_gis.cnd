@@ -7,10 +7,34 @@ mixin
 - gis:y (DOUBLE) m
 - gis:z (DOUBLE)
 
-[gis:geometry] > mix:created, mix:lastModified
+// marker any node that is located or has a located parent 
+[gis:indexed] > nt:unstructured, mix:lastModified
 mixin
-// either an EPSG code (EPSG:4326 for WGS 84) or a WKT representation
-- gis:srs (STRING)
 
-[gis:point] > gis:geometry, gis:coordinate
+[gis:located] > gis:indexed
+abstract mixin
+// either an EPSG code (e.g. EPSG:4326 for WGS 84) or a WKT representation
+- gis:srs (STRING) m
+// WKB
+- gis:bbox (BINARY) m
+// WKB
+- gis:centroid (BINARY) m
+// - gis:role (STRING)
+
+[gis:geometry] > nt:unstructured, gis:located
+- gis:wkb (STRING) m
+
+// GEOTOOLS
+[gis:feature] > nt:base
 mixin
+//- gis:relatedNode (REFERENCE) *
+
+[gis:featureSource] > nt:unstructured, mix:title
+mixin
+- gis:type (STRING)
+
+[gis:dataStore] > nt:unstructured, mix:title
+- gis:type (STRING)
++ * (gis:featureSource) *
+
+[gis:relatedFeature] > nt:address, gis:located
