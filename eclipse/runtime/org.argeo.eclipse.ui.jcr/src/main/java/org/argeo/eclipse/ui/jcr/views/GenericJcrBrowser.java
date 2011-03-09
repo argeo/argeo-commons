@@ -1,9 +1,7 @@
 package org.argeo.eclipse.ui.jcr.views;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
@@ -20,6 +18,8 @@ import org.argeo.eclipse.ui.jcr.browser.NodeLabelProvider;
 import org.argeo.eclipse.ui.jcr.browser.PropertiesContentProvider;
 import org.argeo.eclipse.ui.jcr.browser.RepositoryNode;
 import org.argeo.eclipse.ui.jcr.browser.WorkspaceNode;
+import org.argeo.eclipse.ui.jcr.utils.JcrFileProvider;
+import org.argeo.eclipse.ui.jcr.utils.NodeViewerComparer;
 import org.argeo.eclipse.ui.specific.FileHandler;
 import org.argeo.jcr.RepositoryRegister;
 import org.eclipse.jface.action.MenuManager;
@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.part.ViewPart;
 
 public class GenericJcrBrowser extends ViewPart {
-	private static Log log = LogFactory.getLog(GenericJcrBrowser.class);
+	private final static Log log = LogFactory.getLog(GenericJcrBrowser.class);
 
 	private TreeViewer nodesViewer;
 	private TableViewer propertiesViewer;
@@ -52,6 +52,23 @@ public class GenericJcrBrowser extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
+		/*
+		 * TEST
+		 */
+
+		// Instantiate the generic object that fits for
+		// both RCP & RAP, must be final to be accessed in the double click
+		// listener.
+		// Not that in RAP, it registers a service handler that provide the
+		// access to the files.
+
+		final JcrFileProvider jfp = new JcrFileProvider();
+		final FileHandler fh = new FileHandler(jfp);
+
+		/*
+		 * TEST END
+		 */
+
 		parent.setLayout(new FillLayout());
 
 		SashForm sashForm = new SashForm(parent, SWT.VERTICAL);
@@ -81,6 +98,7 @@ public class GenericJcrBrowser extends ViewPart {
 						}
 					}
 				});
+
 		nodesViewer.addDoubleClickListener(new IDoubleClickListener() {
 			public void doubleClick(DoubleClickEvent event) {
 				if (event.getSelection() == null
@@ -89,37 +107,62 @@ public class GenericJcrBrowser extends ViewPart {
 				Object obj = ((IStructuredSelection) event.getSelection())
 						.getFirstElement();
 				if (obj instanceof RepositoryNode) {
-					((RepositoryNode) obj).login();
+					RepositoryNode rpNode = (RepositoryNode) obj;
+					rpNode.login();
+					// For the file provider to be able to browse the repo.
+					// TODO : enhanced that.
+					jfp.setRepositoryNode(rpNode);
+					
 					nodesViewer.refresh(obj);
 				} else if (obj instanceof WorkspaceNode) {
 					((WorkspaceNode) obj).login();
 					nodesViewer.refresh(obj);
 				} // call the openFile commands on node
 				else if (obj instanceof Node) {
+					// Shell shell =
+					// aup.getWorkbench().getActiveWorkbenchWindow()
+					// .getShell();
+					// we can also do
+					// event.getViewer().getControl().getShell();
+
+					// Browser browser = new Browser(shell, SWT.NONE);
+					// browser.setText(encodedURL);
+					// boolean check = browser.setUrl(encodedURL);
+					// System.out.println("soo ?? : " + check);
+					// System.out.println("script : " + browser.executeScript);
+
+					// try {
+					// RWT.getResponse().sendRedirect(encodedURL);
+					// } catch (IOException e1) {
+					// // TODO Auto-generated catch block
+					// e1.printStackTrace();
+					// }
+
+					// final Browser browser = new Browser(parent, SWT.NONE);
+					// browser.setText(createDownloadHtml("test.pdf",
+					// "Download file"));
+
 					Node node = (Node) obj;
 					try {
 						if (node.isNodeType("nt:file")) {
+							String name = node.getName();
+							String id = node.getIdentifier();
 
 							Node child = node.getNodes().nextNode();
 							if (!child.isNodeType("nt:resource")) {
 								Error.show("Cannot open file children Node that are not of 'nt:resource' type.");
 								return;
 							}
+
 							InputStream fis = null;
 
 							try {
 								fis = (InputStream) child
 										.getProperty("jcr:data").getBinary()
 										.getStream();
-
-								String name = node.getName();
-
 								// Instantiate the generic object that fits for
-								// both
-								// RCP & RAP.
-								FileHandler fh = new FileHandler();
-								fh.openFile(name, fis);
-								// fh.openFile(file);
+								// both RCP & RAP.
+								fh.openFile(name, id, fis);
 							} catch (Exception e) {
 								throw new ArgeoException(
 										"Stream error while opening file", e);
@@ -131,6 +174,7 @@ public class GenericJcrBrowser extends ViewPart {
 						re.printStackTrace();
 
 					}
+
 				}
 
 			}
@@ -205,6 +249,8 @@ public class GenericJcrBrowser extends ViewPart {
 
 		sashForm.setWeights(getWeights());
 
+		nodesViewer.setComparer(new NodeViewerComparer());
+
 	}
 
 	@Override
@@ -235,71 +281,17 @@ public class GenericJcrBrowser extends ViewPart {
 
 	public void nodeRemoved(Node parentNode) {
 
-		List<Node> al = new ArrayList<Node>();
-		al.add(parentNode);
-
-		IStructuredSelection newSel = new StructuredSelection(al);
-		// IStructuredSelection newSel = new StructuredSelection(parentNode);
-
-		if (log.isDebugEnabled())
-			log.debug("new selection size = " + newSel.size());
-
+		IStructuredSelection newSel = new StructuredSelection(parentNode);
 		nodesViewer.setSelection(newSel, true);
+		// Force refresh
 		IStructuredSelection tmpSel = (IStructuredSelection) nodesViewer
 				.getSelection();
-
-		if (log.isDebugEnabled())
-			log.debug("set selection size = " + tmpSel.size());
-
-		nodesViewer.refresh();
-
-		//
-		// log.debug(" Class selected (Parent 1ST element) : "
-		// + tmpSel.getFirstElement().getClass());
-		// setFocus();
-		//
-		// nodesViewer.refresh(parentNode);
-
-		// // Call the refresh node command
-		// try {
-		// IWorkbench iw = JcrUiPlugin.getDefault().getWorkbench();
-		// IHandlerService handlerService = (IHandlerService) iw
-		// .getService(IHandlerService.class);
-		//
-		// // get the command from plugin.xml
-		// IWorkbenchWindow window = iw.getActiveWorkbenchWindow();
-		// ICommandService cmdService = (ICommandService) window
-		// .getService(ICommandService.class);
-		// Command cmd = cmdService
-		// .getCommand(OpenEbiDetailsEditor.COMMAND_NAME);
-		//
-		// // log.debug("cmd : " + cmd);
-		// ArrayList<Parameterization> parameters = new
-		// ArrayList<Parameterization>();
-		//
-		// // get the parameter
-		// IParameter iparam = cmd
-		// .getParameter(OpenEbiDetailsEditor.PARAM_UUID);
-		//
-		// Parameterization params = new Parameterization(iparam,
-		// ((String[]) obj)[0]);
-		// parameters.add(params);
-		//
-		// // build the parameterized command
-		// ParameterizedCommand pc = new ParameterizedCommand(cmd,
-		// parameters.toArray(new Parameterization[parameters.size()]));
-		//
-		// // execute the command
-		// handlerService = (IHandlerService) window
-		// .getService(IHandlerService.class);
-		// handlerService.executeCommand(pc, null);
-		//
-		// } catch (Exception e) {
-		// throw new ArgeoException("Error opening EBI", e);
-		// }
+		nodesViewer.refresh(tmpSel.getFirstElement());
 	}
 
+	// IoC
 	public void setRepositoryRegister(RepositoryRegister repositoryRegister) {
 		this.repositoryRegister = repositoryRegister;
 	}
+
 }

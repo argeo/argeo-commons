@@ -40,8 +40,12 @@ public class NodeLabelProvider extends LabelProvider {
 				for (NodeType type : node.getMixinNodeTypes())
 					mixins.append(' ').append(type.getName());
 
+				// System.out.println("URL : "
+				// + createDownloadHtml("test.pdf", "Downlad"));
+
 				return label + " [" + node.getPrimaryNodeType().getName()
 						+ mixins + "]";
+				// + createDownloadHtml("test.pdf", "Downlad");
 			}
 			return element.toString();
 		} catch (RepositoryException e) {
@@ -78,4 +82,5 @@ public class NodeLabelProvider extends LabelProvider {
 		}
 		return super.getImage(element);
 	}
+
 }

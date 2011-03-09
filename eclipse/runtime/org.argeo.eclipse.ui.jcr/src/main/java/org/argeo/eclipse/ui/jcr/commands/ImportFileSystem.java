@@ -2,6 +2,8 @@ package org.argeo.eclipse.ui.jcr.commands;
 
 import javax.jcr.Node;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.eclipse.ui.dialogs.Error;
 import org.argeo.eclipse.ui.jcr.views.GenericJcrBrowser;
 import org.argeo.eclipse.ui.jcr.wizards.ImportFileSystemWizard;
@@ -14,6 +16,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 public class ImportFileSystem extends AbstractHandler {
+	private static Log log = LogFactory.getLog(ImportFileSystem.class);
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ISelection selection = HandlerUtil.getActiveWorkbenchWindow(event)
@@ -27,11 +30,11 @@ public class ImportFileSystem extends AbstractHandler {
 			try {
 				if (obj instanceof Node) {
 					Node folder = (Node) obj;
-//					if (!folder.getPrimaryNodeType().getName()
-//							.equals(NodeType.NT_FOLDER)) {
-//						Error.show("Can only import to a folder node");
-//						return null;
-//					}
+					// if (!folder.getPrimaryNodeType().getName()
+					// .equals(NodeType.NT_FOLDER)) {
+					// Error.show("Can only import to a folder node");
+					// return null;
+					// }
 					ImportFileSystemWizard wizard = new ImportFileSystemWizard(
 							folder);
 					WizardDialog dialog = new WizardDialog(

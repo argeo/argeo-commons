@@ -38,8 +38,12 @@ public class ImportFileSystemWizard extends Wizard {
 
 	@Override
 	public void addPages() {
-		page1 = new ImportFileSystemWizardPage();
-		addPage(page1);
+		try {
+			page1 = new ImportFileSystemWizardPage();
+			addPage(page1);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
