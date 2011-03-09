@@ -17,10 +17,12 @@ import org.argeo.ArgeoException;
  */
 public class FileHandler {
 
-	public FileHandler() {
+	// unused file provider : collateral effects of single sourcing, this File
+	// provider is compulsory for RAP file handler
+	public FileHandler(FileProvider jfp) {
 	}
 
-	public void openFile(String fileName, InputStream is) {
+	public void openFile(String fileName, String fileId, InputStream is) {
 
 		String prefix = "", extension = "";
 		if (fileName != null) {
@@ -44,7 +46,7 @@ public class FileHandler {
 		}
 	}
 
-	public void openFile(File file) {
+	private void openFile(File file) {
 		try {
 			Desktop desktop = null;
 			if (Desktop.isDesktopSupported()) {

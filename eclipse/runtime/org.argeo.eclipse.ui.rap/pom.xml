@@ -32,12 +32,17 @@
 					<instructions>
 						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
 						<Bundle-Activator>org.argeo.eclipse.ui.ArgeoUiPlugin</Bundle-Activator>
-						<Require-Bundle>org.eclipse.rap.ui,org.eclipse.core.runtime</Require-Bundle>
+						<Require-Bundle>org.eclipse.rap.ui,org.eclipse.rwt.widgets.upload,org.eclipse.core.runtime</Require-Bundle>
+						<!-- IMPORTANT : Note that we must exclude certain packages that are 
+							provided by dependencies to be sure that packages used in the current workspace 
+							are those provided by the require-bundles. Especially rwt.widgets.upload 
+							by instance. -->
 						<Import-Package>
 							org.apache.commons.io,
 							org.argeo,
 							org.springframework.beans.factory,
 							org.springframework.core.io.support,
+							!org.eclipse.rwt.widgets,
 							!org.eclipse.core.runtime,
 							!org.eclipse.core.commands,
 							!org.eclipse.ui.plugin,
@@ -64,6 +69,11 @@
 			<groupId>org.argeo.commons.eclipse</groupId>
 			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
 			<version>${version.argeo-commons}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.argeo.dep.rap</groupId>
+			<artifactId>org.eclipse.rwt.widgets.upload</artifactId>
 		</dependency>
 
 		<!-- Logging -->

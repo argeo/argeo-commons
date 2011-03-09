@@ -31,12 +31,12 @@
 				<configuration>
 					<instructions>
 						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
+						<Require-Bundle>org.eclipse.ui;resolution:=optional,org.eclipse.rap.ui;resolution:=optional,org.eclipse.core.runtime</Require-Bundle>
 						<Import-Package>
 							org.eclipse.swt,
 							org.argeo.eclipse.ui.specific,
 							*
 						</Import-Package>
-						<Require-Bundle>org.eclipse.ui;resolution:=optional,org.eclipse.rap.ui;resolution:=optional,org.eclipse.core.runtime</Require-Bundle>
 					</instructions>
 				</configuration>
 			</plugin>
@@ -94,6 +94,5 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>com.springsource.slf4j.org.apache.commons.logging</artifactId>
 		</dependency>
-
 	</dependencies>
 </project>
