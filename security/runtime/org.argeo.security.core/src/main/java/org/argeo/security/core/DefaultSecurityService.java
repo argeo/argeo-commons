@@ -16,6 +16,7 @@
 
 package org.argeo.security.core;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -134,7 +135,8 @@ public class DefaultSecurityService extends DefaultCurrentUserService implements
 	}
 
 	public Set<ArgeoUser> listUsersInRole(String role) {
-		Set<ArgeoUser> lst = securityDao.listUsersInRole(role);
+		Set<ArgeoUser> lst = new HashSet<ArgeoUser>(
+				securityDao.listUsersInRole(role));
 		Iterator<ArgeoUser> it = lst.iterator();
 		while (it.hasNext()) {
 			if (it.next().getUsername()
