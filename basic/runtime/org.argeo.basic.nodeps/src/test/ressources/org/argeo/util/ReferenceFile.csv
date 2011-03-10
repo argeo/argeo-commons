@@ -1,0 +1,31 @@
+"ID","A long Text","Name","Other","Number","Reference","Target","Date","Update","Language","ID Ref","weird chars","line feeds","after line feed","Empty column","Status comment","Comments","Empty"
+"AK251","Everything & with some line feed \n more “some” quote","B TY",,78.6,"A1155222221111268515131",,12/12/12,03/12/08,,9821308500721,"%%%ùù","ao","alf",,,"Bruno/Antoine what is the real identity?",
+"AG254","same","Roger “wallace” Big","15 – JI",78.5,"A1155222221111268515131","next milestone",12/12/12,03/12/08,"_fr (French - France)",9812309500953,"***µ”","a
+
+
+
+
+o","alf",,"Do the job",,
+"FG211","Very long text with some bullets.
+1 first
+2 second
+3. some more very very very long. some more very very very long. some more very very very long. some more very very very long. some more very very very long. some more very very very long. some more very very very long. some more very very very long. some more very very very long. some more very very very long. some more very very very long. some more very very very long","None","15 – JI",15.4,"A1155222221111268515131","next milestone",12/12/12,03/12/08,"_fr (French - France)",9812309500952,"///","a
+
+
+
+
+
+
+o","alf",,"Be fast",,
+"RRT152","Very long text with some bullets.
+1 first
+2 second
+3. some more very very very long. some more very very very long. some more very very very long. some more very very very long. some more very very very long. some more very very very long. some more very very very long. some more very very very long. some more very very very long. some more very very very long. some more very very very long. some more very very very long","Another $$","15 – JI",12.3,"A1155222221111268515131","next milestone",12/12/12,03/12/08,"_fr (French - France)",9812309500950,"---","a
+
+o
+
+
+","alf",,,,
+"YU121","Another use case : “blank line”
+
+After the blank.","nothing with brackets( )","15 – JI",15.2,"A1155222221111268515131",,12/12/12,03/12/08,"_fr (French - France)",9812309500925,",;:?./","ao","alf",,,,
