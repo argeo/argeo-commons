@@ -1,33 +1,34 @@
 package org.argeo.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import junit.framework.TestCase;
 
 public class CsvParserTestCase extends TestCase {
 	public void testParse() throws Exception {
+		String toParse = "Header1,\"Header2\",Header3,\"Header4\"\n"
+				+ "Col1,\"Col\n2\",Col3,\"\"\"Col4\"\"\"\n"
+				+ "Col1,\"Col\n2\",Col3,\"\"\"Col4\"\"\"\n"
+				+ "Col1,\"Col\n2\",Col3,\"\"\"Col4\"\"\"\n";
 
-		final Map<Integer, Map<String, String>> lines = new HashMap<Integer, Map<String, String>>();
-		InputStream in = getClass().getResourceAsStream(
-				"/org/argeo/util/ReferenceFile.csv");
-		CsvParserWithLinesAsMap parser = new CsvParserWithLinesAsMap() {
-			protected void processLine(Integer lineNumber,
-					Map<String, String> line) {
-				lines.put(lineNumber, line);
+		InputStream in = new ByteArrayInputStream(toParse.getBytes());
+
+		CsvParser csvParser = new CsvParser() {
+			protected void processLine(Integer lineNumber, List<String> header,
+					List<String> tokens) {
+				assertEquals(header.size(), tokens.size());
+				assertEquals(4, tokens.size());
+				assertEquals("Col1", tokens.get(0));
+				assertEquals("Col\n2", tokens.get(1));
+				assertEquals("Col3", tokens.get(2));
+				assertEquals("\"Col4\"", tokens.get(3));
 			}
 		};
 
-		parser.parse(in);
+		csvParser.parse(in);
 		in.close();
-
-		for (Integer i : lines.keySet()) {
-			Map<String, String> curLine = lines.get(i);
-			System.out.println("i : " + i.toString() + " - EBITAG :"
-					+ curLine.get("EBI Tag"));
-		}
-		assertEquals(11, lines.size());
-
 	}
+
 }
