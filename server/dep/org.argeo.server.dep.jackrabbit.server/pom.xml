@@ -167,19 +167,15 @@
 			<groupId>org.xmlpull</groupId>
 			<artifactId>com.springsource.org.xmlpull</artifactId>
 		</dependency>
-
-		<!-- Test with Javax -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.javax</artifactId>
 			<version>${version.argeo-commons}</version>
 			<type>pom</type>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.xmlcommons</groupId>
 			<artifactId>com.springsource.org.apache.xmlcommons</artifactId>
-			<scope>test</scope>
 		</dependency>
 
 	</dependencies>

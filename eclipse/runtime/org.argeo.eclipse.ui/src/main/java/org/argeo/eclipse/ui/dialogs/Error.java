@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+/** !Generic error dialog to be used in try/catch blocks*/
 public class Error extends TitleAreaDialog {
 	private final static Log log = LogFactory.getLog(Error.class);
 

@@ -36,8 +36,8 @@ import org.argeo.ArgeoException;
 import org.springframework.core.io.Resource;
 
 /**
- * Bridge Spring resources and JCR folder / files semantics (nt:folder / nt:file),
- * supporting versioning as well.
+ * Bridge Spring resources and JCR folder / files semantics (nt:folder /
+ * nt:file), supporting versioning as well.
  */
 public class JcrResourceAdapter {
 	private final static Log log = LogFactory.getLog(JcrResourceAdapter.class);
@@ -57,7 +57,7 @@ public class JcrResourceAdapter {
 	}
 
 	public void mkdirs(String path) {
-		JcrUtils.mkdirs(session(), path, "nt:folder", versioning);
+		JcrUtils.mkdirs(session(), path, "nt:folder", "nt:folder", versioning);
 	}
 
 	public void create(String path, Resource file, String mimeType) {

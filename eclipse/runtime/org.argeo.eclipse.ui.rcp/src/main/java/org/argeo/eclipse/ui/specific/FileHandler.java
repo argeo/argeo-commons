@@ -51,8 +51,10 @@ public class FileHandler {
 			Desktop desktop = null;
 			if (Desktop.isDesktopSupported()) {
 				desktop = Desktop.getDesktop();
+				desktop.open(file);
+			} else {
+				throw new ArgeoException("Desktop integration not supported.");
 			}
-			desktop.open(file);
 		} catch (IOException e) {
 			throw new ArgeoException("Cannot open file " + file.getName(), e);
 		}

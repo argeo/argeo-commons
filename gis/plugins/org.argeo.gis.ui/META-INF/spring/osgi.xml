@@ -7,13 +7,10 @@
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
 	<reference id="mapControlCreator" interface="org.argeo.gis.ui.MapControlCreator" />
-	<list id="dataStores" interface="org.geotools.data.DataStore"
-		cardinality="0..N">
-		<listener ref="geoJcrMapper" bind-method="register"
-			unbind-method="unregister" />
-	</list>
 
 	<reference id="jcrSession" interface="javax.jcr.Session"
 		filter="(argeo.jcr.repository.alias=connect_mideast)" />
+
+	<reference id="geoJcrMapper" interface="org.argeo.geotools.jcr.GeoJcrMapper" />
 
 </beans:beans>

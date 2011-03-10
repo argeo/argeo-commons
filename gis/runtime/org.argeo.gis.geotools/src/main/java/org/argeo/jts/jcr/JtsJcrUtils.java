@@ -1,25 +1,19 @@
 package org.argeo.jts.jcr;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
 import javax.jcr.Binary;
-import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
-import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 
 import org.apache.commons.io.IOUtils;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.jcr.gis.GisNames;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.InputStreamInStream;
-import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKBWriter;
 
@@ -53,21 +47,20 @@ public class JtsJcrUtils {
 		}
 	}
 
-	public final static void writeWkb(Property property, Geometry geometry) {
+	/** The returned binary should be disposed by the caller */
+	public final static Binary writeWkb(Session session, Geometry geometry) {
 		Binary wkbBinary = null;
 		InputStream in = null;
 		try {
 			WKBWriter wkbWriter = wkbWriters.get();
 			byte[] arr = wkbWriter.write(geometry);
 			in = new ByteArrayInputStream(arr);
-			wkbBinary = property.getSession().getValueFactory()
-					.createBinary(in);
-			property.setValue(wkbBinary);
+			wkbBinary = session.getValueFactory().createBinary(in);
+			return wkbBinary;
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot write WKB to " + property, e);
+			throw new ArgeoException("Cannot write WKB", e);
 		} finally {
 			IOUtils.closeQuietly(in);
-			JcrUtils.closeQuietly(wkbBinary);
 		}
 	}
 }

@@ -6,6 +6,8 @@
        http://www.springframework.org/schema/beans   
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
+	<reference id="geoJcrMapper" interface="org.argeo.geotools.jcr.GeoJcrMapper" />
+
 	<service ref="mapControlCreator" interface="org.argeo.gis.ui.MapControlCreator" />
 
 </beans:beans>

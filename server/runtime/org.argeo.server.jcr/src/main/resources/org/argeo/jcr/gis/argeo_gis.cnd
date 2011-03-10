@@ -36,5 +36,6 @@ mixin
 [gis:dataStore] > nt:unstructured, mix:title
 - gis:type (STRING)
 + * (gis:featureSource) *
+// FIXME + * (gis:featureSource)
 
 [gis:relatedFeature] > nt:address, gis:located

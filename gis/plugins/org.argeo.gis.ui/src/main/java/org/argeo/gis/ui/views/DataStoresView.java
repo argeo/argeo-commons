@@ -50,7 +50,7 @@ public class DataStoresView extends ViewPart implements IDoubleClickListener {
 							.getFeatureSource();
 					IEditorPart ed = getSite().getWorkbenchWindow().getActivePage().getActiveEditor();
 					if(ed instanceof DefaultMapEditor){
-						((DefaultMapEditor)ed).addLayer(featureSource);
+//						((DefaultMapEditor)ed).addLayer(featureSource);
 					}
 				}
 			}

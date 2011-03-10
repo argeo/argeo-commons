@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.AbstractTreeContentProvider;
@@ -35,6 +36,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 public class AddFeatureSources extends AbstractHandler {
 	private GeoJcrMapper geoJcrMapper;
+	private Session session;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
@@ -46,7 +48,8 @@ public class AddFeatureSources extends AbstractHandler {
 				for (String alias : featureSources.keySet()) {
 					for (FeatureSource<SimpleFeatureType, SimpleFeature> fs : featureSources
 							.get(alias)) {
-						Node fsNode = geoJcrMapper.getNode(alias, fs);
+						Node fsNode = geoJcrMapper.getFeatureSourceNode(
+								session, alias, fs);
 						try {
 							fsNode.getSession().save();
 						} catch (RepositoryException e) {
@@ -65,6 +68,10 @@ public class AddFeatureSources extends AbstractHandler {
 
 	public void setGeoJcrMapper(GeoJcrMapper geoJcrMapper) {
 		this.geoJcrMapper = geoJcrMapper;
+	}
+
+	protected void setSession(Session session) {
+		this.session = session;
 	}
 
 	class FeatureSourceChooserDialog extends TitleAreaDialog {

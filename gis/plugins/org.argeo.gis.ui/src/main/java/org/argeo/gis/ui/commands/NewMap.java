@@ -1,5 +1,7 @@
 package org.argeo.gis.ui.commands;
 
+import javax.jcr.Session;
+
 import org.argeo.eclipse.ui.dialogs.Error;
 import org.argeo.gis.ui.editors.DefaultMapEditor;
 import org.argeo.gis.ui.editors.MapEditorInput;
@@ -7,10 +9,10 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.handlers.HandlerUtil;
-import org.geotools.map.DefaultMapContext;
 
 /** Opens a new map editor */
 public class NewMap extends AbstractHandler {
+	private Session session;
 	private String editorId = DefaultMapEditor.ID;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -18,7 +20,7 @@ public class NewMap extends AbstractHandler {
 			HandlerUtil
 					.getActiveWorkbenchWindow(event)
 					.getActivePage()
-					.openEditor(new MapEditorInput(new DefaultMapContext()),
+					.openEditor(new MapEditorInput(session.getRootNode()),
 							editorId);
 		} catch (Exception e) {
 			Error.show("Cannot open editor", e);
@@ -28,6 +30,10 @@ public class NewMap extends AbstractHandler {
 
 	public void setEditorId(String editorId) {
 		this.editorId = editorId;
+	}
+
+	public void setSession(Session session) {
+		this.session = session;
 	}
 
 }

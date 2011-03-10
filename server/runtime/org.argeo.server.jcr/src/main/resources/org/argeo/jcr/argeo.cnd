@@ -1,5 +1,11 @@
 <argeo = 'http://www.argeo.org/argeo'>
 
+// GENERIC TYPES NOT AVAILABLE IN JCR
+[argeo:links] > mix:created, mix:lastModified
+mixin
+// URI(s)
+- argeo:link (STRING) m *
+
 // HOME DIRECTORIES
 [argeo:home] > nt:unstructured, mix:created, mix:lastModified
 orderable

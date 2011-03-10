@@ -16,6 +16,8 @@
 
 package org.argeo.jcr;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Calendar;
@@ -101,6 +103,27 @@ public class JcrUtils {
 	}
 
 	/**
+	 * Creates a deep path based on a URL:
+	 * http://subdomain.example.com/to/content?args =>
+	 * com/example/subdomain/to/content
+	 */
+	public static String urlAsPath(String url) {
+		try {
+			URL u = new URL(url);
+			StringBuffer path = new StringBuffer(url.length());
+			// invert host
+			String[] hostTokens = u.getHost().split("\\.");
+			for (int i = hostTokens.length - 1; i >= 0; i--)
+				path.append(hostTokens[i]).append('/');
+			// we don't put port since it may not always be there and may change
+			path.append(u.getPath());
+			return path.toString();
+		} catch (MalformedURLException e) {
+			throw new ArgeoException("Cannot generate URL path for " + url, e);
+		}
+	}
+
+	/**
 	 * The provided data as a path ('/' at the end, not the beginning)
 	 * 
 	 * @param cal
@@ -168,12 +191,30 @@ public class JcrUtils {
 
 	/** Creates the nodes making path, if they don't exist. */
 	public static Node mkdirs(Session session, String path) {
-		return mkdirs(session, path, null, false);
+		return mkdirs(session, path, null, null, false);
+	}
+
+	/**
+	 * @deprecated use {@link #mkdirs(Session, String, String, String, Boolean)}
+	 *             instead.
+	 */
+	@Deprecated
+	public static Node mkdirs(Session session, String path, String type,
+			Boolean versioning) {
+		return mkdirs(session, path, type, type, false);
+	}
+
+	/**
+	 * @param type
+	 *            the type of the leaf node
+	 */
+	public static Node mkdirs(Session session, String path, String type) {
+		return mkdirs(session, path, type, null, false);
 	}
 
 	/** Creates the nodes making path, if they don't exist. */
 	public static Node mkdirs(Session session, String path, String type,
-			Boolean versioning) {
+			String intermediaryNodeType, Boolean versioning) {
 		try {
 			if (path.equals('/'))
 				return session.getRootNode();
@@ -198,8 +239,11 @@ public class JcrUtils {
 				String part = st.nextToken();
 				current.append(part).append('/');
 				if (!session.itemExists(current.toString())) {
-					if (type != null)
+					if (!st.hasMoreTokens() && type != null)
 						currentNode = currentNode.addNode(part, type);
+					else if (st.hasMoreTokens() && intermediaryNodeType != null)
+						currentNode = currentNode.addNode(part,
+								intermediaryNodeType);
 					else
 						currentNode = currentNode.addNode(part);
 					if (versioning)
@@ -495,9 +539,9 @@ public class JcrUtils {
 	public static String normalize(String name) {
 		return name.replace(':', '_');
 	}
-	
-	public static void closeQuietly(Binary binary){
-		if(binary==null)
+
+	public static void closeQuietly(Binary binary) {
+		if (binary == null)
 			return;
 		binary.dispose();
 	}

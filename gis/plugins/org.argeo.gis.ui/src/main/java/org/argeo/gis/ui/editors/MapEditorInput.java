@@ -1,35 +1,34 @@
 package org.argeo.gis.ui.editors;
 
-import org.argeo.gis.ui.MapContextProvider;
+import javax.jcr.Node;
+
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPersistableElement;
-import org.geotools.map.MapContext;
 
-public class MapEditorInput implements IEditorInput, MapContextProvider {
-	private final MapContext mapContext;
+public class MapEditorInput implements IEditorInput {
+	private final Node context;
 
-	public MapEditorInput(MapContext mapContext) {
-		this.mapContext = mapContext;
+	public MapEditorInput(Node mapContext) {
+		this.context = mapContext;
 	}
 
-	public MapContext getMapContext() {
-		return mapContext;
+	public Node getContext() {
+		return context;
 	}
 
 	public String getName() {
-		return mapContext.getTitle() != null ? mapContext.getTitle() : "<new>";
+		return context.toString();
 	}
 
 	public String getToolTipText() {
-		return mapContext.getAbstract() != null ? mapContext.getAbstract()
-				: mapContext.getTitle() != null ? mapContext.getTitle() : "";
+		return context.toString();
 	}
 
 	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
-		if (MapContext.class.isAssignableFrom(adapter))
-			return mapContext;
+		if (Node.class.isAssignableFrom(adapter))
+			return context;
 		return null;
 	}
 

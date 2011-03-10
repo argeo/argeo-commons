@@ -12,7 +12,6 @@
 	<bean id="featureSourcesView" class="org.argeo.gis.ui.views.FeatureSourcesView"
 		scope="prototype">
 		<property name="session" ref="jcrSession"/>
-		<property name="geoJcrMapper" ref="geoJcrMapper"/>
 	</bean>
 
 </beans>

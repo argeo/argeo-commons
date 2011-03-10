@@ -5,10 +5,12 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="newMap" class="org.argeo.gis.ui.commands.NewMap" scope="prototype">
+		<property name="session" ref="jcrSession"/>
 	</bean>
 	
 	<bean id="addFeatureSources" class="org.argeo.gis.ui.commands.AddFeatureSources"
 		scope="prototype">
 		<property name="geoJcrMapper" ref="geoJcrMapper" />
+		<property name="session" ref="jcrSession"/>
 	</bean>
 </beans>

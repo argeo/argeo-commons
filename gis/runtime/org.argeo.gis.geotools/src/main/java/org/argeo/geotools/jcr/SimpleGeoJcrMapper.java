@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.jcr.Binary;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -15,13 +16,18 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.geotools.GeoToolsConstants;
+import org.argeo.geotools.GeoToolsUtils;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.jcr.gis.GisNames;
 import org.argeo.jcr.gis.GisTypes;
+import org.argeo.jts.jcr.JtsJcrUtils;
 import org.geotools.data.DataStore;
 import org.geotools.data.FeatureSource;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 public class SimpleGeoJcrMapper implements GeoJcrMapper {
 	private final static Log log = LogFactory.getLog(SimpleGeoJcrMapper.class);
@@ -31,7 +37,7 @@ public class SimpleGeoJcrMapper implements GeoJcrMapper {
 	private Map<String, DataStore> registeredDataStores = Collections
 			.synchronizedSortedMap(new TreeMap<String, DataStore>());
 
-	private Session session;
+	// private Session session;
 
 	public Map<String, List<FeatureSource<SimpleFeatureType, SimpleFeature>>> getPossibleFeatureSources() {
 		Map<String, List<FeatureSource<SimpleFeatureType, SimpleFeature>>> res = new TreeMap<String, List<FeatureSource<SimpleFeatureType, SimpleFeature>>>();
@@ -61,44 +67,82 @@ public class SimpleGeoJcrMapper implements GeoJcrMapper {
 		return res;
 	}
 
-	public Node getNode(String dataStoreAlias,
-			FeatureSource<SimpleFeatureType, SimpleFeature> featureSource,
-			SimpleFeature feature) {
-		StringBuffer pathBuf = new StringBuffer(dataStoresBasePath);
-		pathBuf.append('/').append(dataStoreAlias);
-		pathBuf.append('/').append(featureSource.getName());
+	// public Node getNode(String dataStoreAlias,
+	// FeatureSource<SimpleFeatureType, SimpleFeature> featureSource,
+	// SimpleFeature feature) {
+	// StringBuffer pathBuf = new StringBuffer(dataStoresBasePath);
+	// pathBuf.append('/').append(dataStoreAlias);
+	// pathBuf.append('/').append(featureSource.getName());
+	//
+	// // TODO: use centroid or bbox to create some depth
+	// // Geometry geometry = (Geometry)feature.getDefaultGeometry();
+	// // Point centroid = geometry.getCentroid();
+	//
+	// pathBuf.append('/').append(feature.getID());
+	//
+	// String path = pathBuf.toString();
+	// try {
+	// if (session.itemExists(path))
+	// return session.getNode(path);
+	// else
+	// return JcrUtils.mkdirs(session, path);
+	// } catch (RepositoryException e) {
+	// throw new ArgeoException("Cannot get feature node for " + path, e);
+	// }
+	// }
 
-		// TODO: use centroid or bbox to create some depth
-		// Geometry geometry = (Geometry)feature.getDefaultGeometry();
-		// Point centroid = geometry.getCentroid();
-
-		pathBuf.append('/').append(feature.getID());
-
-		String path = pathBuf.toString();
+	public Node getFeatureNode(Node featureSourceNode, String featureId) {
+		Binary bbox = null;
+		Binary centroid = null;
 		try {
-			if (session.itemExists(path))
-				return session.getNode(path);
-			else
-				return JcrUtils.mkdirs(session, path);
+			if (!featureSourceNode.hasNode(featureId)) {
+				FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = getFeatureSource(featureSourceNode);
+				SimpleFeature feature = GeoToolsUtils.querySingleFeature(
+						featureSource, featureId);
+				Node featureNode = featureSourceNode.addNode(featureId);
+				featureNode.addMixin(GisTypes.GIS_FEATURE);
+				Geometry geometry = (Geometry) feature.getDefaultGeometry();
+				featureNode.setProperty(GisNames.GIS_SRS, featureSource
+						.getSchema().getCoordinateReferenceSystem().getName()
+						.toString());
+
+				bbox = JtsJcrUtils.writeWkb(featureNode.getSession(),
+						geometry.getEnvelope());
+				featureNode.setProperty(GisNames.GIS_BBOX, bbox);
+				centroid = JtsJcrUtils.writeWkb(featureNode.getSession(),
+						geometry.getCentroid());
+				featureNode.setProperty(GisNames.GIS_CENTROID, centroid);
+				featureSourceNode.getSession().save();
+				return featureNode;
+			} else {
+				return featureSourceNode.getNode(featureId);
+			}
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot get feature node for " + path, e);
+			throw new ArgeoException("Cannot get feature node for feature "
+					+ featureId + " from " + featureSourceNode, e);
+		} finally {
+			JcrUtils.closeQuietly(bbox);
+			JcrUtils.closeQuietly(centroid);
 		}
 	}
 
-	protected Node getNode(String dataStoreAlias) {
+	protected Node getNode(Session session, String dataStoreAlias) {
 		try {
 			Node dataStores;
-			if (!session.itemExists(dataStoresBasePath))
+			if (!session.itemExists(dataStoresBasePath)) {
 				dataStores = JcrUtils.mkdirs(session, dataStoresBasePath);
-			else
+				dataStores.getSession().save();
+			} else
 				dataStores = session.getNode(dataStoresBasePath);
 
 			Node dataStoreNode;
 			if (dataStores.hasNode(dataStoreAlias))
 				dataStoreNode = dataStores.getNode(dataStoreAlias);
-			else
+			else {
 				dataStoreNode = dataStores.addNode(dataStoreAlias,
 						GisTypes.GIS_DATA_STORE);
+				dataStoreNode.getSession().save();
+			}
 			return dataStoreNode;
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot get node for data store "
@@ -106,15 +150,19 @@ public class SimpleGeoJcrMapper implements GeoJcrMapper {
 		}
 	}
 
-	public Node getNode(String dataStoreAlias,
+	public Node getFeatureSourceNode(Session session, String dataStoreAlias,
 			FeatureSource<SimpleFeatureType, SimpleFeature> featureSource) {
 		try {
 			String name = featureSource.getName().toString();
-			Node dataStoreNode = getNode(dataStoreAlias);
+			Node dataStoreNode = getNode(session, dataStoreAlias);
 			if (dataStoreNode.hasNode(name))
 				return dataStoreNode.getNode(name);
-			else
-				return dataStoreNode.addNode(name, GisTypes.GIS_FEATURE_SOURCE);
+			else {
+				Node featureSourceNode = dataStoreNode.addNode(name);
+				featureSourceNode.addMixin(GisTypes.GIS_FEATURE_SOURCE);
+				featureSourceNode.getSession().save();
+				return featureSourceNode;
+			}
 		} catch (RepositoryException e) {
 			throw new ArgeoException(
 					"Cannot get feature source node for data store "
@@ -131,7 +179,8 @@ public class SimpleGeoJcrMapper implements GeoJcrMapper {
 			if (!registeredDataStores.containsKey(dataStoreNode.getName()))
 				throw new ArgeoException("No data store registered under "
 						+ dataStoreNode);
-			DataStore dataStore = registeredDataStores.get(dataStoreNode.getName());
+			DataStore dataStore = registeredDataStores.get(dataStoreNode
+					.getName());
 			return dataStore.getFeatureSource(node.getName());
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot find feature source " + node, e);
@@ -165,8 +214,8 @@ public class SimpleGeoJcrMapper implements GeoJcrMapper {
 				.remove(properties.get(GeoToolsConstants.ALIAS_KEY));
 	}
 
-	public void setSession(Session session) {
-		this.session = session;
-	}
+	// public void setSession(Session session) {
+	// this.session = session;
+	// }
 
 }

@@ -1,8 +1,9 @@
 package org.argeo.gis.ui.editors;
 
-import org.argeo.gis.ui.MapContextProvider;
+import javax.jcr.Node;
+
 import org.argeo.gis.ui.MapControlCreator;
-import org.argeo.gis.ui.views.LayersView;
+import org.argeo.gis.ui.MapViewer;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
@@ -11,30 +12,27 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
-import org.geotools.data.FeatureSource;
-import org.geotools.map.MapContext;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 /** A generic map editor */
-public class DefaultMapEditor extends EditorPart implements MapContextProvider {
+public class DefaultMapEditor extends EditorPart {
 	public final static String ID = "org.argeo.gis.ui.defaultMapEditor";
 
-	private MapContext mapContext;
-	private Composite map;
+	private Node context;
+	private MapViewer mapViewer;
 	private MapControlCreator mapControlCreator;
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input)
 			throws PartInitException {
-		if (input instanceof MapContextProvider) {
-			mapContext = ((MapContextProvider) input).getMapContext();
+		if (input instanceof MapEditorInput) {
+			// mapContext = ((MapEditorInput) input).getMapContext();
+			context = ((MapEditorInput) input).getContext();
 			setSite(site);
 			setInput(input);
 			setPartName(input.getName());
 		} else {
-			throw new PartInitException("Support only "
-					+ MapContextProvider.class + " inputs");
+			throw new PartInitException("Support only " + MapEditorInput.class
+					+ " inputs");
 		}
 	}
 
@@ -45,13 +43,11 @@ public class DefaultMapEditor extends EditorPart implements MapContextProvider {
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
 		mapArea.setLayout(layout);
-		map = mapControlCreator.createMapControl(mapArea, this);
+		mapViewer = mapControlCreator.createMapControl(context, mapArea);
 	}
 
-	public void addLayer(
-			FeatureSource<SimpleFeatureType, SimpleFeature> featureSource) {
-		// TODO: deal with style
-		mapContext.addLayer(featureSource, null);
+	public MapViewer getMapViewer() {
+		return mapViewer;
 	}
 
 	@Override
@@ -74,14 +70,20 @@ public class DefaultMapEditor extends EditorPart implements MapContextProvider {
 
 	@Override
 	public void setFocus() {
-		LayersView layersView = (LayersView) getEditorSite()
-				.getWorkbenchWindow().getActivePage().findView(LayersView.ID);
-		layersView.setMapContext(getMapContext());
-		map.setFocus();
+		// LayersView layersView = (LayersView) getEditorSite()
+		// .getWorkbenchWindow().getActivePage().findView(LayersView.ID);
+		// layersView.setMapContext(getMapContext());
+		mapViewer.getControl().setFocus();
 	}
 
-	public MapContext getMapContext() {
-		return mapContext;
+	public void featureSelected(String layerId, String featureId) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void featureUnselected(String layerId, String featureId) {
+		// TODO Auto-generated method stub
+
 	}
 
 	public void setMapControlCreator(MapControlCreator mapControlCreator) {

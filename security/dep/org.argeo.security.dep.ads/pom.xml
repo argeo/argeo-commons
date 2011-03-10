@@ -13,6 +13,27 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.core</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.ldap</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.services</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.manager.ldap</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.dep.ldap</artifactId>
 			<version>${version.argeo-commons}</version>
 			<type>pom</type>
@@ -28,21 +49,6 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.ads.server</artifactId>
-			<version>${version.argeo-commons}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.services</artifactId>
-			<version>${version.argeo-commons}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.ldap</artifactId>
-			<version>${version.argeo-commons}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.manager.ldap</artifactId>
 			<version>${version.argeo-commons}</version>
 		</dependency>
 		<dependency>

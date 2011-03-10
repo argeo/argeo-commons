@@ -92,7 +92,7 @@ public class LayersView extends ViewPart implements MapLayerListListener {
 				MapContextNode mapContextNode = (MapContextNode) element;
 				return mapContextNode.getMapContext().getLayers();
 			} else if (element instanceof MapLayer) {
-				// MapLayer mapLayer = (MapLayer) element;
+				MapLayer mapLayer = (MapLayer) element;
 
 			} else if (element instanceof TreeParent) {
 				return ((TreeParent) element).getChildren();
