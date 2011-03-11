@@ -12,5 +12,5 @@ public interface GisTypes {
 	public final static String GIS_DATA_STORE = "gis:dataStore";
 	public final static String GIS_FEATURE_SOURCE = "gis:featureSource";
 	public final static String GIS_FEATURE = "gis:feature";
-	public final static String GIS_RELATED_FEATURE = "gis:feature";
+	public final static String GIS_RELATED_FEATURE = "gis:relatedFeature";
 }

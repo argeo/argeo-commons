@@ -13,6 +13,7 @@ import javax.jcr.Session;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.AbstractTreeContentProvider;
 import org.argeo.eclipse.ui.TreeParent;
+import org.argeo.eclipse.ui.dialogs.Error;
 import org.argeo.geotools.jcr.GeoJcrMapper;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -58,19 +59,17 @@ public class AddFeatureSources extends AbstractHandler {
 					}
 				}
 			}
-			return null;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
+			Error.show("Cannot add new feature source", e);
 		}
+		return null;
 	}
 
 	public void setGeoJcrMapper(GeoJcrMapper geoJcrMapper) {
 		this.geoJcrMapper = geoJcrMapper;
 	}
 
-	protected void setSession(Session session) {
+	public void setSession(Session session) {
 		this.session = session;
 	}
 

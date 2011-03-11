@@ -1,10 +1,10 @@
-<argeo = 'http://www.argeo.org/argeo'>
+<argeo = 'http://www.argeo.org/ns/argeo'>
 
 // GENERIC TYPES NOT AVAILABLE IN JCR
-[argeo:links] > mix:created, mix:lastModified
+[argeo:link] > mix:created, mix:lastModified
 mixin
 // URI(s)
-- argeo:link (STRING) m *
+- argeo:uri (STRING) m
 
 // HOME DIRECTORIES
 [argeo:home] > nt:unstructured, mix:created, mix:lastModified

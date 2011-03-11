@@ -41,6 +41,9 @@ public class KeyBasedSystemExecutionService implements SystemExecutionService {
 				securityContext.setAuthentication(auth);
 
 				runnable.run();
+
+				// remove the authentication
+				securityContext.setAuthentication(null);
 			}
 		};
 	}

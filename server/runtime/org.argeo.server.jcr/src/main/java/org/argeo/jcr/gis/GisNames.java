@@ -2,7 +2,7 @@ package org.argeo.jcr.gis;
 
 /** JCR names in the http://www.argeo.org/gis namespace */
 public interface GisNames {
-	public final static String GIS_NAMESPACE = "http://www.argeo.org/gis";
+	public final static String GIS_NAMESPACE = "http://www.argeo.org/ns/gis";
 	public final static String GIS_ = "gis:";
 
 	public final static String GIS_SRS = "gis:srs";

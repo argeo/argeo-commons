@@ -10,18 +10,15 @@ import org.geotools.data.FeatureSource;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+/**
+ * Maps datastore and feature sources with JCR nodes. It is meant to be
+ * repository independent.
+ */
 public interface GeoJcrMapper {
-	// public Node getNode(String dataStoreAlias,
-	// FeatureSource<SimpleFeatureType, SimpleFeature> featureSource,
-	// SimpleFeature feature);
-
 	public Map<String, List<FeatureSource<SimpleFeatureType, SimpleFeature>>> getPossibleFeatureSources();
 
 	public Node getFeatureSourceNode(Session session, String dataStoreAlias,
 			FeatureSource<SimpleFeatureType, SimpleFeature> featureSource);
-
-	// public Node getNode(String dataStoreAlias,
-	// FeatureSource<SimpleFeatureType, SimpleFeature> featureSource);
 
 	public Node getFeatureNode(Node featureSource, String featureId);
 

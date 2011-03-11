@@ -20,7 +20,11 @@ import com.vividsolutions.jts.io.WKBWriter;
 /** Utilities depending only from the JTS library. */
 public class JtsJcrUtils {
 	private static GeometryFactory geometryFactory = new GeometryFactory();
-	private static ThreadLocal<WKBWriter> wkbWriters = new ThreadLocal<WKBWriter>();
+	private static ThreadLocal<WKBWriter> wkbWriters = new ThreadLocal<WKBWriter>() {
+		protected WKBWriter initialValue() {
+			return new WKBWriter();
+		}
+	};
 	private static ThreadLocal<WKBReader> wkbReaders = new ThreadLocal<WKBReader>() {
 		protected WKBReader initialValue() {
 			return new WKBReader(getGeometryFactory());

@@ -57,7 +57,7 @@ public class GeoToolsUtils {
 				dataStore.createSchema(featureType);
 			} catch (IOException e1) {
 				throw new ArgeoException("Cannot create schema " + featureType,
-						e);
+						e1);
 			}
 		}
 	}

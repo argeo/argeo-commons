@@ -6,10 +6,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.gis.ui.MapControlCreator;
 import org.argeo.gis.ui.MapViewer;
+import org.argeo.gis.ui.MapViewerListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.forms.AbstractFormPart;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.forms.editor.FormPage;
@@ -43,21 +45,13 @@ public class MapFormPage extends FormPage {
 		layout.marginWidth = 0;
 		mapArea.setLayout(layout);
 		mapViewer = mapControlCreator.createMapControl(context, mapArea);
+
+		// form part
+		MapFormPart mapFormPart = new MapFormPart();
+		getManagedForm().addPart(mapFormPart);
+		mapViewer.addMapViewerListener(mapFormPart);
+
 		tk.adapt(mapViewer.getControl());
-	}
-
-	public void featureSelected(String layerId, String featureId) {
-		if (log.isDebugEnabled())
-			log.debug("Selected feature '" + featureId + "' of layer '"
-					+ layerId + "'");
-
-	}
-
-	public void featureUnselected(String layerId, String featureId) {
-		if (log.isDebugEnabled())
-			log.debug("Unselected feature '" + featureId + "' of layer '"
-					+ layerId + "'");
-
 	}
 
 	public void setFocus() {
@@ -69,4 +63,23 @@ public class MapFormPage extends FormPage {
 		return mapViewer;
 	}
 
+	private static class MapFormPart extends AbstractFormPart implements
+			MapViewerListener {
+
+		public void featureSelected(String layerId, String featureId) {
+			if (log.isDebugEnabled())
+				log.debug("Selected feature '" + featureId + "' of layer '"
+						+ layerId + "'");
+			markDirty();
+		}
+
+		public void featureUnselected(String layerId, String featureId) {
+			if (log.isDebugEnabled())
+				log.debug("Unselected feature '" + featureId + "' of layer '"
+						+ layerId + "'");
+
+			markDirty();
+		}
+
+	}
 }

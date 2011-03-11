@@ -112,15 +112,28 @@ public class JcrUtils {
 			URL u = new URL(url);
 			StringBuffer path = new StringBuffer(url.length());
 			// invert host
-			String[] hostTokens = u.getHost().split("\\.");
-			for (int i = hostTokens.length - 1; i >= 0; i--)
-				path.append(hostTokens[i]).append('/');
+			path.append(hostAsPath(u.getHost()));
 			// we don't put port since it may not always be there and may change
 			path.append(u.getPath());
 			return path.toString();
 		} catch (MalformedURLException e) {
 			throw new ArgeoException("Cannot generate URL path for " + url, e);
 		}
+	}
+
+	/**
+	 * Creates a path from a FQDN, inverting the order of the component:
+	 * www.argeo.org => org.argeo.www
+	 */
+	public static String hostAsPath(String host) {
+		StringBuffer path = new StringBuffer(host.length());
+		String[] hostTokens = host.split("\\.");
+		for (int i = hostTokens.length - 1; i >= 0; i--) {
+			path.append(hostTokens[i]);
+			if (i != 0)
+				path.append('/');
+		}
+		return path.toString();
 	}
 
 	/**
@@ -171,13 +184,6 @@ public class JcrUtils {
 
 	}
 
-	/** Converts the FQDN of an host into a path (converts '.' into '/'). */
-	public static String hostAsPath(String host) {
-		// TODO : inverse order of the elements (to have org/argeo/test IO
-		// test/argeo/org
-		return host.replace('.', '/');
-	}
-
 	/** The last element of a path. */
 	public static String lastPathElement(String path) {
 		if (path.charAt(path.length() - 1) == '/')
@@ -212,7 +218,9 @@ public class JcrUtils {
 		return mkdirs(session, path, type, null, false);
 	}
 
-	/** Creates the nodes making path, if they don't exist. */
+	/**
+	 * Creates the nodes making path, if they don't exist.
+	 */
 	public static Node mkdirs(Session session, String path, String type,
 			String intermediaryNodeType, Boolean versioning) {
 		try {

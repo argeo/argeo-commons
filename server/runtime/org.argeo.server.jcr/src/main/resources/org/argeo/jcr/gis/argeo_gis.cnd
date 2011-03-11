@@ -1,4 +1,4 @@
-<gis = 'http://www.argeo.org/gis'>
+<gis = 'http://www.argeo.org/ns/gis'>
 
 // GEOMETRIES (based on JTS http://www.vividsolutions.com/jts/JTSHome.htm) 
 [gis:coordinate] > nt:base
@@ -27,6 +27,11 @@ abstract mixin
 // GEOTOOLS
 [gis:feature] > nt:base
 mixin
+- gis:srs (STRING) m
+// WKB
+- gis:bbox (BINARY) m
+// WKB
+- gis:centroid (BINARY) m
 //- gis:relatedNode (REFERENCE) *
 
 [gis:featureSource] > nt:unstructured, mix:title

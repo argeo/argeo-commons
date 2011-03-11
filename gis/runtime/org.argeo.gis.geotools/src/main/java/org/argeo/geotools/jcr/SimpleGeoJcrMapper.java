@@ -23,11 +23,17 @@ import org.argeo.jcr.gis.GisTypes;
 import org.argeo.jts.jcr.JtsJcrUtils;
 import org.geotools.data.DataStore;
 import org.geotools.data.FeatureSource;
+import org.geotools.referencing.CRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 public class SimpleGeoJcrMapper implements GeoJcrMapper {
 	private final static Log log = LogFactory.getLog(SimpleGeoJcrMapper.class);
@@ -36,8 +42,6 @@ public class SimpleGeoJcrMapper implements GeoJcrMapper {
 
 	private Map<String, DataStore> registeredDataStores = Collections
 			.synchronizedSortedMap(new TreeMap<String, DataStore>());
-
-	// private Session session;
 
 	public Map<String, List<FeatureSource<SimpleFeatureType, SimpleFeature>>> getPossibleFeatureSources() {
 		Map<String, List<FeatureSource<SimpleFeatureType, SimpleFeature>>> res = new TreeMap<String, List<FeatureSource<SimpleFeatureType, SimpleFeature>>>();
@@ -102,12 +106,42 @@ public class SimpleGeoJcrMapper implements GeoJcrMapper {
 				Node featureNode = featureSourceNode.addNode(featureId);
 				featureNode.addMixin(GisTypes.GIS_FEATURE);
 				Geometry geometry = (Geometry) feature.getDefaultGeometry();
-				featureNode.setProperty(GisNames.GIS_SRS, featureSource
-						.getSchema().getCoordinateReferenceSystem().getName()
-						.toString());
 
+				// SRS
+				String srs;
+				CoordinateReferenceSystem crs = featureSource.getSchema()
+						.getCoordinateReferenceSystem();
+				try {
+					Integer epsgCode = CRS.lookupEpsgCode(crs, false);
+					if (epsgCode != null)
+						srs = "EPSG:" + epsgCode;
+					else
+						srs = crs.toWKT();
+				} catch (FactoryException e) {
+					log.warn("Cannot lookup EPSG code", e);
+					srs = crs.toWKT();
+				}
+				featureNode.setProperty(GisNames.GIS_SRS, srs);
+
+				Polygon bboxPolygon;
+				Geometry envelope = geometry.getEnvelope();
+				if (envelope instanceof Point) {
+					Point pt = (Point) envelope;
+					Coordinate[] coords = new Coordinate[4];
+					for (int i = 0; i < coords.length; i++)
+						coords[i] = pt.getCoordinate();
+					bboxPolygon = JtsJcrUtils.getGeometryFactory()
+							.createPolygon(
+									JtsJcrUtils.getGeometryFactory()
+											.createLinearRing(coords), null);
+				} else if (envelope instanceof Polygon) {
+					bboxPolygon = (Polygon) envelope;
+				} else {
+					throw new ArgeoException("Unsupported envelope format "
+							+ envelope.getClass());
+				}
 				bbox = JtsJcrUtils.writeWkb(featureNode.getSession(),
-						geometry.getEnvelope());
+						bboxPolygon);
 				featureNode.setProperty(GisNames.GIS_BBOX, bbox);
 				centroid = JtsJcrUtils.writeWkb(featureNode.getSession(),
 						geometry.getCentroid());
@@ -213,9 +247,4 @@ public class SimpleGeoJcrMapper implements GeoJcrMapper {
 		registeredDataStores
 				.remove(properties.get(GeoToolsConstants.ALIAS_KEY));
 	}
-
-	// public void setSession(Session session) {
-	// this.session = session;
-	// }
-
 }
