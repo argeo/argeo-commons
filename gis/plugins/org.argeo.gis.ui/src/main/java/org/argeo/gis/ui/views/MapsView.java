@@ -14,8 +14,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
 public class MapsView extends ViewPart implements IDoubleClickListener {
-	public final static String ID = "org.argeo.gis.ui.mapsView";
-
 	private String mapsBasePath = "/gis/maps";
 
 	private Session session;
@@ -38,7 +36,7 @@ public class MapsView extends ViewPart implements IDoubleClickListener {
 			Object obj = ((IStructuredSelection) event.getSelection())
 					.getFirstElement();
 			if (obj instanceof Node) {
-				Node node = (Node) obj;
+				//Node node = (Node) obj;
 			}
 
 		}

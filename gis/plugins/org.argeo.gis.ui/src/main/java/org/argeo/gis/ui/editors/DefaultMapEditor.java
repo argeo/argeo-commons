@@ -15,8 +15,6 @@ import org.eclipse.ui.part.EditorPart;
 
 /** A generic map editor */
 public class DefaultMapEditor extends EditorPart {
-	public final static String ID = "org.argeo.gis.ui.defaultMapEditor";
-
 	private Node context;
 	private MapViewer mapViewer;
 	private MapControlCreator mapControlCreator;

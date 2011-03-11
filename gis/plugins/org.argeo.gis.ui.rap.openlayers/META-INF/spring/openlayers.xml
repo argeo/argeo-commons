@@ -6,6 +6,8 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="mapControlCreator"
-		class="org.argeo.gis.ui.rap.openlayers.OpenLayersMapControlCreator"></bean>
+		class="org.argeo.gis.ui.rap.openlayers.OpenLayersMapControlCreator">
+		<property name="geoJcrMapper" ref="geoJcrMapper" />
+	</bean>
 
 </beans>

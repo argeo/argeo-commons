@@ -14,7 +14,7 @@ public class OpenLayersMapControlCreator implements MapControlCreator {
 		return new OpenLayersMapViewer(context,geoJcrMapper,parent);
 	}
 
-	protected void setGeoJcrMapper(GeoJcrMapper geoJcrMapper) {
+	public void setGeoJcrMapper(GeoJcrMapper geoJcrMapper) {
 		this.geoJcrMapper = geoJcrMapper;
 	}
 

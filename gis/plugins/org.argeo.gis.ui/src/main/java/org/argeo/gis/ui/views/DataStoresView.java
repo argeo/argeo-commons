@@ -7,7 +7,6 @@ import java.util.List;
 import org.argeo.eclipse.ui.AbstractTreeContentProvider;
 import org.argeo.gis.ui.data.DataStoreNode;
 import org.argeo.gis.ui.data.FeatureNode;
-import org.argeo.gis.ui.editors.DefaultMapEditor;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -15,16 +14,10 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.part.ViewPart;
 import org.geotools.data.DataStore;
-import org.geotools.data.FeatureSource;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 public class DataStoresView extends ViewPart implements IDoubleClickListener {
-	public final static String ID = "org.argeo.gis.ui.dataStoresView";
-
 	private TreeViewer viewer;
 
 	private List<DataStore> dataStores;
@@ -45,13 +38,13 @@ public class DataStoresView extends ViewPart implements IDoubleClickListener {
 			while (it.hasNext()) {
 				Object obj = it.next();
 				if (obj instanceof FeatureNode) {
-					FeatureNode featureNode = (FeatureNode) obj;
-					FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = featureNode
-							.getFeatureSource();
-					IEditorPart ed = getSite().getWorkbenchWindow().getActivePage().getActiveEditor();
-					if(ed instanceof DefaultMapEditor){
-//						((DefaultMapEditor)ed).addLayer(featureSource);
-					}
+//					FeatureNode featureNode = (FeatureNode) obj;
+//					FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = featureNode
+//							.getFeatureSource();
+//					IEditorPart ed = getSite().getWorkbenchWindow().getActivePage().getActiveEditor();
+//					if(ed instanceof DefaultMapEditor){
+////						((DefaultMapEditor)ed).addLayer(featureSource);
+//					}
 				}
 			}
 		}

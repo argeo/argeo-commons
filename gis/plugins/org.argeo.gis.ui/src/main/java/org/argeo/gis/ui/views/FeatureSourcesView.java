@@ -23,8 +23,6 @@ import org.eclipse.ui.part.ViewPart;
 
 public class FeatureSourcesView extends ViewPart implements
 		IDoubleClickListener {
-	public final static String ID = "org.argeo.gis.ui.featureSourcesView";
-
 	private String dataStoresBasePath = "/gis/dataStores";
 
 	private Session session;

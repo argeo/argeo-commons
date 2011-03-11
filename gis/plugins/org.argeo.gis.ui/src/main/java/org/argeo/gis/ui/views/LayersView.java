@@ -15,8 +15,6 @@ import org.geotools.map.event.MapLayerListEvent;
 import org.geotools.map.event.MapLayerListListener;
 
 public class LayersView extends ViewPart implements MapLayerListListener {
-	public final static String ID = "org.argeo.gis.ui.layersView";
-
 	private TreeViewer viewer;
 
 	private MapContext mapContext;
@@ -92,7 +90,7 @@ public class LayersView extends ViewPart implements MapLayerListListener {
 				MapContextNode mapContextNode = (MapContextNode) element;
 				return mapContextNode.getMapContext().getLayers();
 			} else if (element instanceof MapLayer) {
-				MapLayer mapLayer = (MapLayer) element;
+				//MapLayer mapLayer = (MapLayer) element;
 
 			} else if (element instanceof TreeParent) {
 				return ((TreeParent) element).getChildren();
