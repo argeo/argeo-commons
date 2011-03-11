@@ -14,8 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.dialogs.Error;
-import org.argeo.eclipse.ui.specific.ImportFileSystemHandler;
-import org.argeo.eclipse.ui.specific.ImportFileSystemWizardPage;
+import org.argeo.eclipse.ui.specific.ImportToServerWizardPage;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -25,21 +24,19 @@ public class ImportFileSystemWizard extends Wizard {
 	private final static Log log = LogFactory
 			.getLog(ImportFileSystemWizard.class);
 
-	private ImportFileSystemWizardPage page1;
+	private ImportToServerWizardPage page1;
 	private final Node folder;
-
-	private ImportFileSystemHandler ifsh = new ImportFileSystemHandler();
 
 	public ImportFileSystemWizard(Node folder) {
 		this.folder = folder;
-		setNeedsProgressMonitor(ifsh.getNeedsProgressMonitor());
+		setNeedsProgressMonitor(page1.getNeedsProgressMonitor());
 		setWindowTitle("Import from file system");
 	}
 
 	@Override
 	public void addPages() {
 		try {
-			page1 = new ImportFileSystemWizardPage();
+			page1 = new ImportToServerWizardPage();
 			addPage(page1);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -58,7 +55,7 @@ public class ImportFileSystemWizard extends Wizard {
 		final String objectPath = page1.getObjectPath();
 
 		// We do not display a progress bar for one file only
-		if ("nt:file".equals(objectType)) {
+		if (page1.FILE_ITEM_TYPE.equals(objectType)) {
 			// In Rap we must force the "real" upload of the file
 			page1.performFinish();
 			try {
@@ -82,7 +79,7 @@ public class ImportFileSystemWizard extends Wizard {
 				return false;
 			}
 			return true;
-		} else if ("nt:folder".equals(objectType)) {
+		} else if (page1.FOLDER_ITEM_TYPE.equals(objectType)) {
 			if (objectPath == null || !new File(objectPath).exists()) {
 				Error.show("Directory " + objectPath + " does not exist");
 				return false;

@@ -17,13 +17,14 @@ import org.argeo.ArgeoException;
  */
 public class FileHandler {
 
-	// unused file provider : collateral effects of single sourcing, this File
-	// provider is compulsory for RAP file handler
-	public FileHandler(FileProvider jfp) {
+	private FileProvider provider;
+
+	public FileHandler(FileProvider provider) {
+		this.provider = provider;
 	}
 
-	public void openFile(String fileName, String fileId, InputStream is) {
-
+	public void openFile(String fileName, String fileId) {
+		String tmpFileName = fileName;
 		String prefix = "", extension = "";
 		if (fileName != null) {
 			int ind = fileName.lastIndexOf('.');
@@ -33,30 +34,22 @@ public class FileHandler {
 			}
 		}
 
-		File file = createTmpFile(prefix, extension, is);
-
+		InputStream is = null;
 		try {
+			is = provider.getInputStreamFromFileId(fileId);
+			File file = createTmpFile(prefix, extension, is);
+			tmpFileName = file.getName();
 			Desktop desktop = null;
 			if (Desktop.isDesktopSupported()) {
 				desktop = Desktop.getDesktop();
 			}
 			desktop.open(file);
 		} catch (IOException e) {
-			throw new ArgeoException("Cannot open file " + file.getName(), e);
-		}
-	}
-
-	private void openFile(File file) {
-		try {
-			Desktop desktop = null;
-			if (Desktop.isDesktopSupported()) {
-				desktop = Desktop.getDesktop();
-				desktop.open(file);
-			} else {
-				throw new ArgeoException("Desktop integration not supported.");
-			}
-		} catch (IOException e) {
-			throw new ArgeoException("Cannot open file " + file.getName(), e);
+			// Note : tmpFileName = fileName if the error has been thrown while
+			// creating the tmpFile.
+			throw new ArgeoException("Cannot open file " + tmpFileName, e);
+		} finally {
+			IOUtils.closeQuietly(is);
 		}
 	}
 
@@ -75,5 +68,4 @@ public class FileHandler {
 		}
 		return tmpFile;
 	}
-
 }

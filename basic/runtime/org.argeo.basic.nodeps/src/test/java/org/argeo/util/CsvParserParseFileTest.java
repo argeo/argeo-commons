@@ -22,11 +22,6 @@ public class CsvParserParseFileTest extends TestCase {
 		parser.parse(in);
 		in.close();
 
-		for (Integer i : lines.keySet()) {
-			Map<String, String> curLine = lines.get(i);
-			System.out.println("i : " + i.toString() + " - ID :"
-					+ curLine.get("ID"));
-		}
 		assertEquals(5, lines.size());
 	}
 

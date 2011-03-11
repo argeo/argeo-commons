@@ -6,10 +6,14 @@ import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.widgets.Composite;
 
-public class ImportFileSystemWizardPage extends WizardPage {
+public class ImportToServerWizardPage extends WizardPage {
+
+	public final static String FILE_ITEM_TYPE = "FILE";
+	public final static String FOLDER_ITEM_TYPE = "FOLDER";
+
 	private DirectoryFieldEditor dfe;
 
-	public ImportFileSystemWizardPage() {
+	public ImportToServerWizardPage() {
 		super("Import from file system");
 		setDescription("Import files from the local file system into the JCR repository");
 	}
@@ -20,12 +24,15 @@ public class ImportFileSystemWizardPage extends WizardPage {
 	}
 
 	public String getObjectPath() {
-		System.out.println("dfe.getStringValue() : " + dfe.getStringValue());
 		return dfe.getStringValue();
 	}
 
 	public String getObjectType() {
-		return "nt:folder";
+		return FOLDER_ITEM_TYPE;
+	}
+
+	public boolean getNeedsProgressMonitor() {
+		return true;
 	}
 
 	// Dummy methods : useless in RCP context but useful for RAP
@@ -34,7 +41,7 @@ public class ImportFileSystemWizardPage extends WizardPage {
 		return null;
 	}
 
-	/** WARNING : di nothing in RCP context */
+	/** WARNING : do nothing in RCP context */
 	public void performFinish() {
 	}
 
@@ -42,5 +49,4 @@ public class ImportFileSystemWizardPage extends WizardPage {
 	public InputStream getFileInputStream() {
 		return null;
 	}
-
 }

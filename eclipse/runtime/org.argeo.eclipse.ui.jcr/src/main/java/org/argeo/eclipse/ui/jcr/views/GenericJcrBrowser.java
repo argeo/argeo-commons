@@ -1,6 +1,5 @@
 package org.argeo.eclipse.ui.jcr.views;
 
-import java.io.InputStream;
 import java.util.Arrays;
 
 import javax.jcr.Node;
@@ -8,11 +7,9 @@ import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
-import org.argeo.eclipse.ui.dialogs.Error;
 import org.argeo.eclipse.ui.jcr.browser.NodeContentProvider;
 import org.argeo.eclipse.ui.jcr.browser.NodeLabelProvider;
 import org.argeo.eclipse.ui.jcr.browser.PropertiesContentProvider;
@@ -52,9 +49,6 @@ public class GenericJcrBrowser extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		/*
-		 * TEST
-		 */
 
 		// Instantiate the generic object that fits for
 		// both RCP & RAP, must be final to be accessed in the double click
@@ -64,10 +58,6 @@ public class GenericJcrBrowser extends ViewPart {
 
 		final JcrFileProvider jfp = new JcrFileProvider();
 		final FileHandler fh = new FileHandler(jfp);
-
-		/*
-		 * TEST END
-		 */
 
 		parent.setLayout(new FillLayout());
 
@@ -109,74 +99,31 @@ public class GenericJcrBrowser extends ViewPart {
 				if (obj instanceof RepositoryNode) {
 					RepositoryNode rpNode = (RepositoryNode) obj;
 					rpNode.login();
-					// For the file provider to be able to browse the repo.
+					// For the file provider to be able to browse the various
+					// repository.
 					// TODO : enhanced that.
 					jfp.setRepositoryNode(rpNode);
-					
 					nodesViewer.refresh(obj);
+
 				} else if (obj instanceof WorkspaceNode) {
 					((WorkspaceNode) obj).login();
 					nodesViewer.refresh(obj);
-				} // call the openFile commands on node
-				else if (obj instanceof Node) {
-					// Shell shell =
-					// aup.getWorkbench().getActiveWorkbenchWindow()
-					// .getShell();
-					// we can also do
-					// event.getViewer().getControl().getShell();
-
-					// Browser browser = new Browser(shell, SWT.NONE);
-					// browser.setText(encodedURL);
-					// boolean check = browser.setUrl(encodedURL);
-					// System.out.println("soo ?? : " + check);
-					// System.out.println("script : " + browser.executeScript);
-
-					// try {
-					// RWT.getResponse().sendRedirect(encodedURL);
-					// } catch (IOException e1) {
-					// // TODO Auto-generated catch block
-					// e1.printStackTrace();
-					// }
-
-					// final Browser browser = new Browser(parent, SWT.NONE);
-					// browser.setText(createDownloadHtml("test.pdf",
-					// "Download file"));
-
+				} else if (obj instanceof Node) {
 					Node node = (Node) obj;
+					
+					// double clic on a file node triggers its opening
 					try {
 						if (node.isNodeType("nt:file")) {
 							String name = node.getName();
 							String id = node.getIdentifier();
-
-							Node child = node.getNodes().nextNode();
-							if (!child.isNodeType("nt:resource")) {
-								Error.show("Cannot open file children Node that are not of 'nt:resource' type.");
-								return;
-							}
-
-							InputStream fis = null;
-
-							try {
-								fis = (InputStream) child
-										.getProperty("jcr:data").getBinary()
-										.getStream();
-								// Instantiate the generic object that fits for
-								// both RCP & RAP.
-								fh.openFile(name, id, fis);
-							} catch (Exception e) {
-								throw new ArgeoException(
-										"Stream error while opening file", e);
-							} finally {
-								IOUtils.closeQuietly(fis);
-							}
+							fh.openFile(name, id);
 						}
 					} catch (RepositoryException re) {
-						re.printStackTrace();
-
+						throw new ArgeoException(
+								"Repository error while getting Node file info",
+								re);
 					}
-
 				}
-
 			}
 		});
 

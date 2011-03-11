@@ -38,48 +38,74 @@ public class JcrFileProvider implements FileProvider {
 	}
 
 	public byte[] getByteArrayFileFromId(String fileId) {
+		InputStream fis = null;
+		byte[] ba = null;
+		Node child = getFileNodeFromId(fileId);
 		try {
-			Object[] nodes = repositoryNode.getChildren();
+			fis = (InputStream) child.getProperty("jcr:data").getBinary()
+					.getStream();
+			ba = IOUtils.toByteArray(fis);
+
+		} catch (Exception e) {
+			throw new ArgeoException("Stream error while opening file", e);
+		} finally {
+			IOUtils.closeQuietly(fis);
+		}
+		return ba;
+	}
+
+	public InputStream getInputStreamFromFileId(String fileId) {
+		try {
+			InputStream fis = null;
+
+			Node child = getFileNodeFromId(fileId);
+			fis = (InputStream) child.getProperty("jcr:data").getBinary()
+					.getStream();
+			return fis;
+		} catch (RepositoryException re) {
+			throw new ArgeoException("Cannot get stream from file node for Id "
+					+ fileId, re);
+		}
+	}
+
+	/**
+	 * Throws an exception if the node is not found in the current repository (a
+	 * bit like a FileNotFoundException)
+	 * 
+	 * @param fileId
+	 * @return Returns the child node of the nt:file node. It is the child node
+	 *         that have the jcr:data property where actual file is stored.
+	 *         never null
+	 */
+	private Node getFileNodeFromId(String fileId) {
+		Object[] nodes = repositoryNode.getChildren();
+		try {
+			Node result = null;
 
 			repos: for (int i = 0; i < nodes.length; i++) {
 				WorkspaceNode wNode = (WorkspaceNode) nodes[i];
-				Node node = null;
-				node = wNode.getSession().getNodeByIdentifier(fileId);
+				result = wNode.getSession().getNodeByIdentifier(fileId);
 
-				if (node == null)
+				if (result == null)
 					continue repos;
 
-				if (!node.isNodeType("nt:file"))
+				// Ensure that the node have the correct type.
+				if (!result.isNodeType("nt:file"))
 					throw new ArgeoException(
 							"Cannot open file children Node that are not of 'nt:resource' type.");
 
-				Node child = node.getNodes().nextNode();
-				if (!child.isNodeType("nt:resource"))
+				Node child = result.getNodes().nextNode();
+				if (child == null || !child.isNodeType("nt:resource"))
 					throw new ArgeoException(
-							"Cannot open file children Node that are not of 'nt:resource' type.");
+							"ERROR: IN the current implemented model, nt:file file node must have one and only one child of the nt:ressource, where actual data is stored");
 
-				InputStream fis = null;
-				byte[] ba = null;
-				try {
-					fis = (InputStream) child.getProperty("jcr:data")
-							.getBinary().getStream();
-					ba = IOUtils.toByteArray(fis);
-
-				} catch (Exception e) {
-					throw new ArgeoException("Stream error while opening file",
-							e);
-				} finally {
-					IOUtils.closeQuietly(fis);
-				}
-				if (ba != null)
-					return ba;
+				return child;
 			}
-
 		} catch (RepositoryException re) {
-			throw new ArgeoException("RepositoryException while reading file ",
-					re);
+			throw new ArgeoException("Erreur while getting file node of ID "
+					+ fileId, re);
 		}
 
-		throw new ArgeoException("File not found for ID " + fileId);
+		throw new ArgeoException("File node not found for ID" + fileId);
 	}
 }

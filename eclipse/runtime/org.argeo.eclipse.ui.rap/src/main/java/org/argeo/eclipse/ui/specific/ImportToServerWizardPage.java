@@ -13,14 +13,18 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-public class ImportFileSystemWizardPage extends WizardPage {
-	private final static Log log = LogFactory.getLog(ImportFileSystemWizardPage.class);
+public class ImportToServerWizardPage extends WizardPage {
+	private final static Log log = LogFactory
+			.getLog(ImportToServerWizardPage.class);
+
+	public final static String FILE_ITEM_TYPE = "FILE";
+	public final static String FOLDER_ITEM_TYPE = "FOLDER";
 
 	private Upload uploadFile;
 
-	public ImportFileSystemWizardPage() {
+	public ImportToServerWizardPage() {
 		super("Import from file system");
-		setDescription("Import files from the local file system into the JCR repository");
+		setDescription("Import files from the local file system to the server");
 	}
 
 	public void createControl(Composite parent) {
@@ -48,7 +52,7 @@ public class ImportFileSystemWizardPage extends WizardPage {
 	}
 
 	public String getObjectType() {
-		return "nt:file";
+		return FILE_ITEM_TYPE;
 	}
 
 	public void performFinish() {
@@ -64,4 +68,9 @@ public class ImportFileSystemWizardPage extends WizardPage {
 	public InputStream getFileInputStream() {
 		return uploadFile.getUploadItem().getFileInputStream();
 	}
+
+	public boolean getNeedsProgressMonitor() {
+		return false;
+	}
+
 }
