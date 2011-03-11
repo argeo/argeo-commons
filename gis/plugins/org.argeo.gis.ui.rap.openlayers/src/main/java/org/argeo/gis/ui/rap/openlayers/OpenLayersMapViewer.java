@@ -65,7 +65,7 @@ public class OpenLayersMapViewer extends AbstractMapViewer implements
 
 		this.map = ((OpenLayersWidget) getControl()).getMap();
 		// TODO: make dependent of the base layer
-		map.setNumZoomLevels(2);
+		map.zoomTo(2);
 
 		// mapContextProvider.getMapContext().addMapLayerListListener(this);
 
