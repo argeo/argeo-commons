@@ -1,8 +1,5 @@
 package org.argeo.security.ui;
 
-import org.argeo.security.ui.internal.CurrentUser;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;

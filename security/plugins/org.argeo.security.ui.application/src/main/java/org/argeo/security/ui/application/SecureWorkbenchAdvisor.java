@@ -6,7 +6,7 @@ import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 
 public class SecureWorkbenchAdvisor extends WorkbenchAdvisor {
 
-	static final String DEFAULT_PERSPECTIVE_ID = "org.argeo.security.ui.securityPerspective"; //$NON-NLS-1$
+	static final String DEFAULT_PERSPECTIVE_ID = "org.argeo.security.ui.adminSecurityPerspective"; //$NON-NLS-1$
 
 	public final static String INITIAL_PERSPECTIVE_PROPERTY = "org.argeo.security.ui.initialPerspective";
 	private String initialPerspective = System.getProperty(

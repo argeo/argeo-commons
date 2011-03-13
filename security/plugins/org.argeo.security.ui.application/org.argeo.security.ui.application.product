@@ -8,7 +8,7 @@
 
    <launcherArgs>
       <programArgs>-console -clean</programArgs>
-      <vmArgs>-Dlog4j.configuration=file:${system_property:user.home}/dev/src/commons/security/eclipse/plugins/org.argeo.security.ui.application/log4j.properties</vmArgs>
+      <vmArgs>-Dlog4j.configuration=file:${system_property:user.home}/dev/src/commons/security/plugins/org.argeo.security.ui.application/log4j.properties</vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
@@ -60,6 +60,8 @@
       <plugin id="org.argeo.dep.osgi.mina.filter.ssl" fragment="true"/>
       <plugin id="org.argeo.dep.osgi.springframework.ldap"/>
       <plugin id="org.argeo.eclipse.ui"/>
+      <plugin id="org.argeo.infra.core"/>
+      <plugin id="org.argeo.infra.security.services" fragment="true"/>
       <plugin id="org.argeo.security.core"/>
       <plugin id="org.argeo.security.equinox"/>
       <plugin id="org.argeo.security.ldap"/>
