@@ -8,9 +8,11 @@ import org.argeo.ArgeoException;
 import org.argeo.jcr.gis.GisNames;
 import org.argeo.jcr.gis.GisTypes;
 import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -93,6 +95,17 @@ public class GeoJcrUtils {
 		} catch (Exception e) {
 			throw new ArgeoException(
 					"Cannot get coordinate reference system for " + node, e);
+		}
+	}
+
+	public static Geometry reproject(CoordinateReferenceSystem crs,
+			Geometry geometry, CoordinateReferenceSystem targetCrs) {
+		try {
+			MathTransform transform = CRS.findMathTransform(crs, targetCrs);
+			return JTS.transform(geometry, transform);
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot reproject " + geometry + " from "
+					+ crs + " to " + targetCrs);
 		}
 	}
 }
