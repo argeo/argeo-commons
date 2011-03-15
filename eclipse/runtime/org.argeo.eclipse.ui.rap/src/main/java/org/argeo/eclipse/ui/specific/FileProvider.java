@@ -12,6 +12,7 @@ import java.io.InputStream;
 public interface FileProvider {
 
 	public byte[] getByteArrayFileFromId(String fileId);
+
 	public InputStream getInputStreamFromFileId(String fileId);
 
 }
