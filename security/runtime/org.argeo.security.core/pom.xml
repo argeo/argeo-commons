@@ -35,6 +35,7 @@
 						<Import-Package>
 							org.springframework.context,
 							org.springframework.beans.factory,
+							org.argeo.jcr,
 							*
 						</Import-Package>
 					</instructions>

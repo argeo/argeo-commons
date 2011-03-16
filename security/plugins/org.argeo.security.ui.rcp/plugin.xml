@@ -8,7 +8,7 @@
          id="org.argeo.security.ui.product"
          point="org.eclipse.core.runtime.products">
       <product
-            name="ArgeoProduct" application="org.argeo.security.ui.application.secureUi">
+            name="ArgeoProduct" application="org.argeo.security.ui.rcp.secureUi">
           <property
                name="appName"
                value="Secure UI">

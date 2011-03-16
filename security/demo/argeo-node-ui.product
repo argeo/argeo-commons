@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="SecureRCP" application="org.argeo.security.ui.application.secureUi" useFeatures="false" includeLaunchers="true">
+<product name="Argeo Node UI" application="org.argeo.security.ui.rcp.secureUi" useFeatures="false" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
 
    <launcherArgs>
       <programArgs>-console -clean</programArgs>
-      <vmArgs>-Dlog4j.configuration=file:${system_property:user.home}/dev/src/commons/security/plugins/org.argeo.security.ui.application/log4j.properties</vmArgs>
+      <vmArgs>-Dlog4j.configuration=&quot;file:${system_property:user.home}/dev/src/commons/security/demo/log4j.properties&quot;</vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
@@ -90,8 +90,11 @@
       <plugin id="org.argeo.dep.osgi.tagsoup"/>
       <plugin id="org.argeo.dep.osgi.tika"/>
       <plugin id="org.argeo.eclipse.ui"/>
+      <plugin id="org.argeo.eclipse.ui.jcr"/>
+      <plugin id="org.argeo.eclipse.ui.rcp"/>
       <plugin id="org.argeo.infra.core"/>
       <plugin id="org.argeo.infra.security.services" fragment="true"/>
+      <plugin id="org.argeo.jcr.ui.explorer"/>
       <plugin id="org.argeo.node.repo.jackrabbit"/>
       <plugin id="org.argeo.security.core"/>
       <plugin id="org.argeo.security.equinox"/>
@@ -100,7 +103,7 @@
       <plugin id="org.argeo.security.manager.ldap"/>
       <plugin id="org.argeo.security.services"/>
       <plugin id="org.argeo.security.ui"/>
-      <plugin id="org.argeo.security.ui.application"/>
+      <plugin id="org.argeo.security.ui.rcp"/>
       <plugin id="org.argeo.server.ads"/>
       <plugin id="org.argeo.server.ads.server"/>
       <plugin id="org.argeo.server.core"/>
@@ -110,9 +113,6 @@
       <plugin id="org.argeo.server.jcr.mvc"/>
       <plugin id="org.argeo.server.json"/>
       <plugin id="org.argeo.server.tika.jackrabbit" fragment="true"/>
-      <plugin id="org.argeo.slc.agent.ext.xalan" fragment="true"/>
-      <plugin id="org.argeo.slc.demo.log4j" fragment="true"/>
-      <plugin id="org.argeo.slc.gis.ext.dbcp" fragment="true"/>
       <plugin id="org.eclipse.core.commands"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.databinding"/>
@@ -131,6 +131,7 @@
       <plugin id="org.eclipse.jface.databinding"/>
       <plugin id="org.eclipse.osgi"/>
       <plugin id="org.eclipse.swt"/>
+      <plugin id="org.eclipse.swt.gtk.linux.x86" fragment="true"/>
       <plugin id="org.eclipse.swt.gtk.linux.x86_64" fragment="true"/>
       <plugin id="org.eclipse.swt.win32.win32.x86" fragment="true"/>
       <plugin id="org.eclipse.ui"/>
@@ -144,7 +145,6 @@
       <plugin id="org.springframework.osgi.extender"/>
       <plugin id="org.springframework.osgi.io"/>
       <plugin id="org.springframework.oxm"/>
-      <plugin id="org.springframework.security.acls" fragment="true"/>
       <plugin id="org.springframework.security.core"/>
       <plugin id="org.springframework.transaction"/>
       <plugin id="org.springframework.web"/>
