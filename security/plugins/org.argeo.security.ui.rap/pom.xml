@@ -30,7 +30,7 @@
 				<version>${version.maven-bundle-plugin}</version>
 				<configuration>
 					<instructions>
-						<!-- <Bundle-Activator>org.argeo.security.ui.rcp.SecureApplicationActivator</Bundle-Activator> -->
+						<Bundle-Activator>org.argeo.security.ui.rap.SecureRapActivator</Bundle-Activator>
 						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
 						<Require-Bundle>org.eclipse.rap.ui,org.eclipse.core.runtime</Require-Bundle>
 						<Import-Package>*</Import-Package>

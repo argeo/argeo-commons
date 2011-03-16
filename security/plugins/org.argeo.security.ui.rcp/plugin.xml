@@ -17,23 +17,7 @@
                name="preferenceCustomization"
                value="plugin_customization.ini"/>
       </product>
-   </extension>
-
-	<extension
-         id="org.argeo.security.webui.product"
-         point="org.eclipse.core.runtime.products">
-      <product
-            name="ArgeoProduct" application="org.argeo.security.ui.application.secureWebUi">
-          <property
-               name="appName"
-               value="Secure Web UI">
-         </property>
- 	     <property
-               name="preferenceCustomization"
-               value="plugin_customization.ini"/>
-      </product>
-   </extension>
-  
+   </extension>  
 
    <extension
          id="secureUi"
@@ -47,29 +31,4 @@
          </run>
       </application>
    </extension>
-   <extension
-         id="secureWebUi"
-         name="Argeo Secure Web UI"
-         point="org.eclipse.core.runtime.applications">
-      <application cardinality="singleton-global"
-         thread="main"
-         visible="true">
-         <run
-               class="org.argeo.security.ui.rcp.SecureRap">
-         </run>
-      </application>
-   </extension>
-   <extension
-         id="secureWebUi2"
-         name="Argeo Secure Web UI"
-         point="org.eclipse.core.runtime.applications">
-      <application cardinality="singleton-global"
-         thread="main"
-         visible="true">
-         <run
-               class="org.argeo.security.ui.rcp.SecureRap">
-         </run>
-      </application>
-   </extension>
-
 </plugin>

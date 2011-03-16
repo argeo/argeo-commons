@@ -1,4 +1,4 @@
-package org.argeo.security.ui.rcp;
+package org.argeo.security.ui.rap;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;

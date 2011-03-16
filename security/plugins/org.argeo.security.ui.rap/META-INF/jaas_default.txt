@@ -1,0 +1,14 @@
+UNIX {
+    org.eclipse.equinox.security.auth.module.ExtensionLoginModule sufficient
+        extensionId="org.argeo.security.equinox.unixLoginModule";
+};
+
+SPRING {
+    org.eclipse.equinox.security.auth.module.ExtensionLoginModule sufficient
+        extensionId="org.argeo.security.equinox.springLoginModule";
+};
+
+SPRING_SECURITY_CONTEXT {
+    org.eclipse.equinox.security.auth.module.ExtensionLoginModule sufficient
+        extensionId="org.argeo.security.equinox.springSecurityContextLoginModule";
+};
