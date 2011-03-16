@@ -117,11 +117,14 @@
       <plugin id="org.argeo.eclipse.ui"/>
       <plugin id="org.argeo.eclipse.ui.jcr"/>
       <plugin id="org.argeo.eclipse.ui.rcp"/>
+      <plugin id="org.argeo.infra.core"/>
+      <plugin id="org.argeo.infra.security.services" fragment="true"/>
       <plugin id="org.argeo.jackrabbit.webapp"/>
       <plugin id="org.argeo.jcr.ui.explorer"/>
       <plugin id="org.argeo.node.repo.jackrabbit"/>
       <plugin id="org.argeo.security.core"/>
       <plugin id="org.argeo.security.equinox"/>
+      <plugin id="org.argeo.security.jackrabbit" fragment="true"/>
       <plugin id="org.argeo.security.ldap"/>
       <plugin id="org.argeo.security.manager.ldap"/>
       <plugin id="org.argeo.security.mvc"/>
@@ -132,12 +135,17 @@
       <plugin id="org.argeo.server.ads.server"/>
       <plugin id="org.argeo.server.catalina" fragment="true"/>
       <plugin id="org.argeo.server.core"/>
+      <plugin id="org.argeo.server.ext.jackrabbit" fragment="true"/>
       <plugin id="org.argeo.server.jackrabbit"/>
       <plugin id="org.argeo.server.jcr"/>
       <plugin id="org.argeo.server.jcr.mvc"/>
       <plugin id="org.argeo.server.json"/>
       <plugin id="org.argeo.server.tika.jackrabbit" fragment="true"/>
       <plugin id="org.argeo.server.tomcat" fragment="true"/>
+      <plugin id="org.argeo.server.webextender" fragment="true"/>
+      <plugin id="org.argeo.slc.agent.ext.xalan" fragment="true"/>
+      <plugin id="org.argeo.slc.demo.log4j" fragment="true"/>
+      <plugin id="org.argeo.slc.gis.ext.dbcp" fragment="true"/>
       <plugin id="org.eclipse.core.commands"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.databinding"/>
@@ -171,6 +179,7 @@
       <plugin id="org.springframework.osgi.web"/>
       <plugin id="org.springframework.osgi.web.extender"/>
       <plugin id="org.springframework.oxm"/>
+      <plugin id="org.springframework.security.acls" fragment="true"/>
       <plugin id="org.springframework.security.core"/>
       <plugin id="org.springframework.transaction"/>
       <plugin id="org.springframework.web"/>

@@ -13,6 +13,6 @@
 			unbind-method="unregister" />
 	</set>
 
-	<reference id="_authenticationManager"
-		interface="org.springframework.security.AuthenticationManager" />
+<!--	<reference id="authenticationManager"-->
+<!--		interface="org.springframework.security.AuthenticationManager" />-->
 </beans:beans>

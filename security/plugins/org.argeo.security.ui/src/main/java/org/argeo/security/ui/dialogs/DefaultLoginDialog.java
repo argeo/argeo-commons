@@ -30,7 +30,7 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 	}
 
 	protected Point getInitialSize() {
-		return new Point(300, 250);
+		return new Point(300, 350);
 	}
 
 	protected Control createDialogArea(Composite parent) {

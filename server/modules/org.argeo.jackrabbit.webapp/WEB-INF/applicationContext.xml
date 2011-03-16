@@ -10,8 +10,8 @@
 
 	<bean id="repositoryRegister" class="org.argeo.jcr.DefaultRepositoryRegister" />
 
-	<bean id="sessionProvider" scope="session" destroy-method="dispose"
-		class="org.argeo.jackrabbit.remote.SimpleSessionProvider">
+	<bean id="sessionProvider" scope="session" init-method="init"
+		destroy-method="dispose" class="org.argeo.jackrabbit.remote.SimpleSessionProvider">
 		<aop:scoped-proxy proxy-target-class="false" />
 	</bean>
 

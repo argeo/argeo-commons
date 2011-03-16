@@ -12,8 +12,15 @@
 
 	<reference id="securityDao" interface="org.argeo.security.ArgeoSecurityDao" />
 
-	<reference id="authenticationProvider"
-		interface="org.springframework.security.providers.AuthenticationProvider" />
+	<!-- <reference id="authenticationProvider" -->
+	<!-- interface="org.springframework.security.providers.AuthenticationProvider" 
+		/> -->
+	<list id="authenticationProviders"
+		interface="org.springframework.security.providers.AuthenticationProvider"
+		cardinality="0..N">
+		<listener ref="authenticationManager" bind-method="register"
+			unbind-method="unregister" />
+	</list>
 
 	<!-- SERVICES -->
 	<service ref="securityService" interface="org.argeo.security.ArgeoSecurityService" />

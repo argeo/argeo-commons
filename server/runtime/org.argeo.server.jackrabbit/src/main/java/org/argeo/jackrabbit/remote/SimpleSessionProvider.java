@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.server.SessionProvider;
+import org.argeo.ArgeoException;
 
 /** To be injected, typically of scope="session" */
 public class SimpleSessionProvider implements SessionProvider, Serializable {
@@ -24,8 +25,7 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 	private final static Log log = LogFactory
 			.getLog(SimpleSessionProvider.class);
 
-	private transient Map<String, Session> sessions = Collections
-			.synchronizedMap(new HashMap<String, Session>());
+	private transient Map<String, Session> sessions;
 
 	private Credentials credentials = null;
 
@@ -33,10 +33,22 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 			String workspace) throws LoginException, ServletException,
 			RepositoryException {
 
+		// since sessions is transient it can be restored from the session
+		if (sessions == null)
+			sessions = Collections
+					.synchronizedMap(new HashMap<String, Session>());
+
 		if (!sessions.containsKey(workspace)) {
-			Session session = rep.login(credentials, workspace);
-			sessions.put(workspace, session);
-			return session;
+			try {
+				Session session = rep.login(credentials, workspace);
+				if (log.isDebugEnabled())
+					log.debug("User " + session.getUserID() + " logged into "
+							+ request.getServletPath());
+				sessions.put(workspace, session);
+				return session;
+			} catch (Exception e) {
+				throw new ArgeoException("Cannot open session", e);
+			}
 		} else {
 			Session session = sessions.get(workspace);
 			if (!session.isLive()) {
@@ -49,17 +61,19 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 	}
 
 	public void releaseSession(Session session) {
-		if (log.isDebugEnabled())
-			log.debug("Releasing JCR session " + session);
-		// session.logout();
-		// FIXME: find a way to log out when the HTTP session is expired
+		if (log.isTraceEnabled())
+			log.trace("Releasing JCR session " + session);
+	}
+
+	public void init() {
 	}
 
 	public void dispose() {
-		for (String workspace : sessions.keySet()) {
-			Session session = sessions.get(workspace);
-			if (session.isLive())
-				session.logout();
-		}
+		if (sessions != null)
+			for (String workspace : sessions.keySet()) {
+				Session session = sessions.get(workspace);
+				if (session.isLive())
+					session.logout();
+			}
 	}
 }

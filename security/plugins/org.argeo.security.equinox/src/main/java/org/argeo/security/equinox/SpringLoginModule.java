@@ -10,11 +10,11 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.TextOutputCallback;
 import javax.security.auth.login.LoginException;
 
+import org.argeo.security.SiteAuthenticationToken;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.jaas.SecurityContextLoginModule;
 
 /** Login module which caches one subject per thread. */
@@ -56,6 +56,7 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 		NameCallback nameCallback = new NameCallback("User");
 		PasswordCallback passwordCallback = new PasswordCallback("Password",
 				false);
+		NameCallback urlCallback = new NameCallback("Site URL");
 
 		if (callbackHandler == null) {
 			throw new LoginException("No call back handler available");
@@ -63,7 +64,7 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 		}
 		try {
 			callbackHandler.handle(new Callback[] { label, nameCallback,
-					passwordCallback });
+					passwordCallback, urlCallback });
 		} catch (Exception e) {
 			LoginException le = new LoginException("Callback handling failed");
 			le.initCause(e);
@@ -76,8 +77,15 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 		if (passwordCallback.getPassword() != null) {
 			password = String.valueOf(passwordCallback.getPassword());
 		}
-		UsernamePasswordAuthenticationToken credentials = new UsernamePasswordAuthenticationToken(
-				username, password);
+		String url = urlCallback.getName();
+		// TODO: set it via system properties
+		String workspace = null;
+
+		// UsernamePasswordAuthenticationToken credentials = new
+		// UsernamePasswordAuthenticationToken(
+		// username, password);
+		SiteAuthenticationToken credentials = new SiteAuthenticationToken(
+				username, password, url, workspace);
 
 		try {
 			Authentication authentication = authenticationManager

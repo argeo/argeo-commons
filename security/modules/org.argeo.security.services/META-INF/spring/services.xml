@@ -25,18 +25,24 @@
 		<property name="systemAuthenticationKey" value="${argeo.security.systemKey}" />
 	</bean>
 
-	<bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
+	<bean id="authenticationManager" class="org.argeo.security.core.ArgeoAuthenticationManager">
 		<property name="providers">
 			<list>
 				<bean class="org.springframework.security.adapters.AuthByAdapterProvider">
 					<property name="key" value="${argeo.security.systemKey}" />
 				</bean>
 				<bean
-					class="org.springframework.security.providers.rememberme.RememberMeAuthenticationProvider">
+					class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider">
 					<property name="key" value="${argeo.security.systemKey}" />
 				</bean>
-				<ref bean="authenticationProvider" />
 			</list>
 		</property>
 	</bean>
+
+
+	<!-- <bean id="rememberMeAuthenticationProvider" -->
+	<!-- class="org.springframework.security.providers.rememberme.RememberMeAuthenticationProvider"> -->
+	<!-- <property name="key" value="${argeo.security.systemKey}" /> -->
+	<!-- </bean> -->
+
 </beans>

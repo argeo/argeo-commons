@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:sec="http://www.springframework.org/schema/security" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.4.xsd">
+
+
+	<!-- Filter chain -->
+	<alias name="filterChainProxy" alias="springSecurityFilterChain" />
+
+	<bean id="filterChainProxy" class="org.springframework.security.util.FilterChainProxy">
+		<sec:filter-chain-map path-type="ant">
+			<sec:filter-chain pattern="/images/*" filters="none" />
+			<sec:filter-chain pattern="/**"
+				filters="securityContextFilter, logoutFilter, requestCacheFilter,
+                 servletApiFilter, anonFilter, sessionMgmtFilter, exceptionTranslator, filterSecurityInterceptor" />
+		</sec:filter-chain-map>
+	</bean>
+
+	<!-- Filters -->
+	<bean id="securityContextFilter"
+		class="org.springframework.security.web.context.SecurityContextPersistenceFilter">
+		<property name="securityContextRepository" ref="securityContextRepository" />
+	</bean>
+
+	<bean id="securityContextRepository"
+		class="org.springframework.security.web.context.HttpSessionSecurityContextRepository" />
+
+	<bean id="logoutFilter"
+		class="org.springframework.security.web.authentication.logout.LogoutFilter">
+		<constructor-arg value="/logged_out.htm" />
+		<constructor-arg>
+			<list>
+				<bean
+					class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler" />
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<!-- <bean id="formLoginFilter" -->
+	<!-- class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter"> -->
+	<!-- <property name="authenticationManager" ref="authenticationManager" 
+		/> -->
+	<!-- <property name="authenticationSuccessHandler"> -->
+	<!-- <bean -->
+	<!-- class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler"> -->
+	<!-- <property name="defaultTargetUrl" value="/index.jsp" /> -->
+	<!-- </bean> -->
+	<!-- </property> -->
+	<!-- <property name="sessionAuthenticationStrategy"> -->
+	<!-- <bean -->
+	<!-- class="org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy" 
+		/> -->
+	<!-- </property> -->
+	<!-- </bean> -->
+
+	<bean id="requestCacheFilter"
+		class="org.springframework.security.web.savedrequest.RequestCacheAwareFilter" />
+
+	<bean id="servletApiFilter"
+		class="org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter" />
+
+	<bean id="anonFilter"
+		class="org.springframework.security.web.authentication.AnonymousAuthenticationFilter">
+		<property name="key" value="SomeUniqueKeyForThisApplication" />
+		<property name="userAttribute" value="anonymousUser,ROLE_ANONYMOUS" />
+	</bean>
+
+	<bean id="sessionMgmtFilter"
+		class="org.springframework.security.web.session.SessionManagementFilter">
+		<constructor-arg ref="securityContextRepository" />
+	</bean>
+
+	<bean id="exceptionTranslator"
+		class="org.springframework.security.web.access.ExceptionTranslationFilter">
+		<property name="authenticationEntryPoint">
+			<bean
+				class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+				<property name="loginFormUrl" value="/login.htm" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="filterSecurityInterceptor"
+		class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+		<!-- <property name="securityMetadataSource"> -->
+		<!-- <sec:filter-security-metadata-source> -->
+		<!-- <sec:intercept-url pattern="/secure/extreme/*" -->
+		<!-- access="ROLE_SUPERVISOR" /> -->
+		<!-- <sec:intercept-url pattern="/secure/**" -->
+		<!-- access="IS_AUTHENTICATED_FULLY" /> -->
+		<!-- <sec:intercept-url pattern="/login.htm" -->
+		<!-- access="IS_AUTHENTICATED_ANONYMOUSLY" /> -->
+		<!-- <sec:intercept-url pattern="/**" access="ROLE_USER" /> -->
+		<!-- </sec:filter-security-metadata-source> -->
+		<!-- </property> -->
+		<property name="authenticationManager" ref="authenticationManager" />
+		<property name="accessDecisionManager" ref="accessDecisionManager" />
+	</bean>
+
+	<!-- Access decision manager -->
+	<bean id="accessDecisionManager"
+		class="org.springframework.security.access.vote.AffirmativeBased">
+		<property name="decisionVoters">
+			<list>
+				<bean class="org.springframework.security.access.vote.RoleVoter" />
+				<bean class="org.springframework.security.access.vote.AuthenticatedVoter" />
+			</list>
+		</property>
+	</bean>
+
+</beans>

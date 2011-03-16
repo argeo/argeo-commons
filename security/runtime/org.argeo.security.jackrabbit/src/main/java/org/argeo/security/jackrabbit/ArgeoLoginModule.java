@@ -1,4 +1,4 @@
-package org.argeo.security.jackrabbit.spring;
+package org.argeo.security.jackrabbit;
 
 import java.security.Principal;
 import java.security.acl.Group;
@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.jcr.Credentials;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 
@@ -21,7 +22,8 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
 
-public class SpringLoginModule extends AbstractLoginModule {
+public class ArgeoLoginModule extends AbstractLoginModule {
+	private String adminRole = "ROLE_ADMIN";
 
 	/**
 	 * Returns the Spring {@link org.springframework.security.Authentication}
@@ -40,13 +42,19 @@ public class SpringLoginModule extends AbstractLoginModule {
 
 		org.springframework.security.Authentication authen = (org.springframework.security.Authentication) principal;
 
-		if (authen instanceof AnonymousAuthenticationToken)
-			principals.add(new AnonymousPrincipal());
 		if (authen instanceof SystemAuthentication)
 			principals.add(new AdminPrincipal(authen.getName()));
+		else if (authen instanceof AnonymousAuthenticationToken)
+			principals.add(new AnonymousPrincipal());
+		else
+			for (GrantedAuthority ga : authen.getAuthorities()) {
+				if (adminRole.equals(ga.getAuthority()))
+					principals.add(new AdminPrincipal(authen.getName()));
+			}
 
-		for (GrantedAuthority authority : authen.getAuthorities())
-			principals.add(new GrantedAuthorityPrincipal(authority));
+		// override credentials since we did not used the one passed to us
+		credentials = new SimpleCredentials(authen.getName(), authen
+				.getCredentials().toString().toCharArray());
 
 		return principals;
 	}
@@ -65,19 +73,20 @@ public class SpringLoginModule extends AbstractLoginModule {
 	}
 
 	@Override
-	protected Authentication getAuthentication(Principal principal,
+	protected Authentication getAuthentication(final Principal principal,
 			Credentials creds) throws RepositoryException {
 		if (principal instanceof Group) {
 			return null;
 		}
 		return new Authentication() {
 			public boolean canHandle(Credentials credentials) {
-				return true;
+				return principal instanceof org.springframework.security.Authentication;
 			}
 
 			public boolean authenticate(Credentials credentials)
 					throws RepositoryException {
-				return true;
+				return ((org.springframework.security.Authentication) principal)
+						.isAuthenticated();
 			}
 		};
 	}

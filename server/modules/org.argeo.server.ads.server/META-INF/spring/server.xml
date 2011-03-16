@@ -79,7 +79,7 @@
 		-->
 		<property name="maxThreads" value="8" />
 
-		<property name="allowAnonymousAccess" value="false" />
+		<property name="allowAnonymousAccess" value="true" />
 		<property name="accessControlEnabled" value="false" />
 		<property name="enableNtp" value="false" />
 		<property name="enableKerberos" value="false" />
