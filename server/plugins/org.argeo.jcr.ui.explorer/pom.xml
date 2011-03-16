@@ -9,43 +9,6 @@
 	</parent>
 	<artifactId>org.argeo.jcr.ui.explorer</artifactId>
 	<name>Commons JCR Explorer</name>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.argeo.maven.plugins</groupId>
-				<artifactId>maven-argeo-osgi-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>resolve-pde-sources</id>
-						<goals>
-							<goal>pde-sources</goal>
-						</goals>
-						<phase>generate-resources</phase>
-					</execution>
-					<execution>
-						<id>generate-descriptors</id>
-						<goals>
-							<goal>descriptors</goal>
-						</goals>
-						<phase>generate-resources</phase>
-					</execution>
-					<execution>
-						<id>check-osgi</id>
-						<phase>test</phase>
-						<goals>
-							<goal>equinox</goal>
-						</goals>
-						<configuration>
-							<onlyCheck>true</onlyCheck>
-							<argsToAppend>
-								<arg>-clean</arg>
-							</argsToAppend>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
 	<dependencies>
 		<dependency>
 			<groupId>org.argeo.commons.eclipse</groupId>
@@ -59,15 +22,6 @@
 			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
 			<version>0.2.3-SNAPSHOT</version>
 			<scope>provided</scope>
-		</dependency>
-
-		<!-- Testing and target platform -->
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.dep.node</artifactId>
-			<version>${version.argeo-commons}</version>
-			<type>pom</type>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

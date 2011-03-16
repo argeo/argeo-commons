@@ -13,6 +13,7 @@
 	<modules>
 		<module>modules</module>
 		<module>runtime</module>
+		<module>plugins</module>
 		<module>dep</module>
 		<module>demo</module>
 	</modules>

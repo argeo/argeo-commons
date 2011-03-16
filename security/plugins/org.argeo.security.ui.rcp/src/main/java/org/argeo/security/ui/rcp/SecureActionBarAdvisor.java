@@ -1,4 +1,4 @@
-package org.argeo.security.ui.application;
+package org.argeo.security.ui.rcp;
 
 import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.ICoolBarManager;

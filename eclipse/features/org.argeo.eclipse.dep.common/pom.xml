@@ -10,14 +10,6 @@
 	</parent>
 	<artifactId>org.argeo.eclipse.dep.common</artifactId>
 	<name>Commons Eclipse Shared Dependencies</name>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.argeo.maven.plugins</groupId>
-				<artifactId>maven-argeo-osgi-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
 	<dependencies>
 		<!-- Eclipse -->
 		<dependency>

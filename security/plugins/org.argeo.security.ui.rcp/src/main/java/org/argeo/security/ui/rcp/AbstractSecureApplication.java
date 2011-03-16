@@ -1,4 +1,4 @@
-package org.argeo.security.ui.application;
+package org.argeo.security.ui.rcp;
 
 import java.security.PrivilegedAction;
 

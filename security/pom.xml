@@ -15,6 +15,7 @@
 		<module>modules</module>
 		<module>plugins</module>
 		<module>dep</module>
+		<module>features</module>
 		<module>demo</module>
 	</modules>
 </project>

@@ -7,8 +7,8 @@
 		<artifactId>plugins</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>org.argeo.security.ui.application</artifactId>
-	<name>Commons Security UI Application</name>
+	<artifactId>org.argeo.security.ui.rcp</artifactId>
+	<name>Commons Security UI RCP</name>
 	<packaging>jar</packaging>
 	<build>
 		<plugins>
@@ -30,49 +30,29 @@
 				<version>${version.maven-bundle-plugin}</version>
 				<configuration>
 					<instructions>
-						<Bundle-Activator>org.argeo.security.ui.application.SecureApplicationActivator</Bundle-Activator>
+						<Bundle-Activator>org.argeo.security.ui.rcp.SecureApplicationActivator</Bundle-Activator>
 						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
-						<Require-Bundle>org.eclipse.ui;resolution:=optional,org.eclipse.rap.ui;resolution:=optional,org.eclipse.core.runtime</Require-Bundle>
+						<Require-Bundle>org.eclipse.ui,org.eclipse.core.runtime</Require-Bundle>
 						<Import-Package>*</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.argeo.maven.plugins</groupId>
-				<artifactId>maven-argeo-osgi-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>resolve-pde-sources</id>
-						<goals>
-							<goal>pde-sources</goal>
-						</goals>
-						<phase>generate-resources</phase>
-					</execution>
-					<execution>
-						<id>generate-descriptors</id>
-						<goals>
-							<goal>descriptors</goal>
-						</goals>
-						<phase>generate-resources</phase>
-					</execution>
-					<execution>
-						<id>check-osgi</id>
-						<phase>test</phase>
-						<goals>
-							<goal>equinox</goal>
-						</goals>
-						<configuration>
-							<onlyCheck>true</onlyCheck>
-							<argsToAppend>
-								<arg>-clean</arg>
-							</argsToAppend>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
+		<!-- Commons -->
+		<dependency>
+			<groupId>org.argeo.commons.basic</groupId>
+			<artifactId>org.argeo.basic.nodeps</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+
+		<!-- Logging -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>com.springsource.slf4j.org.apache.commons.logging</artifactId>
+		</dependency>
+
 		<!-- Argeo Security -->
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
@@ -85,7 +65,7 @@
 			<version>${version.argeo-commons}</version>
 		</dependency>
 
-		<!-- Argeo Eclipse distribution (common dependencies for both RAP and RCP) -->
+		<!-- RCP specific -->
 		<dependency>
 			<groupId>org.argeo.commons.eclipse</groupId>
 			<artifactId>org.argeo.eclipse.ui.rcp</artifactId>
@@ -95,30 +75,6 @@
 			<groupId>org.argeo.commons.eclipse</groupId>
 			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
 			<version>${version.argeo-commons}</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<!-- Commons -->
-		<dependency>
-			<groupId>org.argeo.commons.basic</groupId>
-			<artifactId>org.argeo.basic.nodeps</artifactId>
-			<version>${version.argeo-commons}</version>
-		</dependency>
-
-
-		<!-- Others -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>com.springsource.slf4j.org.apache.commons.logging</artifactId>
-		</dependency>
-		
-		<!-- Target platform generation -->
-		<dependency>
-			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.dep.node</artifactId>
-			<version>${version.argeo-commons}</version>
-			<type>pom</type>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

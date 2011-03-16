@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Private-Package: .
+Tool: Bnd-1.15.0
+Bundle-Name: Commons Node RCP Dependencies
+Created-By: 1.6.0_0 (Sun Microsystems Inc.)
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Vendor: Argeo
+Bundle-Version: 0.2.3.SNAPSHOT-r20110316_174851
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-SymbolicName: org.argeo.security.dep.node.rcp
+Bundle-DocURL: http://www.argeo.org
+

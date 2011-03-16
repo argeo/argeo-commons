@@ -14,7 +14,7 @@
 	<modules>
 		<module>org.argeo.security.equinox</module>
 		<module>org.argeo.security.ui</module>
-		<module>org.argeo.security.ui.application</module>
+		<module>org.argeo.security.ui.rcp</module>
 		<module>org.argeo.security.ui.rap</module>
 	</modules>
 	<build>
