@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="openArgeoUserEditor" class="org.argeo.security.ui.commands.OpenArgeoUserEditor"
+		scope="prototype" />
+	<bean id="newArgeoUserEditor" class="org.argeo.security.ui.commands.OpenArgeoUserEditor"
+		scope="prototype" />
+	<bean id="addRole" class="org.argeo.security.ui.commands.AddRole"
+		scope="prototype">
+		<property name="securityService" ref="securityService" />
+	</bean>
+	<bean id="openChangePasswordDialog" class="org.argeo.security.ui.commands.OpenChangePasswordDialog"
+		scope="prototype">
+		<property name="securityService" ref="securityService" />
+	</bean>
+	<bean id="refreshUsersList" class="org.argeo.security.ui.commands.RefreshUsersList"
+		scope="prototype" />
+</beans>
