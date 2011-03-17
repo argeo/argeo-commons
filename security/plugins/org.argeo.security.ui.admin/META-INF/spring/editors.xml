@@ -5,7 +5,7 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!-- Editors -->
-	<bean id="adminArgeoUserEditor" class="org.argeo.security.ui.editors.ArgeoUserEditor"
+	<bean id="adminArgeoUserEditor" class="org.argeo.security.ui.admin.editors.ArgeoUserEditor"
 		scope="prototype">
 		<property name="securityService" ref="securityService" />
 	</bean>

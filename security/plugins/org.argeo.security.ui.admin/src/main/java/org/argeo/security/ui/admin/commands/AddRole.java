@@ -1,8 +1,8 @@
-package org.argeo.security.ui.commands;
+package org.argeo.security.ui.admin.commands;
 
 import org.argeo.ArgeoException;
 import org.argeo.security.ArgeoSecurityService;
-import org.argeo.security.ui.views.RolesView;
+import org.argeo.security.ui.admin.views.RolesView;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;

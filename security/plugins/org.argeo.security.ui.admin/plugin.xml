@@ -4,9 +4,9 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="org.argeo.security.ui.SecurityPerspective"
+            class="org.argeo.security.ui.admin.SecurityPerspective"
             icon="icons/security.gif"
-            id="org.argeo.security.ui.adminSecurityPerspective"
+            id="org.argeo.security.ui.admin.adminSecurityPerspective"
             name="Security">
       </perspective>
    </extension>
@@ -15,54 +15,23 @@
       <view
             class="org.argeo.eclipse.spring.SpringExtensionFactory"
             icon="icons/users.gif"
-            id="org.argeo.security.ui.adminUsersView"
+            id="org.argeo.security.ui.admin.adminUsersView"
             name="Users"
             restorable="false">
       </view>
       <view
             class="org.argeo.eclipse.spring.SpringExtensionFactory"
             icon="icons/role.gif"
-            id="org.argeo.security.ui.adminRolesView"
+            id="org.argeo.security.ui.admin.adminRolesView"
             name="Roles"
             restorable="false">
       </view>
-   </extension>
-   
-   <!-- Security -->
-   <extension
-         id="defaultLoginDialog"
-         name="Default Login Dialog"
-         point="org.eclipse.equinox.security.callbackHandler">
-      <callbackHandler
-            class="org.argeo.security.ui.dialogs.DefaultLoginDialog">
-      </callbackHandler>
-   </extension>
-   <extension
-         point="org.eclipse.equinox.security.callbackHandlerMapping">
-      <callbackHandlerMapping
-            callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
-            configName="SPRING">
-      </callbackHandlerMapping>
-   </extension>
-   <extension
-         point="org.eclipse.equinox.security.callbackHandlerMapping">
-         <callbackHandlerMapping
-            callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
-            configName="UNIX">
-      </callbackHandlerMapping>
-   </extension>
-   <extension
-         point="org.eclipse.equinox.security.callbackHandlerMapping">
-      <callbackHandlerMapping
-            callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
-            configName="SPRING_SECURITY_CONTEXT">
-      </callbackHandlerMapping>
    </extension>
    <extension
            point="org.eclipse.ui.editors">
 	        <editor
 	          class="org.argeo.eclipse.spring.SpringExtensionFactory"
-              id="org.argeo.security.ui.adminArgeoUserEditor"
+              id="org.argeo.security.ui.admin.adminArgeoUserEditor"
               name="User"
               icon="icons/user.gif"
               default="false">
@@ -72,98 +41,61 @@
          point="org.eclipse.ui.commands">
       <command
             defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            id="org.argeo.security.ui.openArgeoUserEditor"
+            id="org.argeo.security.ui.admin.openArgeoUserEditor"
             name="OpenArgeoUserEditor">
    			<commandParameter
-         		id="org.argeo.security.ui.username"
+         		id="org.argeo.security.ui.admin.username"
          		name="Username">
   	 		</commandParameter>
       </command>
       <command
             defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            id="org.argeo.security.ui.newArgeoUserEditor"
+            id="org.argeo.security.ui.admin.newArgeoUserEditor"
             name="OpenArgeoUserEditor">
       </command>
       <command
             defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            id="org.argeo.security.ui.addRole"
+            id="org.argeo.security.ui.admin.addRole"
             name="AddRole">
       </command>
       <command
             defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            id="org.argeo.security.ui.openChangePasswordDialog"
-            name="OpenChangePasswordDialog">
-      </command>
-      <command
-            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            id="org.argeo.security.ui.refreshUsersList"
+            id="org.argeo.security.ui.admin.refreshUsersList"
             name="refreshUsersList">
       </command>
     </extension>
      <extension
          point="org.eclipse.ui.menus">
       	<menuContribution
-            locationURI="toolbar:org.argeo.security.ui.rolesView">
+            locationURI="toolbar:org.argeo.security.ui.admin.rolesView">
             <command
-                  commandId="org.argeo.security.ui.addRole"
+                  commandId="org.argeo.security.ui.admin.addRole"
                   icon="icons/add.gif"
                   label="Add Role"
                   tooltip="Add new role">
             </command>
         </menuContribution>
       	<menuContribution
-            locationURI="toolbar:org.argeo.security.ui.usersView">
+            locationURI="toolbar:org.argeo.security.ui.admin.usersView">
             <command
-                  commandId="org.argeo.security.ui.newArgeoUserEditor"
+                  commandId="org.argeo.security.ui.admin.newArgeoUserEditor"
                   icon="icons/add.gif"
                   label="Add User"
                   tooltip="Add new user">
             </command>
             <command
-                  commandId="org.argeo.security.ui.refreshUsersList"
+                  commandId="org.argeo.security.ui.admin.refreshUsersList"
                   icon="icons/refresh.png"
                   label="Refresh"
                   tooltip="Refresh user list">
             </command>
         </menuContribution>
-        <menuContribution
-                locationURI="menu:file?after=additions">
-                <command
-                      commandId="org.argeo.security.ui.openChangePasswordDialog"
-                      icon="icons/password.gif"
-                      label="Change password"
-                      style="push"
-                      tooltip="Change password">
-                </command>
-          </menuContribution>
   </extension>
-     <extension
-           id="product"
-           point="org.eclipse.core.runtime.products">
-        <product
-              application="org.argeo.security.ui.application.secureUi"
-              name="Agfa Sebi">
-           <property
-                 name="appName"
-                 value="Agfa Sebi">
-           </property>
-        </product>
-     </extension>
-     <extension
-           point="org.eclipse.ui.services">
-        <sourceProvider
-              provider="org.argeo.security.ui.RolesSourceProvider">
-           <variable
-                 name="org.argeo.security.ui.rolesVariable"
-                 priorityLevel="workbench">
-           </variable>
-        </sourceProvider>
-     </extension>
-     <extension
+  <extension
            point="org.eclipse.ui.activities">
         <activity
               description="Only for admins"
-              id="org.argeo.security.ui.adminActivity"
+              id="org.argeo.security.ui.admin.adminActivity"
               name="Admin">
 		  <enabledWhen>
 		    <with variable="roles">
@@ -174,9 +106,9 @@
 		  </enabledWhen>
         </activity>
         <activityPatternBinding
-              activityId="org.argeo.security.ui.adminActivity"
+              activityId="org.argeo.security.ui.admin.adminActivity"
               isEqualityPattern="true"
-              pattern="org.argeo.security.ui/.*admin.*">
+              pattern="org.argeo.security.ui.admin/.*">
         </activityPatternBinding>
      </extension>
  </plugin>

@@ -1,7 +1,7 @@
-package org.argeo.security.ui.commands;
+package org.argeo.security.ui.admin.commands;
 
-import org.argeo.security.ui.editors.ArgeoUserEditor;
-import org.argeo.security.ui.editors.ArgeoUserEditorInput;
+import org.argeo.security.ui.admin.editors.ArgeoUserEditor;
+import org.argeo.security.ui.admin.editors.ArgeoUserEditorInput;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;

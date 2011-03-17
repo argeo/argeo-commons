@@ -1,6 +1,6 @@
-package org.argeo.security.ui.commands;
+package org.argeo.security.ui.admin.commands;
 
-import org.argeo.security.ui.views.UsersView;
+import org.argeo.security.ui.admin.views.UsersView;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;

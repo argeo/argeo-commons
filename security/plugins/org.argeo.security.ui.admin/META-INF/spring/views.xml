@@ -4,11 +4,11 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="adminUsersView" class="org.argeo.security.ui.views.UsersView"
+	<bean id="adminUsersView" class="org.argeo.security.ui.admin.views.UsersView"
 		scope="prototype">
 		<property name="securityService" ref="securityService" />
 	</bean>
-	<bean id="adminRolesView" class="org.argeo.security.ui.views.RolesView"
+	<bean id="adminRolesView" class="org.argeo.security.ui.admin.views.RolesView"
 		scope="prototype">
 		<property name="securityService" ref="securityService" />
 	</bean>

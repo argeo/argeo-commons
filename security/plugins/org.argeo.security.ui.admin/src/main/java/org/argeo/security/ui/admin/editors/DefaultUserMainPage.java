@@ -1,4 +1,4 @@
-package org.argeo.security.ui.editors;
+package org.argeo.security.ui.admin.editors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -6,7 +6,7 @@ import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
 import org.argeo.security.SimpleArgeoUser;
 import org.argeo.security.nature.SimpleUserNature;
-import org.argeo.security.ui.SecurityUiPlugin;
+import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -43,7 +43,7 @@ public class DefaultUserMainPage extends FormPage {
 	final static String ID = "argeoUserEditor.mainPage";
 
 	private final static Log log = LogFactory.getLog(DefaultUserMainPage.class);
-	private final static Image ROLE_CHECKED = SecurityUiPlugin
+	private final static Image ROLE_CHECKED = SecurityAdminPlugin
 			.getImageDescriptor("icons/security.gif").createImage();
 
 	private ArgeoUser user;

@@ -1,4 +1,4 @@
-package org.argeo.security.ui.editors;
+package org.argeo.security.ui.admin.editors;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;

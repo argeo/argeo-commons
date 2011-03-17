@@ -1,4 +1,4 @@
-package org.argeo.security.ui.editors;
+package org.argeo.security.ui.admin.editors;
 
 import org.argeo.ArgeoException;
 import org.argeo.security.ArgeoSecurityService;

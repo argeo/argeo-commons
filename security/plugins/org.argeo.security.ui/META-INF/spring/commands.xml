@@ -4,18 +4,8 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="openArgeoUserEditor" class="org.argeo.security.ui.commands.OpenArgeoUserEditor"
-		scope="prototype" />
-	<bean id="newArgeoUserEditor" class="org.argeo.security.ui.commands.OpenArgeoUserEditor"
-		scope="prototype" />
-	<bean id="addRole" class="org.argeo.security.ui.commands.AddRole"
-		scope="prototype">
-		<property name="securityService" ref="securityService" />
-	</bean>
 	<bean id="openChangePasswordDialog" class="org.argeo.security.ui.commands.OpenChangePasswordDialog"
 		scope="prototype">
 		<property name="securityService" ref="securityService" />
 	</bean>
-	<bean id="refreshUsersList" class="org.argeo.security.ui.commands.RefreshUsersList"
-		scope="prototype" />
 </beans>
