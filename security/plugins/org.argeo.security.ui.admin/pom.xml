@@ -7,8 +7,8 @@
 		<artifactId>plugins</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>org.argeo.security.ui.useradmin</artifactId>
-	<name>Commons Security User Admin UI</name>
+	<artifactId>org.argeo.security.ui.admin</artifactId>
+	<name>Commons Security Admin UI</name>
 	<packaging>jar</packaging>
 	<build>
 		<plugins>
