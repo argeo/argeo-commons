@@ -11,12 +11,12 @@
 		cardinality="0..N" />
 
 	<!-- SERVICES -->
-	<service ref="passwordEncoder"
-		interface="org.springframework.security.providers.encoding.PasswordEncoder" />
 	<service ref="authenticationProvider"
 		interface="org.springframework.security.providers.AuthenticationProvider"
 		context-class-loader="service-provider" />
-	<service ref="securityDao" interface="org.argeo.security.ArgeoSecurityDao"
+	<service ref="securityDao" interface="org.argeo.security.CurrentUserDao"
+		context-class-loader="service-provider" />
+	<service ref="securityDao" interface="org.argeo.security.UserAdminDao"
 		context-class-loader="service-provider" />
 	<service ref="userDetailsService"
 		interface="org.springframework.security.userdetails.UserDetailsService"

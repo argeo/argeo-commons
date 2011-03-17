@@ -9,8 +9,7 @@
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
 		<property name="locations">
-			<value>osgibundle:ldap.properties
-			</value>
+			<value>osgibundle:ldap.properties</value>
 		</property>
 	</bean>
 
@@ -39,6 +38,7 @@
 	<bean id="securityDao" class="org.argeo.security.ldap.ArgeoSecurityDaoLdap">
 		<constructor-arg ref="contextSource" />
 		<property name="userNatureMappers" ref="userNatureMappers" />
+		<property name="passwordEncoder" ref="passwordEncoder" />
 	</bean>
 
 	<bean id="userDetailsService" factory-bean="securityDao"

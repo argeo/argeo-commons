@@ -18,8 +18,11 @@ package org.argeo.security.ldap;
 
 import static org.argeo.security.core.ArgeoUserDetails.createSimpleArgeoUser;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -27,7 +30,7 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 
-import org.argeo.security.ArgeoSecurityDao;
+import org.argeo.ArgeoException;
 import org.argeo.security.ArgeoUser;
 import org.argeo.security.CurrentUserDao;
 import org.argeo.security.SimpleArgeoUser;
@@ -48,6 +51,7 @@ import org.springframework.security.ldap.LdapUtils;
 import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.encoding.PasswordEncoder;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsManager;
 import org.springframework.security.userdetails.UserDetailsService;
@@ -55,8 +59,8 @@ import org.springframework.security.userdetails.ldap.LdapUserDetailsManager;
 import org.springframework.security.userdetails.ldap.LdapUserDetailsService;
 import org.springframework.security.userdetails.ldap.UserDetailsContextMapper;
 
-public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, CurrentUserDao,
-		UserAdminDao, InitializingBean {
+public class ArgeoSecurityDaoLdap implements CurrentUserDao, UserAdminDao,
+		InitializingBean {
 	// private final static Log log = LogFactory.getLog(UserDaoLdap.class);
 
 	private UserDetailsManager userDetailsManager;
@@ -79,9 +83,18 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, CurrentUserDao,
 	private LdapUserDetailsService ldapUserDetailsService;
 	private List<UserNatureMapper> userNatureMappers;
 
+	private PasswordEncoder passwordEncoder;
+	private Random random;
+
 	public ArgeoSecurityDaoLdap(BaseLdapPathContextSource contextSource) {
 		this.contextSource = contextSource;
 		ldapTemplate = new LdapTemplate(this.contextSource);
+
+		try {
+			random = SecureRandom.getInstance("SHA1PRNG");
+		} catch (NoSuchAlgorithmException e) {
+			random = new Random(System.currentTimeMillis());
+		}
 	}
 
 	public void afterPropertiesSet() throws Exception {
@@ -124,6 +137,15 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, CurrentUserDao,
 	}
 
 	public synchronized void createUser(ArgeoUser user) {
+		// normalize password
+		if (user instanceof SimpleArgeoUser) {
+			if (user.getPassword() == null || user.getPassword().equals(""))
+				((SimpleArgeoUser) user).setPassword(encodePassword(user
+						.getUsername()));
+			else if (!user.getPassword().startsWith("{"))
+				((SimpleArgeoUser) user).setPassword(encodePassword(user
+						.getPassword()));
+		}
 		userDetailsManager.createUser(new ArgeoUserDetails(user));
 	}
 
@@ -197,6 +219,15 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, CurrentUserDao,
 	}
 
 	public synchronized void updateUser(ArgeoUser user) {
+		// normalize password
+		String password = user.getPassword();
+		if (password == null)
+			password = getUserWithPassword(user.getUsername()).getPassword();
+		if (!password.startsWith("{"))
+			password = encodePassword(user.getPassword());
+		SimpleArgeoUser simpleArgeoUser = new SimpleArgeoUser(user);
+		simpleArgeoUser.setPassword(password);
+
 		ArgeoUserDetails argeoUserDetails = new ArgeoUserDetails(user);
 		userDetailsManager.updateUser(new ArgeoUserDetails(user));
 		// refresh logged in user
@@ -206,6 +237,28 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, CurrentUserDao,
 					new UsernamePasswordAuthenticationToken(argeoUserDetails,
 							null, argeoUserDetails.getAuthorities()));
 		}
+	}
+
+	public void updateCurrentUserPassword(String oldPassword, String newPassword) {
+		SimpleArgeoUser user = new SimpleArgeoUser(
+				ArgeoUserDetails.securityContextUser());
+		if (!passwordEncoder.isPasswordValid(user.getPassword(), oldPassword,
+				null))
+			throw new ArgeoException("Old password is not correct.");
+		user.setPassword(encodePassword(newPassword));
+		updateUser(user);
+	}
+
+	public void updateUserPassword(String username, String password) {
+		SimpleArgeoUser user = new SimpleArgeoUser(getUser(username));
+		user.setPassword(encodePassword(password));
+		updateUser(user);
+	}
+
+	protected String encodePassword(String password) {
+		byte[] salt = new byte[16];
+		random.nextBytes(salt);
+		return passwordEncoder.encodePassword(password, salt);
 	}
 
 	public synchronized void deleteUser(String username) {
@@ -336,6 +389,10 @@ public class ArgeoSecurityDaoLdap implements ArgeoSecurityDao, CurrentUserDao,
 
 	public UserDetailsService getUserDetailsService() {
 		return ldapUserDetailsService;
+	}
+
+	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+		this.passwordEncoder = passwordEncoder;
 	}
 
 }

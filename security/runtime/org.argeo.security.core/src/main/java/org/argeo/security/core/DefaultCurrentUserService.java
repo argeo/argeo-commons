@@ -16,30 +16,17 @@
 
 package org.argeo.security.core;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Map;
-import java.util.Random;
 
-import org.argeo.ArgeoException;
 import org.argeo.security.ArgeoUser;
 import org.argeo.security.CurrentUserDao;
 import org.argeo.security.CurrentUserService;
-import org.argeo.security.SimpleArgeoUser;
 import org.argeo.security.UserNature;
-import org.springframework.security.providers.encoding.PasswordEncoder;
 
 public class DefaultCurrentUserService implements CurrentUserService {
 	private CurrentUserDao currentUserDao;
-	private PasswordEncoder passwordEncoder;
-	private Random random;
 
 	public DefaultCurrentUserService() {
-		try {
-			random = SecureRandom.getInstance("SHA1PRNG");
-		} catch (NoSuchAlgorithmException e) {
-			random = new Random(System.currentTimeMillis());
-		}
 	}
 
 	public ArgeoUser getCurrentUser() {
@@ -52,18 +39,7 @@ public class DefaultCurrentUserService implements CurrentUserService {
 	}
 
 	public void updateCurrentUserPassword(String oldPassword, String newPassword) {
-		SimpleArgeoUser user = new SimpleArgeoUser(getCurrentUser());
-		if (!passwordEncoder.isPasswordValid(user.getPassword(), oldPassword,
-				null))
-			throw new ArgeoException("Old password is not correct.");
-		user.setPassword(encodePassword(newPassword));
-		currentUserDao.updateUser(user);
-	}
-
-	protected String encodePassword(String password) {
-		byte[] salt = new byte[16];
-		random.nextBytes(salt);
-		return passwordEncoder.encodePassword(password, salt);
+		currentUserDao.updateCurrentUserPassword(oldPassword, newPassword);
 	}
 
 	public void updateCurrentUserNatures(Map<String, UserNature> userNatures) {
@@ -74,9 +50,4 @@ public class DefaultCurrentUserService implements CurrentUserService {
 	public void setCurrentUserDao(CurrentUserDao dao) {
 		this.currentUserDao = dao;
 	}
-
-	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-		this.passwordEncoder = passwordEncoder;
-	}
-
 }

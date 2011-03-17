@@ -20,7 +20,7 @@ package org.argeo.security;
  * Access to user backend for the currently logged in user
  */
 public interface CurrentUserDao {
-	public void updateUser(ArgeoUser user);
+	public void updateCurrentUserPassword(String oldPassword, String newPassword);
 
 	public String getDefaultRole();
 

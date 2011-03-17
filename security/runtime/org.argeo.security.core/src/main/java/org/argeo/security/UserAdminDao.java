@@ -29,6 +29,10 @@ public interface UserAdminDao{
 	/** List roles that can be modified */
 	public Set<String> listEditableRoles();
 
+	public void updateUser(ArgeoUser user);
+
+	public void updateUserPassword(String username, String password);
+	
 	/**
 	 * Creates a new user in the underlying storage. <b>DO NOT CALL DIRECTLY</b>
 	 * use {@link ArgeoSecurityService#newUser(ArgeoUser)} instead.

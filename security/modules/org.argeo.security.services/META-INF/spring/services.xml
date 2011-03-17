@@ -8,16 +8,12 @@
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
 		<property name="locations">
-			<value>osgibundle:security.properties
-			</value>
+			<value>osgibundle:security.properties</value>
 		</property>
 	</bean>
 
-	<bean id="securityService" class="org.argeo.security.core.DefaultSecurityService">
-		<property name="securityDao" ref="securityDao" />
-		<property name="passwordEncoder" ref="passwordEncoder" />
-		<property name="authenticationManager" ref="authenticationManager" />
-		<property name="systemAuthenticationKey" value="${argeo.security.systemKey}" />
+	<bean id="securityService" class="org.argeo.security.core.DefaultCurrentUserService">
+		<property name="currentUserDao" ref="currentUserDao" />
 	</bean>
 
 	<bean id="systemExecutionService" class="org.argeo.security.core.KeyBasedSystemExecutionService">
@@ -38,11 +34,4 @@
 			</list>
 		</property>
 	</bean>
-
-
-	<!-- <bean id="rememberMeAuthenticationProvider" -->
-	<!-- class="org.springframework.security.providers.rememberme.RememberMeAuthenticationProvider"> -->
-	<!-- <property name="key" value="${argeo.security.systemKey}" /> -->
-	<!-- </bean> -->
-
 </beans>

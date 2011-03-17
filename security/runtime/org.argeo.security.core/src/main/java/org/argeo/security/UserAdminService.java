@@ -31,11 +31,4 @@ public interface UserAdminService {
 	public Set<String> listEditableRoles();
 
 	public void deleteRole(String role);
-
-	/*
-	 * SYSTEM
-	 */
-	@Deprecated
-	/** @deprecated Use ${link SystemExecutionService} instead.*/
-	public Runnable wrapWithSystemAuthentication(final Runnable runnable);
 }

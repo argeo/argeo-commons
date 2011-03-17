@@ -7,10 +7,7 @@
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
 	<!-- REFERENCES -->
-	<reference id="passwordEncoder"
-		interface="org.springframework.security.providers.encoding.PasswordEncoder" />
-
-	<reference id="securityDao" interface="org.argeo.security.ArgeoSecurityDao" />
+	<reference id="currentUserDao" interface="org.argeo.security.CurrentUserDao" />
 
 	<list id="authenticationProviders"
 		interface="org.springframework.security.providers.AuthenticationProvider"
@@ -20,9 +17,7 @@
 	</list>
 
 	<!-- SERVICES -->
-<!-- 	<service ref="securityService" interface="org.argeo.security.ArgeoSecurityService" /> -->
 	<service ref="securityService" interface="org.argeo.security.CurrentUserService" />
-	<service ref="securityService" interface="org.argeo.security.UserAdminService" />
 	<service ref="systemExecutionService" interface="org.argeo.security.SystemExecutionService" />
 
 	<service ref="authenticationManager"
