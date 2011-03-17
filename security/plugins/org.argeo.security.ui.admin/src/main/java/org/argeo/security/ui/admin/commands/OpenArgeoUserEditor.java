@@ -10,8 +10,8 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 /** Command handler to set visible or open a Argeo user. */
 public class OpenArgeoUserEditor extends AbstractHandler {
-	public final static String COMMAND_ID = "org.argeo.security.ui.openArgeoUserEditor";
-	public final static String PARAM_USERNAME = "org.argeo.security.ui.username";
+	public final static String COMMAND_ID = "org.argeo.security.ui.admin.openArgeoUserEditor";
+	public final static String PARAM_USERNAME = "org.argeo.security.ui.admin.username";
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {

@@ -189,7 +189,7 @@ public class BeanNodeMapper implements NodeMapper {
 
 				PropertyDescriptor pd = beanWrapper.getPropertyDescriptor(prop
 						.getName());
-				Class propClass = pd.getPropertyType();
+				Class<?> propClass = pd.getPropertyType();
 
 				if (log.isTraceEnabled())
 					log.trace("Load " + prop + ", propClass=" + propClass
@@ -222,7 +222,7 @@ public class BeanNodeMapper implements NodeMapper {
 					continue nodes;
 
 				PropertyDescriptor pd = beanWrapper.getPropertyDescriptor(name);
-				Class propClass = pd.getPropertyType();
+				Class<?> propClass = pd.getPropertyType();
 
 				// objects list
 				if (propClass != null && List.class.isAssignableFrom(propClass)) {
@@ -284,7 +284,7 @@ public class BeanNodeMapper implements NodeMapper {
 						if (classProperty.equals(key))
 							continue keyProps;
 
-						Class keyPropClass = classFromProperty(keyProp);
+						Class<?> keyPropClass = classFromProperty(keyProp);
 						if (keyPropClass != null) {
 							Object mapValue = asObject(keyProp.getValue(),
 									keyPropClass);

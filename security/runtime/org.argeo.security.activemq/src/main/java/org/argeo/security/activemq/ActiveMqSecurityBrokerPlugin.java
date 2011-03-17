@@ -27,6 +27,7 @@ import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
+@SuppressWarnings("unchecked")
 public class ActiveMqSecurityBrokerPlugin extends BrokerPluginSupport {
 //	private final static Log log = LogFactory
 //			.getLog(ActiveMqSecurityBrokerPlugin.class);

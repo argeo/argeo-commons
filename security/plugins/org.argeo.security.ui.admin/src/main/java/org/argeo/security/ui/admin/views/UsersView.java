@@ -3,8 +3,8 @@ package org.argeo.security.ui.admin.views;
 import java.util.ArrayList;
 
 import org.argeo.ArgeoException;
-import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
+import org.argeo.security.UserAdminService;
 import org.argeo.security.nature.SimpleUserNature;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.commands.OpenArgeoUserEditor;
@@ -33,10 +33,10 @@ import org.eclipse.ui.part.ViewPart;
 
 /** List all users. */
 public class UsersView extends ViewPart {
-	public final static String ID = "org.argeo.security.ui.usersView";
+	public final static String ID = "org.argeo.security.ui.admin.adminUsersView";
 
 	private TableViewer viewer;
-	private ArgeoSecurityService securityService;
+	private UserAdminService userAdminService;
 
 	private String simpleNatureType = null;
 
@@ -73,8 +73,8 @@ public class UsersView extends ViewPart {
 		viewer.getTable().setFocus();
 	}
 
-	public void setSecurityService(ArgeoSecurityService securityService) {
-		this.securityService = securityService;
+	public void setUserAdminService(UserAdminService userAdminService) {
+		this.userAdminService = userAdminService;
 	}
 
 	public void setSimpleNatureType(String simpleNatureType) {
@@ -88,7 +88,7 @@ public class UsersView extends ViewPart {
 	private class UsersContentProvider implements IStructuredContentProvider {
 
 		public Object[] getElements(Object inputElement) {
-			return securityService.listUsers().toArray();
+			return userAdminService.listUsers().toArray();
 		}
 
 		public void dispose() {
@@ -102,7 +102,7 @@ public class UsersView extends ViewPart {
 	private class UsersLabelProvider extends LabelProvider implements
 			ITableLabelProvider {
 		public String getColumnText(Object element, int columnIndex) {
-			//String currentUsername = CurrentUser.getUsername();
+			// String currentUsername = CurrentUser.getUsername();
 			String currentUsername = "";
 			ArgeoUser user = (ArgeoUser) element;
 			SimpleUserNature simpleNature = SimpleUserNature

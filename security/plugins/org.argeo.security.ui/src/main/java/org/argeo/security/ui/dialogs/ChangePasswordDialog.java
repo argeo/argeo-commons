@@ -1,7 +1,7 @@
 package org.argeo.security.ui.dialogs;
 
 import org.argeo.ArgeoException;
-import org.argeo.security.ArgeoSecurityService;
+import org.argeo.security.CurrentUserService;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
@@ -17,10 +17,10 @@ import org.eclipse.swt.widgets.Text;
 /** Dialog to change the current user password */
 public class ChangePasswordDialog extends TitleAreaDialog {
 	private Text currentPassword, newPassword1, newPassword2;
-	private ArgeoSecurityService securityService;
+	private CurrentUserService securityService;
 
 	public ChangePasswordDialog(Shell parentShell,
-			ArgeoSecurityService securityService) {
+			CurrentUserService securityService) {
 		super(parentShell);
 		this.securityService = securityService;
 	}

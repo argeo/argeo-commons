@@ -11,7 +11,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 /** Save the currently edited Argeo user. */
 public class SaveArgeoUser extends AbstractHandler {
-	public final static String COMMAND_ID = "org.argeo.security.ui.saveArgeoUser";
+	public final static String COMMAND_ID = "org.argeo.security.ui.admin.saveArgeoUser";
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {

@@ -1,5 +1,7 @@
 package org.argeo.security.ui.admin;
 
+import org.argeo.security.ui.admin.views.RolesView;
+import org.argeo.security.ui.admin.views.UsersView;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
@@ -12,8 +14,8 @@ public class SecurityAdminPerspective implements IPerspectiveFactory {
 
 		IFolderLayout left = layout.createFolder("left", IPageLayout.LEFT,
 				0.4f, editorArea);
-		left.addView("org.argeo.security.ui.admin.adminUsersView");
-		left.addView("org.argeo.security.ui.admin.adminRolesView");
+		left.addView(UsersView.ID);
+		left.addView(RolesView.ID);
 	}
 
 }

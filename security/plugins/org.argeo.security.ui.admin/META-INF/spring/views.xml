@@ -6,10 +6,10 @@
 
 	<bean id="adminUsersView" class="org.argeo.security.ui.admin.views.UsersView"
 		scope="prototype">
-		<property name="securityService" ref="securityService" />
+		<property name="userAdminService" ref="userAdminService" />
 	</bean>
 	<bean id="adminRolesView" class="org.argeo.security.ui.admin.views.RolesView"
 		scope="prototype">
-		<property name="securityService" ref="securityService" />
+		<property name="userAdminService" ref="userAdminService" />
 	</bean>
 </beans>

@@ -3,8 +3,8 @@ package org.argeo.security.ui.admin.views;
 import java.util.ArrayList;
 
 import org.argeo.ArgeoException;
-import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
+import org.argeo.security.UserAdminService;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.commands.AddRole;
 import org.argeo.security.ui.admin.commands.OpenArgeoUserEditor;
@@ -37,12 +37,12 @@ import org.eclipse.ui.part.ViewPart;
 
 /** List all roles. */
 public class RolesView extends ViewPart {
-	public final static String ID = "org.argeo.security.ui.rolesView";
+	public final static String ID = "org.argeo.security.ui.admin.adminRolesView";
 
 	private Text newRole;
 
 	private TableViewer viewer;
-	private ArgeoSecurityService securityService;
+	private UserAdminService userAdminService;
 
 	private String addNewRoleText = "<add new role here>";
 
@@ -92,8 +92,8 @@ public class RolesView extends ViewPart {
 		viewer.getTable().setFocus();
 	}
 
-	public void setSecurityService(ArgeoSecurityService securityService) {
-		this.securityService = securityService;
+	public void setUserAdminService(UserAdminService userAdminService) {
+		this.userAdminService = userAdminService;
 	}
 
 	public String getAddNewRoleText() {
@@ -103,7 +103,7 @@ public class RolesView extends ViewPart {
 	private class RolesContentProvider implements IStructuredContentProvider {
 
 		public Object[] getElements(Object inputElement) {
-			return securityService.listEditableRoles().toArray();
+			return userAdminService.listEditableRoles().toArray();
 		}
 
 		public void dispose() {

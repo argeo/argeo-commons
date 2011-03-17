@@ -72,7 +72,6 @@
     </extension>
 	<extension point="org.eclipse.ui.menus">
 		<menuContribution
-                allPopups="false"
                 locationURI="menu:org.argeo.jcr.ui.explorer.browserView">
                 <command
                       commandId="org.argeo.jcr.ui.explorer.openGenericJcrQueryEditor"
@@ -86,7 +85,6 @@
 			     </command>
           </menuContribution>
   <menuContribution
-        allPopups="false"
         locationURI="popup:org.argeo.jcr.ui.explorer.browserView">
      <command
            commandId="org.argeo.jcr.ui.explorer.refresh"

@@ -2,9 +2,9 @@ package org.argeo.security.ui.admin.editors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.security.ArgeoSecurityService;
 import org.argeo.security.ArgeoUser;
 import org.argeo.security.SimpleArgeoUser;
+import org.argeo.security.UserAdminService;
 import org.argeo.security.nature.SimpleUserNature;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.eclipse.jface.viewers.CellEditor;
@@ -49,10 +49,10 @@ public class DefaultUserMainPage extends FormPage {
 	private ArgeoUser user;
 	private SimpleUserNature simpleNature;
 	private String simpleNatureType;
-	private ArgeoSecurityService securityService;
+	private UserAdminService securityService;
 
 	public DefaultUserMainPage(FormEditor editor,
-			ArgeoSecurityService securityService, ArgeoUser user) {
+			UserAdminService securityService, ArgeoUser user) {
 		super(editor, ID, "Main");
 		this.securityService = securityService;
 		this.user = user;

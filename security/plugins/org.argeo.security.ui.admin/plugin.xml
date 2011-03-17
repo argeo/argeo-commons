@@ -4,7 +4,7 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="org.argeo.security.ui.admin.SecurityPerspective"
+            class="org.argeo.security.ui.admin.SecurityAdminPerspective"
             icon="icons/security.gif"
             id="org.argeo.security.ui.admin.adminSecurityPerspective"
             name="Security">

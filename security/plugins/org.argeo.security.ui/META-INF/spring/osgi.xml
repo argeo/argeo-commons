@@ -8,5 +8,5 @@
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
 	osgi:default-timeout="30000">
 
-	<reference id="securityService" interface="org.argeo.security.ArgeoSecurityService" />
+	<reference id="currentUserService" interface="org.argeo.security.CurrentUserService" />
 </beans:beans>
