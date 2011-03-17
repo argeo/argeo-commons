@@ -1,0 +1,61 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+              http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.4.xsd">
+
+
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="locations">
+			<value>osgibundle:ldap.properties</value>
+		</property>
+	</bean>
+
+	<bean id="passwordEncoder"
+		class="org.springframework.security.providers.ldap.authenticator.LdapShaPasswordEncoder" />
+
+	<bean id="contextSource"
+		class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
+		<constructor-arg
+			value="${argeo.ldap.protocol}://${argeo.ldap.host}:${argeo.ldap.port}/${argeo.ldap.rootdn}" />
+		<property name="userDn" value="${argeo.ldap.manager.userdn}" />
+		<property name="password" value="${argeo.ldap.manager.password}" />
+	</bean>
+
+	<bean id="authenticationProvider"
+		class="org.springframework.security.providers.ldap.LdapAuthenticationProvider">
+		<constructor-arg ref="ldapAuthenticator" />
+		<constructor-arg>
+			<bean factory-bean="securityDao" factory-method="getAuthoritiesPopulator" />
+		</constructor-arg>
+		<property name="userDetailsContextMapper">
+			<bean factory-bean="securityDao" factory-method="getUserDetailsMapper" />
+		</property>
+	</bean>
+
+	<bean id="securityDao" class="org.argeo.security.ldap.ArgeoSecurityDaoLdap">
+		<constructor-arg ref="contextSource" />
+		<property name="userNatureMappers" ref="userNatureMappers" />
+		<property name="passwordEncoder" ref="passwordEncoder" />
+	</bean>
+
+	<bean id="userDetailsService" factory-bean="securityDao"
+		factory-method="getUserDetailsService">
+	</bean>
+
+	<bean id="ldapAuthenticator"
+		class="org.springframework.security.providers.ldap.authenticator.PasswordComparisonAuthenticator">
+		<constructor-arg ref="contextSource" />
+		<property name="userDnPatterns">
+			<list>
+				<value>uid={0},ou=People</value>
+			</list>
+		</property>
+		<property name="passwordEncoder">
+			<bean
+				class="org.springframework.security.providers.ldap.authenticator.LdapShaPasswordEncoder" />
+		</property>
+	</bean>
+</beans>

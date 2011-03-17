@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/osgi"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="http://www.springframework.org/schema/osgi  
+       http://www.springframework.org/schema/osgi/spring-osgi-1.1.xsd
+       http://www.springframework.org/schema/beans   
+       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<!-- REFERENCES -->
+	<list id="userNatureMappers" interface="org.argeo.security.ldap.UserNatureMapper"
+		cardinality="0..N" />
+
+	<!-- SERVICES -->
+	<service ref="authenticationProvider"
+		interface="org.springframework.security.providers.AuthenticationProvider"
+		context-class-loader="service-provider" />
+	<service ref="securityDao" interface="org.argeo.security.CurrentUserDao"
+		context-class-loader="service-provider" />
+	<service ref="securityDao" interface="org.argeo.security.UserAdminDao"
+		context-class-loader="service-provider" />
+	<service ref="userDetailsService"
+		interface="org.springframework.security.userdetails.UserDetailsService"
+		context-class-loader="service-provider" />
+
+	<!-- Provides deserialization -->
+	<service interface="org.argeo.server.json.JsonObjectFactory">
+		<beans:bean class="org.argeo.server.json.JsonObjectFactoryImpl" />
+	</service>
+
+</beans:beans>
