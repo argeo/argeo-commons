@@ -29,7 +29,6 @@ public class ImportFileSystemWizard extends Wizard {
 
 	public ImportFileSystemWizard(Node folder) {
 		this.folder = folder;
-		setNeedsProgressMonitor(page1.getNeedsProgressMonitor());
 		setWindowTitle("Import from file system");
 	}
 
@@ -38,6 +37,7 @@ public class ImportFileSystemWizard extends Wizard {
 		try {
 			page1 = new ImportToServerWizardPage();
 			addPage(page1);
+			setNeedsProgressMonitor(page1.getNeedsProgressMonitor());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

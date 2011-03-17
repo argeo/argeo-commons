@@ -41,8 +41,8 @@ public class FileHandler {
 		// http://www.eclipse.org/forums/index.php?t=msg&th=205487&start=0&S=43d85dacc88b505402420592109c7240
 
 		try {
-			if (log.isDebugEnabled())
-				log.debug("URL : " + createFullDownloadUrl(fileName, fileId));
+			if (log.isTraceEnabled())
+				log.trace("URL : " + createFullDownloadUrl(fileName, fileId));
 
 			URL url = new URL(createFullDownloadUrl(fileName, fileId));
 			PlatformUI.getWorkbench().getBrowserSupport()
