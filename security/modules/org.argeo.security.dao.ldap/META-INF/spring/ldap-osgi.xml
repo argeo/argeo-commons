@@ -21,10 +21,4 @@
 	<service ref="userDetailsService"
 		interface="org.springframework.security.userdetails.UserDetailsService"
 		context-class-loader="service-provider" />
-
-	<!-- Provides deserialization -->
-	<service interface="org.argeo.server.json.JsonObjectFactory">
-		<beans:bean class="org.argeo.server.json.JsonObjectFactoryImpl" />
-	</service>
-
 </beans:beans>

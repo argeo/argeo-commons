@@ -53,9 +53,6 @@
 				<value>uid={0},ou=People</value>
 			</list>
 		</property>
-		<property name="passwordEncoder">
-			<bean
-				class="org.springframework.security.providers.ldap.authenticator.LdapShaPasswordEncoder" />
-		</property>
+		<property name="passwordEncoder" ref="passwordEncoder" />
 	</bean>
 </beans>

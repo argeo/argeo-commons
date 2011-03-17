@@ -1,18 +1,17 @@
-Bundle-SymbolicName: org.argeo.security.manager.ldap
+Bundle-SymbolicName: org.argeo.security.dao.ldap
 Bundle-Version: 0.2.3.SNAPSHOT
 Import-Package: com.sun.jndi.ldap;resolution:=optional,
  org.argeo.security,
  org.argeo.security.ldap,
  org.argeo.security.ldap.nature,
  org.argeo.security.nature,
- org.argeo.server.json;resolution:=optional,
  org.springframework.beans.factory.config,
  org.springframework.ldap.core.support,
  org.springframework.security,
  org.springframework.security.ldap,
  org.springframework.security.ldap.populator,
  org.springframework.security.providers,
- org.springframework.security.providers.encoding;specification-version="2.0.6.RELEASE",
+ org.springframework.security.providers.encoding,
  org.springframework.security.providers.ldap,
  org.springframework.security.providers.ldap.authenticator,
  org.springframework.security.userdetails,
