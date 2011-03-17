@@ -548,9 +548,29 @@ public class JcrUtils {
 		return name.replace(':', '_');
 	}
 
+	/** Cleanly disposes a {@link Binary} even if it is null. */
 	public static void closeQuietly(Binary binary) {
 		if (binary == null)
 			return;
 		binary.dispose();
+	}
+
+	/**
+	 * Creates depth from a string (typically a username) by adding levels based
+	 * on its first characters: "aBcD",2 => a/aB
+	 */
+	public static String firstCharsToPath(String str, Integer nbrOfChars) {
+		if (str.length() < nbrOfChars)
+			throw new ArgeoException("String " + str
+					+ " length must be greater or equal than " + nbrOfChars);
+		StringBuffer path = new StringBuffer("");
+		StringBuffer curr = new StringBuffer("");
+		for (int i = 0; i < nbrOfChars; i++) {
+			curr.append(str.charAt(i));
+			path.append(curr);
+			if (i < nbrOfChars - 1)
+				path.append('/');
+		}
+		return path.toString();
 	}
 }
