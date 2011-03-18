@@ -24,7 +24,7 @@
 		context-class-loader="service-provider" />
 	<service ref="securityDao" interface="org.argeo.security.UserAdminDao"
 		context-class-loader="service-provider" />
-	<service ref="userDetailsService"
+	<service ref="userDetailsManager"
 		interface="org.springframework.security.userdetails.UserDetailsService"
 		context-class-loader="service-provider" />
 </beans:beans>

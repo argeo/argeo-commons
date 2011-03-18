@@ -22,6 +22,7 @@ import java.io.Serializable;
  * A set of specific data attached to a user. TODO: is this interface really
  * useful?
  */
+@Deprecated
 public interface UserNature extends Serializable {
 	@Deprecated
 	/** @deprecated will be removed soon*/

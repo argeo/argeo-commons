@@ -7,6 +7,7 @@ public interface CurrentUserService {
 
 	public void updateCurrentUserPassword(String oldPassword, String newPassword);
 
+	@Deprecated
 	public void updateCurrentUserNatures(Map<String, UserNature> userNatures);
 
 }

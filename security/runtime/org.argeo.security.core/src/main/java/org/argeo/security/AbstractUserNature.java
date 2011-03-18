@@ -18,6 +18,7 @@ package org.argeo.security;
 
 
 /** A set of specific data attached to a user. */
+@Deprecated
 public abstract class AbstractUserNature implements UserNature {
 	private static final long serialVersionUID = 1169323440459736478L;
 	

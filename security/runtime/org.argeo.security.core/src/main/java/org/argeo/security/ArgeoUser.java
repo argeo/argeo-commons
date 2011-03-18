@@ -23,6 +23,7 @@ import java.util.Map;
 public interface ArgeoUser {
 	public String getUsername();
 
+	@Deprecated
 	public Map<String, UserNature> getUserNatures();
 
 	/** Implementation should refuse to add new user natures via this method. */

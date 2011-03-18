@@ -53,10 +53,12 @@ public class SimpleArgeoUser implements ArgeoUser, Serializable,
 		return userNatures;
 	}
 
+	@Deprecated
 	public void updateUserNatures(Map<String, UserNature> userNaturesData) {
 		updateUserNaturesWithCheck(userNatures, userNaturesData);
 	}
 
+	@Deprecated
 	public static void updateUserNaturesWithCheck(
 			Map<String, UserNature> userNatures,
 			Map<String, UserNature> userNaturesData) {
@@ -109,6 +111,7 @@ public class SimpleArgeoUser implements ArgeoUser, Serializable,
 		this.username = username;
 	}
 
+	@Deprecated
 	public void setUserNatures(Map<String, UserNature> userNatures) {
 		this.userNatures = userNatures;
 	}
