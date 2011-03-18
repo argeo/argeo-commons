@@ -7,7 +7,8 @@
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
 	<!-- REFERENCES -->
-	<reference id="currentUserDao" interface="org.argeo.security.CurrentUserDao" />
+	<reference id="currentUserDao" interface="org.argeo.security.CurrentUserDao"
+		cardinality="0..1" />
 
 	<list id="authenticationProviders"
 		interface="org.springframework.security.providers.AuthenticationProvider"

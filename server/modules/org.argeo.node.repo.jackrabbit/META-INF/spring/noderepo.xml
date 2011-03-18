@@ -33,9 +33,8 @@
 		<property name="workspace" value="${argeo.node.repo.workspace}" />
 	</bean>
 
-	<bean id="jcrAuthenticationProvider" class="org.argeo.security.jackrabbit.providers.JackrabbitAuthenticationProvider">
-		<property name="repositoryFactories" ref="repositoryFactories" />
-	</bean>
+	<bean id="jcrAuthenticationProvider"
+		class="org.argeo.security.jackrabbit.providers.JackrabbitAuthenticationProvider" />
 
 	<bean id="repositoryFactory" class="org.argeo.jackrabbit.JackrabbitRepositoryFactory">
 	</bean>

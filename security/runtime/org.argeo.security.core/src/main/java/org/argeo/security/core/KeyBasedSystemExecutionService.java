@@ -39,11 +39,12 @@ public class KeyBasedSystemExecutionService implements SystemExecutionService {
 						.authenticate(new InternalAuthentication(
 								systemAuthenticationKey));
 				securityContext.setAuthentication(auth);
-
-				runnable.run();
-
-				// remove the authentication
-				securityContext.setAuthentication(null);
+				try {
+					runnable.run();
+				} finally {
+					// remove the authentication
+					securityContext.setAuthentication(null);
+				}
 			}
 		};
 	}

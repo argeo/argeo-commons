@@ -1,8 +1,11 @@
 Bundle-SymbolicName: org.argeo.security.dao.ldap
 Bundle-Version: 0.2.3.SNAPSHOT
 Import-Package: com.sun.jndi.ldap;resolution:=optional,
+ javax.jcr;version="[2.0.0,3.0.0)",
+ org.argeo.jcr,
  org.argeo.security,
  org.argeo.security.ldap,
+ org.argeo.security.ldap.jcr,
  org.argeo.security.ldap.nature,
  org.argeo.security.nature,
  org.springframework.beans.factory.config,

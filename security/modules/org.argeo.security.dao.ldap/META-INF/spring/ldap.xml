@@ -30,9 +30,7 @@
 		<constructor-arg>
 			<bean factory-bean="securityDao" factory-method="getAuthoritiesPopulator" />
 		</constructor-arg>
-		<property name="userDetailsContextMapper">
-			<bean factory-bean="securityDao" factory-method="getUserDetailsMapper" />
-		</property>
+		<property name="userDetailsContextMapper" ref="jcrUserDetailsContextMapper" />
 	</bean>
 
 	<bean id="securityDao" class="org.argeo.security.ldap.ArgeoSecurityDaoLdap">

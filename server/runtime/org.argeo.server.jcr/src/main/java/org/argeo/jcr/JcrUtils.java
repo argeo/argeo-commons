@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,9 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
+import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.nodetype.NodeType;
@@ -47,7 +50,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 
 /** Utility methods to simplify common JCR operations. */
-public class JcrUtils {
+public class JcrUtils implements ArgeoJcrConstants {
 	private final static Log log = LogFactory.getLog(JcrUtils.class);
 
 	/**
@@ -219,7 +222,8 @@ public class JcrUtils {
 	}
 
 	/**
-	 * Creates the nodes making path, if they don't exist.
+	 * Creates the nodes making path, if they don't exist. This is up to the
+	 * caller to save the session.
 	 */
 	public static Node mkdirs(Session session, String path, String type,
 			String intermediaryNodeType, Boolean versioning) {
@@ -262,7 +266,7 @@ public class JcrUtils {
 					currentNode = (Node) session.getItem(current.toString());
 				}
 			}
-			session.save();
+			// session.save();
 			return currentNode;
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot mkdirs " + path, e);
@@ -572,5 +576,41 @@ public class JcrUtils {
 				path.append('/');
 		}
 		return path.toString();
+	}
+
+	/**
+	 * Wraps the call to the repository factory based on parameter
+	 * {@link ArgeoJcrConstants#JCR_REPOSITORY_ALIAS} in order to simplify it
+	 * and protect against future API changes.
+	 */
+	public static Repository getRepositoryByAlias(
+			RepositoryFactory repositoryFactory, String alias) {
+		try {
+			Map<String, String> parameters = new HashMap<String, String>();
+			parameters.put(JCR_REPOSITORY_ALIAS, alias);
+			return repositoryFactory.getRepository(parameters);
+		} catch (RepositoryException e) {
+			throw new ArgeoException(
+					"Unexpected exception when trying to retrieve repository with alias "
+							+ alias, e);
+		}
+	}
+
+	/**
+	 * Wraps the call to the repository factory based on parameter
+	 * {@link ArgeoJcrConstants#JCR_REPOSITORY_URI} in order to simplify it and
+	 * protect against future API changes.
+	 */
+	public static Repository getRepositoryByUri(
+			RepositoryFactory repositoryFactory, String uri) {
+		try {
+			Map<String, String> parameters = new HashMap<String, String>();
+			parameters.put(JCR_REPOSITORY_URI, uri);
+			return repositoryFactory.getRepository(parameters);
+		} catch (RepositoryException e) {
+			throw new ArgeoException(
+					"Unexpected exception when trying to retrieve repository with uri "
+							+ uri, e);
+		}
 	}
 }

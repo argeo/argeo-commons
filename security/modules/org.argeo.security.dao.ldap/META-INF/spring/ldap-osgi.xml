@@ -9,6 +9,12 @@
 	<!-- REFERENCES -->
 	<list id="userNatureMappers" interface="org.argeo.security.ldap.UserNatureMapper"
 		cardinality="0..N" />
+	<reference id="repositoryFactory" interface="javax.jcr.RepositoryFactory"
+		cardinality="0..1">
+		<listener ref="jcrUserDetailsContextMapper" bind-method="register"
+			unbind-method="unregister" />
+	</reference>
+	<reference id="systemExecutionService" interface="org.argeo.security.SystemExecutionService" />
 
 	<!-- SERVICES -->
 	<service ref="authenticationProvider"

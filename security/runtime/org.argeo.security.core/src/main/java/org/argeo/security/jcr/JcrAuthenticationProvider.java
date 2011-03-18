@@ -1,9 +1,6 @@
 package org.argeo.security.jcr;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import javax.jcr.Node;
@@ -26,7 +23,7 @@ import org.springframework.security.providers.AuthenticationProvider;
 
 /** Connects to a JCR repository and delegate authentication to it. */
 public class JcrAuthenticationProvider implements AuthenticationProvider {
-	private List<RepositoryFactory> repositoryFactories = new ArrayList<RepositoryFactory>();
+	private RepositoryFactory repositoryFactory;
 	private final String defaultHome;
 	private final String userRole;
 
@@ -58,10 +55,7 @@ public class JcrAuthenticationProvider implements AuthenticationProvider {
 			parameters.put(ArgeoJcrConstants.JCR_REPOSITORY_URI, url);
 
 			Repository repository = null;
-			for (Iterator<RepositoryFactory> it = repositoryFactories
-					.iterator(); it.hasNext();) {
-				repository = it.next().getRepository(parameters);
-			}
+			repository = repositoryFactory.getRepository(parameters);
 			if (repository == null)
 				return null;
 
@@ -120,9 +114,14 @@ public class JcrAuthenticationProvider implements AuthenticationProvider {
 		}
 	}
 
-	public void setRepositoryFactories(
-			List<RepositoryFactory> repositoryFactories) {
-		this.repositoryFactories = repositoryFactories;
+	public void register(RepositoryFactory repositoryFactory,
+			Map<String, String> parameters) {
+		this.repositoryFactory = repositoryFactory;
+	}
+
+	public void unregister(RepositoryFactory repositoryFactory,
+			Map<String, String> parameters) {
+		this.repositoryFactory = null;
 	}
 
 	public String getDefaultHome() {
