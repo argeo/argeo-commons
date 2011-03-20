@@ -34,6 +34,7 @@ public class ExtendedDispatcherServlet extends DispatcherServlet {
 	protected void service(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException,
 			java.io.IOException {
+
 		// see http://forum.springsource.org/showthread.php?t=53472
 		try {
 			if (log.isTraceEnabled())

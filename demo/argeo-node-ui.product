@@ -8,7 +8,7 @@
 
    <launcherArgs>
       <programArgs>-console -clean</programArgs>
-      <vmArgs>-Dlog4j.configuration=&quot;file:${system_property:user.home}/dev/src/commons/demo/log4j.properties&quot;</vmArgs>
+      <vmArgs>-Dlog4j.configuration=&quot;file:${system_property:user.home}/dev/src/commons/demo/log4j.properties&quot; -Dorg.argeo.security.ui.initialPerspective=org.argeo.jcr.ui.explorer.perspective</vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
@@ -92,15 +92,16 @@
       <plugin id="org.argeo.eclipse.ui"/>
       <plugin id="org.argeo.eclipse.ui.jcr"/>
       <plugin id="org.argeo.eclipse.ui.rcp"/>
-      <plugin id="org.argeo.infra.core" fragment=""/>
+      <plugin id="org.argeo.infra.core"/>
       <plugin id="org.argeo.infra.security.services" fragment="true"/>
       <plugin id="org.argeo.jcr.ui.explorer"/>
       <plugin id="org.argeo.node.repo.jackrabbit"/>
       <plugin id="org.argeo.security.core"/>
+      <plugin id="org.argeo.security.dao.jackrabbit"/>
       <plugin id="org.argeo.security.equinox"/>
       <plugin id="org.argeo.security.jackrabbit" fragment="true"/>
       <plugin id="org.argeo.security.ldap"/>
-      <plugin id="org.argeo.security.manager.ldap"/>
+      <plugin id="org.argeo.security.manager.ldap" fragment=""/>
       <plugin id="org.argeo.security.services"/>
       <plugin id="org.argeo.security.ui"/>
       <plugin id="org.argeo.security.ui.rcp"/>
@@ -154,9 +155,8 @@
 
    <configurations>
       <plugin id="org.argeo.node.repo.jackrabbit" autoStart="true" startLevel="0" />
-      <plugin id="org.argeo.security.manager.ldap" autoStart="true" startLevel="0" />
+      <plugin id="org.argeo.security.dao.jackrabbit" autoStart="true" startLevel="0" />
       <plugin id="org.argeo.security.services" autoStart="true" startLevel="0" />
-      <plugin id="org.argeo.server.ads.server" autoStart="false" startLevel="0" />
       <plugin id="org.springframework.osgi.extender" autoStart="true" startLevel="0" />
    </configurations>
 

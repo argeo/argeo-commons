@@ -22,6 +22,7 @@ package org.argeo.security;
 public interface CurrentUserDao {
 	public void updateCurrentUserPassword(String oldPassword, String newPassword);
 
+	@Deprecated
 	public String getDefaultRole();
 
 }

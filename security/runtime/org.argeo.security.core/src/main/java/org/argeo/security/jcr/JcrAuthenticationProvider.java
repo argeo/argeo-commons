@@ -12,34 +12,20 @@ import javax.jcr.SimpleCredentials;
 
 import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoJcrConstants;
-import org.argeo.jcr.ArgeoNames;
-import org.argeo.jcr.ArgeoTypes;
+import org.argeo.jcr.JcrUtils;
 import org.argeo.security.SiteAuthenticationToken;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.providers.AuthenticationProvider;
+import org.springframework.security.userdetails.UserDetails;
 
 /** Connects to a JCR repository and delegate authentication to it. */
 public class JcrAuthenticationProvider implements AuthenticationProvider {
+	public final static String ROLE_REMOTE_JCR_AUTHENTICATED = "ROLE_REMOTE_JCR_AUTHENTICATED";
+
 	private RepositoryFactory repositoryFactory;
-	private final String defaultHome;
-	private final String userRole;
-
-	public JcrAuthenticationProvider() {
-		this("ROLE_USER", "home");
-	}
-
-	public JcrAuthenticationProvider(String userRole) {
-		this(userRole, "home");
-	}
-
-	public JcrAuthenticationProvider(String defaultHome, String userRole) {
-		super();
-		this.defaultHome = defaultHome;
-		this.userRole = userRole;
-	}
 
 	public Authentication authenticate(Authentication authentication)
 			throws AuthenticationException {
@@ -67,51 +53,48 @@ public class JcrAuthenticationProvider implements AuthenticationProvider {
 				session = repository.login(sp);
 			else
 				session = repository.login(sp, workspace);
-			Node userHome = getUserHome(session);
+			Node userHome = JcrUtils.getUserHome(session);
+			if (userHome == null)
+				throw new ArgeoException("No home found for user "
+						+ session.getUserID());
 			GrantedAuthority[] authorities = {};
-			return new JcrAuthenticationToken(siteAuth.getPrincipal(),
-					siteAuth.getCredentials(), authorities, url, userHome);
+			JcrAuthenticationToken authen = new JcrAuthenticationToken(
+					siteAuth.getPrincipal(), siteAuth.getCredentials(),
+					authorities, url, userHome);
+			authen.setDetails(getUserDetails(userHome, authen));
+			return authen;
 		} catch (RepositoryException e) {
 			throw new ArgeoException(
 					"Unexpected exception when authenticating to " + url, e);
 		}
 	}
 
+	/**
+	 * By default, assigns only the role {@value #ROLE_REMOTE_JCR_AUTHENTICATED}
+	 * . Should typically be overridden in order to assign more relevant roles.
+	 */
 	protected GrantedAuthority[] getGrantedAuthorities(Session session) {
-		return new GrantedAuthority[] { new GrantedAuthorityImpl(userRole) };
+		return new GrantedAuthority[] { new GrantedAuthorityImpl(
+				ROLE_REMOTE_JCR_AUTHENTICATED) };
+	}
+
+	/** Builds user details based on the authentication and the user home. */
+	protected UserDetails getUserDetails(Node userHome,
+			JcrAuthenticationToken authen) {
+		try {
+			// TODO: loads enabled, locked, etc. from the home node.
+			return new JcrUserDetails(userHome.getPath(), authen.getPrincipal()
+					.toString(), authen.getCredentials().toString(), true,
+					true, true, true, authen.getAuthorities());
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot get user details for " + userHome,
+					e);
+		}
 	}
 
 	@SuppressWarnings("rawtypes")
 	public boolean supports(Class authentication) {
 		return SiteAuthenticationToken.class.isAssignableFrom(authentication);
-	}
-
-	protected Node getUserHome(Session session) {
-		String userID = "<not yet logged in>";
-		try {
-			userID = session.getUserID();
-			Node rootNode = session.getRootNode();
-			Node homeNode;
-			if (!rootNode.hasNode(defaultHome)) {
-				homeNode = rootNode.addNode(defaultHome, ArgeoTypes.ARGEO_HOME);
-			} else {
-				homeNode = rootNode.getNode(defaultHome);
-			}
-
-			Node userHome;
-			if (!homeNode.hasNode(userID)) {
-				userHome = homeNode.addNode(userID);
-				userHome.addMixin(ArgeoTypes.ARGEO_USER_HOME);
-				userHome.setProperty(ArgeoNames.ARGEO_USER_ID, userID);
-			} else {
-				userHome = homeNode.getNode(userID);
-			}
-			session.save();
-			return userHome;
-		} catch (Exception e) {
-			throw new ArgeoException("Cannot initialize home for user '"
-					+ userID + "'", e);
-		}
 	}
 
 	public void register(RepositoryFactory repositoryFactory,
@@ -123,13 +106,4 @@ public class JcrAuthenticationProvider implements AuthenticationProvider {
 			Map<String, String> parameters) {
 		this.repositoryFactory = null;
 	}
-
-	public String getDefaultHome() {
-		return defaultHome;
-	}
-
-	public String getUserRole() {
-		return userRole;
-	}
-
 }

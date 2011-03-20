@@ -20,11 +20,13 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Executor;
 
 import javax.jcr.Credentials;
 import javax.jcr.LoginException;
@@ -39,7 +41,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.JackrabbitRepository;
-import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.jackrabbit.commons.NamespaceHelper;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.core.RepositoryImpl;
@@ -48,6 +49,7 @@ import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
 import org.apache.jackrabbit.jcr2dav.Jcr2davRepositoryFactory;
 import org.argeo.ArgeoException;
+import org.argeo.jcr.JcrUtils;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ResourceLoaderAware;
@@ -75,7 +77,6 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 	private ResourceLoader resourceLoader;
 
 	/** Node type definitions in CND format */
-	private List<byte[]> cnds = new ArrayList<byte[]>();
 	private List<String> cndFiles = new ArrayList<String>();
 
 	/** Namespaces to register: key is prefix, value namespace */
@@ -83,59 +84,101 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 
 	private Boolean autocreateWorkspaces = false;
 
-	public void afterPropertiesSet() throws Exception {
-		// Load cnds as resources
-		for (String resUrl : cndFiles) {
-			Resource res = resourceLoader.getResource(resUrl);
-			byte[] arr = IOUtils.toByteArray(res.getInputStream());
-			cnds.add(arr);
-		}
+	private Executor systemExecutor;
 
+	public void afterPropertiesSet() throws Exception {
+		// remote repository
 		if (uri != null && !uri.trim().equals("")) {
 			Map<String, String> params = new HashMap<String, String>();
-			params.put(JcrUtils.REPOSITORY_URI, uri);
+			params.put(org.apache.jackrabbit.commons.JcrUtils.REPOSITORY_URI,
+					uri);
 			repository = new Jcr2davRepositoryFactory().getRepository(params);
 			if (repository == null)
 				throw new ArgeoException("Remote Davex repository " + uri
 						+ " not found");
 			log.info("Initialized Jackrabbit repository " + repository
 					+ " from uri " + uri);
-		} else {
-			if (inMemory && homeDirectory.exists()) {
-				FileUtils.deleteDirectory(homeDirectory);
-				log.warn("Deleted Jackrabbit home directory " + homeDirectory);
-			}
-
-			RepositoryConfig config;
-			InputStream in = configuration.getInputStream();
-			InputStream propsIn = null;
-			try {
-				Properties vars = new Properties();
-				if (variables != null) {
-					propsIn = variables.getInputStream();
-					vars.load(propsIn);
-				}
-				// override with system properties
-				vars.putAll(System.getProperties());
-				vars.put(
-						RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE,
-						homeDirectory.getCanonicalPath());
-				config = RepositoryConfig.create(new InputSource(in), vars);
-			} catch (Exception e) {
-				throw new RuntimeException("Cannot read configuration", e);
-			} finally {
-				IOUtils.closeQuietly(in);
-				IOUtils.closeQuietly(propsIn);
-			}
-
-			if (inMemory)
-				repository = new TransientRepository(config);
-			else
-				repository = RepositoryImpl.create(config);
-
-			log.info("Initialized Jackrabbit repository " + repository + " in "
-					+ homeDirectory + " with config " + configuration);
+			// do not perform further initialization since we assume that the
+			// remote repository has been properly configured
+			return;
 		}
+
+		// local repository
+		if (inMemory && homeDirectory.exists()) {
+			FileUtils.deleteDirectory(homeDirectory);
+			log.warn("Deleted Jackrabbit home directory " + homeDirectory);
+		}
+
+		RepositoryConfig config;
+		InputStream in = configuration.getInputStream();
+		InputStream propsIn = null;
+		try {
+			Properties vars = new Properties();
+			if (variables != null) {
+				propsIn = variables.getInputStream();
+				vars.load(propsIn);
+			}
+			// override with system properties
+			vars.putAll(System.getProperties());
+			vars.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE,
+					homeDirectory.getCanonicalPath());
+			config = RepositoryConfig.create(new InputSource(in), vars);
+		} catch (Exception e) {
+			throw new RuntimeException("Cannot read configuration", e);
+		} finally {
+			IOUtils.closeQuietly(in);
+			IOUtils.closeQuietly(propsIn);
+		}
+
+		if (inMemory)
+			repository = new TransientRepository(config);
+		else
+			repository = RepositoryImpl.create(config);
+
+		importNodeTypeDefinitions(repository);
+
+		log.info("Initialized Jackrabbit repository " + repository + " in "
+				+ homeDirectory + " with config " + configuration);
+	}
+
+	/**
+	 * Import declared node type definitions, trying to update them if they have
+	 * changed. In case of failures an error will be logged but no exception
+	 * will be thrown.
+	 */
+	protected void importNodeTypeDefinitions(final Repository repository) {
+		if (systemExecutor == null) {
+			log.warn("No system executor found");
+			return;
+		}
+
+		systemExecutor.execute(new Runnable() {
+			public void run() {
+				Reader reader = null;
+				Session session = null;
+				try {
+					session = repository.login();
+					// Load cnds as resources
+					for (String resUrl : cndFiles) {
+						Resource res = resourceLoader.getResource(resUrl);
+						byte[] arr = IOUtils.toByteArray(res.getInputStream());
+						reader = new InputStreamReader(
+								new ByteArrayInputStream(arr));
+						CndImporter.registerNodeTypes(reader, session, true);
+					}
+					session.save();
+				} catch (Exception e) {
+					log.error(
+							"Cannot import node type definitions " + cndFiles,
+							e);
+					JcrUtils.discardQuietly(session);
+				} finally {
+					IOUtils.closeQuietly(reader);
+					JcrUtils.logoutQuietly(session);
+				}
+			}
+		});
+
 	}
 
 	public void destroy() throws Exception {
@@ -220,10 +263,6 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 		try {
 			NamespaceHelper namespaceHelper = new NamespaceHelper(session);
 			namespaceHelper.registerNamespaces(namespaces);
-
-			for (byte[] arr : cnds)
-				CndImporter.registerNodeTypes(new InputStreamReader(
-						new ByteArrayInputStream(arr)), session, true);
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot process new session", e);
 		}
@@ -290,6 +329,10 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 
 	public void setUri(String uri) {
 		this.uri = uri;
+	}
+
+	public void setSystemExecutor(Executor systemExecutor) {
+		this.systemExecutor = systemExecutor;
 	}
 
 }

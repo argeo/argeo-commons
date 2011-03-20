@@ -7,6 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
 public class JcrRemotingHandlerMapping extends AbstractJackrabbitHandlerMapping {
+
 	protected HttpServlet createServlet(Repository repository, String pathPrefix)
 			throws ServletException {
 		JcrRemotingServlet servlet = new JcrRemotingServlet(repository,

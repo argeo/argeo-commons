@@ -31,6 +31,7 @@
 					<instructions>
 						<Fragment-Host>org.argeo.dep.osgi.jackrabbit</Fragment-Host>
 						<Export-Package>org.argeo.security.jackrabbit.*</Export-Package>
+						<Import-Package>*,org.springframework.core</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>

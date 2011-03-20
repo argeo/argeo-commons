@@ -1,11 +1,13 @@
 package org.argeo.security.jackrabbit;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.security.auth.Subject;
 
 import org.apache.commons.logging.Log;
@@ -14,7 +16,11 @@ import org.apache.jackrabbit.api.security.user.Group;
 import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.core.DefaultSecurityManager;
+import org.apache.jackrabbit.core.RepositoryImpl;
+import org.apache.jackrabbit.core.security.AnonymousPrincipal;
+import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.SystemPrincipal;
+import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
 import org.argeo.ArgeoException;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
@@ -71,10 +77,54 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 				group.removeMember(user);
 		}
 
-		if (log.isDebugEnabled())
-			log.debug("Spring and Jackrabbit Security synchronized for user "
+		if (log.isTraceEnabled())
+			log.trace("Spring and Jackrabbit Security synchronized for user "
 					+ userId + " in " + (System.currentTimeMillis() - begin)
 					+ " ms");
 		return userId;
 	}
+
+	@Override
+	protected WorkspaceAccessManager createDefaultWorkspaceAccessManager() {
+		WorkspaceAccessManager wam = super
+				.createDefaultWorkspaceAccessManager();
+		return new ArgeoWorkspaceAccessManagerImpl(wam);
+	}
+
+	private class ArgeoWorkspaceAccessManagerImpl implements SecurityConstants,
+			WorkspaceAccessManager {
+		private final WorkspaceAccessManager wam;
+		private String defaultWorkspace;
+
+		public ArgeoWorkspaceAccessManagerImpl(WorkspaceAccessManager wam) {
+			super();
+			this.wam = wam;
+		}
+
+		public void init(Session systemSession) throws RepositoryException {
+			wam.init(systemSession);
+			defaultWorkspace = ((RepositoryImpl) getRepository()).getConfig()
+					.getDefaultWorkspaceName();
+		}
+
+		public void close() throws RepositoryException {
+		}
+
+		public boolean grants(Set<Principal> principals, String workspaceName)
+				throws RepositoryException {
+			// anonymous has access to the default workspace (required for
+			// remoting which does a default login when initializing the
+			// repository)
+			Boolean anonymous = false;
+			for (Principal principal : principals)
+				if (principal instanceof AnonymousPrincipal)
+					anonymous = true;
+
+			if (anonymous && workspaceName.equals(defaultWorkspace))
+				return true;
+			else
+				return wam.grants(principals, workspaceName);
+		}
+	}
+
 }

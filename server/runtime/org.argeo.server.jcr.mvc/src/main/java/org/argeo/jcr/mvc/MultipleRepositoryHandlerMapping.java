@@ -58,7 +58,8 @@ public abstract class MultipleRepositoryHandlerMapping implements
 		}
 		HttpServlet remotingServlet = (HttpServlet) applicationContext
 				.getBean(beanName);
-		return new HandlerExecutionChain(remotingServlet);
+		HandlerExecutionChain hec = new HandlerExecutionChain(remotingServlet);
+		return hec;
 	}
 
 	/** The repository name is the first part of the path info */
@@ -120,5 +121,4 @@ public abstract class MultipleRepositoryHandlerMapping implements
 			return initParameters.keys();
 		}
 	}
-
 }

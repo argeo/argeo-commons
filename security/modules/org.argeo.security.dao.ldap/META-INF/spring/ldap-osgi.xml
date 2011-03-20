@@ -17,9 +17,10 @@
 	<reference id="systemExecutionService" interface="org.argeo.security.SystemExecutionService" />
 
 	<!-- SERVICES -->
-	<service ref="authenticationProvider"
+	<service ref="ldapAuthenticationProvider"
 		interface="org.springframework.security.providers.AuthenticationProvider"
 		context-class-loader="service-provider" />
+		
 	<service ref="securityDao" interface="org.argeo.security.CurrentUserDao"
 		context-class-loader="service-provider" />
 	<service ref="securityDao" interface="org.argeo.security.UserAdminDao"

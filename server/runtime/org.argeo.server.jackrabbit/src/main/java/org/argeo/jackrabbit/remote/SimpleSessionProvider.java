@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.jcr.Credentials;
 import javax.jcr.LoginException;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -27,22 +26,19 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 
 	private transient Map<String, Session> sessions;
 
-	private Credentials credentials = null;
-
 	public Session getSession(HttpServletRequest request, Repository rep,
 			String workspace) throws LoginException, ServletException,
 			RepositoryException {
-
-		// since sessions is transient it can be restored from the session
+		// since sessions is transient it can't be restored from the session
 		if (sessions == null)
 			sessions = Collections
 					.synchronizedMap(new HashMap<String, Session>());
 
 		if (!sessions.containsKey(workspace)) {
 			try {
-				Session session = rep.login(credentials, workspace);
-				if (log.isDebugEnabled())
-					log.debug("User " + session.getUserID() + " logged into "
+				Session session = rep.login(null, workspace);
+				if (log.isTraceEnabled())
+					log.trace("User " + session.getUserID() + " logged into "
 							+ request.getServletPath());
 				sessions.put(workspace, session);
 				return session;
@@ -53,7 +49,7 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 			Session session = sessions.get(workspace);
 			if (!session.isLive()) {
 				sessions.remove(workspace);
-				session = rep.login(credentials, workspace);
+				session = rep.login(null, workspace);
 				sessions.put(workspace, session);
 			}
 			return session;

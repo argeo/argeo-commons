@@ -19,4 +19,4 @@ Import-Package: com.sun.jndi.ldap;resolution:=optional,
  org.springframework.security.providers.ldap.authenticator,
  org.springframework.security.userdetails,
  org.springframework.security.userdetails.ldap
-Bundle-Name: Security Manager LDAP
+Bundle-Name: Security DAO LDAP

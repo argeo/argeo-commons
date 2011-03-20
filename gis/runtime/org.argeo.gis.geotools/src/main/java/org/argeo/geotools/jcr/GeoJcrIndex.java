@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
@@ -53,7 +54,7 @@ public class GeoJcrIndex implements EventListener, GisNames, GisTypes {
 
 	private DataStore dataStore;
 	private Session session;
-	private SystemExecutionService systemExecutionService;
+	private Executor systemExecutionService;
 
 	/** The key is the workspace */
 	private Map<String, FeatureStore<SimpleFeatureType, SimpleFeature>> geoJcrIndexes = Collections
@@ -63,7 +64,7 @@ public class GeoJcrIndex implements EventListener, GisNames, GisTypes {
 	private FilterFactory2 ff = new FilterFactoryImpl();
 
 	public void init() {
-		systemExecutionService.executeAsSystem(new Runnable() {
+		systemExecutionService.execute(new Runnable() {
 			public void run() {
 				initGeoJcrIndex();
 			}
@@ -102,7 +103,7 @@ public class GeoJcrIndex implements EventListener, GisNames, GisTypes {
 		final Set<FeatureId> toRemove = new HashSet<FeatureId>();
 
 		// execute with system authentication so that JCR can be read
-		systemExecutionService.executeAsSystem(new Runnable() {
+		systemExecutionService.execute(new Runnable() {
 			public void run() {
 				while (events.hasNext()) {
 					Event event = events.nextEvent();
@@ -292,7 +293,7 @@ public class GeoJcrIndex implements EventListener, GisNames, GisTypes {
 	}
 
 	public void setSystemExecutionService(
-			SystemExecutionService systemExecutionService) {
+			Executor systemExecutionService) {
 		this.systemExecutionService = systemExecutionService;
 	}
 

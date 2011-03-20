@@ -22,9 +22,4 @@
 
 	<bean id="importFileSystem" class="org.argeo.eclipse.ui.jcr.commands.ImportFileSystem"
 		scope="prototype" />
-
-	<bean id="initUserHome" class="org.argeo.eclipse.ui.jcr.commands.InitUserHome"
-		scope="prototype">
-		<property name="session" ref="nodeJcrSession" />
-	</bean>
 </beans>

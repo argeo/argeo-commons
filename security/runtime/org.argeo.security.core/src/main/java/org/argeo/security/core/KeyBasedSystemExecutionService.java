@@ -8,11 +8,12 @@ import org.springframework.security.AuthenticationManager;
 import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
 
-public class KeyBasedSystemExecutionService implements SystemExecutionService {
+public class KeyBasedSystemExecutionService implements SystemExecutionService,
+		TaskExecutor {
 	private AuthenticationManager authenticationManager;
 	private String systemAuthenticationKey;
 
-	public void executeAsSystem(Runnable runnable) {
+	public void execute(Runnable runnable) {
 		wrapWithSystemAuthentication(runnable).run();
 	}
 

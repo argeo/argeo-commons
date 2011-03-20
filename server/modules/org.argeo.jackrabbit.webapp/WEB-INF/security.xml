@@ -14,7 +14,7 @@
 		<security:intercept-url pattern="/**"
 			access="ROLE_USER,ROLE_ADMIN,ROLE_ANONYMOUS" />
 		<security:http-basic />
-		<security:anonymous />
+		<security:anonymous username="anonymous" />
 	</security:http>
 
 	<!-- LDAP -->

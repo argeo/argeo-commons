@@ -8,9 +8,16 @@
 		http://www.springframework.org/schema/util
 		http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
-
 	<bean id="jcrUserDetailsContextMapper" class="org.argeo.security.ldap.jcr.JcrUserDetailsContextMapper">
-		<property name="systemExecutionService" ref="systemExecutionService" />
+		<property name="homeBasePath" value="/home" />
+		<property name="usernameAttribute" value="${argeo.ldap.usernameAttribute}" />
+		<property name="passwordAttribute" value="${argeo.ldap.passwordAttribute}" />
+		<property name="userClasses">
+			<list>
+				<value>${argeo.ldap.userClass}</value>
+			</list>
+		</property>
+		<property name="systemExecutor" ref="systemExecutionService" />
 		<property name="propertyToAttributes">
 			<map>
 				<entry value="cn">

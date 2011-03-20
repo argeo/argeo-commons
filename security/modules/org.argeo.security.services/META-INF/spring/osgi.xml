@@ -7,6 +7,9 @@
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
 	<!-- REFERENCES -->
+	<!-- Cardinality is 0, in order to let a bundle providing the DAO while 
+		depending on the system execution service. The dependency will then have 
+		been satisfied when the first user tries to log-in. -->
 	<reference id="currentUserDao" interface="org.argeo.security.CurrentUserDao"
 		cardinality="0..1" />
 

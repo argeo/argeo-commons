@@ -26,6 +26,7 @@
 				<value>classpath:/org/argeo/jcr/argeo.cnd</value>
 			</list>
 		</property>
+		<property name="systemExecutor" ref="systemExecutionService" />
 	</bean>
 
 	<bean id="nodeJcrSession" class="org.argeo.jcr.ThreadBoundJcrSessionFactory">
@@ -33,10 +34,6 @@
 		<property name="workspace" value="${argeo.node.repo.workspace}" />
 	</bean>
 
-	<bean id="jcrAuthenticationProvider"
-		class="org.argeo.security.jackrabbit.providers.JackrabbitAuthenticationProvider" />
-
-	<bean id="repositoryFactory" class="org.argeo.jackrabbit.JackrabbitRepositoryFactory">
-	</bean>
+	<bean id="repositoryFactory" class="org.argeo.jackrabbit.JackrabbitRepositoryFactory"/>
 
 </beans>

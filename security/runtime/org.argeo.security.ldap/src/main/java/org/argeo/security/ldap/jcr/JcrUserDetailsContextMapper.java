@@ -3,6 +3,7 @@ package org.argeo.security.ldap.jcr;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 import javax.jcr.Node;
 import javax.jcr.Repository;
@@ -15,8 +16,8 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.ArgeoNames;
+import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.security.SystemExecutionService;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
@@ -29,51 +30,87 @@ import org.springframework.security.userdetails.ldap.UserDetailsContextMapper;
  * checks of which values should be mandatory should be performed at a higher
  * level.
  */
-public class JcrUserDetailsContextMapper implements UserDetailsContextMapper {
+public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
+		ArgeoNames {
 	private final static Log log = LogFactory
 			.getLog(JcrUserDetailsContextMapper.class);
 
+	private String usernameAttribute;
+	private String passwordAttribute;
+	private String homeBasePath;
+	private String[] userClasses;
+
 	private Map<String, String> propertyToAttributes = new HashMap<String, String>();
-	private SystemExecutionService systemExecutionService;
-	private String homeBasePath = "/home";
+	private Executor systemExecutor;
 	private RepositoryFactory repositoryFactory;
 
 	public UserDetails mapUserFromContext(final DirContextOperations ctx,
 			final String username, GrantedAuthority[] authorities) {
 		if (repositoryFactory == null)
 			throw new ArgeoException("No JCR repository factory registered");
-		final String userHomePath = usernameToHomePath(username);
-		systemExecutionService.executeAsSystem(new Runnable() {
+		final StringBuffer userHomePathT = new StringBuffer("");
+		systemExecutor.execute(new Runnable() {
 			public void run() {
-				Session session = null;
-				try {
-					Repository nodeRepo = JcrUtils.getRepositoryByAlias(
-							repositoryFactory, ArgeoJcrConstants.ALIAS_NODE);
-					session = nodeRepo.login();
-					Node userProfile = JcrUtils.mkdirs(session, userHomePath
-							+ '/' + ArgeoNames.ARGEO_USER_PROFILE);
-					for (String jcrProperty : propertyToAttributes.keySet())
-						ldapToJcr(userProfile, jcrProperty, ctx);
-					session.save();
-					if (log.isDebugEnabled())
-						log.debug("Mapped " + ctx.getDn() + " to "
-								+ userProfile);
-				} catch (RepositoryException e) {
-					throw new ArgeoException("Cannot synchronize JCR and LDAP",
-							e);
-				} finally {
-					session.logout();
-				}
+				String userHomepath = mapLdapToJcr(username, ctx);
+				userHomePathT.append(userHomepath);
 			}
 		});
 
 		// password
-		byte[] arr = (byte[]) ctx.getAttributeSortedStringSet("userPassword")
-				.first();
-		JcrUserDetails userDetails = new JcrUserDetails(userHomePath, username,
-				new String(arr), true, true, true, true, authorities);
+		byte[] arr = (byte[]) ctx
+				.getAttributeSortedStringSet(passwordAttribute).first();
+		JcrUserDetails userDetails = new JcrUserDetails(
+				userHomePathT.toString(), username, new String(arr), true,
+				true, true, true, authorities);
+		// erase password
 		Arrays.fill(arr, (byte) 0);
 		return userDetails;
+	}
+
+	/** @return path to the user home node */
+	protected String mapLdapToJcr(String username, DirContextOperations ctx) {
+		Session session = null;
+		try {
+			Repository nodeRepo = JcrUtils.getRepositoryByAlias(
+					repositoryFactory, ArgeoJcrConstants.ALIAS_NODE);
+			session = nodeRepo.login();
+			Node userHome = JcrUtils.getUserHome(session, username);
+			if (userHome == null)
+				userHome = createUserHome(session, username);
+			String userHomePath = userHome.getPath();
+			Node userProfile = userHome.hasNode(ARGEO_USER_PROFILE) ? userHome
+					.getNode(ARGEO_USER_PROFILE) : userHome
+					.addNode(ARGEO_USER_PROFILE);
+			for (String jcrProperty : propertyToAttributes.keySet())
+				ldapToJcr(userProfile, jcrProperty, ctx);
+			session.save();
+			if (log.isDebugEnabled())
+				log.debug("Mapped " + ctx.getDn() + " to " + userProfile);
+			return userHomePath;
+		} catch (RepositoryException e) {
+			JcrUtils.discardQuietly(session);
+			throw new ArgeoException("Cannot synchronize JCR and LDAP", e);
+		} finally {
+			session.logout();
+		}
+	}
+
+	protected Node createUserHome(Session session, String username) {
+		try {
+			Node userHome = JcrUtils.mkdirs(session,
+					usernameToHomePath(username));
+			userHome.addMixin(ArgeoTypes.ARGEO_USER_HOME);
+			userHome.setProperty(ARGEO_USER_ID, username);
+			return userHome;
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot create home node for user "
+					+ username, e);
+		}
+	}
+
+	protected String usernameToHomePath(String username) {
+		return homeBasePath + '/' + JcrUtils.firstCharsToPath(username, 2)
+				+ '/' + username;
 	}
 
 	public void mapUserToContext(UserDetails user, final DirContextAdapter ctx) {
@@ -81,12 +118,12 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper {
 			throw new ArgeoException("Unsupported user details: "
 					+ user.getClass());
 
-		ctx.setAttributeValues("objectClass", new String[] { "inetOrgPerson" });
-		ctx.setAttributeValue("uid", user.getUsername());
-		ctx.setAttributeValue("userPassword", user.getPassword());
+		ctx.setAttributeValues("objectClass", userClasses);
+		ctx.setAttributeValue(usernameAttribute, user.getUsername());
+		ctx.setAttributeValue(passwordAttribute, user.getPassword());
 
 		final JcrUserDetails jcrUserDetails = (JcrUserDetails) user;
-		systemExecutionService.executeAsSystem(new Runnable() {
+		systemExecutor.execute(new Runnable() {
 			public void run() {
 				Session session = null;
 				try {
@@ -94,9 +131,7 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper {
 							repositoryFactory, ArgeoJcrConstants.ALIAS_NODE);
 					session = nodeRepo.login();
 					Node userProfile = session.getNode(jcrUserDetails
-							.getHomePath()
-							+ '/'
-							+ ArgeoNames.ARGEO_USER_PROFILE);
+							.getHomePath() + '/' + ARGEO_USER_PROFILE);
 					for (String jcrProperty : propertyToAttributes.keySet())
 						jcrToLdap(userProfile, jcrProperty, ctx);
 					if (log.isDebugEnabled())
@@ -110,11 +145,6 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper {
 				}
 			}
 		});
-	}
-
-	protected String usernameToHomePath(String username) {
-		return homeBasePath + '/' + JcrUtils.firstCharsToPath(username, 2)
-				+ '/' + username;
 	}
 
 	protected void ldapToJcr(Node userProfile, String jcrProperty,
@@ -163,9 +193,8 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper {
 		this.propertyToAttributes = propertyToAttributes;
 	}
 
-	public void setSystemExecutionService(
-			SystemExecutionService systemExecutionService) {
-		this.systemExecutionService = systemExecutionService;
+	public void setSystemExecutor(Executor systemExecutor) {
+		this.systemExecutor = systemExecutor;
 	}
 
 	public void setHomeBasePath(String homeBasePath) {
@@ -181,4 +210,17 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper {
 			Map<String, String> parameters) {
 		this.repositoryFactory = null;
 	}
+
+	public void setUsernameAttribute(String usernameAttribute) {
+		this.usernameAttribute = usernameAttribute;
+	}
+
+	public void setPasswordAttribute(String passwordAttribute) {
+		this.passwordAttribute = passwordAttribute;
+	}
+
+	public void setUserClasses(String[] userClasses) {
+		this.userClasses = userClasses;
+	}
+
 }

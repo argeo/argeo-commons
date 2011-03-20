@@ -1,4 +1,8 @@
-Bundle-SymbolicName: org.argeo.security.dao.ldap
+Bundle-SymbolicName: org.argeo.security.dao.jackrabbit
 Bundle-Version: 0.2.3.SNAPSHOT
 Import-Package: javax.jcr;version="[2.0.0,3.0.0)",
+ org.argeo.security,
+ org.argeo.security.jackrabbit.providers,
+ org.argeo.security.jcr,
+ org.springframework.security.providers;specification-version="2.0.6.RELEASE"
 Bundle-Name: Security DAO Jackrabbit

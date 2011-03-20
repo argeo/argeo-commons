@@ -25,7 +25,7 @@
 	</bean>
 
 	<!-- AUTHENTICATION -->
-	<bean id="authenticationProvider"
+	<bean id="ldapAuthenticationProvider"
 		class="org.springframework.security.providers.ldap.LdapAuthenticationProvider">
 		<constructor-arg ref="passwordComparisonAuthenticator" />
 		<constructor-arg ref="authoritiesPopulator" />
@@ -40,13 +40,13 @@
 				<value><![CDATA[${argeo.ldap.usernameAttribute}={0},${argeo.ldap.userBase}]]></value>
 			</list>
 		</property>
+		<property name="passwordAttributeName" value="${argeo.ldap.passwordAttribute}" />
 		<property name="passwordEncoder" ref="passwordEncoder" />
 	</bean>
 
 	<!-- USER DETAILS -->
 	<bean id="securityDao" class="org.argeo.security.ldap.ArgeoSecurityDaoLdap">
 		<constructor-arg ref="contextSource" />
-
 		<property name="userBase" value="${argeo.ldap.userBase}" />
 		<property name="usernameAttribute" value="${argeo.ldap.usernameAttribute}" />
 		<property name="groupClasses">
@@ -60,7 +60,6 @@
 		<property name="groupMemberAttribute" value="${argeo.ldap.groupMemberAttribute}" />
 		<property name="defaultRole" value="${argeo.security.defaultRole}" />
 		<property name="rolePrefix" value="${argeo.security.rolePrefix}" />
-
 		<property name="passwordEncoder" ref="passwordEncoder" />
 		<property name="usernameMapper" ref="usernameMapper" />
 		<property name="userDetailsManager" ref="userDetailsManager" />

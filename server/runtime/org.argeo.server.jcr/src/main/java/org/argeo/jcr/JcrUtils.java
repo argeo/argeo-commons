@@ -44,6 +44,11 @@ import javax.jcr.Value;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
+import javax.jcr.query.qom.Constraint;
+import javax.jcr.query.qom.DynamicOperand;
+import javax.jcr.query.qom.QueryObjectModelFactory;
+import javax.jcr.query.qom.Selector;
+import javax.jcr.query.qom.StaticOperand;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,6 +57,10 @@ import org.argeo.ArgeoException;
 /** Utility methods to simplify common JCR operations. */
 public class JcrUtils implements ArgeoJcrConstants {
 	private final static Log log = LogFactory.getLog(JcrUtils.class);
+
+	/** Prevents instantiation */
+	private JcrUtils() {
+	}
 
 	/**
 	 * Queries one single node.
@@ -611,6 +620,65 @@ public class JcrUtils implements ArgeoJcrConstants {
 			throw new ArgeoException(
 					"Unexpected exception when trying to retrieve repository with uri "
 							+ uri, e);
+		}
+	}
+
+	/**
+	 * Discards the current changes in a session by calling
+	 * {@link Session#refresh(boolean)} with <code>false</code>, only logging
+	 * potential errors when doing so. To be used typically in a catch block.
+	 */
+	public static void discardQuietly(Session session) {
+		try {
+			if (session != null)
+				session.refresh(false);
+		} catch (RepositoryException e) {
+			log.warn("Cannot quietly discard session " + session + ": "
+					+ e.getMessage());
+		}
+	}
+
+	/** Logs out the session, not throwing any exception, even if it is null. */
+	public static void logoutQuietly(Session session) {
+		if (session != null)
+			session.logout();
+	}
+
+	/** Returns the home node of the session user or null if none was found. */
+	public static Node getUserHome(Session session) {
+		String userID = session.getUserID();
+		return getUserHome(session, userID);
+	}
+
+	/**
+	 * Returns the home node of the session user or null if none was found.
+	 * 
+	 * @param session
+	 *            the session to use in order to perform the search, this can be
+	 *            a session with a different user ID than the one searched,
+	 *            typically when a system or admin session is used.
+	 * @param userID
+	 *            the id of the user
+	 */
+	public static Node getUserHome(Session session, String userID) {
+		try {
+			QueryObjectModelFactory qomf = session.getWorkspace()
+					.getQueryManager().getQOMFactory();
+
+			// query the user home for this user id
+			Selector userHomeSel = qomf.selector(ArgeoTypes.ARGEO_USER_HOME,
+					"userHome");
+			DynamicOperand userIdDop = qomf.propertyValue("userHome",
+					ArgeoNames.ARGEO_USER_ID);
+			StaticOperand userIdSop = qomf.literal(session.getValueFactory()
+					.createValue(userID));
+			Constraint constraint = qomf.comparison(userIdDop,
+					QueryObjectModelFactory.JCR_OPERATOR_EQUAL_TO, userIdSop);
+			Query query = qomf.createQuery(userHomeSel, constraint, null, null);
+			Node userHome = JcrUtils.querySingleNode(query);
+			return userHome;
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot find home for user " + userID, e);
 		}
 	}
 }

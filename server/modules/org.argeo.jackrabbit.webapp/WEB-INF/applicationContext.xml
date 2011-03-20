@@ -13,6 +13,12 @@
 	<bean id="sessionProvider" scope="session" init-method="init"
 		destroy-method="dispose" class="org.argeo.jackrabbit.remote.SimpleSessionProvider">
 		<aop:scoped-proxy proxy-target-class="false" />
+<!-- 		<property name="credentials"> -->
+<!-- 			<bean class="javax.jcr.SimpleCredentials"> -->
+<!-- 				<constructor-arg value="root" /> -->
+<!-- 				<constructor-arg value="demo" /> -->
+<!-- 			</bean> -->
+<!-- 		</property> -->
 	</bean>
 
 	<bean id="osivInterceptor" class="org.argeo.jcr.mvc.OpenSessionInViewJcrInterceptor">
