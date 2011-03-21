@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
@@ -32,6 +33,20 @@ public class JackrabbitAuthenticationProvider extends JcrAuthenticationProvider 
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot retrieve authorities for "
 					+ session.getUserID(), e);
+		}
+	}
+
+	@Override
+	protected Boolean isEnabled(Node userHome) {
+		try {
+			UserManager userManager = ((JackrabbitSession) userHome
+					.getSession()).getUserManager();
+			User user = (User) userManager.getAuthorizable(userHome
+					.getSession().getUserID());
+			return !user.isDisabled();
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot check whether " + userHome
+					+ " is enabled", e);
 		}
 	}
 

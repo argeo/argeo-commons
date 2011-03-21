@@ -85,6 +85,7 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 	private Boolean autocreateWorkspaces = false;
 
 	private Executor systemExecutor;
+	private Credentials adminCredentials;
 
 	public void afterPropertiesSet() throws Exception {
 		// remote repository
@@ -135,7 +136,8 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 		else
 			repository = RepositoryImpl.create(config);
 
-		importNodeTypeDefinitions(repository);
+		if (cndFiles != null && cndFiles.size() > 0)
+			importNodeTypeDefinitions(repository);
 
 		log.info("Initialized Jackrabbit repository " + repository + " in "
 				+ homeDirectory + " with config " + configuration);
@@ -147,17 +149,22 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 	 * will be thrown.
 	 */
 	protected void importNodeTypeDefinitions(final Repository repository) {
+		final Credentials credentialsToUse;
 		if (systemExecutor == null) {
-			log.warn("No system executor found");
-			return;
+			if (adminCredentials == null)
+				throw new ArgeoException(
+						"No system executor or admin credentials found");
+			credentialsToUse = adminCredentials;
+		} else {
+			credentialsToUse = null;
 		}
 
-		systemExecutor.execute(new Runnable() {
+		Runnable action = new Runnable() {
 			public void run() {
 				Reader reader = null;
 				Session session = null;
 				try {
-					session = repository.login();
+					session = repository.login(credentialsToUse);
 					// Load cnds as resources
 					for (String resUrl : cndFiles) {
 						Resource res = resourceLoader.getResource(resUrl);
@@ -177,8 +184,12 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 					JcrUtils.logoutQuietly(session);
 				}
 			}
-		});
+		};
 
+		if (systemExecutor != null)
+			systemExecutor.execute(action);
+		else
+			action.run();
 	}
 
 	public void destroy() throws Exception {
@@ -333,6 +344,10 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 
 	public void setSystemExecutor(Executor systemExecutor) {
 		this.systemExecutor = systemExecutor;
+	}
+
+	public void setAdminCredentials(Credentials adminCredentials) {
+		this.adminCredentials = adminCredentials;
 	}
 
 }

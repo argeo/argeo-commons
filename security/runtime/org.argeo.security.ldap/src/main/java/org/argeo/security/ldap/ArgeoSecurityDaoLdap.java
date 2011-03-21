@@ -199,6 +199,7 @@ public class ArgeoSecurityDaoLdap implements CurrentUserDao, UserAdminDao {
 			throw new ArgeoException("Old password is not correct.");
 		user.setPassword(encodePassword(newPassword));
 		updateUser(user);
+		//userDetailsManager.changePassword(oldPassword, newPassword);
 	}
 
 	public void updateUserPassword(String username, String password) {

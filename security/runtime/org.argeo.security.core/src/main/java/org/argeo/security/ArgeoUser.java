@@ -27,6 +27,7 @@ public interface ArgeoUser {
 	public Map<String, UserNature> getUserNatures();
 
 	/** Implementation should refuse to add new user natures via this method. */
+	@Deprecated
 	public void updateUserNatures(Map<String, UserNature> userNatures);
 
 	public List<String> getRoles();

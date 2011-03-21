@@ -21,6 +21,7 @@ import org.argeo.security.AbstractUserNature;
 import org.argeo.security.ArgeoUser;
 import org.argeo.security.UserNature;
 
+@Deprecated
 public class SimpleUserNature extends AbstractUserNature {
 	/**
 	 * No PAI, for internal use within the Argeo Security framework. Will

@@ -28,6 +28,7 @@ import org.argeo.ArgeoException;
  * Read-write implementation of an Argeo user. Typically initialized with a
  * generic instance (read-only9 in order to modify a user.
  */
+@Deprecated
 public class SimpleArgeoUser implements ArgeoUser, Serializable,
 		Comparable<ArgeoUser> {
 	private static final long serialVersionUID = 1L;
