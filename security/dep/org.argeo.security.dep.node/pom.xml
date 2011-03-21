@@ -147,6 +147,11 @@
 			<artifactId>org.argeo.node.repo.jackrabbit</artifactId>
 			<version>${version.argeo-commons}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.node.repofactory.jackrabbit</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
 		<!-- Hibernate -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
