@@ -165,6 +165,7 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 				Session session = null;
 				try {
 					session = repository.login(credentialsToUse);
+					processNewSession(session);
 					// Load cnds as resources
 					for (String resUrl : cndFiles) {
 						Resource res = resourceLoader.getResource(resUrl);

@@ -112,18 +112,22 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 
 		public boolean grants(Set<Principal> principals, String workspaceName)
 				throws RepositoryException {
+			// everybody has access to all workspaces
+			// TODO: implements finer access to workspaces
+			return true;
+
 			// anonymous has access to the default workspace (required for
 			// remoting which does a default login when initializing the
 			// repository)
-			Boolean anonymous = false;
-			for (Principal principal : principals)
-				if (principal instanceof AnonymousPrincipal)
-					anonymous = true;
-
-			if (anonymous && workspaceName.equals(defaultWorkspace))
-				return true;
-			else
-				return wam.grants(principals, workspaceName);
+			// Boolean anonymous = false;
+			// for (Principal principal : principals)
+			// if (principal instanceof AnonymousPrincipal)
+			// anonymous = true;
+			//
+			// if (anonymous && workspaceName.equals(defaultWorkspace))
+			// return true;
+			// else
+			// return wam.grants(principals, workspaceName);
 		}
 	}
 
