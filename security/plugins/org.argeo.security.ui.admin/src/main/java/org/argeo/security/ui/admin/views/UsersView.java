@@ -1,13 +1,25 @@
 package org.argeo.security.ui.admin.views;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.observation.EventIterator;
+import javax.jcr.observation.EventListener;
+import javax.jcr.query.Query;
 
 import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.dialogs.Error;
+import org.argeo.jcr.ArgeoNames;
+import org.argeo.jcr.ArgeoTypes;
 import org.argeo.security.ArgeoUser;
-import org.argeo.security.UserAdminService;
-import org.argeo.security.nature.SimpleUserNature;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.commands.OpenArgeoUserEditor;
+import org.argeo.security.ui.admin.editors.ArgeoUserEditor;
+import org.argeo.security.ui.admin.editors.ArgeoUserEditorInput;
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.IParameter;
 import org.eclipse.core.commands.Parameterization;
@@ -27,18 +39,18 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
 
 /** List all users. */
-public class UsersView extends ViewPart {
+public class UsersView extends ViewPart implements ArgeoNames, ArgeoTypes,
+		EventListener {
 	public final static String ID = "org.argeo.security.ui.admin.adminUsersView";
 
 	private TableViewer viewer;
-	private UserAdminService userAdminService;
-
-	private String simpleNatureType = null;
+	private Session session;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -73,22 +85,39 @@ public class UsersView extends ViewPart {
 		viewer.getTable().setFocus();
 	}
 
-	public void setUserAdminService(UserAdminService userAdminService) {
-		this.userAdminService = userAdminService;
-	}
-
-	public void setSimpleNatureType(String simpleNatureType) {
-		this.simpleNatureType = simpleNatureType;
+	public void setSession(Session session) {
+		this.session = session;
 	}
 
 	public void refresh() {
 		viewer.refresh();
 	}
 
+	@Override
+	public void onEvent(EventIterator events) {
+		viewer.refresh();
+	}
+
 	private class UsersContentProvider implements IStructuredContentProvider {
 
 		public Object[] getElements(Object inputElement) {
-			return userAdminService.listUsers().toArray();
+			try {
+				Query query = session
+						.getWorkspace()
+						.getQueryManager()
+						.createQuery(
+								"select [" + ARGEO_USER_PROFILE + "] from ["
+										+ ARGEO_USER_HOME + "]", Query.JCR_SQL2);
+				NodeIterator nit = query.execute().getNodes();
+				List<Node> userProfiles = new ArrayList<Node>();
+				while (nit.hasNext()) {
+					userProfiles.add(nit.nextNode());
+				}
+				return userProfiles.toArray();
+			} catch (RepositoryException e) {
+				throw new ArgeoException("Cannot list users", e);
+			}
+			// return userAdminService.listUsers().toArray();
 		}
 
 		public void dispose() {
@@ -102,26 +131,52 @@ public class UsersView extends ViewPart {
 	private class UsersLabelProvider extends LabelProvider implements
 			ITableLabelProvider {
 		public String getColumnText(Object element, int columnIndex) {
-			// String currentUsername = CurrentUser.getUsername();
-			String currentUsername = "";
-			ArgeoUser user = (ArgeoUser) element;
-			SimpleUserNature simpleNature = SimpleUserNature
-					.findSimpleUserNature(user, simpleNatureType);
-			switch (columnIndex) {
-			case 0:
-				String userName = user.getUsername();
-				if (userName.equals(currentUsername))
-					userName = userName + "*";
-				return userName;
-			case 1:
-				return simpleNature.getFirstName();
-			case 2:
-				return simpleNature.getLastName();
-			case 3:
-				return simpleNature.getEmail();
-			default:
-				throw new ArgeoException("Unmanaged column " + columnIndex);
+			try {
+				Node userHome = (Node) element;
+				switch (columnIndex) {
+				case 0:
+					String userName = userHome.getProperty(ARGEO_USER_ID)
+							.getString();
+					if (userName.equals(session.getUserID()))
+						return "[" + userName + "]";
+					else
+						return userName;
+				case 1:
+					return userHome.getNode(ARGEO_USER_PROFILE)
+							.getProperty(ARGEO_FIRST_NAME).getString();
+				case 2:
+					return userHome.getNode(ARGEO_USER_PROFILE)
+							.getProperty(ARGEO_LAST_NAME).getString();
+				case 3:
+					return userHome.getNode(ARGEO_USER_PROFILE)
+							.getProperty(ARGEO_PRIMARY_EMAIL).getString();
+				default:
+					throw new ArgeoException("Unmanaged column " + columnIndex);
+				}
+			} catch (RepositoryException e) {
+				throw new ArgeoException("Cannot get text", e);
 			}
+
+			// String currentUsername = CurrentUser.getUsername();
+			// String currentUsername = "";
+			// ArgeoUser user = (ArgeoUser) element;
+			// SimpleUserNature simpleNature = SimpleUserNature
+			// .findSimpleUserNature(user, simpleNatureType);
+			// switch (columnIndex) {
+			// case 0:
+			// String userName = user.getUsername();
+			// if (userName.equals(currentUsername))
+			// userName = userName + "*";
+			// return userName;
+			// case 1:
+			// return simpleNature.getFirstName();
+			// case 2:
+			// return simpleNature.getLastName();
+			// case 3:
+			// return simpleNature.getEmail();
+			// default:
+			// throw new ArgeoException("Unmanaged column " + columnIndex);
+			// }
 		}
 
 		public Image getColumnImage(Object element, int columnIndex) {
@@ -133,10 +188,23 @@ public class UsersView extends ViewPart {
 
 	class ViewDoubleClickListener implements IDoubleClickListener {
 		public void doubleClick(DoubleClickEvent evt) {
+			if (evt.getSelection().isEmpty())
+				return;
+
 			Object obj = ((IStructuredSelection) evt.getSelection())
 					.getFirstElement();
-
-			if (obj instanceof ArgeoUser) {
+			if (obj instanceof Node) {
+				try {
+					IWorkbench iw = SecurityAdminPlugin.getDefault()
+							.getWorkbench();
+					iw.getActiveWorkbenchWindow()
+							.getActivePage()
+							.openEditor(new ArgeoUserEditorInput((Node) obj),
+									ArgeoUserEditor.ID);
+				} catch (PartInitException e) {
+					Error.show("Cannot open user editor for " + obj, e);
+				}
+			} else if (obj instanceof ArgeoUser) {
 				ArgeoUser argeoUser = (ArgeoUser) obj;
 
 				IWorkbench iw = SecurityAdminPlugin.getDefault().getWorkbench();

@@ -31,7 +31,9 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 	 */
 	@Override
 	protected Principal getPrincipal(Credentials credentials) {
-		return SecurityContextHolder.getContext().getAuthentication();
+		org.springframework.security.Authentication authen = SecurityContextHolder
+				.getContext().getAuthentication();
+		return authen;
 	}
 
 	protected Set<Principal> getPrincipals() {

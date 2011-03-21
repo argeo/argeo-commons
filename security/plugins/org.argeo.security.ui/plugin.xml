@@ -52,7 +52,7 @@
                 </command>
           </menuContribution>
   </extension>
-  <extension
+   <extension
            point="org.eclipse.ui.services">
         <sourceProvider
               provider="org.argeo.security.ui.RolesSourceProvider">

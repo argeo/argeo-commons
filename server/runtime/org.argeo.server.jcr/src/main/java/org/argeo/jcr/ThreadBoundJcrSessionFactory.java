@@ -167,4 +167,13 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 			return ret;
 		}
 	}
+	
+	protected class MonitoringThread extends Thread{
+
+		@Override
+		public void run() {
+			Thread thread=null;
+		}
+		
+	}
 }

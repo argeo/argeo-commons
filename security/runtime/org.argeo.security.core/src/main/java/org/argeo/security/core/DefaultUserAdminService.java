@@ -18,6 +18,7 @@ package org.argeo.security.core;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.argeo.security.ArgeoUser;
@@ -93,6 +94,10 @@ public class DefaultUserAdminService implements UserAdminService {
 
 	public Set<ArgeoUser> listUsers() {
 		return userAdminDao.listUsers();
+	}
+
+	public List<String> listUserRoles(String username) {
+		return getUser(username).getRoles();
 	}
 
 	public Set<String> listEditableRoles() {

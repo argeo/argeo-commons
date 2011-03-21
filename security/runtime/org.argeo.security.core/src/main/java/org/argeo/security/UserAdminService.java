@@ -1,5 +1,6 @@
 package org.argeo.security;
 
+import java.util.List;
 import java.util.Set;
 
 public interface UserAdminService {
@@ -20,6 +21,8 @@ public interface UserAdminService {
 
 	/** List users having this role (except the super user). */
 	public Set<ArgeoUser> listUsersInRole(String role);
+
+	public List<String> listUserRoles(String username);
 
 	public void deleteUser(String username);
 

@@ -98,7 +98,7 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 				throw new ArgeoException("Remote Davex repository " + uri
 						+ " not found");
 			log.info("Initialized Jackrabbit repository " + repository
-					+ " from uri " + uri);
+					+ " from URI " + uri);
 			// do not perform further initialization since we assume that the
 			// remote repository has been properly configured
 			return;
@@ -275,6 +275,7 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 		try {
 			NamespaceHelper namespaceHelper = new NamespaceHelper(session);
 			namespaceHelper.registerNamespaces(namespaces);
+
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot process new session", e);
 		}

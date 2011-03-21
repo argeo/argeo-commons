@@ -7,7 +7,7 @@
             class="org.argeo.security.ui.admin.SecurityAdminPerspective"
             icon="icons/security.gif"
             id="org.argeo.security.ui.admin.adminSecurityPerspective"
-            name="Security">
+            name="Security Administration">
       </perspective>
    </extension>
    <extension
@@ -67,7 +67,7 @@
      <extension
          point="org.eclipse.ui.menus">
       	<menuContribution
-            locationURI="toolbar:org.argeo.security.ui.admin.rolesView">
+            locationURI="toolbar:org.argeo.security.ui.admin.adminRolesView">
             <command
                   commandId="org.argeo.security.ui.admin.addRole"
                   icon="icons/add.gif"
@@ -76,7 +76,7 @@
             </command>
         </menuContribution>
       	<menuContribution
-            locationURI="toolbar:org.argeo.security.ui.admin.usersView">
+            locationURI="toolbar:org.argeo.security.ui.admin.adminUsersView">
             <command
                   commandId="org.argeo.security.ui.admin.newArgeoUserEditor"
                   icon="icons/add.gif"
@@ -105,10 +105,11 @@
 		    </with>
 		  </enabledWhen>
         </activity>
+        <!-- TODO: find a way to exclude evrything -->
         <activityPatternBinding
               activityId="org.argeo.security.ui.admin.adminActivity"
               isEqualityPattern="true"
-              pattern="org.argeo.security.ui.admin/.*">
+              pattern="org.argeo.security.ui.admin/org.argeo.security.ui.admin.adminSecurityPerspective">
         </activityPatternBinding>
      </extension>
  </plugin>

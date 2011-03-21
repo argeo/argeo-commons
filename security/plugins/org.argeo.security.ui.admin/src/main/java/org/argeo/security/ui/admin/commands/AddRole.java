@@ -2,11 +2,15 @@ package org.argeo.security.ui.admin.commands;
 
 import org.argeo.ArgeoException;
 import org.argeo.security.UserAdminService;
+import org.argeo.security.ui.admin.editors.ArgeoUserEditor;
 import org.argeo.security.ui.admin.views.RolesView;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.ui.internal.EditorReference;
 
 /** Add a new role. */
 public class AddRole extends AbstractHandler {
@@ -30,6 +34,17 @@ public class AddRole extends AbstractHandler {
 			throw new ArgeoException("Role " + role + " already exists");
 		userAdminService.newRole(role);
 		rolesView.refresh();
+
+		// refresh editors
+		IEditorReference[] refs = HandlerUtil.getActiveWorkbenchWindow(event)
+				.getActivePage()
+				.findEditors(null, ArgeoUserEditor.ID, IWorkbenchPage.MATCH_ID);
+		for (IEditorReference ref : refs) {
+			ArgeoUserEditor userEditor = (ArgeoUserEditor) ref.getEditor(false);
+			if (userEditor != null) {
+				userEditor.refresh();
+			}
+		}
 		return null;
 	}
 

@@ -1,5 +1,6 @@
 package org.argeo.security.core;
 
+import org.argeo.ArgeoException;
 import org.argeo.security.SystemExecutionService;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
@@ -36,6 +37,14 @@ public class KeyBasedSystemExecutionService implements SystemExecutionService,
 			public void run() {
 				SecurityContext securityContext = SecurityContextHolder
 						.getContext();
+				Authentication currentAuth = securityContext
+						.getAuthentication();
+				if (currentAuth != null) {
+					throw new ArgeoException(
+							"System execution on an already authenticated thread: "
+									+ currentAuth + ", THREAD="
+									+ Thread.currentThread().getId());
+				}
 				Authentication auth = authenticationManager
 						.authenticate(new InternalAuthentication(
 								systemAuthenticationKey));

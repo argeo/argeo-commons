@@ -18,11 +18,18 @@
 			</list>
 		</property>
 		<property name="systemExecutor" ref="systemExecutionService" />
+		<property name="passwordEncoder" ref="passwordEncoder" />
+		<property name="session" ref="nodeSession" />
 		<property name="propertyToAttributes">
 			<map>
 				<entry value="cn">
 					<key>
-						<util:constant static-field="org.argeo.jcr.ArgeoNames.ARGEO_DISPLAY_NAME" />
+						<util:constant static-field="javax.jcr.Property.JCR_TITLE" />
+					</key>
+				</entry>
+				<entry value="description">
+					<key>
+						<util:constant static-field="javax.jcr.Property.JCR_DESCRIPTION" />
 					</key>
 				</entry>
 				<entry value="givenName">

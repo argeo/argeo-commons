@@ -33,6 +33,7 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 
+@Deprecated
 public class ArgeoUserDetails extends User implements ArgeoUser {
 	private static final long serialVersionUID = 1L;
 	private final static Log log = LogFactory.getLog(ArgeoUserDetails.class);

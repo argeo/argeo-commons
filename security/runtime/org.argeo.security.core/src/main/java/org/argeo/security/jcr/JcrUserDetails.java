@@ -66,4 +66,21 @@ public class JcrUserDetails extends User {
 				jcrUserDetails.isEnabled());
 
 	}
+
+	public JcrUserDetails cloneWithNewRoles(List<String> roles) {
+		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+		for (String role : roles) {
+			authorities.add(new GrantedAuthorityImpl(role));
+		}
+		return new JcrUserDetails(homePath, getUsername(), getPassword(),
+				isEnabled(), isAccountNonExpired(), isAccountNonExpired(),
+				isAccountNonLocked(),
+				authorities.toArray(new GrantedAuthority[authorities.size()]));
+	}
+
+	public JcrUserDetails cloneWithNewPassword(String password) {
+		return new JcrUserDetails(homePath, getUsername(), password,
+				isEnabled(), isAccountNonExpired(), isAccountNonExpired(),
+				isAccountNonLocked(), getAuthorities());
+	}
 }

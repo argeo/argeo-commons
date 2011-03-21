@@ -16,8 +16,6 @@ import org.apache.jackrabbit.api.security.user.Group;
 import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.core.DefaultSecurityManager;
-import org.apache.jackrabbit.core.RepositoryImpl;
-import org.apache.jackrabbit.core.security.AnonymousPrincipal;
 import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.SystemPrincipal;
 import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
@@ -94,7 +92,7 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 	private class ArgeoWorkspaceAccessManagerImpl implements SecurityConstants,
 			WorkspaceAccessManager {
 		private final WorkspaceAccessManager wam;
-		private String defaultWorkspace;
+		//private String defaultWorkspace;
 
 		public ArgeoWorkspaceAccessManagerImpl(WorkspaceAccessManager wam) {
 			super();
@@ -103,8 +101,8 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 
 		public void init(Session systemSession) throws RepositoryException {
 			wam.init(systemSession);
-			defaultWorkspace = ((RepositoryImpl) getRepository()).getConfig()
-					.getDefaultWorkspaceName();
+//			defaultWorkspace = ((RepositoryImpl) getRepository()).getConfig()
+//					.getDefaultWorkspaceName();
 		}
 
 		public void close() throws RepositoryException {

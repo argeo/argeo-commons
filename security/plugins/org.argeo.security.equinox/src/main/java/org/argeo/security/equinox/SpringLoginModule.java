@@ -1,6 +1,7 @@
 package org.argeo.security.equinox;
 
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -20,6 +21,7 @@ import org.springframework.security.providers.jaas.SecurityContextLoginModule;
 /** Login module which caches one subject per thread. */
 public class SpringLoginModule extends SecurityContextLoginModule {
 	private AuthenticationManager authenticationManager;
+	private Executor systemExecutor;
 
 	private CallbackHandler callbackHandler;
 
@@ -88,6 +90,7 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 				username, password, url, workspace);
 
 		try {
+			
 			Authentication authentication = authenticationManager
 					.authenticate(credentials);
 			registerAuthentication(authentication);
@@ -125,6 +128,10 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 	public void setAuthenticationManager(
 			AuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
+	}
+
+	public void setSystemExecutor(Executor systemExecutor) {
+		this.systemExecutor = systemExecutor;
 	}
 
 	// protected Subject getSubject() {

@@ -23,7 +23,8 @@ public class CurrentUser {
 	}
 
 	public final static Set<String> roles() {
-		Principal principal = getSubject().getPrincipals().iterator().next();
+		Principal principal = getSubject().getPrincipals(Authentication.class)
+				.iterator().next();
 		Authentication authentication = (Authentication) principal;
 		Set<String> roles = Collections.synchronizedSet(new HashSet<String>());
 		for (GrantedAuthority ga : authentication.getAuthorities()) {
