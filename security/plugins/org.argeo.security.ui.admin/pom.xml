@@ -37,6 +37,8 @@
 						</Require-Bundle>
 						<Import-Package>
 							org.argeo.eclipse.spring,
+							org.springframework.dao,
+							org.springframework.core,
 							*
 						</Import-Package>
 						<Export-Package>org.argeo.security.ui.admin.*</Export-Package>

@@ -35,6 +35,7 @@
 						<Import-Package>
 							org.springframework.core,
 							org.springframework.dao,
+							javax.jcr.nodetype,
 							*
 						</Import-Package>
 					</instructions>
