@@ -21,8 +21,14 @@
 		<property name="systemAuthenticationKey" value="${argeo.security.systemKey}" />
 	</bean>
 
-	<bean id="authenticationManager" class="org.argeo.security.core.ArgeoAuthenticationManager">
+	<bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
 		<property name="providers">
+			<bean factory-bean="authenticationProvidersRegister"
+				factory-method="getProviders" />
+		</property>
+	</bean>
+	<bean id="authenticationProvidersRegister" class="org.argeo.security.core.AuthenticationProvidersRegister">
+		<property name="defaultProviders">
 			<list>
 				<bean class="org.springframework.security.adapters.AuthByAdapterProvider">
 					<property name="key" value="${argeo.security.systemKey}" />

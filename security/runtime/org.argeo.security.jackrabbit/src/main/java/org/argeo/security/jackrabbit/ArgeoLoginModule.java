@@ -50,6 +50,7 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 			principals.add(new AnonymousPrincipal());
 		else
 			for (GrantedAuthority ga : authen.getAuthorities()) {
+				// FIXME: make it more generic
 				if (adminRole.equals(ga.getAuthority()))
 					principals.add(new AdminPrincipal(authen.getName()));
 			}
@@ -59,6 +60,28 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 				.getCredentials().toString().toCharArray());
 
 		return principals;
+	}
+
+	/**
+	 * Super implementation removes all {@link Principal}, the Spring
+	 * {@link org.springframework.security.Authentication} as well. Here we
+	 * simply clear Jackrabbit related {@link Principal}s.
+	 */
+	@Override
+	public boolean logout() throws LoginException {
+		Set<AdminPrincipal> adminPrincipals = subject
+				.getPrincipals(AdminPrincipal.class);
+		Set<AnonymousPrincipal> anonymousPrincipals = subject
+				.getPrincipals(AnonymousPrincipal.class);
+		Set<SimpleCredentials> thisCredentials = subject
+				.getPublicCredentials(SimpleCredentials.class);
+		if (thisCredentials != null)
+			thisCredentials.clear();
+		if (adminPrincipals != null)
+			adminPrincipals.clear();
+		if (anonymousPrincipals != null)
+			anonymousPrincipals.clear();
+		return true;
 	}
 
 	@SuppressWarnings("rawtypes")

@@ -7,7 +7,7 @@
 	<bean id="adminUsersView" class="org.argeo.security.ui.admin.views.UsersView"
 		scope="prototype">
 <!-- 		<property name="userAdminService" ref="userAdminService" /> -->
-		<property name="session" ref="jcrSession" />
+		<property name="session" ref="nodeSession" />
 	</bean>
 	<bean id="adminRolesView" class="org.argeo.security.ui.admin.views.RolesView"
 		scope="prototype">

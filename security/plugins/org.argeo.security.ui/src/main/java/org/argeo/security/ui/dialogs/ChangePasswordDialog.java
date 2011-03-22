@@ -1,7 +1,6 @@
 package org.argeo.security.ui.dialogs;
 
 import org.argeo.ArgeoException;
-import org.argeo.security.CurrentUserService;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
@@ -13,16 +12,17 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.springframework.security.userdetails.UserDetailsManager;
 
 /** Dialog to change the current user password */
 public class ChangePasswordDialog extends TitleAreaDialog {
 	private Text currentPassword, newPassword1, newPassword2;
-	private CurrentUserService securityService;
+	private UserDetailsManager userDetailsManager;
 
 	public ChangePasswordDialog(Shell parentShell,
-			CurrentUserService securityService) {
+			UserDetailsManager securityService) {
 		super(parentShell);
-		this.securityService = securityService;
+		this.userDetailsManager = securityService;
 	}
 
 	protected Point getInitialSize() {
@@ -48,7 +48,7 @@ public class ChangePasswordDialog extends TitleAreaDialog {
 	protected void okPressed() {
 		if (!newPassword1.getText().equals(newPassword2.getText()))
 			throw new ArgeoException("Passwords are different");
-		securityService.updateCurrentUserPassword(currentPassword.getText(),
+		userDetailsManager.changePassword(currentPassword.getText(),
 				newPassword1.getText());
 		close();
 	}

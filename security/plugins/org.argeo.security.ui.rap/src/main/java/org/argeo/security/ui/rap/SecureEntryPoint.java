@@ -1,7 +1,6 @@
 package org.argeo.security.ui.rap;
 
 import java.security.PrivilegedAction;
-import java.util.Set;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
@@ -12,7 +11,6 @@ import org.argeo.eclipse.ui.dialogs.Error;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.rwt.RWT;
 import org.eclipse.rwt.lifecycle.IEntryPoint;
 import org.eclipse.rwt.service.SessionStoreEvent;
 import org.eclipse.rwt.service.SessionStoreListener;
@@ -21,24 +19,15 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
-import org.springframework.security.Authentication;
-import org.springframework.security.context.SecurityContextHolder;
 
 public class SecureEntryPoint implements IEntryPoint, SessionStoreListener {
 	private Log log = LogFactory.getLog(SecureEntryPoint.class);
 
-	private final static String SECURITY_CONTEXT_ATTRIBUTE = "securityContextAttribute";
-
 	@Override
 	public int createUI() {
-//		log.debug("THREAD=" + Thread.currentThread().getId()
-//				+ ", RWT.getSessionStore().getId()="
-//				+ RWT.getSessionStore().getId());
-
-		Authentication authen = (Authentication) RWT.getSessionStore()
-				.getAttribute(SECURITY_CONTEXT_ATTRIBUTE);
-		if (authen != null)
-			SecurityContextHolder.getContext().setAuthentication(authen);
+		// log.debug("THREAD=" + Thread.currentThread().getId()
+		// + ", RWT.getSessionStore().getId()="
+		// + RWT.getSessionStore().getId());
 
 		Integer returnCode = null;
 		Display display = PlatformUI.createDisplay();
@@ -47,18 +36,10 @@ public class SecureEntryPoint implements IEntryPoint, SessionStoreListener {
 			Boolean retry = true;
 			while (retry) {
 				try {
-					// if (authen == null)
-					// SecureRapActivator.getLoginContext().login();
+					// force login in order to give Spring Security a chance to
+					// load
+					SecureRapActivator.getLoginContext().login();
 					subject = SecureRapActivator.getLoginContext().getSubject();
-					Set<Authentication> auths = subject
-							.getPrincipals(Authentication.class);
-					if (auths.size() > 0)
-						SecurityContextHolder.getContext().setAuthentication(
-								auths.iterator().next());
-					// authen = SecurityContextHolder.getContext()
-					// .getAuthentication();
-					// RWT.getSessionStore().setAttribute(
-					// SECURITY_CONTEXT_ATTRIBUTE, authen);
 					retry = false;
 				} catch (LoginException e) {
 					Error.show("Cannot login", e);

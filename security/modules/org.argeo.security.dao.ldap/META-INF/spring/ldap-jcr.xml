@@ -55,6 +55,10 @@
 				</entry>
 			</map>
 		</property>
-
 	</bean>
+
+	<bean id="nodeSession" class="org.argeo.security.jcr.SecureThreadBoundSession">
+		<property name="repository" ref="nodeRepository" />
+	</bean>
+
 </beans>

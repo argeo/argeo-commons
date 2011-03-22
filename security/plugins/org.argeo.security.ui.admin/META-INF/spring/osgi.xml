@@ -8,7 +8,7 @@
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
 	osgi:default-timeout="30000">
 
-	<reference id="jcrSession" interface="javax.jcr.Session"
+	<reference id="nodeRepository" interface="javax.jcr.Repository"
 		filter="(argeo.jcr.repository.alias=node)" />
 	<reference id="userAdminService" interface="org.argeo.security.UserAdminService" />
 	<reference id="currentUserService" interface="org.argeo.security.CurrentUserService" />

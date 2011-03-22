@@ -32,6 +32,8 @@
 						<Export-Package>
 							org.argeo.security.*
 						</Export-Package>
+						<!-- We need to exclude some packages which are added by BND but cause 
+							use package conflict with some deployments -->
 						<Import-Package>
 							org.springframework.context,
 							org.springframework.beans.factory,

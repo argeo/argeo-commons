@@ -21,7 +21,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.jcr.LoginException;
 import javax.jcr.Repository;
@@ -34,19 +37,17 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.InitializingBean;
 
 /** Proxy JCR sessions and attach them to calling threads. */
 public class ThreadBoundJcrSessionFactory implements FactoryBean,
-		DisposableBean {
+		InitializingBean, DisposableBean {
 	private final static Log log = LogFactory
 			.getLog(ThreadBoundJcrSessionFactory.class);
 
 	private Repository repository;
-	private final List<Session> activeSessions = Collections
-			.synchronizedList(new ArrayList<Session>());
 
 	private ThreadLocal<Session> session = new ThreadLocal<Session>();
-	private boolean destroying = false;
 	private final Session proxiedSession;
 	/** If workspace is null, default will be used. */
 	private String workspace = null;
@@ -54,6 +55,15 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 	private String defaultUsername = "demo";
 	private String defaultPassword = "demo";
 	private Boolean forceDefaultCredentials = false;
+
+	private boolean active = true;
+
+	// monitoring
+	private final List<Thread> threads = Collections
+			.synchronizedList(new ArrayList<Thread>());
+	private final Map<Long, Session> activeSessions = Collections
+			.synchronizedMap(new HashMap<Long, Session>());
+	private MonitoringThread monitoringThread;
 
 	public ThreadBoundJcrSessionFactory() {
 		Class<?>[] interfaces = { Session.class };
@@ -64,6 +74,14 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 
 	/** Logs in to the repository using various strategies. */
 	protected Session login() {
+		// discard sesison previoussly attached to this thread
+		Thread thread = Thread.currentThread();
+		if (activeSessions.containsKey(thread.getId())) {
+			Session oldSession = activeSessions.remove(thread.getId());
+			oldSession.logout();
+			session.remove();
+		}
+
 		Session newSession = null;
 		// first try to login without credentials, assuming the underlying login
 		// module will have dealt with authentication (typically using Spring
@@ -89,11 +107,15 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 				throw new ArgeoException("Cannot log in to repository", e);
 			}
 
+		session.set(newSession);
 		// Log and monitor new session
 		if (log.isTraceEnabled())
 			log.trace("Logged in to JCR session " + newSession + "; userId="
 					+ newSession.getUserID());
-		activeSessions.add(newSession);
+
+		// monitoring
+		activeSessions.put(thread.getId(), newSession);
+		threads.add(thread);
 		return newSession;
 	}
 
@@ -101,16 +123,31 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 		return proxiedSession;
 	}
 
-	public void destroy() throws Exception {
+	public void afterPropertiesSet() throws Exception {
+		monitoringThread = new MonitoringThread();
+		monitoringThread.start();
+	}
+
+	public synchronized void destroy() throws Exception {
 		if (log.isDebugEnabled())
 			log.debug("Cleaning up " + activeSessions.size()
 					+ " active JCR sessions...");
 
-		destroying = true;
-		for (Session sess : activeSessions) {
+		deactivate();
+		for (Session sess : activeSessions.values()) {
 			sess.logout();
 		}
 		activeSessions.clear();
+		monitoringThread.join(1000);
+	}
+
+	protected Boolean isActive() {
+		return active;
+	}
+
+	protected synchronized void deactivate() {
+		active = false;
+		notifyAll();
 	}
 
 	public Class<? extends Session> getObjectType() {
@@ -119,6 +156,15 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 
 	public boolean isSingleton() {
 		return true;
+	}
+
+	/**
+	 * Called before a method is actually called, allowing to check the session
+	 * or re-login it (e.g. if authentication has changed). The default
+	 * implementation returns the session.
+	 */
+	protected Session preCall(Session session) {
+		return session;
 	}
 
 	public void setRepository(Repository repository) {
@@ -152,28 +198,61 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 				else if ("toString".equals(method.getName()))// maybe logging
 					return "Uninitialized Argeo thread bound JCR session";
 				threadSession = login();
-				session.set(threadSession);
 			}
 
 			Object ret = method.invoke(threadSession, args);
 			if ("logout".equals(method.getName())) {
-				session.remove();
-				if (!destroying)
-					activeSessions.remove(threadSession);
-				if (log.isTraceEnabled())
-					log.trace("Logged out from JCR session " + threadSession
-							+ "; userId=" + threadSession.getUserID());
+				synchronized (ThreadBoundJcrSessionFactory.this) {
+					session.remove();
+					Thread thread = Thread.currentThread();
+					if (isActive()) {
+						activeSessions.remove(thread.getId());
+						threads.remove(thread);
+					}
+					if (log.isTraceEnabled())
+						log.trace("Logged out JCR session (userId="
+								+ threadSession.getUserID() + ") on thread "
+								+ thread.getId());
+				}
 			}
 			return ret;
 		}
 	}
-	
-	protected class MonitoringThread extends Thread{
+
+	/** Monitors registered thread in order to clean up dead ones. */
+	private class MonitoringThread extends Thread {
 
 		@Override
 		public void run() {
-			Thread thread=null;
+			while (isActive()) {
+				Iterator<Thread> it = threads.iterator();
+				while (it.hasNext()) {
+					Thread thread = it.next();
+					if (!thread.isAlive() && isActive()) {
+						if (activeSessions.containsKey(thread.getId())) {
+							Session session = activeSessions
+									.get(thread.getId());
+							activeSessions.remove(thread.getId());
+							session.logout();
+							if (log.isDebugEnabled())
+								log.debug("Cleaned up JCR session (userID="
+										+ session.getUserID()
+										+ ") from dead thread "
+										+ thread.getId());
+						}
+						it.remove();
+					}
+				}
+
+				synchronized (ThreadBoundJcrSessionFactory.this) {
+					try {
+						ThreadBoundJcrSessionFactory.this.wait(1000);
+					} catch (InterruptedException e) {
+						// silent
+					}
+				}
+			}
 		}
-		
+
 	}
 }

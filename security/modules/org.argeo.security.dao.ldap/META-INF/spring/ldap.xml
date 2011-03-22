@@ -80,27 +80,13 @@
 		<property name="rolePrefix" value="${argeo.security.rolePrefix}" />
 	</bean>
 
-	<bean id="userDetailsManager"
-		class="org.springframework.security.userdetails.ldap.LdapUserDetailsManager">
+	<bean id="userDetailsManager" class="org.argeo.security.ldap.ArgeoLdapUserDetailsManager">
 		<constructor-arg ref="contextSource" />
 		<property name="groupSearchBase" value="${argeo.ldap.groupBase}" />
 		<property name="groupMemberAttributeName" value="${argeo.ldap.groupMemberAttribute}" />
 		<property name="usernameMapper" ref="usernameMapper" />
 		<property name="userDetailsMapper" ref="jcrUserDetailsContextMapper" />
+		<property name="passwordEncoder" ref="passwordEncoder" />
+		<property name="passwordAttributeName" value="${argeo.ldap.passwordAttribute}" />
 	</bean>
-
-	<!-- <bean id="userDetailsService" -->
-	<!-- class="org.springframework.security.userdetails.ldap.LdapUserDetailsManager"> -->
-	<!-- <constructor-arg> -->
-	<!-- <bean -->
-	<!-- class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch"> -->
-	<!-- <constructor-arg value="${argeo.ldap.userBase}" /> -->
-	<!-- <constructor-arg value="(${argeo.ldap.usernameAttribute}={0})" /> -->
-	<!-- <constructor-arg ref="contextSource" /> -->
-	<!-- </bean> -->
-	<!-- </constructor-arg> -->
-	<!-- <constructor-arg ref="authoritiesPopulator" /> -->
-	<!-- <property name="userDetailsMapper" ref="jcrUserDetailsContextMapper" 
-		/> -->
-	<!-- </bean> -->
 </beans>

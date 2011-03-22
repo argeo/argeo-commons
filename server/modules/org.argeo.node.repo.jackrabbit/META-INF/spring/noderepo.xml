@@ -28,9 +28,4 @@
 		</property>
 		<property name="systemExecutor" ref="systemExecutionService" />
 	</bean>
-
-	<bean id="nodeJcrSession" class="org.argeo.jcr.ThreadBoundJcrSessionFactory">
-		<property name="repository" ref="nodeJcrRepository" />
-		<property name="workspace" value="${argeo.node.repo.workspace}" />
-	</bean>
 </beans>

@@ -16,7 +16,7 @@
 	<list id="authenticationProviders"
 		interface="org.springframework.security.providers.AuthenticationProvider"
 		cardinality="0..N">
-		<listener ref="authenticationManager" bind-method="register"
+		<listener ref="authenticationProvidersRegister" bind-method="register"
 			unbind-method="unregister" />
 	</list>
 

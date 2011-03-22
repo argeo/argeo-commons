@@ -7,14 +7,14 @@
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
 	<!-- REFERENCES -->
-<!-- 	<list id="userNatureMappers" interface="org.argeo.security.ldap.UserNatureMapper" -->
-<!-- 		cardinality="0..N" /> -->
-<!-- 	<reference id="repositoryFactory" interface="javax.jcr.RepositoryFactory" -->
-<!-- 		cardinality="0..1"> -->
-<!-- 		<listener ref="jcrUserDetailsContextMapper" bind-method="register" -->
-<!-- 			unbind-method="unregister" /> -->
-<!-- 	</reference> -->
-	<reference id="nodeSession" interface="javax.jcr.Session"
+	<!-- <list id="userNatureMappers" interface="org.argeo.security.ldap.UserNatureMapper" -->
+	<!-- cardinality="0..N" /> -->
+	<!-- <reference id="repositoryFactory" interface="javax.jcr.RepositoryFactory" -->
+	<!-- cardinality="0..1"> -->
+	<!-- <listener ref="jcrUserDetailsContextMapper" bind-method="register" -->
+	<!-- unbind-method="unregister" /> -->
+	<!-- </reference> -->
+	<reference id="nodeRepository" interface="javax.jcr.Repository"
 		filter="(argeo.jcr.repository.alias=node)" />
 	<reference id="systemExecutionService" interface="org.argeo.security.SystemExecutionService" />
 
@@ -22,7 +22,7 @@
 	<service ref="ldapAuthenticationProvider"
 		interface="org.springframework.security.providers.AuthenticationProvider"
 		context-class-loader="service-provider" />
-		
+
 	<service ref="securityDao" interface="org.argeo.security.CurrentUserDao"
 		context-class-loader="service-provider" />
 	<service ref="securityDao" interface="org.argeo.security.UserAdminDao"

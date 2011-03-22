@@ -6,6 +6,6 @@
 
 	<bean id="openChangePasswordDialog" class="org.argeo.security.ui.commands.OpenChangePasswordDialog"
 		scope="prototype">
-		<property name="currentUserService" ref="currentUserService" />
+		<property name="userDetailsManager" ref="userDetailsManager" />
 	</bean>
 </beans>

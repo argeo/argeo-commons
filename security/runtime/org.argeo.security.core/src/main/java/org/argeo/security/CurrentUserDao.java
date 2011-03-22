@@ -19,6 +19,7 @@ package org.argeo.security;
 /**
  * Access to user backend for the currently logged in user
  */
+@Deprecated
 public interface CurrentUserDao {
 	public void updateCurrentUserPassword(String oldPassword, String newPassword);
 

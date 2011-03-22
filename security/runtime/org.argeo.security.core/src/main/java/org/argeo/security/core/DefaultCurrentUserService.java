@@ -23,6 +23,7 @@ import org.argeo.security.CurrentUserDao;
 import org.argeo.security.CurrentUserService;
 import org.argeo.security.UserNature;
 
+@Deprecated
 public class DefaultCurrentUserService implements CurrentUserService {
 	private CurrentUserDao currentUserDao;
 

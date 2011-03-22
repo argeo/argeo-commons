@@ -2,6 +2,7 @@ package org.argeo.security;
 
 import java.util.Map;
 
+@Deprecated
 public interface CurrentUserService {
 	public ArgeoUser getCurrentUser();
 

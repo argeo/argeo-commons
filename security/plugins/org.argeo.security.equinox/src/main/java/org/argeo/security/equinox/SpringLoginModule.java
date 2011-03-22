@@ -1,7 +1,7 @@
 package org.argeo.security.equinox;
 
 import java.util.Map;
-import java.util.concurrent.Executor;
+import java.util.Set;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -11,6 +11,8 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.TextOutputCallback;
 import javax.security.auth.login.LoginException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.security.SiteAuthenticationToken;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationManager;
@@ -20,10 +22,13 @@ import org.springframework.security.providers.jaas.SecurityContextLoginModule;
 
 /** Login module which caches one subject per thread. */
 public class SpringLoginModule extends SecurityContextLoginModule {
+	private final static Log log = LogFactory.getLog(SpringLoginModule.class);
+
 	private AuthenticationManager authenticationManager;
-	private Executor systemExecutor;
 
 	private CallbackHandler callbackHandler;
+
+	private Subject subject;
 
 	public SpringLoginModule() {
 
@@ -33,25 +38,21 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 	public void initialize(Subject subject, CallbackHandler callbackHandler,
 			Map sharedState, Map options) {
 		super.initialize(subject, callbackHandler, sharedState, options);
-		// this.subject.set(subject);
 		this.callbackHandler = callbackHandler;
+		this.subject = subject;
 	}
 
 	public boolean login() throws LoginException {
+		// try to retrieve Authentication from Subject
+		Set<Authentication> auths = subject.getPrincipals(Authentication.class);
+		if (auths.size() > 0)
+			SecurityContextHolder.getContext().setAuthentication(
+					auths.iterator().next());
+
 		// thread already logged in
 		if (SecurityContextHolder.getContext().getAuthentication() != null)
 			return super.login();
 
-		// if (getSubject().getPrincipals(Authentication.class).size() == 1) {
-		// registerAuthentication(getSubject()
-		// .getPrincipals(Authentication.class).iterator().next());
-		// return super.login();
-		// } else if (getSubject().getPrincipals(Authentication.class).size() >
-		// 1) {
-		// throw new LoginException(
-		// "Multiple Authentication principals not supported: "
-		// + getSubject().getPrincipals(Authentication.class));
-		// } else {
 		// ask for username and password
 		Callback label = new TextOutputCallback(TextOutputCallback.INFORMATION,
 				"Required login");
@@ -90,13 +91,10 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 				username, password, url, workspace);
 
 		try {
-			
 			Authentication authentication = authenticationManager
 					.authenticate(credentials);
 			registerAuthentication(authentication);
 			boolean res = super.login();
-			// if (log.isDebugEnabled())
-			// log.debug("User " + username + " logged in");
 			return res;
 		} catch (BadCredentialsException bce) {
 			throw bce;
@@ -111,6 +109,8 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 
 	@Override
 	public boolean logout() throws LoginException {
+//		if (log.isDebugEnabled())
+//			log.debug("logout subject=" + subject);
 		return super.logout();
 	}
 
@@ -129,13 +129,4 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 			AuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
 	}
-
-	public void setSystemExecutor(Executor systemExecutor) {
-		this.systemExecutor = systemExecutor;
-	}
-
-	// protected Subject getSubject() {
-	// return subject.get();
-	// }
-
 }

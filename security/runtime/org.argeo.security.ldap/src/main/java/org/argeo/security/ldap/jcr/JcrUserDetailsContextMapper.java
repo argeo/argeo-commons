@@ -9,16 +9,13 @@ import java.util.Random;
 import java.util.concurrent.Executor;
 
 import javax.jcr.Node;
-import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
-import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
-import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
@@ -76,10 +73,15 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 				userHomePathT.append(userHomepath);
 			}
 		};
-		if (SecurityContextHolder.getContext().getAuthentication() == null)// authentication
+
+		if (SecurityContextHolder.getContext().getAuthentication() == null) {
+			// authentication
 			systemExecutor.execute(action);
-		else
+			JcrUtils.logoutQuietly(session);
+		} else {
+			// authenticated user
 			action.run();
+		}
 
 		// password
 		byte[] arr = (byte[]) ctx
@@ -157,7 +159,7 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 		final JcrUserDetails jcrUserDetails = (JcrUserDetails) user;
 		// systemExecutor.execute(new Runnable() {
 		// public void run() {
-//		Session session = null;
+		// Session session = null;
 		try {
 			// Repository nodeRepo = JcrUtils.getRepositoryByAlias(
 			// repositoryFactory, ArgeoJcrConstants.ALIAS_NODE);
