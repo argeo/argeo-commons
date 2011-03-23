@@ -50,6 +50,7 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 			principals.add(new AnonymousPrincipal());
 		else
 			for (GrantedAuthority ga : authen.getAuthorities()) {
+				principals.add(new GrantedAuthorityPrincipal(ga));
 				// FIXME: make it more generic
 				if (adminRole.equals(ga.getAuthority()))
 					principals.add(new AdminPrincipal(authen.getName()));
@@ -69,19 +70,20 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 	 */
 	@Override
 	public boolean logout() throws LoginException {
-		Set<AdminPrincipal> adminPrincipals = subject
-				.getPrincipals(AdminPrincipal.class);
-		Set<AnonymousPrincipal> anonymousPrincipals = subject
-				.getPrincipals(AnonymousPrincipal.class);
+		clearPrincipals(AdminPrincipal.class);
+		clearPrincipals(AnonymousPrincipal.class);
+		clearPrincipals(GrantedAuthorityPrincipal.class);
 		Set<SimpleCredentials> thisCredentials = subject
 				.getPublicCredentials(SimpleCredentials.class);
 		if (thisCredentials != null)
 			thisCredentials.clear();
-		if (adminPrincipals != null)
-			adminPrincipals.clear();
-		if (anonymousPrincipals != null)
-			anonymousPrincipals.clear();
 		return true;
+	}
+
+	private <T extends Principal> void clearPrincipals(Class<T> clss) {
+		Set<T> principals = subject.getPrincipals(clss);
+		if (principals != null)
+			principals.clear();
 	}
 
 	@SuppressWarnings("rawtypes")

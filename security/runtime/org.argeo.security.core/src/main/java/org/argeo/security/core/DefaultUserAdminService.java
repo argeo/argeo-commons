@@ -57,6 +57,13 @@ public class DefaultUserAdminService implements UserAdminService {
 
 		userAdminDao.createUser(user);
 	}
+	
+	
+
+	public void synchronize() {
+		// TODO Auto-generated method stub
+		
+	}
 
 	public ArgeoUser getUser(String username) {
 		return userAdminDao.getUser(username);

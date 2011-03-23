@@ -238,6 +238,7 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 				threadSession = login();
 			}
 
+			preCall(threadSession);
 			Object ret = method.invoke(threadSession, args);
 			if ("logout".equals(method.getName())) {
 				session.remove();

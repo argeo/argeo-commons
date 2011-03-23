@@ -42,6 +42,9 @@ public interface UserAdminService {
 
 	public void deleteUser(String username);
 
+	/** Synchronize with the underlying DAO. */
+	public void synchronize();
+
 	/*
 	 * ROLES
 	 */

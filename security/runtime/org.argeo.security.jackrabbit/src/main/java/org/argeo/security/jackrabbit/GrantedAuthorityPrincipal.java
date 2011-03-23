@@ -4,7 +4,7 @@ import java.security.Principal;
 
 import org.springframework.security.GrantedAuthority;
 
-/** Wraps a {@link GrantedAuthority} as a prin,cipal. */
+/** Wraps a {@link GrantedAuthority} as a principal. */
 class GrantedAuthorityPrincipal implements Principal {
 	private final GrantedAuthority grantedAuthority;
 

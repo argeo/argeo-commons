@@ -7,6 +7,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.jcr.ThreadBoundJcrSessionFactory;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.userdetails.UserDetails;
 
 public class SecureThreadBoundSession extends ThreadBoundJcrSessionFactory {
 	private final static Log log = LogFactory
@@ -17,12 +18,17 @@ public class SecureThreadBoundSession extends ThreadBoundJcrSessionFactory {
 		Authentication authentication = SecurityContextHolder.getContext()
 				.getAuthentication();
 		if (authentication != null) {
-			if (!session.getUserID().equals(
-					authentication.getPrincipal().toString())) {
-				log.warn("Current session has user ID " + session.getUserID()
-						+ " while authentication is " + authentication
-						+ ". Re-login.");
-				return login();
+			String userID = session.getUserID();
+			UserDetails userDetails = (UserDetails) authentication.getDetails();
+			if (userDetails != null) {
+				String currentUserName = userDetails.getUsername();
+				if (!userID.equals(currentUserName)) {
+					log.warn("Current session has user ID " + userID
+							+ " while logged is user is " + currentUserName
+							+ "(authentication=" + authentication + ")"
+							+ ". Re-login.");
+					return login();
+				}
 			}
 		}
 		return super.preCall(session);

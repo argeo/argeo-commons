@@ -192,7 +192,7 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 		else
 			action.run();
 	}
-
+	
 	public void destroy() throws Exception {
 		if (repository != null) {
 			if (repository instanceof JackrabbitRepository)

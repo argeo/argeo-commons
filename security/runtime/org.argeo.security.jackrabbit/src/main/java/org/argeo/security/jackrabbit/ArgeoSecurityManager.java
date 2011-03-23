@@ -6,8 +6,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.jcr.AccessDeniedException;
+import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.UnsupportedRepositoryOperationException;
+import javax.jcr.lock.LockException;
+import javax.jcr.security.AccessControlException;
+import javax.jcr.security.AccessControlList;
+import javax.jcr.security.AccessControlManager;
+import javax.jcr.security.AccessControlPolicy;
+import javax.jcr.security.AccessControlPolicyIterator;
+import javax.jcr.security.Privilege;
+import javax.jcr.version.VersionException;
 import javax.security.auth.Subject;
 
 import org.apache.commons.logging.Log;
@@ -20,6 +32,7 @@ import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.SystemPrincipal;
 import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
 import org.argeo.ArgeoException;
+import org.argeo.jcr.JcrUtils;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 
@@ -54,18 +67,21 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 					.toString(), authen, null);
 			log.info(userId + " added as " + user);
 		}
+		
+		setHomeNodeAuthorizations(user);
 
+		// process groups
 		List<String> userGroupIds = new ArrayList<String>();
 		for (GrantedAuthority ga : authen.getAuthorities()) {
 			Group group = (Group) systemUm.getAuthorizable(ga.getAuthority());
 			if (group == null) {
-				group = systemUm.createGroup(ga.getAuthority(),
-						new GrantedAuthorityPrincipal(ga), null);
+				group = systemUm.createGroup(ga.getAuthority());
 				log.info(ga.getAuthority() + " added as " + group);
 			}
 			if (!group.isMember(user))
 				group.addMember(user);
 			userGroupIds.add(ga.getAuthority());
+
 		}
 
 		// check if user has not been removed from some groups
@@ -82,6 +98,42 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		return userId;
 	}
 
+	protected void setHomeNodeAuthorizations(User user) {
+		// give all privileges on user home
+		// FIXME: fails on an empty repo
+		String userId = "<not yet set>";
+		try {
+			userId = user.getID();
+			Node userHome = JcrUtils.getUserHome(getSystemSession(), userId);
+			if (userHome != null) {
+				String path = userHome.getPath();
+				AccessControlPolicy policy = null;
+				AccessControlManager acm = getSystemSession()
+						.getAccessControlManager();
+				AccessControlPolicyIterator policyIterator = acm
+						.getApplicablePolicies(path);
+				if (policyIterator.hasNext()) {
+					policy = policyIterator.nextAccessControlPolicy();
+				} else {
+					AccessControlPolicy[] existingPolicies = acm
+							.getPolicies(path);
+					policy = existingPolicies[0];
+				}
+				if (policy instanceof AccessControlList) {
+					Privilege[] privileges = { acm
+							.privilegeFromName(Privilege.JCR_ALL) };
+					((AccessControlList) policy).addAccessControlEntry(
+							user.getPrincipal(), privileges);
+					acm.setPolicy(path, policy);
+				}
+			}
+		} catch (Exception e) {
+			log.warn("Cannot set authorization on user node for " + userId
+					+ ": " + e.getMessage());
+		}
+
+	}
+
 	@Override
 	protected WorkspaceAccessManager createDefaultWorkspaceAccessManager() {
 		WorkspaceAccessManager wam = super
@@ -92,7 +144,8 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 	private class ArgeoWorkspaceAccessManagerImpl implements SecurityConstants,
 			WorkspaceAccessManager {
 		private final WorkspaceAccessManager wam;
-		//private String defaultWorkspace;
+
+		// private String defaultWorkspace;
 
 		public ArgeoWorkspaceAccessManagerImpl(WorkspaceAccessManager wam) {
 			super();
@@ -101,8 +154,8 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 
 		public void init(Session systemSession) throws RepositoryException {
 			wam.init(systemSession);
-//			defaultWorkspace = ((RepositoryImpl) getRepository()).getConfig()
-//					.getDefaultWorkspaceName();
+			// defaultWorkspace = ((RepositoryImpl) getRepository()).getConfig()
+			// .getDefaultWorkspaceName();
 		}
 
 		public void close() throws RepositoryException {

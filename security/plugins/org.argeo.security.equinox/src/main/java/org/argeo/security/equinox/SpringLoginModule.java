@@ -53,6 +53,16 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 		if (SecurityContextHolder.getContext().getAuthentication() != null)
 			return super.login();
 
+		// reset all principals and credentials
+		if (log.isTraceEnabled())
+			log.trace("Resetting all principals and credentials of " + subject);
+		if (subject.getPrincipals() != null)
+			subject.getPrincipals().clear();
+		if (subject.getPrivateCredentials() != null)
+			subject.getPrivateCredentials().clear();
+		if (subject.getPublicCredentials() != null)
+			subject.getPublicCredentials().clear();
+
 		// ask for username and password
 		Callback label = new TextOutputCallback(TextOutputCallback.INFORMATION,
 				"Required login");
@@ -109,8 +119,8 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 
 	@Override
 	public boolean logout() throws LoginException {
-//		if (log.isDebugEnabled())
-//			log.debug("logout subject=" + subject);
+		// if (log.isDebugEnabled())
+		// log.debug("logout subject=" + subject);
 		return super.logout();
 	}
 

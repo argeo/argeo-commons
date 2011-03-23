@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.concurrent.Executor;
 
 import javax.jcr.Node;
+import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
@@ -63,8 +64,6 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 
 	public UserDetails mapUserFromContext(final DirContextOperations ctx,
 			final String username, GrantedAuthority[] authorities) {
-		// if (repository == null)
-		// throw new ArgeoException("No JCR repository registered");
 		final StringBuffer userHomePathT = new StringBuffer("");
 		Runnable action = new Runnable() {
 			public void run() {
@@ -98,11 +97,7 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 
 	/** @return path to the user home node */
 	protected String mapLdapToJcr(String username, DirContextOperations ctx) {
-		// Session session = null;
 		try {
-			// Repository nodeRepo = JcrUtils.getRepositoryByAlias(
-			// repositoryFactory, ArgeoJcrConstants.ALIAS_NODE);
-			// session = nodeRepo.login();
 			Node userHome = JcrUtils.getUserHome(session, username);
 			if (userHome == null)
 				userHome = JcrUtils.createUserHome(session, homeBasePath,
@@ -117,17 +112,26 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 				userProfile.addMixin(NodeType.MIX_CREATED);
 				userProfile.addMixin(NodeType.MIX_LAST_MODIFIED);
 			}
+
 			for (String jcrProperty : propertyToAttributes.keySet())
 				ldapToJcr(userProfile, jcrProperty, ctx);
+
+			// assign default values
+			if (!userProfile.hasProperty(Property.JCR_DESCRIPTION))
+				userProfile.setProperty(Property.JCR_DESCRIPTION, "");
+			if (!userProfile.hasProperty(Property.JCR_TITLE))
+				userProfile.setProperty(Property.JCR_TITLE, userProfile
+						.getProperty(ARGEO_FIRST_NAME).getString()
+						+ " "
+						+ userProfile.getProperty(ARGEO_LAST_NAME).getString());
+
 			session.save();
-			if (log.isDebugEnabled())
-				log.debug("Mapped " + ctx.getDn() + " to " + userProfile);
+			if (log.isTraceEnabled())
+				log.trace("Mapped " + ctx.getDn() + " to " + userProfile);
 			return userHomePath;
 		} catch (Exception e) {
 			JcrUtils.discardQuietly(session);
 			throw new ArgeoException("Cannot synchronize JCR and LDAP", e);
-		} finally {
-			// JcrUtils.logoutQuietly(session);
 		}
 	}
 
@@ -142,26 +146,17 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 				encodePassword(user.getPassword()));
 
 		final JcrUserDetails jcrUserDetails = (JcrUserDetails) user;
-		// systemExecutor.execute(new Runnable() {
-		// public void run() {
-		// Session session = null;
 		try {
-			// Repository nodeRepo = JcrUtils.getRepositoryByAlias(
-			// repositoryFactory, ArgeoJcrConstants.ALIAS_NODE);
-			// session = nodeRepo.login();
 			Node userProfile = session.getNode(jcrUserDetails.getHomePath()
 					+ '/' + ARGEO_PROFILE);
 			for (String jcrProperty : propertyToAttributes.keySet())
 				jcrToLdap(userProfile, jcrProperty, ctx);
-			if (log.isDebugEnabled())
-				log.debug("Mapped " + userProfile + " to " + ctx.getDn());
+
+			if (log.isTraceEnabled())
+				log.trace("Mapped " + userProfile + " to " + ctx.getDn());
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot synchronize JCR and LDAP", e);
-		} finally {
-			// session.logout();
 		}
-		// }
-		// });
 	}
 
 	protected String encodePassword(String password) {
@@ -198,10 +193,6 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 	protected void jcrToLdap(Node userProfile, String jcrProperty,
 			DirContextOperations ctx) {
 		try {
-			if (!userProfile.hasProperty(jcrProperty))
-				return;
-			String value = userProfile.getProperty(jcrProperty).getString();
-
 			String ldapAttribute;
 			if (propertyToAttributes.containsKey(jcrProperty))
 				ldapAttribute = propertyToAttributes.get(jcrProperty);
@@ -209,6 +200,18 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 				throw new ArgeoException(
 						"No LDAP attribute mapped for JCR proprty "
 								+ jcrProperty);
+
+			// fix issue with empty 'sn' in LDAP
+			if (ldapAttribute.equals("sn")
+					&& (!userProfile.hasProperty(jcrProperty) || userProfile
+							.getProperty(jcrProperty).getString().trim()
+							.equals("")))
+				userProfile.setProperty(jcrProperty, "empty");
+
+			if (!userProfile.hasProperty(jcrProperty))
+				return;
+			String value = userProfile.getProperty(jcrProperty).getString();
+
 			ctx.setAttributeValue(ldapAttribute, value);
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot map JCR property " + jcrProperty
@@ -227,16 +230,6 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 	public void setHomeBasePath(String homeBasePath) {
 		this.homeBasePath = homeBasePath;
 	}
-
-	// public void register(RepositoryFactory repositoryFactory,
-	// Map<String, String> parameters) {
-	// this.repositoryFactory = repositoryFactory;
-	// }
-	//
-	// public void unregister(RepositoryFactory repositoryFactory,
-	// Map<String, String> parameters) {
-	// this.repositoryFactory = null;
-	// }
 
 	public void setUsernameAttribute(String usernameAttribute) {
 		this.usernameAttribute = usernameAttribute;
