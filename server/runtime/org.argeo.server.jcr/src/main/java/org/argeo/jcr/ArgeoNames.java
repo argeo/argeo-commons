@@ -6,9 +6,9 @@ public interface ArgeoNames {
 
 	public final static String ARGEO_URI = "argeo:uri";
 	public final static String ARGEO_USER_ID = "argeo:userID";
-	
+
 	// user profile
-	public final static String ARGEO_USER_PROFILE = "argeo:userProfile";
+	public final static String ARGEO_PROFILE = "argeo:profile";
 	public final static String ARGEO_FIRST_NAME = "argeo:firstName";
 	public final static String ARGEO_LAST_NAME = "argeo:lastName";
 	public final static String ARGEO_PRIMARY_EMAIL = "argeo:primaryEmail";

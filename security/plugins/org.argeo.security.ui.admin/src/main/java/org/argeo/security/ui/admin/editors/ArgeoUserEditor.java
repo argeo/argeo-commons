@@ -53,7 +53,7 @@ public class ArgeoUserEditor extends FormEditor {
 	protected void addPages() {
 		try {
 			addPage(new DefaultUserMainPage(this,
-					userHome.getNode(ArgeoNames.ARGEO_USER_PROFILE)));
+					userHome.getNode(ArgeoNames.ARGEO_PROFILE)));
 			addPage(new UserRolesPage(this, userDetails, userAdminService));
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot add pages", e);

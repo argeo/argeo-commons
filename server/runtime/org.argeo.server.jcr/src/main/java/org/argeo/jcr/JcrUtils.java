@@ -650,6 +650,12 @@ public class JcrUtils implements ArgeoJcrConstants {
 		return getUserHome(session, userID);
 	}
 
+	/** Get the profile of the user attached to this session. */
+	public static Node getUserProfile(Session session) {
+		String userID = session.getUserID();
+		return getUserProfile(session, userID);
+	}
+
 	/**
 	 * Returns the home node of the session user or null if none was found.
 	 * 
@@ -679,6 +685,60 @@ public class JcrUtils implements ArgeoJcrConstants {
 			return userHome;
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot find home for user " + userID, e);
+		}
+	}
+
+	public static Node getUserProfile(Session session, String userID) {
+		try {
+			QueryObjectModelFactory qomf = session.getWorkspace()
+					.getQueryManager().getQOMFactory();
+			Selector sel = qomf.selector(ArgeoTypes.ARGEO_USER_PROFILE,
+					"userProfile");
+			DynamicOperand userIdDop = qomf.propertyValue("userProfile",
+					ArgeoNames.ARGEO_USER_ID);
+			StaticOperand userIdSop = qomf.literal(session.getValueFactory()
+					.createValue(userID));
+			Constraint constraint = qomf.comparison(userIdDop,
+					QueryObjectModelFactory.JCR_OPERATOR_EQUAL_TO, userIdSop);
+			Query query = qomf.createQuery(sel, constraint, null, null);
+			Node userHome = JcrUtils.querySingleNode(query);
+			return userHome;
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot find profile for user " + userID,
+					e);
+		}
+	}
+
+	public static Node createUserHome(Session session, String homeBasePath,
+			String username) {
+		try {
+			if (session.hasPendingChanges())
+				throw new ArgeoException(
+						"Session has pending changes, save them first");
+			String homePath = homeBasePath + '/'
+					+ firstCharsToPath(username, 2) + '/' + username;
+			Node userHome = JcrUtils.mkdirs(session, homePath);
+
+			Node userProfile = userHome.addNode(ArgeoNames.ARGEO_PROFILE);
+			userProfile.addMixin(ArgeoTypes.ARGEO_USER_PROFILE);
+			userProfile.setProperty(ArgeoNames.ARGEO_USER_ID, username);
+			session.save();
+			// we need to save the profile before adding the user home type
+			PropertyIterator pit = userHome.getProperties();
+			while (pit.hasNext()) {
+				Property p = pit.nextProperty();
+				log.debug(p.getName() + "=" + p.getValue().getString());
+			}
+			userHome.addMixin(ArgeoTypes.ARGEO_USER_HOME);
+			// see
+			// http://jackrabbit.510166.n4.nabble.com/Jackrabbit-2-0-beta-6-Problem-adding-a-Mixin-type-with-mandatory-properties-after-setting-propertiesn-td1290332.html
+			userHome.setProperty(ArgeoNames.ARGEO_USER_ID, username);
+			session.save();
+			return userHome;
+		} catch (RepositoryException e) {
+			discardQuietly(session);
+			throw new ArgeoException("Cannot create home node for user "
+					+ username, e);
 		}
 	}
 }

@@ -27,22 +27,34 @@
 	<!-- AUTHENTICATION -->
 	<bean id="ldapAuthenticationProvider"
 		class="org.springframework.security.providers.ldap.LdapAuthenticationProvider">
-		<constructor-arg ref="passwordComparisonAuthenticator" />
+		<constructor-arg ref="ldapAuthenticator" />
 		<constructor-arg ref="authoritiesPopulator" />
 		<property name="userDetailsContextMapper" ref="jcrUserDetailsContextMapper" />
 	</bean>
 
-	<bean id="passwordComparisonAuthenticator"
-		class="org.springframework.security.providers.ldap.authenticator.PasswordComparisonAuthenticator">
+	<bean id="ldapAuthenticator"
+		class="org.springframework.security.providers.ldap.authenticator.BindAuthenticator">
 		<constructor-arg ref="contextSource" />
 		<property name="userDnPatterns">
 			<list>
 				<value><![CDATA[${argeo.ldap.usernameAttribute}={0},${argeo.ldap.userBase}]]></value>
 			</list>
 		</property>
-		<property name="passwordAttributeName" value="${argeo.ldap.passwordAttribute}" />
-		<property name="passwordEncoder" ref="passwordEncoder" />
 	</bean>
+
+	<!-- DOESN'T WORK WITH SSHA -->
+	<!-- <bean id="passwordComparisonAuthenticator" -->
+	<!-- class="org.springframework.security.providers.ldap.authenticator.PasswordComparisonAuthenticator"> -->
+	<!-- <constructor-arg ref="contextSource" /> -->
+	<!-- <property name="userDnPatterns"> -->
+	<!-- <list> -->
+	<!-- <value><![CDATA[${argeo.ldap.usernameAttribute}={0},${argeo.ldap.userBase}]]></value> -->
+	<!-- </list> -->
+	<!-- </property> -->
+	<!-- <property name="passwordAttributeName" value="${argeo.ldap.passwordAttribute}" 
+		/> -->
+	<!-- <property name="passwordEncoder" ref="passwordEncoder" /> -->
+	<!-- </bean> -->
 
 	<!-- USER DETAILS -->
 	<bean id="securityDao" class="org.argeo.security.ldap.ArgeoSecurityDaoLdap">

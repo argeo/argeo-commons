@@ -6,11 +6,13 @@ mixin
 // URI(s)
 - argeo:uri (STRING) m
 
-// HOME DIRECTORIES
-[argeo:home] > nt:unstructured, mix:created, mix:lastModified
-orderable
-+ * (argeo:userHome) *
-
+// USER NODES
+// user should be lower case, between 3 and 15 characters long
 [argeo:userHome] > mix:created, mix:lastModified
 mixin
-- argeo:userID (STRING) m
+- argeo:userID (STRING) m < '^[a-z0-9_]{3,15}$'
++ argeo:profile (argeo:userProfile)
+
+[argeo:userProfile] > mix:created, mix:lastModified, mix:title, mix:versionable
+mixin
+- argeo:userID (STRING) m < '^[a-z0-9_]{3,15}$'

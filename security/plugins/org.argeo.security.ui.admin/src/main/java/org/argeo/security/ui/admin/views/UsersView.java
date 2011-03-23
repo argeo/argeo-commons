@@ -106,7 +106,7 @@ public class UsersView extends ViewPart implements ArgeoNames, ArgeoTypes,
 						.getWorkspace()
 						.getQueryManager()
 						.createQuery(
-								"select [" + ARGEO_USER_PROFILE + "] from ["
+								"select [" + ARGEO_PROFILE + "] from ["
 										+ ARGEO_USER_HOME + "]", Query.JCR_SQL2);
 				NodeIterator nit = query.execute().getNodes();
 				List<Node> userProfiles = new ArrayList<Node>();
@@ -142,13 +142,13 @@ public class UsersView extends ViewPart implements ArgeoNames, ArgeoTypes,
 					else
 						return userName;
 				case 1:
-					return userHome.getNode(ARGEO_USER_PROFILE)
+					return userHome.getNode(ARGEO_PROFILE)
 							.getProperty(ARGEO_FIRST_NAME).getString();
 				case 2:
-					return userHome.getNode(ARGEO_USER_PROFILE)
+					return userHome.getNode(ARGEO_PROFILE)
 							.getProperty(ARGEO_LAST_NAME).getString();
 				case 3:
-					return userHome.getNode(ARGEO_USER_PROFILE)
+					return userHome.getNode(ARGEO_PROFILE)
 							.getProperty(ARGEO_PRIMARY_EMAIL).getString();
 				default:
 					throw new ArgeoException("Unmanaged column " + columnIndex);

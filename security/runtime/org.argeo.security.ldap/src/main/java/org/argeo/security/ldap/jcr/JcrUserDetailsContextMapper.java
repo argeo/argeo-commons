@@ -17,7 +17,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoNames;
-import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -103,13 +102,14 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 			// session = nodeRepo.login();
 			Node userHome = JcrUtils.getUserHome(session, username);
 			if (userHome == null)
-				userHome = createUserHome(session, username);
+				userHome = JcrUtils.createUserHome(session, homeBasePath,
+						username);
 			String userHomePath = userHome.getPath();
-			Node userProfile;
-			if (userHome.hasNode(ARGEO_USER_PROFILE)) {
-				userProfile = userHome.getNode(ARGEO_USER_PROFILE);
+			Node userProfile = userHome.getNode(ARGEO_PROFILE);
+			if (userHome.hasNode(ARGEO_PROFILE)) {
+				userProfile = userHome.getNode(ARGEO_PROFILE);
 			} else {
-				userProfile = userHome.addNode(ARGEO_USER_PROFILE);
+				userProfile = userHome.addNode(ARGEO_PROFILE);
 				userProfile.addMixin(NodeType.MIX_TITLE);
 				userProfile.addMixin(NodeType.MIX_CREATED);
 				userProfile.addMixin(NodeType.MIX_LAST_MODIFIED);
@@ -126,24 +126,6 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 		} finally {
 			// JcrUtils.logoutQuietly(session);
 		}
-	}
-
-	protected Node createUserHome(Session session, String username) {
-		try {
-			Node userHome = JcrUtils.mkdirs(session,
-					usernameToHomePath(username));
-			userHome.addMixin(ArgeoTypes.ARGEO_USER_HOME);
-			userHome.setProperty(ARGEO_USER_ID, username);
-			return userHome;
-		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot create home node for user "
-					+ username, e);
-		}
-	}
-
-	protected String usernameToHomePath(String username) {
-		return homeBasePath + '/' + JcrUtils.firstCharsToPath(username, 2)
-				+ '/' + username;
 	}
 
 	public void mapUserToContext(UserDetails user, final DirContextAdapter ctx) {
@@ -165,7 +147,7 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 			// repositoryFactory, ArgeoJcrConstants.ALIAS_NODE);
 			// session = nodeRepo.login();
 			Node userProfile = session.getNode(jcrUserDetails.getHomePath()
-					+ '/' + ARGEO_USER_PROFILE);
+					+ '/' + ARGEO_PROFILE);
 			for (String jcrProperty : propertyToAttributes.keySet())
 				jcrToLdap(userProfile, jcrProperty, ctx);
 			if (log.isDebugEnabled())
