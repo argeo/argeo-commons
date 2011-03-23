@@ -75,8 +75,11 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 
 		if (SecurityContextHolder.getContext().getAuthentication() == null) {
 			// authentication
-			systemExecutor.execute(action);
-			JcrUtils.logoutQuietly(session);
+			try {
+				systemExecutor.execute(action);
+			} finally {
+				JcrUtils.logoutQuietly(session);
+			}
 		} else {
 			// authenticated user
 			action.run();
@@ -120,7 +123,7 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 			if (log.isDebugEnabled())
 				log.debug("Mapped " + ctx.getDn() + " to " + userProfile);
 			return userHomePath;
-		} catch (RepositoryException e) {
+		} catch (Exception e) {
 			JcrUtils.discardQuietly(session);
 			throw new ArgeoException("Cannot synchronize JCR and LDAP", e);
 		} finally {

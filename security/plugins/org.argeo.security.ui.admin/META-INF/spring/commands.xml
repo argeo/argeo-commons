@@ -4,9 +4,10 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="openArgeoUserEditor" class="org.argeo.security.ui.admin.commands.OpenArgeoUserEditor"
+	<bean id="openArgeoUserEditor"
+		class="org.argeo.security.ui.admin.commands.OpenArgeoUserEditor"
 		scope="prototype" />
-	<bean id="newArgeoUserEditor" class="org.argeo.security.ui.admin.commands.OpenArgeoUserEditor"
+	<bean id="newArgeoUserEditor" class="org.argeo.security.ui.admin.commands.NewUser"
 		scope="prototype" />
 	<bean id="addRole" class="org.argeo.security.ui.admin.commands.AddRole"
 		scope="prototype">

@@ -4,6 +4,22 @@ import java.util.List;
 import java.util.Set;
 
 public interface UserAdminService {
+	/**
+	 * Usernames must match this regexp pattern ({@value #USERNAME_PATTERN}).
+	 * Thanks to <a href=
+	 * "http://www.mkyong.com/regular-expressions/how-to-validate-username-with-regular-expression/"
+	 * >this tip</a> (modified to remove '-')
+	 */
+	public final static String USERNAME_PATTERN = "^[a-z0-9_]{3,15}$";
+
+	/**
+	 * Email addresses must match this regexp pattern ({@value #EMAIL_PATTERN}.
+	 * Thanks to <a href=
+	 * "http://www.mkyong.com/regular-expressions/how-to-validate-email-address-with-regular-expression/"
+	 * >this tip</a>.
+	 */
+	public final static String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+
 	/*
 	 * USERS
 	 */

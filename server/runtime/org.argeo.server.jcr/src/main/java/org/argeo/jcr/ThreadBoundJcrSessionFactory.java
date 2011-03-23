@@ -74,7 +74,10 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 
 	/** Logs in to the repository using various strategies. */
 	protected Session login() {
-		// discard sesison previoussly attached to this thread
+		if (!isActive())
+			throw new ArgeoException("Thread bound session factory inactive");
+
+		// discard session previously attached to this thread
 		Thread thread = Thread.currentThread();
 		if (activeSessions.containsKey(thread.getId())) {
 			Session oldSession = activeSessions.remove(thread.getId());
@@ -129,6 +132,9 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 	}
 
 	public synchronized void destroy() throws Exception {
+		if (activeSessions.size() == 0)
+			return;
+
 		if (log.isDebugEnabled())
 			log.debug("Cleaning up " + activeSessions.size()
 					+ " active JCR sessions...");
@@ -138,7 +144,6 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 			sess.logout();
 		}
 		activeSessions.clear();
-		monitoringThread.join(1000);
 	}
 
 	protected Boolean isActive() {
@@ -148,6 +153,39 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 	protected synchronized void deactivate() {
 		active = false;
 		notifyAll();
+	}
+
+	protected synchronized void removeSession(Thread thread) {
+		if (!isActive())
+			return;
+		activeSessions.remove(thread.getId());
+		threads.remove(thread);
+	}
+
+	protected synchronized void cleanDeadThreads() {
+		if (!isActive())
+			return;
+		Iterator<Thread> it = threads.iterator();
+		while (it.hasNext()) {
+			Thread thread = it.next();
+			if (!thread.isAlive() && isActive()) {
+				if (activeSessions.containsKey(thread.getId())) {
+					Session session = activeSessions.get(thread.getId());
+					activeSessions.remove(thread.getId());
+					session.logout();
+					if (log.isDebugEnabled())
+						log.debug("Cleaned up JCR session (userID="
+								+ session.getUserID() + ") from dead thread "
+								+ thread.getId());
+				}
+				it.remove();
+			}
+		}
+		try {
+			wait(1000);
+		} catch (InterruptedException e) {
+			// silent
+		}
 	}
 
 	public Class<? extends Session> getObjectType() {
@@ -202,18 +240,13 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 
 			Object ret = method.invoke(threadSession, args);
 			if ("logout".equals(method.getName())) {
-				synchronized (ThreadBoundJcrSessionFactory.this) {
-					session.remove();
-					Thread thread = Thread.currentThread();
-					if (isActive()) {
-						activeSessions.remove(thread.getId());
-						threads.remove(thread);
-					}
-					if (log.isTraceEnabled())
-						log.trace("Logged out JCR session (userId="
-								+ threadSession.getUserID() + ") on thread "
-								+ thread.getId());
-				}
+				session.remove();
+				Thread thread = Thread.currentThread();
+				removeSession(thread);
+				if (log.isTraceEnabled())
+					log.trace("Logged out JCR session (userId="
+							+ threadSession.getUserID() + ") on thread "
+							+ thread.getId());
 			}
 			return ret;
 		}
@@ -225,32 +258,7 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 		@Override
 		public void run() {
 			while (isActive()) {
-				Iterator<Thread> it = threads.iterator();
-				while (it.hasNext()) {
-					Thread thread = it.next();
-					if (!thread.isAlive() && isActive()) {
-						if (activeSessions.containsKey(thread.getId())) {
-							Session session = activeSessions
-									.get(thread.getId());
-							activeSessions.remove(thread.getId());
-							session.logout();
-							if (log.isDebugEnabled())
-								log.debug("Cleaned up JCR session (userID="
-										+ session.getUserID()
-										+ ") from dead thread "
-										+ thread.getId());
-						}
-						it.remove();
-					}
-				}
-
-				synchronized (ThreadBoundJcrSessionFactory.this) {
-					try {
-						ThreadBoundJcrSessionFactory.this.wait(1000);
-					} catch (InterruptedException e) {
-						// silent
-					}
-				}
+				cleanDeadThreads();
 			}
 		}
 
