@@ -1,5 +1,9 @@
 package org.argeo.security.core;
 
+import java.security.AccessController;
+
+import javax.security.auth.Subject;
+
 import org.argeo.ArgeoException;
 import org.argeo.security.SystemExecutionService;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
@@ -39,12 +43,21 @@ public class KeyBasedSystemExecutionService implements SystemExecutionService,
 						.getContext();
 				Authentication currentAuth = securityContext
 						.getAuthentication();
-				if (currentAuth != null) {
+				if (currentAuth != null)
 					throw new ArgeoException(
 							"System execution on an already authenticated thread: "
 									+ currentAuth + ", THREAD="
 									+ Thread.currentThread().getId());
-				}
+
+				Subject subject = Subject.getSubject(AccessController
+						.getContext());
+				if (subject != null
+						&& !subject.getPrincipals(Authentication.class)
+								.isEmpty())
+					throw new ArgeoException(
+							"There is already an authenticated subject: "
+									+ subject);
+
 				Authentication auth = authenticationManager
 						.authenticate(new InternalAuthentication(
 								systemAuthenticationKey));

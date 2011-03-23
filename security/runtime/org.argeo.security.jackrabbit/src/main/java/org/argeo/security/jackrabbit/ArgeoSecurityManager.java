@@ -6,20 +6,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.jcr.AccessDeniedException;
 import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.UnsupportedRepositoryOperationException;
-import javax.jcr.lock.LockException;
-import javax.jcr.security.AccessControlException;
 import javax.jcr.security.AccessControlList;
 import javax.jcr.security.AccessControlManager;
 import javax.jcr.security.AccessControlPolicy;
 import javax.jcr.security.AccessControlPolicyIterator;
 import javax.jcr.security.Privilege;
-import javax.jcr.version.VersionException;
 import javax.security.auth.Subject;
 
 import org.apache.commons.logging.Log;

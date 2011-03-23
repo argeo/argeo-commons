@@ -37,12 +37,21 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 	}
 
 	protected Set<Principal> getPrincipals() {
+		// clear already registered Jackrabbit principals
+		clearPrincipals(AdminPrincipal.class);
+		clearPrincipals(AnonymousPrincipal.class);
+		clearPrincipals(GrantedAuthorityPrincipal.class);
+
+		return syncPrincipals();
+	}
+
+	protected Set<Principal> syncPrincipals() {
 		// use linked HashSet instead of HashSet in order to maintain the order
 		// of principals (as in the Subject).
-		Set<Principal> principals = new LinkedHashSet<Principal>();
-		principals.add(principal);
-
 		org.springframework.security.Authentication authen = (org.springframework.security.Authentication) principal;
+
+		Set<Principal> principals = new LinkedHashSet<Principal>();
+		principals.add(authen);
 
 		if (authen instanceof SystemAuthentication)
 			principals.add(new AdminPrincipal(authen.getName()));
@@ -56,6 +65,11 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 					principals.add(new AdminPrincipal(authen.getName()));
 			}
 
+		// remove previous credentials
+		Set<SimpleCredentials> thisCredentials = subject
+				.getPublicCredentials(SimpleCredentials.class);
+		if (thisCredentials != null)
+			thisCredentials.clear();
 		// override credentials since we did not used the one passed to us
 		credentials = new SimpleCredentials(authen.getName(), authen
 				.getCredentials().toString().toCharArray());
@@ -73,10 +87,12 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 		clearPrincipals(AdminPrincipal.class);
 		clearPrincipals(AnonymousPrincipal.class);
 		clearPrincipals(GrantedAuthorityPrincipal.class);
-		Set<SimpleCredentials> thisCredentials = subject
-				.getPublicCredentials(SimpleCredentials.class);
-		if (thisCredentials != null)
-			thisCredentials.clear();
+
+		// we resync with Spring Security since the subject may have been reused
+		// in beetween
+		// TODO: check if this is clean
+		subject.getPrincipals().addAll(syncPrincipals());
+
 		return true;
 	}
 

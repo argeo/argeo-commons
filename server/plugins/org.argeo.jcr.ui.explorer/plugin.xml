@@ -101,4 +101,25 @@
      </command>
   </menuContribution>
 	</extension>
+  <extension
+           point="org.eclipse.ui.activities">
+        <activity
+              description="Only for admins"
+              id="org.argeo.jcr.ui.explorer.adminActivity"
+              name="Admin">
+		  <enabledWhen>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="ROLE_ADMIN" />
+		      </iterate>
+		    </with>
+		  </enabledWhen>
+        </activity>
+        <!-- TODO: find a way to exclude evrything -->
+        <activityPatternBinding
+              activityId="org.argeo.jcr.ui.explorer.adminActivity"
+              isEqualityPattern="true"
+              pattern="org.argeo.jcr.ui.explorer/org.argeo.jcr.ui.explorer.perspective">
+        </activityPatternBinding>
+     </extension>
 </plugin>

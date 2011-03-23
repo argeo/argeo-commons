@@ -17,4 +17,16 @@ class GrantedAuthorityPrincipal implements Principal {
 		return grantedAuthority.getAuthority();
 	}
 
+	@Override
+	public int hashCode() {
+		return getName().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof GrantedAuthorityPrincipal))
+			return false;
+		return getName().equals(((GrantedAuthorityPrincipal) obj).getName());
+	}
+
 }
