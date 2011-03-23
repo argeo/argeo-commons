@@ -10,7 +10,7 @@ import javax.security.auth.callback.PasswordCallback;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.TitleAreaDialog;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.operation.ModalContext;
 import org.eclipse.swt.events.SelectionEvent;
@@ -19,7 +19,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-public abstract class AbstractLoginDialog extends TitleAreaDialog implements
+public abstract class AbstractLoginDialog extends TrayDialog implements
 		CallbackHandler {
 
 	boolean processCallbacks = false;

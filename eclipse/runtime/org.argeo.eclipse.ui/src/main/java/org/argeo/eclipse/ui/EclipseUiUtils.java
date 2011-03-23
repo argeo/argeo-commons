@@ -28,7 +28,19 @@ public class EclipseUiUtils {
 		lbl.setText(label);
 		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		Text txt = new Text(parent, SWT.LEAD | SWT.BORDER);
-		txt.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+		txt.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		if (txt != null)
+			txt.addModifyListener(modifyListener);
+		return txt;
+	}
+
+	public static Text createGridLP(Composite parent, String label,
+			ModifyListener modifyListener) {
+		Label lbl = new Label(parent, SWT.LEAD);
+		lbl.setText(label);
+		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+		Text txt = new Text(parent, SWT.LEAD | SWT.BORDER | SWT.PASSWORD);
+		txt.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		if (txt != null)
 			txt.addModifyListener(modifyListener);
 		return txt;

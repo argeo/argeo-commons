@@ -30,7 +30,7 @@ public class RapSecureWorkbenchWindowAdvisor extends
 		// Full screen, see
 		// http://dev.eclipse.org/newslists/news.eclipse.technology.rap/msg02697.html
 		configurer.setShellStyle(SWT.NONE);
-		Rectangle bounds = Display.getDefault().getBounds();
+		Rectangle bounds = Display.getCurrent().getBounds();
 		configurer.setInitialSize(new Point(bounds.width, bounds.height));
 	}
 

@@ -69,7 +69,8 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 		NameCallback nameCallback = new NameCallback("User");
 		PasswordCallback passwordCallback = new PasswordCallback("Password",
 				false);
-		NameCallback urlCallback = new NameCallback("Site URL");
+
+		// NameCallback urlCallback = new NameCallback("Site URL");
 
 		if (callbackHandler == null) {
 			throw new LoginException("No call back handler available");
@@ -77,7 +78,7 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 		}
 		try {
 			callbackHandler.handle(new Callback[] { label, nameCallback,
-					passwordCallback, urlCallback });
+					passwordCallback });
 		} catch (Exception e) {
 			LoginException le = new LoginException("Callback handling failed");
 			le.initCause(e);
@@ -90,15 +91,13 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 		if (passwordCallback.getPassword() != null) {
 			password = String.valueOf(passwordCallback.getPassword());
 		}
-		String url = urlCallback.getName();
+
+		// String url = urlCallback.getName();
 		// TODO: set it via system properties
 		String workspace = null;
 
-		// UsernamePasswordAuthenticationToken credentials = new
-		// UsernamePasswordAuthenticationToken(
-		// username, password);
 		SiteAuthenticationToken credentials = new SiteAuthenticationToken(
-				username, password, url, workspace);
+				username, password, null, workspace);
 
 		try {
 			Authentication authentication = authenticationManager

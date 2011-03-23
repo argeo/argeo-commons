@@ -8,9 +8,6 @@ import javax.security.auth.login.LoginException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.eclipse.ui.dialogs.Error;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.rwt.lifecycle.IEntryPoint;
 import org.eclipse.rwt.service.SessionStoreEvent;
 import org.eclipse.rwt.service.SessionStoreListener;
@@ -50,16 +47,6 @@ public class SecureEntryPoint implements IEntryPoint, SessionStoreListener {
 				}
 			}
 
-			if (subject == null) {
-				// IStatus status = new Status(IStatus.ERROR,
-				// "org.argeo.security.application", "Login is mandatory",
-				// loginException);
-				// ErrorDialog.openError(null, "Error", "Shutdown...", status);
-				// return status.getSeverity();
-
-				// TODO: log as anonymous
-			}
-
 			if (subject != null) {
 				returnCode = (Integer) Subject.doAs(subject,
 						getRunAction(display));
@@ -69,20 +56,17 @@ public class SecureEntryPoint implements IEntryPoint, SessionStoreListener {
 				return -1;
 			}
 		} catch (Exception e) {
-			// e.printStackTrace();
-			IStatus status = new Status(IStatus.ERROR,
-					"org.argeo.security.rcp", "Login failed", e);
-			ErrorDialog.openError(null, "Error", "Shutdown...", status);
-			return returnCode;
-		} finally {
-			display.dispose();
-		}
+			log.error("Unexpected error",e);
+			return -1;
+		} 
+//		finally {
+//			display.dispose();
+//		}
 	}
 
 	@SuppressWarnings("rawtypes")
 	private PrivilegedAction getRunAction(final Display display) {
 		return new PrivilegedAction() {
-
 			public Object run() {
 				int result = createAndRunWorkbench(display);
 				return new Integer(result);

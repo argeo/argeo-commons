@@ -1,19 +1,25 @@
 package org.argeo.security.ui.admin.wizards;
 
+import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.RepositoryException;
+
+import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
+import org.argeo.jcr.ArgeoNames;
 import org.argeo.security.UserAdminService;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
 public class MainUserInfoWizardPage extends WizardPage implements
-		ModifyListener {
-	private Text username, firstName, lastName, primaryEmail;
+		ModifyListener, ArgeoNames {
+	private Text username, firstName, lastName, primaryEmail, password1,
+			password2;
 
 	public MainUserInfoWizardPage() {
 		super("Main");
@@ -22,13 +28,15 @@ public class MainUserInfoWizardPage extends WizardPage implements
 
 	@Override
 	public void createControl(Composite parent) {
-		parent.setLayout(new FillLayout());
 		Composite composite = new Composite(parent, SWT.NONE);
 		composite.setLayout(new GridLayout(2, false));
 		username = EclipseUiUtils.createGridLT(composite, "Username", this);
 		primaryEmail = EclipseUiUtils.createGridLT(composite, "Email", this);
 		firstName = EclipseUiUtils.createGridLT(composite, "First name", this);
 		lastName = EclipseUiUtils.createGridLT(composite, "Last name", this);
+		password1 = EclipseUiUtils.createGridLP(composite, "Password", this);
+		password2 = EclipseUiUtils.createGridLP(composite, "Repeat password",
+				this);
 		setControl(composite);
 	}
 
@@ -53,19 +61,36 @@ public class MainUserInfoWizardPage extends WizardPage implements
 			return "Specify a first name";
 		if (lastName.getText().trim().equals(""))
 			return "Specify a last name";
+		if (password1.getText().trim().equals(""))
+			return "Specify a password";
+		if (password2.getText().trim().equals(""))
+			return "Repeat the password";
+		if (!password2.getText().equals(password1.getText()))
+			return "Passwords are different";
 		return null;
 	}
 
-	@Override
-	public boolean canFlipToNextPage() {
-		// TODO Auto-generated method stub
-		return super.canFlipToNextPage();
+	public String getUsername() {
+		return username.getText();
 	}
 
-	@Override
-	public boolean isPageComplete() {
-		// TODO Auto-generated method stub
-		return super.isPageComplete();
+	public String getPassword() {
+		return password1.getText();
 	}
 
+	public void mapToProfileNode(Node up) {
+		try {
+			up.setProperty(ARGEO_PRIMARY_EMAIL, primaryEmail.getText());
+			up.setProperty(ARGEO_FIRST_NAME, firstName.getText());
+			up.setProperty(ARGEO_LAST_NAME, lastName.getText());
+
+			// derived values
+			// TODO add wizard pages to do it
+			up.setProperty(Property.JCR_TITLE, firstName.getText() + " "
+					+ lastName.getText());
+			up.setProperty(Property.JCR_DESCRIPTION, "");
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot map to " + up, e);
+		}
+	}
 }

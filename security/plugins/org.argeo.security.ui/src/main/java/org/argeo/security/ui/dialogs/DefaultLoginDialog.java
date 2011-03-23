@@ -22,7 +22,7 @@ import org.eclipse.swt.widgets.Text;
 public class DefaultLoginDialog extends AbstractLoginDialog {
 
 	public DefaultLoginDialog() {
-		this(Display.getDefault().getActiveShell());
+		this(Display.getCurrent().getActiveShell());
 	}
 
 	protected DefaultLoginDialog(Shell parentShell) {
@@ -30,7 +30,7 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 	}
 
 	protected Point getInitialSize() {
-		return new Point(300, 350);
+		return new Point(300, 150);
 	}
 
 	protected Control createDialogArea(Composite parent) {
@@ -106,7 +106,7 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 			dialogMessageType = IMessageProvider.ERROR;
 			break;
 		}
-		setMessage(callback.getMessage(), dialogMessageType);
+		//setMessage(callback.getMessage(), dialogMessageType);
 	}
 
 	public void internalHandle() {

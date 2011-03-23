@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-/** !Generic error dialog to be used in try/catch blocks*/
+/** !Generic error dialog to be used in try/catch blocks */
 public class Error extends TitleAreaDialog {
 	private final static Log log = LogFactory.getLog(Error.class);
 
@@ -25,11 +25,11 @@ public class Error extends TitleAreaDialog {
 	private final Throwable exception;
 
 	public static void show(String message, Throwable e) {
-		new Error(Display.getDefault().getActiveShell(), message, e).open();
+		new Error(Display.getCurrent().getActiveShell(), message, e).open();
 	}
 
 	public static void show(String message) {
-		new Error(Display.getDefault().getActiveShell(), message, null).open();
+		new Error(Display.getCurrent().getActiveShell(), message, null).open();
 	}
 
 	public Error(Shell parentShell, String message, Throwable e) {
@@ -60,8 +60,8 @@ public class Error extends TitleAreaDialog {
 				IMessageProvider.ERROR);
 
 		if (exception != null) {
-			Text stack = new Text(composite, SWT.MULTI  | SWT.LEAD
-					| SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+			Text stack = new Text(composite, SWT.MULTI | SWT.LEAD | SWT.BORDER
+					| SWT.V_SCROLL | SWT.H_SCROLL);
 			stack.setEditable(false);
 			stack.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 			StringWriter sw = new StringWriter();

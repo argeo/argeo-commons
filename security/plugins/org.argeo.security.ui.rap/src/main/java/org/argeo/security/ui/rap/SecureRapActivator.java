@@ -10,6 +10,7 @@ import org.osgi.framework.BundleContext;
 
 public class SecureRapActivator implements BundleActivator {
 
+	public final static String ID = "org.argeo.security.ui.rap";
 	public final static String CONTEXT_SPRING = "SPRING";
 	private static final String JAAS_CONFIG_FILE = "/META-INF/jaas_default.txt";
 

@@ -13,8 +13,9 @@
 		</property>
 	</bean>
 
-	<bean id="passwordEncoder"
-		class="org.springframework.security.providers.ldap.authenticator.LdapShaPasswordEncoder" />
+	<bean id="passwordEncoder" class="org.argeo.security.ldap.ArgeoLdapShaPasswordEncoder">
+		<property name="useSalt" value="${argeo.ldap.password.useSalt}" />
+	</bean>
 
 	<bean id="contextSource"
 		class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">

@@ -7,12 +7,18 @@
 	<bean id="openArgeoUserEditor"
 		class="org.argeo.security.ui.admin.commands.OpenArgeoUserEditor"
 		scope="prototype" />
+
 	<bean id="newArgeoUserEditor" class="org.argeo.security.ui.admin.commands.NewUser"
-		scope="prototype" />
+		scope="prototype">
+		<property name="session" ref="nodeSession" />
+		<property name="userDetailsManager" ref="userDetailsManager" />
+	</bean>
+
 	<bean id="addRole" class="org.argeo.security.ui.admin.commands.AddRole"
 		scope="prototype">
 		<property name="userAdminService" ref="userAdminService" />
 	</bean>
+
 	<bean id="refreshUsersList" class="org.argeo.security.ui.admin.commands.RefreshUsersList"
 		scope="prototype" />
 </beans>
