@@ -5,7 +5,6 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.TextOutputCallback;
 
-import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -30,13 +29,11 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 	}
 
 	protected Point getInitialSize() {
-		return new Point(300, 150);
+		return new Point(300, 180);
 	}
 
 	protected Control createDialogArea(Composite parent) {
 		Composite dialogarea = (Composite) super.createDialogArea(parent);
-		// dialogarea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-		// true));
 		Composite composite = new Composite(dialogarea, SWT.NONE);
 		composite.setLayout(new GridLayout(2, false));
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
@@ -93,20 +90,21 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 
 	private void createTextoutputHandler(Composite composite,
 			TextOutputCallback callback) {
-		int messageType = callback.getMessageType();
-		int dialogMessageType = IMessageProvider.NONE;
-		switch (messageType) {
-		case TextOutputCallback.INFORMATION:
-			dialogMessageType = IMessageProvider.INFORMATION;
-			break;
-		case TextOutputCallback.WARNING:
-			dialogMessageType = IMessageProvider.WARNING;
-			break;
-		case TextOutputCallback.ERROR:
-			dialogMessageType = IMessageProvider.ERROR;
-			break;
-		}
-		//setMessage(callback.getMessage(), dialogMessageType);
+		// TODO: find a way to pass this information
+		// int messageType = callback.getMessageType();
+		// int dialogMessageType = IMessageProvider.NONE;
+		// switch (messageType) {
+		// case TextOutputCallback.INFORMATION:
+		// dialogMessageType = IMessageProvider.INFORMATION;
+		// break;
+		// case TextOutputCallback.WARNING:
+		// dialogMessageType = IMessageProvider.WARNING;
+		// break;
+		// case TextOutputCallback.ERROR:
+		// dialogMessageType = IMessageProvider.ERROR;
+		// break;
+		// }
+		// setMessage(callback.getMessage(), dialogMessageType);
 	}
 
 	public void internalHandle() {

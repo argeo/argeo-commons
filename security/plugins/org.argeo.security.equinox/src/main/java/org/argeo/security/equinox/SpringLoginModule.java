@@ -113,13 +113,11 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 			loginException.initCause(e);
 			throw loginException;
 		}
-		// }
 	}
 
 	@Override
 	public boolean logout() throws LoginException {
-		// if (log.isDebugEnabled())
-		// log.debug("logout subject=" + subject);
+		subject.getPrincipals().clear();
 		return super.logout();
 	}
 

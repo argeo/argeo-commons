@@ -91,7 +91,7 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 		// we resync with Spring Security since the subject may have been reused
 		// in beetween
 		// TODO: check if this is clean
-		subject.getPrincipals().addAll(syncPrincipals());
+		//subject.getPrincipals().addAll(syncPrincipals());
 
 		return true;
 	}

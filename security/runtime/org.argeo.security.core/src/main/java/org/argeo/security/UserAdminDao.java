@@ -22,24 +22,12 @@ import java.util.Set;
  * Access to the users and roles referential (dependent from the underlying
  * storage, e.g. LDAP).
  */
-public interface UserAdminDao{
+public interface UserAdminDao {
 	/** List all users */
-	public Set<ArgeoUser> listUsers();
+	public Set<String> listUsers();
 
 	/** List roles that can be modified */
 	public Set<String> listEditableRoles();
-
-	public void updateUser(ArgeoUser user);
-
-	public void updateUserPassword(String username, String password);
-	
-	/**
-	 * Creates a new user in the underlying storage. <b>DO NOT CALL DIRECTLY</b>
-	 * use {@link ArgeoSecurityService#newUser(ArgeoUser)} instead.
-	 */
-	public void createUser(ArgeoUser user);
-
-	public void deleteUser(String username);
 
 	/**
 	 * Creates a new role in the underlying storage. <b>DO NOT CALL DIRECTLY</b>
@@ -50,11 +38,6 @@ public interface UserAdminDao{
 	public void deleteRole(String role);
 
 	/** List all users having this role. */
-	public Set<ArgeoUser> listUsersInRole(String role);
+	public Set<String> listUsersInRole(String role);
 
-	public Boolean userExists(String username);
-
-	public ArgeoUser getUser(String username);
-
-	public ArgeoUser getUserWithPassword(String username);
 }

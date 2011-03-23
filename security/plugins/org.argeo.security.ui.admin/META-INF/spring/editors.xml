@@ -8,6 +8,6 @@
 	<bean id="adminArgeoUserEditor" class="org.argeo.security.ui.admin.editors.ArgeoUserEditor"
 		scope="prototype">
 		<property name="userAdminService" ref="userAdminService" />
-		<property name="userDetailsManager" ref="userDetailsManager" />
+		<property name="session" ref="session" />
 	</bean>
 </beans>

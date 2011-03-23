@@ -6,35 +6,39 @@ import javax.jcr.Session;
 import org.argeo.eclipse.ui.dialogs.Error;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.security.UserAdminService;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.eclipse.jface.wizard.Wizard;
 import org.springframework.security.GrantedAuthority;
-import org.springframework.security.userdetails.UserDetailsManager;
 
 /** Wizard to create a new user */
 public class NewUserWizard extends Wizard {
 	private String homeBasePath = "/home";
 	private Session session;
-	private UserDetailsManager userDetailsManager;
+	private UserAdminService userAdminService;
 
 	// pages
 	private MainUserInfoWizardPage mainUserInfo;
 
-	public NewUserWizard(Session session, UserDetailsManager userDetailsManager) {
+	public NewUserWizard(Session session, UserAdminService userAdminService) {
 		this.session = session;
-		this.userDetailsManager = userDetailsManager;
+		this.userAdminService = userAdminService;
 	}
 
 	@Override
 	public void addPages() {
-		mainUserInfo = new MainUserInfoWizardPage();
+		mainUserInfo = new MainUserInfoWizardPage(userAdminService);
 		addPage(mainUserInfo);
 	}
 
 	@Override
 	public boolean performFinish() {
+		if (!canFinish())
+			return false;
+
 		try {
 			String username = mainUserInfo.getUsername();
+			session.save();
 			Node userHome = JcrUtils.createUserHome(session, homeBasePath,
 					username);
 			Node userProfile = userHome.getNode(ArgeoNames.ARGEO_PROFILE);
@@ -44,7 +48,7 @@ public class NewUserWizard extends Wizard {
 					userHome.getPath(), username, password, true, true, true,
 					true, new GrantedAuthority[0]);
 			session.save();
-			userDetailsManager.createUser(jcrUserDetails);
+			userAdminService.createUser(jcrUserDetails);
 			return true;
 		} catch (Exception e) {
 			JcrUtils.discardQuietly(session);

@@ -16,13 +16,8 @@
 
 package org.argeo.security.ldap;
 
-import static org.argeo.security.core.ArgeoUserDetails.createSimpleArgeoUser;
-
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -30,31 +25,21 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 
-import org.argeo.ArgeoException;
-import org.argeo.security.ArgeoUser;
-import org.argeo.security.CurrentUserDao;
-import org.argeo.security.SimpleArgeoUser;
 import org.argeo.security.UserAdminDao;
-import org.argeo.security.core.ArgeoUserDetails;
 import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
-import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.ldap.LdapUsernameToDnMapper;
 import org.springframework.security.ldap.LdapUtils;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.encoding.PasswordEncoder;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsManager;
 
 /**
  * Wraps a Spring LDAP user details manager, providing additional methods to
  * manage roles.
  */
-public class ArgeoSecurityDaoLdap implements CurrentUserDao, UserAdminDao {
+public class ArgeoSecurityDaoLdap implements UserAdminDao {
 	private String userBase;
 	private String usernameAttribute;
 	private String groupBase;
@@ -66,63 +51,18 @@ public class ArgeoSecurityDaoLdap implements CurrentUserDao, UserAdminDao {
 	private String rolePrefix;
 
 	private final LdapTemplate ldapTemplate;
-	private final Random random;
-
 	private LdapUsernameToDnMapper usernameMapper;
-	private UserDetailsManager userDetailsManager;
-
-	private PasswordEncoder passwordEncoder;
 
 	/**
 	 * Standard constructor, using the LDAP context source shared with Spring
 	 * Security components.
 	 */
 	public ArgeoSecurityDaoLdap(BaseLdapPathContextSource contextSource) {
-		this(new LdapTemplate(contextSource), createRandom());
-	}
-
-	/**
-	 * Advanced constructor allowing to reuse an LDAP template and to explicitly
-	 * set the random used as seed for SSHA password generation.
-	 */
-	public ArgeoSecurityDaoLdap(LdapTemplate ldapTemplate, Random random) {
-		this.ldapTemplate = ldapTemplate;
-		this.random = random;
-	}
-
-	private static Random createRandom() {
-		try {
-			return SecureRandom.getInstance("SHA1PRNG");
-		} catch (NoSuchAlgorithmException e) {
-			return new Random(System.currentTimeMillis());
-		}
-	}
-
-	public synchronized void createUser(ArgeoUser user) {
-		// normalize password
-		if (user instanceof SimpleArgeoUser) {
-			if (user.getPassword() == null || user.getPassword().equals(""))
-				((SimpleArgeoUser) user).setPassword(encodePassword(user
-						.getUsername()));
-			else if (!user.getPassword().startsWith("{"))
-				((SimpleArgeoUser) user).setPassword(encodePassword(user
-						.getPassword()));
-		}
-		userDetailsManager.createUser(new ArgeoUserDetails(user));
-	}
-
-	public synchronized ArgeoUser getUser(String uname) {
-		SimpleArgeoUser user = createSimpleArgeoUser(getDetails(uname));
-		user.setPassword(null);
-		return user;
-	}
-
-	public synchronized ArgeoUser getUserWithPassword(String uname) {
-		return createSimpleArgeoUser(getDetails(uname));
+		this.ldapTemplate = new LdapTemplate(contextSource);
 	}
 
 	@SuppressWarnings("unchecked")
-	public synchronized Set<ArgeoUser> listUsers() {
+	public synchronized Set<String> listUsers() {
 		List<String> usernames = (List<String>) ldapTemplate.listBindings(
 				new DistinguishedName(userBase), new ContextMapper() {
 					public Object mapFromContext(Object ctxArg) {
@@ -131,11 +71,8 @@ public class ArgeoSecurityDaoLdap implements CurrentUserDao, UserAdminDao {
 					}
 				});
 
-		TreeSet<ArgeoUser> lst = new TreeSet<ArgeoUser>();
-		for (String username : usernames) {
-			lst.add(createSimpleArgeoUser(getDetails(username)));
-		}
-		return Collections.unmodifiableSortedSet(lst);
+		return Collections
+				.unmodifiableSortedSet(new TreeSet<String>(usernames));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -152,74 +89,22 @@ public class ArgeoSecurityDaoLdap implements CurrentUserDao, UserAdminDao {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Set<ArgeoUser> listUsersInRole(String role) {
-		return (Set<ArgeoUser>) ldapTemplate.lookup(
+	public Set<String> listUsersInRole(String role) {
+		return (Set<String>) ldapTemplate.lookup(
 				buildGroupDn(convertRoleToGroup(role)), new ContextMapper() {
 					public Object mapFromContext(Object ctxArg) {
 						DirContextAdapter ctx = (DirContextAdapter) ctxArg;
 						String[] userDns = ctx
 								.getStringAttributes(groupMemberAttribute);
-						TreeSet<ArgeoUser> set = new TreeSet<ArgeoUser>();
+						TreeSet<String> set = new TreeSet<String>();
 						for (String userDn : userDns) {
 							DistinguishedName dn = new DistinguishedName(userDn);
 							String username = dn.getValue(usernameAttribute);
-							set.add(createSimpleArgeoUser(getDetails(username)));
+							set.add(username);
 						}
 						return Collections.unmodifiableSortedSet(set);
 					}
 				});
-	}
-
-	public synchronized void updateUser(ArgeoUser user) {
-		// normalize password
-		String password = user.getPassword();
-		if (password == null)
-			password = getUserWithPassword(user.getUsername()).getPassword();
-		if (!password.startsWith("{"))
-			password = encodePassword(user.getPassword());
-		SimpleArgeoUser simpleArgeoUser = new SimpleArgeoUser(user);
-		simpleArgeoUser.setPassword(password);
-
-		ArgeoUserDetails argeoUserDetails = new ArgeoUserDetails(user);
-		userDetailsManager.updateUser(new ArgeoUserDetails(user));
-		// refresh logged in user
-		if (ArgeoUserDetails.securityContextUser().getUsername()
-				.equals(argeoUserDetails.getUsername())) {
-			SecurityContextHolder.getContext().setAuthentication(
-					new UsernamePasswordAuthenticationToken(argeoUserDetails,
-							null, argeoUserDetails.getAuthorities()));
-		}
-	}
-
-	public void updateCurrentUserPassword(String oldPassword, String newPassword) {
-		SimpleArgeoUser user = new SimpleArgeoUser(
-				ArgeoUserDetails.securityContextUser());
-		if (!passwordEncoder.isPasswordValid(user.getPassword(), oldPassword,
-				null))
-			throw new ArgeoException("Old password is not correct.");
-		user.setPassword(encodePassword(newPassword));
-		updateUser(user);
-		//userDetailsManager.changePassword(oldPassword, newPassword);
-	}
-
-	public void updateUserPassword(String username, String password) {
-		SimpleArgeoUser user = new SimpleArgeoUser(getUser(username));
-		user.setPassword(encodePassword(password));
-		updateUser(user);
-	}
-
-	protected String encodePassword(String password) {
-		byte[] salt = new byte[16];
-		random.nextBytes(salt);
-		return passwordEncoder.encodePassword(password, salt);
-	}
-
-	public synchronized void deleteUser(String username) {
-		userDetailsManager.deleteUser(username);
-	}
-
-	public synchronized Boolean userExists(String username) {
-		return userDetailsManager.userExists(username);
 	}
 
 	public void createRole(String role, final String superuserName) {
@@ -270,20 +155,12 @@ public class ArgeoSecurityDaoLdap implements CurrentUserDao, UserAdminDao {
 				+ groupBase);
 	}
 
-	public void setUserDetailsManager(UserDetailsManager userDetailsManager) {
-		this.userDetailsManager = userDetailsManager;
-	}
-
 	public void setUserBase(String userBase) {
 		this.userBase = userBase;
 	}
 
 	public void setUsernameAttribute(String usernameAttribute) {
 		this.usernameAttribute = usernameAttribute;
-	}
-
-	protected UserDetails getDetails(String username) {
-		return userDetailsManager.loadUserByUsername(username);
 	}
 
 	public void setGroupBase(String groupBase) {
@@ -317,9 +194,4 @@ public class ArgeoSecurityDaoLdap implements CurrentUserDao, UserAdminDao {
 	public void setGroupClasses(String[] groupClasses) {
 		this.groupClasses = groupClasses;
 	}
-
-	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-		this.passwordEncoder = passwordEncoder;
-	}
-
 }

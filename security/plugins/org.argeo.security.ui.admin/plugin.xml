@@ -50,8 +50,8 @@
       </command>
       <command
             defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            id="org.argeo.security.ui.admin.newArgeoUserEditor"
-            name="OpenArgeoUserEditor">
+            id="org.argeo.security.ui.admin.newUser"
+            name="New User">
       </command>
       <command
             defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
@@ -78,7 +78,7 @@
       	<menuContribution
             locationURI="toolbar:org.argeo.security.ui.admin.adminUsersView">
             <command
-                  commandId="org.argeo.security.ui.admin.newArgeoUserEditor"
+                  commandId="org.argeo.security.ui.admin.newUser"
                   icon="icons/add.gif"
                   label="Add User"
                   tooltip="Add new user">

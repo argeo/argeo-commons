@@ -3,11 +3,6 @@ package org.argeo.security.jcr;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-
-import org.argeo.ArgeoException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.userdetails.User;
@@ -27,44 +22,6 @@ public class JcrUserDetails extends User {
 
 	public String getHomePath() {
 		return homePath;
-	}
-
-	public static JcrUserDetails argeoUserToJcrUserDetails(
-			JcrArgeoUser argeoUser) {
-		try {
-			List<GrantedAuthority> gas = new ArrayList<GrantedAuthority>();
-			for (String role : argeoUser.getRoles())
-				gas.add(new GrantedAuthorityImpl(role));
-			return new JcrUserDetails(argeoUser.getHome().getPath(),
-					argeoUser.getUsername(), argeoUser.getPassword(),
-					argeoUser.getEnabled(), true, true, true,
-					gas.toArray(new GrantedAuthority[gas.size()]));
-		} catch (Exception e) {
-			throw new ArgeoException("Cannot convert " + argeoUser
-					+ " to JCR user details", e);
-		}
-	}
-
-	public static JcrArgeoUser jcrUserDetailsToArgeoUser(Session userSession,
-			JcrUserDetails jcrUserDetails) {
-		if (!userSession.getUserID().equals(jcrUserDetails.getUsername()))
-			throw new ArgeoException("User session has user id "
-					+ userSession.getUserID() + " while details has username "
-					+ jcrUserDetails.getUsername());
-
-		Node userHome;
-		try {
-			userHome = userSession.getNode(jcrUserDetails.getHomePath());
-		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot retrieve user home with path "
-					+ jcrUserDetails.getHomePath(), e);
-		}
-		List<String> roles = new ArrayList<String>();
-		for (GrantedAuthority ga : jcrUserDetails.getAuthorities())
-			roles.add(ga.getAuthority());
-		return new JcrArgeoUser(userHome, jcrUserDetails.getPassword(), roles,
-				jcrUserDetails.isEnabled());
-
 	}
 
 	public JcrUserDetails cloneWithNewRoles(List<String> roles) {

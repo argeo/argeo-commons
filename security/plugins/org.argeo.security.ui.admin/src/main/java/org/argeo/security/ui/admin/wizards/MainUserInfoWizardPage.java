@@ -15,14 +15,18 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.UsernameNotFoundException;
 
 public class MainUserInfoWizardPage extends WizardPage implements
 		ModifyListener, ArgeoNames {
 	private Text username, firstName, lastName, primaryEmail, password1,
 			password2;
+	private UserAdminService userAdminService;
 
-	public MainUserInfoWizardPage() {
+	public MainUserInfoWizardPage(UserAdminService userAdminService) {
 		super("Main");
+		this.userAdminService = userAdminService;
 		setTitle("Required Information");
 	}
 
@@ -55,6 +59,13 @@ public class MainUserInfoWizardPage extends WizardPage implements
 	protected String checkComplete() {
 		if (!username.getText().matches(UserAdminService.USERNAME_PATTERN))
 			return "Wrong user name format, should be lower case, between 3 and 15 characters with only '_' as acceptable special character.";
+		try {
+			UserDetails userDetails = userAdminService
+					.loadUserByUsername(username.getText());
+			return "User " + userDetails.getUsername() + " alreayd exists";
+		} catch (UsernameNotFoundException e) {
+			// silent
+		}
 		if (!primaryEmail.getText().matches(UserAdminService.EMAIL_PATTERN))
 			return "Not a valid email address";
 		if (firstName.getText().trim().equals(""))

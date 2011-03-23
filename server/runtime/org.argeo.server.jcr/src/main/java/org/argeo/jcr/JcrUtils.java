@@ -663,10 +663,10 @@ public class JcrUtils implements ArgeoJcrConstants {
 	 *            the session to use in order to perform the search, this can be
 	 *            a session with a different user ID than the one searched,
 	 *            typically when a system or admin session is used.
-	 * @param userID
-	 *            the id of the user
+	 * @param username
+	 *            the username of the user
 	 */
-	public static Node getUserHome(Session session, String userID) {
+	public static Node getUserHome(Session session, String username) {
 		try {
 			QueryObjectModelFactory qomf = session.getWorkspace()
 					.getQueryManager().getQOMFactory();
@@ -677,18 +677,18 @@ public class JcrUtils implements ArgeoJcrConstants {
 			DynamicOperand userIdDop = qomf.propertyValue("userHome",
 					ArgeoNames.ARGEO_USER_ID);
 			StaticOperand userIdSop = qomf.literal(session.getValueFactory()
-					.createValue(userID));
+					.createValue(username));
 			Constraint constraint = qomf.comparison(userIdDop,
 					QueryObjectModelFactory.JCR_OPERATOR_EQUAL_TO, userIdSop);
 			Query query = qomf.createQuery(userHomeSel, constraint, null, null);
 			Node userHome = JcrUtils.querySingleNode(query);
 			return userHome;
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot find home for user " + userID, e);
+			throw new ArgeoException("Cannot find home for user " + username, e);
 		}
 	}
 
-	public static Node getUserProfile(Session session, String userID) {
+	public static Node getUserProfile(Session session, String username) {
 		try {
 			QueryObjectModelFactory qomf = session.getWorkspace()
 					.getQueryManager().getQOMFactory();
@@ -697,21 +697,23 @@ public class JcrUtils implements ArgeoJcrConstants {
 			DynamicOperand userIdDop = qomf.propertyValue("userProfile",
 					ArgeoNames.ARGEO_USER_ID);
 			StaticOperand userIdSop = qomf.literal(session.getValueFactory()
-					.createValue(userID));
+					.createValue(username));
 			Constraint constraint = qomf.comparison(userIdDop,
 					QueryObjectModelFactory.JCR_OPERATOR_EQUAL_TO, userIdSop);
 			Query query = qomf.createQuery(sel, constraint, null, null);
 			Node userHome = JcrUtils.querySingleNode(query);
 			return userHome;
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot find profile for user " + userID,
-					e);
+			throw new ArgeoException(
+					"Cannot find profile for user " + username, e);
 		}
 	}
 
 	public static Node createUserHome(Session session, String homeBasePath,
 			String username) {
 		try {
+			if (session == null)
+				throw new ArgeoException("Session is null");
 			if (session.hasPendingChanges())
 				throw new ArgeoException(
 						"Session has pending changes, save them first");
@@ -724,11 +726,6 @@ public class JcrUtils implements ArgeoJcrConstants {
 			userProfile.setProperty(ArgeoNames.ARGEO_USER_ID, username);
 			session.save();
 			// we need to save the profile before adding the user home type
-			PropertyIterator pit = userHome.getProperties();
-			while (pit.hasNext()) {
-				Property p = pit.nextProperty();
-				log.debug(p.getName() + "=" + p.getValue().getString());
-			}
 			userHome.addMixin(ArgeoTypes.ARGEO_USER_HOME);
 			// see
 			// http://jackrabbit.510166.n4.nabble.com/Jackrabbit-2-0-beta-6-Problem-adding-a-Mixin-type-with-mandatory-properties-after-setting-propertiesn-td1290332.html

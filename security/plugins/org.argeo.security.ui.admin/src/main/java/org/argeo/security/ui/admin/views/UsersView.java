@@ -12,14 +12,10 @@ import javax.jcr.observation.EventListener;
 import javax.jcr.query.Query;
 
 import org.argeo.ArgeoException;
-import org.argeo.eclipse.ui.dialogs.Error;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
-import org.argeo.security.ArgeoUser;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.commands.OpenArgeoUserEditor;
-import org.argeo.security.ui.admin.editors.ArgeoUserEditor;
-import org.argeo.security.ui.admin.editors.ArgeoUserEditorInput;
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.IParameter;
 import org.eclipse.core.commands.Parameterization;
@@ -39,7 +35,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
@@ -156,31 +151,9 @@ public class UsersView extends ViewPart implements ArgeoNames, ArgeoTypes,
 			} catch (RepositoryException e) {
 				throw new ArgeoException("Cannot get text", e);
 			}
-
-			// String currentUsername = CurrentUser.getUsername();
-			// String currentUsername = "";
-			// ArgeoUser user = (ArgeoUser) element;
-			// SimpleUserNature simpleNature = SimpleUserNature
-			// .findSimpleUserNature(user, simpleNatureType);
-			// switch (columnIndex) {
-			// case 0:
-			// String userName = user.getUsername();
-			// if (userName.equals(currentUsername))
-			// userName = userName + "*";
-			// return userName;
-			// case 1:
-			// return simpleNature.getFirstName();
-			// case 2:
-			// return simpleNature.getLastName();
-			// case 3:
-			// return simpleNature.getEmail();
-			// default:
-			// throw new ArgeoException("Unmanaged column " + columnIndex);
-			// }
 		}
 
 		public Image getColumnImage(Object element, int columnIndex) {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
@@ -194,23 +167,12 @@ public class UsersView extends ViewPart implements ArgeoNames, ArgeoTypes,
 			Object obj = ((IStructuredSelection) evt.getSelection())
 					.getFirstElement();
 			if (obj instanceof Node) {
-				try {
-					IWorkbench iw = SecurityAdminPlugin.getDefault()
-							.getWorkbench();
-					iw.getActiveWorkbenchWindow()
-							.getActivePage()
-							.openEditor(new ArgeoUserEditorInput((Node) obj),
-									ArgeoUserEditor.ID);
-				} catch (PartInitException e) {
-					Error.show("Cannot open user editor for " + obj, e);
-				}
-			} else if (obj instanceof ArgeoUser) {
-				ArgeoUser argeoUser = (ArgeoUser) obj;
-
 				IWorkbench iw = SecurityAdminPlugin.getDefault().getWorkbench();
 				IHandlerService handlerService = (IHandlerService) iw
 						.getService(IHandlerService.class);
 				try {
+					String username = ((Node) obj).getProperty(ARGEO_USER_ID)
+							.getString();
 					String commandId = OpenArgeoUserEditor.COMMAND_ID;
 					String paramName = OpenArgeoUserEditor.PARAM_USERNAME;
 
@@ -223,7 +185,7 @@ public class UsersView extends ViewPart implements ArgeoNames, ArgeoTypes,
 					ArrayList<Parameterization> parameters = new ArrayList<Parameterization>();
 					IParameter iparam = cmd.getParameter(paramName);
 					Parameterization param = new Parameterization(iparam,
-							argeoUser.getUsername());
+							username);
 					parameters.add(param);
 					ParameterizedCommand pc = new ParameterizedCommand(cmd,
 							parameters.toArray(new Parameterization[parameters

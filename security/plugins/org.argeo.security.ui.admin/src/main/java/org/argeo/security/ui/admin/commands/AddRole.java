@@ -10,7 +10,6 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.handlers.HandlerUtil;
-import org.eclipse.ui.internal.EditorReference;
 
 /** Add a new role. */
 public class AddRole extends AbstractHandler {

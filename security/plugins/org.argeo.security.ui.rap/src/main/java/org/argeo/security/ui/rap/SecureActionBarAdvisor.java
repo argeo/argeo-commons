@@ -52,8 +52,21 @@ public class SecureActionBarAdvisor extends ActionBarAdvisor {
 		showViewMenuAction = ActionFactory.SHOW_VIEW_MENU.create(window);
 		register(showViewMenuAction);
 
-		// logoutAction = ActionFactory.QUIT.create(window);
+		// logout
+		logoutAction = createLogoutAction();
+		register(logoutAction);
 
+		// Save semantics
+		saveAction = ActionFactory.SAVE.create(window);
+		register(saveAction);
+		saveAllAction = ActionFactory.SAVE_ALL.create(window);
+		register(saveAllAction);
+		closeAllAction = ActionFactory.CLOSE_ALL.create(window);
+		register(closeAllAction);
+
+	}
+
+	protected IAction createLogoutAction() {
 		Subject subject = null;
 		try {
 			subject = SecureRapActivator.getLoginContext().getSubject();
@@ -62,7 +75,7 @@ public class SecureActionBarAdvisor extends ActionBarAdvisor {
 		}
 		final Principal principal = subject.getPrincipals().iterator().next();
 
-		logoutAction = new Action() {
+		IAction logoutAction = new Action() {
 			public String getId() {
 				return SecureRapActivator.ID + ".logoutAction";
 			}
@@ -76,6 +89,7 @@ public class SecureActionBarAdvisor extends ActionBarAdvisor {
 					Subject subject = SecureRapActivator.getLoginContext()
 							.getSubject();
 					String subjectStr = subject.toString();
+					subject.getPrincipals().clear();
 					SecureRapActivator.getLoginContext().logout();
 					log.info(subjectStr + " logged out");
 				} catch (LoginException e) {
@@ -91,16 +105,7 @@ public class SecureActionBarAdvisor extends ActionBarAdvisor {
 			}
 
 		};
-		register(logoutAction);
-
-		// Save semantics
-		saveAction = ActionFactory.SAVE.create(window);
-		register(saveAction);
-		saveAllAction = ActionFactory.SAVE_ALL.create(window);
-		register(saveAllAction);
-		closeAllAction = ActionFactory.CLOSE_ALL.create(window);
-		register(closeAllAction);
-
+		return logoutAction;
 	}
 
 	protected void fillMenuBar(IMenuManager menuBar) {

@@ -1,21 +1,10 @@
 package org.argeo.security.ui.admin.views;
 
-import java.util.ArrayList;
-
 import org.argeo.ArgeoException;
-import org.argeo.security.ArgeoUser;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.commands.AddRole;
-import org.argeo.security.ui.admin.commands.OpenArgeoUserEditor;
-import org.eclipse.core.commands.Command;
-import org.eclipse.core.commands.IParameter;
-import org.eclipse.core.commands.Parameterization;
-import org.eclipse.core.commands.ParameterizedCommand;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
@@ -30,8 +19,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
 
@@ -84,7 +71,6 @@ public class RolesView extends ViewPart {
 		viewer.setContentProvider(new RolesContentProvider());
 		viewer.setLabelProvider(new UsersLabelProvider());
 		viewer.setInput(getViewSite());
-		viewer.addDoubleClickListener(new ViewDoubleClickListener());
 	}
 
 	@Override
@@ -124,46 +110,6 @@ public class RolesView extends ViewPart {
 			return null;
 		}
 
-	}
-
-	class ViewDoubleClickListener implements IDoubleClickListener {
-		public void doubleClick(DoubleClickEvent evt) {
-			Object obj = ((IStructuredSelection) evt.getSelection())
-					.getFirstElement();
-
-			if (obj instanceof ArgeoUser) {
-				ArgeoUser argeoUser = (ArgeoUser) obj;
-
-				IWorkbench iw = SecurityAdminPlugin.getDefault().getWorkbench();
-				IHandlerService handlerService = (IHandlerService) iw
-						.getService(IHandlerService.class);
-				try {
-					String commandId = OpenArgeoUserEditor.COMMAND_ID;
-					String paramName = OpenArgeoUserEditor.PARAM_USERNAME;
-
-					// TODO: factorize this
-					// execute related command
-					IWorkbenchWindow window = iw.getActiveWorkbenchWindow();
-					ICommandService cmdService = (ICommandService) window
-							.getService(ICommandService.class);
-					Command cmd = cmdService.getCommand(commandId);
-					ArrayList<Parameterization> parameters = new ArrayList<Parameterization>();
-					IParameter iparam = cmd.getParameter(paramName);
-					Parameterization param = new Parameterization(iparam,
-							argeoUser.getUsername());
-					parameters.add(param);
-					ParameterizedCommand pc = new ParameterizedCommand(cmd,
-							parameters.toArray(new Parameterization[parameters
-									.size()]));
-					handlerService = (IHandlerService) window
-							.getService(IHandlerService.class);
-					handlerService.executeCommand(pc, null);
-				} catch (Exception e) {
-					throw new ArgeoException("Cannot open editor", e);
-				}
-
-			}
-		}
 	}
 
 	public String getNewRole() {
