@@ -24,11 +24,11 @@
 			<artifactId>org.argeo.server.catalina</artifactId>
 			<version>${version.argeo-commons}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.tomcat</artifactId>
-			<version>${version.argeo-commons}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.commons.server</groupId> -->
+<!-- 			<artifactId>org.argeo.server.tomcat</artifactId> -->
+<!-- 			<version>${version.argeo-commons}</version> -->
+<!-- 		</dependency> -->
 
 		<!-- JEE -->
 		<dependency>
