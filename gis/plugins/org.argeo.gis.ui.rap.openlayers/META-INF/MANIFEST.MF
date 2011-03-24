@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Rap
 Bundle-SymbolicName: org.argeo.gis.ui.rap.openlayers;singleton:=true
-Bundle-Version: 0.3.1.SNAPSHOT
+Bundle-Version: 0.3.1
 Bundle-Activator: org.argeo.gis.ui.rap.openlayers.GisOpenlayersPlugin
 Bundle-Vendor: Argeo
 Require-Bundle: org.eclipse.rap.ui,
