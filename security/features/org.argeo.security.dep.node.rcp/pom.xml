@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
-		<version>0.3.1</version>
+		<version>0.3.1-SNAPSHOT</version>
 		<artifactId>features</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -42,25 +42,25 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.jcr.ui.explorer</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.ui.admin</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Basis -->
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.dep.node</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.ui.rcp</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>

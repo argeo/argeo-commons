@@ -1,6 +1,6 @@
 Web-ContextPath: org.argeo.server.demo.miniwebapp
 Bundle-SymbolicName: org.argeo.server.demo.miniwebapp
-Bundle-Version: 0.3.1
+Bundle-Version: 0.3.1.SNAPSHOT
 Import-Package: javax.servlet,
  javax.servlet.http,
  javax.servlet.jsp,
