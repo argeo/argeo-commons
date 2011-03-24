@@ -208,6 +208,12 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 							.equals("")))
 				userProfile.setProperty(jcrProperty, "empty");
 
+			if (ldapAttribute.equals("description")) {
+				String value = userProfile.getProperty(jcrProperty).getString();
+				if(value.trim().equals(""))
+					return;
+			}
+
 			if (!userProfile.hasProperty(jcrProperty))
 				return;
 			String value = userProfile.getProperty(jcrProperty).getString();

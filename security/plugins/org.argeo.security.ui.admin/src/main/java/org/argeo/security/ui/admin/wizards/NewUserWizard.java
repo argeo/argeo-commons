@@ -1,8 +1,11 @@
 package org.argeo.security.ui.admin.wizards;
 
 import javax.jcr.Node;
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.eclipse.ui.dialogs.Error;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrUtils;
@@ -13,6 +16,8 @@ import org.springframework.security.GrantedAuthority;
 
 /** Wizard to create a new user */
 public class NewUserWizard extends Wizard {
+	private final static Log log = LogFactory.getLog(NewUserWizard.class);
+
 	private String homeBasePath = "/home";
 	private Session session;
 	private UserAdminService userAdminService;
@@ -36,8 +41,8 @@ public class NewUserWizard extends Wizard {
 		if (!canFinish())
 			return false;
 
+		String username = mainUserInfo.getUsername();
 		try {
-			String username = mainUserInfo.getUsername();
 			session.save();
 			Node userHome = JcrUtils.createUserHome(session, homeBasePath,
 					username);
@@ -52,7 +57,18 @@ public class NewUserWizard extends Wizard {
 			return true;
 		} catch (Exception e) {
 			JcrUtils.discardQuietly(session);
-			Error.show("Cannot create new user", e);
+			Node userHome = JcrUtils.getUserHome(session, username);
+			if (userHome != null) {
+				try {
+					userHome.remove();
+					session.save();
+				} catch (RepositoryException e1) {
+					JcrUtils.discardQuietly(session);
+					log.warn("Error when trying to clean up failed new user "
+							+ username, e1);
+				}
+			}
+			Error.show("Cannot create new user " + username, e);
 			return false;
 		}
 	}
