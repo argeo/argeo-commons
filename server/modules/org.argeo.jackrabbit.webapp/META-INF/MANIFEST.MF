@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Webapp
 Bundle-SymbolicName: org.argeo.jackrabbit.webapp
-Bundle-Version: 0.3.1.SNAPSHOT
+Bundle-Version: 0.3.1
 Web-ContextPath: org.argeo.jcr.webapp
 Bundle-Vendor: Argeo
 DynamicImport-Package: *
