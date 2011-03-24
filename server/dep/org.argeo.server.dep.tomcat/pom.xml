@@ -27,7 +27,7 @@
 <!-- 		<dependency> -->
 <!-- 			<groupId>org.argeo.commons.server</groupId> -->
 <!-- 			<artifactId>org.argeo.server.tomcat</artifactId> -->
-<!-- 			<version>${version.argeo-commons}</version> -->
+<!-- 			<version>0.3.1-SNAPSHOT</version> -->
 <!-- 		</dependency> -->
 
 		<!-- JEE -->
@@ -100,7 +100,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.javax</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 			<type>pom</type>
 			<scope>test</scope>
 		</dependency>

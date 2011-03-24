@@ -42,25 +42,25 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.jcr.ui.explorer</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.ui.admin</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 		</dependency>
 
 		<!-- Basis -->
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.dep.node</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.ui.rcp</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 		</dependency>
 	</dependencies>
 </project>

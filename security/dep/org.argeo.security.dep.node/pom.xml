@@ -35,13 +35,13 @@
 		<dependency>
 			<groupId>org.argeo.commons.osgi</groupId>
 			<artifactId>org.argeo.osgi.dep.stdruntime</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.javax</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
@@ -52,21 +52,16 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.core</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.ldap</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.services</artifactId>
-			<version>${version.argeo-commons}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.services.admin</artifactId>
 			<version>${version.argeo-commons}</version>
 		</dependency>
 		<dependency>
@@ -79,20 +74,20 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.dep.ads</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 			<type>pom</type>
 		</dependency>
 		<!-- Tomcat -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.tomcat</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.webextender</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.osgi</groupId>
@@ -106,34 +101,34 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.activemq</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.activemq</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 		</dependency>
 		<!-- Jackrabbit -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.jackrabbit</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.jackrabbit</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.jcr.mvc</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.jackrabbit.server</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
@@ -155,7 +150,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.hibernate</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 			<type>pom</type>
 		</dependency>
 		<!-- DB drivers -->

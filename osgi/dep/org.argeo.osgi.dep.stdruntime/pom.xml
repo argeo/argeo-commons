@@ -14,13 +14,13 @@
 		<dependency>
 			<groupId>org.argeo.commons.osgi</groupId>
 			<artifactId>org.argeo.osgi.boot</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 		</dependency>
 		<!--  Logging -->
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.dep.log4j</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 			<type>pom</type>
 		</dependency>
 		<!-- Spring OSGi -->

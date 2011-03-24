@@ -59,7 +59,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.eclipse</groupId>
 			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 		</dependency>
 
 

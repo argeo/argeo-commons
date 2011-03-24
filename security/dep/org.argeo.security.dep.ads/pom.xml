@@ -13,7 +13,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.ads</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 			<type>pom</type>
 		</dependency>
 
@@ -26,7 +26,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.ads</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.dep.osgi</groupId>
@@ -35,7 +35,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.dep.log4j</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
@@ -47,7 +47,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.json</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.1</version>
 		</dependency>
 
 	</dependencies>
