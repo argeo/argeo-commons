@@ -38,6 +38,7 @@
 							org.springframework.context,
 							org.springframework.beans.factory,
 							org.argeo.jcr,
+							org.xml.sax;version="0.0.0",
 							*
 						</Import-Package>
 					</instructions>

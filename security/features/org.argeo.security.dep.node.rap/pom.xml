@@ -43,6 +43,11 @@
 			<artifactId>org.argeo.jcr.ui.explorer</artifactId>
 			<version>${version.argeo-commons}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.ui.admin</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
 
 		<!-- Basis -->
 		<dependency>
