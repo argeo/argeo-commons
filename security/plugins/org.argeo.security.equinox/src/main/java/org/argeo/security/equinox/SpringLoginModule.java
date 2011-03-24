@@ -1,7 +1,6 @@
 package org.argeo.security.equinox;
 
 import java.util.Map;
-import java.util.Set;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -44,10 +43,11 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 
 	public boolean login() throws LoginException {
 		// try to retrieve Authentication from Subject
-		Set<Authentication> auths = subject.getPrincipals(Authentication.class);
-		if (auths.size() > 0)
-			SecurityContextHolder.getContext().setAuthentication(
-					auths.iterator().next());
+		// Set<Authentication> auths =
+		// subject.getPrincipals(Authentication.class);
+		// if (auths.size() > 0)
+		// SecurityContextHolder.getContext().setAuthentication(
+		// auths.iterator().next());
 
 		// thread already logged in
 		if (SecurityContextHolder.getContext().getAuthentication() != null)
@@ -80,9 +80,7 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 			callbackHandler.handle(new Callback[] { label, nameCallback,
 					passwordCallback });
 		} catch (Exception e) {
-			LoginException le = new LoginException("Callback handling failed");
-			le.initCause(e);
-			throw le;
+			throw new RuntimeException("Unexpected exception when handling", e);
 		}
 
 		// Set user name and password

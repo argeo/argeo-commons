@@ -9,5 +9,17 @@
             parameter="secureWebUi">
       </entrypoint>
    </extension>
+   <extension
+         id="secureWebapp"
+         name="Argeo Secure Web App"
+         point="org.eclipse.core.runtime.applications">
+      <application cardinality="singleton-global"
+         thread="main"
+         visible="true">
+         <run
+               class="org.argeo.security.ui.rap.SecureEntryPoint">
+         </run>
+      </application>
+   </extension>
 
 </plugin>

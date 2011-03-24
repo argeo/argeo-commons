@@ -7,7 +7,8 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.eclipse.ui.dialogs.Error;
+import org.eclipse.equinox.security.auth.ILoginContext;
+import org.eclipse.rwt.RWT;
 import org.eclipse.rwt.lifecycle.IEntryPoint;
 import org.eclipse.rwt.service.SessionStoreEvent;
 import org.eclipse.rwt.service.SessionStoreListener;
@@ -18,51 +19,107 @@ import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 
 public class SecureEntryPoint implements IEntryPoint, SessionStoreListener {
-	private Log log = LogFactory.getLog(SecureEntryPoint.class);
+	private final static Log log = LogFactory.getLog(SecureEntryPoint.class);
 
 	@Override
 	public int createUI() {
-		// log.debug("THREAD=" + Thread.currentThread().getId()
-		// + ", RWT.getSessionStore().getId()="
-		// + RWT.getSessionStore().getId());
+		// 15 mins session timeout
+		RWT.getRequest().getSession().setMaxInactiveInterval(15 * 60);
 
+		if (log.isDebugEnabled())
+			log.debug("THREAD=" + Thread.currentThread().getId()
+					+ ", sessionStore=" + RWT.getSessionStore().getId());
+
+		final ILoginContext loginContext = SecureRapActivator
+				.createLoginContext();
 		Integer returnCode = null;
 		Display display = PlatformUI.createDisplay();
+
+		Subject subject = null;
 		try {
-			Subject subject = null;
-			Boolean retry = true;
-			while (retry) {
+			loginContext.login();
+			subject = loginContext.getSubject();
+		} catch (LoginException e) {
+			log.error("Error when logging in.", e);
+			display.dispose();
+			RWT.getRequest().getSession().setMaxInactiveInterval(1);
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e1) {
+				// silent
+			}
+			return -1;
+		}
+
+		// identify after successful login
+		if (log.isDebugEnabled())
+			log.debug("subject=" + subject);
+		final String username = subject.getPrincipals().iterator().next()
+				.getName();
+		if (log.isDebugEnabled())
+			log.debug(username + " logged in");
+		display.disposeExec(new Runnable() {
+			public void run() {
+				log.debug("Display disposed");
+				logout(loginContext, username);
+				// invalidate session
+				RWT.getRequest().getSession().setMaxInactiveInterval(1);
 				try {
-					// force login in order to give Spring Security a chance to
-					// load
-					SecureRapActivator.getLoginContext().login();
-					subject = SecureRapActivator.getLoginContext().getSubject();
-					retry = false;
-				} catch (LoginException e) {
-					Error.show("Cannot login", e);
-					retry = true;
-				} catch (Exception e) {
-					Error.show("Unexpected exception while trying to login", e);
-					retry = false;
+					Thread.sleep(2000);
+				} catch (InterruptedException e1) {
+					// silent
 				}
 			}
+		});
 
-			if (subject != null) {
-				returnCode = (Integer) Subject.doAs(subject,
-						getRunAction(display));
-				SecureRapActivator.getLoginContext().logout();
-				return processReturnCode(returnCode);
-			} else {
-				return -1;
-			}
+		try {
+			returnCode = (Integer) Subject.doAs(subject, getRunAction(display));
+			loginContext.logout();
+			return processReturnCode(returnCode);
 		} catch (Exception e) {
-			log.error("Unexpected error",e);
-			return -1;
-		} 
-//		finally {
-//			display.dispose();
-//		}
+			if (subject != null)
+				logout(loginContext, username);
+			// RWT.getRequest().getSession().setMaxInactiveInterval(1);
+			log.error("Unexpected error", e);
+			// throw new ArgeoException("Cannot login", e);
+		} finally {
+			display.dispose();
+		}
+		return -1;
 	}
+
+	static void logout(ILoginContext secureContext, String username) {
+		try {
+			secureContext.logout();
+			log.info("Logged out " + (username != null ? username : "")
+					+ " (THREAD=" + Thread.currentThread().getId() + ")");
+		} catch (LoginException e) {
+			log.error("Erorr when logging out", e);
+		}
+	}
+
+	// static void closeWorkbench() {
+	// final IWorkbench workbench;
+	// try {
+	// workbench = PlatformUI.getWorkbench();
+	// } catch (Exception e) {
+	// return;
+	// }
+	// if (workbench == null)
+	// return;
+	// final Display display = workbench.getDisplay();
+	// if (display != null && !display.isDisposed())
+	// display.syncExec(new Runnable() {
+	//
+	// public void run() {
+	// if (!display.isDisposed())
+	// workbench.close();
+	// }
+	// });
+	//
+	// if (log.isDebugEnabled())
+	// log.debug("Workbench closed");
+	// }
 
 	@SuppressWarnings("rawtypes")
 	private PrivilegedAction getRunAction(final Display display) {

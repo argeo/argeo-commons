@@ -26,6 +26,7 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 
 	protected DefaultLoginDialog(Shell parentShell) {
 		super(parentShell);
+		// setBlockOnOpen(false);
 	}
 
 	protected Point getInitialSize() {
@@ -109,4 +110,35 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 
 	public void internalHandle() {
 	}
+
+	// hack to simulate modal
+	// see
+	// http://dev.eclipse.org/mhonarc/newsLists/news.eclipse.platform.jface/msg00181.html
+	// protected void setShellStyle(int newShellStyle) {
+	// // turn off APPLICATION_MODAL
+	// int newstyle = newShellStyle & ~SWT.APPLICATION_MODAL;
+	// // turn on MODELESS
+	// newstyle |= SWT.MODELESS;
+	// super.setShellStyle(newstyle);
+	// }
+	//
+	// public int open() {
+	//
+	// int retVal = super.open();
+	// // this will let the caller wait till OK, Cancel is
+	// // pressed, but will let the other GUI responsive
+	// pumpMessages();
+	// return retVal;
+	// }
+	//
+	// protected void pumpMessages() {
+	// Shell sh = getShell();
+	// Display disp = sh.getDisplay();
+	// while (!sh.isDisposed()) {
+	// if (!disp.readAndDispatch())
+	// disp.sleep();
+	// }
+	// disp.update();
+	// }
+
 }

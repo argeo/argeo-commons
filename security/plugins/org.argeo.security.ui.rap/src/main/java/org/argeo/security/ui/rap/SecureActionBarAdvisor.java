@@ -1,13 +1,9 @@
 package org.argeo.security.ui.rap;
 
-import java.security.Principal;
+import java.security.AccessController;
 
 import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.IAction;
@@ -17,19 +13,17 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
-import org.eclipse.rwt.RWT;
 import org.eclipse.swt.SWT;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
 
 public class SecureActionBarAdvisor extends ActionBarAdvisor {
-	private final static Log log = LogFactory
-			.getLog(SecureActionBarAdvisor.class);
+//	private final static Log log = LogFactory
+//			.getLog(SecureActionBarAdvisor.class);
 
 	private IAction logoutAction;
 	private IWorkbenchAction openPerspectiveDialogAction;
@@ -53,7 +47,8 @@ public class SecureActionBarAdvisor extends ActionBarAdvisor {
 		register(showViewMenuAction);
 
 		// logout
-		logoutAction = createLogoutAction();
+		logoutAction = ActionFactory.QUIT.create(window);
+		//logoutAction = createLogoutAction();
 		register(logoutAction);
 
 		// Save semantics
@@ -67,13 +62,9 @@ public class SecureActionBarAdvisor extends ActionBarAdvisor {
 	}
 
 	protected IAction createLogoutAction() {
-		Subject subject = null;
-		try {
-			subject = SecureRapActivator.getLoginContext().getSubject();
-		} catch (LoginException e1) {
-			throw new ArgeoException("Cannot retrieve subject", e1);
-		}
-		final Principal principal = subject.getPrincipals().iterator().next();
+		Subject subject = Subject.getSubject(AccessController.getContext());
+		final String username = subject.getPrincipals().iterator().next()
+				.getName();
 
 		IAction logoutAction = new Action() {
 			public String getId() {
@@ -81,27 +72,28 @@ public class SecureActionBarAdvisor extends ActionBarAdvisor {
 			}
 
 			public String getText() {
-				return "Logout " + principal.getName();
+				return "Logout " + username;
 			}
 
 			public void run() {
-				try {
-					Subject subject = SecureRapActivator.getLoginContext()
-							.getSubject();
-					String subjectStr = subject.toString();
-					subject.getPrincipals().clear();
-					SecureRapActivator.getLoginContext().logout();
-					log.info(subjectStr + " logged out");
-				} catch (LoginException e) {
-					log.error("Error when logging out", e);
-				}
-				try {
-					RWT.getRequest().getSession().setMaxInactiveInterval(1);
-					PlatformUI.getWorkbench().close();
-				} catch (Exception e) {
-					if (log.isTraceEnabled())
-						log.trace("Error when invalidating session", e);
-				}
+				// try {
+				// Subject subject = SecureRapActivator.getLoginContext()
+				// .getSubject();
+				// String subjectStr = subject.toString();
+				// subject.getPrincipals().clear();
+				// SecureRapActivator.getLoginContext().logout();
+				// log.info(subjectStr + " logged out");
+				// } catch (LoginException e) {
+				// log.error("Error when logging out", e);
+				// }
+//				SecureEntryPoint.logout(username);
+//				PlatformUI.getWorkbench().close();
+				// try {
+				// RWT.getRequest().getSession().setMaxInactiveInterval(1);
+				// } catch (Exception e) {
+				// if (log.isTraceEnabled())
+				// log.trace("Error when invalidating session", e);
+				// }
 			}
 
 		};
