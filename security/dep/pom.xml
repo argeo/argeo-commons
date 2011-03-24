@@ -12,7 +12,6 @@
 	<name>Commons Security Dependencies</name>
 	<packaging>pom</packaging>
 	<modules>
-		<module>org.argeo.security.dep.ldap</module>
 		<module>org.argeo.security.dep.ads</module>
 		<module>org.argeo.security.dep.node</module>
 	</modules>

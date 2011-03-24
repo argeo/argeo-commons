@@ -13,7 +13,6 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>org.argeo.security.core</module>
-<!-- 		<module>org.argeo.security.mvc</module> -->
 		<module>org.argeo.security.ldap</module>
 		<module>org.argeo.security.activemq</module>
 		<module>org.argeo.security.jackrabbit</module>
@@ -64,19 +63,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<profiles>
-		<profile>
-			<id>withRia</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<modules>
-<!-- 				<module>org.argeo.security.ria</module> -->
-			</modules>
-		</profile>
-		<profile>
-			<id>withoutRia</id>
-		</profile>
-	</profiles>
-
 </project>
