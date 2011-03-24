@@ -62,17 +62,12 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.services</artifactId>
-			<version>0.3.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.services.admin</artifactId>
-			<version>0.3.1-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.dao.ldap</artifactId>
-			<version>0.3.1-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 		</dependency>
 
 		<!-- LDAP server -->
@@ -139,17 +134,17 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.jackrabbit.webapp</artifactId>
-			<version>0.3.1-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.node.repo.jackrabbit</artifactId>
-			<version>0.3.1-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.node.repofactory.jackrabbit</artifactId>
-			<version>0.3.1-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 		</dependency>
 		<!-- Hibernate -->
 		<dependency>

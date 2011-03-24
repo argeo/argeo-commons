@@ -17,12 +17,12 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.tika.jackrabbit</artifactId>
-			<version>0.3.1-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.ext.jackrabbit</artifactId>
-			<version>0.3.1-SNAPSHOT</version>
+			<version>${version.argeo-commons}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.xalan</groupId>
