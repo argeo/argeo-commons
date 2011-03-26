@@ -6,5 +6,7 @@
 	<bean id="jcrAuthenticationProvider"
 		class="org.argeo.security.jackrabbit.providers.JackrabbitAuthenticationProvider" />
 
-	<bean id="jcrCurrentUserDao" class="org.argeo.security.jcr.CurrentUserDaoJcr" />
+<!-- 	<bean id="osJcrAuthenticationProvider" class="org.argeo.security.jcr.OsJcrAuthenticationProvider"> -->
+<!-- 		<property name="systemExecutor" ref="systemExecutor" /> -->
+<!-- 	</bean> -->
 </beans>

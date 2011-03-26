@@ -47,7 +47,7 @@ public class JcrResourceAdapterTest extends AbstractJcrTestCase {
 		jra.mkdirs(basePath);
 		Resource res = new ClassPathResource("org/argeo/server/jcr/dummy00.xls");
 		String filePath = basePath + "/dummy.xml";
-		jra.create(filePath, res, "application/vnd.ms-excel");
+		jra.create(filePath, res.getInputStream(), "application/vnd.ms-excel");
 		InputStream in = jra.retrieve(filePath);
 		assertTrue(IOUtils.contentEquals(res.getInputStream(), in));
 	}
@@ -58,13 +58,13 @@ public class JcrResourceAdapterTest extends AbstractJcrTestCase {
 		String filePath = basePath + "/dummy.xml";
 		Resource res00 = new ClassPathResource(
 				"org/argeo/server/jcr/dummy00.xls");
-		jra.create(filePath, res00, "application/vnd.ms-excel");
+		jra.create(filePath, res00.getInputStream(), "application/vnd.ms-excel");
 		Resource res01 = new ClassPathResource(
 				"org/argeo/server/jcr/dummy01.xls");
-		jra.update(filePath, res01);
+		jra.update(filePath, res01.getInputStream());
 		Resource res02 = new ClassPathResource(
 				"org/argeo/server/jcr/dummy02.xls");
-		jra.update(filePath, res02);
+		jra.update(filePath, res02.getInputStream());
 
 		List<Calendar> versions = jra.listVersions(filePath);
 		log.debug("Versions of " + filePath);
@@ -85,7 +85,7 @@ public class JcrResourceAdapterTest extends AbstractJcrTestCase {
 		assertTrue(IOUtils.contentEquals(res02.getInputStream(), in));
 		Resource res03 = new ClassPathResource(
 				"org/argeo/server/jcr/dummy03.xls");
-		jra.update(filePath, res03);
+		jra.update(filePath, res03.getInputStream());
 		in = jra.retrieve(filePath, 1);
 		assertTrue(IOUtils.contentEquals(res01.getInputStream(), in));
 	}
@@ -106,7 +106,7 @@ public class JcrResourceAdapterTest extends AbstractJcrTestCase {
 
 	protected File getRepositoryFile() throws Exception {
 		Resource res = new ClassPathResource(
-				"org/argeo/server/jcr/repository.xml");
+				"org/argeo/server/jcr/repository-h2.xml");
 		return res.getFile();
 	}
 

@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension
-         id="springSecurityContextLoginModule"
-         point="org.eclipse.equinox.security.loginModule">
-      <loginModule
-            class="org.springframework.security.providers.jaas.SecurityContextLoginModule"
-            description="Spring Security Context (provided by Spring)">
-      </loginModule>
-   </extension>
-  <extension id="unixLoginModule"
-           name="Unix Login Module"
-           point="org.eclipse.equinox.security.loginModule">
-   <loginModule
-       class="com.sun.security.auth.module.UnixLoginModule"
-       description="Unix Login Module">
-   </loginModule>
-   </extension>
-  <extension
-        id="springLoginModule"
-        point="org.eclipse.equinox.security.loginModule"
-        name="Spring Login Module">
-     <loginModule
-           class="org.argeo.eclipse.spring.SpringExtensionFactory"
-           description="Spring Login Module">
-     </loginModule>
+  <!-- Argeo -->
+  <extension id="springLoginModule" name="Argeo Spring" point="org.eclipse.equinox.security.loginModule">
+  <loginModule class="org.argeo.eclipse.spring.SpringExtensionFactory" description="Argeo Spring Login Module"/>
   </extension>
 
+  <extension id="osSpringLoginModule" name="Argeo Spring OS" point="org.eclipse.equinox.security.loginModule">
+  <loginModule class="org.argeo.eclipse.spring.SpringExtensionFactory" description="Argeo Spring OS Login Module"/>
+  </extension>
+
+  <!-- Java -->
+  <extension id="unixLoginModule" name="UNIX" point="org.eclipse.equinox.security.loginModule">
+  <loginModule class="com.sun.security.auth.module.UnixLoginModule" description="UNIX Login Module"/>
+  </extension>
+   
+  <extension id="keyStoreLoginModule" name="Keystore" point="org.eclipse.equinox.security.loginModule">
+  <loginModule class="com.sun.security.auth.module.KeyStoreLoginModule" description="Keystore Login Module"/>
+  </extension>
+   
+  <extension id="ntLoginModule" name="Windows" point="org.eclipse.equinox.security.loginModule">
+  <loginModule class="com.sun.security.auth.module.NTLoginModule" description="Windows Login Module"/>
+  </extension>
+
+  <!-- Spring -->
+  <extension id="springSecurityContextLoginModule" name="Spring" point="org.eclipse.equinox.security.loginModule">
+  <loginModule class="org.springframework.security.providers.jaas.SecurityContextLoginModule" description="Raw Spring Login Module"/>
+  </extension>
 </plugin>

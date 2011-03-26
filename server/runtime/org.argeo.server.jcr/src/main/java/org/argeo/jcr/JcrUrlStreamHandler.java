@@ -6,7 +6,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 
-import javax.jcr.Binary;
 import javax.jcr.Item;
 import javax.jcr.Node;
 import javax.jcr.Property;
@@ -47,7 +46,7 @@ public class JcrUrlStreamHandler extends URLStreamHandler {
 					} else {
 						Property property = (Property) item;
 						if(property.getType()==PropertyType.BINARY){
-							Binary binary = property.getBinary();
+							//Binary binary = property.getBinary();
 							
 						}
 					}

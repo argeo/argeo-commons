@@ -16,6 +16,7 @@
 		<module>org.argeo.security.ldap</module>
 		<module>org.argeo.security.activemq</module>
 		<module>org.argeo.security.jackrabbit</module>
+		<module>org.argeo.security.mvc</module>
 	</modules>
 	<build>
 		<resources>

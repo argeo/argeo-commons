@@ -18,6 +18,7 @@ package org.argeo.jackrabbit;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -55,6 +56,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.util.SystemPropertyUtils;
 import org.xml.sax.InputSource;
 
 /**
@@ -111,16 +113,9 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 		}
 
 		RepositoryConfig config;
+		Properties vars = getConfigurationProperties();
 		InputStream in = configuration.getInputStream();
-		InputStream propsIn = null;
 		try {
-			Properties vars = new Properties();
-			if (variables != null) {
-				propsIn = variables.getInputStream();
-				vars.load(propsIn);
-			}
-			// override with system properties
-			vars.putAll(System.getProperties());
 			vars.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE,
 					homeDirectory.getCanonicalPath());
 			config = RepositoryConfig.create(new InputSource(in), vars);
@@ -128,7 +123,6 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 			throw new RuntimeException("Cannot read configuration", e);
 		} finally {
 			IOUtils.closeQuietly(in);
-			IOUtils.closeQuietly(propsIn);
 		}
 
 		if (inMemory)
@@ -141,6 +135,32 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 
 		log.info("Initialized Jackrabbit repository " + repository + " in "
 				+ homeDirectory + " with config " + configuration);
+	}
+
+	protected Properties getConfigurationProperties() {
+		InputStream propsIn = null;
+		Properties vars;
+		try {
+			vars = new Properties();
+			if (variables != null) {
+				propsIn = variables.getInputStream();
+				vars.load(propsIn);
+			}
+			// resolve system properties
+			for (Object key : vars.keySet()) {
+				// TODO: implement a smarter mechanism to resolve nested ${}
+				String newValue = SystemPropertyUtils.resolvePlaceholders(vars
+						.getProperty(key.toString()));
+				vars.put(key, newValue);
+			}
+			// override with system properties
+			vars.putAll(System.getProperties());
+		} catch (IOException e) {
+			throw new ArgeoException("Cannot read configuration properties", e);
+		} finally {
+			IOUtils.closeQuietly(propsIn);
+		}
+		return vars;
 	}
 
 	/**
@@ -192,7 +212,7 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 		else
 			action.run();
 	}
-	
+
 	public void destroy() throws Exception {
 		if (repository != null) {
 			if (repository instanceof JackrabbitRepository)

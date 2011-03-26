@@ -16,159 +16,120 @@
 
 package org.argeo.security.mvc;
 
-import java.io.Reader;
-import java.util.Set;
-
-import org.argeo.security.ArgeoSecurityService;
-import org.argeo.security.ArgeoUser;
-import org.argeo.security.SimpleArgeoUser;
-import org.argeo.server.BooleanAnswer;
-import org.argeo.server.Deserializer;
-import org.argeo.server.ServerAnswer;
 import org.argeo.server.mvc.MvcConstants;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class UsersRolesController implements MvcConstants {
-	// private final static Log log = LogFactory
-	// .getLog(UsersRolesController.class);
-
-	// private String digestType = "SHA";
-
-	private ArgeoSecurityService securityService;
-
-	private Deserializer userDeserializer = null;
+//	private ArgeoSecurityService securityService;
+//	private Deserializer userDeserializer = null;
 
 	/* USER */
 
-	@RequestMapping("/getCredentials.*")
-	@ModelAttribute("user")
-	public ArgeoUser getCredentials() {
-		ArgeoUser argeoUser = securityService.getCurrentUser();
-		if (argeoUser == null)
-			return new SimpleArgeoUser();
-		else
-			return argeoUser;
-	}
-
-	@RequestMapping("/getUsersList.*")
-	@ModelAttribute("users")
-	public Set<ArgeoUser> getUsersList() {
-		return securityService.listUsers();
-	}
-
-	@RequestMapping("/userExists.*")
-	public BooleanAnswer userExists(@RequestParam("username") String username) {
-		return new BooleanAnswer(securityService.userExists(username));
-	}
-
-	@RequestMapping("/createUser.*")
-	@ModelAttribute("user")
-	public ArgeoUser createUser(Reader reader) {
-		ArgeoUser user = userDeserializer.deserialize(reader,
-				SimpleArgeoUser.class);
-		// cleanUserBeforeCreate(user);
-		securityService.newUser(user);
-		return securityService.getUser(user.getUsername());
-	}
-
-	@RequestMapping("/updateUser.*")
-	@ModelAttribute("user")
-	public ArgeoUser updateUser(Reader reader) {
-		ArgeoUser user = userDeserializer.deserialize(reader,
-				SimpleArgeoUser.class);
-		securityService.updateUser(user);
-		return securityService.getUser(user.getUsername());
-	}
-
-	@RequestMapping("/updateUserSelf.*")
-	@ModelAttribute("user")
-	/** Will only update the user natures.*/
-	public ArgeoUser updateUserSelf(Reader reader) {
-		ArgeoUser user = securityService.getCurrentUser();
-		ArgeoUser userForNatures = userDeserializer.deserialize(reader,
-				SimpleArgeoUser.class);
-		user.updateUserNatures(userForNatures.getUserNatures());
-		securityService.updateUser(user);
-		return securityService.getUser(user.getUsername());
-	}
-
-	@RequestMapping("/deleteUser.*")
-	public ServerAnswer deleteUser(@RequestParam("username") String username) {
-		securityService.deleteUser(username);
-		return ServerAnswer.ok("User " + username + " deleted");
-	}
-
-	@RequestMapping("/getUserDetails.*")
-	@ModelAttribute("user")
-	public ArgeoUser getUserDetails(@RequestParam("username") String username) {
-		return securityService.getUser(username);
-	}
+//	@RequestMapping("/getCredentials.*")
+//	@ModelAttribute("user")
+//	public ArgeoUser getCredentials() {
+//		ArgeoUser argeoUser = securityService.getCurrentUser();
+//		if (argeoUser == null)
+//			return new SimpleArgeoUser();
+//		else
+//			return argeoUser;
+//	}
+//
+//	@RequestMapping("/getUsersList.*")
+//	@ModelAttribute("users")
+//	public Set<ArgeoUser> getUsersList() {
+//		return securityService.listUsers();
+//	}
+//
+//	@RequestMapping("/userExists.*")
+//	public BooleanAnswer userExists(@RequestParam("username") String username) {
+//		return new BooleanAnswer(securityService.userExists(username));
+//	}
+//
+//	@RequestMapping("/createUser.*")
+//	@ModelAttribute("user")
+//	public ArgeoUser createUser(Reader reader) {
+//		ArgeoUser user = userDeserializer.deserialize(reader,
+//				SimpleArgeoUser.class);
+//		securityService.newUser(user);
+//		return securityService.getUser(user.getUsername());
+//	}
+//
+//	@RequestMapping("/updateUser.*")
+//	@ModelAttribute("user")
+//	public ArgeoUser updateUser(Reader reader) {
+//		ArgeoUser user = userDeserializer.deserialize(reader,
+//				SimpleArgeoUser.class);
+//		securityService.updateUser(user);
+//		return securityService.getUser(user.getUsername());
+//	}
+//
+//	@RequestMapping("/updateUserSelf.*")
+//	@ModelAttribute("user")
+//	/** Will only update the user natures.*/
+//	public ArgeoUser updateUserSelf(Reader reader) {
+//		ArgeoUser user = securityService.getCurrentUser();
+//		ArgeoUser userForNatures = userDeserializer.deserialize(reader,
+//				SimpleArgeoUser.class);
+//		user.updateUserNatures(userForNatures.getUserNatures());
+//		securityService.updateUser(user);
+//		return securityService.getUser(user.getUsername());
+//	}
+//
+//	@RequestMapping("/deleteUser.*")
+//	public ServerAnswer deleteUser(@RequestParam("username") String username) {
+//		securityService.deleteUser(username);
+//		return ServerAnswer.ok("User " + username + " deleted");
+//	}
+//
+//	@RequestMapping("/getUserDetails.*")
+//	@ModelAttribute("user")
+//	public ArgeoUser getUserDetails(@RequestParam("username") String username) {
+//		return securityService.getUser(username);
+//	}
 
 	/* ROLE */
-	@RequestMapping("/getRolesList.*")
-	@ModelAttribute("roles")
-	public Set<String> getEditableRolesList() {
-		return securityService.listEditableRoles();
-	}
-
-	@RequestMapping("/createRole.*")
-	public ServerAnswer createRole(@RequestParam("role") String role) {
-		securityService.newRole(role);
-		return ServerAnswer.ok("Role " + role + " created");
-	}
-
-	@RequestMapping("/deleteRole.*")
-	public ServerAnswer deleteRole(@RequestParam("role") String role) {
-		securityService.deleteRole(role);
-		return ServerAnswer.ok("Role " + role + " deleted");
-	}
-
-	@RequestMapping("/updateUserPassword.*")
-	public ServerAnswer updateUserPassword(
-			@RequestParam("username") String username,
-			@RequestParam("password") String password) {
-		securityService.updateUserPassword(username, password);
-		return ServerAnswer.ok("Password updated for user " + username);
-	}
-
-	@RequestMapping("/updatePassword.*")
-	public ServerAnswer updatePassword(
-			@RequestParam("oldPassword") String oldPassword,
-			@RequestParam("password") String password) {
-		securityService.updateCurrentUserPassword(oldPassword, password);
-		return ServerAnswer.ok("Password updated");
-	}
-
-	// protected String digestIfNecessary(String str) {
-	//
-	// if (!str.startsWith("{" + digestType + "}"))
-	// return digest(str);
-	// else
-	// return str;
-	// }
-
-	// protected String digest(String nonEncrypted) {
-	// try {
-	// MessageDigest md = MessageDigest.getInstance(digestType);
-	// byte[] dig = md.digest(nonEncrypted.getBytes());
-	// return "{" + digestType + "}"
-	// + new String(Base64.encodeBase64(dig));
-	// } catch (NoSuchAlgorithmException e) {
-	// throw new RuntimeException(
-	// "Unexpected exception while digesting password");
-	// }
-	// }
-
-	public void setUserDeserializer(Deserializer userDeserializer) {
-		this.userDeserializer = userDeserializer;
-	}
-
-	public void setSecurityService(ArgeoSecurityService securityService) {
-		this.securityService = securityService;
-	}
+//	@RequestMapping("/getRolesList.*")
+//	@ModelAttribute("roles")
+//	public Set<String> getEditableRolesList() {
+//		return securityService.listEditableRoles();
+//	}
+//
+//	@RequestMapping("/createRole.*")
+//	public ServerAnswer createRole(@RequestParam("role") String role) {
+//		securityService.newRole(role);
+//		return ServerAnswer.ok("Role " + role + " created");
+//	}
+//
+//	@RequestMapping("/deleteRole.*")
+//	public ServerAnswer deleteRole(@RequestParam("role") String role) {
+//		securityService.deleteRole(role);
+//		return ServerAnswer.ok("Role " + role + " deleted");
+//	}
+//
+//	@RequestMapping("/updateUserPassword.*")
+//	public ServerAnswer updateUserPassword(
+//			@RequestParam("username") String username,
+//			@RequestParam("password") String password) {
+//		securityService.updateUserPassword(username, password);
+//		return ServerAnswer.ok("Password updated for user " + username);
+//	}
+//
+//	@RequestMapping("/updatePassword.*")
+//	public ServerAnswer updatePassword(
+//			@RequestParam("oldPassword") String oldPassword,
+//			@RequestParam("password") String password) {
+//		securityService.updateCurrentUserPassword(oldPassword, password);
+//		return ServerAnswer.ok("Password updated");
+//	}
+//
+//	public void setUserDeserializer(Deserializer userDeserializer) {
+//		this.userDeserializer = userDeserializer;
+//	}
+//
+//	public void setSecurityService(ArgeoSecurityService securityService) {
+//		this.securityService = securityService;
+//	}
 
 }

@@ -35,13 +35,9 @@ import javax.jcr.SimpleCredentials;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.InitializingBean;
 
 /** Proxy JCR sessions and attach them to calling threads. */
-public class ThreadBoundJcrSessionFactory implements FactoryBean,
-		InitializingBean, DisposableBean {
+public class ThreadBoundJcrSessionFactory {
 	private final static Log log = LogFactory
 			.getLog(ThreadBoundJcrSessionFactory.class);
 
@@ -126,12 +122,12 @@ public class ThreadBoundJcrSessionFactory implements FactoryBean,
 		return proxiedSession;
 	}
 
-	public void afterPropertiesSet() throws Exception {
+	public void init() throws Exception {
 		monitoringThread = new MonitoringThread();
 		monitoringThread.start();
 	}
 
-	public synchronized void destroy() throws Exception {
+	public synchronized void dispose() throws Exception {
 		if (activeSessions.size() == 0)
 			return;
 

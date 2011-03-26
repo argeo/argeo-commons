@@ -15,7 +15,6 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.security.SiteAuthenticationToken;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationManager;
-import org.springframework.security.BadCredentialsException;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.jaas.SecurityContextLoginModule;
 
@@ -97,20 +96,20 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 		SiteAuthenticationToken credentials = new SiteAuthenticationToken(
 				username, password, null, workspace);
 
-		try {
-			Authentication authentication = authenticationManager
-					.authenticate(credentials);
-			registerAuthentication(authentication);
-			boolean res = super.login();
-			return res;
-		} catch (BadCredentialsException bce) {
-			throw bce;
-		} catch (Exception e) {
-			LoginException loginException = new LoginException(
-					"Bad credentials");
-			loginException.initCause(e);
-			throw loginException;
-		}
+		// try {
+		Authentication authentication = authenticationManager
+				.authenticate(credentials);
+		registerAuthentication(authentication);
+		boolean res = super.login();
+		return res;
+		// } catch (BadCredentialsException bce) {
+		// throw bce;
+		// } catch (LoginException e) {
+		// // LoginException loginException = new LoginException(
+		// // "Bad credentials");
+		// // loginException.initCause(e);
+		// throw e;
+		// }
 	}
 
 	@Override

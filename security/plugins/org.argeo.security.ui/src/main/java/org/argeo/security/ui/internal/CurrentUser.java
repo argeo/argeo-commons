@@ -23,12 +23,16 @@ public class CurrentUser {
 	}
 
 	public final static Set<String> roles() {
-		Principal principal = getSubject().getPrincipals(Authentication.class)
-				.iterator().next();
-		Authentication authentication = (Authentication) principal;
 		Set<String> roles = Collections.synchronizedSet(new HashSet<String>());
-		for (GrantedAuthority ga : authentication.getAuthorities()) {
-			roles.add(ga.getAuthority());
+
+		Set<Authentication> authens = getSubject().getPrincipals(
+				Authentication.class);
+		if (authens != null && !authens.isEmpty()) {
+			Principal principal = authens.iterator().next();
+			Authentication authentication = (Authentication) principal;
+			for (GrantedAuthority ga : authentication.getAuthorities()) {
+				roles.add(ga.getAuthority());
+			}
 		}
 		return Collections.unmodifiableSet(roles);
 	}

@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Jackrabbit
-Bundle-SymbolicName: org.argeo.server.ext.jackrabbit
-Bundle-Description: provides additional DLLs and imports to Jackrabbit
+Bundle-SymbolicName: org.argeo.ext.jackrabbit.sybase
+Bundle-Description: provides experimental support to Sybase in Jackrabbit
 Bundle-Version: 0.3.2.SNAPSHOT
 Fragment-Host: org.argeo.dep.osgi.jackrabbit

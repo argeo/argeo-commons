@@ -7,96 +7,112 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.eclipse.ui.dialogs.Error;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.argeo.OperatingSystem;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.equinox.security.auth.ILoginContext;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 
 /**
- * Common base class for authenticated access to the Eclipse UI framework (RAP
- * and RCP)
+ * RCP workbench initialization
  */
 public abstract class AbstractSecureApplication implements IApplication {
 	private static final Log log = LogFactory
 			.getLog(AbstractSecureApplication.class);
 
-	protected abstract WorkbenchAdvisor createWorkbenchAdvisor();
+	protected WorkbenchAdvisor createWorkbenchAdvisor(String username) {
+		return new SecureWorkbenchAdvisor(username);
+	}
 
 	public Object start(IApplicationContext context) throws Exception {
-
-		Integer returnCode = null;
-		Display display = PlatformUI.createDisplay();
+		// wait for the system to be initialized
 		try {
-			Subject subject = null;
-			Boolean retry = true;
-			while (retry) {
-				try {
-					SecureApplicationActivator.getLoginContext().login();
-					subject = SecureApplicationActivator.getLoginContext()
-							.getSubject();
-					retry = false;
-				} catch (LoginException e) {
-					Error.show("Cannot login", e);
-					retry = true;
-				} catch (Exception e) {
-					Error.show("Unexpected exception while trying to login", e);
-					retry = false;
+			Thread.sleep(3000);
+		} catch (Exception e2) {
+			// silent
+		}
+
+		// choose login context
+		final ILoginContext loginContext;
+		if (OperatingSystem.os == OperatingSystem.WINDOWS)
+			loginContext = SecureApplicationActivator
+					.createLoginContext(SecureApplicationActivator.CONTEXT_WINDOWS);
+		else
+			loginContext = SecureApplicationActivator
+					.createLoginContext(SecureApplicationActivator.CONTEXT_NIX);
+
+		final Display display = PlatformUI.createDisplay();
+
+		Subject subject = null;
+		try {
+			loginContext.login();
+			subject = loginContext.getSubject();
+		} catch (LoginException e) {
+			log.error("Error when logging in.", e);
+			display.dispose();
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e1) {
+				// silent
+			}
+			return null;
+		}
+
+		// identify after successful login
+		if (log.isDebugEnabled())
+			log.debug("subject=" + subject);
+		final String username = subject.getPrincipals().iterator().next()
+				.getName();
+		if (log.isDebugEnabled())
+			log.debug(username + " logged in");
+		display.disposeExec(new Runnable() {
+			public void run() {
+				log.debug("Display disposed");
+				logout(loginContext, username);
+			}
+		});
+
+		try {
+			PrivilegedAction<?> privilegedAction = new PrivilegedAction<Object>() {
+				public Object run() {
+					int result = PlatformUI.createAndRunWorkbench(display,
+							createWorkbenchAdvisor(username));
+					return new Integer(result);
 				}
-			}
+			};
 
-			if (subject == null) {
-				// IStatus status = new Status(IStatus.ERROR,
-				// "org.argeo.security.application", "Login is mandatory",
-				// loginException);
-				// ErrorDialog.openError(null, "Error", "Shutdown...", status);
-				// return status.getSeverity();
-
-				// TODO: log as anonymous
-			}
-
-			if (subject != null) {
-				returnCode = (Integer) Subject.doAs(subject,
-						getRunAction(display));
-				SecureApplicationActivator.getLoginContext().logout();
-				return processReturnCode(returnCode);
-			} else {
-				return -1;
-			}
+			Integer returnCode = (Integer) Subject.doAs(subject,
+					privilegedAction);
+			logout(loginContext, username);
+			return processReturnCode(returnCode);
 		} catch (Exception e) {
-			// e.printStackTrace();
-			IStatus status = new Status(IStatus.ERROR,
-					"org.argeo.security.rcp", "Login failed", e);
-			ErrorDialog.openError(null, "Error", "Shutdown...", status);
-			return returnCode;
+			if (subject != null)
+				logout(loginContext, username);
+			log.error("Unexpected error", e);
 		} finally {
 			display.dispose();
 		}
+		return null;
 	}
 
 	protected Integer processReturnCode(Integer returnCode) {
-		return returnCode;
+		if (returnCode == PlatformUI.RETURN_RESTART)
+			return IApplication.EXIT_RESTART;
+		else
+			return IApplication.EXIT_OK;
 	}
 
-	@SuppressWarnings("rawtypes")
-	private PrivilegedAction getRunAction(final Display display) {
-		return new PrivilegedAction() {
-
-			public Object run() {
-				int result = createAndRunWorkbench(display);
-				return new Integer(result);
-			}
-		};
-	}
-
-	protected Integer createAndRunWorkbench(Display display) {
-		return PlatformUI.createAndRunWorkbench(display,
-				createWorkbenchAdvisor());
+	static void logout(ILoginContext secureContext, String username) {
+		try {
+			secureContext.logout();
+			log.info("Logged out " + (username != null ? username : "")
+					+ " (THREAD=" + Thread.currentThread().getId() + ")");
+		} catch (LoginException e) {
+			log.error("Erorr when logging out", e);
+		}
 	}
 
 	public void stop() {
@@ -120,10 +136,6 @@ public abstract class AbstractSecureApplication implements IApplication {
 
 		if (log.isDebugEnabled())
 			log.debug("workbench stopped");
-		// String username = CurrentUser.getUsername();
-		// if (log.isDebugEnabled())
-		// log.debug("workbench stopped, logged in as " + username);
-
 	}
 
 }

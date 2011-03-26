@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
@@ -32,6 +33,9 @@
 						<Import-Package>
 							junit.framework;resolution:=optional,
 							org.xml.sax;version="0.0.0",
+							org.springframework.core;resolution:=optional,
+							org.springframework.core.io;resolution:=optional,
+							org.springframework.*;resolution:=optional,
 							*</Import-Package>
 					</instructions>
 				</configuration>
@@ -76,6 +80,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>org.springframework.beans</artifactId>
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- OSGi -->
@@ -91,23 +96,19 @@
 			<artifactId>com.springsource.slf4j.org.apache.commons.logging</artifactId>
 		</dependency>
 
+
+		<!-- TEST -->
 		<dependency>
 			<groupId>org.junit</groupId>
 			<artifactId>com.springsource.junit</artifactId>
 			<optional>true</optional>
 		</dependency>
-
-		<!-- TEST -->
 		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.dep.jackrabbit.server</artifactId>
+			<groupId>org.argeo.commons.osgi</groupId>
+			<artifactId>org.argeo.osgi.dep.jackrabbit</artifactId>
 			<version>0.3.2-SNAPSHOT</version>
 			<type>pom</type>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.derby</groupId>
-			<artifactId>com.springsource.org.apache.derby</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>

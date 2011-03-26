@@ -90,7 +90,7 @@ public class JcrManagerController implements MvcConstants, JcrMvcConstants {
 		// pathInfo.indexOf('/'));
 		if (log.isDebugEnabled())
 			log.debug("Upload to " + path);
-		resourceAdapter.update(path.toString(), res);
+		resourceAdapter.update(path.toString(), res.getInputStream());
 		return ServerAnswer.ok("File " + path + " imported");
 	}
 

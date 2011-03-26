@@ -7,9 +7,12 @@ import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 
 public class SecureWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
+	private final String username;
 
-	public SecureWorkbenchWindowAdvisor(IWorkbenchWindowConfigurer configurer) {
+	public SecureWorkbenchWindowAdvisor(IWorkbenchWindowConfigurer configurer,
+			String username) {
 		super(configurer);
+		this.username = username;
 	}
 
 	public ActionBarAdvisor createActionBarAdvisor(
@@ -25,8 +28,7 @@ public class SecureWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		configurer.setShowStatusLine(false);
 
 		configurer.setShowPerspectiveBar(true);
-		configurer.setTitle("Argeo Secure UI"); //$NON-NLS-1$
+		configurer.setTitle("Argeo UI - " + username); //$NON-NLS-1$
 
 	}
-
 }

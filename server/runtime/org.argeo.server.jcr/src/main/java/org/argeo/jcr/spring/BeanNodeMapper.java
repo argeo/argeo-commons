@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.argeo.jcr;
+package org.argeo.jcr.spring;
 
 import java.beans.PropertyDescriptor;
 import java.io.InputStream;
@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import javax.jcr.Binary;
 import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -41,6 +42,9 @@ import javax.jcr.ValueFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
+import org.argeo.jcr.JcrUtils;
+import org.argeo.jcr.NodeMapper;
+import org.argeo.jcr.NodeMapperProvider;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
@@ -122,7 +126,7 @@ public class BeanNodeMapper implements NodeMapper {
 			if (session.itemExists(path))
 				parentNode = (Node) session.getItem(parentPath);
 			else {
-				parentNode = JcrUtils.mkdirs(session, parentPath, null,
+				parentNode = JcrUtils.mkdirs(session, parentPath, null, null,
 						versioning);
 			}
 			// create node
@@ -352,8 +356,8 @@ public class BeanNodeMapper implements NodeMapper {
 
 			if ("class".equals(name)) {
 				if (classProperty != null) {
-					node.setProperty(classProperty, ((Class<?>) value)
-							.getName());
+					node.setProperty(classProperty,
+							((Class<?>) value).getName());
 					// TODO: store a class hierarchy?
 				}
 				continue properties;
@@ -526,9 +530,11 @@ public class BeanNodeMapper implements NodeMapper {
 			return valueFactory.createValue(cal);
 		} else if (value instanceof CharSequence)
 			return valueFactory.createValue(value.toString());
-		else if (value instanceof InputStream)
-			return valueFactory.createValue((InputStream) value);
-		else
+		else if (value instanceof InputStream) {
+			Binary binary = session.getValueFactory().createBinary(
+					(InputStream) value);
+			return valueFactory.createValue(binary);
+		} else
 			return null;
 	}
 
@@ -569,7 +575,7 @@ public class BeanNodeMapper implements NodeMapper {
 		else if (CharSequence.class.isAssignableFrom(propClass))
 			return value.getString();
 		else if (InputStream.class.isAssignableFrom(propClass))
-			return value.getStream();
+			return value.getBinary().getStream();
 		else if (Calendar.class.isAssignableFrom(propClass))
 			return value.getDate();
 		else if (Date.class.isAssignableFrom(propClass))
@@ -583,7 +589,7 @@ public class BeanNodeMapper implements NodeMapper {
 		if (child.isReadableProperty(uuidProperty)) {
 			String childUuid = child.getPropertyValue(uuidProperty).toString();
 			try {
-				return session.getNodeByUUID(childUuid);
+				return session.getNodeByIdentifier(childUuid);
 			} catch (ItemNotFoundException e) {
 				if (strictUuidReference)
 					throw new ArgeoException("No node found with uuid "

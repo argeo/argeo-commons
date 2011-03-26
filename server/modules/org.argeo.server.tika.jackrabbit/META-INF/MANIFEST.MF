@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Tika Jackrabbit extension
-Bundle-SymbolicName: org.argeo.server.tika.jackrabbit
-Bundle-Version: 0.3.2.SNAPSHOT
-Fragment-Host: org.argeo.dep.osgi.tika
-Import-Package: org.apache.jackrabbit.core.query.pdf

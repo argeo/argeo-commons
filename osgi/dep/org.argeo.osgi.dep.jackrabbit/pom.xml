@@ -11,33 +11,23 @@
 	<packaging>pom</packaging>
 	<name>Commons OSGi Minimal Jackrabbit</name>
 	<dependencies>
-
 		<dependency>
-			<groupId>org.argeo.osgi</groupId>
+			<groupId>org.argeo.commons.osgi</groupId>
 			<artifactId>org.argeo.osgi.dep.stdruntime</artifactId>
 			<version>0.3.2-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
-
 
 		<!-- Jackrabbit -->
 		<dependency>
 			<groupId>org.argeo.dep.osgi</groupId>
 			<artifactId>org.argeo.dep.osgi.jackrabbit</artifactId>
 		</dependency>
+
+		<!-- Database -->
 		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.tika.jackrabbit</artifactId>
-			<version>${version.argeo-commons}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.ext.jackrabbit</artifactId>
-			<version>${version.argeo-commons}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.xalan</groupId>
-			<artifactId>com.springsource.org.apache.xalan</artifactId>
+			<groupId>com.h2database</groupId>
+			<artifactId>com.springsource.org.h2</artifactId>
 		</dependency>
 
 		<!-- Transitive dependencies -->
@@ -54,6 +44,12 @@
 			<artifactId>org.argeo.basic.dep.log4j</artifactId>
 			<version>0.3.2-SNAPSHOT</version>
 			<type>pom</type>
+		</dependency>
+
+		<!-- Javax -->
+		<dependency>
+			<groupId>javax.xml.stream</groupId>
+			<artifactId>com.springsource.javax.xml.stream</artifactId>
 		</dependency>
 
 		<!-- Commons -->
@@ -94,10 +90,6 @@
 
 		<!-- For webdav -->
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.web.servlet</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>com.springsource.javax.servlet</artifactId>
 		</dependency>
@@ -107,52 +99,7 @@
 			<groupId>org.argeo.dep.osgi</groupId>
 			<artifactId>org.argeo.dep.osgi.tika</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.pdfbox</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.poi</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.boilerpipe</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.bouncycastle.jdk15</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.drewnoakes.metadata_extractor</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.netcdf</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.tagsoup</artifactId>
-		</dependency>
-
-		<!-- Logback <dependency> <groupId>ch.qos.logback</groupId> <artifactId>com.springsource.ch.qos.logback.classic</artifactId> 
-			</dependency> <dependency> <groupId>ch.qos.logback</groupId> <artifactId>com.springsource.ch.qos.logback.core</artifactId> 
-			</dependency> -->
-
 		<!-- Required for OSGi completion -->
-		<dependency>
-			<groupId>net.sourceforge.nekohtml</groupId>
-			<artifactId>com.springsource.org.cyberneko.html</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>com.springsource.javax.mail</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.xmlbeans</groupId>
-			<artifactId>com.springsource.org.apache.xmlbeans</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.dom4j</groupId>
 			<artifactId>com.springsource.org.dom4j</artifactId>
@@ -160,10 +107,6 @@
 		<dependency>
 			<groupId>org.jdom</groupId>
 			<artifactId>com.springsource.org.jdom</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.syndication</groupId>
-			<artifactId>com.springsource.com.sun.syndication</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.objectweb.asm</groupId>
@@ -177,16 +120,5 @@
 			<groupId>org.xmlpull</groupId>
 			<artifactId>com.springsource.org.xmlpull</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.dep.javax</artifactId>
-			<version>0.3.2-SNAPSHOT</version>
-			<type>pom</type>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.xmlcommons</groupId>
-			<artifactId>com.springsource.org.apache.xmlcommons</artifactId>
-		</dependency>
-
 	</dependencies>
 </project>

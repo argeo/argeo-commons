@@ -14,11 +14,14 @@
 		cardinality="0..1">
 		<listener ref="jcrAuthenticationProvider" bind-method="register"
 			unbind-method="unregister" />
+<!-- 		<listener ref="osJcrAuthenticationProvider" bind-method="register" -->
+<!-- 			unbind-method="unregister" /> -->
 	</reference>
+<!-- 	<reference id="systemExecutor" interface="org.argeo.security.SystemExecutionService" /> -->
 
 	<!-- SERVICES -->
 	<service ref="jcrAuthenticationProvider"
 		interface="org.springframework.security.providers.AuthenticationProvider" />
-	<service ref="jcrCurrentUserDao" interface="org.argeo.security.CurrentUserDao" />
-
+<!-- 	<service ref="osJcrAuthenticationProvider" -->
+<!-- 		interface="org.springframework.security.providers.AuthenticationProvider" /> -->
 </beans:beans>

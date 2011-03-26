@@ -16,16 +16,17 @@
 
 package org.argeo.jcr;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.jcr.Binary;
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.nodetype.NodeType;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
@@ -33,7 +34,6 @@ import javax.jcr.version.VersionIterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
-import org.springframework.core.io.Resource;
 
 /**
  * Bridge Spring resources and JCR folder / files semantics (nt:folder /
@@ -57,15 +57,8 @@ public class JcrResourceAdapter {
 	}
 
 	public void mkdirs(String path) {
-		JcrUtils.mkdirs(session(), path, "nt:folder", "nt:folder", versioning);
-	}
-
-	public void create(String path, Resource file, String mimeType) {
-		try {
-			create(path, file.getInputStream(), mimeType);
-		} catch (IOException e) {
-			throw new ArgeoException("Cannot read " + file, e);
-		}
+		JcrUtils.mkdirs(session(), path, NodeType.NT_FOLDER,
+				NodeType.NT_FOLDER, versioning);
 	}
 
 	public void create(String path, InputStream in, String mimeType) {
@@ -86,14 +79,17 @@ public class JcrResourceAdapter {
 			Node folderNode = (Node) session().getItem(parentPath);
 			Node fileNode = folderNode.addNode(fileName, "nt:file");
 
-			Node contentNode = fileNode.addNode("jcr:content", "nt:resource");
+			Node contentNode = fileNode.addNode(Property.JCR_CONTENT,
+					"nt:resource");
 			if (mimeType != null)
-				contentNode.setProperty("jcr:mimeType", mimeType);
-			contentNode.setProperty("jcr:encoding", defaultEncoding);
-			contentNode.setProperty("jcr:data", in);
+				contentNode.setProperty(Property.JCR_MIMETYPE, mimeType);
+			contentNode.setProperty(Property.JCR_ENCODING, defaultEncoding);
+			Binary binary = session().getValueFactory().createBinary(in);
+			contentNode.setProperty(Property.JCR_DATA, binary);
+			JcrUtils.closeQuietly(binary);
 			Calendar lastModified = Calendar.getInstance();
 			// lastModified.setTimeInMillis(file.lastModified());
-			contentNode.setProperty("jcr:lastModified", lastModified);
+			contentNode.setProperty(Property.JCR_LAST_MODIFIED, lastModified);
 			// resNode.addMixin("mix:referenceable");
 
 			if (versioning)
@@ -102,7 +98,8 @@ public class JcrResourceAdapter {
 			session().save();
 
 			if (versioning)
-				fileNode.checkin();
+				session().getWorkspace().getVersionManager()
+						.checkin(fileNode.getPath());
 
 			if (log.isDebugEnabled())
 				log.debug("Created " + path);
@@ -110,14 +107,6 @@ public class JcrResourceAdapter {
 			throw new ArgeoException("Cannot create node for " + path, e);
 		}
 
-	}
-
-	public void update(String path, Resource file) {
-		try {
-			update(path, file.getInputStream());
-		} catch (IOException e) {
-			throw new ArgeoException("Cannot read " + file, e);
-		}
 	}
 
 	public void update(String path, InputStream in) {
@@ -134,17 +123,21 @@ public class JcrResourceAdapter {
 			}
 
 			Node fileNode = (Node) session().getItem(path);
-			Node contentNode = fileNode.getNode("jcr:content");
+			Node contentNode = fileNode.getNode(Property.JCR_CONTENT);
 			if (versioning)
-				fileNode.checkout();
-			contentNode.setProperty("jcr:data", in);
+				session().getWorkspace().getVersionManager()
+						.checkout(fileNode.getPath());
+			Binary binary = session().getValueFactory().createBinary(in);
+			contentNode.setProperty(Property.JCR_DATA, binary);
+			JcrUtils.closeQuietly(binary);
 			Calendar lastModified = Calendar.getInstance();
 			// lastModified.setTimeInMillis(file.lastModified());
-			contentNode.setProperty("jcr:lastModified", lastModified);
+			contentNode.setProperty(Property.JCR_LAST_MODIFIED, lastModified);
 
 			session().save();
 			if (versioning)
-				fileNode.checkin();
+				session().getWorkspace().getVersionManager()
+						.checkin(fileNode.getPath());
 
 			if (log.isDebugEnabled())
 				log.debug("Updated " + path);
@@ -160,7 +153,8 @@ public class JcrResourceAdapter {
 		try {
 			List<Calendar> versions = new ArrayList<Calendar>();
 			Node fileNode = (Node) session().getItem(path);
-			VersionHistory history = fileNode.getVersionHistory();
+			VersionHistory history = session().getWorkspace()
+					.getVersionManager().getVersionHistory(fileNode.getPath());
 			for (VersionIterator it = history.getAllVersions(); it.hasNext();) {
 				Version version = (Version) it.next();
 				versions.add(version.getCreated());
@@ -177,9 +171,10 @@ public class JcrResourceAdapter {
 
 	public InputStream retrieve(String path) {
 		try {
-			Node node = (Node) session().getItem(path + "/jcr:content");
-			Property property = node.getProperty("jcr:data");
-			return property.getStream();
+			Node node = (Node) session().getItem(
+					path + "/" + Property.JCR_CONTENT);
+			Property property = node.getProperty(Property.JCR_DATA);
+			return property.getBinary().getStream();
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot retrieve " + path, e);
 		}
@@ -191,7 +186,8 @@ public class JcrResourceAdapter {
 
 		try {
 			Node fileNode = (Node) session().getItem(path);
-			VersionHistory history = fileNode.getVersionHistory();
+			VersionHistory history = session().getWorkspace()
+					.getVersionManager().getVersionHistory(fileNode.getPath());
 			int count = 0;
 			Version version = null;
 			for (VersionIterator it = history.getAllVersions(); it.hasNext();) {
@@ -217,8 +213,8 @@ public class JcrResourceAdapter {
 	protected InputStream fromVersion(Version version)
 			throws RepositoryException {
 		Node frozenNode = version.getNode("jcr:frozenNode");
-		InputStream in = frozenNode.getNode("jcr:content")
-				.getProperty("jcr:data").getStream();
+		InputStream in = frozenNode.getNode(Property.JCR_CONTENT)
+				.getProperty(Property.JCR_DATA).getBinary().getStream();
 		return in;
 	}
 

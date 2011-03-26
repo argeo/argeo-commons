@@ -22,6 +22,7 @@ import javax.jcr.Node;
 import javax.jcr.Repository;
 
 import org.apache.jackrabbit.core.TransientRepository;
+import org.argeo.jcr.spring.BeanNodeMapper;
 import org.argeo.jcr.unit.AbstractJcrTestCase;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -51,7 +52,7 @@ public class MapperTest extends AbstractJcrTestCase {
 
 	protected File getRepositoryFile() throws Exception {
 		Resource res = new ClassPathResource(
-				"org/argeo/server/jcr/repository.xml");
+				"org/argeo/server/jcr/repository-h2.xml");
 		return res.getFile();
 	}
 

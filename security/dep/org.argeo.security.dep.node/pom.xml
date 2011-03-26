@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
@@ -44,11 +45,7 @@
 			<version>0.3.2-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.xmlcommons</groupId>
-			<artifactId>com.springsource.org.apache.xmlcommons</artifactId>
-		</dependency>
-		<!-- Security services -->
+		<!-- Argeo Security -->
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.core</artifactId>
@@ -66,17 +63,35 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.mvc</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.dao.ldap</artifactId>
 			<version>${version.argeo-commons}</version>
 		</dependency>
 
-		<!-- LDAP server -->
+		<!-- Xerces and Xalan -->
 		<dependency>
-			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.dep.ads</artifactId>
-			<version>0.3.2-SNAPSHOT</version>
-			<type>pom</type>
+			<groupId>org.apache.xmlcommons</groupId>
+			<artifactId>com.springsource.org.apache.xmlcommons</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.xalan</groupId>
+			<artifactId>com.springsource.org.apache.xalan</artifactId>
+		</dependency>
+
+		<!-- Spring -->
+		<dependency>
+			<groupId>org.springframework.osgi</groupId>
+			<artifactId>org.springframework.osgi.web.extender</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.osgi</groupId>
+			<artifactId>org.springframework.osgi.web</artifactId>
+		</dependency>
+
 		<!-- Tomcat -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
@@ -88,14 +103,6 @@
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.webextender</artifactId>
 			<version>0.3.2-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.osgi</groupId>
-			<artifactId>org.springframework.osgi.web.extender</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.osgi</groupId>
-			<artifactId>org.springframework.osgi.web</artifactId>
 		</dependency>
 		<!-- Active MQ -->
 		<dependency>
@@ -124,12 +131,6 @@
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.jcr.mvc</artifactId>
 			<version>0.3.2-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.dep.jackrabbit.server</artifactId>
-			<version>0.3.2-SNAPSHOT</version>
-			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
@@ -165,6 +166,14 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>com.springsource.org.postgresql.jdbc3</artifactId>
+		</dependency>
+		<!-- LDAP server (target platform generation only) -->
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.dep.ads</artifactId>
+			<version>0.3.2-SNAPSHOT</version>
+			<type>pom</type>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

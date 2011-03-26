@@ -79,21 +79,20 @@ public class JcrAuthenticationProvider implements AuthenticationProvider {
 	}
 
 	/** Builds user details based on the authentication and the user home. */
-	protected UserDetails getUserDetails(Node userHome,
-			JcrAuthenticationToken authen) {
+	protected UserDetails getUserDetails(Node userHome, Authentication authen) {
 		try {
 			// TODO: loads enabled, locked, etc. from the home node.
 			return new JcrUserDetails(userHome.getPath(), authen.getPrincipal()
 					.toString(), authen.getCredentials().toString(),
-					isEnabled(userHome),
-					true, true, true, authen.getAuthorities());
+					isEnabled(userHome), true, true, true,
+					authen.getAuthorities());
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot get user details for " + userHome,
 					e);
 		}
 	}
-	
-	protected Boolean isEnabled(Node userHome){
+
+	protected Boolean isEnabled(Node userHome) {
 		return true;
 	}
 

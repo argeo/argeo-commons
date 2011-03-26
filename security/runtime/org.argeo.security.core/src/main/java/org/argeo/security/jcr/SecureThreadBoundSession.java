@@ -5,13 +5,29 @@ import javax.jcr.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.jcr.ThreadBoundJcrSessionFactory;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.userdetails.UserDetails;
 
-public class SecureThreadBoundSession extends ThreadBoundJcrSessionFactory {
+/**
+ * Thread bounded JCR session factory which checks authentication and is
+ * autoconfigured in Spring.
+ */
+public class SecureThreadBoundSession extends ThreadBoundJcrSessionFactory
+		implements FactoryBean, InitializingBean, DisposableBean {
 	private final static Log log = LogFactory
 			.getLog(SecureThreadBoundSession.class);
+
+	public void afterPropertiesSet() throws Exception {
+		init();
+	}
+
+	public void destroy() throws Exception {
+		dispose();
+	}
 
 	@Override
 	protected Session preCall(Session session) {

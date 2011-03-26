@@ -29,6 +29,7 @@
 				<bean class="org.springframework.security.adapters.AuthByAdapterProvider">
 					<property name="key" value="${argeo.security.systemKey}" />
 				</bean>
+				<bean class="org.argeo.security.core.OsAuthenticationProvider" />
 				<bean
 					class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider">
 					<property name="key" value="${argeo.security.systemKey}" />
