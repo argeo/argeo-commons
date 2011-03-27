@@ -75,10 +75,6 @@
 			<artifactId>org.argeo.dep.osgi.jts</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.geoapi</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.jdom</groupId>
 			<artifactId>com.springsource.org.jdom</artifactId>
 		</dependency>

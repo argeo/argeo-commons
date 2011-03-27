@@ -295,7 +295,6 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 		try {
 			NamespaceHelper namespaceHelper = new NamespaceHelper(session);
 			namespaceHelper.registerNamespaces(namespaces);
-
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot process new session", e);
 		}

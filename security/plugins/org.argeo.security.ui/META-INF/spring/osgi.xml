@@ -9,5 +9,6 @@
 	osgi:default-timeout="30000">
 
 	<reference id="userDetailsManager"
-		interface="org.springframework.security.userdetails.UserDetailsManager" />
+		interface="org.springframework.security.userdetails.UserDetailsManager"
+		cardinality="0..1" />
 </beans:beans>

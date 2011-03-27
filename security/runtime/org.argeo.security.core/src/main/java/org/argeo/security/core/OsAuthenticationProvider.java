@@ -1,7 +1,10 @@
 package org.argeo.security.core;
 
+import java.security.AccessController;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.security.auth.Subject;
 
 import org.argeo.security.OsAuthenticationToken;
 import org.springframework.security.Authentication;
@@ -9,6 +12,7 @@ import org.springframework.security.AuthenticationException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.providers.AuthenticationProvider;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 /** Validates an OS authentication. */
 public class OsAuthenticationProvider implements AuthenticationProvider {
@@ -20,16 +24,30 @@ public class OsAuthenticationProvider implements AuthenticationProvider {
 
 	public Authentication authenticate(Authentication authentication)
 			throws AuthenticationException {
+		final OsAuthenticationToken oat;
+		// if (authentication instanceof UsernamePasswordAuthenticationToken) {
+		// Subject subject = Subject.getSubject(AccessController.getContext());
+		// if (subject == null)
+		// return null;
+		// oat = new OsAuthenticationToken();
+		// } else
 		if (authentication instanceof OsAuthenticationToken) {
-			List<GrantedAuthority> auths = new ArrayList<GrantedAuthority>();
-			auths.add(new GrantedAuthorityImpl(osUserRole));
-			auths.add(new GrantedAuthorityImpl(userRole));
-			if (isAdmin)
-				auths.add(new GrantedAuthorityImpl(adminRole));
-			return new OsAuthenticationToken(
-					auths.toArray(new GrantedAuthority[auths.size()]));
+			oat = (OsAuthenticationToken) authentication;
+		} else {
+			return null;
 		}
-		return null;
+
+		// not OS authenticated
+//		if (oat.getUser() == null)
+//			return null;
+
+		List<GrantedAuthority> auths = new ArrayList<GrantedAuthority>();
+		auths.add(new GrantedAuthorityImpl(osUserRole));
+		auths.add(new GrantedAuthorityImpl(userRole));
+		if (isAdmin)
+			auths.add(new GrantedAuthorityImpl(adminRole));
+		return new OsAuthenticationToken(
+				auths.toArray(new GrantedAuthority[auths.size()]));
 	}
 
 	@SuppressWarnings("rawtypes")

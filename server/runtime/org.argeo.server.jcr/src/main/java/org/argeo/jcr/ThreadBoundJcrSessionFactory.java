@@ -37,7 +37,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 
 /** Proxy JCR sessions and attach them to calling threads. */
-public class ThreadBoundJcrSessionFactory {
+public abstract class ThreadBoundJcrSessionFactory {
 	private final static Log log = LogFactory
 			.getLog(ThreadBoundJcrSessionFactory.class);
 

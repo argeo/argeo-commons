@@ -32,6 +32,8 @@ import org.springframework.security.GrantedAuthority;
 
 /** Intermediary class in order to have a consistent naming in config files. */
 public class ArgeoSecurityManager extends DefaultSecurityManager {
+	public final static String HOME_BASE_PATH = "/home";
+
 	private Log log = LogFactory.getLog(ArgeoSecurityManager.class);
 
 	@Override
@@ -61,7 +63,7 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 					.toString(), authen, null);
 			log.info(userId + " added as " + user);
 		}
-		
+
 		setHomeNodeAuthorizations(user);
 
 		// process groups
@@ -99,6 +101,11 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		try {
 			userId = user.getID();
 			Node userHome = JcrUtils.getUserHome(getSystemSession(), userId);
+			// autocreate home node?
+//			if (userHome == null)
+//				userHome = JcrUtils.createUserHome(getSystemSession(),
+//						HOME_BASE_PATH, userId);
+
 			if (userHome != null) {
 				String path = userHome.getPath();
 				AccessControlPolicy policy = null;

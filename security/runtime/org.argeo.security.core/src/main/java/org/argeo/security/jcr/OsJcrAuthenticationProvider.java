@@ -4,41 +4,44 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 import javax.jcr.Node;
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
-import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.security.OsAuthenticationToken;
+import org.argeo.security.SystemExecutionService;
 import org.argeo.security.core.OsAuthenticationProvider;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.userdetails.UserDetails;
 
 public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
-	private RepositoryFactory repositoryFactory;
 	private Executor systemExecutor;
 	private String homeBasePath = "/home";
-	private String repositoryAlias = "node";
+	private Repository repository;
 	private String workspace = null;
+
+	private Long timeout = 5 * 60 * 1000l;
 
 	public Authentication authenticate(Authentication authentication)
 			throws AuthenticationException {
 		final OsAuthenticationToken authen = (OsAuthenticationToken) super
 				.authenticate(authentication);
+		final Repository repository = getRepositoryBlocking();
 		systemExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					Session session = JcrUtils.getRepositoryByAlias(
-							repositoryFactory, repositoryAlias)
-							.login(workspace);
-					Node userHome = JcrUtils.getUserHome(session,
-							authen.getName());
+					Session session = repository.login(workspace);
+					// WARNING: at this stage we assume that teh java properties
+					// will have the same value
+					String userName = System.getProperty("user.name");
+					Node userHome = JcrUtils.getUserHome(session, userName);
 					if (userHome == null)
-						JcrUtils.createUserHome(session, homeBasePath,
-								authen.getName());
-					authen.setDetails(getUserDetails(userHome, authen));
+						userHome = JcrUtils.createUserHome(session,
+								homeBasePath, userName);
+					//authen.setDetails(getUserDetails(userHome, authen));
 				} catch (RepositoryException e) {
 					throw new ArgeoException(
 							"Unexpected exception when synchronizing OS and JCR security ",
@@ -67,26 +70,47 @@ public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 		return true;
 	}
 
-	public void register(RepositoryFactory repositoryFactory,
-			Map<String, String> parameters) {
-		this.repositoryFactory = repositoryFactory;
+	protected Repository getRepositoryBlocking() {
+		long begin = System.currentTimeMillis();
+		while (repository == null) {
+			synchronized (this) {
+				try {
+					wait(500);
+				} catch (InterruptedException e) {
+					// silent
+				}
+			}
+			if (System.currentTimeMillis() - begin > timeout)
+				throw new ArgeoException("No repository registered after "
+						+ timeout + " ms");
+		}
+		return repository;
 	}
 
-	public void unregister(RepositoryFactory repositoryFactory,
+	public synchronized void register(Repository repository,
 			Map<String, String> parameters) {
-		this.repositoryFactory = null;
+		this.repository = repository;
+		notifyAll();
 	}
 
-	public void setSystemExecutor(Executor systemExecutor) {
+	public synchronized void unregister(Repository repository,
+			Map<String, String> parameters) {
+		this.repository = null;
+		notifyAll();
+	}
+
+	public void register(SystemExecutionService systemExecutor,
+			Map<String, String> parameters) {
 		this.systemExecutor = systemExecutor;
+	}
+
+	public void unregister(SystemExecutionService systemExecutor,
+			Map<String, String> parameters) {
+		this.systemExecutor = null;
 	}
 
 	public void setHomeBasePath(String homeBasePath) {
 		this.homeBasePath = homeBasePath;
-	}
-
-	public void setRepositoryAlias(String repositoryAlias) {
-		this.repositoryAlias = repositoryAlias;
 	}
 
 	public void setWorkspace(String workspace) {

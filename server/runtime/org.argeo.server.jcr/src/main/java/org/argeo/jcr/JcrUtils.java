@@ -650,6 +650,24 @@ public class JcrUtils implements ArgeoJcrConstants {
 		return getUserHome(session, userID);
 	}
 
+	/**
+	 * Returns user home has path, embedding exceptions. Contrary to
+	 * {@link #getUserHome(Session)}, it never returns null but throws and
+	 * exception if not found.
+	 */
+	public static String getUserHomePath(Session session) {
+		String userID = session.getUserID();
+		try {
+			Node userHome = getUserHome(session, userID);
+			if (userHome != null)
+				return userHome.getPath();
+			else
+				throw new ArgeoException("No home registered for " + userID);
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot find user home path", e);
+		}
+	}
+
 	/** Get the profile of the user attached to this session. */
 	public static Node getUserProfile(Session session) {
 		String userID = session.getUserID();

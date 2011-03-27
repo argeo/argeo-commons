@@ -46,6 +46,7 @@ public abstract class AbstractSecureApplication implements IApplication {
 
 		final Display display = PlatformUI.createDisplay();
 
+		// login
 		Subject subject = null;
 		try {
 			loginContext.login();

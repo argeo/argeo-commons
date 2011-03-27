@@ -27,7 +27,7 @@
          thread="main"
          visible="true">
          <run
-               class="org.argeo.security.ui.rcp.SecureRcp">
+               class="org.argeo.eclipse.spring.SpringExtensionFactory">
          </run>
       </application>
    </extension>
