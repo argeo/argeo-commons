@@ -36,31 +36,33 @@
             id="org.argeo.jcr.ui.explorer.openGenericJcrQueryEditor"
             name="New generic JCR query">
     	</command>
-  <command
-        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-        id="org.argeo.jcr.ui.explorer.addFileFolder"
-        name="Add file folder...">
-  </command>
-  <command
-        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-        id="org.argeo.jcr.ui.explorer.refresh"
-        name="Refresh">
-  </command>
-  <command
-        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-        id="org.argeo.jcr.ui.explorer.deleteNode"
-        name="Delete node">
-  </command>
-  <command
-        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-        id="org.argeo.jcr.ui.explorer.importFileSystem"
-        name="Import files...">
-  </command>
-  <command
-        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-        id="org.argeo.jcr.ui.explorer.openFile"
-        name="Open current file">
-  </command>
+	  <command
+	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+	        id="org.argeo.jcr.ui.explorer.addFileFolder"
+           icon="icons/add.gif"
+	        name="Add file folder...">
+	  </command>
+	  <command
+	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+	        id="org.argeo.jcr.ui.explorer.refresh"
+	        icon="icons/refresh.png"
+	        name="Refresh">
+	  </command>
+	  <command
+	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+	        id="org.argeo.jcr.ui.explorer.deleteNode"
+	        name="Delete node">
+	  </command>
+	  <command
+	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+	        id="org.argeo.jcr.ui.explorer.importFileSystem"
+	        name="Import files...">
+	  </command>
+	  <command
+	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+	        id="org.argeo.jcr.ui.explorer.openFile"
+	        name="Open current file">
+	  </command>
     </extension>
 	<extension point="org.eclipse.ui.menus">
 		<menuContribution

@@ -5,7 +5,9 @@ import java.util.Arrays;
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.PropertyType;
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,6 +20,8 @@ import org.argeo.eclipse.ui.jcr.browser.WorkspaceNode;
 import org.argeo.eclipse.ui.jcr.utils.JcrFileProvider;
 import org.argeo.eclipse.ui.jcr.utils.NodeViewerComparer;
 import org.argeo.eclipse.ui.specific.FileHandler;
+import org.argeo.jcr.ArgeoJcrConstants;
+import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.RepositoryRegister;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -41,6 +45,8 @@ import org.eclipse.ui.part.ViewPart;
 
 public class GenericJcrBrowser extends ViewPart {
 	private final static Log log = LogFactory.getLog(GenericJcrBrowser.class);
+
+	private Session session;
 
 	private TreeViewer nodesViewer;
 	private TableViewer propertiesViewer;
@@ -74,7 +80,21 @@ public class GenericJcrBrowser extends ViewPart {
 				| SWT.V_SCROLL);
 		nodesViewer.getTree().setLayoutData(
 				new GridData(SWT.FILL, SWT.FILL, true, true));
-		nodesViewer.setContentProvider(new NodeContentProvider());
+
+		// look for session
+		Session nodeSession = session;
+		if (nodeSession == null) {
+			Repository nodeRepository = JcrUtils.getRepositoryByAlias(
+					repositoryRegister, ArgeoJcrConstants.ALIAS_NODE);
+			if (nodeRepository != null)
+				try {
+					nodeSession = nodeRepository.login();
+				} catch (RepositoryException e1) {
+					throw new ArgeoException("Cannot login to node repository");
+				}
+		}
+		nodesViewer.setContentProvider(new NodeContentProvider(nodeSession,
+				repositoryRegister));
 		nodesViewer.setLabelProvider(new NodeLabelProvider());
 		nodesViewer
 				.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -110,7 +130,7 @@ public class GenericJcrBrowser extends ViewPart {
 					nodesViewer.refresh(obj);
 				} else if (obj instanceof Node) {
 					Node node = (Node) obj;
-					
+
 					// double clic on a file node triggers its opening
 					try {
 						if (node.isNodeType("nt:file")) {
@@ -134,7 +154,7 @@ public class GenericJcrBrowser extends ViewPart {
 		getSite().registerContextMenu(menuManager, nodesViewer);
 		getSite().setSelectionProvider(nodesViewer);
 
-		nodesViewer.setInput(repositoryRegister);
+		nodesViewer.setInput(getViewSite());
 
 		Composite bottom = new Composite(sashForm, SWT.NONE);
 		bottom.setLayout(new GridLayout(1, false));
@@ -239,6 +259,10 @@ public class GenericJcrBrowser extends ViewPart {
 	// IoC
 	public void setRepositoryRegister(RepositoryRegister repositoryRegister) {
 		this.repositoryRegister = repositoryRegister;
+	}
+
+	public void setSession(Session session) {
+		this.session = session;
 	}
 
 }

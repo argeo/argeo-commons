@@ -32,8 +32,9 @@ public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 		final Repository repository = getRepositoryBlocking();
 		systemExecutor.execute(new Runnable() {
 			public void run() {
+				Session session = null;
 				try {
-					Session session = repository.login(workspace);
+					session = repository.login(workspace);
 					// WARNING: at this stage we assume that teh java properties
 					// will have the same value
 					String userName = System.getProperty("user.name");
@@ -41,11 +42,13 @@ public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 					if (userHome == null)
 						userHome = JcrUtils.createUserHome(session,
 								homeBasePath, userName);
-					//authen.setDetails(getUserDetails(userHome, authen));
+					// authen.setDetails(getUserDetails(userHome, authen));
 				} catch (RepositoryException e) {
 					throw new ArgeoException(
 							"Unexpected exception when synchronizing OS and JCR security ",
 							e);
+				} finally {
+					JcrUtils.logoutQuietly(session);
 				}
 			}
 		});

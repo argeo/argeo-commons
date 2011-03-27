@@ -16,3 +16,4 @@ Import-Package: javax.jcr;version="2.0.0",
  org.argeo.eclipse.ui.jcr.editors,
  org.argeo.eclipse.ui.jcr.views,
  org.argeo.jcr
+Export-Package: org.argeo.eclipse.ui.jcr.explorer

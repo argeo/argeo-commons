@@ -12,6 +12,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
+import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.RepositoryRegister;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -19,8 +20,22 @@ import org.eclipse.jface.viewers.Viewer;
 public class NodeContentProvider implements ITreeContentProvider {
 	private ItemComparator itemComparator = new ItemComparator();
 
+	private RepositoryRegister repositoryRegister;
+	private Session userSession;
+
+	public NodeContentProvider(Session userSession,
+			RepositoryRegister repositoryRegister) {
+		this.userSession = userSession;
+		this.repositoryRegister = repositoryRegister;
+	}
+
 	public Object[] getElements(Object inputElement) {
-		return getChildren(inputElement);
+		List<Object> objs = new ArrayList<Object>();
+		if (userSession != null)
+			objs.add(JcrUtils.getUserHome(userSession));
+		if (repositoryRegister != null)
+			objs.add(repositoryRegister);
+		return objs.toArray();
 	}
 
 	public Object[] getChildren(Object parentElement) {
@@ -57,7 +72,10 @@ public class NodeContentProvider implements ITreeContentProvider {
 		try {
 			if (element instanceof Node) {
 				Node node = (Node) element;
+				if(!node.getPath().equals("/"))
 				return node.getParent();
+				else
+					return null;
 			}
 			return null;
 		} catch (RepositoryException e) {
@@ -73,6 +91,8 @@ public class NodeContentProvider implements ITreeContentProvider {
 				return ((RepositoryNode) element).hasChildren();
 			} else if (element instanceof WorkspaceNode) {
 				return ((WorkspaceNode) element).getSession() != null;
+			} else if (element instanceof RepositoryRegister) {
+				return ((RepositoryRegister) element).getRepositories().size() > 0;
 			}
 			return false;
 		} catch (RepositoryException e) {

@@ -6,6 +6,8 @@ import javax.jcr.nodetype.NodeType;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.jcr.JcrUiPlugin;
+import org.argeo.jcr.ArgeoTypes;
+import org.argeo.jcr.RepositoryRegister;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 
@@ -19,33 +21,24 @@ public class NodeLabelProvider extends LabelProvider {
 			"icons/file.gif").createImage();
 	public final static Image BINARY = JcrUiPlugin.getImageDescriptor(
 			"icons/binary.png").createImage();
+	public final static Image HOME = JcrUiPlugin.getImageDescriptor(
+			"icons/home.gif").createImage();
+	public final static Image REPOSITORIES = JcrUiPlugin.getImageDescriptor(
+			"icons/repositories.gif").createImage();
 
 	public String getText(Object element) {
 		try {
 			if (element instanceof Node) {
 				Node node = (Node) element;
 				String label = node.getName();
-				// try {
-				// Item primaryItem = node.getPrimaryItem();
-				// label = primaryItem instanceof Property ? ((Property)
-				// primaryItem)
-				// .getValue().getString()
-				// + " ("
-				// + node.getName()
-				// + ")" : node.getName();
-				// } catch (RepositoryException e) {
-				// label = node.getName();
-				// }
 				StringBuffer mixins = new StringBuffer("");
 				for (NodeType type : node.getMixinNodeTypes())
 					mixins.append(' ').append(type.getName());
 
-				// System.out.println("URL : "
-				// + createDownloadHtml("test.pdf", "Downlad"));
-
 				return label + " [" + node.getPrimaryNodeType().getName()
 						+ mixins + "]";
-				// + createDownloadHtml("test.pdf", "Downlad");
+			} else if (element instanceof RepositoryRegister) {
+				return "Repositories";
 			}
 			return element.toString();
 		} catch (RepositoryException e) {
@@ -58,13 +51,17 @@ public class NodeLabelProvider extends LabelProvider {
 		if (element instanceof Node) {
 			Node node = (Node) element;
 			try {
-				if (node.getPrimaryNodeType().isNodeType(NodeType.NT_FOLDER))
-					return FOLDER;
-				else if (node.getPrimaryNodeType().isNodeType(NodeType.NT_FILE))
+				// optimized order
+				if (node.getPrimaryNodeType().isNodeType(NodeType.NT_FILE))
 					return FILE;
+				else if (node.getPrimaryNodeType().isNodeType(
+						NodeType.NT_FOLDER))
+					return FOLDER;
 				else if (node.getPrimaryNodeType().isNodeType(
 						NodeType.NT_RESOURCE))
 					return BINARY;
+				else if (node.isNodeType(ArgeoTypes.ARGEO_USER_HOME))
+					return HOME;
 			} catch (RepositoryException e) {
 				// silent
 			}
@@ -79,6 +76,8 @@ public class NodeLabelProvider extends LabelProvider {
 				return WorkspaceNode.WORKSPACE_DISCONNECTED;
 			else
 				return WorkspaceNode.WORKSPACE_CONNECTED;
+		} else if (element instanceof RepositoryRegister) {
+			return REPOSITORIES;
 		}
 		return super.getImage(element);
 	}
