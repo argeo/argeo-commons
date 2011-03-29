@@ -26,7 +26,6 @@ import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.gis.GisNames;
 import org.argeo.jcr.gis.GisTypes;
 import org.argeo.jts.jcr.JtsJcrUtils;
-import org.argeo.security.SystemExecutionService;
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureStore;
@@ -201,7 +200,7 @@ public class GeoJcrIndex implements EventListener, GisNames, GisTypes {
 			if (node.isNodeType(GIS_LOCATED)) {
 				locatedNode = node;
 			} else if (node.isNodeType(GIS_INDEXED)) {
-				locatedNode = findLocatedparent(node);
+				locatedNode = findLocatedParent(node);
 			} else {
 				throw new ArgeoException("Unsupported node " + node);
 			}
@@ -231,12 +230,12 @@ public class GeoJcrIndex implements EventListener, GisNames, GisTypes {
 		}
 	}
 
-	protected Node findLocatedparent(Node child) {
+	protected Node findLocatedParent(Node child) {
 		try {
 			if (child.getParent().isNodeType(GIS_LOCATED))
 				return child.getParent();
 			else
-				return findLocatedparent(child.getParent());
+				return findLocatedParent(child.getParent());
 		} catch (Exception e) {
 			// also if child is root node
 			throw new ArgeoException("Cannot find located parent", e);
