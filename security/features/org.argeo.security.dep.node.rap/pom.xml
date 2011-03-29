@@ -67,5 +67,14 @@
 			<artifactId>org.argeo.server.osgi.webapp</artifactId>
 			<version>${version.argeo-commons}</version>
 		</dependency>
+
+		<!-- LDAP server (target platform generation only) -->
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.dep.ads</artifactId>
+			<version>0.3.2-SNAPSHOT</version>
+			<type>pom</type>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>
