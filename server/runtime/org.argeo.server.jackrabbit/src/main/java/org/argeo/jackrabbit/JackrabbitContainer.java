@@ -90,6 +90,12 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 	private Credentials adminCredentials;
 
 	public void afterPropertiesSet() throws Exception {
+		if (repository != null) {
+			// we are just wrapping another repository
+			importNodeTypeDefinitions(repository);
+			return;
+		}
+
 		// remote repository
 		if (uri != null && !uri.trim().equals("")) {
 			Map<String, String> params = new HashMap<String, String>();
@@ -171,9 +177,11 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 	protected void importNodeTypeDefinitions(final Repository repository) {
 		final Credentials credentialsToUse;
 		if (systemExecutor == null) {
-			if (adminCredentials == null)
-				throw new ArgeoException(
-						"No system executor or admin credentials found");
+			if (adminCredentials == null) {
+				log.error("No system executor or admin credentials found,"
+						+ " cannot import node types");
+				return;
+			}
 			credentialsToUse = adminCredentials;
 		} else {
 			credentialsToUse = null;
@@ -369,6 +377,10 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 
 	public void setAdminCredentials(Credentials adminCredentials) {
 		this.adminCredentials = adminCredentials;
+	}
+
+	public void setRepository(Repository repository) {
+		this.repository = repository;
 	}
 
 }

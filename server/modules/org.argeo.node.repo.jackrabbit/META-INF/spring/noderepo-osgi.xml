@@ -9,7 +9,7 @@
        http://www.springframework.org/schema/util
        http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
-	<!-- REFERENCE -->
+	<!-- REFERENCES -->
 	<reference id="systemExecutionService" interface="org.argeo.security.SystemExecutionService" />
 
 	<!-- SERVICES -->

@@ -1,10 +1,7 @@
 package org.argeo.security.core;
 
-import java.security.AccessController;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.security.auth.Subject;
 
 import org.argeo.security.OsAuthenticationToken;
 import org.springframework.security.Authentication;
@@ -12,7 +9,6 @@ import org.springframework.security.AuthenticationException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.providers.AuthenticationProvider;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 /** Validates an OS authentication. */
 public class OsAuthenticationProvider implements AuthenticationProvider {
@@ -24,22 +20,8 @@ public class OsAuthenticationProvider implements AuthenticationProvider {
 
 	public Authentication authenticate(Authentication authentication)
 			throws AuthenticationException {
-		final OsAuthenticationToken oat;
-		// if (authentication instanceof UsernamePasswordAuthenticationToken) {
-		// Subject subject = Subject.getSubject(AccessController.getContext());
-		// if (subject == null)
-		// return null;
-		// oat = new OsAuthenticationToken();
-		// } else
-		if (authentication instanceof OsAuthenticationToken) {
-			oat = (OsAuthenticationToken) authentication;
-		} else {
+		if (!(authentication instanceof OsAuthenticationToken))
 			return null;
-		}
-
-		// not OS authenticated
-//		if (oat.getUser() == null)
-//			return null;
 
 		List<GrantedAuthority> auths = new ArrayList<GrantedAuthority>();
 		auths.add(new GrantedAuthorityImpl(osUserRole));
@@ -57,6 +39,10 @@ public class OsAuthenticationProvider implements AuthenticationProvider {
 
 	public void setOsUserRole(String osUserRole) {
 		this.osUserRole = osUserRole;
+	}
+
+	public void setUserRole(String userRole) {
+		this.userRole = userRole;
 	}
 
 	public void setAdminRole(String adminRole) {
