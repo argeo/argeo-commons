@@ -75,12 +75,6 @@
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>com.springsource.javax.xml.bind</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.dep.javax</artifactId>
-			<version>0.3.2-SNAPSHOT</version>
-			<type>pom</type>
-		</dependency>
 
 		<!-- Security -->
 		<dependency>
