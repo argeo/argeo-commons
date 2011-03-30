@@ -8,7 +8,7 @@
 
 	<!-- REFERENCES -->
 	<reference id="nodeRepository" interface="javax.jcr.Repository"
-		filter="(argeo.jcr.repository.alias=node)" />
+		filter="(argeo.jcr.repository.alias=${argeo.node.repo.alias})" />
 	<reference id="systemExecutionService" interface="org.argeo.security.SystemExecutionService" />
 
 	<!-- SERVICES -->
