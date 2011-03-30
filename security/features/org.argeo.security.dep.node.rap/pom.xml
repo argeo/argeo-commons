@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
@@ -60,7 +61,7 @@
 			<artifactId>org.argeo.security.ui.rap</artifactId>
 			<version>0.3.2-SNAPSHOT</version>
 		</dependency>
-		
+
 		<!-- Javax -->
 		<dependency>
 			<groupId>javax.annotation</groupId>
@@ -74,7 +75,13 @@
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>com.springsource.javax.xml.bind</artifactId>
 		</dependency>
-		
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.dep.javax</artifactId>
+			<version>0.3.2-SNAPSHOT</version>
+			<type>pom</type>
+		</dependency>
+
 		<!-- Security -->
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
@@ -91,7 +98,7 @@
 			<artifactId>org.argeo.security.services</artifactId>
 			<version>${version.argeo-commons}</version>
 		</dependency>
-		
+
 		<!-- Web -->
 		<dependency>
 			<groupId>org.springframework.osgi</groupId>
