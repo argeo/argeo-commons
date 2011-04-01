@@ -2,7 +2,7 @@ package org.argeo.eclipse.ui.jcr.commands;
 
 import java.util.Iterator;
 
-import org.argeo.eclipse.ui.jcr.views.GenericJcrBrowser;
+import org.argeo.eclipse.ui.jcr.views.AbstractJcrBrowser;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -16,7 +16,7 @@ public class Refresh extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ISelection selection = HandlerUtil.getActiveWorkbenchWindow(event)
 				.getActivePage().getSelection();
-		GenericJcrBrowser view = (GenericJcrBrowser) HandlerUtil
+		AbstractJcrBrowser view = (AbstractJcrBrowser) HandlerUtil
 				.getActiveWorkbenchWindow(event).getActivePage()
 				.findView(HandlerUtil.getActivePartId(event));
 		if (selection != null && selection instanceof IStructuredSelection) {
