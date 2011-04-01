@@ -29,6 +29,7 @@ public class NodeContentProvider implements ITreeContentProvider {
 		this.repositoryRegister = repositoryRegister;
 	}
 
+	/** Sends back the first level of the Tree. Independent from inputElement that can be null*/
 	public Object[] getElements(Object inputElement) {
 		List<Object> objs = new ArrayList<Object>();
 		if (userSession != null)

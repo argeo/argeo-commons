@@ -8,6 +8,7 @@ import javax.jcr.PropertyType;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,6 +50,7 @@ public class GenericJcrBrowser extends ViewPart {
 	private Session session;
 
 	private TreeViewer nodesViewer;
+	private NodeContentProvider nodeContentProvider;
 	private TableViewer propertiesViewer;
 
 	private RepositoryRegister repositoryRegister;
@@ -93,8 +95,9 @@ public class GenericJcrBrowser extends ViewPart {
 					throw new ArgeoException("Cannot login to node repository");
 				}
 		}
-		nodesViewer.setContentProvider(new NodeContentProvider(nodeSession,
-				repositoryRegister));
+		nodeContentProvider = new NodeContentProvider(nodeSession,
+				repositoryRegister);
+		nodesViewer.setContentProvider(nodeContentProvider);
 		nodesViewer.setLabelProvider(new NodeLabelProvider());
 		nodesViewer
 				.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -119,12 +122,7 @@ public class GenericJcrBrowser extends ViewPart {
 				if (obj instanceof RepositoryNode) {
 					RepositoryNode rpNode = (RepositoryNode) obj;
 					rpNode.login();
-					// For the file provider to be able to browse the various
-					// repository.
-					// TODO : enhanced that.
-					jfp.setRepositoryNode(rpNode);
 					nodesViewer.refresh(obj);
-
 				} else if (obj instanceof WorkspaceNode) {
 					((WorkspaceNode) obj).login();
 					nodesViewer.refresh(obj);
@@ -133,9 +131,16 @@ public class GenericJcrBrowser extends ViewPart {
 
 					// double clic on a file node triggers its opening
 					try {
-						if (node.isNodeType("nt:file")) {
+						if (node.isNodeType(NodeType.NT_FILE)) {
 							String name = node.getName();
 							String id = node.getIdentifier();
+							// For the file provider to be able to browse the
+							// various
+							// repository.
+							// TODO : enhanced that.
+							jfp.setRootNodes((Object[]) nodeContentProvider
+									.getElements(null));
+
 							fh.openFile(name, id);
 						}
 					} catch (RepositoryException re) {
