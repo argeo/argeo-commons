@@ -24,7 +24,7 @@ public class ImportFileSystemWizard extends Wizard {
 	private final static Log log = LogFactory
 			.getLog(ImportFileSystemWizard.class);
 
-	private ImportToServerWizardPage page1;
+	private ImportToServerWizardPage importPage;
 	private final Node folder;
 
 	public ImportFileSystemWizard(Node folder) {
@@ -34,13 +34,9 @@ public class ImportFileSystemWizard extends Wizard {
 
 	@Override
 	public void addPages() {
-		try {
-			page1 = new ImportToServerWizardPage();
-			addPage(page1);
-			setNeedsProgressMonitor(page1.getNeedsProgressMonitor());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		importPage = new ImportToServerWizardPage();
+		addPage(importPage);
+		setNeedsProgressMonitor(importPage.getNeedsProgressMonitor());
 	}
 
 	/**
@@ -51,27 +47,27 @@ public class ImportFileSystemWizard extends Wizard {
 	public boolean performFinish() {
 
 		// Initialization
-		final String objectType = page1.getObjectType();
-		final String objectPath = page1.getObjectPath();
+		final String objectType = importPage.getObjectType();
+		final String objectPath = importPage.getObjectPath();
 
 		// We do not display a progress bar for one file only
-		if (page1.FILE_ITEM_TYPE.equals(objectType)) {
+		if (importPage.FILE_ITEM_TYPE.equals(objectType)) {
 			// In Rap we must force the "real" upload of the file
-			page1.performFinish();
+			importPage.performFinish();
 			try {
-				Node fileNode = folder.addNode(page1.getObjectName(),
+				Node fileNode = folder.addNode(importPage.getObjectName(),
 						NodeType.NT_FILE);
 				Node resNode = fileNode.addNode(Property.JCR_CONTENT,
 						NodeType.NT_RESOURCE);
 				Binary binary = null;
 				try {
 					binary = folder.getSession().getValueFactory()
-							.createBinary(page1.getFileInputStream());
+							.createBinary(importPage.getFileInputStream());
 					resNode.setProperty(Property.JCR_DATA, binary);
 				} finally {
 					if (binary != null)
 						binary.dispose();
-					IOUtils.closeQuietly(page1.getFileInputStream());
+					IOUtils.closeQuietly(importPage.getFileInputStream());
 				}
 				folder.getSession().save();
 			} catch (Exception e) {
@@ -79,7 +75,7 @@ public class ImportFileSystemWizard extends Wizard {
 				return false;
 			}
 			return true;
-		} else if (page1.FOLDER_ITEM_TYPE.equals(objectType)) {
+		} else if (importPage.FOLDER_ITEM_TYPE.equals(objectType)) {
 			if (objectPath == null || !new File(objectPath).exists()) {
 				Error.show("Directory " + objectPath + " does not exist");
 				return false;
