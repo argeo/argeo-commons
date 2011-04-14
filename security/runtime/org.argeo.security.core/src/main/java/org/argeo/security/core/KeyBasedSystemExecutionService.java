@@ -6,33 +6,21 @@ import javax.security.auth.Subject;
 
 import org.argeo.ArgeoException;
 import org.argeo.security.SystemExecutionService;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
 
-public class KeyBasedSystemExecutionService implements SystemExecutionService,
-		TaskExecutor {
+/**
+ * Implementation of a {@link SystemExecutionService} using a key-based
+ * {@link InternalAuthentication}
+ */
+public class KeyBasedSystemExecutionService implements SystemExecutionService {
 	private AuthenticationManager authenticationManager;
 	private String systemAuthenticationKey;
 
 	public void execute(Runnable runnable) {
 		wrapWithSystemAuthentication(runnable).run();
-	}
-
-	public TaskExecutor createSystemAuthenticatedTaskExecutor() {
-		return new SimpleAsyncTaskExecutor() {
-			private static final long serialVersionUID = -8126773862193265020L;
-
-			@Override
-			public Thread createThread(Runnable runnable) {
-				return super
-						.createThread(wrapWithSystemAuthentication(runnable));
-			}
-
-		};
 	}
 
 	protected Runnable wrapWithSystemAuthentication(final Runnable runnable) {
