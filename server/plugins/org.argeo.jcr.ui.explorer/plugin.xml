@@ -39,13 +39,11 @@
 	  <command
 	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
 	        id="org.argeo.jcr.ui.explorer.addFileFolder"
-           icon="icons/add.gif"
 	        name="Add file folder...">
 	  </command>
 	  <command
 	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
 	        id="org.argeo.jcr.ui.explorer.refresh"
-	        icon="icons/refresh.png"
 	        name="Refresh">
 	  </command>
 	  <command
@@ -72,11 +70,6 @@
                       icon="icons/query.png"
                       style="push">
                 </command>
-			     <command
-			           commandId="org.argeo.jcr.ui.explorer.initUserHome"
-			           style="push"
-			           tooltip="Initializes the user specific area within this node">
-			     </command>
           </menuContribution>
   <menuContribution
         locationURI="popup:org.argeo.jcr.ui.explorer.browserView">
