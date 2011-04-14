@@ -252,6 +252,10 @@ public abstract class ThreadBoundJcrSessionFactory {
 	/** Monitors registered thread in order to clean up dead ones. */
 	private class MonitoringThread extends Thread {
 
+		public MonitoringThread() {
+			super("ThreadBound JCR Session Monitor");
+		}
+
 		@Override
 		public void run() {
 			while (isActive()) {

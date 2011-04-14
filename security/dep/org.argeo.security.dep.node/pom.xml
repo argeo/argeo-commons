@@ -112,6 +112,11 @@
 			<artifactId>org.argeo.security.activemq</artifactId>
 			<version>0.3.2-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.activemq.broker</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
 
 		<!-- Hibernate -->
 		<dependency>
