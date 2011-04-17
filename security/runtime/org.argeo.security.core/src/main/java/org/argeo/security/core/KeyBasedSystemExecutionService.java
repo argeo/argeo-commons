@@ -1,6 +1,10 @@
 package org.argeo.security.core;
 
 import java.security.AccessController;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import javax.security.auth.Subject;
 
@@ -20,13 +24,26 @@ public class KeyBasedSystemExecutionService implements SystemExecutionService {
 	private String systemAuthenticationKey;
 
 	public void execute(Runnable runnable) {
-		wrapWithSystemAuthentication(runnable).run();
+		try {
+			wrapWithSystemAuthentication(Executors.callable(runnable)).call();
+		} catch (Exception e) {
+			throw new ArgeoException(
+					"Exception when running system authenticated task", e);
+		}
 	}
 
-	protected Runnable wrapWithSystemAuthentication(final Runnable runnable) {
-		return new Runnable() {
+	public <T> Future<T> submit(Callable<T> task) {
+		FutureTask<T> future = new FutureTask<T>(
+				wrapWithSystemAuthentication(task));
+		future.run();
+		return future;
+	}
 
-			public void run() {
+	protected <T> Callable<T> wrapWithSystemAuthentication(
+			final Callable<T> runnable) {
+		return new Callable<T>() {
+
+			public T call() throws Exception {
 				SecurityContext securityContext = SecurityContextHolder
 						.getContext();
 				Authentication currentAuth = securityContext
@@ -51,7 +68,7 @@ public class KeyBasedSystemExecutionService implements SystemExecutionService {
 								systemAuthenticationKey));
 				securityContext.setAuthentication(auth);
 				try {
-					runnable.run();
+					return runnable.call();
 				} finally {
 					// remove the authentication
 					securityContext.setAuthentication(null);

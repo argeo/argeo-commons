@@ -1,6 +1,8 @@
 package org.argeo.security;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 
 /**
  * Allows to execute code authenticated as a system user (that is not a real
@@ -10,9 +12,16 @@ import java.util.concurrent.Executor;
  */
 public interface SystemExecutionService extends Executor {
 	/**
-	 * Executes this Runnable within a system authenticated context.
+	 * Executes this {@link Runnable} within a system authenticated context.
 	 * Implementations should make sure that this method is properly secured via
 	 * Java permissions since it could access to everything without credentials.
 	 */
 	public void execute(Runnable runnable);
+	
+	/**
+	 * Executes this {@link Callable} within a system authenticated context.
+	 * Implementations should make sure that this method is properly secured via
+	 * Java permissions since it could access to everything without credentials.
+	 */
+	public <T> Future<T> submit(Callable<T> task);
 }
