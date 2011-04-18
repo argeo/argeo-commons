@@ -69,7 +69,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 	}
 
 	/** Logs in to the repository using various strategies. */
-	protected Session login() {
+	protected synchronized Session login() {
 		if (!isActive())
 			throw new ArgeoException("Thread bound session factory inactive");
 
