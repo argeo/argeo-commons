@@ -7,11 +7,11 @@ import javax.jcr.nodetype.NodeType;
 
 import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoTypes;
-import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.graphics.Image;
 
 /** Provides reasonable overridable defaults for know JCR types. */
-public class DefaultNodeLabelProvider extends LabelProvider {
+public class DefaultNodeLabelProvider extends ColumnLabelProvider {
 	// Images
 	public final static Image NODE = JcrUiPlugin.getImageDescriptor(
 			"icons/node.gif").createImage();
@@ -75,6 +75,26 @@ public class DefaultNodeLabelProvider extends LabelProvider {
 			return HOME;
 		else
 			return NODE;
+	}
+
+	@Override
+	public String getToolTipText(Object element) {
+		try {
+			if (element instanceof Node) {
+				return getToolTipText((Node) element);
+			} else if (element instanceof WrappedNode) {
+				return getToolTipText(((WrappedNode) element).getNode());
+			} else if (element instanceof NodesWrapper) {
+				return getToolTipText(((NodesWrapper) element).getNode());
+			}
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot get tooltip for " + element, e);
+		}
+		return super.getToolTipText(element);
+	}
+
+	protected String getToolTipText(Node node) throws RepositoryException {
+		return null;
 	}
 
 }
