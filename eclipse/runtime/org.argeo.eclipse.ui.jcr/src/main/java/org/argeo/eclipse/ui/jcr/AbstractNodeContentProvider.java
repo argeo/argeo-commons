@@ -31,19 +31,43 @@ public abstract class AbstractNodeContentProvider extends
 
 	@Override
 	public Object[] getChildren(Object element) {
+		Object[] children;
 		if (element instanceof Node) {
 			try {
-				List<Node> nodes = new ArrayList<Node>();
-				for (NodeIterator nit = ((Node) element).getNodes(); nit
-						.hasNext();)
-					nodes.add(nit.nextNode());
-				return nodes.toArray();
+				Node node = (Node) element;
+				children = getChildren(node);
 			} catch (RepositoryException e) {
 				throw new ArgeoException("Cannot get children of " + element, e);
 			}
+		} else if (element instanceof WrappedNode) {
+			WrappedNode wrappedNode = (WrappedNode) element;
+			try {
+				children = getChildren(wrappedNode.getNode());
+			} catch (RepositoryException e) {
+				throw new ArgeoException("Cannot get children of "
+						+ wrappedNode, e);
+			}
+		} else if (element instanceof NodesWrapper) {
+			NodesWrapper node = (NodesWrapper) element;
+			children = node.getChildren();
 		} else {
-			return super.getChildren(element);
+			children = super.getChildren(element);
 		}
+
+		children = sort(element, children);
+		return children;
+	}
+
+	/** Do not sort by default. To be overidden to provide custom sort. */
+	protected Object[] sort(Object parent, Object[] children) {
+		return children;
+	}
+
+	protected Object[] getChildren(Node node) throws RepositoryException {
+		List<Node> nodes = new ArrayList<Node>();
+		for (NodeIterator nit = node.getNodes(); nit.hasNext();)
+			nodes.add(nit.nextNode());
+		return nodes.toArray();
 	}
 
 	@Override
@@ -59,20 +83,33 @@ public abstract class AbstractNodeContentProvider extends
 			} catch (RepositoryException e) {
 				throw new ArgeoException("Cannot get parent of " + element, e);
 			}
+		} else if (element instanceof WrappedNode) {
+			WrappedNode wrappedNode = (WrappedNode) element;
+			return wrappedNode.getParent();
+		} else if (element instanceof NodesWrapper) {
+			NodesWrapper nodesWrapper = (NodesWrapper) element;
+			return this.getParent(nodesWrapper.getNode());
 		}
 		return super.getParent(element);
 	}
 
 	@Override
 	public boolean hasChildren(Object element) {
-		if (element instanceof Node) {
-			Node node = (Node) element;
-			try {
+		try {
+			if (element instanceof Node) {
+				Node node = (Node) element;
 				return node.hasNodes();
-			} catch (RepositoryException e) {
-				throw new ArgeoException("Cannot check whether " + element
-						+ " has children", e);
+			} else if (element instanceof WrappedNode) {
+				WrappedNode wrappedNode = (WrappedNode) element;
+				return wrappedNode.getNode().hasNodes();
+			} else if (element instanceof NodesWrapper) {
+				NodesWrapper nodesWrapper = (NodesWrapper) element;
+				return nodesWrapper.hasChildren();
 			}
+
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot check whether " + element
+					+ " has children", e);
 		}
 		return super.hasChildren(element);
 	}
