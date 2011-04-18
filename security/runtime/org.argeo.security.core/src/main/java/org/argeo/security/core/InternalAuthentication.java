@@ -21,11 +21,14 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.adapters.PrincipalSpringSecurityUserToken;
 
+/** A token base on a system key used to request a system authentication. */
 public class InternalAuthentication extends PrincipalSpringSecurityUserToken
 		implements SystemAuthentication {
 	private static final long serialVersionUID = -6783376375615949315L;
 	public final static String DEFAULT_SYSTEM_USERNAME = "system";
 	public final static String DEFAULT_SYSTEM_ROLE = "ROLE_SYSTEM";
+	public final static String SYSTEM_KEY_PROPERTY = "argeo.security.systemKey";
+	public final static String SYSTEM_KEY_DEFAULT = "argeo";
 
 	public InternalAuthentication(String key, String systemUsername,
 			String systemRole) {
