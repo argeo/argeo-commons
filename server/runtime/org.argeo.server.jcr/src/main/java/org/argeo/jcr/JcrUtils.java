@@ -41,7 +41,9 @@ import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.Value;
+import javax.jcr.Workspace;
 import javax.jcr.nodetype.NodeType;
+import javax.jcr.observation.EventListener;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 import javax.jcr.query.qom.Constraint;
@@ -727,6 +729,7 @@ public class JcrUtils implements ArgeoJcrConstants {
 		}
 	}
 
+	/** Creates an Argeo user home. */
 	public static Node createUserHome(Session session, String homeBasePath,
 			String username) {
 		try {
@@ -754,6 +757,37 @@ public class JcrUtils implements ArgeoJcrConstants {
 			discardQuietly(session);
 			throw new ArgeoException("Cannot create home node for user "
 					+ username, e);
+		}
+	}
+
+	/**
+	 * Quietly unregisters an {@link EventListener} from the udnerlying
+	 * workspace of this node.
+	 */
+	public static void unregisterQuietly(Node node, EventListener eventListener) {
+		try {
+			unregisterQuietly(node.getSession().getWorkspace(), eventListener);
+		} catch (RepositoryException e) {
+			// silent
+			if (log.isTraceEnabled())
+				log.trace("Could not unregister event listener "
+						+ eventListener);
+		}
+	}
+
+	/** Quietly unregisters an {@link EventListener} from this workspace */
+	public static void unregisterQuietly(Workspace workspace,
+			EventListener eventListener) {
+		if (eventListener == null)
+			return;
+		try {
+			workspace.getObservationManager()
+					.removeEventListener(eventListener);
+		} catch (RepositoryException e) {
+			// silent
+			if (log.isTraceEnabled())
+				log.trace("Could not unregister event listener "
+						+ eventListener);
 		}
 	}
 }
