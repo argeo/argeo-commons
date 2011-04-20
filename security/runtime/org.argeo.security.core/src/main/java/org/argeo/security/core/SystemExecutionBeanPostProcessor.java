@@ -1,14 +1,38 @@
 package org.argeo.security.core;
 
+import java.beans.PropertyDescriptor;
+
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.PropertyValues;
+import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 
 /**
- * Executes with a system authentication the initialization methods of the
- * application context where it has been defined.
+ * Executes with a system authentication the instantiation and initialization
+ * methods of the application context where it has been defined.
  */
-public class SystemExecutionBeanPostProcessor extends
-		AbstractSystemExecution implements BeanPostProcessor {
+public class SystemExecutionBeanPostProcessor extends AbstractSystemExecution
+		implements InstantiationAwareBeanPostProcessor, ApplicationListener {
+
+	@SuppressWarnings("rawtypes")
+	public Object postProcessBeforeInstantiation(Class beanClass,
+			String beanName) throws BeansException {
+		authenticateAsSystem();
+		return null;
+	}
+
+	public boolean postProcessAfterInstantiation(Object bean, String beanName)
+			throws BeansException {
+		return true;
+	}
+
+	public PropertyValues postProcessPropertyValues(PropertyValues pvs,
+			PropertyDescriptor[] pds, Object bean, String beanName)
+			throws BeansException {
+		return pvs;
+	}
 
 	public Object postProcessBeforeInitialization(Object bean, String beanName)
 			throws BeansException {
@@ -24,6 +48,14 @@ public class SystemExecutionBeanPostProcessor extends
 		// exception and perform the deauthentication by ourselves.
 		deauthenticateAsSystem();
 		return bean;
+	}
+
+	public void onApplicationEvent(ApplicationEvent event) {
+		if (event instanceof ContextRefreshedEvent) {
+			// make sure that we have deauthenticated after the application
+			// context was initialized/refreshed
+			deauthenticateAsSystem();
+		}
 	}
 
 }
