@@ -367,11 +367,16 @@ public class JcrUtils implements ArgeoJcrConstants {
 	}
 
 	/**
-	 * Copies recursively the content of a node to another one. Mixin are NOT
-	 * copied.
+	 * Copies recursively the content of a node to another one. Do NOT copy the
+	 * property values of {@link NodeType#MIX_CREATED} and
+	 * {@link NodeType#MIX_LAST_MODIFIED}, but update the
+	 * {@link Property#JCR_LAST_MODIFIED} and
+	 * {@link Property#JCR_LAST_MODIFIED_BY} properties if the target node has
+	 * the {@link NodeType#MIX_LAST_MODIFIED} mixin.
 	 */
 	public static void copy(Node fromNode, Node toNode) {
 		try {
+			// process properties
 			PropertyIterator pit = fromNode.getProperties();
 			properties: while (pit.hasNext()) {
 				Property fromProperty = pit.nextProperty();
@@ -381,10 +386,32 @@ public class JcrUtils implements ArgeoJcrConstants {
 								.isProtected())
 					continue properties;
 
-				toNode.setProperty(fromProperty.getName(),
-						fromProperty.getValue());
+				if (fromProperty.getDefinition().isProtected())
+					continue properties;
+
+				if (propertyName.equals("jcr:created")
+						|| propertyName.equals("jcr:createdBy")
+						|| propertyName.equals("jcr:lastModified")
+						|| propertyName.equals("jcr:lastModifiedBy"))
+					continue properties;
+
+				if (fromProperty.isMultiple()) {
+					toNode.setProperty(propertyName, fromProperty.getValues());
+				} else {
+					toNode.setProperty(propertyName, fromProperty.getValue());
+				}
 			}
 
+			// update jcr:lastModified and jcr:lastModifiedBy in toNode in case
+			// they existed, before adding the mixins
+			updateLastModified(toNode);
+
+			// add mixins
+			for (NodeType mixinType : fromNode.getMixinNodeTypes()) {
+				toNode.addMixin(mixinType.getName());
+			}
+
+			// process children nodes
 			NodeIterator nit = fromNode.getNodes();
 			while (nit.hasNext()) {
 				Node fromChild = nit.nextNode();
@@ -788,6 +815,28 @@ public class JcrUtils implements ArgeoJcrConstants {
 			if (log.isTraceEnabled())
 				log.trace("Could not unregister event listener "
 						+ eventListener);
+		}
+	}
+
+	/**
+	 * If this node is has the {@link NodeType#MIX_LAST_MODIFIED} mixin, it
+	 * updates the {@link Property#JCR_LAST_MODIFIED} property with the current
+	 * time and the {@link Property#JCR_LAST_MODIFIED_BY} property with the
+	 * underlying session user id. In Jackrabbit 2.x, <a
+	 * href="https://issues.apache.org/jira/browse/JCR-2233">these properties
+	 * are not automatically updated</a>, hence the need for manual update. The
+	 * session is not saved.
+	 */
+	public static void updateLastModified(Node node) {
+		try {
+			if (node.isNodeType(NodeType.MIX_LAST_MODIFIED)) {
+				node.setProperty(Property.JCR_LAST_MODIFIED,
+						new GregorianCalendar());
+				node.setProperty(Property.JCR_LAST_MODIFIED_BY, node
+						.getSession().getUserID());
+			}
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot update last modified", e);
 		}
 	}
 }
