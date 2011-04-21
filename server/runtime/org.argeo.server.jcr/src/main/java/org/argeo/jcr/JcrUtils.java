@@ -653,6 +653,21 @@ public class JcrUtils implements ArgeoJcrConstants {
 	}
 
 	/**
+	 * Discards the current changes in the session attached to this node. To be
+	 * used typically in a catch block.
+	 * 
+	 * @see #discardQuietly(Session)
+	 */
+	public static void discardUnderlyingSessionQuietly(Node node) {
+		try {
+			discardQuietly(node.getSession());
+		} catch (RepositoryException e) {
+			log.warn("Cannot quietly discard session of node " + node + ": "
+					+ e.getMessage());
+		}
+	}
+
+	/**
 	 * Discards the current changes in a session by calling
 	 * {@link Session#refresh(boolean)} with <code>false</code>, only logging
 	 * potential errors when doing so. To be used typically in a catch block.
