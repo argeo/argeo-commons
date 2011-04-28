@@ -17,6 +17,7 @@
 package org.argeo.jcr;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -224,7 +225,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 	protected class JcrSessionInvocationHandler implements InvocationHandler {
 
 		public Object invoke(Object proxy, Method method, Object[] args)
-				throws Throwable {
+				throws Throwable, RepositoryException {
 			Session threadSession = session.get();
 			if (threadSession == null) {
 				if ("logout".equals(method.getName()))// no need to login
@@ -235,7 +236,16 @@ public abstract class ThreadBoundJcrSessionFactory {
 			}
 
 			preCall(threadSession);
-			Object ret = method.invoke(threadSession, args);
+			Object ret;
+			try {
+				ret = method.invoke(threadSession, args);
+			} catch (InvocationTargetException e) {
+				Throwable cause = e.getCause();
+				if (cause instanceof RepositoryException)
+					throw (RepositoryException) cause;
+				else
+					throw cause;
+			}
 			if ("logout".equals(method.getName())) {
 				session.remove();
 				Thread thread = Thread.currentThread();
