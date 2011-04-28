@@ -30,6 +30,8 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.springframework.context.ApplicationContext;
 
 /**
+ * Tracks Spring application context published as services.
+ * 
  * @author Heiko Seeberger
  * @author Mathieu Baudier
  */
@@ -39,6 +41,11 @@ class ApplicationContextTracker {
 
 	private static final String FILTER = "(&(objectClass=org.springframework.context.ApplicationContext)" //$NON-NLS-1$
 			+ "(org.springframework.context.service.name={0}))"; //$NON-NLS-1$
+
+	public final static String APPLICATION_CONTEXT_TRACKER_TIMEOUT = "org.argeo.eclipse.spring.applicationContextTrackerTimeout";
+
+	private static Long defaultTimeout = Long.parseLong(System.getProperty(
+			APPLICATION_CONTEXT_TRACKER_TIMEOUT, "30000"));
 
 	private ServiceTracker applicationContextServiceTracker;
 
@@ -59,9 +66,15 @@ class ApplicationContextTracker {
 			applicationContextServiceTracker = new ServiceTracker(
 					factoryBundleContext, FrameworkUtil.createFilter(filter),
 					null);
-			applicationContextServiceTracker.open();
+			// applicationContextServiceTracker.open();
 		} catch (final InvalidSyntaxException e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void open() {
+		if (applicationContextServiceTracker != null) {
+			applicationContextServiceTracker.open();
 		}
 	}
 
@@ -76,7 +89,7 @@ class ApplicationContextTracker {
 		if (applicationContextServiceTracker != null) {
 			try {
 				applicationContext = (ApplicationContext) applicationContextServiceTracker
-						.waitForService(5000);
+						.waitForService(defaultTimeout);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -114,6 +127,7 @@ class ApplicationContextTracker {
 				contributorBundle, contributorBundle.getBundleContext());
 		ApplicationContext applicationContext = null;
 		try {
+			applicationContextTracker.open();
 			applicationContext = applicationContextTracker
 					.getApplicationContext();
 		} finally {
