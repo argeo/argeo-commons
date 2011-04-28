@@ -175,9 +175,9 @@ public class JcrUtils implements ArgeoJcrConstants {
 		buf.append('/');// 1
 		if (addHour) {
 			int hour = cal.get(Calendar.HOUR_OF_DAY);
+			buf.append('H').append(hour);// 3
 			if (hour < 10)
 				buf.append(0);
-			buf.append('H').append(hour);// 3
 			buf.append('/');// 1
 		}
 		return buf.toString();
