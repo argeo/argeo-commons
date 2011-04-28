@@ -327,6 +327,11 @@ public class JcrUtils implements ArgeoJcrConstants {
 
 	/** Recursively outputs the contents of the given node. */
 	public static void debug(Node node) {
+		debug(node, log);
+	}
+
+	/** Recursively outputs the contents of the given node. */
+	public static void debug(Node node, Log log) {
 		try {
 			// First output the node path
 			log.debug(node.getPath());
