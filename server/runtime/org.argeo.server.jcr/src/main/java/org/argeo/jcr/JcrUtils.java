@@ -160,25 +160,26 @@ public class JcrUtils implements ArgeoJcrConstants {
 	 */
 	public static String dateAsPath(Calendar cal, Boolean addHour) {
 		StringBuffer buf = new StringBuffer(14);
-		buf.append('Y').append(cal.get(Calendar.YEAR));// 5
-		buf.append('/');// 1
+		buf.append('Y').append(cal.get(Calendar.YEAR));
+		buf.append('/');
 		int month = cal.get(Calendar.MONTH) + 1;
 		buf.append('M');
 		if (month < 10)
 			buf.append(0);
-		buf.append(month);// 3
-		buf.append('/');// 1
+		buf.append(month);
+		buf.append('/');
 		int day = cal.get(Calendar.DAY_OF_MONTH);
 		if (day < 10)
 			buf.append(0);
-		buf.append('D').append(day);// 3
-		buf.append('/');// 1
+		buf.append('D').append(day);
+		buf.append('/');
 		if (addHour) {
 			int hour = cal.get(Calendar.HOUR_OF_DAY);
-			buf.append('H').append(hour);// 3
+			buf.append('H');
 			if (hour < 10)
 				buf.append(0);
-			buf.append('/');// 1
+			buf.append(hour);
+			buf.append('/');
 		}
 		return buf.toString();
 
