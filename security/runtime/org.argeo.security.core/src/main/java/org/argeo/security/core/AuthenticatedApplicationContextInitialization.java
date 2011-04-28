@@ -2,6 +2,8 @@ package org.argeo.security.core;
 
 import java.beans.PropertyDescriptor;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
@@ -13,13 +15,24 @@ import org.springframework.context.event.ContextRefreshedEvent;
  * Executes with a system authentication the instantiation and initialization
  * methods of the application context where it has been defined.
  */
-public class SystemExecutionBeanPostProcessor extends AbstractSystemExecution
-		implements InstantiationAwareBeanPostProcessor, ApplicationListener {
+public class AuthenticatedApplicationContextInitialization extends
+		AbstractSystemExecution implements InstantiationAwareBeanPostProcessor,
+		ApplicationListener {
+	private Log log = LogFactory
+			.getLog(AuthenticatedApplicationContextInitialization.class);
 
 	@SuppressWarnings("rawtypes")
 	public Object postProcessBeforeInstantiation(Class beanClass,
 			String beanName) throws BeansException {
-		authenticateAsSystem();
+		// we authenticate when any beans is instantiated
+		// we will deauthenticate only when the application context has been
+		// refreshed in order to be able to deal with factory beans has well
+		if (!isAuthenticatedBySelf()) {
+			authenticateAsSystem();
+			if (log.isDebugEnabled())
+				log.debug("Application context initialization authenticated for thread "
+						+ Thread.currentThread().getName());
+		}
 		return null;
 	}
 
@@ -36,7 +49,7 @@ public class SystemExecutionBeanPostProcessor extends AbstractSystemExecution
 
 	public Object postProcessBeforeInitialization(Object bean, String beanName)
 			throws BeansException {
-		authenticateAsSystem();
+		// authenticateAsSystem();
 		return bean;
 	}
 
@@ -46,7 +59,7 @@ public class SystemExecutionBeanPostProcessor extends AbstractSystemExecution
 		// we expect the underlying thread to die and thus the system
 		// authentication to be lost. We have currently no way to catch the
 		// exception and perform the deauthentication by ourselves.
-		deauthenticateAsSystem();
+		// deauthenticateAsSystem();
 		return bean;
 	}
 
@@ -55,6 +68,9 @@ public class SystemExecutionBeanPostProcessor extends AbstractSystemExecution
 			// make sure that we have deauthenticated after the application
 			// context was initialized/refreshed
 			deauthenticateAsSystem();
+			if (log.isDebugEnabled())
+				log.debug("Application context initialization deauthenticated for thread "
+						+ Thread.currentThread().getName());
 		}
 	}
 

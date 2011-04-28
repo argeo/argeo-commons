@@ -68,9 +68,16 @@ public abstract class AbstractSystemExecution {
 		if (securityContext.getAuthentication() != null) {
 			securityContext.setAuthentication(null);
 			authenticatedBySelf.set(false);
-			if (log.isTraceEnabled())
+			if (log.isTraceEnabled()) {
 				log.trace("System deauthenticated");
+				// Thread.dumpStack();
+			}
 		}
+	}
+
+	/** Whether the current thread was authenticated by this component. */
+	protected Boolean isAuthenticatedBySelf() {
+		return authenticatedBySelf.get();
 	}
 
 	public void setAuthenticationManager(
