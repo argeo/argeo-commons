@@ -63,10 +63,21 @@ public abstract class AbstractNodeContentProvider extends
 		return children;
 	}
 
+	/**
+	 * To be overridden in order to filter out some nodes. Does nothing by
+	 * default. The provided list is a temporary one and can thus be modified
+	 * directly . (e.g. via an iterator)
+	 */
+	protected List<Node> filterChildren(List<Node> children)
+			throws RepositoryException {
+		return children;
+	}
+
 	protected Object[] getChildren(Node node) throws RepositoryException {
 		List<Node> nodes = new ArrayList<Node>();
 		for (NodeIterator nit = node.getNodes(); nit.hasNext();)
 			nodes.add(nit.nextNode());
+		nodes = filterChildren(nodes);
 		return nodes.toArray();
 	}
 
