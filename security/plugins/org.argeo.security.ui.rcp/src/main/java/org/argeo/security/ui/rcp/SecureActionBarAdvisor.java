@@ -21,6 +21,7 @@ public class SecureActionBarAdvisor extends ActionBarAdvisor {
 	private IWorkbenchAction showViewMenuAction;
 	private IWorkbenchAction preferences;
 	private IWorkbenchAction saveAction;
+	private IWorkbenchAction saveAsAction;
 	private IWorkbenchAction saveAllAction;
 	private IWorkbenchAction closeAllAction;
 
@@ -46,6 +47,8 @@ public class SecureActionBarAdvisor extends ActionBarAdvisor {
 		// Save semantiocs
 		saveAction = ActionFactory.SAVE.create(window);
 		register(saveAction);
+		saveAsAction = ActionFactory.SAVE_AS.create(window);
+		register(saveAsAction);
 		saveAllAction = ActionFactory.SAVE_ALL.create(window);
 		register(saveAllAction);
 		closeAllAction = ActionFactory.CLOSE_ALL.create(window);
@@ -69,6 +72,7 @@ public class SecureActionBarAdvisor extends ActionBarAdvisor {
 
 		// File
 		fileMenu.add(saveAction);
+		fileMenu.add(saveAsAction);
 		fileMenu.add(saveAllAction);
 		fileMenu.add(closeAllAction);
 		fileMenu.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
