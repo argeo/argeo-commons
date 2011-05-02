@@ -8,12 +8,17 @@ import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.AbstractTreeContentProvider;
 
 /** Canonic implementation of tree content provider manipulating JCR nodes. */
 public abstract class AbstractNodeContentProvider extends
 		AbstractTreeContentProvider {
+	private final static Log log = LogFactory
+			.getLog(AbstractNodeContentProvider.class);
+
 	private Session session;
 
 	public AbstractNodeContentProvider(Session session) {
@@ -92,7 +97,8 @@ public abstract class AbstractNodeContentProvider extends
 				else
 					return node.getParent();
 			} catch (RepositoryException e) {
-				throw new ArgeoException("Cannot get parent of " + element, e);
+				log.warn("Cannot get parent of " + element + ": " + e);
+				return null;
 			}
 		} else if (element instanceof WrappedNode) {
 			WrappedNode wrappedNode = (WrappedNode) element;
