@@ -60,6 +60,17 @@ import org.argeo.ArgeoException;
 public class JcrUtils implements ArgeoJcrConstants {
 	private final static Log log = LogFactory.getLog(JcrUtils.class);
 
+	/**
+	 * Not complete yet. See
+	 * http://www.day.com/specs/jcr/2.0/3_Repository_Model.html#3.2.2%20Local
+	 * %20Names
+	 */
+	public final static char[] INVALID_NAME_CHARACTERS = { '/', ':', '[', ']',
+			'|', '*', /*
+					 * invalid XML chars :
+					 */
+			'<', '>', '&' };
+
 	/** Prevents instantiation */
 	private JcrUtils() {
 	}
@@ -88,13 +99,6 @@ public class JcrUtils implements ArgeoJcrConstants {
 		if (nodeIterator.hasNext())
 			throw new ArgeoException("Query returned more than one node.");
 		return node;
-	}
-
-	/** Removes forbidden characters from a path, replacing them with '_' */
-	public static String removeForbiddenCharacters(String str) {
-		return str.replace('[', '_').replace(']', '_').replace('/', '_')
-				.replace('*', '_');
-
 	}
 
 	/** Retrieves the parent path of the provided path */
@@ -589,11 +593,58 @@ public class JcrUtils implements ArgeoJcrConstants {
 	}
 
 	/**
-	 * Normalize a name so taht it can be stores in contexts not supporting
+	 * Normalizes a name so that it can be stored in contexts not supporting
 	 * names with ':' (typically databases). Replaces ':' by '_'.
 	 */
 	public static String normalize(String name) {
 		return name.replace(':', '_');
+	}
+
+	/**
+	 * Replaces characters which are invalid in a JCR name by '_'. Currently not
+	 * exhaustive.
+	 * 
+	 * @see JcrUtils#INVALID_NAME_CHARACTERS
+	 */
+	public static String replaceInvalidChars(String name) {
+		return replaceInvalidChars(name, '_');
+	}
+
+	/**
+	 * Replaces characters which are invalid in a JCR name. Currently not
+	 * exhaustive.
+	 * 
+	 * @see JcrUtils#INVALID_NAME_CHARACTERS
+	 */
+	public static String replaceInvalidChars(String name, char replacement) {
+		boolean modified = false;
+		char[] arr = name.toCharArray();
+		for (int i = 0; i < arr.length; i++) {
+			char c = arr[i];
+			invalid: for (char invalid : INVALID_NAME_CHARACTERS) {
+				if (c == invalid) {
+					arr[i] = replacement;
+					modified = true;
+					break invalid;
+				}
+			}
+		}
+		if (modified)
+			return new String(arr);
+		else
+			// do not create new object if unnecessary
+			return name;
+	}
+
+	/**
+	 * Removes forbidden characters from a path, replacing them with '_'
+	 * 
+	 * @deprecated use {@link #replaceInvalidChars(String)} instead
+	 */
+	public static String removeForbiddenCharacters(String str) {
+		return str.replace('[', '_').replace(']', '_').replace('/', '_')
+				.replace('*', '_');
+
 	}
 
 	/** Cleanly disposes a {@link Binary} even if it is null. */
