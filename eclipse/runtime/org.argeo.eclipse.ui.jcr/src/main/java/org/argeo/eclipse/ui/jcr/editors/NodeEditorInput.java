@@ -4,6 +4,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPersistableElement;
 
+/** A canonical editor input based on a path to a node. */
 public class NodeEditorInput implements IEditorInput {
 	private final String path;
 
