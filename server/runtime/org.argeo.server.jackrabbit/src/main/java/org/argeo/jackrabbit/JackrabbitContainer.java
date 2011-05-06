@@ -95,10 +95,11 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 
 	/** @deprecated explicitly declare {@link #init()} as init-method instead. */
 	public void afterPropertiesSet() throws Exception {
-		log.warn("## This initialization approach is deprecated and will be removed,"
-				+ " declare init-method=\"init\" instead.");
-		if (!alreadyInitialized)
+		if (!alreadyInitialized) {
+			log.warn("## If not already done,"
+					+ " declare init-method=\"init\".");
 			initImpl();
+		}
 	}
 
 	public void init() throws Exception {
@@ -165,10 +166,11 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 	 *             instead.
 	 */
 	public void destroy() throws Exception {
-		log.warn("## This dispose approach is deprecated and will be removed,"
-				+ " declare destroy-method=\"dispose\" instead.");
-		if (!alreadyDisposed)
+		if (!alreadyDisposed) {
+			log.warn("## If not already done,"
+					+ " declare destroy-method=\"dispose\".");
 			disposeImpl();
+		}
 	}
 
 	public void dispose() throws Exception {
@@ -233,17 +235,17 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 	 * will be thrown.
 	 */
 	protected void importNodeTypeDefinitions(final Repository repository) {
-		final Credentials credentialsToUse;
-		if (systemExecutor == null) {
-			if (adminCredentials == null) {
-				log.error("No system executor or admin credentials found,"
-						+ " cannot import node types");
-				return;
-			}
-			credentialsToUse = adminCredentials;
-		} else {
-			credentialsToUse = null;
-		}
+		final Credentials credentialsToUse = null;
+		// if (systemExecutor == null) {
+		// if (adminCredentials == null) {
+		// log.error("No system executor or admin credentials found,"
+		// + " cannot import node types");
+		// return;
+		// }
+		// credentialsToUse = adminCredentials;
+		// } else {
+		// credentialsToUse = null;
+		// }
 
 		Runnable action = new Runnable() {
 			public void run() {
