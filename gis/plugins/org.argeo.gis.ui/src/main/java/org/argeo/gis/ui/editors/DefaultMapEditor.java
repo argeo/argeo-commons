@@ -6,6 +6,7 @@ import org.argeo.gis.ui.MapControlCreator;
 import org.argeo.gis.ui.MapViewer;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
@@ -42,6 +43,8 @@ public class DefaultMapEditor extends EditorPart {
 		layout.marginWidth = 0;
 		mapArea.setLayout(layout);
 		mapViewer = mapControlCreator.createMapControl(context, mapArea);
+		mapViewer.getControl().setLayoutData(
+				new GridData(SWT.FILL, SWT.FILL, true, true));
 	}
 
 	public MapViewer getMapViewer() {

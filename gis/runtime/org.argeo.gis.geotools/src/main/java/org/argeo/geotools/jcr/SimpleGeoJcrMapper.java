@@ -18,6 +18,7 @@ import org.argeo.ArgeoException;
 import org.argeo.geotools.GeoToolsConstants;
 import org.argeo.geotools.GeoToolsUtils;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.jcr.gis.GisJcrConstants;
 import org.argeo.jcr.gis.GisNames;
 import org.argeo.jcr.gis.GisTypes;
 import org.argeo.jts.jcr.JtsJcrUtils;
@@ -35,13 +36,21 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
-public class SimpleGeoJcrMapper implements GeoJcrMapper {
+public class SimpleGeoJcrMapper implements GeoJcrMapper, GisNames {
 	private final static Log log = LogFactory.getLog(SimpleGeoJcrMapper.class);
-
-	private String dataStoresBasePath = "/gis/dataStores";
 
 	private Map<String, DataStore> registeredDataStores = Collections
 			.synchronizedSortedMap(new TreeMap<String, DataStore>());
+
+	private Session systemSession;
+
+	public void init() throws RepositoryException {
+	}
+
+	public void dispose() {
+		if (systemSession != null)
+			systemSession.logout();
+	}
 
 	public Map<String, List<FeatureSource<SimpleFeatureType, SimpleFeature>>> getPossibleFeatureSources() {
 		Map<String, List<FeatureSource<SimpleFeatureType, SimpleFeature>>> res = new TreeMap<String, List<FeatureSource<SimpleFeatureType, SimpleFeature>>>();
@@ -121,7 +130,7 @@ public class SimpleGeoJcrMapper implements GeoJcrMapper {
 					log.warn("Cannot lookup EPSG code", e);
 					srs = crs.toWKT();
 				}
-				featureNode.setProperty(GisNames.GIS_SRS, srs);
+				featureNode.setProperty(GIS_SRS, srs);
 
 				Polygon bboxPolygon;
 				Geometry envelope = geometry.getEnvelope();
@@ -142,10 +151,10 @@ public class SimpleGeoJcrMapper implements GeoJcrMapper {
 				}
 				bbox = JtsJcrUtils.writeWkb(featureNode.getSession(),
 						bboxPolygon);
-				featureNode.setProperty(GisNames.GIS_BBOX, bbox);
+				featureNode.setProperty(GIS_BBOX, bbox);
 				centroid = JtsJcrUtils.writeWkb(featureNode.getSession(),
 						geometry.getCentroid());
-				featureNode.setProperty(GisNames.GIS_CENTROID, centroid);
+				featureNode.setProperty(GIS_CENTROID, centroid);
 				featureSourceNode.getSession().save();
 				return featureNode;
 			} else {
@@ -160,25 +169,21 @@ public class SimpleGeoJcrMapper implements GeoJcrMapper {
 		}
 	}
 
-	protected Node getNode(Session session, String dataStoreAlias) {
+	protected Node getDataStoreNode(Session session, String dataStoreAlias) {
 		try {
-			Node dataStores;
-			if (!session.itemExists(dataStoresBasePath)) {
-				dataStores = JcrUtils.mkdirs(session, dataStoresBasePath);
-				dataStores.getSession().save();
-			} else
-				dataStores = session.getNode(dataStoresBasePath);
-
-			Node dataStoreNode;
-			if (dataStores.hasNode(dataStoreAlias))
-				dataStoreNode = dataStores.getNode(dataStoreAlias);
-			else {
-				dataStoreNode = dataStores.addNode(dataStoreAlias,
-						GisTypes.GIS_DATA_STORE);
-				dataStoreNode.getSession().save();
-			}
+			// normalize by starting with a '/'
+			String path = dataStoreAlias.startsWith("/") ? GisJcrConstants.DATA_STORES_BASE_PATH
+					+ dataStoreAlias
+					: GisJcrConstants.DATA_STORES_BASE_PATH + '/'
+							+ dataStoreAlias;
+			Node dataStoreNode = JcrUtils.mkdirs(session, path,
+					GisTypes.GIS_DATA_STORE);
+			dataStoreNode.setProperty(GIS_ALIAS, dataStoreAlias);
+			if (session.hasPendingChanges())
+				session.save();
 			return dataStoreNode;
 		} catch (RepositoryException e) {
+			JcrUtils.discardQuietly(session);
 			throw new ArgeoException("Cannot get node for data store "
 					+ dataStoreAlias, e);
 		}
@@ -187,12 +192,14 @@ public class SimpleGeoJcrMapper implements GeoJcrMapper {
 	public Node getFeatureSourceNode(Session session, String dataStoreAlias,
 			FeatureSource<SimpleFeatureType, SimpleFeature> featureSource) {
 		try {
-			String name = featureSource.getName().toString();
-			Node dataStoreNode = getNode(session, dataStoreAlias);
-			if (dataStoreNode.hasNode(name))
-				return dataStoreNode.getNode(name);
+			// String name = featureSource.getName().toString();
+			Name name = featureSource.getName();
+			String nodeName = name.getLocalPart();
+			Node dataStoreNode = getDataStoreNode(session, dataStoreAlias);
+			if (dataStoreNode.hasNode(nodeName))
+				return dataStoreNode.getNode(nodeName);
 			else {
-				Node featureSourceNode = dataStoreNode.addNode(name);
+				Node featureSourceNode = dataStoreNode.addNode(nodeName);
 				featureSourceNode.addMixin(GisTypes.GIS_FEATURE_SOURCE);
 				featureSourceNode.getSession().save();
 				return featureSourceNode;
@@ -210,11 +217,14 @@ public class SimpleGeoJcrMapper implements GeoJcrMapper {
 		try {
 			Node dataStoreNode = node.getParent();
 			// TODO: check a dataStore type
-			if (!registeredDataStores.containsKey(dataStoreNode.getName()))
+			if (!dataStoreNode.hasProperty(GIS_ALIAS))
+				throw new ArgeoException("Data store " + dataStoreNode
+						+ " is not active.");
+			String alias = dataStoreNode.getProperty(GIS_ALIAS).getString();
+			if (!registeredDataStores.containsKey(alias))
 				throw new ArgeoException("No data store registered under "
 						+ dataStoreNode);
-			DataStore dataStore = registeredDataStores.get(dataStoreNode
-					.getName());
+			DataStore dataStore = registeredDataStores.get(alias);
 			return dataStore.getFeatureSource(node.getName());
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot find feature source " + node, e);
@@ -226,25 +236,63 @@ public class SimpleGeoJcrMapper implements GeoJcrMapper {
 		return null;
 	}
 
-	public void register(DataStore dataStore, Map<String, String> properties) {
+	public synchronized void register(DataStore dataStore,
+			Map<String, String> properties) {
 		if (!properties.containsKey(GeoToolsConstants.ALIAS_KEY)) {
 			log.warn("Cannot register data store " + dataStore
 					+ " since it has no '" + GeoToolsConstants.ALIAS_KEY
 					+ "' property");
 			return;
 		}
-		registeredDataStores.put(properties.get(GeoToolsConstants.ALIAS_KEY),
-				dataStore);
+		String alias = properties.get(GeoToolsConstants.ALIAS_KEY);
+		Node dataStoreNode = getDataStoreNode(systemSession, alias);
+		try {
+			dataStoreNode.setProperty(GIS_ALIAS, alias);
+
+			// TODO synchronize namespace if registered
+			for (Name name : dataStore.getNames()) {
+				String sourceName = name.getLocalPart();
+				if (!dataStoreNode.hasNode(sourceName)) {
+					Node featureSourceNode = dataStoreNode.addNode(sourceName);
+					featureSourceNode.addMixin(GisTypes.GIS_FEATURE_SOURCE);
+				}
+			}
+
+			// TODO check feature sources which are registered but not available
+			// anymore
+			systemSession.save();
+			registeredDataStores.put(alias, dataStore);
+			JcrUtils.discardQuietly(systemSession);
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot register data store " + alias
+					+ ", " + dataStore, e);
+		}
 	}
 
-	public void unregister(DataStore dataStore, Map<String, String> properties) {
+	public synchronized void unregister(DataStore dataStore,
+			Map<String, String> properties) {
 		if (!properties.containsKey(GeoToolsConstants.ALIAS_KEY)) {
 			log.warn("Cannot unregister data store " + dataStore
 					+ " since it has no '" + GeoToolsConstants.ALIAS_KEY
 					+ "' property");
 			return;
 		}
-		registeredDataStores
-				.remove(properties.get(GeoToolsConstants.ALIAS_KEY));
+		String alias = properties.get(GeoToolsConstants.ALIAS_KEY);
+		registeredDataStores.remove(alias);
+		Node dataStoreNode = getDataStoreNode(systemSession, alias);
+		try {
+			dataStoreNode.getProperty(GIS_ALIAS).remove();
+			systemSession.save();
+		} catch (RepositoryException e) {
+			JcrUtils.discardQuietly(systemSession);
+			throw new ArgeoException("Cannot unregister data store " + alias
+					+ ", " + dataStore, e);
+		}
 	}
+
+	/** Expects to own this session (will be logged out on dispose) */
+	public void setSystemSession(Session systemSession) {
+		this.systemSession = systemSession;
+	}
+
 }

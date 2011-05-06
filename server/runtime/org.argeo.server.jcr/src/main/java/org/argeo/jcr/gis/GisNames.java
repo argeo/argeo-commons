@@ -5,6 +5,8 @@ public interface GisNames {
 	public final static String GIS_NAMESPACE = "http://www.argeo.org/ns/gis";
 	public final static String GIS_ = "gis:";
 
+	public final static String GIS_ALIAS = "gis:alias";
+	
 	public final static String GIS_SRS = "gis:srs";
 	public final static String GIS_BBOX = "gis:bbox";
 	public final static String GIS_CENTROID = "gis:centroid";

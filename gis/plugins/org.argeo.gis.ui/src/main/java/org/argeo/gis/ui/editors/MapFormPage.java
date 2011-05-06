@@ -9,6 +9,7 @@ import org.argeo.gis.ui.MapViewer;
 import org.argeo.gis.ui.MapViewerListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.AbstractFormPart;
@@ -45,6 +46,8 @@ public class MapFormPage extends FormPage {
 		layout.marginWidth = 0;
 		mapArea.setLayout(layout);
 		mapViewer = mapControlCreator.createMapControl(context, mapArea);
+		mapViewer.getControl().setLayoutData(
+				new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		// form part
 		MapFormPart mapFormPart = new MapFormPart();

@@ -89,7 +89,24 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 	private Executor systemExecutor;
 	private Credentials adminCredentials;
 
+	// transition from legacy spring approach
+	private Boolean alreadyInitialized = false;
+	private Boolean alreadyDisposed = false;
+
+	/** @deprecated explicitly declare {@link #init()} as init-method instead. */
 	public void afterPropertiesSet() throws Exception {
+		log.warn("## This initialization approach is deprecated and will be removed,"
+				+ " declare init-method=\"init\" instead.");
+		if (!alreadyInitialized)
+			initImpl();
+	}
+
+	public void init() throws Exception {
+		initImpl();
+		alreadyInitialized = true;
+	}
+
+	protected void initImpl() throws Exception {
 		if (repository != null) {
 			// we are just wrapping another repository
 			importNodeTypeDefinitions(repository);
@@ -141,6 +158,47 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 
 		log.info("Initialized Jackrabbit repository " + repository + " in "
 				+ homeDirectory + " with config " + configuration);
+	}
+
+	/**
+	 * @deprecated explicitly declare {@link #dispose()} as destroy-method
+	 *             instead.
+	 */
+	public void destroy() throws Exception {
+		log.warn("## This dispose approach is deprecated and will be removed,"
+				+ " declare destroy-method=\"dispose\" instead.");
+		if (!alreadyDisposed)
+			disposeImpl();
+	}
+
+	public void dispose() throws Exception {
+		disposeImpl();
+		alreadyDisposed = true;
+	}
+
+	protected void disposeImpl() throws Exception {
+		if (repository != null) {
+			if (repository instanceof JackrabbitRepository)
+				((JackrabbitRepository) repository).shutdown();
+			else if (repository instanceof RepositoryImpl)
+				((RepositoryImpl) repository).shutdown();
+			else if (repository instanceof TransientRepository)
+				((TransientRepository) repository).shutdown();
+		}
+
+		if (inMemory)
+			if (homeDirectory.exists()) {
+				FileUtils.deleteDirectory(homeDirectory);
+				if (log.isDebugEnabled())
+					log.debug("Deleted Jackrabbit home directory "
+							+ homeDirectory);
+			}
+
+		if (uri != null && !uri.trim().equals(""))
+			log.info("Destroyed Jackrabbit repository with uri " + uri);
+		else
+			log.info("Destroyed Jackrabbit repository " + repository + " in "
+					+ homeDirectory + " with config " + configuration);
 	}
 
 	protected Properties getConfigurationProperties() {
@@ -219,31 +277,6 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 			systemExecutor.execute(action);
 		else
 			action.run();
-	}
-
-	public void destroy() throws Exception {
-		if (repository != null) {
-			if (repository instanceof JackrabbitRepository)
-				((JackrabbitRepository) repository).shutdown();
-			else if (repository instanceof RepositoryImpl)
-				((RepositoryImpl) repository).shutdown();
-			else if (repository instanceof TransientRepository)
-				((TransientRepository) repository).shutdown();
-		}
-
-		if (inMemory)
-			if (homeDirectory.exists()) {
-				FileUtils.deleteDirectory(homeDirectory);
-				if (log.isDebugEnabled())
-					log.debug("Deleted Jackrabbit home directory "
-							+ homeDirectory);
-			}
-
-		if (uri != null && !uri.trim().equals(""))
-			log.info("Destroyed Jackrabbit repository with uri " + uri);
-		else
-			log.info("Destroyed Jackrabbit repository " + repository + " in "
-					+ homeDirectory + " with config " + configuration);
 	}
 
 	// JCR REPOSITORY (delegated)

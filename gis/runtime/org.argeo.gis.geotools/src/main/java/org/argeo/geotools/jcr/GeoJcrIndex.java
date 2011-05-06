@@ -62,12 +62,16 @@ public class GeoJcrIndex implements EventListener, GisNames, GisTypes {
 	// TODO: use common factory finder?
 	private FilterFactory2 ff = new FilterFactoryImpl();
 
+	/** Expects to execute with system authentication */
 	public void init() {
-		systemExecutionService.execute(new Runnable() {
-			public void run() {
-				initGeoJcrIndex();
-			}
-		});
+		if (systemExecutionService != null)// legacy
+			systemExecutionService.execute(new Runnable() {
+				public void run() {
+					initGeoJcrIndex();
+				}
+			});
+		else
+			initGeoJcrIndex();
 	}
 
 	protected void initGeoJcrIndex() {
@@ -291,8 +295,7 @@ public class GeoJcrIndex implements EventListener, GisNames, GisTypes {
 		this.session = session;
 	}
 
-	public void setSystemExecutionService(
-			Executor systemExecutionService) {
+	public void setSystemExecutionService(Executor systemExecutionService) {
 		this.systemExecutionService = systemExecutionService;
 	}
 

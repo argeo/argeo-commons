@@ -13,16 +13,26 @@ import org.eclipse.swt.graphics.Image;
 /** Provides reasonable overridable defaults for know JCR types. */
 public class DefaultNodeLabelProvider extends ColumnLabelProvider {
 	// Images
-	public final static Image NODE = JcrUiPlugin.getImageDescriptor(
-			"icons/node.gif").createImage();
-	public final static Image FOLDER = JcrUiPlugin.getImageDescriptor(
-			"icons/folder.gif").createImage();
-	public final static Image FILE = JcrUiPlugin.getImageDescriptor(
-			"icons/file.gif").createImage();
-	public final static Image BINARY = JcrUiPlugin.getImageDescriptor(
-			"icons/binary.png").createImage();
-	public final static Image HOME = JcrUiPlugin.getImageDescriptor(
-			"icons/home.gif").createImage();
+	/**
+	 * @deprecated Use {@link JcrImages#NODE} instead
+	 */
+	public final static Image NODE = JcrImages.NODE;
+	/**
+	 * @deprecated Use {@link JcrImages#FOLDER} instead
+	 */
+	public final static Image FOLDER = JcrImages.FOLDER;
+	/**
+	 * @deprecated Use {@link JcrImages#FILE} instead
+	 */
+	public final static Image FILE = JcrImages.FILE;
+	/**
+	 * @deprecated Use {@link JcrImages#BINARY} instead
+	 */
+	public final static Image BINARY = JcrImages.BINARY;
+	/**
+	 * @deprecated Use {@link JcrImages#HOME} instead
+	 */
+	public final static Image HOME = JcrImages.HOME;
 
 	public String getText(Object element) {
 		try {
@@ -66,15 +76,15 @@ public class DefaultNodeLabelProvider extends ColumnLabelProvider {
 	protected Image getImage(Node node) throws RepositoryException {
 		// optimized order
 		if (node.getPrimaryNodeType().isNodeType(NodeType.NT_FILE))
-			return FILE;
+			return JcrImages.FILE;
 		else if (node.getPrimaryNodeType().isNodeType(NodeType.NT_FOLDER))
-			return FOLDER;
+			return JcrImages.FOLDER;
 		else if (node.getPrimaryNodeType().isNodeType(NodeType.NT_RESOURCE))
-			return BINARY;
+			return JcrImages.BINARY;
 		else if (node.isNodeType(ArgeoTypes.ARGEO_USER_HOME))
-			return HOME;
+			return JcrImages.HOME;
 		else
-			return NODE;
+			return JcrImages.NODE;
 	}
 
 	@Override

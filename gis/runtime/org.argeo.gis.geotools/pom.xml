@@ -29,7 +29,7 @@
 				<version>${version.maven-bundle-plugin}</version>
 				<configuration>
 					<instructions>
-						<Export-Package>org.argeo.geotools.*</Export-Package>
+						<Export-Package>org.argeo.geotools.*,org.argeo.jts.*</Export-Package>
 						<Import-Package>org.argeo.jcr.gis,*</Import-Package>
 					</instructions>
 				</configuration>
@@ -132,6 +132,12 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>com.springsource.slf4j.org.apache.commons.logging
 			</artifactId>
+		</dependency>
+
+		<!-- OSGi -->
+		<dependency>
+			<groupId>org.eclipse.osgi</groupId>
+			<artifactId>org.eclipse.osgi</artifactId>
 		</dependency>
 
 		<!-- OSGi test -->

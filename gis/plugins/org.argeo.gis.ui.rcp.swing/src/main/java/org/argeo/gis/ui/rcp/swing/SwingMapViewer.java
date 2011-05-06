@@ -1,5 +1,6 @@
 package org.argeo.gis.ui.rcp.swing;
 
+import java.awt.Color;
 import java.awt.Frame;
 
 import javax.jcr.Node;
@@ -31,6 +32,7 @@ public class SwingMapViewer extends AbstractMapViewer {
 		mapPane = new JMapPane(new StreamingRenderer(), new DefaultMapContext());
 		versatileZoomTool = new VersatileZoomTool();
 		mapPane.setCursorTool(versatileZoomTool);
+		mapPane.setBackground(Color.WHITE);
 
 		frame.add(mapPane);
 
@@ -42,6 +44,7 @@ public class SwingMapViewer extends AbstractMapViewer {
 			FeatureSource<SimpleFeatureType, SimpleFeature> featureSource) {
 		// TODO: deal with style and rasters
 		mapPane.getMapContext().addLayer(featureSource, null);
+		mapPane.reset();
 	}
 
 }

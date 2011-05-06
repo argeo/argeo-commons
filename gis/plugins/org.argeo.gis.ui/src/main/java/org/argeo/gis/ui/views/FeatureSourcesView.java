@@ -5,16 +5,19 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.jcr.JcrImages;
 import org.argeo.eclipse.ui.jcr.SimpleNodeContentProvider;
 import org.argeo.gis.ui.editors.DefaultMapEditor;
 import org.argeo.gis.ui.editors.MapFormPage;
 import org.argeo.jcr.gis.GisTypes;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.forms.editor.FormEditor;
@@ -85,11 +88,36 @@ public class FeatureSourcesView extends ViewPart implements
 		this.session = session;
 	}
 
-	private class MapsLabelProvider extends LabelProvider {
+	private class MapsLabelProvider extends ColumnLabelProvider {
 
 		@Override
 		public String getText(Object element) {
+			try {
+				if (element instanceof Node) {
+					Node node = (Node) element;
+					return node.getName();
+				}
+			} catch (RepositoryException e) {
+				throw new ArgeoException("Cannot get text", e);
+			}
 			return super.getText(element);
+		}
+
+		@Override
+		public Image getImage(Object element) {
+			try {
+				if (element instanceof Node) {
+					Node node = (Node) element;
+					if (node.isNodeType(GisTypes.GIS_FEATURE_SOURCE))
+						return JcrImages.BINARY;
+					else if (node.isNodeType(GisTypes.GIS_DATA_STORE))
+						return JcrImages.NODE;
+					return JcrImages.FOLDER;
+				}
+			} catch (RepositoryException e) {
+				throw new ArgeoException("Cannot get text", e);
+			}
+			return super.getImage(element);
 		}
 
 	}
