@@ -104,14 +104,30 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 			for (TableViewerColumn tvc : tableViewerColumns)
 				tvc.getColumn().dispose();
 
+			int i = 0;
 			for (final String columnName : qr.getColumnNames()) {
 				TableViewerColumn tvc = new TableViewerColumn(viewer, SWT.NONE);
-				configureColumn(columnName, tvc);
+				configureColumn(columnName, tvc, i);
 				tvc.setLabelProvider(getLabelProvider(columnName));
 				tableViewerColumns.add(tvc);
+				i++;
 			}
 
-			viewer.setInput(qr);
+			// We must create a local list because query result can be read only
+			// once.
+			// viewer.setInput(qr);
+
+			try {
+				List<Row> rows = new ArrayList<Row>();
+				RowIterator rit = qr.getRows();
+				while (rit.hasNext()) {
+					rows.add(rit.nextRow());
+				}
+				viewer.setInput(rows);
+			} catch (RepositoryException e) {
+				throw new ArgeoException("Cannot read query result", e);
+			}
+
 		} catch (RepositoryException e) {
 			ErrorDialog.openError(null, "Error", "Cannot execute JCR query: "
 					+ statement, new Status(IStatus.ERROR,
@@ -182,9 +198,23 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 		};
 	}
 
-	/** To be overridden in order to configure the columns. */
+	/**
+	 * To be overridden in order to configure the columns.
+	 * 
+	 * @deprecated use {@link
+	 *             org.argeo.eclipse.ui.jcr.editors.AbstractJcrQueryEditor.
+	 *             configureColumn(String jcrColumnName, TableViewerColumn
+	 *             column, int columnIndex)} instead
+	 */
 	protected void configureColumn(String jcrColumnName,
 			TableViewerColumn column) {
+		column.getColumn().setWidth(50);
+		column.getColumn().setText(jcrColumnName);
+	}
+
+	/** To be overridden in order to configure the columns. */
+	protected void configureColumn(String jcrColumnName,
+			TableViewerColumn column, int columnIndex) {
 		column.getColumn().setWidth(50);
 		column.getColumn().setText(jcrColumnName);
 	}
@@ -199,6 +229,11 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 		}
 
 		public Object[] getElements(Object inputElement) {
+
+			if (inputElement instanceof List)
+				return ((List) inputElement).toArray();
+
+			// Never reached might be deleted in future release
 			if (!(inputElement instanceof QueryResult))
 				return new String[] {};
 
@@ -233,28 +268,30 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 	protected SelectionAdapter getSelectionAdapter(final TableColumn column,
 			final int index) {
 
+		// A comparator must be define
+		if (comparator == null)
+			return null;
+
 		SelectionAdapter selectionAdapter = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 
-				if (true)
-					return;
-//				try {
-//
-//					comparator.setColumn(index);
-//					int dir = viewer.getTable().getSortDirection();
-//					if (viewer.getTable().getSortColumn() == column) {
-//						dir = dir == SWT.UP ? SWT.DOWN : SWT.UP;
-//					} else {
-//
-//						dir = SWT.DOWN;
-//					}
-//					viewer.getTable().setSortDirection(dir);
-//					viewer.getTable().setSortColumn(column);
-//					viewer.refresh();
-//				} catch (Exception exc) {
-//					exc.printStackTrace();
-//				}
+				try {
+
+					comparator.setColumn(index);
+					int dir = viewer.getTable().getSortDirection();
+					if (viewer.getTable().getSortColumn() == column) {
+						dir = dir == SWT.UP ? SWT.DOWN : SWT.UP;
+					} else {
+
+						dir = SWT.DOWN;
+					}
+					viewer.getTable().setSortDirection(dir);
+					viewer.getTable().setSortColumn(column);
+					viewer.refresh();
+				} catch (Exception exc) {
+					exc.printStackTrace();
+				}
 			}
 		};
 		return selectionAdapter;
