@@ -27,7 +27,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.argeo.osgi.boot.internal.springutil.AntPathMatcher;
 import org.argeo.osgi.boot.internal.springutil.PathMatcher;
@@ -37,6 +40,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 public class OsgiBoot {
@@ -57,7 +61,7 @@ public class OsgiBoot {
 	public final static String PROP_ARGEO_OSGI_BOOT_SYSTEM_PROPERTIES_FILE = "argeo.osgi.boot.systemPropertiesFile";
 	public final static String PROP_ARGEO_OSGI_BOOT_APPCLASS = "argeo.osgi.boot.appclass";
 	public final static String PROP_ARGEO_OSGI_BOOT_APPARGS = "argeo.osgi.boot.appargs";
-	
+
 	/** @deprecated */
 	public final static String PROP_SLC_OSGI_START = "slc.osgi.start";
 	/** @deprecated */
@@ -82,14 +86,13 @@ public class OsgiBoot {
 	/** @deprecated */
 	public final static String PROP_SLC_OSGIBOOT_APPARGS = "slc.osgiboot.appargs";
 
-	
-	
 	public final static String DEFAULT_BASE_URL = "reference:file:";
 	public final static String EXCLUDES_SVN_PATTERN = "**/.svn/**";
 
 	private boolean debug = Boolean.valueOf(
-			System.getProperty(PROP_ARGEO_OSGI_BOOT_DEBUG, System.getProperty(
-					PROP_SLC_OSGIBOOT_DEBUG, "false"))).booleanValue();
+			System.getProperty(PROP_ARGEO_OSGI_BOOT_DEBUG,
+					System.getProperty(PROP_SLC_OSGIBOOT_DEBUG, "false")))
+			.booleanValue();
 	/** Default is 10s (set in constructor) */
 	private long defaultTimeout;
 
@@ -133,7 +136,7 @@ public class OsgiBoot {
 
 		// TODO: Load additional system properties from file
 		// Properties additionalSystemProperties = new Properties();
-		
+
 	}
 
 	public static String removeFilePrefix(String url) {
@@ -161,6 +164,24 @@ public class OsgiBoot {
 		OsgiBootUtils.info("OSGi bootstrap completed in "
 				+ Math.round(((double) duration) / 1000) + "s (" + duration
 				+ "ms), " + bundleContext.getBundles().length + " bundles");
+
+		// display packages exported twice
+		if (debug) {
+			Map /* <String,Set<String>> */duplicatePackages = findPackagesExportedTwice();
+			if (duplicatePackages.size() > 0) {
+				OsgiBootUtils.debug("## Packages exported twice");
+				Iterator it = duplicatePackages.keySet().iterator();
+				while (it.hasNext()) {
+					String pkgName = it.next().toString();
+					OsgiBootUtils.debug(pkgName);
+					Set bdles = (Set) duplicatePackages.get(pkgName);
+					Iterator bdlesIt = bdles.iterator();
+					while (bdlesIt.hasNext())
+						OsgiBootUtils.debug("  " + bdlesIt.next());
+				}
+			}
+		}
+
 		System.out.println();
 	}
 
@@ -190,8 +211,8 @@ public class OsgiBoot {
 					// silent, in order to avoid warnings: we know that both
 					// have already been installed...
 				} else {
-					OsgiBootUtils.warn("Could not install bundle from " + url + ": "
-							+ message);
+					OsgiBootUtils.warn("Could not install bundle from " + url
+							+ ": " + message);
 				}
 				if (debug)
 					e.printStackTrace();
@@ -213,7 +234,8 @@ public class OsgiBoot {
 					URL url = new URL(urlStr);
 					in = url.openStream();
 					bundle.update(in);
-					OsgiBootUtils.info("Updated bundle " + moduleName + " from " + urlStr);
+					OsgiBootUtils.info("Updated bundle " + moduleName
+							+ " from " + urlStr);
 				} catch (Exception e) {
 					throw new RuntimeException("Cannot update " + moduleName
 							+ " from " + urlStr);
@@ -231,8 +253,8 @@ public class OsgiBoot {
 						debug("Installed bundle " + bundle.getSymbolicName()
 								+ " from " + urlStr);
 				} catch (BundleException e) {
-					OsgiBootUtils.warn("Could not install bundle from " + urlStr + ": "
-							+ e.getMessage());
+					OsgiBootUtils.warn("Could not install bundle from "
+							+ urlStr + ": " + e.getMessage());
 				}
 			}
 		}
@@ -240,8 +262,8 @@ public class OsgiBoot {
 	}
 
 	public void startBundles() {
-		String bundlesToStart = OsgiBootUtils.getPropertyCompat(PROP_ARGEO_OSGI_START,
-				PROP_SLC_OSGI_START);
+		String bundlesToStart = OsgiBootUtils.getPropertyCompat(
+				PROP_ARGEO_OSGI_START, PROP_SLC_OSGI_START);
 		startBundles(bundlesToStart);
 	}
 
@@ -284,8 +306,8 @@ public class OsgiBoot {
 					}
 					notFoundBundles.remove(symbolicName);
 				} catch (Exception e) {
-					OsgiBootUtils.warn("Bundle " + symbolicName + " cannot be started: "
-							+ e.getMessage());
+					OsgiBootUtils.warn("Bundle " + symbolicName
+							+ " cannot be started: " + e.getMessage());
 					if (debug)
 						e.printStackTrace();
 					// was found even if start failed
@@ -318,6 +340,40 @@ public class OsgiBoot {
 		if (unresolvedBundles.size() != 0) {
 			OsgiBootUtils.warn("Unresolved bundles " + unresolvedBundles);
 		}
+	}
+
+	public Map findPackagesExportedTwice() {
+		ServiceReference paSr = bundleContext
+				.getServiceReference(PackageAdmin.class.getName());
+		// TODO: make a cleaner referencing
+		PackageAdmin packageAdmin = (PackageAdmin) bundleContext
+				.getService(paSr);
+
+		// find packages exported twice
+		Bundle[] bundles = bundleContext.getBundles();
+		Map /* <String,Set<String>> */exportedPackages = new TreeMap();
+		for (int i = 0; i < bundles.length; i++) {
+			Bundle bundle = bundles[i];
+			ExportedPackage[] pkgs = packageAdmin.getExportedPackages(bundle);
+			if (pkgs != null)
+				for (int j = 0; j < pkgs.length; j++) {
+					String pkgName = pkgs[j].getName();
+					if (!exportedPackages.containsKey(pkgName)) {
+						exportedPackages.put(pkgName, new TreeSet());
+					}
+					((Set) exportedPackages.get(pkgName)).add(bundle
+							.getSymbolicName() + "_" + bundle.getVersion());
+				}
+		}
+		Map /* <String,Set<String>> */duplicatePackages = new TreeMap();
+		Iterator it = exportedPackages.keySet().iterator();
+		while (it.hasNext()) {
+			String pkgName = it.next().toString();
+			Set bdles = (Set) exportedPackages.get(pkgName);
+			if (bdles.size() > 1)
+				duplicatePackages.put(pkgName, bdles);
+		}
+		return duplicatePackages;
 	}
 
 	protected void waitForBundleResolvedOrActive(long startBegin, Bundle bundle)
@@ -389,30 +445,31 @@ public class OsgiBoot {
 	}
 
 	public List getLocationsUrls() {
-		String baseUrl = OsgiBootUtils.getPropertyCompat(PROP_ARGEO_OSGI_BASE_URL,
-				PROP_SLC_OSGI_BASE_URL, DEFAULT_BASE_URL);
-		String bundleLocations = OsgiBootUtils.getPropertyCompat(PROP_ARGEO_OSGI_LOCATIONS,
-				PROP_SLC_OSGI_LOCATIONS);
+		String baseUrl = OsgiBootUtils.getPropertyCompat(
+				PROP_ARGEO_OSGI_BASE_URL, PROP_SLC_OSGI_BASE_URL,
+				DEFAULT_BASE_URL);
+		String bundleLocations = OsgiBootUtils.getPropertyCompat(
+				PROP_ARGEO_OSGI_LOCATIONS, PROP_SLC_OSGI_LOCATIONS);
 		return getLocationsUrls(baseUrl, bundleLocations);
 	}
 
 	public List getModulesUrls() {
 		List urls = new ArrayList();
-		String modulesUrlStr = OsgiBootUtils.getPropertyCompat(PROP_ARGEO_OSGI_MODULES_URL,
-				PROP_SLC_OSGI_MODULES_URL);
+		String modulesUrlStr = OsgiBootUtils.getPropertyCompat(
+				PROP_ARGEO_OSGI_MODULES_URL, PROP_SLC_OSGI_MODULES_URL);
 		if (modulesUrlStr == null)
 			return urls;
 
-		String baseUrl = OsgiBootUtils.getPropertyCompat(PROP_ARGEO_OSGI_BASE_URL,
-				PROP_SLC_OSGI_BASE_URL);
+		String baseUrl = OsgiBootUtils.getPropertyCompat(
+				PROP_ARGEO_OSGI_BASE_URL, PROP_SLC_OSGI_BASE_URL);
 
 		Map installedBundles = getBundles();
 
 		BufferedReader reader = null;
 		try {
 			URL modulesUrl = new URL(modulesUrlStr);
-			reader = new BufferedReader(new InputStreamReader(modulesUrl
-					.openStream()));
+			reader = new BufferedReader(new InputStreamReader(
+					modulesUrl.openStream()));
 			String line = null;
 			while ((line = reader.readLine()) != null) {
 				StringTokenizer st = new StringTokenizer(line,
@@ -425,8 +482,8 @@ public class OsgiBoot {
 
 				if (installedBundles.containsKey(moduleName)) {
 					Bundle bundle = (Bundle) installedBundles.get(moduleName);
-					String bundleVersion = bundle.getHeaders().get(
-							Constants.BUNDLE_VERSION).toString();
+					String bundleVersion = bundle.getHeaders()
+							.get(Constants.BUNDLE_VERSION).toString();
 					int comp = compareVersions(bundleVersion, moduleVersion);
 					if (comp > 0) {
 						OsgiBootUtils.warn("Installed version " + bundleVersion
@@ -435,9 +492,9 @@ public class OsgiBoot {
 								+ moduleVersion);
 					} else if (comp < 0) {
 						urls.add(url);
-						OsgiBootUtils.info("Updated bundle " + moduleName + " with version "
-								+ moduleVersion + " (old version was "
-								+ bundleVersion + ")");
+						OsgiBootUtils.info("Updated bundle " + moduleName
+								+ " with version " + moduleVersion
+								+ " (old version was " + bundleVersion + ")");
 					} else {
 						// do nothing
 					}
@@ -529,10 +586,11 @@ public class OsgiBoot {
 	}
 
 	public List getBundlesUrls() {
-		String baseUrl = OsgiBootUtils.getPropertyCompat(PROP_ARGEO_OSGI_BASE_URL,
-				PROP_SLC_OSGI_BASE_URL, DEFAULT_BASE_URL);
-		String bundlePatterns = OsgiBootUtils.getPropertyCompat(PROP_ARGEO_OSGI_BUNDLES,
-				PROP_SLC_OSGI_BUNDLES);
+		String baseUrl = OsgiBootUtils.getPropertyCompat(
+				PROP_ARGEO_OSGI_BASE_URL, PROP_SLC_OSGI_BASE_URL,
+				DEFAULT_BASE_URL);
+		String bundlePatterns = OsgiBootUtils.getPropertyCompat(
+				PROP_ARGEO_OSGI_BUNDLES, PROP_SLC_OSGI_BUNDLES);
 		return getBundlesUrls(baseUrl, bundlePatterns);
 	}
 
@@ -589,9 +647,9 @@ public class OsgiBoot {
 			File[] files = baseDir.listFiles();
 
 			if (files == null) {
-				OsgiBootUtils.warn("Base dir " + baseDir + " has no children, exists="
-						+ baseDir.exists() + ", isDirectory="
-						+ baseDir.isDirectory());
+				OsgiBootUtils.warn("Base dir " + baseDir
+						+ " has no children, exists=" + baseDir.exists()
+						+ ", isDirectory=" + baseDir.isDirectory());
 				return;
 			}
 
