@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.argeo.slc.osgiboot;
+package org.argeo.osgi.boot;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.adaptor.EclipseStarter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
+/** Starts an Equinox runtime and provision it with OSGi boot. */
 public class OsgiBootRuntimeTest extends TestCase {
 	protected OsgiBoot osgiBoot = null;
 
@@ -41,17 +42,17 @@ public class OsgiBootRuntimeTest extends TestCase {
 		}
 		assertEquals(4, map.size());
 		Iterator keys = map.keySet().iterator();
-		assertEquals("org.argeo.slc.osgiboot.test.bundle1", keys.next());
-		assertEquals("org.argeo.slc.osgiboot.test.bundle2", keys.next());
-		assertEquals("org.argeo.slc.osgiboot.test.bundle3", keys.next());
+		assertEquals("org.argeo.osgi.boot.test.bundle1", keys.next());
+		assertEquals("org.argeo.osgi.boot.test.bundle2", keys.next());
+		assertEquals("org.argeo.osgi.boot.test.bundle3", keys.next());
 		assertEquals("org.eclipse.osgi", keys.next());
 
-		osgiBoot.startBundles("org.argeo.slc.osgiboot.test.bundle2");
+		osgiBoot.startBundles("org.argeo.osgi.boot.test.bundle2");
 		long begin = System.currentTimeMillis();
 		while (System.currentTimeMillis() - begin < 10000) {
 			Map mapBundles = osgiBoot.getBundles();
 			Bundle bundle = (Bundle) mapBundles
-					.get("org.argeo.slc.osgiboot.test.bundle2");
+					.get("org.argeo.osgi.boot.test.bundle2");
 			if (bundle.getState() == Bundle.ACTIVE) {
 				System.out.println("Bundle " + bundle + " started.");
 				return;

@@ -25,13 +25,13 @@ import java.util.Vector;
 import org.eclipse.core.runtime.adaptor.EclipseStarter;
 import org.osgi.framework.BundleContext;
 
+/** Command line interface. */
 public class Launcher {
 
 	public static void main(String[] args) {
 		// Try to load system properties
-		String systemPropertiesFilePath = OsgiBootUtils.getPropertyCompat(
-				OsgiBoot.PROP_ARGEO_OSGI_BOOT_SYSTEM_PROPERTIES_FILE,
-				OsgiBoot.PROP_SLC_OSGIBOOT_SYSTEM_PROPERTIES_FILE);
+		String systemPropertiesFilePath = OsgiBootUtils
+				.getProperty(OsgiBoot.PROP_ARGEO_OSGI_BOOT_SYSTEM_PROPERTIES_FILE);
 		if (systemPropertiesFilePath != null) {
 			FileInputStream in;
 			try {
@@ -68,23 +68,16 @@ public class Launcher {
 	}
 
 	protected static void startMainClass() {
-		// Properties config = System.getProperties();
-		// String className = config.getProperty("slc.osgiboot.appclass");
-		String className = OsgiBootUtils.getPropertyCompat(
-				OsgiBoot.PROP_ARGEO_OSGI_BOOT_APPCLASS,
-				OsgiBoot.PROP_SLC_OSGIBOOT_APPCLASS);
+		String className = OsgiBootUtils
+				.getProperty(OsgiBoot.PROP_ARGEO_OSGI_BOOT_APPCLASS);
 		if (className == null)
 			return;
 
-		// should use OsgiBootUtils.getPropertyCompat(), but it does not 
-		// work for "" as default value
-		// so no warning displayed if PROP_SLC_OSGIBOOT_APPARGS is used
-		// FIXME: change OsgiBootUtils.getPropertyCompat()
-		String line = System.getProperty(OsgiBoot.PROP_ARGEO_OSGI_BOOT_APPARGS, 
-				System.getProperty(OsgiBoot.PROP_SLC_OSGIBOOT_APPARGS, ""));		
-		
+		String line = System.getProperty(OsgiBoot.PROP_ARGEO_OSGI_BOOT_APPARGS,
+				"");
+
 		String[] uiArgs = readArgumentsFromLine(line);
-		
+
 		try {
 			// Launch main method using reflection
 			Class clss = Class.forName(className);
@@ -103,9 +96,7 @@ public class Launcher {
 	 * arguments. (nested \" are not supported)
 	 */
 	private static String[] readArgumentsFromLine(String lineOrig) {
-
 		String line = lineOrig.trim();// remove trailing spaces
-		// System.out.println("line=" + line);
 		List args = new Vector();
 		StringBuffer curr = new StringBuffer("");
 		boolean inQuote = false;
@@ -139,7 +130,6 @@ public class Launcher {
 		String[] res = new String[args.size()];
 		for (int i = 0; i < args.size(); i++) {
 			res[i] = args.get(i).toString();
-			// System.out.println("res[i]=" + res[i]);
 		}
 		return res;
 	}

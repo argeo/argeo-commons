@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.argeo.slc.osgiboot;
+package org.argeo.osgi.boot;
 
 import java.io.File;
 import java.util.List;
@@ -23,10 +23,12 @@ import junit.framework.TestCase;
 
 import org.argeo.osgi.boot.OsgiBoot;
 
+/** Tests which do not require a runtime. */
 public class OsgiBootNoRuntimeTest extends TestCase {
 	public final static String BUNDLES = "src/test/bundles/some;in=*;ex=excluded,"
 			+ "src/test/bundles/others;in=**/org.argeo.*";
 
+	/** Tests that location lists are properly parsed. */
 	public void testLocations() {
 		String baseUrl = "file:";
 		String locations = "/mydir/myfile" + File.pathSeparator
@@ -39,6 +41,7 @@ public class OsgiBootNoRuntimeTest extends TestCase {
 		assertEquals("file:/myotherdir/myotherfile", urls.get(1));
 	}
 
+	/** Tests that bundle lists are properly parsed. */
 	public void testBundles() {
 		String baseUrl = "file:";
 		String bundles = BUNDLES;

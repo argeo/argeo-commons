@@ -43,6 +43,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
 
+/** Core component, performing basic provisioning of an OSGi runtime. */
 public class OsgiBoot {
 	public final static String SYMBOLIC_NAME_OSGI_BOOT = "org.argeo.osgi.boot";
 	public final static String SYMBOLIC_NAME_EQUINOX = "org.eclipse.osgi";
@@ -62,36 +63,11 @@ public class OsgiBoot {
 	public final static String PROP_ARGEO_OSGI_BOOT_APPCLASS = "argeo.osgi.boot.appclass";
 	public final static String PROP_ARGEO_OSGI_BOOT_APPARGS = "argeo.osgi.boot.appargs";
 
-	/** @deprecated */
-	public final static String PROP_SLC_OSGI_START = "slc.osgi.start";
-	/** @deprecated */
-	public final static String PROP_SLC_OSGI_BUNDLES = "slc.osgi.bundles";
-	/** @deprecated */
-	public final static String PROP_SLC_OSGI_LOCATIONS = "slc.osgi.locations";
-	/** @deprecated */
-	public final static String PROP_SLC_OSGI_BASE_URL = "slc.osgi.baseUrl";
-	/** @deprecated */
-	public final static String PROP_SLC_OSGI_MODULES_URL = "slc.osgi.modulesUrl";
-
-	/** @deprecated */
-	public final static String PROP_SLC_OSGIBOOT_DEBUG = "slc.osgiboot.debug";
-	/** @deprecated */
-	public final static String PROP_SLC_OSGIBOOT_DEFAULT_TIMEOUT = "slc.osgiboot.defaultTimeout";
-	/** @deprecated */
-	public final static String PROP_SLC_OSGIBOOT_MODULES_URL_SEPARATOR = "slc.osgiboot.modulesUrlSeparator";
-	/** @deprecated */
-	public final static String PROP_SLC_OSGIBOOT_SYSTEM_PROPERTIES_FILE = "slc.osgiboot.systemPropertiesFile";
-	/** @deprecated */
-	public final static String PROP_SLC_OSGIBOOT_APPCLASS = "slc.osgiboot.appclass";
-	/** @deprecated */
-	public final static String PROP_SLC_OSGIBOOT_APPARGS = "slc.osgiboot.appargs";
-
 	public final static String DEFAULT_BASE_URL = "reference:file:";
 	public final static String EXCLUDES_SVN_PATTERN = "**/.svn/**";
 
 	private boolean debug = Boolean.valueOf(
-			System.getProperty(PROP_ARGEO_OSGI_BOOT_DEBUG,
-					System.getProperty(PROP_SLC_OSGIBOOT_DEBUG, "false")))
+			System.getProperty(PROP_ARGEO_OSGI_BOOT_DEBUG, "false"))
 			.booleanValue();
 	/** Default is 10s (set in constructor) */
 	private long defaultTimeout;
@@ -104,12 +80,10 @@ public class OsgiBoot {
 
 	public OsgiBoot(BundleContext bundleContext) {
 		this.bundleContext = bundleContext;
-		defaultTimeout = Long.parseLong(OsgiBootUtils.getPropertyCompat(
-				PROP_ARGEO_OSGI_BOOT_DEFAULT_TIMEOUT,
-				PROP_SLC_OSGIBOOT_DEFAULT_TIMEOUT, "10000"));
-		modulesUrlSeparator = OsgiBootUtils.getPropertyCompat(
-				PROP_ARGEO_OSGI_BOOT_MODULES_URL_SEPARATOR,
-				PROP_SLC_OSGIBOOT_MODULES_URL_SEPARATOR, ",");
+		defaultTimeout = Long.parseLong(OsgiBootUtils.getProperty(
+				PROP_ARGEO_OSGI_BOOT_DEFAULT_TIMEOUT, "10000"));
+		modulesUrlSeparator = OsgiBootUtils.getProperty(
+				PROP_ARGEO_OSGI_BOOT_MODULES_URL_SEPARATOR, ",");
 		initSystemProperties();
 	}
 
@@ -262,8 +236,8 @@ public class OsgiBoot {
 	}
 
 	public void startBundles() {
-		String bundlesToStart = OsgiBootUtils.getPropertyCompat(
-				PROP_ARGEO_OSGI_START, PROP_SLC_OSGI_START);
+		String bundlesToStart = OsgiBootUtils
+				.getProperty(PROP_ARGEO_OSGI_START);
 		startBundles(bundlesToStart);
 	}
 
@@ -342,6 +316,7 @@ public class OsgiBoot {
 		}
 	}
 
+	/** List packages exported twice. */
 	public Map findPackagesExportedTwice() {
 		ServiceReference paSr = bundleContext
 				.getServiceReference(PackageAdmin.class.getName());
@@ -445,23 +420,21 @@ public class OsgiBoot {
 	}
 
 	public List getLocationsUrls() {
-		String baseUrl = OsgiBootUtils.getPropertyCompat(
-				PROP_ARGEO_OSGI_BASE_URL, PROP_SLC_OSGI_BASE_URL,
+		String baseUrl = OsgiBootUtils.getProperty(PROP_ARGEO_OSGI_BASE_URL,
 				DEFAULT_BASE_URL);
-		String bundleLocations = OsgiBootUtils.getPropertyCompat(
-				PROP_ARGEO_OSGI_LOCATIONS, PROP_SLC_OSGI_LOCATIONS);
+		String bundleLocations = OsgiBootUtils
+				.getProperty(PROP_ARGEO_OSGI_LOCATIONS);
 		return getLocationsUrls(baseUrl, bundleLocations);
 	}
 
 	public List getModulesUrls() {
 		List urls = new ArrayList();
-		String modulesUrlStr = OsgiBootUtils.getPropertyCompat(
-				PROP_ARGEO_OSGI_MODULES_URL, PROP_SLC_OSGI_MODULES_URL);
+		String modulesUrlStr = OsgiBootUtils
+				.getProperty(PROP_ARGEO_OSGI_MODULES_URL);
 		if (modulesUrlStr == null)
 			return urls;
 
-		String baseUrl = OsgiBootUtils.getPropertyCompat(
-				PROP_ARGEO_OSGI_BASE_URL, PROP_SLC_OSGI_BASE_URL);
+		String baseUrl = OsgiBootUtils.getProperty(PROP_ARGEO_OSGI_BASE_URL);
 
 		Map installedBundles = getBundles();
 
@@ -586,11 +559,10 @@ public class OsgiBoot {
 	}
 
 	public List getBundlesUrls() {
-		String baseUrl = OsgiBootUtils.getPropertyCompat(
-				PROP_ARGEO_OSGI_BASE_URL, PROP_SLC_OSGI_BASE_URL,
+		String baseUrl = OsgiBootUtils.getProperty(PROP_ARGEO_OSGI_BASE_URL,
 				DEFAULT_BASE_URL);
-		String bundlePatterns = OsgiBootUtils.getPropertyCompat(
-				PROP_ARGEO_OSGI_BUNDLES, PROP_SLC_OSGI_BUNDLES);
+		String bundlePatterns = OsgiBootUtils
+				.getProperty(PROP_ARGEO_OSGI_BUNDLES);
 		return getBundlesUrls(baseUrl, bundlePatterns);
 	}
 
