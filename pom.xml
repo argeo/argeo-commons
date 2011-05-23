@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo</groupId>
@@ -17,8 +18,10 @@
 		<version.argeo-commons>0.3.2-SNAPSHOT</version.argeo-commons>
 		<version.argeo-ria>0.12.5</version.argeo-ria>
 		<version.equinox>3.6.2</version.equinox>
-		<version.maven-argeo-osgi>1.0.32</version.maven-argeo-osgi>
+		<!-- Maven -->
+		<!-- Using version 2.3.4 causes package use conflict. To be investigated. -->
 		<version.maven-bundle-plugin>2.2.0</version.maven-bundle-plugin>
+		<version.maven-argeo-osgi>1.0.33</version.maven-argeo-osgi>
 		<version.maven-argeo-qooxdoo>1.1.1</version.maven-argeo-qooxdoo>
 		<site.repoBase>file:///srv/projects/www/commons/site</site.repoBase>
 		<site.urlBase>http://projects.argeo.org/commons/site</site.urlBase>
