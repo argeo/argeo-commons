@@ -169,15 +169,15 @@ public class OsgiBoot {
 		if (debug) {
 			Map /* <String,Set<String>> */duplicatePackages = findPackagesExportedTwice();
 			if (duplicatePackages.size() > 0) {
-				OsgiBootUtils.debug("## Packages exported twice");
+				OsgiBootUtils.info("Packages exported twice:");
 				Iterator it = duplicatePackages.keySet().iterator();
 				while (it.hasNext()) {
 					String pkgName = it.next().toString();
-					OsgiBootUtils.debug(pkgName);
+					OsgiBootUtils.info(pkgName);
 					Set bdles = (Set) duplicatePackages.get(pkgName);
 					Iterator bdlesIt = bdles.iterator();
 					while (bdlesIt.hasNext())
-						OsgiBootUtils.debug("  " + bdlesIt.next());
+						OsgiBootUtils.info("  " + bdlesIt.next());
 				}
 			}
 		}
