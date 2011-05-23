@@ -1,2 +1,0 @@
-Bundle-SymbolicName: org.argeo.slc.osgiboot.test.bundle0
-Bundle-Version: 0.1.0
