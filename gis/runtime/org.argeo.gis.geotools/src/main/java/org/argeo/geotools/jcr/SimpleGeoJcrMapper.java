@@ -36,6 +36,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
+/** Maps geographical information meta data in a JCR repository. */
 public class SimpleGeoJcrMapper implements GeoJcrMapper, GisNames {
 	private final static Log log = LogFactory.getLog(SimpleGeoJcrMapper.class);
 
@@ -277,6 +278,10 @@ public class SimpleGeoJcrMapper implements GeoJcrMapper, GisNames {
 					+ "' property");
 			return;
 		}
+
+		if (!systemSession.isLive())
+			return;
+
 		String alias = properties.get(GeoToolsConstants.ALIAS_KEY);
 		registeredDataStores.remove(alias);
 		Node dataStoreNode = getDataStoreNode(systemSession, alias);

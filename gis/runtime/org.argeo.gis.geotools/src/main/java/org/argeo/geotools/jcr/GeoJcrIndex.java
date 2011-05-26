@@ -35,16 +35,20 @@ import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.FilterFactoryImpl;
+import org.geotools.referencing.CRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.identity.FeatureId;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
+/** Index JCR nodes containing or referencing GIS data. */
 public class GeoJcrIndex implements EventListener, GisNames, GisTypes {
 	// PostGIS convention
 	final static String DEFAULT_GEOM_NAME = "the_geom";
@@ -54,6 +58,8 @@ public class GeoJcrIndex implements EventListener, GisNames, GisTypes {
 	private DataStore dataStore;
 	private Session session;
 	private Executor systemExecutionService;
+
+	private String crs = "EPSG:4326";
 
 	/** The key is the workspace */
 	private Map<String, FeatureStore<SimpleFeatureType, SimpleFeature>> geoJcrIndexes = Collections
@@ -178,9 +184,15 @@ public class GeoJcrIndex implements EventListener, GisNames, GisTypes {
 	}
 
 	protected SimpleFeatureType getWorkspaceGeoJcrIndexType(String workspaceName) {
+
 		SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
 		builder.setNamespaceURI(GIS_NAMESPACE);
 		builder.setName(workspaceName + "_geojcr_index");
+		try {
+			builder.setCRS(CRS.decode(crs));
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot set CRS " + crs, e);
+		}
 
 		builder.setDefaultGeometry(JcrUtils.normalize(GIS_BBOX));
 		builder.add(JcrUtils.normalize(GIS_BBOX), Polygon.class);
