@@ -164,11 +164,10 @@ public class OpenLayersMapViewer extends AbstractMapViewer implements
 	}
 
 	@Override
-	protected void addFeatureSource(String path,
-			FeatureSource<SimpleFeatureType, SimpleFeature> featureSource) {
+	protected void addFeatureSource(String layerId,
+			FeatureSource<SimpleFeatureType, SimpleFeature> featureSource, Object style) {
 		FeatureIterator<SimpleFeature> featureIterator = null;
 		try {
-			String layerId = path;
 			VectorLayer vectorLayer = new VectorLayer(featureSource.getName()
 					.toString());
 			vectorLayer.setObjAttr("id", layerId);

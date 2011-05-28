@@ -18,6 +18,7 @@ import org.argeo.jcr.CollectionNodeIterator;
 import org.argeo.jcr.gis.GisTypes;
 import org.eclipse.swt.widgets.Composite;
 import org.geotools.data.FeatureSource;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -35,8 +36,9 @@ public abstract class AbstractMapViewer implements MapViewer {
 	private Set<MapViewerListener> listeners = Collections
 			.synchronizedSet(new HashSet<MapViewerListener>());
 
-	protected abstract void addFeatureSource(String path,
-			FeatureSource<SimpleFeatureType, SimpleFeature> featureSource);
+	protected abstract void addFeatureSource(String layerId,
+			FeatureSource<SimpleFeatureType, SimpleFeature> featureSource,
+			Object style);
 
 	public AbstractMapViewer(Node context, GeoJcrMapper geoJcrMapper) {
 		super();
@@ -44,11 +46,13 @@ public abstract class AbstractMapViewer implements MapViewer {
 		this.geoJcrMapper = geoJcrMapper;
 	}
 
-	public void addLayer(Node layer) {
+	public void addLayer(Node layer, Object style) {
 		try {
 			if (layer.isNodeType(GisTypes.GIS_FEATURE_SOURCE)) {
 				addFeatureSource(layer.getPath(),
-						geoJcrMapper.getFeatureSource(layer));
+						geoJcrMapper.getFeatureSource(layer), style);
+			} else {
+				throw new ArgeoException("Unsupported layer " + layer);
 			}
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot add layer " + layer, e);
@@ -101,6 +105,10 @@ public abstract class AbstractMapViewer implements MapViewer {
 
 	public Composite getControl() {
 		return control;
+	}
+
+	public GeoJcrMapper getGeoJcrMapper() {
+		return geoJcrMapper;
 	}
 
 }

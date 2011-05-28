@@ -14,7 +14,6 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -60,13 +59,13 @@ public class FeatureSourcesView extends ViewPart implements
 				IEditorPart ed = getSite().getWorkbenchWindow().getActivePage()
 						.getActiveEditor();
 				if (ed instanceof DefaultMapEditor) {
-					((DefaultMapEditor) ed).getMapViewer().addLayer(node);
+					((DefaultMapEditor) ed).getMapViewer().addLayer(node, null);
 				} else if (ed instanceof FormEditor) {
 					IFormPage activePage = ((FormEditor) ed)
 							.getActivePageInstance();
 					if (activePage instanceof MapFormPage) {
-						((MapFormPage) activePage).getMapViewer()
-								.addLayer(node);
+						((MapFormPage) activePage).getMapViewer().addLayer(
+								node, null);
 					}
 				}
 			}
