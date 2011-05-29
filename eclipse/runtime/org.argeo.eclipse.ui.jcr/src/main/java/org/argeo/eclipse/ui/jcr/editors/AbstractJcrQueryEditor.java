@@ -42,7 +42,7 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 	protected String initialQuery;
 	protected String initialQueryType;
 
-	// IoC
+	/** DEPENDENCY INJECTION */
 	private Session session;
 
 	private TableViewer viewer;
