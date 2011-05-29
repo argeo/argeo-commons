@@ -9,6 +9,8 @@ import javax.jcr.query.QueryResult;
 import javax.jcr.query.Row;
 import javax.jcr.query.RowIterator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.GenericTableComparator;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -38,6 +40,8 @@ import org.eclipse.ui.part.EditorPart;
 
 /** Executes any JCR query. */
 public abstract class AbstractJcrQueryEditor extends EditorPart {
+	private final static Log log = LogFactory
+			.getLog(AbstractJcrQueryEditor.class);
 
 	protected String initialQuery;
 	protected String initialQueryType;
