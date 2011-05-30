@@ -1,6 +1,7 @@
 package org.argeo.security.ui.dialogs;
 
 import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.Error;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
@@ -48,9 +49,13 @@ public class ChangePasswordDialog extends TitleAreaDialog {
 	protected void okPressed() {
 		if (!newPassword1.getText().equals(newPassword2.getText()))
 			throw new ArgeoException("Passwords are different");
-		userDetailsManager.changePassword(currentPassword.getText(),
-				newPassword1.getText());
-		close();
+		try {
+			userDetailsManager.changePassword(currentPassword.getText(),
+					newPassword1.getText());
+			close();
+		} catch (Exception e) {
+			Error.show("Cannot change password", e);
+		}
 	}
 
 	/** Creates label and password. */
