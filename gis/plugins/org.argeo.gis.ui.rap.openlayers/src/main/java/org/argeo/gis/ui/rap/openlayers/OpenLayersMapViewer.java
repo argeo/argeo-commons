@@ -2,6 +2,7 @@ package org.argeo.gis.ui.rap.openlayers;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +23,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.polymap.openlayers.rap.widget.OpenLayersWidget;
@@ -240,4 +242,21 @@ public class OpenLayersMapViewer extends AbstractMapViewer implements
 		}
 
 	}
+
+	public void addLayer(String layerId, Collection<?> collection, Object style) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setAreaOfInterest(ReferencedEnvelope areaOfInterest) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setStyle(String layerId, Object style) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
 }
