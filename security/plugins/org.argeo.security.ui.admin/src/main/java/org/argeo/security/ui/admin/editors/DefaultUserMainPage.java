@@ -118,6 +118,7 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 							email.getText());
 					userProfile.setProperty(Property.JCR_DESCRIPTION,
 							description.getText());
+					userProfile.getSession().save();
 					super.commit(onSave);
 					if (log.isTraceEnabled())
 						log.trace("General part committed");

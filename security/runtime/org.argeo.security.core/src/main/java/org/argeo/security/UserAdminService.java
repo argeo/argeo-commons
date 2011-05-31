@@ -24,6 +24,9 @@ public interface UserAdminService extends UserDetailsManager {
 	/*
 	 * USERS
 	 */
+	/** List all users. */
+	public Set<String> listUsers();
+
 	/** List users having this role (except the super user). */
 	public Set<String> listUsersInRole(String role);
 

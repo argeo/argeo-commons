@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.SortedSet;
 import java.util.concurrent.Executor;
 
 import javax.jcr.Node;
@@ -64,6 +65,10 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 
 	public UserDetails mapUserFromContext(final DirContextOperations ctx,
 			final String username, GrantedAuthority[] authorities) {
+		if (ctx == null)
+			throw new ArgeoException("No LDAP information found for user "
+					+ username);
+
 		final StringBuffer userHomePathT = new StringBuffer("");
 		Runnable action = new Runnable() {
 			public void run() {
@@ -85,13 +90,20 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 		}
 
 		// password
-		byte[] arr = (byte[]) ctx
-				.getAttributeSortedStringSet(passwordAttribute).first();
+		SortedSet<?> passwordAttributes = ctx
+				.getAttributeSortedStringSet(passwordAttribute);
+		String password;
+		if (passwordAttributes == null || passwordAttributes.size() == 0) {
+			throw new ArgeoException("No password found for user " + username);
+		} else {
+			byte[] arr = (byte[]) passwordAttributes.first();
+			password = new String(arr);
+			// erase password
+			Arrays.fill(arr, (byte) 0);
+		}
 		JcrUserDetails userDetails = new JcrUserDetails(
-				userHomePathT.toString(), username, new String(arr), true,
-				true, true, true, authorities);
-		// erase password
-		Arrays.fill(arr, (byte) 0);
+				userHomePathT.toString(), username, password, true, true, true,
+				true, authorities);
 		return userDetails;
 	}
 
@@ -210,7 +222,7 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 
 			if (ldapAttribute.equals("description")) {
 				String value = userProfile.getProperty(jcrProperty).getString();
-				if(value.trim().equals(""))
+				if (value.trim().equals(""))
 					return;
 			}
 

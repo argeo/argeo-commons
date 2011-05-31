@@ -10,10 +10,13 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.argeo.ArgeoException;
 import org.argeo.security.UserAdminDao;
 import org.argeo.security.UserAdminService;
 import org.springframework.ldap.core.ContextSource;
+import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.encoding.PasswordEncoder;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.ldap.LdapUserDetailsManager;
@@ -41,7 +44,22 @@ public class ArgeoLdapUserDetailsManager extends LdapUserDetailsManager
 
 	@Override
 	public void changePassword(String oldPassword, String newPassword) {
-		super.changePassword(oldPassword, encodePassword(newPassword));
+		Authentication authentication = SecurityContextHolder.getContext()
+				.getAuthentication();
+		if (authentication == null)
+			throw new ArgeoException(
+					"Cannot change password without authentication");
+		String username = authentication.getName();
+		UserDetails userDetails = loadUserByUsername(username);
+		String currentPassword = userDetails.getPassword();
+		if (currentPassword == null)
+			throw new ArgeoException("Cannot access current password");
+		if (!passwordEncoder
+				.isPasswordValid(currentPassword, oldPassword, null))
+			throw new ArgeoException("Old password invalid");
+		// Spring Security LDAP 2.0 is buggy when used with OpenLDAP and called
+		// with oldPassword argument
+		super.changePassword(null, encodePassword(newPassword));
 	}
 
 	public void newRole(String role) {
@@ -56,6 +74,10 @@ public class ArgeoLdapUserDetailsManager extends LdapUserDetailsManager
 
 	public void deleteRole(String role) {
 		userAdminDao.deleteRole(role);
+	}
+
+	public Set<String> listUsers() {
+		return userAdminDao.listUsers();
 	}
 
 	public Set<String> listUsersInRole(String role) {

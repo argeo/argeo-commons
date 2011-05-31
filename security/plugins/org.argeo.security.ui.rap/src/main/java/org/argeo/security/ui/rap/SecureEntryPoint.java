@@ -8,11 +8,15 @@ import javax.security.auth.login.LoginException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.equinox.security.auth.ILoginContext;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.rwt.RWT;
 import org.eclipse.rwt.lifecycle.IEntryPoint;
 import org.eclipse.rwt.service.SessionStoreEvent;
 import org.eclipse.rwt.service.SessionStoreListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchAdvisor;
@@ -21,6 +25,7 @@ import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 public class SecureEntryPoint implements IEntryPoint, SessionStoreListener {
 	private final static Log log = LogFactory.getLog(SecureEntryPoint.class);
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public int createUI() {
 		// 15 mins session timeout
@@ -41,6 +46,8 @@ public class SecureEntryPoint implements IEntryPoint, SessionStoreListener {
 			subject = loginContext.getSubject();
 		} catch (LoginException e) {
 			log.error("Error when logging in.", e);
+			MessageDialog.openInformation(display.getActiveShell(),
+					"Login failed", "Login failed");
 			display.dispose();
 			RWT.getRequest().getSession().setMaxInactiveInterval(1);
 			try {
@@ -48,6 +55,7 @@ public class SecureEntryPoint implements IEntryPoint, SessionStoreListener {
 			} catch (InterruptedException e1) {
 				// silent
 			}
+			// throw new RuntimeException("Login failed", e);
 			return -1;
 		}
 
@@ -120,6 +128,19 @@ public class SecureEntryPoint implements IEntryPoint, SessionStoreListener {
 	// if (log.isDebugEnabled())
 	// log.debug("Workbench closed");
 	// }
+
+	static class FailedLogin extends MessageDialog {
+
+		public FailedLogin(Shell parentShell, String dialogTitle,
+				Image dialogTitleImage, String dialogMessage,
+				int dialogImageType, String[] dialogButtonLabels,
+				int defaultIndex) {
+			super(parentShell, "Failed ", dialogTitleImage, dialogMessage,
+					dialogImageType, dialogButtonLabels, defaultIndex);
+			// TODO Auto-generated constructor stub
+		}
+
+	}
 
 	@SuppressWarnings("rawtypes")
 	private PrivilegedAction getRunAction(final Display display) {
