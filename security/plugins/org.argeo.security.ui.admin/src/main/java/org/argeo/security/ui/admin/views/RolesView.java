@@ -70,6 +70,7 @@ public class RolesView extends ViewPart {
 		viewer = new TableViewer(table);
 		viewer.setContentProvider(new RolesContentProvider());
 		viewer.setLabelProvider(new UsersLabelProvider());
+		getViewSite().setSelectionProvider(viewer);
 		viewer.setInput(getViewSite());
 	}
 

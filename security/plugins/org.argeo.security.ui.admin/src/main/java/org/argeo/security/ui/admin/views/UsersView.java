@@ -53,6 +53,7 @@ public class UsersView extends ViewPart implements ArgeoNames, ArgeoTypes,
 		viewer.setContentProvider(new UsersContentProvider());
 		viewer.setLabelProvider(new UsersLabelProvider());
 		viewer.addDoubleClickListener(new ViewDoubleClickListener());
+		getViewSite().setSelectionProvider(viewer);
 		viewer.setInput(getViewSite());
 	}
 
