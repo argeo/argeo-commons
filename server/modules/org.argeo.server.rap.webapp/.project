@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.argeo.server.osgi.webapp</name>
+	<name>org.argeo.server.rap.webapp</name>
 	<comment></comment>
 	<projects>
 	</projects>

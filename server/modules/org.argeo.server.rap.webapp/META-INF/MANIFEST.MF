@@ -1,10 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: OSGi Webapp
-Bundle-SymbolicName: org.argeo.server.osgi.webapp
+Bundle-Name: RAP Webapp
+Bundle-Description: OSGi compatible RAP webapp
+Bundle-SymbolicName: org.argeo.server.rap.webapp
 Bundle-Version: 0.3.2.SNAPSHOT
 Bundle-Vendor: Argeo
-Web-ContextPath: org.argeo.osgi.webapp
+Web-ContextPath: org.argeo.rap.webapp
 Import-Package: org.eclipse.equinox.http.servlet;version="1.1.0",
  org.springframework.osgi.web.context.support;version="1.2.1",
  org.springframework.security;version="2.0.6.RELEASE",
