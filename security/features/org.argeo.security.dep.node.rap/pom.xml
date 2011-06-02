@@ -127,7 +127,7 @@
 		<!-- For Tomcat deployment -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.osgi.webapp</artifactId>
+			<artifactId>org.argeo.server.rap.webapp</artifactId>
 			<version>${version.argeo-commons}</version>
 		</dependency>
 
