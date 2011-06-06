@@ -37,6 +37,7 @@
 							org.springframework.web.context,
 							org.xml.sax;version="0.0.0",
 							org.apache.jackrabbit.webdav.jcr,
+							org.springframework.beans,
 							*
 						</Import-Package>
 					</instructions>
