@@ -6,6 +6,7 @@ public interface ArgeoNames {
 
 	public final static String ARGEO_URI = "argeo:uri";
 	public final static String ARGEO_USER_ID = "argeo:userID";
+	public final static String ARGEO_DATA_MODEL_VERSION = "argeo:dataModelVersion";
 
 	// user profile
 	public final static String ARGEO_PROFILE = "argeo:profile";

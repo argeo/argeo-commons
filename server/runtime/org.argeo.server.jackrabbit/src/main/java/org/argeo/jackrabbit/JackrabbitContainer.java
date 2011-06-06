@@ -24,9 +24,12 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.Executor;
 
 import javax.jcr.Credentials;
@@ -51,8 +54,6 @@ import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
 import org.apache.jackrabbit.jcr2dav.Jcr2davRepositoryFactory;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.JcrUtils;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -63,13 +64,14 @@ import org.xml.sax.InputSource;
  * Wrapper around a Jackrabbit repository which allows to configure it in Spring
  * and expose it as a {@link Repository}.
  */
-public class JackrabbitContainer implements InitializingBean, DisposableBean,
-		Repository, ResourceLoaderAware {
+public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 	private Log log = LogFactory.getLog(JackrabbitContainer.class);
 
 	private Resource configuration;
-	private File homeDirectory;
+	private String homeDirectory;
 	private Resource variables;
+	/** cache home */
+	private File home;
 
 	private Boolean inMemory = false;
 	private String uri = null;
@@ -81,104 +83,147 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 	/** Node type definitions in CND format */
 	private List<String> cndFiles = new ArrayList<String>();
 
+	/** Migrations to execute (if not already done) */
+	private Set<JackrabbitDataModelMigration> dataModelMigrations = new HashSet<JackrabbitDataModelMigration>();
+
 	/** Namespaces to register: key is prefix, value namespace */
 	private Map<String, String> namespaces = new HashMap<String, String>();
 
 	private Boolean autocreateWorkspaces = false;
 
 	private Executor systemExecutor;
-	private Credentials adminCredentials;
-
-	// transition from legacy spring approach
-	private Boolean alreadyInitialized = false;
-	private Boolean alreadyDisposed = false;
-
-	/** @deprecated explicitly declare {@link #init()} as init-method instead. */
-	public void afterPropertiesSet() throws Exception {
-		if (!alreadyInitialized) {
-			log.warn("## If not already done,"
-					+ " declare init-method=\"init\".");
-			initImpl();
-		}
-	}
 
 	public void init() throws Exception {
-		initImpl();
-		alreadyInitialized = true;
-	}
-
-	protected void initImpl() throws Exception {
 		if (repository != null) {
 			// we are just wrapping another repository
 			importNodeTypeDefinitions(repository);
 			return;
 		}
 
-		// remote repository
-		if (uri != null && !uri.trim().equals("")) {
-			Map<String, String> params = new HashMap<String, String>();
-			params.put(org.apache.jackrabbit.commons.JcrUtils.REPOSITORY_URI,
-					uri);
-			repository = new Jcr2davRepositoryFactory().getRepository(params);
-			if (repository == null)
-				throw new ArgeoException("Remote Davex repository " + uri
-						+ " not found");
-			log.info("Initialized Jackrabbit repository " + repository
-					+ " from URI " + uri);
-			// do not perform further initialization since we assume that the
-			// remote repository has been properly configured
-			return;
-		}
+		repository = createJackrabbitRepository();
 
-		// local repository
-		if (inMemory && homeDirectory.exists()) {
-			FileUtils.deleteDirectory(homeDirectory);
-			log.warn("Deleted Jackrabbit home directory " + homeDirectory);
-		}
+		// migrate if needed
+		migrate();
 
-		RepositoryConfig config;
-		Properties vars = getConfigurationProperties();
-		InputStream in = configuration.getInputStream();
-		try {
-			vars.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE,
-					homeDirectory.getCanonicalPath());
-			config = RepositoryConfig.create(new InputSource(in), vars);
-		} catch (Exception e) {
-			throw new RuntimeException("Cannot read configuration", e);
-		} finally {
-			IOUtils.closeQuietly(in);
-		}
-
-		if (inMemory)
-			repository = new TransientRepository(config);
-		else
-			repository = RepositoryImpl.create(config);
-
+		// apply new CND files after migration
 		if (cndFiles != null && cndFiles.size() > 0)
 			importNodeTypeDefinitions(repository);
-
-		log.info("Initialized Jackrabbit repository " + repository + " in "
-				+ homeDirectory + " with config " + configuration);
 	}
 
-	/**
-	 * @deprecated explicitly declare {@link #dispose()} as destroy-method
-	 *             instead.
-	 */
-	public void destroy() throws Exception {
-		if (!alreadyDisposed) {
-			log.warn("## If not already done,"
-					+ " declare destroy-method=\"dispose\".");
-			disposeImpl();
+	/** Actually creates a new repository. */
+	protected JackrabbitRepository createJackrabbitRepository() {
+		JackrabbitRepository repository;
+		try {
+			// remote repository
+			if (uri != null && !uri.trim().equals("")) {
+				Map<String, String> params = new HashMap<String, String>();
+				params.put(
+						org.apache.jackrabbit.commons.JcrUtils.REPOSITORY_URI,
+						uri);
+				repository = (JackrabbitRepository) new Jcr2davRepositoryFactory()
+						.getRepository(params);
+				if (repository == null)
+					throw new ArgeoException("Remote Davex repository " + uri
+							+ " not found");
+				log.info("Initialized Jackrabbit repository " + repository
+						+ " from URI " + uri);
+				// do not perform further initialization since we assume that
+				// the
+				// remote repository has been properly configured
+				return repository;
+			}
+
+			// local repository
+			if (inMemory && getHome().exists()) {
+				FileUtils.deleteDirectory(getHome());
+				log.warn("Deleted Jackrabbit home directory " + getHome());
+			}
+
+			RepositoryConfig config;
+			Properties vars = getConfigurationProperties();
+			InputStream in = configuration.getInputStream();
+			try {
+				vars.put(
+						RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE,
+						getHome().getCanonicalPath());
+				config = RepositoryConfig.create(new InputSource(in), vars);
+			} catch (Exception e) {
+				throw new RuntimeException("Cannot read configuration", e);
+			} finally {
+				IOUtils.closeQuietly(in);
+			}
+
+			if (inMemory)
+				repository = new TransientRepository(config);
+			else
+				repository = RepositoryImpl.create(config);
+
+			log.info("Initialized Jackrabbit repository " + repository + " in "
+					+ getHome() + " with config " + configuration);
+
+			return repository;
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot create Jackrabbit repository "
+					+ getHome(), e);
+		}
+	}
+
+	/** Executes migrations, if needed. */
+	protected void migrate() {
+		Boolean restartAndClearCaches = false;
+
+		// migrate data
+		Session session = null;
+		try {
+			session = login();
+			for (JackrabbitDataModelMigration dataModelMigration : new TreeSet<JackrabbitDataModelMigration>(
+					dataModelMigrations)) {
+				if (dataModelMigration.migrate(session)) {
+					restartAndClearCaches = true;
+				}
+			}
+		} catch (ArgeoException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot migrate", e);
+		} finally {
+			JcrUtils.logoutQuietly(session);
+		}
+
+		// restart repository
+		if (restartAndClearCaches) {
+			((JackrabbitRepository) repository).shutdown();
+			JackrabbitDataModelMigration.clearRepositoryCaches(getHome());
+			repository = createJackrabbitRepository();
+		}
+	}
+
+	/** Lazy init. */
+	protected File getHome() {
+		if (home != null)
+			return home;
+
+		try {
+			String osgiData = System.getProperty("osgi.instance.area");
+			if (osgiData != null)
+				osgiData = osgiData.substring("file:".length());
+			String path;
+			if (homeDirectory == null)
+				path = "./jackrabbit";
+			else
+				path = homeDirectory;
+			if (path.startsWith(".") && osgiData != null) {
+				home = new File(osgiData + '/' + path).getCanonicalFile();
+			} else
+				home = new File(path).getCanonicalFile();
+			return home;
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot define Jackrabbit home based on "
+					+ homeDirectory, e);
 		}
 	}
 
 	public void dispose() throws Exception {
-		disposeImpl();
-		alreadyDisposed = true;
-	}
-
-	protected void disposeImpl() throws Exception {
 		if (repository != null) {
 			if (repository instanceof JackrabbitRepository)
 				((JackrabbitRepository) repository).shutdown();
@@ -189,18 +234,30 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 		}
 
 		if (inMemory)
-			if (homeDirectory.exists()) {
-				FileUtils.deleteDirectory(homeDirectory);
+			if (getHome().exists()) {
+				FileUtils.deleteDirectory(getHome());
 				if (log.isDebugEnabled())
-					log.debug("Deleted Jackrabbit home directory "
-							+ homeDirectory);
+					log.debug("Deleted Jackrabbit home directory " + getHome());
 			}
 
 		if (uri != null && !uri.trim().equals(""))
 			log.info("Destroyed Jackrabbit repository with uri " + uri);
 		else
 			log.info("Destroyed Jackrabbit repository " + repository + " in "
-					+ homeDirectory + " with config " + configuration);
+					+ getHome() + " with config " + configuration);
+	}
+
+	/**
+	 * @deprecated explicitly declare {@link #dispose()} as destroy-method
+	 *             instead.
+	 */
+	public void destroy() throws Exception {
+		log.error("## Declare destroy-method=\"dispose\". in the Jackrabbit container bean");
+	}
+
+	/** @deprecated explicitly declare {@link #init()} as init-method instead. */
+	public void afterPropertiesSet() throws Exception {
+		log.error("## Declare init-method=\"init\". in the Jackrabbit container bean");
 	}
 
 	protected Properties getConfigurationProperties() {
@@ -235,24 +292,12 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 	 * will be thrown.
 	 */
 	protected void importNodeTypeDefinitions(final Repository repository) {
-		final Credentials credentialsToUse = null;
-		// if (systemExecutor == null) {
-		// if (adminCredentials == null) {
-		// log.error("No system executor or admin credentials found,"
-		// + " cannot import node types");
-		// return;
-		// }
-		// credentialsToUse = adminCredentials;
-		// } else {
-		// credentialsToUse = null;
-		// }
-
 		Runnable action = new Runnable() {
 			public void run() {
 				Reader reader = null;
 				Session session = null;
 				try {
-					session = repository.login(credentialsToUse);
+					session = repository.login();
 					processNewSession(session);
 					// Load cnds as resources
 					for (String resUrl : cndFiles) {
@@ -378,7 +423,7 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 	}
 
 	// BEANS METHODS
-	public void setHomeDirectory(File homeDirectory) {
+	public void setHomeDirectory(String homeDirectory) {
 		this.homeDirectory = homeDirectory;
 	}
 
@@ -410,12 +455,13 @@ public class JackrabbitContainer implements InitializingBean, DisposableBean,
 		this.systemExecutor = systemExecutor;
 	}
 
-	public void setAdminCredentials(Credentials adminCredentials) {
-		this.adminCredentials = adminCredentials;
-	}
-
 	public void setRepository(Repository repository) {
 		this.repository = repository;
+	}
+
+	public void setDataModelMigrations(
+			Set<JackrabbitDataModelMigration> dataModelMigrations) {
+		this.dataModelMigrations = dataModelMigrations;
 	}
 
 }

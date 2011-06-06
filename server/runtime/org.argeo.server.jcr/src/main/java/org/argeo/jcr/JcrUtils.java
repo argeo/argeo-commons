@@ -167,7 +167,7 @@ public class JcrUtils implements ArgeoJcrConstants {
 		buf.append('Y');
 		buf.append(cal.get(Calendar.YEAR));
 		buf.append('/');
-		
+
 		int month = cal.get(Calendar.MONTH) + 1;
 		buf.append('M');
 		if (month < 10)
@@ -746,8 +746,13 @@ public class JcrUtils implements ArgeoJcrConstants {
 
 	/** Logs out the session, not throwing any exception, even if it is null. */
 	public static void logoutQuietly(Session session) {
-		if (session != null)
-			session.logout();
+		try {
+			if (session != null)
+				if (session.isLive())
+					session.logout();
+		} catch (Exception e) {
+			// silent
+		}
 	}
 
 	/** Returns the home node of the session user or null if none was found. */

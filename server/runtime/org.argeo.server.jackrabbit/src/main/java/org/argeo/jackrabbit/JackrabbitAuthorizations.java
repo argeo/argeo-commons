@@ -22,6 +22,7 @@ import org.apache.jackrabbit.api.security.user.UserManager;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.JcrUtils;
 
+/** Apply authorizations to a Jackrabbit repository. */
 public class JackrabbitAuthorizations {
 	private final static Log log = LogFactory
 			.getLog(JackrabbitAuthorizations.class);
@@ -36,7 +37,7 @@ public class JackrabbitAuthorizations {
 	private Map<String, String> groupPrivileges = new HashMap<String, String>();
 
 	public void init() {
-		systemExecutor.execute(new Runnable() {
+		Runnable action = new Runnable() {
 			public void run() {
 				JackrabbitSession session = null;
 				try {
@@ -48,7 +49,12 @@ public class JackrabbitAuthorizations {
 					JcrUtils.logoutQuietly(session);
 				}
 			}
-		});
+		};
+
+		if (systemExecutor != null)
+			systemExecutor.execute(action);
+		else
+			action.run();
 	}
 
 	protected void initAuthorizations(JackrabbitSession session)
