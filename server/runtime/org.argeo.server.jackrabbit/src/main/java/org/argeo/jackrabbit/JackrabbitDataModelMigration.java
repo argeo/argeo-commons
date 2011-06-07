@@ -1,6 +1,5 @@
 package org.argeo.jackrabbit;
 
-import java.io.File;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
@@ -11,6 +10,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
+import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrCallback;
@@ -35,17 +35,17 @@ public class JackrabbitDataModelMigration implements
 	 * @return true if a migration was performed and the repository needs to be
 	 *         restarted and its caches cleared.
 	 */
-	public Boolean migrate(Session adminSession) {
+	public Boolean migrate(Session session) {
 		long begin = System.currentTimeMillis();
 		Reader reader = null;
 		try {
 			// check if already migrated
-			if (!adminSession.itemExists(dataModelNodePath)) {
+			if (!session.itemExists(dataModelNodePath)) {
 				log.warn("Node " + dataModelNodePath
 						+ " does not exist: nothing to migrate.");
 				return false;
 			}
-			Node dataModelNode = adminSession.getNode(dataModelNodePath);
+			Node dataModelNode = session.getNode(dataModelNodePath);
 			if (dataModelNode.hasProperty(ArgeoNames.ARGEO_DATA_MODEL_VERSION)) {
 				String currentVersion = dataModelNode.getProperty(
 						ArgeoNames.ARGEO_DATA_MODEL_VERSION).getString();
@@ -57,30 +57,30 @@ public class JackrabbitDataModelMigration implements
 			}
 
 			// apply transitional CND
-			reader = new InputStreamReader(migrationCnd.getInputStream());
-			CndImporter.registerNodeTypes(reader, adminSession, true);
+			if (migrationCnd != null) {
+				reader = new InputStreamReader(migrationCnd.getInputStream());
+				CndImporter.registerNodeTypes(reader, session, true);
+				session.save();
+				log.info("Registered migration node types from " + migrationCnd);
+			}
 
 			// modify data
-			dataModification.execute(adminSession);
-
-			// set data model version
-			dataModelNode.setProperty(ArgeoNames.ARGEO_DATA_MODEL_VERSION,
-					targetVersion);
+			dataModification.execute(session);
 
 			// apply changes
-			adminSession.save();
+			session.save();
 
 			long duration = System.currentTimeMillis() - begin;
 			log.info("Migration of data model " + dataModelNodePath + " to "
 					+ targetVersion + " performed in " + duration + "ms");
 			return true;
 		} catch (Exception e) {
-			JcrUtils.discardQuietly(adminSession);
+			JcrUtils.discardQuietly(session);
 			throw new ArgeoException("Migration of data model "
 					+ dataModelNodePath + " to " + targetVersion + " failed.",
 					e);
 		} finally {
-			JcrUtils.logoutQuietly(adminSession);
+			JcrUtils.logoutQuietly(session);
 			IOUtils.closeQuietly(reader);
 		}
 	}
@@ -91,16 +91,25 @@ public class JackrabbitDataModelMigration implements
 	}
 
 	/** To be called on a stopped repository. */
-	public static void clearRepositoryCaches(File home) {
-		File customNodeTypes = new File(home.getPath()
-				+ "/repository/nodetypes/custom_nodetypes.xml");
-		if (customNodeTypes.exists()) {
-			customNodeTypes.delete();
+	public static void clearRepositoryCaches(RepositoryConfig repositoryConfig) {
+		try {
+			String customeNodeTypesPath = "/nodetypes/custom_nodetypes.xml";
+			repositoryConfig.getFileSystem().deleteFile(customeNodeTypesPath);
 			if (log.isDebugEnabled())
-				log.debug("Cleared " + customNodeTypes);
-		} else {
-			log.warn("File " + customNodeTypes + " not found.");
+				log.debug("Cleared " + customeNodeTypesPath);
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot clear caches", e);
 		}
+
+		// File customNodeTypes = new File(home.getPath()
+		// + "/repository/nodetypes/custom_nodetypes.xml");
+		// if (customNodeTypes.exists()) {
+		// customNodeTypes.delete();
+		// if (log.isDebugEnabled())
+		// log.debug("Cleared " + customNodeTypes);
+		// } else {
+		// log.warn("File " + customNodeTypes + " not found.");
+		// }
 	}
 
 	/*
@@ -145,6 +154,14 @@ public class JackrabbitDataModelMigration implements
 
 	public void setDataModification(JcrCallback dataModification) {
 		this.dataModification = dataModification;
+	}
+
+	public String getDataModelNodePath() {
+		return dataModelNodePath;
+	}
+
+	public String getTargetVersion() {
+		return targetVersion;
 	}
 
 }

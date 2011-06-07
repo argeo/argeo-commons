@@ -35,6 +35,7 @@ import java.util.concurrent.Executor;
 import javax.jcr.Credentials;
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
+import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -53,6 +54,7 @@ import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
 import org.apache.jackrabbit.jcr2dav.Jcr2davRepositoryFactory;
 import org.argeo.ArgeoException;
+import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrUtils;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
@@ -68,16 +70,17 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 	private Log log = LogFactory.getLog(JackrabbitContainer.class);
 
 	private Resource configuration;
-	private String homeDirectory;
+	private File homeDirectory;
 	private Resource variables;
-	/** cache home */
-	private File home;
 
 	private Boolean inMemory = false;
 	private String uri = null;
 
+	// wrapped repository
 	private Repository repository;
+	private RepositoryConfig repositoryConfig;
 
+	// CND
 	private ResourceLoader resourceLoader;
 
 	/** Node type definitions in CND format */
@@ -100,7 +103,7 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 			return;
 		}
 
-		repository = createJackrabbitRepository();
+		createJackrabbitRepository();
 
 		// migrate if needed
 		migrate();
@@ -111,8 +114,7 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 	}
 
 	/** Actually creates a new repository. */
-	protected JackrabbitRepository createJackrabbitRepository() {
-		JackrabbitRepository repository;
+	protected void createJackrabbitRepository() {
 		try {
 			// remote repository
 			if (uri != null && !uri.trim().equals("")) {
@@ -130,23 +132,24 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 				// do not perform further initialization since we assume that
 				// the
 				// remote repository has been properly configured
-				return repository;
+				return;
 			}
 
 			// local repository
-			if (inMemory && getHome().exists()) {
-				FileUtils.deleteDirectory(getHome());
-				log.warn("Deleted Jackrabbit home directory " + getHome());
+			if (inMemory && getHomeDirectory().exists()) {
+				FileUtils.deleteDirectory(getHomeDirectory());
+				log.warn("Deleted Jackrabbit home directory "
+						+ getHomeDirectory());
 			}
 
-			RepositoryConfig config;
 			Properties vars = getConfigurationProperties();
 			InputStream in = configuration.getInputStream();
 			try {
 				vars.put(
 						RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE,
-						getHome().getCanonicalPath());
-				config = RepositoryConfig.create(new InputSource(in), vars);
+						getHomeDirectory().getCanonicalPath());
+				repositoryConfig = RepositoryConfig.create(new InputSource(in),
+						vars);
 			} catch (Exception e) {
 				throw new RuntimeException("Cannot read configuration", e);
 			} finally {
@@ -154,17 +157,15 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 			}
 
 			if (inMemory)
-				repository = new TransientRepository(config);
+				repository = new TransientRepository(repositoryConfig);
 			else
-				repository = RepositoryImpl.create(config);
+				repository = RepositoryImpl.create(repositoryConfig);
 
 			log.info("Initialized Jackrabbit repository " + repository + " in "
-					+ getHome() + " with config " + configuration);
-
-			return repository;
+					+ getHomeDirectory() + " with config " + configuration);
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot create Jackrabbit repository "
-					+ getHome(), e);
+					+ getHomeDirectory(), e);
 		}
 	}
 
@@ -192,35 +193,63 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 
 		// restart repository
 		if (restartAndClearCaches) {
+			JackrabbitDataModelMigration
+					.clearRepositoryCaches(repositoryConfig);
 			((JackrabbitRepository) repository).shutdown();
-			JackrabbitDataModelMigration.clearRepositoryCaches(getHome());
-			repository = createJackrabbitRepository();
+			createJackrabbitRepository();
 		}
+
+		// set data model version
+		try {
+			session = login();
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot login to migrated repository", e);
+		}
+
+		for (JackrabbitDataModelMigration dataModelMigration : new TreeSet<JackrabbitDataModelMigration>(
+				dataModelMigrations)) {
+			try {
+				if (session.itemExists(dataModelMigration
+						.getDataModelNodePath())) {
+					Node dataModelNode = session.getNode(dataModelMigration
+							.getDataModelNodePath());
+					dataModelNode.setProperty(
+							ArgeoNames.ARGEO_DATA_MODEL_VERSION,
+							dataModelMigration.getTargetVersion());
+					session.save();
+				}
+			} catch (Exception e) {
+				log.error("Cannot set model version", e);
+			}
+		}
+		JcrUtils.logoutQuietly(session);
+
 	}
 
 	/** Lazy init. */
-	protected File getHome() {
-		if (home != null)
-			return home;
-
-		try {
-			String osgiData = System.getProperty("osgi.instance.area");
-			if (osgiData != null)
-				osgiData = osgiData.substring("file:".length());
-			String path;
-			if (homeDirectory == null)
-				path = "./jackrabbit";
-			else
-				path = homeDirectory;
-			if (path.startsWith(".") && osgiData != null) {
-				home = new File(osgiData + '/' + path).getCanonicalFile();
-			} else
-				home = new File(path).getCanonicalFile();
-			return home;
-		} catch (Exception e) {
-			throw new ArgeoException("Cannot define Jackrabbit home based on "
-					+ homeDirectory, e);
-		}
+	protected File getHomeDirectory() {
+		return homeDirectory;
+		// if (home != null)
+		// return home;
+		//
+		// try {
+		// String osgiData = System.getProperty("osgi.instance.area");
+		// if (osgiData != null)
+		// osgiData = osgiData.substring("file:".length());
+		// String path;
+		// if (homeDirectory == null)
+		// path = "./jackrabbit";
+		// else
+		// path = homeDirectory;
+		// if (path.startsWith(".") && osgiData != null) {
+		// home = new File(osgiData + '/' + path).getCanonicalFile();
+		// } else
+		// home = new File(path).getCanonicalFile();
+		// return home;
+		// } catch (Exception e) {
+		// throw new ArgeoException("Cannot define Jackrabbit home based on "
+		// + homeDirectory, e);
+		// }
 	}
 
 	public void dispose() throws Exception {
@@ -234,17 +263,18 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 		}
 
 		if (inMemory)
-			if (getHome().exists()) {
-				FileUtils.deleteDirectory(getHome());
+			if (getHomeDirectory().exists()) {
+				FileUtils.deleteDirectory(getHomeDirectory());
 				if (log.isDebugEnabled())
-					log.debug("Deleted Jackrabbit home directory " + getHome());
+					log.debug("Deleted Jackrabbit home directory "
+							+ getHomeDirectory());
 			}
 
 		if (uri != null && !uri.trim().equals(""))
 			log.info("Destroyed Jackrabbit repository with uri " + uri);
 		else
 			log.info("Destroyed Jackrabbit repository " + repository + " in "
-					+ getHome() + " with config " + configuration);
+					+ getHomeDirectory() + " with config " + configuration);
 	}
 
 	/**
@@ -278,6 +308,13 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 			}
 			// override with system properties
 			vars.putAll(System.getProperties());
+
+			if (log.isTraceEnabled()) {
+				log.trace("Jackrabbit config variables:");
+				for (Object key : new TreeSet<Object>(vars.keySet()))
+					log.trace(key + "=" + vars.getProperty(key.toString()));
+			}
+
 		} catch (IOException e) {
 			throw new ArgeoException("Cannot read configuration properties", e);
 		} finally {
@@ -423,7 +460,7 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 	}
 
 	// BEANS METHODS
-	public void setHomeDirectory(String homeDirectory) {
+	public void setHomeDirectory(File homeDirectory) {
 		this.homeDirectory = homeDirectory;
 	}
 
