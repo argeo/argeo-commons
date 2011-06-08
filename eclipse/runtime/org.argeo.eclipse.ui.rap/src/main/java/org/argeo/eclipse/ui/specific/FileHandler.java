@@ -19,8 +19,6 @@ import org.eclipse.ui.PlatformUI;
  * Manages the process of forwarding the request to the handler at runtime to
  * open the dialog box
  * 
- * @author bsinou
- * 
  */
 public class FileHandler {
 

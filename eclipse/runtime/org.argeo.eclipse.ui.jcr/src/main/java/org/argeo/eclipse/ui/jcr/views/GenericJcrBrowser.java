@@ -166,9 +166,7 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 	}
 
 	/**
-	 * To be overidden to adapt size of form and result frames.
-	 * 
-	 * @return
+	 * To be overridden to adapt size of form and result frames.
 	 */
 	protected int[] getWeights() {
 		return new int[] { 70, 30 };
@@ -213,11 +211,6 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 			final ITreeContentProvider nodeContentProvider) {
 
 		final TreeViewer tmpNodeViewer = new TreeViewer(parent, SWT.MULTI);
-
-		// |
-		// SWT.H_SCROLL
-		// |
-		// SWT.V_SCROLL);
 
 		tmpNodeViewer.getTree().setLayoutData(
 				new GridData(SWT.FILL, SWT.FILL, true, true));

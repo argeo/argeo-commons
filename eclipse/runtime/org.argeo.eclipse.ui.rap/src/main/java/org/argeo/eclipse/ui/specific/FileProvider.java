@@ -5,9 +5,6 @@ import java.io.InputStream;
 /**
  * Used for file download : subclasses must implement model specific methods to
  * get a byte array representing a file given is ID.
- * 
- * @author bsinou
- * 
  */
 public interface FileProvider {
 

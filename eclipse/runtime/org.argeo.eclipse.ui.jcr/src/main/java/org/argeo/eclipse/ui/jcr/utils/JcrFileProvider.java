@@ -26,8 +26,6 @@ import org.argeo.jcr.RepositoryRegister;
  * 
  * Relies on common approach for JCR file handling implementation.
  * 
- * @author bsinou
- * 
  */
 
 public class JcrFileProvider implements FileProvider {

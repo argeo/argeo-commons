@@ -49,10 +49,12 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 	/** DEPENDENCY INJECTION */
 	private Session session;
 
+	// Widgets
 	private TableViewer viewer;
 	private List<TableViewerColumn> tableViewerColumns = new ArrayList<TableViewerColumn>();
 	private GenericTableComparator comparator;
 
+	/** Override to layout a form enabling the end user to build his query */
 	protected abstract void createQueryForm(Composite parent);
 
 	@Override
@@ -101,6 +103,9 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 
 	protected void executeQuery(String statement) {
 		try {
+			if (log.isDebugEnabled())
+				log.debug("Query : " + statement);
+
 			QueryResult qr = session.getWorkspace().getQueryManager()
 					.createQuery(statement, initialQueryType).execute();
 
@@ -117,10 +122,7 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 				i++;
 			}
 
-			// We must create a local list because query result can be read only
-			// once.
-			// viewer.setInput(qr);
-
+			// Must create a local list: QueryResults can only be read once.
 			try {
 				List<Row> rows = new ArrayList<Row>();
 				RowIterator rit = qr.getRows();
@@ -136,8 +138,6 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 			ErrorDialog.openError(null, "Error", "Cannot execute JCR query: "
 					+ statement, new Status(IStatus.ERROR,
 					"org.argeo.eclipse.ui.jcr", e.getMessage()));
-			// throw new ArgeoException("Cannot execute JCR query " + statement,
-			// e);
 		}
 	}
 
@@ -302,10 +302,7 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 	}
 
 	/**
-	 * To be overriden to enable sorting.
-	 * 
-	 * @author bsinou
-	 * 
+	 * To be overridden to enable sorting.
 	 */
 	protected GenericTableComparator getComparator() {
 		return null;
@@ -319,7 +316,6 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		// TODO save the query in JCR?
-
 	}
 
 	@Override
@@ -331,7 +327,12 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 		return false;
 	}
 
-	// IoC
+	/** Returns the injected current session */
+	protected Session getSession() {
+		return session;
+	}
+
+	/** DEPENDENCY INJECTION */
 	public void setSession(Session session) {
 		this.session = session;
 	}
