@@ -21,6 +21,7 @@ import org.eclipse.ui.PlatformUI;
  * 
  */
 public class FileHandler {
+	public final static String FORCED_DOWNLOAD_URL_BASE_PROPERTY = "argeo.rap.specific.forcedDownloadUrlBase";
 
 	private final static Log log = LogFactory.getLog(FileHandler.class);
 
@@ -60,7 +61,14 @@ public class FileHandler {
 
 	private String createFullDownloadUrl(String fileName, String fileId) {
 		StringBuilder url = new StringBuilder();
-		url.append(RWT.getRequest().getRequestURL());
+		// in case RAP is proxied we need to specify the actual base URL
+		// TODO find a cleaner way
+		String forcedDownloadUrlBase = System
+				.getProperty(FORCED_DOWNLOAD_URL_BASE_PROPERTY);
+		if (forcedDownloadUrlBase != null)
+			url.append(forcedDownloadUrlBase);
+		else
+			url.append(RWT.getRequest().getRequestURL());
 		url.append(createParamUrl(fileName, fileId));
 		return url.toString();
 	}
