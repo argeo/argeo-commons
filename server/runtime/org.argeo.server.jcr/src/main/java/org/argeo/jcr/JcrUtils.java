@@ -847,15 +847,34 @@ public class JcrUtils implements ArgeoJcrConstants {
 			if (session.hasPendingChanges())
 				throw new ArgeoException(
 						"Session has pending changes, save them first");
+
 			String homePath = homeBasePath + '/'
 					+ firstCharsToPath(username, 2) + '/' + username;
-			Node userHome = JcrUtils.mkdirs(session, homePath);
 
-			Node userProfile = userHome.addNode(ArgeoNames.ARGEO_PROFILE);
-			userProfile.addMixin(ArgeoTypes.ARGEO_USER_PROFILE);
-			userProfile.setProperty(ArgeoNames.ARGEO_USER_ID, username);
-			session.save();
-			// we need to save the profile before adding the user home type
+			if (session.itemExists(homePath)) {
+				try {
+					throw new ArgeoException(
+							"Trying to create a user home that already exists");
+				} catch (Exception e) {
+					// we use this workaround to be sure to get the stack trace
+					// to identify the sink of the bug.
+					log.warn("trying to create an already existing userHome. Stack trace : ");
+					e.printStackTrace();
+				}
+			}
+
+			Node userHome = JcrUtils.mkdirs(session, homePath);
+			Node userProfile;
+			if (userHome.hasNode(ArgeoNames.ARGEO_PROFILE)) {
+				log.warn("User profile node already exists. We do not add a new one");
+
+			} else {
+				userProfile = userHome.addNode(ArgeoNames.ARGEO_PROFILE);
+				userProfile.addMixin(ArgeoTypes.ARGEO_USER_PROFILE);
+				userProfile.setProperty(ArgeoNames.ARGEO_USER_ID, username);
+				session.save();
+				// we need to save the profile before adding the user home type
+			}
 			userHome.addMixin(ArgeoTypes.ARGEO_USER_HOME);
 			// see
 			// http://jackrabbit.510166.n4.nabble.com/Jackrabbit-2-0-beta-6-Problem-adding-a-Mixin-type-with-mandatory-properties-after-setting-propertiesn-td1290332.html

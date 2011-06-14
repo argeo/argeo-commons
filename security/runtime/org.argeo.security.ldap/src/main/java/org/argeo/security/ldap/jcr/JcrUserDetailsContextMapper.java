@@ -13,7 +13,6 @@ import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -115,14 +114,15 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 				userHome = JcrUtils.createUserHome(session, homeBasePath,
 						username);
 			String userHomePath = userHome.getPath();
-			Node userProfile = userHome.getNode(ARGEO_PROFILE);
+			Node userProfile;  // = userHome.getNode(ARGEO_PROFILE);
 			if (userHome.hasNode(ARGEO_PROFILE)) {
 				userProfile = userHome.getNode(ARGEO_PROFILE);
 			} else {
-				userProfile = userHome.addNode(ARGEO_PROFILE);
-				userProfile.addMixin(NodeType.MIX_TITLE);
-				userProfile.addMixin(NodeType.MIX_CREATED);
-				userProfile.addMixin(NodeType.MIX_LAST_MODIFIED);
+				throw new ArgeoException("We should never reach this point");
+				// userProfile = userHome.addNode(ARGEO_PROFILE);
+				// userProfile.addMixin(NodeType.MIX_TITLE);
+				// userProfile.addMixin(NodeType.MIX_CREATED);
+				// userProfile.addMixin(NodeType.MIX_LAST_MODIFIED);
 			}
 
 			for (String jcrProperty : propertyToAttributes.keySet())
