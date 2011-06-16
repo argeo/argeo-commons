@@ -858,7 +858,8 @@ public class JcrUtils implements ArgeoJcrConstants {
 				} catch (Exception e) {
 					// we use this workaround to be sure to get the stack trace
 					// to identify the sink of the bug.
-					log.warn("trying to create an already existing userHome. Stack trace : ");
+					log.warn("trying to create an already existing userHome at path:"
+							+ homePath + ". Stack trace : ");
 					e.printStackTrace();
 				}
 			}
@@ -866,8 +867,8 @@ public class JcrUtils implements ArgeoJcrConstants {
 			Node userHome = JcrUtils.mkdirs(session, homePath);
 			Node userProfile;
 			if (userHome.hasNode(ArgeoNames.ARGEO_PROFILE)) {
-				log.warn("User profile node already exists. We do not add a new one");
-
+				log.warn("userProfile node already exists for userHome path: "
+						+ homePath + ". We do not add a new one");
 			} else {
 				userProfile = userHome.addNode(ArgeoNames.ARGEO_PROFILE);
 				userProfile.addMixin(ArgeoTypes.ARGEO_USER_PROFILE);

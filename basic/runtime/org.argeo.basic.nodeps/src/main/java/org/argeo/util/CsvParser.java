@@ -111,7 +111,7 @@ public abstract class CsvParser {
 			StringBuffer currStr, Boolean wasInquote) {
 		// List<String> tokens = new ArrayList<String>();
 
-		//System.out.println("#LINE: " + str);
+		// System.out.println("#LINE: " + str);
 
 		if (wasInquote)
 			currStr.append('\n');
@@ -126,6 +126,11 @@ public abstract class CsvParser {
 					tokens.add(currStr.toString());
 					//System.out.println("# TOKEN: " + currStr);
 					currStr.delete(0, currStr.length());
+				} else {
+					// we don't remove separator that are in a quoted substring
+					// System.out
+					// .println("IN QUOTE, got a separator: [" + c + "]");
+					currStr.append(c);
 				}
 			} else if (c == quote) {
 				if (inQuote && (i + 1) < arr.length && arr[i + 1] == quote) {
@@ -142,7 +147,7 @@ public abstract class CsvParser {
 
 		if (!inQuote) {
 			tokens.add(currStr.toString());
-			//System.out.println("# TOKEN: " + currStr);
+			// System.out.println("# TOKEN: " + currStr);
 		}
 		// if (inQuote)
 		// throw new ArgeoException("Missing quote at the end of the line "

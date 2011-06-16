@@ -31,6 +31,8 @@ public class DownloadServiceHandler implements IServiceHandler {
 		response.setContentLength(download.length);
 		String contentDisposition = "attachment; filename=\"" + fileName + "\"";
 		response.setHeader("Content-Disposition", contentDisposition);
+		// response.setHeader( "Cache-Control", "no-cache" );
+
 		try {
 			response.getOutputStream().write(download);
 		} catch (IOException ioe) {

@@ -31,7 +31,7 @@ public class GenericUploadControl extends Composite {
 
 		upload = new Upload(parent, SWT.BORDER);
 		upload.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		upload.setBrowseButtonText(browseLabel);
+		// upload.setBrowseButtonText(browseLabel);
 		// upload.addModifyListener(new UploadListener());
 		parent.pack();
 	}
@@ -49,6 +49,11 @@ public class GenericUploadControl extends Composite {
 	public byte[] performUpload() {
 		boolean success = upload.performUpload();
 		if (success) {
+			if (upload.getUploadItem().getFileSize() == -1)
+				throw new ArgeoException("File "
+						+ upload.getUploadItem().getFileName()
+						+ "has not been uploaded : its size = -1");
+
 			InputStream inStream = null;
 			byte[] fileBA = null;
 			try {
