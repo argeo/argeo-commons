@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
 		<artifactId>runtime</artifactId>
-		<version>0.3.2-SNAPSHOT</version>
+		<version>0.3.2</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.server.jackrabbit</artifactId>
@@ -49,17 +49,17 @@
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.nodeps</artifactId>
-			<version>0.3.2-SNAPSHOT</version>
+			<version>0.3.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.core</artifactId>
-			<version>0.3.2-SNAPSHOT</version>
+			<version>0.3.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.jcr.mvc</artifactId>
-			<version>0.3.2-SNAPSHOT</version>
+			<version>0.3.2</version>
 		</dependency>
 
 		<!-- Jackrabbit -->
@@ -67,7 +67,7 @@
 			<groupId>org.argeo.commons.osgi</groupId>
 			<artifactId>org.argeo.osgi.dep.jackrabbit</artifactId>
 			<type>pom</type>
-			<version>0.3.2-SNAPSHOT</version>
+			<version>0.3.2</version>
 		</dependency>
 
 		<!-- Spring -->
@@ -88,13 +88,13 @@
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.support.junit</artifactId>
-			<version>0.3.2-SNAPSHOT</version>
+			<version>0.3.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.dep.log4j</artifactId>
-			<version>0.3.2-SNAPSHOT</version>
+			<version>0.3.2</version>
 			<type>pom</type>
 			<scope>test</scope>
 		</dependency>
