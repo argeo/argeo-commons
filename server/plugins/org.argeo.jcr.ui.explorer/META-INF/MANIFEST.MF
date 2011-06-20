@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: JCR Explorer
 Bundle-SymbolicName: org.argeo.jcr.ui.explorer;singleton:=true
-Bundle-Version: 0.3.2.SNAPSHOT
+Bundle-Version: 0.3.2
 Bundle-Activator: org.argeo.eclipse.ui.jcr.explorer.JcrExplorerPlugin
 Bundle-Vendor: Argeo
 Require-Bundle: org.eclipse.ui;resolution:=optional,

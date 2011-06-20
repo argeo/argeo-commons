@@ -1,5 +1,5 @@
 Bundle-SymbolicName: org.argeo.security.dao.ldap
-Bundle-Version: 0.3.2.SNAPSHOT
+Bundle-Version: 0.3.2
 Import-Package: com.sun.jndi.ldap;resolution:=optional,
  javax.jcr;version="[2.0.0,3.0.0)",
  org.argeo.jcr,

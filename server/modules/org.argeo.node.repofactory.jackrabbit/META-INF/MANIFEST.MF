@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Jackrabbit Node Repository Factory
 Bundle-SymbolicName: org.argeo.node.repofactory.jackrabbit
-Bundle-Version: 0.3.2.SNAPSHOT
+Bundle-Version: 0.3.2
 Import-Package: javax.jcr;version="[2.0.0,3.0.0)",
  org.argeo.jackrabbit,
  org.argeo.jcr

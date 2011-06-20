@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bundle-Version: 0.3.2.SNAPSHOT
+Bundle-Version: 0.3.2
 Bundle-SymbolicName: org.argeo.server.activemq.broker
 Import-Package: ietf.params.xml.ns.xmpp_sasl;resolution:=optional,
  ietf.params.xml.ns.xmpp_stanzas;resolution:=optional,
