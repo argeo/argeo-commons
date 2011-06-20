@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.gis</groupId>
-		<version>0.3.2</version>
+		<version>0.3.3-SNAPSHOT</version>
 		<artifactId>plugins</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -29,31 +29,31 @@
 		<dependency>
 			<groupId>org.argeo.commons.gis</groupId>
 			<artifactId>org.argeo.gis.geotools</artifactId>
-			<version>0.3.2</version>
+			<version>0.3.3-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Commons -->
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.nodeps</artifactId>
-			<version>0.3.2</version>
+			<version>0.3.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.eclipse</groupId>
 			<artifactId>org.argeo.eclipse.ui</artifactId>
-			<version>0.3.2</version>
+			<version>0.3.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.eclipse</groupId>
 			<artifactId>org.argeo.eclipse.ui.jcr</artifactId>
-			<version>0.3.2</version>
+			<version>0.3.3-SNAPSHOT</version>
 		</dependency>
 
 		<!-- RCP only dependency, needed at compile time -->
 		<dependency>
 			<groupId>org.argeo.commons.eclipse</groupId>
 			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
-			<version>0.3.2</version>
+			<version>0.3.3-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 

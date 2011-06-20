@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
-		<version>0.3.2</version>
+		<version>0.3.3-SNAPSHOT</version>
 		<artifactId>dep</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -35,7 +35,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.osgi</groupId>
 			<artifactId>org.argeo.osgi.dep.stdruntime</artifactId>
-			<version>0.3.2</version>
+			<version>0.3.3-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
 
@@ -53,12 +53,12 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.core</artifactId>
-			<version>0.3.2</version>
+			<version>0.3.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.mvc</artifactId>
-			<version>0.3.2</version>
+			<version>0.3.3-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Xerces and Xalan -->
@@ -81,12 +81,12 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.jackrabbit</artifactId>
-			<version>0.3.2</version>
+			<version>0.3.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.jackrabbit</artifactId>
-			<version>0.3.2</version>
+			<version>0.3.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
@@ -103,13 +103,13 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.activemq</artifactId>
-			<version>0.3.2</version>
+			<version>0.3.3-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.activemq</artifactId>
-			<version>0.3.2</version>
+			<version>0.3.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
@@ -121,7 +121,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.hibernate</artifactId>
-			<version>0.3.2</version>
+			<version>0.3.3-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
 

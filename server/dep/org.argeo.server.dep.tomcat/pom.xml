@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
-		<version>0.3.2</version>
+		<version>0.3.3-SNAPSHOT</version>
 		<artifactId>dep</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -14,7 +14,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.dep.log4j</artifactId>
-			<version>0.3.2</version>
+			<version>0.3.3-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
 
@@ -100,7 +100,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.javax</artifactId>
-			<version>0.3.2</version>
+			<version>0.3.3-SNAPSHOT</version>
 			<type>pom</type>
 			<scope>test</scope>
 		</dependency>
