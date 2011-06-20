@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Jackrabbit Node Repository
 Bundle-SymbolicName: org.argeo.node.repo.jackrabbit
-Bundle-Version: 0.3.2
+Bundle-Version: 0.3.3.SNAPSHOT
 Spring-ContextDISABLED: *;create-asynchronously:=false
 Import-Package: com.mysql.jdbc;version="[5.0.0,6.0.0)";resolution:=optional,
  javax.jcr;version="[2.0.0,3.0.0)",

@@ -3,5 +3,5 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Jackrabbit
 Bundle-SymbolicName: org.argeo.ext.jackrabbit.sybase
 Bundle-Description: provides experimental support to Sybase in Jackrabbit
-Bundle-Version: 0.3.2
+Bundle-Version: 0.3.3.SNAPSHOT
 Fragment-Host: org.argeo.dep.osgi.jackrabbit
