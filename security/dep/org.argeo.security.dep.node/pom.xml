@@ -59,7 +59,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.mvc</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.2-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Xerces and Xalan -->
