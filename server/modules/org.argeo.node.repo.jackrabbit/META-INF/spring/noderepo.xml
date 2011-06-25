@@ -11,7 +11,8 @@
 		</property>
 	</bean>
 
-	<bean id="nodeJcrRepository" class="org.argeo.jackrabbit.JackrabbitContainer">
+	<bean id="nodeJcrRepository" class="org.argeo.jackrabbit.JackrabbitContainer"
+		init-method="init" destroy-method="dispose">
 		<property name="uri" value="${argeo.node.repo.uri}" />
 		<property name="homeDirectory" value="${argeo.node.repo.home}" />
 		<property name="configuration" value="${argeo.node.repo.configuration}" />
@@ -26,6 +27,12 @@
 				<value>classpath:/org/argeo/jcr/argeo.cnd</value>
 			</list>
 		</property>
-		<property name="systemExecutor" ref="systemExecutionService" />
 	</bean>
+
+	<!-- Execute initialization with a system authentication -->
+	<bean
+		class="org.argeo.security.core.AuthenticatedApplicationContextInitialization">
+		<property name="authenticationManager" ref="authenticationManager" />
+	</bean>
+
 </beans>

@@ -12,6 +12,8 @@ Import-Package: com.mysql.jdbc;version="[5.0.0,6.0.0)";resolution:=optional,
  org.argeo.jackrabbit,
  org.argeo.jcr,
  org.argeo.security,
+ org.argeo.security.core,
  org.h2;version="[1.0.0,2.0.0)";resolution:=optional,
  org.postgresql;version="[8.0.0,9.0.0)";resolution:=optional,
- org.springframework.beans.factory.config
+ org.springframework.beans.factory.config,
+ org.springframework.security;version="2.0.6.RELEASE"

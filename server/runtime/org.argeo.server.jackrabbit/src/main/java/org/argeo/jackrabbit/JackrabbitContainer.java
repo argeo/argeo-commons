@@ -171,6 +171,10 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 
 	/** Executes migrations, if needed. */
 	protected void migrate() {
+		// No migration to perform
+		if (dataModelMigrations.size() == 0)
+			return;
+
 		Boolean restartAndClearCaches = false;
 
 		// migrate data
@@ -365,15 +369,15 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 
 	// JCR REPOSITORY (delegated)
 	public String getDescriptor(String key) {
-		return repository.getDescriptor(key);
+		return getRepository().getDescriptor(key);
 	}
 
 	public String[] getDescriptorKeys() {
-		return repository.getDescriptorKeys();
+		return getRepository().getDescriptorKeys();
 	}
 
 	public Session login() throws LoginException, RepositoryException {
-		Session session = repository.login();
+		Session session = getRepository().login();
 		processNewSession(session);
 		return session;
 	}
@@ -383,7 +387,7 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 			RepositoryException {
 		Session session;
 		try {
-			session = repository.login(credentials, workspaceName);
+			session = getRepository().login(credentials, workspaceName);
 		} catch (NoSuchWorkspaceException e) {
 			if (autocreateWorkspaces)
 				session = createWorkspaceAndLogsIn(credentials, workspaceName);
@@ -396,7 +400,7 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 
 	public Session login(Credentials credentials) throws LoginException,
 			RepositoryException {
-		Session session = repository.login(credentials);
+		Session session = getRepository().login(credentials);
 		processNewSession(session);
 		return session;
 	}
@@ -405,7 +409,7 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 			NoSuchWorkspaceException, RepositoryException {
 		Session session;
 		try {
-			session = repository.login(workspaceName);
+			session = getRepository().login(workspaceName);
 		} catch (NoSuchWorkspaceException e) {
 			if (autocreateWorkspaces)
 				session = createWorkspaceAndLogsIn(null, workspaceName);
@@ -414,6 +418,17 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 		}
 		processNewSession(session);
 		return session;
+	}
+
+	/** Wraps access to the repository, making sure it is available. */
+	protected Repository getRepository() {
+		if (repository == null) {
+			throw new ArgeoException(
+					"No repository initialized."
+							+ " Was the init() method called?"
+							+ " The dispose() method should also be called on shutdown.");
+		}
+		return repository;
 	}
 
 	protected synchronized void processNewSession(Session session) {
@@ -433,10 +448,10 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 			String workspaceName) throws RepositoryException {
 		if (workspaceName == null)
 			throw new ArgeoException("No workspace specified.");
-		Session session = repository.login(credentials);
+		Session session = getRepository().login(credentials);
 		session.getWorkspace().createWorkspace(workspaceName);
 		session.logout();
-		return repository.login(credentials, workspaceName);
+		return getRepository().login(credentials, workspaceName);
 	}
 
 	public void setResourceLoader(ResourceLoader resourceLoader) {
@@ -444,19 +459,19 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 	}
 
 	public boolean isStandardDescriptor(String key) {
-		return repository.isStandardDescriptor(key);
+		return getRepository().isStandardDescriptor(key);
 	}
 
 	public boolean isSingleValueDescriptor(String key) {
-		return repository.isSingleValueDescriptor(key);
+		return getRepository().isSingleValueDescriptor(key);
 	}
 
 	public Value getDescriptorValue(String key) {
-		return repository.getDescriptorValue(key);
+		return getRepository().getDescriptorValue(key);
 	}
 
 	public Value[] getDescriptorValues(String key) {
-		return repository.getDescriptorValues(key);
+		return getRepository().getDescriptorValues(key);
 	}
 
 	// BEANS METHODS
