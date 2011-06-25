@@ -19,6 +19,7 @@ import org.geotools.data.FeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.DefaultMapLayer;
+import org.geotools.map.MapContext;
 import org.geotools.map.MapLayer;
 import org.geotools.renderer.lite.StreamingRenderer;
 import org.geotools.styling.Style;
@@ -42,7 +43,10 @@ public class SwingMapViewer extends AbstractMapViewer {
 		embedded = new Composite(parent, SWT.EMBEDDED | SWT.NO_BACKGROUND);
 		Frame frame = SWT_AWT.new_Frame(embedded);
 
-		mapPane = new JMapPane(new StreamingRenderer(), new DefaultMapContext());
+		MapContext mapContext = new DefaultMapContext();
+		// dummy call to make sure that the layers are initialized
+		mapContext.layers();
+		mapPane = new JMapPane(new StreamingRenderer(), mapContext);
 		versatileZoomTool = new VersatileZoomTool();
 		mapPane.setCursorTool(versatileZoomTool);
 		mapPane.setBackground(Color.WHITE);
