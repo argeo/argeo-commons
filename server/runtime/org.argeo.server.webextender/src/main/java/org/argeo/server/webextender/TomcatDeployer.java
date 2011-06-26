@@ -15,6 +15,7 @@ import org.springframework.util.ObjectUtils;
 public class TomcatDeployer extends TomcatWarDeployer {
 	private String serverInfo;
 	private Service service;
+	private String contextPath = "/org.argeo.rap.webapp";
 
 	@Override
 	public void setService(Object service) {
@@ -23,8 +24,8 @@ public class TomcatDeployer extends TomcatWarDeployer {
 		// TODO: listen to OSGi service so that we get notified in the
 		// (unlikely) case the underlying service is updated
 		serverInfo = ((Service) service).getInfo();
-		if (log.isDebugEnabled())
-			log.debug("Argeo modified Tomcat deployer used");
+		if (log.isTraceEnabled())
+			log.trace("Argeo modified Tomcat deployer used");
 	}
 
 	@Override
@@ -42,8 +43,7 @@ public class TomcatDeployer extends TomcatWarDeployer {
 		// Required for multiple RAP sessions to work with Tomcat
 		// see
 		// http://wiki.eclipse.org/RAP/FAQ#How_to_run_a_RAP_application_in_multiple_browser_tabs.2Fwindows.3F
-		// TODO make it configurable in order to cover other web apps
-		Context context = getContext("/org.argeo.rap.webapp");
+		Context context = getContext(contextPath);
 		if (context != null)
 			context.setCookies(false);
 	}
@@ -51,7 +51,8 @@ public class TomcatDeployer extends TomcatWarDeployer {
 	/** @return null if not found */
 	private Context getContext(String path) {
 		for (Container container : getHost().findChildren()) {
-			log.debug(container.getClass() + ": " + container.getName());
+			if (log.isTraceEnabled())
+				log.trace(container.getClass() + ": " + container.getName());
 			if (container instanceof Context) {
 				Context context = (Context) container;
 				if (path.equals(context.getPath()))
@@ -76,6 +77,10 @@ public class TomcatDeployer extends TomcatWarDeployer {
 
 		// pick the first one and associate the context with it
 		return children[0];
+	}
+
+	public void setContextPath(String contextPath) {
+		this.contextPath = contextPath;
 	}
 
 }

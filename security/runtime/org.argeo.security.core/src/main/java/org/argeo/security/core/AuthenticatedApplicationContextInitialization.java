@@ -29,8 +29,8 @@ public class AuthenticatedApplicationContextInitialization extends
 		// refreshed in order to be able to deal with factory beans has well
 		if (!isAuthenticatedBySelf()) {
 			authenticateAsSystem();
-			if (log.isDebugEnabled())
-				log.debug("Application context initialization authenticated for thread "
+			if (log.isTraceEnabled())
+				log.trace("Application context initialization authenticated for thread "
 						+ Thread.currentThread().getName());
 		}
 		return null;
@@ -68,8 +68,8 @@ public class AuthenticatedApplicationContextInitialization extends
 			// make sure that we have deauthenticated after the application
 			// context was initialized/refreshed
 			deauthenticateAsSystem();
-			if (log.isDebugEnabled())
-				log.debug("Application context initialization deauthenticated for thread "
+			if (log.isTraceEnabled())
+				log.trace("Application context initialization deauthenticated for thread "
 						+ Thread.currentThread().getName());
 		}
 	}

@@ -21,15 +21,15 @@ public class AuthenticationProvidersRegister implements InitializingBean {
 	public void register(Object authenticationProvider,
 			Map<String, String> parameters) {
 		providers.add(authenticationProvider);
-		if (log.isDebugEnabled())
-			log.debug("Registered authentication provider " + parameters);
+		if (log.isTraceEnabled())
+			log.trace("Registered authentication provider " + parameters);
 	}
 
 	public void unregister(Object authenticationProvider,
 			Map<String, String> parameters) {
 		providers.remove(authenticationProvider);
-		if (log.isDebugEnabled())
-			log.debug("Unregistered authentication provider " + parameters);
+		if (log.isTraceEnabled())
+			log.trace("Unregistered authentication provider " + parameters);
 	}
 
 	public List<Object> getProviders() {
