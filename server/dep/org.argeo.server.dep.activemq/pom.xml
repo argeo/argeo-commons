@@ -89,10 +89,11 @@
 		</dependency>
 
 		<!-- For Active MQ optional -->
-		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.activemq.optional</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.dep.osgi</groupId> -->
+<!-- 			<artifactId>org.argeo.dep.osgi.activemq.optional</artifactId> -->
+<!-- 		</dependency> -->
+		
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>com.springsource.org.apache.commons.collections</artifactId>
