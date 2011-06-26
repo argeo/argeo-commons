@@ -7,6 +7,7 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.userdetails.User;
 
+/** User details wrapping a home node. */
 public class JcrUserDetails extends User {
 	private static final long serialVersionUID = -3594542993773402380L;
 	private final String homePath;
@@ -20,10 +21,7 @@ public class JcrUserDetails extends User {
 		this.homePath = homePath;
 	}
 
-	public String getHomePath() {
-		return homePath;
-	}
-
+	/** Clone immutable with new roles */
 	public JcrUserDetails cloneWithNewRoles(List<String> roles) {
 		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 		for (String role : roles) {
@@ -35,9 +33,15 @@ public class JcrUserDetails extends User {
 				authorities.toArray(new GrantedAuthority[authorities.size()]));
 	}
 
+	/** Clone immutable with new password */
 	public JcrUserDetails cloneWithNewPassword(String password) {
 		return new JcrUserDetails(homePath, getUsername(), password,
 				isEnabled(), isAccountNonExpired(), isAccountNonExpired(),
 				isAccountNonLocked(), getAuthorities());
 	}
+
+	public String getHomePath() {
+		return homePath;
+	}
+
 }
