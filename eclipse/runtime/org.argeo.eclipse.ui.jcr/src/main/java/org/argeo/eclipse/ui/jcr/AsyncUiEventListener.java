@@ -11,16 +11,12 @@ import javax.jcr.observation.EventListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Display;
 
 /** {@link EventListener} which simplifies running actions within the UI thread. */
 public abstract class AsyncUiEventListener implements EventListener {
-	private final static Log logSuper = LogFactory
-			.getLog(AsyncUiEventListener.class);
+//	private final static Log logSuper = LogFactory
+//			.getLog(AsyncUiEventListener.class);
 	private final Log logThis = LogFactory.getLog(getClass());
 
 	private final Display display;
@@ -52,8 +48,8 @@ public abstract class AsyncUiEventListener implements EventListener {
 		while (eventIterator.hasNext())
 			events.add(eventIterator.nextEvent());
 
-		if (logThis.isDebugEnabled())
-			logThis.debug("Received " + events.size() + " events");
+		if (logThis.isTraceEnabled())
+			logThis.trace("Received " + events.size() + " events");
 
 		try {
 			if (!willProcessInUiThread(events))
