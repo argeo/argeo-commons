@@ -25,7 +25,8 @@ public class SecureWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		configurer.setInitialSize(new Point(1200, 900));
 		configurer.setShowCoolBar(true);
 		configurer.setShowMenuBar(true);
-		configurer.setShowStatusLine(false);
+		configurer.setShowStatusLine(true);
+		configurer.setShowProgressIndicator(true);
 
 		configurer.setShowPerspectiveBar(true);
 		configurer.setTitle("Argeo UI - " + username); //$NON-NLS-1$
