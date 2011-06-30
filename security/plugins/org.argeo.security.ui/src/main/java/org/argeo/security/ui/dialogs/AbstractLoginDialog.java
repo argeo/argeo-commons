@@ -7,6 +7,9 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.argeo.security.ui.SecurityUiPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -19,9 +22,13 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
+/** Base for login dialogs */
 public abstract class AbstractLoginDialog extends TrayDialog implements
 		CallbackHandler {
 
+	private final static Log log = LogFactory.getLog(AbstractLoginDialog.class);
+
+	private Thread modalContextThread = null;
 	boolean processCallbacks = false;
 	boolean isCancelled = false;
 	Callback[] callbackArray;
@@ -48,6 +55,22 @@ public abstract class AbstractLoginDialog extends TrayDialog implements
 	 * .callback.Callback[])
 	 */
 	public void handle(final Callback[] callbacks) throws IOException {
+		// clean previous usage
+		if (processCallbacks) {
+			// this handler was already used
+			processCallbacks = false;
+		}
+
+		if (modalContextThread != null) {
+			try {
+				modalContextThread.join(1000);
+			} catch (InterruptedException e) {
+				// silent
+			}
+			modalContextThread = null;
+		}
+
+		// initialize
 		this.callbackArray = callbacks;
 		final Display display = Display.getDefault();
 		display.syncExec(new Runnable() {
@@ -87,15 +110,24 @@ public abstract class AbstractLoginDialog extends TrayDialog implements
 			ModalContext.run(new IRunnableWithProgress() {
 
 				public void run(final IProgressMonitor monitor) {
+					modalContextThread = Thread.currentThread();
 					// Wait here until OK or cancel is pressed, then let it rip.
 					// The event
 					// listener
 					// is responsible for closing the dialog (in the
 					// loginSucceeded
 					// event).
-					while (!processCallbacks) {
+					while (!processCallbacks && (modalContextThread != null)
+							&& (modalContextThread == Thread.currentThread())
+							&& SecurityUiPlugin.getDefault() != null) {
+						// Note: SecurityUiPlugin.getDefault() != null is false
+						// when the OSGi runtime is shut down
 						try {
 							Thread.sleep(100);
+							if (display.isDisposed()) {
+								log.warn("Display is disposed, killing login dialog thread");
+								throw new ThreadDeath();
+							}
 						} catch (final Exception e) {
 							// do nothing
 						}
@@ -113,10 +145,25 @@ public abstract class AbstractLoginDialog extends TrayDialog implements
 								((NameCallback) callback).setName(null);
 				}
 			}, true, new NullProgressMonitor(), Display.getDefault());
-		} catch (final Exception e) {
-			final IOException ioe = new IOException();
+		} catch (ThreadDeath e) {
+			isCancelled = true;
+			throw e;
+		} catch (Exception e) {
+			isCancelled = true;
+			IOException ioe = new IOException(
+					"Unexpected issue in login dialog, see root cause for more details");
 			ioe.initCause(e);
 			throw ioe;
+		} finally {
+			// so that the modal thread dies
+			processCallbacks = true;
+			try {
+				// wait for the modal context thread to gracefully exit
+				modalContextThread.join(1000);
+			} catch (InterruptedException ie) {
+				// silent
+			}
+			modalContextThread = null;
 		}
 	}
 
