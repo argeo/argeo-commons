@@ -17,6 +17,8 @@ public class KeyBasedSystemExecutionService extends AbstractSystemExecution
 	public void execute(Runnable runnable) {
 		try {
 			wrapWithSystemAuthentication(Executors.callable(runnable)).call();
+		} catch (RuntimeException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new ArgeoException(
 					"Exception when running system authenticated task", e);

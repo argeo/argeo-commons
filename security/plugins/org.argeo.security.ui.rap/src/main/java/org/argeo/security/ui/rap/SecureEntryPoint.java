@@ -7,6 +7,7 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.ArgeoException;
 import org.eclipse.equinox.security.auth.ILoginContext;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.rwt.RWT;
@@ -51,37 +52,60 @@ public class SecureEntryPoint implements IEntryPoint {
 		final ILoginContext loginContext = SecureRapActivator
 				.createLoginContext();
 		Subject subject = null;
-		tryLogin: while (subject == null) {
+		tryLogin: while (subject == null && !display.isDisposed()) {
 			try {
 				loginContext.login();
 				subject = loginContext.getSubject();
 			} catch (LoginException e) {
-				if (e.getCause() != null) {
-					Throwable firstCause = e.getCause();
-					// log.error("Cause", firstCause);
-					if (firstCause instanceof LoginException
-							&& firstCause.getCause() != null) {
-						Throwable secondCause = firstCause.getCause();
-						if (secondCause instanceof BadCredentialsException) {
-							MessageDialog.openInformation(
-									display.getActiveShell(),
-									"Bad Credentials",
-									"Your credentials are incorrect");
-							// retry login
-							continue tryLogin;
-						} else if (secondCause instanceof ThreadDeath) {
-							// rethrow thread death caused by dialog UI timeout
-							throw (ThreadDeath) secondCause;
-						}
-
-					} else if (firstCause instanceof ThreadDeath) {
-						throw (ThreadDeath) firstCause;
-					}
+				BadCredentialsException bce = wasCausedByBadCredentials(e);
+				if (bce != null) {
+					MessageDialog.openInformation(display.getActiveShell(),
+							"Bad Credentials", bce.getMessage());
+					// retry login
+					continue tryLogin;
 				}
-				// this was not just bad credentials returns
-				RWT.getRequest().getSession().setMaxInactiveInterval(1);
-				display.dispose();
-				return -1;
+
+				// check thread death
+				ThreadDeath td = wasCausedByThreadDeath(e);
+				if (td != null) {
+					display.dispose();
+					throw td;
+				}
+
+				// if (e.getCause() != null) {
+				// Throwable firstCause = e.getCause();
+				// // log.error("Cause", firstCause);
+				// if (firstCause instanceof LoginException
+				// && firstCause.getCause() != null) {
+				// Throwable secondCause = firstCause.getCause();
+				// if (secondCause instanceof BadCredentialsException) {
+				// MessageDialog.openInformation(
+				// display.getActiveShell(),
+				// "Bad Credentials",
+				// "Your credentials are incorrect");
+				// // retry login
+				// continue tryLogin;
+				// } else if (secondCause instanceof ThreadDeath) {
+				// // rethrow thread death caused by dialog UI timeout
+				// throw (ThreadDeath) secondCause;
+				// }
+				//
+				// } else if (firstCause instanceof ThreadDeath) {
+				// throw (ThreadDeath) firstCause;
+				// }
+				// }
+
+				if (!display.isDisposed()) {
+					org.argeo.eclipse.ui.Error.show(
+							"Unexpected exception during authentication", e);
+					// this was not just bad credentials or death thread
+					RWT.getRequest().getSession().setMaxInactiveInterval(1);
+					display.dispose();
+					return -1;
+				} else {
+					throw new ArgeoException(
+							"Unexpected exception during authentication", e);
+				}
 			}
 		}
 
@@ -99,13 +123,6 @@ public class SecureEntryPoint implements IEntryPoint {
 			public void run() {
 				log.debug("Display disposed");
 				logout(loginContext, username);
-				// invalidate session
-				//RWT.getRequest().getSession().setMaxInactiveInterval(1);
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e1) {
-					// silent
-				}
 			}
 		});
 
@@ -119,6 +136,31 @@ public class SecureEntryPoint implements IEntryPoint {
 			display.dispose();
 		}
 		return processReturnCode(returnCode);
+	}
+
+	/** Recursively look for {@link BadCredentialsException} in the root causes. */
+	private BadCredentialsException wasCausedByBadCredentials(Throwable t) {
+		if (t instanceof BadCredentialsException)
+			return (BadCredentialsException) t;
+
+		if (t.getCause() != null)
+			return wasCausedByBadCredentials(t.getCause());
+		else
+			return null;
+	}
+
+	/**
+	 * If there is a {@link ThreadDeath} in the root causes, rethrow it
+	 * (important for RAP cleaning mechanism)
+	 */
+	protected ThreadDeath wasCausedByThreadDeath(Throwable t) {
+		if (t instanceof ThreadDeath)
+			return (ThreadDeath) t;
+
+		if (t.getCause() != null)
+			return wasCausedByThreadDeath(t.getCause());
+		else
+			return null;
 	}
 
 	protected void logout(ILoginContext secureContext, String username) {

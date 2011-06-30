@@ -22,6 +22,7 @@ import org.argeo.jcr.JcrUtils;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.security.BadCredentialsException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.encoding.PasswordEncoder;
@@ -108,13 +109,25 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 
 	/** @return path to the user home node */
 	protected String mapLdapToJcr(String username, DirContextOperations ctx) {
+		String usernameLdap = ctx.getStringAttribute(usernameAttribute);
+		// log.debug("username=" + username + ", usernameLdap=" + usernameLdap);
+		if (!username.equals(usernameLdap)) {
+			String msg = "Provided username '" + username
+					+ "' is different from username stored in LDAP '"
+					+ usernameLdap+"'";
+			// we log it because the exception may not be displayed
+			log.error(msg);
+			throw new BadCredentialsException(msg);
+		}
+
 		try {
+
 			Node userHome = JcrUtils.getUserHome(session, username);
 			if (userHome == null)
 				userHome = JcrUtils.createUserHome(session, homeBasePath,
 						username);
 			String userHomePath = userHome.getPath();
-			Node userProfile;  // = userHome.getNode(ARGEO_PROFILE);
+			Node userProfile; // = userHome.getNode(ARGEO_PROFILE);
 			if (userHome.hasNode(ARGEO_PROFILE)) {
 				userProfile = userHome.getNode(ARGEO_PROFILE);
 			} else {

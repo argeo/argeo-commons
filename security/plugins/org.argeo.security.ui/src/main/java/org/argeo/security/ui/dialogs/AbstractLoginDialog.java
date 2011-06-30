@@ -124,10 +124,10 @@ public abstract class AbstractLoginDialog extends TrayDialog implements
 						// when the OSGi runtime is shut down
 						try {
 							Thread.sleep(100);
-							if (display.isDisposed()) {
-								log.warn("Display is disposed, killing login dialog thread");
-								throw new ThreadDeath();
-							}
+							// if (display.isDisposed()) {
+							// log.warn("Display is disposed, killing login dialog thread");
+							// throw new ThreadDeath();
+							// }
 						} catch (final Exception e) {
 							// do nothing
 						}
@@ -147,6 +147,7 @@ public abstract class AbstractLoginDialog extends TrayDialog implements
 			}, true, new NullProgressMonitor(), Display.getDefault());
 		} catch (ThreadDeath e) {
 			isCancelled = true;
+			log.debug("Thread " + Thread.currentThread().getId() + " died");
 			throw e;
 		} catch (Exception e) {
 			isCancelled = true;
@@ -157,12 +158,12 @@ public abstract class AbstractLoginDialog extends TrayDialog implements
 		} finally {
 			// so that the modal thread dies
 			processCallbacks = true;
-			try {
-				// wait for the modal context thread to gracefully exit
-				modalContextThread.join(1000);
-			} catch (InterruptedException ie) {
-				// silent
-			}
+			// try {
+			// // wait for the modal context thread to gracefully exit
+			// modalContextThread.join();
+			// } catch (InterruptedException ie) {
+			// // silent
+			// }
 			modalContextThread = null;
 		}
 	}

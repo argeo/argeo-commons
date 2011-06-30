@@ -26,6 +26,11 @@ public class Error extends TitleAreaDialog {
 	private final Throwable exception;
 
 	public static void show(String message, Throwable e) {
+		// rethrow ThreaDeath in order to make sure that RAP will properly clean
+		// up the UI thread
+		if (e instanceof ThreadDeath)
+			throw (ThreadDeath) e;
+		
 		new Error(getDisplay().getActiveShell(), message, e).open();
 	}
 
@@ -36,7 +41,11 @@ public class Error extends TitleAreaDialog {
 	/** Tries to find a display */
 	private static Display getDisplay() {
 		try {
-			return PlatformUI.getWorkbench().getDisplay();
+			Display display = PlatformUI.getWorkbench().getDisplay();
+			if (display != null)
+				return display;
+			else
+				return Display.getDefault();
 		} catch (Exception e) {
 			return Display.getCurrent();
 		}

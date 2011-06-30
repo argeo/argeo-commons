@@ -22,4 +22,16 @@
       </application>
    </extension>
 
+	<extension
+         point="org.eclipse.rap.ui.branding">
+    	<branding
+			id="org.argeo.security.ui.rap.branding"
+            servletName="secureWebUi"
+            defaultEntrypointId="org.argeo.security.ui.rap.secureEntryPoint"
+            title="Argeo Secure Web UI"
+            favicon="branding/favicon.ico"
+            body="branding/default.htm">
+      	</branding>
+   	</extension>
+
 </plugin>

@@ -27,6 +27,7 @@
 				<includes>
 					<include>plugin.xml</include>
 					<include>META-INF/**</include>
+					<include>branding/**</include>
 					<include>jaas/**</include>
 					<include>icons/**</include>
 				</includes>
