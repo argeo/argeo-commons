@@ -46,7 +46,9 @@ import org.eclipse.swt.widgets.Menu;
 public class GenericJcrBrowser extends AbstractJcrBrowser {
 	private final static Log log = LogFactory.getLog(GenericJcrBrowser.class);
 
+	/** DEPENDENCY INJECTION **/
 	private Session session;
+	private RepositoryRegister repositoryRegister;
 
 	private TreeViewer nodesViewer;
 	private NodeContentProvider nodeContentProvider;
@@ -54,8 +56,6 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 
 	private JcrFileProvider jcrFileProvider;
 	private FileHandler fileHandler;
-
-	private RepositoryRegister repositoryRegister;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -278,7 +278,7 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 		return nodesViewer;
 	}
 
-	// IoC
+	/** DEPENDENCY INJECTION **/
 	public void setRepositoryRegister(RepositoryRegister repositoryRegister) {
 		this.repositoryRegister = repositoryRegister;
 	}
