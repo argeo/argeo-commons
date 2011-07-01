@@ -113,15 +113,7 @@ public class OsgiBoot {
 
 	}
 
-	public static String removeFilePrefix(String url) {
-		if (url.startsWith("file:"))
-			return url.substring("file:".length());
-		else if (url.startsWith("reference:file:"))
-			return url.substring("reference:file:".length());
-		else
-			return url;
-	}
-
+	/** Boot strap the OSGi runtime */
 	public void bootstrap() {
 		long begin = System.currentTimeMillis();
 		System.out.println();
@@ -611,6 +603,10 @@ public class OsgiBoot {
 		return urls;
 	}
 
+	/*
+	 * HIGH LEVEL UTILITIES
+	 */
+	
 	protected void match(PathMatcher matcher, List matched, String base,
 			String currentPath, String pattern) {
 		if (currentPath == null) {
@@ -675,6 +671,11 @@ public class OsgiBoot {
 		}
 	}
 
+	/*
+	 * LOW LEVEL UTILITIES
+	 */
+	
+	/** Creates an URL from alocation */
 	protected String locationToUrl(String baseUrl, String location) {
 		int extInd = location.lastIndexOf('.');
 		String ext = null;
@@ -690,6 +691,15 @@ public class OsgiBoot {
 	/** Transforms a relative path in a full system path. */
 	protected String relativeToFullPath(String basePath, String relativePath) {
 		return (basePath + '/' + relativePath).replace('/', File.separatorChar);
+	}
+
+	private String removeFilePrefix(String url) {
+		if (url.startsWith("file:"))
+			return url.substring("file:".length());
+		else if (url.startsWith("reference:file:"))
+			return url.substring("reference:file:".length());
+		else
+			return url;
 	}
 
 	protected void debug(Object obj) {
