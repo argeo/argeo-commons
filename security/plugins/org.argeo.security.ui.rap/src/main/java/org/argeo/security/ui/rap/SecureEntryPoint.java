@@ -33,6 +33,7 @@ public class SecureEntryPoint implements IEntryPoint {
 	private Integer loginTimeout = 1 * 60;
 	private Integer sessionTimeout = 15 * 60;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public int createUI() {
 		// Short login timeout so that the modal dialog login doesn't hang
