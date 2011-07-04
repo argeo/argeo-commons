@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Fragment-Host: org.argeo.dep.osgi.catalina.start
-Bundle-Version: 0.3.3
+Bundle-Version: 0.3.4.SNAPSHOT
 Bundle-SymbolicName: org.argeo.server.tomcat

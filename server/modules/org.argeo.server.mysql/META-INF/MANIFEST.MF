@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Require-Bundle: org.argeo.slc.specs,org.argeo.slc.core
-Bundle-Version: 0.3.3
+Bundle-Version: 0.3.4.SNAPSHOT
 Bundle-Name: Argeo SLC MySQL
 Bundle-SymbolicName: org.argeo.server.mysql
 Import-Package: com.mysql.jdbc,net.sf.ehcache.hibernate,org.hibernate,

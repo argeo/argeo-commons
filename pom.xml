@@ -14,7 +14,7 @@
 	<properties>
 		<developmentCycle>0.3</developmentCycle>
 		<version.argeo-distribution>1.1.5</version.argeo-distribution>
-		<version.argeo-commons>0.3.3</version.argeo-commons>
+		<version.argeo-commons>0.3.4-SNAPSHOT</version.argeo-commons>
 		<version.argeo-ria>0.12.5</version.argeo-ria>
 		<version.equinox>3.6.2</version.equinox>
 		<!-- Maven -->

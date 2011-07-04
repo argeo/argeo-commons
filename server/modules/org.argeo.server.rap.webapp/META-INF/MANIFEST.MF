@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: RAP Webapp
 Bundle-Description: OSGi compatible RAP webapp
 Bundle-SymbolicName: org.argeo.server.rap.webapp
-Bundle-Version: 0.3.3
+Bundle-Version: 0.3.4.SNAPSHOT
 Bundle-Vendor: Argeo
 Web-ContextPath: org.argeo.rap.webapp
 Import-Package: org.eclipse.equinox.http.servlet;version="1.1.0",
