@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bundle-Version: 0.3.3.SNAPSHOT
+Bundle-Version: 0.3.3
 Bundle-SymbolicName: org.argeo.server.hsqldb
 Import-Package: org.hsqldb.jdbc,
  org.springframework.beans.factory.config
