@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.eclipse</groupId>
-		<version>0.3.3</version>
+		<version>0.3.4-SNAPSHOT</version>
 		<artifactId>runtime</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -60,14 +60,14 @@
 		<dependency>
 			<groupId>org.argeo.commons.eclipse</groupId>
 			<artifactId>org.argeo.eclipse.ui</artifactId>
-			<version>0.3.3</version>
+			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Argeo common distribution for RAP projects -->
 		<dependency>
 			<groupId>org.argeo.commons.eclipse</groupId>
 			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
-			<version>0.3.3</version>
+			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

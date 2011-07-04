@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.osgi</groupId>
-		<version>0.3.3</version>
+		<version>0.3.4-SNAPSHOT</version>
 		<artifactId>dep</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -13,7 +13,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.osgi</groupId>
 			<artifactId>org.argeo.osgi.dep.stdruntime</artifactId>
-			<version>0.3.3</version>
+			<version>0.3.4-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
 
@@ -41,7 +41,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.dep.log4j</artifactId>
-			<version>0.3.3</version>
+			<version>0.3.4-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
 
