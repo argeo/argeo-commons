@@ -88,23 +88,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.rap</groupId>
-			<artifactId>org.eclipse.rap.demo.databinding</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.rap</groupId>
 			<artifactId>org.eclipse.rap.ui.workbench</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.rap</groupId>
 			<artifactId>org.eclipse.rap.ui</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.rap</groupId>
-			<artifactId>org.eclipse.rap.design.example</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.rap</groupId>
-			<artifactId>org.eclipse.rap.demo</artifactId>
 		</dependency>
 
 		<!-- Jetty (TO BE REMOVED and replaced by Tomcat -->
