@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
-		<version>0.3.3-SNAPSHOT</version>
+		<version>0.3.3</version>
 		<artifactId>features</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -40,25 +40,25 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.jcr.ui.explorer</artifactId>
-			<version>0.3.3-SNAPSHOT</version>
+			<version>0.3.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.ui.admin</artifactId>
-			<version>0.3.3-SNAPSHOT</version>
+			<version>0.3.3</version>
 		</dependency>
 
 		<!-- Basis -->
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.dep.node</artifactId>
-			<version>0.3.3-SNAPSHOT</version>
+			<version>0.3.3</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.ui.rap</artifactId>
-			<version>0.3.3-SNAPSHOT</version>
+			<version>0.3.3</version>
 		</dependency>
 
 		<!-- Javax -->
@@ -84,7 +84,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.ldap</artifactId>
-			<version>0.3.3-SNAPSHOT</version>
+			<version>0.3.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
@@ -104,18 +104,18 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.tomcat</artifactId>
-			<version>0.3.3-SNAPSHOT</version>
+			<version>0.3.3</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.webextender</artifactId>
-			<version>0.3.3-SNAPSHOT</version>
+			<version>0.3.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.jcr.mvc</artifactId>
-			<version>0.3.3-SNAPSHOT</version>
+			<version>0.3.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
@@ -134,7 +134,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.dep.ads</artifactId>
-			<version>0.3.3-SNAPSHOT</version>
+			<version>0.3.3</version>
 			<type>pom</type>
 			<scope>test</scope>
 		</dependency>

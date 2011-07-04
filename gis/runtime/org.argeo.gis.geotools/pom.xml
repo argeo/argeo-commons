@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.argeo.commons.gis</groupId>
 		<artifactId>runtime</artifactId>
-		<version>0.3.3-SNAPSHOT</version>
+		<version>0.3.3</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.gis.geotools</artifactId>
@@ -57,12 +57,12 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.jcr</artifactId>
-			<version>0.3.3-SNAPSHOT</version>
+			<version>0.3.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.core</artifactId>
-			<version>0.3.3-SNAPSHOT</version>
+			<version>0.3.3</version>
 		</dependency>
 
 		<!-- Geotools, JTS, etc. -->
@@ -143,13 +143,13 @@
 		<dependency>
 			<groupId>org.argeo.commons.osgi</groupId>
 			<artifactId>org.argeo.osgi.boot</artifactId>
-			<version>0.3.3-SNAPSHOT</version>
+			<version>0.3.3</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.dep.log4j</artifactId>
-			<version>0.3.3-SNAPSHOT</version>
+			<version>0.3.3</version>
 			<type>pom</type>
 			<scope>test</scope>
 		</dependency>
