@@ -57,18 +57,7 @@
 		</dependency>
 
 		<!-- RAP -->
-		<dependency>
-			<groupId>org.eclipse.rap</groupId>
-			<artifactId>org.eclipse.rap.ui</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.rap</groupId>
-			<artifactId>org.eclipse.rap.design.example</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.rap</groupId>
-			<artifactId>org.eclipse.rap.jface.databinding</artifactId>
-		</dependency>
+		<!-- Order is important -->
 		<dependency>
 			<groupId>org.eclipse.rap</groupId>
 			<artifactId>org.eclipse.rap.rwt</artifactId>
@@ -76,6 +65,14 @@
 		<dependency>
 			<groupId>org.eclipse.rap</groupId>
 			<artifactId>org.eclipse.rap.rwt.q07</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.rap</groupId>
+			<artifactId>org.eclipse.rap.jface</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.rap</groupId>
+			<artifactId>org.eclipse.rap.jface.databinding</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.rap</groupId>
@@ -95,15 +92,19 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.rap</groupId>
-			<artifactId>org.eclipse.rap.demo</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.rap</groupId>
-			<artifactId>org.eclipse.rap.jface</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.rap</groupId>
 			<artifactId>org.eclipse.rap.ui.workbench</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.rap</groupId>
+			<artifactId>org.eclipse.rap.ui</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.rap</groupId>
+			<artifactId>org.eclipse.rap.design.example</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.rap</groupId>
+			<artifactId>org.eclipse.rap.demo</artifactId>
 		</dependency>
 
 		<!-- Jetty (TO BE REMOVED and replaced by Tomcat -->
