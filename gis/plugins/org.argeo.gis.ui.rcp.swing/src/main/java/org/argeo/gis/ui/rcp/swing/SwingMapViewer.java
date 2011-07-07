@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.jcr.Node;
 
+import org.argeo.ArgeoException;
 import org.argeo.geotools.jcr.GeoJcrMapper;
 import org.argeo.geotools.styling.StylingUtils;
 import org.argeo.gis.ui.AbstractMapViewer;
@@ -21,11 +22,13 @@ import org.geotools.map.DefaultMapContext;
 import org.geotools.map.DefaultMapLayer;
 import org.geotools.map.MapContext;
 import org.geotools.map.MapLayer;
+import org.geotools.referencing.CRS;
 import org.geotools.renderer.lite.StreamingRenderer;
 import org.geotools.styling.Style;
 import org.geotools.swing.JMapPane;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /** Map viewer implementation based on GeoTools Swing components. */
 public class SwingMapViewer extends AbstractMapViewer {
@@ -50,7 +53,6 @@ public class SwingMapViewer extends AbstractMapViewer {
 		versatileZoomTool = new VersatileZoomTool();
 		mapPane.setCursorTool(versatileZoomTool);
 		mapPane.setBackground(Color.WHITE);
-
 		frame.add(mapPane);
 
 		setControl(embedded);
@@ -85,7 +87,31 @@ public class SwingMapViewer extends AbstractMapViewer {
 
 	public void setAreaOfInterest(ReferencedEnvelope areaOfInterest) {
 		// mapPane.getMapContext().setAreaOfInterest(areaOfInterest);
-		mapPane.setDisplayArea(areaOfInterest);
+		CoordinateReferenceSystem crs = mapPane.getMapContext()
+				.getCoordinateReferenceSystem();
+
+		ReferencedEnvelope toDisplay;
+		if (crs != null)
+			try {
+				toDisplay = areaOfInterest.transform(crs, true);
+			} catch (Exception e) {
+				throw new ArgeoException("Cannot reproject " + areaOfInterest,
+						e);
+			}
+		else
+			toDisplay = areaOfInterest;
+		mapPane.setDisplayArea(toDisplay);
+	}
+
+	public void setCoordinateReferenceSystem(String crs) {
+		try {
+			CoordinateReferenceSystem crsObj = CRS.decode(crs);
+			mapPane.getMapContext().setCoordinateReferenceSystem(crsObj);
+			mapPane.repaint();
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot set CRS '" + crs + "'", e);
+		}
+
 	}
 
 }

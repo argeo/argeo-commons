@@ -1,0 +1,48 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.argeo.commons.gis</groupId>
+		<version>0.3.4-SNAPSHOT</version>
+		<artifactId>plugins</artifactId>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>org.argeo.gis.ui.rcp.swing</artifactId>
+	<name>Commons GIS RCP Swing</name>
+	<packaging>jar</packaging>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<!-- Commons -->
+		<dependency>
+			<groupId>org.argeo.commons.basic</groupId>
+			<artifactId>org.argeo.basic.nodeps</artifactId>
+			<version>0.3.4-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.gis</groupId>
+			<artifactId>org.argeo.gis.ui</artifactId>
+			<version>0.3.4-SNAPSHOT</version>
+		</dependency>
+
+		<!-- RCP only dependency, needed at compile time -->
+		<dependency>
+			<groupId>org.argeo.commons.eclipse</groupId>
+			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
+			<version>0.3.4-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+</project>
