@@ -13,6 +13,7 @@
 	<modules>
 		<module>org.argeo.gis.ui</module>
 		<module>org.argeo.gis.ui.rap.openlayers</module>
+		<module>org.argeo.gis.ui.rcp.swing</module>
 	</modules>
 	<build>
 		<resources>
