@@ -31,7 +31,6 @@
 		<module>server</module>
 		<module>eclipse</module>
 		<module>security</module>
-		<module>gis</module>
 		<module>sandbox</module>
 	</modules>
 	<url>${site.urlBase}/${developmentCycle}</url>
