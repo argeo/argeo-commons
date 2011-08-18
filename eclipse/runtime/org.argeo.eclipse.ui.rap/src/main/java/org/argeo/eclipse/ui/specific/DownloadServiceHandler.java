@@ -31,7 +31,20 @@ public class DownloadServiceHandler implements IServiceHandler {
 		response.setContentLength(download.length);
 		String contentDisposition = "attachment; filename=\"" + fileName + "\"";
 		response.setHeader("Content-Disposition", contentDisposition);
-		// response.setHeader( "Cache-Control", "no-cache" );
+
+		// Various header fields that can be set to solve some issues with some
+		// old browsers.
+		// Unused.
+		// String contentType = "application/force-download; name=\"" + fileName
+		// + "\"";
+		// response.setContentType(contentType);
+		// response.setHeader("Content-Transfer-Encoding", "binary");
+		// response.setHeader("Pragma", "no-cache");
+		// response.setHeader("Cache-Control", "no-cache, must-revalidate");
+		// response.setHeader("Expires", "0");
+		// response.setHeader("Connection", "Keep-Alive");
+		// response.setHeader("Keep-Alive", "timeout=5, max=86");
+		// response.setHeader("transfer-Encoding", "chunked");
 
 		try {
 			response.getOutputStream().write(download);
