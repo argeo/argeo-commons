@@ -36,6 +36,14 @@ public class GenericUploadControl extends Composite {
 		parent.pack();
 	}
 
+	/**
+	 * Wrap upload.getLastFileUploaded(). Gets the name of the last uploaded
+	 * file. This method can be called even if the upload has not finished yet.
+	 */
+	public String getLastFileUploadedName() {
+		return upload.getLastFileUploaded();
+	}
+
 	public boolean isControlEmpty() {
 		String path = upload.getPath();
 		if (log.isTraceEnabled())

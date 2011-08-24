@@ -83,6 +83,13 @@ public class GenericUploadControl extends Composite {
 	public void addModifyListener(ModifyListener listener) {
 		filePath.addModifyListener(listener);
 	}
+	
+	/**
+	 * Always returns null in an RCP environment
+	 */
+	public String getLastFileUploadedName() {
+		return null;
+	}
 
 	// private class UploadManager extends UploadAdapter {
 	// private Upload upload;
