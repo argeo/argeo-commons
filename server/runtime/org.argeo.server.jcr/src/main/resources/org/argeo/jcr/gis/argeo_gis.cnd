@@ -14,15 +14,15 @@ mixin
 [gis:located] > gis:indexed
 abstract mixin
 // either an EPSG code (e.g. EPSG:4326 for WGS 84) or a WKT representation
-- gis:srs (STRING) m
+- gis:srs (STRING)
 // WKB
-- gis:bbox (BINARY) m
+- gis:bbox (BINARY)
 // WKB
-- gis:centroid (BINARY) m
+- gis:centroid (BINARY)
 // - gis:role (STRING)
 
 [gis:geometry] > nt:unstructured, gis:located
-- gis:wkb (STRING) m
+- gis:wkb (BINARY)
 
 // GEOTOOLS
 [gis:feature] > nt:base
