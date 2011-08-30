@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -54,9 +55,11 @@ public class OsgiBoot {
 	public final static String PROP_ARGEO_OSGI_BUNDLES = "argeo.osgi.bundles";
 	public final static String PROP_ARGEO_OSGI_LOCATIONS = "argeo.osgi.locations";
 	public final static String PROP_ARGEO_OSGI_BASE_URL = "argeo.osgi.baseUrl";
+	/** Use org.argeo.osgi */
 	public final static String PROP_ARGEO_OSGI_MODULES_URL = "argeo.osgi.modulesUrl";
 
 	public final static String PROP_ARGEO_OSGI_BOOT_DEBUG = "argeo.osgi.boot.debug";
+	public final static String PROP_ARGEO_OSGI_BOOT_INSTALL_IN_LEXICOGRAPHIC_ORDER = "argeo.osgi.boot.installInLexicographicOrder";
 	public final static String PROP_ARGEO_OSGI_BOOT_DEFAULT_TIMEOUT = "argeo.osgi.boot.defaultTimeout";
 	public final static String PROP_ARGEO_OSGI_BOOT_MODULES_URL_SEPARATOR = "argeo.osgi.boot.modulesUrlSeparator";
 	public final static String PROP_ARGEO_OSGI_BOOT_SYSTEM_PROPERTIES_FILE = "argeo.osgi.boot.systemPropertiesFile";
@@ -69,6 +72,17 @@ public class OsgiBoot {
 	private boolean debug = Boolean.valueOf(
 			System.getProperty(PROP_ARGEO_OSGI_BOOT_DEBUG, "false"))
 			.booleanValue();
+
+	/**
+	 * The {@link #installUrls(List)} methods won't follow the list order but
+	 * order the urls according to teh alphabetical order of the file names
+	 * (last part of the URL). The goal is to stay closer from Eclipse PDE way
+	 * of installing target platform bundles.
+	 */
+	private boolean installInLexicographicOrder = Boolean.valueOf(
+			System.getProperty(PROP_ARGEO_OSGI_BOOT_DEBUG, "true"))
+			.booleanValue();;
+
 	/** Default is 10s (set in constructor) */
 	private long defaultTimeout;
 
@@ -151,42 +165,71 @@ public class OsgiBoot {
 		System.out.println();
 	}
 
+	/** Install the bundles at this URL list. */
 	public void installUrls(List urls) {
 		Map installedBundles = getInstalledBundles();
-		for (int i = 0; i < urls.size(); i++) {
-			String url = (String) urls.get(i);
-			try {
-				if (installedBundles.containsKey(url)) {
-					Bundle bundle = (Bundle) installedBundles.get(url);
-					// bundle.update();
-					if (debug)
-						debug("Bundle " + bundle.getSymbolicName()
-								+ " already installed from " + url);
-				} else {
-					Bundle bundle = bundleContext.installBundle(url);
-					if (debug)
-						debug("Installed bundle " + bundle.getSymbolicName()
-								+ " from " + url);
-				}
-			} catch (BundleException e) {
-				String message = e.getMessage();
-				if ((message.contains("Bundle \"" + SYMBOLIC_NAME_OSGI_BOOT
-						+ "\"") || message.contains("Bundle \""
-						+ SYMBOLIC_NAME_EQUINOX + "\""))
-						&& message.contains("has already been installed")) {
-					// silent, in order to avoid warnings: we know that both
-					// have already been installed...
-				} else {
-					OsgiBootUtils.warn("Could not install bundle from " + url
-							+ ": " + message);
-				}
-				if (debug)
-					e.printStackTrace();
+
+		if (installInLexicographicOrder) {
+			SortedMap map = new TreeMap();
+			// reorder
+			for (int i = 0; i < urls.size(); i++) {
+				String url = (String) urls.get(i);
+				int index = url.lastIndexOf('/');
+				String fileName;
+				if (index >= 0)
+					fileName = url.substring(index + 1);
+				else
+					fileName = url;
+				map.put(fileName, url);
+			}
+
+			// install
+			Iterator keys = map.keySet().iterator();
+			while (keys.hasNext()) {
+				Object key = keys.next();
+				String url = map.get(key).toString();
+				installUrl(url, installedBundles);
+			}
+		} else {
+			for (int i = 0; i < urls.size(); i++) {
+				String url = (String) urls.get(i);
+				installUrl(url, installedBundles);
 			}
 		}
 
 	}
 
+	protected void installUrl(String url, Map installedBundles) {
+		try {
+			if (installedBundles.containsKey(url)) {
+				Bundle bundle = (Bundle) installedBundles.get(url);
+				// bundle.update();
+				if (debug)
+					debug("Bundle " + bundle.getSymbolicName()
+							+ " already installed from " + url);
+			} else {
+				Bundle bundle = bundleContext.installBundle(url);
+				if (debug)
+					debug("Installed bundle " + bundle.getSymbolicName()
+							+ " from " + url);
+			}
+		} catch (BundleException e) {
+			String message = e.getMessage();
+			if ((message.contains("Bundle \"" + SYMBOLIC_NAME_OSGI_BOOT + "\"") || message
+					.contains("Bundle \"" + SYMBOLIC_NAME_EQUINOX + "\""))
+					&& message.contains("has already been installed")) {
+				// silent, in order to avoid warnings: we know that both
+				// have already been installed...
+			} else {
+				OsgiBootUtils.warn("Could not install bundle from " + url
+						+ ": " + message);
+			}
+			if (debug)
+				e.printStackTrace();
+		}
+	}
+
+	/** @deprecated Doesn't seem to be used anymore. */
 	public void installOrUpdateUrls(Map urls) {
 		Map installedBundles = getBundles();
 
@@ -262,6 +305,8 @@ public class OsgiBoot {
 				try {
 					try {
 						bundle.start();
+						if (debug)
+							debug("Bundle " + symbolicName + " started");
 					} catch (Exception e) {
 						OsgiBootUtils.warn("Start of bundle " + symbolicName
 								+ " failed because of " + e
@@ -606,7 +651,7 @@ public class OsgiBoot {
 	/*
 	 * HIGH LEVEL UTILITIES
 	 */
-	
+
 	protected void match(PathMatcher matcher, List matched, String base,
 			String currentPath, String pattern) {
 		if (currentPath == null) {
@@ -629,9 +674,9 @@ public class OsgiBoot {
 				return;// don't try deeper if already matched
 
 			boolean ok = matcher.match(pattern, currentPath);
-			if (debug)
-				debug(currentPath + " " + (ok ? "" : " not ")
-						+ " matched with " + pattern);
+			// if (debug)
+			// debug(currentPath + " " + (ok ? "" : " not ")
+			// + " matched with " + pattern);
 			if (ok) {
 				matched.add(fullPath);
 				return;
@@ -674,8 +719,8 @@ public class OsgiBoot {
 	/*
 	 * LOW LEVEL UTILITIES
 	 */
-	
-	/** Creates an URL from alocation */
+
+	/** Creates an URL from a location */
 	protected String locationToUrl(String baseUrl, String location) {
 		int extInd = location.lastIndexOf('.');
 		String ext = null;
@@ -717,6 +762,15 @@ public class OsgiBoot {
 
 	public BundleContext getBundleContext() {
 		return bundleContext;
+	}
+
+	public void setInstallInLexicographicOrder(
+			boolean installInAlphabeticalOrder) {
+		this.installInLexicographicOrder = installInAlphabeticalOrder;
+	}
+
+	public boolean isInstallInLexicographicOrder() {
+		return installInLexicographicOrder;
 	}
 
 	/** Whether to exclude Subversion directories (true by default) */
