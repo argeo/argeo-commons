@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
@@ -128,6 +129,14 @@
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.rap.webapp</artifactId>
 			<version>${version.argeo-commons}</version>
+		</dependency>
+
+		<!-- Default Tomcat conf (for development) -->
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.tomcat</artifactId>
+			<version>${version.argeo-commons}</version>
+			<scope>test</scope>
 		</dependency>
 
 		<!-- LDAP server (target platform generation only) -->
