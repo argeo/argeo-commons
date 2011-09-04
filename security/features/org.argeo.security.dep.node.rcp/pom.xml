@@ -75,5 +75,14 @@
 			<artifactId>org.argeo.security.ui.rcp</artifactId>
 			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
+
+		<!-- SDK -->
+		<dependency>
+			<groupId>org.argeo.commons.basic</groupId>
+			<artifactId>org.argeo.support.junit</artifactId>
+			<version>0.3.4-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 </project>

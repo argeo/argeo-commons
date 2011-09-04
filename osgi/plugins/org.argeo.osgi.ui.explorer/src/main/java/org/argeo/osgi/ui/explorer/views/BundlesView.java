@@ -37,8 +37,9 @@ public class BundlesView extends ViewPart {
 		try {
 			ColumnViewerToolTipSupport.enableFor(viewer);
 		} catch (Exception e) {
-			viewer.getControl()
-					.setData(Table.ENABLE_CELL_TOOLTIP, Boolean.TRUE);
+			//String prop = Table.ENABLE_CELL_TOOLTIP;
+			String prop = "org.eclipse.swt.widgets.Table#enableCellToolTip";
+			viewer.getControl().setData(prop, Boolean.TRUE);
 		}
 
 		// ID
