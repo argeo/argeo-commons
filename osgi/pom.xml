@@ -12,6 +12,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>runtime</module>
+		<module>plugins</module>
 		<module>dep</module>
 	</modules>
 </project>

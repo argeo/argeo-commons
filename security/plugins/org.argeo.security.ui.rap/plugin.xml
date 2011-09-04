@@ -9,26 +9,14 @@
             parameter="secureWebUi">
       </entrypoint>
    </extension>
-   <extension
-         id="secureWebapp"
-         name="Argeo Secure Web App"
-         point="org.eclipse.core.runtime.applications">
-      <application cardinality="singleton-global"
-         thread="main"
-         visible="true">
-         <run
-               class="org.argeo.security.ui.rap.SecureEntryPoint">
-         </run>
-      </application>
-   </extension>
 
 	<extension
          point="org.eclipse.rap.ui.branding">
     	<branding
 			id="org.argeo.security.ui.rap.branding"
-            servletName="secureWebUi"
+            servletName="node"
             defaultEntrypointId="org.argeo.security.ui.rap.secureEntryPoint"
-            title="Argeo Secure Web UI"
+            title="Argeo Web UI"
             favicon="branding/favicon.ico"
             body="branding/default.htm">
       	</branding>

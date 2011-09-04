@@ -33,7 +33,6 @@ public class SecureEntryPoint implements IEntryPoint {
 	private Integer loginTimeout = 1 * 60;
 	private Integer sessionTimeout = 15 * 60;
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public int createUI() {
 		// Short login timeout so that the modal dialog login doesn't hang
@@ -72,29 +71,6 @@ public class SecureEntryPoint implements IEntryPoint {
 					display.dispose();
 					throw td;
 				}
-
-				// if (e.getCause() != null) {
-				// Throwable firstCause = e.getCause();
-				// // log.error("Cause", firstCause);
-				// if (firstCause instanceof LoginException
-				// && firstCause.getCause() != null) {
-				// Throwable secondCause = firstCause.getCause();
-				// if (secondCause instanceof BadCredentialsException) {
-				// MessageDialog.openInformation(
-				// display.getActiveShell(),
-				// "Bad Credentials",
-				// "Your credentials are incorrect");
-				// // retry login
-				// continue tryLogin;
-				// } else if (secondCause instanceof ThreadDeath) {
-				// // rethrow thread death caused by dialog UI timeout
-				// throw (ThreadDeath) secondCause;
-				// }
-				//
-				// } else if (firstCause instanceof ThreadDeath) {
-				// throw (ThreadDeath) firstCause;
-				// }
-				// }
 
 				if (!display.isDisposed()) {
 					org.argeo.eclipse.ui.Error.show(

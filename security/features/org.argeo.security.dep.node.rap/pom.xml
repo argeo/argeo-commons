@@ -44,6 +44,11 @@
 			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 		<dependency>
+			<groupId>org.argeo.commons.osgi</groupId>
+			<artifactId>org.argeo.osgi.ui.explorer</artifactId>
+			<version>0.3.4-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.ui.admin</artifactId>
 			<version>0.3.4-SNAPSHOT</version>
