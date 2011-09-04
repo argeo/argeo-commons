@@ -29,11 +29,17 @@ public class NodeContentProvider implements ITreeContentProvider {
 		this.repositoryRegister = repositoryRegister;
 	}
 
-	/** Sends back the first level of the Tree. Independent from inputElement that can be null*/
+	/**
+	 * Sends back the first level of the Tree. Independent from inputElement
+	 * that can be null
+	 */
 	public Object[] getElements(Object inputElement) {
 		List<Object> objs = new ArrayList<Object>();
-		if (userSession != null)
-			objs.add(JcrUtils.getUserHome(userSession));
+		if (userSession != null) {
+			Node userHome = JcrUtils.getUserHome(userSession);
+			if (userHome != null)
+				objs.add(userHome);
+		}
 		if (repositoryRegister != null)
 			objs.add(repositoryRegister);
 		return objs.toArray();
@@ -73,8 +79,8 @@ public class NodeContentProvider implements ITreeContentProvider {
 		try {
 			if (element instanceof Node) {
 				Node node = (Node) element;
-				if(!node.getPath().equals("/"))
-				return node.getParent();
+				if (!node.getPath().equals("/"))
+					return node.getParent();
 				else
 					return null;
 			}

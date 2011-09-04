@@ -115,6 +115,7 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 
 	/** Actually creates a new repository. */
 	protected void createJackrabbitRepository() {
+		long begin = System.currentTimeMillis();
 		try {
 			// remote repository
 			if (uri != null && !uri.trim().equals("")) {
@@ -122,7 +123,7 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 				params.put(
 						org.apache.jackrabbit.commons.JcrUtils.REPOSITORY_URI,
 						uri);
-				repository = (JackrabbitRepository) new Jcr2davRepositoryFactory()
+				repository = new Jcr2davRepositoryFactory()
 						.getRepository(params);
 				if (repository == null)
 					throw new ArgeoException("Remote Davex repository " + uri
@@ -161,8 +162,10 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 			else
 				repository = RepositoryImpl.create(repositoryConfig);
 
-			log.info("Initialized Jackrabbit repository " + repository + " in "
-					+ getHomeDirectory() + " with config " + configuration);
+			double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
+			log.info("Initialized Jackrabbit repository in " + duration
+					+ " s, home: " + getHomeDirectory() + ", config: "
+					+ configuration);
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot create Jackrabbit repository "
 					+ getHomeDirectory(), e);
@@ -232,31 +235,16 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 
 	/** Lazy init. */
 	protected File getHomeDirectory() {
-		return homeDirectory;
-		// if (home != null)
-		// return home;
-		//
-		// try {
-		// String osgiData = System.getProperty("osgi.instance.area");
-		// if (osgiData != null)
-		// osgiData = osgiData.substring("file:".length());
-		// String path;
-		// if (homeDirectory == null)
-		// path = "./jackrabbit";
-		// else
-		// path = homeDirectory;
-		// if (path.startsWith(".") && osgiData != null) {
-		// home = new File(osgiData + '/' + path).getCanonicalFile();
-		// } else
-		// home = new File(path).getCanonicalFile();
-		// return home;
-		// } catch (Exception e) {
-		// throw new ArgeoException("Cannot define Jackrabbit home based on "
-		// + homeDirectory, e);
-		// }
+		try {
+			return homeDirectory.getCanonicalFile();
+		} catch (IOException e) {
+			throw new ArgeoException("Cannot get canonical file for "
+					+ homeDirectory, e);
+		}
 	}
 
 	public void dispose() throws Exception {
+		long begin = System.currentTimeMillis();
 		if (repository != null) {
 			if (repository instanceof JackrabbitRepository)
 				((JackrabbitRepository) repository).shutdown();
@@ -274,11 +262,13 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 							+ getHomeDirectory());
 			}
 
+		double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
 		if (uri != null && !uri.trim().equals(""))
 			log.info("Destroyed Jackrabbit repository with uri " + uri);
 		else
-			log.info("Destroyed Jackrabbit repository " + repository + " in "
-					+ getHomeDirectory() + " with config " + configuration);
+			log.info("Destroyed Jackrabbit repository in " + duration
+					+ " s, home: " + getHomeDirectory() + ", config "
+					+ configuration);
 	}
 
 	/**

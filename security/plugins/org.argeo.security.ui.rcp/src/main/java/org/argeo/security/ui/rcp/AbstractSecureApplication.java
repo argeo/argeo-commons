@@ -29,11 +29,11 @@ public abstract class AbstractSecureApplication implements IApplication {
 
 	public Object start(IApplicationContext context) throws Exception {
 		// wait for the system to be initialized
-		try {
-			Thread.sleep(3000);
-		} catch (Exception e2) {
-			// silent
-		}
+//		try {
+//			Thread.sleep(3000);
+//		} catch (Exception e2) {
+//			// silent
+//		}
 
 		// choose login context
 		final ILoginContext loginContext;

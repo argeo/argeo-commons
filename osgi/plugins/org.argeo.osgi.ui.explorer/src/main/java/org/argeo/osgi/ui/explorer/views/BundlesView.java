@@ -14,7 +14,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.part.ViewPart;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -60,7 +59,7 @@ public class BundlesView extends ViewPart {
 
 		// State
 		column = new TableViewerColumn(viewer, SWT.NONE);
-		column.getColumn().setWidth(16);
+		column.getColumn().setWidth(18);
 		column.getColumn().setText("State");
 		column.setLabelProvider(new StateLabelProvider());
 		new ColumnViewerComparator<Bundle>(column, new Comparator<Bundle>() {
