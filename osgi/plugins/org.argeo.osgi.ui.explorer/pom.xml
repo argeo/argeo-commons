@@ -1,0 +1,21 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.argeo.commons.osgi</groupId>
+		<version>0.3.4-SNAPSHOT</version>
+		<artifactId>plugins</artifactId>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>org.argeo.osgi.ui.explorer</artifactId>
+	<name>Commons OSGi Explorer</name>
+	<dependencies>
+
+		<!-- RCP only dependency, needed at compile time -->
+		<dependency>
+			<groupId>org.argeo.commons.eclipse</groupId>
+			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
+			<version>0.3.4-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+</project>
