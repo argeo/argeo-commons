@@ -35,7 +35,7 @@ public class BundlesView extends ViewPart {
 		// FIXME methodNotFound issue in RAP when built in Maven against RCP
 		try {
 			ColumnViewerToolTipSupport.enableFor(viewer);
-		} catch (Exception e) {
+		} catch (Error e) {
 			//String prop = Table.ENABLE_CELL_TOOLTIP;
 			String prop = "org.eclipse.swt.widgets.Table#enableCellToolTip";
 			viewer.getControl().setData(prop, Boolean.TRUE);
