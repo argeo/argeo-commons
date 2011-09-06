@@ -14,7 +14,10 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.forms.editor.FormEditor;
 
 /**
- * Parent Abstract GR multitab editor. Insure the presence of a GrBackend
+ * 
+ * Container for the node editor page. At creation time, it takes a JCR Node
+ * that cannot be changed afterwards.
+ * 
  */
 public class GenericNodeEditor extends FormEditor {
 
@@ -24,33 +27,44 @@ public class GenericNodeEditor extends FormEditor {
 	private Node currentNode;
 
 	private GenericNodePage networkDetailsPage;
+	private ChildNodesPage childNodesPage;
+	private NodeRightsManagementPage nodeRightsManagementPage;
+	private NodeVersionHistoryPage nodeVersionHistoryPage;
 
 	public void init(IEditorSite site, IEditorInput input)
 			throws PartInitException {
 		super.init(site, input);
 		GenericNodeEditorInput nei = (GenericNodeEditorInput) getEditorInput();
+		currentNode = nei.getCurrentNode();
 		this.setPartName(JcrUtils.lastPathElement(nei.getPath()));
 	}
 
 	@Override
 	protected void addPages() {
-		EmptyNodePage enp = new EmptyNodePage(this, "Empty node page");
-		try {
-			addPage(enp);
-		} catch (PartInitException e) {
-			throw new ArgeoException("Not able to add an empty page ", e);
-		}
-	}
-
-	private void addPagesAfterNodeSet() {
 		try {
 			networkDetailsPage = new GenericNodePage(this,
 					JcrExplorerPlugin.getMessage("genericNodePageTitle"),
 					currentNode);
 			addPage(networkDetailsPage);
-			this.setActivePage(networkDetailsPage.getIndex());
+
+			childNodesPage = new ChildNodesPage(this,
+					JcrExplorerPlugin.getMessage("childNodesPageTitle"),
+					currentNode);
+			addPage(childNodesPage);
+
+			nodeRightsManagementPage = new NodeRightsManagementPage(this,
+					JcrExplorerPlugin
+							.getMessage("nodeRightsManagementPageTitle"),
+					currentNode);
+			addPage(nodeRightsManagementPage);
+
+			nodeVersionHistoryPage = new NodeVersionHistoryPage(
+					this,
+					JcrExplorerPlugin.getMessage("nodeVersionHistoryPageTitle"),
+					currentNode);
+			addPage(nodeVersionHistoryPage);
 		} catch (PartInitException e) {
-			throw new ArgeoException("Not able to add page ", e);
+			throw new ArgeoException("Not able to add an empty page ", e);
 		}
 	}
 
@@ -78,14 +92,5 @@ public class GenericNodeEditor extends FormEditor {
 
 	Node getCurrentNode() {
 		return currentNode;
-	}
-
-	public void setCurrentNode(Node currentNode) {
-		boolean nodeWasNull = this.currentNode == null;
-		this.currentNode = currentNode;
-		if (nodeWasNull) {
-			this.removePage(0);
-			addPagesAfterNodeSet();
-		}
 	}
 }

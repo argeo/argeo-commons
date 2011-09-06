@@ -70,24 +70,10 @@ public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 					jfp.setRootNodes((Object[]) itcp.getElements(null));
 					fileHandler.openFile(name, id);
 				}
-				// File or not, we always open the corresponding node Editor.
-				String repositoryAlias = getRepositoryAlias(obj);
-				String workspaceName = node.getSession().getWorkspace()
-						.getName();
-				String path = node.getPath();
-
-				if (log.isDebugEnabled()) {
-					log.debug("RepoAlias: " + repositoryAlias + " - WS Name: "
-							+ workspaceName + " - path:" + path);
-				}
-				GenericNodeEditorInput gnei = new GenericNodeEditorInput(
-						repositoryAlias, workspaceName, path);
-
-				GenericNodeEditor gne = (GenericNodeEditor) JcrExplorerPlugin
-						.getDefault().getWorkbench().getActiveWorkbenchWindow()
-						.getActivePage().openEditor(gnei, GenericNodeEditor.ID);
-				gne.setCurrentNode(node);
-
+				GenericNodeEditorInput gnei = new GenericNodeEditorInput(node);
+				JcrExplorerPlugin.getDefault().getWorkbench()
+						.getActiveWorkbenchWindow().getActivePage()
+						.openEditor(gnei, GenericNodeEditor.ID);
 			} catch (RepositoryException re) {
 				throw new ArgeoException(
 						"Repository error while getting node info", re);

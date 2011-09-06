@@ -1,35 +1,26 @@
 package org.argeo.jcr.ui.explorer.editors;
 
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
+
+import org.argeo.ArgeoException;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPersistableElement;
 
 /**
- * An editor input based on a path to a node plus workspace name and repository
- * alias. In a multirepository environment, path can be enriched with Repository
- * Alias and workspace
- */
+ * An editor input based the JCR node object.
+ * */
 
 public class GenericNodeEditorInput implements IEditorInput {
-	private final String path;
-	private final String repositoryAlias;
-	private final String workspaceName;
+	private final Node currentNode;
 
-	/**
-	 * In order to implement a generic explorer that supports remote and multi
-	 * workspaces repositories, node path can be detailed by these strings.
-	 * 
-	 * @param repositoryAlias
-	 *            : can be null
-	 * @param workspaceName
-	 *            : can be null
-	 * @param path
-	 */
-	public GenericNodeEditorInput(String repositoryAlias, String workspaceName,
-			String path) {
-		this.path = path;
-		this.repositoryAlias = repositoryAlias;
-		this.workspaceName = workspaceName;
+	public GenericNodeEditorInput(Node currentNode) {
+		this.currentNode = currentNode;
+	}
+
+	public Node getCurrentNode() {
+		return currentNode;
 	}
 
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
@@ -45,29 +36,53 @@ public class GenericNodeEditorInput implements IEditorInput {
 	}
 
 	public String getName() {
-		return path;
+		try {
+			return currentNode.getName();
+		} catch (RepositoryException re) {
+			throw new ArgeoException(
+					"unexpected error while getting node name", re);
+		}
 	}
 
-	public String getRepositoryAlias() {
-		return repositoryAlias;
+	public String getUid() {
+		try {
+			return currentNode.getIdentifier();
+		} catch (RepositoryException re) {
+			throw new ArgeoException("unexpected error while getting node uid",
+					re);
+		}
 	}
 
-	public String getWorkspaceName() {
-		return workspaceName;
+	public String getToolTipText() {
+		try {
+			return currentNode.getPath();
+		} catch (RepositoryException re) {
+			throw new ArgeoException(
+					"unexpected error while getting node path", re);
+		}
+	}
+
+	public String getPath() {
+		try {
+			return currentNode.getPath();
+		} catch (RepositoryException re) {
+			throw new ArgeoException(
+					"unexpected error while getting node path", re);
+		}
 	}
 
 	public IPersistableElement getPersistable() {
 		return null;
 	}
 
-	public String getToolTipText() {
-		return path;
-	}
-
-	public String getPath() {
-		return path;
-	}
-
+	/**
+	 * equals method based on UID that is unique within a workspace and path of
+	 * the node, thus 2 shared node that have same UID as defined in the spec
+	 * but 2 different pathes will open two distinct editors.
+	 * 
+	 * TODO enhance this method to support multirepository and multiworkspace
+	 * environments
+	 */
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -77,22 +92,10 @@ public class GenericNodeEditorInput implements IEditorInput {
 			return false;
 
 		GenericNodeEditorInput other = (GenericNodeEditorInput) obj;
-
-		if (!path.equals(other.getPath()))
+		if (!getUid().equals(other.getUid()))
 			return false;
-
-		String own = other.getWorkspaceName();
-		if ((workspaceName == null && own != null)
-				|| (workspaceName != null && (own == null || !workspaceName
-						.equals(own))))
+		if (!getPath().equals(other.getPath()))
 			return false;
-
-		String ora = other.getRepositoryAlias();
-		if ((repositoryAlias == null && ora != null)
-				|| (repositoryAlias != null && (ora == null || !repositoryAlias
-						.equals(ora))))
-			return false;
-
 		return true;
 	}
 }

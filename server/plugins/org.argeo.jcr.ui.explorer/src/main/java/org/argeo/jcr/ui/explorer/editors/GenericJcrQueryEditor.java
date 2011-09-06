@@ -10,7 +10,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
-/** Executes any JCR query. */
+/** Enables end user to type and execute any JCR query. */
 public class GenericJcrQueryEditor extends AbstractJcrQueryEditor {
 	public final static String ID = "org.argeo.jcr.ui.explorer.genericJcrQueryEditor";
 
