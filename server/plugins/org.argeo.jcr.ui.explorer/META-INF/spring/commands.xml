@@ -5,10 +5,15 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="openGenericJcrQueryEditor"
-		class="org.argeo.eclipse.ui.jcr.commands.OpenGenericJcrQueryEditor"
+		class="org.argeo.jcr.ui.explorer.commands.OpenGenericJcrQueryEditor"
 		scope="prototype">
 		<property name="editorId"
 			value="org.argeo.slc.client.ui.dist.genericJcrQueryEditor" />
+	</bean>
+
+	<bean id="openGenericNodeEditor"
+		class="org.argeo.jcr.ui.explorer.commands.OpenGenericNodeEditor"
+		scope="prototype">
 	</bean>
 
 	<bean id="addFileFolder" class="org.argeo.eclipse.ui.jcr.commands.AddFileFolder"
@@ -20,6 +25,6 @@
 	<bean id="deleteNode" class="org.argeo.eclipse.ui.jcr.commands.DeleteNode"
 		scope="prototype" />
 
-	<bean id="importFileSystem" class="org.argeo.eclipse.ui.jcr.commands.ImportFileSystem"
+	<bean id="importFileSystem" class="org.argeo.jcr.ui.explorer.commands.ImportFileSystem"
 		scope="prototype" />
 </beans>

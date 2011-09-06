@@ -5,7 +5,7 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!-- Views -->
-	<bean id="browserView" class="org.argeo.eclipse.ui.jcr.views.GenericJcrBrowser"
+	<bean id="browserView" class="org.argeo.jcr.ui.explorer.views.GenericJcrBrowser"
 		scope="prototype">
 		<property name="repositoryRegister" ref="repositoryRegister" />
 	</bean>

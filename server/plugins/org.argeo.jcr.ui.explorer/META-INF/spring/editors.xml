@@ -5,7 +5,10 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
-	<bean id="genericJcrQueryEditor"
-		class="org.argeo.eclipse.ui.jcr.editors.GenericJcrQueryEditor" scope="prototype">
+	<bean id="genericJcrQueryEditor" class="org.argeo.jcr.ui.explorer.editors.GenericJcrQueryEditor"
+		scope="prototype">
+	</bean>
+	<bean id="genericNodeEditor" class="org.argeo.jcr.ui.explorer.editors.GenericNodeEditor"
+		scope="prototype">
 	</bean>
 </beans>

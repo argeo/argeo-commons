@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+	<!-- Perspectives -->
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="org.argeo.eclipse.ui.jcr.explorer.JcrExplorerPerspective"
+            class="org.argeo.jcr.ui.explorer.JcrExplorerPerspective"
             icon="icons/nodes.gif"
             id="org.argeo.jcr.ui.explorer.perspective"
             name="JCR Explorer">
       </perspective>
    </extension>
+   <!-- Views --> 
    <extension
          point="org.eclipse.ui.views">
 	   <view
@@ -19,6 +21,7 @@
           name="JCR Browser">
 	   </view>
    </extension>
+   <!-- Editors --> 
    <extension
            point="org.eclipse.ui.editors">
 	     <editor
@@ -28,7 +31,15 @@
               icon="icons/query.png"
               default="false">
         </editor>
+	     <editor
+	          class="org.argeo.eclipse.spring.SpringExtensionFactory"
+              id="org.argeo.jcr.ui.explorer.genericNodeEditor"
+              name="Node Editor"
+              icon="icons/query.png"
+              default="false">
+        </editor>
      </extension>
+   	<!-- Commands --> 
    	<extension
          point="org.eclipse.ui.commands">
 		<command
@@ -36,6 +47,15 @@
             id="org.argeo.jcr.ui.explorer.openGenericJcrQueryEditor"
             name="New generic JCR query">
     	</command>
+    	<command
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+			id="org.argeo.jcr.ui.explorer.openGenericNodeEditor"
+			name="Open generic node Editor">
+			<commandParameter
+				id="org.argeo.jcr.ui.explorer.nodePath"
+				name="Node path">
+  	 		</commandParameter>
+		</command>    
 	  <command
 	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
 	        id="org.argeo.jcr.ui.explorer.addFileFolder"
