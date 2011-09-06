@@ -941,4 +941,31 @@ public class JcrUtils implements ArgeoJcrConstants {
 			throw new ArgeoException("Cannot update last modified", e);
 		}
 	}
+
+	/**
+	 * Returns a String representing the short version (see <a
+	 * href="http://jackrabbit.apache.org/node-type-notation.html"> Node type
+	 * Notation </a> attributes grammar) of the main business attributes of this
+	 * property definition
+	 * 
+	 * @param prop
+	 */
+	public static String getPropertyDefinitionAsString(Property prop) {
+		StringBuffer sbuf = new StringBuffer();
+		try {
+			if (prop.getDefinition().isAutoCreated())
+				sbuf.append("a");
+			if (prop.getDefinition().isMandatory())
+				sbuf.append("m");
+			if (prop.getDefinition().isProtected())
+				sbuf.append("p");
+			if (prop.getDefinition().isMultiple())
+				sbuf.append("*");
+		} catch (RepositoryException re) {
+			throw new ArgeoException(
+					"unexpected error while getting property definition as String",
+					re);
+		}
+		return sbuf.toString();
+	}
 }
