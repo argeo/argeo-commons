@@ -15,8 +15,23 @@ import org.eclipse.ui.IPersistableElement;
 public class GenericNodeEditorInput implements IEditorInput {
 	private final Node currentNode;
 
+	// cache key properties at creation time to avoid Exception at recoring time
+	// when the session has been closed
+	private String path;
+	private String uid;
+	private String name;
+
 	public GenericNodeEditorInput(Node currentNode) {
 		this.currentNode = currentNode;
+		try {
+			name = currentNode.getName();
+			uid = currentNode.getIdentifier();
+			path = currentNode.getPath();
+		} catch (RepositoryException re) {
+			throw new ArgeoException(
+					"unexpected error while getting node key values at creation time",
+					re);
+		}
 	}
 
 	public Node getCurrentNode() {
@@ -36,39 +51,19 @@ public class GenericNodeEditorInput implements IEditorInput {
 	}
 
 	public String getName() {
-		try {
-			return currentNode.getName();
-		} catch (RepositoryException re) {
-			throw new ArgeoException(
-					"unexpected error while getting node name", re);
-		}
+		return name;
 	}
 
 	public String getUid() {
-		try {
-			return currentNode.getIdentifier();
-		} catch (RepositoryException re) {
-			throw new ArgeoException("unexpected error while getting node uid",
-					re);
-		}
+		return uid;
 	}
 
 	public String getToolTipText() {
-		try {
-			return currentNode.getPath();
-		} catch (RepositoryException re) {
-			throw new ArgeoException(
-					"unexpected error while getting node path", re);
-		}
+		return path;
 	}
 
 	public String getPath() {
-		try {
-			return currentNode.getPath();
-		} catch (RepositoryException re) {
-			throw new ArgeoException(
-					"unexpected error while getting node path", re);
-		}
+		return path;
 	}
 
 	public IPersistableElement getPersistable() {

@@ -17,6 +17,11 @@ import org.argeo.jcr.RepositoryRegister;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
+/**
+ * Implementation of the {@code ITreeContentProvider} to display multiple
+ * repository environment in a tree like structure
+ * 
+ */
 public class NodeContentProvider implements ITreeContentProvider {
 	private ItemComparator itemComparator = new ItemComparator();
 

@@ -59,7 +59,7 @@ public class GenericNodePage extends FormPage implements JcrExplorerConstants {
 			tk = managedForm.getToolkit();
 			ScrolledForm form = managedForm.getForm();
 			GridLayout twt = new GridLayout(3, false);
-			twt.marginWidth = twt.marginHeight = 0;
+			twt.marginWidth = twt.marginHeight = 5;
 
 			form.getBody().setLayout(twt);
 

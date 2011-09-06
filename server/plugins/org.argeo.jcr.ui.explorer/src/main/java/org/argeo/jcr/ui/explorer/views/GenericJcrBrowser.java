@@ -109,6 +109,7 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 		nodesViewer.getTree().setMenu(menu);
 		getSite().registerContextMenu(menuManager, nodesViewer);
 		getSite().setSelectionProvider(nodesViewer);
+
 		nodesViewer.setInput(getViewSite());
 
 		// Create the property viewer on the bottom
@@ -241,7 +242,6 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 		try {
 			ObservationManager observationManager = session.getWorkspace()
 					.getObservationManager();
-			// FIXME Will not be notified if empty result is deleted
 			observationManager.addEventListener(resultsObserver,
 					Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED, "/", true,
 					null, null, false);
@@ -270,11 +270,13 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 		protected Boolean willProcessInUiThread(List<Event> events)
 				throws RepositoryException {
 			for (Event event : events) {
-				getLog().debug("Received event " + event);
+				if (getLog().isTraceEnabled())
+					getLog().debug("Received event " + event);
 				String path = event.getPath();
 				int index = path.lastIndexOf('/');
 				String propertyName = path.substring(index + 1);
-				getLog().debug("Concerned property " + propertyName);
+				if (getLog().isTraceEnabled())
+					getLog().debug("Concerned property " + propertyName);
 			}
 			return false;
 		}
