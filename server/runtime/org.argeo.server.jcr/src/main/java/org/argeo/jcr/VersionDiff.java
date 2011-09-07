@@ -3,6 +3,14 @@ package org.argeo.jcr;
 import java.util.Calendar;
 import java.util.Map;
 
+/**
+ * Generic Object that enables the creation of history reports based on a JCR
+ * versionable node. userId and creation date are added to the map of
+ * PropertyDiff.
+ * 
+ * These two fields might be null
+ * 
+ */
 public class VersionDiff {
 
 	private String userId;
