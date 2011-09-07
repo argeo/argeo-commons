@@ -1,4 +1,4 @@
-package org.argeo.jcr.ui.explorer.browser;
+package org.argeo.jcr.ui.explorer.providers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +9,7 @@ import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 
 import org.argeo.ArgeoException;
+import org.argeo.jcr.ui.explorer.browser.ItemComparator;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 

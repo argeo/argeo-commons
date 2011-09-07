@@ -13,8 +13,7 @@ import org.eclipse.ui.forms.editor.FormPage;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 /**
- * This page is only used at editor's creation time when current node has not
- * yet been set
+ * This comments will be nicely fill by mbaudier in. 
  */
 public class NodeRightsManagementPage extends FormPage {
 	private final static Log log = LogFactory.getLog(NodeRightsManagementPage.class);

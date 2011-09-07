@@ -14,6 +14,7 @@ Bundle-ActivationPolicy: lazy
 Import-Package: javax.jcr,
  javax.jcr.nodetype,
  javax.jcr.observation,
+ javax.jcr.version,
  org.apache.commons.io,
  org.apache.commons.logging,
  org.argeo,

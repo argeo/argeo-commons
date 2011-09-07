@@ -45,6 +45,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 
+/**
+ * Basic View to display a sash form to browse a JCR compliant multirepository
+ * environment
+ */
+
 public class GenericJcrBrowser extends AbstractJcrBrowser {
 	private final static Log log = LogFactory.getLog(GenericJcrBrowser.class);
 

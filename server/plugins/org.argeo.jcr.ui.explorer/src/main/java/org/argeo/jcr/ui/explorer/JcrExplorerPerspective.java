@@ -4,6 +4,7 @@ import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
+/** Base perspective for JcrExplorer browser */
 public class JcrExplorerPerspective implements IPerspectiveFactory {
 	public static String BROWSER_VIEW_ID = JcrExplorerPlugin.ID
 			+ ".browserView";

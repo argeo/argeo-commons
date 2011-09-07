@@ -33,6 +33,11 @@ import org.eclipse.ui.forms.editor.FormPage;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
+/**
+ * Main node editor page. Lists all properties of the current node and enable
+ * access and editing for some of them.
+ */
+
 public class GenericNodePage extends FormPage implements JcrExplorerConstants {
 	private final static Log log = LogFactory.getLog(GenericNodePage.class);
 
@@ -55,18 +60,13 @@ public class GenericNodePage extends FormPage implements JcrExplorerConstants {
 	}
 
 	protected void createFormContent(IManagedForm managedForm) {
-		try {
-			tk = managedForm.getToolkit();
-			ScrolledForm form = managedForm.getForm();
-			GridLayout twt = new GridLayout(3, false);
-			twt.marginWidth = twt.marginHeight = 5;
+		tk = managedForm.getToolkit();
+		ScrolledForm form = managedForm.getForm();
+		GridLayout twt = new GridLayout(3, false);
+		twt.marginWidth = twt.marginHeight = 5;
 
-			form.getBody().setLayout(twt);
-
-			createPropertiesPart(form.getBody());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		form.getBody().setLayout(twt);
+		createPropertiesPart(form.getBody());
 	}
 
 	private void createPropertiesPart(Composite parent) {

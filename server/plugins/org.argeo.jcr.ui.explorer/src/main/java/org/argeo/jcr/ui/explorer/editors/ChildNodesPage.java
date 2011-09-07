@@ -4,8 +4,10 @@ import javax.jcr.Node;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.ArgeoException;
+import org.argeo.jcr.ui.explorer.JcrExplorerPlugin;
 import org.argeo.jcr.ui.explorer.browser.NodeLabelProvider;
-import org.argeo.jcr.ui.explorer.browser.SingleNodeAsTreeContentProvider;
+import org.argeo.jcr.ui.explorer.providers.SingleNodeAsTreeContentProvider;
 import org.argeo.jcr.ui.explorer.utils.GenericNodeDoubleClickListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -44,12 +46,18 @@ public class ChildNodesPage extends FormPage {
 			GridLayout twt = new GridLayout(1, false);
 			twt.marginWidth = twt.marginHeight = 0;
 			body.setLayout(twt);
+			if (!currentNode.hasNodes()) {
+				managedForm.getToolkit().createLabel(body,
+						JcrExplorerPlugin.getMessage("warningNoChildNode"));
+			} else {
 
-			nodeContentProvider = new SingleNodeAsTreeContentProvider();
-			nodesViewer = createNodeViewer(body, nodeContentProvider);
-			nodesViewer.setInput(currentNode);
+				nodeContentProvider = new SingleNodeAsTreeContentProvider();
+				nodesViewer = createNodeViewer(body, nodeContentProvider);
+				nodesViewer.setInput(currentNode);
+			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ArgeoException(
+					"Unexpected error while creating child node page", e);
 		}
 	}
 

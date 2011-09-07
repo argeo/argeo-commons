@@ -22,9 +22,7 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.PartInitException;
 
 /**
- * 
  * Centralizes the management of double click on a NodeTreeViewer
- * 
  */
 public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 
