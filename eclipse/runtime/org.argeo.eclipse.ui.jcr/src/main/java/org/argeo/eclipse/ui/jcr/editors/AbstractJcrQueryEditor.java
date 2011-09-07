@@ -46,7 +46,7 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 	protected String initialQuery;
 	protected String initialQueryType;
 
-	/** DEPENDENCY INJECTION */
+	/* DEPENDENCY INJECTION */
 	private Session session;
 
 	// Widgets
@@ -332,7 +332,7 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 		return session;
 	}
 
-	/** DEPENDENCY INJECTION */
+	/* DEPENDENCY INJECTION */
 	public void setSession(Session session) {
 		this.session = session;
 	}
