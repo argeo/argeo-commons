@@ -1,8 +1,10 @@
 package org.argeo.jcr.ui.explorer.browser;
 
+import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.Workspace;
 import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.EventListener;
 
@@ -11,18 +13,22 @@ import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.jcr.JcrUiPlugin;
 import org.eclipse.swt.graphics.Image;
 
+/**
+ * Wraps a JCR {@link Workspace}, or more precisely a {@link Session} to it.
+ * Implicitly also the root node of this session.
+ */
 public class WorkspaceNode extends TreeParent implements EventListener {
 	private final String name;
 	private final Repository repository;
 	private Session session = null;
 	public final static Image WORKSPACE_DISCONNECTED = JcrUiPlugin
-	.getImageDescriptor("icons/workspace_disconnected.png")
-	.createImage();
+			.getImageDescriptor("icons/workspace_disconnected.png")
+			.createImage();
 	public final static Image WORKSPACE_CONNECTED = JcrUiPlugin
-	.getImageDescriptor("icons/workspace_connected.png").createImage();
+			.getImageDescriptor("icons/workspace_connected.png").createImage();
 
 	public WorkspaceNode(Repository repository, String name) {
-		this(repository, name, null); 
+		this(repository, name, null);
 	}
 
 	public WorkspaceNode(Repository repository, String name, Session session) {
@@ -36,6 +42,18 @@ public class WorkspaceNode extends TreeParent implements EventListener {
 
 	public Session getSession() {
 		return session;
+	}
+
+	public Node getRootNode() {
+		try {
+			if (session != null)
+				return session.getRootNode();
+			else
+				return null;
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot get root node of workspace "
+					+ name, e);
+		}
 	}
 
 	public void login() {

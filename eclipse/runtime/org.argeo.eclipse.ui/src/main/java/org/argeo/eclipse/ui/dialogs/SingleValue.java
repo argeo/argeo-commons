@@ -72,6 +72,7 @@ public class SingleValue extends TitleAreaDialog {
 		valueT = createLT(composite, label);
 
 		setMessage(message, IMessageProvider.NONE);
+
 		parent.pack();
 		return composite;
 	}

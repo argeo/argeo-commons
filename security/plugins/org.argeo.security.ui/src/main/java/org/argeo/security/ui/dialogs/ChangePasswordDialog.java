@@ -1,7 +1,7 @@
 package org.argeo.security.ui.dialogs;
 
 import org.argeo.ArgeoException;
-import org.argeo.eclipse.ui.Error;
+import org.argeo.eclipse.ui.ErrorFeedback;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
@@ -54,7 +54,7 @@ public class ChangePasswordDialog extends TitleAreaDialog {
 					newPassword1.getText());
 			close();
 		} catch (Exception e) {
-			Error.show("Cannot change password", e);
+			ErrorFeedback.show("Cannot change password", e);
 		}
 	}
 

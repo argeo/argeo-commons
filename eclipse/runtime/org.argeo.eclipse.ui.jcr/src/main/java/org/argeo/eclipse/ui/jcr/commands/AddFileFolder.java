@@ -4,7 +4,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
 
-import org.argeo.eclipse.ui.dialogs.Error;
+import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.eclipse.ui.dialogs.SingleValue;
 import org.argeo.eclipse.ui.jcr.views.AbstractJcrBrowser;
 import org.eclipse.core.commands.AbstractHandler;
@@ -14,6 +14,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+/** Adds a node of type nt:folder */
 public class AddFileFolder extends AbstractHandler {
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -36,12 +37,12 @@ public class AddFileFolder extends AbstractHandler {
 						view.nodeAdded(parentNode, newNode);
 						parentNode.getSession().save();
 					} catch (RepositoryException e) {
-						Error.show("Cannot create folder " + folderName
+						ErrorFeedback.show("Cannot create folder " + folderName
 								+ " under " + parentNode, e);
 					}
 				}
 			} else {
-				Error.show("Can only add file folder to a node");
+				ErrorFeedback.show("Can only add file folder to a node");
 			}
 		}
 		return null;

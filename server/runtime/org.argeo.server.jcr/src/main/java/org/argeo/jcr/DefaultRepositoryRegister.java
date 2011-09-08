@@ -12,7 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class DefaultRepositoryRegister extends Observable implements
-		RepositoryRegister {
+		RepositoryRegister, ArgeoJcrConstants {
 	private final static Log log = LogFactory
 			.getLog(DefaultRepositoryRegister.class);
 
@@ -23,10 +23,10 @@ public class DefaultRepositoryRegister extends Observable implements
 	@SuppressWarnings("rawtypes")
 	public synchronized Repository getRepository(Map parameters)
 			throws RepositoryException {
-		if (!parameters.containsKey(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS))
-			throw new RepositoryException("Parameter " + ArgeoJcrConstants.JCR_REPOSITORY_ALIAS
+		if (!parameters.containsKey(JCR_REPOSITORY_ALIAS))
+			throw new RepositoryException("Parameter " + JCR_REPOSITORY_ALIAS
 					+ " has to be defined.");
-		String alias = parameters.get(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS).toString();
+		String alias = parameters.get(JCR_REPOSITORY_ALIAS).toString();
 		if (!repositories.containsKey(alias))
 			throw new RepositoryException(
 					"No repository registered with alias " + alias);
@@ -43,13 +43,13 @@ public class DefaultRepositoryRegister extends Observable implements
 	@SuppressWarnings("rawtypes")
 	public synchronized void register(Repository repository, Map properties) {
 		// TODO: also check bean name?
-		if (properties == null || !properties.containsKey(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS)) {
-			log.warn("Cannot register a repository without property "
-					+ ArgeoJcrConstants.JCR_REPOSITORY_ALIAS);
+		String alias;
+		if (properties == null || !properties.containsKey(JCR_REPOSITORY_ALIAS)) {
+			log.warn("Cannot register a repository if no "
+					+ JCR_REPOSITORY_ALIAS + " property is speecified.");
 			return;
 		}
-
-		String alias = properties.get(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS).toString();
+		alias = properties.get(JCR_REPOSITORY_ALIAS).toString();
 		Map<String, Repository> map = new TreeMap<String, Repository>(
 				repositories);
 		map.put(alias, repository);
@@ -62,13 +62,13 @@ public class DefaultRepositoryRegister extends Observable implements
 	@SuppressWarnings("rawtypes")
 	public synchronized void unregister(Repository repository, Map properties) {
 		// TODO: also check bean name?
-		if (properties == null || !properties.containsKey(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS)) {
+		if (properties == null || !properties.containsKey(JCR_REPOSITORY_ALIAS)) {
 			log.warn("Cannot unregister a repository without property "
-					+ ArgeoJcrConstants.JCR_REPOSITORY_ALIAS);
+					+ JCR_REPOSITORY_ALIAS);
 			return;
 		}
 
-		String alias = properties.get(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS).toString();
+		String alias = properties.get(JCR_REPOSITORY_ALIAS).toString();
 		Map<String, Repository> map = new TreeMap<String, Repository>(
 				repositories);
 		map.put(alias, repository);

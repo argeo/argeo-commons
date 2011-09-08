@@ -8,8 +8,12 @@
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
 	osgi:default-timeout="30000">
 
-	<set id="repositories" interface="javax.jcr.Repository" cardinality="0..N">
+	<set id="repositories" interface="javax.jcr.Repository"
+		cardinality="0..N">
 		<listener ref="repositoryRegister" bind-method="register"
 			unbind-method="unregister" />
 	</set>
+
+	<reference id="repositoryFactory" interface="javax.jcr.RepositoryFactory" />
+
 </beans:beans>

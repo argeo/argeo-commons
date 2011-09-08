@@ -6,7 +6,7 @@ import java.util.Map;
 import javax.jcr.Property;
 import javax.jcr.nodetype.NodeType;
 
-import org.argeo.eclipse.ui.dialogs.Error;
+import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.eclipse.ui.jcr.editors.NodeEditorInput;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -40,7 +40,7 @@ public class EditNode extends AbstractHandler {
 			HandlerUtil.getActiveWorkbenchWindow(event).getActivePage()
 					.openEditor(nei, editorId);
 		} catch (PartInitException e) {
-			Error.show("Cannot open " + editorId + " with " + path
+			ErrorFeedback.show("Cannot open " + editorId + " with " + path
 					+ " of type " + type, e);
 		}
 		// TODO Auto-generated method stub

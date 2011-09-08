@@ -235,7 +235,7 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 		public Object[] getElements(Object inputElement) {
 
 			if (inputElement instanceof List)
-				return ((List) inputElement).toArray();
+				return ((List<?>) inputElement).toArray();
 
 			// Never reached might be deleted in future release
 			if (!(inputElement instanceof QueryResult))

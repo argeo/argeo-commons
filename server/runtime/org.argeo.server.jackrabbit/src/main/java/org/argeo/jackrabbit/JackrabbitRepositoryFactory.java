@@ -26,21 +26,23 @@ public class JackrabbitRepositoryFactory extends DefaultRepositoryFactory
 		if (repository != null)
 			return repository;
 
-		if (parameters.containsKey(JCR_REPOSITORY_URI)) {
-			String uri = parameters.get(JCR_REPOSITORY_URI).toString();
-			Map<String, String> params = new HashMap<String, String>();
-			
-			params.put(JcrUtils.REPOSITORY_URI, uri);
-			repository = new Jcr2davRepositoryFactory().getRepository(params);
-			if (repository == null)
-				throw new ArgeoException("Remote Davex repository " + uri
-						+ " not found");
-			log.info("Initialized remote Jackrabbit repository " + repository
-					+ " from uri " + uri);
-
-		}
+		String uri;
+		if (parameters.containsKey(JCR_REPOSITORY_URI))
+			uri = parameters.get(JCR_REPOSITORY_URI).toString();
+		else if (parameters.containsKey(JcrUtils.REPOSITORY_URI))
+			uri = parameters.get(JcrUtils.REPOSITORY_URI).toString();
+		else
+			return null;
+		
+		Map<String, String> params = new HashMap<String, String>();
+		params.put(JcrUtils.REPOSITORY_URI, uri);
+		repository = new Jcr2davRepositoryFactory().getRepository(params);
+		if (repository == null)
+			throw new ArgeoException("Remote Davex repository " + uri
+					+ " not found");
+		log.info("Initialized remote Jackrabbit repository " + repository
+				+ " from uri " + uri);
 
 		return repository;
 	}
-
 }

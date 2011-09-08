@@ -5,10 +5,8 @@ import java.util.Iterator;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
-import org.argeo.eclipse.ui.dialogs.Error;
+import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.eclipse.ui.jcr.views.AbstractJcrBrowser;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -19,8 +17,6 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 /** Deletes the selected nodes */
 public class DeleteNode extends AbstractHandler {
-	private final static Log log = LogFactory.getLog(DeleteNode.class);
-
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ISelection selection = HandlerUtil.getActiveWorkbenchWindow(event)
 				.getActivePage().getSelection();
@@ -46,7 +42,7 @@ public class DeleteNode extends AbstractHandler {
 				if (ancestor != null)
 					view.nodeRemoved(ancestor);
 			} catch (Exception e) {
-				Error.show("Cannot delete node " + obj, e);
+				ErrorFeedback.show("Cannot delete node " + obj, e);
 			}
 		}
 		return null;

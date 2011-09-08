@@ -15,18 +15,18 @@ public abstract class AbstractJcrBrowser extends ViewPart {
 	public abstract void createPartControl(Composite parent);
 
 	/**
-	 * To be overidden to adapt size of form and result frames.
+	 * To be overridden to adapt size of form and result frames.
 	 */
 	abstract protected int[] getWeights();
 
 	/**
-	 * To be overidden to provide an adapted size nodeViewer
+	 * To be overridden to provide an adapted size nodeViewer
 	 */
 	abstract protected TreeViewer createNodeViewer(Composite parent,
 			ITreeContentProvider nodeContentProvider);
 
 	/**
-	 * To be overidden to retrieve the current nodeViewer
+	 * To be overridden to retrieve the current nodeViewer
 	 */
 	abstract protected TreeViewer getNodeViewer();
 
