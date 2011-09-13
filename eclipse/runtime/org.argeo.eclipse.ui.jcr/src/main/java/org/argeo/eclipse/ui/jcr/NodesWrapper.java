@@ -21,9 +21,13 @@ public class NodesWrapper {
 		this.node = node;
 	}
 
+	protected NodeIterator getNodeIterator() throws RepositoryException {
+		return node.getNodes();
+	}
+
 	protected List<WrappedNode> getWrappedNodes() throws RepositoryException {
 		List<WrappedNode> nodes = new ArrayList<WrappedNode>();
-		for (NodeIterator nit = node.getNodes(); nit.hasNext();)
+		for (NodeIterator nit = getNodeIterator(); nit.hasNext();)
 			nodes.add(new WrappedNode(this, nit.nextNode()));
 		return nodes;
 	}
