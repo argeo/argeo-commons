@@ -15,6 +15,7 @@ import javax.jcr.observation.ObservationManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.jcr.AsyncUiEventListener;
 import org.argeo.eclipse.ui.jcr.utils.NodeViewerComparer;
 import org.argeo.eclipse.ui.jcr.views.AbstractJcrBrowser;
@@ -25,14 +26,17 @@ import org.argeo.jcr.RepositoryRegister;
 import org.argeo.jcr.ui.explorer.browser.NodeContentProvider;
 import org.argeo.jcr.ui.explorer.browser.NodeLabelProvider;
 import org.argeo.jcr.ui.explorer.browser.PropertiesContentProvider;
+import org.argeo.jcr.ui.explorer.model.SingleJcrNode;
 import org.argeo.jcr.ui.explorer.utils.GenericNodeDoubleClickListener;
 import org.argeo.jcr.ui.explorer.utils.JcrFileProvider;
+import org.argeo.jcr.ui.explorer.utils.JcrUiUtils;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -212,13 +216,13 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 	// nodesViewer.refresh(tmpSel.getFirstElement());
 	// }
 
-	private JcrFileProvider getJcrFileProvider() {
-		return jcrFileProvider;
-	}
-
-	private FileHandler getFileHandler() {
-		return fileHandler;
-	}
+	// private JcrFileProvider getJcrFileProvider() {
+	// return jcrFileProvider;
+	// }
+	//
+	// private FileHandler getFileHandler() {
+	// return fileHandler;
+	// }
 
 	protected TreeViewer createNodeViewer(Composite parent,
 			final ITreeContentProvider nodeContentProvider) {
@@ -236,7 +240,11 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 						if (!event.getSelection().isEmpty()) {
 							IStructuredSelection sel = (IStructuredSelection) event
 									.getSelection();
-							propertiesViewer.setInput(sel.getFirstElement());
+							Object firstItem = sel.getFirstElement();
+							if (firstItem instanceof SingleJcrNode)
+								propertiesViewer
+										.setInput(((SingleJcrNode) firstItem)
+												.getNode());
 						} else {
 							propertiesViewer.setInput(getViewSite());
 						}
@@ -263,6 +271,24 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 	@Override
 	protected TreeViewer getNodeViewer() {
 		return nodesViewer;
+	}
+
+	/** Notifies the current view that a node has been added */
+	public void nodeAdded(TreeParent parentNode) {
+		// insure that Ui objects have been correctly created:
+		JcrUiUtils.forceRefreshIfNeeded(parentNode);
+		getNodeViewer().refresh(parentNode);
+		getNodeViewer().expandToLevel(parentNode, 1);
+	}
+
+	/** Notifies the current view that a node has been added */
+	public void nodeRemoved(TreeParent parentNode) {
+		IStructuredSelection newSel = new StructuredSelection(parentNode);
+		getNodeViewer().setSelection(newSel, true);
+		// Force refresh
+		IStructuredSelection tmpSel = (IStructuredSelection) getNodeViewer()
+				.getSelection();
+		getNodeViewer().refresh(tmpSel.getFirstElement());
 	}
 
 	class TreeObserver extends AsyncUiEventListener {

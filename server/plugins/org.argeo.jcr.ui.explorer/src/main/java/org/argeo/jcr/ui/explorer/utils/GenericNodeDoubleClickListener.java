@@ -9,11 +9,11 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.specific.FileHandler;
 import org.argeo.jcr.ui.explorer.JcrExplorerPlugin;
-import org.argeo.jcr.ui.explorer.browser.NodeContentProvider;
-import org.argeo.jcr.ui.explorer.browser.RepositoryNode;
-import org.argeo.jcr.ui.explorer.browser.WorkspaceNode;
 import org.argeo.jcr.ui.explorer.editors.GenericNodeEditor;
 import org.argeo.jcr.ui.explorer.editors.GenericNodeEditorInput;
+import org.argeo.jcr.ui.explorer.model.RepositoryNode;
+import org.argeo.jcr.ui.explorer.model.SingleJcrNode;
+import org.argeo.jcr.ui.explorer.model.WorkspaceNode;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -46,13 +46,17 @@ public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 				.getFirstElement();
 		if (obj instanceof RepositoryNode) {
 			RepositoryNode rpNode = (RepositoryNode) obj;
-			rpNode.login();
-			nodeViewer.refresh(obj);
+			if (rpNode.getChildren().length == 0) {
+				rpNode.login();
+				nodeViewer.refresh(obj);
+			}
+			// else do nothing
 		} else if (obj instanceof WorkspaceNode) {
 			((WorkspaceNode) obj).login();
 			nodeViewer.refresh(obj);
-		} else if (obj instanceof Node) {
-			Node node = (Node) obj;
+		} else if (obj instanceof SingleJcrNode) {
+			SingleJcrNode sjn = (SingleJcrNode) obj;
+			Node node = sjn.getNode();
 			try {
 				if (node.isNodeType(NodeType.NT_FILE)) {
 					// double click on a file node triggers its opening
@@ -65,7 +69,7 @@ public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 					// TODO : enhanced that.
 					ITreeContentProvider itcp = (ITreeContentProvider) nodeViewer
 							.getContentProvider();
-					jfp.setRootNodes((Object[]) itcp.getElements(null));
+					// jfp.setRootNodes((Object[]) itcp.getElements(null));
 					fileHandler.openFile(name, id);
 				}
 				GenericNodeEditorInput gnei = new GenericNodeEditorInput(node);
@@ -80,16 +84,5 @@ public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 						"Unexepected exception while opening node editor", pie);
 			}
 		}
-	}
-
-	// Enhance this method
-	private String getRepositoryAlias(Object element) {
-		NodeContentProvider ncp = (NodeContentProvider) nodeViewer
-				.getContentProvider();
-		Object parent = element;
-		while (!(ncp.getParent(parent) instanceof RepositoryNode)
-				&& parent != null)
-			parent = ncp.getParent(parent);
-		return parent == null ? null : ((RepositoryNode) parent).getName();
 	}
 }

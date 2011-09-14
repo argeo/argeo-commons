@@ -968,4 +968,37 @@ public class JcrUtils implements ArgeoJcrConstants {
 		}
 		return sbuf.toString();
 	}
+
+	/**
+	 * Estimate the sub tree size from current node. Computation is based on the
+	 * Jcr {@link Property.getLength()} method. Note : it is not the exact size
+	 * used on the disk by the current part of the JCR Tree.
+	 */
+
+	public static long getNodeApproxSize(Node node) {
+		long curNodeSize = 0;
+		try {
+			PropertyIterator pi = node.getProperties();
+			while (pi.hasNext()) {
+				Property prop = pi.nextProperty();
+				if (prop.isMultiple()) {
+					int nb = prop.getLengths().length;
+					for (int i = 0; i < nb; i++) {
+						curNodeSize += (prop.getLengths()[i] > 0 ? prop
+								.getLengths()[i] : 0);
+					}
+				} else
+					curNodeSize += (prop.getLength() > 0 ? prop.getLength() : 0);
+			}
+
+			NodeIterator ni = node.getNodes();
+			while (ni.hasNext())
+				curNodeSize += getNodeApproxSize(ni.nextNode());
+			return curNodeSize;
+		} catch (RepositoryException re) {
+			throw new ArgeoException(
+					"Unexpected error while recursively determining node size.",
+					re);
+		}
+	}
 }

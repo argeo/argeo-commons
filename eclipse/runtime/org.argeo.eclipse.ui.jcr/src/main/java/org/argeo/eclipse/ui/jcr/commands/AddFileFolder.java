@@ -6,6 +6,7 @@ import javax.jcr.nodetype.NodeType;
 
 import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.eclipse.ui.dialogs.SingleValue;
+import org.argeo.eclipse.ui.jcr.JcrUiPlugin;
 import org.argeo.eclipse.ui.jcr.views.AbstractJcrBrowser;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -26,6 +27,7 @@ public class AddFileFolder extends AbstractHandler {
 		if (selection != null && !selection.isEmpty()
 				&& selection instanceof IStructuredSelection) {
 			Object obj = ((IStructuredSelection) selection).getFirstElement();
+
 			if (obj instanceof Node) {
 				String folderName = SingleValue.ask("Folder name",
 						"Enter folder name");
@@ -42,7 +44,8 @@ public class AddFileFolder extends AbstractHandler {
 					}
 				}
 			} else {
-				ErrorFeedback.show("Can only add file folder to a node");
+				ErrorFeedback.show(JcrUiPlugin
+						.getMessage("errorUnvalidNtFolderNodeType"));
 			}
 		}
 		return null;

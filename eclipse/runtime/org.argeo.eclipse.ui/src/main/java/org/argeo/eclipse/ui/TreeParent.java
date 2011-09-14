@@ -33,19 +33,22 @@ public class TreeParent extends TreeObject {
 	public synchronized void addChild(Object child) {
 		loaded = true;
 		children.add(child);
-		if (child instanceof TreeParent)
-			((TreeParent) child).setParent(this);
+		// bsinou: was 'if (child instanceof TreeParent)'
+		if (child instanceof TreeObject)
+			((TreeObject) child).setParent(this);
 	}
 
 	public synchronized void removeChild(Object child) {
 		children.remove(child);
 		if (child instanceof TreeParent)
 			((TreeParent) child).setParent(null);
+		// TODO: clear subtree recursively
 	}
 
 	public synchronized void clearChildren() {
 		loaded = false;
 		children.clear();
+		// TODO: clear also the objects
 	}
 
 	public synchronized Object[] getChildren() {

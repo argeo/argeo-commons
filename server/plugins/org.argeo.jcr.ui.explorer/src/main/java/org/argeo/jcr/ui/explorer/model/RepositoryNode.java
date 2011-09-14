@@ -1,0 +1,74 @@
+package org.argeo.jcr.ui.explorer.model;
+
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+
+import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.TreeParent;
+import org.argeo.eclipse.ui.jcr.JcrUiPlugin;
+import org.eclipse.swt.graphics.Image;
+
+/**
+ * UI Tree component. Wraps a JCR {@link Repository}. It also keeps a reference
+ * to its parent Tree Ui component; typically the unique {@link Repositories}
+ * object of the current view to enable bi-directionnal browsing in the tree.
+ */
+
+public class RepositoryNode extends TreeParent implements UiNode {
+	private String alias;
+	private final Repository repository;
+	private Session defaultSession = null;
+	public final static Image REPOSITORY_DISCONNECTED = JcrUiPlugin
+			.getImageDescriptor("icons/repository_disconnected.gif")
+			.createImage();
+	public final static Image REPOSITORY_CONNECTED = JcrUiPlugin
+			.getImageDescriptor("icons/repository_connected.gif").createImage();
+
+	/** Create a new repository with alias = name */
+	public RepositoryNode(String alias, Repository repository, TreeParent parent) {
+		this(alias, alias, repository, parent);
+	}
+
+	/** Create a new repository with distinct name & alias */
+	public RepositoryNode(String alias, String name, Repository repository,
+			TreeParent parent) {
+		super(name);
+		this.repository = repository;
+		setParent(parent);
+		this.alias = alias;
+	}
+
+	public void login() {
+		try {
+			// SimpleCredentials sc = new SimpleCredentials("root",
+			// "demo".toCharArray());
+			// defaultSession = repository.login(sc);
+			defaultSession = repository.login();
+			String[] wkpNames = defaultSession.getWorkspace()
+					.getAccessibleWorkspaceNames();
+			for (String wkpName : wkpNames) {
+				if (wkpName.equals(defaultSession.getWorkspace().getName()))
+					addChild(new WorkspaceNode(this, wkpName, defaultSession));
+				else
+					addChild(new WorkspaceNode(this, wkpName));
+			}
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot connect to repository " + alias, e);
+		}
+	}
+
+	public Session getDefaultSession() {
+		return defaultSession;
+	}
+
+	/** returns the {@link Repository} referenced by the current UI Node */
+	public Repository getRepository() {
+		return repository;
+	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+}

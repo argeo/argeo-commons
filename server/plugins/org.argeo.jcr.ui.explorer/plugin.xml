@@ -58,6 +58,16 @@
 		</command>    
     	<command
 			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+			id="org.argeo.jcr.ui.explorer.getNodeSize"
+			name="Get node size">
+			<commandParameter
+				id="org.argeo.jcr.ui.explorer.nodePath"
+				name="Node path">
+  	 		</commandParameter>
+		</command>    
+		
+    	<command
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
 			id="org.argeo.jcr.ui.explorer.addRemoteRepository"
 			name="Add remote JCR repository">
 			<commandParameter
@@ -67,8 +77,8 @@
 		</command>    
 	  <command
 	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-	        id="org.argeo.jcr.ui.explorer.addFileFolder"
-	        name="Add file folder...">
+	        id="org.argeo.jcr.ui.explorer.addFolderNode"
+	        name="Create folder">
 	  </command>
 	  <command
 	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
@@ -77,8 +87,8 @@
 	  </command>
 	  <command
 	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-	        id="org.argeo.jcr.ui.explorer.deleteNode"
-	        name="Delete node">
+	        id="org.argeo.jcr.ui.explorer.deleteNodes"
+	        name="Delete nodes">
 	  </command>
 	  <command
 	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
@@ -104,7 +114,7 @@
                 locationURI="menu:org.argeo.jcr.ui.explorer.browserView">
                 <command
                       commandId="org.argeo.jcr.ui.explorer.addRemoteRepository"
-                      icon="icons/add.gif"
+                      icon="icons/addRepo.gif"
                       style="push">
                 </command>
           </menuContribution>
@@ -116,12 +126,12 @@
            style="push">
      </command>
      <command
-           commandId="org.argeo.jcr.ui.explorer.addFileFolder"
-           icon="icons/add.gif"
+           commandId="org.argeo.jcr.ui.explorer.addFolderNode"
+           icon="icons/addFolder.gif"
            style="push">
      </command>
      <command
-           commandId="org.argeo.jcr.ui.explorer.deleteNode"
+           commandId="org.argeo.jcr.ui.explorer.deleteNodes"
            icon="icons/remove.gif"
            style="push">
      </command>
@@ -130,6 +140,16 @@
            icon="icons/import_fs.png"
            style="push"
            tooltip="Import files from the files sytem to the repository">
+     </command>
+     <command
+           commandId="org.argeo.jcr.ui.explorer.addRemoteRepository"
+           icon="icons/addRepo.gif"
+           style="push">
+     </command>
+     <command
+           commandId="org.argeo.jcr.ui.explorer.getNodeSize"
+           icon="icons/getSize.gif"
+           style="push">
      </command>
   </menuContribution>
 	</extension>

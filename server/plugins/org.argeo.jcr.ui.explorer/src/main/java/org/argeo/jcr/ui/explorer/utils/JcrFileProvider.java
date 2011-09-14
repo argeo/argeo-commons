@@ -1,21 +1,16 @@
 package org.argeo.jcr.ui.explorer.utils;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
-import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.io.IOUtils;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.specific.FileProvider;
-import org.argeo.jcr.RepositoryRegister;
-import org.argeo.jcr.ui.explorer.browser.RepositoryNode;
+import org.argeo.jcr.ui.explorer.model.RepositoryNode;
 
 /**
  * Implements a FileProvider for UI purposes. Note that it might not be very
@@ -39,25 +34,25 @@ public class JcrFileProvider implements FileProvider {
 	 * 
 	 * @param repositoryNode
 	 */
-	public void setRootNodes(Object[] rootNodes) {
-		List<Object> tmpNodes = new ArrayList<Object>();
-		for (int i = 0; i < rootNodes.length; i++) {
-			Object obj = rootNodes[i];
-			if (obj instanceof Node) {
-				tmpNodes.add(obj);
-			} else if (obj instanceof RepositoryRegister) {
-				RepositoryRegister repositoryRegister = (RepositoryRegister) obj;
-				Map<String, Repository> repositories = repositoryRegister
-						.getRepositories();
-				for (String name : repositories.keySet()) {
-					tmpNodes.add(new RepositoryNode(name, repositories
-							.get(name)));
-				}
-
-			}
-		}
-		this.rootNodes = tmpNodes.toArray();
-	}
+	// public void setRootNodes(Object[] rootNodes) {
+	// List<Object> tmpNodes = new ArrayList<Object>();
+	// for (int i = 0; i < rootNodes.length; i++) {
+	// Object obj = rootNodes[i];
+	// if (obj instanceof Node) {
+	// tmpNodes.add(obj);
+	// } else if (obj instanceof RepositoryRegister) {
+	// RepositoryRegister repositoryRegister = (RepositoryRegister) obj;
+	// Map<String, Repository> repositories = repositoryRegister
+	// .getRepositories();
+	// for (String name : repositories.keySet()) {
+	// tmpNodes.add(new RepositoryNode(name, repositories
+	// .get(name)));
+	// }
+	//
+	// }
+	// }
+	// this.rootNodes = tmpNodes.toArray();
+	// }
 
 	public byte[] getByteArrayFileFromId(String fileId) {
 		InputStream fis = null;

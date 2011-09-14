@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+	<!-- Enable RAP workbench and provide an entry point -->
+   <extension
+         point="org.eclipse.rap.ui.entrypoint">
+      <entrypoint
+            class="org.argeo.sandbox.ui.rap.Application"
+            parameter="hello"
+            id="org.argeo.sandbox.ui.rap.Application">
+      </entrypoint>
+   </extension>
+   <extension
+         id="basicWebapp"
+         name="Argeo basic Web App"
+         point="org.eclipse.core.runtime.applications">
+      <application cardinality="singleton-global"
+         thread="main"
+         visible="true">
+         <run
+               class="org.argeo.sandbox.ui.rap.Application">
+         </run>
+      </application>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            name="RAP Perspective"
+            class="org.argeo.sandbox.ui.rap.Perspective"
+            id="org.argeo.sandbox.ui.downloadTries">
+      </perspective>
+	</extension>
+	<extension point="org.eclipse.ui.views">
+		<view
+			name="test download view" 
+			class="org.argeo.sandbox.ui.rap.views.TestDownloadView" 
+			id ="org.argeo.sandbox.ui.testDownloadView">
+		</view>
+	</extension>
+</plugin>

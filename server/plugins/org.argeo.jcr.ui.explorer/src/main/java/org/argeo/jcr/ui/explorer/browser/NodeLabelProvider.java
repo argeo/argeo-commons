@@ -4,9 +4,13 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
 
+import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.jcr.DefaultNodeLabelProvider;
 import org.argeo.eclipse.ui.jcr.JcrUiPlugin;
-import org.argeo.jcr.RepositoryRegister;
+import org.argeo.jcr.ui.explorer.model.RepositoriesNode;
+import org.argeo.jcr.ui.explorer.model.RepositoryNode;
+import org.argeo.jcr.ui.explorer.model.SingleJcrNode;
+import org.argeo.jcr.ui.explorer.model.WorkspaceNode;
 import org.eclipse.swt.graphics.Image;
 
 public class NodeLabelProvider extends DefaultNodeLabelProvider {
@@ -15,10 +19,16 @@ public class NodeLabelProvider extends DefaultNodeLabelProvider {
 			"icons/repositories.gif").createImage();
 
 	public String getText(Object element) {
-		if (element instanceof RepositoryRegister) {
-			return "Repositories";
+		try {
+			if (element instanceof SingleJcrNode) {
+				SingleJcrNode sjn = (SingleJcrNode) element;
+				return getText(sjn.getNode());
+			} else
+				return super.getText(element);
+		} catch (RepositoryException e) {
+			throw new ArgeoException(
+					"Unexpected JCR error while getting node name.");
 		}
-		return super.getText(element);
 	}
 
 	protected String getText(Node node) throws RepositoryException {
@@ -43,9 +53,14 @@ public class NodeLabelProvider extends DefaultNodeLabelProvider {
 				return WorkspaceNode.WORKSPACE_DISCONNECTED;
 			else
 				return WorkspaceNode.WORKSPACE_CONNECTED;
-		} else if (element instanceof RepositoryRegister) {
+		} else if (element instanceof RepositoriesNode) {
 			return REPOSITORIES;
-		}
+		} else if (element instanceof SingleJcrNode)
+			try {
+				return super.getImage(((SingleJcrNode) element).getNode());
+			} catch (RepositoryException e) {
+				return null;
+			}
 		return super.getImage(element);
 	}
 
