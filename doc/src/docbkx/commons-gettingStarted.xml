@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+                 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+
+<chapter label="1" id="gettingStarted">
+	<title>Getting started</title>
+
+	<section label="1.1" id="deveptEnvironment">
+		<title>Development environment</title>
+		<para>The following instructions are about setting up an Argeo
+			development environment.</para>
+
+		<section label="1.1.1" id="softwareRequirements">
+			<title>Software requirements</title>
+			<para>
+				The following elements are required to install the development
+				environment:
+				<itemizedlist spacing="compact">
+					<listitem>
+						<para>Java</para>
+					</listitem>
+					<listitem>
+						<para>Eclipse</para>
+					</listitem>
+				</itemizedlist>
+			</para>
+		</section>
+
+		<section label="1.1.2" id="clientInstallation">
+			<title>Client installation</title>
+
+			<para></para>
+		</section>
+	</section>
+</chapter>
