@@ -2,6 +2,7 @@ package org.argeo.jcr;
 
 /** JCR names in the http://www.argeo.org/argeo namespace */
 public interface ArgeoNames {
+	public final static String ARGEO_NAMESPACE = "http://www.argeo.org/ns/argeo";
 	public final static String ARGEO_ = "argeo:";
 
 	public final static String ARGEO_URI = "argeo:uri";
@@ -14,5 +15,8 @@ public interface ArgeoNames {
 	public final static String ARGEO_LAST_NAME = "argeo:lastName";
 	public final static String ARGEO_PRIMARY_EMAIL = "argeo:primaryEmail";
 	public final static String ARGEO_PRIMARY_ORGANIZATION = "argeo:primaryOrganization";
+
+	// tabular
+	public final static String ARGEO_IS_KEY = "argeo:isKey";
 
 }

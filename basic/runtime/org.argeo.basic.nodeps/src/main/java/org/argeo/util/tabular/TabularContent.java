@@ -8,5 +8,7 @@ import java.util.List;
  */
 public interface TabularContent {
 	/** The headers of this table or <code>null</code> is none available. */
-	public List<String> getHeaders();
+	public List<TabularColumn> getColumns();
+
+	public TabularRowIterator read();
 }
