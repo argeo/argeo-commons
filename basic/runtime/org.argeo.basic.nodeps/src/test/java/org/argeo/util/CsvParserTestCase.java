@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 
 public class CsvParserTestCase extends TestCase {
 	public void testParse() throws Exception {
-		String toParse = "Header1,\"Header2\",Header3,\"Header4\"\n"
+		String toParse = "Header1,\"Header\n2\",Header3,\"Header4\"\n"
 				+ "Col1,\"Col\n2\",Col3,\"\"\"Col4\"\"\"\n"
 				+ "Col1,\"Col\n2\",Col3,\"\"\"Col4\"\"\"\n"
 				+ "Col1,\"Col\n2\",Col3,\"\"\"Col4\"\"\"\n";

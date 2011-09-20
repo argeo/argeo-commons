@@ -29,12 +29,12 @@ public abstract class CsvParser {
 	 * 
 	 * @param lineNumber
 	 *            the current line number, starts at 1 (the header, if header
-	 *            processing is enabled, the first lien otherwise)
+	 *            processing is enabled, the first line otherwise)
 	 * @param header
 	 *            the read-only header or null if {@link #setNoHeader(Boolean)}
 	 *            is true (default is false)
 	 * @param tokens
-	 *            the parse tokens
+	 *            the parsed tokens
 	 */
 	protected abstract void processLine(Integer lineNumber,
 			List<String> header, List<String> tokens);
@@ -55,6 +55,9 @@ public abstract class CsvParser {
 				StringBuffer currStr = new StringBuffer("");
 				Boolean wasInquote = false;
 				while (parseLine(headerStr, header, currStr, wasInquote)) {
+					headerStr = reader.readLine();
+					if (headerStr == null)
+						break;
 					wasInquote = true;
 				}
 				header = Collections.unmodifiableList(header);
@@ -124,7 +127,7 @@ public abstract class CsvParser {
 			if (c == separator) {
 				if (!inQuote) {
 					tokens.add(currStr.toString());
-					//System.out.println("# TOKEN: " + currStr);
+					// System.out.println("# TOKEN: " + currStr);
 					currStr.delete(0, currStr.length());
 				} else {
 					// we don't remove separator that are in a quoted substring
