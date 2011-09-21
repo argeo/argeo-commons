@@ -68,8 +68,11 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 		if (sessions != null)
 			for (String workspace : sessions.keySet()) {
 				Session session = sessions.get(workspace);
-				if (session.isLive())
+				if (session.isLive()) {
 					session.logout();
+					if (log.isDebugEnabled())
+						log.debug("Logged out JCR session " + session);
+				}
 			}
 	}
 }
