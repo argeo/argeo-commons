@@ -108,7 +108,7 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 	}
 
 	/** @return path to the user home node */
-	protected String mapLdapToJcr(String username, DirContextOperations ctx) {
+	protected synchronized String mapLdapToJcr(String username, DirContextOperations ctx) {
 		String usernameLdap = ctx.getStringAttribute(usernameAttribute);
 		// log.debug("username=" + username + ", usernameLdap=" + usernameLdap);
 		if (!username.equals(usernameLdap)) {
