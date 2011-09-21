@@ -7,7 +7,6 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.jcr.spring.ThreadBoundSession;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.userdetails.UserDetails;
 
 /**
  * Thread bounded JCR session factory which checks authentication and is
@@ -23,17 +22,29 @@ public class SecureThreadBoundSession extends ThreadBoundSession {
 				.getAuthentication();
 		if (authentication != null) {
 			String userID = session.getUserID();
-			UserDetails userDetails = (UserDetails) authentication.getDetails();
-			if (userDetails != null) {
-				String currentUserName = userDetails.getUsername();
+			String currentUserName = authentication.getName();
+			if (currentUserName != null) {
 				if (!userID.equals(currentUserName)) {
 					log.warn("Current session has user ID " + userID
 							+ " while logged is user is " + currentUserName
 							+ "(authentication=" + authentication + ")"
 							+ ". Re-login.");
+					// TODO throw an exception
 					return login();
 				}
 			}
+			// UserDetails userDetails = (UserDetails)
+			// authentication.getDetails();
+			// if (userDetails != null) {
+			// String currentUserName = userDetails.getUsername();
+			// if (!userID.equals(currentUserName)) {
+			// log.warn("Current session has user ID " + userID
+			// + " while logged is user is " + currentUserName
+			// + "(authentication=" + authentication + ")"
+			// + ". Re-login.");
+			// return login();
+			// }
+			// }
 		}
 		return super.preCall(session);
 	}
