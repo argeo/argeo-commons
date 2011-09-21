@@ -6,19 +6,27 @@
        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
 
 	<import resource="osgi.xml" />
-	<import resource="security.xml" />
+	<import resource="security-filters.xml" />
+
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="locations">
+			<value>osgibundle:jackrabbit-webapp.properties</value>
+		</property>
+	</bean>
 
 	<bean id="repositoryRegister" class="org.argeo.jcr.DefaultRepositoryRegister" />
 
 	<bean id="sessionProvider" scope="session" init-method="init"
 		destroy-method="dispose" class="org.argeo.jackrabbit.remote.SimpleSessionProvider">
 		<aop:scoped-proxy proxy-target-class="false" />
-<!-- 		<property name="credentials"> -->
-<!-- 			<bean class="javax.jcr.SimpleCredentials"> -->
-<!-- 				<constructor-arg value="root" /> -->
-<!-- 				<constructor-arg value="demo" /> -->
-<!-- 			</bean> -->
-<!-- 		</property> -->
+		<!-- <property name="credentials"> -->
+		<!-- <bean class="javax.jcr.SimpleCredentials"> -->
+		<!-- <constructor-arg value="root" /> -->
+		<!-- <constructor-arg value="demo" /> -->
+		<!-- </bean> -->
+		<!-- </property> -->
 	</bean>
 
 	<bean id="osivInterceptor" class="org.argeo.jcr.mvc.OpenSessionInViewJcrInterceptor">

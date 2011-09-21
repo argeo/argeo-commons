@@ -75,6 +75,11 @@
 		<url-pattern>/webdav/*</url-pattern>
 	</servlet-mapping>
 
+	<servlet-mapping>
+		<servlet-name>webdav</servlet-name>
+		<url-pattern>/public/webdav/*</url-pattern>
+	</servlet-mapping>
+
 	<!-- JCR-MANAGER servlet -->
 	<servlet>
 		<servlet-name>jcr-manager</servlet-name>
