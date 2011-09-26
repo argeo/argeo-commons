@@ -22,6 +22,10 @@ import org.eclipse.ui.handlers.HandlerUtil;
  * Deletes the selected nodes: both in the JCR repository and in the UI view.
  * Warning no check is done, except implementation dependent native checks,
  * handle with care.
+ * 
+ * This handler is still 'hard linked' to a GenericJcrBrowser view to enable
+ * correct tree refresh when a node is added. This must be corrected in future
+ * versions.
  */
 public class DeleteNodes extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {

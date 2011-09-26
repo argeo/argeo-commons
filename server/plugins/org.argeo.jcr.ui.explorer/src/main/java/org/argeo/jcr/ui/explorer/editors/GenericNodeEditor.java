@@ -2,8 +2,6 @@ package org.argeo.jcr.ui.explorer.editors;
 
 import javax.jcr.Node;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.ui.explorer.JcrExplorerPlugin;
@@ -21,8 +19,9 @@ import org.eclipse.ui.forms.editor.FormEditor;
  */
 public class GenericNodeEditor extends FormEditor {
 
-	private final static Log log = LogFactory.getLog(GenericNodeEditor.class);
-	public final static String ID = "org.argeo.jcr.ui.explorer.genericNodeEditor";
+	// private final static Log log =
+	// LogFactory.getLog(GenericNodeEditor.class);
+	public final static String ID = JcrExplorerPlugin.ID + ".genericNodeEditor";
 
 	private Node currentNode;
 

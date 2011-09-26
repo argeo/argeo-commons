@@ -1,7 +1,5 @@
 package org.argeo.jcr.ui.explorer.editors;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
@@ -15,7 +13,7 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
  * yet been set
  */
 public class EmptyNodePage extends FormPage {
-	private final static Log log = LogFactory.getLog(EmptyNodePage.class);
+	// private final static Log log = LogFactory.getLog(EmptyNodePage.class);
 
 	public EmptyNodePage(FormEditor editor, String title) {
 		super(editor, "Empty Page", title);

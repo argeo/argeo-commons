@@ -12,14 +12,11 @@ import javax.jcr.observation.Event;
 import javax.jcr.observation.EventListener;
 import javax.jcr.observation.ObservationManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.jcr.AsyncUiEventListener;
 import org.argeo.eclipse.ui.jcr.utils.NodeViewerComparer;
 import org.argeo.eclipse.ui.jcr.views.AbstractJcrBrowser;
-import org.argeo.eclipse.ui.specific.FileHandler;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.RepositoryRegister;
@@ -28,7 +25,6 @@ import org.argeo.jcr.ui.explorer.browser.NodeLabelProvider;
 import org.argeo.jcr.ui.explorer.browser.PropertiesContentProvider;
 import org.argeo.jcr.ui.explorer.model.SingleJcrNode;
 import org.argeo.jcr.ui.explorer.utils.GenericNodeDoubleClickListener;
-import org.argeo.jcr.ui.explorer.utils.JcrFileProvider;
 import org.argeo.jcr.ui.explorer.utils.JcrUiUtils;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -55,7 +51,8 @@ import org.eclipse.swt.widgets.Menu;
  */
 
 public class GenericJcrBrowser extends AbstractJcrBrowser {
-	private final static Log log = LogFactory.getLog(GenericJcrBrowser.class);
+	// private final static Log log =
+	// LogFactory.getLog(GenericJcrBrowser.class);
 
 	/* DEPENDENCY INJECTION */
 	private Session session;
@@ -68,8 +65,9 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 	private EventListener resultsObserver;
 
 	// Manage documents
-	private JcrFileProvider jcrFileProvider;
-	private FileHandler fileHandler;
+	// private JcrFileProvider jcrFileProvider;
+
+	// private FileHandler fileHandler;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -93,8 +91,8 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 		// both RCP & RAP
 		// Note that in RAP, it registers a service handler that provide the
 		// access to the files.
-		jcrFileProvider = new JcrFileProvider();
-		fileHandler = new FileHandler(jcrFileProvider);
+		// jcrFileProvider = new JcrFileProvider();
+		// fileHandler = new FileHandler(jcrFileProvider);
 
 		parent.setLayout(new FillLayout());
 		SashForm sashForm = new SashForm(parent, SWT.VERTICAL);
@@ -112,9 +110,10 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 		// nodes viewer
 		nodesViewer = createNodeViewer(top, nodeContentProvider);
 
-		// context menu
+		// context menu : it is completely defined in the plugin.xml file.
 		MenuManager menuManager = new MenuManager();
 		Menu menu = menuManager.createContextMenu(nodesViewer.getTree());
+
 		nodesViewer.getTree().setMenu(menu);
 		getSite().registerContextMenu(menuManager, nodesViewer);
 		getSite().setSelectionProvider(nodesViewer);
@@ -188,41 +187,6 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 	protected int[] getWeights() {
 		return new int[] { 70, 30 };
 	}
-
-	// @Override
-	// public void setFocus() {
-	// nodesViewer.getTree().setFocus();
-	// }
-	//
-	// /*
-	// * NOTIFICATION
-	// */
-	// public void refresh(Object obj) {
-	// nodesViewer.refresh(obj);
-	// }
-	//
-	// public void nodeAdded(Node parentNode, Node newNode) {
-	// nodesViewer.refresh(parentNode);
-	// nodesViewer.expandToLevel(newNode, 0);
-	// }
-	//
-	// public void nodeRemoved(Node parentNode) {
-	//
-	// IStructuredSelection newSel = new StructuredSelection(parentNode);
-	// nodesViewer.setSelection(newSel, true);
-	// // Force refresh
-	// IStructuredSelection tmpSel = (IStructuredSelection) nodesViewer
-	// .getSelection();
-	// nodesViewer.refresh(tmpSel.getFirstElement());
-	// }
-
-	// private JcrFileProvider getJcrFileProvider() {
-	// return jcrFileProvider;
-	// }
-	//
-	// private FileHandler getFileHandler() {
-	// return fileHandler;
-	// }
 
 	protected TreeViewer createNodeViewer(Composite parent,
 			final ITreeContentProvider nodeContentProvider) {

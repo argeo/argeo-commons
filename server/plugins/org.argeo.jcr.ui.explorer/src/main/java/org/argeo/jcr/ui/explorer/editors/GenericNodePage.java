@@ -13,8 +13,6 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.ui.explorer.JcrExplorerConstants;
@@ -24,7 +22,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.AbstractFormPart;
 import org.eclipse.ui.forms.IManagedForm;
@@ -39,7 +36,7 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
  */
 
 public class GenericNodePage extends FormPage implements JcrExplorerConstants {
-	private final static Log log = LogFactory.getLog(GenericNodePage.class);
+	// private final static Log log = LogFactory.getLog(GenericNodePage.class);
 
 	// local constants
 	private final static String JCR_PROPERTY_NAME = "jcr:name";
@@ -118,12 +115,12 @@ public class GenericNodePage extends FormPage implements JcrExplorerConstants {
 	private void addPropertyLine(Composite parent, AbstractFormPart part,
 			Property prop) {
 		try {
-			Label lbl = tk.createLabel(parent, prop.getName());
-			lbl = tk.createLabel(parent,
+			tk.createLabel(parent, prop.getName());
+			tk.createLabel(parent,
 					"[" + JcrUtils.getPropertyDefinitionAsString(prop) + "]");
 
 			if (prop.getDefinition().isProtected()) {
-				lbl = tk.createLabel(parent, formatReadOnlyPropertyValue(prop));
+				tk.createLabel(parent, formatReadOnlyPropertyValue(prop));
 			} else
 				addModifyableValueWidget(parent, part, prop);
 		} catch (RepositoryException re) {

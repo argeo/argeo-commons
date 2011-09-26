@@ -20,13 +20,11 @@ import org.argeo.jcr.RepositoryRegister;
  */
 
 public class RepositoriesNode extends TreeParent {
-	private final String name;
 	private final RepositoryRegister repositoryRegister;
 
 	public RepositoriesNode(String name, RepositoryRegister repositoryRegister,
 			TreeParent parent) {
 		super(name);
-		this.name = name;
 		this.repositoryRegister = repositoryRegister;
 	}
 
@@ -61,5 +59,4 @@ public class RepositoriesNode extends TreeParent {
 	public RepositoryRegister getRepositoryRegister() {
 		return repositoryRegister;
 	}
-
 }

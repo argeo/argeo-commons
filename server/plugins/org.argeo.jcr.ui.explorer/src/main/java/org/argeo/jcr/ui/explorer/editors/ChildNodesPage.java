@@ -2,8 +2,6 @@ package org.argeo.jcr.ui.explorer.editors;
 
 import javax.jcr.Node;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.ui.explorer.JcrExplorerPlugin;
 import org.argeo.jcr.ui.explorer.browser.NodeLabelProvider;
@@ -25,7 +23,7 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
  * accross the repository
  */
 public class ChildNodesPage extends FormPage {
-	private final static Log log = LogFactory.getLog(ChildNodesPage.class);
+	// private final static Log log = LogFactory.getLog(ChildNodesPage.class);
 
 	// business objects
 	private Node currentNode;

@@ -12,7 +12,6 @@ import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
 
 import org.argeo.ArgeoException;
-import org.argeo.jcr.ui.explorer.browser.ItemComparator;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
@@ -23,7 +22,7 @@ import org.eclipse.jface.viewers.Viewer;
  */
 public class FullVersioningTreeContentProvider implements ITreeContentProvider {
 	// private Node rootNode;
-	private ItemComparator itemComparator = new ItemComparator();
+	// private ItemComparator itemComparator = new ItemComparator();
 
 	/**
 	 * Sends back the first level of the Tree. input element must be a single
@@ -56,8 +55,6 @@ public class FullVersioningTreeContentProvider implements ITreeContentProvider {
 				List<Node> tmp = new ArrayList<Node>();
 				tmp.add(((Version) parentElement).getFrozenNode());
 				return tmp.toArray();
-				// Node node = ((Version) parentElement).getFrozenNode();
-				// return new Object[] { node };
 			}
 		} catch (RepositoryException re) {
 			throw new ArgeoException("Unexpected error while getting child "

@@ -1,7 +1,6 @@
 package org.argeo.jcr.ui.explorer.commands;
 
 import java.util.Hashtable;
-import java.util.Map;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryFactory;
@@ -13,8 +12,6 @@ import org.argeo.jcr.ui.explorer.JcrExplorerConstants;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.jface.dialogs.TitleAreaDialog;
-import org.eclipse.swt.widgets.Shell;
 import org.osgi.framework.BundleContext;
 
 /**

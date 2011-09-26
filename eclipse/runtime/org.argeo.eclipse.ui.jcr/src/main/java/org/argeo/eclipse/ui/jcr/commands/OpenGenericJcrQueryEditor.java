@@ -1,4 +1,4 @@
-package org.argeo.jcr.ui.explorer.commands;
+package org.argeo.eclipse.ui.jcr.commands;
 
 import org.argeo.eclipse.ui.jcr.editors.JcrQueryEditorInput;
 import org.eclipse.core.commands.AbstractHandler;

@@ -2,8 +2,6 @@ package org.argeo.jcr.ui.explorer.editors;
 
 import javax.jcr.Node;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
@@ -13,14 +11,16 @@ import org.eclipse.ui.forms.editor.FormPage;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 /**
- * This comments will be nicely fill by mbaudier in. 
+ * This comments will be nicely fill by mbaudier in.
  */
 public class NodeRightsManagementPage extends FormPage {
-	private final static Log log = LogFactory.getLog(NodeRightsManagementPage.class);
-
+	// private final static Log log =
+	// LogFactory.getLog(NodeRightsManagementPage.class);
 
 	private Node currentNode;
-	public NodeRightsManagementPage(FormEditor editor, String title, Node currentNode) {
+
+	public NodeRightsManagementPage(FormEditor editor, String title,
+			Node currentNode) {
 		super(editor, "NodeRightsManagementPage", title);
 		this.currentNode = currentNode;
 	}
@@ -32,7 +32,7 @@ public class NodeRightsManagementPage extends FormPage {
 			twt.marginWidth = twt.marginHeight = 0;
 			form.getBody().setLayout(twt);
 			Label lbl = new Label(form.getBody(), SWT.NONE);
-			lbl.setText("Implement this");
+			lbl.setText("Implement this for node " + currentNode.getPath());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -4,8 +4,6 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.specific.FileHandler;
 import org.argeo.jcr.ui.explorer.JcrExplorerPlugin;
@@ -17,7 +15,6 @@ import org.argeo.jcr.ui.explorer.model.WorkspaceNode;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.PartInitException;
 
@@ -26,8 +23,8 @@ import org.eclipse.ui.PartInitException;
  */
 public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 
-	private final static Log log = LogFactory
-			.getLog(GenericNodeDoubleClickListener.class);
+	// private final static Log log = LogFactory
+	// .getLog(GenericNodeDoubleClickListener.class);
 
 	private TreeViewer nodeViewer;
 	private JcrFileProvider jfp;
@@ -67,8 +64,9 @@ public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 					// various
 					// repository.
 					// TODO : enhanced that.
-					ITreeContentProvider itcp = (ITreeContentProvider) nodeViewer
-							.getContentProvider();
+					// ITreeContentProvider itcp = (ITreeContentProvider)
+					// nodeViewer
+					// .getContentProvider();
 					// jfp.setRootNodes((Object[]) itcp.getElements(null));
 					fileHandler.openFile(name, id);
 				}

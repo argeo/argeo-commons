@@ -18,8 +18,6 @@ import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.PropertyDiff;
@@ -53,8 +51,8 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
  * */
 public class NodeVersionHistoryPage extends FormPage implements
 		JcrExplorerConstants {
-	private final static Log log = LogFactory
-			.getLog(NodeVersionHistoryPage.class);
+	// private final static Log log = LogFactory
+	// .getLog(NodeVersionHistoryPage.class);
 
 	// Utils
 	protected DateFormat timeFormatter = new SimpleDateFormat(DATE_TIME_FORMAT);
@@ -189,9 +187,9 @@ public class NodeVersionHistoryPage extends FormPage implements
 
 				StringBuffer buf = new StringBuffer("");
 				Map<String, PropertyDiff> diffs = lst.get(i).getDiffs();
-				props: for (String prop : diffs.keySet()) {
+				for (String prop : diffs.keySet()) {
 					PropertyDiff pd = diffs.get(prop);
-					String propName = pd.getRelPath();
+					// String propName = pd.getRelPath();
 					Value refValue = pd.getReferenceValue();
 					Value newValue = pd.getNewValue();
 					String refValueStr = "";
@@ -282,7 +280,7 @@ public class NodeVersionHistoryPage extends FormPage implements
 										Property.JCR_CREATED).getDate();
 
 						} catch (Exception e) {
-							// Silent that info is optionnal
+							// Silent that info is optional
 						}
 						VersionDiff vd = new VersionDiff(lastUserName,
 								lastUpdate, diffs);

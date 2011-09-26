@@ -1,6 +1,7 @@
 package org.argeo.jcr.ui.explorer.editors;
 
 import org.argeo.eclipse.ui.jcr.editors.AbstractJcrQueryEditor;
+import org.argeo.jcr.ui.explorer.JcrExplorerPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -12,7 +13,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Enables end user to type and execute any JCR query. */
 public class GenericJcrQueryEditor extends AbstractJcrQueryEditor {
-	public final static String ID = "org.argeo.jcr.ui.explorer.genericJcrQueryEditor";
+	public final static String ID = JcrExplorerPlugin.ID + ".genericJcrQueryEditor";
 
 	private Text queryField;
 

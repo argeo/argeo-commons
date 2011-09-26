@@ -6,8 +6,6 @@ import java.util.List;
 import javax.jcr.Node;
 import javax.jcr.Session;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.JcrUtils;
@@ -23,7 +21,8 @@ import org.eclipse.jface.viewers.Viewer;
  * 
  */
 public class NodeContentProvider implements ITreeContentProvider {
-	private final static Log log = LogFactory.getLog(NodeContentProvider.class);
+	// private final static Log log =
+	// LogFactory.getLog(NodeContentProvider.class);
 
 	// Business Objects
 	private RepositoryRegister repositoryRegister;

@@ -4,6 +4,7 @@ Bundle-Name: JCR Explorer
 Bundle-SymbolicName: org.argeo.jcr.ui.explorer;singleton:=true
 Bundle-Version: 0.3.4.SNAPSHOT
 Bundle-Activator: org.argeo.jcr.ui.explorer.JcrExplorerPlugin
+Bundle-Localization: plugin
 Bundle-Vendor: Argeo
 Require-Bundle: org.eclipse.ui;resolution:=optional,
  org.eclipse.core.runtime;resolution:=optional,
