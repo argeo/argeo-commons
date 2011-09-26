@@ -225,8 +225,9 @@ public class JcrUtils implements ArgeoJcrConstants {
 	}
 
 	/**
-	 * @deprecated use {@link #mkdirs(Session, String, String, String, Boolean)}
-	 *             instead.
+	 * use {@link #mkdirs(Session, String, String, String, Boolean)} instead.
+	 * 
+	 * @deprecated
 	 */
 	@Deprecated
 	public static Node mkdirs(Session session, String path, String type,
