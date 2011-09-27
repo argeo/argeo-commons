@@ -9,7 +9,11 @@
   <extension id="osSpringLoginModule" name="Argeo Spring OS" point="org.eclipse.equinox.security.loginModule">
   <loginModule class="org.argeo.eclipse.spring.SpringExtensionFactory" description="Argeo Spring OS Login Module"/>
   </extension>
-
+  
+  <extension id="keyringLoginModule" name="Argeo Keyring" point="org.eclipse.equinox.security.loginModule">
+  <loginModule class="org.argeo.eclipse.spring.SpringExtensionFactory" description="Argeo Keyring Login Module"/>
+  </extension>
+  
   <!-- Java -->
   <extension id="unixLoginModule" name="UNIX" point="org.eclipse.equinox.security.loginModule">
   <loginModule class="com.sun.security.auth.module.UnixLoginModule" description="UNIX Login Module"/>

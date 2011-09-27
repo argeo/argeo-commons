@@ -13,4 +13,8 @@
 		scope="prototype">
 		<property name="authenticationManager" ref="authenticationManager" />
 	</bean>
+
+	<bean id="keyringLoginModule" class="org.argeo.security.equinox.KeyringLoginModule"
+		scope="prototype">
+	</bean>
 </beans>
