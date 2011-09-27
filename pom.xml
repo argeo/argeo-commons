@@ -31,6 +31,7 @@
 		<module>server</module>
 		<module>eclipse</module>
 		<module>security</module>
+		<module>demo</module>
 		<module>doc</module>
 		<module>sandbox</module>
 	</modules>

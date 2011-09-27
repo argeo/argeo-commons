@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Internationalization Demo
+Bundle-SymbolicName: org.argeo.demo.i18n;singleton:=true
+Bundle-Version: 0.3.4.SNAPSHOT
+Bundle-Activator: org.argeo.demo.i18n.I18nDemoPlugin
+Bundle-Localization: org.argeo.demo.i18n.messages
+Bundle-Vendor: Argeo
+Require-Bundle: org.eclipse.ui;resolution:=optional,
+ org.eclipse.core.runtime;resolution:=optional,
+ org.eclipse.rap.ui;resolution:=optional,
+ org.eclipse.rap.ui.workbench;resolution:=optional
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ActivationPolicy: lazy
+Import-Package: org.apache.commons.io,
+ org.apache.commons.logging,
+ org.argeo,
+ org.argeo.eclipse.spring,
+ org.argeo.eclipse.ui,
+ org.eclipse.ui.forms,
+ org.eclipse.ui.forms.editor,
+ org.eclipse.ui.forms.widgets

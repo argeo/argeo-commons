@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<!-- Perspectives -->
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.argeo.demo.i18n.I18nDemoPerspective"
+            icon="icons/i18n.gif"
+            id="org.argeo.demo.i18n.perspective"
+            name="Internationalization simple demo">
+      </perspective>
+   </extension>
+   <!-- Views --> 
+   <extension
+         point="org.eclipse.ui.views">
+	   <view
+          class="org.argeo.eclipse.spring.SpringExtensionFactory"
+          icon="icons/browser.gif"
+          id="org.argeo.demo.i18n.simpleTreeView"
+          name="Internationalized tree view">
+	   </view>
+   </extension>
+   <!-- Editors --> 
+   <extension
+           point="org.eclipse.ui.editors">
+	     <editor
+	          class="org.argeo.eclipse.spring.SpringExtensionFactory"
+              id="org.argeo.demo.i18n.simpleMultitabEditor"
+              name="Simple multitab editor"
+              icon="icons/i18n.gif"
+              default="false">
+        </editor>
+     </extension>
+   	<!-- Commands --> 
+   	<extension
+         point="org.eclipse.ui.commands">
+    	<command
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+			id="org.argeo.jcr.ui.explorer.openGenericNodeEditor"
+			name="Open generic node Editor">
+			<commandParameter
+				id="org.argeo.jcr.ui.explorer.nodePath"
+				name="Node path">
+  	 		</commandParameter>
+		</command>    
+    </extension>
+
+    <!-- Menus --> 
+	<extension point="org.eclipse.ui.menus">
+		<menuContribution
+			locationURI="popup:org.argeo.demo.i18n.simpleTreeView">
+		</menuContribution>
+	</extension>
+	
+	<!-- Core expression definition --> 
+	<extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="expression.onlyOneItemSelected">
+         <with
+               variable="activeMenuSelection">
+            <count
+                  value="1">
+            </count>
+         </with>
+      </definition>
+   </extension>
+
+	<!-- Activities -->	
+	<extension
+    	point="org.eclipse.ui.activities">
+		<activity
+			description="Only for admins"
+			id="org.argeo.jcr.ui.explorer.adminActivity"
+			name="Admin">
+			<enabledWhen>
+				<with variable="roles">
+					<iterate ifEmpty="false" operator="or">
+						<equals value="ROLE_ADMIN" />
+					</iterate>
+				</with>
+			</enabledWhen>
+		</activity>
+        <!-- TODO: find a way to exclude evrything -->
+        <activityPatternBinding
+              activityId="org.argeo.jcr.ui.explorer.adminActivity"
+              isEqualityPattern="true"
+              pattern="org.argeo.jcr.ui.explorer/org.argeo.jcr.ui.explorer.perspective">
+        </activityPatternBinding>
+	</extension>
+</plugin>
