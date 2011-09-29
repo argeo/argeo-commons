@@ -7,4 +7,14 @@
 
 	<bean id="repositoryRegister" class="org.argeo.jcr.DefaultRepositoryRegister">
 	</bean>
+
+	<bean id="nodeSession" class="org.argeo.security.jcr.SecureThreadBoundSession">
+		<property name="repository" ref="nodeRepository" />
+	</bean>
+
+	<bean id="jcrKeyring" class="org.argeo.jcr.security.JcrKeyring">
+		<property name="session" ref="nodeSession" />
+		<property name="defaultCallbackHandler" ref="defaultCallbackHandler" />
+	</bean>
+
 </beans>
