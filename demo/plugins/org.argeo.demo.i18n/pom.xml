@@ -21,19 +21,26 @@
 			<artifactId>org.argeo.eclipse.ui</artifactId>
 			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
-		
+
+		<!-- Eclipse - Only used at compile time. so that it is compatible with 
+			RCP runtime -->
+		<dependency>
+			<groupId>org.argeo.commons.eclipse</groupId>
+			<artifactId>org.argeo.eclipse.ui.rap</artifactId>
+			<version>${version.argeo-commons}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.eclipse</groupId>
+			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
+			<version>${version.argeo-commons}</version>
+			<scope>provided</scope>
+		</dependency>
+
 		<!-- RCP only dependency, needed at compile time -->
-		<dependency>
-			<groupId>org.argeo.commons.eclipse</groupId>
-			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.eclipse</groupId>
-			<artifactId>org.argeo.eclipse.ui.rcp</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
+		<!-- <dependency> <groupId>org.argeo.commons.eclipse</groupId> <artifactId>org.argeo.eclipse.dep.rcp</artifactId> 
+			<version>0.3.4-SNAPSHOT</version> <scope>provided</scope> </dependency> <dependency> 
+			<groupId>org.argeo.commons.eclipse</groupId> <artifactId>org.argeo.eclipse.ui.rcp</artifactId> 
+			<version>0.3.4-SNAPSHOT</version> <scope>provided</scope> </dependency> -->
 	</dependencies>
 </project>

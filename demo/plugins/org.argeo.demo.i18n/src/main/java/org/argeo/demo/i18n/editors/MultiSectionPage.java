@@ -2,7 +2,7 @@ package org.argeo.demo.i18n.editors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.demo.i18n.I18nDemoPlugin;
+import org.argeo.demo.i18n.I18nDemoMessages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -24,8 +24,7 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
  * enable browsing
  * */
 public class MultiSectionPage extends FormPage {
-	 private final static Log log = LogFactory
-	 .getLog(MultiSectionPage.class);
+	private final static Log log = LogFactory.getLog(MultiSectionPage.class);
 
 	// this page UI components
 	private FormToolkit tk;
@@ -42,16 +41,15 @@ public class MultiSectionPage extends FormPage {
 		Composite body = form.getBody();
 		body.setLayout(twt);
 
-
-				createHistorySection(form.getBody());
-				createTreeSection(form.getBody());
+		createHistorySection(form.getBody());
+		createTreeSection(form.getBody());
 	}
 
 	protected void createTreeSection(Composite parent) {
 		// Section Layout & MetaData
 		Section section = tk.createSection(parent, Section.TWISTIE);
 		section.setLayoutData(new GridData(GridData.FILL_BOTH));
-		section.setText(I18nDemoPlugin.getMessage("MultiSelectionPage.DescriptionSectionTitle"));
+		section.setText(I18nDemoMessages.get().MultiSelectionPage_DescriptionSectionTitle);
 
 		// Section Body
 		Composite body = tk.createComposite(section, SWT.FILL);
@@ -64,7 +62,6 @@ public class MultiSectionPage extends FormPage {
 		section.setExpanded(true);
 	}
 
-
 	protected void createHistorySection(Composite parent) {
 
 		// Section Layout
@@ -74,8 +71,7 @@ public class MultiSectionPage extends FormPage {
 		section.setLayout(twt);
 
 		// Set title of the section
-		section.setText(I18nDemoPlugin
-				.getMessage("MultiSelectionPage.DetailsSectionTitle"));
+		section.setText(I18nDemoMessages.get().MultiSelectionPage_DetailsSectionTitle);
 
 		final Text styledText = tk.createText(section, "", SWT.FULL_SELECTION
 				| SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);

@@ -8,7 +8,7 @@
             class="org.argeo.demo.i18n.I18nDemoPerspective"
             icon="icons/i18n.gif"
             id="org.argeo.demo.i18n.perspective"
-            name="Internationalization simple demo">
+            name="%I18nDemoPerspective_name">
       </perspective>
    </extension>
    <!-- Views --> 
@@ -18,7 +18,7 @@
           class="org.argeo.eclipse.spring.SpringExtensionFactory"
           icon="icons/browser.gif"
           id="org.argeo.demo.i18n.simpleTreeView"
-          name="Internationalized tree view">
+          name="%SimpleTreeView_name">
 	   </view>
    </extension>
    <!-- Editors --> 
@@ -27,7 +27,7 @@
 	     <editor
 	          class="org.argeo.eclipse.spring.SpringExtensionFactory"
               id="org.argeo.demo.i18n.simpleMultitabEditor"
-              name="Simple multitab editor"
+              name="%SimpleMultitabEditor_name"
               icon="icons/i18n.gif"
               default="false">
         </editor>
@@ -66,7 +66,15 @@
          </with>
       </definition>
    </extension>
-
+	<!-- Preferences --> 
+	<extension
+    	point="org.eclipse.ui.preferencePages">
+		<page 
+			class="org.argeo.demo.i18n.preferences.LocaleSettingsPage"
+			id="org.argeo.demo.i18n.localeSettingsPage"
+			name="%LocaleSettingsPage_Title">
+		</page>
+	</extension>
 	<!-- Activities -->	
 	<extension
     	point="org.eclipse.ui.activities">
@@ -82,7 +90,7 @@
 				</with>
 			</enabledWhen>
 		</activity>
-        <!-- TODO: find a way to exclude evrything -->
+        <!-- TODO: find a way to exclude everything -->
         <activityPatternBinding
               activityId="org.argeo.jcr.ui.explorer.adminActivity"
               isEqualityPattern="true"

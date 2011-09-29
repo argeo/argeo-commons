@@ -25,6 +25,8 @@ public class I18nDemoPlugin extends AbstractUIPlugin {
 	 * The constructor
 	 */
 	public I18nDemoPlugin() {
+		// Locale currentLocale = new Locale("fr");
+		// Locale.setDefault(currentLocale);
 	}
 
 	/*
@@ -37,7 +39,8 @@ public class I18nDemoPlugin extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
-		messages = ResourceBundle.getBundle("org.argeo.demo.i18n.messages");
+		messages = ResourceBundle.getBundle(ID + ".messages");
+		// messages = ResourceBundle.getBundle(ID + ".messages", currentLocale);
 	}
 
 	/*

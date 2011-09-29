@@ -1,0 +1,29 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.argeo.commons.demo</groupId>
+		<version>0.3.4-SNAPSHOT</version>
+		<artifactId>plugins</artifactId>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>org.argeo.demo.i18n.rap</artifactId>
+	<name>Commons Internationalization Demo RAP</name>
+	<dependencies>
+		<dependency>
+			<groupId>org.argeo.commons.demo</groupId>
+			<artifactId>org.argeo.demo.i18n</artifactId>
+			<version>0.3.4-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.eclipse</groupId>
+			<artifactId>org.argeo.eclipse.ui.rap</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.eclipse</groupId>
+			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+	</dependencies>
+</project>

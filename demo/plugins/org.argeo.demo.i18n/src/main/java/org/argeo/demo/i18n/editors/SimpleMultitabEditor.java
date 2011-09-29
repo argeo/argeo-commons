@@ -3,6 +3,7 @@ package org.argeo.demo.i18n.editors;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
+import org.argeo.demo.i18n.I18nDemoMessages;
 import org.argeo.demo.i18n.I18nDemoPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IEditorInput;
@@ -28,21 +29,19 @@ public class SimpleMultitabEditor extends FormEditor {
 	public void init(IEditorSite site, IEditorInput input)
 			throws PartInitException {
 		super.init(site, input);
-		this.setPartName("Internationalize editor part name");
+		// this.setPartName("Internationalized editor part name");
 	}
 
 	@Override
 	protected void addPages() {
 		try {
 			simplePage = new SimplePage(this,
-					I18nDemoPlugin
-							.getMessage("SimpleMultitabEditor.SimplePageTitle"));
+					I18nDemoMessages.get().SimpleMultitabEditor_SimplePageTitle);
 			addPage(simplePage);
 
 			multiSectionPage = new MultiSectionPage(
 					this,
-					I18nDemoPlugin
-							.getMessage("SimpleMultitabEditor.MultiSectionPageTitle"));
+					I18nDemoMessages.get().SimpleMultitabEditor_MultiSectionPageTitle);
 			addPage(multiSectionPage);
 
 		} catch (PartInitException e) {

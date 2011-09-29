@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Fragment-Host: org.argeo.demo.i18n
+Bundle-Version: 0.3.4.SNAPSHOT
+Bundle-SymbolicName: org.argeo.demo.i18n.rap
+Bundle-Vendor: Argeo
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: org.eclipse.rap.ui;resolution:=optional,
+ org.eclipse.rap.ui.workbench;resolution:=optional
+Import-Package: org.apache.commons.io,
+ org.apache.commons.logging,
+ org.argeo,
+ org.argeo.eclipse.spring,
+ org.argeo.eclipse.ui,
+ org.argeo.demo.i18n
+Export-Package: org.argeo.demo.i18n.specific;uses:="org.eclipse.rwt"
+
