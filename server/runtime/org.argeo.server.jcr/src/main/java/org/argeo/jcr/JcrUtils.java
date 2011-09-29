@@ -16,6 +16,9 @@
 
 package org.argeo.jcr;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
@@ -52,6 +55,7 @@ import javax.jcr.query.qom.QueryObjectModelFactory;
 import javax.jcr.query.qom.Selector;
 import javax.jcr.query.qom.StaticOperand;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
@@ -660,6 +664,43 @@ public class JcrUtils implements ArgeoJcrConstants {
 		binary.dispose();
 	}
 
+	/** Retrieve a {@link Binary} as a byte array */
+	public static byte[] getBinaryAsBytes(Property property) {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		InputStream in = null;
+		Binary binary = null;
+		try {
+			binary = property.getBinary();
+			in = binary.getStream();
+			IOUtils.copy(in, out);
+			return out.toByteArray();
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot read binary " + property
+					+ " as bytes", e);
+		} finally {
+			IOUtils.closeQuietly(out);
+			IOUtils.closeQuietly(in);
+			closeQuietly(binary);
+		}
+	}
+
+	/** Writes a {@link Binary} from a byte array */
+	public static void setBinaryAsBytes(Node node, String property, byte[] bytes) {
+		InputStream in = null;
+		Binary binary = null;
+		try {
+			in = new ByteArrayInputStream(bytes);
+			binary = node.getSession().getValueFactory().createBinary(in);
+			node.setProperty(property, binary);
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot read binary " + property
+					+ " as bytes", e);
+		} finally {
+			IOUtils.closeQuietly(in);
+			closeQuietly(binary);
+		}
+	}
+
 	/**
 	 * Creates depth from a string (typically a username) by adding levels based
 	 * on its first characters: "aBcD",2 => a/aB
@@ -995,6 +1036,7 @@ public class JcrUtils implements ArgeoJcrConstants {
 			NodeIterator ni = node.getNodes();
 			while (ni.hasNext())
 				curNodeSize += getNodeApproxSize(ni.nextNode());
+			log.debug(node + ": " + curNodeSize);
 			return curNodeSize;
 		} catch (RepositoryException re) {
 			throw new ArgeoException(

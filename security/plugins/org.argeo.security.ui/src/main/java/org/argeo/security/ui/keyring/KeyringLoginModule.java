@@ -1,5 +1,6 @@
-package org.argeo.security.equinox;
+package org.argeo.security.ui.keyring;
 
+import java.security.AccessController;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,6 +22,9 @@ public class KeyringLoginModule implements LoginModule {
 	public void initialize(Subject subject, CallbackHandler callbackHandler,
 			Map<String, ?> sharedState, Map<String, ?> options) {
 		this.subject = subject;
+		if (subject == null) {
+			subject = Subject.getSubject(AccessController.getContext());
+		}
 		this.callbackHandler = callbackHandler;
 	}
 

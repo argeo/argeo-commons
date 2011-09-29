@@ -12,10 +12,17 @@ mixin
 mixin
 - argeo:userID (STRING) m
 + argeo:profile (argeo:userProfile)
++ argeo:keyring (argeo:pbeSpec)
++ argeo:preferences (nt:unstructured)
 
 [argeo:userProfile] > mix:created, mix:lastModified, mix:title, mix:versionable
 mixin
 - argeo:userID (STRING) m
+
+[argeo:remoteRepository] > nt:unstructured
+- argeo:uri (STRING)
+- argeo:userID (STRING)
++ argeo:password (argeo:encrypted)
 
 // TABULAR CONTENT
 [argeo:table] > nt:file
@@ -25,3 +32,22 @@ mixin
 - jcr:requiredType (STRING) = 'STRING'
 
 [argeo:csv] > nt:resource
+
+// CRYPTO
+[argeo:encrypted] > nt:base
+mixin
+// initialization vector used by some algorithms
+- argeo:iv (BINARY)
+
+[argeo:pbeKeySpec] > nt:base
+mixin
+- argeo:secretKeyFactory (STRING)
+- argeo:salt (BINARY)
+- argeo:iterationCount (LONG)
+- argeo:keyLength (LONG)
+- argeo:secretKeyEncryption (STRING)
+
+[argeo:pbeSpec] > argeo:pbeKeySpec
+mixin
+- argeo:cipher (STRING)
+

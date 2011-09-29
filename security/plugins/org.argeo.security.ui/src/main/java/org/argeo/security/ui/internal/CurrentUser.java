@@ -12,6 +12,10 @@ import org.argeo.ArgeoException;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 
+/**
+ * Retrieves information about the current user. Not an API, can change without
+ * notice.
+ */
 public class CurrentUser {
 	public final static String getUsername() {
 		Subject subject = getSubject();
@@ -38,11 +42,9 @@ public class CurrentUser {
 	}
 
 	public final static Subject getSubject() {
-
 		Subject subject = Subject.getSubject(AccessController.getContext());
 		if (subject == null)
 			throw new ArgeoException("Not authenticated.");
 		return subject;
-
 	}
 }

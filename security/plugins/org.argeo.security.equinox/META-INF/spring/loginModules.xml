@@ -14,7 +14,7 @@
 		<property name="authenticationManager" ref="authenticationManager" />
 	</bean>
 
-	<bean id="keyringLoginModule" class="org.argeo.security.equinox.KeyringLoginModule"
+	<bean id="keyringLoginModule" class="org.argeo.crypto.KeyringLoginModule"
 		scope="prototype">
 	</bean>
 </beans>

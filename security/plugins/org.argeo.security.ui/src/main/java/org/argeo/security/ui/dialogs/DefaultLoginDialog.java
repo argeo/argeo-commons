@@ -33,13 +33,20 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 		return new Point(300, 180);
 	}
 
+	@Override
+	protected Control createContents(Composite parent) {
+		Control control = super.createContents(parent);
+		parent.pack();
+		return control;
+	}
+
 	protected Control createDialogArea(Composite parent) {
 		Composite dialogarea = (Composite) super.createDialogArea(parent);
 		Composite composite = new Composite(dialogarea, SWT.NONE);
 		composite.setLayout(new GridLayout(2, false));
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		createCallbackHandlers(composite);
-		parent.pack();
+		// parent.pack();
 		return composite;
 	}
 
@@ -48,7 +55,7 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 		for (int i = 0; i < callbacks.length; i++) {
 			Callback callback = callbacks[i];
 			if (callback instanceof TextOutputCallback) {
-				createTextoutputHandler(composite,
+				createLabelTextoutputHandler(composite,
 						(TextOutputCallback) callback);
 			} else if (callback instanceof NameCallback) {
 				createNameHandler(composite, (NameCallback) callback);
@@ -69,6 +76,7 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 		passwordText.addModifyListener(new ModifyListener() {
 
 			public void modifyText(ModifyEvent event) {
+				// FIXME use getTextChars() in Eclipse 3.7
 				callback.setPassword(passwordText.getText().toCharArray());
 			}
 		});
@@ -89,8 +97,13 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 		});
 	}
 
-	private void createTextoutputHandler(Composite composite,
-			TextOutputCallback callback) {
+	private void createLabelTextoutputHandler(Composite composite,
+			final TextOutputCallback callback) {
+		Label label = new Label(composite, SWT.NONE);
+		label.setText(callback.getMessage());
+		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
+		data.horizontalSpan = 2;
+		label.setLayoutData(data);
 		// TODO: find a way to pass this information
 		// int messageType = callback.getMessageType();
 		// int dialogMessageType = IMessageProvider.NONE;
