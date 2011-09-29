@@ -41,15 +41,20 @@ public class PasswordBasedEncryption {
 	private final Cipher dcipher;
 
 	public PasswordBasedEncryption(char[] password) {
+		this(password, DEFAULT_SALT_8, DEFAULT_IV_16);
+	}
+
+	public PasswordBasedEncryption(char[] password, byte[] passwordSalt,
+			byte[] initializationVector) {
 		try {
 			byte[] salt = new byte[8];
-			System.arraycopy(DEFAULT_SALT_8, 0, salt, 0, salt.length);
-			for (int i = 0; i < password.length && i < salt.length; i++)
-				salt[i] = (byte) password[i];
+			System.arraycopy(passwordSalt, 0, salt, 0, salt.length);
+			// for (int i = 0; i < password.length && i < salt.length; i++)
+			// salt[i] = (byte) password[i];
 			byte[] iv = new byte[16];
-			System.arraycopy(DEFAULT_IV_16, 0, iv, 0, iv.length);
-			for (int i = 0; i < password.length && i < iv.length; i++)
-				iv[i] = (byte) password[i];
+			System.arraycopy(initializationVector, 0, iv, 0, iv.length);
+			// for (int i = 0; i < password.length && i < iv.length; i++)
+			// iv[i] = (byte) password[i];
 
 			SecretKeyFactory keyFac = SecretKeyFactory
 					.getInstance(getSecretKeyFactoryName());
