@@ -13,8 +13,4 @@
 		scope="prototype">
 		<property name="authenticationManager" ref="authenticationManager" />
 	</bean>
-
-	<bean id="keyringLoginModule" class="org.argeo.crypto.KeyringLoginModule"
-		scope="prototype">
-	</bean>
 </beans>

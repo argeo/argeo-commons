@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
@@ -28,23 +29,10 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<version>${version.maven-bundle-plugin}</version>
 				<configuration>
-<!--					<instructions>-->
-<!--						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>-->
-<!--						<Bundle-Activator>org.argeo.security.equinox.EquinoxSecurity</Bundle-Activator>-->
-<!--						<Import-Package>-->
-<!--							org.osgi.framework;version="0.0.0",-->
-<!--							!org.eclipse.equinox.security.auth,-->
-<!--							org.springframework.core,-->
-<!--							org.argeo.eclipse.spring,-->
-<!--							*-->
-<!--						</Import-Package>-->
-<!--						<Require-Bundle>org.eclipse.equinox.security</Require-Bundle>-->
-<!--					</instructions>-->
 					<instructions>
 						<Import-Package>*,
 							org.springframework.core,
-							org.argeo.eclipse.spring,
-							org.argeo.util.crypto
+							org.argeo.eclipse.spring
 						</Import-Package>
 					</instructions>
 				</configuration>
