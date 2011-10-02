@@ -171,6 +171,6 @@ public abstract class AbstractLoginDialog extends TrayDialog implements
 
 	protected void configureShell(Shell shell) {
 		super.configureShell(shell);
-		shell.setText("Autentication");
+		shell.setText("Authentication");
 	}
 }
