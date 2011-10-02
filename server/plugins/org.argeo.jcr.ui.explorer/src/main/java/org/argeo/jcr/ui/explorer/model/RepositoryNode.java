@@ -6,8 +6,6 @@ import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.TreeParent;
-import org.argeo.eclipse.ui.jcr.JcrUiPlugin;
-import org.eclipse.swt.graphics.Image;
 
 /**
  * UI Tree component. Wraps a JCR {@link Repository}. It also keeps a reference
@@ -19,11 +17,6 @@ public class RepositoryNode extends TreeParent implements UiNode {
 	private String alias;
 	private final Repository repository;
 	private Session defaultSession = null;
-	public final static Image REPOSITORY_DISCONNECTED = JcrUiPlugin
-			.getImageDescriptor("icons/repository_disconnected.gif")
-			.createImage();
-	public final static Image REPOSITORY_CONNECTED = JcrUiPlugin
-			.getImageDescriptor("icons/repository_connected.gif").createImage();
 
 	/** Create a new repository with alias = name */
 	public RepositoryNode(String alias, Repository repository, TreeParent parent) {
@@ -44,7 +37,7 @@ public class RepositoryNode extends TreeParent implements UiNode {
 			// SimpleCredentials sc = new SimpleCredentials("root",
 			// "demo".toCharArray());
 			// defaultSession = repository.login(sc);
-			defaultSession = repository.login();
+			defaultSession = repositoryLogin(null);
 			String[] wkpNames = defaultSession.getWorkspace()
 					.getAccessibleWorkspaceNames();
 			for (String wkpName : wkpNames) {
@@ -56,6 +49,12 @@ public class RepositoryNode extends TreeParent implements UiNode {
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot connect to repository " + alias, e);
 		}
+	}
+
+	/** Actual call to the {@link Repository#login(javax.jcr.Credentials, String)} method. To be overridden.*/
+	protected Session repositoryLogin(String workspaceName)
+			throws RepositoryException {
+		return repository.login(workspaceName);
 	}
 
 	public Session getDefaultSession() {

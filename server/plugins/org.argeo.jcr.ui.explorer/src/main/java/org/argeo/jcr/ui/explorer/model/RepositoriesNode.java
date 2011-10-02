@@ -1,12 +1,23 @@
 package org.argeo.jcr.ui.explorer.model;
 
+import java.util.Hashtable;
 import java.util.Map;
 
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
+import javax.jcr.Session;
 
+import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.eclipse.ui.TreeParent;
+import org.argeo.jcr.ArgeoJcrConstants;
+import org.argeo.jcr.ArgeoNames;
+import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.RepositoryRegister;
+import org.argeo.jcr.security.JcrKeyring;
 
 /**
  * UI Tree component. Implements the Argeo abstraction of a
@@ -19,17 +30,20 @@ import org.argeo.jcr.RepositoryRegister;
  * kept here.
  */
 
-public class RepositoriesNode extends TreeParent {
+public class RepositoriesNode extends TreeParent implements ArgeoNames {
 	private final RepositoryRegister repositoryRegister;
 
+	private final JcrKeyring jcrKeyring;
+
 	public RepositoriesNode(String name, RepositoryRegister repositoryRegister,
-			TreeParent parent) {
+			TreeParent parent, JcrKeyring jcrKeyring) {
 		super(name);
 		this.repositoryRegister = repositoryRegister;
+		this.jcrKeyring = jcrKeyring;
 	}
 
 	/**
-	 * Override normal behaviour to initialize the various repositories only at
+	 * Override normal behavior to initialize the various repositories only at
 	 * request time
 	 */
 	@Override
@@ -44,7 +58,45 @@ public class RepositoriesNode extends TreeParent {
 				super.addChild(new RepositoryNode(name, refRepos.get(name),
 						this));
 			}
+
+			// remote
+			if (jcrKeyring != null) {
+				try {
+					addRemoteRepositories(jcrKeyring);
+				} catch (RepositoryException e) {
+					throw new ArgeoException(
+							"Cannot browse remote repositories", e);
+				}
+			}
 			return super.getChildren();
+		}
+	}
+
+	protected void addRemoteRepositories(JcrKeyring jcrKeyring)
+			throws RepositoryException {
+		Session userSession = jcrKeyring.getSession();
+		Node userHome = JcrUtils.getUserHome(userSession);
+		if (userHome.hasNode(ARGEO_REMOTE)) {
+			NodeIterator it = userHome.getNode(ARGEO_REMOTE).getNodes();
+			while (it.hasNext()) {
+				Node remoteNode = it.nextNode();
+				String uri = remoteNode.getProperty(ARGEO_URI).getString();
+				try {
+					Hashtable<String, String> params = new Hashtable<String, String>();
+					params.put(ArgeoJcrConstants.JCR_REPOSITORY_URI, uri);
+					params.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS,
+							remoteNode.getName());
+					Repository repository = repositoryRegister
+							.getRepository(params);
+					RemoteRepositoryNode remoteRepositoryNode = new RemoteRepositoryNode(
+							remoteNode.getName(), repository, this, jcrKeyring,
+							remoteNode.getPath());
+					super.addChild(remoteRepositoryNode);
+				} catch (Exception e) {
+					ErrorFeedback.show("Cannot add remote repository "
+							+ remoteNode, e);
+				}
+			}
 		}
 	}
 

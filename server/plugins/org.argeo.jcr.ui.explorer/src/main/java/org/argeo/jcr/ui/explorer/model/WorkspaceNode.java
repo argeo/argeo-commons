@@ -10,8 +10,6 @@ import javax.jcr.observation.EventListener;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.TreeParent;
-import org.argeo.eclipse.ui.jcr.JcrUiPlugin;
-import org.eclipse.swt.graphics.Image;
 
 /**
  * UI Tree component. Wraps the root node of a JCR {@link Workspace}. It also
@@ -21,12 +19,6 @@ import org.eclipse.swt.graphics.Image;
 
 public class WorkspaceNode extends TreeParent implements EventListener, UiNode {
 	private Session session = null;
-
-	public final static Image WORKSPACE_DISCONNECTED = JcrUiPlugin
-			.getImageDescriptor("icons/workspace_disconnected.png")
-			.createImage();
-	public final static Image WORKSPACE_CONNECTED = JcrUiPlugin
-			.getImageDescriptor("icons/workspace_connected.png").createImage();
 
 	public WorkspaceNode(RepositoryNode parent, String name) {
 		this(parent, name, null);
@@ -59,8 +51,7 @@ public class WorkspaceNode extends TreeParent implements EventListener, UiNode {
 	public void login() {
 		try {
 			logout();
-			session = ((RepositoryNode) getParent()).getRepository().login(
-					getName());
+			session = ((RepositoryNode) getParent()).repositoryLogin(getName());
 			processNewSession(session);
 
 		} catch (RepositoryException e) {

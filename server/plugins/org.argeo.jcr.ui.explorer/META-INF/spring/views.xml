@@ -7,6 +7,7 @@
 	<!-- Views -->
 	<bean id="browserView" class="org.argeo.jcr.ui.explorer.views.GenericJcrBrowser"
 		scope="prototype">
+		<property name="jcrKeyring" ref="jcrKeyring" />
 		<property name="repositoryRegister" ref="repositoryRegister" />
 	</bean>
 </beans>

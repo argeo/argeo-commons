@@ -6,7 +6,8 @@ import javax.jcr.nodetype.NodeType;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.jcr.DefaultNodeLabelProvider;
-import org.argeo.eclipse.ui.jcr.JcrUiPlugin;
+import org.argeo.eclipse.ui.jcr.JcrImages;
+import org.argeo.jcr.ui.explorer.model.RemoteRepositoryNode;
 import org.argeo.jcr.ui.explorer.model.RepositoriesNode;
 import org.argeo.jcr.ui.explorer.model.RepositoryNode;
 import org.argeo.jcr.ui.explorer.model.SingleJcrNode;
@@ -15,8 +16,6 @@ import org.eclipse.swt.graphics.Image;
 
 public class NodeLabelProvider extends DefaultNodeLabelProvider {
 	// Images
-	public final static Image REPOSITORIES = JcrUiPlugin.getImageDescriptor(
-			"icons/repositories.gif").createImage();
 
 	public String getText(Object element) {
 		try {
@@ -43,18 +42,23 @@ public class NodeLabelProvider extends DefaultNodeLabelProvider {
 
 	@Override
 	public Image getImage(Object element) {
-		if (element instanceof RepositoryNode) {
-			if (((RepositoryNode) element).getDefaultSession() == null)
-				return RepositoryNode.REPOSITORY_DISCONNECTED;
+		if (element instanceof RemoteRepositoryNode) {
+			if (((RemoteRepositoryNode) element).getDefaultSession() == null)
+				return JcrImages.REMOTE_DISCONNECTED;
 			else
-				return RepositoryNode.REPOSITORY_CONNECTED;
+				return JcrImages.REMOTE_CONNECTED;
+		} else if (element instanceof RepositoryNode) {
+			if (((RepositoryNode) element).getDefaultSession() == null)
+				return JcrImages.REPOSITORY_DISCONNECTED;
+			else
+				return JcrImages.REPOSITORY_CONNECTED;
 		} else if (element instanceof WorkspaceNode) {
 			if (((WorkspaceNode) element).getSession() == null)
-				return WorkspaceNode.WORKSPACE_DISCONNECTED;
+				return JcrImages.WORKSPACE_DISCONNECTED;
 			else
-				return WorkspaceNode.WORKSPACE_CONNECTED;
+				return JcrImages.WORKSPACE_CONNECTED;
 		} else if (element instanceof RepositoriesNode) {
-			return REPOSITORIES;
+			return JcrImages.REPOSITORIES;
 		} else if (element instanceof SingleJcrNode)
 			try {
 				return super.getImage(((SingleJcrNode) element).getNode());

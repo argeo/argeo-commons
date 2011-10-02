@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.jcr.Property;
 import javax.jcr.PropertyType;
-import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.observation.Event;
@@ -17,9 +16,8 @@ import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.jcr.AsyncUiEventListener;
 import org.argeo.eclipse.ui.jcr.utils.NodeViewerComparer;
 import org.argeo.eclipse.ui.jcr.views.AbstractJcrBrowser;
-import org.argeo.jcr.ArgeoJcrConstants;
-import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.RepositoryRegister;
+import org.argeo.jcr.security.JcrKeyring;
 import org.argeo.jcr.ui.explorer.browser.NodeContentProvider;
 import org.argeo.jcr.ui.explorer.browser.NodeLabelProvider;
 import org.argeo.jcr.ui.explorer.browser.PropertiesContentProvider;
@@ -55,7 +53,7 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 	// LogFactory.getLog(GenericJcrBrowser.class);
 
 	/* DEPENDENCY INJECTION */
-	private Session session;
+	private JcrKeyring jcrKeyring;
 	private RepositoryRegister repositoryRegister;
 
 	// This page widgets
@@ -73,19 +71,20 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 	public void createPartControl(Composite parent) {
 
 		// look for session
-		Session nodeSession = session;
-		if (nodeSession == null) {
-			Repository nodeRepository = JcrUtils.getRepositoryByAlias(
-					repositoryRegister, ArgeoJcrConstants.ALIAS_NODE);
-			if (nodeRepository != null)
-				try {
-					nodeSession = nodeRepository.login();
-					// TODO : enhance that to enable multirepository listener.
-					session = nodeSession;
-				} catch (RepositoryException e1) {
-					throw new ArgeoException("Cannot login to node repository");
-				}
-		}
+		Session nodeSession = jcrKeyring != null ? jcrKeyring.getSession()
+				: null;
+		// if (nodeSession == null) {
+		// Repository nodeRepository = JcrUtils.getRepositoryByAlias(
+		// repositoryRegister, ArgeoJcrConstants.ALIAS_NODE);
+		// if (nodeRepository != null)
+		// try {
+		// nodeSession = nodeRepository.login();
+		// // TODO : enhance that to enable multirepository listener.
+		// session = nodeSession;
+		// } catch (RepositoryException e1) {
+		// throw new ArgeoException("Cannot login to node repository");
+		// }
+		// }
 
 		// Instantiate the generic object that fits for
 		// both RCP & RAP
@@ -104,7 +103,7 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 		GridLayout gl = new GridLayout(1, false);
 		top.setLayout(gl);
 
-		nodeContentProvider = new NodeContentProvider(nodeSession,
+		nodeContentProvider = new NodeContentProvider(jcrKeyring,
 				repositoryRegister);
 
 		// nodes viewer
@@ -216,15 +215,16 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 				});
 
 		resultsObserver = new TreeObserver(tmpNodeViewer.getTree().getDisplay());
-		try {
-			ObservationManager observationManager = session.getWorkspace()
-					.getObservationManager();
-			observationManager.addEventListener(resultsObserver,
-					Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED, "/", true,
-					null, null, false);
-		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot register listeners", e);
-		}
+		if (jcrKeyring != null)
+			try {
+				ObservationManager observationManager = jcrKeyring.getSession()
+						.getWorkspace().getObservationManager();
+				observationManager.addEventListener(resultsObserver,
+						Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED, "/",
+						true, null, null, false);
+			} catch (RepositoryException e) {
+				throw new ArgeoException("Cannot register listeners", e);
+			}
 
 		tmpNodeViewer
 				.addDoubleClickListener(new GenericNodeDoubleClickListener(
@@ -290,8 +290,8 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 		this.repositoryRegister = repositoryRegister;
 	}
 
-	public void setSession(Session session) {
-		this.session = session;
+	public void setJcrKeyring(JcrKeyring jcrKeyring) {
+		this.jcrKeyring = jcrKeyring;
 	}
 
 }

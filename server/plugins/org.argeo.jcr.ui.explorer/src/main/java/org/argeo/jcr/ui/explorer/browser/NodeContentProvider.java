@@ -10,6 +10,7 @@ import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.RepositoryRegister;
+import org.argeo.jcr.security.JcrKeyring;
 import org.argeo.jcr.ui.explorer.model.RepositoriesNode;
 import org.argeo.jcr.ui.explorer.model.SingleJcrNode;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -27,13 +28,15 @@ public class NodeContentProvider implements ITreeContentProvider {
 	// Business Objects
 	private RepositoryRegister repositoryRegister;
 	private Session userSession;
+	private JcrKeyring jcrKeyring;
 
 	// Utils
 	// private ItemComparator itemComparator = new ItemComparator();
 
-	public NodeContentProvider(Session userSession,
+	public NodeContentProvider(JcrKeyring jcrKeyring,
 			RepositoryRegister repositoryRegister) {
-		this.userSession = userSession;
+		this.userSession = jcrKeyring != null ? jcrKeyring.getSession() : null;
+		this.jcrKeyring = jcrKeyring;
 		this.repositoryRegister = repositoryRegister;
 	}
 
@@ -52,7 +55,7 @@ public class NodeContentProvider implements ITreeContentProvider {
 		}
 		if (repositoryRegister != null)
 			objs.add(new RepositoriesNode("Repositories", repositoryRegister,
-					null));
+					null, jcrKeyring));
 		return objs.toArray();
 	}
 

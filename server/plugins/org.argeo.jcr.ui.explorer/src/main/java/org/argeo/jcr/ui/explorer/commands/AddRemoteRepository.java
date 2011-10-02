@@ -9,6 +9,7 @@ import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
+import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.ArgeoNames;
@@ -53,29 +54,30 @@ public class AddRemoteRepository extends AbstractHandler implements
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		String uri = null;
 		if (event.getParameters().containsKey(PARAM_REPOSITORY_URI)) {
+			// FIXME remove this
 			uri = event.getParameter(PARAM_REPOSITORY_URI);
+			if (uri == null)
+				return null;
+
+			try {
+				Hashtable<String, String> params = new Hashtable<String, String>();
+				params.put(ArgeoJcrConstants.JCR_REPOSITORY_URI, uri);
+				// by default we use the URI as alias
+				params.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, uri);
+				Repository repository = repositoryFactory.getRepository(params);
+				bundleContext.registerService(Repository.class.getName(),
+						repository, params);
+			} catch (Exception e) {
+				ErrorFeedback.show("Cannot add remote repository " + uri, e);
+			}
 		} else {
 			RemoteRepositoryLoginDialog dlg = new RemoteRepositoryLoginDialog(
 					Display.getDefault().getActiveShell());
 			if (dlg.open() == Dialog.OK) {
-				uri = dlg.getUri();
+				// uri = dlg.getUri();
 			}
 		}
 
-		if (uri == null)
-			return null;
-
-		try {
-			Hashtable<String, String> params = new Hashtable<String, String>();
-			params.put(ArgeoJcrConstants.JCR_REPOSITORY_URI, uri);
-			// by default we use the URI as alias
-			params.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, uri);
-			Repository repository = repositoryFactory.getRepository(params);
-			bundleContext.registerService(Repository.class.getName(),
-					repository, params);
-		} catch (Exception e) {
-			ErrorFeedback.show("Cannot add remote repository " + uri, e);
-		}
 		return null;
 	}
 
@@ -92,9 +94,8 @@ public class AddRemoteRepository extends AbstractHandler implements
 	}
 
 	class RemoteRepositoryLoginDialog extends TitleAreaDialog {
-		private String uri;
 		private Text name;
-		private Text uriText;
+		private Text uri;
 		private Text username;
 		private Text password;
 
@@ -116,7 +117,7 @@ public class AddRemoteRepository extends AbstractHandler implements
 					false));
 			setMessage("Login to remote repository", IMessageProvider.NONE);
 			name = createLT(composite, "Name", "remoteRepository");
-			uriText = createLT(composite, "URI",
+			uri = createLT(composite, "URI",
 					"http://localhost:7070/org.argeo.jcr.webapp/remoting/node");
 			username = createLT(composite, "User", "");
 			password = createLP(composite, "Password");
@@ -138,7 +139,7 @@ public class AddRemoteRepository extends AbstractHandler implements
 		void testConnection() {
 			Session session = null;
 			try {
-				URI checkedUri = new URI(uriText.getText());
+				URI checkedUri = new URI(uri.getText());
 				String checkedUriStr = checkedUri.toString();
 
 				Hashtable<String, String> params = new Hashtable<String, String>();
@@ -157,12 +158,11 @@ public class AddRemoteRepository extends AbstractHandler implements
 							username.getText(), pwd);
 					session = repository.login(sc);
 					MessageDialog.openInformation(getParentShell(), "Success",
-							"Connection to '" + uriText.getText()
-									+ "' successful");
+							"Connection to '" + uri.getText() + "' successful");
 				}
 			} catch (Exception e) {
 				ErrorFeedback.show(
-						"Connection test failed for " + uriText.getText(), e);
+						"Connection test failed for " + uri.getText(), e);
 			} finally {
 				JcrUtils.logoutQuietly(session);
 			}
@@ -175,18 +175,26 @@ public class AddRemoteRepository extends AbstractHandler implements
 				Node home = JcrUtils.getUserHome(nodeSession);
 				Node remote = home.hasNode(ARGEO_REMOTE) ? home
 						.getNode(ARGEO_REMOTE) : home.addNode(ARGEO_REMOTE);
+				if (remote.hasNode(name.getText()))
+					throw new ArgeoException(
+							"There is already a remote repository named "
+									+ name.getText());
 				Node remoteRepository = remote.addNode(name.getText(),
 						ArgeoTypes.ARGEO_REMOTE_REPOSITORY);
-				remoteRepository.setProperty(ARGEO_URI, uriText.getText());
+				remoteRepository.setProperty(ARGEO_URI, uri.getText());
 				remoteRepository.setProperty(ARGEO_USER_ID, username.getText());
 				Node pwd = remoteRepository.addNode(ARGEO_PASSWORD);
 				keyring.set(pwd.getPath(), password.getText().toCharArray());
 				nodeSession.save();
+				MessageDialog.openInformation(
+						getParentShell(),
+						"Repository Added",
+						"Remote repository '" + username.getText() + "@"
+								+ uri.getText() + "' added");
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			uri = uriText.getText();
 			super.okPressed();
 		}
 
@@ -205,10 +213,6 @@ public class AddRemoteRepository extends AbstractHandler implements
 					| SWT.PASSWORD);
 			text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 			return text;
-		}
-
-		public String getUri() {
-			return uri;
 		}
 	}
 }
