@@ -1,10 +1,15 @@
 package org.argeo.jcr.security;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.AlgorithmParameters;
+import java.security.SecureRandom;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.jcr.Binary;
@@ -54,7 +59,7 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 	}
 
 	@Override
-	protected void setup() {
+	protected void setup(char[] password) {
 		Binary binary = null;
 		InputStream in = null;
 		try {
@@ -78,7 +83,7 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 			binary = session.getValueFactory().createBinary(in);
 			keyring.setProperty(ARGEO_SALT, binary);
 
-			Long iterationCount = username.length() * 200l;
+			Integer iterationCount = username.length() * 200;
 			keyring.setProperty(ARGEO_ITERATION_COUNT, iterationCount);
 
 			// default algo
@@ -88,8 +93,16 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 			keyring.setProperty(ARGEO_SECRET_KEY_ENCRYPTION, "AES");
 			keyring.setProperty(ARGEO_CIPHER, "AES/CBC/PKCS5Padding");
 
+			// encrypted password hash
+			// IOUtils.closeQuietly(in);
+			// JcrUtils.closeQuietly(binary);
+			// byte[] btPass = hash(password, salt, iterationCount);
+			// in = new ByteArrayInputStream(btPass);
+			// binary = session.getValueFactory().createBinary(in);
+			// keyring.setProperty(ARGEO_PASSWORD, binary);
+
 			notYetSavedKeyring.set(keyring);
-		} catch (RepositoryException e) {
+		} catch (Exception e) {
 			throw new ArgeoException("Cannot setup keyring", e);
 		} finally {
 			JcrUtils.closeQuietly(binary);
@@ -109,6 +122,7 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 				keyring = notYetSavedKeyring.get();
 			else
 				throw new ArgeoException("Keyring not setup");
+
 			pbeCallback.set(keyring.getProperty(ARGEO_SECRET_KEY_FACTORY)
 					.getString(), JcrUtils.getBinaryAsBytes(keyring
 					.getProperty(ARGEO_SALT)),
@@ -132,6 +146,8 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 
 		Binary binary = null;
 		InputStream in = null;
+		// ByteArrayOutputStream out = null;
+		// OutputStream encrypted = null;
 
 		try {
 			Cipher cipher = createCipher();
@@ -139,19 +155,41 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 				throw new ArgeoException("No node at " + path);
 			Node node = session.getNode(path);
 			node.addMixin(ArgeoTypes.ARGEO_ENCRYPTED);
-			cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-			byte[] iv = cipher.getIV();
-			if (iv != null) {
-				JcrUtils.setBinaryAsBytes(node, ARGEO_IV, iv);
-			}
+			SecureRandom random = new SecureRandom();
+			byte[] iv = new byte[16];
+			random.nextBytes(iv);
+			cipher.init(Cipher.ENCRYPT_MODE, secretKey, new IvParameterSpec(iv));
+			// AlgorithmParameters params = cipher.getParameters();
+			// byte[] iv =
+			// params.getParameterSpec(IvParameterSpec.class).getIV();
+			// if (iv != null)
+			JcrUtils.setBinaryAsBytes(node, ARGEO_IV, iv);
+
+			// out = new ByteArrayOutputStream();
+			// // encrypted = new CipherOutputStream(out, cipher);
+			// IOUtils.copy(unencrypted, out);
+			// byte[] unenc = out.toByteArray();
+			// byte[] crypted = cipher.doFinal(unenc);
+
+			// Cipher decipher = createCipher();
+			// decipher.init(Cipher.DECRYPT_MODE, secretKey, new
+			// IvParameterSpec(
+			// iv));
+			// byte[] decrypted = decipher.doFinal(crypted);
+			// System.out.println("Password :'" + new String(decrypted) + "'");
+
+			// JcrUtils.setBinaryAsBytes(node, Property.JCR_DATA, crypted);
+
 			in = new CipherInputStream(unencrypted, cipher);
 			binary = session.getValueFactory().createBinary(in);
 			node.setProperty(Property.JCR_DATA, binary);
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot encrypt", e);
 		} finally {
-			IOUtils.closeQuietly(in);
+			// IOUtils.closeQuietly(out);
+			// IOUtils.closeQuietly(encrypted);
 			IOUtils.closeQuietly(unencrypted);
+			IOUtils.closeQuietly(in);
 			JcrUtils.closeQuietly(binary);
 		}
 	}
@@ -177,13 +215,20 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 			} else {
 				cipher.init(Cipher.DECRYPT_MODE, secretKey);
 			}
+
+			// byte[] arr = JcrUtils.getBinaryAsBytes(node
+			// .getProperty(Property.JCR_DATA));
+			// byte[] arr2 = cipher.doFinal(arr);
+			//
+			// return new ByteArrayInputStream(arr2);
+
 			binary = node.getProperty(Property.JCR_DATA).getBinary();
 			encrypted = binary.getStream();
 			return new CipherInputStream(encrypted, cipher);
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot decrypt", e);
 		} finally {
-			// IOUtils.closeQuietly(encrypted);
+			IOUtils.closeQuietly(encrypted);
 			JcrUtils.closeQuietly(binary);
 		}
 	}

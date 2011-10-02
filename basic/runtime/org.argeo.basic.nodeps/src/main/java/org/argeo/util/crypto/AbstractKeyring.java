@@ -10,6 +10,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.security.AccessController;
+import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -45,7 +46,7 @@ public abstract class AbstractKeyring implements Keyring {
 	 * Setup the keyring persistently, {@link #isSetup()} must return true
 	 * afterwards
 	 */
-	protected abstract void setup();
+	protected abstract void setup(char[] password);
 
 	/** Populates the key spec callback */
 	protected abstract void handleKeySpecCallback(PBEKeySpecCallback pbeCallback);
@@ -116,6 +117,7 @@ public abstract class AbstractKeyring implements Keyring {
 		try {
 			writer = new OutputStreamWriter(out, charset);
 			writer.write(arr);
+			writer.flush();
 			in = new ByteArrayInputStream(out.toByteArray());
 			set(path, in);
 		} catch (IOException e) {
@@ -137,6 +139,32 @@ public abstract class AbstractKeyring implements Keyring {
 
 	public void setCharset(String charset) {
 		this.charset = charset;
+	}
+
+	protected static byte[] hash(char[] password, byte[] salt,
+			Integer iterationCount) {
+		ByteArrayOutputStream out = null;
+		OutputStreamWriter writer = null;
+		try {
+			out = new ByteArrayOutputStream();
+			writer = new OutputStreamWriter(out, "UTF-8");
+			writer.write(password);
+			MessageDigest pwDigest = MessageDigest.getInstance("SHA-256");
+			pwDigest.reset();
+			pwDigest.update(salt);
+			byte[] btPass = pwDigest.digest(out.toByteArray());
+			for (int i = 0; i < iterationCount; i++) {
+				pwDigest.reset();
+				btPass = pwDigest.digest(btPass);
+			}
+			return btPass;
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot hash", e);
+		} finally {
+			StreamUtils.closeQuietly(out);
+			StreamUtils.closeQuietly(writer);
+		}
+
 	}
 
 	class KeyringCallbackHandler implements CallbackHandler {
@@ -186,8 +214,9 @@ public abstract class AbstractKeyring implements Keyring {
 					defaultCallbackHandler.handle(dialogCbs);
 				}
 
-				if (passwordCb.getPassword() != null)// not cancelled
-					setup();
+				if (passwordCb.getPassword() != null) {// not cancelled
+					setup(passwordCb.getPassword());
+				}
 			}
 
 			if (passwordCb.getPassword() != null)

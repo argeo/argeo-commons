@@ -71,6 +71,10 @@ public class PasswordBasedEncryptionTest extends TestCase {
 
 		byte[] salt = { (byte) 0xc7, (byte) 0x73, (byte) 0x21, (byte) 0x8c,
 				(byte) 0x7e, (byte) 0xc8, (byte) 0xee, (byte) 0x99 };
+		byte[] iv = { (byte) 0xc7, (byte) 0x73, (byte) 0x21, (byte) 0x8c,
+				(byte) 0x7e, (byte) 0xc8, (byte) 0xee, (byte) 0x99,
+				(byte) 0xc7, (byte) 0x73, (byte) 0x21, (byte) 0x8c,
+				(byte) 0x7e, (byte) 0xc8, (byte) 0xee, (byte) 0x99 };
 
 		int count = 1024;
 		// int keyLength = 256;
@@ -85,9 +89,16 @@ public class PasswordBasedEncryptionTest extends TestCase {
 		SecretKey tmp = keyFac.generateSecret(pbeKeySpec);
 		SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
 		Cipher ecipher = Cipher.getInstance(cipherAlgorithm);
-		ecipher.init(Cipher.ENCRYPT_MODE, secret);
-		AlgorithmParameters params = ecipher.getParameters();
-		byte[] iv = params.getParameterSpec(IvParameterSpec.class).getIV();
+		ecipher.init(Cipher.ENCRYPT_MODE, secret, new IvParameterSpec(iv));
+
+		// decrypt
+		keyFac = SecretKeyFactory.getInstance(secretKeyAlgorithm);
+		pbeKeySpec = new PBEKeySpec(password.toCharArray(), salt, count,
+				keyLength);
+		tmp = keyFac.generateSecret(pbeKeySpec);
+		secret = new SecretKeySpec(tmp.getEncoded(), "AES");
+		// AlgorithmParameters params = ecipher.getParameters();
+		// byte[] iv = params.getParameterSpec(IvParameterSpec.class).getIV();
 		Cipher dcipher = Cipher.getInstance(cipherAlgorithm);
 		dcipher.init(Cipher.DECRYPT_MODE, secret, new IvParameterSpec(iv));
 

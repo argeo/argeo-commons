@@ -17,6 +17,9 @@ public class PBEKeySpecCallback implements Callback {
 	/** Can be null, will trigger secret key encryption if not */
 	private String secretKeyEncryption;
 
+	private String encryptedPasswordHashCipher;
+	private byte[] encryptedPasswordHash;
+
 	public void set(String secretKeyFactory, byte[] salt,
 			Integer iterationCount, Integer keyLength,
 			String secretKeyEncryption) {
@@ -25,6 +28,8 @@ public class PBEKeySpecCallback implements Callback {
 		this.iterationCount = iterationCount;
 		this.keyLength = keyLength;
 		this.secretKeyEncryption = secretKeyEncryption;
+//		this.encryptedPasswordHashCipher = encryptedPasswordHashCipher;
+//		this.encryptedPasswordHash = encryptedPasswordHash;
 	}
 
 	public String getSecretKeyFactory() {
@@ -45,6 +50,14 @@ public class PBEKeySpecCallback implements Callback {
 
 	public String getSecretKeyEncryption() {
 		return secretKeyEncryption;
+	}
+
+	public String getEncryptedPasswordHashCipher() {
+		return encryptedPasswordHashCipher;
+	}
+
+	public byte[] getEncryptedPasswordHash() {
+		return encryptedPasswordHash;
 	}
 
 }
