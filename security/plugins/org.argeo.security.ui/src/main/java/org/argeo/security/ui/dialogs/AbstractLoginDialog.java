@@ -79,6 +79,7 @@ public abstract class AbstractLoginDialog extends TrayDialog implements
 				isCancelled = false;
 				setBlockOnOpen(false);
 				open();
+
 				final Button okButton = getButton(IDialogConstants.OK_ID);
 				okButton.setText("Login");
 				okButton.addSelectionListener(new SelectionListener() {
@@ -170,6 +171,6 @@ public abstract class AbstractLoginDialog extends TrayDialog implements
 
 	protected void configureShell(Shell shell) {
 		super.configureShell(shell);
-		shell.setText("Login");
+		shell.setText("Autentication");
 	}
 }

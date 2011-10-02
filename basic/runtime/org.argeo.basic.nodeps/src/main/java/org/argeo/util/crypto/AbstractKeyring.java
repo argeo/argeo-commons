@@ -160,13 +160,13 @@ public abstract class AbstractKeyring implements Keyring {
 			} else {// setup keyring
 				TextOutputCallback textCb1 = new TextOutputCallback(
 						TextOutputCallback.INFORMATION,
-						"Enter a master password");
+						"Enter a master password which will protect your private data");
 				TextOutputCallback textCb2 = new TextOutputCallback(
 						TextOutputCallback.INFORMATION,
-						"It will encrypt your private data");
+						"(for example your credentials to third-party services)");
 				TextOutputCallback textCb3 = new TextOutputCallback(
 						TextOutputCallback.INFORMATION,
-						"Don't forget it or your data is lost");
+						"Don't forget this password since the data cannot be read without it");
 				PasswordCallback confirmPasswordCb = new PasswordCallback(
 						"Confirm password", false);
 				// first try

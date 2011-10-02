@@ -8,7 +8,7 @@
 	<bean id="repositoryRegister" class="org.argeo.jcr.DefaultRepositoryRegister">
 	</bean>
 
-	<bean id="nodeSession" class="org.argeo.security.jcr.SecureThreadBoundSession">
+	<bean id="nodeSession" class="org.argeo.jcr.spring.ThreadBoundSession">
 		<property name="repository" ref="nodeRepository" />
 	</bean>
 

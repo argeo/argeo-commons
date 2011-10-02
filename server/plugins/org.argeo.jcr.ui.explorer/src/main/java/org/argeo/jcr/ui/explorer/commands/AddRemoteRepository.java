@@ -157,7 +157,8 @@ public class AddRemoteRepository extends AbstractHandler implements
 							username.getText(), pwd);
 					session = repository.login(sc);
 					MessageDialog.openInformation(getParentShell(), "Success",
-							"Connection to " + uri + "successful");
+							"Connection to '" + uriText.getText()
+									+ "' successful");
 				}
 			} catch (Exception e) {
 				ErrorFeedback.show(

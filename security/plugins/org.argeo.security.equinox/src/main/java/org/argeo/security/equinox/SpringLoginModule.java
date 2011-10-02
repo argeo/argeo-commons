@@ -7,7 +7,6 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.TextOutputCallback;
 import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
@@ -28,8 +27,8 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 	private CallbackHandler callbackHandler;
 
 	private Subject subject;
-	
-	private Long waitBetweenFailedLoginAttempts = 5*1000l;
+
+	private Long waitBetweenFailedLoginAttempts = 5 * 1000l;
 
 	public SpringLoginModule() {
 
@@ -61,8 +60,6 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 				subject.getPublicCredentials().clear();
 
 			// ask for username and password
-			Callback label = new TextOutputCallback(
-					TextOutputCallback.INFORMATION, "Required login");
 			NameCallback nameCallback = new NameCallback("User");
 			PasswordCallback passwordCallback = new PasswordCallback(
 					"Password", false);
@@ -71,7 +68,7 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 
 			if (callbackHandler == null)
 				throw new LoginException("No call back handler available");
-			callbackHandler.handle(new Callback[] { label, nameCallback,
+			callbackHandler.handle(new Callback[] { nameCallback,
 					passwordCallback });
 
 			// Set user name and password

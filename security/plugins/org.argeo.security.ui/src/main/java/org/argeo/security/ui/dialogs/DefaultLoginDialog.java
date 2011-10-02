@@ -1,6 +1,7 @@
 package org.argeo.security.ui.dialogs;
 
 import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.TextOutputCallback;
@@ -9,6 +10,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -18,6 +20,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+/** Default authentication dialog, to be used as {@link CallbackHandler}. */
 public class DefaultLoginDialog extends AbstractLoginDialog {
 
 	public DefaultLoginDialog() {
@@ -26,7 +29,6 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 
 	protected DefaultLoginDialog(Shell parentShell) {
 		super(parentShell);
-		// setBlockOnOpen(false);
 	}
 
 	protected Point getInitialSize() {
@@ -37,6 +39,12 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 	protected Control createContents(Composite parent) {
 		Control control = super.createContents(parent);
 		parent.pack();
+		// Move the dialog to the center of the top level shell.
+		Rectangle shellBounds = Display.getCurrent().getBounds();
+		Point dialogSize = parent.getSize();
+		int x = shellBounds.x + (shellBounds.width - dialogSize.x) / 2;
+		int y = shellBounds.y + (shellBounds.height - dialogSize.y) / 2;
+		parent.setLocation(x, y);
 		return control;
 	}
 
@@ -123,35 +131,4 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 
 	public void internalHandle() {
 	}
-
-	// hack to simulate modal
-	// see
-	// http://dev.eclipse.org/mhonarc/newsLists/news.eclipse.platform.jface/msg00181.html
-	// protected void setShellStyle(int newShellStyle) {
-	// // turn off APPLICATION_MODAL
-	// int newstyle = newShellStyle & ~SWT.APPLICATION_MODAL;
-	// // turn on MODELESS
-	// newstyle |= SWT.MODELESS;
-	// super.setShellStyle(newstyle);
-	// }
-	//
-	// public int open() {
-	//
-	// int retVal = super.open();
-	// // this will let the caller wait till OK, Cancel is
-	// // pressed, but will let the other GUI responsive
-	// pumpMessages();
-	// return retVal;
-	// }
-	//
-	// protected void pumpMessages() {
-	// Shell sh = getShell();
-	// Display disp = sh.getDisplay();
-	// while (!sh.isDisposed()) {
-	// if (!disp.readAndDispatch())
-	// disp.sleep();
-	// }
-	// disp.update();
-	// }
-
 }

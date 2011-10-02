@@ -17,11 +17,6 @@ WINDOWS {
         extensionId="org.argeo.security.equinox.osSpringLoginModule";
 };
 
-KEYRING_OLD {
-    org.eclipse.equinox.security.auth.module.ExtensionLoginModule required
-        extensionId="org.argeo.security.equinox.keyringLoginModule";
-};
-
 KEYRING {
     org.argeo.util.crypto.KeyringLoginModule required;
 };
