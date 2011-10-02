@@ -58,7 +58,7 @@
 	</bean>
 
 	<bean id="nodeSession" class="org.argeo.security.jcr.SecureThreadBoundSession">
-		<property name="repository" ref="nodeRepository" />
+		<property name="repositories" ref="repositories" />
 	</bean>
 
 </beans>

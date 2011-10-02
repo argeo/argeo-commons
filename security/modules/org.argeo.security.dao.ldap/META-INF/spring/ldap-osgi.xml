@@ -7,8 +7,11 @@
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
 	<!-- REFERENCES -->
-	<reference id="nodeRepository" interface="javax.jcr.Repository"
-		filter="(argeo.jcr.repository.alias=${argeo.node.repo.alias})" />
+	<list id="repositories" interface="javax.jcr.Repository"
+		filter="(argeo.jcr.repository.alias=${argeo.node.repo.alias})"
+		cardinality="0..N">
+	</list>
+
 	<reference id="systemExecutionService" interface="org.argeo.security.SystemExecutionService" />
 
 	<!-- SERVICES -->

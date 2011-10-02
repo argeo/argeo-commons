@@ -43,6 +43,8 @@ public abstract class ThreadBoundJcrSessionFactory {
 			.getLog(ThreadBoundJcrSessionFactory.class);
 
 	private Repository repository;
+	/** can be injected as list, only used if repository is null */
+	private List<Repository> repositories;
 
 	private ThreadLocal<Session> session = new ThreadLocal<Session>();
 	private final Session proxiedSession;
@@ -88,7 +90,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 		// Security)
 		if (!forceDefaultCredentials)
 			try {
-				newSession = repository.login(workspace);
+				newSession = repository().login(workspace);
 			} catch (LoginException e1) {
 				log.warn("Cannot login without credentials: " + e1.getMessage());
 				// invalid credentials, go to the next step
@@ -102,7 +104,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 			try {
 				SimpleCredentials sc = new SimpleCredentials(defaultUsername,
 						defaultPassword.toCharArray());
-				newSession = repository.login(sc, workspace);
+				newSession = repository().login(sc, workspace);
 			} catch (RepositoryException e) {
 				throw new ArgeoException("Cannot log in to repository", e);
 			}
@@ -202,8 +204,34 @@ public abstract class ThreadBoundJcrSessionFactory {
 		return session;
 	}
 
+	protected Repository repository() {
+		if (repository != null)
+			return repository;
+		if (repositories != null) {
+			// hardened for OSGi dynamic services
+			Iterator<Repository> it = repositories.iterator();
+			if (it.hasNext())
+				return it.next();
+		}
+		throw new ArgeoException("No repository injected");
+	}
+
+	// /** Useful for declarative registration of OSGi services (blueprint) */
+	// public void register(Repository repository, Map<?, ?> params) {
+	// this.repository = repository;
+	// }
+	//
+	// /** Useful for declarative registration of OSGi services (blueprint) */
+	// public void unregister(Repository repository, Map<?, ?> params) {
+	// this.repository = null;
+	// }
+
 	public void setRepository(Repository repository) {
 		this.repository = repository;
+	}
+
+	public void setRepositories(List<Repository> repositories) {
+		this.repositories = repositories;
 	}
 
 	public void setDefaultUsername(String defaultUsername) {
