@@ -15,7 +15,6 @@
 		<developmentCycle>0.3</developmentCycle>
 		<version.argeo-distribution>1.1.6-SNAPSHOT</version.argeo-distribution>
 		<version.argeo-commons>0.3.4-SNAPSHOT</version.argeo-commons>
-		<version.argeo-ria>0.12.5</version.argeo-ria>
 		<version.equinox>3.6.2</version.equinox>
 		<!-- Maven -->
 		<!-- Using version 2.3.4 causes package use conflict. To be investigated. -->
