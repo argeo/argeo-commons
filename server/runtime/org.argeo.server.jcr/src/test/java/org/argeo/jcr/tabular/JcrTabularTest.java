@@ -51,7 +51,7 @@ public class JcrTabularTest extends AbstractJcrTestCase {
 
 		// write
 		Integer columnCount = 15;
-		Long rowCount = 10000l;
+		Long rowCount = 1000l;
 		String stringValue = "test, \ntest";
 
 		List<TabularColumn> header = new ArrayList<TabularColumn>();
