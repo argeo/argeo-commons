@@ -17,6 +17,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.JackrabbitSession;
 import org.apache.jackrabbit.api.security.JackrabbitAccessControlManager;
+import org.apache.jackrabbit.api.security.user.Authorizable;
 import org.apache.jackrabbit.api.security.user.Group;
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.argeo.ArgeoException;
@@ -87,29 +88,35 @@ public class JackrabbitAuthorizations {
 				Group group = (Group) um.getAuthorizable(groupName);
 				if (group == null)
 					group = um.createGroup(groupName);
-
-				AccessControlPolicy policy = null;
-				AccessControlPolicyIterator policyIterator = acm
-						.getApplicablePolicies(path);
-				if (policyIterator.hasNext()) {
-					policy = policyIterator.nextAccessControlPolicy();
-				} else {
-					AccessControlPolicy[] existingPolicies = acm
-							.getPolicies(path);
-					policy = existingPolicies[0];
-				}
-				if (policy instanceof AccessControlList) {
-					((AccessControlList) policy).addAccessControlEntry(
-							group.getPrincipal(),
-							privs.toArray(new Privilege[privs.size()]));
-					acm.setPolicy(path, policy);
-				}
-				if (log.isDebugEnabled())
-					log.debug("Added privileges " + privileges + " to "
-							+ groupName + " on " + path);
+				addPrivileges(session, group, path, privs);
 			}
 		}
 		session.save();
+	}
+
+	public static void addPrivileges(JackrabbitSession session,
+			Authorizable authorizable, String path, List<Privilege> privs)
+			throws RepositoryException {
+		JackrabbitAccessControlManager acm = (JackrabbitAccessControlManager) session
+				.getAccessControlManager();
+		AccessControlPolicy policy = null;
+		AccessControlPolicyIterator policyIterator = acm
+				.getApplicablePolicies(path);
+		if (policyIterator.hasNext()) {
+			policy = policyIterator.nextAccessControlPolicy();
+		} else {
+			AccessControlPolicy[] existingPolicies = acm.getPolicies(path);
+			policy = existingPolicies[0];
+		}
+		if (policy instanceof AccessControlList) {
+			((AccessControlList) policy).addAccessControlEntry(
+					authorizable.getPrincipal(),
+					privs.toArray(new Privilege[privs.size()]));
+			acm.setPolicy(path, policy);
+		}
+		if (log.isDebugEnabled())
+			log.debug("Added privileges " + privs + " to " + authorizable
+					+ " on " + path);
 	}
 
 	public void setGroupPrivileges(Map<String, String> groupPrivileges) {

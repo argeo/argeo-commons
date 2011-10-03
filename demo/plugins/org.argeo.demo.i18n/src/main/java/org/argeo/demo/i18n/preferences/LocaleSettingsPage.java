@@ -1,6 +1,5 @@
 package org.argeo.demo.i18n.preferences;
 
-import org.argeo.demo.i18n.I18nDemoPlugin;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
@@ -31,7 +30,6 @@ public class LocaleSettingsPage extends FieldEditorPreferencePage implements
 
 	@Override
 	public void init(IWorkbench workbench) {
-		setPreferenceStore(I18nDemoPlugin.getDefault().getPreferenceStore());
-		setDescription("A demonstration of a preference page implementation");
 	}
+
 }

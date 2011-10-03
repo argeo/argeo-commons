@@ -13,11 +13,15 @@ mixin
 - argeo:userID (STRING) m
 + argeo:profile (argeo:userProfile)
 + argeo:keyring (argeo:pbeSpec)
-+ argeo:preferences (nt:unstructured)
++ argeo:preferences (argeo:preferenceNode)
 
 [argeo:userProfile] > mix:created, mix:lastModified, mix:title, mix:versionable
 mixin
 - argeo:userID (STRING) m
+
+[argeo:preferenceNode] > mix:lastModified, mix:versionable
+mixin
++ * (argeo:preferenceNode) * version
 
 [argeo:remoteRepository] > nt:unstructured
 - argeo:uri (STRING)

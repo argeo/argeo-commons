@@ -70,7 +70,7 @@
 	<extension
     	point="org.eclipse.ui.preferencePages">
 		<page 
-			class="org.argeo.demo.i18n.preferences.LocaleSettingsPage"
+			class="org.argeo.eclipse.spring.SpringExtensionFactory"
 			id="org.argeo.demo.i18n.localeSettingsPage"
 			name="%LocaleSettingsPage_Title">
 		</page>

@@ -10,30 +10,60 @@ import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.version.VersionManager;
 
 import org.apache.commons.io.IOUtils;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoNames;
+import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.jface.preference.PreferenceStore;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
+import org.osgi.framework.BundleContext;
 
-/** Persist preferences as key/value pairs under ~/argeo:preferences */
-public class JcrPreferenceStore extends PreferenceStore {
+/**
+ * Persist preferences as key/value pairs under ~/argeo:preferences.<br>
+ * TODO: better integrate JCR and Eclipse:<br>
+ * - typing<br>
+ * - use eclipse preferences<br>
+ * - better integrate with {@link ScopedPreferenceStore} provided by RAP
+ */
+public class JcrPreferenceStore extends PreferenceStore implements ArgeoNames {
 	private Session session;
+	private BundleContext bundleContext;
 
 	/** Retrieves the preference node */
 	protected Node getPreferenceNode() {
 		try {
-			Node userHome = JcrUtils.getUserHome(session);
-			Node preferences;
-			if (!userHome.hasNode(ArgeoNames.ARGEO_PREFERENCES)) {
-				preferences = userHome.addNode(ArgeoNames.ARGEO_PREFERENCES);
+			if (session.hasPendingChanges())
 				session.save();
-			} else {
-				preferences = userHome.getNode(ArgeoNames.ARGEO_PREFERENCES);
-			}
-			return preferences;
+			Node userHome = JcrUtils.getUserHome(session);
+			if (userHome == null)
+				throw new ArgeoException("No user home for "
+						+ session.getUserID());
+			Node preferences;
+			if (!userHome.hasNode(ARGEO_PREFERENCES)) {
+				preferences = userHome.addNode(ARGEO_PREFERENCES);
+				preferences.addMixin(ArgeoTypes.ARGEO_PREFERENCE_NODE);
+				session.save();
+			} else
+				preferences = userHome.getNode(ARGEO_PREFERENCES);
+
+			String pluginPreferencesName = bundleContext.getBundle()
+					.getSymbolicName();
+			Node pluginPreferences;
+			if (!preferences.hasNode(pluginPreferencesName)) {
+				VersionManager vm = session.getWorkspace().getVersionManager();
+				vm.checkout(preferences.getPath());
+				pluginPreferences = preferences.addNode(pluginPreferencesName);
+				pluginPreferences.addMixin(ArgeoTypes.ARGEO_PREFERENCE_NODE);
+				session.save();
+				vm.checkin(preferences.getPath());
+			} else
+				pluginPreferences = preferences.getNode(pluginPreferencesName);
+			return pluginPreferences;
 		} catch (RepositoryException e) {
+			e.printStackTrace();
 			JcrUtils.discardQuietly(session);
 			throw new ArgeoException("Cannot retrieve preferences", e);
 		}
@@ -49,7 +79,7 @@ public class JcrPreferenceStore extends PreferenceStore {
 			PropertyIterator it = getPreferenceNode().getProperties();
 			while (it.hasNext()) {
 				Property p = it.nextProperty();
-				if (!p.isMultiple()) {
+				if (!p.isMultiple() && !p.getDefinition().isProtected()) {
 					props.setProperty(p.getName(), p.getValue().getString());
 				}
 			}
@@ -58,6 +88,7 @@ public class JcrPreferenceStore extends PreferenceStore {
 			in = new ByteArrayInputStream(out.toByteArray());
 			load(in);
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ArgeoException("Cannot load preferences", e);
 		} finally {
 			IOUtils.closeQuietly(in);
@@ -69,31 +100,48 @@ public class JcrPreferenceStore extends PreferenceStore {
 	public void save() throws IOException {
 		ByteArrayOutputStream out = null;
 		ByteArrayInputStream in = null;
-		Node preferences = null;
+		Node pluginPreferences = null;
 		try {
 			out = new ByteArrayOutputStream();
 			save(out, "");
 			in = new ByteArrayInputStream(out.toByteArray());
 			Properties props = new Properties();
 			props.load(in);
-			preferences = getPreferenceNode();
+			pluginPreferences = getPreferenceNode();
+			VersionManager vm = pluginPreferences.getSession().getWorkspace()
+					.getVersionManager();
+			vm.checkout(pluginPreferences.getPath());
 			for (Object key : props.keySet()) {
 				String name = key.toString();
 				String value = props.getProperty(name);
-				preferences.setProperty(name, value);
+				pluginPreferences.setProperty(name, value);
 			}
-			preferences.getSession().save();
+			JcrUtils.updateLastModified(pluginPreferences);
+			pluginPreferences.getSession().save();
+			vm.checkin(pluginPreferences.getPath());
 		} catch (Exception e) {
-			JcrUtils.discardUnderlyingSessionQuietly(preferences);
-			throw new ArgeoException("Cannot load preferences", e);
+			JcrUtils.discardUnderlyingSessionQuietly(pluginPreferences);
+			throw new ArgeoException("Cannot save preferences", e);
 		} finally {
 			IOUtils.closeQuietly(in);
 			IOUtils.closeQuietly(out);
 		}
 	}
 
+	public void init() {
+		try {
+			load();
+		} catch (IOException e) {
+			throw new ArgeoException("Cannot initialize preference store", e);
+		}
+	}
+
 	public void setSession(Session session) {
 		this.session = session;
+	}
+
+	public void setBundleContext(BundleContext bundleContext) {
+		this.bundleContext = bundleContext;
 	}
 
 }

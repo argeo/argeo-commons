@@ -223,6 +223,26 @@ public class JcrUtils implements ArgeoJcrConstants {
 		return path.substring(index + 1);
 	}
 
+	/**
+	 * Routine that get the child with this name, adding id it does not already
+	 * exist
+	 */
+	public static Node getOrAdd(Node parent, String childName,
+			String childPrimaryNodeType) throws RepositoryException {
+		return parent.hasNode(childName) ? parent.getNode(childName) : parent
+				.addNode(childName, childPrimaryNodeType);
+	}
+
+	/**
+	 * Routine that get the child with this name, adding id it does not already
+	 * exist
+	 */
+	public static Node getOrAdd(Node parent, String childName)
+			throws RepositoryException {
+		return parent.hasNode(childName) ? parent.getNode(childName) : parent
+				.addNode(childName);
+	}
+
 	/** Creates the nodes making path, if they don't exist. */
 	public static Node mkdirs(Session session, String path) {
 		return mkdirs(session, path, null, null, false);

@@ -6,6 +6,7 @@ public interface ArgeoTypes {
 	public final static String ARGEO_USER_HOME = "argeo:userHome";
 	public final static String ARGEO_USER_PROFILE = "argeo:userProfile";
 	public final static String ARGEO_REMOTE_REPOSITORY = "argeo:remoteRepository";
+	public final static String ARGEO_PREFERENCE_NODE = "argeo:preferenceNode";
 
 	// tabular
 	public final static String ARGEO_TABLE = "argeo:table";

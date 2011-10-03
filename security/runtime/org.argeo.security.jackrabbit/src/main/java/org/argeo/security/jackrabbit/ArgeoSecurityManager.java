@@ -2,15 +2,18 @@ package org.argeo.security.jackrabbit;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.jcr.Node;
+import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.security.AccessControlList;
-import javax.jcr.security.AccessControlManager;
+import javax.jcr.Value;
+import javax.jcr.ValueFactory;
 import javax.jcr.security.AccessControlPolicy;
 import javax.jcr.security.AccessControlPolicyIterator;
 import javax.jcr.security.Privilege;
@@ -18,6 +21,9 @@ import javax.security.auth.Subject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.jackrabbit.api.security.JackrabbitAccessControlList;
+import org.apache.jackrabbit.api.security.JackrabbitAccessControlManager;
+import org.apache.jackrabbit.api.security.JackrabbitAccessControlPolicy;
 import org.apache.jackrabbit.api.security.user.Group;
 import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.api.security.user.UserManager;
@@ -100,35 +106,44 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		String userId = "<not yet set>";
 		try {
 			userId = user.getID();
-			Node userHome = JcrUtils.getUserHome(getSystemSession(), userId);
-			// autocreate home node?
-//			if (userHome == null)
-//				userHome = JcrUtils.createUserHome(getSystemSession(),
-//						HOME_BASE_PATH, userId);
+			Node userHome = null;
+			try {
+				userHome = JcrUtils.getUserHome(getSystemSession(), userId);
+				if (userHome == null)
+					userHome = JcrUtils.createUserHome(getSystemSession(),
+							HOME_BASE_PATH, userId);
+			} catch (Exception e) {
+				// silent
+			}
 
 			if (userHome != null) {
 				String path = userHome.getPath();
-				AccessControlPolicy policy = null;
-				AccessControlManager acm = getSystemSession()
+				Principal principal = user.getPrincipal();
+
+				JackrabbitAccessControlManager acm = (JackrabbitAccessControlManager) getSystemSession()
 						.getAccessControlManager();
-				AccessControlPolicyIterator policyIterator = acm
-						.getApplicablePolicies(path);
-				if (policyIterator.hasNext()) {
-					policy = policyIterator.nextAccessControlPolicy();
-				} else {
-					AccessControlPolicy[] existingPolicies = acm
-							.getPolicies(path);
-					policy = existingPolicies[0];
+				JackrabbitAccessControlPolicy[] ps = acm
+						.getApplicablePolicies(principal);
+				if (ps.length == 0) {
+					log.warn("No ACL found for " + user);
+					return;
 				}
-				if (policy instanceof AccessControlList) {
-					Privilege[] privileges = { acm
-							.privilegeFromName(Privilege.JCR_ALL) };
-					((AccessControlList) policy).addAccessControlEntry(
-							user.getPrincipal(), privileges);
-					acm.setPolicy(path, policy);
-				}
+
+				JackrabbitAccessControlList list = (JackrabbitAccessControlList) ps[0];
+
+				// add entry
+				Privilege[] privileges = new Privilege[] { acm
+						.privilegeFromName(Privilege.JCR_ALL) };
+				Map<String, Value> restrictions = new HashMap<String, Value>();
+				ValueFactory vf = getSystemSession().getValueFactory();
+				restrictions.put("rep:nodePath",
+						vf.createValue(path, PropertyType.PATH));
+				restrictions.put("rep:glob", vf.createValue("*"));
+				list.addEntry(principal, privileges, true /* allow or deny */,
+						restrictions);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			log.warn("Cannot set authorization on user node for " + userId
 					+ ": " + e.getMessage());
 		}

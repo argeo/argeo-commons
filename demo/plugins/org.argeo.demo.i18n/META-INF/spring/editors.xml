@@ -8,4 +8,14 @@
 	<bean id="simpleMultitabEditor" class="org.argeo.demo.i18n.editors.SimpleMultitabEditor"
 		scope="prototype">
 	</bean>
+
+	<!-- Preferences -->
+	<bean id="localeSettingsPage" class="org.argeo.demo.i18n.preferences.LocaleSettingsPage"
+		scope="prototype">
+		<!-- TODO: internationalize -->
+		<property name="description"
+			value="A demonstration of a preference page implementation" />
+		<property name="preferenceStore" ref="jcrPreferenceStore" />
+	</bean>
+
 </beans>
