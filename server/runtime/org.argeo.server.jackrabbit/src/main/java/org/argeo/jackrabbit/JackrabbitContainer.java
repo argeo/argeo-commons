@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 
 import javax.jcr.Credentials;
@@ -236,6 +237,20 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 	/** Lazy init. */
 	protected File getHomeDirectory() {
 		try {
+			if (homeDirectory == null) {
+				if (inMemory) {
+					homeDirectory = new File(
+							System.getProperty("java.io.tmpdir")
+									+ File.separator
+									+ System.getProperty("user.name")
+									+ File.separator + "jackrabbit-"
+									+ UUID.randomUUID());
+					homeDirectory.mkdirs();
+					// will it work if directory is not empty?
+					homeDirectory.deleteOnExit();
+				}
+			}
+
 			return homeDirectory.getCanonicalFile();
 		} catch (IOException e) {
 			throw new ArgeoException("Cannot get canonical file for "
