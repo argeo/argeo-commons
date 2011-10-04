@@ -78,4 +78,13 @@ public class CsvWriter {
 		if (shouldQuote == true)
 			out.print(quote);
 	}
+
+	public void setSeparator(char separator) {
+		this.separator = separator;
+	}
+
+	public void setQuote(char quote) {
+		this.quote = quote;
+	}
+
 }
