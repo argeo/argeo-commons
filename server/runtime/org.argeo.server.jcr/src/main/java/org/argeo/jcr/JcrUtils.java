@@ -1056,7 +1056,6 @@ public class JcrUtils implements ArgeoJcrConstants {
 			NodeIterator ni = node.getNodes();
 			while (ni.hasNext())
 				curNodeSize += getNodeApproxSize(ni.nextNode());
-			log.debug(node + ": " + curNodeSize);
 			return curNodeSize;
 		} catch (RepositoryException re) {
 			throw new ArgeoException(
