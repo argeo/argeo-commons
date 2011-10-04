@@ -1,7 +1,6 @@
 package org.argeo.util.tabular;
 
 import java.io.OutputStream;
-import java.util.List;
 
 import org.argeo.util.CsvWriter;
 
@@ -13,7 +12,7 @@ public class CsvTabularWriter implements TabularWriter {
 		this.csvWriter = new CsvWriter(out);
 	}
 
-	public void appendRow(List<?> row) {
+	public void appendRow(Object[] row) {
 		csvWriter.writeLine(row);
 	}
 

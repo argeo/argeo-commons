@@ -47,6 +47,25 @@ public class CsvWriter {
 		}
 	}
 
+	/**
+	 * Write a CSV line. Also used to write a header if needed (this is
+	 * transparent for the CSV writer): simply call it first, before writing the
+	 * lines.
+	 */
+	public void writeLine(Object[] tokens) {
+		try {
+			for (int i = 0; i < tokens.length; i++) {
+				writeToken(tokens[i].toString());
+				if (i != (tokens.length - 1))
+					out.print(separator);
+			}
+			out.print('\n');
+			out.flush();
+		} catch (IOException e) {
+			throw new ArgeoException("Could not write " + tokens, e);
+		}
+	}
+
 	protected void writeToken(String token) throws IOException {
 		// +2 for possible quotes, another +2 assuming there would be an already
 		// quoted string where quotes needs to be duplicated

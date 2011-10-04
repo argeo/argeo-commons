@@ -10,6 +10,12 @@ public class TabularColumn {
 	 */
 	private Integer type;
 
+	/** column with default type */
+	public TabularColumn(String name) {
+		super();
+		this.name = name;
+	}
+
 	public TabularColumn(String name, Integer type) {
 		super();
 		this.name = name;
