@@ -15,7 +15,6 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.io.IOUtils;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoTypes;
-import org.argeo.jcr.JcrUtils;
 import org.argeo.util.CsvParser;
 import org.argeo.util.tabular.ArrayTabularRow;
 import org.argeo.util.tabular.TabularColumn;
@@ -46,7 +45,8 @@ public class JcrTabularRowIterator implements TabularRowIterator {
 				if (node.isNodeType(ArgeoTypes.ARGEO_COLUMN)) {
 					Integer type = PropertyType.valueFromName(node.getProperty(
 							Property.JCR_REQUIRED_TYPE).getString());
-					TabularColumn tc = new TabularColumn(node.getName(), type);
+					TabularColumn tc = new TabularColumn(node.getProperty(
+							Property.JCR_TITLE).getString(), type);
 					header.add(tc);
 					// } else if (node.getName().equals(Property.JCR_CONTENT)) {
 					// contentNode = node;
@@ -66,7 +66,7 @@ public class JcrTabularRowIterator implements TabularRowIterator {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						//textLines.add(tokens);
+						// textLines.add(tokens);
 						if (hasNext == null) {
 							hasNext = true;
 							synchronized (JcrTabularRowIterator.this) {
@@ -127,20 +127,20 @@ public class JcrTabularRowIterator implements TabularRowIterator {
 			return true;
 
 		// (parsingCompleted && textLines.isEmpty())
-			return false;
+		return false;
 
-//		if (!hasNext && textLines.isEmpty()) {
-//			if (in != null) {
-//				IOUtils.closeQuietly(in);
-//				in = null;
-//			}
-//			if (binary != null) {
-//				JcrUtils.closeQuietly(binary);
-//				binary = null;
-//			}
-//			return false;
-//		} else
-//			return true;
+		// if (!hasNext && textLines.isEmpty()) {
+		// if (in != null) {
+		// IOUtils.closeQuietly(in);
+		// in = null;
+		// }
+		// if (binary != null) {
+		// JcrUtils.closeQuietly(binary);
+		// binary = null;
+		// }
+		// return false;
+		// } else
+		// return true;
 	}
 
 	public synchronized TabularRow next() {

@@ -67,7 +67,7 @@ public class JcrTabularTest extends AbstractJcrTestCase {
 			for (int j = 0; j < columnCount; j++) {
 				objs.add(stringValue);
 			}
-			writer.appendRow(objs);
+			writer.appendRow(objs.toArray());
 		}
 		writer.close();
 		session().save();

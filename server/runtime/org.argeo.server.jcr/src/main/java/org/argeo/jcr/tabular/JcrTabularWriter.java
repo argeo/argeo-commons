@@ -30,10 +30,17 @@ public class JcrTabularWriter implements TabularWriter {
 			String contentNodeType) {
 		try {
 			for (TabularColumn column : columns) {
-				Node columnNode = tableNode.addNode(column.getName(),
+				String normalized = JcrUtils.replaceInvalidChars(column
+						.getName());
+				Node columnNode = tableNode.addNode(normalized,
 						ArgeoTypes.ARGEO_COLUMN);
-				columnNode.setProperty(Property.JCR_REQUIRED_TYPE,
-						PropertyType.nameFromValue(column.getType()));
+				columnNode.setProperty(Property.JCR_TITLE, column.getName());
+				if (column.getType() != null)
+					columnNode.setProperty(Property.JCR_REQUIRED_TYPE,
+							PropertyType.nameFromValue(column.getType()));
+				else
+					columnNode.setProperty(Property.JCR_REQUIRED_TYPE,
+							PropertyType.TYPENAME_STRING);
 			}
 			contentNode = tableNode.addNode(Property.JCR_CONTENT,
 					contentNodeType);
@@ -48,7 +55,7 @@ public class JcrTabularWriter implements TabularWriter {
 		}
 	}
 
-	public void appendRow(List<?> row) {
+	public void appendRow(Object[] row) {
 		csvWriter.writeLine(row);
 	}
 
