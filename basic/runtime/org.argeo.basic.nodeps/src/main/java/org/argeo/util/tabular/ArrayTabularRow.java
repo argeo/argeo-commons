@@ -18,4 +18,8 @@ public class ArrayTabularRow implements TabularRow {
 		return arr.length;
 	}
 
+	public Object[] toArray() {
+		return arr;
+	}
+
 }
