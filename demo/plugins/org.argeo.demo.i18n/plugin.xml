@@ -8,7 +8,7 @@
             class="org.argeo.demo.i18n.I18nDemoPerspective"
             icon="icons/i18n.gif"
             id="org.argeo.demo.i18n.perspective"
-            name="%I18nDemoPerspective_name">
+            name="%I18nDemoPerspective_Name">
       </perspective>
    </extension>
    <!-- Views --> 
@@ -18,7 +18,7 @@
           class="org.argeo.eclipse.spring.SpringExtensionFactory"
           icon="icons/browser.gif"
           id="org.argeo.demo.i18n.simpleTreeView"
-          name="%SimpleTreeView_name">
+          name="%SimpleTreeView_Name">
 	   </view>
    </extension>
    <!-- Editors --> 
@@ -27,7 +27,7 @@
 	     <editor
 	          class="org.argeo.eclipse.spring.SpringExtensionFactory"
               id="org.argeo.demo.i18n.simpleMultitabEditor"
-              name="%SimpleMultitabEditor_name"
+              name="%SimpleMultitabEditor_Name"
               icon="icons/i18n.gif"
               default="false">
         </editor>
@@ -35,21 +35,22 @@
    	<!-- Commands --> 
    	<extension
          point="org.eclipse.ui.commands">
-    	<command
-			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-			id="org.argeo.jcr.ui.explorer.openGenericNodeEditor"
-			name="Open generic node Editor">
-			<commandParameter
-				id="org.argeo.jcr.ui.explorer.nodePath"
-				name="Node path">
-  	 		</commandParameter>
-		</command>    
+		<command
+			defaultHandler="org.argeo.demo.i18n.commands.OpenDialog"
+			id="org.argeo.demo.i18n.openDialog"
+			name="This name should not be displayed - check plugin.xml">
+		</command>   
     </extension>
 
     <!-- Menus --> 
 	<extension point="org.eclipse.ui.menus">
 		<menuContribution
 			locationURI="popup:org.argeo.demo.i18n.simpleTreeView">
+			<command
+				commandId="org.argeo.demo.i18n.openDialog"
+				style="push"
+				label="%OpenDialog_Label">
+			</command>
 		</menuContribution>
 	</extension>
 	

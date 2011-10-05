@@ -25,8 +25,6 @@ public class I18nDemoPlugin extends AbstractUIPlugin {
 	 * The constructor
 	 */
 	public I18nDemoPlugin() {
-		// Locale currentLocale = new Locale("fr");
-		// Locale.setDefault(currentLocale);
 	}
 
 	/*

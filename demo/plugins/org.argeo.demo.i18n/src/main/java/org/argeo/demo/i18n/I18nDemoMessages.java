@@ -14,11 +14,28 @@ public class I18nDemoMessages extends NLS {
 
 	private static final String BUNDLENAME = I18nDemoPlugin.ID + ".messages"; // $NON-NLS−1$
 
+	// Errors & warnings
+	public String OpenDialog_Title;
+	public String OpenDialog_Message;
+
+	// Commands
+
+	// Editor
 	public String SimpleMultitabEditor_MultiSectionPageTitle;
 	public String SimpleMultitabEditor_SimplePageTitle;
-	public String MultiSelectionPage_DescriptionSectionTitle;
-	public String MultiSelectionPage_DetailsSectionTitle;
-	public String testLbl;
+
+	// Pages
+	public String MultiSectionPage_DescriptionSectionTitle;
+	public String MultiSectionPage_DescriptionSectionTxt;
+	public String MultiSectionPage_DetailsSectionTitle;
+	public String MultiSectionPage_PopupTitle;
+	public String MultiSectionPage_PopupText;
+	public String SimplePage_DescriptionTxt;
+
+	// Buttons
+	public String MultiSectionPage_Btn1Lbl;
+	public String MultiSectionPage_Btn2Lbl;
+	public String MultiSectionPage_Btn3Lbl;
 
 	// Code that enable handling of concurrent multi sessions locales
 	static {

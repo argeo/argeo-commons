@@ -1,7 +1,5 @@
 package org.argeo.demo.i18n.utils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.demo.i18n.I18nDemoPlugin;
 import org.argeo.demo.i18n.editors.SimpleMultitabEditor;
@@ -18,13 +16,13 @@ import org.eclipse.ui.PartInitException;
  */
 public class GenericDoubleClickListener implements IDoubleClickListener {
 
-	private final static Log log = LogFactory
-			.getLog(GenericDoubleClickListener.class);
+	// private final static Log log = LogFactory
+	// .getLog(GenericDoubleClickListener.class);
 
-	private TreeViewer treeViewer;
+	// private TreeViewer treeViewer;
 
 	public GenericDoubleClickListener(TreeViewer treeViewer) {
-		this.treeViewer = treeViewer;
+		// this.treeViewer = treeViewer;
 	}
 
 	public void doubleClick(DoubleClickEvent event) {

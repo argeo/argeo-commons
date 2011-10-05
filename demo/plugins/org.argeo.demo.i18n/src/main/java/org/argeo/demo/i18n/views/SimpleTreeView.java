@@ -1,7 +1,5 @@
 package org.argeo.demo.i18n.views;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.demo.i18n.I18nDemoPlugin;
 import org.argeo.demo.i18n.providers.SimpleContentProvider;
 import org.argeo.demo.i18n.providers.SimpleLabelProvider;
@@ -24,8 +22,7 @@ import org.eclipse.ui.part.ViewPart;
  */
 
 public class SimpleTreeView extends ViewPart {
-	private final static Log log = LogFactory.getLog(SimpleTreeView.class);
-
+	// private final static Log log = LogFactory.getLog(SimpleTreeView.class);
 	public final static String ID = I18nDemoPlugin.ID + ".simpleTreeView";
 
 	// This page widgets
@@ -81,7 +78,5 @@ public class SimpleTreeView extends ViewPart {
 	@Override
 	public void setFocus() {
 		// Do nothing for the time being.
-
 	}
-
 }

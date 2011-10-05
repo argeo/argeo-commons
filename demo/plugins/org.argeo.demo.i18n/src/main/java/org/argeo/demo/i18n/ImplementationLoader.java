@@ -2,9 +2,6 @@ package org.argeo.demo.i18n;
 
 import java.text.MessageFormat;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * This class enable single sourcing between RAP and RCP. For this to run
  * correctly, following conventions must be respected:
@@ -18,8 +15,8 @@ import org.apache.commons.logging.LogFactory;
  */
 
 public class ImplementationLoader {
-	private final static Log log = LogFactory
-			.getLog(ImplementationLoader.class);
+	// private final static Log log = LogFactory
+	// .getLog(ImplementationLoader.class);
 
 	public static Object newInstance(
 			@SuppressWarnings("rawtypes") final Class type) {

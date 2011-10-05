@@ -1,7 +1,5 @@
 package org.argeo.demo.i18n.editors;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.demo.i18n.I18nDemoMessages;
 import org.argeo.demo.i18n.I18nDemoPlugin;
@@ -19,8 +17,8 @@ import org.eclipse.ui.forms.editor.FormEditor;
  */
 public class SimpleMultitabEditor extends FormEditor {
 
-	private final static Log log = LogFactory
-			.getLog(SimpleMultitabEditor.class);
+	// private final static Log log = LogFactory
+	// .getLog(SimpleMultitabEditor.class);
 	public final static String ID = I18nDemoPlugin.ID + ".simpleMultitabEditor";
 
 	private SimplePage simplePage;
