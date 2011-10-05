@@ -39,7 +39,6 @@ public class JcrTabularRowIterator implements TabularRowIterator {
 
 	public JcrTabularRowIterator(Node tableNode) {
 		try {
-			Node contentNode = tableNode.getNode(Property.JCR_CONTENT);
 			for (NodeIterator it = tableNode.getNodes(); it.hasNext();) {
 				Node node = it.nextNode();
 				if (node.isNodeType(ArgeoTypes.ARGEO_COLUMN)) {
@@ -48,13 +47,9 @@ public class JcrTabularRowIterator implements TabularRowIterator {
 					TabularColumn tc = new TabularColumn(node.getProperty(
 							Property.JCR_TITLE).getString(), type);
 					header.add(tc);
-					// } else if (node.getName().equals(Property.JCR_CONTENT)) {
-					// contentNode = node;
 				}
 			}
-			// should not happen since content is mandatory
-			assert contentNode != null;
-
+			Node contentNode = tableNode.getNode(Property.JCR_CONTENT);
 			if (contentNode.isNodeType(ArgeoTypes.ARGEO_CSV)) {
 				textLines = new ArrayBlockingQueue<List<String>>(1000);
 				csvParser = new CsvParser() {
@@ -166,6 +161,10 @@ public class JcrTabularRowIterator implements TabularRowIterator {
 
 	public Long getCurrentRowNumber() {
 		return currentRowNumber;
+	}
+
+	public List<TabularColumn> getHeader() {
+		return header;
 	}
 
 }

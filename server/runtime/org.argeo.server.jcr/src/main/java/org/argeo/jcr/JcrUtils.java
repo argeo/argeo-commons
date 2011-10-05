@@ -39,6 +39,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
+import javax.jcr.PropertyType;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
@@ -379,15 +380,17 @@ public class JcrUtils implements ArgeoJcrConstants {
 			NodeIterator it = node.getNodes();
 			while (it.hasNext()) {
 				Node childNode = it.nextNode();
-				debug(childNode);
+				debug(childNode, log);
 			}
 
 			// Then output the properties
 			PropertyIterator properties = node.getProperties();
 			// log.debug("Property are : ");
 
-			while (properties.hasNext()) {
+			properties: while (properties.hasNext()) {
 				Property property = properties.nextProperty();
+				if (property.getType() == PropertyType.BINARY)
+					continue properties;// skip
 				if (property.getDefinition().isMultiple()) {
 					// A multi-valued property, print all values
 					Value[] values = property.getValues();
