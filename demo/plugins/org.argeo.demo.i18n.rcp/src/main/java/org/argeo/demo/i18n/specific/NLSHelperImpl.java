@@ -15,12 +15,12 @@ public class NLSHelperImpl extends NLSHelper {
 
 		ClassLoader loader = clazz.getClassLoader();
 		// test
-		Locale currentLocale = new Locale("fr");
-		ResourceBundle bundle = ResourceBundle.getBundle(bundleName,
-				currentLocale, loader);
-		// test end
+		// Locale currentLocale = new Locale("fr");
 		// ResourceBundle bundle = ResourceBundle.getBundle(bundleName,
-		// Locale.getDefault(), loader);
+		// currentLocale, loader);
+		// test end
+		ResourceBundle bundle = ResourceBundle.getBundle(bundleName,
+				Locale.getDefault(), loader);
 		return internalGet(bundle, clazz);
 	}
 
