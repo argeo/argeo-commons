@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 import org.argeo.StreamUtils;
 import org.argeo.util.crypto.PasswordBasedEncryption;
 
-public class PasswordBasedEncryptionTest extends TestCase {
+public class PasswordBasedEncryptionTest{// extends TestCase {
 //	public void testEncryptDecrypt() {
 //		final String password = "test long password since they are more powerful";
 //		PasswordBasedEncryption pbeEnc = new PasswordBasedEncryption(
