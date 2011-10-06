@@ -14,8 +14,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.ValueFactory;
-import javax.jcr.security.AccessControlPolicy;
-import javax.jcr.security.AccessControlPolicyIterator;
 import javax.jcr.security.Privilege;
 import javax.security.auth.Subject;
 
@@ -100,7 +98,7 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		return userId;
 	}
 
-	protected void setHomeNodeAuthorizations(User user) {
+	protected synchronized void setHomeNodeAuthorizations(User user) {
 		// give all privileges on user home
 		// FIXME: fails on an empty repo
 		String userId = "<not yet set>";
@@ -125,7 +123,7 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 				JackrabbitAccessControlPolicy[] ps = acm
 						.getApplicablePolicies(principal);
 				if (ps.length == 0) {
-					log.warn("No ACL found for " + user);
+					// log.warn("No ACL found for " + user);
 					return;
 				}
 
