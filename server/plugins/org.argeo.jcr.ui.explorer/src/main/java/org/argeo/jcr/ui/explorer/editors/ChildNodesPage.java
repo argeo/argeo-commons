@@ -40,9 +40,10 @@ public class ChildNodesPage extends FormPage {
 	protected void createFormContent(IManagedForm managedForm) {
 		try {
 			ScrolledForm form = managedForm.getForm();
+			form.setText(JcrExplorerPlugin.getMessage("childNodesPageTitle"));
 			Composite body = form.getBody();
 			GridLayout twt = new GridLayout(1, false);
-			twt.marginWidth = twt.marginHeight = 0;
+			twt.marginWidth = twt.marginHeight = 5;
 			body.setLayout(twt);
 			if (!currentNode.hasNodes()) {
 				managedForm.getToolkit().createLabel(body,

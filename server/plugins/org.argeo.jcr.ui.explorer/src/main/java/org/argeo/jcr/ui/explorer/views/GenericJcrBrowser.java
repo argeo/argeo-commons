@@ -64,7 +64,6 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 
 	// Manage documents
 	// private JcrFileProvider jcrFileProvider;
-
 	// private FileHandler fileHandler;
 
 	@Override

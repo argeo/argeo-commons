@@ -73,6 +73,8 @@ public class NodeVersionHistoryPage extends FormPage implements
 
 	protected void createFormContent(IManagedForm managedForm) {
 		ScrolledForm form = managedForm.getForm();
+		form.setText(JcrExplorerPlugin
+				.getMessage("nodeVersionHistoryPageTitle"));
 		tk = managedForm.getToolkit();
 		GridLayout twt = new GridLayout(1, false);
 		twt.marginWidth = twt.marginHeight = 5;

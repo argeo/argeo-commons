@@ -5,6 +5,7 @@ import javax.jcr.security.AccessControlManager;
 import javax.jcr.security.Privilege;
 
 import org.argeo.ArgeoException;
+import org.argeo.jcr.ui.explorer.JcrExplorerPlugin;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.TableViewer;
@@ -40,13 +41,16 @@ public class NodeRightsManagementPage extends FormPage {
 
 	protected void createFormContent(IManagedForm managedForm) {
 		ScrolledForm form = managedForm.getForm();
-		form.setText("Rights");
-		FillLayout mainLayout = new FillLayout();
-		form.getBody().setLayout(mainLayout);
+		form.setText(JcrExplorerPlugin
+				.getMessage("nodeRightsManagementPageTitle"));
+		FillLayout layout = new FillLayout();
+		layout.marginHeight = 5;
+		layout.marginWidth = 5;
+		form.getBody().setLayout(layout);
 		createRightsPart(form.getBody());
 	}
 
-	/** Creates the rights section */
+	/** Creates the rights part */
 	protected void createRightsPart(Composite parent) {
 		Table table = new Table(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		table.setLinesVisible(true);

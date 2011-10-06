@@ -38,6 +38,14 @@ public class JcrUiUtils {
 					re);
 		}
 	}
+
+	/**
+	 * Insure that a model element is inline with the underlying data by
+	 * cleaning the corresponding subtree and building it again.
+	 */
+	public static void forceRebuild(TreeParent element) {
+		// TODO implement this method if needed.
+	}
 	/**
 	 * Workaround to get the alias of the repository that contains the given
 	 * element. As we cannot browse the UI tree upward we recursively browse it

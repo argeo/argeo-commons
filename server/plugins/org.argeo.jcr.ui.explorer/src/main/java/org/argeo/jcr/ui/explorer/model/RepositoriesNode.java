@@ -107,7 +107,7 @@ public class RepositoriesNode extends TreeParent implements ArgeoNames {
 		// super.addChild(new RepositoriesNode(...));
 	}
 
-	/** Returns the {@link RepositoryRegister} wrapped by thgis object. */
+	/** Returns the {@link RepositoryRegister} wrapped by this object. */
 	public RepositoryRegister getRepositoryRegister() {
 		return repositoryRegister;
 	}

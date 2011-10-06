@@ -15,10 +15,10 @@
 		class="org.argeo.jcr.ui.explorer.commands.OpenGenericNodeEditor"
 		scope="prototype">
 	</bean>
+
 	<bean id="getNodeSize" class="org.argeo.jcr.ui.explorer.commands.GetNodeSize"
 		scope="prototype">
 	</bean>
-
 
 	<bean id="addRemoteRepository" class="org.argeo.jcr.ui.explorer.commands.AddRemoteRepository">
 		<property name="repositoryFactory" ref="repositoryRegister" />
@@ -29,6 +29,8 @@
 	<bean id="addFolderNode" class="org.argeo.jcr.ui.explorer.commands.AddFolderNode"
 		scope="prototype" />
 
+	<!-- <bean id="refresh" class="org.argeo.jcr.ui.explorer.commands.Refresh" 
+		scope="prototype" /> -->
 	<bean id="refresh" class="org.argeo.eclipse.ui.jcr.commands.Refresh"
 		scope="prototype" />
 

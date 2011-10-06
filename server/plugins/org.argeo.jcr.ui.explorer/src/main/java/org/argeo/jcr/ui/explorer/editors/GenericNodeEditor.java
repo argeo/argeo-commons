@@ -25,7 +25,8 @@ public class GenericNodeEditor extends FormEditor {
 
 	private Node currentNode;
 
-	private GenericNodePage networkDetailsPage;
+	private GenericNodePage genericNodePage;
+	private GenericPropertyPage genericPropertyPage;
 	private ChildNodesPage childNodesPage;
 	private NodeRightsManagementPage nodeRightsManagementPage;
 	private NodeVersionHistoryPage nodeVersionHistoryPage;
@@ -41,10 +42,15 @@ public class GenericNodeEditor extends FormEditor {
 	@Override
 	protected void addPages() {
 		try {
-			networkDetailsPage = new GenericNodePage(this,
+			// genericNodePage = new GenericNodePage(this,
+			// JcrExplorerPlugin.getMessage("genericNodePageTitle"),
+			// currentNode);
+			// addPage(genericNodePage);
+
+			genericPropertyPage = new GenericPropertyPage(this,
 					JcrExplorerPlugin.getMessage("genericNodePageTitle"),
 					currentNode);
-			addPage(networkDetailsPage);
+			addPage(genericPropertyPage);
 
 			childNodesPage = new ChildNodesPage(this,
 					JcrExplorerPlugin.getMessage("childNodesPageTitle"),

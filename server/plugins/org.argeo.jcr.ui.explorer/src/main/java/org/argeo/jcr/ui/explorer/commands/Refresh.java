@@ -1,8 +1,10 @@
-package org.argeo.eclipse.ui.jcr.commands;
+package org.argeo.jcr.ui.explorer.commands;
 
 import java.util.Iterator;
 
+import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.jcr.views.AbstractJcrBrowser;
+import org.argeo.jcr.ui.explorer.utils.JcrUiUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -11,11 +13,12 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
- * Call the refresh method of the active AbstractJcrBrowser instance.
- * 
- * Warning: this method only refreshes the viewer, if the model is "stale", e.g.
- * if some changes in the underlying data have not yet been propagated to the
- * model, the view will not display up-to-date information.
+ * Force the selected objects of the active view to be refreshed doing the
+ * following:
+ * <ol>
+ * <li>The model objects are recomputed</li>
+ * <li>the view is refreshed</li>
+ * </ol>
  */
 public class Refresh extends AbstractHandler {
 
@@ -29,7 +32,11 @@ public class Refresh extends AbstractHandler {
 			Iterator<?> it = ((IStructuredSelection) selection).iterator();
 			while (it.hasNext()) {
 				Object obj = it.next();
-				view.refresh(obj);
+				if (obj instanceof TreeParent) {
+					TreeParent tp = (TreeParent) obj;
+					JcrUiUtils.forceRefreshIfNeeded(tp);
+					view.refresh(obj);
+				}
 			}
 		}
 		return null;

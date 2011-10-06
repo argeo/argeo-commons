@@ -60,12 +60,7 @@
 			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
 			id="org.argeo.jcr.ui.explorer.getNodeSize"
 			name="Get node size">
-			<commandParameter
-				id="org.argeo.jcr.ui.explorer.nodePath"
-				name="Node path">
-  	 		</commandParameter>
 		</command>    
-		
     	<command
 			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
 			id="org.argeo.jcr.ui.explorer.addRemoteRepository"
@@ -111,9 +106,6 @@
                 icon="icons/query.png"
                 style="push">
             </command>
-        </menuContribution>
-		<menuContribution
-			locationURI="menu:org.argeo.jcr.ui.explorer.browserView">
             <command
             	commandId="org.argeo.jcr.ui.explorer.addRemoteRepository"
                 icon="icons/addRepo.gif"

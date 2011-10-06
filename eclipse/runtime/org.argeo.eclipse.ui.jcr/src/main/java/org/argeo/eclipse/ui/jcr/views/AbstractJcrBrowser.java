@@ -39,7 +39,9 @@ public abstract class AbstractJcrBrowser extends ViewPart {
 	}
 
 	public void refresh(Object obj) {
+		// getNodeViewer().update(obj, null);
 		getNodeViewer().refresh(obj);
+		// getNodeViewer().expandToLevel(obj, 1);
 	}
 
 	public void nodeAdded(Node parentNode, Node newNode) {
