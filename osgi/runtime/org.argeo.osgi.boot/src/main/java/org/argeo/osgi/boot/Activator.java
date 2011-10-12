@@ -26,7 +26,12 @@ import org.osgi.framework.BundleContext;
  */
 public class Activator implements BundleActivator {
 
-	public void start(BundleContext bundleContext) throws Exception {
+	public void start(final BundleContext bundleContext) throws Exception {
+		// admin thread
+		Thread adminThread = new AdminThread(bundleContext);
+		adminThread.start();
+
+		// bootstrap
 		OsgiBoot osgiBoot = new OsgiBoot(bundleContext);
 		osgiBoot.bootstrap();
 	}

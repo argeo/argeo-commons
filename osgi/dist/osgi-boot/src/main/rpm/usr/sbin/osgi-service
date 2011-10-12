@@ -1,0 +1,80 @@
+#!/bin/sh
+
+JVM=java
+. /etc/osgiboot/osgi-service-settings.sh
+
+APP=$1
+
+CONF_DIR=/etc/$APP
+if [ -f $CONF_DIR/settings.sh ];then
+	. $CONF_DIR/settings.sh
+fi
+
+LIB_DIR=/usr/share/$APP/lib
+
+# read/write
+EXEC_DIR=/var/lib/$APP
+DATA_DIR=$EXEC_DIR/data
+CONF_RW=$EXEC_DIR/conf
+LOG_FILE=/var/log/$APP.log
+
+RUN_DIR=/var/run
+PID_FILE=$RUN_DIR/$APP.pid
+SHUTDOWN_FILE=$RUN_DIR/$APP.shutdown
+
+OSGI_INSTALL_AREA=/usr/share/osgiboot/lib
+OSGI_FRAMEWORK=$OSGI_INSTALL_AREA/org.eclipse.osgi.jar
+
+RETVAL=0
+
+start() {
+	cp $CONF_DIR/config.ini $CONF_RW/config.ini
+	touch $SHUTDOWN_FILE
+	cd $EXEC_DIR && $JVM \
+		-Dosgi.bundles="org.argeo.osgi.boot.jar@start" \
+		-Dargeo.osgi.bundles="$CONF_DIR/modules;in=*,$LIB_DIR;in=*" \
+		-Dlog4j.configuration="file:$CONF_DIR/log4j.properties" \
+		$JAVA_OPTS -jar $OSGI_FRAMEWORK \
+		-configuration "$CONF_RW" \
+		-data "$DATA_DIR" \
+		&> $LOG_FILE &
+	PID=$!
+	echo $PID > $PID_FILE
+	echo Started $APP with pid $PID
+	return $RETVAL
+}
+
+stop() {
+	PID=`cat $PID_FILE`
+	rm -f $SHUTDOWN_FILE
+	# TODO wait for process to finish until timeout, then kill
+	echo Stopped $APP with pid $PID
+	return $RETVAL
+}
+
+# See how we were called.
+case "$2" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  restart|reload)
+        stop
+        sleep 10
+        start
+        RETVAL=$?
+        ;;
+  condrestart)
+  		echo Not implemented
+  		exit 1
+        ;;
+  status)
+  		echo Not implemented
+  		exit 1
+        ;;
+  *)
+        echo $"Usage: $0 {start|stop|restart}"
+        exit 1
+esac
