@@ -7,45 +7,45 @@
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
-	<context:component-scan base-package="org.argeo.jcr.mvc" />
+<!-- 	<context:component-scan base-package="org.argeo.jcr.mvc" /> -->
 
-	<bean name="/*.jcr" class="org.argeo.jcr.mvc.JcrBrowserController" />
+<!-- 	<bean name="/*.jcr" class="org.argeo.jcr.mvc.JcrBrowserController" /> -->
 
-	<!-- Views -->
-	<bean name="getJcrItem" class="org.argeo.server.mvc.SerializingView">
-		<property name="serializer">
-			<bean class="org.argeo.jcr.mvc.JcrXmlServerSerializer" />
-		</property>
-	</bean>
+<!-- 	Views -->
+<!-- 	<bean name="getJcrItem" class="org.argeo.server.mvc.SerializingView"> -->
+<!-- 		<property name="serializer"> -->
+<!-- 			<bean class="org.argeo.jcr.mvc.JcrXmlServerSerializer" /> -->
+<!-- 		</property> -->
+<!-- 	</bean> -->
 
-	<bean name="queryJcrNodes" class="org.argeo.server.mvc.SerializingView">
-		<property name="serializer" ref="jsonSerializer" />
-	</bean>
+<!-- 	<bean name="queryJcrNodes" class="org.argeo.server.mvc.SerializingView"> -->
+<!-- 		<property name="serializer" ref="jsonSerializer" /> -->
+<!-- 	</bean> -->
 
-	<bean name="queryJcrTable" class="org.argeo.server.mvc.SerializingView">
-		<property name="serializer" ref="jsonSerializer" />
-	</bean>
+<!-- 	<bean name="queryJcrTable" class="org.argeo.server.mvc.SerializingView"> -->
+<!-- 		<property name="serializer" ref="jsonSerializer" /> -->
+<!-- 	</bean> -->
 
-	<bean name="500" class="org.argeo.server.mvc.SerializingView">
-		<property name="serializer" ref="jsonSerializer" />
-	</bean>
+<!-- 	<bean name="500" class="org.argeo.server.mvc.SerializingView"> -->
+<!-- 		<property name="serializer" ref="jsonSerializer" /> -->
+<!-- 	</bean> -->
 
-	<!-- Serializers -->
-	<bean id="jsonSerializer" class="org.argeo.server.json.JsonServerSerializer" />
+<!-- 	Serializers -->
+<!-- 	<bean id="jsonSerializer" class="org.argeo.server.json.JsonServerSerializer" /> -->
 
-	<!-- MVC -->
-	<bean id="handlerMapping"
-		class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping">
-		<property name="interceptors">
-			<list>
-				<ref bean="osivInterceptor" />
-			</list>
-		</property>
-	</bean>
+<!-- 	MVC -->
+<!-- 	<bean id="handlerMapping" -->
+<!-- 		class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"> -->
+<!-- 		<property name="interceptors"> -->
+<!-- 			<list> -->
+<!-- 				<ref bean="osivInterceptor" /> -->
+<!-- 			</list> -->
+<!-- 		</property> -->
+<!-- 	</bean> -->
 
-	<bean id="viewResolver"
-		class="org.springframework.web.servlet.view.BeanNameViewResolver" />
+<!-- 	<bean id="viewResolver" -->
+<!-- 		class="org.springframework.web.servlet.view.BeanNameViewResolver" /> -->
 
-	<bean class="org.argeo.server.mvc.DefaultHandlerExceptionResolver" />
+<!-- 	<bean class="org.argeo.server.mvc.DefaultHandlerExceptionResolver" /> -->
 
 </beans>

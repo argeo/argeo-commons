@@ -30,14 +30,17 @@ RETVAL=0
 start() {
 	cp $CONF_DIR/config.ini $CONF_RW/config.ini
 	touch $SHUTDOWN_FILE
-	cd $EXEC_DIR && $JVM \
+	cd $EXEC_DIR
+	$JVM \
 		-Dosgi.bundles="org.argeo.osgi.boot.jar@start" \
 		-Dargeo.osgi.bundles="$CONF_DIR/modules;in=*,$LIB_DIR;in=*" \
+		-Dargeo.osgi.shutdownFile="$SHUTDOWN_FILE" \
 		-Dlog4j.configuration="file:$CONF_DIR/log4j.properties" \
 		$JAVA_OPTS -jar $OSGI_FRAMEWORK \
+		-clean \
 		-configuration "$CONF_RW" \
 		-data "$DATA_DIR" \
-		&> $LOG_FILE &
+		&>> $LOG_FILE &
 	PID=$!
 	echo $PID > $PID_FILE
 	echo Started $APP with pid $PID
@@ -45,9 +48,20 @@ start() {
 }
 
 stop() {
-	PID=`cat $PID_FILE`
+	if [ -f $PID_FILE ];then
+		PID=`cat $PID_FILE`
+	else
+		return $RETVAL
+	fi
 	rm -f $SHUTDOWN_FILE
-	# TODO wait for process to finish until timeout, then kill
+	timeout 5m sh << EOF
+while kill -0 $PID &> /dev/null; do sleep 1; done
+EOF
+	TIMEOUT_EXIT=$?
+	if [ $TIMEOUT_EXIT -eq 124 ];then
+		kill -9 $PID
+	fi
+	rm -f $PID_FILE
 	echo Stopped $APP with pid $PID
 	return $RETVAL
 }
@@ -60,21 +74,20 @@ case "$2" in
   stop)
         stop
         ;;
-  restart|reload)
+  restart)
         stop
-        sleep 10
         start
         RETVAL=$?
         ;;
-  condrestart)
-  		echo Not implemented
-  		exit 1
-        ;;
   status)
-  		echo Not implemented
-  		exit 1
+	if [ -f $PID_FILE ];then
+		PID=`cat $PID_FILE`
+		echo $APP is running with pid $PID ...
+	else
+		echo $APP is not running
+	fi
         ;;
   *)
-        echo $"Usage: $0 {start|stop|restart}"
+        echo $"Usage: $0 {start|stop|restart|status}"
         exit 1
 esac
