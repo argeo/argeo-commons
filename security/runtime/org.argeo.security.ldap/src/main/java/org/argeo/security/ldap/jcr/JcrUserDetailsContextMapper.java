@@ -3,6 +3,7 @@ package org.argeo.security.ldap.jcr;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -50,6 +51,9 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 
 	private PasswordEncoder passwordEncoder;
 	private final Random random;
+
+	/** 0 is always sync */
+	private Long syncLatency = 10 * 60 * 1000l;
 
 	public JcrUserDetailsContextMapper() {
 		random = createRandom();
@@ -108,13 +112,14 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 	}
 
 	/** @return path to the user home node */
-	protected synchronized String mapLdapToJcr(String username, DirContextOperations ctx) {
+	protected synchronized String mapLdapToJcr(String username,
+			DirContextOperations ctx) {
 		String usernameLdap = ctx.getStringAttribute(usernameAttribute);
 		// log.debug("username=" + username + ", usernameLdap=" + usernameLdap);
 		if (!username.equals(usernameLdap)) {
 			String msg = "Provided username '" + username
 					+ "' is different from username stored in LDAP '"
-					+ usernameLdap+"'";
+					+ usernameLdap + "'";
 			// we log it because the exception may not be displayed
 			log.error(msg);
 			throw new BadCredentialsException(msg);
@@ -130,6 +135,14 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 			Node userProfile; // = userHome.getNode(ARGEO_PROFILE);
 			if (userHome.hasNode(ARGEO_PROFILE)) {
 				userProfile = userHome.getNode(ARGEO_PROFILE);
+				if (syncLatency != 0) {
+					Calendar lastModified = userProfile.getProperty(
+							Property.JCR_LAST_MODIFIED).getDate();
+					long timeSinceLastUpdate = System.currentTimeMillis()
+							- lastModified.getTimeInMillis();
+					if (timeSinceLastUpdate < syncLatency)// skip sync
+						return userHomePath;
+				}
 			} else {
 				throw new ArgeoException("We should never reach this point");
 				// userProfile = userHome.addNode(ARGEO_PROFILE);
@@ -149,7 +162,7 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 						.getProperty(ARGEO_FIRST_NAME).getString()
 						+ " "
 						+ userProfile.getProperty(ARGEO_LAST_NAME).getString());
-
+			JcrUtils.updateLastModified(userProfile);
 			session.save();
 			if (log.isTraceEnabled())
 				log.trace("Mapped " + ctx.getDn() + " to " + userProfile);
@@ -280,6 +293,13 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 
 	public void setSession(Session session) {
 		this.session = session;
+	}
+
+	/**
+	 * Time in ms during which the LDAP server is not checked. 0 is always sync.
+	 */
+	public void setSyncLatency(Long syncLatency) {
+		this.syncLatency = syncLatency;
 	}
 
 }
