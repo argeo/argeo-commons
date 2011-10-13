@@ -1,21 +1,21 @@
+Manifest-Version: 1.0
+Private-Package: .
+Tool: Bnd-1.15.0
+Bundle-Name: Commons Security DAO LDAP
+Created-By: 1.6.0_20 (Sun Microsystems Inc.)
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Vendor: Argeo
+Bundle-Version: 0.3.4.SNAPSHOT-r20111013_125628
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Import-Package: com.sun.jndi.ldap;resolution:=optional,javax.jcr,org.a
+ rgeo.security,org.argeo.security.jcr,org.argeo.security.ldap,org.arge
+ o.security.ldap.jcr,org.springframework.beans.factory.config,org.spri
+ ngframework.ldap.core.support,org.springframework.security.ldap,org.s
+ pringframework.security.ldap.populator,org.springframework.security.p
+ roviders,org.springframework.security.providers.ldap,org.springframew
+ ork.security.providers.ldap.authenticator,org.springframework.securit
+ y.userdetails
 Bundle-SymbolicName: org.argeo.security.dao.ldap
-Bundle-Version: 0.3.4.SNAPSHOT
-Import-Package: com.sun.jndi.ldap;resolution:=optional,
- javax.jcr;version="[2.0.0,3.0.0)",
- org.argeo.jcr,
- org.argeo.security,
- org.argeo.security.jcr,
- org.argeo.security.ldap,
- org.argeo.security.ldap.jcr,
- org.springframework.beans.factory.config,
- org.springframework.ldap.core.support,
- org.springframework.security,
- org.springframework.security.ldap,
- org.springframework.security.ldap.populator,
- org.springframework.security.providers,
- org.springframework.security.providers.encoding,
- org.springframework.security.providers.ldap,
- org.springframework.security.providers.ldap.authenticator,
- org.springframework.security.userdetails,
- org.springframework.security.userdetails.ldap
-Bundle-Name: Security DAO LDAP
+Bundle-DocURL: http://www.argeo.org
+

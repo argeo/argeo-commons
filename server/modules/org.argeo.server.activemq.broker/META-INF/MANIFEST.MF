@@ -1,25 +1,26 @@
 Manifest-Version: 1.0
-Bundle-Version: 0.3.4.SNAPSHOT
-Bundle-SymbolicName: org.argeo.server.activemq.broker
-Import-Package: ietf.params.xml.ns.xmpp_sasl;resolution:=optional,
- ietf.params.xml.ns.xmpp_stanzas;resolution:=optional,
- ietf.params.xml.ns.xmpp_streams;resolution:=optional,
- ietf.params.xml.ns.xmpp_tls;resolution:=optional,
- jabber.client;resolution:=optional,
- jabber.iq._private;resolution:=optional,
- jabber.iq.auth;resolution:=optional,
- jabber.iq.roster;resolution:=optional,
- org.apache.activemq.broker,
- org.apache.activemq.command;resolution:=optional,
- org.apache.activemq.store.amq,
- org.apache.activemq.transport.http;resolution:=optional,
- org.apache.activemq.util,
- org.apache.activemq.xbean,
- org.jabber.etherx.streams;resolution:=optional,
- org.jabber.protocol.disco_info;resolution:=optional,
- org.jabber.protocol.disco_items;resolution:=optional,
- org.jabber.protocol.muc;resolution:=optional,
- org.jabber.protocol.muc_user;resolution:=optional,
- org.springframework.beans.factory.config
+Private-Package: .
+Tool: Bnd-1.15.0
+Bundle-Name: Commons Server Default Active MQ Broker
+Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Bundle-Name: ActiveMQ broker
+Bundle-Vendor: Argeo
+Bundle-Version: 0.3.4.SNAPSHOT-r20111013_131929
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Import-Package: ietf.params.xml.ns.xmpp_sasl;resolution:=optional,ietf
+ .params.xml.ns.xmpp_stanzas;resolution:=optional,ietf.params.xml.ns.x
+ mpp_streams;resolution:=optional,ietf.params.xml.ns.xmpp_tls;resoluti
+ on:=optional,jabber.client;resolution:=optional,jabber.iq._private;re
+ solution:=optional,jabber.iq.auth;resolution:=optional,jabber.iq.rost
+ er;resolution:=optional,org.apache.activemq.broker,org.apache.activem
+ q.command;resolution:=optional,org.apache.activemq.store.amq,org.apac
+ he.activemq.transport.http;resolution:=optional,org.apache.activemq.u
+ til,org.apache.activemq.xbean,org.jabber.etherx.streams;resolution:=o
+ ptional,org.jabber.protocol.disco_info;resolution:=optional,org.jabbe
+ r.protocol.disco_items;resolution:=optional,org.jabber.protocol.muc;r
+ esolution:=optional,org.jabber.protocol.muc_user;resolution:=optional
+ ,org.springframework.beans.factory.config
+Bundle-SymbolicName: org.argeo.server.activemq.broker
+Bundle-DocURL: http://www.argeo.org
+

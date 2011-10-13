@@ -1,30 +1,26 @@
 Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Webapp
-Bundle-SymbolicName: org.argeo.jackrabbit.webapp
-Bundle-Version: 0.3.4.SNAPSHOT
+Private-Package: .,WEB-INF
+Tool: Bnd-1.15.0
+Bundle-Name: Commons Server Jackrabbit Webapp
+Created-By: 1.6.0_20 (Sun Microsystems Inc.)
 Web-ContextPath: org.argeo.jcr.webapp
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Vendor: Argeo
 DynamicImport-Package: *
-Import-Package: javax.jcr,
- javax.servlet,
- javax.servlet.http,
- javax.servlet.resources,
- org.aopalliance.aop;version="1.0.0",
- org.argeo.jackrabbit.remote,
- org.argeo.jcr,
- org.argeo.jcr.mvc,
- org.argeo.server.mvc,
- org.springframework.aop;version="2.5.6.SEC01",
- org.springframework.aop.framework;version="2.5.6.SEC01",
- org.springframework.aop.scope;version="2.5.6.SEC01",
- org.springframework.beans.factory.config;version="2.5.6.SEC01",
- org.springframework.osgi.web.context.support;version="1.2.1",
- org.springframework.security;version="2.0.6.RELEASE",
- org.springframework.security.providers.anonymous;version="2.0.6.RELEASE",
- org.springframework.security.ui.webapp;version="2.0.6.RELEASE",
- org.springframework.web.context;version="2.5.6.SEC01",
- org.springframework.web.filter;version="2.5.6.SEC01",
- org.springframework.web.servlet;version="2.5.6.SEC01",
- org.springframework.web.servlet.handler;version="2.5.6.SEC01",
- org.springframework.web.servlet.view;version="2.5.6.SEC01"
+Bundle-Version: 0.3.4.SNAPSHOT-r20111013_131927
+Bundle-ManifestVersion: 2
+Bundle-Description: JCR remoting, WebDav
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Import-Package: javax.jcr,javax.servlet,javax.servlet.http,javax.servl
+ et.resources,org.aopalliance.aop,org.argeo.jackrabbit.remote,org.arge
+ o.jcr,org.argeo.jcr.mvc,org.argeo.server.mvc,org.springframework.aop,
+ org.springframework.aop.framework,org.springframework.aop.scope,org.s
+ pringframework.beans.factory.config,org.springframework.osgi.web.cont
+ ext.support,org.springframework.security,org.springframework.security
+ .providers.anonymous,org.springframework.security.ui.webapp,org.sprin
+ gframework.web.context,org.springframework.web.filter,org.springframe
+ work.web.servlet,org.springframework.web.servlet.handler,org.springfr
+ amework.web.servlet.view
+Bundle-SymbolicName: org.argeo.jackrabbit.webapp
+Bundle-DocURL: http://www.argeo.org
+

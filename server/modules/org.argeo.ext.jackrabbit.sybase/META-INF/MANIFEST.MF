@@ -1,7 +1,18 @@
 Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Jackrabbit
-Bundle-SymbolicName: org.argeo.ext.jackrabbit.sybase
-Bundle-Description: provides experimental support to Sybase in Jackrabbit
-Bundle-Version: 0.3.4.SNAPSHOT
+Private-Package: org.apache.jackrabbit.core.persistence.bundle,org.apa
+ che.jackrabbit.core.fs.db,org.apache.jackrabbit.core.persistence.db,o
+ rg.apache.jackrabbit.core.journal
+Tool: Bnd-1.15.0
+Bundle-Name: Commons Server Jackrabbit Sybase Extension
+Created-By: 1.6.0_20 (Sun Microsystems Inc.)
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Vendor: Argeo
 Fragment-Host: org.argeo.dep.osgi.jackrabbit
+Bundle-Version: 0.3.4.SNAPSHOT-r20111013_131926
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-Description: Provides experimental support to Sybase in Jackrab
+ bit
+Bundle-SymbolicName: org.argeo.ext.jackrabbit.sybase
+Bundle-DocURL: http://www.argeo.org
+

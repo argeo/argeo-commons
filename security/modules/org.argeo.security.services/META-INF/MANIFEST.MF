@@ -1,12 +1,17 @@
+Manifest-Version: 1.0
+Private-Package: .
+Tool: Bnd-1.15.0
+Bundle-Name: Commons Security Services
+Created-By: 1.6.0_20 (Sun Microsystems Inc.)
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Vendor: Argeo
+Bundle-Version: 0.3.4.SNAPSHOT-r20111013_125628
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Import-Package: org.argeo.security,org.argeo.security.core,org.springf
+ ramework.beans.factory.config,org.springframework.security,org.spring
+ framework.security.adapters,org.springframework.security.providers,or
+ g.springframework.security.providers.anonymous
 Bundle-SymbolicName: org.argeo.security.services
-Bundle-Version: 0.3.4.SNAPSHOT
-Import-Package: org.argeo.security,
- org.argeo.security.core,
- org.springframework.beans.factory.config;specification-version="2.5.6.SEC01",
- org.springframework.security;specification-version="2.0.4.A",
- org.springframework.security.adapters;specification-version="2.0.6.RELEASE",
- org.springframework.security.providers;specification-version="2.0.6.RELEASE",
- org.springframework.security.providers.anonymous;specification-version="2.0.6.RELEASE",
- org.springframework.security.providers.encoding;specification-version="2.0.6.RELEASE",
- org.springframework.security.providers.rememberme;specification-version="2.0.6.RELEASE"
-Bundle-Name: Security Services
+Bundle-DocURL: http://www.argeo.org
+

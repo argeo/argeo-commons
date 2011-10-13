@@ -1,5 +1,15 @@
 Manifest-Version: 1.0
-Bundle-Version: 0.3.4.SNAPSHOT
+Private-Package: .
+Tool: Bnd-1.15.0
+Bundle-Name: Commons Server Default HSQL Datasource
+Created-By: 1.6.0_20 (Sun Microsystems Inc.)
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Vendor: Argeo
+Bundle-Version: 0.3.4.SNAPSHOT-r20111013_131931
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Import-Package: javax.sql,org.hsqldb.jdbc,org.springframework.beans.fa
+ ctory.config
 Bundle-SymbolicName: org.argeo.server.hsqldb
-Import-Package: org.hsqldb.jdbc,
- org.springframework.beans.factory.config
+Bundle-DocURL: http://www.argeo.org
+

@@ -1,23 +1,22 @@
+Manifest-Version: 1.0
+Export-Package: WEB-INF
+Tool: Bnd-1.15.0
+Bundle-Name: Commons Security Webapp
+Created-By: 1.6.0_20 (Sun Microsystems Inc.)
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Vendor: Argeo
+Bundle-Version: 0.3.4.SNAPSHOT-r20111013_125629
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Import-Package: javax.servlet,javax.servlet.http,javax.servlet.resourc
+ es,org.argeo.security,org.argeo.security.mvc,org.argeo.server.json,or
+ g.argeo.server.mvc,org.springframework.ldap.core.support,org.springfr
+ amework.osgi.web.context.support,org.springframework.security,org.spr
+ ingframework.security.config,org.springframework.security.ui,org.spri
+ ngframework.security.ui.rememberme,org.springframework.security.ui.we
+ bapp,org.springframework.security.userdetails,org.springframework.web
+ .context,org.springframework.web.context.support,org.springframework.
+ web.filter,org.springframework.web.servlet
 Bundle-SymbolicName: org.argeo.security.webapp
-Bundle-Version: 0.3.4.SNAPSHOT
-Web-ContextPath: org.argeo.security.webapp
-Import-Package: javax.servlet,
- javax.servlet.http,
- javax.servlet.resources,
- org.argeo.security,
- org.argeo.security.mvc,
- org.argeo.server.json,
- org.argeo.server.mvc,
- org.springframework.ldap.core.support,
- org.springframework.osgi.web.context.support,
- org.springframework.security,
- org.springframework.security.config,
- org.springframework.security.ui,
- org.springframework.security.ui.rememberme;specification-version="2.0.4.A",
- org.springframework.security.ui.webapp,
- org.springframework.security.userdetails;specification-version="2.0.4.A",
- org.springframework.web.context,
- org.springframework.web.context.support,
- org.springframework.web.filter,
- org.springframework.web.servlet
-Bundle-Name: Security Webapp
+Bundle-DocURL: http://www.argeo.org
+
