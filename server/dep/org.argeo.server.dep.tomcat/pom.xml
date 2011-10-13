@@ -22,7 +22,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.catalina</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 <!-- 		<dependency> -->
 <!-- 			<groupId>org.argeo.commons.server</groupId> -->

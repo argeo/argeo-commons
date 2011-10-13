@@ -53,7 +53,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.rap.webapp</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>

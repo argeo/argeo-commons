@@ -82,12 +82,12 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.node.repo.jackrabbit</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.node.repofactory.jackrabbit</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Active MQ -->
@@ -105,7 +105,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.activemq.broker</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Javax -->
@@ -134,7 +134,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.dao.ldap</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
@@ -144,14 +144,14 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.services</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Security (Jackrabbit) -->
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.dao.jackrabbit</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Web -->
@@ -182,14 +182,14 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.jackrabbit.webapp</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Default Tomcat conf -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.tomcat</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 
 		<!-- LDAP server -->

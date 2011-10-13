@@ -18,12 +18,12 @@
 		<dependency>
 			<groupId>org.argeo.commons.eclipse</groupId>
 			<artifactId>org.argeo.eclipse.ui.rcp</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.eclipse</groupId>
 			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>
