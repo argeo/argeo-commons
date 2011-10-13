@@ -16,26 +16,6 @@
 				<groupId>org.argeo.maven.plugins</groupId>
 				<artifactId>maven-argeo-osgi-plugin</artifactId>
 			</plugin>
-			<!-- <plugin> -->
-			<!-- <groupId>org.apache.maven.plugins</groupId> -->
-			<!-- <artifactId>maven-assembly-plugin</artifactId> -->
-			<!-- <configuration> -->
-			<!-- <descriptors> -->
-			<!-- <descriptor>src/assembly/win32.x86.xml</descriptor> -->
-			<!-- <descriptor>src/assembly/linux.x86.xml</descriptor> -->
-			<!-- <descriptor>src/assembly/linux.x86_64.xml</descriptor> -->
-			<!-- </descriptors> -->
-			<!-- </configuration> -->
-			<!-- <executions> -->
-			<!-- <execution> -->
-			<!-- <id>attach-assembly</id> -->
-			<!-- <phase>package</phase> -->
-			<!-- <goals> -->
-			<!-- <goal>single</goal> -->
-			<!-- </goals> -->
-			<!-- </execution> -->
-			<!-- </executions> -->
-			<!-- </plugin> -->
 		</plugins>
 	</build>
 	<dependencies>
@@ -56,13 +36,6 @@
 			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 
-		<!-- Security -->
-		<dependency>
-			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.dao.jackrabbit</artifactId>
-			<version>${version.argeo-commons}</version>
-		</dependency>
-
 		<!-- Basis -->
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
@@ -75,14 +48,5 @@
 			<artifactId>org.argeo.security.ui.rcp</artifactId>
 			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
-
-		<!-- SDK -->
-		<dependency>
-			<groupId>org.argeo.commons.basic</groupId>
-			<artifactId>org.argeo.support.junit</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
-			<scope>test</scope>
-		</dependency>
-
 	</dependencies>
 </project>

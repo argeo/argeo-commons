@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
@@ -37,16 +38,6 @@
 			<artifactId>org.argeo.osgi.dep.stdruntime</artifactId>
 			<version>0.3.4-SNAPSHOT</version>
 			<type>pom</type>
-		</dependency>
-
-		<!-- Javax -->
-		<dependency>
-			<groupId>javax.xml.soap</groupId>
-			<artifactId>com.springsource.javax.xml.soap</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.activation</groupId>
-			<artifactId>com.springsource.javax.activation</artifactId>
 		</dependency>
 
 		<!-- Argeo Security -->
@@ -119,6 +110,14 @@
 
 		<!-- Javax -->
 		<dependency>
+			<groupId>javax.xml.soap</groupId>
+			<artifactId>com.springsource.javax.xml.soap</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.activation</groupId>
+			<artifactId>com.springsource.javax.activation</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>javax.annotation</groupId>
 			<artifactId>com.springsource.javax.annotation</artifactId>
 		</dependency>
@@ -131,7 +130,7 @@
 			<artifactId>com.springsource.javax.xml.bind</artifactId>
 		</dependency>
 
-		<!-- Security -->
+		<!-- Security (LDAP) -->
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.dao.ldap</artifactId>
@@ -145,6 +144,13 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.services</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+
+		<!-- Security (Jackrabbit) -->
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.dao.jackrabbit</artifactId>
 			<version>${version.argeo-commons}</version>
 		</dependency>
 
@@ -179,6 +185,21 @@
 			<version>${version.argeo-commons}</version>
 		</dependency>
 
+		<!-- Default Tomcat conf -->
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.tomcat</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+
+		<!-- LDAP server -->
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.dep.ads</artifactId>
+			<version>0.3.4-SNAPSHOT</version>
+			<type>pom</type>
+		</dependency>
+
 		<!-- Hibernate -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
@@ -199,6 +220,13 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>com.springsource.org.postgresql.jdbc3</artifactId>
+		</dependency>
+
+		<!-- Software development -->
+		<dependency>
+			<groupId>org.argeo.commons.basic</groupId>
+			<artifactId>org.argeo.support.junit</artifactId>
+			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>
