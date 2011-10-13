@@ -68,5 +68,6 @@ Export-Package: org.argeo.jcr.ui.explorer,
    org.argeo.eclipse.ui.specific,
    org.apache.commons.io,
    org.eclipse.swt.widgets,
-   org.eclipse.jface.dialogs"
+   org.eclipse.jface.dialogs",
+ org.argeo.jcr.ui.explorer.utils
 
