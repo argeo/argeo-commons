@@ -5,6 +5,7 @@ import java.io.InputStream;
 
 import javax.jcr.Binary;
 import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.Session;
 import javax.servlet.ServletException;
@@ -82,8 +83,13 @@ public class ResourceProxyServlet extends HttpServlet implements ArgeoNames {
 
 			response.setContentType(contentType);
 
-			binary = node.getNode(Property.JCR_CONTENT)
-					.getProperty(Property.JCR_DATA).getBinary();
+			try {
+				binary = node.getNode(Property.JCR_CONTENT)
+						.getProperty(Property.JCR_DATA).getBinary();
+			} catch (PathNotFoundException e) {
+				log.error("Node "+node+" as no data under content");
+				throw e;
+			}
 			in = binary.getStream();
 			IOUtils.copy(in, response.getOutputStream());
 		} catch (Exception e) {

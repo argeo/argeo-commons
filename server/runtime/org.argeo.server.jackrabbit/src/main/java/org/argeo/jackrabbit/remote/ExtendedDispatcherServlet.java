@@ -39,8 +39,14 @@ public class ExtendedDispatcherServlet extends DispatcherServlet {
 		try {
 			if (log.isTraceEnabled())
 				log.trace("Received request " + request);
+//			log.debug("PathTranslated="+request.getPathTranslated());
+			log.debug("PathInfo="+request.getPathInfo());
+//			log.debug("ServletPath="+request.getServletPath());
+//			log.debug("ContextPath="+request.getContextPath());
 			doService(request, response);
 		} catch (Exception e) {
+//			e.printStackTrace();
+//			log.debug(request.getMethod());
 			throw new ArgeoException("Cannot process request", e);
 		}
 	}

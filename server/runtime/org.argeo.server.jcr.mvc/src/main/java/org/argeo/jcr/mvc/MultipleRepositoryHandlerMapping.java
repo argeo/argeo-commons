@@ -1,6 +1,8 @@
 package org.argeo.jcr.mvc;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Properties;
 
 import javax.jcr.Repository;
@@ -27,6 +29,8 @@ public abstract class MultipleRepositoryHandlerMapping implements
 	private final static Log log = LogFactory
 			.getLog(MultipleRepositoryHandlerMapping.class);
 
+	private final static String MKCOL = "MKCOL";
+
 	private ConfigurableApplicationContext applicationContext;
 	private ServletContext servletContext;
 
@@ -44,7 +48,39 @@ public abstract class MultipleRepositoryHandlerMapping implements
 			log.trace("getPathInfo=" + request.getPathInfo());
 		}
 
-		String repositoryName = extractRepositoryName(request);
+		String pathInfo = request.getPathInfo();
+
+		// tokenize path
+		// TODO factorize
+		List<String> tokens = new ArrayList<String>();
+		StringBuffer curr = new StringBuffer();
+		char[] arr = pathInfo.toCharArray();
+		chars: for (int i = 0; i < arr.length; i++) {
+			char c = arr[i];
+			if (c == '/') {
+				if (i == 0 || (i == arr.length - 1))
+					continue chars;
+				if (curr.length() > 0) {
+					tokens.add(curr.toString());
+					curr = new StringBuffer();
+				}
+			} else
+				curr.append(c);
+		}
+		if (curr.length() > 0) {
+			tokens.add(curr.toString());
+			curr = new StringBuffer();
+		}
+
+		// check if repository can be found
+		if (tokens.size() == 0
+				|| (tokens.size() == 1 && tokens.get(0).equals("")))
+			return null;
+		// MKCOL on repository or root node doesn't make sense
+		if ((tokens.size() == 1 || tokens.size() == 2)
+				&& request.getMethod().equals(MKCOL))
+			return null;
+		String repositoryName = extractRepositoryName(tokens);
 		String pathPrefix = request.getServletPath() + '/' + repositoryName;
 		String beanName = pathPrefix;
 
@@ -63,14 +99,9 @@ public abstract class MultipleRepositoryHandlerMapping implements
 	}
 
 	/** The repository name is the first part of the path info */
-	protected String extractRepositoryName(HttpServletRequest request) {
-		String pathInfo = request.getPathInfo();
-		// TODO: optimize by checking character by character
-		String[] tokens = pathInfo.split("/");
+	protected String extractRepositoryName(List<String> pathTokens) {
 		StringBuffer currName = new StringBuffer("");
-		tokens: for (String token : tokens) {
-			if (token.equals(""))
-				continue tokens;
+		for (String token : pathTokens) {
 			currName.append(token);
 			if (repositoryRegister.getRepositories().containsKey(
 					currName.toString()))
@@ -78,7 +109,7 @@ public abstract class MultipleRepositoryHandlerMapping implements
 			currName.append('/');
 		}
 		throw new ArgeoException("No repository can be found for request "
-				+ pathInfo);
+				+ pathTokens);
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext)

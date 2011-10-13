@@ -35,6 +35,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+/** @deprecated */
 public class JcrXmlServerSerializer implements ServerSerializer {
 	private String contentTypeCharset = "UTF-8";
 

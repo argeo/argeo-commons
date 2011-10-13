@@ -25,6 +25,7 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.context.request.WebRequestInterceptor;
 
+/** @deprecated */
 public class OpenSessionInViewJcrInterceptor implements WebRequestInterceptor,
 		JcrMvcConstants {
 	private final static Log log = LogFactory

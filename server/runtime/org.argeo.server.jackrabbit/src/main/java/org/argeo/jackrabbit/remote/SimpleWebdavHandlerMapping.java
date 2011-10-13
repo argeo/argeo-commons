@@ -6,6 +6,7 @@ import javax.jcr.Repository;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
+/** Handler mapping for WebDav */
 public class SimpleWebdavHandlerMapping extends
 		AbstractJackrabbitHandlerMapping {
 	private String configuration;
