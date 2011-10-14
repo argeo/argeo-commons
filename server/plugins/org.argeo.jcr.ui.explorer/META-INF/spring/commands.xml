@@ -5,10 +5,10 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="openGenericJcrQueryEditor"
-		class="org.argeo.jcr.ui.explorer.commands.OpenGenericJcrQueryEditor"
+		class="org.argeo.eclipse.ui.jcr.commands.OpenGenericJcrQueryEditor"
 		scope="prototype">
 		<property name="editorId"
-			value="org.argeo.slc.client.ui.dist.genericJcrQueryEditor" />
+			value="org.argeo.jcr.ui.explorer.genericJcrQueryEditor" />
 	</bean>
 
 	<bean id="openGenericNodeEditor"

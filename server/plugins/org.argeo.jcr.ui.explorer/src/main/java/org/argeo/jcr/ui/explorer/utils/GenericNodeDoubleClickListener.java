@@ -5,6 +5,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
 
 import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.jcr.utils.JcrFileProvider;
 import org.argeo.eclipse.ui.specific.FileHandler;
 import org.argeo.jcr.ui.explorer.JcrExplorerPlugin;
 import org.argeo.jcr.ui.explorer.editors.GenericNodeEditor;
@@ -67,7 +68,7 @@ public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 					// ITreeContentProvider itcp = (ITreeContentProvider)
 					// nodeViewer
 					// .getContentProvider();
-					// jfp.setRootNodes((Object[]) itcp.getElements(null));
+					jfp.setReferenceNode(node);
 					fileHandler.openFile(name, id);
 				}
 				GenericNodeEditorInput gnei = new GenericNodeEditorInput(node);

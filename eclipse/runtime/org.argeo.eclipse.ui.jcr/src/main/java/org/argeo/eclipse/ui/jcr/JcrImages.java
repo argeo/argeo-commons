@@ -14,6 +14,8 @@ public class JcrImages {
 			"icons/binary.png").createImage();
 	public final static Image HOME = JcrUiPlugin.getImageDescriptor(
 			"icons/home.gif").createImage();
+	public final static Image SORT = JcrUiPlugin.getImageDescriptor(
+			"icons/sort.gif").createImage();
 
 	public final static Image REPOSITORIES = JcrUiPlugin.getImageDescriptor(
 			"icons/repositories.gif").createImage();

@@ -18,6 +18,7 @@ import org.argeo.eclipse.ui.jcr.utils.NodeViewerComparer;
 import org.argeo.eclipse.ui.jcr.views.AbstractJcrBrowser;
 import org.argeo.jcr.RepositoryRegister;
 import org.argeo.jcr.security.JcrKeyring;
+import org.argeo.jcr.ui.explorer.JcrExplorerPlugin;
 import org.argeo.jcr.ui.explorer.browser.NodeContentProvider;
 import org.argeo.jcr.ui.explorer.browser.NodeLabelProvider;
 import org.argeo.jcr.ui.explorer.browser.PropertiesContentProvider;
@@ -51,6 +52,8 @@ import org.eclipse.swt.widgets.Menu;
 public class GenericJcrBrowser extends AbstractJcrBrowser {
 	// private final static Log log =
 	// LogFactory.getLog(GenericJcrBrowser.class);
+	public final static String ID = JcrExplorerPlugin.ID + ".browserView";
+	private boolean sortChildNodes = false;
 
 	/* DEPENDENCY INJECTION */
 	private JcrKeyring jcrKeyring;
@@ -282,6 +285,14 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 			nodesViewer.refresh();
 		}
 
+	}
+
+	public void setSortChildNodes(boolean sortChildNodes) {
+		this.sortChildNodes = sortChildNodes;
+	}
+
+	public boolean getSortChildNodes() {
+		return sortChildNodes;
 	}
 
 	/* DEPENDENCY INJECTION */

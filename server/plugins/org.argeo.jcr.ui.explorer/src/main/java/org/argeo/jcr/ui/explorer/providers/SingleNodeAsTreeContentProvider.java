@@ -9,7 +9,7 @@ import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 
 import org.argeo.ArgeoException;
-import org.argeo.jcr.ui.explorer.browser.ItemComparator;
+import org.argeo.eclipse.ui.jcr.utils.JcrItemsComparator;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
@@ -20,7 +20,7 @@ import org.eclipse.jface.viewers.Viewer;
  */
 public class SingleNodeAsTreeContentProvider implements ITreeContentProvider {
 	// private Node rootNode;
-	private ItemComparator itemComparator = new ItemComparator();
+	private JcrItemsComparator itemComparator = new JcrItemsComparator();
 
 	/**
 	 * Sends back the first level of the Tree. input element must be a single

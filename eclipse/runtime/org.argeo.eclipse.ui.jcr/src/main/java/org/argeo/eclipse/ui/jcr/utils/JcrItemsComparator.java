@@ -1,4 +1,4 @@
-package org.argeo.jcr.ui.explorer.browser;
+package org.argeo.eclipse.ui.jcr.utils;
 
 import java.util.Comparator;
 
@@ -7,7 +7,7 @@ import javax.jcr.RepositoryException;
 
 import org.argeo.ArgeoException;
 
-public class ItemComparator implements Comparator<Item> {
+public class JcrItemsComparator implements Comparator<Item> {
 	public int compare(Item o1, Item o2) {
 		try {
 			// TODO: put folder before files

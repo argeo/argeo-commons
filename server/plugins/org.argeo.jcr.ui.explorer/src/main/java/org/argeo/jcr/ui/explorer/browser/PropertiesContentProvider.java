@@ -9,11 +9,12 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 
 import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.jcr.utils.JcrItemsComparator;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
 public class PropertiesContentProvider implements IStructuredContentProvider {
-	private ItemComparator itemComparator = new ItemComparator();
+	private JcrItemsComparator itemComparator = new JcrItemsComparator();
 
 	public void dispose() {
 	}

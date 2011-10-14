@@ -1,4 +1,4 @@
-package org.argeo.jcr.ui.explorer.utils;
+package org.argeo.eclipse.ui.jcr.utils;
 
 import java.io.InputStream;
 
@@ -10,7 +10,6 @@ import javax.jcr.nodetype.NodeType;
 import org.apache.commons.io.IOUtils;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.specific.FileProvider;
-import org.argeo.jcr.ui.explorer.model.RepositoryNode;
 
 /**
  * Implements a FileProvider for UI purposes. Note that it might not be very
@@ -25,7 +24,21 @@ import org.argeo.jcr.ui.explorer.model.RepositoryNode;
 
 public class JcrFileProvider implements FileProvider {
 
-	private Object[] rootNodes;
+	// private Object[] rootNodes;
+	private Node refNode;
+
+	/**
+	 * Must be set in order for the provider to be able to get current session
+	 * and thus have the ability to get the file node corresponding to a given
+	 * file ID
+	 * 
+	 * FIXME : this introduces some concurrences ISSUES.
+	 * 
+	 * @param repositoryNode
+	 */
+	public void setReferenceNode(Node refNode) {
+		this.refNode = refNode;
+	}
 
 	/**
 	 * Must be set in order for the provider to be able to search the repository
@@ -45,8 +58,8 @@ public class JcrFileProvider implements FileProvider {
 	// Map<String, Repository> repositories = repositoryRegister
 	// .getRepositories();
 	// for (String name : repositories.keySet()) {
-	// tmpNodes.add(new RepositoryNode(name, repositories
-	// .get(name)));
+	// // tmpNodes.add(new RepositoryNode(name, repositories
+	// // .get(name)));
 	// }
 	//
 	// }
@@ -96,27 +109,26 @@ public class JcrFileProvider implements FileProvider {
 	 */
 	private Node getFileNodeFromId(String fileId) {
 		try {
-			Node result = null;
+			Node result = refNode.getSession().getNodeByIdentifier(fileId);
 
-			rootNodes: for (int j = 0; j < rootNodes.length; j++) {
-				// in case we have a classic JCR Node
-				if (rootNodes[j] instanceof Node) {
-					Node curNode = (Node) rootNodes[j];
-					result = curNode.getSession().getNodeByIdentifier(fileId);
-					if (result != null)
-						break rootNodes;
-				} // Case of a repository Node
-				else if (rootNodes[j] instanceof RepositoryNode) {
-					Object[] nodes = ((RepositoryNode) rootNodes[j])
-							.getChildren();
-					for (int i = 0; i < nodes.length; i++) {
-						Node node = (Node) nodes[i];
-						result = node.getSession().getNodeByIdentifier(fileId);
-						if (result != null)
-							break rootNodes;
-					}
-				}
-			}
+			// rootNodes: for (int j = 0; j < rootNodes.length; j++) {
+			// // in case we have a classic JCR Node
+			// if (rootNodes[j] instanceof Node) {
+			// Node curNode = (Node) rootNodes[j];
+			// if (result != null)
+			// break rootNodes;
+			// } // Case of a repository Node
+			// else if (rootNodes[j] instanceof RepositoryNode) {
+			// Object[] nodes = ((RepositoryNode) rootNodes[j])
+			// .getChildren();
+			// for (int i = 0; i < nodes.length; i++) {
+			// Node node = (Node) nodes[i];
+			// result = node.getSession().getNodeByIdentifier(fileId);
+			// if (result != null)
+			// break rootNodes;
+			// }
+			// }
+			// }
 
 			// Sanity checks
 			if (result == null)
