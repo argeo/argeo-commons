@@ -140,7 +140,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 
 		deactivate();
 		for (Session sess : activeSessions.values()) {
-			sess.logout();
+			JcrUtils.logoutQuietly(sess);
 		}
 		activeSessions.clear();
 	}

@@ -40,8 +40,16 @@ public class ResourceProxyServlet extends HttpServlet implements ArgeoNames {
 		String path = request.getPathInfo();
 
 		String nodePath = proxy.getNodePath(path);
-		if (log.isTraceEnabled())
+		if (log.isTraceEnabled()) {
 			log.trace("path=" + path + ", nodePath=" + nodePath);
+			log.trace("UserPrincipal = " + request.getUserPrincipal().getName());
+			log.trace("SessionID = " + request.getSession().getId());
+			log.trace("ContextPath = " + request.getContextPath());
+			log.trace("ServletPath = " + request.getServletPath());
+			log.trace("PathInfo = " + request.getPathInfo());
+			log.trace("Method = " + request.getMethod());
+			log.trace("User-Agent = " + request.getHeader("User-Agent"));
+		}
 
 		Node node = proxy.proxy(jcrSession, path);
 		if (node == null)
@@ -87,7 +95,7 @@ public class ResourceProxyServlet extends HttpServlet implements ArgeoNames {
 				binary = node.getNode(Property.JCR_CONTENT)
 						.getProperty(Property.JCR_DATA).getBinary();
 			} catch (PathNotFoundException e) {
-				log.error("Node "+node+" as no data under content");
+				log.error("Node " + node + " as no data under content");
 				throw e;
 			}
 			in = binary.getStream();

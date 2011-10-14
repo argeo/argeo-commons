@@ -6,6 +6,9 @@ mixin
 // URI(s)
 - argeo:uri (STRING) m
 
+[argeo:references] > nt:unstructured
+- * (REFERENCE) *
+
 // USER NODES
 // user should be lower case, between 3 and 15 characters long
 [argeo:userHome] > mix:created, mix:lastModified

@@ -37,16 +37,20 @@ public class ExtendedDispatcherServlet extends DispatcherServlet {
 
 		// see http://forum.springsource.org/showthread.php?t=53472
 		try {
-			if (log.isTraceEnabled())
-				log.trace("Received request " + request);
-//			log.debug("PathTranslated="+request.getPathTranslated());
-			log.debug("PathInfo="+request.getPathInfo());
-//			log.debug("ServletPath="+request.getServletPath());
-//			log.debug("ContextPath="+request.getContextPath());
+			if (log.isTraceEnabled()) {
+				log.trace("UserPrincipal = "
+						+ request.getUserPrincipal().getName());
+				log.trace("SessionID = " + request.getSession().getId());
+				log.trace("ContextPath = " + request.getContextPath());
+				log.trace("ServletPath = " + request.getServletPath());
+				log.trace("PathInfo = " + request.getPathInfo());
+				log.trace("Method = " + request.getMethod());
+				log.trace("User-Agent = " + request.getHeader("User-Agent"));
+			}
 			doService(request, response);
 		} catch (Exception e) {
-//			e.printStackTrace();
-//			log.debug(request.getMethod());
+			// e.printStackTrace();
+			// log.debug(request.getMethod());
 			throw new ArgeoException("Cannot process request", e);
 		}
 	}

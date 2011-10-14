@@ -23,14 +23,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import javax.jcr.Binary;
@@ -142,6 +143,46 @@ public class JcrUtils implements ArgeoJcrConstants {
 		} catch (MalformedURLException e) {
 			throw new ArgeoException("Cannot generate URL path for " + url, e);
 		}
+	}
+
+	/** Set the {@link NodeType#NT_ADDRESS} properties based on this URL. */
+	public static void urlToAddressProperties(Node node, String url) {
+		try {
+			URL u = new URL(url);
+			node.setProperty(Property.JCR_PROTOCOL, u.getProtocol());
+			node.setProperty(Property.JCR_HOST, u.getHost());
+			node.setProperty(Property.JCR_PORT, Integer.toString(u.getPort()));
+			node.setProperty(Property.JCR_PATH, normalizePath(u.getPath()));
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot set URL " + url
+					+ " as nt:address properties", e);
+		}
+	}
+
+	/** Build URL based on the {@link NodeType#NT_ADDRESS} properties. */
+	public static String urlFromAddressProperties(Node node) {
+		try {
+			URL u = new URL(
+					node.getProperty(Property.JCR_PROTOCOL).getString(), node
+							.getProperty(Property.JCR_HOST).getString(),
+					(int) node.getProperty(Property.JCR_PORT).getLong(), node
+							.getProperty(Property.JCR_PATH).getString());
+			return u.toString();
+		} catch (Exception e) {
+			throw new ArgeoException(
+					"Cannot get URL from nt:address properties of " + node, e);
+		}
+	}
+
+	/** Make sure that: starts with '/', do not end with '/', do not have '//' */
+	public static String normalizePath(String path) {
+		List<String> tokens = tokenize(path);
+		StringBuffer buf = new StringBuffer(path.length());
+		for (String token : tokens) {
+			buf.append('/');
+			buf.append(token);
+		}
+		return buf.toString();
 	}
 
 	/**
@@ -269,8 +310,32 @@ public class JcrUtils implements ArgeoJcrConstants {
 	}
 
 	/**
+	 * Synchronized and save is performed, to avoid race conditions in
+	 * initializers leading to duplicate nodes.
+	 */
+	public synchronized static Node mkdirsSafe(Session session, String path,
+			String type) {
+		try {
+			if (session.hasPendingChanges())
+				throw new ArgeoException(
+						"Session has pending changes, save them first.");
+			Node node = mkdirs(session, path, type);
+			session.save();
+			return node;
+		} catch (RepositoryException e) {
+			discardQuietly(session);
+			throw new ArgeoException("Cannot safely make directories", e);
+		}
+	}
+
+	public synchronized static Node mkdirsSafe(Session session, String path) {
+		return mkdirsSafe(session, path, null);
+	}
+
+	/**
 	 * Creates the nodes making path, if they don't exist. This is up to the
-	 * caller to save the session.
+	 * caller to save the session. Use with caution since it can create
+	 * duplicate nodes if used concurrently.
 	 */
 	public static Node mkdirs(Session session, String path, String type,
 			String intermediaryNodeType, Boolean versioning) {
@@ -291,16 +356,16 @@ public class JcrUtils implements ArgeoJcrConstants {
 				return node;
 			}
 
-			StringTokenizer st = new StringTokenizer(path, "/");
 			StringBuffer current = new StringBuffer("/");
 			Node currentNode = session.getRootNode();
-			while (st.hasMoreTokens()) {
-				String part = st.nextToken();
+			Iterator<String> it = tokenize(path).iterator();
+			while (it.hasNext()) {
+				String part = it.next();
 				current.append(part).append('/');
 				if (!session.itemExists(current.toString())) {
-					if (!st.hasMoreTokens() && type != null)
+					if (!it.hasNext() && type != null)
 						currentNode = currentNode.addNode(part, type);
-					else if (st.hasMoreTokens() && intermediaryNodeType != null)
+					else if (it.hasNext() && intermediaryNodeType != null)
 						currentNode = currentNode.addNode(part,
 								intermediaryNodeType);
 					else
@@ -313,11 +378,45 @@ public class JcrUtils implements ArgeoJcrConstants {
 					currentNode = (Node) session.getItem(current.toString());
 				}
 			}
-			// session.save();
 			return currentNode;
 		} catch (RepositoryException e) {
+			discardQuietly(session);
 			throw new ArgeoException("Cannot mkdirs " + path, e);
+		} finally {
 		}
+	}
+
+	/** Convert a path to the list of its tokens */
+	public static List<String> tokenize(String path) {
+		List<String> tokens = new ArrayList<String>();
+		boolean optimized = false;
+		if (!optimized) {
+			String[] rawTokens = path.split("/");
+			for (String token : rawTokens) {
+				if (!token.equals(""))
+					tokens.add(token);
+			}
+		} else {
+			StringBuffer curr = new StringBuffer();
+			char[] arr = path.toCharArray();
+			chars: for (int i = 0; i < arr.length; i++) {
+				char c = arr[i];
+				if (c == '/') {
+					if (i == 0 || (i == arr.length - 1))
+						continue chars;
+					if (curr.length() > 0) {
+						tokens.add(curr.toString());
+						curr = new StringBuffer();
+					}
+				} else
+					curr.append(c);
+			}
+			if (curr.length() > 0) {
+				tokens.add(curr.toString());
+				curr = new StringBuffer();
+			}
+		}
+		return Collections.unmodifiableList(tokens);
 	}
 
 	/**
@@ -996,14 +1095,29 @@ public class JcrUtils implements ArgeoJcrConstants {
 	 */
 	public static void updateLastModified(Node node) {
 		try {
-			if (node.isNodeType(NodeType.MIX_LAST_MODIFIED)) {
-				node.setProperty(Property.JCR_LAST_MODIFIED,
-						new GregorianCalendar());
-				node.setProperty(Property.JCR_LAST_MODIFIED_BY, node
-						.getSession().getUserID());
-			}
+			if (!node.isNodeType(NodeType.MIX_LAST_MODIFIED))
+				node.addMixin(NodeType.MIX_LAST_MODIFIED);
+			node.setProperty(Property.JCR_LAST_MODIFIED,
+					new GregorianCalendar());
+			node.setProperty(Property.JCR_LAST_MODIFIED_BY, node.getSession()
+					.getUserID());
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot update last modified", e);
+			throw new ArgeoException("Cannot update last modified on " + node,
+					e);
+		}
+	}
+
+	/** Update lastModified recursively until this parent. */
+	public static void updateLastModifiedAndParents(Node node, String untilPath) {
+		try {
+			if (!node.getPath().startsWith(untilPath))
+				throw new ArgeoException(node + " is not under " + untilPath);
+			updateLastModified(node);
+			if (!node.getPath().equals(untilPath))
+				updateLastModifiedAndParents(node.getParent(), untilPath);
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot update lastModified from " + node
+					+ " until " + untilPath, e);
 		}
 	}
 

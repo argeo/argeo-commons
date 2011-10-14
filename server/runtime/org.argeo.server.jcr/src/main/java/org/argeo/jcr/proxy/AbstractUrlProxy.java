@@ -24,15 +24,15 @@ public abstract class AbstractUrlProxy implements ResourceProxy {
 	private Repository jcrRepository;
 	private Session jcrAdminSession;
 
-	protected abstract String retrieve(String relativePath);
+	protected abstract Node retrieve(Session session, String relativePath);
 
 	void init() {
 		try {
 			jcrAdminSession = jcrRepository.login();
-			beforeInitSessionSave();
+			beforeInitSessionSave(jcrAdminSession);
 			if (jcrAdminSession.hasPendingChanges())
 				jcrAdminSession.save();
-		} catch (RepositoryException e) {
+		} catch (Exception e) {
 			JcrUtils.discardQuietly(jcrAdminSession);
 			throw new ArgeoException("Cannot initialize Maven proxy", e);
 		}
@@ -42,7 +42,8 @@ public abstract class AbstractUrlProxy implements ResourceProxy {
 	 * Called before the (admin) session is saved at the end of the
 	 * initialization. Does nothing by default, to be overridden.
 	 */
-	protected void beforeInitSessionSave() throws RepositoryException {
+	protected void beforeInitSessionSave(Session session)
+			throws RepositoryException {
 	}
 
 	void destroy() {
@@ -56,74 +57,73 @@ public abstract class AbstractUrlProxy implements ResourceProxy {
 	protected void beforeDestroySessionLogout() throws RepositoryException {
 	}
 
-	public Node proxy(Session jcrSession, String path) {
-		Node node;
+	public Node proxy(Session session, String path) {
 		try {
+			if (session.hasPendingChanges())
+				throw new ArgeoException(
+						"Cannot proxy based on a session with pending changes");
 			String nodePath = getNodePath(path);
-			if (!jcrSession.itemExists(nodePath)) {
-				String nodeIdentifier = retrieve(path);
-				if (nodeIdentifier == null) {
-					// log.warn("Could not proxy " + path);
+			if (!session.itemExists(nodePath)) {
+				Node nodeT = retrieveAndSave(path);
+				if (nodeT == null)
 					return null;
-				} else {
-					node = jcrSession.getNodeByIdentifier(nodeIdentifier);
-				}
-			} else {
-				node = jcrSession.getNode(nodePath);
 			}
+			return session.getNode(nodePath);
 		} catch (RepositoryException e) {
+			JcrUtils.discardQuietly(jcrAdminSession);
 			throw new ArgeoException("Cannot proxy " + path, e);
 		}
-		return node;
 	}
 
-	protected Node proxyUrl(String baseUrl, String path) {
+	protected synchronized Node retrieveAndSave(String path) {
+		try {
+			Node node = retrieve(jcrAdminSession, path);
+			if (node == null)
+				return null;
+			jcrAdminSession.save();
+			return node;
+		} catch (RepositoryException e) {
+			JcrUtils.discardQuietly(jcrAdminSession);
+			throw new ArgeoException("Cannot retrieve and save " + path, e);
+		}
+	}
+
+	/** Session is not saved */
+	protected Node proxyUrl(Session session, String baseUrl, String path) {
 		Node node = null;
 		String remoteUrl = baseUrl + path;
-		if (log.isTraceEnabled())
-			log.trace("baseUrl=" + remoteUrl);
 		InputStream in = null;
 		try {
 			URL u = new URL(remoteUrl);
 			in = u.openStream();
-			node = importFile(getNodePath(path), in);
-			if (log.isDebugEnabled())
-				log.debug("Imported " + remoteUrl + " to " + node);
+			node = importFile(session, getNodePath(path), in);
 		} catch (Exception e) {
-			if (log.isTraceEnabled())
+			if (log.isTraceEnabled()) {
 				log.trace("Cannot read " + remoteUrl + ", skipping... "
 						+ e.getMessage());
-			if (log.isTraceEnabled()) {
-				log.trace("Cannot read because of ", e);
+				// log.trace("Cannot read because of ", e);
 			}
+			JcrUtils.discardQuietly(session);
 		} finally {
 			IOUtils.closeQuietly(in);
 		}
-
 		return node;
 	}
 
-	protected synchronized Node importFile(String nodePath, InputStream in) {
+	protected Node importFile(Session session, String nodePath, InputStream in)
+			throws RepositoryException {
 		// FIXME allow parallel proxying
 		Binary binary = null;
 		try {
 			Node node = JcrUtils.mkdirs(jcrAdminSession, nodePath,
 					NodeType.NT_FILE, NodeType.NT_FOLDER, false);
 			Node content = node.addNode(Node.JCR_CONTENT, NodeType.NT_RESOURCE);
-			binary = jcrAdminSession.getValueFactory().createBinary(in);
+			binary = session.getValueFactory().createBinary(in);
 			content.setProperty(Property.JCR_DATA, binary);
-			jcrAdminSession.save();
 			return node;
-		} catch (RepositoryException e) {
-			JcrUtils.discardQuietly(jcrAdminSession);
-			throw new ArgeoException("Cannot initialize Maven proxy", e);
 		} finally {
 			JcrUtils.closeQuietly(binary);
 		}
-	}
-
-	protected Session getJcrAdminSession() {
-		return jcrAdminSession;
 	}
 
 	public void setJcrRepository(Repository jcrRepository) {

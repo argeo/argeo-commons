@@ -382,12 +382,12 @@ limitations under the License.
 				<repository>
 					<id>localrepo</id>
 					<name>Internal Release Repository</name>
-					<url>dav:http://localrepo:7070/org.argeo.jcr.webapp/webdav/node/dev/slc/repo/artifacts</url>
+					<url>dav:http://localrepo:7070/org.argeo.jcr.webapp/webdav/node/dev/repo</url>
 				</repository>
 				<snapshotRepository>
 					<id>localrepo.snapshots</id>
 					<name>Internal Snapshot Repository</name>
-					<url>dav:http://localrepo:7070/org.argeo.jcr.webapp/webdav/node/dev/slc/repo/artifacts</url>
+					<url>dav:http://localrepo:7070/org.argeo.jcr.webapp/webdav/node/dev/repo</url>
 				</snapshotRepository>
 			</distributionManagement>
 		</profile>

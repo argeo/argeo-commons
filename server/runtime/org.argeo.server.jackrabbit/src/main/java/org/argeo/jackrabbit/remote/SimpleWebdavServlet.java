@@ -20,7 +20,7 @@ import javax.jcr.Repository;
 
 import org.apache.jackrabbit.server.SessionProvider;
 
-/** WebDav servlet whoe repository is injected */
+/** WebDav servlet whose repository is injected */
 public class SimpleWebdavServlet extends
 		org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet {
 	private static final long serialVersionUID = -369787931175177080L;

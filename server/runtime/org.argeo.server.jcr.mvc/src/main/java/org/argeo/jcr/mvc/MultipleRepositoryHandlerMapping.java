@@ -1,6 +1,5 @@
 package org.argeo.jcr.mvc;
 
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
@@ -15,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
+import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.RepositoryRegister;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -51,26 +51,7 @@ public abstract class MultipleRepositoryHandlerMapping implements
 		String pathInfo = request.getPathInfo();
 
 		// tokenize path
-		// TODO factorize
-		List<String> tokens = new ArrayList<String>();
-		StringBuffer curr = new StringBuffer();
-		char[] arr = pathInfo.toCharArray();
-		chars: for (int i = 0; i < arr.length; i++) {
-			char c = arr[i];
-			if (c == '/') {
-				if (i == 0 || (i == arr.length - 1))
-					continue chars;
-				if (curr.length() > 0) {
-					tokens.add(curr.toString());
-					curr = new StringBuffer();
-				}
-			} else
-				curr.append(c);
-		}
-		if (curr.length() > 0) {
-			tokens.add(curr.toString());
-			curr = new StringBuffer();
-		}
+		List<String> tokens = JcrUtils.tokenize(pathInfo);
 
 		// check if repository can be found
 		if (tokens.size() == 0
