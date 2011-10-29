@@ -40,6 +40,7 @@ import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
 import javax.jcr.Value;
 
 import org.apache.commons.io.FileUtils;
@@ -57,9 +58,13 @@ import org.apache.jackrabbit.jcr2dav.Jcr2davRepositoryFactory;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.security.SystemAuthentication;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.security.Authentication;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.util.SystemPropertyUtils;
 import org.xml.sax.InputSource;
 
@@ -75,7 +80,6 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 	private Resource variables;
 
 	private Boolean inMemory = false;
-	private String uri = null;
 
 	// wrapped repository
 	private Repository repository;
@@ -97,21 +101,41 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 
 	private Executor systemExecutor;
 
-	public void init() throws Exception {
+	// remote
+	private String uri = null;
+	private Credentials remoteSystemCredentials = null;
+
+	/**
+	 * Empty constructor, {@link #init()} should be called after properties have
+	 * been set
+	 */
+	public JackrabbitContainer() {
+	}
+
+	/**
+	 * Convenience constructor for remote, {@link #init()} is called in the
+	 * constructor.
+	 */
+	public JackrabbitContainer(String uri, Credentials remoteSystemCredentials) {
+		setUri(uri);
+		setRemoteSystemCredentials(remoteSystemCredentials);
+		init();
+	}
+
+	public void init() {
 		if (repository != null) {
 			// we are just wrapping another repository
-			importNodeTypeDefinitions(repository);
+			importNodeTypeDefinitions();
 			return;
 		}
 
 		createJackrabbitRepository();
-
 		// migrate if needed
 		migrate();
 
 		// apply new CND files after migration
 		if (cndFiles != null && cndFiles.size() > 0)
-			importNodeTypeDefinitions(repository);
+			importNodeTypeDefinitions();
 	}
 
 	/** Actually creates a new repository. */
@@ -135,6 +159,9 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 				// the
 				// remote repository has been properly configured
 				return;
+			} else {
+				// reset uri to null in order to optimize isRemote()
+				uri = null;
 			}
 
 			// local repository
@@ -337,14 +364,18 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 	 * changed. In case of failures an error will be logged but no exception
 	 * will be thrown.
 	 */
-	protected void importNodeTypeDefinitions(final Repository repository) {
+	protected void importNodeTypeDefinitions() {
+		// importing node def on remote si currently not supported
+		if (isRemote())
+			return;
+
 		Runnable action = new Runnable() {
 			public void run() {
 				Reader reader = null;
 				Session session = null;
 				try {
-					session = repository.login();
-					processNewSession(session);
+					session = login();
+					// processNewSession(session);
 					// Load cnds as resources
 					for (String resUrl : cndFiles) {
 						Resource res = resourceLoader.getResource(resUrl);
@@ -381,20 +412,32 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 		return getRepository().getDescriptorKeys();
 	}
 
-	public Session login() throws LoginException, RepositoryException {
-		Session session = getRepository().login();
-		processNewSession(session);
-		return session;
-	}
-
+	/** Central login method */
 	public Session login(Credentials credentials, String workspaceName)
 			throws LoginException, NoSuchWorkspaceException,
 			RepositoryException {
+
+		// retrieve credentials for remote
+		if (credentials == null && isRemote()) {
+			Authentication authentication = SecurityContextHolder.getContext()
+					.getAuthentication();
+			if (authentication != null) {
+				if (authentication instanceof UsernamePasswordAuthenticationToken) {
+					UsernamePasswordAuthenticationToken upat = (UsernamePasswordAuthenticationToken) authentication;
+					credentials = new SimpleCredentials(upat.getName(), upat
+							.getCredentials().toString().toCharArray());
+				} else if ((authentication instanceof SystemAuthentication)
+						&& remoteSystemCredentials != null) {
+					credentials = remoteSystemCredentials;
+				}
+			}
+		}
+
 		Session session;
 		try {
 			session = getRepository().login(credentials, workspaceName);
 		} catch (NoSuchWorkspaceException e) {
-			if (autocreateWorkspaces)
+			if (autocreateWorkspaces && workspaceName != null)
 				session = createWorkspaceAndLogsIn(credentials, workspaceName);
 			else
 				throw e;
@@ -403,26 +446,22 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 		return session;
 	}
 
+	public Session login() throws LoginException, RepositoryException {
+		return login(null, null);
+	}
+
 	public Session login(Credentials credentials) throws LoginException,
 			RepositoryException {
-		Session session = getRepository().login(credentials);
-		processNewSession(session);
-		return session;
+		return login(credentials, null);
 	}
 
 	public Session login(String workspaceName) throws LoginException,
 			NoSuchWorkspaceException, RepositoryException {
-		Session session;
-		try {
-			session = getRepository().login(workspaceName);
-		} catch (NoSuchWorkspaceException e) {
-			if (autocreateWorkspaces)
-				session = createWorkspaceAndLogsIn(null, workspaceName);
-			else
-				throw e;
-		}
-		processNewSession(session);
-		return session;
+		return login(null, workspaceName);
+	}
+
+	public Boolean isRemote() {
+		return uri != null;
 	}
 
 	/** Wraps access to the repository, making sure it is available. */
@@ -506,6 +545,10 @@ public class JackrabbitContainer implements Repository, ResourceLoaderAware {
 
 	public void setUri(String uri) {
 		this.uri = uri;
+	}
+
+	public void setRemoteSystemCredentials(Credentials remoteSystemCredentials) {
+		this.remoteSystemCredentials = remoteSystemCredentials;
 	}
 
 	public void setSystemExecutor(Executor systemExecutor) {

@@ -29,7 +29,13 @@ public class SecureWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		configurer.setShowProgressIndicator(true);
 
 		configurer.setShowPerspectiveBar(true);
-		configurer.setTitle("Argeo UI - " + username); //$NON-NLS-1$
+		String remoteUri = System
+				.getProperty(AbstractSecureApplication.NODE_REPO_URI);
+		if (remoteUri != null)
+			configurer
+					.setTitle("Argeo UI - " + username + " (" + remoteUri + ")"); //$NON-NLS-1$
+		else
+			configurer.setTitle("Argeo UI - " + username); //$NON-NLS-1$
 
 	}
 }

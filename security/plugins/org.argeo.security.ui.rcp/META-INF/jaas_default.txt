@@ -17,6 +17,11 @@ WINDOWS {
         extensionId="org.argeo.security.equinox.osSpringLoginModule";
 };
 
+REMOTE {
+    org.eclipse.equinox.security.auth.module.ExtensionLoginModule sufficient
+        extensionId="org.argeo.security.equinox.springLoginModuleRemote";
+};
+
 KEYRING {
     org.argeo.util.crypto.KeyringLoginModule required;
 };

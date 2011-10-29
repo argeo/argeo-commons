@@ -20,6 +20,8 @@ import org.springframework.security.providers.jaas.SecurityContextLoginModule;
 
 /** Login module which caches one subject per thread. */
 public class SpringLoginModule extends SecurityContextLoginModule {
+	final static String NODE_REPO_URI = "argeo.node.repo.uri";
+
 	private final static Log log = LogFactory.getLog(SpringLoginModule.class);
 
 	private AuthenticationManager authenticationManager;
@@ -29,6 +31,8 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 	private Subject subject;
 
 	private Long waitBetweenFailedLoginAttempts = 5 * 1000l;
+
+	private Boolean remote = false;
 
 	public SpringLoginModule() {
 
@@ -64,12 +68,16 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 			PasswordCallback passwordCallback = new PasswordCallback(
 					"Password", false);
 
-			// NameCallback urlCallback = new NameCallback("Site URL");
+			NameCallback urlCallback = new NameCallback("Site URL");
 
 			if (callbackHandler == null)
 				throw new LoginException("No call back handler available");
-			callbackHandler.handle(new Callback[] { nameCallback,
-					passwordCallback });
+			if (remote)
+				callbackHandler.handle(new Callback[] { nameCallback,
+						passwordCallback, urlCallback });
+			else
+				callbackHandler.handle(new Callback[] { nameCallback,
+						passwordCallback });
 
 			// Set user name and password
 			String username = nameCallback.getName();
@@ -80,12 +88,16 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 			if (passwordCallback.getPassword() != null)
 				password = String.valueOf(passwordCallback.getPassword());
 
-			// String url = urlCallback.getName();
+			String url = remote ? urlCallback.getName() : null;
+			if (remote && (url == null || url.trim().equals("")))
+				// for convenience, may be removed in the future
+				url = System.getProperty(NODE_REPO_URI);
+
 			// TODO: set it via system properties
 			String workspace = null;
 
 			SiteAuthenticationToken credentials = new SiteAuthenticationToken(
-					username, password, null, workspace);
+					username, password, url, workspace);
 
 			Authentication authentication;
 			try {
@@ -134,5 +146,9 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 	public void setAuthenticationManager(
 			AuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
+	}
+
+	public void setRemote(Boolean remote) {
+		this.remote = remote;
 	}
 }

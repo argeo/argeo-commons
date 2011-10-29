@@ -632,16 +632,18 @@ public class JcrUtils implements ArgeoJcrConstants {
 							relPath, p.getValue(), null);
 					diffs.put(relPath, pDiff);
 				} else {
-					if (p.isMultiple())
-						continue props;
-					Value referenceValue = p.getValue();
-					Value newValue = observed.getProperty(name).getValue();
-					if (!referenceValue.equals(newValue)) {
-						String relPath = propertyRelPath(baseRelPath, name);
-						PropertyDiff pDiff = new PropertyDiff(
-								PropertyDiff.MODIFIED, relPath, referenceValue,
-								newValue);
-						diffs.put(relPath, pDiff);
+					if (p.isMultiple()) {
+						// FIXME implement multiple
+					} else {
+						Value referenceValue = p.getValue();
+						Value newValue = observed.getProperty(name).getValue();
+						if (!referenceValue.equals(newValue)) {
+							String relPath = propertyRelPath(baseRelPath, name);
+							PropertyDiff pDiff = new PropertyDiff(
+									PropertyDiff.MODIFIED, relPath,
+									referenceValue, newValue);
+							diffs.put(relPath, pDiff);
+						}
 					}
 				}
 			}
@@ -653,10 +655,14 @@ public class JcrUtils implements ArgeoJcrConstants {
 				if (name.startsWith("jcr:"))
 					continue props;
 				if (!reference.hasProperty(name)) {
-					String relPath = propertyRelPath(baseRelPath, name);
-					PropertyDiff pDiff = new PropertyDiff(PropertyDiff.ADDED,
-							relPath, null, p.getValue());
-					diffs.put(relPath, pDiff);
+					if (p.isMultiple()) {
+						// FIXME implement multiple
+					} else {
+						String relPath = propertyRelPath(baseRelPath, name);
+						PropertyDiff pDiff = new PropertyDiff(
+								PropertyDiff.ADDED, relPath, null, p.getValue());
+						diffs.put(relPath, pDiff);
+					}
 				}
 			}
 		} catch (RepositoryException e) {
@@ -994,8 +1000,8 @@ public class JcrUtils implements ArgeoJcrConstants {
 			Constraint constraint = qomf.comparison(userIdDop,
 					QueryObjectModelFactory.JCR_OPERATOR_EQUAL_TO, userIdSop);
 			Query query = qomf.createQuery(sel, constraint, null, null);
-			Node userHome = JcrUtils.querySingleNode(query);
-			return userHome;
+			Node userProfile = JcrUtils.querySingleNode(query);
+			return userProfile;
 		} catch (RepositoryException e) {
 			throw new ArgeoException(
 					"Cannot find profile for user " + username, e);
@@ -1036,8 +1042,12 @@ public class JcrUtils implements ArgeoJcrConstants {
 			} else {
 				userProfile = userHome.addNode(ArgeoNames.ARGEO_PROFILE);
 				userProfile.addMixin(ArgeoTypes.ARGEO_USER_PROFILE);
+				// session.getWorkspace().getVersionManager()
+				// .checkout(userProfile.getPath());
 				userProfile.setProperty(ArgeoNames.ARGEO_USER_ID, username);
 				session.save();
+				session.getWorkspace().getVersionManager()
+						.checkin(userProfile.getPath());
 				// we need to save the profile before adding the user home type
 			}
 			userHome.addMixin(ArgeoTypes.ARGEO_USER_HOME);

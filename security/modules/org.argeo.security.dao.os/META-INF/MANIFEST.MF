@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Private-Package: .
+Tool: Bnd-1.15.0
+Bundle-Name: Commons Security DAO OS
+Created-By: 1.6.0_20 (Sun Microsystems Inc.)
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Vendor: Argeo
+Bundle-Version: 0.3.4.SNAPSHOT-r20111029_170433
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Import-Package: javax.jcr,org.argeo.security,org.argeo.security.core,o
+ rg.argeo.security.jcr,org.springframework.beans.factory.config,org.sp
+ ringframework.security,org.springframework.security.adapters,org.spri
+ ngframework.security.providers
+Bundle-SymbolicName: org.argeo.security.dao.os
+Bundle-DocURL: http://www.argeo.org
+

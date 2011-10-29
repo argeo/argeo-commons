@@ -12,6 +12,7 @@
 	<packaging>pom</packaging>
 	<name>Commons Security Modules</name>
 	<modules>
+		<module>org.argeo.security.dao.os</module>
 		<module>org.argeo.security.dao.jackrabbit</module>
 		<module>org.argeo.security.dao.ldap</module>
 		<module>org.argeo.security.services</module>

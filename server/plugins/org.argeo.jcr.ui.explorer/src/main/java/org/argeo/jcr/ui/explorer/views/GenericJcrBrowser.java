@@ -1,12 +1,12 @@
 package org.argeo.jcr.ui.explorer.views;
 
-import java.util.Arrays;
 import java.util.List;
 
 import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.Value;
 import javax.jcr.observation.Event;
 import javax.jcr.observation.EventListener;
 import javax.jcr.observation.ObservationManager;
@@ -152,9 +152,17 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 					Property property = (Property) element;
 					if (property.getType() == PropertyType.BINARY)
 						return "<binary>";
-					else if (property.isMultiple())
-						return Arrays.asList(property.getValues()).toString();
-					else
+					else if (property.isMultiple()) {
+						StringBuffer buf = new StringBuffer("[");
+						Value[] values = property.getValues();
+						for (int i = 0; i < values.length; i++) {
+							if (i != 0)
+								buf.append(", ");
+							buf.append(values[i].getString());
+						}
+						buf.append(']');
+						return buf.toString();
+					} else
 						return property.getValue().getString();
 				} catch (RepositoryException e) {
 					throw new ArgeoException(

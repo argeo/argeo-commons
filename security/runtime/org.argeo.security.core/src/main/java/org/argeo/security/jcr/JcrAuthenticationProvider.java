@@ -1,17 +1,22 @@
 package org.argeo.security.jcr;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import javax.jcr.Credentials;
 import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
+import javax.jcr.Value;
 
 import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoJcrConstants;
+import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.security.SiteAuthenticationToken;
 import org.springframework.security.Authentication;
@@ -21,7 +26,7 @@ import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.providers.AuthenticationProvider;
 import org.springframework.security.userdetails.UserDetails;
 
-/** Connects to a JCR repository and delegate authentication to it. */
+/** Connects to a JCR repository and delegates authentication to it. */
 public class JcrAuthenticationProvider implements AuthenticationProvider {
 	public final static String ROLE_REMOTE_JCR_AUTHENTICATED = "ROLE_REMOTE_JCR_AUTHENTICATED";
 
@@ -37,36 +42,51 @@ public class JcrAuthenticationProvider implements AuthenticationProvider {
 			return null;
 
 		try {
-			Map<String, String> parameters = new HashMap<String, String>();
-			parameters.put(ArgeoJcrConstants.JCR_REPOSITORY_URI, url);
-
-			Repository repository = null;
-			repository = repositoryFactory.getRepository(parameters);
+			SimpleCredentials sp = new SimpleCredentials(siteAuth.getName(),
+					siteAuth.getCredentials().toString().toCharArray());
+			// get repository
+			Repository repository = getRepository(url, sp);
 			if (repository == null)
 				return null;
 
-			SimpleCredentials sp = new SimpleCredentials(siteAuth.getName(),
-					siteAuth.getCredentials().toString().toCharArray());
 			String workspace = siteAuth.getWorkspace();
 			Session session;
 			if (workspace == null || workspace.trim().equals(""))
 				session = repository.login(sp);
 			else
 				session = repository.login(sp, workspace);
+
 			Node userHome = JcrUtils.getUserHome(session);
-			if (userHome == null)
-				throw new ArgeoException("No home found for user "
-						+ session.getUserID());
-			GrantedAuthority[] authorities = {};
+
+			// retrieve remote roles
+			Node userProfile = JcrUtils.getUserProfile(session);
+			List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+			if (userProfile.hasProperty(ArgeoNames.ARGEO_REMOTE_ROLES)) {
+				Value[] roles = userProfile.getProperty(
+						ArgeoNames.ARGEO_REMOTE_ROLES).getValues();
+				for (int i = 0; i < roles.length; i++)
+					authorities.add(new GrantedAuthorityImpl(roles[i]
+							.getString()));
+			}
 			JcrAuthenticationToken authen = new JcrAuthenticationToken(
-					siteAuth.getPrincipal(), siteAuth.getCredentials(),
-					authorities, url, userHome);
+					siteAuth.getPrincipal(),
+					siteAuth.getCredentials(),
+					authorities.toArray(new GrantedAuthority[authorities.size()]),
+					url, userHome);
 			authen.setDetails(getUserDetails(userHome, authen));
+
 			return authen;
 		} catch (RepositoryException e) {
 			throw new ArgeoException(
 					"Unexpected exception when authenticating to " + url, e);
 		}
+	}
+
+	protected Repository getRepository(String url, Credentials credentials)
+			throws RepositoryException {
+		Map<String, String> parameters = new HashMap<String, String>();
+		parameters.put(ArgeoJcrConstants.JCR_REPOSITORY_URI, url);
+		return repositoryFactory.getRepository(parameters);
 	}
 
 	/**

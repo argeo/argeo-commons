@@ -46,6 +46,7 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 			throws RepositoryException {
 		long begin = System.currentTimeMillis();
 
+		// skip Jackrabbit system user
 		if (!subject.getPrincipals(SystemPrincipal.class).isEmpty())
 			return super.getUserID(subject, workspaceName);
 
@@ -58,6 +59,10 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		else
 			authen = authens.iterator().next();
 
+		// skip argeo system authenticated
+		// if (authen instanceof SystemAuthentication)
+		// return super.getUserID(subject, workspaceName);
+
 		UserManager systemUm = getSystemUserManager(workspaceName);
 
 		String userId = authen.getName();
@@ -68,7 +73,7 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 			log.info(userId + " added as " + user);
 		}
 
-		setHomeNodeAuthorizations(user);
+		//setHomeNodeAuthorizations(user);
 
 		// process groups
 		List<String> userGroupIds = new ArrayList<String>();
@@ -81,7 +86,6 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 			if (!group.isMember(user))
 				group.addMember(user);
 			userGroupIds.add(ga.getAuthority());
-
 		}
 
 		// check if user has not been removed from some groups
@@ -90,6 +94,36 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 			if (!userGroupIds.contains(group.getID()))
 				group.removeMember(user);
 		}
+
+		// write roles in profile for easy access
+//		if (!(authen instanceof SystemAuthentication)) {
+//			Node userProfile = JcrUtils.getUserProfile(getSystemSession(),
+//					userId);
+//			boolean writeRoles = false;
+//			if (userProfile.hasProperty(ArgeoNames.ARGEO_REMOTE_ROLES)) {
+//				Value[] roles = userProfile.getProperty(ArgeoNames.ARGEO_REMOTE_ROLES)
+//						.getValues();
+//				if (roles.length != userGroupIds.size())
+//					writeRoles = true;
+//				else
+//					for (int i = 0; i < roles.length; i++)
+//						if (!roles[i].getString().equals(userGroupIds.get(i)))
+//							writeRoles = true;
+//			} else
+//				writeRoles = true;
+//
+//			if (writeRoles) {
+//				userProfile.getSession().getWorkspace().getVersionManager()
+//						.checkout(userProfile.getPath());
+//				String[] roleIds = userGroupIds.toArray(new String[userGroupIds
+//						.size()]);
+//				userProfile.setProperty(ArgeoNames.ARGEO_REMOTE_ROLES, roleIds);
+//				JcrUtils.updateLastModified(userProfile);
+//				userProfile.getSession().save();
+//				userProfile.getSession().getWorkspace().getVersionManager()
+//						.checkin(userProfile.getPath());
+//			}
+//		}
 
 		if (log.isTraceEnabled())
 			log.trace("Spring and Jackrabbit Security synchronized for user "
@@ -107,9 +141,12 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 			Node userHome = null;
 			try {
 				userHome = JcrUtils.getUserHome(getSystemSession(), userId);
-				if (userHome == null)
+				if (userHome == null) {
 					userHome = JcrUtils.createUserHome(getSystemSession(),
 							HOME_BASE_PATH, userId);
+					//log.warn("No home available for user "+userId);
+					return;
+				}
 			} catch (Exception e) {
 				// silent
 			}

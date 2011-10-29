@@ -128,14 +128,17 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 		try {
 
 			Node userHome = JcrUtils.getUserHome(session, username);
-			if (userHome == null)
+			boolean justCreatedHome = false;
+			if (userHome == null) {
 				userHome = JcrUtils.createUserHome(session, homeBasePath,
 						username);
+				justCreatedHome = true;
+			}
 			String userHomePath = userHome.getPath();
 			Node userProfile; // = userHome.getNode(ARGEO_PROFILE);
 			if (userHome.hasNode(ARGEO_PROFILE)) {
 				userProfile = userHome.getNode(ARGEO_PROFILE);
-				if (syncLatency != 0) {
+				if (syncLatency != 0 && !justCreatedHome) {
 					Calendar lastModified = userProfile.getProperty(
 							Property.JCR_LAST_MODIFIED).getDate();
 					long timeSinceLastUpdate = System.currentTimeMillis()
@@ -151,6 +154,8 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 				// userProfile.addMixin(NodeType.MIX_LAST_MODIFIED);
 			}
 
+			session.getWorkspace().getVersionManager()
+					.checkout(userProfile.getPath());
 			for (String jcrProperty : propertyToAttributes.keySet())
 				ldapToJcr(userProfile, jcrProperty, ctx);
 
@@ -164,6 +169,8 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 						+ userProfile.getProperty(ARGEO_LAST_NAME).getString());
 			JcrUtils.updateLastModified(userProfile);
 			session.save();
+			session.getWorkspace().getVersionManager()
+					.checkin(userProfile.getPath());
 			if (log.isTraceEnabled())
 				log.trace("Mapped " + ctx.getDn() + " to " + userProfile);
 			return userHomePath;
@@ -219,9 +226,16 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 								+ jcrProperty);
 
 			String value = ctx.getStringAttribute(ldapAttribute);
-			if (value == null)
-				return;
-			userProfile.setProperty(jcrProperty, value);
+			String jcrValue = userProfile.hasProperty(jcrProperty) ? userProfile
+					.getProperty(jcrProperty).getString() : null;
+			if (value != null && jcrValue != null) {
+				if (!value.equals(jcrValue))
+					userProfile.setProperty(jcrProperty, value);
+			} else if (value != null && jcrValue == null) {
+				userProfile.setProperty(jcrProperty, value);
+			} else if (value == null && jcrValue != null) {
+				userProfile.setProperty(jcrProperty, value);
+			}
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot map JCR property " + jcrProperty
 					+ " from LDAP", e);

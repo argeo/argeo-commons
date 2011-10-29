@@ -9,6 +9,12 @@
 		<property name="authenticationManager" ref="authenticationManager" />
 	</bean>
 
+	<bean id="springLoginModuleRemote" class="org.argeo.security.equinox.SpringLoginModule"
+		scope="prototype">
+		<property name="remote" value="true" />
+		<property name="authenticationManager" ref="authenticationManager" />
+	</bean>
+
 	<bean id="osSpringLoginModule" class="org.argeo.security.equinox.OsSpringLoginModule"
 		scope="prototype">
 		<property name="authenticationManager" ref="authenticationManager" />

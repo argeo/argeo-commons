@@ -129,6 +129,7 @@ public class UsersView extends ViewPart implements ArgeoNames, ArgeoTypes,
 		public String getColumnText(Object element, int columnIndex) {
 			try {
 				Node userHome = (Node) element;
+				Node userProfile = userHome.getNode(ARGEO_PROFILE);
 				switch (columnIndex) {
 				case 0:
 					String userName = userHome.getProperty(ARGEO_USER_ID)
@@ -138,14 +139,14 @@ public class UsersView extends ViewPart implements ArgeoNames, ArgeoTypes,
 					else
 						return userName;
 				case 1:
-					return userHome.getNode(ARGEO_PROFILE)
-							.getProperty(ARGEO_FIRST_NAME).getString();
+					return userProfile.hasProperty(ARGEO_FIRST_NAME) ? userProfile
+							.getProperty(ARGEO_FIRST_NAME).getString() : "";
 				case 2:
-					return userHome.getNode(ARGEO_PROFILE)
-							.getProperty(ARGEO_LAST_NAME).getString();
+					return userProfile.hasProperty(ARGEO_LAST_NAME) ? userProfile
+							.getProperty(ARGEO_LAST_NAME).getString() : "";
 				case 3:
-					return userHome.getNode(ARGEO_PROFILE)
-							.getProperty(ARGEO_PRIMARY_EMAIL).getString();
+					return userProfile.hasProperty(ARGEO_PRIMARY_EMAIL) ? userProfile
+							.getProperty(ARGEO_PRIMARY_EMAIL).getString() : "";
 				default:
 					throw new ArgeoException("Unmanaged column " + columnIndex);
 				}

@@ -5,7 +5,4 @@
 
 	<bean id="jcrAuthenticationProvider"
 		class="org.argeo.security.jackrabbit.providers.JackrabbitAuthenticationProvider" />
-
-	<bean id="osJcrAuthenticationProvider" class="org.argeo.security.jcr.OsJcrAuthenticationProvider">
-	</bean>
 </beans>

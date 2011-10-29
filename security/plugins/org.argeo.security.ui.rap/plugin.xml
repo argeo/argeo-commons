@@ -22,4 +22,26 @@
       	</branding>
    	</extension>
 
+   <extension
+         point="org.eclipse.equinox.security.callbackHandlerMapping">
+      <callbackHandlerMapping
+            callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
+            configName="SPRING">
+      </callbackHandlerMapping>
+   </extension>
+   <extension
+         point="org.eclipse.equinox.security.callbackHandlerMapping">
+         <callbackHandlerMapping
+            callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
+            configName="NIX">
+      </callbackHandlerMapping>
+   </extension>
+   <extension
+         point="org.eclipse.equinox.security.callbackHandlerMapping">
+      <callbackHandlerMapping
+            callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
+            configName="SPRING_SECURITY_CONTEXT">
+      </callbackHandlerMapping>
+   </extension>
+
 </plugin>

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="
-       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
 	<bean
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -11,6 +10,10 @@
 			<value>osgibundle:security.properties</value>
 		</property>
 	</bean>
+
+	<bean id="osJcrAuthenticationProvider" class="org.argeo.security.jcr.OsJcrAuthenticationProvider">
+	</bean>
+
 
 	<bean id="systemExecutionService" class="org.argeo.security.core.KeyBasedSystemExecutionService">
 		<property name="systemAuthenticationKey" value="${argeo.security.systemKey}" />
@@ -30,8 +33,9 @@
 				<bean class="org.springframework.security.adapters.AuthByAdapterProvider">
 					<property name="key" value="${argeo.security.systemKey}" />
 				</bean>
-				<ref bean="jcrAuthenticationProvider" />
+				<ref bean="osJcrAuthenticationProvider" />
 			</list>
 		</property>
 	</bean>
+
 </beans>

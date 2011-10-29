@@ -20,6 +20,8 @@ import org.eclipse.ui.application.WorkbenchAdvisor;
  * RCP workbench initialization
  */
 public abstract class AbstractSecureApplication implements IApplication {
+	final static String NODE_REPO_URI = "argeo.node.repo.uri";
+
 	private static final Log log = LogFactory
 			.getLog(AbstractSecureApplication.class);
 
@@ -29,20 +31,27 @@ public abstract class AbstractSecureApplication implements IApplication {
 
 	public Object start(IApplicationContext context) throws Exception {
 		// wait for the system to be initialized
-//		try {
-//			Thread.sleep(3000);
-//		} catch (Exception e2) {
-//			// silent
-//		}
+		// try {
+		// Thread.sleep(3000);
+		// } catch (Exception e2) {
+		// // silent
+		// }
+
+		boolean remote = System.getProperty(NODE_REPO_URI) != null;
 
 		// choose login context
 		final ILoginContext loginContext;
-		if (OperatingSystem.os == OperatingSystem.WINDOWS)
+		if (remote) {
 			loginContext = SecureApplicationActivator
-					.createLoginContext(SecureApplicationActivator.CONTEXT_WINDOWS);
-		else
-			loginContext = SecureApplicationActivator
-					.createLoginContext(SecureApplicationActivator.CONTEXT_NIX);
+					.createLoginContext(SecureApplicationActivator.CONTEXT_REMOTE);
+		} else {
+			if (OperatingSystem.os == OperatingSystem.WINDOWS)
+				loginContext = SecureApplicationActivator
+						.createLoginContext(SecureApplicationActivator.CONTEXT_WINDOWS);
+			else
+				loginContext = SecureApplicationActivator
+						.createLoginContext(SecureApplicationActivator.CONTEXT_NIX);
+		}
 
 		final Display display = PlatformUI.createDisplay();
 

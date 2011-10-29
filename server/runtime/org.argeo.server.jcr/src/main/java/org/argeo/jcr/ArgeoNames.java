@@ -12,6 +12,7 @@ public interface ArgeoNames {
 
 	public final static String ARGEO_REMOTE = "argeo:remote";
 	public final static String ARGEO_PASSWORD = "argeo:password";
+	public final static String ARGEO_REMOTE_ROLES = "argeo:remoteRoles";
 
 	// user profile
 	public final static String ARGEO_PROFILE = "argeo:profile";

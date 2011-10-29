@@ -35,7 +35,7 @@ public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 				Session session = null;
 				try {
 					session = repository.login(workspace);
-					// WARNING: at this stage we assume that teh java properties
+					// WARNING: at this stage we assume that the java properties
 					// will have the same value
 					String userName = System.getProperty("user.name");
 					Node userHome = JcrUtils.getUserHome(session, userName);
@@ -44,6 +44,7 @@ public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 								homeBasePath, userName);
 					// authen.setDetails(getUserDetails(userHome, authen));
 				} catch (RepositoryException e) {
+					JcrUtils.discardQuietly(session);
 					throw new ArgeoException(
 							"Unexpected exception when synchronizing OS and JCR security ",
 							e);

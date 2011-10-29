@@ -27,6 +27,12 @@
 				<value>classpath:/org/argeo/jcr/argeo.cnd</value>
 			</list>
 		</property>
+		<property name="remoteSystemCredentials">
+			<bean class="javax.jcr.SimpleCredentials">
+				<constructor-arg value="root" />
+				<constructor-arg value="demo" />
+			</bean>
+		</property>
 	</bean>
 
 	<!-- Execute initialization with a system authentication -->

@@ -15,6 +15,7 @@ import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.DefaultRepositoryFactory;
 
+/** Repository factory which can access remote Jackrabbit repositories */
 public class JackrabbitRepositoryFactory extends DefaultRepositoryFactory
 		implements RepositoryFactory, ArgeoJcrConstants {
 	private final static Log log = LogFactory
@@ -33,7 +34,7 @@ public class JackrabbitRepositoryFactory extends DefaultRepositoryFactory
 			uri = parameters.get(JcrUtils.REPOSITORY_URI).toString();
 		else
 			return null;
-		
+
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(JcrUtils.REPOSITORY_URI, uri);
 		repository = new Jcr2davRepositoryFactory().getRepository(params);

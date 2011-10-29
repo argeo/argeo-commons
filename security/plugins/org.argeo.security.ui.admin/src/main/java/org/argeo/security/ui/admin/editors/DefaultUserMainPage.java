@@ -46,9 +46,8 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 	protected void createFormContent(final IManagedForm mf) {
 		try {
 			ScrolledForm form = mf.getForm();
-			form.setText(userProfile.getProperty(ARGEO_FIRST_NAME).getString()
-					+ " "
-					+ userProfile.getProperty(ARGEO_LAST_NAME).getString());
+			form.setText(getProperty(ARGEO_FIRST_NAME) + " "
+					+ getProperty(ARGEO_LAST_NAME));
 			GridLayout mainLayout = new GridLayout(1, true);
 			// ColumnLayout mainLayout = new ColumnLayout();
 			// mainLayout.minNumColumns = 1;
@@ -89,13 +88,13 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 		// username = createLT(body, "Username", "");
 		// }
 		final Text firstName = createLT(body, "First name",
-				userProfile.getProperty(ARGEO_FIRST_NAME));
+				getProperty(ARGEO_FIRST_NAME));
 		final Text lastName = createLT(body, "Last name",
-				userProfile.getProperty(ARGEO_LAST_NAME));
+				getProperty(ARGEO_LAST_NAME));
 		final Text email = createLT(body, "Email",
-				userProfile.getProperty(ARGEO_PRIMARY_EMAIL));
+				getProperty(ARGEO_PRIMARY_EMAIL));
 		final Text description = createLT(body, "Description",
-				userProfile.getProperty(Property.JCR_DESCRIPTION));
+				getProperty(Property.JCR_DESCRIPTION));
 
 		// create form part (controller)
 		AbstractFormPart part = new SectionPart(section) {
@@ -134,6 +133,12 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 		email.addModifyListener(new FormPartML(part));
 		description.addModifyListener(new FormPartML(part));
 		getManagedForm().addPart(part);
+	}
+
+	/** @return the property, or teh empty string if not set */
+	protected String getProperty(String name) throws RepositoryException {
+		return userProfile.hasProperty(name) ? userProfile.getProperty(name)
+				.getString() : "";
 	}
 
 	/** Creates the password section */
@@ -185,11 +190,6 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 		Text text = toolkit.createText(body, value, SWT.BORDER);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		return text;
-	}
-
-	protected Text createLT(Composite body, String label, Property value)
-			throws RepositoryException {
-		return createLT(body, label, value.getString());
 	}
 
 	/** Creates label and password. */

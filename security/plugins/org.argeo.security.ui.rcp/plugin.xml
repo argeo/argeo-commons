@@ -31,4 +31,13 @@
          </run>
       </application>
    </extension>
+   
+   <extension
+         point="org.eclipse.equinox.security.callbackHandlerMapping">
+      <callbackHandlerMapping
+            callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
+            configName="REMOTE">
+      </callbackHandlerMapping>
+   </extension>
+   
 </plugin>
