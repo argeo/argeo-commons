@@ -40,11 +40,17 @@ public abstract class CsvParser {
 			List<String> header, List<String> tokens);
 
 	public synchronized void parse(InputStream in) {
+		parse(in, null);
+	}
+
+	public synchronized void parse(InputStream in, String encoding) {
 		BufferedReader reader = null;
 		Integer lineCount = 0;
 		try {
-			reader = new BufferedReader(new InputStreamReader(in));
-
+			if (encoding == null)
+				reader = new BufferedReader(new InputStreamReader(in));
+			else
+				reader = new BufferedReader(new InputStreamReader(in, encoding));
 			List<String> header = null;
 			if (!noHeader) {
 				String headerStr = reader.readLine();

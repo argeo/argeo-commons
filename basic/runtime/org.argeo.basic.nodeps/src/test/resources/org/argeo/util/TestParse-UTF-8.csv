@@ -1,0 +1,8 @@
+"Date d'imputation","N° de compte","Code journal","Pièce interne","Pièce externe","Libellé d'écriture","Débit","Crédit","Lettrage","Quantité","Code analytique","Date d'échéance","Date d'imputation origine","Code journal origine","Mode de règlement","Date début de période","Date fin de période"
+26.01.2010,"101300","BQ","BQ01.10",,"Depot société en formation",,"3.000,00",,,,"          ",26.01.2010,"BQ","    ","          ","          "
+26.01.2010,"101300","BQ","BQ01.10",,"Depot société en formation",,"7.000,00",,,,"          ",26.01.2010,"BQ","    ","          ","          "
+26.01.2010,"411OPEN","BQ","BQ01.10",,"Vir Client ",,"2.508,00","A",,,"          ",26.01.2010,"BQ","    ","          ","          "
+26.01.2010,"455100","BQ","BQ01.10",,"Bankomat Raiffeise","250,00",,,,,"          ",26.01.2010,"BQ","    ","          ","          "
+26.01.2010,"512101","BQ","BQ01.10",,"Extrait bancaire 01.10","12.250,55",,,,,"          ",26.01.2010,"BQ","    ","          ","          "
+26.01.2010,"627800","BQ","BQ01.10",,"Envoi de chequier","2,30",,,,,"          ",26.01.2010,"BQ","    ","          ","          "
+26.01.2010,"627800","BQ","BQ01.10",,"Frais d'expedition","5,15",,,,,"          ",26.01.2010,"BQ","    ","          ","          "
