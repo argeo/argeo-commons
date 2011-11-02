@@ -1,26 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
-
-	<bean
-		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
-		<property name="locations">
-			<value>osgibundle:security.properties</value>
-		</property>
-	</bean>
-
-	<bean id="argeoDataModel" class="org.argeo.jackrabbit.JackrabbitContainer"
-		init-method="init" destroy-method="destroy">
-		<description><![CDATA[Make sure that Argeo base data model is registered]]></description>
-		<property name="cndFiles">
-			<list>
-				<value>/org/argeo/jcr/argeo.cnd</value>
-			</list>
-		</property>
-		<property name="repository" ref="nodeRepository" />
-	</bean>
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
 	<bean id="systemExecutionService" class="org.argeo.security.core.KeyBasedSystemExecutionService">
 		<property name="authenticationManager" ref="authenticationManager" />
@@ -30,28 +12,30 @@
 	<bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
 		<property name="providers">
 			<list>
+				<ref bean="anonymousAuthenticationProvider" />
 				<ref bean="authByAdapterProvider" />
-				<ref bean="osJcrAuthenticationProvider" />
+				<ref bean="ldapAuthenticationProvider" />
 			</list>
 		</property>
 	</bean>
 
-	<!-- Authentication providers -->
-	<bean id="osJcrAuthenticationProvider" class="org.argeo.security.jcr.OsJcrAuthenticationProvider"
-		init-method="init" destroy-method="destroy">
-		<property name="repository" ref="argeoDataModel" />
-	</bean>
-
+	<!-- Authentication provider -->
 	<bean id="authByAdapterProvider"
 		class="org.springframework.security.adapters.AuthByAdapterProvider">
 		<description><![CDATA[System authentication]]></description>
 		<property name="key" value="${argeo.security.systemKey}" />
 	</bean>
 
-	<!-- Internal authentication, used by the general authentication process 
-		himself, in order to prevent the following dependency cycle: Repository.login() 
-		<= AuthenticationManager <= osJcrAuthenticationProvider <= Repository.login() 
-		in init() -->
+	<bean id="anonymousAuthenticationProvider"
+		class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider">
+		<description><![CDATA[Anonymous authentication]]></description>
+		<property name="key" value="${argeo.security.systemKey}" />
+	</bean>
+
+	<!-- Internal authentication, used by during the general authentication 
+		initialization himself, in order to prevent the following dependency cycle: 
+		Repository.login() <= AuthenticationManager <= LdapAuthenticationProvider 
+		<= Repository.login() in init() -->
 	<bean id="internalAuthenticationManager" class="org.springframework.security.providers.ProviderManager">
 		<property name="providers">
 			<list>
@@ -65,5 +49,4 @@
 		<description><![CDATA[Executes initialization with a system authentication]]></description>
 		<property name="authenticationManager" ref="internalAuthenticationManager" />
 	</bean>
-
 </beans>

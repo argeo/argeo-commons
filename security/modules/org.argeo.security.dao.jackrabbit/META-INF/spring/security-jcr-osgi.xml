@@ -10,11 +10,7 @@
        http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
 	<!-- REFERENCE -->
-	<reference id="repositoryFactory" interface="javax.jcr.RepositoryFactory"
-		cardinality="0..1">
-		<listener ref="jcrAuthenticationProvider" bind-method="register"
-			unbind-method="unregister" />
-	</reference>
+	<reference id="repositoryFactory" interface="javax.jcr.RepositoryFactory" />
 
 	<!-- SERVICES -->
 	<service ref="systemExecutionService" interface="org.argeo.security.SystemExecutionService" />

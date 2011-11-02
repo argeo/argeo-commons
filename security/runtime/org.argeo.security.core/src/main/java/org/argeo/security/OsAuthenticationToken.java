@@ -4,7 +4,6 @@ import java.security.AccessController;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -76,6 +75,10 @@ public class OsAuthenticationToken implements Authentication {
 		return getUser().getName();
 	}
 
+	/**
+	 * Should not be called during authentication since group IDs are not yet
+	 * available {@link Subject} has been set
+	 */
 	public GrantedAuthority[] getAuthorities() {
 		// grantedAuthorities should not be null at this stage
 		List<GrantedAuthority> gas = new ArrayList<GrantedAuthority>(
@@ -121,7 +124,7 @@ public class OsAuthenticationToken implements Authentication {
 	}
 
 	public Principal getUser() {
-		Subject subject = Subject.getSubject(AccessController.getContext());
+		Subject subject = getSubject();
 		Set<? extends Principal> userPrincipals = subject
 				.getPrincipals(osUserPrincipalClass);
 		if (userPrincipals == null || userPrincipals.size() == 0)
@@ -133,7 +136,7 @@ public class OsAuthenticationToken implements Authentication {
 	}
 
 	public Principal getUserId() {
-		Subject subject = Subject.getSubject(AccessController.getContext());
+		Subject subject = getSubject();
 		Set<? extends Principal> userIdsPrincipals = subject
 				.getPrincipals(osUserIdPrincipalClass);
 		if (userIdsPrincipals == null || userIdsPrincipals.size() == 0)
@@ -145,9 +148,17 @@ public class OsAuthenticationToken implements Authentication {
 	}
 
 	public Set<? extends Principal> getGroupsIds() {
-		Subject subject = Subject.getSubject(AccessController.getContext());
+		Subject subject = getSubject();
 		return (Set<? extends Principal>) subject
 				.getPrincipals(osGroupIdPrincipalClass);
+	}
+
+	/** @return the subject always non null */
+	protected Subject getSubject() {
+		Subject subject = Subject.getSubject(AccessController.getContext());
+		if (subject == null)
+			throw new ArgeoException("No subject in JAAS context");
+		return subject;
 	}
 
 	public Object getCredentials() {

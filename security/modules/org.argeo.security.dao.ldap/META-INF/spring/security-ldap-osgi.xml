@@ -7,17 +7,17 @@
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
 	<!-- REFERENCES -->
-	<list id="repositories" interface="javax.jcr.Repository"
-		filter="(argeo.jcr.repository.alias=${argeo.node.repo.alias})"
-		cardinality="0..N">
-	</list>
-
-	<reference id="systemExecutionService" interface="org.argeo.security.SystemExecutionService" />
+	<reference id="nodeRepository" interface="javax.jcr.Repository"
+		filter="(argeo.jcr.repository.alias=node)" />
 
 	<!-- SERVICES -->
-	<service ref="ldapAuthenticationProvider"
-		interface="org.springframework.security.providers.AuthenticationProvider"
+	<service ref="systemExecutionService" interface="org.argeo.security.SystemExecutionService" />
+	<service ref="authenticationManager"
+		interface="org.springframework.security.AuthenticationManager"
 		context-class-loader="service-provider" />
+	<!-- <service ref="ldapAuthenticationProvider" -->
+	<!-- interface="org.springframework.security.providers.AuthenticationProvider" -->
+	<!-- context-class-loader="service-provider" /> -->
 
 	<service ref="userDetailsManager"
 		interface="org.springframework.security.userdetails.UserDetailsService"

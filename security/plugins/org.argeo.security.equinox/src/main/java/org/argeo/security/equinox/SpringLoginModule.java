@@ -11,7 +11,7 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.security.SiteAuthenticationToken;
+import org.argeo.security.NodeAuthenticationToken;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.BadCredentialsException;
@@ -63,23 +63,30 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 			if (subject.getPublicCredentials() != null)
 				subject.getPublicCredentials().clear();
 
+			if (callbackHandler == null)
+				throw new LoginException("No call back handler available");
+
 			// ask for username and password
 			NameCallback nameCallback = new NameCallback("User");
 			PasswordCallback passwordCallback = new PasswordCallback(
 					"Password", false);
+			final String defaultNodeUrl = "http://localhost:7070/org.argeo.jcr.webapp/remoting/node";
+			final String defaultSecurityWorkspace = "security";
+			NameCallback urlCallback = new NameCallback("Site URL",
+					defaultNodeUrl);
+			NameCallback securityWorkspaceCallback = new NameCallback(
+					"Security Workspace", defaultSecurityWorkspace);
 
-			NameCallback urlCallback = new NameCallback("Site URL");
-
-			if (callbackHandler == null)
-				throw new LoginException("No call back handler available");
+			// handle callbacks
 			if (remote)
 				callbackHandler.handle(new Callback[] { nameCallback,
-						passwordCallback, urlCallback });
+						passwordCallback, urlCallback,
+						securityWorkspaceCallback });
 			else
 				callbackHandler.handle(new Callback[] { nameCallback,
 						passwordCallback });
 
-			// Set user name and password
+			// create credentials
 			String username = nameCallback.getName();
 			if (username == null || username.trim().equals(""))
 				return false;
@@ -88,16 +95,15 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 			if (passwordCallback.getPassword() != null)
 				password = String.valueOf(passwordCallback.getPassword());
 
-			String url = remote ? urlCallback.getName() : null;
-			if (remote && (url == null || url.trim().equals("")))
-				// for convenience, may be removed in the future
-				url = System.getProperty(NODE_REPO_URI);
-
-			// TODO: set it via system properties
-			String workspace = null;
-
-			SiteAuthenticationToken credentials = new SiteAuthenticationToken(
-					username, password, url, workspace);
+			NodeAuthenticationToken credentials;
+			if (remote) {
+				String url = urlCallback.getName();
+				String workspace = securityWorkspaceCallback.getName();
+				credentials = new NodeAuthenticationToken(username, password,
+						url, workspace);
+			} else {
+				credentials = new NodeAuthenticationToken(username, password);
+			}
 
 			Authentication authentication;
 			try {

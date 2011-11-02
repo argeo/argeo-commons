@@ -11,16 +11,7 @@
 
 	<!-- REFERENCE -->
 	<reference id="nodeRepository" interface="javax.jcr.Repository"
-		filter="(argeo.jcr.repository.alias=${argeo.node.repo.alias})" cardinality="0..1">
-		<listener ref="osJcrAuthenticationProvider" bind-method="register"
-			unbind-method="unregister" />
-	</reference>
-
-	<reference id="systemExecutionServiceRef" interface="org.argeo.security.SystemExecutionService"
-		cardinality="0..1">
-		<listener ref="osJcrAuthenticationProvider" bind-method="register"
-			unbind-method="unregister" />
-	</reference>
+		filter="(argeo.jcr.repository.alias=node)" />
 
 	<!-- SERVICES -->
 	<service ref="systemExecutionService" interface="org.argeo.security.SystemExecutionService" />

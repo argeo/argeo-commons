@@ -19,19 +19,21 @@
 
 	<bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
 		<property name="providers">
-			<bean factory-bean="authenticationProvidersRegister"
-				factory-method="getProviders" />
-		</property>
-	</bean>
-
-	<bean id="authenticationProvidersRegister" class="org.argeo.security.core.AuthenticationProvidersRegister">
-		<property name="defaultProviders">
 			<list>
-				<bean class="org.springframework.security.adapters.AuthByAdapterProvider">
-					<property name="key" value="${argeo.security.systemKey}" />
-				</bean>
-				<ref bean="jcrAuthenticationProvider" />
+				<ref bean="authByAdapterProvider" />
+				<ref bean="remoteJcrAuthenticationProvider" />
 			</list>
 		</property>
 	</bean>
+
+	<!-- Authentication providers -->
+	<bean id="remoteJcrAuthenticationProvider" class="org.argeo.security.jcr.RemoteJcrAuthenticationProvider">
+		<property name="repositoryFactory" ref="repositoryFactory" />
+	</bean>
+
+	<bean id="authByAdapterProvider"
+		class="org.springframework.security.adapters.AuthByAdapterProvider">
+		<property name="key" value="${argeo.security.systemKey}" />
+	</bean>
+
 </beans>

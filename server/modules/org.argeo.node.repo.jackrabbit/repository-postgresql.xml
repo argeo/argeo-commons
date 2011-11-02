@@ -27,7 +27,7 @@
 
 	<!-- Workspace templates -->
 	<Workspaces rootPath="${rep.home}/workspaces"
-		defaultWorkspace="dev" />
+		defaultWorkspace="${argeo.node.repo.defaultWorkspace}" />
 	<Workspace name="${wsp.name}">
 		<FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
 			<param name="dataSourceName" value="dataSource" />

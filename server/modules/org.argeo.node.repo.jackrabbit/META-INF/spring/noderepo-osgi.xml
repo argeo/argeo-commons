@@ -9,19 +9,10 @@
        http://www.springframework.org/schema/util
        http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
-	<!-- REFERENCES -->
-	<reference id="authenticationManager"
-		interface="org.springframework.security.AuthenticationManager" />
-
 	<!-- SERVICES -->
 	<service ref="nodeJcrRepository" interface="javax.jcr.Repository">
 		<service-properties>
-			<beans:entry value="node">
-				<beans:key>
-					<util:constant
-						static-field="org.argeo.jcr.ArgeoJcrConstants.JCR_REPOSITORY_ALIAS" />
-				</beans:key>
-			</beans:entry>
+			<beans:entry key="argeo.jcr.repository.alias" value="node" />
 		</service-properties>
 	</service>
 </beans:beans>

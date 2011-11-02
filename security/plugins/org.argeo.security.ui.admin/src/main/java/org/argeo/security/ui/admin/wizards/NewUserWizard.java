@@ -6,8 +6,7 @@ import javax.jcr.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.eclipse.ui.dialogs.Error;
-import org.argeo.jcr.ArgeoNames;
+import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.jcr.JcrUserDetails;
@@ -17,8 +16,6 @@ import org.springframework.security.GrantedAuthority;
 /** Wizard to create a new user */
 public class NewUserWizard extends Wizard {
 	private final static Log log = LogFactory.getLog(NewUserWizard.class);
-
-	private String homeBasePath = "/home";
 	private Session session;
 	private UserAdminService userAdminService;
 
@@ -43,16 +40,17 @@ public class NewUserWizard extends Wizard {
 
 		String username = mainUserInfo.getUsername();
 		try {
-			session.save();
-			Node userHome = JcrUtils.createUserHome(session, homeBasePath,
-					username);
-			Node userProfile = userHome.getNode(ArgeoNames.ARGEO_PROFILE);
+			Node userProfile = JcrUtils.createUserProfile(session, username);
+			session.getWorkspace().getVersionManager()
+					.checkout(userProfile.getPath());
 			mainUserInfo.mapToProfileNode(userProfile);
 			String password = mainUserInfo.getPassword();
-			JcrUserDetails jcrUserDetails = new JcrUserDetails(
-					userHome.getPath(), username, password, true, true, true,
-					true, new GrantedAuthority[0]);
+			// TODO add roles
+			JcrUserDetails jcrUserDetails = new JcrUserDetails(userProfile,
+					password, new GrantedAuthority[0]);
 			session.save();
+			session.getWorkspace().getVersionManager()
+					.checkin(userProfile.getPath());
 			userAdminService.createUser(jcrUserDetails);
 			return true;
 		} catch (Exception e) {
@@ -68,7 +66,7 @@ public class NewUserWizard extends Wizard {
 							+ username, e1);
 				}
 			}
-			Error.show("Cannot create new user " + username, e);
+			ErrorFeedback.show("Cannot create new user " + username, e);
 			return false;
 		}
 	}

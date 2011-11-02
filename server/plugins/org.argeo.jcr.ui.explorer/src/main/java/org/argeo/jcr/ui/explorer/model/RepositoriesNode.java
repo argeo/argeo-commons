@@ -76,7 +76,7 @@ public class RepositoriesNode extends TreeParent implements ArgeoNames {
 			throws RepositoryException {
 		Session userSession = jcrKeyring.getSession();
 		Node userHome = JcrUtils.getUserHome(userSession);
-		if (userHome.hasNode(ARGEO_REMOTE)) {
+		if (userHome != null && userHome.hasNode(ARGEO_REMOTE)) {
 			NodeIterator it = userHome.getNode(ARGEO_REMOTE).getNodes();
 			while (it.hasNext()) {
 				Node remoteNode = it.nextNode();

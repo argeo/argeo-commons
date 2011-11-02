@@ -42,6 +42,8 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 
 	private Boolean openSessionInView = true;
 
+	private String securityWorkspace = "security";
+
 	public Session getSession(HttpServletRequest request, Repository rep,
 			String workspace) throws LoginException, ServletException,
 			RepositoryException {
@@ -84,6 +86,9 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 
 	protected void writeRemoteRoles(JackrabbitSession session)
 			throws RepositoryException {
+		if (!session.getWorkspace().getName().equals(securityWorkspace))
+			return;
+
 		// retrieve roles
 		String userId = session.getUserID();
 		UserManager userManager = session.getUserManager();
@@ -98,7 +103,8 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 				userGroupIds.add(it.next().getID());
 
 		// write roles if needed
-		Node userProfile = JcrUtils.getUserProfile(session);
+		Node userProfile = JcrUtils.getUserHome(session).getNode(
+				ArgeoNames.ARGEO_PROFILE);
 		boolean writeRoles = false;
 		if (userProfile.hasProperty(ArgeoNames.ARGEO_REMOTE_ROLES)) {
 			Value[] roles = userProfile.getProperty(

@@ -49,13 +49,6 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 			form.setText(getProperty(ARGEO_FIRST_NAME) + " "
 					+ getProperty(ARGEO_LAST_NAME));
 			GridLayout mainLayout = new GridLayout(1, true);
-			// ColumnLayout mainLayout = new ColumnLayout();
-			// mainLayout.minNumColumns = 1;
-			// mainLayout.maxNumColumns = 4;
-			// mainLayout.topMargin = 0;
-			// mainLayout.bottomMargin = 5;
-			// mainLayout.leftMargin = mainLayout.rightMargin =
-			// mainLayout.horizontalSpacing = mainLayout.verticalSpacing = 10;
 			form.getBody().setLayout(mainLayout);
 
 			createGeneralPart(form.getBody());
@@ -78,15 +71,6 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 		body.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		body.setLayout(layout);
 
-		// add widgets (view)
-		// final Text username;
-		// if (user.getUsername() != null) {
-		// tk.createLabel(body, "Username");
-		// tk.createLabel(body, user.getUsername());
-		// username = null;
-		// } else {
-		// username = createLT(body, "Username", "");
-		// }
 		final Text firstName = createLT(body, "First name",
 				getProperty(ARGEO_FIRST_NAME));
 		final Text lastName = createLT(body, "Last name",
@@ -99,16 +83,9 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 		// create form part (controller)
 		AbstractFormPart part = new SectionPart(section) {
 			public void commit(boolean onSave) {
-				// if (username != null) {
-				// ((SimpleArgeoUser) user).setUsername(username.getText());
-				// username.setEditable(false);
-				// username.setEnabled(false);
-				// }
-				// simpleNature.setFirstName(firstName.getText());
-				// simpleNature.setLastName(lastName.getText());
-				// simpleNature.setEmail(email.getText());
-				// simpleNature.setDescription(description.getText());
 				try {
+					userProfile.getSession().getWorkspace().getVersionManager()
+							.checkout(userProfile.getPath());
 					userProfile.setProperty(ARGEO_FIRST_NAME,
 							firstName.getText());
 					userProfile
@@ -118,6 +95,8 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 					userProfile.setProperty(Property.JCR_DESCRIPTION,
 							description.getText());
 					userProfile.getSession().save();
+					userProfile.getSession().getWorkspace().getVersionManager()
+							.checkin(userProfile.getPath());
 					super.commit(onSave);
 					if (log.isTraceEnabled())
 						log.trace("General part committed");

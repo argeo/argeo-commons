@@ -3,7 +3,16 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="locations">
+			<value>osgibundle:security-admin.properties</value>
+		</property>
+	</bean>
+
 	<bean id="session" class="org.argeo.security.jcr.SecureThreadBoundSession">
+		<property name="workspace" value="${argeo.node.repo.securityWorkspace}" />
 		<property name="repository" ref="nodeRepository" />
 	</bean>
 </beans>

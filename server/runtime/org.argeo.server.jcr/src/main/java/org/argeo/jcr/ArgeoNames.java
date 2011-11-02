@@ -16,6 +16,14 @@ public interface ArgeoNames {
 
 	// user profile
 	public final static String ARGEO_PROFILE = "argeo:profile";
+
+	// spring security
+	public final static String ARGEO_ENABLED = "argeo:enabled";
+	public final static String ARGEO_ACCOUNT_NON_EXPIRED = "argeo:accountNonExpired";
+	public final static String ARGEO_ACCOUNT_NON_LOCKED = "argeo:accountNonLocked";
+	public final static String ARGEO_CREDENTIALS_NON_EXPIRED = "argeo:credentialsNonExpired";
+
+	// personal details
 	public final static String ARGEO_FIRST_NAME = "argeo:firstName";
 	public final static String ARGEO_LAST_NAME = "argeo:lastName";
 	public final static String ARGEO_PRIMARY_EMAIL = "argeo:primaryEmail";

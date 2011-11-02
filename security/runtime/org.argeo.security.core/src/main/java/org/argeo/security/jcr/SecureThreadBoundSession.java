@@ -33,18 +33,6 @@ public class SecureThreadBoundSession extends ThreadBoundSession {
 					return login();
 				}
 			}
-			// UserDetails userDetails = (UserDetails)
-			// authentication.getDetails();
-			// if (userDetails != null) {
-			// String currentUserName = userDetails.getUsername();
-			// if (!userID.equals(currentUserName)) {
-			// log.warn("Current session has user ID " + userID
-			// + " while logged is user is " + currentUserName
-			// + "(authentication=" + authentication + ")"
-			// + ". Re-login.");
-			// return login();
-			// }
-			// }
 		}
 		return super.preCall(session);
 	}

@@ -36,8 +36,6 @@ import org.springframework.security.GrantedAuthority;
 
 /** Intermediary class in order to have a consistent naming in config files. */
 public class ArgeoSecurityManager extends DefaultSecurityManager {
-	public final static String HOME_BASE_PATH = "/home";
-
 	private Log log = LogFactory.getLog(ArgeoSecurityManager.class);
 
 	@Override
@@ -142,8 +140,7 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 			try {
 				userHome = JcrUtils.getUserHome(getSystemSession(), userId);
 				if (userHome == null) {
-					userHome = JcrUtils.createUserHome(getSystemSession(),
-							HOME_BASE_PATH, userId);
+					userHome = JcrUtils.createUserHomeIfNeeded(getSystemSession(), userId);
 					//log.warn("No home available for user "+userId);
 					return;
 				}

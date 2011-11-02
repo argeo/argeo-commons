@@ -16,7 +16,7 @@
 		</property>
 	</bean>
 
-	<bean id="repositoryRegister" class="org.argeo.jcr.DefaultRepositoryRegister" />
+<!-- 	<bean id="repositoryRegister" class="org.argeo.jcr.DefaultRepositoryRegister" /> -->
 
 	<bean id="sessionProvider" scope="session" init-method="init"
 		destroy-method="dispose" class="org.argeo.jackrabbit.remote.SimpleSessionProvider">

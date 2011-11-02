@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.springframework.security.userdetails.UserDetailsManager;
 
+/** Enrich {@link UserDetailsManager} in order to provide roles semantics. */
 public interface UserAdminService extends UserDetailsManager {
 	/**
 	 * Usernames must match this regexp pattern ({@value #USERNAME_PATTERN}).

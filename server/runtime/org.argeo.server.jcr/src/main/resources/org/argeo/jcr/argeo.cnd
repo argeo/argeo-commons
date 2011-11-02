@@ -21,6 +21,10 @@ mixin
 [argeo:userProfile] > mix:created, mix:lastModified, mix:title, mix:versionable
 mixin
 - argeo:userID (STRING) m
+- argeo:enabled (BOOLEAN)
+- argeo:accountNonExpired (BOOLEAN)
+- argeo:accountNonLocked (BOOLEAN)
+- argeo:credentialsNonExpired (BOOLEAN)
 - argeo:remoteRoles (STRING) *
 
 [argeo:preferenceNode] > mix:lastModified, mix:versionable
