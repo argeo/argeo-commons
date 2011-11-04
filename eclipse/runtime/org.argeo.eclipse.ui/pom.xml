@@ -30,7 +30,7 @@
 				<version>${version.maven-bundle-plugin}</version>
 				<configuration>
 					<instructions>
-						<Bundle-SymbolicName>${project.artifactID};singleton:=true</Bundle-SymbolicName>
+						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
 						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
 						<Bundle-Activator>org.argeo.eclipse.ui.ArgeoUiPlugin</Bundle-Activator>
 						<Require-Bundle>org.eclipse.ui;resolution:=optional,org.eclipse.rap.ui;resolution:=optional,org.eclipse.core.runtime</Require-Bundle>
