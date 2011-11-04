@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.eclipse</groupId>
@@ -29,6 +30,7 @@
 				<version>${version.maven-bundle-plugin}</version>
 				<configuration>
 					<instructions>
+						<Bundle-SymbolicName>${project.artifactID};singleton:=true</Bundle-SymbolicName>
 						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
 						<Bundle-Activator>org.argeo.eclipse.ui.ArgeoUiPlugin</Bundle-Activator>
 						<Require-Bundle>org.eclipse.ui;resolution:=optional,org.eclipse.rap.ui;resolution:=optional,org.eclipse.core.runtime</Require-Bundle>

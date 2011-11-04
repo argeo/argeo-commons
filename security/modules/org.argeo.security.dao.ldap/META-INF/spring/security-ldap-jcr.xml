@@ -17,6 +17,7 @@
 			</list>
 		</property>
 		<property name="repository" ref="nodeRepository" />
+		<property name="bundleContext" ref="bundleContext" />
 	</bean>
 
 	<bean id="jcrLdapSynchronizer" class="org.argeo.security.ldap.jcr.JcrLdapSynchronizer"

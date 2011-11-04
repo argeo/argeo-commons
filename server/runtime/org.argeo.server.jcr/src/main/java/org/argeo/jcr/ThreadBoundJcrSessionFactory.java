@@ -134,8 +134,8 @@ public abstract class ThreadBoundJcrSessionFactory {
 		if (activeSessions.size() == 0)
 			return;
 
-		if (log.isDebugEnabled())
-			log.debug("Cleaning up " + activeSessions.size()
+		if (log.isTraceEnabled())
+			log.trace("Cleaning up " + activeSessions.size()
 					+ " active JCR sessions...");
 
 		deactivate();
@@ -172,8 +172,8 @@ public abstract class ThreadBoundJcrSessionFactory {
 					Session session = activeSessions.get(thread.getId());
 					activeSessions.remove(thread.getId());
 					session.logout();
-					if (log.isDebugEnabled())
-						log.debug("Cleaned up JCR session (userID="
+					if (log.isTraceEnabled())
+						log.trace("Cleaned up JCR session (userID="
 								+ session.getUserID() + ") from dead thread "
 								+ thread.getId());
 				}

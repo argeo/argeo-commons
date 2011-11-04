@@ -58,6 +58,11 @@ import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.security.SystemAuthentication;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.packageadmin.ExportedPackage;
+import org.osgi.service.packageadmin.PackageAdmin;
 import org.springframework.core.io.Resource;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
@@ -98,7 +103,7 @@ public class JackrabbitContainer implements Repository {
 
 	private Boolean autocreateWorkspaces = false;
 
-	private Executor systemExecutor;
+	private BundleContext bundleContext;
 
 	/**
 	 * Empty constructor, {@link #init()} should be called after properties have
@@ -356,56 +361,133 @@ public class JackrabbitContainer implements Repository {
 		if (isRemote())
 			return;
 
-		Runnable action = new Runnable() {
-			public void run() {
-				Session session = null;
+		Session session = null;
+		try {
+			session = login();
+			// register namespaces
+			if (namespaces.size() > 0) {
+				NamespaceHelper namespaceHelper = new NamespaceHelper(session);
+				namespaceHelper.registerNamespaces(namespaces);
+			}
+			// load CND files from classpath or as URL
+			for (String resUrl : cndFiles) {
+				boolean classpath;
+				// if (resUrl.startsWith("classpath:")) {
+				// // resUrl = resUrl.substring("classpath:".length());
+				// classpath = true;
+				// } else if (resUrl.indexOf(':') < 0) {
+				// if (!resUrl.startsWith("/")) {
+				// resUrl = "/" + resUrl;
+				// log.warn("Classpath should start with '/'");
+				// }
+				// resUrl = "classpath:" + resUrl;
+				// classpath = true;
+				// } else {
+				// classpath = false;
+				// }
+
+				if (resUrl.startsWith("classpath:")) {
+					resUrl = resUrl.substring("classpath:".length());
+					classpath = true;
+				} else if (resUrl.indexOf(':') < 0) {
+					if (!resUrl.startsWith("/")) {
+						resUrl = "/" + resUrl;
+						log.warn("Classpath should start with '/'");
+					}
+					// resUrl = "classpath:" + resUrl;
+					classpath = true;
+				} else {
+					classpath = false;
+				}
+
+				// Resource resource =
+				// resourceLoader.getResource(resUrl);
+
+				// = classpath ? new ClassPathResource(resUrl) : new
+				// UrlResource(resUrl);
+
+				URL url;
+				Bundle dataModelBundle = null;
+				if (classpath) {
+					if (bundleContext != null) {
+						Bundle currentBundle = bundleContext.getBundle();
+						url = currentBundle.getResource(resUrl);
+						if (url != null) {// found
+							dataModelBundle = findDataModelBundle(resUrl);
+						}
+					} else {
+						url = getClass().getClassLoader().getResource(resUrl);
+					}
+					if (url == null)
+						throw new ArgeoException("No " + resUrl
+								+ " in the classpath,"
+								+ " make sure the containing"
+								+ " package is visible.");
+
+				} else {
+					url = new URL(resUrl);
+				}
+
+				Reader reader = null;
 				try {
-					session = login();
-					// register namespaces
-					if (namespaces.size() > 0) {
-						NamespaceHelper namespaceHelper = new NamespaceHelper(
-								session);
-						namespaceHelper.registerNamespaces(namespaces);
-					}
-					// load CND files from classpath or as URL
-					for (String resUrl : cndFiles) {
-						boolean classpath;
-						if (resUrl.startsWith("classpath:")) {
-							resUrl = resUrl.substring("classpath:".length());
-							classpath = true;
-						} else if (resUrl.indexOf(':') < 0) {
-							classpath = true;
-						} else {
-							classpath = false;
-						}
-
-						URL url = classpath ? getClass().getClassLoader()
-								.getResource(resUrl) : new URL(resUrl);
-
-						Reader reader = null;
-						try {
-							reader = new InputStreamReader(url.openStream());
-							CndImporter
-									.registerNodeTypes(reader, session, true);
-						} finally {
-							IOUtils.closeQuietly(reader);
-						}
-					}
-				} catch (Exception e) {
-					log.error(
-							"Cannot import node type definitions " + cndFiles,
-							e);
-					JcrUtils.discardQuietly(session);
+					reader = new InputStreamReader(url.openStream());
+					CndImporter.registerNodeTypes(reader, session, true);
 				} finally {
-					JcrUtils.logoutQuietly(session);
+					IOUtils.closeQuietly(reader);
+				}
+
+				if (log.isDebugEnabled())
+					log.debug("Data model "
+							+ resUrl
+							+ (dataModelBundle != null ? ", version "
+									+ dataModelBundle.getVersion()
+									+ ", bundle "
+									+ dataModelBundle.getSymbolicName() : ""));
+			}
+		} catch (Exception e) {
+			JcrUtils.discardQuietly(session);
+			throw new ArgeoException("Cannot import node type definitions "
+					+ cndFiles, e);
+		} finally {
+			JcrUtils.logoutQuietly(session);
+		}
+
+	}
+
+	/** Find which OSGi bundle provided the data model resource */
+	protected Bundle findDataModelBundle(String resUrl) {
+		if (resUrl.startsWith("/"))
+			resUrl = resUrl.substring(1);
+		String pkg = resUrl.substring(0, resUrl.lastIndexOf('/')).replace('/',
+				'.');
+		ServiceReference paSr = bundleContext
+				.getServiceReference(PackageAdmin.class.getName());
+		PackageAdmin packageAdmin = (PackageAdmin) bundleContext
+				.getService(paSr);
+
+		// find exported package
+		ExportedPackage exportedPackage = null;
+		ExportedPackage[] exportedPackages = packageAdmin
+				.getExportedPackages(pkg);
+		if (exportedPackages == null)
+			throw new ArgeoException("No exported package found for " + pkg);
+		for (ExportedPackage ep : exportedPackages) {
+			for (Bundle b : ep.getImportingBundles()) {
+				if (b.getBundleId() == bundleContext.getBundle().getBundleId()) {
+					exportedPackage = ep;
+					break;
 				}
 			}
-		};
+		}
 
-		if (systemExecutor != null)
-			systemExecutor.execute(action);
-		else
-			action.run();
+		Bundle exportingBundle = null;
+		if (exportedPackage != null) {
+			exportingBundle = exportedPackage.getExportingBundle();
+		} else {
+			throw new ArgeoException("No OSGi exporting package found for "
+					+ resUrl);
+		}
+		return exportingBundle;
 	}
 
 	/*
@@ -554,7 +636,11 @@ public class JackrabbitContainer implements Repository {
 	}
 
 	public void setSystemExecutor(Executor systemExecutor) {
-		this.systemExecutor = systemExecutor;
+		throw new IllegalArgumentException(
+				"systemExecutor is not supported anymore, use:\n"
+						+ "<bean class=\"org.argeo.security.core.AuthenticatedApplicationContextInitialization\">\n"
+						+ "\t<property name=\"authenticationManager\" ref=\"authenticationManager\" />\n"
+						+ "</bean>");
 	}
 
 	public void setRepository(Repository repository) {
@@ -564,5 +650,9 @@ public class JackrabbitContainer implements Repository {
 	public void setDataModelMigrations(
 			Set<JackrabbitDataModelMigration> dataModelMigrations) {
 		this.dataModelMigrations = dataModelMigrations;
+	}
+
+	public void setBundleContext(BundleContext bundleContext) {
+		this.bundleContext = bundleContext;
 	}
 }

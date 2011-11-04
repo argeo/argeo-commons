@@ -78,12 +78,12 @@ public abstract class AbstractSecureApplication implements IApplication {
 				.getName();
 		if (log.isDebugEnabled())
 			log.debug(username + " logged in");
-		display.disposeExec(new Runnable() {
-			public void run() {
-				log.debug("Display disposed");
-				logout(loginContext, username);
-			}
-		});
+//		display.disposeExec(new Runnable() {
+//			public void run() {
+//				log.debug("Display disposed");
+//				logout(loginContext, username);
+//			}
+//		});
 
 		try {
 			PrivilegedAction<?> privilegedAction = new PrivilegedAction<Object>() {

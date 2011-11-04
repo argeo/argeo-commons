@@ -115,8 +115,9 @@ class ApplicationContextTracker {
 		if (contributorBundle.getState() != Bundle.ACTIVE
 				&& contributorBundle.getState() != Bundle.STARTING) {
 			try {
-				log.info("Starting bundle: "
-						+ contributorBundle.getSymbolicName());
+				if (log.isTraceEnabled())
+					log.trace("Starting bundle: "
+							+ contributorBundle.getSymbolicName());
 				contributorBundle.start();
 			} catch (BundleException e) {
 				e.printStackTrace();

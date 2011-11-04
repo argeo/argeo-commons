@@ -2,6 +2,7 @@ package org.argeo.jackrabbit;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -14,6 +15,7 @@ import org.apache.jackrabbit.jcr2dav.Jcr2davRepositoryFactory;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.DefaultRepositoryFactory;
+import org.osgi.framework.BundleContext;
 
 /** Repository factory which can access remote Jackrabbit repositories */
 public class JackrabbitRepositoryFactory extends DefaultRepositoryFactory
@@ -21,7 +23,9 @@ public class JackrabbitRepositoryFactory extends DefaultRepositoryFactory
 	private final static Log log = LogFactory
 			.getLog(JackrabbitRepositoryFactory.class);
 
-	@SuppressWarnings("rawtypes")
+	private BundleContext bundleContext;
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Repository getRepository(Map parameters) throws RepositoryException {
 		Repository repository = super.getRepository(parameters);
 		if (repository != null)
@@ -41,9 +45,24 @@ public class JackrabbitRepositoryFactory extends DefaultRepositoryFactory
 		if (repository == null)
 			throw new ArgeoException("Remote Davex repository " + uri
 					+ " not found");
-		log.info("Initialized remote Jackrabbit repository " + repository
-				+ " from uri " + uri);
+		log.info("Initialized remote Jackrabbit repository from uri " + uri);
+
+		if (parameters.containsKey(JCR_REPOSITORY_ALIAS)
+				&& bundleContext != null) {
+			Properties properties = new Properties();
+			properties.putAll(parameters);
+			bundleContext.registerService(Repository.class.getName(),
+					repository, properties);
+			log.info("Registered under alias '"
+					+ parameters.get(JCR_REPOSITORY_ALIAS)
+					+ "' the remote JCR repository from uri " + uri);
+		}
 
 		return repository;
 	}
+
+	public void setBundleContext(BundleContext bundleContext) {
+		this.bundleContext = bundleContext;
+	}
+
 }

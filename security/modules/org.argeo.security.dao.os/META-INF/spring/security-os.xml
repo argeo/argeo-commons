@@ -20,6 +20,7 @@
 			</list>
 		</property>
 		<property name="repository" ref="nodeRepository" />
+		<property name="bundleContext" ref="bundleContext" />
 	</bean>
 
 	<bean id="systemExecutionService" class="org.argeo.security.core.KeyBasedSystemExecutionService">
@@ -38,8 +39,8 @@
 
 	<!-- Authentication providers -->
 	<bean id="osJcrAuthenticationProvider" class="org.argeo.security.jcr.OsJcrAuthenticationProvider"
-		init-method="init" destroy-method="destroy">
-		<property name="repository" ref="argeoDataModel" />
+		init-method="init" destroy-method="destroy" depends-on="argeoDataModel">
+		<property name="repository" ref="nodeRepository" />
 	</bean>
 
 	<bean id="authByAdapterProvider"

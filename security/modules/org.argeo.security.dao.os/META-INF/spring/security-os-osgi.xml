@@ -14,9 +14,9 @@
 		filter="(argeo.jcr.repository.alias=node)" />
 
 	<!-- SERVICES -->
-	<service ref="systemExecutionService" interface="org.argeo.security.SystemExecutionService" />
-
 	<service ref="authenticationManager"
 		interface="org.springframework.security.AuthenticationManager" />
+
+	<service ref="systemExecutionService" interface="org.argeo.security.SystemExecutionService" />
 
 </beans:beans>
