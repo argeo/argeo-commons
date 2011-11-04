@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Private-Package: .
 Tool: Bnd-1.15.0
 Bundle-Name: Commons Security DAO OS
-Created-By: 1.6.0_20 (Sun Microsystems Inc.)
+Created-By: 1.6.0_23 (Sun Microsystems Inc.)
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Vendor: Argeo
-Bundle-Version: 0.3.4.SNAPSHOT-r20111102_201754
+Bundle-Version: 0.3.4.SNAPSHOT-r20111104_104720
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
 Import-Package: javax.jcr,org.argeo.jackrabbit,org.argeo.security,org.
