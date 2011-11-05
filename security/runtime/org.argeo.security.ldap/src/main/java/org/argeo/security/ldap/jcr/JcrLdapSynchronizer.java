@@ -229,7 +229,7 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 	 * 
 	 * @return path to user profile
 	 */
-	protected String mapLdapToJcr(DirContextAdapter ctx) {
+	protected synchronized String mapLdapToJcr(DirContextAdapter ctx) {
 		Session session = securitySession;
 		try {
 			// process
@@ -238,6 +238,20 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 			Node userProfile; // = userHome.getNode(ARGEO_PROFILE);
 			if (userHome.hasNode(ARGEO_PROFILE)) {
 				userProfile = userHome.getNode(ARGEO_PROFILE);
+
+				// compatibility with legacy, will be removed
+				if (!userProfile.hasProperty(ARGEO_ENABLED)) {
+					session.getWorkspace().getVersionManager()
+							.checkout(userProfile.getPath());
+					userProfile.setProperty(ARGEO_ENABLED, true);
+					userProfile.setProperty(ARGEO_ACCOUNT_NON_EXPIRED, true);
+					userProfile.setProperty(ARGEO_ACCOUNT_NON_LOCKED, true);
+					userProfile
+							.setProperty(ARGEO_CREDENTIALS_NON_EXPIRED, true);
+					session.save();
+					session.getWorkspace().getVersionManager()
+							.checkin(userProfile.getPath());
+				}
 			} else {
 				userProfile = JcrUtils.createUserProfile(securitySession,
 						username);
