@@ -46,7 +46,18 @@
 	<!-- </bean> -->
 
 	<!-- USER DETAILS -->
-	<bean id="userAdminDao" class="org.argeo.security.ldap.ArgeoSecurityDaoLdap">
+	<bean id="userDetailsManager" class="org.argeo.security.ldap.ArgeoLdapUserDetailsManager">
+		<constructor-arg ref="contextSource" />
+		<property name="groupSearchBase" value="${argeo.ldap.groupBase}" />
+		<property name="groupMemberAttributeName" value="${argeo.ldap.groupMemberAttribute}" />
+		<property name="usernameMapper" ref="usernameMapper" />
+		<property name="userDetailsMapper" ref="jcrLdapSynchronizer" />
+		<property name="userAdminDao" ref="userAdminDao" />
+		<property name="passwordEncoder" ref="passwordEncoder" />
+		<property name="passwordAttributeName" value="${argeo.ldap.passwordAttribute}" />
+	</bean>
+
+	<bean id="userAdminDao" class="org.argeo.security.ldap.ArgeoUserAdminDaoLdap">
 		<constructor-arg ref="contextSource" />
 		<property name="userBase" value="${argeo.ldap.userBase}" />
 		<property name="usernameAttribute" value="${argeo.ldap.usernameAttribute}" />
@@ -77,17 +88,6 @@
 		<property name="groupSearchFilter" value="${argeo.ldap.groupMemberAttribute}={0}" />
 		<property name="defaultRole" value="${argeo.security.defaultRole}" />
 		<property name="rolePrefix" value="${argeo.security.rolePrefix}" />
-	</bean>
-
-	<bean id="userDetailsManager" class="org.argeo.security.ldap.ArgeoLdapUserDetailsManager">
-		<constructor-arg ref="contextSource" />
-		<property name="groupSearchBase" value="${argeo.ldap.groupBase}" />
-		<property name="groupMemberAttributeName" value="${argeo.ldap.groupMemberAttribute}" />
-		<property name="usernameMapper" ref="usernameMapper" />
-		<property name="userDetailsMapper" ref="jcrLdapSynchronizer" />
-		<property name="userAdminDao" ref="userAdminDao" />
-		<property name="passwordEncoder" ref="passwordEncoder" />
-		<property name="passwordAttributeName" value="${argeo.ldap.passwordAttribute}" />
 	</bean>
 
 	<!-- LDAP LOW LEVEL -->

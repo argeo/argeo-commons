@@ -25,7 +25,6 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 
-import org.argeo.security.UserAdminDao;
 import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -36,10 +35,10 @@ import org.springframework.security.ldap.LdapUsernameToDnMapper;
 import org.springframework.security.ldap.LdapUtils;
 
 /**
- * Wraps a Spring LDAP user details manager, providing additional methods to
- * manage roles.
+ * Wraps low-level LDAP operation on user and roles, used by
+ * {@link ArgeoLdapUserDetailsManager}
  */
-public class ArgeoSecurityDaoLdap implements UserAdminDao {
+public class ArgeoUserAdminDaoLdap {
 	private String userBase;
 	private String usernameAttribute;
 	private String groupBase;
@@ -57,7 +56,7 @@ public class ArgeoSecurityDaoLdap implements UserAdminDao {
 	 * Standard constructor, using the LDAP context source shared with Spring
 	 * Security components.
 	 */
-	public ArgeoSecurityDaoLdap(BaseLdapPathContextSource contextSource) {
+	public ArgeoUserAdminDaoLdap(BaseLdapPathContextSource contextSource) {
 		this.ldapTemplate = new LdapTemplate(contextSource);
 	}
 

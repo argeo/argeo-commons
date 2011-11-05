@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.argeo.ArgeoException;
-import org.argeo.security.UserAdminDao;
 import org.argeo.security.UserAdminService;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.security.Authentication;
@@ -25,7 +24,7 @@ import org.springframework.security.userdetails.ldap.LdapUserDetailsManager;
 public class ArgeoLdapUserDetailsManager extends LdapUserDetailsManager
 		implements UserAdminService {
 	private String superUsername = "root";
-	private UserAdminDao userAdminDao;
+	private ArgeoUserAdminDaoLdap userAdminDao;
 	private PasswordEncoder passwordEncoder;
 	private final Random random;
 
@@ -124,7 +123,7 @@ public class ArgeoLdapUserDetailsManager extends LdapUserDetailsManager
 		this.superUsername = superUsername;
 	}
 
-	public void setUserAdminDao(UserAdminDao userAdminDao) {
+	public void setUserAdminDao(ArgeoUserAdminDaoLdap userAdminDao) {
 		this.userAdminDao = userAdminDao;
 	}
 

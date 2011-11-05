@@ -336,9 +336,12 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 			Node userProfile = securitySession.getNode(
 					jcrUserDetails.getHomePath()).getNode(ARGEO_PROFILE);
 			for (String jcrProperty : propertyToAttributes.keySet()) {
-				ModificationItem mi = jcrToLdap(jcrProperty, userProfile
-						.getProperty(jcrProperty).getString());
-				ctx.setAttribute(mi.getAttribute());
+				if (userProfile.hasProperty(jcrProperty)) {
+					ModificationItem mi = jcrToLdap(jcrProperty, userProfile
+							.getProperty(jcrProperty).getString());
+					if (mi != null)
+						ctx.setAttribute(mi.getAttribute());
+				}
 			}
 			if (log.isTraceEnabled())
 				log.trace("Mapped " + userProfile + " to " + ctx.getDn());

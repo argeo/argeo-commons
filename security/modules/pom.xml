@@ -15,7 +15,6 @@
 		<module>org.argeo.security.dao.os</module>
 		<module>org.argeo.security.dao.jackrabbit</module>
 		<module>org.argeo.security.dao.ldap</module>
-		<module>org.argeo.security.services</module>
 		<module>org.argeo.security.webapp</module>
 	</modules>
 	<build>
