@@ -16,15 +16,14 @@
 		</property>
 	</bean>
 
-<!-- 	<bean id="repositoryRegister" class="org.argeo.jcr.DefaultRepositoryRegister" /> -->
+	<!-- <bean id="repositoryRegister" class="org.argeo.jcr.DefaultRepositoryRegister" 
+		/> -->
 
-	<bean id="sessionProvider" scope="session" init-method="init"
-		destroy-method="dispose" class="org.argeo.jackrabbit.remote.SimpleSessionProvider">
-		<aop:scoped-proxy proxy-target-class="false" />
-	</bean>
+	<bean id="sessionProvider" init-method="init" destroy-method="destroy"
+		class="org.argeo.jackrabbit.remote.SimpleSessionProvider" />
 
-<!-- 	<bean id="osivInterceptor" class="org.argeo.jcr.mvc.OpenSessionInViewJcrInterceptor"> -->
-<!-- 		<property name="session" ref="jcrSession" /> -->
-<!-- 	</bean> -->
+	<!-- <bean id="osivInterceptor" class="org.argeo.jcr.mvc.OpenSessionInViewJcrInterceptor"> -->
+	<!-- <property name="session" ref="jcrSession" /> -->
+	<!-- </bean> -->
 
 </beans>

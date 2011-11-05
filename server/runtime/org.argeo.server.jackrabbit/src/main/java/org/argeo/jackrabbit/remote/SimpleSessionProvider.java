@@ -29,8 +29,8 @@ import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrUtils;
 
 /**
- * To be injected, typically of scope="session". Implements an open session in
- * view patter: a new JCR session is created for each request
+ * Implements an open session in view patter: a new JCR session is created for
+ * each request
  */
 public class SimpleSessionProvider implements SessionProvider, Serializable {
 	private static final long serialVersionUID = 2270957712453841368L;
@@ -51,7 +51,8 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 		if (openSessionInView) {
 			JackrabbitSession session = (JackrabbitSession) rep
 					.login(workspace);
-			writeRemoteRoles(session);
+			if (!workspace.equals(securityWorkspace))
+				writeRemoteRoles(session);
 			return session;
 		} else {
 			// since sessions is transient it can't be restored from the session
@@ -63,7 +64,8 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 				try {
 					JackrabbitSession session = (JackrabbitSession) rep.login(
 							null, workspace);
-					writeRemoteRoles(session);
+					if (!workspace.equals(securityWorkspace))
+						writeRemoteRoles(session);
 					if (log.isTraceEnabled())
 						log.trace("User " + session.getUserID()
 								+ " logged into " + request.getServletPath());
@@ -86,9 +88,6 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 
 	protected void writeRemoteRoles(JackrabbitSession session)
 			throws RepositoryException {
-		if (!session.getWorkspace().getName().equals(securityWorkspace))
-			return;
-
 		// retrieve roles
 		String userId = session.getUserID();
 		UserManager userManager = session.getUserManager();
@@ -147,7 +146,7 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 	public void init() {
 	}
 
-	public void dispose() {
+	public void destroy() {
 		if (sessions != null)
 			for (String workspace : sessions.keySet()) {
 				Session session = sessions.get(workspace);
@@ -158,4 +157,18 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 				}
 			}
 	}
+
+	/**
+	 * If set to true a new session will be created each time (the default),
+	 * otherwise a single session is cached by workspace and the object should
+	 * be of scope session (not supported)
+	 */
+	public void setOpenSessionInView(Boolean openSessionInView) {
+		this.openSessionInView = openSessionInView;
+	}
+
+	public void setSecurityWorkspace(String securityWorkspace) {
+		this.securityWorkspace = securityWorkspace;
+	}
+
 }
