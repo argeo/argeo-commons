@@ -9,7 +9,6 @@ class GrantedAuthorityPrincipal implements Principal {
 	private final GrantedAuthority grantedAuthority;
 
 	public GrantedAuthorityPrincipal(GrantedAuthority grantedAuthority) {
-		super();
 		this.grantedAuthority = grantedAuthority;
 	}
 
@@ -27,6 +26,11 @@ class GrantedAuthorityPrincipal implements Principal {
 		if (!(obj instanceof GrantedAuthorityPrincipal))
 			return false;
 		return getName().equals(((GrantedAuthorityPrincipal) obj).getName());
+	}
+
+	@Override
+	public String toString() {
+		return "Granted Authority " + getName();
 	}
 
 }

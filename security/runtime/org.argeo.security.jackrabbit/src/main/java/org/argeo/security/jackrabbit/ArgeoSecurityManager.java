@@ -27,7 +27,6 @@ import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.core.DefaultSecurityManager;
 import org.apache.jackrabbit.core.security.SecurityConstants;
-import org.apache.jackrabbit.core.security.SystemPrincipal;
 import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.JcrUtils;
@@ -38,14 +37,19 @@ import org.springframework.security.GrantedAuthority;
 public class ArgeoSecurityManager extends DefaultSecurityManager {
 	private Log log = LogFactory.getLog(ArgeoSecurityManager.class);
 
+	/**
+	 * Since this is called once when the session is created, we take the
+	 * opportunity to make sure that Jackrabbit users and groups reflect Spring
+	 * Security name and authorities.
+	 */
 	@Override
-	/** Since this is called once when the session is created, we take the opportunity to synchronize Spring and Jackrabbit users and groups.*/
 	public String getUserID(Subject subject, String workspaceName)
 			throws RepositoryException {
 		long begin = System.currentTimeMillis();
 
+		log.debug(subject);
 		// skip Jackrabbit system user
-		if (!subject.getPrincipals(SystemPrincipal.class).isEmpty())
+		if (!subject.getPrincipals(ArgeoSystemPrincipal.class).isEmpty())
 			return super.getUserID(subject, workspaceName);
 
 		Authentication authen;
@@ -57,10 +61,6 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		else
 			authen = authens.iterator().next();
 
-		// skip argeo system authenticated
-		// if (authen instanceof SystemAuthentication)
-		// return super.getUserID(subject, workspaceName);
-
 		UserManager systemUm = getSystemUserManager(workspaceName);
 
 		String userId = authen.getName();
@@ -68,10 +68,9 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		if (user == null) {
 			user = systemUm.createUser(userId, authen.getCredentials()
 					.toString(), authen, null);
+			setSecurityHomeAuthorizations(user);
 			log.info(userId + " added as " + user);
 		}
-
-		//setHomeNodeAuthorizations(user);
 
 		// process groups
 		List<String> userGroupIds = new ArrayList<String>();
@@ -93,91 +92,52 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 				group.removeMember(user);
 		}
 
-		// write roles in profile for easy access
-//		if (!(authen instanceof SystemAuthentication)) {
-//			Node userProfile = JcrUtils.getUserProfile(getSystemSession(),
-//					userId);
-//			boolean writeRoles = false;
-//			if (userProfile.hasProperty(ArgeoNames.ARGEO_REMOTE_ROLES)) {
-//				Value[] roles = userProfile.getProperty(ArgeoNames.ARGEO_REMOTE_ROLES)
-//						.getValues();
-//				if (roles.length != userGroupIds.size())
-//					writeRoles = true;
-//				else
-//					for (int i = 0; i < roles.length; i++)
-//						if (!roles[i].getString().equals(userGroupIds.get(i)))
-//							writeRoles = true;
-//			} else
-//				writeRoles = true;
-//
-//			if (writeRoles) {
-//				userProfile.getSession().getWorkspace().getVersionManager()
-//						.checkout(userProfile.getPath());
-//				String[] roleIds = userGroupIds.toArray(new String[userGroupIds
-//						.size()]);
-//				userProfile.setProperty(ArgeoNames.ARGEO_REMOTE_ROLES, roleIds);
-//				JcrUtils.updateLastModified(userProfile);
-//				userProfile.getSession().save();
-//				userProfile.getSession().getWorkspace().getVersionManager()
-//						.checkin(userProfile.getPath());
-//			}
-//		}
-
-		if (log.isTraceEnabled())
-			log.trace("Spring and Jackrabbit Security synchronized for user "
+		if (log.isDebugEnabled())
+			log.debug("Spring and Jackrabbit Security synchronized for user "
 					+ userId + " in " + (System.currentTimeMillis() - begin)
 					+ " ms");
 		return userId;
 	}
 
-	protected synchronized void setHomeNodeAuthorizations(User user) {
-		// give all privileges on user home
-		// FIXME: fails on an empty repo
+	protected synchronized void setSecurityHomeAuthorizations(User user) {
+		// give read privileges on user home
 		String userId = "<not yet set>";
 		try {
 			userId = user.getID();
-			Node userHome = null;
-			try {
-				userHome = JcrUtils.getUserHome(getSystemSession(), userId);
-				if (userHome == null) {
-					userHome = JcrUtils.createUserHomeIfNeeded(getSystemSession(), userId);
-					//log.warn("No home available for user "+userId);
-					return;
-				}
-			} catch (Exception e) {
-				// silent
+			Node userHome = JcrUtils.getUserHome(getSystemSession(), userId);
+			if (userHome == null)
+				throw new ArgeoException("No security home available for user "
+						+ userId);
+
+			String path = userHome.getPath();
+			Principal principal = user.getPrincipal();
+
+			JackrabbitAccessControlManager acm = (JackrabbitAccessControlManager) getSystemSession()
+					.getAccessControlManager();
+			JackrabbitAccessControlPolicy[] ps = acm
+					.getApplicablePolicies(principal);
+			if (ps.length == 0) {
+				// log.warn("No ACL found for " + user);
+				return;
 			}
 
-			if (userHome != null) {
-				String path = userHome.getPath();
-				Principal principal = user.getPrincipal();
+			JackrabbitAccessControlList list = (JackrabbitAccessControlList) ps[0];
 
-				JackrabbitAccessControlManager acm = (JackrabbitAccessControlManager) getSystemSession()
-						.getAccessControlManager();
-				JackrabbitAccessControlPolicy[] ps = acm
-						.getApplicablePolicies(principal);
-				if (ps.length == 0) {
-					// log.warn("No ACL found for " + user);
-					return;
-				}
-
-				JackrabbitAccessControlList list = (JackrabbitAccessControlList) ps[0];
-
-				// add entry
-				Privilege[] privileges = new Privilege[] { acm
-						.privilegeFromName(Privilege.JCR_ALL) };
-				Map<String, Value> restrictions = new HashMap<String, Value>();
-				ValueFactory vf = getSystemSession().getValueFactory();
-				restrictions.put("rep:nodePath",
-						vf.createValue(path, PropertyType.PATH));
-				restrictions.put("rep:glob", vf.createValue("*"));
-				list.addEntry(principal, privileges, true /* allow or deny */,
-						restrictions);
-			}
+			// add entry
+			Privilege[] privileges = new Privilege[] { acm
+					.privilegeFromName(Privilege.JCR_READ) };
+			Map<String, Value> restrictions = new HashMap<String, Value>();
+			ValueFactory vf = getSystemSession().getValueFactory();
+			restrictions.put("rep:nodePath",
+					vf.createValue(path, PropertyType.PATH));
+			restrictions.put("rep:glob", vf.createValue("*"));
+			list.addEntry(principal, privileges, true /* allow or deny */,
+					restrictions);
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.warn("Cannot set authorization on user node for " + userId
-					+ ": " + e.getMessage());
+			throw new ArgeoException(
+					"Cannot set authorization on security home for " + userId
+							+ ": " + e.getMessage());
 		}
 
 	}

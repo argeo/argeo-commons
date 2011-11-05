@@ -22,6 +22,7 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
 
+/** Jackrabbit login mechanism based on Spring Security */
 public class ArgeoLoginModule extends AbstractLoginModule {
 	private String adminRole = "ROLE_ADMIN";
 
@@ -38,9 +39,9 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 
 	protected Set<Principal> getPrincipals() {
 		// clear already registered Jackrabbit principals
-		clearPrincipals(AdminPrincipal.class);
-		clearPrincipals(AnonymousPrincipal.class);
-		clearPrincipals(GrantedAuthorityPrincipal.class);
+		//clearPrincipals(AdminPrincipal.class);
+		//clearPrincipals(AnonymousPrincipal.class);
+		//clearPrincipals(GrantedAuthorityPrincipal.class);
 
 		return syncPrincipals();
 	}
@@ -53,17 +54,19 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 		Set<Principal> principals = new LinkedHashSet<Principal>();
 		principals.add(authen);
 
-		if (authen instanceof SystemAuthentication)
+		if (authen instanceof SystemAuthentication) {
 			principals.add(new AdminPrincipal(authen.getName()));
-		else if (authen instanceof AnonymousAuthenticationToken)
+			principals.add(new ArgeoSystemPrincipal(authen.getName()));
+		} else if (authen instanceof AnonymousAuthenticationToken) {
 			principals.add(new AnonymousPrincipal());
-		else
+		} else {
 			for (GrantedAuthority ga : authen.getAuthorities()) {
 				principals.add(new GrantedAuthorityPrincipal(ga));
 				// FIXME: make it more generic
 				if (adminRole.equals(ga.getAuthority()))
 					principals.add(new AdminPrincipal(authen.getName()));
 			}
+		}
 
 		// remove previous credentials
 		Set<SimpleCredentials> thisCredentials = subject
@@ -71,8 +74,8 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 		if (thisCredentials != null)
 			thisCredentials.clear();
 		// override credentials since we did not used the one passed to us
-		credentials = new SimpleCredentials(authen.getName(), authen
-				.getCredentials().toString().toCharArray());
+//		credentials = new SimpleCredentials(authen.getName(), authen
+//				.getCredentials().toString().toCharArray());
 
 		return principals;
 	}
@@ -85,13 +88,14 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 	@Override
 	public boolean logout() throws LoginException {
 		clearPrincipals(AdminPrincipal.class);
+		clearPrincipals(ArgeoSystemPrincipal.class);
 		clearPrincipals(AnonymousPrincipal.class);
 		clearPrincipals(GrantedAuthorityPrincipal.class);
 
 		// we resync with Spring Security since the subject may have been reused
 		// in beetween
 		// TODO: check if this is clean
-		//subject.getPrincipals().addAll(syncPrincipals());
+		// subject.getPrincipals().addAll(syncPrincipals());
 
 		return true;
 	}
