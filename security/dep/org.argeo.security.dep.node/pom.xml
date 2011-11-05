@@ -149,7 +149,7 @@
 			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 
-		<!-- Security (Stabdalone) -->
+		<!-- Security (Standalone) -->
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.dao.os</artifactId>
