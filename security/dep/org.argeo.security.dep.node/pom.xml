@@ -141,16 +141,18 @@
 			<artifactId>org.argeo.security.ldap</artifactId>
 			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.services</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
-		</dependency>
 
 		<!-- Security (Jackrabbit) -->
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.dao.jackrabbit</artifactId>
+			<version>0.3.4-SNAPSHOT</version>
+		</dependency>
+
+		<!-- Security (Stabdalone) -->
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.dao.os</artifactId>
 			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 
