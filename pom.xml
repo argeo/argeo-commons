@@ -32,8 +32,6 @@
 		<module>eclipse</module>
 		<module>security</module>
 		<module>demo</module>
-		<module>doc</module>
-		<module>sandbox</module>
 	</modules>
 	<url>${site.urlBase}/${developmentCycle}</url>
 	<scm>
@@ -390,6 +388,13 @@ limitations under the License.
 					<url>dav:http://localrepo:7080/org.argeo.jcr.webapp/webdav/node/main/repo</url>
 				</snapshotRepository>
 			</distributionManagement>
+		</profile>
+		<profile>
+			<id>full</id>
+			<modules>
+				<module>doc</module>
+				<module>sandbox</module>
+			</modules>
 		</profile>
 	</profiles>
 </project>
