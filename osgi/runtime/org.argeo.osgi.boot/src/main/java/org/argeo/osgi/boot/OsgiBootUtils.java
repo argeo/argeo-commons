@@ -16,24 +16,29 @@
 
 package org.argeo.osgi.boot;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /** Utilities, mostly related to logging. */
 public class OsgiBootUtils {
+	/** ISO8601 (as per log4j) and difference to UTC */
+	private static DateFormat dateFormat = new SimpleDateFormat(
+			"yyyy-MM-dd HH:mm:ss,SSS Z");
 
 	public static void info(Object obj) {
-		System.out.println("# OSGiBOOT      # " + obj);
+		System.out.println("# OSGiBOOT      # " + dateFormat.format(new Date())
+				+ " # " + obj);
 	}
 
 	public static void debug(Object obj) {
-		System.out.println("# OSGiBOOT DBG  # " + obj);
+		System.out.println("# OSGiBOOT DBG  # " + dateFormat.format(new Date())
+				+ " # " + obj);
 	}
 
 	public static void warn(Object obj) {
-		System.out.println("# OSGiBOOT WARN # " + obj);
-		// Because of a weird bug under Windows when starting it in a forked VM
-		// if (System.getProperty("os.name").contains("Windows"))
-		// System.out.println("# WARN " + obj);
-		// else
-		// System.err.println("# WARN " + obj);
+		System.out.println("# OSGiBOOT WARN # " + dateFormat.format(new Date())
+				+ " # " + obj);
 	}
 
 	/**
