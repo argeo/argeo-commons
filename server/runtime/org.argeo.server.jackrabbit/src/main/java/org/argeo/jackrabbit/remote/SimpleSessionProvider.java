@@ -51,7 +51,7 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 		if (openSessionInView) {
 			JackrabbitSession session = (JackrabbitSession) rep
 					.login(workspace);
-			if (!workspace.equals(securityWorkspace))
+			if (session.getWorkspace().getName().equals(securityWorkspace))
 				writeRemoteRoles(session);
 			return session;
 		} else {
@@ -64,7 +64,8 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 				try {
 					JackrabbitSession session = (JackrabbitSession) rep.login(
 							null, workspace);
-					if (!workspace.equals(securityWorkspace))
+					if (session.getWorkspace().getName()
+							.equals(securityWorkspace))
 						writeRemoteRoles(session);
 					if (log.isTraceEnabled())
 						log.trace("User " + session.getUserID()
