@@ -27,9 +27,9 @@
 				<directory>.</directory>
 				<includes>
 					<include>plugin.xml</include>
+					<include>security*.properties</include>
 					<include>META-INF/**</include>
 					<include>branding/**</include>
-					<include>jaas/**</include>
 					<include>icons/**</include>
 				</includes>
 			</resource>
