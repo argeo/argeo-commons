@@ -72,12 +72,28 @@
 											<username>root</username>
 											<groupname>root</groupname>
 											<filemode>644</filemode>
-											<configuration>true</configuration>
+											<configuration>noreplace</configuration>
+											<directoryIncluded>false</directoryIncluded>
 											<sources>
 												<source>
 													<location>src/main/rpm/etc/osgiboot</location>
 													<includes>
-														<include>*</include>
+														<include>*-settings.sh</include>
+													</includes>
+												</source>
+											</sources>
+										</mapping>
+										<mapping>
+											<directory>/etc/osgiboot</directory>
+											<username>root</username>
+											<groupname>root</groupname>
+											<filemode>644</filemode>
+											<directoryIncluded>false</directoryIncluded>
+											<sources>
+												<source>
+													<location>src/main/rpm/etc/osgiboot</location>
+													<includes>
+														<include>*-functions.sh</include>
 													</includes>
 												</source>
 											</sources>
@@ -112,13 +128,8 @@
 											</sources>
 										</mapping>
 									</mappings>
-									<!-- <postinstallScriptlet> <scriptFile>src/main/scripts/postinstall</scriptFile> 
-										</postinstallScriptlet> <preremoveScriptlet> <scriptFile>src/main/scripts/preremove</scriptFile> 
-										</preremoveScriptlet> <postremoveScriptlet> <scriptFile>src/main/scripts/postremove</scriptFile> 
-										</postremoveScriptlet> -->
 									<requires>
 										<require>java</require>
-										<!-- For the start/stop scripts <require>telnet</require> <require>expect</require> -->
 									</requires>
 								</configuration>
 							</execution>

@@ -1,5 +1,0 @@
-#rm -f /usr/share/osgiboot/lib/org.eclipse.osgi.jar
-#ln -vs `ls /usr/share/osgiboot/lib/org.eclipse.osgi-*.jar` /usr/share/osgiboot/lib/org.eclipse.osgi.jar
-
-#rm -f /usr/share/osgiboot/lib/org.argeo.osgi.boot.jar
-#ln -vs `ls /usr/share/osgiboot/lib/org.argeo.osgi.boot-*.jar` /usr/share/osgiboot/lib/org.argeo.osgi.boot.jar
