@@ -56,7 +56,9 @@ start() {
 		-clean \
 		-configuration "$CONF_RW" \
 		-data "$DATA_DIR" \
-		&>> $LOG_FILE &
+		>> $LOG_FILE 2>&1 &
+	# (above) stderr redirected to stdout, then stdout to log file
+	# see http://tldp.org/LDP/abs/html/io-redirection.html
 	PID=$!
 	echo $PID > $PID_FILE
 	#echo Started $APP with pid $PID
@@ -79,20 +81,43 @@ stop() {
 		RETVAL=1
 		return $RETVAL
 	fi
+	
+	# notifies application by removing the shutdown file
 	rm -f $SHUTDOWN_FILE
-	timeout 5m sh << EOF
-while kill -0 $PID &> /dev/null; do sleep 1; done
-EOF
-	TIMEOUT_EXIT=$?
-	if [ $TIMEOUT_EXIT -eq 124 ];then
-		kill -9 $PID
-		RETVAL=1
-		echo Killed $APP with pid $PID
-#	else
-#		echo Stopped $APP with pid $PID
-	fi
+	
+	# wait 5 min for application to shutdown, then kill it
+	TIMEOUT=$((5*60))
+	BEGIN=$(date +%s)
+	while kill -0 $PID &> /dev/null
+	do
+		sleep 1
+		NOW=$(date +%s)
+		DURATION=$(($NOW-$BEGIN))
+		if [ $DURATION -gt $TIMEOUT ]; then
+			kill -9 $PID
+			echo Forcibly killed $APP with pid $PID
+			RETVAL=1
+		fi
+	done
+	
+	# remove pid file
 	rm -f $PID_FILE
 	return $RETVAL
+
+# timeout is only available in EL6
+#	timeout 5m sh << EOF
+#while kill -0 $PID &> /dev/null; do sleep 1; done
+#EOF
+#	TIMEOUT_EXIT=$?
+#	if [ $TIMEOUT_EXIT -eq 124 ];then
+#		kill -9 $PID
+#		RETVAL=1
+#		echo Killed $APP with pid $PID
+#	else
+#		echo Stopped $APP with pid $PID
+#	fi
+#	rm -f $PID_FILE
+#	return $RETVAL
 }
 
 status() {
