@@ -24,7 +24,7 @@ RUN_DIR=/var/run/$APP
 PID_FILE=$RUN_DIR/$APP.pid
 SHUTDOWN_FILE=$RUN_DIR/$APP.shutdown
 
-OSGI_INSTALL_AREA=/usr/share/osgiboot/lib
+OSGI_INSTALL_AREA=/usr/share/osgi/boot
 OSGI_FRAMEWORK=$OSGI_INSTALL_AREA/org.eclipse.osgi.jar
 
 RETVAL=0
@@ -48,8 +48,6 @@ start() {
 	touch $SHUTDOWN_FILE
 	cd $EXEC_DIR
 	$JVM \
-		-Dosgi.bundles="org.argeo.osgi.boot.jar@start" \
-		-Dargeo.osgi.bundles="$CONF_DIR/modules;in=*,$LIB_DIR;in=*" \
 		-Dargeo.osgi.shutdownFile="$SHUTDOWN_FILE" \
 		-Dlog4j.configuration="file:$CONF_DIR/log4j.properties" \
 		$JAVA_OPTS -jar $OSGI_FRAMEWORK \

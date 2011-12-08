@@ -3,10 +3,10 @@ package org.argeo.osgi.ui.explorer.views;
 import java.util.Comparator;
 
 import org.argeo.eclipse.ui.ColumnViewerComparator;
+import org.argeo.eclipse.ui.specific.EclipseUiSpecificUtils;
 import org.argeo.osgi.ui.explorer.OsgiExplorerImages;
 import org.argeo.osgi.ui.explorer.OsgiExplorerPlugin;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -32,14 +32,7 @@ public class BundlesView extends ViewPart {
 		viewer.setContentProvider(new BundleContentProvider());
 		viewer.getTable().setHeaderVisible(true);
 
-		// FIXME methodNotFound issue in RAP when built in Maven against RCP
-		try {
-			ColumnViewerToolTipSupport.enableFor(viewer);
-		} catch (Error e) {
-			//String prop = Table.ENABLE_CELL_TOOLTIP;
-			String prop = "org.eclipse.swt.widgets.Table#enableCellToolTip";
-			viewer.getControl().setData(prop, Boolean.TRUE);
-		}
+		EclipseUiSpecificUtils.enableToolTipSupport(viewer);
 
 		// ID
 		TableViewerColumn column = new TableViewerColumn(viewer, SWT.NONE);

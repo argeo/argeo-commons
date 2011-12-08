@@ -17,13 +17,13 @@
 		<version.argeo-distribution>1.1.6-SNAPSHOT</version.argeo-distribution>
 		<version.argeo-commons>0.3.4-SNAPSHOT</version.argeo-commons>
 		<version.equinox>3.6.2</version.equinox>
-		<!-- Maven -->
-		<!-- Using version 2.3.4 causes package use conflict. To be investigated. -->
-		<version.maven-bundle-plugin>2.2.0</version.maven-bundle-plugin>
+		<!-- maven -->
 		<version.maven-argeo-osgi>1.0.33</version.maven-argeo-osgi>
 		<version.maven-argeo-qooxdoo>1.1.1</version.maven-argeo-qooxdoo>
+		<!-- distribution -->
 		<site.repoBase>file:///srv/projects/www/commons/site</site.repoBase>
 		<site.urlBase>http://projects.argeo.org/commons/site</site.urlBase>
+		<rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-staging/6/x86_64</rpm.stagingRepository>
 	</properties>
 	<modules>
 		<module>basic</module>
@@ -88,8 +88,8 @@ limitations under the License.
 		</extensions>
 		<pluginManagement>
 			<plugins>
+				<!-- Maven -->
 				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>2.3.2</version>
 					<configuration>
@@ -98,7 +98,6 @@ limitations under the License.
 					</configuration>
 				</plugin>
 				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
 					<version>2.1.2</version>
 					<executions>
@@ -112,19 +111,12 @@ limitations under the License.
 					</executions>
 				</plugin>
 				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-clean-plugin</artifactId>
 					<version>2.4.1</version>
 				</plugin>
 				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>2.7.1</version>
-				</plugin>
-				<plugin>
-					<groupId>org.argeo.maven.plugins</groupId>
-					<artifactId>maven-argeo-osgi-plugin</artifactId>
-					<version>${version.maven-argeo-osgi}</version>
 				</plugin>
 				<plugin>
 					<artifactId>maven-jar-plugin</artifactId>
@@ -136,9 +128,26 @@ limitations under the License.
 					</configuration>
 				</plugin>
 				<plugin>
+					<artifactId>maven-antrun-plugin</artifactId>
+					<version>1.7</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>2.4.3</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>2.1.1</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>2.1</version>
+				</plugin>
+				<!-- Apache -->
+				<plugin>
 					<groupId>org.apache.felix</groupId>
 					<artifactId>maven-bundle-plugin</artifactId>
-					<version>${version.maven-bundle-plugin}</version>
+					<version>2.2.0</version>
 					<extensions>true</extensions>
 					<configuration>
 						<manifestLocation>META-INF</manifestLocation>
@@ -159,13 +168,49 @@ limitations under the License.
 						</execution>
 					</executions>
 				</plugin>
+				<!-- Codehaus -->
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>buildnumber-maven-plugin</artifactId>
+					<version>1.0-beta-4</version>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>rpm-maven-plugin</artifactId>
+					<version>2.1-alpha-1</version>
+					<extensions>true</extensions>
+					<configuration>
+						<version>${project.version}</version>
+						<release>r${buildNumber}.el6</release>
+						<distribution>argeo6</distribution>
+						<packager>mbaudier@argeo.org</packager>
+						<group>Applications/System</group>
+						<prefix>/usr</prefix>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+					<version>1.2.1</version>
+				</plugin>
+				<!-- Argeo -->
+				<plugin>
+					<groupId>org.argeo.maven.plugins</groupId>
+					<artifactId>maven-argeo-osgi-plugin</artifactId>
+					<version>${version.maven-argeo-osgi}</version>
+				</plugin>
+				<!-- Others -->
+				<plugin>
+					<groupId>com.mycila.maven-license-plugin</groupId>
+					<artifactId>maven-license-plugin</artifactId>
+					<version>1.8.0</version>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>buildnumber-maven-plugin</artifactId>
-				<version>1.0-beta-4</version>
 				<executions>
 					<execution>
 						<phase>generate-resources</phase>
@@ -190,7 +235,6 @@ limitations under the License.
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.4.3</version>
 				<configuration>
 					<encoding>UTF-8</encoding>
 				</configuration>
@@ -198,12 +242,10 @@ limitations under the License.
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
-				<version>2.1.1</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
-				<version>2.1</version>
 				<configuration>
 					<autoVersionSubmodules>true</autoVersionSubmodules>
 					<releaseProfiles>release</releaseProfiles>
@@ -213,7 +255,6 @@ limitations under the License.
 			<plugin>
 				<groupId>com.mycila.maven-license-plugin</groupId>
 				<artifactId>maven-license-plugin</artifactId>
-				<version>1.8.0</version>
 				<configuration>
 					<header>license-apache2-header.txt</header>
 					<failIfMissing>true</failIfMissing>

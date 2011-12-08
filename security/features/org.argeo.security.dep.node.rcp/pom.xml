@@ -49,4 +49,89 @@
 			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
+	<profiles>
+		<profile>
+			<id>rpmbuild</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>rpm-maven-plugin</artifactId>
+						<configuration>
+						</configuration>
+						<executions>
+							<execution>
+								<id>rpm-node-rcp</id>
+								<phase>package</phase>
+								<goals>
+									<goal>rpm</goal>
+								</goals>
+								<configuration>
+									<name>argeo-node-rcp</name>
+									<mappings>
+										<mapping>
+											<directory>/usr/share/osgi/rcp</directory>
+											<username>root</username>
+											<groupname>root</groupname>
+											<filemode>644</filemode>
+											<directoryIncluded>false</directoryIncluded>
+											<dependency>
+												<includes>
+													<include>org.argeo.commons.eclipse:org.argeo.eclipse.ui.rcp</include>
+													<include>org.argeo.commons.security:org.argeo.security.ui.rcp</include>
+												</includes>
+											</dependency>
+										</mapping>
+									</mappings>
+									<requires>
+										<require>argeo-node</require>
+										<require>argeo-node-eclipse</require>
+										<require>eclipse-rcp</require>
+									</requires>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>install</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<target>
+										<copy todir="${rpm.stagingRepository}" verbose="true">
+											<fileset dir="${project.build.directory}/rpm"
+												includes="*/RPMS/**/*.rpm" />
+											<flattenmapper />
+										</copy>
+									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+<!-- 					<plugin> -->
+<!-- 						<groupId>org.codehaus.mojo</groupId> -->
+<!-- 						<artifactId>exec-maven-plugin</artifactId> -->
+<!-- 						<executions> -->
+<!-- 							<execution> -->
+<!-- 								<phase>install</phase> -->
+<!-- 								<goals> -->
+<!-- 									<goal>exec</goal> -->
+<!-- 								</goals> -->
+<!-- 								<configuration> -->
+<!-- 									<executable>createrepo</executable> -->
+<!-- 									<arguments> -->
+<!-- 										<argument>${rpm.stagingRepository}</argument> -->
+<!-- 									</arguments> -->
+<!-- 								</configuration> -->
+<!-- 							</execution> -->
+<!-- 						</executions> -->
+<!-- 					</plugin> -->
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

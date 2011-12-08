@@ -10,6 +10,9 @@
 	<artifactId>org.argeo.security.dep.node.rap</artifactId>
 	<name>Commons Node RAP Dependencies</name>
 	<packaging>jar</packaging>
+	<properties>
+		<version.rap>1.3.2</version.rap>
+	</properties>
 	<build>
 		<plugins>
 			<plugin>
@@ -55,6 +58,195 @@
 			<artifactId>org.argeo.server.rap.webapp</artifactId>
 			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
-
 	</dependencies>
+	<profiles>
+		<profile>
+			<id>rpmbuild</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>copy-argeo-eclipse</id>
+								<phase>package</phase>
+								<goals>
+									<goal>copy-dependencies</goal>
+								</goals>
+								<configuration>
+									<includeTypes>jar</includeTypes>
+									<includeGroupIds>org.argeo.commons.eclipse</includeGroupIds>
+									<excludeArtifactIds>org.argeo.eclipse.ui.rap</excludeArtifactIds>
+									<outputDirectory>${project.build.directory}/argeo-node-eclipse</outputDirectory>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-direct</id>
+								<phase>package</phase>
+								<goals>
+									<goal>copy-dependencies</goal>
+								</goals>
+								<configuration>
+									<includeTypes>jar</includeTypes>
+									<excludeTransitive>true</excludeTransitive>
+									<excludeArtifactIds>org.argeo.security.ui.rap,org.argeo.server.rap.webapp</excludeArtifactIds>
+									<outputDirectory>${project.build.directory}/argeo-node-eclipse</outputDirectory>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>rpm-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>rpm-node-rap</id>
+								<phase>package</phase>
+								<goals>
+									<goal>rpm</goal>
+								</goals>
+								<configuration>
+									<name>argeo-node-rap</name>
+									<copyright>2011 Argeo</copyright>
+									<mappings>
+										<mapping>
+											<directory>/usr/share/osgi/rap</directory>
+											<username>root</username>
+											<groupname>root</groupname>
+											<filemode>644</filemode>
+											<directoryIncluded>false</directoryIncluded>
+											<dependency>
+												<includes>
+													<include>org.argeo.commons.eclipse:org.argeo.eclipse.ui.rap</include>
+													<include>org.argeo.commons.server:org.argeo.server.rap.webapp</include>
+													<include>org.argeo.commons.security:org.argeo.security.ui.rap</include>
+												</includes>
+											</dependency>
+										</mapping>
+									</mappings>
+									<requires>
+										<require>argeo-node</require>
+										<require>argeo-node-eclipse</require>
+										<require>eclipse-rap</require>
+									</requires>
+								</configuration>
+							</execution>
+							<execution>
+								<id>rpm-node-eclipse</id>
+								<phase>package</phase>
+								<goals>
+									<goal>rpm</goal>
+								</goals>
+								<configuration>
+									<name>argeo-node-eclipse</name>
+									<copyright>2011 Argeo</copyright>
+									<classifier>rpm-eclipse</classifier>
+									<mappings>
+										<mapping>
+											<directory>/usr/share/osgi/eclipse</directory>
+											<username>root</username>
+											<groupname>root</groupname>
+											<filemode>644</filemode>
+											<directoryIncluded>false</directoryIncluded>
+											<dependency>
+												<includes>
+													<include>org.argeo.commons.eclipse:org.argeo.eclipse.ui</include>
+													<include>org.argeo.commons.eclipse:org.argeo.eclipse.ui.jcr</include>
+													<include>org.argeo.commons.security:org.argeo.security.equinox</include>
+													<include>org.argeo.commons.security:org.argeo.security.ui</include>
+													<include>org.argeo.commons.security:org.argeo.security.ui.admin</include>
+												</includes>
+											</dependency>
+											<sources>
+												<source>
+													<location>${project.build.directory}/argeo-node-eclipse</location>
+												</source>
+											</sources>
+										</mapping>
+									</mappings>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>install</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<target>
+										<copy todir="${rpm.stagingRepository}" verbose="true">
+											<fileset dir="${project.build.directory}/rpm"
+												includes="*/RPMS/**/*.rpm" />
+											<flattenmapper />
+										</copy>
+									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>rpmbuild-tp</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>copy-rap</id>
+								<phase>package</phase>
+								<goals>
+									<goal>copy-dependencies</goal>
+								</goals>
+								<configuration>
+									<includeTypes>jar</includeTypes>
+									<includeGroupIds>org.eclipse.core,org.eclipse.equinox,org.eclipse.rap,org.eclipse.help,org.argeo.dep.rap,org.eclipse.osgi,com.ibm.icu</includeGroupIds>
+									<outputDirectory>${project.build.directory}/eclipse-rap</outputDirectory>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>rpm-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>rpm-rap</id>
+								<phase>package</phase>
+								<goals>
+									<goal>rpm</goal>
+								</goals>
+								<configuration>
+									<name>eclipse-rap</name>
+									<projversion>${version.rap}</projversion>
+									<mappings>
+										<mapping>
+											<directory>/usr/share/eclipse-rap</directory>
+											<username>root</username>
+											<groupname>root</groupname>
+											<filemode>644</filemode>
+											<directoryIncluded>false</directoryIncluded>
+											<sources>
+												<source>
+													<location>${project.build.directory}/eclipse-rap</location>
+												</source>
+											</sources>
+										</mapping>
+									</mappings>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
