@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Manager
+Bundle-SymbolicName: org.argeo.security.auth
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Argeo
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

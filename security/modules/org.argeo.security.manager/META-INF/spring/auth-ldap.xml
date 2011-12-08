@@ -1,0 +1,100 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+              http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.4.xsd">
+
+
+	<!-- AUTHENTICATION -->
+	<bean id="ldapAuthenticationProvider"
+		class="org.springframework.security.providers.ldap.LdapAuthenticationProvider">
+		<constructor-arg ref="ldapAuthenticator" />
+		<constructor-arg ref="authoritiesPopulator" />
+		<property name="userDetailsContextMapper" ref="jcrLdapSynchronizer" />
+	</bean>
+
+	<!-- PasswordComparisonAuthenticator doesn't work with SSHA -->
+	<bean id="ldapAuthenticator"
+		class="org.springframework.security.providers.ldap.authenticator.PasswordComparisonAuthenticator">
+		<constructor-arg ref="contextSource" />
+		<property name="userDnPatterns">
+			<list>
+				<value><![CDATA[${argeo.ldap.usernameAttribute}={0},${argeo.ldap.userBase}]]></value>
+			</list>
+		</property>
+		<property name="passwordAttributeName" value="${argeo.ldap.passwordAttribute}" />
+		<property name="passwordEncoder" ref="passwordEncoder" />
+	</bean>
+
+	<!-- Bind authenticator doesn't work with Apache DS 1.0 -->
+	<!-- <bean id="ldapAuthenticator" -->
+	<!-- class="org.springframework.security.providers.ldap.authenticator.BindAuthenticator"> -->
+	<!-- <constructor-arg ref="contextSource" /> -->
+	<!-- <property name="userDnPatterns"> -->
+	<!-- <list> -->
+	<!-- <value><![CDATA[${argeo.ldap.usernameAttribute}={0},${argeo.ldap.userBase}]]></value> -->
+	<!-- </list> -->
+	<!-- </property> -->
+	<!-- </bean> -->
+
+	<!-- USER DETAILS -->
+	<bean id="ldapUserDetailsService"
+		class="org.springframework.security.userdetails.ldap.LdapUserDetailsService">
+		<constructor-arg ref="ldapUserSearch" />
+		<constructor-arg ref="authoritiesPopulator" />
+		<property name="userDetailsMapper" ref="jcrLdapSynchronizer" />
+	</bean>
+
+	<bean id="ldapUserSearch"
+		class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">
+		<!-- search base -->
+		<constructor-arg value="${argeo.ldap.userBase}" />
+		<!-- search filter -->
+		<constructor-arg value="(${argeo.ldap.usernameAttribute}={0})" />
+		<!-- context source -->
+		<constructor-arg ref="contextSource" />
+	</bean>
+
+	<bean id="usernameMapper"
+		class="org.springframework.security.ldap.DefaultLdapUsernameToDnMapper">
+		<constructor-arg value="${argeo.ldap.userBase}" />
+		<constructor-arg value="${argeo.ldap.usernameAttribute}" />
+	</bean>
+
+	<bean id="authoritiesPopulator"
+		class="org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator">
+		<constructor-arg ref="contextSource" />
+		<constructor-arg value="${argeo.ldap.groupBase}" />
+		<property name="groupSearchFilter" value="${argeo.ldap.groupMemberAttribute}={0}" />
+		<property name="defaultRole" value="${argeo.security.defaultRole}" />
+		<property name="rolePrefix" value="${argeo.security.rolePrefix}" />
+	</bean>
+
+	<!-- LDAP LOW LEVEL -->
+	<bean id="contextSource"
+		class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
+		<constructor-arg
+			value="${argeo.ldap.protocol}://${argeo.ldap.host}:${argeo.ldap.port}/${argeo.ldap.rootdn}" />
+		<property name="userDn" value="${argeo.ldap.manager.userdn}" />
+		<property name="password" value="${argeo.ldap.manager.password}" />
+	</bean>
+
+	<bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
+		<constructor-arg ref="contextSource" />
+	</bean>
+
+	<bean id="rawLdapTemplate" class="org.springframework.ldap.core.LdapTemplate">
+		<description><![CDATA[LDAP template returning raw dir contexts, see http://forum.springsource.org/showthread.php?55955-Persistent-search-with-spring-ldap]]></description>
+		<constructor-arg>
+			<bean parent="contextSource">
+				<property name="dirObjectFactory">
+					<null />
+				</property>
+			</bean>
+		</constructor-arg>
+	</bean>
+
+	<bean id="passwordEncoder" class="org.argeo.security.ldap.ArgeoLdapShaPasswordEncoder">
+		<property name="useSalt" value="${argeo.ldap.password.useSalt}" />
+	</bean>
+</beans>

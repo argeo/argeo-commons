@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<!-- COMMON -->
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="locations">
+			<value>osgibundle:auth.properties</value>
+		</property>
+	</bean>
+
+	<!-- SERVICES -->
+	<bean id="systemExecutionService" class="org.argeo.security.core.KeyBasedSystemExecutionService">
+		<property name="authenticationManager" ref="authenticationManager" />
+		<property name="systemAuthenticationKey" value="${argeo.security.systemKey}" />
+	</bean>
+
+	<bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
+		<property name="providers">
+			<list>
+				<ref bean="anonymousAuthenticationProvider" />
+				<ref bean="authByAdapterProvider" />
+				<ref bean="ldapAuthenticationProvider" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- Authentication provider -->
+	<bean id="authByAdapterProvider"
+		class="org.springframework.security.adapters.AuthByAdapterProvider">
+		<description><![CDATA[System authentication]]></description>
+		<property name="key" value="${argeo.security.systemKey}" />
+	</bean>
+
+	<bean id="anonymousAuthenticationProvider"
+		class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider">
+		<description><![CDATA[Anonymous authentication]]></description>
+		<property name="key" value="${argeo.security.systemKey}" />
+	</bean>
+
+	<!-- Internal authentication, used by during the general authentication 
+		initialization himself, in order to prevent the following dependency cycle: 
+		Repository.login() <= AuthenticationManager <= LdapAuthenticationProvider 
+		<= Repository.login() in init() -->
+	<bean id="internalAuthenticationManager" class="org.springframework.security.providers.ProviderManager">
+		<property name="providers">
+			<list>
+				<ref bean="authByAdapterProvider" />
+			</list>
+		</property>
+	</bean>
+
+	<bean
+		class="org.argeo.security.core.AuthenticatedApplicationContextInitialization">
+		<description><![CDATA[Executes initialization with a system authentication]]></description>
+		<property name="authenticationManager" ref="internalAuthenticationManager" />
+	</bean>
+</beans>
