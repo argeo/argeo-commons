@@ -14,15 +14,15 @@
 			<plugin>
 				<groupId>org.argeo.maven.plugins</groupId>
 				<artifactId>maven-argeo-osgi-plugin</artifactId>
-					<executions>
-						<execution>
-							<id>generate-descriptors</id>
-							<goals>
-								<goal>descriptors</goal>
-							</goals>
-							<phase>generate-resources</phase>
-						</execution>
-					</executions>
+				<executions>
+					<execution>
+						<id>generate-descriptors</id>
+						<goals>
+							<goal>descriptors</goal>
+						</goals>
+						<phase>generate-resources</phase>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
@@ -41,6 +41,28 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.ui.admin</artifactId>
+			<version>0.3.4-SNAPSHOT</version>
+		</dependency>
+
+		<!-- Eclipse -->
+		<dependency>
+			<groupId>org.argeo.commons.eclipse</groupId>
+			<artifactId>org.argeo.eclipse.ui</artifactId>
+			<version>0.3.4-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.eclipse</groupId>
+			<artifactId>org.argeo.eclipse.ui.jcr</artifactId>
+			<version>0.3.4-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.equinox</artifactId>
+			<version>0.3.4-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.ui</artifactId>
 			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 
@@ -96,15 +118,6 @@
 											<groupname>root</groupname>
 											<filemode>644</filemode>
 											<directoryIncluded>false</directoryIncluded>
-											<dependency>
-												<includes>
-													<include>org.argeo.commons.eclipse:org.argeo.eclipse.ui</include>
-													<include>org.argeo.commons.eclipse:org.argeo.eclipse.ui.jcr</include>
-													<include>org.argeo.commons.security:org.argeo.security.equinox</include>
-													<include>org.argeo.commons.security:org.argeo.security.ui</include>
-													<include>org.argeo.commons.security:org.argeo.security.ui.admin</include>
-												</includes>
-											</dependency>
 											<sources>
 												<source>
 													<location>${project.build.directory}/argeo-node-eclipse</location>
