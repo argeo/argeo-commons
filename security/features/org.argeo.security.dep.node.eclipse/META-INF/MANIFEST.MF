@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Private-Package: .
+Tool: Bnd-1.15.0
+Bundle-Name: Node Eclipse Perspectives
+Created-By: 1.6.0_20 (Sun Microsystems Inc.)
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Vendor: Argeo
+Bundle-Version: 0.3.4.SNAPSHOT-r20111209_145052
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-SymbolicName: org.argeo.security.dep.node.eclipse
+Bundle-DocURL: http://www.argeo.org
+

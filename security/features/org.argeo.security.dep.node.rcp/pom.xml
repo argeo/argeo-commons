@@ -8,38 +8,38 @@
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.security.dep.node.rcp</artifactId>
-	<name>Commons Node RCP Dependencies</name>
-	<packaging>jar</packaging>
+	<name>Node Eclipse RCP</name>
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.argeo.maven.plugins</groupId>
 				<artifactId>maven-argeo-osgi-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-descriptors</id>
+						<goals>
+							<goal>descriptors</goal>
+						</goals>
+						<phase>generate-resources</phase>
+					</execution>
+					<execution>
+						<id>check-osgi</id>
+						<phase>test</phase>
+						<goals>
+							<goal>equinox</goal>
+						</goals>
+						<configuration>
+							<onlyCheck>true</onlyCheck>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
-		<!-- Applications -->
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.jcr.ui.explorer</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.osgi</groupId>
-			<artifactId>org.argeo.osgi.ui.explorer</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
-		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.ui.admin</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
-		</dependency>
-
-		<!-- Basis -->
-		<dependency>
-			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.dep.node</artifactId>
+			<artifactId>org.argeo.security.dep.node.eclipse</artifactId>
 			<version>0.3.4-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
@@ -92,44 +92,6 @@
 							</execution>
 						</executions>
 					</plugin>
-					<plugin>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>install</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<configuration>
-									<target>
-										<copy todir="${rpm.stagingRepository}" verbose="true">
-											<fileset dir="${project.build.directory}/rpm"
-												includes="*/RPMS/**/*.rpm" />
-											<flattenmapper />
-										</copy>
-									</target>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-<!-- 					<plugin> -->
-<!-- 						<groupId>org.codehaus.mojo</groupId> -->
-<!-- 						<artifactId>exec-maven-plugin</artifactId> -->
-<!-- 						<executions> -->
-<!-- 							<execution> -->
-<!-- 								<phase>install</phase> -->
-<!-- 								<goals> -->
-<!-- 									<goal>exec</goal> -->
-<!-- 								</goals> -->
-<!-- 								<configuration> -->
-<!-- 									<executable>createrepo</executable> -->
-<!-- 									<arguments> -->
-<!-- 										<argument>${rpm.stagingRepository}</argument> -->
-<!-- 									</arguments> -->
-<!-- 								</configuration> -->
-<!-- 							</execution> -->
-<!-- 						</executions> -->
-<!-- 					</plugin> -->
 				</plugins>
 			</build>
 		</profile>
