@@ -4,11 +4,11 @@
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
 		<version>0.3.4-SNAPSHOT</version>
-		<artifactId>features</artifactId>
+		<artifactId>dep</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>org.argeo.security.dep.node.rap</artifactId>
-	<name>Node Eclipse RAP</name>
+	<artifactId>org.argeo.security.dep.node.rcp</artifactId>
+	<name>Node Eclipse RCP</name>
 	<build>
 		<plugins>
 			<plugin>
@@ -19,13 +19,6 @@
 						<id>generate-descriptors</id>
 						<goals>
 							<goal>descriptors</goal>
-						</goals>
-						<phase>generate-resources</phase>
-					</execution>
-					<execution>
-						<id>resolve-pde-sources</id>
-						<goals>
-							<goal>pde-sources</goal>
 						</goals>
 						<phase>generate-resources</phase>
 					</execution>
@@ -44,40 +37,15 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<!-- Applications -->
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.jcr.ui.explorer</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.osgi</groupId>
-			<artifactId>org.argeo.osgi.ui.explorer</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
-		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.ui.admin</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
-		</dependency>
-
-		<!-- Basis -->
-		<dependency>
-			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.dep.node</artifactId>
+			<artifactId>org.argeo.security.dep.node.eclipse</artifactId>
 			<version>0.3.4-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.ui.rap</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
-		</dependency>
-
-		<!-- For Tomcat deployment -->
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.rap.webapp</artifactId>
+			<artifactId>org.argeo.security.ui.rcp</artifactId>
 			<version>0.3.4-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
@@ -89,28 +57,28 @@
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>rpm-maven-plugin</artifactId>
+						<configuration>
+						</configuration>
 						<executions>
 							<execution>
-								<id>rpm-node-rap</id>
+								<id>rpm-node-rcp</id>
 								<phase>package</phase>
 								<goals>
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>argeo-node-rap</name>
-									<copyright>2011 Argeo</copyright>
+									<name>argeo-node-rcp</name>
 									<mappings>
 										<mapping>
-											<directory>/usr/share/osgi/rap</directory>
+											<directory>/usr/share/osgi/rcp</directory>
 											<username>root</username>
 											<groupname>root</groupname>
 											<filemode>644</filemode>
 											<directoryIncluded>false</directoryIncluded>
 											<dependency>
 												<includes>
-													<include>org.argeo.commons.eclipse:org.argeo.eclipse.ui.rap</include>
-													<include>org.argeo.commons.server:org.argeo.server.rap.webapp</include>
-													<include>org.argeo.commons.security:org.argeo.security.ui.rap</include>
+													<include>org.argeo.commons.eclipse:org.argeo.eclipse.ui.rcp</include>
+													<include>org.argeo.commons.security:org.argeo.security.ui.rcp</include>
 												</includes>
 											</dependency>
 										</mapping>
@@ -118,28 +86,8 @@
 									<requires>
 										<require>argeo-node</require>
 										<require>argeo-node-eclipse</require>
-										<require>eclipse-rap</require>
+										<require>eclipse-rcp</require>
 									</requires>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>install</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<configuration>
-									<target>
-										<copy todir="${rpm.stagingRepository}" verbose="true">
-											<fileset dir="${project.build.directory}/rpm"
-												includes="*/RPMS/**/*.rpm" />
-											<flattenmapper />
-										</copy>
-									</target>
 								</configuration>
 							</execution>
 						</executions>

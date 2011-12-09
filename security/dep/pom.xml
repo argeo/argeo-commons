@@ -9,7 +9,7 @@
 		<relativePath>..</relativePath>
 	</parent>
 	<groupId>org.argeo.commons.security</groupId>
-	<artifactId>features</artifactId>
+	<artifactId>dep</artifactId>
 	<name>Commons Security Features</name>
 	<packaging>pom</packaging>
 	<modules>

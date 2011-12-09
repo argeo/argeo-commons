@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
 		<version>0.3.4-SNAPSHOT</version>
-		<artifactId>features</artifactId>
+		<artifactId>dep</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.security.dep.node.eclipse</artifactId>

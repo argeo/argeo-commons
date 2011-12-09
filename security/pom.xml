@@ -15,7 +15,6 @@
 		<module>runtime</module>
 		<module>modules</module>
 		<module>plugins</module>
-<!-- 		<module>dep</module> -->
-		<module>features</module>
+		<module>dep</module>
 	</modules>
 </project>
