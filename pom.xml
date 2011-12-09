@@ -45,9 +45,9 @@
 			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
 			<distribution>repo</distribution>
 			<comments><![CDATA[
-SLC - Software LifeCycle framework
+Argeo Commons Enterprise Framework
 			   
-Copyright 2010 Mathieu Baudier
+Copyright 2011 Mathieu Baudier
 
 Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
 you may not use this file except in compliance with the License.
