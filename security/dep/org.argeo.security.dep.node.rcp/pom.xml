@@ -86,7 +86,7 @@
 									<requires>
 										<require>argeo-node</require>
 										<require>argeo-node-eclipse</require>
-										<require>eclipse-rcp</require>
+										<require>eclipse-platform</require>
 									</requires>
 								</configuration>
 							</execution>
