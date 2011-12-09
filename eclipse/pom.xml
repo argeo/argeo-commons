@@ -12,7 +12,7 @@
 	<name>Commons Eclipse</name>
 	<packaging>pom</packaging>
 	<modules>
-		<module>features</module>
+		<module>dep</module>
 		<module>runtime</module>
 	</modules>
 </project>

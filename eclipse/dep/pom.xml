@@ -7,7 +7,7 @@
 		<version>0.3.4-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>features</artifactId>
+	<artifactId>dep</artifactId>
 	<name>Commons Eclipse Dependencies</name>
 	<packaging>pom</packaging>
 	<modules>
