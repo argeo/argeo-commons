@@ -35,6 +35,7 @@ public class OsgiBootNoRuntimeTest extends TestCase {
 				+ "/myotherdir/myotherfile";
 
 		OsgiBoot osgiBoot = new OsgiBoot(null);
+		osgiBoot.setExcludeSvn(true);
 		List urls = osgiBoot.getLocationsUrls(baseUrl, locations);
 		assertEquals(2, urls.size());
 		assertEquals("file:/mydir/myfile", urls.get(0));
@@ -46,6 +47,7 @@ public class OsgiBootNoRuntimeTest extends TestCase {
 		String baseUrl = "file:";
 		String bundles = BUNDLES;
 		OsgiBoot osgiBoot = new OsgiBoot(null);
+		osgiBoot.setExcludeSvn(true);
 		List urls = osgiBoot.getBundlesUrls(baseUrl, bundles);
 		for (int i = 0; i < urls.size(); i++)
 			System.out.println(urls.get(i));

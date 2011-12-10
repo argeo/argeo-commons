@@ -94,10 +94,11 @@ public class OsgiBoot {
 	 * (last part of the URL). The goal is to stay closer from Eclipse PDE way
 	 * of installing target platform bundles.
 	 */
-	private boolean installInLexicographicOrder = Boolean.valueOf(
-			System.getProperty(
-					PROP_ARGEO_OSGI_BOOT_INSTALL_IN_LEXICOGRAPHIC_ORDER,
-					"false")).booleanValue();;
+	private boolean installInLexicographicOrder = Boolean
+			.valueOf(
+					System.getProperty(
+							PROP_ARGEO_OSGI_BOOT_INSTALL_IN_LEXICOGRAPHIC_ORDER,
+							"true")).booleanValue();;
 
 	/** Default is 10s (set in constructor) */
 	private long defaultTimeout;
@@ -791,6 +792,14 @@ public class OsgiBoot {
 
 	public void setModulesUrlSeparator(String modulesUrlSeparator) {
 		this.modulesUrlSeparator = modulesUrlSeparator;
+	}
+
+	public boolean isExcludeSvn() {
+		return excludeSvn;
+	}
+
+	public void setExcludeSvn(boolean excludeSvn) {
+		this.excludeSvn = excludeSvn;
 	}
 
 	/*
