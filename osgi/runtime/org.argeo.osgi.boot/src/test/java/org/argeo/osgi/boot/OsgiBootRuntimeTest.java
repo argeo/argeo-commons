@@ -34,7 +34,7 @@ public class OsgiBootRuntimeTest extends TestCase {
 	public void testInstallAndStart() throws Exception {
 		osgiBoot.installUrls(osgiBoot.getBundlesUrls(OsgiBoot.DEFAULT_BASE_URL,
 				OsgiBootNoRuntimeTest.BUNDLES));
-		Map map = new TreeMap(osgiBoot.getBundles());
+		Map map = new TreeMap(osgiBoot.getBundlesBySymbolicName());
 		for (Iterator keys = map.keySet().iterator(); keys.hasNext();) {
 			Object key = keys.next();
 			Bundle bundle = (Bundle) map.get(key);
@@ -50,7 +50,7 @@ public class OsgiBootRuntimeTest extends TestCase {
 		osgiBoot.startBundles("org.argeo.osgi.boot.test.bundle2");
 		long begin = System.currentTimeMillis();
 		while (System.currentTimeMillis() - begin < 10000) {
-			Map mapBundles = osgiBoot.getBundles();
+			Map mapBundles = osgiBoot.getBundlesBySymbolicName();
 			Bundle bundle = (Bundle) mapBundles
 					.get("org.argeo.osgi.boot.test.bundle2");
 			if (bundle.getState() == Bundle.ACTIVE) {
