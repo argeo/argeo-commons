@@ -636,10 +636,11 @@ public class OsgiBoot {
 			File baseDir = new File(base.replace('/', File.separatorChar));
 			File[] files = baseDir.listFiles();
 
-			if (files == null && debug) {
-				OsgiBootUtils.warn("Base dir " + baseDir
-						+ " has no children, exists=" + baseDir.exists()
-						+ ", isDirectory=" + baseDir.isDirectory());
+			if (files == null) {
+				if (debug)
+					OsgiBootUtils.warn("Base dir " + baseDir
+							+ " has no children, exists=" + baseDir.exists()
+							+ ", isDirectory=" + baseDir.isDirectory());
 				return;
 			}
 
