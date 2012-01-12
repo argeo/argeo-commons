@@ -14,7 +14,7 @@
 	<packaging>pom</packaging>
 	<properties>
 		<developmentCycle>0.3</developmentCycle>
-		<version.argeo-distribution>1.1.6</version.argeo-distribution>
+		<version.argeo-distribution>1.1.7-SNAPSHOT</version.argeo-distribution>
 		<version.argeo-commons>0.3.4-SNAPSHOT</version.argeo-commons>
 		<version.equinox>3.6.2</version.equinox>
 		<!-- maven -->
