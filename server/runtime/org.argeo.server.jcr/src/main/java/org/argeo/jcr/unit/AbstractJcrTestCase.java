@@ -79,4 +79,12 @@ public abstract class AbstractJcrTestCase extends TestCase {
 	protected Repository getRepository() {
 		return repository;
 	}
+
+	/**
+	 * enables children class to set an existing repository in case it is not
+	 * deleted on startup, to test migration by instance
+	 */
+	protected void setRepository(Repository repository) {
+		this.repository = repository;
+	}
 }
