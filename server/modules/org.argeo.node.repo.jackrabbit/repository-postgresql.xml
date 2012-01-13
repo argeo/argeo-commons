@@ -20,10 +20,11 @@
 		<param name="schema" value="postgresql" />
 		<param name="schemaObjectPrefix" value="fs_" />
 	</FileSystem>
-	<DataStore class="org.apache.jackrabbit.core.data.db.DbDataStore">
-		<param name="dataSourceName" value="dataSource" />
-		<param name="schemaObjectPrefix" value="ds_" />
-	</DataStore>
+	<DataStore class="org.apache.jackrabbit.core.data.FileDataStore"/>
+<!-- 	<DataStore class="org.apache.jackrabbit.core.data.db.DbDataStore"> -->
+<!-- 		<param name="dataSourceName" value="dataSource" /> -->
+<!-- 		<param name="schemaObjectPrefix" value="ds_" /> -->
+<!-- 	</DataStore> -->
 
 	<!-- Workspace templates -->
 	<Workspaces rootPath="${rep.home}/workspaces"
