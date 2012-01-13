@@ -47,7 +47,8 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 			throws RepositoryException {
 		long begin = System.currentTimeMillis();
 
-		log.debug(subject);
+		if (log.isTraceEnabled())
+			log.trace(subject);
 		// skip Jackrabbit system user
 		if (!subject.getPrincipals(ArgeoSystemPrincipal.class).isEmpty())
 			return super.getUserID(subject, workspaceName);
