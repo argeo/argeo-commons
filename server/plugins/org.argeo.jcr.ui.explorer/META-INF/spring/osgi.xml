@@ -8,7 +8,11 @@
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
 	osgi:default-timeout="30000">
 
-	<reference id="repositoryRegister" interface="org.argeo.jcr.RepositoryRegister" />
+	<list id="repositories" interface="javax.jcr.Repository"
+		cardinality="0..N">
+		<listener ref="repositoryRegister" bind-method="register"
+			unbind-method="unregister" />
+	</list>
 
 	<reference id="nodeRepository" interface="javax.jcr.Repository"
 		filter="(argeo.jcr.repository.alias=node)" />

@@ -18,5 +18,5 @@
 
 	<!-- SERVICES -->
 	<service ref="repositoryFactory" interface="javax.jcr.RepositoryFactory" />
-	<service ref="repositoryFactory" interface="org.argeo.jcr.RepositoryRegister" />
+<!-- 	<service ref="repositoryFactory" interface="org.argeo.jcr.RepositoryRegister" /> -->
 </beans:beans>

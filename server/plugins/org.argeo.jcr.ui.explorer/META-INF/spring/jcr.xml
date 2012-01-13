@@ -14,4 +14,6 @@
 		<property name="defaultCallbackHandler" ref="defaultCallbackHandler" />
 	</bean>
 
+	<bean id="repositoryRegister" class="org.argeo.jcr.DefaultRepositoryRegister" />
+
 </beans>
