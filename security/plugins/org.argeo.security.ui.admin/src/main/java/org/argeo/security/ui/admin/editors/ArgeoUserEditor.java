@@ -1,6 +1,7 @@
 package org.argeo.security.ui.admin.editors;
 
 import javax.jcr.Node;
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
@@ -16,6 +17,7 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.forms.editor.FormEditor;
+import org.springframework.security.GrantedAuthority;
 
 /** Editor for an Argeo user. */
 public class ArgeoUserEditor extends FormEditor {
@@ -33,8 +35,18 @@ public class ArgeoUserEditor extends FormEditor {
 				.getUsername();
 		userHome = JcrUtils.getUserHome(session, username);
 
-		userDetails = (JcrUserDetails) userAdminService
-				.loadUserByUsername(username);
+		if (userAdminService.userExists(username)) {
+			userDetails = (JcrUserDetails) userAdminService
+					.loadUserByUsername(username);
+		} else {
+			GrantedAuthority[] authorities = {};
+			try {
+				userDetails = new JcrUserDetails(session, username, null,
+						authorities);
+			} catch (RepositoryException e) {
+				throw new ArgeoException("Cannot retrieve disabled JCR profile");
+			}
+		}
 
 		this.setPartProperty("name", username != null ? username : "<new user>");
 		setPartName(username != null ? username : "<new user>");

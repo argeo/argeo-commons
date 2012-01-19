@@ -20,6 +20,7 @@ import javax.jcr.observation.Event;
 import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.EventListener;
 import javax.jcr.query.Query;
+import javax.jcr.version.VersionManager;
 import javax.naming.Binding;
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -185,10 +186,21 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 				Node userProfile = it.nextNode();
 				String path = userProfile.getPath();
 				if (!userPaths.contains(path)) {
+					log.warn("Path "
+							+ path
+							+ " not found in LDAP, disabling user "
+							+ userProfile.getProperty(ArgeoNames.ARGEO_USER_ID)
+									.getString());
+					VersionManager versionManager = securitySession
+							.getWorkspace().getVersionManager();
+					versionManager.checkout(userProfile.getPath());
 					userProfile.setProperty(ArgeoNames.ARGEO_ENABLED, false);
+					securitySession.save();
+					versionManager.checkin(userProfile.getPath());
 				}
 			}
 		} catch (Exception e) {
+			JcrUtils.discardQuietly(securitySession);
 			throw new ArgeoException("Cannot synchronized LDAP and JCR", e);
 		}
 	}
@@ -198,9 +210,9 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 			final String username, GrantedAuthority[] authorities) {
 		if (ctx == null)
 			throw new ArgeoException("No LDAP information for user " + username);
-		Node userHome = JcrUtils.getUserHome(securitySession, username);
-		if (userHome == null)
-			throw new ArgeoException("No JCR information for user " + username);
+		Node userProfile = JcrUtils.createUserProfileIfNeeded(securitySession,
+				username);
+		JcrUserDetails.checkAccountStatus(userProfile);
 
 		// password
 		SortedSet<?> passwordAttributes = ctx
@@ -216,8 +228,7 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 		}
 
 		try {
-			return new JcrUserDetails(userHome.getNode(ARGEO_PROFILE),
-					password, authorities);
+			return new JcrUserDetails(userProfile, password, authorities);
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot retrieve user details for "
 					+ username, e);

@@ -13,7 +13,7 @@ public class SecurityAdminPerspective implements IPerspectiveFactory {
 		layout.setFixed(false);
 
 		IFolderLayout left = layout.createFolder("left", IPageLayout.LEFT,
-				0.4f, editorArea);
+				0.65f, editorArea);
 		left.addView(UsersView.ID);
 		left.addView(RolesView.ID);
 	}

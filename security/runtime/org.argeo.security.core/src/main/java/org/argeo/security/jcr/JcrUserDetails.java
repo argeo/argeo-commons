@@ -5,8 +5,10 @@ import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 
 import org.argeo.jcr.ArgeoNames;
+import org.argeo.jcr.JcrUtils;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.DisabledException;
 import org.springframework.security.GrantedAuthority;
@@ -44,6 +46,24 @@ public class JcrUserDetails extends User implements ArgeoNames {
 		// home is defined as the parent of the profile
 		homePath = userProfile.getParent().getPath();
 		securityWorkspace = userProfile.getSession().getWorkspace().getName();
+	}
+
+	/**
+	 * Convenience constructor
+	 * 
+	 * @param session
+	 *            the security session
+	 * @param username
+	 *            the username
+	 * @param password
+	 *            the password, can be null
+	 * @param authorities
+	 *            the granted authorities
+	 */
+	public JcrUserDetails(Session session, String username, String password,
+			GrantedAuthority[] authorities) throws RepositoryException {
+		this(JcrUtils.getUserProfile(session, username),
+				password != null ? password : "", authorities);
 	}
 
 	/**

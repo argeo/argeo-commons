@@ -172,8 +172,8 @@ public abstract class JackrabbitWrapper implements Repository {
 				repository = RepositoryImpl.create(repositoryConfig);
 
 				double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
-				if (log.isDebugEnabled())
-					log.debug("Created Jackrabbit repository in " + duration
+				if (log.isTraceEnabled())
+					log.trace("Created Jackrabbit repository in " + duration
 							+ " s, home: " + getHomeDirectory());
 			}
 		} catch (Exception e) {

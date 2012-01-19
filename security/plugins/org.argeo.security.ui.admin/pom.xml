@@ -69,6 +69,12 @@
 			<version>0.3.4-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.eclipse</groupId>
+			<artifactId>org.argeo.eclipse.ui.rcp</artifactId>
+			<version>0.3.4-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
 
 		<!-- Commons -->
 		<dependency>

@@ -1,7 +1,9 @@
 package org.argeo.eclipse.ui;
 
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -44,6 +46,21 @@ public class EclipseUiUtils {
 		if (txt != null)
 			txt.addModifyListener(modifyListener);
 		return txt;
+	}
+
+	public static Font getItalicFont(Composite parent) {
+		return JFaceResources.getFontRegistry().defaultFontDescriptor()
+				.setStyle(SWT.ITALIC).createFont(parent.getDisplay());
+	}
+
+	public static Font getBoldFont(Composite parent) {
+		return JFaceResources.getFontRegistry().defaultFontDescriptor()
+				.setStyle(SWT.BOLD).createFont(parent.getDisplay());
+	}
+
+	public static Font getBoldItalicFont(Composite parent) {
+		return JFaceResources.getFontRegistry().defaultFontDescriptor()
+				.setStyle(SWT.BOLD | SWT.ITALIC).createFont(parent.getDisplay());
 	}
 
 }

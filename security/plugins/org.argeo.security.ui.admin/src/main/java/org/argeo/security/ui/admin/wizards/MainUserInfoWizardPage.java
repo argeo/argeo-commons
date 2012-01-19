@@ -57,12 +57,12 @@ public class MainUserInfoWizardPage extends WizardPage implements
 
 	/** @return error message or null if complete */
 	protected String checkComplete() {
-		if (!username.getText().matches(UserAdminService.USERNAME_PATTERN))
-			return "Wrong user name format, should be lower case, between 3 and 15 characters with only '_' as acceptable special character.";
+//		if (!username.getText().matches(UserAdminService.USERNAME_PATTERN))
+//			return "Wrong user name format, should be lower case, between 3 and 64 characters with only '_' an '@' as acceptable special character.";
 		try {
 			UserDetails userDetails = userAdminService
 					.loadUserByUsername(username.getText());
-			return "User " + userDetails.getUsername() + " alreayd exists";
+			return "User " + userDetails.getUsername() + " already exists";
 		} catch (UsernameNotFoundException e) {
 			// silent
 		}

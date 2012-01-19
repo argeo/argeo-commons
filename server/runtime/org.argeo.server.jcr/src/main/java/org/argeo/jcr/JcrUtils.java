@@ -51,6 +51,7 @@ import javax.jcr.nodetype.NodeType;
 import javax.jcr.observation.EventListener;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
+import javax.jcr.version.VersionManager;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -59,6 +60,9 @@ import org.argeo.ArgeoException;
 
 /** Utility methods to simplify common JCR operations. */
 public class JcrUtils implements ArgeoJcrConstants {
+	/** The home base path. Not yet configurable */
+	public final static String DEFAULT_HOME_BASE_PATH = "/home";
+
 	private final static Log log = LogFactory.getLog(JcrUtils.class);
 
 	/**
@@ -920,6 +924,23 @@ public class JcrUtils implements ArgeoJcrConstants {
 		}
 	}
 
+	/**
+	 * Convenient method to add a listener. uuids passed as null, deep=true,
+	 * local=true, only one node type
+	 */
+	public static void addListener(Session session, EventListener listener,
+			int eventTypes, String basePath, String nodeType) {
+		try {
+			session.getWorkspace()
+					.getObservationManager()
+					.addEventListener(listener, eventTypes, basePath, true,
+							null, new String[] { nodeType }, true);
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot add JCR listener " + listener
+					+ " to session " + session, e);
+		}
+	}
+
 	/** Removes a listener without throwing exception */
 	public static void removeListenerQuietly(Session session,
 			EventListener listener) {
@@ -941,7 +962,7 @@ public class JcrUtils implements ArgeoJcrConstants {
 
 	/** User home path is NOT configurable */
 	public static String getUserHomePath(String username) {
-		String homeBasePath = "/home";
+		String homeBasePath = DEFAULT_HOME_BASE_PATH;
 		return homeBasePath + '/' + firstCharsToPath(username, 2) + '/'
 				+ username;
 	}
@@ -1025,8 +1046,37 @@ public class JcrUtils implements ArgeoJcrConstants {
 			return userProfile;
 		} catch (RepositoryException e) {
 			discardQuietly(session);
-			throw new ArgeoException("Cannot create home for " + username
-					+ " in workspace " + session.getWorkspace().getName(), e);
+			throw new ArgeoException("Cannot create user profile for "
+					+ username + " in workspace "
+					+ session.getWorkspace().getName(), e);
+		}
+	}
+
+	/**
+	 * Create user profile if needed, the session IS saved.
+	 * 
+	 * @return the user profile
+	 */
+	public static Node createUserProfileIfNeeded(Session securitySession,
+			String username) {
+		try {
+			Node userHome = JcrUtils.createUserHomeIfNeeded(securitySession,
+					username);
+			Node userProfile = userHome.hasNode(ArgeoNames.ARGEO_PROFILE) ? userHome
+					.getNode(ArgeoNames.ARGEO_PROFILE) : JcrUtils
+					.createUserProfile(securitySession, username);
+			if (securitySession.hasPendingChanges())
+				securitySession.save();
+			VersionManager versionManager = securitySession.getWorkspace()
+					.getVersionManager();
+			if (versionManager.isCheckedOut(userProfile.getPath()))
+				versionManager.checkin(userProfile.getPath());
+			return userProfile;
+		} catch (RepositoryException e) {
+			discardQuietly(securitySession);
+			throw new ArgeoException("Cannot create user profile for "
+					+ username + " in workspace "
+					+ securitySession.getWorkspace().getName(), e);
 		}
 	}
 
@@ -1109,11 +1159,7 @@ public class JcrUtils implements ArgeoJcrConstants {
 
 	/**
 	 * @return null if not found *
-	 * @deprecated will soon be removed. Call instead
-	 *             getUserHome().getNode(ARGEO_PROFILE) on the security
-	 *             workspace.
 	 */
-	@Deprecated
 	public static Node getUserProfile(Session session, String username) {
 		try {
 			Node userHome = getUserHome(session, username);
@@ -1131,12 +1177,7 @@ public class JcrUtils implements ArgeoJcrConstants {
 
 	/**
 	 * Get the profile of the user attached to this session.
-	 * 
-	 * @deprecated will soon be removed. Call instead
-	 *             getUserHome().getNode(ARGEO_PROFILE) on the security
-	 *             workspace.
 	 */
-	@Deprecated
 	public static Node getUserProfile(Session session) {
 		String userID = session.getUserID();
 		return getUserProfile(session, userID);

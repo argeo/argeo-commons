@@ -10,9 +10,9 @@ public interface UserAdminService extends UserDetailsManager {
 	 * Usernames must match this regexp pattern ({@value #USERNAME_PATTERN}).
 	 * Thanks to <a href=
 	 * "http://www.mkyong.com/regular-expressions/how-to-validate-username-with-regular-expression/"
-	 * >this tip</a> (modified to remove '-' and add upper-case)
+	 * >this tip</a> (modified to add upper-case, add '@')
 	 */
-	public final static String USERNAME_PATTERN = "^[a-zA-Z0-9_]{3,15}$";
+	//public final static String USERNAME_PATTERN = "^[a-zA-Z0-9_-@]{3,64}$";
 
 	/**
 	 * Email addresses must match this regexp pattern ({@value #EMAIL_PATTERN}.

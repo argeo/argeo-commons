@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
@@ -10,7 +11,7 @@
 	<packaging>pom</packaging>
 	<name>Commons Apache Directory Server Dependencies</name>
 	<dependencies>
-		<!--  Commons Dep -->
+		<!-- Commons Dep -->
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.dep.log4j</artifactId>
@@ -39,10 +40,13 @@
 			<groupId>net.sourceforge.jdbm</groupId>
 			<artifactId>com.springsource.jdbm</artifactId>
 		</dependency>
-		<!--
-			TODO: version 2.4.0 is required by Spring-LDAP while Apache Directory
-			takes 2.1.0
-		-->
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.ext.jdbm</artifactId>
+			<version>0.3.4-SNAPSHOT</version>
+		</dependency>
+		<!-- TODO: version 2.4.0 is required by Spring-LDAP while Apache Directory 
+			takes 2.1.0 -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>com.springsource.org.apache.commons.lang</artifactId>

@@ -46,8 +46,7 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 	protected void createFormContent(final IManagedForm mf) {
 		try {
 			ScrolledForm form = mf.getForm();
-			form.setText(getProperty(ARGEO_FIRST_NAME) + " "
-					+ getProperty(ARGEO_LAST_NAME));
+			refreshFormTitle(form);
 			GridLayout mainLayout = new GridLayout(1, true);
 			form.getBody().setLayout(mainLayout);
 
@@ -71,13 +70,15 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 		body.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		body.setLayout(layout);
 
+		final Text commonName = createLT(body, "Displayed Name",
+				getProperty(Property.JCR_TITLE));
 		final Text firstName = createLT(body, "First name",
 				getProperty(ARGEO_FIRST_NAME));
 		final Text lastName = createLT(body, "Last name",
 				getProperty(ARGEO_LAST_NAME));
 		final Text email = createLT(body, "Email",
 				getProperty(ARGEO_PRIMARY_EMAIL));
-		final Text description = createLT(body, "Description",
+		final Text description = createLMT(body, "Description",
 				getProperty(Property.JCR_DESCRIPTION));
 
 		// create form part (controller)
@@ -86,6 +87,8 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 				try {
 					userProfile.getSession().getWorkspace().getVersionManager()
 							.checkout(userProfile.getPath());
+					userProfile.setProperty(Property.JCR_TITLE,
+							commonName.getText());
 					userProfile.setProperty(ARGEO_FIRST_NAME,
 							firstName.getText());
 					userProfile
@@ -98,6 +101,7 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 					userProfile.getSession().getWorkspace().getVersionManager()
 							.checkin(userProfile.getPath());
 					super.commit(onSave);
+					refreshFormTitle(getManagedForm().getForm());
 					if (log.isTraceEnabled())
 						log.trace("General part committed");
 				} catch (RepositoryException e) {
@@ -114,7 +118,13 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 		getManagedForm().addPart(part);
 	}
 
-	/** @return the property, or teh empty string if not set */
+	private void refreshFormTitle(ScrolledForm form) throws RepositoryException {
+		form.setText(getProperty(Property.JCR_TITLE)
+				+ (userProfile.getProperty(ARGEO_ENABLED).getBoolean() ? ""
+						: " [DISABLED]"));
+	}
+
+	/** @return the property, or the empty string if not set */
 	protected String getProperty(String name) throws RepositoryException {
 		return userProfile.hasProperty(name) ? userProfile.getProperty(name)
 				.getString() : "";
@@ -168,6 +178,16 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		Text text = toolkit.createText(body, value, SWT.BORDER);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		return text;
+	}
+
+	/** Creates label and multiline text. */
+	protected Text createLMT(Composite body, String label, String value) {
+		FormToolkit toolkit = getManagedForm().getToolkit();
+		Label lbl = toolkit.createLabel(body, label);
+		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+		Text text = toolkit.createText(body, value, SWT.BORDER | SWT.MULTI);
+		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
 		return text;
 	}
 

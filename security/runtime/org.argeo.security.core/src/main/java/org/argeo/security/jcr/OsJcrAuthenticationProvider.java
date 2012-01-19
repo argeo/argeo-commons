@@ -4,10 +4,8 @@ import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.version.VersionManager;
 
 import org.argeo.ArgeoException;
-import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.security.OsAuthenticationToken;
 import org.argeo.security.core.OsAuthenticationProvider;
@@ -40,17 +38,8 @@ public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 			// WARNING: at this stage we assume that the java properties
 			// will have the same value
 			String username = System.getProperty("user.name");
-			Node userHome = JcrUtils.createUserHomeIfNeeded(securitySession,
-					username);
-			Node userProfile = userHome.hasNode(ArgeoNames.ARGEO_PROFILE) ? userHome
-					.getNode(ArgeoNames.ARGEO_PROFILE) : JcrUtils
-					.createUserProfile(securitySession, username);
-			if (securitySession.hasPendingChanges())
-				securitySession.save();
-			VersionManager versionManager = securitySession.getWorkspace()
-					.getVersionManager();
-			if (versionManager.isCheckedOut(userProfile.getPath()))
-				versionManager.checkin(userProfile.getPath());
+			Node userProfile = JcrUtils.createUserProfileIfNeeded(
+					securitySession, username);
 
 			JcrUserDetails.checkAccountStatus(userProfile);
 			// user details
