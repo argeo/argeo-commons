@@ -26,4 +26,6 @@
 	<!-- <property name="session" ref="jcrSession" /> -->
 	<!-- </bean> -->
 
+	<bean id="repositoryRegister" class="org.argeo.jcr.DefaultRepositoryRegister" />
+
 </beans>

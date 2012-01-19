@@ -12,7 +12,7 @@
 
 	<bean class="org.argeo.server.ads.AdsContainer">
 		<property name="workingDirectory" value="${osgi.instance.area}/apacheds" />
-		<property name="deleteWorkingDirOnExit" value="true" />
+<!-- 		<property name="deleteWorkingDirOnExit" value="true" /> -->
 		<property name="configuration" ref="configuration" />
 		<property name="environment" ref="environment" />
 		<property name="ldifs">
