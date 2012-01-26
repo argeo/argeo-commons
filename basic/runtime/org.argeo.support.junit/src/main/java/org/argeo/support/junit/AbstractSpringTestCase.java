@@ -34,7 +34,7 @@ public abstract class AbstractSpringTestCase extends TestCase {
 	private ConfigurableApplicationContext context;
 
 	/**
-	 * Gets (and create if necessary) the application context to use. Default
+	 * Gets (and creates if necessary) the application context to use. Default
 	 * implementation uses a class path xml application context and calls
 	 * {@link #getApplicationContextLocation()}.
 	 */
