@@ -97,7 +97,7 @@ public abstract class AbstractSpringTestCase extends TestCase {
 		} else if (beans.size() > 1) {
 			if (log.isDebugEnabled()) {
 				log
-						.debug(("Found more that on bean for type " + clss
+						.debug(("Found more that one bean for type " + clss
 								+ ": " + beans.keySet()));
 			}
 			return null;
