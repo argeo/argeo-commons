@@ -70,7 +70,7 @@ public abstract class AbstractSpringTestCase extends TestCase {
 	}
 
 	/**
-	 * Th location of the application to load. The default implementation
+	 * The location of the application to load. The default implementation
 	 * returns <i>applicationContext.xml</i> found in the same package as the
 	 * test.
 	 */
