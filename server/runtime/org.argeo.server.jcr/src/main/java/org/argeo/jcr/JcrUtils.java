@@ -60,8 +60,6 @@ import org.argeo.ArgeoException;
 
 /** Utility methods to simplify common JCR operations. */
 public class JcrUtils implements ArgeoJcrConstants {
-	/** The home base path. Not yet configurable */
-	public final static String DEFAULT_HOME_BASE_PATH = "/home";
 
 	private final static Log log = LogFactory.getLog(JcrUtils.class);
 

@@ -8,6 +8,9 @@ public interface ArgeoTypes {
 	public final static String ARGEO_REMOTE_REPOSITORY = "argeo:remoteRepository";
 	public final static String ARGEO_PREFERENCE_NODE = "argeo:preferenceNode";
 
+	// data model
+	public final static String ARGEO_DATA_MODEL = "argeo:dataModel";
+	
 	// tabular
 	public final static String ARGEO_TABLE = "argeo:table";
 	public final static String ARGEO_COLUMN = "argeo:column";

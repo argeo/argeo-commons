@@ -9,6 +9,12 @@ mixin
 [argeo:references] > nt:unstructured
 - * (REFERENCE) *
 
+// DATA MODEL
+[argeo:dataModel] > mix:created, mix:lastModified, mix:versionable
+mixin
+- argeo:uri (STRING) m
+- argeo:dataModelVersion (STRING) m
+
 // USER NODES
 // user should be lower case, between 3 and 15 characters long
 [argeo:userHome] > mix:created, mix:lastModified

@@ -33,11 +33,13 @@ import javax.jcr.Credentials;
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,7 +48,9 @@ import org.apache.jackrabbit.commons.NamespaceHelper;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.argeo.ArgeoException;
+import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.ArgeoNames;
+import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.security.SystemAuthentication;
 import org.osgi.framework.Bundle;
@@ -77,6 +81,11 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 	// data model
 	/** Node type definitions in CND format */
 	private List<String> cndFiles = new ArrayList<String>();
+	/**
+	 * Always import CNDs. Useful during development of new data models. In
+	 * production, explicit migration processes should be used.
+	 */
+	private Boolean forceCndImport = false;
 
 	/** Migrations to execute (if not already done) */
 	private Set<JackrabbitDataModelMigration> dataModelMigrations = new HashSet<JackrabbitDataModelMigration>();
@@ -143,20 +152,7 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 			// load CND files from classpath or as URL
 			for (String resUrl : cndFiles) {
 				boolean classpath;
-				// if (resUrl.startsWith("classpath:")) {
-				// // resUrl = resUrl.substring("classpath:".length());
-				// classpath = true;
-				// } else if (resUrl.indexOf(':') < 0) {
-				// if (!resUrl.startsWith("/")) {
-				// resUrl = "/" + resUrl;
-				// log.warn("Classpath should start with '/'");
-				// }
-				// resUrl = "classpath:" + resUrl;
-				// classpath = true;
-				// } else {
-				// classpath = false;
-				// }
-
+				// normalize URL
 				if (resUrl.startsWith("classpath:")) {
 					resUrl = resUrl.substring("classpath:".length());
 					classpath = true;
@@ -170,12 +166,6 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 				} else {
 					classpath = false;
 				}
-
-				// Resource resource =
-				// resourceLoader.getResource(resUrl);
-
-				// = classpath ? new ClassPathResource(resUrl) : new
-				// UrlResource(resUrl);
 
 				URL url;
 				Bundle dataModelBundle = null;
@@ -199,10 +189,71 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 					url = new URL(resUrl);
 				}
 
+				// check existing data model nodes
+				if (!session
+						.itemExists(ArgeoJcrConstants.DATA_MODELS_BASE_PATH))
+					JcrUtils.mkdirs(session,
+							ArgeoJcrConstants.DATA_MODELS_BASE_PATH);
+				Node dataModels = session
+						.getNode(ArgeoJcrConstants.DATA_MODELS_BASE_PATH);
+				NodeIterator it = dataModels.getNodes();
+				Node dataModel = null;
+				while (it.hasNext()) {
+					Node node = it.nextNode();
+					if (node.getProperty(ArgeoNames.ARGEO_URI).getString()
+							.equals(resUrl)) {
+						dataModel = node;
+						break;
+					}
+				}
+
+				// does nothing if data model already registered
+				if (dataModel != null && !forceCndImport) {
+					if (dataModelBundle != null) {
+						String version = dataModel.getProperty(
+								ArgeoNames.ARGEO_DATA_MODEL_VERSION)
+								.getString();
+						String dataModelBundleVersion = dataModelBundle
+								.getVersion().toString();
+						if (!version.equals(dataModelBundleVersion)) {
+							log.warn("Data model with version "
+									+ dataModelBundleVersion
+									+ " available, current version is "
+									+ version);
+						}
+					}
+					// do not implicitly update
+					return;
+				}
+
 				Reader reader = null;
 				try {
 					reader = new InputStreamReader(url.openStream());
+					// actually imports the CND
 					CndImporter.registerNodeTypes(reader, session, true);
+
+					// FIXME: what if argeo.cnd would not be the first called on
+					// a new repo? argeo:dataModel would not be found
+					String fileName = FilenameUtils.getName(url.getPath());
+					if (dataModel == null) {
+						dataModel = dataModels.addNode(fileName);
+						dataModel.addMixin(ArgeoTypes.ARGEO_DATA_MODEL);
+						dataModel.setProperty(ArgeoNames.ARGEO_URI, resUrl);
+					} else {
+						session.getWorkspace().getVersionManager()
+								.checkout(dataModel.getPath());
+					}
+					if (dataModelBundle != null)
+						dataModel.setProperty(
+								ArgeoNames.ARGEO_DATA_MODEL_VERSION,
+								dataModelBundle.getVersion().toString());
+					else
+						dataModel.setProperty(
+								ArgeoNames.ARGEO_DATA_MODEL_VERSION, "0.0.0");
+					JcrUtils.updateLastModified(dataModel);
+					session.save();
+					session.getWorkspace().getVersionManager()
+							.checkin(dataModel.getPath());
 				} finally {
 					IOUtils.closeQuietly(reader);
 				}
@@ -419,4 +470,9 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 	public void setBundleContext(BundleContext bundleContext) {
 		this.bundleContext = bundleContext;
 	}
+
+	public void setForceCndImport(Boolean forceCndUpdate) {
+		this.forceCndImport = forceCndUpdate;
+	}
+
 }
