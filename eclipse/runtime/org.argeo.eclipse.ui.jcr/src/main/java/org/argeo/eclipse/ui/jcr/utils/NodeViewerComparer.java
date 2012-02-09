@@ -6,6 +6,7 @@ import javax.jcr.RepositoryException;
 import org.argeo.ArgeoException;
 import org.eclipse.jface.viewers.IElementComparer;
 
+/** Compare JCR nodes based on their JCR identifiers, for use in JFace viewers. */
 public class NodeViewerComparer implements IElementComparer {
 
 	// force comparison on Node IDs only.

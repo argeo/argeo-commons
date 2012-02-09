@@ -7,6 +7,7 @@ import javax.jcr.RepositoryException;
 
 import org.argeo.ArgeoException;
 
+/** Compares two JCR items (node or properties) based on their names. */
 public class JcrItemsComparator implements Comparator<Item> {
 	public int compare(Item o1, Item o2) {
 		try {
