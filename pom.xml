@@ -14,7 +14,8 @@
 	<packaging>pom</packaging>
 	<properties>
 		<developmentCycle>0.3</developmentCycle>
-		<version.argeo-distribution>1.1.7-SNAPSHOT</version.argeo-distribution>
+		<version.argeo-distribution>1.1.7-SNAPSHOT
+		</version.argeo-distribution>
 		<version.argeo-commons>0.3.4-SNAPSHOT</version.argeo-commons>
 		<version.equinox>3.6.2</version.equinox>
 		<!-- maven -->
@@ -23,7 +24,9 @@
 		<!-- distribution -->
 		<site.repoBase>file:///srv/projects/www/commons/site</site.repoBase>
 		<site.urlBase>http://projects.argeo.org/commons/site</site.urlBase>
-		<rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-staging/6/x86_64</rpm.stagingRepository>
+		<rpm.release>6</rpm.release>
+		<rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-staging/6/x86_64
+		</rpm.stagingRepository>
 	</properties>
 	<modules>
 		<module>basic</module>
@@ -36,7 +39,8 @@
 	<url>${site.urlBase}/${developmentCycle}</url>
 	<scm>
 		<connection>scm:svn:https://svn.argeo.org/commons/trunk</connection>
-		<developerConnection>scm:svn:https://svn.argeo.org/commons/trunk</developerConnection>
+		<developerConnection>scm:svn:https://svn.argeo.org/commons/trunk
+		</developerConnection>
 		<url>https://svn.argeo.org/commons/trunk</url>
 	</scm>
 	<licenses>
@@ -152,9 +156,11 @@ limitations under the License.
 					<configuration>
 						<manifestLocation>META-INF</manifestLocation>
 						<instructions>
-							<Bundle-Version>${project.version}-r${buildNumber}</Bundle-Version>
+							<Bundle-Version>${project.version}-r${buildNumber}
+							</Bundle-Version>
 							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-							<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
+							<Bundle-RequiredExecutionEnvironment>J2SE-1.5
+							</Bundle-RequiredExecutionEnvironment>
 							<_removeheaders>Bnd-LastModified</_removeheaders>
 						</instructions>
 					</configuration>
@@ -181,8 +187,8 @@ limitations under the License.
 					<extensions>true</extensions>
 					<configuration>
 						<version>${project.version}</version>
-						<release>r${buildNumber}.el6</release>
-						<distribution>argeo6</distribution>
+						<release>r${buildNumber}.el${rpm.release}</release>
+						<distribution>argeo${rpm.release}</distribution>
 						<packager>mbaudier@argeo.org</packager>
 						<group>Applications/System</group>
 						<prefix>/usr</prefix>
@@ -424,12 +430,14 @@ limitations under the License.
 				<repository>
 					<id>localrepo</id>
 					<name>Internal Release Repository</name>
-					<url>dav:http://localrepo:7080/org.argeo.jcr.webapp/webdav/node/main/repo</url>
+					<url>dav:http://localrepo:7080/org.argeo.jcr.webapp/webdav/node/main/repo
+					</url>
 				</repository>
 				<snapshotRepository>
 					<id>localrepo.snapshots</id>
 					<name>Internal Snapshot Repository</name>
-					<url>dav:http://localrepo:7080/org.argeo.jcr.webapp/webdav/node/main/repo</url>
+					<url>dav:http://localrepo:7080/org.argeo.jcr.webapp/webdav/node/main/repo
+					</url>
 				</snapshotRepository>
 			</distributionManagement>
 		</profile>
@@ -439,6 +447,14 @@ limitations under the License.
 				<module>doc</module>
 				<module>sandbox</module>
 			</modules>
+		</profile>
+		<profile>
+			<id>el5</id>
+			<properties>
+				<rpm.release>5</rpm.release>
+				<rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-staging/5/x86_64
+				</rpm.stagingRepository>
+			</properties>
 		</profile>
 	</profiles>
 </project>
