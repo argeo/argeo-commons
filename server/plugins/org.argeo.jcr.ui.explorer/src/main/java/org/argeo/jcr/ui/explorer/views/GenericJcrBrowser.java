@@ -106,7 +106,7 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 		top.setLayout(gl);
 
 		nodeContentProvider = new NodeContentProvider(jcrKeyring,
-				repositoryRegister);
+				repositoryRegister, sortChildNodes);
 
 		// nodes viewer
 		nodesViewer = createNodeViewer(top, nodeContentProvider);
@@ -124,7 +124,66 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 		// Create the property viewer on the bottom
 		Composite bottom = new Composite(sashForm, SWT.NONE);
 		bottom.setLayout(new GridLayout(1, false));
-		propertiesViewer = new TableViewer(bottom);
+		propertiesViewer = createPropertiesViewer(bottom);
+
+		sashForm.setWeights(getWeights());
+		nodesViewer.setComparer(new NodeViewerComparer());
+	}
+
+	/**
+	 * To be overridden to adapt size of form and result frames.
+	 */
+	protected int[] getWeights() {
+		return new int[] { 70, 30 };
+	}
+
+	protected TreeViewer createNodeViewer(Composite parent,
+			final ITreeContentProvider nodeContentProvider) {
+
+		final TreeViewer tmpNodeViewer = new TreeViewer(parent, SWT.MULTI);
+
+		tmpNodeViewer.getTree().setLayoutData(
+				new GridData(SWT.FILL, SWT.FILL, true, true));
+
+		tmpNodeViewer.setContentProvider(nodeContentProvider);
+		tmpNodeViewer.setLabelProvider(new NodeLabelProvider());
+		tmpNodeViewer
+				.addSelectionChangedListener(new ISelectionChangedListener() {
+					public void selectionChanged(SelectionChangedEvent event) {
+						if (!event.getSelection().isEmpty()) {
+							IStructuredSelection sel = (IStructuredSelection) event
+									.getSelection();
+							Object firstItem = sel.getFirstElement();
+							if (firstItem instanceof SingleJcrNode)
+								propertiesViewer
+										.setInput(((SingleJcrNode) firstItem)
+												.getNode());
+						} else {
+							propertiesViewer.setInput(getViewSite());
+						}
+					}
+				});
+
+		resultsObserver = new TreeObserver(tmpNodeViewer.getTree().getDisplay());
+		if (jcrKeyring != null)
+			try {
+				ObservationManager observationManager = jcrKeyring.getSession()
+						.getWorkspace().getObservationManager();
+				observationManager.addEventListener(resultsObserver,
+						Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED, "/",
+						true, null, null, false);
+			} catch (RepositoryException e) {
+				throw new ArgeoException("Cannot register listeners", e);
+			}
+
+		tmpNodeViewer
+				.addDoubleClickListener(new GenericNodeDoubleClickListener(
+						tmpNodeViewer));
+		return tmpNodeViewer;
+	}
+
+	protected TableViewer createPropertiesViewer(Composite parent) {
+		propertiesViewer = new TableViewer(parent);
 		propertiesViewer.getTable().setLayoutData(
 				new GridData(SWT.FILL, SWT.FILL, true, true));
 		propertiesViewer.getTable().setHeaderVisible(true);
@@ -185,61 +244,7 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 			}
 		});
 		propertiesViewer.setInput(getViewSite());
-
-		sashForm.setWeights(getWeights());
-		nodesViewer.setComparer(new NodeViewerComparer());
-	}
-
-	/**
-	 * To be overridden to adapt size of form and result frames.
-	 */
-	protected int[] getWeights() {
-		return new int[] { 70, 30 };
-	}
-
-	protected TreeViewer createNodeViewer(Composite parent,
-			final ITreeContentProvider nodeContentProvider) {
-
-		final TreeViewer tmpNodeViewer = new TreeViewer(parent, SWT.MULTI);
-
-		tmpNodeViewer.getTree().setLayoutData(
-				new GridData(SWT.FILL, SWT.FILL, true, true));
-
-		tmpNodeViewer.setContentProvider(nodeContentProvider);
-		tmpNodeViewer.setLabelProvider(new NodeLabelProvider());
-		tmpNodeViewer
-				.addSelectionChangedListener(new ISelectionChangedListener() {
-					public void selectionChanged(SelectionChangedEvent event) {
-						if (!event.getSelection().isEmpty()) {
-							IStructuredSelection sel = (IStructuredSelection) event
-									.getSelection();
-							Object firstItem = sel.getFirstElement();
-							if (firstItem instanceof SingleJcrNode)
-								propertiesViewer
-										.setInput(((SingleJcrNode) firstItem)
-												.getNode());
-						} else {
-							propertiesViewer.setInput(getViewSite());
-						}
-					}
-				});
-
-		resultsObserver = new TreeObserver(tmpNodeViewer.getTree().getDisplay());
-		if (jcrKeyring != null)
-			try {
-				ObservationManager observationManager = jcrKeyring.getSession()
-						.getWorkspace().getObservationManager();
-				observationManager.addEventListener(resultsObserver,
-						Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED, "/",
-						true, null, null, false);
-			} catch (RepositoryException e) {
-				throw new ArgeoException("Cannot register listeners", e);
-			}
-
-		tmpNodeViewer
-				.addDoubleClickListener(new GenericNodeDoubleClickListener(
-						tmpNodeViewer));
-		return tmpNodeViewer;
+		return propertiesViewer;
 	}
 
 	@Override

@@ -29,19 +29,20 @@ public class NodeContentProvider implements ITreeContentProvider {
 	private final static Log log = LogFactory.getLog(NodeContentProvider.class);
 
 	// Business Objects
-	private RepositoryRegister repositoryRegister;
-	private Session userSession;
-	private JcrKeyring jcrKeyring;
+	final private RepositoryRegister repositoryRegister;
+	final private Session userSession;
+	final private JcrKeyring jcrKeyring;
+	final private boolean sortChildren;
 
 	// Utils
-	private boolean sortChildren = true;
 	private TreeObjectsComparator itemComparator = new TreeObjectsComparator();
 
 	public NodeContentProvider(JcrKeyring jcrKeyring,
-			RepositoryRegister repositoryRegister) {
+			RepositoryRegister repositoryRegister, Boolean sortChildren) {
 		this.userSession = jcrKeyring != null ? jcrKeyring.getSession() : null;
 		this.jcrKeyring = jcrKeyring;
 		this.repositoryRegister = repositoryRegister;
+		this.sortChildren = sortChildren;
 	}
 
 	/**
