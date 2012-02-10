@@ -69,6 +69,8 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		if (user == null) {
 			user = systemUm.createUser(userId, authen.getCredentials()
 					.toString(), authen, null);
+			JcrUtils.createUserHomeIfNeeded(getSystemSession(), userId);
+			getSystemSession().save();
 			setSecurityHomeAuthorizations(user);
 			log.info(userId + " added as " + user);
 		}
@@ -101,7 +103,7 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 	}
 
 	protected synchronized void setSecurityHomeAuthorizations(User user) {
-		// give read privileges on user home
+		// give read privileges on user security home
 		String userId = "<not yet set>";
 		try {
 			userId = user.getID();
