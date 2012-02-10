@@ -190,6 +190,8 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 				}
 
 				// check existing data model nodes
+				new NamespaceHelper(session).registerNamespace(
+						ArgeoNames.ARGEO, ArgeoNames.ARGEO_NAMESPACE);
 				if (!session
 						.itemExists(ArgeoJcrConstants.DATA_MODELS_BASE_PATH))
 					JcrUtils.mkdirs(session,
