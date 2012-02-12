@@ -80,6 +80,16 @@ limitations under the License.
 				<role>QA</role>
 			</roles>
 		</developer>
+		<developer>
+			<id>bsinou</id>
+			<name>Bruno Sinou</name>
+			<email><![CDATA[http://www.google.com/recaptcha/mailhide/d?k=01SZoYvDnJzcw0KOR7M7u6Qg==&c=SVgEjXA_Uu9ZrNzLES92w1ght6puLFiVpoNUddCfSU8=]]></email>
+			<organization>Argeo</organization>
+			<organizationUrl>http://www.argeo.org</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
 	</developers>
 	<build>
 		<extensions>
@@ -155,12 +165,9 @@ limitations under the License.
 					<configuration>
 						<manifestLocation>META-INF</manifestLocation>
 						<instructions>
-							<Bundle-Version>${project.version}-r${buildNumber}
-							</Bundle-Version>
+							<Bundle-Version>${project.version}-r${timestamp}</Bundle-Version>
 							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-							<Bundle-RequiredExecutionEnvironment>J2SE-1.5
-							</Bundle-RequiredExecutionEnvironment>
-							<_removeheaders>Bnd-LastModified</_removeheaders>
+							<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
 						</instructions>
 					</configuration>
 					<executions>
@@ -177,7 +184,7 @@ limitations under the License.
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>buildnumber-maven-plugin</artifactId>
-					<version>1.0-beta-4</version>
+					<version>1.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
@@ -186,7 +193,7 @@ limitations under the License.
 					<extensions>true</extensions>
 					<configuration>
 						<version>${project.version}</version>
-						<release>r${buildNumber}.el${rpm.release}</release>
+						<release>r${timestamp}.el${rpm.release}</release>
 						<distribution>argeo${rpm.release}</distribution>
 						<packager>mbaudier@argeo.org</packager>
 						<group>Applications/System</group>
@@ -220,22 +227,27 @@ limitations under the License.
 					<execution>
 						<phase>generate-resources</phase>
 						<goals>
-							<goal>create</goal>
+							<goal>create-timestamp</goal>
 						</goals>
 					</execution>
 				</executions>
 				<configuration>
 					<doCheck>false</doCheck>
 					<doUpdate>false</doUpdate>
-					<format>{0,date,yyyyMMdd_HHmmss}</format>
-					<items>
-						<item>timestamp</item>
-					</items>
-					<revisionOnScmFailure>git</revisionOnScmFailure>
-					<providerImplementations>
-						<git>svn</git>
-					</providerImplementations>
+					<timestampFormat>yyMMdd_HHmm</timestampFormat>
 				</configuration>
+				<!-- <configuration> -->
+				<!-- <doCheck>false</doCheck> -->
+				<!-- <doUpdate>false</doUpdate> -->
+				<!-- <format>{0,date,yyyyMMdd_HHmmss}</format> -->
+				<!-- <items> -->
+				<!-- <item>timestamp</item> -->
+				<!-- </items> -->
+				<!-- <revisionOnScmFailure>git</revisionOnScmFailure> -->
+				<!-- <providerImplementations> -->
+				<!-- <git>svn</git> -->
+				<!-- </providerImplementations> -->
+				<!-- </configuration> -->
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
