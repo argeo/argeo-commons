@@ -95,8 +95,8 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 				group.removeMember(user);
 		}
 
-		if (log.isDebugEnabled())
-			log.debug("Spring and Jackrabbit Security synchronized for user "
+		if (log.isTraceEnabled())
+			log.trace("Spring and Jackrabbit Security synchronized for user "
 					+ userId + " in " + (System.currentTimeMillis() - begin)
 					+ " ms");
 		return userId;
