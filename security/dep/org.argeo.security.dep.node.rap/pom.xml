@@ -23,13 +23,6 @@
 						<phase>generate-resources</phase>
 					</execution>
 					<execution>
-						<id>resolve-pde-sources</id>
-						<goals>
-							<goal>pde-sources</goal>
-						</goals>
-						<phase>generate-resources</phase>
-					</execution>
-					<execution>
 						<id>check-osgi</id>
 						<phase>test</phase>
 						<goals>
@@ -124,23 +117,23 @@
 							</execution>
 						</executions>
 					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>pdeSources</id>
+			<build>
+				<plugins>
 					<plugin>
-						<artifactId>maven-antrun-plugin</artifactId>
+						<groupId>org.argeo.maven.plugins</groupId>
+						<artifactId>maven-argeo-osgi-plugin</artifactId>
 						<executions>
 							<execution>
-								<phase>install</phase>
+								<id>resolve-pde-sources</id>
 								<goals>
-									<goal>run</goal>
+									<goal>pde-sources</goal>
 								</goals>
-								<configuration>
-									<target>
-										<copy todir="${rpm.stagingRepository}" verbose="true">
-											<fileset dir="${project.build.directory}/rpm"
-												includes="*/RPMS/**/*.rpm" />
-											<flattenmapper />
-										</copy>
-									</target>
-								</configuration>
+								<phase>generate-resources</phase>
 							</execution>
 						</executions>
 					</plugin>
