@@ -1,5 +1,6 @@
 package org.argeo.jcr.proxy;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -89,15 +90,19 @@ public abstract class AbstractUrlProxy implements ResourceProxy {
 	}
 
 	/** Session is not saved */
-	protected Node proxyUrl(Session session, String baseUrl, String path) {
+	protected Node proxyUrl(Session session, String baseUrl, String path)
+			throws RepositoryException {
+		String nodePath = getNodePath(path);
+		if (jcrAdminSession.itemExists(nodePath))
+			throw new ArgeoException("Node " + nodePath + " already exists");
 		Node node = null;
 		String remoteUrl = baseUrl + path;
 		InputStream in = null;
 		try {
 			URL u = new URL(remoteUrl);
 			in = u.openStream();
-			node = importFile(session, getNodePath(path), in);
-		} catch (Exception e) {
+			node = importFile(session, nodePath, in);
+		} catch (IOException e) {
 			if (log.isTraceEnabled()) {
 				log.trace("Cannot read " + remoteUrl + ", skipping... "
 						+ e.getMessage());
