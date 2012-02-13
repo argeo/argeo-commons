@@ -24,8 +24,9 @@
 		<site.repoBase>file:///srv/projects/www/commons/site</site.repoBase>
 		<site.urlBase>http://projects.argeo.org/commons/site</site.urlBase>
 		<rpm.release>6</rpm.release>
-		<rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-staging/6/x86_64
-		</rpm.stagingRepository>
+		<rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-staging/6/x86_64</rpm.stagingRepository>
+		<!-- Encoding, see http://is.gd/mvn_source_encoding -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<modules>
 		<module>basic</module>
@@ -92,6 +93,8 @@ limitations under the License.
 		</developer>
 	</developers>
 	<build>
+		<!-- NOTE: This is just a vision for the future, it's not yet implemented: 
+			see MNG-2216 <sourceEncoding>UTF-8</sourceEncoding> -->
 		<extensions>
 			<extension>
 				<groupId>org.apache.maven.wagon</groupId>
