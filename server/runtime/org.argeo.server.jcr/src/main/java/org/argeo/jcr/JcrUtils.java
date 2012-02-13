@@ -343,8 +343,7 @@ public class JcrUtils implements ArgeoJcrConstants {
 			if (session.itemExists(path)) {
 				Node node = session.getNode(path);
 				// check type
-				if (type != null
-						&& !type.equals(node.getPrimaryNodeType().getName()))
+				if (type != null && !node.isNodeType(type))
 					throw new ArgeoException("Node " + node
 							+ " exists but is of type "
 							+ node.getPrimaryNodeType().getName()
