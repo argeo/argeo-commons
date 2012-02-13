@@ -25,7 +25,7 @@
 		<site.urlBase>http://projects.argeo.org/commons/site</site.urlBase>
 		<rpm.release>6</rpm.release>
 		<rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-staging/6/x86_64</rpm.stagingRepository>
-		<!-- Encoding, see http://is.gd/mvn_source_encoding -->
+		<!-- encoding, see http://is.gd/mvn_source_encoding -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<modules>
@@ -163,7 +163,7 @@ limitations under the License.
 				<plugin>
 					<groupId>org.apache.felix</groupId>
 					<artifactId>maven-bundle-plugin</artifactId>
-					<version>2.2.0</version>
+					<version>2.3.6</version>
 					<extensions>true</extensions>
 					<configuration>
 						<manifestLocation>META-INF</manifestLocation>
