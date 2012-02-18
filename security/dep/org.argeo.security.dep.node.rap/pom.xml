@@ -120,25 +120,5 @@
 				</plugins>
 			</build>
 		</profile>
-		<profile>
-			<id>pdeSources</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.argeo.maven.plugins</groupId>
-						<artifactId>maven-argeo-osgi-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>resolve-pde-sources</id>
-								<goals>
-									<goal>pde-sources</goal>
-								</goals>
-								<phase>generate-resources</phase>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
 	</profiles>
 </project>
