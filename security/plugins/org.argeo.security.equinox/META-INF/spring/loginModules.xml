@@ -4,6 +4,14 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="locations">
+			<value>osgibundle:security.properties</value>
+		</property>
+	</bean>
+
 	<bean id="springLoginModule" class="org.argeo.security.equinox.SpringLoginModule"
 		scope="prototype">
 		<property name="authenticationManager" ref="authenticationManager" />
@@ -12,6 +20,14 @@
 	<bean id="springLoginModuleRemote" class="org.argeo.security.equinox.SpringLoginModule"
 		scope="prototype">
 		<property name="remote" value="true" />
+		<property name="authenticationManager" ref="authenticationManager" />
+	</bean>
+
+	<bean id="anonymousSpringLoginModule" class="org.argeo.security.equinox.SpringLoginModule"
+		scope="prototype">
+		<property name="anonymous" value="true" />
+		<property name="anonymousRole" value="${argeo.security.anonymousRole}" />
+		<property name="key" value="${argeo.security.systemKey}" />
 		<property name="authenticationManager" ref="authenticationManager" />
 	</bean>
 

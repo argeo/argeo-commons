@@ -10,29 +10,7 @@
             class="org.argeo.security.ui.dialogs.DefaultLoginDialog">
       </callbackHandler>
    </extension>
-   <extension
-         point="org.eclipse.ui.commands">
-      <command
-            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            id="org.argeo.security.ui.openChangePasswordDialog"
-            name="OpenChangePasswordDialog">
-      </command>
-    </extension>
-     <extension
-         point="org.eclipse.ui.menus">
-        <menuContribution
-                locationURI="menu:file?after=additions">
-                <command
-                      commandId="org.argeo.security.ui.openChangePasswordDialog"
-                      icon="icons/password.gif"
-                      label="Change password"
-                      style="push"
-                      tooltip="Change password">
-                </command>
-          </menuContribution>
-  </extension>
-   <extension
-           point="org.eclipse.ui.services">
+   <extension point="org.eclipse.ui.services">
         <sourceProvider
               provider="org.argeo.security.ui.RolesSourceProvider">
            <variable
@@ -41,4 +19,23 @@
            </variable>
         </sourceProvider>
      </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="org.argeo.security.ui.views.UserProfile"
+            icon="icons/user.gif"
+            id="org.argeo.security.ui.userProfile"
+            name="Profile"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.argeo.security.ui.UserHomePerspective"
+            icon="icons/home.gif"
+            id="org.argeo.security.ui.userHomePerspective"
+            name="Home">
+      </perspective>
+   </extension>
  </plugin>

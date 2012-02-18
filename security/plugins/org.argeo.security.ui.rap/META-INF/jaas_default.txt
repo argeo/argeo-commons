@@ -8,6 +8,11 @@ SPRING {
         extensionId="org.argeo.security.equinox.springLoginModule";
 };
 
+SPRING_ANONYMOUS {
+    org.eclipse.equinox.security.auth.module.ExtensionLoginModule sufficient
+        extensionId="org.argeo.security.equinox.anonymousSpringLoginModule";
+};
+
 SPRING_SECURITY_CONTEXT {
     org.eclipse.equinox.security.auth.module.ExtensionLoginModule sufficient
         extensionId="org.argeo.security.equinox.springSecurityContextLoginModule";

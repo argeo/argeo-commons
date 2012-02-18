@@ -26,6 +26,7 @@ import org.apache.jackrabbit.api.security.user.Group;
 import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.core.DefaultSecurityManager;
+import org.apache.jackrabbit.core.security.AnonymousPrincipal;
 import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
 import org.argeo.ArgeoException;
@@ -49,7 +50,10 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 
 		if (log.isTraceEnabled())
 			log.trace(subject);
-		// skip Jackrabbit system user
+		// skip anonymous user (no rights)
+		if (!subject.getPrincipals(AnonymousPrincipal.class).isEmpty())
+			return super.getUserID(subject, workspaceName);
+		// skip Jackrabbit system user (all rights)
 		if (!subject.getPrincipals(ArgeoSystemPrincipal.class).isEmpty())
 			return super.getUserID(subject, workspaceName);
 

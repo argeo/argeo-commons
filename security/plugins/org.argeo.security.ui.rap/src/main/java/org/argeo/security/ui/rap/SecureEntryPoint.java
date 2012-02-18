@@ -8,20 +8,19 @@ import javax.security.auth.login.LoginException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.ErrorFeedback;
 import org.eclipse.equinox.security.auth.ILoginContext;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.rwt.RWT;
 import org.eclipse.rwt.lifecycle.IEntryPoint;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
-import org.eclipse.ui.application.WorkbenchAdvisor;
-import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 import org.springframework.security.BadCredentialsException;
 
 /**
- * RAP entry point with login capabilities. On the user has been authenticated,
- * the workbench is run as a privileged action by the related subject.
+ * RAP entry point with login capabilities. Once the user has been
+ * authenticated, the workbench is run as a privileged action by the related
+ * subject.
  */
 public class SecureEntryPoint implements IEntryPoint {
 	private final static Log log = LogFactory.getLog(SecureEntryPoint.class);
@@ -31,7 +30,9 @@ public class SecureEntryPoint implements IEntryPoint {
 	 * not yet logged in.
 	 */
 	private Integer loginTimeout = 1 * 60;
-	private Integer sessionTimeout = 15 * 60;
+	// TODO make it configurable
+	/** Default session timeout is 8 hours (European working day length) */
+	private Integer sessionTimeout = 8 * 60 * 60;
 
 	@Override
 	public int createUI() {
@@ -43,14 +44,12 @@ public class SecureEntryPoint implements IEntryPoint {
 			log.debug("THREAD=" + Thread.currentThread().getId()
 					+ ", sessionStore=" + RWT.getSessionStore().getId());
 
-		Integer returnCode = null;
-
 		// create display
-		Display display = PlatformUI.createDisplay();
+		final Display display = PlatformUI.createDisplay();
 
 		// log in
 		final ILoginContext loginContext = SecureRapActivator
-				.createLoginContext();
+				.createLoginContext(SecureRapActivator.CONTEXT_SPRING);
 		Subject subject = null;
 		tryLogin: while (subject == null && !display.isDisposed()) {
 			try {
@@ -64,37 +63,17 @@ public class SecureEntryPoint implements IEntryPoint {
 					// retry login
 					continue tryLogin;
 				}
-
-				// check thread death
-				ThreadDeath td = wasCausedByThreadDeath(e);
-				if (td != null) {
-					display.dispose();
-					throw td;
-				}
-
-				if (!display.isDisposed()) {
-					org.argeo.eclipse.ui.Error.show(
-							"Unexpected exception during authentication", e);
-					// this was not just bad credentials or death thread
-					RWT.getRequest().getSession().setMaxInactiveInterval(1);
-					display.dispose();
-					return -1;
-				} else {
-					throw new ArgeoException(
-							"Unexpected exception during authentication", e);
-				}
+				return processLoginDeath(display, e);
 			}
 		}
 
-		// identify after successful login
-		if (log.isDebugEnabled())
-			log.debug("Authenticated " + subject);
-		final String username = subject.getPrincipals().iterator().next()
-				.getName();
-
 		// Once the user is logged in, she can have a longer session timeout
 		RWT.getRequest().getSession().setMaxInactiveInterval(sessionTimeout);
+		if (log.isDebugEnabled())
+			log.debug("Authenticated " + subject);
 
+		final String username = subject.getPrincipals().iterator().next()
+				.getName();
 		// Logout callback when the display is disposed
 		display.disposeExec(new Runnable() {
 			public void run() {
@@ -106,13 +85,42 @@ public class SecureEntryPoint implements IEntryPoint {
 		//
 		// RUN THE WORKBENCH
 		//
+		Integer returnCode = null;
 		try {
-			returnCode = (Integer) Subject.doAs(subject, getRunAction(display));
+			returnCode = Subject.doAs(subject, new PrivilegedAction<Integer>() {
+				public Integer run() {
+					RapWorkbenchAdvisor workbenchAdvisor = new RapWorkbenchAdvisor(
+							username);
+					int result = PlatformUI.createAndRunWorkbench(display,
+							workbenchAdvisor);
+					return new Integer(result);
+				}
+			});
 			logout(loginContext, username);
 		} finally {
 			display.dispose();
 		}
-		return processReturnCode(returnCode);
+		return returnCode;
+	}
+
+	private Integer processLoginDeath(Display display, LoginException e) {
+		// check thread death
+		ThreadDeath td = wasCausedByThreadDeath(e);
+		if (td != null) {
+			display.dispose();
+			throw td;
+		}
+		if (!display.isDisposed()) {
+			ErrorFeedback.show("Unexpected exception during authentication", e);
+			// this was not just bad credentials or death thread
+			RWT.getRequest().getSession().setMaxInactiveInterval(1);
+			display.dispose();
+			return -1;
+		} else {
+			throw new ArgeoException(
+					"Unexpected exception during authentication", e);
+		}
+
 	}
 
 	/** Recursively look for {@link BadCredentialsException} in the root causes. */
@@ -148,37 +156,5 @@ public class SecureEntryPoint implements IEntryPoint {
 		} catch (LoginException e) {
 			log.error("Erorr when logging out", e);
 		}
-	}
-
-	@SuppressWarnings("rawtypes")
-	private PrivilegedAction getRunAction(final Display display) {
-		return new PrivilegedAction() {
-			public Object run() {
-				int result = createAndRunWorkbench(display);
-				return new Integer(result);
-			}
-		};
-	}
-
-	/** To be overridden */
-	protected Integer createAndRunWorkbench(Display display) {
-		return PlatformUI.createAndRunWorkbench(display,
-				createWorkbenchAdvisor());
-	}
-
-	/** To be overridden */
-	protected Integer processReturnCode(Integer returnCode) {
-		return returnCode;
-	}
-
-	/** To be overridden */
-	protected WorkbenchAdvisor createWorkbenchAdvisor() {
-		return new SecureWorkbenchAdvisor() {
-			public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(
-					IWorkbenchWindowConfigurer configurer) {
-				return new RapSecureWorkbenchWindowAdvisor(configurer);
-			}
-
-		};
 	}
 }

@@ -5,14 +5,21 @@ import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 
-public class SecureWorkbenchAdvisor extends WorkbenchAdvisor {
+/** Eclipse RAP specific workbench advisor */
+public class RapWorkbenchAdvisor extends WorkbenchAdvisor {
 	public final static String INITIAL_PERSPECTIVE_PROPERTY = "org.argeo.security.ui.initialPerspective";
 	private String initialPerspective = System.getProperty(
 			INITIAL_PERSPECTIVE_PROPERTY, null);
 
+	private String username;
+
+	public RapWorkbenchAdvisor(String username) {
+		this.username = username;
+	}
+
 	public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(
 			IWorkbenchWindowConfigurer configurer) {
-		return new SecureWorkbenchWindowAdvisor(configurer);
+		return new RapWindowAdvisor(configurer, username);
 	}
 
 	public String getInitialWindowPerspectiveId() {
@@ -23,7 +30,7 @@ public class SecureWorkbenchAdvisor extends WorkbenchAdvisor {
 			IPerspectiveDescriptor pd = getWorkbenchConfigurer().getWorkbench()
 					.getPerspectiveRegistry()
 					.findPerspectiveWithId(initialPerspective);
-			if(pd==null)
+			if (pd == null)
 				return null;
 		}
 		return initialPerspective;

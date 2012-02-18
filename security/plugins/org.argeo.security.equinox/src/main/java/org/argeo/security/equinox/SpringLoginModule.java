@@ -1,6 +1,7 @@
 package org.argeo.security.equinox;
 
 import java.util.Map;
+import java.util.UUID;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -15,7 +16,10 @@ import org.argeo.security.NodeAuthenticationToken;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.BadCredentialsException;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
 import org.springframework.security.providers.jaas.SecurityContextLoginModule;
 
 /** Login module which caches one subject per thread. */
@@ -33,6 +37,10 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 	private Long waitBetweenFailedLoginAttempts = 5 * 1000l;
 
 	private Boolean remote = false;
+	private Boolean anonymous = false;
+
+	private String key = null;
+	private String anonymousRole = "ROLE_ANONYMOUS";
 
 	public SpringLoginModule() {
 
@@ -52,6 +60,10 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 			if (SecurityContextHolder.getContext().getAuthentication() != null)
 				return super.login();
 
+			if (remote && anonymous)
+				throw new LoginException(
+						"Cannot have a Spring login module which is remote and anonymous");
+
 			// reset all principals and credentials
 			if (log.isTraceEnabled())
 				log.trace("Resetting all principals and credentials of "
@@ -62,6 +74,20 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 				subject.getPrivateCredentials().clear();
 			if (subject.getPublicCredentials() != null)
 				subject.getPublicCredentials().clear();
+
+			// deals first with public access since it's simple
+			if (anonymous) {
+				// TODO integrate with JCR?
+				Object principal = UUID.randomUUID().toString();
+				GrantedAuthority[] authorities = { new GrantedAuthorityImpl(
+						anonymousRole) };
+				AnonymousAuthenticationToken anonymousToken = new AnonymousAuthenticationToken(
+						key, principal, authorities);
+				Authentication auth = authenticationManager
+						.authenticate(anonymousToken);
+				registerAuthentication(auth);
+				return super.login();
+			}
 
 			if (callbackHandler == null)
 				throw new LoginException("No call back handler available");
@@ -154,7 +180,26 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 		this.authenticationManager = authenticationManager;
 	}
 
+	/** Authenticates on a remote node */
 	public void setRemote(Boolean remote) {
 		this.remote = remote;
 	}
+
+	/**
+	 * Request anonymous authentication (incompatible with remote)
+	 */
+	public void setAnonymous(Boolean anonymous) {
+		this.anonymous = anonymous;
+	}
+
+	/** Role identifying an anonymous user */
+	public void setAnonymousRole(String anonymousRole) {
+		this.anonymousRole = anonymousRole;
+	}
+
+	/** System key */
+	public void setKey(String key) {
+		this.key = key;
+	}
+
 }

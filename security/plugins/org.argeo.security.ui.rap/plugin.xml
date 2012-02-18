@@ -4,9 +4,14 @@
    <extension
          point="org.eclipse.rap.ui.entrypoint">
       <entrypoint
-            class="org.argeo.security.ui.rap.SecureEntryPoint"
             id="org.argeo.security.ui.rap.secureEntryPoint"
+            class="org.argeo.security.ui.rap.SecureEntryPoint"
             parameter="secureWebUi">
+      </entrypoint>
+      <entrypoint
+            id="org.argeo.security.ui.rap.anonymousEntryPoint"
+            class="org.argeo.security.ui.rap.AnonymousEntryPoint"
+            parameter="publicWebUi">
       </entrypoint>
    </extension>
 
@@ -18,7 +23,15 @@
             defaultEntrypointId="org.argeo.security.ui.rap.secureEntryPoint"
             title="Argeo Web UI"
             favicon="branding/favicon.ico"
-            body="branding/default.htm">
+            body="branding/public.html">
+      	</branding>
+    	<branding
+			id="org.argeo.security.ui.rap.branding"
+            servletName="public"
+            defaultEntrypointId="org.argeo.security.ui.rap.anonymousEntryPoint"
+            title="Argeo Public Web UI"
+            favicon="branding/favicon.ico"
+            body="branding/public.html">
       	</branding>
    	</extension>
 
@@ -44,4 +57,90 @@
       </callbackHandlerMapping>
    </extension>
 
+  <extension point="org.eclipse.ui.menus">
+     <menuContribution locationURI="toolbar:org.eclipse.ui.main.toolbar">
+        <toolbar id="org.argeo.security.ui.rap.userToolbar">
+           <command
+                 commandId="org.argeo.security.ui.rap.mainMenuCommand"
+                 icon="icons/main.gif"
+                 id="org.argeo.security.ui.rap.mainMenu"
+                 style="pulldown">
+           </command>
+           <command commandId="org.eclipse.ui.file.save"/>
+           <command commandId="org.eclipse.ui.file.saveAll"/>
+        </toolbar>
+     </menuContribution>
+     <menuContribution locationURI="menu:org.argeo.security.ui.rap.mainMenu">
+        <command
+              commandId="org.argeo.security.ui.rap.userMenuCommand"
+              icon="icons/home.gif"
+              id="org.argeo.security.ui.rap.userMenu">
+        </command>
+        <command
+              commandId="org.eclipse.ui.window.preferences"
+              icon="icons/preferences.png"/>
+        <command
+              commandId="org.argeo.security.ui.rap.openChangePasswordDialog"
+              icon="icons/password.gif"
+              label="Change password"/>
+        <separator
+              name="org.argeo.security.ui.rap.beforeFile"
+              visible="true">
+        </separator>
+        <command
+              commandId="org.eclipse.ui.file.closeAll"
+              icon="icons/closeAll.gif"/>
+           <command commandId="org.eclipse.ui.file.save"/>
+           <command commandId="org.eclipse.ui.file.saveAll"/>
+        <separator
+              name="org.argeo.security.ui.rap.beforeExit"
+              visible="true">
+        </separator>
+        <!--<command commandId="org.eclipse.ui.views.showView"/>-->
+        <!--<command commandId="org.eclipse.ui.perspectives.showPerspective"/>-->
+        <command
+              commandId="org.eclipse.ui.file.exit"
+              icon="icons/exit.png"/>
+     </menuContribution>
+  </extension>
+
+   <extension point="org.eclipse.ui.commands">
+      <command
+            id="org.argeo.security.ui.rap.openChangePasswordDialog"
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            name="Change Password">
+      </command>
+      <command
+            id="org.argeo.security.ui.rap.mainMenuCommand"
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            name="Main">
+      </command>
+    </extension>
+    
+  <extension
+           point="org.eclipse.ui.activities">
+        <activity
+              description="Not anonymous"
+              id="org.argeo.security.ui.rap.notAnonymousActivity"
+              name="NotAnonymous">
+		  <enabledWhen>
+		  	<not>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="ROLE_ANONYMOUS" />
+		      </iterate>
+		    </with>
+		    </not>
+		  </enabledWhen>
+        </activity>
+        <activityPatternBinding
+              activityId="org.argeo.security.ui.rap.notAnonymousActivity"
+              pattern="org.argeo.security.ui.rap/org.argeo.security.ui.rap.userMenuCommand"/>
+        <activityPatternBinding
+              activityId="org.argeo.security.ui.rap.notAnonymousActivity"
+              pattern="org.argeo.security.ui.rap/org.eclipse.ui.window.preferences"/>
+        <activityPatternBinding
+              activityId="org.argeo.security.ui.rap.notAnonymousActivity"
+              pattern="org.argeo.security.ui.rap/org.argeo.security.ui.rap.openChangePasswordDialog"/>
+     </extension>
 </plugin>

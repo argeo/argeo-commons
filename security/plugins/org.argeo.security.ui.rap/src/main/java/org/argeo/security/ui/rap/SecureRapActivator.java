@@ -12,19 +12,33 @@ public class SecureRapActivator implements BundleActivator {
 
 	public final static String ID = "org.argeo.security.ui.rap";
 	public final static String CONTEXT_SPRING = "SPRING";
+	public final static String CONTEXT_SPRING_ANONYMOUS = "SPRING_ANONYMOUS";
 	private static final String JAAS_CONFIG_FILE = "/META-INF/jaas_default.txt";
 
-	private static BundleContext bundleContext;
+	private BundleContext bundleContext;
+	private static SecureRapActivator activator = null;
 
 	public void start(BundleContext bundleContext) throws Exception {
-		SecureRapActivator.bundleContext = bundleContext;
+		activator = this;
+		this.bundleContext = bundleContext;
 	}
 
 	public void stop(BundleContext context) throws Exception {
+		bundleContext = null;
+		activator = null;
 	}
 
-	static ILoginContext createLoginContext() {
-		URL configUrl = bundleContext.getBundle().getEntry(JAAS_CONFIG_FILE);
-		return LoginContextFactory.createContext(CONTEXT_SPRING, configUrl);
+	public BundleContext getBundleContext() {
+		return bundleContext;
+	}
+
+	public static SecureRapActivator getActivator() {
+		return activator;
+	}
+
+	static ILoginContext createLoginContext(String contextName) {
+		URL configUrl = getActivator().getBundleContext().getBundle()
+				.getEntry(JAAS_CONFIG_FILE);
+		return LoginContextFactory.createContext(contextName, configUrl);
 	}
 }

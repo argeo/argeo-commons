@@ -31,7 +31,7 @@
 						<Bundle-Activator>org.argeo.security.ui.rap.SecureRapActivator</Bundle-Activator>
 						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
 						<Require-Bundle>org.eclipse.rap.ui,org.eclipse.core.runtime</Require-Bundle>
-						<Import-Package>org.springframework.core,*</Import-Package>
+						<Import-Package>org.springframework.core,org.argeo.eclipse.spring,*</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>
