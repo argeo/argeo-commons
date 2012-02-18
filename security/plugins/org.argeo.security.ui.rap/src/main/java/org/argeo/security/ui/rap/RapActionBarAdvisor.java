@@ -1,5 +1,6 @@
 package org.argeo.security.ui.rap;
 
+import org.argeo.security.ui.commands.OpenHomePerspective;
 import org.argeo.security.ui.rap.commands.UserMenu;
 import org.eclipse.core.commands.Category;
 import org.eclipse.core.commands.Command;
@@ -22,13 +23,13 @@ public class RapActionBarAdvisor extends ActionBarAdvisor {
 	/** Null means anonymous */
 	private String username = null;
 
-//	private IAction logoutAction;
-//	private IWorkbenchAction openPerspectiveDialogAction;
-//	private IWorkbenchAction showViewMenuAction;
-//	private IWorkbenchAction preferences;
-//	private IWorkbenchAction saveAction;
-//	private IWorkbenchAction saveAllAction;
-//	private IWorkbenchAction closeAllAction;
+	// private IAction logoutAction;
+	// private IWorkbenchAction openPerspectiveDialogAction;
+	// private IWorkbenchAction showViewMenuAction;
+	// private IWorkbenchAction preferences;
+	// private IWorkbenchAction saveAction;
+	// private IWorkbenchAction saveAllAction;
+	// private IWorkbenchAction closeAllAction;
 
 	public RapActionBarAdvisor(IActionBarConfigurer configurer, String username) {
 		super(configurer);
@@ -36,57 +37,58 @@ public class RapActionBarAdvisor extends ActionBarAdvisor {
 	}
 
 	protected void makeActions(IWorkbenchWindow window) {
-//		preferences = ActionFactory.PREFERENCES.create(window);
-//		register(preferences);
-//		openPerspectiveDialogAction = ActionFactory.OPEN_PERSPECTIVE_DIALOG
-//				.create(window);
-//		register(openPerspectiveDialogAction);
-//		showViewMenuAction = ActionFactory.SHOW_VIEW_MENU.create(window);
-//		register(showViewMenuAction);
-//
-//		// logout
-//		logoutAction = ActionFactory.QUIT.create(window);
-//		// logoutAction = createLogoutAction();
-//		register(logoutAction);
-//
-//		// Save semantics
-//		saveAction = ActionFactory.SAVE.create(window);
-//		register(saveAction);
-//		saveAllAction = ActionFactory.SAVE_ALL.create(window);
-//		register(saveAllAction);
-//		closeAllAction = ActionFactory.CLOSE_ALL.create(window);
-//		register(closeAllAction);
+		// preferences = ActionFactory.PREFERENCES.create(window);
+		// register(preferences);
+		// openPerspectiveDialogAction = ActionFactory.OPEN_PERSPECTIVE_DIALOG
+		// .create(window);
+		// register(openPerspectiveDialogAction);
+		// showViewMenuAction = ActionFactory.SHOW_VIEW_MENU.create(window);
+		// register(showViewMenuAction);
+		//
+		// // logout
+		// logoutAction = ActionFactory.QUIT.create(window);
+		// // logoutAction = createLogoutAction();
+		// register(logoutAction);
+		//
+		// // Save semantics
+		// saveAction = ActionFactory.SAVE.create(window);
+		// register(saveAction);
+		// saveAllAction = ActionFactory.SAVE_ALL.create(window);
+		// register(saveAllAction);
+		// closeAllAction = ActionFactory.CLOSE_ALL.create(window);
+		// register(closeAllAction);
 
 	}
 
 	protected void fillMenuBar(IMenuManager menuBar) {
-//		MenuManager fileMenu = new MenuManager("&File",
-//				IWorkbenchActionConstants.M_FILE);
-//		MenuManager editMenu = new MenuManager("&Edit",
-//				IWorkbenchActionConstants.M_EDIT);
-//		MenuManager windowMenu = new MenuManager("&Window",
-//				IWorkbenchActionConstants.M_WINDOW);
-//
-//		menuBar.add(fileMenu);
-//		menuBar.add(editMenu);
-//		menuBar.add(windowMenu);
-//		// Add a group marker indicating where action set menus will appear.
-//		menuBar.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
-//
-//		// File
-//		fileMenu.add(saveAction);
-//		fileMenu.add(saveAllAction);
-//		fileMenu.add(closeAllAction);
-//		fileMenu.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
-//		fileMenu.add(new Separator());
-//		fileMenu.add(logoutAction);
-//
-//		// Edit
-//		editMenu.add(preferences);
-//
-//		// Window
-//		windowMenu.add(openPerspectiveDialogAction);
-//		windowMenu.add(showViewMenuAction);
+		// MenuManager fileMenu = new MenuManager("&File",
+		// IWorkbenchActionConstants.M_FILE);
+		// MenuManager editMenu = new MenuManager("&Edit",
+		// IWorkbenchActionConstants.M_EDIT);
+		// MenuManager windowMenu = new MenuManager("&Window",
+		// IWorkbenchActionConstants.M_WINDOW);
+		//
+		// menuBar.add(fileMenu);
+		// menuBar.add(editMenu);
+		// menuBar.add(windowMenu);
+		// // Add a group marker indicating where action set menus will appear.
+		// menuBar.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
+		//
+		// // File
+		// fileMenu.add(saveAction);
+		// fileMenu.add(saveAllAction);
+		// fileMenu.add(closeAllAction);
+		// fileMenu.add(new
+		// GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
+		// fileMenu.add(new Separator());
+		// fileMenu.add(logoutAction);
+		//
+		// // Edit
+		// editMenu.add(preferences);
+		//
+		// // Window
+		// windowMenu.add(openPerspectiveDialogAction);
+		// windowMenu.add(showViewMenuAction);
 	}
 
 	@Override
@@ -104,14 +106,14 @@ public class RapActionBarAdvisor extends ActionBarAdvisor {
 			if (userMenu.isDefined())
 				userMenu.undefine();
 			userMenu.define(username, "User menu actions", userMenus);
-			userMenu.setHandler(new UserMenu());
+			userMenu.setHandler(new OpenHomePerspective());
 
 			// userToolbar.add(new UserMenuAction());
 			// coolBar.add(userToolbar);
 		} else {// anonymous
 			IToolBarManager userToolbar = new ToolBarManager(SWT.FLAT
 					| SWT.RIGHT);
-			//userToolbar.add(logoutAction);
+			// userToolbar.add(logoutAction);
 			coolBar.add(userToolbar);
 		}
 		// IToolBarManager saveToolbar = new ToolBarManager(SWT.FLAT |

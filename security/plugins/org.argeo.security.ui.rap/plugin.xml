@@ -112,7 +112,7 @@
       </command>
       <command
             id="org.argeo.security.ui.rap.mainMenuCommand"
-            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            defaultHandler="org.argeo.security.ui.commands.OpenHomePerspective"
             name="Main">
       </command>
     </extension>
