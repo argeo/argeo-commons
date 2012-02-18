@@ -16,30 +16,25 @@
 
 package org.argeo.jcr.tabular;
 
-import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.PropertyType;
-import javax.jcr.Repository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
-import org.apache.jackrabbit.core.TransientRepository;
+import org.argeo.jcr.AbstractInternalJackrabbitTestCase;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
-import org.argeo.jcr.unit.AbstractJcrTestCase;
 import org.argeo.util.tabular.TabularColumn;
 import org.argeo.util.tabular.TabularRow;
 import org.argeo.util.tabular.TabularRowIterator;
 import org.argeo.util.tabular.TabularWriter;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 
-public class JcrTabularTest extends AbstractJcrTestCase {
+public class JcrTabularTest extends AbstractInternalJackrabbitTestCase {
 	private final static Log log = LogFactory.getLog(JcrTabularTest.class);
 
 	public void testWriteReadCsv() throws Exception {
@@ -88,23 +83,4 @@ public class JcrTabularTest extends AbstractJcrTestCase {
 			log.debug("Read tabular content " + rowCount + " rows, "
 					+ columnCount + " columns");
 	}
-
-	protected File getRepositoryFile() throws Exception {
-		Resource res = new ClassPathResource(
-				"org/argeo/server/jcr/repository-h2.xml");
-		return res.getFile();
-	}
-
-	protected Repository createRepository() throws Exception {
-		// JackrabbitContainer repo = new JackrabbitContainer();
-		// repo.setHomeDirectory(getHomeDir());
-		// repo.setConfiguration(new FileSystemResource(
-		// getRepositoryFile()));
-		// repo.setInMemory(true);
-		// repo.set
-		Repository repository = new TransientRepository(getRepositoryFile(),
-				getHomeDir());
-		return repository;
-	}
-
 }

@@ -16,18 +16,11 @@
 
 package org.argeo.jcr;
 
-import java.io.File;
-
 import javax.jcr.Node;
-import javax.jcr.Repository;
 
-import org.apache.jackrabbit.core.TransientRepository;
 import org.argeo.jcr.spring.BeanNodeMapper;
-import org.argeo.jcr.unit.AbstractJcrTestCase;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 
-public class MapperTest extends AbstractJcrTestCase {
+public class MapperTest extends AbstractInternalJackrabbitTestCase {
 	public void testSimpleObject() throws Exception {
 		SimpleObject mySo = new SimpleObject();
 		mySo.setInteger(100);
@@ -49,17 +42,4 @@ public class MapperTest extends AbstractJcrTestCase {
 		session().save();
 		JcrUtils.debug(node);
 	}
-
-	protected File getRepositoryFile() throws Exception {
-		Resource res = new ClassPathResource(
-				"org/argeo/server/jcr/repository-h2.xml");
-		return res.getFile();
-	}
-
-	protected Repository createRepository() throws Exception{
-		Repository repository = new TransientRepository(getRepositoryFile(), getHomeDir());
-		return repository;
-	}
-
-	
 }

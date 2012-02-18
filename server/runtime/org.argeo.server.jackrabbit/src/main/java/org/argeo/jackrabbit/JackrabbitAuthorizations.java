@@ -1,134 +1,48 @@
 package org.argeo.jackrabbit;
 
+import java.security.Principal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Executor;
 
-import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
-import javax.jcr.security.AccessControlList;
-import javax.jcr.security.AccessControlPolicy;
-import javax.jcr.security.AccessControlPolicyIterator;
-import javax.jcr.security.Privilege;
+import javax.jcr.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.JackrabbitSession;
-import org.apache.jackrabbit.api.security.JackrabbitAccessControlManager;
 import org.apache.jackrabbit.api.security.user.Authorizable;
-import org.apache.jackrabbit.api.security.user.Group;
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.argeo.ArgeoException;
-import org.argeo.jcr.JcrUtils;
+import org.argeo.jcr.security.JcrAuthorizations;
 
 /** Apply authorizations to a Jackrabbit repository. */
-public class JackrabbitAuthorizations {
+public class JackrabbitAuthorizations extends JcrAuthorizations {
 	private final static Log log = LogFactory
 			.getLog(JackrabbitAuthorizations.class);
 
-	private Repository repository;
-	private Executor systemExecutor;
+	private List<String> groupPrefixes = new ArrayList<String>();
 
-	/**
-	 * key := privilege1,privilege2/path/to/node<br/>
-	 * value := group1,group2
-	 */
-	private Map<String, String> groupPrivileges = new HashMap<String, String>();
-
-	public void init() {
-		Runnable action = new Runnable() {
-			public void run() {
-				JackrabbitSession session = null;
-				try {
-					session = (JackrabbitSession) repository.login();
-					initAuthorizations(session);
-				} catch (Exception e) {
-					JcrUtils.discardQuietly(session);
-				} finally {
-					JcrUtils.logoutQuietly(session);
+	@Override
+	protected Principal getOrCreatePrincipal(Session session,
+			String principalName) throws RepositoryException {
+		UserManager um = ((JackrabbitSession) session).getUserManager();
+		Authorizable authorizable = um.getAuthorizable(principalName);
+		if (authorizable == null) {
+			groupPrefixes: for (String groupPrefix : groupPrefixes) {
+				if (principalName.startsWith(groupPrefix)) {
+					authorizable = um.createGroup(principalName);
+					log.info("Created group " + principalName);
+					break groupPrefixes;
 				}
 			}
-		};
-
-		if (systemExecutor != null)
-			systemExecutor.execute(action);
-		else
-			action.run();
-	}
-
-	protected void initAuthorizations(JackrabbitSession session)
-			throws RepositoryException {
-		JackrabbitAccessControlManager acm = (JackrabbitAccessControlManager) session
-				.getAccessControlManager();
-		UserManager um = session.getUserManager();
-
-		for (String privileges : groupPrivileges.keySet()) {
-			String path = null;
-			int slashIndex = privileges.indexOf('/');
-			if (slashIndex == 0) {
-				throw new ArgeoException("Privilege " + privileges
-						+ " badly formatted it starts with /");
-			} else if (slashIndex > 0) {
-				path = privileges.substring(slashIndex);
-				privileges = privileges.substring(0, slashIndex);
-			}
-
-			if (path == null)
-				path = "/";
-
-			List<Privilege> privs = new ArrayList<Privilege>();
-			for (String priv : privileges.split(",")) {
-				privs.add(acm.privilegeFromName(priv));
-			}
-
-			String groupNames = groupPrivileges.get(privileges);
-			for (String groupName : groupNames.split(",")) {
-				Group group = (Group) um.getAuthorizable(groupName);
-				if (group == null)
-					group = um.createGroup(groupName);
-				addPrivileges(session, group, path, privs);
-			}
+			if (authorizable == null)
+				throw new ArgeoException("Authorizable " + principalName
+						+ " not found");
 		}
-		session.save();
+		return authorizable.getPrincipal();
 	}
 
-	public static void addPrivileges(JackrabbitSession session,
-			Authorizable authorizable, String path, List<Privilege> privs)
-			throws RepositoryException {
-		JackrabbitAccessControlManager acm = (JackrabbitAccessControlManager) session
-				.getAccessControlManager();
-		AccessControlPolicy policy = null;
-		AccessControlPolicyIterator policyIterator = acm
-				.getApplicablePolicies(path);
-		if (policyIterator.hasNext()) {
-			policy = policyIterator.nextAccessControlPolicy();
-		} else {
-			AccessControlPolicy[] existingPolicies = acm.getPolicies(path);
-			policy = existingPolicies[0];
-		}
-		if (policy instanceof AccessControlList) {
-			((AccessControlList) policy).addAccessControlEntry(
-					authorizable.getPrincipal(),
-					privs.toArray(new Privilege[privs.size()]));
-			acm.setPolicy(path, policy);
-		}
-		if (log.isDebugEnabled())
-			log.debug("Added privileges " + privs + " to " + authorizable
-					+ " on " + path);
+	public void setGroupPrefixes(List<String> groupsToCreate) {
+		this.groupPrefixes = groupsToCreate;
 	}
-
-	public void setGroupPrivileges(Map<String, String> groupPrivileges) {
-		this.groupPrivileges = groupPrivileges;
-	}
-
-	public void setRepository(Repository repository) {
-		this.repository = repository;
-	}
-
-	public void setSystemExecutor(Executor systemExecutor) {
-		this.systemExecutor = systemExecutor;
-	}
-
 }

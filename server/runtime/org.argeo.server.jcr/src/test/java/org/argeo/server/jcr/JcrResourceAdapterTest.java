@@ -16,24 +16,20 @@
 
 package org.argeo.server.jcr;
 
-import java.io.File;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
-import javax.jcr.Repository;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.jackrabbit.core.TransientRepository;
+import org.argeo.jcr.AbstractInternalJackrabbitTestCase;
 import org.argeo.jcr.JcrResourceAdapter;
-import org.argeo.jcr.unit.AbstractJcrTestCase;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-public class JcrResourceAdapterTest extends AbstractJcrTestCase {
+public class JcrResourceAdapterTest extends AbstractInternalJackrabbitTestCase {
 	private static SimpleDateFormat sdf = new SimpleDateFormat(
 			"yyyyMMdd:hhmmss.SSS");
 
@@ -103,17 +99,4 @@ public class JcrResourceAdapterTest extends AbstractJcrTestCase {
 		log.debug("TEAR DOWN");
 		super.tearDown();
 	}
-
-	protected File getRepositoryFile() throws Exception {
-		Resource res = new ClassPathResource(
-				"org/argeo/server/jcr/repository-h2.xml");
-		return res.getFile();
-	}
-
-	protected Repository createRepository() throws Exception {
-		Repository repository = new TransientRepository(getRepositoryFile(),
-				getHomeDir());
-		return repository;
-	}
-
 }

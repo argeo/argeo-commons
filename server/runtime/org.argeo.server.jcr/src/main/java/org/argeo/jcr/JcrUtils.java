@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.Principal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -51,6 +52,12 @@ import javax.jcr.nodetype.NodeType;
 import javax.jcr.observation.EventListener;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
+import javax.jcr.security.AccessControlEntry;
+import javax.jcr.security.AccessControlList;
+import javax.jcr.security.AccessControlManager;
+import javax.jcr.security.AccessControlPolicy;
+import javax.jcr.security.AccessControlPolicyIterator;
+import javax.jcr.security.Privilege;
 import javax.jcr.version.VersionManager;
 
 import org.apache.commons.io.IOUtils;
@@ -502,6 +509,55 @@ public class JcrUtils implements ArgeoJcrConstants {
 			log.error("Could not debug " + node, e);
 		}
 
+	}
+
+	/** Logs the effective access control policies */
+	public static void logEffectiveAccessPolicies(Node node) {
+		try {
+			logEffectiveAccessPolicies(node.getSession(), node.getPath());
+		} catch (RepositoryException e) {
+			log.error("Cannot log effective access policies of " + node, e);
+		}
+	}
+
+	/** Logs the effective access control policies */
+	public static void logEffectiveAccessPolicies(Session session, String path) {
+		if (!log.isDebugEnabled())
+			return;
+
+		try {
+			AccessControlPolicy[] effectivePolicies = session
+					.getAccessControlManager().getEffectivePolicies(path);
+			if (effectivePolicies.length > 0) {
+				for (AccessControlPolicy policy : effectivePolicies) {
+					if (policy instanceof AccessControlList) {
+						AccessControlList acl = (AccessControlList) policy;
+						log.debug("Access control list for " + path + "\n"
+								+ accessControlListSummary(acl));
+					}
+				}
+			} else {
+				log.debug("No effective access control policy for " + path);
+			}
+		} catch (RepositoryException e) {
+			log.error("Cannot log effective access policies of " + path, e);
+		}
+	}
+
+	/** Returns a human-readable summary of this access control list. */
+	public static String accessControlListSummary(AccessControlList acl) {
+		StringBuffer buf = new StringBuffer("");
+		try {
+			for (AccessControlEntry ace : acl.getAccessControlEntries()) {
+				buf.append('\t').append(ace.getPrincipal().getName())
+						.append('\n');
+				for (Privilege priv : ace.getPrivileges())
+					buf.append("\t\t").append(priv.getName()).append('\n');
+			}
+			return buf.toString();
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot write summary of " + acl, e);
+		}
 	}
 
 	/**
@@ -1307,4 +1363,48 @@ public class JcrUtils implements ArgeoJcrConstants {
 					re);
 		}
 	}
+
+	/*
+	 * SECURITY
+	 */
+	/**
+	 * Add privileges on a path to a {@link Principal}. The path must already
+	 * exist.
+	 */
+	public static void addPrivileges(Session session, String path,
+			Principal principal, List<Privilege> privs)
+			throws RepositoryException {
+		AccessControlManager acm = session.getAccessControlManager();
+		// search for an access control list
+		AccessControlList acl = null;
+		AccessControlPolicyIterator policyIterator = acm
+				.getApplicablePolicies(path);
+		if (policyIterator.hasNext()) {
+			while (policyIterator.hasNext()) {
+				AccessControlPolicy acp = policyIterator
+						.nextAccessControlPolicy();
+				if (acp instanceof AccessControlList)
+					acl = ((AccessControlList) acp);
+			}
+		} else {
+			AccessControlPolicy[] existingPolicies = acm.getPolicies(path);
+			for (AccessControlPolicy acp : existingPolicies) {
+				if (acp instanceof AccessControlList)
+					acl = ((AccessControlList) acp);
+			}
+		}
+
+		if (acl != null) {
+			acl.addAccessControlEntry(principal,
+					privs.toArray(new Privilege[privs.size()]));
+			acm.setPolicy(path, acl);
+			if (log.isDebugEnabled())
+				log.debug("Added privileges " + privs + " to " + principal
+						+ " on " + path);
+		} else {
+			throw new ArgeoException("Don't know how to apply  privileges "
+					+ privs + " to " + principal + " on " + path);
+		}
+	}
+
 }
