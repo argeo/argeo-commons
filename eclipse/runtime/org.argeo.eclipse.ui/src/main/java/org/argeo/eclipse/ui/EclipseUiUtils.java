@@ -23,7 +23,10 @@ public class EclipseUiUtils {
 	 *            a {@link ModifyListener} to listen on events on the text, can
 	 *            be null
 	 * @return the created text
+	 * 
+	 * @deprecated use {@link #createGridLT(Composite, String)} instead
 	 */
+	@Deprecated
 	public static Text createGridLT(Composite parent, String label,
 			ModifyListener modifyListener) {
 		Label lbl = new Label(parent, SWT.LEAD);
@@ -31,8 +34,24 @@ public class EclipseUiUtils {
 		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		Text txt = new Text(parent, SWT.LEAD | SWT.BORDER);
 		txt.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		if (txt != null)
+		if (modifyListener != null)
 			txt.addModifyListener(modifyListener);
+		return txt;
+	}
+
+	public static Text createGridLT(Composite parent, String label) {
+		return createGridLT(parent, label, null);
+	}
+
+	/**
+	 * Creates one label and a text field not editable with background color of
+	 * the parent (like a label but with selectable text)
+	 */
+	public static Text createGridLL(Composite parent, String label, String text) {
+		Text txt = createGridLT(parent, label);
+		txt.setText(text);
+		txt.setEditable(false);
+		txt.setBackground(parent.getBackground());
 		return txt;
 	}
 
@@ -60,7 +79,8 @@ public class EclipseUiUtils {
 
 	public static Font getBoldItalicFont(Composite parent) {
 		return JFaceResources.getFontRegistry().defaultFontDescriptor()
-				.setStyle(SWT.BOLD | SWT.ITALIC).createFont(parent.getDisplay());
+				.setStyle(SWT.BOLD | SWT.ITALIC)
+				.createFont(parent.getDisplay());
 	}
 
 }

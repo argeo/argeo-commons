@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.jcr.Node;
+import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
@@ -21,6 +22,9 @@ public class JcrUserDetails extends User implements ArgeoNames {
 	private static final long serialVersionUID = -8142764995842559646L;
 	private final String homePath;
 	private final String securityWorkspace;
+
+	/** Human readable user name */
+	private String displayName;
 
 	protected JcrUserDetails(String securityWorkspace, String homePath,
 			String username, String password, boolean enabled,
@@ -43,6 +47,15 @@ public class JcrUserDetails extends User implements ArgeoNames {
 				userProfile.getProperty(ARGEO_CREDENTIALS_NON_EXPIRED)
 						.getBoolean(), userProfile.getProperty(
 						ARGEO_ACCOUNT_NON_LOCKED).getBoolean(), authorities);
+		// human readable name
+		if (userProfile.hasProperty(Property.JCR_TITLE)) {
+			displayName = userProfile.getProperty(Property.JCR_TITLE)
+					.getString();
+			if (displayName.trim().equals(""))
+				displayName = null;
+		}
+		if (displayName == null)
+			displayName = userProfile.getProperty(ARGEO_USER_ID).getString();
 		// home is defined as the parent of the profile
 		homePath = userProfile.getParent().getPath();
 		securityWorkspace = userProfile.getSession().getWorkspace().getName();
@@ -109,4 +122,15 @@ public class JcrUserDetails extends User implements ArgeoNames {
 	public String getSecurityWorkspace() {
 		return securityWorkspace;
 	}
+
+	/** The human readable name of this user */
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	@Override
+	public String toString() {
+		return getDisplayName();
+	}
+
 }

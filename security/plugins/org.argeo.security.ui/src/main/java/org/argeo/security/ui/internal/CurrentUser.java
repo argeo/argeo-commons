@@ -28,17 +28,22 @@ public class CurrentUser {
 
 	public final static Set<String> roles() {
 		Set<String> roles = Collections.synchronizedSet(new HashSet<String>());
+		Authentication authentication = getAuthentication();
+		for (GrantedAuthority ga : authentication.getAuthorities()) {
+			roles.add(ga.getAuthority());
+		}
+		return Collections.unmodifiableSet(roles);
+	}
 
+	public final static Authentication getAuthentication() {
 		Set<Authentication> authens = getSubject().getPrincipals(
 				Authentication.class);
 		if (authens != null && !authens.isEmpty()) {
 			Principal principal = authens.iterator().next();
 			Authentication authentication = (Authentication) principal;
-			for (GrantedAuthority ga : authentication.getAuthorities()) {
-				roles.add(ga.getAuthority());
-			}
+			return authentication;
 		}
-		return Collections.unmodifiableSet(roles);
+		throw new ArgeoException("No authentication found");
 	}
 
 	public final static Subject getSubject() {
