@@ -8,6 +8,8 @@
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
-	<reference id="_authenticationManager"
+	<reference id="authenticationManager"
 		interface="org.springframework.security.AuthenticationManager" />
+	<reference id="userDetailsService"
+		interface="org.springframework.security.userdetails.UserDetailsService" />
 </beans:beans>

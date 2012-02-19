@@ -12,8 +12,10 @@
 	<bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
 		<property name="providers">
 			<list>
-				<ref bean="anonymousAuthenticationProvider" />
 				<ref bean="authByAdapterProvider" />
+<!-- 				<ref bean="preAuthAuthenticationProvider" /> -->
+				<ref bean="anonymousAuthenticationProvider" />
+				<ref bean="rememberMeAuthenticationProvider" />
 				<ref bean="ldapAuthenticationProvider" />
 			</list>
 		</property>
@@ -26,9 +28,20 @@
 		<property name="key" value="${argeo.security.systemKey}" />
 	</bean>
 
+<!-- 	<bean id="preAuthAuthenticationProvider" -->
+<!-- 		class="org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationProvider"> -->
+<!-- 		<description><![CDATA[Pre-authentication]]></description> -->
+<!-- 	</bean> -->
+
 	<bean id="anonymousAuthenticationProvider"
 		class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider">
 		<description><![CDATA[Anonymous authentication]]></description>
+		<property name="key" value="${argeo.security.systemKey}" />
+	</bean>
+
+	<bean id="rememberMeAuthenticationProvider"
+		class="org.springframework.security.providers.rememberme.RememberMeAuthenticationProvider">
+		<description><![CDATA[Remember me authentication]]></description>
 		<property name="key" value="${argeo.security.systemKey}" />
 	</bean>
 

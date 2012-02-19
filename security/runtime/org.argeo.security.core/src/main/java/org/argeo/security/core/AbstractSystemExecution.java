@@ -14,13 +14,22 @@ import org.springframework.security.context.SecurityContextHolder;
 
 /** Provides base method for executing code with system authorization. */
 public abstract class AbstractSystemExecution {
+	static {
+		// Forces Spring Security to use inheritable strategy
+		// FIXME find a better place for forcing spring security mode
+		// doesn't work for the time besing
+//		if (System.getProperty(SecurityContextHolder.SYSTEM_PROPERTY) == null)
+//			SecurityContextHolder
+//					.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+	}
+
 	private final static Log log = LogFactory
 			.getLog(AbstractSystemExecution.class);
 	private AuthenticationManager authenticationManager;
 	private String systemAuthenticationKey;
 
 	/** Whether the current thread was authenticated by this component. */
-	private ThreadLocal<Boolean> authenticatedBySelf = new ThreadLocal<Boolean>() {
+	private InheritableThreadLocal<Boolean> authenticatedBySelf = new InheritableThreadLocal<Boolean>() {
 		protected Boolean initialValue() {
 			return false;
 		}
@@ -35,12 +44,12 @@ public abstract class AbstractSystemExecution {
 			return;
 		SecurityContext securityContext = SecurityContextHolder.getContext();
 		Authentication currentAuth = securityContext.getAuthentication();
-		if (currentAuth != null)
+		if (currentAuth != null){
 			throw new ArgeoException(
 					"System execution on an already authenticated thread: "
 							+ currentAuth + ", THREAD="
 							+ Thread.currentThread().getId());
-
+		}
 		Subject subject = Subject.getSubject(AccessController.getContext());
 		if (subject != null
 				&& !subject.getPrincipals(Authentication.class).isEmpty())
@@ -75,7 +84,10 @@ public abstract class AbstractSystemExecution {
 		}
 	}
 
-	/** Whether the current thread was authenticated by this component. */
+	/**
+	 * Whether the current thread was authenticated by this component or a
+	 * parent thread.
+	 */
 	protected Boolean isAuthenticatedBySelf() {
 		return authenticatedBySelf.get();
 	}

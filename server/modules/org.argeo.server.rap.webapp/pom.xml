@@ -20,16 +20,32 @@
 						<Web-ContextPath>org.argeo.rap.webapp</Web-ContextPath>
 						<Import-Package>
 							*,
+
+							org.springframework.beans.factory.config,
+							
 							org.eclipse.equinox.http.servlet,
 							org.springframework.osgi.web.context.support,
 							org.springframework.security,
+							org.springframework.security.context,
+							org.springframework.security.intercept.web,
+							org.springframework.security.providers.anonymous,
+							org.springframework.security.ui,
+							org.springframework.security.ui.basicauth,
+							org.springframework.security.ui.logout,
+							org.springframework.security.ui.rememberme,
 							org.springframework.security.ui.webapp,
+							org.springframework.security.userdetails,
+							org.springframework.security.util,
+							org.springframework.security.vote,
+							org.springframework.security.wrapper,
 							org.springframework.web.context,
 							org.springframework.web.filter,
 							org.springframework.web.servlet,
 							org.springframework.web.servlet.handler,
-							org.springframework.web.servlet.mvc
-						</Import-Package>
+							org.springframework.web.servlet.mvc,
+							
+							
+ 						</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>

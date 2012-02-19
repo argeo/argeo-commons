@@ -13,6 +13,16 @@
             class="org.argeo.security.ui.rap.AnonymousEntryPoint"
             parameter="publicWebUi">
       </entrypoint>
+      <entrypoint
+            id="org.argeo.security.ui.rap.logoutEntryPoint"
+            class="org.argeo.security.ui.rap.LogoutEntryPoint"
+            parameter="logout">
+      </entrypoint>
+      <entrypoint
+            id="org.argeo.security.ui.rap.nullEntryPoint"
+            class="org.argeo.security.ui.rap.NullEntryPoint"
+            parameter="null">
+      </entrypoint>
    </extension>
 
 	<extension
@@ -23,7 +33,23 @@
             defaultEntrypointId="org.argeo.security.ui.rap.secureEntryPoint"
             title="Argeo Web UI"
             favicon="branding/favicon.ico"
-            body="branding/public.html">
+            body="branding/login.html">
+      	</branding>
+    	<branding
+			id="org.argeo.security.ui.rap.branding"
+            servletName="ui"
+            defaultEntrypointId="org.argeo.security.ui.rap.secureEntryPoint"
+            title="Argeo Web UI"
+            favicon="branding/favicon.ico"
+            body="branding/login.html">
+      	</branding>
+    	<branding
+			id="org.argeo.security.ui.rap.branding"
+            servletName="basicauth"
+            defaultEntrypointId="org.argeo.security.ui.rap.secureEntryPoint"
+            title="Argeo Web UI"
+            favicon="branding/favicon.ico"
+            body="branding/login.html">
       	</branding>
     	<branding
 			id="org.argeo.security.ui.rap.branding"
@@ -32,6 +58,23 @@
             title="Argeo Public Web UI"
             favicon="branding/favicon.ico"
             body="branding/public.html">
+      	</branding>
+    	<branding
+			id="org.argeo.security.ui.rap.branding"
+            servletName="logout"
+            defaultEntrypointId="org.argeo.security.ui.rap.logoutEntryPoint"
+            title="Argeo Logout"
+            favicon="branding/favicon.ico"
+            body="branding/afterLogout.html">
+      	</branding>
+      	<!-- we need a servlet with thios name j_spring_security_logout for the logout filter -->
+    	<branding
+			id="org.argeo.security.ui.rap.branding"
+            servletName="j_spring_security_logout"
+            defaultEntrypointId="org.argeo.security.ui.rap.nullEntryPoint"
+            title="Argeo Logout"
+            favicon="branding/favicon.ico"
+            body="branding/empty.html">
       	</branding>
    	</extension>
 

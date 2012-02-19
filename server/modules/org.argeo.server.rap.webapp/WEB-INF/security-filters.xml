@@ -8,13 +8,12 @@
 
 	<bean id="springSecurityFilterChain" class="org.springframework.security.util.FilterChainProxy">
 		<sec:filter-chain-map path-type="ant">
-			<sec:filter-chain pattern="/webdav/**"
-				filters="session,basic,rememberMe,anonymous,exception,interceptor" />
-			<sec:filter-chain pattern="/remoting/**"
-				filters="session,basic,rememberMe,anonymous,exception,interceptor" />
-			<sec:filter-chain pattern="/public/**"
-				filters="session,anonymous,exception,interceptorPublic" />
-			<sec:filter-chain pattern="/pub/**"
+			<sec:filter-chain pattern="/ui"
+				filters="session,basic,rememberMe,exception,interceptor" />
+			<sec:filter-chain pattern="/basicauth"
+				filters="session,basic,exception,interceptor" />
+			<sec:filter-chain pattern="/node" filters="session" />
+			<sec:filter-chain pattern="/public"
 				filters="session,anonymous,exception,interceptorPublic" />
 			<sec:filter-chain pattern="/j_spring_security_logout"
 				filters="session,logout,exception" />
@@ -27,8 +26,7 @@
 		<property name="objectDefinitionSource">
 			<value>
 				PATTERN_TYPE_APACHE_ANT
-				/*/*/*/**=ROLE_USER,ROLE_ADMIN
-				/**=ROLE_ANONYMOUS
+				/**=ROLE_USER,ROLE_ADMIN
 			</value>
 		</property>
 	</bean>
@@ -44,14 +42,13 @@
 	<!-- Integrates the authentication information in the http sessions -->
 	<bean id="session"
 		class="org.springframework.security.context.HttpSessionContextIntegrationFilter">
-		<property name="allowSessionCreation" value="false" />
+		<property name="allowSessionCreation" value="true" />
 	</bean>
 
 	<!-- Processes logouts, removing both session informations and the remember-me 
 		cookie from the browser -->
 	<bean id="logout" class="org.springframework.security.ui.logout.LogoutFilter">
-		<constructor-arg value="/webdav/node/main" />
-		<!-- URL redirected to after logout -->
+		<constructor-arg value="/logout" />
 		<constructor-arg>
 			<list>
 				<ref bean="rememberMeServices" />
@@ -72,7 +69,6 @@
 		class="org.springframework.security.ui.rememberme.TokenBasedRememberMeServices">
 		<property name="userDetailsService" ref="userDetailsService" />
 		<property name="key" value="${argeo.security.systemKey}" />
-		<property name="tokenValiditySeconds" value="${argeo.jcr.webapp.rememberMeValidity}" />
 		<property name="alwaysRemember" value="true" />
 	</bean>
 
@@ -111,7 +107,7 @@
 		</property>
 		<property name="accessDeniedHandler">
 			<bean class="org.springframework.security.ui.AccessDeniedHandlerImpl">
-				<property name="errorPage" value="/accessDenied.jsp" />
+				<property name="errorPage" value="/error" />
 			</bean>
 		</property>
 	</bean>

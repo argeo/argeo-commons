@@ -40,10 +40,18 @@ public class PasswordBasedEncryption {
 	private final Cipher ecipher;
 	private final Cipher dcipher;
 
+	/**
+	 * This is up to the caller to clear the passed array. Neither copy of nor
+	 * reference to the passed array is kept
+	 */
 	public PasswordBasedEncryption(char[] password) {
 		this(password, DEFAULT_SALT_8, DEFAULT_IV_16);
 	}
 
+	/**
+	 * This is up to the caller to clear the passed array. Neither copies of nor
+	 * references to the passed arrays are kept
+	 */
 	public PasswordBasedEncryption(char[] password, byte[] passwordSalt,
 			byte[] initializationVector) {
 		try {

@@ -4,6 +4,8 @@ import java.security.PrivilegedAction;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -16,6 +18,8 @@ import org.eclipse.rwt.lifecycle.IEntryPoint;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.springframework.security.BadCredentialsException;
+import org.springframework.security.context.SecurityContext;
+import org.springframework.security.context.SecurityContextHolder;
 
 /**
  * RAP entry point with login capabilities. Once the user has been
@@ -24,6 +28,12 @@ import org.springframework.security.BadCredentialsException;
  */
 public class SecureEntryPoint implements IEntryPoint {
 	private final static Log log = LogFactory.getLog(SecureEntryPoint.class);
+
+	/**
+	 * From org.springframework.security.context.
+	 * HttpSessionContextIntegrationFilter
+	 */
+	protected static final String SPRING_SECURITY_CONTEXT_KEY = "SPRING_SECURITY_CONTEXT";
 
 	/**
 	 * How many seconds to wait before invalidating the session if the user has
@@ -40,9 +50,18 @@ public class SecureEntryPoint implements IEntryPoint {
 		// around too long
 		RWT.getRequest().getSession().setMaxInactiveInterval(loginTimeout);
 
+		HttpServletRequest httpRequest = RWT.getRequest();
+		HttpSession httpSession = httpRequest.getSession();
+		Object contextFromSessionObject = httpSession
+				.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
+		if (contextFromSessionObject != null)
+			SecurityContextHolder
+					.setContext((SecurityContext) contextFromSessionObject);
+
 		if (log.isDebugEnabled())
 			log.debug("THREAD=" + Thread.currentThread().getId()
-					+ ", sessionStore=" + RWT.getSessionStore().getId());
+					+ ", sessionStore=" + RWT.getSessionStore().getId()
+					+ ", remote user=" + httpRequest.getRemoteUser());
 
 		// create display
 		final Display display = PlatformUI.createDisplay();
@@ -55,6 +74,17 @@ public class SecureEntryPoint implements IEntryPoint {
 			try {
 				loginContext.login();
 				subject = loginContext.getSubject();
+
+				if (httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) == null)
+					httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
+							SecurityContextHolder.getContext());
+
+				// Once the user is logged in, she can have a longer session
+				// timeout
+				RWT.getRequest().getSession()
+						.setMaxInactiveInterval(sessionTimeout);
+				if (log.isDebugEnabled())
+					log.debug("Authenticated " + subject);
 			} catch (LoginException e) {
 				BadCredentialsException bce = wasCausedByBadCredentials(e);
 				if (bce != null) {
@@ -66,11 +96,6 @@ public class SecureEntryPoint implements IEntryPoint {
 				return processLoginDeath(display, e);
 			}
 		}
-
-		// Once the user is logged in, she can have a longer session timeout
-		RWT.getRequest().getSession().setMaxInactiveInterval(sessionTimeout);
-		if (log.isDebugEnabled())
-			log.debug("Authenticated " + subject);
 
 		final String username = subject.getPrincipals().iterator().next()
 				.getName();

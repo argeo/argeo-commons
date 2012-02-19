@@ -1,7 +1,6 @@
 package org.argeo.security.ui.rap;
 
 import org.argeo.security.ui.commands.OpenHomePerspective;
-import org.argeo.security.ui.rap.commands.UserMenu;
 import org.eclipse.core.commands.Category;
 import org.eclipse.core.commands.Command;
 import org.eclipse.jface.action.ICoolBarManager;

@@ -40,6 +40,11 @@
 		<url-pattern>/remoting/*</url-pattern>
 	</servlet-mapping>
 
+	<servlet-mapping>
+		<servlet-name>remoting</servlet-name>
+		<url-pattern>/pub/*</url-pattern>
+	</servlet-mapping>
+
 	<!-- XML remoting
 	<servlet>
 		<servlet-name>xmlremoting</servlet-name>
@@ -78,7 +83,7 @@
 
 	<servlet-mapping>
 		<servlet-name>webdav</servlet-name>
-		<url-pattern>/public/webdav/*</url-pattern>
+		<url-pattern>/public/*</url-pattern>
 	</servlet-mapping>
 
 	<!-- JCR-MANAGER servlet
