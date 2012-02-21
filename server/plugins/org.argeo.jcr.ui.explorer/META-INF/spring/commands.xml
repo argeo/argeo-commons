@@ -21,7 +21,7 @@
 	</bean>
 
 	<bean id="addRemoteRepository" class="org.argeo.jcr.ui.explorer.commands.AddRemoteRepository">
-		<property name="repositoryFactory" ref="repositoryRegister" />
+		<property name="repositoryFactory" ref="repositoryFactory" />
 		<property name="bundleContext" ref="bundleContext" />
 		<property name="keyring" ref="jcrKeyring" />
 	</bean>

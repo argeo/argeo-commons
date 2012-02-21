@@ -6,7 +6,7 @@ public class TabularColumn {
 	/**
 	 * JCR types, see
 	 * http://www.day.com/maven/javax.jcr/javadocs/jcr-2.0/index.html
-	 * ?javax/jcr/Property.html
+	 * ?javax/jcr/PropertyType.html
 	 */
 	private Integer type;
 

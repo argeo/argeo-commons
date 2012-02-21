@@ -39,7 +39,7 @@ public class JackrabbitRepositoryFactory extends DefaultRepositoryFactory
 		else if (parameters.containsKey(JcrUtils.REPOSITORY_URI))
 			uri = parameters.get(JcrUtils.REPOSITORY_URI).toString();
 
-		if (uri == null)
+		if (uri != null)
 			repository = createRemoteRepository(uri);
 
 		if (parameters.containsKey(JCR_REPOSITORY_ALIAS)) {

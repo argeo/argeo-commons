@@ -71,7 +71,11 @@ public class OsAuthenticationToken implements Authentication {
 		this(null);
 	}
 
+	/** @return the name, or null if not yet logged */
 	public String getName() {
+		Subject subject = Subject.getSubject(AccessController.getContext());
+		if (subject == null)
+			return null;
 		return getUser().getName();
 	}
 

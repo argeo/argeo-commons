@@ -64,6 +64,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
+import org.argeo.util.security.SimplePrincipal;
 
 /** Utility methods to simplify common JCR operations. */
 public class JcrUtils implements ArgeoJcrConstants {
@@ -1367,6 +1368,19 @@ public class JcrUtils implements ArgeoJcrConstants {
 	/*
 	 * SECURITY
 	 */
+
+	/**
+	 * Convenience method for adding a single privilege to a principal (user or
+	 * role), typically jcr:all
+	 */
+	public static void addPrivilege(Session session, String path,
+			String principal, String privilege) throws RepositoryException {
+		List<Privilege> privileges = new ArrayList<Privilege>();
+		privileges.add(session.getAccessControlManager().privilegeFromName(
+				privilege));
+		addPrivileges(session, path, new SimplePrincipal(principal), privileges);
+	}
+
 	/**
 	 * Add privileges on a path to a {@link Principal}. The path must already
 	 * exist.

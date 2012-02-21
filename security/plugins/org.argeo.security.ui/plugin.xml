@@ -28,6 +28,12 @@
             name="Profile"
             restorable="true">
       </view>
+      <view
+            class="org.argeo.security.ui.views.LogView"
+            id="org.argeo.security.ui.logView"
+            name="Log"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">

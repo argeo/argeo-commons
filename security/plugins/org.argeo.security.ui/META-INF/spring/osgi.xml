@@ -8,7 +8,11 @@
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
 	osgi:default-timeout="30000">
 
+	<!-- REFERENCES -->
 	<reference id="userDetailsManager"
 		interface="org.springframework.security.userdetails.UserDetailsManager"
 		cardinality="0..1" />
+
+	<list id="logListeners" interface="org.argeo.ArgeoLogListener"
+		cardinality="0..N" />
 </beans:beans>

@@ -4,6 +4,7 @@ import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.security.Privilege;
 
 import org.argeo.ArgeoException;
 import org.argeo.jcr.JcrUtils;
@@ -17,10 +18,12 @@ public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 	private Repository repository;
 	private String securityWorkspace = "security";
 	private Session securitySession;
+	private Session nodeSession;
 
 	public void init() {
 		try {
 			securitySession = repository.login(securityWorkspace);
+			nodeSession = repository.login();
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot initialize", e);
 		}
@@ -28,6 +31,7 @@ public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 
 	public void destroy() {
 		JcrUtils.logoutQuietly(securitySession);
+		JcrUtils.logoutQuietly(nodeSession);
 	}
 
 	public Authentication authenticate(Authentication authentication)
@@ -40,8 +44,17 @@ public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 			String username = System.getProperty("user.name");
 			Node userProfile = JcrUtils.createUserProfileIfNeeded(
 					securitySession, username);
-
 			JcrUserDetails.checkAccountStatus(userProfile);
+
+			// each user should have a writable area in the default workspace of
+			// the node
+			Node userNodeHome = JcrUtils.createUserHomeIfNeeded(nodeSession,
+					username);
+			JcrUtils.addPrivilege(nodeSession, userNodeHome.getPath(),
+					username, Privilege.JCR_ALL);
+			if (nodeSession.hasPendingChanges())
+				nodeSession.save();
+
 			// user details
 			JcrUserDetails userDetails = new JcrUserDetails(userProfile, authen
 					.getCredentials().toString(), getBaseAuthorities());

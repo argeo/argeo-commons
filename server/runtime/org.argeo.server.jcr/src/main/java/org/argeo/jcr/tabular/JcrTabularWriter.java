@@ -24,11 +24,13 @@ public class JcrTabularWriter implements TabularWriter {
 	private Node contentNode;
 	private ByteArrayOutputStream out;
 	private CsvWriter csvWriter;
+	private final List<TabularColumn> columns;
 
 	/** Creates a table node */
 	public JcrTabularWriter(Node tableNode, List<TabularColumn> columns,
 			String contentNodeType) {
 		try {
+			this.columns = columns;
 			for (TabularColumn column : columns) {
 				String normalized = JcrUtils.replaceInvalidChars(column
 						.getName());
