@@ -44,8 +44,13 @@ public class SecureEntryPoint implements IEntryPoint {
 	/** Default session timeout is 8 hours (European working day length) */
 	private Integer sessionTimeout = 8 * 60 * 60;
 
+	/** Override to provide an application specific workbench advisor */
+	protected RapWorkbenchAdvisor createRapWorkbenchAdvisor(String username) {
+		return new RapWorkbenchAdvisor(username);
+	}
+
 	@Override
-	public int createUI() {
+	public final int createUI() {
 		// Short login timeout so that the modal dialog login doesn't hang
 		// around too long
 		RWT.getRequest().getSession().setMaxInactiveInterval(loginTimeout);
@@ -114,8 +119,7 @@ public class SecureEntryPoint implements IEntryPoint {
 		try {
 			returnCode = Subject.doAs(subject, new PrivilegedAction<Integer>() {
 				public Integer run() {
-					RapWorkbenchAdvisor workbenchAdvisor = new RapWorkbenchAdvisor(
-							username);
+					RapWorkbenchAdvisor workbenchAdvisor = createRapWorkbenchAdvisor(username);
 					int result = PlatformUI.createAndRunWorkbench(display,
 							workbenchAdvisor);
 					return new Integer(result);
