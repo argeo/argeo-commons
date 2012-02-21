@@ -15,6 +15,12 @@ public class JcrExplorerPerspective implements IPerspectiveFactory {
 		IFolderLayout upperLeft = layout.createFolder(JcrExplorerPlugin.ID
 				+ ".upperLeft", IPageLayout.LEFT, 0.4f, layout.getEditorArea());
 		upperLeft.addView(BROWSER_VIEW_ID);
+
+//		String editorArea = layout.getEditorArea();
+//		String logViewId = "org.argeo.security.ui.logView";
+//		IFolderLayout bottom = layout.createFolder("bottom",
+//				IPageLayout.BOTTOM, 0.50f, editorArea);
+//		bottom.addView(logViewId);
 	}
 
 }

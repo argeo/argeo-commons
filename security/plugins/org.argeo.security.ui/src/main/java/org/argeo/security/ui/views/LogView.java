@@ -18,7 +18,7 @@ import org.osgi.framework.ServiceRegistration;
  */
 public class LogView extends ViewPart {
 	public static String ID = SecurityUiPlugin.PLUGIN_ID + ".logView";
-	
+
 	private TableViewer viewer;
 
 	private LogContentProvider logContentProvider;
@@ -27,13 +27,14 @@ public class LogView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		viewer = new TableViewer(parent, SWT.VIRTUAL);
+		viewer = new TableViewer(parent, SWT.VIRTUAL | SWT.MULTI | SWT.H_SCROLL
+				| SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 		viewer.setLabelProvider(new LabelProvider());
 		logContentProvider = new LogContentProvider(viewer);
 		serviceRegistration = getBundleContext().registerService(
 				ArgeoLogListener.class.getName(), logContentProvider, null);
 		viewer.setContentProvider(logContentProvider);
-		viewer.setUseHashlookup(true);
+		//viewer.setUseHashlookup(true);
 		viewer.setInput(new ArrayList<String>());
 	}
 
