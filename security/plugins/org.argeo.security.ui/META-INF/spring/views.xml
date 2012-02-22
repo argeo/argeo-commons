@@ -4,4 +4,14 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+	<bean id="logView" class="org.argeo.security.ui.views.LogView"
+		scope="prototype">
+		<property name="argeoLogger" ref="secureLogger" />
+	</bean>
+
+	<bean id="adminLogView" class="org.argeo.security.ui.views.AdminLogView"
+		scope="prototype">
+		<property name="argeoLogger" ref="secureLogger" />
+	</bean>
+
 </beans>

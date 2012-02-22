@@ -126,21 +126,9 @@
   </extension>
   <extension
            point="org.eclipse.ui.activities">
-        <activity
-              description="Only for admins"
-              id="org.argeo.security.ui.admin.adminActivity"
-              name="Admin">
-		  <enabledWhen>
-		    <with variable="roles">
-		      <iterate ifEmpty="false" operator="or">
-		        <equals value="ROLE_ADMIN" />
-		      </iterate>
-		    </with>
-		  </enabledWhen>
-        </activity>
         <!-- TODO: find a way to exclude evrything -->
         <activityPatternBinding
-              activityId="org.argeo.security.ui.admin.adminActivity"
+              activityId="org.argeo.security.ui.adminActivity"
               isEqualityPattern="true"
               pattern="org.argeo.security.ui.admin/org.argeo.security.ui.admin.adminSecurityPerspective">
         </activityPatternBinding>

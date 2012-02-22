@@ -22,17 +22,25 @@
    <extension
          point="org.eclipse.ui.views">
       <view
+            id="org.argeo.security.ui.userProfile"
             class="org.argeo.security.ui.views.UserProfile"
             icon="icons/user.gif"
-            id="org.argeo.security.ui.userProfile"
             name="Profile"
             restorable="true">
       </view>
       <view
-            class="org.argeo.security.ui.views.LogView"
             id="org.argeo.security.ui.logView"
+            class="org.argeo.eclipse.spring.SpringExtensionFactory"
             name="Log"
-            restorable="true">
+            icon="icons/log.gif"
+            restorable="false">
+      </view>
+      <view
+            id="org.argeo.security.ui.adminLogView"
+            class="org.argeo.eclipse.spring.SpringExtensionFactory"
+            name="Admin Log"
+            icon="icons/adminLog.gif"
+            restorable="false">
       </view>
    </extension>
    <extension
@@ -43,5 +51,36 @@
             id="org.argeo.security.ui.userHomePerspective"
             name="Home">
       </perspective>
+      <perspective
+            class="org.argeo.security.ui.MaintenancePerspective"
+            icon="icons/maintenance.gif"
+            id="org.argeo.security.ui.adminMaintenancePerspective"
+            name="Maintenance">
+      </perspective>
    </extension>
+  <extension
+           point="org.eclipse.ui.activities">
+        <activity
+              description="Only for admins"
+              id="org.argeo.security.ui.adminActivity"
+              name="Admin">
+		  <enabledWhen>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="ROLE_ADMIN" />
+		      </iterate>
+		    </with>
+		  </enabledWhen>
+        </activity>
+        <activityPatternBinding
+              activityId="org.argeo.security.ui.adminActivity"
+              isEqualityPattern="true"
+              pattern="org.argeo.security.ui/org.argeo.security.ui.adminMaintenancePerspective">
+        </activityPatternBinding>
+        <activityPatternBinding
+              activityId="org.argeo.security.ui.adminActivity"
+              isEqualityPattern="true"
+              pattern="org.argeo.security.ui/org.argeo.security.ui.adminLogView">
+        </activityPatternBinding>
+     </extension>
  </plugin>

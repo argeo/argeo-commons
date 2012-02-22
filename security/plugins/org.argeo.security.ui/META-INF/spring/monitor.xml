@@ -5,9 +5,8 @@
         http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
 	<!-- Log4j appender singleton -->
-	<bean id="secureAppender" class="org.argeo.security.log4j.SecureLogger"
+	<bean id="secureLogger" class="org.argeo.security.log4j.SecureLogger"
 		init-method="init" destroy-method="destroy">
-		<property name="listeners" ref="logListeners" />
 		<property name="configuration">
 			<value><![CDATA[
 log4j.rootLogger=WARN, console

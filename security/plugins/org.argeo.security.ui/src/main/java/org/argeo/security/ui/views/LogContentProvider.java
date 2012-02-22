@@ -2,6 +2,7 @@ package org.argeo.security.ui.views;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,7 +26,7 @@ class LogContentProvider implements ILazyContentProvider, ArgeoLogListener {
 	private final Integer maxLineBufferSize = 10 * 1000;
 
 	private final TableViewer viewer;
-	private final LinkedList<LogLine> lines;
+	private LinkedList<LogLine> lines;
 
 	public LogContentProvider(TableViewer viewer) {
 		this.viewer = viewer;
@@ -36,6 +37,7 @@ class LogContentProvider implements ILazyContentProvider, ArgeoLogListener {
 
 	public synchronized void dispose() {
 		lines.clear();
+		lines = null;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -62,12 +64,12 @@ class LogContentProvider implements ILazyContentProvider, ArgeoLogListener {
 			return;
 
 		String message = msg.toString();
-		StringBuffer buf = new StringBuffer("");
-		buf.append(dateFormat.format(new Date(timestamp))).append(" ");
-		buf.append(level).append(" ");
 		int count = 0;
+		String prefix = prefix(username, timestamp, level, category, thread)
+				.toString();
+		// String suffix = suffix(username, timestamp, level, category, thread);
 		for (String line : message.split("\n")) {
-			addLine(count == 0 ? buf + line : line);
+			addLine(count == 0 ? prefix + line : line);
 			count++;
 		}
 
@@ -76,22 +78,55 @@ class LogContentProvider implements ILazyContentProvider, ArgeoLogListener {
 				addLine(ste);
 			}
 		}
-		viewer.getTable().getDisplay().syncExec(new Runnable() {
+
+		viewer.getTable().getDisplay().asyncExec(new Runnable() {
 			public void run() {
+				if (lines == null)
+					return;
 				viewer.setItemCount(lines.size());
-				// viewer.reveal(lines.peekLast());
-				Table table = viewer.getTable();
-				// table.setTopIndex(lines.size()-1);
-				System.out.println("topIndex=" + table.getTopIndex()
-						+ ", tableSize=" + lines.size());
-				// table.select(lines.size() - 1);
-				// table.showSelection();
-				TableItem ti = table.getItem(lines.size() - 1);
-				if (ti == null)
-					System.out.println("tableItem is null");
-				table.showItem(ti);
+				// doesn't work with syncExec
+				scrollToLastLine();
 			}
 		});
+	}
+
+	protected StringBuffer prefix(String username, Long timestamp,
+			String level, String category, String thread) {
+		StringBuffer buf = new StringBuffer("");
+		buf.append(dateFormat.format(new Date(timestamp))).append(" ");
+		// buf.append(level).append(" ");
+		return buf;
+	}
+
+	/** Normalize string to the given size */
+	protected String norm(String str, Integer size) {
+		int length = str.length();
+		if (length == size)
+			return str;
+		else if (length > size)
+			return str.substring(0, size);
+		else {
+			char[] arr = new char[size - length];
+			Arrays.fill(arr, ' ');
+			return str + new String(arr);
+		}
+	}
+
+	// protected String suffix(String username, Long timestamp, String level,
+	// String category, String thread) {
+	// return "";
+	// }
+
+	/** Scroll to the last line */
+	protected void scrollToLastLine() {
+		// we try to show last line with two methods
+		// viewer.reveal(lines.peekLast());
+
+		Table table = viewer.getTable();
+		TableItem ti = table.getItem(lines.size() - 1);
+		if (ti == null)
+			System.out.println("tableItem is null");
+		table.showItem(ti);
 	}
 
 	protected synchronized LogLine addLine(String line) {

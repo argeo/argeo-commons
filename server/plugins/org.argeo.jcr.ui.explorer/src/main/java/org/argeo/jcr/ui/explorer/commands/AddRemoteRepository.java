@@ -191,11 +191,10 @@ public class AddRemoteRepository extends AbstractHandler implements
 						"Repository Added",
 						"Remote repository '" + username.getText() + "@"
 								+ uri.getText() + "' added");
+				super.okPressed();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				ErrorFeedback.show("Cannot add remote repository", e);
 			}
-			super.okPressed();
 		}
 
 		/** Creates label and text. */
