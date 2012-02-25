@@ -71,14 +71,19 @@ public abstract class CsvParser {
 
 			String line = null;
 			lines: while ((line = reader.readLine()) != null) {
+				line = preProcessLine(line);
+				if (line == null) {
+					// skip line
+					continue lines;
+				}
 				lineCount++;
 				List<String> tokens = new ArrayList<String>();
 				StringBuffer currStr = new StringBuffer("");
 				Boolean wasInquote = false;
-				while (parseLine(line, tokens, currStr, wasInquote)) {
+				sublines: while (parseLine(line, tokens, currStr, wasInquote)) {
 					line = reader.readLine();
 					if (line == null)
-						break;
+						break sublines;
 					wasInquote = true;
 				}
 				if (!noHeader && strictLineAsLongAsHeader) {
@@ -109,6 +114,15 @@ public abstract class CsvParser {
 					// silent
 				}
 		}
+	}
+
+	/**
+	 * Called before each (logical) line is processed, giving a change to modify
+	 * it (typically for cleaning dirty files). To be overridden, return the
+	 * line unchanged by default. Skip the line if 'null' is returned.
+	 */
+	protected String preProcessLine(String line) {
+		return line;
 	}
 
 	/**

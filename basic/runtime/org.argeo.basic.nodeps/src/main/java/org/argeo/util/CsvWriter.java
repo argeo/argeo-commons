@@ -2,7 +2,9 @@ package org.argeo.util;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.util.Iterator;
 import java.util.List;
 
@@ -10,21 +12,33 @@ import org.argeo.ArgeoException;
 
 /** Write in CSV format. */
 public class CsvWriter {
-	private final PrintWriter out;
+	private final Writer out;
 
 	private char separator = ',';
 	private char quote = '\"';
 
 	/**
-	 * Creates a CSV writer. The header will be written immediately to the
-	 * stream.
+	 * Creates a CSV writer.
 	 * 
 	 * @param out
 	 *            the stream to write to. Caller is responsible for closing it.
 	 */
 	public CsvWriter(OutputStream out) {
-		super();
-		this.out = new PrintWriter(out);
+		this.out = new OutputStreamWriter(out);
+	}
+
+	/**
+	 * Creates a CSV writer.
+	 * 
+	 * @param out
+	 *            the stream to write to. Caller is responsible for closing it.
+	 */
+	public CsvWriter(OutputStream out, String encoding) {
+		try {
+			this.out = new OutputStreamWriter(out, encoding);
+		} catch (UnsupportedEncodingException e) {
+			throw new ArgeoException("Cannot initialize CSV writer", e);
+		}
 	}
 
 	/**
@@ -38,9 +52,9 @@ public class CsvWriter {
 			while (it.hasNext()) {
 				writeToken(it.next().toString());
 				if (it.hasNext())
-					out.print(separator);
+					out.write(separator);
 			}
-			out.print('\n');
+			out.write('\n');
 			out.flush();
 		} catch (IOException e) {
 			throw new ArgeoException("Could not write " + tokens, e);
@@ -57,9 +71,9 @@ public class CsvWriter {
 			for (int i = 0; i < tokens.length; i++) {
 				writeToken(tokens[i].toString());
 				if (i != (tokens.length - 1))
-					out.print(separator);
+					out.write(separator);
 			}
-			out.print('\n');
+			out.write('\n');
 			out.flush();
 		} catch (IOException e) {
 			throw new ArgeoException("Could not write " + tokens, e);
@@ -70,6 +84,7 @@ public class CsvWriter {
 		// +2 for possible quotes, another +2 assuming there would be an already
 		// quoted string where quotes needs to be duplicated
 		// another +2 for safety
+		// we don't want to increase buffer size while writing
 		StringBuffer buf = new StringBuffer(token.length() + 6);
 		char[] arr = token.toCharArray();
 		boolean shouldQuote = false;
@@ -92,10 +107,10 @@ public class CsvWriter {
 		}
 
 		if (shouldQuote == true)
-			out.print(quote);
-		out.print(buf.toString());
+			out.write(quote);
+		out.write(buf.toString());
 		if (shouldQuote == true)
-			out.print(quote);
+			out.write(quote);
 	}
 
 	public void setSeparator(char separator) {
