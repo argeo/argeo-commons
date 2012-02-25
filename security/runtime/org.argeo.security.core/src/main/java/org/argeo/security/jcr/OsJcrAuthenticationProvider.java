@@ -13,7 +13,7 @@ import org.argeo.security.core.OsAuthenticationProvider;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 
-/** Relies on OS to authenticate and additionaly setup JCR */
+/** Relies on OS to authenticate and additionally setup JCR */
 public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 	private Repository repository;
 	private String securityWorkspace = "security";

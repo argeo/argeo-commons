@@ -39,6 +39,7 @@
 							org.springframework.beans.factory,
 							org.argeo.jcr,
 							org.xml.sax;version="0.0.0",
+							javax.jcr.security,
 							*
 						</Import-Package>
 					</instructions>
