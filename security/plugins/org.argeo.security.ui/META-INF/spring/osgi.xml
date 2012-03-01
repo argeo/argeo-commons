@@ -5,13 +5,8 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/osgi  
        http://www.springframework.org/schema/osgi/spring-osgi-1.1.xsd
        http://www.springframework.org/schema/beans   
-       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
-	osgi:default-timeout="30000">
+       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<!-- REFERENCES -->
-	<reference id="userDetailsManager"
-		interface="org.springframework.security.userdetails.UserDetailsManager"
-		cardinality="0..1" />
-
+	<!-- SERVICES -->
 	<service ref="secureLogger" interface="org.argeo.ArgeoLogger" />
 </beans:beans>
