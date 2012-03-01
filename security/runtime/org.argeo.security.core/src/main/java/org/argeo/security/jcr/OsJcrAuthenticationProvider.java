@@ -50,10 +50,11 @@ public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 			// the node
 			Node userNodeHome = JcrUtils.createUserHomeIfNeeded(nodeSession,
 					username);
-			JcrUtils.addPrivilege(nodeSession, userNodeHome.getPath(),
-					username, Privilege.JCR_ALL);
-			if (nodeSession.hasPendingChanges())
-				nodeSession.save();
+			// FIXME how to set user home privileges *before* it is created ?
+			// JcrUtils.addPrivilege(nodeSession, userNodeHome.getPath(),
+			// username, Privilege.JCR_ALL);
+			// if (nodeSession.hasPendingChanges())
+			// nodeSession.save();
 
 			// user details
 			JcrUserDetails userDetails = new JcrUserDetails(userProfile, authen
