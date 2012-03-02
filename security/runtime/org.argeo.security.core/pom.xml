@@ -40,6 +40,12 @@
 							org.argeo.jcr,
 							org.xml.sax;version="0.0.0",
 							javax.jcr.security,
+							javax.jcr.nodetype,
+							javax.jcr.version,
+							javax.jcr.observation,
+							javax.jcr.query,
+							javax.jcr.lock,
+							javax.jcr.retention,
 							*
 						</Import-Package>
 					</instructions>
