@@ -17,6 +17,8 @@ log4j.logger.org.argeo.jackrabbit.remote.ExtendedDispatcherServlet=WARN
 log4j.logger.org.argeo.server.webextender.TomcatDeployer=WARN
 log4j.logger.org.argeo.security.core=TRACE
 
+#log4j.logger.org.springframework.security=DEBUG
+
 log4j.logger.org.apache.catalina=INFO
 log4j.logger.org.apache.coyote=INFO
 log4j.logger.org.apache.directory.server=ERROR
