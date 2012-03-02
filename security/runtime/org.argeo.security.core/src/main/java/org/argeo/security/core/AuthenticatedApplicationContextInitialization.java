@@ -2,8 +2,6 @@ package org.argeo.security.core;
 
 import java.beans.PropertyDescriptor;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
@@ -18,20 +16,17 @@ import org.springframework.context.event.ContextRefreshedEvent;
 public class AuthenticatedApplicationContextInitialization extends
 		AbstractSystemExecution implements InstantiationAwareBeanPostProcessor,
 		ApplicationListener {
-	private Log log = LogFactory
-			.getLog(AuthenticatedApplicationContextInitialization.class);
+	// private Log log = LogFactory
+	// .getLog(AuthenticatedApplicationContextInitialization.class);
 
 	@SuppressWarnings("rawtypes")
 	public Object postProcessBeforeInstantiation(Class beanClass,
 			String beanName) throws BeansException {
-		// we authenticate when any beans is instantiated
+		// we authenticate when any bean is instantiated
 		// we will deauthenticate only when the application context has been
 		// refreshed in order to be able to deal with factory beans has well
 		if (!isAuthenticatedBySelf()) {
 			authenticateAsSystem();
-			if (log.isTraceEnabled())
-				log.trace("Application context initialization authenticated for thread "
-						+ Thread.currentThread().getName());
 		}
 		return null;
 	}
@@ -67,10 +62,7 @@ public class AuthenticatedApplicationContextInitialization extends
 		if (event instanceof ContextRefreshedEvent) {
 			// make sure that we have deauthenticated after the application
 			// context was initialized/refreshed
-			deauthenticateAsSystem();
-			if (log.isTraceEnabled())
-				log.trace("Application context initialization deauthenticated for thread "
-						+ Thread.currentThread().getName());
+			// deauthenticateAsSystem();
 		}
 	}
 

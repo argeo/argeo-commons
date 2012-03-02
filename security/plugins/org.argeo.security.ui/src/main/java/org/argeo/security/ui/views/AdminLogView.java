@@ -10,6 +10,8 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.part.ViewPart;
 
 /**
@@ -23,22 +25,16 @@ public class AdminLogView extends ViewPart {
 	private LogContentProvider logContentProvider;
 	private SecureLogger argeoLogger;
 
-	private Font font;
-
 	@Override
 	public void createPartControl(Composite parent) {
 		// FIXME doesn't return a monospace font in RAP
-		font = JFaceResources.getTextFont();
-//		if (font == JFaceResources.getDefaultFont()) {
-//			Set<?> keySet = JFaceResources.getFontRegistry().getKeySet();
-//			for (Object key : keySet) {
-//				System.out.println(key);
-//			}
-//		}
-
-		viewer = new TableViewer(parent, SWT.VIRTUAL | SWT.MULTI | SWT.H_SCROLL
+		Font font = JFaceResources.getTextFontDescriptor().setHeight(8)
+				.createFont(Display.getCurrent());
+		Table table = new Table(parent, SWT.VIRTUAL | SWT.MULTI | SWT.H_SCROLL
 				| SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
-		viewer.getTable().setFont(font);
+		table.setFont(font);
+
+		viewer = new TableViewer(table);
 		viewer.setLabelProvider(new LabelProvider());
 		logContentProvider = new LogContentProvider(viewer) {
 

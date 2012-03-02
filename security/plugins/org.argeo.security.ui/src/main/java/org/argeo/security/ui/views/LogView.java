@@ -5,10 +5,14 @@ import java.util.ArrayList;
 import org.argeo.ArgeoLogListener;
 import org.argeo.ArgeoLogger;
 import org.argeo.security.ui.SecurityUiPlugin;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.part.ViewPart;
 
 /**
@@ -25,8 +29,13 @@ public class LogView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		viewer = new TableViewer(parent, SWT.VIRTUAL | SWT.MULTI | SWT.H_SCROLL
+		Font font = JFaceResources.getTextFontDescriptor().setHeight(8)
+				.createFont(Display.getCurrent());
+		Table table = new Table(parent, SWT.VIRTUAL | SWT.MULTI | SWT.H_SCROLL
 				| SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
+		table.setFont(font);
+
+		viewer = new TableViewer(table);
 		viewer.setLabelProvider(new LabelProvider());
 		logContentProvider = new LogContentProvider(viewer);
 		viewer.setContentProvider(logContentProvider);

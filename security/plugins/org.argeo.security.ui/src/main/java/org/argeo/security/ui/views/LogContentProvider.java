@@ -118,14 +118,12 @@ class LogContentProvider implements ILazyContentProvider, ArgeoLogListener {
 	// }
 
 	/** Scroll to the last line */
-	protected void scrollToLastLine() {
+	protected synchronized void scrollToLastLine() {
 		// we try to show last line with two methods
 		// viewer.reveal(lines.peekLast());
 
 		Table table = viewer.getTable();
-		TableItem ti = table.getItem(lines.size() - 1);
-		if (ti == null)
-			System.out.println("tableItem is null");
+		TableItem ti = table.getItem(table.getItemCount() - 1);
 		table.showItem(ti);
 	}
 

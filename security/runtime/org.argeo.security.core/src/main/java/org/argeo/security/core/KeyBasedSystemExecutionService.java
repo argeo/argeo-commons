@@ -41,7 +41,7 @@ public class KeyBasedSystemExecutionService extends AbstractSystemExecution
 				try {
 					return runnable.call();
 				} finally {
-					deauthenticateAsSystem();
+//					deauthenticateAsSystem();
 				}
 			}
 		};

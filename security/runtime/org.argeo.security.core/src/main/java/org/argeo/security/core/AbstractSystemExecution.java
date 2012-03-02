@@ -1,12 +1,9 @@
 package org.argeo.security.core;
 
-import java.security.AccessController;
-
-import javax.security.auth.Subject;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
+import org.argeo.security.SystemAuthentication;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.context.SecurityContext;
@@ -17,7 +14,7 @@ public abstract class AbstractSystemExecution {
 	static {
 		// Forces Spring Security to use inheritable strategy
 		// FIXME find a better place for forcing spring security mode
-		// doesn't work for the time besing
+		// doesn't work for the time being
 //		if (System.getProperty(SecurityContextHolder.SYSTEM_PROPERTY) == null)
 //			SecurityContextHolder
 //					.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
@@ -29,7 +26,7 @@ public abstract class AbstractSystemExecution {
 	private String systemAuthenticationKey;
 
 	/** Whether the current thread was authenticated by this component. */
-	private InheritableThreadLocal<Boolean> authenticatedBySelf = new InheritableThreadLocal<Boolean>() {
+	private ThreadLocal<Boolean> authenticatedBySelf = new ThreadLocal<Boolean>() {
 		protected Boolean initialValue() {
 			return false;
 		}
@@ -44,17 +41,19 @@ public abstract class AbstractSystemExecution {
 			return;
 		SecurityContext securityContext = SecurityContextHolder.getContext();
 		Authentication currentAuth = securityContext.getAuthentication();
-		if (currentAuth != null){
-			throw new ArgeoException(
-					"System execution on an already authenticated thread: "
-							+ currentAuth + ", THREAD="
-							+ Thread.currentThread().getId());
+		if (currentAuth != null) {
+			if (!(currentAuth instanceof SystemAuthentication))
+				throw new ArgeoException(
+						"System execution on an already authenticated thread: "
+								+ currentAuth + ", THREAD="
+								+ Thread.currentThread().getId());
+			return;
 		}
-		Subject subject = Subject.getSubject(AccessController.getContext());
-		if (subject != null
-				&& !subject.getPrincipals(Authentication.class).isEmpty())
-			throw new ArgeoException(
-					"There is already an authenticated subject: " + subject);
+		// Subject subject = Subject.getSubject(AccessController.getContext());
+		// if (subject != null
+		// && !subject.getPrincipals(Authentication.class).isEmpty())
+		// throw new ArgeoException(
+		// "There is already an authenticated subject: " + subject);
 
 		String key = systemAuthenticationKey != null ? systemAuthenticationKey
 				: System.getProperty(
@@ -70,19 +69,17 @@ public abstract class AbstractSystemExecution {
 			log.trace("System authenticated");
 	}
 
-	/** Removes the authentication from the calling thread. */
-	protected void deauthenticateAsSystem() {
-		// remove the authentication
-		SecurityContext securityContext = SecurityContextHolder.getContext();
-		if (securityContext.getAuthentication() != null) {
-			securityContext.setAuthentication(null);
-			authenticatedBySelf.set(false);
-			if (log.isTraceEnabled()) {
-				log.trace("System deauthenticated");
-				// Thread.dumpStack();
-			}
-		}
-	}
+	// /** Removes the authentication from the calling thread. */
+	// protected void deauthenticateAsSystem() {
+	// // remove the authentication
+	// // SecurityContext securityContext = SecurityContextHolder.getContext();
+	// // securityContext.setAuthentication(null);
+	// // authenticatedBySelf.set(false);
+	// if (log.isTraceEnabled()) {
+	// log.trace("System deauthenticated");
+	// // Thread.dumpStack();
+	// }
+	// }
 
 	/**
 	 * Whether the current thread was authenticated by this component or a

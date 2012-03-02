@@ -26,6 +26,26 @@ import org.springframework.security.providers.anonymous.AnonymousAuthenticationT
 public class ArgeoLoginModule extends AbstractLoginModule {
 	private String adminRole = "ROLE_ADMIN";
 
+	@Override
+	public boolean login() throws LoginException {
+		boolean loginOk = super.login();
+		if (!loginOk) {
+			org.springframework.security.Authentication authen = (org.springframework.security.Authentication) SecurityContextHolder
+					.getContext().getAuthentication();
+		}
+		return loginOk;
+	}
+
+	@Override
+	public boolean commit() throws LoginException {
+		boolean commitOk = super.commit();
+		if (!commitOk) {
+			org.springframework.security.Authentication authen = (org.springframework.security.Authentication) SecurityContextHolder
+					.getContext().getAuthentication();
+		}
+		return commitOk;
+	}
+
 	/**
 	 * Returns the Spring {@link org.springframework.security.Authentication}
 	 * (which can be null)
@@ -39,9 +59,9 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 
 	protected Set<Principal> getPrincipals() {
 		// clear already registered Jackrabbit principals
-		//clearPrincipals(AdminPrincipal.class);
-		//clearPrincipals(AnonymousPrincipal.class);
-		//clearPrincipals(GrantedAuthorityPrincipal.class);
+		// clearPrincipals(AdminPrincipal.class);
+		// clearPrincipals(AnonymousPrincipal.class);
+		// clearPrincipals(GrantedAuthorityPrincipal.class);
 
 		return syncPrincipals();
 	}
@@ -74,8 +94,8 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 		if (thisCredentials != null)
 			thisCredentials.clear();
 		// override credentials since we did not used the one passed to us
-//		credentials = new SimpleCredentials(authen.getName(), authen
-//				.getCredentials().toString().toCharArray());
+		// credentials = new SimpleCredentials(authen.getName(), authen
+		// .getCredentials().toString().toCharArray());
 
 		return principals;
 	}
