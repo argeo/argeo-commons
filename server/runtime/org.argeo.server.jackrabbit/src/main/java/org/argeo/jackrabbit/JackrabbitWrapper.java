@@ -106,7 +106,8 @@ public abstract class JackrabbitWrapper implements Repository {
 		}
 
 		double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
-		log.info("Initialized Jackrabbit wrapper in " + duration + " s");
+		if (log.isTraceEnabled())
+			log.trace("Initialized Jackrabbit wrapper in " + duration + " s");
 	}
 
 	/**

@@ -4,8 +4,6 @@ import java.util.Properties;
 
 import javax.jcr.Repository;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -14,8 +12,8 @@ import org.osgi.framework.BundleContext;
  */
 public class OsgiJackrabbitRepositoryFactory extends
 		JackrabbitRepositoryFactory {
-	private final static Log log = LogFactory
-			.getLog(OsgiJackrabbitRepositoryFactory.class);
+//	private final static Log log = LogFactory
+//			.getLog(OsgiJackrabbitRepositoryFactory.class);
 	private BundleContext bundleContext;
 
 	protected void publish(String alias, Repository repository,
