@@ -69,7 +69,12 @@ public class CsvWriter {
 	public void writeLine(Object[] tokens) {
 		try {
 			for (int i = 0; i < tokens.length; i++) {
-				writeToken(tokens[i].toString());
+				if (tokens[i] == null) {
+					// TODO configure how to deal with null
+					writeToken("");
+				} else {
+					writeToken(tokens[i].toString());
+				}
 				if (i != (tokens.length - 1))
 					out.write(separator);
 			}
