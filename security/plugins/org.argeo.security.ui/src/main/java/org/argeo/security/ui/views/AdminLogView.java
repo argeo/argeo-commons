@@ -2,7 +2,7 @@ package org.argeo.security.ui.views;
 
 import java.util.ArrayList;
 
-import org.argeo.security.log4j.SecureLogger;
+import org.argeo.ArgeoLogger;
 import org.argeo.security.ui.SecurityUiPlugin;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -22,7 +22,7 @@ public class AdminLogView extends ViewPart {
 	private TableViewer viewer;
 
 	private LogContentProvider logContentProvider;
-	private SecureLogger argeoLogger;
+	private ArgeoLogger argeoLogger;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -66,7 +66,7 @@ public class AdminLogView extends ViewPart {
 			argeoLogger.unregisterForAll(logContentProvider);
 	}
 
-	public void setArgeoLogger(SecureLogger argeoLogger) {
+	public void setArgeoLogger(ArgeoLogger argeoLogger) {
 		this.argeoLogger = argeoLogger;
 	}
 

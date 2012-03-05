@@ -7,7 +7,6 @@
        http://www.springframework.org/schema/beans   
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<!-- REFERENCES -->
-	<reference id="secureLogger" interface="org.argeo.ArgeoLogger"
-		cardinality="0..1" />
+	<!-- SERVICES -->
+	<service ref="secureLogger" interface="org.argeo.ArgeoLogger" />
 </beans:beans>
