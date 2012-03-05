@@ -26,6 +26,7 @@ public class JcrAuthorizations implements Runnable {
 	private final static Log log = LogFactory.getLog(JcrAuthorizations.class);
 
 	private Repository repository;
+	private String workspace = null;
 
 	/**
 	 * key := privilege1,privilege2/path/to/node<br/>
@@ -36,7 +37,7 @@ public class JcrAuthorizations implements Runnable {
 	public void run() {
 		Session session = null;
 		try {
-			session = repository.login();
+			session = repository.login(workspace);
 			initAuthorizations(session);
 		} catch (Exception e) {
 			JcrUtils.discardQuietly(session);
@@ -120,12 +121,23 @@ public class JcrAuthorizations implements Runnable {
 			acl.addAccessControlEntry(principal,
 					privs.toArray(new Privilege[privs.size()]));
 			acm.setPolicy(path, acl);
-			if (log.isDebugEnabled())
-				log.debug("Added privileges " + privs + " to " + principal
-						+ " on " + path);
+			if (log.isDebugEnabled()) {
+				StringBuffer buf = new StringBuffer("");
+				for (int i = 0; i < privs.size(); i++) {
+					if (i != 0)
+						buf.append(',');
+					buf.append(privs.get(i).getName());
+				}
+				log.debug("Added privilege(s) '" + buf + "' to '"
+						+ principal.getName() + "' on " + path
+						+ " from workspace '"
+						+ session.getWorkspace().getName() + "'");
+			}
 		} else {
 			throw new ArgeoException("Don't know how to apply  privileges "
-					+ privs + " to " + principal + " on " + path);
+					+ privs + " to " + principal + " on " + path
+					+ " from workspace '" + session.getWorkspace().getName()
+					+ "'");
 		}
 	}
 
@@ -140,6 +152,10 @@ public class JcrAuthorizations implements Runnable {
 
 	public void setRepository(Repository repository) {
 		this.repository = repository;
+	}
+
+	public void setWorkspace(String workspace) {
+		this.workspace = workspace;
 	}
 
 }
