@@ -29,9 +29,7 @@
 	<bean id="addFolderNode" class="org.argeo.jcr.ui.explorer.commands.AddFolderNode"
 		scope="prototype" />
 
-	<!-- <bean id="refresh" class="org.argeo.jcr.ui.explorer.commands.Refresh" 
-		scope="prototype" /> -->
-	<bean id="refresh" class="org.argeo.eclipse.ui.jcr.commands.Refresh"
+	<bean id="refresh" class="org.argeo.jcr.ui.explorer.commands.Refresh"
 		scope="prototype" />
 
 	<bean id="deleteNodes" class="org.argeo.jcr.ui.explorer.commands.DeleteNodes"
