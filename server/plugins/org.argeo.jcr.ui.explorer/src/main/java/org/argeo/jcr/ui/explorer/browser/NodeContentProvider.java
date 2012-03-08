@@ -49,6 +49,9 @@ public class NodeContentProvider implements ITreeContentProvider {
 	}
 
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		if (newInput == null)// dispose
+			return;
+
 		if (userSession != null) {
 			Node userHome = JcrUtils.getUserHome(userSession);
 			if (userHome != null) {

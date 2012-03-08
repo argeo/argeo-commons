@@ -16,10 +16,6 @@
 		<developmentCycle>0.3</developmentCycle>
 		<version.argeo-distribution>1.1.7</version.argeo-distribution>
 		<version.argeo-commons>0.3.4-SNAPSHOT</version.argeo-commons>
-		<version.equinox>3.6.2</version.equinox>
-		<!-- maven -->
-		<version.maven-argeo-osgi>1.0.33</version.maven-argeo-osgi>
-		<version.maven-argeo-qooxdoo>1.1.1</version.maven-argeo-qooxdoo>
 		<!-- distribution -->
 		<site.repoBase>file:///srv/projects/www/commons/site</site.repoBase>
 		<site.urlBase>http://projects.argeo.org/commons/site</site.urlBase>
@@ -93,13 +89,11 @@ limitations under the License.
 		</developer>
 	</developers>
 	<build>
-		<!-- NOTE: This is just a vision for the future, it's not yet implemented: 
-			see MNG-2216 <sourceEncoding>UTF-8</sourceEncoding> -->
 		<extensions>
 			<extension>
 				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-webdav</artifactId>
-				<version>1.0-beta-2</version>
+				<artifactId>wagon-webdav-jackrabbit</artifactId>
+				<version>2.2</version>
 			</extension>
 		</extensions>
 		<pluginManagement>
@@ -109,8 +103,8 @@ limitations under the License.
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>2.3.2</version>
 					<configuration>
-						<source>1.5</source>
-						<target>1.5</target>
+						<source>1.6</source>
+						<target>1.6</target>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -170,7 +164,7 @@ limitations under the License.
 						<instructions>
 							<Bundle-Version>${project.version}-r${timestamp}</Bundle-Version>
 							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-							<Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
+							<Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
 						</instructions>
 					</configuration>
 					<executions>
@@ -212,7 +206,7 @@ limitations under the License.
 				<plugin>
 					<groupId>org.argeo.maven.plugins</groupId>
 					<artifactId>maven-argeo-osgi-plugin</artifactId>
-					<version>${version.maven-argeo-osgi}</version>
+					<version>1.0.33</version>
 				</plugin>
 				<!-- Others -->
 				<plugin>
@@ -239,18 +233,6 @@ limitations under the License.
 					<doUpdate>false</doUpdate>
 					<timestampFormat>yyMMdd_HHmm</timestampFormat>
 				</configuration>
-				<!-- <configuration> -->
-				<!-- <doCheck>false</doCheck> -->
-				<!-- <doUpdate>false</doUpdate> -->
-				<!-- <format>{0,date,yyyyMMdd_HHmmss}</format> -->
-				<!-- <items> -->
-				<!-- <item>timestamp</item> -->
-				<!-- </items> -->
-				<!-- <revisionOnScmFailure>git</revisionOnScmFailure> -->
-				<!-- <providerImplementations> -->
-				<!-- <git>svn</git> -->
-				<!-- </providerImplementations> -->
-				<!-- </configuration> -->
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -298,6 +280,9 @@ limitations under the License.
 				</configuration>
 			</plugin>
 		</plugins>
+		<!-- NOTE: This is just a vision for the future, it's not yet implemented: 
+			see MNG-2216 -->
+		<!-- <sourceEncoding>UTF-8</sourceEncoding> -->
 	</build>
 	<dependencyManagement>
 		<dependencies>

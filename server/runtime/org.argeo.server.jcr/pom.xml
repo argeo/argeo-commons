@@ -42,7 +42,6 @@
 			<plugin>
 				<groupId>org.argeo.maven.plugins</groupId>
 				<artifactId>maven-argeo-osgi-plugin</artifactId>
-				<version>${version.maven-argeo-osgi}</version>
 				<configuration>
 					<useDependencies>true</useDependencies>
 					<onlyCheck>true</onlyCheck>

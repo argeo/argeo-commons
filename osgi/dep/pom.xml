@@ -20,7 +20,6 @@
 			<plugin>
 				<groupId>org.argeo.maven.plugins</groupId>
 				<artifactId>maven-argeo-osgi-plugin</artifactId>
-				<version>${version.maven-argeo-osgi}</version>
 				<executions>
 					<execution>
 						<id>check-osgi</id>
