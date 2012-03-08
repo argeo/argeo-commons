@@ -5,7 +5,7 @@ import org.eclipse.jface.viewers.Viewer;
 
 /**
  * Tree content provider dealing with tree objects and providing reasonable
- * defualts.
+ * defaults.
  */
 public abstract class AbstractTreeContentProvider implements
 		ITreeContentProvider {
@@ -26,8 +26,8 @@ public abstract class AbstractTreeContentProvider implements
 	}
 
 	public Object getParent(Object element) {
-		if (element instanceof TreeObject) {
-			return ((TreeObject) element).getParent();
+		if (element instanceof TreeParent) {
+			return ((TreeParent) element).getParent();
 		}
 		return null;
 	}

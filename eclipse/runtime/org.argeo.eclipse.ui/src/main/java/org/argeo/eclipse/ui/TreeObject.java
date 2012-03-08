@@ -16,6 +16,8 @@
 
 package org.argeo.eclipse.ui;
 
+/** @deprecated use {@link TreeParent} instead */
+@Deprecated
 class TreeObject implements Comparable<TreeObject> {
 	private String name;
 	private TreeParent parent;
