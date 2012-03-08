@@ -4,8 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.ArgeoException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
@@ -17,9 +16,13 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
+/**
+ * RCP specific composite that provides a control to upload a file. WARNING: for
+ * the time being we set a GridLayout(2, false) on th eparent control.
+ */
 public class GenericUploadControl extends Composite {
-	private final static Log log = LogFactory
-			.getLog(GenericUploadControl.class);
+	// private final static Log log = LogFactory
+	// .getLog(GenericUploadControl.class);
 
 	private FileDialog dialog;
 	private Text filePath;
@@ -31,12 +34,13 @@ public class GenericUploadControl extends Composite {
 	}
 
 	private void createControl(final Composite parent, String browseLabel) {
-		Composite composite = new Composite(parent, SWT.FILL);
-		composite.setLayout(new GridLayout(2, false));
-		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		parent.setLayout(new GridLayout(2, false));
 
 		filePath = new Text(parent, SWT.BORDER | SWT.SINGLE);
-		filePath.setEnabled(false);
+		GridData gd = new GridData(GridData.GRAB_HORIZONTAL
+				| GridData.FILL_HORIZONTAL);
+		filePath.setEditable(false);
+		filePath.setLayoutData(gd);
 
 		// Execute button
 		Button execute = new Button(parent, SWT.PUSH);
@@ -49,11 +53,10 @@ public class GenericUploadControl extends Composite {
 		Listener executeListener = new Listener() {
 			public void handleEvent(Event event) {
 				dialog = new FileDialog(parent.getShell());
-				dialog.open();
-
+				filePath.setText(dialog.open());
 			}
 		};
-
+		parent.layout();
 		execute.addListener(SWT.Selection, executeListener);
 	}
 
@@ -73,8 +76,8 @@ public class GenericUploadControl extends Composite {
 				byte[] fileBA = FileUtils.readFileToByteArray(file);
 				return fileBA;
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new ArgeoException("Unexpected error while "
+						+ "reading file at path " + path, e);
 			}
 		}
 		return null;
@@ -83,38 +86,11 @@ public class GenericUploadControl extends Composite {
 	public void addModifyListener(ModifyListener listener) {
 		filePath.addModifyListener(listener);
 	}
-	
+
 	/**
 	 * Always returns null in an RCP environment
 	 */
 	public String getLastFileUploadedName() {
 		return null;
 	}
-
-	// private class UploadManager extends UploadAdapter {
-	// private Upload upload;
-	//
-	// public UploadManager(Upload upload) {
-	// super();
-	// this.upload = upload;
-	// }
-	//
-	// public void uploadFinished(UploadEvent uploadEvent) {
-	// handleUploadFinished(upload);
-	// }
-	//
-	// public void uploadInProgress(UploadEvent uploadEvent) {
-	// }
-	//
-	// public void uploadException(UploadEvent uploadEvent) {
-	// Exception exc = uploadEvent.getUploadException();
-	// if (exc != null) {
-	// MessageDialog.openError(Display.getCurrent().getActiveShell(),
-	// "Error", exc.getMessage());
-	// }
-	// }
-	//
-	// }
-	//
-
 }
