@@ -17,6 +17,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
  * if some changes in the underlying data have not yet been propagated to the
  * model, the view will not display up-to-date information.
  */
+@Deprecated
 public class Refresh extends AbstractHandler {
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
