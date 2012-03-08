@@ -144,7 +144,7 @@
 			<command
          commandId="org.argeo.jcr.ui.explorer.addFolderNode"
          icon="icons/addFolder.gif"
-         label="%addNewFolderCmdLbl"
+         label="Add folder"
          style="push">
 				<visibleWhen>
 					<iterate>
