@@ -13,7 +13,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
-import org.argeo.eclipse.ui.dialogs.Error;
+import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.eclipse.ui.specific.ImportToServerWizardPage;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -51,7 +51,7 @@ public class ImportFileSystemWizard extends Wizard {
 		final String objectPath = importPage.getObjectPath();
 
 		// We do not display a progress bar for one file only
-		if (importPage.FILE_ITEM_TYPE.equals(objectType)) {
+		if (ImportToServerWizardPage.FILE_ITEM_TYPE.equals(objectType)) {
 			// In Rap we must force the "real" upload of the file
 			importPage.performFinish();
 			try {
@@ -75,9 +75,9 @@ public class ImportFileSystemWizard extends Wizard {
 				return false;
 			}
 			return true;
-		} else if (importPage.FOLDER_ITEM_TYPE.equals(objectType)) {
+		} else if (ImportToServerWizardPage.FOLDER_ITEM_TYPE.equals(objectType)) {
 			if (objectPath == null || !new File(objectPath).exists()) {
-				Error.show("Directory " + objectPath + " does not exist");
+				ErrorFeedback.show("Directory " + objectPath + " does not exist");
 				return false;
 			}
 
@@ -104,7 +104,7 @@ public class ImportFileSystemWizard extends Wizard {
 					}
 				});
 			} catch (Exception e) {
-				Error.show("Cannot import " + objectPath, e);
+				ErrorFeedback.show("Cannot import " + objectPath, e);
 				failed = true;
 			}
 

@@ -9,8 +9,6 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.ui.explorer.JcrExplorerConstants;
 import org.argeo.jcr.ui.explorer.JcrExplorerPlugin;
@@ -26,7 +24,6 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.forms.editor.FormPage;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 /**
@@ -36,17 +33,11 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 public class GenericPropertyPage extends FormPage implements
 		JcrExplorerConstants {
-	private final static Log log = LogFactory.getLog(GenericPropertyPage.class);
-
-	// local constants
-	private final static String JCR_PROPERTY_NAME = "jcr:name";
+	// private final static Log log =
+	// LogFactory.getLog(GenericPropertyPage.class);
 
 	// Main business Objects
 	private Node currentNode;
-
-	// This page widgets
-	private FormToolkit tk;
-	private TreeViewer complexTree;
 
 	public GenericPropertyPage(FormEditor editor, String title, Node currentNode) {
 		super(editor, "id", title);
@@ -54,16 +45,14 @@ public class GenericPropertyPage extends FormPage implements
 	}
 
 	protected void createFormContent(IManagedForm managedForm) {
-		tk = managedForm.getToolkit();
 		ScrolledForm form = managedForm.getForm();
-		form.setText(JcrExplorerPlugin
-				.getMessage("genericNodePageTitle"));
+		form.setText(JcrExplorerPlugin.getMessage("genericNodePageTitle"));
 		FillLayout layout = new FillLayout();
 		layout.marginHeight = 5;
 		layout.marginWidth = 5;
 		form.getBody().setLayout(layout);
 
-		complexTree = createComplexTree(form.getBody());
+		createComplexTree(form.getBody());
 
 		// TODO remove following
 		// createPropertiesPart(form.getBody());

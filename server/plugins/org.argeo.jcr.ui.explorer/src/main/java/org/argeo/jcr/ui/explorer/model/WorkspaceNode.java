@@ -16,7 +16,6 @@ import org.argeo.eclipse.ui.TreeParent;
  * keeps a reference to its parent {@link RepositoryNode}, to be able to
  * retrieve alias of the current used repository
  */
-
 public class WorkspaceNode extends TreeParent implements EventListener, UiNode {
 	private Session session = null;
 
@@ -60,6 +59,13 @@ public class WorkspaceNode extends TreeParent implements EventListener, UiNode {
 		}
 	}
 
+	@Override
+	public synchronized void dispose() {
+		logout();
+		super.dispose();
+	}
+
+	/** Logouts the session, does not nothing if there is no live session. */
 	public void logout() {
 		try {
 			if (session != null && session.isLive()) {

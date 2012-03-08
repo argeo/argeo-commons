@@ -12,10 +12,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.forms.editor.FormEditor;
 
 /**
- * 
  * Container for the node editor page. At creation time, it takes a JCR Node
  * that cannot be changed afterwards.
- * 
  */
 public class GenericNodeEditor extends FormEditor {
 
@@ -25,7 +23,6 @@ public class GenericNodeEditor extends FormEditor {
 
 	private Node currentNode;
 
-	private GenericNodePage genericNodePage;
 	private GenericPropertyPage genericPropertyPage;
 	private ChildNodesPage childNodesPage;
 	private NodeRightsManagementPage nodeRightsManagementPage;

@@ -7,8 +7,6 @@ import java.util.List;
 import javax.jcr.Node;
 import javax.jcr.Session;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.JcrUtils;
@@ -26,13 +24,18 @@ import org.eclipse.jface.viewers.Viewer;
  * 
  */
 public class NodeContentProvider implements ITreeContentProvider {
-	private final static Log log = LogFactory.getLog(NodeContentProvider.class);
+	// private final static Log log =
+	// LogFactory.getLog(NodeContentProvider.class);
 
 	// Business Objects
 	final private RepositoryRegister repositoryRegister;
 	final private Session userSession;
 	final private JcrKeyring jcrKeyring;
 	final private boolean sortChildren;
+
+	// reference for cleaning
+	private SingleJcrNode homeNode = null;
+	private RepositoriesNode repositoriesNode = null;
 
 	// Utils
 	private TreeObjectsComparator itemComparator = new TreeObjectsComparator();
@@ -45,22 +48,35 @@ public class NodeContentProvider implements ITreeContentProvider {
 		this.sortChildren = sortChildren;
 	}
 
+	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		if (userSession != null) {
+			Node userHome = JcrUtils.getUserHome(userSession);
+			if (userHome != null) {
+				// TODO : find a way to dynamically get alias for the node
+				if (homeNode != null)
+					homeNode.dispose();
+				homeNode = new SingleJcrNode(null, userHome,
+						userSession.getUserID(), ArgeoJcrConstants.ALIAS_NODE);
+			}
+		}
+		if (repositoryRegister != null) {
+			if (repositoriesNode != null)
+				repositoriesNode.dispose();
+			repositoriesNode = new RepositoriesNode("Repositories",
+					repositoryRegister, null, jcrKeyring);
+		}
+	}
+
 	/**
 	 * Sends back the first level of the Tree. Independent from inputElement
 	 * that can be null
 	 */
 	public Object[] getElements(Object inputElement) {
 		List<Object> objs = new ArrayList<Object>();
-		if (userSession != null) {
-			Node userHome = JcrUtils.getUserHome(userSession);
-			if (userHome != null)
-				// TODO : find a way to dynamically get alias for the node
-				objs.add(new SingleJcrNode(null, userHome, userSession
-						.getUserID(), ArgeoJcrConstants.ALIAS_NODE));
-		}
-		if (repositoryRegister != null)
-			objs.add(new RepositoriesNode("Repositories", repositoryRegister,
-					null, jcrKeyring));
+		if (homeNode != null)
+			objs.add(homeNode);
+		if (repositoriesNode != null)
+			objs.add(repositoriesNode);
 		return objs.toArray();
 	}
 
@@ -105,8 +121,13 @@ public class NodeContentProvider implements ITreeContentProvider {
 	}
 
 	public void dispose() {
+		if (homeNode != null)
+			homeNode.dispose();
+		if (repositoriesNode != null) {
+			// logs out open sessions
+			// see https://bugzilla.argeo.org/show_bug.cgi?id=23
+			repositoriesNode.dispose();
+		}
 	}
 
-	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-	}
 }

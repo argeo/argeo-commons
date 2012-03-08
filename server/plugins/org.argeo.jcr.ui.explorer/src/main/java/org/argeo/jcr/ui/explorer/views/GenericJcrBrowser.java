@@ -5,7 +5,6 @@ import java.util.List;
 import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
-import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.observation.Event;
 import javax.jcr.observation.EventListener;
@@ -73,8 +72,8 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 	public void createPartControl(Composite parent) {
 
 		// look for session
-		Session nodeSession = jcrKeyring != null ? jcrKeyring.getSession()
-				: null;
+		// Session nodeSession = jcrKeyring != null ? jcrKeyring.getSession()
+		// : null;
 		// if (nodeSession == null) {
 		// Repository nodeRepository = JcrUtils.getRepositoryByAlias(
 		// repositoryRegister, ArgeoJcrConstants.ALIAS_NODE);
@@ -82,7 +81,6 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 		// try {
 		// nodeSession = nodeRepository.login();
 		// // TODO : enhance that to enable multirepository listener.
-		// session = nodeSession;
 		// } catch (RepositoryException e1) {
 		// throw new ArgeoException("Cannot login to node repository");
 		// }
@@ -245,6 +243,11 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 		});
 		propertiesViewer.setInput(getViewSite());
 		return propertiesViewer;
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
 	}
 
 	@Override
