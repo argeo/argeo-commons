@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.argeo.commons.eclipse</groupId>
 		<artifactId>dep</artifactId>
-		<version>0.3.4</version>
+		<version>0.3.5-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
@@ -65,7 +65,7 @@ ex=*.source_*.jar,\
 		<dependency>
 			<groupId>org.argeo.commons.eclipse</groupId>
 			<artifactId>org.argeo.eclipse.dep.common</artifactId>
-			<version>0.3.4</version>
+			<version>0.3.5-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

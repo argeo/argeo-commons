@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
-		<version>0.3.4</version>
+		<version>0.3.5-SNAPSHOT</version>
 		<artifactId>dep</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -39,13 +39,13 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.dep.node.eclipse</artifactId>
-			<version>0.3.4</version>
+			<version>0.3.5-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.ui.rcp</artifactId>
-			<version>0.3.4</version>
+			<version>0.3.5-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<profiles>

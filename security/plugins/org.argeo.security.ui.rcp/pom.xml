@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
-		<version>0.3.4</version>
+		<version>0.3.5-SNAPSHOT</version>
 		<artifactId>plugins</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -42,7 +42,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.nodeps</artifactId>
-			<version>0.3.4</version>
+			<version>0.3.5-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Logging -->
@@ -55,24 +55,24 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.ui</artifactId>
-			<version>0.3.4</version>
+			<version>0.3.5-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.equinox</artifactId>
-			<version>0.3.4</version>
+			<version>0.3.5-SNAPSHOT</version>
 		</dependency>
 
 		<!-- RCP specific -->
 		<dependency>
 			<groupId>org.argeo.commons.eclipse</groupId>
 			<artifactId>org.argeo.eclipse.ui.rcp</artifactId>
-			<version>0.3.4</version>
+			<version>0.3.5-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.eclipse</groupId>
 			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
-			<version>0.3.4</version>
+			<version>0.3.5-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>

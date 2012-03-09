@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
-		<version>0.3.4</version>
+		<version>0.3.5-SNAPSHOT</version>
 		<artifactId>server</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -44,7 +44,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.osgi</groupId>
 			<artifactId>org.argeo.osgi.boot</artifactId>
-			<version>0.3.4</version>
+			<version>0.3.5-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
