@@ -342,7 +342,6 @@ limitations under the License.
 			</plugin>
 			<plugin>
 				<artifactId>maven-site-plugin</artifactId>
-				<version>3.0</version>
 				<inherited>false</inherited>
 				<configuration>
 					<skip>false</skip>
