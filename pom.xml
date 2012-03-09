@@ -365,6 +365,28 @@ limitations under the License.
 					<releaseProfiles>rpmbuild,rpmbuild-tp,el5</releaseProfiles>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>com.mycila.maven-license-plugin</groupId>
+				<artifactId>maven-license-plugin</artifactId>
+				<configuration>
+					<header>license-apache2-header.txt</header>
+					<failIfMissing>true</failIfMissing>
+					<aggregate>true</aggregate>
+					<includes>
+						<include>src/**/*.java</include>
+						<include>src/**/*.xml</include>
+					</includes>
+					<excludes>
+						<exclude>**/springutil/**</exclude>
+						<exclude>**/qooxdoo-sdk/**</exclude>
+					</excludes>
+					<useDefaultExcludes>true</useDefaultExcludes>
+					<mapping>
+						<java>SLASHSTAR_STYLE</java>
+						<xml>XML_STYLE</xml>
+					</mapping>
+				</configuration>
+			</plugin>
 		</plugins>
 		<!-- NOTE: This is just a vision for the future, it's not yet implemented: 
 			see MNG-2216 -->
