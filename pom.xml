@@ -359,6 +359,12 @@ limitations under the License.
 					<skip>false</skip>
 				</configuration>
 			</plugin>
+			<plugin>
+				<artifactId>maven-release-plugin</artifactId>
+				<configuration>
+					<releaseProfiles>rpmbuild,rpmbuild-tp,el5</releaseProfiles>
+				</configuration>
+			</plugin>
 		</plugins>
 		<!-- NOTE: This is just a vision for the future, it's not yet implemented: 
 			see MNG-2216 -->
