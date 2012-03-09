@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.argeo.commons.eclipse</groupId>
 		<artifactId>eclipse</artifactId>
-		<version>0.3.4-SNAPSHOT</version>
+		<version>0.3.4</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>dep</artifactId>
@@ -47,13 +47,6 @@
 					<artifactId>maven-argeo-osgi-plugin</artifactId>
 					<executions>
 						<execution>
-							<id>resolve-pde-sources</id>
-							<goals>
-								<goal>pde-sources</goal>
-							</goals>
-							<phase>generate-resources</phase>
-						</execution>
-						<execution>
 							<id>generate-descriptors</id>
 							<goals>
 								<goal>descriptors</goal>
@@ -82,7 +75,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.osgi</groupId>
 			<artifactId>org.argeo.osgi.boot</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

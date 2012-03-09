@@ -1,9 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
-		<version>0.3.4-SNAPSHOT</version>
+		<version>0.3.4</version>
 		<artifactId>dep</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -41,7 +40,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.osgi</groupId>
 			<artifactId>org.argeo.osgi.dep.stdruntime</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 			<type>pom</type>
 		</dependency>
 
@@ -49,12 +48,12 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.core</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.mvc</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 		</dependency>
 
 		<!-- Xerces and Xalan -->
@@ -139,40 +138,40 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.jackrabbit</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.jackrabbit</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.node.repo.jackrabbit</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.node.repofactory.jackrabbit</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 		</dependency>
 
 		<!-- Active MQ -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.activemq</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.activemq</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.activemq.broker</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 		</dependency>
 
 		<!-- Scheduling -->
@@ -185,26 +184,26 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.dao.ldap</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.ldap</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 		</dependency>
 
 		<!-- Security (Jackrabbit) -->
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.dao.jackrabbit</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 		</dependency>
 
 		<!-- Security (Standalone) -->
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.dao.os</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 		</dependency>
 
 		<!-- Web -->
@@ -219,48 +218,48 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.tomcat</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.webextender</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.jcr.mvc</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.jackrabbit.webapp</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 		</dependency>
 
 		<!-- Default Tomcat conf -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.tomcat</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 		</dependency>
 
 		<!-- LDAP server -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.ads</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.ads.server</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.ads</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 		</dependency>
 		<!-- <dependency> -->
 		<!-- <groupId>org.argeo.commons.server</groupId> -->
@@ -272,7 +271,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.hibernate</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 			<type>pom</type>
 		</dependency>
 
@@ -294,7 +293,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.support.junit</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 		</dependency>
 	</dependencies>
 	<profiles>

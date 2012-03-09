@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo</groupId>
@@ -9,7 +8,7 @@
 	</parent>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
-	<version>0.3.4-SNAPSHOT</version>
+	<version>0.3.4</version>
 	<name>Argeo Commons</name>
 	<description>Generic layers integrating free / open source technologies in order to quickly develop custom enterprise systems: security, JCR, user interface, monitoring</description>
 	<packaging>pom</packaging>
@@ -17,7 +16,7 @@
 		<developmentCycle>0.3</developmentCycle>
 		<developmentCycle.startDate>2011-03-24</developmentCycle.startDate>
 		<version.argeo-distribution>1.1.7</version.argeo-distribution>
-		<version.argeo-commons>0.3.4-SNAPSHOT</version.argeo-commons>
+		<version.argeo-commons>0.3.4</version.argeo-commons>
 		<!-- distribution -->
 		<site.repoBase>file:///srv/projects/www/commons/site</site.repoBase>
 		<site.urlBase>http://projects.argeo.org/commons/site</site.urlBase>
@@ -33,13 +32,14 @@
 		<module>eclipse</module>
 		<module>security</module>
 		<module>demo</module>
+		<module>doc</module>
 	</modules>
 	<url>${site.urlBase}/${developmentCycle}</url>
 	<scm>
-		<connection>scm:svn:https://svn.argeo.org/commons/trunk</connection>
-		<developerConnection>scm:svn:https://svn.argeo.org/commons/trunk
+		<connection>scm:svn:https://svn.argeo.org/commons/tags/argeo-commons-0.3.4</connection>
+		<developerConnection>scm:svn:https://svn.argeo.org/commons/tags/argeo-commons-0.3.4
 		</developerConnection>
-		<url>https://svn.argeo.org/commons/trunk</url>
+		<url>https://svn.argeo.org/commons/tags/argeo-commons-0.3.4</url>
 	</scm>
 	<inceptionYear>2007</inceptionYear>
 	<licenses>
@@ -151,6 +151,9 @@ limitations under the License.
 				<plugin>
 					<artifactId>maven-release-plugin</artifactId>
 					<version>2.2.2</version>
+					<configuration>
+						<autoVersionSubmodules>true</autoVersionSubmodules>
+					</configuration>
 				</plugin>
 				<!-- Apache -->
 				<plugin>
@@ -309,20 +312,6 @@ limitations under the License.
 									<dateFormat>yyyy-MM-dd</dateFormat>
 								</configuration>
 							</plugin>
-							<!-- <plugin> -->
-							<!-- <artifactId>maven-pmd-plugin</artifactId> -->
-							<!-- <version>2.7.1</version> -->
-							<!-- <configuration> -->
-							<!-- <linkXref>true</linkXref> -->
-							<!-- <targetJdk>1.6</targetJdk> -->
-							<!-- <aggregate>true</aggregate> -->
-							<!-- <excludes> -->
-							<!-- <exclude>**/springutil/*.java</exclude> -->
-							<!-- <exclude>**/demo/**/*.java</exclude> -->
-							<!-- <exclude>**/internal/**/*.java</exclude> -->
-							<!-- </excludes> -->
-							<!-- </configuration> -->
-							<!-- </plugin> -->
 						</reportPlugins>
 					</configuration>
 				</plugin>
@@ -388,9 +377,6 @@ limitations under the License.
 				</configuration>
 			</plugin>
 		</plugins>
-		<!-- NOTE: This is just a vision for the future, it's not yet implemented: 
-			see MNG-2216 -->
-		<!-- <sourceEncoding>UTF-8</sourceEncoding> -->
 	</build>
 	<dependencyManagement>
 		<dependencies>
@@ -423,20 +409,10 @@ limitations under the License.
 		<site>
 			<id>argeo-commons-site</id>
 			<name>Argeo Commons Site</name>
-			<url>file://${site.repoBase}/${developmentCycle}/</url>
+			<url>file://${site.repoBase}/${project.version}</url>
 		</site>
 	</distributionManagement>
 	<profiles>
-		<profile>
-			<id>release</id>
-			<distributionManagement>
-				<site>
-					<id>argeo-commons-site</id>
-					<name>Argeo Commons Site</name>
-					<url>file://${site.repoBase}/${project.version}</url>
-				</site>
-			</distributionManagement>
-		</profile>
 		<profile>
 			<id>localrepo</id>
 			<distributionManagement>
@@ -453,13 +429,6 @@ limitations under the License.
 					</url>
 				</snapshotRepository>
 			</distributionManagement>
-		</profile>
-		<profile>
-			<id>full</id>
-			<modules>
-				<module>doc</module>
-				<module>sandbox</module>
-			</modules>
 		</profile>
 		<profile>
 			<id>el5</id>
