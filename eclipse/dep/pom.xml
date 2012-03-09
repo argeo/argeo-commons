@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.argeo.commons.eclipse</groupId>
 		<artifactId>eclipse</artifactId>
-		<version>0.3.4-SNAPSHOT</version>
+		<version>0.3.4</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>dep</artifactId>
@@ -75,7 +75,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.osgi</groupId>
 			<artifactId>org.argeo.osgi.boot</artifactId>
-			<version>0.3.4-SNAPSHOT</version>
+			<version>0.3.4</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
