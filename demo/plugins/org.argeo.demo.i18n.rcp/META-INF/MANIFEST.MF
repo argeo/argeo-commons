@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Fragment-Host: org.argeo.demo.i18n
 Bundle-SymbolicName: org.argeo.demo.i18n.rcp
-Bundle-Version: 0.3.4.SNAPSHOT
+Bundle-Version: 0.3.4
 Bundle-Vendor: Argeo
 Require-Bundle: org.eclipse.ui;resolution:=optional,
  org.eclipse.core.runtime;resolution:=optional

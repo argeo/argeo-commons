@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Internationalization Demo
 Bundle-SymbolicName: org.argeo.demo.i18n;singleton:=true
-Bundle-Version: 0.3.4.SNAPSHOT
+Bundle-Version: 0.3.4
 Bundle-Activator: org.argeo.demo.i18n.I18nDemoPlugin
 Bundle-Localization: properties/plugin
 Bundle-Vendor: Argeo
