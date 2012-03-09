@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.argeo.commons.eclipse</groupId>
 		<artifactId>dep</artifactId>
-		<version>0.3.4-SNAPSHOT</version>
+		<version>0.3.5-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.eclipse.dep.rap</artifactId>
@@ -161,7 +161,7 @@
 											<groupname>root</groupname>
 											<filemode>644</filemode>
 											<directoryIncluded>false</directoryIncluded>
-											<dependency/>
+											<dependency />
 										</mapping>
 									</mappings>
 								</configuration>
@@ -179,8 +179,7 @@
 								<configuration>
 									<target>
 										<copy todir="${rpm.stagingRepository}" verbose="true">
-											<fileset dir="${project.build.directory}/rpm"
-												includes="*/RPMS/**/*.rpm" />
+											<fileset dir="${project.build.directory}/rpm" includes="*/RPMS/**/*.rpm" />
 											<flattenmapper />
 										</copy>
 									</target>
