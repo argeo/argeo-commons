@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Fragment-Host: org.argeo.demo.i18n
-Bundle-Version: 0.3.5-SNAPSHOT
+Bundle-Version: 0.3.5.SNAPSHOT
 Bundle-SymbolicName: org.argeo.demo.i18n.rap
 Bundle-Vendor: Argeo
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
