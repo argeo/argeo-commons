@@ -1,3 +1,3 @@
 Argeo Commons
 
-  Commons components.
+  Commons groups the generic layers developed and maintained by Argeo. They factorize complex but generic logic in fields like security, default configurations, etc.

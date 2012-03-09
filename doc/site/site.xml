@@ -24,20 +24,12 @@
 	<body>
 		<menu name="Overview">
 			<item name="Home" href="${project.url}/index.html" />
-			<item name="Runtime" href="${project.url}/runtime/index.html">
-				<item name="API (Javadoc)" href="${project.url}/apidocs/index.html" />
-				<item name="Code" href="${project.url}/xref/index.html" />
-				<item name="Unit Tests Results" href="${project.url}/surefire-report.html" />
-			</item>
+			<item name="API (Javadoc)" href="${project.url}/apidocs/index.html" target="argeo_commons_javadoc" />
+			<item name="Browse Code" href="${project.url}/xref/index.html" target="argeo_commons_code" />
+			<item name="FIXMEs / TODOs" href="${project.url}/taglist.html" />
 		</menu>
-		<menu ref="parent" />
-		<menu ref="modules" />
 		<menu ref="reports" />
 	</body>
-	<poweredBy>
-		<logo name="Maven" href="http://maven.apache.org/"
-			img="http://maven.apache.org/images/logos/maven-feather.png" />
-	</poweredBy>
 	<skin>
 		<groupId>org.apache.maven.skins</groupId>
 		<artifactId>maven-default-skin</artifactId>
