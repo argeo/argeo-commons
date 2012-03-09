@@ -32,13 +32,16 @@ import org.argeo.jcr.security.JcrKeyring;
 
 public class RepositoriesNode extends TreeParent implements ArgeoNames {
 	private final RepositoryRegister repositoryRegister;
+	private final RepositoryFactory repositoryFactory;
 
 	private final JcrKeyring jcrKeyring;
 
 	public RepositoriesNode(String name, RepositoryRegister repositoryRegister,
-			TreeParent parent, JcrKeyring jcrKeyring) {
+			RepositoryFactory repositoryFactory, TreeParent parent,
+			JcrKeyring jcrKeyring) {
 		super(name);
 		this.repositoryRegister = repositoryRegister;
+		this.repositoryFactory = repositoryFactory;
 		this.jcrKeyring = jcrKeyring;
 	}
 
@@ -86,7 +89,7 @@ public class RepositoriesNode extends TreeParent implements ArgeoNames {
 					params.put(ArgeoJcrConstants.JCR_REPOSITORY_URI, uri);
 					params.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS,
 							remoteNode.getName());
-					Repository repository = repositoryRegister
+					Repository repository = repositoryFactory
 							.getRepository(params);
 					RemoteRepositoryNode remoteRepositoryNode = new RemoteRepositoryNode(
 							remoteNode.getName(), repository, this, jcrKeyring,

@@ -5,6 +5,7 @@ import java.util.List;
 import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
+import javax.jcr.RepositoryFactory;
 import javax.jcr.Value;
 import javax.jcr.observation.Event;
 import javax.jcr.observation.EventListener;
@@ -57,6 +58,7 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 	/* DEPENDENCY INJECTION */
 	private JcrKeyring jcrKeyring;
 	private RepositoryRegister repositoryRegister;
+	private RepositoryFactory repositoryFactory;
 
 	// This page widgets
 	private TreeViewer nodesViewer;
@@ -104,7 +106,7 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 		top.setLayout(gl);
 
 		nodeContentProvider = new NodeContentProvider(jcrKeyring,
-				repositoryRegister, sortChildNodes);
+				repositoryRegister, repositoryFactory, sortChildNodes);
 
 		// nodes viewer
 		nodesViewer = createNodeViewer(top, nodeContentProvider);
@@ -318,6 +320,10 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 
 	public void setJcrKeyring(JcrKeyring jcrKeyring) {
 		this.jcrKeyring = jcrKeyring;
+	}
+
+	public void setRepositoryFactory(RepositoryFactory repositoryFactory) {
+		this.repositoryFactory = repositoryFactory;
 	}
 
 }

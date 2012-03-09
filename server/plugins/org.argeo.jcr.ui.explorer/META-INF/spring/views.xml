@@ -9,5 +9,6 @@
 		scope="prototype">
 		<property name="jcrKeyring" ref="jcrKeyring" />
 		<property name="repositoryRegister" ref="repositoryRegister" />
+		<property name="repositoryFactory" ref="repositoryFactory" />
 	</bean>
 </beans>
