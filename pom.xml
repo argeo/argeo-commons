@@ -17,7 +17,7 @@
 		<developmentCycle>0.3</developmentCycle>
 		<developmentCycle.startDate>2011-03-24</developmentCycle.startDate>
 		<version.argeo-distribution>1.1.7</version.argeo-distribution>
-		<version.argeo-commons>0.3.4</version.argeo-commons>
+		<version.argeo-commons>0.3.4-SNAPSHOT</version.argeo-commons>
 		<!-- distribution -->
 		<site.repoBase>file:///srv/projects/www/commons/site</site.repoBase>
 		<site.urlBase>http://projects.argeo.org/commons/site</site.urlBase>
@@ -33,7 +33,6 @@
 		<module>eclipse</module>
 		<module>security</module>
 		<module>demo</module>
-		<module>doc</module>
 	</modules>
 	<url>${site.urlBase}/${developmentCycle}</url>
 	<scm>
@@ -152,9 +151,6 @@ limitations under the License.
 				<plugin>
 					<artifactId>maven-release-plugin</artifactId>
 					<version>2.2.2</version>
-					<configuration>
-						<autoVersionSubmodules>true</autoVersionSubmodules>
-					</configuration>
 				</plugin>
 				<!-- Apache -->
 				<plugin>
@@ -313,6 +309,20 @@ limitations under the License.
 									<dateFormat>yyyy-MM-dd</dateFormat>
 								</configuration>
 							</plugin>
+							<!-- <plugin> -->
+							<!-- <artifactId>maven-pmd-plugin</artifactId> -->
+							<!-- <version>2.7.1</version> -->
+							<!-- <configuration> -->
+							<!-- <linkXref>true</linkXref> -->
+							<!-- <targetJdk>1.6</targetJdk> -->
+							<!-- <aggregate>true</aggregate> -->
+							<!-- <excludes> -->
+							<!-- <exclude>**/springutil/*.java</exclude> -->
+							<!-- <exclude>**/demo/**/*.java</exclude> -->
+							<!-- <exclude>**/internal/**/*.java</exclude> -->
+							<!-- </excludes> -->
+							<!-- </configuration> -->
+							<!-- </plugin> -->
 						</reportPlugins>
 					</configuration>
 				</plugin>
@@ -378,6 +388,9 @@ limitations under the License.
 				</configuration>
 			</plugin>
 		</plugins>
+		<!-- NOTE: This is just a vision for the future, it's not yet implemented: 
+			see MNG-2216 -->
+		<!-- <sourceEncoding>UTF-8</sourceEncoding> -->
 	</build>
 	<dependencyManagement>
 		<dependencies>
@@ -410,10 +423,20 @@ limitations under the License.
 		<site>
 			<id>argeo-commons-site</id>
 			<name>Argeo Commons Site</name>
-			<url>file://${site.repoBase}/${project.version}</url>
+			<url>file://${site.repoBase}/${developmentCycle}/</url>
 		</site>
 	</distributionManagement>
 	<profiles>
+		<profile>
+			<id>release</id>
+			<distributionManagement>
+				<site>
+					<id>argeo-commons-site</id>
+					<name>Argeo Commons Site</name>
+					<url>file://${site.repoBase}/${project.version}</url>
+				</site>
+			</distributionManagement>
+		</profile>
 		<profile>
 			<id>localrepo</id>
 			<distributionManagement>
@@ -430,6 +453,13 @@ limitations under the License.
 					</url>
 				</snapshotRepository>
 			</distributionManagement>
+		</profile>
+		<profile>
+			<id>full</id>
+			<modules>
+				<module>doc</module>
+				<module>sandbox</module>
+			</modules>
 		</profile>
 		<profile>
 			<id>el5</id>
