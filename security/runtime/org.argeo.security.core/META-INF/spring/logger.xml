@@ -7,30 +7,30 @@
 	<!-- Log4j appender singleton -->
 	<bean id="secureLogger" class="org.argeo.security.log4j.SecureLogger"
 		init-method="init" destroy-method="destroy">
-		<property name="configuration">
-			<value><![CDATA[
-log4j.rootLogger=WARN, console
+<!-- 		<property name="configuration"> -->
+<!-- 			<value><![CDATA[ -->
+<!-- log4j.rootLogger=WARN, console -->
 
-## Levels
-log4j.logger.org.argeo=DEBUG
-log4j.logger.org.argeo.jackrabbit.remote.ExtendedDispatcherServlet=ERROR
-log4j.logger.org.springframework.web.servlet.PageNotFound=ERROR
-log4j.logger.org.argeo.server.webextender.TomcatDeployer=WARN
+<!-- ## Levels -->
+<!-- log4j.logger.org.argeo=DEBUG -->
+<!-- log4j.logger.org.argeo.jackrabbit.remote.ExtendedDispatcherServlet=ERROR -->
+<!-- log4j.logger.org.springframework.web.servlet.PageNotFound=ERROR -->
+<!-- log4j.logger.org.argeo.server.webextender.TomcatDeployer=WARN -->
 
-log4j.logger.org.apache.coyote=INFO
-log4j.logger.org.apache.catalina.core.ContainerBase=INFO
-log4j.logger.org.apache.directory.server=ERROR
-log4j.logger.org.apache.jackrabbit.core.query.lucene=ERROR
-log4j.logger.org.apache.jackrabbit.core.config.ConfigurationErrorHandler=ERROR
-log4j.logger.org.apache.jackrabbit.core.util.db.DbUtility=FATAL
-log4j.logger.org.apache.activemq=INFO
-log4j.logger.org.apache.activemq.ActiveMQMessageConsumer=INFO
-log4j.logger.org.apache.activemq.ActiveMQMessageProducer=INFO
+<!-- log4j.logger.org.apache.coyote=INFO -->
+<!-- log4j.logger.org.apache.catalina.core.ContainerBase=INFO -->
+<!-- log4j.logger.org.apache.directory.server=ERROR -->
+<!-- log4j.logger.org.apache.jackrabbit.core.query.lucene=ERROR -->
+<!-- log4j.logger.org.apache.jackrabbit.core.config.ConfigurationErrorHandler=ERROR -->
+<!-- log4j.logger.org.apache.jackrabbit.core.util.db.DbUtility=FATAL -->
+<!-- log4j.logger.org.apache.activemq=INFO -->
+<!-- log4j.logger.org.apache.activemq.ActiveMQMessageConsumer=INFO -->
+<!-- log4j.logger.org.apache.activemq.ActiveMQMessageProducer=INFO -->
 
-log4j.appender.console=org.apache.log4j.ConsoleAppender
-log4j.appender.console.layout=org.apache.log4j.PatternLayout
-log4j.appender.console.layout.ConversionPattern=%d{yyMMdd HH:mm:ss} %-5p %m [%t] %c%n
-			]]></value>
-		</property>
+<!-- log4j.appender.console=org.apache.log4j.ConsoleAppender -->
+<!-- log4j.appender.console.layout=org.apache.log4j.PatternLayout -->
+<!-- log4j.appender.console.layout.ConversionPattern=%d{yyMMdd HH:mm:ss} %-5p %m [%t] %c%n -->
+<!-- 			]]></value> -->
+<!-- 		</property> -->
 	</bean>
 </beans>
