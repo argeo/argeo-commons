@@ -33,6 +33,7 @@
 		<module>eclipse</module>
 		<module>security</module>
 		<module>demo</module>
+		<module>doc</module>
 	</modules>
 	<url>${site.urlBase}/${developmentCycle}</url>
 	<scm>
@@ -409,20 +410,10 @@ limitations under the License.
 		<site>
 			<id>argeo-commons-site</id>
 			<name>Argeo Commons Site</name>
-			<url>file://${site.repoBase}/${developmentCycle}/</url>
+			<url>file://${site.repoBase}/${project.version}</url>
 		</site>
 	</distributionManagement>
 	<profiles>
-		<profile>
-			<id>release</id>
-			<distributionManagement>
-				<site>
-					<id>argeo-commons-site</id>
-					<name>Argeo Commons Site</name>
-					<url>file://${site.repoBase}/${project.version}</url>
-				</site>
-			</distributionManagement>
-		</profile>
 		<profile>
 			<id>localrepo</id>
 			<distributionManagement>
@@ -439,13 +430,6 @@ limitations under the License.
 					</url>
 				</snapshotRepository>
 			</distributionManagement>
-		</profile>
-		<profile>
-			<id>full</id>
-			<modules>
-				<module>doc</module>
-				<module>sandbox</module>
-			</modules>
 		</profile>
 		<profile>
 			<id>el5</id>
