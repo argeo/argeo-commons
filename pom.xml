@@ -246,6 +246,19 @@ limitations under the License.
 								<configuration>
 									<encoding>UTF-8</encoding>
 									<excludePackageNames>*.demo.*:*.internal.*</excludePackageNames>
+									<detectLinks>true</detectLinks>
+									<links>
+										<!-- OSGi -->
+										<link>http://www.osgi.org/javadoc/r4v42</link>
+										<!-- Spring -->
+										<link>http://static.springsource.org/spring/docs/2.5.x/api</link>
+										<link>http://static.springsource.org/osgi/docs/1.2.x/api</link>
+										<link>http://static.springsource.org/spring-security/site/docs/2.0.x/apidocs</link>
+										<!-- JCR -->
+										<link>http://www.day.com/maven/javax.jcr/javadocs/jcr-2.0</link>
+										<!-- Eclipse -->
+										<link>http://help.eclipse.org/helios/topic/org.eclipse.platform.doc.isv/reference/api</link>
+									</links>
 								</configuration>
 								<reportSets>
 									<reportSet>
