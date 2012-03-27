@@ -10,7 +10,7 @@
 	<artifactId>demo</artifactId>
 	<name>Commons Demo</name>
 	<packaging>pom</packaging>
-	<modules>
+<!--  <modules>
 		<module>plugins</module>
-	</modules>
+	</modules>  -->	
 </project>
