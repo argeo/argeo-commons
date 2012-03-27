@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
@@ -15,33 +16,38 @@
 		<module>org.argeo.osgi.dep.stdruntime</module>
 		<module>org.argeo.osgi.dep.jackrabbit</module>
 	</modules>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.argeo.maven.plugins</groupId>
-				<artifactId>maven-argeo-osgi-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>check-osgi</id>
-						<phase>test</phase>
-						<goals>
-							<goal>equinox</goal>
-						</goals>
-						<configuration>
-							<onlyCheck>true</onlyCheck>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
-	<dependencies>
-		<!-- OSGi test -->
-		<dependency>
-			<groupId>org.argeo.commons.osgi</groupId>
-			<artifactId>org.argeo.osgi.boot</artifactId>
-			<version>0.3.5-SNAPSHOT</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+	<profiles>
+		<profile>
+			<id>check-osgi</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.argeo.maven.plugins</groupId>
+						<artifactId>maven-argeo-osgi-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>check-osgi</id>
+								<phase>test</phase>
+								<goals>
+									<goal>equinox</goal>
+								</goals>
+								<configuration>
+									<onlyCheck>true</onlyCheck>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+			<dependencies>
+				<!-- OSGi test -->
+				<dependency>
+					<groupId>org.argeo.commons.osgi</groupId>
+					<artifactId>org.argeo.osgi.boot</artifactId>
+					<version>0.3.5-SNAPSHOT</version>
+					<scope>test</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 </project>

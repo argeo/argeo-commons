@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.eclipse</groupId>
@@ -93,21 +94,12 @@
 			<artifactId>org.eclipse.rap.ui.workbench</artifactId>
 		</dependency>
 
-		<!-- Jetty (TO BE REMOVED and replaced by Tomcat
-		<dependency>
-			<groupId>org.eclipse.equinox</groupId>
-			<artifactId>org.eclipse.equinox.http.jetty</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.mortbay.jetty</groupId>
-			<artifactId>org.mortbay.jetty.server</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.mortbay.jetty</groupId>
-			<artifactId>org.mortbay.jetty.util</artifactId>
-		</dependency>
-		 -->
-		 
+		<!-- Jetty (TO BE REMOVED and replaced by Tomcat <dependency> <groupId>org.eclipse.equinox</groupId> 
+			<artifactId>org.eclipse.equinox.http.jetty</artifactId> </dependency> <dependency> 
+			<groupId>org.mortbay.jetty</groupId> <artifactId>org.mortbay.jetty.server</artifactId> 
+			</dependency> <dependency> <groupId>org.mortbay.jetty</groupId> <artifactId>org.mortbay.jetty.util</artifactId> 
+			</dependency> -->
+
 		<!-- Eclipse -->
 		<dependency>
 			<groupId>org.eclipse.core</groupId>
@@ -120,27 +112,32 @@
 	</dependencies>
 	<profiles>
 		<profile>
+			<id>check-osgi</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.argeo.maven.plugins</groupId>
+						<artifactId>maven-argeo-osgi-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>check-osgi</id>
+								<phase>test</phase>
+								<goals>
+									<goal>equinox</goal>
+								</goals>
+								<configuration>
+									<onlyCheck>true</onlyCheck>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
 			<id>rpmbuild-tp</id>
 			<build>
 				<plugins>
-<!-- 					<plugin> -->
-<!-- 						<groupId>org.apache.maven.plugins</groupId> -->
-<!-- 						<artifactId>maven-dependency-plugin</artifactId> -->
-<!-- 						<executions> -->
-<!-- 							<execution> -->
-<!-- 								<id>copy-rap</id> -->
-<!-- 								<phase>package</phase> -->
-<!-- 								<goals> -->
-<!-- 									<goal>copy-dependencies</goal> -->
-<!-- 								</goals> -->
-<!-- 								<configuration> -->
-<!-- 									<includeTypes>jar</includeTypes> -->
-<!-- 									<includeGroupIds>org.eclipse.core,org.eclipse.equinox,org.eclipse.rap,org.eclipse.help,org.argeo.dep.rap,org.eclipse.osgi,com.ibm.icu</includeGroupIds> -->
-<!-- 									<outputDirectory>${project.build.directory}/eclipse-rap</outputDirectory> -->
-<!-- 								</configuration> -->
-<!-- 							</execution> -->
-<!-- 						</executions> -->
-<!-- 					</plugin> -->
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>rpm-maven-plugin</artifactId>
@@ -179,7 +176,8 @@
 								<configuration>
 									<target>
 										<copy todir="${rpm.stagingRepository}" verbose="true">
-											<fileset dir="${project.build.directory}/rpm" includes="*/RPMS/**/*.rpm" />
+											<fileset dir="${project.build.directory}/rpm"
+												includes="*/RPMS/**/*.rpm" />
 											<flattenmapper />
 										</copy>
 									</target>

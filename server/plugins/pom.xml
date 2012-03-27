@@ -47,6 +47,15 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
+					</instructions>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>

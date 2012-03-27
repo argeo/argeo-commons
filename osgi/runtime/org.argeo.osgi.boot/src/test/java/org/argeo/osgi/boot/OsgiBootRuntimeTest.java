@@ -21,7 +21,6 @@ import java.util.TreeMap;
 
 import junit.framework.TestCase;
 
-import org.argeo.osgi.boot.OsgiBoot;
 import org.eclipse.core.runtime.adaptor.EclipseStarter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -29,8 +28,14 @@ import org.osgi.framework.BundleContext;
 /** Starts an Equinox runtime and provision it with OSGi boot. */
 public class OsgiBootRuntimeTest extends TestCase {
 	protected OsgiBoot osgiBoot = null;
+	private boolean osgiRuntimeAlreadyRunning = false;
 
 	public void testInstallAndStart() throws Exception {
+		if (osgiRuntimeAlreadyRunning) {
+			System.out
+					.println("OSGi runtime already running, skipping test...");
+			return;
+		}
 		osgiBoot.installUrls(osgiBoot.getBundlesUrls(OsgiBoot.DEFAULT_BASE_URL,
 				OsgiBootNoRuntimeTest.BUNDLES));
 		Map map = new TreeMap(osgiBoot.getBundlesBySymbolicName());
@@ -71,11 +76,16 @@ public class OsgiBootRuntimeTest extends TestCase {
 	}
 
 	public void setUp() throws Exception {
+		osgiRuntimeAlreadyRunning = EclipseStarter.isRunning();
+		if (osgiRuntimeAlreadyRunning)
+			return;
 		BundleContext bundleContext = startRuntime();
 		osgiBoot = new OsgiBoot(bundleContext);
 	}
 
 	public void tearDown() throws Exception {
+		if (osgiRuntimeAlreadyRunning)
+			return;
 		osgiBoot = null;
 		stopRuntime();
 	}

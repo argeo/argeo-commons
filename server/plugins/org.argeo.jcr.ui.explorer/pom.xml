@@ -26,6 +26,7 @@
 						<Import-Package>
 							*,
 							org.argeo.eclipse.spring,
+							org.argeo.util.crypto,
 						</Import-Package>
 						<Export-Package>org.argeo.jcr.ui.explorer.*</Export-Package>
 					</instructions>
