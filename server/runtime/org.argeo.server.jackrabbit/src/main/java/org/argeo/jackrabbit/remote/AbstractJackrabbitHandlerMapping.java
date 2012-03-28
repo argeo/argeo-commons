@@ -18,7 +18,7 @@ package org.argeo.jackrabbit.remote;
 import org.apache.jackrabbit.server.SessionProvider;
 import org.argeo.jcr.mvc.MultipleRepositoryHandlerMapping;
 
-/** Base class for Jackrabbit ahndler mappings. */
+/** Base class for Jackrabbit handler mappings. */
 public abstract class AbstractJackrabbitHandlerMapping extends
 		MultipleRepositoryHandlerMapping {
 	private SessionProvider sessionProvider;
