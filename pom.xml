@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo</groupId>
@@ -31,8 +32,6 @@
 		<module>server</module>
 		<module>eclipse</module>
 		<module>security</module>
-		<module>demo</module>
-		<module>doc</module>
 	</modules>
 	<url>${site.urlBase}/${developmentCycle}</url>
 	<scm>
@@ -441,6 +440,12 @@ limitations under the License.
 				<rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-staging/5/x86_64
 				</rpm.stagingRepository>
 			</properties>
+		</profile>
+		<profile>
+			<id>doc</id>
+			<modules>
+				<module>doc</module>
+			</modules>
 		</profile>
 	</profiles>
 </project>
