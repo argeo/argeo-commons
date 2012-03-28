@@ -36,6 +36,7 @@ import java.util.TreeMap;
 
 import javax.jcr.Binary;
 import javax.jcr.NamespaceRegistry;
+import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Property;
@@ -963,6 +964,29 @@ public class JcrUtils implements ArgeoJcrConstants {
 		} catch (RepositoryException e) {
 			log.warn("Cannot quietly discard session " + session + ": "
 					+ e.getMessage());
+		}
+	}
+
+	/**
+	 * Login to a workspace with implicit credentials, creates the workspace
+	 * with these credentials if it does not already exist.
+	 */
+	public static Session loginOrCreateWorkspace(Repository repository,
+			String workspaceName) throws RepositoryException {
+		Session workspaceSession = null;
+		Session defaultSession = null;
+		try {
+			try {
+				workspaceSession = repository.login(workspaceName);
+			} catch (NoSuchWorkspaceException e) {
+				// try to create workspace
+				defaultSession = repository.login();
+				defaultSession.getWorkspace().createWorkspace(workspaceName);
+				workspaceSession = repository.login(workspaceName);
+			}
+			return workspaceSession;
+		} finally {
+			logoutQuietly(defaultSession);
 		}
 	}
 
