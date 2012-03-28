@@ -244,7 +244,7 @@
   </menuContribution>
 	</extension>
 	
-	<!-- Core expression definition --> 
+	<!-- Core expression definition 
 	
 	<extension
          point="org.eclipse.core.expressions.definitions">
@@ -266,5 +266,5 @@
               isEqualityPattern="true"
               pattern="org.argeo.jcr.ui.explorer/org.argeo.jcr.ui.explorer.perspective">
         </activityPatternBinding>
-     </extension>
+     </extension> -->
 </plugin>
