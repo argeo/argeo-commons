@@ -17,6 +17,9 @@ package org.argeo.jcr;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -878,6 +881,73 @@ public class JcrUtils implements ArgeoJcrConstants {
 					+ " as bytes", e);
 		} finally {
 			IOUtils.closeQuietly(in);
+			closeQuietly(binary);
+		}
+	}
+
+	/**
+	 * Copy a file as an nt:file, assuming an nt:folder hierarchy. The session
+	 * is NOT saved.
+	 * 
+	 * @return the created file node
+	 */
+	public static Node copyFile(Node folderNode, File file) {
+		InputStream in = null;
+		try {
+			in = new FileInputStream(file);
+			return copyStreamAsFile(folderNode, file.getName(), in);
+		} catch (IOException e) {
+			throw new ArgeoException("Cannot copy file " + file + " under "
+					+ folderNode, e);
+		} finally {
+			IOUtils.closeQuietly(in);
+		}
+	}
+
+	/** Copy bytes as an nt:file */
+	public static Node copyBytesAsFile(Node folderNode, String fileName,
+			byte[] bytes) {
+		InputStream in = null;
+		try {
+			in = new ByteArrayInputStream(bytes);
+			return copyStreamAsFile(folderNode, fileName, in);
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot copy file " + fileName + " under "
+					+ folderNode, e);
+		} finally {
+			IOUtils.closeQuietly(in);
+		}
+	}
+
+	/**
+	 * Copy a stream as an nt:file, assuming an nt:folder hierarchy. The session
+	 * is NOT saved.
+	 * 
+	 * @return the created file node
+	 */
+	public static Node copyStreamAsFile(Node folderNode, String fileName,
+			InputStream in) {
+		Binary binary = null;
+		try {
+			Node fileNode;
+			Node contentNode;
+			if (folderNode.hasNode(fileName)) {
+				fileNode = folderNode.getNode(fileName);
+				// we assume that the content node is already there
+				contentNode = fileNode.getNode(Node.JCR_CONTENT);
+			} else {
+				fileNode = folderNode.addNode(fileName, NodeType.NT_FILE);
+				contentNode = fileNode.addNode(Node.JCR_CONTENT,
+						NodeType.NT_RESOURCE);
+			}
+			binary = contentNode.getSession().getValueFactory()
+					.createBinary(in);
+			contentNode.setProperty(Property.JCR_DATA, binary);
+			return fileNode;
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot create file node " + fileName
+					+ " under " + folderNode, e);
+		} finally {
 			closeQuietly(binary);
 		}
 	}
