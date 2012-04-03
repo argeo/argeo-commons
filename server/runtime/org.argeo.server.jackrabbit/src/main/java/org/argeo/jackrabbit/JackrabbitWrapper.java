@@ -327,10 +327,10 @@ public abstract class JackrabbitWrapper implements Repository {
 	/** Wraps access to the repository, making sure it is available. */
 	protected Repository getRepository() {
 		if (repository == null) {
-			throw new ArgeoException(
-					"No repository initialized."
-							+ " Was the init() method called?"
-							+ " The dispose() method should also be called on shutdown.");
+			throw new ArgeoException("No repository initialized."
+					+ " Was the init() method called?"
+					+ " The destroy() method should also"
+					+ " be called on shutdown.");
 		}
 		return repository;
 	}

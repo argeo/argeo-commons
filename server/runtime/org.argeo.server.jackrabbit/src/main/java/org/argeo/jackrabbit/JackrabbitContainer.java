@@ -57,7 +57,9 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
+import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
@@ -67,7 +69,8 @@ import org.springframework.util.SystemPropertyUtils;
  * Wrapper around a Jackrabbit repository which allows to configure it in Spring
  * and expose it as a {@link Repository}.
  */
-public class JackrabbitContainer extends JackrabbitWrapper {
+public class JackrabbitContainer extends JackrabbitWrapper implements
+		ResourceLoaderAware {
 	private Log log = LogFactory.getLog(JackrabbitContainer.class);
 
 	// remote
@@ -76,6 +79,7 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 	// local
 	private Resource configuration;
 	private Resource variables;
+	private ResourceLoader resourceLoader;
 
 	// data model
 	/** Node type definitions in CND format */
@@ -142,7 +146,10 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 
 		Session session = null;
 		try {
-			session = login();
+			if (remoteSystemCredentials == null)
+				session = login();
+			else
+				session = login(remoteSystemCredentials);
 			// register namespaces
 			if (namespaces.size() > 0) {
 				NamespaceHelper namespaceHelper = new NamespaceHelper(session);
@@ -177,13 +184,11 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 						}
 					} else {
 						url = getClass().getClassLoader().getResource(resUrl);
+						// if (url == null)
+						// url = Thread.currentThread()
+						// .getContextClassLoader()
+						// .getResource(resUrl);
 					}
-					if (url == null)
-						throw new ArgeoException("No " + resUrl
-								+ " in the classpath,"
-								+ " make sure the containing"
-								+ " package is visible.");
-
 				} else {
 					url = new URL(resUrl);
 				}
@@ -227,9 +232,23 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 					return;
 				}
 
+				InputStream in = null;
 				Reader reader = null;
 				try {
-					reader = new InputStreamReader(url.openStream());
+					if (url != null) {
+						in = url.openStream();
+					} else if (resourceLoader != null) {
+						Resource res = resourceLoader.getResource(resUrl);
+						in = res.getInputStream();
+						url = res.getURL();
+					} else {
+						throw new ArgeoException("No " + resUrl
+								+ " in the classpath,"
+								+ " make sure the containing"
+								+ " package is visible.");
+					}
+
+					reader = new InputStreamReader(in);
 					// actually imports the CND
 					CndImporter.registerNodeTypes(reader, session, true);
 
@@ -256,6 +275,7 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 					session.getWorkspace().getVersionManager()
 							.checkin(dataModel.getPath());
 				} finally {
+					IOUtils.closeQuietly(in);
 					IOUtils.closeQuietly(reader);
 				}
 
@@ -474,6 +494,10 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 
 	public void setForceCndImport(Boolean forceCndUpdate) {
 		this.forceCndImport = forceCndUpdate;
+	}
+
+	public void setResourceLoader(ResourceLoader resourceLoader) {
+		this.resourceLoader = resourceLoader;
 	}
 
 }
