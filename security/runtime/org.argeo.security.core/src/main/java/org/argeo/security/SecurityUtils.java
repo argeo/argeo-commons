@@ -58,4 +58,25 @@ public class SecurityUtils {
 		}
 		return null;
 	}
+
+	/**
+	 * Returns the display name of the user details (by calling toString() on
+	 * it)
+	 */
+	public static String getUserDetailsDisplayName() {
+		SecurityContext securityContext = SecurityContextHolder.getContext();
+		if (securityContext != null) {
+			Authentication authentication = securityContext.getAuthentication();
+			if (authentication != null) {
+				if (authentication instanceof AnonymousAuthenticationToken) {
+					return null;
+				}
+				Object details = authentication.getDetails();
+				if (details != null)
+					return details.toString();
+				return authentication.getName();
+			}
+		}
+		return null;
+	}
 }
