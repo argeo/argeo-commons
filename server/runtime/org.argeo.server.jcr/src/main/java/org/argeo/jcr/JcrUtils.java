@@ -341,6 +341,14 @@ public class JcrUtils implements ArgeoJcrConstants {
 	}
 
 	/**
+	 * Creates the nodes making the path as {@link NodeType#NT_FOLDER}
+	 */
+	public static Node mkfolders(Session session, String path) {
+		return mkdirs(session, path, NodeType.NT_FOLDER, NodeType.NT_FOLDER,
+				false);
+	}
+
+	/**
 	 * Creates the nodes making path, if they don't exist. This is up to the
 	 * caller to save the session. Use with caution since it can create
 	 * duplicate nodes if used concurrently.
