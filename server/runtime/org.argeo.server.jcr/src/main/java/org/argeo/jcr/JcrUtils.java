@@ -42,6 +42,7 @@ import javax.jcr.NamespaceRegistry;
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
@@ -50,6 +51,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.Value;
+import javax.jcr.ValueFormatException;
 import javax.jcr.Workspace;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.observation.EventListener;
@@ -291,6 +293,49 @@ public class JcrUtils implements ArgeoJcrConstants {
 			throws RepositoryException {
 		return parent.hasNode(childName) ? parent.getNode(childName) : parent
 				.addNode(childName);
+	}
+
+	/** Convert a {@link NodeIterator} to a list of {@link Node} */
+	public static List<Node> nodeIteratorToList(NodeIterator nodeIterator) {
+		List<Node> nodes = new ArrayList<Node>();
+		while (nodeIterator.hasNext()) {
+			nodes.add(nodeIterator.nextNode());
+		}
+		return nodes;
+	}
+
+	/*
+	 * PROPERTIES
+	 */
+
+	/** Concisely get the string value of a property */
+	public static String get(Node node, String propertyName) {
+		try {
+			return node.getProperty(propertyName).getString();
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot get property " + propertyName
+					+ " of " + node, e);
+		}
+	}
+
+	/** Concisely get the boolean value of a property */
+	public static Boolean check(Node node, String propertyName) {
+		try {
+			return node.getProperty(propertyName).getBoolean();
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot get property " + propertyName
+					+ " of " + node, e);
+		}
+	}
+
+	/** Concisely get the bytes array value of a property */
+	public static byte[] getBytes(Node node, String propertyName) {
+		try {
+			return getBinaryAsBytes(node.getProperty(propertyName));
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot get property " + propertyName
+					+ " of " + node, e);
+		}
 	}
 
 	/** Creates the nodes making path, if they don't exist. */
