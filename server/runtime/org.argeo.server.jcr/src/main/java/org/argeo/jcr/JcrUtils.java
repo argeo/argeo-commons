@@ -42,7 +42,6 @@ import javax.jcr.NamespaceRegistry;
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
@@ -51,7 +50,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.Value;
-import javax.jcr.ValueFormatException;
 import javax.jcr.Workspace;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.observation.EventListener;
@@ -69,6 +67,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
+import org.argeo.util.security.DigestUtils;
 import org.argeo.util.security.SimplePrincipal;
 
 /** Utility methods to simplify common JCR operations. */
@@ -1003,6 +1002,23 @@ public class JcrUtils implements ArgeoJcrConstants {
 					+ " under " + folderNode, e);
 		} finally {
 			closeQuietly(binary);
+		}
+	}
+
+	/** Computes the checksum of an nt:file */
+	public static String checksumFile(Node fileNode, String algorithm) {
+		Binary data = null;
+		InputStream in = null;
+		try {
+			data = fileNode.getNode(Node.JCR_CONTENT)
+					.getProperty(Property.JCR_DATA).getBinary();
+			in = data.getStream();
+			return DigestUtils.digest(algorithm, in);
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot checksum file " + fileNode, e);
+		} finally {
+			IOUtils.closeQuietly(in);
+			closeQuietly(data);
 		}
 	}
 
