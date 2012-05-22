@@ -1546,7 +1546,7 @@ public class JcrUtils implements ArgeoJcrConstants {
 
 	/**
 	 * Add privileges on a path to a {@link Principal}. The path must already
-	 * exist.
+	 * exist. Session is saved.
 	 */
 	public static void addPrivileges(Session session, String path,
 			Principal principal, List<Privilege> privs)
@@ -1582,6 +1582,7 @@ public class JcrUtils implements ArgeoJcrConstants {
 			throw new ArgeoException("Don't know how to apply  privileges "
 					+ privs + " to " + principal + " on " + path);
 		}
+		session.save();
 	}
 
 }

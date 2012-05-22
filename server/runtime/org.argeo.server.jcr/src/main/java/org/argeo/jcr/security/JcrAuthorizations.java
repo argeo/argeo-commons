@@ -24,10 +24,7 @@ import java.util.Map;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.security.AccessControlList;
 import javax.jcr.security.AccessControlManager;
-import javax.jcr.security.AccessControlPolicy;
-import javax.jcr.security.AccessControlPolicyIterator;
 import javax.jcr.security.Privilege;
 
 import org.apache.commons.logging.Log;
@@ -94,10 +91,13 @@ public class JcrAuthorizations implements Runnable {
 			for (String principalName : principalNames.split(",")) {
 				Principal principal = getOrCreatePrincipal(session,
 						principalName);
-				addPrivileges(session, principal, path, privs);
+				JcrUtils.addPrivileges(session, path, principal, privs);
 			}
 		}
-		session.save();
+
+		if (log.isDebugEnabled())
+			log.debug("All authorizations applied on workspace "
+					+ session.getWorkspace().getName());
 	}
 
 	/**
@@ -110,51 +110,52 @@ public class JcrAuthorizations implements Runnable {
 		return new SimplePrincipal(principalName);
 	}
 
-	public static void addPrivileges(Session session, Principal principal,
-			String path, List<Privilege> privs) throws RepositoryException {
-		AccessControlManager acm = session.getAccessControlManager();
-		// search for an access control list
-		AccessControlList acl = null;
-		AccessControlPolicyIterator policyIterator = acm
-				.getApplicablePolicies(path);
-		if (policyIterator.hasNext()) {
-			while (policyIterator.hasNext()) {
-				AccessControlPolicy acp = policyIterator
-						.nextAccessControlPolicy();
-				if (acp instanceof AccessControlList)
-					acl = ((AccessControlList) acp);
-			}
-		} else {
-			AccessControlPolicy[] existingPolicies = acm.getPolicies(path);
-			for (AccessControlPolicy acp : existingPolicies) {
-				if (acp instanceof AccessControlList)
-					acl = ((AccessControlList) acp);
-			}
-		}
-
-		if (acl != null) {
-			acl.addAccessControlEntry(principal,
-					privs.toArray(new Privilege[privs.size()]));
-			acm.setPolicy(path, acl);
-			if (log.isDebugEnabled()) {
-				StringBuffer buf = new StringBuffer("");
-				for (int i = 0; i < privs.size(); i++) {
-					if (i != 0)
-						buf.append(',');
-					buf.append(privs.get(i).getName());
-				}
-				log.debug("Added privilege(s) '" + buf + "' to '"
-						+ principal.getName() + "' on " + path
-						+ " from workspace '"
-						+ session.getWorkspace().getName() + "'");
-			}
-		} else {
-			throw new ArgeoException("Don't know how to apply  privileges "
-					+ privs + " to " + principal + " on " + path
-					+ " from workspace '" + session.getWorkspace().getName()
-					+ "'");
-		}
-	}
+	// public static void addPrivileges(Session session, Principal principal,
+	// String path, List<Privilege> privs) throws RepositoryException {
+	// AccessControlManager acm = session.getAccessControlManager();
+	// // search for an access control list
+	// AccessControlList acl = null;
+	// AccessControlPolicyIterator policyIterator = acm
+	// .getApplicablePolicies(path);
+	// if (policyIterator.hasNext()) {
+	// while (policyIterator.hasNext()) {
+	// AccessControlPolicy acp = policyIterator
+	// .nextAccessControlPolicy();
+	// if (acp instanceof AccessControlList)
+	// acl = ((AccessControlList) acp);
+	// }
+	// } else {
+	// AccessControlPolicy[] existingPolicies = acm.getPolicies(path);
+	// for (AccessControlPolicy acp : existingPolicies) {
+	// if (acp instanceof AccessControlList)
+	// acl = ((AccessControlList) acp);
+	// }
+	// }
+	//
+	// if (acl != null) {
+	// acl.addAccessControlEntry(principal,
+	// privs.toArray(new Privilege[privs.size()]));
+	// acm.setPolicy(path, acl);
+	// session.save();
+	// if (log.isDebugEnabled()) {
+	// StringBuffer buf = new StringBuffer("");
+	// for (int i = 0; i < privs.size(); i++) {
+	// if (i != 0)
+	// buf.append(',');
+	// buf.append(privs.get(i).getName());
+	// }
+	// log.debug("Added privilege(s) '" + buf + "' to '"
+	// + principal.getName() + "' on " + path
+	// + " from workspace '"
+	// + session.getWorkspace().getName() + "'");
+	// }
+	// } else {
+	// throw new ArgeoException("Don't know how to apply  privileges "
+	// + privs + " to " + principal + " on " + path
+	// + " from workspace '" + session.getWorkspace().getName()
+	// + "'");
+	// }
+	// }
 
 	@Deprecated
 	public void setGroupPrivileges(Map<String, String> groupPrivileges) {
