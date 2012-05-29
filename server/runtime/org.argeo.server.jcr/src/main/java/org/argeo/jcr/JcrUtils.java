@@ -307,9 +307,14 @@ public class JcrUtils implements ArgeoJcrConstants {
 	 * PROPERTIES
 	 */
 
-	/** Concisely get the string value of a property */
+	/**
+	 * Concisely get the string value of a property or null if this node doesn't
+	 * have this property
+	 */
 	public static String get(Node node, String propertyName) {
 		try {
+			if (!node.hasProperty(propertyName))
+				return null;
 			return node.getProperty(propertyName).getString();
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot get property " + propertyName
