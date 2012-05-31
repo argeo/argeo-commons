@@ -113,6 +113,7 @@ public class AddRemoteRepository extends AbstractHandler implements
 		private Text uri;
 		private Text username;
 		private Text password;
+		private Button saveInKeyring;
 
 		public RemoteRepositoryLoginDialog(Shell parentShell) {
 			super(parentShell);
@@ -136,6 +137,8 @@ public class AddRemoteRepository extends AbstractHandler implements
 					"http://localhost:7070/org.argeo.jcr.webapp/remoting/node");
 			username = createLT(composite, "User", "");
 			password = createLP(composite, "Password");
+
+			saveInKeyring = createLC(composite, "Remember password", false);
 			parent.pack();
 			return composite;
 		}
@@ -188,6 +191,12 @@ public class AddRemoteRepository extends AbstractHandler implements
 			try {
 				Session nodeSession = keyring.getSession();
 				Node home = JcrUtils.getUserHome(nodeSession);
+
+				// FIXME better deal with non existing home dir
+				if (home == null)
+					home = JcrUtils.createUserHomeIfNeeded(nodeSession,
+							nodeSession.getUserID());
+
 				Node remote = home.hasNode(ARGEO_REMOTE) ? home
 						.getNode(ARGEO_REMOTE) : home.addNode(ARGEO_REMOTE);
 				if (remote.hasNode(name.getText()))
@@ -199,13 +208,16 @@ public class AddRemoteRepository extends AbstractHandler implements
 				remoteRepository.setProperty(ARGEO_URI, uri.getText());
 				remoteRepository.setProperty(ARGEO_USER_ID, username.getText());
 				Node pwd = remoteRepository.addNode(ARGEO_PASSWORD);
-				keyring.set(pwd.getPath(), password.getText().toCharArray());
-				nodeSession.save();
+				pwd.getSession().save();
+				if (saveInKeyring.getSelection())
+					keyring.set(pwd.getPath(), password.getText().toCharArray());
+				keyring.getSession().save();
 				MessageDialog.openInformation(
 						getParentShell(),
 						"Repository Added",
 						"Remote repository '" + username.getText() + "@"
 								+ uri.getText() + "' added");
+
 				super.okPressed();
 			} catch (Exception e) {
 				ErrorFeedback.show("Cannot add remote repository", e);
@@ -219,6 +231,16 @@ public class AddRemoteRepository extends AbstractHandler implements
 			text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 			text.setText(initial);
 			return text;
+		}
+
+		/** Creates label and check. */
+		protected Button createLC(Composite parent, String label,
+				Boolean initial) {
+			new Label(parent, SWT.NONE).setText(label);
+			Button check = new Button(parent, SWT.CHECK);
+			check.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			check.setSelection(initial);
+			return check;
 		}
 
 		protected Text createLP(Composite parent, String label) {

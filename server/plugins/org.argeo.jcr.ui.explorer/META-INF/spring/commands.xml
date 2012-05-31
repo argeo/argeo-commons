@@ -26,6 +26,9 @@
 		<property name="keyring" ref="jcrKeyring" />
 	</bean>
 
+	<bean id="removeRemoteRepository" class="org.argeo.jcr.ui.explorer.commands.RemoveRemoteRepository">
+	</bean>
+
 	<bean id="addFolderNode" class="org.argeo.jcr.ui.explorer.commands.AddFolderNode"
 		scope="prototype" />
 

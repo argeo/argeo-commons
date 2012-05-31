@@ -23,6 +23,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
+import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.security.JcrKeyring;
@@ -53,6 +54,16 @@ public class RemoteRepositoryNode extends RepositoryNode {
 			return getRepository().login(credentials, workspaceName);
 		} finally {
 			Arrays.fill(password, 0, password.length, ' ');
+		}
+	}
+
+	public void remove() {
+		try {
+			Node remoteNode = jcrKeyring.getSession().getNode(remoteNodePath);
+			remoteNode.remove();
+			remoteNode.getSession().save();
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot remove " + remoteNodePath, e);
 		}
 	}
 

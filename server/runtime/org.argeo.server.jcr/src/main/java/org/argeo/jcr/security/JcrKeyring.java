@@ -149,9 +149,9 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 		}
 	}
 
-	/** The node must already exist at this path */
+	/** The node must already exist at this path. Session is saved. */
 	@Override
-	protected void encrypt(String path, InputStream unencrypted) {
+	protected synchronized void encrypt(String path, InputStream unencrypted) {
 		// should be called first for lazy initialization
 		SecretKey secretKey = getSecretKey();
 
@@ -164,6 +164,8 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 			Cipher cipher = createCipher();
 			if (!session.nodeExists(path))
 				throw new ArgeoException("No node at " + path);
+			if (session.hasPendingChanges())
+				session.save();
 			Node node = session.getNode(path);
 			node.addMixin(ArgeoTypes.ARGEO_ENCRYPTED);
 			SecureRandom random = new SecureRandom();
@@ -194,6 +196,7 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 			in = new CipherInputStream(unencrypted, cipher);
 			binary = session.getValueFactory().createBinary(in);
 			node.setProperty(Property.JCR_DATA, binary);
+			session.save();
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot encrypt", e);
 		} finally {
@@ -206,7 +209,7 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 	}
 
 	@Override
-	protected InputStream decrypt(String path) {
+	protected synchronized InputStream decrypt(String path) {
 		// should be called first for lazy initialization
 		SecretKey secretKey = getSecretKey();
 
@@ -258,16 +261,16 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 		}
 	}
 
-	public void changePassword(char[] oldPassword, char[] newPassword) {
-		// TODO Auto-generated method stub
-
+	public synchronized void changePassword(char[] oldPassword,
+			char[] newPassword) {
+		// TODO decrypt with old pw / encrypt with new pw all argeo:encrypted
 	}
 
-	public Session getSession() {
+	public synchronized Session getSession() {
 		return session;
 	}
 
-	public void setSession(Session session) {
+	public synchronized void setSession(Session session) {
 		this.session = session;
 	}
 
