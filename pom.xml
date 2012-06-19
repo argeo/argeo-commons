@@ -13,10 +13,10 @@
 	<description>Generic layers integrating free / open source technologies in order to quickly develop custom enterprise systems: security, JCR, user interface, monitoring</description>
 	<packaging>pom</packaging>
 	<properties>
-		<developmentCycle>0.4</developmentCycle>
+		<developmentCycle>1.1</developmentCycle>
 		<developmentCycle.startDate>2012-06-19</developmentCycle.startDate>
 		<version.argeo-distribution>1.2.0</version.argeo-distribution>
-		<version.argeo-commons>0.4.0</version.argeo-commons>
+		<version.argeo-commons>1.1.1-SNAPSHOT</version.argeo-commons>
 		<!-- distribution -->
 		<site.repoBase>file:///srv/projects/www/commons/site</site.repoBase>
 		<site.urlBase>http://projects.argeo.org/commons/site</site.urlBase>
