@@ -14,8 +14,8 @@
 	<description>Generic layers integrating free / open source technologies in order to quickly develop custom enterprise systems: security, JCR, user interface, monitoring</description>
 	<packaging>pom</packaging>
 	<properties>
-		<developmentCycle>0.3</developmentCycle>
-		<developmentCycle.startDate>2011-03-24</developmentCycle.startDate>
+		<developmentCycle>0.4</developmentCycle>
+		<developmentCycle.startDate>2012-06-19</developmentCycle.startDate>
 		<version.argeo-distribution>1.2.0</version.argeo-distribution>
 		<version.argeo-commons>0.4.0</version.argeo-commons>
 		<!-- distribution -->
