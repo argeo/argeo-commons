@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
 		<artifactId>runtime</artifactId>
-		<version>0.3.5-SNAPSHOT</version>
+		<version>0.4.0</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.security.core</artifactId>
@@ -57,12 +57,12 @@
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.nodeps</artifactId>
-			<version>0.3.5-SNAPSHOT</version>
+			<version>0.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.jcr</artifactId>
-			<version>0.3.5-SNAPSHOT</version>
+			<version>0.4.0</version>
 		</dependency>
 
 		<!-- Crypto -->
@@ -109,14 +109,14 @@
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.dep.log4j</artifactId>
-			<version>0.3.5-SNAPSHOT</version>
+			<version>0.4.0</version>
 			<type>pom</type>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.json</artifactId>
-			<version>0.3.5-SNAPSHOT</version>
+			<version>0.4.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

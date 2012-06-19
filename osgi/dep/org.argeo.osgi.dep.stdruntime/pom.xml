@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.osgi</groupId>
-		<version>0.3.5-SNAPSHOT</version>
+		<version>0.4.0</version>
 		<artifactId>dep</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -14,13 +14,13 @@
 		<dependency>
 			<groupId>org.argeo.commons.osgi</groupId>
 			<artifactId>org.argeo.osgi.boot</artifactId>
-			<version>0.3.5-SNAPSHOT</version>
+			<version>0.4.0</version>
 		</dependency>
 		<!--  Logging -->
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
 			<artifactId>org.argeo.basic.dep.log4j</artifactId>
-			<version>0.3.5-SNAPSHOT</version>
+			<version>0.4.0</version>
 			<type>pom</type>
 		</dependency>
 	</dependencies>

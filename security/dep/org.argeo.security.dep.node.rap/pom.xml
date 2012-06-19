@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
-		<version>0.3.5-SNAPSHOT</version>
+		<version>0.4.0</version>
 		<artifactId>dep</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -30,37 +30,37 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.jcr.ui.explorer</artifactId>
-			<version>0.3.5-SNAPSHOT</version>
+			<version>0.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.osgi</groupId>
 			<artifactId>org.argeo.osgi.ui.explorer</artifactId>
-			<version>0.3.5-SNAPSHOT</version>
+			<version>0.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.ui.admin</artifactId>
-			<version>0.3.5-SNAPSHOT</version>
+			<version>0.4.0</version>
 		</dependency>
 
 		<!-- Basis -->
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.dep.node</artifactId>
-			<version>0.3.5-SNAPSHOT</version>
+			<version>0.4.0</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.ui.rap</artifactId>
-			<version>0.3.5-SNAPSHOT</version>
+			<version>0.4.0</version>
 		</dependency>
 
 		<!-- For Tomcat deployment -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.rap.webapp</artifactId>
-			<version>0.3.5-SNAPSHOT</version>
+			<version>0.4.0</version>
 		</dependency>
 	</dependencies>
 	<profiles>
@@ -91,7 +91,7 @@
 				<dependency>
 					<groupId>org.argeo.commons.osgi</groupId>
 					<artifactId>org.argeo.osgi.boot</artifactId>
-					<version>0.3.5-SNAPSHOT</version>
+					<version>0.4.0</version>
 					<scope>test</scope>
 				</dependency>
 			</dependencies>
