@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
@@ -52,18 +52,18 @@
 		</dependency>
 
 		<dependency>
-			<groupId>net.sourceforge.ehcache</groupId>
-			<artifactId>com.springsource.net.sf.ehcache</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>net.sf.ehcache</artifactId>
 		</dependency>
 
 		<!-- Spring -->
 		<dependency>
-			<groupId>org.springframework</groupId>
+			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.springframework.orm</artifactId>
 		</dependency>
 		<dependency>
 			<!-- For EhCache support -->
-			<groupId>org.springframework</groupId>
+			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.springframework.context.support</artifactId>
 		</dependency>
 

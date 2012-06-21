@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.eclipse</groupId>
@@ -61,40 +62,141 @@ ex=*.source_*.jar,\
 		</plugins>
 	</build>
 	<dependencies>
-		<!-- common dependencies for both RCP and RAP -->
 		<dependency>
-			<groupId>org.argeo.commons.eclipse</groupId>
-			<artifactId>org.argeo.eclipse.dep.common</artifactId>
-			<version>1.1.1-SNAPSHOT</version>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.eclipse.osgi</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>org.eclipse.ui</groupId>
-			<artifactId>org.eclipse.ui</artifactId>
-		</dependency>
+			<groupId>org.argeo.tp.rcp.platform</groupId>
+			<artifactId>binaries</artifactId>
+			<version>${version.argeo-distribution}</version>
+			<type>pom</type>
+			<exclusions>
+				<!-- SWT -->
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.swt.win32.win32.x86_64</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.swt.carbon.macosx</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.swt.cocoa.macosx.x86_64</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.swt.gtk.solaris.sparc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.swt.gtk.solaris.x86</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.swt.motif.solaris.sparc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.swt.gtk.linux.s390</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.swt.gtk.linux.s390x</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.swt.gtk.linux.ppc64</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.swt.motif.linux.x86</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.swt.gtk.linux.ppc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.swt.photon.qnx.x86</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.swt.motif.aix.ppc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.swt.motif.aix.ppc64</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.swt.motif.hpux.ia64_32</artifactId>
+				</exclusion>
 
-		<!-- forms -->
-		<dependency>
-			<groupId>org.eclipse.ui</groupId>
-			<artifactId>org.eclipse.ui.forms</artifactId>
-		</dependency>
-
-		<!-- SWT -->
-		<dependency>
-			<groupId>org.eclipse.swt</groupId>
-			<artifactId>org.eclipse.swt</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.swt</groupId>
-			<artifactId>org.eclipse.swt.gtk.linux.x86</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.swt</groupId>
-			<artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.swt</groupId>
-			<artifactId>org.eclipse.swt.win32.win32.x86</artifactId>
+				<!-- Equinox Launcher -->
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.equinox.launcher.win32.win32.x86_64</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.equinox.launcher.carbon.macosx</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.equinox.launcher.cocoa.macosx.x86_64</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.equinox.launcher.gtk.solaris.sparc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.equinox.launcher.gtk.solaris.x86</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.equinox.launcher.motif.solaris.sparc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.equinox.launcher.gtk.linux.s390</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.equinox.launcher.gtk.linux.s390x</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.equinox.launcher.gtk.linux.ppc64</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.equinox.launcher.motif.linux.x86</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.equinox.launcher.gtk.linux.ppc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.equinox.launcher.photon.qnx.x86</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.equinox.launcher.motif.aix.ppc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.equinox.launcher.motif.aix.ppc64</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.platform</groupId>
+					<artifactId>org.eclipse.equinox.launcher.motif.hpux.ia64_32</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 	<profiles>

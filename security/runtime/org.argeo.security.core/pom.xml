@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
@@ -70,40 +70,48 @@
 		<!-- <groupId>org.argeo.dep.osgi</groupId> -->
 		<!-- <artifactId>org.argeo.dep.osgi.bouncycastle.jdk15</artifactId> -->
 		<!-- </dependency> -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.codec</artifactId>
+		</dependency>
 
 		<!-- Spring -->
 		<dependency>
-			<groupId>org.springframework</groupId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.springframework.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.springframework.beans</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
+			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.springframework.context</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.security</groupId>
+			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.springframework.security.core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
+			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.springframework.transaction</artifactId>
 		</dependency>
 		<!-- Logging -->
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>com.springsource.slf4j.org.apache.commons.logging</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>slf4j.org.apache.commons.logging</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>org.apache.log4j</groupId>
-			<artifactId>com.springsource.org.apache.log4j</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.log4j</artifactId>
 			<optional>true</optional>
 		</dependency>
 
 		<!-- TEST -->
 		<dependency>
-			<groupId>org.junit</groupId>
-			<artifactId>com.springsource.junit</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -120,7 +128,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.springsource.json</groupId>
+			<groupId>org.argeo.tp</groupId>
 			<artifactId>com.springsource.json</artifactId>
 			<scope>test</scope>
 		</dependency>

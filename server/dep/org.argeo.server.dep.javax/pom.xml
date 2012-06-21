@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
@@ -12,32 +12,32 @@
 	<description>Component provided by Java 6</description>
 	<dependencies>
 		<dependency>
-			<groupId>javax.activation</groupId>
-			<artifactId>com.springsource.javax.activation</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.activation</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.annotation</groupId>
-			<artifactId>com.springsource.javax.annotation</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.annotation</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.transaction</groupId>
-			<artifactId>com.springsource.javax.transaction</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.transaction</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.xml.stream</groupId>
-			<artifactId>com.springsource.javax.xml.stream</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.xml.stream</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>com.springsource.javax.xml.bind</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.xml.bind</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.xml.soap</groupId>
-			<artifactId>com.springsource.javax.xml.soap</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.xml.soap</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.xml.ws</groupId>
-			<artifactId>com.springsource.javax.xml.ws</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.xml.ws</artifactId>
 		</dependency>
 	</dependencies>
 </project>

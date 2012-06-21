@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
@@ -19,12 +19,12 @@
 
 		<!-- Enhancements of Jackrabbit -->
 		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcprov-jdk15on</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>bcprov</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcmail-jdk15on</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>bcmail</artifactId>
 		</dependency>
 		<!-- Provides org.bouncycastle.cms in v1.47 (bcmail not necessary anymore) -->
 		<!-- <dependency> -->
@@ -32,48 +32,48 @@
 		<!-- <artifactId>bcpkix-jdk15on</artifactId> -->
 		<!-- </dependency> -->
 		<dependency>
-			<groupId>org.apache.xmlbeans</groupId>
-			<artifactId>com.springsource.org.apache.xmlbeans</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.xmlbeans</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.xmlcommons</groupId>
-			<artifactId>com.springsource.org.apache.xmlcommons</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.xmlcommons</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.pdfbox</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.pdfbox</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.poi</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.poi</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.sun.syndication</groupId>
-			<artifactId>com.springsource.com.sun.syndication</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>com.sun.syndication</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>net.sourceforge.nekohtml</groupId>
-			<artifactId>com.springsource.org.cyberneko.html</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.cyberneko.html</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.boilerpipe</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>de.l3s.boilerpipe</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>com.springsource.javax.mail</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.mail</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.drewnoakes.metadata_extractor</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>com.drewnoakes.metadata_extractor</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.netcdf</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>edu.ucar.unidata.netcdf</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.tagsoup</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.ccil.cowan.tagsoup</artifactId>
 		</dependency>
 	</dependencies>
 </project>

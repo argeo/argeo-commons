@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
@@ -40,28 +40,32 @@
 	<dependencies>
 		<!-- Spring -->
 		<dependency>
-			<groupId>org.springframework.osgi</groupId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.springframework.osgi.web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.springframework.osgi.web.extender</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.catalina</groupId>
-			<artifactId>com.springsource.org.apache.catalina</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.catalina</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
+			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.springframework.beans</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.osgi</groupId>
+			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.eclipse.osgi</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>com.springsource.javax.servlet</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.servlet</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>com.springsource.slf4j.org.apache.commons.logging</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>slf4j.org.apache.commons.logging</artifactId>
 		</dependency>
 	</dependencies>
 </project>

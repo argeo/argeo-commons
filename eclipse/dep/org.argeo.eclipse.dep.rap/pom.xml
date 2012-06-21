@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.eclipse</groupId>
@@ -9,9 +10,6 @@
 	</parent>
 	<artifactId>org.argeo.eclipse.dep.rap</artifactId>
 	<name>Commons Eclipse RAP Dependencies</name>
-	<properties>
-		<version.rap>1.3.2</version.rap>
-	</properties>
 	<build>
 		<plugins>
 			<plugin>
@@ -21,93 +19,71 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<!-- common dependencies for both RCP and RAP -->
 		<dependency>
-			<groupId>org.argeo.commons.eclipse</groupId>
-			<artifactId>org.argeo.eclipse.dep.common</artifactId>
-			<version>1.1.1-SNAPSHOT</version>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.eclipse.osgi</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>binaries</artifactId>
+			<version>${version.argeo-distribution}</version>
+			<type>pom</type>
+			<exclusions>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>javax.servlet</artifactId>
+				</exclusion>
+
+				<!-- Jetty -->
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.equinox.http.jetty</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.mortbay.jetty.server</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.mortbay.jetty.util</artifactId>
+				</exclusion>
+
+				<!-- Demo -->
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.demo</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.demo.databinding</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.design.example</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- Dependency to enable file upload. Should be included directly in coming 
 			rap distribution -->
 		<dependency>
-			<groupId>org.argeo.dep.rap</groupId>
+			<groupId>org.argeo.tp.rap</groupId>
 			<artifactId>org.eclipse.rwt.widgets.upload</artifactId>
+			<version>1.0.0.argeo002</version>
 		</dependency>
 		<!-- Needed by the bundle above -->
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>com.springsource.org.apache.commons.io</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.io</artifactId>
 		</dependency>
 
 		<!-- RAP Specific Dependencies -->
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>com.springsource.javax.servlet</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.equinox</groupId>
-			<artifactId>org.eclipse.equinox.http.registry</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.equinox</groupId>
-			<artifactId>org.eclipse.equinox.http.servlet</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.servlet</artifactId>
 		</dependency>
 
-		<!-- RAP -->
-		<!-- order IS important -->
-		<dependency>
-			<groupId>org.eclipse.rap</groupId>
-			<artifactId>org.eclipse.rap.ui</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.rap</groupId>
-			<artifactId>org.eclipse.rap.rwt</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.rap</groupId>
-			<artifactId>org.eclipse.rap.rwt.q07</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.rap</groupId>
-			<artifactId>org.eclipse.rap.jface</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.rap</groupId>
-			<artifactId>org.eclipse.rap.jface.databinding</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.rap</groupId>
-			<artifactId>org.eclipse.rap.ui.cheatsheets</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.rap</groupId>
-			<artifactId>org.eclipse.rap.ui.forms</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.rap</groupId>
-			<artifactId>org.eclipse.rap.ui.views</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.rap</groupId>
-			<artifactId>org.eclipse.rap.ui.workbench</artifactId>
-		</dependency>
-
-		<!-- Jetty (TO BE REMOVED and replaced by Tomcat <dependency> <groupId>org.eclipse.equinox</groupId> 
-			<artifactId>org.eclipse.equinox.http.jetty</artifactId> </dependency> <dependency> 
-			<groupId>org.mortbay.jetty</groupId> <artifactId>org.mortbay.jetty.server</artifactId> 
-			</dependency> <dependency> <groupId>org.mortbay.jetty</groupId> <artifactId>org.mortbay.jetty.util</artifactId> 
-			</dependency> -->
-
-		<!-- Eclipse -->
-		<dependency>
-			<groupId>org.eclipse.core</groupId>
-			<artifactId>org.eclipse.core.databinding</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.core</groupId>
-			<artifactId>org.eclipse.core.databinding.beans</artifactId>
-		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>
@@ -175,7 +151,8 @@
 								<configuration>
 									<target>
 										<copy todir="${rpm.stagingRepository}" verbose="true">
-											<fileset dir="${project.build.directory}/rpm" includes="*/RPMS/**/*.rpm" />
+											<fileset dir="${project.build.directory}/rpm"
+												includes="*/RPMS/**/*.rpm" />
 											<flattenmapper />
 										</copy>
 									</target>

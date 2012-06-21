@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.osgi</groupId>
@@ -19,24 +19,24 @@
 
 		<!-- Jackrabbit -->
 		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.jackrabbit</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.jackrabbit</artifactId>
 		</dependency>
 
 		<!-- Database -->
 		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>com.springsource.org.h2</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.h2</artifactId>
 		</dependency>
 
 		<!-- Transitive dependencies -->
 		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.jcr</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.jcr</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>com.springsource.org.apache.lucene</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.lucene</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.basic</groupId>
@@ -45,79 +45,73 @@
 			<type>pom</type>
 		</dependency>
 
-		<!-- Javax -->
-		<dependency>
-			<groupId>javax.xml.stream</groupId>
-			<artifactId>com.springsource.javax.xml.stream</artifactId>
-		</dependency>
-
 		<!-- Commons -->
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>com.springsource.org.apache.commons.collections</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.collections</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>com.springsource.org.apache.commons.io</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.io</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>com.springsource.org.apache.commons.httpclient</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.httpclient</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>com.springsource.org.apache.commons.fileupload</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.fileupload</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>com.springsource.org.apache.commons.compress</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.compress</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>com.springsource.org.apache.commons.pool</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.pool</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>com.springsource.org.apache.commons.dbcp</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.dbcp</artifactId>
 		</dependency>
 
 		<!-- Misc -->
 		<dependency>
-			<groupId>edu.oswego.cs.concurrent</groupId>
-			<artifactId>com.springsource.edu.oswego.cs.dl.util.concurrent</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>edu.oswego.cs.dl.util.concurrent</artifactId>
 		</dependency>
 
 		<!-- For webdav -->
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>com.springsource.javax.servlet</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.servlet</artifactId>
 		</dependency>
 
 		<!-- Tika -->
 		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.tika</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.tika</artifactId>
 		</dependency>
 		<!-- Required for OSGi completion -->
 		<dependency>
-			<groupId>org.dom4j</groupId>
-			<artifactId>com.springsource.org.dom4j</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.dom4j</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.jdom</groupId>
-			<artifactId>com.springsource.org.jdom</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.jdom</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.objectweb.asm</groupId>
-			<artifactId>com.springsource.org.objectweb.asm</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.objectweb.asm</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.jaxen</groupId>
-			<artifactId>com.springsource.org.jaxen</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.jaxen</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.xmlpull</groupId>
-			<artifactId>com.springsource.org.xmlpull</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.xmlpull</artifactId>
 		</dependency>
 	</dependencies>
 </project>

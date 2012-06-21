@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
@@ -20,24 +20,24 @@
 
 		<!-- Apache Directory -->
 		<dependency>
-			<groupId>org.apache.directory</groupId>
-			<artifactId>com.springsource.org.apache.directory.server.core</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.directory.server.core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.directory.shared.asn.codec</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.directory.shared.asn.codec</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.mina.filter.ssl</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.mina.filter.ssl</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.directory</groupId>
-			<artifactId>com.springsource.org.apache.directory.server.jndi</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.directory.server.jndi</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>net.sourceforge.jdbm</groupId>
-			<artifactId>com.springsource.jdbm</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>jdbm</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
@@ -47,8 +47,8 @@
 		<!-- TODO: version 2.4.0 is required by Spring-LDAP while Apache Directory 
 			takes 2.1.0 -->
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>com.springsource.org.apache.commons.lang</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.lang</artifactId>
 		</dependency>
 	</dependencies>
 </project>

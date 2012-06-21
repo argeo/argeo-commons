@@ -28,6 +28,11 @@
 	</build>
 	<dependencies>
 		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.eclipse.osgi</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>org.argeo.commons.eclipse</groupId>
 			<artifactId>org.argeo.eclipse.ui</artifactId>
 			<version>1.1.1-SNAPSHOT</version>

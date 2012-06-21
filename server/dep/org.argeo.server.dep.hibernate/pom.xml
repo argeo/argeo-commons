@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
@@ -20,22 +20,14 @@
 
 		<!-- Hibernate -->
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>com.springsource.org.hibernate</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.hibernate</artifactId>
 		</dependency>
 
 		<!-- JEE -->
 		<dependency>
-			<groupId>javax.transaction</groupId>
-			<artifactId>com.springsource.javax.transaction</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>edu.emory.mathcs.backport</groupId>
-			<artifactId>com.springsource.edu.emory.mathcs.backport</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.xml.stream</groupId>
-			<artifactId>com.springsource.javax.xml.stream</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>edu.emory.mathcs.backport</artifactId>
 		</dependency>
 
 	</dependencies>
