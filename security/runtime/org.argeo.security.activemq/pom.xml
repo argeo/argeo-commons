@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
@@ -50,38 +50,40 @@
 
 		<!-- Spring -->
 		<dependency>
-			<groupId>org.springframework</groupId>
+			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.springframework.transaction</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.security</groupId>
+			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.springframework.security.core</artifactId>
 		</dependency>
 
 		<!-- Logging -->
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>com.springsource.slf4j.org.apache.commons.logging</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>slf4j.org.apache.commons.logging</artifactId>
 		</dependency>
 
 		<!-- JMS -->
 		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.activemq</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.activemq</artifactId>
+			<!-- FIXME until duplicated ActiveMQ is removed -->
+			<version>5.3.0.0001</version>
 		</dependency>
 		<dependency>
-			<groupId>javax.jms</groupId>
-			<artifactId>com.springsource.javax.jms</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.jms</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
+			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.springframework.jms</artifactId>
 		</dependency>
 
 		<!-- TEST -->
 		<dependency>
-			<groupId>org.junit</groupId>
-			<artifactId>com.springsource.junit</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

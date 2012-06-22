@@ -26,6 +26,8 @@
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.apache.activemq</artifactId>
+			<!-- FIXME until duplicated ActiveMQ is removed -->
+			<version>5.3.0.0001</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
@@ -55,13 +57,13 @@
 		</dependency>
 
 		<!-- Test OSGi -->
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.dep.javax</artifactId>
-			<version>1.1.1-SNAPSHOT</version>
-			<type>pom</type>
-			<scope>test</scope>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.commons.server</groupId> -->
+<!-- 			<artifactId>org.argeo.server.dep.javax</artifactId> -->
+<!-- 			<version>1.1.1-SNAPSHOT</version> -->
+<!-- 			<type>pom</type> -->
+<!-- 			<scope>test</scope> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
 			<artifactId>javax.servlet</artifactId>

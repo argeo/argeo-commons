@@ -70,7 +70,7 @@
 		<dependency>
 			<groupId>org.argeo.tp.rap</groupId>
 			<artifactId>org.eclipse.rwt.widgets.upload</artifactId>
-			<version>1.0.0.argeo002</version>
+			<version>1.0.0.argeo003</version>
 		</dependency>
 		<!-- Needed by the bundle above -->
 		<dependency>

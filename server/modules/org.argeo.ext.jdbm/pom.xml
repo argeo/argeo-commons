@@ -16,7 +16,7 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<configuration>
 					<instructions>
-						<Fragment-Host>com.springsource.jdbm</Fragment-Host>
+						<Fragment-Host>jdbm</Fragment-Host>
 						<Import-Package>
 							org.apache.directory.server.core.partition.impl.btree.jdbm;resolution:=optional,
 							org.apache.directory.server.core.schema;resolution:=optional,

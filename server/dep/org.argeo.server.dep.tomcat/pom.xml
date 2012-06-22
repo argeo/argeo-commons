@@ -94,16 +94,18 @@
 
 		<!-- Test with Javax -->
 		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.dep.javax</artifactId>
-			<version>1.1.1-SNAPSHOT</version>
-			<type>pom</type>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.apache.xmlcommons</artifactId>
 			<scope>test</scope>
 		</dependency>
+		
+						<!-- OSGi test -->
+				<dependency>
+					<groupId>org.argeo.commons.osgi</groupId>
+					<artifactId>org.argeo.osgi.boot</artifactId>
+					<version>1.1.1-SNAPSHOT</version>
+					<scope>test</scope>
+				</dependency>
+		
 	</dependencies>
 </project>

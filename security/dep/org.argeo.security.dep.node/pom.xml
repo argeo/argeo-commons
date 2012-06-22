@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
@@ -48,61 +48,45 @@
 
 		<!-- Xerces and Xalan -->
 		<dependency>
-			<groupId>org.apache.xmlcommons</groupId>
-			<artifactId>com.springsource.org.apache.xmlcommons</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.xmlcommons</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.xalan</groupId>
-			<artifactId>com.springsource.org.apache.xalan</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.xalan</artifactId>
 		</dependency>
 
 		<!-- Javax -->
 		<dependency>
-			<groupId>javax.xml.soap</groupId>
-			<artifactId>com.springsource.javax.xml.soap</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.annotation</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.activation</groupId>
-			<artifactId>com.springsource.javax.activation</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.annotation</groupId>
-			<artifactId>com.springsource.javax.annotation</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.xml.ws</groupId>
-			<artifactId>com.springsource.javax.xml.ws</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>com.springsource.javax.xml.bind</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>com.springsource.javax.mail</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.mail</artifactId>
 		</dependency>
 
 		<!-- Commons -->
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>com.springsource.org.apache.commons.vfs</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.vfs</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.commons.exec</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.exec</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.dep.osgi</groupId>
-			<artifactId>org.argeo.dep.osgi.commons.cli</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.cli</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>com.springsource.org.apache.commons.dbcp</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.dbcp</artifactId>
 		</dependency>
 
 		<!-- Spring -->
 		<dependency>
-			<groupId>org.springframework</groupId>
+			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.springframework.context.support</artifactId>
 		</dependency>
 		<!-- <dependency> -->
@@ -114,13 +98,13 @@
 		<!-- <artifactId>org.springframework.jdbc</artifactId> -->
 		<!-- </dependency> -->
 		<dependency>
-			<groupId>org.springframework</groupId>
+			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.springframework.jms</artifactId>
 		</dependency>
 
 		<!-- Spring OSGi -->
 		<dependency>
-			<groupId>org.springframework.osgi</groupId>
+			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.springframework.osgi.extender</artifactId>
 		</dependency>
 
@@ -166,8 +150,8 @@
 
 		<!-- Scheduling -->
 		<dependency>
-			<groupId>com.opensymphony.quartz</groupId>
-			<artifactId>com.springsource.org.quartz</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.quartz</artifactId>
 		</dependency>
 
 		<!-- Security (LDAP) -->
@@ -198,11 +182,11 @@
 
 		<!-- Web -->
 		<dependency>
-			<groupId>org.springframework.osgi</groupId>
+			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.springframework.osgi.web.extender</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.osgi</groupId>
+			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.springframework.osgi.web</artifactId>
 		</dependency>
 		<dependency>
@@ -267,16 +251,16 @@
 
 		<!-- DB drivers -->
 		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>com.springsource.org.h2</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.h2</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.mysql.jdbc</groupId>
-			<artifactId>com.springsource.com.mysql.jdbc</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>com.mysql.jdbc</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>com.springsource.org.postgresql.jdbc3</artifactId>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.postgresql.jdbc3</artifactId>
 		</dependency>
 
 		<!-- Software development -->
