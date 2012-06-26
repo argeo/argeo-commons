@@ -198,7 +198,31 @@ ex=*.source_*.jar,\
 				</exclusion>
 			</exclusions>
 		</dependency>
+
+		<!-- Security -->
+		<dependency>
+			<groupId>org.argeo.tp.rcp</groupId>
+			<artifactId>org.eclipse.equinox.security</artifactId>
+		</dependency>
 	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.argeo.tp.rcp</groupId>
+				<artifactId>binaries</artifactId>
+				<version>${version.argeo-distribution}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.argeo.tp.rcp.platform</groupId>
+				<artifactId>binaries</artifactId>
+				<version>${version.argeo-distribution}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<profiles>
 		<profile>
 			<id>check-osgi</id>

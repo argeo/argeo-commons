@@ -11,7 +11,7 @@
 	<properties>
 		<developmentCycle>1.1</developmentCycle>
 		<developmentCycle.startDate>2012-06-19</developmentCycle.startDate>
-		<version.argeo-distribution>1.3.0</version.argeo-distribution>
+		<version.argeo-distribution>1.3.1</version.argeo-distribution>
 		<version.argeo-commons>1.1.1-SNAPSHOT</version.argeo-commons>
 		<!-- distribution -->
 		<site.repoBase>file:///srv/projects/www/commons/site</site.repoBase>
@@ -398,7 +398,7 @@ limitations under the License.
 	<repositories>
 		<repository>
 			<id>argeo</id>
-			<url>http://dev.argeo.org/org.argeo.jcr.webapp/public/java/argeo-tp-1-staging</url>
+			<url>http://dev.argeo.org/org.argeo.jcr.webapp/public/java/org.argeo.tp-1.3.1</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
@@ -447,7 +447,7 @@ limitations under the License.
 				<snapshotRepository>
 					<id>localrepo.snapshots</id>
 					<name>Internal Snapshot Repository</name>
-					<url>dav:http://localrepo:7080/org.argeo.jcr.webapp/webdav/node/main/repo
+					<url>dav:http://localhost:7070/org.argeo.jcr.webapp/webdav/java/org.argeo.commons-1.1.1
 					</url>
 				</snapshotRepository>
 			</distributionManagement>

@@ -70,7 +70,6 @@
 		<dependency>
 			<groupId>org.argeo.tp.rap</groupId>
 			<artifactId>org.eclipse.rwt.widgets.upload</artifactId>
-			<version>1.0.0.argeo003</version>
 		</dependency>
 		<!-- Needed by the bundle above -->
 		<dependency>
@@ -84,7 +83,31 @@
 			<artifactId>javax.servlet</artifactId>
 		</dependency>
 
+		<!-- Security -->
+		<dependency>
+			<groupId>org.argeo.tp.rap</groupId>
+			<artifactId>org.eclipse.equinox.security</artifactId>
+		</dependency>
+
 	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.argeo.tp.rap</groupId>
+				<artifactId>binaries</artifactId>
+				<version>${version.argeo-distribution}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.argeo.tp.rap.platform</groupId>
+				<artifactId>binaries</artifactId>
+				<version>${version.argeo-distribution}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<profiles>
 		<profile>
 			<id>check-osgi</id>

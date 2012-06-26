@@ -44,11 +44,13 @@
 			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.eclipse.osgi</artifactId>
 		</dependency>
+		
+		<!-- RCP only dependency, needed at compile time -->
 		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.eclipse.equinox.security</artifactId>
-			<!-- FIXME until Equinox security is properly integrated -->
-			<version>1.0.200</version>
+			<groupId>org.argeo.commons.eclipse</groupId>
+			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
+			<version>1.1.1-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- Commons -->

@@ -68,8 +68,6 @@
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.apache.activemq</artifactId>
-			<!-- FIXME until duplicated ActiveMQ is removed -->
-			<version>5.3.0.0001</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
