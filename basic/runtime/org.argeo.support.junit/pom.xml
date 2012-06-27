@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.argeo.commons.basic</groupId>
 		<artifactId>runtime</artifactId>
-		<version>1.1.1-SNAPSHOT</version>
+		<version>1.1.1</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.support.junit</artifactId>
