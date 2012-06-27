@@ -12,7 +12,6 @@
 	<name>Commons Server Dependencies</name>
 	<packaging>pom</packaging>
 	<modules>
-<!-- 		<module>org.argeo.server.dep.javax</module> -->
 		<module>org.argeo.server.dep.tomcat</module>
 		<module>org.argeo.server.dep.ads</module>
 		<module>org.argeo.server.dep.hibernate</module>
