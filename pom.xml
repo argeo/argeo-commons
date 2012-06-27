@@ -12,7 +12,7 @@
 		<developmentCycle>1.1</developmentCycle>
 		<developmentCycle.startDate>2012-06-19</developmentCycle.startDate>
 		<version.argeo-distribution>1.3.1</version.argeo-distribution>
-		<version.argeo-commons>1.1.1-SNAPSHOT</version.argeo-commons>
+		<version.argeo-commons>1.1.1</version.argeo-commons>
 		<!-- distribution -->
 		<site.repoBase>file:///srv/projects/www/commons/site</site.repoBase>
 		<site.urlBase>http://projects.argeo.org/commons/site</site.urlBase>
@@ -397,8 +397,22 @@ limitations under the License.
 	</dependencyManagement>
 	<repositories>
 		<repository>
-			<id>argeo</id>
+			<id>argeo-tp</id>
 			<url>http://dev.argeo.org/org.argeo.jcr.webapp/public/java/org.argeo.tp-1.3.1</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>argeo-commons</id>
+			<url>http://dev.argeo.org/org.argeo.jcr.webapp/public/java/org.argeo.commons-1.1.1</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
@@ -428,6 +442,12 @@ limitations under the License.
 		</pluginRepository>
 	</pluginRepositories>
 	<distributionManagement>
+		<repository>
+			<uniqueVersion>false</uniqueVersion>
+			<id>argeo-commons-restricted</id>
+			<name>Argeo FOSS Repository</name>
+			<url>dav:http://localhost:7080/org.argeo.jcr.webapp/webdav/java/org.argeo.commons-${version.argeo-commons}</url>
+		</repository>
 		<site>
 			<id>argeo-commons-site</id>
 			<name>Argeo Commons Site</name>
@@ -447,8 +467,7 @@ limitations under the License.
 				<snapshotRepository>
 					<id>localrepo.snapshots</id>
 					<name>Internal Snapshot Repository</name>
-					<url>dav:http://localhost:7070/org.argeo.jcr.webapp/webdav/java/org.argeo.commons-1.1.1
-					</url>
+					<url>dav:http://localhost:7070/org.argeo.jcr.webapp/webdav/java/org.argeo.commons-${version.argeo-commons}</url>
 				</snapshotRepository>
 			</distributionManagement>
 		</profile>
