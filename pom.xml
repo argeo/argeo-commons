@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
@@ -255,6 +256,8 @@ limitations under the License.
 									<excludePackageNames>*.demo.*:*.internal.*</excludePackageNames>
 									<detectLinks>true</detectLinks>
 									<links>
+										<!-- Java -->
+										<link>http://docs.oracle.com/javase/6/docs/api</link>
 										<!-- OSGi -->
 										<link>http://www.osgi.org/javadoc/r4v42</link>
 										<!-- Spring -->
@@ -402,13 +405,8 @@ limitations under the License.
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
+				<checksumPolicy>warn</checksumPolicy>
 			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-				<updatePolicy>never</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</snapshots>
 		</repository>
 	</repositories>
 	<pluginRepositories>
@@ -418,13 +416,8 @@ limitations under the License.
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
+				<checksumPolicy>warn</checksumPolicy>
 			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-				<updatePolicy>never</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</snapshots>
 		</pluginRepository>
 		<pluginRepository>
 			<id>argeo</id>
@@ -432,21 +425,15 @@ limitations under the License.
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
+				<checksumPolicy>warn</checksumPolicy>
 			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-				<updatePolicy>never</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
 	<distributionManagement>
 		<repository>
-			<uniqueVersion>false</uniqueVersion>
-			<id>argeo-commons-restricted</id>
-			<name>Argeo FOSS Repository</name>
+			<id>staging</id>
 			<url>dav:http://localhost:7080/org.argeo.jcr.webapp/webdav/java/org.argeo.commons-${version.argeo-commons}</url>
+			<uniqueVersion>false</uniqueVersion>
 		</repository>
 		<site>
 			<id>argeo-commons-site</id>
@@ -475,8 +462,7 @@ limitations under the License.
 			<id>el5</id>
 			<properties>
 				<rpm.release>5</rpm.release>
-				<rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-staging/5/x86_64
-				</rpm.stagingRepository>
+				<rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-staging/5/x86_64</rpm.stagingRepository>
 			</properties>
 		</profile>
 		<profile>
