@@ -24,6 +24,7 @@ import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.commands.IHandlerListener;
 import org.springframework.context.ApplicationContext;
 
+/** Allows to declare Eclipse commands as Spring beans */
 public class SpringCommandHandler implements IHandler {
 	private final static Log log = LogFactory
 			.getLog(SpringCommandHandler.class);
