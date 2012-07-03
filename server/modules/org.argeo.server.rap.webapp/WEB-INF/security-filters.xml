@@ -88,7 +88,7 @@
 	<bean id="basicProcessingFilterEntryPoint"
 		class="org.springframework.security.ui.basicauth.BasicProcessingFilterEntryPoint">
 		<property name="realmName">
-			<value>Argeo</value>
+			<value>${argeo.server.realmName}</value>
 		</property>
 	</bean>
 
