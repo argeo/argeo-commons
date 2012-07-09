@@ -140,7 +140,7 @@ public class SecureEntryPoint implements IEntryPoint {
 					return new Integer(result);
 				}
 			});
-			logout(loginContext, username);
+			//logout(loginContext, username);
 		} finally {
 			display.dispose();
 		}
@@ -194,6 +194,11 @@ public class SecureEntryPoint implements IEntryPoint {
 
 	protected void logout(ILoginContext secureContext, String username) {
 		try {
+			HttpServletRequest httpRequest = RWT.getRequest();
+			HttpSession httpSession = httpRequest.getSession();
+			httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, null);
+			RWT.getRequest().getSession().setMaxInactiveInterval(1);
+			SecurityContextHolder.clearContext();
 			secureContext.logout();
 			log.info("Logged out " + (username != null ? username : "")
 					+ " (THREAD=" + Thread.currentThread().getId() + ")");

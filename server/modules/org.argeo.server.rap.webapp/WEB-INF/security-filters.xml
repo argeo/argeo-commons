@@ -12,7 +12,7 @@
 				filters="session,basic,rememberMe,exception,interceptor" />
 			<sec:filter-chain pattern="/basicauth"
 				filters="session,basic,exception,interceptor" />
-			<sec:filter-chain pattern="/node" filters="session" />
+			<sec:filter-chain pattern="/node" filters="session,exception,interceptor" />
 			<sec:filter-chain pattern="/public"
 				filters="session,anonymous,exception,interceptorPublic" />
 			<sec:filter-chain pattern="/j_spring_security_logout"
