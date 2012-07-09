@@ -24,6 +24,8 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.actions.ActionFactory;
+import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
 import org.eclipse.ui.commands.ICommandService;
@@ -41,8 +43,9 @@ public class RapActionBarAdvisor extends ActionBarAdvisor {
 	// private IWorkbenchAction openPerspectiveDialogAction;
 	// private IWorkbenchAction showViewMenuAction;
 	// private IWorkbenchAction preferences;
-	// private IWorkbenchAction saveAction;
-	// private IWorkbenchAction saveAllAction;
+	private IWorkbenchAction saveAction;
+	private IWorkbenchAction saveAllAction;
+
 	// private IWorkbenchAction closeAllAction;
 
 	public RapActionBarAdvisor(IActionBarConfigurer configurer, String username) {
@@ -64,11 +67,11 @@ public class RapActionBarAdvisor extends ActionBarAdvisor {
 		// // logoutAction = createLogoutAction();
 		// register(logoutAction);
 		//
-		// // Save semantics
-		// saveAction = ActionFactory.SAVE.create(window);
-		// register(saveAction);
-		// saveAllAction = ActionFactory.SAVE_ALL.create(window);
-		// register(saveAllAction);
+		// Save semantics
+		saveAction = ActionFactory.SAVE.create(window);
+		register(saveAction);
+		saveAllAction = ActionFactory.SAVE_ALL.create(window);
+		register(saveAllAction);
 		// closeAllAction = ActionFactory.CLOSE_ALL.create(window);
 		// register(closeAllAction);
 
