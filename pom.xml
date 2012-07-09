@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
-	<version>1.1.3</version>
+	<version>1.1.4-SNAPSHOT</version>
 	<name>Argeo Commons</name>
 	<description>Generic layers integrating free / open source technologies in order to quickly develop custom enterprise systems: security, JCR, user interface, monitoring</description>
 	<packaging>pom</packaging>
@@ -33,10 +33,10 @@
 	</organization>
 	<url>${site.urlBase}/${developmentCycle}</url>
 	<scm>
-		<connection>scm:svn:https://svn.argeo.org/commons/tags/argeo-commons-1.1.3</connection>
-		<developerConnection>scm:svn:https://svn.argeo.org/commons/tags/argeo-commons-1.1.3
+		<connection>scm:svn:https://svn.argeo.org/commons/trunk</connection>
+		<developerConnection>scm:svn:https://svn.argeo.org/commons/trunk
 		</developerConnection>
-		<url>https://svn.argeo.org/commons/tags/argeo-commons-1.1.3</url>
+		<url>https://svn.argeo.org/commons/trunk</url>
 	</scm>
 	<inceptionYear>2007</inceptionYear>
 	<licenses>

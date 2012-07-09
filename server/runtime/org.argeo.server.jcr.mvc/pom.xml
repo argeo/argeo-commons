@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
 		<artifactId>runtime</artifactId>
-		<version>1.1.3</version>
+		<version>1.1.4-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.server.jcr.mvc</artifactId>
@@ -48,13 +48,13 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.jcr</artifactId>
-			<version>1.1.3</version>
+			<version>1.1.4-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.core</artifactId>
-			<version>1.1.3</version>
+			<version>1.1.4-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
