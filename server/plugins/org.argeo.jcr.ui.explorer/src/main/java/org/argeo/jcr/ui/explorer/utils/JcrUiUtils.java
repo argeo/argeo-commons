@@ -20,30 +20,44 @@ import javax.jcr.RepositoryException;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.TreeParent;
+import org.argeo.jcr.ui.explorer.model.RepositoriesNode;
+import org.argeo.jcr.ui.explorer.model.RepositoryNode;
 import org.argeo.jcr.ui.explorer.model.SingleJcrNode;
 import org.argeo.jcr.ui.explorer.model.WorkspaceNode;
 
-/** Centralizes some useful methods to build Uis with JCR */
+/** Centralizes some useful methods to build UIs with JCR */
 public class JcrUiUtils {
 
-	/** Insure that the UI componant is not stale, refresh if needed */
+	/** Insure that the UI component is not stale, refresh if needed */
 	public static void forceRefreshIfNeeded(TreeParent element) {
-		Node curNode;
+		Node curNode = null;
 
-		if (element instanceof SingleJcrNode)
-			curNode = ((SingleJcrNode) element).getNode();
-		else if (element instanceof WorkspaceNode)
-			curNode = ((WorkspaceNode) element).getRootNode();
-		else
-			return;
-		// TODO implement specific methods for other cases
+		boolean doRefresh = false;
 
 		try {
-			// we mainly rely on nb of children
-			if (element.getChildren().length == curNode.getNodes().getSize())
-				return;
-			else {
-				// get rid of children of UI object
+			if (element instanceof SingleJcrNode) {
+				curNode = ((SingleJcrNode) element).getNode();
+			} else if (element instanceof WorkspaceNode) {
+				curNode = ((WorkspaceNode) element).getRootNode();
+			}
+
+			if (curNode != null
+					&& element.getChildren().length != curNode.getNodes()
+							.getSize())
+				doRefresh = true;
+			else if (element instanceof RepositoryNode) {
+				RepositoryNode rn = (RepositoryNode) element;
+				String[] wkpNames = rn.getDefaultSession().getWorkspace()
+						.getAccessibleWorkspaceNames();
+				if (element.getChildren().length != wkpNames.length)
+					doRefresh = true;
+			} else if (element instanceof RepositoriesNode) {
+				RepositoriesNode rn = (RepositoriesNode) element;
+				if (element.getChildren().length != rn.getRepositoryRegister()
+						.getRepositories().size())
+					doRefresh = true;
+			}
+			if (doRefresh) {
 				element.clearChildren();
 				element.getChildren();
 			}
