@@ -22,10 +22,7 @@
 	</properties>
 	<modules>
 		<module>base</module>
-		<module>basic</module>
-		<module>osgi</module>
 		<module>server</module>
-		<module>eclipse</module>
 		<module>security</module>
 	</modules>
 	<organization>
