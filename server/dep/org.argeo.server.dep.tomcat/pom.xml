@@ -12,8 +12,8 @@
 	<dependencies>
 		<!-- Commons Dep -->
 		<dependency>
-			<groupId>org.argeo.commons.basic</groupId>
-			<artifactId>org.argeo.basic.dep.log4j</artifactId>
+			<groupId>org.argeo.commons.base</groupId>
+			<artifactId>org.argeo.dep.log4j</artifactId>
 			<version>1.1.4-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
@@ -101,7 +101,7 @@
 		
 						<!-- OSGi test -->
 				<dependency>
-					<groupId>org.argeo.commons.osgi</groupId>
+					<groupId>org.argeo.commons.base</groupId>
 					<artifactId>org.argeo.osgi.boot</artifactId>
 					<version>1.1.4-SNAPSHOT</version>
 					<scope>test</scope>

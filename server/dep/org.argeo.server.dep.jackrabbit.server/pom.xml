@@ -11,8 +11,8 @@
 	<name>Commons Jackrabbit Dependencies</name>
 	<dependencies>
 		<dependency>
-			<groupId>org.argeo.commons.osgi</groupId>
-			<artifactId>org.argeo.osgi.dep.jackrabbit</artifactId>
+			<groupId>org.argeo.commons.base</groupId>
+			<artifactId>org.argeo.dep.jackrabbit</artifactId>
 			<type>pom</type>
 			<version>1.1.4-SNAPSHOT</version>
 		</dependency>

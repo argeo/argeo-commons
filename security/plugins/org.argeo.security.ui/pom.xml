@@ -55,14 +55,14 @@
 
 		<!-- Argeo Eclipse -->
 		<dependency>
-			<groupId>org.argeo.commons.eclipse</groupId>
+			<groupId>org.argeo.commons.base</groupId>
 			<artifactId>org.argeo.eclipse.ui</artifactId>
 			<version>1.1.4-SNAPSHOT</version>
 		</dependency>
 
 		<!-- RCP only dependency, needed at compile time -->
 		<dependency>
-			<groupId>org.argeo.commons.eclipse</groupId>
+			<groupId>org.argeo.commons.base</groupId>
 			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
 			<version>1.1.4-SNAPSHOT</version>
 			<scope>provided</scope>
@@ -70,8 +70,8 @@
 
 		<!-- Commons -->
 		<dependency>
-			<groupId>org.argeo.commons.basic</groupId>
-			<artifactId>org.argeo.basic.nodeps</artifactId>
+			<groupId>org.argeo.commons.base</groupId>
+			<artifactId>org.argeo.util</artifactId>
 			<version>1.1.4-SNAPSHOT</version>
 		</dependency>
 
