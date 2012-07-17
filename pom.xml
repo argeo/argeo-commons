@@ -21,6 +21,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<modules>
+		<module>base</module>
 		<module>basic</module>
 		<module>osgi</module>
 		<module>server</module>
