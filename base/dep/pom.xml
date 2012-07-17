@@ -12,5 +12,10 @@
 	<name>Commons Base Dependencies</name>
 	<packaging>pom</packaging>
 	<modules>
+		<module>org.argeo.basic.dep.log4j</module>
+		<module>org.argeo.osgi.dep.stdruntime</module>
+		<module>org.argeo.osgi.dep.jackrabbit</module>
+		<module>org.argeo.eclipse.dep.rap</module>
+		<module>org.argeo.eclipse.dep.rcp</module>
 	</modules>
 </project>

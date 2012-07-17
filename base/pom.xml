@@ -14,5 +14,7 @@
 	<modules>
 		<module>dep</module>
 		<module>runtime</module>
+		<module>plugins</module>
+		<module>dist</module>
 	</modules>
 </project>
