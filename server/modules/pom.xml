@@ -13,6 +13,7 @@
 	<modules>
 		<module>org.argeo.ext.jackrabbit.sybase</module>
 		<module>org.argeo.ext.jdbm</module>
+		<module>org.argeo.ext.bsf</module>
 		<module>org.argeo.jackrabbit.webapp</module>
 		<module>org.argeo.node.repo.jackrabbit</module>
 		<module>org.argeo.node.repofactory.jackrabbit</module>
