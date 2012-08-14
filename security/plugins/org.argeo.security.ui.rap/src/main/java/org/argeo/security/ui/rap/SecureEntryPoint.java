@@ -70,6 +70,7 @@ public class SecureEntryPoint implements IEntryPoint {
 		// around too long
 		RWT.getRequest().getSession().setMaxInactiveInterval(loginTimeout);
 
+		// Try to load security context thanks to the session processing filter
 		HttpServletRequest httpRequest = RWT.getRequest();
 		HttpSession httpSession = httpRequest.getSession();
 		Object contextFromSessionObject = httpSession
@@ -140,7 +141,7 @@ public class SecureEntryPoint implements IEntryPoint {
 					return new Integer(result);
 				}
 			});
-			//logout(loginContext, username);
+			// logout(loginContext, username);
 		} finally {
 			display.dispose();
 		}

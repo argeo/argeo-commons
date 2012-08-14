@@ -38,6 +38,7 @@
 							org.springframework.security,
 							org.springframework.security.providers.anonymous,
 							org.springframework.security.ui.webapp,
+							org.springframework.security.ui.preauth.x509,
 							org.springframework.web.context,
 							org.springframework.web.filter,
 							org.springframework.web.servlet,

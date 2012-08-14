@@ -1,0 +1,21 @@
+# In demo all key and stores passwords are 'changeit'
+
+# Create CA
+openssl genrsa -des3 -out ca.key 4096
+openssl req -new -x509 -days 365 -key ca.key -out ca.crt
+
+# Tomcat Server
+keytool -genkey -alias tomcat -keyalg RSA -keysize 4096 -keystore server.ks
+keytool -certreq -alias tomcat -keystore server.ks -file tomcat.csr
+openssl x509 -req -set_serial 02 -days 3650 -in tomcat.csr -CA ca.crt -CAkey ca.key -out tomcat.crt
+keytool -import -keystore server.ts -file ca.crt -alias ArgeoDemoCA
+
+# Root User
+#keytool -genkey -alias root@demo -keyalg RSA -keysize 4096 -keystore root@demo.ks
+#keytool -certreq -alias root@demo -keystore root@demo.ks -file root@demo.csr
+
+openssl genrsa -des3 -out root@demo.key 4096 
+openssl req -new -key root@demo.key -out root@demo.csr
+openssl x509 -req -set_serial 03 -days 3650 -in root@demo.csr -CA ca.crt -CAkey ca.key -out root@demo.crt
+
+openssl pkcs12 -export -out root@demo.p12 -inkey root@demo.key -in root@demo.crt -certfile ca.crt

@@ -9,15 +9,15 @@
 	<bean id="springSecurityFilterChain" class="org.springframework.security.util.FilterChainProxy">
 		<sec:filter-chain-map path-type="ant">
 			<sec:filter-chain pattern="/webdav/**"
-				filters="session,basic,rememberMe,anonymous,exception,interceptor" />
+				filters="x509,basic,rememberMe,exception,interceptor" />
 			<sec:filter-chain pattern="/remoting/**"
-				filters="session,basic,rememberMe,anonymous,exception,interceptor" />
+				filters="x509,basic,rememberMe,exception,interceptor" />
 			<sec:filter-chain pattern="/public/**"
-				filters="session,anonymous,exception,interceptorPublic" />
+				filters="anonymous,exception,interceptorPublic" />
 			<sec:filter-chain pattern="/pub/**"
-				filters="session,anonymous,exception,interceptorPublic" />
+				filters="anonymous,exception,interceptorPublic" />
 			<sec:filter-chain pattern="/j_spring_security_logout"
-				filters="session,logout,exception" />
+				filters="logout,exception" />
 		</sec:filter-chain-map>
 	</bean>
 
@@ -41,12 +41,23 @@
 		</property>
 	</bean>
 
-	<!-- Integrates the authentication information in the http sessions -->
+	<bean id="x509"
+		class="org.springframework.security.ui.preauth.x509.X509PreAuthenticatedProcessingFilter">
+		<property name="authenticationManager" ref="authenticationManager" />
+		<property name="principalExtractor">
+			<bean
+				class="org.springframework.security.ui.preauth.x509.SubjectDnX509PrincipalExtractor">
+				<property name="subjectDnRegex" value="CN=(.*?)," />
+			</bean>
+		</property>
+	</bean>
+
+	<!-- Integrates the authentication information in the http sessions
 	<bean id="session"
 		class="org.springframework.security.context.HttpSessionContextIntegrationFilter">
 		<property name="allowSessionCreation" value="false" />
 	</bean>
-
+ -->
 	<!-- Processes logouts, removing both session informations and the remember-me 
 		cookie from the browser -->
 	<bean id="logout" class="org.springframework.security.ui.logout.LogoutFilter">

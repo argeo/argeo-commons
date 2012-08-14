@@ -53,6 +53,14 @@
       	</branding>
     	<branding
 			id="org.argeo.security.ui.rap.branding"
+            servletName="clientauth"
+            defaultEntrypointId="org.argeo.security.ui.rap.secureEntryPoint"
+            title="Argeo Web UI"
+            favicon="branding/favicon.ico"
+            body="branding/login.html">
+      	</branding>
+    	<branding
+			id="org.argeo.security.ui.rap.branding"
             servletName="public"
             defaultEntrypointId="org.argeo.security.ui.rap.anonymousEntryPoint"
             title="Argeo Public Web UI"

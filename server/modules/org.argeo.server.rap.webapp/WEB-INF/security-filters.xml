@@ -9,10 +9,12 @@
 	<bean id="springSecurityFilterChain" class="org.springframework.security.util.FilterChainProxy">
 		<sec:filter-chain-map path-type="ant">
 			<sec:filter-chain pattern="/ui"
-				filters="session,basic,rememberMe,exception,interceptor" />
+				filters="session,x509,basic,rememberMe,exception,interceptor" />
 			<sec:filter-chain pattern="/basicauth"
-				filters="session,basic,exception,interceptor" />
-			<sec:filter-chain pattern="/node" filters="session,exception,interceptor" />
+				filters="session,x509,basic,exception,interceptor" />
+			<sec:filter-chain pattern="/clientauth"
+				filters="session,x509,exception,interceptor" />
+			<!-- <sec:filter-chain pattern="/node" filters="session,x509,exception,interceptor" /> -->
 			<sec:filter-chain pattern="/public"
 				filters="session,anonymous,exception,interceptorPublic" />
 			<sec:filter-chain pattern="/j_spring_security_logout"
@@ -36,6 +38,17 @@
 				PATTERN_TYPE_APACHE_ANT
 				/**=IS_AUTHENTICATED_ANONYMOUSLY
 			</value>
+		</property>
+	</bean>
+
+	<bean id="x509"
+		class="org.springframework.security.ui.preauth.x509.X509PreAuthenticatedProcessingFilter">
+		<property name="authenticationManager" ref="authenticationManager" />
+		<property name="principalExtractor">
+			<bean
+				class="org.springframework.security.ui.preauth.x509.SubjectDnX509PrincipalExtractor">
+				<property name="subjectDnRegex" value="CN=(.*?)," />
+			</bean>
 		</property>
 	</bean>
 
