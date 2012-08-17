@@ -80,7 +80,7 @@ public class SingleJcrNode extends TreeParent implements UiNode {
 	}
 
 	/**
-	 * Override normal behaviour to initialize children only when first
+	 * Override normal behavior to initialize children only when first
 	 * requested
 	 */
 	@Override
