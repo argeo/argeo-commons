@@ -111,8 +111,8 @@ class ApplicationContextTracker {
 		if (log.isTraceEnabled())
 			log.trace("Get application context for bundle " + contributorBundle);
 
-		if (contributorBundle.getState() != Bundle.ACTIVE
-				&& contributorBundle.getState() != Bundle.STARTING) {
+		// Start if not yet started (also if in STARTING state, may be lazy)
+		if (contributorBundle.getState() != Bundle.ACTIVE) {
 			try {
 				if (log.isTraceEnabled())
 					log.trace("Starting bundle: "
