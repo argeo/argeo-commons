@@ -21,6 +21,10 @@ import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 
+/**
+ * Workbench configuration which is aware of the logged in user and can remember
+ * workbench state.
+ */
 public class SecureWorkbenchAdvisor extends WorkbenchAdvisor {
 	public final static String INITIAL_PERSPECTIVE_PROPERTY = "org.argeo.security.ui.initialPerspective";
 	private String initialPerspective = System.getProperty(
@@ -30,14 +34,12 @@ public class SecureWorkbenchAdvisor extends WorkbenchAdvisor {
 
 	public SecureWorkbenchAdvisor(String username) {
 		this.username = username;
-		//System.out.println("in SecureWorkbenchAdvisor(String username)");
 	}
 
 	@Override
 	public void initialize(final IWorkbenchConfigurer configurer) {
 		super.initialize(configurer);
 		configurer.setSaveAndRestore(true);
-		//System.out.println("in initialize(final IWorkbenchConfigurer configurer)");
 	}
 
 	public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(
@@ -59,4 +61,7 @@ public class SecureWorkbenchAdvisor extends WorkbenchAdvisor {
 		return initialPerspective;
 	}
 
+	protected String getUsername() {
+		return username;
+	}
 }
