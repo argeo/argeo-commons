@@ -16,6 +16,7 @@
 package org.argeo.security.ui.rcp;
 
 import org.eclipse.ui.IPerspectiveDescriptor;
+import org.eclipse.ui.application.IWorkbenchConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
@@ -29,6 +30,14 @@ public class SecureWorkbenchAdvisor extends WorkbenchAdvisor {
 
 	public SecureWorkbenchAdvisor(String username) {
 		this.username = username;
+		//System.out.println("in SecureWorkbenchAdvisor(String username)");
+	}
+
+	@Override
+	public void initialize(final IWorkbenchConfigurer configurer) {
+		super.initialize(configurer);
+		configurer.setSaveAndRestore(true);
+		//System.out.println("in initialize(final IWorkbenchConfigurer configurer)");
 	}
 
 	public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(
