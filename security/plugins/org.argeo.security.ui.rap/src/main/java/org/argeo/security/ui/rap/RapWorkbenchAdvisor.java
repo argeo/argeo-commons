@@ -16,6 +16,7 @@
 package org.argeo.security.ui.rap;
 
 import org.eclipse.ui.IPerspectiveDescriptor;
+import org.eclipse.ui.application.IWorkbenchConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
@@ -31,6 +32,14 @@ public class RapWorkbenchAdvisor extends WorkbenchAdvisor {
 	public RapWorkbenchAdvisor(String username) {
 		this.username = username;
 	}
+
+	
+	@Override
+	public void initialize(IWorkbenchConfigurer configurer) {
+		super.initialize(configurer);
+		configurer.setSaveAndRestore(true);
+	}
+
 
 	public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(
 			IWorkbenchWindowConfigurer configurer) {
