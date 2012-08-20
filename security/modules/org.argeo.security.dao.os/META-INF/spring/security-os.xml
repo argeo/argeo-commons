@@ -67,4 +67,10 @@
 		<property name="authenticationManager" ref="internalAuthenticationManager" />
 	</bean>
 
+	<!-- Dummy user manager -->
+	<bean id="userDetailsManager" class="org.argeo.security.jcr.OsJcrUserAdminService"
+		init-method="init" destroy-method="destroy">
+		<property name="repository" ref="nodeRepository" />
+	</bean>
+
 </beans>

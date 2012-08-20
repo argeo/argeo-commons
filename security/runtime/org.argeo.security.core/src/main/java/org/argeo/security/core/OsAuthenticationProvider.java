@@ -29,21 +29,22 @@ import org.springframework.security.providers.AuthenticationProvider;
  * Validates an OS authentication. The id is that it will always be
  * authenticated since we are always runnign within an OS, but the fact that the
  * {@link Authentication} works properly depends on the proper OS login module
- * having been called as well.
+ * having been called as well. TODO make it more configurable (base roles, is
+ * admin)
  */
 public class OsAuthenticationProvider implements AuthenticationProvider {
-	private String osUserRole = "ROLE_OS_USER";
-	private String userRole = "ROLE_USER";
-	private String adminRole = "ROLE_ADMIN";
+	final static String osUserRole = "ROLE_OS_USER";
+	final static String userRole = "ROLE_USER";
+	final static String adminRole = "ROLE_ADMIN";
 
-	private Boolean isAdmin = true;
+	final static Boolean isAdmin = true;
 
 	public Authentication authenticate(Authentication authentication)
 			throws AuthenticationException {
 		return new OsAuthenticationToken(getBaseAuthorities());
 	}
 
-	protected GrantedAuthority[] getBaseAuthorities() {
+	public static GrantedAuthority[] getBaseAuthorities() {
 		List<GrantedAuthority> auths = new ArrayList<GrantedAuthority>();
 		auths.add(new GrantedAuthorityImpl(osUserRole));
 		auths.add(new GrantedAuthorityImpl(userRole));
@@ -55,22 +56,6 @@ public class OsAuthenticationProvider implements AuthenticationProvider {
 	@SuppressWarnings("rawtypes")
 	public boolean supports(Class authentication) {
 		return OsAuthenticationToken.class.isAssignableFrom(authentication);
-	}
-
-	public void setOsUserRole(String osUserRole) {
-		this.osUserRole = osUserRole;
-	}
-
-	public void setUserRole(String userRole) {
-		this.userRole = userRole;
-	}
-
-	public void setAdminRole(String adminRole) {
-		this.adminRole = adminRole;
-	}
-
-	public void setIsAdmin(Boolean isAdmin) {
-		this.isAdmin = isAdmin;
 	}
 
 }

@@ -19,4 +19,14 @@
 
 	<service ref="systemExecutionService" interface="org.argeo.security.SystemExecutionService" />
 
+	<!-- User management -->
+	<service ref="userDetailsManager"
+		interface="org.springframework.security.userdetails.UserDetailsService"
+		context-class-loader="service-provider" />
+	<service ref="userDetailsManager"
+		interface="org.springframework.security.userdetails.UserDetailsManager"
+		context-class-loader="service-provider" />
+	<service ref="userDetailsManager" interface="org.argeo.security.UserAdminService"
+		context-class-loader="service-provider" />
+
 </beans:beans>

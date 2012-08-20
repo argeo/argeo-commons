@@ -19,7 +19,6 @@ import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.security.Privilege;
 
 import org.argeo.ArgeoException;
 import org.argeo.jcr.JcrUtils;
@@ -27,6 +26,9 @@ import org.argeo.security.OsAuthenticationToken;
 import org.argeo.security.core.OsAuthenticationProvider;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
+import org.springframework.security.BadCredentialsException;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.userdetails.UserDetails;
 
 /** Relies on OS to authenticate and additionally setup JCR */
 public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
@@ -34,6 +36,8 @@ public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 	private String securityWorkspace = "security";
 	private Session securitySession;
 	private Session nodeSession;
+
+	private UserDetails userDetails;
 
 	public void init() {
 		try {
@@ -51,39 +55,50 @@ public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 
 	public Authentication authenticate(Authentication authentication)
 			throws AuthenticationException {
-		final OsAuthenticationToken authen = (OsAuthenticationToken) super
-				.authenticate(authentication);
-		try {
-			// WARNING: at this stage we assume that the java properties
-			// will have the same value
-			String username = System.getProperty("user.name");
-			Node userProfile = JcrUtils.createUserProfileIfNeeded(
-					securitySession, username);
-			JcrUserDetails.checkAccountStatus(userProfile);
-
-			// each user should have a writable area in the default workspace of
-			// the node
-			Node userNodeHome = JcrUtils.createUserHomeIfNeeded(nodeSession,
-					username);
-			// FIXME how to set user home privileges *before* it is created ?
-			// JcrUtils.addPrivilege(nodeSession, userNodeHome.getPath(),
-			// username, Privilege.JCR_ALL);
-			// if (nodeSession.hasPendingChanges())
-			// nodeSession.save();
-
-			// user details
-			JcrUserDetails userDetails = new JcrUserDetails(userProfile, authen
-					.getCredentials().toString(), getBaseAuthorities());
+		if (authentication instanceof UsernamePasswordAuthenticationToken) {
+			// deal with remote access to internal server
+			// FIXME very primitive and unsecure at this stage
+			// consider using the keyring for username / password authentication
+			// or certificate
+			UsernamePasswordAuthenticationToken upat = (UsernamePasswordAuthenticationToken) authentication;
+			if (!upat.getPrincipal().toString()
+					.equals(System.getProperty("user.name")))
+				throw new BadCredentialsException("Wrong credentials");
+			UsernamePasswordAuthenticationToken authen = new UsernamePasswordAuthenticationToken(
+					authentication.getPrincipal(),
+					authentication.getCredentials(), getBaseAuthorities());
 			authen.setDetails(userDetails);
-		} catch (RepositoryException e) {
-			JcrUtils.discardQuietly(securitySession);
-			throw new ArgeoException(
-					"Unexpected exception when synchronizing OS and JCR security ",
-					e);
-		} finally {
-			JcrUtils.logoutQuietly(securitySession);
+			return authen;
+		} else if (authentication instanceof OsAuthenticationToken) {
+			OsAuthenticationToken authen = (OsAuthenticationToken) super
+					.authenticate(authentication);
+			try {
+				// WARNING: at this stage we assume that the java properties
+				// will have the same value
+				String username = System.getProperty("user.name");
+				Node userProfile = JcrUtils.createUserProfileIfNeeded(
+						securitySession, username);
+				JcrUserDetails.checkAccountStatus(userProfile);
+
+				// each user should have a writable area in the default
+				// workspace of the node
+				JcrUtils.createUserHomeIfNeeded(nodeSession, username);
+				userDetails = new JcrUserDetails(userProfile, authen
+						.getCredentials().toString(), getBaseAuthorities());
+				authen.setDetails(userDetails);
+				return authen;
+			} catch (RepositoryException e) {
+				JcrUtils.discardQuietly(securitySession);
+				throw new ArgeoException(
+						"Unexpected exception when synchronizing OS and JCR security ",
+						e);
+			} finally {
+				JcrUtils.logoutQuietly(securitySession);
+			}
+		} else {
+			throw new ArgeoException("Unsupported authentication "
+					+ authentication.getClass());
 		}
-		return authen;
 	}
 
 	public void setSecurityWorkspace(String securityWorkspace) {
@@ -93,4 +108,12 @@ public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 	public void setRepository(Repository repository) {
 		this.repository = repository;
 	}
+
+	@SuppressWarnings("rawtypes")
+	public boolean supports(Class authentication) {
+		return OsAuthenticationToken.class.isAssignableFrom(authentication)
+				|| UsernamePasswordAuthenticationToken.class
+						.isAssignableFrom(authentication);
+	}
+
 }

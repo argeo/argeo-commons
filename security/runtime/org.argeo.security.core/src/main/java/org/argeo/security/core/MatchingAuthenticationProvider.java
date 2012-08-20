@@ -30,6 +30,8 @@ import org.springframework.security.providers.dao.AbstractUserDetailsAuthenticat
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 
+/** @deprecated */
+@Deprecated
 public class MatchingAuthenticationProvider extends
 		AbstractUserDetailsAuthenticationProvider {
 

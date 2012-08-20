@@ -15,10 +15,8 @@
 	<service ref="authenticationManager"
 		interface="org.springframework.security.AuthenticationManager"
 		context-class-loader="service-provider" />
-	<!-- <service ref="ldapAuthenticationProvider" -->
-	<!-- interface="org.springframework.security.providers.AuthenticationProvider" -->
-	<!-- context-class-loader="service-provider" /> -->
 
+	<!-- User management -->
 	<service ref="userDetailsManager"
 		interface="org.springframework.security.userdetails.UserDetailsService"
 		context-class-loader="service-provider" />
