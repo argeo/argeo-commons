@@ -11,7 +11,7 @@
 			<sec:filter-chain pattern="/webdav/**"
 				filters="x509,basic,rememberMe,exception,interceptor" />
 			<sec:filter-chain pattern="/remoting/**"
-				filters="x509,basic,rememberMe,exception,interceptor" />
+				filters="x509,basic,anonymous,exception,interceptor" />
 			<sec:filter-chain pattern="/public/**"
 				filters="anonymous,exception,interceptorPublic" />
 			<sec:filter-chain pattern="/pub/**"
@@ -28,7 +28,6 @@
 			<value>
 				PATTERN_TYPE_APACHE_ANT
 				/*/*/*/**=ROLE_USER,ROLE_ADMIN
-				/**=ROLE_ANONYMOUS
 			</value>
 		</property>
 	</bean>
