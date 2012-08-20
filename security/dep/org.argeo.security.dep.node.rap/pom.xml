@@ -122,7 +122,7 @@
 											<directoryIncluded>false</directoryIncluded>
 											<dependency>
 												<includes>
-													<include>org.argeo.commons.eclipse:org.argeo.eclipse.ui.rap</include>
+													<include>org.argeo.commons.base:org.argeo.eclipse.ui.rap</include>
 													<include>org.argeo.commons.server:org.argeo.server.rap.webapp</include>
 													<include>org.argeo.commons.security:org.argeo.security.ui.rap</include>
 												</includes>

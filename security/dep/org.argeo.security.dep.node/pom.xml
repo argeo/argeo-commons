@@ -328,7 +328,7 @@
 								</goals>
 								<configuration>
 									<includeTypes>jar</includeTypes>
-									<includeGroupIds>org.argeo.commons.basic,org.argeo.commons.osgi,org.argeo.commons.server,org.argeo.commons.security</includeGroupIds>
+									<includeGroupIds>org.argeo.commons.base,org.argeo.commons.server,org.argeo.commons.security</includeGroupIds>
 									<excludeArtifactIds>org.argeo.osgi.boot</excludeArtifactIds>
 									<outputDirectory>${project.build.directory}/node</outputDirectory>
 								</configuration>
@@ -388,7 +388,7 @@
 								</goals>
 								<configuration>
 									<includeTypes>jar</includeTypes>
-									<excludeGroupIds>org.argeo.commons.basic,org.argeo.commons.osgi,org.argeo.commons.server,org.argeo.commons.security</excludeGroupIds>
+									<excludeGroupIds>org.argeo.commons.base,org.argeo.commons.server,org.argeo.commons.security</excludeGroupIds>
 									<excludeArtifactIds>org.eclipse.osgi</excludeArtifactIds>
 									<outputDirectory>${project.build.directory}/node-tp</outputDirectory>
 								</configuration>
