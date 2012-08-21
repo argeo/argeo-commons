@@ -20,18 +20,17 @@ import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Workspace;
-import javax.jcr.observation.EventIterator;
-import javax.jcr.observation.EventListener;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.TreeParent;
+import org.argeo.jcr.JcrUtils;
 
 /**
  * UI Tree component. Wraps the root node of a JCR {@link Workspace}. It also
  * keeps a reference to its parent {@link RepositoryNode}, to be able to
  * retrieve alias of the current used repository
  */
-public class WorkspaceNode extends TreeParent implements EventListener, UiNode {
+public class WorkspaceNode extends TreeParent implements UiNode {
 	private Session session = null;
 
 	public WorkspaceNode(RepositoryNode parent, String name) {
@@ -41,8 +40,6 @@ public class WorkspaceNode extends TreeParent implements EventListener, UiNode {
 	public WorkspaceNode(RepositoryNode parent, String name, Session session) {
 		super(name);
 		this.session = session;
-		if (session != null)
-			processNewSession(session);
 		setParent(parent);
 	}
 
@@ -64,14 +61,18 @@ public class WorkspaceNode extends TreeParent implements EventListener, UiNode {
 
 	public void login() {
 		try {
-			logout();
 			session = ((RepositoryNode) getParent()).repositoryLogin(getName());
-			processNewSession(session);
-
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot connect to repository "
 					+ getName(), e);
 		}
+	}
+
+	public Boolean isConnected() {
+		if (session != null && session.isLive())
+			return true;
+		else
+			return false;
 	}
 
 	@Override
@@ -82,16 +83,8 @@ public class WorkspaceNode extends TreeParent implements EventListener, UiNode {
 
 	/** Logouts the session, does not nothing if there is no live session. */
 	public void logout() {
-		try {
-			if (session != null && session.isLive()) {
-				session.getWorkspace().getObservationManager()
-						.removeEventListener(this);
-				session.logout();
-			}
-		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot connect to repository "
-					+ getName(), e);
-		}
+		clearChildren();
+		JcrUtils.logoutQuietly(session);
 	}
 
 	/** Returns the alias of the parent Repository */
@@ -102,10 +95,10 @@ public class WorkspaceNode extends TreeParent implements EventListener, UiNode {
 	@Override
 	public boolean hasChildren() {
 		try {
-			if (session == null)
-				return false;
-			else
+			if (isConnected())
 				return session.getRootNode().hasNodes();
+			else
+				return false;
 		} catch (RepositoryException re) {
 			throw new ArgeoException(
 					"Unexpected error while checking children node existence",
@@ -139,49 +132,4 @@ public class WorkspaceNode extends TreeParent implements EventListener, UiNode {
 			}
 		}
 	}
-
-	public void onEvent(final EventIterator events) {
-		// if (session == null)
-		// return;
-		// Display.getDefault().syncExec(new Runnable() {
-		// public void run() {
-		// while (events.hasNext()) {
-		// Event event = events.nextEvent();
-		// try {
-		// String path = event.getPath();
-		// String parentPath = path.substring(0,
-		// path.lastIndexOf('/'));
-		// final Object parent;
-		// if (parentPath.equals("/") || parentPath.equals(""))
-		// parent = this;
-		// else if (session.itemExists(parentPath)){
-		// parent = session.getItem(parentPath);
-		// ((Item)parent).refresh(false);
-		// }
-		// else
-		// parent = null;
-		// if (parent != null) {
-		// nodesViewer.refresh(parent);
-		// }
-		//
-		// } catch (RepositoryException e) {
-		// log.warn("Error processing event " + event, e);
-		// }
-		// }
-		// }
-		// });
-	}
-
-	protected void processNewSession(Session session) {
-		// try {
-		// ObservationManager observationManager = session.getWorkspace()
-		// .getObservationManager();
-		// observationManager.addEventListener(this, Event.NODE_ADDED
-		// | Event.NODE_REMOVED, "/", true, null, null, false);
-		// } catch (RepositoryException e) {
-		// throw new ArgeoException("Cannot process new session "
-		// + session, e);
-		// }
-	}
-
 }

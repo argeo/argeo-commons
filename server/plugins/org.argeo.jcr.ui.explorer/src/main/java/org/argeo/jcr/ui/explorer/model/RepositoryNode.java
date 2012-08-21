@@ -49,9 +49,6 @@ public class RepositoryNode extends TreeParent implements UiNode {
 
 	public void login() {
 		try {
-			// SimpleCredentials sc = new SimpleCredentials("root",
-			// "demo".toCharArray());
-			// defaultSession = repository.login(sc);
 			defaultSession = repositoryLogin(null);
 			String[] wkpNames = defaultSession.getWorkspace()
 					.getAccessibleWorkspaceNames();
@@ -66,14 +63,22 @@ public class RepositoryNode extends TreeParent implements UiNode {
 		}
 	}
 
-	/** Actual call to the {@link Repository#login(javax.jcr.Credentials, String)} method. To be overridden.*/
+	/**
+	 * Actual call to the
+	 * {@link Repository#login(javax.jcr.Credentials, String)} method. To be
+	 * overridden.
+	 */
 	protected Session repositoryLogin(String workspaceName)
 			throws RepositoryException {
 		return repository.login(workspaceName);
 	}
 
-	public Session getDefaultSession() {
-		return defaultSession;
+	public String[] getAccessibleWorkspaceNames() {
+		try {
+			return defaultSession.getWorkspace().getAccessibleWorkspaceNames();
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot retrieve workspace names", e);
+		}
 	}
 
 	/** returns the {@link Repository} referenced by the current UI Node */
@@ -85,4 +90,10 @@ public class RepositoryNode extends TreeParent implements UiNode {
 		return alias;
 	}
 
+	public Boolean isConnected() {
+		if (defaultSession != null && defaultSession.isLive())
+			return true;
+		else
+			return false;
+	}
 }

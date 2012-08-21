@@ -47,8 +47,7 @@ public class JcrUiUtils {
 				doRefresh = true;
 			else if (element instanceof RepositoryNode) {
 				RepositoryNode rn = (RepositoryNode) element;
-				String[] wkpNames = rn.getDefaultSession().getWorkspace()
-						.getAccessibleWorkspaceNames();
+				String[] wkpNames = rn.getAccessibleWorkspaceNames();
 				if (element.getChildren().length != wkpNames.length)
 					doRefresh = true;
 			} else if (element instanceof RepositoriesNode) {

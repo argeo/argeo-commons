@@ -107,7 +107,10 @@ public class SingleJcrNode extends TreeParent implements UiNode {
 	@Override
 	public boolean hasChildren() {
 		try {
-			return node.hasNodes();
+			if (node.getSession().isLive())
+				return node.hasNodes();
+			else
+				return false;
 		} catch (RepositoryException re) {
 			throw new ArgeoException(
 					"Unexpected error while checking children node existence",

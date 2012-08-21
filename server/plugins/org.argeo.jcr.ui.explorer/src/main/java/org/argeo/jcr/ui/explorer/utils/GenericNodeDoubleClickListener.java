@@ -59,13 +59,17 @@ public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 				.getFirstElement();
 		if (obj instanceof RepositoryNode) {
 			RepositoryNode rpNode = (RepositoryNode) obj;
-			if (rpNode.getChildren().length == 0) {
+			if (!rpNode.isConnected()) {
 				rpNode.login();
 				nodeViewer.refresh(obj);
 			}
 			// else do nothing
 		} else if (obj instanceof WorkspaceNode) {
-			((WorkspaceNode) obj).login();
+			WorkspaceNode wn = (WorkspaceNode) obj;
+			if (wn.isConnected())
+				wn.logout();
+			else
+				wn.login();
 			nodeViewer.refresh(obj);
 		} else if (obj instanceof SingleJcrNode) {
 			SingleJcrNode sjn = (SingleJcrNode) obj;

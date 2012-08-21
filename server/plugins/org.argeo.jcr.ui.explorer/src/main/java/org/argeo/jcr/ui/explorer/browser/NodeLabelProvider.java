@@ -58,20 +58,20 @@ public class NodeLabelProvider extends DefaultNodeLabelProvider {
 	@Override
 	public Image getImage(Object element) {
 		if (element instanceof RemoteRepositoryNode) {
-			if (((RemoteRepositoryNode) element).getDefaultSession() == null)
-				return JcrImages.REMOTE_DISCONNECTED;
-			else
+			if (((RemoteRepositoryNode) element).isConnected())
 				return JcrImages.REMOTE_CONNECTED;
+			else
+				return JcrImages.REMOTE_DISCONNECTED;
 		} else if (element instanceof RepositoryNode) {
-			if (((RepositoryNode) element).getDefaultSession() == null)
-				return JcrImages.REPOSITORY_DISCONNECTED;
-			else
+			if (((RepositoryNode) element).isConnected())
 				return JcrImages.REPOSITORY_CONNECTED;
-		} else if (element instanceof WorkspaceNode) {
-			if (((WorkspaceNode) element).getSession() == null)
-				return JcrImages.WORKSPACE_DISCONNECTED;
 			else
+				return JcrImages.REPOSITORY_DISCONNECTED;
+		} else if (element instanceof WorkspaceNode) {
+			if (((WorkspaceNode) element).isConnected())
 				return JcrImages.WORKSPACE_CONNECTED;
+			else
+				return JcrImages.WORKSPACE_DISCONNECTED;
 		} else if (element instanceof RepositoriesNode) {
 			return JcrImages.REPOSITORIES;
 		} else if (element instanceof SingleJcrNode)
