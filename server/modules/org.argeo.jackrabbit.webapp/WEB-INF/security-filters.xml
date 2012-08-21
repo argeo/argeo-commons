@@ -51,12 +51,12 @@
 		</property>
 	</bean>
 
-	<!-- Integrates the authentication information in the http sessions
+	<!-- Integrates the authentication information in the http sessions -->
 	<bean id="session"
 		class="org.springframework.security.context.HttpSessionContextIntegrationFilter">
 		<property name="allowSessionCreation" value="false" />
 	</bean>
- -->
+
 	<!-- Processes logouts, removing both session informations and the remember-me 
 		cookie from the browser -->
 	<bean id="logout" class="org.springframework.security.ui.logout.LogoutFilter">
