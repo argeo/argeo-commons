@@ -25,6 +25,12 @@ public class TreeParent {
 
 	private List<Object> children;
 
+	/**
+	 * Unique id within the context of a tree display. If set, equals() and
+	 * hashCode() methods will be based on it
+	 */
+	private String path = null;
+
 	/** False until at least one child has been added, then true until cleared */
 	private boolean loaded = false;
 
@@ -105,6 +111,10 @@ public class TreeParent {
 
 	public void setParent(TreeParent parent) {
 		this.parent = parent;
+		if (parent != null && parent.path != null)
+			this.path = parent.path + '/' + name;
+		else
+			this.path = '/' + name;
 	}
 
 	public TreeParent getParent() {
@@ -121,12 +131,18 @@ public class TreeParent {
 
 	@Override
 	public int hashCode() {
-		return name.hashCode();
+		if (path != null)
+			return path.hashCode();
+		else
+			return name.hashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		return name.equals(obj.toString());
+		if (path != null && obj instanceof TreeParent)
+			return path.equals(((TreeParent) obj).path);
+		else
+			return name.equals(obj.toString());
 	}
 
 }
