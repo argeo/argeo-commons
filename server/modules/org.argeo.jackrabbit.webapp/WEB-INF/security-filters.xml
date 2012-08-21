@@ -9,9 +9,12 @@
 	<bean id="springSecurityFilterChain" class="org.springframework.security.util.FilterChainProxy">
 		<sec:filter-chain-map path-type="ant">
 			<sec:filter-chain pattern="/webdav/**"
-				filters="session,x509,basic,rememberMe,exception,interceptor" />
-			<sec:filter-chain pattern="/remoting/**"
-				filters="x509,basic,anonymous,exception,interceptor" />
+				filters="session,x509,basic,exception,interceptor" />
+			<!-- For some reason the first level listing workspaces must be public -->
+			<sec:filter-chain pattern="/remoting/*/"
+				filters="anonymous,exception,interceptorPublic" />
+			<sec:filter-chain pattern="/remoting/*/**"
+				filters="session,x509,basic,exception,interceptor" />
 			<sec:filter-chain pattern="/public/**"
 				filters="anonymous,exception,interceptorPublic" />
 			<sec:filter-chain pattern="/pub/**"
@@ -27,7 +30,7 @@
 		<property name="objectDefinitionSource">
 			<value>
 				PATTERN_TYPE_APACHE_ANT
-				/*/*/*/**=ROLE_USER,ROLE_ADMIN
+				/**=ROLE_USER,ROLE_ADMIN
 			</value>
 		</property>
 	</bean>
@@ -64,14 +67,14 @@
 		<!-- URL redirected to after logout -->
 		<constructor-arg>
 			<list>
-				<ref bean="rememberMeServices" />
+<!-- 				<ref bean="rememberMeServices" /> -->
 				<bean
 					class="org.springframework.security.ui.logout.SecurityContextLogoutHandler" />
 			</list>
 		</constructor-arg>
 	</bean>
 
-	<!-- Use the remember me cookie to authenticate -->
+	<!-- Use the remember me cookie to authenticate
 	<bean id="rememberMe"
 		class="org.springframework.security.ui.rememberme.RememberMeProcessingFilter">
 		<property name="authenticationManager" ref="authenticationManager" />
@@ -85,7 +88,8 @@
 		<property name="tokenValiditySeconds" value="${argeo.jcr.webapp.rememberMeValidity}" />
 		<property name="alwaysRemember" value="true" />
 	</bean>
-
+ -->
+ 
 	<!-- Basic authentication -->
 	<bean id="basic"
 		class="org.springframework.security.ui.basicauth.BasicProcessingFilter">
@@ -95,14 +99,14 @@
 		<property name="authenticationEntryPoint">
 			<ref local="basicProcessingFilterEntryPoint" />
 		</property>
-		<property name="rememberMeServices" ref="rememberMeServices" />
+<!-- 		<property name="rememberMeServices" ref="rememberMeServices" /> -->
 	</bean>
 
 	<!-- Activate basic auth when needed -->
 	<bean id="basicProcessingFilterEntryPoint"
 		class="org.springframework.security.ui.basicauth.BasicProcessingFilterEntryPoint">
 		<property name="realmName">
-			<value>Argeo</value>
+			<value>${argeo.server.realmName}</value>
 		</property>
 	</bean>
 
