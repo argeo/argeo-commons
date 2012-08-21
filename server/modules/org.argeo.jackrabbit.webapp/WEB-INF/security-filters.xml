@@ -9,7 +9,7 @@
 	<bean id="springSecurityFilterChain" class="org.springframework.security.util.FilterChainProxy">
 		<sec:filter-chain-map path-type="ant">
 			<sec:filter-chain pattern="/webdav/**"
-				filters="x509,basic,rememberMe,exception,interceptor" />
+				filters="session,x509,basic,rememberMe,exception,interceptor" />
 			<sec:filter-chain pattern="/remoting/**"
 				filters="x509,basic,anonymous,exception,interceptor" />
 			<sec:filter-chain pattern="/public/**"
