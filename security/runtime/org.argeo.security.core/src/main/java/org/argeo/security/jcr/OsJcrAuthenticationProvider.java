@@ -22,6 +22,7 @@ import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.jcr.security.SecurityJcrUtils;
 import org.argeo.security.OsAuthenticationToken;
 import org.argeo.security.core.OsAuthenticationProvider;
 import org.springframework.security.Authentication;
@@ -76,13 +77,13 @@ public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 				// WARNING: at this stage we assume that the java properties
 				// will have the same value
 				String username = System.getProperty("user.name");
-				Node userProfile = JcrUtils.createUserProfileIfNeeded(
+				Node userProfile = SecurityJcrUtils.createUserProfileIfNeeded(
 						securitySession, username);
 				JcrUserDetails.checkAccountStatus(userProfile);
 
 				// each user should have a writable area in the default
 				// workspace of the node
-				JcrUtils.createUserHomeIfNeeded(nodeSession, username);
+				SecurityJcrUtils.createUserHomeIfNeeded(nodeSession, username);
 				userDetails = new JcrUserDetails(userProfile, authen
 						.getCredentials().toString(), getBaseAuthorities());
 				authen.setDetails(userDetails);

@@ -24,7 +24,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.argeo.jcr.ArgeoNames;
-import org.argeo.jcr.JcrUtils;
+import org.argeo.jcr.security.SecurityJcrUtils;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.DisabledException;
 import org.springframework.security.GrantedAuthority;
@@ -90,7 +90,7 @@ public class JcrUserDetails extends User implements ArgeoNames {
 	 */
 	public JcrUserDetails(Session session, String username, String password,
 			GrantedAuthority[] authorities) throws RepositoryException {
-		this(JcrUtils.getUserProfile(session, username),
+		this(SecurityJcrUtils.getUserProfile(session, username),
 				password != null ? password : "", authorities);
 	}
 

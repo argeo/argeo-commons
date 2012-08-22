@@ -17,26 +17,16 @@ package org.argeo.security.jackrabbit;
 
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import javax.jcr.Node;
-import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.Value;
-import javax.jcr.ValueFactory;
-import javax.jcr.security.Privilege;
 import javax.security.auth.Subject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.jackrabbit.api.security.JackrabbitAccessControlList;
-import org.apache.jackrabbit.api.security.JackrabbitAccessControlManager;
-import org.apache.jackrabbit.api.security.JackrabbitAccessControlPolicy;
 import org.apache.jackrabbit.api.security.user.Group;
 import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.api.security.user.UserManager;
@@ -45,11 +35,10 @@ import org.apache.jackrabbit.core.security.AnonymousPrincipal;
 import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
 import org.argeo.ArgeoException;
-import org.argeo.jcr.JcrUtils;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 
-/** Intermediary class in order to have a consistent naming in config files. */
+/** Integrates Spring Security and Jackrabbit Security user and roles. */
 public class ArgeoSecurityManager extends DefaultSecurityManager {
 	private Log log = LogFactory.getLog(ArgeoSecurityManager.class);
 
@@ -61,8 +50,6 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 	@Override
 	public String getUserID(Subject subject, String workspaceName)
 			throws RepositoryException {
-		long begin = System.currentTimeMillis();
-
 		if (log.isTraceEnabled())
 			log.trace(subject);
 		// skip anonymous user (no rights)
@@ -72,6 +59,8 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		if (!subject.getPrincipals(ArgeoSystemPrincipal.class).isEmpty())
 			return super.getUserID(subject, workspaceName);
 
+		// retrieve Spring authentication from JAAS
+		// TODO? use Spring Security context holder
 		Authentication authen;
 		Set<Authentication> authens = subject
 				.getPrincipals(Authentication.class);
@@ -81,16 +70,32 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		else
 			authen = authens.iterator().next();
 
-		UserManager systemUm = getSystemUserManager(workspaceName);
+		// sync Spring and Jackrabbit
+		syncSpringAndJackrabbitSecurity(authen);
+
+		return authen.getName();
+	}
+
+	/**
+	 * Make sure that the Jackrabbit security model contains this user and its
+	 * granted authorities
+	 */
+	protected void syncSpringAndJackrabbitSecurity(Authentication authen)
+			throws RepositoryException {
+		long begin = System.currentTimeMillis();
+
+		// workspace is irrelevant here
+		UserManager systemUm = getSystemUserManager(null);
 
 		String userId = authen.getName();
 		User user = (User) systemUm.getAuthorizable(userId);
 		if (user == null) {
 			user = systemUm.createUser(userId, authen.getCredentials()
 					.toString(), authen, null);
-			JcrUtils.createUserHomeIfNeeded(getSystemSession(), userId);
-			getSystemSession().save();
-			setSecurityHomeAuthorizations(user);
+			// SecurityJcrUtils.createUserHomeIfNeeded(getSystemSession(),
+			// userId);
+			// getSystemSession().save();
+			// setSecurityHomeAuthorizations(user);
 			log.info(userId + " added as " + user);
 		}
 
@@ -118,51 +123,51 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 			log.trace("Spring and Jackrabbit Security synchronized for user "
 					+ userId + " in " + (System.currentTimeMillis() - begin)
 					+ " ms");
-		return userId;
 	}
 
-	protected synchronized void setSecurityHomeAuthorizations(User user) {
-		// give read privileges on user security home
-		String userId = "<not yet set>";
-		try {
-			userId = user.getID();
-			Node userHome = JcrUtils.getUserHome(getSystemSession(), userId);
-			if (userHome == null)
-				throw new ArgeoException("No security home available for user "
-						+ userId);
-
-			String path = userHome.getPath();
-			Principal principal = user.getPrincipal();
-
-			JackrabbitAccessControlManager acm = (JackrabbitAccessControlManager) getSystemSession()
-					.getAccessControlManager();
-			JackrabbitAccessControlPolicy[] ps = acm
-					.getApplicablePolicies(principal);
-			if (ps.length == 0) {
-				// log.warn("No ACL found for " + user);
-				return;
-			}
-
-			JackrabbitAccessControlList list = (JackrabbitAccessControlList) ps[0];
-
-			// add entry
-			Privilege[] privileges = new Privilege[] { acm
-					.privilegeFromName(Privilege.JCR_READ) };
-			Map<String, Value> restrictions = new HashMap<String, Value>();
-			ValueFactory vf = getSystemSession().getValueFactory();
-			restrictions.put("rep:nodePath",
-					vf.createValue(path, PropertyType.PATH));
-			restrictions.put("rep:glob", vf.createValue("*"));
-			list.addEntry(principal, privileges, true /* allow or deny */,
-					restrictions);
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new ArgeoException(
-					"Cannot set authorization on security home for " + userId
-							+ ": " + e.getMessage());
-		}
-
-	}
+	// protected synchronized void setSecurityHomeAuthorizations(User user) {
+	// // give read privileges on user security home
+	// String userId = "<not yet set>";
+	// try {
+	// userId = user.getID();
+	// Node userHome = SecurityJcrUtils.getUserHome(getSystemSession(), userId);
+	// if (userHome == null)
+	// throw new ArgeoException("No security home available for user "
+	// + userId);
+	//
+	// String path = userHome.getPath();
+	// Principal principal = user.getPrincipal();
+	//
+	// JackrabbitAccessControlManager acm = (JackrabbitAccessControlManager)
+	// getSystemSession()
+	// .getAccessControlManager();
+	// JackrabbitAccessControlPolicy[] ps = acm
+	// .getApplicablePolicies(principal);
+	// if (ps.length == 0) {
+	// // log.warn("No ACL found for " + user);
+	// return;
+	// }
+	//
+	// JackrabbitAccessControlList list = (JackrabbitAccessControlList) ps[0];
+	//
+	// // add entry
+	// Privilege[] privileges = new Privilege[] { acm
+	// .privilegeFromName(Privilege.JCR_READ) };
+	// Map<String, Value> restrictions = new HashMap<String, Value>();
+	// ValueFactory vf = getSystemSession().getValueFactory();
+	// restrictions.put("rep:nodePath",
+	// vf.createValue(path, PropertyType.PATH));
+	// restrictions.put("rep:glob", vf.createValue("*"));
+	// list.addEntry(principal, privileges, true /* allow or deny */,
+	// restrictions);
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// throw new ArgeoException(
+	// "Cannot set authorization on security home for " + userId
+	// + ": " + e.getMessage());
+	// }
+	//
+	// }
 
 	@Override
 	protected WorkspaceAccessManager createDefaultWorkspaceAccessManager() {

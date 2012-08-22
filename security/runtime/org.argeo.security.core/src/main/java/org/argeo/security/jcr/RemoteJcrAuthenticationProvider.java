@@ -31,8 +31,8 @@ import javax.jcr.Value;
 
 import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoJcrConstants;
+import org.argeo.jcr.ArgeoJcrUtils;
 import org.argeo.jcr.ArgeoNames;
-import org.argeo.jcr.JcrUtils;
 import org.argeo.security.NodeAuthenticationToken;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
@@ -65,7 +65,7 @@ public class RemoteJcrAuthenticationProvider implements AuthenticationProvider,
 
 			String workspace = siteAuth.getSecurityWorkspace();
 			session = repository.login(sp, workspace);
-			Node userHome = JcrUtils.getUserHome(session);
+			Node userHome = ArgeoJcrUtils.getUserHome(session);
 			if (userHome == null || !userHome.hasNode(ArgeoNames.ARGEO_PROFILE))
 				throw new ArgeoException("No profile for user "
 						+ siteAuth.getName() + " in security workspace "

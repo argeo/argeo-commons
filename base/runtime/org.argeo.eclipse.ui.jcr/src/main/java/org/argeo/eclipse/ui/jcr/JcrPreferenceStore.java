@@ -29,6 +29,7 @@ import javax.jcr.version.VersionManager;
 
 import org.apache.commons.io.IOUtils;
 import org.argeo.ArgeoException;
+import org.argeo.jcr.ArgeoJcrUtils;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
@@ -52,7 +53,7 @@ public class JcrPreferenceStore extends PreferenceStore implements ArgeoNames {
 		try {
 			if (session.hasPendingChanges())
 				session.save();
-			Node userHome = JcrUtils.getUserHome(session);
+			Node userHome = ArgeoJcrUtils.getUserHome(session);
 			if (userHome == null)
 				throw new ArgeoException("No user home for "
 						+ session.getUserID());

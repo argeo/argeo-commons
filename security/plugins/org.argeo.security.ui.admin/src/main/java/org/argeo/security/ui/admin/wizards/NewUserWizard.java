@@ -22,7 +22,9 @@ import javax.jcr.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.eclipse.ui.ErrorFeedback;
+import org.argeo.jcr.ArgeoJcrUtils;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.jcr.security.SecurityJcrUtils;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.eclipse.jface.wizard.Wizard;
@@ -55,7 +57,7 @@ public class NewUserWizard extends Wizard {
 
 		String username = mainUserInfo.getUsername();
 		try {
-			Node userProfile = JcrUtils.createUserProfile(session, username);
+			Node userProfile = SecurityJcrUtils.createUserProfile(session, username);
 			// session.getWorkspace().getVersionManager()
 			// .checkout(userProfile.getPath());
 			mainUserInfo.mapToProfileNode(userProfile);
@@ -70,7 +72,7 @@ public class NewUserWizard extends Wizard {
 			return true;
 		} catch (Exception e) {
 			JcrUtils.discardQuietly(session);
-			Node userHome = JcrUtils.getUserHome(session, username);
+			Node userHome = ArgeoJcrUtils.getUserHome(session, username);
 			if (userHome != null) {
 				try {
 					userHome.remove();

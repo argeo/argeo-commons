@@ -13,8 +13,6 @@
 	<reference id="repositoryFactory" interface="javax.jcr.RepositoryFactory" />
 
 	<!-- SERVICES -->
-	<service ref="systemExecutionService" interface="org.argeo.security.SystemExecutionService" />
-
 	<service ref="authenticationManager"
 		interface="org.springframework.security.AuthenticationManager" />
 

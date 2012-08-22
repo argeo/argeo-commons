@@ -17,8 +17,6 @@ package org.argeo.jcr.ui.explorer;
 
 /** Constants used across the application. */
 public interface JcrExplorerConstants {
-	public final static String PARAM_REPOSITORY_URI = "org.argeo.jcr.ui.explorer.repositoryUri";
-
 	/*
 	 * MISCEALLENEOUS
 	 */

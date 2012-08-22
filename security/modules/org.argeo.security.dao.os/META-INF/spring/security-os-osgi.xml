@@ -17,8 +17,6 @@
 	<service ref="authenticationManager"
 		interface="org.springframework.security.AuthenticationManager" />
 
-	<service ref="systemExecutionService" interface="org.argeo.security.SystemExecutionService" />
-
 	<!-- User management -->
 	<service ref="userDetailsManager"
 		interface="org.springframework.security.userdetails.UserDetailsService"

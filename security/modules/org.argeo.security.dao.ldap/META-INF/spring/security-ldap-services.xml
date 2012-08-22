@@ -4,11 +4,6 @@
 	xsi:schemaLocation="
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<bean id="systemExecutionService" class="org.argeo.security.core.KeyBasedSystemExecutionService">
-		<property name="authenticationManager" ref="authenticationManager" />
-		<property name="systemAuthenticationKey" value="${argeo.security.systemKey}" />
-	</bean>
-
 	<bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
 		<property name="providers">
 			<list>

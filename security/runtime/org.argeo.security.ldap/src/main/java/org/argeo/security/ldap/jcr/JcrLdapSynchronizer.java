@@ -59,6 +59,7 @@ import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.jcr.security.SecurityJcrUtils;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.ldap.core.ContextMapper;
@@ -223,9 +224,10 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 	/** Called during authentication in order to retrieve user details */
 	public UserDetails mapUserFromContext(final DirContextOperations ctx,
 			final String username, GrantedAuthority[] authorities) {
+		log.debug("mapUserFromContext");
 		if (ctx == null)
 			throw new ArgeoException("No LDAP information for user " + username);
-		Node userProfile = JcrUtils.createUserProfileIfNeeded(securitySession,
+		Node userProfile = SecurityJcrUtils.createUserProfileIfNeeded(securitySession,
 				username);
 		JcrUserDetails.checkAccountStatus(userProfile);
 
@@ -260,7 +262,7 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 		try {
 			// process
 			String username = ctx.getStringAttribute(usernameAttribute);
-			Node userHome = JcrUtils.createUserHomeIfNeeded(session, username);
+			Node userHome = SecurityJcrUtils.createUserHomeIfNeeded(session, username);
 			Node userProfile; // = userHome.getNode(ARGEO_PROFILE);
 			if (userHome.hasNode(ARGEO_PROFILE)) {
 				userProfile = userHome.getNode(ARGEO_PROFILE);
@@ -279,7 +281,7 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 							.checkin(userProfile.getPath());
 				}
 			} else {
-				userProfile = JcrUtils.createUserProfile(securitySession,
+				userProfile = SecurityJcrUtils.createUserProfile(securitySession,
 						username);
 				userProfile.getSession().save();
 				userProfile.getSession().getWorkspace().getVersionManager()

@@ -31,7 +31,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +46,6 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
-import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.Workspace;
@@ -61,7 +59,6 @@ import javax.jcr.security.AccessControlManager;
 import javax.jcr.security.AccessControlPolicy;
 import javax.jcr.security.AccessControlPolicyIterator;
 import javax.jcr.security.Privilege;
-import javax.jcr.version.VersionManager;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -1047,42 +1044,6 @@ public class JcrUtils implements ArgeoJcrConstants {
 	}
 
 	/**
-	 * Wraps the call to the repository factory based on parameter
-	 * {@link ArgeoJcrConstants#JCR_REPOSITORY_ALIAS} in order to simplify it
-	 * and protect against future API changes.
-	 */
-	public static Repository getRepositoryByAlias(
-			RepositoryFactory repositoryFactory, String alias) {
-		try {
-			Map<String, String> parameters = new HashMap<String, String>();
-			parameters.put(JCR_REPOSITORY_ALIAS, alias);
-			return repositoryFactory.getRepository(parameters);
-		} catch (RepositoryException e) {
-			throw new ArgeoException(
-					"Unexpected exception when trying to retrieve repository with alias "
-							+ alias, e);
-		}
-	}
-
-	/**
-	 * Wraps the call to the repository factory based on parameter
-	 * {@link ArgeoJcrConstants#JCR_REPOSITORY_URI} in order to simplify it and
-	 * protect against future API changes.
-	 */
-	public static Repository getRepositoryByUri(
-			RepositoryFactory repositoryFactory, String uri) {
-		try {
-			Map<String, String> parameters = new HashMap<String, String>();
-			parameters.put(JCR_REPOSITORY_URI, uri);
-			return repositoryFactory.getRepository(parameters);
-		} catch (RepositoryException e) {
-			throw new ArgeoException(
-					"Unexpected exception when trying to retrieve repository with uri "
-							+ uri, e);
-		}
-	}
-
-	/**
 	 * Discards the current changes in the session attached to this node. To be
 	 * used typically in a catch block.
 	 * 
@@ -1174,235 +1135,6 @@ public class JcrUtils implements ArgeoJcrConstants {
 		} catch (RepositoryException e) {
 			// silent
 		}
-	}
-
-	/** Returns the home node of the session user or null if none was found. */
-	public static Node getUserHome(Session session) {
-		String userID = session.getUserID();
-		return getUserHome(session, userID);
-	}
-
-	/** User home path is NOT configurable */
-	public static String getUserHomePath(String username) {
-		String homeBasePath = DEFAULT_HOME_BASE_PATH;
-		return homeBasePath + '/' + firstCharsToPath(username, 2) + '/'
-				+ username;
-	}
-
-	/**
-	 * Returns the home node of the session user or null if none was found.
-	 * 
-	 * @param session
-	 *            the session to use in order to perform the search, this can be
-	 *            a session with a different user ID than the one searched,
-	 *            typically when a system or admin session is used.
-	 * @param username
-	 *            the username of the user
-	 */
-	public static Node getUserHome(Session session, String username) {
-		try {
-			String homePath = getUserHomePath(username);
-			return session.itemExists(homePath) ? session.getNode(homePath)
-					: null;
-			// kept for example of QOM queries
-			// QueryObjectModelFactory qomf = session.getWorkspace()
-			// .getQueryManager().getQOMFactory();
-			// Selector userHomeSel = qomf.selector(ArgeoTypes.ARGEO_USER_HOME,
-			// "userHome");
-			// DynamicOperand userIdDop = qomf.propertyValue("userHome",
-			// ArgeoNames.ARGEO_USER_ID);
-			// StaticOperand userIdSop = qomf.literal(session.getValueFactory()
-			// .createValue(username));
-			// Constraint constraint = qomf.comparison(userIdDop,
-			// QueryObjectModelFactory.JCR_OPERATOR_EQUAL_TO, userIdSop);
-			// Query query = qomf.createQuery(userHomeSel, constraint, null,
-			// null);
-			// Node userHome = JcrUtils.querySingleNode(query);
-		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot find home for user " + username, e);
-		}
-	}
-
-	/**
-	 * Creates an Argeo user home, does nothing if it already exists. Session is
-	 * NOT saved.
-	 */
-	public static Node createUserHomeIfNeeded(Session session, String username) {
-		try {
-			String homePath = getUserHomePath(username);
-			if (session.itemExists(homePath))
-				return session.getNode(homePath);
-			else {
-				Node userHome = JcrUtils.mkdirs(session, homePath);
-				userHome.addMixin(ArgeoTypes.ARGEO_USER_HOME);
-				userHome.setProperty(ArgeoNames.ARGEO_USER_ID, username);
-				return userHome;
-			}
-		} catch (RepositoryException e) {
-			discardQuietly(session);
-			throw new ArgeoException("Cannot create home for " + username
-					+ " in workspace " + session.getWorkspace().getName(), e);
-		}
-	}
-
-	/**
-	 * Creates a user profile in the home of this user. Creates the home if
-	 * needed, but throw an exception if a profile already exists. The session
-	 * is not saved and the node is in a checkedOut state (that is, it requires
-	 * a subsequent checkin after saving the session).
-	 */
-	public static Node createUserProfile(Session session, String username) {
-		try {
-			Node userHome = createUserHomeIfNeeded(session, username);
-			if (userHome.hasNode(ArgeoNames.ARGEO_PROFILE))
-				throw new ArgeoException(
-						"There is already a user profile under " + userHome);
-			Node userProfile = userHome.addNode(ArgeoNames.ARGEO_PROFILE);
-			userProfile.addMixin(ArgeoTypes.ARGEO_USER_PROFILE);
-			userProfile.setProperty(ArgeoNames.ARGEO_USER_ID, username);
-			userProfile.setProperty(ArgeoNames.ARGEO_ENABLED, true);
-			userProfile.setProperty(ArgeoNames.ARGEO_ACCOUNT_NON_EXPIRED, true);
-			userProfile.setProperty(ArgeoNames.ARGEO_ACCOUNT_NON_LOCKED, true);
-			userProfile.setProperty(ArgeoNames.ARGEO_CREDENTIALS_NON_EXPIRED,
-					true);
-			return userProfile;
-		} catch (RepositoryException e) {
-			discardQuietly(session);
-			throw new ArgeoException("Cannot create user profile for "
-					+ username + " in workspace "
-					+ session.getWorkspace().getName(), e);
-		}
-	}
-
-	/**
-	 * Create user profile if needed, the session IS saved.
-	 * 
-	 * @return the user profile
-	 */
-	public static Node createUserProfileIfNeeded(Session securitySession,
-			String username) {
-		try {
-			Node userHome = JcrUtils.createUserHomeIfNeeded(securitySession,
-					username);
-			Node userProfile = userHome.hasNode(ArgeoNames.ARGEO_PROFILE) ? userHome
-					.getNode(ArgeoNames.ARGEO_PROFILE) : JcrUtils
-					.createUserProfile(securitySession, username);
-			if (securitySession.hasPendingChanges())
-				securitySession.save();
-			VersionManager versionManager = securitySession.getWorkspace()
-					.getVersionManager();
-			if (versionManager.isCheckedOut(userProfile.getPath()))
-				versionManager.checkin(userProfile.getPath());
-			return userProfile;
-		} catch (RepositoryException e) {
-			discardQuietly(securitySession);
-			throw new ArgeoException("Cannot create user profile for "
-					+ username + " in workspace "
-					+ securitySession.getWorkspace().getName(), e);
-		}
-	}
-
-	/** Creates an Argeo user home. */
-	// public static Node createUserHome(Session session, String homeBasePath,
-	// String username) {
-	// try {
-	// if (session == null)
-	// throw new ArgeoException("Session is null");
-	// if (session.hasPendingChanges())
-	// throw new ArgeoException(
-	// "Session has pending changes, save them first");
-	//
-	// String homePath = getUserHomePath(username);
-	//
-	// if (session.itemExists(homePath)) {
-	// try {
-	// throw new ArgeoException(
-	// "Trying to create a user home that already exists");
-	// } catch (Exception e) {
-	// // we use this workaround to be sure to get the stack trace
-	// // to identify the sink of the bug.
-	// log.warn("trying to create an already existing userHome at path:"
-	// + homePath + ". Stack trace : ");
-	// e.printStackTrace();
-	// }
-	// }
-	//
-	// Node userHome = JcrUtils.mkdirs(session, homePath);
-	// Node userProfile;
-	// if (userHome.hasNode(ArgeoNames.ARGEO_PROFILE)) {
-	// log.warn("userProfile node already exists for userHome path: "
-	// + homePath + ". We do not add a new one");
-	// } else {
-	// userProfile = userHome.addNode(ArgeoNames.ARGEO_PROFILE);
-	// userProfile.addMixin(ArgeoTypes.ARGEO_USER_PROFILE);
-	// // session.getWorkspace().getVersionManager()
-	// // .checkout(userProfile.getPath());
-	// userProfile.setProperty(ArgeoNames.ARGEO_USER_ID, username);
-	// session.save();
-	// session.getWorkspace().getVersionManager()
-	// .checkin(userProfile.getPath());
-	// // we need to save the profile before adding the user home type
-	// }
-	// userHome.addMixin(ArgeoTypes.ARGEO_USER_HOME);
-	// // see
-	// //
-	// http://jackrabbit.510166.n4.nabble.com/Jackrabbit-2-0-beta-6-Problem-adding-a-Mixin-type-with-mandatory-properties-after-setting-propertiesn-td1290332.html
-	// userHome.setProperty(ArgeoNames.ARGEO_USER_ID, username);
-	// session.save();
-	// return userHome;
-	// } catch (RepositoryException e) {
-	// discardQuietly(session);
-	// throw new ArgeoException("Cannot create home node for user "
-	// + username, e);
-	// }
-	// }
-
-	/**
-	 * Returns user home has path, embedding exceptions. Contrary to
-	 * {@link #getUserHome(Session)}, it never returns null but throws and
-	 * exception if not found.
-	 * 
-	 * @deprecated use getUserHome() instead, throwing an exception if it
-	 *             returns null
-	 */
-	@Deprecated
-	public static String getUserHomePath(Session session) {
-		String userID = session.getUserID();
-		try {
-			String homePath = getUserHomePath(userID);
-			if (session.itemExists(homePath))
-				return homePath;
-			else
-				throw new ArgeoException("No home registered for " + userID);
-		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot find user home path", e);
-		}
-	}
-
-	/**
-	 * @return null if not found *
-	 */
-	public static Node getUserProfile(Session session, String username) {
-		try {
-			Node userHome = getUserHome(session, username);
-			if (userHome == null)
-				return null;
-			if (userHome.hasNode(ArgeoNames.ARGEO_PROFILE))
-				return userHome.getNode(ArgeoNames.ARGEO_PROFILE);
-			else
-				return null;
-		} catch (RepositoryException e) {
-			throw new ArgeoException(
-					"Cannot find profile for user " + username, e);
-		}
-	}
-
-	/**
-	 * Get the profile of the user attached to this session.
-	 */
-	public static Node getUserProfile(Session session) {
-		String userID = session.getUserID();
-		return getUserProfile(session, userID);
 	}
 
 	/**

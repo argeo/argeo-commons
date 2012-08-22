@@ -27,10 +27,12 @@ import javax.jcr.SimpleCredentials;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.jcr.ArgeoJcrConstants;
+import org.argeo.jcr.ArgeoJcrUtils;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.security.JcrKeyring;
+import org.argeo.jcr.security.SecurityJcrUtils;
 import org.argeo.jcr.ui.explorer.JcrExplorerConstants;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -52,7 +54,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.osgi.framework.BundleContext;
 
 /**
  * Connect to a remote repository and, if successful publish it as an OSGi
@@ -62,46 +63,18 @@ public class AddRemoteRepository extends AbstractHandler implements
 		JcrExplorerConstants, ArgeoNames {
 
 	private RepositoryFactory repositoryFactory;
-	private BundleContext bundleContext;
-
 	private JcrKeyring keyring;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		String uri = null;
-		if (event.getParameters().containsKey(PARAM_REPOSITORY_URI)) {
-			// FIXME remove this
-			uri = event.getParameter(PARAM_REPOSITORY_URI);
-			if (uri == null)
-				return null;
-
-			try {
-				Hashtable<String, String> params = new Hashtable<String, String>();
-				params.put(ArgeoJcrConstants.JCR_REPOSITORY_URI, uri);
-				// by default we use the URI as alias
-				params.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, uri);
-				Repository repository = repositoryFactory.getRepository(params);
-				bundleContext.registerService(Repository.class.getName(),
-						repository, params);
-			} catch (Exception e) {
-				ErrorFeedback.show("Cannot add remote repository " + uri, e);
-			}
-		} else {
-			RemoteRepositoryLoginDialog dlg = new RemoteRepositoryLoginDialog(
-					Display.getDefault().getActiveShell());
-			if (dlg.open() == Dialog.OK) {
-				// uri = dlg.getUri();
-			}
+		RemoteRepositoryLoginDialog dlg = new RemoteRepositoryLoginDialog(
+				Display.getDefault().getActiveShell());
+		if (dlg.open() == Dialog.OK) {
 		}
-
 		return null;
 	}
 
 	public void setRepositoryFactory(RepositoryFactory repositoryFactory) {
 		this.repositoryFactory = repositoryFactory;
-	}
-
-	public void setBundleContext(BundleContext bundleContext) {
-		this.bundleContext = bundleContext;
 	}
 
 	public void setKeyring(JcrKeyring keyring) {
@@ -162,9 +135,6 @@ public class AddRemoteRepository extends AbstractHandler implements
 
 				Hashtable<String, String> params = new Hashtable<String, String>();
 				params.put(ArgeoJcrConstants.JCR_REPOSITORY_URI, checkedUriStr);
-				// by default we use the URI as alias
-				params.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS,
-						checkedUriStr);
 				Repository repository = repositoryFactory.getRepository(params);
 				if (username.getText().trim().equals("")) {// anonymous
 					session = repository.login();
@@ -190,11 +160,11 @@ public class AddRemoteRepository extends AbstractHandler implements
 		protected void okPressed() {
 			try {
 				Session nodeSession = keyring.getSession();
-				Node home = JcrUtils.getUserHome(nodeSession);
+				Node home = ArgeoJcrUtils.getUserHome(nodeSession);
 
 				// FIXME better deal with non existing home dir
 				if (home == null)
-					home = JcrUtils.createUserHomeIfNeeded(nodeSession,
+					home = SecurityJcrUtils.createUserHomeIfNeeded(nodeSession,
 							nodeSession.getUserID());
 
 				Node remote = home.hasNode(ARGEO_REMOTE) ? home

@@ -20,8 +20,8 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
+import org.argeo.jcr.ArgeoJcrUtils;
 import org.argeo.jcr.ArgeoNames;
-import org.argeo.jcr.JcrUtils;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
@@ -48,7 +48,7 @@ public class ArgeoUserEditor extends FormEditor {
 		super.init(site, input);
 		String username = ((ArgeoUserEditorInput) getEditorInput())
 				.getUsername();
-		userHome = JcrUtils.getUserHome(session, username);
+		userHome = ArgeoJcrUtils.getUserHome(session, username);
 
 		if (userAdminService.userExists(username)) {
 			userDetails = (JcrUserDetails) userAdminService
