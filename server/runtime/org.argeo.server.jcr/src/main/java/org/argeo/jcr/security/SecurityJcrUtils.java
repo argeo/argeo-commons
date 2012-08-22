@@ -7,10 +7,10 @@ import javax.jcr.version.VersionManager;
 
 import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoJcrConstants;
-import org.argeo.jcr.ArgeoJcrUtils;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.jcr.UserJcrUtils;
 
 /** Utilities related to Argeo security model in JCR */
 public class SecurityJcrUtils implements ArgeoJcrConstants {
@@ -39,7 +39,7 @@ public class SecurityJcrUtils implements ArgeoJcrConstants {
 	}
 
 	private static String generateUserHomePath(String username) {
-		String homeBasePath = DEFAULT_HOME_BASE_PATH;
+		String homeBasePath = UserJcrUtils.DEFAULT_HOME_BASE_PATH;
 		return homeBasePath + '/' + JcrUtils.firstCharsToPath(username, 2)
 				+ '/' + username;
 	}
@@ -105,7 +105,7 @@ public class SecurityJcrUtils implements ArgeoJcrConstants {
 	 */
 	public static Node getUserProfile(Session session, String username) {
 		try {
-			Node userHome = ArgeoJcrUtils.getUserHome(session, username);
+			Node userHome = UserJcrUtils.getUserHome(session, username);
 			if (userHome == null)
 				return null;
 			if (userHome.hasNode(ArgeoNames.ARGEO_PROFILE))

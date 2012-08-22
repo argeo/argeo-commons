@@ -25,8 +25,8 @@ import javax.jcr.Session;
 
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.jcr.ArgeoJcrConstants;
-import org.argeo.jcr.ArgeoJcrUtils;
 import org.argeo.jcr.RepositoryRegister;
+import org.argeo.jcr.UserJcrUtils;
 import org.argeo.jcr.security.JcrKeyring;
 import org.argeo.jcr.ui.explorer.model.RepositoriesNode;
 import org.argeo.jcr.ui.explorer.model.SingleJcrNode;
@@ -72,7 +72,7 @@ public class NodeContentProvider implements ITreeContentProvider {
 			return;
 
 		if (userSession != null) {
-			Node userHome = ArgeoJcrUtils.getUserHome(userSession);
+			Node userHome = UserJcrUtils.getUserHome(userSession);
 			if (userHome != null) {
 				// TODO : find a way to dynamically get alias for the node
 				if (homeNode != null)

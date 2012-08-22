@@ -29,9 +29,9 @@ import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.jcr.ArgeoJcrConstants;
-import org.argeo.jcr.ArgeoJcrUtils;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.RepositoryRegister;
+import org.argeo.jcr.UserJcrUtils;
 import org.argeo.jcr.security.JcrKeyring;
 
 /**
@@ -93,7 +93,7 @@ public class RepositoriesNode extends TreeParent implements ArgeoNames {
 	protected void addRemoteRepositories(JcrKeyring jcrKeyring)
 			throws RepositoryException {
 		Session userSession = jcrKeyring.getSession();
-		Node userHome = ArgeoJcrUtils.getUserHome(userSession);
+		Node userHome = UserJcrUtils.getUserHome(userSession);
 		if (userHome != null && userHome.hasNode(ARGEO_REMOTE)) {
 			NodeIterator it = userHome.getNode(ARGEO_REMOTE).getNodes();
 			while (it.hasNext()) {

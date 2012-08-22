@@ -40,9 +40,9 @@ import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.server.SessionProvider;
 import org.argeo.ArgeoException;
-import org.argeo.jcr.ArgeoJcrUtils;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.jcr.UserJcrUtils;
 
 /**
  * Implements an open session in view patter: a new JCR session is created for
@@ -119,7 +119,7 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 				userGroupIds.add(it.next().getID());
 
 		// write roles if needed
-		Node userProfile = ArgeoJcrUtils.getUserHome(session).getNode(
+		Node userProfile = UserJcrUtils.getUserHome(session).getNode(
 				ArgeoNames.ARGEO_PROFILE);
 		boolean writeRoles = false;
 		if (userProfile.hasProperty(ArgeoNames.ARGEO_REMOTE_ROLES)) {

@@ -34,13 +34,13 @@ import org.argeo.eclipse.ui.specific.EclipseUiSpecificUtils;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.jcr.UserJcrUtils;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.commands.OpenArgeoUserEditor;
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.IParameter;
 import org.eclipse.core.commands.Parameterization;
 import org.eclipse.core.commands.ParameterizedCommand;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -87,7 +87,7 @@ public class UsersView extends ViewPart implements ArgeoNames, ArgeoTypes {
 
 		userStructureListener = new UserStructureListener();
 		JcrUtils.addListener(session, userStructureListener, Event.NODE_ADDED
-				| Event.NODE_REMOVED, JcrUtils.DEFAULT_HOME_BASE_PATH,
+				| Event.NODE_REMOVED, UserJcrUtils.DEFAULT_HOME_BASE_PATH,
 				ArgeoTypes.ARGEO_USER_HOME);
 	}
 

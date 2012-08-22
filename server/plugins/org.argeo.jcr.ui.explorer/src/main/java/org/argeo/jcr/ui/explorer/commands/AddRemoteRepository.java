@@ -27,10 +27,10 @@ import javax.jcr.SimpleCredentials;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.jcr.ArgeoJcrConstants;
-import org.argeo.jcr.ArgeoJcrUtils;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.jcr.UserJcrUtils;
 import org.argeo.jcr.security.JcrKeyring;
 import org.argeo.jcr.security.SecurityJcrUtils;
 import org.argeo.jcr.ui.explorer.JcrExplorerConstants;
@@ -160,7 +160,7 @@ public class AddRemoteRepository extends AbstractHandler implements
 		protected void okPressed() {
 			try {
 				Session nodeSession = keyring.getSession();
-				Node home = ArgeoJcrUtils.getUserHome(nodeSession);
+				Node home = UserJcrUtils.getUserHome(nodeSession);
 
 				// FIXME better deal with non existing home dir
 				if (home == null)

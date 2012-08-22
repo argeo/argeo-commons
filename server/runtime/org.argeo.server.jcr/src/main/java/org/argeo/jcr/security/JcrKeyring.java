@@ -31,10 +31,10 @@ import javax.jcr.Session;
 
 import org.apache.commons.io.IOUtils;
 import org.argeo.ArgeoException;
-import org.argeo.jcr.ArgeoJcrUtils;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.jcr.UserJcrUtils;
 import org.argeo.util.crypto.AbstractKeyring;
 import org.argeo.util.crypto.PBEKeySpecCallback;
 
@@ -63,7 +63,7 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 			if (notYetSavedKeyring.get() != null)
 				return true;
 
-			Node userHome = ArgeoJcrUtils.getUserHome(session);
+			Node userHome = UserJcrUtils.getUserHome(session);
 			return userHome.hasNode(ARGEO_KEYRING);
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot check whether keyring is setup", e);
@@ -75,7 +75,7 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 		Binary binary = null;
 		InputStream in = null;
 		try {
-			Node userHome = ArgeoJcrUtils.getUserHome(session);
+			Node userHome = UserJcrUtils.getUserHome(session);
 			if (userHome.hasNode(ARGEO_KEYRING))
 				throw new ArgeoException("Keyring already setup");
 			Node keyring = userHome.addNode(ARGEO_KEYRING);
@@ -126,7 +126,7 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 	@Override
 	protected void handleKeySpecCallback(PBEKeySpecCallback pbeCallback) {
 		try {
-			Node userHome = ArgeoJcrUtils.getUserHome(session);
+			Node userHome = UserJcrUtils.getUserHome(session);
 			Node keyring;
 			if (userHome.hasNode(ARGEO_KEYRING))
 				keyring = userHome.getNode(ARGEO_KEYRING);
@@ -250,7 +250,7 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 
 	protected Cipher createCipher() {
 		try {
-			Node userHome = ArgeoJcrUtils.getUserHome(session);
+			Node userHome = UserJcrUtils.getUserHome(session);
 			if (!userHome.hasNode(ARGEO_KEYRING))
 				throw new ArgeoException("Keyring not setup");
 			Node keyring = userHome.getNode(ARGEO_KEYRING);

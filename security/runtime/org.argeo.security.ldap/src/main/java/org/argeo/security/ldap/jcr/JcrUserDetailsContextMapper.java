@@ -23,9 +23,9 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
-import org.argeo.jcr.ArgeoJcrUtils;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.jcr.UserJcrUtils;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
@@ -61,7 +61,7 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 			final String username, GrantedAuthority[] authorities) {
 		if (ctx == null)
 			throw new ArgeoException("No LDAP information for user " + username);
-		Node userHome = ArgeoJcrUtils.getUserHome(securitySession, username);
+		Node userHome = UserJcrUtils.getUserHome(securitySession, username);
 		if (userHome == null)
 			throw new ArgeoException("No JCR information for user " + username);
 
