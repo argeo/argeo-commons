@@ -22,6 +22,12 @@
 			<sec:filter-chain pattern="/j_spring_security_logout"
 				filters="logout,exception" />
 		</sec:filter-chain-map>
+		<property name="matcher">
+			<bean class="org.springframework.security.util.AntUrlPathMatcher">
+				<!-- Do not convert to lower case -->
+				<constructor-arg value="false" />
+			</bean>
+		</property>
 	</bean>
 
 	<!-- The actual authorization checks (called last, but first here for ease 
@@ -57,7 +63,7 @@
 	<!-- Integrates the authentication information in the http sessions -->
 	<bean id="session"
 		class="org.springframework.security.context.HttpSessionContextIntegrationFilter">
-		<property name="allowSessionCreation" value="false" />
+		<property name="allowSessionCreation" value="true" />
 	</bean>
 
 	<!-- Processes logouts, removing both session informations and the remember-me 
@@ -67,29 +73,22 @@
 		<!-- URL redirected to after logout -->
 		<constructor-arg>
 			<list>
-<!-- 				<ref bean="rememberMeServices" /> -->
+				<!-- <ref bean="rememberMeServices" /> -->
 				<bean
 					class="org.springframework.security.ui.logout.SecurityContextLogoutHandler" />
 			</list>
 		</constructor-arg>
 	</bean>
 
-	<!-- Use the remember me cookie to authenticate
-	<bean id="rememberMe"
-		class="org.springframework.security.ui.rememberme.RememberMeProcessingFilter">
-		<property name="authenticationManager" ref="authenticationManager" />
-		<property name="rememberMeServices" ref="rememberMeServices" />
-	</bean>
+	<!-- Use the remember me cookie to authenticate <bean id="rememberMe" class="org.springframework.security.ui.rememberme.RememberMeProcessingFilter"> 
+		<property name="authenticationManager" ref="authenticationManager" /> <property 
+		name="rememberMeServices" ref="rememberMeServices" /> </bean> <bean id="rememberMeServices" 
+		class="org.springframework.security.ui.rememberme.TokenBasedRememberMeServices"> 
+		<property name="userDetailsService" ref="userDetailsService" /> <property 
+		name="key" value="${argeo.security.systemKey}" /> <property name="tokenValiditySeconds" 
+		value="${argeo.jcr.webapp.rememberMeValidity}" /> <property name="alwaysRemember" 
+		value="true" /> </bean> -->
 
-	<bean id="rememberMeServices"
-		class="org.springframework.security.ui.rememberme.TokenBasedRememberMeServices">
-		<property name="userDetailsService" ref="userDetailsService" />
-		<property name="key" value="${argeo.security.systemKey}" />
-		<property name="tokenValiditySeconds" value="${argeo.jcr.webapp.rememberMeValidity}" />
-		<property name="alwaysRemember" value="true" />
-	</bean>
- -->
- 
 	<!-- Basic authentication -->
 	<bean id="basic"
 		class="org.springframework.security.ui.basicauth.BasicProcessingFilter">
@@ -99,7 +98,7 @@
 		<property name="authenticationEntryPoint">
 			<ref local="basicProcessingFilterEntryPoint" />
 		</property>
-<!-- 		<property name="rememberMeServices" ref="rememberMeServices" /> -->
+		<!-- <property name="rememberMeServices" ref="rememberMeServices" /> -->
 	</bean>
 
 	<!-- Activate basic auth when needed -->
