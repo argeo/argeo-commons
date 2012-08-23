@@ -24,8 +24,8 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.UserJcrUtils;
-import org.argeo.jcr.security.SecurityJcrUtils;
 import org.argeo.security.UserAdminService;
+import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.eclipse.jface.wizard.Wizard;
 import org.springframework.security.GrantedAuthority;
@@ -35,13 +35,16 @@ public class NewUserWizard extends Wizard {
 	private final static Log log = LogFactory.getLog(NewUserWizard.class);
 	private Session session;
 	private UserAdminService userAdminService;
+	private JcrSecurityModel jcrSecurityModel;
 
 	// pages
 	private MainUserInfoWizardPage mainUserInfo;
 
-	public NewUserWizard(Session session, UserAdminService userAdminService) {
+	public NewUserWizard(Session session, UserAdminService userAdminService,
+			JcrSecurityModel jcrSecurityModel) {
 		this.session = session;
 		this.userAdminService = userAdminService;
+		this.jcrSecurityModel = jcrSecurityModel;
 	}
 
 	@Override
@@ -57,7 +60,9 @@ public class NewUserWizard extends Wizard {
 
 		String username = mainUserInfo.getUsername();
 		try {
-			Node userProfile = SecurityJcrUtils.createUserProfile(session, username);
+			// Node userProfile = SecurityJcrUtils.createUserProfile(session,
+			// username);
+			Node userProfile = jcrSecurityModel.sync(session, username);
 			// session.getWorkspace().getVersionManager()
 			// .checkout(userProfile.getPath());
 			mainUserInfo.mapToProfileNode(userProfile);

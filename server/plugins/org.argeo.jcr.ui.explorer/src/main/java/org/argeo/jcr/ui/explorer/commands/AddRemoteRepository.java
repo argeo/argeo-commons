@@ -32,7 +32,6 @@ import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.UserJcrUtils;
 import org.argeo.jcr.security.JcrKeyring;
-import org.argeo.jcr.security.SecurityJcrUtils;
 import org.argeo.jcr.ui.explorer.JcrExplorerConstants;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -161,11 +160,6 @@ public class AddRemoteRepository extends AbstractHandler implements
 			try {
 				Session nodeSession = keyring.getSession();
 				Node home = UserJcrUtils.getUserHome(nodeSession);
-
-				// FIXME better deal with non existing home dir
-				if (home == null)
-					home = SecurityJcrUtils.createUserHomeIfNeeded(nodeSession,
-							nodeSession.getUserID());
 
 				Node remote = home.hasNode(ARGEO_REMOTE) ? home
 						.getNode(ARGEO_REMOTE) : home.addNode(ARGEO_REMOTE);

@@ -1289,6 +1289,23 @@ public class JcrUtils implements ArgeoJcrConstants {
 			Principal principal, List<Privilege> privs)
 			throws RepositoryException {
 		AccessControlManager acm = session.getAccessControlManager();
+		AccessControlList acl = getAccessControlList(acm, path);
+		acl.addAccessControlEntry(principal,
+				privs.toArray(new Privilege[privs.size()]));
+		acm.setPolicy(path, acl);
+		if (log.isDebugEnabled()) {
+			StringBuffer privBuf = new StringBuffer();
+			for (Privilege priv : privs)
+				privBuf.append(priv.getName());
+			log.debug("Added privileges " + privBuf + " to " + principal
+					+ " on " + path);
+		}
+		session.save();
+	}
+
+	/** Gets access control list for this path, throws exception if not found */
+	public static AccessControlList getAccessControlList(
+			AccessControlManager acm, String path) throws RepositoryException {
 		// search for an access control list
 		AccessControlList acl = null;
 		AccessControlPolicyIterator policyIterator = acm
@@ -1307,19 +1324,21 @@ public class JcrUtils implements ArgeoJcrConstants {
 					acl = ((AccessControlList) acp);
 			}
 		}
-
-		if (acl != null) {
-			acl.addAccessControlEntry(principal,
-					privs.toArray(new Privilege[privs.size()]));
-			acm.setPolicy(path, acl);
-			if (log.isDebugEnabled())
-				log.debug("Added privileges " + privs + " to " + principal
-						+ " on " + path);
-		} else {
-			throw new ArgeoException("Don't know how to apply  privileges "
-					+ privs + " to " + principal + " on " + path);
-		}
-		session.save();
+		if (acl != null)
+			return acl;
+		else
+			throw new ArgeoException("ACL not found at " + path);
 	}
 
+	/** Clear authorizations for a user at this path */
+	public static void clearAccesControList(Session session, String path,
+			String username) throws RepositoryException {
+		AccessControlManager acm = session.getAccessControlManager();
+		AccessControlList acl = getAccessControlList(acm, path);
+		for (AccessControlEntry ace : acl.getAccessControlEntries()) {
+			if (ace.getPrincipal().getName().equals(username)) {
+				acl.removeAccessControlEntry(ace);
+			}
+		}
+	}
 }

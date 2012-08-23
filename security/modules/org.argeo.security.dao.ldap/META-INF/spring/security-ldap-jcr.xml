@@ -37,9 +37,11 @@
 		<property name="rawLdapTemplate" ref="rawLdapTemplate" />
 		<!-- JCR -->
 		<property name="repository" ref="nodeRepository" />
-		<property name="securityWorkspace" value="${argeo.node.repo.securityWorkspace}" />
+		<property name="jcrSecurityModel" ref="jcrSecurityModel" />
 		<property name="propertyToAttributes" ref="propertyToAttributes" />
 	</bean>
+
+	<bean name="jcrSecurityModel" class="org.argeo.security.jackrabbit.JackrabbitSecurityModel" />
 
 	<!-- LDAP / JCR mapping -->
 	<util:map id="propertyToAttributes">

@@ -22,7 +22,6 @@ import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.jcr.security.SecurityJcrUtils;
 import org.argeo.security.OsAuthenticationToken;
 import org.argeo.security.core.OsAuthenticationProvider;
 import org.springframework.security.Authentication;
@@ -34,15 +33,16 @@ import org.springframework.security.userdetails.UserDetails;
 /** Relies on OS to authenticate and additionally setup JCR */
 public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 	private Repository repository;
-	private String securityWorkspace = "security";
-	private Session securitySession;
+	// private String securityWorkspace = "security";
+	// private Session securitySession;
 	private Session nodeSession;
 
 	private UserDetails userDetails;
+	private JcrSecurityModel jcrSecurityModel = new JcrSecurityModel();
 
 	public void init() {
 		try {
-			securitySession = repository.login(securityWorkspace);
+			// securitySession = repository.login();
 			nodeSession = repository.login();
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot initialize", e);
@@ -50,7 +50,7 @@ public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 	}
 
 	public void destroy() {
-		JcrUtils.logoutQuietly(securitySession);
+		// JcrUtils.logoutQuietly(securitySession);
 		JcrUtils.logoutQuietly(nodeSession);
 	}
 
@@ -77,24 +77,24 @@ public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 				// WARNING: at this stage we assume that the java properties
 				// will have the same value
 				String username = System.getProperty("user.name");
-				Node userProfile = SecurityJcrUtils.createUserProfileIfNeeded(
-						securitySession, username);
+				Node userProfile = jcrSecurityModel.sync(nodeSession, username);
 				JcrUserDetails.checkAccountStatus(userProfile);
 
 				// each user should have a writable area in the default
 				// workspace of the node
-				SecurityJcrUtils.createUserHomeIfNeeded(nodeSession, username);
+				// SecurityJcrUtils.createUserHomeIfNeeded(nodeSession,
+				// username);
 				userDetails = new JcrUserDetails(userProfile, authen
 						.getCredentials().toString(), getBaseAuthorities());
 				authen.setDetails(userDetails);
 				return authen;
 			} catch (RepositoryException e) {
-				JcrUtils.discardQuietly(securitySession);
+				JcrUtils.discardQuietly(nodeSession);
 				throw new ArgeoException(
 						"Unexpected exception when synchronizing OS and JCR security ",
 						e);
 			} finally {
-				JcrUtils.logoutQuietly(securitySession);
+				JcrUtils.logoutQuietly(nodeSession);
 			}
 		} else {
 			throw new ArgeoException("Unsupported authentication "
@@ -102,12 +102,16 @@ public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 		}
 	}
 
-	public void setSecurityWorkspace(String securityWorkspace) {
-		this.securityWorkspace = securityWorkspace;
-	}
+	// public void setSecurityWorkspace(String securityWorkspace) {
+	// this.securityWorkspace = securityWorkspace;
+	// }
 
 	public void setRepository(Repository repository) {
 		this.repository = repository;
+	}
+
+	public void setJcrSecurityModel(JcrSecurityModel jcrSecurityModel) {
+		this.jcrSecurityModel = jcrSecurityModel;
 	}
 
 	@SuppressWarnings("rawtypes")

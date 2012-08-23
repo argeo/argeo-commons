@@ -18,6 +18,7 @@ package org.argeo.security.ui.admin.commands;
 import javax.jcr.Session;
 
 import org.argeo.security.UserAdminService;
+import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.ui.admin.wizards.NewUserWizard;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -29,11 +30,12 @@ import org.eclipse.ui.handlers.HandlerUtil;
 public class NewUser extends AbstractHandler {
 	private Session session;
 	private UserAdminService userAdminService;
+	private JcrSecurityModel jcrSecurityModel;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
 			NewUserWizard newUserWizard = new NewUserWizard(session,
-					userAdminService);
+					userAdminService,jcrSecurityModel);
 			WizardDialog dialog = new WizardDialog(
 					HandlerUtil.getActiveShell(event), newUserWizard);
 			dialog.open();
@@ -49,6 +51,10 @@ public class NewUser extends AbstractHandler {
 
 	public void setUserAdminService(UserAdminService userAdminService) {
 		this.userAdminService = userAdminService;
+	}
+
+	public void setJcrSecurityModel(JcrSecurityModel jcrSecurityModel) {
+		this.jcrSecurityModel = jcrSecurityModel;
 	}
 
 }

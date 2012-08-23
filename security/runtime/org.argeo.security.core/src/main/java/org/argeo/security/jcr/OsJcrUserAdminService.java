@@ -10,7 +10,7 @@ import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.jcr.security.SecurityJcrUtils;
+import org.argeo.jcr.UserJcrUtils;
 import org.argeo.security.UserAdminService;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.userdetails.UserDetails;
@@ -68,7 +68,7 @@ public class OsJcrUserAdminService implements UserAdminService {
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException, DataAccessException {
 		if (getSPropertyUsername().equals(username)) {
-			Node userProfile = SecurityJcrUtils.getUserProfile(securitySession,
+			Node userProfile = UserJcrUtils.getUserProfile(securitySession,
 					username);
 			JcrUserDetails userDetails;
 			try {

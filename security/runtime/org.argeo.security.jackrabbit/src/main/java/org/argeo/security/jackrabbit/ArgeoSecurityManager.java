@@ -40,7 +40,8 @@ import org.springframework.security.GrantedAuthority;
 
 /** Integrates Spring Security and Jackrabbit Security user and roles. */
 public class ArgeoSecurityManager extends DefaultSecurityManager {
-	private Log log = LogFactory.getLog(ArgeoSecurityManager.class);
+	private final static Log log = LogFactory
+			.getLog(ArgeoSecurityManager.class);
 
 	/**
 	 * Since this is called once when the session is created, we take the
@@ -71,7 +72,9 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 			authen = authens.iterator().next();
 
 		// sync Spring and Jackrabbit
-		syncSpringAndJackrabbitSecurity(authen);
+		// workspace is irrelevant here
+		UserManager systemUm = getSystemUserManager(null);
+		syncSpringAndJackrabbitSecurity(systemUm, authen);
 
 		return authen.getName();
 	}
@@ -80,12 +83,9 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 	 * Make sure that the Jackrabbit security model contains this user and its
 	 * granted authorities
 	 */
-	protected void syncSpringAndJackrabbitSecurity(Authentication authen)
-			throws RepositoryException {
+	static void syncSpringAndJackrabbitSecurity(UserManager systemUm,
+			Authentication authen) throws RepositoryException {
 		long begin = System.currentTimeMillis();
-
-		// workspace is irrelevant here
-		UserManager systemUm = getSystemUserManager(null);
 
 		String userId = authen.getName();
 		User user = (User) systemUm.getAuthorizable(userId);

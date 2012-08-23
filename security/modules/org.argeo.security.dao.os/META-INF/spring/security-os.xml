@@ -36,7 +36,10 @@
 	<bean id="osJcrAuthenticationProvider" class="org.argeo.security.jcr.OsJcrAuthenticationProvider"
 		init-method="init" destroy-method="destroy" depends-on="argeoDataModel">
 		<property name="repository" ref="nodeRepository" />
+		<property name="jcrSecurityModel" ref="jcrSecurityModel" />
 	</bean>
+
+	<bean name="jcrSecurityModel" class="org.argeo.security.jackrabbit.JackrabbitSecurityModel" />
 
 	<bean id="authByAdapterProvider"
 		class="org.springframework.security.adapters.AuthByAdapterProvider">

@@ -55,6 +55,7 @@
 		<property name="userAdminDao" ref="userAdminDao" />
 		<property name="passwordEncoder" ref="passwordEncoder" />
 		<property name="passwordAttributeName" value="${argeo.ldap.passwordAttribute}" />
+		<property name="superUsername" value="${argeo.security.superUsername}" />
 	</bean>
 
 	<bean id="userAdminDao" class="org.argeo.security.ldap.ArgeoUserAdminDaoLdap">

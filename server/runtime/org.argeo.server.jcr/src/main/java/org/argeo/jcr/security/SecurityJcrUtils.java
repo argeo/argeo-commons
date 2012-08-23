@@ -13,12 +13,13 @@ import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.UserJcrUtils;
 
 /** Utilities related to Argeo security model in JCR */
+@Deprecated
 public class SecurityJcrUtils implements ArgeoJcrConstants {
 	/**
 	 * Creates an Argeo user home, does nothing if it already exists. Session is
 	 * NOT saved.
 	 */
-	public static Node createUserHomeIfNeeded(Session session, String username) {
+	static Node createUserHomeIfNeeded(Session session, String username) {
 		try {
 			String homePath = generateUserHomePath(username);
 			if (session.itemExists(homePath))
@@ -27,8 +28,9 @@ public class SecurityJcrUtils implements ArgeoJcrConstants {
 				Node userHome = JcrUtils.mkdirs(session, homePath);
 				userHome.addMixin(ArgeoTypes.ARGEO_USER_HOME);
 				userHome.setProperty(ArgeoNames.ARGEO_USER_ID, username);
-				
-				//JcrUtils.addPrivilege(session, homePath, username, "jcr:all");
+
+				// JcrUtils.addPrivilege(session, homePath, username,
+				// "jcr:all");
 				return userHome;
 			}
 		} catch (RepositoryException e) {
@@ -50,7 +52,7 @@ public class SecurityJcrUtils implements ArgeoJcrConstants {
 	 * is not saved and the node is in a checkedOut state (that is, it requires
 	 * a subsequent checkin after saving the session).
 	 */
-	public static Node createUserProfile(Session session, String username) {
+	static Node createUserProfile(Session session, String username) {
 		try {
 			Node userHome = createUserHomeIfNeeded(session, username);
 			if (userHome.hasNode(ArgeoNames.ARGEO_PROFILE))
@@ -78,7 +80,7 @@ public class SecurityJcrUtils implements ArgeoJcrConstants {
 	 * 
 	 * @return the user profile
 	 */
-	public static Node createUserProfileIfNeeded(Session securitySession,
+	static Node createUserProfileIfNeeded(Session securitySession,
 			String username) {
 		try {
 			Node userHome = createUserHomeIfNeeded(securitySession, username);
@@ -103,7 +105,7 @@ public class SecurityJcrUtils implements ArgeoJcrConstants {
 	/**
 	 * @return null if not found *
 	 */
-	public static Node getUserProfile(Session session, String username) {
+	static Node getUserProfile(Session session, String username) {
 		try {
 			Node userHome = UserJcrUtils.getUserHome(session, username);
 			if (userHome == null)

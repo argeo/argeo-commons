@@ -59,7 +59,7 @@ import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.jcr.security.SecurityJcrUtils;
+import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.ldap.core.ContextMapper;
@@ -73,7 +73,7 @@ import org.springframework.security.providers.encoding.PasswordEncoder;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.ldap.UserDetailsContextMapper;
 
-/** Guarantees that LDAP and JCR are in line. */
+/** Makes sure that LDAP and JCR are in line. */
 public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 		ArgeoNames {
 	private final static Log log = LogFactory.getLog(JcrLdapSynchronizer.class);
@@ -102,12 +102,11 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 
 	// JCR
 	/** Admin session on the security workspace */
-	private Session securitySession;
+	private Session nodeSession;
 	private Repository repository;
 
-	private String securityWorkspace = "security";
-
 	private JcrProfileListener jcrProfileListener;
+	private JcrSecurityModel jcrSecurityModel = new JcrSecurityModel();
 
 	// Mapping
 	private Map<String, String> propertyToAttributes = new HashMap<String, String>();
@@ -118,7 +117,7 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 
 	public void init() {
 		try {
-			securitySession = repository.login(securityWorkspace);
+			nodeSession = repository.login();
 
 			synchronize();
 
@@ -142,22 +141,22 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 			jcrProfileListener = new JcrProfileListener();
 			// noLocal is used so that we are not notified when we modify JCR
 			// from LDAP
-			securitySession
+			nodeSession
 					.getWorkspace()
 					.getObservationManager()
 					.addEventListener(jcrProfileListener,
 							Event.PROPERTY_CHANGED | Event.NODE_ADDED, "/",
 							true, null, nodeTypes, true);
 		} catch (Exception e) {
-			JcrUtils.logoutQuietly(securitySession);
+			JcrUtils.logoutQuietly(nodeSession);
 			throw new ArgeoException("Cannot initialize LDAP/JCR synchronizer",
 					e);
 		}
 	}
 
 	public void destroy() {
-		JcrUtils.removeListenerQuietly(securitySession, jcrProfileListener);
-		JcrUtils.logoutQuietly(securitySession);
+		JcrUtils.removeListenerQuietly(nodeSession, jcrProfileListener);
+		JcrUtils.logoutQuietly(nodeSession);
 		try {
 			rawLdapTemplate.executeReadOnly(new ContextExecutor() {
 				public Object executeWithContext(DirContext ctx)
@@ -191,7 +190,7 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 					});
 
 			// disable accounts which are not in LDAP
-			Query query = securitySession
+			Query query = nodeSession
 					.getWorkspace()
 					.getQueryManager()
 					.createQuery(
@@ -207,28 +206,30 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 							+ " not found in LDAP, disabling user "
 							+ userProfile.getProperty(ArgeoNames.ARGEO_USER_ID)
 									.getString());
-					VersionManager versionManager = securitySession
-							.getWorkspace().getVersionManager();
+					VersionManager versionManager = nodeSession.getWorkspace()
+							.getVersionManager();
 					versionManager.checkout(userProfile.getPath());
 					userProfile.setProperty(ArgeoNames.ARGEO_ENABLED, false);
-					securitySession.save();
+					nodeSession.save();
 					versionManager.checkin(userProfile.getPath());
 				}
 			}
 		} catch (Exception e) {
-			JcrUtils.discardQuietly(securitySession);
-			throw new ArgeoException("Cannot synchronized LDAP and JCR", e);
+			JcrUtils.discardQuietly(nodeSession);
+			log.error("Cannot synchronize LDAP and JCR", e);
+			// throw new ArgeoException("Cannot synchronize LDAP and JCR", e);
 		}
 	}
 
 	/** Called during authentication in order to retrieve user details */
 	public UserDetails mapUserFromContext(final DirContextOperations ctx,
 			final String username, GrantedAuthority[] authorities) {
-		log.debug("mapUserFromContext");
 		if (ctx == null)
 			throw new ArgeoException("No LDAP information for user " + username);
-		Node userProfile = SecurityJcrUtils.createUserProfileIfNeeded(securitySession,
-				username);
+
+		// Node userProfile = SecurityJcrUtils.createUserProfileIfNeeded(
+		// securitySession, username);
+		Node userProfile = jcrSecurityModel.sync(nodeSession, username);
 		JcrUserDetails.checkAccountStatus(userProfile);
 
 		// password
@@ -258,36 +259,38 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 	 * @return path to user profile
 	 */
 	protected synchronized String mapLdapToJcr(DirContextAdapter ctx) {
-		Session session = securitySession;
+		Session session = nodeSession;
 		try {
 			// process
 			String username = ctx.getStringAttribute(usernameAttribute);
-			Node userHome = SecurityJcrUtils.createUserHomeIfNeeded(session, username);
-			Node userProfile; // = userHome.getNode(ARGEO_PROFILE);
-			if (userHome.hasNode(ARGEO_PROFILE)) {
-				userProfile = userHome.getNode(ARGEO_PROFILE);
+			// Node userHome = SecurityJcrUtils.createUserHomeIfNeeded(session,
+			// username);
+			// Node userProfile; // = userHome.getNode(ARGEO_PROFILE);
+			// if (userHome.hasNode(ARGEO_PROFILE)) {
+			// userProfile = userHome.getNode(ARGEO_PROFILE);
+			//
+			// // compatibility with legacy, will be removed
+			// if (!userProfile.hasProperty(ARGEO_ENABLED)) {
+			// session.getWorkspace().getVersionManager()
+			// .checkout(userProfile.getPath());
+			// userProfile.setProperty(ARGEO_ENABLED, true);
+			// userProfile.setProperty(ARGEO_ACCOUNT_NON_EXPIRED, true);
+			// userProfile.setProperty(ARGEO_ACCOUNT_NON_LOCKED, true);
+			// userProfile
+			// .setProperty(ARGEO_CREDENTIALS_NON_EXPIRED, true);
+			// session.save();
+			// session.getWorkspace().getVersionManager()
+			// .checkin(userProfile.getPath());
+			// }
+			// } else {
+			// userProfile = SecurityJcrUtils.createUserProfile(
+			// securitySession, username);
+			// userProfile.getSession().save();
+			// userProfile.getSession().getWorkspace().getVersionManager()
+			// .checkin(userProfile.getPath());
+			// }
 
-				// compatibility with legacy, will be removed
-				if (!userProfile.hasProperty(ARGEO_ENABLED)) {
-					session.getWorkspace().getVersionManager()
-							.checkout(userProfile.getPath());
-					userProfile.setProperty(ARGEO_ENABLED, true);
-					userProfile.setProperty(ARGEO_ACCOUNT_NON_EXPIRED, true);
-					userProfile.setProperty(ARGEO_ACCOUNT_NON_LOCKED, true);
-					userProfile
-							.setProperty(ARGEO_CREDENTIALS_NON_EXPIRED, true);
-					session.save();
-					session.getWorkspace().getVersionManager()
-							.checkin(userProfile.getPath());
-				}
-			} else {
-				userProfile = SecurityJcrUtils.createUserProfile(securitySession,
-						username);
-				userProfile.getSession().save();
-				userProfile.getSession().getWorkspace().getVersionManager()
-						.checkin(userProfile.getPath());
-			}
-
+			Node userProfile = jcrSecurityModel.sync(session, username);
 			Map<String, String> modifications = new HashMap<String, String>();
 			for (String jcrProperty : propertyToAttributes.keySet())
 				ldapToJcr(userProfile, jcrProperty, ctx, modifications);
@@ -375,8 +378,9 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 
 		final JcrUserDetails jcrUserDetails = (JcrUserDetails) user;
 		try {
-			Node userProfile = securitySession.getNode(
-					jcrUserDetails.getHomePath()).getNode(ARGEO_PROFILE);
+			Node userProfile = nodeSession
+					.getNode(jcrUserDetails.getHomePath()).getNode(
+							ARGEO_PROFILE);
 			for (String jcrProperty : propertyToAttributes.keySet()) {
 				if (userProfile.hasProperty(jcrProperty)) {
 					ModificationItem mi = jcrToLdap(jcrProperty, userProfile
@@ -457,10 +461,6 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 		this.repository = repository;
 	}
 
-	public void setSecurityWorkspace(String securityWorkspace) {
-		this.securityWorkspace = securityWorkspace;
-	}
-
 	public void setUserBase(String userBase) {
 		this.userBase = userBase;
 	}
@@ -487,6 +487,10 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 
 	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
 		this.passwordEncoder = passwordEncoder;
+	}
+
+	public void setJcrSecurityModel(JcrSecurityModel jcrSecurityModel) {
+		this.jcrSecurityModel = jcrSecurityModel;
 	}
 
 	/** Listen to LDAP */
@@ -550,7 +554,7 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 					Event event = events.nextEvent();
 					try {
 						if (Event.PROPERTY_CHANGED == event.getType()) {
-							Property property = (Property) securitySession
+							Property property = (Property) nodeSession
 									.getItem(event.getPath());
 							String propertyName = property.getName();
 							Node userProfile = property.getParent();
@@ -568,7 +572,7 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 									modifications.get(name).add(mi);
 							}
 						} else if (Event.NODE_ADDED == event.getType()) {
-							Node userProfile = securitySession.getNode(event
+							Node userProfile = nodeSession.getNode(event
 									.getPath());
 							String username = userProfile.getProperty(
 									ARGEO_USER_ID).getString();

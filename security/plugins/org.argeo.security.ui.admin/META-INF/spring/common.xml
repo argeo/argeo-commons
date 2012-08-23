@@ -12,7 +12,6 @@
 	</bean>
 
 	<bean id="session" class="org.argeo.security.jcr.SecureThreadBoundSession">
-		<property name="workspace" value="${argeo.node.repo.securityWorkspace}" />
 		<property name="repository" ref="nodeRepository" />
 	</bean>
 </beans>
