@@ -17,8 +17,11 @@ package org.argeo.security.jackrabbit;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.jcr.RepositoryException;
@@ -42,6 +45,10 @@ import org.springframework.security.GrantedAuthority;
 public class ArgeoSecurityManager extends DefaultSecurityManager {
 	private final static Log log = LogFactory
 			.getLog(ArgeoSecurityManager.class);
+
+	/** TODO? use a bounded buffer */
+	private Map<String, String> userRolesCache = Collections
+			.synchronizedMap(new HashMap<String, String>());
 
 	/**
 	 * Since this is called once when the session is created, we take the
@@ -71,12 +78,25 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		else
 			authen = authens.iterator().next();
 
+		String userId = authen.getName();
+		StringBuffer roles = new StringBuffer("");
+		GrantedAuthority[] authorities = authen.getAuthorities();
+		for (GrantedAuthority ga : authorities) {
+			roles.append(ga.toString());
+		}
+
+		// do not sync if not changed
+		if (userRolesCache.containsKey(userId)
+				&& userRolesCache.get(userId).equals(roles.toString()))
+			return userId;
+
 		// sync Spring and Jackrabbit
 		// workspace is irrelevant here
 		UserManager systemUm = getSystemUserManager(null);
 		syncSpringAndJackrabbitSecurity(systemUm, authen);
+		userRolesCache.put(userId, roles.toString());
 
-		return authen.getName();
+		return userId;
 	}
 
 	/**
