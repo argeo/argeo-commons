@@ -111,6 +111,11 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 		label.setText(callback.getPrompt());
 		final Text text = new Text(composite, SWT.SINGLE | SWT.LEAD
 				| SWT.BORDER);
+		if (callback.getDefaultName() != null) {
+			// set default value, if provided
+			text.setText(callback.getDefaultName());
+			callback.setName(callback.getDefaultName());
+		}
 		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		text.addModifyListener(new ModifyListener() {
 

@@ -13,6 +13,7 @@
 	<service ref="nodeJcrRepository" interface="javax.jcr.Repository">
 		<service-properties>
 			<beans:entry key="argeo.jcr.repository.alias" value="node" />
+			<beans:entry key="argeo.jcr.repository.home" value="${argeo.node.repo.home}" />
 		</service-properties>
 	</service>
 </beans:beans>

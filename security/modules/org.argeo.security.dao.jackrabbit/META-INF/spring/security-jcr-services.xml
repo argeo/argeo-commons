@@ -24,6 +24,7 @@
 	<!-- Authentication providers -->
 	<bean id="remoteJcrAuthenticationProvider" class="org.argeo.security.jcr.RemoteJcrAuthenticationProvider">
 		<property name="repositoryFactory" ref="repositoryFactory" />
+		<property name="bundleContext" ref="bundleContext" />
 	</bean>
 
 	<bean id="authByAdapterProvider"

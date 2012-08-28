@@ -111,18 +111,15 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 			NameCallback nameCallback = new NameCallback("User");
 			PasswordCallback passwordCallback = new PasswordCallback(
 					"Password", false);
-			final String defaultNodeUrl = "http://localhost:7070/org.argeo.jcr.webapp/remoting/node";
-			final String defaultSecurityWorkspace = "security";
+			final String defaultNodeUrl = System.getProperty(NODE_REPO_URI,
+					"http://localhost:7070/org.argeo.jcr.webapp/remoting/node");
 			NameCallback urlCallback = new NameCallback("Site URL",
 					defaultNodeUrl);
-			NameCallback securityWorkspaceCallback = new NameCallback(
-					"Security Workspace", defaultSecurityWorkspace);
 
 			// handle callbacks
 			if (remote)
 				callbackHandler.handle(new Callback[] { nameCallback,
-						passwordCallback, urlCallback,
-						securityWorkspaceCallback });
+						passwordCallback, urlCallback });
 			else
 				callbackHandler.handle(new Callback[] { nameCallback,
 						passwordCallback });
@@ -139,9 +136,8 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 			NodeAuthenticationToken credentials;
 			if (remote) {
 				String url = urlCallback.getName();
-				String workspace = securityWorkspaceCallback.getName();
 				credentials = new NodeAuthenticationToken(username, password,
-						url, workspace);
+						url);
 			} else {
 				credentials = new NodeAuthenticationToken(username, password);
 			}

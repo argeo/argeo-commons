@@ -36,9 +36,21 @@ public class ArgeoJcrUtils implements ArgeoJcrConstants {
 	 */
 	public static Repository getRepositoryByUri(
 			RepositoryFactory repositoryFactory, String uri) {
+		return getRepositoryByUri(repositoryFactory, uri, null);
+	}
+
+	/**
+	 * Wraps the call to the repository factory based on parameter
+	 * {@link ArgeoJcrConstants#JCR_REPOSITORY_URI} in order to simplify it and
+	 * protect against future API changes.
+	 */
+	public static Repository getRepositoryByUri(
+			RepositoryFactory repositoryFactory, String uri, String alias) {
 		try {
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put(JCR_REPOSITORY_URI, uri);
+			if (alias != null)
+				parameters.put(JCR_REPOSITORY_ALIAS, alias);
 			return repositoryFactory.getRepository(parameters);
 		} catch (RepositoryException e) {
 			throw new ArgeoException(

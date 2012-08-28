@@ -15,88 +15,52 @@
  */
 package org.argeo.jackrabbit;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
 
-import javax.jcr.Credentials;
-import javax.jcr.LoginException;
-import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
 
-import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.JackrabbitRepository;
-import org.apache.jackrabbit.commons.NamespaceHelper;
-import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.core.RepositoryImpl;
+import org.apache.jackrabbit.core.config.RepositoryConfig;
+import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
 import org.argeo.ArgeoException;
-import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.ArgeoNames;
-import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.security.SystemAuthentication;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.packageadmin.ExportedPackage;
-import org.osgi.service.packageadmin.PackageAdmin;
-import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.security.Authentication;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.util.SystemPropertyUtils;
+import org.xml.sax.InputSource;
 
 /**
  * Wrapper around a Jackrabbit repository which allows to configure it in Spring
  * and expose it as a {@link Repository}.
  */
-public class JackrabbitContainer extends JackrabbitWrapper implements
-		ResourceLoaderAware {
+public class JackrabbitContainer extends JackrabbitWrapper {
 	private Log log = LogFactory.getLog(JackrabbitContainer.class);
-
-	// remote
-	private Credentials remoteSystemCredentials = null;
 
 	// local
 	private Resource configuration;
 	private Resource variables;
-	private ResourceLoader resourceLoader;
-
-	// data model
-	/** Node type definitions in CND format */
-	private List<String> cndFiles = new ArrayList<String>();
-	/**
-	 * Always import CNDs. Useful during development of new data models. In
-	 * production, explicit migration processes should be used.
-	 */
-	private Boolean forceCndImport = false;
+	private RepositoryConfig repositoryConfig;
+	private File homeDirectory;
+	private Boolean inMemory = false;
 
 	/** Migrations to execute (if not already done) */
 	private Set<JackrabbitDataModelMigration> dataModelMigrations = new HashSet<JackrabbitDataModelMigration>();
-
-	/** Namespaces to register: key is prefix, value namespace */
-	private Map<String, String> namespaces = new HashMap<String, String>();
-
-	private BundleContext bundleContext;
 
 	/**
 	 * Empty constructor, {@link #init()} should be called after properties have
@@ -105,204 +69,93 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 	public JackrabbitContainer() {
 	}
 
-	/**
-	 * Convenience constructor for remote, {@link #init()} is called in the
-	 * constructor.
-	 */
-	public JackrabbitContainer(String uri, Credentials remoteSystemCredentials) {
-		setUri(uri);
-		setRemoteSystemCredentials(remoteSystemCredentials);
-		init();
-	}
+	public void init() {
+		long begin = System.currentTimeMillis();
 
-	@Override
-	protected void postInitWrapped() {
-		prepareDataModel();
-	}
+		if (getRepository() != null)
+			throw new ArgeoException(
+					"Cannot be used to wrap another repository");
+		Repository repository = createJackrabbitRepository();
+		super.setRepository(repository);
 
-	@Override
-	protected void postInitNew() {
 		// migrate if needed
 		migrate();
 
 		// apply new CND files after migration
-		if (cndFiles != null && cndFiles.size() > 0)
-			prepareDataModel();
+		prepareDataModel();
+
+		double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
+		if (log.isDebugEnabled())
+			log.debug("Initialized JCR repository wrapper in " + duration
+					+ " s");
 	}
 
-	/*
-	 * DATA MODEL
-	 */
-
-	/**
-	 * Import declared node type definitions and register namespaces. Tries to
-	 * update the node definitions if they have changed. In case of failures an
-	 * error will be logged but no exception will be thrown.
-	 */
-	protected void prepareDataModel() {
-		// importing node def on remote si currently not supported
-		if (isRemote())
-			return;
-
-		Session session = null;
+	/** Actually creates the new repository. */
+	protected Repository createJackrabbitRepository() {
+		long begin = System.currentTimeMillis();
+		InputStream configurationIn = null;
+		Repository repository;
 		try {
-			if (remoteSystemCredentials == null)
-				session = login();
-			else
-				session = login(remoteSystemCredentials);
-			// register namespaces
-			if (namespaces.size() > 0) {
-				NamespaceHelper namespaceHelper = new NamespaceHelper(session);
-				namespaceHelper.registerNamespaces(namespaces);
+			// temporary
+			if (inMemory && getHomeDirectory().exists()) {
+				FileUtils.deleteDirectory(getHomeDirectory());
+				log.warn("Deleted Jackrabbit home directory "
+						+ getHomeDirectory());
 			}
-			// load CND files from classpath or as URL
-			for (String resUrl : cndFiles) {
-				boolean classpath;
-				// normalize URL
-				if (resUrl.startsWith("classpath:")) {
-					resUrl = resUrl.substring("classpath:".length());
-					classpath = true;
-				} else if (resUrl.indexOf(':') < 0) {
-					if (!resUrl.startsWith("/")) {
-						resUrl = "/" + resUrl;
-						log.warn("Classpath should start with '/'");
-					}
-					// resUrl = "classpath:" + resUrl;
-					classpath = true;
-				} else {
-					classpath = false;
-				}
 
-				URL url;
-				Bundle dataModelBundle = null;
-				if (classpath) {
-					if (bundleContext != null) {
-						Bundle currentBundle = bundleContext.getBundle();
-						url = currentBundle.getResource(resUrl);
-						if (url != null) {// found
-							dataModelBundle = findDataModelBundle(resUrl);
-						}
-					} else {
-						url = getClass().getClassLoader().getResource(resUrl);
-						// if (url == null)
-						// url = Thread.currentThread()
-						// .getContextClassLoader()
-						// .getResource(resUrl);
-					}
-				} else {
-					url = new URL(resUrl);
-				}
+			// process configuration file
+			Properties vars = getConfigurationProperties();
+			configurationIn = readConfiguration();
+			vars.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE,
+					getHomeDirectory().getCanonicalPath());
+			repositoryConfig = RepositoryConfig.create(new InputSource(
+					configurationIn), vars);
 
-				// check existing data model nodes
-				new NamespaceHelper(session).registerNamespace(
-						ArgeoNames.ARGEO, ArgeoNames.ARGEO_NAMESPACE);
-				if (!session
-						.itemExists(ArgeoJcrConstants.DATA_MODELS_BASE_PATH))
-					JcrUtils.mkdirs(session,
-							ArgeoJcrConstants.DATA_MODELS_BASE_PATH);
-				Node dataModels = session
-						.getNode(ArgeoJcrConstants.DATA_MODELS_BASE_PATH);
-				NodeIterator it = dataModels.getNodes();
-				Node dataModel = null;
-				while (it.hasNext()) {
-					Node node = it.nextNode();
-					if (node.getProperty(ArgeoNames.ARGEO_URI).getString()
-							.equals(resUrl)) {
-						dataModel = node;
-						break;
-					}
-				}
+			//
+			// Actual repository creation
+			//
+			repository = RepositoryImpl.create(repositoryConfig);
 
-				// does nothing if data model already registered
-				if (dataModel != null && !forceCndImport) {
-					if (dataModelBundle != null) {
-						String version = dataModel.getProperty(
-								ArgeoNames.ARGEO_DATA_MODEL_VERSION)
-								.getString();
-						String dataModelBundleVersion = dataModelBundle
-								.getVersion().toString();
-						if (!version.equals(dataModelBundleVersion)) {
-							log.warn("Data model with version "
-									+ dataModelBundleVersion
-									+ " available, current version is "
-									+ version);
-						}
-					}
-					// do not implicitly update
-					return;
-				}
+			double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
+			if (log.isTraceEnabled())
+				log.trace("Created Jackrabbit repository in " + duration
+						+ " s, home: " + getHomeDirectory());
 
-				InputStream in = null;
-				Reader reader = null;
-				try {
-					if (url != null) {
-						in = url.openStream();
-					} else if (resourceLoader != null) {
-						Resource res = resourceLoader.getResource(resUrl);
-						in = res.getInputStream();
-						url = res.getURL();
-					} else {
-						throw new ArgeoException("No " + resUrl
-								+ " in the classpath,"
-								+ " make sure the containing"
-								+ " package is visible.");
-					}
-
-					reader = new InputStreamReader(in);
-					// actually imports the CND
-					CndImporter.registerNodeTypes(reader, session, true);
-
-					// FIXME: what if argeo.cnd would not be the first called on
-					// a new repo? argeo:dataModel would not be found
-					String fileName = FilenameUtils.getName(url.getPath());
-					if (dataModel == null) {
-						dataModel = dataModels.addNode(fileName);
-						dataModel.addMixin(ArgeoTypes.ARGEO_DATA_MODEL);
-						dataModel.setProperty(ArgeoNames.ARGEO_URI, resUrl);
-					} else {
-						session.getWorkspace().getVersionManager()
-								.checkout(dataModel.getPath());
-					}
-					if (dataModelBundle != null)
-						dataModel.setProperty(
-								ArgeoNames.ARGEO_DATA_MODEL_VERSION,
-								dataModelBundle.getVersion().toString());
-					else
-						dataModel.setProperty(
-								ArgeoNames.ARGEO_DATA_MODEL_VERSION, "0.0.0");
-					JcrUtils.updateLastModified(dataModel);
-					session.save();
-					session.getWorkspace().getVersionManager()
-							.checkin(dataModel.getPath());
-				} finally {
-					IOUtils.closeQuietly(in);
-					IOUtils.closeQuietly(reader);
-				}
-
-				if (log.isDebugEnabled())
-					log.debug("Data model "
-							+ resUrl
-							+ (dataModelBundle != null ? ", version "
-									+ dataModelBundle.getVersion()
-									+ ", bundle "
-									+ dataModelBundle.getSymbolicName() : ""));
-			}
+			return repository;
 		} catch (Exception e) {
-			JcrUtils.discardQuietly(session);
-			throw new ArgeoException("Cannot import node type definitions "
-					+ cndFiles, e);
+			throw new ArgeoException("Cannot create Jackrabbit repository "
+					+ getHomeDirectory(), e);
 		} finally {
-			JcrUtils.logoutQuietly(session);
+			IOUtils.closeQuietly(configurationIn);
 		}
+	}
 
+	/** Lazy init. */
+	protected File getHomeDirectory() {
+		try {
+			if (homeDirectory == null) {
+				if (inMemory) {
+					homeDirectory = new File(
+							System.getProperty("java.io.tmpdir")
+									+ File.separator
+									+ System.getProperty("user.name")
+									+ File.separator + "jackrabbit-"
+									+ UUID.randomUUID());
+					homeDirectory.mkdirs();
+					// will it work if directory is not empty??
+					homeDirectory.deleteOnExit();
+				}
+			}
+
+			return homeDirectory.getCanonicalFile();
+		} catch (IOException e) {
+			throw new ArgeoException("Cannot get canonical file for "
+					+ homeDirectory, e);
+		}
 	}
 
 	/** Executes migrations, if needed. */
 	protected void migrate() {
-		// Remote migration not supported
-		if (isRemote())
-			return;
-
 		// No migration to perform
 		if (dataModelMigrations.size() == 0)
 			return;
@@ -366,38 +219,32 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 
 	}
 
-	/*
-	 * REPOSITORY INTERCEPTOR
-	 */
-	/** Central login method */
-	public Session login(Credentials credentials, String workspaceName)
-			throws LoginException, NoSuchWorkspaceException,
-			RepositoryException {
-
-		// retrieve credentials for remote
-		if (credentials == null && isRemote()) {
-			Authentication authentication = SecurityContextHolder.getContext()
-					.getAuthentication();
-			if (authentication != null) {
-				if (authentication instanceof UsernamePasswordAuthenticationToken) {
-					UsernamePasswordAuthenticationToken upat = (UsernamePasswordAuthenticationToken) authentication;
-					credentials = new SimpleCredentials(upat.getName(), upat
-							.getCredentials().toString().toCharArray());
-				} else if ((authentication instanceof SystemAuthentication)
-						&& remoteSystemCredentials != null) {
-					credentials = remoteSystemCredentials;
+	/** Shutdown the repository */
+	public void destroy() throws Exception {
+		Repository repository = getRepository();
+		if (repository != null && repository instanceof RepositoryImpl) {
+			long begin = System.currentTimeMillis();
+			((RepositoryImpl) repository).shutdown();
+			if (inMemory)
+				if (getHomeDirectory().exists()) {
+					FileUtils.deleteDirectory(getHomeDirectory());
+					if (log.isDebugEnabled())
+						log.debug("Deleted Jackrabbit home directory "
+								+ getHomeDirectory());
 				}
-			}
+			double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
+			log.info("Destroyed Jackrabbit repository in " + duration
+					+ " s, home: " + getHomeDirectory());
 		}
-
-		return super.login(credentials, workspaceName);
+		repository = null;
 	}
 
 	/*
 	 * UTILITIES
 	 */
-
-	@Override
+	/**
+	 * Reads the configuration which will initialize a {@link RepositoryConfig}.
+	 */
 	protected InputStream readConfiguration() {
 		try {
 			return configuration != null ? configuration.getInputStream()
@@ -408,7 +255,12 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 		}
 	}
 
-	@Override
+	/**
+	 * Reads the variables which will initialize a {@link Properties}. Returns
+	 * null by default, to be overridden.
+	 * 
+	 * @return a new stream or null if no variables available
+	 */
 	protected InputStream readVariables() {
 		try {
 			return variables != null ? variables.getInputStream() : null;
@@ -418,69 +270,63 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 		}
 	}
 
-	@Override
+	/**
+	 * Resolves ${} placeholders in the provided string. Based on system
+	 * properties if no map is provided.
+	 */
 	protected String resolvePlaceholders(String string,
 			Map<String, String> variables) {
 		return SystemPropertyUtils.resolvePlaceholders(string);
 	}
 
-	/** Find which OSGi bundle provided the data model resource */
-	protected Bundle findDataModelBundle(String resUrl) {
-		if (resUrl.startsWith("/"))
-			resUrl = resUrl.substring(1);
-		String pkg = resUrl.substring(0, resUrl.lastIndexOf('/')).replace('/',
-				'.');
-		ServiceReference paSr = bundleContext
-				.getServiceReference(PackageAdmin.class.getName());
-		PackageAdmin packageAdmin = (PackageAdmin) bundleContext
-				.getService(paSr);
-
-		// find exported package
-		ExportedPackage exportedPackage = null;
-		ExportedPackage[] exportedPackages = packageAdmin
-				.getExportedPackages(pkg);
-		if (exportedPackages == null)
-			throw new ArgeoException("No exported package found for " + pkg);
-		for (ExportedPackage ep : exportedPackages) {
-			for (Bundle b : ep.getImportingBundles()) {
-				if (b.getBundleId() == bundleContext.getBundle().getBundleId()) {
-					exportedPackage = ep;
-					break;
-				}
+	/** Generates the properties to use in the configuration. */
+	protected Properties getConfigurationProperties() {
+		InputStream propsIn = null;
+		Properties vars;
+		try {
+			vars = new Properties();
+			propsIn = readVariables();
+			if (propsIn != null) {
+				vars.load(propsIn);
 			}
-		}
+			// resolve system properties
+			for (Object key : vars.keySet()) {
+				// TODO: implement a smarter mechanism to resolve nested ${}
+				String newValue = resolvePlaceholders(
+						vars.getProperty(key.toString()), null);
+				vars.put(key, newValue);
+			}
+			// override with system properties
+			vars.putAll(System.getProperties());
 
-		Bundle exportingBundle = null;
-		if (exportedPackage != null) {
-			exportingBundle = exportedPackage.getExportingBundle();
-		} else {
-			throw new ArgeoException("No OSGi exporting package found for "
-					+ resUrl);
+			if (log.isTraceEnabled()) {
+				log.trace("Jackrabbit config variables:");
+				for (Object key : new TreeSet<Object>(vars.keySet()))
+					log.trace(key + "=" + vars.getProperty(key.toString()));
+			}
+
+		} catch (IOException e) {
+			throw new ArgeoException("Cannot read configuration properties", e);
+		} finally {
+			IOUtils.closeQuietly(propsIn);
 		}
-		return exportingBundle;
+		return vars;
 	}
 
 	/*
 	 * FIELDS ACCESS
 	 */
-	public void setConfiguration(Resource configuration) {
-		this.configuration = configuration;
+
+	public void setHomeDirectory(File homeDirectory) {
+		this.homeDirectory = homeDirectory;
 	}
 
-	public void setNamespaces(Map<String, String> namespaces) {
-		this.namespaces = namespaces;
+	public void setInMemory(Boolean inMemory) {
+		this.inMemory = inMemory;
 	}
 
-	public void setCndFiles(List<String> cndFiles) {
-		this.cndFiles = cndFiles;
-	}
-
-	public void setVariables(Resource variables) {
-		this.variables = variables;
-	}
-
-	public void setRemoteSystemCredentials(Credentials remoteSystemCredentials) {
-		this.remoteSystemCredentials = remoteSystemCredentials;
+	public void setRepository(Repository repository) {
+		throw new ArgeoException("Cannot be used to wrap another repository");
 	}
 
 	public void setDataModelMigrations(
@@ -488,16 +334,12 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 		this.dataModelMigrations = dataModelMigrations;
 	}
 
-	public void setBundleContext(BundleContext bundleContext) {
-		this.bundleContext = bundleContext;
+	public void setVariables(Resource variables) {
+		this.variables = variables;
 	}
 
-	public void setForceCndImport(Boolean forceCndUpdate) {
-		this.forceCndImport = forceCndUpdate;
-	}
-
-	public void setResourceLoader(ResourceLoader resourceLoader) {
-		this.resourceLoader = resourceLoader;
+	public void setConfiguration(Resource configuration) {
+		this.configuration = configuration;
 	}
 
 }

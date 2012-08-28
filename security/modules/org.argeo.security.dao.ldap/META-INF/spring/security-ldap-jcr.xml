@@ -8,7 +8,7 @@
 		http://www.springframework.org/schema/util
 		http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
-	<bean id="argeoDataModel" class="org.argeo.jackrabbit.JackrabbitContainer"
+	<bean id="argeoDataModel" class="org.argeo.jackrabbit.JackrabbitWrapper"
 		init-method="init" destroy-method="destroy">
 		<description><![CDATA[Make sure that Argeo base data model is registered]]></description>
 		<property name="cndFiles">

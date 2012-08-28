@@ -26,6 +26,8 @@ import javax.jcr.observation.Event;
 import javax.jcr.observation.EventListener;
 import javax.jcr.observation.ObservationManager;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.jcr.AsyncUiEventListener;
@@ -65,8 +67,7 @@ import org.eclipse.swt.widgets.Menu;
  */
 
 public class GenericJcrBrowser extends AbstractJcrBrowser {
-	// private final static Log log =
-	// LogFactory.getLog(GenericJcrBrowser.class);
+	private final static Log log = LogFactory.getLog(GenericJcrBrowser.class);
 	public final static String ID = JcrExplorerPlugin.ID + ".browserView";
 	private boolean sortChildNodes = false;
 
@@ -182,6 +183,7 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 		resultsObserver = new TreeObserver(tmpNodeViewer.getTree().getDisplay());
 		if (jcrKeyring != null)
 			try {
+				log.debug("userID=" + jcrKeyring.getSession().getUserID());
 				ObservationManager observationManager = jcrKeyring.getSession()
 						.getWorkspace().getObservationManager();
 				observationManager.addEventListener(resultsObserver,

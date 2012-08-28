@@ -15,53 +15,65 @@
  */
 package org.argeo.jackrabbit;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.TreeSet;
-import java.util.UUID;
 
-import javax.jcr.Credentials;
-import javax.jcr.LoginException;
-import javax.jcr.NoSuchWorkspaceException;
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.Value;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.jackrabbit.core.RepositoryImpl;
-import org.apache.jackrabbit.core.config.RepositoryConfig;
-import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
-import org.apache.jackrabbit.jcr2dav.Jcr2davRepositoryFactory;
+import org.apache.jackrabbit.commons.NamespaceHelper;
+import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.argeo.ArgeoException;
-import org.xml.sax.InputSource;
+import org.argeo.jcr.ArgeoJcrConstants;
+import org.argeo.jcr.ArgeoNames;
+import org.argeo.jcr.ArgeoTypes;
+import org.argeo.jcr.JcrRepositoryWrapper;
+import org.argeo.jcr.JcrUtils;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.packageadmin.ExportedPackage;
+import org.osgi.service.packageadmin.PackageAdmin;
+import org.springframework.context.ResourceLoaderAware;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 
 /**
  * Wrapper around a Jackrabbit repository which allows to simplify configuration
  * and intercept some actions. It exposes itself as a {@link Repository}.
  */
-public abstract class JackrabbitWrapper implements Repository {
+public class JackrabbitWrapper extends JcrRepositoryWrapper implements
+		ResourceLoaderAware {
 	private Log log = LogFactory.getLog(JackrabbitWrapper.class);
 
-	// remote
-	private String uri = null;
-
 	// local
-	private RepositoryConfig repositoryConfig;
-	private File homeDirectory;
-	private Boolean inMemory = false;
+	private ResourceLoader resourceLoader;
 
-	// wrapped repository
-	private Repository repository;
+	// data model
+	/** Node type definitions in CND format */
+	private List<String> cndFiles = new ArrayList<String>();
+	/**
+	 * Always import CNDs. Useful during development of new data models. In
+	 * production, explicit migration processes should be used.
+	 */
+	private Boolean forceCndImport = false;
 
-	private Boolean autocreateWorkspaces = false;
+	/** Namespaces to register: key is prefix, value namespace */
+	private Map<String, String> namespaces = new HashMap<String, String>();
+
+	private BundleContext bundleContext;
 
 	/**
 	 * Empty constructor, {@link #init()} should be called after properties have
@@ -70,319 +82,240 @@ public abstract class JackrabbitWrapper implements Repository {
 	public JackrabbitWrapper() {
 	}
 
-	/**
-	 * Reads the configuration which will initialize a {@link RepositoryConfig}.
-	 */
-	protected abstract InputStream readConfiguration();
-
-	/**
-	 * Reads the variables which will initialize a {@link Properties}. Returns
-	 * null by default, to be overridden.
-	 * 
-	 * @return a new stream or null if no variables available
-	 */
-	protected InputStream readVariables() {
-		return null;
-	}
-
-	/**
-	 * Resolves ${} placeholders in the provided string. Based on system
-	 * properties if no map is provided.
-	 */
-	protected abstract String resolvePlaceholders(String string,
-			Map<String, String> variables);
-
-	/** Initializes */
+	@Override
 	public void init() {
-		long begin = System.currentTimeMillis();
-
-		if (repository != null) {
-			// we are just wrapping another repository
-			postInitWrapped();
-		} else {
-			createJackrabbitRepository();
-			postInitNew();
-		}
-
-		double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
-		if (log.isTraceEnabled())
-			log.trace("Initialized Jackrabbit wrapper in " + duration + " s");
+		prepareDataModel();
 	}
+
+	/*
+	 * DATA MODEL
+	 */
 
 	/**
-	 * Called after initialization of an already existing {@link Repository}
-	 * which is being wrapped (e.g. in order to impact its data model). To be
-	 * overridden, does nothing by default.
+	 * Import declared node type definitions and register namespaces. Tries to
+	 * update the node definitions if they have changed. In case of failures an
+	 * error will be logged but no exception will be thrown.
 	 */
-	protected void postInitWrapped() {
-
-	}
-
-	/**
-	 * Called after initialization of a new {@link Repository} either local or
-	 * remote. To be overridden, does nothing by default.
-	 */
-	protected void postInitNew() {
-
-	}
-
-	/** Actually creates the new repository. */
-	protected void createJackrabbitRepository() {
-		long begin = System.currentTimeMillis();
-		InputStream configurationIn = null;
+	protected void prepareDataModel() {
+		if ((cndFiles == null || cndFiles.size() == 0)
+				&& (namespaces == null || namespaces.size() == 0))
+			return;
+		
+		Session session = null;
 		try {
-			if (uri != null && !uri.trim().equals("")) {// remote
-				Map<String, String> params = new HashMap<String, String>();
-				params.put(
-						org.apache.jackrabbit.commons.JcrUtils.REPOSITORY_URI,
-						uri);
-				repository = new Jcr2davRepositoryFactory()
-						.getRepository(params);
-				if (repository == null)
-					throw new ArgeoException("Remote Davex repository " + uri
-							+ " not found");
-				double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
-				log.info("Created Jackrabbit repository in " + duration
-						+ " s from URI " + uri);
-				// we assume that the data model of the remote repository has
-				// been properly initialized
-			} else {// local
-				// force uri to null in order to optimize isRemote()
-				uri = null;
+			session = login();
+			// register namespaces
+			if (namespaces.size() > 0) {
+				NamespaceHelper namespaceHelper = new NamespaceHelper(session);
+				namespaceHelper.registerNamespaces(namespaces);
+			}
 
-				// temporary
-				if (inMemory && getHomeDirectory().exists()) {
-					FileUtils.deleteDirectory(getHomeDirectory());
-					log.warn("Deleted Jackrabbit home directory "
-							+ getHomeDirectory());
+			// load CND files from classpath or as URL
+			for (String resUrl : cndFiles) {
+				boolean classpath;
+				// normalize URL
+				if (resUrl.startsWith("classpath:")) {
+					resUrl = resUrl.substring("classpath:".length());
+					classpath = true;
+				} else if (resUrl.indexOf(':') < 0) {
+					if (!resUrl.startsWith("/")) {
+						resUrl = "/" + resUrl;
+						log.warn("Classpath should start with '/'");
+					}
+					// resUrl = "classpath:" + resUrl;
+					classpath = true;
+				} else {
+					classpath = false;
 				}
 
-				// process configuration file
-				Properties vars = getConfigurationProperties();
-				configurationIn = readConfiguration();
-				vars.put(
-						RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE,
-						getHomeDirectory().getCanonicalPath());
-				repositoryConfig = RepositoryConfig.create(new InputSource(
-						configurationIn), vars);
+				URL url;
+				Bundle dataModelBundle = null;
+				if (classpath) {
+					if (bundleContext != null) {
+						Bundle currentBundle = bundleContext.getBundle();
+						url = currentBundle.getResource(resUrl);
+						if (url != null) {// found
+							dataModelBundle = findDataModelBundle(resUrl);
+						}
+					} else {
+						url = getClass().getClassLoader().getResource(resUrl);
+						// if (url == null)
+						// url = Thread.currentThread()
+						// .getContextClassLoader()
+						// .getResource(resUrl);
+					}
+				} else {
+					url = new URL(resUrl);
+				}
 
-				//
-				// Actual repository creation
-				//
-				repository = RepositoryImpl.create(repositoryConfig);
+				// check existing data model nodes
+				new NamespaceHelper(session).registerNamespace(
+						ArgeoNames.ARGEO, ArgeoNames.ARGEO_NAMESPACE);
+				if (!session
+						.itemExists(ArgeoJcrConstants.DATA_MODELS_BASE_PATH))
+					JcrUtils.mkdirs(session,
+							ArgeoJcrConstants.DATA_MODELS_BASE_PATH);
+				Node dataModels = session
+						.getNode(ArgeoJcrConstants.DATA_MODELS_BASE_PATH);
+				NodeIterator it = dataModels.getNodes();
+				Node dataModel = null;
+				while (it.hasNext()) {
+					Node node = it.nextNode();
+					if (node.getProperty(ArgeoNames.ARGEO_URI).getString()
+							.equals(resUrl)) {
+						dataModel = node;
+						break;
+					}
+				}
 
-				double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
-				if (log.isTraceEnabled())
-					log.trace("Created Jackrabbit repository in " + duration
-							+ " s, home: " + getHomeDirectory());
+				// does nothing if data model already registered
+				if (dataModel != null && !forceCndImport) {
+					if (dataModelBundle != null) {
+						String version = dataModel.getProperty(
+								ArgeoNames.ARGEO_DATA_MODEL_VERSION)
+								.getString();
+						String dataModelBundleVersion = dataModelBundle
+								.getVersion().toString();
+						if (!version.equals(dataModelBundleVersion)) {
+							log.warn("Data model with version "
+									+ dataModelBundleVersion
+									+ " available, current version is "
+									+ version);
+						}
+					}
+					// do not implicitly update
+					return;
+				}
+
+				InputStream in = null;
+				Reader reader = null;
+				try {
+					if (url != null) {
+						in = url.openStream();
+					} else if (resourceLoader != null) {
+						Resource res = resourceLoader.getResource(resUrl);
+						in = res.getInputStream();
+						url = res.getURL();
+					} else {
+						throw new ArgeoException("No " + resUrl
+								+ " in the classpath,"
+								+ " make sure the containing"
+								+ " package is visible.");
+					}
+
+					reader = new InputStreamReader(in);
+					// actually imports the CND
+					CndImporter.registerNodeTypes(reader, session, true);
+
+					// FIXME: what if argeo.cnd would not be the first called on
+					// a new repo? argeo:dataModel would not be found
+					String fileName = FilenameUtils.getName(url.getPath());
+					if (dataModel == null) {
+						dataModel = dataModels.addNode(fileName);
+						dataModel.addMixin(ArgeoTypes.ARGEO_DATA_MODEL);
+						dataModel.setProperty(ArgeoNames.ARGEO_URI, resUrl);
+					} else {
+						session.getWorkspace().getVersionManager()
+								.checkout(dataModel.getPath());
+					}
+					if (dataModelBundle != null)
+						dataModel.setProperty(
+								ArgeoNames.ARGEO_DATA_MODEL_VERSION,
+								dataModelBundle.getVersion().toString());
+					else
+						dataModel.setProperty(
+								ArgeoNames.ARGEO_DATA_MODEL_VERSION, "0.0.0");
+					JcrUtils.updateLastModified(dataModel);
+					session.save();
+					session.getWorkspace().getVersionManager()
+							.checkin(dataModel.getPath());
+				} finally {
+					IOUtils.closeQuietly(in);
+					IOUtils.closeQuietly(reader);
+				}
+
+				if (log.isDebugEnabled())
+					log.debug("Data model "
+							+ resUrl
+							+ (dataModelBundle != null ? ", version "
+									+ dataModelBundle.getVersion()
+									+ ", bundle "
+									+ dataModelBundle.getSymbolicName() : ""));
 			}
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot create Jackrabbit repository "
-					+ getHomeDirectory(), e);
+			JcrUtils.discardQuietly(session);
+			throw new ArgeoException("Cannot import node type definitions "
+					+ cndFiles, e);
 		} finally {
-			IOUtils.closeQuietly(configurationIn);
+			JcrUtils.logoutQuietly(session);
 		}
+
 	}
 
-	/** Lazy init. */
-	protected File getHomeDirectory() {
-		try {
-			if (homeDirectory == null) {
-				if (inMemory) {
-					homeDirectory = new File(
-							System.getProperty("java.io.tmpdir")
-									+ File.separator
-									+ System.getProperty("user.name")
-									+ File.separator + "jackrabbit-"
-									+ UUID.randomUUID());
-					homeDirectory.mkdirs();
-					// will it work if directory is not empty??
-					homeDirectory.deleteOnExit();
-				}
-			}
-
-			return homeDirectory.getCanonicalFile();
-		} catch (IOException e) {
-			throw new ArgeoException("Cannot get canonical file for "
-					+ homeDirectory, e);
-		}
-	}
-
-	/** Shutdown the repository */
-	public void destroy() throws Exception {
-		if (repository != null && repository instanceof RepositoryImpl) {
-			long begin = System.currentTimeMillis();
-			((RepositoryImpl) repository).shutdown();
-			if (inMemory)
-				if (getHomeDirectory().exists()) {
-					FileUtils.deleteDirectory(getHomeDirectory());
-					if (log.isDebugEnabled())
-						log.debug("Deleted Jackrabbit home directory "
-								+ getHomeDirectory());
-				}
-			double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
-			log.info("Destroyed Jackrabbit repository in " + duration
-					+ " s, home: " + getHomeDirectory());
-		}
-	}
-
-	/**
-	 * @deprecated explicitly declare {@link #destroy()} as destroy-method
-	 *             instead.
+	/*
+	 * REPOSITORY INTERCEPTOR
 	 */
-	public void dispose() throws Exception {
-		log.error("## Declare destroy-method=\"destroy\". in the Jackrabbit container bean");
-		destroy();
-	}
 
 	/*
 	 * UTILITIES
 	 */
+	/** Find which OSGi bundle provided the data model resource */
+	protected Bundle findDataModelBundle(String resUrl) {
+		if (resUrl.startsWith("/"))
+			resUrl = resUrl.substring(1);
+		String pkg = resUrl.substring(0, resUrl.lastIndexOf('/')).replace('/',
+				'.');
+		ServiceReference paSr = bundleContext
+				.getServiceReference(PackageAdmin.class.getName());
+		PackageAdmin packageAdmin = (PackageAdmin) bundleContext
+				.getService(paSr);
 
-	/** Generates the properties to use in the configuration. */
-	protected Properties getConfigurationProperties() {
-		InputStream propsIn = null;
-		Properties vars;
-		try {
-			vars = new Properties();
-			propsIn = readVariables();
-			if (propsIn != null) {
-				vars.load(propsIn);
+		// find exported package
+		ExportedPackage exportedPackage = null;
+		ExportedPackage[] exportedPackages = packageAdmin
+				.getExportedPackages(pkg);
+		if (exportedPackages == null)
+			throw new ArgeoException("No exported package found for " + pkg);
+		for (ExportedPackage ep : exportedPackages) {
+			for (Bundle b : ep.getImportingBundles()) {
+				if (b.getBundleId() == bundleContext.getBundle().getBundleId()) {
+					exportedPackage = ep;
+					break;
+				}
 			}
-			// resolve system properties
-			for (Object key : vars.keySet()) {
-				// TODO: implement a smarter mechanism to resolve nested ${}
-				String newValue = resolvePlaceholders(
-						vars.getProperty(key.toString()), null);
-				vars.put(key, newValue);
-			}
-			// override with system properties
-			vars.putAll(System.getProperties());
-
-			if (log.isTraceEnabled()) {
-				log.trace("Jackrabbit config variables:");
-				for (Object key : new TreeSet<Object>(vars.keySet()))
-					log.trace(key + "=" + vars.getProperty(key.toString()));
-			}
-
-		} catch (IOException e) {
-			throw new ArgeoException("Cannot read configuration properties", e);
-		} finally {
-			IOUtils.closeQuietly(propsIn);
 		}
-		return vars;
-	}
 
-	/*
-	 * DELEGATED JCR REPOSITORY METHODS
-	 */
-
-	public String getDescriptor(String key) {
-		return getRepository().getDescriptor(key);
-	}
-
-	public String[] getDescriptorKeys() {
-		return getRepository().getDescriptorKeys();
-	}
-
-	/** Central login method */
-	public Session login(Credentials credentials, String workspaceName)
-			throws LoginException, NoSuchWorkspaceException,
-			RepositoryException {
-		Session session;
-		try {
-			session = getRepository().login(credentials, workspaceName);
-		} catch (NoSuchWorkspaceException e) {
-			if (autocreateWorkspaces && workspaceName != null)
-				session = createWorkspaceAndLogsIn(credentials, workspaceName);
-			else
-				throw e;
+		Bundle exportingBundle = null;
+		if (exportedPackage != null) {
+			exportingBundle = exportedPackage.getExportingBundle();
+		} else {
+			throw new ArgeoException("No OSGi exporting package found for "
+					+ resUrl);
 		}
-		processNewSession(session);
-		return session;
-	}
-
-	public Session login() throws LoginException, RepositoryException {
-		return login(null, null);
-	}
-
-	public Session login(Credentials credentials) throws LoginException,
-			RepositoryException {
-		return login(credentials, null);
-	}
-
-	public Session login(String workspaceName) throws LoginException,
-			NoSuchWorkspaceException, RepositoryException {
-		return login(null, workspaceName);
-	}
-
-	/** Called after a session has been created, does nothing by default. */
-	protected void processNewSession(Session session) {
-	}
-
-	public Boolean isRemote() {
-		return uri != null;
-	}
-
-	/** Wraps access to the repository, making sure it is available. */
-	protected Repository getRepository() {
-		if (repository == null) {
-			throw new ArgeoException("No repository initialized."
-					+ " Was the init() method called?"
-					+ " The destroy() method should also"
-					+ " be called on shutdown.");
-		}
-		return repository;
-	}
-
-	/**
-	 * Logs in to the default workspace, creates the required workspace, logs
-	 * out, logs in to the required workspace.
-	 */
-	protected Session createWorkspaceAndLogsIn(Credentials credentials,
-			String workspaceName) throws RepositoryException {
-		if (workspaceName == null)
-			throw new ArgeoException("No workspace specified.");
-		Session session = getRepository().login(credentials);
-		session.getWorkspace().createWorkspace(workspaceName);
-		session.logout();
-		return getRepository().login(credentials, workspaceName);
-	}
-
-	public boolean isStandardDescriptor(String key) {
-		return getRepository().isStandardDescriptor(key);
-	}
-
-	public boolean isSingleValueDescriptor(String key) {
-		return getRepository().isSingleValueDescriptor(key);
-	}
-
-	public Value getDescriptorValue(String key) {
-		return getRepository().getDescriptorValue(key);
-	}
-
-	public Value[] getDescriptorValues(String key) {
-		return getRepository().getDescriptorValues(key);
+		return exportingBundle;
 	}
 
 	/*
 	 * FIELDS ACCESS
 	 */
-
-	public void setHomeDirectory(File homeDirectory) {
-		this.homeDirectory = homeDirectory;
+	public void setNamespaces(Map<String, String> namespaces) {
+		this.namespaces = namespaces;
 	}
 
-	public void setInMemory(Boolean inMemory) {
-		this.inMemory = inMemory;
+	public void setCndFiles(List<String> cndFiles) {
+		this.cndFiles = cndFiles;
 	}
 
-	public void setUri(String uri) {
-		this.uri = uri;
+	public void setBundleContext(BundleContext bundleContext) {
+		this.bundleContext = bundleContext;
 	}
 
-	public void setRepository(Repository repository) {
-		this.repository = repository;
+	public void setForceCndImport(Boolean forceCndUpdate) {
+		this.forceCndImport = forceCndUpdate;
+	}
+
+	public void setResourceLoader(ResourceLoader resourceLoader) {
+		this.resourceLoader = resourceLoader;
 	}
 
 }

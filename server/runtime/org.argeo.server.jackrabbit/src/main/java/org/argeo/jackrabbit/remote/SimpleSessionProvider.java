@@ -58,7 +58,7 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 
 	private Boolean openSessionInView = true;
 
-	private String securityWorkspace = "security";
+	private String defaultWorkspace = "default";
 
 	public Session getSession(HttpServletRequest request, Repository rep,
 			String workspace) throws LoginException, ServletException,
@@ -67,7 +67,7 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 		if (openSessionInView) {
 			JackrabbitSession session = (JackrabbitSession) rep
 					.login(workspace);
-			if (session.getWorkspace().getName().equals(securityWorkspace))
+			if (session.getWorkspace().getName().equals(defaultWorkspace))
 				writeRemoteRoles(session);
 			return session;
 		} else {
@@ -81,7 +81,7 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 					JackrabbitSession session = (JackrabbitSession) rep.login(
 							null, workspace);
 					if (session.getWorkspace().getName()
-							.equals(securityWorkspace))
+							.equals(defaultWorkspace))
 						writeRemoteRoles(session);
 					if (log.isTraceEnabled())
 						log.trace("User " + session.getUserID()
@@ -105,6 +105,8 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 
 	protected void writeRemoteRoles(JackrabbitSession session)
 			throws RepositoryException {
+		// FIXME better deal w/ non node repo
+
 		// retrieve roles
 		String userId = session.getUserID();
 		UserManager userManager = session.getUserManager();
@@ -119,12 +121,11 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 				userGroupIds.add(it.next().getID());
 
 		// write roles if needed
-		Node userProfile = UserJcrUtils.getUserHome(session).getNode(
-				ArgeoNames.ARGEO_PROFILE);
+		Node userHome = UserJcrUtils.getUserHome(session);
 		boolean writeRoles = false;
-		if (userProfile.hasProperty(ArgeoNames.ARGEO_REMOTE_ROLES)) {
-			Value[] roles = userProfile.getProperty(
-					ArgeoNames.ARGEO_REMOTE_ROLES).getValues();
+		if (userHome.hasProperty(ArgeoNames.ARGEO_REMOTE_ROLES)) {
+			Value[] roles = userHome.getProperty(ArgeoNames.ARGEO_REMOTE_ROLES)
+					.getValues();
 			if (roles.length != userGroupIds.size())
 				writeRoles = true;
 			else
@@ -136,14 +137,14 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 
 		if (writeRoles) {
 			session.getWorkspace().getVersionManager()
-					.checkout(userProfile.getPath());
+					.checkout(userHome.getPath());
 			String[] roleIds = userGroupIds.toArray(new String[userGroupIds
 					.size()]);
-			userProfile.setProperty(ArgeoNames.ARGEO_REMOTE_ROLES, roleIds);
-			JcrUtils.updateLastModified(userProfile);
+			userHome.setProperty(ArgeoNames.ARGEO_REMOTE_ROLES, roleIds);
+			JcrUtils.updateLastModified(userHome);
 			session.save();
 			session.getWorkspace().getVersionManager()
-					.checkin(userProfile.getPath());
+					.checkin(userHome.getPath());
 		}
 
 	}
@@ -185,7 +186,7 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 	}
 
 	public void setSecurityWorkspace(String securityWorkspace) {
-		this.securityWorkspace = securityWorkspace;
+		this.defaultWorkspace = securityWorkspace;
 	}
 
 }
