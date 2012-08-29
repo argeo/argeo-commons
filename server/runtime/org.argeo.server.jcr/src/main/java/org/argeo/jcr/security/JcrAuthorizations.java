@@ -53,6 +53,8 @@ public class JcrAuthorizations implements Runnable {
 			initAuthorizations(session);
 		} catch (Exception e) {
 			JcrUtils.discardQuietly(session);
+			throw new ArgeoException("Cannot set authorizations "
+					+ principalPrivileges + " on repository " + repository, e);
 		} finally {
 			JcrUtils.logoutQuietly(session);
 		}

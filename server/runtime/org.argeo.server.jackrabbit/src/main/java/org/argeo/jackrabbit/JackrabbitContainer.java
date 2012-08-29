@@ -239,6 +239,11 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 		repository = null;
 	}
 
+	public void dispose() {
+		throw new IllegalArgumentException(
+				"Call destroy() method instead of dispose()");
+	}
+
 	/*
 	 * UTILITIES
 	 */

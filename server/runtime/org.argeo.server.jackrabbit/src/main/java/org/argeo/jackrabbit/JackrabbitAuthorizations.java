@@ -16,7 +16,7 @@
 package org.argeo.jackrabbit;
 
 import java.security.Principal;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
@@ -35,7 +35,8 @@ public class JackrabbitAuthorizations extends JcrAuthorizations {
 	private final static Log log = LogFactory
 			.getLog(JackrabbitAuthorizations.class);
 
-	private List<String> groupPrefixes = new ArrayList<String>();
+	private List<String> groupPrefixes = Arrays
+			.asList(new String[] { "ROLE_" });// new ArrayList<String>();
 
 	@Override
 	protected Principal getOrCreatePrincipal(Session session,
