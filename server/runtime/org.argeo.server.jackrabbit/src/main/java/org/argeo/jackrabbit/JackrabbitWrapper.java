@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.jcr.Credentials;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Repository;
@@ -76,6 +77,13 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 	private BundleContext bundleContext;
 
 	/**
+	 * Explicitly set admin credentials used in initialization. Useful for
+	 * testing, in real applications authentication is rather dealt with
+	 * externally
+	 */
+	private Credentials adminCredentials = null;
+
+	/**
 	 * Empty constructor, {@link #init()} should be called after properties have
 	 * been set
 	 */
@@ -100,10 +108,10 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 		if ((cndFiles == null || cndFiles.size() == 0)
 				&& (namespaces == null || namespaces.size() == 0))
 			return;
-		
+
 		Session session = null;
 		try {
-			session = login();
+			session = login(adminCredentials);
 			// register namespaces
 			if (namespaces.size() > 0) {
 				NamespaceHelper namespaceHelper = new NamespaceHelper(session);
@@ -112,42 +120,50 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 
 			// load CND files from classpath or as URL
 			for (String resUrl : cndFiles) {
-				boolean classpath;
-				// normalize URL
-				if (resUrl.startsWith("classpath:")) {
-					resUrl = resUrl.substring("classpath:".length());
-					classpath = true;
-				} else if (resUrl.indexOf(':') < 0) {
-					if (!resUrl.startsWith("/")) {
-						resUrl = "/" + resUrl;
-						log.warn("Classpath should start with '/'");
-					}
-					// resUrl = "classpath:" + resUrl;
-					classpath = true;
-				} else {
-					classpath = false;
-				}
-
 				URL url;
 				Bundle dataModelBundle = null;
-				if (classpath) {
-					if (bundleContext != null) {
-						Bundle currentBundle = bundleContext.getBundle();
-						url = currentBundle.getResource(resUrl);
-						if (url != null) {// found
-							dataModelBundle = findDataModelBundle(resUrl);
-						}
-					} else {
-						url = getClass().getClassLoader().getResource(resUrl);
-						// if (url == null)
-						// url = Thread.currentThread()
-						// .getContextClassLoader()
-						// .getResource(resUrl);
-					}
-				} else {
-					url = new URL(resUrl);
-				}
 
+				{// TODO put this in a separate method
+					boolean classpath;
+					// normalize URL
+					if (bundleContext != null
+							&& resUrl.startsWith("classpath:")) {
+						resUrl = resUrl.substring("classpath:".length());
+						classpath = true;
+					} else if (resUrl.indexOf(':') < 0) {
+						if (!resUrl.startsWith("/")) {
+							resUrl = "/" + resUrl;
+							log.warn("Classpath should start with '/'");
+						}
+						// resUrl = "classpath:" + resUrl;
+						classpath = true;
+					} else {
+						classpath = false;
+					}
+
+					if (classpath) {
+						if (bundleContext != null) {
+							Bundle currentBundle = bundleContext.getBundle();
+							url = currentBundle.getResource(resUrl);
+							if (url != null) {// found
+								dataModelBundle = findDataModelBundle(resUrl);
+							}
+						} else {
+							resUrl = "classpath:" + resUrl;
+							url = null;
+							// url =
+							// getClass().getClassLoader().getResource(resUrl);
+							// if (url == null)
+							// url = Thread.currentThread()
+							// .getContextClassLoader()
+							// .getResource(resUrl);
+						}
+					} else if (!resUrl.startsWith("classpath:")) {
+						url = new URL(resUrl);
+					} else {
+						url = null;
+					}
+				}
 				// check existing data model nodes
 				new NamespaceHelper(session).registerNamespace(
 						ArgeoNames.ARGEO, ArgeoNames.ARGEO_NAMESPACE);
@@ -316,6 +332,10 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 
 	public void setResourceLoader(ResourceLoader resourceLoader) {
 		this.resourceLoader = resourceLoader;
+	}
+
+	public void setAdminCredentials(Credentials adminCredentials) {
+		this.adminCredentials = adminCredentials;
 	}
 
 }
