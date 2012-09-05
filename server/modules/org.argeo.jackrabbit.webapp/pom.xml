@@ -29,7 +29,6 @@
 							org.argeo.jackrabbit.remote,
 							org.argeo.jcr,
 							org.argeo.jcr.mvc,
-							org.argeo.server.mvc,
 							org.springframework.aop,
 							org.springframework.aop.framework,
 							org.springframework.aop.scope,

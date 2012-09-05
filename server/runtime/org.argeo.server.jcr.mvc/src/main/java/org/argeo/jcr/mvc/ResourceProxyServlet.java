@@ -33,12 +33,11 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
-import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.proxy.ResourceProxy;
 
 /** Wraps a proxy via HTTP */
-public class ResourceProxyServlet extends HttpServlet implements ArgeoNames {
+public class ResourceProxyServlet extends HttpServlet {
 	private static final long serialVersionUID = -8886549549223155801L;
 
 	private final static Log log = LogFactory

@@ -39,6 +39,7 @@ import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.HandlerMapping;
 
+/** Handles multiple JCR servers with a single servlet. */
 public abstract class MultipleRepositoryHandlerMapping implements
 		HandlerMapping, ApplicationContextAware, ServletContextAware {
 	private final static Log log = LogFactory

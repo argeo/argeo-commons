@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
@@ -45,6 +46,12 @@
 			<version>1.1.4-SNAPSHOT</version>
 		</dependency>
 
+		<!-- JCR -->
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.jcr</artifactId>
+			<version>1.1.4-SNAPSHOT</version>
+		</dependency>
 
 		<!-- Apache Commons -->
 		<dependency>
@@ -78,5 +85,9 @@
 			<artifactId>slf4j.org.apache.commons.logging</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.fileupload</artifactId>
+		</dependency>
 	</dependencies>
 </project>

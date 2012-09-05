@@ -89,21 +89,5 @@
 <!-- 			<groupId>org.argeo.dep.osgi</groupId> -->
 <!-- 			<artifactId>org.argeo.dep.osgi.activemq.optional</artifactId> -->
 <!-- 		</dependency> -->
-		
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.apache.commons.collections</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.springframework.oxm</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.springframework.xml</artifactId>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 </project>

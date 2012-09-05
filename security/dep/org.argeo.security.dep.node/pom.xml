@@ -28,6 +28,18 @@
 		</plugins>
 	</build>
 	<dependencies>
+		<!-- Default JCR repositories configurations -->
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.node.repo.jackrabbit</artifactId>
+			<version>1.1.4-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.node.repofactory.jackrabbit</artifactId>
+			<version>1.1.4-SNAPSHOT</version>
+		</dependency>
+
 		<!-- OSGi Boot (and Equinox) -->
 		<dependency>
 			<groupId>org.argeo.commons.base</groupId>
@@ -49,11 +61,6 @@
 			<artifactId>org.argeo.security.core</artifactId>
 			<version>1.1.4-SNAPSHOT</version>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.mvc</artifactId>
-			<version>1.1.4-SNAPSHOT</version>
-		</dependency>
 
 		<!-- Xerces and Xalan -->
 		<dependency>
@@ -73,6 +80,16 @@
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
 			<artifactId>javax.mail</artifactId>
+		</dependency>
+
+		<!-- Bouncycastle (cryptography) -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>bcprov</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>bcmail</artifactId>
 		</dependency>
 
 		<!-- Commons -->
@@ -98,18 +115,6 @@
 			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.springframework.context.support</artifactId>
 		</dependency>
-		<!-- <dependency> -->
-		<!-- <groupId>org.springframework</groupId> -->
-		<!-- <artifactId>org.springframework.orm</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.springframework</groupId> -->
-		<!-- <artifactId>org.springframework.jdbc</artifactId> -->
-		<!-- </dependency> -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.springframework.jms</artifactId>
-		</dependency>
 
 		<!-- Spring OSGi -->
 		<dependency>
@@ -126,34 +131,6 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.jackrabbit</artifactId>
-			<version>1.1.4-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.node.repo.jackrabbit</artifactId>
-			<version>1.1.4-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.node.repofactory.jackrabbit</artifactId>
-			<version>1.1.4-SNAPSHOT</version>
-		</dependency>
-
-		<!-- Active MQ -->
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.dep.activemq</artifactId>
-			<version>1.1.4-SNAPSHOT</version>
-			<type>pom</type>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.security</groupId>
-			<artifactId>org.argeo.security.activemq</artifactId>
-			<version>1.1.4-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.activemq.broker</artifactId>
 			<version>1.1.4-SNAPSHOT</version>
 		</dependency>
 
@@ -227,7 +204,21 @@
 			<version>1.1.4-SNAPSHOT</version>
 		</dependency>
 
-		<!-- LDAP server -->
+		<!-- DB drivers -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.h2</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>com.mysql.jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.postgresql.jdbc3</artifactId>
+		</dependency>
+
+		<!-- LDAP Apache Directory server -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.dep.ads</artifactId>
@@ -243,33 +234,6 @@
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.ads</artifactId>
 			<version>1.1.4-SNAPSHOT</version>
-		</dependency>
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.commons.server</groupId> -->
-		<!-- <artifactId>org.argeo.server.json</artifactId> -->
-		<!-- <version>0.3.4-SNAPSHOT</version> -->
-		<!-- </dependency> -->
-
-		<!-- Hibernate -->
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.dep.hibernate</artifactId>
-			<version>1.1.4-SNAPSHOT</version>
-			<type>pom</type>
-		</dependency>
-
-		<!-- DB drivers -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.h2</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>com.mysql.jdbc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.postgresql.jdbc3</artifactId>
 		</dependency>
 
 		<!-- Software development -->
