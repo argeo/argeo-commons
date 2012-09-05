@@ -17,14 +17,20 @@ package org.argeo.server.dao;
 
 import java.util.List;
 
+/** Minimal generic DAO for easy to implements objects <-> storage mapping. */
 public interface LightDaoSupport {
+	/** Retrieve an object of a given type by its unique key. */
 	public <T> T getByKey(Class<T> clss, Object key);
 
+	/** Retrieve an object of a given type by the value of one of its fields. */
 	public <T> T getByField(Class<T> clss, String field, Object value);
 
+	/** List all objects, optionally filtering them (implementation dependent) */
 	public <T> List<T> list(Class<T> clss, Object filter);
 
+	/** Lis all supported object types. */
 	public List<Class<?>> getSupportedClasses();
 
+	/** Save or update an object */
 	public void saveOrUpdate(Object key, Object value, Class<?> clss);
 }
