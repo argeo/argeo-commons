@@ -38,6 +38,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.connection.UserCredentialsConnectionFactoryAdapter;
 
+/** An ActiveMQ connection factory managing secure connections. */
 public class SecuredActiveMqConnectionFactory implements ConnectionFactory,
 		InitializingBean, DisposableBean {
 

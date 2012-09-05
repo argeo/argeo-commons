@@ -22,6 +22,7 @@ import java.util.Set;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContext;
 
+/** An ActiveMQ security context compatible with Spring Security. */
 public class ActiveMqSpringSecurityContext extends
 		org.apache.activemq.security.SecurityContext {
 
@@ -34,8 +35,8 @@ public class ActiveMqSpringSecurityContext extends
 
 	@Override
 	public Set<?> getPrincipals() {
-		return new HashSet<GrantedAuthority>(Arrays
-				.asList(springSecurityContext.getAuthentication()
+		return new HashSet<GrantedAuthority>(
+				Arrays.asList(springSecurityContext.getAuthentication()
 						.getAuthorities()));
 	}
 

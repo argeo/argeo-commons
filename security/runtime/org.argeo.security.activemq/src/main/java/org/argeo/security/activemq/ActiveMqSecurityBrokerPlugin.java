@@ -27,9 +27,10 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 @SuppressWarnings("unchecked")
+/** Integrates Spring Security with ActiveMQ security.*/
 public class ActiveMqSecurityBrokerPlugin extends BrokerPluginSupport {
-//	private final static Log log = LogFactory
-//			.getLog(ActiveMqSecurityBrokerPlugin.class);
+	// private final static Log log = LogFactory
+	// .getLog(ActiveMqSecurityBrokerPlugin.class);
 
 	private AuthenticationManager authenticationManager;
 	private String systemUsername = InternalAuthentication.DEFAULT_SYSTEM_USERNAME;

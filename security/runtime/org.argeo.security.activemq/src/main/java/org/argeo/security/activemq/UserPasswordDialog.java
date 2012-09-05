@@ -30,6 +30,10 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+/**
+ * Small Swing-based UI to pass user/name and password. TODO better integrate
+ * with JAAS callbacks.
+ */
 public class UserPasswordDialog extends JDialog implements ActionListener {
 	private static final long serialVersionUID = -9052993072210981198L;
 	private static String OK = "ok";
