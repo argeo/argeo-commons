@@ -1331,7 +1331,7 @@ public class JcrUtils implements ArgeoJcrConstants {
 	}
 
 	/** Clear authorizations for a user at this path */
-	public static void clearAccesControList(Session session, String path,
+	public static void clearAccessControList(Session session, String path,
 			String username) throws RepositoryException {
 		AccessControlManager acm = session.getAccessControlManager();
 		AccessControlList acl = getAccessControlList(acm, path);

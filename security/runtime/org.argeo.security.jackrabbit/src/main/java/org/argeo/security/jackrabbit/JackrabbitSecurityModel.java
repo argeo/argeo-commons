@@ -9,7 +9,6 @@ import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.argeo.ArgeoException;
 import org.argeo.security.jcr.JcrSecurityModel;
-import org.argeo.util.security.SimplePrincipal;
 
 /** Make sure that user authorizable exists before syncing user directories. */
 public class JackrabbitSecurityModel extends JcrSecurityModel {
@@ -20,8 +19,7 @@ public class JackrabbitSecurityModel extends JcrSecurityModel {
 			if (session instanceof JackrabbitSession) {
 				UserManager userManager = ((JackrabbitSession) session)
 						.getUserManager();
-				User user = (User) userManager
-						.getAuthorizable(new SimplePrincipal(username));
+				User user = (User) userManager.getAuthorizable(username);
 				if (user == null)
 					userManager.createUser(username, "");
 			}

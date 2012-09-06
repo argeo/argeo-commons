@@ -42,7 +42,7 @@ public class JcrSecurityModel {
 				userHome.setProperty(ArgeoNames.ARGEO_USER_ID, username);
 				session.save();
 
-				JcrUtils.clearAccesControList(session, homePath, username);
+				JcrUtils.clearAccessControList(session, homePath, username);
 				JcrUtils.addPrivilege(session, homePath, username,
 						Privilege.JCR_ALL);
 			}
@@ -64,7 +64,7 @@ public class JcrSecurityModel {
 						ArgeoNames.ARGEO_CREDENTIALS_NON_EXPIRED, true);
 				session.save();
 
-				JcrUtils.clearAccesControList(session, userProfile.getPath(),
+				JcrUtils.clearAccessControList(session, userProfile.getPath(),
 						username);
 				JcrUtils.addPrivilege(session, userProfile.getPath(), username,
 						Privilege.JCR_READ);

@@ -37,7 +37,6 @@ import org.apache.jackrabbit.core.DefaultSecurityManager;
 import org.apache.jackrabbit.core.security.AnonymousPrincipal;
 import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
-import org.argeo.ArgeoException;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 
@@ -72,30 +71,35 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		Authentication authen;
 		Set<Authentication> authens = subject
 				.getPrincipals(Authentication.class);
-		if (authens.size() == 0)
-			throw new ArgeoException("No Spring authentication found in "
-					+ subject);
-		else
+		String userId;
+		if (authens.size() == 0) {
+			// make sure that logged-in user has a Principal, useful for testing
+			// using an admin user
+			userId = super.getUserID(subject, workspaceName);
+			UserManager systemUm = getSystemUserManager(null);
+			if (systemUm.getAuthorizable(userId) == null)
+				systemUm.createUser(userId, "");
+		} else {// Spring Security
 			authen = authens.iterator().next();
 
-		String userId = authen.getName();
-		StringBuffer roles = new StringBuffer("");
-		GrantedAuthority[] authorities = authen.getAuthorities();
-		for (GrantedAuthority ga : authorities) {
-			roles.append(ga.toString());
+			userId = authen.getName();
+			StringBuffer roles = new StringBuffer("");
+			GrantedAuthority[] authorities = authen.getAuthorities();
+			for (GrantedAuthority ga : authorities) {
+				roles.append(ga.toString());
+			}
+
+			// do not sync if not changed
+			if (userRolesCache.containsKey(userId)
+					&& userRolesCache.get(userId).equals(roles.toString()))
+				return userId;
+
+			// sync Spring and Jackrabbit
+			// workspace is irrelevant here
+			UserManager systemUm = getSystemUserManager(null);
+			syncSpringAndJackrabbitSecurity(systemUm, authen);
+			userRolesCache.put(userId, roles.toString());
 		}
-
-		// do not sync if not changed
-		if (userRolesCache.containsKey(userId)
-				&& userRolesCache.get(userId).equals(roles.toString()))
-			return userId;
-
-		// sync Spring and Jackrabbit
-		// workspace is irrelevant here
-		UserManager systemUm = getSystemUserManager(null);
-		syncSpringAndJackrabbitSecurity(systemUm, authen);
-		userRolesCache.put(userId, roles.toString());
-
 		return userId;
 	}
 
