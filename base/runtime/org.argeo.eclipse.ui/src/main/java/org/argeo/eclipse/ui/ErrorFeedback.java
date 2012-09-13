@@ -45,7 +45,7 @@ public class ErrorFeedback extends TitleAreaDialog {
 		// up the UI thread
 		if (e instanceof ThreadDeath)
 			throw (ThreadDeath) e;
-		
+
 		new ErrorFeedback(getDisplay().getActiveShell(), message, e).open();
 	}
 
@@ -111,5 +111,4 @@ public class ErrorFeedback extends TitleAreaDialog {
 		super.configureShell(shell);
 		shell.setText("Error");
 	}
-
 }
