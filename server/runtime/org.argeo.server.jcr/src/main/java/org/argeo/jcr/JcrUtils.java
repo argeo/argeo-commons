@@ -1116,8 +1116,14 @@ public class JcrUtils implements ArgeoJcrConstants {
 		try {
 			session.getWorkspace()
 					.getObservationManager()
-					.addEventListener(listener, eventTypes, basePath, true,
-							null, new String[] { nodeType }, true);
+					.addEventListener(
+							listener,
+							eventTypes,
+							basePath,
+							true,
+							null,
+							nodeType == null ? null : new String[] { nodeType },
+							true);
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot add JCR listener " + listener
 					+ " to session " + session, e);

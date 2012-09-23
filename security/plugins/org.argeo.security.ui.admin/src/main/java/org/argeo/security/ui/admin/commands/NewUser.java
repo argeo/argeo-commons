@@ -15,8 +15,10 @@
  */
 package org.argeo.security.ui.admin.commands;
 
+import javax.jcr.Repository;
 import javax.jcr.Session;
 
+import org.argeo.jcr.JcrUtils;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.ui.admin.wizards.NewUserWizard;
@@ -28,25 +30,29 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 /** Command handler to set visible or open a Argeo user. */
 public class NewUser extends AbstractHandler {
-	private Session session;
+	private Repository repository;
 	private UserAdminService userAdminService;
 	private JcrSecurityModel jcrSecurityModel;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
+		Session session = null;
 		try {
+			session = repository.login();
 			NewUserWizard newUserWizard = new NewUserWizard(session,
-					userAdminService,jcrSecurityModel);
+					userAdminService, jcrSecurityModel);
 			WizardDialog dialog = new WizardDialog(
 					HandlerUtil.getActiveShell(event), newUserWizard);
 			dialog.open();
 		} catch (Exception e) {
 			throw new ExecutionException("Cannot open wizard", e);
+		} finally {
+			JcrUtils.logoutQuietly(session);
 		}
 		return null;
 	}
 
-	public void setSession(Session session) {
-		this.session = session;
+	public void setRepository(Repository repository) {
+		this.repository = repository;
 	}
 
 	public void setUserAdminService(UserAdminService userAdminService) {

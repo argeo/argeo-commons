@@ -19,6 +19,7 @@ import java.util.Set;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.query.Query;
@@ -40,11 +41,13 @@ import org.eclipse.ui.handlers.HandlerUtil;
  */
 public class RefreshUsersList extends AbstractHandler {
 	private UserAdminService userAdminService;
-	private Session session;
+	private Repository repository;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		Set<String> users = userAdminService.listUsers();
+		Session session = null;
 		try {
+			session = repository.login();
 			Query query = session
 					.getWorkspace()
 					.getQueryManager()
@@ -63,6 +66,8 @@ public class RefreshUsersList extends AbstractHandler {
 		} catch (RepositoryException e) {
 			JcrUtils.discardQuietly(session);
 			throw new ArgeoException("Cannot list users", e);
+		} finally {
+			JcrUtils.logoutQuietly(session);
 		}
 
 		userAdminService.synchronize();
@@ -77,8 +82,8 @@ public class RefreshUsersList extends AbstractHandler {
 		this.userAdminService = userAdminService;
 	}
 
-	public void setSession(Session session) {
-		this.session = session;
+	public void setRepository(Repository repository) {
+		this.repository = repository;
 	}
 
 }

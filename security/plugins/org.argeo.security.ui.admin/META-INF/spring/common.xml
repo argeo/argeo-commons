@@ -14,4 +14,7 @@
 	<bean id="session" class="org.argeo.security.jcr.SecureThreadBoundSession">
 		<property name="repository" ref="nodeRepository" />
 	</bean>
+
+	<bean name="jcrSecurityModel" class="org.argeo.security.jackrabbit.JackrabbitSecurityModel" />
+
 </beans>

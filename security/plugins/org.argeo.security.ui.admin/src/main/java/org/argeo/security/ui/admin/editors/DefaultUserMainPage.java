@@ -126,6 +126,7 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 		};
 		// if (username != null)
 		// username.addModifyListener(new FormPartML(part));
+		commonName.addModifyListener(new FormPartML(part));
 		firstName.addModifyListener(new FormPartML(part));
 		lastName.addModifyListener(new FormPartML(part));
 		email.addModifyListener(new FormPartML(part));

@@ -24,6 +24,8 @@ import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 /** Eclipse RAP specific workbench advisor */
 public class RapWorkbenchAdvisor extends WorkbenchAdvisor {
 	public final static String INITIAL_PERSPECTIVE_PROPERTY = "org.argeo.security.ui.initialPerspective";
+	public final static String SAVE_AND_RESTORE_PROPERTY = "org.argeo.security.ui.saveAndRestore";
+
 	private String initialPerspective = System.getProperty(
 			INITIAL_PERSPECTIVE_PROPERTY, null);
 
@@ -33,13 +35,13 @@ public class RapWorkbenchAdvisor extends WorkbenchAdvisor {
 		this.username = username;
 	}
 
-	
 	@Override
 	public void initialize(IWorkbenchConfigurer configurer) {
 		super.initialize(configurer);
-		configurer.setSaveAndRestore(true);
+		Boolean saveAndRestore = Boolean.parseBoolean(System.getProperty(
+				SAVE_AND_RESTORE_PROPERTY, "false"));
+		configurer.setSaveAndRestore(saveAndRestore);
 	}
-
 
 	public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(
 			IWorkbenchWindowConfigurer configurer) {

@@ -31,10 +31,10 @@ import javax.jcr.query.Query;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.specific.EclipseUiSpecificUtils;
+import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.jcr.UserJcrUtils;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.commands.OpenArgeoUserEditor;
 import org.eclipse.core.commands.Command;
@@ -60,13 +60,14 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
 
 /** List all users. */
-public class UsersView extends ViewPart implements ArgeoNames, ArgeoTypes {
+public class UsersView extends ViewPart implements ArgeoNames {
 	public final static String ID = "org.argeo.security.ui.admin.adminUsersView";
 
 	private TableViewer viewer;
 	private Session session;
 
 	private UserStructureListener userStructureListener;
+	private UserPropertiesListener userPropertiesListener;
 
 	private Font italic;
 	private Font bold;
@@ -87,8 +88,13 @@ public class UsersView extends ViewPart implements ArgeoNames, ArgeoTypes {
 
 		userStructureListener = new UserStructureListener();
 		JcrUtils.addListener(session, userStructureListener, Event.NODE_ADDED
-				| Event.NODE_REMOVED, UserJcrUtils.DEFAULT_HOME_BASE_PATH,
-				ArgeoTypes.ARGEO_USER_HOME);
+				| Event.NODE_REMOVED, ArgeoJcrConstants.PEOPLE_BASE_PATH, null);
+		userPropertiesListener = new UserPropertiesListener();
+		JcrUtils.addListener(session, userStructureListener,
+				Event.PROPERTY_CHANGED | Event.PROPERTY_ADDED
+						| Event.PROPERTY_REMOVED,
+				ArgeoJcrConstants.PEOPLE_BASE_PATH,
+				ArgeoTypes.ARGEO_USER_PROFILE);
 	}
 
 	protected TableViewer createTableViewer(final Composite parent) {
@@ -160,8 +166,8 @@ public class UsersView extends ViewPart implements ArgeoNames, ArgeoTypes {
 
 			// disabled
 			try {
-				Node userHome = (Node) elem;
-				Node userProfile = userHome.getNode(ARGEO_PROFILE);
+				Node userProfile = (Node) elem;
+				// Node userProfile = userHome.getNode(ARGEO_PROFILE);
 				if (!userProfile.getProperty(ARGEO_ENABLED).getBoolean())
 					return italic;
 				else
@@ -173,76 +179,6 @@ public class UsersView extends ViewPart implements ArgeoNames, ArgeoTypes {
 
 	}
 
-	// protected Table createTable(Composite parent) {
-	// // TODO use a more flexible API
-	// Table table = new Table(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-	// table.setLinesVisible(true);
-	// table.setHeaderVisible(true);
-	// TableColumn column = new TableColumn(table, SWT.LEFT, 0);
-	// column.setText("Username");
-	// column.setWidth(100);
-	// column = new TableColumn(table, SWT.LEFT, 1);
-	// column.setText("Displayed name");
-	// column.setWidth(150);
-	// column = new TableColumn(table, SWT.LEFT, 2);
-	// column.setText("E-mail");
-	// column.setWidth(100);
-	// column = new TableColumn(table, SWT.LEFT, 3);
-	// column.setText("First Name");
-	// column.setWidth(100);
-	// column = new TableColumn(table, SWT.LEFT, 4);
-	// column.setText("Last Name");
-	// column.setWidth(100);
-	// column = new TableColumn(table, SWT.LEFT, 5);
-	// column.setText("Status");
-	// column.setWidth(50);
-	// column = new TableColumn(table, SWT.LEFT, 6);
-	// column.setText("Description");
-	// column.setWidth(200);
-	// return table;
-	// }
-
-	// private class UsersLabelProvider extends LabelProvider implements
-	// ITableLabelProvider {
-	// public String getColumnText(Object element, int columnIndex) {
-	// try {
-	// Node userHome = (Node) element;
-	// Node userProfile = userHome.getNode(ARGEO_PROFILE);
-	// switch (columnIndex) {
-	// case 0:
-	// String username = userHome.getProperty(ARGEO_USER_ID)
-	// .getString();
-	// if (username.equals(session.getUserID()))
-	// return "[" + username + "]";
-	// else
-	// return username;
-	// case 1:
-	// return getProperty(userProfile, Property.JCR_TITLE);
-	// case 2:
-	// return getProperty(userProfile, ARGEO_PRIMARY_EMAIL);
-	// case 3:
-	// return getProperty(userProfile, ARGEO_FIRST_NAME);
-	// case 4:
-	// return getProperty(userProfile, ARGEO_LAST_NAME);
-	// case 5:
-	// return userProfile.getProperty(ARGEO_ENABLED).getBoolean() ? ""
-	// : "disabled";
-	// case 6:
-	// return getProperty(userProfile, Property.JCR_DESCRIPTION);
-	// default:
-	// throw new ArgeoException("Unmanaged column " + columnIndex);
-	// }
-	// } catch (RepositoryException e) {
-	// throw new ArgeoException("Cannot get text", e);
-	// }
-	// }
-	//
-	// public Image getColumnImage(Object element, int columnIndex) {
-	// return null;
-	// }
-	//
-	// }
-
 	@Override
 	public void setFocus() {
 		viewer.getTable().setFocus();
@@ -251,6 +187,7 @@ public class UsersView extends ViewPart implements ArgeoNames, ArgeoTypes {
 	@Override
 	public void dispose() {
 		JcrUtils.removeListenerQuietly(session, userStructureListener);
+		JcrUtils.removeListenerQuietly(session, userPropertiesListener);
 		super.dispose();
 	}
 
@@ -270,8 +207,8 @@ public class UsersView extends ViewPart implements ArgeoNames, ArgeoTypes {
 
 	protected String getProperty(Object element, String name) {
 		try {
-			Node userHome = (Node) element;
-			Node userProfile = userHome.getNode(ARGEO_PROFILE);
+			Node userProfile = (Node) element;
+			// Node userProfile = userHome.getNode(ARGEO_PROFILE);
 			return userProfile.hasProperty(name) ? userProfile
 					.getProperty(name).getString() : "";
 		} catch (RepositoryException e) {
@@ -287,6 +224,14 @@ public class UsersView extends ViewPart implements ArgeoNames, ArgeoTypes {
 		}
 	}
 
+	private class UserPropertiesListener implements EventListener {
+
+		@Override
+		public void onEvent(EventIterator events) {
+			viewer.refresh();
+		}
+	}
+
 	private class UsersContentProvider implements IStructuredContentProvider {
 
 		public Object[] getElements(Object inputElement) {
@@ -295,8 +240,9 @@ public class UsersView extends ViewPart implements ArgeoNames, ArgeoTypes {
 						.getWorkspace()
 						.getQueryManager()
 						.createQuery(
-								"select [" + ARGEO_PROFILE + "] from ["
-										+ ARGEO_USER_HOME + "]", Query.JCR_SQL2);
+								"select * from ["
+										+ ArgeoTypes.ARGEO_USER_PROFILE + "]",
+								Query.JCR_SQL2);
 				NodeIterator nit = query.execute().getNodes();
 				List<Node> userProfiles = new ArrayList<Node>();
 				while (nit.hasNext()) {

@@ -20,7 +20,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
-import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.UserJcrUtils;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.jcr.JcrUserDetails;
@@ -39,7 +38,8 @@ public class ArgeoUserEditor extends FormEditor {
 	public final static String ID = "org.argeo.security.ui.admin.adminArgeoUserEditor";
 
 	private JcrUserDetails userDetails;
-	private Node userHome;
+	// private Node userHome;
+	private Node userProfile;
 	private UserAdminService userAdminService;
 	private Session session;
 
@@ -48,7 +48,7 @@ public class ArgeoUserEditor extends FormEditor {
 		super.init(site, input);
 		String username = ((ArgeoUserEditorInput) getEditorInput())
 				.getUsername();
-		userHome = UserJcrUtils.getUserHome(session, username);
+		userProfile = UserJcrUtils.getUserProfile(session, username);
 
 		if (userAdminService.userExists(username)) {
 			userDetails = (JcrUserDetails) userAdminService
@@ -69,8 +69,7 @@ public class ArgeoUserEditor extends FormEditor {
 
 	protected void addPages() {
 		try {
-			addPage(new DefaultUserMainPage(this,
-					userHome.getNode(ArgeoNames.ARGEO_PROFILE)));
+			addPage(new DefaultUserMainPage(this, userProfile));
 			addPage(new UserRolesPage(this, userDetails, userAdminService));
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot add pages", e);
