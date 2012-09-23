@@ -27,6 +27,8 @@ import org.eclipse.ui.application.WorkbenchWindowAdvisor;
  */
 public class SecureWorkbenchAdvisor extends WorkbenchAdvisor {
 	public final static String INITIAL_PERSPECTIVE_PROPERTY = "org.argeo.security.ui.initialPerspective";
+	public final static String SAVE_AND_RESTORE_PROPERTY = "org.argeo.security.ui.saveAndRestore";
+
 	private String initialPerspective = System.getProperty(
 			INITIAL_PERSPECTIVE_PROPERTY, null);
 
@@ -39,7 +41,9 @@ public class SecureWorkbenchAdvisor extends WorkbenchAdvisor {
 	@Override
 	public void initialize(final IWorkbenchConfigurer configurer) {
 		super.initialize(configurer);
-		configurer.setSaveAndRestore(true);
+		Boolean saveAndRestore = Boolean.parseBoolean(System.getProperty(
+				SAVE_AND_RESTORE_PROPERTY, "true"));
+		configurer.setSaveAndRestore(saveAndRestore);
 	}
 
 	public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(
