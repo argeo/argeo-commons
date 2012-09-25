@@ -21,6 +21,8 @@ mixin
 mixin
 - argeo:userID (STRING) m
 - argeo:remoteRoles (STRING) *
+// deprecated. for backward compatibility:
++ argeo:profile (argeo:userProfile)
 + argeo:keyring (argeo:pbeSpec)
 + argeo:preferences (argeo:preferenceNode)
 

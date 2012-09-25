@@ -185,7 +185,15 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 			List<String> userPaths = (List<String>) ldapTemplate.listBindings(
 					userBaseName, new ContextMapper() {
 						public Object mapFromContext(Object ctxObj) {
-							return mapLdapToJcr((DirContextAdapter) ctxObj);
+							try {
+								return mapLdapToJcr((DirContextAdapter) ctxObj);
+							} catch (Exception e) {
+								// do not break process because of error
+								log.error(
+										"Could not LDAP->JCR synchronize user "
+												+ ctxObj, e);
+								return null;
+							}
 						}
 					});
 
@@ -230,7 +238,7 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 		// Node userProfile = SecurityJcrUtils.createUserProfileIfNeeded(
 		// securitySession, username);
 		Node userProfile = jcrSecurityModel.sync(nodeSession, username);
-		JcrUserDetails.checkAccountStatus(userProfile);
+		// JcrUserDetails.checkAccountStatus(userProfile);
 
 		// password
 		SortedSet<?> passwordAttributes = ctx
@@ -263,48 +271,12 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 		try {
 			// process
 			String username = ctx.getStringAttribute(usernameAttribute);
-			// Node userHome = SecurityJcrUtils.createUserHomeIfNeeded(session,
-			// username);
-			// Node userProfile; // = userHome.getNode(ARGEO_PROFILE);
-			// if (userHome.hasNode(ARGEO_PROFILE)) {
-			// userProfile = userHome.getNode(ARGEO_PROFILE);
-			//
-			// // compatibility with legacy, will be removed
-			// if (!userProfile.hasProperty(ARGEO_ENABLED)) {
-			// session.getWorkspace().getVersionManager()
-			// .checkout(userProfile.getPath());
-			// userProfile.setProperty(ARGEO_ENABLED, true);
-			// userProfile.setProperty(ARGEO_ACCOUNT_NON_EXPIRED, true);
-			// userProfile.setProperty(ARGEO_ACCOUNT_NON_LOCKED, true);
-			// userProfile
-			// .setProperty(ARGEO_CREDENTIALS_NON_EXPIRED, true);
-			// session.save();
-			// session.getWorkspace().getVersionManager()
-			// .checkin(userProfile.getPath());
-			// }
-			// } else {
-			// userProfile = SecurityJcrUtils.createUserProfile(
-			// securitySession, username);
-			// userProfile.getSession().save();
-			// userProfile.getSession().getWorkspace().getVersionManager()
-			// .checkin(userProfile.getPath());
-			// }
 
 			Node userProfile = jcrSecurityModel.sync(session, username);
 			Map<String, String> modifications = new HashMap<String, String>();
 			for (String jcrProperty : propertyToAttributes.keySet())
 				ldapToJcr(userProfile, jcrProperty, ctx, modifications);
 
-			// assign default values
-			// if (!userProfile.hasProperty(Property.JCR_DESCRIPTION)
-			// && !modifications.containsKey(Property.JCR_DESCRIPTION))
-			// modifications.put(Property.JCR_DESCRIPTION, "");
-			// if (!userProfile.hasProperty(Property.JCR_TITLE))
-			// modifications.put(Property.JCR_TITLE,
-			// userProfile.getProperty(ARGEO_FIRST_NAME).getString()
-			// + " "
-			// + userProfile.getProperty(ARGEO_LAST_NAME)
-			// .getString());
 			int modifCount = modifications.size();
 			if (modifCount > 0) {
 				session.getWorkspace().getVersionManager()

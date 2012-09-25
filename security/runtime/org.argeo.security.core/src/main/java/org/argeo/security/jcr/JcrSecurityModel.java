@@ -25,7 +25,9 @@ public class JcrSecurityModel {
 	private String homeBasePath = "/home";
 
 	/**
-	 * To be called before user details are loaded
+	 * To be called before user details are loaded. Make sure than any logged in
+	 * user has a home directory with full access and a profile with information
+	 * about him (read access)
 	 * 
 	 * @return the user profile (whose parent is the user home)
 	 */
@@ -45,6 +47,12 @@ public class JcrSecurityModel {
 				JcrUtils.clearAccessControList(session, homePath, username);
 				JcrUtils.addPrivilege(session, homePath, username,
 						Privilege.JCR_ALL);
+			} else {
+				// for backward compatibility with pre 1.0 security model
+				if (userHome.hasNode(ArgeoNames.ARGEO_PROFILE)) {
+					userHome.getNode(ArgeoNames.ARGEO_PROFILE).remove();
+					userHome.getSession().save();
+				}
 			}
 
 			Node userProfile = UserJcrUtils.getUserProfile(session, username);
