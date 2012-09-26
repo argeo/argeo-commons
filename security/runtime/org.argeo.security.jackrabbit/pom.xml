@@ -30,7 +30,7 @@
 					<instructions>
 						<Fragment-Host>org.apache.jackrabbit</Fragment-Host>
 						<Export-Package>org.argeo.security.jackrabbit.*</Export-Package>
-						<Import-Package>*,org.springframework.core</Import-Package>
+						<Import-Package>*,org.springframework.core,org.argeo.jcr</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>
