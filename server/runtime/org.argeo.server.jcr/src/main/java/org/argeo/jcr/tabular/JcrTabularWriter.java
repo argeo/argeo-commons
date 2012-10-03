@@ -39,6 +39,8 @@ public class JcrTabularWriter implements TabularWriter {
 	private Node contentNode;
 	private ByteArrayOutputStream out;
 	private CsvWriter csvWriter;
+	
+	@SuppressWarnings("unused")
 	private final List<TabularColumn> columns;
 
 	/** Creates a table node */

@@ -41,6 +41,7 @@ import org.springframework.security.providers.anonymous.AnonymousAuthenticationT
 public class ArgeoLoginModule extends AbstractLoginModule {
 	private String adminRole = "ROLE_ADMIN";
 
+	@SuppressWarnings("unused")
 	@Override
 	public boolean login() throws LoginException {
 		boolean loginOk = super.login();
@@ -51,6 +52,7 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 		return loginOk;
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public boolean commit() throws LoginException {
 		boolean commitOk = super.commit();
