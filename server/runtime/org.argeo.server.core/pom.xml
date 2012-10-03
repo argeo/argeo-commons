@@ -46,17 +46,14 @@
 			<version>1.1.4-SNAPSHOT</version>
 		</dependency>
 
-		<!-- JCR -->
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.server.jcr</artifactId>
-			<version>1.1.4-SNAPSHOT</version>
-		</dependency>
-
 		<!-- Apache Commons -->
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.apache.commons.io</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.vfs</artifactId>
 		</dependency>
 
 		<!-- Spring -->
@@ -66,11 +63,19 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.springframework.web.servlet</artifactId>
+			<artifactId>org.springframework.beans</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.springframework.oxm</artifactId>
+			<artifactId>org.springframework.context</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.springframework.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.springframework.web.servlet</artifactId>
 		</dependency>
 
 		<!-- J2EE -->
