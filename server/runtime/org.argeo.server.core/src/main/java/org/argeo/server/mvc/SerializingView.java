@@ -50,7 +50,7 @@ public class SerializingView extends AbstractView implements MvcConstants {
 		this.serializer = serializer;
 	}
 
-	@SuppressWarnings( { "unchecked", "restriction" })
+	@SuppressWarnings( { "restriction", "rawtypes" })
 	@Override
 	protected void renderMergedOutputModel(Map model,
 			HttpServletRequest request, HttpServletResponse response)
@@ -71,7 +71,7 @@ public class SerializingView extends AbstractView implements MvcConstants {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	protected Object findAnswerInModel(Map model) {
 		if (model.size() == 1) {
 			return model.values().iterator().next();

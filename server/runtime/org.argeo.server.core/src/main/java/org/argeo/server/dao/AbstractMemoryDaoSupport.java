@@ -150,7 +150,7 @@ public abstract class AbstractMemoryDaoSupport implements LightDaoSupport,
 		return res;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public <T> List<T> list(Class<T> clss, Object filter) {
 		List<T> res = new ArrayList<T>();
 
@@ -164,7 +164,7 @@ public abstract class AbstractMemoryDaoSupport implements LightDaoSupport,
 		return res;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected Class findClass(Class parent) {
 		if (model.containsKey(parent))
 			return parent;

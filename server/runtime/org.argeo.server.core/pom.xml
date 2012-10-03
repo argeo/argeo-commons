@@ -33,7 +33,10 @@
 						<Export-Package>
 							org.argeo.server.*
 						</Export-Package>
-						<Import-Package>javax.xml.transform.*;version="0.0.0",*</Import-Package>
+						<Import-Package>
+							org.springframework.web.context,
+							*
+						</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>
