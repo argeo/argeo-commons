@@ -32,4 +32,16 @@ public class OpenLdapBackup extends OsCallBackup {
 		super.writeBackup(targetFo);
 	}
 
+	public void setSlapcatLocation(String slapcatLocation) {
+		this.slapcatLocation = slapcatLocation;
+	}
+
+	public void setSlapdConfLocation(String slapdConfLocation) {
+		this.slapdConfLocation = slapdConfLocation;
+	}
+
+	public void setBaseDn(String baseDn) {
+		this.baseDn = baseDn;
+	}
+
 }
