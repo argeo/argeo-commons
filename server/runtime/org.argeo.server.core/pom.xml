@@ -64,6 +64,11 @@
 			<artifactId>org.apache.commons.exec</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.joda.time</artifactId>
+		</dependency>
+
 		<!-- Spring -->
 		<dependency>
 			<groupId>org.argeo.tp</groupId>

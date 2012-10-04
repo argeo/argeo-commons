@@ -1,0 +1,193 @@
+package org.argeo.server.backup;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs.FileSystemManager;
+import org.apache.commons.vfs.FileSystemOptions;
+import org.apache.commons.vfs.Selectors;
+import org.apache.commons.vfs.UserAuthenticator;
+import org.apache.commons.vfs.auth.StaticUserAuthenticator;
+import org.apache.commons.vfs.impl.DefaultFileSystemConfigBuilder;
+import org.apache.commons.vfs.impl.StandardFileSystemManager;
+import org.argeo.ArgeoException;
+
+/**
+ * Combines multiple backups and transfer them to a remote location. Purges
+ * remote and local data based on certain criteria.
+ */
+public class SystemBackup implements Runnable {
+	private final static Log log = LogFactory.getLog(SystemBackup.class);
+
+	private FileSystemManager fileSystemManager;
+	private UserAuthenticator userAuthenticator = null;
+
+	private String backupsBase;
+	private String name;
+
+	private List<AtomicBackup> atomicBackups = new ArrayList<AtomicBackup>();
+	private BackupPurge backupPurge = new SimpleBackupPurge();
+
+	private Map<String, UserAuthenticator> remoteBases = new HashMap<String, UserAuthenticator>();
+
+	@Override
+	public void run() {
+		if (atomicBackups.size() == 0)
+			throw new ArgeoException("No atomic backup listed");
+		List<String> failures = new ArrayList<String>();
+
+		SimpleBackupContext backupContext = new SimpleBackupContext(
+				fileSystemManager, backupsBase, name);
+
+		// purge older backups
+		FileSystemOptions opts = new FileSystemOptions();
+		try {
+			DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(
+					opts, userAuthenticator);
+		} catch (FileSystemException e) {
+			throw new ArgeoException("Cannot create authentication", e);
+		}
+
+		try {
+
+			backupPurge.purge(fileSystemManager, backupsBase, name,
+					backupContext.getDateFormat(), opts);
+		} catch (Exception e) {
+			failures.add(e.getMessage());
+			log.error("Purge of " + backupsBase + " failed", e);
+		}
+
+		// perform backup
+		for (AtomicBackup atomickBackup : atomicBackups) {
+			try {
+				String target = atomickBackup.backup(fileSystemManager,
+						backupsBase, backupContext, opts);
+				if (log.isDebugEnabled())
+					log.debug("Performed backup " + target);
+			} catch (Exception e) {
+				failures.add(e.getMessage());
+				log.error("Atomic backup failed", e);
+			}
+		}
+
+		// dispatch to remote
+		for (String remoteBase : remoteBases.keySet()) {
+			FileObject localBaseFo = null;
+			FileObject remoteBaseFo = null;
+			UserAuthenticator auth = remoteBases.get(remoteBase);
+
+			try {
+				// authentication
+				FileSystemOptions remoteOpts = new FileSystemOptions();
+				DefaultFileSystemConfigBuilder.getInstance()
+						.setUserAuthenticator(remoteOpts, auth);
+				backupPurge.purge(fileSystemManager, remoteBase, name,
+						backupContext.getDateFormat(), remoteOpts);
+
+				localBaseFo = fileSystemManager.resolveFile(backupsBase + '/'
+						+ backupContext.getRelativeFolder(), opts);
+				remoteBaseFo = fileSystemManager.resolveFile(remoteBase + '/'
+						+ backupContext.getRelativeFolder(), remoteOpts);
+				remoteBaseFo.copyFrom(localBaseFo, Selectors.SELECT_ALL);
+				if (log.isDebugEnabled())
+					log.debug("Copied backup to " + remoteBaseFo + " from "
+							+ localBaseFo);
+				// }
+			} catch (FileSystemException e) {
+				log.error(
+						"Cannot dispatch backups from "
+								+ backupContext.getRelativeFolder() + " to "
+								+ remoteBase, e);
+			}
+			BackupUtils.closeFOQuietly(localBaseFo);
+			BackupUtils.closeFOQuietly(remoteBaseFo);
+		}
+
+		if (failures.size() > 0) {
+			StringBuffer buf = new StringBuffer();
+			for (String failure : failures)
+				buf.append('\n').append(failure);
+			throw new ArgeoException("Errors when running the backup,"
+					+ " check the logs and the backups as soon as possible."
+					+ buf);
+		}
+	}
+
+	public void setFileSystemManager(FileSystemManager fileSystemManager) {
+		this.fileSystemManager = fileSystemManager;
+	}
+
+	public void setBackupsBase(String backupsBase) {
+		this.backupsBase = backupsBase;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setAtomicBackups(List<AtomicBackup> atomicBackups) {
+		this.atomicBackups = atomicBackups;
+	}
+
+	public void setBackupPurge(BackupPurge backupPurge) {
+		this.backupPurge = backupPurge;
+	}
+
+	public void setUserAuthenticator(UserAuthenticator userAuthenticator) {
+		this.userAuthenticator = userAuthenticator;
+	}
+
+	public void setRemoteBases(Map<String, UserAuthenticator> remoteBases) {
+		this.remoteBases = remoteBases;
+	}
+
+	public static void main(String args[]) {
+		while (true) {
+			try {
+				StandardFileSystemManager fsm = new StandardFileSystemManager();
+				fsm.init();
+
+				SystemBackup systemBackup = new SystemBackup();
+				systemBackup.setName("mySystem");
+				systemBackup
+						.setBackupsBase("/home/mbaudier/dev/src/commons/server/runtime/org.argeo.server.core/target");
+				systemBackup.setFileSystemManager(fsm);
+
+				List<AtomicBackup> atomicBackups = new ArrayList<AtomicBackup>();
+
+				MySqlBackup mySqlBackup = new MySqlBackup("root", "", "test");
+				atomicBackups.add(mySqlBackup);
+
+				systemBackup.setAtomicBackups(atomicBackups);
+
+				Map<String, UserAuthenticator> remoteBases = new HashMap<String, UserAuthenticator>();
+				StaticUserAuthenticator userAuthenticator = new StaticUserAuthenticator(
+						null, "demo", "demo");
+				remoteBases.put("sftp://localhost/home/mbaudier/test",
+						userAuthenticator);
+				systemBackup.setRemoteBases(remoteBases);
+
+				systemBackup.run();
+
+				fsm.close();
+			} catch (FileSystemException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				System.exit(1);
+			}
+
+			// wait
+			try {
+				Thread.sleep(120 * 1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+}
