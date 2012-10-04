@@ -29,7 +29,7 @@ public class SystemBackup implements Runnable {
 	private UserAuthenticator userAuthenticator = null;
 
 	private String backupsBase;
-	private String name;
+	private String systemName;
 
 	private List<AtomicBackup> atomicBackups = new ArrayList<AtomicBackup>();
 	private BackupPurge backupPurge = new SimpleBackupPurge();
@@ -43,7 +43,7 @@ public class SystemBackup implements Runnable {
 		List<String> failures = new ArrayList<String>();
 
 		SimpleBackupContext backupContext = new SimpleBackupContext(
-				fileSystemManager, backupsBase, name);
+				fileSystemManager, backupsBase, systemName);
 
 		// purge older backups
 		FileSystemOptions opts = new FileSystemOptions();
@@ -56,7 +56,7 @@ public class SystemBackup implements Runnable {
 
 		try {
 
-			backupPurge.purge(fileSystemManager, backupsBase, name,
+			backupPurge.purge(fileSystemManager, backupsBase, systemName,
 					backupContext.getDateFormat(), opts);
 		} catch (Exception e) {
 			failures.add(e.getMessage());
@@ -87,7 +87,7 @@ public class SystemBackup implements Runnable {
 				FileSystemOptions remoteOpts = new FileSystemOptions();
 				DefaultFileSystemConfigBuilder.getInstance()
 						.setUserAuthenticator(remoteOpts, auth);
-				backupPurge.purge(fileSystemManager, remoteBase, name,
+				backupPurge.purge(fileSystemManager, remoteBase, systemName,
 						backupContext.getDateFormat(), remoteOpts);
 
 				localBaseFo = fileSystemManager.resolveFile(backupsBase + '/'
@@ -127,8 +127,8 @@ public class SystemBackup implements Runnable {
 		this.backupsBase = backupsBase;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setSystemName(String name) {
+		this.systemName = name;
 	}
 
 	public void setAtomicBackups(List<AtomicBackup> atomicBackups) {
@@ -154,7 +154,7 @@ public class SystemBackup implements Runnable {
 				fsm.init();
 
 				SystemBackup systemBackup = new SystemBackup();
-				systemBackup.setName("mySystem");
+				systemBackup.setSystemName("mySystem");
 				systemBackup
 						.setBackupsBase("/home/mbaudier/dev/src/commons/server/runtime/org.argeo.server.core/target");
 				systemBackup.setFileSystemManager(fsm);
