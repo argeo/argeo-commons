@@ -19,7 +19,7 @@ import org.joda.time.Period;
 public class SimpleBackupPurge implements BackupPurge {
 	private final static Log log = LogFactory.getLog(SimpleBackupPurge.class);
 
-	private Integer daysKept = 5;
+	private Integer daysKept = 30;
 
 	@Override
 	public void purge(FileSystemManager fileSystemManager, String base,
@@ -40,8 +40,8 @@ public class SimpleBackupPurge implements BackupPurge {
 
 				DateTime backupDt = new DateTime(backupDate.getTime());
 				Period sinceThen = new Period(backupDt, nowDt);
-				// int days = sinceThen.getDays();
-				int days = sinceThen.getMinutes();
+				int days = sinceThen.getDays();
+				// int days = sinceThen.getMinutes();
 				if (days > daysKept) {
 					toDelete.put(backupDt, backupFo);
 				}
