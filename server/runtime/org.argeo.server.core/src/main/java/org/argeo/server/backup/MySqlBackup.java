@@ -15,10 +15,17 @@ public class MySqlBackup extends OsCallBackup {
 	}
 
 	public MySqlBackup(String dbUser, String dbPassword, String dbName) {
-		super(dbName);
+		super(dbName + ".sql");
 		this.dbUser = dbUser;
 		this.dbPassword = dbPassword;
 		this.dbName = dbName;
+	}
+
+	@Override
+	public void init() {
+		if (getName() == null)
+			setName(dbName + ".sql");
+		super.init();
 	}
 
 	@Override

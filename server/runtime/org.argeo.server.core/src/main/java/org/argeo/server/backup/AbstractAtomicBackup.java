@@ -22,6 +22,15 @@ public abstract class AbstractAtomicBackup implements AtomicBackup {
 		this.name = name;
 	}
 
+	public void init() {
+		if (name == null)
+			throw new ArgeoException("Atomic backup name must be set");
+	}
+
+	public void destroy() {
+
+	}
+
 	@Override
 	public String backup(FileSystemManager fileSystemManager,
 			String backupsBase, BackupContext backupContext,
@@ -62,6 +71,10 @@ public abstract class AbstractAtomicBackup implements AtomicBackup {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public void setCompression(String compression) {

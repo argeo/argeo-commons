@@ -29,10 +29,21 @@ public class ArgeoException extends RuntimeException {
 		super(message, e);
 	}
 
-	/** @deprecated use {@link #ArgeoException(String, Throwable)} instead. */
-	@Deprecated
-	public ArgeoException(Throwable cause) {
-		super(cause);
+	/**
+	 * Chain the messages of all causes (one per line, <b>starts with a line
+	 * return</b>) without all the stack
+	 */
+	public static String chainCausesMessages(Throwable t) {
+		StringBuffer buf = new StringBuffer();
+		chainCauseMessage(buf, t);
+		return buf.toString();
 	}
 
+	/** Recursive chaining of messages */
+	private static void chainCauseMessage(StringBuffer buf, Throwable t) {
+		buf.append('\n').append(' ').append(t.getClass().getCanonicalName())
+				.append(": ").append(t.getMessage());
+		if (t.getCause() != null)
+			chainCauseMessage(buf, t.getCause());
+	}
 }

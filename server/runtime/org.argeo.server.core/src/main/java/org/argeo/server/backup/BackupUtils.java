@@ -1,7 +1,6 @@
 package org.argeo.server.backup;
 
 import org.apache.commons.vfs.FileObject;
-import org.apache.commons.vfs.FileSystemException;
 
 /** Backup utilities */
 public class BackupUtils {
@@ -10,12 +9,12 @@ public class BackupUtils {
 		if (fo != null) {
 			try {
 				fo.close();
-			} catch (FileSystemException e) {
+			} catch (Exception e) {
 				// silent
 			}
 		}
 	}
-
+	
 	/** Prevents instantiation */
 	private BackupUtils() {
 	}

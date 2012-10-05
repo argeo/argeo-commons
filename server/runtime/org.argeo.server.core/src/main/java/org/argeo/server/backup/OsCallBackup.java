@@ -58,9 +58,8 @@ public class OsCallBackup extends AbstractAtomicBackup {
 		} catch (ExecuteException e) {
 			byte[] err = errBos.toByteArray();
 			String errStr = new String(err);
-			throw new ArgeoException("Process " + commandLine
-					+ " failed with exit value " + e.getExitValue() + ": "
-					+ errStr, e);
+			throw new ArgeoException("Process " + commandLine + " failed ("
+					+ e.getExitValue() + "): " + errStr, e);
 		} catch (Exception e) {
 			byte[] err = errBos.toByteArray();
 			String errStr = new String(err);

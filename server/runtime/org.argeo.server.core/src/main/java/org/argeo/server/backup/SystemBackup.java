@@ -59,7 +59,7 @@ public class SystemBackup implements Runnable {
 			backupPurge.purge(fileSystemManager, backupsBase, systemName,
 					backupContext.getDateFormat(), opts);
 		} catch (Exception e) {
-			failures.add(e.getMessage());
+			failures.add("Purge " + backupsBase + " failed: " + e.getMessage());
 			log.error("Purge of " + backupsBase + " failed", e);
 		}
 
@@ -71,8 +71,14 @@ public class SystemBackup implements Runnable {
 				if (log.isDebugEnabled())
 					log.debug("Performed backup " + target);
 			} catch (Exception e) {
-				failures.add(e.getMessage());
-				log.error("Atomic backup failed", e);
+				String msg = "Atomic backup " + atomickBackup.getName()
+						+ " failed: " + ArgeoException.chainCausesMessages(e);
+				failures.add(msg);
+				log.error(msg);
+				if (log.isTraceEnabled())
+					log.trace(
+							"Stacktrace of atomic backup "
+									+ atomickBackup.getName() + " failure.", e);
 			}
 		}
 
@@ -82,14 +88,20 @@ public class SystemBackup implements Runnable {
 			FileObject remoteBaseFo = null;
 			UserAuthenticator auth = remoteBases.get(remoteBase);
 
+			// authentication
+			FileSystemOptions remoteOpts = new FileSystemOptions();
 			try {
-				// authentication
-				FileSystemOptions remoteOpts = new FileSystemOptions();
 				DefaultFileSystemConfigBuilder.getInstance()
 						.setUserAuthenticator(remoteOpts, auth);
 				backupPurge.purge(fileSystemManager, remoteBase, systemName,
 						backupContext.getDateFormat(), remoteOpts);
+			} catch (Exception e) {
+				failures.add("Purge " + remoteBase + " failed: "
+						+ e.getMessage());
+				log.error("Cannot purge " + remoteBase, e);
+			}
 
+			try {
 				localBaseFo = fileSystemManager.resolveFile(backupsBase + '/'
 						+ backupContext.getRelativeFolder(), opts);
 				remoteBaseFo = fileSystemManager.resolveFile(remoteBase + '/'
@@ -99,7 +111,9 @@ public class SystemBackup implements Runnable {
 					log.debug("Copied backup to " + remoteBaseFo + " from "
 							+ localBaseFo);
 				// }
-			} catch (FileSystemException e) {
+			} catch (Exception e) {
+				failures.add("Dispatch to " + remoteBase + " failed: "
+						+ e.getMessage());
 				log.error(
 						"Cannot dispatch backups from "
 								+ backupContext.getRelativeFolder() + " to "
@@ -109,11 +123,16 @@ public class SystemBackup implements Runnable {
 			BackupUtils.closeFOQuietly(remoteBaseFo);
 		}
 
+		int failureCount = 0;
 		if (failures.size() > 0) {
 			StringBuffer buf = new StringBuffer();
-			for (String failure : failures)
-				buf.append('\n').append(failure);
-			throw new ArgeoException("Errors when running the backup,"
+			for (String failure : failures) {
+				buf.append('\n').append(failureCount).append(" - ")
+						.append(failure);
+				failureCount++;
+			}
+			throw new ArgeoException(failureCount
+					+ " error(s) when running the backup,"
 					+ " check the logs and the backups as soon as possible."
 					+ buf);
 		}
