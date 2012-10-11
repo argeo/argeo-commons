@@ -32,26 +32,31 @@ import javax.xml.bind.DatatypeConverter;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.StreamUtils;
 import org.argeo.security.crypto.PasswordBasedEncryption;
 
 public class PasswordBasedEncryptionTest extends TestCase {
+	private final static Log log = LogFactory
+			.getLog(PasswordBasedEncryptionTest.class);
+
 	public void testEncryptDecrypt() {
 		final String password = "test long password since they are safer";
 		PasswordBasedEncryption pbeEnc = new PasswordBasedEncryption(
 				password.toCharArray());
 		String message = "Hello World!";
-		System.out.println("Password:\t'" + password + "'");
-		System.out.println("Message:\t'" + message + "'");
+		log.info("Password:\t'" + password + "'");
+		log.info("Message:\t'" + message + "'");
 		byte[] encrypted = pbeEnc.encryptString(message);
-		System.out.println("Encrypted:\t'"
+		log.info("Encrypted:\t'"
 				+ DatatypeConverter.printBase64Binary(encrypted) + "'");
 		PasswordBasedEncryption pbeDec = new PasswordBasedEncryption(
 				password.toCharArray());
 		InputStream in = null;
 		in = new ByteArrayInputStream(encrypted);
 		String decrypted = pbeDec.decryptAsString(in);
-		System.out.println("Decrypted:\t'" + decrypted + "'");
+		log.info("Decrypted:\t'" + decrypted + "'");
 		StreamUtils.closeQuietly(in);
 		assertEquals(message, decrypted);
 	}

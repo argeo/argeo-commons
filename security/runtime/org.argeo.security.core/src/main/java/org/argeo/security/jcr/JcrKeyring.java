@@ -42,6 +42,21 @@ import org.argeo.security.crypto.PBEKeySpecCallback;
 
 /** JCR based implementation of a keyring */
 public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
+	/**
+	 * Stronger with 256, but causes problem with Oracle JVM, force 128 in this
+	 * case
+	 */
+	public final static Long DEFAULT_SECRETE_KEY_LENGTH = 256l;
+	public final static String DEFAULT_SECRETE_KEY_FACTORY = "PBKDF2WithHmacSHA1";
+	public final static String DEFAULT_SECRETE_KEY_ENCRYPTION = "AES";
+	public final static String DEFAULT_CIPHER_NAME = "AES/CBC/PKCS5Padding";
+
+	private Integer iterationCountFactor = 200;
+	private Long secreteKeyLength = DEFAULT_SECRETE_KEY_LENGTH;
+	private String secreteKeyFactoryName = DEFAULT_SECRETE_KEY_FACTORY;
+	private String secreteKeyEncryption = DEFAULT_SECRETE_KEY_ENCRYPTION;
+	private String cipherName = DEFAULT_CIPHER_NAME;
+
 	private Session session;
 
 	/**
@@ -97,15 +112,16 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 			binary = session.getValueFactory().createBinary(in);
 			keyring.setProperty(ARGEO_SALT, binary);
 
-			Integer iterationCount = username.length() * 200;
+			Integer iterationCount = username.length() * iterationCountFactor;
 			keyring.setProperty(ARGEO_ITERATION_COUNT, iterationCount);
 
 			// default algo
 			// TODO check if algo and key length are available, use DES if not
-			keyring.setProperty(ARGEO_SECRET_KEY_FACTORY, "PBKDF2WithHmacSHA1");
-			keyring.setProperty(ARGEO_KEY_LENGTH, 256l);
-			keyring.setProperty(ARGEO_SECRET_KEY_ENCRYPTION, "AES");
-			keyring.setProperty(ARGEO_CIPHER, "AES/CBC/PKCS5Padding");
+			keyring.setProperty(ARGEO_SECRET_KEY_FACTORY, secreteKeyFactoryName);
+			keyring.setProperty(ARGEO_KEY_LENGTH, secreteKeyLength);
+			keyring.setProperty(ARGEO_SECRET_KEY_ENCRYPTION,
+					secreteKeyEncryption);
+			keyring.setProperty(ARGEO_CIPHER, cipherName);
 
 			// encrypted password hash
 			// IOUtils.closeQuietly(in);
@@ -254,4 +270,25 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 	public synchronized void setSession(Session session) {
 		this.session = session;
 	}
+
+	public void setIterationCountFactor(Integer iterationCountFactor) {
+		this.iterationCountFactor = iterationCountFactor;
+	}
+
+	public void setSecreteKeyLength(Long keyLength) {
+		this.secreteKeyLength = keyLength;
+	}
+
+	public void setSecreteKeyFactoryName(String secreteKeyFactoryName) {
+		this.secreteKeyFactoryName = secreteKeyFactoryName;
+	}
+
+	public void setSecreteKeyEncryption(String secreteKeyEncryption) {
+		this.secreteKeyEncryption = secreteKeyEncryption;
+	}
+
+	public void setCipherName(String cipherName) {
+		this.cipherName = cipherName;
+	}
+
 }
