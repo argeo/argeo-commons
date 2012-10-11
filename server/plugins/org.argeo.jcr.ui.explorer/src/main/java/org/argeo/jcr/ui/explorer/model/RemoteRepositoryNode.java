@@ -26,28 +26,37 @@ import javax.jcr.SimpleCredentials;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.jcr.ArgeoNames;
-import org.argeo.jcr.security.JcrKeyring;
+import org.argeo.util.security.Keyring;
 
 /** Root of a remote repository */
 public class RemoteRepositoryNode extends RepositoryNode {
-	private JcrKeyring jcrKeyring;
-	private String remoteNodePath;
+	private final Keyring keyring;
+	/**
+	 * A session of the logged in user on the default workspace of the node
+	 * repository.
+	 */
+	private final Session userSession;
+	private final String remoteNodePath;
 
 	public RemoteRepositoryNode(String alias, Repository repository,
-			TreeParent parent, JcrKeyring jcrKeyring, String remoteNodePath) {
+			TreeParent parent, Session userSession, Keyring keyring,
+			String remoteNodePath) {
 		super(alias, repository, parent);
-		this.jcrKeyring = jcrKeyring;
+		this.keyring = keyring;
+		this.userSession = userSession;
 		this.remoteNodePath = remoteNodePath;
 	}
 
 	@Override
 	protected Session repositoryLogin(String workspaceName)
 			throws RepositoryException {
-		Node remoteNode = jcrKeyring.getSession().getNode(remoteNodePath);
-		String userID = remoteNode.getProperty(ArgeoNames.ARGEO_USER_ID)
+		Node remoteRepository = userSession.getNode(remoteNodePath);
+		String userID = remoteRepository.getProperty(ArgeoNames.ARGEO_USER_ID)
 				.getString();
-		char[] password = jcrKeyring.getAsChars(remoteNodePath + "/"
-				+ ArgeoNames.ARGEO_PASSWORD);
+		String pwdPath = remoteRepository.getPath() + '/'
+				+ ArgeoNames.ARGEO_PASSWORD;
+		char[] password = keyring.getAsChars(pwdPath);
+
 		try {
 			SimpleCredentials credentials = new SimpleCredentials(userID,
 					password);
@@ -59,7 +68,7 @@ public class RemoteRepositoryNode extends RepositoryNode {
 
 	public void remove() {
 		try {
-			Node remoteNode = jcrKeyring.getSession().getNode(remoteNodePath);
+			Node remoteNode = userSession.getNode(remoteNodePath);
 			remoteNode.remove();
 			remoteNode.getSession().save();
 		} catch (RepositoryException e) {

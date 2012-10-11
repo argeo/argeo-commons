@@ -19,22 +19,21 @@ import java.util.List;
 
 import javax.jcr.Property;
 import javax.jcr.PropertyType;
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
+import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.observation.Event;
 import javax.jcr.observation.EventListener;
 import javax.jcr.observation.ObservationManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.jcr.AsyncUiEventListener;
 import org.argeo.eclipse.ui.jcr.utils.NodeViewerComparer;
 import org.argeo.eclipse.ui.jcr.views.AbstractJcrBrowser;
 import org.argeo.jcr.RepositoryRegister;
-import org.argeo.jcr.security.JcrKeyring;
 import org.argeo.jcr.ui.explorer.JcrExplorerPlugin;
 import org.argeo.jcr.ui.explorer.browser.NodeContentProvider;
 import org.argeo.jcr.ui.explorer.browser.NodeLabelProvider;
@@ -42,6 +41,7 @@ import org.argeo.jcr.ui.explorer.browser.PropertiesContentProvider;
 import org.argeo.jcr.ui.explorer.model.SingleJcrNode;
 import org.argeo.jcr.ui.explorer.utils.GenericNodeDoubleClickListener;
 import org.argeo.jcr.ui.explorer.utils.JcrUiUtils;
+import org.argeo.util.security.Keyring;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -65,16 +65,20 @@ import org.eclipse.swt.widgets.Menu;
  * Basic View to display a sash form to browse a JCR compliant multirepository
  * environment
  */
-
 public class GenericJcrBrowser extends AbstractJcrBrowser {
-	private final static Log log = LogFactory.getLog(GenericJcrBrowser.class);
 	public final static String ID = JcrExplorerPlugin.ID + ".browserView";
 	private boolean sortChildNodes = false;
 
 	/* DEPENDENCY INJECTION */
-	private JcrKeyring jcrKeyring;
+	private Keyring keyring;
 	private RepositoryRegister repositoryRegister;
 	private RepositoryFactory repositoryFactory;
+	private Repository nodeRepository;
+	/**
+	 * A session of the logged in user on the default workspace of the node
+	 * repository.
+	 */
+	private Session userSession;
 
 	// This page widgets
 	private TreeViewer nodesViewer;
@@ -82,35 +86,8 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 	private TableViewer propertiesViewer;
 	private EventListener resultsObserver;
 
-	// Manage documents
-	// private JcrFileProvider jcrFileProvider;
-	// private FileHandler fileHandler;
-
 	@Override
 	public void createPartControl(Composite parent) {
-
-		// look for session
-		// Session nodeSession = jcrKeyring != null ? jcrKeyring.getSession()
-		// : null;
-		// if (nodeSession == null) {
-		// Repository nodeRepository = JcrUtils.getRepositoryByAlias(
-		// repositoryRegister, ArgeoJcrConstants.ALIAS_NODE);
-		// if (nodeRepository != null)
-		// try {
-		// nodeSession = nodeRepository.login();
-		// // TODO : enhance that to enable multirepository listener.
-		// } catch (RepositoryException e1) {
-		// throw new ArgeoException("Cannot login to node repository");
-		// }
-		// }
-
-		// Instantiate the generic object that fits for
-		// both RCP & RAP
-		// Note that in RAP, it registers a service handler that provide the
-		// access to the files.
-		// jcrFileProvider = new JcrFileProvider();
-		// fileHandler = new FileHandler(jcrFileProvider);
-
 		parent.setLayout(new FillLayout());
 		SashForm sashForm = new SashForm(parent, SWT.VERTICAL);
 		sashForm.setSashWidth(4);
@@ -121,7 +98,13 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 		GridLayout gl = new GridLayout(1, false);
 		top.setLayout(gl);
 
-		nodeContentProvider = new NodeContentProvider(jcrKeyring,
+		try {
+			this.userSession = this.nodeRepository.login();
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot open user session", e);
+		}
+
+		nodeContentProvider = new NodeContentProvider(userSession, keyring,
 				repositoryRegister, repositoryFactory, sortChildNodes);
 
 		// nodes viewer
@@ -181,10 +164,9 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 				});
 
 		resultsObserver = new TreeObserver(tmpNodeViewer.getTree().getDisplay());
-		if (jcrKeyring != null)
+		if (keyring != null)
 			try {
-				log.debug("userID=" + jcrKeyring.getSession().getUserID());
-				ObservationManager observationManager = jcrKeyring.getSession()
+				ObservationManager observationManager = userSession
 						.getWorkspace().getObservationManager();
 				observationManager.addEventListener(resultsObserver,
 						Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED, "/",
@@ -335,12 +317,16 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 		this.repositoryRegister = repositoryRegister;
 	}
 
-	public void setJcrKeyring(JcrKeyring jcrKeyring) {
-		this.jcrKeyring = jcrKeyring;
+	public void setKeyring(Keyring keyring) {
+		this.keyring = keyring;
 	}
 
 	public void setRepositoryFactory(RepositoryFactory repositoryFactory) {
 		this.repositoryFactory = repositoryFactory;
+	}
+
+	public void setNodeRepository(Repository nodeRepository) {
+		this.nodeRepository = nodeRepository;
 	}
 
 }

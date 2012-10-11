@@ -113,6 +113,20 @@ public class JcrUtils implements ArgeoJcrConstants {
 		return node;
 	}
 
+	/** Retrieves the node name from the provided path */
+	public static String nodeNameFromPath(String path) {
+		if (path.equals("/"))
+			return "";
+		if (path.charAt(0) != '/')
+			throw new ArgeoException("Path " + path + " must start with a '/'");
+		String pathT = path;
+		if (pathT.charAt(pathT.length() - 1) == '/')
+			pathT = pathT.substring(0, pathT.length() - 2);
+
+		int index = pathT.lastIndexOf('/');
+		return pathT.substring(index + 1);
+	}
+
 	/** Retrieves the parent path of the provided path */
 	public static String parentPath(String path) {
 		if (path.equals("/"))

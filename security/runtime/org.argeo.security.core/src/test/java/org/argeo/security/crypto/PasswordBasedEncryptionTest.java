@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.util.crypto;
+package org.argeo.security.crypto;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -33,6 +33,7 @@ import javax.xml.bind.DatatypeConverter;
 import junit.framework.TestCase;
 
 import org.argeo.StreamUtils;
+import org.argeo.security.crypto.PasswordBasedEncryption;
 
 public class PasswordBasedEncryptionTest extends TestCase {
 	public void testEncryptDecrypt() {

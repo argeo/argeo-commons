@@ -31,8 +31,8 @@ import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.UserJcrUtils;
-import org.argeo.jcr.security.JcrKeyring;
 import org.argeo.jcr.ui.explorer.JcrExplorerConstants;
+import org.argeo.util.security.Keyring;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -62,7 +62,8 @@ public class AddRemoteRepository extends AbstractHandler implements
 		JcrExplorerConstants, ArgeoNames {
 
 	private RepositoryFactory repositoryFactory;
-	private JcrKeyring keyring;
+	private Repository nodeRepository;
+	private Keyring keyring;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		RemoteRepositoryLoginDialog dlg = new RemoteRepositoryLoginDialog(
@@ -76,8 +77,12 @@ public class AddRemoteRepository extends AbstractHandler implements
 		this.repositoryFactory = repositoryFactory;
 	}
 
-	public void setKeyring(JcrKeyring keyring) {
+	public void setKeyring(Keyring keyring) {
 		this.keyring = keyring;
+	}
+
+	public void setNodeRepository(Repository nodeRepository) {
+		this.nodeRepository = nodeRepository;
 	}
 
 	class RemoteRepositoryLoginDialog extends TitleAreaDialog {
@@ -158,7 +163,7 @@ public class AddRemoteRepository extends AbstractHandler implements
 		@Override
 		protected void okPressed() {
 			try {
-				Session nodeSession = keyring.getSession();
+				Session nodeSession = nodeRepository.login();
 				Node home = UserJcrUtils.getUserHome(nodeSession);
 
 				Node remote = home.hasNode(ARGEO_REMOTE) ? home
@@ -171,11 +176,13 @@ public class AddRemoteRepository extends AbstractHandler implements
 						ArgeoTypes.ARGEO_REMOTE_REPOSITORY);
 				remoteRepository.setProperty(ARGEO_URI, uri.getText());
 				remoteRepository.setProperty(ARGEO_USER_ID, username.getText());
-				Node pwd = remoteRepository.addNode(ARGEO_PASSWORD);
-				pwd.getSession().save();
-				if (saveInKeyring.getSelection())
-					keyring.set(pwd.getPath(), password.getText().toCharArray());
-				keyring.getSession().save();
+				nodeSession.save();
+				if (saveInKeyring.getSelection()) {
+					String pwdPath = remoteRepository.getPath() + '/'
+							+ ARGEO_PASSWORD;
+					keyring.set(pwdPath, password.getText().toCharArray());
+				}
+				nodeSession.save();
 				MessageDialog.openInformation(
 						getParentShell(),
 						"Repository Added",

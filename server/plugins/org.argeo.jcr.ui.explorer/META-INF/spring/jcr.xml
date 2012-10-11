@@ -9,7 +9,7 @@
 		<property name="repository" ref="nodeRepository" />
 	</bean>
 
-	<bean id="jcrKeyring" class="org.argeo.jcr.security.JcrKeyring">
+	<bean id="keyring" class="org.argeo.security.jcr.JcrKeyring">
 		<property name="session" ref="nodeSession" />
 		<property name="defaultCallbackHandler" ref="defaultCallbackHandler" />
 	</bean>

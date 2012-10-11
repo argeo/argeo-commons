@@ -27,10 +27,10 @@ import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.RepositoryRegister;
 import org.argeo.jcr.UserJcrUtils;
-import org.argeo.jcr.security.JcrKeyring;
 import org.argeo.jcr.ui.explorer.model.RepositoriesNode;
 import org.argeo.jcr.ui.explorer.model.SingleJcrNode;
 import org.argeo.jcr.ui.explorer.utils.TreeObjectsComparator;
+import org.argeo.util.security.Keyring;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
@@ -40,14 +40,14 @@ import org.eclipse.jface.viewers.Viewer;
  * 
  */
 public class NodeContentProvider implements ITreeContentProvider {
-	// private final static Log log =
-	// LogFactory.getLog(NodeContentProvider.class);
-
-	// Business Objects
 	final private RepositoryRegister repositoryRegister;
 	final private RepositoryFactory repositoryFactory;
+	/**
+	 * A session of the logged in user on the default workspace of the node
+	 * repository.
+	 */
 	final private Session userSession;
-	final private JcrKeyring jcrKeyring;
+	final private Keyring keyring;
 	final private boolean sortChildren;
 
 	// reference for cleaning
@@ -57,11 +57,11 @@ public class NodeContentProvider implements ITreeContentProvider {
 	// Utils
 	private TreeObjectsComparator itemComparator = new TreeObjectsComparator();
 
-	public NodeContentProvider(JcrKeyring jcrKeyring,
+	public NodeContentProvider(Session userSession, Keyring keyring,
 			RepositoryRegister repositoryRegister,
 			RepositoryFactory repositoryFactory, Boolean sortChildren) {
-		this.userSession = jcrKeyring != null ? jcrKeyring.getSession() : null;
-		this.jcrKeyring = jcrKeyring;
+		this.userSession = userSession;
+		this.keyring = keyring;
 		this.repositoryRegister = repositoryRegister;
 		this.repositoryFactory = repositoryFactory;
 		this.sortChildren = sortChildren;
@@ -85,7 +85,8 @@ public class NodeContentProvider implements ITreeContentProvider {
 			if (repositoriesNode != null)
 				repositoriesNode.dispose();
 			repositoriesNode = new RepositoriesNode("Repositories",
-					repositoryRegister, repositoryFactory, null, jcrKeyring);
+					repositoryRegister, repositoryFactory, null, userSession,
+					keyring);
 		}
 	}
 

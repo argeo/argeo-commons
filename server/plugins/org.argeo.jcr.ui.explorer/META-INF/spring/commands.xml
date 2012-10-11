@@ -22,10 +22,12 @@
 
 	<bean id="addRemoteRepository" class="org.argeo.jcr.ui.explorer.commands.AddRemoteRepository">
 		<property name="repositoryFactory" ref="repositoryFactory" />
-		<property name="keyring" ref="jcrKeyring" />
+		<property name="nodeRepository" ref="nodeRepository" />
+		<property name="keyring" ref="keyring" />
 	</bean>
 
-	<bean id="removeRemoteRepository" class="org.argeo.jcr.ui.explorer.commands.RemoveRemoteRepository">
+	<bean id="removeRemoteRepository"
+		class="org.argeo.jcr.ui.explorer.commands.RemoveRemoteRepository">
 	</bean>
 
 	<bean id="addFolderNode" class="org.argeo.jcr.ui.explorer.commands.AddFolderNode"

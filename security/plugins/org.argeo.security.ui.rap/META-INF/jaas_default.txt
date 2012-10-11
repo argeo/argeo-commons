@@ -19,5 +19,5 @@ SPRING_SECURITY_CONTEXT {
 };
 
 KEYRING {
-    org.argeo.util.crypto.KeyringLoginModule required;
+    org.argeo.security.crypto.KeyringLoginModule required;
 };

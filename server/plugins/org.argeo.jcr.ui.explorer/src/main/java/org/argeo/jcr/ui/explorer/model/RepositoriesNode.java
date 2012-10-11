@@ -32,7 +32,7 @@ import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.RepositoryRegister;
 import org.argeo.jcr.UserJcrUtils;
-import org.argeo.jcr.security.JcrKeyring;
+import org.argeo.util.security.Keyring;
 
 /**
  * UI Tree component. Implements the Argeo abstraction of a
@@ -49,15 +49,21 @@ public class RepositoriesNode extends TreeParent implements ArgeoNames {
 	private final RepositoryRegister repositoryRegister;
 	private final RepositoryFactory repositoryFactory;
 
-	private final JcrKeyring jcrKeyring;
+	/**
+	 * A session of the logged in user on the default workspace of the node
+	 * repository.
+	 */
+	private final Session userSession;
+	private final Keyring keyring;
 
 	public RepositoriesNode(String name, RepositoryRegister repositoryRegister,
 			RepositoryFactory repositoryFactory, TreeParent parent,
-			JcrKeyring jcrKeyring) {
+			Session userSession, Keyring keyring) {
 		super(name);
 		this.repositoryRegister = repositoryRegister;
 		this.repositoryFactory = repositoryFactory;
-		this.jcrKeyring = jcrKeyring;
+		this.userSession = userSession;
+		this.keyring = keyring;
 	}
 
 	/**
@@ -78,9 +84,9 @@ public class RepositoriesNode extends TreeParent implements ArgeoNames {
 			}
 
 			// remote
-			if (jcrKeyring != null) {
+			if (keyring != null) {
 				try {
-					addRemoteRepositories(jcrKeyring);
+					addRemoteRepositories(keyring);
 				} catch (RepositoryException e) {
 					throw new ArgeoException(
 							"Cannot browse remote repositories", e);
@@ -90,9 +96,8 @@ public class RepositoriesNode extends TreeParent implements ArgeoNames {
 		}
 	}
 
-	protected void addRemoteRepositories(JcrKeyring jcrKeyring)
+	protected void addRemoteRepositories(Keyring jcrKeyring)
 			throws RepositoryException {
-		Session userSession = jcrKeyring.getSession();
 		Node userHome = UserJcrUtils.getUserHome(userSession);
 		if (userHome != null && userHome.hasNode(ARGEO_REMOTE)) {
 			NodeIterator it = userHome.getNode(ARGEO_REMOTE).getNodes();
@@ -107,8 +112,8 @@ public class RepositoriesNode extends TreeParent implements ArgeoNames {
 					Repository repository = repositoryFactory
 							.getRepository(params);
 					RemoteRepositoryNode remoteRepositoryNode = new RemoteRepositoryNode(
-							remoteNode.getName(), repository, this, jcrKeyring,
-							remoteNode.getPath());
+							remoteNode.getName(), repository, this,
+							userSession, jcrKeyring, remoteNode.getPath());
 					super.addChild(remoteRepositoryNode);
 				} catch (Exception e) {
 					ErrorFeedback.show("Cannot add remote repository "

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.util.crypto;
+package org.argeo.security.crypto;
 
 import java.security.AccessController;
 import java.util.Map;

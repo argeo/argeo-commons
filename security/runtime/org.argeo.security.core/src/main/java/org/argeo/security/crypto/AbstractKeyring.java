@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.util.crypto;
+package org.argeo.security.crypto;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,6 +26,8 @@ import java.io.Reader;
 import java.io.Writer;
 import java.security.AccessController;
 import java.security.MessageDigest;
+import java.security.Provider;
+import java.security.Security;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -41,15 +43,27 @@ import javax.security.auth.login.LoginException;
 
 import org.argeo.ArgeoException;
 import org.argeo.StreamUtils;
+import org.argeo.util.security.Keyring;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /** username / password based keyring. TODO internationalize */
 public abstract class AbstractKeyring implements Keyring {
+	static {
+		Security.addProvider(new BouncyCastleProvider());
+	}
+
 	public final static String DEFAULT_KEYRING_LOGIN_CONTEXT = "KEYRING";
 
 	private String loginContextName = DEFAULT_KEYRING_LOGIN_CONTEXT;
 	private CallbackHandler defaultCallbackHandler;
 
 	private String charset = "UTF-8";
+
+	/**
+	 * Default provider is bouncy castle, in order to have consistent behaviour
+	 * across implementations
+	 */
+	private String securityProviderName = "BC";
 
 	/**
 	 * Whether the keyring has already been created in the past with a master
@@ -144,6 +158,10 @@ public abstract class AbstractKeyring implements Keyring {
 		}
 	}
 
+	protected Provider getSecurityProvider() {
+		return Security.getProvider(securityProviderName);
+	}
+
 	public void setLoginContextName(String loginContextName) {
 		this.loginContextName = loginContextName;
 	}
@@ -156,6 +174,11 @@ public abstract class AbstractKeyring implements Keyring {
 		this.charset = charset;
 	}
 
+	public void setSecurityProviderName(String securityProviderName) {
+		this.securityProviderName = securityProviderName;
+	}
+
+	@Deprecated
 	protected static byte[] hash(char[] password, byte[] salt,
 			Integer iterationCount) {
 		ByteArrayOutputStream out = null;
@@ -178,6 +201,23 @@ public abstract class AbstractKeyring implements Keyring {
 		} finally {
 			StreamUtils.closeQuietly(out);
 			StreamUtils.closeQuietly(writer);
+		}
+
+	}
+
+	/**
+	 * Convenience method using the underlying callback to ask for a password
+	 * (typically used when the password is not saved in the keyring)
+	 */
+	protected char[] ask() {
+		PasswordCallback passwordCb = new PasswordCallback("Password", false);
+		Callback[] dialogCbs = new Callback[] { passwordCb };
+		try {
+			defaultCallbackHandler.handle(dialogCbs);
+			char[] password = passwordCb.getPassword();
+			return password;
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot ask for a password", e);
 		}
 
 	}

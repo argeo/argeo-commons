@@ -13,19 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.util.crypto;
+package org.argeo.util.security;
 
 import java.io.InputStream;
 
 /**
  * Access to private (typically encrypted) data. The keyring is responsible for
- * retrieving the necessary credentials.
+ * retrieving the necessary credentials. <b>Experimental. This API may
+ * change.</b>
  */
 public interface Keyring {
 	public void changePassword(char[] oldPassword, char[] newPassword);
 
+	/**
+	 * Returns the confidential information as chars. Must ask for it if it is
+	 * not stored.
+	 */
 	public char[] getAsChars(String path);
 
+	/**
+	 * Returns the confidential information as a stream. Must ask for it if it
+	 * is not stored.
+	 */
 	public InputStream getAsStream(String path);
 
 	public void set(String path, char[] arr);

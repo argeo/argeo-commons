@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.util.crypto;
+package org.argeo.security.crypto;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.Key;
+import java.security.Security;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -33,9 +34,14 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.argeo.ArgeoException;
 import org.argeo.StreamUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /** Simple password based encryption / decryption */
 public class PasswordBasedEncryption {
+	static {
+		Security.addProvider(new BouncyCastleProvider());
+	}
+
 	public final static Integer DEFAULT_ITERATION_COUNT = 1024;
 	public final static Integer DEFAULT_KEY_LENGTH = 256;
 	public final static String DEFAULT_SECRETE_KEY_FACTORY = "PBKDF2WithHmacSHA1";
@@ -54,6 +60,12 @@ public class PasswordBasedEncryption {
 	private final Key key;
 	private final Cipher ecipher;
 	private final Cipher dcipher;
+
+	/**
+	 * Default provider is bouncy castle, in order to have consistent behaviour
+	 * across implementations
+	 */
+	private String securityProviderName = "BC";
 
 	/**
 	 * This is up to the caller to clear the passed array. Neither copy of nor
@@ -91,7 +103,7 @@ public class PasswordBasedEncryption {
 			} else {
 				key = keyFac.generateSecret(keySpec);
 			}
-			ecipher = Cipher.getInstance(getCipherName());
+			ecipher = Cipher.getInstance(getCipherName(), securityProviderName);
 			ecipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
 			// AlgorithmParameters params = ecipher.getParameters();
 			// byte[] iv =
@@ -193,5 +205,9 @@ public class PasswordBasedEncryption {
 
 	protected String getCipherName() {
 		return DEFAULT_CIPHER;
+	}
+
+	public void setSecurityProviderName(String securityProviderName) {
+		this.securityProviderName = securityProviderName;
 	}
 }
