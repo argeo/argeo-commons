@@ -46,8 +46,8 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 			.getLog(ArgeoSecurityManager.class);
 
 	/** TODO? use a bounded buffer */
-	private Map<String, String> userRolesCache = Collections
-			.synchronizedMap(new HashMap<String, String>());
+//	private Map<String, String> userRolesCache = Collections
+//			.synchronizedMap(new HashMap<String, String>());
 
 	/**
 	 * Since this is called once when the session is created, we take the
@@ -90,15 +90,15 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 			}
 
 			// do not sync if not changed
-			if (userRolesCache.containsKey(userId)
-					&& userRolesCache.get(userId).equals(roles.toString()))
-				return userId;
+//			if (userRolesCache.containsKey(userId)
+//					&& userRolesCache.get(userId).equals(roles.toString()))
+//				return userId;
 
 			// sync Spring and Jackrabbit
 			// workspace is irrelevant here
 			UserManager systemUm = getSystemUserManager(null);
 			syncSpringAndJackrabbitSecurity(systemUm, authen);
-			userRolesCache.put(userId, roles.toString());
+//			userRolesCache.put(userId, roles.toString());
 		}
 		return userId;
 	}
