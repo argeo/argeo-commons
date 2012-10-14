@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.argeo.commons.base</groupId>
 		<artifactId>dep</artifactId>
-		<version>1.1.4-SNAPSHOT</version>
+		<version>1.1.4</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
