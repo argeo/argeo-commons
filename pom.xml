@@ -429,7 +429,7 @@ limitations under the License.
 	<distributionManagement>
 		<repository>
 			<id>staging</id>
-			<url>dav:http://repo.localdomain:7080/org.argeo.jcr.webapp/webdav/java/org.argeo.commons-1.1.x</url>
+			<url>dav:https://repo.argeo.org/org.argeo.jcr.webapp/webdav/java/org.argeo.commons-1.1.x</url>
 			<uniqueVersion>false</uniqueVersion>
 		</repository>
 		<site>
