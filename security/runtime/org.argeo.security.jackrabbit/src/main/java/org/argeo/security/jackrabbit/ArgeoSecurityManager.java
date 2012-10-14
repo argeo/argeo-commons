@@ -40,14 +40,14 @@ import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 
-/** Integrates Spring Security and Jackrabbit Security user and roles. */
+/** Integrates Spring Security and Jackrabbit Security users and roles. */
 public class ArgeoSecurityManager extends DefaultSecurityManager {
 	private final static Log log = LogFactory
 			.getLog(ArgeoSecurityManager.class);
 
 	/** TODO? use a bounded buffer */
-//	private Map<String, String> userRolesCache = Collections
-//			.synchronizedMap(new HashMap<String, String>());
+	private Map<String, String> userRolesCache = Collections
+			.synchronizedMap(new HashMap<String, String>());
 
 	/**
 	 * Since this is called once when the session is created, we take the
@@ -90,15 +90,15 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 			}
 
 			// do not sync if not changed
-//			if (userRolesCache.containsKey(userId)
-//					&& userRolesCache.get(userId).equals(roles.toString()))
-//				return userId;
+			if (userRolesCache.containsKey(userId)
+					&& userRolesCache.get(userId).equals(roles.toString()))
+				return userId;
 
 			// sync Spring and Jackrabbit
 			// workspace is irrelevant here
 			UserManager systemUm = getSystemUserManager(null);
 			syncSpringAndJackrabbitSecurity(systemUm, authen);
-//			userRolesCache.put(userId, roles.toString());
+			userRolesCache.put(userId, roles.toString());
 		}
 		return userId;
 	}
@@ -116,10 +116,6 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		if (user == null) {
 			user = systemUm.createUser(userId, authen.getCredentials()
 					.toString(), authen, null);
-			// SecurityJcrUtils.createUserHomeIfNeeded(getSystemSession(),
-			// userId);
-			// getSystemSession().save();
-			// setSecurityHomeAuthorizations(user);
 			log.info(userId + " added as " + user);
 		}
 
@@ -149,50 +145,6 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 					+ " ms");
 	}
 
-	// protected synchronized void setSecurityHomeAuthorizations(User user) {
-	// // give read privileges on user security home
-	// String userId = "<not yet set>";
-	// try {
-	// userId = user.getID();
-	// Node userHome = SecurityJcrUtils.getUserHome(getSystemSession(), userId);
-	// if (userHome == null)
-	// throw new ArgeoException("No security home available for user "
-	// + userId);
-	//
-	// String path = userHome.getPath();
-	// Principal principal = user.getPrincipal();
-	//
-	// JackrabbitAccessControlManager acm = (JackrabbitAccessControlManager)
-	// getSystemSession()
-	// .getAccessControlManager();
-	// JackrabbitAccessControlPolicy[] ps = acm
-	// .getApplicablePolicies(principal);
-	// if (ps.length == 0) {
-	// // log.warn("No ACL found for " + user);
-	// return;
-	// }
-	//
-	// JackrabbitAccessControlList list = (JackrabbitAccessControlList) ps[0];
-	//
-	// // add entry
-	// Privilege[] privileges = new Privilege[] { acm
-	// .privilegeFromName(Privilege.JCR_READ) };
-	// Map<String, Value> restrictions = new HashMap<String, Value>();
-	// ValueFactory vf = getSystemSession().getValueFactory();
-	// restrictions.put("rep:nodePath",
-	// vf.createValue(path, PropertyType.PATH));
-	// restrictions.put("rep:glob", vf.createValue("*"));
-	// list.addEntry(principal, privileges, true /* allow or deny */,
-	// restrictions);
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// throw new ArgeoException(
-	// "Cannot set authorization on security home for " + userId
-	// + ": " + e.getMessage());
-	// }
-	//
-	// }
-
 	@Override
 	protected WorkspaceAccessManager createDefaultWorkspaceAccessManager() {
 		WorkspaceAccessManager wam = super
@@ -204,8 +156,6 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 			WorkspaceAccessManager {
 		private final WorkspaceAccessManager wam;
 
-		// private String defaultWorkspace;
-
 		public ArgeoWorkspaceAccessManagerImpl(WorkspaceAccessManager wam) {
 			super();
 			this.wam = wam;
@@ -213,8 +163,6 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 
 		public void init(Session systemSession) throws RepositoryException {
 			wam.init(systemSession);
-			// defaultWorkspace = ((RepositoryImpl) getRepository()).getConfig()
-			// .getDefaultWorkspaceName();
 		}
 
 		public void close() throws RepositoryException {
@@ -222,22 +170,8 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 
 		public boolean grants(Set<Principal> principals, String workspaceName)
 				throws RepositoryException {
-			// everybody has access to all workspaces
 			// TODO: implements finer access to workspaces
 			return true;
-
-			// anonymous has access to the default workspace (required for
-			// remoting which does a default login when initializing the
-			// repository)
-			// Boolean anonymous = false;
-			// for (Principal principal : principals)
-			// if (principal instanceof AnonymousPrincipal)
-			// anonymous = true;
-			//
-			// if (anonymous && workspaceName.equals(defaultWorkspace))
-			// return true;
-			// else
-			// return wam.grants(principals, workspaceName);
 		}
 	}
 
