@@ -11,7 +11,7 @@
 		<developmentCycle>1.1</developmentCycle>
 		<developmentCycle.startDate>2012-06-19</developmentCycle.startDate>
 		<version.argeo-distribution>1.3.1</version.argeo-distribution>
-		<version.argeo-commons>1.1.4-SNAPSHOT</version.argeo-commons>
+		<version.argeo-commons>1.1.5-SNAPSHOT</version.argeo-commons>
 		<!-- distribution -->
 		<site.repoBase>file:///srv/projects/www/commons/site</site.repoBase>
 		<site.urlBase>http://projects.argeo.org/commons/site</site.urlBase>
