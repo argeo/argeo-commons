@@ -357,7 +357,7 @@ limitations under the License.
 				<artifactId>maven-release-plugin</artifactId>
 				<configuration>
 					<goals>deploy</goals>
-					<releaseProfiles>rpmbuild,rpmbuild-tp,el5</releaseProfiles>
+					<releaseProfiles>rpmbuild,rpmbuild-tp</releaseProfiles>
 				</configuration>
 			</plugin>
 			<plugin>
