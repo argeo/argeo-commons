@@ -5,11 +5,11 @@
 	<!-- Shared datasource -->
 	<DataSources>
 		<DataSource name="dataSource">
-			<param name="driver" value="org.postgresql.Driver" />
+			<param name="driver" value="com.mysql.jdbc.Driver" />
 			<param name="url" value="${argeo.node.repo.dburl}" />
 			<param name="user" value="${argeo.node.repo.dbuser}" />
 			<param name="password" value="${argeo.node.repo.dbpassword}" />
-			<param name="databaseType" value="postgresql" />
+			<param name="databaseType" value="mysql" />
 			<param name="maxPoolSize" value="${argeo.node.repo.maxPoolSize}" />
 		</DataSource>
 	</DataSources>
@@ -17,7 +17,7 @@
 	<!-- File system and datastore -->
 	<FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
 		<param name="dataSourceName" value="dataSource" />
-		<param name="schema" value="postgresql" />
+		<param name="schema" value="mysql" />
 		<param name="schemaObjectPrefix" value="fs_" />
 	</FileSystem>
 	<DataStore class="org.apache.jackrabbit.core.data.FileDataStore">
@@ -26,17 +26,17 @@
 
 	<!-- Workspace templates -->
 	<Workspaces rootPath="${rep.home}/workspaces"
-		defaultWorkspace="${argeo.node.repo.defaultWorkspace}" />
+		defaultWorkspace="default" />
 	<Workspace name="${wsp.name}">
 		<FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
 			<param name="dataSourceName" value="dataSource" />
-			<param name="schema" value="postgresql" />
-			<param name="schemaObjectPrefix" value="${wsp.name}_fs_" />
+			<param name="schema" value="mysql" />
+			<param name="schemaObjectPrefix" value="fs_${wsp.name}_" />
 		</FileSystem>
 		<PersistenceManager
-			class="org.apache.jackrabbit.core.persistence.pool.PostgreSQLPersistenceManager">
+			class="org.apache.jackrabbit.core.persistence.pool.MySqlPersistenceManager">
 			<param name="dataSourceName" value="dataSource" />
-			<param name="schemaObjectPrefix" value="${wsp.name}_pm_" />
+			<param name="schemaObjectPrefix" value="pm_${wsp.name}_" />
 		</PersistenceManager>
 		<SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
 			<param name="path" value="${wsp.home}/index" />
@@ -47,11 +47,11 @@
 	<Versioning rootPath="${rep.home}/version">
 		<FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
 			<param name="dataSourceName" value="dataSource" />
-			<param name="schema" value="postgresql" />
+			<param name="schema" value="mysql" />
 			<param name="schemaObjectPrefix" value="fs_ver_" />
 		</FileSystem>
 		<PersistenceManager
-			class="org.apache.jackrabbit.core.persistence.pool.PostgreSQLPersistenceManager">
+			class="org.apache.jackrabbit.core.persistence.pool.MySqlPersistenceManager">
 			<param name="dataSourceName" value="dataSource" />
 			<param name="schemaObjectPrefix" value="pm_ver_" />
 		</PersistenceManager>

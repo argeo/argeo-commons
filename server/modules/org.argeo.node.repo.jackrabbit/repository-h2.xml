@@ -20,13 +20,9 @@
 		<param name="schema" value="default" />
 		<param name="schemaObjectPrefix" value="fs_" />
 	</FileSystem>
-	<DataStore class="org.apache.jackrabbit.core.data.FileDataStore"/>
-	<!-- 
-	<DataStore class="org.apache.jackrabbit.core.data.db.DbDataStore">
-		<param name="dataSourceName" value="dataSource" />
-		<param name="schemaObjectPrefix" value="ds_" />
+	<DataStore class="org.apache.jackrabbit.core.data.FileDataStore">
+		<param name="path" value="${rep.home}/datastore" />
 	</DataStore>
-	-->
 
 	<!-- Workspace templates -->
 	<Workspaces rootPath="${rep.home}/workspaces"
@@ -63,7 +59,7 @@
 
 	<!-- Indexing -->
 	<SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
-		<param name="path" value="${rep.home}/repository/index" />
+		<param name="path" value="${rep.home}/index" />
 		<param name="extractorPoolSize" value="2" />
 		<param name="supportHighlighting" value="true" />
 	</SearchIndex>

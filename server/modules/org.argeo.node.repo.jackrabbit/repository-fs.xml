@@ -5,20 +5,18 @@
 	<!-- Shared datasource -->
 	<DataSources>
 		<DataSource name="dataSource">
-			<param name="driver" value="org.postgresql.Driver" />
+			<param name="driver" value="org.h2.Driver" />
 			<param name="url" value="${argeo.node.repo.dburl}" />
 			<param name="user" value="${argeo.node.repo.dbuser}" />
 			<param name="password" value="${argeo.node.repo.dbpassword}" />
-			<param name="databaseType" value="postgresql" />
+			<param name="databaseType" value="h2" />
 			<param name="maxPoolSize" value="${argeo.node.repo.maxPoolSize}" />
 		</DataSource>
 	</DataSources>
 
 	<!-- File system and datastore -->
-	<FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
-		<param name="dataSourceName" value="dataSource" />
-		<param name="schema" value="postgresql" />
-		<param name="schemaObjectPrefix" value="fs_" />
+	<FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
+		<param name="path" value="${rep.home}/fs" />
 	</FileSystem>
 	<DataStore class="org.apache.jackrabbit.core.data.FileDataStore">
 		<param name="path" value="${rep.home}/datastore" />
@@ -28,16 +26,11 @@
 	<Workspaces rootPath="${rep.home}/workspaces"
 		defaultWorkspace="${argeo.node.repo.defaultWorkspace}" />
 	<Workspace name="${wsp.name}">
-		<FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
-			<param name="dataSourceName" value="dataSource" />
-			<param name="schema" value="postgresql" />
-			<param name="schemaObjectPrefix" value="${wsp.name}_fs_" />
+		<FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
+			<param name="path" value="${wsp.home}" />
 		</FileSystem>
 		<PersistenceManager
-			class="org.apache.jackrabbit.core.persistence.pool.PostgreSQLPersistenceManager">
-			<param name="dataSourceName" value="dataSource" />
-			<param name="schemaObjectPrefix" value="${wsp.name}_pm_" />
-		</PersistenceManager>
+			class="org.apache.jackrabbit.core.persistence.bundle.BundleFsPersistenceManager" />
 		<SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
 			<param name="path" value="${wsp.home}/index" />
 		</SearchIndex>
@@ -45,16 +38,11 @@
 
 	<!-- Versioning -->
 	<Versioning rootPath="${rep.home}/version">
-		<FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
-			<param name="dataSourceName" value="dataSource" />
-			<param name="schema" value="postgresql" />
-			<param name="schemaObjectPrefix" value="fs_ver_" />
+		<FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
+			<param name="path" value="${rep.home}/version" />
 		</FileSystem>
 		<PersistenceManager
-			class="org.apache.jackrabbit.core.persistence.pool.PostgreSQLPersistenceManager">
-			<param name="dataSourceName" value="dataSource" />
-			<param name="schemaObjectPrefix" value="pm_ver_" />
-		</PersistenceManager>
+			class="org.apache.jackrabbit.core.persistence.bundle.BundleFsPersistenceManager" />
 	</Versioning>
 
 	<!-- Indexing -->
