@@ -64,6 +64,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
+import org.argeo.ArgeoMonitor;
 import org.argeo.util.security.DigestUtils;
 import org.argeo.util.security.SimplePrincipal;
 
@@ -643,6 +644,9 @@ public class JcrUtils implements ArgeoJcrConstants {
 	 */
 	public static void copy(Node fromNode, Node toNode) {
 		try {
+			if (toNode.getDefinition().isProtected())
+				return;
+
 			// process properties
 			PropertyIterator pit = fromNode.getProperties();
 			properties: while (pit.hasNext()) {
@@ -695,6 +699,79 @@ public class JcrUtils implements ArgeoJcrConstants {
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot copy " + fromNode + " to "
 					+ toNode, e);
+		}
+	}
+
+	/**
+	 * Copy only nt:folder and nt:file, without their additional types and
+	 * properties.
+	 * 
+	 * @param recursive
+	 *            if true copies folders as well, otherwise only first level
+	 *            files
+	 * @return how many files were copied
+	 */
+	public static Long copyFiles(Node fromNode, Node toNode, Boolean recursive,
+			ArgeoMonitor monitor) {
+		long count = 0l;
+
+		Binary binary = null;
+		InputStream in = null;
+		try {
+			NodeIterator fromChildren = fromNode.getNodes();
+			while (fromChildren.hasNext()) {
+				if (monitor != null && monitor.isCanceled())
+					throw new ArgeoException(
+							"Copy cancelled before it was completed");
+
+				Node fromChild = fromChildren.nextNode();
+				String fileName = fromChild.getName();
+				if (fromChild.isNodeType(NodeType.NT_FILE)) {
+					if (monitor != null)
+						monitor.subTask("Copy " + fileName);
+					binary = fromChild.getNode(Node.JCR_CONTENT)
+							.getProperty(Property.JCR_DATA).getBinary();
+					in = binary.getStream();
+					copyStreamAsFile(toNode, fileName, in);
+					IOUtils.closeQuietly(in);
+					JcrUtils.closeQuietly(binary);
+
+					// save session
+					toNode.getSession().save();
+					count++;
+
+					if (log.isDebugEnabled())
+						log.debug("Copied file " + fromChild.getPath());
+					if (monitor != null)
+						monitor.worked(1);
+				} else if (fromChild.isNodeType(NodeType.NT_FOLDER)
+						&& recursive) {
+					Node toChildFolder;
+					if (toNode.hasNode(fileName)) {
+						toChildFolder = toNode.getNode(fileName);
+						if (!toNode.isNodeType(NodeType.NT_FOLDER))
+							throw new ArgeoException(toChildFolder
+									+ " is not of type nt:folder");
+					} else {
+						toChildFolder = toNode.addNode(fileName,
+								NodeType.NT_FOLDER);
+
+						// save session
+						toNode.getSession().save();
+					}
+					count = count
+							+ copyFiles(fromChild, toChildFolder, recursive,
+									monitor);
+				}
+			}
+			return count;
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot copy files between " + fromNode
+					+ " and " + toNode);
+		} finally {
+			// in case there was an exception
+			IOUtils.closeQuietly(in);
+			JcrUtils.closeQuietly(binary);
 		}
 	}
 
@@ -1002,6 +1079,9 @@ public class JcrUtils implements ArgeoJcrConstants {
 			Node contentNode;
 			if (folderNode.hasNode(fileName)) {
 				fileNode = folderNode.getNode(fileName);
+				if (!fileNode.isNodeType(NodeType.NT_FILE))
+					throw new ArgeoException(fileNode
+							+ " is not of type nt:file");
 				// we assume that the content node is already there
 				contentNode = fileNode.getNode(Node.JCR_CONTENT);
 			} else {
