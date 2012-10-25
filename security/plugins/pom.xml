@@ -36,23 +36,6 @@
 		</resources>
 		<plugins>
 			<plugin>
-				<artifactId>maven-clean-plugin</artifactId>
-				<configuration>
-					<filesets>
-						<fileset>
-							<directory>META-INF</directory>
-							<includes>
-								<include>MANIFEST.MF</include>
-							</includes>
-						</fileset>
-					</filesets>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
 				<configuration>
@@ -62,10 +45,6 @@
 						<exclude>META-INF/MANIFEST.MF</exclude>
 					</excludes>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.felix</groupId>
@@ -78,12 +57,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<dependencies>
-		<dependency>
-			<groupId>org.argeo.commons.base</groupId>
-			<artifactId>org.argeo.osgi.boot</artifactId>
-			<version>1.1.5-SNAPSHOT</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
 </project>
