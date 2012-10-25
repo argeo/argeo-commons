@@ -54,8 +54,13 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 	protected Control createContents(Composite parent) {
 		Control control = super.createContents(parent);
 		parent.pack();
+
 		// Move the dialog to the center of the top level shell.
-		Rectangle shellBounds = Display.getCurrent().getBounds();
+		Rectangle shellBounds;
+		if (Display.getCurrent().getActiveShell() != null) // RCP
+			shellBounds = Display.getCurrent().getActiveShell().getBounds();
+		else
+			shellBounds = Display.getCurrent().getBounds();// RAP
 		Point dialogSize = parent.getSize();
 		int x = shellBounds.x + (shellBounds.width - dialogSize.x) / 2;
 		int y = shellBounds.y + (shellBounds.height - dialogSize.y) / 2;
