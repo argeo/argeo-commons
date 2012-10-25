@@ -15,22 +15,6 @@
 		<module>org.argeo.jcr.ui.explorer</module>
 	</modules>
 	<build>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-			</resource>
-			<resource>
-				<directory>.</directory>
-				<includes>
-					<include>plugin.xml</include>
-					<include>META-INF/**</include>
-					<include>icons/**</include>
-					<include>plugin.properties</include>
-					<!-- Specific -->
-					<include>jcrexplorer.properties</include>
-				</includes>
-			</resource>
-		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

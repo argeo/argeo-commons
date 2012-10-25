@@ -23,17 +23,4 @@
 		<module>org.argeo.server.jackrabbit</module>
 		<module>org.argeo.server.modeshape</module>
 	</modules>
-	<build>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-			</resource>
-			<resource>
-				<directory>.</directory>
-				<includes>
-					<include>META-INF/**</include>
-				</includes>
-			</resource>
-		</resources>
-	</build>
 </project>

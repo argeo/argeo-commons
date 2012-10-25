@@ -18,25 +18,7 @@
 		<module>org.argeo.eclipse.dep.rcp</module>
 	</modules>
 	<build>
-		<resources>
-			<resource>
-				<directory>.</directory>
-				<includes>
-					<include>*.inf</include>
-				</includes>
-			</resource>
-		</resources>
 		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>buildnumber-maven-plugin</artifactId>
-				<configuration>
-					<useLastCommittedRevision>false</useLastCommittedRevision>
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-jar-plugin</artifactId>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>

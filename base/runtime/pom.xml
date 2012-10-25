@@ -19,19 +19,4 @@
 		<module>org.argeo.eclipse.ui.rcp</module>
 		<module>org.argeo.eclipse.ui.jcr</module>
 	</modules>
-	<build>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-			</resource>
-			<resource>
-				<directory>.</directory>
-				<includes>
-					<include>plugin.xml</include>
-					<include>META-INF/**</include>
-					<include>icons/**</include>
-				</includes>
-			</resource>
-		</resources>
-	</build>
 </project>

@@ -17,17 +17,4 @@
 		<module>org.argeo.security.activemq</module>
 		<module>org.argeo.security.jackrabbit</module>
 	</modules>
-	<build>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-			</resource>
-			<resource>
-				<directory>.</directory>
-				<includes>
-					<include>META-INF/**</include>
-				</includes>
-			</resource>
-		</resources>
-	</build>
 </project>

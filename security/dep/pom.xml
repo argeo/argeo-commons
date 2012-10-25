@@ -18,14 +18,6 @@
 		<module>org.argeo.security.dep.node.rcp</module>
 	</modules>
 	<build>
-		<resources>
-			<resource>
-				<directory>.</directory>
-				<includes>
-					<include>*.inf</include>
-				</includes>
-			</resource>
-		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.felix</groupId>
