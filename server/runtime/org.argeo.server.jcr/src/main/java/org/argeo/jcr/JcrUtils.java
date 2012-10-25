@@ -749,7 +749,7 @@ public class JcrUtils implements ArgeoJcrConstants {
 					Node toChildFolder;
 					if (toNode.hasNode(fileName)) {
 						toChildFolder = toNode.getNode(fileName);
-						if (!toNode.isNodeType(NodeType.NT_FOLDER))
+						if (!toChildFolder.isNodeType(NodeType.NT_FOLDER))
 							throw new ArgeoException(toChildFolder
 									+ " is not of type nt:folder");
 					} else {
