@@ -20,9 +20,7 @@
 		<module>org.argeo.server.activemq.broker</module>
 		<module>org.argeo.server.ads.server</module>
 		<module>org.argeo.server.catalina</module>
-		<module>org.argeo.server.hsqldb</module>
 		<module>org.argeo.server.jdbc</module>
-		<module>org.argeo.server.mysql</module>
 		<module>org.argeo.server.rap.webapp</module>
 		<module>org.argeo.server.tomcat</module>
 	</modules>
