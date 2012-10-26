@@ -29,6 +29,7 @@ import org.argeo.jcr.ui.explorer.views.GenericJcrBrowser;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -46,11 +47,26 @@ public class DeleteNodes extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ISelection selection = HandlerUtil.getActiveWorkbenchWindow(event)
 				.getActivePage().getSelection();
+		if (selection == null || !(selection instanceof IStructuredSelection))
+			return null;
+
 		GenericJcrBrowser view = (GenericJcrBrowser) HandlerUtil
 				.getActiveWorkbenchWindow(event).getActivePage()
 				.findView(HandlerUtil.getActivePartId(event));
 
-		if (selection != null && selection instanceof IStructuredSelection) {
+		// confirmation
+		StringBuffer buf = new StringBuffer("");
+		Iterator<?> lst = ((IStructuredSelection) selection).iterator();
+		while (lst.hasNext()) {
+			SingleJcrNode sjn = ((SingleJcrNode) lst.next());
+			buf.append(sjn.getName()).append(' ');
+		}
+		Boolean ok = MessageDialog.openConfirm(
+				HandlerUtil.getActiveShell(event), "Confirm deletion",
+				"Do you want to delete " + buf + "?");
+
+		// operation
+		if (ok) {
 			Iterator<?> it = ((IStructuredSelection) selection).iterator();
 			Object obj = null;
 			SingleJcrNode ancestor = null;
