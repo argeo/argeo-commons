@@ -15,6 +15,8 @@
  */
 package org.argeo.jackrabbit;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -54,9 +56,25 @@ public class JackrabbitRepositoryFactory extends DefaultRepositoryFactory
 		else if (parameters.containsKey(JcrUtils.REPOSITORY_URI))
 			uri = parameters.get(JcrUtils.REPOSITORY_URI).toString();
 
-		if (uri != null)
-			repository = createRemoteRepository(uri);
+		if (uri != null) {
+			if (uri.startsWith("http"))// http, https
+				repository = createRemoteRepository(uri);
+			else if (uri.startsWith("vm")) {
+				try {
+					URI uriObj = new URI(uri);
+					String alias = uriObj.getPath();
+					if (alias.charAt(0) == '/')
+						alias = alias.substring(1);
+					if (alias.charAt(alias.length() - 1) == '/')
+						alias = alias.substring(0, alias.length() - 1);
+					repository = getRepositoryByAlias(alias);
+				} catch (URISyntaxException e) {
+					throw new ArgeoException("Cannot interpret URI " + uri, e);
+				}
+			}
+		}
 
+		// publish under alias
 		if (parameters.containsKey(JCR_REPOSITORY_ALIAS)) {
 			Properties properties = new Properties();
 			properties.putAll(parameters);
@@ -83,7 +101,7 @@ public class JackrabbitRepositoryFactory extends DefaultRepositoryFactory
 	}
 
 	/**
-	 * Called after the repository has been initialized. Does nothing by
+	 * Called after the repository has been initialised. Does nothing by
 	 * default.
 	 */
 	@SuppressWarnings("rawtypes")
