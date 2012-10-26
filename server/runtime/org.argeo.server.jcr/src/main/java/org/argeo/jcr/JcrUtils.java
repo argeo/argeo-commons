@@ -71,7 +71,7 @@ import org.argeo.util.security.SimplePrincipal;
 /** Utility methods to simplify common JCR operations. */
 public class JcrUtils implements ArgeoJcrConstants {
 
-	private final static Log log = LogFactory.getLog(JcrUtils.class);
+	final private static Log log = LogFactory.getLog(JcrUtils.class);
 
 	/**
 	 * Not complete yet. See
@@ -402,14 +402,6 @@ public class JcrUtils implements ArgeoJcrConstants {
 	}
 
 	/**
-	 * Creates the nodes making the path as {@link NodeType#NT_FOLDER}
-	 */
-	public static Node mkfolders(Session session, String path) {
-		return mkdirs(session, path, NodeType.NT_FOLDER, NodeType.NT_FOLDER,
-				false);
-	}
-
-	/**
 	 * Creates the nodes making path, if they don't exist. This is up to the
 	 * caller to save the session. Use with caution since it can create
 	 * duplicate nodes if used concurrently.
@@ -703,79 +695,6 @@ public class JcrUtils implements ArgeoJcrConstants {
 	}
 
 	/**
-	 * Copy only nt:folder and nt:file, without their additional types and
-	 * properties.
-	 * 
-	 * @param recursive
-	 *            if true copies folders as well, otherwise only first level
-	 *            files
-	 * @return how many files were copied
-	 */
-	public static Long copyFiles(Node fromNode, Node toNode, Boolean recursive,
-			ArgeoMonitor monitor) {
-		long count = 0l;
-
-		Binary binary = null;
-		InputStream in = null;
-		try {
-			NodeIterator fromChildren = fromNode.getNodes();
-			while (fromChildren.hasNext()) {
-				if (monitor != null && monitor.isCanceled())
-					throw new ArgeoException(
-							"Copy cancelled before it was completed");
-
-				Node fromChild = fromChildren.nextNode();
-				String fileName = fromChild.getName();
-				if (fromChild.isNodeType(NodeType.NT_FILE)) {
-					if (monitor != null)
-						monitor.subTask("Copy " + fileName);
-					binary = fromChild.getNode(Node.JCR_CONTENT)
-							.getProperty(Property.JCR_DATA).getBinary();
-					in = binary.getStream();
-					copyStreamAsFile(toNode, fileName, in);
-					IOUtils.closeQuietly(in);
-					JcrUtils.closeQuietly(binary);
-
-					// save session
-					toNode.getSession().save();
-					count++;
-
-					if (log.isDebugEnabled())
-						log.debug("Copied file " + fromChild.getPath());
-					if (monitor != null)
-						monitor.worked(1);
-				} else if (fromChild.isNodeType(NodeType.NT_FOLDER)
-						&& recursive) {
-					Node toChildFolder;
-					if (toNode.hasNode(fileName)) {
-						toChildFolder = toNode.getNode(fileName);
-						if (!toChildFolder.isNodeType(NodeType.NT_FOLDER))
-							throw new ArgeoException(toChildFolder
-									+ " is not of type nt:folder");
-					} else {
-						toChildFolder = toNode.addNode(fileName,
-								NodeType.NT_FOLDER);
-
-						// save session
-						toNode.getSession().save();
-					}
-					count = count
-							+ copyFiles(fromChild, toChildFolder, recursive,
-									monitor);
-				}
-			}
-			return count;
-		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot copy files between " + fromNode
-					+ " and " + toNode);
-		} finally {
-			// in case there was an exception
-			IOUtils.closeQuietly(in);
-			JcrUtils.closeQuietly(binary);
-		}
-	}
-
-	/**
 	 * Check whether all first-level properties (except jcr:* properties) are
 	 * equal. Skip jcr:* properties
 	 */
@@ -1028,93 +947,6 @@ public class JcrUtils implements ArgeoJcrConstants {
 		} finally {
 			IOUtils.closeQuietly(in);
 			closeQuietly(binary);
-		}
-	}
-
-	/**
-	 * Copy a file as an nt:file, assuming an nt:folder hierarchy. The session
-	 * is NOT saved.
-	 * 
-	 * @return the created file node
-	 */
-	public static Node copyFile(Node folderNode, File file) {
-		InputStream in = null;
-		try {
-			in = new FileInputStream(file);
-			return copyStreamAsFile(folderNode, file.getName(), in);
-		} catch (IOException e) {
-			throw new ArgeoException("Cannot copy file " + file + " under "
-					+ folderNode, e);
-		} finally {
-			IOUtils.closeQuietly(in);
-		}
-	}
-
-	/** Copy bytes as an nt:file */
-	public static Node copyBytesAsFile(Node folderNode, String fileName,
-			byte[] bytes) {
-		InputStream in = null;
-		try {
-			in = new ByteArrayInputStream(bytes);
-			return copyStreamAsFile(folderNode, fileName, in);
-		} catch (Exception e) {
-			throw new ArgeoException("Cannot copy file " + fileName + " under "
-					+ folderNode, e);
-		} finally {
-			IOUtils.closeQuietly(in);
-		}
-	}
-
-	/**
-	 * Copy a stream as an nt:file, assuming an nt:folder hierarchy. The session
-	 * is NOT saved.
-	 * 
-	 * @return the created file node
-	 */
-	public static Node copyStreamAsFile(Node folderNode, String fileName,
-			InputStream in) {
-		Binary binary = null;
-		try {
-			Node fileNode;
-			Node contentNode;
-			if (folderNode.hasNode(fileName)) {
-				fileNode = folderNode.getNode(fileName);
-				if (!fileNode.isNodeType(NodeType.NT_FILE))
-					throw new ArgeoException(fileNode
-							+ " is not of type nt:file");
-				// we assume that the content node is already there
-				contentNode = fileNode.getNode(Node.JCR_CONTENT);
-			} else {
-				fileNode = folderNode.addNode(fileName, NodeType.NT_FILE);
-				contentNode = fileNode.addNode(Node.JCR_CONTENT,
-						NodeType.NT_RESOURCE);
-			}
-			binary = contentNode.getSession().getValueFactory()
-					.createBinary(in);
-			contentNode.setProperty(Property.JCR_DATA, binary);
-			return fileNode;
-		} catch (Exception e) {
-			throw new ArgeoException("Cannot create file node " + fileName
-					+ " under " + folderNode, e);
-		} finally {
-			closeQuietly(binary);
-		}
-	}
-
-	/** Computes the checksum of an nt:file */
-	public static String checksumFile(Node fileNode, String algorithm) {
-		Binary data = null;
-		InputStream in = null;
-		try {
-			data = fileNode.getNode(Node.JCR_CONTENT)
-					.getProperty(Property.JCR_DATA).getBinary();
-			in = data.getStream();
-			return DigestUtils.digest(algorithm, in);
-		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot checksum file " + fileNode, e);
-		} finally {
-			IOUtils.closeQuietly(in);
-			closeQuietly(data);
 		}
 	}
 
@@ -1441,4 +1273,196 @@ public class JcrUtils implements ArgeoJcrConstants {
 			}
 		}
 	}
+
+	/*
+	 * FILES UTILITIES
+	 */
+	/**
+	 * Creates the nodes making the path as {@link NodeType#NT_FOLDER}
+	 */
+	public static Node mkfolders(Session session, String path) {
+		return mkdirs(session, path, NodeType.NT_FOLDER, NodeType.NT_FOLDER,
+				false);
+	}
+
+	/**
+	 * Copy only nt:folder and nt:file, without their additional types and
+	 * properties.
+	 * 
+	 * @param recursive
+	 *            if true copies folders as well, otherwise only first level
+	 *            files
+	 * @return how many files were copied
+	 */
+	public static Long copyFiles(Node fromNode, Node toNode, Boolean recursive,
+			ArgeoMonitor monitor) {
+		long count = 0l;
+
+		Binary binary = null;
+		InputStream in = null;
+		try {
+			NodeIterator fromChildren = fromNode.getNodes();
+			while (fromChildren.hasNext()) {
+				if (monitor != null && monitor.isCanceled())
+					throw new ArgeoException(
+							"Copy cancelled before it was completed");
+
+				Node fromChild = fromChildren.nextNode();
+				String fileName = fromChild.getName();
+				if (fromChild.isNodeType(NodeType.NT_FILE)) {
+					if (monitor != null)
+						monitor.subTask("Copy " + fileName);
+					binary = fromChild.getNode(Node.JCR_CONTENT)
+							.getProperty(Property.JCR_DATA).getBinary();
+					in = binary.getStream();
+					copyStreamAsFile(toNode, fileName, in);
+					IOUtils.closeQuietly(in);
+					closeQuietly(binary);
+
+					// save session
+					toNode.getSession().save();
+					count++;
+
+					if (log.isDebugEnabled())
+						log.debug("Copied file " + fromChild.getPath());
+					if (monitor != null)
+						monitor.worked(1);
+				} else if (fromChild.isNodeType(NodeType.NT_FOLDER)
+						&& recursive) {
+					Node toChildFolder;
+					if (toNode.hasNode(fileName)) {
+						toChildFolder = toNode.getNode(fileName);
+						if (!toChildFolder.isNodeType(NodeType.NT_FOLDER))
+							throw new ArgeoException(toChildFolder
+									+ " is not of type nt:folder");
+					} else {
+						toChildFolder = toNode.addNode(fileName,
+								NodeType.NT_FOLDER);
+
+						// save session
+						toNode.getSession().save();
+					}
+					count = count
+							+ copyFiles(fromChild, toChildFolder, recursive,
+									monitor);
+				}
+			}
+			return count;
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot copy files between " + fromNode
+					+ " and " + toNode);
+		} finally {
+			// in case there was an exception
+			IOUtils.closeQuietly(in);
+			closeQuietly(binary);
+		}
+	}
+
+	/**
+	 * Iteratively count all file nodes in subtree, inefficient but can be
+	 * useful when query are poorly supported, such as in remoting.
+	 */
+	public static Long countFiles(Node node) {
+		Long localCount = 0l;
+		try {
+			for (NodeIterator nit = node.getNodes(); nit.hasNext();) {
+				Node child = nit.nextNode();
+				if (child.isNodeType(NodeType.NT_FOLDER))
+					localCount = localCount + countFiles(child);
+				else if (child.isNodeType(NodeType.NT_FILE))
+					localCount = localCount + 1;
+			}
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot count all children of " + node);
+		}
+		return localCount;
+	}
+
+	/**
+	 * Copy a file as an nt:file, assuming an nt:folder hierarchy. The session
+	 * is NOT saved.
+	 * 
+	 * @return the created file node
+	 */
+	public static Node copyFile(Node folderNode, File file) {
+		InputStream in = null;
+		try {
+			in = new FileInputStream(file);
+			return copyStreamAsFile(folderNode, file.getName(), in);
+		} catch (IOException e) {
+			throw new ArgeoException("Cannot copy file " + file + " under "
+					+ folderNode, e);
+		} finally {
+			IOUtils.closeQuietly(in);
+		}
+	}
+
+	/** Copy bytes as an nt:file */
+	public static Node copyBytesAsFile(Node folderNode, String fileName,
+			byte[] bytes) {
+		InputStream in = null;
+		try {
+			in = new ByteArrayInputStream(bytes);
+			return copyStreamAsFile(folderNode, fileName, in);
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot copy file " + fileName + " under "
+					+ folderNode, e);
+		} finally {
+			IOUtils.closeQuietly(in);
+		}
+	}
+
+	/**
+	 * Copy a stream as an nt:file, assuming an nt:folder hierarchy. The session
+	 * is NOT saved.
+	 * 
+	 * @return the created file node
+	 */
+	public static Node copyStreamAsFile(Node folderNode, String fileName,
+			InputStream in) {
+		Binary binary = null;
+		try {
+			Node fileNode;
+			Node contentNode;
+			if (folderNode.hasNode(fileName)) {
+				fileNode = folderNode.getNode(fileName);
+				if (!fileNode.isNodeType(NodeType.NT_FILE))
+					throw new ArgeoException(fileNode
+							+ " is not of type nt:file");
+				// we assume that the content node is already there
+				contentNode = fileNode.getNode(Node.JCR_CONTENT);
+			} else {
+				fileNode = folderNode.addNode(fileName, NodeType.NT_FILE);
+				contentNode = fileNode.addNode(Node.JCR_CONTENT,
+						NodeType.NT_RESOURCE);
+			}
+			binary = contentNode.getSession().getValueFactory()
+					.createBinary(in);
+			contentNode.setProperty(Property.JCR_DATA, binary);
+			return fileNode;
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot create file node " + fileName
+					+ " under " + folderNode, e);
+		} finally {
+			closeQuietly(binary);
+		}
+	}
+
+	/** Computes the checksum of an nt:file */
+	public static String checksumFile(Node fileNode, String algorithm) {
+		Binary data = null;
+		InputStream in = null;
+		try {
+			data = fileNode.getNode(Node.JCR_CONTENT)
+					.getProperty(Property.JCR_DATA).getBinary();
+			in = data.getStream();
+			return DigestUtils.digest(algorithm, in);
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot checksum file " + fileNode, e);
+		} finally {
+			IOUtils.closeQuietly(in);
+			closeQuietly(data);
+		}
+	}
+
 }

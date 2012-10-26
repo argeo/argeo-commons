@@ -47,7 +47,7 @@ import org.argeo.util.security.Keyring;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /** username / password based keyring. TODO internationalize */
-public abstract class AbstractKeyring implements Keyring {
+public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 	static {
 		Security.addProvider(new BouncyCastleProvider());
 	}

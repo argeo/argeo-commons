@@ -10,4 +10,13 @@
 	<!-- REFERENCES -->
 	<reference id="secureLogger" interface="org.argeo.ArgeoLogger"
 		cardinality="0..1" />
+
+	<reference id="nodeRepository" interface="javax.jcr.Repository"
+		filter="(argeo.jcr.repository.alias=node)" />
+
+	<reference id="defaultCallbackHandler" interface="javax.security.auth.callback.CallbackHandler" />
+
+	<!-- SERVICES -->
+	<service interface="org.argeo.security.crypto.CryptoKeyring"
+		ref="keyring" />
 </beans:beans>
