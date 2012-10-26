@@ -15,8 +15,6 @@
  */
 package org.argeo.jackrabbit;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -60,17 +58,10 @@ public class JackrabbitRepositoryFactory extends DefaultRepositoryFactory
 			if (uri.startsWith("http"))// http, https
 				repository = createRemoteRepository(uri);
 			else if (uri.startsWith("vm")) {
-				try {
-					URI uriObj = new URI(uri);
-					String alias = uriObj.getPath();
-					if (alias.charAt(0) == '/')
-						alias = alias.substring(1);
-					if (alias.charAt(alias.length() - 1) == '/')
-						alias = alias.substring(0, alias.length() - 1);
-					repository = getRepositoryByAlias(alias);
-				} catch (URISyntaxException e) {
-					throw new ArgeoException("Cannot interpret URI " + uri, e);
-				}
+				log.warn("URI "
+						+ uri
+						+ " should have been managed by generic JCR repository factory");
+				repository = getRepositoryByAlias(getAliasFromURI(uri));
 			}
 		}
 

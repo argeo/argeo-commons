@@ -15,6 +15,8 @@
  */
 package org.argeo.jcr;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Properties;
 
@@ -22,18 +24,37 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
 
+import org.argeo.ArgeoException;
+
+/**
+ * Simple implementation of {@link RepositoryFactory}, supporting OSGi aliases.
+ */
 public class DefaultRepositoryFactory extends DefaultRepositoryRegister
 		implements RepositoryFactory, ArgeoJcrConstants {
-	// private final static Log log = LogFactory
-	// .getLog(DefaultRepositoryFactory.class);
-
 	@SuppressWarnings("rawtypes")
 	public Repository getRepository(Map parameters) throws RepositoryException {
 		if (parameters.containsKey(JCR_REPOSITORY_ALIAS)) {
 			String alias = parameters.get(JCR_REPOSITORY_ALIAS).toString();
 			return getRepositoryByAlias(alias);
+		} else if (parameters.containsKey(JCR_REPOSITORY_URI)) {
+			String uri = parameters.get(JCR_REPOSITORY_URI).toString();
+			return getRepositoryByAlias(getAliasFromURI(uri));
 		}
 		return null;
+	}
+
+	protected String getAliasFromURI(String uri) {
+		try {
+			URI uriObj = new URI(uri);
+			String alias = uriObj.getPath();
+			if (alias.charAt(0) == '/')
+				alias = alias.substring(1);
+			if (alias.charAt(alias.length() - 1) == '/')
+				alias = alias.substring(0, alias.length() - 1);
+			return alias;
+		} catch (URISyntaxException e) {
+			throw new ArgeoException("Cannot interpret URI " + uri, e);
+		}
 	}
 
 	/**
