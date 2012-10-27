@@ -189,6 +189,14 @@ public class OsgiBoot {
 	/*
 	 * INSTALLATION
 	 */
+	/** Install a single url. Convenience method. */
+	public Bundle installUrl(String url) {
+		List urls = new ArrayList();
+		urls.add(url);
+		installUrls(urls);
+		return (Bundle) getBundlesByLocation().get(url);
+	}
+
 	/** Install the bundles at this URL list. */
 	public void installUrls(List urls) {
 		Map installedBundles = getBundlesByLocation();
@@ -496,15 +504,23 @@ public class OsgiBoot {
 	 * effects.
 	 */
 	public List getBundlesUrls() {
-		String baseUrl = OsgiBootUtils.getProperty(PROP_ARGEO_OSGI_BASE_URL,
-				DEFAULT_BASE_URL);
 		String bundlePatterns = OsgiBootUtils
 				.getProperty(PROP_ARGEO_OSGI_BUNDLES);
+		return getBundlesUrls(bundlePatterns);
+	}
+
+	/**
+	 * Compute alist of URLs to install based on the provided patterns, with
+	 * default base url
+	 */
+	public List getBundlesUrls(String bundlePatterns) {
+		String baseUrl = OsgiBootUtils.getProperty(PROP_ARGEO_OSGI_BASE_URL,
+				DEFAULT_BASE_URL);
 		return getBundlesUrls(baseUrl, bundlePatterns);
 	}
 
 	/** Implements the path matching logic */
-	public List getBundlesUrls(String baseUrl, String bundlePatterns) {
+	List getBundlesUrls(String baseUrl, String bundlePatterns) {
 		List urls = new ArrayList();
 		if (bundlePatterns == null)
 			return urls;
