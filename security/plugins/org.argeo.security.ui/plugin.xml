@@ -33,14 +33,14 @@
             class="org.argeo.eclipse.spring.SpringExtensionFactory"
             name="Log"
             icon="icons/log.gif"
-            restorable="false">
+            restorable="true">
       </view>
       <view
             id="org.argeo.security.ui.adminLogView"
             class="org.argeo.eclipse.spring.SpringExtensionFactory"
             name="Admin Log"
             icon="icons/adminLog.gif"
-            restorable="false">
+            restorable="true">
       </view>
    </extension>
    <extension
