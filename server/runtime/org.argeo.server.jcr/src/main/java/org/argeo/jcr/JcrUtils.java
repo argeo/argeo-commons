@@ -287,6 +287,30 @@ public class JcrUtils implements ArgeoJcrConstants {
 	}
 
 	/**
+	 * Call {@link Node#getName()} without exceptions (useful in super
+	 * constructors).
+	 */
+	public static String getNameQuietly(Node node) {
+		try {
+			return node.getName();
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot get name from " + node, e);
+		}
+	}
+
+	/**
+	 * Call {@link Node#getProperty(String)} without exceptions (useful in super
+	 * constructors).
+	 */
+	public static String getStringPropertyQuietly(Node node, String propertyName) {
+		try {
+			return node.getProperty(propertyName).getString();
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot get name from " + node, e);
+		}
+	}
+
+	/**
 	 * Routine that get the child with this name, adding id it does not already
 	 * exist
 	 */
