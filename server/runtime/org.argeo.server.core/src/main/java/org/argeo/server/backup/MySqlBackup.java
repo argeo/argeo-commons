@@ -2,7 +2,7 @@ package org.argeo.server.backup;
 
 import org.apache.commons.vfs.FileObject;
 
-/** Backups a MySQL database using mysqldump */
+/** Backups a MySQL database using mysqldump. */
 public class MySqlBackup extends OsCallBackup {
 	private String mysqldumpLocation = "/usr/bin/mysqldump";
 
@@ -11,20 +11,19 @@ public class MySqlBackup extends OsCallBackup {
 	private String dbName;
 
 	public MySqlBackup() {
-		super();
 	}
 
 	public MySqlBackup(String dbUser, String dbPassword, String dbName) {
-		super(dbName + ".sql");
 		this.dbUser = dbUser;
 		this.dbPassword = dbPassword;
 		this.dbName = dbName;
+		init();
 	}
 
 	@Override
 	public void init() {
 		if (getName() == null)
-			setName(dbName + ".sql");
+			setName(dbName + ".mysql");
 		super.init();
 	}
 

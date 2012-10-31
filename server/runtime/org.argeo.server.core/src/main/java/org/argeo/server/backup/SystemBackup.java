@@ -182,6 +182,12 @@ public class SystemBackup implements Runnable {
 
 				MySqlBackup mySqlBackup = new MySqlBackup("root", "", "test");
 				atomicBackups.add(mySqlBackup);
+				PostgreSqlBackup postgreSqlBackup = new PostgreSqlBackup(
+						"argeo", "argeo", "gis_template");
+				atomicBackups.add(postgreSqlBackup);
+				SvnBackup svnBackup = new SvnBackup(
+						"/home/mbaudier/tmp/testsvnrepo");
+				atomicBackups.add(svnBackup);
 
 				systemBackup.setAtomicBackups(atomicBackups);
 

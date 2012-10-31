@@ -32,7 +32,10 @@ public class SimpleBackupPurge implements BackupPurge {
 			SortedMap<DateTime, FileObject> toDelete = new TreeMap<DateTime, FileObject>();
 			int backupCount = 0;
 
-			// scan backups an list those which should be deleted
+			// make sure base dir exists
+			baseFo.createFolder();
+
+			// scan backups and list those which should be deleted
 			for (FileObject backupFo : baseFo.getChildren()) {
 				String backupName = backupFo.getName().getBaseName();
 				Date backupDate = dateFormat.parse(backupName);

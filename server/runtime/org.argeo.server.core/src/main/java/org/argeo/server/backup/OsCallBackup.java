@@ -28,6 +28,8 @@ public class OsCallBackup extends AbstractAtomicBackup {
 	private Map<String, String> variables = new HashMap<String, String>();
 	private Executor executor = new DefaultExecutor();
 
+	private Map<String, String> environment = new HashMap<String, String>();
+
 	public OsCallBackup() {
 	}
 
@@ -54,7 +56,7 @@ public class OsCallBackup extends AbstractAtomicBackup {
 			ExecuteStreamHandler streamHandler = new PumpStreamHandler(
 					targetContent.getOutputStream(), errBos);
 			executor.setStreamHandler(streamHandler);
-			executor.execute(commandLine);
+			executor.execute(commandLine, environment);
 		} catch (ExecuteException e) {
 			byte[] err = errBos.toByteArray();
 			String errStr = new String(err);
@@ -76,6 +78,14 @@ public class OsCallBackup extends AbstractAtomicBackup {
 
 	protected String getCommand() {
 		return command;
+	}
+
+	/**
+	 * A reference to the environment variables that will be passed to the
+	 * process. Empty by default.
+	 */
+	protected Map<String, String> getEnvironment() {
+		return environment;
 	}
 
 	protected Map<String, String> getVariables() {
