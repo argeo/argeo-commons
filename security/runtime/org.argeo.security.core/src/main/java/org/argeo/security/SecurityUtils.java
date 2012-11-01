@@ -15,6 +15,10 @@
  */
 package org.argeo.security;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContext;
@@ -78,5 +82,17 @@ public class SecurityUtils {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Converts an array of Spring Security {@link GrantedAuthority} to a
+	 * read-only list of strings, for portability and integration
+	 */
+	public static List<String> authoritiesToStringList(
+			GrantedAuthority[] authorities) {
+		List<String> lst = new ArrayList<String>();
+		for (GrantedAuthority ga : authorities)
+			lst.add(ga.getAuthority());
+		return Collections.unmodifiableList(lst);
 	}
 }

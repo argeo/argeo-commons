@@ -39,7 +39,7 @@ import org.springframework.security.providers.anonymous.AnonymousAuthenticationT
 
 /** Jackrabbit login mechanism based on Spring Security */
 public class ArgeoLoginModule extends AbstractLoginModule {
-	private String adminRole = "ROLE_ADMIN";
+	// private String adminRole = "ROLE_ADMIN";
 
 	@SuppressWarnings("unused")
 	@Override
@@ -100,8 +100,8 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 			for (GrantedAuthority ga : authen.getAuthorities()) {
 				principals.add(new GrantedAuthorityPrincipal(ga));
 				// FIXME: make it more generic
-				if (adminRole.equals(ga.getAuthority()))
-					principals.add(new AdminPrincipal(authen.getName()));
+				// if (adminRole.equals(ga.getAuthority()))
+				// principals.add(new AdminPrincipal(authen.getName()));
 			}
 		}
 

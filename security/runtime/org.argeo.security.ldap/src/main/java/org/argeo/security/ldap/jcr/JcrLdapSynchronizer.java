@@ -59,8 +59,10 @@ import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.security.SecurityUtils;
 import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.jcr.JcrUserDetails;
+import org.argeo.security.jcr.SimpleJcrSecurityModel;
 import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -106,7 +108,7 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 	private Repository repository;
 
 	private JcrProfileListener jcrProfileListener;
-	private JcrSecurityModel jcrSecurityModel = new JcrSecurityModel();
+	private JcrSecurityModel jcrSecurityModel = new SimpleJcrSecurityModel();
 
 	// Mapping
 	private Map<String, String> propertyToAttributes = new HashMap<String, String>();
@@ -237,7 +239,8 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 
 		// Node userProfile = SecurityJcrUtils.createUserProfileIfNeeded(
 		// securitySession, username);
-		Node userProfile = jcrSecurityModel.sync(nodeSession, username);
+		Node userProfile = jcrSecurityModel.sync(nodeSession, username,
+				SecurityUtils.authoritiesToStringList(authorities));
 		// JcrUserDetails.checkAccountStatus(userProfile);
 
 		// password
@@ -272,7 +275,7 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 			// process
 			String username = ctx.getStringAttribute(usernameAttribute);
 
-			Node userProfile = jcrSecurityModel.sync(session, username);
+			Node userProfile = jcrSecurityModel.sync(session, username, null);
 			Map<String, String> modifications = new HashMap<String, String>();
 			for (String jcrProperty : propertyToAttributes.keySet())
 				ldapToJcr(userProfile, jcrProperty, ctx, modifications);

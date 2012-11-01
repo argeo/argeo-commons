@@ -42,8 +42,14 @@ import org.springframework.security.GrantedAuthority;
 
 /** Integrates Spring Security and Jackrabbit Security users and roles. */
 public class ArgeoSecurityManager extends DefaultSecurityManager {
+	/** Legacy security sync */
+	final static String PROPERTY_JACKRABBIT_SECURITY_SYNC_1_1 = "argeo.jackarabbit.securitySync.1.1";
+
 	private final static Log log = LogFactory
 			.getLog(ArgeoSecurityManager.class);
+
+	private static Boolean synchronize = Boolean.parseBoolean(System
+			.getProperty(PROPERTY_JACKRABBIT_SECURITY_SYNC_1_1, "false"));
 
 	/** TODO? use a bounded buffer */
 	private Map<String, String> userRolesCache = Collections
@@ -57,6 +63,9 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 	@Override
 	public String getUserID(Subject subject, String workspaceName)
 			throws RepositoryException {
+		if (!synchronize)
+			return super.getUserID(subject, workspaceName);
+
 		if (log.isTraceEnabled())
 			log.trace(subject);
 		// skip anonymous user (no rights)
@@ -71,18 +80,19 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		Authentication authen;
 		Set<Authentication> authens = subject
 				.getPrincipals(Authentication.class);
-		String userId;
+		String userId = super.getUserID(subject, workspaceName);
 		if (authens.size() == 0) {
 			// make sure that logged-in user has a Principal, useful for testing
 			// using an admin user
-			userId = super.getUserID(subject, workspaceName);
 			UserManager systemUm = getSystemUserManager(null);
 			if (systemUm.getAuthorizable(userId) == null)
 				systemUm.createUser(userId, "");
 		} else {// Spring Security
 			authen = authens.iterator().next();
 
-			userId = authen.getName();
+			if (!userId.equals(authen.getName()))
+				log.warn("User ID is '" + userId + "' but authen is "
+						+ authen.getName());
 			StringBuffer roles = new StringBuffer("");
 			GrantedAuthority[] authorities = authen.getAuthorities();
 			for (GrantedAuthority ga : authorities) {
@@ -107,7 +117,7 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 	 * Make sure that the Jackrabbit security model contains this user and its
 	 * granted authorities
 	 */
-	static void syncSpringAndJackrabbitSecurity(UserManager systemUm,
+	static private void syncSpringAndJackrabbitSecurity(UserManager systemUm,
 			Authentication authen) throws RepositoryException {
 		long begin = System.currentTimeMillis();
 

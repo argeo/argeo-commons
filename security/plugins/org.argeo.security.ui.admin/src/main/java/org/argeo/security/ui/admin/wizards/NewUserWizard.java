@@ -62,7 +62,7 @@ public class NewUserWizard extends Wizard {
 		try {
 			// Node userProfile = SecurityJcrUtils.createUserProfile(session,
 			// username);
-			Node userProfile = jcrSecurityModel.sync(session, username);
+			Node userProfile = jcrSecurityModel.sync(session, username, null);
 			session.getWorkspace().getVersionManager()
 					.checkout(userProfile.getPath());
 			mainUserInfo.mapToProfileNode(userProfile);

@@ -1239,11 +1239,14 @@ public class JcrUtils implements ArgeoJcrConstants {
 
 	/**
 	 * Add privileges on a path to a {@link Principal}. The path must already
-	 * exist. Session is saved.
+	 * exist. Session is saved. Synchronized to prevent concurrent modifications
+	 * of the same node.
 	 */
-	public static void addPrivileges(Session session, String path,
+	public synchronized static void addPrivileges(Session session, String path,
 			Principal principal, List<Privilege> privs)
 			throws RepositoryException {
+		// make sure the session is in line with the persisted state
+		session.refresh(false);
 		AccessControlManager acm = session.getAccessControlManager();
 		AccessControlList acl = getAccessControlList(acm, path);
 		acl.addAccessControlEntry(principal,
@@ -1256,6 +1259,7 @@ public class JcrUtils implements ArgeoJcrConstants {
 			log.debug("Added privileges " + privBuf + " to " + principal
 					+ " on " + path);
 		}
+		session.refresh(true);
 		session.save();
 	}
 
