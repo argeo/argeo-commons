@@ -24,7 +24,8 @@ public class JackrabbitSecurityModel extends SimpleJcrSecurityModel {
 			.getLog(JackrabbitSecurityModel.class);
 
 	@Override
-	public Node sync(Session session, String username, List<String> roles) {
+	public synchronized Node sync(Session session, String username,
+			List<String> roles) {
 		if (!(session instanceof JackrabbitSession))
 			return super.sync(session, username, roles);
 

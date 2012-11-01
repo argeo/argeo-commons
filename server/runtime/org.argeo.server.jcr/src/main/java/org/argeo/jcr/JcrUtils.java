@@ -1229,7 +1229,7 @@ public class JcrUtils implements ArgeoJcrConstants {
 	 * Convenience method for adding a single privilege to a principal (user or
 	 * role), typically jcr:all
 	 */
-	public static void addPrivilege(Session session, String path,
+	public synchronized static void addPrivilege(Session session, String path,
 			String principal, String privilege) throws RepositoryException {
 		List<Privilege> privileges = new ArrayList<Privilege>();
 		privileges.add(session.getAccessControlManager().privilegeFromName(
@@ -1264,7 +1264,7 @@ public class JcrUtils implements ArgeoJcrConstants {
 	}
 
 	/** Gets access control list for this path, throws exception if not found */
-	public static AccessControlList getAccessControlList(
+	public synchronized static AccessControlList getAccessControlList(
 			AccessControlManager acm, String path) throws RepositoryException {
 		// search for an access control list
 		AccessControlList acl = null;
@@ -1291,8 +1291,8 @@ public class JcrUtils implements ArgeoJcrConstants {
 	}
 
 	/** Clear authorizations for a user at this path */
-	public static void clearAccessControList(Session session, String path,
-			String username) throws RepositoryException {
+	public synchronized static void clearAccessControList(Session session,
+			String path, String username) throws RepositoryException {
 		AccessControlManager acm = session.getAccessControlManager();
 		AccessControlList acl = getAccessControlList(acm, path);
 		for (AccessControlEntry ace : acl.getAccessControlEntries()) {

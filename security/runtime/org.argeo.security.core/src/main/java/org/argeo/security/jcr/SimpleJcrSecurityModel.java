@@ -31,7 +31,8 @@ public class SimpleJcrSecurityModel implements JcrSecurityModel {
 	/** The home base path. */
 	private String homeBasePath = "/home";
 
-	public Node sync(Session session, String username, List<String> roles) {
+	public synchronized Node sync(Session session, String username,
+			List<String> roles) {
 		// TODO check user name validity (e.g. should not start by ROLE_)
 
 		try {
@@ -57,7 +58,7 @@ public class SimpleJcrSecurityModel implements JcrSecurityModel {
 
 			// Remote roles
 			if (roles != null) {
-				//writeRemoteRoles(userHome, roles);
+				// writeRemoteRoles(userHome, roles);
 			}
 
 			Node userProfile = UserJcrUtils.getUserProfile(session, username);

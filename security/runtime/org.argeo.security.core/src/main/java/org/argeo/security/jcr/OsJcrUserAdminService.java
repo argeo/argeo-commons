@@ -21,21 +21,20 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
  * desktop). TODO integrate with JCR user / groups
  */
 public class OsJcrUserAdminService implements UserAdminService {
-	private String securityWorkspace = "security";
 	private Repository repository;
 
-	private Session securitySession;
+	// private Session adminSession;
 
 	public void init() {
-		try {
-			securitySession = repository.login(securityWorkspace);
-		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot initialize", e);
-		}
+		// try {
+		// adminSession = repository.login();
+		// } catch (RepositoryException e) {
+		// throw new ArgeoException("Cannot initialize", e);
+		// }
 	}
 
 	public void destroy() {
-		JcrUtils.logoutQuietly(securitySession);
+		// JcrUtils.logoutQuietly(adminSession);
 	}
 
 	/** <b>Unsupported</b> */
@@ -68,15 +67,19 @@ public class OsJcrUserAdminService implements UserAdminService {
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException, DataAccessException {
 		if (getSPropertyUsername().equals(username)) {
-			Node userProfile = UserJcrUtils.getUserProfile(securitySession,
-					username);
 			JcrUserDetails userDetails;
+			Session adminSession = null;
 			try {
+				adminSession = repository.login();
+				Node userProfile = UserJcrUtils.getUserProfile(adminSession,
+						username);
 				userDetails = new JcrUserDetails(userProfile, "",
 						OsJcrAuthenticationProvider.getBaseAuthorities());
 			} catch (RepositoryException e) {
 				throw new ArgeoException("Cannot retrieve user profile for "
 						+ username, e);
+			} finally {
+				JcrUtils.logoutQuietly(adminSession);
 			}
 			return userDetails;
 		} else {
@@ -122,9 +125,4 @@ public class OsJcrUserAdminService implements UserAdminService {
 	public void setRepository(Repository repository) {
 		this.repository = repository;
 	}
-
-	public void setSecurityWorkspace(String securityWorkspace) {
-		this.securityWorkspace = securityWorkspace;
-	}
-
 }

@@ -34,6 +34,8 @@ import org.apache.jackrabbit.api.security.user.Group;
 import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.core.DefaultSecurityManager;
+import org.apache.jackrabbit.core.security.AMContext;
+import org.apache.jackrabbit.core.security.AccessManager;
 import org.apache.jackrabbit.core.security.AnonymousPrincipal;
 import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
@@ -54,6 +56,22 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 	/** TODO? use a bounded buffer */
 	private Map<String, String> userRolesCache = Collections
 			.synchronizedMap(new HashMap<String, String>());
+
+	@Override
+	public AccessManager getAccessManager(Session session, AMContext amContext)
+			throws RepositoryException {
+		synchronized (getSystemSession()) {
+			return super.getAccessManager(session, amContext);
+		}
+	}
+
+	@Override
+	public UserManager getUserManager(Session session)
+			throws RepositoryException {
+		synchronized (getSystemSession()) {
+			return super.getUserManager(session);
+		}
+	}
 
 	/**
 	 * Since this is called once when the session is created, we take the

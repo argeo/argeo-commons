@@ -65,7 +65,8 @@ public class UserJcrUtils {
 			Query query = qomf.createQuery(userHomeSel, constraint, null, null);
 			return JcrUtils.querySingleNode(query);
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot find home for user " + username, e);
+			throw new ArgeoException(
+					"Cannot find profile for user " + username, e);
 		}
 	}
 

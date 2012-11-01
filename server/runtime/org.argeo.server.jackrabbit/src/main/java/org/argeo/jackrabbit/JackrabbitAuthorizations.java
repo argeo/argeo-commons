@@ -42,20 +42,22 @@ public class JackrabbitAuthorizations extends JcrAuthorizations {
 	protected Principal getOrCreatePrincipal(Session session,
 			String principalName) throws RepositoryException {
 		UserManager um = ((JackrabbitSession) session).getUserManager();
-		Authorizable authorizable = um.getAuthorizable(principalName);
-		if (authorizable == null) {
-			groupPrefixes: for (String groupPrefix : groupPrefixes) {
-				if (principalName.startsWith(groupPrefix)) {
-					authorizable = um.createGroup(principalName);
-					log.info("Created group " + principalName);
-					break groupPrefixes;
+		synchronized (um) {
+			Authorizable authorizable = um.getAuthorizable(principalName);
+			if (authorizable == null) {
+				groupPrefixes: for (String groupPrefix : groupPrefixes) {
+					if (principalName.startsWith(groupPrefix)) {
+						authorizable = um.createGroup(principalName);
+						log.info("Created group " + principalName);
+						break groupPrefixes;
+					}
 				}
+				if (authorizable == null)
+					throw new ArgeoException("Authorizable " + principalName
+							+ " not found");
 			}
-			if (authorizable == null)
-				throw new ArgeoException("Authorizable " + principalName
-						+ " not found");
+			return authorizable.getPrincipal();
 		}
-		return authorizable.getPrincipal();
 	}
 
 	public void setGroupPrefixes(List<String> groupsToCreate) {
