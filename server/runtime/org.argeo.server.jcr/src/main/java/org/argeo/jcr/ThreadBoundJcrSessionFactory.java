@@ -65,9 +65,9 @@ public abstract class ThreadBoundJcrSessionFactory {
 
 	public ThreadBoundJcrSessionFactory() {
 		Class<?>[] interfaces = { Session.class };
-		proxiedSession = (Session) Proxy.newProxyInstance(getClass()
-				.getClassLoader(), interfaces,
-				new JcrSessionInvocationHandler());
+		proxiedSession = (Session) Proxy.newProxyInstance(
+				ThreadBoundJcrSessionFactory.class.getClassLoader(),
+				interfaces, new JcrSessionInvocationHandler());
 	}
 
 	/** Logs in to the repository using various strategies. */
