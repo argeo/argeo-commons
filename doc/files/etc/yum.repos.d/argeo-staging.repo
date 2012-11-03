@@ -1,0 +1,6 @@
+[argeo-osgi-staging]
+name=Argeo OSGi Staging
+baseurl=file:///srv/rpmfactory/argeo-osgi-staging/6/x86_64
+gpgcheck=0
+http_caching=none
+metadata_expire=0
