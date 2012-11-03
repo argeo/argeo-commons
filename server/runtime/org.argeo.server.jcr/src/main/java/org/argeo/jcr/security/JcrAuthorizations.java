@@ -40,6 +40,8 @@ public class JcrAuthorizations implements Runnable {
 	private Repository repository;
 	private String workspace = null;
 
+	private String securityWorkspace = "security";
+
 	/**
 	 * key := privilege1,privilege2/path/to/node<br/>
 	 * value := group1,group2,user1
@@ -47,6 +49,37 @@ public class JcrAuthorizations implements Runnable {
 	private Map<String, String> principalPrivileges = new HashMap<String, String>();
 
 	public void run() {
+		String currentWorkspace = workspace;
+		Session session = null;
+		try {
+			if (workspace != null && workspace.equals("*")) {
+				session = repository.login();
+				String[] workspaces = session.getWorkspace()
+						.getAccessibleWorkspaceNames();
+				JcrUtils.logoutQuietly(session);
+				for (String wksp : workspaces) {
+					currentWorkspace = wksp;
+					if (currentWorkspace.equals(securityWorkspace))
+						continue;
+					session = repository.login(currentWorkspace);
+					initAuthorizations(session);
+					JcrUtils.logoutQuietly(session);
+				}
+			} else {
+				session = repository.login(workspace);
+				initAuthorizations(session);
+			}
+		} catch (Exception e) {
+			JcrUtils.discardQuietly(session);
+			throw new ArgeoException(
+					"Cannot set authorizations " + principalPrivileges
+							+ " on workspace " + currentWorkspace, e);
+		} finally {
+			JcrUtils.logoutQuietly(session);
+		}
+	}
+
+	protected void processWorkspace(String workspace) {
 		Session session = null;
 		try {
 			session = repository.login(workspace);
@@ -94,12 +127,20 @@ public class JcrAuthorizations implements Runnable {
 				Principal principal = getOrCreatePrincipal(session,
 						principalName);
 				JcrUtils.addPrivileges(session, path, principal, privs);
+				if (log.isDebugEnabled()) {
+					StringBuffer privBuf = new StringBuffer();
+					for (Privilege priv : privs)
+						privBuf.append(priv.getName());
+					log.debug("Added privileges " + privBuf + " to "
+							+ principal.getName() + " on " + path + " in '"
+							+ session.getWorkspace().getName() + "'");
+				}
 			}
 		}
 
-		if (log.isDebugEnabled())
-			log.debug("All authorizations applied on workspace "
-					+ session.getWorkspace().getName());
+		// if (log.isDebugEnabled())
+		// log.debug("JCR authorizations applied on '"
+		// + session.getWorkspace().getName() + "'");
 	}
 
 	/**
@@ -174,6 +215,10 @@ public class JcrAuthorizations implements Runnable {
 
 	public void setWorkspace(String workspace) {
 		this.workspace = workspace;
+	}
+
+	public void setSecurityWorkspace(String securityWorkspace) {
+		this.securityWorkspace = securityWorkspace;
 	}
 
 }

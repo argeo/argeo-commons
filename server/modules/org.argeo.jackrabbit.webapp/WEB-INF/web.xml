@@ -5,6 +5,12 @@
 
 	<display-name>Argeo Jackrabbit Webapp</display-name>
 
+	<!-- We don't want the session-scoped JCR sessions to wait too long before 
+		being logged out. -->
+	<session-config>
+		<session-timeout>5</session-timeout>
+	</session-config>
+
 	<!-- General -->
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
@@ -70,7 +76,7 @@
 		<url-pattern>/public/*</url-pattern>
 	</servlet-mapping>
 
-	<!--  Security -->
+	<!-- Security -->
 	<filter>
 		<filter-name>springSecurityFilterChain</filter-name>
 		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>

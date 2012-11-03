@@ -47,7 +47,11 @@ import org.argeo.jcr.UserJcrUtils;
 /**
  * Implements an open session in view patter: a new JCR session is created for
  * each request
+ * 
+ * @deprecated use {@link ScopedSessionProvider} or
+ *             {@link OpenInViewSessionProvider}
  */
+@Deprecated
 public class SimpleSessionProvider implements SessionProvider, Serializable {
 	private static final long serialVersionUID = 2270957712453841368L;
 
@@ -60,17 +64,25 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 
 	private String defaultWorkspace = "default";
 
+	private String webSessionId = null;
+
 	public Session getSession(HttpServletRequest request, Repository rep,
 			String workspace) throws LoginException, ServletException,
 			RepositoryException {
 
 		if (openSessionInView) {
-			JackrabbitSession session = (JackrabbitSession) rep
-					.login(workspace);
+			JackrabbitSession session = (JackrabbitSession) login(request, rep,
+					workspace);
 			if (session.getWorkspace().getName().equals(defaultWorkspace))
 				writeRemoteRoles(session);
 			return session;
 		} else {
+			if (webSessionId != null
+					&& !webSessionId.equals(request.getSession().getId()))
+				throw new ArgeoException(
+						"Only session scope is supported in this mode");
+			webSessionId = request.getSession().getId();
+
 			// since sessions is transient it can't be restored from the session
 			if (sessions == null)
 				sessions = Collections
@@ -78,8 +90,11 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 
 			if (!sessions.containsKey(workspace)) {
 				try {
-					JackrabbitSession session = (JackrabbitSession) rep.login(
-							null, workspace);
+					// JackrabbitSession session = (JackrabbitSession)
+					// rep.login(
+					// null, workspace);
+					JackrabbitSession session = (JackrabbitSession) login(
+							request, rep, workspace);
 					if (session.getWorkspace().getName()
 							.equals(defaultWorkspace))
 						writeRemoteRoles(session);
@@ -95,12 +110,21 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 				Session session = sessions.get(workspace);
 				if (!session.isLive()) {
 					sessions.remove(workspace);
-					session = rep.login(null, workspace);
+					session = login(request, rep, workspace);
 					sessions.put(workspace, session);
 				}
 				return session;
 			}
 		}
+	}
+
+	protected Session login(HttpServletRequest request, Repository repository,
+			String workspace) throws RepositoryException {
+		if (log.isDebugEnabled())
+			log.debug("Login to workspace "
+					+ (workspace == null ? "<default>" : workspace)
+					+ " in web session " + request.getSession().getId());
+		return repository.login(workspace);
 	}
 
 	protected void writeRemoteRoles(JackrabbitSession session)
@@ -153,26 +177,26 @@ public class SimpleSessionProvider implements SessionProvider, Serializable {
 		if (log.isTraceEnabled())
 			log.trace("Releasing JCR session " + session);
 		if (openSessionInView) {
-			if (session.isLive()) {
-				session.logout();
-				if (log.isTraceEnabled())
-					log.trace("Logged out remote JCR session " + session);
-			}
+			JcrUtils.logoutQuietly(session);
+			if (log.isDebugEnabled())
+				log.debug("Logged out remote JCR session " + session);
 		}
 	}
 
 	public void init() {
+		if (log.isDebugEnabled())
+			log.debug("Init session provider for web session " + webSessionId);
 	}
 
 	public void destroy() {
+		if (log.isDebugEnabled())
+			log.debug("Destroy session provider for web session "
+					+ webSessionId);
+
 		if (sessions != null)
 			for (String workspace : sessions.keySet()) {
 				Session session = sessions.get(workspace);
-				if (session.isLive()) {
-					session.logout();
-					if (log.isDebugEnabled())
-						log.debug("Logged out remote JCR session " + session);
-				}
+				JcrUtils.logoutQuietly(session);
 			}
 	}
 

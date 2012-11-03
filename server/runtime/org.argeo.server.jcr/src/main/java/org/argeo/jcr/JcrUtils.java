@@ -1252,13 +1252,13 @@ public class JcrUtils implements ArgeoJcrConstants {
 		acl.addAccessControlEntry(principal,
 				privs.toArray(new Privilege[privs.size()]));
 		acm.setPolicy(path, acl);
-		if (log.isDebugEnabled()) {
-			StringBuffer privBuf = new StringBuffer();
-			for (Privilege priv : privs)
-				privBuf.append(priv.getName());
-			log.debug("Added privileges " + privBuf + " to " + principal
-					+ " on " + path);
-		}
+//		if (log.isTraceEnabled()) {
+//			StringBuffer privBuf = new StringBuffer();
+//			for (Privilege priv : privs)
+//				privBuf.append(priv.getName());
+//			log.trace("Added privileges " + privBuf + " to " + principal
+//					+ " on " + path);
+//		}
 		session.refresh(true);
 		session.save();
 	}

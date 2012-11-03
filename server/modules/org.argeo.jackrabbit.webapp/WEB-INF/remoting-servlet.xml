@@ -16,7 +16,7 @@
 	<bean id="urlMapping"
 		class="org.argeo.jackrabbit.remote.JcrRemotingHandlerMapping">
 		<property name="repositoryRegister" ref="repositoryRegister" />
-		<property name="sessionProvider" ref="sessionProvider" />
+		<property name="sessionProvider" ref="scopedSessionProvider" />
 	</bean>
 
 </beans>
