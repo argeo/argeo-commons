@@ -16,7 +16,7 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<configuration>
 					<instructions>
-						<Web-ContextPath>org.argeo.rap.webapp</Web-ContextPath>
+						<Web-ContextPath>ui</Web-ContextPath>
 						<Import-Package>
 							*,
 
