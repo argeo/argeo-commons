@@ -17,6 +17,9 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
+						<!-- Import-Package needs to be specified explicitly since BND doesn't 
+							deal with custom Spring-Context instructions -->
+						<Spring-Context>META-INF/spring/*.xml;create-asynchronously:=false</Spring-Context>
 						<Import-Package>
 							*,
 							com.mysql.jdbc;resolution:=optional,

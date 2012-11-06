@@ -15,10 +15,6 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<configuration>
 					<instructions>
-						<Import-Package>
-							*,
-							org.argeo.jcr,
-						</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>
