@@ -8,12 +8,12 @@
 
 	<bean id="springSecurityFilterChain" class="org.springframework.security.util.FilterChainProxy">
 		<sec:filter-chain-map path-type="ant">
-			<sec:filter-chain pattern="/webdav/**"
+			<sec:filter-chain pattern="/files/**"
 				filters="session,x509,basic,exception,interceptor" />
 			<!-- For some reason the first level listing workspaces must be public -->
-			<sec:filter-chain pattern="/remoting/*/"
+			<sec:filter-chain pattern="/jcr/*/"
 				filters="anonymous,exception,interceptorPublic" />
-			<sec:filter-chain pattern="/remoting/*/**"
+			<sec:filter-chain pattern="/jcr/*/**"
 				filters="session,x509,basic,exception,interceptor" />
 			<sec:filter-chain pattern="/public/**"
 				filters="anonymous,exception,interceptorPublic" />

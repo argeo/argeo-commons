@@ -17,7 +17,7 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<configuration>
 					<instructions>
-						<Web-ContextPath>org.argeo.jcr.webapp</Web-ContextPath>
+						<Web-ContextPath>data</Web-ContextPath>
 						<!-- Import-Package needs to be specified explicitly since BND doesn't 
 							scane WEB-INF -->
 						<Import-Package>

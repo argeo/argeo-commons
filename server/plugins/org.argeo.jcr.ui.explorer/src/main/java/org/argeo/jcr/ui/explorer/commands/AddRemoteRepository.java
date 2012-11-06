@@ -111,7 +111,7 @@ public class AddRemoteRepository extends AbstractHandler implements
 			setMessage("Login to remote repository", IMessageProvider.NONE);
 			name = createLT(composite, "Name", "remoteRepository");
 			uri = createLT(composite, "URI",
-					"http://localhost:7070/org.argeo.jcr.webapp/remoting/node");
+					"http://localhost:7070/data/jcr/node");
 			username = createLT(composite, "User", "");
 			password = createLP(composite, "Password");
 
@@ -162,8 +162,9 @@ public class AddRemoteRepository extends AbstractHandler implements
 
 		@Override
 		protected void okPressed() {
+			Session nodeSession = null;
 			try {
-				Session nodeSession = nodeRepository.login();
+				nodeSession = nodeRepository.login();
 				Node home = UserJcrUtils.getUserHome(nodeSession);
 
 				Node remote = home.hasNode(ARGEO_REMOTE) ? home
@@ -192,6 +193,8 @@ public class AddRemoteRepository extends AbstractHandler implements
 				super.okPressed();
 			} catch (Exception e) {
 				ErrorFeedback.show("Cannot add remote repository", e);
+			} finally {
+				JcrUtils.logoutQuietly(nodeSession);
 			}
 		}
 
