@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
@@ -17,8 +18,8 @@
 				<configuration>
 					<instructions>
 						<Web-ContextPath>org.argeo.jcr.webapp</Web-ContextPath>
-						<!-- TODO is it still necessary? -->
-						<DynamicImport-Package>*</DynamicImport-Package>
+						<!-- Import-Package needs to be specified explicitly since BND doesn't 
+							scane WEB-INF -->
 						<Import-Package>
 							*,
 							javax.jcr,
@@ -36,13 +37,22 @@
 							org.springframework.osgi.web.context.support,
 							org.springframework.security,
 							org.springframework.security.providers.anonymous,
+							org.springframework.security.ui,
 							org.springframework.security.ui.webapp,
 							org.springframework.security.ui.preauth.x509,
+							org.springframework.security.userdetails,
 							org.springframework.web.context,
 							org.springframework.web.filter,
 							org.springframework.web.servlet,
 							org.springframework.web.servlet.handler,
-							org.springframework.web.servlet.view
+							org.springframework.web.servlet.view,
+							org.springframework.security.util,
+							org.springframework.security.context,
+							org.springframework.security.ui.basicauth,
+							org.springframework.security.intercept.web,
+							org.springframework.security.vote,
+							org.springframework.security.ui.logout,
+							org.apache.jackrabbit.server,
 						</Import-Package>
 					</instructions>
 				</configuration>
