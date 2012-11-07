@@ -58,8 +58,9 @@ public class OsgiBoot {
 	public final static String PROP_ARGEO_OSGI_BUNDLES = "argeo.osgi.bundles";
 	public final static String PROP_ARGEO_OSGI_LOCATIONS = "argeo.osgi.locations";
 	public final static String PROP_ARGEO_OSGI_BASE_URL = "argeo.osgi.baseUrl";
-	/** Use org.argeo.osgi */
+	/** @deprecated */
 	public final static String PROP_ARGEO_OSGI_MODULES_URL = "argeo.osgi.modulesUrl";
+	public final static String PROP_ARGEO_OSGI_DISTRIBUTION_URL = "argeo.osgi.distributionUrl";
 
 	// booleans
 	public final static String PROP_ARGEO_OSGI_BOOT_DEBUG = "argeo.osgi.boot.debug";
@@ -80,7 +81,7 @@ public class OsgiBoot {
 	public final static String INSTANCE_AREA_DEFAULT_PROP = "osgi.instance.area.default";
 
 	private boolean debug = Boolean.valueOf(
-			System.getProperty(PROP_ARGEO_OSGI_BOOT_DEBUG, "false"))
+			System.getProperty(PROP_ARGEO_OSGI_BOOT_DEBUG, "true"))
 			.booleanValue();
 	/** Exclude svn metadata implicitely(a bit costly) */
 	private boolean excludeSvn = Boolean.valueOf(
@@ -159,6 +160,7 @@ public class OsgiBoot {
 		installUrls(getBundlesUrls());
 		installUrls(getLocationsUrls());
 		installUrls(getModulesUrls());
+		installUrls(getDistributionUrls());
 		checkUnresolved();
 		startBundles();
 		long duration = System.currentTimeMillis() - begin;
@@ -569,6 +571,34 @@ public class OsgiBoot {
 	}
 
 	/*
+	 * DISTRIBUTION JAR INSTALLATION
+	 */
+	public List getDistributionUrls() {
+		List urls = new ArrayList();
+		String distributionUrl = OsgiBootUtils
+				.getProperty(PROP_ARGEO_OSGI_DISTRIBUTION_URL);
+		if (distributionUrl == null)
+			return urls;
+		String baseUrl = OsgiBootUtils.getProperty(PROP_ARGEO_OSGI_BASE_URL);
+
+		DistributionBundle distributionBundle;
+		if (baseUrl != null
+				&& !(distributionUrl.startsWith("http") || distributionUrl
+						.startsWith("file"))) {
+			// relative url
+			distributionBundle = new DistributionBundle(baseUrl,
+					distributionUrl);
+		} else {
+			distributionBundle = new DistributionBundle(distributionUrl);
+			if (baseUrl != null)
+				distributionBundle.setBaseUrl(baseUrl);
+
+		}
+		distributionBundle.processUrl();
+		return distributionBundle.listUrls();
+	}
+
+	/*
 	 * MODULES LIST INSTALLATION (${argeo.osgi.modulesUrl})
 	 */
 	/**
@@ -577,6 +607,8 @@ public class OsgiBoot {
 	 * If ${argeo.osgi.baseUrl} is set, URLs will be considered relative paths
 	 * and be concatenated with the base URL, typically the root of a Maven
 	 * repository.
+	 * 
+	 * @deprecated
 	 */
 	public List getModulesUrls() {
 		List urls = new ArrayList();
