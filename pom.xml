@@ -226,7 +226,7 @@ limitations under the License.
 				<plugin>
 					<groupId>org.argeo.maven.plugins</groupId>
 					<artifactId>maven-argeo-osgi-plugin</artifactId>
-					<version>1.0.33</version>
+					<version>1.1.2</version>
 				</plugin>
 				<!-- Others -->
 				<plugin>
@@ -471,8 +471,8 @@ limitations under the License.
 			</releases>
 		</pluginRepository>
 		<pluginRepository>
-			<id>argeo</id>
-			<url>http://maven.argeo.org/argeo</url>
+			<id>argeo-maven-plugins</id>
+			<url>http://repo.argeo.org/org.argeo.jcr.webapp/public/java/org.argeo.maven.plugins-1.1.x</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
