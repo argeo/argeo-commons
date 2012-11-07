@@ -81,7 +81,7 @@ public class OsgiBoot {
 	public final static String INSTANCE_AREA_DEFAULT_PROP = "osgi.instance.area.default";
 
 	private boolean debug = Boolean.valueOf(
-			System.getProperty(PROP_ARGEO_OSGI_BOOT_DEBUG, "true"))
+			System.getProperty(PROP_ARGEO_OSGI_BOOT_DEBUG, "false"))
 			.booleanValue();
 	/** Exclude svn metadata implicitely(a bit costly) */
 	private boolean excludeSvn = Boolean.valueOf(

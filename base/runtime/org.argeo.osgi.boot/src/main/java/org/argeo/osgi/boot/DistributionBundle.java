@@ -167,6 +167,10 @@ public class DistributionBundle {
 		this.separator = modulesUrlSeparator;
 	}
 
+	public String getRelativeUrl() {
+		return relativeUrl;
+	}
+
 	/** One of the listed artifact */
 	protected static class OsgiArtifact {
 		private final String symbolicName;
