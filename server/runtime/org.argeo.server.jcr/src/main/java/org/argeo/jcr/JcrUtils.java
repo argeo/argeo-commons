@@ -1242,25 +1242,46 @@ public class JcrUtils implements ArgeoJcrConstants {
 	 * exist. Session is saved. Synchronized to prevent concurrent modifications
 	 * of the same node.
 	 */
-	public synchronized static void addPrivileges(Session session, String path,
-			Principal principal, List<Privilege> privs)
+	public synchronized static Boolean addPrivileges(Session session,
+			String path, Principal principal, List<Privilege> privs)
 			throws RepositoryException {
 		// make sure the session is in line with the persisted state
 		session.refresh(false);
 		AccessControlManager acm = session.getAccessControlManager();
 		AccessControlList acl = getAccessControlList(acm, path);
-		acl.addAccessControlEntry(principal,
-				privs.toArray(new Privilege[privs.size()]));
+
+		accessControlEntries: for (AccessControlEntry ace : acl
+				.getAccessControlEntries()) {
+			Principal currentPrincipal = ace.getPrincipal();
+			if (currentPrincipal.getName().equals(principal.getName())) {
+				Privilege[] currentPrivileges = ace.getPrivileges();
+				if (currentPrivileges.length != privs.size())
+					break accessControlEntries;
+				for (int i = 0; i < currentPrivileges.length; i++) {
+					Privilege currP = currentPrivileges[i];
+					Privilege p = privs.get(i);
+					if (!currP.getName().equals(p.getName())) {
+						break accessControlEntries;
+					}
+				}
+				return false;
+			}
+		}
+
+		Privilege[] privileges = privs.toArray(new Privilege[privs.size()]);
+		acl.addAccessControlEntry(principal, privileges);
 		acm.setPolicy(path, acl);
-//		if (log.isTraceEnabled()) {
-//			StringBuffer privBuf = new StringBuffer();
-//			for (Privilege priv : privs)
-//				privBuf.append(priv.getName());
-//			log.trace("Added privileges " + privBuf + " to " + principal
-//					+ " on " + path);
-//		}
+		if (log.isDebugEnabled()) {
+			StringBuffer privBuf = new StringBuffer();
+			for (Privilege priv : privs)
+				privBuf.append(priv.getName());
+			log.debug("Added privileges " + privBuf + " to "
+					+ principal.getName() + " on " + path + " in '"
+					+ session.getWorkspace().getName() + "'");
+		}
 		session.refresh(true);
 		session.save();
+		return true;
 	}
 
 	/** Gets access control list for this path, throws exception if not found */

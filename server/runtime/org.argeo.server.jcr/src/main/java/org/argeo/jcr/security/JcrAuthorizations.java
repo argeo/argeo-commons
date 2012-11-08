@@ -27,15 +27,14 @@ import javax.jcr.Session;
 import javax.jcr.security.AccessControlManager;
 import javax.jcr.security.Privilege;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.util.security.SimplePrincipal;
 
 /** Apply authorizations to a JCR repository. */
 public class JcrAuthorizations implements Runnable {
-	private final static Log log = LogFactory.getLog(JcrAuthorizations.class);
+	// private final static Log log =
+	// LogFactory.getLog(JcrAuthorizations.class);
 
 	private Repository repository;
 	private String workspace = null;
@@ -127,14 +126,14 @@ public class JcrAuthorizations implements Runnable {
 				Principal principal = getOrCreatePrincipal(session,
 						principalName);
 				JcrUtils.addPrivileges(session, path, principal, privs);
-				if (log.isDebugEnabled()) {
-					StringBuffer privBuf = new StringBuffer();
-					for (Privilege priv : privs)
-						privBuf.append(priv.getName());
-					log.debug("Added privileges " + privBuf + " to "
-							+ principal.getName() + " on " + path + " in '"
-							+ session.getWorkspace().getName() + "'");
-				}
+				// if (log.isDebugEnabled()) {
+				// StringBuffer privBuf = new StringBuffer();
+				// for (Privilege priv : privs)
+				// privBuf.append(priv.getName());
+				// log.debug("Added privileges " + privBuf + " to "
+				// + principal.getName() + " on " + path + " in '"
+				// + session.getWorkspace().getName() + "'");
+				// }
 			}
 		}
 
