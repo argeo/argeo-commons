@@ -105,14 +105,8 @@ public class RepositoriesNode extends TreeParent implements ArgeoNames {
 				Node remoteNode = it.nextNode();
 				String uri = remoteNode.getProperty(ARGEO_URI).getString();
 				try {
-					Hashtable<String, String> params = new Hashtable<String, String>();
-					params.put(ArgeoJcrConstants.JCR_REPOSITORY_URI, uri);
-					params.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS,
-							remoteNode.getName());
-					Repository repository = repositoryFactory
-							.getRepository(params);
 					RemoteRepositoryNode remoteRepositoryNode = new RemoteRepositoryNode(
-							remoteNode.getName(), repository, this,
+							remoteNode.getName(), repositoryFactory, uri, this,
 							userSession, jcrKeyring, remoteNode.getPath());
 					super.addChild(remoteRepositoryNode);
 				} catch (Exception e) {

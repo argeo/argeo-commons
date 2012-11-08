@@ -30,7 +30,7 @@ import org.argeo.eclipse.ui.TreeParent;
 
 public class RepositoryNode extends TreeParent implements UiNode {
 	private String alias;
-	private final Repository repository;
+	protected Repository repository;
 	private Session defaultSession = null;
 
 	/** Create a new repository with alias = name */

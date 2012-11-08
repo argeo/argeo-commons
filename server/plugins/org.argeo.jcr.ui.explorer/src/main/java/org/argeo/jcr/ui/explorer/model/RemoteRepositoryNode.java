@@ -20,11 +20,13 @@ import java.util.Arrays;
 import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
+import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.TreeParent;
+import org.argeo.jcr.ArgeoJcrUtils;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.util.security.Keyring;
 
@@ -38,10 +40,15 @@ public class RemoteRepositoryNode extends RepositoryNode {
 	private final Session userSession;
 	private final String remoteNodePath;
 
-	public RemoteRepositoryNode(String alias, Repository repository,
-			TreeParent parent, Session userSession, Keyring keyring,
-			String remoteNodePath) {
-		super(alias, repository, parent);
+	private final RepositoryFactory repositoryFactory;
+	private final String uri;
+
+	public RemoteRepositoryNode(String alias,
+			RepositoryFactory repositoryFactory, String uri, TreeParent parent,
+			Session userSession, Keyring keyring, String remoteNodePath) {
+		super(alias, null, parent);
+		this.repositoryFactory = repositoryFactory;
+		this.uri = uri;
 		this.keyring = keyring;
 		this.userSession = userSession;
 		this.remoteNodePath = remoteNodePath;
@@ -64,6 +71,14 @@ public class RemoteRepositoryNode extends RepositoryNode {
 		} finally {
 			Arrays.fill(password, 0, password.length, ' ');
 		}
+	}
+
+	@Override
+	public Repository getRepository() {
+		if (repository == null)
+			repository = ArgeoJcrUtils.getRepositoryByUri(repositoryFactory,
+					uri);
+		return super.getRepository();
 	}
 
 	public void remove() {
