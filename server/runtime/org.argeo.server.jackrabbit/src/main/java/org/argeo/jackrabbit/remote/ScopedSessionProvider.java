@@ -16,7 +16,6 @@
 package org.argeo.jackrabbit.remote;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.jcr.LoginException;
 import javax.jcr.Repository;
@@ -30,7 +29,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.server.SessionProvider;
 import org.argeo.ArgeoException;
+import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.JcrUtils;
+import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
 
 /**
@@ -48,17 +49,22 @@ public class ScopedSessionProvider implements SessionProvider, Serializable {
 	private transient String currentWorkspaceName = null;
 	private transient String currentJcrUser = null;
 
+	// private transient String anonymousUserId = "anonymous";
+
 	public Session getSession(HttpServletRequest request, Repository rep,
 			String workspace) throws LoginException, ServletException,
 			RepositoryException {
 
-		String springUser = SecurityContextHolder.getContext()
-				.getAuthentication().getName();
+		Authentication authentication = SecurityContextHolder.getContext()
+				.getAuthentication();
+		if (authentication == null)
+			throw new ArgeoException(
+					"Request not authenticated by Spring Security");
+		String springUser = authentication.getName();
 
 		// HTTP
-		String pathInfo = request.getPathInfo();
-		List<String> tokens = JcrUtils.tokenize(pathInfo);
-		String httpRepository = tokens.get(0);
+		String requestJcrRepository = (String) request
+				.getAttribute(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS);
 
 		// HTTP session
 		if (httpSession != null
@@ -68,43 +74,46 @@ public class ScopedSessionProvider implements SessionProvider, Serializable {
 		if (httpSession == null)
 			httpSession = request.getSession();
 
+		// Initializes current values
 		if (currentRepositoryName == null)
-			currentRepositoryName = httpRepository;
+			currentRepositoryName = requestJcrRepository;
 		if (currentWorkspaceName == null)
 			currentWorkspaceName = workspace;
 		if (currentJcrUser == null)
 			currentJcrUser = springUser;
 
+		// logout if there was a change in session coordinates
 		if (jcrSession != null)
-			if (!currentRepositoryName.equals(httpRepository)) {
+			if (!currentRepositoryName.equals(requestJcrRepository)) {
 				if (log.isDebugEnabled())
-					log.debug(getHttpSessionId() + " Changed from repository "
-							+ currentRepositoryName + " to " + httpRepository
-							+ ", logging out.");
+					log.debug(getHttpSessionId() + " Changed from repository '"
+							+ currentRepositoryName + "' to '"
+							+ requestJcrRepository
+							+ "', logging out cached JCR session.");
 				logout();
 			} else if (!currentWorkspaceName.equals(workspace)) {
 				if (log.isDebugEnabled())
-					log.debug(getHttpSessionId() + " Changed from workspace "
-							+ currentWorkspaceName + " to " + workspace
-							+ ", logging out.");
+					log.debug(getHttpSessionId() + " Changed from workspace '"
+							+ currentWorkspaceName + "' to '" + workspace
+							+ "', logging out cached JCR session.");
 				logout();
 			} else if (!currentJcrUser.equals(springUser)) {
 				if (log.isDebugEnabled())
-					log.debug(getHttpSessionId() + " Changed from user "
-							+ currentJcrUser + " to " + springUser
-							+ ", logging out.");
+					log.debug(getHttpSessionId() + " Changed from user '"
+							+ currentJcrUser + "' to '" + springUser
+							+ "', logging out cached JCR session.");
 				logout();
 			}
 
-		// JCR session
+		// login if needed
 		if (jcrSession == null)
 			try {
 				Session session = login(rep, workspace);
 				if (!session.getUserID().equals(springUser))
-					throw new ArgeoException("HTTP user '" + springUser
-							+ "' not in line with JCR user '"
+					throw new ArgeoException("Spring Security user '"
+							+ springUser + "' not in line with JCR user '"
 							+ session.getUserID() + "'");
-				currentRepositoryName = httpRepository;
+				currentRepositoryName = requestJcrRepository;
 				// do not use workspace variable which may be null
 				currentWorkspaceName = session.getWorkspace().getName();
 				currentJcrUser = session.getUserID();
@@ -115,8 +124,9 @@ public class ScopedSessionProvider implements SessionProvider, Serializable {
 				throw new ArgeoException("Cannot open session to workspace "
 						+ workspace, e);
 			}
-		else
-			return jcrSession;
+
+		// returns cached session
+		return jcrSession;
 	}
 
 	protected Session login(Repository repository, String workspace)
@@ -131,8 +141,8 @@ public class ScopedSessionProvider implements SessionProvider, Serializable {
 	}
 
 	public void releaseSession(Session session) {
-		if (log.isDebugEnabled())
-			log.debug(getHttpSessionId() + " Releasing JCR session " + session);
+		if (log.isTraceEnabled())
+			log.trace(getHttpSessionId() + " Releasing JCR session " + session);
 	}
 
 	protected void logout() {
@@ -149,9 +159,11 @@ public class ScopedSessionProvider implements SessionProvider, Serializable {
 
 	public void destroy() {
 		logout();
-		if (log.isDebugEnabled())
-			log.debug(getHttpSessionId()
-					+ " Cleaned up provider for web session ");
+		if (getHttpSessionId() != null)
+			if (log.isDebugEnabled())
+				log.debug(getHttpSessionId()
+						+ " Cleaned up provider for web session ");
 		httpSession = null;
 	}
+
 }

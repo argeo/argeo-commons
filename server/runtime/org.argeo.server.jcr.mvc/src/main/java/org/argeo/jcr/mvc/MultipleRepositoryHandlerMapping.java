@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
+import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.RepositoryRegister;
 import org.springframework.beans.BeansException;
@@ -77,13 +78,15 @@ public abstract class MultipleRepositoryHandlerMapping implements
 		if ((tokens.size() == 1 || tokens.size() == 2)
 				&& request.getMethod().equals(MKCOL))
 			return null;
-		String repositoryName = extractRepositoryName(tokens);
-		String pathPrefix = request.getServletPath() + '/' + repositoryName;
+		String repositoryAlias = extractRepositoryName(tokens);
+		request.setAttribute(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS,
+				repositoryAlias);
+		String pathPrefix = request.getServletPath() + '/' + repositoryAlias;
 		String beanName = pathPrefix;
 
 		if (!applicationContext.containsBean(beanName)) {
 			Repository repository = repositoryRegister.getRepositories().get(
-					repositoryName);
+					repositoryAlias);
 			HttpServlet servlet = createServlet(repository, pathPrefix);
 			applicationContext.getBeanFactory().registerSingleton(beanName,
 					servlet);
