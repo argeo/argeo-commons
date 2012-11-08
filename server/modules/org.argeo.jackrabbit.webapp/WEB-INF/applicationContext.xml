@@ -28,6 +28,6 @@
 <!-- 		destroy-method="destroy" class="org.argeo.jackrabbit.remote.OpenInViewSessionProvider"> -->
 <!-- 	</bean> -->
 
-	<bean id="repositoryRegister" class="org.argeo.jcr.DefaultRepositoryRegister" />
+<!-- 	<bean id="repositoryRegister" class="org.argeo.jcr.DefaultRepositoryRegister" /> -->
 
 </beans>

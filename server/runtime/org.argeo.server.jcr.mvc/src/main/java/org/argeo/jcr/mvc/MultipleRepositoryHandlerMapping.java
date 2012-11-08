@@ -16,10 +16,10 @@
 package org.argeo.jcr.mvc;
 
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Properties;
 
 import javax.jcr.Repository;
+import javax.jcr.RepositoryFactory;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -28,10 +28,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoJcrConstants;
-import org.argeo.jcr.JcrUtils;
-import org.argeo.jcr.RepositoryRegister;
+import org.argeo.jcr.ArgeoJcrUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -46,12 +44,13 @@ public abstract class MultipleRepositoryHandlerMapping implements
 	private final static Log log = LogFactory
 			.getLog(MultipleRepositoryHandlerMapping.class);
 
-	private final static String MKCOL = "MKCOL";
+	// private final static String MKCOL = "MKCOL";
 
 	private ConfigurableApplicationContext applicationContext;
 	private ServletContext servletContext;
 
-	private RepositoryRegister repositoryRegister;
+	// private RepositoryRegister repositoryRegister;
+	private RepositoryFactory repositoryFactory;
 
 	/** Actually creates the servlet to be registered. */
 	protected abstract HttpServlet createServlet(Repository repository,
@@ -68,25 +67,32 @@ public abstract class MultipleRepositoryHandlerMapping implements
 		String pathInfo = request.getPathInfo();
 
 		// tokenize path
-		List<String> tokens = JcrUtils.tokenize(pathInfo);
+		// List<String> tokens = JcrUtils.tokenize(pathInfo);
+		// String[] tokens = extractPrefix(pathInfo);
 
 		// check if repository can be found
-		if (tokens.size() == 0
-				|| (tokens.size() == 1 && tokens.get(0).equals("")))
-			return null;
+		// if (tokens[0] == null || (tokens[1] == null && tokens[0].equals("")))
+		// return null;
+
 		// MKCOL on repository or root node doesn't make sense
-		if ((tokens.size() == 1 || tokens.size() == 2)
-				&& request.getMethod().equals(MKCOL))
+		// if ((tokens.size() == 1 || tokens.size() == 2)
+		// && request.getMethod().equals(MKCOL))
+		// return null;
+
+		// String repositoryAlias = extractRepositoryName(tokens);
+		String repositoryAlias = extractRepositoryAlias(pathInfo);
+		if (repositoryAlias.equals(""))
 			return null;
-		String repositoryAlias = extractRepositoryName(tokens);
 		request.setAttribute(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS,
 				repositoryAlias);
 		String pathPrefix = request.getServletPath() + '/' + repositoryAlias;
 		String beanName = pathPrefix;
 
 		if (!applicationContext.containsBean(beanName)) {
-			Repository repository = repositoryRegister.getRepositories().get(
-					repositoryAlias);
+			Repository repository = ArgeoJcrUtils.getRepositoryByAlias(
+					repositoryFactory, repositoryAlias);
+			// Repository repository = repositoryRegister.getRepositories().get(
+			// repositoryAlias);
 			HttpServlet servlet = createServlet(repository, pathPrefix);
 			applicationContext.getBeanFactory().registerSingleton(beanName,
 					servlet);
@@ -98,19 +104,42 @@ public abstract class MultipleRepositoryHandlerMapping implements
 		return hec;
 	}
 
-	/** The repository name is the first part of the path info */
-	protected String extractRepositoryName(List<String> pathTokens) {
-		StringBuffer currName = new StringBuffer("");
-		for (String token : pathTokens) {
-			currName.append(token);
-			if (repositoryRegister.getRepositories().containsKey(
-					currName.toString()))
-				return currName.toString();
-			currName.append('/');
+	/** Returns the first two token of the path */
+	// protected String[] extractPrefix(String pathInfo) {
+	// String[] res = new String[2];
+	// StringTokenizer st = new StringTokenizer(pathInfo, "/");
+	// if (st.hasMoreTokens())
+	// res[0] = st.nextToken();
+	// if (st.hasMoreTokens())
+	// res[1] = st.nextToken();
+	// return res;
+	// }
+
+	/** Returns the first token of the path */
+	protected String extractRepositoryAlias(String pathInfo) {
+		StringBuffer buf = new StringBuffer();
+		for (int i = 1; i < pathInfo.length(); i++) {
+			char c = pathInfo.charAt(i);
+			if (c == '/')
+				break;
+			buf.append(c);
 		}
-		throw new ArgeoException("No repository can be found for request "
-				+ pathTokens);
+		return buf.toString();
 	}
+
+	/** The repository name is the first part of the path info */
+	// protected String extractRepositoryName(List<String> pathTokens) {
+	// StringBuffer currName = new StringBuffer("");
+	// for (String token : pathTokens) {
+	// currName.append(token);
+	// if (repositoryRegister.getRepositories().containsKey(
+	// currName.toString()))
+	// return currName.toString();
+	// currName.append('/');
+	// }
+	// throw new ArgeoException("No repository can be found for request "
+	// + pathTokens);
+	// }
 
 	public void setApplicationContext(ApplicationContext applicationContext)
 			throws BeansException {
@@ -121,8 +150,13 @@ public abstract class MultipleRepositoryHandlerMapping implements
 		this.servletContext = servletContext;
 	}
 
-	public void setRepositoryRegister(RepositoryRegister repositoryRegister) {
-		this.repositoryRegister = repositoryRegister;
+	// public void setRepositoryRegister(RepositoryRegister repositoryRegister)
+	// {
+	// this.repositoryRegister = repositoryRegister;
+	// }
+
+	public void setRepositoryFactory(RepositoryFactory repositoryFactory) {
+		this.repositoryFactory = repositoryFactory;
 	}
 
 	protected class DelegatingServletConfig implements ServletConfig {
