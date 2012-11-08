@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.server.SessionProvider;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.JcrUtils;
+import org.springframework.security.context.SecurityContextHolder;
 
 /**
  * Session provider assuming a single workspace and a short life cycle,
@@ -38,18 +39,26 @@ import org.argeo.jcr.JcrUtils;
  */
 public class ScopedSessionProvider implements SessionProvider, Serializable {
 	private static final long serialVersionUID = 6589775984177317058L;
-	private final static Log log = LogFactory
+	private static final Log log = LogFactory
 			.getLog(ScopedSessionProvider.class);
-
 	private transient HttpSession httpSession = null;
 	private transient Session jcrSession = null;
 
 	private transient String currentRepositoryName = null;
 	private transient String currentWorkspaceName = null;
+	private transient String currentJcrUser = null;
 
 	public Session getSession(HttpServletRequest request, Repository rep,
 			String workspace) throws LoginException, ServletException,
 			RepositoryException {
+
+		String springUser = SecurityContextHolder.getContext()
+				.getAuthentication().getName();
+
+		// HTTP
+		String pathInfo = request.getPathInfo();
+		List<String> tokens = JcrUtils.tokenize(pathInfo);
+		String httpRepository = tokens.get(0);
 
 		// HTTP session
 		if (httpSession != null
@@ -59,31 +68,48 @@ public class ScopedSessionProvider implements SessionProvider, Serializable {
 		if (httpSession == null)
 			httpSession = request.getSession();
 
+		if (currentRepositoryName == null)
+			currentRepositoryName = httpRepository;
 		if (currentWorkspaceName == null)
 			currentWorkspaceName = workspace;
+		if (currentJcrUser == null)
+			currentJcrUser = springUser;
 
-		// TODO optimize
-		String pathInfo = request.getPathInfo();
-		List<String> tokens = JcrUtils.tokenize(pathInfo);
-		if (currentRepositoryName == null)
-			currentRepositoryName = tokens.get(0);
-		else if (!currentRepositoryName.equals(tokens.get(0))
-				|| !currentWorkspaceName.equals(workspace)) {
-			JcrUtils.logoutQuietly(jcrSession);
-			jcrSession = null;
-			if (log.isDebugEnabled())
-				log.debug(getHttpSessionId()
-						+ " Changed repository or workspace, logging out of "
-						+ currentWorkspaceName);
-		}
+		if (jcrSession != null)
+			if (!currentRepositoryName.equals(httpRepository)) {
+				if (log.isDebugEnabled())
+					log.debug(getHttpSessionId() + " Changed from repository "
+							+ currentRepositoryName + " to " + httpRepository
+							+ ", logging out.");
+				logout();
+			} else if (!currentWorkspaceName.equals(workspace)) {
+				if (log.isDebugEnabled())
+					log.debug(getHttpSessionId() + " Changed from workspace "
+							+ currentWorkspaceName + " to " + workspace
+							+ ", logging out.");
+				logout();
+			} else if (!currentJcrUser.equals(springUser)) {
+				if (log.isDebugEnabled())
+					log.debug(getHttpSessionId() + " Changed from user "
+							+ currentJcrUser + " to " + springUser
+							+ ", logging out.");
+				logout();
+			}
 
 		// JCR session
 		if (jcrSession == null)
 			try {
-				jcrSession = login(rep, workspace);
-				currentRepositoryName = tokens.get(0);
+				Session session = login(rep, workspace);
+				if (!session.getUserID().equals(springUser))
+					throw new ArgeoException("HTTP user '" + springUser
+							+ "' not in line with JCR user '"
+							+ session.getUserID() + "'");
+				currentRepositoryName = httpRepository;
 				// do not use workspace variable which may be null
-				currentWorkspaceName = jcrSession.getWorkspace().getName();
+				currentWorkspaceName = session.getWorkspace().getName();
+				currentJcrUser = session.getUserID();
+
+				jcrSession = session;
 				return jcrSession;
 			} catch (RepositoryException e) {
 				throw new ArgeoException("Cannot open session to workspace "
@@ -105,8 +131,13 @@ public class ScopedSessionProvider implements SessionProvider, Serializable {
 	}
 
 	public void releaseSession(Session session) {
-		if (log.isTraceEnabled())
-			log.trace(getHttpSessionId() + " Releasing JCR session " + session);
+		if (log.isDebugEnabled())
+			log.debug(getHttpSessionId() + " Releasing JCR session " + session);
+	}
+
+	protected void logout() {
+		JcrUtils.logoutQuietly(jcrSession);
+		jcrSession = null;
 	}
 
 	protected final String getHttpSessionId() {
@@ -117,8 +148,7 @@ public class ScopedSessionProvider implements SessionProvider, Serializable {
 	}
 
 	public void destroy() {
-		JcrUtils.logoutQuietly(jcrSession);
-		jcrSession = null;
+		logout();
 		if (log.isDebugEnabled())
 			log.debug(getHttpSessionId()
 					+ " Cleaned up provider for web session ");
