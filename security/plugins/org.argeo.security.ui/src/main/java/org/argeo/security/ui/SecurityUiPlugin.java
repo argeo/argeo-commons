@@ -21,8 +21,10 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
+import org.argeo.ArgeoException;
 import org.argeo.security.ui.dialogs.DefaultLoginDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -46,11 +48,27 @@ public class SecurityUiPlugin extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 
+		final Display display = Display.getCurrent();
 		defaultCallbackHandler = new CallbackHandler() {
-			public void handle(Callback[] callbacks) throws IOException,
+			public void handle(final Callback[] callbacks) throws IOException,
 					UnsupportedCallbackException {
-				DefaultLoginDialog dialog = new DefaultLoginDialog();
-				dialog.handle(callbacks);
+
+				if (display != null) // RCP
+					display.syncExec(new Runnable() {
+						public void run() {
+							DefaultLoginDialog dialog = new DefaultLoginDialog();
+							try {
+								dialog.handle(callbacks);
+							} catch (IOException e) {
+								throw new ArgeoException("Cannot open dialog",
+										e);
+							}
+						}
+					});
+				else {// RAP
+					DefaultLoginDialog dialog = new DefaultLoginDialog();
+					dialog.handle(callbacks);
+				}
 			}
 		};
 		defaultCallbackHandlerReg = context.registerService(
