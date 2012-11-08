@@ -33,11 +33,6 @@
 			<artifactId>org.argeo.node.repo.jackrabbit</artifactId>
 			<version>1.1.5-SNAPSHOT</version>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.server</groupId>
-			<artifactId>org.argeo.node.repofactory.jackrabbit</artifactId>
-			<version>1.1.5-SNAPSHOT</version>
-		</dependency>
 
 		<!-- OSGi Boot (and Equinox) -->
 		<dependency>

@@ -10,12 +10,12 @@
        http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
 	<!-- REFERENCE -->
-	<list id="repositories" interface="javax.jcr.Repository"
-		cardinality="0..N">
-		<listener ref="repositoryFactory" bind-method="register"
-			unbind-method="unregister" />
-	</list>
+<!-- 	<list id="repositories" interface="javax.jcr.Repository" -->
+<!-- 		cardinality="0..N"> -->
+<!-- 		<listener ref="repositoryFactory" bind-method="register" -->
+<!-- 			unbind-method="unregister" /> -->
+<!-- 	</list> -->
 
 	<!-- SERVICES -->
-	<service ref="repositoryFactory" interface="javax.jcr.RepositoryFactory" />
+<!-- 	<service ref="repositoryFactory" interface="javax.jcr.RepositoryFactory" /> -->
 </beans:beans>
