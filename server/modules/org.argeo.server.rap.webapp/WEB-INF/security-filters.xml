@@ -8,7 +8,7 @@
 
 	<bean id="springSecurityFilterChain" class="org.springframework.security.util.FilterChainProxy">
 		<sec:filter-chain-map path-type="ant">
-			<sec:filter-chain pattern="/ui"
+			<sec:filter-chain pattern="/private"
 				filters="session,x509,basic,rememberMe,exception,interceptor" />
 			<sec:filter-chain pattern="/basicauth"
 				filters="session,x509,basic,exception,interceptor" />

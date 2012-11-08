@@ -37,7 +37,15 @@
       	</branding>
     	<branding
 			id="org.argeo.security.ui.rap.branding"
-            servletName="ui"
+            servletName="default"
+            defaultEntrypointId="org.argeo.security.ui.rap.secureEntryPoint"
+            title="Argeo Web UI"
+            favicon="branding/favicon.ico"
+            body="branding/login.html">
+      	</branding>
+    	<branding
+			id="org.argeo.security.ui.rap.branding"
+            servletName="private"
             defaultEntrypointId="org.argeo.security.ui.rap.secureEntryPoint"
             title="Argeo Web UI"
             favicon="branding/favicon.ico"

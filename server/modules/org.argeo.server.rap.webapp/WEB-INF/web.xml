@@ -44,7 +44,7 @@
 <!---->
 	<filter-mapping>
 		<filter-name>springSecurityFilterChain</filter-name>
-		<url-pattern>/ui</url-pattern>
+		<url-pattern>/private</url-pattern>
 	</filter-mapping>
 	<filter-mapping>
 		<filter-name>springSecurityFilterChain</filter-name>
