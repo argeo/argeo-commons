@@ -9,48 +9,25 @@
 	<bean id="filterChain.davex" parent="filterChain.template">
 		<sec:filter-chain-map path-type="ant">
 			<sec:filter-chain pattern="/*/*/*/**"
-				filters="session,x509,basic,exception" />
+				filters="session,x509,basic,exception,interceptor" />
 			<!-- For some reason the first level listing workspaces must be public -->
-			<sec:filter-chain pattern="/*/*/"
-				filters="anonymous,exception" />
+			<sec:filter-chain pattern="/*/*/" filters="anonymous,exception" />
 		</sec:filter-chain-map>
 	</bean>
 
 	<bean id="filterChain.private" parent="filterChain.template">
 		<sec:filter-chain-map path-type="ant">
 			<sec:filter-chain pattern="/**"
-				filters="session,x509,basic,exception" />
+				filters="session,x509,basic,exception,interceptor" />
 		</sec:filter-chain-map>
 	</bean>
 
 	<bean id="filterChain.public" parent="filterChain.template">
 		<sec:filter-chain-map path-type="ant">
 			<sec:filter-chain pattern="/**"
-				filters="anonymous,exception" />
+				filters="anonymous,exception,interceptorPublic" />
 		</sec:filter-chain-map>
 	</bean>
-
-	<!-- <bean id="springSecurityFilterChain" class="org.springframework.security.util.FilterChainProxy"> -->
-	<!-- <sec:filter-chain-map path-type="ant"> -->
-	<!-- <sec:filter-chain pattern="/files/**" -->
-	<!-- filters="session,x509,basic,exception,interceptor" /> -->
-	<!-- <sec:filter-chain pattern="/jcr/*/*/**" -->
-	<!-- filters="session,x509,basic,exception,interceptor" /> -->
-	<!-- <sec:filter-chain pattern="/jcr/*/" -->
-	<!-- filters="anonymous,exception,interceptorPublic" /> -->
-	<!-- <sec:filter-chain pattern="/public/**" -->
-	<!-- filters="anonymous,exception,interceptorPublic" /> -->
-	<!-- <sec:filter-chain pattern="/pub/**" -->
-	<!-- filters="anonymous,exception,interceptorPublic" /> -->
-	<!-- <sec:filter-chain pattern="/j_spring_security_logout" -->
-	<!-- filters="logout,exception" /> -->
-	<!-- </sec:filter-chain-map> -->
-	<!-- <property name="matcher"> -->
-	<!-- <bean class="org.springframework.security.util.AntUrlPathMatcher"> -->
-	<!-- <constructor-arg value="false" /> -->
-	<!-- </bean> -->
-	<!-- </property> -->
-	<!-- </bean> -->
 
 	<bean id="filterChain.template" abstract="true"
 		class="org.springframework.security.util.FilterChainProxy">
@@ -61,25 +38,25 @@
 			</bean>
 		</property>
 	</bean>
-	
+
 	<!-- The actual authorization checks (called last, but first here for ease 
 		of configuration) -->
-<!-- 	<bean id="interceptor" parent="filterInvocationInterceptorTemplate"> -->
-<!-- 		<property name="objectDefinitionSource"> -->
-<!-- 			<value> -->
-<!-- 				PATTERN_TYPE_APACHE_ANT -->
-<!-- 				/**=ROLE_USER,ROLE_ADMIN -->
-<!-- 			</value> -->
-<!-- 		</property> -->
-<!-- 	</bean> -->
-<!-- 	<bean id="interceptorPublic" parent="filterInvocationInterceptorTemplate"> -->
-<!-- 		<property name="objectDefinitionSource"> -->
-<!-- 			<value> -->
-<!-- 				PATTERN_TYPE_APACHE_ANT -->
-<!-- 				/**=IS_AUTHENTICATED_ANONYMOUSLY -->
-<!-- 			</value> -->
-<!-- 		</property> -->
-<!-- 	</bean> -->
+	<bean id="interceptor" parent="filterInvocationInterceptorTemplate">
+		<property name="objectDefinitionSource">
+			<value>
+				PATTERN_TYPE_APACHE_ANT
+				/**=ROLE_USER,ROLE_ADMIN
+			</value>
+		</property>
+	</bean>
+	<bean id="interceptorPublic" parent="filterInvocationInterceptorTemplate">
+		<property name="objectDefinitionSource">
+			<value>
+				PATTERN_TYPE_APACHE_ANT
+				/**=IS_AUTHENTICATED_ANONYMOUSLY
+			</value>
+		</property>
+	</bean>
 
 	<bean id="x509"
 		class="org.springframework.security.ui.preauth.x509.X509PreAuthenticatedProcessingFilter">
@@ -100,15 +77,16 @@
 
 	<!-- Processes logouts, removing both session informations and the remember-me 
 		cookie from the browser -->
-<!-- 	<bean id="logout" class="org.springframework.security.ui.logout.LogoutFilter"> -->
-<!-- 		<constructor-arg value="/webdav/node/main" /> -->
-<!-- 		<constructor-arg> -->
-<!-- 			<list> -->
-<!-- 				<bean -->
-<!-- 					class="org.springframework.security.ui.logout.SecurityContextLogoutHandler" /> -->
-<!-- 			</list> -->
-<!-- 		</constructor-arg> -->
-<!-- 	</bean> -->
+	<!-- <bean id="logout" class="org.springframework.security.ui.logout.LogoutFilter"> -->
+	<!-- <constructor-arg value="/webdav/node/main" /> -->
+	<!-- <constructor-arg> -->
+	<!-- <list> -->
+	<!-- <bean -->
+	<!-- class="org.springframework.security.ui.logout.SecurityContextLogoutHandler" 
+		/> -->
+	<!-- </list> -->
+	<!-- </constructor-arg> -->
+	<!-- </bean> -->
 
 	<!-- Basic authentication -->
 	<bean id="basic"
@@ -144,25 +122,25 @@
 		</property>
 		<property name="accessDeniedHandler">
 			<bean class="org.springframework.security.ui.AccessDeniedHandlerImpl">
-<!-- 				<property name="errorPage" value="/accessDenied.jsp" /> -->
+				<!-- <property name="errorPage" value="/accessDenied.jsp" /> -->
 			</bean>
 		</property>
 	</bean>
 
 	<!-- Template for authorization checks -->
-<!-- 	<bean id="filterInvocationInterceptorTemplate" abstract="true" -->
-<!-- 		class="org.springframework.security.intercept.web.FilterSecurityInterceptor"> -->
-<!-- 		<property name="authenticationManager" ref="authenticationManager" /> -->
-<!-- 		<property name="accessDecisionManager"> -->
-<!-- 			<bean class="org.springframework.security.vote.AffirmativeBased"> -->
-<!-- 				<property name="allowIfAllAbstainDecisions" value="false" /> -->
-<!-- 				<property name="decisionVoters"> -->
-<!-- 					<list> -->
-<!-- 						<bean class="org.springframework.security.vote.RoleVoter" /> -->
-<!-- 						<bean class="org.springframework.security.vote.AuthenticatedVoter" /> -->
-<!-- 					</list> -->
-<!-- 				</property> -->
-<!-- 			</bean> -->
-<!-- 		</property> -->
-<!-- 	</bean> -->
+	<bean id="filterInvocationInterceptorTemplate" abstract="true"
+		class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
+		<property name="authenticationManager" ref="authenticationManager" />
+		<property name="accessDecisionManager">
+			<bean class="org.springframework.security.vote.AffirmativeBased">
+				<property name="allowIfAllAbstainDecisions" value="false" />
+				<property name="decisionVoters">
+					<list>
+						<bean class="org.springframework.security.vote.RoleVoter" />
+						<bean class="org.springframework.security.vote.AuthenticatedVoter" />
+					</list>
+				</property>
+			</bean>
+		</property>
+	</bean>
 </beans>
