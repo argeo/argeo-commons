@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
@@ -51,6 +52,9 @@ import org.osgi.service.packageadmin.PackageAdmin;
 public class OsgiBoot {
 	public final static String SYMBOLIC_NAME_OSGI_BOOT = "org.argeo.osgi.boot";
 	public final static String SYMBOLIC_NAME_EQUINOX = "org.eclipse.osgi";
+
+	public final static String PROP_OSGI_STARTLEVEL = "osgi.startLevel";
+	public final static String PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL = "osgi.bundles.defaultStartLevel";
 
 	public final static String PROP_ARGEO_OSGI_DATA_DIR = "argeo.osgi.data.dir";
 
@@ -264,57 +268,88 @@ public class OsgiBoot {
 		}
 	}
 
-	/* @deprecated Doesn't seem to be used anymore. */
-	// public void installOrUpdateUrls(Map urls) {
-	// Map installedBundles = getBundles();
-	//
-	// for (Iterator modules = urls.keySet().iterator(); modules.hasNext();) {
-	// String moduleName = (String) modules.next();
-	// String urlStr = (String) urls.get(moduleName);
-	// if (installedBundles.containsKey(moduleName)) {
-	// Bundle bundle = (Bundle) installedBundles.get(moduleName);
-	// InputStream in;
-	// try {
-	// URL url = new URL(urlStr);
-	// in = url.openStream();
-	// bundle.update(in);
-	// OsgiBootUtils.info("Updated bundle " + moduleName
-	// + " from " + urlStr);
-	// } catch (Exception e) {
-	// throw new RuntimeException("Cannot update " + moduleName
-	// + " from " + urlStr);
-	// }
-	// if (in != null)
-	// try {
-	// in.close();
-	// } catch (IOException e) {
-	// e.printStackTrace();
-	// }
-	// } else {
-	// try {
-	// Bundle bundle = bundleContext.installBundle(urlStr);
-	// if (debug)
-	// debug("Installed bundle " + bundle.getSymbolicName()
-	// + " from " + urlStr);
-	// } catch (BundleException e) {
-	// OsgiBootUtils.warn("Could not install bundle from "
-	// + urlStr + ": " + e.getMessage());
-	// }
-	// }
-	// }
-	//
-	// }
-
 	/*
 	 * START
 	 */
 	public void startBundles() {
-		String bundlesToStart = OsgiBootUtils
-				.getProperty(PROP_ARGEO_OSGI_START);
-		startBundles(bundlesToStart);
+		// default and active start levels from System properties
+		Integer defaultStartLevel = new Integer(Integer.parseInt(OsgiBootUtils
+				.getProperty(PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL)));
+		Integer activeStartLevel = new Integer(
+				OsgiBootUtils.getProperty(PROP_OSGI_STARTLEVEL));
+
+		SortedMap/* <Integer, List<String>> */startLevels = new TreeMap();
+		computeStartLevels(startLevels, System.getProperties(),
+				defaultStartLevel);
+
+		Iterator/* <Integer> */levels = startLevels.keySet().iterator();
+		while (levels.hasNext()) {
+			Integer level = (Integer) levels.next();
+			boolean allStarted = startBundles((List) startLevels.get(level));
+			if (!allStarted)
+				OsgiBootUtils
+						.warn("Not all bundles started for level " + level);
+			if (level.equals(activeStartLevel))
+				break;// active start level reached
+		}
+
 	}
 
-	/** Convenience method accepting a comma-separated list of bundle to start */
+	public static void computeStartLevels(
+			SortedMap/* <Integer, List<String>> */startLevels,
+			Properties properties, Integer defaultStartLevel) {
+
+		// default (and previously, only behaviour)
+		appendToStartLevels(startLevels, defaultStartLevel,
+				properties.getProperty(PROP_ARGEO_OSGI_START, ""));
+
+		// list argeo.osgi.start.* system properties
+		Iterator/* <String> */keys = properties.keySet().iterator();
+		final String prefix = PROP_ARGEO_OSGI_START + ".";
+		while (keys.hasNext()) {
+			String key = (String) keys.next();
+			if (key.startsWith(prefix)) {
+				Integer startLevel;
+				String suffix = key.substring(prefix.length());
+				String[] tokens = suffix.split("\\.");
+				if (tokens.length > 0 && !tokens[0].trim().equals(""))
+					try {
+						// first token is start level
+						startLevel = new Integer(tokens[0]);
+					} catch (NumberFormatException e) {
+						startLevel = defaultStartLevel;
+					}
+				else
+					startLevel = defaultStartLevel;
+
+				// append bundle names
+				String bundleNames = properties.getProperty(key);
+				appendToStartLevels(startLevels, startLevel, bundleNames);
+			}
+		}
+	}
+
+	/** Append a comma-separated list of bundles to the start levels. */
+	private static void appendToStartLevels(
+			SortedMap/* <Integer, List<String>> */startLevels,
+			Integer startLevel, String str) {
+		if (str == null || str.trim().equals(""))
+			return;
+
+		if (!startLevels.containsKey(startLevel))
+			startLevels.put(startLevel, new ArrayList());
+		String[] bundleNames = str.split(",");
+		for (int i = 0; i < bundleNames.length; i++) {
+			if (bundleNames[i] != null && !bundleNames[i].trim().equals(""))
+				((List) startLevels.get(startLevel)).add(bundleNames[i]);
+		}
+	}
+
+	/**
+	 * Convenience method accepting a comma-separated list of bundle to start
+	 * 
+	 * @deprecated
+	 */
 	public void startBundles(String bundlesToStartStr) {
 		if (bundlesToStartStr == null)
 			return;
@@ -328,13 +363,19 @@ public class OsgiBoot {
 		startBundles(bundlesToStart);
 	}
 
-	/** Start the provided list of bundles */
-	public void startBundles(List bundlesToStart) {
+	/**
+	 * Start the provided list of bundles
+	 * 
+	 * @return whether all bundlesa are now in active state
+	 */
+	public boolean startBundles(List bundlesToStart) {
 		if (bundlesToStart.size() == 0)
-			return;
+			return true;
 
+		// used to monitor ACTIVE states
+		List/* <Bundle> */startedBundles = new ArrayList();
 		// used to log the bundles not found
-		List notFoundBundles = new ArrayList(bundlesToStart);
+		List/* <String> */notFoundBundles = new ArrayList(bundlesToStart);
 
 		Bundle[] bundles = bundleContext.getBundles();
 		long startBegin = System.currentTimeMillis();
@@ -354,6 +395,7 @@ public class OsgiBoot {
 								+ " waiting and trying again.");
 						waitForBundleResolvedOrActive(startBegin, bundle);
 						bundle.start();
+						startedBundles.add(bundle);
 					}
 					notFoundBundles.remove(symbolicName);
 				} catch (Exception e) {
@@ -367,8 +409,38 @@ public class OsgiBoot {
 		}
 
 		for (int i = 0; i < notFoundBundles.size(); i++)
-			OsgiBootUtils.warn("Bundle " + notFoundBundles.get(i)
-					+ " not started because it was not found.");
+			OsgiBootUtils.warn("Bundle '" + notFoundBundles.get(i)
+					+ "' not started because it was not found.");
+
+		// monitors that all bundles are started
+		long beginMonitor = System.currentTimeMillis();
+		boolean allStarted = false;
+		List/* <String> */notStarted = new ArrayList();
+		while (allStarted
+				&& (System.currentTimeMillis() - beginMonitor) > defaultTimeout) {
+			notStarted = new ArrayList();
+			for (int i = 0; i < startedBundles.size(); i++) {
+				Bundle bundle = (Bundle) startedBundles.get(i);
+				// TODO check behaviour of lazs bundles
+				if (bundle.getState() != Bundle.ACTIVE) {
+					allStarted = false;
+					notStarted.add(bundle.getSymbolicName());
+				}
+			}
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// silent
+			}
+		}
+		long duration = System.currentTimeMillis() - beginMonitor;
+
+		if (!allStarted)
+			for (int i = 0; i < notStarted.size(); i++)
+				OsgiBootUtils.warn("Bundle '" + notStarted.get(i)
+						+ "' not ACTIVE after " + (duration / 1000) + "s");
+
+		return allStarted;
 	}
 
 	/*
@@ -918,5 +990,46 @@ public class OsgiBoot {
 		}
 
 	}
+
+	/* @deprecated Doesn't seem to be used anymore. */
+	// public void installOrUpdateUrls(Map urls) {
+	// Map installedBundles = getBundles();
+	//
+	// for (Iterator modules = urls.keySet().iterator(); modules.hasNext();) {
+	// String moduleName = (String) modules.next();
+	// String urlStr = (String) urls.get(moduleName);
+	// if (installedBundles.containsKey(moduleName)) {
+	// Bundle bundle = (Bundle) installedBundles.get(moduleName);
+	// InputStream in;
+	// try {
+	// URL url = new URL(urlStr);
+	// in = url.openStream();
+	// bundle.update(in);
+	// OsgiBootUtils.info("Updated bundle " + moduleName
+	// + " from " + urlStr);
+	// } catch (Exception e) {
+	// throw new RuntimeException("Cannot update " + moduleName
+	// + " from " + urlStr);
+	// }
+	// if (in != null)
+	// try {
+	// in.close();
+	// } catch (IOException e) {
+	// e.printStackTrace();
+	// }
+	// } else {
+	// try {
+	// Bundle bundle = bundleContext.installBundle(urlStr);
+	// if (debug)
+	// debug("Installed bundle " + bundle.getSymbolicName()
+	// + " from " + urlStr);
+	// } catch (BundleException e) {
+	// OsgiBootUtils.warn("Could not install bundle from "
+	// + urlStr + ": " + e.getMessage());
+	// }
+	// }
+	// }
+	//
+	// }
 
 }
