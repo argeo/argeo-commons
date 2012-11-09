@@ -274,9 +274,9 @@ public class OsgiBoot {
 	public void startBundles() {
 		// default and active start levels from System properties
 		Integer defaultStartLevel = new Integer(Integer.parseInt(OsgiBootUtils
-				.getProperty(PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL)));
-		Integer activeStartLevel = new Integer(
-				OsgiBootUtils.getProperty(PROP_OSGI_STARTLEVEL));
+				.getProperty(PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL, "4")));
+		Integer activeStartLevel = new Integer(OsgiBootUtils.getProperty(
+				PROP_OSGI_STARTLEVEL, "6"));
 
 		SortedMap/* <Integer, List<String>> */startLevels = new TreeMap();
 		computeStartLevels(startLevels, System.getProperties(),
@@ -414,11 +414,12 @@ public class OsgiBoot {
 
 		// monitors that all bundles are started
 		long beginMonitor = System.currentTimeMillis();
-		boolean allStarted = false;
+		boolean allStarted = !(startedBundles.size() > 0);
 		List/* <String> */notStarted = new ArrayList();
-		while (allStarted
-				&& (System.currentTimeMillis() - beginMonitor) > defaultTimeout) {
+		while (!allStarted
+				&& (System.currentTimeMillis() - beginMonitor) < defaultTimeout) {
 			notStarted = new ArrayList();
+			allStarted = true;
 			for (int i = 0; i < startedBundles.size(); i++) {
 				Bundle bundle = (Bundle) startedBundles.get(i);
 				// TODO check behaviour of lazs bundles
@@ -516,7 +517,7 @@ public class OsgiBoot {
 		int currentState = bundle.getState();
 		while (!(currentState == Bundle.RESOLVED || currentState == Bundle.ACTIVE)) {
 			long now = System.currentTimeMillis();
-			if ((now - startBegin) > defaultTimeout)
+			if ((now - startBegin) > defaultTimeout * 10)
 				throw new Exception("Bundle " + bundle.getSymbolicName()
 						+ " was not RESOLVED or ACTIVE after "
 						+ (now - startBegin) + "ms (originalState="
