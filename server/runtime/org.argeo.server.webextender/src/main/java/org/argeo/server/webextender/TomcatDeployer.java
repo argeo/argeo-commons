@@ -30,7 +30,7 @@ import org.springframework.util.ObjectUtils;
 public class TomcatDeployer extends TomcatWarDeployer {
 	private String serverInfo;
 	private Service service;
-	private String contextPath = "/org.argeo.rap.webapp";
+	private String contextPath = "/ui";
 
 	@Override
 	public void setService(Object service) {
@@ -39,8 +39,7 @@ public class TomcatDeployer extends TomcatWarDeployer {
 		// TODO: listen to OSGi service so that we get notified in the
 		// (unlikely) case the underlying service is updated
 		serverInfo = ((Service) service).getInfo();
-		if (log.isTraceEnabled())
-			log.trace("Argeo modified Tomcat deployer used");
+		log.info("Enhanced Argeo Tomcat webapp deployer being used");
 	}
 
 	@Override
