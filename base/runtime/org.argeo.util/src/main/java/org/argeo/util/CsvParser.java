@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.argeo.ArgeoException;
+import org.argeo.StreamUtils;
 
 /**
  * Parses a CSV file interpreting the first line as a header. The
@@ -54,10 +55,16 @@ public abstract class CsvParser {
 	protected abstract void processLine(Integer lineNumber,
 			List<String> header, List<String> tokens);
 
+	/**
+	 * Parses the CSV file (stream is closed at the end)
+	 */
 	public synchronized void parse(InputStream in) {
 		parse(in, null);
 	}
 
+	/**
+	 * Parses the CSV file (stream is closed at the end)
+	 */
 	public synchronized void parse(InputStream in, String encoding) {
 		BufferedReader reader = null;
 		Integer lineCount = 0;
@@ -122,12 +129,7 @@ public abstract class CsvParser {
 			throw new ArgeoException("Cannot parse CSV file (line: "
 					+ lineCount + ")", e);
 		} finally {
-			if (reader != null)
-				try {
-					reader.close();
-				} catch (Exception e2) {
-					// silent
-				}
+			StreamUtils.closeQuietly(reader);
 		}
 	}
 
