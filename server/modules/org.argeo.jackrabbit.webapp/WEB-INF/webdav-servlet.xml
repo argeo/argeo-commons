@@ -15,7 +15,7 @@
 	<bean id="urlMapping" class="org.argeo.jackrabbit.remote.SimpleWebdavHandlerMapping">
 		<property name="configuration" value="/WEB-INF/webdav-config.xml" />
 		<property name="repositoryFactory" ref="repositoryFactory" />
-		<property name="sessionProvider" ref="scopedSessionProvider" />
+		<property name="sessionProvider" ref="openInViewSessionProvider" />
 	</bean>
 
 </beans>

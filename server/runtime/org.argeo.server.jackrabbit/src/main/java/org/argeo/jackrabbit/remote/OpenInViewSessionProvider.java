@@ -47,8 +47,8 @@ public class OpenInViewSessionProvider implements SessionProvider, Serializable 
 
 	protected Session login(HttpServletRequest request, Repository repository,
 			String workspace) throws RepositoryException {
-		if (log.isDebugEnabled())
-			log.debug("Login to workspace "
+		if (log.isTraceEnabled())
+			log.trace("Login to workspace "
 					+ (workspace == null ? "<default>" : workspace)
 					+ " in web session " + request.getSession().getId());
 		return repository.login(workspace);
@@ -56,8 +56,8 @@ public class OpenInViewSessionProvider implements SessionProvider, Serializable 
 
 	public void releaseSession(Session session) {
 		JcrUtils.logoutQuietly(session);
-		if (log.isDebugEnabled())
-			log.debug("Logged out remote JCR session " + session);
+		if (log.isTraceEnabled())
+			log.trace("Logged out remote JCR session " + session);
 	}
 
 	public void init() {

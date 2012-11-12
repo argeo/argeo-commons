@@ -128,18 +128,18 @@ public abstract class MultipleRepositoryHandlerMapping implements
 	}
 
 	/** The repository name is the first part of the path info */
-	// protected String extractRepositoryName(List<String> pathTokens) {
-	// StringBuffer currName = new StringBuffer("");
-	// for (String token : pathTokens) {
-	// currName.append(token);
-	// if (repositoryRegister.getRepositories().containsKey(
-	// currName.toString()))
-	// return currName.toString();
-	// currName.append('/');
-	// }
-	// throw new ArgeoException("No repository can be found for request "
-	// + pathTokens);
-	// }
+//	protected String extractRepositoryName(List<String> pathTokens) {
+//		StringBuffer currName = new StringBuffer("");
+//		for (String token : pathTokens) {
+//			currName.append(token);
+//			if (repositoryRegister.getRepositories().containsKey(
+//					currName.toString()))
+//				return currName.toString();
+//			currName.append('/');
+//		}
+//		throw new ArgeoException("No repository can be found for request "
+//				+ pathTokens);
+//	}
 
 	public void setApplicationContext(ApplicationContext applicationContext)
 			throws BeansException {

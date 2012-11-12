@@ -15,14 +15,26 @@
  */
 package org.argeo.jackrabbit.remote;
 
-import javax.jcr.Repository;
+import java.io.IOException;
 
+import javax.jcr.Repository;
+import javax.servlet.ServletException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.server.SessionProvider;
+import org.apache.jackrabbit.webdav.DavException;
+import org.apache.jackrabbit.webdav.DavResource;
+import org.apache.jackrabbit.webdav.WebdavRequest;
+import org.apache.jackrabbit.webdav.WebdavResponse;
 
 /** WebDav servlet whose repository is injected */
 public class SimpleWebdavServlet extends
 		org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet {
 	private static final long serialVersionUID = -369787931175177080L;
+
+	private final static Log log = LogFactory.getLog(SimpleWebdavServlet.class);
+
 	private final Repository repository;
 
 	public SimpleWebdavServlet(Repository repository,
@@ -33,6 +45,16 @@ public class SimpleWebdavServlet extends
 
 	public Repository getRepository() {
 		return repository;
+	}
+
+	@Override
+	protected boolean execute(WebdavRequest request, WebdavResponse response,
+			int method, DavResource resource) throws ServletException,
+			IOException, DavException {
+		if (log.isTraceEnabled())
+			log.trace(request.getMethod() + "\t" + request.getPathInfo());
+		boolean res = super.execute(request, response, method, resource);
+		return res;
 	}
 
 }

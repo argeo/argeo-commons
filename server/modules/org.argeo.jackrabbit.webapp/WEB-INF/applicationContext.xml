@@ -24,10 +24,11 @@
 	</bean>
 
 	<!-- The JCR sessions, one login per request. -->
-<!-- 	<bean id="openInViewSessionProvider" init-method="init" -->
-<!-- 		destroy-method="destroy" class="org.argeo.jackrabbit.remote.OpenInViewSessionProvider"> -->
-<!-- 	</bean> -->
+	<bean id="openInViewSessionProvider" init-method="init"
+		destroy-method="destroy" class="org.argeo.jackrabbit.remote.OpenInViewSessionProvider">
+	</bean>
 
-<!-- 	<bean id="repositoryRegister" class="org.argeo.jcr.DefaultRepositoryRegister" /> -->
+	<!-- <bean id="repositoryRegister" class="org.argeo.jcr.DefaultRepositoryRegister" 
+		/> -->
 
 </beans>
