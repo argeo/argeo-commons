@@ -195,6 +195,10 @@ public class JcrUtils implements ArgeoJcrConstants {
 		}
 	}
 
+	/*
+	 * PATH UTILITIES
+	 */
+
 	/** Make sure that: starts with '/', do not end with '/', do not have '//' */
 	public static String normalizePath(String path) {
 		List<String> tokens = tokenize(path);
@@ -215,6 +219,21 @@ public class JcrUtils implements ArgeoJcrConstants {
 		String[] hostTokens = host.split("\\.");
 		for (int i = hostTokens.length - 1; i >= 0; i--) {
 			path.append(hostTokens[i]);
+			if (i != 0)
+				path.append('/');
+		}
+		return path.toString();
+	}
+
+	/**
+	 * Creates a path from a UUID (e.g. 6ebda899-217d-4bf1-abe4-2839085c8f3c =>
+	 * 6ebda899-217d/4bf1/abe4/2839085c8f3c/). '/' at the end, not the beginning
+	 */
+	public static String uuidAsPath(String uuid) {
+		StringBuffer path = new StringBuffer(uuid.length());
+		String[] tokens = uuid.split("-");
+		for (int i = 0; i < tokens.length; i++) {
+			path.append(tokens[i]);
 			if (i != 0)
 				path.append('/');
 		}
@@ -400,6 +419,48 @@ public class JcrUtils implements ArgeoJcrConstants {
 	 */
 	public static Node mkdirs(Session session, String path, String type) {
 		return mkdirs(session, path, type, null, false);
+	}
+
+	/**
+	 * Create sub nodes relative to a parent node
+	 * 
+	 * @param nodeType
+	 *            the type of the leaf node
+	 */
+	public static Node mkdirs(Node parentNode, String relativePath,
+			String nodeType) {
+		return mkdirs(parentNode, relativePath, nodeType, null);
+	}
+
+	/**
+	 * Create sub nodes relative to a parent node
+	 * 
+	 * @param nodeType
+	 *            the type of the leaf node
+	 */
+	public static Node mkdirs(Node parentNode, String relativePath,
+			String nodeType, String intermediaryNodeType) {
+		List<String> tokens = tokenize(relativePath);
+		Node currParent = parentNode;
+		try {
+			for (int i = 0; i < tokens.size(); i++) {
+				String name = tokens.get(i);
+				if (parentNode.hasNode(name)) {
+					currParent = currParent.getNode(name);
+				} else {
+					if (i != (tokens.size() - 1)) {// intermediary
+						currParent = currParent.addNode(name,
+								intermediaryNodeType);
+					} else {// leaf
+						currParent = currParent.addNode(name, nodeType);
+					}
+				}
+			}
+			return currParent;
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot mkdirs relative path "
+					+ relativePath + " from " + parentNode, e);
+		}
 	}
 
 	/**
