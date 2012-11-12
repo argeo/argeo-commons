@@ -24,7 +24,8 @@ import org.springframework.security.adapters.PrincipalSpringSecurityUserToken;
 public class InternalAuthentication extends PrincipalSpringSecurityUserToken
 		implements SystemAuthentication {
 	private static final long serialVersionUID = -6783376375615949315L;
-	public final static String DEFAULT_SYSTEM_USERNAME = "system";
+	/** 'admin' for consistency with JCR */
+	public final static String DEFAULT_SYSTEM_USERNAME = "admin";
 	public final static String DEFAULT_SYSTEM_ROLE = "ROLE_SYSTEM";
 	public final static String SYSTEM_KEY_PROPERTY = "argeo.security.systemKey";
 	public final static String SYSTEM_KEY_DEFAULT = "argeo";
