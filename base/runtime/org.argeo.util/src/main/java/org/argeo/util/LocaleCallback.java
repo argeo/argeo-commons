@@ -71,6 +71,8 @@ public class LocaleCallback implements Callback {
 	}
 
 	public Locale getSelectedLocale() {
+		if (selectedIndex == null)
+			return null;
 		return availableLocales.get(selectedIndex);
 	}
 
