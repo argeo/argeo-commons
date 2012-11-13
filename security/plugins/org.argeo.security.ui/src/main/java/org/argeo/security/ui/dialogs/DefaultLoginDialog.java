@@ -21,13 +21,17 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.TextOutputCallback;
 
+import org.argeo.util.LocaleCallback;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -47,7 +51,7 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 	}
 
 	protected Point getInitialSize() {
-		return new Point(300, 180);
+		return new Point(350, 180);
 	}
 
 	@Override
@@ -89,6 +93,8 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 				createNameHandler(composite, (NameCallback) callback);
 			} else if (callback instanceof PasswordCallback) {
 				createPasswordHandler(composite, (PasswordCallback) callback);
+			} else if (callback instanceof LocaleCallback) {
+				createLocaleHandler(composite, (LocaleCallback) callback);
 			}
 		}
 	}
@@ -106,6 +112,30 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 			public void modifyText(ModifyEvent event) {
 				// FIXME use getTextChars() in Eclipse 3.7
 				callback.setPassword(passwordText.getText().toCharArray());
+			}
+		});
+	}
+
+	private void createLocaleHandler(Composite composite,
+			final LocaleCallback callback) {
+		String[] labels = callback.getSupportedLocalesLabels();
+		if (labels.length == 0)
+			return;
+		Label label = new Label(composite, SWT.NONE);
+		label.setText(callback.getPrompt());
+
+		final Combo combo = new Combo(composite, SWT.READ_ONLY);
+		combo.setItems(labels);
+		combo.select(callback.getDefaultIndex());
+		combo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		combo.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				callback.setSelectedIndex(combo.getSelectionIndex());
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
 	}

@@ -15,6 +15,7 @@
 	<bean id="springLoginModule" class="org.argeo.security.equinox.SpringLoginModule"
 		scope="prototype">
 		<property name="authenticationManager" ref="authenticationManager" />
+		<property name="availableLocales" value="${argeo.i18n.availableLocales}"/>
 	</bean>
 
 	<bean id="springLoginModuleRemote" class="org.argeo.security.equinox.SpringLoginModule"

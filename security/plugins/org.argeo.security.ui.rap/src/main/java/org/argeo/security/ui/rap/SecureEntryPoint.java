@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.ErrorFeedback;
+import org.argeo.util.LocaleUtils;
 import org.eclipse.equinox.security.auth.ILoginContext;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.rwt.RWT;
@@ -79,10 +80,10 @@ public class SecureEntryPoint implements IEntryPoint {
 			SecurityContextHolder
 					.setContext((SecurityContext) contextFromSessionObject);
 
-		if (log.isDebugEnabled())
-			log.debug("THREAD=" + Thread.currentThread().getId()
-					+ ", sessionStore=" + RWT.getSessionStore().getId()
-					+ ", remote user=" + httpRequest.getRemoteUser());
+//		if (log.isDebugEnabled())
+//			log.debug("THREAD=" + Thread.currentThread().getId()
+//					+ ", sessionStore=" + RWT.getSessionStore().getId()
+//					+ ", remote user=" + httpRequest.getRemoteUser());
 
 		// create display
 		final Display display = PlatformUI.createDisplay();
@@ -96,9 +97,13 @@ public class SecureEntryPoint implements IEntryPoint {
 				loginContext.login();
 				subject = loginContext.getSubject();
 
+				// add security context to session
 				if (httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) == null)
 					httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
 							SecurityContextHolder.getContext());
+				// add thread locale to RWT session
+				log.info("Locale "+LocaleUtils.threadLocale.get());
+				RWT.setLocale(LocaleUtils.threadLocale.get());
 
 				// Once the user is logged in, she can have a longer session
 				// timeout

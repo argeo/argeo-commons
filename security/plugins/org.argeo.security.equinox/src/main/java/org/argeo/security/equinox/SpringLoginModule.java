@@ -15,6 +15,7 @@
  */
 package org.argeo.security.equinox;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -28,6 +29,8 @@ import javax.security.auth.login.LoginException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.security.NodeAuthenticationToken;
+import org.argeo.util.LocaleCallback;
+import org.argeo.util.LocaleUtils;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.BadCredentialsException;
@@ -53,6 +56,8 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 
 	private Boolean remote = false;
 	private Boolean anonymous = false;
+	/** Comma separated list of locales */
+	private String availableLocales = "";
 
 	private String key = null;
 	private String anonymousRole = "ROLE_ANONYMOUS";
@@ -90,8 +95,18 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 			if (subject.getPublicCredentials() != null)
 				subject.getPublicCredentials().clear();
 
+			Locale selectedLocale = null;
 			// deals first with public access since it's simple
 			if (anonymous) {
+				// multi locale
+				if (callbackHandler != null && availableLocales != null
+						&& !availableLocales.trim().equals("")) {
+					LocaleCallback localeCallback = new LocaleCallback(
+							availableLocales);
+					callbackHandler.handle(new Callback[] { localeCallback });
+					selectedLocale = localeCallback.getSelectedLocale();
+				}
+
 				// TODO integrate with JCR?
 				Object principal = UUID.randomUUID().toString();
 				GrantedAuthority[] authorities = { new GrantedAuthorityImpl(
@@ -101,59 +116,67 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 				Authentication auth = authenticationManager
 						.authenticate(anonymousToken);
 				registerAuthentication(auth);
-				return super.login();
-			}
-
-			if (callbackHandler == null)
-				throw new LoginException("No call back handler available");
-
-			// ask for username and password
-			NameCallback nameCallback = new NameCallback("User");
-			PasswordCallback passwordCallback = new PasswordCallback(
-					"Password", false);
-			final String defaultNodeUrl = System.getProperty(NODE_REPO_URI,
-					"http://localhost:7070/org.argeo.jcr.webapp/remoting/node");
-			NameCallback urlCallback = new NameCallback("Site URL",
-					defaultNodeUrl);
-
-			// handle callbacks
-			if (remote)
-				callbackHandler.handle(new Callback[] { nameCallback,
-						passwordCallback, urlCallback });
-			else
-				callbackHandler.handle(new Callback[] { nameCallback,
-						passwordCallback });
-
-			// create credentials
-			String username = nameCallback.getName();
-			if (username == null || username.trim().equals(""))
-				return false;
-
-			String password = "";
-			if (passwordCallback.getPassword() != null)
-				password = String.valueOf(passwordCallback.getPassword());
-
-			NodeAuthenticationToken credentials;
-			if (remote) {
-				String url = urlCallback.getName();
-				credentials = new NodeAuthenticationToken(username, password,
-						url);
 			} else {
-				credentials = new NodeAuthenticationToken(username, password);
+				if (callbackHandler == null)
+					throw new LoginException("No call back handler available");
+
+				// ask for username and password
+				NameCallback nameCallback = new NameCallback("User");
+				PasswordCallback passwordCallback = new PasswordCallback(
+						"Password", false);
+				final String defaultNodeUrl = System
+						.getProperty(NODE_REPO_URI,
+								"http://localhost:7070/org.argeo.jcr.webapp/remoting/node");
+				NameCallback urlCallback = new NameCallback("Site URL",
+						defaultNodeUrl);
+				LocaleCallback localeCallback = new LocaleCallback(
+						availableLocales);
+
+				// handle callbacks
+				if (remote)
+					callbackHandler.handle(new Callback[] { nameCallback,
+							passwordCallback, urlCallback, localeCallback });
+				else
+					callbackHandler.handle(new Callback[] { nameCallback,
+							passwordCallback, localeCallback });
+
+				selectedLocale = localeCallback.getSelectedLocale();
+
+				// create credentials
+				String username = nameCallback.getName();
+				if (username == null || username.trim().equals(""))
+					return false;
+
+				String password = "";
+				if (passwordCallback.getPassword() != null)
+					password = String.valueOf(passwordCallback.getPassword());
+
+				NodeAuthenticationToken credentials;
+				if (remote) {
+					String url = urlCallback.getName();
+					credentials = new NodeAuthenticationToken(username,
+							password, url);
+				} else {
+					credentials = new NodeAuthenticationToken(username,
+							password);
+				}
+
+				Authentication authentication;
+				try {
+					authentication = authenticationManager
+							.authenticate(credentials);
+				} catch (BadCredentialsException e) {
+					// wait between failed login attempts
+					Thread.sleep(waitBetweenFailedLoginAttempts);
+					throw e;
+				}
+				registerAuthentication(authentication);
 			}
 
-			Authentication authentication;
-			try {
-				authentication = authenticationManager
-						.authenticate(credentials);
-			} catch (BadCredentialsException e) {
-				// wait between failed login attempts
-				Thread.sleep(waitBetweenFailedLoginAttempts);
-				throw e;
-			}
-			registerAuthentication(authentication);
-			boolean res = super.login();
-			return res;
+			if (selectedLocale != null)
+				LocaleUtils.threadLocale.set(selectedLocale);
+
+			return super.login();
 		} catch (LoginException e) {
 			throw e;
 		} catch (ThreadDeath e) {
@@ -211,6 +234,10 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 	/** System key */
 	public void setKey(String key) {
 		this.key = key;
+	}
+
+	public void setAvailableLocales(String locales) {
+		this.availableLocales = locales;
 	}
 
 }

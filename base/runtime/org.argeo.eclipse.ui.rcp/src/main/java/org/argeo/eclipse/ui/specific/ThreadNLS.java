@@ -1,0 +1,74 @@
+package org.argeo.eclipse.ui.specific;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
+import org.argeo.util.LocaleUtils;
+import org.eclipse.osgi.util.NLS;
+
+/** NLS attached to a given thread */
+public class ThreadNLS<T extends NLS> extends InheritableThreadLocal<T> {
+	public final static String DEFAULT_BUNDLE_LOCATION = "/properties/plugin";
+
+	private final String bundleLocation;
+
+	private Class<T> type;
+	private Boolean utf8 = false;
+
+	public ThreadNLS(String bundleLocation, Class<T> type, Boolean utf8) {
+		this.bundleLocation = bundleLocation;
+		this.type = type;
+		this.utf8 = utf8;
+	}
+
+	public ThreadNLS(Class<T> type) {
+		this(DEFAULT_BUNDLE_LOCATION, type, false);
+	}
+
+	@Override
+	protected T initialValue() {
+		ResourceBundle bundle = ResourceBundle.getBundle(bundleLocation,
+				LocaleUtils.threadLocale.get(), type.getClassLoader());
+		T result;
+		try {
+			NLS.initializeMessages(bundleLocation, type);
+			Constructor<T> constructor = type.getConstructor();
+			constructor.setAccessible(true);
+			result = constructor.newInstance();
+			final Field[] fieldArray = type.getDeclaredFields();
+			for (int i = 0; i < fieldArray.length; i++) {
+				int modifiers = fieldArray[i].getModifiers();
+				if (String.class.isAssignableFrom(fieldArray[i].getType())
+						&& Modifier.isPublic(modifiers)
+						&& !Modifier.isStatic(modifiers)) {
+					try {
+						String value = bundle
+								.getString(fieldArray[i].getName());
+						byte[] bytes = value.getBytes();
+
+						String forcedValue;
+						if (utf8)
+							forcedValue = new String(bytes, "UTF8");
+						else
+							forcedValue = value;
+						if (value != null) {
+							fieldArray[i].setAccessible(true);
+							fieldArray[i].set(result, forcedValue);
+						}
+					} catch (final MissingResourceException mre) {
+						fieldArray[i].setAccessible(true);
+						fieldArray[i].set(result, "");
+						mre.printStackTrace();
+					}
+				}
+			}
+			return result;
+		} catch (final Exception ex) {
+			throw new IllegalStateException(ex.getMessage());
+		}
+	}
+
+}
