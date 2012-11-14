@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
@@ -113,6 +114,19 @@
 								<configuration>
 									<name>argeo-node-rap</name>
 									<mappings>
+										<!-- <mapping> -->
+										<!-- <directory>/etc/argeo-node-rap</directory> -->
+										<!-- <username>root</username> -->
+										<!-- <groupname>root</groupname> -->
+										<!-- <filemode>644</filemode> -->
+										<!-- <configuration>true</configuration> -->
+										<!-- <directoryIncluded>false</directoryIncluded> -->
+										<!-- <sources> -->
+										<!-- <source> -->
+										<!-- <location>src/main/rpm/etc/argeo-node-rap</location> -->
+										<!-- </source> -->
+										<!-- </sources> -->
+										<!-- </mapping> -->
 										<mapping>
 											<directory>/usr/share/osgi/rap</directory>
 											<username>root</username>
