@@ -46,7 +46,7 @@
 			<comments><![CDATA[
 Argeo Commons Enterprise Framework
 			   
-Copyright 2011 Mathieu Baudier
+Copyright (C) 2007-2012 Argeo GmbH
 
 Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
 you may not use this file except in compliance with the License.
@@ -185,6 +185,8 @@ limitations under the License.
 							<Bundle-Version>${project.version}-r${timestamp}</Bundle-Version>
 							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 							<Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
+							<!-- SLC specific instructions -->
+							<SLC-GroupId>${project.groupId}</SLC-GroupId>
 						</instructions>
 					</configuration>
 					<executions>

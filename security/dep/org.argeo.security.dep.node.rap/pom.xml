@@ -12,6 +12,15 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<SLC-ModularDistribution>default</SLC-ModularDistribution>
+					</instructions>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.argeo.maven.plugins</groupId>
 				<artifactId>maven-argeo-osgi-plugin</artifactId>
 				<executions>
