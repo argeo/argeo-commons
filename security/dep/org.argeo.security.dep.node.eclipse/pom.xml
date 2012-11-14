@@ -108,7 +108,6 @@
 								</goals>
 								<configuration>
 									<name>argeo-node-eclipse</name>
-									<copyright>2011 Argeo</copyright>
 									<classifier>rpm-eclipse</classifier>
 									<mappings>
 										<mapping>

@@ -55,7 +55,6 @@
 								</goals>
 								<configuration>
 									<name>osgi-boot</name>
-									<copyright>2011 Argeo</copyright>
 									<mappings>
 										<mapping>
 											<directory>/etc/osgiboot</directory>

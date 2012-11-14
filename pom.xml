@@ -215,6 +215,7 @@ limitations under the License.
 						<packager>mbaudier@argeo.org</packager>
 						<group>Applications/System</group>
 						<prefix>/usr</prefix>
+						<copyright>2012 Argeo GmbH and others</copyright>
 					</configuration>
 				</plugin>
 				<plugin>

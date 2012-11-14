@@ -112,7 +112,6 @@
 								</goals>
 								<configuration>
 									<name>argeo-node-rap</name>
-									<copyright>2011 Argeo</copyright>
 									<mappings>
 										<mapping>
 											<directory>/usr/share/osgi/rap</directory>
