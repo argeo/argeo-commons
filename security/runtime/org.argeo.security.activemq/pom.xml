@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
 		<artifactId>runtime</artifactId>
-		<version>1.1.5</version>
+		<version>1.1.6-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.security.activemq</artifactId>
@@ -40,12 +40,12 @@
 		<dependency>
 			<groupId>org.argeo.commons.base</groupId>
 			<artifactId>org.argeo.util</artifactId>
-			<version>1.1.5</version>
+			<version>1.1.6-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.core</artifactId>
-			<version>1.1.5</version>
+			<version>1.1.6-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Spring -->

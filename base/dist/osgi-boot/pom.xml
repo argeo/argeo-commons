@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.base</groupId>
-		<version>1.1.5</version>
+		<version>1.1.6-SNAPSHOT</version>
 		<artifactId>dist</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -35,7 +35,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.base</groupId>
 			<artifactId>org.argeo.osgi.boot</artifactId>
-			<version>1.1.5</version>
+			<version>1.1.6-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<profiles>
