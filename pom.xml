@@ -451,7 +451,7 @@ limitations under the License.
 	<repositories>
 		<repository>
 			<id>argeo-tp</id>
-			<url>http://repo.argeo.org/org.argeo.jcr.webapp/public/java/org.argeo.tp-1.3.1</url>
+			<url>http://repo.argeo.org/data/public/java/org.argeo.tp-1.3.1</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
@@ -471,7 +471,7 @@ limitations under the License.
 		</pluginRepository>
 		<pluginRepository>
 			<id>argeo-maven-plugins</id>
-			<url>http://repo.argeo.org/org.argeo.jcr.webapp/public/java/org.argeo.maven.plugins-1.1.x</url>
+			<url>http://repo.argeo.org/data/public/java/org.argeo.maven.plugins-1.1.x</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
@@ -482,7 +482,7 @@ limitations under the License.
 	<distributionManagement>
 		<repository>
 			<id>staging</id>
-			<url>dav:https://repo.argeo.org/org.argeo.jcr.webapp/webdav/java/org.argeo.commons-1.1.x</url>
+			<url>dav:https://repo.argeo.org/data/files/java/org.argeo.commons-1.1.x</url>
 			<uniqueVersion>false</uniqueVersion>
 		</repository>
 		<site>
@@ -498,12 +498,12 @@ limitations under the License.
 				<repository>
 					<id>localrepo</id>
 					<name>Internal Release Repository</name>
-					<url>dav:http://localrepo:7070/org.argeo.jcr.webapp/webdav/java/org.argeo.commons-1.1.x</url>
+					<url>dav:http://localrepo:7070/data/files/java/org.argeo.commons-1.1.x</url>
 				</repository>
 				<snapshotRepository>
 					<id>localrepo.snapshots</id>
 					<name>Internal Snapshot Repository</name>
-					<url>dav:http://localrepo:7070/org.argeo.jcr.webapp/webdav/java/org.argeo.commons-1.1.x</url>
+					<url>dav:http://localrepo:7070/data/files/java/org.argeo.commons-1.1.x</url>
 				</snapshotRepository>
 			</distributionManagement>
 		</profile>
