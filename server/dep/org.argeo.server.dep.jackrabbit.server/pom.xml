@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
-		<version>1.1.6</version>
+		<version>1.1.7-SNAPSHOT</version>
 		<artifactId>dep</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -14,7 +14,7 @@
 			<groupId>org.argeo.commons.base</groupId>
 			<artifactId>org.argeo.dep.jackrabbit</artifactId>
 			<type>pom</type>
-			<version>1.1.6</version>
+			<version>1.1.7-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Enhancements of Jackrabbit -->
