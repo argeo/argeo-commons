@@ -121,22 +121,32 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 		try {
 			nodeSession = repository.login();
 
-			synchronize();
+			// TODO put this in a different thread, and poll the LDAP server
+			// until it is up
+			try {
+				synchronize();
 
-			// LDAP
-			subTreeSearchControls = new SearchControls();
-			subTreeSearchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-			// LDAP listener
-			ldapUserListener = new LdapUserListener();
-			rawLdapTemplate.executeReadOnly(new ContextExecutor() {
-				public Object executeWithContext(DirContext ctx)
-						throws NamingException {
-					EventDirContext ectx = (EventDirContext) ctx.lookup("");
-					ectx.addNamingListener(userBase, "(" + usernameAttribute
-							+ "=*)", subTreeSearchControls, ldapUserListener);
-					return null;
-				}
-			});
+				// LDAP
+				subTreeSearchControls = new SearchControls();
+				subTreeSearchControls
+						.setSearchScope(SearchControls.SUBTREE_SCOPE);
+				// LDAP listener
+				ldapUserListener = new LdapUserListener();
+				rawLdapTemplate.executeReadOnly(new ContextExecutor() {
+					public Object executeWithContext(DirContext ctx)
+							throws NamingException {
+						EventDirContext ectx = (EventDirContext) ctx.lookup("");
+						ectx.addNamingListener(userBase, "("
+								+ usernameAttribute + "=*)",
+								subTreeSearchControls, ldapUserListener);
+						return null;
+					}
+				});
+			} catch (Exception e) {
+				log.error("Could not synchronize and listen to LDAP,"
+						+ " probably because the LDAP server is not available."
+						+ " Restart the system as soon as possible.", e);
+			}
 
 			// JCR
 			String[] nodeTypes = { ArgeoTypes.ARGEO_USER_PROFILE };
