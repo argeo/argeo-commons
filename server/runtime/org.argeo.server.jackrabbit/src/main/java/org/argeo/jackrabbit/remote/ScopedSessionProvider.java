@@ -109,10 +109,12 @@ public class ScopedSessionProvider implements SessionProvider, Serializable {
 		if (jcrSession == null)
 			try {
 				Session session = login(rep, workspace);
-				if (!session.getUserID().equals(springUser))
+				if (!session.getUserID().equals(springUser)) {
+					JcrUtils.logoutQuietly(session);
 					throw new ArgeoException("Spring Security user '"
 							+ springUser + "' not in line with JCR user '"
 							+ session.getUserID() + "'");
+				}
 				currentRepositoryName = requestJcrRepository;
 				// do not use workspace variable which may be null
 				currentWorkspaceName = session.getWorkspace().getName();
