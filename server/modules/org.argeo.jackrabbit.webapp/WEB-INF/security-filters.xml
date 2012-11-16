@@ -11,7 +11,8 @@
 			<sec:filter-chain pattern="/*/*/*/**"
 				filters="session,x509,basic,exception,interceptor" />
 			<!-- For some reason the first level listing workspaces must be public -->
-			<sec:filter-chain pattern="/*/*/" filters="anonymous,exception" />
+			<sec:filter-chain pattern="/*/*/"
+				filters="anonymous,exception,interceptorPublic" />
 		</sec:filter-chain-map>
 	</bean>
 
