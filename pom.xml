@@ -349,6 +349,7 @@ limitations under the License.
 					<include>icons/**</include>
 					<include>branding/**</include>
 					<include>*.properties</include>
+					<include>properties/*.properties</include>
 					<include>p2.inf</include>
 				</includes>
 				<excludes>
