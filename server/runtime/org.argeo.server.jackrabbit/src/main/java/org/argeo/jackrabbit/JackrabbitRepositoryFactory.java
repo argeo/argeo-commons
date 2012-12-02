@@ -15,6 +15,8 @@
  */
 package org.argeo.jackrabbit;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -23,13 +25,20 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.JcrUtils;
+import org.apache.jackrabbit.core.RepositoryImpl;
+import org.apache.jackrabbit.core.config.RepositoryConfig;
+import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
 import org.apache.jackrabbit.jcr2dav.Jcr2davRepositoryFactory;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.DefaultRepositoryFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.xml.sax.InputSource;
 
 /**
  * Repository factory which can create new repositories and access remote
@@ -37,8 +46,12 @@ import org.argeo.jcr.DefaultRepositoryFactory;
  */
 public class JackrabbitRepositoryFactory extends DefaultRepositoryFactory
 		implements RepositoryFactory, ArgeoJcrConstants {
+
 	private final static Log log = LogFactory
 			.getLog(JackrabbitRepositoryFactory.class);
+
+	private Resource fileRepositoryConfiguration = new ClassPathResource(
+			"/org/argeo/jackrabbit/repository-h2.xml");
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Repository getRepository(Map parameters) throws RepositoryException {
@@ -57,6 +70,8 @@ public class JackrabbitRepositoryFactory extends DefaultRepositoryFactory
 		if (uri != null) {
 			if (uri.startsWith("http"))// http, https
 				repository = createRemoteRepository(uri);
+			else if (uri.startsWith("file"))// http, https
+				repository = createFileRepository(uri, parameters);
 			else if (uri.startsWith("vm")) {
 				log.warn("URI "
 						+ uri
@@ -91,6 +106,46 @@ public class JackrabbitRepositoryFactory extends DefaultRepositoryFactory
 		return repository;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	protected Repository createFileRepository(final String uri, Map parameters)
+			throws RepositoryException {
+		InputStream configurationIn = null;
+		try {
+			Properties vars = new Properties();
+			vars.putAll(parameters);
+			String dirPath = uri.substring("file:".length());
+			File homeDir = new File(dirPath);
+			if (homeDir.exists() && !homeDir.isDirectory())
+				throw new ArgeoException("Repository home " + dirPath
+						+ " is not a directory");
+			if (!homeDir.exists())
+				homeDir.mkdirs();
+			configurationIn = fileRepositoryConfiguration.getInputStream();
+			vars.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE,
+					homeDir.getCanonicalPath());
+			RepositoryConfig repositoryConfig = RepositoryConfig.create(
+					new InputSource(configurationIn), vars);
+
+			// TransientRepository repository = new
+			// TransientRepository(repositoryConfig);
+			final RepositoryImpl repository = RepositoryImpl
+					.create(repositoryConfig);
+			Runtime.getRuntime().addShutdownHook(
+					new Thread("Clean JCR repository " + uri) {
+						public void run() {
+							repository.shutdown();
+							log.info("Destroyed repository " + uri);
+						}
+					});
+			log.info("Initialized file Jackrabbit repository from uri " + uri);
+			return repository;
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot create repository " + uri, e);
+		} finally {
+			IOUtils.closeQuietly(configurationIn);
+		}
+	}
+
 	/**
 	 * Called after the repository has been initialised. Does nothing by
 	 * default.
@@ -98,6 +153,11 @@ public class JackrabbitRepositoryFactory extends DefaultRepositoryFactory
 	@SuppressWarnings("rawtypes")
 	protected void postInitialization(Repository repository, Map parameters) {
 
+	}
+
+	public void setFileRepositoryConfiguration(
+			Resource fileRepositoryConfiguration) {
+		this.fileRepositoryConfiguration = fileRepositoryConfiguration;
 	}
 
 }

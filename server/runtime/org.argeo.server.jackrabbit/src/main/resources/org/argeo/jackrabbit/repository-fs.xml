@@ -2,18 +2,6 @@
 <!DOCTYPE Repository PUBLIC "-//The Apache Software Foundation//DTD Jackrabbit 1.6//EN"
                             "http://jackrabbit.apache.org/dtd/repository-2.0.dtd">
 <Repository>
-	<!-- Shared datasource -->
-	<DataSources>
-		<DataSource name="dataSource">
-			<param name="driver" value="org.h2.Driver" />
-			<param name="url" value="${argeo.node.repo.dburl}" />
-			<param name="user" value="${argeo.node.repo.dbuser}" />
-			<param name="password" value="${argeo.node.repo.dbpassword}" />
-			<param name="databaseType" value="h2" />
-			<param name="maxPoolSize" value="${argeo.node.repo.maxPoolSize}" />
-		</DataSource>
-	</DataSources>
-
 	<!-- File system and datastore -->
 	<FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
 		<param name="path" value="${rep.home}/fs" />
