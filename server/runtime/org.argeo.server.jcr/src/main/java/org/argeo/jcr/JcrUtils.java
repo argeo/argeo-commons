@@ -300,8 +300,7 @@ public class JcrUtils implements ArgeoJcrConstants {
 			throw new ArgeoException("Path " + path + " cannot end with '/'");
 		int index = path.lastIndexOf('/');
 		if (index < 0)
-			throw new ArgeoException("Cannot find last path element for "
-					+ path);
+			return path;
 		return path.substring(index + 1);
 	}
 
