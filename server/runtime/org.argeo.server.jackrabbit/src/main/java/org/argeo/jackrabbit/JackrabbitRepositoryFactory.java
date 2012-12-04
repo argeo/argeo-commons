@@ -133,7 +133,8 @@ public class JackrabbitRepositoryFactory extends DefaultRepositoryFactory
 					.create(repositoryConfig);
 			Session session = repository.login();
 			// FIXME make it generic
-			org.argeo.jcr.JcrUtils.addPrivilege(session, "/", "ROLE_ADMIN", "jcr:all");
+			org.argeo.jcr.JcrUtils.addPrivilege(session, "/", "ROLE_ADMIN",
+					"jcr:all");
 			org.argeo.jcr.JcrUtils.logoutQuietly(session);
 			Runtime.getRuntime().addShutdownHook(
 					new Thread("Clean JCR repository " + uri) {
