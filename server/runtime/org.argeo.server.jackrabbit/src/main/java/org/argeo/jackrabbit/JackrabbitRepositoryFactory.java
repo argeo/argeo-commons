@@ -24,6 +24,7 @@ import java.util.Properties;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
+import javax.jcr.Session;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -130,6 +131,10 @@ public class JackrabbitRepositoryFactory extends DefaultRepositoryFactory
 			// TransientRepository(repositoryConfig);
 			final RepositoryImpl repository = RepositoryImpl
 					.create(repositoryConfig);
+			Session session = repository.login();
+			// FIXME make it generic
+			org.argeo.jcr.JcrUtils.addPrivilege(session, "/", "ROLE_ADMIN", "jcr:all");
+			org.argeo.jcr.JcrUtils.logoutQuietly(session);
 			Runtime.getRuntime().addShutdownHook(
 					new Thread("Clean JCR repository " + uri) {
 						public void run() {
