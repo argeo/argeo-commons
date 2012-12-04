@@ -16,6 +16,8 @@
 package org.argeo.security.core;
 
 import java.beans.PropertyDescriptor;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValues;
@@ -33,6 +35,8 @@ public class AuthenticatedApplicationContextInitialization extends
 		ApplicationListener {
 	// private Log log = LogFactory
 	// .getLog(AuthenticatedApplicationContextInitialization.class);
+	/** If non empty, restricts to these beans */
+	private List<String> beanNames = new ArrayList<String>();
 
 	@SuppressWarnings("rawtypes")
 	public Object postProcessBeforeInstantiation(Class beanClass,
@@ -41,7 +45,10 @@ public class AuthenticatedApplicationContextInitialization extends
 		// we will deauthenticate only when the application context has been
 		// refreshed in order to be able to deal with factory beans has well
 		if (!isAuthenticatedBySelf()) {
-			authenticateAsSystem();
+			if (beanNames.size() == 0)
+				authenticateAsSystem();
+			else if (beanNames.contains(beanName))
+				authenticateAsSystem();
 		}
 		return null;
 	}
@@ -79,6 +86,10 @@ public class AuthenticatedApplicationContextInitialization extends
 			// context was initialized/refreshed
 			// deauthenticateAsSystem();
 		}
+	}
+
+	public void setBeanNames(List<String> beanNames) {
+		this.beanNames = beanNames;
 	}
 
 }
