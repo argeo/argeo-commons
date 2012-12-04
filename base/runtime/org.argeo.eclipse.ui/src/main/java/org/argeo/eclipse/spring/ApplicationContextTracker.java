@@ -107,20 +107,32 @@ class ApplicationContextTracker {
 		return getApplicationContext(contributorBundle);
 	}
 
-	static ApplicationContext getApplicationContext(Bundle contributorBundle) {
+	static ApplicationContext getApplicationContext(
+			final Bundle contributorBundle) {
 		if (log.isTraceEnabled())
 			log.trace("Get application context for bundle " + contributorBundle);
 
 		// Start if not yet started (also if in STARTING state, may be lazy)
 		if (contributorBundle.getState() != Bundle.ACTIVE) {
+			if (log.isTraceEnabled())
+				log.trace("Starting bundle: "
+						+ contributorBundle.getSymbolicName());
+			// Thread startBundle = new Thread("Start bundle "
+			// + contributorBundle.getSymbolicName()) {
+			// public void run() {
 			try {
-				if (log.isTraceEnabled())
-					log.trace("Starting bundle: "
-							+ contributorBundle.getSymbolicName());
 				contributorBundle.start();
 			} catch (BundleException e) {
-				e.printStackTrace();
+				log.error("Cannot start bundle " + contributorBundle, e);
 			}
+			// }
+			// };
+			// startBundle.start();
+			// try {
+			// startBundle.join(10 * 1000l);
+			// } catch (InterruptedException e) {
+			// // silent
+			// }
 		}
 
 		final ApplicationContextTracker applicationContextTracker = new ApplicationContextTracker(
