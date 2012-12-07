@@ -22,15 +22,6 @@
 		<property name="repository" ref="nodeRepository" />
 		<property name="bundleContext" ref="bundleContext" />
 	</bean>
-	<bean class="org.argeo.jackrabbit.JackrabbitAuthorizations"
-		init-method="run">
-		<property name="principalPrivileges">
-			<map>
-				<entry key="jcr:all" value="ROLE_ADMIN" />
-			</map>
-		</property>
-		<property name="repository" ref="argeoDataModel" />
-	</bean>
 
 	<bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
 		<property name="providers">

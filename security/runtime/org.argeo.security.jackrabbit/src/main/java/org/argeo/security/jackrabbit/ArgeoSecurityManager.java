@@ -41,6 +41,7 @@ import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
+import org.springframework.security.context.SecurityContextHolder;
 
 /** Integrates Spring Security and Jackrabbit Security users and roles. */
 public class ArgeoSecurityManager extends DefaultSecurityManager {
@@ -81,8 +82,14 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 	@Override
 	public String getUserID(Subject subject, String workspaceName)
 			throws RepositoryException {
-		if (!synchronize)
-			return super.getUserID(subject, workspaceName);
+		if (!synchronize) {
+			Authentication authentication = SecurityContextHolder.getContext()
+					.getAuthentication();
+			if (authentication != null)
+				return authentication.getName();
+			else
+				return super.getUserID(subject, workspaceName);
+		}
 
 		if (log.isTraceEnabled())
 			log.trace(subject);
