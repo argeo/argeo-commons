@@ -7,7 +7,7 @@
             class="org.argeo.security.ui.admin.SecurityAdminPerspective"
             icon="icons/security.gif"
             id="org.argeo.security.ui.admin.adminSecurityPerspective"
-            name="Security Administration">
+            name="Security">
       </perspective>
    </extension>
    <extension

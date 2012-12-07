@@ -8,7 +8,7 @@
             class="org.argeo.jcr.ui.explorer.JcrExplorerPerspective"
             icon="icons/nodes.gif"
             id="org.argeo.jcr.ui.explorer.perspective"
-            name="JCR Explorer">
+            name="Data Explorer">
       </perspective>
    </extension>
    <!-- Views --> 

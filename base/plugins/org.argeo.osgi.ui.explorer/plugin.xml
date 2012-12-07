@@ -4,7 +4,7 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            name="OSGi Explorer"
+            name="Monitoring"
             class="org.argeo.osgi.ui.explorer.OsgiExplorerPerspective"
             id="org.argeo.osgi.ui.explorer.perspective"
             icon="icons/osgi_explorer.gif">
