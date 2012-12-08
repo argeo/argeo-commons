@@ -17,6 +17,7 @@ package org.argeo.jcr.mvc;
 
 import java.util.Enumeration;
 import java.util.Properties;
+import java.util.StringTokenizer;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryFactory;
@@ -44,7 +45,7 @@ public abstract class MultipleRepositoryHandlerMapping implements
 	private final static Log log = LogFactory
 			.getLog(MultipleRepositoryHandlerMapping.class);
 
-	// private final static String MKCOL = "MKCOL";
+	private final static String MKCOL = "MKCOL";
 
 	private ConfigurableApplicationContext applicationContext;
 	private ServletContext servletContext;
@@ -65,24 +66,24 @@ public abstract class MultipleRepositoryHandlerMapping implements
 		}
 
 		String pathInfo = request.getPathInfo();
-
-		// tokenize path
-		// List<String> tokens = JcrUtils.tokenize(pathInfo);
-		// String[] tokens = extractPrefix(pathInfo);
-
-		// check if repository can be found
-		// if (tokens[0] == null || (tokens[1] == null && tokens[0].equals("")))
-		// return null;
-
-		// MKCOL on repository or root node doesn't make sense
-		// if ((tokens.size() == 1 || tokens.size() == 2)
-		// && request.getMethod().equals(MKCOL))
-		// return null;
-
-		// String repositoryAlias = extractRepositoryName(tokens);
 		String repositoryAlias = extractRepositoryAlias(pathInfo);
 		if (repositoryAlias.equals(""))
 			return null;
+
+		// MKCOL on repository or root node doesn't make sense
+		// and causes issues
+		if (request.getMethod().equals(MKCOL)) {
+			StringTokenizer st = new StringTokenizer(pathInfo, "/");
+			if (!st.hasMoreTokens())
+				return null;
+			st.nextToken();// repository
+			if (!st.hasMoreTokens())
+				return null;
+			st.nextToken();// workspace
+			if (!st.hasMoreTokens())
+				return null;
+		}
+
 		request.setAttribute(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS,
 				repositoryAlias);
 		String pathPrefix = request.getServletPath() + '/' + repositoryAlias;
@@ -128,18 +129,18 @@ public abstract class MultipleRepositoryHandlerMapping implements
 	}
 
 	/** The repository name is the first part of the path info */
-//	protected String extractRepositoryName(List<String> pathTokens) {
-//		StringBuffer currName = new StringBuffer("");
-//		for (String token : pathTokens) {
-//			currName.append(token);
-//			if (repositoryRegister.getRepositories().containsKey(
-//					currName.toString()))
-//				return currName.toString();
-//			currName.append('/');
-//		}
-//		throw new ArgeoException("No repository can be found for request "
-//				+ pathTokens);
-//	}
+	// protected String extractRepositoryName(List<String> pathTokens) {
+	// StringBuffer currName = new StringBuffer("");
+	// for (String token : pathTokens) {
+	// currName.append(token);
+	// if (repositoryRegister.getRepositories().containsKey(
+	// currName.toString()))
+	// return currName.toString();
+	// currName.append('/');
+	// }
+	// throw new ArgeoException("No repository can be found for request "
+	// + pathTokens);
+	// }
 
 	public void setApplicationContext(ApplicationContext applicationContext)
 			throws BeansException {
