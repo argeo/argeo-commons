@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
-		<version>1.1.8</version>
+		<version>1.1.9-SNAPSHOT</version>
 		<artifactId>plugins</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -42,7 +42,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.base</groupId>
 			<artifactId>org.argeo.util</artifactId>
-			<version>1.1.8</version>
+			<version>1.1.9-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Logging -->
@@ -55,24 +55,24 @@
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.ui</artifactId>
-			<version>1.1.8</version>
+			<version>1.1.9-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.equinox</artifactId>
-			<version>1.1.8</version>
+			<version>1.1.9-SNAPSHOT</version>
 		</dependency>
 
 		<!-- RAP specific -->
 		<dependency>
 			<groupId>org.argeo.commons.base</groupId>
 			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
-			<version>1.1.8</version>
+			<version>1.1.9-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.base</groupId>
 			<artifactId>org.argeo.eclipse.ui.rap</artifactId>
-			<version>1.1.8</version>
+			<version>1.1.9-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>
