@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
 		<artifactId>runtime</artifactId>
-		<version>1.1.8-SNAPSHOT</version>
+		<version>1.1.8</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.server.jcr.mvc</artifactId>
@@ -50,7 +50,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.jcr</artifactId>
-			<version>1.1.8-SNAPSHOT</version>
+			<version>1.1.8</version>
 		</dependency>
 
 		<!-- Spring -->
