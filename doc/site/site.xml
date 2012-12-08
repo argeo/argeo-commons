@@ -23,10 +23,11 @@
 	<publishDate format="yyyy-MM-dd HH:mm" />
 	<body>
 		<menu name="Overview">
-			<item name="Home" href="${project.url}/index.html" />
-			<item name="API (Javadoc)" href="${project.url}/apidocs/index.html" target="argeo_commons_javadoc" />
-			<item name="Browse Code" href="${project.url}/xref/index.html" target="argeo_commons_code" />
-			<item name="FIXMEs / TODOs" href="${project.url}/taglist.html" />
+			<item name="Home" href="index.html" />
+			<!--<item name="Reference Documentation" href="reference/index.html" />-->
+			<item name="API (Javadoc)" href="apidocs/index.html" target="argeo_commons_javadoc" />
+			<item name="Browse Code" href="xref/index.html" target="argeo_commons_code" />
+			<item name="FIXMEs / TODOs" href="taglist.html" />
 		</menu>
 		<menu ref="reports" />
 	</body>

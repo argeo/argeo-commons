@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
@@ -8,10 +9,11 @@
 	<description>Generic layers integrating free / open source technologies in order to quickly develop custom enterprise systems: security, JCR, user interface, monitoring</description>
 	<packaging>pom</packaging>
 	<properties>
-		<developmentCycle>1.1</developmentCycle>
-		<developmentCycle.startDate>2012-06-19</developmentCycle.startDate>
+		<developmentCycle.argeo-commons>1.1</developmentCycle.argeo-commons>
+		<developmentCycle.argeo-commons.startDate>2012-06-19</developmentCycle.argeo-commons.startDate>
 		<version.argeo-distribution>1.3.1</version.argeo-distribution>
 		<version.argeo-commons>1.1.8-SNAPSHOT</version.argeo-commons>
+		<!-- RPM -->
 		<rpm.release>6</rpm.release>
 		<rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-staging/6/x86_64</rpm.stagingRepository>
 		<!-- encoding, see http://is.gd/mvn_source_encoding -->
@@ -26,11 +28,10 @@
 		<name>Argeo</name>
 		<url>http://www.argeo.org</url>
 	</organization>
-	<url>${site.urlBase}/${developmentCycle}</url>
+	<url>http://projects.argeo.org/commons/</url>
 	<scm>
 		<connection>scm:svn:https://svn.argeo.org/commons/trunk</connection>
-		<developerConnection>scm:svn:https://svn.argeo.org/commons/trunk
-		</developerConnection>
+		<developerConnection>scm:svn:https://svn.argeo.org/commons/trunk</developerConnection>
 		<url>https://svn.argeo.org/commons/trunk</url>
 	</scm>
 	<inceptionYear>2007</inceptionYear>
@@ -233,6 +234,11 @@ limitations under the License.
 					<artifactId>maven-license-plugin</artifactId>
 					<version>1.9.0</version>
 				</plugin>
+				<plugin>
+					<groupId>com.agilejava.docbkx</groupId>
+					<artifactId>docbkx-maven-plugin</artifactId>
+					<version>2.0.14</version>
+				</plugin>
 				<!-- Site -->
 				<plugin>
 					<artifactId>maven-site-plugin</artifactId>
@@ -326,7 +332,7 @@ limitations under the License.
 								<configuration>
 									<type>date</type>
 									<dates>
-										<date>${developmentCycle.startDate}</date>
+										<date>${developmentCycle.argeo-commons.startDate}</date>
 									</dates>
 									<dateFormat>yyyy-MM-dd</dateFormat>
 								</configuration>
@@ -436,6 +442,34 @@ limitations under the License.
 					</mapping>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>com.agilejava.docbkx</groupId>
+				<artifactId>docbkx-maven-plugin</artifactId>
+				<configuration>
+					<sourceDirectory>doc/reference</sourceDirectory>
+					<targetDirectory>target/site/reference</targetDirectory>
+					<htmlStylesheet>css/style.css</htmlStylesheet>
+					<postProcess>
+						<copy todir="target/site/reference">
+							<fileset dir="doc/reference">
+								<include name="*/*.css" />
+							</fileset>
+							<fileset dir="doc/reference">
+								<include name="img/**" />
+							</fileset>
+						</copy>
+					</postProcess>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate-html</goal>
+							<goal>generate-pdf</goal>
+						</goals>
+						<phase>pre-site</phase>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 	<dependencyManagement>
@@ -483,13 +517,13 @@ limitations under the License.
 	<distributionManagement>
 		<repository>
 			<id>staging</id>
-			<url>dav:https://repo.argeo.org/data/files/java/org.argeo.commons-1.1.x</url>
+			<url>dav:https://repo.argeo.org/data/files/java/org.argeo.commons-${developmentCycle.argeo-commons}.x</url>
 			<uniqueVersion>false</uniqueVersion>
 		</repository>
 		<site>
 			<id>site</id>
 			<name>Argeo Commons Site</name>
-			<url>file:///srv/projects/www/commons/site/${project.version}</url>
+			<url>dav:https://repo.argeo.org/data/files/docs/org.argeo.commons-${developmentCycle.argeo-commons}.x</url>
 		</site>
 	</distributionManagement>
 	<profiles>
@@ -499,13 +533,13 @@ limitations under the License.
 				<repository>
 					<id>localrepo</id>
 					<name>Internal Release Repository</name>
-					<url>dav:http://localrepo:7070/data/files/java/org.argeo.commons-1.1.x</url>
+					<url>dav:http://localhost:7070/data/files/java/org.argeo.commons-${developmentCycle.argeo-commons}.x</url>
 				</repository>
-				<snapshotRepository>
-					<id>localrepo.snapshots</id>
-					<name>Internal Snapshot Repository</name>
-					<url>dav:http://localrepo:7070/data/files/java/org.argeo.commons-1.1.x</url>
-				</snapshotRepository>
+				<site>
+					<id>site</id>
+					<name>Argeo Commons Site</name>
+					<url>dav:http://localhost:7070/data/files/docs/org.argeo.commons-${developmentCycle.argeo-commons}.x</url>
+				</site>
 			</distributionManagement>
 		</profile>
 		<profile>
@@ -514,12 +548,6 @@ limitations under the License.
 				<rpm.release>5</rpm.release>
 				<rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-staging/5/x86_64</rpm.stagingRepository>
 			</properties>
-		</profile>
-		<profile>
-			<id>doc</id>
-			<modules>
-				<module>doc</module>
-			</modules>
 		</profile>
 	</profiles>
 </project>
