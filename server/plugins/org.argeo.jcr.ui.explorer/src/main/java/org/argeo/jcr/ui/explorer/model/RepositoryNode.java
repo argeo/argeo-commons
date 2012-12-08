@@ -81,6 +81,16 @@ public class RepositoryNode extends TreeParent implements UiNode {
 		}
 	}
 
+	public void createWorkspace(String workspaceName) {
+		if (!isConnected())
+			login();
+		try {
+			defaultSession.getWorkspace().createWorkspace(workspaceName);
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot create workspace", e);
+		}
+	}
+
 	/** returns the {@link Repository} referenced by the current UI Node */
 	public Repository getRepository() {
 		return repository;

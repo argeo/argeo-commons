@@ -15,7 +15,6 @@
  */
 package org.argeo.jcr.ui.explorer.model;
 
-import java.util.Hashtable;
 import java.util.Map;
 
 import javax.jcr.Node;
@@ -28,7 +27,6 @@ import javax.jcr.Session;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.eclipse.ui.TreeParent;
-import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.RepositoryRegister;
 import org.argeo.jcr.UserJcrUtils;

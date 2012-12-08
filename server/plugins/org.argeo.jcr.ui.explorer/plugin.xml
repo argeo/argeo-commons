@@ -78,7 +78,17 @@
 	  <command
 	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
 	        id="org.argeo.jcr.ui.explorer.addFolderNode"
-	        name="Create the new folder">
+	        name="Create a new folder">
+	  </command>
+	  <command
+	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+	        id="org.argeo.jcr.ui.explorer.addPrivileges"
+	        name="Add Privileges">
+	  </command>
+	  <command
+	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+	        id="org.argeo.jcr.ui.explorer.createWorkspace"
+	        name="Create a new workspace">
 	  </command>
 	  <command
 	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
@@ -147,10 +157,10 @@
 				style="push">
 			</command>
 			<command
-         commandId="org.argeo.jcr.ui.explorer.addFolderNode"
-         icon="icons/addFolder.gif"
-         label="Add folder"
-         style="push">
+		         commandId="org.argeo.jcr.ui.explorer.addFolderNode"
+		         icon="icons/addFolder.gif"
+		         label="Add Folder"
+		         style="push">
 				<visibleWhen>
 					<iterate>
 				      <and>
@@ -162,16 +172,54 @@
 				                  value="org.argeo.jcr.ui.explorer.model.WorkspaceNode">
 				            </instanceof>
 				         </or>
-             <reference
-                   definitionId="expression.onlyOneItemSelected">
-             </reference>
+             			<with variable="activeMenuSelection"><count value="1"/></with>
 				      </and>
 					</iterate>
 				</visibleWhen>
 			</command>
+			<command
+		         commandId="org.argeo.jcr.ui.explorer.addPrivileges"
+		         icon="icons/addPrivileges.png"
+		         label="Add Privileges"
+		         style="push">
+				<visibleWhen>
+					<iterate>
+				      <and>
+				         <or>
+				            <instanceof
+				                  value="org.argeo.jcr.ui.explorer.model.SingleJcrNode">
+				            </instanceof>
+				            <instanceof
+				                  value="org.argeo.jcr.ui.explorer.model.WorkspaceNode">
+				            </instanceof>
+				         </or>
+             			<with variable="activeMenuSelection"><count value="1"/></with>
+				      </and>
+					</iterate>
+				</visibleWhen>
+			</command>
+			<command
+		         commandId="org.argeo.jcr.ui.explorer.createWorkspace"
+		         icon="icons/addWorkspace.png"
+		         label="Create Workspace"
+		         style="push">
+			<visibleWhen>
+				<iterate>
+			      <and>
+			         <or>
+			            <instanceof
+			                  value="org.argeo.jcr.ui.explorer.model.RepositoryNode">
+			            </instanceof>
+			         </or>
+             		<with variable="activeMenuSelection"><count value="1"/></with>
+			      </and>
+				</iterate>
+			</visibleWhen>
+			</command>
      <command
            commandId="org.argeo.jcr.ui.explorer.deleteNodes"
            icon="icons/remove.gif"
+		   label="Delete Nodes"
            style="push">
         <visibleWhen>
            <iterate>
@@ -190,7 +238,7 @@
            commandId="org.argeo.jcr.ui.explorer.importFileSystem"
            icon="icons/import_fs.png"
            style="push"
-           tooltip="Import files from the files sytem to the repository">
+           tooltip="Import files from the files sytem">
         <visibleWhen>
            <iterate>
               <and>
@@ -202,12 +250,7 @@
                           value="org.argeo.jcr.ui.explorer.model.WorkspaceNode">
                     </instanceof>
                  </or>
-                 <with
-                     variable="activeMenuSelection">
-                  <count
-                        value="1">
-                  </count>
-               </with>
+                 <with variable="activeMenuSelection"><count value="1"/></with>
               </and>
            </iterate>
         </visibleWhen>
