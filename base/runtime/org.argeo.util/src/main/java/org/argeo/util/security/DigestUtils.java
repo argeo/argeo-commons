@@ -33,6 +33,19 @@ public class DigestUtils {
 	// TODO: make it writable
 	private final static Integer byteBufferCapacity = 100 * 1024;// 100 KB
 
+	public static String digest(String algorithm, byte[] bytes) {
+		try {
+			MessageDigest digest = MessageDigest.getInstance(algorithm);
+			digest.update(bytes);
+			byte[] checksum = digest.digest();
+			String res = StreamUtils.encodeHexString(checksum);
+			return res;
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot digest with algorithm "
+					+ algorithm, e);
+		}
+	}
+
 	public static String digest(String algorithm, InputStream in) {
 		try {
 			MessageDigest digest = MessageDigest.getInstance(algorithm);

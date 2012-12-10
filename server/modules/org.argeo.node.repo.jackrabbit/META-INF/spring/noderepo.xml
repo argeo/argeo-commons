@@ -16,6 +16,7 @@
 		<property name="homeDirectory" value="${argeo.node.repo.home}" />
 		<property name="configuration" value="${argeo.node.repo.configuration}" />
 		<property name="variables" value="osgibundle:/noderepo.properties" />
+		<property name="forceCndImport" value="${argeo.node.repo.forceCndImport}" />
 	</bean>
 
 	<bean id="repositoryFactory" class="org.argeo.jackrabbit.OsgiJackrabbitRepositoryFactory">

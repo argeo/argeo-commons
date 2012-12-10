@@ -15,6 +15,7 @@
  */
 package org.argeo.jackrabbit;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -29,6 +30,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Repository;
 import javax.jcr.Session;
+import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -42,6 +44,7 @@ import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrRepositoryWrapper;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.util.security.DigestUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -57,7 +60,8 @@ import org.springframework.core.io.ResourceLoader;
  */
 public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 		ResourceLoaderAware {
-	private Log log = LogFactory.getLog(JackrabbitWrapper.class);
+	private final static Log log = LogFactory.getLog(JackrabbitWrapper.class);
+	private final static String DIGEST_ALGORITHM = "MD5";
 
 	// local
 	private ResourceLoader resourceLoader;
@@ -69,7 +73,7 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 	 * Always import CNDs. Useful during development of new data models. In
 	 * production, explicit migration processes should be used.
 	 */
-	private Boolean forceCndImport = false;
+	private Boolean forceCndImport = true;
 
 	/** Namespaces to register: key is prefix, value namespace */
 	private Map<String, String> namespaces = new HashMap<String, String>();
@@ -120,143 +124,7 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 
 			// load CND files from classpath or as URL
 			for (String resUrl : cndFiles) {
-				URL url;
-				Bundle dataModelBundle = null;
-
-				{// TODO put this in a separate method
-					boolean classpath;
-					// normalize URL
-					if (bundleContext != null
-							&& resUrl.startsWith("classpath:")) {
-						resUrl = resUrl.substring("classpath:".length());
-						classpath = true;
-					} else if (resUrl.indexOf(':') < 0) {
-						if (!resUrl.startsWith("/")) {
-							resUrl = "/" + resUrl;
-							log.warn("Classpath should start with '/'");
-						}
-						// resUrl = "classpath:" + resUrl;
-						classpath = true;
-					} else {
-						classpath = false;
-					}
-
-					if (classpath) {
-						if (bundleContext != null) {
-							Bundle currentBundle = bundleContext.getBundle();
-							url = currentBundle.getResource(resUrl);
-							if (url != null) {// found
-								dataModelBundle = findDataModelBundle(resUrl);
-							}
-						} else {
-							resUrl = "classpath:" + resUrl;
-							url = null;
-							// url =
-							// getClass().getClassLoader().getResource(resUrl);
-							// if (url == null)
-							// url = Thread.currentThread()
-							// .getContextClassLoader()
-							// .getResource(resUrl);
-						}
-					} else if (!resUrl.startsWith("classpath:")) {
-						url = new URL(resUrl);
-					} else {
-						url = null;
-					}
-				}
-				// check existing data model nodes
-				new NamespaceHelper(session).registerNamespace(
-						ArgeoNames.ARGEO, ArgeoNames.ARGEO_NAMESPACE);
-				if (!session
-						.itemExists(ArgeoJcrConstants.DATA_MODELS_BASE_PATH))
-					JcrUtils.mkdirs(session,
-							ArgeoJcrConstants.DATA_MODELS_BASE_PATH);
-				Node dataModels = session
-						.getNode(ArgeoJcrConstants.DATA_MODELS_BASE_PATH);
-				NodeIterator it = dataModels.getNodes();
-				Node dataModel = null;
-				while (it.hasNext()) {
-					Node node = it.nextNode();
-					if (node.getProperty(ArgeoNames.ARGEO_URI).getString()
-							.equals(resUrl)) {
-						dataModel = node;
-						break;
-					}
-				}
-
-				// does nothing if data model already registered
-				if (dataModel != null && !forceCndImport) {
-					if (dataModelBundle != null) {
-						String version = dataModel.getProperty(
-								ArgeoNames.ARGEO_DATA_MODEL_VERSION)
-								.getString();
-						String dataModelBundleVersion = dataModelBundle
-								.getVersion().toString();
-						if (!version.equals(dataModelBundleVersion)) {
-							log.warn("Data model with version "
-									+ dataModelBundleVersion
-									+ " available, current version is "
-									+ version);
-						}
-					}
-					// do not implicitly update
-					return;
-				}
-
-				InputStream in = null;
-				Reader reader = null;
-				try {
-					if (url != null) {
-						in = url.openStream();
-					} else if (resourceLoader != null) {
-						Resource res = resourceLoader.getResource(resUrl);
-						in = res.getInputStream();
-						url = res.getURL();
-					} else {
-						throw new ArgeoException("No " + resUrl
-								+ " in the classpath,"
-								+ " make sure the containing"
-								+ " package is visible.");
-					}
-
-					reader = new InputStreamReader(in);
-					// actually imports the CND
-					CndImporter.registerNodeTypes(reader, session, true);
-
-					// FIXME: what if argeo.cnd would not be the first called on
-					// a new repo? argeo:dataModel would not be found
-					String fileName = FilenameUtils.getName(url.getPath());
-					if (dataModel == null) {
-						dataModel = dataModels.addNode(fileName);
-						dataModel.addMixin(ArgeoTypes.ARGEO_DATA_MODEL);
-						dataModel.setProperty(ArgeoNames.ARGEO_URI, resUrl);
-					} else {
-						session.getWorkspace().getVersionManager()
-								.checkout(dataModel.getPath());
-					}
-					if (dataModelBundle != null)
-						dataModel.setProperty(
-								ArgeoNames.ARGEO_DATA_MODEL_VERSION,
-								dataModelBundle.getVersion().toString());
-					else
-						dataModel.setProperty(
-								ArgeoNames.ARGEO_DATA_MODEL_VERSION, "0.0.0");
-					JcrUtils.updateLastModified(dataModel);
-					session.save();
-					session.getWorkspace().getVersionManager()
-							.checkin(dataModel.getPath());
-				} finally {
-					IOUtils.closeQuietly(in);
-					IOUtils.closeQuietly(reader);
-				}
-
-				if (log.isDebugEnabled())
-					log.debug("Data model "
-							+ resUrl
-							+ (dataModelBundle != null ? ", version "
-									+ dataModelBundle.getVersion()
-									+ ", bundle "
-									+ dataModelBundle.getSymbolicName() : ""));
+				processCndFile(session, resUrl);
 			}
 		} catch (Exception e) {
 			JcrUtils.discardQuietly(session);
@@ -266,6 +134,162 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 			JcrUtils.logoutQuietly(session);
 		}
 
+	}
+
+	protected void processCndFile(Session session, String resUrl) {
+		Reader reader = null;
+		try {
+			// check existing data model nodes
+			new NamespaceHelper(session).registerNamespace(ArgeoNames.ARGEO,
+					ArgeoNames.ARGEO_NAMESPACE);
+			if (!session.itemExists(ArgeoJcrConstants.DATA_MODELS_BASE_PATH))
+				JcrUtils.mkdirs(session,
+						ArgeoJcrConstants.DATA_MODELS_BASE_PATH);
+			Node dataModels = session
+					.getNode(ArgeoJcrConstants.DATA_MODELS_BASE_PATH);
+			NodeIterator it = dataModels.getNodes();
+			Node dataModel = null;
+			while (it.hasNext()) {
+				Node node = it.nextNode();
+				if (node.getProperty(ArgeoNames.ARGEO_URI).getString()
+						.equals(resUrl)) {
+					dataModel = node;
+					break;
+				}
+			}
+
+			byte[] cndContent = readCndContent(resUrl);
+			String newDigest = DigestUtils.digest(DIGEST_ALGORITHM, cndContent);
+			Bundle bundle = findDataModelBundle(resUrl);
+
+			String currentVersion = null;
+			if (dataModel != null) {
+				currentVersion = dataModel.getProperty(
+						ArgeoNames.ARGEO_DATA_MODEL_VERSION).getString();
+				if (dataModel.hasNode(Node.JCR_CONTENT)) {
+					String oldDigest = JcrUtils.checksumFile(dataModel,
+							DIGEST_ALGORITHM);
+					if (oldDigest.equals(newDigest)) {
+						if (log.isDebugEnabled())
+							log.debug("Data model " + resUrl
+									+ " hasn't changed, keeping version "
+									+ currentVersion);
+						return;
+					}
+				}
+			}
+
+			if (dataModel != null && !forceCndImport) {
+				log.info("Data model "
+						+ resUrl
+						+ " has changed since version "
+						+ currentVersion
+						+ (bundle != null ? ": version " + bundle.getVersion()
+								+ ", bundle " + bundle.getSymbolicName() : ""));
+				return;
+			}
+
+			reader = new InputStreamReader(new ByteArrayInputStream(cndContent));
+			// actually imports the CND
+			CndImporter.registerNodeTypes(reader, session, true);
+
+			if (dataModel != null & !dataModel.isNodeType(NodeType.NT_FILE)) {
+				dataModel.remove();
+				dataModel = null;
+			}
+
+			// FIXME: what if argeo.cnd would not be the first called on
+			// a new repo? argeo:dataModel would not be found
+			String fileName = FilenameUtils.getName(resUrl);
+			if (dataModel == null) {
+				dataModel = dataModels.addNode(fileName, NodeType.NT_FILE);
+				dataModel.addNode(Node.JCR_CONTENT, NodeType.NT_RESOURCE);
+				dataModel.addMixin(ArgeoTypes.ARGEO_DATA_MODEL);
+				dataModel.setProperty(ArgeoNames.ARGEO_URI, resUrl);
+			} else {
+				session.getWorkspace().getVersionManager()
+						.checkout(dataModel.getPath());
+			}
+			if (bundle != null)
+				dataModel.setProperty(ArgeoNames.ARGEO_DATA_MODEL_VERSION,
+						bundle.getVersion().toString());
+			else
+				dataModel.setProperty(ArgeoNames.ARGEO_DATA_MODEL_VERSION,
+						"0.0.0");
+			JcrUtils.copyBytesAsFile(dataModel.getParent(), fileName,
+					cndContent);
+			JcrUtils.updateLastModified(dataModel);
+			session.save();
+			session.getWorkspace().getVersionManager()
+					.checkin(dataModel.getPath());
+
+			if (currentVersion == null)
+				log.info("Data model "
+						+ resUrl
+						+ (bundle != null ? ", version " + bundle.getVersion()
+								+ ", bundle " + bundle.getSymbolicName() : ""));
+			else
+				log.info("Data model "
+						+ resUrl
+						+ " updated from version "
+						+ currentVersion
+						+ (bundle != null ? ", version " + bundle.getVersion()
+								+ ", bundle " + bundle.getSymbolicName() : ""));
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot process data model " + resUrl, e);
+		} finally {
+			IOUtils.closeQuietly(reader);
+		}
+	}
+
+	protected byte[] readCndContent(String resUrl) {
+		InputStream in = null;
+		try {
+			boolean classpath;
+			// normalize URL
+			if (bundleContext != null && resUrl.startsWith("classpath:")) {
+				resUrl = resUrl.substring("classpath:".length());
+				classpath = true;
+			} else if (resUrl.indexOf(':') < 0) {
+				if (!resUrl.startsWith("/")) {
+					resUrl = "/" + resUrl;
+					log.warn("Classpath should start with '/'");
+				}
+				classpath = true;
+			} else {
+				classpath = false;
+			}
+
+			URL url = null;
+			if (classpath) {
+				if (bundleContext != null) {
+					Bundle currentBundle = bundleContext.getBundle();
+					url = currentBundle.getResource(resUrl);
+				} else {
+					resUrl = "classpath:" + resUrl;
+					url = null;
+				}
+			} else if (!resUrl.startsWith("classpath:")) {
+				url = new URL(resUrl);
+			}
+
+			if (url != null) {
+				in = url.openStream();
+			} else if (resourceLoader != null) {
+				Resource res = resourceLoader.getResource(resUrl);
+				in = res.getInputStream();
+				url = res.getURL();
+			} else {
+				throw new ArgeoException("No " + resUrl + " in the classpath,"
+						+ " make sure the containing" + " package is visible.");
+			}
+
+			return IOUtils.toByteArray(in);
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot read CND from " + resUrl, e);
+		} finally {
+			IOUtils.closeQuietly(in);
+		}
 	}
 
 	/*

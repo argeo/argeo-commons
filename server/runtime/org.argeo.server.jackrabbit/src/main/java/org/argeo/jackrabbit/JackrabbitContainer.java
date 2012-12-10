@@ -52,7 +52,7 @@ import org.xml.sax.InputSource;
  */
 public class JackrabbitContainer extends JackrabbitWrapper implements
 		MaintainedRepository {
-	private Log log = LogFactory.getLog(JackrabbitContainer.class);
+	private final static Log log = LogFactory.getLog(JackrabbitContainer.class);
 
 	// local
 	private Resource configuration;
