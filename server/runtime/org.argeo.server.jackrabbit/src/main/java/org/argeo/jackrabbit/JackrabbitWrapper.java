@@ -301,6 +301,9 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 	 */
 	/** Find which OSGi bundle provided the data model resource */
 	protected Bundle findDataModelBundle(String resUrl) {
+		if (bundleContext == null)
+			return null;
+
 		if (resUrl.startsWith("/"))
 			resUrl = resUrl.substring(1);
 		String pkg = resUrl.substring(0, resUrl.lastIndexOf('/')).replace('/',
