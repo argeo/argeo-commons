@@ -41,6 +41,7 @@ import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.jcr.MaintainedRepository;
 import org.springframework.core.io.Resource;
 import org.springframework.util.SystemPropertyUtils;
 import org.xml.sax.InputSource;
@@ -49,7 +50,8 @@ import org.xml.sax.InputSource;
  * Wrapper around a Jackrabbit repository which allows to configure it in Spring
  * and expose it as a {@link Repository}.
  */
-public class JackrabbitContainer extends JackrabbitWrapper {
+public class JackrabbitContainer extends JackrabbitWrapper implements
+		MaintainedRepository {
 	private Log log = LogFactory.getLog(JackrabbitContainer.class);
 
 	// local
