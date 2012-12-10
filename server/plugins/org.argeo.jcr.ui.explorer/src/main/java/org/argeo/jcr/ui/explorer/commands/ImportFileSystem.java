@@ -20,8 +20,8 @@ import javax.jcr.Node;
 import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.jcr.ui.explorer.JcrExplorerPlugin;
-import org.argeo.jcr.ui.explorer.model.SingleJcrNode;
-import org.argeo.jcr.ui.explorer.model.WorkspaceNode;
+import org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem;
+import org.argeo.jcr.ui.explorer.model.WorkspaceElem;
 import org.argeo.jcr.ui.explorer.views.GenericJcrBrowser;
 import org.argeo.jcr.ui.explorer.wizards.ImportFileSystemWizard;
 import org.eclipse.core.commands.AbstractHandler;
@@ -45,10 +45,10 @@ public class ImportFileSystem extends AbstractHandler {
 			Object obj = ((IStructuredSelection) selection).getFirstElement();
 			try {
 				Node folder = null;
-				if (obj instanceof SingleJcrNode) {
-					folder = ((SingleJcrNode) obj).getNode();
-				} else if (obj instanceof WorkspaceNode) {
-					folder = ((WorkspaceNode) obj).getRootNode();
+				if (obj instanceof SingleJcrNodeElem) {
+					folder = ((SingleJcrNodeElem) obj).getNode();
+				} else if (obj instanceof WorkspaceElem) {
+					folder = ((WorkspaceElem) obj).getRootNode();
 				} else {
 					ErrorFeedback.show(JcrExplorerPlugin
 							.getMessage("warningInvalidNodeToImport"));

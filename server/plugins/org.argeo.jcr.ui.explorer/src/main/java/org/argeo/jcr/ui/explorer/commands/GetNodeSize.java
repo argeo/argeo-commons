@@ -24,8 +24,8 @@ import javax.jcr.Node;
 import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.ui.explorer.JcrExplorerPlugin;
-import org.argeo.jcr.ui.explorer.model.SingleJcrNode;
-import org.argeo.jcr.ui.explorer.model.WorkspaceNode;
+import org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem;
+import org.argeo.jcr.ui.explorer.model.WorkspaceElem;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -75,12 +75,12 @@ public class GetNodeSize extends AbstractHandler {
 					Object obj = it.next();
 					String curPath;
 					Node node;
-					if (obj instanceof SingleJcrNode) {
-						node = ((SingleJcrNode) obj).getNode();
+					if (obj instanceof SingleJcrNodeElem) {
+						node = ((SingleJcrNodeElem) obj).getNode();
 						curPath = node.getSession().getWorkspace().getName();
 						curPath += "/" + node.getPath();
-					} else if (obj instanceof WorkspaceNode) {
-						node = ((WorkspaceNode) obj).getRootNode();
+					} else if (obj instanceof WorkspaceElem) {
+						node = ((WorkspaceElem) obj).getRootNode();
 						curPath = node.getSession().getWorkspace().getName();
 					} else
 						// unvalid object type

@@ -23,8 +23,8 @@ import javax.jcr.RepositoryException;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.eclipse.ui.TreeParent;
-import org.argeo.jcr.ui.explorer.model.SingleJcrNode;
-import org.argeo.jcr.ui.explorer.model.WorkspaceNode;
+import org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem;
+import org.argeo.jcr.ui.explorer.model.WorkspaceElem;
 import org.argeo.jcr.ui.explorer.views.GenericJcrBrowser;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -58,7 +58,7 @@ public class DeleteNodes extends AbstractHandler {
 		StringBuffer buf = new StringBuffer("");
 		Iterator<?> lst = ((IStructuredSelection) selection).iterator();
 		while (lst.hasNext()) {
-			SingleJcrNode sjn = ((SingleJcrNode) lst.next());
+			SingleJcrNodeElem sjn = ((SingleJcrNodeElem) lst.next());
 			buf.append(sjn.getName()).append(' ');
 		}
 		Boolean ok = MessageDialog.openConfirm(
@@ -69,14 +69,14 @@ public class DeleteNodes extends AbstractHandler {
 		if (ok) {
 			Iterator<?> it = ((IStructuredSelection) selection).iterator();
 			Object obj = null;
-			SingleJcrNode ancestor = null;
-			WorkspaceNode rootAncestor = null;
+			SingleJcrNodeElem ancestor = null;
+			WorkspaceElem rootAncestor = null;
 			try {
 				while (it.hasNext()) {
 					obj = it.next();
-					if (obj instanceof SingleJcrNode) {
+					if (obj instanceof SingleJcrNodeElem) {
 						// Cache objects
-						SingleJcrNode sjn = (SingleJcrNode) obj;
+						SingleJcrNodeElem sjn = (SingleJcrNodeElem) obj;
 						TreeParent tp = (TreeParent) sjn.getParent();
 						Node node = sjn.getNode();
 
@@ -87,10 +87,10 @@ public class DeleteNodes extends AbstractHandler {
 						tp.removeChild(sjn);
 
 						// Check if the parent is the root node
-						if (tp instanceof WorkspaceNode)
-							rootAncestor = (WorkspaceNode) tp;
+						if (tp instanceof WorkspaceElem)
+							rootAncestor = (WorkspaceElem) tp;
 						else
-							ancestor = getOlder(ancestor, (SingleJcrNode) tp);
+							ancestor = getOlder(ancestor, (SingleJcrNodeElem) tp);
 					}
 				}
 				if (rootAncestor != null)
@@ -104,7 +104,7 @@ public class DeleteNodes extends AbstractHandler {
 		return null;
 	}
 
-	private SingleJcrNode getOlder(SingleJcrNode A, SingleJcrNode B) {
+	private SingleJcrNodeElem getOlder(SingleJcrNodeElem A, SingleJcrNodeElem B) {
 		try {
 			if (A == null)
 				return B == null ? null : B;

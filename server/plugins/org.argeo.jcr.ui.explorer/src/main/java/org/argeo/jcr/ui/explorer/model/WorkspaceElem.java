@@ -27,17 +27,17 @@ import org.argeo.jcr.JcrUtils;
 
 /**
  * UI Tree component. Wraps the root node of a JCR {@link Workspace}. It also
- * keeps a reference to its parent {@link RepositoryNode}, to be able to
+ * keeps a reference to its parent {@link RepositoryElem}, to be able to
  * retrieve alias of the current used repository
  */
-public class WorkspaceNode extends TreeParent implements UiNode {
+public class WorkspaceElem extends TreeParent {
 	private Session session = null;
 
-	public WorkspaceNode(RepositoryNode parent, String name) {
+	public WorkspaceElem(RepositoryElem parent, String name) {
 		this(parent, name, null);
 	}
 
-	public WorkspaceNode(RepositoryNode parent, String name, Session session) {
+	public WorkspaceElem(RepositoryElem parent, String name, Session session) {
 		super(name);
 		this.session = session;
 		setParent(parent);
@@ -61,7 +61,7 @@ public class WorkspaceNode extends TreeParent implements UiNode {
 
 	public void login() {
 		try {
-			session = ((RepositoryNode) getParent()).repositoryLogin(getName());
+			session = ((RepositoryElem) getParent()).repositoryLogin(getName());
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot connect to repository "
 					+ getName(), e);
@@ -85,11 +85,6 @@ public class WorkspaceNode extends TreeParent implements UiNode {
 	public void logout() {
 		clearChildren();
 		JcrUtils.logoutQuietly(session);
-	}
-
-	/** Returns the alias of the parent Repository */
-	public String getAlias() {
-		return ((UiNode) getParent()).getAlias();
 	}
 
 	@Override
@@ -122,7 +117,7 @@ public class WorkspaceNode extends TreeParent implements UiNode {
 				NodeIterator ni = rootNode.getNodes();
 				while (ni.hasNext()) {
 					Node node = ni.nextNode();
-					addChild(new SingleJcrNode(this, node, node.getName()));
+					addChild(new SingleJcrNodeElem(this, node, node.getName()));
 				}
 				return super.getChildren();
 			} catch (RepositoryException e) {

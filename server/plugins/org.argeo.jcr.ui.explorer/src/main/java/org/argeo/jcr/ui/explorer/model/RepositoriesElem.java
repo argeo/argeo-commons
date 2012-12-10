@@ -28,6 +28,7 @@ import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.jcr.ArgeoNames;
+import org.argeo.jcr.MaintainedRepository;
 import org.argeo.jcr.RepositoryRegister;
 import org.argeo.jcr.UserJcrUtils;
 import org.argeo.util.security.Keyring;
@@ -43,7 +44,7 @@ import org.argeo.util.security.Keyring;
  * kept here.
  */
 
-public class RepositoriesNode extends TreeParent implements ArgeoNames {
+public class RepositoriesElem extends TreeParent implements ArgeoNames {
 	private final RepositoryRegister repositoryRegister;
 	private final RepositoryFactory repositoryFactory;
 
@@ -54,7 +55,7 @@ public class RepositoriesNode extends TreeParent implements ArgeoNames {
 	private final Session userSession;
 	private final Keyring keyring;
 
-	public RepositoriesNode(String name, RepositoryRegister repositoryRegister,
+	public RepositoriesElem(String name, RepositoryRegister repositoryRegister,
 			RepositoryFactory repositoryFactory, TreeParent parent,
 			Session userSession, Keyring keyring) {
 		super(name);
@@ -77,8 +78,12 @@ public class RepositoriesNode extends TreeParent implements ArgeoNames {
 			Map<String, Repository> refRepos = repositoryRegister
 					.getRepositories();
 			for (String name : refRepos.keySet()) {
-				super.addChild(new RepositoryNode(name, refRepos.get(name),
-						this));
+				Repository repository = refRepos.get(name);
+				if (repository instanceof MaintainedRepository)
+					super.addChild(new MaintainedRepositoryElem(name,
+							repository, this));
+				else
+					super.addChild(new RepositoryElem(name, repository, this));
 			}
 
 			// remote
@@ -103,7 +108,7 @@ public class RepositoriesNode extends TreeParent implements ArgeoNames {
 				Node remoteNode = it.nextNode();
 				String uri = remoteNode.getProperty(ARGEO_URI).getString();
 				try {
-					RemoteRepositoryNode remoteRepositoryNode = new RemoteRepositoryNode(
+					RemoteRepositoryElem remoteRepositoryNode = new RemoteRepositoryElem(
 							remoteNode.getName(), repositoryFactory, uri, this,
 							userSession, jcrKeyring, remoteNode.getPath());
 					super.addChild(remoteRepositoryNode);

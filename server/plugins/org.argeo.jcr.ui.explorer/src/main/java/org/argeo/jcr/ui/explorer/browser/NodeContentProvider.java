@@ -27,8 +27,8 @@ import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.RepositoryRegister;
 import org.argeo.jcr.UserJcrUtils;
-import org.argeo.jcr.ui.explorer.model.RepositoriesNode;
-import org.argeo.jcr.ui.explorer.model.SingleJcrNode;
+import org.argeo.jcr.ui.explorer.model.RepositoriesElem;
+import org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem;
 import org.argeo.jcr.ui.explorer.utils.TreeObjectsComparator;
 import org.argeo.util.security.Keyring;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -51,8 +51,8 @@ public class NodeContentProvider implements ITreeContentProvider {
 	final private boolean sortChildren;
 
 	// reference for cleaning
-	private SingleJcrNode homeNode = null;
-	private RepositoriesNode repositoriesNode = null;
+	private SingleJcrNodeElem homeNode = null;
+	private RepositoriesElem repositoriesNode = null;
 
 	// Utils
 	private TreeObjectsComparator itemComparator = new TreeObjectsComparator();
@@ -77,14 +77,14 @@ public class NodeContentProvider implements ITreeContentProvider {
 				// TODO : find a way to dynamically get alias for the node
 				if (homeNode != null)
 					homeNode.dispose();
-				homeNode = new SingleJcrNode(null, userHome,
+				homeNode = new SingleJcrNodeElem(null, userHome,
 						userSession.getUserID(), ArgeoJcrConstants.ALIAS_NODE);
 			}
 		}
 		if (repositoryRegister != null) {
 			if (repositoriesNode != null)
 				repositoriesNode.dispose();
-			repositoriesNode = new RepositoriesNode("Repositories",
+			repositoriesNode = new RepositoriesElem("Repositories",
 					repositoryRegister, repositoryFactory, null, userSession,
 					keyring);
 		}
@@ -132,8 +132,8 @@ public class NodeContentProvider implements ITreeContentProvider {
 	}
 
 	public boolean hasChildren(Object element) {
-		if (element instanceof RepositoriesNode) {
-			RepositoryRegister rr = ((RepositoriesNode) element)
+		if (element instanceof RepositoriesElem) {
+			RepositoryRegister rr = ((RepositoriesElem) element)
 					.getRepositoryRegister();
 			return rr.getRepositories().size() > 0;
 		} else if (element instanceof TreeParent) {

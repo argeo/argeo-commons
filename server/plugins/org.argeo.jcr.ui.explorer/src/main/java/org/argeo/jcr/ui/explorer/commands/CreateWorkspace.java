@@ -20,7 +20,7 @@ import java.util.Arrays;
 import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.eclipse.ui.dialogs.SingleValue;
 import org.argeo.jcr.ui.explorer.JcrExplorerPlugin;
-import org.argeo.jcr.ui.explorer.model.RepositoryNode;
+import org.argeo.jcr.ui.explorer.model.RepositoryElem;
 import org.argeo.jcr.ui.explorer.views.GenericJcrBrowser;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -46,10 +46,10 @@ public class CreateWorkspace extends AbstractHandler {
 		if (selection != null && !selection.isEmpty()
 				&& selection instanceof IStructuredSelection) {
 			Object obj = ((IStructuredSelection) selection).getFirstElement();
-			if (!(obj instanceof RepositoryNode))
+			if (!(obj instanceof RepositoryElem))
 				return null;
 
-			RepositoryNode repositoryNode = (RepositoryNode) obj;
+			RepositoryElem repositoryNode = (RepositoryElem) obj;
 			String workspaceName = SingleValue.ask("Workspace name",
 					"Enter workspace name");
 			if (workspaceName != null) {

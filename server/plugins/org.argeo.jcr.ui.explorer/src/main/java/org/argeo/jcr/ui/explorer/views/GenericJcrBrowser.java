@@ -38,7 +38,7 @@ import org.argeo.jcr.ui.explorer.JcrExplorerPlugin;
 import org.argeo.jcr.ui.explorer.browser.NodeContentProvider;
 import org.argeo.jcr.ui.explorer.browser.NodeLabelProvider;
 import org.argeo.jcr.ui.explorer.browser.PropertiesContentProvider;
-import org.argeo.jcr.ui.explorer.model.SingleJcrNode;
+import org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem;
 import org.argeo.jcr.ui.explorer.utils.GenericNodeDoubleClickListener;
 import org.argeo.jcr.ui.explorer.utils.JcrUiUtils;
 import org.argeo.util.security.Keyring;
@@ -153,9 +153,9 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 							IStructuredSelection sel = (IStructuredSelection) event
 									.getSelection();
 							Object firstItem = sel.getFirstElement();
-							if (firstItem instanceof SingleJcrNode)
+							if (firstItem instanceof SingleJcrNodeElem)
 								propertiesViewer
-										.setInput(((SingleJcrNode) firstItem)
+										.setInput(((SingleJcrNodeElem) firstItem)
 												.getNode());
 						} else {
 							propertiesViewer.setInput(getViewSite());

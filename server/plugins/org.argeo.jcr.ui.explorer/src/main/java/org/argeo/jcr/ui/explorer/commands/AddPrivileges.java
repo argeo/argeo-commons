@@ -22,8 +22,8 @@ import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.jcr.ui.explorer.JcrExplorerPlugin;
-import org.argeo.jcr.ui.explorer.model.SingleJcrNode;
-import org.argeo.jcr.ui.explorer.model.WorkspaceNode;
+import org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem;
+import org.argeo.jcr.ui.explorer.model.WorkspaceElem;
 import org.argeo.jcr.ui.explorer.wizards.ChangeRightsWizard;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -50,12 +50,12 @@ public class AddPrivileges extends AbstractHandler {
 			TreeParent treeParentNode = null;
 			Node jcrParentNode = null;
 
-			if (obj instanceof SingleJcrNode) {
+			if (obj instanceof SingleJcrNodeElem) {
 				treeParentNode = (TreeParent) obj;
-				jcrParentNode = ((SingleJcrNode) treeParentNode).getNode();
-			} else if (obj instanceof WorkspaceNode) {
+				jcrParentNode = ((SingleJcrNodeElem) treeParentNode).getNode();
+			} else if (obj instanceof WorkspaceElem) {
 				treeParentNode = (TreeParent) obj;
-				jcrParentNode = ((WorkspaceNode) treeParentNode).getRootNode();
+				jcrParentNode = ((WorkspaceElem) treeParentNode).getRootNode();
 			} else
 				return null;
 

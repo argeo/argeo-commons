@@ -25,9 +25,9 @@ import org.argeo.eclipse.ui.specific.FileHandler;
 import org.argeo.jcr.ui.explorer.JcrExplorerPlugin;
 import org.argeo.jcr.ui.explorer.editors.GenericNodeEditor;
 import org.argeo.jcr.ui.explorer.editors.GenericNodeEditorInput;
-import org.argeo.jcr.ui.explorer.model.RepositoryNode;
-import org.argeo.jcr.ui.explorer.model.SingleJcrNode;
-import org.argeo.jcr.ui.explorer.model.WorkspaceNode;
+import org.argeo.jcr.ui.explorer.model.RepositoryElem;
+import org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem;
+import org.argeo.jcr.ui.explorer.model.WorkspaceElem;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -57,22 +57,22 @@ public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 			return;
 		Object obj = ((IStructuredSelection) event.getSelection())
 				.getFirstElement();
-		if (obj instanceof RepositoryNode) {
-			RepositoryNode rpNode = (RepositoryNode) obj;
+		if (obj instanceof RepositoryElem) {
+			RepositoryElem rpNode = (RepositoryElem) obj;
 			if (!rpNode.isConnected()) {
 				rpNode.login();
 				nodeViewer.refresh(obj);
 			}
 			// else do nothing
-		} else if (obj instanceof WorkspaceNode) {
-			WorkspaceNode wn = (WorkspaceNode) obj;
+		} else if (obj instanceof WorkspaceElem) {
+			WorkspaceElem wn = (WorkspaceElem) obj;
 			if (wn.isConnected())
 				wn.logout();
 			else
 				wn.login();
 			nodeViewer.refresh(obj);
-		} else if (obj instanceof SingleJcrNode) {
-			SingleJcrNode sjn = (SingleJcrNode) obj;
+		} else if (obj instanceof SingleJcrNodeElem) {
+			SingleJcrNodeElem sjn = (SingleJcrNodeElem) obj;
 			Node node = sjn.getNode();
 			try {
 				if (node.isNodeType(NodeType.NT_FILE)) {

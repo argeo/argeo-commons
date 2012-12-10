@@ -31,7 +31,7 @@ import org.argeo.jcr.ArgeoNames;
 import org.argeo.util.security.Keyring;
 
 /** Root of a remote repository */
-public class RemoteRepositoryNode extends RepositoryNode {
+public class RemoteRepositoryElem extends RepositoryElem {
 	private final Keyring keyring;
 	/**
 	 * A session of the logged in user on the default workspace of the node
@@ -43,7 +43,7 @@ public class RemoteRepositoryNode extends RepositoryNode {
 	private final RepositoryFactory repositoryFactory;
 	private final String uri;
 
-	public RemoteRepositoryNode(String alias,
+	public RemoteRepositoryElem(String alias,
 			RepositoryFactory repositoryFactory, String uri, TreeParent parent,
 			Session userSession, Keyring keyring, String remoteNodePath) {
 		super(alias, null, parent);

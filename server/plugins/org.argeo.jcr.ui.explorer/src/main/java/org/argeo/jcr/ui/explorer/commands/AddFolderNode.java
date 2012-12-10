@@ -24,8 +24,8 @@ import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.dialogs.SingleValue;
 import org.argeo.eclipse.ui.jcr.JcrUiPlugin;
 import org.argeo.jcr.ui.explorer.JcrExplorerPlugin;
-import org.argeo.jcr.ui.explorer.model.SingleJcrNode;
-import org.argeo.jcr.ui.explorer.model.WorkspaceNode;
+import org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem;
+import org.argeo.jcr.ui.explorer.model.WorkspaceElem;
 import org.argeo.jcr.ui.explorer.views.GenericJcrBrowser;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -35,8 +35,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
- * Adds a node of type nt:folder, only on {@link SingleJcrNode} and
- * {@link WorkspaceNode} TreeObject types.
+ * Adds a node of type nt:folder, only on {@link SingleJcrNodeElem} and
+ * {@link WorkspaceElem} TreeObject types.
  * 
  * 
  * This handler assumes that a selection provider is available and picks only
@@ -71,12 +71,12 @@ public class AddFolderNode extends AbstractHandler {
 			TreeParent treeParentNode = null;
 			Node jcrParentNode = null;
 
-			if (obj instanceof SingleJcrNode) {
+			if (obj instanceof SingleJcrNodeElem) {
 				treeParentNode = (TreeParent) obj;
-				jcrParentNode = ((SingleJcrNode) treeParentNode).getNode();
-			} else if (obj instanceof WorkspaceNode) {
+				jcrParentNode = ((SingleJcrNodeElem) treeParentNode).getNode();
+			} else if (obj instanceof WorkspaceElem) {
 				treeParentNode = (TreeParent) obj;
-				jcrParentNode = ((WorkspaceNode) treeParentNode).getRootNode();
+				jcrParentNode = ((WorkspaceElem) treeParentNode).getRootNode();
 			} else
 				return null;
 

@@ -28,20 +28,14 @@ import org.argeo.eclipse.ui.TreeParent;
  * object of the current view to enable bi-directionnal browsing in the tree.
  */
 
-public class RepositoryNode extends TreeParent implements UiNode {
+public class RepositoryElem extends TreeParent {
 	private String alias;
 	protected Repository repository;
 	private Session defaultSession = null;
 
-	/** Create a new repository with alias = name */
-	public RepositoryNode(String alias, Repository repository, TreeParent parent) {
-		this(alias, alias, repository, parent);
-	}
-
 	/** Create a new repository with distinct name & alias */
-	public RepositoryNode(String alias, String name, Repository repository,
-			TreeParent parent) {
-		super(name);
+	public RepositoryElem(String alias, Repository repository, TreeParent parent) {
+		super(alias);
 		this.repository = repository;
 		setParent(parent);
 		this.alias = alias;
@@ -54,9 +48,9 @@ public class RepositoryNode extends TreeParent implements UiNode {
 					.getAccessibleWorkspaceNames();
 			for (String wkpName : wkpNames) {
 				if (wkpName.equals(defaultSession.getWorkspace().getName()))
-					addChild(new WorkspaceNode(this, wkpName, defaultSession));
+					addChild(new WorkspaceElem(this, wkpName, defaultSession));
 				else
-					addChild(new WorkspaceNode(this, wkpName));
+					addChild(new WorkspaceElem(this, wkpName));
 			}
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot connect to repository " + alias, e);

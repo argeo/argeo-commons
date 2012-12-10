@@ -166,10 +166,10 @@
 				      <and>
 				         <or>
 				            <instanceof
-				                  value="org.argeo.jcr.ui.explorer.model.SingleJcrNode">
+				                  value="org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem">
 				            </instanceof>
 				            <instanceof
-				                  value="org.argeo.jcr.ui.explorer.model.WorkspaceNode">
+				                  value="org.argeo.jcr.ui.explorer.model.WorkspaceElem">
 				            </instanceof>
 				         </or>
              			<with variable="activeMenuSelection"><count value="1"/></with>
@@ -187,10 +187,10 @@
 				      <and>
 				         <or>
 				            <instanceof
-				                  value="org.argeo.jcr.ui.explorer.model.SingleJcrNode">
+				                  value="org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem">
 				            </instanceof>
 				            <instanceof
-				                  value="org.argeo.jcr.ui.explorer.model.WorkspaceNode">
+				                  value="org.argeo.jcr.ui.explorer.model.WorkspaceElem">
 				            </instanceof>
 				         </or>
              			<with variable="activeMenuSelection"><count value="1"/></with>
@@ -208,7 +208,7 @@
 			      <and>
 			         <or>
 			            <instanceof
-			                  value="org.argeo.jcr.ui.explorer.model.RepositoryNode">
+			                  value="org.argeo.jcr.ui.explorer.model.RepositoryElem">
 			            </instanceof>
 			         </or>
              		<with variable="activeMenuSelection"><count value="1"/></with>
@@ -225,10 +225,10 @@
            <iterate>
               <or>
                  <instanceof
-                       value="org.argeo.jcr.ui.explorer.model.SingleJcrNode">
+                       value="org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem">
                  </instanceof>
                  <instanceof
-                       value="org.argeo.jcr.ui.explorer.model.WorkspaceNode">
+                       value="org.argeo.jcr.ui.explorer.model.WorkspaceElem">
                  </instanceof>
               </or>
            </iterate>
@@ -244,10 +244,10 @@
               <and>
                  <or>
                     <instanceof
-                          value="org.argeo.jcr.ui.explorer.model.SingleJcrNode">
+                          value="org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem">
                     </instanceof>
                     <instanceof
-                          value="org.argeo.jcr.ui.explorer.model.WorkspaceNode">
+                          value="org.argeo.jcr.ui.explorer.model.WorkspaceElem">
                     </instanceof>
                  </or>
                  <with variable="activeMenuSelection"><count value="1"/></with>
@@ -263,10 +263,10 @@
            <iterate> 
 				<or>
               		<instanceof
-                    	value="org.argeo.jcr.ui.explorer.model.RepositoriesNode">
+                    	value="org.argeo.jcr.ui.explorer.model.RepositoriesElem">
 					</instanceof>
 					<instanceof
-						value="org.argeo.jcr.ui.explorer.model.RepositoryNode">
+						value="org.argeo.jcr.ui.explorer.model.RepositoryElem">
 					</instanceof>
 				</or> 
            </iterate>
@@ -280,7 +280,7 @@
            <iterate> 
 				<or>
 					<instanceof
-						value="org.argeo.jcr.ui.explorer.model.RemoteRepositoryNode">
+						value="org.argeo.jcr.ui.explorer.model.RemoteRepositoryElem">
 					</instanceof>
 				</or> 
            </iterate>
@@ -294,10 +294,10 @@
            <iterate>
               <or>
                  <instanceof
-                       value="org.argeo.jcr.ui.explorer.model.SingleJcrNode">
+                       value="org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem">
                  </instanceof>
                  <instanceof
-                       value="org.argeo.jcr.ui.explorer.model.WorkspaceNode">
+                       value="org.argeo.jcr.ui.explorer.model.WorkspaceElem">
                  </instanceof>
               </or>
            </iterate>

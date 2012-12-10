@@ -22,11 +22,11 @@ import javax.jcr.nodetype.NodeType;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.jcr.DefaultNodeLabelProvider;
 import org.argeo.eclipse.ui.jcr.JcrImages;
-import org.argeo.jcr.ui.explorer.model.RemoteRepositoryNode;
-import org.argeo.jcr.ui.explorer.model.RepositoriesNode;
-import org.argeo.jcr.ui.explorer.model.RepositoryNode;
-import org.argeo.jcr.ui.explorer.model.SingleJcrNode;
-import org.argeo.jcr.ui.explorer.model.WorkspaceNode;
+import org.argeo.jcr.ui.explorer.model.RemoteRepositoryElem;
+import org.argeo.jcr.ui.explorer.model.RepositoriesElem;
+import org.argeo.jcr.ui.explorer.model.RepositoryElem;
+import org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem;
+import org.argeo.jcr.ui.explorer.model.WorkspaceElem;
 import org.eclipse.swt.graphics.Image;
 
 public class NodeLabelProvider extends DefaultNodeLabelProvider {
@@ -34,8 +34,8 @@ public class NodeLabelProvider extends DefaultNodeLabelProvider {
 
 	public String getText(Object element) {
 		try {
-			if (element instanceof SingleJcrNode) {
-				SingleJcrNode sjn = (SingleJcrNode) element;
+			if (element instanceof SingleJcrNodeElem) {
+				SingleJcrNodeElem sjn = (SingleJcrNodeElem) element;
 				return getText(sjn.getNode());
 			} else
 				return super.getText(element);
@@ -57,26 +57,26 @@ public class NodeLabelProvider extends DefaultNodeLabelProvider {
 
 	@Override
 	public Image getImage(Object element) {
-		if (element instanceof RemoteRepositoryNode) {
-			if (((RemoteRepositoryNode) element).isConnected())
+		if (element instanceof RemoteRepositoryElem) {
+			if (((RemoteRepositoryElem) element).isConnected())
 				return JcrImages.REMOTE_CONNECTED;
 			else
 				return JcrImages.REMOTE_DISCONNECTED;
-		} else if (element instanceof RepositoryNode) {
-			if (((RepositoryNode) element).isConnected())
+		} else if (element instanceof RepositoryElem) {
+			if (((RepositoryElem) element).isConnected())
 				return JcrImages.REPOSITORY_CONNECTED;
 			else
 				return JcrImages.REPOSITORY_DISCONNECTED;
-		} else if (element instanceof WorkspaceNode) {
-			if (((WorkspaceNode) element).isConnected())
+		} else if (element instanceof WorkspaceElem) {
+			if (((WorkspaceElem) element).isConnected())
 				return JcrImages.WORKSPACE_CONNECTED;
 			else
 				return JcrImages.WORKSPACE_DISCONNECTED;
-		} else if (element instanceof RepositoriesNode) {
+		} else if (element instanceof RepositoriesElem) {
 			return JcrImages.REPOSITORIES;
-		} else if (element instanceof SingleJcrNode)
+		} else if (element instanceof SingleJcrNodeElem)
 			try {
-				return super.getImage(((SingleJcrNode) element).getNode());
+				return super.getImage(((SingleJcrNodeElem) element).getNode());
 			} catch (RepositoryException e) {
 				return null;
 			}

@@ -20,10 +20,10 @@ import javax.jcr.RepositoryException;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.TreeParent;
-import org.argeo.jcr.ui.explorer.model.RepositoriesNode;
-import org.argeo.jcr.ui.explorer.model.RepositoryNode;
-import org.argeo.jcr.ui.explorer.model.SingleJcrNode;
-import org.argeo.jcr.ui.explorer.model.WorkspaceNode;
+import org.argeo.jcr.ui.explorer.model.RepositoriesElem;
+import org.argeo.jcr.ui.explorer.model.RepositoryElem;
+import org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem;
+import org.argeo.jcr.ui.explorer.model.WorkspaceElem;
 
 /** Centralizes some useful methods to build UIs with JCR */
 public class JcrUiUtils {
@@ -35,25 +35,25 @@ public class JcrUiUtils {
 		boolean doRefresh = false;
 
 		try {
-			if (element instanceof SingleJcrNode) {
-				curNode = ((SingleJcrNode) element).getNode();
-			} else if (element instanceof WorkspaceNode) {
-				curNode = ((WorkspaceNode) element).getRootNode();
+			if (element instanceof SingleJcrNodeElem) {
+				curNode = ((SingleJcrNodeElem) element).getNode();
+			} else if (element instanceof WorkspaceElem) {
+				curNode = ((WorkspaceElem) element).getRootNode();
 			}
 
 			if (curNode != null
 					&& element.getChildren().length != curNode.getNodes()
 							.getSize())
 				doRefresh = true;
-			else if (element instanceof RepositoryNode) {
-				RepositoryNode rn = (RepositoryNode) element;
+			else if (element instanceof RepositoryElem) {
+				RepositoryElem rn = (RepositoryElem) element;
 				if (rn.isConnected()) {
 					String[] wkpNames = rn.getAccessibleWorkspaceNames();
 					if (element.getChildren().length != wkpNames.length)
 						doRefresh = true;
 				}
-			} else if (element instanceof RepositoriesNode) {
-				RepositoriesNode rn = (RepositoriesNode) element;
+			} else if (element instanceof RepositoriesElem) {
+				RepositoriesElem rn = (RepositoriesElem) element;
 				if (element.getChildren().length != rn.getRepositoryRegister()
 						.getRepositories().size())
 					doRefresh = true;

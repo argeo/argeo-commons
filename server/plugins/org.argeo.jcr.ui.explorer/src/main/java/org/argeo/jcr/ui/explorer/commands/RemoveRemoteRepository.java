@@ -15,7 +15,7 @@
  */
 package org.argeo.jcr.ui.explorer.commands;
 
-import org.argeo.jcr.ui.explorer.model.RemoteRepositoryNode;
+import org.argeo.jcr.ui.explorer.model.RemoteRepositoryElem;
 import org.argeo.jcr.ui.explorer.views.GenericJcrBrowser;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -40,8 +40,8 @@ public class RemoveRemoteRepository extends AbstractHandler {
 				&& selection instanceof IStructuredSelection) {
 			Object obj = ((IStructuredSelection) selection).getFirstElement();
 
-			if (obj instanceof RemoteRepositoryNode) {
-				((RemoteRepositoryNode) obj).remove();
+			if (obj instanceof RemoteRepositoryElem) {
+				((RemoteRepositoryElem) obj).remove();
 				view.refresh(null);
 			}
 		}
