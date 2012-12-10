@@ -193,7 +193,7 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 			// actually imports the CND
 			CndImporter.registerNodeTypes(reader, session, true);
 
-			if (dataModel != null & !dataModel.isNodeType(NodeType.NT_FILE)) {
+			if (dataModel != null && !dataModel.isNodeType(NodeType.NT_FILE)) {
 				dataModel.remove();
 				dataModel = null;
 			}
