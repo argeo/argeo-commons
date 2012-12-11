@@ -522,7 +522,6 @@ limitations under the License.
 		</repository>
 		<site>
 			<id>site</id>
-			<name>Argeo Commons Site</name>
 			<url>dav:https://repo.argeo.org/data/files/docs/org.argeo.commons-${developmentCycle.argeo-commons}.x</url>
 		</site>
 	</distributionManagement>
