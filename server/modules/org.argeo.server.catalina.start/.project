@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.argeo.dep.osgi.catalina.start</name>
+	<name>org.argeo.server.catalina.start</name>
 	<comment></comment>
 	<buildSpec>
 		<buildCommand>
