@@ -14,6 +14,7 @@
 	<modules>
 		<module>org.argeo.server.core</module>
 		<module>org.argeo.server.json</module>
+		<module>org.argeo.server.catalina.start</module>
 		<module>org.argeo.server.webextender</module>
 		<module>org.argeo.server.jxl</module>
 		<module>org.argeo.server.hibernate</module>

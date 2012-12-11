@@ -95,6 +95,27 @@ limitations under the License.
 				<version>2.2</version>
 			</extension>
 		</extensions>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+			<resource>
+				<directory>.</directory>
+				<includes>
+					<include>plugin.xml</include>
+					<include>META-INF/**</include>
+					<include>WEB-INF/**</include>
+					<include>icons/**</include>
+					<include>branding/**</include>
+					<include>*.properties</include>
+					<include>properties/*.properties</include>
+					<include>p2.inf</include>
+				</includes>
+				<excludes>
+					<exclude>build.properties</exclude>
+				</excludes>
+			</resource>
+		</resources>
 		<pluginManagement>
 			<plugins>
 				<!-- Maven -->
@@ -341,27 +362,6 @@ limitations under the License.
 				</plugin>
 			</plugins>
 		</pluginManagement>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-			</resource>
-			<resource>
-				<directory>.</directory>
-				<includes>
-					<include>plugin.xml</include>
-					<include>META-INF/**</include>
-					<include>WEB-INF/**</include>
-					<include>icons/**</include>
-					<include>branding/**</include>
-					<include>*.properties</include>
-					<include>properties/*.properties</include>
-					<include>p2.inf</include>
-				</includes>
-				<excludes>
-					<exclude>build.properties</exclude>
-				</excludes>
-			</resource>
-		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>

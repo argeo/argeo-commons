@@ -1,4 +1,4 @@
-package org.argeo.dep.osgi.catalina.start;
+package org.argeo.catalina.start;
 
 import java.io.File;
 import java.io.InputStream;
@@ -12,6 +12,8 @@ import org.springframework.osgi.web.tomcat.internal.Activator;
 /** Starts Catalina (hacked from Spring OSGi 1.0) */
 public class CatalinaActivator extends Activator {
 	private final static String ARGEO_OSGI_DATA_DIR = "argeo.osgi.data.dir";
+	/** System properties used to override Tomcat XML config URL */
+	public final static String ARGEO_SERVER_TOMCAT_CONFIG = "argeo.server.tomcat.config";
 
 	public void start(BundleContext context) throws Exception {
 		if (!System.getProperties().containsKey(ARGEO_OSGI_DATA_DIR)) {

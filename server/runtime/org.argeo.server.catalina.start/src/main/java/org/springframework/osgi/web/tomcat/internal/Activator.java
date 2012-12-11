@@ -36,6 +36,7 @@ import org.apache.catalina.util.ServerInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.naming.resources.DirContextURLStreamHandler;
+import org.argeo.catalina.start.CatalinaActivator;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -49,9 +50,10 @@ import org.osgi.service.url.URLStreamHandlerService;
  * Simple activator for starting Apache Tomcat Catalina container inside OSGi
  * using Tomcat's XML configuration files.
  * 
- * <p/> This activator looks initially for a <code>conf/server.xml</code> file
- * falling back to <code>conf/default-server.xml</code>. This allows the
- * default configuration to be tweaked through fragments for example.
+ * <p/>
+ * This activator looks initially for a <code>conf/server.xml</code> file
+ * falling back to <code>conf/default-server.xml</code>. This allows the default
+ * configuration to be tweaked through fragments for example.
  * 
  * @author Costin Leau
  */
@@ -73,7 +75,6 @@ public class Activator implements BundleActivator {
 	private ServiceRegistration registration, urlRegistration;
 
 	private Thread startupThread;
-
 
 	public void start(BundleContext context) throws Exception {
 		this.bundleContext = context;
@@ -99,22 +100,22 @@ public class Activator implements BundleActivator {
 					Connector[] connectors = server.findConnectors();
 					for (int i = 0; i < connectors.length; i++) {
 						Connector conn = connectors[i];
-						log.info("Succesfully started " + ServerInfo.getServerInfo() + " @ " + conn.getDomain() + ":"
-								+ conn.getPort());
+						log.info("Succesfully started "
+								+ ServerInfo.getServerInfo() + " @ "
+								+ conn.getDomain() + ":" + conn.getPort());
 					}
 
 					// register URL service
 					urlRegistration = registerTomcatJNDIUrlService();
 					// publish server as an OSGi service
 					registration = publishServerAsAService(server);
-					log.info("Published " + ServerInfo.getServerInfo() + " as an OSGi service");
-				}
-				catch (Exception ex) {
+					log.info("Published " + ServerInfo.getServerInfo()
+							+ " as an OSGi service");
+				} catch (Exception ex) {
 					String msg = "Cannot start " + ServerInfo.getServerInfo();
 					log.error(msg, ex);
 					throw new RuntimeException(msg, ex);
-				}
-				finally {
+				} finally {
 					current.setContextClassLoader(old);
 				}
 			}
@@ -137,29 +138,33 @@ public class Activator implements BundleActivator {
 
 		try {
 			current.setContextClassLoader(cl);
-			//reset CCL 
+			// reset CCL
 			// current.setContextClassLoader(null);
 			log.info("Stopping " + ServerInfo.getServerInfo() + " ...");
 			server.stop();
 			log.info("Succesfully stopped " + ServerInfo.getServerInfo());
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			log.error("Cannot stop " + ServerInfo.getServerInfo(), ex);
 			throw ex;
-		}
-		finally {
+		} finally {
 			current.setContextClassLoader(old);
 		}
 	}
 
-	private StandardService createCatalinaServer(Bundle bundle) throws Exception {
-		// first try to use the XML file
-		URL xmlConfiguration = bundle.getResource(XML_CONF_LOCATION);
+	private StandardService createCatalinaServer(Bundle bundle)
+			throws Exception {
+		URL xmlConfiguration = null;
+
+		if (System.getProperty(CatalinaActivator.ARGEO_SERVER_TOMCAT_CONFIG) != null)
+			xmlConfiguration = new URL(
+					System.getProperty(CatalinaActivator.ARGEO_SERVER_TOMCAT_CONFIG));
+		else
+			// fragment
+			xmlConfiguration = bundle.getResource(XML_CONF_LOCATION);
 
 		if (xmlConfiguration != null) {
 			log.info("Using custom XML configuration " + xmlConfiguration);
-		}
-		else {
+		} else {
 			xmlConfiguration = bundle.getResource(DEFAULT_XML_CONF_LOCATION);
 			if (xmlConfiguration == null)
 				log.error("No XML configuration found; bailing out...");
@@ -170,20 +175,25 @@ public class Activator implements BundleActivator {
 		return createServerFromXML(xmlConfiguration);
 	}
 
-	private StandardService createServerFromXML(URL xmlConfiguration) throws IOException {
+	private StandardService createServerFromXML(URL xmlConfiguration)
+			throws IOException {
 		OsgiCatalina catalina = new OsgiCatalina();
 		catalina.setAwait(false);
 		catalina.setUseShutdownHook(false);
 		catalina.setName("Catalina");
-		catalina.setParentClassLoader(Thread.currentThread().getContextClassLoader());
+		catalina.setParentClassLoader(Thread.currentThread()
+				.getContextClassLoader());
 
-		// copy the URL file to a local temporary file (since Catalina doesn't use URL unfortunately)
+		// copy the URL file to a local temporary file (since Catalina doesn't
+		// use URL unfortunately)
 		File configTempFile = File.createTempFile("dm.catalina", ".cfg.xml");
 		configTempFile.deleteOnExit();
 
 		// copy URL to temporary file
-		copyURLToFile(xmlConfiguration.openStream(), new FileOutputStream(configTempFile));
-		log.debug("Copied configuration " + xmlConfiguration + " to temporary file " + configTempFile);
+		copyURLToFile(xmlConfiguration.openStream(), new FileOutputStream(
+				configTempFile));
+		log.debug("Copied configuration " + xmlConfiguration
+				+ " to temporary file " + configTempFile);
 
 		catalina.setConfigFile(configTempFile.getAbsolutePath());
 
@@ -202,20 +212,17 @@ public class Activator implements BundleActivator {
 			while ((bytesRead = inStream.read(buf)) >= 0) {
 				outStream.write(buf, 0, bytesRead);
 			}
-		}
-		catch (IOException ex) {
-			throw (RuntimeException) new IllegalStateException("Cannot copy URL to file").initCause(ex);
-		}
-		finally {
+		} catch (IOException ex) {
+			throw (RuntimeException) new IllegalStateException(
+					"Cannot copy URL to file").initCause(ex);
+		} finally {
 			try {
 				inStream.close();
-			}
-			catch (IOException ignore) {
+			} catch (IOException ignore) {
 			}
 			try {
 				outStream.close();
-			}
-			catch (IOException ignore) {
+			} catch (IOException ignore) {
 			}
 		}
 	}
@@ -226,14 +233,17 @@ public class Activator implements BundleActivator {
 		props.put(Constants.SERVICE_VENDOR, "Spring Dynamic Modules");
 		props.put(Constants.SERVICE_DESCRIPTION, ServerInfo.getServerInfo());
 		props.put(Constants.BUNDLE_VERSION, ServerInfo.getServerNumber());
-		props.put(Constants.BUNDLE_NAME, bundleContext.getBundle().getSymbolicName());
+		props.put(Constants.BUNDLE_NAME, bundleContext.getBundle()
+				.getSymbolicName());
 
 		// spring-dm specific property
 		props.put("org.springframework.osgi.bean.name", "tomcat-server");
 
-		// publish just the interfaces and the major classes (server/handlerWrapper)
-		String[] classes = new String[] { StandardService.class.getName(), Service.class.getName(),
-			MBeanRegistration.class.getName(), Lifecycle.class.getName() };
+		// publish just the interfaces and the major classes
+		// (server/handlerWrapper)
+		String[] classes = new String[] { StandardService.class.getName(),
+				Service.class.getName(), MBeanRegistration.class.getName(),
+				Lifecycle.class.getName() };
 
 		return bundleContext.registerService(classes, server, props);
 	}
@@ -243,15 +253,17 @@ public class Activator implements BundleActivator {
 		properties.put(URLConstants.URL_HANDLER_PROTOCOL, "jndi");
 		final URLStreamHandler handler = new DirContextURLStreamHandler();
 
-		return bundleContext.registerService(URLStreamHandlerService.class.getName(),
-			new AbstractURLStreamHandlerService() {
+		return bundleContext.registerService(
+				URLStreamHandlerService.class.getName(),
+				new AbstractURLStreamHandlerService() {
 
-				private final static String EMPTY_STRING = "";
+					private final static String EMPTY_STRING = "";
 
-
-				public URLConnection openConnection(URL u) throws IOException {
-					return new URL(u, EMPTY_STRING, handler).openConnection();
-				}
-			}, properties);
+					public URLConnection openConnection(URL u)
+							throws IOException {
+						return new URL(u, EMPTY_STRING, handler)
+								.openConnection();
+					}
+				}, properties);
 	}
 }

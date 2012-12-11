@@ -21,7 +21,7 @@
 		<module>org.argeo.server.catalina</module>
 		<module>org.argeo.server.jdbc</module>
 		<module>org.argeo.server.rap.webapp</module>
-		<module>org.argeo.server.tomcat</module>
+<!-- 		<module>org.argeo.server.tomcat</module> -->
 	</modules>
 	<build>
 		<resources>
