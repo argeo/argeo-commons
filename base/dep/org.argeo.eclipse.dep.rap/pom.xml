@@ -64,6 +64,16 @@
 					<groupId>org.argeo.tp.rap.platform</groupId>
 					<artifactId>org.eclipse.rap.design.example</artifactId>
 				</exclusion>
+				
+				<!-- Troublesome bundles -->
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.jdt.junit.runtime</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.junit.runtime</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 

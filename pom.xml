@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
@@ -10,7 +11,7 @@
 	<properties>
 		<developmentCycle.argeo-commons>1.1</developmentCycle.argeo-commons>
 		<developmentCycle.argeo-commons.startDate>2012-06-19</developmentCycle.argeo-commons.startDate>
-		<version.argeo-distribution>1.3.1</version.argeo-distribution>
+		<version.argeo-distribution>1.4.0</version.argeo-distribution>
 		<version.argeo-commons>1.1.9-SNAPSHOT</version.argeo-commons>
 		<!-- RPM -->
 		<rpm.release>6</rpm.release>
@@ -485,7 +486,7 @@ limitations under the License.
 	<repositories>
 		<repository>
 			<id>argeo-tp</id>
-			<url>http://repo.argeo.org/data/public/java/org.argeo.tp-1.3.1</url>
+			<url>http://repo.argeo.org/data/public/java/org.argeo.tp-1.4.x</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
