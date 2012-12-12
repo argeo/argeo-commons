@@ -191,7 +191,12 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 
 			reader = new InputStreamReader(new ByteArrayInputStream(cndContent));
 			// actually imports the CND
-			CndImporter.registerNodeTypes(reader, session, true);
+			try {
+				CndImporter.registerNodeTypes(reader, session, true);
+			} catch (Exception e) {
+				log.error("Cannot import data model " + resUrl, e);
+				return;
+			}
 
 			if (dataModel != null && !dataModel.isNodeType(NodeType.NT_FILE)) {
 				dataModel.remove();
