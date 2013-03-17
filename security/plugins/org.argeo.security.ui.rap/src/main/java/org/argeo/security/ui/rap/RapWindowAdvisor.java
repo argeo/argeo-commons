@@ -16,6 +16,7 @@
 package org.argeo.security.ui.rap;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
@@ -50,12 +51,18 @@ public class RapWindowAdvisor extends WorkbenchWindowAdvisor {
 		configurer.setShowMenuBar(false);
 		configurer.setShowStatusLine(false);
 		configurer.setShowPerspectiveBar(true);
-		configurer.setTitle("Argeo Secure UI"); //$NON-NLS-1$
-		// Full screen, see
-		// http://dev.eclipse.org/newslists/news.eclipse.technology.rap/msg02697.html
-		configurer.setShellStyle(SWT.NONE);
+		configurer.setTitle("Argeo Web UI"); //$NON-NLS-1$
+		// Full screen, see 
+		// http://wiki.eclipse.org/RAP/FAQ#How_to_create_a_fullscreen_application
+		configurer.setShellStyle(SWT.NO_TRIM);
 		Rectangle bounds = Display.getCurrent().getBounds();
 		configurer.setInitialSize(new Point(bounds.width, bounds.height));
+	}
+
+	@Override
+	public void postWindowCreate() {
+		Shell shell = getWindowConfigurer().getWindow().getShell();
+		shell.setMaximized(true);
 	}
 
 	@Override
