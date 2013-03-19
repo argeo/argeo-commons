@@ -26,6 +26,7 @@ import javax.jcr.SimpleCredentials;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.ErrorFeedback;
+import org.argeo.eclipse.ui.utils.CommandUtils;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
@@ -69,6 +70,7 @@ public class AddRemoteRepository extends AbstractHandler implements
 		RemoteRepositoryLoginDialog dlg = new RemoteRepositoryLoginDialog(
 				Display.getDefault().getActiveShell());
 		if (dlg.open() == Dialog.OK) {
+			CommandUtils.callCommand(Refresh.ID);
 		}
 		return null;
 	}

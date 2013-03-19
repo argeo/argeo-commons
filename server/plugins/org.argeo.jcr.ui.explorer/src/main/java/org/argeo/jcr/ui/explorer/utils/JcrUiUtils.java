@@ -53,10 +53,16 @@ public class JcrUiUtils {
 						doRefresh = true;
 				}
 			} else if (element instanceof RepositoriesElem) {
-				RepositoriesElem rn = (RepositoriesElem) element;
-				if (element.getChildren().length != rn.getRepositoryRegister()
-						.getRepositories().size())
-					doRefresh = true;
+				doRefresh = true;
+				// Always force refresh for RepositoriesElem : the condition
+				// below does not take remote repository into account and it is
+				// not trivial to do so.
+
+				// RepositoriesElem rn = (RepositoriesElem) element;
+				// if (element.getChildren().length !=
+				// rn.getRepositoryRegister()
+				// .getRepositories().size())
+				// doRefresh = true;
 			}
 			if (doRefresh) {
 				element.clearChildren();
