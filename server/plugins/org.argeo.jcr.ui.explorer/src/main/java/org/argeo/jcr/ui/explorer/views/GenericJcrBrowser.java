@@ -67,7 +67,7 @@ import org.eclipse.swt.widgets.Menu;
  */
 public class GenericJcrBrowser extends AbstractJcrBrowser {
 	public final static String ID = JcrExplorerPlugin.ID + ".browserView";
-	private boolean sortChildNodes = false;
+	private boolean sortChildNodes = true;
 
 	/* DEPENDENCY INJECTION */
 	private Keyring keyring;
@@ -256,6 +256,20 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 		return nodesViewer;
 	}
 
+	/**
+	 * Resets the tree content provider
+	 * 
+	 * @param sortChildNodes
+	 *            if true the content provider will use a comparer to sort nodes
+	 *            that might slow down the display
+	 * */
+	public void setSortChildNodes(boolean sortChildNodes) {
+		this.sortChildNodes = sortChildNodes;
+		((NodeContentProvider) nodesViewer.getContentProvider())
+				.setSortChildren(sortChildNodes);
+		nodesViewer.setInput(getViewSite());
+	}
+
 	/** Notifies the current view that a node has been added */
 	public void nodeAdded(TreeParent parentNode) {
 		// insure that Ui objects have been correctly created:
@@ -264,7 +278,7 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 		getNodeViewer().expandToLevel(parentNode, 1);
 	}
 
-	/** Notifies the current view that a node has been added */
+	/** Notifies the current view that a node has been removed */
 	public void nodeRemoved(TreeParent parentNode) {
 		IStructuredSelection newSel = new StructuredSelection(parentNode);
 		getNodeViewer().setSelection(newSel, true);
@@ -302,10 +316,6 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 			nodesViewer.refresh();
 		}
 
-	}
-
-	public void setSortChildNodes(boolean sortChildNodes) {
-		this.sortChildNodes = sortChildNodes;
 	}
 
 	public boolean getSortChildNodes() {

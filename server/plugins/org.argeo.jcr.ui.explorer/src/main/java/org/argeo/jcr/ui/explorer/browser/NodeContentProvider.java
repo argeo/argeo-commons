@@ -17,11 +17,14 @@ package org.argeo.jcr.ui.explorer.browser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.jcr.Node;
+import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
+import javax.jcr.nodetype.NodeType;
 
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.jcr.ArgeoJcrConstants;
@@ -29,7 +32,6 @@ import org.argeo.jcr.RepositoryRegister;
 import org.argeo.jcr.UserJcrUtils;
 import org.argeo.jcr.ui.explorer.model.RepositoriesElem;
 import org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem;
-import org.argeo.jcr.ui.explorer.utils.TreeObjectsComparator;
 import org.argeo.util.security.Keyring;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -48,14 +50,14 @@ public class NodeContentProvider implements ITreeContentProvider {
 	 */
 	final private Session userSession;
 	final private Keyring keyring;
-	final private boolean sortChildren;
+	private boolean sortChildren;
 
 	// reference for cleaning
 	private SingleJcrNodeElem homeNode = null;
 	private RepositoriesElem repositoriesNode = null;
 
 	// Utils
-	private TreeObjectsComparator itemComparator = new TreeObjectsComparator();
+	private TreeBrowserComparator itemComparator = new TreeBrowserComparator();
 
 	public NodeContentProvider(Session userSession, Keyring keyring,
 			RepositoryRegister repositoryRegister,
@@ -124,6 +126,15 @@ public class NodeContentProvider implements ITreeContentProvider {
 		}
 	}
 
+	/**
+	 * Sets whether the content provider should order the children nodes or not.
+	 * It is user duty to call a full refresh of the tree after changing this
+	 * parameter.
+	 */
+	public void setSortChildren(boolean sortChildren) {
+		this.sortChildren = sortChildren;
+	}
+
 	public Object getParent(Object element) {
 		if (element instanceof TreeParent) {
 			return ((TreeParent) element).getParent();
@@ -153,4 +164,34 @@ public class NodeContentProvider implements ITreeContentProvider {
 		}
 	}
 
+	/**
+	 * Specific comparator for this view. See spec in BUG :
+	 * https://www.argeo.org/bugzilla/show_bug.cgi?id=139
+	 */
+	private class TreeBrowserComparator implements Comparator<TreeParent> {
+
+		public int category(TreeParent element) {
+			if (element instanceof SingleJcrNodeElem) {
+				Node node = ((SingleJcrNodeElem) element).getNode();
+				try {
+					if (node.isNodeType(NodeType.NT_FOLDER))
+						return 5;
+				} catch (RepositoryException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			return 10;
+		}
+
+		public int compare(TreeParent o1, TreeParent o2) {
+			int cat1 = category(o1);
+			int cat2 = category(o2);
+
+			if (cat1 != cat2) {
+				return cat1 - cat2;
+			}
+			return o1.getName().compareTo(o2.getName());
+		}
+	}
 }
