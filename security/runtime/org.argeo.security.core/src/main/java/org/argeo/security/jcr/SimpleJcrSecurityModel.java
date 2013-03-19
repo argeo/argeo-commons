@@ -102,6 +102,12 @@ public class SimpleJcrSecurityModel implements JcrSecurityModel {
 						.getVersionManager();
 				if (versionManager.isCheckedOut(userProfile.getPath()))
 					versionManager.checkin(userProfile.getPath());
+
+			}
+
+			// Remote roles
+			if (roles != null) {
+				writeRemoteRoles(userProfile, roles);
 			}
 			return userProfile;
 		} catch (RepositoryException e) {

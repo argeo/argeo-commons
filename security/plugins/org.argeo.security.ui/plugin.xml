@@ -75,12 +75,26 @@
         <activity
               description="Non admins"
               id="org.argeo.security.ui.notAdminActivity"
-              name="Admin">
+              name="Not Admin">
 		  <enabledWhen>
 		  	<not>
 		    <with variable="roles">
 		      <iterate ifEmpty="false" operator="or">
 		        <equals value="ROLE_ADMIN" />
+		      </iterate>
+		    </with>
+		  	</not>
+		  </enabledWhen>
+        </activity>
+        <activity
+              description="Non remote"
+              id="org.argeo.security.ui.notRemoteActivity"
+              name="NonRemote">
+		  <enabledWhen>
+		  	<not>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="ROLE_REMOTE" />
 		      </iterate>
 		    </with>
 		  	</not>
