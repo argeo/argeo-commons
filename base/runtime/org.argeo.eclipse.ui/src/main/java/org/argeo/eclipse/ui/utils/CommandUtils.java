@@ -192,8 +192,8 @@ public class CommandUtils {
 			// execute the command
 			handlerService.executeCommand(pc, null);
 		} catch (Exception e) {
-			throw new ArgeoException(
-					"Unexepected exception while opening node editor", e);
+			throw new ArgeoException("Unexpected error while"
+					+ " calling the command " + commandID, e);
 		}
 	}
 }
