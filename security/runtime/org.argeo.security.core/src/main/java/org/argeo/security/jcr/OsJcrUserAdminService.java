@@ -15,7 +15,9 @@
  */
 package org.argeo.security.jcr;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.jcr.Node;
@@ -28,6 +30,7 @@ import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.UserJcrUtils;
 import org.argeo.security.UserAdminService;
 import org.springframework.dao.DataAccessException;
+import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 
@@ -37,6 +40,9 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
  */
 public class OsJcrUserAdminService implements UserAdminService {
 	private Repository repository;
+
+	/** In memory roles provided by applications. */
+	private List<String> roles = new ArrayList<String>();
 
 	// private Session adminSession;
 
@@ -82,19 +88,24 @@ public class OsJcrUserAdminService implements UserAdminService {
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException, DataAccessException {
 		if (getSPropertyUsername().equals(username)) {
-			JcrUserDetails userDetails;
-			Session adminSession = null;
-			try {
-				adminSession = repository.login();
-				Node userProfile = UserJcrUtils.getUserProfile(adminSession,
-						username);
-				userDetails = new JcrUserDetails(userProfile, "",
+			UserDetails userDetails;
+			if (repository != null) {
+				Session adminSession = null;
+				try {
+					adminSession = repository.login();
+					Node userProfile = UserJcrUtils.getUserProfile(
+							adminSession, username);
+					userDetails = new JcrUserDetails(userProfile, "",
+							OsJcrAuthenticationProvider.getBaseAuthorities());
+				} catch (RepositoryException e) {
+					throw new ArgeoException(
+							"Cannot retrieve user profile for " + username, e);
+				} finally {
+					JcrUtils.logoutQuietly(adminSession);
+				}
+			} else {
+				userDetails = new User(username, "", true, true, true, true,
 						OsJcrAuthenticationProvider.getBaseAuthorities());
-			} catch (RepositoryException e) {
-				throw new ArgeoException("Cannot retrieve user profile for "
-						+ username, e);
-			} finally {
-				JcrUtils.logoutQuietly(adminSession);
 			}
 			return userDetails;
 		} else {
@@ -124,17 +135,16 @@ public class OsJcrUserAdminService implements UserAdminService {
 
 	/** <b>Unsupported</b> */
 	public void newRole(String role) {
-		throw new UnsupportedOperationException();
+		roles.add(role);
 	}
 
 	public Set<String> listEditableRoles() {
-		Set<String> set = new HashSet<String>();
-		return set;
+		return new HashSet<String>(roles);
 	}
 
 	/** <b>Unsupported</b> */
 	public void deleteRole(String role) {
-		throw new UnsupportedOperationException();
+		roles.remove(role);
 	}
 
 	public void setRepository(Repository repository) {
