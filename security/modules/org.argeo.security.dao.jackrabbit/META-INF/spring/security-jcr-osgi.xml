@@ -9,11 +9,10 @@
        http://www.springframework.org/schema/util
        http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
-	<!-- REFERENCE -->
-	<reference id="repositoryFactory" interface="javax.jcr.RepositoryFactory" />
-
 	<!-- SERVICES -->
 	<service ref="authenticationManager"
 		interface="org.springframework.security.AuthenticationManager" />
+
+	<service ref="repositoryFactory" interface="javax.jcr.RepositoryFactory" />
 
 </beans:beans>
