@@ -19,13 +19,14 @@ import java.util.Iterator;
 
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.jcr.views.AbstractJcrBrowser;
+import org.argeo.jcr.ui.explorer.JcrExplorerPlugin;
 import org.argeo.jcr.ui.explorer.utils.JcrUiUtils;
+import org.argeo.jcr.ui.explorer.views.GenericJcrBrowser;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
  * Force the selected objects of the active view to be refreshed doing the
@@ -37,13 +38,19 @@ import org.eclipse.ui.handlers.HandlerUtil;
  */
 public class Refresh extends AbstractHandler {
 
+	public final static String ID = JcrExplorerPlugin.ID + ".refresh";
+
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		ISelection selection = HandlerUtil.getActiveWorkbenchWindow(event)
-				.getActivePage().getSelection();
-		AbstractJcrBrowser view = (AbstractJcrBrowser) HandlerUtil
-				.getActiveWorkbenchWindow(event).getActivePage()
-				.findView(HandlerUtil.getActivePartId(event));
-		if (selection != null && selection instanceof IStructuredSelection) {
+
+		AbstractJcrBrowser view = (AbstractJcrBrowser) JcrExplorerPlugin
+				.getDefault().getWorkbench().getActiveWorkbenchWindow()
+				.getActivePage().getActivePart();//
+
+		ISelection selection = JcrExplorerPlugin.getDefault().getWorkbench()
+				.getActiveWorkbenchWindow().getActivePage().getSelection();
+
+		if (selection != null && selection instanceof IStructuredSelection
+				&& !selection.isEmpty()) {
 			Iterator<?> it = ((IStructuredSelection) selection).iterator();
 			while (it.hasNext()) {
 				Object obj = it.next();
@@ -53,7 +60,9 @@ public class Refresh extends AbstractHandler {
 					view.refresh(obj);
 				}
 			}
-		}
+		} else if (view instanceof GenericJcrBrowser)
+			((GenericJcrBrowser) view).refresh(null); // force full refresh
+
 		return null;
 	}
 }

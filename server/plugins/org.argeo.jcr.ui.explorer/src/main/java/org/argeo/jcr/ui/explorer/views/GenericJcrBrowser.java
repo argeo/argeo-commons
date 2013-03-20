@@ -129,6 +129,21 @@ public class GenericJcrBrowser extends AbstractJcrBrowser {
 		nodesViewer.setComparer(new NodeViewerComparer());
 	}
 
+	@Override
+	public void refresh(Object obj) {
+		// Enable full refresh from a command when no element of the tree is
+		// selected
+		if (obj == null) {
+			Object[] elements = nodeContentProvider.getElements(null);
+			for (Object el : elements) {
+				if (el instanceof TreeParent)
+					JcrUiUtils.forceRefreshIfNeeded((TreeParent) el);
+				getNodeViewer().refresh(el);
+			}
+		}
+		super.refresh(obj);
+	}
+
 	/**
 	 * To be overridden to adapt size of form and result frames.
 	 */
