@@ -78,10 +78,10 @@ public class UsersView extends ViewPart implements ArgeoNames {
 
 	private TableViewer viewer;
 	private Text filterTxt;
-	private final static String FILTER_HELP_MSG = "Enter filter criterion "
-			+ "separated by a space (on user ID, name and E-mail";
+	private final static String FILTER_HELP_MSG = "Type filter criterion "
+			+ "separated by a space (on user ID, name and E-mail)";
 	private final static Image FILTER_RESET = SecurityAdminPlugin
-			.getImageDescriptor("icons/users.gif").createImage();
+			.getImageDescriptor("icons/clear.gif").createImage();
 
 	private Session session;
 
@@ -123,6 +123,11 @@ public class UsersView extends ViewPart implements ArgeoNames {
 	protected TableViewer createTableViewer(final Composite parent) {
 
 		Table table = new Table(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, false, false);
+		gd.grabExcessHorizontalSpace = true;
+		gd.grabExcessVerticalSpace = true;
+		table.setLayoutData(gd);
+
 		TableViewer viewer = new TableViewer(table);
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
@@ -311,7 +316,8 @@ public class UsersView extends ViewPart implements ArgeoNames {
 	}
 
 	public void refresh() {
-		viewer.refresh();
+		// viewer.refresh();
+		refreshFilteredList();
 	}
 
 	protected String getProperty(Node userProfile, String name)
@@ -335,7 +341,8 @@ public class UsersView extends ViewPart implements ArgeoNames {
 
 		@Override
 		public void onEvent(EventIterator events) {
-			viewer.refresh();
+			// viewer.refresh();
+			refreshFilteredList();
 		}
 	}
 
@@ -343,7 +350,8 @@ public class UsersView extends ViewPart implements ArgeoNames {
 
 		@Override
 		public void onEvent(EventIterator events) {
-			viewer.refresh();
+			// viewer.refresh();
+			refreshFilteredList();
 		}
 	}
 
@@ -492,7 +500,7 @@ public class UsersView extends ViewPart implements ArgeoNames {
 			}
 		}
 
-		Ordering order = factory.descending(factory.propertyValue(
+		Ordering order = factory.ascending(factory.propertyValue(
 				bundleArtifactsSelector, ARGEO_USER_ID));
 		// Ordering order2 = factory.ascending(factory.propertyValue(
 		// bundleArtifactsSelector, ARGEO_PRIMARY_EMAIL));
