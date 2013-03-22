@@ -1,9 +1,12 @@
 package org.argeo.security.core;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.security.UserAdminService;
 
 /**
@@ -11,19 +14,27 @@ import org.argeo.security.UserAdminService;
  * is already registered.
  */
 public class SimpleRoleRegistration implements Runnable {
+	private final static Log log = LogFactory
+			.getLog(SimpleRoleRegistration.class);
+
 	private String role;
-	private List<String> roles;
+	private List<String> roles = new ArrayList<String>();
 	private UserAdminService userAdminService;
 
 	@Override
 	public void run() {
 		Set<String> existingRoles = userAdminService.listEditableRoles();
 		if (role != null && !existingRoles.contains(role))
-			userAdminService.newRole(role);
+			newRole(role);
 		for (String r : roles) {
 			if (!existingRoles.contains(r))
-				userAdminService.newRole(r);
+				newRole(r);
 		}
+	}
+
+	protected void newRole(String r) {
+		userAdminService.newRole(r);
+		log.info("Added role " + r + " required by application.");
 	}
 
 	public void register(UserAdminService userAdminService, Map<?, ?> properties) {
