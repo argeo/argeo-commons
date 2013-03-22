@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="locations">
+			<value>osgibundle:security.properties</value>
+		</property>
+	</bean>
+
+	<bean id="argeoDataModel" class="org.argeo.jackrabbit.JackrabbitWrapper"
+		init-method="init" destroy-method="destroy">
+		<description><![CDATA[Make sure that Argeo base data model is registered]]></description>
+		<property name="cndFiles">
+			<list>
+				<value>/org/argeo/jcr/argeo.cnd</value>
+			</list>
+		</property>
+		<property name="repository" ref="nodeRepository" />
+		<property name="bundleContext" ref="bundleContext" />
+	</bean>
+
+	<bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
+		<property name="providers">
+			<list>
+				<ref bean="authByAdapterProvider" />
+				<ref bean="osJcrAuthenticationProvider" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- Authentication providers -->
+	<bean id="osJcrAuthenticationProvider" class="org.argeo.security.jcr.OsJcrAuthenticationProvider"
+		init-method="init" destroy-method="destroy" depends-on="argeoDataModel">
+		<property name="repository" ref="nodeRepository" />
+		<property name="jcrSecurityModel" ref="jcrSecurityModel" />
+	</bean>
+
+	<bean name="jcrSecurityModel" class="org.argeo.security.jackrabbit.JackrabbitSecurityModel" />
+
+	<bean id="authByAdapterProvider"
+		class="org.springframework.security.adapters.AuthByAdapterProvider">
+		<description><![CDATA[System authentication]]></description>
+		<property name="key" value="${argeo.security.systemKey}" />
+	</bean>
+
+	<!-- Internal authentication, used by the general authentication process 
+		himself, in order to prevent the following dependency cycle: Repository.login() 
+		<= AuthenticationManager <= osJcrAuthenticationProvider <= Repository.login() 
+		in init() -->
+	<bean id="internalAuthenticationManager" class="org.springframework.security.providers.ProviderManager">
+		<property name="providers">
+			<list>
+				<ref bean="authByAdapterProvider" />
+			</list>
+		</property>
+	</bean>
+
+	<bean
+		class="org.argeo.security.core.AuthenticatedApplicationContextInitialization">
+		<description><![CDATA[Executes initialization with a system authentication]]></description>
+		<property name="authenticationManager" ref="internalAuthenticationManager" />
+	</bean>
+
+	<!-- Dummy user manager -->
+	<bean id="userDetailsManager" class="org.argeo.security.jcr.OsJcrUserAdminService"
+		init-method="init" destroy-method="destroy">
+		<property name="repository" ref="nodeRepository" />
+	</bean>
+
+	<!-- Default callback handler and keyring -->
+	<bean id="defaultCallbackHandler" class="org.argeo.security.core.ConsoleCallbackHandler" />
+
+	<bean id="nodeSession" class="org.argeo.jcr.spring.ThreadBoundSession">
+		<property name="repository" ref="nodeRepository" />
+	</bean>
+
+	<bean id="keyring" class="org.argeo.security.jcr.JcrKeyring">
+		<property name="session" ref="nodeSession" />
+		<property name="defaultCallbackHandler" ref="defaultCallbackHandler" />
+		<property name="secreteKeyLength" value="${argeo.keyring.secreteKeyLength}" />
+	</bean>
+</beans>
