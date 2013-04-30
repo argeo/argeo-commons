@@ -21,7 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.rwt.widgets.Upload;
+//import org.eclipse.rap.rwt.widgets.Upload;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -35,7 +35,7 @@ public class ImportToServerWizardPage extends WizardPage {
 	public final static String FILE_ITEM_TYPE = "FILE";
 	public final static String FOLDER_ITEM_TYPE = "FOLDER";
 
-	private Upload uploadFile;
+	//private Upload uploadFile;
 
 	public ImportToServerWizardPage() {
 		super("Import from file system");
@@ -47,9 +47,9 @@ public class ImportToServerWizardPage extends WizardPage {
 		composite.setLayout(new GridLayout(2, false));
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		new Label(composite, SWT.NONE).setText("Pick up a file");
-		uploadFile = new Upload(composite, SWT.BORDER);
-		uploadFile.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		uploadFile.setBrowseButtonText("Open...");
+//		uploadFile = new Upload(composite, SWT.BORDER);
+//		uploadFile.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+//		uploadFile.setBrowseButtonText("Open...");
 		setControl(composite);
 	}
 
@@ -59,11 +59,11 @@ public class ImportToServerWizardPage extends WizardPage {
 		// The full path including the directory and file drive are only
 		// returned, if the browser supports reading this properties. In Firefox
 		// 3, only the filename is returned.
-		return uploadFile.getPath();
+		return null;
 	}
 
 	public String getObjectName() {
-		return uploadFile.getUploadItem().getFileName();
+		return null;
 	}
 
 	public String getObjectType() {
@@ -71,17 +71,17 @@ public class ImportToServerWizardPage extends WizardPage {
 	}
 
 	public void performFinish() {
-		boolean success = uploadFile.performUpload();
-		if (!success)
-			throw new ArgeoException("Cannot upload file named "
-					+ uploadFile.getPath());
+//		boolean success = uploadFile.performUpload();
+//		if (!success)
+//			throw new ArgeoException("Cannot upload file named "
+//					+ uploadFile.getPath());
 	}
 
-	protected void handleUploadFinished(final Upload upload) {
-	}
+//	protected void handleUploadFinished(final Upload upload) {
+//	}
 
 	public InputStream getFileInputStream() {
-		return uploadFile.getUploadItem().getFileInputStream();
+		return null;
 	}
 
 	public boolean getNeedsProgressMonitor() {

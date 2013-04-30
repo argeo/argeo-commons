@@ -24,8 +24,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.eclipse.equinox.security.auth.ILoginContext;
-import org.eclipse.rwt.RWT;
-import org.eclipse.rwt.lifecycle.IEntryPoint;
+import org.eclipse.rap.rwt.RWT;
+import org.eclipse.rap.rwt.application.IEntryPoint;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 

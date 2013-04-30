@@ -19,10 +19,6 @@ import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.rwt.RWT;
-import org.eclipse.rwt.service.IServiceHandler;
-import org.eclipse.rwt.service.IServiceManager;
-import org.eclipse.ui.PlatformUI;
 
 /**
  * RAP SPECIFIC handler to enable the opening of a download dialog box triggered
@@ -33,7 +29,7 @@ import org.eclipse.ui.PlatformUI;
  * 
  * Manages the process of forwarding the request to the handler at runtime to
  * open the dialog box
- * 
+ * encodedURL
  */
 public class FileHandler {
 	public final static String FORCED_DOWNLOAD_URL_BASE_PROPERTY = "argeo.rap.specific.forcedDownloadUrlBase";
@@ -42,9 +38,9 @@ public class FileHandler {
 
 	public FileHandler(FileProvider provider) {
 		// Instantiate and register the DownloadServicHandler.
-		IServiceManager manager = RWT.getServiceManager();
-		IServiceHandler handler = new DownloadServiceHandler(provider);
-		manager.registerServiceHandler("downloadServiceHandler", handler);
+		// IServiceManager manager = RWT.getServiceManager();
+		// IServiceHandler handler = new DownloadServiceHandler(provider);
+		// manager.registerServiceHandler("downloadServiceHandler", handler);
 	}
 
 	public void openFile(String fileName, String fileId) {
@@ -59,8 +55,8 @@ public class FileHandler {
 				log.trace("URL : " + createFullDownloadUrl(fileName, fileId));
 
 			URL url = new URL(createFullDownloadUrl(fileName, fileId));
-			PlatformUI.getWorkbench().getBrowserSupport()
-					.createBrowser("DownloadDialog").openURL(url);
+			// PlatformUI.getWorkbench().getBrowserSupport()
+			// .createBrowser("DownloadDialog").openURL(url);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -82,8 +78,8 @@ public class FileHandler {
 				.getProperty(FORCED_DOWNLOAD_URL_BASE_PROPERTY);
 		if (forcedDownloadUrlBase != null)
 			url.append(forcedDownloadUrlBase);
-		else
-			url.append(RWT.getRequest().getRequestURL());
+		// else
+		// url.append(RWT.getRequest().getRequestURL());
 		url.append(createParamUrl(fileName, fileId));
 		return url.toString();
 	}
@@ -91,13 +87,13 @@ public class FileHandler {
 	private String createParamUrl(String filename, String fileId) {
 		StringBuilder url = new StringBuilder();
 		url.append("?");
-		url.append(IServiceHandler.REQUEST_PARAM);
+		// url.append(IServiceHandler.REQUEST_PARAM);
 		url.append("=downloadServiceHandler");
 		url.append("&filename=");
 		url.append(filename);
 		url.append("&fileid=");
 		url.append(fileId);
-		String encodedURL = RWT.getResponse().encodeURL(url.toString());
-		return encodedURL;
+		// String encodedURL = RWT.getResponse().encodeURL(url.toString());
+		return url.toString();
 	}
 }

@@ -16,7 +16,7 @@
 package org.argeo.eclipse.ui.specific;
 
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.rwt.RWT;
+import org.eclipse.rap.rwt.RWT;
 
 /** NLS attached to a given thread */
 public class ThreadNLS<T extends NLS> extends InheritableThreadLocal<T> {

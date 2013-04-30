@@ -6,22 +6,22 @@
       <entrypoint
             id="org.argeo.security.ui.rap.secureEntryPoint"
             class="org.argeo.security.ui.rap.SecureEntryPoint"
-            parameter="secureWebUi">
+            path="secureWebUi">
       </entrypoint>
       <entrypoint
             id="org.argeo.security.ui.rap.anonymousEntryPoint"
             class="org.argeo.security.ui.rap.AnonymousEntryPoint"
-            parameter="publicWebUi">
+            path="publicWebUi">
       </entrypoint>
       <entrypoint
             id="org.argeo.security.ui.rap.logoutEntryPoint"
             class="org.argeo.security.ui.rap.LogoutEntryPoint"
-            parameter="logout">
+            path="logout">
       </entrypoint>
       <entrypoint
             id="org.argeo.security.ui.rap.nullEntryPoint"
             class="org.argeo.security.ui.rap.NullEntryPoint"
-            parameter="null">
+            path="null">
       </entrypoint>
    </extension>
 
