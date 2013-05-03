@@ -33,16 +33,16 @@
 			<version>${version.rap}</version>
 			<type>pom</type>
 			<exclusions>
-				<exclusion>
-					<groupId>org.argeo.tp.rap.platform</groupId>
-					<artifactId>javax.servlet</artifactId>
-				</exclusion>
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 					<artifactId>javax.servlet</artifactId> -->
+<!-- 				</exclusion> -->
 
 				<!-- Jetty -->
-				<exclusion>
-					<groupId>org.argeo.tp.rap.platform</groupId>
-					<artifactId>org.eclipse.equinox.http.jetty</artifactId>
-				</exclusion>
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 					<artifactId>org.eclipse.equinox.http.jetty</artifactId> -->
+<!-- 				</exclusion> -->
 <!-- 				<exclusion> -->
 <!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
 <!-- 					<artifactId>org.mortbay.jetty.server</artifactId> -->
@@ -51,34 +51,35 @@
 <!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
 <!-- 					<artifactId>org.mortbay.jetty.util</artifactId> -->
 <!-- 				</exclusion> -->
-				<exclusion>
-					<groupId>org.argeo.tp.rap.platform</groupId>
-					<artifactId>org.eclipse.jetty.security</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.argeo.tp.rap.platform</groupId>
-					<artifactId>org.eclipse.jetty.http</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.argeo.tp.rap.platform</groupId>
-					<artifactId>org.eclipse.jetty.server</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.argeo.tp.rap.platform</groupId>
-					<artifactId>org.eclipse.jetty.continuation</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.argeo.tp.rap.platform</groupId>
-					<artifactId>org.eclipse.jetty.util</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.argeo.tp.rap.platform</groupId>
-					<artifactId>org.eclipse.jetty.io</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.argeo.tp.rap.platform</groupId>
-					<artifactId>org.eclipse.jetty.servlet</artifactId>
-				</exclusion>
+
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 					<artifactId>org.eclipse.jetty.security</artifactId> -->
+<!-- 				</exclusion> -->
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 					<artifactId>org.eclipse.jetty.http</artifactId> -->
+<!-- 				</exclusion> -->
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 					<artifactId>org.eclipse.jetty.server</artifactId> -->
+<!-- 				</exclusion> -->
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 					<artifactId>org.eclipse.jetty.continuation</artifactId> -->
+<!-- 				</exclusion> -->
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 					<artifactId>org.eclipse.jetty.util</artifactId> -->
+<!-- 				</exclusion> -->
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 					<artifactId>org.eclipse.jetty.io</artifactId> -->
+<!-- 				</exclusion> -->
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 					<artifactId>org.eclipse.jetty.servlet</artifactId> -->
+<!-- 				</exclusion> -->
 
 				<!-- Demo -->
 				<exclusion>
