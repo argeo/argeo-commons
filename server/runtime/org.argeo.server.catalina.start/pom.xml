@@ -30,6 +30,7 @@
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.eclipse.osgi</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
