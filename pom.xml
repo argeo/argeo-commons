@@ -494,7 +494,7 @@ limitations under the License.
 		</repository>
 		<repository>
 			<id>argeo-tp-rap</id>
-			<url>http://alma.vpn:7080/data/public/java/org.argeo.tp.rap-2.1.x</url>
+			<url>http://alma:7080/data/public/java/org.argeo.tp.rap-2.1.x</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
