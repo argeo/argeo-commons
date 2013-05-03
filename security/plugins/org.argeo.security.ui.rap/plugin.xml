@@ -6,6 +6,11 @@
       <entrypoint
             id="org.argeo.security.ui.rap.secureEntryPoint"
             class="org.argeo.security.ui.rap.SecureEntryPoint"
+            path="/node">
+      </entrypoint>
+      <entrypoint
+            id="org.argeo.security.ui.rap.secureEntryPoint"
+            class="org.argeo.security.ui.rap.SecureEntryPoint"
             path="/secureWebUi">
       </entrypoint>
       <entrypoint
