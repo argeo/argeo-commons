@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.base</groupId>
 		<artifactId>dep</artifactId>
-		<version>2.1.2.tp-SNAPSHOT</version>
+		<version>2.1.1.tp-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.eclipse.dep.rap</artifactId>
@@ -141,7 +142,7 @@
 				<dependency>
 					<groupId>org.argeo.commons.base</groupId>
 					<artifactId>org.argeo.osgi.boot</artifactId>
-					<version>2.1.2.tp-SNAPSHOT</version>
+					<version>2.1.1.tp-SNAPSHOT</version>
 				</dependency>
 	</dependencies>
 	<dependencyManagement>
@@ -228,7 +229,8 @@
 								<configuration>
 									<target>
 										<copy todir="${rpm.stagingRepository}" verbose="true">
-											<fileset dir="${project.build.directory}/rpm" includes="*/RPMS/**/*.rpm" />
+											<fileset dir="${project.build.directory}/rpm"
+												includes="*/RPMS/**/*.rpm" />
 											<flattenmapper />
 										</copy>
 									</target>
