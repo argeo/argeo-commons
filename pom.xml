@@ -107,6 +107,8 @@ limitations under the License.
 					<include>WEB-INF/**</include>
 					<include>icons/**</include>
 					<include>branding/**</include>
+					<include>img/**</include>
+					<include>theme/**</include>
 					<include>*.properties</include>
 					<include>properties/*.properties</include>
 					<include>p2.inf</include>
