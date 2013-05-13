@@ -444,7 +444,7 @@ public class JcrUtils implements ArgeoJcrConstants {
 		try {
 			for (int i = 0; i < tokens.size(); i++) {
 				String name = tokens.get(i);
-				if (parentNode.hasNode(name)) {
+				if (currParent.hasNode(name)) {
 					currParent = currParent.getNode(name);
 				} else {
 					if (i != (tokens.size() - 1)) {// intermediary
