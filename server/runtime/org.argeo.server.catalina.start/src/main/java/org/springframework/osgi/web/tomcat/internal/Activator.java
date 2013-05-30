@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
@@ -155,12 +156,20 @@ public class Activator implements BundleActivator {
 			throws Exception {
 		URL xmlConfiguration = null;
 
-		if (System.getProperty(CatalinaActivator.ARGEO_SERVER_TOMCAT_CONFIG) != null)
-			xmlConfiguration = new URL(
-					System.getProperty(CatalinaActivator.ARGEO_SERVER_TOMCAT_CONFIG));
-		else
+		if (System.getProperty(CatalinaActivator.ARGEO_SERVER_TOMCAT_CONFIG) != null) {
+			String customConfig = System
+					.getProperty(CatalinaActivator.ARGEO_SERVER_TOMCAT_CONFIG);
+			try {
+				xmlConfiguration = new URL(customConfig);
+			} catch (MalformedURLException e) {
+				// within this bundle
+				// typically 'default-server-ssl.xml'
+				xmlConfiguration = bundle.getResource(customConfig);
+			}
+		} else {
 			// fragment
 			xmlConfiguration = bundle.getResource(XML_CONF_LOCATION);
+		}
 
 		if (xmlConfiguration != null) {
 			log.info("Using custom XML configuration " + xmlConfiguration);
