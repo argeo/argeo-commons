@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Server port="-1" shutdown="SHUTDOWN">
+	<!--APR library loader. Documentation at /docs/apr.html -->
+	<!-- <Listener className="org.apache.catalina.core.AprLifecycleListener" 
+		SSLEngine="on" /> -->
+	<!-- Initialize Jasper prior to webapps are loaded. -->
+	<Listener className="org.apache.catalina.core.JasperListener" />
+	<!-- JMX -->
+	<!-- <Listener className="org.apache.catalina.mbeans.ServerLifecycleListener" 
+		/> <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" 
+		/> -->
+
+	<Service name="Catalina">
+		<Executor name="tomcatThreadPool" namePrefix="catalina-exec-"
+			maxThreads="150" minSpareThreads="4" />
+
+		<!-- HTTP -->
+		<Connector executor="tomcatThreadPool" port="${argeo.server.port.http}"
+			protocol="HTTP/1.1" connectionTimeout="20000" redirectPort="${argeo.server.port.https}"
+			secure="${argeo.server.http.secure}" proxyName="${argeo.server.http.proxyName}"
+			proxyPort="${argeo.server.http.proxyPort}" />
+		<!-- HTTPS -->
+		<Connector port="${argeo.server.port.https}" protocol="HTTP/1.1"
+			SSLEnabled="true" scheme="https" secure="true" sslProtocol="TLS"
+			keystoreFile="${argeo.server.keystoreFile}" keystoreType="JKS"
+			keystorePass="${argeo.server.keystorePass}" truststoreFile="${argeo.server.truststoreFile}"
+			truststoreType="JKS" truststorePass="${argeo.server.truststorePass}"
+			clientAuth="${argeo.server.https.clientAuth}" />
+			 
+		<!-- AJP (for proxying with httpd) -->
+		<Connector port="${argeo.server.port.ajp}" protocol="AJP/1.3"
+			redirectPort="${argeo.server.port.https}" />
+
+		<Engine name="Catalina" defaultHost="localhost">
+			<Host name="localhost" appBase="webapps" unpackWARs="true"
+				autoDeploy="true" xmlValidation="false" xmlNamespaceAware="false"
+				workDir="work">
+			</Host>
+		</Engine>
+	</Service>
+</Server>
