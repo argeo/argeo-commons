@@ -21,6 +21,7 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.TextOutputCallback;
 
+import org.argeo.security.ui.SecurityUiPlugin;
 import org.argeo.util.LocaleCallback;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -41,12 +42,11 @@ import org.eclipse.swt.widgets.Text;
 
 /** Default authentication dialog, to be used as {@link CallbackHandler}. */
 public class DefaultLoginDialog extends AbstractLoginDialog {
-
 	public DefaultLoginDialog() {
-		this(Display.getCurrent().getActiveShell());
+		this(SecurityUiPlugin.display.get().getActiveShell());
 	}
 
-	protected DefaultLoginDialog(Shell parentShell) {
+	public DefaultLoginDialog(Shell parentShell) {
 		super(parentShell);
 	}
 
