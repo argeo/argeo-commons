@@ -22,7 +22,7 @@ import javax.jcr.Binary;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
-import javax.jcr.Session;
+import javax.jcr.RepositoryException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -45,7 +45,6 @@ public class ResourceProxyServlet extends HttpServlet {
 
 	private ResourceProxy proxy;
 
-	private Session jcrSession;
 	private String contentTypeCharset = "UTF-8";
 
 	@Override
@@ -53,9 +52,8 @@ public class ResourceProxyServlet extends HttpServlet {
 			HttpServletResponse response) throws ServletException, IOException {
 		String path = request.getPathInfo();
 
-		String nodePath = proxy.getNodePath(path);
 		if (log.isTraceEnabled()) {
-			log.trace("path=" + path + ", nodePath=" + nodePath);
+			log.trace("path=" + path);
 			log.trace("UserPrincipal = " + request.getUserPrincipal().getName());
 			log.trace("SessionID = " + request.getSession().getId());
 			log.trace("ContextPath = " + request.getContextPath());
@@ -65,16 +63,26 @@ public class ResourceProxyServlet extends HttpServlet {
 			log.trace("User-Agent = " + request.getHeader("User-Agent"));
 		}
 
-		Node node = proxy.proxy(jcrSession, path);
-		if (node == null)
-			response.sendError(404);
-		else
-			processResponse(nodePath, node, response);
+		Node node = null;
+		try {
+			node = proxy.proxy(path);
+			if (node == null)
+				response.sendError(404);
+			else
+				processResponse(node, response);
+		} finally {
+			if (node != null)
+				try {
+					JcrUtils.logoutQuietly(node.getSession());
+				} catch (RepositoryException e) {
+					// silent
+				}
+		}
+
 	}
 
 	/** Retrieve the content of the node. */
-	protected void processResponse(String path, Node node,
-			HttpServletResponse response) {
+	protected void processResponse(Node node, HttpServletResponse response) {
 		Binary binary = null;
 		InputStream in = null;
 		try {
@@ -92,8 +100,12 @@ public class ResourceProxyServlet extends HttpServlet {
 				contentType = "application/zip";
 			else if ("gz".equals(ext))
 				contentType = "application/x-gzip";
+			else if ("bz2".equals(ext))
+				contentType = "application/x-bzip2";
 			else if ("tar".equals(ext))
 				contentType = "application/x-tar";
+			else if ("rpm".equals(ext))
+				contentType = "application/x-redhat-package-manager";
 			else
 				contentType = "application/octet-stream";
 			contentType = contentType + ";name=\"" + fileName + "\"";
@@ -120,10 +132,6 @@ public class ResourceProxyServlet extends HttpServlet {
 			IOUtils.closeQuietly(in);
 			JcrUtils.closeQuietly(binary);
 		}
-	}
-
-	public void setJcrSession(Session jcrSession) {
-		this.jcrSession = jcrSession;
 	}
 
 	public void setProxy(ResourceProxy resourceProxy) {

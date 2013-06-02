@@ -39,12 +39,14 @@ public abstract class AbstractUrlProxy implements ResourceProxy {
 
 	private Repository jcrRepository;
 	private Session jcrAdminSession;
+	private String proxyWorkspace = "proxy";
 
-	protected abstract Node retrieve(Session session, String relativePath);
+	protected abstract Node retrieve(Session session, String path);
 
 	void init() {
 		try {
-			jcrAdminSession = jcrRepository.login();
+			jcrAdminSession = JcrUtils.loginOrCreateWorkspace(jcrRepository,
+					proxyWorkspace);
 			beforeInitSessionSave(jcrAdminSession);
 			if (jcrAdminSession.hasPendingChanges())
 				jcrAdminSession.save();
@@ -73,20 +75,20 @@ public abstract class AbstractUrlProxy implements ResourceProxy {
 	protected void beforeDestroySessionLogout() throws RepositoryException {
 	}
 
-	public Node proxy(Session session, String path) {
+	public Node proxy(String path) {
+		// we open a JCR session with client credentials in order not to use the
+		// admin session in multiple thread or make it a bottleneck.
+		Session clientSession = null;
 		try {
-			if (session.hasPendingChanges())
-				throw new ArgeoException(
-						"Cannot proxy based on a session with pending changes");
-			String nodePath = getNodePath(path);
-			if (!session.itemExists(nodePath)) {
+			clientSession = jcrRepository.login(proxyWorkspace);
+			if (!clientSession.itemExists(path)
+					|| shouldUpdate(clientSession, path)) {
 				Node nodeT = retrieveAndSave(path);
 				if (nodeT == null)
 					return null;
 			}
-			return session.getNode(nodePath);
+			return clientSession.getNode(path);
 		} catch (RepositoryException e) {
-			JcrUtils.discardQuietly(jcrAdminSession);
 			throw new ArgeoException("Cannot proxy " + path, e);
 		}
 	}
@@ -101,25 +103,26 @@ public abstract class AbstractUrlProxy implements ResourceProxy {
 		} catch (RepositoryException e) {
 			JcrUtils.discardQuietly(jcrAdminSession);
 			throw new ArgeoException("Cannot retrieve and save " + path, e);
+		} finally {
+			notifyAll();
 		}
 	}
 
 	/** Session is not saved */
-	protected Node proxyUrl(Session session, String baseUrl, String path)
-			throws RepositoryException {
-		String nodePath = getNodePath(path);
-		if (jcrAdminSession.itemExists(nodePath))
-			throw new ArgeoException("Node " + nodePath + " already exists");
+	protected synchronized Node proxyUrl(Session session, String remoteUrl,
+			String path) throws RepositoryException {
 		Node node = null;
-		String remoteUrl = baseUrl + path;
+		if (session.itemExists(path)) {
+			// throw new ArgeoException("Node " + path + " already exists");
+		}
 		InputStream in = null;
 		try {
 			URL u = new URL(remoteUrl);
 			in = u.openStream();
-			node = importFile(session, nodePath, in);
+			node = importFile(session, path, in);
 		} catch (IOException e) {
-			if (log.isTraceEnabled()) {
-				log.trace("Cannot read " + remoteUrl + ", skipping... "
+			if (log.isDebugEnabled()) {
+				log.debug("Cannot read " + remoteUrl + ", skipping... "
 						+ e.getMessage());
 				// log.trace("Cannot read because of ", e);
 			}
@@ -130,24 +133,40 @@ public abstract class AbstractUrlProxy implements ResourceProxy {
 		return node;
 	}
 
-	protected Node importFile(Session session, String nodePath, InputStream in)
-			throws RepositoryException {
-		// FIXME allow parallel proxying
+	protected synchronized Node importFile(Session session, String path,
+			InputStream in) throws RepositoryException {
 		Binary binary = null;
 		try {
-			Node node = JcrUtils.mkdirs(jcrAdminSession, nodePath,
-					NodeType.NT_FILE, NodeType.NT_FOLDER, false);
-			Node content = node.addNode(Node.JCR_CONTENT, NodeType.NT_RESOURCE);
+			Node content = null;
+			Node node = null;
+			if (!session.itemExists(path)) {
+				node = JcrUtils.mkdirs(session, path, NodeType.NT_FILE,
+						NodeType.NT_FOLDER, false);
+				content = node.addNode(Node.JCR_CONTENT, NodeType.NT_RESOURCE);
+			} else {
+				node = session.getNode(path);
+				content = node.getNode(Node.JCR_CONTENT);
+			}
 			binary = session.getValueFactory().createBinary(in);
 			content.setProperty(Property.JCR_DATA, binary);
+			JcrUtils.updateLastModifiedAndParents(node, null);
 			return node;
 		} finally {
 			JcrUtils.closeQuietly(binary);
 		}
 	}
 
+	/** Whether the file should be updated. */
+	protected Boolean shouldUpdate(Session clientSession, String nodePath) {
+		return false;
+	}
+
 	public void setJcrRepository(Repository jcrRepository) {
 		this.jcrRepository = jcrRepository;
+	}
+
+	public void setProxyWorkspace(String localWorkspace) {
+		this.proxyWorkspace = localWorkspace;
 	}
 
 }
