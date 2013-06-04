@@ -78,18 +78,24 @@ public abstract class AbstractUrlProxy implements ResourceProxy {
 	public Node proxy(String path) {
 		// we open a JCR session with client credentials in order not to use the
 		// admin session in multiple thread or make it a bottleneck.
+		Node nodeAdmin = null;
+		Node nodeClient = null;
 		Session clientSession = null;
 		try {
 			clientSession = jcrRepository.login(proxyWorkspace);
 			if (!clientSession.itemExists(path)
 					|| shouldUpdate(clientSession, path)) {
-				Node nodeT = retrieveAndSave(path);
-				if (nodeT == null)
-					return null;
-			}
-			return clientSession.getNode(path);
+				nodeAdmin = retrieveAndSave(path);
+				if (nodeAdmin != null)
+					nodeClient = clientSession.getNode(path);
+			} else
+				nodeClient = clientSession.getNode(path);
+			return nodeClient;
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot proxy " + path, e);
+		} finally {
+			if (nodeClient == null)
+				JcrUtils.logoutQuietly(clientSession);
 		}
 	}
 
