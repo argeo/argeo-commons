@@ -11,7 +11,7 @@
 		<developmentCycle.argeo-commons>1.2</developmentCycle.argeo-commons>
 		<developmentCycle.argeo-commons.startDate>2012-12-18</developmentCycle.argeo-commons.startDate>
 		<version.argeo-distribution>1.4.0</version.argeo-distribution>
-		<version.argeo-commons>1.2.2-SNAPSHOT</version.argeo-commons>
+		<version.argeo-commons>1.2.2</version.argeo-commons>
 		<!-- RPM -->
 		<rpm.release>6</rpm.release>
 		<rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-1-staging/6/x86_64</rpm.stagingRepository>
