@@ -85,7 +85,10 @@ public class SecurityUiPlugin extends AbstractUIPlugin {
 				UnsupportedCallbackException {
 
 			// if (display != null) // RCP
-			display.get().syncExec(new Runnable() {
+			Display displayToUse = display.get();
+			if (displayToUse == null)// RCP
+				displayToUse = Display.getDefault();
+			displayToUse.syncExec(new Runnable() {
 				public void run() {
 					DefaultLoginDialog dialog = new DefaultLoginDialog(display
 							.get().getActiveShell());
