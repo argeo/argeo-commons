@@ -6,11 +6,15 @@ import java.net.URL;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.springframework.osgi.web.tomcat.internal.Activator;
 
 /** Starts Catalina (hacked from Spring OSGi 1.0) */
 public class CatalinaActivator extends Activator {
+	private final static Log log = LogFactory.getLog(CatalinaActivator.class);
+
 	private final static String ARGEO_OSGI_DATA_DIR = "argeo.osgi.data.dir";
 	/** System properties used to override Tomcat XML config URL */
 	public final static String ARGEO_SERVER_TOMCAT_CONFIG = "argeo.server.tomcat.config";
@@ -71,6 +75,14 @@ public class CatalinaActivator extends Activator {
 		if (System.getProperty("catalina.base") == null)
 			System.setProperty("catalina.base",
 					System.getProperty(ARGEO_OSGI_DATA_DIR) + "/tomcat");
+
+		// Make sure directories are created
+		File catalinaDir = new File(System.getProperty("catalina.home"));
+		if (!catalinaDir.exists()) {
+			catalinaDir.mkdirs();
+			if (log.isDebugEnabled())
+				log.debug("Created Tomcat directory " + catalinaDir);
+		}
 
 		// Call Spring starter
 		super.start(context);

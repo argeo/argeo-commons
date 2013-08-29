@@ -44,33 +44,19 @@ public class SecurityUiPlugin extends AbstractUIPlugin {
 
 	private static SecurityUiPlugin plugin;
 
+	public static InheritableThreadLocal<Display> display = new InheritableThreadLocal<Display>() {
+
+		@Override
+		protected Display initialValue() {
+			return Display.getCurrent();
+		}
+	};
+
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
 
-		final Display display = Display.getCurrent();
-		defaultCallbackHandler = new CallbackHandler() {
-			public void handle(final Callback[] callbacks) throws IOException,
-					UnsupportedCallbackException {
-
-				if (display != null) // RCP
-					display.syncExec(new Runnable() {
-						public void run() {
-							DefaultLoginDialog dialog = new DefaultLoginDialog();
-							try {
-								dialog.handle(callbacks);
-							} catch (IOException e) {
-								throw new ArgeoException("Cannot open dialog",
-										e);
-							}
-						}
-					});
-				else {// RAP
-					DefaultLoginDialog dialog = new DefaultLoginDialog();
-					dialog.handle(callbacks);
-				}
-			}
-		};
+		defaultCallbackHandler = new DefaultCallbackHandler();
 		defaultCallbackHandlerReg = context.registerService(
 				CallbackHandler.class.getName(), defaultCallbackHandler, null);
 	}
@@ -92,5 +78,32 @@ public class SecurityUiPlugin extends AbstractUIPlugin {
 
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
+	}
+
+	protected class DefaultCallbackHandler implements CallbackHandler {
+		public void handle(final Callback[] callbacks) throws IOException,
+				UnsupportedCallbackException {
+
+			// if (display != null) // RCP
+			Display displayToUse = display.get();
+			if (displayToUse == null)// RCP
+				displayToUse = Display.getDefault();
+			displayToUse.syncExec(new Runnable() {
+				public void run() {
+					DefaultLoginDialog dialog = new DefaultLoginDialog(display
+							.get().getActiveShell());
+					try {
+						dialog.handle(callbacks);
+					} catch (IOException e) {
+						throw new ArgeoException("Cannot open dialog", e);
+					}
+				}
+			});
+			// else {// RAP
+			// DefaultLoginDialog dialog = new DefaultLoginDialog();
+			// dialog.handle(callbacks);
+			// }
+		}
+
 	}
 }
