@@ -496,7 +496,7 @@ limitations under the License.
 		</repository>
 		<repository>
 			<id>argeo-tp-rap</id>
-			<url>http://repo.argeo.org/data/public/java/org.argeo.tp.rap-2.1.x</url>
+			<url>http://repo.argeo.org/data/public/java/org.argeo.tp.rap-2.2.x</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
