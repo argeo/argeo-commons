@@ -16,10 +16,12 @@
 package org.argeo.security.ui.rap;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
@@ -27,6 +29,7 @@ import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
+import org.eclipse.ui.internal.UIPlugin;
 
 /** Eclipse RAP specific window advisor */
 public class RapWindowAdvisor extends WorkbenchWindowAdvisor {
@@ -52,11 +55,22 @@ public class RapWindowAdvisor extends WorkbenchWindowAdvisor {
 		configurer.setShowStatusLine(false);
 		configurer.setShowPerspectiveBar(true);
 		configurer.setTitle("Argeo Web UI"); //$NON-NLS-1$
-		// Full screen, see 
+		// Full screen, see
 		// http://wiki.eclipse.org/RAP/FAQ#How_to_create_a_fullscreen_application
 		configurer.setShellStyle(SWT.NO_TRIM);
 		Rectangle bounds = Display.getCurrent().getBounds();
 		configurer.setInitialSize(new Point(bounds.width, bounds.height));
+		
+		// Handle window resize in Rap 2.1+ see https://bugs.eclipse.org/bugs/show_bug.cgi?id=417254
+		Display.getCurrent().addListener(SWT.Resize, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				Rectangle bounds = event.display.getBounds();
+				IWorkbenchWindow iww = UIPlugin.getDefault().getWorkbench()
+						.getActiveWorkbenchWindow();
+				iww.getShell().setBounds(bounds);
+			}
+		});
 	}
 
 	@Override
