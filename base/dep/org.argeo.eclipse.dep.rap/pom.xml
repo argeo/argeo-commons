@@ -10,7 +10,7 @@
 	<artifactId>org.argeo.eclipse.dep.rap</artifactId>
 	<name>Commons Eclipse RAP Dependencies</name>
 	<properties>
-		<version.rap>2.2.0-M1-20130821-1618</version.rap>
+		<version.rap>2.1.0-R-20130611-2139</version.rap>
 	</properties>
 	<build>
 		<plugins>
