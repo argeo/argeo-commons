@@ -18,14 +18,13 @@ package org.argeo.eclipse.ui.specific;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.argeo.ArgeoException;
-import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.service.IServiceHandler;
+import org.eclipse.rap.rwt.service.ServiceHandler;
 
-public class DownloadServiceHandler implements IServiceHandler {
+public class DownloadServiceHandler implements ServiceHandler {
 
 	private FileProvider provider;
 
@@ -33,7 +32,8 @@ public class DownloadServiceHandler implements IServiceHandler {
 		this.provider = provider;
 	}
 
-	public void service( HttpServletRequest request, HttpServletResponse response )  throws IOException, ServletException {
+	public void service(HttpServletRequest request, HttpServletResponse response)
+			throws IOException, ServletException {
 		// Which file to download?
 		String fileName = request.getParameter("filename");
 		String fileId = request.getParameter("fileid");
