@@ -17,7 +17,6 @@ package org.argeo.security.ldap.jcr;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -27,31 +26,15 @@ import java.util.SortedSet;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
-import javax.jcr.Property;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.observation.Event;
-import javax.jcr.observation.EventIterator;
-import javax.jcr.observation.EventListener;
 import javax.jcr.query.Query;
 import javax.jcr.version.VersionManager;
-import javax.naming.Binding;
 import javax.naming.Name;
-import javax.naming.NamingException;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.event.EventDirContext;
-import javax.naming.event.NamespaceChangeListener;
-import javax.naming.event.NamingEvent;
-import javax.naming.event.NamingExceptionEvent;
-import javax.naming.event.NamingListener;
-import javax.naming.event.ObjectChangeListener;
-import javax.naming.ldap.UnsolicitedNotification;
-import javax.naming.ldap.UnsolicitedNotificationEvent;
-import javax.naming.ldap.UnsolicitedNotificationListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,7 +46,6 @@ import org.argeo.security.SecurityUtils;
 import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.argeo.security.jcr.SimpleJcrSecurityModel;
-import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
@@ -88,26 +70,27 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 	 * "http://forum.springsource.org/showthread.php?55955-Persistent-search-with-spring-ldap"
 	 * >this</a>
 	 */
-	private LdapTemplate rawLdapTemplate;
+	// private LdapTemplate rawLdapTemplate;
 
 	private String userBase;
 	private String usernameAttribute;
 	private String passwordAttribute;
 	private String[] userClasses;
+	// private String defaultUserRole ="ROLE_USER";
 
-	private NamingListener ldapUserListener;
-	private SearchControls subTreeSearchControls;
+	// private NamingListener ldapUserListener;
+	// private SearchControls subTreeSearchControls;
 	private LdapUsernameToDnMapper usernameMapper;
 
 	private PasswordEncoder passwordEncoder;
 	private final Random random;
 
 	// JCR
-	/** Admin session on the security workspace */
+	/** Admin session on the main workspace */
 	private Session nodeSession;
 	private Repository repository;
 
-	private JcrProfileListener jcrProfileListener;
+	// private JcrProfileListener jcrProfileListener;
 	private JcrSecurityModel jcrSecurityModel = new SimpleJcrSecurityModel();
 
 	// Mapping
@@ -127,21 +110,21 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 				synchronize();
 
 				// LDAP
-				subTreeSearchControls = new SearchControls();
-				subTreeSearchControls
-						.setSearchScope(SearchControls.SUBTREE_SCOPE);
+				// subTreeSearchControls = new SearchControls();
+				// subTreeSearchControls
+				// .setSearchScope(SearchControls.SUBTREE_SCOPE);
 				// LDAP listener
-				ldapUserListener = new LdapUserListener();
-				rawLdapTemplate.executeReadOnly(new ContextExecutor() {
-					public Object executeWithContext(DirContext ctx)
-							throws NamingException {
-						EventDirContext ectx = (EventDirContext) ctx.lookup("");
-						ectx.addNamingListener(userBase, "("
-								+ usernameAttribute + "=*)",
-								subTreeSearchControls, ldapUserListener);
-						return null;
-					}
-				});
+				// ldapUserListener = new LdapUserListener();
+				// rawLdapTemplate.executeReadOnly(new ContextExecutor() {
+				// public Object executeWithContext(DirContext ctx)
+				// throws NamingException {
+				// EventDirContext ectx = (EventDirContext) ctx.lookup("");
+				// ectx.addNamingListener(userBase, "("
+				// + usernameAttribute + "=*)",
+				// subTreeSearchControls, ldapUserListener);
+				// return null;
+				// }
+				// });
 			} catch (Exception e) {
 				log.error("Could not synchronize and listen to LDAP,"
 						+ " probably because the LDAP server is not available."
@@ -149,16 +132,16 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 			}
 
 			// JCR
-			String[] nodeTypes = { ArgeoTypes.ARGEO_USER_PROFILE };
-			jcrProfileListener = new JcrProfileListener();
+			// String[] nodeTypes = { ArgeoTypes.ARGEO_USER_PROFILE };
+			// jcrProfileListener = new JcrProfileListener();
 			// noLocal is used so that we are not notified when we modify JCR
 			// from LDAP
-			nodeSession
-					.getWorkspace()
-					.getObservationManager()
-					.addEventListener(jcrProfileListener,
-							Event.PROPERTY_CHANGED | Event.NODE_ADDED, "/",
-							true, null, nodeTypes, true);
+			// nodeSession
+			// .getWorkspace()
+			// .getObservationManager()
+			// .addEventListener(jcrProfileListener,
+			// Event.PROPERTY_CHANGED | Event.NODE_ADDED, "/",
+			// true, null, nodeTypes, true);
 		} catch (Exception e) {
 			JcrUtils.logoutQuietly(nodeSession);
 			throw new ArgeoException("Cannot initialize LDAP/JCR synchronizer",
@@ -167,22 +150,22 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 	}
 
 	public void destroy() {
-		JcrUtils.removeListenerQuietly(nodeSession, jcrProfileListener);
+		// JcrUtils.removeListenerQuietly(nodeSession, jcrProfileListener);
 		JcrUtils.logoutQuietly(nodeSession);
-		try {
-			rawLdapTemplate.executeReadOnly(new ContextExecutor() {
-				public Object executeWithContext(DirContext ctx)
-						throws NamingException {
-					EventDirContext ectx = (EventDirContext) ctx.lookup("");
-					ectx.removeNamingListener(ldapUserListener);
-					return null;
-				}
-			});
-		} catch (Exception e) {
-			// silent (LDAP server may have been shutdown already)
-			if (log.isTraceEnabled())
-				log.trace("Cannot remove LDAP listener", e);
-		}
+		// try {
+		// rawLdapTemplate.executeReadOnly(new ContextExecutor() {
+		// public Object executeWithContext(DirContext ctx)
+		// throws NamingException {
+		// EventDirContext ectx = (EventDirContext) ctx.lookup("");
+		// ectx.removeNamingListener(ldapUserListener);
+		// return null;
+		// }
+		// });
+		// } catch (Exception e) {
+		// // silent (LDAP server may have been shutdown already)
+		// if (log.isTraceEnabled())
+		// log.trace("Cannot remove LDAP listener", e);
+		// }
 	}
 
 	/*
@@ -209,7 +192,7 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 						}
 					});
 
-			// disable accounts which are not in LDAP
+			// create accounts which are not in LDAP
 			Query query = nodeSession
 					.getWorkspace()
 					.getQueryManager()
@@ -220,18 +203,43 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 			while (it.hasNext()) {
 				Node userProfile = it.nextNode();
 				String path = userProfile.getPath();
-				if (!userPaths.contains(path)) {
-					log.warn("Path "
-							+ path
-							+ " not found in LDAP, disabling user "
-							+ userProfile.getProperty(ArgeoNames.ARGEO_USER_ID)
-									.getString());
-					VersionManager versionManager = nodeSession.getWorkspace()
-							.getVersionManager();
-					versionManager.checkout(userProfile.getPath());
-					userProfile.setProperty(ArgeoNames.ARGEO_ENABLED, false);
-					nodeSession.save();
-					versionManager.checkin(userProfile.getPath());
+				try {
+					if (!userPaths.contains(path)) {
+						String username = userProfile
+								.getProperty(ARGEO_USER_ID).getString();
+						// GrantedAuthority[] authorities = {new
+						// GrantedAuthorityImpl(defaultUserRole)};
+						GrantedAuthority[] authorities = {};
+						JcrUserDetails userDetails = new JcrUserDetails(
+								userProfile, username, authorities);
+						String dn = createLdapUser(userDetails);
+						log.warn("Created ldap entry '" + dn + "' for user '"
+								+ username + "'");
+
+						// if(!userProfile.getProperty(ARGEO_ENABLED).getBoolean()){
+						// continue profiles;
+						// }
+						//
+						// log.warn("Path "
+						// + path
+						// + " not found in LDAP, disabling user "
+						// + userProfile.getProperty(ArgeoNames.ARGEO_USER_ID)
+						// .getString());
+
+						// Temporary hack to repair previous behaviour
+						if (!userProfile.getProperty(ARGEO_ENABLED)
+								.getBoolean()) {
+							VersionManager versionManager = nodeSession
+									.getWorkspace().getVersionManager();
+							versionManager.checkout(userProfile.getPath());
+							userProfile.setProperty(ArgeoNames.ARGEO_ENABLED,
+									true);
+							nodeSession.save();
+							versionManager.checkin(userProfile.getPath());
+						}
+					}
+				} catch (Exception e) {
+					log.error("Cannot process " + path, e);
 				}
 			}
 		} catch (Exception e) {
@@ -241,14 +249,25 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 		}
 	}
 
+	private String createLdapUser(UserDetails user) {
+		DirContextAdapter ctx = new DirContextAdapter();
+		mapUserToContext(user, ctx);
+		DistinguishedName dn = usernameMapper.buildDn(user.getUsername());
+		ldapTemplate.bind(dn, ctx, null);
+		return dn.toString();
+	}
+
 	/** Called during authentication in order to retrieve user details */
 	public UserDetails mapUserFromContext(final DirContextOperations ctx,
 			final String username, GrantedAuthority[] authorities) {
 		if (ctx == null)
 			throw new ArgeoException("No LDAP information for user " + username);
 
-		// Node userProfile = SecurityJcrUtils.createUserProfileIfNeeded(
-		// securitySession, username);
+		String ldapUsername = ctx.getStringAttribute(usernameAttribute);
+		if (!ldapUsername.equals(username))
+			throw new ArgeoException("Logged in with username " + username
+					+ " but LDAP user is " + ldapUsername);
+
 		Node userProfile = jcrSecurityModel.sync(nodeSession, username,
 				SecurityUtils.authoritiesToStringList(authorities));
 		// JcrUserDetails.checkAccountStatus(userProfile);
@@ -326,11 +345,6 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 								+ jcrProperty);
 
 			String value = ctx.getStringAttribute(ldapAttribute);
-			// if (value == null && Property.JCR_TITLE.equals(jcrProperty))
-			// value = "";
-			// if (value == null &&
-			// Property.JCR_DESCRIPTION.equals(jcrProperty))
-			// value = "";
 			String jcrValue = userProfile.hasProperty(jcrProperty) ? userProfile
 					.getProperty(jcrProperty).getString() : null;
 			if (value != null && jcrValue != null) {
@@ -439,7 +453,7 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 	}
 
 	public void setRawLdapTemplate(LdapTemplate rawLdapTemplate) {
-		this.rawLdapTemplate = rawLdapTemplate;
+		// this.rawLdapTemplate = rawLdapTemplate;
 	}
 
 	public void setRepository(Repository repository) {
@@ -479,124 +493,125 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 	}
 
 	/** Listen to LDAP */
-	class LdapUserListener implements ObjectChangeListener,
-			NamespaceChangeListener, UnsolicitedNotificationListener {
-
-		public void namingExceptionThrown(NamingExceptionEvent evt) {
-			evt.getException().printStackTrace();
-		}
-
-		public void objectChanged(NamingEvent evt) {
-			Binding user = evt.getNewBinding();
-			// TODO find a way not to be called when JCR is the source of the
-			// modification
-			DirContextAdapter ctx = (DirContextAdapter) ldapTemplate
-					.lookup(user.getName());
-			mapLdapToJcr(ctx);
-		}
-
-		public void objectAdded(NamingEvent evt) {
-			Binding user = evt.getNewBinding();
-			DirContextAdapter ctx = (DirContextAdapter) ldapTemplate
-					.lookup(user.getName());
-			mapLdapToJcr(ctx);
-		}
-
-		public void objectRemoved(NamingEvent evt) {
-			if (log.isDebugEnabled())
-				log.debug(evt);
-		}
-
-		public void objectRenamed(NamingEvent evt) {
-			if (log.isDebugEnabled())
-				log.debug(evt);
-		}
-
-		public void notificationReceived(UnsolicitedNotificationEvent evt) {
-			UnsolicitedNotification notification = evt.getNotification();
-			NamingException ne = notification.getException();
-			String msg = "LDAP notification " + "ID=" + notification.getID()
-					+ ", referrals=" + notification.getReferrals();
-			if (ne != null) {
-				if (log.isTraceEnabled())
-					log.trace(msg + ", exception= " + ne, ne);
-				else
-					log.warn(msg + ", exception= " + ne);
-			} else if (log.isDebugEnabled()) {
-				log.debug("Unsollicited LDAP notification " + msg);
-			}
-		}
-
-	}
+	// class LdapUserListener implements ObjectChangeListener,
+	// NamespaceChangeListener, UnsolicitedNotificationListener {
+	//
+	// public void namingExceptionThrown(NamingExceptionEvent evt) {
+	// evt.getException().printStackTrace();
+	// }
+	//
+	// public void objectChanged(NamingEvent evt) {
+	// Binding user = evt.getNewBinding();
+	// // TODO find a way not to be called when JCR is the source of the
+	// // modification
+	// DirContextAdapter ctx = (DirContextAdapter) ldapTemplate
+	// .lookup(user.getName());
+	// mapLdapToJcr(ctx);
+	// }
+	//
+	// public void objectAdded(NamingEvent evt) {
+	// Binding user = evt.getNewBinding();
+	// DirContextAdapter ctx = (DirContextAdapter) ldapTemplate
+	// .lookup(user.getName());
+	// mapLdapToJcr(ctx);
+	// }
+	//
+	// public void objectRemoved(NamingEvent evt) {
+	// if (log.isDebugEnabled())
+	// log.debug(evt);
+	// }
+	//
+	// public void objectRenamed(NamingEvent evt) {
+	// if (log.isDebugEnabled())
+	// log.debug(evt);
+	// }
+	//
+	// public void notificationReceived(UnsolicitedNotificationEvent evt) {
+	// UnsolicitedNotification notification = evt.getNotification();
+	// NamingException ne = notification.getException();
+	// String msg = "LDAP notification " + "ID=" + notification.getID()
+	// + ", referrals=" + notification.getReferrals();
+	// if (ne != null) {
+	// if (log.isTraceEnabled())
+	// log.trace(msg + ", exception= " + ne, ne);
+	// else
+	// log.warn(msg + ", exception= " + ne);
+	// } else if (log.isDebugEnabled()) {
+	// log.debug("Unsollicited LDAP notification " + msg);
+	// }
+	// }
+	//
+	// }
 
 	/** Listen to JCR */
-	class JcrProfileListener implements EventListener {
-
-		public void onEvent(EventIterator events) {
-			try {
-				final Map<Name, List<ModificationItem>> modifications = new HashMap<Name, List<ModificationItem>>();
-				while (events.hasNext()) {
-					Event event = events.nextEvent();
-					try {
-						if (Event.PROPERTY_CHANGED == event.getType()) {
-							Property property = (Property) nodeSession
-									.getItem(event.getPath());
-							String propertyName = property.getName();
-							Node userProfile = property.getParent();
-							String username = userProfile.getProperty(
-									ARGEO_USER_ID).getString();
-							if (propertyToAttributes.containsKey(propertyName)) {
-								Name name = usernameMapper.buildDn(username);
-								if (!modifications.containsKey(name))
-									modifications.put(name,
-											new ArrayList<ModificationItem>());
-								String value = property.getString();
-								ModificationItem mi = jcrToLdap(propertyName,
-										value);
-								if (mi != null)
-									modifications.get(name).add(mi);
-							}
-						} else if (Event.NODE_ADDED == event.getType()) {
-							Node userProfile = nodeSession.getNode(event
-									.getPath());
-							String username = userProfile.getProperty(
-									ARGEO_USER_ID).getString();
-							Name name = usernameMapper.buildDn(username);
-							for (String propertyName : propertyToAttributes
-									.keySet()) {
-								if (!modifications.containsKey(name))
-									modifications.put(name,
-											new ArrayList<ModificationItem>());
-								String value = userProfile.getProperty(
-										propertyName).getString();
-								ModificationItem mi = jcrToLdap(propertyName,
-										value);
-								if (mi != null)
-									modifications.get(name).add(mi);
-							}
-						}
-					} catch (RepositoryException e) {
-						throw new ArgeoException("Cannot process event "
-								+ event, e);
-					}
-				}
-
-				for (Name name : modifications.keySet()) {
-					List<ModificationItem> userModifs = modifications.get(name);
-					int modifCount = userModifs.size();
-					ldapTemplate.modifyAttributes(name, userModifs
-							.toArray(new ModificationItem[modifCount]));
-					if (log.isDebugEnabled())
-						log.debug("Mapped " + modifCount + " JCR modification"
-								+ (modifCount == 1 ? "" : "s") + " to " + name);
-				}
-			} catch (Exception e) {
-				// if (log.isDebugEnabled())
-				// e.printStackTrace();
-				throw new ArgeoException("Cannot process JCR events ("
-						+ e.getMessage() + ")", e);
-			}
-		}
-
-	}
+	// class JcrProfileListener implements EventListener {
+	//
+	// public void onEvent(EventIterator events) {
+	// try {
+	// final Map<Name, List<ModificationItem>> modifications = new HashMap<Name,
+	// List<ModificationItem>>();
+	// while (events.hasNext()) {
+	// Event event = events.nextEvent();
+	// try {
+	// if (Event.PROPERTY_CHANGED == event.getType()) {
+	// Property property = (Property) nodeSession
+	// .getItem(event.getPath());
+	// String propertyName = property.getName();
+	// Node userProfile = property.getParent();
+	// String username = userProfile.getProperty(
+	// ARGEO_USER_ID).getString();
+	// if (propertyToAttributes.containsKey(propertyName)) {
+	// Name name = usernameMapper.buildDn(username);
+	// if (!modifications.containsKey(name))
+	// modifications.put(name,
+	// new ArrayList<ModificationItem>());
+	// String value = property.getString();
+	// ModificationItem mi = jcrToLdap(propertyName,
+	// value);
+	// if (mi != null)
+	// modifications.get(name).add(mi);
+	// }
+	// } else if (Event.NODE_ADDED == event.getType()) {
+	// Node userProfile = nodeSession.getNode(event
+	// .getPath());
+	// String username = userProfile.getProperty(
+	// ARGEO_USER_ID).getString();
+	// Name name = usernameMapper.buildDn(username);
+	// for (String propertyName : propertyToAttributes
+	// .keySet()) {
+	// if (!modifications.containsKey(name))
+	// modifications.put(name,
+	// new ArrayList<ModificationItem>());
+	// String value = userProfile.getProperty(
+	// propertyName).getString();
+	// ModificationItem mi = jcrToLdap(propertyName,
+	// value);
+	// if (mi != null)
+	// modifications.get(name).add(mi);
+	// }
+	// }
+	// } catch (RepositoryException e) {
+	// throw new ArgeoException("Cannot process event "
+	// + event, e);
+	// }
+	// }
+	//
+	// for (Name name : modifications.keySet()) {
+	// List<ModificationItem> userModifs = modifications.get(name);
+	// int modifCount = userModifs.size();
+	// ldapTemplate.modifyAttributes(name, userModifs
+	// .toArray(new ModificationItem[modifCount]));
+	// if (log.isDebugEnabled())
+	// log.debug("Mapped " + modifCount + " JCR modification"
+	// + (modifCount == 1 ? "" : "s") + " to " + name);
+	// }
+	// } catch (Exception e) {
+	// // if (log.isDebugEnabled())
+	// // e.printStackTrace();
+	// throw new ArgeoException("Cannot process JCR events ("
+	// + e.getMessage() + ")", e);
+	// }
+	// }
+	//
+	// }
 }
