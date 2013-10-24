@@ -15,7 +15,7 @@
  */
 package org.argeo.security.ui.rap;
 
-import org.eclipse.rwt.lifecycle.IEntryPoint;
+import org.eclipse.rap.rwt.application.IEntryPoint;
 import org.eclipse.ui.PlatformUI;
 
 /**

@@ -15,14 +15,11 @@
  */
 package org.argeo.eclipse.ui.specific;
 
-import java.net.URL;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.rwt.RWT;
-import org.eclipse.rwt.service.IServiceHandler;
-import org.eclipse.rwt.service.IServiceManager;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.rap.rwt.RWT;
+import org.eclipse.rap.rwt.client.service.UrlLauncher;
+import org.eclipse.rap.rwt.service.ServiceHandler;
 
 /**
  * RAP SPECIFIC handler to enable the opening of a download dialog box triggered
@@ -32,35 +29,37 @@ import org.eclipse.ui.PlatformUI;
  * instantiation time.
  * 
  * Manages the process of forwarding the request to the handler at runtime to
- * open the dialog box
- * 
+ * open the dialog box encodedURL
  */
 public class FileHandler {
 	public final static String FORCED_DOWNLOAD_URL_BASE_PROPERTY = "argeo.rap.specific.forcedDownloadUrlBase";
-
+	public final static String DOWNLOAD_SERVICE_NAME = "download";
 	private final static Log log = LogFactory.getLog(FileHandler.class);
 
 	public FileHandler(FileProvider provider) {
-		// Instantiate and register the DownloadServicHandler.
-		IServiceManager manager = RWT.getServiceManager();
-		IServiceHandler handler = new DownloadServiceHandler(provider);
-		manager.registerServiceHandler("downloadServiceHandler", handler);
+		ServiceHandler handler = new DownloadServiceHandler(provider);
+		RWT.getServiceManager().registerServiceHandler(DOWNLOAD_SERVICE_NAME,
+				handler);
 	}
 
 	public void openFile(String fileName, String fileId) {
 
+		// LEGACY
 		// See RAP FAQ:
 		// http://wiki.eclipse.org/RAP/FAQ#How_to_provide_download_link.3F
 		// And forum discussion :
 		// http://www.eclipse.org/forums/index.php?t=msg&th=205487&start=0&S=43d85dacc88b505402420592109c7240
 
 		try {
+			String fullDownloadUrl = createFullDownloadUrl(fileName, fileId);
 			if (log.isTraceEnabled())
-				log.trace("URL : " + createFullDownloadUrl(fileName, fileId));
-
-			URL url = new URL(createFullDownloadUrl(fileName, fileId));
-			PlatformUI.getWorkbench().getBrowserSupport()
-					.createBrowser("DownloadDialog").openURL(url);
+				log.trace("URL : " + fullDownloadUrl);
+			// URL url = new URL(fullDownloadUrl);
+			UrlLauncher launcher = RWT.getClient()
+					.getService(UrlLauncher.class);
+			launcher.openURL(fullDownloadUrl);
+			// PlatformUI.getWorkbench().getBrowserSupport()
+			// .createBrowser("DownloadDialog").openURL(url);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -78,26 +77,32 @@ public class FileHandler {
 		StringBuilder url = new StringBuilder();
 		// in case RAP is proxied we need to specify the actual base URL
 		// TODO find a cleaner way
-		String forcedDownloadUrlBase = System
-				.getProperty(FORCED_DOWNLOAD_URL_BASE_PROPERTY);
-		if (forcedDownloadUrlBase != null)
-			url.append(forcedDownloadUrlBase);
-		else
-			url.append(RWT.getRequest().getRequestURL());
+		// String forcedDownloadUrlBase = System
+		// .getProperty(FORCED_DOWNLOAD_URL_BASE_PROPERTY);
+		// if (forcedDownloadUrlBase != null)
+		// url.append(forcedDownloadUrlBase);
+		// else
+		// url.append(RWT.getRequest().getRequestURL());
+
+		// TODO check how to get that cleanly when coming back online
+		url.append("http://localhost:7070");
+		url.append(RWT.getServiceManager().getServiceHandlerUrl(
+				DOWNLOAD_SERVICE_NAME));
+
 		url.append(createParamUrl(fileName, fileId));
 		return url.toString();
 	}
 
 	private String createParamUrl(String filename, String fileId) {
+
 		StringBuilder url = new StringBuilder();
-		url.append("?");
-		url.append(IServiceHandler.REQUEST_PARAM);
-		url.append("=downloadServiceHandler");
+		// url.append("?");
+		// url.append(ServiceHandler.REQUEST_PARAM);
+		// url.append("=downloadServiceHandler");
 		url.append("&filename=");
 		url.append(filename);
 		url.append("&fileid=");
 		url.append(fileId);
-		String encodedURL = RWT.getResponse().encodeURL(url.toString());
-		return encodedURL;
+		return url.toString();
 	}
 }

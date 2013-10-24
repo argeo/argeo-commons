@@ -107,6 +107,8 @@ limitations under the License.
 					<include>WEB-INF/**</include>
 					<include>icons/**</include>
 					<include>branding/**</include>
+					<include>img/**</include>
+					<include>theme/**</include>
 					<include>*.properties</include>
 					<include>properties/*.properties</include>
 					<include>p2.inf</include>
@@ -486,6 +488,15 @@ limitations under the License.
 		<repository>
 			<id>argeo-tp</id>
 			<url>http://repo.argeo.org/data/public/java/org.argeo.tp-1.4.x</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</releases>
+		</repository>
+		<repository>
+			<id>argeo-tp-rap</id>
+			<url>http://repo.argeo.org/data/public/java/org.argeo.tp.rap-2.1.x</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>

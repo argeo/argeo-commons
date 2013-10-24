@@ -10,7 +10,7 @@
 	<artifactId>org.argeo.eclipse.dep.rap</artifactId>
 	<name>Commons Eclipse RAP Dependencies</name>
 	<properties>
-		<version.rap>1.3.2</version.rap>
+		<version.rap>2.1.0-R-20130611-2139</version.rap>
 	</properties>
 	<build>
 		<plugins>
@@ -21,35 +21,64 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.eclipse.osgi</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>org.eclipse.osgi</artifactId> -->
+<!-- 		</dependency> -->
 
 		<dependency>
 			<groupId>org.argeo.tp.rap.platform</groupId>
 			<artifactId>binaries</artifactId>
-			<version>${version.argeo-distribution}</version>
+			<version>${version.rap}</version>
 			<type>pom</type>
 			<exclusions>
-				<exclusion>
-					<groupId>org.argeo.tp.rap.platform</groupId>
-					<artifactId>javax.servlet</artifactId>
-				</exclusion>
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 					<artifactId>javax.servlet</artifactId> -->
+<!-- 				</exclusion> -->
 
 				<!-- Jetty -->
-				<exclusion>
-					<groupId>org.argeo.tp.rap.platform</groupId>
-					<artifactId>org.eclipse.equinox.http.jetty</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.argeo.tp.rap.platform</groupId>
-					<artifactId>org.mortbay.jetty.server</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.argeo.tp.rap.platform</groupId>
-					<artifactId>org.mortbay.jetty.util</artifactId>
-				</exclusion>
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 					<artifactId>org.eclipse.equinox.http.jetty</artifactId> -->
+<!-- 				</exclusion> -->
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 					<artifactId>org.mortbay.jetty.server</artifactId> -->
+<!-- 				</exclusion> -->
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 					<artifactId>org.mortbay.jetty.util</artifactId> -->
+<!-- 				</exclusion> -->
+
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 					<artifactId>org.eclipse.jetty.security</artifactId> -->
+<!-- 				</exclusion> -->
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 					<artifactId>org.eclipse.jetty.http</artifactId> -->
+<!-- 				</exclusion> -->
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 					<artifactId>org.eclipse.jetty.server</artifactId> -->
+<!-- 				</exclusion> -->
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 					<artifactId>org.eclipse.jetty.continuation</artifactId> -->
+<!-- 				</exclusion> -->
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 					<artifactId>org.eclipse.jetty.util</artifactId> -->
+<!-- 				</exclusion> -->
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 					<artifactId>org.eclipse.jetty.io</artifactId> -->
+<!-- 				</exclusion> -->
+<!-- 				<exclusion> -->
+<!-- 					<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 					<artifactId>org.eclipse.jetty.servlet</artifactId> -->
+<!-- 				</exclusion> -->
 
 				<!-- Demo -->
 				<exclusion>
@@ -64,7 +93,7 @@
 					<groupId>org.argeo.tp.rap.platform</groupId>
 					<artifactId>org.eclipse.rap.design.example</artifactId>
 				</exclusion>
-				
+
 				<!-- Troublesome bundles -->
 				<exclusion>
 					<groupId>org.argeo.tp.rap.platform</groupId>
@@ -74,15 +103,19 @@
 					<groupId>org.argeo.tp.rap.platform</groupId>
 					<artifactId>org.eclipse.rap.junit.runtime</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.rwt.testfixture</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
 		<!-- Dependency to enable file upload. Should be included directly in coming 
 			rap distribution -->
-		<dependency>
-			<groupId>org.argeo.tp.rap</groupId>
-			<artifactId>org.eclipse.rwt.widgets.upload</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.rap</groupId> -->
+<!-- 			<artifactId>org.eclipse.rwt.widgets.upload</artifactId> -->
+<!-- 		</dependency> -->
 		<!-- Needed by the bundle above -->
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
@@ -105,6 +138,11 @@
 			<artifactId>org.eclipse.equinox.security</artifactId>
 		</dependency>
 
+				<dependency>
+					<groupId>org.argeo.commons.base</groupId>
+					<artifactId>org.argeo.osgi.boot</artifactId>
+					<version>2.1.2-SNAPSHOT</version>
+				</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
@@ -118,7 +156,7 @@
 			<dependency>
 				<groupId>org.argeo.tp.rap.platform</groupId>
 				<artifactId>binaries</artifactId>
-				<version>${version.argeo-distribution}</version>
+				<version>${version.rap}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

@@ -63,6 +63,32 @@
 			<artifactId>org.argeo.security.dep.node</artifactId>
 			<version>2.1.2-SNAPSHOT</version>
 			<type>pom</type>
+			<exclusions>
+				<exclusion>
+					<groupId>org.argeo.commons.security</groupId>
+					<artifactId>org.argeo.security.dao.jackrabbit</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.commons.security</groupId>
+					<artifactId>org.argeo.security.dao.os</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.commons.server</groupId>
+					<artifactId>org.argeo.server.catalina.start</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.commons.server</groupId>
+					<artifactId>org.argeo.server.webextender</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp</groupId>
+					<artifactId>org.apache.jasper</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp</groupId>
+					<artifactId>org.springframework.osgi.web.extender</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
@@ -70,12 +96,13 @@
 			<version>2.1.2-SNAPSHOT</version>
 		</dependency>
 
-		<!-- For Tomcat deployment -->
+		<!-- For Tomcat deployment
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.rap.webapp</artifactId>
-			<version>2.1.2-SNAPSHOT</version>
+			<version>2.1.1.tp-SNAPSHOT</version>
 		</dependency>
+		 -->
 	</dependencies>
 	<profiles>
 		<profile>

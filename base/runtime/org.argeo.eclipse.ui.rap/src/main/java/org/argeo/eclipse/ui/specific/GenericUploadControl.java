@@ -21,7 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
-import org.eclipse.rwt.widgets.Upload;
+//import org.eclipse.rap.rwt.widgets.Upload;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
@@ -32,7 +32,7 @@ public class GenericUploadControl extends Composite {
 	private final static Log log = LogFactory
 			.getLog(GenericUploadControl.class);
 
-	private Upload upload;
+	//private Upload upload;
 
 	public GenericUploadControl(Composite parent, int style, String browseLabel) {
 		super(parent, style);
@@ -44,9 +44,9 @@ public class GenericUploadControl extends Composite {
 		parent.setLayout(new GridLayout(1, false));
 		parent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
-		upload = new Upload(parent, SWT.BORDER);
-		upload.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		upload.setBrowseButtonText(browseLabel);
+//		upload = new Upload(parent, SWT.BORDER);
+//		upload.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+//		upload.setBrowseButtonText(browseLabel);
 		// upload.addModifyListener(new UploadListener());
 		parent.pack();
 	}
@@ -56,11 +56,11 @@ public class GenericUploadControl extends Composite {
 	 * file. This method can be called even if the upload has not finished yet.
 	 */
 	public String getLastFileUploadedName() {
-		return upload.getLastFileUploaded();
+		return "";
 	}
 
 	public boolean isControlEmpty() {
-		String path = upload.getPath();
+		String path = "";
 		if (log.isTraceEnabled())
 			log.trace("UploadControl chosen path : " + path);
 		if (path == null || "".equals(path.trim()))
@@ -70,30 +70,30 @@ public class GenericUploadControl extends Composite {
 	}
 
 	public byte[] performUpload() {
-		boolean success = upload.performUpload();
-		if (success) {
-			if (upload.getUploadItem().getFileSize() == -1)
-				throw new ArgeoException("File "
-						+ upload.getUploadItem().getFileName()
-						+ " has not been uploaded, its size is -1");
-
-			InputStream inStream = null;
-			byte[] fileBA = null;
-			try {
-				inStream = upload.getUploadItem().getFileInputStream();
-				fileBA = IOUtils.toByteArray(inStream);
-			} catch (Exception e) {
-				throw new ArgeoException("Cannot read uploaded data", e);
-			} finally {
-				IOUtils.closeQuietly(inStream);
-			}
-			return fileBA;
-		}
+//		boolean success = upload.performUpload();
+//		if (success) {
+//			if (upload.getUploadItem().getFileSize() == -1)
+//				throw new ArgeoException("File "
+//						+ upload.getUploadItem().getFileName()
+//						+ " has not been uploaded, its size is -1");
+//
+//			InputStream inStream = null;
+//			byte[] fileBA = null;
+//			try {
+//				inStream = upload.getUploadItem().getFileInputStream();
+//				fileBA = IOUtils.toByteArray(inStream);
+//			} catch (Exception e) {
+//				throw new ArgeoException("Cannot read uploaded data", e);
+//			} finally {
+//				IOUtils.closeQuietly(inStream);
+//			}
+//			return fileBA;
+//		}
 		return null;
 	}
 
 	public void addModifyListener(ModifyListener listener) {
-		upload.addModifyListener(listener);
+//		upload.addModifyListener(listener);
 	}
 
 	// private class UploadManager extends UploadAdapter {
