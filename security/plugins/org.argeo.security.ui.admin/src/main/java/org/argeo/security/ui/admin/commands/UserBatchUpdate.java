@@ -21,15 +21,15 @@ import javax.jcr.Session;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.jcr.JcrSecurityModel;
-import org.argeo.security.ui.admin.wizards.NewUserWizard;
+import org.argeo.security.ui.admin.wizards.UserBatchUpdateWizard;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-/** Launch a wizard that enables creation of a new user. */
-public class NewUser extends AbstractHandler {
+/** Launch a wizard to update various properties about users in JCR. */
+public class UserBatchUpdate extends AbstractHandler {
 	private Repository repository;
 	private UserAdminService userAdminService;
 	private JcrSecurityModel jcrSecurityModel;
@@ -38,10 +38,10 @@ public class NewUser extends AbstractHandler {
 		Session session = null;
 		try {
 			session = repository.login();
-			NewUserWizard newUserWizard = new NewUserWizard(session,
+			UserBatchUpdateWizard userBatchUpdateWizard = new UserBatchUpdateWizard(session,
 					userAdminService, jcrSecurityModel);
 			WizardDialog dialog = new WizardDialog(
-					HandlerUtil.getActiveShell(event), newUserWizard);
+					HandlerUtil.getActiveShell(event), userBatchUpdateWizard);
 			dialog.open();
 		} catch (Exception e) {
 			throw new ExecutionException("Cannot open wizard", e);

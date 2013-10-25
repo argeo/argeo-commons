@@ -78,6 +78,11 @@
             id="org.argeo.security.ui.admin.deleteRole"
             name="deleteRole">
       </command>
+      <command
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            id="org.argeo.security.ui.admin.userBatchUpdate"
+            name="New User">
+      </command>
     </extension>
      <extension
          point="org.eclipse.ui.menus">
@@ -105,6 +110,12 @@
       	<menuContribution
             locationURI="toolbar:org.argeo.security.ui.admin.adminUsersView">
             <command
+                  commandId="org.argeo.security.ui.admin.refreshUsersList"
+                  icon="icons/refresh.png"
+                  label="Refresh list"
+                  tooltip="Force the full refresh of the user list">
+            </command>
+            <command
                   commandId="org.argeo.security.ui.admin.deleteUser"
                   icon="icons/remove.gif"
                   label="Delete User"
@@ -115,6 +126,12 @@
                   icon="icons/add.gif"
                   label="Add User"
                   tooltip="Add new user">
+            </command>
+            <command
+                  commandId="org.argeo.security.ui.admin.userBatchUpdate"
+                  icon="icons/batch.gif"
+                  label="Update users"
+                  tooltip="Perform maintenance activities on a list of chosen users">
             </command>
             <command
                   commandId="org.argeo.security.ui.admin.refreshUsersList"

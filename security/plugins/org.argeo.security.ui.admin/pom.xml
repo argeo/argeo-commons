@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
@@ -51,11 +53,23 @@
 		<!-- Argeo Security -->
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.ui</artifactId>
+			<version>1.2.3-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.core</artifactId>
 			<version>1.2.3-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Argeo Eclipse -->
+		<dependency>
+			<groupId>org.argeo.commons.base</groupId>
+			<artifactId>org.argeo.eclipse.ui.jcr</artifactId>
+			<version>1.2.3-SNAPSHOT</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.argeo.commons.base</groupId>
 			<artifactId>org.argeo.eclipse.ui</artifactId>
