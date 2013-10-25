@@ -1,4 +1,4 @@
-package org.argeo.eclipse.ui.jcr.utils;
+package org.argeo.eclipse.ui.jcr.lists;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;

@@ -1,4 +1,4 @@
-package org.argeo.eclipse.ui.jcr.utils;
+package org.argeo.eclipse.ui.jcr.lists;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -15,7 +15,15 @@ import org.eclipse.jface.viewers.ViewerComparator;
 
 /**
  * Base comparator to enable ordering on Table or Tree viewer that display Jcr
- * Nodes
+ * Nodes.
+ * 
+ * Note that the following snippet must be added before setting the comparator
+ * to the corresponding control: <code>
+ * // IMPORTANT: initialize comparator before setting it
+ * ColumnDefinition firstCol = colDefs.get(0);
+ * comparator.setColumn(firstCol.getPropertyType(),
+ * firstCol.getPropertyName());
+ * viewer.setComparator(comparator); </code>
  */
 public class NodeViewerComparator extends ViewerComparator {
 
