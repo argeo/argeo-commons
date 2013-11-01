@@ -32,8 +32,7 @@ import org.eclipse.rap.rwt.service.ServiceHandler;
  * open the dialog box encodedURL
  */
 public class FileHandler {
-	public final static String FORCED_DOWNLOAD_URL_BASE_PROPERTY = "argeo.rap.specific.forcedDownloadUrlBase";
-	public final static String DOWNLOAD_SERVICE_NAME = "download";
+	public final static String DOWNLOAD_SERVICE_NAME = "argeo.rap.download.service";
 	private final static Log log = LogFactory.getLog(FileHandler.class);
 
 	public FileHandler(FileProvider provider) {
@@ -43,27 +42,18 @@ public class FileHandler {
 	}
 
 	public void openFile(String fileName, String fileId) {
-
-		// LEGACY
-		// See RAP FAQ:
-		// http://wiki.eclipse.org/RAP/FAQ#How_to_provide_download_link.3F
-		// And forum discussion :
-		// http://www.eclipse.org/forums/index.php?t=msg&th=205487&start=0&S=43d85dacc88b505402420592109c7240
-
 		try {
-			String fullDownloadUrl = createFullDownloadUrl(fileName, fileId);
+			String downloadUrl = RWT.getServiceManager().getServiceHandlerUrl(
+					DOWNLOAD_SERVICE_NAME)
+					+ createParamUrl(fileName, fileId); 
 			if (log.isTraceEnabled())
-				log.trace("URL : " + fullDownloadUrl);
-			// URL url = new URL(fullDownloadUrl);
+				log.debug("URL : " + downloadUrl);
 			UrlLauncher launcher = RWT.getClient()
 					.getService(UrlLauncher.class);
-			launcher.openURL(fullDownloadUrl);
-			// PlatformUI.getWorkbench().getBrowserSupport()
-			// .createBrowser("DownloadDialog").openURL(url);
+			launcher.openURL(downloadUrl);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 		// These lines are useless in the current use case but might be
 		// necessary with new browsers. Stored here for memo
 		// response.setContentType("application/force-download");
@@ -73,32 +63,8 @@ public class FileHandler {
 		// response.setHeader("Cache-Control", "no-cache, must-revalidate");
 	}
 
-	private String createFullDownloadUrl(String fileName, String fileId) {
-		StringBuilder url = new StringBuilder();
-		// in case RAP is proxied we need to specify the actual base URL
-		// TODO find a cleaner way
-		// String forcedDownloadUrlBase = System
-		// .getProperty(FORCED_DOWNLOAD_URL_BASE_PROPERTY);
-		// if (forcedDownloadUrlBase != null)
-		// url.append(forcedDownloadUrlBase);
-		// else
-		// url.append(RWT.getRequest().getRequestURL());
-
-		// TODO check how to get that cleanly when coming back online
-		url.append("http://localhost:7070");
-		url.append(RWT.getServiceManager().getServiceHandlerUrl(
-				DOWNLOAD_SERVICE_NAME));
-
-		url.append(createParamUrl(fileName, fileId));
-		return url.toString();
-	}
-
 	private String createParamUrl(String filename, String fileId) {
-
 		StringBuilder url = new StringBuilder();
-		// url.append("?");
-		// url.append(ServiceHandler.REQUEST_PARAM);
-		// url.append("=downloadServiceHandler");
 		url.append("&filename=");
 		url.append(filename);
 		url.append("&fileid=");
