@@ -276,9 +276,11 @@ public class UserBatchUpdateWizard extends Wizard {
 					doUpdate(node);
 					currSession.save();
 					vm.checkin(path);
+					monitor.worked(1);
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Cannot perform batch update on users", e);
+				// e.printStackTrace();
 
 				// Dig exception to find the root cause that will enable the
 				// user to understand the problem
