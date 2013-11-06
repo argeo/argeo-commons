@@ -45,6 +45,9 @@ public class OsCallBackup extends AbstractAtomicBackup {
 
 	private Map<String, String> environment = new HashMap<String, String>();
 
+	/** Name of the sudo user, root if "", not sudo if null */
+	private String sudo = null;
+
 	public OsCallBackup() {
 	}
 
@@ -59,7 +62,17 @@ public class OsCallBackup extends AbstractAtomicBackup {
 
 	@Override
 	public void writeBackup(FileObject targetFo) {
-		CommandLine commandLine = CommandLine.parse(command, variables);
+		String commandToUse = command;
+
+		// sudo
+		if (sudo != null) {
+			if (sudo.equals(""))
+				commandToUse = "sudo " + commandToUse;
+			else
+				commandToUse = "sudo -u " + sudo + " " + commandToUse;
+		}
+
+		CommandLine commandLine = CommandLine.parse(commandToUse, variables);
 		ByteArrayOutputStream errBos = new ByteArrayOutputStream();
 		if (log.isTraceEnabled())
 			log.trace(commandLine.toString());
@@ -113,6 +126,10 @@ public class OsCallBackup extends AbstractAtomicBackup {
 
 	public void setExecutor(Executor executor) {
 		this.executor = executor;
+	}
+
+	public void setSudo(String sudo) {
+		this.sudo = sudo;
 	}
 
 }
