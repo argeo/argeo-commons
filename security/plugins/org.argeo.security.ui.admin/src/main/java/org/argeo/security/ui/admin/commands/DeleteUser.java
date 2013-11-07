@@ -29,7 +29,6 @@ import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.security.UserAdminService;
-import org.argeo.security.ui.admin.views.UsersView;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -38,7 +37,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-/** Deletes the select user nodes */
+/** Deletes the selected user nodes */
 public class DeleteUser extends AbstractHandler {
 	private final static Log log = LogFactory.getLog(DeleteUser.class);
 
@@ -92,10 +91,10 @@ public class DeleteUser extends AbstractHandler {
 		}
 
 		userAdminService.synchronize();
-		UsersView view = (UsersView) HandlerUtil
-				.getActiveWorkbenchWindow(event).getActivePage()
-				.findView(UsersView.ID);
-		view.refresh();
+		// UsersView view = (UsersView) HandlerUtil
+		// .getActiveWorkbenchWindow(event).getActivePage()
+		// .findView(UsersView.ID);
+		// view.refresh();
 		return null;
 	}
 
