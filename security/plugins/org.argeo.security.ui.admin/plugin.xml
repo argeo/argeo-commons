@@ -81,7 +81,7 @@
       <command
             defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
             id="org.argeo.security.ui.admin.userBatchUpdate"
-            name="New User">
+            name="User batch update">
       </command>
     </extension>
      <extension
