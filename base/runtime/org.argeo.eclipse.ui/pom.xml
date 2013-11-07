@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.base</groupId>
-		<version>1.2.3-SNAPSHOT</version>
+		<version>1.2.3</version>
 		<artifactId>runtime</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -57,7 +57,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.base</groupId>
 			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
-			<version>1.2.3-SNAPSHOT</version>
+			<version>1.2.3</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -65,7 +65,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.base</groupId>
 			<artifactId>org.argeo.util</artifactId>
-			<version>1.2.3-SNAPSHOT</version>
+			<version>1.2.3</version>
 		</dependency>
 
 		<!-- Spring -->
