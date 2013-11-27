@@ -17,6 +17,7 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
  * Base implementation of a label provider for widgets that display JCR Rows.
  */
 public class SimpleJcrNodeLabelProvider extends ColumnLabelProvider {
+	private static final long serialVersionUID = -5215787695436221993L;
 
 	private final static String DEFAULT_DATE_FORMAT = "EEE, dd MMM yyyy";
 	private final static String DEFAULT_NUMBER_FORMAT = "#,##0.0";
@@ -58,32 +59,52 @@ public class SimpleJcrNodeLabelProvider extends ColumnLabelProvider {
 		try {
 			Node currNode = (Node) element;
 
-			Value value = null;
-			if (currNode.hasProperty(propertyName))
-				value = currNode.getProperty(propertyName).getValue();
-			else
-				return "";
+			if (currNode.hasProperty(propertyName)) {
+				if (currNode.getProperty(propertyName).isMultiple()) {
+					StringBuilder builder = new StringBuilder();
+					for (Value value : currNode.getProperty(propertyName)
+							.getValues()) {
+						String currStr = getSingleValueAsString(value);
+						if (notEmptyString(currStr))
+							builder.append(currStr).append("; ");
+					}
+					if (builder.length() > 0)
+						builder.deleteCharAt(builder.length() - 2);
 
-			switch (value.getType()) {
-			case PropertyType.STRING:
-				return value.getString();
-			case PropertyType.BOOLEAN:
-				return "" + value.getBoolean();
-			case PropertyType.DATE:
-				return dateFormat.format(value.getDate().getTime());
-			case PropertyType.LONG:
-				return "" + value.getLong();
-			case PropertyType.DECIMAL:
-				return numberFormat.format(value.getDecimal());
-			case PropertyType.DOUBLE:
-				return numberFormat.format(value.getDouble());
-			default:
-				throw new ArgeoException("Unimplemented label provider "
-						+ "for property type " + value.getType());
-			}
+					return builder.toString();
+				} else
+					return getSingleValueAsString(currNode.getProperty(
+							propertyName).getValue());
+			} else
+				return "";
 		} catch (RepositoryException re) {
 			throw new ArgeoException("Unable to get text from row", re);
 		}
+	}
+
+	private String getSingleValueAsString(Value value)
+			throws RepositoryException {
+		switch (value.getType()) {
+		case PropertyType.STRING:
+			return value.getString();
+		case PropertyType.BOOLEAN:
+			return "" + value.getBoolean();
+		case PropertyType.DATE:
+			return dateFormat.format(value.getDate().getTime());
+		case PropertyType.LONG:
+			return "" + value.getLong();
+		case PropertyType.DECIMAL:
+			return numberFormat.format(value.getDecimal());
+		case PropertyType.DOUBLE:
+			return numberFormat.format(value.getDouble());
+		default:
+			throw new ArgeoException("Unimplemented label provider "
+					+ "for property type " + value.getType());
+		}
+	}
+
+	private boolean notEmptyString(String string) {
+		return string != null && !"".equals(string.trim());
 	}
 
 	public void setDateFormat(String dateFormatPattern) {
