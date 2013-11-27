@@ -17,6 +17,7 @@ package org.argeo.eclipse.ui.specific;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.ArgeoException;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.client.service.UrlLauncher;
 import org.eclipse.rap.rwt.service.ServiceHandler;
@@ -37,22 +38,26 @@ public class FileHandler {
 
 	public FileHandler(FileProvider provider) {
 		ServiceHandler handler = new DownloadServiceHandler(provider);
-		RWT.getServiceManager().registerServiceHandler(DOWNLOAD_SERVICE_NAME,
-				handler);
+		try {
+			RWT.getServiceManager().registerServiceHandler(
+					DOWNLOAD_SERVICE_NAME, handler);
+		} catch (IllegalArgumentException iae) {
+			log.warn("Handler is already registered, clean this registering process");
+		}
 	}
 
 	public void openFile(String fileName, String fileId) {
 		try {
 			String downloadUrl = RWT.getServiceManager().getServiceHandlerUrl(
 					DOWNLOAD_SERVICE_NAME)
-					+ createParamUrl(fileName, fileId); 
+					+ createParamUrl(fileName, fileId);
 			if (log.isTraceEnabled())
 				log.debug("URL : " + downloadUrl);
 			UrlLauncher launcher = RWT.getClient()
 					.getService(UrlLauncher.class);
 			launcher.openURL(downloadUrl);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ArgeoException("Unable to open file " + fileName, e);
 		}
 		// These lines are useless in the current use case but might be
 		// necessary with new browsers. Stored here for memo
