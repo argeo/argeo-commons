@@ -27,13 +27,11 @@ import org.argeo.ArgeoException;
 import org.eclipse.rap.rwt.service.ServiceHandler;
 
 /** Provide a basic handler that returns a file from the file system in Rap. */
-public class FileDownloadServiceHandler implements ServiceHandler {
-	private final String downloadServicehandlerId; 
+public class FileDownloadService implements ServiceHandler {
 	public final static String PARAM_FILE_NAME = "param.fileName";
 	public final static String PARAM_FILE_PATH = "param.filePath";
 	
-	public FileDownloadServiceHandler(String downloadServicehandlerId) {
-		this.downloadServicehandlerId = downloadServicehandlerId;
+	public FileDownloadService() {
 	}
 
 	public void service(HttpServletRequest request, HttpServletResponse response)
@@ -57,9 +55,5 @@ public class FileDownloadServiceHandler implements ServiceHandler {
 			throw new ArgeoException("Error while writing the file " + fileName
 					+ " to the servlet response", ioe);
 		}
-	}
-	
-	public String getDownloadServiceHandlerId(){
-		return downloadServicehandlerId;
 	}
 }

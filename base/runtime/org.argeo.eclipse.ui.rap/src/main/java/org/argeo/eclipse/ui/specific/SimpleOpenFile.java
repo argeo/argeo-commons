@@ -28,30 +28,24 @@ import org.eclipse.rap.rwt.client.service.UrlLauncher;
  * other tmp files created for exports.
  * 
  */
-public abstract class AbstractOpenFileHandler extends AbstractHandler {
+public class SimpleOpenFile extends AbstractHandler {
 	private final static Log log = LogFactory
-			.getLog(AbstractOpenFileHandler.class);
+			.getLog(SimpleOpenFile.class);
 
-	// Must be declared by implementing classes
-	// public final static String ID = "org.argeo.eclipse.ui.specific.openFile";
+	private String serviceId;
 
-	public final static String PARAM_FILE_NAME = FileDownloadServiceHandler.PARAM_FILE_NAME;
-	public final static String PARAM_FILE_PATH = FileDownloadServiceHandler.PARAM_FILE_PATH;
+	public final static String PARAM_FILE_NAME = FileDownloadService.PARAM_FILE_NAME;
+	public final static String PARAM_FILE_PATH = FileDownloadService.PARAM_FILE_PATH;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-
-		// Try to register each time we execute the command.
-		// try {
-		// ServiceHandler handler = new FileDownloadServiceHandler();
-		// RWT.getServiceManager().registerServiceHandler(
-		// FileDownloadServiceHandler.DOWNLOAD_SERVICE_NAME, handler);
-		// } catch (IllegalArgumentException iae) {
-		// log.warn("Handler is already registered, clean this registering process");
-		// }
-
-		// The real usefull handler
 		String fileName = event.getParameter(PARAM_FILE_NAME);
 		String filePath = event.getParameter(PARAM_FILE_PATH);
+
+		// sanity check
+		if (serviceId == null || "".equals(serviceId.trim())
+				|| fileName == null || "".equals(fileName.trim())
+				|| filePath == null || "".equals(filePath.trim()))
+			return null;
 
 		StringBuilder url = new StringBuilder();
 		url.append("&").append(PARAM_FILE_NAME).append("=");
@@ -60,7 +54,7 @@ public abstract class AbstractOpenFileHandler extends AbstractHandler {
 		url.append(filePath);
 
 		String downloadUrl = RWT.getServiceManager().getServiceHandlerUrl(
-				getDownloadServiceHandlerId())
+				serviceId)
 				+ url.toString();
 		if (log.isTraceEnabled())
 			log.debug("URL : " + downloadUrl);
@@ -78,5 +72,8 @@ public abstract class AbstractOpenFileHandler extends AbstractHandler {
 		return null;
 	}
 
-	protected abstract String getDownloadServiceHandlerId();
+	/* DEPENDENCY INJECTION */
+	public void setDownloadServiceHandlerId(String downloadServiceHandlerId) {
+		this.serviceId = downloadServiceHandlerId;
+	}
 }

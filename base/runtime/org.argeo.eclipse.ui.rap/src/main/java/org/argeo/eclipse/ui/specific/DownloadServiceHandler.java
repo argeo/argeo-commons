@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.argeo.ArgeoException;
 import org.eclipse.rap.rwt.service.ServiceHandler;
 
+@Deprecated
 public class DownloadServiceHandler implements ServiceHandler {
 
 	private FileProvider provider;

@@ -32,6 +32,7 @@ import org.eclipse.rap.rwt.service.ServiceHandler;
  * Manages the process of forwarding the request to the handler at runtime to
  * open the dialog box encodedURL
  */
+@Deprecated
 public class FileHandler {
 	public final static String DOWNLOAD_SERVICE_NAME = "argeo.rap.download.service";
 	private final static Log log = LogFactory.getLog(FileHandler.class);
