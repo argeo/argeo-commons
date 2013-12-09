@@ -89,7 +89,7 @@
    </extension>
 
   <extension point="org.eclipse.ui.menus">
-     <menuContribution locationURI="toolbar:org.eclipse.ui.main.toolbar">
+    <!--       <menuContribution locationURI="toolbar:org.eclipse.ui.main.toolbar">
         <toolbar id="org.argeo.security.ui.rap.userToolbar">
            <command
                  commandId="org.argeo.security.ui.rap.mainMenuCommand"
@@ -101,7 +101,7 @@
            <command commandId="org.eclipse.ui.file.saveAll"/>
         </toolbar>
      </menuContribution>
-     <menuContribution locationURI="menu:org.argeo.security.ui.rap.mainMenu">
+		<menuContribution locationURI="menu:org.argeo.security.ui.rap.mainMenu">
 	 <command
               commandId="org.argeo.security.ui.rap.userMenuCommand"
               icon="icons/home.gif"
@@ -126,13 +126,13 @@
         <separator
               name="org.argeo.security.ui.rap.beforeExit"
               visible="true">
-        </separator>
+        </separator>-->
         <!--<command commandId="org.eclipse.ui.views.showView"/>-->
         <!--<command commandId="org.eclipse.ui.perspectives.showPerspective"/>-->
-        <command
+        <!-- <command
               commandId="org.eclipse.ui.file.exit"
               icon="icons/exit.png"/>
-     </menuContribution>
+     </menuContribution> -->
   </extension>
 
    <extension point="org.eclipse.ui.commands">
