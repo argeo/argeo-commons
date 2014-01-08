@@ -35,7 +35,7 @@ public interface UserAdminService extends UserDetailsManager {
 	 * "http://www.mkyong.com/regular-expressions/how-to-validate-email-address-with-regular-expression/"
 	 * >this tip</a>.
 	 */
-	public final static String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+	public final static String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 
 	/*
 	 * USERS
