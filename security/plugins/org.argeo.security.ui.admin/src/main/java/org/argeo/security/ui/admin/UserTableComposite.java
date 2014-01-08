@@ -51,6 +51,8 @@ public class UserTableComposite extends Composite implements ArgeoNames {
 	// private final static Log log =
 	// LogFactory.getLog(UserTableComposite.class);
 
+	private static final long serialVersionUID = -7385959046279360420L;
+
 	private TableViewer usersViewer;
 	private Text filterTxt;
 	private final static String FILTER_HELP_MSG = "Type filter criterion "
@@ -139,6 +141,13 @@ public class UserTableComposite extends Composite implements ArgeoNames {
 	public TableViewer getTableViewer() {
 		return usersViewer;
 	}
+	
+	/** Returns filter String or null*/
+	protected String getFilterString() {
+		return hasFilter ? filterTxt.getText() : null;
+	}
+	
+	
 
 	private TableViewer createTableViewer(final Composite parent) {
 		int style = SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL;
@@ -161,19 +170,21 @@ public class UserTableComposite extends Composite implements ArgeoNames {
 
 		TableViewerColumn column;
 		int offset = 0;
-		// if (hasSelectionColumn) {
 		if (hasSelectionColumn) {
 			offset = 1;
 			column = ViewerUtils.createTableViewerColumn(viewer, "", SWT.NONE,
 					25);
-			// column.setEditingSupport(new SelectedEditingSupport(viewer));
 			column.setLabelProvider(new ColumnLabelProvider() {
+				private static final long serialVersionUID = 1L;
+
 				@Override
 				public String getText(Object element) {
 					return null;
 				}
 			});
 			SelectionAdapter selectionAdapter = new SelectionAdapter() {
+				private static final long serialVersionUID = 1L;
+
 				boolean allSelected = false;
 
 				@Override
@@ -211,40 +222,9 @@ public class UserTableComposite extends Composite implements ArgeoNames {
 		return viewer;
 	}
 
-	// private class SelectedEditingSupport extends EditingSupport {
-	// private final TableViewer viewer;
-	//
-	// public SelectedEditingSupport(TableViewer viewer) {
-	// super(viewer);
-	// this.viewer = viewer;
-	// }
-	//
-	// @Override
-	// protected CellEditor getCellEditor(Object element) {
-	// return new CheckboxCellEditor(viewer.getTable());
-	// }
-	//
-	// @Override
-	// protected boolean canEdit(Object element) {
-	// return true;
-	// }
-	//
-	// @Override
-	// protected Object getValue(Object element) {
-	// return selectedItems.contains(element);
-	// }
-	//
-	// @Override
-	// protected void setValue(Object element, Object value) {
-	// if ((Boolean) value && !selectedItems.contains(element))
-	// selectedItems.add((Node) element);
-	// else if (!(Boolean) value && selectedItems.contains(element))
-	// selectedItems.remove((Node) element);
-	// viewer.update(element, null);
-	// }
-	// }
-
 	private class CLProvider extends SimpleJcrNodeLabelProvider {
+
+		private static final long serialVersionUID = 1L;
 
 		public CLProvider(String propertyName) {
 			super(propertyName);
@@ -301,6 +281,7 @@ public class UserTableComposite extends Composite implements ArgeoNames {
 	}
 
 	private class UsersContentProvider implements IStructuredContentProvider {
+		private static final long serialVersionUID = 1L;
 
 		public Object[] getElements(Object inputElement) {
 			return (Object[]) inputElement;
@@ -322,6 +303,7 @@ public class UserTableComposite extends Composite implements ArgeoNames {
 		filterTxt.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
 				| GridData.HORIZONTAL_ALIGN_FILL));
 		filterTxt.addModifyListener(new ModifyListener() {
+			private static final long serialVersionUID = 1L;
 
 			public void modifyText(ModifyEvent event) {
 				refreshFilteredList();
@@ -331,12 +313,9 @@ public class UserTableComposite extends Composite implements ArgeoNames {
 
 	/**
 	 * Refresh the user list: caller might overwrite in order to display a
-	 * subset of all users
+	 * subset of all users, typically to remove current user from the list
 	 */
 	protected void refreshFilteredList() {
-		// if (hasSelectionColumn)
-		// selectedItems.clear();
-
 		List<Node> nodes;
 		try {
 			nodes = JcrUtils.nodeIteratorToList(listFilteredElements(session,
@@ -346,18 +325,6 @@ public class UserTableComposite extends Composite implements ArgeoNames {
 			throw new ArgeoException("Unable to list users", e);
 		}
 	}
-
-	// /**
-	// * Enable a children class to directly set an array of users to the
-	// viewer,
-	// * when such a behaviour cannot be achieved by overwriting the
-	// * refreshFilteredList() method
-	// */
-	// protected void setFilteredList(Object[] nodes) {
-	// // if (hasSelectionColumn)
-	// // selectedItems.clear();
-	// usersViewer.setInput(nodes);
-	// }
 
 	/**
 	 * Build repository request : caller might overwrite in order to display a
@@ -371,21 +338,9 @@ public class UserTableComposite extends Composite implements ArgeoNames {
 		Selector source = factory.selector(ArgeoTypes.ARGEO_USER_PROFILE,
 				ArgeoTypes.ARGEO_USER_PROFILE);
 
-		// // Create a dynamic operand for each property on which we want to
-		// filter
-		// DynamicOperand userIdDO = factory.propertyValue(
-		// source.getSelectorName(), ARGEO_USER_ID);
-		// DynamicOperand fullNameDO = factory.propertyValue(
-		// source.getSelectorName(), Property.JCR_TITLE);
-		// DynamicOperand mailDO =
-		// factory.propertyValue(source.getSelectorName(),
-		// ARGEO_PRIMARY_EMAIL);
-
-		// Default Constraint: no source artifacts
+		// Dynamically build constraint depending on the filter String
 		Constraint defaultC = null;
-		// Build constraints based the textArea content
 		if (filter != null && !"".equals(filter.trim())) {
-			// Parse the String
 			String[] strs = filter.trim().split(" ");
 			for (String token : strs) {
 				StaticOperand so = factory.literal(session.getValueFactory()

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.version.VersionManager;
@@ -306,6 +307,8 @@ public class UserBatchUpdateWizard extends Wizard {
 	// Pages definition
 	/** Displays a combo box that enables user to choose which action to perform */
 	private class ChooseCommandWizardPage extends WizardPage {
+		private static final long serialVersionUID = 1L;
+
 		private Combo chooseCommandCmb;
 		private Button trueChk;
 		private Text valueTxt;
@@ -338,6 +341,8 @@ public class UserBatchUpdateWizard extends Wizard {
 					true));
 
 			chooseCommandCmb.addSelectionListener(new SelectionListener() {
+				private static final long serialVersionUID = 1L;
+
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					if (getCommand().equals(CMD_UPDATE_PASSWORD))
@@ -459,6 +464,7 @@ public class UserBatchUpdateWizard extends Wizard {
 	 */
 	private class ChooseUsersWizardPage extends WizardPage implements
 			IPageChangedListener {
+		private static final long serialVersionUID = 1L;
 		private UserTableComposite userTableCmp;
 		private Composite container;
 		private Session session;
@@ -473,8 +479,7 @@ public class UserBatchUpdateWizard extends Wizard {
 		public void createControl(Composite parent) {
 			container = new Composite(parent, SWT.NONE);
 			container.setLayout(new FillLayout());
-			userTableCmp = new UserTableComposite(container, SWT.NO_FOCUS,
-					session);
+			userTableCmp = new MyUserTableCmp(container, SWT.NO_FOCUS, session);
 			userTableCmp.populate(true, true);
 			setControl(container);
 
@@ -498,6 +503,37 @@ public class UserBatchUpdateWizard extends Wizard {
 		protected List<Node> getSelectedUsers() {
 			return userTableCmp.getSelectedUsers();
 		}
+
+		private class MyUserTableCmp extends UserTableComposite {
+
+			private static final long serialVersionUID = 1L;
+
+			public MyUserTableCmp(Composite parent, int style, Session session) {
+				super(parent, style, session);
+			}
+
+			@Override
+			protected void refreshFilteredList() {
+				List<Node> nodes = new ArrayList<Node>();
+				try {
+					NodeIterator ni = listFilteredElements(session,
+							getFilterString());
+
+					users: while (ni.hasNext()) {
+						Node currNode = ni.nextNode();
+						String username = currNode.hasProperty(ARGEO_USER_ID) ? currNode
+								.getProperty(ARGEO_USER_ID).getString() : "";
+						if (username.equals(session.getUserID()))
+							continue users;
+						else
+							nodes.add(currNode);
+					}
+					getTableViewer().setInput(nodes.toArray());
+				} catch (RepositoryException e) {
+					throw new ArgeoException("Unable to list users", e);
+				}
+			}
+		}
 	}
 
 	/**
@@ -505,6 +541,7 @@ public class UserBatchUpdateWizard extends Wizard {
 	 */
 	private class ValidateAndLaunchWizardPage extends WizardPage implements
 			IPageChangedListener {
+		private static final long serialVersionUID = 1L;
 		private UserTableComposite userTableCmp;
 		private Session session;
 
