@@ -24,18 +24,21 @@ import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.client.service.UrlLauncher;
 
 /**
- * Rap specific handler to open a file stored in the server file system, among
- * other tmp files created for exports.
+ * Rap specific command handler to open a file stored in the server file system.
+ * The file absolute path and name must be passed as parameters.
+ * 
+ * It relies on an existing {@link DownloadFsFileService} to forward the
+ * corresponding file to the user browser.
  * 
  */
-public class SimpleOpenFile extends AbstractHandler {
-	private final static Log log = LogFactory
-			.getLog(SimpleOpenFile.class);
+public class OpenFsFile extends AbstractHandler {
+	private final static Log log = LogFactory.getLog(OpenFsFile.class);
 
+	/* DEPENDENCY INJECTION */
 	private String serviceId;
 
-	public final static String PARAM_FILE_NAME = FileDownloadService.PARAM_FILE_NAME;
-	public final static String PARAM_FILE_PATH = FileDownloadService.PARAM_FILE_PATH;
+	public final static String PARAM_FILE_NAME = DownloadFsFileService.PARAM_FILE_NAME;
+	public final static String PARAM_FILE_PATH = DownloadFsFileService.PARAM_FILE_PATH;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		String fileName = event.getParameter(PARAM_FILE_NAME);

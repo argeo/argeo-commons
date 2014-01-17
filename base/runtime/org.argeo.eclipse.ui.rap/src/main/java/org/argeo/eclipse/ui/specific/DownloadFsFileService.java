@@ -26,12 +26,15 @@ import org.apache.commons.io.FileUtils;
 import org.argeo.ArgeoException;
 import org.eclipse.rap.rwt.service.ServiceHandler;
 
-/** Provide a basic handler that returns a file from the file system in Rap. */
-public class FileDownloadService implements ServiceHandler {
+/**
+ * Basic service handler that retrieves a file in the server file system using
+ * an absolute path and forward it to the end user browser. Rap specific.
+ */
+public class DownloadFsFileService implements ServiceHandler {
 	public final static String PARAM_FILE_NAME = "param.fileName";
 	public final static String PARAM_FILE_PATH = "param.filePath";
-	
-	public FileDownloadService() {
+
+	public DownloadFsFileService() {
 	}
 
 	public void service(HttpServletRequest request, HttpServletResponse response)
