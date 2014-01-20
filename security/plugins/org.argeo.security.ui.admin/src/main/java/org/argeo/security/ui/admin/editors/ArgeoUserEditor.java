@@ -108,11 +108,14 @@ public class ArgeoUserEditor extends FormEditor {
 
 		userRolesPage.setUserDetails(userDetails);
 
+		// FIXME rather use a refresh command. Fails when called by another
+		// view.
 		// refresh users view
 		IWorkbench iw = SecurityAdminPlugin.getDefault().getWorkbench();
 		UsersView usersView = (UsersView) iw.getActiveWorkbenchWindow()
 				.getActivePage().findView(UsersView.ID);
-		usersView.refresh();
+		if (usersView != null)
+			usersView.refresh();
 	}
 
 	@Override
