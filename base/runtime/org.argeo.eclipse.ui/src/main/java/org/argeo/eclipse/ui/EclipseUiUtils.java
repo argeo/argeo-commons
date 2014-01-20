@@ -39,9 +39,10 @@ public class EclipseUiUtils {
 	 *            be null
 	 * @return the created text
 	 * 
-	 * @deprecated use {@link #createGridLT(Composite, String)} instead
 	 */
-	@Deprecated
+	// FIXME why was this deprecated.
+	// * @ deprecated use { @ link #createGridLT(Composite, String)} instead
+	// @ Deprecated
 	public static Text createGridLT(Composite parent, String label,
 			ModifyListener modifyListener) {
 		Label lbl = new Label(parent, SWT.LEAD);
@@ -54,6 +55,10 @@ public class EclipseUiUtils {
 		return txt;
 	}
 
+	/**
+	 * Create a label and a text field for a grid layout, the text field
+	 * grabbing excess horizontal
+	 */
 	public static Text createGridLT(Composite parent, String label) {
 		return createGridLT(parent, label, null);
 	}
@@ -70,6 +75,10 @@ public class EclipseUiUtils {
 		return txt;
 	}
 
+	/**
+	 * Create a label and a text field with password display for a grid layout,
+	 * the text field grabbing excess horizontal
+	 */
 	public static Text createGridLP(Composite parent, String label,
 			ModifyListener modifyListener) {
 		Label lbl = new Label(parent, SWT.LEAD);
@@ -82,20 +91,22 @@ public class EclipseUiUtils {
 		return txt;
 	}
 
+	/** Shortcut to retrieve default italic font from display */
 	public static Font getItalicFont(Composite parent) {
 		return JFaceResources.getFontRegistry().defaultFontDescriptor()
 				.setStyle(SWT.ITALIC).createFont(parent.getDisplay());
 	}
 
+	/** Shortcut to retrieve default bold font from display */
 	public static Font getBoldFont(Composite parent) {
 		return JFaceResources.getFontRegistry().defaultFontDescriptor()
 				.setStyle(SWT.BOLD).createFont(parent.getDisplay());
 	}
 
+	/** Shortcut to retrieve default bold italic font from display */
 	public static Font getBoldItalicFont(Composite parent) {
 		return JFaceResources.getFontRegistry().defaultFontDescriptor()
 				.setStyle(SWT.BOLD | SWT.ITALIC)
 				.createFont(parent.getDisplay());
 	}
-
 }
