@@ -11,5 +11,6 @@
 	<reference id="authenticationManager"
 		interface="org.springframework.security.AuthenticationManager" />
 	<reference id="userDetailsService"
-		interface="org.springframework.security.userdetails.UserDetailsService" />
+		interface="org.springframework.security.userdetails.UserDetailsService"
+		cardinality="0..1" />
 </beans:beans>
