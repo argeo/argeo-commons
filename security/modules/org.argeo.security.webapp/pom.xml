@@ -23,7 +23,6 @@
 							javax.servlet.resources,
 							org.argeo.security,
 							org.argeo.security.mvc,
-							org.argeo.server.json,
 							org.argeo.server.mvc,
 							org.springframework.ldap.core.support,
 							org.springframework.osgi.web.context.support,
