@@ -8,7 +8,7 @@
 		<property name="providers">
 			<list>
 				<ref bean="authByAdapterProvider" />
-				<ref bean="preAuthProvider" />
+<!-- 				<ref bean="preAuthProvider" /> -->
 				<ref bean="anonymousAuthenticationProvider" />
 				<ref bean="rememberMeAuthenticationProvider" />
 				<ref bean="ldapAuthenticationProvider" />
@@ -23,16 +23,16 @@
 		<property name="key" value="${argeo.security.systemKey}" />
 	</bean>
 
-	<bean id="preAuthProvider"
-		class="org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationProvider">
-		<description><![CDATA[Pre-authentication]]></description>
-		<property name="preAuthenticatedUserDetailsService">
-			<bean id="userDetailsServiceWrapper"
-				class="org.springframework.security.userdetails.UserDetailsByNameServiceWrapper">
-				<property name="userDetailsService" ref="userDetailsManager" />
-			</bean>
-		</property>
-	</bean>
+<!-- 	<bean id="preAuthProvider" -->
+<!-- 		class="org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationProvider"> -->
+<!-- 		<description><![CDATA[Pre-authentication]]></description> -->
+<!-- 		<property name="preAuthenticatedUserDetailsService"> -->
+<!-- 			<bean id="userDetailsServiceWrapper" -->
+<!-- 				class="org.springframework.security.userdetails.UserDetailsByNameServiceWrapper"> -->
+<!-- 				<property name="userDetailsService" ref="userDetailsManager" /> -->
+<!-- 			</bean> -->
+<!-- 		</property> -->
+<!-- 	</bean> -->
 
 	<bean id="anonymousAuthenticationProvider"
 		class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider">
