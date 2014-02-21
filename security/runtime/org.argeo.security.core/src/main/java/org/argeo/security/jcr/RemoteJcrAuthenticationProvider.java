@@ -16,8 +16,9 @@
 package org.argeo.security.jcr;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
-import java.util.Properties;
 
 import javax.jcr.Node;
 import javax.jcr.Repository;
@@ -64,12 +65,11 @@ public class RemoteJcrAuthenticationProvider implements AuthenticationProvider,
 			Repository repository = new RemoteJcrRepositoryWrapper(
 					repositoryFactory, url, sp);
 			if (bundleContext != null) {
-				Properties serviceProperties = new Properties();
-				serviceProperties.setProperty(
-						ArgeoJcrConstants.JCR_REPOSITORY_ALIAS,
+				Dictionary<String, String> serviceProperties = new Hashtable<String, String>();
+				serviceProperties.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS,
 						ArgeoJcrConstants.ALIAS_NODE);
-				serviceProperties.setProperty(
-						ArgeoJcrConstants.JCR_REPOSITORY_URI, url);
+				serviceProperties
+						.put(ArgeoJcrConstants.JCR_REPOSITORY_URI, url);
 				bundleContext.registerService(Repository.class.getName(),
 						repository, serviceProperties);
 			}
