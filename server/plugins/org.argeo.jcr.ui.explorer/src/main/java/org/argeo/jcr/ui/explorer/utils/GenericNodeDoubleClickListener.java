@@ -49,7 +49,7 @@ public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 	public GenericNodeDoubleClickListener(TreeViewer nodeViewer) {
 		this.nodeViewer = nodeViewer;
 		jfp = new JcrFileProvider();
-		// TODO remove this
+		// Commented out. see https://www.argeo.org/bugzilla/show_bug.cgi?id=188
 		fileHandler = null;
 		// fileHandler = new FileHandler(jfp);
 	}
