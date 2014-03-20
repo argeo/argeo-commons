@@ -16,6 +16,7 @@
 package org.argeo.security.ui.admin.editors;
 
 import javax.jcr.Node;
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
@@ -35,13 +36,16 @@ import org.springframework.security.GrantedAuthority;
 
 /** Editor for an Argeo user. */
 public class ArgeoUserEditor extends FormEditor {
-	public final static String ID = "org.argeo.security.ui.admin.adminArgeoUserEditor";
+	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
+			+ ".adminArgeoUserEditor";
 
-	private JcrUserDetails userDetails;
+	/* DEPENDENCY INJECTION */
+	private Session session;
+	private UserAdminService userAdminService;
+
 	// private Node userHome;
 	private Node userProfile;
-	private UserAdminService userAdminService;
-	private Session session;
+	private JcrUserDetails userDetails;
 
 	public void init(IEditorSite site, IEditorInput input)
 			throws PartInitException {
@@ -132,11 +136,16 @@ public class ArgeoUserEditor extends FormEditor {
 		userRolesPage.refresh();
 	}
 
+	/* DEPENDENCY INJECTION */
 	public void setUserAdminService(UserAdminService userAdminService) {
 		this.userAdminService = userAdminService;
 	}
 
-	public void setSession(Session session) {
-		this.session = session;
+	public void setRepository(Repository repository) {
+		try {
+			session = repository.login();
+		} catch (RepositoryException re) {
+			throw new ArgeoException("Unable to initialise local session", re);
+		}
 	}
 }

@@ -39,7 +39,8 @@ import org.eclipse.ui.part.ViewPart;
 
 /** List all roles. */
 public class RolesView extends ViewPart {
-	public final static String ID = "org.argeo.security.ui.admin.adminRolesView";
+	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
+			+ ".adminRolesView";
 
 	private Text newRole;
 
