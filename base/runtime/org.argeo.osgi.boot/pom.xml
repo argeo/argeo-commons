@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.base</groupId>
@@ -36,9 +37,10 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>org.argeo.tp.rap.platform</groupId>
+			<!-- Temporary fix the OSGI boot with Rap 2.2+ : version has been uploaded 
+				to 3.9.1+ that breaks JCR <version>3.9.0.v20130305-2200</version> -->
+			<groupId>org.argeo.tp.rap.addons</groupId>
 			<artifactId>org.eclipse.osgi</artifactId>
-			<!-- <version>3.9.0.v20130305-2200</version>-->
 			<version>3.9.0.v20130529-1710</version>
 		</dependency>
 

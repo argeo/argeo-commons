@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
@@ -494,24 +495,18 @@ limitations under the License.
 				<checksumPolicy>warn</checksumPolicy>
 			</releases>
 		</repository>
-		<!-- <repository>
-			<id>argeo-tp-rap</id>
-			<url>http://repo.argeo.org/data/public/java/eclipse-rap-2.1</url>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
-				<checksumPolicy>warn</checksumPolicy>
-			</releases>
-		</repository> -->
 		<repository>
 			<id>argeo-tp-rap</id>
-			<url>http://localhost:9070/data/public/java/eclipse-rap-2.2</url>
+			<url>https://forge.argeo.org/data/public/java/eclipse-rap-2.2</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
 				<checksumPolicy>warn</checksumPolicy>
 			</releases>
 		</repository>
+		<!-- <repository> <id>argeo-tp-rap</id> <url>http://localhost:9070/data/public/java/eclipse-rap-2.2</url> 
+			<releases> <enabled>true</enabled> <updatePolicy>daily</updatePolicy> <checksumPolicy>warn</checksumPolicy> 
+			</releases> </repository> -->
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
