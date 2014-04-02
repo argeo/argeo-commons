@@ -24,41 +24,49 @@ import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.client.service.UrlLauncher;
 
 /**
- * Rap specific command handler to open a file stored in the server file system.
- * The file absolute path and name must be passed as parameters.
+ * Rap specific command handler to open a file retrieved from the server. It
+ * forwards the request to the correct service after encoding file name and path
+ * in the request URI.
  * 
- * It relies on an existing {@link DownloadFsFileService} to forward the
- * corresponding file to the user browser.
+ * The parameter "URI" is used to determine the correct file service, the path
+ * and the file name. An optional file name can be precised to present a
+ * different file name as the one used to retrieve it to the end user/
  * 
+ * Various instances of this handler with different command ID might coexist in
+ * order to provide context specific download service.
+ * 
+ * The instance specific service is called by its ID and must have been
+ * externally created
  */
-public class OpenFsFile extends AbstractHandler {
-	private final static Log log = LogFactory.getLog(OpenFsFile.class);
+public class OpenFile extends AbstractHandler {
+	private final static Log log = LogFactory.getLog(OpenFile.class);
 
 	/* DEPENDENCY INJECTION */
-	private String serviceId;
+	private String openFileServiceId;
 
-	public final static String PARAM_FILE_NAME = DownloadFsFileService.PARAM_FILE_NAME;
-	public final static String PARAM_FILE_PATH = DownloadFsFileService.PARAM_FILE_PATH;
+	public final static String PARAM_FILE_NAME = OpenFileService.PARAM_FILE_NAME;
+	public final static String PARAM_FILE_URI = OpenFileService.PARAM_FILE_URI; // "param.fileURI";
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		String fileName = event.getParameter(PARAM_FILE_NAME);
-		String filePath = event.getParameter(PARAM_FILE_PATH);
+		String fileUri = event.getParameter(PARAM_FILE_URI);
 
 		// sanity check
-		if (serviceId == null || "".equals(serviceId.trim())
-				|| fileName == null || "".equals(fileName.trim())
-				|| filePath == null || "".equals(filePath.trim()))
+		if (fileUri == null || "".equals(fileUri.trim())
+				|| openFileServiceId == null
+				|| "".equals(openFileServiceId.trim()))
 			return null;
 
 		StringBuilder url = new StringBuilder();
+		url.append(RWT.getServiceManager().getServiceHandlerUrl(
+				openFileServiceId));
+
 		url.append("&").append(PARAM_FILE_NAME).append("=");
 		url.append(fileName);
-		url.append("&").append(PARAM_FILE_PATH).append("=");
-		url.append(filePath);
+		url.append("&").append(PARAM_FILE_URI).append("=");
+		url.append(fileUri);
 
-		String downloadUrl = RWT.getServiceManager().getServiceHandlerUrl(
-				serviceId)
-				+ url.toString();
+		String downloadUrl = url.toString();
 		if (log.isTraceEnabled())
 			log.debug("URL : " + downloadUrl);
 
@@ -76,7 +84,7 @@ public class OpenFsFile extends AbstractHandler {
 	}
 
 	/* DEPENDENCY INJECTION */
-	public void setDownloadServiceHandlerId(String downloadServiceHandlerId) {
-		this.serviceId = downloadServiceHandlerId;
+	public void setOpenFileServiceId(String openFileServiceId) {
+		this.openFileServiceId = openFileServiceId;
 	}
 }
