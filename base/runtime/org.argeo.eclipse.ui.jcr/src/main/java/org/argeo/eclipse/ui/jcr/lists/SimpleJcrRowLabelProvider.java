@@ -10,6 +10,7 @@ import org.argeo.ArgeoException;
  * Base implementation of a label provider for widgets that display JCR Rows.
  */
 public class SimpleJcrRowLabelProvider extends SimpleJcrNodeLabelProvider {
+	private static final long serialVersionUID = -3414654948197181740L;
 
 	final private String selectorName;
 
@@ -39,7 +40,8 @@ public class SimpleJcrRowLabelProvider extends SimpleJcrNodeLabelProvider {
 			Node currNode = currRow.getNode(selectorName);
 			return super.getText(currNode);
 		} catch (RepositoryException re) {
-			throw new ArgeoException("Unable to get text from row", re);
+			throw new ArgeoException("Unable to get Node " + selectorName
+					+ " from row " + element, re);
 		}
 	}
 }

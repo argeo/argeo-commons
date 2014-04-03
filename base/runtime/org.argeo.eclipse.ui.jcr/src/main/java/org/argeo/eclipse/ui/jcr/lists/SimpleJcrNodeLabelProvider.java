@@ -97,9 +97,14 @@ public class SimpleJcrNodeLabelProvider extends ColumnLabelProvider {
 			return numberFormat.format(value.getDecimal());
 		case PropertyType.DOUBLE:
 			return numberFormat.format(value.getDouble());
+		case PropertyType.NAME:
+			return value.getString();
 		default:
 			throw new ArgeoException("Unimplemented label provider "
-					+ "for property type " + value.getType());
+					+ "for property type " + value.getType()
+					+ " while getting property " + propertyName + " - value: "
+					+ value.getString());
+
 		}
 	}
 
