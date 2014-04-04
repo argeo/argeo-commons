@@ -60,7 +60,7 @@ public class UploadFileWizardPage extends WizardPage {
 	}
 
 	public String getObjectName() {
-		return null;
+		return fileUpload.getFileName();
 	}
 
 	public String getObjectType() {

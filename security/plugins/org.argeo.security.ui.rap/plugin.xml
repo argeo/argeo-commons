@@ -39,13 +39,18 @@
     	<!-- themeId attribute is by default set to this value.
     			Left anyway to provide the pattern when defining a later 
     			own default theme for Argeo Rap UIs. 
-    			corresponding theme is found in spite of the warning -->  
+    			corresponding theme is found in spite of the warning -->
+    		
+    	<!--
+    	body="branding/login.html" 
+    	body attribute pointing to an auto refresh page triggers weird side effects: 
+    	the whole workbench is re-loaded (like pressing on F5) every now and then. 
+    	Must be checked. Removed from the time being.-->   
 		<branding
 			id="org.argeo.security.ui.rap.defaultBranding"
             themeId="org.eclipse.rap.rwt.theme.Default"
             title="Argeo Web UI"
-            favicon="branding/favicon.ico"
-            body="branding/login.html">
+            favicon="branding/favicon.ico">
       	</branding>
       	<!-- we need a servlet with this name j_spring_security_logout
       		 for the logout filter -->
@@ -58,29 +63,28 @@
    	</extension>
    	
    	<!-- LOCAL THEMES - Use the following to extend or overwrite default theme --> 
-<!--	<extension
+	<!--	<extension
 		point="org.eclipse.rap.ui.themes">
 		<themeContribution
 			themeId="org.eclipse.rap.rwt.theme.Default"
 			file="theme/defaultExt.css" /> 
 	</extension> -->
-   	
 
-   <extension
-         point="org.eclipse.equinox.security.callbackHandlerMapping">
-      <callbackHandlerMapping
+	<extension
+		point="org.eclipse.equinox.security.callbackHandlerMapping">
+		<callbackHandlerMapping
             callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
             configName="SPRING">
-      </callbackHandlerMapping>
-   </extension>
-   <extension
-         point="org.eclipse.equinox.security.callbackHandlerMapping">
-         <callbackHandlerMapping
-            callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
-            configName="NIX">
-      </callbackHandlerMapping>
-   </extension>
-   <extension
+		</callbackHandlerMapping>
+	</extension>
+	<extension
+		point="org.eclipse.equinox.security.callbackHandlerMapping">
+		<callbackHandlerMapping
+			callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
+			configName="NIX">
+		</callbackHandlerMapping>
+	</extension>
+	<extension
          point="org.eclipse.equinox.security.callbackHandlerMapping">
       <callbackHandlerMapping
             callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
