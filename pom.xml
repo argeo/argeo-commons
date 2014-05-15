@@ -497,7 +497,7 @@ limitations under the License.
 		</repository>
 		<repository>
 			<id>argeo-tp-rap</id>
-			<url>https://forge.argeo.org/data/public/java/eclipse-rap-2.2</url>
+			<url>http://repo.argeo.org/data/public/java/eclipse-rap-2.2</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
