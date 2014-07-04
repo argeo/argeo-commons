@@ -139,20 +139,49 @@
      </menuContribution> -->
   </extension>
 
-   <extension point="org.eclipse.ui.commands">
-      <command
-            id="org.argeo.security.ui.rap.openChangePasswordDialog"
-            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            name="Change Password">
-      </command>
-      <command
-            id="org.argeo.security.ui.rap.mainMenuCommand"
-            defaultHandler="org.argeo.security.ui.commands.OpenHomePerspective"
-            name="Main">
-      </command>
-    </extension>
+	<!-- COMMANDS --> 
+	<extension point="org.eclipse.ui.commands">
+		<command
+			id="org.argeo.security.ui.rap.openChangePasswordDialog"
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+			name="Change Password">
+		</command>
+		<command
+			id="org.argeo.security.ui.rap.mainMenuCommand"
+			defaultHandler="org.argeo.security.ui.commands.OpenHomePerspective"
+			name="Main">
+		</command>
+		
+    	<!-- Register a default command that enable an "open file" action in a single sourced application  -->  
+		<command
+			defaultHandler="org.argeo.eclipse.spring.SpringExtensionFactory"
+			id="org.argeo.security.ui.specific.openFile"
+			name="OpenFile">
+			<commandParameter
+         		id="param.fileName"
+         		name="The name of the file to open (optional)">
+  	 		</commandParameter>
+            <commandParameter
+         		id="param.fileURI"
+         		name="The URI of this file on the server">
+  	 		</commandParameter>
+  	 		<commandParameter
+         		id="param.filePath"
+         		name="The absolute path of this file on the server file system">
+  	 		</commandParameter>
+		</command>
+ 	</extension>
+ 
+ 	<!-- SERVICE HANDLERS --> 
+	<extension point="org.eclipse.rap.ui.serviceHandler">
+		<!-- The required rap specific handler to call the open file command over the internet-->
+		<serviceHandler
+			class="org.argeo.eclipse.ui.specific.OpenFileService"
+			id="org.argeo.security.ui.specific.openFileService">
+		</serviceHandler>
+	</extension>
     
-  <extension
+  	<extension
            point="org.eclipse.ui.activities">
         <activity
               description="Anonymous"

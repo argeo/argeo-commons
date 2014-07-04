@@ -8,4 +8,15 @@
 		scope="prototype">
 		<property name="userDetailsManager" ref="userDetailsManager" />
 	</bean>
+
+
+	<!-- RAP Specific command and corresponding service to enable open file -->
+	<bean id="org.argeo.security.ui.specific.openFile" class="org.argeo.eclipse.ui.specific.OpenFile"
+		scope="prototype">
+		<property name="openFileServiceId"
+			value="org.argeo.security.ui.specific.openFileService" />
+	</bean>
+	<!-- Useless - nothing to inject -->
+	<!-- <bean id="org.argeo.security.ui.specific.openFileService" class="org.argeo.eclipse.ui.specific.OpenFileService" 
+		scope="prototype"> </bean> -->
 </beans>

@@ -105,10 +105,16 @@
 	        id="org.argeo.jcr.ui.explorer.importFileSystem"
 	        name="Import files...">
 	  </command>
-	  <command
+	 <!-- <command
 	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
 	        id="org.argeo.jcr.ui.explorer.openFile"
 	        name="Open current file">
+	  </command>
+	  -->
+	  <command
+	        defaultHandler="org.argeo.jcr.ui.explorer.commands.DumpNode"
+	        id="org.argeo.jcr.ui.explorer.dumpNode"
+	        name="Import files...">
 	  </command>
 	  <command
             defaultHandler="org.argeo.jcr.ui.explorer.commands.SortChildNodes"
@@ -297,6 +303,21 @@
            				</iterate>
 					</visibleWhen>
 			</command>
+			<command
+		         commandId="org.argeo.jcr.ui.explorer.dumpNode"
+		         icon="icons/dumpNode.gif"
+		         label="Dump Node"
+		         style="push">
+				<visibleWhen>
+					<iterate>
+				      <and>
+						<instanceof value="org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem"></instanceof>
+             			<with variable="activeMenuSelection"><count value="1"/></with>
+				      </and>
+					</iterate>
+				</visibleWhen>
+			</command>
+			
 		</menuContribution>
 	</extension>
 
