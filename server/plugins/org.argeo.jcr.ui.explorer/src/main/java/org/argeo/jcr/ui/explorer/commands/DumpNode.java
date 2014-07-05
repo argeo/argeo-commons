@@ -31,6 +31,7 @@ import javax.jcr.RepositoryException;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.specific.OpenFile;
 import org.argeo.eclipse.ui.utils.CommandUtils;
+import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.ui.explorer.JcrExplorerPlugin;
 import org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem;
 import org.eclipse.core.commands.AbstractHandler;
@@ -86,7 +87,7 @@ public class DumpNode extends AbstractHandler {
 					node.getSession().exportSystemView(node.getPath(), fos,
 							true, false);
 					openGeneratedFile(tmpFile.getAbsolutePath(),
-							"Dump-" + node.getName() + dateVal + ".xml");
+							"Dump-" + JcrUtils.replaceInvalidChars(node.getName())+ "-" + dateVal + ".xml");
 				} catch (RepositoryException e) {
 					throw new ArgeoException(
 							"Unable to perform SystemExport on " + node, e);
