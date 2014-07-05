@@ -114,7 +114,7 @@
 	  <command
 	        defaultHandler="org.argeo.jcr.ui.explorer.commands.DumpNode"
 	        id="org.argeo.jcr.ui.explorer.dumpNode"
-	        name="Import files...">
+	        name="Dump Current Selected Node">
 	  </command>
 	  <command
             defaultHandler="org.argeo.jcr.ui.explorer.commands.SortChildNodes"
