@@ -21,6 +21,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
+import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.UserJcrUtils;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.jcr.JcrUserDetails;
@@ -136,11 +137,17 @@ public class ArgeoUserEditor extends FormEditor {
 		userRolesPage.refresh();
 	}
 
+	@Override
+	public void dispose() {
+		JcrUtils.logoutQuietly(session);
+		super.dispose();
+	}
+	
 	/* DEPENDENCY INJECTION */
 	public void setUserAdminService(UserAdminService userAdminService) {
 		this.userAdminService = userAdminService;
 	}
-
+	
 	public void setRepository(Repository repository) {
 		try {
 			session = repository.login();
