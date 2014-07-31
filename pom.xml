@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
@@ -8,10 +9,12 @@
 	<description>Generic layers integrating free / open source technologies in order to quickly develop custom enterprise systems: security, JCR, user interface, monitoring</description>
 	<packaging>pom</packaging>
 	<properties>
+		<version.argeo-commons>2.1.8-SNAPSHOT</version.argeo-commons>
 		<developmentCycle.argeo-commons>2.1</developmentCycle.argeo-commons>
 		<developmentCycle.argeo-commons.startDate>2012-12-19</developmentCycle.argeo-commons.startDate>
 		<version.argeo-distribution>1.4.0</version.argeo-distribution>
-		<version.argeo-commons>2.1.8-SNAPSHOT</version.argeo-commons>
+		<version.rap>2.2.0-R-20131204-0942</version.rap>
+		<version.rap.addons>0.2.0.20131212-1229</version.rap.addons>
 		<!-- RPM -->
 		<rpm.release>6</rpm.release>
 		<rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-2-staging/6/x86_64</rpm.stagingRepository>
@@ -479,6 +482,28 @@ limitations under the License.
 				<groupId>org.argeo.tp</groupId>
 				<artifactId>binaries</artifactId>
 				<version>${version.argeo-distribution}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<!-- Eclipse RAP -->
+			<dependency>
+				<groupId>org.argeo.tp.rap</groupId>
+				<artifactId>binaries</artifactId>
+				<version>${version.argeo-distribution}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.argeo.tp.rap.addons</groupId>
+				<artifactId>binaries</artifactId>
+				<version>${version.rap.addons}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.argeo.tp.rap.platform</groupId>
+				<artifactId>binaries</artifactId>
+				<version>${version.rap}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

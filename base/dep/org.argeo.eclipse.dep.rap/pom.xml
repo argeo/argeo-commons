@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.base</groupId>
@@ -9,10 +10,6 @@
 	</parent>
 	<artifactId>org.argeo.eclipse.dep.rap</artifactId>
 	<name>Commons Eclipse RAP Dependencies</name>
-	<properties>
-		<version.rap>2.2.0-R-20131204-0942</version.rap>
-		<version.rap.addons>0.2.0.20131212-1229</version.rap.addons>
-	</properties>
 	<build>
 		<plugins>
 			<plugin>
@@ -32,6 +29,13 @@
 			<artifactId>binaries</artifactId>
 			<version>${version.rap.addons}</version>
 			<type>pom</type>
+			<exclusions>
+				<exclusion>
+					<!-- TODO remove OSGi runtime from addons -->
+					<groupId>org.argeo.tp.rap.addons</groupId>
+					<artifactId>org.eclipse.osgi</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -146,37 +150,14 @@
 			<artifactId>org.eclipse.equinox.security</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>org.argeo.commons.base</groupId>
-			<artifactId>org.argeo.osgi.boot</artifactId>
-			<version>2.1.8-SNAPSHOT</version>
-		</dependency>
+		<!-- 2014-07-31 mbaudier : Removed, since it feels wrong to put an Argeo 
+			dependency here -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.commons.base</groupId> -->
+		<!-- <artifactId>org.argeo.osgi.boot</artifactId> -->
+		<!-- <version>2.1.8-SNAPSHOT</version> -->
+		<!-- </dependency> -->
 	</dependencies>
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.argeo.tp.rap</groupId>
-				<artifactId>binaries</artifactId>
-				<version>${version.argeo-distribution}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.argeo.tp.rap.addons</groupId>
-				<artifactId>binaries</artifactId>
-				<version>${version.rap.addons}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.argeo.tp.rap.platform</groupId>
-				<artifactId>binaries</artifactId>
-				<version>${version.rap}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 	<profiles>
 		<profile>
 			<id>check-osgi</id>
@@ -243,7 +224,8 @@
 								<configuration>
 									<target>
 										<copy todir="${rpm.stagingRepository}" verbose="true">
-											<fileset dir="${project.build.directory}/rpm" includes="*/RPMS/**/*.rpm" />
+											<fileset dir="${project.build.directory}/rpm"
+												includes="*/RPMS/**/*.rpm" />
 											<flattenmapper />
 										</copy>
 									</target>

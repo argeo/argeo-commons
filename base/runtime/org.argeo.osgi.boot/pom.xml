@@ -36,11 +36,9 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<!-- Temporary fix the OSGI boot with Rap 2.2+ : version has been uploaded 
-				to 3.9.1+ that breaks JCR <version>3.9.0.v20130305-2200</version> -->
-			<groupId>org.argeo.tp.rap.addons</groupId>
+			<groupId>org.argeo.tp.rap.platform</groupId>
 			<artifactId>org.eclipse.osgi</artifactId>
-			<version>3.9.0.v20130529-1710</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- TEST -->
