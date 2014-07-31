@@ -337,8 +337,10 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 		if (exportedPackage != null) {
 			exportingBundle = exportedPackage.getExportingBundle();
 		} else {
-			throw new ArgeoException("No OSGi exporting package found for "
-					+ resUrl);
+			// assume this is in the same bundle
+			exportingBundle = bundleContext.getBundle();
+//			throw new ArgeoException("No OSGi exporting package found for "
+//					+ resUrl);
 		}
 		return exportingBundle;
 	}
