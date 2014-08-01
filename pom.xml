@@ -209,6 +209,7 @@ limitations under the License.
 							<Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
 							<!-- SLC specific instructions -->
 							<SLC-GroupId>${project.groupId}</SLC-GroupId>
+							<_removeheaders>Bnd-LastModified,Build-Jdk,Built-By,Tool,Created-By</_removeheaders>
 						</instructions>
 					</configuration>
 					<executions>
