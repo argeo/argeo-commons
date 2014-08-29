@@ -71,14 +71,14 @@
 
 		<!-- Others. -->
 		<dependency>
-			<groupId>org.argeo.tp</groupId>
+			<groupId>org.argeo.tp.apache.commons</groupId>
 			<artifactId>org.apache.commons.io</artifactId>
 		</dependency>
 
 		<!-- Logging -->
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
-			<artifactId>slf4j.org.apache.commons.logging</artifactId>
+			<artifactId>org.slf4j.commons.logging</artifactId>
 		</dependency>
 	</dependencies>
 </project>

@@ -11,7 +11,7 @@
 		<version.argeo-commons>2.1.8.tp</version.argeo-commons>
 		<developmentCycle.argeo-commons>2.1</developmentCycle.argeo-commons>
 		<developmentCycle.argeo-commons.startDate>2012-12-19</developmentCycle.argeo-commons.startDate>
-		<version.argeo-distribution>2.1.1</version.argeo-distribution>
+		<version.argeo-distribution>2.1.2</version.argeo-distribution>
 		<version.rap>2.2.0-R-20131204-0942</version.rap>
 		<version.rap.addons>0.2.0.20131212-1229</version.rap.addons>
 		<!-- RPM -->

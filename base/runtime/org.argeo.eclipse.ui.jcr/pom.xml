@@ -50,7 +50,7 @@
 
 		<!-- JCR -->
 		<dependency>
-			<groupId>org.argeo.tp</groupId>
+			<groupId>org.argeo.tp.javax</groupId>
 			<artifactId>javax.jcr</artifactId>
 		</dependency>
 		<dependency>
@@ -59,16 +59,16 @@
 			<version>2.1.8.tp</version>
 		</dependency>
 
-		<!-- RCP only dependency, needed at compile time -->
+		<!-- RAP only dependency, needed at compile time -->
 		<dependency>
 			<groupId>org.argeo.commons.base</groupId>
-			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
+			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
 			<version>2.1.8.tp</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.base</groupId>
-			<artifactId>org.argeo.eclipse.ui.rcp</artifactId>
+			<artifactId>org.argeo.eclipse.ui.rap</artifactId>
 			<version>2.1.8.tp</version>
 			<scope>provided</scope>
 		</dependency>
@@ -83,7 +83,7 @@
 		<!-- Logging -->
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
-			<artifactId>slf4j.org.apache.commons.logging</artifactId>
+			<artifactId>org.slf4j.commons.logging</artifactId>
 		</dependency>
 	</dependencies>
 </project>

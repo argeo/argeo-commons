@@ -210,10 +210,10 @@ ex=*.source_*.jar,\
 		</dependency>
 
 		<!-- Security -->
-		<dependency>
-			<groupId>org.argeo.tp.rcp</groupId>
-			<artifactId>org.eclipse.equinox.security</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.rcp</groupId> -->
+<!-- 			<artifactId>org.eclipse.equinox.security</artifactId> -->
+<!-- 		</dependency> -->
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>

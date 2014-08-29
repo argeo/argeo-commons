@@ -129,25 +129,25 @@
 		<!-- </dependency> -->
 		<!-- Needed by the bundle above -->
 		<dependency>
-			<groupId>org.argeo.tp</groupId>
+			<groupId>org.argeo.tp.apache.commons</groupId>
 			<artifactId>org.apache.commons.io</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.tp</groupId>
+			<groupId>org.argeo.tp.apache.commons</groupId>
 			<artifactId>org.apache.commons.fileupload</artifactId>
 		</dependency>
 
 		<!-- RAP Specific Dependencies -->
 		<dependency>
-			<groupId>org.argeo.tp</groupId>
+			<groupId>org.argeo.tp.javax</groupId>
 			<artifactId>javax.servlet</artifactId>
 		</dependency>
 
 		<!-- Security -->
-		<dependency>
-			<groupId>org.argeo.tp.rap</groupId>
-			<artifactId>org.eclipse.equinox.security</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.rap</groupId> -->
+<!-- 			<artifactId>org.eclipse.equinox.security</artifactId> -->
+<!-- 		</dependency> -->
 
 		<!-- 2014-07-31 mbaudier : Removed, since it feels wrong to put an Argeo 
 			dependency here -->

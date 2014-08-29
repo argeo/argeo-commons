@@ -40,25 +40,25 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
-			<artifactId>junit</artifactId>
+			<artifactId>org.junit</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.tp</groupId>
+			<groupId>org.argeo.tp.spring</groupId>
 			<artifactId>org.springframework.core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.tp</groupId>
+			<groupId>org.argeo.tp.spring</groupId>
 			<artifactId>org.springframework.context</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.tp</groupId>
+			<groupId>org.argeo.tp.spring</groupId>
 			<artifactId>org.springframework.beans</artifactId>
 		</dependency>
 
 		<!-- Logging -->
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
-			<artifactId>slf4j.org.apache.commons.logging</artifactId>
+			<artifactId>org.slf4j.commons.logging</artifactId>
 		</dependency>
 	</dependencies>
 </project>

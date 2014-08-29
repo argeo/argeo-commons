@@ -16,7 +16,7 @@
 		<module>org.argeo.osgi.boot</module>
 		<module>org.argeo.eclipse.ui</module>
 		<module>org.argeo.eclipse.ui.rap</module>
-		<module>org.argeo.eclipse.ui.rcp</module>
+<!-- 		<module>org.argeo.eclipse.ui.rcp</module> -->
 		<module>org.argeo.eclipse.ui.jcr</module>
 	</modules>
 </project>

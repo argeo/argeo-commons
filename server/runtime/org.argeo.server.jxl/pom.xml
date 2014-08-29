@@ -53,7 +53,7 @@
 		<!-- TEST -->
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
-			<artifactId>junit</artifactId>
+			<artifactId>org.junit</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
