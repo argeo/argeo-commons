@@ -6,22 +6,26 @@
       <entrypoint
             id="org.argeo.security.ui.rap.secureEntryPoint"
             class="org.argeo.security.ui.rap.SecureEntryPoint"
-            path="/node">
+            path="/node"
+            brandingId="org.argeo.security.ui.rap.defaultBranding">
       </entrypoint>
       <entrypoint
             id="org.argeo.security.ui.rap.secureEntryPoint"
             class="org.argeo.security.ui.rap.SecureEntryPoint"
-            path="/secureWebUi">
+            path="/secureWebUi"
+            brandingId="org.argeo.security.ui.rap.defaultBranding">
       </entrypoint>
       <entrypoint
             id="org.argeo.security.ui.rap.anonymousEntryPoint"
             class="org.argeo.security.ui.rap.AnonymousEntryPoint"
-            path="/publicWebUi">
+            path="/publicWebUi"
+            brandingId="org.argeo.security.ui.rap.defaultBranding">
       </entrypoint>
       <entrypoint
             id="org.argeo.security.ui.rap.logoutEntryPoint"
             class="org.argeo.security.ui.rap.LogoutEntryPoint"
-            path="/logout">
+            path="/logout"
+            brandingId="org.argeo.security.ui.rap.logoutBranding">
       </entrypoint>
       <entrypoint
             id="org.argeo.security.ui.rap.nullEntryPoint"
@@ -32,72 +36,55 @@
 
 	<extension
          point="org.eclipse.rap.ui.branding">
-    	<branding
-			id="org.argeo.security.ui.rap.branding"
+    	<!-- themeId attribute is by default set to this value.
+    			Left anyway to provide the pattern when defining a later 
+    			own default theme for Argeo Rap UIs. 
+    			corresponding theme is found in spite of the warning -->
+    		
+    	<!--
+    	body="branding/login.html" 
+    	body attribute pointing to an auto refresh page triggers weird side effects: 
+    	the whole workbench is re-loaded (like pressing on F5) every now and then. 
+    	Must be checked. Removed from the time being.-->   
+		<branding
+			id="org.argeo.security.ui.rap.defaultBranding"
+            themeId="org.eclipse.rap.rwt.theme.Default"
             title="Argeo Web UI"
-            favicon="branding/favicon.ico"
-            body="branding/login.html">
+            favicon="branding/favicon.ico">
       	</branding>
+      	<!-- we need a servlet with this name j_spring_security_logout
+      		 for the logout filter -->
     	<branding
-			id="org.argeo.security.ui.rap.branding"
-            title="Argeo Web UI"
-            favicon="branding/favicon.ico"
-            body="branding/login.html">
-      	</branding>
-    	<branding
-			id="org.argeo.security.ui.rap.branding"
-            title="Argeo Web UI"
-            favicon="branding/favicon.ico"
-            body="branding/login.html">
-      	</branding>
-    	<branding
-			id="org.argeo.security.ui.rap.branding"
-            title="Argeo Web UI"
-            favicon="branding/favicon.ico"
-            body="branding/login.html">
-      	</branding>
-    	<branding
-			id="org.argeo.security.ui.rap.branding"
-            title="Argeo Web UI"
-            favicon="branding/favicon.ico"
-            body="branding/login.html">
-      	</branding>
-    	<branding
-			id="org.argeo.security.ui.rap.branding"
-            title="Argeo Public Web UI"
-            favicon="branding/favicon.ico"
-            body="branding/public.html">
-      	</branding>
-    	<branding
-			id="org.argeo.security.ui.rap.branding"
-            title="Argeo Logout"
-            favicon="branding/favicon.ico"
-            body="branding/afterLogout.html">
-      	</branding>
-      	<!-- we need a servlet with thios name j_spring_security_logout for the logout filter -->
-    	<branding
-			id="org.argeo.security.ui.rap.branding"
+			id="org.argeo.security.ui.rap.logoutBranding"
             title="Argeo Logout"
             favicon="branding/favicon.ico"
             body="branding/empty.html">
       	</branding>
    	</extension>
+   	
+   	<!-- LOCAL THEMES - Use the following to extend or overwrite default theme --> 
+	<!--	<extension
+		point="org.eclipse.rap.ui.themes">
+		<themeContribution
+			themeId="org.eclipse.rap.rwt.theme.Default"
+			file="theme/defaultExt.css" /> 
+	</extension> -->
 
-   <extension
-         point="org.eclipse.equinox.security.callbackHandlerMapping">
-      <callbackHandlerMapping
+	<extension
+		point="org.eclipse.equinox.security.callbackHandlerMapping">
+		<callbackHandlerMapping
             callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
             configName="SPRING">
-      </callbackHandlerMapping>
-   </extension>
-   <extension
-         point="org.eclipse.equinox.security.callbackHandlerMapping">
-         <callbackHandlerMapping
-            callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
-            configName="NIX">
-      </callbackHandlerMapping>
-   </extension>
-   <extension
+		</callbackHandlerMapping>
+	</extension>
+	<extension
+		point="org.eclipse.equinox.security.callbackHandlerMapping">
+		<callbackHandlerMapping
+			callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
+			configName="NIX">
+		</callbackHandlerMapping>
+	</extension>
+	<extension
          point="org.eclipse.equinox.security.callbackHandlerMapping">
       <callbackHandlerMapping
             callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
@@ -106,7 +93,7 @@
    </extension>
 
   <extension point="org.eclipse.ui.menus">
-     <menuContribution locationURI="toolbar:org.eclipse.ui.main.toolbar">
+    <!--       <menuContribution locationURI="toolbar:org.eclipse.ui.main.toolbar">
         <toolbar id="org.argeo.security.ui.rap.userToolbar">
            <command
                  commandId="org.argeo.security.ui.rap.mainMenuCommand"
@@ -118,8 +105,8 @@
            <command commandId="org.eclipse.ui.file.saveAll"/>
         </toolbar>
      </menuContribution>
-     <menuContribution locationURI="menu:org.argeo.security.ui.rap.mainMenu">
-        <command
+		<menuContribution locationURI="menu:org.argeo.security.ui.rap.mainMenu">
+	 <command
               commandId="org.argeo.security.ui.rap.userMenuCommand"
               icon="icons/home.gif"
               id="org.argeo.security.ui.rap.userMenu">
@@ -143,29 +130,58 @@
         <separator
               name="org.argeo.security.ui.rap.beforeExit"
               visible="true">
-        </separator>
+        </separator>-->
         <!--<command commandId="org.eclipse.ui.views.showView"/>-->
         <!--<command commandId="org.eclipse.ui.perspectives.showPerspective"/>-->
-        <command
+        <!-- <command
               commandId="org.eclipse.ui.file.exit"
               icon="icons/exit.png"/>
-     </menuContribution>
+     </menuContribution> -->
   </extension>
 
-   <extension point="org.eclipse.ui.commands">
-      <command
-            id="org.argeo.security.ui.rap.openChangePasswordDialog"
-            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            name="Change Password">
-      </command>
-      <command
-            id="org.argeo.security.ui.rap.mainMenuCommand"
-            defaultHandler="org.argeo.security.ui.commands.OpenHomePerspective"
-            name="Main">
-      </command>
-    </extension>
+	<!-- COMMANDS --> 
+	<extension point="org.eclipse.ui.commands">
+		<command
+			id="org.argeo.security.ui.rap.openChangePasswordDialog"
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+			name="Change Password">
+		</command>
+		<command
+			id="org.argeo.security.ui.rap.mainMenuCommand"
+			defaultHandler="org.argeo.security.ui.commands.OpenHomePerspective"
+			name="Main">
+		</command>
+		
+    	<!-- Register a default command that enable an "open file" action in a single sourced application  -->  
+		<command
+			defaultHandler="org.argeo.eclipse.spring.SpringExtensionFactory"
+			id="org.argeo.security.ui.specific.openFile"
+			name="OpenFile">
+			<commandParameter
+         		id="param.fileName"
+         		name="The name of the file to open (optional)">
+  	 		</commandParameter>
+            <commandParameter
+         		id="param.fileURI"
+         		name="The URI of this file on the server">
+  	 		</commandParameter>
+  	 		<commandParameter
+         		id="param.filePath"
+         		name="The absolute path of this file on the server file system">
+  	 		</commandParameter>
+		</command>
+ 	</extension>
+ 
+ 	<!-- SERVICE HANDLERS --> 
+	<extension point="org.eclipse.rap.ui.serviceHandler">
+		<!-- The required rap specific handler to call the open file command over the internet-->
+		<serviceHandler
+			class="org.argeo.eclipse.ui.specific.OpenFileService"
+			id="org.argeo.security.ui.specific.openFileService">
+		</serviceHandler>
+	</extension>
     
-  <extension
+  	<extension
            point="org.eclipse.ui.activities">
         <activity
               description="Anonymous"

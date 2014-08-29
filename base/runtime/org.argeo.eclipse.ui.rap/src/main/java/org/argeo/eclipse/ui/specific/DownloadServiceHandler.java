@@ -24,10 +24,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.argeo.ArgeoException;
 import org.eclipse.rap.rwt.service.ServiceHandler;
 
+@Deprecated
 public class DownloadServiceHandler implements ServiceHandler {
-	public final static String PARAM_FILE_NAME = "filename";
-	public final static String PARAM_FILE_ID = "fileid";
-	
+
 	private FileProvider provider;
 
 	public DownloadServiceHandler(FileProvider provider) {
@@ -37,8 +36,8 @@ public class DownloadServiceHandler implements ServiceHandler {
 	public void service(HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 		// Which file to download?
-		String fileName = request.getParameter(PARAM_FILE_NAME);
-		String fileId = request.getParameter(PARAM_FILE_ID);
+		String fileName = request.getParameter("filename");
+		String fileId = request.getParameter("fileid");
 
 		// Get the file content
 		byte[] download = provider.getByteArrayFileFromId(fileId);

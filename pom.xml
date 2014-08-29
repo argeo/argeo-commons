@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
-	<version>2.1.3.tp-SNAPSHOT</version>
+	<version>2.1.8-SNAPSHOT</version>
 	<name>Argeo Commons</name>
 	<description>Generic layers integrating free / open source technologies in order to quickly develop custom enterprise systems: security, JCR, user interface, monitoring</description>
 	<packaging>pom</packaging>
 	<properties>
+		<version.argeo-commons>2.1.8-SNAPSHOT</version.argeo-commons>
 		<developmentCycle.argeo-commons>2.1</developmentCycle.argeo-commons>
 		<developmentCycle.argeo-commons.startDate>2012-12-19</developmentCycle.argeo-commons.startDate>
 		<version.argeo-distribution>1.4.0</version.argeo-distribution>
-		<version.argeo-commons>2.1.3.tp-SNAPSHOT</version.argeo-commons>
+		<version.rap>2.2.0-R-20131204-0942</version.rap>
+		<version.rap.addons>0.2.0.20131212-1229</version.rap.addons>
 		<!-- RPM -->
 		<rpm.release>6</rpm.release>
 		<rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-2-staging/6/x86_64</rpm.stagingRepository>
@@ -29,9 +32,9 @@
 	</organization>
 	<url>http://projects.argeo.org/commons/</url>
 	<scm>
-		<connection>scm:svn:https://svn.argeo.org/commons/branches/2.tp</connection>
-		<developerConnection>scm:svn:https://svn.argeo.org/commons/branches/2.tp</developerConnection>
-		<url>https://svn.argeo.org/commons/branches/2.tp</url>
+		<connection>scm:svn:https://svn.argeo.org/commons/trunk</connection>
+		<developerConnection>scm:svn:https://svn.argeo.org/commons/trunk</developerConnection>
+		<url>https://svn.argeo.org/commons/trunk</url>
 	</scm>
 	<inceptionYear>2007</inceptionYear>
 	<licenses>
@@ -206,6 +209,7 @@ limitations under the License.
 							<Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
 							<!-- SLC specific instructions -->
 							<SLC-GroupId>${project.groupId}</SLC-GroupId>
+							<_removeheaders>Bnd-LastModified,Build-Jdk,Built-By,Tool,Created-By</_removeheaders>
 						</instructions>
 					</configuration>
 					<executions>
@@ -482,12 +486,34 @@ limitations under the License.
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<!-- Eclipse RAP -->
+			<dependency>
+				<groupId>org.argeo.tp.rap</groupId>
+				<artifactId>binaries</artifactId>
+				<version>${version.argeo-distribution}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.argeo.tp.rap.addons</groupId>
+				<artifactId>binaries</artifactId>
+				<version>${version.rap.addons}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.argeo.tp.rap.platform</groupId>
+				<artifactId>binaries</artifactId>
+				<version>${version.rap}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<repositories>
 		<repository>
 			<id>argeo-tp</id>
-			<url>http://repo.argeo.org/data/public/java/org.argeo.tp-1.4.x</url>
+			<url>http://repo.argeo.org/data/public/java/argeo-tp-1.4</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
@@ -496,13 +522,16 @@ limitations under the License.
 		</repository>
 		<repository>
 			<id>argeo-tp-rap</id>
-			<url>http://repo.argeo.org/data/public/java/org.argeo.tp.rap-2.1.x</url>
+			<url>http://repo.argeo.org/data/public/java/eclipse-rap-2.2</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
 				<checksumPolicy>warn</checksumPolicy>
 			</releases>
 		</repository>
+		<!-- <repository> <id>argeo-tp-rap</id> <url>http://localhost:9070/data/public/java/eclipse-rap-2.2</url> 
+			<releases> <enabled>true</enabled> <updatePolicy>daily</updatePolicy> <checksumPolicy>warn</checksumPolicy> 
+			</releases> </repository> -->
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
@@ -516,7 +545,7 @@ limitations under the License.
 		</pluginRepository>
 		<pluginRepository>
 			<id>argeo-maven-plugins</id>
-			<url>http://repo.argeo.org/data/public/java/org.argeo.maven.plugins-1.1.x</url>
+			<url>http://repo.argeo.org/data/public/java/argeo-maven-1.1</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
@@ -527,12 +556,12 @@ limitations under the License.
 	<distributionManagement>
 		<repository>
 			<id>staging</id>
-			<url>dav:https://repo.argeo.org/data/files/java/org.argeo.commons-${developmentCycle.argeo-commons}.x</url>
+			<url>dav:https://repo.argeo.org/data/files/java/argeo-commons-${developmentCycle.argeo-commons}</url>
 			<uniqueVersion>false</uniqueVersion>
 		</repository>
 		<site>
 			<id>site</id>
-			<url>dav:https://repo.argeo.org/data/files/docs/org.argeo.commons-${developmentCycle.argeo-commons}.x</url>
+			<url>dav:https://repo.argeo.org/data/files/docs/argeo-commons-${developmentCycle.argeo-commons}</url>
 		</site>
 	</distributionManagement>
 	<profiles>
@@ -542,12 +571,12 @@ limitations under the License.
 				<repository>
 					<id>localrepo</id>
 					<name>Internal Release Repository</name>
-					<url>dav:http://alma:7080/data/files/java/org.argeo.commons-${developmentCycle.argeo-commons}.tp</url>
+					<url>dav:http://localhost:7070/data/files/java/argeo-commons-${developmentCycle.argeo-commons}</url>
 				</repository>
 				<site>
 					<id>site</id>
 					<name>Argeo Commons Site</name>
-					<url>dav:http://alma:7080/data/files/docs/org.argeo.commons-${developmentCycle.argeo-commons}.tp</url>
+					<url>dav:http://localhost:7070/data/files/docs/argeo-commons-${developmentCycle.argeo-commons}</url>
 				</site>
 			</distributionManagement>
 		</profile>

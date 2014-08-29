@@ -17,6 +17,7 @@ package org.argeo.eclipse.ui.specific;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.ArgeoException;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.client.service.UrlLauncher;
 import org.eclipse.rap.rwt.service.ServiceHandler;
@@ -29,11 +30,11 @@ import org.eclipse.rap.rwt.service.ServiceHandler;
  * instantiation time.
  * 
  * Manages the process of forwarding the request to the handler at runtime to
- * open the corresponding URL
+ * open the dialog box encodedURL
  */
+@Deprecated
 public class FileHandler {
-	public final static String FORCED_DOWNLOAD_URL_BASE_PROPERTY = "argeo.rap.specific.forcedDownloadUrlBase";
-	public final static String DOWNLOAD_SERVICE_NAME = "peopleServices.download";
+	public final static String DOWNLOAD_SERVICE_NAME = "argeo.rap.download.service";
 	private final static Log log = LogFactory.getLog(FileHandler.class);
 
 	public FileHandler(FileProvider provider) {
@@ -44,23 +45,21 @@ public class FileHandler {
 		} catch (IllegalArgumentException iae) {
 			log.warn("Handler is already registered, clean this registering process");
 		}
-
 	}
 
 	public void openFile(String fileName, String fileId) {
 		try {
-			String relativeUrl = createRelativeUrl(fileName, fileId);
+			String downloadUrl = RWT.getServiceManager().getServiceHandlerUrl(
+					DOWNLOAD_SERVICE_NAME)
+					+ createParamUrl(fileName, fileId);
 			if (log.isTraceEnabled())
-				log.trace("URL : " + relativeUrl);
+				log.debug("URL : " + downloadUrl);
 			UrlLauncher launcher = RWT.getClient()
 					.getService(UrlLauncher.class);
-			launcher.openURL(relativeUrl);
-			// PlatformUI.getWorkbench().getBrowserSupport()
-			// .createBrowser("DownloadDialog").openURL(url);
+			launcher.openURL(downloadUrl);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ArgeoException("Unable to open file " + fileName, e);
 		}
-
 		// These lines are useless in the current use case but might be
 		// necessary with new browsers. Stored here for memo
 		// response.setContentType("application/force-download");
@@ -70,35 +69,11 @@ public class FileHandler {
 		// response.setHeader("Cache-Control", "no-cache, must-revalidate");
 	}
 
-	// LEGACY stored here for the time being as a reminder, in case we have
-	// the same problem again.
-	// See RAP FAQ:
-	// http://wiki.eclipse.org/RAP/FAQ#How_to_provide_download_link.3F
-	// And forum discussion :
-	// http://www.eclipse.org/forums/index.php?t=msg&th=205487&start=0&S=43d85dacc88b505402420592109c7240
-
-	// private String createFullDownloadUrl(String fileName, String fileId) {
-	// StringBuilder url = new StringBuilder();
-	// // in case RAP is proxied we need to specify the actual base URL
-	// // String forcedDownloadUrlBase = System
-	// // .getProperty(FORCED_DOWNLOAD_URL_BASE_PROPERTY);
-	// // if (forcedDownloadUrlBase != null)
-	// // url.append(forcedDownloadUrlBase);
-	// // else
-	// // url.append(RWT.getRequest().getRequestURL());
-	// url.append(createRelativeUrl(fileName, fileId));
-	// return url.toString();
-	// }
-
-	private String createRelativeUrl(String filename, String fileId) {
+	private String createParamUrl(String filename, String fileId) {
 		StringBuilder url = new StringBuilder();
-		url.append(RWT.getServiceManager().getServiceHandlerUrl(
-				DOWNLOAD_SERVICE_NAME));
-		url.append("&").append(DownloadServiceHandler.PARAM_FILE_NAME)
-				.append("=");
+		url.append("&filename=");
 		url.append(filename);
-		url.append("&").append(DownloadServiceHandler.PARAM_FILE_ID)
-				.append("=");
+		url.append("&fileid=");
 		url.append(fileId);
 		return url.toString();
 	}

@@ -36,7 +36,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
- * Refreshes the main EBI list, removing nodes which are not referenced by user
+ * Refreshes the main user list, removing nodes which are not referenced by user
  * admin service.
  */
 public class RefreshUsersList extends AbstractHandler {
