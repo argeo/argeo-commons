@@ -11,7 +11,7 @@
 		<version.argeo-commons>2.1.8.tp</version.argeo-commons>
 		<developmentCycle.argeo-commons>2.1</developmentCycle.argeo-commons>
 		<developmentCycle.argeo-commons.startDate>2012-12-19</developmentCycle.argeo-commons.startDate>
-		<version.argeo-distribution>1.4.0</version.argeo-distribution>
+		<version.argeo-distribution>2.1.1</version.argeo-distribution>
 		<version.rap>2.2.0-R-20131204-0942</version.rap>
 		<version.rap.addons>0.2.0.20131212-1229</version.rap.addons>
 		<!-- RPM -->
@@ -22,8 +22,8 @@
 	</properties>
 	<modules>
 		<module>base</module>
-		<module>server</module>
-		<module>security</module>
+<!-- 		<module>server</module> -->
+<!-- 		<module>security</module> -->
 	</modules>
 	<organization>
 		<name>Argeo</name>
@@ -127,8 +127,8 @@ limitations under the License.
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>2.3.2</version>
 					<configuration>
-						<source>1.6</source>
-						<target>1.6</target>
+						<source>1.7</source>
+						<target>1.7</target>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -205,7 +205,7 @@ limitations under the License.
 						<instructions>
 							<Bundle-Version>${project.version}-r${timestamp}</Bundle-Version>
 							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-							<Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
+							<Bundle-RequiredExecutionEnvironment>JavaSE-1.7</Bundle-RequiredExecutionEnvironment>
 							<!-- SLC specific instructions -->
 							<SLC-GroupId>${project.groupId}</SLC-GroupId>
 							<_removeheaders>Bnd-LastModified,Build-Jdk,Built-By,Tool,Created-By</_removeheaders>
@@ -480,26 +480,26 @@ limitations under the License.
 		<dependencies>
 			<dependency>
 				<groupId>org.argeo.tp</groupId>
-				<artifactId>binaries</artifactId>
+				<artifactId>argeo-tp</artifactId>
 				<version>${version.argeo-distribution}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
 			<!-- Eclipse RAP -->
-			<dependency>
-				<groupId>org.argeo.tp.rap</groupId>
-				<artifactId>binaries</artifactId>
-				<version>${version.argeo-distribution}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.argeo.tp.rap.addons</groupId>
-				<artifactId>binaries</artifactId>
-				<version>${version.rap.addons}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
+<!-- 			<dependency> -->
+<!-- 				<groupId>org.argeo.tp.rap</groupId> -->
+<!-- 				<artifactId>binaries</artifactId> -->
+<!-- 				<version>${version.argeo-distribution}</version> -->
+<!-- 				<type>pom</type> -->
+<!-- 				<scope>import</scope> -->
+<!-- 			</dependency> -->
+<!-- 			<dependency> -->
+<!-- 				<groupId>org.argeo.tp.rap.addons</groupId> -->
+<!-- 				<artifactId>binaries</artifactId> -->
+<!-- 				<version>${version.rap.addons}</version> -->
+<!-- 				<type>pom</type> -->
+<!-- 				<scope>import</scope> -->
+<!-- 			</dependency> -->
 			<dependency>
 				<groupId>org.argeo.tp.rap.platform</groupId>
 				<artifactId>binaries</artifactId>
@@ -512,7 +512,7 @@ limitations under the License.
 	<repositories>
 		<repository>
 			<id>argeo-tp</id>
-			<url>http://repo.argeo.org/data/public/java/argeo-tp-1.4</url>
+			<url>http://localhost:7080/data/public/java/argeo-tp-2.1</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
@@ -521,7 +521,7 @@ limitations under the License.
 		</repository>
 		<repository>
 			<id>argeo-tp-rap</id>
-			<url>http://repo.argeo.org/data/public/java/eclipse-rap-2.2</url>
+			<url>http://localhost:7080/data/public/java/eclipse-rap-2.2</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
