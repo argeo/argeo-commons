@@ -16,10 +16,12 @@
 package org.argeo.security.ui.admin.editors;
 
 import javax.jcr.Node;
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
+import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.UserJcrUtils;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.jcr.JcrUserDetails;
@@ -35,13 +37,16 @@ import org.springframework.security.GrantedAuthority;
 
 /** Editor for an Argeo user. */
 public class ArgeoUserEditor extends FormEditor {
-	public final static String ID = "org.argeo.security.ui.admin.adminArgeoUserEditor";
+	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
+			+ ".adminArgeoUserEditor";
 
-	private JcrUserDetails userDetails;
+	/* DEPENDENCY INJECTION */
+	private Session session;
+	private UserAdminService userAdminService;
+
 	// private Node userHome;
 	private Node userProfile;
-	private UserAdminService userAdminService;
-	private Session session;
+	private JcrUserDetails userDetails;
 
 	public void init(IEditorSite site, IEditorInput input)
 			throws PartInitException {
@@ -108,11 +113,14 @@ public class ArgeoUserEditor extends FormEditor {
 
 		userRolesPage.setUserDetails(userDetails);
 
+		// FIXME rather use a refresh command. Fails when called by another
+		// view.
 		// refresh users view
 		IWorkbench iw = SecurityAdminPlugin.getDefault().getWorkbench();
 		UsersView usersView = (UsersView) iw.getActiveWorkbenchWindow()
 				.getActivePage().findView(UsersView.ID);
-		usersView.refresh();
+		if (usersView != null)
+			usersView.refresh();
 	}
 
 	@Override
@@ -129,11 +137,22 @@ public class ArgeoUserEditor extends FormEditor {
 		userRolesPage.refresh();
 	}
 
+	@Override
+	public void dispose() {
+		JcrUtils.logoutQuietly(session);
+		super.dispose();
+	}
+	
+	/* DEPENDENCY INJECTION */
 	public void setUserAdminService(UserAdminService userAdminService) {
 		this.userAdminService = userAdminService;
 	}
-
-	public void setSession(Session session) {
-		this.session = session;
+	
+	public void setRepository(Repository repository) {
+		try {
+			session = repository.login();
+		} catch (RepositoryException re) {
+			throw new ArgeoException("Unable to initialise local session", re);
+		}
 	}
 }

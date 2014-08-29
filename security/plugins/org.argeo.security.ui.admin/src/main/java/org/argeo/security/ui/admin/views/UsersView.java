@@ -16,6 +16,7 @@
 package org.argeo.security.ui.admin.views;
 
 import javax.jcr.Node;
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.observation.Event;
@@ -45,8 +46,10 @@ public class UsersView extends ViewPart implements ArgeoNames {
 	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
 			+ ".adminUsersView";
 
-	private UserTableComposite userTableCmp;
+	/* DEPENDENCY INJECTION */
 	private Session session;
+
+	private UserTableComposite userTableCmp;
 	private JcrUserListener userStructureListener;
 	private JcrUserListener userPropertiesListener;
 
@@ -86,12 +89,13 @@ public class UsersView extends ViewPart implements ArgeoNames {
 	public void dispose() {
 		JcrUtils.removeListenerQuietly(session, userStructureListener);
 		JcrUtils.removeListenerQuietly(session, userPropertiesListener);
+		JcrUtils.logoutQuietly(session);
 		super.dispose();
 	}
 
-	public void setSession(Session session) {
-		this.session = session;
-	}
+	// public void setSession(Session session) {
+	// this.session = session;
+	// }
 
 	public void refresh() {
 		this.getSite().getShell().getDisplay().asyncExec(new Runnable() {
@@ -141,4 +145,14 @@ public class UsersView extends ViewPart implements ArgeoNames {
 			}
 		}
 	}
+
+	/* DEPENDENCY INJECTION */
+	public void setRepository(Repository repository) {
+		try {
+			session = repository.login();
+		} catch (RepositoryException re) {
+			throw new ArgeoException("Unable to initialise local session", re);
+		}
+	}
+
 }

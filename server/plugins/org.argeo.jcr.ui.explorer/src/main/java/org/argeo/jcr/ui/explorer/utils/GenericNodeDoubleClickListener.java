@@ -49,7 +49,9 @@ public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 	public GenericNodeDoubleClickListener(TreeViewer nodeViewer) {
 		this.nodeViewer = nodeViewer;
 		jfp = new JcrFileProvider();
-		fileHandler = new FileHandler(jfp);
+		// Commented out. see https://www.argeo.org/bugzilla/show_bug.cgi?id=188
+		fileHandler = null;
+		// fileHandler = new FileHandler(jfp);
 	}
 
 	public void doubleClick(DoubleClickEvent event) {
@@ -88,7 +90,8 @@ public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 					// nodeViewer
 					// .getContentProvider();
 					jfp.setReferenceNode(node);
-					fileHandler.openFile(name, id);
+					if (fileHandler != null)
+						fileHandler.openFile(name, id);
 				}
 				GenericNodeEditorInput gnei = new GenericNodeEditorInput(node);
 				JcrExplorerPlugin.getDefault().getWorkbench()

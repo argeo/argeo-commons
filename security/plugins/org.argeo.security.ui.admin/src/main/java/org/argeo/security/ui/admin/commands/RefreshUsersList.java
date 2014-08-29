@@ -33,6 +33,7 @@ import org.argeo.security.ui.admin.views.UsersView;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
@@ -69,12 +70,22 @@ public class RefreshUsersList extends AbstractHandler {
 		} finally {
 			JcrUtils.logoutQuietly(session);
 		}
-
 		userAdminService.synchronize();
+
+		// FIXME try to refresh views that extend the UsersView and have another
+		// ID
+		IWorkbenchPart part = HandlerUtil.getActiveWorkbenchWindow(event)
+				.getActivePage().getActivePart();
+		if (part instanceof UsersView)
+			((UsersView) part).refresh();
+
+		// Try to refresh UsersView if opened
 		UsersView view = (UsersView) HandlerUtil
 				.getActiveWorkbenchWindow(event).getActivePage()
 				.findView(UsersView.ID);
-		view.refresh();
+		if (view != null)
+			view.refresh();
+
 		return null;
 	}
 

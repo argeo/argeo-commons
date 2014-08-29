@@ -3,6 +3,7 @@ package org.argeo.security.core;
 import java.io.Console;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Locale;
 
 import javax.security.auth.callback.Callback;
@@ -47,6 +48,7 @@ public class ConsoleCallbackHandler implements CallbackHandler {
 				writer.write(callback.getPrompt());
 				char[] answer = console.readPassword();
 				callback.setPassword(answer);
+				Arrays.fill(answer, ' ');
 			} else if (callbacks[i] instanceof LocaleCallback) {
 				LocaleCallback callback = (LocaleCallback) callbacks[i];
 				writer.write(callback.getPrompt());

@@ -30,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.eclipse.ui.specific.ImportToServerWizardPage;
+import org.argeo.eclipse.ui.specific.UploadFileWizardPage;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -39,7 +40,7 @@ public class ImportFileSystemWizard extends Wizard {
 	private final static Log log = LogFactory
 			.getLog(ImportFileSystemWizard.class);
 
-	private ImportToServerWizardPage importPage;
+	private UploadFileWizardPage importPage;
 	private final Node folder;
 
 	public ImportFileSystemWizard(Node folder) {
@@ -49,7 +50,7 @@ public class ImportFileSystemWizard extends Wizard {
 
 	@Override
 	public void addPages() {
-		importPage = new ImportToServerWizardPage();
+		importPage = new UploadFileWizardPage();
 		addPage(importPage);
 		setNeedsProgressMonitor(importPage.getNeedsProgressMonitor());
 	}
@@ -92,7 +93,8 @@ public class ImportFileSystemWizard extends Wizard {
 			return true;
 		} else if (ImportToServerWizardPage.FOLDER_ITEM_TYPE.equals(objectType)) {
 			if (objectPath == null || !new File(objectPath).exists()) {
-				ErrorFeedback.show("Directory " + objectPath + " does not exist");
+				ErrorFeedback.show("Directory " + objectPath
+						+ " does not exist");
 				return false;
 			}
 

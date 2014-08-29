@@ -40,4 +40,25 @@
       </callbackHandlerMapping>
    </extension>
    
+   	<!-- COMMANDS --> 
+	<extension point="org.eclipse.ui.commands">
+		<!-- Register a default command that enable an "open file" action in a single sourced application  -->  
+		<command
+			defaultHandler="org.argeo.eclipse.ui.specific.OpenFile"
+			id="org.argeo.security.ui.specific.openFile"
+			name="OpenFile">
+			<commandParameter
+         		id="param.fileName"
+         		name="The name of the file to open (optional)">
+  	 		</commandParameter>
+            <commandParameter
+         		id="param.fileURI"
+         		name="The URI of this file on the server">
+  	 		</commandParameter>
+  	 		<commandParameter
+         		id="param.filePath"
+         		name="The absolute path of this file on the server file system">
+			</commandParameter>
+		</command>
+	</extension>
 </plugin>

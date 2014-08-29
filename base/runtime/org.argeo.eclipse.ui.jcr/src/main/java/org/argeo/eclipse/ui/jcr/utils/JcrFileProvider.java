@@ -149,19 +149,27 @@ public class JcrFileProvider implements FileProvider {
 			if (result == null)
 				throw new ArgeoException("File node not found for ID" + fileId);
 
-			// Ensure that the node have the correct type.
-			if (!result.isNodeType(NodeType.NT_FILE))
-				throw new ArgeoException(
-						"Cannot open file children Node that are not of '"
-								+ NodeType.NT_RESOURCE + "' type.");
+			Node child = null;
+			
+			boolean isValid = true;
+			if (!result.isNodeType(NodeType.NT_FILE)) 
+				// useless: mandatory child node
+				// || !result.hasNode(Property.JCR_CONTENT)) 
+				isValid = false;
+			else {
+				child = result.getNode(Property.JCR_CONTENT);
+				if (!(child.isNodeType(NodeType.NT_RESOURCE) || child
+							.hasProperty(Property.JCR_DATA)))
+					isValid = false;
+			}
 
-			// Get the usefull part of the Node
-			Node child = result.getNodes().nextNode();
-			if (child == null || !child.isNodeType(NodeType.NT_RESOURCE))
+			if (!isValid)
 				throw new ArgeoException(
-						"ERROR: IN the current implemented model, '"
+						"ERROR: In the current implemented model, '"
 								+ NodeType.NT_FILE
-								+ "' file node must have one and only one child of the nt:ressource, where actual data is stored");
+								+ "' file node must have a child node named jcr:content "
+								+ "that has a BINARY Property named jcr:data "
+								+ "where the actual data is stored");
 			return child;
 
 		} catch (RepositoryException re) {

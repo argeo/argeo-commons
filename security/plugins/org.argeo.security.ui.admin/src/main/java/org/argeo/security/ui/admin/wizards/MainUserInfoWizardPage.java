@@ -57,23 +57,34 @@ public class MainUserInfoWizardPage extends WizardPage implements
 		password2 = EclipseUiUtils.createGridLP(composite, "Repeat password",
 				this);
 		setControl(composite);
+		
+		// Initialize buttons
+		setPageComplete(false);
+		getContainer().updateButtons();
 	}
 
 	@Override
 	public void modifyText(ModifyEvent event) {
 		String message = checkComplete();
-		if (message != null)
+		if (message != null) {
 			setMessage(message, WizardPage.ERROR);
-		else {
+			setPageComplete(false);
+		} else {
 			setMessage("Complete", WizardPage.INFORMATION);
 			setPageComplete(true);
 		}
+		getContainer().updateButtons();
 	}
 
 	/** @return error message or null if complete */
 	protected String checkComplete() {
-//		if (!username.getText().matches(UserAdminService.USERNAME_PATTERN))
-//			return "Wrong user name format, should be lower case, between 3 and 64 characters with only '_' an '@' as acceptable special character.";
+		// if (!username.getText().matches(UserAdminService.USERNAME_PATTERN))
+		// return
+		// "Wrong user name format, should be lower case, between 3 and 64 characters with only '_' an '@' as acceptable special character.";
+		
+		if (username.getText().trim().equals(""))
+			return "User name must not be empty";
+		
 		try {
 			UserDetails userDetails = userAdminService
 					.loadUserByUsername(username.getText());

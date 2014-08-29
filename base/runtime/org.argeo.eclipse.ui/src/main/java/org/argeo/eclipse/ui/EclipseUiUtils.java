@@ -109,5 +109,4 @@ public class EclipseUiUtils {
 				.setStyle(SWT.BOLD | SWT.ITALIC)
 				.createFont(parent.getDisplay());
 	}
-
 }

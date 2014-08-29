@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.SortedSet;
+import java.util.UUID;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -277,7 +278,8 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 				.getAttributeSortedStringSet(passwordAttribute);
 		String password;
 		if (passwordAttributes == null || passwordAttributes.size() == 0) {
-			throw new ArgeoException("No password found for user " + username);
+			//throw new ArgeoException("No password found for user " + username);
+			password = "NULL";
 		} else {
 			byte[] arr = (byte[]) passwordAttributes.first();
 			password = new String(arr);
