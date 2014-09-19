@@ -105,7 +105,23 @@ public class CommandUtils {
 
 	/**
 	 * Commodities the refresh of a single command with a map of parameters in a
-	 * Menu.aboutToShow method to simplify further development
+	 * Menu.aboutToShow method to simplify further development Rather use
+	 * {@link refreshParameterizedCommand()}
+	 */
+	@Deprecated
+	public static void refreshParametrizedCommand(IMenuManager menuManager,
+			IServiceLocator locator, String cmdId, String label,
+			ImageDescriptor icon, boolean showCommand,
+			Map<String, String> params) {
+		refreshParameterizedCommand(menuManager, locator, cmdId, label, icon,
+				showCommand, params);
+	}
+
+	/**
+	 * Commodities the refresh the contribution of a command with a map of
+	 * parameters in a context menu
+	 * 
+	 * The command ID is used has contribution item ID
 	 * 
 	 * @param menuManager
 	 * @param locator
@@ -114,17 +130,38 @@ public class CommandUtils {
 	 * @param iconPath
 	 * @param showCommand
 	 */
-	public static void refreshParametrizedCommand(IMenuManager menuManager,
+	public static void refreshParameterizedCommand(IMenuManager menuManager,
 			IServiceLocator locator, String cmdId, String label,
 			ImageDescriptor icon, boolean showCommand,
 			Map<String, String> params) {
-		IContributionItem ici = menuManager.find(cmdId);
+		refreshParameterizedCommand(menuManager, locator, cmdId, cmdId, label,
+				icon, showCommand, params);
+	}
+
+	/**
+	 * Commodities the refresh the contribution of a command with a map of
+	 * parameters in a context menu
+	 * 
+	 * @param menuManager
+	 * @param locator
+	 * @param contributionId
+	 * @param commandId
+	 * @param label
+	 * @param icon
+	 * @param showCommand
+	 * @param params
+	 */
+	public static void refreshParameterizedCommand(IMenuManager menuManager,
+			IServiceLocator locator, String contributionId, String commandId,
+			String label, ImageDescriptor icon, boolean showCommand,
+			Map<String, String> params) {
+		IContributionItem ici = menuManager.find(contributionId);
 		if (ici != null)
 			menuManager.remove(ici);
-		CommandContributionItemParameter contributionItemParameter = new CommandContributionItemParameter(
-				locator, null, cmdId, SWT.PUSH);
-
 		if (showCommand) {
+			CommandContributionItemParameter contributionItemParameter = new CommandContributionItemParameter(
+					locator, null, commandId, SWT.PUSH);
+
 			// Set Params
 			contributionItemParameter.label = label;
 			contributionItemParameter.icon = icon;
@@ -134,7 +171,7 @@ public class CommandUtils {
 
 			CommandContributionItem cci = new CommandContributionItem(
 					contributionItemParameter);
-			cci.setId(cmdId);
+			cci.setId(contributionId);
 			menuManager.add(cci);
 		}
 	}
