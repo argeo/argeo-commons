@@ -24,6 +24,7 @@ import org.eclipse.jface.viewers.Viewer;
  */
 public abstract class AbstractTreeContentProvider implements
 		ITreeContentProvider {
+	private static final long serialVersionUID = 8246126401957763868L;
 
 	/** Does nothing */
 	public void dispose() {

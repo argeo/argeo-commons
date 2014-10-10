@@ -23,6 +23,8 @@ import org.eclipse.swt.widgets.Shell;
  * @deprecated use {@link org.argeo.eclipse.ui.ErrorFeedback} instead.
  */
 public class Error extends org.argeo.eclipse.ui.ErrorFeedback {
+	private static final long serialVersionUID = -93864960090248736L;
+
 	public Error(Shell parentShell, String message, Throwable e) {
 		super(parentShell, message, e);
 	}

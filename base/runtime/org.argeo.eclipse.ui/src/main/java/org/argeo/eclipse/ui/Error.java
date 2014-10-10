@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Shell;
  * @deprecated deprecated because of poor naming, use {@link ErrorFeedback}
  *             instead
  */
+@SuppressWarnings("serial")
 @Deprecated
 public class Error extends ErrorFeedback {
 

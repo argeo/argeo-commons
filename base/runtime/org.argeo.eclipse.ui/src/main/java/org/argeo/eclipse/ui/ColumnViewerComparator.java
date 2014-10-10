@@ -25,8 +25,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 
-/** Generic column viewer sortter */
+/** Generic column viewer sorter */
 public class ColumnViewerComparator<T> extends ViewerComparator {
+	private static final long serialVersionUID = -2266218906355859909L;
+
 	public static final int ASC = 1;
 
 	public static final int NONE = 0;
@@ -45,6 +47,7 @@ public class ColumnViewerComparator<T> extends ViewerComparator {
 		this.column = column;
 		this.viewer = column.getViewer();
 		this.column.getColumn().addSelectionListener(new SelectionAdapter() {
+			private static final long serialVersionUID = 7586796298965472189L;
 
 			public void widgetSelected(SelectionEvent e) {
 				if (ColumnViewerComparator.this.viewer.getComparator() != null) {

@@ -19,7 +19,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 
 public abstract class GenericTableComparator extends ViewerComparator {
-
+	private static final long serialVersionUID = -1175894935075325810L;
 	protected int propertyIndex;
 	public static final int ASCENDING = 0, DESCENDING = 1;
 	protected int direction = DESCENDING;
