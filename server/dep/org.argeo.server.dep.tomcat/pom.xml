@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
-		<version>2.1.9</version>
+		<version>2.1.10-SNAPSHOT</version>
 		<artifactId>dep</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -15,7 +15,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.base</groupId>
 			<artifactId>org.argeo.dep.log4j</artifactId>
-			<version>2.1.9</version>
+			<version>2.1.10-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
 
@@ -23,12 +23,12 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.catalina</artifactId>
-			<version>2.1.9</version>
+			<version>2.1.10-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.catalina.start</artifactId>
-			<version>2.1.9</version>
+			<version>2.1.10-SNAPSHOT</version>
 		</dependency>
 
 		<!-- JEE -->
@@ -100,7 +100,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.base</groupId>
 			<artifactId>org.argeo.osgi.boot</artifactId>
-			<version>2.1.9</version>
+			<version>2.1.10-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
 
