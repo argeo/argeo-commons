@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
@@ -13,7 +14,7 @@
 		<developmentCycle.argeo-commons.startDate>2012-12-19</developmentCycle.argeo-commons.startDate>
 		<version.argeo-distribution>1.4.0</version.argeo-distribution>
 		<version.rap>2.2.0-R-20131204-0942</version.rap>
-		<version.rap.addons>0.2.0.20131212-1229</version.rap.addons>
+		<version.rap.addons>0.5.0.argeo.20141029</version.rap.addons>
 		<!-- RPM -->
 		<rpm.release>6</rpm.release>
 		<rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-2-staging/6/x86_64</rpm.stagingRepository>
@@ -519,18 +520,18 @@ limitations under the License.
 				<checksumPolicy>warn</checksumPolicy>
 			</releases>
 		</repository>
+		<!-- <repository> <id>argeo-tp-rap</id> <url>http://repo.argeo.org/data/public/java/eclipse-rap-2.2</url> 
+			<releases> <enabled>true</enabled> <updatePolicy>daily</updatePolicy> <checksumPolicy>warn</checksumPolicy> 
+			</releases> </repository> -->
 		<repository>
 			<id>argeo-tp-rap</id>
-			<url>http://repo.argeo.org/data/public/java/eclipse-rap-2.2</url>
+			<url>http://localhost:9070/data/public/java/eclipse-rap-2.2</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
 				<checksumPolicy>warn</checksumPolicy>
 			</releases>
 		</repository>
-		<!-- <repository> <id>argeo-tp-rap</id> <url>http://localhost:9070/data/public/java/eclipse-rap-2.2</url> 
-			<releases> <enabled>true</enabled> <updatePolicy>daily</updatePolicy> <checksumPolicy>warn</checksumPolicy> 
-			</releases> </repository> -->
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
