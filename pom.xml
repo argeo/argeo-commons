@@ -520,18 +520,18 @@ limitations under the License.
 				<checksumPolicy>warn</checksumPolicy>
 			</releases>
 		</repository>
-		<!-- <repository> <id>argeo-tp-rap</id> <url>http://repo.argeo.org/data/public/java/eclipse-rap-2.2</url> 
-			<releases> <enabled>true</enabled> <updatePolicy>daily</updatePolicy> <checksumPolicy>warn</checksumPolicy> 
-			</releases> </repository> -->
 		<repository>
 			<id>argeo-tp-rap</id>
-			<url>http://localhost:9070/data/public/java/eclipse-rap-2.2</url>
+			<url>http://repo.argeo.org/data/public/java/eclipse-rap-2.2</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
 				<checksumPolicy>warn</checksumPolicy>
 			</releases>
 		</repository>
+		<!--<repository> <id>argeo-tp-rap</id> <url>http://localhost:9070/data/public/java/eclipse-rap-2.2</url> 
+			<releases> <enabled>true</enabled> <updatePolicy>daily</updatePolicy> <checksumPolicy>warn</checksumPolicy> 
+			</releases> </repository> -->
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
