@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
 		<artifactId>runtime</artifactId>
-		<version>2.1.11-SNAPSHOT</version>
+		<version>2.1.11</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.server.ads</artifactId>
@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>org.argeo.commons.base</groupId>
 			<artifactId>org.argeo.util</artifactId>
-			<version>2.1.11-SNAPSHOT</version>
+			<version>2.1.11</version>
 		</dependency>
 
 		<!-- Apache DS -->
