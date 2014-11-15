@@ -1,0 +1,42 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.argeo.commons</groupId>
+		<version>2.1.11</version>
+		<artifactId>server</artifactId>
+		<relativePath>..</relativePath>
+	</parent>
+	<groupId>org.argeo.commons.server</groupId>
+	<artifactId>modules</artifactId>
+	<packaging>pom</packaging>
+	<name>Commons Server Modules</name>
+	<modules>
+		<module>org.argeo.ext.jackrabbit.sybase</module>
+		<module>org.argeo.ext.jdbm</module>
+		<module>org.argeo.ext.bsf</module>
+		<module>org.argeo.jackrabbit.webapp</module>
+		<module>org.argeo.node.repo.jackrabbit</module>
+		<module>org.argeo.server.activemq.broker</module>
+		<module>org.argeo.server.ads.server</module>
+		<module>org.argeo.server.catalina</module>
+		<module>org.argeo.server.jdbc</module>
+		<module>org.argeo.server.rap.webapp</module>
+<!-- 		<module>org.argeo.server.tomcat</module> -->
+	</modules>
+	<build>
+		<resources>
+			<resource>
+				<directory>.</directory>
+				<includes>
+					<include>**</include>
+				</includes>
+				<excludes>
+					<exclude>.*</exclude>
+					<exclude>.*/**</exclude>
+					<exclude>pom.xml</exclude>
+					<exclude>build.properties</exclude>
+				</excludes>
+			</resource>
+		</resources>
+	</build>
+</project>

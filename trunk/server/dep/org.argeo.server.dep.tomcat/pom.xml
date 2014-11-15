@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.argeo.commons.server</groupId>
+		<version>2.1.11</version>
+		<artifactId>dep</artifactId>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>org.argeo.server.dep.tomcat</artifactId>
+	<packaging>pom</packaging>
+	<name>Commons Tomcat Dependencies</name>
+	<dependencies>
+		<!-- Commons Dep -->
+		<dependency>
+			<groupId>org.argeo.commons.base</groupId>
+			<artifactId>org.argeo.dep.log4j</artifactId>
+			<version>2.1.11</version>
+			<type>pom</type>
+		</dependency>
+
+		<!-- Modules -->
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.catalina</artifactId>
+			<version>2.1.11</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.catalina.start</artifactId>
+			<version>2.1.11</version>
+		</dependency>
+
+		<!-- JEE -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.servlet</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.servlet.jsp</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.persistence</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.management.j2ee</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.ejb</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.xml.rpc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.servlet.jsp.jstl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.el</artifactId>
+		</dependency>
+
+		<!-- Taglibs -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.taglibs.standard</artifactId>
+		</dependency>
+
+		<!-- Tomcat -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.coyote</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.catalina</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.jasper</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.el</artifactId>
+		</dependency>
+
+		<!-- Test with Javax -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.xmlcommons</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- OSGi test -->
+		<dependency>
+			<groupId>org.argeo.commons.base</groupId>
+			<artifactId>org.argeo.osgi.boot</artifactId>
+			<version>2.1.11</version>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+</project>

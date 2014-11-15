@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<!-- Perspectives -->
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.argeo.jcr.ui.explorer.JcrExplorerPerspective"
+            icon="icons/nodes.gif"
+            id="org.argeo.jcr.ui.explorer.perspective"
+            name="Data Explorer">
+      </perspective>
+   </extension>
+   <!-- Views --> 
+   <extension
+         point="org.eclipse.ui.views">
+	   <view
+          class="org.argeo.eclipse.spring.SpringExtensionFactory"
+          icon="icons/browser.gif"
+          id="org.argeo.jcr.ui.explorer.browserView"
+          name="JCR Browser">
+	   </view>
+   </extension>
+   <!-- Editors --> 
+   <extension
+           point="org.eclipse.ui.editors">
+	     <editor
+	          class="org.argeo.eclipse.spring.SpringExtensionFactory"
+              id="org.argeo.jcr.ui.explorer.genericJcrQueryEditor"
+              name="JCR Query"
+              icon="icons/query.png"
+              default="false">
+        </editor>
+	     <editor
+	          class="org.argeo.eclipse.spring.SpringExtensionFactory"
+              id="org.argeo.jcr.ui.explorer.genericNodeEditor"
+              name="Node Editor"
+              icon="icons/query.png"
+              default="false">
+        </editor>
+     </extension>
+   	<!-- Commands --> 
+   	<extension
+         point="org.eclipse.ui.commands">
+		<command
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            id="org.argeo.jcr.ui.explorer.openGenericJcrQueryEditor"
+            name="New generic JCR query">
+    	</command>
+    	<command
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+			id="org.argeo.jcr.ui.explorer.openGenericNodeEditor"
+			name="Open generic node Editor">
+			<commandParameter
+				id="org.argeo.jcr.ui.explorer.nodePath"
+				name="Node path">
+  	 		</commandParameter>
+		</command>    
+    	<command
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+			id="org.argeo.jcr.ui.explorer.getNodeSize"
+			name="Get node size">
+		</command>    
+    	<command
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+			id="org.argeo.jcr.ui.explorer.addRemoteRepository"
+			name="Add remote JCR repository">
+			<commandParameter
+				id="org.argeo.jcr.ui.explorer.repositoryUri"
+				name="Repository URI">
+  	 		</commandParameter>
+		</command>    
+    	<command
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+			id="org.argeo.jcr.ui.explorer.removeRemoteRepository"
+			name="Remove remote JCR repository">
+		</command>    
+	  <command
+	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+	        id="org.argeo.jcr.ui.explorer.addFolderNode"
+	        name="Create a new folder">
+	  </command>
+	  <command
+	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+	        id="org.argeo.jcr.ui.explorer.addPrivileges"
+	        name="Add Privileges">
+	  </command>
+	  <command
+	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+	        id="org.argeo.jcr.ui.explorer.createWorkspace"
+	        name="Create a new workspace">
+	  </command>
+	  <command
+	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+	        id="org.argeo.jcr.ui.explorer.refresh"
+	        name="Refresh">
+	  </command>
+	  <command
+	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+	        id="org.argeo.jcr.ui.explorer.deleteNodes"
+	        name="Delete nodes">
+	  </command>
+	  <command
+	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+	        id="org.argeo.jcr.ui.explorer.importFileSystem"
+	        name="Import files...">
+	  </command>
+	 <!-- <command
+	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+	        id="org.argeo.jcr.ui.explorer.openFile"
+	        name="Open current file">
+	  </command>
+	  -->
+	  <command
+	        defaultHandler="org.argeo.jcr.ui.explorer.commands.DumpNode"
+	        id="org.argeo.jcr.ui.explorer.dumpNode"
+	        name="Dump Current Selected Node">
+	  </command>
+	  <command
+            defaultHandler="org.argeo.jcr.ui.explorer.commands.SortChildNodes"
+            id="org.argeo.jcr.ui.explorer.sortChildNodes"
+            name="Sort node tree">
+            <!-- FIXME: default value does not work -->
+            <state 
+				id="org.argeo.jcr.ui.explorer.sortChildNodes.toggleState" 
+				class="org.eclipse.ui.handlers.RegistryToggleState:true" >
+				<!-- <class class="org.eclipse.jface.commands.ToggleState"> 
+					<parameter
+						name="default"
+               			value="true" />
+				</class> -->
+			</state>
+     </command>
+    </extension>
+
+    <!-- Menus --> 
+	<extension point="org.eclipse.ui.menus">
+		<!-- Browser view specific menu --> 
+		<menuContribution
+			locationURI="menu:org.argeo.jcr.ui.explorer.browserView">
+            <!-- See bug 149 --> 
+            <!-- <command
+            	commandId="org.argeo.jcr.ui.explorer.openGenericJcrQueryEditor"
+                icon="icons/query.png"
+                style="push">
+            </command> --> 
+            <command
+            	commandId="org.argeo.jcr.ui.explorer.addRemoteRepository"
+                icon="icons/addRepo.gif"
+                style="push">
+            </command>
+             <command
+            	commandId="org.argeo.jcr.ui.explorer.sortChildNodes"
+                icon="icons/sort.gif"
+                style="toggle"
+                label="Sort child nodes"
+                tooltip="Warning: stopping to sort children nodes might enhance overall performances">
+            </command>
+		</menuContribution>
+		<!-- Browser view popup context menu --> 
+		<menuContribution
+			locationURI="popup:org.argeo.jcr.ui.explorer.browserView">
+			<command
+				commandId="org.argeo.jcr.ui.explorer.refresh"
+				icon="icons/refresh.png"
+				style="push">
+			</command>
+			<command
+		         commandId="org.argeo.jcr.ui.explorer.addFolderNode"
+		         icon="icons/addFolder.gif"
+		         label="Add Folder"
+		         style="push">
+				<visibleWhen>
+					<iterate>
+				      <and>
+				         <or>
+				            <instanceof
+				                  value="org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem">
+				            </instanceof>
+				            <instanceof
+				                  value="org.argeo.jcr.ui.explorer.model.WorkspaceElem">
+				            </instanceof>
+				         </or>
+             			<with variable="activeMenuSelection"><count value="1"/></with>
+				      </and>
+					</iterate>
+				</visibleWhen>
+			</command>
+			<command
+		         commandId="org.argeo.jcr.ui.explorer.addPrivileges"
+		         icon="icons/addPrivileges.png"
+		         label="Add Privileges"
+		         style="push">
+				<visibleWhen>
+					<iterate>
+				      <and>
+				         <or>
+				            <instanceof
+				                  value="org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem">
+				            </instanceof>
+				            <instanceof
+				                  value="org.argeo.jcr.ui.explorer.model.WorkspaceElem">
+				            </instanceof>
+				         </or>
+             			<with variable="activeMenuSelection"><count value="1"/></with>
+				      </and>
+					</iterate>
+				</visibleWhen>
+			</command>
+			<command
+		         commandId="org.argeo.jcr.ui.explorer.createWorkspace"
+		         icon="icons/addWorkspace.png"
+		         label="Create Workspace"
+		         style="push">
+				<visibleWhen>
+					<iterate>
+			      		<and>
+			         		<or>
+			            		<instanceof
+			                  		value="org.argeo.jcr.ui.explorer.model.RepositoryElem">
+			            		</instanceof>
+			         		</or>
+             				<with variable="activeMenuSelection"><count value="1"/></with>
+						</and>
+					</iterate>
+				</visibleWhen>
+			</command>
+			<command
+				commandId="org.argeo.jcr.ui.explorer.deleteNodes"
+				icon="icons/remove.gif"
+				label="Delete Nodes"
+				style="push">
+				<visibleWhen>
+					<iterate>
+						<or>
+							<instanceof
+								value="org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem" />
+							<instanceof
+								value="org.argeo.jcr.ui.explorer.model.WorkspaceElem" />
+						</or>
+					</iterate>
+				</visibleWhen>
+			</command>
+			<command
+				commandId="org.argeo.jcr.ui.explorer.importFileSystem"
+				icon="icons/import_fs.png"
+				style="push"
+				tooltip="Import files from the files sytem">
+				<visibleWhen>
+					<iterate>
+						<and>
+							<or>
+								<instanceof
+									value="org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem" />
+								<instanceof
+                          			value="org.argeo.jcr.ui.explorer.model.WorkspaceElem" />
+                 			</or>
+                 			<with variable="activeMenuSelection"><count value="1"/></with>
+						</and>
+					</iterate>
+				</visibleWhen>
+			</command>
+			<command
+				commandId="org.argeo.jcr.ui.explorer.addRemoteRepository"
+				icon="icons/addRepo.gif"
+				style="push">
+					<visibleWhen>
+						<iterate> 
+							<or>
+								<instanceof
+                    				value="org.argeo.jcr.ui.explorer.model.RepositoriesElem" />
+								<instanceof
+									value="org.argeo.jcr.ui.explorer.model.RepositoryElem" />
+							</or> 
+						</iterate>
+					</visibleWhen>
+			</command>
+			<command
+				commandId="org.argeo.jcr.ui.explorer.removeRemoteRepository"
+				icon="icons/remove.gif"
+				style="push">
+				<visibleWhen>
+					<iterate> 
+						<or>
+							<instanceof
+								value="org.argeo.jcr.ui.explorer.model.RemoteRepositoryElem" />
+						</or> 
+           			</iterate>
+				</visibleWhen>
+			</command>
+			<command
+				commandId="org.argeo.jcr.ui.explorer.getNodeSize"
+				icon="icons/getSize.gif"
+				style="push">
+					<visibleWhen>
+						<iterate>
+							<or>
+								<instanceof
+									value="org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem" />
+								<instanceof
+									value="org.argeo.jcr.ui.explorer.model.WorkspaceElem" />
+              				</or>
+           				</iterate>
+					</visibleWhen>
+			</command>
+			<command
+		         commandId="org.argeo.jcr.ui.explorer.dumpNode"
+		         icon="icons/dumpNode.gif"
+		         label="Dump Node"
+		         style="push">
+				<visibleWhen>
+					<iterate>
+				      <and>
+						<instanceof value="org.argeo.jcr.ui.explorer.model.SingleJcrNodeElem"></instanceof>
+             			<with variable="activeMenuSelection"><count value="1"/></with>
+				      </and>
+					</iterate>
+				</visibleWhen>
+			</command>
+			
+		</menuContribution>
+	</extension>
+
+	<!-- Reduce visibility of JCR Explorer perspective to users that are in ROLE_ADMIN --> 	
+	<extension
+    	point="org.eclipse.ui.activities">
+		<activity
+			description="Only for admins"
+			id="org.argeo.jcr.ui.explorer.adminActivity"
+            name="Jcr Technical Admin">
+			<enabledWhen>
+				<with variable="roles">
+					<iterate ifEmpty="false" operator="or">
+						<equals value="ROLE_ADMIN" />
+					</iterate>
+				</with>
+			</enabledWhen>
+		</activity>
+        <activityPatternBinding
+			activityId="org.argeo.jcr.ui.explorer.adminActivity"
+			isEqualityPattern="true"
+			pattern="org.argeo.jcr.ui.explorer/org.argeo.jcr.ui.explorer.perspective">
+		</activityPatternBinding>
+	</extension>
+
+	<!-- Core expression definition 
+	<extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="expression.onlyOneItemSelected">
+         <with
+               variable="activeMenuSelection">
+            <count
+                  value="1">
+            </count>
+         </with>
+      </definition>
+   </extension>
+	--> 
+</plugin>

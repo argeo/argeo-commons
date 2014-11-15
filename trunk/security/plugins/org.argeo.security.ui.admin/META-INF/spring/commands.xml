@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="openArgeoUserEditor"
+		class="org.argeo.security.ui.admin.commands.OpenArgeoUserEditor"
+		scope="prototype" />
+
+	<!-- USERS -->
+	<bean id="newUser" class="org.argeo.security.ui.admin.commands.NewUser"
+		scope="prototype">
+		<property name="repository" ref="nodeRepository" />
+		<property name="userAdminService" ref="userAdminService" />
+		<property name="jcrSecurityModel" ref="jcrSecurityModel" />
+	</bean>
+
+	<bean id="refreshUsersList" class="org.argeo.security.ui.admin.commands.RefreshUsersList"
+		scope="prototype">
+		<property name="userAdminService" ref="userAdminService" />
+		<property name="repository" ref="nodeRepository" />
+	</bean>
+
+	<bean id="deleteUser" class="org.argeo.security.ui.admin.commands.DeleteUser"
+		scope="prototype">
+		<property name="userAdminService" ref="userAdminService" />
+	</bean>
+	
+	<bean id="userBatchUpdate" class="org.argeo.security.ui.admin.commands.UserBatchUpdate"
+		scope="prototype">
+		<property name="repository" ref="nodeRepository" />
+		<property name="userAdminService" ref="userAdminService" />
+		<property name="jcrSecurityModel" ref="jcrSecurityModel" />
+	</bean>
+	
+
+	<!-- ROLES -->
+	<bean id="refreshRoles" class="org.argeo.security.ui.admin.commands.RefreshRoles"
+		scope="prototype">
+	</bean>
+
+	<bean id="addRole" class="org.argeo.security.ui.admin.commands.AddRole"
+		scope="prototype">
+		<property name="userAdminService" ref="userAdminService" />
+	</bean>
+
+	<bean id="deleteRole" class="org.argeo.security.ui.admin.commands.DeleteRole"
+		scope="prototype">
+		<property name="userAdminService" ref="userAdminService" />
+	</bean>
+</beans>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.argeo.commons</groupId>
+		<version>2.1.11</version>
+		<artifactId>server</artifactId>
+		<relativePath>..</relativePath>
+	</parent>
+	<groupId>org.argeo.commons.server</groupId>
+	<artifactId>runtime</artifactId>
+	<name>Commons Server Runtime</name>
+	<packaging>pom</packaging>
+	<modules>
+		<module>org.argeo.server.core</module>
+		<module>org.argeo.server.json</module>
+		<module>org.argeo.server.catalina.start</module>
+		<module>org.argeo.server.webextender</module>
+		<module>org.argeo.server.jxl</module>
+		<module>org.argeo.server.hibernate</module>
+		<module>org.argeo.server.ads</module>
+		<module>org.argeo.server.jcr</module>
+		<module>org.argeo.server.jcr.mvc</module>
+		<module>org.argeo.server.jackrabbit</module>
+		<module>org.argeo.server.modeshape</module>
+	</modules>
+</project>

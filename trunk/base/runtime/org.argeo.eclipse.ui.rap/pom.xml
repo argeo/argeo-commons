@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.argeo.commons.base</groupId>
+		<version>2.1.11</version>
+		<artifactId>runtime</artifactId>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>org.argeo.eclipse.ui.rap</artifactId>
+	<name>Commons Eclipse UI RAP</name>
+	<packaging>jar</packaging>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+
+				<configuration>
+					<instructions>
+						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
+						<Bundle-Activator>org.argeo.eclipse.ui.ArgeoUiPlugin</Bundle-Activator>
+						<Require-Bundle>org.eclipse.rap.ui,org.eclipse.core.runtime</Require-Bundle>
+						<!-- IMPORTANT : Note that we must exclude certain packages that are 
+							provided by dependencies to be sure that packages used in the current workspace 
+							are those provided by the require-bundles. Especially rwt.widgets.upload 
+							by instance. -->
+						<Import-Package>
+							org.apache.commons.io,
+							org.argeo,
+							org.springframework.beans.factory,
+							org.springframework.core.io.support,
+							!org.eclipse.rwt.widgets,
+							!org.eclipse.core.runtime,
+							!org.eclipse.core.commands,
+							!org.eclipse.ui.plugin,
+							*
+						</Import-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<!-- deleted from import package : javax.servlet, javax.servlet.http,org.argeo.eclipse.ui.dialogs, 
+		org.eclipse.jface.dialogs, -->
+	<dependencies>
+			<dependency>
+			<groupId>org.argeo.commons.base</groupId>
+			<artifactId>org.argeo.util</artifactId>
+			<version>2.1.11</version>
+		</dependency>
+	
+		<!-- Argeo common distribution for RAP projects -->
+		<dependency>
+			<groupId>org.argeo.commons.base</groupId>
+			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
+			<version>2.1.11</version>
+		</dependency>
+
+		<!-- Logging -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>slf4j.org.apache.commons.logging</artifactId>
+		</dependency>
+	</dependencies>
+</project>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+
+	<context:component-scan base-package="org.argeo.security.mvc" />
+
+	<bean id="controller" class="org.argeo.security.mvc.UsersRolesController">
+		<property name="securityService" ref="securityService" />
+		<property name="userDeserializer" ref="userDeserializer">
+		</property>
+	</bean>
+
+	<bean id="userDeserializer" class="org.argeo.server.json.JsonServerMapper">
+		<property name="targetClass" value="org.argeo.security.SimpleArgeoUser" />
+		<property name="deserializers">
+			<map>
+				<entry key="org.argeo.security.UserNature">
+					<bean class="org.argeo.server.json.GenericJsonDeserializer">
+						<property name="objectFactories" ref="objectFactories" />
+					</bean>
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+
+	<bean id="viewResolver" class="org.argeo.server.mvc.SerializingViewResolver">
+		<property name="serializer" ref="serverMapper" />
+	</bean>
+
+	<bean id="serverMapper" class="org.argeo.server.json.JsonServerMapper">
+	</bean>
+
+	<bean class="org.argeo.server.mvc.DefaultHandlerExceptionResolver" />
+
+</beans>

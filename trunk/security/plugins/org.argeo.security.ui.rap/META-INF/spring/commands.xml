@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="openChangePasswordDialog" class="org.argeo.security.ui.commands.OpenChangePasswordDialog"
+		scope="prototype">
+		<property name="userDetailsManager" ref="userDetailsManager" />
+	</bean>
+
+
+	<!-- RAP Specific command and corresponding service to enable open file -->
+	<bean id="org.argeo.security.ui.specific.openFile" class="org.argeo.eclipse.ui.specific.OpenFile"
+		scope="prototype">
+		<property name="openFileServiceId"
+			value="org.argeo.security.ui.specific.openFileService" />
+	</bean>
+	<!-- Useless - nothing to inject -->
+	<!-- <bean id="org.argeo.security.ui.specific.openFileService" class="org.argeo.eclipse.ui.specific.OpenFileService" 
+		scope="prototype"> </bean> -->
+</beans>

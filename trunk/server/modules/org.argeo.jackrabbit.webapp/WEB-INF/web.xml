@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	version="2.5">
+
+	<display-name>Argeo Jackrabbit Webapp</display-name>
+
+	<!-- We don't want the session-scoped JCR sessions to wait too long before 
+		being logged out. -->
+	<session-config>
+		<session-timeout>5</session-timeout>
+	</session-config>
+
+	<!-- General -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/applicationContext.xml</param-value>
+	</context-param>
+
+	<listener>
+		<display-name>Spring Context</display-name>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	<context-param>
+		<param-name>contextClass</param-name>
+		<param-value>org.springframework.osgi.web.context.support.OsgiBundleXmlWebApplicationContext</param-value>
+	</context-param>
+
+	<!-- Remoting -->
+	<servlet>
+		<servlet-name>remoting</servlet-name>
+		<servlet-class>org.argeo.jackrabbit.remote.ExtendedDispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextClass</param-name>
+			<param-value>org.springframework.osgi.web.context.support.OsgiBundleXmlWebApplicationContext</param-value>
+		</init-param>
+		<init-param>
+			<param-name>dispatchOptionsRequest</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>remoting</servlet-name>
+		<url-pattern>/jcr/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>remoting</servlet-name>
+		<url-pattern>/pub/*</url-pattern>
+	</servlet-mapping>
+
+	<!-- WEBDAV servlet -->
+	<servlet>
+		<servlet-name>webdav</servlet-name>
+		<servlet-class>org.argeo.jackrabbit.remote.ExtendedDispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextClass</param-name>
+			<param-value>org.springframework.osgi.web.context.support.OsgiBundleXmlWebApplicationContext</param-value>
+		</init-param>
+		<init-param>
+			<param-name>dispatchOptionsRequest</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>webdav</servlet-name>
+		<url-pattern>/files/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>webdav</servlet-name>
+		<url-pattern>/public/*</url-pattern>
+	</servlet-mapping>
+
+	<!-- Security -->
+	<filter>
+		<filter-name>filterChain.davex</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>filterChain.davex</filter-name>
+		<url-pattern>/jcr/*</url-pattern>
+	</filter-mapping>
+
+	<filter>
+		<filter-name>filterChain.private</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>filterChain.private</filter-name>
+		<url-pattern>/files/*</url-pattern>
+	</filter-mapping>
+
+	<filter>
+		<filter-name>filterChain.public</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>filterChain.public</filter-name>
+		<url-pattern>/pub/*</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>filterChain.public</filter-name>
+		<url-pattern>/public/*</url-pattern>
+	</filter-mapping>
+
+</web-app>

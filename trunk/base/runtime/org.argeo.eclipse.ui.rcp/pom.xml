@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.argeo.commons.base</groupId>
+		<version>2.1.11</version>
+		<artifactId>runtime</artifactId>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>org.argeo.eclipse.ui.rcp</artifactId>
+	<name>Commons Eclipse UI RCP</name>
+	<packaging>jar</packaging>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+
+				<configuration>
+					<instructions>
+						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
+						<Bundle-Activator>org.argeo.eclipse.ui.ArgeoUiPlugin</Bundle-Activator>
+						<Require-Bundle>org.eclipse.ui,org.eclipse.core.runtime</Require-Bundle>
+						<Import-Package>
+							org.springframework.beans.factory,
+							org.springframework.core.io.support,
+							org.apache.commons.io,
+							org.argeo,
+							!org.eclipse.core.runtime,
+							!org.eclipse.core.commands,
+							!org.eclipse.ui.plugin,
+							*
+						</Import-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<!-- Argeo Commons for Eclipse (not specific) -->
+		<dependency>
+			<groupId>org.argeo.commons.base</groupId>
+			<artifactId>org.argeo.eclipse.ui</artifactId>
+			<version>2.1.11</version>
+		</dependency>
+
+		<!-- Argeo Commons third party distribution for RCP projects -->
+		<dependency>
+			<groupId>org.argeo.commons.base</groupId>
+			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
+			<version>2.1.11</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.argeo.commons.base</groupId>
+			<artifactId>org.argeo.util</artifactId>
+			<version>2.1.11</version>
+		</dependency>
+
+		<!-- Others. -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.io</artifactId>
+		</dependency>
+
+		<!-- Logging -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>slf4j.org.apache.commons.logging</artifactId>
+		</dependency>
+	</dependencies>
+</project>

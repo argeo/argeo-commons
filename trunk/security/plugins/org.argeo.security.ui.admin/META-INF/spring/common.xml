@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="locations">
+			<value>osgibundle:security-admin.properties</value>
+		</property>
+	</bean>
+
+	<!-- FIXME Hard-coded dependency to Jackrabbit for user management -->
+	<bean name="jcrSecurityModel" class="org.argeo.security.jackrabbit.JackrabbitSecurityModel" />
+
+	<!-- Old deprecated way. -->
+	<!-- <bean id="session" class="org.argeo.security.jcr.SecureThreadBoundSession"> 
+		<property name="repository" ref="nodeRepository" /> </bean> -->
+</beans>

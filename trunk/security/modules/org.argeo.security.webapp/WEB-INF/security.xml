@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.4.xsd">
+
+	<bean id="authenticationProcessingFilterEntryPoint"
+		class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+		<property name="loginFormUrl" value="/getCredentials.ria" />
+		<property name="forceHttps" value="false" />
+	</bean>
+
+	<security:http entry-point-ref="authenticationProcessingFilterEntryPoint">
+		<security:intercept-url pattern="/*.security"
+			access="ROLE_USER,ROLE_ADMIN" />
+		<security:intercept-url pattern="/*.ria"
+			access="ROLE_ANONYMOUS,ROLE_USER" />
+		<security:logout logout-url="/logout.ria"
+			logout-success-url="/getCredentials.ria" />
+		<security:anonymous username="anonymous"
+			granted-authority="ROLE_ANONYMOUS" />
+		<security:remember-me key="argeo" services-ref="rememberMeServices" />
+	</security:http>
+
+	<bean id="rememberMeServices" class="org.argeo.security.mvc.ArgeoRememberMeServices">
+		<property name="alwaysRemember" value="true" />
+		<property name="userDetailsService" ref="userDetailsService" />
+		<property name="key" value="${argeo.security.systemKey}" />
+	</bean>
+
+
+	<bean id="authenticationProcessingFilter"
+		class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
+		<security:custom-filter position="AUTHENTICATION_PROCESSING_FILTER" />
+		<property name="authenticationManager" ref="_authenticationManager" />
+		<property name="authenticationFailureUrl" value="/getCredentials.ria" />
+		<property name="defaultTargetUrl" value="/getCredentials.ria" />
+		<property name="filterProcessesUrl" value="/login.ria" />
+		<property name="usernameParameter" value="username" />
+		<property name="passwordParameter" value="password" />
+	</bean>
+</beans>

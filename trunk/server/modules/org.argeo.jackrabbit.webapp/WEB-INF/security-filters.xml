@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:sec="http://www.springframework.org/schema/security" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.4.xsd">
+
+	<bean id="filterChain.davex" parent="filterChain.template">
+		<sec:filter-chain-map path-type="ant">
+			<sec:filter-chain pattern="/*/*/*/**"
+				filters="session,x509,basic,exception,interceptor" />
+			<!-- For some reason the first level listing workspaces must be public -->
+			<sec:filter-chain pattern="/*/*/"
+				filters="anonymous,exception,interceptorPublic" />
+		</sec:filter-chain-map>
+	</bean>
+
+	<bean id="filterChain.private" parent="filterChain.template">
+		<sec:filter-chain-map path-type="ant">
+			<sec:filter-chain pattern="/**"
+				filters="session,x509,basic,exception,interceptor" />
+		</sec:filter-chain-map>
+	</bean>
+
+	<bean id="filterChain.public" parent="filterChain.template">
+		<sec:filter-chain-map path-type="ant">
+			<sec:filter-chain pattern="/**"
+				filters="anonymous,exception,interceptorPublic" />
+		</sec:filter-chain-map>
+	</bean>
+
+	<bean id="filterChain.template" abstract="true"
+		class="org.springframework.security.util.FilterChainProxy">
+		<property name="matcher">
+			<bean class="org.springframework.security.util.AntUrlPathMatcher">
+				<!-- Do not convert to lower case -->
+				<constructor-arg value="false" />
+			</bean>
+		</property>
+	</bean>
+
+	<!-- The actual authorization checks (called last, but first here for ease 
+		of configuration) -->
+	<bean id="interceptor" parent="filterInvocationInterceptorTemplate">
+		<property name="objectDefinitionSource">
+			<value>
+				PATTERN_TYPE_APACHE_ANT
+				/**=ROLE_USER,ROLE_ADMIN
+			</value>
+		</property>
+	</bean>
+	<bean id="interceptorPublic" parent="filterInvocationInterceptorTemplate">
+		<property name="objectDefinitionSource">
+			<value>
+				PATTERN_TYPE_APACHE_ANT
+				/**=IS_AUTHENTICATED_ANONYMOUSLY
+			</value>
+		</property>
+	</bean>
+
+	<bean id="x509"
+		class="org.springframework.security.ui.preauth.x509.X509PreAuthenticatedProcessingFilter">
+		<property name="authenticationManager" ref="authenticationManager" />
+		<property name="principalExtractor">
+			<bean
+				class="org.springframework.security.ui.preauth.x509.SubjectDnX509PrincipalExtractor">
+				<property name="subjectDnRegex" value="CN=(.*?)," />
+			</bean>
+		</property>
+	</bean>
+
+	<!-- Integrates the authentication information in the http sessions -->
+	<bean id="session"
+		class="org.springframework.security.context.HttpSessionContextIntegrationFilter">
+		<property name="allowSessionCreation" value="true" />
+	</bean>
+
+	<!-- Processes logouts, removing both session informations and the remember-me 
+		cookie from the browser -->
+	<!-- <bean id="logout" class="org.springframework.security.ui.logout.LogoutFilter"> -->
+	<!-- <constructor-arg value="/webdav/node/main" /> -->
+	<!-- <constructor-arg> -->
+	<!-- <list> -->
+	<!-- <bean -->
+	<!-- class="org.springframework.security.ui.logout.SecurityContextLogoutHandler" 
+		/> -->
+	<!-- </list> -->
+	<!-- </constructor-arg> -->
+	<!-- </bean> -->
+
+	<!-- Basic authentication -->
+	<bean id="basic"
+		class="org.springframework.security.ui.basicauth.BasicProcessingFilter">
+		<property name="authenticationManager">
+			<ref bean="authenticationManager" />
+		</property>
+		<property name="authenticationEntryPoint">
+			<ref local="basicProcessingFilterEntryPoint" />
+		</property>
+	</bean>
+
+	<!-- Activate basic auth when needed -->
+	<bean id="basicProcessingFilterEntryPoint"
+		class="org.springframework.security.ui.basicauth.BasicProcessingFilterEntryPoint">
+		<property name="realmName">
+			<value>${argeo.server.realmName}</value>
+		</property>
+	</bean>
+
+	<!-- If everything else failed, anonymous authentication -->
+	<bean id="anonymous"
+		class="org.springframework.security.providers.anonymous.AnonymousProcessingFilter">
+		<property name="key" value="${argeo.security.systemKey}" />
+		<property name="userAttribute" value="anonymous,ROLE_ANONYMOUS" />
+	</bean>
+
+	<!-- Reacts to security related exceptions -->
+	<bean id="exception"
+		class="org.springframework.security.ui.ExceptionTranslationFilter">
+		<property name="authenticationEntryPoint">
+			<ref bean="basicProcessingFilterEntryPoint" />
+		</property>
+		<property name="accessDeniedHandler">
+			<bean class="org.springframework.security.ui.AccessDeniedHandlerImpl">
+				<!-- <property name="errorPage" value="/accessDenied.jsp" /> -->
+			</bean>
+		</property>
+	</bean>
+
+	<!-- Template for authorization checks -->
+	<bean id="filterInvocationInterceptorTemplate" abstract="true"
+		class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
+		<property name="authenticationManager" ref="authenticationManager" />
+		<property name="accessDecisionManager">
+			<bean class="org.springframework.security.vote.AffirmativeBased">
+				<property name="allowIfAllAbstainDecisions" value="false" />
+				<property name="decisionVoters">
+					<list>
+						<bean class="org.springframework.security.vote.RoleVoter" />
+						<bean class="org.springframework.security.vote.AuthenticatedVoter" />
+					</list>
+				</property>
+			</bean>
+		</property>
+	</bean>
+</beans>

@@ -1,0 +1,61 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.argeo.commons.server</groupId>
+		<version>2.1.11</version>
+		<artifactId>modules</artifactId>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>org.argeo.jackrabbit.webapp</artifactId>
+	<name>Commons Server Jackrabbit Webapp</name>
+	<description>JCR remoting, WebDav</description>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<Web-ContextPath>data</Web-ContextPath>
+						<!-- Import-Package needs to be specified explicitly since BND doesn't 
+							scane WEB-INF -->
+						<Import-Package>
+							*,
+							javax.jcr,
+							javax.servlet,
+							javax.servlet.http,
+							javax.servlet.resources,
+							org.aopalliance.aop,
+							org.argeo.jackrabbit.remote,
+							org.argeo.jcr,
+							org.argeo.jcr.mvc,
+							org.springframework.aop,
+							org.springframework.aop.framework,
+							org.springframework.aop.scope,
+							org.springframework.beans.factory.config,
+							org.springframework.osgi.web.context.support,
+							org.springframework.security,
+							org.springframework.security.providers.anonymous,
+							org.springframework.security.ui,
+							org.springframework.security.ui.webapp,
+							org.springframework.security.ui.preauth.x509,
+							org.springframework.security.userdetails,
+							org.springframework.web.context,
+							org.springframework.web.filter,
+							org.springframework.web.servlet,
+							org.springframework.web.servlet.handler,
+							org.springframework.web.servlet.view,
+							org.springframework.security.util,
+							org.springframework.security.context,
+							org.springframework.security.ui.basicauth,
+							org.springframework.security.intercept.web,
+							org.springframework.security.vote,
+							org.springframework.security.ui.logout,
+							org.apache.jackrabbit.server,
+						</Import-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

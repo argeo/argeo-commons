@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.argeo.commons.security</groupId>
+		<version>2.1.11</version>
+		<artifactId>plugins</artifactId>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>org.argeo.security.equinox</artifactId>
+	<name>Commons Security Equinox</name>
+	<packaging>jar</packaging>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<Import-Package>*,
+							org.springframework.core,
+							org.argeo.eclipse.spring
+						</Import-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+
+		<!-- Eclipse -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.eclipse.osgi</artifactId>
+		</dependency>
+		
+		<!-- RCP only dependency, needed at compile time -->
+		<dependency>
+			<groupId>org.argeo.commons.base</groupId>
+			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
+			<version>2.1.11</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- Commons -->
+		<dependency>
+			<groupId>org.argeo.commons.base</groupId>
+			<artifactId>org.argeo.util</artifactId>
+			<version>2.1.11</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.core</artifactId>
+			<version>2.1.11</version>
+		</dependency>
+
+		<!-- Spring -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.springframework.security.core</artifactId>
+		</dependency>
+	</dependencies>
+</project>

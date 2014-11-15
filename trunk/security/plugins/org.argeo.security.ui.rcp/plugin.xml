@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+	<!-- We use the product to define some of the product preferences 
+	see http://dev.eclipse.org/viewcvs/viewvc.cgi/platform-ui-home/rcp/faq.html?revision=1.6#customPrefs --> 
+	<extension
+         id="org.argeo.security.ui.product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            name="ArgeoProduct" application="org.argeo.security.ui.rcp.secureUi">
+          <property
+               name="appName"
+               value="Secure UI">
+         </property>
+ 	     <property
+               name="preferenceCustomization"
+               value="plugin_customization.ini"/>
+      </product>
+   </extension>  
+
+   <extension
+         id="secureUi"
+         name="Argeo Secure UI"
+         point="org.eclipse.core.runtime.applications">
+      <application cardinality="singleton-global"
+         thread="main"
+         visible="true">
+         <run
+               class="org.argeo.security.ui.rcp.SecureRcp">
+         </run>
+      </application>
+   </extension>
+   
+   <extension
+         point="org.eclipse.equinox.security.callbackHandlerMapping">
+      <callbackHandlerMapping
+            callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
+            configName="REMOTE">
+      </callbackHandlerMapping>
+   </extension>
+   
+   	<!-- COMMANDS --> 
+	<extension point="org.eclipse.ui.commands">
+		<!-- Register a default command that enable an "open file" action in a single sourced application  -->  
+		<command
+			defaultHandler="org.argeo.eclipse.ui.specific.OpenFile"
+			id="org.argeo.security.ui.specific.openFile"
+			name="OpenFile">
+			<commandParameter
+         		id="param.fileName"
+         		name="The name of the file to open (optional)">
+  	 		</commandParameter>
+            <commandParameter
+         		id="param.fileURI"
+         		name="The URI of this file on the server">
+  	 		</commandParameter>
+  	 		<commandParameter
+         		id="param.filePath"
+         		name="The absolute path of this file on the server file system">
+			</commandParameter>
+		</command>
+	</extension>
+</plugin>

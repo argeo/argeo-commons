@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.argeo.commons.security</groupId>
+		<artifactId>runtime</artifactId>
+		<version>2.1.11</version>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>org.argeo.security.core</artifactId>
+	<name>Commons Security Core</name>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+
+				<configuration>
+					<instructions>
+						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
+						<Export-Package>
+							org.argeo.security.*
+						</Export-Package>
+						<!-- We need to exclude some packages which are added by BND but cause 
+							use package conflict with some deployments -->
+						<Import-Package>
+							org.bouncycastle.*;resolution:=optional,
+							javax.jcr.security,
+							*,
+						</Import-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.argeo.commons.base</groupId>
+			<artifactId>org.argeo.util</artifactId>
+			<version>2.1.11</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.jcr</artifactId>
+			<version>2.1.11</version>
+		</dependency>
+
+		<!-- Crypto -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>bcprov</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.codec</artifactId>
+		</dependency>
+
+		<!-- Spring -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.springframework.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.springframework.beans</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.springframework.context</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.springframework.security.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.springframework.transaction</artifactId>
+		</dependency>
+
+		<!-- OSGi -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.eclipse.osgi</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- Logging -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>slf4j.org.apache.commons.logging</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.log4j</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<!-- TEST -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.base</groupId>
+			<artifactId>org.argeo.dep.log4j</artifactId>
+			<version>2.1.11</version>
+			<type>pom</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.json</artifactId>
+			<version>2.1.11</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>com.springsource.json</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+</project>

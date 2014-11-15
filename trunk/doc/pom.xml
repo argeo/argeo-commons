@@ -1,0 +1,41 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.argeo.commons</groupId>
+		<version>1.1.8-SNAPSHOT</version>
+		<artifactId>argeo-commons</artifactId>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>doc</artifactId>
+	<name>Commons Doc</name>
+	<packaging>pom</packaging>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.agilejava.docbkx</groupId>
+				<artifactId>docbkx-maven-plugin</artifactId>
+				<configuration>
+					<htmlStylesheet>css/style.css</htmlStylesheet>
+					<postProcess>
+						<!-- See https://fisheye.springframework.org/rdiff/spring-ldap?csid=439&u&N -->
+						<copy todir="target/docbkx/html">
+							<fileset dir="src/docbkx">
+								<include name="*/*.css" />
+							</fileset>
+						</copy>
+					</postProcess>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate-html</goal>
+							<goal>generate-pdf</goal>
+						</goals>
+						<phase>pre-site</phase>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

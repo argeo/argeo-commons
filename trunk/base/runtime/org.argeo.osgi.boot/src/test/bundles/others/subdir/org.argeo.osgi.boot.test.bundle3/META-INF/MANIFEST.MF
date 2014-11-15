@@ -1,0 +1,2 @@
+Bundle-SymbolicName: org.argeo.osgi.boot.test.bundle3
+Bundle-Version: 0.1.0

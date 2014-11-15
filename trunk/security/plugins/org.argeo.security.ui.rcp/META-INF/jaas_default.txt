@@ -1,0 +1,27 @@
+OS_SPRING {
+    org.eclipse.equinox.security.auth.module.ExtensionLoginModule required
+        extensionId="org.argeo.security.equinox.osSpringLoginModule";
+};
+
+NIX {
+    org.eclipse.equinox.security.auth.module.ExtensionLoginModule requisite
+        extensionId="org.argeo.security.equinox.unixLoginModule";
+    org.eclipse.equinox.security.auth.module.ExtensionLoginModule required
+        extensionId="org.argeo.security.equinox.osSpringLoginModule";
+};
+
+WINDOWS {
+    org.eclipse.equinox.security.auth.module.ExtensionLoginModule requisite
+        extensionId="org.argeo.security.equinox.ntLoginModule";
+    org.eclipse.equinox.security.auth.module.ExtensionLoginModule required
+        extensionId="org.argeo.security.equinox.osSpringLoginModule";
+};
+
+REMOTE {
+    org.eclipse.equinox.security.auth.module.ExtensionLoginModule sufficient
+        extensionId="org.argeo.security.equinox.springLoginModuleRemote";
+};
+
+KEYRING {
+    org.argeo.security.crypto.KeyringLoginModule required;
+};

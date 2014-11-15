@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="locations">
+			<value>osgibundle:security.properties</value>
+		</property>
+	</bean>
+
+	<bean id="springLoginModule" class="org.argeo.security.equinox.SpringLoginModule"
+		scope="prototype">
+		<property name="authenticationManager" ref="authenticationManager" />
+		<property name="availableLocales" value="${argeo.i18n.availableLocales}"/>
+	</bean>
+
+	<bean id="springLoginModuleRemote" class="org.argeo.security.equinox.SpringLoginModule"
+		scope="prototype">
+		<property name="remote" value="true" />
+		<property name="authenticationManager" ref="authenticationManager" />
+	</bean>
+
+	<bean id="anonymousSpringLoginModule" class="org.argeo.security.equinox.SpringLoginModule"
+		scope="prototype">
+		<property name="anonymous" value="true" />
+		<property name="anonymousRole" value="${argeo.security.anonymousRole}" />
+		<property name="key" value="${argeo.security.systemKey}" />
+		<property name="authenticationManager" ref="authenticationManager" />
+	</bean>
+
+	<bean id="osSpringLoginModule" class="org.argeo.security.equinox.OsSpringLoginModule"
+		scope="prototype">
+		<property name="authenticationManager" ref="authenticationManager" />
+	</bean>
+</beans>

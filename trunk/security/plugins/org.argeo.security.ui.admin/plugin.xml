@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.argeo.security.ui.admin.SecurityAdminPerspective"
+            icon="icons/security.gif"
+            id="org.argeo.security.ui.admin.adminSecurityPerspective"
+            name="Security">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="org.argeo.eclipse.spring.SpringExtensionFactory"
+            icon="icons/users.gif"
+            id="org.argeo.security.ui.admin.adminUsersView"
+            name="Users"
+            restorable="false">
+      </view>
+      <view
+            class="org.argeo.eclipse.spring.SpringExtensionFactory"
+            icon="icons/role.gif"
+            id="org.argeo.security.ui.admin.adminRolesView"
+            name="Roles"
+            restorable="false">
+      </view>
+   </extension>
+   <extension
+           point="org.eclipse.ui.editors">
+	        <editor
+	          class="org.argeo.eclipse.spring.SpringExtensionFactory"
+              id="org.argeo.security.ui.admin.adminArgeoUserEditor"
+              name="User"
+              icon="icons/user.gif"
+              default="false">
+        </editor>
+     </extension>
+    <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            id="org.argeo.security.ui.admin.openArgeoUserEditor"
+            name="OpenArgeoUserEditor">
+   			<commandParameter
+         		id="org.argeo.security.ui.admin.username"
+         		name="Username">
+  	 		</commandParameter>
+      </command>
+      <command
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            id="org.argeo.security.ui.admin.refreshUsersList"
+            name="refreshUsersList">
+      </command>
+      <command
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            id="org.argeo.security.ui.admin.newUser"
+            name="New User">
+      </command>
+      <command
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            id="org.argeo.security.ui.admin.deleteUser"
+            name="deleteUser">
+      </command>
+      <command
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            id="org.argeo.security.ui.admin.refreshRoles"
+            name="refreshRoles">
+      </command>
+      <command
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            id="org.argeo.security.ui.admin.addRole"
+            name="AddRole">
+      </command>
+      <command
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            id="org.argeo.security.ui.admin.deleteRole"
+            name="deleteRole">
+      </command>
+      <command
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            id="org.argeo.security.ui.admin.userBatchUpdate"
+            name="User batch update">
+      </command>
+    </extension>
+     <extension
+         point="org.eclipse.ui.menus">
+      	<menuContribution
+            locationURI="toolbar:org.argeo.security.ui.admin.adminRolesView">
+            <command
+                  commandId="org.argeo.security.ui.admin.deleteRole"
+                  icon="icons/remove.gif"
+                  label="Delete Role"
+                  tooltip="Delete selected roles">
+            </command>
+            <command
+                  commandId="org.argeo.security.ui.admin.addRole"
+                  icon="icons/add.gif"
+                  label="Add Role"
+                  tooltip="Add new role">
+            </command>
+            <command
+                  commandId="org.argeo.security.ui.admin.refreshRoles"
+                  icon="icons/sync.gif"
+                  label="LDAP Roles Sync"
+                  tooltip="Synchronize roles from LDAP">
+            </command>
+        </menuContribution>
+      	<menuContribution
+            locationURI="toolbar:org.argeo.security.ui.admin.adminUsersView">
+            <command
+                  commandId="org.argeo.security.ui.admin.refreshUsersList"
+                  icon="icons/refresh.png"
+                  label="Refresh list"
+                  tooltip="Force the full refresh of the user list">
+            </command>
+            <command
+                  commandId="org.argeo.security.ui.admin.deleteUser"
+                  icon="icons/remove.gif"
+                  label="Delete User"
+                  tooltip="Delete selected users">
+            </command>
+            <command
+                  commandId="org.argeo.security.ui.admin.newUser"
+                  icon="icons/add.gif"
+                  label="Add User"
+                  tooltip="Add new user">
+            </command>
+            <command
+                  commandId="org.argeo.security.ui.admin.userBatchUpdate"
+                  icon="icons/batch.gif"
+                  label="Update users"
+                  tooltip="Perform maintenance activities on a list of chosen users">
+            </command>
+            <command
+                  commandId="org.argeo.security.ui.admin.refreshUsersList"
+                  icon="icons/sync.gif"
+                  label="LDAP Users Sync"
+                  tooltip="Synchronize users from LDAP">
+            </command>
+        </menuContribution>
+  </extension>
+  <extension
+           point="org.eclipse.ui.activities">
+        <!-- TODO: find a way to exclude evrything -->
+        <activityPatternBinding
+              activityId="org.argeo.security.ui.adminActivity"
+              isEqualityPattern="true"
+              pattern="org.argeo.security.ui.admin/org.argeo.security.ui.admin.adminSecurityPerspective">
+        </activityPatternBinding>
+     </extension>
+ </plugin>
