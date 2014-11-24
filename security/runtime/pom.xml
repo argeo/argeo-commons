@@ -7,8 +7,8 @@
 		<artifactId>security</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<groupId>org.argeo.commons.security</groupId>
-	<artifactId>runtime</artifactId>
+	<groupId>org.argeo.commons</groupId>
+	<artifactId>argeo-commons</artifactId>
 	<name>Commons Security Runtime</name>
 	<packaging>pom</packaging>
 	<modules>

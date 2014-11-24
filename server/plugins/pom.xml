@@ -6,8 +6,8 @@
 		<artifactId>server</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<groupId>org.argeo.commons.server</groupId>
-	<artifactId>plugins</artifactId>
+	<groupId>org.argeo.commons</groupId>
+	<artifactId>argeo-commons</artifactId>
 	<name>Commons Server Eclipse Plugins</name>
 	<packaging>pom</packaging>
 	<modules>

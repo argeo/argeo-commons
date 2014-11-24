@@ -6,8 +6,8 @@
 		<artifactId>server</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<groupId>org.argeo.commons.server</groupId>
-	<artifactId>modules</artifactId>
+	<groupId>org.argeo.commons</groupId>
+	<artifactId>argeo-commons</artifactId>
 	<packaging>pom</packaging>
 	<name>Commons Server Modules</name>
 	<modules>

@@ -7,7 +7,7 @@
 		<artifactId>security</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<groupId>org.argeo.commons.security</groupId>
+	<groupId>org.argeo.commons</groupId>
 	<artifactId>dep</artifactId>
 	<name>Commons Security Features</name>
 	<packaging>pom</packaging>

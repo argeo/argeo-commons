@@ -1,0 +1,63 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.argeo.commons</groupId>
+		<version>2.1.12-SNAPSHOT</version>
+		<artifactId>argeo-commons</artifactId>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>org.argeo.jcr.ui.explorer</artifactId>
+	<name>Commons JCR Explorer</name>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
+						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
+						<Bundle-Localization>plugin</Bundle-Localization>
+						<Bundle-Activator>org.argeo.jcr.ui.explorer.JcrExplorerPlugin</Bundle-Activator>
+						<Require-Bundle>org.eclipse.ui;resolution:=optional,
+							org.eclipse.core.runtime;resolution:=optional,
+							org.eclipse.rap.ui;resolution:=optional,
+							org.eclipse.rap.ui.workbench;resolution:=optional</Require-Bundle>
+						<Import-Package>
+							*,
+							org.argeo.eclipse.spring,
+						</Import-Package>
+						<Export-Package>org.argeo.jcr.ui.explorer.*</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.util</artifactId>
+			<version>2.1.12-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.eclipse.ui.jcr</artifactId>
+			<version>2.1.12-SNAPSHOT</version>
+		</dependency>
+
+		<!-- RCP only dependency, needed at compile time -->
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
+			<version>2.1.12-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.eclipse.ui.rcp</artifactId>
+			<version>2.1.12-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+</project>

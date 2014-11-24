@@ -7,8 +7,8 @@
 		<artifactId>server</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<groupId>org.argeo.commons.server</groupId>
-	<artifactId>runtime</artifactId>
+	<groupId>org.argeo.commons</groupId>
+	<artifactId>argeo-commons</artifactId>
 	<name>Commons Server Runtime</name>
 	<packaging>pom</packaging>
 	<modules>

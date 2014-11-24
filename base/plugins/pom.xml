@@ -6,8 +6,8 @@
 		<version>2.1.12-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
-	<groupId>org.argeo.commons.base</groupId>
-	<artifactId>plugins</artifactId>
+	<groupId>org.argeo.commons</groupId>
+	<artifactId>argeo-commons</artifactId>
 	<name>Commons OSGi Eclipse Plugins</name>
 	<packaging>pom</packaging>
 	<modules>

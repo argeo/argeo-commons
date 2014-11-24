@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.argeo.commons</groupId>
+		<version>2.1.12-SNAPSHOT</version>
+		<artifactId>dep</artifactId>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>org.argeo.dep.jackrabbit</artifactId>
+	<packaging>pom</packaging>
+	<name>Commons Minimal Jackrabbit</name>
+	<dependencies>
+		<!-- Jackrabbit -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.jackrabbit</artifactId>
+		</dependency>
+
+		<!-- Database -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.h2</artifactId>
+		</dependency>
+
+		<!-- Transitive dependencies -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.jcr</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.lucene</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.dep.log4j</artifactId>
+			<version>2.1.12-SNAPSHOT</version>
+			<type>pom</type>
+		</dependency>
+
+		<!-- Commons -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.collections</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.io</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.httpclient</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.fileupload</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.compress</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.pool</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.commons.dbcp</artifactId>
+		</dependency>
+
+		<!-- Misc -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>edu.oswego.cs.dl.util.concurrent</artifactId>
+		</dependency>
+
+		<!-- For webdav -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>javax.servlet</artifactId>
+		</dependency>
+
+		<!-- Tika -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.apache.tika</artifactId>
+		</dependency>
+		<!-- Required for OSGi completion -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.dom4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.jdom</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.objectweb.asm</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.jaxen</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.xmlpull</artifactId>
+		</dependency>
+	</dependencies>
+</project>
