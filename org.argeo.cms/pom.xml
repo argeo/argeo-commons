@@ -11,6 +11,51 @@
 	<artifactId>org.argeo.cms</artifactId>
 	<name>Argeo Content Management System</name>
 	<packaging>jar</packaging>
+	<!-- TODO merge in parent -->
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>src</directory>
+				<includes>
+					<include>**</include>
+				</includes>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>.</directory>
+				<includes>
+					<include>**</include>
+				</includes>
+				<excludes>
+					<exclude>.*</exclude>
+					<exclude>.*/**</exclude>
+					<exclude>src/**</exclude>
+					<exclude>target/**</exclude>
+					<exclude>bin/**</exclude>
+					<exclude>pom.xml</exclude>
+					<exclude>build.properties</exclude>
+					<exclude>*.bnd</exclude>
+					<exclude>*.target</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+						<_include>bnd.bnd</_include>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<!-- END -->
 	<dependencies>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
