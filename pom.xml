@@ -221,9 +221,9 @@ limitations under the License.
 							<Bundle-Version>${project.version}-r${tstamp}</Bundle-Version>
 							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 							<Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
+							<_removeheaders>Bnd-LastModified,Build-Jdk,Built-By,Tool,Created-By</_removeheaders>
 							<!-- SLC specific instructions -->
 							<SLC-Category>${project.groupId}</SLC-Category>
-							<_removeheaders>Bnd-LastModified,Build-Jdk,Built-By,Tool,Created-By</_removeheaders>
 						</instructions>
 					</configuration>
 					<executions>
@@ -237,11 +237,6 @@ limitations under the License.
 					</executions>
 				</plugin>
 				<!-- Codehaus -->
-				<!-- <plugin> -->
-				<!-- <groupId>org.codehaus.mojo</groupId> -->
-				<!-- <artifactId>buildnumber-maven-plugin</artifactId> -->
-				<!-- <version>1.0</version> -->
-				<!-- </plugin> -->
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>rpm-maven-plugin</artifactId>
@@ -249,12 +244,8 @@ limitations under the License.
 					<extensions>true</extensions>
 					<configuration>
 						<version>${project.version}</version>
-						<release>r${timestamp}.el${rpm.release}</release>
-						<distribution>argeo${rpm.release}</distribution>
-						<packager>mbaudier@argeo.org</packager>
 						<group>Applications/System</group>
 						<prefix>/usr</prefix>
-						<copyright>2012 Argeo GmbH and others</copyright>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -266,19 +257,8 @@ limitations under the License.
 				<plugin>
 					<groupId>org.argeo.maven.plugins</groupId>
 					<artifactId>maven-argeo-osgi-plugin</artifactId>
-					<version>1.1.3-SNAPSHOT</version>
+					<version>1.1.3</version>
 				</plugin>
-				<!-- Others -->
-				<!-- <plugin> -->
-				<!-- <groupId>com.mycila.maven-license-plugin</groupId> -->
-				<!-- <artifactId>maven-license-plugin</artifactId> -->
-				<!-- <version>1.9.0</version> -->
-				<!-- </plugin> -->
-				<!-- <plugin> -->
-				<!-- <groupId>com.agilejava.docbkx</groupId> -->
-				<!-- <artifactId>docbkx-maven-plugin</artifactId> -->
-				<!-- <version>2.0.14</version> -->
-				<!-- </plugin> -->
 				<!-- Site -->
 				<plugin>
 					<artifactId>maven-site-plugin</artifactId>
@@ -352,52 +332,12 @@ limitations under the License.
 									</reportSet>
 								</reportSets>
 							</plugin>
-							<!-- <plugin> -->
-							<!-- <groupId>org.codehaus.mojo</groupId> -->
-							<!-- <artifactId>taglist-maven-plugin</artifactId> -->
-							<!-- <version>2.4</version> -->
-							<!-- <configuration> -->
-							<!-- <aggregate>true</aggregate> -->
-							<!-- <tags> -->
-							<!-- <tag>TODO</tag> -->
-							<!-- <tag>FIXME</tag> -->
-							<!-- </tags> -->
-							<!-- </configuration> -->
-							<!-- </plugin> -->
-							<!-- <plugin> -->
-							<!-- <artifactId>maven-changelog-plugin</artifactId> -->
-							<!-- <version>2.2</version> -->
-							<!-- <configuration> -->
-							<!-- <type>date</type> -->
-							<!-- <dates> -->
-							<!-- <date>${developmentCycle.argeo-commons.startDate}</date> -->
-							<!-- </dates> -->
-							<!-- <dateFormat>yyyy-MM-dd</dateFormat> -->
-							<!-- </configuration> -->
-							<!-- </plugin> -->
 						</reportPlugins>
 					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>
-			<!-- <plugin> -->
-			<!-- <groupId>org.codehaus.mojo</groupId> -->
-			<!-- <artifactId>buildnumber-maven-plugin</artifactId> -->
-			<!-- <executions> -->
-			<!-- <execution> -->
-			<!-- <phase>generate-resources</phase> -->
-			<!-- <goals> -->
-			<!-- <goal>create-timestamp</goal> -->
-			<!-- </goals> -->
-			<!-- </execution> -->
-			<!-- </executions> -->
-			<!-- <configuration> -->
-			<!-- <doCheck>false</doCheck> -->
-			<!-- <doUpdate>false</doUpdate> -->
-			<!-- <timestampFormat>yyMMdd_HHmm</timestampFormat> -->
-			<!-- </configuration> -->
-			<!-- </plugin> -->
 			<plugin>
 				<artifactId>maven-clean-plugin</artifactId>
 				<configuration>
@@ -437,56 +377,10 @@ limitations under the License.
 					<releaseProfiles>rpmbuild,rpmbuild-tp</releaseProfiles>
 				</configuration>
 			</plugin>
-			<!-- <plugin> -->
-			<!-- <groupId>com.mycila.maven-license-plugin</groupId> -->
-			<!-- <artifactId>maven-license-plugin</artifactId> -->
-			<!-- <configuration> -->
-			<!-- <header>license-apache2-header.txt</header> -->
-			<!-- <failIfMissing>true</failIfMissing> -->
-			<!-- <aggregate>true</aggregate> -->
-			<!-- <includes> -->
-			<!-- <include>src/**/*.java</include> -->
-			<!-- <include>src/**/*.xml</include> -->
-			<!-- </includes> -->
-			<!-- <excludes> -->
-			<!-- <exclude>**/springutil/**</exclude> -->
-			<!-- <exclude>**/qooxdoo-sdk/**</exclude> -->
-			<!-- </excludes> -->
-			<!-- <useDefaultExcludes>true</useDefaultExcludes> -->
-			<!-- <mapping> -->
-			<!-- <java>SLASHSTAR_STYLE</java> -->
-			<!-- <xml>XML_STYLE</xml> -->
-			<!-- </mapping> -->
-			<!-- </configuration> -->
-			<!-- </plugin> -->
-			<!-- <plugin> -->
-			<!-- <groupId>com.agilejava.docbkx</groupId> -->
-			<!-- <artifactId>docbkx-maven-plugin</artifactId> -->
-			<!-- <configuration> -->
-			<!-- <sourceDirectory>doc/reference</sourceDirectory> -->
-			<!-- <targetDirectory>target/site/reference</targetDirectory> -->
-			<!-- <htmlStylesheet>css/style.css</htmlStylesheet> -->
-			<!-- <postProcess> -->
-			<!-- <copy todir="target/site/reference"> -->
-			<!-- <fileset dir="doc/reference"> -->
-			<!-- <include name="*/*.css" /> -->
-			<!-- </fileset> -->
-			<!-- <fileset dir="doc/reference"> -->
-			<!-- <include name="img/**" /> -->
-			<!-- </fileset> -->
-			<!-- </copy> -->
-			<!-- </postProcess> -->
-			<!-- </configuration> -->
-			<!-- <executions> -->
-			<!-- <execution> -->
-			<!-- <goals> -->
-			<!-- <goal>generate-html</goal> -->
-			<!-- <goal>generate-pdf</goal> -->
-			<!-- </goals> -->
-			<!-- <phase>pre-site</phase> -->
-			<!-- </execution> -->
-			<!-- </executions> -->
-			<!-- </plugin> -->
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+			</plugin>
 		</plugins>
 	</build>
 	<dependencyManagement>
@@ -541,9 +435,6 @@ limitations under the License.
 				<checksumPolicy>warn</checksumPolicy>
 			</releases>
 		</repository>
-		<!--<repository> <id>argeo-tp-rap</id> <url>http://localhost:9070/data/public/java/eclipse-rap-2.2</url> 
-			<releases> <enabled>true</enabled> <updatePolicy>daily</updatePolicy> <checksumPolicy>warn</checksumPolicy> 
-			</releases> </repository> -->
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
@@ -576,28 +467,4 @@ limitations under the License.
 			<url>dav:https://repo.argeo.org/data/files/docs/argeo-commons-${developmentCycle.argeo-commons}</url>
 		</site>
 	</distributionManagement>
-	<!-- <profiles> -->
-	<!-- <profile> -->
-	<!-- <id>localrepo</id> -->
-	<!-- <distributionManagement> -->
-	<!-- <repository> -->
-	<!-- <id>localrepo</id> -->
-	<!-- <name>Internal Release Repository</name> -->
-	<!-- <url>dav:http://localhost:7070/data/files/java/argeo-commons-${developmentCycle.argeo-commons}</url> -->
-	<!-- </repository> -->
-	<!-- <site> -->
-	<!-- <id>site</id> -->
-	<!-- <name>Argeo Commons Site</name> -->
-	<!-- <url>dav:http://localhost:7070/data/files/docs/argeo-commons-${developmentCycle.argeo-commons}</url> -->
-	<!-- </site> -->
-	<!-- </distributionManagement> -->
-	<!-- </profile> -->
-	<!-- <profile> -->
-	<!-- <id>el5</id> -->
-	<!-- <properties> -->
-	<!-- <rpm.release>5</rpm.release> -->
-	<!-- <rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-staging/5/x86_64</rpm.stagingRepository> -->
-	<!-- </properties> -->
-	<!-- </profile> -->
-	<!-- </profiles> -->
 </project>
