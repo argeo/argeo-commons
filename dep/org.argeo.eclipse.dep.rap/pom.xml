@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
@@ -18,11 +19,6 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp</groupId> -->
-		<!-- <artifactId>org.eclipse.osgi</artifactId> -->
-		<!-- </dependency> -->
-
 		<dependency>
 			<groupId>org.argeo.tp.rap.addons</groupId>
 			<artifactId>binaries</artifactId>
@@ -43,54 +39,6 @@
 			<version>${version.rap}</version>
 			<type>pom</type>
 			<exclusions>
-				<!-- <exclusion> -->
-				<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-				<!-- <artifactId>javax.servlet</artifactId> -->
-				<!-- </exclusion> -->
-
-				<!-- Jetty -->
-				<!-- <exclusion> -->
-				<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-				<!-- <artifactId>org.eclipse.equinox.http.jetty</artifactId> -->
-				<!-- </exclusion> -->
-				<!-- <exclusion> -->
-				<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-				<!-- <artifactId>org.mortbay.jetty.server</artifactId> -->
-				<!-- </exclusion> -->
-				<!-- <exclusion> -->
-				<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-				<!-- <artifactId>org.mortbay.jetty.util</artifactId> -->
-				<!-- </exclusion> -->
-
-				<!-- <exclusion> -->
-				<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-				<!-- <artifactId>org.eclipse.jetty.security</artifactId> -->
-				<!-- </exclusion> -->
-				<!-- <exclusion> -->
-				<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-				<!-- <artifactId>org.eclipse.jetty.http</artifactId> -->
-				<!-- </exclusion> -->
-				<!-- <exclusion> -->
-				<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-				<!-- <artifactId>org.eclipse.jetty.server</artifactId> -->
-				<!-- </exclusion> -->
-				<!-- <exclusion> -->
-				<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-				<!-- <artifactId>org.eclipse.jetty.continuation</artifactId> -->
-				<!-- </exclusion> -->
-				<!-- <exclusion> -->
-				<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-				<!-- <artifactId>org.eclipse.jetty.util</artifactId> -->
-				<!-- </exclusion> -->
-				<!-- <exclusion> -->
-				<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-				<!-- <artifactId>org.eclipse.jetty.io</artifactId> -->
-				<!-- </exclusion> -->
-				<!-- <exclusion> -->
-				<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-				<!-- <artifactId>org.eclipse.jetty.servlet</artifactId> -->
-				<!-- </exclusion> -->
-
 				<!-- Demo -->
 				<exclusion>
 					<groupId>org.argeo.tp.rap.platform</groupId>
@@ -103,6 +51,20 @@
 				<exclusion>
 					<groupId>org.argeo.tp.rap.platform</groupId>
 					<artifactId>org.eclipse.rap.design.example</artifactId>
+				</exclusion>
+
+				<!-- Example, demos -->
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.demo.controls</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.example</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.example.pages</artifactId>
 				</exclusion>
 
 				<!-- Troublesome bundles -->
@@ -121,13 +83,7 @@
 			</exclusions>
 		</dependency>
 
-		<!-- Dependency to enable file upload. Should be included directly in coming 
-			rap distribution -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap</groupId> -->
-		<!-- <artifactId>org.eclipse.rwt.widgets.upload</artifactId> -->
-		<!-- </dependency> -->
-		<!-- Needed by the bundle above -->
+		<!-- Needed by upload -->
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.apache.commons.io</artifactId>
@@ -149,13 +105,6 @@
 			<artifactId>org.eclipse.equinox.security</artifactId>
 		</dependency>
 
-		<!-- 2014-07-31 mbaudier : Removed, since it feels wrong to put an Argeo 
-			dependency here -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.commons</groupId> -->
-		<!-- <artifactId>org.argeo.osgi.boot</artifactId> -->
-		<!-- <version>2.1.8-SNAPSHOT</version> -->
-		<!-- </dependency> -->
 	</dependencies>
 	<profiles>
 		<profile>
@@ -223,7 +172,8 @@
 								<configuration>
 									<target>
 										<copy todir="${rpm.stagingRepository}" verbose="true">
-											<fileset dir="${project.build.directory}/rpm" includes="*/RPMS/**/*.rpm" />
+											<fileset dir="${project.build.directory}/rpm"
+												includes="*/RPMS/**/*.rpm" />
 											<flattenmapper />
 										</copy>
 									</target>

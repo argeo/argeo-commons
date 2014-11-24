@@ -21,6 +21,7 @@
 		<module>org.argeo.security.dep.node.eclipse</module>
 		<module>org.argeo.security.dep.node.rap</module>
 		<module>org.argeo.security.dep.node.rcp</module>
+		<module>org.argeo.dep.cms</module>
 	</modules>
 	<build>
 		<plugins>
