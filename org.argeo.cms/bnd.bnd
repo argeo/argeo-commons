@@ -1,0 +1,6 @@
+Import-Package: org.springframework.core,\
+	org.eclipse.core.commands,\
+	org.eclipse.swt,\
+	javax.jcr.security,\
+	*
+Private-Package: org.argeo.cam.internal.*

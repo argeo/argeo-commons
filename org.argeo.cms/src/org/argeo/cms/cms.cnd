@@ -1,0 +1,21 @@
+<cms = 'http://www.argeo.org/ns/cms'>
+
+[cms:styled]
+mixin
+- cms:style (STRING)
+- cms:content (STRING)
+- cms:data (BINARY)
+
+[cms:image] > mix:title, mix:mimeType
+mixin
+- cms:imageWidth (STRING)
+- cms:imageHeight (STRING)
+
+[cms:section] > nt:folder, mix:created, mix:lastModified, mix:title
+orderable
++ cms:p (nt:base) = nt:unstructured * 
++ cms:h (cms:section) *
++ cms:attached (nt:folder)
+
+[cms:text] > cms:section
++ cms:history (nt:folder)

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.argeo.connect</groupId>
+		<artifactId>argeo-connect</artifactId>
+		<version>2.1.13-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>org.argeo.cms</artifactId>
+	<name>Connect Content Management System</name>
+	<packaging>jar</packaging>
+
+	<!-- TODO move to parent -->
+
+	<!-- <build> -->
+	<!-- <plugins> -->
+	<!-- <plugin> -->
+	<!-- <groupId>org.apache.felix</groupId> -->
+	<!-- <artifactId>maven-bundle-plugin</artifactId> -->
+	<!-- <configuration> -->
+	<!-- <instructions> -->
+	<!-- Different from plugin -->
+	<!-- <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName> -->
+	<!-- <Bundle-Activator>org.argeo.connect.files.web.Activator</Bundle-Activator> -->
+	<!-- <Require-Bundle>org.eclipse.rap.rwt;bundle-version="[2.2.0,3.0.0)"</Require-Bundle> -->
+	<!-- <Import-Package> -->
+	<!-- *, -->
+	<!-- org.springframework.core -->
+	<!-- </Import-Package> -->
+	<!-- </instructions> -->
+	<!-- </configuration> -->
+	<!-- </plugin> -->
+	<!-- </plugins> -->
+	<!-- </build> -->
+	<dependencies>
+		<dependency>
+			<groupId>org.argeo.commons.server</groupId>
+			<artifactId>org.argeo.server.jcr</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.argeo.commons.security</groupId>
+			<artifactId>org.argeo.security.core</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+
+		<!-- Files -->
+		<dependency>
+			<groupId>org.argeo.tp.rap.addons</groupId>
+			<artifactId>org.eclipse.rap.addons.fileupload</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.addons</groupId>
+			<artifactId>org.eclipse.rap.addons.filedialog</artifactId>
+		</dependency>
+
+		<!-- RAP -->
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.rap.rwt</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.rap.jface</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.core.commands</artifactId>
+		</dependency>
+
+		<!-- OSGi -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>org.springframework.osgi.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.osgi</artifactId>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+</project>
