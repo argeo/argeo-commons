@@ -12,6 +12,7 @@
 		<developmentCycle.argeo-commons>2.1</developmentCycle.argeo-commons>
 		<developmentCycle.argeo-commons.startDate>2012-12-19</developmentCycle.argeo-commons.startDate>
 		<version.argeo-distribution>2.1.2</version.argeo-distribution>
+		<version.eclipseIde>3.8.2</version.eclipseIde>
 		<version.rap>2.2.0-R-20131204-0942</version.rap>
 		<version.rap.addons>0.2.0.20131212-1229</version.rap.addons>
 		<!-- RPM -->
@@ -501,6 +502,13 @@ limitations under the License.
 <!-- 				<scope>import</scope> -->
 <!-- 			</dependency> -->
 			<dependency>
+				<groupId>org.argeo.tp.rcp.platform</groupId>
+				<artifactId>binaries</artifactId>
+				<version>${version.eclipseIde}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
 				<groupId>org.argeo.tp.rap.platform</groupId>
 				<artifactId>binaries</artifactId>
 				<version>${version.rap}</version>
@@ -513,6 +521,15 @@ limitations under the License.
 		<repository>
 			<id>argeo-tp</id>
 			<url>http://localhost:7080/data/public/java/argeo-tp-2.1</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</releases>
+		</repository>
+		<repository>
+			<id>argeo-tp-eclipseIde</id>
+			<url>http://localhost:7080/data/public/java/eclipse-ide-3.8</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>

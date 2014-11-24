@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.base</groupId>
@@ -61,15 +62,15 @@ ex=*.source_*.jar,\
 		</plugins>
 	</build>
 	<dependencies>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.eclipse.osgi</artifactId>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp</groupId> -->
+		<!-- <artifactId>org.eclipse.osgi</artifactId> -->
+		<!-- </dependency> -->
 
 		<dependency>
 			<groupId>org.argeo.tp.rcp.platform</groupId>
 			<artifactId>binaries</artifactId>
-			<version>${version.argeo-distribution}</version>
+			<version>${version.eclipseIde}</version>
 			<type>pom</type>
 			<exclusions>
 				<!-- Deprecated update configurator has side effect in PDE -->
@@ -210,29 +211,29 @@ ex=*.source_*.jar,\
 		</dependency>
 
 		<!-- Security -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp.rcp</groupId> -->
-<!-- 			<artifactId>org.eclipse.equinox.security</artifactId> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rcp</groupId> -->
+		<!-- <artifactId>org.eclipse.equinox.security</artifactId> -->
+		<!-- </dependency> -->
 	</dependencies>
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.argeo.tp.rcp</groupId>
-				<artifactId>binaries</artifactId>
-				<version>${version.argeo-distribution}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.argeo.tp.rcp.platform</groupId>
-				<artifactId>binaries</artifactId>
-				<version>${version.argeo-distribution}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+	<!-- <dependencyManagement> -->
+	<!-- <dependencies> -->
+	<!-- <dependency> -->
+	<!-- <groupId>org.argeo.tp.rcp</groupId> -->
+	<!-- <artifactId>binaries</artifactId> -->
+	<!-- <version>${version.argeo-distribution}</version> -->
+	<!-- <type>pom</type> -->
+	<!-- <scope>import</scope> -->
+	<!-- </dependency> -->
+	<!-- <dependency> -->
+	<!-- <groupId>org.argeo.tp.rcp.platform</groupId> -->
+	<!-- <artifactId>binaries</artifactId> -->
+	<!-- <version>${version.eclipseIde}</version> -->
+	<!-- <type>pom</type> -->
+	<!-- <scope>import</scope> -->
+	<!-- </dependency> -->
+	<!-- </dependencies> -->
+	<!-- </dependencyManagement> -->
 	<profiles>
 		<profile>
 			<id>check-osgi</id>

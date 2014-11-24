@@ -16,7 +16,7 @@
 		<module>org.argeo.dep.log4j</module>
 		<!-- <module>org.argeo.dep.jackrabbit</module> -->
 		<module>org.argeo.eclipse.dep.rap</module>
-		<!-- <module>org.argeo.eclipse.dep.rcp</module> -->
+		<module>org.argeo.eclipse.dep.rcp</module>
 	</modules>
 	<build>
 		<plugins>
