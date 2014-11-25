@@ -8,23 +8,4 @@
 	</parent>
 	<artifactId>org.argeo.security.auth.ldap</artifactId>
 	<name>Commons Security Auth LDAP</name>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<configuration>
-					<instructions>
-						<Import-Package>
-							*,
-							org.argeo.jcr,
-							com.sun.jndi.ldap;resolution:=optional,
-							org.springframework.ldap.core.support,
-							org.springframework.security
-						</Import-Package>
-					</instructions>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 </project>
