@@ -9,15 +9,8 @@
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.eclipse.dep.rap</artifactId>
-	<name>Commons Eclipse RAP Dependencies</name>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.argeo.maven.plugins</groupId>
-				<artifactId>maven-argeo-osgi-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
+	<name>Eclipse RAP Dependencies</name>
+	<packaging>pom</packaging>
 	<dependencies>
 		<dependency>
 			<groupId>org.argeo.tp.rap.addons</groupId>
@@ -70,6 +63,14 @@
 				<!-- Troublesome bundles -->
 				<exclusion>
 					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.junit</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.junit</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
 					<artifactId>org.eclipse.jdt.junit.runtime</artifactId>
 				</exclusion>
 				<exclusion>
@@ -94,10 +95,10 @@
 		</dependency>
 
 		<!-- RAP Specific Dependencies -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>javax.servlet</artifactId>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp</groupId> -->
+		<!-- <artifactId>javax.servlet</artifactId> -->
+		<!-- </dependency> -->
 
 		<!-- Security -->
 		<dependency>

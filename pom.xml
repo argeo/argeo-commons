@@ -27,7 +27,6 @@
 		<module>org.argeo.server.jcr</module>
 		<!-- Eclipse -->
 		<module>org.argeo.eclipse.ui</module>
-		<module>org.argeo.eclipse.ui.jcr</module>
 		<module>org.argeo.eclipse.ui.rap</module>
 		<module>org.argeo.eclipse.ui.rcp</module>
 		<!-- Security -->
@@ -61,7 +60,6 @@
 		<module>org.argeo.security.ui.rap</module>
 		<module>org.argeo.security.ui.rcp</module>
 		<!-- Legacy -->
-		<module>org.argeo.support.junit</module>
 		<module>org.argeo.server.core</module>
 		<module>org.argeo.ext.jdbm</module>
 		<!-- Dependencies and Distributions -->
@@ -138,7 +136,18 @@ limitations under the License.
 					<configuration>
 						<source>1.6</source>
 						<target>1.6</target>
+						<compilerId>eclipse</compilerId>
+						<!-- Hack to work around issues with generated annotations : -->
+						<generatedSourcesDirectory>target/classes</generatedSourcesDirectory>
+						<generatedTestSourcesDirectory>target/classes</generatedTestSourcesDirectory>
 					</configuration>
+					<dependencies>
+						<dependency>
+							<groupId>org.codehaus.plexus</groupId>
+							<artifactId>plexus-compiler-eclipse</artifactId>
+							<version>2.3</version>
+						</dependency>
+					</dependencies>
 				</plugin>
 				<plugin>
 					<artifactId>maven-source-plugin</artifactId>
@@ -384,6 +393,15 @@ limitations under the License.
 			</plugin>
 		</plugins>
 	</build>
+	<!-- <dependencies> -->
+	<!-- <dependency> -->
+	<!-- <groupId>org.argeo.tp</groupId> -->
+	<!-- <artifactId>binaries</artifactId> -->
+	<!-- <type>pom</type> -->
+	<!-- <version>${version.argeo-distribution}</version> -->
+	<!-- <scope>compile</scope> -->
+	<!-- </dependency> -->
+	<!-- </dependencies> -->
 	<dependencyManagement>
 		<dependencies>
 			<dependency>

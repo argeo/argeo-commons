@@ -24,7 +24,7 @@ import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.io.IOUtils;
 import org.argeo.ArgeoException;
-import org.argeo.eclipse.ui.specific.FileProvider;
+import org.argeo.eclipse.ui.FileProvider;
 
 /**
  * Implements a FileProvider for UI purposes. Note that it might not be very

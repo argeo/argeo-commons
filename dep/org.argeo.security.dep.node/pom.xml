@@ -228,10 +228,10 @@
 			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.h2</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>com.mysql.jdbc</artifactId>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp</groupId> -->
+		<!-- <artifactId>com.mysql.jdbc</artifactId> -->
+		<!-- </dependency> -->
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.postgresql.jdbc3</artifactId>
@@ -256,11 +256,11 @@
 		</dependency>
 
 		<!-- Software development -->
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.support.junit</artifactId>
-			<version>2.1.12-SNAPSHOT</version>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.commons</groupId> -->
+		<!-- <artifactId>org.argeo.support.junit</artifactId> -->
+		<!-- <version>2.1.12-SNAPSHOT</version> -->
+		<!-- </dependency> -->
 	</dependencies>
 	<profiles>
 		<profile>

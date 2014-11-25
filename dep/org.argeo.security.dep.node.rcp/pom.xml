@@ -35,12 +35,49 @@
 		</plugins>
 	</build>
 	<dependencies>
+		<!-- Applications -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.security.dep.node.eclipse</artifactId>
+			<artifactId>org.argeo.jcr.ui.explorer</artifactId>
+			<version>2.1.12-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.osgi.ui.explorer</artifactId>
+			<version>2.1.12-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.security.ui.admin</artifactId>
+			<version>2.1.12-SNAPSHOT</version>
+		</dependency>
+
+		<!-- Eclipse -->
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.eclipse.ui</artifactId>
+			<version>2.1.12-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.security.equinox</artifactId>
+			<version>2.1.12-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.security.ui</artifactId>
+			<version>2.1.12-SNAPSHOT</version>
+		</dependency>
+
+		<!-- Basis -->
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.security.dep.node</artifactId>
 			<version>2.1.12-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
+
+		<!-- RCP specific -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.security.ui.rcp</artifactId>

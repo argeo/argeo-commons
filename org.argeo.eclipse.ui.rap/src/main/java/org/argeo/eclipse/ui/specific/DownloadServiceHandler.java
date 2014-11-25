@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.FileProvider;
 import org.eclipse.rap.rwt.service.ServiceHandler;
 
 @Deprecated
