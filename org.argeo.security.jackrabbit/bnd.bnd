@@ -1,0 +1,4 @@
+Fragment-Host: org.apache.jackrabbit
+Import-Package: org.springframework.core,\
+org.argeo.jcr,\
+*
