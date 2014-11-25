@@ -16,21 +16,9 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
-						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
-						<Bundle-Activator>org.argeo.eclipse.ui.ArgeoUiPlugin</Bundle-Activator>
-						<Require-Bundle>org.eclipse.ui;resolution:=optional,org.eclipse.rap.ui;resolution:=optional,org.eclipse.core.runtime</Require-Bundle>
-						<Import-Package>
-							org.springframework.beans.factory,
-							org.springframework.core.io.support,
-							!org.eclipse.core.runtime,
-							!org.eclipse.core.commands,
-							!org.eclipse.ui.plugin,
-							*
-						</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>

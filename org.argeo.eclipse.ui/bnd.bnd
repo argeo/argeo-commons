@@ -1,0 +1,9 @@
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.argeo.eclipse.ui.ArgeoUiPlugin 
+Require-Bundle: org.eclipse.ui;resolution:=optional,org.eclipse.rap.ui;resolution:=optional,org.eclipse.core.runtime
+Import-Package: org.springframework.beans.factory,\
+org.springframework.core.io.support,\
+!org.eclipse.core.runtime,\
+!org.eclipse.core.commands,\
+!org.eclipse.ui.plugin,\
+*
