@@ -1,0 +1,2 @@
+Bundle-Activator: org.argeo.osgi.boot.Activator
+Import-Package: org.eclipse.*;resolution:=optional,*
