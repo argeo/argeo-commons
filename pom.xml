@@ -105,9 +105,17 @@ limitations under the License.
 				<version>2.8</version>
 			</extension>
 		</extensions>
+		<sourceDirectory>src</sourceDirectory>
+		<testSourceDirectory>ext/test</testSourceDirectory>
 		<resources>
 			<resource>
-				<directory>src/main/resources</directory>
+				<directory>src</directory>
+				<includes>
+					<include>**</include>
+				</includes>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
 			</resource>
 			<resource>
 				<directory>.</directory>
@@ -118,6 +126,7 @@ limitations under the License.
 					<exclude>.*</exclude>
 					<exclude>.*/**</exclude>
 					<exclude>src/**</exclude>
+					<exclude>ext/**</exclude>
 					<exclude>target/**</exclude>
 					<exclude>bin/**</exclude>
 					<exclude>pom.xml</exclude>
@@ -127,6 +136,17 @@ limitations under the License.
 				</excludes>
 			</resource>
 		</resources>
+		<testResources>
+			<testResource>
+				<directory>ext/test</directory>
+				<includes>
+					<include>**</include>
+				</includes>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</testResource>
+		</testResources>
 		<pluginManagement>
 			<plugins>
 				<!-- Maven -->
@@ -139,7 +159,7 @@ limitations under the License.
 						<compilerId>eclipse</compilerId>
 						<!-- Hack to work around issues with generated annotations : -->
 						<generatedSourcesDirectory>target/classes</generatedSourcesDirectory>
-						<generatedTestSourcesDirectory>target/classes</generatedTestSourcesDirectory>
+						<generatedTestSourcesDirectory>target/test-classes</generatedTestSourcesDirectory>
 					</configuration>
 					<dependencies>
 						<dependency>
@@ -228,6 +248,7 @@ limitations under the License.
 					<configuration>
 						<manifestLocation>META-INF</manifestLocation>
 						<instructions>
+							<_include>bnd.bnd</_include>
 							<Bundle-Version>${project.version}-r${tstamp}</Bundle-Version>
 							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 							<Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
