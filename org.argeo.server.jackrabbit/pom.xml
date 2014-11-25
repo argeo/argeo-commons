@@ -10,43 +10,6 @@
 	</parent>
 	<artifactId>org.argeo.server.jackrabbit</artifactId>
 	<name>Commons Server Jackrabbit</name>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<configuration>
-					<instructions>
-						<Export-Package>
-							org.argeo.jackrabbit.*,
-						</Export-Package>
-						<Import-Package>
-							javax.servlet,
-							org.apache.jackrabbit.webdav.server,
-							org.springframework.web.context,
-							org.osgi.framework;version="0.0.0",
-							org.xml.sax;version="0.0.0",
-							org.apache.jackrabbit.webdav.jcr,
-							org.springframework.beans,
-							*
-						</Import-Package>
-					</instructions>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 	<dependencies>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
