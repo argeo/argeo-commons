@@ -9,20 +9,19 @@
        http://www.springframework.org/schema/util
        http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
+	<!-- REFERENCE -->
+	<reference id="nodeRepository" interface="javax.jcr.Repository"
+		filter="(argeo.jcr.repository.alias=node)" />
+
 	<!-- SERVICES -->
 	<service ref="authenticationManager"
 		interface="org.springframework.security.AuthenticationManager" />
 
-	<service ref="repositoryFactory" interface="javax.jcr.RepositoryFactory" />
-
 	<!-- User management -->
 	<service ref="userDetailsManager"
-		interface="org.springframework.security.userdetails.UserDetailsService"
-		context-class-loader="service-provider" />
+		interface="org.springframework.security.userdetails.UserDetailsService" />
 	<service ref="userDetailsManager"
-		interface="org.springframework.security.userdetails.UserDetailsManager"
-		context-class-loader="service-provider" />
-	<service ref="userDetailsManager" interface="org.argeo.security.UserAdminService"
-		context-class-loader="service-provider" />
+		interface="org.springframework.security.userdetails.UserDetailsManager" />
+	<service ref="userDetailsManager" interface="org.argeo.security.UserAdminService" />
 
 </beans:beans>

@@ -16,25 +16,57 @@
 		<property name="providers">
 			<list>
 				<ref bean="authByAdapterProvider" />
-				<ref bean="remoteJcrAuthenticationProvider" />
+				<ref bean="userDetailsManager" />
 			</list>
 		</property>
 	</bean>
 
 	<!-- Authentication providers -->
-	<bean id="remoteJcrAuthenticationProvider" class="org.argeo.security.jcr.RemoteJcrAuthenticationProvider">
-		<property name="repositoryFactory" ref="repositoryFactory" />
-		<property name="bundleContext" ref="bundleContext" />
-	</bean>
-
 	<bean id="authByAdapterProvider"
 		class="org.springframework.security.adapters.AuthByAdapterProvider">
 		<property name="key" value="${argeo.security.systemKey}" />
 	</bean>
 
 	<!-- Dummy user manager -->
-	<bean id="userDetailsManager" class="org.argeo.security.jcr.OsJcrUserAdminService"
+	<bean id="userDetailsManager"
+		class="org.argeo.security.jackrabbit.JackrabbitUserAdminService"
+		init-method="init" destroy-method="destroy" depends-on="systemInit">
+		<property name="repository" ref="nodeRepository" />
+		<property name="securityModel" ref="jcrSecurityModel" />
+	</bean>
+
+	<bean name="jcrSecurityModel" class="org.argeo.security.jcr.SimpleJcrSecurityModel"
+		depends-on="argeoDataModel" />
+
+	<bean id="argeoDataModel" class="org.argeo.jackrabbit.JackrabbitWrapper"
 		init-method="init" destroy-method="destroy">
+		<description><![CDATA[Make sure that Argeo base data model is registered]]></description>
+		<property name="cndFiles">
+			<list>
+				<value>/org/argeo/jcr/argeo.cnd</value>
+			</list>
+		</property>
+		<property name="repository" ref="nodeRepository" />
+		<property name="bundleContext" ref="bundleContext" />
+	</bean>
+
+	<!-- Internal authentication, used by during the general authentication 
+		initialization himself, in order to prevent the following dependency cycle: 
+		Repository.login() <= AuthenticationManager <= JackrabbitUserAdminService 
+		<= Repository.login() in init() -->
+	<bean id="internalAuthenticationManager" class="org.springframework.security.providers.ProviderManager">
+		<property name="providers">
+			<list>
+				<ref bean="authByAdapterProvider" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="systemInit"
+		class="org.argeo.security.core.AuthenticatedApplicationContextInitialization">
+		<description><![CDATA[Executes initialization with a system authentication]]></description>
+		<property name="authenticationManager" ref="internalAuthenticationManager" />
+		<property name="systemAuthenticationKey" value="${argeo.security.systemKey}" />
 	</bean>
 
 </beans>
