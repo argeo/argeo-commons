@@ -3,6 +3,7 @@ package org.argeo.security.jackrabbit;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.jcr.Node;
@@ -41,6 +42,9 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
  */
 public class JackrabbitUserAdminService implements UserAdminService,
 		AuthenticationProvider {
+	final static String userRole = "ROLE_USER";
+	final static String adminRole = "ROLE_ADMIN";
+
 	private Repository repository;
 	private JcrSecurityModel securityModel;
 
@@ -54,10 +58,9 @@ public class JackrabbitUserAdminService implements UserAdminService,
 				.getAuthentication();
 		authentication.getName();
 		adminSession = (JackrabbitSession) repository.login();
-		Authorizable adminGroup = getUserManager()
-				.getAuthorizable("ROLE_ADMIN");
+		Authorizable adminGroup = getUserManager().getAuthorizable(adminRole);
 		if (adminGroup == null) {
-			adminGroup = getUserManager().createGroup("ROLE_ADMIN");
+			adminGroup = getUserManager().createGroup(adminRole);
 			adminSession.save();
 		}
 		Authorizable superUser = getUserManager()
@@ -82,15 +85,61 @@ public class JackrabbitUserAdminService implements UserAdminService,
 	@Override
 	public void createUser(UserDetails user) {
 		try {
-			getUserManager().createUser(user.getUsername(), user.getPassword());
-			securityModel.sync(adminSession, user.getUsername(), null);
+			// FIXME workaround for issue in new user wizard where
+			// security model is hardcoded and it already exists
+			if (getUserManager().getAuthorizable(user.getUsername()) == null) {
+				getUserManager().createUser(user.getUsername(),
+						user.getPassword());
+				securityModel.sync(adminSession, user.getUsername(), null);
+			}
+			updateUser(user);
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot create user " + user, e);
 		}
 	}
 
 	@Override
-	public void updateUser(UserDetails user) {
+	public void updateUser(UserDetails userDetails) {
+		try {
+			User user = (User) getUserManager().getAuthorizable(
+					userDetails.getUsername());
+
+			// new password
+			char[] newPassword = userDetails.getPassword().toCharArray();
+			SimpleCredentials sp = new SimpleCredentials(
+					userDetails.getUsername(), newPassword);
+			CryptedSimpleCredentials credentials = (CryptedSimpleCredentials) user
+					.getCredentials();
+			if (!credentials.matches(sp))
+				user.changePassword(new String(newPassword));
+
+			List<String> roles = new ArrayList<String>();
+			for (GrantedAuthority ga : userDetails.getAuthorities()) {
+				if (ga.getAuthority().equals(userRole))
+					continue;
+				roles.add(ga.getAuthority());
+			}
+
+			for (Iterator<Group> it = user.memberOf(); it.hasNext();) {
+				Group group = it.next();
+				if (roles.contains(group.getPrincipal().getName()))
+					roles.remove(group.getPrincipal().getName());
+				else
+					group.removeMember(user);
+			}
+
+			// remaining (new ones)
+			for (String role : roles) {
+				Group group = (Group) getUserManager().getAuthorizable(role);
+				if (group == null)
+					throw new ArgeoException("Group " + role
+							+ " does not exist,"
+							+ " whereas it was granted to user " + userDetails);
+				group.addMember(user);
+			}
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot update user details", e);
+		}
 
 	}
 
@@ -109,8 +158,9 @@ public class JackrabbitUserAdminService implements UserAdminService,
 				.getAuthentication();
 		try {
 			SimpleCredentials sp = new SimpleCredentials(
-					authentication.getName(), authentication.getCredentials()
-							.toString().toCharArray());
+					authentication.getName(),
+					((UserDetails) authentication.getDetails()).getPassword()
+							.toCharArray());
 			User user = (User) getUserManager().getAuthorizable(
 					authentication.getName());
 			CryptedSimpleCredentials credentials = (CryptedSimpleCredentials) user
@@ -144,7 +194,7 @@ public class JackrabbitUserAdminService implements UserAdminService,
 		LinkedHashSet<String> res = new LinkedHashSet<String>();
 		try {
 			Iterator<Authorizable> users = getUserManager().findAuthorizables(
-					null, null, UserManager.SEARCH_TYPE_USER);
+					"rep:principalName", null, UserManager.SEARCH_TYPE_USER);
 			while (users.hasNext()) {
 				res.add(users.next().getPrincipal().getName());
 			}
@@ -188,7 +238,7 @@ public class JackrabbitUserAdminService implements UserAdminService,
 		LinkedHashSet<String> res = new LinkedHashSet<String>();
 		try {
 			Iterator<Authorizable> groups = getUserManager().findAuthorizables(
-					null, null, UserManager.SEARCH_TYPE_GROUP);
+					"rep:principalName", null, UserManager.SEARCH_TYPE_GROUP);
 			while (groups.hasNext()) {
 				res.add(groups.next().getPrincipal().getName());
 			}
@@ -212,6 +262,9 @@ public class JackrabbitUserAdminService implements UserAdminService,
 			throws UsernameNotFoundException, DataAccessException {
 		try {
 			User user = (User) getUserManager().getAuthorizable(username);
+			if (user == null)
+				throw new UsernameNotFoundException("User " + username
+						+ " cannot be found");
 			return loadJcrUserDetails(adminSession, username,
 					user.getCredentials());
 		} catch (RepositoryException e) {

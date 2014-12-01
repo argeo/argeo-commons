@@ -16,6 +16,7 @@
 		<property name="providers">
 			<list>
 				<ref bean="authByAdapterProvider" />
+				<ref bean="anonymousAuthenticationProvider" />
 				<ref bean="userDetailsManager" />
 			</list>
 		</property>
@@ -27,7 +28,13 @@
 		<property name="key" value="${argeo.security.systemKey}" />
 	</bean>
 
-	<!-- Dummy user manager -->
+	<bean id="anonymousAuthenticationProvider"
+		class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider">
+		<description><![CDATA[Anonymous authentication]]></description>
+		<property name="key" value="${argeo.security.systemKey}" />
+	</bean>
+
+	<!-- User manager -->
 	<bean id="userDetailsManager"
 		class="org.argeo.security.jackrabbit.JackrabbitUserAdminService"
 		init-method="init" destroy-method="destroy" depends-on="systemInit">
