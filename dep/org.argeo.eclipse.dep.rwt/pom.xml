@@ -39,6 +39,10 @@
 					<groupId>org.argeo.tp.rap.platform</groupId>
 					<artifactId>org.eclipse.rap.ui.views</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.help</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 	</dependencies>

@@ -32,7 +32,13 @@
 			<version>${version.rap}</version>
 			<type>pom</type>
 			<exclusions>
-				<!-- Demo -->
+				<!-- Not used -->
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.ui.cheatsheets</artifactId>
+				</exclusion>
+
+				<!-- Example, demos -->
 				<exclusion>
 					<groupId>org.argeo.tp.rap.platform</groupId>
 					<artifactId>org.eclipse.rap.demo</artifactId>
@@ -45,19 +51,17 @@
 					<groupId>org.argeo.tp.rap.platform</groupId>
 					<artifactId>org.eclipse.rap.design.example</artifactId>
 				</exclusion>
-
-				<!-- Example, demos -->
 				<exclusion>
 					<groupId>org.argeo.tp.rap.platform</groupId>
 					<artifactId>org.eclipse.rap.demo.controls</artifactId>
 				</exclusion>
 				<exclusion>
 					<groupId>org.argeo.tp.rap.platform</groupId>
-					<artifactId>org.eclipse.rap.example</artifactId>
+					<artifactId>org.eclipse.rap.examples</artifactId>
 				</exclusion>
 				<exclusion>
 					<groupId>org.argeo.tp.rap.platform</groupId>
-					<artifactId>org.eclipse.rap.example.pages</artifactId>
+					<artifactId>org.eclipse.rap.examples.pages</artifactId>
 				</exclusion>
 
 				<!-- Troublesome bundles -->
@@ -93,6 +97,10 @@
 				<exclusion>
 					<groupId>org.argeo.tp.rap.platform</groupId>
 					<artifactId>org.apache.felix.gogo.command</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.equinox.console</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
