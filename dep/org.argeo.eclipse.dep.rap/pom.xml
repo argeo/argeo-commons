@@ -81,6 +81,19 @@
 					<groupId>org.argeo.tp.rap.platform</groupId>
 					<artifactId>org.eclipse.rap.rwt.testfixture</artifactId>
 				</exclusion>
+				<!-- Felix Gogo shell -->
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.apache.felix.gogo.runtime</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.apache.felix.gogo.shell</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.apache.felix.gogo.command</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
