@@ -15,7 +15,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Table;
 
-/** Utility methods to simplify UI development using eclipse and JCR. */
+/** Utility methods to simplify UI development using SWT (or RWT), jface  and JCR. */
 public class JcrUiUtils {
 
 	/**
