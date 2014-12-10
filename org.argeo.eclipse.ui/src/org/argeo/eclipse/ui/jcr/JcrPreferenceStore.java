@@ -45,6 +45,8 @@ import org.osgi.framework.BundleContext;
  * - better integrate with {@link ScopedPreferenceStore} provided by RAP
  */
 public class JcrPreferenceStore extends PreferenceStore implements ArgeoNames {
+	private static final long serialVersionUID = 1854011367784598758L;
+
 	private Session session;
 	private BundleContext bundleContext;
 

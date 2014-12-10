@@ -1,0 +1,16 @@
+Bundle-SymbolicName: org.argeo.eclipse.ui.workbench;singleton:=true
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin
+
+Require-Bundle: org.eclipse.ui;resolution:=optional,\
+				org.eclipse.core.runtime,\
+				org.eclipse.rap.ui;resolution:=optional,\
+				org.eclipse.rap.ui.workbench;resolution:=optional
+
+Import-Package: org.argeo.eclipse.ui.specific,\
+				org.argeo.eclipse.spring,\
+				org.osgi.framework,\
+				org.osgi.service.packageadmin,\
+				org.springframework.beans.factory,\
+				org.springframework.core.io.support,\
+				*

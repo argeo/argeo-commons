@@ -22,7 +22,6 @@ import java.util.Map;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.ArgeoUiPlugin;
 import org.eclipse.core.commands.Command;
-import org.eclipse.core.commands.IParameter;
 import org.eclipse.core.commands.Parameterization;
 import org.eclipse.core.commands.ParameterizedCommand;
 import org.eclipse.jface.action.IContributionItem;
@@ -30,7 +29,6 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.menus.CommandContributionItem;
@@ -179,60 +177,5 @@ public class CommandUtils {
 			throw new ArgeoException("Unexpected error while"
 					+ " calling the command " + commandID, e);
 		}
-	}
-
-	// legacy methods. Should be removed soon
-
-	/**
-	 * Shortcut to call a command with a single parameter.
-	 * 
-	 * WARNING: none of the parameter can be null
-	 * 
-	 * @deprecated rather use <code>callCommand(commandID,parameterID,
-			parameterValue)</code>
-	 */
-	public static void CallCommandWithOneParameter(String commandId,
-			String paramId, String paramValue) {
-		try {
-			IWorkbench iw = ArgeoUiPlugin.getDefault().getWorkbench();
-			IHandlerService handlerService = (IHandlerService) iw
-					.getService(IHandlerService.class);
-
-			// Gets a command that must have been previously registered
-			IWorkbenchWindow window = iw.getActiveWorkbenchWindow();
-			ICommandService cmdService = (ICommandService) window
-					.getService(ICommandService.class);
-			Command cmd = cmdService.getCommand(commandId);
-
-			// Manages the single parameter
-			ArrayList<Parameterization> parameters = new ArrayList<Parameterization>();
-			IParameter iparam = cmd.getParameter(paramId);
-			Parameterization params = new Parameterization(iparam, paramValue);
-			parameters.add(params);
-
-			// Create and execute the command
-			ParameterizedCommand pc = new ParameterizedCommand(cmd,
-					parameters.toArray(new Parameterization[parameters.size()]));
-			handlerService = (IHandlerService) window
-					.getService(IHandlerService.class);
-			handlerService.executeCommand(pc, null);
-		} catch (Exception e) {
-			throw new ArgeoException(
-					"Error calling command of id:" + commandId, e);
-		}
-	}
-
-	/**
-	 * Commodities the refresh of a single command with a map of parameters in a
-	 * Menu.aboutToShow method to simplify further development Rather use
-	 * {@link refreshParameterizedCommand()}
-	 */
-	@Deprecated
-	public static void refreshParametrizedCommand(IMenuManager menuManager,
-			IServiceLocator locator, String cmdId, String label,
-			ImageDescriptor icon, boolean showCommand,
-			Map<String, String> params) {
-		refreshParameterizedCommand(menuManager, locator, cmdId, label, icon,
-				showCommand, params);
 	}
 }

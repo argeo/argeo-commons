@@ -28,6 +28,7 @@ import org.argeo.jcr.JcrUtils;
 
 /** Simple JCR node content provider taking a list of String as base path. */
 public class SimpleNodeContentProvider extends AbstractNodeContentProvider {
+	private static final long serialVersionUID = -8245193308831384269L;
 	private final List<String> basePaths;
 	private Boolean mkdirs = false;
 

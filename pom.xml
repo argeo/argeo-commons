@@ -51,8 +51,8 @@
 		<module>org.argeo.node.repo.jackrabbit</module>
 		<module>org.argeo.cms</module>
 		<!-- Standard Workbench Perspectives -->
-		<module>org.argeo.osgi.ui.explorer</module>
-		<module>org.argeo.jcr.ui.explorer</module>
+		<module>org.argeo.eclipse.ui.workbench</module>
+		<!-- <module>org.argeo.osgi.ui.explorer</module> <module>org.argeo.jcr.ui.explorer</module> -->
 		<module>org.argeo.security.equinox</module>
 		<module>org.argeo.security.ui</module>
 		<module>org.argeo.security.ui.admin</module>

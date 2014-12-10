@@ -38,12 +38,7 @@
 		<!-- Applications -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.jcr.ui.explorer</artifactId>
-			<version>2.1.12-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.osgi.ui.explorer</artifactId>
+			<artifactId>org.argeo.eclipse.ui.workbench</artifactId>
 			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 		<dependency>

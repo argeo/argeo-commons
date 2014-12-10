@@ -100,6 +100,8 @@ public class JcrUiUtils {
 			final String propertyName, final RowViewerComparator comparator,
 			final TableViewer viewer) {
 		SelectionAdapter selectionAdapter = new SelectionAdapter() {
+			private static final long serialVersionUID = -5738918304901437720L;
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Table table = viewer.getTable();
@@ -126,6 +128,8 @@ public class JcrUiUtils {
 			final int propertyType, final String propertyName,
 			final NodeViewerComparator comparator, final TableViewer viewer) {
 		SelectionAdapter selectionAdapter = new SelectionAdapter() {
+			private static final long serialVersionUID = -1683220869195484625L;
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Table table = viewer.getTable();
