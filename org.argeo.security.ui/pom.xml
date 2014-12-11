@@ -11,43 +11,6 @@
 	<artifactId>org.argeo.security.ui</artifactId>
 	<name>Commons Security UI</name>
 	<packaging>jar</packaging>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<configuration>
-					<instructions>
-						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
-						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
-						<Bundle-Activator>org.argeo.security.ui.SecurityUiPlugin</Bundle-Activator>
-						<Require-Bundle>org.eclipse.ui;resolution:=optional,org.eclipse.rap.ui;resolution:=optional,org.eclipse.core.runtime</Require-Bundle>
-						<Import-Package>
-							org.argeo.eclipse.spring,
-							org.apache.log4j;resolution:=optional,
-							*
-						</Import-Package>
-						<Export-Package>
-							!org.argeo.security.ui.internal.*,
-							org.argeo.security.ui.*
-						</Export-Package>
-					</instructions>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 	<dependencies>
 		<!-- Argeo Security -->
 		<dependency>
@@ -56,14 +19,14 @@
 			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 
-		<!-- Argeo Eclipse -->
+		<!-- Generic Eclipse Utilities -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.ui</artifactId>
 			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 
-		<!-- RAP only dependency, needed at compile time -->
+		<!-- We build against RAP -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
@@ -72,24 +35,19 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- Commons -->
+		<!-- Others: Commons utils, Spring, Logging -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.util</artifactId>
 			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
-
-		<!-- Spring -->
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.springframework.security.core</artifactId>
 		</dependency>
-
-		<!-- Others -->
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
 			<artifactId>slf4j.org.apache.commons.logging</artifactId>
 		</dependency>
-
 	</dependencies>
 </project>

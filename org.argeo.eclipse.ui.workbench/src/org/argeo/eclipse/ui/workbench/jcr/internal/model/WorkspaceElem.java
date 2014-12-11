@@ -19,7 +19,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.Workspace;
+// import javax.jcr.Workspace;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.TreeParent;

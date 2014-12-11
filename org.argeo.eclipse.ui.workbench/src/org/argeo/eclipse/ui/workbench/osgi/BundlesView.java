@@ -108,9 +108,10 @@ public class BundlesView extends ViewPart {
 
 			public String getText(Object element) {
 
-				return "";
+				// return "";
 				// FIXME triggers compilation failure
-				// return ((Bundle) element).getVersion().toString();
+				Bundle bundle = (org.osgi.framework.Bundle) element;
+				return bundle.getVersion().toString();
 			}
 		});
 		new ColumnViewerComparator<Bundle>(column, new Comparator<Bundle>() {

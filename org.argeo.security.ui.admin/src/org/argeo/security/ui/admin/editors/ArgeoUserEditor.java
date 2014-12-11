@@ -56,8 +56,13 @@ public class ArgeoUserEditor extends FormEditor {
 		userProfile = UserJcrUtils.getUserProfile(session, username);
 
 		if (userAdminService.userExists(username)) {
-			userDetails = (JcrUserDetails) userAdminService
-					.loadUserByUsername(username);
+			try {
+				userDetails = (JcrUserDetails) userAdminService
+						.loadUserByUsername(username);
+			} catch (Exception e) {
+				throw new ArgeoException("Cannot retrieve userDetails for "
+						+ username, e);
+			}
 		} else {
 			GrantedAuthority[] authorities = {};
 			try {
@@ -142,12 +147,12 @@ public class ArgeoUserEditor extends FormEditor {
 		JcrUtils.logoutQuietly(session);
 		super.dispose();
 	}
-	
+
 	/* DEPENDENCY INJECTION */
 	public void setUserAdminService(UserAdminService userAdminService) {
 		this.userAdminService = userAdminService;
 	}
-	
+
 	public void setRepository(Repository repository) {
 		try {
 			session = repository.login();

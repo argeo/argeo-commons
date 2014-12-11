@@ -10,25 +10,17 @@
 	</parent>
 	<artifactId>org.argeo.eclipse.ui.rap</artifactId>
 	<name>Commons Eclipse UI RAP</name>
+	<description>Provide rap specific classes and behaviour in order to provide single sourcing abilities</description>
 	<packaging>jar</packaging>
 	<dependencies>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.util</artifactId>
-			<version>2.1.12-SNAPSHOT</version>
-		</dependency>
+		<!-- Generic base UI classes. -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.ui</artifactId>
 			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
-		<!-- Logging -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>slf4j.org.apache.commons.logging</artifactId>
-		</dependency>
 
-		<!-- Argeo common distribution for RAP projects -->
+		<!-- Base distribution for RAP projects -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
@@ -36,5 +28,15 @@
 			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 
+		<!-- Utils and logging -->
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.util</artifactId>
+			<version>2.1.12-SNAPSHOT</version>
+		</dependency>
+			<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>slf4j.org.apache.commons.logging</artifactId>
+		</dependency>
 	</dependencies>
 </project>

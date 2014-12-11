@@ -54,6 +54,13 @@
 			<artifactId>org.argeo.eclipse.ui</artifactId>
 			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
+
+		<!-- RCP specific -->
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.security.ui.rcp</artifactId>
+			<version>2.1.12-SNAPSHOT</version>
+		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.security.equinox</artifactId>
@@ -65,19 +72,11 @@
 			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 
-		<!-- Basis -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.security.dep.node</artifactId>
 			<version>2.1.12-SNAPSHOT</version>
 			<type>pom</type>
-		</dependency>
-
-		<!-- RCP specific -->
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.security.ui.rcp</artifactId>
-			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<profiles>
@@ -140,8 +139,8 @@
 											<directoryIncluded>false</directoryIncluded>
 											<dependency>
 												<includes>
-													<include>org.argeo.commons.base:org.argeo.eclipse.ui.rcp</include>
-													<include>org.argeo.commons.security:org.argeo.security.ui.rcp</include>
+													<include>org.argeo.commons:org.argeo.eclipse.ui.rcp</include>
+													<include>org.argeo.commons:org.argeo.security.ui.rcp</include>
 												</includes>
 											</dependency>
 										</mapping>
