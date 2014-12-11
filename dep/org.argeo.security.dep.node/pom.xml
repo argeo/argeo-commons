@@ -162,23 +162,13 @@
 		</dependency>
 
 		<!-- Security (LDAP) -->
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.security.dao.ldap</artifactId>
-			<version>2.1.12-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.security.auth.ldap</artifactId>
-			<version>2.1.12-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.security.ldap</artifactId>
-			<version>2.1.12-SNAPSHOT</version>
-		</dependency>
-
-		<!-- Security (Jackrabbit) -->
+		<!-- Reduce size of minimal: LDAP secutity plugin must be explicitely added using the 3 dependencies below.  -->
+	<!-- <dependency> <groupId>org.argeo.commons</groupId> <artifactId>org.argeo.security.dao.ldap</artifactId> 
+		<version>2.1.12-SNAPSHOT</version> </dependency> <dependency> <groupId>org.argeo.commons</groupId> 
+		<artifactId>org.argeo.security.auth.ldap</artifactId> <version>2.1.12-SNAPSHOT</version> 
+		</dependency> <dependency> <groupId>org.argeo.commons</groupId> <artifactId>org.argeo.security.ldap</artifactId> 
+		<version>2.1.12-SNAPSHOT</version> </dependency> -->
+	<!-- Security (Jackrabbit) -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.security.dao.jackrabbit</artifactId>

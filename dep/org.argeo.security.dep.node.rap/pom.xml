@@ -59,10 +59,10 @@
 			<version>2.1.12-SNAPSHOT</version>
 			<type>pom</type>
 			<exclusions>
-				<exclusion>
+				<!--  <exclusion>
 					<groupId>org.argeo.commons</groupId>
 					<artifactId>org.argeo.security.dao.jackrabbit</artifactId>
-				</exclusion>
+				</exclusion>  -->
 				<exclusion>
 					<groupId>org.argeo.commons</groupId>
 					<artifactId>org.argeo.security.dao.os</artifactId>
