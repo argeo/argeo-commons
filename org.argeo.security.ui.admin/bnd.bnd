@@ -1,20 +1,19 @@
 Bundle-SymbolicName: org.argeo.security.ui.admin;singleton:=true
-Bundle-ActivationPolicy: lazy
+
 Bundle-Activator: org.argeo.security.ui.admin.SecurityAdminPlugin
+Bundle-ActivationPolicy: lazy
+
 Require-Bundle:	org.eclipse.core.runtime
-Import-Package:	*,\
-				org.eclipse.core.runtime.jobs,\
+
+Export-Packages: org.argeo.security.ui.admin.*
+
+Import-Package:	org.eclipse.core.runtime.jobs,\
 				org.argeo.eclipse.spring,\
 				org.eclipse.jface.window,\
 				org.eclipse.swt,\
-				org.eclipse.ui.services,\
-				org.springframework.dao,\
 				org.eclipse.swt.widgets;version="[0,1)",\
-				org.springframework.core
-Export-Packages:	org.argeo.security.ui.admin.*
-
-# FIXME Import issue: target plateform and imports are not OK for security.dep.node.rcp
-# org.eclipse.core.runtime.jobs;version="[3.2,4)",\
-# Useless this bundle?
-# org.eclipse.ui;resolution:=optional,\
-# org.eclipse.rap.ui;resolution:=optional
+				org.eclipse.ui.services,\
+				org.osgi.framework;version="[1.5,2)",\
+				org.springframework.core,\
+				org.springframework.dao,\
+				*				
