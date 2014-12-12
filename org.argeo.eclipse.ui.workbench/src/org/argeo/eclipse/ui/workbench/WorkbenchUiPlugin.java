@@ -19,6 +19,9 @@ import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.core.runtime.ILogListener;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -26,7 +29,7 @@ import org.osgi.framework.BundleContext;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class WorkbenchUiPlugin extends AbstractUIPlugin {
+public class WorkbenchUiPlugin extends AbstractUIPlugin implements ILogListener {
 	private final static Log log = LogFactory.getLog(WorkbenchUiPlugin.class);
 	private ResourceBundle messages;
 
@@ -51,9 +54,15 @@ public class WorkbenchUiPlugin extends AbstractUIPlugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		plugin = this;
-		messages = ResourceBundle.getBundle(ID + ".messages");
-
+		// weirdly, the start method is called twice...
+		// TODO check if it is still the case.
+		if (plugin == null) {
+			plugin = this;
+			messages = ResourceBundle.getBundle(ID + ".messages");
+			Platform.addLogListener(this);
+			log.debug("Eclipse logging now directed to standard logging");
+		} else
+			log.warn("Trying to start an already started plugin.");
 	}
 
 	/*
@@ -64,8 +73,18 @@ public class WorkbenchUiPlugin extends AbstractUIPlugin {
 	 * )
 	 */
 	public void stop(BundleContext context) throws Exception {
-		plugin = null;
-		super.stop(context);
+		try {
+			// weirdly, the stop method is called twice...
+			// TODO check if it is still the case.
+			if (plugin != null) {
+				Platform.removeLogListener(this);
+				log.debug("Eclipse logging not directed anymore to standard logging");
+				plugin = null;
+			} else
+				log.warn("Trying to stop an already stopped plugin.");
+		} finally {
+			super.stop(context);
+		}
 	}
 
 	/**
@@ -101,6 +120,21 @@ public class WorkbenchUiPlugin extends AbstractUIPlugin {
 			return getDefault().messages;
 		else
 			return null;
+	}
+
+	public void logging(IStatus status, String plugin) {
+		Log pluginLog = LogFactory.getLog(plugin);
+		Integer severity = status.getSeverity();
+		if (severity == IStatus.ERROR)
+			pluginLog.error(status.getMessage(), status.getException());
+		else if (severity == IStatus.WARNING)
+			pluginLog.warn(status.getMessage(), status.getException());
+		else if (severity == IStatus.INFO)
+			pluginLog.info(status.getMessage(), status.getException());
+		else if (severity == IStatus.CANCEL)
+			if (pluginLog.isDebugEnabled())
+				pluginLog.debug(status.getMessage(), status.getException());
+
 	}
 
 }

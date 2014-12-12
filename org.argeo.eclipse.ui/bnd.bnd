@@ -1,5 +1,6 @@
 Require-Bundle: org.eclipse.core.runtime
 Import-Package: org.eclipse.core.commands,\
+				org.eclipse.jface.window,
 				org.eclipse.swt,\
 				org.eclipse.swt.widgets;version="[0,1)",\
 				org.osgi.framework;version="[1.5,2)",\
@@ -8,7 +9,6 @@ Import-Package: org.eclipse.core.commands,\
 				org.springframework.core.io.support,\
 				*
 
-				
 # Was: 
 #Bundle-ActivationPolicy: lazy
 #Bundle-SymbolicName: org.argeo.eclipse.ui;singleton:=true

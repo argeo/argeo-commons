@@ -27,13 +27,13 @@ import org.eclipse.swt.widgets.Text;
 /** Utilities to simplify UI development. */
 public class EclipseUiUtils {
 	/**
-	 * Create a label and a text field for a grid layout, the text field grabing
+	 * Create a label and a text field for a grid layout, the text field grabbing
 	 * excess horizontal
 	 * 
 	 * @param parent
 	 *            the parent composite
 	 * @param label
-	 *            the lable to display
+	 *            the label to display
 	 * @param modifyListener
 	 *            a {@link ModifyListener} to listen on events on the text, can
 	 *            be null
@@ -64,7 +64,7 @@ public class EclipseUiUtils {
 	}
 
 	/**
-	 * Creates one label and a text field not editable with background color of
+	 * Creates one label and a text field not editable with background colour of
 	 * the parent (like a label but with selectable text)
 	 */
 	public static Text createGridLL(Composite parent, String label, String text) {

@@ -34,8 +34,9 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
 /** Generic error dialog to be used in try/catch blocks */
-@SuppressWarnings("serial")
 public class ErrorFeedback extends TitleAreaDialog {
+	private static final long serialVersionUID = -8918084784628179044L;
+
 	private final static Log log = LogFactory.getLog(ErrorFeedback.class);
 
 	private final String message;

@@ -31,7 +31,7 @@ public class ViewerUtils {
 
 	/**
 	 * Creates a basic column for the given table. For the time being, we do not
-	 * support moveable columns.
+	 * support movable columns.
 	 */
 	public static TableColumn createColumn(Table parent, String name,
 			int style, int width) {
@@ -44,7 +44,7 @@ public class ViewerUtils {
 
 	/**
 	 * Creates a TableViewerColumn for the given viewer. For the time being, we
-	 * do not support moveable columns.
+	 * do not support movable columns.
 	 */
 	public static TableViewerColumn createTableViewerColumn(TableViewer parent,
 			String name, int style, int width) {
@@ -58,7 +58,7 @@ public class ViewerUtils {
 
 	/**
 	 * Creates a TreeViewerColumn for the given viewer. For the time being, we
-	 * do not support moveable columns.
+	 * do not support movable columns.
 	 */
 	public static TreeViewerColumn createTreeViewerColumn(TreeViewer parent,
 			String name, int style, int width) {

@@ -202,6 +202,8 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 	 */
 	protected ColumnLabelProvider getLabelProvider(final String columnName) {
 		return new ColumnLabelProvider() {
+			private static final long serialVersionUID = -3539689333250152606L;
+
 			public String getText(Object element) {
 				Row row = (Row) element;
 				try {
@@ -240,6 +242,7 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 
 	private class QueryResultContentProvider implements
 			IStructuredContentProvider {
+		private static final long serialVersionUID = -5421095459600554741L;
 
 		public void dispose() {
 		}
@@ -292,6 +295,8 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 			return null;
 
 		SelectionAdapter selectionAdapter = new SelectionAdapter() {
+			private static final long serialVersionUID = 239829307927778349L;
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 

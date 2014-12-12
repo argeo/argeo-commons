@@ -28,7 +28,6 @@ public class JcrUiUtils {
 	public static boolean setJcrProperty(Node node, String propName,
 			int propertyType, Object value) {
 		try {
-			// int propertyType = getPic().getProperty(propName).getType();
 			switch (propertyType) {
 			case PropertyType.STRING:
 				if ("".equals((String) value)
@@ -93,7 +92,7 @@ public class JcrUiUtils {
 
 	/**
 	 * Creates a new selection adapter in order to provide sorting abitily on a
-	 * swt table that display a row list
+	 * SWT Table that display a row list
 	 **/
 	public static SelectionAdapter getRowSelectionAdapter(final int index,
 			final int propertyType, final String selectorName,

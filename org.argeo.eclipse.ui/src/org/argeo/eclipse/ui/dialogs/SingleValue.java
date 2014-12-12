@@ -15,9 +15,9 @@
  */
 package org.argeo.eclipse.ui.dialogs;
 
-import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -40,7 +40,7 @@ public class SingleValue extends TitleAreaDialog {
 
 	public static String ask(String label, String message) {
 		SingleValue svd = new SingleValue(label, message);
-		if (svd.open() == Dialog.OK)
+		if (svd.open() == Window.OK)
 			return svd.getString();
 		else
 			return null;
@@ -48,7 +48,7 @@ public class SingleValue extends TitleAreaDialog {
 
 	public static Long askLong(String label, String message) {
 		SingleValue svd = new SingleValue(label, message);
-		if (svd.open() == Dialog.OK)
+		if (svd.open() == Window.OK)
 			return svd.getLong();
 		else
 			return null;
@@ -56,7 +56,7 @@ public class SingleValue extends TitleAreaDialog {
 
 	public static Double askDouble(String label, String message) {
 		SingleValue svd = new SingleValue(label, message);
-		if (svd.open() == Dialog.OK)
+		if (svd.open() == Window.OK)
 			return svd.getDouble();
 		else
 			return null;
