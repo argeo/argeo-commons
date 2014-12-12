@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.eclipse.ui.utils;
+package org.argeo.eclipse.ui.workbench;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.argeo.ArgeoException;
-import org.argeo.eclipse.ui.ArgeoUiPlugin;
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.Parameterization;
 import org.eclipse.core.commands.ParameterizedCommand;
@@ -144,7 +143,7 @@ public class CommandUtils {
 	public static void callCommand(String commandID,
 			Map<String, String> paramMap) {
 		try {
-			IWorkbench iw = ArgeoUiPlugin.getDefault().getWorkbench();
+			IWorkbench iw = WorkbenchUiPlugin.getDefault().getWorkbench();
 			IHandlerService handlerService = (IHandlerService) iw
 					.getService(IHandlerService.class);
 			ICommandService cmdService = (ICommandService) iw

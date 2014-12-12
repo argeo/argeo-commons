@@ -16,7 +16,7 @@
 package org.argeo.security.ui.dialogs;
 
 import org.argeo.ArgeoException;
-import org.argeo.eclipse.ui.ErrorFeedback;
+import org.argeo.eclipse.ui.workbench.ErrorFeedback;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;

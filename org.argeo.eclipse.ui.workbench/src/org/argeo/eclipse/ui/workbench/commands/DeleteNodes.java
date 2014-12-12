@@ -21,8 +21,8 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.argeo.ArgeoException;
-import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.eclipse.ui.TreeParent;
+import org.argeo.eclipse.ui.workbench.ErrorFeedback;
 import org.argeo.eclipse.ui.workbench.jcr.JcrBrowserView;
 import org.argeo.eclipse.ui.workbench.jcr.internal.model.SingleJcrNodeElem;
 import org.argeo.eclipse.ui.workbench.jcr.internal.model.WorkspaceElem;

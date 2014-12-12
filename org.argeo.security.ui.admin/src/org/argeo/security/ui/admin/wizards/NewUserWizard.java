@@ -21,7 +21,7 @@ import javax.jcr.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.eclipse.ui.ErrorFeedback;
+import org.argeo.eclipse.ui.workbench.ErrorFeedback;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.UserJcrUtils;
 import org.argeo.security.UserAdminService;

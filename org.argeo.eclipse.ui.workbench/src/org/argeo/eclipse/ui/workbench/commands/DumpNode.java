@@ -30,7 +30,7 @@ import javax.jcr.RepositoryException;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.specific.OpenFile;
-import org.argeo.eclipse.ui.utils.CommandUtils;
+import org.argeo.eclipse.ui.workbench.CommandUtils;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.eclipse.ui.workbench.jcr.internal.model.SingleJcrNodeElem;

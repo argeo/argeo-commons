@@ -8,10 +8,10 @@ Require-Bundle: org.eclipse.ui;resolution:=optional,\
 				org.eclipse.rap.ui.workbench;resolution:=optional
 
 Import-Package: org.argeo.eclipse.ui.specific,\
-				org.argeo.eclipse.spring,\
 				org.eclipse.swt.widgets;version="[0,1)",\
 				org.osgi.framework;version="[1.5,2)",\
 				org.osgi.service.packageadmin,\
+				org.osgi.util.tracker;version="[1.4,2)",\
 				org.springframework.beans.factory,\
 				org.springframework.core.io.support,\
 				*

@@ -13,22 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.eclipse.ui.jcr.editors;
+package org.argeo.eclipse.ui.workbench.jcr.internal.parts;
+
+import javax.jcr.query.Query;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPersistableElement;
 
-/**
- * A canonical editor input based on a path to a node. In a multirepository
- * environment, path can be enriched with Repository Alias and workspace
- */
+public class JcrQueryEditorInput implements IEditorInput {
+	private final String query;
+	private final String queryType;
 
-public class NodeEditorInput implements IEditorInput {
-	private final String path;
-
-	public NodeEditorInput(String path) {
-		this.path = path;
+	public JcrQueryEditorInput(String query, String queryType) {
+		this.query = query;
+		if (queryType == null)
+			this.queryType = Query.JCR_SQL2;
+		else
+			this.queryType = queryType;
 	}
 
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
@@ -44,7 +46,7 @@ public class NodeEditorInput implements IEditorInput {
 	}
 
 	public String getName() {
-		return path;
+		return query;
 	}
 
 	public IPersistableElement getPersistable() {
@@ -52,10 +54,15 @@ public class NodeEditorInput implements IEditorInput {
 	}
 
 	public String getToolTipText() {
-		return path;
+		return query;
 	}
 
-	public String getPath() {
-		return path;
+	public String getQuery() {
+		return query;
 	}
+
+	public String getQueryType() {
+		return queryType;
+	}
+
 }

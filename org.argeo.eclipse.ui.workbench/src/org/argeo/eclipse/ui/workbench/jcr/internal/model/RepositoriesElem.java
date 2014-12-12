@@ -25,8 +25,8 @@ import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
-import org.argeo.eclipse.ui.ErrorFeedback;
 import org.argeo.eclipse.ui.TreeParent;
+import org.argeo.eclipse.ui.workbench.ErrorFeedback;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.MaintainedRepository;
 import org.argeo.jcr.RepositoryRegister;

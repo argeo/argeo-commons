@@ -15,7 +15,7 @@
  */
 package org.argeo.security.ui.commands;
 
-import org.argeo.eclipse.ui.ErrorFeedback;
+import org.argeo.eclipse.ui.workbench.ErrorFeedback;
 import org.argeo.security.ui.UserHomePerspective;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;

@@ -1,15 +1,19 @@
-Bundle-ActivationPolicy: lazy
-#Bundle-SymbolicName: org.argeo.eclipse.ui;singleton:=true
-#Bundle-Activator: org.argeo.eclipse.ui.ArgeoUiPlugin 
-Require-Bundle: org.eclipse.ui;resolution:=optional,\
-				org.eclipse.rap.ui;resolution:=optional,\
-				org.eclipse.core.runtime
-Import-Package: org.springframework.beans.factory,\
-				org.springframework.core.io.support,\
+Require-Bundle: org.eclipse.core.runtime
+Import-Package: org.eclipse.core.commands,\
+				org.eclipse.swt,\
 				org.eclipse.swt.widgets;version="[0,1)",\
 				org.osgi.framework;version="[1.5,2)",\
 				org.osgi.util.tracker;version="[1.4,2)",\
-				!org.eclipse.core.runtime,\
-				!org.eclipse.core.commands,\
-				!org.eclipse.ui.plugin,\
+				org.springframework.beans.factory,\
+				org.springframework.core.io.support,\
 				*
+
+				
+# Was: 
+#Bundle-ActivationPolicy: lazy
+#Bundle-SymbolicName: org.argeo.eclipse.ui;singleton:=true
+#Bundle-Activator: org.argeo.eclipse.ui.ArgeoUiPlugin 
+
+#!org.eclipse.core.commands,\ 
+# !org.eclipse.core.runtime,\
+# !org.eclipse.ui.plugin,\

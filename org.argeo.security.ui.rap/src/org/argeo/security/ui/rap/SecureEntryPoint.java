@@ -25,7 +25,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
-import org.argeo.eclipse.ui.ErrorFeedback;
+import org.argeo.eclipse.ui.workbench.ErrorFeedback;
 import org.argeo.util.LocaleUtils;
 import org.eclipse.equinox.security.auth.ILoginContext;
 import org.eclipse.jface.dialogs.MessageDialog;

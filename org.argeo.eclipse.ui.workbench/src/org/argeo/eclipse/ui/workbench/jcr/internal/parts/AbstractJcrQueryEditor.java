@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.eclipse.ui.jcr.editors;
+package org.argeo.eclipse.ui.workbench.jcr.internal.parts;
 
 import java.util.ArrayList;
 import java.util.List;

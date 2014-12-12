@@ -24,7 +24,7 @@ import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.EventListener;
 
 import org.argeo.ArgeoException;
-import org.argeo.eclipse.ui.utils.CommandUtils;
+import org.argeo.eclipse.ui.workbench.CommandUtils;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
