@@ -1,4 +1,4 @@
-package org.argeo.security.ui.admin;
+package org.argeo.eclipse.ui.parts;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,6 @@ import org.argeo.eclipse.ui.jcr.JcrUiUtils;
 import org.argeo.eclipse.ui.jcr.lists.ColumnDefinition;
 import org.argeo.eclipse.ui.jcr.lists.NodeViewerComparator;
 import org.argeo.eclipse.ui.jcr.lists.SimpleJcrNodeLabelProvider;
-import org.argeo.eclipse.ui.specific.EclipseUiSpecificUtils;
 import org.argeo.eclipse.ui.utils.ViewerUtils;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
@@ -47,7 +46,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 
-public class UserTableComposite extends Composite implements ArgeoNames {
+public class UsersTable extends Composite implements ArgeoNames {
 	// private final static Log log =
 	// LogFactory.getLog(UserTableComposite.class);
 
@@ -91,7 +90,7 @@ public class UserTableComposite extends Composite implements ArgeoNames {
 		return columnDefs;
 	}
 
-	public UserTableComposite(Composite parent, int style, Session session) {
+	public UsersTable(Composite parent, int style, Session session) {
 		super(parent, style);
 		this.session = session;
 	}
@@ -117,7 +116,7 @@ public class UserTableComposite extends Composite implements ArgeoNames {
 		if (hasFilter)
 			createFilterPart(parent);
 		usersViewer = createTableViewer(parent);
-		EclipseUiSpecificUtils.enableToolTipSupport(usersViewer);
+		// EclipseUiSpecificUtils.enableToolTipSupport(usersViewer);
 		usersViewer.setContentProvider(new UsersContentProvider());
 		refreshFilteredList();
 	}

@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.ArgeoMonitor;
 import org.argeo.eclipse.ui.EclipseArgeoMonitor;
+import org.argeo.eclipse.ui.parts.UsersTable;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.security.UserAdminService;
@@ -38,7 +39,6 @@ import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.argeo.security.ui.PrivilegedJob;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
-import org.argeo.security.ui.admin.UserTableComposite;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -465,7 +465,7 @@ public class UserBatchUpdateWizard extends Wizard {
 	private class ChooseUsersWizardPage extends WizardPage implements
 			IPageChangedListener {
 		private static final long serialVersionUID = 1L;
-		private UserTableComposite userTableCmp;
+		private UsersTable userTableCmp;
 		private Composite container;
 		private Session session;
 
@@ -504,7 +504,7 @@ public class UserBatchUpdateWizard extends Wizard {
 			return userTableCmp.getSelectedUsers();
 		}
 
-		private class MyUserTableCmp extends UserTableComposite {
+		private class MyUserTableCmp extends UsersTable {
 
 			private static final long serialVersionUID = 1L;
 
@@ -542,7 +542,7 @@ public class UserBatchUpdateWizard extends Wizard {
 	private class ValidateAndLaunchWizardPage extends WizardPage implements
 			IPageChangedListener {
 		private static final long serialVersionUID = 1L;
-		private UserTableComposite userTableCmp;
+		private UsersTable userTableCmp;
 		private Session session;
 
 		public ValidateAndLaunchWizardPage(Session session) {
@@ -562,7 +562,7 @@ public class UserBatchUpdateWizard extends Wizard {
 				((IPageChangeProvider) container).addPageChangedListener(this);
 			}
 
-			userTableCmp = new UserTableComposite(mainCmp, SWT.NO_FOCUS,
+			userTableCmp = new UsersTable(mainCmp, SWT.NO_FOCUS,
 					session);
 			userTableCmp.populate(false, false);
 			setControl(mainCmp);
