@@ -264,6 +264,7 @@ public class Browse implements CmsUiProvider {
 				boolean leaveOpened = path.startsWith(currNodePath);
 
 				// workaround for same name siblings
+				// fix me weird side effect when we go left or click on anb already selected, unfocused node
 				if (leaveOpened
 						&& (path.lastIndexOf("/") == 0
 								&& currNodePath.lastIndexOf("/") == 0 || JcrUtils
@@ -505,6 +506,7 @@ public class Browse implements CmsUiProvider {
 					});
 
 			table.addKeyListener(new KeyListener() {
+				private static final long serialVersionUID = -330694313896036230L;
 
 				@Override
 				public void keyReleased(KeyEvent e) {
@@ -526,8 +528,9 @@ public class Browse implements CmsUiProvider {
 							}
 						} else if (e.keyCode == SWT.ARROW_LEFT) {
 							try {
-								String newPath = getNode().getParent()
-										.getPath();
+								selected = getNode().getParent();
+								String newPath = selected.getPath(); //getNode().getParent()
+								setEdited(selected);
 								if (browserCols.containsKey(newPath))
 									browserCols.get(newPath).setFocus();
 							} catch (ItemNotFoundException ie) {
