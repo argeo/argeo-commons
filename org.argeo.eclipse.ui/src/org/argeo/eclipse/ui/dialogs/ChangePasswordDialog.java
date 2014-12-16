@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.ui.dialogs;
+package org.argeo.eclipse.ui.dialogs;
 
 import org.argeo.ArgeoException;
-import org.argeo.eclipse.ui.workbench.ErrorFeedback;
 import org.eclipse.jface.dialogs.IMessageProvider;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
@@ -32,6 +32,8 @@ import org.springframework.security.userdetails.UserDetailsManager;
 
 /** Dialog to change the current user password */
 public class ChangePasswordDialog extends TitleAreaDialog {
+	private static final long serialVersionUID = -2447446550246803237L;
+	
 	private Text currentPassword, newPassword1, newPassword2;
 	private UserDetailsManager userDetailsManager;
 
@@ -69,7 +71,9 @@ public class ChangePasswordDialog extends TitleAreaDialog {
 					newPassword1.getText());
 			close();
 		} catch (Exception e) {
-			ErrorFeedback.show("Cannot change password", e);
+			MessageDialog.openError(newPassword1.getShell(), "Error",
+					"Cannot change password");
+			e.printStackTrace();
 		}
 	}
 

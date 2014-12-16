@@ -13,14 +13,14 @@ import org.argeo.security.jcr.JcrSecurityModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
 
 /** Enable management of a given user */
 public class UserPage implements CmsUiProvider {
 
 	// Enable user CRUD // INJECTED
 	private UserAdminService userAdminService;
-	private JcrSecurityModel jcrSecurityModel;
+
+	// private JcrSecurityModel jcrSecurityModel;
 
 	// public UserPage(UserAdminService userAdminService,
 	// JcrSecurityModel jcrSecurityModel) {
@@ -39,13 +39,12 @@ public class UserPage implements CmsUiProvider {
 		Control control = userViewer.getControl();
 		Composite par = control.getParent();
 
-		new Label(par, SWT.NONE).setText("Work in progress terminate.");
-
 		UserRolesPart rolesPart = new UserRolesPart(par, SWT.NO_FOCUS, context,
 				true);
 		rolesPart.setUserAdminService(userAdminService);
 		rolesPart.createControl(rolesPart, UserStyles.USER_FORM_TEXT);
 		rolesPart.refresh();
+		rolesPart.setLayoutData(CmsUtils.fillWidth());
 
 		return page;
 	}
@@ -69,7 +68,7 @@ public class UserPage implements CmsUiProvider {
 		this.userAdminService = userAdminService;
 	}
 
-	public void setJcrSecurityModel(JcrSecurityModel jcrSecurityModel) {
-		this.jcrSecurityModel = jcrSecurityModel;
-	}
+//	public void setJcrSecurityModel(JcrSecurityModel jcrSecurityModel) {
+//		this.jcrSecurityModel = jcrSecurityModel;
+//	}
 }

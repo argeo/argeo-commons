@@ -5,6 +5,7 @@ public interface UserStyles {
 
 	/** A text in a form  */
 	public final static String USER_FORM_TEXT = "user_form_text";
+	public final static String USER_FORM_TITLE = "user_form_title";
 
 	public final static String USER_FORM_TEXT_ALT = "user_form_text_alt";
 }

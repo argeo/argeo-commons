@@ -15,15 +15,19 @@ import org.argeo.cms.viewers.NodePart;
 import org.argeo.cms.widgets.StyledControl;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.jcr.ArgeoNames;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
 
 /** Display a single user main info once it has been created. */
@@ -79,8 +83,45 @@ public class UserPart extends StyledControl implements EditablePart, NodePart,
 		GridLayout layout = new GridLayout(2, false);
 		body.setLayout(layout);
 
+		// header
+		Label header = new Label(body, SWT.NONE);
+		header.setText(" General");
+		header.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2,
+				1));
+		CmsUtils.style(header, UserStyles.USER_FORM_TITLE);
+
+		// form field
 		createTexts(body, UserStyles.USER_FORM_TEXT);
 		CmsUtils.style(body, UserStyles.USER_FORM_TEXT);
+
+		// Change password link
+		// header
+		header = new Label(body, SWT.NONE);
+		header.setText(" Change password");
+		header.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2,
+				1));
+		CmsUtils.style(header, UserStyles.USER_FORM_TITLE);
+
+		final Link link = new Link(body, SWT.NONE);
+		link.setText("<a>Change password</a>");
+		link.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+
+				MessageDialog.openInformation(link.getShell(),
+						"Not implemented", "Implement This.");
+
+				// ChangePasswordDialog dialog = new ChangePasswordDialog(
+				// link.getShell(), userDetailsManager);
+				// if (dialog.open() == Window.OK) {
+				// MessageDialog.openInformation(HandlerUtil.getActiveShell(event),
+				// "Password changed", "Password changed.");
+				// }
+				// return null;
+
+			}
+		});
+
 		return body;
 	}
 
@@ -115,6 +156,7 @@ public class UserPart extends StyledControl implements EditablePart, NodePart,
 		for (Text txt : texts) {
 			txt.setText(get(getNode(), (String) txt.getData(KEY_PROP_NAME)));
 			txt.setEditable(isEditing());
+			// txt.setEnabled(isEditing());
 		}
 	}
 

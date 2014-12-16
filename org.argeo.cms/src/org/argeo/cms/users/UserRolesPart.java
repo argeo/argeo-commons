@@ -29,20 +29,19 @@ import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.Text;
 import org.springframework.security.GrantedAuthority;
 
 /** Display a single user main info once it has been created. */
 public class UserRolesPart extends StyledControl implements EditablePart,
 		NodePart, FocusListener {
-
-	// A static list of supported properties.
-	private List<Text> texts;
-	private final static String KEY_PROP_NAME = "jcr:propertyName";
+	private static final long serialVersionUID = -6013980335975055846L;
 
 	private CheckboxTableViewer rolesViewer;
+	private Table table;
+
 	private JcrUserDetails userDetails;
 	private UserAdminService userAdminService;
 	private List<String> roles;
@@ -64,9 +63,7 @@ public class UserRolesPart extends StyledControl implements EditablePart,
 	public UserRolesPart(Composite parent, int style, Item item,
 			boolean cacheImmediately) throws RepositoryException {
 		super(parent, style, item, cacheImmediately);
-
 		// checked = new Image(parent, imageData);
-
 	}
 
 	@Override
@@ -74,19 +71,25 @@ public class UserRolesPart extends StyledControl implements EditablePart,
 		return getNode();
 	}
 
-	// Experimental, remove
 	public void setMouseListener(MouseListener mouseListener) {
 		super.setMouseListener(mouseListener);
-
-		for (Text txt : texts)
-			txt.addMouseListener(mouseListener);
-
+		table.addMouseListener(mouseListener);
 	}
 
 	@Override
 	protected Control createControl(Composite box, String style) {
-		Table table = new Table(box, SWT.CHECK | SWT.MULTI | SWT.H_SCROLL
-				| SWT.V_SCROLL);
+		box.setLayout(CmsUtils.noSpaceGridLayout());
+
+		Label header = new Label(box, SWT.NONE);
+		header.setText(" Groups");
+		CmsUtils.style(header, UserStyles.USER_FORM_TITLE);
+		header.setLayoutData(CmsUtils.fillWidth());
+		
+		int swtStyle = SWT.CHECK | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL;
+		if (!isEditing())
+			swtStyle |= SWT.READ_ONLY;
+
+		table = new Table(box, swtStyle);
 		table.setLinesVisible(true);
 		table.setHeaderVisible(false);
 		CmsUtils.style(table, style);
@@ -128,6 +131,9 @@ public class UserRolesPart extends StyledControl implements EditablePart,
 		rolesViewer.setContentProvider(new RolesContentProvider());
 		rolesViewer.setInput(userAdminService.listEditableRoles().toArray());
 
+		// try to prevent edition on read only nodes. Does not work.
+		// rolesViewer.setAllGrayed(!isEditing());
+
 		rolesViewer.addCheckStateListener(new ICheckStateListener() {
 
 			@Override
@@ -136,7 +142,7 @@ public class UserRolesPart extends StyledControl implements EditablePart,
 				boolean contained = roles.contains(name);
 				boolean checked = event.getChecked();
 				if (checked != contained) {
-					if (contained)
+					if (!contained)
 						roles.add(name);
 					else
 						roles.remove(name);
@@ -147,11 +153,6 @@ public class UserRolesPart extends StyledControl implements EditablePart,
 		});
 		return table;
 	}
-
-	// void refresh() {
-	// for (Text txt : texts) {
-	// }
-	// }
 
 	// THE LISTENER
 	@Override

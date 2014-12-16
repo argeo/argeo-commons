@@ -15,7 +15,7 @@
  */
 package org.argeo.security.ui.commands;
 
-import org.argeo.security.ui.dialogs.ChangePasswordDialog;
+import org.argeo.eclipse.ui.dialogs.ChangePasswordDialog;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
