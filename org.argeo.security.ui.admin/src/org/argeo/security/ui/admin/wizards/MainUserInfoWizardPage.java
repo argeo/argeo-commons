@@ -35,6 +35,7 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
 
 public class MainUserInfoWizardPage extends WizardPage implements
 		ModifyListener, ArgeoNames {
+	private static final long serialVersionUID = -3367329974808698649L;
 	private Text username, firstName, lastName, primaryEmail, password1,
 			password2;
 	private UserAdminService userAdminService;

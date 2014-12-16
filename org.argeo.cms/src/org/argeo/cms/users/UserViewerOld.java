@@ -1,4 +1,4 @@
-package org.argeo.cms.viewers;
+package org.argeo.cms.users;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -8,94 +8,78 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.ArgeoException;
 import org.argeo.cms.CmsEditable;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.widgets.JcrComposite;
-import org.argeo.cms.widgets.ScrolledPage;
+import org.argeo.cms.CmsUtils;
+import org.argeo.cms.viewers.EditablePart;
+import org.argeo.cms.viewers.JcrVersionCmsEditable;
 import org.eclipse.jface.viewers.ContentViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Widget;
 
-/** Base class for viewers related to a page */
-public abstract class AbstractPageViewer extends ContentViewer implements
-		Observer {
-	private static final long serialVersionUID = 5438688173410341485L;
+/** Manage edition of the users */
+public class UserViewerOld extends ContentViewer implements Observer {
+	private static final long serialVersionUID = -5055220955004863645L;
 
-	private final static Log log = LogFactory.getLog(AbstractPageViewer.class);
+	private final static Log log = LogFactory.getLog(UserViewerOld.class);
 
-	private final boolean readOnly;
-	/** The basis for the layouts, typically a ScrolledPage. */
+	// private UserPart userPart = new UserPart();
+
+	private CmsEditable cmsEditable;
+	private Node currentDisplayed;
+
+	/** The basis for the layouts, typically the body of a ScrolledPage. */
 	private final Composite page;
-	private final CmsEditable cmsEditable;
 
 	private MouseListener mouseListener;
 
 	private EditablePart edited;
 	private ISelection selection = StructuredSelection.EMPTY;
 
-	// FIXME Added by BSinou to manage non-section Composite.
-	// Is it the correct method?
-	protected AbstractPageViewer(Composite parent, int style,
-			CmsEditable cmsEditable) {
-		// read only at UI level
-		readOnly = SWT.READ_ONLY == (style & SWT.READ_ONLY);
-
-		this.cmsEditable = cmsEditable == null ? CmsEditable.NON_EDITABLE
-				: cmsEditable;
-		if (this.cmsEditable instanceof Observable)
-			((Observable) this.cmsEditable).addObserver(this);
-
-		if (cmsEditable.canEdit()) {
-			mouseListener = createMouseListener();
-		}
-		page = findPage(parent);
+	protected UserViewerOld(Composite composite) {
+		page = composite;
 	}
 
-	protected AbstractPageViewer(Section parent, int style,
-			CmsEditable cmsEditable) {
-		// read only at UI level
-		readOnly = SWT.READ_ONLY == (style & SWT.READ_ONLY);
-
-		this.cmsEditable = cmsEditable == null ? CmsEditable.NON_EDITABLE
-				: cmsEditable;
-		if (this.cmsEditable instanceof Observable)
-			((Observable) this.cmsEditable).addObserver(this);
-
-		if (cmsEditable.canEdit()) {
-			mouseListener = createMouseListener();
-		}
-		page = findPage(parent);
-	}
-
-	/**
-	 * Can be called to simplify the called to isModelInitialized() and
-	 * initModel()
-	 */
-	protected void initModelIfNeeded(Node node) {
+	void setDisplayedUser(Node node) {
 		try {
-			if (!isModelInitialized(node))
-				if (getCmsEditable().canEdit()) {
-					initModel(node);
-					node.getSession().save();
-				}
-		} catch (Exception e) {
-			throw new CmsException("Cannot initialize model", e);
+
+			if (!hasChanged(node))
+				return;
+
+			CmsUtils.clear(page);
+			// userPart.createUi(page, node);
+			
+			page.layout();
+			page.getParent().layout();
+
+			// update
+			cmsEditable = new JcrVersionCmsEditable(node);
+
+			if (this.cmsEditable instanceof Observable)
+				((Observable) this.cmsEditable).addObserver(this);
+			// // if (cmsEditable.canEdit()) {
+			// // mouseListener = createMouseListener();
+			// // refresh();
+			// // }
+		} catch (RepositoryException re) {
+			throw new ArgeoException("Unable to display " + node, re);
 		}
 	}
 
-	/** Called if user can edit and model is not initialized */
-	protected Boolean isModelInitialized(Node node) throws RepositoryException {
-		return true;
-	}
-
-	/** Called if user can edit and model is not initialized */
-	protected void initModel(Node node) throws RepositoryException {
+	private boolean hasChanged(Node node) throws RepositoryException {
+		if (currentDisplayed == null && node == null)
+			return false;
+		else if (currentDisplayed == null || node == null)
+			return true;
+		else
+			return node.getIdentifier()
+					.equals(currentDisplayed.getIdentifier());
 	}
 
 	/** Create (retrieve) the MouseListener to use. */
@@ -103,16 +87,6 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 		return new MouseAdapter() {
 			private static final long serialVersionUID = 1L;
 		};
-	}
-
-	protected Composite findPage(Composite composite) {
-		if (composite instanceof ScrolledPage) {
-			return (ScrolledPage) composite;
-		} else {
-			if (composite.getParent() == null)
-				return composite;
-			return findPage(composite.getParent());
-		}
 	}
 
 	@Override
@@ -138,12 +112,17 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 	}
 
 	@Override
+	public Control getControl() {
+		return null;
+	}
+
+	@Override
 	public void refresh() {
 		try {
-			if (cmsEditable.canEdit() && !readOnly)
-				mouseListener = createMouseListener();
-			else
-				mouseListener = null;
+			// if (cmsEditable.canEdit() && !readOnly)
+			// mouseListener = createMouseListener();
+			// else
+			// mouseListener = null;
 			refresh(getControl());
 			layout(getControl());
 		} catch (RepositoryException e) {
@@ -215,6 +194,7 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 			if (edited != null)
 				stopEditing(false);
 		} catch (RepositoryException e) {
+
 			throw new CmsException("Cannot cancel editing", e);
 		}
 	}
@@ -234,10 +214,6 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 	}
 
 	// GETTERS / SETTERS
-	public boolean isReadOnly() {
-		return readOnly;
-	}
-
 	protected EditablePart getEdited() {
 		return edited;
 	}
@@ -254,5 +230,4 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 	public ISelection getSelection() {
 		return selection;
 	}
-
 }

@@ -6,43 +6,141 @@ import javax.jcr.Session;
 import javax.jcr.security.AccessControlManager;
 import javax.jcr.security.Privilege;
 
+import org.argeo.ArgeoException;
 import org.argeo.cms.CmsUiProvider;
 import org.argeo.cms.CmsUtils;
 import org.argeo.cms.maintenance.NonAdminPage;
+import org.argeo.eclipse.ui.dialogs.UserCreationWizard;
 import org.argeo.eclipse.ui.parts.UsersTable;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.security.UserAdminService;
+import org.argeo.security.jcr.JcrSecurityModel;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
+/**
+ * Simple page to manage users of a given repository. We still rely on Argeo
+ * model; with user stored in the main workspace
+ */
 public class Users implements CmsUiProvider {
 
-	NonAdminPage nap = new NonAdminPage();
+	// Enable user CRUD // INJECTED
+	private UserAdminService userAdminService;
+	private JcrSecurityModel jcrSecurityModel;
+	private String userWkspName;
 
+	// Local UI Providers
+	NonAdminPage nap = new NonAdminPage();
+	UserPage userPage = new UserPage();
+
+	// Manage authorization
 	@Override
 	public Control createUi(Composite parent, Node context)
 			throws RepositoryException {
-
 		if (isAdmin(context)) {
 			Session session = context.getSession().getRepository()
-					.login("main");
-			return createUsersTable(parent, session);
+					.login(userWkspName);
+			return createMainLayout(parent, session);
 		} else
 			nap.createUi(parent, context);
 		return null;
-
 	}
 
-	private Control createUsersTable(Composite parent, final Session session)
+	// Main layout
+	// Left: User Table - Right User Details Edition
+	private Control createMainLayout(Composite parent, final Session session)
 			throws RepositoryException {
+
+		Composite layoutCmp = new Composite(parent, SWT.NO_FOCUS);
+		layoutCmp.setLayoutData(CmsUtils.fillAll());
+		layoutCmp
+				.setLayout(CmsUtils.noSpaceGridLayout(new GridLayout(2, true)));
+
+		Composite left = new Composite(layoutCmp, SWT.NO_FOCUS);
+		left.setLayoutData(CmsUtils.fillAll());
+		UsersTable table = createUsersTable(left, session);
+
+		final Composite right = new Composite(layoutCmp, SWT.NO_FOCUS);
+		right.setLayoutData(CmsUtils.fillAll());
+		// Composite innerPage = createUserPage(right);
+		// final UserViewerOld userViewer = new UserViewerOld(innerPage);
+
+		final TableViewer viewer = table.getTableViewer();
+		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
+
+			@Override
+			public void selectionChanged(SelectionChangedEvent event) {
+				IStructuredSelection selection = (IStructuredSelection) viewer
+						.getSelection();
+				if (selection.isEmpty()) {
+					// Should we clean the right column?
+					return;
+				} else {
+					Node context = (Node) selection.getFirstElement();
+					try {
+						CmsUtils.clear(right);
+						userPage.createUi(right, context);
+						right.layout();
+						right.getParent().layout();
+					} catch (RepositoryException e) {
+						e.printStackTrace();
+						throw new ArgeoException("unable to create "
+								+ "editor for user " + context, e);
+					}
+				}
+			}
+		});
+		return left;
+	}
+
+	private UsersTable createUsersTable(Composite parent, final Session session)
+			throws RepositoryException {
+		parent.setLayout(CmsUtils.noSpaceGridLayout());
+
+		// Add user CRUD buttons
+		Composite buttonCmp = new Composite(parent, SWT.NO_FOCUS);
+		buttonCmp.setLayoutData(CmsUtils.fillWidth());
+		buttonCmp.setLayout(new GridLayout(2, false));
+		// Delete
+		final Button deleteBtn = new Button(buttonCmp, SWT.PUSH);
+		deleteBtn.setText("Delete selected");
+		// Add
+		final Button addBtn = new Button(buttonCmp, SWT.PUSH);
+		addBtn.setText("Create");
+		addBtn.addSelectionListener(new SelectionListener() {
+			private static final long serialVersionUID = 9214984636836267786L;
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				UserCreationWizard newUserWizard = new UserCreationWizard(
+						session, userAdminService, jcrSecurityModel);
+				WizardDialog dialog = new WizardDialog(addBtn.getShell(),
+						newUserWizard);
+				dialog.open();
+				// TODO refresh list if user has been created
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+
 		// Create the composite that displays the list and a filter
 		UsersTable userTableCmp = new UsersTable(parent, SWT.NO_FOCUS, session);
 		userTableCmp.populate(true, false);
-
 		userTableCmp.setLayoutData(CmsUtils.fillAll());
-
 		userTableCmp.addDisposeListener(new DisposeListener() {
 			private static final long serialVersionUID = -8854052549807709846L;
 
@@ -73,8 +171,23 @@ public class Users implements CmsUiProvider {
 		return userTableCmp;
 	}
 
+	// protected Composite createUserPage(Composite parent) {
+	// parent.setLayout(CmsUtils.noSpaceGridLayout());
+	// ScrolledPage scrolled = new ScrolledPage(parent, SWT.NONE);
+	// scrolled.setLayoutData(CmsUtils.fillAll());
+	// scrolled.setLayout(CmsUtils.noSpaceGridLayout());
+	// // TODO manage style
+	// // CmsUtils.style(scrolled, "maintenance_user_form");
+	//
+	// Composite page = new Composite(scrolled, SWT.NONE);
+	// page.setLayout(CmsUtils.noSpaceGridLayout());
+	// page.setBackgroundMode(SWT.INHERIT_NONE);
+	//
+	// return page;
+	// }
+
 	private boolean isAdmin(Node node) throws RepositoryException {
-		// FIXME clean this check one new user management policy has been
+		// FIXME clean this once new user management policy has been
 		// implemented.
 		AccessControlManager acm = node.getSession().getAccessControlManager();
 		Privilege[] privs = new Privilege[1];
@@ -142,4 +255,18 @@ public class Users implements CmsUiProvider {
 	// }
 	// }
 
+	/* DEPENDENCY INJECTION */
+	public void setWorkspaceName(String workspaceName) {
+		this.userWkspName = workspaceName;
+	}
+
+	public void setUserAdminService(UserAdminService userAdminService) {
+		this.userAdminService = userAdminService;
+		userPage.setUserAdminService(userAdminService);
+	}
+
+	public void setJcrSecurityModel(JcrSecurityModel jcrSecurityModel) {
+		this.jcrSecurityModel = jcrSecurityModel;
+		userPage.setJcrSecurityModel(jcrSecurityModel);
+	}
 }
