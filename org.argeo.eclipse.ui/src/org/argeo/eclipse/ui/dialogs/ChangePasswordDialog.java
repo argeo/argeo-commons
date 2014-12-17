@@ -44,7 +44,7 @@ public class ChangePasswordDialog extends TitleAreaDialog {
 	}
 
 	protected Point getInitialSize() {
-		return new Point(300, 250);
+		return new Point(400, 450);
 	}
 
 	protected Control createDialogArea(Composite parent) {

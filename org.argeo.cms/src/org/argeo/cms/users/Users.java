@@ -22,13 +22,13 @@ import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.jcr.JcrSecurityModel;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -40,6 +40,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.springframework.security.userdetails.UserDetailsManager;
 
 /**
  * Simple page to manage users of a given repository. We still rely on Argeo
@@ -52,6 +53,7 @@ public class Users implements CmsUiProvider {
 	// Enable user CRUD // INJECTED
 	private UserAdminService userAdminService;
 	private JcrSecurityModel jcrSecurityModel;
+	// private UserDetailsManager userDetailsManager;
 	private String userWkspName;
 
 	// Local UI Providers
@@ -218,7 +220,7 @@ public class Users implements CmsUiProvider {
 						session, userAdminService, jcrSecurityModel);
 				WizardDialog dialog = new WizardDialog(addBtn.getShell(),
 						newUserWizard);
-				if (dialog.open() == Window.OK)
+				if (dialog.open() == Dialog.OK)
 					userTableCmp.refresh();
 			}
 		});
@@ -341,5 +343,10 @@ public class Users implements CmsUiProvider {
 	public void setJcrSecurityModel(JcrSecurityModel jcrSecurityModel) {
 		this.jcrSecurityModel = jcrSecurityModel;
 		// userPage.setJcrSecurityModel(jcrSecurityModel);
+	}
+
+	public void setUserDetailsManager(UserDetailsManager userDetailsManager) {
+		// this.userDetailsManager = userDetailsManager;
+		// userPage.setUserDetailsManager(userDetailsManager);
 	}
 }

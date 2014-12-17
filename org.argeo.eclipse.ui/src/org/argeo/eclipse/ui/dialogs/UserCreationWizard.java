@@ -53,8 +53,8 @@ public class UserCreationWizard extends Wizard {
 	// pages
 	private MainUserInfoWizardPage mainUserInfo;
 
-	public UserCreationWizard(Session session, UserAdminService userAdminService,
-			JcrSecurityModel jcrSecurityModel) {
+	public UserCreationWizard(Session session,
+			UserAdminService userAdminService, JcrSecurityModel jcrSecurityModel) {
 		this.session = session;
 		this.userAdminService = userAdminService;
 		this.jcrSecurityModel = jcrSecurityModel;
@@ -99,8 +99,12 @@ public class UserCreationWizard extends Wizard {
 							+ username, e1);
 				}
 			}
-			MessageDialog.openError(getShell(), "Eroor",
+			// FIXME re-get ErrorFeedback dialog after single sourcing
+			// refactoring
+			MessageDialog.openError(getShell(), "Error",
 					"Cannot create new user " + username);
+			log.error("Cannot create new user " + username);
+			e.printStackTrace();
 			return false;
 		}
 	}

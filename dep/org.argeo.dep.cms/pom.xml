@@ -37,7 +37,7 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<!-- Connect -->
+		<!-- Core CMS code -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.cms</artifactId>

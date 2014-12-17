@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 
 /**
  * Overview of the bundles as a table. Equivalent to Equinox 'ss' console
@@ -107,18 +108,13 @@ public class BundlesView extends ViewPart {
 			private static final long serialVersionUID = 6871926308708629989L;
 
 			public String getText(Object element) {
-
-				// return "";
-				// FIXME triggers compilation failure
 				Bundle bundle = (org.osgi.framework.Bundle) element;
 				return bundle.getVersion().toString();
 			}
 		});
 		new ColumnViewerComparator<Bundle>(column, new Comparator<Bundle>() {
 			public int compare(Bundle o1, Bundle o2) {
-				return 0;
-				// FIXME getVersion() triggers compilation failure
-				// return o1.getVersion().compareTo(o2.getVersion());
+				return o1.getVersion().compareTo(o2.getVersion());
 			}
 		});
 
@@ -197,10 +193,13 @@ public class BundlesView extends ViewPart {
 				return "RESOLVED";
 			case Bundle.STARTING:
 				String activationPolicy = bundle.getHeaders()
-						.get("Bundle-ActivationPolicy").toString();
+						.get(Constants.BUNDLE_ACTIVATIONPOLICY).toString();
+
+				// .get("Bundle-ActivationPolicy").toString();
 				// FIXME constant triggers the compilation failure
-				// .get(Constants.BUNDLE_ACTIVATIONPOLICY).toString();
-				if (activationPolicy != null && activationPolicy.equals("lazy"))
+				if (activationPolicy != null 
+						&& activationPolicy.equals(Constants.ACTIVATION_LAZY))
+					// && activationPolicy.equals("lazy"))
 					// FIXME constant triggers the compilation failure
 					// && activationPolicy.equals(Constants.ACTIVATION_LAZY))
 					return "<<LAZY>>";

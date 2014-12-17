@@ -27,6 +27,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -78,13 +79,14 @@ public class UserRolesPart extends StyledControl implements EditablePart,
 
 	@Override
 	protected Control createControl(Composite box, String style) {
-		box.setLayout(CmsUtils.noSpaceGridLayout());
+		// box.setLayout(CmsUtils.noSpaceGridLayout());
+		box.setLayout(new GridLayout());
 
 		Label header = new Label(box, SWT.NONE);
 		header.setText(" Groups");
 		CmsUtils.style(header, UserStyles.USER_FORM_TITLE);
 		header.setLayoutData(CmsUtils.fillWidth());
-		
+
 		int swtStyle = SWT.CHECK | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL;
 		if (!isEditing())
 			swtStyle |= SWT.READ_ONLY;
@@ -171,28 +173,23 @@ public class UserRolesPart extends StyledControl implements EditablePart,
 
 	public void setUserAdminService(UserAdminService userAdminService) {
 		this.userAdminService = userAdminService;
-
 		try {
 			String username = getNode().getProperty(ArgeoNames.ARGEO_USER_ID)
 					.getString();
-			// ;
-
 			if (userAdminService.userExists(username)) {
 				JcrUserDetails userDetails = (JcrUserDetails) userAdminService
 						.loadUserByUsername(username);
 				setUserDetails(userDetails);
 			}
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot retrieve userDetails for "// +
-																		// username
-					, e);
+			throw new ArgeoException("Cannot retrieve userDetails for "
+					+ getNode(), e);
 		}
 
 	}
 
 	public void setUserDetails(JcrUserDetails userDetails) {
 		this.userDetails = userDetails;
-
 		this.roles = new ArrayList<String>();
 		for (GrantedAuthority ga : userDetails.getAuthorities())
 			roles.add(ga.getAuthority());

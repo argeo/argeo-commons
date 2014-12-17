@@ -9,7 +9,6 @@ import org.argeo.cms.CmsUtils;
 import org.argeo.cms.viewers.JcrVersionCmsEditable;
 import org.argeo.cms.widgets.ScrolledPage;
 import org.argeo.security.UserAdminService;
-import org.argeo.security.jcr.JcrSecurityModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -19,6 +18,8 @@ public class UserPage implements CmsUiProvider {
 
 	// Enable user CRUD // INJECTED
 	private UserAdminService userAdminService;
+
+	// private UserDetailsManager userDetailsManager;
 
 	// private JcrSecurityModel jcrSecurityModel;
 
@@ -37,10 +38,16 @@ public class UserPage implements CmsUiProvider {
 				cmsEditable);
 
 		Control control = userViewer.getControl();
+
+		// FIXME not satisfying.close
+		if (control instanceof UserPart)
+			((UserPart) control).setUserAdminService(userAdminService);
+
 		Composite par = control.getParent();
 
 		UserRolesPart rolesPart = new UserRolesPart(par, SWT.NO_FOCUS, context,
 				true);
+		rolesPart.setUserAdminService(userAdminService);
 		rolesPart.setUserAdminService(userAdminService);
 		rolesPart.createControl(rolesPart, UserStyles.USER_FORM_TEXT);
 		rolesPart.refresh();
@@ -68,7 +75,8 @@ public class UserPage implements CmsUiProvider {
 		this.userAdminService = userAdminService;
 	}
 
-//	public void setJcrSecurityModel(JcrSecurityModel jcrSecurityModel) {
-//		this.jcrSecurityModel = jcrSecurityModel;
-//	}
+	// public void setUserDetailsManager(UserDetailsManager userDetailsManager)
+	// {
+	// this.userDetailsManager = userDetailsManager;
+	// }
 }

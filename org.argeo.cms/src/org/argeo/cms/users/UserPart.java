@@ -15,6 +15,8 @@ import org.argeo.cms.viewers.NodePart;
 import org.argeo.cms.widgets.StyledControl;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.jcr.ArgeoNames;
+import org.argeo.security.UserAdminService;
+import org.argeo.security.jcr.JcrUserDetails;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
@@ -39,6 +41,13 @@ public class UserPart extends StyledControl implements EditablePart, NodePart,
 	// A static list of supported properties.
 	private List<Text> texts;
 	private final static String KEY_PROP_NAME = "jcr:propertyName";
+
+	// the 2 password fields
+	private Text pwd1, pwd2;
+
+	private UserAdminService userAdminService;
+
+	// private UserDetailsManager userDetailsManager;
 
 	// TODO implement to provide user creation ability for anonymous user?
 	// public UserPart(Composite parent, int swtStyle) {
@@ -71,17 +80,14 @@ public class UserPart extends StyledControl implements EditablePart, NodePart,
 
 	@Override
 	protected Control createControl(Composite box, String style) {
-		if (isEditing())
-			return createEditLayout(box, style);
-		else
-			return createROLayout(box, style);
-	}
-
-	protected Composite createROLayout(Composite parent, String style) {
-		Composite body = new Composite(parent, SWT.NO_FOCUS);
+		Composite body = new Composite(box, SWT.NO_FOCUS);
 		body.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		GridLayout layout = new GridLayout(2, false);
+		// GridLayout layout = CmsUtils.noSpaceGridLayout(new GridLayout(2,
+		// false));
+
 		body.setLayout(layout);
+		CmsUtils.style(body, UserStyles.USER_FORM_TEXT);
 
 		// header
 		Label header = new Label(body, SWT.NONE);
@@ -92,7 +98,10 @@ public class UserPart extends StyledControl implements EditablePart, NodePart,
 
 		// form field
 		createTexts(body, UserStyles.USER_FORM_TEXT);
-		CmsUtils.style(body, UserStyles.USER_FORM_TEXT);
+
+		if (isEditing())
+			for (Text txt : texts)
+				txt.addFocusListener(this);
 
 		// Change password link
 		// header
@@ -102,26 +111,50 @@ public class UserPart extends StyledControl implements EditablePart, NodePart,
 				1));
 		CmsUtils.style(header, UserStyles.USER_FORM_TITLE);
 
+		pwd1 = createLP(body, UserStyles.USER_FORM_TEXT, "Enter password");
+		pwd2 = createLP(body, UserStyles.USER_FORM_TEXT, "Re-Enter");
+
 		final Link link = new Link(body, SWT.NONE);
+		link.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 2, 1));
 		link.setText("<a>Change password</a>");
 		link.addSelectionListener(new SelectionAdapter() {
+			private static final long serialVersionUID = 8348668888548451776L;
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				String msg = null;
+				if ("".equals(pwd1.getText().trim()))
+					msg = "Passwords cannot be blank";
+				else if (!pwd1.getText().equals(pwd2.getText()))
+					msg = "Passwords do not match, please try again.";
 
-				MessageDialog.openInformation(link.getShell(),
-						"Not implemented", "Implement This.");
+				if (msg != null) {
+					MessageDialog.openError(link.getShell(), "Error", msg);
+				} else {
+					try {
+						String username = getNode().getProperty(
+								ArgeoNames.ARGEO_USER_ID).getString();
+						if (userAdminService.userExists(username)) {
+							JcrUserDetails userDetails = (JcrUserDetails) userAdminService
+									.loadUserByUsername(username);
+							userDetails = userDetails.cloneWithNewPassword(pwd1
+									.getText());
+							userAdminService.updateUser(userDetails);
+							MessageDialog.openInformation(link.getShell(),
+									"Password changed", "Password changed.");
+						}
+					} catch (Exception re) {
+						throw new ArgeoException(
+								"unable to reset password for user "
+										+ getNode(), re);
+					}
+				}
 
-				// ChangePasswordDialog dialog = new ChangePasswordDialog(
-				// link.getShell(), userDetailsManager);
-				// if (dialog.open() == Window.OK) {
-				// MessageDialog.openInformation(HandlerUtil.getActiveShell(event),
-				// "Password changed", "Password changed.");
-				// }
-				// return null;
+				pwd1.setText("");
+				pwd2.setText("");
 
 			}
 		});
-
 		return body;
 	}
 
@@ -138,19 +171,16 @@ public class UserPart extends StyledControl implements EditablePart, NodePart,
 				Property.JCR_DESCRIPTION));
 	}
 
-	protected Composite createEditLayout(Composite parent, String style) {
-		Composite body = new Composite(parent, SWT.NO_FOCUS);
-		GridLayout layout = new GridLayout(2, false);
-		body.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		body.setLayout(layout);
-
-		createTexts(body, UserStyles.USER_FORM_TEXT);
-
-		for (Text txt : texts)
-			txt.addFocusListener(this);
-		CmsUtils.style(body, UserStyles.USER_FORM_TEXT);
-		return body;
-	}
+	// protected Composite createEditLayout(Composite parent, String style) {
+	// Composite body = new Composite(parent, SWT.NO_FOCUS);
+	// GridLayout layout = new GridLayout(2, false);
+	// body.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+	// body.setLayout(layout);
+	//
+	// createTexts(body, UserStyles.USER_FORM_TEXT);
+	//
+	// return body;
+	// }
 
 	void refresh() {
 		for (Text txt : texts) {
@@ -160,7 +190,7 @@ public class UserPart extends StyledControl implements EditablePart, NodePart,
 		}
 	}
 
-	// THE LISTENER
+	// his.listener methods
 	@Override
 	public void focusGained(FocusEvent e) {
 		// Do nothing
@@ -185,6 +215,19 @@ public class UserPart extends StyledControl implements EditablePart, NodePart,
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		CmsUtils.style(text, style);
 		text.setData(KEY_PROP_NAME, propName);
+		return text;
+	}
+
+	// HELPERS
+	/** Creates label and password text. */
+	protected Text createLP(Composite body, String style, String label) {
+		Label lbl = new Label(body, SWT.NONE);
+		lbl.setText(label);
+		lbl.setFont(EclipseUiUtils.getBoldFont(body));
+		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+		Text text = new Text(body, SWT.BORDER | SWT.PASSWORD);
+		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		CmsUtils.style(text, style);
 		return text;
 	}
 
@@ -243,5 +286,15 @@ public class UserPart extends StyledControl implements EditablePart, NodePart,
 			throw new ArgeoException("Cannot  property " + propName + " on "
 					+ node + " with value " + value, e);
 		}
+	}
+
+	/* DEPENDENCY INJECTION */
+	// public void setUserDetailsManager(UserDetailsManager userDetailsManager)
+	// {
+	// this.userDetailsManager = userDetailsManager;
+	// }
+
+	public void setUserAdminService(UserAdminService userAdminService) {
+		this.userAdminService = userAdminService;
 	}
 }
