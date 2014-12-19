@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
-		<version>2.1.13-SNAPSHOT</version>
+		<version>2.1.12-SNAPSHOT</version>
 		<artifactId>dep</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -40,21 +41,21 @@
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.node.repo.jackrabbit</artifactId>
-			<version>2.1.13-SNAPSHOT</version>
+			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 
 		<!-- OSGi Boot (and Equinox) -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.osgi.boot</artifactId>
-			<version>2.1.13-SNAPSHOT</version>
+			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Logging -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.dep.log4j</artifactId>
-			<version>2.1.13-SNAPSHOT</version>
+			<version>2.1.12-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
 
@@ -62,14 +63,14 @@
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.server.core</artifactId>
-			<version>2.1.13-SNAPSHOT</version>
+			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Argeo Security -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.security.core</artifactId>
-			<version>2.1.13-SNAPSHOT</version>
+			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Xerces and Xalan -->
@@ -146,12 +147,12 @@
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.server.jackrabbit</artifactId>
-			<version>2.1.13-SNAPSHOT</version>
+			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.security.jackrabbit</artifactId>
-			<version>2.1.13-SNAPSHOT</version>
+			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Scheduling -->
@@ -171,14 +172,14 @@
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.security.dao.jackrabbit</artifactId>
-			<version>2.1.13-SNAPSHOT</version>
+			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Security (Standalone) -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.security.dao.os</artifactId>
-			<version>2.1.13-SNAPSHOT</version>
+			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Web -->
@@ -204,12 +205,12 @@
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.server.jcr.mvc</artifactId>
-			<version>2.1.13-SNAPSHOT</version>
+			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.jackrabbit.webapp</artifactId>
-			<version>2.1.13-SNAPSHOT</version>
+			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 
 		<!-- DB drivers -->
@@ -230,18 +231,18 @@
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.server.dep.ads</artifactId>
-			<version>2.1.13-SNAPSHOT</version>
+			<version>2.1.12-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.server.ads.server</artifactId>
-			<version>2.1.13-SNAPSHOT</version>
+			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.server.ads</artifactId>
-			<version>2.1.13-SNAPSHOT</version>
+			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Software development -->
@@ -279,7 +280,7 @@
 				<dependency>
 					<groupId>org.argeo.commons</groupId>
 					<artifactId>org.argeo.osgi.boot</artifactId>
-					<version>2.1.13-SNAPSHOT</version>
+					<version>2.1.12-SNAPSHOT</version>
 					<scope>test</scope>
 				</dependency>
 			</dependencies>
