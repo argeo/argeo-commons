@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
-		<version>2.1.13-SNAPSHOT</version>
+		<version>2.1.12-SNAPSHOT</version>
 		<artifactId>argeo-commons</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -19,7 +20,7 @@
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
 			<type>pom</type>
-			<version>2.1.13-SNAPSHOT</version>
+			<version>2.1.12-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -27,14 +28,14 @@
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.util</artifactId>
-			<version>2.1.13-SNAPSHOT</version>
+			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 
 		<!-- JCR -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.server.jcr</artifactId>
-			<version>2.1.13-SNAPSHOT</version>
+			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Bridge Spring and OSGi -->
@@ -53,7 +54,7 @@
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.security.core</artifactId>
-			<version>2.1.13-SNAPSHOT</version>
+			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 
 
