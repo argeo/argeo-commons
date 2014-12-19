@@ -2,6 +2,7 @@ Import-Package: org.springframework.core,\
 				org.springframework.dao,\
 				org.eclipse.core.commands,\
 				org.eclipse.swt,\
+				org.eclipse.jface.window,\
 				javax.jcr.security,\
 				*
 # Useless

@@ -8,6 +8,7 @@ Import-Package: org.eclipse.core.commands,\
 				org.springframework.beans.factory,\
 				org.springframework.core.io.support,\
 				org.springframework.dao,\
+				javax.jcr.nodetype,\
 				*
 
 # Was: 
