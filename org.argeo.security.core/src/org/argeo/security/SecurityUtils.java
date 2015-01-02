@@ -16,14 +16,15 @@
 package org.argeo.security;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Static utilities */
 public class SecurityUtils {
@@ -89,7 +90,7 @@ public class SecurityUtils {
 	 * read-only list of strings, for portability and integration
 	 */
 	public static List<String> authoritiesToStringList(
-			GrantedAuthority[] authorities) {
+			Collection<? extends GrantedAuthority> authorities) {
 		List<String> lst = new ArrayList<String>();
 		for (GrantedAuthority ga : authorities)
 			lst.add(ga.getAuthority());

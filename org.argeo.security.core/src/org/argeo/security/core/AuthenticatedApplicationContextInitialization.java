@@ -32,7 +32,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
  */
 public class AuthenticatedApplicationContextInitialization extends
 		AbstractSystemExecution implements InstantiationAwareBeanPostProcessor,
-		ApplicationListener {
+		ApplicationListener<ApplicationEvent> {
 	// private Log log = LogFactory
 	// .getLog(AuthenticatedApplicationContextInitialization.class);
 	/** If non empty, restricts to these beans */

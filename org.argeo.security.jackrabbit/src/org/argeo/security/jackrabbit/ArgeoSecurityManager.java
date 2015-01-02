@@ -17,6 +17,7 @@ package org.argeo.security.jackrabbit;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,9 +40,9 @@ import org.apache.jackrabbit.core.security.AccessManager;
 import org.apache.jackrabbit.core.security.AnonymousPrincipal;
 import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Integrates Spring Security and Jackrabbit Security users and roles. */
 public class ArgeoSecurityManager extends DefaultSecurityManager {
@@ -119,7 +120,8 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 				log.warn("User ID is '" + userId + "' but authen is "
 						+ authen.getName());
 			StringBuffer roles = new StringBuffer("");
-			GrantedAuthority[] authorities = authen.getAuthorities();
+			Collection<? extends GrantedAuthority> authorities = authen
+					.getAuthorities();
 			for (GrantedAuthority ga : authorities) {
 				roles.append(ga.toString());
 			}

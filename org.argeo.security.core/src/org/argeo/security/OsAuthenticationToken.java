@@ -18,7 +18,7 @@ package org.argeo.security;
 import java.security.AccessController;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -26,10 +26,10 @@ import javax.security.auth.Subject;
 
 import org.argeo.ArgeoException;
 import org.argeo.OperatingSystem;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /** Abstracts principals provided by com.sun.security.auth.module login modules. */
 public class OsAuthenticationToken implements Authentication {
@@ -44,9 +44,9 @@ public class OsAuthenticationToken implements Authentication {
 	private UserDetails details;
 
 	/** Request */
-	public OsAuthenticationToken(GrantedAuthority[] grantedAuthorities) {
-		this.grantedAuthorities = grantedAuthorities != null ? Arrays
-				.asList(grantedAuthorities) : null;
+	public OsAuthenticationToken(
+			Collection<? extends GrantedAuthority> authorities) {
+		this.grantedAuthorities = new ArrayList<GrantedAuthority>(authorities);
 		ClassLoader cl = getClass().getClassLoader();
 		switch (OperatingSystem.os) {
 		case OperatingSystem.WINDOWS:
@@ -98,15 +98,15 @@ public class OsAuthenticationToken implements Authentication {
 	 * Should not be called during authentication since group IDs are not yet
 	 * available {@link Subject} has been set
 	 */
-	public GrantedAuthority[] getAuthorities() {
+	public Collection<? extends GrantedAuthority> getAuthorities() {
 		// grantedAuthorities should not be null at this stage
 		List<GrantedAuthority> gas = new ArrayList<GrantedAuthority>(
 				grantedAuthorities);
 		for (Principal groupPrincipal : getGroupsIds()) {
-			gas.add(new GrantedAuthorityImpl("OSGROUP_"
+			gas.add(new SimpleGrantedAuthority("OSGROUP_"
 					+ groupPrincipal.getName()));
 		}
-		return gas.toArray(new GrantedAuthority[gas.size()]);
+		return gas;
 	}
 
 	public UserDetails getDetails() {

@@ -19,7 +19,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.security.ui.rememberme.TokenBasedRememberMeServices;
+import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 
 public class ArgeoRememberMeServices extends TokenBasedRememberMeServices {
 	public final static String DEFAULT_COOKIE_NAME = "ARGEO_SECURITY";

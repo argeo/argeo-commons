@@ -18,7 +18,7 @@ package org.argeo.security;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
-import org.springframework.security.providers.ldap.authenticator.LdapShaPasswordEncoder;
+import org.springframework.security.authentication.encoding.LdapShaPasswordEncoder;
 
 public class PasswordSandbox {
 	public static void main(String[] args) {

@@ -25,16 +25,16 @@ import org.argeo.security.UserAdminService;
 import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.AuthenticationProvider;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 /**
  * An implementation of {@link UserAdminService} which closely wraps Jackrabbits
@@ -279,20 +279,19 @@ public class JackrabbitUserAdminService implements UserAdminService,
 		User user = (User) getUserManager().getAuthorizable(username);
 		ArrayList<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 		// FIXME make it more generic
-		authorities.add(new GrantedAuthorityImpl("ROLE_USER"));
+		authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
 		Iterator<Group> groups = user.declaredMemberOf();
 		while (groups.hasNext()) {
 			Group group = groups.next();
 			// String role = "ROLE_"
 			// + group.getPrincipal().getName().toUpperCase();
 			String role = group.getPrincipal().getName();
-			authorities.add(new GrantedAuthorityImpl(role));
+			authorities.add(new SimpleGrantedAuthority(role));
 		}
 
 		Node userProfile = UserJcrUtils.getUserProfile(session, username);
 		JcrUserDetails userDetails = new JcrUserDetails(userProfile,
-				credentials.toString(),
-				authorities.toArray(new GrantedAuthority[authorities.size()]));
+				credentials.toString(), authorities);
 		return userDetails;
 	}
 

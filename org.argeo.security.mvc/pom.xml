@@ -26,20 +26,20 @@
 		</dependency>
 
 		<!-- Spring -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.springframework.web.servlet</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.springframework.aop</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>org.springframework.web.servlet</artifactId> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>org.springframework.aop</artifactId> -->
+<!-- 		</dependency> -->
 
 		<!-- J2EE -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>javax.servlet</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>javax.servlet</artifactId> -->
+<!-- 		</dependency> -->
 
 	</dependencies>
 </project>
