@@ -15,6 +15,8 @@
  */
 package org.argeo.eclipse.ui.dialogs;
 
+import java.util.ArrayList;
+
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
@@ -39,9 +41,9 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 /** Wizard to create a new user */
 public class UserCreationWizard extends Wizard {
@@ -80,7 +82,7 @@ public class UserCreationWizard extends Wizard {
 			String password = mainUserInfo.getPassword();
 			// TODO add roles
 			JcrUserDetails jcrUserDetails = new JcrUserDetails(userProfile,
-					password, new GrantedAuthority[0]);
+					password, new ArrayList<GrantedAuthority>());
 			session.save();
 			session.getWorkspace().getVersionManager()
 					.checkin(userProfile.getPath());

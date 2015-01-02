@@ -43,10 +43,10 @@
 	<dependencies>
 
 		<!-- Eclipse -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.eclipse.osgi</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>org.eclipse.osgi</artifactId> -->
+<!-- 		</dependency> -->
 
 		<!-- Generic Eclipse Utilities -->
 		<dependency>
@@ -77,9 +77,9 @@
 		</dependency>
 
 		<!-- Spring -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.springframework.security.core</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>org.springframework.security.core</artifactId> -->
+<!-- 		</dependency> -->
 	</dependencies>
 </project>

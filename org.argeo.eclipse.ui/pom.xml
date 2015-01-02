@@ -30,38 +30,34 @@
 			<artifactId>org.argeo.util</artifactId>
 			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
-
-		<!-- JCR -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.server.jcr</artifactId>
 			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
-
-		<!-- Bridge Spring and OSGi -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.springframework.osgi.extender</artifactId>
-		</dependency>
-
-		<!-- Spring -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.springframework.context</artifactId>
-		</dependency>
-
-		<!-- Base security -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.security.core</artifactId>
 			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 
+		<!-- Bridge Spring and OSGi -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>org.springframework.osgi.extender</artifactId> -->
+<!-- 		</dependency> -->
+
+		<!-- Spring -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>org.springframework.context</artifactId> -->
+<!-- 		</dependency> -->
+
 
 		<!-- Others -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>slf4j.org.apache.commons.logging</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>slf4j.org.apache.commons.logging</artifactId> -->
+<!-- 		</dependency> -->
 	</dependencies>
 </project>

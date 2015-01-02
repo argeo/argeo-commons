@@ -24,8 +24,8 @@ import java.util.Set;
 import javax.security.auth.Subject;
 
 import org.argeo.ArgeoException;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * Retrieves information about the current user. Not an API, can change without

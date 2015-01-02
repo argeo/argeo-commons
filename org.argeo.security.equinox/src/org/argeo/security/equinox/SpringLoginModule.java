@@ -15,6 +15,8 @@
  */
 package org.argeo.security.equinox;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -31,14 +33,13 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.security.NodeAuthenticationToken;
 import org.argeo.util.LocaleCallback;
 import org.argeo.util.LocaleUtils;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
-import org.springframework.security.providers.jaas.SecurityContextLoginModule;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.jaas.SecurityContextLoginModule;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Login module which caches one subject per thread. */
 public class SpringLoginModule extends SecurityContextLoginModule {
@@ -109,8 +110,8 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 
 				// TODO integrate with JCR?
 				Object principal = UUID.randomUUID().toString();
-				GrantedAuthority[] authorities = { new GrantedAuthorityImpl(
-						anonymousRole) };
+				List<SimpleGrantedAuthority> authorities = Collections
+						.singletonList(new SimpleGrantedAuthority(anonymousRole));
 				AnonymousAuthenticationToken anonymousToken = new AnonymousAuthenticationToken(
 						key, principal, authorities);
 				Authentication auth = authenticationManager

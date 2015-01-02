@@ -30,7 +30,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.part.ViewPart;
-import org.springframework.security.Authentication;
+import org.springframework.security.core.Authentication;
 
 /** Information about the currently logged in user */
 public class UserProfile extends ViewPart {

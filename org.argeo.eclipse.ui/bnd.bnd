@@ -9,6 +9,7 @@ Import-Package: org.eclipse.core.commands,\
 				org.springframework.core.io.support,\
 				org.springframework.dao,\
 				javax.jcr.nodetype,\
+				org.springframework.security.core,\
 				*
 
 # Was: 

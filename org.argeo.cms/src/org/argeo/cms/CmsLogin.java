@@ -1,16 +1,18 @@
 package org.argeo.cms;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
-import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /** Gateway for user login, can also generate the related UI. */
 public class CmsLogin {
@@ -21,8 +23,8 @@ public class CmsLogin {
 	protected void logInAsAnonymous() {
 		// TODO Better deal with anonymous authentication
 		try {
-			GrantedAuthority[] anonAuthorities = { new GrantedAuthorityImpl(
-					"ROLE_ANONYMOUS") };
+			List<SimpleGrantedAuthority> anonAuthorities = Collections
+					.singletonList(new SimpleGrantedAuthority("ROLE_ANONYMOUS"));
 			UserDetails anonUser = new User("anonymous", "", true, true, true,
 					true, anonAuthorities);
 			AnonymousAuthenticationToken anonToken = new AnonymousAuthenticationToken(

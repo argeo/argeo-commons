@@ -106,14 +106,14 @@
 		</dependency>
 
 		<!-- Needed by upload -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.apache.commons.io</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.apache.commons.fileupload</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>org.apache.commons.io</artifactId> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>org.apache.commons.fileupload</artifactId> -->
+<!-- 		</dependency> -->
 
 		<!-- RAP Specific Dependencies -->
 		<!-- <dependency> -->
@@ -122,10 +122,10 @@
 		<!-- </dependency> -->
 
 		<!-- Security -->
-		<dependency>
-			<groupId>org.argeo.tp.rap</groupId>
-			<artifactId>org.eclipse.equinox.security</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.rap</groupId> -->
+<!-- 			<artifactId>org.eclipse.equinox.security</artifactId> -->
+<!-- 		</dependency> -->
 
 	</dependencies>
 	<profiles>

@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.springframework.security.userdetails.UserDetailsManager;
+import org.springframework.security.provisioning.UserDetailsManager;
 
 /** Dialog to change the current user password */
 public class ChangePasswordDialog extends TitleAreaDialog {

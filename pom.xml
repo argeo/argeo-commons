@@ -45,25 +45,25 @@
 		<!-- <module>org.argeo.server.ads</module> -->
 		<!-- <module>org.argeo.server.ads.server</module> -->
 		<!-- Eclipse -->
-		<!-- <module>org.argeo.eclipse.ui</module> -->
-		<!-- <module>org.argeo.eclipse.ui.rap</module> -->
-		<!-- <module>org.argeo.eclipse.ui.rcp</module> -->
+		<module>org.argeo.eclipse.ui</module>
+		<module>org.argeo.eclipse.ui.rap</module>
+		<module>org.argeo.eclipse.ui.rcp</module>
 		<!-- Node -->
-		<!-- <module>org.argeo.node.repo.jackrabbit</module> -->
-		<!-- <module>org.argeo.cms</module> -->
+		<module>org.argeo.node.repo.jackrabbit</module>
+		<module>org.argeo.cms</module>
 		<!-- Standard Workbench Perspectives -->
-		<!-- <module>org.argeo.eclipse.ui.workbench</module> -->
-		<!-- <module>org.argeo.security.equinox</module> -->
-		<!-- <module>org.argeo.security.ui</module> -->
-		<!-- <module>org.argeo.security.ui.admin</module> -->
+		<module>org.argeo.eclipse.ui.workbench</module>
+		<module>org.argeo.security.equinox</module>
+		<module>org.argeo.security.ui</module>
+		<module>org.argeo.security.ui.admin</module>
 		<!-- Standard Workbench Products -->
-		<!-- <module>org.argeo.security.ui.rap</module> -->
-		<!-- <module>org.argeo.security.ui.rcp</module> -->
+		<module>org.argeo.security.ui.rap</module>
+		<module>org.argeo.security.ui.rcp</module>
 		<!-- Legacy -->
 		<!-- <module>org.argeo.server.core</module> -->
 		<!-- <module>org.argeo.ext.jdbm</module> -->
 		<!-- Dependencies and Distributions -->
-		<!-- <module>dep</module> -->
+		<module>dep</module>
 		<!-- <module>dist</module> -->
 	</modules>
 	<scm>
@@ -455,27 +455,27 @@ limitations under the License.
 			<!-- <type>pom</type> -->
 			<!-- <scope>import</scope> -->
 			<!-- </dependency> -->
-			<!-- <dependency> -->
-			<!-- <groupId>org.argeo.tp.rcp.platform</groupId> -->
-			<!-- <artifactId>binaries</artifactId> -->
-			<!-- <version>${version.eclipseIde}</version> -->
-			<!-- <type>pom</type> -->
-			<!-- <scope>import</scope> -->
-			<!-- </dependency> -->
-			<!-- <dependency> -->
-			<!-- <groupId>org.argeo.tp.rap.addons</groupId> -->
-			<!-- <artifactId>binaries</artifactId> -->
-			<!-- <version>${version.rap.addons}</version> -->
-			<!-- <type>pom</type> -->
-			<!-- <scope>import</scope> -->
-			<!-- </dependency> -->
-			<!-- <dependency> -->
-			<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-			<!-- <artifactId>binaries</artifactId> -->
-			<!-- <version>${version.rap}</version> -->
-			<!-- <type>pom</type> -->
-			<!-- <scope>import</scope> -->
-			<!-- </dependency> -->
+			<dependency>
+				<groupId>org.argeo.tp.rcp.platform</groupId>
+				<artifactId>binaries</artifactId>
+				<version>${version.eclipseIde}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.argeo.tp.rap.addons</groupId>
+				<artifactId>binaries</artifactId>
+				<version>${version.rap.addons}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.argeo.tp.rap.platform</groupId>
+				<artifactId>binaries</artifactId>
+				<version>${version.rap}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<repositories>
@@ -499,7 +499,7 @@ limitations under the License.
 		</repository>
 		<repository>
 			<id>argeo-tp-rap</id>
-			<url>http://localhost:7080/data/public/java/eclipse-rap-2.2</url>
+			<url>http://repo.argeo.org/data/public/java/eclipse-rap-2.2</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
