@@ -67,22 +67,6 @@
 					<groupId>org.argeo.commons</groupId>
 					<artifactId>org.argeo.security.dao.os</artifactId>
 				</exclusion>
-				<exclusion>
-					<groupId>org.argeo.commons</groupId>
-					<artifactId>org.argeo.server.catalina.start</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.argeo.commons</groupId>
-					<artifactId>org.argeo.server.webextender</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.argeo.tp</groupId>
-					<artifactId>org.apache.jasper</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.argeo.tp</groupId>
-					<artifactId>org.springframework.osgi.web.extender</artifactId>
-				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
