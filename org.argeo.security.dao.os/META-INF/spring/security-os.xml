@@ -23,7 +23,7 @@
 		<property name="bundleContext" ref="bundleContext" />
 	</bean>
 
-	<bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
+	<bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
 		<property name="providers">
 			<list>
 				<ref bean="authByAdapterProvider" />
@@ -51,7 +51,7 @@
 		himself, in order to prevent the following dependency cycle: Repository.login() 
 		<= AuthenticationManager <= osJcrAuthenticationProvider <= Repository.login() 
 		in init() -->
-	<bean id="internalAuthenticationManager" class="org.springframework.security.providers.ProviderManager">
+	<bean id="internalAuthenticationManager" class="org.springframework.security.authentication.ProviderManager">
 		<property name="providers">
 			<list>
 				<ref bean="authByAdapterProvider" />

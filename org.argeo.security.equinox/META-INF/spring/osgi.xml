@@ -9,6 +9,6 @@
 	osgi:default-timeout="30000">
 
 	<reference id="authenticationManager"
-		interface="org.springframework.security.core.AuthenticationManager"
+		interface="org.springframework.security.authentication.AuthenticationManager"
 		context-class-loader="client" />
 </beans:beans>
