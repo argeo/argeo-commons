@@ -1,5 +1,4 @@
 Import-Package: org.springframework.core,\
-org.springframework,\
 org.springframework.dao,\
 javax.jcr.nodetype,\
 *
