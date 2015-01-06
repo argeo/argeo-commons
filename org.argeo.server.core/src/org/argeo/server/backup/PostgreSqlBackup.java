@@ -15,7 +15,7 @@
  */
 package org.argeo.server.backup;
 
-import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs2.FileObject;
 
 /** Backups a PostgreSQL database using pg_dump. */
 public class PostgreSqlBackup extends OsCallBackup {

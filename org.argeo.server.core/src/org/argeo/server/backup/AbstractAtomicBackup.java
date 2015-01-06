@@ -15,10 +15,10 @@
  */
 package org.argeo.server.backup;
 
-import org.apache.commons.vfs.FileObject;
-import org.apache.commons.vfs.FileSystemManager;
-import org.apache.commons.vfs.FileSystemOptions;
-import org.apache.commons.vfs.provider.sftp.SftpFileSystemConfigBuilder;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemManager;
+import org.apache.commons.vfs2.FileSystemOptions;
+import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
 import org.argeo.ArgeoException;
 
 /**

@@ -17,8 +17,8 @@ package org.argeo.server.backup;
 
 import java.text.DateFormat;
 
-import org.apache.commons.vfs.FileSystemManager;
-import org.apache.commons.vfs.FileSystemOptions;
+import org.apache.commons.vfs2.FileSystemManager;
+import org.apache.commons.vfs2.FileSystemOptions;
 
 /** Purges previous backups */
 public interface BackupPurge {

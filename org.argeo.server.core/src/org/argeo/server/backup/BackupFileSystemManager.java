@@ -15,15 +15,15 @@
  */
 package org.argeo.server.backup;
 
-import org.apache.commons.vfs.FileSystemException;
-import org.apache.commons.vfs.impl.DefaultFileSystemManager;
-import org.apache.commons.vfs.provider.bzip2.Bzip2FileProvider;
-import org.apache.commons.vfs.provider.ftp.FtpFileProvider;
-import org.apache.commons.vfs.provider.gzip.GzipFileProvider;
-import org.apache.commons.vfs.provider.local.DefaultLocalFileProvider;
-import org.apache.commons.vfs.provider.ram.RamFileProvider;
-import org.apache.commons.vfs.provider.sftp.SftpFileProvider;
-import org.apache.commons.vfs.provider.url.UrlFileProvider;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
+import org.apache.commons.vfs2.provider.bzip2.Bzip2FileProvider;
+import org.apache.commons.vfs2.provider.ftp.FtpFileProvider;
+import org.apache.commons.vfs2.provider.gzip.GzipFileProvider;
+import org.apache.commons.vfs2.provider.local.DefaultLocalFileProvider;
+import org.apache.commons.vfs2.provider.ram.RamFileProvider;
+import org.apache.commons.vfs2.provider.sftp.SftpFileProvider;
+import org.apache.commons.vfs2.provider.url.UrlFileProvider;
 import org.argeo.ArgeoException;
 
 /**

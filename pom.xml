@@ -60,7 +60,7 @@
 		<module>org.argeo.security.ui.rap</module>
 		<module>org.argeo.security.ui.rcp</module>
 		<!-- Legacy -->
-		<!-- <module>org.argeo.server.core</module> -->
+		<module>org.argeo.server.core</module>
 		<!-- <module>org.argeo.ext.jdbm</module> -->
 		<!-- Dependencies and Distributions -->
 		<module>dep</module>

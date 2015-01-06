@@ -15,7 +15,7 @@
  */
 package org.argeo.server.backup;
 
-import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs2.FileObject;
 
 /** Backup utilities */
 public class BackupUtils {
