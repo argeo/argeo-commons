@@ -17,7 +17,7 @@ package org.argeo.server.backup;
 
 import java.io.File;
 
-import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs2.FileObject;
 
 /** Backups a Subversion repository using svnadmin. */
 public class SvnBackup extends OsCallBackup {

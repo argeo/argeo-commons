@@ -15,6 +15,8 @@
  */
 package org.argeo.security.ui.admin.wizards;
 
+import java.util.ArrayList;
+
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -28,7 +30,7 @@ import org.argeo.security.UserAdminService;
 import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.eclipse.jface.wizard.Wizard;
-import org.springframework.security.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthority;
 
 /** Wizard to create a new user */
 public class NewUserWizard extends Wizard {
@@ -69,7 +71,7 @@ public class NewUserWizard extends Wizard {
 			String password = mainUserInfo.getPassword();
 			// TODO add roles
 			JcrUserDetails jcrUserDetails = new JcrUserDetails(userProfile,
-					password, new GrantedAuthority[0]);
+					password, new ArrayList<GrantedAuthority>());
 			session.save();
 			session.getWorkspace().getVersionManager()
 					.checkin(userProfile.getPath());

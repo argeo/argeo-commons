@@ -11,7 +11,7 @@
 		filter="(argeo.jcr.repository.alias=node)" />
 
 	<reference id="authenticationManager"
-		interface="org.springframework.security.AuthenticationManager" />
+		interface="org.springframework.security.authentication.AuthenticationManager" />
 
 	<!-- SERVICES -->
 	<service ref="cmsRepository" interface="javax.jcr.Repository">

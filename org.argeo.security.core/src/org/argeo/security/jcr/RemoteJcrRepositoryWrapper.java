@@ -31,9 +31,9 @@ import org.argeo.jcr.ArgeoJcrUtils;
 import org.argeo.jcr.JcrRepositoryWrapper;
 import org.argeo.security.NodeAuthenticationToken;
 import org.argeo.security.SystemAuthentication;
-import org.springframework.security.Authentication;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Wrapper around a remote Jackrabbit repository which allows to simplify

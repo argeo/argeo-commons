@@ -9,7 +9,7 @@
 	<!-- <property name="bundleContext" ref="bundleContext" /> -->
 	<!-- </bean> -->
 
-	<!-- <bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager"> -->
+	<!-- <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager"> -->
 	<!-- <property name="providers"> -->
 	<!-- <list> -->
 	<!-- <ref bean="authByAdapterProvider" /> -->

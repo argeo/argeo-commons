@@ -37,6 +37,13 @@
 		</plugins>
 	</build>
 	<dependencies>
+		<!-- Third Parties -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>argeo-tp</artifactId>
+			<version>${version.argeo-distribution}</version>
+		</dependency>
+
 		<!-- Default JCR repositories configurations -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
@@ -52,95 +59,25 @@
 		</dependency>
 
 		<!-- Logging -->
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.dep.log4j</artifactId>
-			<version>2.1.12-SNAPSHOT</version>
-			<type>pom</type>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.commons</groupId> -->
+		<!-- <artifactId>org.argeo.dep.log4j</artifactId> -->
+		<!-- <version>2.1.12-SNAPSHOT</version> -->
+		<!-- <type>pom</type> -->
+		<!-- </dependency> -->
 
 		<!-- Argeo Server -->
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.server.core</artifactId>
-			<version>2.1.12-SNAPSHOT</version>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.commons</groupId> -->
+		<!-- <artifactId>org.argeo.server.core</artifactId> -->
+		<!-- <version>2.1.12-SNAPSHOT</version> -->
+		<!-- </dependency> -->
 
 		<!-- Argeo Security -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.security.core</artifactId>
 			<version>2.1.12-SNAPSHOT</version>
-		</dependency>
-
-		<!-- Xerces and Xalan -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.apache.xmlcommons</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.apache.xalan</artifactId>
-		</dependency>
-
-		<!-- Javax -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>javax.annotation</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>javax.mail</artifactId>
-		</dependency>
-
-		<!-- Bouncycastle (cryptography) -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>bcprov</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>bcmail</artifactId>
-		</dependency>
-
-		<!-- Commons -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.apache.commons.vfs</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.apache.commons.exec</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.apache.commons.cli</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.apache.commons.dbcp</artifactId>
-		</dependency>
-
-		<!-- Reporting -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>jxl</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.apache.pdfbox</artifactId>
-		</dependency>
-
-		<!-- Spring -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.springframework.context.support</artifactId>
-		</dependency>
-
-		<!-- Spring OSGi -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.springframework.osgi.extender</artifactId>
 		</dependency>
 
 		<!-- Jackrabbit -->
@@ -156,19 +93,12 @@
 		</dependency>
 
 		<!-- Scheduling -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.quartz</artifactId>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp</groupId> -->
+		<!-- <artifactId>org.quartz</artifactId> -->
+		<!-- </dependency> -->
 
-		<!-- Security (LDAP) -->
-		<!-- Reduce size of minimal: LDAP secutity plugin must be explicitely added using the 3 dependencies below.  -->
-	<!-- <dependency> <groupId>org.argeo.commons</groupId> <artifactId>org.argeo.security.dao.ldap</artifactId> 
-		<version>2.1.12-SNAPSHOT</version> </dependency> <dependency> <groupId>org.argeo.commons</groupId> 
-		<artifactId>org.argeo.security.auth.ldap</artifactId> <version>2.1.12-SNAPSHOT</version> 
-		</dependency> <dependency> <groupId>org.argeo.commons</groupId> <artifactId>org.argeo.security.ldap</artifactId> 
-		<version>2.1.12-SNAPSHOT</version> </dependency> -->
-	<!-- Security (Jackrabbit) -->
+		<!-- Security (Jackrabbit) -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.security.dao.jackrabbit</artifactId>
@@ -182,75 +112,49 @@
 			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 
-		<!-- Web -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.springframework.osgi.web.extender</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.springframework.osgi.web</artifactId>
-		</dependency>
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.commons</groupId> -->
-		<!-- <artifactId>org.argeo.server.dep.tomcat</artifactId> -->
-		<!-- <version>2.1.12-SNAPSHOT</version> -->
-		<!-- <type>pom</type> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.commons</groupId> -->
-		<!-- <artifactId>org.argeo.server.webextender</artifactId> -->
-		<!-- <version>2.1.12-SNAPSHOT</version> -->
-		<!-- </dependency> -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.server.jcr.mvc</artifactId>
 			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.jackrabbit.webapp</artifactId>
-			<version>2.1.12-SNAPSHOT</version>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.commons</groupId> -->
+		<!-- <artifactId>org.argeo.jackrabbit.webapp</artifactId> -->
+		<!-- <version>2.1.12-SNAPSHOT</version> -->
+		<!-- </dependency> -->
 
 		<!-- DB drivers -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.h2</artifactId>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp</groupId> -->
+		<!-- <artifactId>org.h2</artifactId> -->
+		<!-- </dependency> -->
 		<!-- <dependency> -->
 		<!-- <groupId>org.argeo.tp</groupId> -->
 		<!-- <artifactId>com.mysql.jdbc</artifactId> -->
 		<!-- </dependency> -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.postgresql.jdbc3</artifactId>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp</groupId> -->
+		<!-- <artifactId>org.postgresql.jdbc3</artifactId> -->
+		<!-- </dependency> -->
 
 		<!-- LDAP Apache Directory server -->
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.server.dep.ads</artifactId>
-			<version>2.1.12-SNAPSHOT</version>
-			<type>pom</type>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.server.ads.server</artifactId>
-			<version>2.1.12-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.server.ads</artifactId>
-			<version>2.1.12-SNAPSHOT</version>
-		</dependency>
-
-		<!-- Software development -->
 		<!-- <dependency> -->
 		<!-- <groupId>org.argeo.commons</groupId> -->
-		<!-- <artifactId>org.argeo.support.junit</artifactId> -->
+		<!-- <artifactId>org.argeo.server.dep.ads</artifactId> -->
+		<!-- <version>2.1.12-SNAPSHOT</version> -->
+		<!-- <type>pom</type> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.commons</groupId> -->
+		<!-- <artifactId>org.argeo.server.ads.server</artifactId> -->
 		<!-- <version>2.1.12-SNAPSHOT</version> -->
 		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.commons</groupId> -->
+		<!-- <artifactId>org.argeo.server.ads</artifactId> -->
+		<!-- <version>2.1.12-SNAPSHOT</version> -->
+		<!-- </dependency> -->
+
 	</dependencies>
 	<profiles>
 		<profile>
@@ -282,6 +186,18 @@
 					<artifactId>org.argeo.osgi.boot</artifactId>
 					<version>2.1.12-SNAPSHOT</version>
 					<scope>test</scope>
+				</dependency>
+
+				<dependency>
+					<groupId>org.argeo.tp</groupId>
+					<artifactId>argeo-tp</artifactId>
+					<version>${version.argeo-distribution}</version>
+					<exclusions>
+						<exclusion>
+							<groupId>org.argeo.tp.equinox</groupId>
+							<artifactId>org.eclipse.equinox.security</artifactId>
+						</exclusion>
+					</exclusions>
 				</dependency>
 			</dependencies>
 		</profile>

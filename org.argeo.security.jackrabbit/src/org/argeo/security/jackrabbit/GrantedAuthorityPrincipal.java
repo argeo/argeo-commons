@@ -17,7 +17,7 @@ package org.argeo.security.jackrabbit;
 
 import java.security.Principal;
 
-import org.springframework.security.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthority;
 
 /** Wraps a {@link GrantedAuthority} as a principal. */
 class GrantedAuthorityPrincipal implements Principal {

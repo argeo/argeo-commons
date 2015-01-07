@@ -17,7 +17,7 @@ package org.argeo.security;
 
 import java.util.Set;
 
-import org.springframework.security.userdetails.UserDetailsManager;
+import org.springframework.security.provisioning.UserDetailsManager;
 
 /** Enrich {@link UserDetailsManager} in order to provide roles semantics. */
 public interface UserAdminService extends UserDetailsManager {

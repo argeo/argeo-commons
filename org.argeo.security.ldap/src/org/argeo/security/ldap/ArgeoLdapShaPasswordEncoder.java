@@ -15,7 +15,7 @@
  */
 package org.argeo.security.ldap;
 
-import org.springframework.security.providers.ldap.authenticator.LdapShaPasswordEncoder;
+import org.springframework.security.authentication.encoding.LdapShaPasswordEncoder;
 
 /**
  * {@link LdapShaPasswordEncoder} allowing to configure the usage of salt (APache

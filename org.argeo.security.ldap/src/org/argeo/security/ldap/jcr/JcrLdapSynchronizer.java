@@ -17,13 +17,14 @@ package org.argeo.security.ldap.jcr;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.SortedSet;
-import java.util.UUID;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -52,11 +53,11 @@ import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.security.GrantedAuthority;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.ldap.LdapUsernameToDnMapper;
-import org.springframework.security.providers.encoding.PasswordEncoder;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.ldap.UserDetailsContextMapper;
+import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 
 /** Makes sure that LDAP and JCR are in line. */
 public class JcrLdapSynchronizer implements UserDetailsContextMapper,
@@ -210,7 +211,7 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 								.getProperty(ARGEO_USER_ID).getString();
 						// GrantedAuthority[] authorities = {new
 						// GrantedAuthorityImpl(defaultUserRole)};
-						GrantedAuthority[] authorities = {};
+						List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 						JcrUserDetails userDetails = new JcrUserDetails(
 								userProfile, username, authorities);
 						String dn = createLdapUser(userDetails);
@@ -260,7 +261,8 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 
 	/** Called during authentication in order to retrieve user details */
 	public UserDetails mapUserFromContext(final DirContextOperations ctx,
-			final String username, GrantedAuthority[] authorities) {
+			final String username,
+			Collection<? extends GrantedAuthority> authorities) {
 		if (ctx == null)
 			throw new ArgeoException("No LDAP information for user " + username);
 
@@ -278,7 +280,8 @@ public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 				.getAttributeSortedStringSet(passwordAttribute);
 		String password;
 		if (passwordAttributes == null || passwordAttributes.size() == 0) {
-			//throw new ArgeoException("No password found for user " + username);
+			// throw new ArgeoException("No password found for user " +
+			// username);
 			password = "NULL";
 		} else {
 			byte[] arr = (byte[]) passwordAttributes.first();

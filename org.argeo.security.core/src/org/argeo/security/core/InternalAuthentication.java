@@ -15,13 +15,14 @@
  */
 package org.argeo.security.core;
 
+import java.util.Collections;
+
 import org.argeo.security.SystemAuthentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.adapters.PrincipalSpringSecurityUserToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /** A token base on a system key used to request a system authentication. */
-public class InternalAuthentication extends PrincipalSpringSecurityUserToken
+public class InternalAuthentication extends UsernamePasswordAuthenticationToken
 		implements SystemAuthentication {
 	private static final long serialVersionUID = -6783376375615949315L;
 	/** 'admin' for consistency with JCR */
@@ -32,12 +33,8 @@ public class InternalAuthentication extends PrincipalSpringSecurityUserToken
 
 	public InternalAuthentication(String key, String systemUsername,
 			String systemRole) {
-		super(
-				key,
-				systemUsername,
-				key,
-				new GrantedAuthority[] { new GrantedAuthorityImpl(systemRole) },
-				systemUsername);
+		super(systemUsername, key, Collections
+				.singleton(new SimpleGrantedAuthority(systemRole)));
 	}
 
 	public InternalAuthentication(String key) {

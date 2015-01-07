@@ -16,14 +16,15 @@
 package org.argeo.security.core;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.argeo.security.OsAuthenticationToken;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.providers.AuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /**
  * Validates an OS authentication. The id is that it will always be
@@ -44,13 +45,13 @@ public class OsAuthenticationProvider implements AuthenticationProvider {
 		return new OsAuthenticationToken(getBaseAuthorities());
 	}
 
-	public static GrantedAuthority[] getBaseAuthorities() {
+	public static Collection<? extends GrantedAuthority> getBaseAuthorities() {
 		List<GrantedAuthority> auths = new ArrayList<GrantedAuthority>();
-		auths.add(new GrantedAuthorityImpl(osUserRole));
-		auths.add(new GrantedAuthorityImpl(userRole));
+		auths.add(new SimpleGrantedAuthority(osUserRole));
+		auths.add(new SimpleGrantedAuthority(userRole));
 		if (isAdmin)
-			auths.add(new GrantedAuthorityImpl(adminRole));
-		return auths.toArray(new GrantedAuthority[auths.size()]);
+			auths.add(new SimpleGrantedAuthority(adminRole));
+		return auths;
 	}
 
 	@SuppressWarnings("rawtypes")

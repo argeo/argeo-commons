@@ -15,8 +15,10 @@
  */
 package org.argeo.security;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import java.util.Collection;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 
 /** Credentials required for the authentication to a node. */
 public class NodeAuthenticationToken extends
@@ -39,7 +41,7 @@ public class NodeAuthenticationToken extends
 
 	/** Authenticated constructor */
 	public NodeAuthenticationToken(NodeAuthenticationToken sat,
-			GrantedAuthority[] authorities) {
+			Collection<? extends GrantedAuthority> authorities) {
 		super(sat.getPrincipal(), sat.getCredentials(), authorities);
 		this.url = sat.getUrl();
 	}

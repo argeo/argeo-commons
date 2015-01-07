@@ -16,6 +16,7 @@
 package org.argeo.security.jcr;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -25,12 +26,12 @@ import javax.jcr.Session;
 
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.UserJcrUtils;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.DisabledException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.LockedException;
-import org.springframework.security.userdetails.User;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 
 /** User details based on a user profile node. */
 public class JcrUserDetails extends User implements ArgeoNames {
@@ -44,7 +45,8 @@ public class JcrUserDetails extends User implements ArgeoNames {
 	protected JcrUserDetails(String securityWorkspace, String homePath,
 			String username, String password, boolean enabled,
 			boolean accountNonExpired, boolean credentialsNonExpired,
-			boolean accountNonLocked, GrantedAuthority[] authorities)
+			boolean accountNonLocked,
+			Collection<? extends GrantedAuthority> authorities)
 			throws IllegalArgumentException {
 		super(username, password, enabled, accountNonExpired,
 				credentialsNonExpired, accountNonLocked, authorities);
@@ -53,7 +55,8 @@ public class JcrUserDetails extends User implements ArgeoNames {
 	}
 
 	public JcrUserDetails(Node userProfile, String password,
-			GrantedAuthority[] authorities) throws RepositoryException {
+			Collection<? extends GrantedAuthority> authorities)
+			throws RepositoryException {
 		super(
 				userProfile.getProperty(ARGEO_USER_ID).getString(),
 				password,
@@ -89,7 +92,8 @@ public class JcrUserDetails extends User implements ArgeoNames {
 	 *            the granted authorities
 	 */
 	public JcrUserDetails(Session session, String username, String password,
-			GrantedAuthority[] authorities) throws RepositoryException {
+			Collection<? extends GrantedAuthority> authorities)
+			throws RepositoryException {
 		this(UserJcrUtils.getUserProfile(session, username),
 				password != null ? password : "", authorities);
 	}
@@ -114,12 +118,11 @@ public class JcrUserDetails extends User implements ArgeoNames {
 	public JcrUserDetails cloneWithNewRoles(List<String> roles) {
 		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 		for (String role : roles) {
-			authorities.add(new GrantedAuthorityImpl(role));
+			authorities.add(new SimpleGrantedAuthority(role));
 		}
 		return new JcrUserDetails(securityWorkspace, homePath, getUsername(),
 				getPassword(), isEnabled(), isAccountNonExpired(),
-				isAccountNonExpired(), isAccountNonLocked(),
-				authorities.toArray(new GrantedAuthority[authorities.size()]));
+				isAccountNonExpired(), isAccountNonLocked(), authorities);
 	}
 
 	/** Clone immutable with new password */

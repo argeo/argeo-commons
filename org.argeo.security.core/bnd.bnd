@@ -1,4 +1,5 @@
 Bundle-ActivationPolicy: lazy
 Import-Package:org.bouncycastle.*;resolution:=optional,\
+org.springframework.util,\
 javax.jcr.security,\
 *

@@ -29,7 +29,6 @@ import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
-import org.eclipse.ui.internal.UIPlugin;
 
 /** Eclipse RAP specific window advisor */
 public class RapWindowAdvisor extends WorkbenchWindowAdvisor {
@@ -60,14 +59,15 @@ public class RapWindowAdvisor extends WorkbenchWindowAdvisor {
 		configurer.setShellStyle(SWT.NO_TRIM);
 		Rectangle bounds = Display.getCurrent().getBounds();
 		configurer.setInitialSize(new Point(bounds.width, bounds.height));
-		
-		// Handle window resize in Rap 2.1+ see https://bugs.eclipse.org/bugs/show_bug.cgi?id=417254
+
+		// Handle window resize in Rap 2.1+ see
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=417254
 		Display.getCurrent().addListener(SWT.Resize, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
 				Rectangle bounds = event.display.getBounds();
-				IWorkbenchWindow iww = UIPlugin.getDefault().getWorkbench()
-						.getActiveWorkbenchWindow();
+				IWorkbenchWindow iww = getWindowConfigurer().getWindow()
+						.getWorkbench().getActiveWorkbenchWindow();
 				iww.getShell().setBounds(bounds);
 			}
 		});

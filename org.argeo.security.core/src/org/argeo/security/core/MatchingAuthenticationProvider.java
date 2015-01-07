@@ -21,14 +21,14 @@ import java.util.List;
 import java.util.Properties;
 
 import org.springframework.core.io.Resource;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.dao.AbstractUserDetailsAuthenticationProvider;
-import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /** @deprecated */
 @Deprecated
@@ -72,15 +72,8 @@ public class MatchingAuthenticationProvider extends
 		List<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
 		for (String role : defaultRoles)
 			grantedAuthorities.add(new GrantedAuthorityImpl(role));
-		return new User(
-				username,
-				value,
-				true,
-				true,
-				true,
-				true,
-				grantedAuthorities
-						.toArray(new GrantedAuthority[grantedAuthorities.size()]));
+		return new User(username, value, true, true, true, true,
+				grantedAuthorities);
 	}
 
 	public void setMapping(Resource mapping) {

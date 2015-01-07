@@ -33,9 +33,9 @@ import org.apache.jackrabbit.core.security.authentication.AbstractLoginModule;
 import org.apache.jackrabbit.core.security.authentication.Authentication;
 import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.argeo.security.SystemAuthentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Jackrabbit login mechanism based on Spring Security */
 public class ArgeoLoginModule extends AbstractLoginModule {
@@ -46,7 +46,7 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 	public boolean login() throws LoginException {
 		boolean loginOk = super.login();
 		if (!loginOk) {
-			org.springframework.security.Authentication authen = (org.springframework.security.Authentication) SecurityContextHolder
+			org.springframework.security.core.Authentication authen = (org.springframework.security.core.Authentication) SecurityContextHolder
 					.getContext().getAuthentication();
 		}
 		return loginOk;
@@ -57,7 +57,7 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 	public boolean commit() throws LoginException {
 		boolean commitOk = super.commit();
 		if (!commitOk) {
-			org.springframework.security.Authentication authen = (org.springframework.security.Authentication) SecurityContextHolder
+			org.springframework.security.core.Authentication authen = (org.springframework.security.core.Authentication) SecurityContextHolder
 					.getContext().getAuthentication();
 		}
 		return commitOk;
@@ -69,7 +69,7 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 	 */
 	@Override
 	protected Principal getPrincipal(Credentials credentials) {
-		org.springframework.security.Authentication authen = SecurityContextHolder
+		org.springframework.security.core.Authentication authen = SecurityContextHolder
 				.getContext().getAuthentication();
 		return authen;
 	}
@@ -86,7 +86,7 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 	protected Set<Principal> syncPrincipals() {
 		// use linked HashSet instead of HashSet in order to maintain the order
 		// of principals (as in the Subject).
-		org.springframework.security.Authentication authen = (org.springframework.security.Authentication) principal;
+		org.springframework.security.core.Authentication authen = (org.springframework.security.core.Authentication) principal;
 
 		Set<Principal> principals = new LinkedHashSet<Principal>();
 		principals.add(authen);
@@ -164,12 +164,12 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 		}
 		return new Authentication() {
 			public boolean canHandle(Credentials credentials) {
-				return principal instanceof org.springframework.security.Authentication;
+				return principal instanceof org.springframework.security.core.Authentication;
 			}
 
 			public boolean authenticate(Credentials credentials)
 					throws RepositoryException {
-				return ((org.springframework.security.Authentication) principal)
+				return ((org.springframework.security.core.Authentication) principal)
 						.isAuthenticated();
 			}
 		};

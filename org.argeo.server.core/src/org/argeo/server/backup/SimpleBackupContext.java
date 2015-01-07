@@ -19,7 +19,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.commons.vfs.FileSystemManager;
+import org.apache.commons.vfs2.FileSystemManager;
 
 /** Simple implementation of a backup context */
 public class SimpleBackupContext implements BackupContext {

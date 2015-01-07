@@ -34,12 +34,12 @@ import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.UserJcrUtils;
 import org.argeo.security.NodeAuthenticationToken;
 import org.osgi.framework.BundleContext;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.providers.AuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /** Connects to a JCR repository and delegates authentication to it. */
 public class RemoteJcrAuthenticationProvider implements AuthenticationProvider,
@@ -105,18 +105,18 @@ public class RemoteJcrAuthenticationProvider implements AuthenticationProvider,
 				Value[] roles = userProfile.getProperty(
 						ArgeoNames.ARGEO_REMOTE_ROLES).getValues();
 				for (int i = 0; i < roles.length; i++)
-					authoritiesList.add(new GrantedAuthorityImpl(roles[i]
+					authoritiesList.add(new SimpleGrantedAuthority(roles[i]
 							.getString()));
 			}
-			authoritiesList.add(new GrantedAuthorityImpl(ROLE_REMOTE));
+			authoritiesList.add(new SimpleGrantedAuthority(ROLE_REMOTE));
 
 			// create authenticated objects
-			GrantedAuthority[] authorities = authoritiesList
-					.toArray(new GrantedAuthority[authoritiesList.size()]);
+			// GrantedAuthority[] authorities = authoritiesList
+			// .toArray(new GrantedAuthority[authoritiesList.size()]);
 			JcrUserDetails userDetails = new JcrUserDetails(userProfile,
-					siteAuth.getCredentials().toString(), authorities);
+					siteAuth.getCredentials().toString(), authoritiesList);
 			NodeAuthenticationToken authenticated = new NodeAuthenticationToken(
-					siteAuth, authorities);
+					siteAuth, authoritiesList);
 			authenticated.setDetails(userDetails);
 			return authenticated;
 		} catch (RepositoryException e) {

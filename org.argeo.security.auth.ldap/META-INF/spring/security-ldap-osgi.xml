@@ -12,15 +12,15 @@
 
 	<!-- SERVICES -->
 	<service ref="authenticationManager"
-		interface="org.springframework.security.AuthenticationManager"
+		interface="org.springframework.security.authentication.AuthenticationManager"
 		context-class-loader="service-provider" />
 
 	<!-- User management -->
 <!-- 	<service ref="userDetailsManager" -->
-<!-- 		interface="org.springframework.security.userdetails.UserDetailsService" -->
+<!-- 		interface="org.springframework.security.core.userdetails.UserDetailsService" -->
 <!-- 		context-class-loader="service-provider" /> -->
 <!-- 	<service ref="userDetailsManager" -->
-<!-- 		interface="org.springframework.security.userdetails.UserDetailsManager" -->
+<!-- 		interface="org.springframework.security.provisioning.UserDetailsManager" -->
 <!-- 		context-class-loader="service-provider" /> -->
 <!-- 	<service ref="userDetailsManager" interface="org.argeo.security.UserAdminService" -->
 <!-- 		context-class-loader="service-provider" /> -->
