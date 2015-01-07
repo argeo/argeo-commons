@@ -78,6 +78,14 @@
 			<version>2.1.12-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
+
+		<!-- RCP -->
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.eclipse.dep.rcp</artifactId>
+			<version>2.1.12-SNAPSHOT</version>
+			<type>pom</type>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<!-- <profile> -->
