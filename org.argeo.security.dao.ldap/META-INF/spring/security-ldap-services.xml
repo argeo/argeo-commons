@@ -4,7 +4,8 @@
 	xsi:schemaLocation="
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
+	<bean id="authenticationManager"
+		class="org.springframework.security.authentication.ProviderManager">
 		<property name="providers">
 			<list>
 				<ref bean="authByAdapterProvider" />
@@ -17,8 +18,7 @@
 	</bean>
 
 	<!-- Authentication provider -->
-	<bean id="authByAdapterProvider"
-		class="org.springframework.security.adapters.AuthByAdapterProvider">
+	<bean id="authByAdapterProvider" class="org.argeo.security.core.InternalAuthenticationProvider">
 		<description><![CDATA[System authentication]]></description>
 		<property name="key" value="${argeo.security.systemKey}" />
 	</bean>
@@ -50,7 +50,8 @@
 		initialization himself, in order to prevent the following dependency cycle: 
 		Repository.login() <= AuthenticationManager <= LdapAuthenticationProvider 
 		<= Repository.login() in init() -->
-	<bean id="internalAuthenticationManager" class="org.springframework.security.authentication.ProviderManager">
+	<bean id="internalAuthenticationManager"
+		class="org.springframework.security.authentication.ProviderManager">
 		<property name="providers">
 			<list>
 				<ref bean="authByAdapterProvider" />
