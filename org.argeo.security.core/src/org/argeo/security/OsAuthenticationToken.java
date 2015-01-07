@@ -83,7 +83,7 @@ public class OsAuthenticationToken implements Authentication {
 
 	/** Authenticated */
 	public OsAuthenticationToken() {
-		this(null);
+		this(new ArrayList<GrantedAuthority>());
 	}
 
 	/** @return the name, or null if not yet logged */
