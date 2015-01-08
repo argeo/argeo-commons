@@ -39,6 +39,8 @@ import org.springframework.security.core.GrantedAuthority;
 
 /** Editor for an Argeo user. */
 public class ArgeoUserEditor extends FormEditor {
+	private static final long serialVersionUID = 1933296330339252869L;
+
 	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
 			+ ".adminArgeoUserEditor";
 
