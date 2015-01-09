@@ -1,4 +1,0 @@
-<!-- Spring OSGi Web 1.2.1 doesn't take context.xml files into account, so 
-	we set cookies to false at deployment -->
-<Context cookies="false">
-</Context>
