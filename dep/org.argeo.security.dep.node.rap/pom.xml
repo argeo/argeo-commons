@@ -62,10 +62,10 @@
 			<exclusions>
 				<!-- <exclusion> <groupId>org.argeo.commons</groupId> <artifactId>org.argeo.security.dao.jackrabbit</artifactId> 
 					</exclusion> -->
-				<exclusion>
+				<!--  <exclusion>
 					<groupId>org.argeo.commons</groupId>
 					<artifactId>org.argeo.security.dao.os</artifactId>
-				</exclusion>
+				</exclusion>  -->
 			</exclusions>
 		</dependency>
 		<dependency>
