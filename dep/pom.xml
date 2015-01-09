@@ -14,15 +14,13 @@
 	<modules>
 		<!-- <module>org.argeo.dep.log4j</module> -->
 		<!-- <module>org.argeo.dep.jackrabbit</module> -->
-		<!--  <module>org.argeo.eclipse.dep.rap</module> -->
-		<module>org.argeo.eclipse.dep.rcp</module>
+		<!-- <module>org.argeo.eclipse.dep.rap</module> -->
 		<!-- <module>org.argeo.server.dep.ads</module> -->
 		<!-- <module>org.argeo.server.dep.jackrabbit.server</module> -->
 		<module>org.argeo.security.dep.node</module>
-		<module>org.argeo.eclipse.dep.rwt</module>  
-		<module>org.argeo.security.dep.node.rap</module> 
-		<module>org.argeo.security.dep.node.rcp</module>
-	<!--  	<module>org.argeo.dep.cms</module>  -->
+		<module>org.argeo.eclipse.dep.rwt</module>
+		<module>org.argeo.security.dep.node.rap</module>
+		<!-- <module>org.argeo.dep.cms</module> -->
 	</modules>
 	<profiles>
 		<profile>
