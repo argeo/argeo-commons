@@ -18,10 +18,10 @@
 			<exclusions>
 				<!-- version of the org.osgi.framework package provided in this bundle 
 					is too old -->
-				<exclusion>
+				<!--  <exclusion>
 					<groupId>org.argeo.tp</groupId>
 					<artifactId>org.osgi.core</artifactId>
-				</exclusion>
+				</exclusion>  -->
 			</exclusions>
 		</dependency>
 
@@ -33,13 +33,13 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<dependency>
+		<!--  <dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
 			<type>pom</type>
 			<version>2.1.12-SNAPSHOT</version>
 			<scope>provided</scope>
-		</dependency>
+		</dependency> -->
 
 		<!-- Business dependencies -->
 		<dependency>

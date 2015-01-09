@@ -33,10 +33,10 @@
 		</dependency>
 
 		<!-- Logging -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp</groupId> -->
-<!-- 			<artifactId>slf4j.org.apache.commons.logging</artifactId> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp</groupId> -->
+		<!-- <artifactId>slf4j.org.apache.commons.logging</artifactId> -->
+		<!-- </dependency> -->
 
 		<!-- Argeo Security -->
 		<dependency>

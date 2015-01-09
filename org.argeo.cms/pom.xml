@@ -25,17 +25,17 @@
 		</dependency>
 
 		<!-- Files -->
-		<dependency>
+		<!--  <dependency>
 			<groupId>org.argeo.tp.rap.addons</groupId>
 			<artifactId>org.eclipse.rap.addons.fileupload</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp.rap.addons</groupId>
 			<artifactId>org.eclipse.rap.addons.filedialog</artifactId>
-		</dependency>
+		</dependency> -->
 
 		<!-- RAP -->
-		<dependency>
+		<!--  <dependency>
 			<groupId>org.argeo.tp.rap.platform</groupId>
 			<artifactId>org.eclipse.rap.rwt</artifactId>
 		</dependency>
@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>org.argeo.tp.rap.platform</groupId>
 			<artifactId>org.eclipse.core.commands</artifactId>
-		</dependency>
+		</dependency>  -->
 		<!--  Argeo base Eclipse utilities. -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>

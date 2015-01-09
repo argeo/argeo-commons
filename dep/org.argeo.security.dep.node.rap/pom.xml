@@ -75,13 +75,13 @@
 		</dependency>
 
 		<!-- RAP -->
-		<dependency>
+		<!--  <dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
 			<version>2.1.12-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
-
+ -->
 		<!-- For Tomcat deployment <dependency> <groupId>org.argeo.commons</groupId> 
 			<artifactId>org.argeo.server.rap.webapp</artifactId> <version>2.1.1.tp-SNAPSHOT</version> 
 			</dependency> -->

@@ -56,13 +56,13 @@
 		</dependency>
 		
 		<!-- RAP only dependency, needed at compile time -->
-		<dependency>
+		<!--  <dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
 			<type>pom</type>
 			<version>2.1.12-SNAPSHOT</version>
 			<scope>provided</scope>
-		</dependency>
+		</dependency>  -->
 
 		<!-- Commons -->
 		<dependency>

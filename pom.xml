@@ -11,10 +11,10 @@
 		<version.argeo-commons>2.1.12-SNAPSHOT</version.argeo-commons>
 		<developmentCycle.argeo-commons>2.1</developmentCycle.argeo-commons>
 		<developmentCycle.argeo-commons.startDate>2012-12-19</developmentCycle.argeo-commons.startDate>
-		<version.argeo-distribution>2.1.2</version.argeo-distribution>
+		<version.argeo-distribution>2.1.3</version.argeo-distribution>
 		<version.eclipseIde>3.8.2</version.eclipseIde>
-		<version.rap>2.2.0-R-20131204-0942</version.rap>
-		<version.rap.addons>0.5.0.argeo.20141029</version.rap.addons>
+		<!--  <version.rap>2.2.0-R-20131204-0942</version.rap>
+		<version.rap.addons>0.5.0.argeo.20141029</version.rap.addons>  -->
 		<!-- RPM -->
 		<rpm.release>6</rpm.release>
 		<rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-2-staging/6/x86_64</rpm.stagingRepository>
@@ -462,7 +462,7 @@ limitations under the License.
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-			<dependency>
+			<!--  <dependency>
 				<groupId>org.argeo.tp.rap.addons</groupId>
 				<artifactId>binaries</artifactId>
 				<version>${version.rap.addons}</version>
@@ -475,11 +475,20 @@ limitations under the License.
 				<version>${version.rap}</version>
 				<type>pom</type>
 				<scope>import</scope>
-			</dependency>
+			</dependency>  -->
 		</dependencies>
 	</dependencyManagement>
 	<repositories>
 		<repository>
+			<id>argeo-tp</id>
+			<url>http://localhost:7080/data/public/java/argeo-tp-2.1</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</releases>
+		</repository>
+		<!--  <repository>
 			<id>argeo-tp</id>
 			<url>https://forge.argeo.org/data/public/java/argeo-tp-2.1</url>
 			<releases>
@@ -487,7 +496,7 @@ limitations under the License.
 				<updatePolicy>daily</updatePolicy>
 				<checksumPolicy>warn</checksumPolicy>
 			</releases>
-		</repository>
+		</repository>  -->
 		<repository>
 			<id>argeo-tp-eclipseIde</id>
 			<url>https://forge.argeo.org/data/public/java/eclipse-ide-3.8</url>
@@ -497,7 +506,7 @@ limitations under the License.
 				<checksumPolicy>warn</checksumPolicy>
 			</releases>
 		</repository>
-		<repository>
+		<!--  <repository>
 			<id>argeo-tp-rap</id>
 			<url>http://repo.argeo.org/data/public/java/eclipse-rap-2.2</url>
 			<releases>
@@ -505,7 +514,7 @@ limitations under the License.
 				<updatePolicy>daily</updatePolicy>
 				<checksumPolicy>warn</checksumPolicy>
 			</releases>
-		</repository>
+		</repository>  -->
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>

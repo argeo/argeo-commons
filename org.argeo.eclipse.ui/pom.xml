@@ -16,14 +16,9 @@
 		</instructions> </configuration> </plugin> </plugins> </build> -->
 	<dependencies>
 		<!-- We build against RAP -->
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
-			<type>pom</type>
-			<version>2.1.12-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-
+		<!-- <dependency> <groupId>org.argeo.commons</groupId> <artifactId>org.argeo.eclipse.dep.rap</artifactId> 
+			<type>pom</type> <version>2.1.12-SNAPSHOT</version> <scope>provided</scope> 
+			</dependency> -->
 		<!-- Commons -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
@@ -42,22 +37,22 @@
 		</dependency>
 
 		<!-- Bridge Spring and OSGi -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp</groupId> -->
-<!-- 			<artifactId>org.springframework.osgi.extender</artifactId> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp</groupId> -->
+		<!-- <artifactId>org.springframework.osgi.extender</artifactId> -->
+		<!-- </dependency> -->
 
 		<!-- Spring -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp</groupId> -->
-<!-- 			<artifactId>org.springframework.context</artifactId> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp</groupId> -->
+		<!-- <artifactId>org.springframework.context</artifactId> -->
+		<!-- </dependency> -->
 
 
 		<!-- Others -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp</groupId> -->
-<!-- 			<artifactId>slf4j.org.apache.commons.logging</artifactId> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp</groupId> -->
+		<!-- <artifactId>slf4j.org.apache.commons.logging</artifactId> -->
+		<!-- </dependency> -->
 	</dependencies>
 </project>
