@@ -411,7 +411,7 @@ limitations under the License.
 	<repositories>
 		<repository>
 			<id>argeo-tp</id>
-			<url>http://localhost:7080/data/public/java/argeo-tp-2.1</url>
+			<url>https://forge.argeo.org/data/public/java/argeo-tp-2.1/</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
