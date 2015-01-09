@@ -37,33 +37,50 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<!-- Core CMS code -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.cms</artifactId>
 			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
-
-		<!-- Commons -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.util</artifactId>
 			<version>2.1.12-SNAPSHOT</version>
 		</dependency>
 
-		<!-- Node (without RAP) -->
-		<!-- <dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.security.dep.node</artifactId>
-			<version>2.1.12-SNAPSHOT</version>
-		</dependency> -->
-
 		<!-- Minimal web target platform -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.eclipse.dep.rwt</artifactId>
-			<version>2.1.12-SNAPSHOT</version>
+			<artifactId>org.argeo.security.dep.node</artifactId>
 			<type>pom</type>
+			<version>2.1.12-SNAPSHOT</version>
+			<exclusions>
+				<!-- Workbench -->
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.ui.workbench</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.ui</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.ui.cheatsheets</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.ui.forms</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.ui.views</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.help</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 </project>
