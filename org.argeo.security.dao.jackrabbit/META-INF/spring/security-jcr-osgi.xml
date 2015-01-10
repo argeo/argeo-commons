@@ -15,13 +15,13 @@
 
 	<!-- SERVICES -->
 	<service ref="authenticationManager"
-		interface="org.springframework.security.AuthenticationManager" />
+		interface="org.springframework.security.authentication.AuthenticationManager" />
 
 	<!-- User management -->
 	<service ref="userDetailsManager"
-		interface="org.springframework.security.userdetails.UserDetailsService" />
+		interface="org.springframework.security.core.userdetails.UserDetailsService" />
 	<service ref="userDetailsManager"
-		interface="org.springframework.security.userdetails.UserDetailsManager" />
+		interface="org.springframework.security.provisioning.UserDetailsManager" />
 	<service ref="userDetailsManager" interface="org.argeo.security.UserAdminService" />
 
 </beans:beans>

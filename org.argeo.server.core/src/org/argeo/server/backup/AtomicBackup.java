@@ -15,8 +15,8 @@
  */
 package org.argeo.server.backup;
 
-import org.apache.commons.vfs.FileSystemManager;
-import org.apache.commons.vfs.FileSystemOptions;
+import org.apache.commons.vfs2.FileSystemManager;
+import org.apache.commons.vfs2.FileSystemOptions;
 
 /** Performs the backup of a single component, typically a database dump */
 public interface AtomicBackup {

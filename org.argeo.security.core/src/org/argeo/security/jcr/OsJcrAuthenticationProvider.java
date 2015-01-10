@@ -15,6 +15,8 @@
  */
 package org.argeo.security.jcr;
 
+import java.util.Collection;
+
 import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -25,12 +27,12 @@ import org.argeo.jcr.JcrUtils;
 import org.argeo.security.OsAuthenticationToken;
 import org.argeo.security.SecurityUtils;
 import org.argeo.security.core.OsAuthenticationProvider;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /** Relies on OS to authenticate and additionally setup JCR */
 public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
@@ -76,7 +78,7 @@ public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 			try {
 				// WARNING: at this stage we assume that the java properties
 				// will have the same value
-				GrantedAuthority[] authorities = getBaseAuthorities();
+				Collection<? extends GrantedAuthority> authorities = getBaseAuthorities();
 				String username = JVM_OSUSER;
 				Node userProfile = jcrSecurityModel.sync(nodeSession, username,
 						SecurityUtils.authoritiesToStringList(authorities));

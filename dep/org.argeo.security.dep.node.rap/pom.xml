@@ -46,11 +46,11 @@
 			<artifactId>org.argeo.security.ui.admin</artifactId>
 			<version>2.1.12</version>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.security.mvc</artifactId>
-			<version>2.1.12</version>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.commons</groupId> -->
+		<!-- <artifactId>org.argeo.security.mvc</artifactId> -->
+		<!-- <version>2.1.12-SNAPSHOT</version> -->
+		<!-- </dependency> -->
 
 		<!-- Basis -->
 		<dependency>
@@ -59,30 +59,12 @@
 			<version>2.1.12</version>
 			<type>pom</type>
 			<exclusions>
+				<!-- <exclusion> <groupId>org.argeo.commons</groupId> <artifactId>org.argeo.security.dao.jackrabbit</artifactId> 
+					</exclusion> -->
 				<!--  <exclusion>
 					<groupId>org.argeo.commons</groupId>
-					<artifactId>org.argeo.security.dao.jackrabbit</artifactId>
-				</exclusion>  -->
-				<exclusion>
-					<groupId>org.argeo.commons</groupId>
 					<artifactId>org.argeo.security.dao.os</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.argeo.commons</groupId>
-					<artifactId>org.argeo.server.catalina.start</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.argeo.commons</groupId>
-					<artifactId>org.argeo.server.webextender</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.argeo.tp</groupId>
-					<artifactId>org.apache.jasper</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.argeo.tp</groupId>
-					<artifactId>org.springframework.osgi.web.extender</artifactId>
-				</exclusion>
+				</exclusion>  -->
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -91,13 +73,17 @@
 			<version>2.1.12</version>
 		</dependency>
 
-		<!-- For Tomcat deployment
-		<dependency>
+		<!-- RAP -->
+		<!--  <dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.server.rap.webapp</artifactId>
-			<version>2.1.1.tp-SNAPSHOT</version>
+			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
+			<version>2.1.12-SNAPSHOT</version>
+			<type>pom</type>
 		</dependency>
-		 -->
+ -->
+		<!-- For Tomcat deployment <dependency> <groupId>org.argeo.commons</groupId> 
+			<artifactId>org.argeo.server.rap.webapp</artifactId> <version>2.1.1.tp-SNAPSHOT</version> 
+			</dependency> -->
 	</dependencies>
 	<profiles>
 		<profile>
@@ -116,72 +102,6 @@
 								</goals>
 								<configuration>
 									<onlyCheck>true</onlyCheck>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-			<dependencies>
-				<!-- OSGi test -->
-				<dependency>
-					<groupId>org.argeo.commons</groupId>
-					<artifactId>org.argeo.osgi.boot</artifactId>
-					<version>2.1.12</version>
-					<scope>test</scope>
-				</dependency>
-			</dependencies>
-		</profile>
-		<profile>
-			<id>rpmbuild</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>rpm-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>rpm-node-rap</id>
-								<phase>package</phase>
-								<goals>
-									<goal>rpm</goal>
-								</goals>
-								<configuration>
-									<name>argeo-node-rap</name>
-									<mappings>
-										<!-- <mapping> -->
-										<!-- <directory>/etc/argeo-node-rap</directory> -->
-										<!-- <username>root</username> -->
-										<!-- <groupname>root</groupname> -->
-										<!-- <filemode>644</filemode> -->
-										<!-- <configuration>true</configuration> -->
-										<!-- <directoryIncluded>false</directoryIncluded> -->
-										<!-- <sources> -->
-										<!-- <source> -->
-										<!-- <location>src/main/rpm/etc/argeo-node-rap</location> -->
-										<!-- </source> -->
-										<!-- </sources> -->
-										<!-- </mapping> -->
-										<mapping>
-											<directory>/usr/share/osgi/rap</directory>
-											<username>root</username>
-											<groupname>root</groupname>
-											<filemode>644</filemode>
-											<directoryIncluded>false</directoryIncluded>
-											<dependency>
-												<includes>
-													<include>org.argeo.commons.base:org.argeo.eclipse.ui.rap</include>
-													<include>org.argeo.commons.server:org.argeo.server.rap.webapp</include>
-													<include>org.argeo.commons.security:org.argeo.security.ui.rap</include>
-												</includes>
-											</dependency>
-										</mapping>
-									</mappings>
-									<requires>
-										<require>argeo-node</require>
-										<require>argeo-node-eclipse</require>
-										<require>eclipse-rap</require>
-									</requires>
 								</configuration>
 							</execution>
 						</executions>

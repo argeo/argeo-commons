@@ -17,13 +17,13 @@
 		</dependency>
 
 		<!-- Apache Commons -->
-		<dependency>
+<!--  	<dependency>
 			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.apache.commons.io</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.apache.commons.vfs</artifactId>
+			<artifactId>org.apache.commons.vfs2</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
@@ -38,9 +38,9 @@
 			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.joda.time</artifactId>
 		</dependency>
-
+ -->	
 		<!-- Spring -->
-		<dependency>
+<!-- <dependency>
 			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.springframework.web</artifactId>
 		</dependency>
@@ -60,22 +60,22 @@
 			<groupId>org.argeo.tp</groupId>
 			<artifactId>org.springframework.web.servlet</artifactId>
 		</dependency>
-
+ -->
 		<!-- J2EE -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>javax.servlet</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>javax.servlet</artifactId> -->
+<!-- 		</dependency> -->
 
-		<!-- Logging -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>slf4j.org.apache.commons.logging</artifactId>
-		</dependency>
+	<!-- Logging -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>slf4j.org.apache.commons.logging</artifactId> -->
+<!-- 		</dependency> -->
 
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.apache.commons.fileupload</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>org.apache.commons.fileupload</artifactId> -->
+<!-- 		</dependency> -->
 	</dependencies>
 </project>

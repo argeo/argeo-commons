@@ -1,6 +1,0 @@
-Bundle-Activator: org.argeo.security.ui.rcp.SecureApplicationActivator
-Bundle-ActivationPolicy: lazy
-Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime
-Import-Package: org.argeo.eclipse.ui.specific,\
-org.argeo.eclipse.spring,\
-*

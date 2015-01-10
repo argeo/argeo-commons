@@ -17,8 +17,8 @@ package org.argeo.security.jcr.rememberme;
 
 import java.util.Date;
 
-import org.springframework.security.ui.rememberme.PersistentRememberMeToken;
-import org.springframework.security.ui.rememberme.PersistentTokenRepository;
+import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 public class JcrPersistentTokenRepository implements PersistentTokenRepository {
 

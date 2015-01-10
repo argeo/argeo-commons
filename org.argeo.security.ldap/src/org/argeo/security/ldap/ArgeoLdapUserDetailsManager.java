@@ -28,12 +28,12 @@ import java.util.TreeSet;
 import org.argeo.ArgeoException;
 import org.argeo.security.UserAdminService;
 import org.springframework.ldap.core.ContextSource;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.encoding.PasswordEncoder;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.ldap.LdapUserDetailsManager;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.ldap.userdetails.LdapUserDetailsManager;
 
 /** Extends {@link LdapUserDetailsManager} by adding password encoding support. */
 public class ArgeoLdapUserDetailsManager extends LdapUserDetailsManager

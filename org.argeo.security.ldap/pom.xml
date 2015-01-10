@@ -55,22 +55,22 @@
 		</dependency>
 
 		<!-- JCR -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>javax.jcr</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>javax.jcr</artifactId> -->
+<!-- 		</dependency> -->
 
 		<!-- Spring -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.springframework.ldap</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>org.springframework.ldap</artifactId> -->
+<!-- 		</dependency> -->
 
 		<!-- Logging -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>slf4j.org.apache.commons.logging</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>slf4j.org.apache.commons.logging</artifactId> -->
+<!-- 		</dependency> -->
 
 	</dependencies>
 </project>

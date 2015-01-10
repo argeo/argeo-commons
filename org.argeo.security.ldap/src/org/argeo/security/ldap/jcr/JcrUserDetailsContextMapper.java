@@ -15,6 +15,7 @@
  */
 package org.argeo.security.ldap.jcr;
 
+import java.util.Collection;
 import java.util.UUID;
 
 import javax.jcr.Node;
@@ -29,9 +30,9 @@ import org.argeo.jcr.UserJcrUtils;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.ldap.UserDetailsContextMapper;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 
 /** @deprecated Read only mapping from LDAP to user details */
 @Deprecated
@@ -58,7 +59,8 @@ public class JcrUserDetailsContextMapper implements UserDetailsContextMapper,
 
 	/** Called during authentication in order to retrieve user details */
 	public UserDetails mapUserFromContext(final DirContextOperations ctx,
-			final String username, GrantedAuthority[] authorities) {
+			final String username,
+			Collection<? extends GrantedAuthority> authorities) {
 		if (ctx == null)
 			throw new ArgeoException("No LDAP information for user " + username);
 		Node userHome = UserJcrUtils.getUserHome(securitySession, username);

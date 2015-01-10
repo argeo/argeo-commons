@@ -22,41 +22,41 @@
 		</dependency>
 
 		<!-- Jackrabbit -->
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.dep.jackrabbit</artifactId>
-			<type>pom</type>
-			<version>2.1.12</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.commons</groupId> -->
+<!-- 			<artifactId>org.argeo.dep.jackrabbit</artifactId> -->
+<!-- 			<type>pom</type> -->
+<!-- 			<version>2.1.12-SNAPSHOT</version> -->
+<!-- 		</dependency> -->
 
 		<!-- OSGi -->
-		<dependency>
-			<groupId>org.argeo.tp.rap.platform</groupId>
-			<artifactId>org.eclipse.osgi</artifactId>
-			<scope>provided</scope>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.rap.platform</groupId> -->
+<!-- 			<artifactId>org.eclipse.osgi</artifactId> -->
+<!-- 			<scope>provided</scope> -->
+<!-- 		</dependency> -->
 
 		<!-- Spring -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.springframework.beans</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.springframework.web.servlet</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.springframework.security.core</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>org.springframework.beans</artifactId> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>org.springframework.web.servlet</artifactId> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>org.springframework.security.core</artifactId> -->
+<!-- 		</dependency> -->
 
 		<!-- TEST -->
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.dep.log4j</artifactId>
-			<version>2.1.12</version>
-			<type>pom</type>
-			<scope>test</scope>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.commons</groupId> -->
+<!-- 			<artifactId>org.argeo.dep.log4j</artifactId> -->
+<!-- 			<version>2.1.12-SNAPSHOT</version> -->
+<!-- 			<type>pom</type> -->
+<!-- 			<scope>test</scope> -->
+<!-- 		</dependency> -->
 	</dependencies>
 </project>

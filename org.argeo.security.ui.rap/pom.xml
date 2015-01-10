@@ -53,10 +53,10 @@
 		</dependency>
 
 		<!-- Logging -->
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>slf4j.org.apache.commons.logging</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>slf4j.org.apache.commons.logging</artifactId> -->
+<!-- 		</dependency> -->
 
 		<!-- Argeo Security -->
 		<dependency>
@@ -71,12 +71,12 @@
 		</dependency>
 
 		<!-- RAP specific -->
-		<dependency>
+		<!--  <dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
 			<type>pom</type>
-			<version>2.1.12</version>
-		</dependency>
+			<version>2.1.12-SNAPSHOT</version>
+		</dependency>  -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.ui.rap</artifactId>

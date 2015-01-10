@@ -15,6 +15,8 @@
  */
 package org.argeo.security.ui.admin.editors;
 
+import java.util.ArrayList;
+
 import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -33,10 +35,12 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.forms.editor.FormEditor;
-import org.springframework.security.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthority;
 
 /** Editor for an Argeo user. */
 public class ArgeoUserEditor extends FormEditor {
+	private static final long serialVersionUID = 1933296330339252869L;
+
 	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
 			+ ".adminArgeoUserEditor";
 
@@ -64,10 +68,9 @@ public class ArgeoUserEditor extends FormEditor {
 						+ username, e);
 			}
 		} else {
-			GrantedAuthority[] authorities = {};
 			try {
 				userDetails = new JcrUserDetails(session, username, null,
-						authorities);
+						new ArrayList<GrantedAuthority>());
 			} catch (RepositoryException e) {
 				throw new ArgeoException("Cannot retrieve disabled JCR profile");
 			}

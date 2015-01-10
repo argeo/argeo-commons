@@ -23,7 +23,8 @@
 		<property name="bundleContext" ref="bundleContext" />
 	</bean>
 
-	<bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
+	<bean id="authenticationManager"
+		class="org.springframework.security.authentication.ProviderManager">
 		<property name="providers">
 			<list>
 				<ref bean="authByAdapterProvider" />
@@ -41,8 +42,7 @@
 
 	<bean name="jcrSecurityModel" class="org.argeo.security.jackrabbit.JackrabbitSecurityModel" />
 
-	<bean id="authByAdapterProvider"
-		class="org.springframework.security.adapters.AuthByAdapterProvider">
+	<bean id="authByAdapterProvider" class="org.argeo.security.core.InternalAuthenticationProvider">
 		<description><![CDATA[System authentication]]></description>
 		<property name="key" value="${argeo.security.systemKey}" />
 	</bean>
@@ -51,7 +51,8 @@
 		himself, in order to prevent the following dependency cycle: Repository.login() 
 		<= AuthenticationManager <= osJcrAuthenticationProvider <= Repository.login() 
 		in init() -->
-	<bean id="internalAuthenticationManager" class="org.springframework.security.providers.ProviderManager">
+	<bean id="internalAuthenticationManager"
+		class="org.springframework.security.authentication.ProviderManager">
 		<property name="providers">
 			<list>
 				<ref bean="authByAdapterProvider" />

@@ -22,7 +22,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.handlers.HandlerUtil;
-import org.springframework.security.userdetails.UserDetailsManager;
+import org.springframework.security.provisioning.UserDetailsManager;
 
 /** Opens the change password dialog. */
 public class OpenChangePasswordDialog extends AbstractHandler {

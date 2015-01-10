@@ -26,13 +26,13 @@
 		</dependency>
 
 		<!-- We build against RAP -->
-		<dependency>
+		<!--  <dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
 			<type>pom</type>
-			<version>2.1.12</version>
+			<version>2.1.12-SNAPSHOT</version>
 			<scope>provided</scope>
-		</dependency>
+		</dependency>  -->
 
 		<!-- Others: Commons utils, Spring, Logging -->
 		<dependency>
@@ -40,13 +40,13 @@
 			<artifactId>org.argeo.util</artifactId>
 			<version>2.1.12</version>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>org.springframework.security.core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>slf4j.org.apache.commons.logging</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>org.springframework.security.core</artifactId> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp</groupId> -->
+<!-- 			<artifactId>slf4j.org.apache.commons.logging</artifactId> -->
+<!-- 		</dependency> -->
 	</dependencies>
 </project>

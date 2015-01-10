@@ -22,10 +22,10 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 
 import org.argeo.security.OsAuthenticationToken;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.jaas.SecurityContextLoginModule;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.jaas.SecurityContextLoginModule;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Login module which caches one subject per thread. */
 public class OsSpringLoginModule extends SecurityContextLoginModule {

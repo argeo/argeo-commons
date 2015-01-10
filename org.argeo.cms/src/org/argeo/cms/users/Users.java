@@ -40,7 +40,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.springframework.security.userdetails.UserDetailsManager;
+import org.springframework.security.provisioning.UserDetailsManager;
 
 /**
  * Simple page to manage users of a given repository. We still rely on Argeo

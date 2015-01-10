@@ -23,7 +23,7 @@ import org.eclipse.equinox.security.auth.ILoginContext;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.IEntryPoint;
 import org.eclipse.ui.PlatformUI;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * RAP entry point which logs out the currently authenticated user
