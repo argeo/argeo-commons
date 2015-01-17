@@ -16,4 +16,5 @@ Import-Package:	org.eclipse.core.runtime.jobs,\
 				org.osgi.framework;version="[1.5,2)",\
 				org.springframework.core,\
 				org.springframework.dao,\
+				org.springframework.security.provisioning,\
 				*				
