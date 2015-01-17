@@ -10,7 +10,7 @@
 				<ref bean="authByAdapterProvider" />
 <!-- 				<ref bean="preAuthProvider" /> -->
 				<ref bean="anonymousAuthenticationProvider" />
-				<ref bean="rememberMeAuthenticationProvider" />
+<!-- 				<ref bean="rememberMeAuthenticationProvider" /> -->
 				<ref bean="ldapAuthenticationProvider" />
 			</list>
 		</property>
@@ -18,7 +18,7 @@
 
 	<!-- Authentication provider -->
 	<bean id="authByAdapterProvider"
-		class="org.springframework.security.adapters.AuthByAdapterProvider">
+		class="org.argeo.security.core.InternalAuthenticationProvider">
 		<description><![CDATA[System authentication]]></description>
 		<property name="key" value="${argeo.security.systemKey}" />
 	</bean>
@@ -40,11 +40,11 @@
 		<property name="key" value="${argeo.security.systemKey}" />
 	</bean>
 
-	<bean id="rememberMeAuthenticationProvider"
-		class="org.springframework.security.providers.rememberme.RememberMeAuthenticationProvider">
-		<description><![CDATA[Remember me authentication]]></description>
-		<property name="key" value="${argeo.security.systemKey}" />
-	</bean>
+<!-- 	<bean id="rememberMeAuthenticationProvider" -->
+<!-- 		class="org.springframework.security.providers.rememberme.RememberMeAuthenticationProvider"> -->
+<!-- 		<description><![CDATA[Remember me authentication]]></description> -->
+<!-- 		<property name="key" value="${argeo.security.systemKey}" /> -->
+<!-- 	</bean> -->
 
 	<!-- Internal authentication, used by during the general authentication 
 		initialization himself, in order to prevent the following dependency cycle: 

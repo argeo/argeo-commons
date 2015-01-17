@@ -15,7 +15,7 @@
 
 	<!-- AUTHENTICATION -->
 	<bean id="ldapAuthenticationProvider"
-		class="org.springframework.security.providers.ldap.LdapAuthenticationProvider">
+		class="org.springframework.security.ldap.authentication.LdapAuthenticationProvider">
 		<constructor-arg ref="ldapAuthenticator" />
 		<constructor-arg ref="authoritiesPopulator" />
 		<property name="userDetailsContextMapper" ref="jcrLdapSynchronizer" />
@@ -23,7 +23,7 @@
 
 	<!-- PasswordComparisonAuthenticator doesn't work with SSHA -->
 	<bean id="ldapAuthenticator"
-		class="org.springframework.security.providers.ldap.authenticator.PasswordComparisonAuthenticator">
+		class="org.springframework.security.ldap.authentication.PasswordComparisonAuthenticator">
 		<constructor-arg ref="contextSource" />
 		<property name="userDnPatterns">
 			<list>
@@ -36,7 +36,7 @@
 
 	<!-- Bind authenticator doesn't work with Apache DS 1.0 -->
 	<!-- <bean id="ldapAuthenticator" -->
-	<!-- class="org.springframework.security.providers.ldap.authenticator.BindAuthenticator"> -->
+	<!-- class="org.springframework.security.ldap.authentication.BindAuthenticator"> -->
 	<!-- <constructor-arg ref="contextSource" /> -->
 	<!-- <property name="userDnPatterns"> -->
 	<!-- <list> -->
@@ -83,7 +83,7 @@
 	</bean>
 
 	<bean id="authoritiesPopulator"
-		class="org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator">
+		class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator">
 		<constructor-arg ref="contextSource" />
 		<constructor-arg value="${argeo.ldap.groupBase}" />
 		<property name="groupSearchFilter" value="${argeo.ldap.groupMemberAttribute}={0}" />

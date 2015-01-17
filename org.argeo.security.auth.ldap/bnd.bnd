@@ -1,5 +1,4 @@
 Import-Package: org.argeo.jcr,\
 com.sun.jndi.ldap;resolution:=optional,\
 org.springframework.ldap.core.support,\
-org.springframework.security,\
 *

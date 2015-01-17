@@ -15,28 +15,29 @@
 
 	<!-- AUTHENTICATION -->
 	<bean id="ldapAuthenticationProvider"
-		class="org.springframework.security.providers.ldap.LdapAuthenticationProvider">
+		class="org.springframework.security.ldap.authentication.LdapAuthenticationProvider">
 		<constructor-arg ref="ldapAuthenticator" />
 		<constructor-arg ref="authoritiesPopulator" />
 		<property name="userDetailsContextMapper" ref="jcrLdapSynchronizer" />
 	</bean>
 
 	<!-- PasswordComparisonAuthenticator doesn't work with SSHA -->
-<!-- 	<bean id="ldapAuthenticator" -->
-<!-- 		class="org.springframework.security.providers.ldap.authenticator.PasswordComparisonAuthenticator"> -->
-<!-- 		<constructor-arg ref="contextSource" /> -->
-<!-- 		<property name="userDnPatterns"> -->
-<!-- 			<list> -->
-<!-- 				<value><![CDATA[${argeo.ldap.usernameAttribute}={0},${argeo.ldap.userBase}]]></value> -->
-<!-- 			</list> -->
-<!-- 		</property> -->
-<!-- 		<property name="passwordAttributeName" value="${argeo.ldap.passwordAttribute}" /> -->
-<!-- 		<property name="passwordEncoder" ref="passwordEncoder" /> -->
-<!-- 	</bean> -->
+	<!-- <bean id="ldapAuthenticator" -->
+	<!-- class="org.springframework.security.providers.ldap.authenticator.PasswordComparisonAuthenticator"> -->
+	<!-- <constructor-arg ref="contextSource" /> -->
+	<!-- <property name="userDnPatterns"> -->
+	<!-- <list> -->
+	<!-- <value><![CDATA[${argeo.ldap.usernameAttribute}={0},${argeo.ldap.userBase}]]></value> -->
+	<!-- </list> -->
+	<!-- </property> -->
+	<!-- <property name="passwordAttributeName" value="${argeo.ldap.passwordAttribute}" 
+		/> -->
+	<!-- <property name="passwordEncoder" ref="passwordEncoder" /> -->
+	<!-- </bean> -->
 
 	<!-- Bind authenticator doesn't work with Apache DS 1.0 -->
 	<bean id="ldapAuthenticator"
-		class="org.springframework.security.providers.ldap.authenticator.BindAuthenticator">
+		class="org.springframework.security.ldap.authentication.BindAuthenticator">
 		<constructor-arg ref="contextSource" />
 		<property name="userDnPatterns">
 			<list>
@@ -46,35 +47,42 @@
 	</bean>
 
 	<!-- USER DETAILS -->
-<!-- 	<bean id="userDetailsManager" class="org.argeo.security.ldap.ArgeoLdapUserDetailsManager"> -->
-<!-- 		<constructor-arg ref="contextSource" /> -->
-<!-- 		<property name="groupSearchBase" value="${argeo.ldap.groupBase}" /> -->
-<!-- 		<property name="groupMemberAttributeName" value="${argeo.ldap.groupMemberAttribute}" /> -->
-<!-- 		<property name="usernameMapper" ref="usernameMapper" /> -->
-<!-- 		<property name="userDetailsMapper" ref="jcrLdapSynchronizer" /> -->
-<!-- 		<property name="userAdminDao" ref="userAdminDao" /> -->
-<!-- 		<property name="passwordEncoder" ref="passwordEncoder" /> -->
-<!-- 		<property name="passwordAttributeName" value="${argeo.ldap.passwordAttribute}" /> -->
-<!-- 		<property name="superUsername" value="${argeo.security.superUsername}" /> -->
-<!-- 	</bean> -->
+	<!-- <bean id="userDetailsManager" class="org.argeo.security.ldap.ArgeoLdapUserDetailsManager"> -->
+	<!-- <constructor-arg ref="contextSource" /> -->
+	<!-- <property name="groupSearchBase" value="${argeo.ldap.groupBase}" /> -->
+	<!-- <property name="groupMemberAttributeName" value="${argeo.ldap.groupMemberAttribute}" 
+		/> -->
+	<!-- <property name="usernameMapper" ref="usernameMapper" /> -->
+	<!-- <property name="userDetailsMapper" ref="jcrLdapSynchronizer" /> -->
+	<!-- <property name="userAdminDao" ref="userAdminDao" /> -->
+	<!-- <property name="passwordEncoder" ref="passwordEncoder" /> -->
+	<!-- <property name="passwordAttributeName" value="${argeo.ldap.passwordAttribute}" 
+		/> -->
+	<!-- <property name="superUsername" value="${argeo.security.superUsername}" 
+		/> -->
+	<!-- </bean> -->
 
-<!-- 	<bean id="userAdminDao" class="org.argeo.security.ldap.ArgeoUserAdminDaoLdap"> -->
-<!-- 		<constructor-arg ref="contextSource" /> -->
-<!-- 		<property name="userBase" value="${argeo.ldap.userBase}" /> -->
-<!-- 		<property name="usernameAttribute" value="${argeo.ldap.usernameAttribute}" /> -->
-<!-- 		<property name="groupClasses"> -->
-<!-- 			<list> -->
-<!-- 				<value>top</value> -->
-<!-- 				<value>${argeo.ldap.groupClass}</value> -->
-<!-- 			</list> -->
-<!-- 		</property> -->
-<!-- 		<property name="groupBase" value="${argeo.ldap.groupBase}" /> -->
-<!-- 		<property name="groupRoleAttribute" value="${argeo.ldap.groupRoleAttribute}" /> -->
-<!-- 		<property name="groupMemberAttribute" value="${argeo.ldap.groupMemberAttribute}" /> -->
-<!-- 		<property name="defaultRole" value="${argeo.security.defaultRole}" /> -->
-<!-- 		<property name="rolePrefix" value="${argeo.security.rolePrefix}" /> -->
-<!-- 		<property name="usernameMapper" ref="usernameMapper" /> -->
-<!-- 	</bean> -->
+	<!-- <bean id="userAdminDao" class="org.argeo.security.ldap.ArgeoUserAdminDaoLdap"> -->
+	<!-- <constructor-arg ref="contextSource" /> -->
+	<!-- <property name="userBase" value="${argeo.ldap.userBase}" /> -->
+	<!-- <property name="usernameAttribute" value="${argeo.ldap.usernameAttribute}" 
+		/> -->
+	<!-- <property name="groupClasses"> -->
+	<!-- <list> -->
+	<!-- <value>top</value> -->
+	<!-- <value>${argeo.ldap.groupClass}</value> -->
+	<!-- </list> -->
+	<!-- </property> -->
+	<!-- <property name="groupBase" value="${argeo.ldap.groupBase}" /> -->
+	<!-- <property name="groupRoleAttribute" value="${argeo.ldap.groupRoleAttribute}" 
+		/> -->
+	<!-- <property name="groupMemberAttribute" value="${argeo.ldap.groupMemberAttribute}" 
+		/> -->
+	<!-- <property name="defaultRole" value="${argeo.security.defaultRole}" 
+		/> -->
+	<!-- <property name="rolePrefix" value="${argeo.security.rolePrefix}" /> -->
+	<!-- <property name="usernameMapper" ref="usernameMapper" /> -->
+	<!-- </bean> -->
 
 	<bean id="usernameMapper"
 		class="org.springframework.security.ldap.DefaultLdapUsernameToDnMapper">
@@ -83,7 +91,7 @@
 	</bean>
 
 	<bean id="authoritiesPopulator"
-		class="org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator">
+		class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator">
 		<constructor-arg ref="contextSource" />
 		<constructor-arg value="${argeo.ldap.groupBase}" />
 		<property name="groupSearchFilter" value="${argeo.ldap.groupMemberAttribute}={0}" />
@@ -96,8 +104,8 @@
 		class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
 		<constructor-arg
 			value="${argeo.ldap.protocol}://${argeo.ldap.host}:${argeo.ldap.port}/${argeo.ldap.rootdn}" />
-<!-- 		<property name="userDn" value="${argeo.ldap.manager.userdn}" /> -->
-<!-- 		<property name="password" value="${argeo.ldap.manager.password}" /> -->
+		<!-- <property name="userDn" value="${argeo.ldap.manager.userdn}" /> -->
+		<!-- <property name="password" value="${argeo.ldap.manager.password}" /> -->
 	</bean>
 
 	<bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
