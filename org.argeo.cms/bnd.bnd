@@ -6,6 +6,5 @@ Import-Package: org.springframework.core,\
 				javax.jcr.security,\
 				org.eclipse.swt.widgets;version="0.0.0",\
 				org.eclipse.rap.*;resolution:=optional,\
+				org.argeo.jackrabbit.*;resolution:=optional,\
 				*
-# Useless
-#Private-Package: org.argeo.cms.internal.*

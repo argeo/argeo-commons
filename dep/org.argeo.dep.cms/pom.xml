@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
@@ -47,14 +48,56 @@
 			<version>2.1.13-SNAPSHOT</version>
 		</dependency>
 
-		<!-- Minimal web target platform -->
+		<!-- Complete target platform -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.security.dep.node</artifactId>
 			<type>pom</type>
 			<version>2.1.13-SNAPSHOT</version>
+		</dependency>
+
+		<!-- Third parties -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>argeo-tp</artifactId>
+			<version>${version.argeo-distribution}</version>
 			<exclusions>
+				<!-- Equinox -->
+				<exclusion>
+					<groupId>org.argeo.tp.rap</groupId>
+					<artifactId>org.eclipse.equinox.security</artifactId>
+				</exclusion>
+				<!-- Databinding -->
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>com.ibm.icu.base</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.jface.databinding</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.core.databinding</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.core.databinding.observable</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.core.databinding.property</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.core.databinding.beans</artifactId>
+				</exclusion>
+
 				<!-- Workbench -->
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>javax.xml</artifactId>
+				</exclusion>
 				<exclusion>
 					<groupId>org.argeo.tp.rap.platform</groupId>
 					<artifactId>org.eclipse.rap.ui.workbench</artifactId>
@@ -79,7 +122,129 @@
 					<groupId>org.argeo.tp.rap.platform</groupId>
 					<artifactId>org.eclipse.help</artifactId>
 				</exclusion>
+
+				<!-- Spring -->
+				<exclusion>
+					<groupId>org.argeo.tp.spring</groupId>
+					<artifactId>org.springframework.jdbc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.spring</groupId>
+					<artifactId>org.springframework.web</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.spring</groupId>
+					<artifactId>org.springframework.web.servlet</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.spring</groupId>
+					<artifactId>org.springframework.ldap</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.spring</groupId>
+					<artifactId>org.springframework.aspects</artifactId>
+				</exclusion>
+
+				<!-- Spring Security -->
+				<exclusion>
+					<groupId>org.argeo.tp.spring.security</groupId>
+					<artifactId>org.springframework.security.aspects</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.spring.security</groupId>
+					<artifactId>org.springframework.security.ldap</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.spring.security</groupId>
+					<artifactId>org.springframework.security.web</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.spring.security</groupId>
+					<artifactId>org.springframework.security.config</artifactId>
+				</exclusion>
+
+				<!-- Apache -->
+				<exclusion>
+					<groupId>org.argeo.tp.apache</groupId>
+					<artifactId>org.apache.tika.parser</artifactId>
+				</exclusion>
+				<!-- <exclusion> -->
+				<!-- <groupId>org.argeo.tp.apache.commons</groupId> -->
+				<!-- <artifactId>org.apache.commons.vfs</artifactId> -->
+				<!-- </exclusion> -->
+
+				<!-- Bouncycastle -->
+				<!-- <exclusion> -->
+				<!-- <groupId>org.argeo.tp.bouncycastle</groupId> -->
+				<!-- <artifactId>bcpkix</artifactId> -->
+				<!-- </exclusion> -->
+				<!-- <exclusion> -->
+				<!-- <groupId>org.argeo.tp.bouncycastle</groupId> -->
+				<!-- <artifactId>bcmail</artifactId> -->
+				<!-- </exclusion> -->
+
+				<!-- Misc -->
+				<!-- <exclusion> -->
+				<!-- <groupId>org.argeo.tp</groupId> -->
+				<!-- <artifactId>org.junit</artifactId> -->
+				<!-- </exclusion> -->
+				<exclusion>
+					<groupId>org.argeo.tp</groupId>
+					<artifactId>org.joda.time</artifactId>
+				</exclusion>
+				<!-- <exclusion> -->
+				<!-- <groupId>org.argeo.tp.javax</groupId> -->
+				<!-- <artifactId>javax.mail</artifactId> -->
+				<!-- </exclusion> -->
+				<exclusion>
+					<groupId>org.argeo.tp</groupId>
+					<artifactId>org.objectweb.asm</artifactId>
+				</exclusion>
+				<!-- <exclusion> -->
+				<!-- <groupId>org.argeo.tp</groupId> -->
+				<!-- <artifactId>com.jcraft.jsch</artifactId> -->
+				<!-- </exclusion> -->
+
+				<!-- Require org.springframework.core repackaging -->
+				<!-- <exclusion> -->
+				<!-- <groupId>org.argeo.tp</groupId> -->
+				<!-- <artifactId>org.aspectj.weaver</artifactId> -->
+				<!-- </exclusion> -->
+				<!-- <exclusion> -->
+				<!-- <groupId>org.argeo.tp.apache.ant</groupId> -->
+				<!-- <artifactId>org.apache.ant</artifactId> -->
+				<!-- </exclusion> -->
+				<!-- <exclusion> -->
+				<!-- <groupId>org.argeo.tp.apache.ant</groupId> -->
+				<!-- <artifactId>org.apache.ant.launch</artifactId> -->
+				<!-- </exclusion> -->
 			</exclusions>
 		</dependency>
+
 	</dependencies>
+	<profiles>
+		<profile>
+			<id>check-osgi</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.argeo.maven.plugins</groupId>
+						<artifactId>maven-argeo-osgi-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>check-osgi</id>
+								<phase>test</phase>
+								<goals>
+									<goal>equinox</goal>
+								</goals>
+								<configuration>
+									<onlyCheck>true</onlyCheck>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
