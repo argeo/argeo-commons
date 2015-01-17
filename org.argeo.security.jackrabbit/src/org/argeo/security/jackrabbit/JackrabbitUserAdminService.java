@@ -103,15 +103,19 @@ public class JackrabbitUserAdminService implements UserAdminService,
 		try {
 			User user = (User) getUserManager().getAuthorizable(
 					userDetails.getUsername());
+			if (user == null)
+				throw new ArgeoException("No user " + userDetails.getUsername());
 
 			// new password
-			char[] newPassword = userDetails.getPassword().toCharArray();
-			SimpleCredentials sp = new SimpleCredentials(
-					userDetails.getUsername(), newPassword);
-			CryptedSimpleCredentials credentials = (CryptedSimpleCredentials) user
-					.getCredentials();
-			if (!credentials.matches(sp))
-				user.changePassword(new String(newPassword));
+			String newPassword = userDetails.getPassword();
+			if (!newPassword.trim().equals("")) {
+				SimpleCredentials sp = new SimpleCredentials(
+						userDetails.getUsername(), newPassword.toCharArray());
+				CryptedSimpleCredentials credentials = (CryptedSimpleCredentials) user
+						.getCredentials();
+				if (!credentials.matches(sp))
+					user.changePassword(new String(newPassword));
+			}
 
 			List<String> roles = new ArrayList<String>();
 			for (GrantedAuthority ga : userDetails.getAuthorities()) {
@@ -265,15 +269,14 @@ public class JackrabbitUserAdminService implements UserAdminService,
 			if (user == null)
 				throw new UsernameNotFoundException("User " + username
 						+ " cannot be found");
-			return loadJcrUserDetails(adminSession, username,
-					user.getCredentials());
+			return loadJcrUserDetails(adminSession, username);
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot load user " + username, e);
 		}
 	}
 
-	protected JcrUserDetails loadJcrUserDetails(Session session,
-			String username, Object credentials) throws RepositoryException {
+	protected JcrUserDetails loadJcrUserDetails(Session session, String username)
+			throws RepositoryException {
 		if (username == null)
 			username = session.getUserID();
 		User user = (User) getUserManager().getAuthorizable(username);
@@ -290,8 +293,8 @@ public class JackrabbitUserAdminService implements UserAdminService,
 		}
 
 		Node userProfile = UserJcrUtils.getUserProfile(session, username);
-		JcrUserDetails userDetails = new JcrUserDetails(userProfile,
-				credentials.toString(), authorities);
+		JcrUserDetails userDetails = new JcrUserDetails(userProfile, "",
+				authorities);
 		return userDetails;
 	}
 
@@ -304,17 +307,21 @@ public class JackrabbitUserAdminService implements UserAdminService,
 			SimpleCredentials sp = new SimpleCredentials(siteAuth.getName(),
 					siteAuth.getCredentials().toString().toCharArray());
 			User user = (User) getUserManager().getAuthorizable(username);
+			if (user == null)
+				throw new BadCredentialsException("Bad credentials");
 			CryptedSimpleCredentials credentials = (CryptedSimpleCredentials) user
 					.getCredentials();
 			// String providedPassword = siteAuth.getCredentials().toString();
-			if (!credentials.matches(sp)) {
-				throw new BadCredentialsException("Passwords do not match");
-			}
+			if (!credentials.matches(sp))
+				throw new BadCredentialsException("Bad credentials");
+
 			// session = repository.login(sp, null);
 
 			Node userProfile = UserJcrUtils.getUserProfile(adminSession,
 					username);
 			JcrUserDetails.checkAccountStatus(userProfile);
+		} catch (BadCredentialsException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new BadCredentialsException(
 					"Cannot authenticate " + siteAuth, e);
@@ -322,7 +329,7 @@ public class JackrabbitUserAdminService implements UserAdminService,
 
 		try {
 			JcrUserDetails userDetails = loadJcrUserDetails(adminSession,
-					username, siteAuth.getCredentials());
+					username);
 			UsernamePasswordAuthenticationToken authenticated = new UsernamePasswordAuthenticationToken(
 					siteAuth, "", userDetails.getAuthorities());
 			authenticated.setDetails(userDetails);
