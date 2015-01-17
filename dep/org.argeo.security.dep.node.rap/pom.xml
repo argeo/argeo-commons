@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
@@ -61,10 +62,8 @@
 			<exclusions>
 				<!-- <exclusion> <groupId>org.argeo.commons</groupId> <artifactId>org.argeo.security.dao.jackrabbit</artifactId> 
 					</exclusion> -->
-				<!--  <exclusion>
-					<groupId>org.argeo.commons</groupId>
-					<artifactId>org.argeo.security.dao.os</artifactId>
-				</exclusion>  -->
+				<!-- <exclusion> <groupId>org.argeo.commons</groupId> <artifactId>org.argeo.security.dao.os</artifactId> 
+					</exclusion> -->
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -73,14 +72,16 @@
 			<version>2.1.13-SNAPSHOT</version>
 		</dependency>
 
-		<!-- RAP -->
-		<!--  <dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.eclipse.dep.rap</artifactId>
-			<version>2.1.12-SNAPSHOT</version>
-			<type>pom</type>
+		<!-- Third parties -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>argeo-tp</artifactId>
+			<version>${version.argeo-distribution}</version>
 		</dependency>
- -->
+
+		<!-- RAP -->
+		<!-- <dependency> <groupId>org.argeo.commons</groupId> <artifactId>org.argeo.eclipse.dep.rap</artifactId> 
+			<version>2.1.12-SNAPSHOT</version> <type>pom</type> </dependency> -->
 		<!-- For Tomcat deployment <dependency> <groupId>org.argeo.commons</groupId> 
 			<artifactId>org.argeo.server.rap.webapp</artifactId> <version>2.1.1.tp-SNAPSHOT</version> 
 			</dependency> -->
