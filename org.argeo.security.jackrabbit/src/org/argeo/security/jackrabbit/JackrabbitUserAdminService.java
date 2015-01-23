@@ -160,13 +160,11 @@ public class JackrabbitUserAdminService implements UserAdminService,
 	public void changePassword(String oldPassword, String newPassword) {
 		Authentication authentication = SecurityContextHolder.getContext()
 				.getAuthentication();
+		String username = authentication.getName();
 		try {
-			SimpleCredentials sp = new SimpleCredentials(
-					authentication.getName(),
-					((UserDetails) authentication.getDetails()).getPassword()
-							.toCharArray());
-			User user = (User) getUserManager().getAuthorizable(
-					authentication.getName());
+			SimpleCredentials sp = new SimpleCredentials(username,
+					oldPassword.toCharArray());
+			User user = (User) getUserManager().getAuthorizable(username);
 			CryptedSimpleCredentials credentials = (CryptedSimpleCredentials) user
 					.getCredentials();
 			if (credentials.matches(sp))
@@ -175,7 +173,7 @@ public class JackrabbitUserAdminService implements UserAdminService,
 				throw new BadCredentialsException("Bad credentials provided");
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot change password for user "
-					+ authentication.getName(), e);
+					+ username, e);
 		}
 	}
 
