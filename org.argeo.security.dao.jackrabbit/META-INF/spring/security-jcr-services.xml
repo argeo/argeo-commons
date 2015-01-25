@@ -36,7 +36,7 @@
 
 	<!-- User manager -->
 	<bean id="userDetailsManager"
-		class="org.argeo.security.jackrabbit.JackrabbitUserAdminService"
+		class="org.argeo.security.jcr.jackrabbit.JackrabbitUserAdminService"
 		init-method="init" destroy-method="destroy" depends-on="systemInit">
 		<property name="repository" ref="nodeRepository" />
 		<property name="securityModel" ref="jcrSecurityModel" />

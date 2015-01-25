@@ -339,8 +339,8 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 		} else {
 			// assume this is in the same bundle
 			exportingBundle = bundleContext.getBundle();
-//			throw new ArgeoException("No OSGi exporting package found for "
-//					+ resUrl);
+			// throw new ArgeoException("No OSGi exporting package found for "
+			// + resUrl);
 		}
 		return exportingBundle;
 	}
@@ -358,6 +358,10 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 
 	public void setBundleContext(BundleContext bundleContext) {
 		this.bundleContext = bundleContext;
+	}
+
+	protected BundleContext getBundleContext() {
+		return bundleContext;
 	}
 
 	public void setForceCndImport(Boolean forceCndUpdate) {

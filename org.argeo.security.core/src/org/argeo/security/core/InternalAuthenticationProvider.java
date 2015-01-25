@@ -7,6 +7,13 @@ import org.springframework.security.core.AuthenticationException;
 public class InternalAuthenticationProvider implements AuthenticationProvider {
 	private String key;
 
+	public InternalAuthenticationProvider() {
+	}
+
+	public InternalAuthenticationProvider(String key) {
+		this.key = key;
+	}
+
 	@Override
 	public Authentication authenticate(Authentication arg0)
 			throws AuthenticationException {

@@ -20,6 +20,11 @@
 			<artifactId>org.argeo.server.jcr</artifactId>
 			<version>2.1.13-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.server.jackrabbit</artifactId>
+			<version>2.1.13-SNAPSHOT</version>
+		</dependency>
 
 		<!-- SDK -->
 <!-- 		<dependency> -->

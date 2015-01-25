@@ -1,4 +1,4 @@
-package org.argeo.security.jackrabbit;
+package org.argeo.security.jcr.jackrabbit;
 
 import java.util.ArrayList;
 import java.util.Iterator;

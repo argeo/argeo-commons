@@ -56,13 +56,19 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 
 	// local
 	private Resource configuration;
+
 	private Resource variables;
+
 	private RepositoryConfig repositoryConfig;
 	private File homeDirectory;
 	private Boolean inMemory = false;
 
 	/** Migrations to execute (if not already done) */
 	private Set<JackrabbitDataModelMigration> dataModelMigrations = new HashSet<JackrabbitDataModelMigration>();
+
+	/** Straight (non spring) values */
+	private Properties configurationProperties;
+	private InputSource configurationXml;
 
 	/**
 	 * Empty constructor, {@link #init()} should be called after properties have
@@ -107,11 +113,16 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 
 			// process configuration file
 			Properties vars = getConfigurationProperties();
-			configurationIn = readConfiguration();
 			vars.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE,
 					getHomeDirectory().getCanonicalPath());
-			repositoryConfig = RepositoryConfig.create(new InputSource(
-					configurationIn), vars);
+			InputSource is;
+			if (configurationXml != null)
+				is = configurationXml;
+			else {
+				configurationIn = readConfiguration();
+				is = new InputSource(configurationIn);
+			}
+			repositoryConfig = RepositoryConfig.create(is, vars);
 
 			//
 			// Actual repository creation
@@ -288,6 +299,9 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 
 	/** Generates the properties to use in the configuration. */
 	protected Properties getConfigurationProperties() {
+		if (configurationProperties != null)
+			return configurationProperties;
+
 		InputStream propsIn = null;
 		Properties vars;
 		try {
@@ -347,6 +361,14 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 
 	public void setConfiguration(Resource configuration) {
 		this.configuration = configuration;
+	}
+
+	public void setConfigurationProperties(Properties configurationProperties) {
+		this.configurationProperties = configurationProperties;
+	}
+
+	public void setConfigurationXml(InputSource configurationXml) {
+		this.configurationXml = configurationXml;
 	}
 
 }
