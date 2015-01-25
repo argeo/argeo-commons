@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!DOCTYPE Repository PUBLIC "-//The Apache Software Foundation//DTD Jackrabbit 1.6//EN"
+                            "http://jackrabbit.apache.org/dtd/repository-2.0.dtd">
+<Repository>
+	<!-- File system and datastore -->
+	<FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem" />
+
+	<!-- Workspace templates -->
+	<Workspaces rootPath="${rep.home}/workspaces"
+		defaultWorkspace="${argeo.node.repo.defaultWorkspace}" configRootPath="/workspaces" />
+	<Workspace name="${wsp.name}">
+		<FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem" />
+		<PersistenceManager
+			class="org.apache.jackrabbit.core.persistence.bundle.BundleFsPersistenceManager">
+			<param name="blobFSBlockSize" value="1" />
+		</PersistenceManager>
+		<SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
+			<param name="path" value="${wsp.home}/index" />
+			<param name="directoryManagerClass"
+				value="org.apache.jackrabbit.core.query.lucene.directory.RAMDirectoryManager" />
+			<FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem" />
+		</SearchIndex>
+	</Workspace>
+
+	<!-- Versioning -->
+	<Versioning rootPath="${rep.home}/version">
+		<FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem" />
+		<PersistenceManager
+			class="org.apache.jackrabbit.core.persistence.bundle.BundleFsPersistenceManager">
+			<param name="blobFSBlockSize" value="1" />
+		</PersistenceManager>
+	</Versioning>
+
+	<!-- Indexing -->
+	<SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
+		<param name="path" value="${rep.home}/index" />
+		<param name="directoryManagerClass"
+			value="org.apache.jackrabbit.core.query.lucene.directory.RAMDirectoryManager" />
+		<FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem" />
+	</SearchIndex>
+
+	<!-- Security -->
+	<Security appName="Jackrabbit">
+		<SecurityManager class="org.argeo.security.jackrabbit.ArgeoSecurityManager"
+			workspaceName="security">
+		</SecurityManager>
+		<AccessManager class="org.argeo.security.jackrabbit.ArgeoAccessManager">
+		</AccessManager>
+		<LoginModule class="org.argeo.security.jackrabbit.ArgeoLoginModule">
+		</LoginModule>
+	</Security>
+</Repository>

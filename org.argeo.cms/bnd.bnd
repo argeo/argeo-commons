@@ -1,10 +1,15 @@
+Bundle-Activator: org.argeo.cms.internal.kernel.Activator
 Import-Package: org.springframework.core,\
-				org.springframework.dao,\
-				org.eclipse.core.commands,\
-				org.eclipse.swt,\
-				org.eclipse.jface.window,\
-				javax.jcr.security,\
-				org.eclipse.swt.widgets;version="0.0.0",\
-				org.eclipse.rap.*;resolution:=optional,\
-				org.argeo.jackrabbit.*;resolution:=optional,\
-				*
+org.springframework.dao,\
+org.eclipse.core.commands,\
+org.eclipse.swt,\
+org.eclipse.jface.window,\
+javax.jcr.security,\
+org.xml.sax;version="0.0.0",\
+org.eclipse.swt.widgets;version="0.0.0",\
+org.argeo.jcr,\
+org.h2;resolution:=optional,\
+org.springframework.context,\
+org.apache.jackrabbit.api,\
+org.apache.jackrabbit.commons,\
+*

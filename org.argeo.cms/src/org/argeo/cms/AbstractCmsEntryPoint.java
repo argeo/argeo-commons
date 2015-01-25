@@ -19,12 +19,14 @@ import org.eclipse.rap.rwt.client.service.BrowserNavigationEvent;
 import org.eclipse.rap.rwt.client.service.BrowserNavigationListener;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Manages history and navigation */
 public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 		implements CmsSession {
 	private final Log log = LogFactory.getLog(AbstractCmsEntryPoint.class);
+	private static final String SPRING_SECURITY_CONTEXT_KEY = "SPRING_SECURITY_CONTEXT";
 
 	private Repository repository;
 	private String workspace;
@@ -39,8 +41,15 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 	private BrowserNavigation history;
 
 	public AbstractCmsEntryPoint(Repository repository, String workspace) {
-		if (SecurityContextHolder.getContext().getAuthentication() == null)
-			logAsAnonymous();
+		if (SecurityContextHolder.getContext().getAuthentication() == null) {
+			SecurityContext contextFromSessionObject = (SecurityContext) RWT
+					.getRequest().getSession()
+					.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
+			if (contextFromSessionObject != null)
+				SecurityContextHolder.setContext(contextFromSessionObject);
+			else
+				logAsAnonymous();
+		}
 
 		this.repository = repository;
 		this.workspace = workspace;
