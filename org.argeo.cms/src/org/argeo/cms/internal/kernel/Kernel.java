@@ -90,8 +90,9 @@ final class Kernel {
 		long durationNano = System.nanoTime() - beginNano;
 		final double M = 1000d * 1000d;
 		double sleepAccuracy = ((double) durationNano) / (ms * M);
-		log.debug("Sleep accuracy: "
-				+ String.format("%.2f", sleepAccuracy * 100) + " %");
+		if (log.isDebugEnabled())
+			log.debug("Sleep accuracy: "
+					+ String.format("%.2f", sleepAccuracy * 100) + " %");
 	}
 
 }
