@@ -27,9 +27,9 @@ final class Kernel {
 	private final BundleContext bundleContext;
 
 	private JackrabbitNode node;
-	private OsgiJackrabbitRepositoryFactory repositoryFactory;
+	private RepositoryFactory repositoryFactory;
 	private NodeSecurity nodeSecurity;
-	private NodeHttpFilter httpFilter;
+	private NodeHttp nodeHttp;
 
 	Kernel(BundleContext bundleContext) {
 		this.bundleContext = bundleContext;
@@ -45,14 +45,14 @@ final class Kernel {
 			node = new JackrabbitNode(bundleContext);
 			repositoryFactory = new OsgiJackrabbitRepositoryFactory();
 			nodeSecurity = new NodeSecurity(bundleContext, node);
-			httpFilter = new NodeHttpFilter(bundleContext, nodeSecurity);
+			nodeHttp = new NodeHttp(bundleContext, node, nodeSecurity);
 
 			// Publish services to OSGi register
 			nodeSecurity.publish();
 			node.publish();
 			bundleContext.registerService(RepositoryFactory.class,
 					repositoryFactory, null);
-			httpFilter.publish();
+			nodeHttp.publish();
 		} catch (Exception e) {
 			log.error("Cannot initialize Argeo CMS", e);
 			throw new ArgeoException("Cannot initialize", e);
@@ -67,7 +67,7 @@ final class Kernel {
 	void destroy() {
 		long begin = System.currentTimeMillis();
 
-		httpFilter = null;
+		nodeHttp = null;
 		nodeSecurity.destroy();
 		node.destroy();
 

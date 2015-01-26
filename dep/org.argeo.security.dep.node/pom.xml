@@ -45,11 +45,11 @@
 		</dependency>
 
 		<!-- Default JCR repositories configurations -->
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.node.repo.jackrabbit</artifactId>
-			<version>2.1.13-SNAPSHOT</version>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.commons</groupId> -->
+		<!-- <artifactId>org.argeo.node.repo.jackrabbit</artifactId> -->
+		<!-- <version>2.1.13-SNAPSHOT</version> -->
+		<!-- </dependency> -->
 
 		<!-- OSGi Boot (and Equinox) -->
 		<dependency>
@@ -78,11 +78,11 @@
 		</dependency>
 
 		<!-- Security (Jackrabbit) -->
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.security.dao.jackrabbit</artifactId>
-			<version>2.1.13-SNAPSHOT</version>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.commons</groupId> -->
+		<!-- <artifactId>org.argeo.security.dao.jackrabbit</artifactId> -->
+		<!-- <version>2.1.13-SNAPSHOT</version> -->
+		<!-- </dependency> -->
 	</dependencies>
 	<profiles>
 		<profile>

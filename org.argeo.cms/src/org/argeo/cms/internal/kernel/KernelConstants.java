@@ -12,7 +12,22 @@ interface KernelConstants {
 
 	final static String[] DEFAULT_CNDS = { "/org/argeo/jcr/argeo.cnd",
 			"/org/argeo/cms/cms.cnd" };
-	
+
 	// Security
 	final static String DEFAULT_SECURITY_KEY = "argeo";
+	final static String ANONYMOUS_USER = "anonymous";
+	final static String ADMIN_USER = "root";
+
+	// Roles
+	final static String ROLE_USER = "ROLE_USER";
+	final static String ROLE_ADMIN = "ROLE_ADMIN";
+	final static String ROLE_ANONYMOUS = "ROLE_ANONYMOUS";
+
+	// DAV
+	final static String WEBDAV_CONFIG = "/org/argeo/cms/internal/kernel/webdav-config.xml";
+	final static String PATH_WEBDAV_PUBLIC = "/data/public";
+	final static String PATH_WEBDAV_PRIVATE = "/data/files";
+	final static String PATH_REMOTING_PUBLIC = "/data/pub";
+	final static String PATH_REMOTING_PRIVATE = "/data/jcr";
+	final static String PATH_WORKBENCH_PUBLIC = "/ui/public";
 }

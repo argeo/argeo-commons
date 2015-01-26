@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
@@ -30,16 +31,16 @@
 		<module>org.argeo.security.auth.ldap</module>
 		<module>org.argeo.security.dao.ldap</module>
 		<module>org.argeo.security.dao.cli</module>
-		<module>org.argeo.security.dao.jackrabbit</module>
+		<!-- <module>org.argeo.security.dao.jackrabbit</module> -->
 		<!-- Server -->
 		<module>org.argeo.server.core</module>
-		<module>org.argeo.server.jcr.mvc</module>
+		<!-- <module>org.argeo.server.jcr.mvc</module> -->
 		<module>org.argeo.server.jackrabbit</module>
 		<!-- Eclipse -->
 		<module>org.argeo.eclipse.ui</module>
 		<module>org.argeo.eclipse.ui.rap</module>
 		<!-- Argeo Node -->
-		<module>org.argeo.node.repo.jackrabbit</module>
+		<!-- <module>org.argeo.node.repo.jackrabbit</module> -->
 		<module>org.argeo.cms</module>
 		<!-- Workbench -->
 		<module>org.argeo.eclipse.ui.workbench</module>
