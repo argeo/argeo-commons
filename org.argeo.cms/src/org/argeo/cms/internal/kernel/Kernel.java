@@ -61,6 +61,7 @@ final class Kernel {
 		long duration = System.currentTimeMillis() - begin;
 		log.info("## ARGEO CMS UP in " + (duration / 1000) + "."
 				+ (duration % 1000) + "s ##");
+		directorsCut();
 	}
 
 	void destroy() {
@@ -73,6 +74,24 @@ final class Kernel {
 		long duration = System.currentTimeMillis() - begin;
 		log.info("## ARGEO CMS DOWN in " + (duration / 1000) + "."
 				+ (duration % 1000) + "s ##");
+	}
+
+	private void directorsCut() {
+		final long ms = 128l + (long) (Math.random() * 128d);
+		log.info("Spend " + ms + "ms"
+				+ " reflecting on the progress brought to mankind"
+				+ " by Free Software...");
+		long beginNano = System.nanoTime();
+		try {
+			Thread.sleep(ms, 0);
+		} catch (InterruptedException e) {
+			// silent
+		}
+		long durationNano = System.nanoTime() - beginNano;
+		final double M = 1000d * 1000d;
+		double sleepAccuracy = ((double) durationNano) / (ms * M);
+		log.debug("Sleep accuracy: "
+				+ String.format("%.2f", sleepAccuracy * 100) + " %");
 	}
 
 }
