@@ -1,5 +1,7 @@
 package org.argeo.cms.internal.kernel;
 
+import java.util.Hashtable;
+
 import javax.jcr.RepositoryFactory;
 
 import org.apache.commons.logging.Log;
@@ -7,7 +9,11 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.jackrabbit.OsgiJackrabbitRepositoryFactory;
 import org.argeo.security.core.InternalAuthentication;
+import org.eclipse.rap.rwt.application.ApplicationConfiguration;
+import org.eclipse.rap.rwt.osgi.ApplicationLauncher;
+import org.eclipse.rap.ui.internal.servlet.WorkbenchApplicationConfiguration;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
@@ -21,6 +27,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * <li>OS access</li>
  * </ul>
  */
+@SuppressWarnings("restriction")
 final class Kernel {
 	private final static Log log = LogFactory.getLog(Kernel.class);
 
@@ -30,6 +37,8 @@ final class Kernel {
 	private RepositoryFactory repositoryFactory;
 	private NodeSecurity nodeSecurity;
 	private NodeHttp nodeHttp;
+
+	private ServiceRegistration<ApplicationConfiguration> workbenchReg;
 
 	Kernel(BundleContext bundleContext) {
 		this.bundleContext = bundleContext;
@@ -46,13 +55,15 @@ final class Kernel {
 			repositoryFactory = new OsgiJackrabbitRepositoryFactory();
 			nodeSecurity = new NodeSecurity(bundleContext, node);
 			nodeHttp = new NodeHttp(bundleContext, node, nodeSecurity);
+			WorkbenchApplicationConfiguration wac = new WorkbenchApplicationConfiguration();
 
-			// Publish services to OSGi register
+			// Publish services to OSGi
 			nodeSecurity.publish();
 			node.publish();
 			bundleContext.registerService(RepositoryFactory.class,
 					repositoryFactory, null);
 			nodeHttp.publish();
+			registerWorkbench(wac);
 		} catch (Exception e) {
 			log.error("Cannot initialize Argeo CMS", e);
 			throw new ArgeoException("Cannot initialize", e);
@@ -66,6 +77,9 @@ final class Kernel {
 
 	void destroy() {
 		long begin = System.currentTimeMillis();
+		
+		// OSGi
+		workbenchReg.unregister();
 
 		nodeHttp = null;
 		nodeSecurity.destroy();
@@ -74,6 +88,14 @@ final class Kernel {
 		long duration = System.currentTimeMillis() - begin;
 		log.info("## ARGEO CMS DOWN in " + (duration / 1000) + "."
 				+ (duration % 1000) + "s ##");
+	}
+
+	private ServiceRegistration<ApplicationConfiguration> registerWorkbench(
+			WorkbenchApplicationConfiguration wac) {
+		Hashtable<String, String> props = new Hashtable<String, String>();
+		props.put(ApplicationLauncher.PROPERTY_CONTEXT_NAME, "ui");
+		return bundleContext.registerService(ApplicationConfiguration.class,
+				wac, props);
 	}
 
 	private void directorsCut() {
