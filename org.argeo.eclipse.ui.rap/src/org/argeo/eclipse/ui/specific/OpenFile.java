@@ -71,7 +71,9 @@ public class OpenFile extends AbstractHandler {
 			log.debug("URL : " + downloadUrl);
 
 		UrlLauncher launcher = RWT.getClient().getService(UrlLauncher.class);
-		launcher.openURL(downloadUrl);
+		// FIXME: find a way to manage correctly the addition of the base
+		// context for the workbench.
+		launcher.openURL("/ui" + downloadUrl);
 
 		// These lines are useless in the current use case but might be
 		// necessary with new browsers. Stored here for memo
