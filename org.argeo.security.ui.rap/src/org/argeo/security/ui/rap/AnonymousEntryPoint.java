@@ -15,15 +15,8 @@
  */
 package org.argeo.security.ui.rap;
 
-import java.security.PrivilegedAction;
-
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
-import org.eclipse.equinox.security.auth.ILoginContext;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.IEntryPoint;
 import org.eclipse.swt.widgets.Display;
@@ -57,62 +50,62 @@ public class AnonymousEntryPoint implements IEntryPoint {
 		final Display display = PlatformUI.createDisplay();
 
 		// log in
-		final ILoginContext loginContext = SecureRapActivator
-				.createLoginContext(SecureRapActivator.CONTEXT_SPRING_ANONYMOUS);
-		Subject subject = null;
-		try {
-			loginContext.login();
-			subject = loginContext.getSubject();
-		} catch (LoginException e) {
-			throw new ArgeoException(
-					"Unexpected exception during authentication", e);
-		}
-
-		// identify after successful login
-		if (log.isDebugEnabled())
-			log.debug("Authenticated " + subject);
-		final String username = subject.getPrincipals().iterator().next()
-				.getName();
-
-		// Once the user is logged in, she can have a longer session timeout
-		RWT.getRequest().getSession().setMaxInactiveInterval(sessionTimeout);
-
-		// Logout callback when the display is disposed
-		display.disposeExec(new Runnable() {
-			public void run() {
-				log.debug("Display disposed");
-				logout(loginContext, username);
-			}
-		});
-
-		//
-		// RUN THE WORKBENCH
-		//
-		Integer returnCode = null;
-		try {
-			returnCode = Subject.doAs(subject, new PrivilegedAction<Integer>() {
-				public Integer run() {
-					RapWorkbenchAdvisor workbenchAdvisor = new RapWorkbenchAdvisor(
-							null);
-					int result = PlatformUI.createAndRunWorkbench(display,
-							workbenchAdvisor);
-					return new Integer(result);
-				}
-			});
-			logout(loginContext, username);
-		} finally {
-			display.dispose();
-		}
-		return returnCode;
+//		final ILoginContext loginContext = SecureRapActivator
+//				.createLoginContext(SecureRapActivator.CONTEXT_SPRING_ANONYMOUS);
+//		Subject subject = null;
+//		try {
+//			loginContext.login();
+//			subject = loginContext.getSubject();
+//		} catch (LoginException e) {
+//			throw new ArgeoException(
+//					"Unexpected exception during authentication", e);
+//		}
+//
+//		// identify after successful login
+//		if (log.isDebugEnabled())
+//			log.debug("Authenticated " + subject);
+//		final String username = subject.getPrincipals().iterator().next()
+//				.getName();
+//
+//		// Once the user is logged in, she can have a longer session timeout
+//		RWT.getRequest().getSession().setMaxInactiveInterval(sessionTimeout);
+//
+//		// Logout callback when the display is disposed
+//		display.disposeExec(new Runnable() {
+//			public void run() {
+//				log.debug("Display disposed");
+//				logout(loginContext, username);
+//			}
+//		});
+//
+//		//
+//		// RUN THE WORKBENCH
+//		//
+//		Integer returnCode = null;
+//		try {
+//			returnCode = Subject.doAs(subject, new PrivilegedAction<Integer>() {
+//				public Integer run() {
+//					RapWorkbenchAdvisor workbenchAdvisor = new RapWorkbenchAdvisor(
+//							null);
+//					int result = PlatformUI.createAndRunWorkbench(display,
+//							workbenchAdvisor);
+//					return new Integer(result);
+//				}
+//			});
+//			logout(loginContext, username);
+//		} finally {
+//			display.dispose();
+//		}
+		return 1;
 	}
 
-	private void logout(ILoginContext secureContext, String username) {
-		try {
-			secureContext.logout();
-			log.info("Logged out " + (username != null ? username : "")
-					+ " (THREAD=" + Thread.currentThread().getId() + ")");
-		} catch (LoginException e) {
-			log.error("Erorr when logging out", e);
-		}
-	}
+//	private void logout(ILoginContext secureContext, String username) {
+//		try {
+//			secureContext.logout();
+//			log.info("Logged out " + (username != null ? username : "")
+//					+ " (THREAD=" + Thread.currentThread().getId() + ")");
+//		} catch (LoginException e) {
+//			log.error("Erorr when logging out", e);
+//		}
+//	}
 }

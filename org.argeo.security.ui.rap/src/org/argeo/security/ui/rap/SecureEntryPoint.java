@@ -29,7 +29,6 @@ import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.workbench.ErrorFeedback;
 import org.argeo.security.ui.dialogs.DefaultLoginDialog;
 import org.argeo.util.LocaleUtils;
-import org.eclipse.equinox.security.auth.ILoginContext;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.EntryPoint;
@@ -107,13 +106,13 @@ public class SecureEntryPoint implements EntryPoint {
 
 				if (subject.getPrincipals(Authentication.class).size() == 0)
 					throw new ArgeoException("Login succeeded but no auth");// fatal
-				
+
 				// add security context to session
 				if (httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) == null)
 					httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
 							SecurityContextHolder.getContext());
 				// add thread locale to RWT session
-				log.info("Locale "+LocaleUtils.threadLocale.get());
+				log.info("Locale " + LocaleUtils.threadLocale.get());
 				RWT.setLocale(LocaleUtils.threadLocale.get());
 
 				// Once the user is logged in, longer session timeout
@@ -162,7 +161,8 @@ public class SecureEntryPoint implements EntryPoint {
 					return new Integer(result);
 				}
 			});
-			// logout(loginContext, username);
+			// Explicit exit from workbench
+			logout(loginModule, username);
 		} finally {
 			display.dispose();
 		}
@@ -214,14 +214,15 @@ public class SecureEntryPoint implements EntryPoint {
 			return null;
 	}
 
-	protected void logout(ILoginContext secureContext, String username) {
+	private void logout(LoginModule loginModule, String username) {
 		try {
+			loginModule.logout();
+			SecurityContextHolder.clearContext();
+
 			HttpServletRequest httpRequest = RWT.getRequest();
 			HttpSession httpSession = httpRequest.getSession();
 			httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, null);
 			RWT.getRequest().getSession().setMaxInactiveInterval(1);
-			SecurityContextHolder.clearContext();
-			secureContext.logout();
 			log.info("Logged out " + (username != null ? username : "")
 					+ " (THREAD=" + Thread.currentThread().getId() + ")");
 		} catch (LoginException e) {

@@ -15,10 +15,6 @@
  */
 package org.argeo.security.ui.rap;
 
-import java.net.URL;
-
-import org.eclipse.equinox.security.auth.ILoginContext;
-import org.eclipse.equinox.security.auth.LoginContextFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -51,9 +47,9 @@ public class SecureRapActivator implements BundleActivator {
 		return activator;
 	}
 
-	static ILoginContext createLoginContext(String contextName) {
-		URL configUrl = getActivator().getBundleContext().getBundle()
-				.getEntry(JAAS_CONFIG_FILE);
-		return LoginContextFactory.createContext(contextName, configUrl);
-	}
+//	static ILoginContext createLoginContext(String contextName) {
+//		URL configUrl = getActivator().getBundleContext().getBundle()
+//				.getEntry(JAAS_CONFIG_FILE);
+//		return LoginContextFactory.createContext(contextName, configUrl);
+//	}
 }
