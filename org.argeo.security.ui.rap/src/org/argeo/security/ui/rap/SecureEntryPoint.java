@@ -19,6 +19,7 @@ import java.security.PrivilegedAction;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -26,13 +27,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.workbench.ErrorFeedback;
-import org.argeo.util.LocaleUtils;
+import org.argeo.security.ui.dialogs.DefaultLoginDialog;
 import org.eclipse.equinox.security.auth.ILoginContext;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.application.IEntryPoint;
+import org.eclipse.rap.rwt.application.EntryPoint;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
+import org.osgi.framework.BundleContext;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,7 +43,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * authenticated, the workbench is run as a privileged action by the related
  * subject.
  */
-public class SecureEntryPoint implements IEntryPoint {
+public class SecureEntryPoint implements EntryPoint {
 	private final static Log log = LogFactory.getLog(SecureEntryPoint.class);
 
 	/**
@@ -80,48 +81,61 @@ public class SecureEntryPoint implements IEntryPoint {
 			SecurityContextHolder
 					.setContext((SecurityContext) contextFromSessionObject);
 
-//		if (log.isDebugEnabled())
-//			log.debug("THREAD=" + Thread.currentThread().getId()
-//					+ ", sessionStore=" + RWT.getSessionStore().getId()
-//					+ ", remote user=" + httpRequest.getRemoteUser());
+		// if (log.isDebugEnabled())
+		// log.debug("THREAD=" + Thread.currentThread().getId()
+		// + ", sessionStore=" + RWT.getSessionStore().getId()
+		// + ", remote user=" + httpRequest.getRemoteUser());
 
 		// create display
 		final Display display = PlatformUI.createDisplay();
+		Subject subject = new Subject();
 
 		// log in
-		final ILoginContext loginContext = SecureRapActivator
-				.createLoginContext(SecureRapActivator.CONTEXT_SPRING);
-		Subject subject = null;
-		tryLogin: while (subject == null && !display.isDisposed()) {
-			try {
-				loginContext.login();
-				subject = loginContext.getSubject();
-
-				// add security context to session
-				if (httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) == null)
-					httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
-							SecurityContextHolder.getContext());
-				// add thread locale to RWT session
-				log.info("Locale "+LocaleUtils.threadLocale.get());
-				RWT.setLocale(LocaleUtils.threadLocale.get());
-
-				// Once the user is logged in, she can have a longer session
-				// timeout
-				RWT.getRequest().getSession()
-						.setMaxInactiveInterval(sessionTimeout);
-				if (log.isDebugEnabled())
-					log.debug("Authenticated " + subject);
-			} catch (LoginException e) {
-				BadCredentialsException bce = wasCausedByBadCredentials(e);
-				if (bce != null) {
-					MessageDialog.openInformation(display.getActiveShell(),
-							"Bad Credentials", bce.getMessage());
-					// retry login
-					continue tryLogin;
-				}
-				return processLoginDeath(display, e);
+		BundleContext bc = SecureRapActivator.getActivator().getBundleContext();
+		final LoginModule loginModule = bc.getService(bc
+				.getServiceReference(LoginModule.class));
+		loginModule.initialize(subject,
+				new DefaultLoginDialog(display.getActiveShell()), null, null);
+		try {
+			if (!loginModule.login()) {
+				throw new ArgeoException("Login failed");
 			}
+		} catch (LoginException e1) {
+			throw new ArgeoException("Login failed", e1);
 		}
+
+		// final ILoginContext loginContext = SecureRapActivator
+		// .createLoginContext(SecureRapActivator.CONTEXT_SPRING);
+		// tryLogin: while (subject == null && !display.isDisposed()) {
+		// try {
+		// loginContext.login();
+		// subject = loginContext.getSubject();
+		//
+		// // add security context to session
+		// if (httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) == null)
+		// httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
+		// SecurityContextHolder.getContext());
+		// // add thread locale to RWT session
+		// log.info("Locale " + LocaleUtils.threadLocale.get());
+		// RWT.setLocale(LocaleUtils.threadLocale.get());
+		//
+		// // Once the user is logged in, she can have a longer session
+		// // timeout
+		// RWT.getRequest().getSession()
+		// .setMaxInactiveInterval(sessionTimeout);
+		// if (log.isDebugEnabled())
+		// log.debug("Authenticated " + subject);
+		// } catch (LoginException e) {
+		// BadCredentialsException bce = wasCausedByBadCredentials(e);
+		// if (bce != null) {
+		// MessageDialog.openInformation(display.getActiveShell(),
+		// "Bad Credentials", bce.getMessage());
+		// // retry login
+		// continue tryLogin;
+		// }
+		// return processLoginDeath(display, e);
+		// }
+		// }
 
 		final String username = subject.getPrincipals().iterator().next()
 				.getName();
@@ -129,7 +143,12 @@ public class SecureEntryPoint implements IEntryPoint {
 		display.disposeExec(new Runnable() {
 			public void run() {
 				log.debug("Display disposed");
-				logout(loginContext, username);
+				// logout(loginContext, username);
+				try {
+					loginModule.logout();
+				} catch (LoginException e) {
+					log.error("Error when logging out", e);
+				}
 			}
 		});
 

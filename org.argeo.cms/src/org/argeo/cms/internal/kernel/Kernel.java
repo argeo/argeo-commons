@@ -30,6 +30,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @SuppressWarnings("restriction")
 final class Kernel {
 	private final static Log log = LogFactory.getLog(Kernel.class);
+	private static final String PROP_WORKBENCH_AUTOSTART = "org.eclipse.rap.workbenchAutostart";
 
 	private final BundleContext bundleContext;
 
@@ -55,7 +56,6 @@ final class Kernel {
 			repositoryFactory = new OsgiJackrabbitRepositoryFactory();
 			nodeSecurity = new NodeSecurity(bundleContext, node);
 			nodeHttp = new NodeHttp(bundleContext, node, nodeSecurity);
-			WorkbenchApplicationConfiguration wac = new WorkbenchApplicationConfiguration();
 
 			// Publish services to OSGi
 			nodeSecurity.publish();
@@ -63,7 +63,12 @@ final class Kernel {
 			bundleContext.registerService(RepositoryFactory.class,
 					repositoryFactory, null);
 			nodeHttp.publish();
-			registerWorkbench(wac);
+
+			if ("false".equals(bundleContext
+					.getProperty(PROP_WORKBENCH_AUTOSTART))) {
+				WorkbenchApplicationConfiguration wac = new WorkbenchApplicationConfiguration();
+				registerWorkbench(wac);
+			}
 		} catch (Exception e) {
 			log.error("Cannot initialize Argeo CMS", e);
 			throw new ArgeoException("Cannot initialize", e);
@@ -77,7 +82,7 @@ final class Kernel {
 
 	void destroy() {
 		long begin = System.currentTimeMillis();
-		
+
 		// OSGi
 		workbenchReg.unregister();
 
@@ -90,12 +95,15 @@ final class Kernel {
 				+ (duration % 1000) + "s ##");
 	}
 
-	private ServiceRegistration<ApplicationConfiguration> registerWorkbench(
-			WorkbenchApplicationConfiguration wac) {
-		Hashtable<String, String> props = new Hashtable<String, String>();
-		props.put(ApplicationLauncher.PROPERTY_CONTEXT_NAME, "ui");
-		return bundleContext.registerService(ApplicationConfiguration.class,
-				wac, props);
+	private void registerWorkbench(final WorkbenchApplicationConfiguration wac) {
+		new Thread("Worbench Launcher") {
+			public void run() {
+				Hashtable<String, String> props = new Hashtable<String, String>();
+				props.put(ApplicationLauncher.PROPERTY_CONTEXT_NAME, "ui");
+				workbenchReg = bundleContext.registerService(
+						ApplicationConfiguration.class, wac, props);
+			}
+		}.start();
 	}
 
 	private void directorsCut() {

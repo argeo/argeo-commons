@@ -1,6 +1,7 @@
 package org.argeo.security.jcr.jackrabbit;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -301,9 +302,10 @@ public class JackrabbitUserAdminService implements UserAdminService,
 			Authentication authentication) throws AuthenticationException {
 		UsernamePasswordAuthenticationToken siteAuth = (UsernamePasswordAuthenticationToken) authentication;
 		String username = siteAuth.getName();
+		char[] password = (char[]) siteAuth.getCredentials();
 		try {
 			SimpleCredentials sp = new SimpleCredentials(siteAuth.getName(),
-					siteAuth.getCredentials().toString().toCharArray());
+					password);
 			User user = (User) getUserManager().getAuthorizable(username);
 			if (user == null)
 				throw new BadCredentialsException("Bad credentials");
@@ -323,6 +325,8 @@ public class JackrabbitUserAdminService implements UserAdminService,
 		} catch (Exception e) {
 			throw new BadCredentialsException(
 					"Cannot authenticate " + siteAuth, e);
+		} finally {
+			Arrays.fill(password, '*');
 		}
 
 		try {
