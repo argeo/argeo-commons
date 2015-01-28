@@ -28,13 +28,16 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.workbench.ErrorFeedback;
 import org.argeo.security.ui.dialogs.DefaultLoginDialog;
+import org.argeo.util.LocaleUtils;
 import org.eclipse.equinox.security.auth.ILoginContext;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.EntryPoint;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.BundleContext;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -96,49 +99,43 @@ public class SecureEntryPoint implements EntryPoint {
 				.getServiceReference(LoginModule.class));
 		loginModule.initialize(subject,
 				new DefaultLoginDialog(display.getActiveShell()), null, null);
-		try {
-			if (!loginModule.login()) {
-				throw new ArgeoException("Login failed");
+		tryLogin: while (subject.getPrincipals(Authentication.class).size() == 0) {
+			try {
+				if (!loginModule.login()) {
+					throw new ArgeoException("Login failed");
+				}
+
+				if (subject.getPrincipals(Authentication.class).size() == 0)
+					throw new ArgeoException("Login succeeded but no auth");// fatal
+				
+				// add security context to session
+				if (httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) == null)
+					httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
+							SecurityContextHolder.getContext());
+				// add thread locale to RWT session
+				log.info("Locale "+LocaleUtils.threadLocale.get());
+				RWT.setLocale(LocaleUtils.threadLocale.get());
+
+				// Once the user is logged in, longer session timeout
+				RWT.getRequest().getSession()
+						.setMaxInactiveInterval(sessionTimeout);
+
+				if (log.isDebugEnabled())
+					log.debug("Authenticated " + subject);
+			} catch (LoginException e) {
+				BadCredentialsException bce = wasCausedByBadCredentials(e);
+				if (bce != null) {
+					MessageDialog.openInformation(display.getActiveShell(),
+							"Bad Credentials", bce.getMessage());
+					// retry login
+					continue tryLogin;
+				}
+				return processLoginDeath(display, e);
 			}
-		} catch (LoginException e1) {
-			throw new ArgeoException("Login failed", e1);
 		}
 
-		// final ILoginContext loginContext = SecureRapActivator
-		// .createLoginContext(SecureRapActivator.CONTEXT_SPRING);
-		// tryLogin: while (subject == null && !display.isDisposed()) {
-		// try {
-		// loginContext.login();
-		// subject = loginContext.getSubject();
-		//
-		// // add security context to session
-		// if (httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) == null)
-		// httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
-		// SecurityContextHolder.getContext());
-		// // add thread locale to RWT session
-		// log.info("Locale " + LocaleUtils.threadLocale.get());
-		// RWT.setLocale(LocaleUtils.threadLocale.get());
-		//
-		// // Once the user is logged in, she can have a longer session
-		// // timeout
-		// RWT.getRequest().getSession()
-		// .setMaxInactiveInterval(sessionTimeout);
-		// if (log.isDebugEnabled())
-		// log.debug("Authenticated " + subject);
-		// } catch (LoginException e) {
-		// BadCredentialsException bce = wasCausedByBadCredentials(e);
-		// if (bce != null) {
-		// MessageDialog.openInformation(display.getActiveShell(),
-		// "Bad Credentials", bce.getMessage());
-		// // retry login
-		// continue tryLogin;
-		// }
-		// return processLoginDeath(display, e);
-		// }
-		// }
-
-		final String username = subject.getPrincipals().iterator().next()
-				.getName();
+		final String username = subject.getPrincipals(Authentication.class)
+				.iterator().next().getName();
 		// Logout callback when the display is disposed
 		display.disposeExec(new Runnable() {
 			public void run() {

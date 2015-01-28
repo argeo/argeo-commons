@@ -42,7 +42,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Login module which caches one subject per thread. */
-public class SpringLoginModule extends SecurityContextLoginModule {
+class SpringLoginModule extends SecurityContextLoginModule {
 	final static String NODE_REPO_URI = "argeo.node.repo.uri";
 
 	private final static Log log = LogFactory.getLog(SpringLoginModule.class);
@@ -78,8 +78,21 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 	public boolean login() throws LoginException {
 		try {
 			// thread already logged in
-			if (SecurityContextHolder.getContext().getAuthentication() != null)
+			Authentication currentAuth = SecurityContextHolder.getContext()
+					.getAuthentication();
+			if (currentAuth != null) {
+				if (subject.getPrincipals(Authentication.class).size() == 0) {
+					subject.getPrincipals().add(currentAuth);
+				} else {
+					Authentication principal = subject
+							.getPrincipals(Authentication.class).iterator()
+							.next();
+					if (principal != currentAuth)
+						throw new LoginException(
+								"Already authenticated with a different auth");
+				}
 				return super.login();
+			}
 
 			if (remote && anonymous)
 				throw new LoginException(
