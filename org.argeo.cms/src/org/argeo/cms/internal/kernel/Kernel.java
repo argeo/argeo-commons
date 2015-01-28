@@ -1,7 +1,5 @@
 package org.argeo.cms.internal.kernel;
 
-import java.util.Hashtable;
-
 import javax.jcr.RepositoryFactory;
 
 import org.apache.commons.logging.Log;
@@ -10,8 +8,6 @@ import org.argeo.ArgeoException;
 import org.argeo.jackrabbit.OsgiJackrabbitRepositoryFactory;
 import org.argeo.security.core.InternalAuthentication;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
-import org.eclipse.rap.rwt.osgi.ApplicationLauncher;
-import org.eclipse.rap.ui.internal.servlet.WorkbenchApplicationConfiguration;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,10 +23,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * <li>OS access</li>
  * </ul>
  */
-@SuppressWarnings("restriction")
 final class Kernel {
 	private final static Log log = LogFactory.getLog(Kernel.class);
-	private static final String PROP_WORKBENCH_AUTOSTART = "org.eclipse.rap.workbenchAutostart";
+//	private static final String PROP_WORKBENCH_AUTOSTART = "org.eclipse.rap.workbenchAutostart";
 
 	private final BundleContext bundleContext;
 
@@ -64,11 +59,11 @@ final class Kernel {
 					repositoryFactory, null);
 			nodeHttp.publish();
 
-			if ("false".equals(bundleContext
-					.getProperty(PROP_WORKBENCH_AUTOSTART))) {
-				WorkbenchApplicationConfiguration wac = new WorkbenchApplicationConfiguration();
-				registerWorkbench(wac);
-			}
+//			if ("false".equals(bundleContext
+//					.getProperty(PROP_WORKBENCH_AUTOSTART))) {
+//				WorkbenchApplicationConfiguration wac = new WorkbenchApplicationConfiguration();
+//				registerWorkbench(wac);
+//			}
 		} catch (Exception e) {
 			log.error("Cannot initialize Argeo CMS", e);
 			throw new ArgeoException("Cannot initialize", e);
@@ -95,16 +90,16 @@ final class Kernel {
 				+ (duration % 1000) + "s ##");
 	}
 
-	private void registerWorkbench(final WorkbenchApplicationConfiguration wac) {
-		new Thread("Worbench Launcher") {
-			public void run() {
-				Hashtable<String, String> props = new Hashtable<String, String>();
-				props.put(ApplicationLauncher.PROPERTY_CONTEXT_NAME, "ui");
-				workbenchReg = bundleContext.registerService(
-						ApplicationConfiguration.class, wac, props);
-			}
-		}.start();
-	}
+//	private void registerWorkbench(final WorkbenchApplicationConfiguration wac) {
+//		new Thread("Worbench Launcher") {
+//			public void run() {
+//				Hashtable<String, String> props = new Hashtable<String, String>();
+//				props.put(ApplicationLauncher.PROPERTY_CONTEXT_NAME, "ui");
+//				workbenchReg = bundleContext.registerService(
+//						ApplicationConfiguration.class, wac, props);
+//			}
+//		}.start();
+//	}
 
 	private void directorsCut() {
 		final long ms = 128l + (long) (Math.random() * 128d);

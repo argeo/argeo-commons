@@ -44,6 +44,7 @@
 		<module>org.argeo.cms</module>
 		<!-- Workbench -->
 		<module>org.argeo.eclipse.ui.workbench</module>
+		<module>org.argeo.eclipse.ui.workbench.rap</module>
 		<!-- <module>org.argeo.security.equinox</module> -->
 		<module>org.argeo.security.ui</module>
 		<module>org.argeo.security.ui.admin</module>
