@@ -21,12 +21,12 @@
             path="/publicWebUi"
             brandingId="org.argeo.security.ui.rap.defaultBranding">
       </entrypoint>
-      <entrypoint
+    <!--   <entrypoint
             id="org.argeo.security.ui.rap.logoutEntryPoint"
             class="org.argeo.security.ui.rap.LogoutEntryPoint"
             path="/logout"
             brandingId="org.argeo.security.ui.rap.logoutBranding">
-      </entrypoint>
+      </entrypoint> -->
       <entrypoint
             id="org.argeo.security.ui.rap.nullEntryPoint"
             class="org.argeo.security.ui.rap.NullEntryPoint"
