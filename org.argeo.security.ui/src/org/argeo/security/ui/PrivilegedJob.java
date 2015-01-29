@@ -24,6 +24,10 @@ public abstract class PrivilegedJob extends Job {
 		super(jobName);
 		authentication = SecurityContextHolder.getContext().getAuthentication();
 		subject = Subject.getSubject(AccessController.getContext());
+
+		// Must be called *before* the job is scheduled,
+		// it is required for the progress window to appear
+		setUser(true);
 	}
 
 	@Override
