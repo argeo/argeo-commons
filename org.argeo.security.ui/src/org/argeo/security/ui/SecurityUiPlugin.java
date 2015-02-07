@@ -43,6 +43,7 @@ public class SecurityUiPlugin extends AbstractUIPlugin {
 	private ServiceRegistration defaultCallbackHandlerReg;
 
 	private static SecurityUiPlugin plugin;
+	private static BundleContext bundleContext;
 
 	public static InheritableThreadLocal<Display> display = new InheritableThreadLocal<Display>() {
 
@@ -55,6 +56,7 @@ public class SecurityUiPlugin extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		bundleContext = context;
 
 		defaultCallbackHandler = new DefaultCallbackHandler();
 		defaultCallbackHandlerReg = context.registerService(
@@ -63,6 +65,7 @@ public class SecurityUiPlugin extends AbstractUIPlugin {
 
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
+		bundleContext = null;
 		defaultCallbackHandlerReg.unregister();
 		super.stop(context);
 	}
@@ -74,6 +77,10 @@ public class SecurityUiPlugin extends AbstractUIPlugin {
 	 */
 	public static SecurityUiPlugin getDefault() {
 		return plugin;
+	}
+
+	public static BundleContext getBundleContext() {
+		return bundleContext;
 	}
 
 	public static ImageDescriptor getImageDescriptor(String path) {

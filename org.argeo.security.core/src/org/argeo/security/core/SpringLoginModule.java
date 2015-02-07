@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.cms.internal.kernel;
+package org.argeo.security.core;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.security.NodeAuthenticationToken;
 import org.argeo.util.LocaleCallback;
 import org.argeo.util.LocaleUtils;
+import org.osgi.framework.BundleContext;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -42,12 +43,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Login module which caches one subject per thread. */
-class SpringLoginModule extends SecurityContextLoginModule {
+public class SpringLoginModule extends SecurityContextLoginModule {
 	final static String NODE_REPO_URI = "argeo.node.repo.uri";
 
 	private final static Log log = LogFactory.getLog(SpringLoginModule.class);
 
-	private AuthenticationManager authenticationManager;
+	// private AuthenticationManager authenticationManager;
 
 	private CallbackHandler callbackHandler;
 
@@ -109,6 +110,9 @@ class SpringLoginModule extends SecurityContextLoginModule {
 			Locale selectedLocale = null;
 			// deals first with public access since it's simple
 			if (anonymous) {
+				// FIXME Is this code still needed?
+				AuthenticationManager authenticationManager = null;
+
 				// multi locale
 				if (callbackHandler != null && availableLocales != null
 						&& !availableLocales.trim().equals("")) {
@@ -142,14 +146,17 @@ class SpringLoginModule extends SecurityContextLoginModule {
 						defaultNodeUrl);
 				LocaleCallback localeCallback = new LocaleCallback(
 						availableLocales);
+				BundleContextCallback bundleContextCallback = new BundleContextCallback();
 
 				// handle callbacks
 				if (remote)
 					callbackHandler.handle(new Callback[] { nameCallback,
-							passwordCallback, urlCallback, localeCallback });
+							passwordCallback, urlCallback, localeCallback,
+							bundleContextCallback });
 				else
 					callbackHandler.handle(new Callback[] { nameCallback,
-							passwordCallback, localeCallback });
+							passwordCallback, localeCallback,
+							bundleContextCallback });
 
 				selectedLocale = localeCallback.getSelectedLocale();
 
@@ -171,6 +178,10 @@ class SpringLoginModule extends SecurityContextLoginModule {
 					credentials = new NodeAuthenticationToken(username,
 							password);
 				}
+
+				BundleContext bc = bundleContextCallback.getBundleContext();
+				AuthenticationManager authenticationManager = bc.getService(bc
+						.getServiceReference(AuthenticationManager.class));
 
 				Authentication authentication;
 				try {
@@ -210,6 +221,16 @@ class SpringLoginModule extends SecurityContextLoginModule {
 		return super.logout();
 	}
 
+	@Override
+	public boolean commit() throws LoginException {
+		return super.commit();
+	}
+
+	@Override
+	public boolean abort() throws LoginException {
+		return super.abort();
+	}
+
 	/**
 	 * Register an {@link Authentication} in the security context.
 	 * 
@@ -221,10 +242,10 @@ class SpringLoginModule extends SecurityContextLoginModule {
 				(Authentication) authentication);
 	}
 
-	public void setAuthenticationManager(
-			AuthenticationManager authenticationManager) {
-		this.authenticationManager = authenticationManager;
-	}
+	// public void setAuthenticationManager(
+	// AuthenticationManager authenticationManager) {
+	// this.authenticationManager = authenticationManager;
+	// }
 
 	/** Authenticates on a remote node */
 	public void setRemote(Boolean remote) {

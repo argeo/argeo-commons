@@ -1,7 +1,8 @@
 package org.argeo.cms.internal.kernel;
 
+import java.net.URL;
+
 import javax.jcr.RepositoryException;
-import javax.security.auth.spi.LoginModule;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -9,11 +10,8 @@ import org.argeo.cms.CmsException;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.core.InternalAuthentication;
 import org.argeo.security.core.InternalAuthenticationProvider;
-import org.argeo.security.core.ThreadedLoginModule;
 import org.argeo.security.jcr.SimpleJcrSecurityModel;
 import org.argeo.security.jcr.jackrabbit.JackrabbitUserAdminService;
-import org.eclipse.rap.rwt.RWT;
-import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.springframework.security.authentication.AnonymousAuthenticationProvider;
@@ -33,15 +31,18 @@ class NodeSecurity implements AuthenticationManager {
 	private final InternalAuthenticationProvider internalAuth;
 	private final AnonymousAuthenticationProvider anonymousAuth;
 	private final JackrabbitUserAdminService jackrabbitUserAdmin;
-	private Login loginModule;
 
 	private ServiceRegistration<AuthenticationManager> authenticationManagerReg;
 	private ServiceRegistration<UserAdminService> userAdminReg;
 	private ServiceRegistration<UserDetailsManager> userDetailsManagerReg;
-	private ServiceRegistration<LoginModule> loginModuleReg;
 
 	public NodeSecurity(BundleContext bundleContext, JackrabbitNode node)
 			throws RepositoryException {
+		URL url = getClass().getClassLoader().getResource(
+				KernelConstants.JAAS_CONFIG);
+		System.setProperty("java.security.auth.login.config",
+				url.toExternalForm());
+
 		this.bundleContext = bundleContext;
 
 		internalAuth = new InternalAuthenticationProvider(
@@ -54,8 +55,6 @@ class NodeSecurity implements AuthenticationManager {
 		jackrabbitUserAdmin.setRepository(node);
 		jackrabbitUserAdmin.setSecurityModel(new SimpleJcrSecurityModel());
 		jackrabbitUserAdmin.init();
-
-		loginModule = new Login();
 	}
 
 	public void publish() {
@@ -68,9 +67,6 @@ class NodeSecurity implements AuthenticationManager {
 		// userAdminReg =
 		// bundleContext.registerService(UserDetailsService.class,
 		// jackrabbitUserAdmin, null);
-
-		loginModuleReg = bundleContext.registerService(LoginModule.class,
-				loginModule, null);
 	}
 
 	void destroy() {
@@ -82,7 +78,6 @@ class NodeSecurity implements AuthenticationManager {
 		userDetailsManagerReg.unregister();
 		userAdminReg.unregister();
 		authenticationManagerReg.unregister();
-		loginModuleReg.unregister();
 	}
 
 	@Override
@@ -98,19 +93,5 @@ class NodeSecurity implements AuthenticationManager {
 		if (auth == null)
 			throw new CmsException("Could not authenticate " + authentication);
 		return auth;
-	}
-
-	private class Login extends ThreadedLoginModule {
-
-		@Override
-		protected LoginModule createLoginModule() {
-			SpringLoginModule springLoginModule = new SpringLoginModule();
-			springLoginModule.setAuthenticationManager(NodeSecurity.this);
-			if (Display.getCurrent() != null) {
-
-			}
-			return springLoginModule;
-		}
-
 	}
 }

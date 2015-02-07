@@ -18,8 +18,8 @@ package org.argeo.security.ui.rap;
 import java.security.PrivilegedAction;
 
 import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -34,7 +34,6 @@ import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.EntryPoint;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
-import org.osgi.framework.BundleContext;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -93,16 +92,27 @@ public class SecureEntryPoint implements EntryPoint {
 		Subject subject = new Subject();
 
 		// log in
-		BundleContext bc = SecureRapActivator.getActivator().getBundleContext();
-		final LoginModule loginModule = bc.getService(bc
-				.getServiceReference(LoginModule.class));
-		loginModule.initialize(subject,
-				new DefaultLoginDialog(display.getActiveShell()), null, null);
+		// BundleContext bc =
+		// SecureRapActivator.getActivator().getBundleContext();
+		Thread.currentThread().setContextClassLoader(
+				getClass().getClassLoader());
+		final LoginContext loginContext;
+		try {
+			loginContext = new LoginContext(SPRING_SECURITY_CONTEXT_KEY,
+					subject, new DefaultLoginDialog(display.getActiveShell()));
+		} catch (LoginException e1) {
+			throw new ArgeoException("Cannot initialize login context", e1);
+		}
+		// final LoginModule loginModule = bc.getService(bc
+		// .getServiceReference(LoginModule.class));
+		// loginModule.initialize(subject,
+		// new DefaultLoginDialog(display.getActiveShell()), null, null);
 		tryLogin: while (subject.getPrincipals(Authentication.class).size() == 0) {
 			try {
-				if (!loginModule.login()) {
-					throw new ArgeoException("Login failed");
-				}
+				loginContext.login();
+				// if () {
+				// throw new ArgeoException("Login failed");
+				// }
 
 				if (subject.getPrincipals(Authentication.class).size() == 0)
 					throw new ArgeoException("Login succeeded but no auth");// fatal
@@ -141,7 +151,7 @@ public class SecureEntryPoint implements EntryPoint {
 				log.debug("Display disposed");
 				// logout(loginContext, username);
 				try {
-					loginModule.logout();
+					loginContext.logout();
 				} catch (LoginException e) {
 					log.error("Error when logging out", e);
 				}
@@ -162,7 +172,7 @@ public class SecureEntryPoint implements EntryPoint {
 				}
 			});
 			// Explicit exit from workbench
-			logout(loginModule, username);
+			logout(loginContext, username);
 		} finally {
 			display.dispose();
 		}
@@ -214,9 +224,9 @@ public class SecureEntryPoint implements EntryPoint {
 			return null;
 	}
 
-	private void logout(LoginModule loginModule, String username) {
+	private void logout(LoginContext loginContext, String username) {
 		try {
-			loginModule.logout();
+			loginContext.logout();
 			SecurityContextHolder.clearContext();
 
 			HttpServletRequest httpRequest = RWT.getRequest();

@@ -21,6 +21,7 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.TextOutputCallback;
 
+import org.argeo.security.core.BundleContextCallback;
 import org.argeo.security.ui.SecurityUiPlugin;
 import org.argeo.util.LocaleCallback;
 import org.eclipse.swt.SWT;
@@ -95,6 +96,9 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 				createPasswordHandler(composite, (PasswordCallback) callback);
 			} else if (callback instanceof LocaleCallback) {
 				createLocaleHandler(composite, (LocaleCallback) callback);
+			} else if (callback instanceof BundleContextCallback) {
+				((BundleContextCallback) callback)
+						.setBundleContext(SecurityUiPlugin.getBundleContext());
 			}
 		}
 	}

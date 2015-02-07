@@ -17,6 +17,7 @@ interface KernelConstants {
 	final static String DEFAULT_SECURITY_KEY = "argeo";
 	final static String ANONYMOUS_USER = "anonymous";
 	final static String ADMIN_USER = "root";
+	final static String JAAS_CONFIG = "/org/argeo/cms/internal/kernel/jaas.cfg";
 
 	// Roles
 	final static String ROLE_USER = "ROLE_USER";
