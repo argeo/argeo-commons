@@ -40,7 +40,7 @@ public class CmsLogin {
 
 	protected void logInWithPassword(String username, char[] password) {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				username, new String(password));
+				username, password);
 		Authentication authentication = authenticationManager
 				.authenticate(token);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
