@@ -70,30 +70,8 @@
 			file="theme/defaultExt.css" /> 
 	</extension> -->
 
-	<extension
-		point="org.eclipse.equinox.security.callbackHandlerMapping">
-		<callbackHandlerMapping
-            callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
-            configName="SPRING">
-		</callbackHandlerMapping>
-	</extension>
-	<extension
-		point="org.eclipse.equinox.security.callbackHandlerMapping">
-		<callbackHandlerMapping
-			callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
-			configName="NIX">
-		</callbackHandlerMapping>
-	</extension>
-	<extension
-         point="org.eclipse.equinox.security.callbackHandlerMapping">
-      <callbackHandlerMapping
-            callbackHandlerId="org.argeo.security.ui.defaultLoginDialog"
-            configName="SPRING_SECURITY_CONTEXT">
-      </callbackHandlerMapping>
-   </extension>
-
   <extension point="org.eclipse.ui.menus">
-    <!--       <menuContribution locationURI="toolbar:org.eclipse.ui.main.toolbar">
+    <menuContribution locationURI="toolbar:org.eclipse.ui.main.toolbar">
         <toolbar id="org.argeo.security.ui.rap.userToolbar">
            <command
                  commandId="org.argeo.security.ui.rap.mainMenuCommand"
@@ -133,10 +111,8 @@
         </separator>-->
         <!--<command commandId="org.eclipse.ui.views.showView"/>-->
         <!--<command commandId="org.eclipse.ui.perspectives.showPerspective"/>-->
-        <!-- <command
-              commandId="org.eclipse.ui.file.exit"
-              icon="icons/exit.png"/>
-     </menuContribution> -->
+        <command commandId="org.eclipse.ui.file.exit" icon="icons/exit.png"/>
+     </menuContribution>
   </extension>
 
 	<!-- COMMANDS --> 
