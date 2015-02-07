@@ -27,6 +27,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,18 +38,15 @@ import org.osgi.framework.BundleContext;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.jaas.SecurityContextLoginModule;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Login module which caches one subject per thread. */
-public class SpringLoginModule extends SecurityContextLoginModule {
+public class SpringLoginModule implements LoginModule {
 	final static String NODE_REPO_URI = "argeo.node.repo.uri";
 
 	private final static Log log = LogFactory.getLog(SpringLoginModule.class);
-
-	// private AuthenticationManager authenticationManager;
 
 	private CallbackHandler callbackHandler;
 
@@ -71,7 +69,6 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 	@SuppressWarnings("rawtypes")
 	public void initialize(Subject subject, CallbackHandler callbackHandler,
 			Map sharedState, Map options) {
-		super.initialize(subject, callbackHandler, sharedState, options);
 		this.callbackHandler = callbackHandler;
 		this.subject = subject;
 	}
@@ -92,7 +89,7 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 						throw new LoginException(
 								"Already authenticated with a different auth");
 				}
-				return super.login();
+				return true;
 			}
 
 			if (remote && anonymous)
@@ -199,7 +196,7 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 			if (selectedLocale != null)
 				LocaleUtils.threadLocale.set(selectedLocale);
 
-			return super.login();
+			return true;
 		} catch (LoginException e) {
 			throw e;
 		} catch (ThreadDeath e) {
@@ -218,17 +215,17 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 	@Override
 	public boolean logout() throws LoginException {
 		subject.getPrincipals().clear();
-		return super.logout();
+		return true;
 	}
 
 	@Override
 	public boolean commit() throws LoginException {
-		return super.commit();
+		return true;
 	}
 
 	@Override
 	public boolean abort() throws LoginException {
-		return super.abort();
+		return true;
 	}
 
 	/**
@@ -241,11 +238,6 @@ public class SpringLoginModule extends SecurityContextLoginModule {
 		SecurityContextHolder.getContext().setAuthentication(
 				(Authentication) authentication);
 	}
-
-	// public void setAuthenticationManager(
-	// AuthenticationManager authenticationManager) {
-	// this.authenticationManager = authenticationManager;
-	// }
 
 	/** Authenticates on a remote node */
 	public void setRemote(Boolean remote) {
