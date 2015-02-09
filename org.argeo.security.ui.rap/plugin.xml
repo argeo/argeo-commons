@@ -70,7 +70,7 @@
 			file="theme/defaultExt.css" /> 
 	</extension> -->
 
-  <extension point="org.eclipse.ui.menus">
+  <!-- <extension point="org.eclipse.ui.menus">
     <menuContribution locationURI="toolbar:org.eclipse.ui.main.toolbar">
         <toolbar id="org.argeo.security.ui.rap.userToolbar">
            <command
@@ -108,12 +108,14 @@
         <separator
               name="org.argeo.security.ui.rap.beforeExit"
               visible="true">
-        </separator>-->
-        <!--<command commandId="org.eclipse.ui.views.showView"/>-->
-        <!--<command commandId="org.eclipse.ui.perspectives.showPerspective"/>-->
+        </separator>
         <command commandId="org.eclipse.ui.file.exit" icon="icons/exit.png"/>
      </menuContribution>
-  </extension>
+  </extension> -->
+		
+        <!--<command commandId="org.eclipse.ui.views.showView"/>-->
+        <!--<command commandId="org.eclipse.ui.perspectives.showPerspective"/>-->
+
 
 	<!-- COMMANDS --> 
 	<extension point="org.eclipse.ui.commands">
