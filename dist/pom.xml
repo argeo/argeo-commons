@@ -8,7 +8,7 @@
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>dist</artifactId>
-	<name>Commons Distributions</name>
+	<name>Commons Deployable Distributions</name>
 	<packaging>pom</packaging>
 	<modules>
 		<module>osgi-boot</module>

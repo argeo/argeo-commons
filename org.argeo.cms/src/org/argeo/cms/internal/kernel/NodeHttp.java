@@ -15,8 +15,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.internal.kernel.NodeHttp.AnonymousFilter;
-import org.argeo.cms.internal.kernel.NodeHttp.DavFilter;
 import org.argeo.jackrabbit.servlet.OpenInViewSessionProvider;
 import org.argeo.jackrabbit.servlet.RemotingServlet;
 import org.argeo.jackrabbit.servlet.WebdavServlet;
@@ -52,7 +50,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	private String httpAuthRealm = "Argeo";
 
 	// Filters
-	private final RootFilter rootFilter;
+	// private final RootFilter rootFilter;
 
 	// remoting
 	private OpenInViewSessionProvider sessionProvider;
@@ -81,7 +79,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 					+ ExtendedHttpService.class + " service.");
 
 		// Filters
-		rootFilter = new RootFilter();
+		// rootFilter = new RootFilter();
 
 		// DAV
 		sessionProvider = new OpenInViewSessionProvider();

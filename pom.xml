@@ -25,30 +25,18 @@
 		<!-- Security -->
 		<module>org.argeo.security.core</module>
 		<module>org.argeo.security.jackrabbit</module>
-		<module>org.argeo.security.ldap</module>
-		<!-- Security Services -->
-		<!-- <module>org.argeo.security.auth.ldap</module> -->
-		<!-- <module>org.argeo.security.dao.ldap</module> -->
-		<!-- <module>org.argeo.security.dao.cli</module> -->
-		<!-- <module>org.argeo.security.dao.jackrabbit</module> -->
-		<!-- Server -->
-		<module>org.argeo.server.core</module>
-		<!-- <module>org.argeo.server.jcr.mvc</module> -->
-		<module>org.argeo.server.jackrabbit</module>
 		<!-- Eclipse -->
 		<module>org.argeo.eclipse.ui</module>
 		<module>org.argeo.eclipse.ui.rap</module>
-		<!-- Argeo Node -->
-		<!-- <module>org.argeo.node.repo.jackrabbit</module> -->
+		<!-- CMS -->
 		<module>org.argeo.cms</module>
 		<!-- Workbench -->
 		<module>org.argeo.eclipse.ui.workbench</module>
 		<module>org.argeo.eclipse.ui.workbench.rap</module>
-		<!-- <module>org.argeo.security.equinox</module> -->
 		<module>org.argeo.security.ui</module>
 		<module>org.argeo.security.ui.admin</module>
 		<module>org.argeo.security.ui.rap</module>
-		<!-- Dependencies and Distributions -->
+		<!-- Distribution -->
 		<module>dep</module>
 		<module>dist</module>
 	</modules>

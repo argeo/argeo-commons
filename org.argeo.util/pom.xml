@@ -8,21 +8,5 @@
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.util</artifactId>
-	<name>Commons Util (no third party dependencies)</name>
-	<!-- <dependencies> -->
-	<!-- <dependency> -->
-	<!-- <groupId>org.argeo.tp</groupId> -->
-	<!-- <artifactId>junit</artifactId> -->
-	<!-- <scope>test</scope> -->
-	<!-- </dependency> -->
-	<!-- </dependencies> -->
-<!-- 	<dependencies> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp</groupId> -->
-<!-- 			<artifactId>argeo-tp</artifactId> -->
-<!-- 			<version>${version.argeo-distribution}</version> -->
-<!-- 			<type>pom</type> -->
-<!-- 			<scope>provided</scope> -->
-<!-- 		</dependency> -->
-<!-- 	</dependencies> -->
+	<name>Commons Utilities</name>
 </project>

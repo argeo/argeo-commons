@@ -8,7 +8,7 @@
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.security.core</artifactId>
-	<name>Commons Security Core</name>
+	<name>Commons Security</name>
 	<dependencies>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
@@ -20,96 +20,5 @@
 			<artifactId>org.argeo.server.jcr</artifactId>
 			<version>2.1.14-SNAPSHOT</version>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.server.jackrabbit</artifactId>
-			<version>2.1.14-SNAPSHOT</version>
-		</dependency>
-
-		<!-- SDK -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp</groupId> -->
-<!-- 			<artifactId>argeo-tp</artifactId> -->
-<!-- 			<version>${version.argeo-distribution}</version> -->
-<!-- 			<scope>provided</scope> -->
-<!-- 		</dependency> -->
-
-		<!-- Crypto -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp</groupId> -->
-		<!-- <artifactId>bcprov</artifactId> -->
-		<!-- <optional>true</optional> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp</groupId> -->
-		<!-- <artifactId>org.apache.commons.codec</artifactId> -->
-		<!-- </dependency> -->
-
-		<!-- Spring -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp</groupId> -->
-		<!-- <artifactId>org.springframework.core</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp</groupId> -->
-		<!-- <artifactId>org.springframework.beans</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp</groupId> -->
-		<!-- <artifactId>org.springframework.context</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp</groupId> -->
-		<!-- <artifactId>org.springframework.security.core</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp</groupId> -->
-		<!-- <artifactId>org.springframework.transaction</artifactId> -->
-		<!-- </dependency> -->
-
-		<!-- OSGi -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp</groupId> -->
-		<!-- <artifactId>org.eclipse.osgi</artifactId> -->
-		<!-- <scope>provided</scope> -->
-		<!-- </dependency> -->
-
-		<!-- Logging -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp</groupId> -->
-		<!-- <artifactId>slf4j.org.apache.commons.logging</artifactId> -->
-		<!-- </dependency> -->
-
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp</groupId> -->
-		<!-- <artifactId>org.apache.log4j</artifactId> -->
-		<!-- <optional>true</optional> -->
-		<!-- </dependency> -->
-
-		<!-- TEST -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp</groupId> -->
-		<!-- <artifactId>junit</artifactId> -->
-		<!-- <scope>test</scope> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.commons</groupId> -->
-		<!-- <artifactId>org.argeo.dep.log4j</artifactId> -->
-		<!-- <version>2.1.12-SNAPSHOT</version> -->
-		<!-- <type>pom</type> -->
-		<!-- <scope>test</scope> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.commons</groupId> -->
-		<!-- <artifactId>org.argeo.server.json</artifactId> -->
-		<!-- <version>2.1.12-SNAPSHOT</version> -->
-		<!-- <scope>test</scope> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp</groupId> -->
-		<!-- <artifactId>com.springsource.json</artifactId> -->
-		<!-- <scope>test</scope> -->
-		<!-- </dependency> -->
-
 	</dependencies>
 </project>

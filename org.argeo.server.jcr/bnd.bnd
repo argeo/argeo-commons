@@ -3,4 +3,8 @@ org.xml.sax;version="0.0.0",\
 org.springframework.core;resolution:=optional,\
 org.springframework.core.io;resolution:=optional,\
 org.springframework.*;resolution:=optional,\
+org.apache.jackrabbit.*;resolution:=optional,\
+org.apache.jackrabbit.webdav.jcr;resolution:=optional,\
+org.apache.jackrabbit.webdav.server;resolution:=optional,\
 *
+Export-Package: org.argeo.jcr.*, org.argeo.jackrabbit.*

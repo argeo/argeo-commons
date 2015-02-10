@@ -23,6 +23,7 @@ import org.eclipse.rap.rwt.service.ResourceLoader;
 import org.osgi.framework.BundleContext;
 
 /** Configures an Argeo CMS RWT application. */
+@SuppressWarnings("deprecation")
 public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 		BundleContextAware {
 	final static Log log = LogFactory.getLog(CmsApplication.class);

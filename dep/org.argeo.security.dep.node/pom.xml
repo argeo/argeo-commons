@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
@@ -8,33 +9,7 @@
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.security.dep.node</artifactId>
-	<name>Node Backend</name>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<configuration>
-					<instructions>
-						<SLC-ModularDistribution>default</SLC-ModularDistribution>
-					</instructions>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.argeo.maven.plugins</groupId>
-				<artifactId>maven-argeo-osgi-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>generate-descriptors</id>
-						<goals>
-							<goal>descriptors</goal>
-						</goals>
-						<phase>generate-resources</phase>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+	<name>Commons Backend</name>
 	<dependencies>
 		<!-- Third Parties -->
 		<dependency>
@@ -42,13 +17,6 @@
 			<artifactId>argeo-tp</artifactId>
 			<version>${version.argeo-distribution}</version>
 		</dependency>
-
-		<!-- Default JCR repositories configurations -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.commons</groupId> -->
-		<!-- <artifactId>org.argeo.node.repo.jackrabbit</artifactId> -->
-		<!-- <version>2.1.13-SNAPSHOT</version> -->
-		<!-- </dependency> -->
 
 		<!-- OSGi Boot (and Equinox) -->
 		<dependency>
@@ -64,10 +32,10 @@
 			<version>2.1.14-SNAPSHOT</version>
 		</dependency>
 
-		<!-- Jackrabbit -->
+		<!-- JCR / Jackrabbit -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.server.jackrabbit</artifactId>
+			<artifactId>org.argeo.server.jcr</artifactId>
 			<version>2.1.14-SNAPSHOT</version>
 		</dependency>
 		<dependency>
@@ -75,37 +43,5 @@
 			<artifactId>org.argeo.security.jackrabbit</artifactId>
 			<version>2.1.14-SNAPSHOT</version>
 		</dependency>
-
-		<!-- Security (Jackrabbit) -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.commons</groupId> -->
-		<!-- <artifactId>org.argeo.security.dao.jackrabbit</artifactId> -->
-		<!-- <version>2.1.13-SNAPSHOT</version> -->
-		<!-- </dependency> -->
 	</dependencies>
-	<profiles>
-		<profile>
-			<id>check-osgi</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.argeo.maven.plugins</groupId>
-						<artifactId>maven-argeo-osgi-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>check-osgi</id>
-								<phase>test</phase>
-								<goals>
-									<goal>equinox</goal>
-								</goals>
-								<configuration>
-									<onlyCheck>true</onlyCheck>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 </project>

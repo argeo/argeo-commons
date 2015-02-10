@@ -30,11 +30,14 @@ class NodeSecurity implements AuthenticationManager {
 
 	private final InternalAuthenticationProvider internalAuth;
 	private final AnonymousAuthenticationProvider anonymousAuth;
-	private final JackrabbitUserAdminService jackrabbitUserAdmin;
+	private final JackrabbitUserAdminService userAdminService;
+	// private final JcrUserAdmin userAdmin;
 
 	private ServiceRegistration<AuthenticationManager> authenticationManagerReg;
-	private ServiceRegistration<UserAdminService> userAdminReg;
+	private ServiceRegistration<UserAdminService> userAdminServiceReg;
 	private ServiceRegistration<UserDetailsManager> userDetailsManagerReg;
+
+	// private ServiceRegistration<UserAdmin> userAdminReg;
 
 	public NodeSecurity(BundleContext bundleContext, JackrabbitNode node)
 			throws RepositoryException {
@@ -51,33 +54,36 @@ class NodeSecurity implements AuthenticationManager {
 				KernelConstants.DEFAULT_SECURITY_KEY);
 
 		// user admin
-		jackrabbitUserAdmin = new JackrabbitUserAdminService();
-		jackrabbitUserAdmin.setRepository(node);
-		jackrabbitUserAdmin.setSecurityModel(new SimpleJcrSecurityModel());
-		jackrabbitUserAdmin.init();
+		userAdminService = new JackrabbitUserAdminService();
+		userAdminService.setRepository(node);
+		userAdminService.setSecurityModel(new SimpleJcrSecurityModel());
+		userAdminService.init();
+
+		// userAdmin = new JcrUserAdmin(bundleContext);
+		// userAdmin.setUserAdminService(userAdminService);
 	}
 
 	public void publish() {
 		authenticationManagerReg = bundleContext.registerService(
 				AuthenticationManager.class, this, null);
-		userAdminReg = bundleContext.registerService(UserAdminService.class,
-				jackrabbitUserAdmin, null);
+		userAdminServiceReg = bundleContext.registerService(
+				UserAdminService.class, userAdminService, null);
 		userDetailsManagerReg = bundleContext.registerService(
-				UserDetailsManager.class, jackrabbitUserAdmin, null);
-		// userAdminReg =
-		// bundleContext.registerService(UserDetailsService.class,
-		// jackrabbitUserAdmin, null);
+				UserDetailsManager.class, userAdminService, null);
+		// userAdminReg = bundleContext.registerService(UserAdmin.class,
+		// userAdmin, null);
 	}
 
 	void destroy() {
 		try {
-			jackrabbitUserAdmin.destroy();
+			userAdminService.destroy();
 		} catch (RepositoryException e) {
 			log.error("Error while destroying Jackrabbit useradmin");
 		}
 		userDetailsManagerReg.unregister();
-		userAdminReg.unregister();
+		userAdminServiceReg.unregister();
 		authenticationManagerReg.unregister();
+		// userAdminReg.unregister();
 	}
 
 	@Override
@@ -89,7 +95,7 @@ class NodeSecurity implements AuthenticationManager {
 		else if (authentication instanceof AnonymousAuthenticationToken)
 			auth = anonymousAuth.authenticate(authentication);
 		else if (authentication instanceof UsernamePasswordAuthenticationToken)
-			auth = jackrabbitUserAdmin.authenticate(authentication);
+			auth = userAdminService.authenticate(authentication);
 		if (auth == null)
 			throw new CmsException("Could not authenticate " + authentication);
 		return auth;

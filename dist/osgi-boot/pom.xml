@@ -8,9 +8,9 @@
 	</parent>
 	<artifactId>osgi-boot</artifactId>
 	<packaging>pom</packaging>
-	<name>Commons OSGi Boot Distribution</name>
+	<name>Commons Deployable OSGi Boot</name>
 	<properties>
-		<version.equinox>3.9.1.v20140110-1610</version.equinox>
+		<version.equinox>3.10.1.v20140909-1633</version.equinox>
 	</properties>
 	<profiles>
 		<profile>

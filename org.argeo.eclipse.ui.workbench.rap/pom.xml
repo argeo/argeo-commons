@@ -7,5 +7,5 @@
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.eclipse.ui.workbench.rap</artifactId>
-	<name>Commons Eclipse UI Workbench RAP</name>
+	<name>Commons Eclipse Workbench RAP</name>
 </project>

@@ -10,7 +10,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsEditable;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.widgets.JcrComposite;
 import org.argeo.cms.widgets.ScrolledPage;
 import org.eclipse.jface.viewers.ContentViewer;
 import org.eclipse.jface.viewers.ISelection;

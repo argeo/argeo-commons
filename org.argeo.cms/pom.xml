@@ -8,7 +8,7 @@
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.cms</artifactId>
-	<name>Commons Content Management System</name>
+	<name>Commons CMS</name>
 	<packaging>jar</packaging>
 	<dependencies>
 		<dependency>
@@ -18,56 +18,13 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.server.jackrabbit</artifactId>
-			<version>2.1.14-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.security.core</artifactId>
 			<version>2.1.14-SNAPSHOT</version>
 		</dependency>
-
-		<!-- Files -->
-		<!--  <dependency>
-			<groupId>org.argeo.tp.rap.addons</groupId>
-			<artifactId>org.eclipse.rap.addons.fileupload</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.rap.addons</groupId>
-			<artifactId>org.eclipse.rap.addons.filedialog</artifactId>
-		</dependency> -->
-
-		<!-- RAP -->
-		<!--  <dependency>
-			<groupId>org.argeo.tp.rap.platform</groupId>
-			<artifactId>org.eclipse.rap.rwt</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.rap.platform</groupId>
-			<artifactId>org.eclipse.rap.jface</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.rap.platform</groupId>
-			<artifactId>org.eclipse.core.commands</artifactId>
-		</dependency>  -->
-		<!--  Argeo base Eclipse utilities. -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.ui</artifactId>
 			<version>2.1.14-SNAPSHOT</version>
 		</dependency>
-
-
-		<!-- OSGi -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp</groupId> -->
-<!-- 			<artifactId>org.springframework.osgi.core</artifactId> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp.rap.platform</groupId> -->
-<!-- 			<artifactId>org.eclipse.osgi</artifactId> -->
-<!-- 			<scope>provided</scope> -->
-<!-- 		</dependency> -->
 	</dependencies>
 </project>

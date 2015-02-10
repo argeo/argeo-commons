@@ -3,4 +3,6 @@ Import-Package:org.bouncycastle.*;resolution:=optional,\
 org.springframework.util,\
 javax.jcr.security,\
 org.apache.jackrabbit.*;resolution:=optional,\
+org.springframework.ldap.*;resolution:=optional,\
+org.springframework.security.ldap.*;resolution:=optional,\
 *
