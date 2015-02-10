@@ -24,19 +24,25 @@ import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.client.service.UrlLauncher;
 
 /**
- * Rap specific command handler to open a file retrieved from the server. It
+ * RWT specific command handler to open a file retrieved from the server. It
  * forwards the request to the correct service after encoding file name and path
  * in the request URI.
  * 
+ * <p>
  * The parameter "URI" is used to determine the correct file service, the path
  * and the file name. An optional file name can be precized to present a
  * different file name as the one used to retrieve it to the end user.
+ * </p>
  * 
+ * <p>
  * Various instances of this handler with different command ID might coexist in
  * order to provide context specific download service.
+ * </p>
  * 
+ * <p>
  * The instance specific service is called by its ID and must have been
  * externally created
+ * </p>
  */
 public class OpenFile extends AbstractHandler {
 	private final static Log log = LogFactory.getLog(OpenFile.class);
@@ -51,7 +57,7 @@ public class OpenFile extends AbstractHandler {
 		String fileName = event.getParameter(PARAM_FILE_NAME);
 		String fileUri = event.getParameter(PARAM_FILE_URI);
 
-		// sanity check
+		// Sanity check
 		if (fileUri == null || "".equals(fileUri.trim())
 				|| openFileServiceId == null
 				|| "".equals(openFileServiceId.trim()))

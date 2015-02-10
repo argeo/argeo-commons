@@ -37,7 +37,6 @@ public class ThreadNLS<T extends NLS> extends InheritableThreadLocal<T> {
 		this(DEFAULT_BUNDLE_LOCATION, type, false);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected T initialValue() {
 		if (utf8)

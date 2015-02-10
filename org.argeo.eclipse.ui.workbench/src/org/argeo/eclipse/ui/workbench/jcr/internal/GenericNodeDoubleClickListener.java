@@ -20,8 +20,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
 
 import org.argeo.ArgeoException;
-import org.argeo.eclipse.ui.jcr.utils.JcrFileProvider;
-import org.argeo.eclipse.ui.specific.FileHandler;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.eclipse.ui.workbench.jcr.DefaultNodeEditor;
 import org.argeo.eclipse.ui.workbench.jcr.internal.model.RepositoryElem;
@@ -43,14 +41,15 @@ public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 	// .getLog(GenericNodeDoubleClickListener.class);
 
 	private TreeViewer nodeViewer;
-	private JcrFileProvider jfp;
-	private FileHandler fileHandler;
+
+	// private JcrFileProvider jfp;
+	// private FileHandler fileHandler;
 
 	public GenericNodeDoubleClickListener(TreeViewer nodeViewer) {
 		this.nodeViewer = nodeViewer;
-		jfp = new JcrFileProvider();
+		// jfp = new JcrFileProvider();
 		// Commented out. see https://www.argeo.org/bugzilla/show_bug.cgi?id=188
-		fileHandler = null;
+		// fileHandler = null;
 		// fileHandler = new FileHandler(jfp);
 	}
 
@@ -81,6 +80,16 @@ public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 					String name = node.getName();
 					String id = node.getIdentifier();
 
+					// TODO add integration of direct retrieval of the binary in
+					// a JCR repo.
+					// Map<String, String> params = new HashMap<String,
+					// String>();
+					// params.put(OpenFile.PARAM_FILE_NAME, name);
+					// params.put(OpenFile.PARAM_FILE_URI, "jcr://" + id);
+					// CommandUtils
+					// .callCommand("org.argeo.security.ui.specific.openFile",
+					// params);
+
 					// For the file provider to be able to browse the
 					// various
 					// repository.
@@ -88,9 +97,9 @@ public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 					// ITreeContentProvider itcp = (ITreeContentProvider)
 					// nodeViewer
 					// .getContentProvider();
-					jfp.setReferenceNode(node);
-					if (fileHandler != null)
-						fileHandler.openFile(name, id);
+					// jfp.setReferenceNode(node);
+					// if (fileHandler != null)
+					// fileHandler.openFile(name, id);
 				}
 				GenericNodeEditorInput gnei = new GenericNodeEditorInput(node);
 				WorkbenchUiPlugin.getDefault().getWorkbench()

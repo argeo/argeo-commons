@@ -15,16 +15,37 @@
  */
 package org.argeo.eclipse.ui.specific;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.rap.addons.fileupload.FileDetails;
+import org.eclipse.rap.addons.fileupload.FileUploadEvent;
+import org.eclipse.rap.addons.fileupload.FileUploadHandler;
+import org.eclipse.rap.addons.fileupload.FileUploadListener;
+import org.eclipse.rap.addons.fileupload.FileUploadReceiver;
+import org.eclipse.rap.rwt.service.ServerPushSession;
 import org.eclipse.rap.rwt.widgets.FileUpload;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+/**
+ * RWT Specific convenience page that provides a simple interface to upload one
+ * file in a wizard context
+ * 
+ * TODO Finalize clean and refactoring using the latest rap version and upload
+ * dialog addons
+ *
+ */
 public class UploadFileWizardPage extends WizardPage {
 	// private final static Log log = LogFactory
 	// .getLog(UploadFileWizardPage.class);
@@ -32,7 +53,11 @@ public class UploadFileWizardPage extends WizardPage {
 	public final static String FILE_ITEM_TYPE = "FILE";
 	public final static String FOLDER_ITEM_TYPE = "FOLDER";
 
+	private File file;
+
 	private FileUpload fileUpload;
+	private ServerPushSession pushSession;
+	private Label fileNameLabel;
 
 	public UploadFileWizardPage() {
 		super("Import from file system");
@@ -41,21 +66,117 @@ public class UploadFileWizardPage extends WizardPage {
 
 	public void createControl(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
-		composite.setLayout(new GridLayout(2, false));
+		composite.setLayout(new GridLayout(3, false));
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		new Label(composite, SWT.NONE).setText("Pick up a file");
-		fileUpload = new FileUpload(composite, SWT.BORDER);
-		fileUpload.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		fileUpload.setText("Browse");
+
+		fileNameLabel = new Label(composite, SWT.NONE | SWT.BEGINNING);
+		fileNameLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				false));
+
+		fileUpload = new FileUpload(composite, SWT.NONE);
+		fileUpload.setText("Browse...");
+		fileUpload.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
+				false));
+
+		final String url = startUploadReceiver();
+		pushSession = new ServerPushSession();
+
+		fileUpload.addSelectionListener(new SelectionAdapter() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String fileName = fileUpload.getFileName();
+				fileNameLabel.setText(fileName == null ? "" : fileName);
+				pushSession.start();
+				fileUpload.submit(url);
+			}
+		});
+
 		setControl(composite);
 	}
 
+	public void performFinish() {
+		// boolean success = uploadFile.performUpload();
+		// if (!success)
+		// throw new ArgeoException("Cannot upload file named "
+		// + uploadFile.getPath());
+	}
+
+	private String startUploadReceiver() {
+		MyFileUploadReceiver receiver = new MyFileUploadReceiver();
+		FileUploadHandler uploadHandler = new FileUploadHandler(receiver);
+		uploadHandler.addUploadListener(new FileUploadListener() {
+
+			public void uploadProgress(FileUploadEvent event) {
+				// handle upload progress
+			}
+
+			public void uploadFailed(FileUploadEvent event) {
+				UploadFileWizardPage.this.setErrorMessage("upload failed: "
+						+ event.getException());
+			}
+
+			public void uploadFinished(FileUploadEvent event) {
+
+				fileNameLabel.getDisplay().asyncExec(new Runnable() {
+					public void run() {
+						// UploadFileWizardPage.this.getContainer()
+						// .updateButtons();
+						pushSession.stop();
+					}
+				});
+
+				// for (FileDetails file : event.getFileDetails()) {
+				// // addToLog("received: " + file.getFileName());
+				// }
+			}
+		});
+		return uploadHandler.getUploadUrl();
+	}
+
+	private class MyFileUploadReceiver extends FileUploadReceiver {
+
+		private static final String TEMP_FILE_PREFIX = "fileupload_";
+
+		@Override
+		public void receive(InputStream dataStream, FileDetails details)
+				throws IOException {
+			File result = File.createTempFile(TEMP_FILE_PREFIX, "");
+			FileOutputStream outputStream = new FileOutputStream(result);
+			try {
+				copy(dataStream, outputStream);
+			} finally {
+				dataStream.close();
+				outputStream.close();
+			}
+			file = result;
+		}
+	}
+
+	private static void copy(InputStream inputStream, OutputStream outputStream)
+			throws IOException {
+		byte[] buffer = new byte[8192];
+		boolean finished = false;
+		while (!finished) {
+			int bytesRead = inputStream.read(buffer);
+			if (bytesRead != -1) {
+				outputStream.write(buffer, 0, bytesRead);
+			} else {
+				finished = true;
+			}
+		}
+	}
+
+	/**
+	 * The full path including the directory and file drive are only returned,
+	 * if the browser supports reading this properties
+	 * 
+	 * @return The full file name of the last uploaded file including the file
+	 *         path as selected by the user on his local machine.
+	 */
 	public String getObjectPath() {
-		// NOTE Returns the full file name of the last uploaded file including
-		// the file path as selected by the user on his local machine.
-		// The full path including the directory and file drive are only
-		// returned, if the browser supports reading this properties. In Firefox
-		// 3, only the filename is returned.
 		return null;
 	}
 
@@ -67,22 +188,25 @@ public class UploadFileWizardPage extends WizardPage {
 		return FILE_ITEM_TYPE;
 	}
 
-	public void performFinish() {
-		// boolean success = uploadFile.performUpload();
-		// if (!success)
-		// throw new ArgeoException("Cannot upload file named "
-		// + uploadFile.getPath());
-	}
-
 	// protected void handleUploadFinished(final Upload upload) {
 	// }
 
-	public InputStream getFileInputStream() {
-		return null;
+	/** it is caller responsability to close the stream afterwards. */
+	public InputStream getFileInputStream() throws IOException {
+		return new FileInputStream(file);
+		// InputStream fis = null;
+		//
+		// try {
+		// fis = new FileInputStream(file);
+		// return fis;
+		// } catch (Exception e) {
+		// throw new ArgeoException("Unable to retrieve file " + file, e);
+		// } finally {
+		// IOUtils.closeQuietly(fis);
+		// }
 	}
 
 	public boolean getNeedsProgressMonitor() {
 		return false;
 	}
-
 }

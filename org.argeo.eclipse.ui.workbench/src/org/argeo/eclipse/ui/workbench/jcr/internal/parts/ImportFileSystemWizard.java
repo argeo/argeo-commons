@@ -17,6 +17,7 @@ package org.argeo.eclipse.ui.workbench.jcr.internal.parts;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 
 import javax.jcr.Binary;
 import javax.jcr.Node;
@@ -28,7 +29,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
-import org.argeo.eclipse.ui.specific.ImportToServerWizardPage;
 import org.argeo.eclipse.ui.specific.UploadFileWizardPage;
 import org.argeo.eclipse.ui.workbench.ErrorFeedback;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -67,23 +67,25 @@ public class ImportFileSystemWizard extends Wizard {
 		final String objectPath = importPage.getObjectPath();
 
 		// We do not display a progress bar for one file only
-		if (ImportToServerWizardPage.FILE_ITEM_TYPE.equals(objectType)) {
+		if (UploadFileWizardPage.FILE_ITEM_TYPE.equals(objectType)) {
 			// In Rap we must force the "real" upload of the file
-			importPage.performFinish();
+			// importPage.performFinish();
 			try {
 				Node fileNode = folder.addNode(importPage.getObjectName(),
 						NodeType.NT_FILE);
 				Node resNode = fileNode.addNode(Property.JCR_CONTENT,
 						NodeType.NT_RESOURCE);
 				Binary binary = null;
+				InputStream is = null;
 				try {
+					is = importPage.getFileInputStream();
 					binary = folder.getSession().getValueFactory()
-							.createBinary(importPage.getFileInputStream());
+							.createBinary(is);
 					resNode.setProperty(Property.JCR_DATA, binary);
 				} finally {
 					if (binary != null)
 						binary.dispose();
-					IOUtils.closeQuietly(importPage.getFileInputStream());
+					IOUtils.closeQuietly(is);
 				}
 				folder.getSession().save();
 			} catch (Exception e) {
@@ -91,7 +93,7 @@ public class ImportFileSystemWizard extends Wizard {
 				return false;
 			}
 			return true;
-		} else if (ImportToServerWizardPage.FOLDER_ITEM_TYPE.equals(objectType)) {
+		} else if (UploadFileWizardPage.FOLDER_ITEM_TYPE.equals(objectType)) {
 			if (objectPath == null || !new File(objectPath).exists()) {
 				ErrorFeedback.show("Directory " + objectPath
 						+ " does not exist");

@@ -27,12 +27,11 @@ import org.argeo.ArgeoException;
 import org.eclipse.rap.rwt.service.ServiceHandler;
 
 /**
- * Basic Default service handler that retrieves a file on the server file system
- * using its absolute path and forwards it to the end user browser. Rap
- * specific.
+ * RWT specific Basic Default service handler that retrieves a file on the
+ * server file system using its absolute path and forwards it to the end user
+ * browser.
  * 
- * Clients might extend to provide context specific services (to open files from
- * a JCR repository for instance)
+ * Clients might extend to provide context specific services
  */
 public class OpenFileService implements ServiceHandler {
 	public final static String PARAM_FILE_NAME = "param.fileName";
@@ -57,18 +56,32 @@ public class OpenFileService implements ServiceHandler {
 		String contentDisposition = "attachment; filename=\"" + fileName + "\"";
 		response.setHeader("Content-Disposition", contentDisposition);
 
+		// Useless for current use
+		// response.setContentType("application/force-download");
+		// response.setHeader("Content-Transfer-Encoding", "binary");
+		// response.setHeader("Pragma", "no-cache");
+		// response.setHeader("Cache-Control", "no-cache, must-revalidate");
+
+		// TODO use buffered array to directly write the stream?
 		response.getOutputStream().write(getFileAsByteArray(uri));
-		// FileUtils.readFileToByteArray(new File(path))
 	}
 
+	/**
+	 * Retrieves the data as Byte Array given an uri.
+	 * 
+	 * <p>
+	 * Overwrite to provide application specific abilities, among other to open
+	 * from a JCR repository
+	 * </p>
+	 */
 	protected byte[] getFileAsByteArray(String uri) {
 		if (uri.startsWith(FILE_SCHEME)) {
 			try {
 				return FileUtils.readFileToByteArray(new File(
 						getFilePathFromUri(uri)));
 			} catch (IOException ioe) {
-				throw new ArgeoException("Error while getting the file at "
-						+ uri, ioe);
+				throw new ArgeoException("Error getting the file at " + uri,
+						ioe);
 			}
 		}
 		return null;
@@ -91,5 +104,4 @@ public class OpenFileService implements ServiceHandler {
 	private String getFilePathFromUri(String uri) {
 		return uri.substring((FILE_SCHEME + SCHEME_HOST_SEPARATOR).length());
 	}
-
 }
