@@ -1,9 +1,0 @@
-Import-Package: org.springframework.core,\
-org.springframework.beans.factory,\
-javax.xml.transform.*;version="0.0.0",\
-javax.xml.parsers.*;version="0.0.0",\
-org.w3c.dom.*;version="0.0.0",\
-org.xml.sax.*;version="0.0.0",\
-org.apache.jackrabbit.server.remoting.davex,\
-org.apache.jackrabbit.webdav.server,\
-*
