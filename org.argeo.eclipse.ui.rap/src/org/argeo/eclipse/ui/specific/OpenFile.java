@@ -29,8 +29,8 @@ import org.eclipse.rap.rwt.client.service.UrlLauncher;
  * in the request URI.
  * 
  * The parameter "URI" is used to determine the correct file service, the path
- * and the file name. An optional file name can be precised to present a
- * different file name as the one used to retrieve it to the end user/
+ * and the file name. An optional file name can be precized to present a
+ * different file name as the one used to retrieve it to the end user.
  * 
  * Various instances of this handler with different command ID might coexist in
  * order to provide context specific download service.
@@ -71,17 +71,7 @@ public class OpenFile extends AbstractHandler {
 			log.debug("URL : " + downloadUrl);
 
 		UrlLauncher launcher = RWT.getClient().getService(UrlLauncher.class);
-		// FIXME: find a way to manage correctly the addition of the base
-		// context for the workbench.
-		launcher.openURL("/ui" + downloadUrl);
-
-		// These lines are useless in the current use case but might be
-		// necessary with new browsers. Stored here for memo
-		// response.setContentType("application/force-download");
-		// response.setHeader("Content-Disposition", contentDisposition);
-		// response.setHeader("Content-Transfer-Encoding", "binary");
-		// response.setHeader("Pragma", "no-cache");
-		// response.setHeader("Cache-Control", "no-cache, must-revalidate");
+		launcher.openURL(downloadUrl);
 		return null;
 	}
 
