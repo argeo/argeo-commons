@@ -1,4 +1,4 @@
-package org.argeo.cms;
+package org.argeo.cms.util;
 
 import java.io.InputStream;
 
@@ -8,6 +8,8 @@ import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.io.IOUtils;
+import org.argeo.cms.CmsConstants;
+import org.argeo.cms.CmsException;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.ResourceManager;

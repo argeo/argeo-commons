@@ -1,4 +1,4 @@
-package org.argeo.cms;
+package org.argeo.cms.util;
 
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -9,6 +9,9 @@ import javax.jcr.Node;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.cms.CmsException;
+import org.argeo.cms.CmsStyles;
+import org.argeo.cms.CmsUiProvider;
 import org.eclipse.gemini.blueprint.context.BundleContextAware;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.ResourceManager;

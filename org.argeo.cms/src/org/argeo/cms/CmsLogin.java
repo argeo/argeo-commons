@@ -26,7 +26,7 @@ public class CmsLogin {
 	private AuthenticationManager authenticationManager;
 	private String systemKey = KernelConstants.DEFAULT_SECURITY_KEY;
 
-	protected void logInAsAnonymous() {
+	public void logInAsAnonymous() {
 		// TODO Better deal with anonymous authentication
 		try {
 			List<SimpleGrantedAuthority> anonAuthorities = Collections
@@ -45,7 +45,7 @@ public class CmsLogin {
 		}
 	}
 
-	protected void logInWithPassword(String username, char[] password) {
+	public void logInWithPassword(String username, char[] password) {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				username, password);
 		Authentication authentication = authenticationManager

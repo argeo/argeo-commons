@@ -1,6 +1,6 @@
 package org.argeo.cms.text;
 
-import static org.argeo.cms.CmsUtils.fillWidth;
+import static org.argeo.cms.util.CmsUtils.fillWidth;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;

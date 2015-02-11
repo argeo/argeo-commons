@@ -1,8 +1,10 @@
-package org.argeo.cms;
+package org.argeo.cms.i18n;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
+import org.argeo.cms.CmsException;
+import org.argeo.cms.CmsSession;
 import org.eclipse.rap.rwt.RWT;
 
 /** A single message to be internationalised. */

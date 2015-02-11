@@ -6,11 +6,11 @@ import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
 
 import org.argeo.cms.CmsEditable;
-import org.argeo.cms.CmsLink;
 import org.argeo.cms.CmsNames;
 import org.argeo.cms.CmsTypes;
 import org.argeo.cms.CmsUiProvider;
-import org.argeo.cms.CmsUtils;
+import org.argeo.cms.util.CmsLink;
+import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.viewers.JcrVersionCmsEditable;
 import org.argeo.cms.widgets.ScrolledPage;
 import org.argeo.jcr.JcrUtils;

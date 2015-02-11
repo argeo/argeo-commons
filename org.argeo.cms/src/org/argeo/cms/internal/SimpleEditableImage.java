@@ -2,7 +2,7 @@ package org.argeo.cms.internal;
 
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.CmsUtils;
+import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.widgets.EditableImage;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;

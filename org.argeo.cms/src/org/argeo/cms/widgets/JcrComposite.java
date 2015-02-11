@@ -7,7 +7,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.argeo.cms.CmsException;
-import org.argeo.cms.CmsUtils;
+import org.argeo.cms.util.CmsUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 

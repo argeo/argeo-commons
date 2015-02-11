@@ -5,7 +5,7 @@ import javax.jcr.RepositoryException;
 
 import org.argeo.cms.CmsConstants;
 import org.argeo.cms.CmsNames;
-import org.argeo.cms.CmsUtils;
+import org.argeo.cms.util.CmsUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.Composite;

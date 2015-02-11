@@ -9,7 +9,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 /** {@link ResourceLoader} implementation wrapping an {@link Bundle}. */
-public class BundleResourceLoader implements ResourceLoader {
+class BundleResourceLoader implements ResourceLoader {
 	private final BundleContext bundleContext;
 
 	public BundleResourceLoader(BundleContext bundleContext) {

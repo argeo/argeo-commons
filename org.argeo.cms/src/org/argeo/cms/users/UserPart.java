@@ -9,7 +9,7 @@ import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 
 import org.argeo.ArgeoException;
-import org.argeo.cms.CmsUtils;
+import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.viewers.EditablePart;
 import org.argeo.cms.viewers.NodePart;
 import org.argeo.cms.widgets.StyledControl;

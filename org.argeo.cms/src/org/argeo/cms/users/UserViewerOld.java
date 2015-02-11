@@ -11,7 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.cms.CmsEditable;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.CmsUtils;
+import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.viewers.EditablePart;
 import org.argeo.cms.viewers.JcrVersionCmsEditable;
 import org.eclipse.jface.viewers.ContentViewer;

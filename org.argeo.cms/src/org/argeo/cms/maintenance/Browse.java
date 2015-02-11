@@ -18,11 +18,11 @@ import javax.jcr.Value;
 
 import org.argeo.ArgeoException;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.CmsLink;
 import org.argeo.cms.CmsTypes;
 import org.argeo.cms.CmsUiProvider;
-import org.argeo.cms.CmsUtils;
 import org.argeo.cms.text.Img;
+import org.argeo.cms.util.CmsLink;
+import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.widgets.EditableImage;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.jface.viewers.ColumnLabelProvider;

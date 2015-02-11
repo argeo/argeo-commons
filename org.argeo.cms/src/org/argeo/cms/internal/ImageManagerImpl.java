@@ -24,7 +24,7 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsImageManager;
 import org.argeo.cms.CmsNames;
 import org.argeo.cms.CmsTypes;
-import org.argeo.cms.CmsUtils;
+import org.argeo.cms.util.CmsUtils;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.ResourceManager;

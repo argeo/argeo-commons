@@ -1,9 +1,13 @@
-package org.argeo.cms;
+package org.argeo.cms.util;
 
 import static org.argeo.cms.internal.kernel.KernelConstants.SPRING_SECURITY_CONTEXT_KEY;
 
 import javax.servlet.http.HttpSession;
 
+import org.argeo.cms.CmsLogin;
+import org.argeo.cms.CmsMsg;
+import org.argeo.cms.CmsSession;
+import org.argeo.cms.CmsStyles;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;

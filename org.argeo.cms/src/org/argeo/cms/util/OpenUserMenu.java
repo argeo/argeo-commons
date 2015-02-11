@@ -1,5 +1,6 @@
-package org.argeo.cms;
+package org.argeo.cms.util;
 
+import org.argeo.cms.CmsLogin;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.widgets.Control;

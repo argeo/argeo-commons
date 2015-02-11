@@ -1,5 +1,7 @@
 package org.argeo.cms;
 
+import org.argeo.cms.i18n.Msg;
+
 /** Provides interaction with the CMS system. UNSTABLE API at this stage. */
 public interface CmsSession {
 	public final static String KEY = "org.argeo.connect.web.cmsSession";

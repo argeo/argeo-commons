@@ -1,5 +1,8 @@
 package org.argeo.cms;
 
+import org.argeo.cms.i18n.DefaultsResourceBundle;
+import org.argeo.cms.i18n.Msg;
+
 /** Standard CMS messages. */
 public class CmsMsg extends DefaultsResourceBundle {
 	public final static Msg username = new Msg("username");

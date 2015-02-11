@@ -1,10 +1,12 @@
-package org.argeo.cms;
+package org.argeo.cms.i18n;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
 import java.util.Vector;
+
+import org.argeo.cms.CmsException;
 
 /** Expose the default values as a {@link ResourceBundle} */
 public class DefaultsResourceBundle extends ResourceBundle {

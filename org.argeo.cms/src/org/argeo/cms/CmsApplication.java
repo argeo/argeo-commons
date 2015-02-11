@@ -22,6 +22,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.internal.ImageManagerImpl;
+import org.argeo.cms.util.CmsUtils;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.gemini.blueprint.context.BundleContextAware;
 import org.eclipse.rap.rwt.RWT;

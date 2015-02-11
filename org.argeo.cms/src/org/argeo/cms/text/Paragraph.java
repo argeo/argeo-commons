@@ -3,7 +3,7 @@ package org.argeo.cms.text;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.CmsUtils;
+import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.viewers.Section;
 import org.argeo.cms.viewers.SectionPart;
 import org.argeo.cms.widgets.EditableText;

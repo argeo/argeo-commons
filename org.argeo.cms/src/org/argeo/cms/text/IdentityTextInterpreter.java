@@ -1,9 +1,13 @@
-package org.argeo.cms;
+package org.argeo.cms.text;
 
 import javax.jcr.Item;
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
+
+import org.argeo.cms.CmsException;
+import org.argeo.cms.CmsNames;
+import org.argeo.cms.CmsTypes;
 
 /** Based on HTML with a few Wiki-like shortcuts. */
 public class IdentityTextInterpreter implements TextInterpreter, CmsNames {
