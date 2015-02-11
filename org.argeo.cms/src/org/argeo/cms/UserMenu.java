@@ -1,5 +1,9 @@
 package org.argeo.cms;
 
+import static org.argeo.cms.internal.kernel.KernelConstants.SPRING_SECURITY_CONTEXT_KEY;
+
+import javax.servlet.http.HttpSession;
+
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -81,6 +85,8 @@ public class UserMenu extends Shell implements CmsStyles {
 
 			public void mouseDown(MouseEvent e) {
 				SecurityContextHolder.getContext().setAuthentication(null);
+				HttpSession httpSession = RWT.getRequest().getSession();
+				httpSession.removeAttribute(SPRING_SECURITY_CONTEXT_KEY);
 				close();
 				dispose();
 				cmsSession.authChange();

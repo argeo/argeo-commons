@@ -1,5 +1,7 @@
 package org.argeo.cms;
 
+import static org.argeo.cms.internal.kernel.KernelConstants.SPRING_SECURITY_CONTEXT_KEY;
+
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -8,6 +10,7 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,10 +26,9 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Manages history and navigation */
-public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
-		implements CmsSession {
+abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
+		CmsSession {
 	private final Log log = LogFactory.getLog(AbstractCmsEntryPoint.class);
-	private static final String SPRING_SECURITY_CONTEXT_KEY = "SPRING_SECURITY_CONTEXT";
 
 	private Repository repository;
 	private String workspace;
@@ -35,15 +37,16 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 	// current state
 	private Node node;
 	private String state;
-	private String page;
+	// private String page;
 	private Throwable exception;
 
 	private BrowserNavigation history;
 
 	public AbstractCmsEntryPoint(Repository repository, String workspace) {
 		if (SecurityContextHolder.getContext().getAuthentication() == null) {
-			SecurityContext contextFromSessionObject = (SecurityContext) RWT
-					.getRequest().getSession()
+			HttpSession httpSession = RWT.getRequest().getSession();
+			// log.debug("Session: " + httpSession.getId());
+			SecurityContext contextFromSessionObject = (SecurityContext) httpSession
 					.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
 			if (contextFromSessionObject != null)
 				SecurityContextHolder.setContext(contextFromSessionObject);
@@ -163,7 +166,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 		String previousState = this.state;
 
 		node = null;
-		page = null;
+		// page = null;
 		this.state = newState;
 
 		try {
@@ -173,7 +176,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 					node = addNode(session, state, null);
 				else
 					node = session.getNode(state);
-				page = "";
+				// page = "";
 			} else if (firstSlash > 0) {
 				String prefix = state.substring(0, firstSlash);
 				String path = state.substring(firstSlash);
@@ -206,18 +209,19 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 						throw new CmsException("Data " + path
 								+ " does not exist");
 				}
-				page = prefix;
+				throw new CmsException("Unsupported state prefix '" + prefix
+						+ "'");
+				// page = prefix;
 			} else {
 				node = getDefaultNode(session);
-				if (state.equals("~"))
-					page = "";
-				else
-					page = state;
+				// if (state.equals("~"))
+				// page = "";
+				// else
+				// page = state;
 			}
 
 			if (log.isTraceEnabled())
-				log.trace("page=" + page + ", node=" + node + ", state="
-						+ state);
+				log.trace("node=" + node + ", state=" + state);
 
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot retrieve node", e);
@@ -240,9 +244,9 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 		return state;
 	}
 
-	protected String getPage() {
-		return page;
-	}
+	// protected String getPage() {
+	// return page;
+	// }
 
 	protected Throwable getException() {
 		return exception;

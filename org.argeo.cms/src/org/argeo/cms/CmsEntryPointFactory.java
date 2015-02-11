@@ -21,7 +21,6 @@ import org.argeo.cms.internal.ImageManagerImpl;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.EntryPoint;
-import org.eclipse.rap.rwt.application.EntryPointFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -31,7 +30,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 /** Creates and registers an {@link EntryPoint} */
-public class CmsEntryPointFactory implements EntryPointFactory {
+@Deprecated
+class CmsEntryPointFactory {
 	private final static Log log = LogFactory
 			.getLog(CmsEntryPointFactory.class);
 
@@ -51,7 +51,6 @@ public class CmsEntryPointFactory implements EntryPointFactory {
 	// Managers
 	private CmsImageManager imageManager = new ImageManagerImpl();
 
-	@Override
 	public EntryPoint create() {
 		CmsEntryPoint cmsEntryPoint = new CmsEntryPoint(repository, workspace);
 		CmsSession.current.set(cmsEntryPoint);
@@ -199,6 +198,7 @@ public class CmsEntryPointFactory implements EntryPointFactory {
 			headerArea.layout(true, true);
 		}
 
+		@SuppressWarnings("unused")
 		@Override
 		protected void refreshBody() {
 			if (bodyArea == null)
@@ -229,7 +229,7 @@ public class CmsEntryPointFactory implements EntryPointFactory {
 				// TODO report
 			} else {
 				String state = getState();
-				String page = getPage();
+				String page = null;
 				try {
 					if (state == null)
 						throw new CmsException("State cannot be null");

@@ -1,6 +1,9 @@
 package org.argeo.cms.internal.kernel;
 
-interface KernelConstants {
+public interface KernelConstants {
+	// (internal) API
+	public final static String SPRING_SECURITY_CONTEXT_KEY = "SPRING_SECURITY_CONTEXT";
+
 	// Node
 	final static String REPO_HOME = "argeo.node.repo.home";
 	final static String REPO_CONFIGURATION = "argeo.node.repo.configuration";
@@ -31,4 +34,5 @@ interface KernelConstants {
 	final static String PATH_REMOTING_PUBLIC = "/data/pub";
 	final static String PATH_REMOTING_PRIVATE = "/data/jcr";
 	final static String PATH_WORKBENCH_PUBLIC = "/ui/public";
+
 }

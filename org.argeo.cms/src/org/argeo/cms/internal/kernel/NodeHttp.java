@@ -40,8 +40,6 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	private final static String HEADER_AUTHORIZATION = "Authorization";
 	private final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
-	static final String SPRING_SECURITY_CONTEXT_KEY = "SPRING_SECURITY_CONTEXT";
-
 	private final AuthenticationManager authenticationManager;
 	private final BundleContext bundleContext;
 	private ExtendedHttpService httpService;
