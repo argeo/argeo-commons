@@ -35,11 +35,6 @@
 			<artifactId>argeo-tp</artifactId>
 			<version>${version.argeo-distribution}</version>
 			<exclusions>
-				<!-- Equinox -->
-				<exclusion>
-					<groupId>org.argeo.tp.rap</groupId>
-					<artifactId>org.eclipse.equinox.security</artifactId>
-				</exclusion>
 				<!-- Databinding -->
 				<exclusion>
 					<groupId>org.argeo.tp.rap.platform</groupId>
