@@ -16,14 +16,10 @@ import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.eclipse.rap.rwt.application.EntryPointFactory;
 import org.eclipse.rap.rwt.application.ExceptionHandler;
 import org.eclipse.rap.rwt.client.WebClient;
-import org.eclipse.rap.rwt.lifecycle.PhaseEvent;
-import org.eclipse.rap.rwt.lifecycle.PhaseId;
-import org.eclipse.rap.rwt.lifecycle.PhaseListener;
 import org.eclipse.rap.rwt.service.ResourceLoader;
 import org.osgi.framework.BundleContext;
 
 /** Configures an Argeo CMS RWT application. */
-@SuppressWarnings("deprecation")
 public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 		BundleContextAware {
 	final static Log log = LogFactory.getLog(CmsApplication.class);
@@ -50,10 +46,6 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 			application.addResource(NO_IMAGE, createResourceLoader(NO_IMAGE));
 
 			for (String resource : resources) {
-				// URL res = bundleContext.getBundle().getResource(resource);
-				// if (res == null)
-				// throw new CmsException("Resource " + resource
-				// + " not found");
 				application.addResource(resource, new BundleResourceLoader(
 						bundleContext));
 				if (log.isDebugEnabled())
@@ -68,8 +60,6 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 					if (properties.containsKey(WebClient.FAVICON)) {
 						String faviconRelPath = properties
 								.get(WebClient.FAVICON);
-						// URL res = bundleContext.getBundle().getResource(
-						// faviconRelPath);
 						application.addResource(faviconRelPath,
 								new BundleResourceLoader(bundleContext));
 						if (log.isTraceEnabled())
@@ -91,19 +81,14 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 			for (String themeId : styleSheets.keySet()) {
 				List<String> cssLst = styleSheets.get(themeId);
 				for (String css : cssLst) {
-					// URL res = bundleContext.getBundle().getResource(css);
-					// if (res == null)
-					// throw new CmsException("Stylesheet " + css
-					// + " not found");
 					application.addStyleSheet(themeId, css,
 							new BundleResourceLoader(bundleContext));
 				}
 
 			}
 
-			application.addPhaseListener(new CmsPhaseListener());
+//			application.addPhaseListener(new CmsPhaseListener());
 
-			// registerClientScriptingResources(application);
 		} catch (RuntimeException e) {
 			// Easier access to initialisation errors
 			log.error("Unexpected exception when configuring RWT application.",
@@ -111,23 +96,6 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 			throw e;
 		}
 	}
-
-	// see Eclipse.org bug 369957
-	// private void registerClientScriptingResources(Application application) {
-	// if (clientScriptingBundle != null) {
-	// String className =
-	// "org.eclipse.rap.clientscripting.internal.resources.ClientScriptingResources";
-	// try {
-	// Class<?> resourceClass = clientScriptingBundle
-	// .loadClass(className);
-	// Method registerMethod = resourceClass.getMethod("register",
-	// Application.class);
-	// registerMethod.invoke(null, application);
-	// } catch (Exception exception) {
-	// throw new RuntimeException(exception);
-	// }
-	// }
-	// }
 
 	private static ResourceLoader createResourceLoader(final String resourceName) {
 		return new ResourceLoader() {
@@ -153,10 +121,6 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 		this.styleSheets = styleSheets;
 	}
 
-	// public void setClientScriptingBundle(Bundle clientScriptingBundle) {
-	// this.clientScriptingBundle = clientScriptingBundle;
-	// }
-
 	public void setBundleContext(BundleContext bundleContext) {
 		this.bundleContext = bundleContext;
 	}
@@ -174,26 +138,26 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 
 	}
 
-	class CmsPhaseListener implements PhaseListener {
-		private static final long serialVersionUID = -1966645586738534609L;
-
-		@Override
-		public PhaseId getPhaseId() {
-			return PhaseId.RENDER;
-		}
-
-		@Override
-		public void beforePhase(PhaseEvent event) {
-			CmsSession cmsSession = CmsSession.current.get();
-			String state = cmsSession.getState();
-			if (state == null)
-				cmsSession.navigateTo("~");
-		}
-
-		@Override
-		public void afterPhase(PhaseEvent event) {
-		}
-	}
+//	class CmsPhaseListener implements PhaseListener {
+//		private static final long serialVersionUID = -1966645586738534609L;
+//
+//		@Override
+//		public PhaseId getPhaseId() {
+//			return PhaseId.RENDER;
+//		}
+//
+//		@Override
+//		public void beforePhase(PhaseEvent event) {
+//			CmsSession cmsSession = CmsSession.current.get();
+//			String state = cmsSession.getState();
+//			if (state == null)
+//				cmsSession.navigateTo("~");
+//		}
+//
+//		@Override
+//		public void afterPhase(PhaseEvent event) {
+//		}
+//	}
 
 	/*
 	 * TEXTS

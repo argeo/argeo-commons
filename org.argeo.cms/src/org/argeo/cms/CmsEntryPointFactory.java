@@ -44,8 +44,6 @@ public class CmsEntryPointFactory implements EntryPointFactory {
 	private CmsLogin cmsLogin;
 
 	private CmsUiProvider header;
-	// private CmsUiProvider dynamicPages;
-	// private Map<String, CmsUiProvider> staticPages;
 	private Map<String, CmsUiProvider> pages = new LinkedHashMap<String, CmsUiProvider>();
 
 	private Integer headerHeight = 40;
@@ -74,7 +72,6 @@ public class CmsEntryPointFactory implements EntryPointFactory {
 			VersionManager vm = session.getWorkspace().getVersionManager();
 			if (!vm.isCheckedOut("/"))
 				vm.checkout("/");
-			// session = repository.login(workspace);
 			JcrUtils.mkdirs(session, basePath);
 			for (String principal : rwPrincipals)
 				JcrUtils.addPrivilege(session, basePath, principal,
@@ -134,18 +131,6 @@ public class CmsEntryPointFactory implements EntryPointFactory {
 
 	public void setPages(Map<String, CmsUiProvider> pages) {
 		this.pages = pages;
-	}
-
-	@Deprecated
-	public void setDynamicPages(CmsUiProvider dynamicPages) {
-		log.warn("'dynamicPages' is deprecated, use 'pages' instead, with \"\" as key");
-		pages.put("", dynamicPages);
-	}
-
-	@Deprecated
-	public void setStaticPages(Map<String, CmsUiProvider> staticPages) {
-		log.warn("'staticPages' is deprecated, use 'pages' instead");
-		pages.putAll(staticPages);
 	}
 
 	public void setBasePath(String basePath) {
