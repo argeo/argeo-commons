@@ -2,15 +2,10 @@ Bundle-SymbolicName: org.argeo.security.ui;singleton:=true
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.argeo.security.ui.SecurityUiPlugin
 
-Require-Bundle: org.eclipse.ui;resolution:=optional,\
-				org.eclipse.core.runtime,\
-				org.eclipse.rap.ui;resolution:=optional
-
 Import-Package: org.argeo.eclipse.spring,\
-				org.apache.log4j;resolution:=optional,\
-				org.eclipse.swt.widgets;version="[0,1.0)",\
-				org.osgi.framework;version="[1.4,2)",\
-				*
-				
-Export-Packages:	!org.argeo.security.ui.internal.*,\
-					org.argeo.security.ui.* 
+org.osgi.framework,\
+org.eclipse.swt,\
+org.eclipse.jface.window,\
+org.apache.log4j;resolution:=optional,\
+org.eclipse.ui;resolution:=optional,\
+*

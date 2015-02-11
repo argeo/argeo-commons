@@ -23,28 +23,16 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 
 import org.argeo.ArgeoException;
 import org.argeo.security.ui.dialogs.DefaultLoginDialog;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class SecurityUiPlugin extends AbstractUIPlugin {
-
-	// The plug-in ID
-	public static final String PLUGIN_ID = "org.argeo.security.ui"; //$NON-NLS-1$
-
-	public final static String CONTEXT_KEYRING = "KEYRING";
-
-	private CallbackHandler defaultCallbackHandler;
-	private ServiceRegistration defaultCallbackHandlerReg;
-
-	private static SecurityUiPlugin plugin;
+public class SecurityUiPlugin implements BundleActivator {
 	private static BundleContext bundleContext;
-
 	public static InheritableThreadLocal<Display> display = new InheritableThreadLocal<Display>() {
 
 		@Override
@@ -53,38 +41,36 @@ public class SecurityUiPlugin extends AbstractUIPlugin {
 		}
 	};
 
+	// The plug-in ID
+	public final static String PLUGIN_ID = "org.argeo.security.ui"; //$NON-NLS-1$
+
+	public final static String CONTEXT_KEYRING = "KEYRING";
+
+	private CallbackHandler defaultCallbackHandler;
+	private ServiceRegistration<CallbackHandler> defaultCallbackHandlerReg;
+
 	public void start(BundleContext context) throws Exception {
-		super.start(context);
-		plugin = this;
+		if (bundleContext != null)
+			if (!bundleContext.equals(bundleContext))
+				throw new ArgeoException(
+						"Bundle context already set with a different value");
+			else
+				return;
+
 		bundleContext = context;
 
 		defaultCallbackHandler = new DefaultCallbackHandler();
 		defaultCallbackHandlerReg = context.registerService(
-				CallbackHandler.class.getName(), defaultCallbackHandler, null);
+				CallbackHandler.class, defaultCallbackHandler, null);
 	}
 
 	public void stop(BundleContext context) throws Exception {
-		plugin = null;
 		bundleContext = null;
 		defaultCallbackHandlerReg.unregister();
-		super.stop(context);
-	}
-
-	/**
-	 * Returns the shared instance
-	 * 
-	 * @return the shared instance
-	 */
-	public static SecurityUiPlugin getDefault() {
-		return plugin;
 	}
 
 	public static BundleContext getBundleContext() {
 		return bundleContext;
-	}
-
-	public static ImageDescriptor getImageDescriptor(String path) {
-		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
 
 	protected class DefaultCallbackHandler implements CallbackHandler {

@@ -135,7 +135,7 @@ public abstract class AbstractLoginDialog extends TrayDialog implements
 					// event).
 					while (!processCallbacks && (modalContextThread != null)
 							&& (modalContextThread == Thread.currentThread())
-							&& SecurityUiPlugin.getDefault() != null) {
+							&& SecurityUiPlugin.getBundleContext() != null) {
 						// Note: SecurityUiPlugin.getDefault() != null is false
 						// when the OSGi runtime is shut down
 						try {
