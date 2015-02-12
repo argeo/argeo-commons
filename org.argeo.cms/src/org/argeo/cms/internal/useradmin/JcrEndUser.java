@@ -1,6 +1,5 @@
 package org.argeo.cms.internal.useradmin;
 
-import org.argeo.security.ArgeoUser;
 import org.springframework.security.core.userdetails.UserDetails;
 
 class JcrEndUser extends AbstractJcrUser  {
