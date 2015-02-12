@@ -12,8 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.jackrabbit.servlet.OpenInViewSessionProvider;
 import org.argeo.jackrabbit.servlet.RemotingServlet;
@@ -34,7 +32,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * transactionality.
  */
 class NodeHttp implements KernelConstants, ArgeoJcrConstants {
-	private final static Log log = LogFactory.getLog(NodeHttp.class);
+	// private final static Log log = LogFactory.getLog(NodeHttp.class);
 
 	private final static String ATTR_AUTH = "auth";
 	private final static String HEADER_AUTHORIZATION = "Authorization";
@@ -194,56 +192,24 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 		public void doFilter(HttpSession httpSession,
 				HttpServletRequest request, HttpServletResponse response,
 				FilterChain filterChain) throws IOException, ServletException {
-
-			if (request.getServletPath().startsWith(PATH_DATA)) {
+			String servletPath = request.getServletPath();
+			// skip data
+			if (servletPath.startsWith(PATH_DATA)) {
 				filterChain.doFilter(request, response);
 				return;
 			}
 
+			// redirect long RWT paths to anchor
 			String path = request.getRequestURI().substring(
-					request.getServletPath().length());
-
-			if (!path.equals("")) {
+					servletPath.length());
+			if (!servletPath.endsWith("rwt-resources") && !path.equals("")) {
 				String newLocation = request.getServletPath() + "#" + path;
 				response.setHeader("Location", newLocation);
 				response.setStatus(HttpServletResponse.SC_FOUND);
 				return;
 			}
 
-			// Authenticate from session
-			if (isSessionAuthenticated(httpSession)) {
-				filterChain.doFilter(request, response);
-				return;
-			}
-
-			// TODO Kerberos
-
-			// TODO Certificate
-
-			// Process basic auth
-			String basicAuth = request.getHeader(HEADER_AUTHORIZATION);
-			if (basicAuth != null) {
-				UsernamePasswordAuthenticationToken token = basicAuth(basicAuth);
-				Authentication auth = authenticationManager.authenticate(token);
-				SecurityContextHolder.getContext().setAuthentication(auth);
-				httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
-						SecurityContextHolder.getContext());
-				httpSession.setAttribute(ATTR_AUTH, Boolean.FALSE);
-				filterChain.doFilter(request, response);
-				return;
-			}
-
-			Boolean doBasicAuth = true;
-			if (doBasicAuth) {
-				requestBasicAuth(httpSession, response);
-				// skip filter chain
-				return;
-			}
-
-			// TODO Login page
-
-			// Anonymous
-			KernelUtils.anonymousLogin(authenticationManager);
+			// that's all
 			filterChain.doFilter(request, response);
 		}
 	}
