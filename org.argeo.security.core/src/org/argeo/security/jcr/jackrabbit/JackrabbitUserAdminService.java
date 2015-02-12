@@ -302,6 +302,8 @@ public class JackrabbitUserAdminService implements UserAdminService,
 			Authentication authentication) throws AuthenticationException {
 		UsernamePasswordAuthenticationToken siteAuth = (UsernamePasswordAuthenticationToken) authentication;
 		String username = siteAuth.getName();
+		if (!(siteAuth.getCredentials() instanceof char[]))
+			throw new ArgeoException("Only char array passwords are supported");
 		char[] password = (char[]) siteAuth.getCredentials();
 		try {
 			SimpleCredentials sp = new SimpleCredentials(siteAuth.getName(),
