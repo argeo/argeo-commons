@@ -57,7 +57,7 @@ import org.eclipse.swt.widgets.Text;
 public class Browse implements CmsUiProvider {
 
 	// Some local constants to experiment. should be cleaned
-	private final static String BROWSE_PREFIX = "#browse";
+	private final static String BROWSE_PREFIX = "browse#";
 	private final static int THUMBNAIL_WIDTH = 400;
 	private final static int COLUMN_WIDTH = 160;
 
