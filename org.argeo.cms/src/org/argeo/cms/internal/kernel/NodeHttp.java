@@ -1,23 +1,29 @@
 package org.argeo.cms.internal.kernel;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
 import javax.servlet.FilterChain;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.jackrabbit.servlet.OpenInViewSessionProvider;
 import org.argeo.jackrabbit.servlet.RemotingServlet;
 import org.argeo.jackrabbit.servlet.WebdavServlet;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.eclipse.equinox.http.servlet.ExtendedHttpService;
+import org.eclipse.jetty.servlets.DoSFilter;
+import org.eclipse.jetty.servlets.QoSFilter;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.NamespaceException;
 import org.osgi.util.tracker.ServiceTracker;
@@ -32,7 +38,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * transactionality.
  */
 class NodeHttp implements KernelConstants, ArgeoJcrConstants {
-	// private final static Log log = LogFactory.getLog(NodeHttp.class);
+	private final static Log log = LogFactory.getLog(NodeHttp.class);
 
 	private final static String ATTR_AUTH = "auth";
 	private final static String HEADER_AUTHORIZATION = "Authorization";
@@ -46,7 +52,9 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	private String httpAuthRealm = "Argeo";
 
 	// Filters
-	private final EntryPointFilter entryPointFilter;
+	private final RootFilter rootFilter;
+	private final DoSFilter dosFilter;
+	private final QoSFilter qosFilter;
 
 	// remoting
 	private OpenInViewSessionProvider sessionProvider;
@@ -75,7 +83,9 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 					+ ExtendedHttpService.class + " service.");
 
 		// Filters
-		entryPointFilter = new EntryPointFilter();
+		rootFilter = new RootFilter();
+		dosFilter = new CustomDosFilter();
+		qosFilter = new QoSFilter();
 
 		// DAV
 		sessionProvider = new OpenInViewSessionProvider();
@@ -96,7 +106,9 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 			registerRemotingServlet(PATH_REMOTING_PRIVATE, ALIAS_NODE, false,
 					privateRemotingServlet);
 
-			httpService.registerFilter("/", entryPointFilter, null, null);
+			httpService.registerFilter("/", dosFilter, null, null);
+			httpService.registerFilter("/", rootFilter, null, null);
+			httpService.registerFilter("/", qosFilter, null, null);
 		} catch (Exception e) {
 			throw new CmsException("Cannot publish HTTP services to OSGi", e);
 		}
@@ -186,13 +198,31 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	}
 
 	/** Intercepts all requests. Authenticates. */
-	class EntryPointFilter extends HttpFilter {
+	class RootFilter extends HttpFilter {
 
 		@Override
 		public void doFilter(HttpSession httpSession,
 				HttpServletRequest request, HttpServletResponse response,
 				FilterChain filterChain) throws IOException, ServletException {
+			if (log.isTraceEnabled()) {
+				log.debug(request.getContextPath());
+				log.debug(request.getServletPath());
+				log.debug(request.getRequestURI());
+				log.debug(request.getQueryString());
+				StringBuilder buf = new StringBuilder();
+				Enumeration<String> en = request.getHeaderNames();
+				while (en.hasMoreElements()) {
+					String header = en.nextElement();
+					Enumeration<String> values = request.getHeaders(header);
+					while (values.hasMoreElements())
+						buf.append("  " + header + ": " + values.nextElement());
+					buf.append('\n');
+				}
+				log.debug("\n" + buf);
+			}
+
 			String servletPath = request.getServletPath();
+
 			// skip data
 			if (servletPath.startsWith(PATH_DATA)) {
 				filterChain.doFilter(request, response);
@@ -200,16 +230,17 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 			}
 
 			// redirect long RWT paths to anchor
-			String path = request.getRequestURI().substring(
-					servletPath.length());
-			if (!servletPath.endsWith("rwt-resources") && !path.equals("")) {
+			String path = request.getRequestURI()
+					.substring(servletPath.length()).trim();
+			if (!servletPath.endsWith("rwt-resources") && !path.equals("")
+					&& !path.equals("/")) {
 				String newLocation = request.getServletPath() + "#" + path;
 				response.setHeader("Location", newLocation);
 				response.setStatus(HttpServletResponse.SC_FOUND);
 				return;
 			}
 
-			// that's all
+			// process normally
 			filterChain.doFilter(request, response);
 		}
 	}
@@ -263,4 +294,19 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 		}
 	}
 
+	class CustomDosFilter extends DoSFilter {
+		@Override
+		protected String extractUserId(ServletRequest request) {
+			HttpSession httpSession = ((HttpServletRequest) request)
+					.getSession();
+			if (isSessionAuthenticated(httpSession)) {
+				String userId = ((SecurityContext) httpSession
+						.getAttribute(SPRING_SECURITY_CONTEXT_KEY))
+						.getAuthentication().getName();
+				return userId;
+			}
+			return super.extractUserId(request);
+
+		}
+	}
 }
