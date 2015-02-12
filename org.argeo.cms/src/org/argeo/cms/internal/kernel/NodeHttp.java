@@ -48,7 +48,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	private String httpAuthRealm = "Argeo";
 
 	// Filters
-	// private final RootFilter rootFilter;
+	private final EntryPointFilter entryPointFilter;
 
 	// remoting
 	private OpenInViewSessionProvider sessionProvider;
@@ -77,7 +77,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 					+ ExtendedHttpService.class + " service.");
 
 		// Filters
-		// rootFilter = new RootFilter();
+		entryPointFilter = new EntryPointFilter();
 
 		// DAV
 		sessionProvider = new OpenInViewSessionProvider();
@@ -98,7 +98,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 			registerRemotingServlet(PATH_REMOTING_PRIVATE, ALIAS_NODE, false,
 					privateRemotingServlet);
 
-			// httpService.registerFilter("/", rootFilter, null, null);
+			httpService.registerFilter("/", entryPointFilter, null, null);
 		} catch (Exception e) {
 			throw new CmsException("Cannot publish HTTP services to OSGi", e);
 		}
@@ -164,7 +164,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 					try {
 						String credentials = new String(Base64.decodeBase64(st
 								.nextToken()), "UTF-8");
-						log.debug("Credentials: " + credentials);
+						// log.debug("Credentials: " + credentials);
 						int p = credentials.indexOf(":");
 						if (p != -1) {
 							String login = credentials.substring(0, p).trim();
@@ -172,7 +172,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 									.trim();
 
 							return new UsernamePasswordAuthenticationToken(
-									login, password);
+									login, password.toCharArray());
 						} else {
 							throw new CmsException(
 									"Invalid authentication token");
@@ -188,12 +188,27 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	}
 
 	/** Intercepts all requests. Authenticates. */
-	class RootFilter extends HttpFilter {
+	class EntryPointFilter extends HttpFilter {
 
 		@Override
 		public void doFilter(HttpSession httpSession,
 				HttpServletRequest request, HttpServletResponse response,
 				FilterChain filterChain) throws IOException, ServletException {
+
+			if (request.getServletPath().startsWith(PATH_DATA)) {
+				filterChain.doFilter(request, response);
+				return;
+			}
+
+			String path = request.getRequestURI().substring(
+					request.getServletPath().length());
+
+			if (!path.equals("")) {
+				String newLocation = request.getServletPath() + "#" + path;
+				response.setHeader("Location", newLocation);
+				response.setStatus(HttpServletResponse.SC_FOUND);
+				return;
+			}
 
 			// Authenticate from session
 			if (isSessionAuthenticated(httpSession)) {
@@ -260,10 +275,10 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 				FilterChain filterChain) throws IOException, ServletException {
 
 			// Authenticate from session
-			if (isSessionAuthenticated(httpSession)) {
-				filterChain.doFilter(request, response);
-				return;
-			}
+			// if (isSessionAuthenticated(httpSession)) {
+			// filterChain.doFilter(request, response);
+			// return;
+			// }
 
 			// Process basic auth
 			String basicAuth = request.getHeader(HEADER_AUTHORIZATION);

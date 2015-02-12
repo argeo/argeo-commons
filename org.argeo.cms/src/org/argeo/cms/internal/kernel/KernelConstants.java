@@ -29,10 +29,13 @@ public interface KernelConstants {
 
 	// DAV
 	final static String WEBDAV_CONFIG = "/org/argeo/cms/internal/kernel/webdav-config.xml";
-	final static String PATH_WEBDAV_PUBLIC = "/data/public";
-	final static String PATH_WEBDAV_PRIVATE = "/data/files";
-	final static String PATH_REMOTING_PUBLIC = "/data/pub";
-	final static String PATH_REMOTING_PRIVATE = "/data/jcr";
+	final static String PATH_DATA = "/data";
+	final static String PATH_WEBDAV_PUBLIC = PATH_DATA + "/public";
+	final static String PATH_WEBDAV_PRIVATE = PATH_DATA + "/files";
+	final static String PATH_REMOTING_PUBLIC = PATH_DATA + "/pub";
+	final static String PATH_REMOTING_PRIVATE = PATH_DATA + "/jcr";
+
+	// RWT / RAP
 	final static String PATH_WORKBENCH_PUBLIC = "/ui/public";
 
 }
