@@ -3,6 +3,7 @@ package org.argeo.cms.text;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 
 import org.argeo.cms.CmsEditable;
@@ -39,23 +40,26 @@ public class WikiPage implements CmsUiProvider, CmsNames {
 		} else if (context.isNodeType(NodeType.NT_FOLDER)
 				|| context.getPath().equals("/")) {
 			parent.setBackgroundMode(SWT.INHERIT_NONE);
-			Node indexNode = JcrUtils.getOrAdd(context, CMS_INDEX,
-					CmsTypes.CMS_TEXT);
-			new StandardTextEditor(page, SWT.NONE, indexNode, cmsEditable);
-			textGd.heightHint = 400;
+			if (context.getSession().hasPermission(context.getPath(),
+					Session.ACTION_ADD_NODE)) {
+				Node indexNode = JcrUtils.getOrAdd(context, CMS_INDEX,
+						CmsTypes.CMS_TEXT);
+				new StandardTextEditor(page, SWT.NONE, indexNode, cmsEditable);
+				textGd.heightHint = 400;
 
-			for (NodeIterator ni = context.getNodes(); ni.hasNext();) {
-				Node textNode = ni.nextNode();
-				if (textNode.isNodeType(NodeType.NT_FOLDER))
-					new CmsLink(textNode.getName() + "/", textNode.getPath())
-							.createUi(parent, textNode);
-			}
-			for (NodeIterator ni = context.getNodes(); ni.hasNext();) {
-				Node textNode = ni.nextNode();
-				if (textNode.isNodeType(CmsTypes.CMS_TEXT)
-						&& !textNode.getName().equals(CMS_INDEX))
-					new CmsLink(textNode.getName(), textNode.getPath())
-							.createUi(parent, textNode);
+				for (NodeIterator ni = context.getNodes(); ni.hasNext();) {
+					Node textNode = ni.nextNode();
+					if (textNode.isNodeType(NodeType.NT_FOLDER))
+						new CmsLink(textNode.getName() + "/",
+								textNode.getPath()).createUi(parent, textNode);
+				}
+				for (NodeIterator ni = context.getNodes(); ni.hasNext();) {
+					Node textNode = ni.nextNode();
+					if (textNode.isNodeType(CmsTypes.CMS_TEXT)
+							&& !textNode.getName().equals(CMS_INDEX))
+						new CmsLink(textNode.getName(), textNode.getPath())
+								.createUi(parent, textNode);
+				}
 			}
 		}
 		return page;
