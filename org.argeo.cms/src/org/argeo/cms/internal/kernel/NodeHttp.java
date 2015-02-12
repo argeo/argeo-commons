@@ -23,7 +23,6 @@ import org.argeo.jackrabbit.servlet.WebdavServlet;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.eclipse.equinox.http.servlet.ExtendedHttpService;
 import org.eclipse.jetty.servlets.DoSFilter;
-import org.eclipse.jetty.servlets.QoSFilter;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.NamespaceException;
 import org.osgi.util.tracker.ServiceTracker;
@@ -53,8 +52,8 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 
 	// Filters
 	private final RootFilter rootFilter;
-	private final DoSFilter dosFilter;
-	private final QoSFilter qosFilter;
+	// private final DoSFilter dosFilter;
+	// private final QoSFilter qosFilter;
 
 	// remoting
 	private OpenInViewSessionProvider sessionProvider;
@@ -84,8 +83,8 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 
 		// Filters
 		rootFilter = new RootFilter();
-		dosFilter = new CustomDosFilter();
-		qosFilter = new QoSFilter();
+		// dosFilter = new CustomDosFilter();
+		// qosFilter = new QoSFilter();
 
 		// DAV
 		sessionProvider = new OpenInViewSessionProvider();
@@ -106,9 +105,9 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 			registerRemotingServlet(PATH_REMOTING_PRIVATE, ALIAS_NODE, false,
 					privateRemotingServlet);
 
-			httpService.registerFilter("/", dosFilter, null, null);
+			// httpService.registerFilter("/", dosFilter, null, null);
 			httpService.registerFilter("/", rootFilter, null, null);
-			httpService.registerFilter("/", qosFilter, null, null);
+			// httpService.registerFilter("/", qosFilter, null, null);
 		} catch (Exception e) {
 			throw new CmsException("Cannot publish HTTP services to OSGi", e);
 		}
