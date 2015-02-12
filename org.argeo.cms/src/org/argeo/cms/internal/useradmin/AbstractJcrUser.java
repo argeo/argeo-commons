@@ -2,9 +2,9 @@ package org.argeo.cms.internal.useradmin;
 
 import java.util.Dictionary;
 
-import org.osgi.service.useradmin.User;
+import org.argeo.security.ArgeoUser;
 
-abstract class AbstractJcrUser extends JcrRole implements User {
+abstract class AbstractJcrUser extends JcrRole implements ArgeoUser {
 
 	@Override
 	public Dictionary<String, Object> getCredentials() {

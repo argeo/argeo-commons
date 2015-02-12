@@ -38,7 +38,7 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 	// current state
 	private Node node;
 	private String state;
-	// private String page;
+	private String page;
 	private Throwable exception;
 
 	private BrowserNavigation history;
@@ -167,7 +167,7 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 		String previousState = this.state;
 
 		node = null;
-		// page = null;
+		page = null;
 		this.state = newState;
 
 		try {
@@ -177,7 +177,7 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 					node = addNode(session, state, null);
 				else
 					node = session.getNode(state);
-				// page = "";
+				page = "";
 			} else if (firstSlash > 0) {
 				String prefix = state.substring(0, firstSlash);
 				String path = state.substring(firstSlash);
@@ -210,19 +210,15 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 						throw new CmsException("Data " + path
 								+ " does not exist");
 				}
-				throw new CmsException("Unsupported state prefix '" + prefix
-						+ "'");
-				// page = prefix;
+				page = prefix;
 			} else {
 				node = getDefaultNode(session);
-				// if (state.equals("~"))
-				// page = "";
-				// else
-				// page = state;
+				page = state;
 			}
 
 			if (log.isTraceEnabled())
-				log.trace("node=" + node + ", state=" + state);
+				log.trace("node=" + node + ", state=" + state + " (page="
+						+ page);
 
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot retrieve node", e);
@@ -245,7 +241,7 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 		return state;
 	}
 
-	// protected String getPage() {
+	// String getPage() {
 	// return page;
 	// }
 

@@ -67,7 +67,7 @@ public class JcrUserAdmin implements UserAdmin {
 				session.getWorkspace().getVersionManager()
 						.checkin(userProfile.getPath());
 				userAdminService().createUser(userDetails);
-				return new JcrEnduser(userDetails);
+				return new JcrEndUser(userDetails);
 			} else if (Role.GROUP == type) {
 				userAdminService().newRole(name);
 				return new JcrGroup(name);
@@ -84,7 +84,7 @@ public class JcrUserAdmin implements UserAdmin {
 		Role role = getRole(name);
 		if (role == null)
 			return false;
-		if (role instanceof JcrEnduser)
+		if (role instanceof JcrEndUser)
 			userAdminService().deleteUser(role.getName());
 		else if (role instanceof JcrGroup)
 			userAdminService().deleteRole(role.getName());
@@ -100,7 +100,7 @@ public class JcrUserAdmin implements UserAdmin {
 		try {
 			UserDetails userDetails = userAdminService().loadUserByUsername(
 					name);
-			return new JcrEnduser(userDetails);
+			return new JcrEndUser(userDetails);
 		} catch (UsernameNotFoundException e) {
 			return null;
 		}
@@ -118,7 +118,7 @@ public class JcrUserAdmin implements UserAdmin {
 		for (int i = 0; i < roles.size(); i++)
 			res[i] = new JcrGroup(roles.get(i));
 		for (int i = 0; i < users.size(); i++)
-			res[roles.size() + i] = new JcrEnduser(userAdminService()
+			res[roles.size() + i] = new JcrEndUser(userAdminService()
 					.loadUserByUsername(users.get(i)));
 		return res;
 	}
