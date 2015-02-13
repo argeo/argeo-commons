@@ -229,9 +229,11 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 			}
 
 			// redirect long RWT paths to anchor
-			String path = request.getRequestURI()
-					.substring(servletPath.length()).trim();
-			if (!servletPath.endsWith("rwt-resources") && !path.equals("")
+			String path = request.getRequestURI().substring(
+					servletPath.length());
+			int pathLength = path.length();
+			if (pathLength != 0 && (path.charAt(0) == '/')
+					&& !servletPath.endsWith("rwt-resources")
 					&& !path.equals("/")) {
 				String newLocation = request.getServletPath() + "#" + path;
 				response.setHeader("Location", newLocation);
