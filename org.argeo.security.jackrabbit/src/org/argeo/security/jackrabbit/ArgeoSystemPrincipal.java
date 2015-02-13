@@ -18,6 +18,7 @@ package org.argeo.security.jackrabbit;
 import java.security.Principal;
 
 /** Principal for non-interactive system actions. */
+@Deprecated
 class ArgeoSystemPrincipal implements Principal {
 	private String name;
 

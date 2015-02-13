@@ -98,8 +98,8 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		if (!subject.getPrincipals(AnonymousPrincipal.class).isEmpty())
 			return super.getUserID(subject, workspaceName);
 		// skip Jackrabbit system user (all rights)
-		if (!subject.getPrincipals(ArgeoSystemPrincipal.class).isEmpty())
-			return super.getUserID(subject, workspaceName);
+		// if (!subject.getPrincipals(ArgeoSystemPrincipal.class).isEmpty())
+		// return super.getUserID(subject, workspaceName);
 
 		// retrieve Spring authentication from JAAS
 		// TODO? use Spring Security context holder

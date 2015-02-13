@@ -13,22 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.jackrabbit;
+package org.argeo.security.login;
 
 import java.security.Principal;
 
+import javax.security.auth.Subject;
+
 import org.springframework.security.core.GrantedAuthority;
 
-/** Wraps a {@link GrantedAuthority} as a principal. */
-class GrantedAuthorityPrincipal implements Principal {
-	private final GrantedAuthority grantedAuthority;
+/**
+ * A {@link Principal} which is also a {@link GrantedAuthority}, so that the
+ * Spring Security can be used to quickly populate a {@link Subject} principals.
+ */
+public final class GrantedAuthorityPrincipal implements Principal,
+		GrantedAuthority {
+	private static final long serialVersionUID = 6768044196343543328L;
+	private final String authority;
 
-	public GrantedAuthorityPrincipal(GrantedAuthority grantedAuthority) {
-		this.grantedAuthority = grantedAuthority;
+	public GrantedAuthorityPrincipal(String authority) {
+		this.authority = authority;
 	}
 
+	@Override
+	public String getAuthority() {
+		return authority;
+	}
+
+	@Override
 	public String getName() {
-		return grantedAuthority.getAuthority();
+		return authority;
 	}
 
 	@Override

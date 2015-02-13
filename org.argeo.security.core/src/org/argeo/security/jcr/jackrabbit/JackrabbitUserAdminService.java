@@ -26,6 +26,7 @@ import org.argeo.security.NodeAuthenticationToken;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.jcr.JcrUserDetails;
+import org.argeo.security.login.GrantedAuthorityPrincipal;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -33,7 +34,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -280,16 +280,16 @@ public class JackrabbitUserAdminService implements UserAdminService,
 		if (username == null)
 			username = session.getUserID();
 		User user = (User) getUserManager().getAuthorizable(username);
-		ArrayList<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+		ArrayList<GrantedAuthorityPrincipal> authorities = new ArrayList<GrantedAuthorityPrincipal>();
 		// FIXME make it more generic
-		authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+		authorities.add(new GrantedAuthorityPrincipal("ROLE_USER"));
 		Iterator<Group> groups = user.declaredMemberOf();
 		while (groups.hasNext()) {
 			Group group = groups.next();
 			// String role = "ROLE_"
 			// + group.getPrincipal().getName().toUpperCase();
 			String role = group.getPrincipal().getName();
-			authorities.add(new SimpleGrantedAuthority(role));
+			authorities.add(new GrantedAuthorityPrincipal(role));
 		}
 
 		Node userProfile = UserJcrUtils.getUserProfile(session, username);

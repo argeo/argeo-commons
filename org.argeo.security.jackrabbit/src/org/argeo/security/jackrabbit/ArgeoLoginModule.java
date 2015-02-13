@@ -59,12 +59,13 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 
 		if (authen instanceof SystemAuthentication) {
 			principals.add(new AdminPrincipal(authen.getName()));
-			principals.add(new ArgeoSystemPrincipal(authen.getName()));
+			// principals.add(new ArgeoSystemPrincipal(authen.getName()));
 		} else if (authen instanceof AnonymousAuthenticationToken) {
 			principals.add(new AnonymousPrincipal());
 		} else {
 			for (GrantedAuthority ga : authen.getAuthorities()) {
-				principals.add(new GrantedAuthorityPrincipal(ga));
+				if (ga instanceof Principal)
+					principals.add((Principal) ga);
 				// FIXME: make it more generic
 				if (adminRole.equals(ga.getAuthority()))
 					principals.add(new AdminPrincipal(authen.getName()));
@@ -85,20 +86,29 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 	 * {@link org.springframework.security.Authentication} as well. Here we
 	 * simply clear Jackrabbit related {@link Principal}s.
 	 */
-	@Override
-	public boolean logout() throws LoginException {
-		clearPrincipals(AdminPrincipal.class);
-		clearPrincipals(ArgeoSystemPrincipal.class);
-		clearPrincipals(AnonymousPrincipal.class);
-		clearPrincipals(GrantedAuthorityPrincipal.class);
-		return true;
-	}
+	// @Override
+	// public boolean logout() throws LoginException {
+	// Set<Principal> principals = subject.getPrincipals();
+	// for (Principal principal : subject.getPrincipals()) {
+	// if ((principal instanceof AdminPrincipal)
+	// || (principal instanceof ArgeoSystemPrincipal)
+	// || (principal instanceof AnonymousPrincipal)
+	// || (principal instanceof GrantedAuthority)) {
+	// principals.remove(principal);
+	// }
+	// }
+	// // clearPrincipals(AdminPrincipal.class);
+	// // clearPrincipals(ArgeoSystemPrincipal.class);
+	// // clearPrincipals(AnonymousPrincipal.class);
+	// // clearPrincipals(GrantedAuthority.class);
+	// return true;
+	// }
 
-	private <T extends Principal> void clearPrincipals(Class<T> clss) {
-		Set<T> principals = subject.getPrincipals(clss);
-		if (principals != null)
-			principals.clear();
-	}
+	// private <T extends Principal> void clearPrincipals(Class<T> clss) {
+	// Set<T> principals = subject.getPrincipals(clss);
+	// if (principals != null)
+	// principals.clear();
+	// }
 
 	@SuppressWarnings("rawtypes")
 	@Override
