@@ -22,6 +22,7 @@ import org.apache.jackrabbit.core.security.authentication.CryptedSimpleCredentia
 import org.argeo.ArgeoException;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.UserJcrUtils;
+import org.argeo.security.NodeAuthenticationToken;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.jcr.JcrUserDetails;
@@ -300,7 +301,7 @@ public class JackrabbitUserAdminService implements UserAdminService,
 	// AUTHENTICATION PROVIDER
 	public synchronized Authentication authenticate(
 			Authentication authentication) throws AuthenticationException {
-		UsernamePasswordAuthenticationToken siteAuth = (UsernamePasswordAuthenticationToken) authentication;
+		NodeAuthenticationToken siteAuth = (NodeAuthenticationToken) authentication;
 		String username = siteAuth.getName();
 		if (!(siteAuth.getCredentials() instanceof char[]))
 			throw new ArgeoException("Only char array passwords are supported");
@@ -334,8 +335,8 @@ public class JackrabbitUserAdminService implements UserAdminService,
 		try {
 			JcrUserDetails userDetails = loadJcrUserDetails(adminSession,
 					username);
-			UsernamePasswordAuthenticationToken authenticated = new UsernamePasswordAuthenticationToken(
-					siteAuth, "", userDetails.getAuthorities());
+			NodeAuthenticationToken authenticated = new NodeAuthenticationToken(
+					siteAuth, userDetails.getAuthorities());
 			authenticated.setDetails(userDetails);
 			return authenticated;
 		} catch (RepositoryException e) {

@@ -1,4 +1,4 @@
-package org.argeo.security.core;
+package org.argeo.security.login;
 
 import java.io.Console;
 import java.io.IOException;

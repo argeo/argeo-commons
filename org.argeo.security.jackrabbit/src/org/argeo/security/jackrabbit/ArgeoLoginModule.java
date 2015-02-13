@@ -24,7 +24,6 @@ import java.util.Set;
 import javax.jcr.Credentials;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 
@@ -41,49 +40,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class ArgeoLoginModule extends AbstractLoginModule {
 	private String adminRole = "ROLE_ADMIN";
 
-	@SuppressWarnings("unused")
-	@Override
-	public boolean login() throws LoginException {
-		boolean loginOk = super.login();
-		if (!loginOk) {
-			org.springframework.security.core.Authentication authen = (org.springframework.security.core.Authentication) SecurityContextHolder
-					.getContext().getAuthentication();
-		}
-		return loginOk;
-	}
-
-	@SuppressWarnings("unused")
-	@Override
-	public boolean commit() throws LoginException {
-		boolean commitOk = super.commit();
-		if (!commitOk) {
-			org.springframework.security.core.Authentication authen = (org.springframework.security.core.Authentication) SecurityContextHolder
-					.getContext().getAuthentication();
-		}
-		return commitOk;
-	}
-
 	/**
 	 * Returns the Spring {@link org.springframework.security.Authentication}
 	 * (which can be null)
 	 */
 	@Override
 	protected Principal getPrincipal(Credentials credentials) {
-		org.springframework.security.core.Authentication authen = SecurityContextHolder
-				.getContext().getAuthentication();
-		return authen;
+		return SecurityContextHolder.getContext().getAuthentication();
 	}
 
 	protected Set<Principal> getPrincipals() {
-		// clear already registered Jackrabbit principals
-		// clearPrincipals(AdminPrincipal.class);
-		// clearPrincipals(AnonymousPrincipal.class);
-		// clearPrincipals(GrantedAuthorityPrincipal.class);
-
-		return syncPrincipals();
-	}
-
-	protected Set<Principal> syncPrincipals() {
 		// use linked HashSet instead of HashSet in order to maintain the order
 		// of principals (as in the Subject).
 		org.springframework.security.core.Authentication authen = (org.springframework.security.core.Authentication) principal;
@@ -106,13 +72,10 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 		}
 
 		// remove previous credentials
-		Set<SimpleCredentials> thisCredentials = subject
-				.getPublicCredentials(SimpleCredentials.class);
-		if (thisCredentials != null)
-			thisCredentials.clear();
-		// override credentials since we did not used the one passed to us
-		// credentials = new SimpleCredentials(authen.getName(), authen
-		// .getCredentials().toString().toCharArray());
+		// Set<SimpleCredentials> thisCredentials = subject
+		// .getPublicCredentials(SimpleCredentials.class);
+		// if (thisCredentials != null)
+		// thisCredentials.clear();
 
 		return principals;
 	}
@@ -128,12 +91,6 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 		clearPrincipals(ArgeoSystemPrincipal.class);
 		clearPrincipals(AnonymousPrincipal.class);
 		clearPrincipals(GrantedAuthorityPrincipal.class);
-
-		// we resync with Spring Security since the subject may have been reused
-		// in beetween
-		// TODO: check if this is clean
-		// subject.getPrincipals().addAll(syncPrincipals());
-
 		return true;
 	}
 

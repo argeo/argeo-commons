@@ -53,4 +53,17 @@ public class NodeAuthenticationToken extends
 	public Boolean isRemote() {
 		return url != null;
 	}
+
+	public String toString() {
+		String username = getName();
+		StringBuilder buf = new StringBuilder("groups=");
+		for (GrantedAuthority ga : getAuthorities()) {
+			if (!ga.getAuthority().equals(username)) {
+				buf.append(ga.getAuthority());
+				buf.append(',');
+			}
+		}
+		buf.deleteCharAt(buf.length() - 1);
+		return "uid=" + getName() + " " + buf.toString();
+	}
 }

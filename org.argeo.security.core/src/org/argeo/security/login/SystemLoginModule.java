@@ -27,7 +27,7 @@ import org.argeo.security.core.InternalAuthentication;
 import org.springframework.security.core.Authentication;
 
 /** Login module which caches one subject per thread. */
-public class SystemLoginModule extends AbstractSpringSecurityLoginModule {
+public class SystemLoginModule extends AbstractSpringLoginModule {
 	@Override
 	protected Authentication processLogin(CallbackHandler callbackHandler)
 			throws LoginException, UnsupportedCallbackException, IOException,

@@ -4,18 +4,21 @@ import java.util.Dictionary;
 
 import org.osgi.service.useradmin.Role;
 
-class JcrRole implements Role {
+abstract class JcrRole implements Role {
+	private String name;
+
+	public JcrRole(String name) {
+		this.name = name;
+	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return name;
 	}
 
 	@Override
 	public int getType() {
-		// TODO Auto-generated method stub
-		return 0;
+		return Role.ROLE;
 	}
 
 	@Override

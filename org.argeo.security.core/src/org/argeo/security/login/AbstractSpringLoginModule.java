@@ -25,14 +25,19 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.service.useradmin.UserAdmin;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Login module which caches one subject per thread. */
-abstract class AbstractSpringSecurityLoginModule implements LoginModule {
+abstract class AbstractSpringLoginModule implements LoginModule {
+	// private final static Log log = LogFactory
+	// .getLog(AbstractSpringLoginModule.class);
 	private CallbackHandler callbackHandler;
 	private Subject subject;
+
+	private Authentication authentication;
 
 	protected abstract Authentication processLogin(
 			CallbackHandler callbackHandler) throws LoginException,
@@ -54,7 +59,8 @@ abstract class AbstractSpringSecurityLoginModule implements LoginModule {
 					.getAuthentication();
 			if (currentAuth != null) {
 				if (subject.getPrincipals(Authentication.class).size() == 0) {
-					subject.getPrincipals().add(currentAuth);
+					throw new LoginException(
+							"Security context set but not Authentication principal");
 				} else {
 					Authentication principal = subject
 							.getPrincipals(Authentication.class).iterator()
@@ -66,18 +72,10 @@ abstract class AbstractSpringSecurityLoginModule implements LoginModule {
 				return true;
 			}
 
-			// reset all principals and credentials
-			// if (log.isTraceEnabled())
-			// log.trace("Resetting all principals and credentials of "
-			// + subject);
-			// subject.getPrincipals().clear();
-			// subject.getPrivateCredentials().clear();
-			// subject.getPublicCredentials().clear();
-
 			if (callbackHandler == null)
 				throw new LoginException("No callback handler available");
 
-			Authentication authentication = processLogin(callbackHandler);
+			authentication = processLogin(callbackHandler);
 			if (authentication != null) {
 				SecurityContextHolder.getContext().setAuthentication(
 						authentication);
@@ -102,7 +100,7 @@ abstract class AbstractSpringSecurityLoginModule implements LoginModule {
 
 	@Override
 	public boolean logout() throws LoginException {
-		// subject.getPrincipals().clear();
+		SecurityContextHolder.getContext().setAuthentication(null);
 		return true;
 	}
 
@@ -113,6 +111,7 @@ abstract class AbstractSpringSecurityLoginModule implements LoginModule {
 
 	@Override
 	public boolean abort() throws LoginException {
+		SecurityContextHolder.getContext().setAuthentication(null);
 		return true;
 	}
 
@@ -122,5 +121,14 @@ abstract class AbstractSpringSecurityLoginModule implements LoginModule {
 		return bc.getService(bc
 				.getServiceReference(AuthenticationManager.class));
 
+	}
+
+	protected UserAdmin getUserAdmin(BundleContextCallback bundleContextCallback) {
+		BundleContext bc = bundleContextCallback.getBundleContext();
+		return bc.getService(bc.getServiceReference(UserAdmin.class));
+	}
+
+	protected Subject getSubject() {
+		return subject;
 	}
 }

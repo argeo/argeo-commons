@@ -33,7 +33,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /** Login module which caches one subject per thread. */
-public class AnonymousLoginModule extends AbstractSpringSecurityLoginModule {
+public class AnonymousLoginModule extends AbstractSpringLoginModule {
 	private String anonymousRole = "ROLE_ANONYMOUS";
 	/** Comma separated list of locales */
 	private String availableLocales = null;

@@ -32,7 +32,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 
 /** Authenticates an end user */
-public class EndUserLoginModule extends AbstractSpringSecurityLoginModule {
+public class EndUserLoginModule extends AbstractSpringLoginModule {
 	final static String NODE_REPO_URI = "argeo.node.repo.uri";
 
 	private Long waitBetweenFailedLoginAttempts = 5 * 1000l;
@@ -92,9 +92,15 @@ public class EndUserLoginModule extends AbstractSpringSecurityLoginModule {
 			Thread.sleep(waitBetweenFailedLoginAttempts);
 			throw e;
 		}
+
 		if (selectedLocale != null)
 			LocaleUtils.threadLocale.set(selectedLocale);
 
 		return auth;
+	}
+
+	@Override
+	public boolean commit() throws LoginException {
+		return super.commit();
 	}
 }

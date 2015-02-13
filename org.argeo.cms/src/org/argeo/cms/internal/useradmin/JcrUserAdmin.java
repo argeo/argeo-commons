@@ -1,8 +1,5 @@
 package org.argeo.cms.internal.useradmin;
 
-import static org.argeo.jcr.ArgeoJcrConstants.ALIAS_NODE;
-import static org.argeo.jcr.ArgeoJcrConstants.JCR_REPOSITORY_ALIAS;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -14,6 +11,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
+import org.argeo.jcr.JcrUtils;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.jcr.JcrUserDetails;
@@ -28,7 +26,6 @@ import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.service.useradmin.UserAdminEvent;
 import org.osgi.service.useradmin.UserAdminListener;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public class JcrUserAdmin implements UserAdmin {
@@ -38,18 +35,17 @@ public class JcrUserAdmin implements UserAdmin {
 	private final JcrSecurityModel jcrSecurityModel = new SimpleJcrSecurityModel();
 	private final Session session;
 
-	public JcrUserAdmin(BundleContext bundleContext) {
+	public JcrUserAdmin(BundleContext bundleContext, Repository node) {
 		try {
 			this.bundleContext = bundleContext;
-
-			ServiceReference<Repository> nodeRepo = bundleContext
-					.getServiceReferences(Repository.class,
-							"(" + JCR_REPOSITORY_ALIAS + "=" + ALIAS_NODE + ")")
-					.iterator().next();
-			this.session = bundleContext.getService(nodeRepo).login();
+			this.session = node.login();
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot initialize user admin", e);
 		}
+	}
+
+	public void destroy() {
+		JcrUtils.logoutQuietly(session);
 	}
 
 	@Override
@@ -95,14 +91,15 @@ public class JcrUserAdmin implements UserAdmin {
 
 	@Override
 	public Role getRole(String name) {
-		if (userAdminService().listEditableRoles().contains(name))
-			return new JcrGroup(name);
 		try {
-			UserDetails userDetails = userAdminService().loadUserByUsername(
-					name);
+			JcrUserDetails userDetails = (JcrUserDetails) userAdminService()
+					.loadUserByUsername(name);
 			return new JcrEndUser(userDetails);
 		} catch (UsernameNotFoundException e) {
-			return null;
+			if (userAdminService().listEditableRoles().contains(name))
+				return new JcrGroup(name);
+			else
+				return null;
 		}
 	}
 
@@ -118,8 +115,9 @@ public class JcrUserAdmin implements UserAdmin {
 		for (int i = 0; i < roles.size(); i++)
 			res[i] = new JcrGroup(roles.get(i));
 		for (int i = 0; i < users.size(); i++)
-			res[roles.size() + i] = new JcrEndUser(userAdminService()
-					.loadUserByUsername(users.get(i)));
+			res[roles.size() + i] = new JcrEndUser(
+					(JcrUserDetails) userAdminService().loadUserByUsername(
+							users.get(i)));
 		return res;
 	}
 
@@ -130,7 +128,7 @@ public class JcrUserAdmin implements UserAdmin {
 
 	@Override
 	public Authorization getAuthorization(User user) {
-		return null;
+		return new JcrAuthorization(((JcrEndUser) user).getUserDetails());
 	}
 
 	private synchronized UserAdminService userAdminService() {

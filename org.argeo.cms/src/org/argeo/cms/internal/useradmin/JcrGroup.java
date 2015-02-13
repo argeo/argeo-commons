@@ -5,6 +5,15 @@ import org.osgi.service.useradmin.Role;
 
 class JcrGroup extends AbstractJcrUser implements Group {
 	public JcrGroup(String name) {
+		super(name);
+	}
+
+	//
+	// OSGi MODEL
+	//
+	@Override
+	public int getType() {
+		return Role.GROUP;
 	}
 
 	@Override
@@ -35,6 +44,21 @@ class JcrGroup extends AbstractJcrUser implements Group {
 	public Role[] getRequiredMembers() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public String toString() {
+		return "ArgeoGroup: " + getName();
+	}
+
+	public boolean equals(Object obj) {
+		if (!(obj instanceof JcrGroup))
+			return false;
+		else
+			return ((JcrGroup) obj).getName().equals(getName());
+	}
+
+	public int hashCode() {
+		return getName().hashCode();
 	}
 
 }

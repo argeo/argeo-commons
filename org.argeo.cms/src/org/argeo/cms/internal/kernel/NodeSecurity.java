@@ -7,6 +7,8 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.internal.useradmin.JcrUserAdmin;
+import org.argeo.security.SecurityUtils;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.core.InternalAuthentication;
 import org.argeo.security.core.InternalAuthenticationProvider;
@@ -14,6 +16,7 @@ import org.argeo.security.jcr.SimpleJcrSecurityModel;
 import org.argeo.security.jcr.jackrabbit.JackrabbitUserAdminService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.useradmin.UserAdmin;
 import org.springframework.security.authentication.AnonymousAuthenticationProvider;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,13 +34,13 @@ class NodeSecurity implements AuthenticationManager {
 	private final InternalAuthenticationProvider internalAuth;
 	private final AnonymousAuthenticationProvider anonymousAuth;
 	private final JackrabbitUserAdminService userAdminService;
-	// private final JcrUserAdmin userAdmin;
+	private final JcrUserAdmin userAdmin;
 
 	private ServiceRegistration<AuthenticationManager> authenticationManagerReg;
 	private ServiceRegistration<UserAdminService> userAdminServiceReg;
 	private ServiceRegistration<UserDetailsManager> userDetailsManagerReg;
 
-	// private ServiceRegistration<UserAdmin> userAdminReg;
+	private ServiceRegistration<UserAdmin> userAdminReg;
 
 	public NodeSecurity(BundleContext bundleContext, JackrabbitNode node)
 			throws RepositoryException {
@@ -49,9 +52,9 @@ class NodeSecurity implements AuthenticationManager {
 		this.bundleContext = bundleContext;
 
 		internalAuth = new InternalAuthenticationProvider(
-				KernelConstants.DEFAULT_SECURITY_KEY);
+				SecurityUtils.getStaticKey());
 		anonymousAuth = new AnonymousAuthenticationProvider(
-				KernelConstants.DEFAULT_SECURITY_KEY);
+				SecurityUtils.getStaticKey());
 
 		// user admin
 		userAdminService = new JackrabbitUserAdminService();
@@ -59,8 +62,8 @@ class NodeSecurity implements AuthenticationManager {
 		userAdminService.setSecurityModel(new SimpleJcrSecurityModel());
 		userAdminService.init();
 
-		// userAdmin = new JcrUserAdmin(bundleContext);
-		// userAdmin.setUserAdminService(userAdminService);
+		userAdmin = new JcrUserAdmin(bundleContext, node);
+		userAdmin.setUserAdminService(userAdminService);
 	}
 
 	public void publish() {
@@ -70,8 +73,8 @@ class NodeSecurity implements AuthenticationManager {
 				UserAdminService.class, userAdminService, null);
 		userDetailsManagerReg = bundleContext.registerService(
 				UserDetailsManager.class, userAdminService, null);
-		// userAdminReg = bundleContext.registerService(UserAdmin.class,
-		// userAdmin, null);
+		userAdminReg = bundleContext.registerService(UserAdmin.class,
+				userAdmin, null);
 	}
 
 	void destroy() {
@@ -83,7 +86,7 @@ class NodeSecurity implements AuthenticationManager {
 		userDetailsManagerReg.unregister();
 		userAdminServiceReg.unregister();
 		authenticationManagerReg.unregister();
-		// userAdminReg.unregister();
+		userAdminReg.unregister();
 	}
 
 	@Override
