@@ -1,7 +1,6 @@
 package org.argeo.cms.internal.kernel;
 
 import java.io.IOException;
-import java.util.Enumeration;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -13,12 +12,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /** Abstract base class for http filters. */
 abstract class HttpFilter implements Filter {
-	private final static Log log = LogFactory.getLog(HttpFilter.class);
+	// private final static Log log = LogFactory.getLog(HttpFilter.class);
 
 	protected abstract void doFilter(HttpSession httpSession,
 			HttpServletRequest request, HttpServletResponse response,
