@@ -40,6 +40,7 @@ import org.eclipse.swt.widgets.Shell;
 /** Base for login dialogs */
 public abstract class AbstractLoginDialog extends TrayDialog implements
 		CallbackHandler {
+	private static final long serialVersionUID = -8046708963512717709L;
 
 	private final static Log log = LogFactory.getLog(AbstractLoginDialog.class);
 
@@ -98,6 +99,7 @@ public abstract class AbstractLoginDialog extends TrayDialog implements
 				final Button okButton = getButton(IDialogConstants.OK_ID);
 				okButton.setText("Login");
 				okButton.addSelectionListener(new SelectionListener() {
+					private static final long serialVersionUID = -200281625679096775L;
 
 					public void widgetSelected(final SelectionEvent event) {
 						processCallbacks = true;
@@ -109,6 +111,7 @@ public abstract class AbstractLoginDialog extends TrayDialog implements
 				});
 				final Button cancel = getButton(IDialogConstants.CANCEL_ID);
 				cancel.addSelectionListener(new SelectionListener() {
+					private static final long serialVersionUID = -3826030278084915815L;
 
 					public void widgetSelected(final SelectionEvent event) {
 						isCancelled = true;

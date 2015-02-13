@@ -21,7 +21,7 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.TextOutputCallback;
 
-import org.argeo.security.core.BundleContextCallback;
+import org.argeo.security.login.BundleContextCallback;
 import org.argeo.security.ui.SecurityUiPlugin;
 import org.argeo.util.LocaleCallback;
 import org.eclipse.swt.SWT;
@@ -43,6 +43,8 @@ import org.eclipse.swt.widgets.Text;
 
 /** Default authentication dialog, to be used as {@link CallbackHandler}. */
 public class DefaultLoginDialog extends AbstractLoginDialog {
+	private static final long serialVersionUID = -8551827590693035734L;
+
 	public DefaultLoginDialog() {
 		this(SecurityUiPlugin.display.get().getActiveShell());
 	}
@@ -112,6 +114,7 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 		passwordText
 				.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		passwordText.addModifyListener(new ModifyListener() {
+			private static final long serialVersionUID = -7099363995047686732L;
 
 			public void modifyText(ModifyEvent event) {
 				// FIXME use getTextChars() in Eclipse 3.7
@@ -133,6 +136,8 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 		combo.select(callback.getDefaultIndex());
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		combo.addSelectionListener(new SelectionListener() {
+			private static final long serialVersionUID = 38678989091946277L;
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				callback.setSelectedIndex(combo.getSelectionIndex());
@@ -157,6 +162,7 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 		}
 		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		text.addModifyListener(new ModifyListener() {
+			private static final long serialVersionUID = 7300032545287292973L;
 
 			public void modifyText(ModifyEvent event) {
 				callback.setName(text.getText());
