@@ -47,6 +47,7 @@ import org.argeo.jcr.NodeMapperProvider;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
+@Deprecated
 public class BeanNodeMapper implements NodeMapper {
 	private final static Log log = LogFactory.getLog(BeanNodeMapper.class);
 

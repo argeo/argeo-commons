@@ -37,6 +37,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 
 /** Proxy JCR sessions and attach them to calling threads. */
+@Deprecated
 public abstract class ThreadBoundJcrSessionFactory {
 	private final static Log log = LogFactory
 			.getLog(ThreadBoundJcrSessionFactory.class);
@@ -129,9 +130,9 @@ public abstract class ThreadBoundJcrSessionFactory {
 		monitoringThread.start();
 	}
 
-	public synchronized void dispose() throws Exception {
-		if (activeSessions.size() == 0)
-			return;
+	public void dispose() throws Exception {
+		// if (activeSessions.size() == 0)
+		// return;
 
 		if (log.isTraceEnabled())
 			log.trace("Cleaning up " + activeSessions.size()
