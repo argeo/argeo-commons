@@ -16,49 +16,23 @@
 package org.argeo.security.jackrabbit;
 
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.security.auth.Subject;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.jackrabbit.api.security.user.Group;
-import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.core.DefaultSecurityManager;
 import org.apache.jackrabbit.core.security.AMContext;
 import org.apache.jackrabbit.core.security.AccessManager;
-import org.apache.jackrabbit.core.security.AnonymousPrincipal;
 import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Integrates Spring Security and Jackrabbit Security users and roles. */
 public class ArgeoSecurityManager extends DefaultSecurityManager {
-	/** Legacy security sync */
-	final static String PROPERTY_JACKRABBIT_SECURITY_SYNC_1_1 = "argeo.jackarabbit.securitySync.1.1";
-
-	private final static Log log = LogFactory
-			.getLog(ArgeoSecurityManager.class);
-
-	private static Boolean synchronize = Boolean.parseBoolean(System
-			.getProperty(PROPERTY_JACKRABBIT_SECURITY_SYNC_1_1, "false"));
-
-	/** TODO? use a bounded buffer */
-	private Map<String, String> userRolesCache = Collections
-			.synchronizedMap(new HashMap<String, String>());
-
 	@Override
 	public AccessManager getAccessManager(Session session, AMContext amContext)
 			throws RepositoryException {
@@ -83,103 +57,12 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 	@Override
 	public String getUserID(Subject subject, String workspaceName)
 			throws RepositoryException {
-		if (!synchronize) {
-			Authentication authentication = SecurityContextHolder.getContext()
-					.getAuthentication();
-			if (authentication != null)
-				return authentication.getName();
-			else
-				return super.getUserID(subject, workspaceName);
-		}
-
-		if (log.isTraceEnabled())
-			log.trace(subject);
-		// skip anonymous user (no rights)
-		if (!subject.getPrincipals(AnonymousPrincipal.class).isEmpty())
+		Authentication authentication = SecurityContextHolder.getContext()
+				.getAuthentication();
+		if (authentication != null)
+			return authentication.getName();
+		else
 			return super.getUserID(subject, workspaceName);
-		// skip Jackrabbit system user (all rights)
-		// if (!subject.getPrincipals(ArgeoSystemPrincipal.class).isEmpty())
-		// return super.getUserID(subject, workspaceName);
-
-		// retrieve Spring authentication from JAAS
-		// TODO? use Spring Security context holder
-		Authentication authen;
-		Set<Authentication> authens = subject
-				.getPrincipals(Authentication.class);
-		String userId = super.getUserID(subject, workspaceName);
-		if (authens.size() == 0) {
-			// make sure that logged-in user has a Principal, useful for testing
-			// using an admin user
-			UserManager systemUm = getSystemUserManager(null);
-			if (systemUm.getAuthorizable(userId) == null)
-				systemUm.createUser(userId, "");
-		} else {// Spring Security
-			authen = authens.iterator().next();
-
-			if (!userId.equals(authen.getName()))
-				log.warn("User ID is '" + userId + "' but authen is "
-						+ authen.getName());
-			StringBuffer roles = new StringBuffer("");
-			Collection<? extends GrantedAuthority> authorities = authen
-					.getAuthorities();
-			for (GrantedAuthority ga : authorities) {
-				roles.append(ga.toString());
-			}
-
-			// do not sync if not changed
-			if (userRolesCache.containsKey(userId)
-					&& userRolesCache.get(userId).equals(roles.toString()))
-				return userId;
-
-			// sync Spring and Jackrabbit
-			// workspace is irrelevant here
-			UserManager systemUm = getSystemUserManager(null);
-			syncSpringAndJackrabbitSecurity(systemUm, authen);
-			userRolesCache.put(userId, roles.toString());
-		}
-		return userId;
-	}
-
-	/**
-	 * Make sure that the Jackrabbit security model contains this user and its
-	 * granted authorities
-	 */
-	static private void syncSpringAndJackrabbitSecurity(UserManager systemUm,
-			Authentication authen) throws RepositoryException {
-		long begin = System.currentTimeMillis();
-
-		String userId = authen.getName();
-		User user = (User) systemUm.getAuthorizable(userId);
-		if (user == null) {
-			user = systemUm.createUser(userId, authen.getCredentials()
-					.toString(), authen, null);
-			log.info(userId + " added as " + user);
-		}
-
-		// process groups
-		List<String> userGroupIds = new ArrayList<String>();
-		for (GrantedAuthority ga : authen.getAuthorities()) {
-			Group group = (Group) systemUm.getAuthorizable(ga.getAuthority());
-			if (group == null) {
-				group = systemUm.createGroup(ga.getAuthority());
-				log.info(ga.getAuthority() + " added as " + group);
-			}
-			if (!group.isMember(user))
-				group.addMember(user);
-			userGroupIds.add(ga.getAuthority());
-		}
-
-		// check if user has not been removed from some groups
-		for (Iterator<Group> it = user.declaredMemberOf(); it.hasNext();) {
-			Group group = it.next();
-			if (!userGroupIds.contains(group.getID()))
-				group.removeMember(user);
-		}
-
-		if (log.isTraceEnabled())
-			log.trace("Spring and Jackrabbit Security synchronized for user "
-					+ userId + " in " + (System.currentTimeMillis() - begin)
-					+ " ms");
 	}
 
 	@Override
