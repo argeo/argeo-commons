@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.jackrabbit;
+package org.argeo.security.jcr.jackrabbit;
 
 import java.util.ArrayList;
 import java.util.Iterator;
