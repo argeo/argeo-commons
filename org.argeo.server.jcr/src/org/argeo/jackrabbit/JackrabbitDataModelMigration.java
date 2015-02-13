@@ -109,7 +109,8 @@ public class JackrabbitDataModelMigration implements
 	public static void clearRepositoryCaches(RepositoryConfig repositoryConfig) {
 		try {
 			String customeNodeTypesPath = "/nodetypes/custom_nodetypes.xml";
-			repositoryConfig.getFileSystem().deleteFile(customeNodeTypesPath);
+			// FIXME causes weird error in Eclipse
+			//repositoryConfig.getFileSystem().deleteFile(customeNodeTypesPath);
 			if (log.isDebugEnabled())
 				log.debug("Cleared " + customeNodeTypesPath);
 		} catch (Exception e) {
