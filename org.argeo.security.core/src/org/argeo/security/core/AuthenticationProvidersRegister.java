@@ -27,6 +27,7 @@ import org.springframework.beans.factory.InitializingBean;
  * Maintains a list of authentication providers injected in to a provider
  * manager, in order to avoid issues with OSGi services and use packages.
  */
+@Deprecated
 public class AuthenticationProvidersRegister implements InitializingBean {
 	private Log log = LogFactory.getLog(AuthenticationProvidersRegister.class);
 

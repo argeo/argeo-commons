@@ -26,7 +26,9 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
+import org.argeo.cms.KernelHeader;
 import org.argeo.eclipse.ui.workbench.ErrorFeedback;
+import org.argeo.security.login.LoginCanceledException;
 import org.argeo.security.ui.dialogs.DefaultLoginDialog;
 import org.argeo.util.LocaleUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -92,21 +94,16 @@ public class SecureEntryPoint implements EntryPoint {
 		Subject subject = new Subject();
 
 		// log in
-		// BundleContext bc =
-		// SecureRapActivator.getActivator().getBundleContext();
 		Thread.currentThread().setContextClassLoader(
 				getClass().getClassLoader());
 		final LoginContext loginContext;
 		try {
-			loginContext = new LoginContext(SPRING_SECURITY_CONTEXT_KEY,
+			loginContext = new LoginContext(KernelHeader.LOGIN_CONTEXT_USER,
 					subject, new DefaultLoginDialog(display.getActiveShell()));
 		} catch (LoginException e1) {
 			throw new ArgeoException("Cannot initialize login context", e1);
 		}
-		// final LoginModule loginModule = bc.getService(bc
-		// .getServiceReference(LoginModule.class));
-		// loginModule.initialize(subject,
-		// new DefaultLoginDialog(display.getActiveShell()), null, null);
+
 		tryLogin: while (subject.getPrincipals(Authentication.class).size() == 0) {
 			try {
 				loginContext.login();
@@ -203,6 +200,9 @@ public class SecureEntryPoint implements EntryPoint {
 	private BadCredentialsException wasCausedByBadCredentials(Throwable t) {
 		if (t instanceof BadCredentialsException)
 			return (BadCredentialsException) t;
+
+		if (t instanceof LoginCanceledException)
+			return new BadCredentialsException("Login canceled");
 
 		if (t.getCause() != null)
 			return wasCausedByBadCredentials(t.getCause());

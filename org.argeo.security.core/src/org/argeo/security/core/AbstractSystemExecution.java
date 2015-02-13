@@ -15,11 +15,17 @@
  */
 package org.argeo.security.core;
 
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.security.SystemAuthentication;
+import org.argeo.security.login.BundleContextCallbackHandler;
+import org.osgi.framework.BundleContext;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,15 +36,18 @@ public abstract class AbstractSystemExecution {
 		// Forces Spring Security to use inheritable strategy
 		// FIXME find a better place for forcing spring security mode
 		// doesn't work for the time being
-//		if (System.getProperty(SecurityContextHolder.SYSTEM_PROPERTY) == null)
-//			SecurityContextHolder
-//					.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+		// if (System.getProperty(SecurityContextHolder.SYSTEM_PROPERTY) ==
+		// null)
+		// SecurityContextHolder
+		// .setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
 	}
 
 	private final static Log log = LogFactory
 			.getLog(AbstractSystemExecution.class);
 	private AuthenticationManager authenticationManager;
+	private BundleContext bundleContext;
 	private String systemAuthenticationKey;
+	private String loginContextName = "SYSTEM";
 
 	/** Whether the current thread was authenticated by this component. */
 	private ThreadLocal<Boolean> authenticatedBySelf = new ThreadLocal<Boolean>() {
@@ -76,9 +85,24 @@ public abstract class AbstractSystemExecution {
 						InternalAuthentication.SYSTEM_KEY_DEFAULT);
 		if (key == null)
 			throw new ArgeoException("No system key defined");
-		Authentication auth = authenticationManager
-				.authenticate(new InternalAuthentication(key));
-		securityContext.setAuthentication(auth);
+		if (authenticationManager != null) {
+			Authentication auth = authenticationManager
+					.authenticate(new InternalAuthentication(key));
+			securityContext.setAuthentication(auth);
+		} else {
+			try {
+				// TODO test this
+				if (bundleContext == null)
+					throw new ArgeoException("bundleContext must be set");
+				BundleContextCallbackHandler callbackHandler = new BundleContextCallbackHandler(
+						bundleContext);
+				LoginContext loginContext = new LoginContext(loginContextName,
+						callbackHandler);
+				loginContext.login();
+			} catch (LoginException e) {
+				throw new BadCredentialsException("Cannot authenticate");
+			}
+		}
 		authenticatedBySelf.set(true);
 		if (log.isTraceEnabled())
 			log.trace("System authenticated");
@@ -104,13 +128,20 @@ public abstract class AbstractSystemExecution {
 		return authenticatedBySelf.get();
 	}
 
+	@Deprecated
 	public void setAuthenticationManager(
 			AuthenticationManager authenticationManager) {
+		// log.warn("This approach is deprecated, inject bundleContext instead");
 		this.authenticationManager = authenticationManager;
 	}
 
+	@Deprecated
 	public void setSystemAuthenticationKey(String systemAuthenticationKey) {
 		this.systemAuthenticationKey = systemAuthenticationKey;
+	}
+
+	public void setBundleContext(BundleContext bundleContext) {
+		this.bundleContext = bundleContext;
 	}
 
 }

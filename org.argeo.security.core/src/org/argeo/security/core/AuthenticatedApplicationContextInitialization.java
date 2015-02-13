@@ -66,7 +66,6 @@ public class AuthenticatedApplicationContextInitialization extends
 
 	public Object postProcessBeforeInitialization(Object bean, String beanName)
 			throws BeansException {
-		// authenticateAsSystem();
 		return bean;
 	}
 

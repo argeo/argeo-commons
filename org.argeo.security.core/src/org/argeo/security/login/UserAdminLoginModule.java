@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.core;
+package org.argeo.security.login;
 
 import java.util.Locale;
 import java.util.Map;
@@ -27,6 +27,7 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
 import org.argeo.jcr.ArgeoNames;
+import org.argeo.security.core.AuthorizationPrincipal;
 import org.argeo.util.LocaleCallback;
 import org.argeo.util.LocaleUtils;
 import org.osgi.framework.BundleContext;
@@ -52,6 +53,7 @@ public class UserAdminLoginModule implements LoginModule {
 	private AuthorizationPrincipal auth = null;
 	private Locale selectedLocale = null;
 
+	@SuppressWarnings("unused")
 	private LdapShaPasswordEncoder shaPasswordEncoder = new LdapShaPasswordEncoder();
 
 	public UserAdminLoginModule() {

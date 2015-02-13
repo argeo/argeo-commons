@@ -63,6 +63,8 @@ public class RapWindowAdvisor extends WorkbenchWindowAdvisor {
 		// Handle window resize in Rap 2.1+ see
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=417254
 		Display.getCurrent().addListener(SWT.Resize, new Listener() {
+			private static final long serialVersionUID = 2970912561866704526L;
+
 			@Override
 			public void handleEvent(Event event) {
 				Rectangle bounds = event.display.getBounds();

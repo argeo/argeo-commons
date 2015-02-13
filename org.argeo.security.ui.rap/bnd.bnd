@@ -8,4 +8,5 @@ org.springframework.security.authentication.jaas,\
 org.springframework.core,\
 org.argeo.eclipse.spring,\
 org.argeo.eclipse.ui.specific,\
+org.argeo.cms,\
 *

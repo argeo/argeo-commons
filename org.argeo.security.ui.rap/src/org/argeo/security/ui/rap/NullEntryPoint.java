@@ -15,13 +15,13 @@
  */
 package org.argeo.security.ui.rap;
 
-import org.eclipse.rap.rwt.application.IEntryPoint;
+import org.eclipse.rap.rwt.application.EntryPoint;
 import org.eclipse.ui.PlatformUI;
 
 /**
  * RAP entry point which does doesing except creating the display
  */
-public class NullEntryPoint implements IEntryPoint {
+public class NullEntryPoint implements EntryPoint {
 	@Override
 	public int createUI() {
 		// create display

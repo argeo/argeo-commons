@@ -7,9 +7,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.jackrabbit.OsgiJackrabbitRepositoryFactory;
 import org.argeo.security.core.InternalAuthentication;
-import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
@@ -34,8 +32,6 @@ final class Kernel {
 	private NodeSecurity nodeSecurity;
 	private NodeHttp nodeHttp;
 
-	private ServiceRegistration<ApplicationConfiguration> workbenchReg;
-
 	Kernel(BundleContext bundleContext) {
 		this.bundleContext = bundleContext;
 	}
@@ -58,12 +54,6 @@ final class Kernel {
 			bundleContext.registerService(RepositoryFactory.class,
 					repositoryFactory, null);
 			nodeHttp.publish();
-
-//			if ("false".equals(bundleContext
-//					.getProperty(PROP_WORKBENCH_AUTOSTART))) {
-//				WorkbenchApplicationConfiguration wac = new WorkbenchApplicationConfiguration();
-//				registerWorkbench(wac);
-//			}
 		} catch (Exception e) {
 			log.error("Cannot initialize Argeo CMS", e);
 			throw new ArgeoException("Cannot initialize", e);
@@ -77,9 +67,6 @@ final class Kernel {
 
 	void destroy() {
 		long begin = System.currentTimeMillis();
-
-		// OSGi
-		workbenchReg.unregister();
 
 		nodeHttp = null;
 		nodeSecurity.destroy();
