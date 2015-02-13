@@ -107,6 +107,8 @@ public class NodeContentProvider implements ITreeContentProvider {
 		if (parentElement instanceof TreeParent) {
 			if (sortChildren) {
 				Object[] tmpArr = ((TreeParent) parentElement).getChildren();
+				if (tmpArr == null)
+					return new Object[0];
 				TreeParent[] arr = new TreeParent[tmpArr.length];
 				for (int i = 0; i < tmpArr.length; i++)
 					arr[i] = (TreeParent) tmpArr[i];
@@ -114,7 +116,7 @@ public class NodeContentProvider implements ITreeContentProvider {
 				return arr;
 			} else
 				return ((TreeParent) parentElement).getChildren();
-		} else 
+		} else
 			return new Object[0];
 	}
 

@@ -43,11 +43,11 @@ public class WorkspaceElem extends TreeParent {
 		setParent(parent);
 	}
 
-	public Session getSession() {
+	public synchronized Session getSession() {
 		return session;
 	}
 
-	public Node getRootNode() {
+	public synchronized Node getRootNode() {
 		try {
 			if (session != null)
 				return session.getRootNode();
@@ -59,7 +59,7 @@ public class WorkspaceElem extends TreeParent {
 		}
 	}
 
-	public void login() {
+	public synchronized void login() {
 		try {
 			session = ((RepositoryElem) getParent()).repositoryLogin(getName());
 		} catch (RepositoryException e) {
@@ -82,13 +82,14 @@ public class WorkspaceElem extends TreeParent {
 	}
 
 	/** Logouts the session, does not nothing if there is no live session. */
-	public void logout() {
+	public synchronized void logout() {
 		clearChildren();
 		JcrUtils.logoutQuietly(session);
+		session = null;
 	}
 
 	@Override
-	public boolean hasChildren() {
+	public synchronized boolean hasChildren() {
 		try {
 			if (isConnected())
 				return session.getRootNode().hasNodes();
