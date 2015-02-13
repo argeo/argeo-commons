@@ -13,7 +13,8 @@
 		</property>
 	</bean>
 
-	<bean id="nodeSession" class="org.argeo.jcr.spring.ThreadBoundSession">
+	<bean id="nodeSession" class="org.argeo.jcr.spring.ThreadBoundSession"
+		destroy-method="dispose">
 		<property name="repository" ref="nodeRepository" />
 	</bean>
 
