@@ -4,6 +4,7 @@ import javax.jcr.RepositoryFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.jackrabbit.util.TransientFileFactory;
 import org.argeo.ArgeoException;
 import org.argeo.jackrabbit.OsgiJackrabbitRepositoryFactory;
 import org.argeo.security.core.InternalAuthentication;
@@ -72,6 +73,9 @@ final class Kernel {
 		nodeSecurity.destroy();
 		node.destroy();
 
+		// Clean hanging threads from Jackrabbit
+		TransientFileFactory.shutdown();
+		
 		long duration = System.currentTimeMillis() - begin;
 		log.info("## ARGEO CMS DOWN in " + (duration / 1000) + "."
 				+ (duration % 1000) + "s ##");
