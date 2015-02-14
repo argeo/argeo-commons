@@ -22,13 +22,18 @@
     <extension point="org.eclipse.ui.perspectiveExtensions"> 
         <perspectiveExtension targetID="org.argeo.eclipse.ui.workbench.osgiPerspective"> 
             <view 
-            	id="org.argeo.eclipse.ui.workbench.bundlesView" 
+            	id="org.argeo.eclipse.ui.workbench.modulesView" 
             	minimized="false"
              	ratio="0.5" 
              	relationship="left" 
              	relative="org.eclipse.ui.editorss"/> 
             <view 
-            	id="org.argeo.eclipse.ui.workbench.modulesView" 
+            	id="org.argeo.eclipse.ui.workbench.bundlesView" 
+            	minimized="false"
+             	relationship="stack" 
+             	relative="org.argeo.eclipse.ui.workbench.modulesView"/> 
+             <view 
+            	id="org.argeo.eclipse.ui.workbench.multiplePackagesView" 
             	minimized="false"
              	relationship="stack" 
              	relative="org.argeo.eclipse.ui.workbench.bundlesView"/> 
@@ -41,7 +46,7 @@
 		<view
       		name="Modules"
             id="org.argeo.eclipse.ui.workbench.modulesView"
-            icon="icons/bundles.gif"
+            icon="icons/service_published.gif"
 			class="org.argeo.eclipse.ui.workbench.osgi.ModulesView">
 		</view>
 		<view
@@ -49,6 +54,12 @@
             id="org.argeo.eclipse.ui.workbench.bundlesView" 
             icon="icons/bundles.gif"
             class="org.argeo.eclipse.ui.workbench.osgi.BundlesView">
+		</view>
+		<view
+      		name="Multiple Packages"
+            id="org.argeo.eclipse.ui.workbench.multiplePackagesView" 
+            icon="icons/node.gif"
+            class="org.argeo.eclipse.ui.workbench.osgi.MultiplePackagesView">
 		</view>
 		<view
           name="JCR Browser"

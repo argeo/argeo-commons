@@ -29,20 +29,15 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 
 /**
  * Overview of the bundles as a table. Equivalent to Equinox 'ss' console
  * command.
  */
-
-// public class BundlesView {}
-
 public class BundlesView extends ViewPart {
 	private TableViewer viewer;
 
@@ -85,7 +80,7 @@ public class BundlesView extends ViewPart {
 
 		// Symbolic name
 		column = new TableViewerColumn(viewer, SWT.NONE);
-		column.getColumn().setWidth(300);
+		column.getColumn().setWidth(250);
 		column.getColumn().setText("Symbolic Name");
 		column.setLabelProvider(new ColumnLabelProvider() {
 			private static final long serialVersionUID = -4280840684440451080L;
@@ -148,69 +143,5 @@ public class BundlesView extends ViewPart {
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		}
 
-	}
-
-	/** Label provider for the state column */
-	private static class StateLabelProvider extends ColumnLabelProvider {
-		private static final long serialVersionUID = -7885583135316000733L;
-
-		@Override
-		public Image getImage(Object element) {
-			Integer state = ((Bundle) element).getState();
-			switch (state) {
-			case Bundle.UNINSTALLED:
-				return OsgiExplorerImages.INSTALLED;
-			case Bundle.INSTALLED:
-				return OsgiExplorerImages.INSTALLED;
-			case Bundle.RESOLVED:
-				return OsgiExplorerImages.RESOLVED;
-			case Bundle.STARTING:
-				return OsgiExplorerImages.STARTING;
-			case Bundle.STOPPING:
-				return OsgiExplorerImages.STARTING;
-			case Bundle.ACTIVE:
-				return OsgiExplorerImages.ACTIVE;
-			default:
-				return null;
-			}
-		}
-
-		@Override
-		public String getText(Object element) {
-			return null;
-		}
-
-		@Override
-		public String getToolTipText(Object element) {
-			Bundle bundle = (Bundle) element;
-			Integer state = bundle.getState();
-			switch (state) {
-			case Bundle.UNINSTALLED:
-				return "UNINSTALLED";
-			case Bundle.INSTALLED:
-				return "INSTALLED";
-			case Bundle.RESOLVED:
-				return "RESOLVED";
-			case Bundle.STARTING:
-				String activationPolicy = bundle.getHeaders()
-						.get(Constants.BUNDLE_ACTIVATIONPOLICY).toString();
-
-				// .get("Bundle-ActivationPolicy").toString();
-				// FIXME constant triggers the compilation failure
-				if (activationPolicy != null 
-						&& activationPolicy.equals(Constants.ACTIVATION_LAZY))
-					// && activationPolicy.equals("lazy"))
-					// FIXME constant triggers the compilation failure
-					// && activationPolicy.equals(Constants.ACTIVATION_LAZY))
-					return "<<LAZY>>";
-				return "STARTING";
-			case Bundle.STOPPING:
-				return "STOPPING";
-			case Bundle.ACTIVE:
-				return "ACTIVE";
-			default:
-				return null;
-			}
-		}
 	}
 }
