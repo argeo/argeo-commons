@@ -46,6 +46,7 @@ class ApplicationContextTracker {
 	private static Long defaultTimeout = Long.parseLong(System.getProperty(
 			APPLICATION_CONTEXT_TRACKER_TIMEOUT, "30000"));
 
+	@SuppressWarnings("rawtypes")
 	private ServiceTracker applicationContextServiceTracker;
 
 	/**
@@ -57,6 +58,7 @@ class ApplicationContextTracker {
 	 * @throws IllegalArgumentException
 	 *             if the given bundle is null.
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public ApplicationContextTracker(final Bundle contributorBundle,
 			final BundleContext factoryBundleContext) {
 		final String filter = format(FILTER,
