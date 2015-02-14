@@ -85,6 +85,8 @@ class NodeSecurity implements AuthenticationManager {
 		userDetailsManagerReg.unregister();
 		userAdminServiceReg.unregister();
 		authenticationManagerReg.unregister();
+
+		userAdmin.destroy();
 		userAdminReg.unregister();
 	}
 

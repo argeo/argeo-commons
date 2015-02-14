@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.argeo.security.jcr.JcrUserDetails;
 import org.osgi.service.useradmin.Authorization;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 class JcrAuthorization implements Authorization {
 	private final String name;
 	private final List<String> roles;
 
-	public JcrAuthorization(JcrUserDetails userDetails) {
+	public JcrAuthorization(UserDetails userDetails) {
 		this.name = userDetails.getUsername();
 		List<String> t = new ArrayList<String>();
 		for (GrantedAuthority ga : userDetails.getAuthorities()) {

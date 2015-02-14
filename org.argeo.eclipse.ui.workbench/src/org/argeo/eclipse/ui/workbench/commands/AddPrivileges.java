@@ -20,7 +20,7 @@ import javax.jcr.RepositoryException;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.TreeParent;
-import org.argeo.eclipse.ui.workbench.ErrorFeedback;
+import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.eclipse.ui.workbench.jcr.internal.model.SingleJcrNodeElem;
 import org.argeo.eclipse.ui.workbench.jcr.internal.model.WorkspaceElem;

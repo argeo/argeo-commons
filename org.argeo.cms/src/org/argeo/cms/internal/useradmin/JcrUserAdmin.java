@@ -5,16 +5,16 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.jcr.Node;
 import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
+import org.argeo.cms.internal.useradmin.jackrabbit.JackrabbitUserAdminService;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.security.UserAdminService;
-import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.jcr.JcrUserDetails;
+import org.argeo.security.jcr.NewUserDetails;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -24,14 +24,16 @@ import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.service.useradmin.UserAdminEvent;
 import org.osgi.service.useradmin.UserAdminListener;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+/**
+ * Incomplete implementation of {@link UserAdmin} wrapping the supported
+ * {@link UserAdminService} for the time being.
+ */
 public class JcrUserAdmin implements UserAdmin {
 	private final BundleContext bundleContext;
-	private UserAdminService userAdminService;
+	private JackrabbitUserAdminService userAdminService;
 
-	private final JcrSecurityModel jcrSecurityModel = new SimpleJcrSecurityModel();
 	private final Session session;
 
 	public JcrUserAdmin(BundleContext bundleContext, Repository node) {
@@ -49,28 +51,16 @@ public class JcrUserAdmin implements UserAdmin {
 
 	@Override
 	public Role createRole(String name, int type) {
-		try {
-			if (Role.USER == type) {
-				Node userProfile = jcrSecurityModel.sync(session, name, null);
-				session.getWorkspace().getVersionManager()
-						.checkout(userProfile.getPath());
-				String password = "";
-				// TODO add roles
-				JcrUserDetails userDetails = new JcrUserDetails(userProfile,
-						password, new ArrayList<GrantedAuthority>());
-				session.save();
-				session.getWorkspace().getVersionManager()
-						.checkin(userProfile.getPath());
-				userAdminService().createUser(userDetails);
-				return new JcrEndUser(userDetails);
-			} else if (Role.GROUP == type) {
-				userAdminService().newRole(name);
-				return new JcrGroup(name);
-			} else {
-				throw new ArgeoException("Unsupported role type " + type);
-			}
-		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot create role " + name);
+		if (Role.USER == type) {
+			NewUserDetails userDetails = new NewUserDetails(name, null);
+			userAdminService().createUser(userDetails);
+			return new JcrEndUser((JcrUserDetails) userAdminService()
+					.loadUserByUsername(name));
+		} else if (Role.GROUP == type) {
+			userAdminService().newRole(name);
+			return new JcrGroup(name);
+		} else {
+			throw new ArgeoException("Unsupported role type " + type);
 		}
 	}
 
@@ -122,7 +112,7 @@ public class JcrUserAdmin implements UserAdmin {
 
 	@Override
 	public User getUser(String key, String value) {
-		throw new ArgeoException("Property based search not yet implemented");
+		throw new CmsException("Property based search not yet implemented");
 	}
 
 	@Override
@@ -134,7 +124,7 @@ public class JcrUserAdmin implements UserAdmin {
 		return userAdminService;
 	}
 
-	public void setUserAdminService(UserAdminService userAdminService) {
+	public void setUserAdminService(JackrabbitUserAdminService userAdminService) {
 		this.userAdminService = userAdminService;
 	}
 

@@ -21,7 +21,7 @@ import java.util.Map;
 import javax.jcr.Property;
 import javax.jcr.nodetype.NodeType;
 
-import org.argeo.eclipse.ui.workbench.ErrorFeedback;
+import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.eclipse.ui.workbench.jcr.internal.parts.NodeEditorInput;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;

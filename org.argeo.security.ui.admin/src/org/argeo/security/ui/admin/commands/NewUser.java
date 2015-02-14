@@ -18,10 +18,9 @@ package org.argeo.security.ui.admin.commands;
 import javax.jcr.Repository;
 import javax.jcr.Session;
 
+import org.argeo.cms.users.NewUserWizard;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.security.UserAdminService;
-import org.argeo.security.jcr.JcrSecurityModel;
-import org.argeo.security.ui.admin.wizards.NewUserWizard;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -32,14 +31,15 @@ import org.eclipse.ui.handlers.HandlerUtil;
 public class NewUser extends AbstractHandler {
 	private Repository repository;
 	private UserAdminService userAdminService;
-	private JcrSecurityModel jcrSecurityModel;
+
+	// private JcrSecurityModel jcrSecurityModel;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		Session session = null;
 		try {
 			session = repository.login();
 			NewUserWizard newUserWizard = new NewUserWizard(session,
-					userAdminService, jcrSecurityModel);
+					userAdminService);
 			WizardDialog dialog = new WizardDialog(
 					HandlerUtil.getActiveShell(event), newUserWizard);
 			dialog.open();
@@ -59,8 +59,8 @@ public class NewUser extends AbstractHandler {
 		this.userAdminService = userAdminService;
 	}
 
-	public void setJcrSecurityModel(JcrSecurityModel jcrSecurityModel) {
-		this.jcrSecurityModel = jcrSecurityModel;
-	}
+	// public void setJcrSecurityModel(JcrSecurityModel jcrSecurityModel) {
+	// this.jcrSecurityModel = jcrSecurityModel;
+	// }
 
 }

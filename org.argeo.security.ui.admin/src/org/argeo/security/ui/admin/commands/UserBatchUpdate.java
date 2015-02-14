@@ -20,7 +20,6 @@ import javax.jcr.Session;
 
 import org.argeo.jcr.JcrUtils;
 import org.argeo.security.UserAdminService;
-import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.ui.admin.wizards.UserBatchUpdateWizard;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -32,14 +31,13 @@ import org.eclipse.ui.handlers.HandlerUtil;
 public class UserBatchUpdate extends AbstractHandler {
 	private Repository repository;
 	private UserAdminService userAdminService;
-	private JcrSecurityModel jcrSecurityModel;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		Session session = null;
 		try {
 			session = repository.login();
-			UserBatchUpdateWizard userBatchUpdateWizard = new UserBatchUpdateWizard(session,
-					userAdminService, jcrSecurityModel);
+			UserBatchUpdateWizard userBatchUpdateWizard = new UserBatchUpdateWizard(
+					session, userAdminService);
 			WizardDialog dialog = new WizardDialog(
 					HandlerUtil.getActiveShell(event), userBatchUpdateWizard);
 			dialog.open();
@@ -59,8 +57,8 @@ public class UserBatchUpdate extends AbstractHandler {
 		this.userAdminService = userAdminService;
 	}
 
-	public void setJcrSecurityModel(JcrSecurityModel jcrSecurityModel) {
-		this.jcrSecurityModel = jcrSecurityModel;
-	}
+	// public void setJcrSecurityModel(JcrSecurityModel jcrSecurityModel) {
+	// this.jcrSecurityModel = jcrSecurityModel;
+	// }
 
 }

@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.ui.admin.wizards;
-
-import java.util.ArrayList;
+package org.argeo.cms.users;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -23,30 +21,27 @@ import javax.jcr.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.eclipse.ui.workbench.ErrorFeedback;
+import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.UserJcrUtils;
 import org.argeo.security.UserAdminService;
-import org.argeo.security.jcr.JcrSecurityModel;
-import org.argeo.security.jcr.JcrUserDetails;
+import org.argeo.security.jcr.NewUserDetails;
 import org.eclipse.jface.wizard.Wizard;
-import org.springframework.security.core.GrantedAuthority;
 
 /** Wizard to create a new user */
 public class NewUserWizard extends Wizard {
 	private final static Log log = LogFactory.getLog(NewUserWizard.class);
 	private Session session;
 	private UserAdminService userAdminService;
-	private JcrSecurityModel jcrSecurityModel;
+	// private JcrSecurityModel jcrSecurityModel;
 
 	// pages
 	private MainUserInfoWizardPage mainUserInfo;
 
-	public NewUserWizard(Session session, UserAdminService userAdminService,
-			JcrSecurityModel jcrSecurityModel) {
+	public NewUserWizard(Session session, UserAdminService userAdminService) {
 		this.session = session;
 		this.userAdminService = userAdminService;
-		this.jcrSecurityModel = jcrSecurityModel;
+		// this.jcrSecurityModel = jcrSecurityModel;
 	}
 
 	@Override
@@ -64,17 +59,26 @@ public class NewUserWizard extends Wizard {
 		try {
 			// Node userProfile = SecurityJcrUtils.createUserProfile(session,
 			// username);
-			Node userProfile = jcrSecurityModel.sync(session, username, null);
-			session.getWorkspace().getVersionManager()
-					.checkout(userProfile.getPath());
-			mainUserInfo.mapToProfileNode(userProfile);
-			String password = mainUserInfo.getPassword();
+			// Node userProfile = jcrSecurityModel.sync(session, username,
+			// null);
+			// session.getWorkspace().getVersionManager()
+			// .checkout(userProfile.getPath());
+			// mainUserInfo.mapToProfileNode(userProfile);
+			char[] password = mainUserInfo.getPassword();
 			// TODO add roles
-			JcrUserDetails jcrUserDetails = new JcrUserDetails(userProfile,
-					password, new ArrayList<GrantedAuthority>());
-			session.save();
-			session.getWorkspace().getVersionManager()
-					.checkin(userProfile.getPath());
+			NewUserDetails jcrUserDetails = new NewUserDetails(username,
+					password) {
+				private static final long serialVersionUID = 7480071525603380742L;
+
+				@Override
+				public void mapToProfileNode(Node userProfile)
+						throws RepositoryException {
+					mainUserInfo.mapToProfileNode(userProfile);
+				}
+			};
+			// session.save();
+			// session.getWorkspace().getVersionManager()
+			// .checkin(userProfile.getPath());
 			userAdminService.createUser(jcrUserDetails);
 			return true;
 		} catch (Exception e) {

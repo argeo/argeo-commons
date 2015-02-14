@@ -7,13 +7,13 @@ import javax.jcr.Item;
 import javax.jcr.RepositoryException;
 
 import org.argeo.ArgeoException;
+import org.argeo.cms.internal.auth.JcrSecurityModel;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.viewers.EditablePart;
 import org.argeo.cms.viewers.NodePart;
 import org.argeo.cms.widgets.StyledControl;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.security.UserAdminService;
-import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTableViewer;

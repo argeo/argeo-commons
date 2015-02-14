@@ -22,17 +22,16 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.security.Privilege;
-import javax.jcr.version.VersionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
+import org.argeo.cms.internal.auth.JcrSecurityModel;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.UserJcrUtils;
-import org.argeo.security.jcr.JcrSecurityModel;
 
 /**
  * Manages data expected by the Argeo security model, such as user home and
@@ -78,6 +77,7 @@ public class SimpleJcrSecurityModel implements JcrSecurityModel {
 			}
 
 			Node userProfile = UserJcrUtils.getUserProfile(session, username);
+			// new user
 			if (userProfile == null) {
 				String personPath = generateUserPath(
 						ArgeoJcrConstants.PEOPLE_BASE_PATH, username);
@@ -98,12 +98,6 @@ public class SimpleJcrSecurityModel implements JcrSecurityModel {
 						username);
 				JcrUtils.addPrivilege(session, userProfile.getPath(), username,
 						Privilege.JCR_READ);
-
-				VersionManager versionManager = session.getWorkspace()
-						.getVersionManager();
-				if (versionManager.isCheckedOut(userProfile.getPath()))
-					versionManager.checkin(userProfile.getPath());
-
 			}
 
 			// Remote roles

@@ -1,5 +1,6 @@
 package org.argeo.cms.internal.useradmin;
 
+import org.argeo.cms.CmsException;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 
@@ -18,32 +19,27 @@ class JcrGroup extends AbstractJcrUser implements Group {
 
 	@Override
 	public boolean addMember(Role role) {
-		// TODO Auto-generated method stub
-		return false;
+		throw new CmsException("Not implemented yet");
 	}
 
 	@Override
 	public boolean addRequiredMember(Role role) {
-		// TODO Auto-generated method stub
-		return false;
+		throw new CmsException("Not implemented yet");
 	}
 
 	@Override
 	public boolean removeMember(Role role) {
-		// TODO Auto-generated method stub
-		return false;
+		throw new CmsException("Not implemented yet");
 	}
 
 	@Override
 	public Role[] getMembers() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new CmsException("Not implemented yet");
 	}
 
 	@Override
 	public Role[] getRequiredMembers() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new CmsException("Not implemented yet");
 	}
 
 	public String toString() {

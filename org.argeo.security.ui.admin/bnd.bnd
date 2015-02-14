@@ -1,20 +1,17 @@
 Bundle-SymbolicName: org.argeo.security.ui.admin;singleton:=true
-
 Bundle-Activator: org.argeo.security.ui.admin.SecurityAdminPlugin
 Bundle-ActivationPolicy: lazy
 
 Require-Bundle:	org.eclipse.core.runtime
 
-Export-Packages: org.argeo.security.ui.admin.*
-
 Import-Package:	org.eclipse.core.runtime.jobs,\
-				org.argeo.eclipse.spring,\
-				org.eclipse.jface.window,\
-				org.eclipse.swt,\
-				org.eclipse.swt.widgets;version="[0,1)",\
-				org.eclipse.ui.services,\
-				org.osgi.framework;version="[1.5,2)",\
-				org.springframework.core,\
-				org.springframework.dao,\
-				org.springframework.security.provisioning,\
-				*				
+org.argeo.eclipse.spring,\
+org.eclipse.jface.window,\
+org.eclipse.swt,\
+org.eclipse.swt.widgets,\
+org.eclipse.ui.services,\
+org.osgi.framework,\
+org.springframework.core,\
+org.springframework.dao,\
+org.springframework.security.provisioning,\
+*				

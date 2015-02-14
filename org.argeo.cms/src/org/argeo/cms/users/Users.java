@@ -16,12 +16,10 @@ import org.argeo.ArgeoException;
 import org.argeo.cms.CmsUiProvider;
 import org.argeo.cms.maintenance.NonAdminPage;
 import org.argeo.cms.util.CmsUtils;
-import org.argeo.eclipse.ui.dialogs.UserCreationWizard;
 import org.argeo.eclipse.ui.parts.UsersTable;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.security.UserAdminService;
-import org.argeo.security.jcr.JcrSecurityModel;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -52,7 +50,6 @@ public class Users implements CmsUiProvider {
 
 	// Enable user CRUD // INJECTED
 	private UserAdminService userAdminService;
-	private JcrSecurityModel jcrSecurityModel;
 	// private UserDetailsManager userDetailsManager;
 	private String userWkspName;
 
@@ -216,8 +213,8 @@ public class Users implements CmsUiProvider {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				UserCreationWizard newUserWizard = new UserCreationWizard(
-						session, userAdminService, jcrSecurityModel);
+				NewUserWizard newUserWizard = new NewUserWizard(session,
+						userAdminService);
 				WizardDialog dialog = new WizardDialog(addBtn.getShell(),
 						newUserWizard);
 				if (dialog.open() == Dialog.OK)
@@ -338,11 +335,6 @@ public class Users implements CmsUiProvider {
 	public void setUserAdminService(UserAdminService userAdminService) {
 		this.userAdminService = userAdminService;
 		userPage.setUserAdminService(userAdminService);
-	}
-
-	public void setJcrSecurityModel(JcrSecurityModel jcrSecurityModel) {
-		this.jcrSecurityModel = jcrSecurityModel;
-		// userPage.setJcrSecurityModel(jcrSecurityModel);
 	}
 
 	public void setUserDetailsManager(UserDetailsManager userDetailsManager) {

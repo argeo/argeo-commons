@@ -35,7 +35,6 @@ import org.argeo.eclipse.ui.parts.UsersTable;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.security.UserAdminService;
-import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.argeo.security.ui.PrivilegedJob;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
@@ -92,10 +91,9 @@ public class UserBatchUpdateWizard extends Wizard {
 	};
 
 	public UserBatchUpdateWizard(Session session,
-			UserAdminService userAdminService, JcrSecurityModel jcrSecurityModel) {
+			UserAdminService userAdminService) {
 		this.session = session;
 		this.userAdminService = userAdminService;
-		// this.jcrSecurityModel = jcrSecurityModel;
 	}
 
 	@Override
@@ -562,8 +560,7 @@ public class UserBatchUpdateWizard extends Wizard {
 				((IPageChangeProvider) container).addPageChangedListener(this);
 			}
 
-			userTableCmp = new UsersTable(mainCmp, SWT.NO_FOCUS,
-					session);
+			userTableCmp = new UsersTable(mainCmp, SWT.NO_FOCUS, session);
 			userTableCmp.populate(false, false);
 			setControl(mainCmp);
 		}

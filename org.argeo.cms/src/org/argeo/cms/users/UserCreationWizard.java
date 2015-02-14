@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.eclipse.ui.dialogs;
+package org.argeo.cms.users;
 
 import java.util.ArrayList;
 
@@ -25,12 +25,12 @@ import javax.jcr.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
+import org.argeo.cms.internal.auth.JcrSecurityModel;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.UserJcrUtils;
 import org.argeo.security.UserAdminService;
-import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.Wizard;
@@ -46,7 +46,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 /** Wizard to create a new user */
-public class UserCreationWizard extends Wizard {
+@Deprecated
+class UserCreationWizard extends Wizard {
 	private final static Log log = LogFactory.getLog(UserCreationWizard.class);
 	private Session session;
 	private UserAdminService userAdminService;

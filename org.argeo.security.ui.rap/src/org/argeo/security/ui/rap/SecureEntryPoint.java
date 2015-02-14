@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.cms.KernelHeader;
 import org.argeo.cms.auth.ArgeoLoginContext;
-import org.argeo.eclipse.ui.workbench.ErrorFeedback;
+import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.security.ui.auth.DefaultLoginDialog;
 import org.argeo.util.LocaleUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -150,8 +150,8 @@ public class SecureEntryPoint implements EntryPoint {
 		// Logout callback when the display is disposed
 		display.disposeExec(new Runnable() {
 			public void run() {
-				log.debug("Display disposed");
-				// logout(loginContext, username);
+				if (log.isTraceEnabled())
+					log.trace("Display disposed");
 				try {
 					loginContext.logout();
 				} catch (LoginException e) {
@@ -174,7 +174,7 @@ public class SecureEntryPoint implements EntryPoint {
 				}
 			});
 			// Explicit exit from workbench
-			logout(loginContext, username);
+			fullLogout(loginContext, username);
 		} finally {
 			display.dispose();
 		}
@@ -229,7 +229,7 @@ public class SecureEntryPoint implements EntryPoint {
 			return null;
 	}
 
-	private void logout(LoginContext loginContext, String username) {
+	private void fullLogout(LoginContext loginContext, String username) {
 		try {
 			loginContext.logout();
 			SecurityContextHolder.clearContext();

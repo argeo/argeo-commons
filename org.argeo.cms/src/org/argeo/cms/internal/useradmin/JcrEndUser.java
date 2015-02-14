@@ -1,6 +1,7 @@
 package org.argeo.cms.internal.useradmin;
 
 import org.argeo.security.jcr.JcrUserDetails;
+import org.springframework.security.core.userdetails.UserDetails;
 
 class JcrEndUser extends AbstractJcrUser {
 	private final JcrUserDetails userDetails;
@@ -10,7 +11,7 @@ class JcrEndUser extends AbstractJcrUser {
 		this.userDetails = userDetails;
 	}
 
-	JcrUserDetails getUserDetails() {
+	public UserDetails getUserDetails() {
 		return userDetails;
 	}
 

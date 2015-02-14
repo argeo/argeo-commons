@@ -25,8 +25,8 @@ import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
 import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.eclipse.ui.workbench.CommandUtils;
-import org.argeo.eclipse.ui.workbench.ErrorFeedback;
 import org.argeo.eclipse.ui.workbench.WorkbenchConstants;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.ArgeoNames;

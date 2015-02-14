@@ -21,7 +21,7 @@ import java.util.List;
 
 import javax.jcr.Node;
 
-import org.argeo.eclipse.ui.workbench.ErrorFeedback;
+import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.eclipse.ui.workbench.jcr.internal.model.SingleJcrNodeElem;

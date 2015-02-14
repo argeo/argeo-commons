@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.ui.admin.wizards;
+package org.argeo.cms.users;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
@@ -58,7 +58,7 @@ public class MainUserInfoWizardPage extends WizardPage implements
 		password2 = EclipseUiUtils.createGridLP(composite, "Repeat password",
 				this);
 		setControl(composite);
-		
+
 		// Initialize buttons
 		setPageComplete(false);
 		getContainer().updateButtons();
@@ -82,10 +82,10 @@ public class MainUserInfoWizardPage extends WizardPage implements
 		// if (!username.getText().matches(UserAdminService.USERNAME_PATTERN))
 		// return
 		// "Wrong user name format, should be lower case, between 3 and 64 characters with only '_' an '@' as acceptable special character.";
-		
+
 		if (username.getText().trim().equals(""))
 			return "User name must not be empty";
-		
+
 		try {
 			UserDetails userDetails = userAdminService
 					.loadUserByUsername(username.getText());
@@ -112,8 +112,8 @@ public class MainUserInfoWizardPage extends WizardPage implements
 		return username.getText();
 	}
 
-	public String getPassword() {
-		return password1.getText();
+	public char[] getPassword() {
+		return password1.getTextChars();
 	}
 
 	public void mapToProfileNode(Node up) {

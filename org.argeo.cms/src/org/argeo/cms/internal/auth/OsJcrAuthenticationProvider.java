@@ -28,7 +28,6 @@ import org.argeo.jcr.JcrUtils;
 import org.argeo.security.OsAuthenticationToken;
 import org.argeo.security.SecurityUtils;
 import org.argeo.security.core.OsAuthenticationProvider;
-import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

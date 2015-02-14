@@ -13,7 +13,7 @@
 		scope="prototype">
 		<property name="repository" ref="nodeRepository" />
 		<property name="userAdminService" ref="userAdminService" />
-		<property name="jcrSecurityModel" ref="jcrSecurityModel" />
+		<!-- <property name="jcrSecurityModel" ref="jcrSecurityModel" /> -->
 	</bean>
 
 	<bean id="refreshUsersList" class="org.argeo.security.ui.admin.commands.RefreshUsersList"
@@ -26,14 +26,13 @@
 		scope="prototype">
 		<property name="userAdminService" ref="userAdminService" />
 	</bean>
-	
+
 	<bean id="userBatchUpdate" class="org.argeo.security.ui.admin.commands.UserBatchUpdate"
 		scope="prototype">
 		<property name="repository" ref="nodeRepository" />
 		<property name="userAdminService" ref="userAdminService" />
-		<property name="jcrSecurityModel" ref="jcrSecurityModel" />
 	</bean>
-	
+
 
 	<!-- ROLES -->
 	<bean id="refreshRoles" class="org.argeo.security.ui.admin.commands.RefreshRoles"

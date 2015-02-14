@@ -12,6 +12,7 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
+import javax.jcr.version.VersionManager;
 
 import org.apache.jackrabbit.api.JackrabbitSession;
 import org.apache.jackrabbit.api.security.user.Authorizable;
@@ -20,13 +21,14 @@ import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.core.security.authentication.CryptedSimpleCredentials;
 import org.argeo.ArgeoException;
+import org.argeo.cms.internal.auth.GrantedAuthorityPrincipal;
+import org.argeo.cms.internal.auth.JcrSecurityModel;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.UserJcrUtils;
 import org.argeo.security.NodeAuthenticationToken;
 import org.argeo.security.UserAdminService;
-import org.argeo.cms.internal.auth.GrantedAuthorityPrincipal;
-import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.jcr.JcrUserDetails;
+import org.argeo.security.jcr.NewUserDetails;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -87,13 +89,21 @@ public class JackrabbitUserAdminService implements UserAdminService,
 	@Override
 	public void createUser(UserDetails user) {
 		try {
-			// FIXME workaround for issue in new user wizard where
-			// security model is hardcoded and it already exists
-			if (getUserManager().getAuthorizable(user.getUsername()) == null) {
-				getUserManager().createUser(user.getUsername(),
-						user.getPassword());
-				securityModel.sync(adminSession, user.getUsername(), null);
-			}
+			// if (getUserManager().getAuthorizable(user.getUsername()) == null)
+			// {
+			getUserManager().createUser(user.getUsername(), user.getPassword());
+			Node userProfile = securityModel.sync(adminSession,
+					user.getUsername(), null);
+			if (user instanceof NewUserDetails)
+				((NewUserDetails) user).mapToProfileNode(userProfile);
+			userProfile.getSession().save();
+
+			// check in node
+			VersionManager versionManager = userProfile.getSession()
+					.getWorkspace().getVersionManager();
+			if (versionManager.isCheckedOut(userProfile.getPath()))
+				versionManager.checkin(userProfile.getPath());
+			// }
 			updateUser(user);
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot create user " + user, e);
