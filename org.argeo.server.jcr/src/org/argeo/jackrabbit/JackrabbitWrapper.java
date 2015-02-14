@@ -28,7 +28,6 @@ import java.util.Map;
 import javax.jcr.Credentials;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
-import javax.jcr.Repository;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 

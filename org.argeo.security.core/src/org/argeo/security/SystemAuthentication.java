@@ -19,5 +19,8 @@ package org.argeo.security;
  * Marks a system authentication, that is which did not require a login process.
  */
 public interface SystemAuthentication {
-
+	/** 'admin' for consistency with JCR */
+	public final static String USERNAME_SYSTEM = "admin";
+	public final static String ROLE_SYSTEM = "ROLE_SYSTEM";
+	public final static String SYSTEM_KEY_PROPERTY = "argeo.security.systemKey";
 }

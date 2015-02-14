@@ -73,7 +73,7 @@ public abstract class AbstractSystemExecution {
 
 		String key = systemAuthenticationKey != null ? systemAuthenticationKey
 				: System.getProperty(
-						InternalAuthentication.SYSTEM_KEY_PROPERTY,
+						SystemAuthentication.SYSTEM_KEY_PROPERTY,
 						InternalAuthentication.SYSTEM_KEY_DEFAULT);
 		if (key == null)
 			throw new ArgeoException("No system key defined");

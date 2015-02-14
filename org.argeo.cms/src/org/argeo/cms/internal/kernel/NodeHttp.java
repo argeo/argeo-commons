@@ -8,7 +8,6 @@ import java.util.StringTokenizer;
 import javax.servlet.FilterChain;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -22,7 +21,6 @@ import org.argeo.jackrabbit.servlet.RemotingServlet;
 import org.argeo.jackrabbit.servlet.WebdavServlet;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.eclipse.equinox.http.servlet.ExtendedHttpService;
-import org.eclipse.jetty.servlets.DoSFilter;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.NamespaceException;
 import org.osgi.util.tracker.ServiceTracker;
@@ -295,19 +293,19 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 		}
 	}
 
-	class CustomDosFilter extends DoSFilter {
-		@Override
-		protected String extractUserId(ServletRequest request) {
-			HttpSession httpSession = ((HttpServletRequest) request)
-					.getSession();
-			if (isSessionAuthenticated(httpSession)) {
-				String userId = ((SecurityContext) httpSession
-						.getAttribute(SPRING_SECURITY_CONTEXT_KEY))
-						.getAuthentication().getName();
-				return userId;
-			}
-			return super.extractUserId(request);
-
-		}
-	}
+	// class CustomDosFilter extends DoSFilter {
+	// @Override
+	// protected String extractUserId(ServletRequest request) {
+	// HttpSession httpSession = ((HttpServletRequest) request)
+	// .getSession();
+	// if (isSessionAuthenticated(httpSession)) {
+	// String userId = ((SecurityContext) httpSession
+	// .getAttribute(SPRING_SECURITY_CONTEXT_KEY))
+	// .getAuthentication().getName();
+	// return userId;
+	// }
+	// return super.extractUserId(request);
+	//
+	// }
+	// }
 }

@@ -65,6 +65,30 @@
 		  </enabledWhen>
         </activity>
         <activity
+              description="User Admins"
+              id="org.argeo.security.ui.userAdminActivity"
+              name="User Admin">
+		  <enabledWhen>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="ROLE_USER_ADMIN" />
+		      </iterate>
+		    </with>
+		  </enabledWhen>
+        </activity>
+        <activity
+              description="Group Admins"
+              id="org.argeo.security.ui.groupAdminActivity"
+              name="User Admin">
+		  <enabledWhen>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="ROLE_GROUP_ADMIN" />
+		      </iterate>
+		    </with>
+		  </enabledWhen>
+        </activity>
+        <activity
               description="Non admins"
               id="org.argeo.security.ui.notAdminActivity"
               name="Not Admin">

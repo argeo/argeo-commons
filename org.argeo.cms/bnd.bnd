@@ -8,6 +8,7 @@ org.springframework.context,\
 org.springframework.security.authentication.jaas,\
 org.apache.jackrabbit.api,\
 org.apache.jackrabbit.commons,\
+org.apache.jackrabbit.core.security.user,\
 org.eclipse.*;resolution:=optional,\
 org.eclipse.core.commands;resolution:=optional,\
 org.eclipse.swt;resolution:=optional,\

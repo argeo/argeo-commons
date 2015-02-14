@@ -25,10 +25,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 public class InternalAuthentication extends UsernamePasswordAuthenticationToken
 		implements SystemAuthentication {
 	private static final long serialVersionUID = -6783376375615949315L;
-	/** 'admin' for consistency with JCR */
-	public final static String DEFAULT_SYSTEM_USERNAME = "admin";
-	public final static String DEFAULT_SYSTEM_ROLE = "ROLE_SYSTEM";
-	public final static String SYSTEM_KEY_PROPERTY = "argeo.security.systemKey";
 	public final static String SYSTEM_KEY_DEFAULT = "argeo";
 
 	public InternalAuthentication(String key, String systemUsername,
@@ -38,7 +34,7 @@ public class InternalAuthentication extends UsernamePasswordAuthenticationToken
 	}
 
 	public InternalAuthentication(String key) {
-		this(key, DEFAULT_SYSTEM_USERNAME, DEFAULT_SYSTEM_ROLE);
+		this(key, SystemAuthentication.USERNAME_SYSTEM, SystemAuthentication.ROLE_SYSTEM);
 	}
 
 }

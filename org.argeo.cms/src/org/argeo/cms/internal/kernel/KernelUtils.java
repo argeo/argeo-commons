@@ -13,17 +13,19 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.KernelHeader;
+import org.argeo.cms.internal.auth.GrantedAuthorityPrincipal;
 import org.osgi.framework.BundleContext;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
+/** Package utilities */
 class KernelUtils implements KernelConstants {
-	final static String OSGI_INSTANCE_AREA = "osgi.instance.area";
+	private final static String OSGI_INSTANCE_AREA = "osgi.instance.area";
 
 	static Dictionary<String, ?> asDictionary(Properties props) {
 		Hashtable<String, Object> hashtable = new Hashtable<String, Object>();
@@ -52,10 +54,11 @@ class KernelUtils implements KernelConstants {
 	// Security
 	static void anonymousLogin(AuthenticationManager authenticationManager) {
 		try {
-			List<SimpleGrantedAuthority> anonAuthorities = Collections
-					.singletonList(new SimpleGrantedAuthority(ROLE_ANONYMOUS));
-			UserDetails anonUser = new User(ANONYMOUS_USER, "", true, true,
-					true, true, anonAuthorities);
+			List<GrantedAuthorityPrincipal> anonAuthorities = Collections
+					.singletonList(new GrantedAuthorityPrincipal(
+							KernelHeader.ROLE_ANONYMOUS));
+			UserDetails anonUser = new User(KernelHeader.USERNAME_ANONYMOUS,
+					"", true, true, true, true, anonAuthorities);
 			AnonymousAuthenticationToken anonToken = new AnonymousAuthenticationToken(
 					DEFAULT_SECURITY_KEY, anonUser, anonAuthorities);
 			Authentication authentication = authenticationManager

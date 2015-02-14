@@ -1,5 +1,7 @@
 package org.argeo.cms.internal.kernel;
 
+import java.lang.management.ManagementFactory;
+
 import javax.jcr.RepositoryFactory;
 
 import org.apache.commons.logging.Log;
@@ -24,7 +26,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 final class Kernel {
 	private final static Log log = LogFactory.getLog(Kernel.class);
-//	private static final String PROP_WORKBENCH_AUTOSTART = "org.eclipse.rap.workbenchAutostart";
+	// private static final String PROP_WORKBENCH_AUTOSTART =
+	// "org.eclipse.rap.workbenchAutostart";
 
 	private final BundleContext bundleContext;
 
@@ -60,10 +63,13 @@ final class Kernel {
 			throw new ArgeoException("Cannot initialize", e);
 		}
 
-		long duration = System.currentTimeMillis() - begin;
-		log.info("## ARGEO CMS UP in " + (duration / 1000) + "."
-				+ (duration % 1000) + "s ##");
-		directorsCut();
+		long jvmUptime = ManagementFactory.getRuntimeMXBean().getUptime();
+		log.info("## ARGEO CMS UP in " + (jvmUptime / 1000) + "."
+				+ (jvmUptime % 1000) + "s ##");
+		long initDuration = System.currentTimeMillis() - begin;
+		if (log.isTraceEnabled())
+			log.trace("Kernel initialization took " + initDuration + "ms");
+		directorsCut(initDuration);
 	}
 
 	void destroy() {
@@ -75,25 +81,15 @@ final class Kernel {
 
 		// Clean hanging threads from Jackrabbit
 		TransientFileFactory.shutdown();
-		
+
 		long duration = System.currentTimeMillis() - begin;
 		log.info("## ARGEO CMS DOWN in " + (duration / 1000) + "."
 				+ (duration % 1000) + "s ##");
 	}
 
-//	private void registerWorkbench(final WorkbenchApplicationConfiguration wac) {
-//		new Thread("Worbench Launcher") {
-//			public void run() {
-//				Hashtable<String, String> props = new Hashtable<String, String>();
-//				props.put(ApplicationLauncher.PROPERTY_CONTEXT_NAME, "ui");
-//				workbenchReg = bundleContext.registerService(
-//						ApplicationConfiguration.class, wac, props);
-//			}
-//		}.start();
-//	}
-
-	private void directorsCut() {
-		final long ms = 128l + (long) (Math.random() * 128d);
+	private void directorsCut(long initDuration) {
+		// final long ms = 128l + (long) (Math.random() * 128d);
+		long ms = initDuration / 10;
 		log.info("Spend " + ms + "ms"
 				+ " reflecting on the progress brought to mankind"
 				+ " by Free Software...");

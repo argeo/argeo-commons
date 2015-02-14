@@ -18,6 +18,7 @@ package org.argeo.cms.internal.auth;
 import java.util.List;
 
 import javax.jcr.Node;
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 /**
@@ -25,6 +26,9 @@ import javax.jcr.Session;
  * profile.
  */
 public interface JcrSecurityModel {
+	/** Initialize the JCR security model */
+	public void init(Session adminSession) throws RepositoryException;
+
 	/**
 	 * To be called before user details are loaded. Make sure than any logged in
 	 * user has a home directory with full access and a profile with information

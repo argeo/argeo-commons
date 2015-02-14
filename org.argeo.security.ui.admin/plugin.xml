@@ -143,11 +143,15 @@
   </extension>
   <extension
            point="org.eclipse.ui.activities">
-        <!-- TODO: find a way to exclude evrything -->
-        <activityPatternBinding
-              activityId="org.argeo.security.ui.adminActivity"
+       <activityPatternBinding
+              activityId="org.argeo.security.ui.userAdminActivity"
               isEqualityPattern="true"
               pattern="org.argeo.security.ui.admin/org.argeo.security.ui.admin.adminSecurityPerspective">
+        </activityPatternBinding>
+        <activityPatternBinding
+              activityId="org.argeo.security.ui.groupAdminActivity"
+              isEqualityPattern="true"
+              pattern="org.argeo.security.ui.admin/org.argeo.security.ui.admin.adminRolesView">
         </activityPatternBinding>
      </extension>
  </plugin>

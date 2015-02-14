@@ -20,7 +20,9 @@ import org.apache.jackrabbit.api.security.user.Group;
 import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.core.security.authentication.CryptedSimpleCredentials;
+import org.apache.jackrabbit.core.security.user.UserAccessControlProvider;
 import org.argeo.ArgeoException;
+import org.argeo.cms.KernelHeader;
 import org.argeo.cms.internal.auth.GrantedAuthorityPrincipal;
 import org.argeo.cms.internal.auth.JcrSecurityModel;
 import org.argeo.jcr.JcrUtils;
@@ -46,15 +48,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  */
 public class JackrabbitUserAdminService implements UserAdminService,
 		AuthenticationProvider {
-	final static String userRole = "ROLE_USER";
-	final static String adminRole = "ROLE_ADMIN";
+	private final static String JACKR_ADMINISTRATORS = "administrators";
+	private final static String REP_PRINCIPAL_NAME = "rep:principalName";
 
 	private Repository repository;
 	private JcrSecurityModel securityModel;
 
 	private JackrabbitSession adminSession = null;
 
-	private String superUsername = "root";
 	private String superUserInitialPassword = "demo";
 
 	public void init() throws RepositoryException {
@@ -62,18 +63,20 @@ public class JackrabbitUserAdminService implements UserAdminService,
 				.getAuthentication();
 		authentication.getName();
 		adminSession = (JackrabbitSession) repository.login();
-		Authorizable adminGroup = getUserManager().getAuthorizable(adminRole);
+		securityModel.init(adminSession);
+		Authorizable adminGroup = getUserManager().getAuthorizable(
+				KernelHeader.ROLE_ADMIN);
 		if (adminGroup == null) {
-			adminGroup = getUserManager().createGroup(adminRole);
+			adminGroup = getUserManager().createGroup(KernelHeader.ROLE_ADMIN);
 			adminSession.save();
 		}
-		Authorizable superUser = getUserManager()
-				.getAuthorizable(superUsername);
+		Authorizable superUser = getUserManager().getAuthorizable(
+				KernelHeader.USERNAME_ADMIN);
 		if (superUser == null) {
-			superUser = getUserManager().createUser(superUsername,
-					superUserInitialPassword);
+			superUser = getUserManager().createUser(
+					KernelHeader.USERNAME_ADMIN, superUserInitialPassword);
 			((Group) adminGroup).addMember(superUser);
-			securityModel.sync(adminSession, superUsername, null);
+			securityModel.sync(adminSession, KernelHeader.USERNAME_ADMIN, null);
 			adminSession.save();
 		}
 	}
@@ -131,27 +134,49 @@ public class JackrabbitUserAdminService implements UserAdminService,
 
 			List<String> roles = new ArrayList<String>();
 			for (GrantedAuthority ga : userDetails.getAuthorities()) {
-				if (ga.getAuthority().equals(userRole))
+				if (ga.getAuthority().equals(KernelHeader.ROLE_USER))
 					continue;
 				roles.add(ga.getAuthority());
 			}
 
-			for (Iterator<Group> it = user.memberOf(); it.hasNext();) {
+			groups: for (Iterator<Group> it = user.memberOf(); it.hasNext();) {
 				Group group = it.next();
-				if (roles.contains(group.getPrincipal().getName()))
-					roles.remove(group.getPrincipal().getName());
-				else
+				String groupName = group.getPrincipal().getName();
+				String role = groupNameToRole(groupName);
+				if (role == null)
+					continue groups;
+
+				if (roles.contains(role))
+					roles.remove(role);
+				else {
 					group.removeMember(user);
+					if (role.equals(KernelHeader.ROLE_ADMIN)) {
+						Group administratorsGroup = ((Group) getUserManager()
+								.getAuthorizable(JACKR_ADMINISTRATORS));
+						if (administratorsGroup.isDeclaredMember(user))
+							administratorsGroup.removeMember(user);
+					}
+				}
 			}
 
-			// remaining (new ones)
+			// remaining (new memberships)
 			for (String role : roles) {
-				Group group = (Group) getUserManager().getAuthorizable(role);
+				String groupName = roleToGroupName(role);
+				Group group = (Group) getUserManager().getAuthorizable(
+						groupName);
 				if (group == null)
 					throw new ArgeoException("Group " + role
 							+ " does not exist,"
 							+ " whereas it was granted to user " + userDetails);
 				group.addMember(user);
+
+				// add to Jackrabbit administrators
+				if (role.equals(KernelHeader.ROLE_ADMIN)) {
+					Group administratorsGroup = (Group) getUserManager()
+							.getAuthorizable(JACKR_ADMINISTRATORS);
+					administratorsGroup.addMember(user);
+				}
+
 			}
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot update user details", e);
@@ -252,9 +277,13 @@ public class JackrabbitUserAdminService implements UserAdminService,
 		LinkedHashSet<String> res = new LinkedHashSet<String>();
 		try {
 			Iterator<Authorizable> groups = getUserManager().findAuthorizables(
-					"rep:principalName", null, UserManager.SEARCH_TYPE_GROUP);
+					REP_PRINCIPAL_NAME, null, UserManager.SEARCH_TYPE_GROUP);
 			while (groups.hasNext()) {
-				res.add(groups.next().getPrincipal().getName());
+				Group group = (Group) groups.next();
+				String groupName = group.getPrincipal().getName();
+				String role = groupNameToRole(groupName);
+				if (role != null && !role.equals(KernelHeader.ROLE_GROUP_ADMIN))
+					res.add(role);
 			}
 			return res;
 		} catch (RepositoryException e) {
@@ -269,6 +298,32 @@ public class JackrabbitUserAdminService implements UserAdminService,
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot remove role " + role, e);
 		}
+	}
+
+	protected String roleToGroupName(String role) {
+		String groupName;
+		if (role.equals(KernelHeader.ROLE_USER_ADMIN))
+			groupName = UserAccessControlProvider.USER_ADMIN_GROUP_NAME;
+		else if (role.equals(KernelHeader.ROLE_GROUP_ADMIN))
+			groupName = UserAccessControlProvider.GROUP_ADMIN_GROUP_NAME;
+		else
+			groupName = role;
+		return groupName;
+	}
+
+	protected String groupNameToRole(String groupName) {
+		String role;
+		if (groupName.equals(UserAccessControlProvider.USER_ADMIN_GROUP_NAME)) {
+			role = KernelHeader.ROLE_USER_ADMIN;
+		} else if (groupName
+				.equals(UserAccessControlProvider.GROUP_ADMIN_GROUP_NAME)) {
+			role = KernelHeader.ROLE_GROUP_ADMIN;
+		} else if (groupName.equals(JACKR_ADMINISTRATORS)) {
+			return null;
+		} else {
+			role = groupName;
+		}
+		return role;
 	}
 
 	@Override
@@ -290,16 +345,28 @@ public class JackrabbitUserAdminService implements UserAdminService,
 		if (username == null)
 			username = session.getUserID();
 		User user = (User) getUserManager().getAuthorizable(username);
+
 		ArrayList<GrantedAuthorityPrincipal> authorities = new ArrayList<GrantedAuthorityPrincipal>();
-		// FIXME make it more generic
-		authorities.add(new GrantedAuthorityPrincipal("ROLE_USER"));
-		Iterator<Group> groups = user.declaredMemberOf();
+		authorities.add(new GrantedAuthorityPrincipal(KernelHeader.ROLE_USER));
+
+		Group adminGroup = (Group) getUserManager().getAuthorizable(
+				KernelHeader.ROLE_ADMIN);
+
+		Iterator<? extends Authorizable> groups;
+		if (username.equals(KernelHeader.USERNAME_ADMIN)
+				|| adminGroup.isDeclaredMember(user)) {
+			groups = getUserManager().findAuthorizables(REP_PRINCIPAL_NAME,
+					null, UserManager.SEARCH_TYPE_GROUP);
+		} else {
+			groups = user.declaredMemberOf();
+		}
+
 		while (groups.hasNext()) {
-			Group group = groups.next();
-			// String role = "ROLE_"
-			// + group.getPrincipal().getName().toUpperCase();
-			String role = group.getPrincipal().getName();
-			authorities.add(new GrantedAuthorityPrincipal(role));
+			Authorizable group = groups.next();
+			String groupName = group.getPrincipal().getName();
+			String role = groupNameToRole(groupName);
+			if (role != null)
+				authorities.add(new GrantedAuthorityPrincipal(role));
 		}
 
 		Node userProfile = UserJcrUtils.getUserProfile(session, username);

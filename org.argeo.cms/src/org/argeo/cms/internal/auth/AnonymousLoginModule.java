@@ -25,16 +25,15 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 
+import org.argeo.cms.KernelHeader;
 import org.argeo.cms.internal.kernel.Activator;
 import org.argeo.util.LocaleCallback;
 import org.argeo.util.LocaleUtils;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /** Login module which caches one subject per thread. */
 public class AnonymousLoginModule extends AbstractLoginModule {
-	private String anonymousRole = "ROLE_ANONYMOUS";
 	/** Comma separated list of locales */
 	private String availableLocales = null;
 
@@ -52,8 +51,9 @@ public class AnonymousLoginModule extends AbstractLoginModule {
 			callbackHandler.handle(new Callback[] {});
 		}
 
-		List<SimpleGrantedAuthority> authorities = Collections
-				.singletonList(new SimpleGrantedAuthority(anonymousRole));
+		List<GrantedAuthorityPrincipal> authorities = Collections
+				.singletonList(new GrantedAuthorityPrincipal(
+						KernelHeader.ROLE_ANONYMOUS));
 		AnonymousAuthenticationToken anonymousToken = new AnonymousAuthenticationToken(
 				Activator.getSystemKey(), null, authorities);
 

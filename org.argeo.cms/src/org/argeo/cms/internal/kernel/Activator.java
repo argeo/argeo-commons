@@ -2,6 +2,7 @@ package org.argeo.cms.internal.kernel;
 
 import java.util.UUID;
 
+import org.argeo.security.SystemAuthentication;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -10,7 +11,11 @@ import org.osgi.framework.BundleContext;
  * access to kernel information for the rest of the bundle (and only it)
  */
 public class Activator implements BundleActivator {
-	private final static String systemKey = UUID.randomUUID().toString();
+	private final static String systemKey;
+	static {
+		systemKey = UUID.randomUUID().toString();
+		System.setProperty(SystemAuthentication.SYSTEM_KEY_PROPERTY, systemKey);
+	}
 
 	private static BundleContext bundleContext;
 	private Kernel kernel;
@@ -34,7 +39,9 @@ public class Activator implements BundleActivator {
 
 	/**
 	 * Singleton interface to the {@link BundleContext} related to the calling
-	 * thread. Can be used only within the CMS bundle.
+	 * thread.
+	 * 
+	 * @BundleScope
 	 */
 	public static BundleContext getBundleContext() {
 		return bundleContext;
@@ -43,9 +50,9 @@ public class Activator implements BundleActivator {
 	/**
 	 * @return a String which is guaranteed to be unique between and constant
 	 *         within a Java static context (typically a VM launch)
+	 * @BundleScope
 	 */
 	public final static String getSystemKey() {
 		return systemKey;
 	}
-
 }

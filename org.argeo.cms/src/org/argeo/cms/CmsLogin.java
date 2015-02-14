@@ -31,7 +31,7 @@ public class CmsLogin {
 		try {
 			List<SimpleGrantedAuthority> anonAuthorities = Collections
 					.singletonList(new SimpleGrantedAuthority(
-							KernelConstants.ANONYMOUS_USER));
+							KernelHeader.USERNAME_ANONYMOUS));
 			UserDetails anonUser = new User("anonymous", "", true, true, true,
 					true, anonAuthorities);
 			AnonymousAuthenticationToken anonToken = new AnonymousAuthenticationToken(

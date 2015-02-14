@@ -25,6 +25,7 @@ import javax.jcr.security.Privilege;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.jackrabbit.core.security.user.UserAccessControlProvider;
 import org.argeo.ArgeoException;
 import org.argeo.cms.internal.auth.JcrSecurityModel;
 import org.argeo.jcr.ArgeoJcrConstants;
@@ -45,6 +46,20 @@ public class SimpleJcrSecurityModel implements JcrSecurityModel {
 
 	/** The home base path. */
 	private String homeBasePath = "/home";
+	private String peopleBasePath = ArgeoJcrConstants.PEOPLE_BASE_PATH;
+
+	@Override
+	public void init(Session adminSession) throws RepositoryException {
+		JcrUtils.mkdirs(adminSession, homeBasePath);
+
+		JcrUtils.mkdirs(adminSession, peopleBasePath);
+		JcrUtils.addPrivilege(adminSession, peopleBasePath,
+				UserAccessControlProvider.USER_ADMIN_GROUP_NAME,
+				Privilege.JCR_ALL);
+		// JcrUtils.addPrivilege(adminSession, "/",
+		// UserAccessControlProvider.USER_ADMIN_GROUP_NAME,
+		// Privilege.JCR_READ);
+	}
 
 	public synchronized Node sync(Session session, String username,
 			List<String> roles) {
@@ -79,8 +94,7 @@ public class SimpleJcrSecurityModel implements JcrSecurityModel {
 			Node userProfile = UserJcrUtils.getUserProfile(session, username);
 			// new user
 			if (userProfile == null) {
-				String personPath = generateUserPath(
-						ArgeoJcrConstants.PEOPLE_BASE_PATH, username);
+				String personPath = generateUserPath(peopleBasePath, username);
 				Node personBase = JcrUtils.mkdirs(session, personPath);
 				userProfile = personBase.addNode(ArgeoNames.ARGEO_PROFILE);
 				userProfile.addMixin(ArgeoTypes.ARGEO_USER_PROFILE);
