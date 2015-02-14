@@ -45,43 +45,20 @@ public class WorkbenchUiPlugin extends AbstractUIPlugin implements ILogListener 
 	public WorkbenchUiPlugin() {
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
-	 * )
-	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		// weirdly, the start method is called twice...
-		// TODO check if it is still the case.
-		if (plugin == null) {
-			plugin = this;
-			messages = ResourceBundle.getBundle(ID + ".messages");
-			Platform.addLogListener(this);
+		plugin = this;
+		messages = ResourceBundle.getBundle(ID + ".messages");
+		Platform.addLogListener(this);
+		if (log.isDebugEnabled())
 			log.debug("Eclipse logging now directed to standard logging");
-		} else
-			log.warn("Trying to start an already started plugin.");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
-	 * )
-	 */
 	public void stop(BundleContext context) throws Exception {
 		try {
-			// weirdly, the stop method is called twice...
-			// TODO check if it is still the case.
-			if (plugin != null) {
-				Platform.removeLogListener(this);
-				log.debug("Eclipse logging not directed anymore to standard logging");
-				plugin = null;
-			} else
-				log.warn("Trying to stop an already stopped plugin.");
+			Platform.removeLogListener(this);
+			log.debug("Eclipse logging not directed anymore to standard logging");
+			plugin = null;
 		} finally {
 			super.stop(context);
 		}
@@ -134,7 +111,5 @@ public class WorkbenchUiPlugin extends AbstractUIPlugin implements ILogListener 
 		else if (severity == IStatus.CANCEL)
 			if (pluginLog.isDebugEnabled())
 				pluginLog.debug(status.getMessage(), status.getException());
-
 	}
-
 }
