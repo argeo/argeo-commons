@@ -114,6 +114,8 @@ public class UserRolesPage extends FormPage implements ArgeoNames {
 		TableViewerColumn column = createTableViewerColumn(rolesViewer,
 				"checked", 20);
 		column.setLabelProvider(new ColumnLabelProvider() {
+			private static final long serialVersionUID = -1354458151271666525L;
+
 			public String getText(Object element) {
 				return null;
 			}
@@ -132,6 +134,8 @@ public class UserRolesPage extends FormPage implements ArgeoNames {
 		// role column
 		column = createTableViewerColumn(rolesViewer, "Role", 200);
 		column.setLabelProvider(new ColumnLabelProvider() {
+			private static final long serialVersionUID = 2968056181744306838L;
+
 			public String getText(Object element) {
 				return element.toString();
 			}
@@ -166,6 +170,8 @@ public class UserRolesPage extends FormPage implements ArgeoNames {
 	}
 
 	private class RolesContentProvider implements IStructuredContentProvider {
+		private static final long serialVersionUID = -1882254608698512781L;
+
 		public Object[] getElements(Object inputElement) {
 			return userAdminService.listEditableRoles().toArray();
 		}
@@ -179,7 +185,7 @@ public class UserRolesPage extends FormPage implements ArgeoNames {
 
 	/** Select the columns by editing the checkbox in the first column */
 	class RoleEditingSupport extends EditingSupport {
-
+		private static final long serialVersionUID = 4041402007711754376L;
 		private final TableViewer viewer;
 		private final AbstractFormPart formPart;
 

@@ -59,6 +59,8 @@ public class RolesView extends ViewPart {
 		newRole.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		// default action is add role
 		newRole.addListener(SWT.DefaultSelection, new Listener() {
+			private static final long serialVersionUID = -2367261849260929505L;
+
 			public void handleEvent(Event evt) {
 				IWorkbench iw = SecurityAdminPlugin.getDefault().getWorkbench();
 				IHandlerService handlerService = (IHandlerService) iw
@@ -73,6 +75,8 @@ public class RolesView extends ViewPart {
 		});
 		// select all on focus
 		newRole.addListener(SWT.FocusIn, new Listener() {
+			private static final long serialVersionUID = 2612811281477034356L;
+
 			public void handleEvent(Event e) {
 				newRole.selectAll();
 			}
@@ -104,6 +108,7 @@ public class RolesView extends ViewPart {
 	}
 
 	private class RolesContentProvider implements IStructuredContentProvider {
+		private static final long serialVersionUID = 7446442682717419289L;
 
 		public Object[] getElements(Object inputElement) {
 			return userAdminService.listEditableRoles().toArray();
@@ -119,6 +124,8 @@ public class RolesView extends ViewPart {
 
 	private class UsersLabelProvider extends LabelProvider implements
 			ITableLabelProvider {
+		private static final long serialVersionUID = -1886204791002421430L;
+
 		public String getColumnText(Object element, int columnIndex) {
 			return element.toString();
 		}

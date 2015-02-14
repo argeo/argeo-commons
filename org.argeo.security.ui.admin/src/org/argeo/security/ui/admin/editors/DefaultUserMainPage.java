@@ -218,6 +218,7 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 	}
 
 	private class FormPartML implements ModifyListener {
+		private static final long serialVersionUID = 6299808129505381333L;
 		private AbstractFormPart formPart;
 
 		public FormPartML(AbstractFormPart generalPart) {
