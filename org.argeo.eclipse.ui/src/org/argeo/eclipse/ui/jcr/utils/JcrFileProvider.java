@@ -36,7 +36,7 @@ import org.argeo.eclipse.ui.FileProvider;
  * Relies on common approach for JCR file handling implementation.
  * 
  */
-
+@SuppressWarnings("deprecation")
 public class JcrFileProvider implements FileProvider {
 
 	// private Object[] rootNodes;

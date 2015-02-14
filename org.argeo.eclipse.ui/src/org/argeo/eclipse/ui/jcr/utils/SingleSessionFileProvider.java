@@ -39,7 +39,7 @@ import org.argeo.eclipse.ui.FileProvider;
  * @author bsinou
  * 
  */
-
+@SuppressWarnings("deprecation")
 public class SingleSessionFileProvider implements FileProvider {
 
 	private Session session;

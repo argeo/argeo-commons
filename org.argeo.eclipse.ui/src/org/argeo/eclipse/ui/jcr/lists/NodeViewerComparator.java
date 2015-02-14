@@ -26,6 +26,7 @@ import org.eclipse.jface.viewers.ViewerComparator;
  * viewer.setComparator(comparator); </code>
  */
 public class NodeViewerComparator extends ViewerComparator {
+	private static final long serialVersionUID = -7782916140737279027L;
 
 	protected String propertyName;
 

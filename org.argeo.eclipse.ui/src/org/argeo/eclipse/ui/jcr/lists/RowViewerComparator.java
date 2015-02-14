@@ -12,7 +12,7 @@ import org.eclipse.jface.viewers.Viewer;
  * rows
  */
 public class RowViewerComparator extends NodeViewerComparator {
-
+	private static final long serialVersionUID = 7020939505172625113L;
 	protected String selectorName;
 
 	public RowViewerComparator() {
