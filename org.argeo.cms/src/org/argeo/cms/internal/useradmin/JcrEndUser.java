@@ -11,7 +11,7 @@ class JcrEndUser extends AbstractJcrUser {
 		this.userDetails = userDetails;
 	}
 
-	public UserDetails getUserDetails() {
+	UserDetails getUserDetails() {
 		return userDetails;
 	}
 
@@ -29,4 +29,5 @@ class JcrEndUser extends AbstractJcrUser {
 	public int hashCode() {
 		return getName().hashCode();
 	}
+
 }

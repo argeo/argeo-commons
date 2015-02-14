@@ -2,7 +2,6 @@ package org.argeo.cms.internal.useradmin;
 
 import java.util.Dictionary;
 
-import org.argeo.cms.CmsException;
 import org.osgi.service.useradmin.Role;
 
 abstract class JcrRole implements Role {
@@ -24,7 +23,7 @@ abstract class JcrRole implements Role {
 
 	@Override
 	public Dictionary<String, Object> getProperties() {
-		throw new CmsException("Not implemented yet");
+		return new JcrRoleProperties();
 	}
 
 }
