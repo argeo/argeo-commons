@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.jcr;
+package org.argeo.cms.internal.auth;
 
 import java.util.Collection;
 
@@ -23,10 +23,13 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
+import org.argeo.cms.internal.useradmin.SimpleJcrSecurityModel;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.security.OsAuthenticationToken;
 import org.argeo.security.SecurityUtils;
 import org.argeo.security.core.OsAuthenticationProvider;
+import org.argeo.security.jcr.JcrSecurityModel;
+import org.argeo.security.jcr.JcrUserDetails;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

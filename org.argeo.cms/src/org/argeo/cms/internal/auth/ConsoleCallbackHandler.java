@@ -1,4 +1,4 @@
-package org.argeo.security.login;
+package org.argeo.cms.internal.auth;
 
 import java.io.Console;
 import java.io.IOException;

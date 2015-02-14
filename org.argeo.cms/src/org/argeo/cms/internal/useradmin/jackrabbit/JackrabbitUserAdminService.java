@@ -1,4 +1,4 @@
-package org.argeo.security.jcr.jackrabbit;
+package org.argeo.cms.internal.useradmin.jackrabbit;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,9 +24,9 @@ import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.UserJcrUtils;
 import org.argeo.security.NodeAuthenticationToken;
 import org.argeo.security.UserAdminService;
+import org.argeo.cms.internal.auth.GrantedAuthorityPrincipal;
 import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.jcr.JcrUserDetails;
-import org.argeo.security.login.GrantedAuthorityPrincipal;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;

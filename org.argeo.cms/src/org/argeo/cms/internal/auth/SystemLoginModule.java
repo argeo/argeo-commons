@@ -13,30 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.login;
+package org.argeo.cms.internal.auth;
 
 import java.io.IOException;
 
-import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 
-import org.argeo.security.SecurityUtils;
+import org.argeo.cms.internal.kernel.Activator;
 import org.argeo.security.core.InternalAuthentication;
 import org.springframework.security.core.Authentication;
 
 /** Login module which caches one subject per thread. */
-public class SystemLoginModule extends AbstractSpringLoginModule {
+public class SystemLoginModule extends AbstractLoginModule {
 	@Override
 	protected Authentication processLogin(CallbackHandler callbackHandler)
 			throws LoginException, UnsupportedCallbackException, IOException,
 			InterruptedException {
-		BundleContextCallback bundleContextCallback = new BundleContextCallback();
-		callbackHandler.handle(new Callback[] { bundleContextCallback });
-		InternalAuthentication anonymousToken = new InternalAuthentication(
-				SecurityUtils.getStaticKey());
-		return getAuthenticationManager(bundleContextCallback).authenticate(
-				anonymousToken);
+		InternalAuthentication token = new InternalAuthentication(
+				Activator.getSystemKey());
+		return getAuthenticationManager().authenticate(token);
 	}
 }

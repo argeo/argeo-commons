@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.ui.dialogs;
+package org.argeo.security.ui.auth;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -158,9 +159,15 @@ public abstract class AbstractLoginDialog extends TrayDialog implements
 					else
 						// clear callbacks are when cancelling
 						for (Callback callback : callbacks)
-							if (callback instanceof PasswordCallback)
-								((PasswordCallback) callback).setPassword(null);
-							else if (callback instanceof NameCallback)
+							if (callback instanceof PasswordCallback) {
+								char[] arr = ((PasswordCallback) callback)
+										.getPassword();
+								if (arr != null) {
+									Arrays.fill(arr, '*');
+									((PasswordCallback) callback)
+											.setPassword(null);
+								}
+							} else if (callback instanceof NameCallback)
 								((NameCallback) callback).setName(null);
 				}
 			}, true, new NullProgressMonitor(), Display.getDefault());

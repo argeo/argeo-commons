@@ -1,4 +1,4 @@
-package org.argeo.security.login;
+package org.argeo.cms.auth;
 
 import javax.security.auth.login.LoginException;
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.login;
+package org.argeo.cms.internal.auth;
 
 import java.io.IOException;
 import java.util.Map;
@@ -24,14 +24,16 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
+import org.argeo.ArgeoException;
+import org.argeo.cms.internal.kernel.Activator;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.useradmin.UserAdmin;
+import org.osgi.framework.ServiceReference;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Login module which caches one subject per thread. */
-abstract class AbstractSpringLoginModule implements LoginModule {
+public abstract class AbstractLoginModule implements LoginModule {
 	// private final static Log log = LogFactory
 	// .getLog(AbstractSpringLoginModule.class);
 	private CallbackHandler callbackHandler;
@@ -39,16 +41,22 @@ abstract class AbstractSpringLoginModule implements LoginModule {
 
 	private Authentication authentication;
 
+	// state
+	private BundleContext bundleContext;
+	private ServiceReference<AuthenticationManager> authenticationManager;
+
 	protected abstract Authentication processLogin(
 			CallbackHandler callbackHandler) throws LoginException,
 			UnsupportedCallbackException, IOException, InterruptedException;
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	public void initialize(Subject subject, CallbackHandler callbackHandler,
-			Map sharedState, Map options) {
+			Map<String, ?> sharedState, Map<String, ?> options) {
 		this.callbackHandler = callbackHandler;
 		this.subject = subject;
+		this.bundleContext = Activator.getBundleContext();
+		this.authenticationManager = bundleContext
+				.getServiceReference(AuthenticationManager.class);
 	}
 
 	@Override
@@ -115,18 +123,27 @@ abstract class AbstractSpringLoginModule implements LoginModule {
 		return true;
 	}
 
-	protected AuthenticationManager getAuthenticationManager(
-			BundleContextCallback bundleContextCallback) {
-		BundleContext bc = bundleContextCallback.getBundleContext();
-		return bc.getService(bc
-				.getServiceReference(AuthenticationManager.class));
-
+	/**
+	 * Return the related {@link BundleContext} (never null), or throws an
+	 * Exception if the login module was not properly initialised.
+	 */
+	protected BundleContext getBundleContext() {
+		if (bundleContext == null)
+			throw new ArgeoException("No bundle context provided");
+		return bundleContext;
 	}
 
-	protected UserAdmin getUserAdmin(BundleContextCallback bundleContextCallback) {
-		BundleContext bc = bundleContextCallback.getBundleContext();
-		return bc.getService(bc.getServiceReference(UserAdmin.class));
+	AuthenticationManager getAuthenticationManager() {
+		BundleContext bc = getBundleContext();
+		assert authenticationManager != null;
+		return bc.getService(authenticationManager);
 	}
+
+	// protected UserAdmin getUserAdmin(BundleContextCallback
+	// bundleContextCallback) {
+	// BundleContext bc = bundleContextCallback.getBundleContext();
+	// return bc.getService(bc.getServiceReference(UserAdmin.class));
+	// }
 
 	protected Subject getSubject() {
 		return subject;

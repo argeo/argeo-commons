@@ -22,7 +22,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
 import org.argeo.ArgeoException;
-import org.argeo.security.ui.dialogs.DefaultLoginDialog;
+import org.argeo.security.ui.auth.DefaultLoginDialog;
 import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -44,7 +44,7 @@ public class SecurityUiPlugin implements BundleActivator {
 	// The plug-in ID
 	public final static String PLUGIN_ID = "org.argeo.security.ui"; //$NON-NLS-1$
 
-	public final static String CONTEXT_KEYRING = "KEYRING";
+	final static String CONTEXT_KEYRING = "KEYRING";
 
 	private CallbackHandler defaultCallbackHandler;
 	private ServiceRegistration<CallbackHandler> defaultCallbackHandlerReg;

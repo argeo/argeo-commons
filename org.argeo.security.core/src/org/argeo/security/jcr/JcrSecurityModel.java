@@ -30,7 +30,7 @@ public interface JcrSecurityModel {
 	 * user has a home directory with full access and a profile with information
 	 * about him (read access)
 	 * 
-	 * @return the user profile (whose parent is the user home), never null
+	 * @return the user profile, never null
 	 */
 	public Node sync(Session session, String username, List<String> roles);
 }

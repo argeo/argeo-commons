@@ -1415,7 +1415,6 @@ public class JcrUtils implements ArgeoJcrConstants {
 	 *            files
 	 * @return how many files were copied
 	 */
-	@SuppressWarnings("resource")
 	public static Long copyFiles(Node fromNode, Node toNode, Boolean recursive,
 			ArgeoMonitor monitor) {
 		long count = 0l;

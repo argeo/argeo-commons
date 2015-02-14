@@ -19,6 +19,7 @@ import javax.jcr.Node;
 
 import org.argeo.jcr.spring.BeanNodeMapper;
 
+@Deprecated
 public class MapperTest extends AbstractInternalJackrabbitTestCase {
 	public void testSimpleObject() throws Exception {
 		SimpleObject mySo = new SimpleObject();

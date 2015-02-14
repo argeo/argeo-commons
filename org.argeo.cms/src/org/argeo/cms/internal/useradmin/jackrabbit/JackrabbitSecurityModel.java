@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.jcr.jackrabbit;
+package org.argeo.cms.internal.useradmin.jackrabbit;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -30,8 +30,8 @@ import org.apache.jackrabbit.api.security.user.Group;
 import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.argeo.ArgeoException;
+import org.argeo.cms.internal.useradmin.SimpleJcrSecurityModel;
 import org.argeo.jcr.ArgeoNames;
-import org.argeo.security.jcr.SimpleJcrSecurityModel;
 
 /** Make sure that user authorizable exists before syncing user directories. */
 public class JackrabbitSecurityModel extends SimpleJcrSecurityModel {

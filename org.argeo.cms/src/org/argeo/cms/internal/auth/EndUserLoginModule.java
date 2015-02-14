@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.login;
+package org.argeo.cms.internal.auth;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -23,6 +23,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.CredentialNotFoundException;
 import javax.security.auth.login.LoginException;
 
 import org.argeo.security.NodeAuthenticationToken;
@@ -32,7 +33,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 
 /** Authenticates an end user */
-public class EndUserLoginModule extends AbstractSpringLoginModule {
+public class EndUserLoginModule extends AbstractLoginModule {
 	final static String NODE_REPO_URI = "argeo.node.repo.uri";
 
 	private Long waitBetweenFailedLoginAttempts = 5 * 1000l;
@@ -53,27 +54,26 @@ public class EndUserLoginModule extends AbstractSpringLoginModule {
 				"http://localhost:7070/org.argeo.jcr.webapp/remoting/node");
 		NameCallback urlCallback = new NameCallback("Site URL", defaultNodeUrl);
 		LocaleCallback localeCallback = new LocaleCallback(availableLocales);
-		BundleContextCallback bundleContextCallback = new BundleContextCallback();
-
 		// handle callbacks
 		if (remote)
 			callbackHandler.handle(new Callback[] { nameCallback,
-					passwordCallback, urlCallback, localeCallback,
-					bundleContextCallback });
+					passwordCallback, urlCallback, localeCallback });
 		else
 			callbackHandler.handle(new Callback[] { nameCallback,
-					passwordCallback, localeCallback, bundleContextCallback });
+					passwordCallback, localeCallback });
 
 		Locale selectedLocale = localeCallback.getSelectedLocale();
 
 		// create credentials
 		final String username = nameCallback.getName();
 		if (username == null || username.trim().equals(""))
-			throw new LoginCanceledException();
+			throw new CredentialNotFoundException("No credentials provided");
 
 		char[] password = {};
 		if (passwordCallback.getPassword() != null)
 			password = passwordCallback.getPassword();
+		else
+			throw new CredentialNotFoundException("No credentials provided");
 
 		NodeAuthenticationToken credentials;
 		if (remote) {
@@ -85,8 +85,7 @@ public class EndUserLoginModule extends AbstractSpringLoginModule {
 
 		Authentication auth;
 		try {
-			auth = getAuthenticationManager(bundleContextCallback)
-					.authenticate(credentials);
+			auth = getAuthenticationManager().authenticate(credentials);
 		} catch (BadCredentialsException e) {
 			// wait between failed login attempts
 			Thread.sleep(waitBetweenFailedLoginAttempts);

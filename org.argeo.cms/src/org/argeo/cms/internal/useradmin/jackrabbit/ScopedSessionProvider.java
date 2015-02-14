@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.jcr.jackrabbit;
+package org.argeo.cms.internal.useradmin.jackrabbit;
 
 import java.io.Serializable;
 

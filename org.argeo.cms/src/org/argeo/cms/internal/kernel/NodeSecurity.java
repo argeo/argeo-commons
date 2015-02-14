@@ -8,12 +8,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.useradmin.JcrUserAdmin;
-import org.argeo.security.SecurityUtils;
+import org.argeo.cms.internal.useradmin.SimpleJcrSecurityModel;
+import org.argeo.cms.internal.useradmin.jackrabbit.JackrabbitUserAdminService;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.core.InternalAuthentication;
 import org.argeo.security.core.InternalAuthenticationProvider;
-import org.argeo.security.jcr.SimpleJcrSecurityModel;
-import org.argeo.security.jcr.jackrabbit.JackrabbitUserAdminService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.useradmin.UserAdmin;
@@ -52,9 +51,9 @@ class NodeSecurity implements AuthenticationManager {
 		this.bundleContext = bundleContext;
 
 		internalAuth = new InternalAuthenticationProvider(
-				SecurityUtils.getStaticKey());
+				Activator.getSystemKey());
 		anonymousAuth = new AnonymousAuthenticationProvider(
-				SecurityUtils.getStaticKey());
+				Activator.getSystemKey());
 
 		// user admin
 		userAdminService = new JackrabbitUserAdminService();

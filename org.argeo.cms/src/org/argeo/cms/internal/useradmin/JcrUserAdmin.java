@@ -15,7 +15,6 @@ import org.argeo.jcr.JcrUtils;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.jcr.JcrUserDetails;
-import org.argeo.security.jcr.SimpleJcrSecurityModel;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;

@@ -58,6 +58,7 @@ import org.springframework.core.io.ResourceLoader;
  * Wrapper around a Jackrabbit repository which allows to simplify configuration
  * and intercept some actions. It exposes itself as a {@link Repository}.
  */
+@SuppressWarnings("deprecation")
 public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 		ResourceLoaderAware {
 	private final static Log log = LogFactory.getLog(JackrabbitWrapper.class);
@@ -170,8 +171,8 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 					String oldDigest = JcrUtils.checksumFile(dataModel,
 							DIGEST_ALGORITHM);
 					if (oldDigest.equals(newDigest)) {
-						if (log.isDebugEnabled())
-							log.debug("Data model " + resUrl
+						if (log.isTraceEnabled())
+							log.trace("Data model " + resUrl
 									+ " hasn't changed, keeping version "
 									+ currentVersion);
 						return;
@@ -313,8 +314,8 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 			resUrl = resUrl.substring(1);
 		String pkg = resUrl.substring(0, resUrl.lastIndexOf('/')).replace('/',
 				'.');
-		ServiceReference paSr = bundleContext
-				.getServiceReference(PackageAdmin.class.getName());
+		ServiceReference<PackageAdmin> paSr = bundleContext
+				.getServiceReference(PackageAdmin.class);
 		PackageAdmin packageAdmin = (PackageAdmin) bundleContext
 				.getService(paSr);
 

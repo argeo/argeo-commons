@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,17 +28,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Static utilities */
 public final class SecurityUtils {
-	private final static String systemKey = UUID.randomUUID().toString();
-
 	private SecurityUtils() {
-	}
-
-	/**
-	 * @return a String which is guaranteed to be unique between and constant
-	 *         within a Java static context (typically a VM launch)
-	 */
-	public final static String getStaticKey() {
-		return systemKey;
 	}
 
 	/** Whether the current thread has the admin role */

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.jcr;
+package org.argeo.cms.internal.useradmin;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,9 +26,11 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
+import org.argeo.cms.internal.auth.OsJcrAuthenticationProvider;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.UserJcrUtils;
 import org.argeo.security.UserAdminService;
+import org.argeo.security.jcr.JcrUserDetails;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;

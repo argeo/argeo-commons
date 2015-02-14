@@ -9,9 +9,12 @@ org.xml.sax;version="0.0.0",\
 org.eclipse.swt.widgets;version="0.0.0",\
 org.argeo.jcr,\
 org.springframework.context,\
+org.springframework.security.authentication.jaas,\
 org.apache.jackrabbit.api,\
 org.apache.jackrabbit.commons,\
-org.eclipse.rap.rwt.osgi,\
 org.h2;resolution:=optional,\
 org.apache.commons.vfs2.*;resolution:=optional,\
+org.apache.jackrabbit.*;resolution:=optional,\
+org.springframework.ldap.*;resolution:=optional,\
+org.springframework.security.ldap.*;resolution:=optional,\
 *

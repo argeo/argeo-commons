@@ -27,6 +27,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * Thread bounded JCR session factory which checks authentication and is
  * autoconfigured in Spring.
  */
+@Deprecated
 public class SecureThreadBoundSession extends ThreadBoundSession {
 	private final static Log log = LogFactory
 			.getLog(SecureThreadBoundSession.class);

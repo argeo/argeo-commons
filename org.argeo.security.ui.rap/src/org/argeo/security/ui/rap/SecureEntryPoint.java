@@ -18,6 +18,8 @@ package org.argeo.security.ui.rap;
 import java.security.PrivilegedAction;
 
 import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.CredentialNotFoundException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
@@ -27,9 +29,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.cms.KernelHeader;
+import org.argeo.cms.auth.ArgeoLoginContext;
 import org.argeo.eclipse.ui.workbench.ErrorFeedback;
-import org.argeo.security.login.LoginCanceledException;
-import org.argeo.security.ui.dialogs.DefaultLoginDialog;
+import org.argeo.security.ui.auth.DefaultLoginDialog;
 import org.argeo.util.LocaleUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.rap.rwt.RWT;
@@ -94,12 +96,14 @@ public class SecureEntryPoint implements EntryPoint {
 		Subject subject = new Subject();
 
 		// log in
-		Thread.currentThread().setContextClassLoader(
-				getClass().getClassLoader());
+		// Thread.currentThread().setContextClassLoader(
+		// getClass().getClassLoader());
 		final LoginContext loginContext;
 		try {
-			loginContext = new LoginContext(KernelHeader.LOGIN_CONTEXT_USER,
-					subject, new DefaultLoginDialog(display.getActiveShell()));
+			CallbackHandler callbackHandler = new DefaultLoginDialog(
+					display.getActiveShell());
+			loginContext = new ArgeoLoginContext(
+					KernelHeader.LOGIN_CONTEXT_USER, subject, callbackHandler);
 		} catch (LoginException e1) {
 			throw new ArgeoException("Cannot initialize login context", e1);
 		}
@@ -119,7 +123,8 @@ public class SecureEntryPoint implements EntryPoint {
 					httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
 							SecurityContextHolder.getContext());
 				// add thread locale to RWT session
-				log.info("Locale " + LocaleUtils.threadLocale.get());
+				if (log.isTraceEnabled())
+					log.trace("Locale " + LocaleUtils.threadLocale.get());
 				RWT.setLocale(LocaleUtils.threadLocale.get());
 
 				// Once the user is logged in, longer session timeout
@@ -201,7 +206,7 @@ public class SecureEntryPoint implements EntryPoint {
 		if (t instanceof BadCredentialsException)
 			return (BadCredentialsException) t;
 
-		if (t instanceof LoginCanceledException)
+		if (t instanceof CredentialNotFoundException)
 			return new BadCredentialsException("Login canceled");
 
 		if (t.getCause() != null)

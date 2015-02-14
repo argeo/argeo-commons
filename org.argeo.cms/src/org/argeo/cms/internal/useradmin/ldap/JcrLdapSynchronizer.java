@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.ldap.jcr;
+package org.argeo.cms.internal.useradmin.ldap;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -41,13 +41,13 @@ import javax.naming.directory.ModificationItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
+import org.argeo.cms.internal.useradmin.SimpleJcrSecurityModel;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.security.SecurityUtils;
 import org.argeo.security.jcr.JcrSecurityModel;
 import org.argeo.security.jcr.JcrUserDetails;
-import org.argeo.security.jcr.SimpleJcrSecurityModel;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
@@ -60,6 +60,7 @@ import org.springframework.security.ldap.LdapUsernameToDnMapper;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 
 /** Makes sure that LDAP and JCR are in line. */
+@SuppressWarnings("deprecation")
 public class JcrLdapSynchronizer implements UserDetailsContextMapper,
 		ArgeoNames {
 	private final static Log log = LogFactory.getLog(JcrLdapSynchronizer.class);

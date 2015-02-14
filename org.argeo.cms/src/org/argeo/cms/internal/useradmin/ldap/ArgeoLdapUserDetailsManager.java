@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.ldap;
+package org.argeo.cms.internal.useradmin.ldap;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -36,6 +36,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsManager;
 
 /** Extends {@link LdapUserDetailsManager} by adding password encoding support. */
+@SuppressWarnings("deprecation")
 public class ArgeoLdapUserDetailsManager extends LdapUserDetailsManager
 		implements UserAdminService {
 	private String superUsername = "root";
