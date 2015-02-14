@@ -77,8 +77,8 @@ public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 			try {
 				if (node.isNodeType(NodeType.NT_FILE)) {
 					// double click on a file node triggers its opening
-					String name = node.getName();
-					String id = node.getIdentifier();
+					// String name = node.getName();
+					// String id = node.getIdentifier();
 
 					// TODO add integration of direct retrieval of the binary in
 					// a JCR repo.
