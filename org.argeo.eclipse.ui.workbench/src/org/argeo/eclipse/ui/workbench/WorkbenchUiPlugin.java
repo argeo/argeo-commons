@@ -50,14 +50,15 @@ public class WorkbenchUiPlugin extends AbstractUIPlugin implements ILogListener 
 		plugin = this;
 		messages = ResourceBundle.getBundle(ID + ".messages");
 		Platform.addLogListener(this);
-		if (log.isDebugEnabled())
-			log.debug("Eclipse logging now directed to standard logging");
+		if (log.isTraceEnabled())
+			log.trace("Eclipse logging now directed to standard logging");
 	}
 
 	public void stop(BundleContext context) throws Exception {
 		try {
 			Platform.removeLogListener(this);
-			log.debug("Eclipse logging not directed anymore to standard logging");
+			if (log.isTraceEnabled())
+				log.trace("Eclipse logging not directed anymore to standard logging");
 			plugin = null;
 		} finally {
 			super.stop(context);
