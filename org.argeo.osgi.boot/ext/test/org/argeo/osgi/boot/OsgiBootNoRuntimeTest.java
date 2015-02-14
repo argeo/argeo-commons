@@ -23,6 +23,7 @@ import junit.framework.TestCase;
 import org.argeo.osgi.boot.OsgiBoot;
 
 /** Tests which do not require a runtime. */
+@SuppressWarnings("rawtypes")
 public class OsgiBootNoRuntimeTest extends TestCase {
 	public final static String BUNDLES = "src/test/bundles/some;in=*;ex=excluded,"
 			+ "src/test/bundles/others;in=**/org.argeo.*";

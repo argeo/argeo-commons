@@ -36,6 +36,7 @@ import org.osgi.framework.Constants;
  * expected that it is. The root of the repository is computed based on the file
  * name of the URL and of the content of the index.
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class DistributionBundle {
 	private final static String INDEX_FILE_NAME = "modularDistribution.csv";
 

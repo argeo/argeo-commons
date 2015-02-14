@@ -32,6 +32,7 @@ import java.util.Properties;
  * @author Rob Harrop
  * @since 1.1.3
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class CollectionUtils {
 
 	/**

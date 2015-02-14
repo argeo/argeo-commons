@@ -32,6 +32,7 @@ import java.util.Arrays;
  * @since 19.03.2004
  * @see org.apache.commons.lang.ObjectUtils
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class ObjectUtils {
 
 	private static final int INITIAL_HASH = 7;

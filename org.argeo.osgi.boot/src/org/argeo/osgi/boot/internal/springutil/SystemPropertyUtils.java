@@ -45,6 +45,7 @@ public abstract class SystemPropertyUtils {
 	 * @see #PLACEHOLDER_PREFIX
 	 * @see #PLACEHOLDER_SUFFIX
 	 */
+	@SuppressWarnings("unused")
 	public static String resolvePlaceholders(String text) {
 		StringBuffer buf = new StringBuffer(text);
 

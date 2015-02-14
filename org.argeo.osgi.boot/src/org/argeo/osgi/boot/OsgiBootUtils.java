@@ -25,6 +25,7 @@ import java.util.StringTokenizer;
 import org.osgi.framework.Bundle;
 
 /** Utilities, mostly related to logging. */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class OsgiBootUtils {
 	/** ISO8601 (as per log4j) and difference to UTC */
 	private static DateFormat dateFormat = new SimpleDateFormat(
@@ -100,7 +101,7 @@ public class OsgiBootUtils {
 		StringTokenizer tSt = new StringTokenizer(currentVersion, ".");
 		while (tSt.hasMoreTokens())
 			tToks.add(tSt.nextToken());
-	
+
 		int comp = 0;
 		comp: for (int i = 0; i < cToks.size(); i++) {
 			if (tToks.size() <= i) {
@@ -108,10 +109,10 @@ public class OsgiBootUtils {
 				comp = 1;
 				break comp;
 			}
-	
+
 			String c = (String) cToks.get(i);
 			String t = (String) tToks.get(i);
-	
+
 			try {
 				int cInt = Integer.parseInt(c);
 				int tInt = Integer.parseInt(t);
@@ -130,12 +131,12 @@ public class OsgiBootUtils {
 				}
 			}
 		}
-	
+
 		if (comp == 0 && tToks.size() > cToks.size()) {
 			// equals until then, current shorter
 			comp = -1;
 		}
-	
+
 		return comp;
 	}
 

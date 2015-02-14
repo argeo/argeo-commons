@@ -49,6 +49,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
  * The approach is to generate list of URLs based on various methods, configured
  * via system properties.
  */
+@SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
 public class OsgiBoot {
 	public final static String SYMBOLIC_NAME_OSGI_BOOT = "org.argeo.osgi.boot";
 	public final static String SYMBOLIC_NAME_EQUINOX = "org.eclipse.osgi";

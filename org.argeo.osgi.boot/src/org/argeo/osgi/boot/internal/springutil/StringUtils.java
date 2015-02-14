@@ -51,6 +51,7 @@ import java.util.TreeSet;
  * @since 16 April 2001
  * @see org.apache.commons.lang.StringUtils
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class StringUtils {
 
 	private static final String FOLDER_SEPARATOR = "/";

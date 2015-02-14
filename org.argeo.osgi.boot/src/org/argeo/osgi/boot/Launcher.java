@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.adaptor.EclipseStarter;
 import org.osgi.framework.BundleContext;
 
 /** Command line interface. */
+@SuppressWarnings({ "rawtypes", "unchecked", "restriction" })
 public class Launcher {
 
 	public static void main(String[] args) {

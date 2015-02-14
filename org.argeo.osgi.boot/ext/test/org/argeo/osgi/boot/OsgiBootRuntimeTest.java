@@ -26,6 +26,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 /** Starts an Equinox runtime and provision it with OSGi boot. */
+@SuppressWarnings({ "unchecked", "rawtypes", "deprecation", "restriction" })
 public class OsgiBootRuntimeTest extends TestCase {
 	protected OsgiBoot osgiBoot = null;
 	private boolean osgiRuntimeAlreadyRunning = false;
