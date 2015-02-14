@@ -66,6 +66,8 @@ public class UserProfile extends ViewPart {
 	}
 
 	private class RolesContentProvider implements IStructuredContentProvider {
+		private static final long serialVersionUID = -4576917440167866233L;
+
 		public Object[] getElements(Object inputElement) {
 			return new TreeSet<String>(CurrentUser.roles()).toArray();
 		}

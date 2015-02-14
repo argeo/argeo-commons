@@ -31,6 +31,8 @@ import org.eclipse.swt.widgets.TableItem;
 
 /** A content provider maintaining an array of lines */
 class LogContentProvider implements ILazyContentProvider, ArgeoLogListener {
+	private static final long serialVersionUID = -2084872367738339721L;
+
 	private DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
 	private final Long start;

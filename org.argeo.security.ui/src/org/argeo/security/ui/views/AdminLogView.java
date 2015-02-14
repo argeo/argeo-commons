@@ -50,6 +50,7 @@ public class AdminLogView extends ViewPart {
 		viewer = new TableViewer(table);
 		viewer.setLabelProvider(new LabelProvider());
 		logContentProvider = new LogContentProvider(viewer) {
+			private static final long serialVersionUID = -3401776448301180724L;
 
 			@Override
 			protected StringBuffer prefix(String username, Long timestamp,
