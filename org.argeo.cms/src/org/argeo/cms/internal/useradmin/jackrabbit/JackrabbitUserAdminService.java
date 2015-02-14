@@ -28,6 +28,7 @@ import org.argeo.cms.internal.auth.JcrSecurityModel;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.UserJcrUtils;
 import org.argeo.security.NodeAuthenticationToken;
+import org.argeo.security.SecurityUtils;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.argeo.security.jcr.NewUserDetails;
@@ -63,7 +64,6 @@ public class JackrabbitUserAdminService implements UserAdminService,
 				.getAuthentication();
 		authentication.getName();
 		adminSession = (JackrabbitSession) repository.login();
-		securityModel.init(adminSession);
 		Authorizable adminGroup = getUserManager().getAuthorizable(
 				KernelHeader.ROLE_ADMIN);
 		if (adminGroup == null) {
@@ -79,6 +79,7 @@ public class JackrabbitUserAdminService implements UserAdminService,
 			securityModel.sync(adminSession, KernelHeader.USERNAME_ADMIN, null);
 			adminSession.save();
 		}
+		securityModel.init(adminSession);
 	}
 
 	public void destroy() throws RepositoryException {
@@ -282,7 +283,10 @@ public class JackrabbitUserAdminService implements UserAdminService,
 				Group group = (Group) groups.next();
 				String groupName = group.getPrincipal().getName();
 				String role = groupNameToRole(groupName);
-				if (role != null && !role.equals(KernelHeader.ROLE_GROUP_ADMIN))
+				if (role != null
+						&& !role.equals(KernelHeader.ROLE_GROUP_ADMIN)
+						&& !(role.equals(KernelHeader.ROLE_ADMIN) && !SecurityUtils
+								.hasCurrentThreadAuthority(KernelHeader.ROLE_ADMIN)))
 					res.add(role);
 			}
 			return res;

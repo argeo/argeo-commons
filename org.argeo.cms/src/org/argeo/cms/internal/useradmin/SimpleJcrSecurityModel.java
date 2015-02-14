@@ -51,14 +51,15 @@ public class SimpleJcrSecurityModel implements JcrSecurityModel {
 	@Override
 	public void init(Session adminSession) throws RepositoryException {
 		JcrUtils.mkdirs(adminSession, homeBasePath);
-
 		JcrUtils.mkdirs(adminSession, peopleBasePath);
+		adminSession.save();
+
+		JcrUtils.addPrivilege(adminSession, homeBasePath,
+				UserAccessControlProvider.USER_ADMIN_GROUP_NAME,
+				Privilege.JCR_READ);
 		JcrUtils.addPrivilege(adminSession, peopleBasePath,
 				UserAccessControlProvider.USER_ADMIN_GROUP_NAME,
 				Privilege.JCR_ALL);
-		// JcrUtils.addPrivilege(adminSession, "/",
-		// UserAccessControlProvider.USER_ADMIN_GROUP_NAME,
-		// Privilege.JCR_READ);
 	}
 
 	public synchronized Node sync(Session session, String username,
