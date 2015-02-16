@@ -41,6 +41,12 @@ final class Kernel {
 	}
 
 	void init() {
+		ClassLoader currentContextCl = Thread.currentThread()
+				.getContextClassLoader();
+		// We use the CMS bundle classloader during initialization
+		Thread.currentThread().setContextClassLoader(
+				Kernel.class.getClassLoader());
+
 		long begin = System.currentTimeMillis();
 		InternalAuthentication initAuth = new InternalAuthentication(
 				KernelConstants.DEFAULT_SECURITY_KEY);
@@ -61,6 +67,8 @@ final class Kernel {
 		} catch (Exception e) {
 			log.error("Cannot initialize Argeo CMS", e);
 			throw new ArgeoException("Cannot initialize", e);
+		} finally {
+			Thread.currentThread().setContextClassLoader(currentContextCl);
 		}
 
 		long jvmUptime = ManagementFactory.getRuntimeMXBean().getUptime();

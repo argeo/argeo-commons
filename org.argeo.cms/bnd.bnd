@@ -15,6 +15,7 @@ org.eclipse.swt;resolution:=optional,\
 org.eclipse.jface.window;resolution:=optional,\
 org.eclipse.swt.widgets;resolution:=optional,\
 org.h2;resolution:=optional,\
+org.postgresql;resolution:=optional,\
 org.apache.commons.vfs2.*;resolution:=optional,\
 org.apache.jackrabbit.*;resolution:=optional,\
 org.springframework.ldap.*;resolution:=optional,\

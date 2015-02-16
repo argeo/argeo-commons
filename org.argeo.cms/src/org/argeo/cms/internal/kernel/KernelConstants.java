@@ -6,7 +6,8 @@ public interface KernelConstants {
 
 	// Node
 	final static String REPO_HOME = "argeo.node.repo.home";
-	final static String REPO_CONFIGURATION = "argeo.node.repo.configuration";
+	final static String REPO_TYPE = "argeo.node.repo.type";
+	// final static String REPO_CONFIGURATION = "argeo.node.repo.configuration";
 	final static String REPO_DEFAULT_WORKSPACE = "argeo.node.repo.defaultWorkspace";
 	final static String REPO_DBURL = "argeo.node.repo.dburl";
 	final static String REPO_DBUSER = "argeo.node.repo.dbuser";
@@ -29,6 +30,7 @@ public interface KernelConstants {
 	final static String PATH_REMOTING_PRIVATE = PATH_DATA + "/jcr";
 
 	// RWT / RAP
-	final static String PATH_WORKBENCH_PUBLIC = "/ui/public";
+	final static String PATH_WORKBENCH = "/ui";
+	final static String PATH_WORKBENCH_PUBLIC = PATH_WORKBENCH + "/public";
 
 }
