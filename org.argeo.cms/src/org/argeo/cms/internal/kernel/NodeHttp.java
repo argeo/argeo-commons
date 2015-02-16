@@ -226,6 +226,12 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 				return;
 			}
 
+			// skip /ui (workbench) for the time being
+			if (servletPath.startsWith(PATH_WORKBENCH)) {
+				filterChain.doFilter(request, response);
+				return;
+			}
+
 			// redirect long RWT paths to anchor
 			String path = request.getRequestURI().substring(
 					servletPath.length());
