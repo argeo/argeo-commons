@@ -76,10 +76,10 @@
 					icon="icons/home.gif"
 					id="org.argeo.security.ui.rap.mainMenu"
 					style="pulldown">
-			</command>
-			<command commandId="org.eclipse.ui.file.save"/>
-			<command commandId="org.eclipse.ui.file.saveAll"/>
-		</toolbar>
+				</command>
+				<command commandId="org.eclipse.ui.file.save"/>
+				<command commandId="org.eclipse.ui.file.saveAll"/>
+			</toolbar>
 		</menuContribution>
 		
 		<!-- User drop down default menu -->
