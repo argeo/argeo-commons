@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.ui.commands;
+package org.argeo.security.ui.rap.commands;
 
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
+import org.argeo.eclipse.ui.workbench.CommandUtils;
 import org.argeo.security.ui.UserHomePerspective;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -24,22 +25,22 @@ import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /** Default action of the user menu */
-public class OpenHomePerspective extends AbstractHandler {
+public class OpenHome extends AbstractHandler {
+	private final static String PROP_OPEN_HOME_CMD_ID = "org.argeo.ui.openHomeCommandId";
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
-		
-		String defaultCmdId = System.getProperty(
-				"argeo.try", "");
-		System.out.println("System prop" + defaultCmdId );
-		
-		try {
-			HandlerUtil.getActiveSite(event).getWorkbenchWindow()
-					.openPage(UserHomePerspective.ID, null);
-		} catch (WorkbenchException e) {
-			ErrorFeedback.show("Cannot open home perspective", e);
+
+		String defaultCmdId = System.getProperty(PROP_OPEN_HOME_CMD_ID, "");
+		if (!"".equals(defaultCmdId.trim()))
+			CommandUtils.callCommand(defaultCmdId);
+		else {
+			try {
+				HandlerUtil.getActiveSite(event).getWorkbenchWindow()
+						.openPage(UserHomePerspective.ID, null);
+			} catch (WorkbenchException e) {
+				ErrorFeedback.show("Cannot open home perspective", e);
+			}
 		}
 		return null;
 	}
-
 }

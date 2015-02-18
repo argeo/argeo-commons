@@ -34,103 +34,19 @@
       </entrypoint>
    </extension>
 
-	<extension
-         point="org.eclipse.rap.ui.branding">
-    	<!-- themeId attribute is by default set to this value.
-    			Left anyway to provide the pattern when defining a later 
-    			own default theme for Argeo Rap UIs. 
-    			corresponding theme is found in spite of the warning -->
-    		
-    	<!--
-    	body="branding/login.html" 
-    	body attribute pointing to an auto refresh page triggers weird side effects: 
-    	the whole workbench is re-loaded (like pressing on F5) every now and then. 
-    	Must be checked. Removed from the time being.-->   
-		<branding
-			id="org.argeo.security.ui.rap.defaultBranding"
-            themeId="org.eclipse.rap.rwt.theme.Default"
-            title="Argeo Web UI"
-            favicon="branding/favicon.ico">
-      	</branding>
-      	<!-- we need a servlet with this name j_spring_security_logout
-      		 for the logout filter -->
-    	<branding
-			id="org.argeo.security.ui.rap.logoutBranding"
-            title="Argeo Logout"
-            favicon="branding/favicon.ico"
-            body="branding/empty.html">
-      	</branding>
-   	</extension>
-   	
-   	<!-- LOCAL THEMES - Use the following to extend or overwrite default theme --> 
-	<!--	<extension
-		point="org.eclipse.rap.ui.themes">
-		<themeContribution
-			themeId="org.eclipse.rap.rwt.theme.Default"
-			file="theme/defaultExt.css" /> 
-	</extension> -->
-
-  <!-- <extension point="org.eclipse.ui.menus">
-    <menuContribution locationURI="toolbar:org.eclipse.ui.main.toolbar">
-        <toolbar id="org.argeo.security.ui.rap.userToolbar">
-           <command
-                 commandId="org.argeo.security.ui.rap.mainMenuCommand"
-                 icon="icons/main.gif"
-                 id="org.argeo.security.ui.rap.mainMenu"
-                 style="pulldown">
-           </command>
-           <command commandId="org.eclipse.ui.file.save"/>
-           <command commandId="org.eclipse.ui.file.saveAll"/>
-        </toolbar>
-     </menuContribution>
-		<menuContribution locationURI="menu:org.argeo.security.ui.rap.mainMenu">
-	 <command
-              commandId="org.argeo.security.ui.rap.userMenuCommand"
-              icon="icons/home.gif"
-              id="org.argeo.security.ui.rap.userMenu">
-        </command>
-        <command
-              commandId="org.eclipse.ui.window.preferences"
-              icon="icons/preferences.png"/>
-        <command
-              commandId="org.argeo.security.ui.rap.openChangePasswordDialog"
-              icon="icons/password.gif"
-              label="Change password"/>
-        <separator
-              name="org.argeo.security.ui.rap.beforeFile"
-              visible="true">
-        </separator>
-        <command
-              commandId="org.eclipse.ui.file.closeAll"
-              icon="icons/closeAll.gif"/>
-           <command commandId="org.eclipse.ui.file.save"/>
-           <command commandId="org.eclipse.ui.file.saveAll"/>
-        <separator
-              name="org.argeo.security.ui.rap.beforeExit"
-              visible="true">
-        </separator>
-        <command commandId="org.eclipse.ui.file.exit" icon="icons/exit.png"/>
-     </menuContribution>
-  </extension> -->
-		
-        <!--<command commandId="org.eclipse.ui.views.showView"/>-->
-        <!--<command commandId="org.eclipse.ui.perspectives.showPerspective"/>-->
-
-
 	<!-- COMMANDS --> 
 	<extension point="org.eclipse.ui.commands">
+		<command
+			id="org.argeo.security.ui.rap.mainMenuCommand"
+			defaultHandler="org.argeo.security.ui.rap.commands.OpenHome"
+			name="Main"> 
+		</command>
 		<command
 			id="org.argeo.security.ui.rap.openChangePasswordDialog"
 			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
 			name="Change Password">
 		</command>
-		<command
-			id="org.argeo.security.ui.rap.mainMenuCommand"
-			defaultHandler="org.argeo.security.ui.commands.OpenHomePerspective"
-			name="Main">
-		</command>
-		
-    	<!-- Register a default command that enable an "open file" action in a single sourced application  -->  
+		<!-- Enable an "open file" action in a single sourced application  -->  
 		<command
 			defaultHandler="org.argeo.eclipse.spring.SpringExtensionFactory"
 			id="org.argeo.security.ui.specific.openFile"
@@ -149,16 +65,71 @@
   	 		</commandParameter>
 		</command>
  	</extension>
- 
- 	<!-- SERVICE HANDLERS --> 
+
+	<!-- MENUS --> 
+	<extension point="org.eclipse.ui.menus">
+    	<!-- Main tool bar menu -->
+    	<menuContribution locationURI="toolbar:org.eclipse.ui.main.toolbar">
+        	<toolbar id="org.argeo.security.ui.rap.userToolbar">
+				<command
+					commandId="org.argeo.security.ui.rap.mainMenuCommand"
+					icon="icons/home.gif"
+					id="org.argeo.security.ui.rap.mainMenu"
+					style="pulldown">
+			</command>
+			<command commandId="org.eclipse.ui.file.save"/>
+			<command commandId="org.eclipse.ui.file.saveAll"/>
+		</toolbar>
+		</menuContribution>
+		
+		<!-- User drop down default menu -->
+		<menuContribution locationURI="menu:org.argeo.security.ui.rap.mainMenu">
+			<!-- Managed programmatically in the RapActionBarAdvisor to enable 
+			     the display of the current logged-in user id -->
+			<command
+				commandId="org.argeo.security.ui.rap.userMenuCommand"
+				icon="icons/main.gif"
+				id="org.argeo.security.ui.rap.userMenu">
+			</command>
+			<!-- Still unused
+			<command
+				commandId="org.eclipse.ui.window.preferences"
+				icon="icons/preferences.png"/> -->
+        	<command
+				commandId="org.argeo.security.ui.rap.openChangePasswordDialog"
+				icon="icons/password.gif"
+				label="Change password"/>
+			<separator
+				name="org.argeo.security.ui.rap.beforeFile"
+				visible="true">
+			</separator>
+			<command
+				commandId="org.eclipse.ui.file.closeAll"
+				icon="icons/closeAll.gif"/>
+			<command commandId="org.eclipse.ui.file.save"/>
+			<command commandId="org.eclipse.ui.file.saveAll"/>
+	
+			<!--<command commandId="org.eclipse.ui.views.showView"/>-->
+    		<!--<command commandId="org.eclipse.ui.perspectives.showPerspective"/>-->
+	
+			<separator
+				name="org.argeo.security.ui.rap.beforeExit"
+				visible="true">
+			</separator>
+			<command commandId="org.eclipse.ui.file.exit" icon="icons/exit.png"/>
+		</menuContribution>
+	</extension>
+		
+    <!-- SERVICE HANDLERS --> 
 	<extension point="org.eclipse.rap.ui.serviceHandler">
-		<!-- The required rap specific handler to call the open file command over the internet-->
+		<!-- Rap specific service handler to enable file download over the internet-->
 		<serviceHandler
 			class="org.argeo.eclipse.ui.specific.OpenFileService"
 			id="org.argeo.security.ui.specific.openFileService">
 		</serviceHandler>
 	</extension>
     
+    <!-- ACTIVITIES -->
   	<extension
            point="org.eclipse.ui.activities">
         <activity
@@ -187,14 +158,32 @@
 		    </not>
 		  </enabledWhen>
         </activity>
-        <activityPatternBinding
+		<activityPatternBinding
               activityId="org.argeo.security.ui.rap.notAnonymousActivity"
-              pattern="org.argeo.security.ui.rap/org.argeo.security.ui.rap.userMenuCommand"/>
-        <activityPatternBinding
+              pattern="org.argeo.security.ui.rap/org.argeo.security.ui.rap.userMenuCommand"/>         <activityPatternBinding
               activityId="org.argeo.security.ui.rap.notAnonymousActivity"
               pattern="org.argeo.security.ui.rap/org.eclipse.ui.window.preferences"/>
         <activityPatternBinding
               activityId="org.argeo.security.ui.rap.notAnonymousActivity"
               pattern="org.argeo.security.ui.rap/org.argeo.security.ui.rap.openChangePasswordDialog"/>
      </extension>
+    
+    <!-- BRANDINGS --> 
+     <extension
+         point="org.eclipse.rap.ui.branding">
+    	<branding
+			id="org.argeo.security.ui.rap.defaultBranding"
+            themeId="org.eclipse.rap.rwt.theme.Default"
+            title="Argeo Web UI"
+            favicon="branding/favicon.ico">
+      	</branding>
+      	<!-- we need a servlet with this name j_spring_security_logout
+      		 for the logout filter -->
+    	<branding
+			id="org.argeo.security.ui.rap.logoutBranding"
+            title="Argeo Logout"
+            favicon="branding/favicon.ico"
+            body="branding/empty.html">
+      	</branding>
+   	</extension>
 </plugin>

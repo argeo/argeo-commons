@@ -110,6 +110,7 @@ public class RapActionBarAdvisor extends ActionBarAdvisor {
 
 	@Override
 	protected void fillCoolBar(ICoolBarManager coolBar) {
+		// Add a command which label is the login of the current logged-in user
 		if (username != null) {
 			ICommandService cmdService = (ICommandService) getActionBarConfigurer()
 					.getWindowConfigurer().getWorkbenchConfigurer()
@@ -117,7 +118,6 @@ public class RapActionBarAdvisor extends ActionBarAdvisor {
 			Category userMenus = cmdService.getCategory(ID_BASE + ".userMenus");
 			if (!userMenus.isDefined())
 				userMenus.define("User Menus", "User related menus");
-
 			Command userMenu = cmdService.getCommand(ID_BASE
 					+ ".userMenuCommand");
 			if (userMenu.isDefined())
