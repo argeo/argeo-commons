@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE Repository PUBLIC "-//The Apache Software Foundation//DTD Jackrabbit 1.6//EN"
-                            "http://jackrabbit.apache.org/dtd/repository-2.0.dtd">
+<!DOCTYPE Repository PUBLIC "Jackrabbit 2.6" "http://jackrabbit.apache.org/dtd/repository-2.6.dtd">
 <Repository>
 	<!-- File system and datastore -->
 	<FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem" />

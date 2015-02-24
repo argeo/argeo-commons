@@ -15,7 +15,6 @@ import org.apache.commons.logging.Log;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.KernelHeader;
 import org.argeo.cms.internal.auth.GrantedAuthorityPrincipal;
-import org.osgi.framework.BundleContext;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -46,9 +45,10 @@ class KernelUtils implements KernelConstants {
 		return asDictionary(props);
 	}
 
-	static File getOsgiInstanceDir(BundleContext bundleContext) {
-		return new File(bundleContext.getProperty(OSGI_INSTANCE_AREA)
-				.substring("file:".length())).getAbsoluteFile();
+	static File getOsgiInstanceDir() {
+		return new File(Activator.getBundleContext()
+				.getProperty(OSGI_INSTANCE_AREA).substring("file:".length()))
+				.getAbsoluteFile();
 	}
 
 	// Security

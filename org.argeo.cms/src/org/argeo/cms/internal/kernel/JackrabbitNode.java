@@ -104,8 +104,7 @@ class JackrabbitNode extends JackrabbitWrapper implements KernelConstants,
 		Hashtable<String, Object> defaults = new Hashtable<String, Object>();
 
 		// home
-		File osgiInstanceDir = KernelUtils
-				.getOsgiInstanceDir(getBundleContext());
+		File osgiInstanceDir = KernelUtils.getOsgiInstanceDir();
 		File homeDir = new File(osgiInstanceDir, "node");
 		// home cannot be overridden
 		defaults.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE,

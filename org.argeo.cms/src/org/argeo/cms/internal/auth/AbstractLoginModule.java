@@ -67,8 +67,8 @@ public abstract class AbstractLoginModule implements LoginModule {
 					.getAuthentication();
 			if (currentAuth != null) {
 				if (subject.getPrincipals(Authentication.class).size() == 0) {
-					throw new LoginException(
-							"Security context set but not Authentication principal");
+					// throw new LoginException(
+					// "Security context set but not Authentication principal");
 				} else {
 					Authentication principal = subject
 							.getPrincipals(Authentication.class).iterator()

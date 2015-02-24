@@ -1,10 +1,13 @@
 package org.argeo.cms.internal.kernel;
 
+import static org.argeo.jackrabbit.servlet.WebdavServlet.INIT_PARAM_RESOURCE_CONFIG;
+
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
+import javax.jcr.Repository;
 import javax.servlet.FilterChain;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -20,10 +23,9 @@ import org.argeo.jackrabbit.servlet.OpenInViewSessionProvider;
 import org.argeo.jackrabbit.servlet.RemotingServlet;
 import org.argeo.jackrabbit.servlet.WebdavServlet;
 import org.argeo.jcr.ArgeoJcrConstants;
+import org.argeo.security.NodeAuthenticationToken;
 import org.eclipse.equinox.http.servlet.ExtendedHttpService;
-import org.osgi.framework.BundleContext;
 import org.osgi.service.http.NamespaceException;
-import org.osgi.util.tracker.ServiceTracker;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -42,8 +44,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	private final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
 	private final AuthenticationManager authenticationManager;
-	private final BundleContext bundleContext;
-	private ExtendedHttpService httpService;
+	private final ExtendedHttpService httpService;
 
 	// FIXME Make it more unique
 	private String httpAuthRealm = "Argeo";
@@ -53,31 +54,15 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	// private final DoSFilter dosFilter;
 	// private final QoSFilter qosFilter;
 
-	// remoting
+	// WebDav / JCR remoting
 	private OpenInViewSessionProvider sessionProvider;
-	private WebdavServlet publicWebdavServlet;
-	private WebdavServlet privateWebdavServlet;
-	private RemotingServlet publicRemotingServlet;
-	private RemotingServlet privateRemotingServlet;
 
-	NodeHttp(BundleContext bundleContext, JackrabbitNode node,
+	NodeHttp(ExtendedHttpService httpService, JackrabbitNode node,
 			NodeSecurity authenticationManager) {
-		this.bundleContext = bundleContext;
+		// this.bundleContext = bundleContext;
 		this.authenticationManager = authenticationManager;
 
-		// Equinox dependency
-		ServiceTracker<ExtendedHttpService, ExtendedHttpService> st = new ServiceTracker<ExtendedHttpService, ExtendedHttpService>(
-				bundleContext, ExtendedHttpService.class, null);
-		st.open();
-		try {
-			httpService = st.waitForService(1000);
-		} catch (InterruptedException e) {
-			httpService = null;
-		}
-
-		if (httpService == null)
-			throw new CmsException("Could not find "
-					+ ExtendedHttpService.class + " service.");
+		this.httpService = httpService;
 
 		// Filters
 		rootFilter = new RootFilter();
@@ -86,66 +71,55 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 
 		// DAV
 		sessionProvider = new OpenInViewSessionProvider();
-		publicWebdavServlet = new WebdavServlet(node, sessionProvider);
-		privateWebdavServlet = new WebdavServlet(node, sessionProvider);
-		publicRemotingServlet = new RemotingServlet(node, sessionProvider);
-		privateRemotingServlet = new RemotingServlet(node, sessionProvider);
-	}
 
-	void publish() {
 		try {
-			registerWebdavServlet(PATH_WEBDAV_PUBLIC, ALIAS_NODE, true,
-					publicWebdavServlet);
-			registerWebdavServlet(PATH_WEBDAV_PRIVATE, ALIAS_NODE, false,
-					privateWebdavServlet);
-			registerRemotingServlet(PATH_REMOTING_PUBLIC, ALIAS_NODE, true,
-					publicRemotingServlet);
-			registerRemotingServlet(PATH_REMOTING_PRIVATE, ALIAS_NODE, false,
-					privateRemotingServlet);
+			registerWebdavServlet(ALIAS_NODE, node, true);
+			registerWebdavServlet(ALIAS_NODE, node, false);
+			registerRemotingServlet(ALIAS_NODE, node, true);
+			registerRemotingServlet(ALIAS_NODE, node, false);
 
-			// httpService.registerFilter("/", dosFilter, null, null);
 			httpService.registerFilter("/", rootFilter, null, null);
-			// httpService.registerFilter("/", qosFilter, null, null);
 		} catch (Exception e) {
-			throw new CmsException("Cannot publish HTTP services to OSGi", e);
+			throw new CmsException("Could not initialise http", e);
 		}
 	}
 
-	private void registerWebdavServlet(String pathPrefix, String alias,
-			Boolean anonymous, WebdavServlet webdavServlet)
-			throws NamespaceException, ServletException {
-		String path = pathPrefix + "/" + alias;
-		Properties initParameters = new Properties();
-		initParameters.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_CONFIG,
-				KernelConstants.WEBDAV_CONFIG);
-		initParameters.setProperty(
-				WebdavServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
-		httpService.registerFilter(path, anonymous ? new AnonymousFilter()
-				: new DavFilter(), null, null);
-		// Cast to servlet because of a weird behaviour in Eclipse
-		httpService.registerServlet(path, (Servlet) webdavServlet,
-				initParameters, null);
+	public void destroy() {
+		sessionProvider.destroy();
 	}
 
-	private void registerRemotingServlet(String pathPrefix, String alias,
-			Boolean anonymous, RemotingServlet remotingServlet)
-			throws NamespaceException, ServletException {
+	void registerWebdavServlet(String alias, Repository repository,
+			boolean anonymous) throws NamespaceException, ServletException {
+		WebdavServlet webdavServlet = new WebdavServlet(repository,
+				sessionProvider);
+		String pathPrefix = anonymous ? WEBDAV_PUBLIC : WEBDAV_PRIVATE;
 		String path = pathPrefix + "/" + alias;
-		Properties initParameters = new Properties();
-		initParameters.setProperty(
-				RemotingServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
+		Properties ip = new Properties();
+		ip.setProperty(INIT_PARAM_RESOURCE_CONFIG, WEBDAV_CONFIG);
+		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
+		httpService.registerFilter(path, anonymous ? new AnonymousFilter()
+				: new DavFilter(), null, null);
+		// Cast to servlet because of a weird behaviour in Eclipse
+		httpService.registerServlet(path, (Servlet) webdavServlet, ip, null);
+	}
+
+	void registerRemotingServlet(String alias, Repository repository,
+			boolean anonymous) throws NamespaceException, ServletException {
+		String pathPrefix = anonymous ? REMOTING_PUBLIC : REMOTING_PRIVATE;
+		RemotingServlet remotingServlet = new RemotingServlet(repository,
+				sessionProvider);
+		String path = pathPrefix + "/" + alias;
+		Properties ip = new Properties();
+		ip.setProperty(RemotingServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
 
 		// Looks like a bug in Jackrabbit remoting init
-		initParameters.setProperty(RemotingServlet.INIT_PARAM_HOME,
-				KernelUtils.getOsgiInstanceDir(bundleContext)
-						+ "/tmp/jackrabbit");
-		initParameters.setProperty(RemotingServlet.INIT_PARAM_TMP_DIRECTORY,
-				"remoting");
+		ip.setProperty(RemotingServlet.INIT_PARAM_HOME,
+				KernelUtils.getOsgiInstanceDir() + "/tmp/jackrabbit");
+		ip.setProperty(RemotingServlet.INIT_PARAM_TMP_DIRECTORY, "remoting");
 		// Cast to servlet because of a weird behaviour in Eclipse
 		httpService.registerFilter(path, anonymous ? new AnonymousFilter()
 				: new DavFilter(), null, null);
-		httpService.registerServlet(path, (Servlet) remotingServlet,
-				initParameters, null);
+		httpService.registerServlet(path, (Servlet) remotingServlet, ip, null);
 	}
 
 	private Boolean isSessionAuthenticated(HttpSession httpSession) {
@@ -162,7 +136,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 		httpSession.setAttribute(ATTR_AUTH, Boolean.TRUE);
 	}
 
-	private UsernamePasswordAuthenticationToken basicAuth(String authHeader) {
+	private NodeAuthenticationToken basicAuth(String authHeader) {
 		if (authHeader != null) {
 			StringTokenizer st = new StringTokenizer(authHeader);
 			if (st.hasMoreTokens()) {
@@ -178,8 +152,8 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 							String password = credentials.substring(p + 1)
 									.trim();
 
-							return new UsernamePasswordAuthenticationToken(
-									login, password.toCharArray());
+							return new NodeAuthenticationToken(login,
+									password.toCharArray());
 						} else {
 							throw new CmsException(
 									"Invalid authentication token");
@@ -251,7 +225,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	}
 
 	/** Intercepts all requests. Authenticates. */
-	class AnonymousFilter extends HttpFilter {
+	private class AnonymousFilter extends HttpFilter {
 		@Override
 		public void doFilter(HttpSession httpSession,
 				HttpServletRequest request, HttpServletResponse response,
@@ -269,7 +243,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	}
 
 	/** Intercepts all requests. Authenticates. */
-	class DavFilter extends HttpFilter {
+	private class DavFilter extends HttpFilter {
 
 		@Override
 		public void doFilter(HttpSession httpSession,
