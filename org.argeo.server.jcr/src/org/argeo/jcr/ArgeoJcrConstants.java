@@ -15,6 +15,8 @@
  */
 package org.argeo.jcr;
 
+import javax.jcr.Repository;
+
 /** Argeo model specific constants */
 public interface ArgeoJcrConstants {
 	public final static String ARGEO_BASE_PATH = "/argeo:system";
@@ -24,10 +26,16 @@ public interface ArgeoJcrConstants {
 			+ "/argeo:people";
 
 	// parameters (typically for call to a RepositoryFactory)
+	/** Key for a JCR repository alias */
 	public final static String JCR_REPOSITORY_ALIAS = "argeo.jcr.repository.alias";
+	/** Key for a JCR repository URI */
 	public final static String JCR_REPOSITORY_URI = "argeo.jcr.repository.uri";
 
 	// standard aliases
+	/**
+	 * Reserved alias for the "node" {@link Repository}, that is, the default
+	 * JCR repository.
+	 */
 	public final static String ALIAS_NODE = "node";
 
 }
