@@ -15,7 +15,9 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.jackrabbit.core.RepositoryContext;
 import org.apache.jackrabbit.core.RepositoryImpl;
+import org.apache.jackrabbit.core.cache.CacheManager;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
 import org.argeo.ArgeoException;
@@ -31,15 +33,17 @@ class JackrabbitNode extends JackrabbitWrapper implements KernelConstants,
 		ArgeoJcrConstants {
 	private static Log log = LogFactory.getLog(JackrabbitNode.class);
 
+	@SuppressWarnings("unused")
+	private RepositoryContext repositoryContext;
+
 	private ServiceRegistration<Repository> repositoryReg;
 
 	public JackrabbitNode(BundleContext bundleContext) {
 		setBundleContext(bundleContext);
-		// TODO with OSGi CM
-		JackrabbitNodeType type = JackrabbitNodeType.valueOf(System
-				.getProperty(REPO_TYPE, h2.name()));
+		JackrabbitNodeType type = JackrabbitNodeType.valueOf(prop(REPO_TYPE,
+				h2.name()));
 		try {
-			createNode(type);
+			repositoryContext = createNode(type);
 			setCndFiles(Arrays.asList(DEFAULT_CNDS));
 			prepareDataModel();
 		} catch (Exception e) {
@@ -139,33 +143,54 @@ class JackrabbitNode extends JackrabbitWrapper implements KernelConstants,
 
 	private void setProp(Dictionary<String, Object> props, String key,
 			String defaultValue) {
-		// TODO use OSGi CM instead of System properties
-		String value = System.getProperty(key, defaultValue);
+		String value = prop(key, defaultValue);
 		props.put(key, value);
 	}
 
-	private void createNode(JackrabbitNodeType type) throws RepositoryException {
-		Hashtable<String, Object> vars = getConfigurationProperties(type);
-		RepositoryConfig repositoryConfig = getConfiguration(type, vars);
-		RepositoryImpl repository = createJackrabbitRepository(repositoryConfig);
-		setRepository(repository);
+	private String prop(String key, String defaultValue) {
+		// TODO use OSGi CM instead of Framework/System properties
+		return KernelUtils.getFrameworkProp(key, defaultValue);
 	}
 
-	private RepositoryImpl createJackrabbitRepository(
+	private RepositoryContext createNode(JackrabbitNodeType type)
+			throws RepositoryException {
+		Hashtable<String, Object> vars = getConfigurationProperties(type);
+		RepositoryConfig repositoryConfig = getConfiguration(type, vars);
+		RepositoryContext repositoryContext = createJackrabbitRepository(repositoryConfig);
+		RepositoryImpl repository = repositoryContext.getRepository();
+
+		// cache
+		String maxCacheMbStr = prop(KernelConstants.REPO_MAX_CACHE_MB, null);
+		if (maxCacheMbStr != null) {
+			Integer maxCacheMB = Integer.parseInt(maxCacheMbStr);
+			CacheManager cacheManager = repository.getCacheManager();
+			cacheManager.setMaxMemory(maxCacheMB * 1024l * 1024l);
+			cacheManager.setMaxMemoryPerCache((maxCacheMB / 4) * 1024l * 1024l);
+		}
+
+		// wrap the repository
+		setRepository(repository);
+		return repositoryContext;
+	}
+
+	private RepositoryContext createJackrabbitRepository(
 			RepositoryConfig repositoryConfig) throws RepositoryException {
 		File homeDirectory = null;
 		long begin = System.currentTimeMillis();
-		RepositoryImpl repository;
+		// RepositoryImpl repository;
 		//
 		// Actual repository creation
 		//
-		repository = RepositoryImpl.create(repositoryConfig);
+		RepositoryContext repositoryContext = RepositoryContext
+				.create(repositoryConfig);
+		// repository = repositoryContext.getRepository();
+		// repository = RepositoryImpl.create(repositoryConfig);
 
 		double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
 		if (log.isTraceEnabled())
 			log.trace("Created Jackrabbit repository in " + duration
 					+ " s, home: " + homeDirectory);
 
-		return repository;
+		return repositoryContext;
 	}
 }
