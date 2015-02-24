@@ -42,6 +42,8 @@ public class SimplePrincipal implements Principal {
 	public boolean equals(Object obj) {
 		if (obj == null)
 			return false;
+		if (obj instanceof Principal)
+			return name.equals((((Principal) obj).getName()));
 		return name.equals(obj.toString());
 	}
 
