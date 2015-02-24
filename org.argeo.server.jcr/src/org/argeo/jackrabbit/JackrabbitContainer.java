@@ -78,7 +78,7 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 	}
 
 	public void init() {
-		long begin = System.currentTimeMillis();
+		// long begin = System.currentTimeMillis();
 
 		if (getRepository() != null)
 			throw new ArgeoException(
@@ -92,10 +92,11 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 		// apply new CND files after migration
 		prepareDataModel();
 
-		double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
-		if (log.isDebugEnabled())
-			log.debug("Initialized JCR repository wrapper in " + duration
-					+ " s");
+		// double duration = ((double) (System.currentTimeMillis() - begin)) /
+		// 1000;
+		// if (log.isDebugEnabled())
+		// log.debug("Initialized JCR repository wrapper in " + duration
+		// + " s");
 	}
 
 	/** Actually creates the new repository. */
@@ -246,8 +247,9 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 								+ getHomeDirectory());
 				}
 			double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
-			log.info("Destroyed Jackrabbit repository in " + duration
-					+ " s, home: " + getHomeDirectory());
+			if (log.isTraceEnabled())
+				log.trace("Destroyed Jackrabbit repository in " + duration
+						+ " s, home: " + getHomeDirectory());
 		}
 		repository = null;
 	}
