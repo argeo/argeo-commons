@@ -36,7 +36,8 @@ final class Kernel implements ServiceListener {
 	private final static Log log = LogFactory.getLog(Kernel.class);
 
 	private final BundleContext bundleContext;
-	private final ThreadGroup threadGroup = new ThreadGroup("Argeo CMS Kernel");
+	// private final ThreadGroup threadGroup = new
+	// ThreadGroup("Argeo CMS Kernel");
 
 	private JackrabbitNode node;
 	private RepositoryFactory repositoryFactory;
@@ -48,19 +49,22 @@ final class Kernel implements ServiceListener {
 	}
 
 	void init() {
-		new Thread(threadGroup, "init") {
-			@Override
-			public void run() {
-				// CMS bundle classloader used during initialisation
-				Thread.currentThread().setContextClassLoader(
-						Kernel.class.getClassLoader());
-				doInit();
-			}
-		}.start();
+		// new Thread(threadGroup, "init") {
+		// @Override
+		// public void run() {
+		// // CMS bundle classloader used during initialisation
+		// Thread.currentThread().setContextClassLoader(
+		// Kernel.class.getClassLoader());
+		doInit();
+		// }
+		// }.start();
 	}
 
-	/** Run asynchronously */
 	protected void doInit() {
+		ClassLoader currentContextCl = Thread.currentThread()
+				.getContextClassLoader();
+		Thread.currentThread().setContextClassLoader(
+				Kernel.class.getClassLoader());
 		long begin = System.currentTimeMillis();
 		InternalAuthentication initAuth = new InternalAuthentication(
 				KernelConstants.DEFAULT_SECURITY_KEY);
@@ -85,6 +89,8 @@ final class Kernel implements ServiceListener {
 		} catch (Exception e) {
 			log.error("Cannot initialize Argeo CMS", e);
 			throw new ArgeoException("Cannot initialize", e);
+		} finally {
+			Thread.currentThread().setContextClassLoader(currentContextCl);
 		}
 
 		long jvmUptime = ManagementFactory.getRuntimeMXBean().getUptime();

@@ -51,6 +51,17 @@ class KernelUtils implements KernelConstants {
 				.getAbsoluteFile();
 	}
 
+	static String getFrameworkProp(String key, String def) {
+		String value = Activator.getBundleContext().getProperty(key);
+		if (value == null)
+			return def;
+		return value;
+	}
+
+	static String getFrameworkProp(String key) {
+		return getFrameworkProp(key, null);
+	}
+
 	// Security
 	static void anonymousLogin(AuthenticationManager authenticationManager) {
 		try {
