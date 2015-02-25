@@ -3,6 +3,7 @@ package org.argeo.cms.internal.kernel;
 import static org.argeo.jackrabbit.servlet.WebdavServlet.INIT_PARAM_RESOURCE_CONFIG;
 
 import java.io.IOException;
+import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -175,24 +176,18 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 		public void doFilter(HttpSession httpSession,
 				HttpServletRequest request, HttpServletResponse response,
 				FilterChain filterChain) throws IOException, ServletException {
-			if (log.isTraceEnabled()) {
-				log.debug(request.getContextPath());
-				log.debug(request.getServletPath());
-				log.debug(request.getRequestURI());
-				log.debug(request.getQueryString());
-				StringBuilder buf = new StringBuilder();
-				Enumeration<String> en = request.getHeaderNames();
-				while (en.hasMoreElements()) {
-					String header = en.nextElement();
-					Enumeration<String> values = request.getHeaders(header);
-					while (values.hasMoreElements())
-						buf.append("  " + header + ": " + values.nextElement());
-					buf.append('\n');
-				}
-				log.debug("\n" + buf);
-			}
+			if (log.isTraceEnabled())
+				logRequest(request);
 
 			String servletPath = request.getServletPath();
+
+			// client certificate
+			X509Certificate clientCert = extractCertificate(request);
+			if (clientCert != null) {
+				// TODO authenticate
+				// if (log.isDebugEnabled())
+				// log.debug(clientCert.getSubjectX500Principal().getName());
+			}
 
 			// skip data
 			if (servletPath.startsWith(PATH_DATA)) {
@@ -222,6 +217,42 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 			// process normally
 			filterChain.doFilter(request, response);
 		}
+	}
+
+	private void logRequest(HttpServletRequest request) {
+		log.debug(request.getContextPath());
+		log.debug(request.getServletPath());
+		log.debug(request.getRequestURI());
+		log.debug(request.getQueryString());
+		StringBuilder buf = new StringBuilder();
+		// headers
+		Enumeration<String> en = request.getHeaderNames();
+		while (en.hasMoreElements()) {
+			String header = en.nextElement();
+			Enumeration<String> values = request.getHeaders(header);
+			while (values.hasMoreElements())
+				buf.append("  " + header + ": " + values.nextElement());
+			buf.append('\n');
+		}
+
+		// attributed
+		Enumeration<String> an = request.getAttributeNames();
+		while (an.hasMoreElements()) {
+			String attr = an.nextElement();
+			Object value = request.getAttribute(attr);
+			buf.append("  " + attr + ": " + value);
+			buf.append('\n');
+		}
+		log.debug("\n" + buf);
+	}
+
+	private X509Certificate extractCertificate(HttpServletRequest req) {
+		X509Certificate[] certs = (X509Certificate[]) req
+				.getAttribute("javax.servlet.request.X509Certificate");
+		if (null != certs && certs.length > 0) {
+			return certs[0];
+		}
+		return null;
 	}
 
 	/** Intercepts all requests. Authenticates. */
