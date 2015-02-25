@@ -28,6 +28,15 @@ public class ArgeoLoginContext extends LoginContext {
 		currentContextClassLoader.remove();
 	}
 
+	public ArgeoLoginContext(String name, Subject subject)
+			throws LoginException {
+		super(setContextClassLoaderForName(name), subject);
+		// reset current context classloader
+		Thread.currentThread().setContextClassLoader(
+				currentContextClassLoader.get());
+		currentContextClassLoader.remove();
+	}
+
 	/**
 	 * Set the context classloader
 	 * 

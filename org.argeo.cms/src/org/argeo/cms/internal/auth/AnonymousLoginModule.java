@@ -43,19 +43,22 @@ public class AnonymousLoginModule extends AbstractLoginModule {
 			InterruptedException {
 		Locale selectedLocale = null;
 		// multi locale
-		if (availableLocales != null && !availableLocales.trim().equals("")) {
-			LocaleCallback localeCallback = new LocaleCallback(availableLocales);
-			callbackHandler.handle(new Callback[] { localeCallback });
-			selectedLocale = localeCallback.getSelectedLocale();
-		} else {
-			callbackHandler.handle(new Callback[] {});
-		}
+		if (callbackHandler != null)
+			if (availableLocales != null && !availableLocales.trim().equals("")) {
+				LocaleCallback localeCallback = new LocaleCallback(
+						availableLocales);
+				callbackHandler.handle(new Callback[] { localeCallback });
+				selectedLocale = localeCallback.getSelectedLocale();
+			} else {
+				callbackHandler.handle(new Callback[] {});
+			}
 
 		List<GrantedAuthorityPrincipal> authorities = Collections
 				.singletonList(new GrantedAuthorityPrincipal(
 						KernelHeader.ROLE_ANONYMOUS));
 		AnonymousAuthenticationToken anonymousToken = new AnonymousAuthenticationToken(
-				Activator.getSystemKey(), null, authorities);
+				Activator.getSystemKey(), KernelHeader.USERNAME_ANONYMOUS,
+				authorities);
 
 		Authentication auth = getAuthenticationManager().authenticate(
 				anonymousToken);

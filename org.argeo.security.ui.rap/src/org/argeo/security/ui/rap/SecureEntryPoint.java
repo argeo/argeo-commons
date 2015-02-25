@@ -86,18 +86,9 @@ public class SecureEntryPoint implements EntryPoint {
 			SecurityContextHolder
 					.setContext((SecurityContext) contextFromSessionObject);
 
-		// if (log.isDebugEnabled())
-		// log.debug("THREAD=" + Thread.currentThread().getId()
-		// + ", sessionStore=" + RWT.getSessionStore().getId()
-		// + ", remote user=" + httpRequest.getRemoteUser());
-
-		// create display
 		final Display display = PlatformUI.createDisplay();
 		Subject subject = new Subject();
 
-		// log in
-		// Thread.currentThread().setContextClassLoader(
-		// getClass().getClassLoader());
 		final LoginContext loginContext;
 		try {
 			CallbackHandler callbackHandler = new DefaultLoginDialog(
@@ -111,10 +102,6 @@ public class SecureEntryPoint implements EntryPoint {
 		tryLogin: while (subject.getPrincipals(Authentication.class).size() == 0) {
 			try {
 				loginContext.login();
-				// if () {
-				// throw new ArgeoException("Login failed");
-				// }
-
 				if (subject.getPrincipals(Authentication.class).size() == 0)
 					throw new ArgeoException("Login succeeded but no auth");// fatal
 
@@ -122,12 +109,13 @@ public class SecureEntryPoint implements EntryPoint {
 				if (httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) == null)
 					httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
 							SecurityContextHolder.getContext());
+
 				// add thread locale to RWT session
 				if (log.isTraceEnabled())
 					log.trace("Locale " + LocaleUtils.threadLocale.get());
 				RWT.setLocale(LocaleUtils.threadLocale.get());
 
-				// Once the user is logged in, longer session timeout
+				// once the user is logged in, longer session timeout
 				RWT.getRequest().getSession()
 						.setMaxInactiveInterval(sessionTimeout);
 

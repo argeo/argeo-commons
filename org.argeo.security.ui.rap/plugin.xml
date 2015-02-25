@@ -10,27 +10,10 @@
             brandingId="org.argeo.security.ui.rap.defaultBranding">
       </entrypoint>
       <entrypoint
-            id="org.argeo.security.ui.rap.secureEntryPoint"
-            class="org.argeo.security.ui.rap.SecureEntryPoint"
-            path="/secureWebUi"
-            brandingId="org.argeo.security.ui.rap.defaultBranding">
-      </entrypoint>
-      <entrypoint
             id="org.argeo.security.ui.rap.anonymousEntryPoint"
             class="org.argeo.security.ui.rap.AnonymousEntryPoint"
-            path="/publicWebUi"
+            path="/public"
             brandingId="org.argeo.security.ui.rap.defaultBranding">
-      </entrypoint>
-    <!--   <entrypoint
-            id="org.argeo.security.ui.rap.logoutEntryPoint"
-            class="org.argeo.security.ui.rap.LogoutEntryPoint"
-            path="/logout"
-            brandingId="org.argeo.security.ui.rap.logoutBranding">
-      </entrypoint> -->
-      <entrypoint
-            id="org.argeo.security.ui.rap.nullEntryPoint"
-            class="org.argeo.security.ui.rap.NullEntryPoint"
-            path="/nullEP">
       </entrypoint>
    </extension>
 

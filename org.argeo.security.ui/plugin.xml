@@ -53,6 +53,18 @@
   <extension
            point="org.eclipse.ui.activities">
         <activity
+              description="Authenticated users"
+              id="org.argeo.security.ui.userActivity"
+              name="User">
+		  <enabledWhen>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="ROLE_USER" />
+		      </iterate>
+		    </with>
+		  </enabledWhen>
+        </activity>
+        <activity
               description="Admins"
               id="org.argeo.security.ui.adminActivity"
               name="Admin">
@@ -125,6 +137,16 @@
               activityId="org.argeo.security.ui.adminActivity"
               isEqualityPattern="true"
               pattern="org.argeo.security.ui/org.argeo.security.ui.adminLogView">
+        </activityPatternBinding>
+        <activityPatternBinding
+              activityId="org.argeo.security.ui.userActivity"
+              isEqualityPattern="true"
+              pattern="org.argeo.security.ui/org.argeo.security.ui.userHomePerspective">
+        </activityPatternBinding>
+        <activityPatternBinding
+              activityId="org.argeo.security.ui.userActivity"
+              isEqualityPattern="true"
+              pattern="org.argeo.security.ui/org.argeo.security.ui.userProfile">
         </activityPatternBinding>
      </extension>
  </plugin>

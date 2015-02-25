@@ -80,8 +80,8 @@ public abstract class AbstractLoginModule implements LoginModule {
 				return true;
 			}
 
-			if (callbackHandler == null)
-				throw new LoginException("No callback handler available");
+			// if (callbackHandler == null)
+			// throw new LoginException("No callback handler available");
 
 			authentication = processLogin(callbackHandler);
 			if (authentication != null) {
