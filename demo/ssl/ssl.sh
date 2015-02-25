@@ -2,6 +2,8 @@
 
 # COMPLETELY UNSAFE - FOR DEVELOPMENT ONLY
 # Run this script from its directory
+# all *.p12 passwords are 'demo'
+# all *.jks passwords are 'changeit'
 
 export OPENSSL_CONF=./openssl.cnf
 export CATOP=./CA
