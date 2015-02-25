@@ -46,5 +46,3 @@ openssl pkcs12 -export -passin pass:demo -passout pass:demo \
 
 # Clean up
 rm -vf new*.pem
-#rm -vf root.csr root.key root.crt
-#rm -vf server.p12 server.crt server.key
