@@ -148,12 +148,12 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 	}
 
 	public void init() throws RepositoryException {
-		if (workspace == null)
-			throw new CmsException(
-					"Workspace must be set when calling initialization."
-							+ " Please make sure that read-only and read-write roles"
-							+ " have been properly configured:"
-							+ " the defaults are open.");
+//		if (workspace == null)
+//			throw new CmsException(
+//					"Workspace must be set when calling initialization."
+//							+ " Please make sure that read-only and read-write roles"
+//							+ " have been properly configured:"
+//							+ " the defaults are open.");
 
 		Session session = null;
 		try {
