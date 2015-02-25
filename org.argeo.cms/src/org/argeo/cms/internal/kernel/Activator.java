@@ -24,9 +24,8 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		assert bundleContext == null;
 		assert kernel == null;
-
 		bundleContext = context;
-		kernel = new Kernel(bundleContext);
+		kernel = new Kernel();
 		kernel.init();
 	}
 

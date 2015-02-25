@@ -24,6 +24,7 @@ import org.argeo.ArgeoException;
 import org.argeo.cms.CmsException;
 import org.argeo.jackrabbit.JackrabbitWrapper;
 import org.argeo.jcr.ArgeoJcrConstants;
+import org.argeo.jcr.DefaultRepositoryRegister;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.xml.sax.InputSource;
@@ -52,11 +53,12 @@ class JackrabbitNode extends JackrabbitWrapper implements KernelConstants,
 		}
 	}
 
-	public void publish() {
+	void publish(DefaultRepositoryRegister repositoryRegister) {
 		Hashtable<String, String> regProps = new Hashtable<String, String>();
 		regProps.put(JCR_REPOSITORY_ALIAS, ALIAS_NODE);
 		repositoryReg = getBundleContext().registerService(Repository.class,
 				this, regProps);
+		repositoryRegister.register(this, regProps);
 	}
 
 	public void destroy() {

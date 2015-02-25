@@ -73,20 +73,34 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 		// DAV
 		sessionProvider = new OpenInViewSessionProvider();
 
+		registerRepositoryServlets(ALIAS_NODE, node);
 		try {
-			registerWebdavServlet(ALIAS_NODE, node, true);
-			registerWebdavServlet(ALIAS_NODE, node, false);
-			registerRemotingServlet(ALIAS_NODE, node, true);
-			registerRemotingServlet(ALIAS_NODE, node, false);
-
 			httpService.registerFilter("/", rootFilter, null, null);
 		} catch (Exception e) {
-			throw new CmsException("Could not initialise http", e);
+			throw new CmsException(
+					"Could not register root filter", e);
 		}
 	}
 
 	public void destroy() {
 		sessionProvider.destroy();
+		unregisterRepositoryServlets(ALIAS_NODE);
+	}
+
+	void registerRepositoryServlets(String alias, Repository repository) {
+		try {
+			registerWebdavServlet(alias, repository, true);
+			registerWebdavServlet(alias, repository, false);
+			registerRemotingServlet(alias, repository, true);
+			registerRemotingServlet(alias, repository, false);
+		} catch (Exception e) {
+			throw new CmsException(
+					"Could not register servlets for repository " + alias, e);
+		}
+	}
+
+	void unregisterRepositoryServlets(String alias) {
+		// FIXME unregister servlets
 	}
 
 	void registerWebdavServlet(String alias, Repository repository,

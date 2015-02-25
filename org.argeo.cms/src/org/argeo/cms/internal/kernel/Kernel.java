@@ -1,6 +1,8 @@
 package org.argeo.cms.internal.kernel;
 
 import java.lang.management.ManagementFactory;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryFactory;
@@ -35,32 +37,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 final class Kernel implements ServiceListener {
 	private final static Log log = LogFactory.getLog(Kernel.class);
 
-	private final BundleContext bundleContext;
-	// private final ThreadGroup threadGroup = new
-	// ThreadGroup("Argeo CMS Kernel");
+	private final BundleContext bundleContext = Activator.getBundleContext();
 
 	private JackrabbitNode node;
-	private RepositoryFactory repositoryFactory;
+	private OsgiJackrabbitRepositoryFactory repositoryFactory;
 	private NodeSecurity nodeSecurity;
 	private NodeHttp nodeHttp;
 
-	Kernel(BundleContext bundleContext) {
-		this.bundleContext = bundleContext;
-	}
-
 	void init() {
-		// new Thread(threadGroup, "init") {
-		// @Override
-		// public void run() {
-		// // CMS bundle classloader used during initialisation
-		// Thread.currentThread().setContextClassLoader(
-		// Kernel.class.getClassLoader());
-		doInit();
-		// }
-		// }.start();
-	}
-
-	protected void doInit() {
 		ClassLoader currentContextCl = Thread.currentThread()
 				.getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(
@@ -71,8 +55,13 @@ final class Kernel implements ServiceListener {
 		SecurityContextHolder.getContext().setAuthentication(initAuth);
 
 		try {
+			// Jackrabbit node
 			node = new JackrabbitNode(bundleContext);
+
+			// JCR repository factory
 			repositoryFactory = new OsgiJackrabbitRepositoryFactory();
+
+			// Authentication
 			nodeSecurity = new NodeSecurity(bundleContext, node);
 
 			// Equinox dependency
@@ -81,7 +70,7 @@ final class Kernel implements ServiceListener {
 
 			// Publish services to OSGi
 			nodeSecurity.publish();
-			node.publish();
+			node.publish(repositoryFactory);
 			bundleContext.registerService(RepositoryFactory.class,
 					repositoryFactory, null);
 
@@ -130,40 +119,23 @@ final class Kernel implements ServiceListener {
 		if (jcrRepoAlias != null) {// JCR repository
 			String alias = jcrRepoAlias.toString();
 			Repository repository = (Repository) bundleContext.getService(sr);
+			Map<String, Object> props = new HashMap<String, Object>();
+			for (String key : sr.getPropertyKeys())
+				props.put(key, sr.getProperty(key));
 			if (ServiceEvent.REGISTERED == event.getType()) {
 				try {
-					nodeHttp.registerWebdavServlet(alias, repository, true);
-					nodeHttp.registerWebdavServlet(alias, repository, false);
-					nodeHttp.registerRemotingServlet(alias, repository, true);
-					nodeHttp.registerRemotingServlet(alias, repository, false);
+					repositoryFactory.register(repository, props);
+					nodeHttp.registerRepositoryServlets(alias, repository);
 				} catch (Exception e) {
 					throw new CmsException("Could not publish JCR repository "
 							+ alias, e);
 				}
 			} else if (ServiceEvent.UNREGISTERING == event.getType()) {
+				repositoryFactory.unregister(repository, props);
+				nodeHttp.unregisterRepositoryServlets(alias);
 			}
 		}
 
-	}
-
-	final private static void directorsCut(long initDuration) {
-		// final long ms = 128l + (long) (Math.random() * 128d);
-		long ms = initDuration / 10;
-		log.info("Spend " + ms + "ms"
-				+ " reflecting on the progress brought to mankind"
-				+ " by Free Software...");
-		long beginNano = System.nanoTime();
-		try {
-			Thread.sleep(ms, 0);
-		} catch (InterruptedException e) {
-			// silent
-		}
-		long durationNano = System.nanoTime() - beginNano;
-		final double M = 1000d * 1000d;
-		double sleepAccuracy = ((double) durationNano) / (ms * M);
-		if (log.isTraceEnabled())
-			log.trace("Sleep accuracy: "
-					+ String.format("%.2f", sleepAccuracy * 100) + " %");
 	}
 
 	private ExtendedHttpService waitForHttpService() {
@@ -181,5 +153,26 @@ final class Kernel implements ServiceListener {
 			throw new CmsException("Could not find "
 					+ ExtendedHttpService.class + " service.");
 		return httpService;
+	}
+
+	final private static void directorsCut(long initDuration) {
+		// final long ms = 128l + (long) (Math.random() * 128d);
+		long ms = initDuration / 100;
+		log.info("Spend " + ms + "ms"
+				+ " reflecting on the progress brought to mankind"
+				+ " by Free Software...");
+		long beginNano = System.nanoTime();
+		try {
+			Thread.sleep(ms, 0);
+		} catch (InterruptedException e) {
+			// silent
+		}
+		long durationNano = System.nanoTime() - beginNano;
+		final double M = 1000d * 1000d;
+		double sleepAccuracy = ((double) durationNano) / (ms * M);
+		if (log.isDebugEnabled())
+			log.debug("Sleep accuracy: "
+					+ String.format("%.2f", 100 - (sleepAccuracy * 100 - 100))
+					+ " %");
 	}
 }
