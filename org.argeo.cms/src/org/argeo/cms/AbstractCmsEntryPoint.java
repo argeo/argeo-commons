@@ -1,7 +1,5 @@
 package org.argeo.cms;
 
-import static org.argeo.cms.internal.kernel.KernelConstants.SPRING_SECURITY_CONTEXT_KEY;
-
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -10,7 +8,6 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,7 +20,6 @@ import org.eclipse.rap.rwt.client.service.BrowserNavigationEvent;
 import org.eclipse.rap.rwt.client.service.BrowserNavigationListener;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Manages history and navigation */
@@ -44,16 +40,17 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 	private BrowserNavigation history;
 
 	public AbstractCmsEntryPoint(Repository repository, String workspace) {
-		if (SecurityContextHolder.getContext().getAuthentication() == null) {
-			HttpSession httpSession = RWT.getRequest().getSession();
-			// log.debug("Session: " + httpSession.getId());
-			SecurityContext contextFromSessionObject = (SecurityContext) httpSession
-					.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
-			if (contextFromSessionObject != null)
-				SecurityContextHolder.setContext(contextFromSessionObject);
-			else
-				logAsAnonymous();
-		}
+		// if (SecurityContextHolder.getContext().getAuthentication() == null) {
+		// HttpSession httpSession = RWT.getRequest().getSession();
+		// // log.debug("Session: " + httpSession.getId());
+		// SecurityContext contextFromSessionObject = (SecurityContext)
+		// httpSession
+		// .getAttribute(SPRING_SECURITY_CONTEXT_KEY);
+		// if (contextFromSessionObject != null)
+		// SecurityContextHolder.setContext(contextFromSessionObject);
+		// else
+		// logAsAnonymous();
+		// }
 
 		this.repository = repository;
 		this.workspace = workspace;

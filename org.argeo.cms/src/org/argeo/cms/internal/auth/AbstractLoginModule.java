@@ -23,19 +23,31 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.cms.internal.kernel.Activator;
+import org.eclipse.rap.rwt.RWT;
+import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Login module which caches one subject per thread. */
 public abstract class AbstractLoginModule implements LoginModule {
-	// private final static Log log = LogFactory
-	// .getLog(AbstractSpringLoginModule.class);
+	/**
+	 * From org.springframework.security.context.
+	 * HttpSessionContextIntegrationFilter
+	 */
+	private final static String SPRING_SECURITY_CONTEXT_KEY = "SPRING_SECURITY_CONTEXT";
+
+	private final static Log log = LogFactory.getLog(AbstractLoginModule.class);
 	private CallbackHandler callbackHandler;
 	private Subject subject;
 
@@ -62,9 +74,24 @@ public abstract class AbstractLoginModule implements LoginModule {
 	@Override
 	public boolean login() throws LoginException {
 		try {
-			// thread already logged in
 			Authentication currentAuth = SecurityContextHolder.getContext()
 					.getAuthentication();
+
+			if (currentAuth == null && Display.getCurrent() != null) {
+				// try to load authentication from session
+				HttpServletRequest httpRequest = RWT.getRequest();
+				HttpSession httpSession = httpRequest.getSession();
+				// log.debug(httpSession.getId());
+				Object contextFromSessionObject = httpSession
+						.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
+				if (contextFromSessionObject != null) {
+					currentAuth = (Authentication) contextFromSessionObject;
+					SecurityContextHolder.getContext().setAuthentication(
+							currentAuth);
+				}
+			}
+
+			// thread already logged in
 			if (currentAuth != null) {
 				if (subject.getPrincipals(Authentication.class).size() == 0) {
 					// throw new LoginException(
@@ -85,8 +112,19 @@ public abstract class AbstractLoginModule implements LoginModule {
 
 			authentication = processLogin(callbackHandler);
 			if (authentication != null) {
-				SecurityContextHolder.getContext().setAuthentication(
-						authentication);
+				//
+				// SET THE AUTHENTICATION
+				//
+				SecurityContext securityContext = SecurityContextHolder
+						.getContext();
+				securityContext.setAuthentication(authentication);
+				if (Display.getCurrent() != null) {
+					HttpServletRequest httpRequest = RWT.getRequest();
+					HttpSession httpSession = httpRequest.getSession();
+					if (httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) == null)
+						httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
+								authentication);
+				}
 				return true;
 			} else {
 				throw new LoginException("No authentication returned");
@@ -109,6 +147,12 @@ public abstract class AbstractLoginModule implements LoginModule {
 	@Override
 	public boolean logout() throws LoginException {
 		SecurityContextHolder.getContext().setAuthentication(null);
+		if (Display.getCurrent() != null) {
+			HttpServletRequest httpRequest = RWT.getRequest();
+			HttpSession httpSession = httpRequest.getSession();
+			if (httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) != null)
+				httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, null);
+		}
 		return true;
 	}
 
@@ -138,12 +182,6 @@ public abstract class AbstractLoginModule implements LoginModule {
 		assert authenticationManager != null;
 		return bc.getService(authenticationManager);
 	}
-
-	// protected UserAdmin getUserAdmin(BundleContextCallback
-	// bundleContextCallback) {
-	// BundleContext bc = bundleContextCallback.getBundleContext();
-	// return bc.getService(bc.getServiceReference(UserAdmin.class));
-	// }
 
 	protected Subject getSubject() {
 		return subject;

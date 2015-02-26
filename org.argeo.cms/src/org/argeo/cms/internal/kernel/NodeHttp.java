@@ -30,7 +30,6 @@ import org.osgi.service.http.NamespaceException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
@@ -137,11 +136,11 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 		httpService.registerServlet(path, (Servlet) remotingServlet, ip, null);
 	}
 
-	private Boolean isSessionAuthenticated(HttpSession httpSession) {
-		SecurityContext contextFromSession = (SecurityContext) httpSession
-				.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
-		return contextFromSession != null;
-	}
+//	private Boolean isSessionAuthenticated(HttpSession httpSession) {
+//		SecurityContext contextFromSession = (SecurityContext) httpSession
+//				.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
+//		return contextFromSession != null;
+//	}
 
 	private void requestBasicAuth(HttpSession httpSession,
 			HttpServletResponse response) {
@@ -277,10 +276,10 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 				FilterChain filterChain) throws IOException, ServletException {
 
 			// Authenticate from session
-			if (isSessionAuthenticated(httpSession)) {
-				filterChain.doFilter(request, response);
-				return;
-			}
+//			if (isSessionAuthenticated(httpSession)) {
+//				filterChain.doFilter(request, response);
+//				return;
+//			}
 
 			KernelUtils.anonymousLogin(authenticationManager);
 			filterChain.doFilter(request, response);
@@ -307,9 +306,9 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 				UsernamePasswordAuthenticationToken token = basicAuth(basicAuth);
 				Authentication auth = authenticationManager.authenticate(token);
 				SecurityContextHolder.getContext().setAuthentication(auth);
-				httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
-						SecurityContextHolder.getContext());
-				httpSession.setAttribute(ATTR_AUTH, Boolean.FALSE);
+//				httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
+//						SecurityContextHolder.getContext());
+//				httpSession.setAttribute(ATTR_AUTH, Boolean.FALSE);
 				filterChain.doFilter(request, response);
 				return;
 			}

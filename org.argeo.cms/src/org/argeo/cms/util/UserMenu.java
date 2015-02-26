@@ -1,13 +1,23 @@
 package org.argeo.cms.util;
 
-import static org.argeo.cms.internal.kernel.KernelConstants.SPRING_SECURITY_CONTEXT_KEY;
+import java.io.IOException;
 
-import javax.servlet.http.HttpSession;
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 
+import org.argeo.ArgeoException;
 import org.argeo.cms.CmsLogin;
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.CmsSession;
 import org.argeo.cms.CmsStyles;
+import org.argeo.cms.KernelHeader;
+import org.argeo.cms.auth.ArgeoLoginContext;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -25,11 +35,12 @@ import org.eclipse.swt.widgets.Text;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /** The site-related user menu */
-public class UserMenu extends Shell implements CmsStyles {
+public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 	private static final long serialVersionUID = -5788157651532106301L;
 
 	private CmsLogin cmsLogin;
-	private String username = null;
+	// private String username = null;
+	private Text username, password;
 
 	public UserMenu(CmsLogin cmsLogin, Control source) {
 		super(source.getDisplay(), SWT.NO_TRIM | SWT.BORDER | SWT.ON_TOP);
@@ -37,8 +48,8 @@ public class UserMenu extends Shell implements CmsStyles {
 
 		setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU);
 
-		username = SecurityContextHolder.getContext().getAuthentication()
-				.getName();
+		String username = SecurityContextHolder.getContext()
+				.getAuthentication().getName();
 		if (username.equals("anonymous")) {
 			username = null;
 			anonymousUi();
@@ -69,6 +80,9 @@ public class UserMenu extends Shell implements CmsStyles {
 	protected void userUi() {
 		setLayout(new GridLayout());
 
+		String username = SecurityContextHolder.getContext()
+				.getAuthentication().getName();
+
 		Label l = new Label(this, SWT.NONE);
 		l.setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU_ITEM);
 		l.setData(RWT.MARKUP_ENABLED, true);
@@ -88,9 +102,19 @@ public class UserMenu extends Shell implements CmsStyles {
 			private static final long serialVersionUID = 6444395812777413116L;
 
 			public void mouseDown(MouseEvent e) {
-				SecurityContextHolder.getContext().setAuthentication(null);
-				HttpSession httpSession = RWT.getRequest().getSession();
-				httpSession.removeAttribute(SPRING_SECURITY_CONTEXT_KEY);
+				Subject subject = new Subject();
+				try {
+					new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_USER,
+							subject).logout();
+					new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_ANONYMOUS,
+							subject).login();
+				} catch (LoginException e1) {
+					throw new ArgeoException("Cannot authenticate anonymous",
+							e1);
+				}
+				// SecurityContextHolder.getContext().setAuthentication(null);
+				// HttpSession httpSession = RWT.getRequest().getSession();
+				// httpSession.removeAttribute(SPRING_SECURITY_CONTEXT_KEY);
 				close();
 				dispose();
 				cmsSession.authChange();
@@ -104,14 +128,14 @@ public class UserMenu extends Shell implements CmsStyles {
 		setLayout(new GridLayout(2, false));
 
 		new Label(this, SWT.NONE).setText(CmsMsg.username.lead());
-		final Text username = new Text(this, SWT.BORDER);
+		username = new Text(this, SWT.BORDER);
 		username.setData(RWT.CUSTOM_VARIANT, CMS_LOGIN_DIALOG_USERNAME);
 		GridData gd = CmsUtils.fillWidth();
 		gd.widthHint = textWidth;
 		username.setLayoutData(gd);
 
 		new Label(this, SWT.NONE).setText(CmsMsg.password.lead());
-		final Text password = new Text(this, SWT.BORDER | SWT.PASSWORD);
+		password = new Text(this, SWT.BORDER | SWT.PASSWORD);
 		password.setData(RWT.CUSTOM_VARIANT, CMS_LOGIN_DIALOG_PASSWORD);
 		gd = CmsUtils.fillWidth();
 		gd.widthHint = textWidth;
@@ -123,21 +147,46 @@ public class UserMenu extends Shell implements CmsStyles {
 
 			public void keyTraversed(TraverseEvent e) {
 				if (e.detail == SWT.TRAVERSE_RETURN)
-					login(username.getText(), password.getTextChars());
+					login();
 			}
 		};
 		username.addTraverseListener(tl);
 		password.addTraverseListener(tl);
 	}
 
-	protected void login(String username, char[] password) {
+	protected void login() {
 		CmsSession cmsSession = (CmsSession) getDisplay().getData(
 				CmsSession.KEY);
-		cmsLogin.logInWithPassword(username, password);
+
+		Subject subject = new Subject();
+		try {
+			new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_ANONYMOUS, subject)
+					.logout();
+			LoginContext loginContext = new ArgeoLoginContext(
+					KernelHeader.LOGIN_CONTEXT_USER, subject, this);
+			loginContext.login();
+		} catch (LoginException e1) {
+			throw new ArgeoException("Cannot authenticate anonymous", e1);
+		}
+
+		// cmsLogin.logInWithPassword(username, password);
 		close();
 		dispose();
 		// refreshUi(source.getParent());
 		cmsSession.authChange();
+	}
+
+	@Override
+	public void handle(Callback[] callbacks) throws IOException,
+			UnsupportedCallbackException {
+		((NameCallback) callbacks[0]).setName(username.getText());
+		((PasswordCallback) callbacks[1]).setPassword(password.getTextChars());
+		// while (!isDisposed())
+		// try {
+		// Thread.sleep(500);
+		// } catch (InterruptedException e) {
+		// // silent
+		// }
 	}
 
 }

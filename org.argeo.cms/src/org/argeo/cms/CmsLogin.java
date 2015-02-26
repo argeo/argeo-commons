@@ -1,18 +1,14 @@
 package org.argeo.cms;
 
-import static org.argeo.cms.internal.kernel.KernelConstants.SPRING_SECURITY_CONTEXT_KEY;
-
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.cms.auth.ArgeoLoginContext;
 import org.argeo.security.NodeAuthenticationToken;
-import org.eclipse.rap.rwt.RWT;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,9 +38,9 @@ public class CmsLogin {
 		Authentication authentication = authenticationManager
 				.authenticate(token);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
-		HttpSession httpSession = RWT.getRequest().getSession();
-		httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
-				SecurityContextHolder.getContext());
+		// HttpSession httpSession = RWT.getRequest().getSession();
+		// httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
+		// SecurityContextHolder.getContext());
 		if (log.isDebugEnabled())
 			log.debug("Authenticated as " + authentication);
 	}

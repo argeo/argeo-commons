@@ -78,13 +78,13 @@ public class SecureEntryPoint implements EntryPoint {
 		RWT.getRequest().getSession().setMaxInactiveInterval(loginTimeout);
 
 		// Try to load security context thanks to the session processing filter
-		HttpServletRequest httpRequest = RWT.getRequest();
-		HttpSession httpSession = httpRequest.getSession();
-		Object contextFromSessionObject = httpSession
-				.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
-		if (contextFromSessionObject != null)
-			SecurityContextHolder
-					.setContext((SecurityContext) contextFromSessionObject);
+//		HttpServletRequest httpRequest = RWT.getRequest();
+//		HttpSession httpSession = httpRequest.getSession();
+//		Object contextFromSessionObject = httpSession
+//				.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
+//		if (contextFromSessionObject != null)
+//			SecurityContextHolder
+//					.setContext((SecurityContext) contextFromSessionObject);
 
 		final Display display = PlatformUI.createDisplay();
 		Subject subject = new Subject();
@@ -106,9 +106,9 @@ public class SecureEntryPoint implements EntryPoint {
 					throw new ArgeoException("Login succeeded but no auth");// fatal
 
 				// add security context to session
-				if (httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) == null)
-					httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
-							SecurityContextHolder.getContext());
+//				if (httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) == null)
+//					httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
+//							SecurityContextHolder.getContext());
 
 				// add thread locale to RWT session
 				if (log.isTraceEnabled())
@@ -222,9 +222,9 @@ public class SecureEntryPoint implements EntryPoint {
 			loginContext.logout();
 			SecurityContextHolder.clearContext();
 
-			HttpServletRequest httpRequest = RWT.getRequest();
-			HttpSession httpSession = httpRequest.getSession();
-			httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, null);
+			// HttpServletRequest httpRequest = RWT.getRequest();
+			// HttpSession httpSession = httpRequest.getSession();
+			// httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, null);
 			RWT.getRequest().getSession().setMaxInactiveInterval(1);
 			log.info("Logged out " + (username != null ? username : "")
 					+ " (THREAD=" + Thread.currentThread().getId() + ")");
