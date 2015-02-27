@@ -1,5 +1,9 @@
 package org.argeo.cms.internal.useradmin.jackrabbit;
 
+import static org.argeo.cms.KernelHeader.ROLE_ADMIN;
+import static org.argeo.cms.KernelHeader.USERNAME_ADMIN;
+import static org.argeo.cms.KernelHeader.USERNAME_DEMO;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -12,7 +16,6 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
-import javax.jcr.Value;
 import javax.jcr.version.VersionManager;
 
 import org.apache.jackrabbit.api.JackrabbitSession;
@@ -53,33 +56,44 @@ public class JackrabbitUserAdminService implements UserAdminService,
 		AuthenticationProvider {
 	private final static String JACKR_ADMINISTRATORS = "administrators";
 	private final static String REP_PRINCIPAL_NAME = "rep:principalName";
-	private final static String REP_PASSWORD = "rep:password";
+	// private final static String REP_PASSWORD = "rep:password";
 
 	private Repository repository;
 	private JcrSecurityModel securityModel;
 
 	private JackrabbitSession adminSession = null;
 
-	private String superUserInitialPassword = "demo";
+	private String initialPassword = "demo";
 
 	public void init() throws RepositoryException {
 		Authentication authentication = SecurityContextHolder.getContext()
 				.getAuthentication();
 		authentication.getName();
 		adminSession = (JackrabbitSession) repository.login();
-		Authorizable adminGroup = getUserManager().getAuthorizable(
-				KernelHeader.ROLE_ADMIN);
+		Authorizable adminGroup = getUserManager().getAuthorizable(ROLE_ADMIN);
 		if (adminGroup == null) {
-			adminGroup = getUserManager().createGroup(KernelHeader.ROLE_ADMIN);
+			adminGroup = getUserManager().createGroup(ROLE_ADMIN);
 			adminSession.save();
 		}
+
+		// create superuser
 		Authorizable superUser = getUserManager().getAuthorizable(
-				KernelHeader.USERNAME_ADMIN);
+				USERNAME_ADMIN);
 		if (superUser == null) {
-			superUser = getUserManager().createUser(
-					KernelHeader.USERNAME_ADMIN, superUserInitialPassword);
+			superUser = getUserManager().createUser(USERNAME_ADMIN,
+					initialPassword);
 			((Group) adminGroup).addMember(superUser);
-			securityModel.sync(adminSession, KernelHeader.USERNAME_ADMIN, null);
+			securityModel.sync(adminSession, USERNAME_ADMIN, null);
+			adminSession.save();
+
+			// create demo user only at initialisation
+			Authorizable demoUser = getUserManager().getAuthorizable(
+					USERNAME_DEMO);
+			if (demoUser != null)
+				throw new CmsException("There is already a demo user");
+			demoUser = getUserManager().createUser(USERNAME_DEMO,
+					initialPassword);
+			securityModel.sync(adminSession, USERNAME_DEMO, null);
 			adminSession.save();
 		}
 		securityModel.init(adminSession);

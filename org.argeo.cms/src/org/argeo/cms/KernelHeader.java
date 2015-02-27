@@ -16,5 +16,6 @@ public interface KernelHeader {
 
 	// RESERVED USERNAMES
 	public final static String USERNAME_ADMIN = "root";
+	public final static String USERNAME_DEMO = "demo";
 	public final static String USERNAME_ANONYMOUS = "anonymous";
 }
