@@ -12,6 +12,7 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
+import javax.jcr.Value;
 import javax.jcr.version.VersionManager;
 
 import org.apache.jackrabbit.api.JackrabbitSession;
@@ -51,6 +52,7 @@ public class JackrabbitUserAdminService implements UserAdminService,
 		AuthenticationProvider {
 	private final static String JACKR_ADMINISTRATORS = "administrators";
 	private final static String REP_PRINCIPAL_NAME = "rep:principalName";
+	private final static String REP_PASSWORD = "rep:password";
 
 	private Repository repository;
 	private JcrSecurityModel securityModel;
@@ -117,20 +119,29 @@ public class JackrabbitUserAdminService implements UserAdminService,
 	@Override
 	public void updateUser(UserDetails userDetails) {
 		try {
-			User user = (User) getUserManager().getAuthorizable(
-					userDetails.getUsername());
+			String username = userDetails.getUsername();
+			User user = (User) getUserManager().getAuthorizable(username);
 			if (user == null)
 				throw new ArgeoException("No user " + userDetails.getUsername());
 
 			// new password
 			String newPassword = userDetails.getPassword();
 			if (!newPassword.trim().equals("")) {
-				SimpleCredentials sp = new SimpleCredentials(
-						userDetails.getUsername(), newPassword.toCharArray());
-				CryptedSimpleCredentials credentials = (CryptedSimpleCredentials) user
-						.getCredentials();
-				if (!credentials.matches(sp))
-					user.changePassword(new String(newPassword));
+				if (newPassword.startsWith("{SHA-256}")) {
+					// Already hashed password					
+					Value v = adminSession.getValueFactory().createValue(
+							newPassword);
+					user.setProperty(REP_PASSWORD, v);
+				} else {
+					SimpleCredentials sp = new SimpleCredentials(
+							userDetails.getUsername(),
+							newPassword.toCharArray());
+					CryptedSimpleCredentials credentials = (CryptedSimpleCredentials) user
+							.getCredentials();
+
+					if (!credentials.matches(sp))
+						user.changePassword(new String(newPassword));
+				}
 			}
 
 			List<String> roles = new ArrayList<String>();
