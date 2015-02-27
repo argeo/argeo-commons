@@ -23,6 +23,7 @@ import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.core.security.authentication.CryptedSimpleCredentials;
 import org.apache.jackrabbit.core.security.user.UserAccessControlProvider;
 import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.cms.KernelHeader;
 import org.argeo.cms.internal.auth.GrantedAuthorityPrincipal;
 import org.argeo.cms.internal.auth.JcrSecurityModel;
@@ -128,10 +129,14 @@ public class JackrabbitUserAdminService implements UserAdminService,
 			String newPassword = userDetails.getPassword();
 			if (!newPassword.trim().equals("")) {
 				if (newPassword.startsWith("{SHA-256}")) {
-					// Already hashed password					
-					Value v = adminSession.getValueFactory().createValue(
-							newPassword);
-					user.setProperty(REP_PASSWORD, v);
+					// Already hashed password
+					throw new CmsException("Cannot import hashed password");
+					// Value v = adminSession.getValueFactory().createValue(
+					// newPassword);
+					// user.setProperty(REP_PASSWORD, v);
+					// TODO find a way to deal w/ protected property
+					// see
+					// http://jackrabbit.apache.org/api/2.2/org/apache/jackrabbit/core/security/user/UserImporter.html
 				} else {
 					SimpleCredentials sp = new SimpleCredentials(
 							userDetails.getUsername(),
