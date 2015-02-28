@@ -20,6 +20,7 @@ import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.cache.CacheManager;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
+import org.apache.jackrabbit.stats.RepositoryStatisticsImpl;
 import org.argeo.ArgeoException;
 import org.argeo.cms.CmsException;
 import org.argeo.jackrabbit.JackrabbitWrapper;
@@ -34,7 +35,6 @@ class JackrabbitNode extends JackrabbitWrapper implements KernelConstants,
 		ArgeoJcrConstants {
 	private static Log log = LogFactory.getLog(JackrabbitNode.class);
 
-	@SuppressWarnings("unused")
 	private RepositoryContext repositoryContext;
 
 	private ServiceRegistration<Repository> repositoryReg;
@@ -66,10 +66,14 @@ class JackrabbitNode extends JackrabbitWrapper implements KernelConstants,
 		((RepositoryImpl) getRepository()).shutdown();
 	}
 
-	Dictionary<String, ?> getDefaults() {
-		return KernelUtils.asDictionary(getClass().getClassLoader(),
-				"/org/argeo/cms/internal/kernel/jackrabbit-node.properties");
+	RepositoryStatisticsImpl getRepositoryStatistics() {
+		return repositoryContext.getRepositoryStatistics();
 	}
+
+	// Dictionary<String, ?> getDefaults() {
+	// return KernelUtils.asDictionary(getClass().getClassLoader(),
+	// "/org/argeo/cms/internal/kernel/jackrabbit-node.properties");
+	// }
 
 	private RepositoryConfig getConfiguration(JackrabbitNodeType type,
 			Hashtable<String, Object> vars) throws RepositoryException {

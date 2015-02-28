@@ -39,10 +39,12 @@ final class Kernel implements ServiceListener {
 
 	private final BundleContext bundleContext = Activator.getBundleContext();
 
-	private JackrabbitNode node;
-	private OsgiJackrabbitRepositoryFactory repositoryFactory;
-	private NodeSecurity nodeSecurity;
-	private NodeHttp nodeHttp;
+	ThreadGroup threadGroup = new ThreadGroup(Kernel.class.getSimpleName());
+	JackrabbitNode node;
+	OsgiJackrabbitRepositoryFactory repositoryFactory;
+	NodeSecurity nodeSecurity;
+	NodeHttp nodeHttp;
+	private KernelThread kernelThread;
 
 	void init() {
 		ClassLoader currentContextCl = Thread.currentThread()
@@ -67,6 +69,11 @@ final class Kernel implements ServiceListener {
 			// Equinox dependency
 			ExtendedHttpService httpService = waitForHttpService();
 			nodeHttp = new NodeHttp(httpService, node, nodeSecurity);
+
+			// Kernel thread
+			kernelThread = new KernelThread(this);
+			kernelThread.setContextClassLoader(Kernel.class.getClassLoader());
+			kernelThread.start();
 
 			// Publish services to OSGi
 			nodeSecurity.publish();
@@ -93,6 +100,8 @@ final class Kernel implements ServiceListener {
 
 	void destroy() {
 		long begin = System.currentTimeMillis();
+
+		kernelThread.destroyAndJoin();
 
 		if (nodeHttp != null)
 			nodeHttp.destroy();
