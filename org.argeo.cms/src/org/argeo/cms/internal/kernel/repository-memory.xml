@@ -12,12 +12,15 @@
 		<PersistenceManager
 			class="org.apache.jackrabbit.core.persistence.bundle.BundleFsPersistenceManager">
 			<param name="blobFSBlockSize" value="1" />
-			<param name="bundleCacheSize" value="${argeo.node.repo.bundleCacheMB}"/>
+			<param name="bundleCacheSize" value="${argeo.node.repo.bundleCacheMB}" />
 		</PersistenceManager>
 		<SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
 			<param name="path" value="${wsp.home}/index" />
 			<param name="directoryManagerClass"
 				value="org.apache.jackrabbit.core.query.lucene.directory.RAMDirectoryManager" />
+			<param name="extractorPoolSize" value="${argeo.node.repo.extractorPoolSize}" />
+			<param name="cacheSize" value="${argeo.node.repo.searchCacheSize}" />
+			<param name="maxVolatileIndexSize" value="${argeo.node.repo.maxVolatileIndexSize}" />
 			<FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem" />
 		</SearchIndex>
 	</Workspace>
@@ -28,7 +31,7 @@
 		<PersistenceManager
 			class="org.apache.jackrabbit.core.persistence.bundle.BundleFsPersistenceManager">
 			<param name="blobFSBlockSize" value="1" />
-			<param name="bundleCacheSize" value="${argeo.node.repo.bundleCacheMB}"/>
+			<param name="bundleCacheSize" value="${argeo.node.repo.bundleCacheMB}" />
 		</PersistenceManager>
 	</Versioning>
 
@@ -37,6 +40,9 @@
 		<param name="path" value="${rep.home}/index" />
 		<param name="directoryManagerClass"
 			value="org.apache.jackrabbit.core.query.lucene.directory.RAMDirectoryManager" />
+		<param name="extractorPoolSize" value="${argeo.node.repo.extractorPoolSize}" />
+		<param name="cacheSize" value="${argeo.node.repo.searchCacheSize}" />
+		<param name="maxVolatileIndexSize" value="${argeo.node.repo.maxVolatileIndexSize}" />
 		<FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem" />
 	</SearchIndex>
 

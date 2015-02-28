@@ -19,6 +19,9 @@
 		<param name="schema" value="postgresql" />
 		<param name="schemaObjectPrefix" value="fs_" />
 	</FileSystem>
+	<DataStore class="org.apache.jackrabbit.core.data.FileDataStore">
+		<param name="path" value="${rep.home}/datastore" />
+	</DataStore>
 
 	<!-- Workspace templates -->
 	<Workspaces rootPath="${rep.home}/workspaces"

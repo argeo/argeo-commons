@@ -125,6 +125,10 @@ class JackrabbitNode extends JackrabbitWrapper implements KernelConstants,
 		setProp(defaults, REPO_MAX_POOL_SIZE, "10");
 		// Jackrabbit default:
 		setProp(defaults, REPO_BUNDLE_CACHE_MB, "8");
+		// See http://wiki.apache.org/jackrabbit/Search
+		setProp(defaults, REPO_EXTRACTOR_POOL_SIZE, "0");
+		setProp(defaults, REPO_SEARCH_CACHE_SIZE, "1000");
+		setProp(defaults, REPO_MAX_VOLATILE_INDEX_SIZE, "1048576");
 
 		// specific
 		String dburl;
