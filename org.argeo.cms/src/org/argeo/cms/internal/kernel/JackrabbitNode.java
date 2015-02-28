@@ -119,6 +119,8 @@ class JackrabbitNode extends JackrabbitWrapper implements KernelConstants,
 		// common
 		setProp(defaults, REPO_DEFAULT_WORKSPACE, "main");
 		setProp(defaults, REPO_MAX_POOL_SIZE, "10");
+		// Jackrabbit default:
+		setProp(defaults, REPO_BUNDLE_CACHE_MB, "8");
 
 		// specific
 		String dburl;
@@ -162,7 +164,7 @@ class JackrabbitNode extends JackrabbitWrapper implements KernelConstants,
 		RepositoryImpl repository = repositoryContext.getRepository();
 
 		// cache
-		String maxCacheMbStr = prop(KernelConstants.REPO_MAX_CACHE_MB, null);
+		String maxCacheMbStr = prop(REPO_MAX_CACHE_MB, null);
 		if (maxCacheMbStr != null) {
 			Integer maxCacheMB = Integer.parseInt(maxCacheMbStr);
 			CacheManager cacheManager = repository.getCacheManager();

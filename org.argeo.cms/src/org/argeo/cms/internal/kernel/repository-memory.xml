@@ -12,6 +12,7 @@
 		<PersistenceManager
 			class="org.apache.jackrabbit.core.persistence.bundle.BundleFsPersistenceManager">
 			<param name="blobFSBlockSize" value="1" />
+			<param name="bundleCacheSize" value="${argeo.node.repo.bundleCacheMB}"/>
 		</PersistenceManager>
 		<SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
 			<param name="path" value="${wsp.home}/index" />
@@ -27,6 +28,7 @@
 		<PersistenceManager
 			class="org.apache.jackrabbit.core.persistence.bundle.BundleFsPersistenceManager">
 			<param name="blobFSBlockSize" value="1" />
+			<param name="bundleCacheSize" value="${argeo.node.repo.bundleCacheMB}"/>
 		</PersistenceManager>
 	</Versioning>
 

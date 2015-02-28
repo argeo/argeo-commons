@@ -36,6 +36,7 @@
 			class="org.apache.jackrabbit.core.persistence.pool.H2PersistenceManager">
 			<param name="dataSourceName" value="dataSource" />
 			<param name="schemaObjectPrefix" value="${wsp.name}_pm_" />
+			<param name="bundleCacheSize" value="${argeo.node.repo.bundleCacheMB}"/>
 		</PersistenceManager>
 		<SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
 			<param name="path" value="${wsp.home}/index" />
@@ -54,6 +55,7 @@
 			class="org.apache.jackrabbit.core.persistence.pool.H2PersistenceManager">
 			<param name="dataSourceName" value="dataSource" />
 			<param name="schemaObjectPrefix" value="pm_ver_" />
+			<param name="bundleCacheSize" value="${argeo.node.repo.bundleCacheMB}"/>
 		</PersistenceManager>
 	</Versioning>
 

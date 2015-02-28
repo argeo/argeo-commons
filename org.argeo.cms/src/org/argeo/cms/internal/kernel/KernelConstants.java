@@ -11,6 +11,7 @@ public interface KernelConstants {
 	final static String REPO_DBPASSWORD = "argeo.node.repo.dbpassword";
 	final static String REPO_MAX_POOL_SIZE = "argeo.node.repo.maxPoolSize";
 	final static String REPO_MAX_CACHE_MB = "argeo.node.repo.maxCacheMB";
+	final static String REPO_BUNDLE_CACHE_MB = "argeo.node.repo.bundleCacheMB";
 
 	final static String[] DEFAULT_CNDS = { "/org/argeo/jcr/argeo.cnd",
 			"/org/argeo/cms/cms.cnd" };
