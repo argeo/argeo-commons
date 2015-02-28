@@ -47,6 +47,7 @@ public abstract class AbstractLoginModule implements LoginModule {
 	 */
 	private final static String SPRING_SECURITY_CONTEXT_KEY = "SPRING_SECURITY_CONTEXT";
 
+	@SuppressWarnings("unused")
 	private final static Log log = LogFactory.getLog(AbstractLoginModule.class);
 	private CallbackHandler callbackHandler;
 	private Subject subject;

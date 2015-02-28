@@ -70,11 +70,6 @@ class JackrabbitNode extends JackrabbitWrapper implements KernelConstants,
 		return repositoryContext.getRepositoryStatistics();
 	}
 
-	// Dictionary<String, ?> getDefaults() {
-	// return KernelUtils.asDictionary(getClass().getClassLoader(),
-	// "/org/argeo/cms/internal/kernel/jackrabbit-node.properties");
-	// }
-
 	private RepositoryConfig getConfiguration(JackrabbitNodeType type,
 			Hashtable<String, Object> vars) throws RepositoryException {
 		ClassLoader cl = getClass().getClassLoader();
@@ -123,7 +118,7 @@ class JackrabbitNode extends JackrabbitWrapper implements KernelConstants,
 		// common
 		setProp(defaults, REPO_DEFAULT_WORKSPACE, "main");
 		setProp(defaults, REPO_MAX_POOL_SIZE, "10");
-		// Jackrabbit default:
+		// Jackrabbit defaults
 		setProp(defaults, REPO_BUNDLE_CACHE_MB, "8");
 		// See http://wiki.apache.org/jackrabbit/Search
 		setProp(defaults, REPO_EXTRACTOR_POOL_SIZE, "0");
@@ -189,14 +184,11 @@ class JackrabbitNode extends JackrabbitWrapper implements KernelConstants,
 			RepositoryConfig repositoryConfig) throws RepositoryException {
 		File homeDirectory = null;
 		long begin = System.currentTimeMillis();
-		// RepositoryImpl repository;
 		//
 		// Actual repository creation
 		//
 		RepositoryContext repositoryContext = RepositoryContext
 				.create(repositoryConfig);
-		// repository = repositoryContext.getRepository();
-		// repository = RepositoryImpl.create(repositoryConfig);
 
 		double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
 		if (log.isTraceEnabled())
