@@ -40,6 +40,7 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 
 	// FIXME Added by BSinou to manage non-section Composite.
 	// Is it the correct method?
+	@Deprecated
 	protected AbstractPageViewer(Composite parent, int style,
 			CmsEditable cmsEditable) {
 		// read only at UI level
@@ -221,6 +222,20 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 	/** Layout this controls from the related base page. */
 	public void layout(Control... controls) {
 		page.layout(controls);
+	}
+
+	/**
+	 * Find the first {@link EditablePart} in the parents hierarchy of this
+	 * control
+	 */
+	protected EditablePart findDataParent(Control parent) {
+		if (parent instanceof EditablePart) {
+			return (EditablePart) parent;
+		}
+		if (parent.getParent() != null)
+			return findDataParent(parent.getParent());
+		else
+			throw new CmsException("No data parent found");
 	}
 
 	// UTILITIES

@@ -845,16 +845,6 @@ public abstract class AbstractTextViewer extends AbstractPageViewer implements
 			}
 		}
 
-		private EditablePart findDataParent(Control parent) {
-			if (parent instanceof EditablePart) {
-				return (EditablePart) parent;
-			}
-			if (parent.getParent() != null)
-				return findDataParent(parent.getParent());
-			else
-				throw new CmsException("No data parent found");
-		}
-
 		@Override
 		public void mouseUp(MouseEvent e) {
 		}

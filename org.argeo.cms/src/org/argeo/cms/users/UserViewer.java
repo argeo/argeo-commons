@@ -4,7 +4,6 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.argeo.cms.CmsEditable;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.viewers.AbstractPageViewer;
 import org.argeo.cms.viewers.EditablePart;
@@ -85,16 +84,6 @@ public class UserViewer extends AbstractPageViewer {
 			((UserPart) part).refresh();
 	}
 
-
-	private EditablePart findDataParent(Control parent) {
-		if (parent instanceof EditablePart) {
-			return (EditablePart) parent;
-		}
-		if (parent.getParent() != null)
-			return findDataParent(parent.getParent());
-		else
-			throw new CmsException("No data parent found");
-	}
 
 	protected void refresh(Control control) throws RepositoryException {
 		if (control instanceof UserPart)
