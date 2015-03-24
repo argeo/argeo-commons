@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.jcr.Item;
+import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.argeo.ArgeoException;
@@ -78,7 +79,7 @@ public class UserRolesPart extends StyledControl implements EditablePart,
 	}
 
 	@Override
-	protected Control createControl(Composite box, String style) {
+	public Control createControl(Composite box, String style) {
 		// box.setLayout(CmsUtils.noSpaceGridLayout());
 		box.setLayout(new GridLayout());
 
@@ -174,7 +175,8 @@ public class UserRolesPart extends StyledControl implements EditablePart,
 	public void setUserAdminService(UserAdminService userAdminService) {
 		this.userAdminService = userAdminService;
 		try {
-			String username = getNode().getProperty(ArgeoNames.ARGEO_USER_ID)
+			Node currNode = getNode();
+			String username = currNode.getProperty(ArgeoNames.ARGEO_USER_ID)
 					.getString();
 			if (userAdminService.userExists(username)) {
 				JcrUserDetails userDetails = (JcrUserDetails) userAdminService

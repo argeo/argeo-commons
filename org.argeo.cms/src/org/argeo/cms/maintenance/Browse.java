@@ -60,6 +60,8 @@ public class Browse implements CmsUiProvider {
 	private final static String BROWSE_PREFIX = "browse#";
 	private final static int THUMBNAIL_WIDTH = 400;
 	private final static int COLUMN_WIDTH = 160;
+	private DateFormat timeFormatter = new SimpleDateFormat("dd-MM-yyyy', 'HH:mm");
+	
 
 	// keep a cache of the opened nodes
 	// Key is the path
@@ -373,7 +375,6 @@ public class Browse implements CmsUiProvider {
 	private String getPropAsString(Property property)
 			throws RepositoryException {
 		String result = "";
-		DateFormat timeFormatter = new SimpleDateFormat("");
 		if (property.isMultiple()) {
 			result = getMultiAsString(property, ", ");
 		} else {

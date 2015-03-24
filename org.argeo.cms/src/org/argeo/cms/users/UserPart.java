@@ -21,7 +21,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -70,13 +69,13 @@ public class UserPart extends StyledControl implements EditablePart, NodePart,
 	}
 
 	// Experimental, remove
-	public void setMouseListener(MouseListener mouseListener) {
-		super.setMouseListener(mouseListener);
-
-		for (Text txt : texts)
-			txt.addMouseListener(mouseListener);
-
-	}
+	// public void setMouseListener(MouseListener mouseListener) {
+	// super.setMouseListener(mouseListener);
+	//
+	// for (Text txt : texts)
+	// txt.addMouseListener(mouseListener);
+	//
+	// }
 
 	@Override
 	protected Control createControl(Composite box, String style) {
