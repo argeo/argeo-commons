@@ -8,6 +8,7 @@ public interface CmsConstants {
 	// DATAKEYS
 	public final static String STYLE = RWT.CUSTOM_VARIANT;
 	public final static String MARKUP = RWT.MARKUP_ENABLED;
+	public final static String ITEM_HEIGHT = RWT.CUSTOM_ITEM_HEIGHT;
 
 	// STANDARD RESOURCES
 	public final static String LOADING_IMAGE = "icons/loading.gif";

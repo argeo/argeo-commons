@@ -20,12 +20,48 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 /** Utilities to simplify UI development. */
 public class EclipseUiUtils {
+	
+	
+	//
+	// Simplify grid layouts management
+	//
+	public static GridLayout noSpaceGridLayout() {
+		return noSpaceGridLayout(new GridLayout());
+	}
+
+	public static GridLayout noSpaceGridLayout(GridLayout layout) {
+		layout.horizontalSpacing = 0;
+		layout.verticalSpacing = 0;
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		return layout;
+	}
+
+	public static GridData fillWidth() {
+		return grabWidth(SWT.FILL, SWT.FILL);
+	}
+
+	public static GridData fillAll() {
+		return new GridData(SWT.FILL, SWT.FILL, true, true);
+	}
+
+	public static GridData grabWidth(int horizontalAlignment,
+			int verticalAlignment) {
+		return new GridData(horizontalAlignment, horizontalAlignment, true,
+				false);
+	}
+
+	
+	
+	
+	
 	/**
 	 * Create a label and a text field for a grid layout, the text field grabbing
 	 * excess horizontal

@@ -7,8 +7,6 @@ import java.util.TreeMap;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.security.AccessControlManager;
-import javax.jcr.security.Privilege;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,29 +36,32 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.springframework.security.provisioning.UserDetailsManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- * Simple page to manage users of a given repository. We still rely on Argeo
- * model; with user stored in the main workspace
+ * Simple page to manage users of a given repository. It relies on Argeo user
+ * model: user profile nodes are stored in the main workspace
  */
-public class Users implements CmsUiProvider {
+public class UsersPage implements CmsUiProvider {
+	private final static Log log = LogFactory.getLog(UsersPage.class);
 
-	private final static Log log = LogFactory.getLog(Users.class);
-
-	// Enable user CRUD // INJECTED
+	/* DEPENDENCY INJECTION */
 	private UserAdminService userAdminService;
-	// private UserDetailsManager userDetailsManager;
 	private String userWkspName;
 
-	// Local UI Providers
-	NonAdminPage nap = new NonAdminPage();
-	UserPage userPage = new UserPage();
+	// TODO use a constant
+	private final static String ROLE_USER_ADMIN = "ROLE_USER_ADMIN";
 
-	// Manage authorization
+	// Local UI Providers
+	private NonAdminPage nap = new NonAdminPage();
+	private UserPage userPage = new UserPage();
+
 	@Override
 	public Control createUi(Composite parent, Node context)
 			throws RepositoryException {
+		// This page is only visible to user with role USER_ADMIN
 		if (isAdmin(context)) {
 			Session session = context.getSession().getRepository()
 					.login(userWkspName);
@@ -86,8 +87,6 @@ public class Users implements CmsUiProvider {
 
 		final Composite right = new Composite(layoutCmp, SWT.NO_FOCUS);
 		right.setLayoutData(CmsUtils.fillAll());
-		// Composite innerPage = createUserPage(right);
-		// final UserViewerOld userViewer = new UserViewerOld(innerPage);
 
 		final TableViewer viewer = table.getTableViewer();
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -98,6 +97,8 @@ public class Users implements CmsUiProvider {
 						.getSelection();
 				if (selection.isEmpty()) {
 					// Should we clean the right column?
+					CmsUtils.clear(right);
+					right.layout();
 					return;
 				} else {
 					Node context = (Node) selection.getFirstElement();
@@ -136,7 +137,7 @@ public class Users implements CmsUiProvider {
 		addBtn.setText("Create");
 
 		// Create the composite that displays the list and a filter
-		final UsersTable userTableCmp = new UsersTable(parent, SWT.NO_FOCUS,
+		final UsersTable userTableCmp = new UsersTable(parent, SWT.BORDER,
 				session);
 		userTableCmp.populate(true, false);
 		userTableCmp.setLayoutData(CmsUtils.fillAll());
@@ -243,89 +244,23 @@ public class Users implements CmsUiProvider {
 		return userTableCmp;
 	}
 
-	// protected Composite createUserPage(Composite parent) {
-	// parent.setLayout(CmsUtils.noSpaceGridLayout());
-	// ScrolledPage scrolled = new ScrolledPage(parent, SWT.NONE);
-	// scrolled.setLayoutData(CmsUtils.fillAll());
-	// scrolled.setLayout(CmsUtils.noSpaceGridLayout());
-	// // TODO manage style
-	// // CmsUtils.style(scrolled, "maintenance_user_form");
-	//
-	// Composite page = new Composite(scrolled, SWT.NONE);
-	// page.setLayout(CmsUtils.noSpaceGridLayout());
-	// page.setBackgroundMode(SWT.INHERIT_NONE);
-	//
-	// return page;
-	// }
-
 	private boolean isAdmin(Node node) throws RepositoryException {
-		// FIXME clean this once new user management policy has been
-		// implemented.
-		AccessControlManager acm = node.getSession().getAccessControlManager();
-		Privilege[] privs = new Privilege[1];
-		privs[0] = acm.privilegeFromName(Privilege.JCR_ALL);
-		return acm.hasPrivileges("/", privs);
+		return isUserInRole(ROLE_USER_ADMIN);
 	}
 
-	// @Override
-	// public void dispose() {
-	// JcrUtils.removeListenerQuietly(session, userStructureListener);
-	// JcrUtils.removeListenerQuietly(session, userPropertiesListener);
-	// JcrUtils.logoutQuietly(session);
-	// super.dispose();
-	// }
-	//
-	// // public void setSession(Session session) {
-	// // this.session = session;
-	// // }
-	//
-	// public void refresh() {
-	// this.getSite().getShell().getDisplay().asyncExec(new Runnable() {
-	// @Override
-	// public void run() {
-	// userTableCmp.refresh();
-	// }
-	// });
-	// }
-	//
-	// private class JcrUserListener implements EventListener {
-	// private final Display display;
-	//
-	// public JcrUserListener(Display display) {
-	// super();
-	// this.display = display;
-	// }
-	//
-	// @Override
-	// public void onEvent(EventIterator events) {
-	// display.asyncExec(new Runnable() {
-	// @Override
-	// public void run() {
-	// userTableCmp.refresh();
-	// }
-	// });
-	// }
-	// }
-	//
-	// class ViewDoubleClickListener implements IDoubleClickListener {
-	// public void doubleClick(DoubleClickEvent evt) {
-	// if (evt.getSelection().isEmpty())
-	// return;
-	//
-	// Object obj = ((IStructuredSelection) evt.getSelection())
-	// .getFirstElement();
-	// if (obj instanceof Node) {
-	// try {
-	// String username = ((Node) obj).getProperty(ARGEO_USER_ID)
-	// .getString();
-	// String commandId = OpenArgeoUserEditor.COMMAND_ID;
-	// String paramName = OpenArgeoUserEditor.PARAM_USERNAME;
-	// CommandUtils.callCommand(commandId, paramName, username);
-	// } catch (RepositoryException e) {
-	// throw new ArgeoException("Cannot open user editor", e);
-	// }
-	// }
-	// }
+	/**
+	 * Returns true if the current user is in the specified role TODO factoize
+	 * in the user admin service
+	 */
+	private boolean isUserInRole(String role) {
+		Authentication authen = SecurityContextHolder.getContext()
+				.getAuthentication();
+		for (GrantedAuthority ga : authen.getAuthorities()) {
+			if (ga.getAuthority().equals(role))
+				return true;
+		}
+		return false;
+	}
 
 	/* DEPENDENCY INJECTION */
 	public void setWorkspaceName(String workspaceName) {
@@ -335,10 +270,5 @@ public class Users implements CmsUiProvider {
 	public void setUserAdminService(UserAdminService userAdminService) {
 		this.userAdminService = userAdminService;
 		userPage.setUserAdminService(userAdminService);
-	}
-
-	public void setUserDetailsManager(UserDetailsManager userDetailsManager) {
-		// this.userDetailsManager = userDetailsManager;
-		// userPage.setUserDetailsManager(userDetailsManager);
 	}
 }

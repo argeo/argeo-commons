@@ -52,23 +52,21 @@ public class UsersTable extends Composite implements ArgeoNames {
 
 	private static final long serialVersionUID = -7385959046279360420L;
 
+	private Session session;
+
+	private boolean hasFilter;
+	private boolean hasSelectionColumn;
+	private int tableStyle;
+
 	private TableViewer usersViewer;
 	private Text filterTxt;
-	private final static String FILTER_HELP_MSG = "Type filter criterion "
+	private String filterHelpMsg = "Type filter criterion "
 			+ "separated by a space";
-	private Session session;
 
 	private Font italic;
 	private Font bold;
 
-	private boolean hasFilter;
-	private boolean hasSelectionColumn;
-
-	// private List<Node> selectedItems = new ArrayList<Node>();
-
-	/**
-	 * Overwrite to display other columns
-	 */
+	/** Overwrite to display other columns */
 	public List<ColumnDefinition> getColumnsDef() {
 		List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
 
@@ -91,7 +89,8 @@ public class UsersTable extends Composite implements ArgeoNames {
 	}
 
 	public UsersTable(Composite parent, int style, Session session) {
-		super(parent, style);
+		super(parent, SWT.NO_FOCUS);
+		this.tableStyle = style;
 		this.session = session;
 	}
 
@@ -112,7 +111,9 @@ public class UsersTable extends Composite implements ArgeoNames {
 		hasSelectionColumn = addSelection;
 
 		// Main Layout
-		this.setLayout(new GridLayout(1, false));
+		GridLayout layout = EclipseUiUtils.noSpaceGridLayout();
+		layout.verticalSpacing = 5;
+		this.setLayout(layout);
 		if (hasFilter)
 			createFilterPart(parent);
 		usersViewer = createTableViewer(parent);
@@ -140,16 +141,14 @@ public class UsersTable extends Composite implements ArgeoNames {
 	public TableViewer getTableViewer() {
 		return usersViewer;
 	}
-	
-	/** Returns filter String or null*/
+
+	/** Returns filter String or null */
 	protected String getFilterString() {
 		return hasFilter ? filterTxt.getText() : null;
 	}
-	
-	
 
 	private TableViewer createTableViewer(final Composite parent) {
-		int style = SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL;
+		int style = tableStyle |  SWT.H_SCROLL | SWT.V_SCROLL;
 		if (hasSelectionColumn)
 			style = style | SWT.CHECK;
 
@@ -163,9 +162,6 @@ public class UsersTable extends Composite implements ArgeoNames {
 			viewer = new TableViewer(table);
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
-
-		// pass a mapping between col index and property name to the comparator.
-		// List<String> propertiesList = new ArrayList<String>();
 
 		TableViewerColumn column;
 		int offset = 0;
@@ -239,11 +235,9 @@ public class UsersTable extends Composite implements ArgeoNames {
 			String username = getProperty(elem, ARGEO_USER_ID);
 			if (username.equals(session.getUserID()))
 				return bold;
-
 			// disabled
 			try {
 				Node userProfile = (Node) elem;
-				// Node userProfile = userHome.getNode(ARGEO_PROFILE);
 				if (!userProfile.getProperty(ARGEO_ENABLED).getBoolean())
 					return italic;
 				else
@@ -298,7 +292,7 @@ public class UsersTable extends Composite implements ArgeoNames {
 		// Text Area for the filter
 		filterTxt = new Text(parent, SWT.BORDER | SWT.SEARCH | SWT.ICON_SEARCH
 				| SWT.ICON_CANCEL);
-		filterTxt.setMessage(FILTER_HELP_MSG);
+		filterTxt.setMessage(filterHelpMsg);
 		filterTxt.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
 				| GridData.HORIZONTAL_ALIGN_FILL));
 		filterTxt.addModifyListener(new ModifyListener() {

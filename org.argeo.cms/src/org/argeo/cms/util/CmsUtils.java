@@ -23,6 +23,7 @@ import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Widget;
 
 /** Static utilities for the CMS framework. */
@@ -70,6 +71,10 @@ public class CmsUtils implements CmsConstants {
 
 	public static void markup(Widget widget) {
 		widget.setData(CmsConstants.MARKUP, true);
+	}
+
+	public static void setItemHeight(Table table, int height) {
+		table.setData(CmsConstants.ITEM_HEIGHT, height);
 	}
 
 	/** @return the path or null if not instrumented */

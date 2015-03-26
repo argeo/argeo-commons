@@ -148,12 +148,12 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 	}
 
 	public void init() throws RepositoryException {
-//		if (workspace == null)
-//			throw new CmsException(
-//					"Workspace must be set when calling initialization."
-//							+ " Please make sure that read-only and read-write roles"
-//							+ " have been properly configured:"
-//							+ " the defaults are open.");
+		// if (workspace == null)
+		// throw new CmsException(
+		// "Workspace must be set when calling initialization."
+		// + " Please make sure that read-only and read-write roles"
+		// + " have been properly configured:"
+		// + " the defaults are open.");
 
 		Session session = null;
 		try {
@@ -318,7 +318,9 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 				bodyArea.setData(RWT.CUSTOM_VARIANT, CmsStyles.CMS_BODY);
 				bodyArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
 						true));
-				bodyArea.setBackgroundMode(SWT.INHERIT_DEFAULT);
+				// Should not be set here: it then prevent all children
+				// composite to define a background color via CSS
+				// bodyArea.setBackgroundMode(SWT.INHERIT_DEFAULT);
 				bodyArea.setLayout(CmsUtils.noSpaceGridLayout());
 				refreshBody();
 			} catch (Exception e) {
