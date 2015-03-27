@@ -17,6 +17,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
 import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsTypes;
 import org.argeo.cms.CmsUiProvider;
 import org.argeo.cms.text.Img;
@@ -79,7 +80,7 @@ public class Browse implements CmsUiProvider {
 			throws RepositoryException {
 		if (context == null)
 			// return null;
-		throw new CmsException("Context cannot be null");
+			throw new CmsException("Context cannot be null");
 		GridLayout layout = CmsUtils.noSpaceGridLayout();
 		layout.numColumns = 2;
 		parent.setLayout(layout);
