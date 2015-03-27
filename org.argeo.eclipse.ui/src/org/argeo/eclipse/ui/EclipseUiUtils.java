@@ -19,6 +19,8 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -27,8 +29,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Utilities to simplify UI development. */
 public class EclipseUiUtils {
-	
-	
+
 	//
 	// Simplify grid layouts management
 	//
@@ -58,13 +59,26 @@ public class EclipseUiUtils {
 				false);
 	}
 
-	
-	
-	
-	
+	//
+	// Simplify Form layout management
+	//
+
 	/**
-	 * Create a label and a text field for a grid layout, the text field grabbing
-	 * excess horizontal
+	 * Creates a basic form data that is attached to the 4 corners of the parent
+	 * composite
+	 */
+	public static FormData fillFormData() {
+		FormData formData = new FormData();
+		formData.top = new FormAttachment(0, 0);
+		formData.left = new FormAttachment(0, 0);
+		formData.right = new FormAttachment(100, 0);
+		formData.bottom = new FormAttachment(100, 0);
+		return formData;
+	}
+
+	/**
+	 * Create a label and a text field for a grid layout, the text field
+	 * grabbing excess horizontal
 	 * 
 	 * @param parent
 	 *            the parent composite
@@ -126,6 +140,10 @@ public class EclipseUiUtils {
 			txt.addModifyListener(modifyListener);
 		return txt;
 	}
+
+	//
+	// FONTS
+	//
 
 	/** Shortcut to retrieve default italic font from display */
 	public static Font getItalicFont(Composite parent) {
