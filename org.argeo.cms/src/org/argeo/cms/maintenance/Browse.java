@@ -17,7 +17,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
 import org.argeo.ArgeoException;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsTypes;
 import org.argeo.cms.CmsUiProvider;
 import org.argeo.cms.text.Img;
@@ -60,8 +59,8 @@ public class Browse implements CmsUiProvider {
 	private final static String BROWSE_PREFIX = "browse#";
 	private final static int THUMBNAIL_WIDTH = 400;
 	private final static int COLUMN_WIDTH = 160;
-	private DateFormat timeFormatter = new SimpleDateFormat("dd-MM-yyyy', 'HH:mm");
-	
+	private DateFormat timeFormatter = new SimpleDateFormat(
+			"dd-MM-yyyy', 'HH:mm");
 
 	// keep a cache of the opened nodes
 	// Key is the path
@@ -79,7 +78,8 @@ public class Browse implements CmsUiProvider {
 	public Control createUi(Composite parent, Node context)
 			throws RepositoryException {
 		if (context == null)
-			throw new CmsException("Context cannot be null");
+			// return null;
+		throw new CmsException("Context cannot be null");
 		GridLayout layout = CmsUtils.noSpaceGridLayout();
 		layout.numColumns = 2;
 		parent.setLayout(layout);
@@ -266,7 +266,8 @@ public class Browse implements CmsUiProvider {
 				boolean leaveOpened = path.startsWith(currNodePath);
 
 				// workaround for same name siblings
-				// fix me weird side effect when we go left or click on anb already selected, unfocused node
+				// fix me weird side effect when we go left or click on anb
+				// already selected, unfocused node
 				if (leaveOpened
 						&& (path.lastIndexOf("/") == 0
 								&& currNodePath.lastIndexOf("/") == 0 || JcrUtils
@@ -530,7 +531,7 @@ public class Browse implements CmsUiProvider {
 						} else if (e.keyCode == SWT.ARROW_LEFT) {
 							try {
 								selected = getNode().getParent();
-								String newPath = selected.getPath(); //getNode().getParent()
+								String newPath = selected.getPath(); // getNode().getParent()
 								setEdited(selected);
 								if (browserCols.containsKey(newPath))
 									browserCols.get(newPath).setFocus();

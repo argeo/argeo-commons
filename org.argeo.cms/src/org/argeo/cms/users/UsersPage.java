@@ -136,8 +136,13 @@ public class UsersPage implements CmsUiProvider {
 		final Button addBtn = new Button(buttonCmp, SWT.PUSH);
 		addBtn.setText("Create");
 
+		Composite bottomCmp = new Composite(parent, SWT.NO_FOCUS);
+		bottomCmp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+		bottomCmp.setLayout(new GridLayout());
+		
+		
 		// Create the composite that displays the list and a filter
-		final UsersTable userTableCmp = new UsersTable(parent, SWT.BORDER,
+		final UsersTable userTableCmp = new UsersTable(bottomCmp, SWT.BORDER,
 				session);
 		userTableCmp.populate(true, false);
 		userTableCmp.setLayoutData(CmsUtils.fillAll());

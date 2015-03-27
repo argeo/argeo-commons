@@ -90,7 +90,7 @@ public class UserPart extends StyledControl implements EditablePart, NodePart,
 
 		// header
 		Label header = new Label(body, SWT.NONE);
-		header.setText(" General");
+		header.setText(" Main user information");
 		header.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2,
 				1));
 		CmsUtils.style(header, UserStyles.USER_FORM_TITLE);
@@ -105,7 +105,7 @@ public class UserPart extends StyledControl implements EditablePart, NodePart,
 		// Change password link
 		// header
 		header = new Label(body, SWT.NONE);
-		header.setText(" Change password");
+		header.setText(" Reset password");
 		header.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2,
 				1));
 		CmsUtils.style(header, UserStyles.USER_FORM_TITLE);
@@ -286,12 +286,6 @@ public class UserPart extends StyledControl implements EditablePart, NodePart,
 					+ node + " with value " + value, e);
 		}
 	}
-
-	/* DEPENDENCY INJECTION */
-	// public void setUserDetailsManager(UserDetailsManager userDetailsManager)
-	// {
-	// this.userDetailsManager = userDetailsManager;
-	// }
 
 	public void setUserAdminService(UserAdminService userAdminService) {
 		this.userAdminService = userAdminService;
