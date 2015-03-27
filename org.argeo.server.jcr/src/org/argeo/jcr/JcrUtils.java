@@ -1393,6 +1393,9 @@ public class JcrUtils implements ArgeoJcrConstants {
 				acl.removeAccessControlEntry(ace);
 			}
 		}
+		// the new access control list must be applied otherwise this call:
+		// acl.removeAccessControlEntry(ace); has no effect
+		acm.setPolicy(path, acl);
 	}
 
 	/*
