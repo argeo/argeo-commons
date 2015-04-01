@@ -10,6 +10,9 @@ public interface CmsConstants {
 	public final static String MARKUP = RWT.MARKUP_ENABLED;
 	public final static String ITEM_HEIGHT = RWT.CUSTOM_ITEM_HEIGHT;
 
+	// EVENT DETAILS
+	public final static int HYPERLINK = RWT.HYPERLINK;
+
 	// STANDARD RESOURCES
 	public final static String LOADING_IMAGE = "icons/loading.gif";
 
