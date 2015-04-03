@@ -225,7 +225,7 @@ public class ImageManagerImpl implements CmsImageManager, CmsNames {
 			if (parentNode.hasNode(fileName)) {
 				Node node = parentNode.getNode(fileName);
 				previousResourceName = getResourceName(node);
-				if (node.hasNode(JCR_CONTENT)){
+				if (node.hasNode(JCR_CONTENT)) {
 					node.getNode(JCR_CONTENT).remove();
 					node.addNode(JCR_CONTENT, NT_RESOURCE);
 				}
@@ -245,7 +245,8 @@ public class ImageManagerImpl implements CmsImageManager, CmsNames {
 
 			// reset resource manager
 			ResourceManager resourceManager = RWT.getResourceManager();
-			if (resourceManager.isRegistered(previousResourceName)) {
+			if (previousResourceName != null
+					&& resourceManager.isRegistered(previousResourceName)) {
 				resourceManager.unregister(previousResourceName);
 				if (log.isDebugEnabled())
 					log.debug("Unregistered image " + previousResourceName);
