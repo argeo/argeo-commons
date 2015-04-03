@@ -25,8 +25,15 @@ public class JcrVersionCmsEditable extends Observable implements CmsEditable {
 
 	public JcrVersionCmsEditable(Node node) throws RepositoryException {
 		this.nodePath = node.getPath();
+		// Changed by BS: better adapted to manage authorisation.
+		// This permission enables property modification and addition of
+		// children nodes and corresponds to a JCR_ALL privileges given on the
+		// current node path nodes, whereas ACTION_ADD_NODE seems to be
+		// necessary to add nodes on the parent node
 		if (node.getSession().hasPermission(node.getPath(),
-				Session.ACTION_ADD_NODE)) {
+				Session.ACTION_SET_PROPERTY)) {
+			// if (node.getSession().hasPermission(node.getPath(),
+			// Session.ACTION_ADD_NODE)) {
 			canEdit = true;
 			if (!node.isNodeType(NodeType.MIX_VERSIONABLE)) {
 				node.addMixin(NodeType.MIX_VERSIONABLE);
