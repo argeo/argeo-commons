@@ -49,8 +49,18 @@ public class EclipseUiUtils {
 		return grabWidth(SWT.FILL, SWT.FILL);
 	}
 
+	public static GridData fillWidth(int colSpan) {
+		GridData gd = grabWidth(SWT.FILL, SWT.FILL);
+		gd.horizontalSpan = colSpan;
+		return gd;
+	}
+
 	public static GridData fillAll() {
 		return new GridData(SWT.FILL, SWT.FILL, true, true);
+	}
+
+	public static GridData fillAll(int colSpan, int rowSpan) {
+		return new GridData(SWT.FILL, SWT.FILL, true, true, colSpan, rowSpan);
 	}
 
 	public static GridData grabWidth(int horizontalAlignment,
