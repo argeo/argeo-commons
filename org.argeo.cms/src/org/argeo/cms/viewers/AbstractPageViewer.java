@@ -5,6 +5,7 @@ import java.util.Observer;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,6 +21,7 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Widget;
+import org.xml.sax.SAXParseException;
 
 /** Base class for viewers related to a page */
 public abstract class AbstractPageViewer extends ContentViewer implements
@@ -165,8 +167,16 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 			if (edited == part)
 				return;
 
-			if (edited != null && edited != part)
-				stopEditing(true);
+			if (edited != null && edited != part) {
+				EditablePart previouslyEdited = edited;
+				try {
+					stopEditing(true);
+				} catch (Exception e) {
+					notifyEditionException(e);
+					edit(previouslyEdited, caretPosition);
+					return;
+				}
+			}
 
 			part.startEditing();
 			updateContent(part);
@@ -245,6 +255,29 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 				&& ((Widget) edited).isDisposed())
 			throw new CmsException(
 					"Edited should not be null or disposed at this stage");
+	}
+
+	/** Persist all changes. */
+	protected void persistChanges(Session session) throws RepositoryException {
+		session.save();
+		// TODO notify that changes have been persisted
+	}
+
+	/** Convenience method using a Node in order to save the underlying session. */
+	protected void persistChanges(Node anyNode) throws RepositoryException {
+		persistChanges(anyNode.getSession());
+	}
+
+	/** Notify edition exception */
+	protected void notifyEditionException(Throwable e) {
+		Throwable eToLog = e;
+		if (e instanceof IllegalArgumentException)
+			if (e.getCause() instanceof SAXParseException)
+				eToLog = e.getCause();
+		log.error(eToLog.getMessage());
+		if (log.isTraceEnabled())
+			log.trace("Full stack of " + eToLog.getMessage(), e);
+		// TODO Light error notification popup
 	}
 
 	// GETTERS / SETTERS

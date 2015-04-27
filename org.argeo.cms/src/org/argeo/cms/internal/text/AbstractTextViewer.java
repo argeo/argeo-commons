@@ -24,7 +24,6 @@ import org.argeo.cms.CmsImageManager;
 import org.argeo.cms.CmsNames;
 import org.argeo.cms.CmsSession;
 import org.argeo.cms.CmsTypes;
-import org.argeo.cms.text.IdentityTextInterpreter;
 import org.argeo.cms.text.Img;
 import org.argeo.cms.text.Paragraph;
 import org.argeo.cms.text.TextInterpreter;
@@ -64,7 +63,7 @@ public abstract class AbstractTextViewer extends AbstractPageViewer implements
 
 	private final Section mainSection;
 
-	private TextInterpreter textInterpreter = new IdentityTextInterpreter();
+	private TextInterpreter textInterpreter = new TextInterpreterImpl();
 	private CmsImageManager imageManager = CmsSession.current.get()
 			.getImageManager();
 
@@ -285,6 +284,7 @@ public abstract class AbstractTextViewer extends AbstractPageViewer implements
 						currentParagraph = newParagraph;
 						currentParagraphN = newNode;
 					}
+					persistChanges(sectionNode);
 				}
 				// TODO or rather return the created paragarphs?
 				layout(toLayout.toArray(new Control[toLayout.size()]));
@@ -322,8 +322,8 @@ public abstract class AbstractTextViewer extends AbstractPageViewer implements
 					"TAB", "SHIFT+TAB", "ALT+ARROW_LEFT", "ALT+ARROW_RIGHT",
 					"ALT+ARROW_UP", "ALT+ARROW_DOWN", "RETURN", "CTRL+RETURN",
 					"ENTER", "DELETE" });
-			text.setData(RWT.CANCEL_KEYS, new String[] { "ALT+ARROW_LEFT",
-					"ALT+ARROW_RIGHT" });
+			text.setData(RWT.CANCEL_KEYS, new String[] { "RETURN",
+					"ALT+ARROW_LEFT", "ALT+ARROW_RIGHT" });
 			text.addKeyListener(this);
 		} else if (part instanceof Img) {
 			((Img) part).setFileUploadListener(fileUploadListener);
@@ -335,7 +335,7 @@ public abstract class AbstractTextViewer extends AbstractPageViewer implements
 		try {
 			Node paragraphNode = paragraph.getNode();
 			paragraphNode.setProperty(CMS_STYLE, style);
-			paragraphNode.getSession().save();
+			persistChanges(paragraphNode);
 			updateContent(paragraph);
 			layout(paragraph);
 		} catch (RepositoryException e1) {
@@ -389,8 +389,16 @@ public abstract class AbstractTextViewer extends AbstractPageViewer implements
 
 				// if we die in between, at least we still have the whole text
 				// in the first node
-				textInterpreter.write(secondNode, second);
-				textInterpreter.write(firstNode, first);
+				try {
+					textInterpreter.write(secondNode, second);
+					textInterpreter.write(firstNode, first);
+				} catch (Exception e) {
+					// so that no additional nodes are created:
+					JcrUtils.discardUnderlyingSessionQuietly(firstNode);
+					throw e;
+				}
+
+				persistChanges(firstNode);
 
 				Paragraph secondParagraph = paragraphSplitted(paragraph,
 						secondNode);
@@ -410,7 +418,7 @@ public abstract class AbstractTextViewer extends AbstractPageViewer implements
 						sectionNode.getProperty(Property.JCR_TITLE),
 						txt.substring(0, caretPosition));
 				sectionNode.orderBefore(p(paragraphNode.getIndex()), p(1));
-				sectionNode.getSession().save();
+				persistChanges(sectionNode);
 
 				Paragraph paragraph = sectionTitleSplitted(sectionTitle,
 						paragraphNode);
@@ -437,7 +445,7 @@ public abstract class AbstractTextViewer extends AbstractPageViewer implements
 			String previousTxt = textInterpreter.read(previousNode);
 			textInterpreter.write(previousNode, previousTxt + txt);
 			paragraphNode.remove();
-			sectionNode.getSession().save();
+			persistChanges(sectionNode);
 
 			Paragraph previousParagraph = paragraphMergedWithPrevious(
 					paragraph, previousNode);
@@ -469,7 +477,7 @@ public abstract class AbstractTextViewer extends AbstractPageViewer implements
 					.getIdentifier());
 
 			nextNode.remove();
-			sectionNode.getSession().save();
+			persistChanges(sectionNode);
 
 			paragraphMergedWithNext(paragraph, removed);
 			edit(paragraph, txt.length());
@@ -499,7 +507,7 @@ public abstract class AbstractTextViewer extends AbstractPageViewer implements
 					}
 					// sectionNode.orderBefore(p(partNode.getIndex()),
 					// p(newNode.getIndex()));
-					sectionNode.getSession().save();
+					persistChanges(sectionNode);
 					Img img = newImg((TextSection) section, newNode);
 					edit(img, null);
 					layout(img.getControl());
@@ -570,7 +578,7 @@ public abstract class AbstractTextViewer extends AbstractPageViewer implements
 				refresh(newSection);
 				newSection.getParent().layout();
 				layout(newSection);
-				newSectionNode.getSession().save();
+				persistChanges(sectionNode);
 			} else if (getEdited() instanceof SectionTitle) {
 				SectionTitle sectionTitle = (SectionTitle) getEdited();
 				Section section = sectionTitle.getSection();
@@ -593,7 +601,7 @@ public abstract class AbstractTextViewer extends AbstractPageViewer implements
 				TextSection newSection = new TextSection(section,
 						section.getStyle(), sectionN);
 				refresh(newSection);
-				previousSectionN.getSession().save();
+				persistChanges(previousSectionN);
 			}
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot deepen " + getEdited(), e);
@@ -669,7 +677,7 @@ public abstract class AbstractTextViewer extends AbstractPageViewer implements
 				refresh(mergedSection);
 				mergedSection.getParent().layout();
 				layout(mergedSection);
-				mergedNode.getSession().save();
+				persistChanges(mergedNode);
 			}
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot undeepen " + getEdited(), e);
@@ -746,53 +754,58 @@ public abstract class AbstractTextViewer extends AbstractPageViewer implements
 
 	// KEY LISTENER
 	@Override
-	public void keyPressed(KeyEvent e) {
+	public void keyPressed(KeyEvent ke) {
 		if (log.isTraceEnabled())
-			log.trace(e);
+			log.trace(ke);
 
 		if (getEdited() == null)
 			return;
-		boolean altPressed = (e.stateMask & SWT.ALT) != 0;
-		boolean shiftPressed = (e.stateMask & SWT.SHIFT) != 0;
-		boolean ctrlPressed = (e.stateMask & SWT.CTRL) != 0;
+		boolean altPressed = (ke.stateMask & SWT.ALT) != 0;
+		boolean shiftPressed = (ke.stateMask & SWT.SHIFT) != 0;
+		boolean ctrlPressed = (ke.stateMask & SWT.CTRL) != 0;
 
-		// Common
-		if (e.keyCode == SWT.ESC) {
-			cancelEdit();
-		} else if (e.character == '\r') {
-			splitEdit();
-		} else if (e.character == 'S') {
-			if (ctrlPressed)
-				saveEdit();
-		} else if (e.character == '\t') {
-			if (!shiftPressed) {
-				deepen();
-			} else if (shiftPressed) {
-				undeepen();
-			}
-		} else {
-			if (getEdited() instanceof Paragraph) {
-				Paragraph paragraph = (Paragraph) getEdited();
-				Section section = paragraph.getSection();
-				if (altPressed && e.keyCode == SWT.ARROW_RIGHT) {
-					edit(section.nextSectionPart(paragraph), 0);
-				} else if (altPressed && e.keyCode == SWT.ARROW_LEFT) {
-					edit(section.previousSectionPart(paragraph), 0);
-				} else if (e.character == SWT.BS) {
-					Text text = (Text) paragraph.getControl();
-					int caretPosition = text.getCaretPosition();
-					if (caretPosition == 0) {
-						mergeWithPrevious();
-					}
-				} else if (e.character == SWT.DEL) {
-					Text text = (Text) paragraph.getControl();
-					int caretPosition = text.getCaretPosition();
-					int charcount = text.getCharCount();
-					if (caretPosition == charcount) {
-						mergeWithNext();
+		try {
+			// Common
+			if (ke.keyCode == SWT.ESC) {
+				cancelEdit();
+			} else if (ke.character == '\r') {
+				splitEdit();
+			} else if (ke.character == 'S') {
+				if (ctrlPressed)
+					saveEdit();
+			} else if (ke.character == '\t') {
+				if (!shiftPressed) {
+					deepen();
+				} else if (shiftPressed) {
+					undeepen();
+				}
+			} else {
+				if (getEdited() instanceof Paragraph) {
+					Paragraph paragraph = (Paragraph) getEdited();
+					Section section = paragraph.getSection();
+					if (altPressed && ke.keyCode == SWT.ARROW_RIGHT) {
+						edit(section.nextSectionPart(paragraph), 0);
+					} else if (altPressed && ke.keyCode == SWT.ARROW_LEFT) {
+						edit(section.previousSectionPart(paragraph), 0);
+					} else if (ke.character == SWT.BS) {
+						Text text = (Text) paragraph.getControl();
+						int caretPosition = text.getCaretPosition();
+						if (caretPosition == 0) {
+							mergeWithPrevious();
+						}
+					} else if (ke.character == SWT.DEL) {
+						Text text = (Text) paragraph.getControl();
+						int caretPosition = text.getCaretPosition();
+						int charcount = text.getCharCount();
+						if (caretPosition == charcount) {
+							mergeWithNext();
+						}
 					}
 				}
 			}
+		} catch (Exception e) {
+			ke.doit = false;
+			notifyEditionException(e);
 		}
 	}
 

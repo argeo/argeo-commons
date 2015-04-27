@@ -19,6 +19,7 @@ public class IdentityTextInterpreter implements TextInterpreter, CmsNames {
 				Node node = (Node) item;
 				if (node.isNodeType(CmsTypes.CMS_STYLED)) {
 					String raw = convertToStorage(node, content);
+					validateBeforeStoring(raw);
 					node.setProperty(CMS_CONTENT, raw);
 				} else {
 					throw new CmsException("Don't know how to interpret "
@@ -28,7 +29,7 @@ public class IdentityTextInterpreter implements TextInterpreter, CmsNames {
 				Property property = (Property) item;
 				property.setValue(content);
 			}
-			item.getSession().save();
+			// item.getSession().save();
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot set content on " + item, e);
 		}
@@ -55,7 +56,7 @@ public class IdentityTextInterpreter implements TextInterpreter, CmsNames {
 						node.setProperty(CMS_CONTENT, "");
 						node.getSession().save();
 					}
-					
+
 					return node.getProperty(CMS_CONTENT).getString();
 				} else {
 					throw new CmsException("Don't know how to interpret "
@@ -70,12 +71,22 @@ public class IdentityTextInterpreter implements TextInterpreter, CmsNames {
 		}
 	}
 
+	// EXTENSIBILITY
+	/**
+	 * To be overridden, in order to make sure that only valid strings are being
+	 * stored.
+	 */
+	protected void validateBeforeStoring(String raw) {
+	}
+
+	/** To be overridden, in order to support additional formatting. */
 	protected String convertToStorage(Item item, String content)
 			throws RepositoryException {
 		return content;
 
 	}
 
+	/** To be overridden, in order to support additional formatting. */
 	protected String convertFromStorage(Item item, String content)
 			throws RepositoryException {
 		return content;
