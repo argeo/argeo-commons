@@ -260,6 +260,7 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 	/** Persist all changes. */
 	protected void persistChanges(Session session) throws RepositoryException {
 		session.save();
+		session.refresh(false);
 		// TODO notify that changes have been persisted
 	}
 
