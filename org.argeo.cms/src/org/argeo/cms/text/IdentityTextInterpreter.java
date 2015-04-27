@@ -48,6 +48,7 @@ public class IdentityTextInterpreter implements TextInterpreter, CmsNames {
 	@Override
 	public String raw(Item item) {
 		try {
+			item.getSession().refresh(true);
 			if (item instanceof Node) {
 				Node node = (Node) item;
 				if (node.isNodeType(CmsTypes.CMS_STYLED)) {
