@@ -46,8 +46,6 @@ public class UserPart extends StyledControl implements EditablePart, NodePart,
 
 	private UserAdminService userAdminService;
 
-	// private UserDetailsManager userDetailsManager;
-
 	// TODO implement to provide user creation ability for anonymous user?
 	// public UserPart(Composite parent, int swtStyle) {
 	// super(parent, swtStyle);
@@ -68,34 +66,22 @@ public class UserPart extends StyledControl implements EditablePart, NodePart,
 		return getNode();
 	}
 
-	// Experimental, remove
-	// public void setMouseListener(MouseListener mouseListener) {
-	// super.setMouseListener(mouseListener);
-	//
-	// for (Text txt : texts)
-	// txt.addMouseListener(mouseListener);
-	//
-	// }
-
 	@Override
 	protected Control createControl(Composite box, String style) {
 		Composite body = new Composite(box, SWT.NO_FOCUS);
 		body.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		GridLayout layout = new GridLayout(2, false);
-		// GridLayout layout = CmsUtils.noSpaceGridLayout(new GridLayout(2,
-		// false));
-
-		body.setLayout(layout);
 		CmsUtils.style(body, UserStyles.USER_FORM_TEXT);
 
-		// header
-		Label header = new Label(body, SWT.NONE);
-		header.setText(" Main user information");
-		header.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2,
-				1));
-		CmsUtils.style(header, UserStyles.USER_FORM_TITLE);
+		body.setLayout(new GridLayout(2, false));
 
-		// form field
+		// Header
+		Label headerLbl = new Label(body, SWT.NONE);
+		headerLbl.setText(" Main user information");
+		headerLbl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
+				2, 1));
+		CmsUtils.style(headerLbl, UserStyles.USER_FORM_TITLE);
+
+		// Form field
 		createTexts(body, UserStyles.USER_FORM_TEXT);
 
 		if (isEditing())
@@ -103,18 +89,18 @@ public class UserPart extends StyledControl implements EditablePart, NodePart,
 				txt.addFocusListener(this);
 
 		// Change password link
-		// header
-		header = new Label(body, SWT.NONE);
-		header.setText(" Reset password");
-		header.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2,
-				1));
-		CmsUtils.style(header, UserStyles.USER_FORM_TITLE);
+		headerLbl = new Label(body, SWT.NONE);
+		headerLbl.setText(" Reset password");
+		headerLbl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
+				2, 1));
+		CmsUtils.style(headerLbl, UserStyles.USER_FORM_TITLE);
 
 		pwd1 = createLP(body, UserStyles.USER_FORM_TEXT, "Enter password");
 		pwd2 = createLP(body, UserStyles.USER_FORM_TEXT, "Re-Enter");
 
 		final Link link = new Link(body, SWT.NONE);
-		link.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 2, 1));
+		link.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 2,
+				1));
 		link.setText("<a>Change password</a>");
 		link.addSelectionListener(new SelectionAdapter() {
 			private static final long serialVersionUID = 8348668888548451776L;
@@ -170,22 +156,10 @@ public class UserPart extends StyledControl implements EditablePart, NodePart,
 				Property.JCR_DESCRIPTION));
 	}
 
-	// protected Composite createEditLayout(Composite parent, String style) {
-	// Composite body = new Composite(parent, SWT.NO_FOCUS);
-	// GridLayout layout = new GridLayout(2, false);
-	// body.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-	// body.setLayout(layout);
-	//
-	// createTexts(body, UserStyles.USER_FORM_TEXT);
-	//
-	// return body;
-	// }
-
 	void refresh() {
 		for (Text txt : texts) {
 			txt.setText(get(getNode(), (String) txt.getData(KEY_PROP_NAME)));
 			txt.setEditable(isEditing());
-			// txt.setEnabled(isEditing());
 		}
 	}
 

@@ -16,18 +16,8 @@ import org.eclipse.swt.widgets.Control;
 /** Enable management of a given user */
 public class UserPage implements CmsUiProvider {
 
-	// Enable user CRUD // INJECTED
+	/* DEPENDENCY INJECTION */
 	private UserAdminService userAdminService;
-
-	// private UserDetailsManager userDetailsManager;
-
-	// private JcrSecurityModel jcrSecurityModel;
-
-	// public UserPage(UserAdminService userAdminService,
-	// JcrSecurityModel jcrSecurityModel) {
-	// this.userAdminService = userAdminService;
-	// this.jcrSecurityModel = jcrSecurityModel;
-	// }
 
 	@Override
 	public Control createUi(Composite parent, Node context)
@@ -39,7 +29,7 @@ public class UserPage implements CmsUiProvider {
 
 		Control control = userViewer.getControl();
 
-		// FIXME not satisfying.close
+		// FIXME not satisfying.
 		if (control instanceof UserPart)
 			((UserPart) control).setUserAdminService(userAdminService);
 
@@ -74,9 +64,4 @@ public class UserPage implements CmsUiProvider {
 	public void setUserAdminService(UserAdminService userAdminService) {
 		this.userAdminService = userAdminService;
 	}
-
-	// public void setUserDetailsManager(UserDetailsManager userDetailsManager)
-	// {
-	// this.userDetailsManager = userDetailsManager;
-	// }
 }
