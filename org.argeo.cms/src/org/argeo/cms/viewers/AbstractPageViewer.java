@@ -40,25 +40,6 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 	private EditablePart edited;
 	private ISelection selection = StructuredSelection.EMPTY;
 
-	// FIXME Added by BSinou to manage non-section Composite.
-	// Is it the correct method?
-	@Deprecated
-	protected AbstractPageViewer(Composite parent, int style,
-			CmsEditable cmsEditable) {
-		// read only at UI level
-		readOnly = SWT.READ_ONLY == (style & SWT.READ_ONLY);
-
-		this.cmsEditable = cmsEditable == null ? CmsEditable.NON_EDITABLE
-				: cmsEditable;
-		if (this.cmsEditable instanceof Observable)
-			((Observable) this.cmsEditable).addObserver(this);
-
-		if (cmsEditable.canEdit()) {
-			mouseListener = createMouseListener();
-		}
-		page = findPage(parent);
-	}
-
 	protected AbstractPageViewer(Section parent, int style,
 			CmsEditable cmsEditable) {
 		// read only at UI level
@@ -302,5 +283,4 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 	public ISelection getSelection() {
 		return selection;
 	}
-
 }

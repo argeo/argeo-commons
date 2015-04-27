@@ -1,5 +1,7 @@
 package org.argeo.cms.users;
 
+import static org.eclipse.swt.SWT.NONE;
+
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
@@ -7,6 +9,7 @@ import org.argeo.cms.CmsEditable;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.viewers.AbstractPageViewer;
 import org.argeo.cms.viewers.EditablePart;
+import org.argeo.cms.viewers.Section;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -27,22 +30,21 @@ public class UserViewer extends AbstractPageViewer {
 
 	private UserViewer(UserPart userPart, int style, Node userNode,
 			CmsEditable cmsEditable) throws RepositoryException {
-		super(userPart, style, cmsEditable);
+		super(new Section(userPart, NONE, userNode), style, cmsEditable);
 		this.userPart = userPart;
-		userPart.createControl(userPart,"cms_test");
+		userPart.createControl(userPart, "cms_test");
 		userPart.setStyle("cms_test");
 		refresh();
 		userPart.setLayoutData(CmsUtils.fillWidth());
 		userPart.setMouseListener(getMouseListener());
-		
-		// Add other parts 
-//		userRolesPart.createControl(userPart,"cms_test");
-//		userPart.setStyle("cms_test");
-//		refresh();
-//		userPart.setLayoutData(CmsUtils.fillWidth());
-//		userPart.setMouseListener(getMouseListener());
-		
-		
+
+		// Add other parts
+		// userRolesPart.createControl(userPart,"cms_test");
+		// userPart.setStyle("cms_test");
+		// refresh();
+		// userPart.setLayoutData(CmsUtils.fillWidth());
+		// userPart.setMouseListener(getMouseListener());
+
 	}
 
 	// private JcrComposite createParents(Composite parent, Node userNode)
@@ -78,12 +80,11 @@ public class UserViewer extends AbstractPageViewer {
 			}
 		}
 	}
-	
+
 	protected void updateContent(EditablePart part) throws RepositoryException {
 		if (part instanceof UserPart)
 			((UserPart) part).refresh();
 	}
-
 
 	protected void refresh(Control control) throws RepositoryException {
 		if (control instanceof UserPart)
