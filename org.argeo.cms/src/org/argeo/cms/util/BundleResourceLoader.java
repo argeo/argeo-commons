@@ -1,15 +1,16 @@
-package org.argeo.cms;
+package org.argeo.cms.util;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
+import org.argeo.cms.CmsException;
 import org.eclipse.rap.rwt.service.ResourceLoader;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 /** {@link ResourceLoader} implementation wrapping an {@link Bundle}. */
-class BundleResourceLoader implements ResourceLoader {
+public class BundleResourceLoader implements ResourceLoader {
 	private final BundleContext bundleContext;
 
 	public BundleResourceLoader(BundleContext bundleContext) {

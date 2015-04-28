@@ -8,9 +8,13 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.ArgeoException;
+import org.argeo.cms.auth.ArgeoLoginContext;
 import org.argeo.cms.i18n.Msg;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
@@ -20,12 +24,13 @@ import org.eclipse.rap.rwt.client.service.BrowserNavigationEvent;
 import org.eclipse.rap.rwt.client.service.BrowserNavigationListener;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Manages history and navigation */
 abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 		CmsSession {
 	private final Log log = LogFactory.getLog(AbstractCmsEntryPoint.class);
+
+	private Subject subject = new Subject();
 
 	private Repository repository;
 	private String workspace;
@@ -40,20 +45,25 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 	private BrowserNavigation history;
 
 	public AbstractCmsEntryPoint(Repository repository, String workspace) {
-		// if (SecurityContextHolder.getContext().getAuthentication() == null) {
-		// HttpSession httpSession = RWT.getRequest().getSession();
-		// // log.debug("Session: " + httpSession.getId());
-		// SecurityContext contextFromSessionObject = (SecurityContext)
-		// httpSession
-		// .getAttribute(SPRING_SECURITY_CONTEXT_KEY);
-		// if (contextFromSessionObject != null)
-		// SecurityContextHolder.setContext(contextFromSessionObject);
-		// else
-		// logAsAnonymous();
-		// }
-
 		this.repository = repository;
 		this.workspace = workspace;
+
+		// Initial login
+		Subject subject = new Subject();
+		try {
+			new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_USER, subject)
+					.login();
+		} catch (LoginException e) {
+			if (log.isTraceEnabled())
+				log.trace("Cannot authenticate user", e);
+			try {
+				new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_ANONYMOUS,
+						subject).login();
+			} catch (LoginException eAnonymous) {
+				throw new ArgeoException("Cannot initialize subject",
+						eAnonymous);
+			}
+		}
 		authChange();
 
 		history = RWT.getClient().getService(BrowserNavigation.class);
@@ -85,9 +95,6 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 	/** Recreate body UI */
 	protected abstract void refreshBody();
 
-	/** Log as anonymous */
-	protected abstract void logAsAnonymous();
-
 	/**
 	 * The node to return when no node was found (for authenticated users and
 	 * anonymous)
@@ -118,6 +125,11 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 	}
 
 	@Override
+	public Subject getSubject() {
+		return subject;
+	}
+
+	@Override
 	public void authChange() {
 		try {
 			String currentPath = null;
@@ -125,8 +137,6 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 				currentPath = node.getPath();
 			JcrUtils.logoutQuietly(session);
 
-			if (SecurityContextHolder.getContext().getAuthentication() == null)
-				logAsAnonymous();
 			session = repository.login(workspace);
 			if (currentPath != null)
 				node = session.getNode(currentPath);

@@ -46,6 +46,9 @@ public class EndUserLoginModule extends AbstractLoginModule {
 	protected Authentication processLogin(CallbackHandler callbackHandler)
 			throws LoginException, UnsupportedCallbackException, IOException,
 			InterruptedException {
+		if (callbackHandler == null)
+			return null;
+
 		// ask for username and password
 		NameCallback nameCallback = new NameCallback("User");
 		PasswordCallback passwordCallback = new PasswordCallback("Password",

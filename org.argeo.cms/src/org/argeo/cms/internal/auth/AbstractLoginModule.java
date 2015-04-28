@@ -47,7 +47,6 @@ public abstract class AbstractLoginModule implements LoginModule {
 	 */
 	private final static String SPRING_SECURITY_CONTEXT_KEY = "SPRING_SECURITY_CONTEXT";
 
-	@SuppressWarnings("unused")
 	private final static Log log = LogFactory.getLog(AbstractLoginModule.class);
 	private CallbackHandler callbackHandler;
 	private Subject subject;
@@ -78,17 +77,25 @@ public abstract class AbstractLoginModule implements LoginModule {
 			Authentication currentAuth = SecurityContextHolder.getContext()
 					.getAuthentication();
 
-			if (currentAuth == null && Display.getCurrent() != null) {
-				// try to load authentication from session
-				HttpServletRequest httpRequest = RWT.getRequest();
-				HttpSession httpSession = httpRequest.getSession();
-				// log.debug(httpSession.getId());
-				Object contextFromSessionObject = httpSession
-						.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
-				if (contextFromSessionObject != null) {
-					currentAuth = (Authentication) contextFromSessionObject;
-					SecurityContextHolder.getContext().setAuthentication(
-							currentAuth);
+			if (currentAuth == null) {
+				// Pre-auth
+				// TODO Do it at Spring Security level?
+				try {
+					// try to load authentication from session
+					HttpServletRequest httpRequest = RWT.getRequest();
+					HttpSession httpSession = httpRequest.getSession();
+					// log.debug(httpSession.getId());
+					Object contextFromSessionObject = httpSession
+							.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
+					if (contextFromSessionObject != null) {
+						currentAuth = (Authentication) contextFromSessionObject;
+						SecurityContextHolder.getContext().setAuthentication(
+								currentAuth);
+					}
+				} catch (Exception e) {
+					if (log.isTraceEnabled())
+						log.trace("Could not get session", e);
+					// silent
 				}
 			}
 
@@ -119,12 +126,16 @@ public abstract class AbstractLoginModule implements LoginModule {
 				SecurityContext securityContext = SecurityContextHolder
 						.getContext();
 				securityContext.setAuthentication(authentication);
-				if (Display.getCurrent() != null) {
+				try {
 					HttpServletRequest httpRequest = RWT.getRequest();
 					HttpSession httpSession = httpRequest.getSession();
 					if (httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) == null)
 						httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
 								authentication);
+				} catch (Exception e) {
+					if (log.isTraceEnabled())
+						log.trace("Could not add security context to session",
+								e);
 				}
 				return true;
 			} else {
@@ -153,6 +164,8 @@ public abstract class AbstractLoginModule implements LoginModule {
 			HttpSession httpSession = httpRequest.getSession();
 			if (httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) != null)
 				httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, null);
+			// expire session
+			httpSession.setMaxInactiveInterval(0);
 		}
 		return true;
 	}

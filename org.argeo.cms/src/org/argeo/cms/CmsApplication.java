@@ -21,7 +21,9 @@ import javax.jcr.version.VersionManager;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.cms.auth.LoginRequiredException;
 import org.argeo.cms.internal.ImageManagerImpl;
+import org.argeo.cms.util.BundleResourceLoader;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.gemini.blueprint.context.BundleContextAware;
@@ -46,16 +48,13 @@ import org.osgi.framework.BundleContext;
 /** Configures an Argeo CMS RWT application. */
 public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 		BundleContextAware {
-	final static Log log = LogFactory.getLog(CmsApplication.class);
+	private final static Log log = LogFactory.getLog(CmsApplication.class);
 
-	// private Map<String, EntryPointFactory> entryPoints = new HashMap<String,
-	// EntryPointFactory>();
 	private Map<String, Map<String, String>> branding = new HashMap<String, Map<String, String>>();
 	private Map<String, List<String>> styleSheets = new HashMap<String, List<String>>();
 
 	private List<String> resources = new ArrayList<String>();
 
-	// private Bundle clientScriptingBundle;
 	private BundleContext bundleContext;
 
 	private Repository repository;
@@ -63,8 +62,6 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 	private String basePath = "/";
 	private List<String> roPrincipals = Arrays.asList("anonymous", "everyone");
 	private List<String> rwPrincipals = Arrays.asList("everyone");
-
-	private CmsLogin cmsLogin;
 
 	private CmsUiProvider header;
 	private Map<String, CmsUiProvider> pages = new LinkedHashMap<String, CmsUiProvider>();
@@ -148,13 +145,6 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 	}
 
 	public void init() throws RepositoryException {
-		// if (workspace == null)
-		// throw new CmsException(
-		// "Workspace must be set when calling initialization."
-		// + " Please make sure that read-only and read-write roles"
-		// + " have been properly configured:"
-		// + " the defaults are open.");
-
 		Session session = null;
 		try {
 			session = JcrUtils.loginOrCreateWorkspace(repository, workspace);
@@ -210,8 +200,10 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 		this.workspace = workspace;
 	}
 
-	public void setCmsLogin(CmsLogin cmsLogin) {
-		this.cmsLogin = cmsLogin;
+	public void setCmsLogin(@SuppressWarnings("deprecation") CmsLogin cmsLogin) {
+		// this.cmsLogin = cmsLogin;
+		log.warn("cmsLogin"
+				+ " is deprecated and will be removed soon. Adapt your configuration ASAP.");
 	}
 
 	public void setHeader(CmsUiProvider header) {
@@ -237,11 +229,6 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 	public void setHeaderHeight(Integer headerHeight) {
 		this.headerHeight = headerHeight;
 	}
-
-	// public void setEntryPoints(
-	// Map<String, EntryPointFactory> entryPointFactories) {
-	// this.entryPoints = entryPointFactories;
-	// }
 
 	public void setBranding(Map<String, Map<String, String>> branding) {
 		this.branding = branding;
@@ -376,20 +363,6 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 					if (state == null)
 						throw new CmsException("State cannot be null");
 					uiProvider.createUi(bodyArea, getNode());
-					// if (page == null)
-					// throw new CmsException("Page cannot be null");
-					// // else if (state.length() == 0)
-					// // log.debug("empty state");
-					// else if (pages.containsKey(page))
-					// pages.get(page).createUi(bodyArea, getNode());
-					// else {
-					// // try {
-					// // RWT.getResponse().sendError(404);
-					// // } catch (IOException e) {
-					// // log.error("Cannot send 404 code", e);
-					// // }
-					// throw new CmsException("Unsupported state " + state);
-					// }
 				} catch (RepositoryException e) {
 					throw new CmsException("Cannot refresh body", e);
 				}
@@ -398,16 +371,11 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 		}
 
 		@Override
-		protected void logAsAnonymous() {
-			cmsLogin.logInAsAnonymous();
-		}
-
-		@Override
 		protected Node getDefaultNode(Session session)
 				throws RepositoryException {
 			if (!session.hasPermission(basePath, "read")) {
 				if (session.getUserID().equals("anonymous"))
-					throw new CmsLoginRequiredException();
+					throw new LoginRequiredException();
 				else
 					throw new CmsException("Unauthorized");
 			}

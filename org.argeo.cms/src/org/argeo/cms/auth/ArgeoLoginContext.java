@@ -5,7 +5,10 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-/** Integrates JAAS with the Argeo platform */
+/**
+ * Integrates JAAS with the Argeo platform, by using the Argeo CMS bundle
+ * classloader as context classloader.
+ */
 public class ArgeoLoginContext extends LoginContext {
 	private static ThreadLocal<ClassLoader> currentContextClassLoader = new ThreadLocal<ClassLoader>() {
 		@Override

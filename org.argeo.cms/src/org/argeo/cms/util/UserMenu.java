@@ -12,7 +12,6 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.argeo.ArgeoException;
-import org.argeo.cms.CmsLogin;
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.CmsSession;
 import org.argeo.cms.CmsStyles;
@@ -37,15 +36,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 /** The site-related user menu */
 public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 	private static final long serialVersionUID = -5788157651532106301L;
-
-	private CmsLogin cmsLogin;
-	// private String username = null;
 	private Text username, password;
 
-	public UserMenu(CmsLogin cmsLogin, Control source) {
+	public UserMenu(Control source) {
 		super(source.getDisplay(), SWT.NO_TRIM | SWT.BORDER | SWT.ON_TOP);
-		this.cmsLogin = cmsLogin;
-
 		setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU);
 
 		String username = SecurityContextHolder.getContext()
@@ -70,11 +64,8 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 				close();
 				dispose();
 			}
-
 		});
-
 		open();
-
 	}
 
 	protected void userUi() {
@@ -89,8 +80,6 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 		l.setLayoutData(CmsUtils.fillWidth());
 		l.setText("<b>" + username + "</b>");
 
-		final CmsSession cmsSession = (CmsSession) getDisplay().getData(
-				CmsSession.KEY);
 		l = new Label(this, SWT.NONE);
 		l.setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU_ITEM);
 		l.setText(CmsMsg.logout.lead());
@@ -102,22 +91,7 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 			private static final long serialVersionUID = 6444395812777413116L;
 
 			public void mouseDown(MouseEvent e) {
-				Subject subject = new Subject();
-				try {
-					new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_USER,
-							subject).logout();
-					new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_ANONYMOUS,
-							subject).login();
-				} catch (LoginException e1) {
-					throw new ArgeoException("Cannot authenticate anonymous",
-							e1);
-				}
-				// SecurityContextHolder.getContext().setAuthentication(null);
-				// HttpSession httpSession = RWT.getRequest().getSession();
-				// httpSession.removeAttribute(SPRING_SECURITY_CONTEXT_KEY);
-				close();
-				dispose();
-				cmsSession.authChange();
+				logout();
 			}
 		});
 	}
@@ -141,7 +115,6 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 		gd.widthHint = textWidth;
 		password.setLayoutData(gd);
 
-		// Listeners
 		TraverseListener tl = new TraverseListener() {
 			private static final long serialVersionUID = -1158892811534971856L;
 
@@ -157,9 +130,11 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 	protected void login() {
 		CmsSession cmsSession = (CmsSession) getDisplay().getData(
 				CmsSession.KEY);
-
 		Subject subject = new Subject();
 		try {
+			//
+			// LOGIN
+			//
 			new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_ANONYMOUS, subject)
 					.logout();
 			LoginContext loginContext = new ArgeoLoginContext(
@@ -168,11 +143,28 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 		} catch (LoginException e1) {
 			throw new ArgeoException("Cannot authenticate anonymous", e1);
 		}
-
-		// cmsLogin.logInWithPassword(username, password);
 		close();
 		dispose();
-		// refreshUi(source.getParent());
+		cmsSession.authChange();
+	}
+
+	protected void logout() {
+		final CmsSession cmsSession = (CmsSession) getDisplay().getData(
+				CmsSession.KEY);
+		Subject subject = new Subject();
+		try {
+			//
+			// LOGOUT
+			//
+			new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_USER, subject)
+					.logout();
+			new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_ANONYMOUS, subject)
+					.login();
+		} catch (LoginException e1) {
+			throw new ArgeoException("Cannot authenticate anonymous", e1);
+		}
+		close();
+		dispose();
 		cmsSession.authChange();
 	}
 
@@ -181,12 +173,6 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 			UnsupportedCallbackException {
 		((NameCallback) callbacks[0]).setName(username.getText());
 		((PasswordCallback) callbacks[1]).setPassword(password.getTextChars());
-		// while (!isDisposed())
-		// try {
-		// Thread.sleep(500);
-		// } catch (InterruptedException e) {
-		// // silent
-		// }
 	}
 
 }
