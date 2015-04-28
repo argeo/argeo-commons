@@ -49,7 +49,6 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 		this.workspace = workspace;
 
 		// Initial login
-		Subject subject = new Subject();
 		try {
 			new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_USER, subject)
 					.login();

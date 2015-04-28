@@ -130,7 +130,7 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 	protected void login() {
 		CmsSession cmsSession = (CmsSession) getDisplay().getData(
 				CmsSession.KEY);
-		Subject subject = new Subject();
+		Subject subject = cmsSession.getSubject();
 		try {
 			//
 			// LOGIN
@@ -151,7 +151,7 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 	protected void logout() {
 		final CmsSession cmsSession = (CmsSession) getDisplay().getData(
 				CmsSession.KEY);
-		Subject subject = new Subject();
+		Subject subject = cmsSession.getSubject();
 		try {
 			//
 			// LOGOUT
