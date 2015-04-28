@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.ui.auth;
+package org.argeo.cms.widgets.auth;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -25,7 +25,7 @@ import javax.security.auth.callback.PasswordCallback;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.security.ui.SecurityUiPlugin;
+import org.argeo.cms.internal.kernel.Activator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -139,7 +139,7 @@ public abstract class AbstractLoginDialog extends TrayDialog implements
 					// event).
 					while (!processCallbacks && (modalContextThread != null)
 							&& (modalContextThread == Thread.currentThread())
-							&& SecurityUiPlugin.getBundleContext() != null) {
+							&& Activator.getBundleContext() != null) {
 						// Note: SecurityUiPlugin.getDefault() != null is false
 						// when the OSGi runtime is shut down
 						try {

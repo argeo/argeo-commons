@@ -1,4 +1,4 @@
-package org.argeo.security.ui.auth;
+package org.argeo.cms.widgets.auth;
 
 import java.io.IOException;
 import java.util.Arrays;

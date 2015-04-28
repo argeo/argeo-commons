@@ -22,16 +22,14 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.CredentialNotFoundException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.cms.KernelHeader;
 import org.argeo.cms.auth.ArgeoLoginContext;
+import org.argeo.cms.widgets.auth.DefaultLoginDialog;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
-import org.argeo.security.ui.auth.DefaultLoginDialog;
 import org.argeo.util.LocaleUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.rap.rwt.RWT;
@@ -40,7 +38,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
@@ -78,13 +75,13 @@ public class SecureEntryPoint implements EntryPoint {
 		RWT.getRequest().getSession().setMaxInactiveInterval(loginTimeout);
 
 		// Try to load security context thanks to the session processing filter
-//		HttpServletRequest httpRequest = RWT.getRequest();
-//		HttpSession httpSession = httpRequest.getSession();
-//		Object contextFromSessionObject = httpSession
-//				.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
-//		if (contextFromSessionObject != null)
-//			SecurityContextHolder
-//					.setContext((SecurityContext) contextFromSessionObject);
+		// HttpServletRequest httpRequest = RWT.getRequest();
+		// HttpSession httpSession = httpRequest.getSession();
+		// Object contextFromSessionObject = httpSession
+		// .getAttribute(SPRING_SECURITY_CONTEXT_KEY);
+		// if (contextFromSessionObject != null)
+		// SecurityContextHolder
+		// .setContext((SecurityContext) contextFromSessionObject);
 
 		final Display display = PlatformUI.createDisplay();
 		Subject subject = new Subject();
@@ -106,9 +103,10 @@ public class SecureEntryPoint implements EntryPoint {
 					throw new ArgeoException("Login succeeded but no auth");// fatal
 
 				// add security context to session
-//				if (httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) == null)
-//					httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
-//							SecurityContextHolder.getContext());
+				// if (httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) ==
+				// null)
+				// httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
+				// SecurityContextHolder.getContext());
 
 				// add thread locale to RWT session
 				if (log.isTraceEnabled())

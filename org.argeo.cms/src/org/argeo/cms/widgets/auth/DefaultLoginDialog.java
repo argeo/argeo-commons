@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.ui.auth;
+package org.argeo.cms.widgets.auth;
 
 import javax.security.auth.callback.CallbackHandler;
 
-import org.argeo.security.ui.SecurityUiPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -33,7 +32,7 @@ public class DefaultLoginDialog extends AbstractLoginDialog {
 	private static final long serialVersionUID = -8551827590693035734L;
 
 	public DefaultLoginDialog() {
-		this(SecurityUiPlugin.display.get().getActiveShell());
+		this(Display.getCurrent().getActiveShell());
 	}
 
 	public DefaultLoginDialog(Shell parentShell) {

@@ -22,7 +22,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
 import org.argeo.ArgeoException;
-import org.argeo.security.ui.auth.DefaultLoginDialog;
+import org.argeo.cms.widgets.auth.DefaultLoginDialog;
 import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
