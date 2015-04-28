@@ -122,8 +122,11 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 				if (!properties.containsKey(WebClient.BODY_HTML))
 					properties.put(WebClient.BODY_HTML, DEFAULT_LOADING_BODY);
 
+				//
+				// ADD ENTRY POINT
+				//
 				application.addEntryPoint("/" + page, new CmsEntryPointFactory(
-						page), properties);
+						pages.get(page), repository, workspace), properties);
 				log.info("Registered entry point /" + page);
 			}
 
@@ -256,16 +259,21 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 	}
 
 	private class CmsEntryPointFactory implements EntryPointFactory {
-		private final String page;
+		private final CmsUiProvider page;
+		private final Repository repository;
+		private final String workspace;
 
-		public CmsEntryPointFactory(String page) {
+		public CmsEntryPointFactory(CmsUiProvider page, Repository repository,
+				String workspace) {
 			this.page = page;
+			this.repository = repository;
+			this.workspace = workspace;
 		}
 
 		@Override
 		public EntryPoint create() {
 			CmsEntryPoint entryPoint = new CmsEntryPoint(repository, workspace,
-					pages.get(page));
+					page);
 			entryPoint.setState("");
 			CmsSession.current.set(entryPoint);
 			return entryPoint;
