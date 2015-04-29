@@ -65,10 +65,12 @@ public class CmsUtils implements CmsConstants {
 		return new RowData(16, 16);
 	}
 
+	/** Style widget */
 	public static void style(Widget widget, String style) {
 		widget.setData(CmsConstants.STYLE, style);
 	}
 
+	/** Enable markups on widget */
 	public static void markup(Widget widget) {
 		widget.setData(CmsConstants.MARKUP, true);
 	}

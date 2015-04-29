@@ -2,8 +2,6 @@ package org.argeo.cms;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,13 +16,13 @@ import javax.jcr.Session;
 import javax.jcr.security.Privilege;
 import javax.jcr.version.VersionManager;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.auth.LoginRequiredException;
 import org.argeo.cms.internal.ImageManagerImpl;
 import org.argeo.cms.util.BundleResourceLoader;
 import org.argeo.cms.util.CmsUtils;
+import org.argeo.cms.util.SystemNotifications;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.gemini.blueprint.context.BundleContextAware;
 import org.eclipse.rap.rwt.RWT;
@@ -41,8 +39,6 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 import org.osgi.framework.BundleContext;
 
 /** Configures an Argeo CMS RWT application. */
@@ -341,40 +337,46 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 		protected void refreshBody() {
 			if (bodyArea == null)
 				return;
+			// Exception
+			Throwable exception = getException();
+			if (exception != null) {
+				// new Label(bodyArea, SWT.NONE).setText("Unreachable state : "
+				// + getState());
+				// if (getNode() != null)
+				// new Label(bodyArea, SWT.NONE).setText("Context : "
+				// + getNode());
+				//
+				// Text errorText = new Text(bodyArea, SWT.MULTI | SWT.H_SCROLL
+				// | SWT.V_SCROLL);
+				// errorText.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
+				// true,
+				// true));
+				// StringWriter sw = new StringWriter();
+				// exception.printStackTrace(new PrintWriter(sw));
+				// errorText.setText(sw.toString());
+				// IOUtils.closeQuietly(sw);
+				SystemNotifications systemNotifications = new SystemNotifications(
+						bodyArea);
+				systemNotifications.notifyException(exception);
+				resetException();
+				return;
+				// TODO report
+			}
+
 			// clear
 			for (Control child : bodyArea.getChildren())
 				child.dispose();
 			bodyArea.setLayout(CmsUtils.noSpaceGridLayout());
 
-			// Exception
-			Throwable exception = getException();
-			if (exception != null) {
-				new Label(bodyArea, SWT.NONE).setText("Unreachable state : "
-						+ getState());
-				if (getNode() != null)
-					new Label(bodyArea, SWT.NONE).setText("Context : "
-							+ getNode());
-
-				Text errorText = new Text(bodyArea, SWT.MULTI | SWT.H_SCROLL
-						| SWT.V_SCROLL);
-				errorText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-						true));
-				StringWriter sw = new StringWriter();
-				exception.printStackTrace(new PrintWriter(sw));
-				errorText.setText(sw.toString());
-				IOUtils.closeQuietly(sw);
-				resetException();
-				// TODO report
-			} else {
-				String state = getState();
-				try {
-					if (state == null)
-						throw new CmsException("State cannot be null");
-					uiProvider.createUi(bodyArea, getNode());
-				} catch (RepositoryException e) {
-					throw new CmsException("Cannot refresh body", e);
-				}
+			String state = getState();
+			try {
+				if (state == null)
+					throw new CmsException("State cannot be null");
+				uiProvider.createUi(bodyArea, getNode());
+			} catch (RepositoryException e) {
+				throw new CmsException("Cannot refresh body", e);
 			}
+
 			bodyArea.layout(true, true);
 		}
 
