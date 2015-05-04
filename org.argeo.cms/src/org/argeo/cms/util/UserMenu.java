@@ -27,6 +27,7 @@ import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -80,6 +81,8 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 		l.setLayoutData(CmsUtils.fillWidth());
 		l.setText("<b>" + username + "</b>");
 
+		specificUserUi(this);
+
 		l = new Label(this, SWT.NONE);
 		l.setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU_ITEM);
 		l.setText(CmsMsg.logout.lead());
@@ -94,6 +97,17 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 				logout();
 			}
 		});
+	}
+
+	protected String getUsername() {
+		String username = SecurityContextHolder.getContext()
+				.getAuthentication().getName();
+		return username;
+	}
+
+	/** To be overridden */
+	protected void specificUserUi(Composite parent) {
+
 	}
 
 	protected void anonymousUi() {
