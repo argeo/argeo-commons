@@ -1,9 +1,12 @@
 package org.argeo.cms;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import javax.jcr.Node;
+import javax.jcr.Property;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -19,9 +22,11 @@ import org.argeo.cms.i18n.Msg;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
+import org.eclipse.rap.rwt.client.WebClient;
 import org.eclipse.rap.rwt.client.service.BrowserNavigation;
 import org.eclipse.rap.rwt.client.service.BrowserNavigationEvent;
 import org.eclipse.rap.rwt.client.service.BrowserNavigationListener;
+import org.eclipse.rap.rwt.client.service.JavaScriptExecutor;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
@@ -35,6 +40,7 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 	private Repository repository;
 	private String workspace;
 	private Session session;
+	private final Map<String, String> factoryProperties;
 
 	// current state
 	private Node node;
@@ -42,11 +48,15 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 	private String page;
 	private Throwable exception;
 
-	private BrowserNavigation history;
+	// Client services
+	private final JavaScriptExecutor jsExecutor;
+	private final BrowserNavigation browserNavigation;
 
-	public AbstractCmsEntryPoint(Repository repository, String workspace) {
+	public AbstractCmsEntryPoint(Repository repository, String workspace,
+			Map<String, String> factoryProperties) {
 		this.repository = repository;
 		this.workspace = workspace;
+		this.factoryProperties = new HashMap<String, String>(factoryProperties);
 
 		// Initial login
 		try {
@@ -65,9 +75,11 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 		}
 		authChange();
 
-		history = RWT.getClient().getService(BrowserNavigation.class);
-		if (history != null)
-			history.addBrowserNavigationListener(new CmsNavigationListener());
+		jsExecutor = RWT.getClient().getService(JavaScriptExecutor.class);
+		browserNavigation = RWT.getClient().getService(BrowserNavigation.class);
+		if (browserNavigation != null)
+			browserNavigation
+					.addBrowserNavigationListener(new CmsNavigationListener());
 
 		// RWT.setLocale(Locale.FRANCE);
 	}
@@ -115,12 +127,16 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 		return NodeType.NT_FOLDER;
 	}
 
+	protected String getBaseTitle() {
+		return factoryProperties.get(WebClient.PAGE_TITLE);
+	}
+
 	public void navigateTo(String state) {
 		exception = null;
-		setState(state);
+		String title = setState(state);
 		refreshBody();
-		if (history != null)
-			history.pushState(state, state);
+		if (browserNavigation != null)
+			browserNavigation.pushState(state, title);
 	}
 
 	@Override
@@ -169,12 +185,14 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 	}
 
 	/** Sets the state of the entry point and retrieve the related JCR node. */
-	protected synchronized void setState(String newState) {
+	protected synchronized String setState(String newState) {
 		String previousState = this.state;
 
 		node = null;
 		page = null;
 		this.state = newState;
+		if (newState.equals("~"))
+			this.state = "";
 
 		try {
 			int firstSlash = state.indexOf('/');
@@ -222,12 +240,28 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 				page = state;
 			}
 
+			// Title
+			String title;
+			if (node.isNodeType(NodeType.MIX_TITLE)
+					&& node.hasProperty(Property.JCR_TITLE))
+				title = node.getProperty(Property.JCR_TITLE).getString()
+						+ " - " + getBaseTitle();
+			else
+				title = getBaseTitle();
+			jsExecutor.execute("document.title = \"" + title + "\"");
+
 			if (log.isTraceEnabled())
 				log.trace("node=" + node + ", state=" + state + " (page="
-						+ page);
+						+ page + ", title=" + title + ")");
 
-		} catch (RepositoryException e) {
-			throw new CmsException("Cannot retrieve node", e);
+			return title;
+
+		} catch (Exception e) {
+			if (previousState.equals(""))
+				previousState = "~";
+			navigateTo(previousState);
+			throw new CmsException("Unexpected issue when accessing #"
+					+ newState, e);
 		}
 	}
 

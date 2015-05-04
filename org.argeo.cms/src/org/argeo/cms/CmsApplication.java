@@ -122,7 +122,8 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 				// ADD ENTRY POINT
 				//
 				application.addEntryPoint("/" + page, new CmsEntryPointFactory(
-						pages.get(page), repository, workspace), properties);
+						pages.get(page), repository, workspace, properties),
+						properties);
 				log.info("Registered entry point /" + page);
 			}
 
@@ -258,18 +259,20 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 		private final CmsUiProvider page;
 		private final Repository repository;
 		private final String workspace;
+		private final Map<String, String> properties;
 
 		public CmsEntryPointFactory(CmsUiProvider page, Repository repository,
-				String workspace) {
+				String workspace, Map<String, String> properties) {
 			this.page = page;
 			this.repository = repository;
 			this.workspace = workspace;
+			this.properties = properties;
 		}
 
 		@Override
 		public EntryPoint create() {
 			CmsEntryPoint entryPoint = new CmsEntryPoint(repository, workspace,
-					page);
+					page, properties);
 			entryPoint.setState("");
 			CmsSession.current.set(entryPoint);
 			return entryPoint;
@@ -283,8 +286,8 @@ public class CmsApplication implements CmsConstants, ApplicationConfiguration,
 		private final CmsUiProvider uiProvider;
 
 		public CmsEntryPoint(Repository repository, String workspace,
-				CmsUiProvider uiProvider) {
-			super(repository, workspace);
+				CmsUiProvider uiProvider, Map<String, String> factoryProperties) {
+			super(repository, workspace, factoryProperties);
 			this.uiProvider = uiProvider;
 		}
 
