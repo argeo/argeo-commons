@@ -13,8 +13,6 @@ public interface CmsSession {
 	// NAVIGATION
 	public void navigateTo(String state);
 
-	public String getState();
-
 	// SECURITY
 	public void authChange();
 	

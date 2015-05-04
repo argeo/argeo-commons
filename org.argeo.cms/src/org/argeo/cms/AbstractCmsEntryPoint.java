@@ -118,14 +118,14 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 	 * with the obvious default folder type, nt:folder, conceptual equivalent of
 	 * an empty text file in an operating system. To be overridden.
 	 */
-	protected String getDefaultNewNodeType() {
-		return CmsTypes.CMS_TEXT;
-	}
+	// protected String getDefaultNewNodeType() {
+	// return CmsTypes.CMS_TEXT;
+	// }
 
 	/** Default new folder type (used in mkdirs) is nt:folder. To be overridden. */
-	protected String getDefaultNewFolderType() {
-		return NodeType.NT_FOLDER;
-	}
+	// protected String getDefaultNewFolderType() {
+	// return NodeType.NT_FOLDER;
+	// }
 
 	protected String getBaseTitle() {
 		return factoryProperties.get(WebClient.PAGE_TITLE);
@@ -197,43 +197,42 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 		try {
 			int firstSlash = state.indexOf('/');
 			if (firstSlash == 0) {
-				if (!session.nodeExists(state))
-					node = addNode(session, state, null);
-				else
+				if (session.nodeExists(state))
 					node = session.getNode(state);
+				else
+					throw new CmsException("Data " + state + " does not exist");
 				page = "";
 			} else if (firstSlash > 0) {
 				String prefix = state.substring(0, firstSlash);
 				String path = state.substring(firstSlash);
-				if (session.getWorkspace().getNodeTypeManager()
-						.hasNodeType(prefix)) {
-					String nodeType = prefix;
-					if (!session.nodeExists(path))
-						node = addNode(session, path, nodeType);
-					else {
-						node = session.getNode(path);
-						if (!node.isNodeType(nodeType))
-							throw new CmsException("Node " + path
-									+ " not of type " + nodeType);
-					}
-				} else if ("delete".equals(prefix)) {
-					if (session.itemExists(path)) {
-						Node nodeToDelete = session.getNode(path);
-						// TODO "Are you sure?"
-						nodeToDelete.remove();
-						session.save();
-						log.debug("Deleted " + path);
-						navigateTo(previousState);
-					} else
-						throw new CmsException("Data " + path
-								+ " does not exist");
-				} else {
-					if (session.itemExists(path))
-						node = session.getNode(path);
-					else
-						throw new CmsException("Data " + path
-								+ " does not exist");
-				}
+				// if (session.getWorkspace().getNodeTypeManager()
+				// .hasNodeType(prefix)) {
+				// String nodeType = prefix;
+				// if (!session.nodeExists(path))
+				// node = addNode(session, path, nodeType);
+				// else {
+				// node = session.getNode(path);
+				// if (!node.isNodeType(nodeType))
+				// throw new CmsException("Node " + path
+				// + " not of type " + nodeType);
+				// }
+				// } else if ("delete".equals(prefix)) {
+				// if (session.itemExists(path)) {
+				// Node nodeToDelete = session.getNode(path);
+				// // TODO "Are you sure?"
+				// nodeToDelete.remove();
+				// session.save();
+				// log.debug("Deleted " + path);
+				// navigateTo(previousState);
+				// } else
+				// throw new CmsException("Data " + path
+				// + " does not exist");
+				// } else {
+				if (session.nodeExists(path))
+					node = session.getNode(path);
+				else
+					throw new CmsException("Data " + path + " does not exist");
+				// }
 				page = prefix;
 			} else {
 				node = getDefaultNode(session);
@@ -255,7 +254,6 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 						+ page + ", title=" + title + ")");
 
 			return title;
-
 		} catch (Exception e) {
 			if (previousState.equals(""))
 				previousState = "~";
@@ -265,19 +263,18 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 		}
 	}
 
-	protected Node addNode(Session session, String path, String nodeType)
-			throws RepositoryException {
-		return JcrUtils.mkdirs(session, path, nodeType != null ? nodeType
-				: getDefaultNewNodeType(), getDefaultNewFolderType(), false);
-		// not saved, so that the UI can discard it later on
-	}
+	// protected Node addNode(Session session, String path, String nodeType)
+	// throws RepositoryException {
+	// return JcrUtils.mkdirs(session, path, nodeType != null ? nodeType
+	// : getDefaultNewNodeType(), getDefaultNewFolderType(), false);
+	// // not saved, so that the UI can discard it later on
+	// }
 
 	protected Node getNode() {
 		return node;
 	}
 
-	@Override
-	public String getState() {
+	protected String getState() {
 		return state;
 	}
 
