@@ -7,6 +7,7 @@ import org.argeo.cms.CmsConstants;
 import org.argeo.cms.CmsNames;
 import org.argeo.cms.util.CmsUtils;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -21,6 +22,7 @@ public abstract class StyledControl extends JcrComposite implements
 	private Composite box;
 
 	protected MouseListener mouseListener;
+	protected FocusListener focusListener;
 
 	private Boolean editing = Boolean.FALSE;
 
@@ -65,6 +67,10 @@ public abstract class StyledControl extends JcrComposite implements
 		clear(false);
 		control = createControl(box, style);
 		setControlLayoutData(control);
+
+		// add the focus listener to the newly created edition control
+		if (focusListener != null)
+			control.addFocusListener(focusListener);
 	}
 
 	public synchronized void stopEditing() {
@@ -120,5 +126,13 @@ public abstract class StyledControl extends JcrComposite implements
 		this.mouseListener = mouseListener;
 		if (control != null && this.mouseListener != null)
 			control.addMouseListener(mouseListener);
+	}
+
+	public void setFocusListener(FocusListener focusListener) {
+		if (this.focusListener != null && control != null)
+			control.removeFocusListener(this.focusListener);
+		this.focusListener = focusListener;
+		if (control != null && this.focusListener != null)
+			control.addFocusListener(focusListener);
 	}
 }

@@ -256,6 +256,9 @@ public class Browse implements CmsUiProvider {
 			currParPath = JcrUtils.parentPath(currNodePath);
 		if ("".equals(currParPath))
 			currParPath = "/";
+		
+		
+		
 
 		Object[][] colMatrix = new Object[browserCols.size()][2];
 
@@ -291,6 +294,15 @@ public class Browse implements CmsUiProvider {
 				browserCols.remove(colMatrix[l][0]);
 				((FilterEntitiesVirtualTable) colMatrix[l][1]).dispose();
 			}
+
+		// Remove disposed columns
+		// TODO investigate and fix the mechanism that leave them there after
+		// disposal
+		if (browserCols.containsKey(currNodePath)) {
+			FilterEntitiesVirtualTable currCol = browserCols.get(currNodePath);
+			if (currCol.isDisposed())
+				browserCols.remove(currNodePath);
+		}
 
 		if (!browserCols.containsKey(currNodePath))
 			createBrowserColumn(colViewer, node);
@@ -330,6 +342,10 @@ public class Browse implements CmsUiProvider {
 
 	private Point imageWidth = new Point(250, 0);
 
+	/**
+	 * Recreates the content of the box that displays information about the
+	 * current selected node.
+	 */
 	private Control createNodeView(Composite parent, Node context)
 			throws RepositoryException {
 

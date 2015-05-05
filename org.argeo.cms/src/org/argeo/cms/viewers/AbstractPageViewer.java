@@ -16,6 +16,8 @@ import org.eclipse.jface.viewers.ContentViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.Composite;
@@ -36,6 +38,7 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 	private final CmsEditable cmsEditable;
 
 	private MouseListener mouseListener;
+	private FocusListener focusListener;
 
 	private EditablePart edited;
 	private ISelection selection = StructuredSelection.EMPTY;
@@ -52,6 +55,7 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 
 		if (cmsEditable.canEdit()) {
 			mouseListener = createMouseListener();
+			focusListener = createFocusListener();
 		}
 		page = findPage(parent);
 	}
@@ -85,6 +89,21 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 	protected MouseListener createMouseListener() {
 		return new MouseAdapter() {
 			private static final long serialVersionUID = 1L;
+		};
+	}
+
+	/** Create (retrieve) the FocusListener to use. */
+	protected FocusListener createFocusListener() {
+		return new FocusListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void focusLost(FocusEvent event) {
+			}
+
+			@Override
+			public void focusGained(FocusEvent event) {
+			}
 		};
 	}
 
@@ -273,6 +292,10 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 
 	public MouseListener getMouseListener() {
 		return mouseListener;
+	}
+
+	public FocusListener getFocusListener() {
+		return focusListener;
 	}
 
 	public CmsEditable getCmsEditable() {
