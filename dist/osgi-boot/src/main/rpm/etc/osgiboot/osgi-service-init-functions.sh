@@ -7,7 +7,7 @@ RETVAL=0
 
 osgi_service_start() {
 	APP=$1
-	# create log an run directories writable by the application user
+	# create log and run directories writable by the application user
 	USER=$APP
 	GROUP=$APP
 	RUN_DIR=/var/run/$APP
