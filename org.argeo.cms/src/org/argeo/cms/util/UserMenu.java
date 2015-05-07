@@ -11,7 +11,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.CmsSession;
 import org.argeo.cms.CmsStyles;
@@ -32,6 +32,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /** The site-related user menu */
@@ -43,9 +44,13 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 		super(source.getDisplay(), SWT.NO_TRIM | SWT.BORDER | SWT.ON_TOP);
 		setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU);
 
-		String username = SecurityContextHolder.getContext()
-				.getAuthentication().getName();
-		if (username.equals("anonymous")) {
+		Authentication authentication = SecurityContextHolder.getContext()
+				.getAuthentication();
+		if (authentication == null)
+			throw new CmsException("No authentication available");
+
+		String username = authentication.getName();
+		if (username.equals(KernelHeader.USERNAME_ANONYMOUS)) {
 			username = null;
 			anonymousUi();
 		} else {
@@ -155,7 +160,13 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 					KernelHeader.LOGIN_CONTEXT_USER, subject, this);
 			loginContext.login();
 		} catch (LoginException e1) {
-			throw new ArgeoException("Cannot authenticate anonymous", e1);
+			try {
+				new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_ANONYMOUS,
+						subject).login();
+			} catch (LoginException e) {
+				throw new CmsException("Cannot authenticate anonymous", e1);
+			}
+			throw new CmsException("Cannot authenticate", e1);
 		}
 		close();
 		dispose();
@@ -175,7 +186,7 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 			new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_ANONYMOUS, subject)
 					.login();
 		} catch (LoginException e1) {
-			throw new ArgeoException("Cannot authenticate anonymous", e1);
+			throw new CmsException("Cannot authenticate anonymous", e1);
 		}
 		close();
 		dispose();
