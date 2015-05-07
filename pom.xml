@@ -7,7 +7,7 @@
 	<name>Argeo Commons</name>
 	<packaging>pom</packaging>
 	<properties>
-		<version.argeo-commons>2.1.22</version.argeo-commons>
+		<version.argeo-commons>2.1.23-SNAPSHOT</version.argeo-commons>
 		<developmentCycle.argeo-commons>2.1</developmentCycle.argeo-commons>
 		<developmentCycle.argeo-commons.startDate>2012-12-19</developmentCycle.argeo-commons.startDate>
 		<version.argeo-distribution>2.1.8</version.argeo-distribution>
