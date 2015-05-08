@@ -18,6 +18,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.cms.auth.ArgeoLoginContext;
+import org.argeo.cms.auth.LoginRequiredException;
 import org.argeo.cms.i18n.Msg;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
@@ -27,22 +28,24 @@ import org.eclipse.rap.rwt.client.service.BrowserNavigation;
 import org.eclipse.rap.rwt.client.service.BrowserNavigationEvent;
 import org.eclipse.rap.rwt.client.service.BrowserNavigationListener;
 import org.eclipse.rap.rwt.client.service.JavaScriptExecutor;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 /** Manages history and navigation */
-abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
-		CmsSession {
+public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
+		implements CmsSession {
 	private final Log log = LogFactory.getLog(AbstractCmsEntryPoint.class);
 
-	private Subject subject = new Subject();
+	private final Subject subject = new Subject();
 
-	private Repository repository;
-	private String workspace;
-	private Session session;
+	private final Repository repository;
+	private final String workspace;
+	private final String defaultPath;
 	private final Map<String, String> factoryProperties;
 
-	// current state
+	// Current state
+	private Session session;
 	private Node node;
 	private String state;
 	private String page;
@@ -53,9 +56,10 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 	private final BrowserNavigation browserNavigation;
 
 	public AbstractCmsEntryPoint(Repository repository, String workspace,
-			Map<String, String> factoryProperties) {
+			String defaultPath, Map<String, String> factoryProperties) {
 		this.repository = repository;
 		this.workspace = workspace;
+		this.defaultPath = defaultPath;
 		this.factoryProperties = new HashMap<String, String>(factoryProperties);
 
 		// Initial login
@@ -80,8 +84,6 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 		if (browserNavigation != null)
 			browserNavigation
 					.addBrowserNavigationListener(new CmsNavigationListener());
-
-		// RWT.setLocale(Locale.FRANCE);
 	}
 
 	@Override
@@ -100,32 +102,36 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 		return shell;
 	}
 
-	/** Recreate header UI */
-	protected abstract void refreshHeader();
+	@Override
+	protected final void createContents(Composite parent) {
+		try {
+			getShell().getDisplay().setData(CmsSession.KEY, this);
 
-	/** Recreate body UI */
-	protected abstract void refreshBody();
+			createUi(parent);
+		} catch (Exception e) {
+			throw new CmsException("Cannot create entrypoint contents", e);
+		}
+	}
+
+	/** Create UI */
+	protected abstract void createUi(Composite parent);
+
+	/** Recreate UI after navigation or auth change */
+	protected abstract void refresh();
 
 	/**
 	 * The node to return when no node was found (for authenticated users and
 	 * anonymous)
 	 */
-	protected abstract Node getDefaultNode(Session session)
-			throws RepositoryException;
-
-	/**
-	 * Reasonable default since it is a nt:hierarchyNode and is thus compatible
-	 * with the obvious default folder type, nt:folder, conceptual equivalent of
-	 * an empty text file in an operating system. To be overridden.
-	 */
-	// protected String getDefaultNewNodeType() {
-	// return CmsTypes.CMS_TEXT;
-	// }
-
-	/** Default new folder type (used in mkdirs) is nt:folder. To be overridden. */
-	// protected String getDefaultNewFolderType() {
-	// return NodeType.NT_FOLDER;
-	// }
+	protected Node getDefaultNode(Session session) throws RepositoryException {
+		if (!session.hasPermission(defaultPath, "read")) {
+			if (session.getUserID().equals("anonymous"))
+				throw new LoginRequiredException();
+			else
+				throw new CmsException("Unauthorized");
+		}
+		return session.getNode(defaultPath);
+	}
 
 	protected String getBaseTitle() {
 		return factoryProperties.get(WebClient.PAGE_TITLE);
@@ -134,7 +140,7 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 	public void navigateTo(String state) {
 		exception = null;
 		String title = setState(state);
-		refreshBody();
+		refresh();
 		if (browserNavigation != null)
 			browserNavigation.pushState(state, title);
 	}
@@ -157,8 +163,7 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 				node = session.getNode(currentPath);
 
 			// refresh UI
-			refreshHeader();
-			refreshBody();
+			refresh();
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot perform auth change", e);
 		}
@@ -169,7 +174,7 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 	public void exception(Throwable e) {
 		this.exception = e;
 		log.error("Unexpected exception in CMS", e);
-		refreshBody();
+		refresh();
 	}
 
 	@Override
@@ -205,34 +210,10 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 			} else if (firstSlash > 0) {
 				String prefix = state.substring(0, firstSlash);
 				String path = state.substring(firstSlash);
-				// if (session.getWorkspace().getNodeTypeManager()
-				// .hasNodeType(prefix)) {
-				// String nodeType = prefix;
-				// if (!session.nodeExists(path))
-				// node = addNode(session, path, nodeType);
-				// else {
-				// node = session.getNode(path);
-				// if (!node.isNodeType(nodeType))
-				// throw new CmsException("Node " + path
-				// + " not of type " + nodeType);
-				// }
-				// } else if ("delete".equals(prefix)) {
-				// if (session.itemExists(path)) {
-				// Node nodeToDelete = session.getNode(path);
-				// // TODO "Are you sure?"
-				// nodeToDelete.remove();
-				// session.save();
-				// log.debug("Deleted " + path);
-				// navigateTo(previousState);
-				// } else
-				// throw new CmsException("Data " + path
-				// + " does not exist");
-				// } else {
 				if (session.nodeExists(path))
 					node = session.getNode(path);
 				else
 					throw new CmsException("Data " + path + " does not exist");
-				// }
 				page = prefix;
 			} else {
 				node = getDefaultNode(session);
@@ -255,6 +236,7 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 
 			return title;
 		} catch (Exception e) {
+			log.error("Cannot set state '" + state + "'", e);
 			if (previousState.equals(""))
 				previousState = "~";
 			navigateTo(previousState);
@@ -263,13 +245,6 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 		}
 	}
 
-	// protected Node addNode(Session session, String path, String nodeType)
-	// throws RepositoryException {
-	// return JcrUtils.mkdirs(session, path, nodeType != null ? nodeType
-	// : getDefaultNewNodeType(), getDefaultNewFolderType(), false);
-	// // not saved, so that the UI can discard it later on
-	// }
-
 	protected Node getNode() {
 		return node;
 	}
@@ -277,10 +252,6 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 	protected String getState() {
 		return state;
 	}
-
-	// String getPage() {
-	// return page;
-	// }
 
 	protected Throwable getException() {
 		return exception;
@@ -300,8 +271,7 @@ abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements
 		@Override
 		public void navigated(BrowserNavigationEvent event) {
 			setState(event.getState());
-			refreshBody();
+			refresh();
 		}
 	}
-
 }
