@@ -11,12 +11,12 @@ public interface CmsStyles {
 	public final static String CMS_HEADER_LEAD = "cms_header-lead";
 	public final static String CMS_HEADER_CENTER = "cms_header-center";
 	public final static String CMS_HEADER_END = "cms_header-end";
-	public final static String CMS_LOGIN = "cms_login";
+	public final static String CMS_USER_MENU = "cms_user_menu";
+	public final static String CMS_USER_MENU_LINK = "cms_user_menu-link";
+	public final static String CMS_USER_MENU_ITEM = "cms_user_menu-item";
 	public final static String CMS_LOGIN_DIALOG = "cms_login_dialog";
 	public final static String CMS_LOGIN_DIALOG_USERNAME = "cms_login_dialog-username";
 	public final static String CMS_LOGIN_DIALOG_PASSWORD = "cms_login_dialog-password";
-	public final static String CMS_USER_MENU = "cms_user_menu";
-	public final static String CMS_USER_MENU_ITEM = "cms_user_menu-item";
 
 	// Body
 	public final static String CMS_SCROLLED_AREA = "cms_scrolled_area";

@@ -75,20 +75,23 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 	}
 
 	protected void userUi() {
-		setLayout(new GridLayout());
+		setLayout(CmsUtils.noSpaceGridLayout());
+		Composite c = new Composite(this, SWT.NONE);
+		c.setLayout(new GridLayout());
+		c.setLayoutData(CmsUtils.fillAll());
 
-		String username = SecurityContextHolder.getContext()
-				.getAuthentication().getName();
+		// String username = SecurityContextHolder.getContext()
+		// .getAuthentication().getName();
+		//
+		// Label l = new Label(c, SWT.NONE);
+		// l.setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU_ITEM);
+		// l.setData(RWT.MARKUP_ENABLED, true);
+		// l.setLayoutData(CmsUtils.fillWidth());
+		// l.setText("<b>" + username + "</b>");
 
-		Label l = new Label(this, SWT.NONE);
-		l.setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU_ITEM);
-		l.setData(RWT.MARKUP_ENABLED, true);
-		l.setLayoutData(CmsUtils.fillWidth());
-		l.setText("<b>" + username + "</b>");
+		specificUserUi(c);
 
-		specificUserUi(this);
-
-		l = new Label(this, SWT.NONE);
+		Label l = new Label(c, SWT.NONE);
 		l.setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU_ITEM);
 		l.setText(CmsMsg.logout.lead());
 		GridData lData = CmsUtils.fillWidth();
@@ -123,7 +126,7 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 		c.setLayout(new GridLayout());
 		c.setLayoutData(CmsUtils.fillAll());
 
-		Integer textWidth = 150;
+		Integer textWidth = 120;
 		setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU);
 
 		// new Label(this, SWT.NONE).setText(CmsMsg.username.lead());
