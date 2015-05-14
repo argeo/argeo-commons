@@ -8,6 +8,7 @@ public class CmsMsg extends DefaultsResourceBundle {
 	public final static Msg username = new Msg("username");
 	public final static Msg password = new Msg("password");
 	public final static Msg logout = new Msg("log out");
+	public final static Msg login = new Msg("sign in");
 
 	static {
 		Msg.init(CmsMsg.class);
