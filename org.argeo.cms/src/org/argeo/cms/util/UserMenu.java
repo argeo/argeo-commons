@@ -205,6 +205,7 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 		}
 		close();
 		dispose();
+		cmsSession.navigateTo("~");
 		cmsSession.authChange();
 	}
 
