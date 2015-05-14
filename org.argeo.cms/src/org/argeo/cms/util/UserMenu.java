@@ -116,19 +116,27 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 	}
 
 	protected void anonymousUi() {
+		setLayout(CmsUtils.noSpaceGridLayout());
+
+		// We need a composite for the traversal
+		Composite c = new Composite(this, SWT.NONE);
+		c.setLayout(new GridLayout());
+		c.setLayoutData(CmsUtils.fillAll());
+
 		Integer textWidth = 150;
 		setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU);
-		setLayout(new GridLayout(2, false));
 
-		new Label(this, SWT.NONE).setText(CmsMsg.username.lead());
-		username = new Text(this, SWT.BORDER);
+		// new Label(this, SWT.NONE).setText(CmsMsg.username.lead());
+		username = new Text(c, SWT.BORDER);
+		username.setMessage(CmsMsg.username.lead());
 		username.setData(RWT.CUSTOM_VARIANT, CMS_LOGIN_DIALOG_USERNAME);
 		GridData gd = CmsUtils.fillWidth();
 		gd.widthHint = textWidth;
 		username.setLayoutData(gd);
 
-		new Label(this, SWT.NONE).setText(CmsMsg.password.lead());
-		password = new Text(this, SWT.BORDER | SWT.PASSWORD);
+		// new Label(this, SWT.NONE).setText(CmsMsg.password.lead());
+		password = new Text(c, SWT.BORDER | SWT.PASSWORD);
+		password.setMessage(CmsMsg.password.lead());
 		password.setData(RWT.CUSTOM_VARIANT, CMS_LOGIN_DIALOG_PASSWORD);
 		gd = CmsUtils.fillWidth();
 		gd.widthHint = textWidth;
@@ -142,8 +150,12 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 					login();
 			}
 		};
+		c.addTraverseListener(tl);
 		username.addTraverseListener(tl);
 		password.addTraverseListener(tl);
+		setTabList(new Control[] { c });
+		c.setTabList(new Control[] { username, password });
+		c.setFocus();
 	}
 
 	protected void login() {
