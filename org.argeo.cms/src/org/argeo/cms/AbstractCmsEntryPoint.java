@@ -160,7 +160,26 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 
 			session = repository.login(workspace);
 			if (currentPath != null)
-				node = session.getNode(currentPath);
+				try {
+					node = session.getNode(currentPath);
+				} catch (Exception e) {
+					try {
+						// TODO find a less hacky way to log out
+						new ArgeoLoginContext(
+								KernelHeader.LOGIN_CONTEXT_ANONYMOUS, subject)
+								.logout();
+						new ArgeoLoginContext(
+								KernelHeader.LOGIN_CONTEXT_ANONYMOUS, subject)
+								.login();
+					} catch (LoginException eAnonymous) {
+						throw new ArgeoException("Cannot reset to anonymous",
+								eAnonymous);
+					}
+					JcrUtils.logoutQuietly(session);
+					session = repository.login(workspace);
+					navigateTo("~");
+					throw e;
+				}
 
 			// refresh UI
 			refresh();
