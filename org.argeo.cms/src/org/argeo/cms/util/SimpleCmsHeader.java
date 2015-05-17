@@ -30,7 +30,7 @@ public class SimpleCmsHeader implements CmsUiProvider {
 		Composite header = new Composite(parent, SWT.NONE);
 		header.setData(RWT.CUSTOM_VARIANT, CmsStyles.CMS_HEADER);
 		header.setBackgroundMode(SWT.INHERIT_DEFAULT);
-		header.setLayout(CmsUtils.noSpaceGridLayout(new GridLayout(3, false)));
+		header.setLayout(CmsUtils.noSpaceGridLayout(new GridLayout(3, true)));
 
 		configurePart(context, header, lead);
 		configurePart(context, header, center);
