@@ -67,8 +67,8 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 			new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_USER, subject)
 					.login();
 		} catch (LoginException e) {
-			if (log.isTraceEnabled())
-				log.trace("Cannot authenticate user", e);
+			// if (log.isTraceEnabled())
+			// log.trace("Cannot authenticate user", e);
 			try {
 				new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_ANONYMOUS,
 						subject).login();

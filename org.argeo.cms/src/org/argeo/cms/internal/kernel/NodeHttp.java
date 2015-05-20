@@ -76,8 +76,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 		try {
 			httpService.registerFilter("/", rootFilter, null, null);
 		} catch (Exception e) {
-			throw new CmsException(
-					"Could not register root filter", e);
+			throw new CmsException("Could not register root filter", e);
 		}
 	}
 
@@ -136,11 +135,11 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 		httpService.registerServlet(path, (Servlet) remotingServlet, ip, null);
 	}
 
-//	private Boolean isSessionAuthenticated(HttpSession httpSession) {
-//		SecurityContext contextFromSession = (SecurityContext) httpSession
-//				.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
-//		return contextFromSession != null;
-//	}
+	// private Boolean isSessionAuthenticated(HttpSession httpSession) {
+	// SecurityContext contextFromSession = (SecurityContext) httpSession
+	// .getAttribute(SPRING_SECURITY_CONTEXT_KEY);
+	// return contextFromSession != null;
+	// }
 
 	private void requestBasicAuth(HttpSession httpSession,
 			HttpServletResponse response) {
@@ -189,8 +188,12 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 		public void doFilter(HttpSession httpSession,
 				HttpServletRequest request, HttpServletResponse response,
 				FilterChain filterChain) throws IOException, ServletException {
-			if (log.isTraceEnabled())
-				logRequest(request);
+			if (log.isTraceEnabled()) {
+				log.trace(request.getRequestURL().append(
+						request.getQueryString() != null ? "?"
+								+ request.getQueryString() : ""));
+				// logRequest(request);
+			}
 
 			String servletPath = request.getServletPath();
 
@@ -220,7 +223,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 			int pathLength = path.length();
 			if (pathLength != 0 && (path.charAt(0) == '/')
 					&& !servletPath.endsWith("rwt-resources")
-					&& path.lastIndexOf('/')!=0) {
+					&& path.lastIndexOf('/') != 0) {
 				String newLocation = request.getServletPath() + "#" + path;
 				response.setHeader("Location", newLocation);
 				response.setStatus(HttpServletResponse.SC_FOUND);
@@ -276,10 +279,10 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 				FilterChain filterChain) throws IOException, ServletException {
 
 			// Authenticate from session
-//			if (isSessionAuthenticated(httpSession)) {
-//				filterChain.doFilter(request, response);
-//				return;
-//			}
+			// if (isSessionAuthenticated(httpSession)) {
+			// filterChain.doFilter(request, response);
+			// return;
+			// }
 
 			KernelUtils.anonymousLogin(authenticationManager);
 			filterChain.doFilter(request, response);
@@ -306,9 +309,9 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 				UsernamePasswordAuthenticationToken token = basicAuth(basicAuth);
 				Authentication auth = authenticationManager.authenticate(token);
 				SecurityContextHolder.getContext().setAuthentication(auth);
-//				httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
-//						SecurityContextHolder.getContext());
-//				httpSession.setAttribute(ATTR_AUTH, Boolean.FALSE);
+				// httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
+				// SecurityContextHolder.getContext());
+				// httpSession.setAttribute(ATTR_AUTH, Boolean.FALSE);
 				filterChain.doFilter(request, response);
 				return;
 			}

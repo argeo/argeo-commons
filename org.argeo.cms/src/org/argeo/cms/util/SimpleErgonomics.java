@@ -5,6 +5,8 @@ import java.util.Map;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.AbstractCmsEntryPoint;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsImageManager;
@@ -20,6 +22,8 @@ import org.eclipse.swt.widgets.Control;
 
 /** Simple header/body ergonomics. */
 public class SimpleErgonomics extends AbstractCmsEntryPoint {
+	private final static Log log = LogFactory.getLog(SimpleErgonomics.class);
+
 	private Composite headerArea;
 	private Composite bodyArea;
 	private final CmsUiProvider uiProvider;
@@ -59,6 +63,8 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 	protected void refresh() {
 		refreshHeader();
 		refreshBody();
+		if (log.isTraceEnabled())
+			log.trace("UI refreshed " + getNode());
 	}
 
 	protected void refreshHeader() {
