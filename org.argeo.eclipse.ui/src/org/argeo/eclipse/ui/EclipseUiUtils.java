@@ -146,7 +146,7 @@ public class EclipseUiUtils {
 		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		Text txt = new Text(parent, SWT.LEAD | SWT.BORDER | SWT.PASSWORD);
 		txt.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		if (txt != null)
+		if (modifyListener != null)
 			txt.addModifyListener(modifyListener);
 		return txt;
 	}
