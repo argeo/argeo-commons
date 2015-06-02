@@ -24,11 +24,18 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 /** Utilities to simplify UI development. */
 public class EclipseUiUtils {
+
+	/** Dispose all children of a Composite */
+	public static void clear(Composite composite) {
+		for (Control child : composite.getChildren())
+			child.dispose();
+	}
 
 	//
 	// Simplify grid layouts management
