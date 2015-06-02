@@ -15,6 +15,7 @@
  */
 package org.argeo.eclipse.ui.dialogs;
 
+import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.window.Window;
@@ -77,15 +78,22 @@ public class SingleValue extends TitleAreaDialog {
 	}
 
 	protected Point getInitialSize() {
-		return new Point(300, 250);
+		if (multiline)
+			return new Point(450, 350);
+
+		else
+			return new Point(400, 270);
 	}
 
 	protected Control createDialogArea(Composite parent) {
 		Composite dialogarea = (Composite) super.createDialogArea(parent);
 		dialogarea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		Composite composite = new Composite(dialogarea, SWT.NONE);
-		composite.setLayout(new GridLayout(2, false));
-		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		composite.setLayoutData(EclipseUiUtils.fillAll());
+		GridLayout layout = new GridLayout(2, false);
+		layout.marginWidth = layout.marginHeight = 20;
+		composite.setLayout(layout);
+
 		valueT = createLT(composite, label);
 
 		setMessage(message, IMessageProvider.NONE);
@@ -103,9 +111,14 @@ public class SingleValue extends TitleAreaDialog {
 	/** Creates label and text. */
 	protected Text createLT(Composite parent, String label) {
 		new Label(parent, SWT.NONE).setText(label);
-		Text text = new Text(parent, SWT.SINGLE | SWT.LEAD | SWT.BORDER
-				| (multiline ? SWT.MULTI : SWT.NONE));
-		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		Text text;
+		if (multiline) {
+			text = new Text(parent, SWT.LEAD | SWT.BORDER | SWT.MULTI);
+			text.setLayoutData(EclipseUiUtils.fillAll());
+		} else {
+			text = new Text(parent, SWT.LEAD | SWT.BORDER | SWT.SINGLE);
+			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
+		}
 		return text;
 	}
 
