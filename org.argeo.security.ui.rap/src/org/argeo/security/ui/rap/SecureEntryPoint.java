@@ -227,7 +227,7 @@ public class SecureEntryPoint implements EntryPoint {
 			log.info("Logged out " + (username != null ? username : "")
 					+ " (THREAD=" + Thread.currentThread().getId() + ")");
 		} catch (LoginException e) {
-			log.error("Erorr when logging out", e);
+			log.error("Error when logging out", e);
 		}
 	}
 }
