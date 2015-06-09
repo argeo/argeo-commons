@@ -49,10 +49,10 @@ public class OpenFileService implements ServiceHandler {
 		String uri = request.getParameter(PARAM_FILE_URI);
 
 		// Set the Metadata
-		response.setContentType("application/octet-stream");
 		response.setContentLength((int) getFileLength(uri));
 		if (fileName == null || "".equals(fileName.trim()))
 			fileName = getFileName(uri);
+		response.setContentType(getMimeTypeFromName(fileName));
 		String contentDisposition = "attachment; filename=\"" + fileName + "\"";
 		response.setHeader("Content-Disposition", contentDisposition);
 
@@ -103,5 +103,10 @@ public class OpenFileService implements ServiceHandler {
 
 	private String getFilePathFromUri(String uri) {
 		return uri.substring((FILE_SCHEME + SCHEME_HOST_SEPARATOR).length());
+	}
+
+	/** Overwrite to precise the content type */
+	protected String getMimeTypeFromName(String fileName) {
+		return "application/octet-stream";
 	}
 }
