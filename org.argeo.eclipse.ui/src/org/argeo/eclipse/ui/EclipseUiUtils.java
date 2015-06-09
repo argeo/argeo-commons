@@ -37,6 +37,14 @@ public class EclipseUiUtils {
 			child.dispose();
 	}
 
+	/**
+	 * Enables efficient call to the layout method of a composite, refreshing
+	 * only some of the children controls.
+	 */
+	public static void layout(Composite parent, Control... toUpdateControls) {
+		parent.layout(toUpdateControls);
+	}
+
 	//
 	// Simplify grid layouts management
 	//
@@ -161,7 +169,6 @@ public class EclipseUiUtils {
 	//
 	// FONTS
 	//
-
 	/** Shortcut to retrieve default italic font from display */
 	public static Font getItalicFont(Composite parent) {
 		return JFaceResources.getFontRegistry().defaultFontDescriptor()
