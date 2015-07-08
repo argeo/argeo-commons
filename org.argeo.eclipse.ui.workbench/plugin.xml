@@ -165,6 +165,11 @@
 	        name="Dump Current Selected Node">
 		</command>
 		<command
+	        defaultHandler="org.argeo.eclipse.ui.workbench.commands.NodeConfigurableDump"
+	        id="org.argeo.eclipse.ui.workbench.nodeConfigurableDump"
+	        name="Configurable dump of the selected Node">
+		</command>
+		<command
 			defaultHandler="org.argeo.eclipse.ui.workbench.commands.SortChildNodes"
 			id="org.argeo.eclipse.ui.workbench.sortChildNodes"
 			name="Sort node tree">
@@ -361,6 +366,20 @@
 						<instanceof value="org.argeo.eclipse.ui.workbench.jcr.internal.model.SingleJcrNodeElem"></instanceof>
              			<with variable="activeMenuSelection"><count value="1"/></with>
 					</and> </iterate>
+				</visibleWhen>
+			</command>
+			<command
+		        commandId="org.argeo.eclipse.ui.workbench.nodeConfigurableDump"
+		        icon="icons/dumpNode.gif"
+				label="Configurable dump..."
+				style="push">
+				<visibleWhen>
+					<iterate> 
+						<and>
+							<instanceof value="org.argeo.eclipse.ui.workbench.jcr.internal.model.SingleJcrNodeElem"></instanceof>
+             				<with variable="activeMenuSelection"><count value="1"/></with>
+						</and> 
+					</iterate>
 				</visibleWhen>
 			</command>
 		</menuContribution>
