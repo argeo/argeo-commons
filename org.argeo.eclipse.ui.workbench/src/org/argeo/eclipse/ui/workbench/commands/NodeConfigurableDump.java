@@ -24,10 +24,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -35,8 +33,6 @@ import javax.jcr.RepositoryException;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
-import org.argeo.eclipse.ui.specific.OpenFile;
-import org.argeo.eclipse.ui.workbench.CommandUtils;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.eclipse.ui.workbench.jcr.internal.model.SingleJcrNodeElem;
 import org.argeo.jcr.JcrUtils;
@@ -113,7 +109,8 @@ public class NodeConfigurableDump extends AbstractHandler {
 							FileOutputStream fos;
 							String fileName = wizard.prefix
 									+ JcrUtils.replaceInvalidChars(currNode
-											.getName()) +"_"+ dateVal + ".xml";
+											.getName()) + "_" + dateVal
+									+ ".xml";
 							File currFile = new File(tmpDirPath.toString()
 									+ "/" + fileName);
 							currFile.createNewFile();
@@ -158,13 +155,14 @@ public class NodeConfigurableDump extends AbstractHandler {
 		}
 	}
 
-	private synchronized void openGeneratedFile(String path, String fileName) {
-		Map<String, String> params = new HashMap<String, String>();
-		params.put(OpenFile.PARAM_FILE_NAME, fileName);
-		params.put(OpenFile.PARAM_FILE_URI, "file://" + path);
-		CommandUtils.callCommand("org.argeo.security.ui.specific.openFile",
-				params);
-	}
+	// private synchronized void openGeneratedFile(String path, String fileName)
+	// {
+	// Map<String, String> params = new HashMap<String, String>();
+	// params.put(OpenFile.PARAM_FILE_NAME, fileName);
+	// params.put(OpenFile.PARAM_FILE_URI, "file://" + path);
+	// CommandUtils.callCommand("org.argeo.security.ui.specific.openFile",
+	// params);
+	// }
 
 	private class ConfigureDumpWizard extends Wizard {
 
@@ -233,17 +231,17 @@ public class NodeConfigurableDump extends AbstractHandler {
 			}
 
 			public void createControl(Composite parent) {
-				parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
+				parent.setLayout(noSpaceGridLayout());
 
 				// Main Layout
 				Composite mainCmp = new Composite(parent, SWT.NONE);
 				mainCmp.setLayout(new GridLayout(2, false));
-				mainCmp.setLayoutData(EclipseUiUtils.fillAll());
+				mainCmp.setLayoutData(fillAll());
 
 				// The path
 				createBoldLabel(mainCmp, "Prefix");
 				prefixTxt = new Text(mainCmp, SWT.SINGLE | SWT.BORDER);
-				prefixTxt.setLayoutData(EclipseUiUtils.fillAll());
+				prefixTxt.setLayoutData(fillAll());
 				prefixTxt.addModifyListener(new ModifyListener() {
 					private static final long serialVersionUID = 1L;
 
@@ -293,5 +291,22 @@ public class NodeConfigurableDump extends AbstractHandler {
 		label.setFont(EclipseUiUtils.getBoldFont(parent));
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		return label;
+	}
+
+	// TODO rather use EclipseUiUtils methods
+	private GridLayout noSpaceGridLayout() {
+		return noSpaceGridLayout(new GridLayout());
+	}
+
+	private GridLayout noSpaceGridLayout(GridLayout layout) {
+		layout.horizontalSpacing = 0;
+		layout.verticalSpacing = 0;
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		return layout;
+	}
+
+	private GridData fillAll() {
+		return new GridData(SWT.FILL, SWT.FILL, true, true);
 	}
 }
