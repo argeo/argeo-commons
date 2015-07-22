@@ -28,6 +28,8 @@ import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.workbench.WorkbenchConstants;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.eclipse.ui.workbench.jcr.internal.PropertyLabelProvider;
+import org.eclipse.jface.layout.TreeColumnLayout;
+import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -45,7 +47,6 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
  * Generic editor property page. Lists all properties of current node as a
  * complex tree. TODO: enable editing
  */
-
 public class GenericPropertyPage extends FormPage implements WorkbenchConstants {
 	// private final static Log log =
 	// LogFactory.getLog(GenericPropertyPage.class);
@@ -61,39 +62,52 @@ public class GenericPropertyPage extends FormPage implements WorkbenchConstants 
 	protected void createFormContent(IManagedForm managedForm) {
 		ScrolledForm form = managedForm.getForm();
 		form.setText(WorkbenchUiPlugin.getMessage("genericNodePageTitle"));
+
+		Composite body = form.getBody();
 		FillLayout layout = new FillLayout();
 		layout.marginHeight = 5;
 		layout.marginWidth = 5;
-		form.getBody().setLayout(layout);
-
-		createComplexTree(form.getBody());
+		body.setLayout(layout);
+		createComplexTree(body);
+		// TODO TreeColumnLayout triggers a scroll issue with the form:
+		// The inside body is always to big and a scroll bar is shown
+		// Composite tableCmp = new Composite(body, SWT.NO_FOCUS);
+		// createComplexTree(tableCmp);
 	}
 
 	private TreeViewer createComplexTree(Composite parent) {
 		int style = SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION;
 		Tree tree = new Tree(parent, style);
-		createColumn(tree, "Property", SWT.LEFT, 200);
-		createColumn(tree, "Value(s)", SWT.LEFT, 300);
-		createColumn(tree, "Attributes", SWT.LEFT, 65);
+		TreeColumnLayout tableColumnLayout = new TreeColumnLayout();
+
+		createColumn(tree, tableColumnLayout, "Property", SWT.LEFT, 200, 30);
+		createColumn(tree, tableColumnLayout, "Value(s)", SWT.LEFT, 300, 60);
+		createColumn(tree, tableColumnLayout, "Attributes", SWT.LEFT, 75, 0);
+		// Do not apply the treeColumnLayout it does not work yet
+		// parent.setLayout(tableColumnLayout);
+
 		tree.setLinesVisible(true);
 		tree.setHeaderVisible(true);
 
-		TreeViewer result = new TreeViewer(tree);
-		result.setContentProvider(new TreeContentProvider());
-		result.setLabelProvider(new PropertyLabelProvider());
-		result.setInput(currentNode);
-		result.expandAll();
-		return result;
+		TreeViewer treeViewer = new TreeViewer(tree);
+		treeViewer.setContentProvider(new TreeContentProvider());
+		treeViewer.setLabelProvider(new PropertyLabelProvider());
+		treeViewer.setInput(currentNode);
+		treeViewer.expandAll();
+		return treeViewer;
 	}
 
-	private static TreeColumn createColumn(Tree parent, String name, int style,
-			int width) {
-		TreeColumn result = new TreeColumn(parent, style);
-		result.setText(name);
-		result.setWidth(width);
-		result.setMoveable(true);
-		result.setResizable(true);
-		return result;
+	private static TreeColumn createColumn(Tree parent,
+			TreeColumnLayout tableColumnLayout, String name, int style,
+			int width, int weight) {
+		TreeColumn column = new TreeColumn(parent, style);
+		column.setText(name);
+		column.setWidth(width);
+		column.setMoveable(true);
+		column.setResizable(true);
+		tableColumnLayout.setColumnData(column, new ColumnWeightData(weight,
+				width, true));
+		return column;
 	}
 
 	//

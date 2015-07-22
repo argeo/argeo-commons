@@ -27,13 +27,14 @@ import java.util.Map;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.specific.OpenFile;
 import org.argeo.eclipse.ui.workbench.CommandUtils;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
-import org.argeo.jcr.JcrUtils;
 import org.argeo.eclipse.ui.workbench.jcr.internal.model.SingleJcrNodeElem;
+import org.argeo.jcr.JcrUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -42,13 +43,12 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
- * If the method
- * <code> HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getSelection() </code>
- * exits and has a SingleJcrNodeElem as first element, it canonically calls the
- * JCR Session.exportSystemView() method on the underlying node with both
- * skipBinary & noRecurse boolean flags set to false.
+ * Canonically call JCR {@link Session#exportSystemView()} on the first element
+ * returned by {@link HandlerUtil#getActiveWorkbenchWindow()}
+ * (...getActivePage().getSelection()), if it is a {@link SingleJcrNodeElem},
+ * with both skipBinary & noRecurse boolean flags set to false.
  * 
- * Resulting stream is saved in a tmp file and opened via the "open file"
+ * Resulting stream is saved in a tmp file and opened via the {@link OpenFile}
  * single-sourced command.
  */
 public class DumpNode extends AbstractHandler {
@@ -86,8 +86,9 @@ public class DumpNode extends AbstractHandler {
 							.getTime());
 					node.getSession().exportSystemView(node.getPath(), fos,
 							true, false);
-					openGeneratedFile(tmpFile.getAbsolutePath(),
-							"Dump-" + JcrUtils.replaceInvalidChars(node.getName())+ "-" + dateVal + ".xml");
+					openGeneratedFile(tmpFile.getAbsolutePath(), "Dump-"
+							+ JcrUtils.replaceInvalidChars(node.getName())
+							+ "-" + dateVal + ".xml");
 				} catch (RepositoryException e) {
 					throw new ArgeoException(
 							"Unable to perform SystemExport on " + node, e);
