@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.Control;
 public class SimpleErgonomics extends AbstractCmsEntryPoint {
 	private final static Log log = LogFactory.getLog(SimpleErgonomics.class);
 
+	private boolean uiInitialized = false;
 	private Composite headerArea;
 	private Composite bodyArea;
 	private final CmsUiProvider uiProvider;
@@ -56,11 +57,16 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 		bodyArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		bodyArea.setLayout(CmsUtils.noSpaceGridLayout());
 
+		uiInitialized = true;
 		refresh();
 	}
 
 	@Override
 	protected void refresh() {
+		if (!uiInitialized)
+			return;
+		if (getState() == null)
+			setState("");
 		refreshHeader();
 		refreshBody();
 		if (log.isTraceEnabled())
@@ -68,8 +74,6 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 	}
 
 	protected void refreshHeader() {
-		if (headerArea == null)
-			return;
 		for (Control child : headerArea.getChildren())
 			child.dispose();
 		try {
@@ -81,8 +85,6 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 	}
 
 	protected void refreshBody() {
-		if (bodyArea == null)
-			return;
 		// Exception
 		Throwable exception = getException();
 		if (exception != null) {
@@ -99,11 +101,7 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 			child.dispose();
 		bodyArea.setLayout(CmsUtils.noSpaceGridLayout());
 
-		String state = getState();
 		try {
-			if (state == null)
-				setState("");
-			// throw new CmsException("State cannot be null");
 			uiProvider.createUi(bodyArea, getNode());
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot refresh body", e);
