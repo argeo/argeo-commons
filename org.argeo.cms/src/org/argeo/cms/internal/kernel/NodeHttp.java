@@ -192,7 +192,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 				log.trace(request.getRequestURL().append(
 						request.getQueryString() != null ? "?"
 								+ request.getQueryString() : ""));
-				// logRequest(request);
+				logRequest(request);
 			}
 
 			String servletPath = request.getServletPath();
@@ -236,10 +236,10 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	}
 
 	private void logRequest(HttpServletRequest request) {
-		log.debug(request.getContextPath());
-		log.debug(request.getServletPath());
-		log.debug(request.getRequestURI());
-		log.debug(request.getQueryString());
+		log.debug("contextPath=" + request.getContextPath());
+		log.debug("servletPath=" + request.getServletPath());
+		log.debug("requestURI=" + request.getRequestURI());
+		log.debug("queryString=" + request.getQueryString());
 		StringBuilder buf = new StringBuilder();
 		// headers
 		Enumeration<String> en = request.getHeaderNames();
