@@ -10,9 +10,11 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.useradmin.JcrUserAdmin;
 import org.argeo.cms.internal.useradmin.SimpleJcrSecurityModel;
 import org.argeo.cms.internal.useradmin.jackrabbit.JackrabbitUserAdminService;
+import org.argeo.security.OsAuthenticationToken;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.core.InternalAuthentication;
 import org.argeo.security.core.InternalAuthenticationProvider;
+import org.argeo.security.core.OsAuthenticationProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.useradmin.UserAdmin;
@@ -30,6 +32,7 @@ class NodeSecurity implements AuthenticationManager {
 
 	private final BundleContext bundleContext;
 
+	private final OsAuthenticationProvider osAuth;
 	private final InternalAuthenticationProvider internalAuth;
 	private final AnonymousAuthenticationProvider anonymousAuth;
 	private final JackrabbitUserAdminService userAdminService;
@@ -50,6 +53,7 @@ class NodeSecurity implements AuthenticationManager {
 
 		this.bundleContext = bundleContext;
 
+		osAuth = new OsAuthenticationProvider();
 		internalAuth = new InternalAuthenticationProvider(
 				Activator.getSystemKey());
 		anonymousAuth = new AnonymousAuthenticationProvider(
@@ -100,6 +104,8 @@ class NodeSecurity implements AuthenticationManager {
 			auth = anonymousAuth.authenticate(authentication);
 		else if (authentication instanceof UsernamePasswordAuthenticationToken)
 			auth = userAdminService.authenticate(authentication);
+		else if (authentication instanceof OsAuthenticationToken)
+			auth = osAuth.authenticate(authentication);
 		if (auth == null)
 			throw new CmsException("Could not authenticate " + authentication);
 		return auth;

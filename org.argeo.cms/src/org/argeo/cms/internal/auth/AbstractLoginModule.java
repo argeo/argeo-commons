@@ -161,11 +161,13 @@ public abstract class AbstractLoginModule implements LoginModule {
 		SecurityContextHolder.getContext().setAuthentication(null);
 		if (Display.getCurrent() != null) {
 			HttpServletRequest httpRequest = RWT.getRequest();
-			HttpSession httpSession = httpRequest.getSession();
-			if (httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) != null)
-				httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, null);
-			// expire session
-			httpSession.setMaxInactiveInterval(0);
+			if (httpRequest != null) {
+				HttpSession httpSession = httpRequest.getSession();
+				if (httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) != null)
+					httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, null);
+				// expire session
+				httpSession.setMaxInactiveInterval(0);
+			}
 		}
 		return true;
 	}
