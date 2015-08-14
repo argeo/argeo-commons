@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.jcr;
+package org.argeo.jackrabbit.unit;
 
 import java.io.File;
 
@@ -25,7 +25,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 /** Factorizes configuration of an in memory transient repository */
-public abstract class AbstractInternalJackrabbitTestCase extends
+public abstract class AbstractJackrabbitTestCase extends
 		AbstractJcrTestCase {
 	protected File getRepositoryFile() throws Exception {
 		Resource res = new ClassPathResource(

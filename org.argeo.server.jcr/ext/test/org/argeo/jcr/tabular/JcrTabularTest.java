@@ -25,7 +25,7 @@ import javax.jcr.PropertyType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
-import org.argeo.jcr.AbstractInternalJackrabbitTestCase;
+import org.argeo.jackrabbit.unit.AbstractJackrabbitTestCase;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.util.tabular.TabularColumn;
@@ -33,7 +33,7 @@ import org.argeo.util.tabular.TabularRow;
 import org.argeo.util.tabular.TabularRowIterator;
 import org.argeo.util.tabular.TabularWriter;
 
-public class JcrTabularTest extends AbstractInternalJackrabbitTestCase {
+public class JcrTabularTest extends AbstractJackrabbitTestCase {
 	private final static Log log = LogFactory.getLog(JcrTabularTest.class);
 
 	public void testWriteReadCsv() throws Exception {

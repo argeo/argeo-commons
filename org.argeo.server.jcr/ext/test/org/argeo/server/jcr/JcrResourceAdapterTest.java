@@ -23,12 +23,12 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.jcr.AbstractInternalJackrabbitTestCase;
+import org.argeo.jackrabbit.unit.AbstractJackrabbitTestCase;
 import org.argeo.jcr.JcrResourceAdapter;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-public class JcrResourceAdapterTest extends AbstractInternalJackrabbitTestCase {
+public class JcrResourceAdapterTest extends AbstractJackrabbitTestCase {
 	private static SimpleDateFormat sdf = new SimpleDateFormat(
 			"yyyyMMdd:hhmmss.SSS");
 

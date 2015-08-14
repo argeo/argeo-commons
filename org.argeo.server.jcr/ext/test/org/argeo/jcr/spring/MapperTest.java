@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.jcr;
+package org.argeo.jcr.spring;
 
 import javax.jcr.Node;
 
+import org.argeo.jackrabbit.unit.AbstractJackrabbitTestCase;
+import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.spring.BeanNodeMapper;
 
 @Deprecated
-public class MapperTest extends AbstractInternalJackrabbitTestCase {
+public class MapperTest extends AbstractJackrabbitTestCase {
 	public void testSimpleObject() throws Exception {
 		SimpleObject mySo = new SimpleObject();
 		mySo.setInteger(100);
