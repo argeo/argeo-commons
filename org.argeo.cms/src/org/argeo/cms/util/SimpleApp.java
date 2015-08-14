@@ -97,11 +97,13 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration,
 				}
 
 				// page title
-				if (!properties.containsKey(WebClient.PAGE_TITLE))
-					properties.put(
-							WebClient.PAGE_TITLE,
-							Character.toUpperCase(page.charAt(0))
-									+ page.substring(1));
+				if (!properties.containsKey(WebClient.PAGE_TITLE)) {
+					if (page.length() > 0)
+						properties.put(
+								WebClient.PAGE_TITLE,
+								Character.toUpperCase(page.charAt(0))
+										+ page.substring(1));
+				}
 
 				// default body HTML
 				if (!properties.containsKey(WebClient.BODY_HTML))
