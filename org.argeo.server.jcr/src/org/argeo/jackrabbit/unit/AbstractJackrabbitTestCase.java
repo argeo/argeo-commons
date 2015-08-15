@@ -29,7 +29,7 @@ public abstract class AbstractJackrabbitTestCase extends
 		AbstractJcrTestCase {
 	protected File getRepositoryFile() throws Exception {
 		Resource res = new ClassPathResource(
-				"org/argeo/server/jcr/repository-memory.xml");
+				"org/argeo/jackrabbit/unit/repository-memory.xml");
 		return res.getFile();
 	}
 
