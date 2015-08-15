@@ -31,7 +31,6 @@ import org.apache.jackrabbit.core.security.AnonymousPrincipal;
 import org.apache.jackrabbit.core.security.authentication.AbstractLoginModule;
 import org.apache.jackrabbit.core.security.authentication.Authentication;
 import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
-import org.argeo.security.SystemAuthentication;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,6 +38,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 /** Jackrabbit login mechanism based on Spring Security */
 public class ArgeoLoginModule extends AbstractLoginModule {
 	private String adminRole = "ROLE_ADMIN";
+	private String systemRole = "ROLE_SYSTEM";
 
 	/**
 	 * Returns the Spring {@link org.springframework.security.Authentication}
@@ -57,17 +57,19 @@ public class ArgeoLoginModule extends AbstractLoginModule {
 		Set<Principal> principals = new LinkedHashSet<Principal>();
 		principals.add(authen);
 
-		if (authen instanceof SystemAuthentication) {
-			principals.add(new AdminPrincipal(authen.getName()));
-			// principals.add(new ArgeoSystemPrincipal(authen.getName()));
-		} else if (authen instanceof AnonymousAuthenticationToken) {
+		// if (authen instanceof SystemAuthentication) {
+		// principals.add(new AdminPrincipal(authen.getName()));
+		// // principals.add(new ArgeoSystemPrincipal(authen.getName()));
+		// } else
+		if (authen instanceof AnonymousAuthenticationToken) {
 			principals.add(new AnonymousPrincipal());
 		} else {
 			for (GrantedAuthority ga : authen.getAuthorities()) {
 				if (ga instanceof Principal)
 					principals.add((Principal) ga);
 				// FIXME: make it more generic
-				if (adminRole.equals(ga.getAuthority()))
+				String authority = ga.getAuthority();
+				if (adminRole.equals(authority) || systemRole.equals(authority))
 					principals.add(new AdminPrincipal(authen.getName()));
 			}
 		}
