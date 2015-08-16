@@ -15,28 +15,40 @@
  */
 package org.argeo.jackrabbit.unit;
 
-import java.io.File;
-
 import javax.jcr.Repository;
 
-import org.apache.jackrabbit.core.TransientRepository;
+import org.apache.commons.io.FileUtils;
+import org.apache.jackrabbit.core.RepositoryImpl;
+import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.argeo.jcr.unit.AbstractJcrTestCase;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 
 /** Factorizes configuration of an in memory transient repository */
-public abstract class AbstractJackrabbitTestCase extends
-		AbstractJcrTestCase {
-	protected File getRepositoryFile() throws Exception {
-		Resource res = new ClassPathResource(
-				"org/argeo/jackrabbit/unit/repository-memory.xml");
-		return res.getFile();
-	}
+public abstract class AbstractJackrabbitTestCase extends AbstractJcrTestCase {
+	protected RepositoryImpl repositoryImpl;
+
+	// protected File getRepositoryFile() throws Exception {
+	// Resource res = new ClassPathResource(
+	// "org/argeo/jackrabbit/unit/repository-memory.xml");
+	// return res.getFile();
+	// }
 
 	protected Repository createRepository() throws Exception {
-		Repository repository = new TransientRepository(getRepositoryFile(),
-				getHomeDir());
-		return repository;
+		// Repository repository = new TransientRepository(getRepositoryFile(),
+		// getHomeDir());
+		RepositoryConfig repositoryConfig = RepositoryConfig.create(
+				AbstractJackrabbitTestCase.class
+						.getResourceAsStream("repository-memory.xml"),
+				getHomeDir().getAbsolutePath());
+		RepositoryImpl repositoryImpl = RepositoryImpl.create(repositoryConfig);
+		return repositoryImpl;
+	}
+
+	@Override
+	protected void clearRepository(Repository repository) throws Exception {
+		RepositoryImpl repositoryImpl = (RepositoryImpl) repository;
+		if (repositoryImpl != null)
+			repositoryImpl.shutdown();
+		FileUtils.deleteDirectory(getHomeDir());
 	}
 
 }

@@ -34,9 +34,12 @@ public abstract class AbstractJcrTestCase extends TestCase {
 	private Repository repository;
 	private Session session = null;
 
-	protected abstract File getRepositoryFile() throws Exception;
+//	protected abstract File getRepositoryFile() throws Exception;
 
 	protected abstract Repository createRepository() throws Exception;
+
+	protected abstract void clearRepository(Repository repository)
+			throws Exception;
 
 	@Override
 	protected void setUp() throws Exception {
@@ -45,27 +48,21 @@ public abstract class AbstractJcrTestCase extends TestCase {
 		repository = createRepository();
 	}
 
-	protected File getHomeDir() {
-		File homeDir = new File(System.getProperty("java.io.tmpdir"),
-				AbstractJcrTestCase.class.getSimpleName() + "-"
-						+ System.getProperty("user.name"));
-		return homeDir;
-	}
-
 	@Override
 	protected void tearDown() throws Exception {
 		if (session != null) {
 			session.logout();
-			if (log.isDebugEnabled())
-				log.debug("Logout session");
+			if (log.isTraceEnabled())
+				log.trace("Logout session");
 		}
+		clearRepository(repository);
 	}
 
 	protected Session session() {
-		if (session == null) {
+		if (session == null || !session.isLive()) {
 			try {
-				if (log.isDebugEnabled())
-					log.debug("Login session");
+				if (log.isTraceEnabled())
+					log.trace("Login session");
 				session = getRepository().login(
 						new SimpleCredentials("demo", "demo".toCharArray()));
 			} catch (Exception e) {
@@ -83,7 +80,39 @@ public abstract class AbstractJcrTestCase extends TestCase {
 	 * enables children class to set an existing repository in case it is not
 	 * deleted on startup, to test migration by instance
 	 */
-	protected void setRepository(Repository repository) {
+	public void setRepository(Repository repository) {
 		this.repository = repository;
 	}
+
+	// public void logout() {
+	// if (session != null && session.isLive())
+	// JcrUtils.logoutQuietly(session);
+	// }
+	//
+	// protected static TestSuite defaultTestSuite(Class<? extends TestCase>
+	// clss) {
+	// String testSuiteClassName =
+	// "org.argeo.jackrabbit.unit.JackrabbitTestSuite";
+	// try {
+	// Class<?> testSuiteClass = AbstractJcrTestCase.class
+	// .getClassLoader().loadClass(testSuiteClassName);
+	// if (clss == null) {
+	// return (TestSuite) testSuiteClass.newInstance();
+	// } else {
+	// return (TestSuite) testSuiteClass.getConstructor(Class.class)
+	// .newInstance(clss);
+	// }
+	// } catch (Exception e) {
+	// throw new ArgeoException("Cannot find default test suite "
+	// + testSuiteClassName, e);
+	// }
+	// }
+
+	protected File getHomeDir() {
+		File homeDir = new File(System.getProperty("java.io.tmpdir"),
+				AbstractJcrTestCase.class.getSimpleName() + "-"
+						+ System.getProperty("user.name"));
+		return homeDir;
+	}
+
 }
