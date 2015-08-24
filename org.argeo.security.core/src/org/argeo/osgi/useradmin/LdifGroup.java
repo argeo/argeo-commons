@@ -12,6 +12,8 @@ import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 
 public class LdifGroup extends LdifUser implements Group {
+	// optimisation
+	List<Role> directMembers = null;
 
 	public LdifGroup(LdapName dn, Attributes attributes) {
 		super(dn, attributes);
@@ -34,17 +36,55 @@ public class LdifGroup extends LdifUser implements Group {
 
 	@Override
 	public Role[] getMembers() {
+		if (directMembers != null)
+			return directMembers.toArray(new Role[directMembers.size()]);
+		else
+			throw new ArgeoUserAdminException("Members have not been loaded.");
+
+		// Attribute memberAttribute = getAttributes().get("member");
+		// if (memberAttribute == null)
+		// return new Role[0];
+		// try {
+		// List<Role> roles = new ArrayList<Role>();
+		// NamingEnumeration values = memberAttribute.getAll();
+		// while (values.hasMore()) {
+		// LdapName dn = new LdapName(values.next().toString());
+		// roles.add(new LdifUser(dn, null));
+		// }
+		// return roles.toArray(new Role[roles.size()]);
+		// } catch (Exception e) {
+		// throw new ArgeoUserAdminException("Cannot get members", e);
+		// }
+	}
+
+	void loadMembers(LdifUserAdmin userAdmin) {
+		directMembers = new ArrayList<Role>();
+		for (LdapName ldapName : getMemberNames()) {
+			LdifUser role;
+			if (userAdmin.groups.containsKey(ldapName))
+				role = userAdmin.groups.get(ldapName);
+			else if (userAdmin.users.containsKey(ldapName))
+				role = userAdmin.users.get(ldapName);
+			else
+				throw new ArgeoUserAdminException("No roel found for "
+						+ ldapName);
+			role.directMemberOf.add(this);
+			directMembers.add(role);
+		}
+	}
+
+	List<LdapName> getMemberNames() {
 		Attribute memberAttribute = getAttributes().get("member");
 		if (memberAttribute == null)
-			return new Role[0];
+			return new ArrayList<LdapName>();
 		try {
-			List<Role> roles = new ArrayList<Role>();
+			List<LdapName> roles = new ArrayList<LdapName>();
 			NamingEnumeration values = memberAttribute.getAll();
 			while (values.hasMore()) {
 				LdapName dn = new LdapName(values.next().toString());
-				roles.add(new LdifUser(dn, null));
+				roles.add(dn);
 			}
-			return roles.toArray(new Role[roles.size()]);
+			return roles;
 		} catch (Exception e) {
 			throw new ArgeoUserAdminException("Cannot get members", e);
 		}
@@ -59,5 +99,4 @@ public class LdifGroup extends LdifUser implements Group {
 	public int getType() {
 		return GROUP;
 	}
-
 }

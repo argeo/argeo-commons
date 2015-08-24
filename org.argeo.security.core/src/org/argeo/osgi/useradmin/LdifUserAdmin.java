@@ -16,7 +16,8 @@ import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
 public class LdifUserAdmin implements UserAdmin {
-	private SortedMap<LdapName, Role> roles = new TreeMap<LdapName, Role>();
+	SortedMap<LdapName, LdifUser> users = new TreeMap<LdapName, LdifUser>();
+	SortedMap<LdapName, LdifGroup> groups = new TreeMap<LdapName, LdifGroup>();
 
 	public LdifUserAdmin(InputStream in) {
 		try {
@@ -29,13 +30,18 @@ public class LdifUserAdmin implements UserAdmin {
 				objectClasses: while (objectClasses.hasMore()) {
 					String objectClass = objectClasses.next().toString();
 					if (objectClass.equals("inetOrgPerson")) {
-						roles.put(key, new LdifUser(key, attributes));
+						users.put(key, new LdifUser(key, attributes));
 						break objectClasses;
 					} else if (objectClass.equals("groupOfNames")) {
-						roles.put(key, new LdifGroup(key, attributes));
+						groups.put(key, new LdifGroup(key, attributes));
 						break objectClasses;
 					}
 				}
+			}
+
+			// optimise
+			for (LdifGroup group : groups.values()) {
+				group.loadMembers(this);
 			}
 		} catch (Exception e) {
 			throw new ArgeoUserAdminException(
@@ -54,15 +60,16 @@ public class LdifUserAdmin implements UserAdmin {
 					+ name, e);
 		}
 
-		if (!roles.containsKey(key))
-			return null;
-		return roles.get(key);
+		if (groups.containsKey(key))
+			return groups.get(key);
+		if (users.containsKey(key))
+			return users.get(key);
+		return null;
 	}
 
 	@Override
 	public Authorization getAuthorization(User user) {
-		// TODO Auto-generated method stub
-		return null;
+		return new LdifAuthorization((LdifUser) user);
 	}
 
 	@Override
