@@ -27,7 +27,7 @@ sn: User
 uid: demo
 userpassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
 
-dn: uid=root,ou=People,dc=demo,dc=example,dc=org
+dn: uid=root+cn=Super Admin,ou=People,dc=demo,dc=example,dc=org
 objectClass: person
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
@@ -44,4 +44,4 @@ dn: cn=admin,ou=Roles,dc=demo,dc=example,dc=org
 objectClass: groupOfNames
 objectClass: top
 cn: admin
-member: uid=root,ou=People,dc=demo,dc=example,dc=org
+member: uid=root+cn=Super Admin,ou=People,dc=demo,dc=example,dc=org

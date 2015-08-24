@@ -20,7 +20,7 @@ public class LdifParserTest extends TestCase {
 		SortedMap<LdapName, Attributes> res = ldifParser.read(getClass()
 				.getResourceAsStream("test.ldif"));
 		LdapName rootDn = new LdapName(
-				"uid=root,ou=People,dc=demo,dc=example,dc=org");
+				"uid=root+cn=Super Admin,ou=People,dc=demo,dc=example,dc=org");
 		Attributes rootAttributes = res.get(rootDn);
 		assertNotNull(rootAttributes);
 		assertEquals("Superuser", rootAttributes.get("description").get());
