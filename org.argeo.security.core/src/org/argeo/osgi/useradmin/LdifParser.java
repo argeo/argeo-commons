@@ -72,8 +72,8 @@ class LdifParser {
 						if (currentDn != null) {
 							Attributes previous = res.put(currentDn,
 									currentAttributes);
-							if (log.isDebugEnabled())
-								log.debug("Added " + currentDn);
+							if (log.isTraceEnabled())
+								log.trace("Added " + currentDn);
 							if (previous != null) {
 								log.warn("There was already an entry with DN "
 										+ currentDn

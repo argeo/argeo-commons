@@ -14,13 +14,12 @@ import junit.framework.TestCase;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 
-public class LdifParserTest extends TestCase {
-	public void testSimpleLdif() throws Exception {
+public class LdifParserTest extends TestCase implements BasicTestConstants {
+	public void testBasicLdif() throws Exception {
 		LdifParser ldifParser = new LdifParser();
 		SortedMap<LdapName, Attributes> res = ldifParser.read(getClass()
-				.getResourceAsStream("test.ldif"));
-		LdapName rootDn = new LdapName(
-				"uid=root+cn=Super Admin,ou=People,dc=demo,dc=example,dc=org");
+				.getResourceAsStream("basic.ldif"));
+		LdapName rootDn = new LdapName(ROOT_USER_DN);
 		Attributes rootAttributes = res.get(rootDn);
 		assertNotNull(rootAttributes);
 		assertEquals("Superuser", rootAttributes.get("description").get());
@@ -32,7 +31,7 @@ public class LdifParserTest extends TestCase {
 				new String(rawPwEntry));
 
 		LdapName adminDn = new LdapName(
-				"cn=admin,ou=Roles,dc=demo,dc=example,dc=org");
+				ADMIN_GROUP_DN);
 		Attributes adminAttributes = res.get(adminDn);
 		assertNotNull(adminAttributes);
 		Attribute memberAttribute = adminAttributes.get("member");
