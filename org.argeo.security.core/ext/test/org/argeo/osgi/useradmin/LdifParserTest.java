@@ -1,14 +1,18 @@
 package org.argeo.osgi.useradmin;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.SortedMap;
 
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
-
-import junit.framework.TestCase;
 
 public class LdifParserTest extends TestCase {
 	public void testSimpleLdif() throws Exception {
@@ -27,5 +31,19 @@ public class LdifParserTest extends TestCase {
 		assertEquals("{SHA}" + Base64.encodeBase64String(hashedPassword),
 				new String(rawPwEntry));
 
+		LdapName adminDn = new LdapName(
+				"cn=admin,ou=Roles,dc=demo,dc=example,dc=org");
+		Attributes adminAttributes = res.get(adminDn);
+		assertNotNull(adminAttributes);
+		Attribute memberAttribute = adminAttributes.get("member");
+		assertNotNull(memberAttribute);
+		NamingEnumeration<?> members = memberAttribute.getAll();
+		List<String> users = new ArrayList<String>();
+		while (members.hasMore()) {
+			Object value = members.next();
+			users.add(value.toString());
+		}
+		assertEquals(1, users.size());
+		assertEquals(rootDn, new LdapName(users.get(0)));
 	}
 }
