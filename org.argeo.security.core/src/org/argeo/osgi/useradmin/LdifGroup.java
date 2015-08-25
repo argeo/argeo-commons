@@ -79,7 +79,7 @@ public class LdifGroup extends LdifUser implements Group {
 			return new ArrayList<LdapName>();
 		try {
 			List<LdapName> roles = new ArrayList<LdapName>();
-			NamingEnumeration values = memberAttribute.getAll();
+			NamingEnumeration<?> values = memberAttribute.getAll();
 			while (values.hasMore()) {
 				LdapName dn = new LdapName(values.next().toString());
 				roles.add(dn);

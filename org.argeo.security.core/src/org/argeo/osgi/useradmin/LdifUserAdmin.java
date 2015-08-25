@@ -25,8 +25,8 @@ public class LdifUserAdmin implements UserAdmin {
 			SortedMap<LdapName, Attributes> allEntries = ldifParser.read(in);
 			for (LdapName key : allEntries.keySet()) {
 				Attributes attributes = allEntries.get(key);
-				NamingEnumeration objectClasses = attributes.get("objectClass")
-						.getAll();
+				NamingEnumeration<?> objectClasses = attributes.get(
+						"objectClass").getAll();
 				objectClasses: while (objectClasses.hasMore()) {
 					String objectClass = objectClasses.next().toString();
 					if (objectClass.equals("inetOrgPerson")) {

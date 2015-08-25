@@ -1,6 +1,7 @@
 package org.argeo.osgi.useradmin;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.List;
 
@@ -16,9 +17,19 @@ class LdifUser implements User {
 	private final LdapName dn;
 	private Attributes attributes;
 
+	private final AttributeDictionary properties;
+	private final AttributeDictionary credentials;
+
+	private List<String> credentialAttributes = Arrays
+			.asList(new String[] { "userpassword" });
+
 	LdifUser(LdapName dn, Attributes attributes) {
 		this.dn = dn;
 		this.attributes = attributes;
+		properties = new AttributeDictionary(attributes, credentialAttributes,
+				false);
+		credentials = new AttributeDictionary(attributes, credentialAttributes,
+				true);
 	}
 
 	@Override
@@ -33,21 +44,25 @@ class LdifUser implements User {
 
 	@Override
 	public Dictionary<String, Object> getProperties() {
-		if (attributes == null)
-			throw new ArgeoUserAdminException(
-					"Must be loaded from user admin service");
-		return new AttributeDictionary(attributes);
+		return properties;
 	}
 
 	@Override
 	public Dictionary<String, Object> getCredentials() {
-		// TODO Auto-generated method stub
-		return null;
+		return credentials;
 	}
 
 	@Override
 	public boolean hasCredential(String key, Object value) {
-		// TODO Auto-generated method stub
+		Object storedValue = getCredentials().get(key);
+		if (storedValue == null || value == null)
+			return false;
+		if (!(value instanceof String || value instanceof byte[]))
+			return false;
+		if (storedValue instanceof String && value instanceof String)
+			return storedValue.equals(value);
+		if (storedValue instanceof byte[] && value instanceof byte[])
+			return Arrays.equals((byte[]) storedValue, (byte[]) value);
 		return false;
 	}
 
@@ -79,5 +94,4 @@ class LdifUser implements User {
 	public String toString() {
 		return dn.toString();
 	}
-
 }
