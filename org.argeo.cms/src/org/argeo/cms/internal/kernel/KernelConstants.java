@@ -16,6 +16,10 @@ public interface KernelConstants {
 	final static String REPO_SEARCH_CACHE_SIZE = "argeo.node.repo.searchCacheSize";
 	final static String REPO_MAX_VOLATILE_INDEX_SIZE = "argeo.node.repo.maxVolatileIndexSize";
 
+	// Node Security
+	/** URI to an LDIF file used as initialization or backend */
+	final static String USERADMIN_URI = "argeo.node.useradmin.uri";
+
 	final static String[] DEFAULT_CNDS = { "/org/argeo/jcr/argeo.cnd",
 			"/org/argeo/cms/cms.cnd" };
 

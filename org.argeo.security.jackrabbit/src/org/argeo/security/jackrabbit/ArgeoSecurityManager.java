@@ -21,6 +21,7 @@ import java.util.Set;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.security.auth.Subject;
+import javax.security.auth.x500.X500Principal;
 
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.core.DefaultSecurityManager;
@@ -28,8 +29,6 @@ import org.apache.jackrabbit.core.security.AMContext;
 import org.apache.jackrabbit.core.security.AccessManager;
 import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Integrates Spring Security and Jackrabbit Security users and roles. */
 public class ArgeoSecurityManager extends DefaultSecurityManager {
@@ -57,12 +56,20 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 	@Override
 	public String getUserID(Subject subject, String workspaceName)
 			throws RepositoryException {
-		Authentication authentication = SecurityContextHolder.getContext()
-				.getAuthentication();
-		if (authentication != null)
-			return authentication.getName();
-		else
+		Set<X500Principal> userPrincipal = subject
+				.getPrincipals(X500Principal.class);
+		if (userPrincipal.isEmpty())
 			return super.getUserID(subject, workspaceName);
+		if (userPrincipal.size() > 1)
+			throw new RuntimeException("Multiple user principals "
+					+ userPrincipal);
+		return userPrincipal.iterator().next().getName();
+		// Authentication authentication = SecurityContextHolder.getContext()
+		// .getAuthentication();
+		// if (authentication != null)
+		// return authentication.getName();
+		// else
+		// return super.getUserID(subject, workspaceName);
 	}
 
 	@Override

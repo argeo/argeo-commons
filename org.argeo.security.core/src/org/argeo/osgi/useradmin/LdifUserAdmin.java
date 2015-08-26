@@ -1,6 +1,8 @@
 package org.argeo.osgi.useradmin;
 
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -15,11 +17,44 @@ import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
+/** User admin implementation using LDIF file(s) as backend. */
 public class LdifUserAdmin implements UserAdmin {
 	SortedMap<LdapName, LdifUser> users = new TreeMap<LdapName, LdifUser>();
 	SortedMap<LdapName, LdifGroup> groups = new TreeMap<LdapName, LdifGroup>();
 
+	private final boolean isReadOnly;
+	private final URI uri;
+
+	public LdifUserAdmin(String uri) {
+		this(uri, true);
+	}
+
+	public LdifUserAdmin(String uri, boolean isReadOnly) {
+		this.isReadOnly = isReadOnly;
+		try {
+			this.uri = new URI(uri);
+		} catch (URISyntaxException e) {
+			throw new ArgeoUserAdminException("Invalid URI " + uri, e);
+		}
+
+		if (!isReadOnly && !this.uri.getScheme().equals("file:"))
+			throw new UnsupportedOperationException(this.uri.getScheme()
+					+ "not supported read-write.");
+
+		try {
+			load(this.uri.toURL().openStream());
+		} catch (Exception e) {
+			throw new ArgeoUserAdminException("Cannot open URL " + this.uri, e);
+		}
+	}
+
 	public LdifUserAdmin(InputStream in) {
+		load(in);
+		isReadOnly = true;
+		this.uri = null;
+	}
+
+	protected void load(InputStream in) {
 		try {
 			LdifParser ldifParser = new LdifParser();
 			SortedMap<LdapName, Attributes> allEntries = ldifParser.read(in);
@@ -45,8 +80,15 @@ public class LdifUserAdmin implements UserAdmin {
 			}
 		} catch (Exception e) {
 			throw new ArgeoUserAdminException(
-					"Cannot initialise user admin service from LDIF", e);
+					"Cannot load user admin service from LDIF", e);
 		}
+	}
+
+	public void destroy() {
+		users.clear();
+		users = null;
+		groups.clear();
+		groups = null;
 	}
 
 	@Override
@@ -90,6 +132,10 @@ public class LdifUserAdmin implements UserAdmin {
 	@Override
 	public User getUser(String key, String value) {
 		throw new UnsupportedOperationException();
+	}
+
+	public boolean getIsReadOnly() {
+		return isReadOnly;
 	}
 
 }

@@ -15,6 +15,8 @@ public class LdifAuthorization implements Authorization {
 
 	@Override
 	public String getName() {
+		if (user == null)
+			return null;
 		return user.getName();
 	}
 
@@ -30,16 +32,20 @@ public class LdifAuthorization implements Authorization {
 	@Override
 	public String[] getRoles() {
 		List<Role> allRoles = getAllRoles();
-		String[] res = new String[allRoles.size() + 1];
-		res[0] = user.getName();
+		if (user != null)
+			allRoles.add(0, user);
+		String[] res = new String[allRoles.size()];
 		for (int i = 0; i < allRoles.size(); i++)
-			res[i + 1] = allRoles.get(i).getName();
+			res[i] = allRoles.get(i).getName();
 		return res;
 	}
 
 	List<Role> getAllRoles() {
 		List<Role> allRoles = new ArrayList<Role>();
-		collectRoles(user, allRoles);
+		if (user != null)
+			collectRoles(user, allRoles);
+		else
+			collectAnonymousRoles(allRoles);
 		return allRoles;
 	}
 
@@ -49,6 +55,10 @@ public class LdifAuthorization implements Authorization {
 			allRoles.add(group);
 			collectRoles(group, allRoles);
 		}
+	}
+
+	private void collectAnonymousRoles(List<Role> allRoles) {
+		// TODO gather anonymous roles
 	}
 
 }

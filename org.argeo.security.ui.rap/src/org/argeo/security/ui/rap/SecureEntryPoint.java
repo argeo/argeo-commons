@@ -22,6 +22,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.CredentialNotFoundException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.x500.X500Principal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,8 +38,6 @@ import org.eclipse.rap.rwt.application.EntryPoint;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * RAP entry point with login capabilities. Once the user has been
@@ -96,10 +95,10 @@ public class SecureEntryPoint implements EntryPoint {
 			throw new ArgeoException("Cannot initialize login context", e1);
 		}
 
-		tryLogin: while (subject.getPrincipals(Authentication.class).size() == 0) {
+		tryLogin: while (subject.getPrincipals(X500Principal.class).size() == 0) {
 			try {
 				loginContext.login();
-				if (subject.getPrincipals(Authentication.class).size() == 0)
+				if (subject.getPrincipals(X500Principal.class).size() == 0)
 					throw new ArgeoException("Login succeeded but no auth");// fatal
 
 				// add security context to session
@@ -131,7 +130,7 @@ public class SecureEntryPoint implements EntryPoint {
 			}
 		}
 
-		final String username = subject.getPrincipals(Authentication.class)
+		final String username = subject.getPrincipals(X500Principal.class)
 				.iterator().next().getName();
 		// Logout callback when the display is disposed
 		display.disposeExec(new Runnable() {
@@ -218,7 +217,7 @@ public class SecureEntryPoint implements EntryPoint {
 	private void fullLogout(LoginContext loginContext, String username) {
 		try {
 			loginContext.logout();
-			SecurityContextHolder.clearContext();
+			// SecurityContextHolder.clearContext();
 
 			// HttpServletRequest httpRequest = RWT.getRequest();
 			// HttpSession httpSession = httpRequest.getSession();

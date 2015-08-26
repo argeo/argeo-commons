@@ -405,6 +405,7 @@
 	<!-- Reduce visibility of JCR Browser perspective to users that are in ROLE_ADMIN --> 	
 	<extension
     	point="org.eclipse.ui.activities">
+    	<!--
 		<activity
 			description="Only for admins"
 			id="org.argeo.eclipse.ui.workbench.adminActivity"
@@ -417,16 +418,17 @@
 				</with>
 			</enabledWhen>
 		</activity>
+		-->
         <activityPatternBinding
 			pattern="org.argeo.eclipse.ui.workbench/org.argeo.eclipse.ui.workbench.osgiPerspective"
 			isEqualityPattern="true"
-			activityId="org.argeo.eclipse.ui.workbench.adminActivity">
+			activityId="org.argeo.security.ui.adminActivity">
 			<!-- activityId="org.argeo.security.ui.adminActivity" -->
         </activityPatternBinding>
         <activityPatternBinding
 			pattern="org.argeo.eclipse.ui.workbench/org.argeo.eclipse.ui.workbench.jcrBrowserPerspective"
 			isEqualityPattern="true"
-			activityId="org.argeo.eclipse.ui.workbench.adminActivity">
+			activityId="org.argeo.security.ui.adminActivity">
 		</activityPatternBinding>
 	</extension>
 </plugin>

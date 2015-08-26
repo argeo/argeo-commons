@@ -42,9 +42,9 @@ public class UserProfile extends ViewPart {
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new GridLayout(2, false));
 
-		Authentication authentication = CurrentUser.getAuthentication();
-		EclipseUiUtils.createGridLL(parent, "Name", authentication
-				.getPrincipal().toString());
+//		Authentication authentication = CurrentUser.getAuthentication();
+//		EclipseUiUtils.createGridLL(parent, "Name", authentication
+//				.getPrincipal().toString());
 		EclipseUiUtils.createGridLL(parent, "User ID",
 				CurrentUser.getUsername());
 

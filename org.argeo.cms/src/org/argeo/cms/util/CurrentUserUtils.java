@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.ui.internal;
+package org.argeo.cms.util;
 
 import java.security.AccessController;
 import java.security.Principal;
@@ -26,12 +26,13 @@ import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
 import org.argeo.ArgeoException;
+import org.argeo.cms.CmsSession;
 
 /**
  * Retrieves information about the current user. Not an API, can change without
  * notice.
  */
-public class CurrentUser {
+class CurrentUserUtils {
 	public final static String getUsername() {
 		Subject subject = getSubject();
 		if (subject == null)
@@ -55,38 +56,13 @@ public class CurrentUser {
 		return roles;
 	}
 
-	// public final static String getUsername() {
-	// return getAuthentication().getName();
-	// }
-
-	// public final static Set<String> roles() {
-	// Set<String> roles = Collections.synchronizedSet(new HashSet<String>());
-	// Authentication authentication = getAuthentication();
-	// for (GrantedAuthority ga : authentication.getAuthorities()) {
-	// roles.add(ga.getAuthority());
-	// }
-	// return Collections.unmodifiableSet(roles);
-	// }
-	//
-	// public final static Authentication getAuthentication() {
-	// return SecurityContextHolder.getContext().getAuthentication();
-	// }
-
-	// public final static Authentication getAuthentication() {
-	// Set<Authentication> authens = getSubject().getPrincipals(
-	// Authentication.class);
-	// if (authens != null && !authens.isEmpty()) {
-	// Principal principal = authens.iterator().next();
-	// Authentication authentication = (Authentication) principal;
-	// return authentication;
-	// }
-	// throw new ArgeoException("No authentication found");
-	// }
-
 	public final static Subject getSubject() {
 		Subject subject = Subject.getSubject(AccessController.getContext());
-		if (subject == null)
-			throw new ArgeoException("Not authenticated.");
+		if (subject == null) {
+			subject = CmsSession.current.get().getSubject();
+			if (subject == null)
+				throw new ArgeoException("Not authenticated.");
+		}
 		return subject;
 	}
 }

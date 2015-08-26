@@ -1,0 +1,68 @@
+dn: dc=example,dc=org
+objectClass: domain
+objectClass: extensibleObject
+objectClass: top
+dc: example
+
+dn: ou=groups,dc=example,dc=org
+objectClass: organizationalUnit
+objectClass: top
+ou: groups
+
+dn: ou=users,dc=example,dc=org
+objectClass: organizationalUnit
+objectClass: top
+ou: users
+
+dn: uid=demo,ou=users,dc=example,dc=org
+objectClass: organizationalPerson
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: top
+cn: Demo User
+description: Demo user
+givenname: Demo
+mail: demo@localhost
+sn: User
+uid: demo
+userpassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
+
+dn: uid=root,ou=users,dc=example,dc=org
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: top
+cn: Super User
+description: Superuser
+givenname: Super
+mail: root@localhost
+sn: User
+uid: root
+userpassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
+
+dn: cn=admin,ou=system,ou=node
+objectClass: groupOfNames
+objectClass: top
+cn: admin
+member: uid=root,ou=users,dc=example,dc=org
+
+dn: cn=userAdmin,ou=system,ou=node
+objectClass: groupOfNames
+objectClass: top
+cn: userAdmin
+member: cn=admin,ou=system,ou=node
+member: uid=demo,ou=users,dc=example,dc=org
+
+dn: cn=groupAdmin,ou=system,ou=node
+objectClass: groupOfNames
+objectClass: top
+cn: groupAdmin
+member: cn=admin,ou=system,ou=node
+
+dn: cn=editor,ou=cms,ou=node
+objectClass: groupOfNames
+objectClass: top
+cn: admin
+member: cn=admin,ou=system,ou=node
+member: uid=demo,ou=users,dc=example,dc=org
+

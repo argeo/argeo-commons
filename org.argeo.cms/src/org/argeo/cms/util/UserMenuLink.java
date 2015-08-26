@@ -12,7 +12,6 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Open the user menu when clicked */
 public class UserMenuLink extends MenuLink {
@@ -23,9 +22,10 @@ public class UserMenuLink extends MenuLink {
 
 	@Override
 	public Control createUi(Composite parent, Node context) {
-		String username = SecurityContextHolder.getContext()
-				.getAuthentication().getName();
-		if (username.equals(KernelHeader.USERNAME_ANONYMOUS))
+		// String username = SecurityContextHolder.getContext()
+		// .getAuthentication().getName();
+		String username = CurrentUserUtils.getUsername();
+		if (username.equalsIgnoreCase(KernelHeader.ROLE_ANONYMOUS))
 			setLabel(CmsMsg.login.lead());
 		else
 			setLabel(username);

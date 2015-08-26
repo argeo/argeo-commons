@@ -1,6 +1,7 @@
 package org.argeo.cms.internal.kernel;
 
 import java.lang.management.ManagementFactory;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,6 +48,11 @@ final class Kernel implements ServiceListener {
 	private KernelThread kernelThread;
 
 	void init() {
+		URL url = getClass().getClassLoader().getResource(
+				KernelConstants.JAAS_CONFIG);
+		System.setProperty("java.security.auth.login.config",
+				url.toExternalForm());
+
 		ClassLoader currentContextCl = Thread.currentThread()
 				.getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(

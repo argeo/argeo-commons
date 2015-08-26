@@ -10,6 +10,7 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.useradmin.JcrUserAdmin;
 import org.argeo.cms.internal.useradmin.SimpleJcrSecurityModel;
 import org.argeo.cms.internal.useradmin.jackrabbit.JackrabbitUserAdminService;
+import org.argeo.osgi.useradmin.LdifUserAdmin;
 import org.argeo.security.OsAuthenticationToken;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.core.InternalAuthentication;
@@ -36,7 +37,7 @@ class NodeSecurity implements AuthenticationManager {
 	private final InternalAuthenticationProvider internalAuth;
 	private final AnonymousAuthenticationProvider anonymousAuth;
 	private final JackrabbitUserAdminService userAdminService;
-	private final JcrUserAdmin userAdmin;
+	private final LdifUserAdmin userAdmin;
 
 	private ServiceRegistration<AuthenticationManager> authenticationManagerReg;
 	private ServiceRegistration<UserAdminService> userAdminServiceReg;
@@ -46,11 +47,6 @@ class NodeSecurity implements AuthenticationManager {
 
 	public NodeSecurity(BundleContext bundleContext, JackrabbitNode node)
 			throws RepositoryException {
-		URL url = getClass().getClassLoader().getResource(
-				KernelConstants.JAAS_CONFIG);
-		System.setProperty("java.security.auth.login.config",
-				url.toExternalForm());
-
 		this.bundleContext = bundleContext;
 
 		osAuth = new OsAuthenticationProvider();
@@ -65,8 +61,11 @@ class NodeSecurity implements AuthenticationManager {
 		userAdminService.setSecurityModel(new SimpleJcrSecurityModel());
 		userAdminService.init();
 
-		userAdmin = new JcrUserAdmin(bundleContext, node);
-		userAdmin.setUserAdminService(userAdminService);
+		String userAdminUri = KernelUtils
+				.getFrameworkProp(KernelConstants.USERADMIN_URI);
+		if (userAdminUri == null)
+			userAdminUri = getClass().getResource("demo.ldif").toString();
+		userAdmin = new LdifUserAdmin(userAdminUri);
 	}
 
 	public void publish() {

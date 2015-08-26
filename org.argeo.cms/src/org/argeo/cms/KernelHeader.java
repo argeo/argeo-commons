@@ -9,14 +9,17 @@ public interface KernelHeader {
 	final static String LOGIN_CONTEXT_SINGLE_USER = "SINGLE_USER";
 
 	// RESERVED ROLES
-	public final static String ROLE_ADMIN = "ROLE_ADMIN";
-	public final static String ROLE_GROUP_ADMIN = "ROLE_GROUP_ADMIN";
-	public final static String ROLE_USER_ADMIN = "ROLE_USER_ADMIN";
-	public final static String ROLE_USER = "ROLE_USER";
-	public final static String ROLE_ANONYMOUS = "ROLE_ANONYMOUS";
+	public final static String ROLE_ADMIN = "cn=admin,ou=system,ou=node";
+	public final static String ROLE_GROUP_ADMIN = "cn=groupAdmin,ou=system,ou=node";
+	public final static String ROLE_USER_ADMIN = "cn=userAdmin,ou=system,ou=node";
+	// Special system groups that cannot be edited:
+	// user U anonymous = everyone
+	public final static String ROLE_USER = "cn=user,ou=system,ou=node";
+	public final static String ROLE_ANONYMOUS = "cn=anonymous,ou=system,ou=node";
 
 	// RESERVED USERNAMES
 	public final static String USERNAME_ADMIN = "root";
 	public final static String USERNAME_DEMO = "demo";
+	@Deprecated
 	public final static String USERNAME_ANONYMOUS = "anonymous";
 }

@@ -1,5 +1,6 @@
 package org.argeo.cms;
 
+import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -103,14 +104,20 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 	}
 
 	@Override
-	protected final void createContents(Composite parent) {
-		try {
-			getShell().getDisplay().setData(CmsSession.KEY, this);
-
-			createUi(parent);
-		} catch (Exception e) {
-			throw new CmsException("Cannot create entrypoint contents", e);
-		}
+	protected final void createContents(final Composite parent) {
+		getShell().getDisplay().setData(CmsSession.KEY, this);
+		Subject.doAs(subject, new PrivilegedAction<Void>() {
+			@Override
+			public Void run() {
+				try {
+					createUi(parent);
+				} catch (Exception e) {
+					throw new CmsException("Cannot create entrypoint contents",
+							e);
+				}
+				return null;
+			}
+		});
 	}
 
 	/** Create UI */
@@ -140,7 +147,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 	public void navigateTo(String state) {
 		exception = null;
 		String title = setState(state);
-		refresh();
+		doRefresh();
 		if (browserNavigation != null)
 			browserNavigation.pushState(state, title);
 	}
@@ -152,48 +159,66 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 
 	@Override
 	public void authChange() {
-		try {
-			String currentPath = null;
-			if (node != null)
-				currentPath = node.getPath();
-			JcrUtils.logoutQuietly(session);
+		Subject.doAs(subject, new PrivilegedAction<Void>() {
 
-			session = repository.login(workspace);
-			if (currentPath != null)
+			@Override
+			public Void run() {
 				try {
-					node = session.getNode(currentPath);
-				} catch (Exception e) {
-					try {
-						// TODO find a less hacky way to log out
-						new ArgeoLoginContext(
-								KernelHeader.LOGIN_CONTEXT_ANONYMOUS, subject)
-								.logout();
-						new ArgeoLoginContext(
-								KernelHeader.LOGIN_CONTEXT_ANONYMOUS, subject)
-								.login();
-					} catch (LoginException eAnonymous) {
-						throw new ArgeoException("Cannot reset to anonymous",
-								eAnonymous);
-					}
+					String currentPath = null;
+					if (node != null)
+						currentPath = node.getPath();
 					JcrUtils.logoutQuietly(session);
-					session = repository.login(workspace);
-					navigateTo("~");
-					throw e;
-				}
 
-			// refresh UI
-			refresh();
-		} catch (RepositoryException e) {
-			throw new CmsException("Cannot perform auth change", e);
-		}
+					session = repository.login(workspace);
+					if (currentPath != null)
+						try {
+							node = session.getNode(currentPath);
+						} catch (Exception e) {
+							try {
+								// TODO find a less hacky way to log out
+								new ArgeoLoginContext(
+										KernelHeader.LOGIN_CONTEXT_ANONYMOUS,
+										subject).logout();
+								new ArgeoLoginContext(
+										KernelHeader.LOGIN_CONTEXT_ANONYMOUS,
+										subject).login();
+							} catch (LoginException eAnonymous) {
+								throw new ArgeoException(
+										"Cannot reset to anonymous", eAnonymous);
+							}
+							JcrUtils.logoutQuietly(session);
+							session = repository.login(workspace);
+							navigateTo("~");
+							throw e;
+						}
+
+					// refresh UI
+					doRefresh();
+				} catch (RepositoryException e) {
+					throw new CmsException("Cannot perform auth change", e);
+				}
+				return null;
+			}
+
+		});
 
 	}
 
 	@Override
-	public void exception(Throwable e) {
-		this.exception = e;
+	public void exception(final Throwable e) {
+		AbstractCmsEntryPoint.this.exception = e;
 		log.error("Unexpected exception in CMS", e);
-		refresh();
+		doRefresh();
+	}
+
+	protected void doRefresh() {
+		Subject.doAs(subject, new PrivilegedAction<Void>() {
+			@Override
+			public Void run() {
+				refresh();
+				return null;
+			}
+		});
 	}
 
 	@Override

@@ -37,10 +37,14 @@ public abstract class AbstractJackrabbitTestCase extends AbstractJcrTestCase {
 		// getHomeDir());
 		RepositoryConfig repositoryConfig = RepositoryConfig.create(
 				AbstractJackrabbitTestCase.class
-						.getResourceAsStream("repository-memory.xml"),
+						.getResourceAsStream(getRepositoryConfigResource()),
 				getHomeDir().getAbsolutePath());
 		RepositoryImpl repositoryImpl = RepositoryImpl.create(repositoryConfig);
 		return repositoryImpl;
+	}
+
+	protected String getRepositoryConfigResource() {
+		return "repository-memory.xml";
 	}
 
 	@Override

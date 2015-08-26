@@ -32,8 +32,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 /** The site-related user menu */
 public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
@@ -44,13 +42,13 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 		super(source.getDisplay(), SWT.NO_TRIM | SWT.BORDER | SWT.ON_TOP);
 		setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU);
 
-		Authentication authentication = SecurityContextHolder.getContext()
-				.getAuthentication();
-		if (authentication == null)
-			throw new CmsException("No authentication available");
+		// Authentication authentication = SecurityContextHolder.getContext()
+		// .getAuthentication();
+		// if (authentication == null)
+		// throw new CmsException("No authentication available");
 
-		String username = authentication.getName();
-		if (username.equals(KernelHeader.USERNAME_ANONYMOUS)) {
+		String username = CurrentUserUtils.getUsername();
+		if (username.equalsIgnoreCase(KernelHeader.ROLE_ANONYMOUS)) {
 			username = null;
 			anonymousUi();
 		} else {
@@ -107,11 +105,11 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 		});
 	}
 
-	protected String getUsername() {
-		String username = SecurityContextHolder.getContext()
-				.getAuthentication().getName();
-		return username;
-	}
+	// protected String getUsername() {
+	// // String username = SecurityContextHolder.getContext()
+	// // .getAuthentication().getName();
+	// return CurrentUserUtils.getUsername();
+	// }
 
 	/** To be overridden */
 	protected void specificUserUi(Composite parent) {
