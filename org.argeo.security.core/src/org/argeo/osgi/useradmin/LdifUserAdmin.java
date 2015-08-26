@@ -3,6 +3,12 @@ package org.argeo.osgi.useradmin;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -24,6 +30,10 @@ public class LdifUserAdmin implements UserAdmin {
 
 	private final boolean isReadOnly;
 	private final URI uri;
+
+	private List<String> indexedUserProperties = Arrays.asList(new String[] {
+			"uid", "mail", "cn" });
+	private Map<String, Map<String, LdifUser>> userIndexes = new LinkedHashMap<String, Map<String, LdifUser>>();
 
 	public LdifUserAdmin(String uri) {
 		this(uri, true);
@@ -75,8 +85,27 @@ public class LdifUserAdmin implements UserAdmin {
 			}
 
 			// optimise
-			for (LdifGroup group : groups.values()) {
+			for (LdifGroup group : groups.values())
 				group.loadMembers(this);
+
+			// indexes
+			for (String attr : indexedUserProperties)
+				userIndexes.put(attr, new TreeMap<String, LdifUser>());
+
+			for (LdifUser user : users.values()) {
+				Dictionary<String, Object> properties = user.getProperties();
+				for (String attr : indexedUserProperties) {
+					Object value = properties.get(attr);
+					if (value != null) {
+						LdifUser otherUser = userIndexes.get(attr).put(
+								value.toString(), user);
+						if (otherUser != null)
+							throw new ArgeoUserAdminException("User " + user
+									+ " and user " + otherUser
+									+ " both habe property " + attr
+									+ " set to " + value);
+					}
+				}
 			}
 		} catch (Exception e) {
 			throw new ArgeoUserAdminException(
@@ -131,7 +160,35 @@ public class LdifUserAdmin implements UserAdmin {
 
 	@Override
 	public User getUser(String key, String value) {
-		throw new UnsupportedOperationException();
+		// TODO check value null or empty
+		if (key != null) {
+			if (!userIndexes.containsKey(key))
+				return null;
+			return userIndexes.get(key).get(value);
+		}
+
+		// Try all indexes
+		List<LdifUser> collectedUsers = new ArrayList<LdifUser>(
+				indexedUserProperties.size());
+		// try dn
+		LdifUser user = null;
+		try {
+			user = (LdifUser) getRole(value);
+			if (user != null)
+				collectedUsers.add(user);
+		} catch (Exception e) {
+			// silent
+		}
+		for (String attr : userIndexes.keySet()) {
+			user = userIndexes.get(attr).get(value);
+			if (user != null)
+				collectedUsers.add(user);
+		}
+
+		if (collectedUsers.size() == 1)
+			return collectedUsers.get(0);
+		return null;
+		// throw new UnsupportedOperationException();
 	}
 
 	public boolean getIsReadOnly() {

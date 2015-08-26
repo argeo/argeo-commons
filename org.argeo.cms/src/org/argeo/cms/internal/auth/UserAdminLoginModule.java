@@ -99,7 +99,8 @@ public class UserAdminLoginModule implements LoginModule {
 			else
 				throw new CredentialNotFoundException("No credentials provided");
 
-			user = (User) userAdmin.getRole(username);
+			// user = (User) userAdmin.getRole(username);
+			user = userAdmin.getUser(null, username);
 			if (user == null)
 				return false;
 
