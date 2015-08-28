@@ -1,20 +1,20 @@
-dn: dc=example,dc=org
+dn: dc=example,dc=com
 objectClass: domain
 objectClass: extensibleObject
 objectClass: top
 dc: example
 
-dn: ou=groups,dc=example,dc=org
+dn: ou=groups,dc=example,dc=com
 objectClass: organizationalUnit
 objectClass: top
 ou: groups
 
-dn: ou=users,dc=example,dc=org
+dn: ou=users,dc=example,dc=com
 objectClass: organizationalUnit
 objectClass: top
 ou: users
 
-dn: uid=demo,ou=users,dc=example,dc=org
+dn: uid=demo,ou=users,dc=example,dc=com
 objectClass: organizationalPerson
 objectClass: person
 objectClass: inetOrgPerson
@@ -27,7 +27,7 @@ sn: User
 uid: demo
 userpassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
 
-dn: uid=root,ou=users,dc=example,dc=org
+dn: uid=root,ou=users,dc=example,dc=com
 objectClass: person
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
@@ -40,18 +40,28 @@ sn: User
 uid: root
 userpassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
 
+dn: ou=node
+objectClass: organizationalUnit
+objectClass: top
+ou: node
+
+dn: ou=system,ou=node
+objectClass: organizationalUnit
+objectClass: top
+ou: system
+
 dn: cn=admin,ou=system,ou=node
 objectClass: groupOfNames
 objectClass: top
 cn: admin
-member: uid=root,ou=users,dc=example,dc=org
+member: uid=root,ou=users,dc=example,dc=com
 
 dn: cn=userAdmin,ou=system,ou=node
 objectClass: groupOfNames
 objectClass: top
 cn: userAdmin
 member: cn=admin,ou=system,ou=node
-member: uid=demo,ou=users,dc=example,dc=org
+member: uid=demo,ou=users,dc=example,dc=com
 
 dn: cn=groupAdmin,ou=system,ou=node
 objectClass: groupOfNames
@@ -59,10 +69,15 @@ objectClass: top
 cn: groupAdmin
 member: cn=admin,ou=system,ou=node
 
-dn: cn=editor,ou=cms,ou=node
+dn: ou=org.argeo.cms,ou=node
+objectClass: organizationalUnit
+objectClass: top
+ou: org.argeo.cms
+
+dn: cn=editor,ou=org.argeo.cms,ou=node
 objectClass: groupOfNames
 objectClass: top
-cn: admin
+cn: editor
 member: cn=admin,ou=system,ou=node
-member: uid=demo,ou=users,dc=example,dc=org
+member: uid=demo,ou=users,dc=example,dc=com
 
