@@ -155,6 +155,12 @@ public class LdifUserAdmin implements UserAdmin {
 
 	@Override
 	public Role[] getRoles(String filter) throws InvalidSyntaxException {
+		if (filter == null) {
+			ArrayList<Role> res = new ArrayList<Role>();
+			res.addAll(users.values());
+			res.addAll(groups.values());
+			return res.toArray(new Role[res.size()]);
+		}
 		throw new UnsupportedOperationException();
 	}
 
