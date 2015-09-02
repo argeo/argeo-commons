@@ -4,11 +4,21 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="adminUsersView" class="org.argeo.security.ui.admin.views.UsersView"
+	<bean id="usersView" class="org.argeo.security.ui.admin.views.UsersView"
+		scope="prototype">
+		<property name="userAdmin" ref="userAdmin" />
+	</bean>
+
+	<bean id="groupsView" class="org.argeo.security.ui.admin.views.GroupsView"
+		scope="prototype">
+		<property name="userAdmin" ref="userAdmin" />
+	</bean>
+
+	<!-- LEGACY. TODO: Remove -->
+	<bean id="jcrUsersView" class="org.argeo.security.ui.admin.views.JcrUsersView"
 		scope="prototype">
 		<property name="repository" ref="nodeRepository" />
 	</bean>
-	
 	<bean id="adminRolesView" class="org.argeo.security.ui.admin.views.RolesView"
 		scope="prototype">
 		<property name="userAdminService" ref="userAdminService" />

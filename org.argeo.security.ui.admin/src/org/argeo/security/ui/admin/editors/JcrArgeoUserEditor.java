@@ -28,7 +28,7 @@ import org.argeo.jcr.UserJcrUtils;
 import org.argeo.security.UserAdminService;
 import org.argeo.security.jcr.JcrUserDetails;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
-import org.argeo.security.ui.admin.views.UsersView;
+import org.argeo.security.ui.admin.views.JcrUsersView;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
@@ -38,7 +38,7 @@ import org.eclipse.ui.forms.editor.FormEditor;
 import org.springframework.security.core.GrantedAuthority;
 
 /** Editor for an Argeo user. */
-public class ArgeoUserEditor extends FormEditor {
+public class JcrArgeoUserEditor extends FormEditor {
 	private static final long serialVersionUID = 1933296330339252869L;
 
 	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
@@ -125,12 +125,14 @@ public class ArgeoUserEditor extends FormEditor {
 		// view.
 		// refresh users view
 		IWorkbench iw = SecurityAdminPlugin.getDefault().getWorkbench();
-		UsersView usersView = (UsersView) iw.getActiveWorkbenchWindow()
-				.getActivePage().findView(UsersView.ID);
+		JcrUsersView usersView = (JcrUsersView) iw.getActiveWorkbenchWindow()
+				.getActivePage().findView(JcrUsersView.ID);
 		if (usersView != null)
 			usersView.refresh();
 	}
 
+	
+	
 	@Override
 	public void doSaveAs() {
 	}

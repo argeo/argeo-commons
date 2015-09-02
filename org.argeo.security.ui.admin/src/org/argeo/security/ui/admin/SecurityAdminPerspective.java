@@ -15,12 +15,15 @@
  */
 package org.argeo.security.ui.admin;
 
-import org.argeo.security.ui.admin.views.RolesView;
+import org.argeo.security.ui.admin.views.GroupsView;
+import org.argeo.security.ui.admin.views.JcrUsersView;
+import org.argeo.security.ui.admin.views.JcrRolesView;
 import org.argeo.security.ui.admin.views.UsersView;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
+/** Default perspective to manage users and groups */
 public class SecurityAdminPerspective implements IPerspectiveFactory {
 	public void createInitialLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();
@@ -28,9 +31,13 @@ public class SecurityAdminPerspective implements IPerspectiveFactory {
 		layout.setFixed(false);
 
 		IFolderLayout left = layout.createFolder("left", IPageLayout.LEFT,
-				0.65f, editorArea);
+				0.25f, editorArea);
 		left.addView(UsersView.ID);
-		left.addView(RolesView.ID);
-	}
+		left.addView(JcrUsersView.ID);
+		left.addView(JcrRolesView.ID);
 
+		IFolderLayout right = layout.createFolder("right", IPageLayout.RIGHT,
+				0.70f, editorArea);
+		right.addView(GroupsView.ID);
+	}
 }

@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.argeo.security.UserAdminService;
-import org.argeo.security.ui.admin.views.RolesView;
+import org.argeo.security.ui.admin.views.JcrRolesView;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -59,9 +59,9 @@ public class DeleteRole extends AbstractHandler {
 			userAdminService.deleteRole(role);
 		}
 
-		RolesView view = (RolesView) HandlerUtil
+		JcrRolesView view = (JcrRolesView) HandlerUtil
 				.getActiveWorkbenchWindow(event).getActivePage()
-				.findView(RolesView.ID);
+				.findView(JcrRolesView.ID);
 		view.refresh();
 		return null;
 	}

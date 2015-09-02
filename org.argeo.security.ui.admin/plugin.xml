@@ -10,33 +10,61 @@
             name="Security">
       </perspective>
    </extension>
+   
    <extension
-         point="org.eclipse.ui.views">
+		point="org.eclipse.ui.views">
       <view
             class="org.argeo.eclipse.spring.SpringExtensionFactory"
             icon="icons/users.gif"
-            id="org.argeo.security.ui.admin.adminUsersView"
+            id="org.argeo.security.ui.admin.usersView"
+            name="Users"
+            restorable="true">
+      </view>
+      <view
+            class="org.argeo.eclipse.spring.SpringExtensionFactory"
+            icon="icons/role.gif"
+            id="org.argeo.security.ui.admin.groupsView"
+            name="Groups"
+            restorable="false">
+      </view>
+      
+      <!-- Legacy -->
+      <view
+            class="org.argeo.eclipse.spring.SpringExtensionFactory"
+            icon="icons/users.gif"
+            id="org.argeo.security.ui.admin.jcrUsersView"
             name="Users"
             restorable="false">
       </view>
       <view
             class="org.argeo.eclipse.spring.SpringExtensionFactory"
             icon="icons/role.gif"
-            id="org.argeo.security.ui.admin.adminRolesView"
+            id="org.argeo.security.ui.admin.jcrRolesView"
             name="Roles"
             restorable="false">
       </view>
-   </extension>
-   <extension
-           point="org.eclipse.ui.editors">
-	        <editor
-	          class="org.argeo.eclipse.spring.SpringExtensionFactory"
-              id="org.argeo.security.ui.admin.adminArgeoUserEditor"
-              name="User"
-              icon="icons/user.gif"
-              default="false">
-        </editor>
-     </extension>
+	</extension>
+	
+	<!-- Editors -->
+	<extension
+		point="org.eclipse.ui.editors">
+		<editor
+			class="org.argeo.eclipse.spring.SpringExtensionFactory"
+            id="org.argeo.security.ui.admin.userEditor"
+            name="User"
+            icon="icons/user.gif"
+            default="false">
+		</editor>
+		<!-- Legacy -->
+		<editor
+			class="org.argeo.eclipse.spring.SpringExtensionFactory"
+            id="org.argeo.security.ui.admin.adminArgeoUserEditor"
+            name="User"
+            icon="icons/user.gif"
+			default="false">
+		</editor>
+	</extension>
+    
     <extension
          point="org.eclipse.ui.commands">
       <command
@@ -141,6 +169,7 @@
             </command>
         </menuContribution>
   </extension>
+  
   <extension
            point="org.eclipse.ui.activities">
        <activityPatternBinding
@@ -154,4 +183,5 @@
               pattern="org.argeo.security.ui.admin/org.argeo.security.ui.admin.adminRolesView">
         </activityPatternBinding>
      </extension>
+ 
  </plugin>

@@ -91,9 +91,9 @@ public class DeleteUser extends AbstractHandler {
 		}
 
 		userAdminService.synchronize();
-		// UsersView view = (UsersView) HandlerUtil
+		// JcrUsersView view = (JcrUsersView) HandlerUtil
 		// .getActiveWorkbenchWindow(event).getActivePage()
-		// .findView(UsersView.ID);
+		// .findView(JcrUsersView.ID);
 		// view.refresh();
 		return null;
 	}

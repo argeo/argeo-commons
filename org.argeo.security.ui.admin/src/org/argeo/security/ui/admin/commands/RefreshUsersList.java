@@ -29,7 +29,7 @@ import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.security.UserAdminService;
-import org.argeo.security.ui.admin.views.UsersView;
+import org.argeo.security.ui.admin.views.JcrUsersView;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -72,17 +72,17 @@ public class RefreshUsersList extends AbstractHandler {
 		}
 		userAdminService.synchronize();
 
-		// FIXME try to refresh views that extend the UsersView and have another
+		// FIXME try to refresh views that extend the JcrUsersView and have another
 		// ID
 		IWorkbenchPart part = HandlerUtil.getActiveWorkbenchWindow(event)
 				.getActivePage().getActivePart();
-		if (part instanceof UsersView)
-			((UsersView) part).refresh();
+		if (part instanceof JcrUsersView)
+			((JcrUsersView) part).refresh();
 
-		// Try to refresh UsersView if opened
-		UsersView view = (UsersView) HandlerUtil
+		// Try to refresh JcrUsersView if opened
+		JcrUsersView view = (JcrUsersView) HandlerUtil
 				.getActiveWorkbenchWindow(event).getActivePage()
-				.findView(UsersView.ID);
+				.findView(JcrUsersView.ID);
 		if (view != null)
 			view.refresh();
 

@@ -26,8 +26,15 @@
  */
 package org.argeo.security.ui.admin;
 
+import org.eclipse.swt.graphics.Image;
+
 /** Shared icons that must be declared programmatically . */
 public class SecurityAdminImages {
-	@SuppressWarnings("unused")
 	private final static String PREFIX = "icons/";
+
+	public final static Image ICON_USER = SecurityAdminPlugin
+			.getImageDescriptor(PREFIX + "user.gif").createImage();
+	public final static Image ICON_GROUP = SecurityAdminPlugin
+			.getImageDescriptor(PREFIX + "users.gif").createImage();
+
 }

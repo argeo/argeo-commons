@@ -17,8 +17,8 @@ package org.argeo.security.ui.admin.commands;
 
 import org.argeo.ArgeoException;
 import org.argeo.security.UserAdminService;
-import org.argeo.security.ui.admin.editors.ArgeoUserEditor;
-import org.argeo.security.ui.admin.views.RolesView;
+import org.argeo.security.ui.admin.editors.JcrArgeoUserEditor;
+import org.argeo.security.ui.admin.views.JcrRolesView;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -33,9 +33,9 @@ public class AddRole extends AbstractHandler {
 	private String rolePrefix = "ROLE_";
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		RolesView rolesView = (RolesView) HandlerUtil
+		JcrRolesView rolesView = (JcrRolesView) HandlerUtil
 				.getActiveWorkbenchWindow(event).getActivePage()
-				.findView(RolesView.ID);
+				.findView(JcrRolesView.ID);
 		String role = rolesView.getNewRole();
 		if (role.trim().equals(""))
 			return null;
@@ -52,9 +52,9 @@ public class AddRole extends AbstractHandler {
 		// refresh editors
 		IEditorReference[] refs = HandlerUtil.getActiveWorkbenchWindow(event)
 				.getActivePage()
-				.findEditors(null, ArgeoUserEditor.ID, IWorkbenchPage.MATCH_ID);
+				.findEditors(null, JcrArgeoUserEditor.ID, IWorkbenchPage.MATCH_ID);
 		for (IEditorReference ref : refs) {
-			ArgeoUserEditor userEditor = (ArgeoUserEditor) ref.getEditor(false);
+			JcrArgeoUserEditor userEditor = (JcrArgeoUserEditor) ref.getEditor(false);
 			if (userEditor != null) {
 				userEditor.refresh();
 			}

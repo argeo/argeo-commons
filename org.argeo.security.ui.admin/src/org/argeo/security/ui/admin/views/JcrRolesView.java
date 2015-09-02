@@ -38,9 +38,9 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
 
 /** List all roles. */
-public class RolesView extends ViewPart {
+public class JcrRolesView extends ViewPart {
 	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
-			+ ".adminRolesView";
+			+ ".jcrRolesView";
 
 	private Text newRole;
 

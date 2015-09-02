@@ -4,8 +4,17 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+
 	<!-- Editors -->
-	<bean id="adminArgeoUserEditor" class="org.argeo.security.ui.admin.editors.ArgeoUserEditor"
+	<bean id="userEditor" class="org.argeo.security.ui.admin.editors.UserEditor"
+		scope="prototype">
+		<property name="userAdmin" ref="userAdmin" />
+	</bean>
+
+	<!-- <bean id="groupEditor" class="org.argeo.security.ui.admin.editors.GroupEditor" 
+		scope="prototype"> <property name="userAdmin" ref="userAdmin" /> </bean> -->
+	<!-- LEGACY -->
+	<bean id="adminArgeoUserEditor" class="org.argeo.security.ui.admin.editors.JcrArgeoUserEditor"
 		scope="prototype">
 		<property name="userAdminService" ref="userAdminService" />
 		<property name="repository" ref="nodeRepository" />

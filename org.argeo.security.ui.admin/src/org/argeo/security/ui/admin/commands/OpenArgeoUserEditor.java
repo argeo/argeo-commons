@@ -15,7 +15,7 @@
  */
 package org.argeo.security.ui.admin.commands;
 
-import org.argeo.security.ui.admin.editors.ArgeoUserEditor;
+import org.argeo.security.ui.admin.editors.JcrArgeoUserEditor;
 import org.argeo.security.ui.admin.editors.ArgeoUserEditorInput;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -34,7 +34,7 @@ public class OpenArgeoUserEditor extends AbstractHandler {
 					event.getParameter(PARAM_USERNAME));
 			IWorkbenchPage activePage = HandlerUtil.getActiveWorkbenchWindow(
 					event).getActivePage();
-			activePage.openEditor(editorInput, ArgeoUserEditor.ID);
+			activePage.openEditor(editorInput, JcrArgeoUserEditor.ID);
 		} catch (Exception e) {
 			throw new ExecutionException("Cannot open editor", e);
 		}
