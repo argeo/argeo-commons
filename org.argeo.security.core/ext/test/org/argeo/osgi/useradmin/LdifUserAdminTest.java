@@ -14,7 +14,7 @@ import org.osgi.service.useradmin.User;
 
 public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 
-	public void testBasicUserAdmin() {
+	public void testBasicUserAdmin() throws Exception {
 		LdifUserAdmin userAdmin = new LdifUserAdmin(getClass()
 				.getResourceAsStream("basic.ldif"));
 
@@ -54,5 +54,15 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 				.getBytes();
 		assertTrue(rootUser.hasCredential("userpassword", hashedPassword));
 		assertTrue(demoUser.hasCredential("userpassword", hashedPassword));
+		
+		// search
+		Role[] search = userAdmin.getRoles(null);
+		assertEquals(4, search.length);
+		search = userAdmin.getRoles("(objectClass=groupOfNames)");
+		assertEquals(2, search.length);
+		search = userAdmin.getRoles("(objectclass=inetOrgPerson)");
+		assertEquals(2, search.length);
+		search = userAdmin.getRoles("(&(objectclass=inetOrgPerson)(uid=demo))");
+		assertEquals(1, search.length);
 	}
 }

@@ -1,15 +1,14 @@
 package org.argeo.cms.internal.kernel;
 
-import java.net.URL;
-
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.internal.useradmin.JcrUserAdmin;
 import org.argeo.cms.internal.useradmin.SimpleJcrSecurityModel;
 import org.argeo.cms.internal.useradmin.jackrabbit.JackrabbitUserAdminService;
+import org.argeo.osgi.useradmin.AbstractLdapUserAdmin;
+import org.argeo.osgi.useradmin.LdapUserAdmin;
 import org.argeo.osgi.useradmin.LdifUserAdmin;
 import org.argeo.security.OsAuthenticationToken;
 import org.argeo.security.UserAdminService;
@@ -37,7 +36,7 @@ class NodeSecurity implements AuthenticationManager {
 	private final InternalAuthenticationProvider internalAuth;
 	private final AnonymousAuthenticationProvider anonymousAuth;
 	private final JackrabbitUserAdminService userAdminService;
-	private final LdifUserAdmin userAdmin;
+	private final AbstractLdapUserAdmin userAdmin;
 
 	private ServiceRegistration<AuthenticationManager> authenticationManagerReg;
 	private ServiceRegistration<UserAdminService> userAdminServiceReg;
@@ -65,7 +64,11 @@ class NodeSecurity implements AuthenticationManager {
 				.getFrameworkProp(KernelConstants.USERADMIN_URI);
 		if (userAdminUri == null)
 			userAdminUri = getClass().getResource("demo.ldif").toString();
-		userAdmin = new LdifUserAdmin(userAdminUri);
+
+		if (userAdminUri.startsWith("ldap"))
+			userAdmin = new LdapUserAdmin(userAdminUri);
+		else
+			userAdmin = new LdifUserAdmin(userAdminUri);
 	}
 
 	public void publish() {

@@ -15,9 +15,9 @@ objectClass: top
 ou: People
 
 dn: uid=demo,ou=People,dc=demo,dc=example,dc=org
+objectClass: inetOrgPerson
 objectClass: organizationalPerson
 objectClass: person
-objectClass: inetOrgPerson
 objectClass: top
 cn: demo User
 description: Demo user
@@ -28,11 +28,11 @@ uid: demo
 userpassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
 
 dn: uid=root+cn=Super Admin,ou=People,dc=demo,dc=example,dc=org
-objectClass: person
 objectClass: inetOrgPerson
+objectClass: person
 objectClass: organizationalPerson
 objectClass: top
-cn: demo User
+cn: Super Admin
 description: Superuser
 givenname: Root
 mail: root@localhost

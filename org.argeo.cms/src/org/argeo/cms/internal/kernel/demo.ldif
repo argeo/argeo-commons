@@ -15,9 +15,9 @@ objectClass: top
 ou: users
 
 dn: uid=demo,ou=users,dc=example,dc=com
+objectClass: inetOrgPerson
 objectClass: organizationalPerson
 objectClass: person
-objectClass: inetOrgPerson
 objectClass: top
 cn: Demo User
 description: Demo user
@@ -28,8 +28,8 @@ uid: demo
 userpassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
 
 dn: uid=root,ou=users,dc=example,dc=com
-objectClass: person
 objectClass: inetOrgPerson
+objectClass: person
 objectClass: organizationalPerson
 objectClass: top
 cn: Super User

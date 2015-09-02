@@ -1,7 +1,7 @@
 package org.argeo.osgi.useradmin;
 
+import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -24,23 +24,20 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
-import org.osgi.service.useradmin.UserAdmin;
 
-public class LdapUserAdmin implements UserAdmin {
+public class LdapUserAdmin extends AbstractLdapUserAdmin {
 	private final static Log log = LogFactory.getLog(LdapUserAdmin.class);
-
-	private List<String> indexedUserProperties = Arrays.asList(new String[] {
-			"uid", "mail", "cn" });
 
 	private String baseDn = "dc=example,dc=com";
 	private InitialLdapContext initialLdapContext = null;
 
 	public LdapUserAdmin(String uri) {
 		try {
+			setUri(new URI(uri));
 			Hashtable<String, Object> connEnv = new Hashtable<String, Object>();
 			connEnv.put(Context.INITIAL_CONTEXT_FACTORY,
 					"com.sun.jndi.ldap.LdapCtxFactory");
-			connEnv.put(Context.PROVIDER_URL, "ldap://localhost:10389/");
+			connEnv.put(Context.PROVIDER_URL, getUri().toString());
 			connEnv.put("java.naming.ldap.attributes.binary", "userPassword");
 			// connEnv.put(Context.SECURITY_AUTHENTICATION, "simple");
 			// connEnv.put(Context.SECURITY_PRINCIPAL, "uid=admin,ou=system");
@@ -106,15 +103,42 @@ public class LdapUserAdmin implements UserAdmin {
 
 	@Override
 	public Role[] getRoles(String filter) throws InvalidSyntaxException {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			String searchFilter = filter;
+			SearchControls searchControls = new SearchControls();
+			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+
+			String searchBase = baseDn;
+			NamingEnumeration<SearchResult> results = initialLdapContext
+					.search(searchBase, searchFilter, searchControls);
+
+			ArrayList<Role> res = new ArrayList<Role>();
+			while (results.hasMoreElements()) {
+				SearchResult searchResult = results.next();
+				Attributes attrs = searchResult.getAttributes();
+				String name = searchResult.getName();
+				LdifUser role;
+				if (attrs.get("objectClass").contains("groupOfNames"))
+					role = new LdifGroup(new LdapName(name), attrs);
+				else if (attrs.get("objectClass").contains("inetOrgPerson"))
+					role = new LdifUser(new LdapName(name), attrs);
+				else
+					throw new ArgeoUserAdminException(
+							"Unsupported LDAP type for " + name);
+				res.add(role);
+			}
+			return res.toArray(new Role[res.size()]);
+		} catch (Exception e) {
+			throw new ArgeoUserAdminException("Cannot get roles for filter "
+					+ filter, e);
+		}
 	}
 
 	@Override
 	public User getUser(String key, String value) {
 		if (key == null) {
 			List<User> users = new ArrayList<User>();
-			for (String prop : indexedUserProperties) {
+			for (String prop : getIndexedUserProperties()) {
 				User user = getUser(prop, value);
 				if (user != null)
 					users.add(user);
