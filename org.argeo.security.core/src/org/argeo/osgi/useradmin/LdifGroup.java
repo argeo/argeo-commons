@@ -15,13 +15,24 @@ public class LdifGroup extends LdifUser implements Group {
 	// optimisation
 	List<Role> directMembers = null;
 
+	private String memberAttrName = "member";
+
 	public LdifGroup(LdapName dn, Attributes attributes) {
 		super(dn, attributes);
 	}
 
 	@Override
 	public boolean addMember(Role role) {
-		throw new UnsupportedOperationException();
+		Attribute member = getAttributes().get(memberAttrName);
+		if (member != null) {
+			if (member.contains(role.getName()))
+				return false;
+		} else
+			getAttributes().put(memberAttrName, role.getName());
+		directMembers.add(role);
+		if (role instanceof LdifUser)
+			((LdifUser) role).directMemberOf.add(this);
+		return true;
 	}
 
 	@Override
@@ -31,7 +42,17 @@ public class LdifGroup extends LdifUser implements Group {
 
 	@Override
 	public boolean removeMember(Role role) {
-		throw new UnsupportedOperationException();
+		Attribute member = getAttributes().get(memberAttrName);
+		if (member != null) {
+			if (!member.contains(role.getName()))
+				return false;
+			member.remove(role.getName());
+			directMembers.remove(role);
+			if (role instanceof LdifUser)
+				((LdifUser) role).directMemberOf.remove(this);
+			return true;
+		} else
+			return false;
 	}
 
 	@Override
@@ -41,7 +62,7 @@ public class LdifGroup extends LdifUser implements Group {
 		else
 			throw new ArgeoUserAdminException("Members have not been loaded.");
 
-		// Attribute memberAttribute = getAttributes().get("member");
+		// Attribute memberAttribute = getAttributes().get(memberAttrName);
 		// if (memberAttribute == null)
 		// return new Role[0];
 		// try {
@@ -57,24 +78,24 @@ public class LdifGroup extends LdifUser implements Group {
 		// }
 	}
 
-	void loadMembers(LdifUserAdmin userAdmin) {
-		directMembers = new ArrayList<Role>();
-		for (LdapName ldapName : getMemberNames()) {
-			LdifUser role;
-			if (userAdmin.groups.containsKey(ldapName))
-				role = userAdmin.groups.get(ldapName);
-			else if (userAdmin.users.containsKey(ldapName))
-				role = userAdmin.users.get(ldapName);
-			else
-				throw new ArgeoUserAdminException("No roel found for "
-						+ ldapName);
-			role.directMemberOf.add(this);
-			directMembers.add(role);
-		}
-	}
+//	void loadMembers(LdifUserAdmin userAdmin) {
+//		directMembers = new ArrayList<Role>();
+//		for (LdapName ldapName : getMemberNames()) {
+//			LdifUser role;
+//			if (userAdmin.groups.containsKey(ldapName))
+//				role = userAdmin.groups.get(ldapName);
+//			else if (userAdmin.users.containsKey(ldapName))
+//				role = userAdmin.users.get(ldapName);
+//			else
+//				throw new ArgeoUserAdminException("No role found for "
+//						+ ldapName);
+//			role.directMemberOf.add(this);
+//			directMembers.add(role);
+//		}
+//	}
 
 	List<LdapName> getMemberNames() {
-		Attribute memberAttribute = getAttributes().get("member");
+		Attribute memberAttribute = getAttributes().get(memberAttrName);
 		if (memberAttribute == null)
 			return new ArrayList<LdapName>();
 		try {
@@ -99,4 +120,10 @@ public class LdifGroup extends LdifUser implements Group {
 	public int getType() {
 		return GROUP;
 	}
+
+	public String getMemberAttrName() {
+		return memberAttrName;
+	}
+	
+	
 }

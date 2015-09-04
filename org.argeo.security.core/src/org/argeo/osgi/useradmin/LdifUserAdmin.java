@@ -14,7 +14,9 @@ import java.util.TreeMap;
 import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
@@ -46,17 +48,20 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 			throw new UnsupportedOperationException(getUri().getScheme()
 					+ "not supported read-write.");
 
-		try {
-			load(getUri().toURL().openStream());
-		} catch (Exception e) {
-			throw new ArgeoUserAdminException("Cannot open URL " + getUri(), e);
-		}
 	}
 
 	public LdifUserAdmin(InputStream in) {
 		load(in);
 		setReadOnly(true);
 		setUri(null);
+	}
+
+	public void init() {
+		try {
+			load(getUri().toURL().openStream());
+		} catch (Exception e) {
+			throw new ArgeoUserAdminException("Cannot open URL " + getUri(), e);
+		}
 	}
 
 	protected void load(InputStream in) {
@@ -81,7 +86,7 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 
 			// optimise
 			for (LdifGroup group : groups.values())
-				group.loadMembers(this);
+				loadMembers(group);
 
 			// indexes
 			for (String attr : getIndexedUserProperties())
@@ -140,12 +145,60 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 
 	@Override
 	public Role createRole(String name, int type) {
-		throw new UnsupportedOperationException();
+		try {
+			LdapName dn = new LdapName(name);
+			if (users.containsKey(dn) || groups.containsKey(dn))
+				throw new ArgeoUserAdminException("Already a role " + name);
+
+			BasicAttributes attrs = new BasicAttributes();
+			attrs.put("dn", dn.toString());
+			Rdn nameRdn = dn.getRdn(dn.size() - 1);
+			// TODO deal with multiple attr RDN
+			attrs.put(nameRdn.getType(), nameRdn.getValue());
+			LdifUser newRole;
+			if (type == Role.USER) {
+				newRole = new LdifUser(dn, attrs);
+				users.put(dn, newRole);
+			} else if (type == Role.GROUP) {
+				newRole = new LdifGroup(dn, attrs);
+				groups.put(dn, (LdifGroup) newRole);
+			} else
+				throw new ArgeoUserAdminException("Unsupported type " + type);
+			return newRole;
+		} catch (InvalidNameException e) {
+			throw new ArgeoUserAdminException("Cannot create role " + name, e);
+		}
 	}
 
 	@Override
 	public boolean removeRole(String name) {
-		throw new UnsupportedOperationException();
+		try {
+			LdapName dn = new LdapName(name);
+			LdifUser role = null;
+			if (users.containsKey(dn))
+				role = users.remove(dn);
+			else if (groups.containsKey(dn))
+				role = groups.remove(dn);
+			else
+				throw new ArgeoUserAdminException("There is no role " + name);
+			if (role == null)
+				return false;
+			for (LdifGroup group : role.directMemberOf) {
+				group.directMembers.remove(role);
+				group.getAttributes().get(group.getMemberAttrName())
+						.remove(dn.toString());
+			}
+			if (role instanceof LdifGroup) {
+				LdifGroup group = (LdifGroup) role;
+				for (Role user : group.directMembers) {
+					if (user instanceof LdifUser)
+						((LdifUser) user).directMemberOf.remove(group);
+				}
+			}
+			return true;
+		} catch (InvalidNameException e) {
+			throw new ArgeoUserAdminException("Cannot create role " + name, e);
+		}
 	}
 
 	@Override
@@ -197,6 +250,27 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 			return collectedUsers.get(0);
 		return null;
 		// throw new UnsupportedOperationException();
+	}
+
+	protected void loadMembers(LdifGroup group) {
+		group.directMembers = new ArrayList<Role>();
+		for (LdapName ldapName : group.getMemberNames()) {
+			LdifUser role = null;
+			if (groups.containsKey(ldapName))
+				role = groups.get(ldapName);
+			else if (users.containsKey(ldapName))
+				role = users.get(ldapName);
+			else {
+				if (getExternalRoles() != null)
+					role = (LdifUser) getExternalRoles().getRole(
+							ldapName.toString());
+				if (role == null)
+					throw new ArgeoUserAdminException("No role found for "
+							+ ldapName);
+			}
+			role.directMemberOf.add(group);
+			group.directMembers.add(role);
+		}
 	}
 
 }

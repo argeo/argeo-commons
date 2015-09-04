@@ -10,6 +10,8 @@ public abstract class AbstractLdapUserAdmin implements UserAdmin {
 	private boolean isReadOnly;
 	private URI uri;
 
+	private UserAdmin externalRoles;
+
 	public AbstractLdapUserAdmin() {
 	}
 
@@ -45,8 +47,20 @@ public abstract class AbstractLdapUserAdmin implements UserAdmin {
 		return isReadOnly;
 	}
 
+	public void init() {
+
+	}
+
 	public void destroy() {
 
+	}
+
+	UserAdmin getExternalRoles() {
+		return externalRoles;
+	}
+
+	public void setExternalRoles(UserAdmin externalRoles) {
+		this.externalRoles = externalRoles;
 	}
 
 }
