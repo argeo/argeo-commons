@@ -1,4 +1,4 @@
-package org.argeo.security.ui.admin;
+package org.argeo.security.ui.admin.internal;
 
 /** Temporary centralization of the user admin constants */
 public interface UserAdminConstants {

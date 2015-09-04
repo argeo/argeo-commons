@@ -21,7 +21,7 @@ import javax.jcr.RepositoryException;
 
 import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoNames;
-import org.argeo.security.ui.admin.UserAdminConstants;
+import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;

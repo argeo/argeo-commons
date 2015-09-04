@@ -19,82 +19,99 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
-import org.argeo.security.ui.admin.UserAdminConstants;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.argeo.security.ui.admin.internal.ColumnDefinition;
+import org.argeo.security.ui.admin.internal.CommonNameLP;
+import org.argeo.security.ui.admin.internal.UserNameLP;
+import org.argeo.security.ui.admin.internal.UserTableDefaultDClickListener;
+import org.argeo.security.ui.admin.internal.UserTableViewer;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Composite;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
+import org.osgi.service.useradmin.UserAdmin;
 
 /** List all groups with filter */
 public class GroupsView extends UsersView implements ArgeoNames {
 	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
 			+ ".groupsView";
 
-	// The displayed columns
-	/** Overwrite to display other columns */
-	public List<ColumnDefinition> getColumnsDef() {
-		List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
-		// Group ID
+	/* DEPENDENCY INJECTION */
+	private UserAdmin userAdmin;
+
+	// UI Objects
+	private UserTableViewer userTableViewerCmp;
+	private TableViewer userViewer;
+	private List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
+
+	@Override
+	public void createPartControl(Composite parent) {
+		parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
+		// Define the displayed columns
 		columnDefs.add(new ColumnDefinition(new UserNameLP(),
 				"Distinguished Name", 200));
-		// Displayed name
 		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name",
 				150));
-		return columnDefs;
+
+		// Create and configure the table
+		userTableViewerCmp = new MyUserTableViewer(parent, SWT.MULTI
+				| SWT.H_SCROLL | SWT.V_SCROLL, userAdmin);
+
+		userTableViewerCmp.setColumnDefinitions(columnDefs);
+		userTableViewerCmp.populate(true, false);
+		userTableViewerCmp.setLayoutData(EclipseUiUtils.fillAll());
+
+		// Links
+		userViewer = userTableViewerCmp.getTableViewer();
+		userViewer.addDoubleClickListener(new UserTableDefaultDClickListener());
+		getViewSite().setSelectionProvider(userViewer);
+
+		// Really?
+		userTableViewerCmp.refresh();
 	}
 
-	/**
-	 * Refresh the user list: caller might overwrite in order to display a
-	 * subset of all users, typically to remove current user from the list
-	 */
-	protected void refreshFilteredList(String filter) {
-		try {
-			Role[] roles = userAdmin().getRoles(filter);
+	private class MyUserTableViewer extends UserTableViewer {
+		private static final long serialVersionUID = 8467999509931900367L;
+
+		public MyUserTableViewer(Composite parent, int style,
+				UserAdmin userAdmin) {
+			super(parent, style, userAdmin);
+		}
+
+		@Override
+		protected List<User> listFilteredElements(String filter) {
+			Role[] roles;
+			try {
+				roles = userAdmin.getRoles(filter);
+			} catch (InvalidSyntaxException e) {
+				throw new ArgeoException("Unable to get roles with filter: "
+						+ filter, e);
+			}
 			List<User> users = new ArrayList<User>();
 			for (Role role : roles)
 				if (role.getType() == Role.GROUP)
 					users.add((User) role);
-			getViewer().setInput(users.toArray());
-		} catch (InvalidSyntaxException e) {
-			throw new ArgeoException("Unable to get roles with filter: "
-					+ filter, e);
+			return users;
 		}
 	}
 
-	private abstract class GroupAdminAbstractLP extends ColumnLabelProvider {
-		private static final long serialVersionUID = 137336765024922368L;
-
-		@Override
-		public String getText(Object element) {
-			User user = (User) element;
-			return getText(user);
-		}
-
-		public abstract String getText(User user);
+	// Override generic view methods
+	@Override
+	public void dispose() {
+		super.dispose();
 	}
 
-	private class UserNameLP extends GroupAdminAbstractLP {
-		private static final long serialVersionUID = 6550449442061090388L;
-
-		@Override
-		public String getText(User user) {
-			return user.getName();
-		}
+	@Override
+	public void setFocus() {
+		userTableViewerCmp.setFocus();
 	}
 
-	private class CommonNameLP extends GroupAdminAbstractLP {
-		private static final long serialVersionUID = 5256703081044911941L;
-
-		@Override
-		public String getText(User user) {
-			Object obj = user.getProperties().get(UserAdminConstants.KEY_CN);
-			if (obj != null)
-				return (String) obj;
-			else
-				return "";
-		}
+	/* DEPENDENCY INJECTION */
+	public void setUserAdmin(UserAdmin userAdmin) {
+		this.userAdmin = userAdmin;
 	}
-
 }

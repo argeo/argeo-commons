@@ -22,28 +22,19 @@ import javax.jcr.RepositoryException;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
-import org.argeo.eclipse.ui.utils.ViewerUtils;
 import org.argeo.jcr.ArgeoNames;
-import org.argeo.security.ui.admin.SecurityAdminImages;
-import org.argeo.security.ui.admin.UserAdminConstants;
-import org.eclipse.jface.layout.TableColumnLayout;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.ColumnWeightData;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.argeo.security.ui.admin.internal.ColumnDefinition;
+import org.argeo.security.ui.admin.internal.CommonNameLP;
+import org.argeo.security.ui.admin.internal.MailLP;
+import org.argeo.security.ui.admin.internal.RoleIconLP;
+import org.argeo.security.ui.admin.internal.UserAdminConstants;
+import org.argeo.security.ui.admin.internal.UserNameLP;
+import org.argeo.security.ui.admin.internal.UserTableDefaultDClickListener;
+import org.argeo.security.ui.admin.internal.UserTableViewer;
 import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.AbstractFormPart;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.SectionPart;
@@ -52,11 +43,12 @@ import org.eclipse.ui.forms.editor.FormPage;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
+import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
-/** Display/edit the properties of the groups */
+/** Display/edit main properties of a given group */
 public class GroupMainPage extends FormPage implements ArgeoNames {
 	final static String ID = "GroupEditor.mainPage";
 
@@ -73,10 +65,10 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	protected void createFormContent(final IManagedForm mf) {
 		try {
 			ScrolledForm form = mf.getForm();
+			form.getBody().getParent().setLayoutData(EclipseUiUtils.fillAll());
+			form.setExpandHorizontal(true);
 			refreshFormTitle(form);
-			GridLayout mainLayout = new GridLayout(1, true);
-			form.getBody().setLayout(mainLayout);
-
+			// GridLayout mainLayout = new GridLayout(1, true);
 			createGeneralPart(form.getBody());
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot create form content", e);
@@ -86,61 +78,87 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	/** Creates the general section */
 	protected void createGeneralPart(Composite parent)
 			throws RepositoryException {
+		parent.setLayout(new GridLayout());
+
 		FormToolkit tk = getManagedForm().getToolkit();
 		Section section = tk.createSection(parent, Section.TITLE_BAR);
-		section.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		section.setLayoutData(EclipseUiUtils.fillAll());
 		section.setText("Members of "
 				+ editor.getProperty(UserAdminConstants.KEY_CN));
-		Composite body = tk.createComposite(section, SWT.WRAP);
+
+		// Composite body = tk.createComposite(section, SWT.NONE);
+		Composite body = new Composite(section, SWT.NO_FOCUS);
 		section.setClient(body);
 		body.setLayoutData(EclipseUiUtils.fillAll());
 
-		body.setLayout(new GridLayout());
-		new Label(body, SWT.NONE)
-				.setText("Display a table with members for this group");
-
-		// final Text firstName = createLT(body, "First name",
-		// getProperty(ARGEO_FIRST_NAME));
-		// final Text lastName = createLT(body, "Last name",
-		// getProperty(ARGEO_LAST_NAME));
-		// final Text email = createLT(body, "Email",
-		// editor.getProperty(UserAdminConstants.KEY_MAIL));
-		// // final Text description = createLMT(body, "Description",
-		// getProperty(Property.JCR_DESCRIPTION));
+		createMemberPart(body);
 
 		// create form part (controller)
 		AbstractFormPart part = new SectionPart(section) {
 			public void commit(boolean onSave) {
-				// TODO check mail validity
-				// editor.setProperty(UserAdminConstants.KEY_MAIL,
-				// email.getText());
-
-				// userProfile.getSession().getWorkspace().getVersionManager()
-				// .checkout(userProfile.getPath());
-				// userProfile.setProperty(Property.JCR_TITLE,
-				// commonName.getText());
-				// userProfile.setProperty(ARGEO_FIRST_NAME,
-				// firstName.getText());
-				// userProfile
-				// .setProperty(ARGEO_LAST_NAME, lastName.getText());
-				// userProfile.setProperty(ARGEO_PRIMARY_EMAIL,
-				// email.getText());
-				// userProfile.setProperty(Property.JCR_DESCRIPTION,
-				// description.getText());
-				// userProfile.getSession().save();
-				// userProfile.getSession().getWorkspace().getVersionManager()
-				// .checkin(userProfile.getPath());
 				super.commit(onSave);
 			}
 		};
-		// if (username != null)
-		// username.addModifyListener(new FormPartML(part));
-		// commonName.addModifyListener(new FormPartML(part));
-		// firstName.addModifyListener(new FormPartML(part));
-		// lastName.addModifyListener(new FormPartML(part));
 
-		// email.addModifyListener(new FormPartML(part));
 		getManagedForm().addPart(part);
+	}
+
+	// UI Objects
+	private UserTableViewer userTableViewerCmp;
+	private TableViewer userViewer;
+	private List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
+
+	public void createMemberPart(Composite parent) {
+		// parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
+		// parent2.setLayoutData(EclipseUiUtils.fillAll());
+		// Composite parent = new Composite(parent2, SWT.NO_FOCUS);
+		// parent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
+		// parent.setLayoutData(EclipseUiUtils.fillAll());
+
+		parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
+		// Define the displayed columns
+		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 0, 24));
+		columnDefs.add(new ColumnDefinition(new UserNameLP(),
+				"Distinguished Name", 240));
+		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name",
+				150));
+		columnDefs.add(new ColumnDefinition(new MailLP(), "Primary Mail", 150));
+
+		// Create and configure the table
+		userTableViewerCmp = new MyUserTableViewer(parent, SWT.MULTI
+				| SWT.H_SCROLL | SWT.V_SCROLL, userAdmin);
+
+		userTableViewerCmp.setColumnDefinitions(columnDefs);
+		userTableViewerCmp.populate(true, false);
+		// userTableViewerCmp.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
+		// false, false));
+		userTableViewerCmp.setLayoutData(EclipseUiUtils.fillAll());
+
+		// Links
+		userViewer = userTableViewerCmp.getTableViewer();
+		userViewer.addDoubleClickListener(new UserTableDefaultDClickListener());
+		// Really?
+		userTableViewerCmp.refresh();
+	}
+
+	private class MyUserTableViewer extends UserTableViewer {
+		private static final long serialVersionUID = 8467999509931900367L;
+
+		public MyUserTableViewer(Composite parent, int style,
+				UserAdmin userAdmin) {
+			super(parent, style, userAdmin, true);
+		}
+
+		@Override
+		protected List<User> listFilteredElements(String filter) {
+			Group group = (Group) editor.getDisplayedUser();
+			Role[] roles = group.getMembers();
+			List<User> users = new ArrayList<User>();
+			for (Role role : roles)
+				// if (role.getType() == Role.GROUP)
+				users.add((User) role);
+			return users;
+		}
 	}
 
 	private void refreshFormTitle(ScrolledForm form) throws RepositoryException {
@@ -149,240 +167,16 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		// : " [DISABLED]"));
 	}
 
-	// /** @return the property, or the empty string if not set */
-	// protected String getProperty(String name) throws RepositoryException {
-	// return userProfile.hasProperty(name) ? userProfile.getProperty(name)
-	// .getString() : "";
+	// private class FormPartML implements ModifyListener {
+	// private static final long serialVersionUID = 6299808129505381333L;
+	// private AbstractFormPart formPart;
+	//
+	// public FormPartML(AbstractFormPart generalPart) {
+	// this.formPart = generalPart;
 	// }
-
-	/** Creates label and text. */
-	protected Text createLT(Composite body, String label, String value) {
-		FormToolkit toolkit = getManagedForm().getToolkit();
-		Label lbl = toolkit.createLabel(body, label);
-		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-		Text text = toolkit.createText(body, value, SWT.BORDER);
-		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		return text;
-	}
-
-	/** Creates label and multiline text. */
-	protected Text createLMT(Composite body, String label, String value) {
-		FormToolkit toolkit = getManagedForm().getToolkit();
-		Label lbl = toolkit.createLabel(body, label);
-		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-		Text text = toolkit.createText(body, value, SWT.BORDER | SWT.MULTI);
-		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
-		return text;
-	}
-
-	private class FormPartML implements ModifyListener {
-		private static final long serialVersionUID = 6299808129505381333L;
-		private AbstractFormPart formPart;
-
-		public FormPartML(AbstractFormPart generalPart) {
-			this.formPart = generalPart;
-		}
-
-		public void modifyText(ModifyEvent e) {
-			formPart.markDirty();
-		}
-	}
-
-	// Manage the user table
-	public List<ColumnDefinition> getColumnsDef() {
-		List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
-
-		// Icon
-		columnDefs.add(new ColumnDefinition(new UserNameLP(), "", 0, 26));
-		// Distinguished Name
-		columnDefs.add(new ColumnDefinition(new CommonNameLP(),
-				"Distinguished Name", 150));
-		// Displayed name
-		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name",
-				150));
-		return columnDefs;
-	}
-
-	private void createUserTable(Composite parent) {
-
-		// Main Layout
-		GridLayout layout = EclipseUiUtils.noSpaceGridLayout();
-		layout.verticalSpacing = 5;
-		parent.setLayout(layout);
-
-		// usersViewer = createTableViewer(parent);
-		// usersViewer.setContentProvider(new UsersContentProvider());
-
-		// Really?
-		refreshFilteredList(null);
-
-		// Configure
-		// usersViewer.addDoubleClickListener(new ViewDoubleClickListener());
-		// getViewSite().setSelectionProvider(usersViewer);
-	}
-
-	private TableViewer createTableViewer(final Composite parent) {
-		int style = SWT.H_SCROLL | SWT.V_SCROLL;
-
-		Composite tableCmp = new Composite(parent, SWT.NO_FOCUS);
-		tableCmp.setLayoutData(EclipseUiUtils.fillAll());
-
-		Table table = new Table(tableCmp, style);
-		TableViewer viewer = new TableViewer(table);
-		table.setLinesVisible(true);
-		table.setHeaderVisible(true);
-
-		TableColumnLayout tableColumnLayout = new TableColumnLayout();
-		TableViewerColumn column;
-
-		// Create other columns
-		List<ColumnDefinition> colDefs = getColumnsDef();
-		for (ColumnDefinition colDef : colDefs) {
-			column = ViewerUtils.createTableViewerColumn(viewer, colDef.label,
-					SWT.NONE, colDef.weight);
-			column.setLabelProvider(colDef.provider);
-			tableColumnLayout.setColumnData(column.getColumn(),
-					new ColumnWeightData(colDef.weight, colDef.minWidth, true));
-		}
-
-		tableCmp.setLayout(tableColumnLayout);
-		return viewer;
-	}
-
-	@Override
-	public void dispose() {
-		super.dispose();
-	}
-
-	private class UsersContentProvider implements IStructuredContentProvider {
-		private static final long serialVersionUID = 1L;
-
-		public Object[] getElements(Object inputElement) {
-			return (Object[]) inputElement;
-		}
-
-		public void dispose() {
-		}
-
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		}
-	}
-
-	/**
-	 * Refresh the user list: caller might overwrite in order to display a
-	 * subset of all users, typically to remove current user from the list
-	 */
-	protected void refreshFilteredList(String filter) {
-		// try {
-		// // Role[] roles = userAdmin.getRoles(filter);
-		// // List<User> users = new ArrayList<User>();
-		// // for (Role role : roles)
-		// // if (role.getType() == Role.USER && role.getType() != Role.GROUP)
-		// // users.add((User) role);
-		// // usersViewer.setInput(users.toArray());
-		// } catch (InvalidSyntaxException e) {
-		// throw new ArgeoException("Unable to get roles with filter: "
-		// + filter, e);
-		// }
-	}
-
-	// Local helpers
-
-	private abstract class UseradminAbstractLP extends ColumnLabelProvider {
-		private static final long serialVersionUID = 137336765024922368L;
-
-		@Override
-		public Font getFont(Object element) {
-			// TODO manage fonts
-			// // self
-			// String username = getProperty(elem, ARGEO_USER_ID);
-			// if (username.equals(session.getUserID()))
-			// return bold;
-			// // disabled
-			// try {
-			// Node userProfile = (Node) elem;
-			// if (!userProfile.getProperty(ARGEO_ENABLED).getBoolean())
-			// return italic;
-			// else
-			// return null;
-			// } catch (RepositoryException e) {
-			// throw new ArgeoException("Cannot get font for " + username, e);
-			// }
-			// }
-
-			return super.getFont(element);
-		}
-
-		@Override
-		public String getText(Object element) {
-			User user = (User) element;
-			return getText(user);
-		}
-
-		public abstract String getText(User user);
-	}
-
-	private class IconLP extends UseradminAbstractLP {
-		private static final long serialVersionUID = 6550449442061090388L;
-
-		@Override
-		public String getText(User user) {
-			return "";
-		}
-
-		@Override
-		public Image getImage(Object element) {
-			User user = (User) element;
-			if (user.getType() == Role.GROUP)
-				return SecurityAdminImages.ICON_GROUP;
-			else
-				return SecurityAdminImages.ICON_USER;
-		}
-	}
-
-	private class UserNameLP extends UseradminAbstractLP {
-		private static final long serialVersionUID = 6550449442061090388L;
-
-		@Override
-		public String getText(User user) {
-			return user.getName();
-		}
-	}
-
-	private class CommonNameLP extends UseradminAbstractLP {
-		private static final long serialVersionUID = 5256703081044911941L;
-
-		@Override
-		public String getText(User user) {
-			Object obj = user.getProperties().get(UserAdminConstants.KEY_CN);
-			if (obj != null)
-				return (String) obj;
-			else
-				return "";
-		}
-	}
-
-	protected class ColumnDefinition {
-		protected ColumnLabelProvider provider;
-		protected String label;
-		protected int weight;
-		protected int minWidth;
-
-		public ColumnDefinition(ColumnLabelProvider provider, String label,
-				int weight) {
-			this.provider = provider;
-			this.label = label;
-			this.weight = weight;
-			this.minWidth = weight;
-		}
-
-		public ColumnDefinition(ColumnLabelProvider provider, String label,
-				int weight, int minWidth) {
-			this.provider = provider;
-			this.label = label;
-			this.weight = weight;
-			this.minWidth = minWidth;
-
-		}
-	}
+	//
+	// public void modifyText(ModifyEvent e) {
+	// formPart.markDirty();
+	// }
+	// }
 }

@@ -16,9 +16,8 @@
 package org.argeo.security.ui.admin.editors;
 
 import org.argeo.ArgeoException;
-import org.argeo.security.ui.admin.SecurityAdminImages;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
-import org.argeo.security.ui.admin.UserAdminConstants;
+import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
@@ -28,7 +27,7 @@ import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
-/** Editor for an Argeo user. */
+/** Editor for a user, might be a user or a group. */
 public class UserEditor extends FormEditor implements UserAdminConstants {
 	private static final long serialVersionUID = 8357851520380820241L;
 
@@ -59,16 +58,19 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 		setPartName(commonName != null ? commonName : "username");
 	}
 
+	/** Exposes the user (or group) that is displayed by the current editor */
+	protected User getDisplayedUser() {
+		return user;
+	}
+
 	protected void addPages() {
 		try {
-			
+
 			if (user.getType() == Role.GROUP)
 				addPage(new GroupMainPage(this, userAdmin));
 			else
 				addPage(new UserMainPage(this));
-			
-			
-			
+
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot add pages", e);
 		}
