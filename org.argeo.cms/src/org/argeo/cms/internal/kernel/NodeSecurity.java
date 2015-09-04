@@ -1,10 +1,15 @@
 package org.argeo.cms.internal.kernel;
 
+import java.io.File;
+import java.io.IOException;
+
 import javax.jcr.RepositoryException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.KernelHeader;
 import org.argeo.cms.internal.useradmin.SimpleJcrSecurityModel;
 import org.argeo.cms.internal.useradmin.jackrabbit.JackrabbitUserAdminService;
 import org.argeo.osgi.useradmin.AbstractLdapUserAdmin;
@@ -17,6 +22,7 @@ import org.argeo.security.core.InternalAuthenticationProvider;
 import org.argeo.security.core.OsAuthenticationProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.UserAdmin;
 import org.springframework.security.authentication.AnonymousAuthenticationProvider;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -36,7 +42,7 @@ class NodeSecurity implements AuthenticationManager {
 	private final InternalAuthenticationProvider internalAuth;
 	private final AnonymousAuthenticationProvider anonymousAuth;
 	private final JackrabbitUserAdminService userAdminService;
-	private final AbstractLdapUserAdmin userAdmin;
+	private final NodeUserAdmin userAdmin;
 
 	private ServiceRegistration<AuthenticationManager> authenticationManagerReg;
 	private ServiceRegistration<UserAdminService> userAdminServiceReg;
@@ -60,15 +66,41 @@ class NodeSecurity implements AuthenticationManager {
 		userAdminService.setSecurityModel(new SimpleJcrSecurityModel());
 		userAdminService.init();
 
+		userAdmin = new NodeUserAdmin();
+
+		String baseDn = "dc=example,dc=com";
 		String userAdminUri = KernelUtils
 				.getFrameworkProp(KernelConstants.USERADMIN_URI);
 		if (userAdminUri == null)
-			userAdminUri = getClass().getResource("demo.ldif").toString();
+			userAdminUri = getClass().getResource(baseDn + ".ldif").toString();
 
+		AbstractLdapUserAdmin businessRoles;
 		if (userAdminUri.startsWith("ldap"))
-			userAdmin = new LdapUserAdmin(userAdminUri);
-		else
-			userAdmin = new LdifUserAdmin(userAdminUri);
+			businessRoles = new LdapUserAdmin(userAdminUri);
+		else {
+			businessRoles = new LdifUserAdmin(userAdminUri);
+		}
+		businessRoles.init();
+		userAdmin.addUserAdmin(baseDn, businessRoles);
+
+		File osgiInstanceDir = KernelUtils.getOsgiInstanceDir();
+		File homeDir = new File(osgiInstanceDir, "node");
+
+		String baseNodeRoleDn = KernelConstants.ROLES_BASEDN;
+		File nodeRolesFile = new File(homeDir, baseNodeRoleDn + ".ldif");
+		try {
+			FileUtils.copyInputStreamToFile(
+					getClass().getResourceAsStream("demo.ldif"), nodeRolesFile);
+		} catch (IOException e) {
+			throw new CmsException("Cannot copy demo resource", e);
+		}
+		LdifUserAdmin nodeRoles = new LdifUserAdmin(nodeRolesFile.toURI()
+				.toString());
+		nodeRoles.setExternalRoles(userAdmin);
+		nodeRoles.init();
+		// nodeRoles.createRole(KernelHeader.ROLE_ADMIN, Role.GROUP);
+		userAdmin.addUserAdmin(baseNodeRoleDn, nodeRoles);
+
 	}
 
 	public void publish() {
@@ -92,7 +124,7 @@ class NodeSecurity implements AuthenticationManager {
 		userAdminServiceReg.unregister();
 		authenticationManagerReg.unregister();
 
-		userAdmin.destroy();
+		// userAdmin.destroy();
 		userAdminReg.unregister();
 	}
 

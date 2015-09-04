@@ -19,6 +19,7 @@ public interface KernelConstants {
 	// Node Security
 	/** URI to an LDIF file used as initialization or backend */
 	final static String USERADMIN_URI = "argeo.node.useradmin.uri";
+	final static String ROLES_BASEDN = "ou=system,ou=node";
 
 	final static String[] DEFAULT_CNDS = { "/org/argeo/jcr/argeo.cnd",
 			"/org/argeo/cms/cms.cnd" };
