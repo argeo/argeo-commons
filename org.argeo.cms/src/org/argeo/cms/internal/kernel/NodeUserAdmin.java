@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.cms.KernelHeader;
 import org.argeo.osgi.useradmin.ArgeoUserAdminException;
 import org.argeo.osgi.useradmin.UserAdminAggregator;
 import org.osgi.framework.InvalidSyntaxException;
@@ -23,7 +24,7 @@ public class NodeUserAdmin implements UserAdmin, UserAdminAggregator {
 	final static LdapName ROLES_BASE;
 	static {
 		try {
-			ROLES_BASE = new LdapName(KernelConstants.ROLES_BASEDN);
+			ROLES_BASE = new LdapName(KernelHeader.ROLES_BASEDN);
 		} catch (InvalidNameException e) {
 			throw new ArgeoUserAdminException("Cannot initialize "
 					+ NodeUserAdmin.class, e);
@@ -89,7 +90,7 @@ public class NodeUserAdmin implements UserAdmin, UserAdminAggregator {
 	//
 	@Override
 	public synchronized void addUserAdmin(String baseDn, UserAdmin userAdmin) {
-		if (baseDn.equals(KernelConstants.ROLES_BASEDN)) {
+		if (baseDn.equals(KernelHeader.ROLES_BASEDN)) {
 			nodeRoles = userAdmin;
 			return;
 		}
@@ -107,7 +108,7 @@ public class NodeUserAdmin implements UserAdmin, UserAdminAggregator {
 
 	@Override
 	public synchronized void removeUserAdmin(String baseDn) {
-		if (baseDn.equals(KernelConstants.ROLES_BASEDN))
+		if (baseDn.equals(KernelHeader.ROLES_BASEDN))
 			throw new ArgeoUserAdminException("Node roles cannot be removed.");
 		LdapName base;
 		try {

@@ -59,7 +59,7 @@
 		  <enabledWhen>
 		    <with variable="roles">
 		      <iterate ifEmpty="false" operator="or">
-		        <equals value="cn=user,ou=system,ou=node" />
+		        <equals value="cn=user,ou=roles,ou=node" />
 		      </iterate>
 		    </with>
 		  </enabledWhen>
@@ -71,7 +71,7 @@
 		  <enabledWhen>
 		    <with variable="roles">
 		      <iterate ifEmpty="false" operator="or">
-		        <equals value="cn=admin,ou=system,ou=node" />
+		        <equals value="cn=admin,ou=roles,ou=node" />
 		      </iterate>
 		    </with>
 		  </enabledWhen>
@@ -83,7 +83,7 @@
 		  <enabledWhen>
 		    <with variable="roles">
 		      <iterate ifEmpty="false" operator="or">
-		        <equals value="cn=userAdmin,ou=system,ou=node" />
+		        <equals value="cn=userAdmin,ou=roles,ou=node" />
 		      </iterate>
 		    </with>
 		  </enabledWhen>
@@ -95,7 +95,7 @@
 		  <enabledWhen>
 		    <with variable="roles">
 		      <iterate ifEmpty="false" operator="or">
-		        <equals value="cn=groupAdmin,ou=system,ou=node" />
+		        <equals value="cn=groupAdmin,ou=roles,ou=node" />
 		      </iterate>
 		    </with>
 		  </enabledWhen>
@@ -108,7 +108,7 @@
 		  	<not>
 		    <with variable="roles">
 		      <iterate ifEmpty="false" operator="or">
-		        <equals value="cn=admin,ou=system,ou=node" />
+		        <equals value="cn=admin,ou=roles,ou=node" />
 		      </iterate>
 		    </with>
 		  	</not>

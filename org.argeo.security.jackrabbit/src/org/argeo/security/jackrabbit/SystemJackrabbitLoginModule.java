@@ -39,10 +39,10 @@ public class SystemJackrabbitLoginModule implements LoginModule {
 		// FIXME make it more generic
 		for (Principal principal : principals) {
 			if (principal.getName().equalsIgnoreCase(
-					"cn=admin,ou=system,ou=node"))
+					"cn=admin,ou=roles,ou=node"))
 				isAdmin = true;
 			else if (principal.getName().equalsIgnoreCase(
-					"cn=anonymous,ou=system,ou=node"))
+					"cn=anonymous,ou=roles,ou=node"))
 				isAnonymous = true;
 		}
 

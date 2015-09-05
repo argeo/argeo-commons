@@ -86,7 +86,7 @@ class NodeSecurity implements AuthenticationManager {
 		File osgiInstanceDir = KernelUtils.getOsgiInstanceDir();
 		File homeDir = new File(osgiInstanceDir, "node");
 
-		String baseNodeRoleDn = KernelConstants.ROLES_BASEDN;
+		String baseNodeRoleDn = KernelHeader.ROLES_BASEDN;
 		File nodeRolesFile = new File(homeDir, baseNodeRoleDn + ".ldif");
 		try {
 			FileUtils.copyInputStreamToFile(
