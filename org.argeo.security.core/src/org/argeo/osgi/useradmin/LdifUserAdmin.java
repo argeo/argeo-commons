@@ -1,6 +1,10 @@
 package org.argeo.osgi.useradmin;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -18,6 +22,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
+import org.apache.commons.io.IOUtils;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -61,6 +66,29 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 			load(getUri().toURL().openStream());
 		} catch (Exception e) {
 			throw new ArgeoUserAdminException("Cannot open URL " + getUri(), e);
+		}
+	}
+
+	public void save() {
+		if (getUri() == null || isReadOnly())
+			throw new ArgeoUserAdminException("Cannot save LDIF user admin");
+		try (FileOutputStream out = new FileOutputStream(new File(getUri()))) {
+			save(out);
+		} catch (IOException e) {
+			throw new ArgeoUserAdminException("Cannot save user admin to "
+					+ getUri(), e);
+		}
+	}
+
+	public void save(OutputStream out) throws IOException {
+		try {
+			LdifWriter ldifWriter = new LdifWriter(out);
+			for (LdapName name : groups.keySet())
+				ldifWriter.writeEntry(name, groups.get(name).getAttributes());
+			for (LdapName name : users.keySet())
+				ldifWriter.writeEntry(name, users.get(name).getAttributes());
+		} finally {
+			IOUtils.closeQuietly(out);
 		}
 	}
 

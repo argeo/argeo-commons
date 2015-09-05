@@ -1,5 +1,7 @@
 package org.argeo.osgi.useradmin;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.List;
 
@@ -7,6 +9,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
@@ -15,8 +18,19 @@ import org.osgi.service.useradmin.User;
 public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 
 	public void testBasicUserAdmin() throws Exception {
-		LdifUserAdmin userAdmin = new LdifUserAdmin(getClass()
+		// read
+		LdifUserAdmin initialUserAdmin = new LdifUserAdmin(getClass()
 				.getResourceAsStream("basic.ldif"));
+		// write
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		initialUserAdmin.save(out);
+		byte[] arr = out.toByteArray();
+		initialUserAdmin.destroy();
+		IOUtils.closeQuietly(out);
+		String written = new String(arr);
+		System.out.print(written);
+		ByteArrayInputStream in = new ByteArrayInputStream(arr);
+		LdifUserAdmin userAdmin = new LdifUserAdmin(in);
 
 		// users
 		User rootUser = (User) userAdmin.getRole(ROOT_USER_DN);
@@ -54,7 +68,7 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 				.getBytes();
 		assertTrue(rootUser.hasCredential("userpassword", hashedPassword));
 		assertTrue(demoUser.hasCredential("userpassword", hashedPassword));
-		
+
 		// search
 		Role[] search = userAdmin.getRoles(null);
 		assertEquals(4, search.length);
