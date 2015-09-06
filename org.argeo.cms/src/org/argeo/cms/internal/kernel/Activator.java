@@ -2,6 +2,8 @@ package org.argeo.cms.internal.kernel;
 
 import java.util.UUID;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.security.SystemAuthentication;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -11,6 +13,8 @@ import org.osgi.framework.BundleContext;
  * access to kernel information for the rest of the bundle (and only it)
  */
 public class Activator implements BundleActivator {
+	private final Log log = LogFactory.getLog(Activator.class);
+
 	private final static String systemKey;
 	static {
 		systemKey = UUID.randomUUID().toString();
@@ -25,8 +29,12 @@ public class Activator implements BundleActivator {
 		assert bundleContext == null;
 		assert kernel == null;
 		bundleContext = context;
-		kernel = new Kernel();
-		kernel.init();
+		try {
+			kernel = new Kernel();
+			kernel.init();
+		} catch (Exception e) {
+			log.error("Cannot boot kernel", e);
+		}
 	}
 
 	@Override

@@ -5,6 +5,8 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.security.Principal;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,6 +24,9 @@ import javax.security.auth.x500.X500Principal;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.jackrabbit.core.security.AnonymousPrincipal;
+import org.apache.jackrabbit.core.security.SecurityConstants;
+import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.KernelHeader;
 import org.argeo.cms.internal.kernel.Activator;
@@ -35,12 +40,20 @@ public class UserAdminLoginModule implements LoginModule {
 	private CallbackHandler callbackHandler;
 	private boolean isAnonymous = false;
 
-	private final static LdapName ROLE_USER_NAME, ROLE_ANONYMOUS_NAME;
+	private final static LdapName ROLE_ADMIN_NAME, ROLE_USER_NAME,
+			ROLE_ANONYMOUS_NAME;
+	private final static List<LdapName> RESERVED_ROLES;
 	private final static X500Principal ROLE_ANONYMOUS_PRINCIPAL;
 	static {
 		try {
+			ROLE_ADMIN_NAME = new LdapName(KernelHeader.ROLE_ADMIN);
 			ROLE_USER_NAME = new LdapName(KernelHeader.ROLE_USER);
 			ROLE_ANONYMOUS_NAME = new LdapName(KernelHeader.ROLE_ANONYMOUS);
+			RESERVED_ROLES = Collections.unmodifiableList(Arrays
+					.asList(new LdapName[] { ROLE_ANONYMOUS_NAME,
+							ROLE_USER_NAME, ROLE_ADMIN_NAME,
+							new LdapName(KernelHeader.ROLE_GROUP_ADMIN),
+							new LdapName(KernelHeader.ROLE_USER_ADMIN) }));
 			ROLE_ANONYMOUS_PRINCIPAL = new X500Principal(
 					ROLE_ANONYMOUS_NAME.toString());
 		} catch (InvalidNameException e) {
@@ -133,15 +146,17 @@ public class UserAdminLoginModule implements LoginModule {
 			try {
 				String authName = authorization.getName();
 
-				// determine user'S principal
+				// determine user's principal
 				final LdapName name;
 				final Principal userPrincipal;
 				if (authName == null) {
 					name = ROLE_ANONYMOUS_NAME;
 					userPrincipal = ROLE_ANONYMOUS_PRINCIPAL;
 					principals.add(userPrincipal);
+					principals.add(new AnonymousPrincipal());
 				} else {
 					name = new LdapName(authName);
+					checkUserName(name);
 					userPrincipal = new X500Principal(name.toString());
 					principals.add(userPrincipal);
 					principals.add(new ImpliedByPrincipal(ROLE_USER_NAME,
@@ -151,17 +166,15 @@ public class UserAdminLoginModule implements LoginModule {
 				// Add roles provided by authorization
 				for (String role : authorization.getRoles()) {
 					LdapName roleName = new LdapName(role);
-					if (ROLE_USER_NAME.equals(roleName))
-						throw new CmsException(ROLE_USER_NAME
-								+ " cannot be listed as role");
-					if (ROLE_ANONYMOUS_NAME.equals(roleName))
-						throw new CmsException(ROLE_ANONYMOUS_NAME
-								+ " cannot be listed as role");
 					if (roleName.equals(name)) {
 						// skip
 					} else {
+						checkImpliedPrincipalName(roleName);
 						principals.add(new ImpliedByPrincipal(roleName
 								.toString(), userPrincipal));
+						if (roleName.equals(ROLE_ADMIN_NAME))
+							principals.add(new AdminPrincipal(
+									SecurityConstants.ADMIN_ID));
 					}
 				}
 
@@ -196,5 +209,16 @@ public class UserAdminLoginModule implements LoginModule {
 	private void cleanUp() {
 		subject = null;
 		authorization = null;
+	}
+
+	private void checkUserName(LdapName name) {
+		if (RESERVED_ROLES.contains(name))
+			throw new CmsException(name + " is a reserved name");
+	}
+
+	private void checkImpliedPrincipalName(LdapName roleName) {
+		if (ROLE_USER_NAME.equals(roleName)
+				|| ROLE_ANONYMOUS_NAME.equals(roleName))
+			throw new CmsException(roleName + " cannot be listed as role");
 	}
 }

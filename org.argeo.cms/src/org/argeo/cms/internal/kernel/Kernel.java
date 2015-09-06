@@ -2,17 +2,22 @@ package org.argeo.cms.internal.kernel;
 
 import java.lang.management.ManagementFactory;
 import java.net.URL;
+import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryFactory;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.util.TransientFileFactory;
 import org.argeo.ArgeoException;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.KernelHeader;
 import org.argeo.jackrabbit.OsgiJackrabbitRepositoryFactory;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.security.core.InternalAuthentication;
@@ -47,12 +52,35 @@ final class Kernel implements ServiceListener {
 	NodeHttp nodeHttp;
 	private KernelThread kernelThread;
 
-	void init() {
+	private final Subject kernelSubject = new Subject();
+
+	public Kernel() {
 		URL url = getClass().getClassLoader().getResource(
 				KernelConstants.JAAS_CONFIG);
 		System.setProperty("java.security.auth.login.config",
 				url.toExternalForm());
+		try {
+			LoginContext kernelLc = new LoginContext(
+					KernelHeader.LOGIN_CONTEXT_SYSTEM, kernelSubject);
+			kernelLc.login();
+		} catch (LoginException e) {
+			throw new CmsException("Cannot log in kernel", e);
+		}
+	}
 
+	final void init() {
+		Subject.doAs(kernelSubject, new PrivilegedAction<Void>() {
+
+			@Override
+			public Void run() {
+				doInit();
+				return null;
+			}
+
+		});
+	}
+
+	private void doInit() {
 		ClassLoader currentContextCl = Thread.currentThread()
 				.getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(
@@ -120,6 +148,14 @@ final class Kernel implements ServiceListener {
 
 		// Clean hanging threads from Jackrabbit
 		TransientFileFactory.shutdown();
+
+		try {
+			LoginContext kernelLc = new LoginContext(
+					KernelHeader.LOGIN_CONTEXT_SYSTEM, kernelSubject);
+			kernelLc.logout();
+		} catch (LoginException e) {
+			throw new CmsException("Cannot log in kernel", e);
+		}
 
 		long duration = System.currentTimeMillis() - begin;
 		log.info("## ARGEO CMS DOWN in " + (duration / 1000) + "."

@@ -131,6 +131,8 @@ class NodeSecurity implements AuthenticationManager {
 	@Override
 	public Authentication authenticate(Authentication authentication)
 			throws AuthenticationException {
+//		throw new UnsupportedOperationException(
+//				"Authentication manager is deprectaed and should not be used.");
 		Authentication auth = null;
 		if (authentication instanceof InternalAuthentication)
 			auth = internalAuth.authenticate(authentication);

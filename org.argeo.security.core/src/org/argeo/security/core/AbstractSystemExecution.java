@@ -15,105 +15,103 @@
  */
 package org.argeo.security.core;
 
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
-import org.argeo.security.SystemAuthentication;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 /** Provides base method for executing code with system authorization. */
 public abstract class AbstractSystemExecution {
-	static {
-		// Forces Spring Security to use inheritable strategy
-		// FIXME find a better place for forcing spring security mode
-		// doesn't work for the time being
-		// if (System.getProperty(SecurityContextHolder.SYSTEM_PROPERTY) ==
-		// null)
-		// SecurityContextHolder
-		// .setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
-	}
-
 	private final static Log log = LogFactory
 			.getLog(AbstractSystemExecution.class);
-	private AuthenticationManager authenticationManager;
-	private String systemAuthenticationKey;
+	// private AuthenticationManager authenticationManager;
+	private final Subject subject = new Subject();
+	// private String systemAuthenticationKey;
+
+	private final String loginModule = "SYSTEM";
 
 	/** Whether the current thread was authenticated by this component. */
-	private ThreadLocal<Boolean> authenticatedBySelf = new ThreadLocal<Boolean>() {
-		protected Boolean initialValue() {
-			return false;
-		}
-	};
+	// private ThreadLocal<Boolean> authenticatedBySelf = new
+	// ThreadLocal<Boolean>() {
+	// protected Boolean initialValue() {
+	// return false;
+	// }
+	// };
 
 	/**
 	 * Authenticate the calling thread to the underlying
 	 * {@link AuthenticationManager}
 	 */
 	protected void authenticateAsSystem() {
-		if (authenticatedBySelf.get())
-			return;
-		SecurityContext securityContext = SecurityContextHolder.getContext();
-		Authentication currentAuth = securityContext.getAuthentication();
-		if (currentAuth != null) {
-			if (!(currentAuth instanceof SystemAuthentication))
-				throw new ArgeoException(
-						"System execution on an already authenticated thread: "
-								+ currentAuth + ", THREAD="
-								+ Thread.currentThread().getId());
-			return;
+		try {
+			LoginContext lc = new LoginContext(loginModule, subject);
+			lc.login();
+		} catch (LoginException e) {
+			throw new ArgeoException("Cannot login as system", e);
 		}
-		// Subject subject = Subject.getSubject(AccessController.getContext());
-		// if (subject != null
-		// && !subject.getPrincipals(Authentication.class).isEmpty())
+		// if (authenticatedBySelf.get())
+		// return;
+		// SecurityContext securityContext = SecurityContextHolder.getContext();
+		// Authentication currentAuth = securityContext.getAuthentication();
+		// if (currentAuth != null) {
+		// if (!(currentAuth instanceof SystemAuthentication))
 		// throw new ArgeoException(
-		// "There is already an authenticated subject: " + subject);
-
-		String key = systemAuthenticationKey != null ? systemAuthenticationKey
-				: System.getProperty(
-						SystemAuthentication.SYSTEM_KEY_PROPERTY,
-						InternalAuthentication.SYSTEM_KEY_DEFAULT);
-		if (key == null)
-			throw new ArgeoException("No system key defined");
-		if (authenticationManager == null)
-			throw new ArgeoException("Authentication manager cannot be null.");
-		Authentication auth = authenticationManager
-				.authenticate(new InternalAuthentication(key));
-		securityContext.setAuthentication(auth);
-
-		authenticatedBySelf.set(true);
+		// "System execution on an already authenticated thread: "
+		// + currentAuth + ", THREAD="
+		// + Thread.currentThread().getId());
+		// return;
+		// }
+		//
+		// String key = systemAuthenticationKey != null ?
+		// systemAuthenticationKey
+		// : System.getProperty(
+		// SystemAuthentication.SYSTEM_KEY_PROPERTY,
+		// InternalAuthentication.SYSTEM_KEY_DEFAULT);
+		// if (key == null)
+		// throw new ArgeoException("No system key defined");
+		// if (authenticationManager == null)
+		// throw new ArgeoException("Authentication manager cannot be null.");
+		// Authentication auth = authenticationManager
+		// .authenticate(new InternalAuthentication(key));
+		// securityContext.setAuthentication(auth);
+		//
+		// authenticatedBySelf.set(true);
 		if (log.isTraceEnabled())
 			log.trace("System authenticated");
 	}
 
-	// /** Removes the authentication from the calling thread. */
-	// protected void deauthenticateAsSystem() {
-	// // remove the authentication
-	// // SecurityContext securityContext = SecurityContextHolder.getContext();
-	// // securityContext.setAuthentication(null);
-	// // authenticatedBySelf.set(false);
-	// if (log.isTraceEnabled()) {
-	// log.trace("System deauthenticated");
-	// // Thread.dumpStack();
-	// }
-	// }
-
-	/**
-	 * Whether the current thread was authenticated by this component or a
-	 * parent thread.
-	 */
-	protected Boolean isAuthenticatedBySelf() {
-		return authenticatedBySelf.get();
+	protected void deauthenticateAsSystem() {
+		try {
+			LoginContext lc = new LoginContext(loginModule, subject);
+			lc.logout();
+		} catch (LoginException e) {
+			throw new ArgeoException("Cannot logout as system", e);
+		}
 	}
 
+	protected Subject getSubject() {
+		return subject;
+	}
+
+	// /**
+	// * Whether the current thread was authenticated by this component or a
+	// * parent thread.
+	// */
+	// protected Boolean isAuthenticatedBySelf() {
+	// return authenticatedBySelf.get();
+	// }
+	//
 	public void setAuthenticationManager(
 			AuthenticationManager authenticationManager) {
-		this.authenticationManager = authenticationManager;
+		log.warn("Use of authenticationManager is deprecated, remove this property from the configuration.");
 	}
 
 	public void setSystemAuthenticationKey(String systemAuthenticationKey) {
-		this.systemAuthenticationKey = systemAuthenticationKey;
+		log.warn("Use of systemAuthenticationKey is deprecated, remove this property from the configuration.");
+		// this.systemAuthenticationKey = systemAuthenticationKey;
 	}
 }
