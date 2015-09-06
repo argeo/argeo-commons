@@ -21,8 +21,9 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.LanguageCallback;
 
-/** Choose in a list of locales */
+/** Choose in a list of locales. TODO: replace with {@link LanguageCallback} */
 public class LocaleCallback implements Callback {
 	private List<Locale> availableLocales = new ArrayList<Locale>();
 
