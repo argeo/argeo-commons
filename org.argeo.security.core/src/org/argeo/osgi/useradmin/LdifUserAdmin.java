@@ -37,6 +37,9 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 
 	private Map<String, Map<String, LdifUser>> userIndexes = new LinkedHashMap<String, Map<String, LdifUser>>();
 
+	// private Map<LdapName, List<LdifGroup>> directMemberOf = new
+	// TreeMap<LdapName, List<LdifGroup>>();
+
 	public LdifUserAdmin(String uri) {
 		this(uri, true);
 	}
@@ -106,15 +109,15 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 						users.put(key, new LdifUser(key, attributes));
 						break objectClasses;
 					} else if (objectClass.equals("groupOfNames")) {
-						groups.put(key, new LdifGroup(key, attributes));
+						groups.put(key, new LdifGroup(this, key, attributes));
 						break objectClasses;
 					}
 				}
 			}
 
 			// optimise
-			for (LdifGroup group : groups.values())
-				loadMembers(group);
+//			for (LdifGroup group : groups.values())
+//				loadMembers(group);
 
 			// indexes
 			for (String attr : getIndexedUserProperties())
@@ -168,7 +171,8 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 
 	@Override
 	public Authorization getAuthorization(User user) {
-		return new LdifAuthorization((LdifUser) user);
+		return new LdifAuthorization((LdifUser) user,
+				getAllRoles((LdifUser) user));
 	}
 
 	@Override
@@ -188,7 +192,7 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 				newRole = new LdifUser(dn, attrs);
 				users.put(dn, newRole);
 			} else if (type == Role.GROUP) {
-				newRole = new LdifGroup(dn, attrs);
+				newRole = new LdifGroup(this, dn, attrs);
 				groups.put(dn, (LdifGroup) newRole);
 			} else
 				throw new ArgeoUserAdminException("Unsupported type " + type);
@@ -211,17 +215,18 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 				throw new ArgeoUserAdminException("There is no role " + name);
 			if (role == null)
 				return false;
-			for (LdifGroup group : role.directMemberOf) {
-				group.directMembers.remove(role);
+			for (LdifGroup group : getDirectGroups(role)) {
+//				group.directMembers.remove(role);
 				group.getAttributes().get(group.getMemberAttrName())
 						.remove(dn.toString());
 			}
 			if (role instanceof LdifGroup) {
 				LdifGroup group = (LdifGroup) role;
-				for (Role user : group.directMembers) {
-					if (user instanceof LdifUser)
-						((LdifUser) user).directMemberOf.remove(group);
-				}
+				// for (Role user : group.directMembers) {
+				// if (user instanceof LdifUser)
+				// directMemberOf.get(((LdifUser) user).getDn()).remove(
+				// group);
+				// }
 			}
 			return true;
 		} catch (InvalidNameException e) {
@@ -280,25 +285,54 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 		// throw new UnsupportedOperationException();
 	}
 
-	protected void loadMembers(LdifGroup group) {
-		group.directMembers = new ArrayList<Role>();
-		for (LdapName ldapName : group.getMemberNames()) {
-			LdifUser role = null;
-			if (groups.containsKey(ldapName))
-				role = groups.get(ldapName);
-			else if (users.containsKey(ldapName))
-				role = users.get(ldapName);
-			else {
-				if (getExternalRoles() != null)
-					role = (LdifUser) getExternalRoles().getRole(
-							ldapName.toString());
-				if (role == null)
-					throw new ArgeoUserAdminException("No role found for "
-							+ ldapName);
+//	protected void loadMembers(LdifGroup group) {
+//		group.directMembers = new ArrayList<Role>();
+//		for (LdapName ldapName : group.getMemberNames()) {
+//			LdifUser role = null;
+//			if (groups.containsKey(ldapName))
+//				role = groups.get(ldapName);
+//			else if (users.containsKey(ldapName))
+//				role = users.get(ldapName);
+//			else {
+//				if (getExternalRoles() != null)
+//					role = (LdifUser) getExternalRoles().getRole(
+//							ldapName.toString());
+//				if (role == null)
+//					throw new ArgeoUserAdminException("No role found for "
+//							+ ldapName);
+//			}
+//			// role.directMemberOf.add(group);
+//			// if (!directMemberOf.containsKey(role.getDn()))
+//			// directMemberOf.put(role.getDn(), new ArrayList<LdifGroup>());
+//			// directMemberOf.get(role.getDn()).add(group);
+//			group.directMembers.add(role);
+//		}
+//	}
+
+	@Override
+	protected List<LdifGroup> getDirectGroups(User user) {
+		LdapName dn;
+		if (user instanceof LdifUser)
+			dn = ((LdifUser) user).getDn();
+		else
+			try {
+				dn = new LdapName(user.getName());
+			} catch (InvalidNameException e) {
+				throw new ArgeoUserAdminException("Badly formatted user name "
+						+ user.getName(), e);
 			}
-			role.directMemberOf.add(group);
-			group.directMembers.add(role);
+
+		List<LdifGroup> directGroups = new ArrayList<LdifGroup>();
+		for (LdapName name : groups.keySet()) {
+			LdifGroup group = groups.get(name);
+			if (group.getMemberNames().contains(dn))
+				directGroups.add(group);
 		}
+		return directGroups;
+		// if (directMemberOf.containsKey(dn))
+		// return Collections.unmodifiableList(directMemberOf.get(dn));
+		// else
+		// return Collections.EMPTY_LIST;
 	}
 
 }

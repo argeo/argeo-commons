@@ -9,7 +9,8 @@ public interface KernelHeader {
 	final static String LOGIN_CONTEXT_SINGLE_USER = "SINGLE_USER";
 
 	// RESERVED ROLES
-	final static String ROLES_BASEDN = "ou=roles,ou=node";
+	public final static String ROLE_KERNEL = "OU=node";
+	public final static String ROLES_BASEDN = "ou=roles,ou=node";
 	public final static String ROLE_ADMIN = "cn=admin," + ROLES_BASEDN;
 	public final static String ROLE_GROUP_ADMIN = "cn=groupAdmin,"
 			+ ROLES_BASEDN;

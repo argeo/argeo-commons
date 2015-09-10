@@ -12,7 +12,7 @@ import org.osgi.service.useradmin.User;
 
 class LdifUser implements User {
 	// optimisation
-	List<LdifGroup> directMemberOf = new ArrayList<LdifGroup>();
+	//List<LdifGroup> directMemberOf = new ArrayList<LdifGroup>();
 
 	private final LdapName dn;
 	private Attributes attributes;

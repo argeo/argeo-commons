@@ -85,6 +85,7 @@ public final class ImpliedByPrincipal implements Group {
 
 	@Override
 	public String toString() {
-		return name.toString() + " implied by " + causes;
+		// return name.toString() + " implied by " + causes;
+		return name.toString();
 	}
 }

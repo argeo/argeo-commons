@@ -8,10 +8,10 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 
 import org.osgi.framework.BundleContext;
 
-public class BuncleContextCallbackHander implements CallbackHandler {
+public class BundleContextCallbackHander implements CallbackHandler {
 	private final BundleContext bundleContext;
 
-	public BuncleContextCallbackHander(BundleContext bundleContext) {
+	public BundleContextCallbackHander(BundleContext bundleContext) {
 		this.bundleContext = bundleContext;
 	}
 

@@ -10,15 +10,18 @@ import javax.naming.ldap.LdapName;
 
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
+import org.osgi.service.useradmin.UserAdmin;
 
 public class LdifGroup extends LdifUser implements Group {
 	// optimisation
-	List<Role> directMembers = null;
+	// List<Role> directMembers = null;
 
+	private final UserAdmin userAdmin;
 	private String memberAttrName = "member";
 
-	public LdifGroup(LdapName dn, Attributes attributes) {
+	public LdifGroup(UserAdmin userAdmin, LdapName dn, Attributes attributes) {
 		super(dn, attributes);
+		this.userAdmin = userAdmin;
 	}
 
 	@Override
@@ -29,9 +32,9 @@ public class LdifGroup extends LdifUser implements Group {
 				return false;
 		} else
 			getAttributes().put(memberAttrName, role.getName());
-		directMembers.add(role);
-		if (role instanceof LdifUser)
-			((LdifUser) role).directMemberOf.add(this);
+		// directMembers.add(role);
+		// if (role instanceof LdifUser)
+		// ((LdifUser) role).directMemberOf.add(this);
 		return true;
 	}
 
@@ -47,9 +50,9 @@ public class LdifGroup extends LdifUser implements Group {
 			if (!member.contains(role.getName()))
 				return false;
 			member.remove(role.getName());
-			directMembers.remove(role);
-			if (role instanceof LdifUser)
-				((LdifUser) role).directMemberOf.remove(this);
+			// directMembers.remove(role);
+			// if (role instanceof LdifUser)
+			// ((LdifUser) role).directMemberOf.remove(this);
 			return true;
 		} else
 			return false;
@@ -57,10 +60,29 @@ public class LdifGroup extends LdifUser implements Group {
 
 	@Override
 	public Role[] getMembers() {
-		if (directMembers != null)
-			return directMembers.toArray(new Role[directMembers.size()]);
-		else
-			throw new ArgeoUserAdminException("Members have not been loaded.");
+		List<Role> directMembers = new ArrayList<Role>();
+		for (LdapName ldapName : getMemberNames()) {
+			Role role = userAdmin.getRole(ldapName.toString());
+			if (role == null && userAdmin instanceof AbstractLdapUserAdmin) {
+				AbstractLdapUserAdmin ua = (AbstractLdapUserAdmin) userAdmin;
+				if (ua.getExternalRoles() != null)
+					role = ua.getExternalRoles().getRole(ldapName.toString());
+			}
+			if (role == null)
+				throw new ArgeoUserAdminException("No role found for "
+						+ ldapName);
+
+			// role.directMemberOf.add(group);
+			// if (!directMemberOf.containsKey(role.getDn()))
+			// directMemberOf.put(role.getDn(), new ArrayList<LdifGroup>());
+			// directMemberOf.get(role.getDn()).add(group);
+			directMembers.add(role);
+		}
+		return directMembers.toArray(new Role[directMembers.size()]);
+		// if (directMembers != null)
+		// return directMembers.toArray(new Role[directMembers.size()]);
+		// else
+		// throw new ArgeoUserAdminException("Members have not been loaded.");
 
 		// Attribute memberAttribute = getAttributes().get(memberAttrName);
 		// if (memberAttribute == null)
@@ -78,21 +100,21 @@ public class LdifGroup extends LdifUser implements Group {
 		// }
 	}
 
-//	void loadMembers(LdifUserAdmin userAdmin) {
-//		directMembers = new ArrayList<Role>();
-//		for (LdapName ldapName : getMemberNames()) {
-//			LdifUser role;
-//			if (userAdmin.groups.containsKey(ldapName))
-//				role = userAdmin.groups.get(ldapName);
-//			else if (userAdmin.users.containsKey(ldapName))
-//				role = userAdmin.users.get(ldapName);
-//			else
-//				throw new ArgeoUserAdminException("No role found for "
-//						+ ldapName);
-//			role.directMemberOf.add(this);
-//			directMembers.add(role);
-//		}
-//	}
+	// void loadMembers(LdifUserAdmin userAdmin) {
+	// directMembers = new ArrayList<Role>();
+	// for (LdapName ldapName : getMemberNames()) {
+	// LdifUser role;
+	// if (userAdmin.groups.containsKey(ldapName))
+	// role = userAdmin.groups.get(ldapName);
+	// else if (userAdmin.users.containsKey(ldapName))
+	// role = userAdmin.users.get(ldapName);
+	// else
+	// throw new ArgeoUserAdminException("No role found for "
+	// + ldapName);
+	// role.directMemberOf.add(this);
+	// directMembers.add(role);
+	// }
+	// }
 
 	List<LdapName> getMemberNames() {
 		Attribute memberAttribute = getAttributes().get(memberAttrName);
@@ -124,6 +146,5 @@ public class LdifGroup extends LdifUser implements Group {
 	public String getMemberAttrName() {
 		return memberAttrName;
 	}
-	
-	
+
 }

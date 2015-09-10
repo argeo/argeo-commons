@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
+import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
@@ -89,7 +90,7 @@ public class LdapUserAdmin extends AbstractLdapUserAdmin {
 			Attributes attrs = initialLdapContext.getAttributes(name);
 			LdifUser res;
 			if (attrs.get("objectClass").contains("groupOfNames"))
-				res = new LdifGroup(new LdapName(name), attrs);
+				res = new LdifGroup(this, new LdapName(name), attrs);
 			else if (attrs.get("objectClass").contains("inetOrgPerson"))
 				res = new LdifUser(new LdapName(name), attrs);
 			else
@@ -105,6 +106,8 @@ public class LdapUserAdmin extends AbstractLdapUserAdmin {
 	public Role[] getRoles(String filter) throws InvalidSyntaxException {
 		try {
 			String searchFilter = filter;
+			if (searchFilter == null)
+				searchFilter = "(|(objectClass=inetOrgPerson)(objectClass=groupOfNames))";
 			SearchControls searchControls = new SearchControls();
 			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
@@ -116,15 +119,16 @@ public class LdapUserAdmin extends AbstractLdapUserAdmin {
 			while (results.hasMoreElements()) {
 				SearchResult searchResult = results.next();
 				Attributes attrs = searchResult.getAttributes();
-				String name = searchResult.getName();
 				LdifUser role;
 				if (attrs.get("objectClass").contains("groupOfNames"))
-					role = new LdifGroup(new LdapName(name), attrs);
+					role = new LdifGroup(this, toDn(searchBase, searchResult),
+							attrs);
 				else if (attrs.get("objectClass").contains("inetOrgPerson"))
-					role = new LdifUser(new LdapName(name), attrs);
+					role = new LdifUser(toDn(searchBase, searchResult), attrs);
 				else
 					throw new ArgeoUserAdminException(
-							"Unsupported LDAP type for " + name);
+							"Unsupported LDAP type for "
+									+ searchResult.getName());
 				res.add(role);
 			}
 			return res.toArray(new Role[res.size()]);
@@ -179,8 +183,8 @@ public class LdapUserAdmin extends AbstractLdapUserAdmin {
 	@Override
 	public Authorization getAuthorization(User user) {
 		LdifUser u = (LdifUser) user;
-		populateDirectMemberOf(u);
-		return new LdifAuthorization(u);
+		// populateDirectMemberOf(u);
+		return new LdifAuthorization(u, getAllRoles(u));
 	}
 
 	private LdapName toDn(String baseDn, Binding binding)
@@ -189,8 +193,38 @@ public class LdapUserAdmin extends AbstractLdapUserAdmin {
 				+ baseDn : binding.getName());
 	}
 
-	void populateDirectMemberOf(LdifUser user) {
+	// void populateDirectMemberOf(LdifUser user) {
+	//
+	// try {
+	// String searchFilter = "(&(objectClass=groupOfNames)(member="
+	// + user.getName() + "))";
+	//
+	// SearchControls searchControls = new SearchControls();
+	// searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+	//
+	// String searchBase = "ou=node";
+	// NamingEnumeration<SearchResult> results = initialLdapContext
+	// .search(searchBase, searchFilter, searchControls);
+	//
+	// // TODO synchro
+	// //user.directMemberOf.clear();
+	// while (results.hasMoreElements()) {
+	// SearchResult searchResult = (SearchResult) results
+	// .nextElement();
+	// LdifGroup group = new LdifGroup(toDn(searchBase, searchResult),
+	// searchResult.getAttributes());
+	// populateDirectMemberOf(group);
+	// //user.directMemberOf.add(group);
+	// }
+	// } catch (Exception e) {
+	// throw new ArgeoException("Cannot populate direct members of "
+	// + user, e);
+	// }
+	// }
 
+	@Override
+	protected List<? extends Group> getDirectGroups(User user) {
+		List<Group> directGroups = new ArrayList<Group>();
 		try {
 			String searchFilter = "(&(objectClass=groupOfNames)(member="
 					+ user.getName() + "))";
@@ -198,24 +232,26 @@ public class LdapUserAdmin extends AbstractLdapUserAdmin {
 			SearchControls searchControls = new SearchControls();
 			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-			String searchBase = "ou=node";
+			String searchBase = getGroupsSearchBase();
 			NamingEnumeration<SearchResult> results = initialLdapContext
 					.search(searchBase, searchFilter, searchControls);
 
-			// TODO synchro
-			user.directMemberOf.clear();
 			while (results.hasMoreElements()) {
 				SearchResult searchResult = (SearchResult) results
 						.nextElement();
-				LdifGroup group = new LdifGroup(toDn(searchBase, searchResult),
-						searchResult.getAttributes());
-				populateDirectMemberOf(group);
-				user.directMemberOf.add(group);
+				LdifGroup group = new LdifGroup(this, toDn(searchBase,
+						searchResult), searchResult.getAttributes());
+				directGroups.add(group);
 			}
+			return directGroups;
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot populate direct members of "
 					+ user, e);
 		}
 	}
 
+	protected String getGroupsSearchBase() {
+		// TODO configure group search base
+		return baseDn;
+	}
 }

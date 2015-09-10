@@ -1,9 +1,13 @@
 package org.argeo.osgi.useradmin;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.osgi.service.useradmin.Group;
+import org.osgi.service.useradmin.Role;
+import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
 public abstract class AbstractLdapUserAdmin implements UserAdmin {
@@ -11,6 +15,8 @@ public abstract class AbstractLdapUserAdmin implements UserAdmin {
 	private URI uri;
 
 	private UserAdmin externalRoles;
+	private List<String> indexedUserProperties = Arrays.asList(new String[] {
+			"uid", "mail", "cn" });
 
 	public AbstractLdapUserAdmin() {
 	}
@@ -20,8 +26,38 @@ public abstract class AbstractLdapUserAdmin implements UserAdmin {
 		this.isReadOnly = isReadOnly;
 	}
 
-	private List<String> indexedUserProperties = Arrays.asList(new String[] {
-			"uid", "mail", "cn" });
+	public void init() {
+
+	}
+
+	public void destroy() {
+
+	}
+
+	/** Returns the {@link Group}s this user is a direct member of. */
+	protected abstract List<? extends Group> getDirectGroups(User user);
+
+	List<Role> getAllRoles(User user) {
+		List<Role> allRoles = new ArrayList<Role>();
+		if (user != null) {
+			collectRoles(user, allRoles);
+			allRoles.add(user);
+		} else
+			collectAnonymousRoles(allRoles);
+		return allRoles;
+	}
+
+	private void collectRoles(User user, List<Role> allRoles) {
+		for (Group group : getDirectGroups(user)) {
+			// TODO check for loops
+			allRoles.add(group);
+			collectRoles(group, allRoles);
+		}
+	}
+
+	private void collectAnonymousRoles(List<Role> allRoles) {
+		// TODO gather anonymous roles
+	}
 
 	protected URI getUri() {
 		return uri;
@@ -45,14 +81,6 @@ public abstract class AbstractLdapUserAdmin implements UserAdmin {
 
 	public boolean isReadOnly() {
 		return isReadOnly;
-	}
-
-	public void init() {
-
-	}
-
-	public void destroy() {
-
 	}
 
 	UserAdmin getExternalRoles() {

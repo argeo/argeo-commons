@@ -40,18 +40,19 @@ public class UserAdminLoginModule implements LoginModule {
 	private CallbackHandler callbackHandler;
 	private boolean isAnonymous = false;
 
-	private final static LdapName ROLE_ADMIN_NAME, ROLE_USER_NAME,
-			ROLE_ANONYMOUS_NAME;
+	private final static LdapName ROLE_KERNEL_NAME, ROLE_ADMIN_NAME,
+			ROLE_ANONYMOUS_NAME, ROLE_USER_NAME;
 	private final static List<LdapName> RESERVED_ROLES;
 	private final static X500Principal ROLE_ANONYMOUS_PRINCIPAL;
 	static {
 		try {
+			ROLE_KERNEL_NAME = new LdapName(KernelHeader.ROLE_KERNEL);
 			ROLE_ADMIN_NAME = new LdapName(KernelHeader.ROLE_ADMIN);
 			ROLE_USER_NAME = new LdapName(KernelHeader.ROLE_USER);
 			ROLE_ANONYMOUS_NAME = new LdapName(KernelHeader.ROLE_ANONYMOUS);
 			RESERVED_ROLES = Collections.unmodifiableList(Arrays
-					.asList(new LdapName[] { ROLE_ANONYMOUS_NAME,
-							ROLE_USER_NAME, ROLE_ADMIN_NAME,
+					.asList(new LdapName[] { ROLE_KERNEL_NAME, ROLE_ADMIN_NAME,
+							ROLE_ANONYMOUS_NAME, ROLE_USER_NAME,
 							new LdapName(KernelHeader.ROLE_GROUP_ADMIN),
 							new LdapName(KernelHeader.ROLE_USER_ADMIN) }));
 			ROLE_ANONYMOUS_PRINCIPAL = new X500Principal(
@@ -218,7 +219,8 @@ public class UserAdminLoginModule implements LoginModule {
 
 	private void checkImpliedPrincipalName(LdapName roleName) {
 		if (ROLE_USER_NAME.equals(roleName)
-				|| ROLE_ANONYMOUS_NAME.equals(roleName))
+				|| ROLE_ANONYMOUS_NAME.equals(roleName)
+				|| ROLE_KERNEL_NAME.equals(roleName))
 			throw new CmsException(roleName + " cannot be listed as role");
 	}
 }

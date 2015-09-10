@@ -2,6 +2,7 @@ package org.argeo.cms.internal.kernel;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -25,6 +26,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 /** Package utilities */
 class KernelUtils implements KernelConstants {
 	private final static String OSGI_INSTANCE_AREA = "osgi.instance.area";
+	private final static String OSGI_CONFIGURATION_AREA = "osgi.configuration.area";
 
 	static Dictionary<String, ?> asDictionary(Properties props) {
 		Hashtable<String, Object> hashtable = new Hashtable<String, Object>();
@@ -49,6 +51,17 @@ class KernelUtils implements KernelConstants {
 		return new File(Activator.getBundleContext()
 				.getProperty(OSGI_INSTANCE_AREA).substring("file:".length()))
 				.getAbsoluteFile();
+	}
+
+	static File getOsgiConfigurationFile(String relativePath) {
+		try {
+			return new File(new URI(Activator.getBundleContext().getProperty(
+					OSGI_CONFIGURATION_AREA)
+					+ relativePath)).getCanonicalFile();
+		} catch (Exception e) {
+			throw new CmsException("Cannot get configuration file for "
+					+ relativePath, e);
+		}
 	}
 
 	static String getFrameworkProp(String key, String def) {

@@ -25,6 +25,7 @@ public interface KernelConstants {
 	// Security
 	final static String DEFAULT_SECURITY_KEY = "argeo";
 	final static String JAAS_CONFIG = "/org/argeo/cms/internal/kernel/jaas.cfg";
+	final static String LOGIN_CONTEXT_KERNEL = "KERNEL";
 
 	// DAV
 	final static String WEBDAV_CONFIG = "/org/argeo/cms/internal/kernel/webdav-config.xml";

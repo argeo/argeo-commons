@@ -74,15 +74,17 @@ public class NodeUserAdmin implements UserAdmin, UserAdminAggregator {
 	@Override
 	public Authorization getAuthorization(User user) {
 		UserAdmin userAdmin = findUserAdmin(user.getName());
-		// FIXME clarify assumptions
-		return userAdmin.getAuthorization(user);
-		// String[] roles = auth.getRoles();
-		// // Gather system roles
-		// Set<String> systemRoles = new HashSet<String>();
-		// for(String businessRole:roles){
-		//
-		// }
-		// return null;
+		Authorization rawAuthorization = userAdmin.getAuthorization(user);
+		// gather system roles
+		Set<String> systemRoles = new HashSet<String>();
+		for (String role : rawAuthorization.getRoles()) {
+			Authorization auth = nodeRoles.getAuthorization((User) userAdmin
+					.getRole(role));
+			systemRoles.addAll(Arrays.asList(auth.getRoles()));
+		}
+		return new NodeAuthorization(rawAuthorization.getName(),
+				rawAuthorization.toString(), systemRoles,
+				rawAuthorization.getRoles());
 	}
 
 	//

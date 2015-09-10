@@ -1,16 +1,27 @@
 package org.argeo.cms.internal.kernel;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
+import java.security.KeyStore;
 import java.security.PrivilegedAction;
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryFactory;
 import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.x500.X500Principal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,6 +32,7 @@ import org.argeo.cms.KernelHeader;
 import org.argeo.jackrabbit.OsgiJackrabbitRepositoryFactory;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.security.core.InternalAuthentication;
+import org.argeo.security.crypto.PkiUtils;
 import org.eclipse.equinox.http.servlet.ExtendedHttpService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
@@ -41,6 +53,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * </ul>
  */
 final class Kernel implements ServiceListener {
+
 	private final static Log log = LogFactory.getLog(Kernel.class);
 
 	private final BundleContext bundleContext = Activator.getBundleContext();
@@ -59,9 +72,27 @@ final class Kernel implements ServiceListener {
 				KernelConstants.JAAS_CONFIG);
 		System.setProperty("java.security.auth.login.config",
 				url.toExternalForm());
+		createKeyStoreIfNeeded();
+
+		CallbackHandler cbHandler = new CallbackHandler() {
+
+			@Override
+			public void handle(Callback[] callbacks) throws IOException,
+					UnsupportedCallbackException {
+				// alias
+				((NameCallback) callbacks[1]).setName(KernelHeader.ROLE_KERNEL);
+				// store pwd
+				((PasswordCallback) callbacks[2]).setPassword("changeit"
+						.toCharArray());
+				// key pwd
+				((PasswordCallback) callbacks[3]).setPassword("changeit"
+						.toCharArray());
+			}
+		};
 		try {
 			LoginContext kernelLc = new LoginContext(
-					KernelHeader.LOGIN_CONTEXT_SYSTEM, kernelSubject);
+					KernelConstants.LOGIN_CONTEXT_KERNEL, kernelSubject,
+					cbHandler);
 			kernelLc.login();
 		} catch (LoginException e) {
 			throw new CmsException("Cannot log in kernel", e);
@@ -151,7 +182,7 @@ final class Kernel implements ServiceListener {
 
 		try {
 			LoginContext kernelLc = new LoginContext(
-					KernelHeader.LOGIN_CONTEXT_SYSTEM, kernelSubject);
+					KernelConstants.LOGIN_CONTEXT_KERNEL, kernelSubject);
 			kernelLc.logout();
 		} catch (LoginException e) {
 			throw new CmsException("Cannot log in kernel", e);
@@ -204,6 +235,25 @@ final class Kernel implements ServiceListener {
 			throw new CmsException("Could not find "
 					+ ExtendedHttpService.class + " service.");
 		return httpService;
+	}
+
+	private void createKeyStoreIfNeeded() {
+		char[] ksPwd = "changeit".toCharArray();
+		char[] keyPwd = Arrays.copyOf(ksPwd, ksPwd.length);
+		File keyStoreFile = KernelUtils.getOsgiConfigurationFile("node.p12");
+		if (!keyStoreFile.exists()) {
+			try {
+				KeyStore keyStore = PkiUtils.getKeyStore(keyStoreFile, ksPwd);
+				X509Certificate cert = PkiUtils.generateSelfSignedCertificate(
+						keyStore, new X500Principal(KernelHeader.ROLE_KERNEL),
+						keyPwd);
+				PkiUtils.saveKeyStore(keyStoreFile, ksPwd, keyStore);
+
+			} catch (Exception e) {
+				throw new CmsException("Cannot create key store "
+						+ keyStoreFile, e);
+			}
+		}
 	}
 
 	final private static void directorsCut(long initDuration) {
