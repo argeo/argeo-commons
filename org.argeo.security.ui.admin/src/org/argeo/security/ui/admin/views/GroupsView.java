@@ -52,11 +52,11 @@ public class GroupsView extends UsersView implements ArgeoNames {
 	public void createPartControl(Composite parent) {
 		parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
 		// Define the displayed columns
-		columnDefs.add(new ColumnDefinition(new UserNameLP(),
-				"Distinguished Name", 200));
 		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name",
 				150));
-
+		columnDefs.add(new ColumnDefinition(new UserNameLP(),
+				"Distinguished Name", 300));
+		
 		// Create and configure the table
 		userTableViewerCmp = new MyUserTableViewer(parent, SWT.MULTI
 				| SWT.H_SCROLL | SWT.V_SCROLL, userAdmin);

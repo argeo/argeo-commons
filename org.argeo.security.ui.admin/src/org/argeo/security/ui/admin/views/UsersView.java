@@ -54,11 +54,11 @@ public class UsersView extends ViewPart implements ArgeoNames {
 	public void createPartControl(Composite parent) {
 		parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
 		// Define the displayed columns
-		columnDefs.add(new ColumnDefinition(new UserNameLP(),
-				"Distinguished Name", 200));
 		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name",
 				150));
 		columnDefs.add(new ColumnDefinition(new MailLP(), "E-mail", 150));
+		columnDefs.add(new ColumnDefinition(new UserNameLP(),
+				"Distinguished Name", 300));
 
 		// Create and configure the table
 		userTableViewerCmp = new MyUserTableViewer(parent, SWT.MULTI
@@ -100,6 +100,10 @@ public class UsersView extends ViewPart implements ArgeoNames {
 					users.add((User) role);
 			return users;
 		}
+	}
+
+	public void refresh() {
+		userTableViewerCmp.refresh();
 	}
 
 	// Override generic view methods

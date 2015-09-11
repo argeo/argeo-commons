@@ -16,8 +16,19 @@ public class UiAdminUtils {
 
 	}
 
+	public final static String getDefaultCn(String firstName, String lastName) {
+		return (firstName.trim() + " " + lastName.trim() + " ").trim();
+	}
+
 	/*
 	 * INTERNAL METHODS: Below methods are meant to stay here and are not part
 	 * of a potential generic backend to manage the useradmin
 	 */
+	public final static boolean notNull(String string) {
+		if (string == null)
+			return false;
+		else
+			return !"".equals(string.trim());
+	}
+
 }
