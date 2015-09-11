@@ -15,47 +15,40 @@
  */
 package org.argeo.security.ui.admin.commands;
 
-import javax.jcr.Repository;
-import javax.jcr.Session;
-
-import org.argeo.jcr.JcrUtils;
-import org.argeo.security.UserAdminService;
-import org.argeo.security.ui.admin.wizards.UserBatchUpdateWizard;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.ui.handlers.HandlerUtil;
 
 /** Launch a wizard to update various properties about users in JCR. */
 public class UserBatchUpdate extends AbstractHandler {
-	private Repository repository;
-	private UserAdminService userAdminService;
+	// private Repository repository;
+	// private UserAdminService userAdminService;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		Session session = null;
-		try {
-			session = repository.login();
-			UserBatchUpdateWizard userBatchUpdateWizard = new UserBatchUpdateWizard(
-					session, userAdminService);
-			WizardDialog dialog = new WizardDialog(
-					HandlerUtil.getActiveShell(event), userBatchUpdateWizard);
-			dialog.open();
-		} catch (Exception e) {
-			throw new ExecutionException("Cannot open wizard", e);
-		} finally {
-			JcrUtils.logoutQuietly(session);
-		}
+		// Session session = null;
+		// try {
+		// session = repository.login();
+		// UserBatchUpdateWizard userBatchUpdateWizard = new
+		// UserBatchUpdateWizard(
+		// session, userAdminService);
+		// WizardDialog dialog = new WizardDialog(
+		// HandlerUtil.getActiveShell(event), userBatchUpdateWizard);
+		// dialog.open();
+		// } catch (Exception e) {
+		// throw new ExecutionException("Cannot open wizard", e);
+		// } finally {
+		// JcrUtils.logoutQuietly(session);
+		// }
 		return null;
 	}
 
-	public void setRepository(Repository repository) {
-		this.repository = repository;
-	}
-
-	public void setUserAdminService(UserAdminService userAdminService) {
-		this.userAdminService = userAdminService;
-	}
+//	public void setRepository(Repository repository) {
+//		this.repository = repository;
+//	}
+	//
+	// public void setUserAdminService(UserAdminService userAdminService) {
+	// this.userAdminService = userAdminService;
+	// }
 
 	// public void setJcrSecurityModel(JcrSecurityModel jcrSecurityModel) {
 	// this.jcrSecurityModel = jcrSecurityModel;

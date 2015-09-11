@@ -42,9 +42,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
 
-/**
- * Display/edit the properties common to all Argeo users
- */
+/** Display/edit the properties common to all Argeo users */
 public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 	final static String ID = "argeoUserEditor.mainPage";
 

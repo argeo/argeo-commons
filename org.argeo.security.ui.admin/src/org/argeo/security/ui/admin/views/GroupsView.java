@@ -44,7 +44,7 @@ public class GroupsView extends UsersView implements ArgeoNames {
 	private UserAdmin userAdmin;
 
 	// UI Objects
-	private UserTableViewer userTableViewerCmp;
+	private UserTableViewer groupTableViewerCmp;
 	private TableViewer userViewer;
 	private List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
 
@@ -58,20 +58,20 @@ public class GroupsView extends UsersView implements ArgeoNames {
 				"Distinguished Name", 300));
 		
 		// Create and configure the table
-		userTableViewerCmp = new MyUserTableViewer(parent, SWT.MULTI
+		groupTableViewerCmp = new MyUserTableViewer(parent, SWT.MULTI
 				| SWT.H_SCROLL | SWT.V_SCROLL, userAdmin);
 
-		userTableViewerCmp.setColumnDefinitions(columnDefs);
-		userTableViewerCmp.populate(true, false);
-		userTableViewerCmp.setLayoutData(EclipseUiUtils.fillAll());
+		groupTableViewerCmp.setColumnDefinitions(columnDefs);
+		groupTableViewerCmp.populate(true, false);
+		groupTableViewerCmp.setLayoutData(EclipseUiUtils.fillAll());
 
 		// Links
-		userViewer = userTableViewerCmp.getTableViewer();
+		userViewer = groupTableViewerCmp.getTableViewer();
 		userViewer.addDoubleClickListener(new UserTableDefaultDClickListener());
 		getViewSite().setSelectionProvider(userViewer);
 
 		// Really?
-		userTableViewerCmp.refresh();
+		groupTableViewerCmp.refresh();
 	}
 
 	private class MyUserTableViewer extends UserTableViewer {
@@ -99,6 +99,11 @@ public class GroupsView extends UsersView implements ArgeoNames {
 		}
 	}
 
+	public void refresh() {
+		groupTableViewerCmp.refresh();
+	}
+
+	
 	// Override generic view methods
 	@Override
 	public void dispose() {
@@ -107,7 +112,7 @@ public class GroupsView extends UsersView implements ArgeoNames {
 
 	@Override
 	public void setFocus() {
-		userTableViewerCmp.setFocus();
+		groupTableViewerCmp.setFocus();
 	}
 
 	/* DEPENDENCY INJECTION */

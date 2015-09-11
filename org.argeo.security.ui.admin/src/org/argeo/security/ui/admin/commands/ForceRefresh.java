@@ -15,25 +15,29 @@
  */
 package org.argeo.security.ui.admin.commands;
 
+import org.argeo.security.ui.admin.views.GroupsView;
+import org.argeo.security.ui.admin.views.UsersView;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.handlers.HandlerUtil;
 
-/** Command handler to set visible or open a Argeo user. */
-public class OpenArgeoUserEditor extends AbstractHandler {
-	public final static String COMMAND_ID = "org.argeo.security.ui.admin.openArgeoUserEditor";
-	public final static String PARAM_USERNAME = "org.argeo.security.ui.admin.username";
+/** Retrieve the active view or editor and call forceRefresh method if defined */
+public class ForceRefresh extends AbstractHandler {
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		// try {
-		// ArgeoUserEditorInput editorInput = new ArgeoUserEditorInput(
-		// event.getParameter(PARAM_USERNAME));
-		// IWorkbenchPage activePage = HandlerUtil.getActiveWorkbenchWindow(
-		// event).getActivePage();
-		// activePage.openEditor(editorInput, JcrArgeoUserEditor.ID);
-		// } catch (Exception e) {
-		// throw new ExecutionException("Cannot open editor", e);
-		// }
+		IWorkbenchWindow iww = HandlerUtil.getActiveWorkbenchWindow(event);
+		if (iww == null)
+			return null;
+		IWorkbenchPage activePage = iww.getActivePage();
+		IWorkbenchPart part = activePage.getActivePart();
+		if (part instanceof UsersView)
+			((UsersView) part).refresh();
+		else if (part instanceof GroupsView)
+			((GroupsView) part).refresh();
 		return null;
 	}
 }

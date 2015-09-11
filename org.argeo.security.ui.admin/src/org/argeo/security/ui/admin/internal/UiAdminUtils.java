@@ -6,6 +6,9 @@ import java.security.Principal;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
+import org.osgi.service.useradmin.Role;
+import org.osgi.service.useradmin.User;
+
 /** First effort to centralize back end methods used by the user admin UI */
 public class UiAdminUtils {
 	public final static String getUsername() {
@@ -14,6 +17,21 @@ public class UiAdminUtils {
 				.iterator().next();
 		return principal.getName();
 
+	}
+
+	public final static String getUsername(User user) {
+		String cn = getProperty(user, UserAdminConstants.KEY_CN);
+		if (isEmpty(cn))
+			cn = getProperty(user, UserAdminConstants.KEY_UID);
+		return cn;
+	}
+
+	public final static String getProperty(Role role, String key) {
+		Object obj = role.getProperties().get(key);
+		if (obj != null)
+			return (String) obj;
+		else
+			return "";
 	}
 
 	public final static String getDefaultCn(String firstName, String lastName) {
@@ -29,6 +47,13 @@ public class UiAdminUtils {
 			return false;
 		else
 			return !"".equals(string.trim());
+	}
+
+	public final static boolean isEmpty(String string) {
+		if (string == null)
+			return true;
+		else
+			return "".equals(string.trim());
 	}
 
 }

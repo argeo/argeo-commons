@@ -15,25 +15,35 @@
  */
 package org.argeo.security.ui.admin.commands;
 
-import org.argeo.security.UserAdminService;
+import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.handlers.HandlerUtil;
+import org.osgi.service.useradmin.UserAdmin;
 
-/** Add a new role. */
-public class AddRole extends AbstractHandler {
-	public final static String COMMAND_ID = "org.argeo.security.ui.admin.addRole";
-	private UserAdminService userAdminService;
-	private String rolePrefix = "ROLE_";
+/** Create a new group. */
+public class NewGroup extends AbstractHandler {
+	public final static String ID = SecurityAdminPlugin.PLUGIN_ID + ".newGroup";
+
+	private UserAdmin userAdmin;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
+
+		MessageDialog
+				.openError(HandlerUtil.getActiveShell(event),
+						"Unimplemented method",
+						"Group creation is not yet implemented");
 		return null;
 	}
 
-	public void setUserAdminService(UserAdminService userAdminService) {
-		this.userAdminService = userAdminService;
+	/* DEPENDENCY INJECTION */
+	public void setUserAdmin(UserAdmin userAdmin) {
+		this.userAdmin = userAdmin;
 	}
 }
+
 // JcrRolesView rolesView = (JcrRolesView) HandlerUtil
 // .getActiveWorkbenchWindow(event).getActivePage()
 // .findView(JcrRolesView.ID);

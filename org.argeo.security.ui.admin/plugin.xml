@@ -27,23 +27,7 @@
             name="Groups"
             restorable="false">
       </view>
-      
-      <!-- Legacy -->
-      <!-- <view
-            class="org.argeo.eclipse.spring.SpringExtensionFactory"
-            icon="icons/users.gif"
-            id="org.argeo.security.ui.admin.jcrUsersView"
-            name="Users"
-            restorable="false">
-      </view>
-      <view
-            class="org.argeo.eclipse.spring.SpringExtensionFactory"
-            icon="icons/role.gif"
-            id="org.argeo.security.ui.admin.jcrRolesView"
-            name="Roles"
-            restorable="false">
-      </view>-->
-	</extension> 
+    </extension> 
 	
 	<!-- Editors -->
 	<extension
@@ -67,6 +51,33 @@
     
     <extension
          point="org.eclipse.ui.commands">
+      	<command
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            id="org.argeo.security.ui.admin.newUser"
+            name="New User">
+      	</command>
+      <command
+            defaultHandler="org.argeo.security.ui.admin.commands.DeleteUsers"
+            id="org.argeo.security.ui.admin.deleteUsers"
+            name="Delete User">
+      </command>
+      <command
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            id="org.argeo.security.ui.admin.newGroup"
+            name="New Group">
+      </command>
+      <command
+            defaultHandler="org.argeo.security.ui.admin.commands.DeleteGroups"
+            id="org.argeo.security.ui.admin.deleteGroups"
+            name="Delete Group">
+      </command>
+
+ 	  <!-- Force the refresh when the various listener are not enough -->
+      <command
+            defaultHandler="org.argeo.security.ui.admin.commands.ForceRefresh"
+            id="org.argeo.security.ui.admin.forceRefresh"
+            name="Force Refresh">
+      </command>
       <!--<command
             defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
             id="org.argeo.security.ui.admin.openArgeoUserEditor"
@@ -114,6 +125,55 @@
     </extension>
      <extension
          point="org.eclipse.ui.menus">
+         <menuContribution
+            locationURI="toolbar:org.argeo.security.ui.admin.usersView">
+            <command
+                  commandId="org.argeo.security.ui.admin.deleteUsers"
+                  icon="icons/remove.gif"
+                  label="Delete User"
+                  tooltip="Delete selected users">
+            </command>
+            <command
+                  commandId="org.argeo.security.ui.admin.forceRefresh"
+                  icon="icons/refresh.png"
+                  label="Refresh list"
+                  tooltip="Force the full refresh of the user list">
+            </command>
+            <command
+                  commandId="org.argeo.security.ui.admin.newUser"
+                  icon="icons/add.gif"
+                  label="Add User"
+                  tooltip="Create a new user">
+            </command>
+            <!--<command
+                  commandId="org.argeo.security.ui.admin.userBatchUpdate"
+                  icon="icons/batch.gif"
+                  label="Update users"
+                  tooltip="Perform maintenance activities on a list of chosen users">
+            </command>-->
+        </menuContribution>
+        <menuContribution
+            locationURI="toolbar:org.argeo.security.ui.admin.groupsView">
+            <command
+                  commandId="org.argeo.security.ui.admin.deleteGroups"
+                  icon="icons/remove.gif"
+                  label="Delete Group"
+                  tooltip="Delete selected groups">
+            </command>
+            <command
+                  commandId="org.argeo.security.ui.admin.forceRefresh"
+                  icon="icons/refresh.png"
+                  label="Refresh list"
+                  tooltip="Force the full refresh of the group list">
+            </command>
+            <command
+                  commandId="org.argeo.security.ui.admin.newGroup"
+                  icon="icons/add.gif"
+                  label="Add Group"
+                  tooltip="Create a new group">
+            </command>
+        </menuContribution>
+         
 <!--      	<menuContribution
             locationURI="toolbar:org.argeo.security.ui.admin.adminRolesView">
             <command

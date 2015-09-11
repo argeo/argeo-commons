@@ -89,12 +89,10 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 
 	protected void addPages() {
 		try {
-
 			if (user.getType() == Role.GROUP)
 				addPage(new GroupMainPage(this, userAdmin));
 			else
 				addPage(new UserMainPage(this, userAdmin));
-
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot add pages", e);
 		}

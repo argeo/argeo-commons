@@ -80,10 +80,6 @@ public class NewUser extends AbstractHandler {
 			((UsersView) part).refresh();
 	}
 
-	public void setUserAdmin(UserAdmin userAdmin) {
-		this.userAdmin = userAdmin;
-	}
-
 	private class NewUserWizard extends Wizard {
 
 		// pages
@@ -100,8 +96,8 @@ public class NewUser extends AbstractHandler {
 		public void addPages() {
 			mainUserInfo = new MainUserInfoWizardPage();
 			addPage(mainUserInfo);
-			String message = "Dummy wizard to ease user creation tests: mail, last name are automatically "
-					+ "generated form the uid, password are defauted to 'demo'.";
+			String message = "Dummy wizard to ease user creation tests:\n Mail and last name are automatically "
+					+ "generated form the uid. Password are defauted to 'demo'.";
 			mainUserInfo.setMessage(message, WizardPage.WARNING);
 		}
 
@@ -254,7 +250,9 @@ public class NewUser extends AbstractHandler {
 
 		}
 	}
-
-	// Local helpers
-
+	
+	/* DEPENDENCY INJECTION */
+	public void setUserAdmin(UserAdmin userAdmin) {
+		this.userAdmin = userAdmin;
+	}
 }

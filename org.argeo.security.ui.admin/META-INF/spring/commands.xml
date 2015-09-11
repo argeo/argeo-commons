@@ -6,7 +6,12 @@
 
 	<!-- <bean id="openArgeoUserEditor" class="org.argeo.security.ui.admin.commands.OpenArgeoUserEditor" 
 		scope="prototype" /> -->
+
 	<!-- USERS -->
+	<bean id="newUser" class="org.argeo.security.ui.admin.commands.NewUser"
+		scope="prototype">
+		<property name="userAdmin" ref="userAdmin" />
+	</bean>
 	<!-- <bean id="newUser" class="org.argeo.security.ui.admin.commands.NewUser" 
 		scope="prototype"> <property name="repository" ref="nodeRepository" /> <property 
 		name="userAdminService" ref="userAdminService" /> </bean> <bean id="refreshUsersList" 
