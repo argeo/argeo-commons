@@ -210,14 +210,14 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 
 	public void appendMemberOfPart(Composite parent) {
 		FormToolkit tk = getManagedForm().getToolkit();
-		Composite body = addSection(tk, parent, "Groups");
+		Composite body = addSection(tk, parent, "Roles");
 		body.setLayout(EclipseUiUtils.noSpaceGridLayout());
 
 		// Define the displayed columns
 		List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
 		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 0, 24));
 		columnDefs.add(new ColumnDefinition(new UserNameLP(),
-				"Distinguished Name", 240));
+				"Distinguished Name", 300));
 		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name",
 				150));
 
@@ -248,17 +248,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 
 		@Override
 		protected List<User> listFilteredElements(String filter) {
-			List<User> users = new ArrayList<User>();
-
-			// "member of" method?
-			// Group group = (Group) editor.getDisplayedUser();
-			// Role[] roles = group.getMembers();
-			// List<User> users = new ArrayList<User>();
-			// for (Role role : roles)
-			// // if (role.getType() == Role.GROUP)
-			// users.add((User) role);
-			// return users;
-			return users;
+			return (List<User>) editor.getFlatGroups();
 		}
 	}
 
@@ -303,7 +293,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		return text;
 	}
-	
+
 	private class FormPartML implements ModifyListener {
 		private static final long serialVersionUID = 6299808129505381333L;
 		private AbstractFormPart formPart;

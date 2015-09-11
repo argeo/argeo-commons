@@ -15,6 +15,9 @@
  */
 package org.argeo.security.ui.admin.editors;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.argeo.ArgeoException;
 import org.argeo.security.ui.admin.SecurityAdminImages;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
@@ -24,6 +27,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.forms.editor.FormEditor;
+import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
@@ -59,6 +63,19 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 		setPartName(commonName != null ? commonName : "username");
 		setTitleImage(user.getType() == Role.GROUP ? SecurityAdminImages.ICON_GROUP
 				: SecurityAdminImages.ICON_USER);
+	}
+
+	protected List<User> getFlatGroups() {
+		Authorization currAuth = userAdmin.getAuthorization(user);
+		String[] roles = currAuth.getRoles();
+
+		List<User> groups = new ArrayList<User>();
+		for (String roleStr : roles) {
+			User currRole = (User) userAdmin.getRole(roleStr);
+			if (!groups.contains(currRole))
+				groups.add(currRole);
+		}
+		return groups;
 	}
 
 	/** Exposes the user (or group) that is displayed by the current editor */
