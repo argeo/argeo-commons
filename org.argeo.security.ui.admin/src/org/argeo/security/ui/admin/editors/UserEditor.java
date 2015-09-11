@@ -16,6 +16,7 @@
 package org.argeo.security.ui.admin.editors;
 
 import org.argeo.ArgeoException;
+import org.argeo.security.ui.admin.SecurityAdminImages;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -56,11 +57,17 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 		// firePartPropertyChanged("icon", "icons/user.gif", "icons/users.gif");
 		// }
 		setPartName(commonName != null ? commonName : "username");
+		setTitleImage(user.getType() == Role.GROUP ? SecurityAdminImages.ICON_GROUP
+				: SecurityAdminImages.ICON_USER);
 	}
 
 	/** Exposes the user (or group) that is displayed by the current editor */
 	protected User getDisplayedUser() {
 		return user;
+	}
+
+	void updateEditorTitle(String title) {
+		setPartName(title);
 	}
 
 	protected void addPages() {
@@ -69,7 +76,7 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 			if (user.getType() == Role.GROUP)
 				addPage(new GroupMainPage(this, userAdmin));
 			else
-				addPage(new UserMainPage(this));
+				addPage(new UserMainPage(this, userAdmin));
 
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot add pages", e);

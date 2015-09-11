@@ -29,7 +29,7 @@
       </view>
       
       <!-- Legacy -->
-      <view
+      <!-- <view
             class="org.argeo.eclipse.spring.SpringExtensionFactory"
             icon="icons/users.gif"
             id="org.argeo.security.ui.admin.jcrUsersView"
@@ -42,8 +42,8 @@
             id="org.argeo.security.ui.admin.jcrRolesView"
             name="Roles"
             restorable="false">
-      </view>
-	</extension>
+      </view>-->
+	</extension> 
 	
 	<!-- Editors -->
 	<extension
@@ -56,18 +56,18 @@
             default="false">
 		</editor>
 		<!-- Legacy -->
-		<editor
+		<!--<editor
 			class="org.argeo.eclipse.spring.SpringExtensionFactory"
             id="org.argeo.security.ui.admin.adminArgeoUserEditor"
             name="User"
             icon="icons/user.gif"
 			default="false">
-		</editor>
+		</editor> -->
 	</extension>
     
     <extension
          point="org.eclipse.ui.commands">
-      <command
+      <!--<command
             defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
             id="org.argeo.security.ui.admin.openArgeoUserEditor"
             name="OpenArgeoUserEditor">
@@ -110,11 +110,11 @@
             defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
             id="org.argeo.security.ui.admin.userBatchUpdate"
             name="User batch update">
-      </command>
+      </command> -->
     </extension>
      <extension
          point="org.eclipse.ui.menus">
-      	<menuContribution
+<!--      	<menuContribution
             locationURI="toolbar:org.argeo.security.ui.admin.adminRolesView">
             <command
                   commandId="org.argeo.security.ui.admin.deleteRole"
@@ -167,7 +167,7 @@
                   label="LDAP Users Sync"
                   tooltip="Synchronize users from LDAP">
             </command>
-        </menuContribution>
+        </menuContribution> -->
   </extension>
   
   <extension

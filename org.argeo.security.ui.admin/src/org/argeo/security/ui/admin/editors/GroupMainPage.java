@@ -33,8 +33,11 @@ import org.argeo.security.ui.admin.internal.UserTableDefaultDClickListener;
 import org.argeo.security.ui.admin.internal.UserTableViewer;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.AbstractFormPart;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.SectionPart;
@@ -53,8 +56,10 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	final static String ID = "GroupEditor.mainPage";
 
 	private final UserEditor editor;
-
 	private UserAdmin userAdmin;
+
+	// Local configuration
+	private final int PRE_TITLE_INDENT = 10;
 
 	public GroupMainPage(FormEditor editor, UserAdmin userAdmin) {
 		super(editor, ID, "Main");
@@ -65,25 +70,51 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	protected void createFormContent(final IManagedForm mf) {
 		try {
 			ScrolledForm form = mf.getForm();
-			form.getBody().getParent().setLayoutData(EclipseUiUtils.fillAll());
-			form.setExpandHorizontal(true);
-			refreshFormTitle(form);
-			// GridLayout mainLayout = new GridLayout(1, true);
-			createGeneralPart(form.getBody());
+			refreshFormTitle();
+
+			// Body
+			Composite body = form.getBody();
+			GridLayout mainLayout = new GridLayout();
+			body.setLayout(mainLayout);
+			appendOverviewPart(body);
+			appendMembersPart(body);
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot create form content", e);
 		}
 	}
 
 	/** Creates the general section */
-	protected void createGeneralPart(Composite parent)
+	protected void appendOverviewPart(Composite parent) {
+		FormToolkit tk = getManagedForm().getToolkit();
+		Composite body = addSection(tk, parent, "Main information");
+		GridLayout layout = new GridLayout(2, false);
+		body.setLayout(layout);
+
+		Text distinguishedName = createLT(body, "Group Name",
+				editor.getProperty(UserAdminConstants.KEY_UID));
+		distinguishedName.setEnabled(false);
+
+		final Text commonName = createLT(body, "Common Name",
+				editor.getProperty(UserAdminConstants.KEY_CN));
+		commonName.setEnabled(false);
+
+		// create form part (controller)
+		AbstractFormPart part = new SectionPart((Section) body.getParent()) {
+			public void commit(boolean onSave) {
+				super.commit(onSave);
+			}
+		};
+		getManagedForm().addPart(part);
+	}
+
+	/** Filtered table with members. Has drag & drop ability */
+	protected void appendMembersPart(Composite parent)
 			throws RepositoryException {
-		parent.setLayout(new GridLayout());
 
 		FormToolkit tk = getManagedForm().getToolkit();
 		Section section = tk.createSection(parent, Section.TITLE_BAR);
 		section.setLayoutData(EclipseUiUtils.fillAll());
-		section.setText("Members of "
+		section.setText("Members of group "
 				+ editor.getProperty(UserAdminConstants.KEY_CN));
 
 		// Composite body = tk.createComposite(section, SWT.NONE);
@@ -161,10 +192,31 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		}
 	}
 
-	private void refreshFormTitle(ScrolledForm form) throws RepositoryException {
-		// form.setText(getProperty(Property.JCR_TITLE)
-		// + (userProfile.getProperty(ARGEO_ENABLED).getBoolean() ? ""
-		// : " [DISABLED]"));
+	private void refreshFormTitle() throws RepositoryException {
+		getManagedForm().getForm().setText(
+				editor.getProperty(UserAdminConstants.KEY_CN));
+	}
+
+	private Composite addSection(FormToolkit tk, Composite parent, String title) {
+		Section section = tk.createSection(parent, Section.TITLE_BAR);
+		GridData gd = EclipseUiUtils.fillWidth();
+		gd.verticalAlignment = PRE_TITLE_INDENT;
+		section.setLayoutData(gd);
+		section.setText(title);
+		Composite body = tk.createComposite(section, SWT.WRAP);
+		body.setLayoutData(EclipseUiUtils.fillAll());
+		section.setClient(body);
+		return body;
+	}
+
+	/** Creates label and text. */
+	protected Text createLT(Composite body, String label, String value) {
+		FormToolkit toolkit = getManagedForm().getToolkit();
+		Label lbl = toolkit.createLabel(body, label);
+		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+		Text text = toolkit.createText(body, value, SWT.BORDER);
+		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		return text;
 	}
 
 	// private class FormPartML implements ModifyListener {

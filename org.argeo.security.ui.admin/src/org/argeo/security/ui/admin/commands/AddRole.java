@@ -15,16 +15,10 @@
  */
 package org.argeo.security.ui.admin.commands;
 
-import org.argeo.ArgeoException;
 import org.argeo.security.UserAdminService;
-import org.argeo.security.ui.admin.editors.JcrArgeoUserEditor;
-import org.argeo.security.ui.admin.views.JcrRolesView;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.ui.IEditorReference;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.handlers.HandlerUtil;
 
 /** Add a new role. */
 public class AddRole extends AbstractHandler {
@@ -33,37 +27,44 @@ public class AddRole extends AbstractHandler {
 	private String rolePrefix = "ROLE_";
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		JcrRolesView rolesView = (JcrRolesView) HandlerUtil
-				.getActiveWorkbenchWindow(event).getActivePage()
-				.findView(JcrRolesView.ID);
-		String role = rolesView.getNewRole();
-		if (role.trim().equals(""))
-			return null;
-		if (role.equals(rolesView.getAddNewRoleText()))
-			return null;
-		role = role.trim().toUpperCase();
-		if (!role.startsWith(rolePrefix))
-			role = rolePrefix + role;
-		if (userAdminService.listEditableRoles().contains(role))
-			throw new ArgeoException("Role " + role + " already exists");
-		userAdminService.newRole(role);
-		rolesView.refresh();
-
-		// refresh editors
-		IEditorReference[] refs = HandlerUtil.getActiveWorkbenchWindow(event)
-				.getActivePage()
-				.findEditors(null, JcrArgeoUserEditor.ID, IWorkbenchPage.MATCH_ID);
-		for (IEditorReference ref : refs) {
-			JcrArgeoUserEditor userEditor = (JcrArgeoUserEditor) ref.getEditor(false);
-			if (userEditor != null) {
-				userEditor.refresh();
-			}
-		}
 		return null;
 	}
 
 	public void setUserAdminService(UserAdminService userAdminService) {
 		this.userAdminService = userAdminService;
 	}
-
 }
+// JcrRolesView rolesView = (JcrRolesView) HandlerUtil
+// .getActiveWorkbenchWindow(event).getActivePage()
+// .findView(JcrRolesView.ID);
+// String role = rolesView.getNewRole();
+// if (role.trim().equals(""))
+// return null;
+// if (role.equals(rolesView.getAddNewRoleText()))
+// return null;
+// role = role.trim().toUpperCase();
+// if (!role.startsWith(rolePrefix))
+// role = rolePrefix + role;
+// if (userAdminService.listEditableRoles().contains(role))
+// throw new ArgeoException("Role " + role + " already exists");
+// userAdminService.newRole(role);
+// rolesView.refresh();
+//
+// // refresh editors
+// IEditorReference[] refs = HandlerUtil.getActiveWorkbenchWindow(event)
+// .getActivePage()
+// .findEditors(null, JcrArgeoUserEditor.ID, IWorkbenchPage.MATCH_ID);
+// for (IEditorReference ref : refs) {
+// JcrArgeoUserEditor userEditor = (JcrArgeoUserEditor) ref.getEditor(false);
+// if (userEditor != null) {
+// userEditor.refresh();
+// }
+// }
+// return null;
+// }
+//
+// public void setUserAdminService(UserAdminService userAdminService) {
+// this.userAdminService = userAdminService;
+// }
+//
+// }

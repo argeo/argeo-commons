@@ -14,9 +14,7 @@
 	<!-- <bean id="groupEditor" class="org.argeo.security.ui.admin.editors.GroupEditor" 
 		scope="prototype"> <property name="userAdmin" ref="userAdmin" /> </bean> -->
 	<!-- LEGACY -->
-	<bean id="adminArgeoUserEditor" class="org.argeo.security.ui.admin.editors.JcrArgeoUserEditor"
-		scope="prototype">
-		<property name="userAdminService" ref="userAdminService" />
-		<property name="repository" ref="nodeRepository" />
-	</bean>
+	<!-- <bean id="adminArgeoUserEditor" class="org.argeo.security.ui.admin.editors.JcrArgeoUserEditor" 
+		scope="prototype"> <property name="userAdminService" ref="userAdminService" 
+		/> <property name="repository" ref="nodeRepository" /> </bean> -->
 </beans>

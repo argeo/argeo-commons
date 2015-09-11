@@ -15,26 +15,12 @@
  */
 package org.argeo.security.ui.admin.commands;
 
-import java.util.Set;
-
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.query.Query;
 
-import org.argeo.ArgeoException;
-import org.argeo.jcr.ArgeoNames;
-import org.argeo.jcr.ArgeoTypes;
-import org.argeo.jcr.JcrUtils;
 import org.argeo.security.UserAdminService;
-import org.argeo.security.ui.admin.views.JcrUsersView;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
  * Refreshes the main user list, removing nodes which are not referenced by user
@@ -45,46 +31,47 @@ public class RefreshUsersList extends AbstractHandler {
 	private Repository repository;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		Set<String> users = userAdminService.listUsers();
-		Session session = null;
-		try {
-			session = repository.login();
-			Query query = session
-					.getWorkspace()
-					.getQueryManager()
-					.createQuery(
-							"select * from [" + ArgeoTypes.ARGEO_USER_HOME
-									+ "]", Query.JCR_SQL2);
-			NodeIterator nit = query.execute().getNodes();
-			while (nit.hasNext()) {
-				Node node = nit.nextNode();
-				String username = node.getProperty(ArgeoNames.ARGEO_USER_ID)
-						.getString();
-				if (!users.contains(username))
-					node.remove();
-			}
-			session.save();
-		} catch (RepositoryException e) {
-			JcrUtils.discardQuietly(session);
-			throw new ArgeoException("Cannot list users", e);
-		} finally {
-			JcrUtils.logoutQuietly(session);
-		}
-		userAdminService.synchronize();
-
-		// FIXME try to refresh views that extend the JcrUsersView and have another
-		// ID
-		IWorkbenchPart part = HandlerUtil.getActiveWorkbenchWindow(event)
-				.getActivePage().getActivePart();
-		if (part instanceof JcrUsersView)
-			((JcrUsersView) part).refresh();
-
-		// Try to refresh JcrUsersView if opened
-		JcrUsersView view = (JcrUsersView) HandlerUtil
-				.getActiveWorkbenchWindow(event).getActivePage()
-				.findView(JcrUsersView.ID);
-		if (view != null)
-			view.refresh();
+		// Set<String> users = userAdminService.listUsers();
+		// Session session = null;
+		// try {
+		// session = repository.login();
+		// Query query = session
+		// .getWorkspace()
+		// .getQueryManager()
+		// .createQuery(
+		// "select * from [" + ArgeoTypes.ARGEO_USER_HOME
+		// + "]", Query.JCR_SQL2);
+		// NodeIterator nit = query.execute().getNodes();
+		// while (nit.hasNext()) {
+		// Node node = nit.nextNode();
+		// String username = node.getProperty(ArgeoNames.ARGEO_USER_ID)
+		// .getString();
+		// if (!users.contains(username))
+		// node.remove();
+		// }
+		// session.save();
+		// } catch (RepositoryException e) {
+		// JcrUtils.discardQuietly(session);
+		// throw new ArgeoException("Cannot list users", e);
+		// } finally {
+		// JcrUtils.logoutQuietly(session);
+		// }
+		// userAdminService.synchronize();
+		//
+		// // FIXME try to refresh views that extend the JcrUsersView and have
+		// another
+		// // ID
+		// IWorkbenchPart part = HandlerUtil.getActiveWorkbenchWindow(event)
+		// .getActivePage().getActivePart();
+		// if (part instanceof JcrUsersView)
+		// ((JcrUsersView) part).refresh();
+		//
+		// // Try to refresh JcrUsersView if opened
+		// JcrUsersView view = (JcrUsersView) HandlerUtil
+		// .getActiveWorkbenchWindow(event).getActivePage()
+		// .findView(JcrUsersView.ID);
+		// if (view != null)
+		// view.refresh();
 
 		return null;
 	}
