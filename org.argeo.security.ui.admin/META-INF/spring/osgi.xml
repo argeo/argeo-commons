@@ -14,5 +14,5 @@
 		/> -->
 	<!-- new useradmin -->
 	<reference id="userAdmin" interface="org.osgi.service.useradmin.UserAdmin" />
-
+	<reference id="userTransaction" interface="javax.transaction.UserTransaction" />
 </beans:beans>

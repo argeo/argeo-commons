@@ -18,6 +18,8 @@ package org.argeo.security.ui.admin.editors;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.transaction.UserTransaction;
+
 import org.argeo.ArgeoException;
 import org.argeo.security.ui.admin.SecurityAdminImages;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
@@ -41,6 +43,7 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 
 	/* DEPENDENCY INJECTION */
 	private UserAdmin userAdmin;
+	private UserTransaction userTransaction;
 
 	// Context
 	private User user;
@@ -116,6 +119,12 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 	public void doSave(IProgressMonitor monitor) {
 		commitPages(true);
 		firePropertyChange(PROP_DIRTY);
+		// FIXME transaction should be managed at a higher level
+		try {
+			userTransaction.commit();
+		} catch (Exception e) {
+			throw new ArgeoException("Could not save user editor", e);
+		}
 	}
 
 	@Override
@@ -140,4 +149,9 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 	public void setUserAdmin(UserAdmin userAdmin) {
 		this.userAdmin = userAdmin;
 	}
+
+	public void setUserTransaction(UserTransaction userTransaction) {
+		this.userTransaction = userTransaction;
+	}
+
 }

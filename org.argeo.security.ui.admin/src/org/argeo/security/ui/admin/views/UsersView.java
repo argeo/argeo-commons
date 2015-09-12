@@ -18,6 +18,10 @@ package org.argeo.security.ui.admin.views;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.transaction.UserTransaction;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.jcr.ArgeoNames;
@@ -39,11 +43,13 @@ import org.osgi.service.useradmin.UserAdmin;
 
 /** List all users with filter - based on Ldif userAdmin */
 public class UsersView extends ViewPart implements ArgeoNames {
+	private final static Log log = LogFactory.getLog(UsersView.class);
 	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
 			+ ".usersView";
 
 	/* DEPENDENCY INJECTION */
 	private UserAdmin userAdmin;
+	private UserTransaction userTransaction;
 
 	// UI Objects
 	private UserTableViewer userTableViewerCmp;
@@ -75,6 +81,13 @@ public class UsersView extends ViewPart implements ArgeoNames {
 
 		// Really?
 		userTableViewerCmp.refresh();
+
+		try {
+			if (userTransaction != null)
+				userTransaction.begin();
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot begin transaction", e);
+		}
 	}
 
 	private class MyUserTableViewer extends UserTableViewer {
@@ -110,6 +123,13 @@ public class UsersView extends ViewPart implements ArgeoNames {
 	@Override
 	public void dispose() {
 		super.dispose();
+		// try {
+		// if (userTransaction != null
+		// && userTransaction.getStatus() != Status.STATUS_NO_TRANSACTION)
+		// userTransaction.rollback();
+		// } catch (Exception e) {
+		// log.error("Cannot clean transaction", e);
+		// }
 	}
 
 	@Override
@@ -121,4 +141,9 @@ public class UsersView extends ViewPart implements ArgeoNames {
 	public void setUserAdmin(UserAdmin userAdmin) {
 		this.userAdmin = userAdmin;
 	}
+
+	public void setUserTransaction(UserTransaction userTransaction) {
+		this.userTransaction = userTransaction;
+	}
+
 }

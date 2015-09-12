@@ -7,6 +7,7 @@
 	<bean id="usersView" class="org.argeo.security.ui.admin.views.UsersView"
 		scope="prototype">
 		<property name="userAdmin" ref="userAdmin" />
+		<property name="userTransaction" ref="userTransaction" />
 	</bean>
 
 	<bean id="groupsView" class="org.argeo.security.ui.admin.views.GroupsView"
