@@ -1,38 +1,26 @@
 package org.argeo.cms.internal.kernel;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.net.URL;
-import java.security.KeyStore;
 import java.security.PrivilegedAction;
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryFactory;
 import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.x500.X500Principal;
+import javax.transaction.TransactionManager;
+import javax.transaction.TransactionSynchronizationRegistry;
+import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.util.TransientFileFactory;
 import org.argeo.ArgeoException;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.KernelHeader;
+import org.argeo.cms.internal.transaction.SimpleTransactionManager;
 import org.argeo.jackrabbit.OsgiJackrabbitRepositoryFactory;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.security.core.InternalAuthentication;
-import org.argeo.security.crypto.PkiUtils;
 import org.eclipse.equinox.http.servlet.ExtendedHttpService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
@@ -53,62 +41,34 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * </ul>
  */
 final class Kernel implements ServiceListener {
-
 	private final static Log log = LogFactory.getLog(Kernel.class);
 
 	private final BundleContext bundleContext = Activator.getBundleContext();
+	private final NodeSecurity nodeSecurity;
 
 	ThreadGroup threadGroup = new ThreadGroup(Kernel.class.getSimpleName());
 	JackrabbitNode node;
-	OsgiJackrabbitRepositoryFactory repositoryFactory;
-	NodeSecurity nodeSecurity;
-	NodeHttp nodeHttp;
+
+	private SimpleTransactionManager transactionManager;
+	private OsgiJackrabbitRepositoryFactory repositoryFactory;
+	private NodeHttp nodeHttp;
 	private KernelThread kernelThread;
 
-	private final Subject kernelSubject = new Subject();
-
 	public Kernel() {
-		URL url = getClass().getClassLoader().getResource(
-				KernelConstants.JAAS_CONFIG);
-		System.setProperty("java.security.auth.login.config",
-				url.toExternalForm());
-		createKeyStoreIfNeeded();
-
-		CallbackHandler cbHandler = new CallbackHandler() {
-
-			@Override
-			public void handle(Callback[] callbacks) throws IOException,
-					UnsupportedCallbackException {
-				// alias
-				((NameCallback) callbacks[1]).setName(KernelHeader.ROLE_KERNEL);
-				// store pwd
-				((PasswordCallback) callbacks[2]).setPassword("changeit"
-						.toCharArray());
-				// key pwd
-				((PasswordCallback) callbacks[3]).setPassword("changeit"
-						.toCharArray());
-			}
-		};
-		try {
-			LoginContext kernelLc = new LoginContext(
-					KernelConstants.LOGIN_CONTEXT_KERNEL, kernelSubject,
-					cbHandler);
-			kernelLc.login();
-		} catch (LoginException e) {
-			throw new CmsException("Cannot log in kernel", e);
-		}
+		nodeSecurity = new NodeSecurity(bundleContext);
 	}
 
 	final void init() {
-		Subject.doAs(kernelSubject, new PrivilegedAction<Void>() {
+		Subject.doAs(nodeSecurity.getKernelSubject(),
+				new PrivilegedAction<Void>() {
 
-			@Override
-			public Void run() {
-				doInit();
-				return null;
-			}
+					@Override
+					public Void run() {
+						doInit();
+						return null;
+					}
 
-		});
+				});
 	}
 
 	private void doInit() {
@@ -122,6 +82,17 @@ final class Kernel implements ServiceListener {
 		SecurityContextHolder.getContext().setAuthentication(initAuth);
 
 		try {
+			// Transaction
+			transactionManager = new SimpleTransactionManager();
+			bundleContext.registerService(TransactionManager.class,
+					transactionManager, null);
+			bundleContext.registerService(UserTransaction.class,
+					transactionManager, null);
+			bundleContext.registerService(
+					TransactionSynchronizationRegistry.class,
+					transactionManager.getTransactionSynchronizationRegistry(),
+					null);
+
 			// Jackrabbit node
 			node = new JackrabbitNode(bundleContext);
 
@@ -129,7 +100,10 @@ final class Kernel implements ServiceListener {
 			repositoryFactory = new OsgiJackrabbitRepositoryFactory();
 
 			// Authentication
-			nodeSecurity = new NodeSecurity(bundleContext, node);
+			nodeSecurity.getUserAdmin().setSyncRegistry(
+					transactionManager.getTransactionSynchronizationRegistry());
+			nodeSecurity.getUserAdmin().setTransactionManager(
+					transactionManager);
 
 			// Equinox dependency
 			ExtendedHttpService httpService = waitForHttpService();
@@ -170,8 +144,8 @@ final class Kernel implements ServiceListener {
 
 		if (nodeHttp != null)
 			nodeHttp.destroy();
-		if (nodeSecurity != null)
-			nodeSecurity.destroy();
+		// if (nodeSecurity != null)
+		// nodeSecurity.destroy();
 		if (node != null)
 			node.destroy();
 
@@ -180,14 +154,10 @@ final class Kernel implements ServiceListener {
 		// Clean hanging threads from Jackrabbit
 		TransientFileFactory.shutdown();
 
-		try {
-			LoginContext kernelLc = new LoginContext(
-					KernelConstants.LOGIN_CONTEXT_KERNEL, kernelSubject);
-			kernelLc.logout();
-		} catch (LoginException e) {
-			throw new CmsException("Cannot log in kernel", e);
-		}
+		// Clean hanging Gogo shell thread
+		new GogoShellKiller().start();
 
+		nodeSecurity.destroy();
 		long duration = System.currentTimeMillis() - begin;
 		log.info("## ARGEO CMS DOWN in " + (duration / 1000) + "."
 				+ (duration % 1000) + "s ##");
@@ -237,25 +207,6 @@ final class Kernel implements ServiceListener {
 		return httpService;
 	}
 
-	private void createKeyStoreIfNeeded() {
-		char[] ksPwd = "changeit".toCharArray();
-		char[] keyPwd = Arrays.copyOf(ksPwd, ksPwd.length);
-		File keyStoreFile = KernelUtils.getOsgiConfigurationFile("node.p12");
-		if (!keyStoreFile.exists()) {
-			try {
-				KeyStore keyStore = PkiUtils.getKeyStore(keyStoreFile, ksPwd);
-				X509Certificate cert = PkiUtils.generateSelfSignedCertificate(
-						keyStore, new X500Principal(KernelHeader.ROLE_KERNEL),
-						keyPwd);
-				PkiUtils.saveKeyStore(keyStoreFile, ksPwd, keyStore);
-
-			} catch (Exception e) {
-				throw new CmsException("Cannot create key store "
-						+ keyStoreFile, e);
-			}
-		}
-	}
-
 	final private static void directorsCut(long initDuration) {
 		// final long ms = 128l + (long) (Math.random() * 128d);
 		long ms = initDuration / 100;
@@ -276,4 +227,62 @@ final class Kernel implements ServiceListener {
 					+ String.format("%.2f", 100 - (sleepAccuracy * 100 - 100))
 					+ " %");
 	}
+
+	/** Workaround for blocking Gogo shell by system shutdown. */
+	private class GogoShellKiller extends Thread {
+
+		public GogoShellKiller() {
+			super("Gogo shell killer");
+			setDaemon(true);
+		}
+
+		@Override
+		public void run() {
+			ThreadGroup rootTg = getRootThreadGroup(null);
+			Thread gogoShellThread = findGogoShellThread(rootTg);
+			if (gogoShellThread == null)
+				return;
+			while (getNonDaemonCount(rootTg) > 2) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// silent
+				}
+			}
+			gogoShellThread = findGogoShellThread(rootTg);
+			if (gogoShellThread == null)
+				return;
+			System.exit(0);
+		}
+	}
+
+	private static ThreadGroup getRootThreadGroup(ThreadGroup tg) {
+		if (tg == null)
+			tg = Thread.currentThread().getThreadGroup();
+		if (tg.getParent() == null)
+			return tg;
+		else
+			return getRootThreadGroup(tg.getParent());
+	}
+
+	private static int getNonDaemonCount(ThreadGroup rootThreadGroup) {
+		Thread[] threads = new Thread[rootThreadGroup.activeCount()];
+		rootThreadGroup.enumerate(threads);
+		int nonDameonCount = 0;
+		for (Thread t : threads)
+			if (!t.isDaemon())
+				nonDameonCount++;
+		return nonDameonCount;
+	}
+
+	private static Thread findGogoShellThread(ThreadGroup rootThreadGroup) {
+		Thread[] threads = new Thread[rootThreadGroup.activeCount()];
+		rootThreadGroup.enumerate(threads, true);
+		for (Thread thread : threads) {
+			if (thread.getName().equals("Gogo shell"))
+				return thread;
+		}
+		return null;
+	}
+
 }

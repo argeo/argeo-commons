@@ -29,7 +29,7 @@ public class LdifAuthorization implements Authorization, LdapNames {
 			if (displayName == null)
 				displayName = user.getName();
 			if (displayName == null)
-				throw new ArgeoUserAdminException(
+				throw new UserDirectoryException(
 						"Cannot set display name for " + user);
 			this.displayName = displayName.toString();
 		}

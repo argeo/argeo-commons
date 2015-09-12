@@ -8,7 +8,6 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.SecureRandom;
-import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Date;
@@ -19,7 +18,6 @@ import org.argeo.ArgeoException;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
@@ -30,7 +28,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 public class PkiUtils {
 	private final static String SECURITY_PROVIDER;
 	static {
-		Security.addProvider(new BouncyCastleProvider());
+		// Security.addProvider(new BouncyCastleProvider());
 		SECURITY_PROVIDER = "BC";
 	}
 

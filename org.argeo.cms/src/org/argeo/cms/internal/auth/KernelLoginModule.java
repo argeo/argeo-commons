@@ -27,7 +27,7 @@ public class KernelLoginModule implements LoginModule {
 
 	@Override
 	public boolean login() throws LoginException {
-		// TODO check permission at code level
+		// TODO check permission at code level ?
 		return true;
 	}
 

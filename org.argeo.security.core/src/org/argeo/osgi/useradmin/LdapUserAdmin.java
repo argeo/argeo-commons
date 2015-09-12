@@ -26,7 +26,7 @@ import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
-public class LdapUserAdmin extends AbstractLdapUserAdmin {
+public class LdapUserAdmin extends AbstractUserDirectory {
 	private final static Log log = LogFactory.getLog(LdapUserAdmin.class);
 
 	private String baseDn = "dc=example,dc=com";
@@ -59,7 +59,7 @@ public class LdapUserAdmin extends AbstractLdapUserAdmin {
 			log.debug(initialLdapContext.getAttributes(
 					"uid=root,ou=users,dc=example,dc=com").get("cn"));
 		} catch (Exception e) {
-			throw new ArgeoUserAdminException("Cannot connect to LDAP", e);
+			throw new UserDirectoryException("Cannot connect to LDAP", e);
 		}
 	}
 
@@ -92,13 +92,13 @@ public class LdapUserAdmin extends AbstractLdapUserAdmin {
 			if (attrs.get("objectClass").contains("groupOfNames"))
 				res = new LdifGroup(this, new LdapName(name), attrs);
 			else if (attrs.get("objectClass").contains("inetOrgPerson"))
-				res = new LdifUser(new LdapName(name), attrs);
+				res = new LdifUser(this, new LdapName(name), attrs);
 			else
-				throw new ArgeoUserAdminException("Unsupported LDAP type for "
+				throw new UserDirectoryException("Unsupported LDAP type for "
 						+ name);
 			return res;
 		} catch (NamingException e) {
-			throw new ArgeoUserAdminException("Cannot get role for " + name, e);
+			throw new UserDirectoryException("Cannot get role for " + name, e);
 		}
 	}
 
@@ -124,16 +124,17 @@ public class LdapUserAdmin extends AbstractLdapUserAdmin {
 					role = new LdifGroup(this, toDn(searchBase, searchResult),
 							attrs);
 				else if (attrs.get("objectClass").contains("inetOrgPerson"))
-					role = new LdifUser(toDn(searchBase, searchResult), attrs);
+					role = new LdifUser(this, toDn(searchBase, searchResult),
+							attrs);
 				else
-					throw new ArgeoUserAdminException(
+					throw new UserDirectoryException(
 							"Unsupported LDAP type for "
 									+ searchResult.getName());
 				res.add(role);
 			}
 			return res.toArray(new Role[res.size()]);
 		} catch (Exception e) {
-			throw new ArgeoUserAdminException("Cannot get roles for filter "
+			throw new UserDirectoryException("Cannot get roles for filter "
 					+ filter, e);
 		}
 	}
@@ -172,10 +173,10 @@ public class LdapUserAdmin extends AbstractLdapUserAdmin {
 			}
 			if (searchResult == null)
 				return null;
-			return new LdifUser(toDn(searchBase, searchResult),
+			return new LdifUser(this, toDn(searchBase, searchResult),
 					searchResult.getAttributes());
 		} catch (Exception e) {
-			throw new ArgeoUserAdminException("Cannot get user with " + key
+			throw new UserDirectoryException("Cannot get user with " + key
 					+ "=" + value, e);
 		}
 	}

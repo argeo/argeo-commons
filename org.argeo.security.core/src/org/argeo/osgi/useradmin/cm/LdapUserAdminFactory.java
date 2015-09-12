@@ -4,8 +4,8 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.argeo.osgi.useradmin.AbstractLdapUserAdmin;
-import org.argeo.osgi.useradmin.ArgeoUserAdminException;
+import org.argeo.osgi.useradmin.AbstractUserDirectory;
+import org.argeo.osgi.useradmin.UserDirectoryException;
 import org.argeo.osgi.useradmin.LdapUserAdmin;
 import org.argeo.osgi.useradmin.LdifUserAdmin;
 import org.argeo.osgi.useradmin.UserAdminAggregator;
@@ -31,7 +31,7 @@ public class LdapUserAdminFactory implements ManagedServiceFactory {
 			Dictionary<String, ?> properties) throws ConfigurationException {
 		String baseDn = properties.get("baseDn").toString();
 		String userAdminUri = properties.get("uri").toString();
-		AbstractLdapUserAdmin userAdmin;
+		AbstractUserDirectory userAdmin;
 		if (userAdminUri.startsWith("ldap"))
 			userAdmin = new LdapUserAdmin(userAdminUri);
 		else
@@ -45,7 +45,7 @@ public class LdapUserAdminFactory implements ManagedServiceFactory {
 		if (index.containsKey(pid))
 			userAdminAggregator.removeUserAdmin(index.get(pid));
 		else
-			throw new ArgeoUserAdminException("No user admin registered for "
+			throw new UserDirectoryException("No user admin registered for "
 					+ pid);
 		index.remove(pid);
 	}

@@ -8,33 +8,25 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
-import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
-import org.osgi.service.useradmin.UserAdmin;
 
-public class LdifGroup extends LdifUser implements Group {
-	// optimisation
-	// List<Role> directMembers = null;
+public class LdifGroup extends LdifUser implements DirectoryGroup {
+	private final String memberAttributeId;
 
-	private final UserAdmin userAdmin;
-	private String memberAttrName = "member";
-
-	public LdifGroup(UserAdmin userAdmin, LdapName dn, Attributes attributes) {
-		super(dn, attributes);
-		this.userAdmin = userAdmin;
+	public LdifGroup(AbstractUserDirectory userAdmin, LdapName dn,
+			Attributes attributes) {
+		super(userAdmin, dn, attributes);
+		memberAttributeId = userAdmin.getMemberAttributeId();
 	}
 
 	@Override
 	public boolean addMember(Role role) {
-		Attribute member = getAttributes().get(memberAttrName);
+		Attribute member = getAttributes().get(memberAttributeId);
 		if (member != null) {
 			if (member.contains(role.getName()))
 				return false;
 		} else
-			getAttributes().put(memberAttrName, role.getName());
-		// directMembers.add(role);
-		// if (role instanceof LdifUser)
-		// ((LdifUser) role).directMemberOf.add(this);
+			getAttributes().put(memberAttributeId, role.getName());
 		return true;
 	}
 
@@ -45,14 +37,11 @@ public class LdifGroup extends LdifUser implements Group {
 
 	@Override
 	public boolean removeMember(Role role) {
-		Attribute member = getAttributes().get(memberAttrName);
+		Attribute member = getAttributes().get(memberAttributeId);
 		if (member != null) {
 			if (!member.contains(role.getName()))
 				return false;
 			member.remove(role.getName());
-			// directMembers.remove(role);
-			// if (role instanceof LdifUser)
-			// ((LdifUser) role).directMemberOf.remove(this);
 			return true;
 		} else
 			return false;
@@ -62,62 +51,23 @@ public class LdifGroup extends LdifUser implements Group {
 	public Role[] getMembers() {
 		List<Role> directMembers = new ArrayList<Role>();
 		for (LdapName ldapName : getMemberNames()) {
-			Role role = userAdmin.getRole(ldapName.toString());
-			if (role == null && userAdmin instanceof AbstractLdapUserAdmin) {
-				AbstractLdapUserAdmin ua = (AbstractLdapUserAdmin) userAdmin;
-				if (ua.getExternalRoles() != null)
-					role = ua.getExternalRoles().getRole(ldapName.toString());
+			Role role = getUserAdmin().getRole(ldapName.toString());
+			if (role == null) {
+				if (getUserAdmin().getExternalRoles() != null)
+					role = getUserAdmin().getExternalRoles().getRole(
+							ldapName.toString());
 			}
 			if (role == null)
-				throw new ArgeoUserAdminException("No role found for "
+				throw new UserDirectoryException("No role found for "
 						+ ldapName);
-
-			// role.directMemberOf.add(group);
-			// if (!directMemberOf.containsKey(role.getDn()))
-			// directMemberOf.put(role.getDn(), new ArrayList<LdifGroup>());
-			// directMemberOf.get(role.getDn()).add(group);
 			directMembers.add(role);
 		}
 		return directMembers.toArray(new Role[directMembers.size()]);
-		// if (directMembers != null)
-		// return directMembers.toArray(new Role[directMembers.size()]);
-		// else
-		// throw new ArgeoUserAdminException("Members have not been loaded.");
-
-		// Attribute memberAttribute = getAttributes().get(memberAttrName);
-		// if (memberAttribute == null)
-		// return new Role[0];
-		// try {
-		// List<Role> roles = new ArrayList<Role>();
-		// NamingEnumeration values = memberAttribute.getAll();
-		// while (values.hasMore()) {
-		// LdapName dn = new LdapName(values.next().toString());
-		// roles.add(new LdifUser(dn, null));
-		// }
-		// return roles.toArray(new Role[roles.size()]);
-		// } catch (Exception e) {
-		// throw new ArgeoUserAdminException("Cannot get members", e);
-		// }
 	}
 
-	// void loadMembers(LdifUserAdmin userAdmin) {
-	// directMembers = new ArrayList<Role>();
-	// for (LdapName ldapName : getMemberNames()) {
-	// LdifUser role;
-	// if (userAdmin.groups.containsKey(ldapName))
-	// role = userAdmin.groups.get(ldapName);
-	// else if (userAdmin.users.containsKey(ldapName))
-	// role = userAdmin.users.get(ldapName);
-	// else
-	// throw new ArgeoUserAdminException("No role found for "
-	// + ldapName);
-	// role.directMemberOf.add(this);
-	// directMembers.add(role);
-	// }
-	// }
-
-	List<LdapName> getMemberNames() {
-		Attribute memberAttribute = getAttributes().get(memberAttrName);
+	@Override
+	public List<LdapName> getMemberNames() {
+		Attribute memberAttribute = getAttributes().get(memberAttributeId);
 		if (memberAttribute == null)
 			return new ArrayList<LdapName>();
 		try {
@@ -129,7 +79,7 @@ public class LdifGroup extends LdifUser implements Group {
 			}
 			return roles;
 		} catch (Exception e) {
-			throw new ArgeoUserAdminException("Cannot get members", e);
+			throw new UserDirectoryException("Cannot get members", e);
 		}
 	}
 
@@ -142,9 +92,4 @@ public class LdifGroup extends LdifUser implements Group {
 	public int getType() {
 		return GROUP;
 	}
-
-	public String getMemberAttrName() {
-		return memberAttrName;
-	}
-
 }

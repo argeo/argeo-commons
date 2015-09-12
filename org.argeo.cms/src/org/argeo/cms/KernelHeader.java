@@ -2,6 +2,8 @@ package org.argeo.cms;
 
 /** Public properties of the CMS Kernel */
 public interface KernelHeader {
+	final static String SECURITY_PROVIDER = "BC";// Bouncy Castle
+
 	// LOGIN CONTEXTS
 	final static String LOGIN_CONTEXT_USER = "USER";
 	final static String LOGIN_CONTEXT_ANONYMOUS = "ANONYMOUS";

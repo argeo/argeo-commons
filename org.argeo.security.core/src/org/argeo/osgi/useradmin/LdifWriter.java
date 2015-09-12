@@ -39,7 +39,7 @@ public class LdifWriter {
 			writer.append('\n');
 			writer.flush();
 		} catch (NamingException e) {
-			throw new ArgeoUserAdminException("Cannot write LDIF", e);
+			throw new UserDirectoryException("Cannot write LDIF", e);
 		}
 	}
 

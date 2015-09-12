@@ -21,5 +21,6 @@ org.apache.commons.vfs2.*;resolution:=optional,\
 org.apache.jackrabbit.*;resolution:=optional,\
 org.springframework.ldap.*;resolution:=optional,\
 org.springframework.security.ldap.*;resolution:=optional,\
+org.springframework.security.provisioning;resolution:=optional,\
 org.joda.time.*;resolution:=optional,\
 *

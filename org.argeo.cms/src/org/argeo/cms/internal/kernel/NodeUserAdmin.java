@@ -10,10 +10,14 @@ import java.util.Set;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
+import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
+import javax.transaction.TransactionSynchronizationRegistry;
 
 import org.argeo.cms.KernelHeader;
-import org.argeo.osgi.useradmin.ArgeoUserAdminException;
+import org.argeo.osgi.useradmin.AbstractUserDirectory;
 import org.argeo.osgi.useradmin.UserAdminAggregator;
+import org.argeo.osgi.useradmin.UserDirectoryException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Role;
@@ -26,13 +30,16 @@ public class NodeUserAdmin implements UserAdmin, UserAdminAggregator {
 		try {
 			ROLES_BASE = new LdapName(KernelHeader.ROLES_BASEDN);
 		} catch (InvalidNameException e) {
-			throw new ArgeoUserAdminException("Cannot initialize "
+			throw new UserDirectoryException("Cannot initialize "
 					+ NodeUserAdmin.class, e);
 		}
 	}
 
 	private UserAdmin nodeRoles = null;
 	private Map<LdapName, UserAdmin> userAdmins = new HashMap<LdapName, UserAdmin>();
+
+	private TransactionSynchronizationRegistry syncRegistry;
+	private TransactionManager transactionManager;
 
 	@Override
 	public Role createRole(String name, int type) {
@@ -92,18 +99,21 @@ public class NodeUserAdmin implements UserAdmin, UserAdminAggregator {
 	//
 	@Override
 	public synchronized void addUserAdmin(String baseDn, UserAdmin userAdmin) {
+		if (userAdmin instanceof AbstractUserDirectory)
+			((AbstractUserDirectory) userAdmin).setSyncRegistry(syncRegistry);
+
 		if (baseDn.equals(KernelHeader.ROLES_BASEDN)) {
 			nodeRoles = userAdmin;
 			return;
 		}
 
 		if (userAdmins.containsKey(baseDn))
-			throw new ArgeoUserAdminException(
+			throw new UserDirectoryException(
 					"There is already a user admin for " + baseDn);
 		try {
 			userAdmins.put(new LdapName(baseDn), userAdmin);
 		} catch (InvalidNameException e) {
-			throw new ArgeoUserAdminException("Badly formatted base DN "
+			throw new UserDirectoryException("Badly formatted base DN "
 					+ baseDn, e);
 		}
 	}
@@ -111,25 +121,27 @@ public class NodeUserAdmin implements UserAdmin, UserAdminAggregator {
 	@Override
 	public synchronized void removeUserAdmin(String baseDn) {
 		if (baseDn.equals(KernelHeader.ROLES_BASEDN))
-			throw new ArgeoUserAdminException("Node roles cannot be removed.");
+			throw new UserDirectoryException("Node roles cannot be removed.");
 		LdapName base;
 		try {
 			base = new LdapName(baseDn);
 		} catch (InvalidNameException e) {
-			throw new ArgeoUserAdminException("Badly formatted base DN "
+			throw new UserDirectoryException("Badly formatted base DN "
 					+ baseDn, e);
 		}
 		if (!userAdmins.containsKey(base))
-			throw new ArgeoUserAdminException("There is no user admin for "
+			throw new UserDirectoryException("There is no user admin for "
 					+ base);
-		userAdmins.remove(base);
+		UserAdmin userAdmin = userAdmins.remove(base);
+		if (userAdmin instanceof AbstractUserDirectory)
+			((AbstractUserDirectory) userAdmin).setSyncRegistry(null);
 	}
 
 	private UserAdmin findUserAdmin(String name) {
 		try {
 			return findUserAdmin(new LdapName(name));
 		} catch (InvalidNameException e) {
-			throw new ArgeoUserAdminException("Badly formatted name " + name, e);
+			throw new UserDirectoryException("Badly formatted name " + name, e);
 		}
 	}
 
@@ -142,11 +154,35 @@ public class NodeUserAdmin implements UserAdmin, UserAdminAggregator {
 				res.add(userAdmins.get(baseDn));
 		}
 		if (res.size() == 0)
-			throw new ArgeoUserAdminException("Cannot find user admin for "
+			throw new UserDirectoryException("Cannot find user admin for "
 					+ name);
 		if (res.size() > 1)
-			throw new ArgeoUserAdminException("Multiple user admin found for "
+			throw new UserDirectoryException("Multiple user admin found for "
 					+ name);
 		return res.get(0);
 	}
+
+	public void setTransactionManager(TransactionManager transactionManager) {
+		this.transactionManager = transactionManager;
+		if (nodeRoles instanceof AbstractUserDirectory)
+			((AbstractUserDirectory) nodeRoles)
+					.setTransactionManager(transactionManager);
+		for (UserAdmin userAdmin : userAdmins.values()) {
+			if (userAdmin instanceof AbstractUserDirectory)
+				((AbstractUserDirectory) userAdmin)
+						.setTransactionManager(transactionManager);
+		}
+	}
+
+	public void setSyncRegistry(TransactionSynchronizationRegistry syncRegistry) {
+		this.syncRegistry = syncRegistry;
+		if (nodeRoles instanceof AbstractUserDirectory)
+			((AbstractUserDirectory) nodeRoles).setSyncRegistry(syncRegistry);
+		for (UserAdmin userAdmin : userAdmins.values()) {
+			if (userAdmin instanceof AbstractUserDirectory)
+				((AbstractUserDirectory) userAdmin)
+						.setSyncRegistry(syncRegistry);
+		}
+	}
+
 }

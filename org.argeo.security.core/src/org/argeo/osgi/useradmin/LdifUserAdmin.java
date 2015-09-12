@@ -21,6 +21,9 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 
 import org.apache.commons.io.IOUtils;
 import org.osgi.framework.Filter;
@@ -31,7 +34,7 @@ import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
 /** User admin implementation using LDIF file(s) as backend. */
-public class LdifUserAdmin extends AbstractLdapUserAdmin {
+public class LdifUserAdmin extends AbstractUserDirectory {
 	SortedMap<LdapName, LdifUser> users = new TreeMap<LdapName, LdifUser>();
 	SortedMap<LdapName, LdifGroup> groups = new TreeMap<LdapName, LdifGroup>();
 
@@ -39,9 +42,10 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 
 	// private Map<LdapName, List<LdifGroup>> directMemberOf = new
 	// TreeMap<LdapName, List<LdifGroup>>();
+	private XaRes xaRes = new XaRes();
 
 	public LdifUserAdmin(String uri) {
-		this(uri, true);
+		this(uri, readOnlyDefault(uri));
 	}
 
 	public LdifUserAdmin(String uri, boolean isReadOnly) {
@@ -49,12 +53,21 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 		try {
 			setUri(new URI(uri));
 		} catch (URISyntaxException e) {
-			throw new ArgeoUserAdminException("Invalid URI " + uri, e);
+			throw new UserDirectoryException("Invalid URI " + uri, e);
 		}
 
-		if (!isReadOnly && !getUri().getScheme().equals("file:"))
+		if (!isReadOnly && !getUri().getScheme().equals("file"))
 			throw new UnsupportedOperationException(getUri().getScheme()
-					+ "not supported read-write.");
+					+ " not supported read-write.");
+
+	}
+
+	public LdifUserAdmin(URI uri, boolean isReadOnly) {
+		setReadOnly(isReadOnly);
+		setUri(uri);
+		if (!isReadOnly && !getUri().getScheme().equals("file"))
+			throw new UnsupportedOperationException(getUri().getScheme()
+					+ " not supported read-write.");
 
 	}
 
@@ -64,21 +77,35 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 		setUri(null);
 	}
 
+	private static boolean readOnlyDefault(String uriStr) {
+		URI uri;
+		try {
+			uri = new URI(uriStr);
+		} catch (Exception e) {
+			throw new UserDirectoryException("Invalid URI " + uriStr, e);
+		}
+		if (uri.getScheme().equals("file")) {
+			File file = new File(uri);
+			return !file.canWrite();
+		}
+		return true;
+	}
+
 	public void init() {
 		try {
 			load(getUri().toURL().openStream());
 		} catch (Exception e) {
-			throw new ArgeoUserAdminException("Cannot open URL " + getUri(), e);
+			throw new UserDirectoryException("Cannot open URL " + getUri(), e);
 		}
 	}
 
 	public void save() {
 		if (getUri() == null || isReadOnly())
-			throw new ArgeoUserAdminException("Cannot save LDIF user admin");
+			throw new UserDirectoryException("Cannot save LDIF user admin");
 		try (FileOutputStream out = new FileOutputStream(new File(getUri()))) {
 			save(out);
 		} catch (IOException e) {
-			throw new ArgeoUserAdminException("Cannot save user admin to "
+			throw new UserDirectoryException("Cannot save user admin to "
 					+ getUri(), e);
 		}
 	}
@@ -106,7 +133,7 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 				objectClasses: while (objectClasses.hasMore()) {
 					String objectClass = objectClasses.next().toString();
 					if (objectClass.equals("inetOrgPerson")) {
-						users.put(key, new LdifUser(key, attributes));
+						users.put(key, new LdifUser(this, key, attributes));
 						break objectClasses;
 					} else if (objectClass.equals("groupOfNames")) {
 						groups.put(key, new LdifGroup(this, key, attributes));
@@ -116,8 +143,8 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 			}
 
 			// optimise
-//			for (LdifGroup group : groups.values())
-//				loadMembers(group);
+			// for (LdifGroup group : groups.values())
+			// loadMembers(group);
 
 			// indexes
 			for (String attr : getIndexedUserProperties())
@@ -131,7 +158,7 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 						LdifUser otherUser = userIndexes.get(attr).put(
 								value.toString(), user);
 						if (otherUser != null)
-							throw new ArgeoUserAdminException("User " + user
+							throw new UserDirectoryException("User " + user
 									+ " and user " + otherUser
 									+ " both have property " + attr
 									+ " set to " + value);
@@ -139,7 +166,7 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 				}
 			}
 		} catch (Exception e) {
-			throw new ArgeoUserAdminException(
+			throw new UserDirectoryException(
 					"Cannot load user admin service from LDIF", e);
 		}
 	}
@@ -180,7 +207,7 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 		try {
 			LdapName dn = new LdapName(name);
 			if (users.containsKey(dn) || groups.containsKey(dn))
-				throw new ArgeoUserAdminException("Already a role " + name);
+				throw new UserDirectoryException("Already a role " + name);
 
 			BasicAttributes attrs = new BasicAttributes();
 			attrs.put("dn", dn.toString());
@@ -189,16 +216,16 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 			attrs.put(nameRdn.getType(), nameRdn.getValue());
 			LdifUser newRole;
 			if (type == Role.USER) {
-				newRole = new LdifUser(dn, attrs);
+				newRole = new LdifUser(this, dn, attrs);
 				users.put(dn, newRole);
 			} else if (type == Role.GROUP) {
 				newRole = new LdifGroup(this, dn, attrs);
 				groups.put(dn, (LdifGroup) newRole);
 			} else
-				throw new ArgeoUserAdminException("Unsupported type " + type);
+				throw new UserDirectoryException("Unsupported type " + type);
 			return newRole;
 		} catch (InvalidNameException e) {
-			throw new ArgeoUserAdminException("Cannot create role " + name, e);
+			throw new UserDirectoryException("Cannot create role " + name, e);
 		}
 	}
 
@@ -212,12 +239,12 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 			else if (groups.containsKey(dn))
 				role = groups.remove(dn);
 			else
-				throw new ArgeoUserAdminException("There is no role " + name);
+				throw new UserDirectoryException("There is no role " + name);
 			if (role == null)
 				return false;
 			for (LdifGroup group : getDirectGroups(role)) {
-//				group.directMembers.remove(role);
-				group.getAttributes().get(group.getMemberAttrName())
+				// group.directMembers.remove(role);
+				group.getAttributes().get(getMemberAttributeId())
 						.remove(dn.toString());
 			}
 			if (role instanceof LdifGroup) {
@@ -230,7 +257,7 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 			}
 			return true;
 		} catch (InvalidNameException e) {
-			throw new ArgeoUserAdminException("Cannot create role " + name, e);
+			throw new UserDirectoryException("Cannot create role " + name, e);
 		}
 	}
 
@@ -285,29 +312,29 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 		// throw new UnsupportedOperationException();
 	}
 
-//	protected void loadMembers(LdifGroup group) {
-//		group.directMembers = new ArrayList<Role>();
-//		for (LdapName ldapName : group.getMemberNames()) {
-//			LdifUser role = null;
-//			if (groups.containsKey(ldapName))
-//				role = groups.get(ldapName);
-//			else if (users.containsKey(ldapName))
-//				role = users.get(ldapName);
-//			else {
-//				if (getExternalRoles() != null)
-//					role = (LdifUser) getExternalRoles().getRole(
-//							ldapName.toString());
-//				if (role == null)
-//					throw new ArgeoUserAdminException("No role found for "
-//							+ ldapName);
-//			}
-//			// role.directMemberOf.add(group);
-//			// if (!directMemberOf.containsKey(role.getDn()))
-//			// directMemberOf.put(role.getDn(), new ArrayList<LdifGroup>());
-//			// directMemberOf.get(role.getDn()).add(group);
-//			group.directMembers.add(role);
-//		}
-//	}
+	// protected void loadMembers(LdifGroup group) {
+	// group.directMembers = new ArrayList<Role>();
+	// for (LdapName ldapName : group.getMemberNames()) {
+	// LdifUser role = null;
+	// if (groups.containsKey(ldapName))
+	// role = groups.get(ldapName);
+	// else if (users.containsKey(ldapName))
+	// role = users.get(ldapName);
+	// else {
+	// if (getExternalRoles() != null)
+	// role = (LdifUser) getExternalRoles().getRole(
+	// ldapName.toString());
+	// if (role == null)
+	// throw new ArgeoUserAdminException("No role found for "
+	// + ldapName);
+	// }
+	// // role.directMemberOf.add(group);
+	// // if (!directMemberOf.containsKey(role.getDn()))
+	// // directMemberOf.put(role.getDn(), new ArrayList<LdifGroup>());
+	// // directMemberOf.get(role.getDn()).add(group);
+	// group.directMembers.add(role);
+	// }
+	// }
 
 	@Override
 	protected List<LdifGroup> getDirectGroups(User user) {
@@ -318,7 +345,7 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 			try {
 				dn = new LdapName(user.getName());
 			} catch (InvalidNameException e) {
-				throw new ArgeoUserAdminException("Badly formatted user name "
+				throw new UserDirectoryException("Badly formatted user name "
 						+ user.getName(), e);
 			}
 
@@ -333,6 +360,74 @@ public class LdifUserAdmin extends AbstractLdapUserAdmin {
 		// return Collections.unmodifiableList(directMemberOf.get(dn));
 		// else
 		// return Collections.EMPTY_LIST;
+	}
+
+	@Override
+	public XAResource getXAResource() {
+		return xaRes;
+	}
+
+	private class XaRes implements XAResource {
+
+		@Override
+		public void commit(Xid xid, boolean onePhase) throws XAException {
+			save();
+		}
+
+		@Override
+		public void end(Xid xid, int flags) throws XAException {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void forget(Xid xid) throws XAException {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public int getTransactionTimeout() throws XAException {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public boolean isSameRM(XAResource xares) throws XAException {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public int prepare(Xid xid) throws XAException {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public Xid[] recover(int flag) throws XAException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void rollback(Xid xid) throws XAException {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public boolean setTransactionTimeout(int seconds) throws XAException {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public void start(Xid xid, int flags) throws XAException {
+			// TODO Auto-generated method stub
+
+		}
+
 	}
 
 }
