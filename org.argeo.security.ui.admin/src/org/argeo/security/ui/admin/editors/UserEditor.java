@@ -120,11 +120,11 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 		commitPages(true);
 		firePropertyChange(PROP_DIRTY);
 		// FIXME transaction should be managed at a higher level
-		try {
-			userTransaction.commit();
-		} catch (Exception e) {
-			throw new ArgeoException("Could not save user editor", e);
-		}
+		// try {
+		// userTransaction.commit();
+		// } catch (Exception e) {
+		// throw new ArgeoException("Could not save user editor", e);
+		// }
 	}
 
 	@Override

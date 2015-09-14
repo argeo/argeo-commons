@@ -10,9 +10,8 @@
 
 	<reference id="nodeRepository" interface="javax.jcr.Repository"
 		filter="(argeo.jcr.repository.alias=node)" />
-	<!-- <reference id="userAdminService" interface="org.argeo.security.UserAdminService" 
-		/> -->
-	<!-- new useradmin -->
+		
+	<!-- New user admin -->
 	<reference id="userAdmin" interface="org.osgi.service.useradmin.UserAdmin" />
 	<reference id="userTransaction" interface="javax.transaction.UserTransaction" />
 </beans:beans>

@@ -82,12 +82,12 @@ public class UsersView extends ViewPart implements ArgeoNames {
 		// Really?
 		userTableViewerCmp.refresh();
 
-		try {
-			if (userTransaction != null)
-				userTransaction.begin();
-		} catch (Exception e) {
-			throw new ArgeoException("Cannot begin transaction", e);
-		}
+//		try {
+//			if (userTransaction != null)
+//				userTransaction.begin();
+//		} catch (Exception e) {
+//			throw new ArgeoException("Cannot begin transaction", e);
+//		}
 	}
 
 	private class MyUserTableViewer extends UserTableViewer {

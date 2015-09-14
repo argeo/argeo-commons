@@ -14,11 +14,4 @@
 		scope="prototype">
 		<property name="userAdmin" ref="userAdmin" />
 	</bean>
-
-	<!-- LEGACY. TODO: Remove -->
-	<!-- <bean id="jcrUsersView" class="org.argeo.security.ui.admin.views.JcrUsersView" 
-		scope="prototype"> <property name="repository" ref="nodeRepository" /> </bean> 
-		<bean id="adminRolesView" class="org.argeo.security.ui.admin.views.RolesView" 
-		scope="prototype"> <property name="userAdminService" ref="userAdminService" 
-		/> </bean> -->
 </beans>

@@ -11,6 +11,7 @@
       </perspective>
    </extension>
    
+   <!-- VIEWS -->
    <extension
 		point="org.eclipse.ui.views">
       <view
@@ -29,7 +30,7 @@
       </view>
     </extension> 
 	
-	<!-- Editors -->
+	<!-- EDITORS -->
 	<extension
 		point="org.eclipse.ui.editors">
 		<editor
@@ -39,38 +40,42 @@
             icon="icons/user.gif"
             default="false">
 		</editor>
-		<!-- Legacy -->
-		<!--<editor
-			class="org.argeo.eclipse.spring.SpringExtensionFactory"
-            id="org.argeo.security.ui.admin.adminArgeoUserEditor"
-            name="User"
-            icon="icons/user.gif"
-			default="false">
-		</editor> -->
 	</extension>
     
     <extension
          point="org.eclipse.ui.commands">
-      	<command
-            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+		<!-- User CRUD -->
+		<command
             id="org.argeo.security.ui.admin.newUser"
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
             name="New User">
       	</command>
-      <command
-            defaultHandler="org.argeo.security.ui.admin.commands.DeleteUsers"
-            id="org.argeo.security.ui.admin.deleteUsers"
-            name="Delete User">
-      </command>
-      <command
-            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            id="org.argeo.security.ui.admin.newGroup"
+		<command
+			id="org.argeo.security.ui.admin.deleteUsers"
+			defaultHandler="org.argeo.security.ui.admin.commands.DeleteUsers"
+			name="Delete User">
+		</command>
+		<!-- Group CRUD -->
+		<command
+			id="org.argeo.security.ui.admin.newGroup"
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
             name="New Group">
-      </command>
-      <command
-            defaultHandler="org.argeo.security.ui.admin.commands.DeleteGroups"
+		</command>
+		<command
             id="org.argeo.security.ui.admin.deleteGroups"
+            defaultHandler="org.argeo.security.ui.admin.commands.DeleteGroups"
             name="Delete Group">
-      </command>
+		</command>
+		<!-- Transaction -->
+		<command
+		    id="org.argeo.security.ui.admin.userTransactionHandler"
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+        	name="Manage a user transaction">
+			<commandParameter
+					id="param.commandId"
+					name="begin, commit or rollback">
+ 			</commandParameter>
+  		</command>
 
  	  <!-- Force the refresh when the various listener are not enough -->
       <command
@@ -78,54 +83,64 @@
             id="org.argeo.security.ui.admin.forceRefresh"
             name="Force Refresh">
       </command>
-      <!--<command
-            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            id="org.argeo.security.ui.admin.openArgeoUserEditor"
-            name="OpenArgeoUserEditor">
-   			<commandParameter
-         		id="org.argeo.security.ui.admin.username"
-         		name="Username">
-  	 		</commandParameter>
-      </command>
-      <command
-            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            id="org.argeo.security.ui.admin.refreshUsersList"
-            name="refreshUsersList">
-      </command>
-      <command
-            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            id="org.argeo.security.ui.admin.newUser"
-            name="New User">
-      </command>
-      <command
-            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            id="org.argeo.security.ui.admin.deleteUser"
-            name="deleteUser">
-      </command>
-      <command
-            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            id="org.argeo.security.ui.admin.refreshRoles"
-            name="refreshRoles">
-      </command>
-      <command
-            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            id="org.argeo.security.ui.admin.addRole"
-            name="AddRole">
-      </command>
-      <command
-            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            id="org.argeo.security.ui.admin.deleteRole"
-            name="deleteRole">
-      </command>
+      <!-- 
       <command
             defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
             id="org.argeo.security.ui.admin.userBatchUpdate"
             name="User batch update">
       </command> -->
-    </extension>
-     <extension
-         point="org.eclipse.ui.menus">
-         <menuContribution
+	</extension>
+	
+	<!-- MENU CONTRIBUTIONS -->
+	<extension
+		point="org.eclipse.ui.menus">
+		<menuContribution
+			locationURI="toolbar:org.argeo.security.ui.rap.userToolbar?after=org.eclipse.ui.file.saveAll"> 
+			<!-- Transaction management --> 
+ 			<command
+				commandId="org.argeo.security.ui.admin.userTransactionHandler"
+				icon="icons/begin.gif"
+				label="Begin Transaction"
+				style="push"
+				tooltip="Begin a user transaction">
+<!--				<visibleWhen>
+					<and>
+						<with variable="activePart">
+							<instanceof value="org.argeo.cms.CmsEditable" />
+						</with>
+						<with variable="org.argeo.connect.people.rap.editingState">
+							<equals value="notEditing" />
+						</with> -->
+						<!-- FIXME : never true, the role condition does not work -->
+						<!-- <with variable="roles">
+			      			<iterate ifEmpty="false" operator="or">
+			        			<equals value="ROLE_BUSINESS_ADMIN" />
+			      			</iterate>
+			    		</with> -->
+<!--			    	</and>
+				</visibleWhen> -->
+				<parameter name="param.commandId" value="transaction.begin" />
+			</command>
+ 			<command
+				commandId="org.argeo.security.ui.admin.userTransactionHandler"
+				icon="icons/commit.gif"
+				label="Commit Transaction"
+				style="push"
+				tooltip="Commit a user transaction">
+				<parameter name="param.commandId" value="transaction.commit" />
+			</command>
+ 			<command
+				commandId="org.argeo.security.ui.admin.userTransactionHandler"
+				icon="icons/rollback.gif"
+				label="Rollback Transaction"
+				style="push"
+				tooltip="Abandon current changes and rollback to the latest commited version">
+				<parameter name="param.commandId" value="transaction.rollback" />
+			</command>
+		</menuContribution>
+    
+    	<!-- UsersView specific toolbar menu -->
+		<menuContribution
             locationURI="toolbar:org.argeo.security.ui.admin.usersView">
             <command
                   commandId="org.argeo.security.ui.admin.deleteUsers"
@@ -152,6 +167,8 @@
                   tooltip="Perform maintenance activities on a list of chosen users">
             </command>-->
         </menuContribution>
+
+    	<!-- GroupsView specific toolbar menu -->
         <menuContribution
             locationURI="toolbar:org.argeo.security.ui.admin.groupsView">
             <command
@@ -174,74 +191,29 @@
             </command>
         </menuContribution>
          
-<!--      	<menuContribution
+		<!--      	<menuContribution
             locationURI="toolbar:org.argeo.security.ui.admin.adminRolesView">
-            <command
-                  commandId="org.argeo.security.ui.admin.deleteRole"
-                  icon="icons/remove.gif"
-                  label="Delete Role"
-                  tooltip="Delete selected roles">
-            </command>
-            <command
-                  commandId="org.argeo.security.ui.admin.addRole"
-                  icon="icons/add.gif"
-                  label="Add Role"
-                  tooltip="Add new role">
-            </command>
             <command
                   commandId="org.argeo.security.ui.admin.refreshRoles"
                   icon="icons/sync.gif"
                   label="LDAP Roles Sync"
                   tooltip="Synchronize roles from LDAP">
             </command>
-        </menuContribution>
-      	<menuContribution
-            locationURI="toolbar:org.argeo.security.ui.admin.adminUsersView">
-            <command
-                  commandId="org.argeo.security.ui.admin.refreshUsersList"
-                  icon="icons/refresh.png"
-                  label="Refresh list"
-                  tooltip="Force the full refresh of the user list">
-            </command>
-            <command
-                  commandId="org.argeo.security.ui.admin.deleteUser"
-                  icon="icons/remove.gif"
-                  label="Delete User"
-                  tooltip="Delete selected users">
-            </command>
-            <command
-                  commandId="org.argeo.security.ui.admin.newUser"
-                  icon="icons/add.gif"
-                  label="Add User"
-                  tooltip="Add new user">
-            </command>
-            <command
-                  commandId="org.argeo.security.ui.admin.userBatchUpdate"
-                  icon="icons/batch.gif"
-                  label="Update users"
-                  tooltip="Perform maintenance activities on a list of chosen users">
-            </command>
-            <command
-                  commandId="org.argeo.security.ui.admin.refreshUsersList"
-                  icon="icons/sync.gif"
-                  label="LDAP Users Sync"
-                  tooltip="Synchronize users from LDAP">
-            </command>
         </menuContribution> -->
-  </extension>
+	</extension>
   
-  <extension
-           point="org.eclipse.ui.activities">
-       <activityPatternBinding
-              activityId="org.argeo.security.ui.userAdminActivity"
-              isEqualityPattern="true"
-              pattern="org.argeo.security.ui.admin/org.argeo.security.ui.admin.adminSecurityPerspective">
-        </activityPatternBinding>
-        <activityPatternBinding
-              activityId="org.argeo.security.ui.groupAdminActivity"
-              isEqualityPattern="true"
-              pattern="org.argeo.security.ui.admin/org.argeo.security.ui.admin.adminRolesView">
-        </activityPatternBinding>
-     </extension>
- 
- </plugin>
+  	<!-- ACTIVITIES -->
+	<extension
+		point="org.eclipse.ui.activities">
+		<activityPatternBinding
+			activityId="org.argeo.security.ui.userAdminActivity"
+			isEqualityPattern="true"
+			pattern="org.argeo.security.ui.admin/org.argeo.security.ui.admin.adminSecurityPerspective">
+		</activityPatternBinding>
+		<activityPatternBinding
+			activityId="org.argeo.security.ui.groupAdminActivity"
+			isEqualityPattern="true"
+			pattern="org.argeo.security.ui.admin/org.argeo.security.ui.admin.adminRolesView">
+		</activityPatternBinding>
+	</extension>
+</plugin>
