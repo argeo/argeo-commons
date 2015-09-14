@@ -11,6 +11,12 @@
 		<property name="userTransaction" ref="userTransaction" />
 	</bean>
 
+	<bean id="newGroup" class="org.argeo.security.ui.admin.commands.NewGroup"
+		scope="prototype">
+		<property name="userAdmin" ref="userAdmin" />
+		<property name="userTransaction" ref="userTransaction" />
+	</bean>
+
 	<!-- <bean id="userBatchUpdate" class="org.argeo.security.ui.admin.commands.UserBatchUpdate" 
 		scope="prototype"> <property name="repository" ref="nodeRepository" /> <property 
 		name="userAdminService" ref="userAdminService" /> </bean> -->

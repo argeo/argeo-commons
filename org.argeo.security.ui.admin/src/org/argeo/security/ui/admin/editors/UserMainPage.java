@@ -30,7 +30,14 @@ import org.argeo.security.ui.admin.internal.UserNameLP;
 import org.argeo.security.ui.admin.internal.UserTableDefaultDClickListener;
 import org.argeo.security.ui.admin.internal.UserTableViewer;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerDropAdapter;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
@@ -46,6 +53,8 @@ import org.eclipse.ui.forms.editor.FormPage;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
+import org.osgi.service.useradmin.Group;
+import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
@@ -208,7 +217,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 	private UserTableViewer userTableViewerCmp;
 	private TableViewer userViewer;
 
-	public void appendMemberOfPart(Composite parent) {
+	private void appendMemberOfPart(Composite parent) {
 		FormToolkit tk = getManagedForm().getToolkit();
 		Composite body = addSection(tk, parent, "Roles");
 		body.setLayout(EclipseUiUtils.noSpaceGridLayout());
@@ -236,6 +245,13 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		userViewer.addDoubleClickListener(new UserTableDefaultDClickListener());
 		// Really?
 		userTableViewerCmp.refresh();
+
+		// Drag and drop
+		int operations = DND.DROP_COPY | DND.DROP_MOVE;
+		Transfer[] tt = new Transfer[] { TextTransfer.getInstance() };
+		userViewer.addDropSupport(operations, tt, new ItemDropListener(
+				userViewer, userAdmin, editor.getDisplayedUser()));
+
 	}
 
 	private class MyUserTableViewer extends UserTableViewer {
@@ -252,6 +268,53 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		}
 	}
 
+	// DRAG & DROP MANAGEMENT
+
+	private class ItemDropListener extends ViewerDropAdapter {
+		private static final long serialVersionUID = 2893468717831451621L;
+
+		private final UserAdmin myUserAdmin;
+		private final User myUser;
+
+		public ItemDropListener(Viewer viewer, UserAdmin userAdmin, User user) {
+			super(viewer);
+			this.myUserAdmin = userAdmin;
+			this.myUser = user;
+		}
+
+		@Override
+		public boolean validateDrop(Object target, int operation,
+				TransferData transferType) {
+			// Target is always OK in a list only view
+			// TODO check if not a string
+			boolean validDrop = true;
+			return validDrop;
+		}
+
+		@Override
+		public void drop(DropTargetEvent event) {
+			String name = (String) event.data;
+			Role role = myUserAdmin.getRole(name);
+			// TODO this check should be done before.
+			if (role.getType() == Role.GROUP) {
+				// TODO check if the user is already member of this group
+				// we expect here that there is already a begun transaction
+				// TODO implement the dirty state
+				Group group = (Group) role;
+				group.addMember(myUser);
+			}
+			super.drop(event);
+		}
+
+		@Override
+		public boolean performDrop(Object data) {
+			userTableViewerCmp.refresh();
+			return true;
+		}
+	}
+
+	// LOCAL HELPERS
+	/** Appends a section with a title */
 	private Composite addSection(FormToolkit tk, Composite parent, String title) {
 		Section section = tk.createSection(parent, Section.TITLE_BAR);
 		GridData gd = EclipseUiUtils.fillWidth();

@@ -27,11 +27,15 @@ import org.argeo.security.ui.admin.internal.CommonNameLP;
 import org.argeo.security.ui.admin.internal.MailLP;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
+import org.argeo.security.ui.admin.internal.UserDragListener;
 import org.argeo.security.ui.admin.internal.UserNameLP;
 import org.argeo.security.ui.admin.internal.UserTableDefaultDClickListener;
 import org.argeo.security.ui.admin.internal.UserTableViewer;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.osgi.framework.InvalidSyntaxException;
@@ -79,12 +83,11 @@ public class UsersView extends ViewPart implements ArgeoNames {
 		// Really?
 		userTableViewerCmp.refresh();
 
-		// try {
-		// if (userTransaction != null)
-		// userTransaction.begin();
-		// } catch (Exception e) {
-		// throw new ArgeoException("Cannot begin transaction", e);
-		// }
+		// Drag and drop
+		int operations = DND.DROP_COPY | DND.DROP_MOVE;
+		Transfer[] tt = new Transfer[] { TextTransfer.getInstance() };
+		userViewer.addDragSupport(operations, tt, new UserDragListener(
+				userViewer));
 	}
 
 	private class MyUserTableViewer extends UserTableViewer {
