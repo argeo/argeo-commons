@@ -18,10 +18,6 @@ package org.argeo.security.ui.admin.views;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.transaction.UserTransaction;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.jcr.ArgeoNames;
@@ -29,6 +25,8 @@ import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.internal.ColumnDefinition;
 import org.argeo.security.ui.admin.internal.CommonNameLP;
 import org.argeo.security.ui.admin.internal.MailLP;
+import org.argeo.security.ui.admin.internal.UiAdminUtils;
+import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.argeo.security.ui.admin.internal.UserNameLP;
 import org.argeo.security.ui.admin.internal.UserTableDefaultDClickListener;
 import org.argeo.security.ui.admin.internal.UserTableViewer;
@@ -43,13 +41,12 @@ import org.osgi.service.useradmin.UserAdmin;
 
 /** List all users with filter - based on Ldif userAdmin */
 public class UsersView extends ViewPart implements ArgeoNames {
-	private final static Log log = LogFactory.getLog(UsersView.class);
+	// private final static Log log = LogFactory.getLog(UsersView.class);
 	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
 			+ ".usersView";
 
 	/* DEPENDENCY INJECTION */
 	private UserAdmin userAdmin;
-	private UserTransaction userTransaction;
 
 	// UI Objects
 	private UserTableViewer userTableViewerCmp;
@@ -82,16 +79,21 @@ public class UsersView extends ViewPart implements ArgeoNames {
 		// Really?
 		userTableViewerCmp.refresh();
 
-//		try {
-//			if (userTransaction != null)
-//				userTransaction.begin();
-//		} catch (Exception e) {
-//			throw new ArgeoException("Cannot begin transaction", e);
-//		}
+		// try {
+		// if (userTransaction != null)
+		// userTransaction.begin();
+		// } catch (Exception e) {
+		// throw new ArgeoException("Cannot begin transaction", e);
+		// }
 	}
 
 	private class MyUserTableViewer extends UserTableViewer {
 		private static final long serialVersionUID = 8467999509931900367L;
+
+		private final String[] knownProps = { UserAdminConstants.KEY_UID,
+				UserAdminConstants.KEY_DN, UserAdminConstants.KEY_CN,
+				UserAdminConstants.KEY_FIRSTNAME,
+				UserAdminConstants.KEY_LASTNAME, UserAdminConstants.KEY_MAIL };
 
 		public MyUserTableViewer(Composite parent, int style,
 				UserAdmin userAdmin) {
@@ -101,16 +103,35 @@ public class UsersView extends ViewPart implements ArgeoNames {
 		@Override
 		protected List<User> listFilteredElements(String filter) {
 			Role[] roles;
+
 			try {
-				roles = userAdmin.getRoles(filter);
+				StringBuilder builder = new StringBuilder();
+
+				StringBuilder tmpBuilder = new StringBuilder();
+				if (UiAdminUtils.notNull(filter))
+					for (String prop : knownProps) {
+						tmpBuilder.append("(");
+						tmpBuilder.append(prop);
+						tmpBuilder.append("=*");
+						tmpBuilder.append(filter);
+						tmpBuilder.append("*)");
+					}
+				if (tmpBuilder.length() > 1) {
+					builder.append("(&(objectclass=inetOrgPerson)(|");
+					builder.append(tmpBuilder.toString());
+					builder.append("))");
+				} else
+					builder.append("(objectclass=inetOrgPerson)");
+				roles = userAdmin.getRoles(builder.toString());
 			} catch (InvalidSyntaxException e) {
 				throw new ArgeoException("Unable to get roles with filter: "
 						+ filter, e);
 			}
 			List<User> users = new ArrayList<User>();
 			for (Role role : roles)
-				if (role.getType() == Role.USER && role.getType() != Role.GROUP)
-					users.add((User) role);
+				// if (role.getType() == Role.USER && role.getType() !=
+				// Role.GROUP)
+				users.add((User) role);
 			return users;
 		}
 	}
@@ -141,9 +162,4 @@ public class UsersView extends ViewPart implements ArgeoNames {
 	public void setUserAdmin(UserAdmin userAdmin) {
 		this.userAdmin = userAdmin;
 	}
-
-	public void setUserTransaction(UserTransaction userTransaction) {
-		this.userTransaction = userTransaction;
-	}
-
 }

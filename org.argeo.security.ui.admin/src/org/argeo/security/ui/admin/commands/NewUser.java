@@ -17,6 +17,10 @@ package org.argeo.security.ui.admin.commands;
 
 import java.util.Dictionary;
 
+import javax.transaction.Status;
+import javax.transaction.UserTransaction;
+
+import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.jcr.ArgeoNames;
@@ -49,10 +53,11 @@ import org.osgi.service.useradmin.UserAdmin;
 /** Open a wizard that enables creation of a new user. */
 public class NewUser extends AbstractHandler {
 	// private final static Log log = LogFactory.getLog(NewUser.class);
-
 	public final static String ID = SecurityAdminPlugin.PLUGIN_ID + ".newUser";
 
+	/* DEPENDENCY INJECTION */
 	private UserAdmin userAdmin;
+	private UserTransaction userTransaction;
 
 	// TODO implement a dynamic choice of the base dn
 	private String getDn(String uid) {
@@ -107,6 +112,16 @@ public class NewUser extends AbstractHandler {
 			if (!canFinish())
 				return false;
 			String username = mainUserInfo.getUsername();
+
+			// Begin transaction if needed
+			try {
+				if (userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION)
+					userTransaction.begin();
+			} catch (Exception e) {
+				throw new ArgeoException("Unable to start "
+						+ "transaction to create user " + username, e);
+			}
+
 			try {
 				char[] password = mainUserInfo.getPassword();
 				User user = (User) userAdmin.createRole(getDn(username),
@@ -250,9 +265,13 @@ public class NewUser extends AbstractHandler {
 
 		}
 	}
-	
+
 	/* DEPENDENCY INJECTION */
 	public void setUserAdmin(UserAdmin userAdmin) {
 		this.userAdmin = userAdmin;
+	}
+
+	public void setUserTransaction(UserTransaction userTransaction) {
+		this.userTransaction = userTransaction;
 	}
 }

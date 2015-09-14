@@ -24,6 +24,8 @@ import org.argeo.jcr.ArgeoNames;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.internal.ColumnDefinition;
 import org.argeo.security.ui.admin.internal.CommonNameLP;
+import org.argeo.security.ui.admin.internal.UiAdminUtils;
+import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.argeo.security.ui.admin.internal.UserNameLP;
 import org.argeo.security.ui.admin.internal.UserTableDefaultDClickListener;
 import org.argeo.security.ui.admin.internal.UserTableViewer;
@@ -56,7 +58,7 @@ public class GroupsView extends UsersView implements ArgeoNames {
 				150));
 		columnDefs.add(new ColumnDefinition(new UserNameLP(),
 				"Distinguished Name", 300));
-		
+
 		// Create and configure the table
 		groupTableViewerCmp = new MyUserTableViewer(parent, SWT.MULTI
 				| SWT.H_SCROLL | SWT.V_SCROLL, userAdmin);
@@ -77,6 +79,9 @@ public class GroupsView extends UsersView implements ArgeoNames {
 	private class MyUserTableViewer extends UserTableViewer {
 		private static final long serialVersionUID = 8467999509931900367L;
 
+		private final String[] knownProps = { UserAdminConstants.KEY_UID,
+				UserAdminConstants.KEY_CN, UserAdminConstants.KEY_DN };
+
 		public MyUserTableViewer(Composite parent, int style,
 				UserAdmin userAdmin) {
 			super(parent, style, userAdmin);
@@ -86,15 +91,31 @@ public class GroupsView extends UsersView implements ArgeoNames {
 		protected List<User> listFilteredElements(String filter) {
 			Role[] roles;
 			try {
-				roles = userAdmin.getRoles(filter);
+				StringBuilder builder = new StringBuilder();
+				StringBuilder tmpBuilder = new StringBuilder();
+				if (UiAdminUtils.notNull(filter))
+					for (String prop : knownProps) {
+						tmpBuilder.append("(");
+						tmpBuilder.append(prop);
+						tmpBuilder.append("=*");
+						tmpBuilder.append(filter);
+						tmpBuilder.append("*)");
+					}
+				if (tmpBuilder.length() > 1) {
+					builder.append("(&(objectclass=groupOfNames)(|");
+					builder.append(tmpBuilder.toString());
+					builder.append("))");
+				} else
+					builder.append("(objectclass=groupOfNames)");
+				roles = userAdmin.getRoles(builder.toString());
 			} catch (InvalidSyntaxException e) {
 				throw new ArgeoException("Unable to get roles with filter: "
 						+ filter, e);
 			}
 			List<User> users = new ArrayList<User>();
 			for (Role role : roles)
-				if (role.getType() == Role.GROUP)
-					users.add((User) role);
+				// if (role.getType() == Role.GROUP)
+				users.add((User) role);
 			return users;
 		}
 	}
@@ -103,7 +124,6 @@ public class GroupsView extends UsersView implements ArgeoNames {
 		groupTableViewerCmp.refresh();
 	}
 
-	
 	// Override generic view methods
 	@Override
 	public void dispose() {
