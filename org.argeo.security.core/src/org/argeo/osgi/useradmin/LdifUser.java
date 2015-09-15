@@ -1,5 +1,8 @@
 package org.argeo.osgi.useradmin;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,6 +18,8 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.ldap.LdapName;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.argeo.osgi.useradmin.AbstractUserDirectory.WorkingCopy;
 
 class LdifUser implements DirectoryUser {
@@ -64,6 +69,13 @@ class LdifUser implements DirectoryUser {
 
 	@Override
 	public boolean hasCredential(String key, Object value) {
+		if (key == null) {
+			// TODO check other sources (like PKCS12)
+			char[] password = toChars(value);
+			byte[] hashedPassword = hash(password);
+			return hasCredential(LdifName.userpassword.name(), hashedPassword);
+		}
+
 		Object storedValue = getCredentials().get(key);
 		if (storedValue == null || value == null)
 			return false;
@@ -74,6 +86,41 @@ class LdifUser implements DirectoryUser {
 		if (storedValue instanceof byte[] && value instanceof byte[])
 			return Arrays.equals((byte[]) storedValue, (byte[]) value);
 		return false;
+	}
+
+	/** Hash and clear the password */
+	private byte[] hash(char[] password) {
+		byte[] hashedPassword = ("{SHA}" + Base64
+				.encodeBase64String(DigestUtils.sha1(toBytes(password))))
+				.getBytes();
+		Arrays.fill(password, '\u0000');
+		return hashedPassword;
+	}
+
+	private byte[] toBytes(char[] chars) {
+		CharBuffer charBuffer = CharBuffer.wrap(chars);
+		ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(charBuffer);
+		byte[] bytes = Arrays.copyOfRange(byteBuffer.array(),
+				byteBuffer.position(), byteBuffer.limit());
+		Arrays.fill(charBuffer.array(), '\u0000'); // clear sensitive data
+		Arrays.fill(byteBuffer.array(), (byte) 0); // clear sensitive data
+		return bytes;
+	}
+
+	private char[] toChars(Object obj) {
+		if (obj instanceof char[])
+			return (char[]) obj;
+		if (!(obj instanceof byte[]))
+			throw new IllegalArgumentException(obj.getClass()
+					+ " is not a byte array");
+		ByteBuffer fromBuffer = ByteBuffer.wrap((byte[]) obj);
+		CharBuffer toBuffer = Charset.forName("UTF-8").decode(fromBuffer);
+		char[] res = Arrays.copyOfRange(toBuffer.array(), toBuffer.position(),
+				toBuffer.limit());
+		Arrays.fill(fromBuffer.array(), (byte) 0); // clear sensitive data
+		Arrays.fill((byte[]) obj, (byte) 0); // clear sensitive data
+		Arrays.fill(toBuffer.array(), '\u0000'); // clear sensitive data
+		return res;
 	}
 
 	@Override
@@ -227,6 +274,13 @@ class LdifUser implements DirectoryUser {
 
 		@Override
 		public Object put(String key, Object value) {
+			if (key == null) {
+				// TODO persist to other sources (like PKCS12)
+				char[] password = toChars(value);
+				byte[] hashedPassword = hash(password);
+				return put(LdifName.userpassword.name(), hashedPassword);
+			}
+
 			userAdmin.checkEdit();
 			if (!isEditing())
 				startEditing();

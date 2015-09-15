@@ -1,8 +1,5 @@
 package org.argeo.cms.internal.auth;
 
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,8 +19,6 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.security.auth.x500.X500Principal;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.jackrabbit.core.security.AnonymousPrincipal;
 import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
@@ -113,31 +108,16 @@ public class UserAdminLoginModule implements LoginModule {
 			else
 				throw new CredentialNotFoundException("No credentials provided");
 
-			// user = (User) userAdmin.getRole(username);
 			user = userAdmin.getUser(null, username);
 			if (user == null)
 				return false;
-
-			byte[] hashedPassword = ("{SHA}" + Base64
-					.encodeBase64String(DigestUtils.sha1(toBytes(password))))
-					.getBytes();
-			if (!user.hasCredential("userpassword", hashedPassword))
+			if (!user.hasCredential(null, password))
 				return false;
 		} else
 			// anonymous
 			user = null;
 		this.authorization = userAdmin.getAuthorization(user);
 		return true;
-	}
-
-	private byte[] toBytes(char[] chars) {
-		CharBuffer charBuffer = CharBuffer.wrap(chars);
-		ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(charBuffer);
-		byte[] bytes = Arrays.copyOfRange(byteBuffer.array(),
-				byteBuffer.position(), byteBuffer.limit());
-		Arrays.fill(charBuffer.array(), '\u0000'); // clear sensitive data
-		Arrays.fill(byteBuffer.array(), (byte) 0); // clear sensitive data
-		return bytes;
 	}
 
 	@Override

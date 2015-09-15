@@ -38,7 +38,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 					"com.sun.jndi.ldap.LdapCtxFactory");
 			connEnv.put(Context.PROVIDER_URL, getUri().toString());
 			connEnv.put("java.naming.ldap.attributes.binary",
-					LdifName.userPassword.name());
+					LdifName.userpassword.name());
 
 			initialLdapContext = new InitialLdapContext(connEnv, null);
 			// StartTlsResponse tls = (StartTlsResponse) ctx

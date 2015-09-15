@@ -56,11 +56,11 @@ public abstract class AbstractUserDirectory implements UserAdmin {
 
 	private UserAdmin externalRoles;
 	private List<String> indexedUserProperties = Arrays.asList(new String[] {
-			"uid", "mail", "cn" });
+			LdifName.uid.name(), LdifName.mail.name(), LdifName.cn.name() });
 
 	private String memberAttributeId = "member";
 	private List<String> credentialAttributeIds = Arrays
-			.asList(new String[] { "userpassword" });
+			.asList(new String[] { LdifName.userpassword.name() });
 
 	// private TransactionSynchronizationRegistry syncRegistry;
 	// private Object editingTransactionKey = null;
@@ -89,7 +89,7 @@ public abstract class AbstractUserDirectory implements UserAdmin {
 			this.isReadOnly = readOnlyDefault(uri);
 		else
 			this.isReadOnly = new Boolean(isReadOnly);
-		
+
 		this.userObjectClass = LdapProperties.userObjectClass
 				.getValue(properties);
 		this.groupObjectClass = LdapProperties.groupObjectClass
