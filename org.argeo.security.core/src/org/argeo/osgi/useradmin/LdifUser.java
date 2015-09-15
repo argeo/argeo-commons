@@ -92,7 +92,7 @@ class LdifUser implements DirectoryUser {
 		return getWc().getAttributes(getDn());
 	}
 
-	private synchronized boolean isEditing() {
+	protected synchronized boolean isEditing() {
 		return getWc() != null && getModifiedAttributes() != null;
 	}
 

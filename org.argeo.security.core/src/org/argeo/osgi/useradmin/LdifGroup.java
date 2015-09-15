@@ -21,6 +21,10 @@ public class LdifGroup extends LdifUser implements DirectoryGroup {
 
 	@Override
 	public boolean addMember(Role role) {
+		getUserAdmin().checkEdit();
+		if (!isEditing())
+			startEditing();
+
 		Attribute member = getAttributes().get(memberAttributeId);
 		if (member != null) {
 			if (member.contains(role.getName()))
@@ -39,6 +43,10 @@ public class LdifGroup extends LdifUser implements DirectoryGroup {
 
 	@Override
 	public boolean removeMember(Role role) {
+		getUserAdmin().checkEdit();
+		if (!isEditing())
+			startEditing();
+
 		Attribute member = getAttributes().get(memberAttributeId);
 		if (member != null) {
 			if (!member.contains(role.getName()))
