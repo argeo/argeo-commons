@@ -10,6 +10,9 @@ public interface KernelHeader {
 	final static String LOGIN_CONTEXT_SYSTEM = "SYSTEM";
 	final static String LOGIN_CONTEXT_SINGLE_USER = "SINGLE_USER";
 
+	// HTTP
+	final static String ACCESS_CONTROL_CONTEXT = "org.argeo.node.accessControlContext";
+
 	// RESERVED ROLES
 	public final static String ROLE_KERNEL = "OU=node";
 	public final static String ROLES_BASEDN = "ou=roles,ou=node";

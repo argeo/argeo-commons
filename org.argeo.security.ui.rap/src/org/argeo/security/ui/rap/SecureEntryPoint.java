@@ -15,6 +15,10 @@
  */
 package org.argeo.security.ui.rap;
 
+import static org.argeo.cms.KernelHeader.ACCESS_CONTROL_CONTEXT;
+
+import java.security.AccessControlContext;
+import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import javax.security.auth.Subject;
@@ -23,6 +27,8 @@ import javax.security.auth.login.CredentialNotFoundException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.x500.X500Principal;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,12 +54,6 @@ public class SecureEntryPoint implements EntryPoint {
 	private final static Log log = LogFactory.getLog(SecureEntryPoint.class);
 
 	/**
-	 * From org.springframework.security.context.
-	 * HttpSessionContextIntegrationFilter
-	 */
-	protected static final String SPRING_SECURITY_CONTEXT_KEY = "SPRING_SECURITY_CONTEXT";
-
-	/**
 	 * How many seconds to wait before invalidating the session if the user has
 	 * not yet logged in.
 	 */
@@ -73,63 +73,60 @@ public class SecureEntryPoint implements EntryPoint {
 		// around too long
 		RWT.getRequest().getSession().setMaxInactiveInterval(loginTimeout);
 
-		// Try to load security context thanks to the session processing filter
-		// HttpServletRequest httpRequest = RWT.getRequest();
-		// HttpSession httpSession = httpRequest.getSession();
-		// Object contextFromSessionObject = httpSession
-		// .getAttribute(SPRING_SECURITY_CONTEXT_KEY);
-		// if (contextFromSessionObject != null)
-		// SecurityContextHolder
-		// .setContext((SecurityContext) contextFromSessionObject);
-
 		final Display display = PlatformUI.createDisplay();
-		Subject subject = new Subject();
 
-		final LoginContext loginContext;
-		try {
-			CallbackHandler callbackHandler = new DefaultLoginDialog(
-					display.getActiveShell());
-			loginContext = new ArgeoLoginContext(
-					KernelHeader.LOGIN_CONTEXT_USER, subject, callbackHandler);
-		} catch (LoginException e1) {
-			throw new ArgeoException("Cannot initialize login context", e1);
-		}
+		// load context from session
+		HttpServletRequest httpRequest = RWT.getRequest();
+		final HttpSession httpSession = httpRequest.getSession();
+		AccessControlContext acc = (AccessControlContext) httpSession
+				.getAttribute(KernelHeader.ACCESS_CONTROL_CONTEXT);
 
-		tryLogin: while (subject.getPrincipals(X500Principal.class).size() == 0) {
+		final Subject subject;
+		if (acc != null) {
+			subject = Subject.getSubject(acc);
+		} else {
+			subject = new Subject();
+
+			final LoginContext loginContext;
 			try {
-				loginContext.login();
-				if (subject.getPrincipals(X500Principal.class).size() == 0)
-					throw new ArgeoException("Login succeeded but no auth");// fatal
+				CallbackHandler callbackHandler = new DefaultLoginDialog(
+						display.getActiveShell());
+				loginContext = new ArgeoLoginContext(
+						KernelHeader.LOGIN_CONTEXT_USER, subject,
+						callbackHandler);
+			} catch (LoginException e1) {
+				throw new ArgeoException("Cannot initialize login context", e1);
+			}
 
-				// add security context to session
-				// if (httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) ==
-				// null)
-				// httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
-				// SecurityContextHolder.getContext());
+			tryLogin: while (subject.getPrincipals(X500Principal.class).size() == 0) {
+				try {
+					loginContext.login();
+					if (subject.getPrincipals(X500Principal.class).size() == 0)
+						throw new ArgeoException("Login succeeded but no auth");// fatal
 
-				// add thread locale to RWT session
-				if (log.isTraceEnabled())
-					log.trace("Locale " + LocaleUtils.threadLocale.get());
-				RWT.setLocale(LocaleUtils.threadLocale.get());
+					// add thread locale to RWT session
+					if (log.isTraceEnabled())
+						log.trace("Locale " + LocaleUtils.threadLocale.get());
+					RWT.setLocale(LocaleUtils.threadLocale.get());
 
-				// once the user is logged in, longer session timeout
-				RWT.getRequest().getSession()
-						.setMaxInactiveInterval(sessionTimeout);
+					// once the user is logged in, longer session timeout
+					RWT.getRequest().getSession()
+							.setMaxInactiveInterval(sessionTimeout);
 
-				if (log.isDebugEnabled())
-					log.debug("Authenticated " + subject);
-			} catch (LoginException e) {
-				BadCredentialsException bce = wasCausedByBadCredentials(e);
-				if (bce != null) {
-					MessageDialog.openInformation(display.getActiveShell(),
-							"Bad Credentials", bce.getMessage());
-					// retry login
-					continue tryLogin;
+					if (log.isDebugEnabled())
+						log.debug("Authenticated " + subject);
+				} catch (LoginException e) {
+					BadCredentialsException bce = wasCausedByBadCredentials(e);
+					if (bce != null) {
+						MessageDialog.openInformation(display.getActiveShell(),
+								"Bad Credentials", bce.getMessage());
+						// retry login
+						continue tryLogin;
+					}
+					return processLoginDeath(display, e);
 				}
-				return processLoginDeath(display, e);
 			}
 		}
-
 		final String username = subject.getPrincipals(X500Principal.class)
 				.iterator().next().getName();
 		// Logout callback when the display is disposed
@@ -138,6 +135,8 @@ public class SecureEntryPoint implements EntryPoint {
 				if (log.isTraceEnabled())
 					log.trace("Display disposed");
 				try {
+					LoginContext loginContext = new ArgeoLoginContext(
+							KernelHeader.LOGIN_CONTEXT_USER, subject);
 					loginContext.logout();
 				} catch (LoginException e) {
 					log.error("Error when logging out", e);
@@ -152,6 +151,11 @@ public class SecureEntryPoint implements EntryPoint {
 		try {
 			returnCode = Subject.doAs(subject, new PrivilegedAction<Integer>() {
 				public Integer run() {
+					// add security context to session
+					httpSession.setAttribute(ACCESS_CONTROL_CONTEXT,
+							AccessController.getContext());
+
+					// start workbench
 					RapWorkbenchAdvisor workbenchAdvisor = createRapWorkbenchAdvisor(username);
 					int result = PlatformUI.createAndRunWorkbench(display,
 							workbenchAdvisor);
@@ -159,7 +163,7 @@ public class SecureEntryPoint implements EntryPoint {
 				}
 			});
 			// Explicit exit from workbench
-			fullLogout(loginContext, username);
+			fullLogout(subject, username);
 		} finally {
 			display.dispose();
 		}
@@ -214,14 +218,14 @@ public class SecureEntryPoint implements EntryPoint {
 			return null;
 	}
 
-	private void fullLogout(LoginContext loginContext, String username) {
+	private void fullLogout(Subject subject, String username) {
 		try {
+			LoginContext loginContext = new ArgeoLoginContext(
+					KernelHeader.LOGIN_CONTEXT_USER, subject);
 			loginContext.logout();
-			// SecurityContextHolder.clearContext();
-
-			// HttpServletRequest httpRequest = RWT.getRequest();
-			// HttpSession httpSession = httpRequest.getSession();
-			// httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, null);
+			HttpServletRequest httpRequest = RWT.getRequest();
+			HttpSession httpSession = httpRequest.getSession();
+			httpSession.setAttribute(ACCESS_CONTROL_CONTEXT, null);
 			RWT.getRequest().getSession().setMaxInactiveInterval(1);
 			log.info("Logged out " + (username != null ? username : "")
 					+ " (THREAD=" + Thread.currentThread().getId() + ")");

@@ -1,6 +1,12 @@
 package org.argeo.cms.util;
 
+import static org.argeo.cms.KernelHeader.ACCESS_CONTROL_CONTEXT;
+import static org.argeo.cms.KernelHeader.LOGIN_CONTEXT_ANONYMOUS;
+import static org.argeo.cms.KernelHeader.LOGIN_CONTEXT_USER;
+
 import java.io.IOException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -10,6 +16,8 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsMsg;
@@ -167,15 +175,25 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 			//
 			// LOGIN
 			//
-			new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_ANONYMOUS, subject)
-					.logout();
+			new ArgeoLoginContext(LOGIN_CONTEXT_ANONYMOUS, subject).logout();
 			LoginContext loginContext = new ArgeoLoginContext(
-					KernelHeader.LOGIN_CONTEXT_USER, subject, this);
+					LOGIN_CONTEXT_USER, subject, this);
 			loginContext.login();
+
+			// save context in session
+			final HttpSession httpSession = RWT.getRequest().getSession();
+			Subject.doAs(subject, new PrivilegedAction<Void>() {
+
+				@Override
+				public Void run() {
+					httpSession.setAttribute(ACCESS_CONTROL_CONTEXT,
+							AccessController.getContext());
+					return null;
+				}
+			});
 		} catch (LoginException e1) {
 			try {
-				new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_ANONYMOUS,
-						subject).login();
+				new ArgeoLoginContext(LOGIN_CONTEXT_ANONYMOUS, subject).login();
 			} catch (LoginException e) {
 				throw new CmsException("Cannot authenticate anonymous", e1);
 			}
@@ -194,10 +212,12 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 			//
 			// LOGOUT
 			//
-			new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_USER, subject)
-					.logout();
-			new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_ANONYMOUS, subject)
-					.login();
+			new ArgeoLoginContext(LOGIN_CONTEXT_USER, subject).logout();
+			new ArgeoLoginContext(LOGIN_CONTEXT_ANONYMOUS, subject).login();
+
+			HttpServletRequest httpRequest = RWT.getRequest();
+			HttpSession httpSession = httpRequest.getSession();
+			httpSession.setAttribute(ACCESS_CONTROL_CONTEXT, null);
 		} catch (LoginException e1) {
 			throw new CmsException("Cannot authenticate anonymous", e1);
 		}

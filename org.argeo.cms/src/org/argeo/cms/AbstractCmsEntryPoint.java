@@ -1,5 +1,6 @@
 package org.argeo.cms;
 
+import java.security.AccessControlContext;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Locale;
@@ -14,6 +15,8 @@ import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,7 +41,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 		implements CmsSession {
 	private final Log log = LogFactory.getLog(AbstractCmsEntryPoint.class);
 
-	private final Subject subject = new Subject();
+	private final Subject subject;
 
 	private final Repository repository;
 	private final String workspace;
@@ -62,6 +65,16 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 		this.workspace = workspace;
 		this.defaultPath = defaultPath;
 		this.factoryProperties = new HashMap<String, String>(factoryProperties);
+
+		// load context from session
+		HttpServletRequest httpRequest = RWT.getRequest();
+		final HttpSession httpSession = httpRequest.getSession();
+		AccessControlContext acc = (AccessControlContext) httpSession
+				.getAttribute(KernelHeader.ACCESS_CONTROL_CONTEXT);
+		if (acc != null)
+			subject = Subject.getSubject(acc);
+		else
+			subject = new Subject();
 
 		// Initial login
 		try {
