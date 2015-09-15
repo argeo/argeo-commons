@@ -25,6 +25,8 @@ public class LdifGroup extends LdifUser implements DirectoryGroup {
 		if (member != null) {
 			if (member.contains(role.getName()))
 				return false;
+			else
+				member.add(role.getName());
 		} else
 			getAttributes().put(memberAttributeId, role.getName());
 		return true;
