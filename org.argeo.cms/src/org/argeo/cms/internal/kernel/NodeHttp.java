@@ -1,6 +1,10 @@
 package org.argeo.cms.internal.kernel;
 
+import static org.argeo.cms.KernelHeader.ACCESS_CONTROL_CONTEXT;
+
 import java.io.IOException;
+import java.security.AccessControlContext;
+import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.security.cert.X509Certificate;
@@ -322,52 +326,59 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	private class DavFilter extends HttpFilter {
 
 		@Override
-		public void doFilter(HttpSession httpSession,
+		public void doFilter(final HttpSession httpSession,
 				final HttpServletRequest request,
 				final HttpServletResponse response,
 				final FilterChain filterChain) throws IOException,
 				ServletException {
 
-			// Process basic auth
-			String basicAuth = request.getHeader(HEADER_AUTHORIZATION);
-			if (basicAuth != null) {
-				CallbackHandler token = basicAuth(basicAuth);
-				// FIXME Login
-				// Authentication auth =
-				// authenticationManager.authenticate(token);
-				// SecurityContextHolder.getContext().setAuthentication(auth);
-				// filterChain.doFilter(request, response);
-				Subject subject;
-				try {
-					LoginContext lc = new LoginContext(
-							KernelHeader.LOGIN_CONTEXT_USER, token);
-					lc.login();
-					subject = lc.getSubject();
-				} catch (LoginException e) {
-					throw new CmsException("Could not login", e);
+			AccessControlContext acc = (AccessControlContext) httpSession
+					.getAttribute(KernelHeader.ACCESS_CONTROL_CONTEXT);
+			final Subject subject;
+			if (acc != null) {
+				subject = Subject.getSubject(acc);
+			} else {
+				// Process basic auth
+				String basicAuth = request.getHeader(HEADER_AUTHORIZATION);
+				if (basicAuth != null) {
+					CallbackHandler token = basicAuth(basicAuth);
+					try {
+						LoginContext lc = new LoginContext(
+								KernelHeader.LOGIN_CONTEXT_USER, token);
+						lc.login();
+						subject = lc.getSubject();
+					} catch (LoginException e) {
+						throw new CmsException("Could not login", e);
+					}
+				} else {
+					requestBasicAuth(httpSession, response);
+					return;
 				}
-				try {
-					Subject.doAs(subject,
-							new PrivilegedExceptionAction<Void>() {
-								public Void run() throws IOException,
-										ServletException {
-									filterChain.doFilter(request, response);
-									return null;
-								}
-							});
-				} catch (PrivilegedActionException e) {
-					if (e.getCause() instanceof ServletException)
-						throw (ServletException) e.getCause();
-					else if (e.getCause() instanceof IOException)
-						throw (IOException) e.getCause();
-					else
-						throw new CmsException("Unexpected exception",
-								e.getCause());
-				}
-				return;
+			}
+			// do filter as subject
+			try {
+				Subject.doAs(subject,
+						new PrivilegedExceptionAction<Void>() {
+							public Void run() throws IOException,
+									ServletException {
+								// add security context to session
+								httpSession.setAttribute(
+										ACCESS_CONTROL_CONTEXT,
+										AccessController.getContext());
+								filterChain.doFilter(request, response);
+								return null;
+							}
+						});
+			} catch (PrivilegedActionException e) {
+				if (e.getCause() instanceof ServletException)
+					throw (ServletException) e.getCause();
+				else if (e.getCause() instanceof IOException)
+					throw (IOException) e.getCause();
+				else
+					throw new CmsException("Unexpected exception",
+							e.getCause());
 			}
 
-			requestBasicAuth(httpSession, response);
 		}
 	}
 
