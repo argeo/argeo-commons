@@ -252,18 +252,19 @@ public abstract class AbstractUserDirectory implements UserAdmin {
 		LdifUser newRole;
 		BasicAttribute objectClass = new BasicAttribute("objectClass");
 		if (type == Role.USER) {
-			newRole = new LdifUser(this, dn, attrs);
 			objectClass.add("inetOrgPerson");
 			objectClass.add("organizationalPerson");
 			objectClass.add("person");
 			objectClass.add("top");
+			attrs.put(objectClass);
+			newRole = new LdifUser(this, dn, attrs);
 		} else if (type == Role.GROUP) {
-			newRole = new LdifGroup(this, dn, attrs);
 			objectClass.add("groupOfNames");
 			objectClass.add("top");
+			attrs.put(objectClass);
+			newRole = new LdifGroup(this, dn, attrs);
 		} else
 			throw new UserDirectoryException("Unsupported type " + type);
-		newRole.getAttributes().put(objectClass);
 		return newRole;
 	}
 
