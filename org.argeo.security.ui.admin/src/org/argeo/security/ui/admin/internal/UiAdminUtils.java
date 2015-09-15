@@ -9,6 +9,9 @@ import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
 import org.argeo.ArgeoException;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.services.ISourceProviderService;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
@@ -41,16 +44,6 @@ public class UiAdminUtils {
 		return (firstName.trim() + " " + lastName.trim() + " ").trim();
 	}
 
-	public final static void beginTransactionIfNeeded(
-			UserTransaction userTransaction) {
-		try {
-			if (userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION)
-				userTransaction.begin();
-		} catch (Exception e) {
-			throw new ArgeoException("Unable to begin transaction", e);
-		}
-	}
-
 	/*
 	 * INTERNAL METHODS: Below methods are meant to stay here and are not part
 	 * of a potential generic backend to manage the useradmin
@@ -69,4 +62,33 @@ public class UiAdminUtils {
 			return "".equals(string.trim());
 	}
 
+	/** Must be called from the UI Thread. */
+	public final static void beginTransactionIfNeeded(
+			UserTransaction userTransaction) {
+		try {
+			if (userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION) {
+				userTransaction.begin();
+				notifyTransactionStateChange(userTransaction);
+			}
+		} catch (Exception e) {
+			throw new ArgeoException("Unable to begin transaction", e);
+		}
+	}
+
+	/** Easily notify the ActiveWindow that the transaction had a state change */
+	public final static void notifyTransactionStateChange(
+			UserTransaction userTransaction) {
+		try {
+			IWorkbenchWindow aww = PlatformUI.getWorkbench()
+					.getActiveWorkbenchWindow();
+			ISourceProviderService sourceProviderService = (ISourceProviderService) aww
+					.getService(ISourceProviderService.class);
+			UserTransactionProvider esp = (UserTransactionProvider) sourceProviderService
+					.getSourceProvider(UserTransactionProvider.TRANSACTION_STATE);
+			esp.setUserTransaction(userTransaction);
+			esp.fireTransactionStateChange();
+		} catch (Exception e) {
+			throw new ArgeoException("Unable to begin transaction", e);
+		}
+	}
 }

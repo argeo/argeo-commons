@@ -132,6 +132,7 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
+		UiAdminUtils.beginTransactionIfNeeded(userTransaction);
 		commitPages(true);
 		firePropertyChange(PROP_DIRTY);
 		// FIXME transaction should be managed at a higher level

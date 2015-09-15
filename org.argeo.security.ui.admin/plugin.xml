@@ -97,30 +97,15 @@
 		<menuContribution
 			locationURI="toolbar:org.argeo.security.ui.rap.userToolbar?after=org.eclipse.ui.file.saveAll"> 
 			<!-- Transaction management --> 
- 			<command
+<!-- 			<command
 				commandId="org.argeo.security.ui.admin.userTransactionHandler"
 				icon="icons/begin.gif"
 				label="Begin Transaction"
 				style="push"
 				tooltip="Begin a user transaction">
-<!--				<visibleWhen>
-					<and>
-						<with variable="activePart">
-							<instanceof value="org.argeo.cms.CmsEditable" />
-						</with>
-						<with variable="org.argeo.connect.people.rap.editingState">
-							<equals value="notEditing" />
-						</with> -->
-						<!-- FIXME : never true, the role condition does not work -->
-						<!-- <with variable="roles">
-			      			<iterate ifEmpty="false" operator="or">
-			        			<equals value="ROLE_BUSINESS_ADMIN" />
-			      			</iterate>
-			    		</with> -->
-<!--			    	</and>
-				</visibleWhen> -->
 				<parameter name="param.commandId" value="transaction.begin" />
-			</command>
+			</command>-->
+			
  			<command
 				commandId="org.argeo.security.ui.admin.userTransactionHandler"
 				icon="icons/commit.gif"
@@ -128,6 +113,11 @@
 				style="push"
 				tooltip="Commit a user transaction">
 				<parameter name="param.commandId" value="transaction.commit" />
+				<visibleWhen>
+					<with variable="org.argeo.security.ui.admin.userTransactionState">
+							<equals value="status.active" />
+					</with>
+				</visibleWhen>
 			</command>
  			<command
 				commandId="org.argeo.security.ui.admin.userTransactionHandler"
@@ -136,6 +126,11 @@
 				style="push"
 				tooltip="Abandon current changes and rollback to the latest commited version">
 				<parameter name="param.commandId" value="transaction.rollback" />
+				<visibleWhen>
+					<with variable="org.argeo.security.ui.admin.userTransactionState">
+							<equals value="status.active" />
+					</with>
+				</visibleWhen>
 			</command>
 		</menuContribution>
     
@@ -201,6 +196,18 @@
             </command>
         </menuContribution> -->
 	</extension>
+
+	<!-- SERVICES -->
+	<extension
+      	point="org.eclipse.ui.services">
+	   	<sourceProvider
+	        provider="org.argeo.security.ui.admin.internal.UserTransactionProvider">
+	     	<variable
+	            name="org.argeo.security.ui.admin.userTransactionState"
+	            priorityLevel="workbench">
+	      	</variable>
+	   	</sourceProvider>
+	</extension>
   
   	<!-- ACTIVITIES -->
 	<extension
@@ -215,5 +222,10 @@
 			isEqualityPattern="true"
 			pattern="org.argeo.security.ui.admin/org.argeo.security.ui.admin.adminRolesView">
 		</activityPatternBinding>
+	</extension>
+	
+	<!-- STARTUP  --> 
+	<extension point="org.eclipse.ui.startup">
+   		<startup class="org.argeo.security.ui.admin.internal.PartStateChanged"/>
 	</extension>
 </plugin>

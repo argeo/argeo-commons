@@ -20,6 +20,7 @@ import javax.transaction.UserTransaction;
 
 import org.argeo.ArgeoException;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
+import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -57,6 +58,7 @@ public class UserTransactionHandler extends AbstractHandler {
 				else
 					userTransaction.rollback();
 			}
+			UiAdminUtils.notifyTransactionStateChange(userTransaction);
 		} catch (ArgeoException e) {
 			throw e;
 		} catch (Exception e) {
