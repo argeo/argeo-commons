@@ -76,9 +76,8 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 		try {
 			userTransaction.begin();
 			User user = (User) userAdmin.getRole(dn.toString());
-			if (user.hasCredential(null, oldPassword)) {
+			if (user.hasCredential(null, oldPassword))
 				user.getCredentials().put(null, newPassword);
-			}
 			userTransaction.commit();
 		} catch (Exception e) {
 			try {
