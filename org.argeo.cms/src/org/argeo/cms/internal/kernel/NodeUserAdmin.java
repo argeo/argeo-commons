@@ -26,7 +26,6 @@ import org.argeo.osgi.useradmin.AbstractUserDirectory;
 import org.argeo.osgi.useradmin.LdapProperties;
 import org.argeo.osgi.useradmin.LdapUserAdmin;
 import org.argeo.osgi.useradmin.LdifUserAdmin;
-import org.argeo.osgi.useradmin.UserAdminAggregator;
 import org.argeo.osgi.useradmin.UserDirectoryException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
@@ -34,7 +33,7 @@ import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
-public class NodeUserAdmin implements UserAdmin, UserAdminAggregator {
+public class NodeUserAdmin implements UserAdmin {
 	private final static Log log = LogFactory.getLog(NodeUserAdmin.class);
 	final static LdapName ROLES_BASE;
 	static {
@@ -48,8 +47,6 @@ public class NodeUserAdmin implements UserAdmin, UserAdminAggregator {
 
 	private UserAdmin nodeRoles = null;
 	private Map<LdapName, UserAdmin> userAdmins = new HashMap<LdapName, UserAdmin>();
-
-	private TransactionManager transactionManager;
 
 	public NodeUserAdmin() {
 		File osgiInstanceDir = KernelUtils.getOsgiInstanceDir();
@@ -207,6 +204,9 @@ public class NodeUserAdmin implements UserAdmin, UserAdminAggregator {
 
 	@Override
 	public Authorization getAuthorization(User user) {
+		if (user == null) {
+			return nodeRoles.getAuthorization(null);
+		}
 		UserAdmin userAdmin = findUserAdmin(user.getName());
 		Authorization rawAuthorization = userAdmin.getAuthorization(user);
 		// gather system roles
@@ -224,7 +224,6 @@ public class NodeUserAdmin implements UserAdmin, UserAdminAggregator {
 	//
 	// USER ADMIN AGGREGATOR
 	//
-	@Override
 	public synchronized void addUserAdmin(String baseDn, UserAdmin userAdmin) {
 		if (baseDn.equals(KernelHeader.ROLES_BASEDN)) {
 			nodeRoles = userAdmin;
@@ -242,7 +241,6 @@ public class NodeUserAdmin implements UserAdmin, UserAdminAggregator {
 		}
 	}
 
-	@Override
 	public synchronized void removeUserAdmin(String baseDn) {
 		if (baseDn.equals(KernelHeader.ROLES_BASEDN))
 			throw new UserDirectoryException("Node roles cannot be removed.");
@@ -285,7 +283,6 @@ public class NodeUserAdmin implements UserAdmin, UserAdminAggregator {
 	}
 
 	public void setTransactionManager(TransactionManager transactionManager) {
-		this.transactionManager = transactionManager;
 		if (nodeRoles instanceof AbstractUserDirectory)
 			((AbstractUserDirectory) nodeRoles)
 					.setTransactionManager(transactionManager);

@@ -3,25 +3,19 @@ package org.argeo.cms.internal.kernel;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Properties;
 
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.KernelHeader;
-import org.argeo.cms.internal.auth.GrantedAuthorityPrincipal;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 
 /** Package utilities */
 class KernelUtils implements KernelConstants {
@@ -76,24 +70,37 @@ class KernelUtils implements KernelConstants {
 	}
 
 	// Security
-	@Deprecated
-	static void anonymousLogin(AuthenticationManager authenticationManager) {
+	static Subject anonymousLogin() {
+		Subject subject = new Subject();
+		LoginContext lc;
 		try {
-			List<GrantedAuthorityPrincipal> anonAuthorities = Collections
-					.singletonList(new GrantedAuthorityPrincipal(
-							KernelHeader.ROLE_ANONYMOUS));
-			UserDetails anonUser = new User(KernelHeader.USERNAME_ANONYMOUS,
-					"", true, true, true, true, anonAuthorities);
-			AnonymousAuthenticationToken anonToken = new AnonymousAuthenticationToken(
-					DEFAULT_SECURITY_KEY, anonUser, anonAuthorities);
-			Authentication authentication = authenticationManager
-					.authenticate(anonToken);
-			SecurityContextHolder.getContext()
-					.setAuthentication(authentication);
-		} catch (Exception e) {
-			throw new CmsException("Cannot authenticate", e);
+			lc = new LoginContext(KernelHeader.LOGIN_CONTEXT_ANONYMOUS, subject);
+			lc.login();
+			return subject;
+		} catch (LoginException e) {
+			throw new CmsException("Cannot login as anonymous", e);
 		}
 	}
+
+	// @Deprecated
+	// static void anonymousLogin(AuthenticationManager authenticationManager) {
+	// try {
+	// List<GrantedAuthorityPrincipal> anonAuthorities = Collections
+	// .singletonList(new GrantedAuthorityPrincipal(
+	// KernelHeader.ROLE_ANONYMOUS));
+	// UserDetails anonUser = new User(KernelHeader.USERNAME_ANONYMOUS,
+	// "", true, true, true, true, anonAuthorities);
+	// AnonymousAuthenticationToken anonToken = new
+	// AnonymousAuthenticationToken(
+	// DEFAULT_SECURITY_KEY, anonUser, anonAuthorities);
+	// Authentication authentication = authenticationManager
+	// .authenticate(anonToken);
+	// SecurityContextHolder.getContext()
+	// .setAuthentication(authentication);
+	// } catch (Exception e) {
+	// throw new CmsException("Cannot authenticate", e);
+	// }
+	// }
 
 	// HTTP
 	static void logRequestHeaders(Log log, HttpServletRequest request) {

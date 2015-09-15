@@ -1,14 +1,21 @@
 package org.argeo.cms.internal.kernel;
 
-import static org.argeo.jackrabbit.servlet.WebdavServlet.INIT_PARAM_RESOURCE_CONFIG;
-
 import java.io.IOException;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
 import javax.jcr.Repository;
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 import javax.servlet.FilterChain;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -20,17 +27,13 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.KernelHeader;
 import org.argeo.jackrabbit.servlet.OpenInViewSessionProvider;
 import org.argeo.jackrabbit.servlet.RemotingServlet;
 import org.argeo.jackrabbit.servlet.WebdavServlet;
 import org.argeo.jcr.ArgeoJcrConstants;
-import org.argeo.security.NodeAuthenticationToken;
 import org.eclipse.equinox.http.servlet.ExtendedHttpService;
 import org.osgi.service.http.NamespaceException;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Intercepts and enriches http access, mainly focusing on security and
@@ -43,7 +46,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	private final static String HEADER_AUTHORIZATION = "Authorization";
 	private final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
-	private final AuthenticationManager authenticationManager;
+	// private final AuthenticationManager authenticationManager;
 	private final ExtendedHttpService httpService;
 
 	// FIXME Make it more unique
@@ -57,10 +60,9 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	// WebDav / JCR remoting
 	private OpenInViewSessionProvider sessionProvider;
 
-	NodeHttp(ExtendedHttpService httpService, JackrabbitNode node,
-			NodeSecurity authenticationManager) {
+	NodeHttp(ExtendedHttpService httpService, JackrabbitNode node) {
 		// this.bundleContext = bundleContext;
-		this.authenticationManager = authenticationManager;
+		// this.authenticationManager = authenticationManager;
 
 		this.httpService = httpService;
 
@@ -108,7 +110,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 		String pathPrefix = anonymous ? WEBDAV_PUBLIC : WEBDAV_PRIVATE;
 		String path = pathPrefix + "/" + alias;
 		Properties ip = new Properties();
-		ip.setProperty(INIT_PARAM_RESOURCE_CONFIG, WEBDAV_CONFIG);
+		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_CONFIG, WEBDAV_CONFIG);
 		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
 		httpService.registerFilter(path, anonymous ? new AnonymousFilter()
 				: new DavFilter(), null, null);
@@ -149,24 +151,35 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 		httpSession.setAttribute(ATTR_AUTH, Boolean.TRUE);
 	}
 
-	private NodeAuthenticationToken basicAuth(String authHeader) {
+	private CallbackHandler basicAuth(String authHeader) {
 		if (authHeader != null) {
 			StringTokenizer st = new StringTokenizer(authHeader);
 			if (st.hasMoreTokens()) {
 				String basic = st.nextToken();
 				if (basic.equalsIgnoreCase("Basic")) {
 					try {
+						// TODO manipulate char[]
 						String credentials = new String(Base64.decodeBase64(st
 								.nextToken()), "UTF-8");
 						// log.debug("Credentials: " + credentials);
 						int p = credentials.indexOf(":");
 						if (p != -1) {
-							String login = credentials.substring(0, p).trim();
-							String password = credentials.substring(p + 1)
+							final String login = credentials.substring(0, p)
 									.trim();
+							final char[] password = credentials
+									.substring(p + 1).trim().toCharArray();
 
-							return new NodeAuthenticationToken(login,
-									password.toCharArray());
+							return new CallbackHandler() {
+								public void handle(Callback[] callbacks) {
+									for (Callback cb : callbacks) {
+										if (cb instanceof NameCallback)
+											((NameCallback) cb).setName(login);
+										else if (cb instanceof PasswordCallback)
+											((PasswordCallback) cb)
+													.setPassword(password);
+									}
+								}
+							};
 						} else {
 							throw new CmsException(
 									"Invalid authentication token");
@@ -275,8 +288,10 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	private class AnonymousFilter extends HttpFilter {
 		@Override
 		public void doFilter(HttpSession httpSession,
-				HttpServletRequest request, HttpServletResponse response,
-				FilterChain filterChain) throws IOException, ServletException {
+				final HttpServletRequest request,
+				final HttpServletResponse response,
+				final FilterChain filterChain) throws IOException,
+				ServletException {
 
 			// Authenticate from session
 			// if (isSessionAuthenticated(httpSession)) {
@@ -284,8 +299,22 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 			// return;
 			// }
 
-			KernelUtils.anonymousLogin(authenticationManager);
-			filterChain.doFilter(request, response);
+			Subject subject = KernelUtils.anonymousLogin();
+			try {
+				Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
+					public Void run() throws IOException, ServletException {
+						filterChain.doFilter(request, response);
+						return null;
+					}
+				});
+			} catch (PrivilegedActionException e) {
+				if (e.getCause() instanceof ServletException)
+					throw (ServletException) e.getCause();
+				else if (e.getCause() instanceof IOException)
+					throw (IOException) e.getCause();
+				else
+					throw new CmsException("Unexpected exception", e.getCause());
+			}
 		}
 	}
 
@@ -294,25 +323,47 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 
 		@Override
 		public void doFilter(HttpSession httpSession,
-				HttpServletRequest request, HttpServletResponse response,
-				FilterChain filterChain) throws IOException, ServletException {
-
-			// Authenticate from session
-			// if (isSessionAuthenticated(httpSession)) {
-			// filterChain.doFilter(request, response);
-			// return;
-			// }
+				final HttpServletRequest request,
+				final HttpServletResponse response,
+				final FilterChain filterChain) throws IOException,
+				ServletException {
 
 			// Process basic auth
 			String basicAuth = request.getHeader(HEADER_AUTHORIZATION);
 			if (basicAuth != null) {
-				UsernamePasswordAuthenticationToken token = basicAuth(basicAuth);
-				Authentication auth = authenticationManager.authenticate(token);
-				SecurityContextHolder.getContext().setAuthentication(auth);
-				// httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,
-				// SecurityContextHolder.getContext());
-				// httpSession.setAttribute(ATTR_AUTH, Boolean.FALSE);
-				filterChain.doFilter(request, response);
+				CallbackHandler token = basicAuth(basicAuth);
+				// FIXME Login
+				// Authentication auth =
+				// authenticationManager.authenticate(token);
+				// SecurityContextHolder.getContext().setAuthentication(auth);
+				// filterChain.doFilter(request, response);
+				Subject subject;
+				try {
+					LoginContext lc = new LoginContext(
+							KernelHeader.LOGIN_CONTEXT_USER, token);
+					lc.login();
+					subject = lc.getSubject();
+				} catch (LoginException e) {
+					throw new CmsException("Could not login", e);
+				}
+				try {
+					Subject.doAs(subject,
+							new PrivilegedExceptionAction<Void>() {
+								public Void run() throws IOException,
+										ServletException {
+									filterChain.doFilter(request, response);
+									return null;
+								}
+							});
+				} catch (PrivilegedActionException e) {
+					if (e.getCause() instanceof ServletException)
+						throw (ServletException) e.getCause();
+					else if (e.getCause() instanceof IOException)
+						throw (IOException) e.getCause();
+					else
+						throw new CmsException("Unexpected exception",
+								e.getCause());
+				}
 				return;
 			}
 

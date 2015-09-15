@@ -63,6 +63,7 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	protected void changePassword(char[] oldPassword, char[] newPassword) {
 		Subject subject = Subject.getSubject(AccessController.getContext());
 		String name = subject.getPrincipals(X500Principal.class).iterator()

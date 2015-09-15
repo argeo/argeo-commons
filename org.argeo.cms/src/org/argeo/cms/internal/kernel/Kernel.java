@@ -84,14 +84,6 @@ final class Kernel implements ServiceListener {
 		try {
 			// Transaction
 			transactionManager = new SimpleTransactionManager();
-			bundleContext.registerService(TransactionManager.class,
-					transactionManager, null);
-			bundleContext.registerService(UserTransaction.class,
-					transactionManager, null);
-			bundleContext.registerService(
-					TransactionSynchronizationRegistry.class,
-					transactionManager.getTransactionSynchronizationRegistry(),
-					null);
 
 			// Jackrabbit node
 			node = new JackrabbitNode(bundleContext);
@@ -105,7 +97,7 @@ final class Kernel implements ServiceListener {
 
 			// Equinox dependency
 			ExtendedHttpService httpService = waitForHttpService();
-			nodeHttp = new NodeHttp(httpService, node, nodeSecurity);
+			nodeHttp = new NodeHttp(httpService, node);
 
 			// Kernel thread
 			kernelThread = new KernelThread(this);
@@ -113,6 +105,14 @@ final class Kernel implements ServiceListener {
 			kernelThread.start();
 
 			// Publish services to OSGi
+			bundleContext.registerService(TransactionManager.class,
+					transactionManager, null);
+			bundleContext.registerService(UserTransaction.class,
+					transactionManager, null);
+			bundleContext.registerService(
+					TransactionSynchronizationRegistry.class,
+					transactionManager.getTransactionSynchronizationRegistry(),
+					null);
 			nodeSecurity.publish();
 			node.publish(repositoryFactory);
 			bundleContext.registerService(RepositoryFactory.class,

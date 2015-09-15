@@ -14,6 +14,7 @@ public class LdifAuthorization implements Authorization {
 	private final String displayName;
 	private final List<String> allRoles;
 
+	@SuppressWarnings("unchecked")
 	public LdifAuthorization(User user, List<Role> allRoles) {
 		if (user == null) {
 			this.name = null;

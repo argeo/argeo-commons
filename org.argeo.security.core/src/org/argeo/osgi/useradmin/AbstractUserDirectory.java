@@ -26,7 +26,6 @@ import javax.naming.ldap.Rdn;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
-import javax.transaction.TransactionSynchronizationRegistry;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -209,6 +208,7 @@ public abstract class AbstractUserDirectory implements UserAdmin {
 		return user;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Role[] getRoles(String filter) throws InvalidSyntaxException {
 		WorkingCopy wc = getWorkingCopy();
@@ -409,6 +409,10 @@ public abstract class AbstractUserDirectory implements UserAdmin {
 
 	protected String getGroupObjectClass() {
 		return groupObjectClass;
+	}
+
+	protected Dictionary<String, ?> getProperties() {
+		return properties;
 	}
 
 	public void setExternalRoles(UserAdmin externalRoles) {

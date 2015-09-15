@@ -89,6 +89,7 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	protected void load(InputStream in) {
 		try {
 			users.clear();
@@ -112,16 +113,12 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 				}
 			}
 
-			// optimise
-			// for (LdifGroup group : groups.values())
-			// loadMembers(group);
-
 			// indexes
 			for (String attr : getIndexedUserProperties())
 				userIndexes.put(attr, new TreeMap<String, DirectoryUser>());
 
 			for (DirectoryUser user : users.values()) {
-				Dictionary<String, Object> properties = user.getProperties();
+				Dictionary<String, ?> properties = user.getProperties();
 				for (String attr : getIndexedUserProperties()) {
 					Object value = properties.get(attr);
 					if (value != null) {
@@ -160,25 +157,7 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 		return users.containsKey(dn) || groups.containsKey(dn);
 	}
 
-	// @Override
-	// public boolean removeRole(String name) {
-	// LdapName dn = toDn(name);
-	// LdifUser role = null;
-	// if (users.containsKey(dn))
-	// role = users.remove(dn);
-	// else if (groups.containsKey(dn))
-	// role = groups.remove(dn);
-	// else
-	// throw new UserDirectoryException("There is no role " + name);
-	// if (role == null)
-	// return false;
-	// for (LdifGroup group : getDirectGroups(role)) {
-	// group.getAttributes().get(getMemberAttributeId())
-	// .remove(dn.toString());
-	// }
-	// return true;
-	// }
-
+	@SuppressWarnings("unchecked")
 	protected List<DirectoryUser> doGetRoles(Filter f) {
 		ArrayList<DirectoryUser> res = new ArrayList<DirectoryUser>();
 		if (f == null) {
