@@ -17,10 +17,8 @@ package org.argeo.security.ui.admin.commands;
 
 import java.util.Dictionary;
 
-import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
-import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.jcr.ArgeoNames;
@@ -112,17 +110,8 @@ public class NewUser extends AbstractHandler {
 			if (!canFinish())
 				return false;
 			String username = mainUserInfo.getUsername();
-
-			// Begin transaction if needed
 			try {
-				if (userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION)
-					userTransaction.begin();
-			} catch (Exception e) {
-				throw new ArgeoException("Unable to start "
-						+ "transaction to create user " + username, e);
-			}
-
-			try {
+				UiAdminUtils.beginTransactionIfNeeded(userTransaction);
 				char[] password = mainUserInfo.getPassword();
 				User user = (User) userAdmin.createRole(getDn(username),
 						Role.USER);

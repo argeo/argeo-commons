@@ -19,20 +19,32 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.transaction.UserTransaction;
+
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
+import org.argeo.security.ui.admin.views.UsersView;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.osgi.service.useradmin.User;
+import org.osgi.service.useradmin.UserAdmin;
 
 /** Deletes the selected users */
 public class DeleteUsers extends AbstractHandler {
-	public final static String ID = SecurityAdminPlugin.PLUGIN_ID + ".deleteUsers";
+	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
+			+ ".deleteUsers";
+
+	/* DEPENDENCY INJECTION */
+	private UserAdmin userAdmin;
+	private UserTransaction userTransaction;
 
 	@SuppressWarnings("unchecked")
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -40,17 +52,18 @@ public class DeleteUsers extends AbstractHandler {
 		if (selection.isEmpty())
 			return null;
 
-		Map<String, User> toDelete = new TreeMap<String, User>();
+		Map<String, String> toDelete = new TreeMap<String, String>();
+		// Map<String, User> toDelete = new TreeMap<String, User>();
 		Iterator<User> it = ((IStructuredSelection) selection).iterator();
 		users: while (it.hasNext()) {
 			User currUser = it.next();
 			String userName = UiAdminUtils.getUsername(currUser);
-			// check not deleting own user
+			// TODO check not deleting own user
 			// if (userName.equals(profileNode.getSession().getUserID())) {
 			// log.warn("Cannot delete its own user: " + userName);
 			// continue nodes;
 			// }
-			toDelete.put(userName, currUser);
+			toDelete.put(userName, currUser.getName());
 		}
 
 		if (!MessageDialog
@@ -63,17 +76,32 @@ public class DeleteUsers extends AbstractHandler {
 								+ "This might lead to inconsistencies in the application."))
 			return null;
 
-		for (String username : toDelete.keySet()) {
-			// TODO perform real deletion
+		UiAdminUtils.beginTransactionIfNeeded(userTransaction);
+		for (String name : toDelete.values()) {
+			userAdmin.removeRole(name);
 		}
-		MessageDialog.openInformation(HandlerUtil.getActiveShell(event),
-				"Unimplemented method",
-				"The effective deletion is not yet implemented");
-		// TODO refresh?
-		// JcrUsersView view = (JcrUsersView) HandlerUtil
-		// .getActiveWorkbenchWindow(event).getActivePage()
-		// .findView(JcrUsersView.ID);
-		// view.refresh();
+
+		// TODO rather notify the update listener
+		forceRefresh(event);
 		return null;
+	}
+
+	private void forceRefresh(ExecutionEvent event) {
+		IWorkbenchWindow iww = HandlerUtil.getActiveWorkbenchWindow(event);
+		if (iww == null)
+			return;
+		IWorkbenchPage activePage = iww.getActivePage();
+		IWorkbenchPart part = activePage.getActivePart();
+		if (part instanceof UsersView)
+			((UsersView) part).refresh();
+	}
+
+	/* DEPENDENCY INJECTION */
+	public void setUserAdmin(UserAdmin userAdmin) {
+		this.userAdmin = userAdmin;
+	}
+
+	public void setUserTransaction(UserTransaction userTransaction) {
+		this.userTransaction = userTransaction;
 	}
 }

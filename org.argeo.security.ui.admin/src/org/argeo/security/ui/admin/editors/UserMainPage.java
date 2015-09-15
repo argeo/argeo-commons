@@ -249,7 +249,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		// Drag and drop
 		int operations = DND.DROP_COPY | DND.DROP_MOVE;
 		Transfer[] tt = new Transfer[] { TextTransfer.getInstance() };
-		userViewer.addDropSupport(operations, tt, new ItemDropListener(
+		userViewer.addDropSupport(operations, tt, new GroupDropListener(
 				userViewer, userAdmin, editor.getDisplayedUser()));
 
 	}
@@ -264,19 +264,21 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 
 		@Override
 		protected List<User> listFilteredElements(String filter) {
-			return (List<User>) editor.getFlatGroups();
+			return (List<User>) editor.getFlatGroups(null);
 		}
 	}
 
-	// DRAG & DROP MANAGEMENT
-
-	private class ItemDropListener extends ViewerDropAdapter {
+	/**
+	 * Defines this table as being a potential target to add group membership
+	 * (roles) to this user
+	 */
+	private class GroupDropListener extends ViewerDropAdapter {
 		private static final long serialVersionUID = 2893468717831451621L;
 
 		private final UserAdmin myUserAdmin;
 		private final User myUser;
 
-		public ItemDropListener(Viewer viewer, UserAdmin userAdmin, User user) {
+		public GroupDropListener(Viewer viewer, UserAdmin userAdmin, User user) {
 			super(viewer);
 			this.myUserAdmin = userAdmin;
 			this.myUser = user;
@@ -300,6 +302,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 				// TODO check if the user is already member of this group
 				// we expect here that there is already a begun transaction
 				// TODO implement the dirty state
+				editor.beginTransactionIfNeeded();
 				Group group = (Group) role;
 				group.addMember(myUser);
 			}

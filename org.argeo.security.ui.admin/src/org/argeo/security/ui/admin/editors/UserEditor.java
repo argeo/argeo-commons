@@ -21,8 +21,8 @@ import java.util.List;
 import javax.transaction.UserTransaction;
 
 import org.argeo.ArgeoException;
-import org.argeo.security.ui.admin.SecurityAdminImages;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
+import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IEditorInput;
@@ -56,20 +56,28 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 		user = (User) userAdmin.getRole(username);
 
 		String commonName = getProperty(KEY_CN);
-		// this.setPartProperty("name", commonName != null ? commonName
-		// : "username");
 
-		// if (user.getType() == Role.GROUP) {
-		// this.setPartProperty("icon", "icons/users.gif");
-		// firePartPropertyChanged("icon", "icons/user.gif", "icons/users.gif");
-		// }
 		setPartName(commonName != null ? commonName : "username");
-		setTitleImage(user.getType() == Role.GROUP ? SecurityAdminImages.ICON_GROUP
-				: SecurityAdminImages.ICON_USER);
+
+		// TODO: following has been disabled because it causes NPE after a
+		// login/logout on RAP
+		// Image titleIcon = user.getType() == Role.GROUP ?
+		// SecurityAdminImages.ICON_GROUP
+		// : SecurityAdminImages.ICON_USER;
+		// setTitleImage(titleIcon);
 	}
 
-	protected List<User> getFlatGroups() {
-		Authorization currAuth = userAdmin.getAuthorization(user);
+	/**
+	 * returns the list of all authorisation for the given user or of the
+	 * current displayed user if parameter is null
+	 */
+	protected List<User> getFlatGroups(User aUser) {
+		Authorization currAuth;
+		if (aUser == null)
+			currAuth = userAdmin.getAuthorization(this.user);
+		else
+			currAuth = userAdmin.getAuthorization(aUser);
+
 		String[] roles = currAuth.getRoles();
 
 		List<User> groups = new ArrayList<User>();
@@ -109,7 +117,14 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 			return "";
 	}
 
-	/** The property is directly updated!!! */
+	protected void beginTransactionIfNeeded() {
+		UiAdminUtils.beginTransactionIfNeeded(userTransaction);
+	}
+
+	/**
+	 * Updates the property in the working copy. The transaction must be
+	 * explicitly committed to persist the update.
+	 */
 	@SuppressWarnings("unchecked")
 	protected void setProperty(String key, String value) {
 		user.getProperties().put(key, value);

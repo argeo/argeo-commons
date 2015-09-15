@@ -52,7 +52,7 @@
       	</command>
 		<command
 			id="org.argeo.security.ui.admin.deleteUsers"
-			defaultHandler="org.argeo.security.ui.admin.commands.DeleteUsers"
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
 			name="Delete User">
 		</command>
 		<!-- Group CRUD -->
@@ -63,7 +63,7 @@
 		</command>
 		<command
             id="org.argeo.security.ui.admin.deleteGroups"
-            defaultHandler="org.argeo.security.ui.admin.commands.DeleteGroups"
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
             name="Delete Group">
 		</command>
 		<!-- Transaction -->

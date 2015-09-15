@@ -21,6 +21,7 @@ import java.util.List;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.jcr.ArgeoNames;
+import org.argeo.security.ui.admin.SecurityAdminImages;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.internal.ColumnDefinition;
 import org.argeo.security.ui.admin.internal.CommonNameLP;
@@ -36,6 +37,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.osgi.framework.InvalidSyntaxException;
@@ -59,6 +61,7 @@ public class UsersView extends ViewPart implements ArgeoNames {
 
 	@Override
 	public void createPartControl(Composite parent) {
+
 		parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
 		// Define the displayed columns
 		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name",
@@ -88,6 +91,12 @@ public class UsersView extends ViewPart implements ArgeoNames {
 		Transfer[] tt = new Transfer[] { TextTransfer.getInstance() };
 		userViewer.addDragSupport(operations, tt, new UserDragListener(
 				userViewer));
+
+		// FIXME insure the group and person icons are registered before calling
+		// the open editor
+		@SuppressWarnings("unused")
+		Image dummyImg = SecurityAdminImages.ICON_GROUP;
+		dummyImg = SecurityAdminImages.ICON_USER;
 	}
 
 	private class MyUserTableViewer extends UserTableViewer {

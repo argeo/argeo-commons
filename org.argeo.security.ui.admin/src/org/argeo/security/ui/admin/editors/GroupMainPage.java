@@ -31,12 +31,21 @@ import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.argeo.security.ui.admin.internal.UserNameLP;
 import org.argeo.security.ui.admin.internal.UserTableDefaultDClickListener;
 import org.argeo.security.ui.admin.internal.UserTableViewer;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerDropAdapter;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.AbstractFormPart;
 import org.eclipse.ui.forms.IManagedForm;
@@ -140,12 +149,6 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	private List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
 
 	public void createMemberPart(Composite parent) {
-		// parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
-		// parent2.setLayoutData(EclipseUiUtils.fillAll());
-		// Composite parent = new Composite(parent2, SWT.NO_FOCUS);
-		// parent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
-		// parent.setLayoutData(EclipseUiUtils.fillAll());
-
 		parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
 		// Define the displayed columns
 		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 0, 24));
@@ -170,6 +173,12 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		userViewer.addDoubleClickListener(new UserTableDefaultDClickListener());
 		// Really?
 		userTableViewerCmp.refresh();
+
+		// Drag and drop
+		int operations = DND.DROP_COPY | DND.DROP_MOVE;
+		Transfer[] tt = new Transfer[] { TextTransfer.getInstance() };
+		userViewer.addDropSupport(operations, tt, new GroupDropListener(
+				userViewer, userAdmin, (Group) editor.getDisplayedUser()));
 	}
 
 	private class MyUserTableViewer extends UserTableViewer {
@@ -197,6 +206,89 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 				editor.getProperty(UserAdminConstants.KEY_CN));
 	}
 
+	/**
+	 * Defines this table as being a potential target to add group membership
+	 * (roles) to this user
+	 */
+	private class GroupDropListener extends ViewerDropAdapter {
+		private static final long serialVersionUID = 2893468717831451621L;
+
+		private final UserAdmin myUserAdmin;
+		private final Group myGroup;
+
+		public GroupDropListener(Viewer viewer, UserAdmin userAdmin, Group group) {
+			super(viewer);
+			this.myUserAdmin = userAdmin;
+			this.myGroup = group;
+		}
+
+		@Override
+		public boolean validateDrop(Object target, int operation,
+				TransferData transferType) {
+			// Target is always OK in a list only view
+			// TODO check if not a string
+			boolean validDrop = true;
+			return validDrop;
+		}
+
+		@Override
+		public void drop(DropTargetEvent event) {
+			String newUserName = (String) event.data;
+			Role role = myUserAdmin.getRole(newUserName);
+			// TODO this check should be done before.
+			if (role.getType() == Role.USER) {
+				// TODO check if the user is already member of this group
+				// we expect here that there is already a begun transaction
+				// TODO implement the dirty state
+				editor.beginTransactionIfNeeded();
+				User user = (User) role;
+				myGroup.addMember(user);
+			} else if (role.getType() == Role.GROUP) {
+				Group newGroup = (Group) role;
+
+				Shell shell = getViewer().getControl().getShell();
+				// Sanity checks
+				if (myGroup == newGroup) { // Equality
+
+					MessageDialog.openError(shell, "Forbidden addition ",
+							"A group cannot be a member of itself.");
+					return;
+				}
+
+				// Cycle
+				String myName = myGroup.getName();
+				List<User> myMemberships = editor.getFlatGroups(myGroup);
+				if (myMemberships.contains(newGroup)) {
+					MessageDialog.openError(shell, "Forbidden addition: cycle",
+							"Cannot add " + newUserName + " to group " + myName
+									+ ". This would create a cycle");
+					return;
+				}
+
+				// Already member
+				List<User> newGroupMemberships = editor.getFlatGroups(newGroup);
+				if (newGroupMemberships.contains(myGroup)) {
+					MessageDialog.openError(shell, "Forbidden addition",
+							"Cannot add " + newUserName + " to group " + myName
+									+ ", this membership already exists");
+					return;
+				}
+
+				editor.beginTransactionIfNeeded();
+				// TODO implement the dirty state
+				myGroup.addMember(newGroup);
+			}
+			super.drop(event);
+		}
+
+		@Override
+		public boolean performDrop(Object data) {
+			userTableViewerCmp.refresh();
+			return true;
+		}
+	}
+
+	// LOCAL HELPERS
 	private Composite addSection(FormToolkit tk, Composite parent, String title) {
 		Section section = tk.createSection(parent, Section.TITLE_BAR);
 		GridData gd = EclipseUiUtils.fillWidth();
@@ -218,17 +310,4 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		return text;
 	}
-
-	// private class FormPartML implements ModifyListener {
-	// private static final long serialVersionUID = 6299808129505381333L;
-	// private AbstractFormPart formPart;
-	//
-	// public FormPartML(AbstractFormPart generalPart) {
-	// this.formPart = generalPart;
-	// }
-	//
-	// public void modifyText(ModifyEvent e) {
-	// formPart.markDirty();
-	// }
-	// }
 }

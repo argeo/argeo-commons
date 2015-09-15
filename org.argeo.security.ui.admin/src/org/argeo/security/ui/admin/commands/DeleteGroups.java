@@ -19,42 +19,49 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.transaction.UserTransaction;
+
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
+import org.argeo.security.ui.admin.views.GroupsView;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.osgi.service.useradmin.Group;
+import org.osgi.service.useradmin.UserAdmin;
 
 /** Deletes the selected groups */
 public class DeleteGroups extends AbstractHandler {
-	public final static String ID = SecurityAdminPlugin.PLUGIN_ID + ".deleteGroups";
+	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
+			+ ".deleteGroups";
 
-	
+	/* DEPENDENCY INJECTION */
+	private UserAdmin userAdmin;
+	private UserTransaction userTransaction;
+
 	@SuppressWarnings("unchecked")
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ISelection selection = HandlerUtil.getCurrentSelection(event);
 		if (selection.isEmpty())
 			return null;
 
-		Map<String, Group> toDelete = new TreeMap<String, Group>();
+		Map<String, String> toDelete = new TreeMap<String, String>();
+		// List<String> names = new ArrayList<String>();
 		Iterator<Group> it = ((IStructuredSelection) selection).iterator();
-		groups: while (it.hasNext()) {
+		while (it.hasNext()) {
 			Group currGroup = it.next();
 			String groupName = UiAdminUtils.getProperty(currGroup,
 					UserAdminConstants.KEY_CN);
-
 			// TODO add checks
-			// if (userName.equals(profileNode.getSession().getUserID())) {
-			// log.warn("Cannot delete its own user: " + userName);
-			// continue groups;
-			// }
-			toDelete.put(groupName, currGroup);
+			toDelete.put(groupName, currGroup.getName());
 		}
 
 		if (!MessageDialog
@@ -67,20 +74,31 @@ public class DeleteGroups extends AbstractHandler {
 								+ "This might lead to inconsistencies in the application."))
 			return null;
 
-		for (String groupName : toDelete.keySet()) {
-		}
-		MessageDialog.openInformation(HandlerUtil.getActiveShell(event),
-				"Unimplemented method",
-				"The effective deletion is not yet implemented");
-		// TODO refresh?
-		// JcrUsersView view = (JcrUsersView) HandlerUtil
-		// .getActiveWorkbenchWindow(event).getActivePage()
-		// .findView(JcrUsersView.ID);
-		// view.refresh();
+		UiAdminUtils.beginTransactionIfNeeded(userTransaction);
+		for (String name : toDelete.values())
+			userAdmin.removeRole(name);
+
+		// TODO rather notify the update listener
+		forceRefresh(event);
 		return null;
 	}
 
-	// public void setUserAdmin(UserAdmin userAdmin) {
-	// this.userAdmin = userAdmin;
-	// }
+	private void forceRefresh(ExecutionEvent event) {
+		IWorkbenchWindow iww = HandlerUtil.getActiveWorkbenchWindow(event);
+		if (iww == null)
+			return;
+		IWorkbenchPage activePage = iww.getActivePage();
+		IWorkbenchPart part = activePage.getActivePart();
+		if (part instanceof GroupsView)
+			((GroupsView) part).refresh();
+	}
+
+	/* DEPENDENCY INJECTION */
+	public void setUserAdmin(UserAdmin userAdmin) {
+		this.userAdmin = userAdmin;
+	}
+
+	public void setUserTransaction(UserTransaction userTransaction) {
+		this.userTransaction = userTransaction;
+	}
 }

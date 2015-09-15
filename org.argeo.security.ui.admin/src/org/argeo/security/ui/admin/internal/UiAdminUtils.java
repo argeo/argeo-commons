@@ -5,7 +5,10 @@ import java.security.Principal;
 
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
+import javax.transaction.Status;
+import javax.transaction.UserTransaction;
 
+import org.argeo.ArgeoException;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
@@ -36,6 +39,16 @@ public class UiAdminUtils {
 
 	public final static String getDefaultCn(String firstName, String lastName) {
 		return (firstName.trim() + " " + lastName.trim() + " ").trim();
+	}
+
+	public final static void beginTransactionIfNeeded(
+			UserTransaction userTransaction) {
+		try {
+			if (userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION)
+				userTransaction.begin();
+		} catch (Exception e) {
+			throw new ArgeoException("Unable to begin transaction", e);
+		}
 	}
 
 	/*

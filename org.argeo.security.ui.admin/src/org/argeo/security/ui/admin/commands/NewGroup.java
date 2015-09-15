@@ -17,10 +17,8 @@ package org.argeo.security.ui.admin.commands;
 
 import java.util.Dictionary;
 
-import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
-import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.jcr.ArgeoNames;
@@ -111,17 +109,8 @@ public class NewGroup extends AbstractHandler {
 			if (!canFinish())
 				return false;
 			String commonName = commonNameTxt.getText();
-
-			// Begin transaction if needed
 			try {
-				if (userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION)
-					userTransaction.begin();
-			} catch (Exception e) {
-				throw new ArgeoException("Unable to start "
-						+ "transaction to create user " + commonName, e);
-			}
-
-			try {
+				UiAdminUtils.beginTransactionIfNeeded(userTransaction);
 				Group user = (Group) userAdmin.createRole(getDn(commonName),
 						Role.GROUP);
 				Dictionary props = user.getProperties();
