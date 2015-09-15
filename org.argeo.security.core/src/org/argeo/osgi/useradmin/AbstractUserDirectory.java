@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.naming.InvalidNameException;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
@@ -249,14 +250,20 @@ public abstract class AbstractUserDirectory implements UserAdmin {
 
 	protected DirectoryUser newRole(LdapName dn, int type, Attributes attrs) {
 		LdifUser newRole;
+		BasicAttribute objectClass = new BasicAttribute("objectClass");
 		if (type == Role.USER) {
 			newRole = new LdifUser(this, dn, attrs);
-			// users.put(dn, newRole);
+			objectClass.add("inetOrgPerson");
+			objectClass.add("organizationalPerson");
+			objectClass.add("person");
+			objectClass.add("top");
 		} else if (type == Role.GROUP) {
 			newRole = new LdifGroup(this, dn, attrs);
-			// groups.put(dn, (LdifGroup) newRole);
+			objectClass.add("groupOfNames");
+			objectClass.add("top");
 		} else
 			throw new UserDirectoryException("Unsupported type " + type);
+		newRole.getAttributes().put(objectClass);
 		return newRole;
 	}
 
