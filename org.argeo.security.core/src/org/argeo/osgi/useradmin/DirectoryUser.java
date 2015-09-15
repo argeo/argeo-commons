@@ -9,4 +9,6 @@ interface DirectoryUser extends User {
 	LdapName getDn();
 
 	Attributes getAttributes();
+
+	void publishAttributes(Attributes modifiedAttributes);
 }

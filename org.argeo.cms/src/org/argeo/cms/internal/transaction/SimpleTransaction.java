@@ -24,8 +24,11 @@ class SimpleTransaction implements Transaction, Status {
 	private int status = Status.STATUS_ACTIVE;
 	private final List<XAResource> xaResources = new ArrayList<XAResource>();
 
-	public SimpleTransaction() {
-		xid = new UuidXid();
+	private final SimpleTransactionManager transactionManager;
+
+	public SimpleTransaction(SimpleTransactionManager transactionManager) {
+		this.xid = new UuidXid();
+		this.transactionManager = transactionManager;
 	}
 
 	@Override
@@ -64,19 +67,73 @@ class SimpleTransaction implements Transaction, Status {
 			rollback();
 			throw new RollbackException();
 		}
+
+		// complete
 		status = STATUS_COMMITTED;
+		if (log.isDebugEnabled())
+			log.debug("COMMITTED  " + xid);
+		clearResources(XAResource.TMSUCCESS);
+		transactionManager.unregister(xid);
 	}
 
 	@Override
-	public synchronized boolean delistResource(XAResource xaRes, int flag)
-			throws IllegalStateException, SystemException {
-		return xaResources.remove(xaRes);
+	public synchronized void rollback() throws IllegalStateException,
+			SystemException {
+		status = STATUS_ROLLING_BACK;
+		for (XAResource xaRes : xaResources) {
+			try {
+				xaRes.rollback(xid);
+			} catch (XAException e) {
+				log.error("Cannot rollback " + xaRes + " for " + xid, e);
+			}
+		}
+
+		// complete
+		status = STATUS_ROLLEDBACK;
+		if (log.isDebugEnabled())
+			log.debug("ROLLEDBACK " + xid);
+		clearResources(XAResource.TMFAIL);
+		transactionManager.unregister(xid);
 	}
 
 	@Override
 	public synchronized boolean enlistResource(XAResource xaRes)
 			throws RollbackException, IllegalStateException, SystemException {
-		return xaResources.add(xaRes);
+		if (xaResources.add(xaRes)) {
+			try {
+				xaRes.start(getXid(), XAResource.TMNOFLAGS);
+				return true;
+			} catch (XAException e) {
+				log.error("Cannot enlist " + xaRes, e);
+				return false;
+			}
+		} else
+			return false;
+	}
+
+	@Override
+	public synchronized boolean delistResource(XAResource xaRes, int flag)
+			throws IllegalStateException, SystemException {
+		if (xaResources.remove(xaRes)) {
+			try {
+				xaRes.end(getXid(), flag);
+			} catch (XAException e) {
+				log.error("Cannot delist " + xaRes, e);
+				return false;
+			}
+			return true;
+		} else
+			return false;
+	}
+
+	protected void clearResources(int flag) {
+		for (XAResource xaRes : xaResources)
+			try {
+				xaRes.end(getXid(), flag);
+			} catch (XAException e) {
+				log.error("Cannot end " + xaRes, e);
+			}
+		xaResources.clear();
 	}
 
 	@Override
@@ -91,20 +148,6 @@ class SimpleTransaction implements Transaction, Status {
 	}
 
 	@Override
-	public synchronized void rollback() throws IllegalStateException,
-			SystemException {
-		status = STATUS_ROLLING_BACK;
-		for (XAResource xaRes : xaResources) {
-			try {
-				xaRes.rollback(xid);
-			} catch (XAException e) {
-				log.error("Cannot rollback " + xaRes + " for " + xid, e);
-			}
-		}
-		status = STATUS_ROLLEDBACK;
-	}
-
-	@Override
 	public void setRollbackOnly() throws IllegalStateException, SystemException {
 		status = STATUS_MARKED_ROLLBACK;
 	}
@@ -114,7 +157,7 @@ class SimpleTransaction implements Transaction, Status {
 		return xid.hashCode();
 	}
 
-	public Xid getXid() {
+	Xid getXid() {
 		return xid;
 	}
 

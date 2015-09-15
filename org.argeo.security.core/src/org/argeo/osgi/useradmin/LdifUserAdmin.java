@@ -18,31 +18,22 @@ import java.util.TreeMap;
 import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
-import javax.naming.ldap.Rdn;
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
 
 import org.apache.commons.io.IOUtils;
 import org.osgi.framework.Filter;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
 /** User admin implementation using LDIF file(s) as backend. */
 public class LdifUserAdmin extends AbstractUserDirectory {
-	SortedMap<LdapName, LdifUser> users = new TreeMap<LdapName, LdifUser>();
-	SortedMap<LdapName, LdifGroup> groups = new TreeMap<LdapName, LdifGroup>();
+	SortedMap<LdapName, DirectoryUser> users = new TreeMap<LdapName, DirectoryUser>();
+	SortedMap<LdapName, DirectoryGroup> groups = new TreeMap<LdapName, DirectoryGroup>();
 
-	private Map<String, Map<String, LdifUser>> userIndexes = new LinkedHashMap<String, Map<String, LdifUser>>();
+	private Map<String, Map<String, DirectoryUser>> userIndexes = new LinkedHashMap<String, Map<String, DirectoryUser>>();
 
 	// private Map<LdapName, List<LdifGroup>> directMemberOf = new
 	// TreeMap<LdapName, List<LdifGroup>>();
-	private XaRes xaRes = new XaRes();
 
 	public LdifUserAdmin(String uri) {
 		this(uri, readOnlyDefault(uri));
@@ -124,6 +115,9 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 
 	protected void load(InputStream in) {
 		try {
+			users.clear();
+			groups.clear();
+
 			LdifParser ldifParser = new LdifParser();
 			SortedMap<LdapName, Attributes> allEntries = ldifParser.read(in);
 			for (LdapName key : allEntries.keySet()) {
@@ -148,14 +142,14 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 
 			// indexes
 			for (String attr : getIndexedUserProperties())
-				userIndexes.put(attr, new TreeMap<String, LdifUser>());
+				userIndexes.put(attr, new TreeMap<String, DirectoryUser>());
 
-			for (LdifUser user : users.values()) {
+			for (DirectoryUser user : users.values()) {
 				Dictionary<String, Object> properties = user.getProperties();
 				for (String attr : getIndexedUserProperties()) {
 					Object value = properties.get(attr);
 					if (value != null) {
-						LdifUser otherUser = userIndexes.get(attr).put(
+						DirectoryUser otherUser = userIndexes.get(attr).put(
 								value.toString(), user);
 						if (otherUser != null)
 							throw new UserDirectoryException("User " + user
@@ -178,17 +172,7 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 		groups = null;
 	}
 
-	@Override
-	public Role getRole(String name) {
-		LdapName key;
-		try {
-			key = new LdapName(name);
-		} catch (InvalidNameException e) {
-			// TODO implements default base DN
-			throw new IllegalArgumentException("Badly formatted role name: "
-					+ name, e);
-		}
-
+	protected DirectoryUser daoGetRole(LdapName key) {
 		if (groups.containsKey(key))
 			return groups.get(key);
 		if (users.containsKey(key))
@@ -196,148 +180,56 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 		return null;
 	}
 
-	@Override
-	public Authorization getAuthorization(User user) {
-		return new LdifAuthorization((LdifUser) user,
-				getAllRoles((LdifUser) user));
+	protected Boolean daoHasRole(LdapName dn) {
+		return users.containsKey(dn) || groups.containsKey(dn);
 	}
 
-	@Override
-	public Role createRole(String name, int type) {
-		try {
-			LdapName dn = new LdapName(name);
-			if (users.containsKey(dn) || groups.containsKey(dn))
-				throw new UserDirectoryException("Already a role " + name);
+	// @Override
+	// public boolean removeRole(String name) {
+	// LdapName dn = toDn(name);
+	// LdifUser role = null;
+	// if (users.containsKey(dn))
+	// role = users.remove(dn);
+	// else if (groups.containsKey(dn))
+	// role = groups.remove(dn);
+	// else
+	// throw new UserDirectoryException("There is no role " + name);
+	// if (role == null)
+	// return false;
+	// for (LdifGroup group : getDirectGroups(role)) {
+	// group.getAttributes().get(getMemberAttributeId())
+	// .remove(dn.toString());
+	// }
+	// return true;
+	// }
 
-			BasicAttributes attrs = new BasicAttributes();
-			attrs.put("dn", dn.toString());
-			Rdn nameRdn = dn.getRdn(dn.size() - 1);
-			// TODO deal with multiple attr RDN
-			attrs.put(nameRdn.getType(), nameRdn.getValue());
-			LdifUser newRole;
-			if (type == Role.USER) {
-				newRole = new LdifUser(this, dn, attrs);
-				users.put(dn, newRole);
-			} else if (type == Role.GROUP) {
-				newRole = new LdifGroup(this, dn, attrs);
-				groups.put(dn, (LdifGroup) newRole);
-			} else
-				throw new UserDirectoryException("Unsupported type " + type);
-			return newRole;
-		} catch (InvalidNameException e) {
-			throw new UserDirectoryException("Cannot create role " + name, e);
-		}
-	}
-
-	@Override
-	public boolean removeRole(String name) {
-		try {
-			LdapName dn = new LdapName(name);
-			LdifUser role = null;
-			if (users.containsKey(dn))
-				role = users.remove(dn);
-			else if (groups.containsKey(dn))
-				role = groups.remove(dn);
-			else
-				throw new UserDirectoryException("There is no role " + name);
-			if (role == null)
-				return false;
-			for (LdifGroup group : getDirectGroups(role)) {
-				// group.directMembers.remove(role);
-				group.getAttributes().get(getMemberAttributeId())
-						.remove(dn.toString());
-			}
-			if (role instanceof LdifGroup) {
-				LdifGroup group = (LdifGroup) role;
-				// for (Role user : group.directMembers) {
-				// if (user instanceof LdifUser)
-				// directMemberOf.get(((LdifUser) user).getDn()).remove(
-				// group);
-				// }
-			}
-			return true;
-		} catch (InvalidNameException e) {
-			throw new UserDirectoryException("Cannot create role " + name, e);
-		}
-	}
-
-	@Override
-	public Role[] getRoles(String filter) throws InvalidSyntaxException {
-		ArrayList<Role> res = new ArrayList<Role>();
-		if (filter == null) {
+	protected List<DirectoryUser> doGetRoles(Filter f) {
+		ArrayList<DirectoryUser> res = new ArrayList<DirectoryUser>();
+		if (f == null) {
 			res.addAll(users.values());
 			res.addAll(groups.values());
 		} else {
-			Filter f = FrameworkUtil.createFilter(filter);
-			for (LdifUser user : users.values())
+			// Filter f = FrameworkUtil.createFilter(filter);
+			for (DirectoryUser user : users.values())
 				if (f.match(user.getProperties()))
 					res.add(user);
-			for (LdifUser group : groups.values())
+			for (DirectoryUser group : groups.values())
 				if (f.match(group.getProperties()))
 					res.add(group);
 		}
-		return res.toArray(new Role[res.size()]);
+		return res;
+	}
+
+	protected void doGetUser(String key, String value,
+			List<DirectoryUser> collectedUsers) {
+		assert key != null;
+		DirectoryUser user = userIndexes.get(key).get(value);
+		if (user != null)
+			collectedUsers.add(user);
 	}
 
 	@Override
-	public User getUser(String key, String value) {
-		// TODO check value null or empty
-		if (key != null) {
-			if (!userIndexes.containsKey(key))
-				return null;
-			return userIndexes.get(key).get(value);
-		}
-
-		// Try all indexes
-		List<LdifUser> collectedUsers = new ArrayList<LdifUser>(
-				getIndexedUserProperties().size());
-		// try dn
-		LdifUser user = null;
-		try {
-			user = (LdifUser) getRole(value);
-			if (user != null)
-				collectedUsers.add(user);
-		} catch (Exception e) {
-			// silent
-		}
-		for (String attr : userIndexes.keySet()) {
-			user = userIndexes.get(attr).get(value);
-			if (user != null)
-				collectedUsers.add(user);
-		}
-
-		if (collectedUsers.size() == 1)
-			return collectedUsers.get(0);
-		return null;
-		// throw new UnsupportedOperationException();
-	}
-
-	// protected void loadMembers(LdifGroup group) {
-	// group.directMembers = new ArrayList<Role>();
-	// for (LdapName ldapName : group.getMemberNames()) {
-	// LdifUser role = null;
-	// if (groups.containsKey(ldapName))
-	// role = groups.get(ldapName);
-	// else if (users.containsKey(ldapName))
-	// role = users.get(ldapName);
-	// else {
-	// if (getExternalRoles() != null)
-	// role = (LdifUser) getExternalRoles().getRole(
-	// ldapName.toString());
-	// if (role == null)
-	// throw new ArgeoUserAdminException("No role found for "
-	// + ldapName);
-	// }
-	// // role.directMemberOf.add(group);
-	// // if (!directMemberOf.containsKey(role.getDn()))
-	// // directMemberOf.put(role.getDn(), new ArrayList<LdifGroup>());
-	// // directMemberOf.get(role.getDn()).add(group);
-	// group.directMembers.add(role);
-	// }
-	// }
-
-	@Override
-	protected List<LdifGroup> getDirectGroups(User user) {
+	protected List<DirectoryGroup> getDirectGroups(User user) {
 		LdapName dn;
 		if (user instanceof LdifUser)
 			dn = ((LdifUser) user).getDn();
@@ -349,85 +241,61 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 						+ user.getName(), e);
 			}
 
-		List<LdifGroup> directGroups = new ArrayList<LdifGroup>();
+		List<DirectoryGroup> directGroups = new ArrayList<DirectoryGroup>();
 		for (LdapName name : groups.keySet()) {
-			LdifGroup group = groups.get(name);
+			DirectoryGroup group = groups.get(name);
 			if (group.getMemberNames().contains(dn))
 				directGroups.add(group);
 		}
 		return directGroups;
-		// if (directMemberOf.containsKey(dn))
-		// return Collections.unmodifiableList(directMemberOf.get(dn));
-		// else
-		// return Collections.EMPTY_LIST;
 	}
 
 	@Override
-	public XAResource getXAResource() {
-		return xaRes;
+	protected void prepare(WorkingCopy wc) {
+		// delete
+		for (LdapName dn : wc.getDeletedUsers().keySet()) {
+			if (users.containsKey(dn))
+				users.remove(dn);
+			else if (groups.containsKey(dn))
+				groups.remove(dn);
+			else
+				throw new UserDirectoryException("User to delete no found "
+						+ dn);
+		}
+		// add
+		for (LdapName dn : wc.getNewUsers().keySet()) {
+			DirectoryUser user = wc.getNewUsers().get(dn);
+			if (Role.USER == user.getType())
+				users.put(dn, user);
+			else if (Role.GROUP == user.getType())
+				groups.put(dn, (DirectoryGroup) user);
+			else
+				throw new UserDirectoryException("Unsupported role type "
+						+ user.getType() + " for new user " + dn);
+		}
+		// modify
+		for (LdapName dn : wc.getModifiedUsers().keySet()) {
+			Attributes modifiedAttrs = wc.getModifiedUsers().get(dn);
+			DirectoryUser user;
+			if (users.containsKey(dn))
+				user = users.get(dn);
+			else if (groups.containsKey(dn))
+				user = groups.get(dn);
+			else
+				throw new UserDirectoryException("User to modify no found "
+						+ dn);
+			user.publishAttributes(modifiedAttrs);
+		}
 	}
 
-	private class XaRes implements XAResource {
+	@Override
+	protected void commit(WorkingCopy wc) {
+		save();
+	}
 
-		@Override
-		public void commit(Xid xid, boolean onePhase) throws XAException {
-			save();
-		}
-
-		@Override
-		public void end(Xid xid, int flags) throws XAException {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void forget(Xid xid) throws XAException {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public int getTransactionTimeout() throws XAException {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-
-		@Override
-		public boolean isSameRM(XAResource xares) throws XAException {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public int prepare(Xid xid) throws XAException {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-
-		@Override
-		public Xid[] recover(int flag) throws XAException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public void rollback(Xid xid) throws XAException {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public boolean setTransactionTimeout(int seconds) throws XAException {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public void start(Xid xid, int flags) throws XAException {
-			// TODO Auto-generated method stub
-
-		}
-
+	@Override
+	protected void rollback(WorkingCopy wc) {
+		init();
 	}
 
 }

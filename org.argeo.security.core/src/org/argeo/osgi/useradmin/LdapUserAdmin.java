@@ -11,15 +11,20 @@ import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.Xid;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
+import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
@@ -73,26 +78,21 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	public Role createRole(String name, int type) {
-		// TODO Auto-generated method stub
-		return null;
+	protected Boolean daoHasRole(LdapName dn) {
+		return daoGetRole(dn) != null;
 	}
 
 	@Override
-	public boolean removeRole(String name) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public Role getRole(String name) {
+	protected DirectoryUser daoGetRole(LdapName name) {
 		try {
 			Attributes attrs = initialLdapContext.getAttributes(name);
+			if (attrs.size() == 0)
+				return null;
 			LdifUser res;
 			if (attrs.get("objectClass").contains("groupOfNames"))
-				res = new LdifGroup(this, new LdapName(name), attrs);
+				res = new LdifGroup(this, name, attrs);
 			else if (attrs.get("objectClass").contains("inetOrgPerson"))
-				res = new LdifUser(this, new LdapName(name), attrs);
+				res = new LdifUser(this, name, attrs);
 			else
 				throw new UserDirectoryException("Unsupported LDAP type for "
 						+ name);
@@ -103,11 +103,11 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	public Role[] getRoles(String filter) throws InvalidSyntaxException {
+	protected List<DirectoryUser> doGetRoles(Filter f) {
+		// TODO Auto-generated method stub
 		try {
-			String searchFilter = filter;
-			if (searchFilter == null)
-				searchFilter = "(|(objectClass=inetOrgPerson)(objectClass=groupOfNames))";
+			String searchFilter = f != null ? f.toString()
+					: "(|(objectClass=inetOrgPerson)(objectClass=groupOfNames))";
 			SearchControls searchControls = new SearchControls();
 			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
@@ -115,7 +115,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			NamingEnumeration<SearchResult> results = initialLdapContext
 					.search(searchBase, searchFilter, searchControls);
 
-			ArrayList<Role> res = new ArrayList<Role>();
+			ArrayList<DirectoryUser> res = new ArrayList<DirectoryUser>();
 			while (results.hasMoreElements()) {
 				SearchResult searchResult = results.next();
 				Attributes attrs = searchResult.getAttributes();
@@ -132,11 +132,41 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 									+ searchResult.getName());
 				res.add(role);
 			}
-			return res.toArray(new Role[res.size()]);
+			return res;
 		} catch (Exception e) {
-			throw new UserDirectoryException("Cannot get roles for filter "
-					+ filter, e);
+			throw new UserDirectoryException(
+					"Cannot get roles for filter " + f, e);
 		}
+	}
+
+	@Override
+	protected void doGetUser(String key, String value,
+			List<DirectoryUser> collectedUsers) {
+		try {
+			String searchFilter = "(&(objectClass=inetOrgPerson)(" + key + "="
+					+ value + "))";
+
+			SearchControls searchControls = new SearchControls();
+			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+
+			String searchBase = baseDn;
+			NamingEnumeration<SearchResult> results = initialLdapContext
+					.search(searchBase, searchFilter, searchControls);
+
+			SearchResult searchResult = null;
+			if (results.hasMoreElements()) {
+				searchResult = (SearchResult) results.nextElement();
+				if (results.hasMoreElements())
+					searchResult = null;
+			}
+			if (searchResult != null)
+				collectedUsers.add(new LdifUser(this, toDn(searchBase,
+						searchResult), searchResult.getAttributes()));
+		} catch (Exception e) {
+			throw new UserDirectoryException("Cannot get user with " + key
+					+ "=" + value, e);
+		}
+
 	}
 
 	@Override
@@ -181,13 +211,6 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 		}
 	}
 
-	@Override
-	public Authorization getAuthorization(User user) {
-		LdifUser u = (LdifUser) user;
-		// populateDirectMemberOf(u);
-		return new LdifAuthorization(u, getAllRoles(u));
-	}
-
 	private LdapName toDn(String baseDn, Binding binding)
 			throws InvalidNameException {
 		return new LdapName(binding.isRelative() ? binding.getName() + ","
@@ -224,8 +247,8 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	// }
 
 	@Override
-	protected List<? extends Group> getDirectGroups(User user) {
-		List<Group> directGroups = new ArrayList<Group>();
+	protected List<DirectoryGroup> getDirectGroups(User user) {
+		List<DirectoryGroup> directGroups = new ArrayList<DirectoryGroup>();
 		try {
 			String searchFilter = "(&(objectClass=groupOfNames)(member="
 					+ user.getName() + "))";
@@ -255,4 +278,66 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 		// TODO configure group search base
 		return baseDn;
 	}
+
+	@Override
+	protected void prepare(WorkingCopy wc) {
+		try {
+			initialLdapContext.reconnect(initialLdapContext
+					.getConnectControls());
+			// delete
+			for (LdapName dn : wc.getDeletedUsers().keySet()) {
+				if (!entryExists(dn))
+					throw new UserDirectoryException("User to delete no found "
+							+ dn);
+			}
+			// add
+			for (LdapName dn : wc.getNewUsers().keySet()) {
+				if (!entryExists(dn))
+					throw new UserDirectoryException("User to create found "
+							+ dn);
+			}
+			// modify
+			for (LdapName dn : wc.getModifiedUsers().keySet()) {
+				if (!entryExists(dn))
+					throw new UserDirectoryException("User to modify no found "
+							+ dn);
+			}
+		} catch (NamingException e) {
+			throw new UserDirectoryException("Cannot prepare LDAP", e);
+		}
+	}
+
+	private boolean entryExists(LdapName dn) throws NamingException {
+		return initialLdapContext.getAttributes(dn).size() != 0;
+	}
+
+	@Override
+	protected void commit(WorkingCopy wc) {
+		try {
+			// delete
+			for (LdapName dn : wc.getDeletedUsers().keySet()) {
+				initialLdapContext.destroySubcontext(dn);
+			}
+			// add
+			for (LdapName dn : wc.getNewUsers().keySet()) {
+				DirectoryUser user = wc.getNewUsers().get(dn);
+				initialLdapContext.createSubcontext(dn, user.getAttributes());
+			}
+			// modify
+			for (LdapName dn : wc.getModifiedUsers().keySet()) {
+				Attributes modifiedAttrs = wc.getModifiedUsers().get(dn);
+				initialLdapContext.modifyAttributes(dn,
+						DirContext.REPLACE_ATTRIBUTE, modifiedAttrs);
+			}
+		} catch (NamingException e) {
+			throw new UserDirectoryException("Cannot commit LDAP", e);
+		}
+	}
+
+	@Override
+	protected void rollback(WorkingCopy wc) {
+		// TODO Auto-generated method stub
+		super.rollback(wc);
+	}
+
 }

@@ -15,6 +15,8 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.osgi.useradmin.AbstractUserDirectory.WorkingCopy;
+
 class LdifUser implements DirectoryUser {
 	private final AbstractUserDirectory userAdmin;
 
@@ -22,7 +24,6 @@ class LdifUser implements DirectoryUser {
 
 	private final boolean frozen;
 	private Attributes publishedAttributes;
-	private Attributes modifiedAttributes = null;
 
 	private final AttributeDictionary properties;
 	private final AttributeDictionary credentials;
@@ -82,11 +83,21 @@ class LdifUser implements DirectoryUser {
 
 	@Override
 	public synchronized Attributes getAttributes() {
-		return isEditing() ? modifiedAttributes : publishedAttributes;
+		return isEditing() ? getModifiedAttributes() : publishedAttributes;
 	}
 
-	protected synchronized boolean isEditing() {
-		return userAdmin.isEditing() && modifiedAttributes != null;
+	/** Should only be called from working copy thread. */
+	private synchronized Attributes getModifiedAttributes() {
+		assert getWc() != null;
+		return getWc().getAttributes(getDn());
+	}
+
+	private synchronized boolean isEditing() {
+		return getWc() != null && getModifiedAttributes() != null;
+	}
+
+	private synchronized WorkingCopy getWc() {
+		return userAdmin.getWorkingCopy();
 	}
 
 	protected synchronized void startEditing() {
@@ -94,16 +105,21 @@ class LdifUser implements DirectoryUser {
 			throw new UserDirectoryException("Cannot edit frozen view");
 		if (getUserAdmin().isReadOnly())
 			throw new UserDirectoryException("User directory is read-only");
-		assert modifiedAttributes == null;
-		modifiedAttributes = (Attributes) publishedAttributes.clone();
+		assert getModifiedAttributes() == null;
+		getWc().startEditing(this);
+		// modifiedAttributes = (Attributes) publishedAttributes.clone();
 	}
 
-	protected synchronized void stopEditing(boolean apply) {
-		assert modifiedAttributes != null;
-		if (apply)
-			publishedAttributes = modifiedAttributes;
-		modifiedAttributes = null;
+	public synchronized void publishAttributes(Attributes modifiedAttributes) {
+		publishedAttributes = modifiedAttributes;
 	}
+
+	// protected synchronized void stopEditing(boolean apply) {
+	// assert getModifiedAttributes() != null;
+	// if (apply)
+	// publishedAttributes = getModifiedAttributes();
+	// // modifiedAttributes = null;
+	// }
 
 	public DirectoryUser getPublished() {
 		return new LdifUser(userAdmin, dn, publishedAttributes, true);
@@ -226,10 +242,12 @@ class LdifUser implements DirectoryUser {
 				throw new IllegalArgumentException("Key " + key + " excluded");
 
 			try {
-				Attribute attribute = modifiedAttributes.get(key.toString());
+				Attribute attribute = getModifiedAttributes().get(
+						key.toString());
 				attribute = new BasicAttribute(key.toString());
 				attribute.add(value);
-				Attribute previousAttribute = modifiedAttributes.put(attribute);
+				Attribute previousAttribute = getModifiedAttributes().put(
+						attribute);
 				if (previousAttribute != null)
 					return previousAttribute.get();
 				else
@@ -253,7 +271,7 @@ class LdifUser implements DirectoryUser {
 				throw new IllegalArgumentException("Key " + key + " excluded");
 
 			try {
-				Attribute attr = modifiedAttributes.remove(key.toString());
+				Attribute attr = getModifiedAttributes().remove(key.toString());
 				if (attr != null)
 					return attr.get();
 				else

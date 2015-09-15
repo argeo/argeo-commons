@@ -38,11 +38,11 @@ public class SimpleTransactionManager implements TransactionManager,
 		if (getCurrent() != null)
 			throw new NotSupportedException(
 					"Nested transactions are not supported");
-		SimpleTransaction transaction = new SimpleTransaction();
+		SimpleTransaction transaction = new SimpleTransaction(this);
 		knownTransactions.put(transaction.getXid(), transaction);
 		current.set(transaction);
 		if (log.isDebugEnabled())
-			log.debug("Started transaction " + transaction.getXid());
+			log.debug("STARTED    " + transaction.getXid());
 	}
 
 	@Override
@@ -75,16 +75,13 @@ public class SimpleTransactionManager implements TransactionManager,
 		if (Status.STATUS_COMMITTED == status
 				|| Status.STATUS_ROLLEDBACK == status) {
 			current.remove();
-			knownTransactions.remove(transaction.getXid());
-			if (log.isDebugEnabled())
-				log.debug("Completed transaction "
-						+ transaction.getXid()
-						+ " ["
-						+ (status == Status.STATUS_ROLLEDBACK ? "FAILED" : "OK")
-						+ "]");
 			return null;
 		}
 		return transaction;
+	}
+	
+	void unregister(Xid xid){
+		knownTransactions.remove(xid);
 	}
 
 	@Override
