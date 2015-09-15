@@ -9,7 +9,7 @@ import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
-public class LdifAuthorization implements Authorization, LdapNames {
+public class LdifAuthorization implements Authorization {
 	private final String name;
 	private final String displayName;
 	private final List<String> allRoles;
@@ -21,16 +21,16 @@ public class LdifAuthorization implements Authorization, LdapNames {
 		} else {
 			this.name = user.getName();
 			Dictionary<String, Object> props = user.getProperties();
-			Object displayName = props.get(LDAP_DISPLAY_NAME);
+			Object displayName = props.get(LdifName.displayName);
 			if (displayName == null)
-				displayName = props.get(LDAP_CN);
+				displayName = props.get(LdifName.cn);
 			if (displayName == null)
-				displayName = props.get(LDAP_UID);
+				displayName = props.get(LdifName.uid);
 			if (displayName == null)
 				displayName = user.getName();
 			if (displayName == null)
-				throw new UserDirectoryException(
-						"Cannot set display name for " + user);
+				throw new UserDirectoryException("Cannot set display name for "
+						+ user);
 			this.displayName = displayName.toString();
 		}
 		// roles

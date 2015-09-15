@@ -22,6 +22,7 @@ import org.osgi.framework.BundleContext;
 public class SecurityAdminPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.argeo.security.ui.admin"; //$NON-NLS-1$
 	private static SecurityAdminPlugin plugin;
+	private static BundleContext bundleContext;
 
 	public SecurityAdminPlugin() {
 	}
@@ -29,15 +30,21 @@ public class SecurityAdminPlugin extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		bundleContext = context;
 	}
 
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
+		bundleContext = null;
 		super.stop(context);
 	}
 
 	public static SecurityAdminPlugin getDefault() {
 		return plugin;
+	}
+
+	public static BundleContext getBundleContext() {
+		return bundleContext;
 	}
 
 	public static ImageDescriptor getImageDescriptor(String path) {

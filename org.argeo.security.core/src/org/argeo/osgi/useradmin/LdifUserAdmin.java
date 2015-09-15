@@ -5,10 +5,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,58 +31,35 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 
 	private Map<String, Map<String, DirectoryUser>> userIndexes = new LinkedHashMap<String, Map<String, DirectoryUser>>();
 
-	// private Map<LdapName, List<LdifGroup>> directMemberOf = new
-	// TreeMap<LdapName, List<LdifGroup>>();
-
-	public LdifUserAdmin(String uri) {
-		this(uri, readOnlyDefault(uri));
+	public LdifUserAdmin(String uri, String baseDn) {
+		this(fromUri(uri, baseDn));
 	}
 
-	public LdifUserAdmin(String uri, boolean isReadOnly) {
-		setReadOnly(isReadOnly);
-		try {
-			setUri(new URI(uri));
-		} catch (URISyntaxException e) {
-			throw new UserDirectoryException("Invalid URI " + uri, e);
-		}
-
-		if (!isReadOnly && !getUri().getScheme().equals("file"))
-			throw new UnsupportedOperationException(getUri().getScheme()
-					+ " not supported read-write.");
-
-	}
-
-	public LdifUserAdmin(URI uri, boolean isReadOnly) {
-		setReadOnly(isReadOnly);
-		setUri(uri);
-		if (!isReadOnly && !getUri().getScheme().equals("file"))
-			throw new UnsupportedOperationException(getUri().getScheme()
-					+ " not supported read-write.");
-
+	public LdifUserAdmin(Dictionary<String, ?> properties) {
+		super(properties);
 	}
 
 	public LdifUserAdmin(InputStream in) {
+		super(new Hashtable<String, Object>());
 		load(in);
 		setReadOnly(true);
 		setUri(null);
 	}
 
-	private static boolean readOnlyDefault(String uriStr) {
-		URI uri;
-		try {
-			uri = new URI(uriStr);
-		} catch (Exception e) {
-			throw new UserDirectoryException("Invalid URI " + uriStr, e);
-		}
-		if (uri.getScheme().equals("file")) {
-			File file = new File(uri);
-			return !file.canWrite();
-		}
-		return true;
+	private static Dictionary<String, Object> fromUri(String uri, String baseDn) {
+		Hashtable<String, Object> res = new Hashtable<String, Object>();
+		res.put(LdapProperties.uri.getFullName(), uri);
+		res.put(LdapProperties.baseDn.getFullName(), baseDn);
+		return res;
 	}
 
 	public void init() {
 		try {
+			if (getUri().getScheme().equals("file")) {
+				File file = new File(getUri());
+				if (!file.exists())
+					return;
+			}
 			load(getUri().toURL().openStream());
 		} catch (Exception e) {
 			throw new UserDirectoryException("Cannot open URL " + getUri(), e);

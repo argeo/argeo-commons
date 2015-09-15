@@ -8,6 +8,7 @@ import java.security.KeyStore;
 import java.security.Provider;
 import java.security.Security;
 import java.util.Arrays;
+import java.util.Hashtable;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -19,14 +20,10 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.x500.X500Principal;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.KernelHeader;
-import org.argeo.osgi.useradmin.AbstractUserDirectory;
-import org.argeo.osgi.useradmin.LdapUserAdmin;
-import org.argeo.osgi.useradmin.LdifUserAdmin;
 import org.argeo.security.crypto.PkiUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.osgi.framework.BundleContext;
@@ -57,14 +54,7 @@ class NodeSecurity implements AuthenticationManager {
 	private final NodeUserAdmin userAdmin;
 	private final Subject kernelSubject;
 
-	// private final OsAuthenticationProvider osAuth;
-	// private final InternalAuthenticationProvider internalAuth;
-	// private final AnonymousAuthenticationProvider anonymousAuth;
-	// private final JackrabbitUserAdminService userAdminService;
-
 	private ServiceRegistration<AuthenticationManager> authenticationManagerReg;
-	// private ServiceRegistration<UserAdminService> userAdminServiceReg;
-	// private ServiceRegistration<UserDetailsManager> userDetailsManagerReg;
 
 	private ServiceRegistration<UserAdmin> userAdminReg;
 
@@ -77,69 +67,7 @@ class NodeSecurity implements AuthenticationManager {
 
 		this.bundleContext = bundleContext;
 		this.kernelSubject = logKernel();
-
-		// osAuth = new OsAuthenticationProvider();
-		// internalAuth = new InternalAuthenticationProvider(
-		// Activator.getSystemKey());
-		// anonymousAuth = new AnonymousAuthenticationProvider(
-		// Activator.getSystemKey());
-
-		// user admin
-		// userAdminService = new JackrabbitUserAdminService();
-		// userAdminService.setRepository(node);
-		// userAdminService.setSecurityModel(new SimpleJcrSecurityModel());
-		// userAdminService.init();
-
 		userAdmin = new NodeUserAdmin();
-
-		File osgiInstanceDir = KernelUtils.getOsgiInstanceDir();
-		File homeDir = new File(osgiInstanceDir, "node");
-		homeDir.mkdirs();
-
-		String userAdminUri = KernelUtils
-				.getFrameworkProp(KernelConstants.USERADMIN_URI);
-		String baseDn = "dc=example,dc=com";
-		if (userAdminUri == null) {
-			File businessRolesFile = new File(homeDir, baseDn + ".ldif");
-			// userAdminUri = getClass().getResource(baseDn +
-			// ".ldif").toString();
-			if (!businessRolesFile.exists())
-				try {
-					FileUtils.copyInputStreamToFile(getClass()
-							.getResourceAsStream(baseDn + ".ldif"),
-							businessRolesFile);
-				} catch (IOException e) {
-					throw new CmsException("Cannot copy demo resource", e);
-				}
-			userAdminUri = businessRolesFile.toURI().toString();
-		}
-
-		AbstractUserDirectory businessRoles;
-		if (userAdminUri.startsWith("ldap"))
-			businessRoles = new LdapUserAdmin(userAdminUri);
-		else {
-			businessRoles = new LdifUserAdmin(userAdminUri);
-		}
-		businessRoles.init();
-		userAdmin.addUserAdmin(baseDn, businessRoles);
-
-		String baseNodeRoleDn = KernelHeader.ROLES_BASEDN;
-		File nodeRolesFile = new File(homeDir, baseNodeRoleDn + ".ldif");
-		if (!nodeRolesFile.exists())
-			try {
-				FileUtils.copyInputStreamToFile(
-						getClass().getResourceAsStream("demo.ldif"),
-						nodeRolesFile);
-			} catch (IOException e) {
-				throw new CmsException("Cannot copy demo resource", e);
-			}
-		LdifUserAdmin nodeRoles = new LdifUserAdmin(nodeRolesFile.toURI()
-				.toString(), false);
-		nodeRoles.setExternalRoles(userAdmin);
-		nodeRoles.init();
-		// nodeRoles.createRole(KernelHeader.ROLE_ADMIN, Role.GROUP);
-		userAdmin.addUserAdmin(baseNodeRoleDn, nodeRoles);
-
 	}
 
 	private Subject logKernel() {
@@ -175,25 +103,17 @@ class NodeSecurity implements AuthenticationManager {
 	public void publish() {
 		authenticationManagerReg = bundleContext.registerService(
 				AuthenticationManager.class, this, null);
-		// userAdminServiceReg = bundleContext.registerService(
-		// UserAdminService.class, userAdminService, null);
-		// userDetailsManagerReg = bundleContext.registerService(
-		// UserDetailsManager.class, userAdminService, null);
+		Hashtable<String, Object> properties = new Hashtable<String, Object>();
+		// properties.put(KernelConstants.USERADMIN_URI,
+		// userAdmin.asConfigUris());
 		userAdminReg = bundleContext.registerService(UserAdmin.class,
-				userAdmin, null);
+				userAdmin, properties);
 	}
 
 	void destroy() {
-		// try {
-		// userAdminService.destroy();
-		// } catch (RepositoryException e) {
-		// log.error("Error while destroying Jackrabbit useradmin");
-		// }
-		// userDetailsManagerReg.unregister();
-		// userAdminServiceReg.unregister();
 		authenticationManagerReg.unregister();
 
-		// userAdmin.destroy();
+		userAdmin.destroy();
 		userAdminReg.unregister();
 
 		// Logout kernel
@@ -219,21 +139,9 @@ class NodeSecurity implements AuthenticationManager {
 	@Override
 	public Authentication authenticate(Authentication authentication)
 			throws AuthenticationException {
-		log.error("Authentication manager is deprectaed and should not be used.");
-		// Authentication auth = null;
-		// if (authentication instanceof InternalAuthentication)
-		// auth = internalAuth.authenticate(authentication);
-		// else if (authentication instanceof AnonymousAuthenticationToken)
-		// auth = anonymousAuth.authenticate(authentication);
-		// else if (authentication instanceof
-		// UsernamePasswordAuthenticationToken)
-		// auth = userAdminService.authenticate(authentication);
-		// else if (authentication instanceof OsAuthenticationToken)
-		// auth = osAuth.authenticate(authentication);
-		// if (auth == null)
-		// throw new CmsException("Could not authenticate " + authentication);
+		log.error("Authentication manager is deprecated and should not be used.");
 		throw new ProviderNotFoundException(
-				"Authentication manager is deprectaed and should not be used.");
+				"Authentication manager is deprecated and should not be used.");
 	}
 
 	private void createKeyStoreIfNeeded() {
@@ -248,12 +156,10 @@ class NodeSecurity implements AuthenticationManager {
 				PkiUtils.generateSelfSignedCertificate(keyStore,
 						new X500Principal(KernelHeader.ROLE_KERNEL), keyPwd);
 				PkiUtils.saveKeyStore(keyStoreFile, ksPwd, keyStore);
-
 			} catch (Exception e) {
 				throw new CmsException("Cannot create key store "
 						+ keyStoreFile, e);
 			}
 		}
 	}
-
 }

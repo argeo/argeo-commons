@@ -1,8 +1,17 @@
 package org.argeo.osgi.useradmin;
 
+import static org.argeo.osgi.useradmin.LdifName.inetOrgPerson;
+import static org.argeo.osgi.useradmin.LdifName.objectClass;
+import static org.argeo.osgi.useradmin.LdifName.organizationalPerson;
+import static org.argeo.osgi.useradmin.LdifName.person;
+import static org.argeo.osgi.useradmin.LdifName.top;
+
+import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +45,12 @@ import org.osgi.service.useradmin.UserAdmin;
 public abstract class AbstractUserDirectory implements UserAdmin {
 	private final static Log log = LogFactory
 			.getLog(AbstractUserDirectory.class);
+
+	private Dictionary<String, ?> properties;
+	private String baseDn = "dc=example,dc=com";
+	private String userObjectClass;
+	private String groupObjectClass;
+
 	private boolean isReadOnly;
 	private URI uri;
 
@@ -54,13 +69,37 @@ public abstract class AbstractUserDirectory implements UserAdmin {
 	private ThreadLocal<WorkingCopy> workingCopy = new ThreadLocal<AbstractUserDirectory.WorkingCopy>();
 	private Xid editingTransactionXid = null;
 
-	public AbstractUserDirectory() {
+	public AbstractUserDirectory(Dictionary<String, ?> properties) {
+		// TODO make a copy?
+		this.properties = properties;
+
+		String uriStr = LdapProperties.uri.getValue(properties);
+		if (uriStr == null)
+			uri = null;
+		else
+			try {
+				uri = new URI(uriStr);
+			} catch (URISyntaxException e) {
+				throw new UserDirectoryException("Badly formatted URI", e);
+			}
+
+		baseDn = LdapProperties.baseDn.getValue(properties).toString();
+		String isReadOnly = LdapProperties.readOnly.getValue(properties);
+		if (isReadOnly == null)
+			this.isReadOnly = readOnlyDefault(uri);
+		else
+			this.isReadOnly = new Boolean(isReadOnly);
+		
+		this.userObjectClass = LdapProperties.userObjectClass
+				.getValue(properties);
+		this.groupObjectClass = LdapProperties.groupObjectClass
+				.getValue(properties);
 	}
 
-	public AbstractUserDirectory(URI uri, boolean isReadOnly) {
-		this.uri = uri;
-		this.isReadOnly = isReadOnly;
-	}
+	// public AbstractUserDirectory(URI uri, boolean isReadOnly) {
+	// this.uri = uri;
+	// this.isReadOnly = isReadOnly;
+	// }
 
 	/** Returns the {@link Group}s this user is a direct member of. */
 	protected abstract List<? extends DirectoryGroup> getDirectGroups(User user);
@@ -250,18 +289,23 @@ public abstract class AbstractUserDirectory implements UserAdmin {
 
 	protected DirectoryUser newRole(LdapName dn, int type, Attributes attrs) {
 		LdifUser newRole;
-		BasicAttribute objectClass = new BasicAttribute("objectClass");
+		BasicAttribute objClass = new BasicAttribute(objectClass.name());
 		if (type == Role.USER) {
-			objectClass.add("inetOrgPerson");
-			objectClass.add("organizationalPerson");
-			objectClass.add("person");
-			objectClass.add("top");
-			attrs.put(objectClass);
+			String userObjClass = getUserObjectClass();
+			objClass.add(userObjClass);
+			if (inetOrgPerson.name().equals(userObjClass)) {
+				objClass.add(organizationalPerson.name());
+				objClass.add(person.name());
+			} else if (organizationalPerson.name().equals(userObjClass)) {
+				objClass.add(person.name());
+			}
+			objClass.add(top);
+			attrs.put(objClass);
 			newRole = new LdifUser(this, dn, attrs);
 		} else if (type == Role.GROUP) {
-			objectClass.add("groupOfNames");
-			objectClass.add("top");
-			attrs.put(objectClass);
+			objClass.add(getGroupObjectClass());
+			objClass.add(top);
+			attrs.put(objClass);
 			newRole = new LdifGroup(this, dn, attrs);
 		} else
 			throw new UserDirectoryException("Unsupported type " + type);
@@ -337,6 +381,16 @@ public abstract class AbstractUserDirectory implements UserAdmin {
 		this.isReadOnly = isReadOnly;
 	}
 
+	private static boolean readOnlyDefault(URI uri) {
+		if (uri == null)
+			return true;
+		if (uri.getScheme().equals("file")) {
+			File file = new File(uri);
+			return !file.canWrite();
+		}
+		return true;
+	}
+
 	public boolean isReadOnly() {
 		return isReadOnly;
 	}
@@ -345,12 +399,20 @@ public abstract class AbstractUserDirectory implements UserAdmin {
 		return externalRoles;
 	}
 
-	public void setExternalRoles(UserAdmin externalRoles) {
-		this.externalRoles = externalRoles;
+	public String getBaseDn() {
+		return baseDn;
 	}
 
-	public void setSyncRegistry(TransactionSynchronizationRegistry syncRegistry) {
-		// this.syncRegistry = syncRegistry;
+	protected String getUserObjectClass() {
+		return userObjectClass;
+	}
+
+	protected String getGroupObjectClass() {
+		return groupObjectClass;
+	}
+
+	public void setExternalRoles(UserAdmin externalRoles) {
+		this.externalRoles = externalRoles;
 	}
 
 	public void setTransactionManager(TransactionManager transactionManager) {

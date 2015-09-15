@@ -100,8 +100,6 @@ final class Kernel implements ServiceListener {
 			repositoryFactory = new OsgiJackrabbitRepositoryFactory();
 
 			// Authentication
-			nodeSecurity.getUserAdmin().setSyncRegistry(
-					transactionManager.getTransactionSynchronizationRegistry());
 			nodeSecurity.getUserAdmin().setTransactionManager(
 					transactionManager);
 

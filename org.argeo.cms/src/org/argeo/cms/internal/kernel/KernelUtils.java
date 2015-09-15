@@ -76,6 +76,7 @@ class KernelUtils implements KernelConstants {
 	}
 
 	// Security
+	@Deprecated
 	static void anonymousLogin(AuthenticationManager authenticationManager) {
 		try {
 			List<GrantedAuthorityPrincipal> anonAuthorities = Collections

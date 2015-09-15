@@ -1,7 +1,9 @@
 package org.argeo.osgi.useradmin;
 
-import java.net.URI;
+import static org.argeo.osgi.useradmin.LdifName.objectClass;
+
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -12,42 +14,31 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.Xid;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.osgi.framework.Filter;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.service.useradmin.Authorization;
-import org.osgi.service.useradmin.Group;
-import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
 public class LdapUserAdmin extends AbstractUserDirectory {
 	private final static Log log = LogFactory.getLog(LdapUserAdmin.class);
 
-	private String baseDn = "dc=example,dc=com";
 	private InitialLdapContext initialLdapContext = null;
 
-	public LdapUserAdmin(String uri) {
+	public LdapUserAdmin(Dictionary<String, ?> properties) {
+		super(properties);
 		try {
-			setUri(new URI(uri));
 			Hashtable<String, Object> connEnv = new Hashtable<String, Object>();
 			connEnv.put(Context.INITIAL_CONTEXT_FACTORY,
 					"com.sun.jndi.ldap.LdapCtxFactory");
 			connEnv.put(Context.PROVIDER_URL, getUri().toString());
-			connEnv.put("java.naming.ldap.attributes.binary", "userPassword");
-			// connEnv.put(Context.SECURITY_AUTHENTICATION, "simple");
-			// connEnv.put(Context.SECURITY_PRINCIPAL, "uid=admin,ou=system");
-			// connEnv.put(Context.SECURITY_CREDENTIALS, "secret");
+			connEnv.put("java.naming.ldap.attributes.binary",
+					LdifName.userPassword.name());
 
 			initialLdapContext = new InitialLdapContext(connEnv, null);
 			// StartTlsResponse tls = (StartTlsResponse) ctx
@@ -55,14 +46,21 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			// tls.negotiate();
 			initialLdapContext.addToEnvironment(
 					Context.SECURITY_AUTHENTICATION, "simple");
-			initialLdapContext.addToEnvironment(Context.SECURITY_PRINCIPAL,
-					"uid=admin,ou=system");
-			initialLdapContext.addToEnvironment(Context.SECURITY_CREDENTIALS,
-					"secret");
-			LdapContext ldapContext = (LdapContext) initialLdapContext
-					.lookup("uid=root,ou=users,dc=example,dc=com");
-			log.debug(initialLdapContext.getAttributes(
-					"uid=root,ou=users,dc=example,dc=com").get("cn"));
+			Object principal = properties.get(Context.SECURITY_PRINCIPAL);
+			if (principal != null) {
+				initialLdapContext.addToEnvironment(Context.SECURITY_PRINCIPAL,
+						principal.toString());
+				Object creds = properties.get(Context.SECURITY_CREDENTIALS);
+				if (creds != null) {
+					initialLdapContext.addToEnvironment(
+							Context.SECURITY_CREDENTIALS, creds.toString());
+
+				}
+			}
+			// initialLdapContext.addToEnvironment(Context.SECURITY_PRINCIPAL,
+			// "uid=admin,ou=system");
+			// initialLdapContext.addToEnvironment(Context.SECURITY_CREDENTIALS,
+			// "secret");
 		} catch (Exception e) {
 			throw new UserDirectoryException("Cannot connect to LDAP", e);
 		}
@@ -77,6 +75,10 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 		}
 	}
 
+	protected InitialLdapContext getLdapContext() {
+		return initialLdapContext;
+	}
+
 	@Override
 	protected Boolean daoHasRole(LdapName dn) {
 		return daoGetRole(dn) != null;
@@ -85,13 +87,14 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	@Override
 	protected DirectoryUser daoGetRole(LdapName name) {
 		try {
-			Attributes attrs = initialLdapContext.getAttributes(name);
+			Attributes attrs = getLdapContext().getAttributes(name);
 			if (attrs.size() == 0)
 				return null;
 			LdifUser res;
-			if (attrs.get("objectClass").contains("groupOfNames"))
+			if (attrs.get(objectClass.name()).contains(getGroupObjectClass()))
 				res = new LdifGroup(this, name, attrs);
-			else if (attrs.get("objectClass").contains("inetOrgPerson"))
+			else if (attrs.get(objectClass.name()).contains(
+					getUserObjectClass()))
 				res = new LdifUser(this, name, attrs);
 			else
 				throw new UserDirectoryException("Unsupported LDAP type for "
@@ -106,24 +109,27 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	protected List<DirectoryUser> doGetRoles(Filter f) {
 		// TODO Auto-generated method stub
 		try {
-			String searchFilter = f != null ? f.toString()
-					: "(|(objectClass=inetOrgPerson)(objectClass=groupOfNames))";
+			String searchFilter = f != null ? f.toString() : "(|("
+					+ objectClass + "=" + getUserObjectClass() + ")("
+					+ objectClass + "=" + getGroupObjectClass() + "))";
 			SearchControls searchControls = new SearchControls();
 			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-			String searchBase = baseDn;
-			NamingEnumeration<SearchResult> results = initialLdapContext
-					.search(searchBase, searchFilter, searchControls);
+			String searchBase = getBaseDn();
+			NamingEnumeration<SearchResult> results = getLdapContext().search(
+					searchBase, searchFilter, searchControls);
 
 			ArrayList<DirectoryUser> res = new ArrayList<DirectoryUser>();
 			while (results.hasMoreElements()) {
 				SearchResult searchResult = results.next();
 				Attributes attrs = searchResult.getAttributes();
 				LdifUser role;
-				if (attrs.get("objectClass").contains("groupOfNames"))
+				if (attrs.get(objectClass.name()).contains(
+						getGroupObjectClass()))
 					role = new LdifGroup(this, toDn(searchBase, searchResult),
 							attrs);
-				else if (attrs.get("objectClass").contains("inetOrgPerson"))
+				else if (attrs.get(objectClass.name()).contains(
+						getUserObjectClass()))
 					role = new LdifUser(this, toDn(searchBase, searchResult),
 							attrs);
 				else
@@ -143,15 +149,15 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	protected void doGetUser(String key, String value,
 			List<DirectoryUser> collectedUsers) {
 		try {
-			String searchFilter = "(&(objectClass=inetOrgPerson)(" + key + "="
-					+ value + "))";
+			String searchFilter = "(&(" + objectClass + "="
+					+ getUserObjectClass() + ")(" + key + "=" + value + "))";
 
 			SearchControls searchControls = new SearchControls();
 			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-			String searchBase = baseDn;
-			NamingEnumeration<SearchResult> results = initialLdapContext
-					.search(searchBase, searchFilter, searchControls);
+			String searchBase = getBaseDn();
+			NamingEnumeration<SearchResult> results = getLdapContext().search(
+					searchBase, searchFilter, searchControls);
 
 			SearchResult searchResult = null;
 			if (results.hasMoreElements()) {
@@ -169,96 +175,26 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 
 	}
 
-	@Override
-	public User getUser(String key, String value) {
-		if (key == null) {
-			List<User> users = new ArrayList<User>();
-			for (String prop : getIndexedUserProperties()) {
-				User user = getUser(prop, value);
-				if (user != null)
-					users.add(user);
-			}
-			if (users.size() == 1)
-				return users.get(0);
-			else
-				return null;
-		}
-
-		try {
-			String searchFilter = "(&(objectClass=inetOrgPerson)(" + key + "="
-					+ value + "))";
-
-			SearchControls searchControls = new SearchControls();
-			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-
-			String searchBase = baseDn;
-			NamingEnumeration<SearchResult> results = initialLdapContext
-					.search(searchBase, searchFilter, searchControls);
-
-			SearchResult searchResult = null;
-			if (results.hasMoreElements()) {
-				searchResult = (SearchResult) results.nextElement();
-				if (results.hasMoreElements())
-					searchResult = null;
-			}
-			if (searchResult == null)
-				return null;
-			return new LdifUser(this, toDn(searchBase, searchResult),
-					searchResult.getAttributes());
-		} catch (Exception e) {
-			throw new UserDirectoryException("Cannot get user with " + key
-					+ "=" + value, e);
-		}
-	}
-
 	private LdapName toDn(String baseDn, Binding binding)
 			throws InvalidNameException {
 		return new LdapName(binding.isRelative() ? binding.getName() + ","
 				+ baseDn : binding.getName());
 	}
 
-	// void populateDirectMemberOf(LdifUser user) {
-	//
-	// try {
-	// String searchFilter = "(&(objectClass=groupOfNames)(member="
-	// + user.getName() + "))";
-	//
-	// SearchControls searchControls = new SearchControls();
-	// searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-	//
-	// String searchBase = "ou=node";
-	// NamingEnumeration<SearchResult> results = initialLdapContext
-	// .search(searchBase, searchFilter, searchControls);
-	//
-	// // TODO synchro
-	// //user.directMemberOf.clear();
-	// while (results.hasMoreElements()) {
-	// SearchResult searchResult = (SearchResult) results
-	// .nextElement();
-	// LdifGroup group = new LdifGroup(toDn(searchBase, searchResult),
-	// searchResult.getAttributes());
-	// populateDirectMemberOf(group);
-	// //user.directMemberOf.add(group);
-	// }
-	// } catch (Exception e) {
-	// throw new ArgeoException("Cannot populate direct members of "
-	// + user, e);
-	// }
-	// }
-
 	@Override
 	protected List<DirectoryGroup> getDirectGroups(User user) {
 		List<DirectoryGroup> directGroups = new ArrayList<DirectoryGroup>();
 		try {
-			String searchFilter = "(&(objectClass=groupOfNames)(member="
-					+ user.getName() + "))";
+			String searchFilter = "(&(" + objectClass + "="
+					+ getGroupObjectClass() + ")(" + getMemberAttributeId()
+					+ "=" + user.getName() + "))";
 
 			SearchControls searchControls = new SearchControls();
 			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-			String searchBase = getGroupsSearchBase();
-			NamingEnumeration<SearchResult> results = initialLdapContext
-					.search(searchBase, searchFilter, searchControls);
+			String searchBase = getBaseDn();
+			NamingEnumeration<SearchResult> results = getLdapContext().search(
+					searchBase, searchFilter, searchControls);
 
 			while (results.hasMoreElements()) {
 				SearchResult searchResult = (SearchResult) results
@@ -274,16 +210,10 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 		}
 	}
 
-	protected String getGroupsSearchBase() {
-		// TODO configure group search base
-		return baseDn;
-	}
-
 	@Override
 	protected void prepare(WorkingCopy wc) {
 		try {
-			initialLdapContext.reconnect(initialLdapContext
-					.getConnectControls());
+			getLdapContext().reconnect(getLdapContext().getConnectControls());
 			// delete
 			for (LdapName dn : wc.getDeletedUsers().keySet()) {
 				if (!entryExists(dn))
@@ -308,7 +238,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	}
 
 	private boolean entryExists(LdapName dn) throws NamingException {
-		return initialLdapContext.getAttributes(dn).size() != 0;
+		return getLdapContext().getAttributes(dn).size() != 0;
 	}
 
 	@Override
@@ -316,17 +246,17 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 		try {
 			// delete
 			for (LdapName dn : wc.getDeletedUsers().keySet()) {
-				initialLdapContext.destroySubcontext(dn);
+				getLdapContext().destroySubcontext(dn);
 			}
 			// add
 			for (LdapName dn : wc.getNewUsers().keySet()) {
 				DirectoryUser user = wc.getNewUsers().get(dn);
-				initialLdapContext.createSubcontext(dn, user.getAttributes());
+				getLdapContext().createSubcontext(dn, user.getAttributes());
 			}
 			// modify
 			for (LdapName dn : wc.getModifiedUsers().keySet()) {
 				Attributes modifiedAttrs = wc.getModifiedUsers().get(dn);
-				initialLdapContext.modifyAttributes(dn,
+				getLdapContext().modifyAttributes(dn,
 						DirContext.REPLACE_ATTRIBUTE, modifiedAttrs);
 			}
 		} catch (NamingException e) {
@@ -336,8 +266,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 
 	@Override
 	protected void rollback(WorkingCopy wc) {
-		// TODO Auto-generated method stub
-		super.rollback(wc);
+		// prepare not impacting
 	}
 
 }

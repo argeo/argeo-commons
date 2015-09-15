@@ -1,7 +1,12 @@
 package org.argeo.cms.internal.kernel;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -10,12 +15,17 @@ import java.util.Set;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
-import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
-import javax.transaction.TransactionSynchronizationRegistry;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.argeo.cms.CmsException;
 import org.argeo.cms.KernelHeader;
 import org.argeo.osgi.useradmin.AbstractUserDirectory;
+import org.argeo.osgi.useradmin.LdapProperties;
+import org.argeo.osgi.useradmin.LdapUserAdmin;
+import org.argeo.osgi.useradmin.LdifUserAdmin;
 import org.argeo.osgi.useradmin.UserAdminAggregator;
 import org.argeo.osgi.useradmin.UserDirectoryException;
 import org.osgi.framework.InvalidSyntaxException;
@@ -25,6 +35,7 @@ import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
 public class NodeUserAdmin implements UserAdmin, UserAdminAggregator {
+	private final static Log log = LogFactory.getLog(NodeUserAdmin.class);
 	final static LdapName ROLES_BASE;
 	static {
 		try {
@@ -38,8 +49,124 @@ public class NodeUserAdmin implements UserAdmin, UserAdminAggregator {
 	private UserAdmin nodeRoles = null;
 	private Map<LdapName, UserAdmin> userAdmins = new HashMap<LdapName, UserAdmin>();
 
-	private TransactionSynchronizationRegistry syncRegistry;
 	private TransactionManager transactionManager;
+
+	public NodeUserAdmin() {
+		File osgiInstanceDir = KernelUtils.getOsgiInstanceDir();
+		File nodeBaseDir = new File(osgiInstanceDir, "node");
+		nodeBaseDir.mkdirs();
+
+		String userAdminUri = KernelUtils
+				.getFrameworkProp(KernelConstants.USERADMIN_URI);
+		if (userAdminUri == null) {
+			String demoBaseDn = "dc=example,dc=com";
+			File businessRolesFile = new File(nodeBaseDir, demoBaseDn + ".ldif");
+			if (!businessRolesFile.exists())
+				try {
+					FileUtils.copyInputStreamToFile(getClass()
+							.getResourceAsStream(demoBaseDn + ".ldif"),
+							businessRolesFile);
+				} catch (IOException e) {
+					throw new CmsException("Cannot copy demo resource", e);
+				}
+			userAdminUri = businessRolesFile.toURI().toString();
+		}
+
+		String[] uris = userAdminUri.split(" ");
+		for (String uri : uris) {
+			URI u;
+			try {
+				u = new URI(uri);
+				if (u.getScheme() == null) {
+					if (uri.startsWith("/"))
+						u = new File(uri).getAbsoluteFile().toURI();
+					else if (!uri.contains("/"))
+						u = new File(nodeBaseDir, uri).getAbsoluteFile()
+								.toURI();
+					else
+						throw new CmsException("Cannot interpret " + uri
+								+ " as an uri");
+				}
+			} catch (URISyntaxException e) {
+				throw new CmsException(
+						"Cannot interpret " + uri + " as an uri", e);
+			}
+			Dictionary<String, ?> properties = LdapProperties.uriAsProperties(u
+					.toString());
+			AbstractUserDirectory businessRoles;
+			if (u.getScheme().startsWith("ldap")) {
+				businessRoles = new LdapUserAdmin(properties);
+			} else {
+				businessRoles = new LdifUserAdmin(properties);
+			}
+			businessRoles.init();
+			addUserAdmin(businessRoles.getBaseDn(), businessRoles);
+			if (log.isDebugEnabled())
+				log.debug("User directory " + businessRoles.getBaseDn() + " ["
+						+ u.getScheme() + "] enabled.");
+		}
+
+		// NOde roles
+		String nodeRolesUri = KernelUtils
+				.getFrameworkProp(KernelConstants.ROLES_URI);
+		String baseNodeRoleDn = KernelHeader.ROLES_BASEDN;
+		if (nodeRolesUri == null) {
+			File nodeRolesFile = new File(nodeBaseDir, baseNodeRoleDn + ".ldif");
+			if (!nodeRolesFile.exists())
+				try {
+					FileUtils.copyInputStreamToFile(getClass()
+							.getResourceAsStream("demo.ldif"), nodeRolesFile);
+				} catch (IOException e) {
+					throw new CmsException("Cannot copy demo resource", e);
+				}
+			nodeRolesUri = nodeRolesFile.toURI().toString();
+		}
+
+		Dictionary<String, ?> nodeRolesProperties = LdapProperties
+				.uriAsProperties(nodeRolesUri);
+		if (!nodeRolesProperties.get(LdapProperties.baseDn.getFullName())
+				.equals(baseNodeRoleDn)) {
+			throw new CmsException("Invalid base dn for node roles");
+			// TODO deal with "mounted" roles with a different baseDN
+		}
+		AbstractUserDirectory nodeRoles;
+		if (nodeRolesUri.startsWith("ldap")) {
+			nodeRoles = new LdapUserAdmin(nodeRolesProperties);
+		} else {
+			nodeRoles = new LdifUserAdmin(nodeRolesProperties);
+		}
+		nodeRoles.setExternalRoles(this);
+		nodeRoles.init();
+		addUserAdmin(baseNodeRoleDn, nodeRoles);
+		if (log.isTraceEnabled())
+			log.trace("Node roles enabled.");
+	}
+
+	String asConfigUris() {
+		StringBuilder buf = new StringBuilder();
+		for (LdapName name : userAdmins.keySet()) {
+			buf.append('/').append(name.toString());
+			if (userAdmins.get(name) instanceof AbstractUserDirectory) {
+				AbstractUserDirectory userDirectory = (AbstractUserDirectory) userAdmins
+						.get(name);
+				if (userDirectory.isReadOnly())
+					buf.append('?').append(LdapProperties.readOnly.name())
+							.append("=true");
+			}
+			buf.append(' ');
+		}
+		return buf.toString();
+	}
+
+	public void destroy() {
+		for (LdapName name : userAdmins.keySet()) {
+			if (userAdmins.get(name) instanceof AbstractUserDirectory) {
+				AbstractUserDirectory userDirectory = (AbstractUserDirectory) userAdmins
+						.get(name);
+				userDirectory.destroy();
+			}
+		}
+	}
 
 	@Override
 	public Role createRole(String name, int type) {
@@ -99,9 +226,6 @@ public class NodeUserAdmin implements UserAdmin, UserAdminAggregator {
 	//
 	@Override
 	public synchronized void addUserAdmin(String baseDn, UserAdmin userAdmin) {
-		if (userAdmin instanceof AbstractUserDirectory)
-			((AbstractUserDirectory) userAdmin).setSyncRegistry(syncRegistry);
-
 		if (baseDn.equals(KernelHeader.ROLES_BASEDN)) {
 			nodeRoles = userAdmin;
 			return;
@@ -132,9 +256,7 @@ public class NodeUserAdmin implements UserAdmin, UserAdminAggregator {
 		if (!userAdmins.containsKey(base))
 			throw new UserDirectoryException("There is no user admin for "
 					+ base);
-		UserAdmin userAdmin = userAdmins.remove(base);
-		if (userAdmin instanceof AbstractUserDirectory)
-			((AbstractUserDirectory) userAdmin).setSyncRegistry(null);
+		userAdmins.remove(base);
 	}
 
 	private UserAdmin findUserAdmin(String name) {
@@ -173,16 +295,4 @@ public class NodeUserAdmin implements UserAdmin, UserAdminAggregator {
 						.setTransactionManager(transactionManager);
 		}
 	}
-
-	public void setSyncRegistry(TransactionSynchronizationRegistry syncRegistry) {
-		this.syncRegistry = syncRegistry;
-		if (nodeRoles instanceof AbstractUserDirectory)
-			((AbstractUserDirectory) nodeRoles).setSyncRegistry(syncRegistry);
-		for (UserAdmin userAdmin : userAdmins.values()) {
-			if (userAdmin instanceof AbstractUserDirectory)
-				((AbstractUserDirectory) userAdmin)
-						.setSyncRegistry(syncRegistry);
-		}
-	}
-
 }
