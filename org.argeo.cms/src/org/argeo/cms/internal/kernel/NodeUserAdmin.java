@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,8 +23,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.KernelHeader;
-import org.argeo.osgi.useradmin.AbstractUserDirectory;
-import org.argeo.osgi.useradmin.LdapProperties;
+import org.argeo.osgi.useradmin.UserDirectory;
+import org.argeo.osgi.useradmin.UserAdminProps;
 import org.argeo.osgi.useradmin.LdapUserAdmin;
 import org.argeo.osgi.useradmin.LdifUserAdmin;
 import org.argeo.osgi.useradmin.UserDirectoryException;
@@ -54,7 +55,7 @@ public class NodeUserAdmin implements UserAdmin {
 		nodeBaseDir.mkdirs();
 
 		String userAdminUri = KernelUtils
-				.getFrameworkProp(KernelConstants.USERADMIN_URI);
+				.getFrameworkProp(KernelConstants.USERADMIN_URIS);
 		if (userAdminUri == null) {
 			String demoBaseDn = "dc=example,dc=com";
 			File businessRolesFile = new File(nodeBaseDir, demoBaseDn + ".ldif");
@@ -88,16 +89,16 @@ public class NodeUserAdmin implements UserAdmin {
 				throw new CmsException(
 						"Cannot interpret " + uri + " as an uri", e);
 			}
-			Dictionary<String, ?> properties = LdapProperties.uriAsProperties(u
+			Dictionary<String, ?> properties = UserAdminProps.uriAsProperties(u
 					.toString());
-			AbstractUserDirectory businessRoles;
+			UserDirectory businessRoles;
 			if (u.getScheme().startsWith("ldap")) {
 				businessRoles = new LdapUserAdmin(properties);
 			} else {
 				businessRoles = new LdifUserAdmin(properties);
 			}
 			businessRoles.init();
-			addUserAdmin(businessRoles.getBaseDn(), businessRoles);
+			addUserAdmin(businessRoles.getBaseDn(), (UserAdmin) businessRoles);
 			if (log.isDebugEnabled())
 				log.debug("User directory " + businessRoles.getBaseDn() + " ["
 						+ u.getScheme() + "] enabled.");
@@ -119,14 +120,14 @@ public class NodeUserAdmin implements UserAdmin {
 			nodeRolesUri = nodeRolesFile.toURI().toString();
 		}
 
-		Dictionary<String, ?> nodeRolesProperties = LdapProperties
+		Dictionary<String, ?> nodeRolesProperties = UserAdminProps
 				.uriAsProperties(nodeRolesUri);
-		if (!nodeRolesProperties.get(LdapProperties.baseDn.getFullName())
+		if (!nodeRolesProperties.get(UserAdminProps.baseDn.getFullName())
 				.equals(baseNodeRoleDn)) {
 			throw new CmsException("Invalid base dn for node roles");
 			// TODO deal with "mounted" roles with a different baseDN
 		}
-		AbstractUserDirectory nodeRoles;
+		UserDirectory nodeRoles;
 		if (nodeRolesUri.startsWith("ldap")) {
 			nodeRoles = new LdapUserAdmin(nodeRolesProperties);
 		} else {
@@ -134,31 +135,33 @@ public class NodeUserAdmin implements UserAdmin {
 		}
 		nodeRoles.setExternalRoles(this);
 		nodeRoles.init();
-		addUserAdmin(baseNodeRoleDn, nodeRoles);
+		addUserAdmin(baseNodeRoleDn, (UserAdmin)nodeRoles);
 		if (log.isTraceEnabled())
 			log.trace("Node roles enabled.");
 	}
 
-	String asConfigUris() {
-		StringBuilder buf = new StringBuilder();
+	Dictionary<String, ?> currentState() {
+		Dictionary<String, Object> res = new Hashtable<String, Object>();
 		for (LdapName name : userAdmins.keySet()) {
-			buf.append('/').append(name.toString());
-			if (userAdmins.get(name) instanceof AbstractUserDirectory) {
-				AbstractUserDirectory userDirectory = (AbstractUserDirectory) userAdmins
+			StringBuilder buf = new StringBuilder();
+			if (userAdmins.get(name) instanceof UserDirectory) {
+				UserDirectory userDirectory = (UserDirectory) userAdmins
 						.get(name);
-				if (userDirectory.isReadOnly())
-					buf.append('?').append(LdapProperties.readOnly.name())
-							.append("=true");
+				String uri = UserAdminProps.propertiesAsUri(
+						userDirectory.getProperties()).toString();
+				res.put(uri, "");
+			} else {
+				buf.append('/').append(name.toString())
+						.append("?readOnly=true");
 			}
-			buf.append(' ');
 		}
-		return buf.toString();
+		return res;
 	}
 
 	public void destroy() {
 		for (LdapName name : userAdmins.keySet()) {
-			if (userAdmins.get(name) instanceof AbstractUserDirectory) {
-				AbstractUserDirectory userDirectory = (AbstractUserDirectory) userAdmins
+			if (userAdmins.get(name) instanceof UserDirectory) {
+				UserDirectory userDirectory = (UserDirectory) userAdmins
 						.get(name);
 				userDirectory.destroy();
 			}
@@ -283,12 +286,12 @@ public class NodeUserAdmin implements UserAdmin {
 	}
 
 	public void setTransactionManager(TransactionManager transactionManager) {
-		if (nodeRoles instanceof AbstractUserDirectory)
-			((AbstractUserDirectory) nodeRoles)
+		if (nodeRoles instanceof UserDirectory)
+			((UserDirectory) nodeRoles)
 					.setTransactionManager(transactionManager);
 		for (UserAdmin userAdmin : userAdmins.values()) {
-			if (userAdmin instanceof AbstractUserDirectory)
-				((AbstractUserDirectory) userAdmin)
+			if (userAdmin instanceof UserDirectory)
+				((UserDirectory) userAdmin)
 						.setTransactionManager(transactionManager);
 		}
 	}

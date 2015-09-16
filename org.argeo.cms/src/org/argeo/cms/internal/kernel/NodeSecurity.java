@@ -101,13 +101,11 @@ class NodeSecurity implements AuthenticationManager {
 	}
 
 	public void publish() {
+		userAdminReg = bundleContext.registerService(UserAdmin.class,
+				userAdmin, userAdmin.currentState());
+		// dummy auth manager, in order to smooth transition from Argeo 1
 		authenticationManagerReg = bundleContext.registerService(
 				AuthenticationManager.class, this, null);
-		Hashtable<String, Object> properties = new Hashtable<String, Object>();
-		// properties.put(KernelConstants.USERADMIN_URI,
-		// userAdmin.asConfigUris());
-		userAdminReg = bundleContext.registerService(UserAdmin.class,
-				userAdmin, properties);
 	}
 
 	void destroy() {

@@ -41,7 +41,7 @@ import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
-public abstract class AbstractUserDirectory implements UserAdmin {
+abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	private final static Log log = LogFactory
 			.getLog(AbstractUserDirectory.class);
 
@@ -72,7 +72,7 @@ public abstract class AbstractUserDirectory implements UserAdmin {
 		// TODO make a copy?
 		this.properties = properties;
 
-		String uriStr = LdapProperties.uri.getValue(properties);
+		String uriStr = UserAdminProps.uri.getValue(properties);
 		if (uriStr == null)
 			uri = null;
 		else
@@ -82,16 +82,16 @@ public abstract class AbstractUserDirectory implements UserAdmin {
 				throw new UserDirectoryException("Badly formatted URI", e);
 			}
 
-		baseDn = LdapProperties.baseDn.getValue(properties).toString();
-		String isReadOnly = LdapProperties.readOnly.getValue(properties);
+		baseDn = UserAdminProps.baseDn.getValue(properties).toString();
+		String isReadOnly = UserAdminProps.readOnly.getValue(properties);
 		if (isReadOnly == null)
 			this.isReadOnly = readOnlyDefault(uri);
 		else
 			this.isReadOnly = new Boolean(isReadOnly);
 
-		this.userObjectClass = LdapProperties.userObjectClass
+		this.userObjectClass = UserAdminProps.userObjectClass
 				.getValue(properties);
-		this.groupObjectClass = LdapProperties.groupObjectClass
+		this.groupObjectClass = UserAdminProps.groupObjectClass
 				.getValue(properties);
 	}
 
@@ -411,7 +411,7 @@ public abstract class AbstractUserDirectory implements UserAdmin {
 		return groupObjectClass;
 	}
 
-	protected Dictionary<String, ?> getProperties() {
+	public Dictionary<String, ?> getProperties() {
 		return properties;
 	}
 
