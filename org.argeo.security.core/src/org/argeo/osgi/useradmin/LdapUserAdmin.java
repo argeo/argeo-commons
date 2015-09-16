@@ -18,6 +18,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapName;
+import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,6 +26,10 @@ import org.argeo.ArgeoException;
 import org.osgi.framework.Filter;
 import org.osgi.service.useradmin.User;
 
+/**
+ * A user admin based on a LDAP server. Requires a {@link TransactionManager}
+ * and an open transaction for write access.
+ */
 public class LdapUserAdmin extends AbstractUserDirectory {
 	private final static Log log = LogFactory.getLog(LdapUserAdmin.class);
 

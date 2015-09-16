@@ -18,16 +18,20 @@ import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
+import javax.transaction.TransactionManager;
 
 import org.apache.commons.io.IOUtils;
 import org.osgi.framework.Filter;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
-/** User admin implementation using LDIF file(s) as backend. */
+/**
+ * A user admin based on a LDIF files. Requires a {@link TransactionManager} and
+ * an open transaction for write access.
+ */
 public class LdifUserAdmin extends AbstractUserDirectory {
-	SortedMap<LdapName, DirectoryUser> users = new TreeMap<LdapName, DirectoryUser>();
-	SortedMap<LdapName, DirectoryGroup> groups = new TreeMap<LdapName, DirectoryGroup>();
+	private SortedMap<LdapName, DirectoryUser> users = new TreeMap<LdapName, DirectoryUser>();
+	private SortedMap<LdapName, DirectoryGroup> groups = new TreeMap<LdapName, DirectoryGroup>();
 
 	private Map<String, Map<String, DirectoryUser>> userIndexes = new LinkedHashMap<String, Map<String, DirectoryUser>>();
 

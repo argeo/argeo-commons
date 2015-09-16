@@ -17,7 +17,7 @@ import org.apache.commons.codec.binary.Base64;
 class LdifWriter {
 	private final Writer writer;
 
-	public LdifWriter(OutputStream out) {
+	LdifWriter(OutputStream out) {
 		this.writer = new OutputStreamWriter(out);
 	}
 

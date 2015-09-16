@@ -68,7 +68,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	private ThreadLocal<WorkingCopy> workingCopy = new ThreadLocal<AbstractUserDirectory.WorkingCopy>();
 	private Xid editingTransactionXid = null;
 
-	public AbstractUserDirectory(Dictionary<String, ?> properties) {
+	AbstractUserDirectory(Dictionary<String, ?> properties) {
 		// TODO make a copy?
 		this.properties = properties;
 

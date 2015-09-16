@@ -14,6 +14,7 @@ import java.util.Map;
 
 import javax.naming.Context;
 
+/** Properties used to configure user admins. */
 public enum UserAdminConf {
 	/** Base DN */
 	baseDn("dc=example,dc=com"),
@@ -49,6 +50,7 @@ public enum UserAdminConf {
 		return def;
 	}
 
+	/** For use as Java property. */
 	public String property() {
 		return getPrefix() + name();
 	}

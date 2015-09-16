@@ -22,6 +22,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.argeo.osgi.useradmin.AbstractUserDirectory.WorkingCopy;
 
+/** Directory user implementation */
 class LdifUser implements DirectoryUser {
 	private final AbstractUserDirectory userAdmin;
 

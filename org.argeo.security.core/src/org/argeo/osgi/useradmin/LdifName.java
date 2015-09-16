@@ -15,6 +15,7 @@ public enum LdifName {
 
 	public final static String PREFIX = "ldap:";
 
+	/** For use as XML name. */
 	public String property() {
 		return PREFIX + name();
 	}
