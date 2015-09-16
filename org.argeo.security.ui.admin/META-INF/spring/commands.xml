@@ -5,31 +5,31 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!-- USERS & GROUPS CRUDS -->
-	<bean id="newUser" class="org.argeo.security.ui.admin.commands.NewUser"
+	<bean id="newUser" class="org.argeo.security.ui.admin.internal.commands.NewUser"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
 
-	<bean id="newGroup" class="org.argeo.security.ui.admin.commands.NewGroup"
+	<bean id="newGroup" class="org.argeo.security.ui.admin.internal.commands.NewGroup"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
-	<bean id="deleteUsers" class="org.argeo.security.ui.admin.commands.DeleteUsers"
+	<bean id="deleteUsers" class="org.argeo.security.ui.admin.internal.commands.DeleteUsers"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
-	<bean id="deleteGroups" class="org.argeo.security.ui.admin.commands.DeleteGroups"
+	<bean id="deleteGroups" class="org.argeo.security.ui.admin.internal.commands.DeleteGroups"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
 
-	<!-- <bean id="userBatchUpdate" class="org.argeo.security.ui.admin.commands.UserBatchUpdate" 
+	<!-- <bean id="userBatchUpdate" class="org.argeo.security.ui.admin.internal.commands.UserBatchUpdate" 
 		scope="prototype"> <property name="repository" ref="nodeRepository" /> <property 
 		name="userAdminService" ref="userAdminService" /> </bean> -->
 
 	<!-- TRANSACTIONS -->
 	<bean id="userTransactionHandler"
-		class="org.argeo.security.ui.admin.commands.UserTransactionHandler"
+		class="org.argeo.security.ui.admin.internal.commands.UserTransactionHandler"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.ui.admin.editors;
+package org.argeo.security.ui.admin.internal.parts;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,13 +23,13 @@ import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.security.ui.admin.internal.ColumnDefinition;
-import org.argeo.security.ui.admin.internal.CommonNameLP;
-import org.argeo.security.ui.admin.internal.RoleIconLP;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
-import org.argeo.security.ui.admin.internal.UserNameLP;
-import org.argeo.security.ui.admin.internal.UserTableDefaultDClickListener;
 import org.argeo.security.ui.admin.internal.UserTableViewer;
+import org.argeo.security.ui.admin.internal.providers.CommonNameLP;
+import org.argeo.security.ui.admin.internal.providers.RoleIconLP;
+import org.argeo.security.ui.admin.internal.providers.UserNameLP;
+import org.argeo.security.ui.admin.internal.providers.UserTableDefaultDClickListener;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerDropAdapter;

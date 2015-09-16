@@ -1,8 +1,10 @@
-package org.argeo.security.ui.admin.internal;
+package org.argeo.security.ui.admin.internal.providers;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.security.ui.admin.internal.UiAdminUtils;
+import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.SWT;

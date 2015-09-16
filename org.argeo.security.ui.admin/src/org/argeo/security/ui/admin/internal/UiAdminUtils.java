@@ -10,6 +10,7 @@ import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
 import org.argeo.ArgeoException;
+import org.argeo.security.ui.admin.internal.providers.UserTransactionProvider;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.ISourceProviderService;

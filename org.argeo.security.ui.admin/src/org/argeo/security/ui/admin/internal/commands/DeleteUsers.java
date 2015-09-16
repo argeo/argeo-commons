@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.ui.admin.commands;
+package org.argeo.security.ui.admin.internal.commands;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,14 +29,14 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
-import org.osgi.service.useradmin.Group;
+import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.service.useradmin.UserAdminEvent;
 
-/** Deletes the selected groups */
-public class DeleteGroups extends AbstractHandler {
+/** Deletes the selected users */
+public class DeleteUsers extends AbstractHandler {
 	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
-			+ ".deleteGroups";
+			+ ".deleteUsers";
 
 	/* DEPENDENCY INJECTION */
 	private UserAdminWrapper userAdminWrapper;
@@ -47,29 +47,36 @@ public class DeleteGroups extends AbstractHandler {
 		if (selection.isEmpty())
 			return null;
 
-		List<Group> groups = new ArrayList<Group>();
-		Iterator<Group> it = ((IStructuredSelection) selection).iterator();
+		Iterator<User> it = ((IStructuredSelection) selection).iterator();
+		List<User> users = new ArrayList<User>();
 		StringBuilder builder = new StringBuilder();
+
 		while (it.hasNext()) {
-			Group currGroup = it.next();
-			String groupName = UiAdminUtils.getUsername(currGroup);
-			// TODO add checks
-			builder.append(groupName).append("; ");
-			groups.add(currGroup);
+			User currUser = it.next();
+			String userName = UiAdminUtils.getUsername(currUser);
+			if (UiAdminUtils.isCurrentUser(currUser)) {
+				MessageDialog.openError(HandlerUtil.getActiveShell(event),
+						"Deletion forbidden",
+						"You cannot delete your own user this way.");
+				return null;
+			}
+			builder.append(userName).append("; ");
+			users.add(currUser);
 		}
 
-		if (!MessageDialog.openQuestion(HandlerUtil.getActiveShell(event),
-				"Delete Groups",
-				"Are you sure that you " + "want to delete these groups?\n"
+		if (!MessageDialog.openQuestion(
+				HandlerUtil.getActiveShell(event),
+				"Delete Users",
+				"Are you sure that you want to delete these users?\n"
 						+ builder.substring(0, builder.length() - 2)))
 			return null;
 
 		userAdminWrapper.beginTransactionIfNeeded();
 		UserAdmin userAdmin = userAdminWrapper.getUserAdmin();
-		for (Group group : groups) {
-			userAdmin.removeRole(group.getName());
+		for (User user : users) {
+			userAdmin.removeRole(user.getName());
 			userAdminWrapper.notifyListeners(new UserAdminEvent(null,
-					UserAdminEvent.ROLE_REMOVED, group));
+					UserAdminEvent.ROLE_REMOVED, user));
 		}
 		return null;
 	}

@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.ui.admin.editors;
+package org.argeo.security.ui.admin.internal.parts;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPersistableElement;
 
-/** Editor input for an Argeo user. */
-public class ArgeoUserEditorInput implements IEditorInput {
+/**
+ * Editor input for an user defined by unique name (usually a distinguished
+ * name).
+ */
+public class UserEditorInput implements IEditorInput {
 	private final String username;
 
-	public ArgeoUserEditorInput(String username) {
+	public UserEditorInput(String username) {
 		this.username = username;
 	}
 
@@ -52,11 +55,11 @@ public class ArgeoUserEditorInput implements IEditorInput {
 	}
 
 	public boolean equals(Object obj) {
-		if (!(obj instanceof ArgeoUserEditorInput))
+		if (!(obj instanceof UserEditorInput))
 			return false;
-		if (((ArgeoUserEditorInput) obj).getUsername() == null)
+		if (((UserEditorInput) obj).getUsername() == null)
 			return false;
-		return ((ArgeoUserEditorInput) obj).getUsername().equals(username);
+		return ((UserEditorInput) obj).getUsername().equals(username);
 	}
 
 	public String getUsername() {

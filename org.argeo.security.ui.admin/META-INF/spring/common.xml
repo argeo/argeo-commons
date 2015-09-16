@@ -5,7 +5,7 @@
 
 
 	<bean id="userTransactionProvider"
-		class="org.argeo.security.ui.admin.internal.UserTransactionProvider"
+		class="org.argeo.security.ui.admin.internal.providers.UserTransactionProvider"
 		scope="singleton" lazy-init="false">
 		<property name="userTransaction" ref="userTransaction" />
 	</bean>

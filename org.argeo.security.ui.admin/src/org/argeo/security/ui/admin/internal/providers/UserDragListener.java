@@ -1,4 +1,4 @@
-package org.argeo.security.ui.admin.internal;
+package org.argeo.security.ui.admin.internal.providers;
 
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.Viewer;

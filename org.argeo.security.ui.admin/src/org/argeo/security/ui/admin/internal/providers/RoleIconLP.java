@@ -1,4 +1,4 @@
-package org.argeo.security.ui.admin.internal;
+package org.argeo.security.ui.admin.internal.providers;
 
 import org.argeo.security.ui.admin.SecurityAdminImages;
 import org.eclipse.swt.graphics.Image;

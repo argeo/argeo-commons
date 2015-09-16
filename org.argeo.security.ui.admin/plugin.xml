@@ -79,7 +79,7 @@
 
  	  <!-- Force the refresh when the various listener are not enough -->
       <command
-            defaultHandler="org.argeo.security.ui.admin.commands.ForceRefresh"
+            defaultHandler="org.argeo.security.ui.admin.internal.commands.ForceRefresh"
             id="org.argeo.security.ui.admin.forceRefresh"
             name="Force Refresh">
       </command>
@@ -205,7 +205,7 @@
             provider="org.argeo.eclipse.spring.SpringExtensionFactory" >
 	   	
 <!--	   	<sourceProvider
-	        provider="org.argeo.security.ui.admin.internal.UserTransactionProvider">
+	        provider="org.argeo.security.ui.admin.internal.providers.UserTransactionProvider">
 -->	     	<variable
 	            name="org.argeo.security.ui.admin.userTransactionState"
 	            priorityLevel="workbench">

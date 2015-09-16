@@ -13,31 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.ui.admin.commands;
+package org.argeo.security.ui.admin.internal.commands;
 
-import org.argeo.security.ui.admin.internal.parts.GroupsView;
-import org.argeo.security.ui.admin.internal.parts.UsersView;
+import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-/** Retrieve the active view or editor and call forceRefresh method if defined */
-public class ForceRefresh extends AbstractHandler {
+/** Save the currently edited Argeo user. */
+public class SaveArgeoUser extends AbstractHandler {
+	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
+			+ ".saveArgeoUser";
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		IWorkbenchWindow iww = HandlerUtil.getActiveWorkbenchWindow(event);
-		if (iww == null)
-			return null;
-		IWorkbenchPage activePage = iww.getActivePage();
-		IWorkbenchPart part = activePage.getActivePart();
-		if (part instanceof UsersView)
-			((UsersView) part).refresh();
-		else if (part instanceof GroupsView)
-			((GroupsView) part).refresh();
+		try {
+			IWorkbenchPart iwp = HandlerUtil.getActiveWorkbenchWindow(event)
+					.getActivePage().getActivePart();
+
+			if (!(iwp instanceof IEditorPart))
+				return null;
+			IEditorPart editor = (IEditorPart) iwp;
+			editor.doSave(null);
+		} catch (Exception e) {
+			MessageDialog.openError(Display.getDefault().getActiveShell(),
+					"Error", "Cannot save user: " + e.getMessage());
+		}
 		return null;
 	}
 }

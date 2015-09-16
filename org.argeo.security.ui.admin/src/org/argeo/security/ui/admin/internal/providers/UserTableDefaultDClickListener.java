@@ -1,9 +1,9 @@
-package org.argeo.security.ui.admin.internal;
+package org.argeo.security.ui.admin.internal.providers;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
-import org.argeo.security.ui.admin.editors.UserEditor;
-import org.argeo.security.ui.admin.editors.UserEditorInput;
+import org.argeo.security.ui.admin.internal.parts.UserEditor;
+import org.argeo.security.ui.admin.internal.parts.UserEditorInput;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;

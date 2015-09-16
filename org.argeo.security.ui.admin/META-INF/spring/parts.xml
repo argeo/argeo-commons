@@ -6,7 +6,7 @@
 
 
 	<!-- Editors -->
-	<bean id="userEditor" class="org.argeo.security.ui.admin.editors.UserEditor"
+	<bean id="userEditor" class="org.argeo.security.ui.admin.internal.parts.UserEditor"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>

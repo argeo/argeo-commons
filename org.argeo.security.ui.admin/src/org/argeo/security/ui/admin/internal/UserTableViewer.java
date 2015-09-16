@@ -6,6 +6,7 @@ import java.util.List;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.utils.ViewerUtils;
+import org.argeo.security.ui.admin.internal.providers.UserAdminAbstractLP;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
