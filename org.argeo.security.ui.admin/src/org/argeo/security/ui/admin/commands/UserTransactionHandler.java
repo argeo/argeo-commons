@@ -21,9 +21,11 @@ import javax.transaction.UserTransaction;
 import org.argeo.ArgeoException;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
+import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.osgi.service.useradmin.UserAdminEvent;
 
 /** Manage the transaction that is bound to the current perspective */
 public class UserTransactionHandler extends AbstractHandler {
@@ -36,11 +38,12 @@ public class UserTransactionHandler extends AbstractHandler {
 	public final static String TRANSACTION_COMMIT = "transaction.commit";
 	public final static String TRANSACTION_ROLLBACK = "transaction.rollback";
 
-	private UserTransaction userTransaction;
+	/* DEPENDENCY INJECTION */
+	private UserAdminWrapper userAdminWrapper;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-
 		String commandId = event.getParameter(PARAM_COMMAND_ID);
+		UserTransaction userTransaction = userAdminWrapper.getUserTransaction();
 		try {
 			if (TRANSACTION_BEGIN.equals(commandId)) {
 				if (userTransaction.getStatus() != Status.STATUS_NO_TRANSACTION)
@@ -55,8 +58,11 @@ public class UserTransactionHandler extends AbstractHandler {
 			} else if (TRANSACTION_ROLLBACK.equals(commandId)) {
 				if (userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION)
 					throw new ArgeoException("No transaction to rollback.");
-				else
+				else {
 					userTransaction.rollback();
+					userAdminWrapper.notifyListeners(new UserAdminEvent(null,
+							UserAdminEvent.ROLE_CHANGED, null));
+				}
 			}
 			UiAdminUtils.notifyTransactionStateChange(userTransaction);
 		} catch (ArgeoException e) {
@@ -65,20 +71,11 @@ public class UserTransactionHandler extends AbstractHandler {
 			throw new ArgeoException("Unable to call " + commandId + " on "
 					+ userTransaction, e);
 		}
-		//
-		// IWorkbenchWindow iww = HandlerUtil.getActiveWorkbenchWindow(event);
-		// if (iww == null)
-		// return null;
-		// IWorkbenchPage activePage = iww.getActivePage();
-		// IWorkbenchPart part = activePage.getActivePart();
-		// if (part instanceof UsersView)
-		// ((UsersView) part).refresh();
-		// else if (part instanceof GroupsView)
-		// ((GroupsView) part).refresh();
 		return null;
 	}
 
-	public void setUserTransaction(UserTransaction userTransaction) {
-		this.userTransaction = userTransaction;
+	/* DEPENDENCY INJECTION */
+	public void setUserAdminWrapper(UserAdminWrapper userAdminWrapper) {
+		this.userAdminWrapper = userAdminWrapper;
 	}
 }

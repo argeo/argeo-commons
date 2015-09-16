@@ -17,19 +17,16 @@ package org.argeo.security.ui.admin.commands;
 
 import java.util.Dictionary;
 
-import javax.transaction.UserTransaction;
-
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
-import org.argeo.security.ui.admin.views.GroupsView;
+import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
@@ -41,20 +38,19 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.UserAdmin;
+import org.osgi.service.useradmin.UserAdminEvent;
 
 /** Create a new group. */
 public class NewGroup extends AbstractHandler {
 	public final static String ID = SecurityAdminPlugin.PLUGIN_ID + ".newGroup";
 
+	/* DEPENDENCY INJECTION */
+	private UserAdminWrapper userAdminWrapper;
 	private UserAdmin userAdmin;
-	private UserTransaction userTransaction;
 
 	// TODO implement a dynamic choice of the base dn
 	private String getDn(String cn) {
@@ -66,21 +62,8 @@ public class NewGroup extends AbstractHandler {
 		WizardDialog dialog = new WizardDialog(
 				HandlerUtil.getActiveShell(event), newGroupWizard);
 		dialog.setTitle("Create a new group");
-
-		// Force refresh until the listener are implemented
-		if (Window.OK == dialog.open())
-			forceRefresh(event);
+		dialog.open();
 		return null;
-	}
-
-	private void forceRefresh(ExecutionEvent event) {
-		IWorkbenchWindow iww = HandlerUtil.getActiveWorkbenchWindow(event);
-		if (iww == null)
-			return;
-		IWorkbenchPage activePage = iww.getActivePage();
-		IWorkbenchPart part = activePage.getActivePart();
-		if (part instanceof GroupsView)
-			((GroupsView) part).refresh();
 	}
 
 	private class NewGroupWizard extends Wizard {
@@ -110,13 +93,15 @@ public class NewGroup extends AbstractHandler {
 				return false;
 			String commonName = commonNameTxt.getText();
 			try {
-				UiAdminUtils.beginTransactionIfNeeded(userTransaction);
-				Group user = (Group) userAdmin.createRole(getDn(commonName),
+				userAdminWrapper.beginTransactionIfNeeded();
+				Group group = (Group) userAdmin.createRole(getDn(commonName),
 						Role.GROUP);
-				Dictionary props = user.getProperties();
+				Dictionary props = group.getProperties();
 				String descStr = descriptionTxt.getText();
 				if (UiAdminUtils.notNull(descStr))
 					props.put(UserAdminConstants.KEY_DESC, descStr);
+				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
+						UserAdminEvent.ROLE_CREATED, group));
 				return true;
 			} catch (Exception e) {
 				ErrorFeedback.show("Cannot create new group " + commonName, e);
@@ -208,11 +193,8 @@ public class NewGroup extends AbstractHandler {
 	}
 
 	/* DEPENDENCY INJECTION */
-	public void setUserAdmin(UserAdmin userAdmin) {
-		this.userAdmin = userAdmin;
-	}
-
-	public void setUserTransaction(UserTransaction userTransaction) {
-		this.userTransaction = userTransaction;
+	public void setUserAdminWrapper(UserAdminWrapper userAdminWrapper) {
+		this.userAdminWrapper = userAdminWrapper;
+		this.userAdmin = userAdminWrapper.getUserAdmin();
 	}
 }

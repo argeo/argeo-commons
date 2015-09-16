@@ -15,8 +15,8 @@
  */
 package org.argeo.security.ui.admin.commands;
 
-import org.argeo.security.ui.admin.views.GroupsView;
-import org.argeo.security.ui.admin.views.UsersView;
+import org.argeo.security.ui.admin.internal.parts.GroupsView;
+import org.argeo.security.ui.admin.internal.parts.UsersView;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;

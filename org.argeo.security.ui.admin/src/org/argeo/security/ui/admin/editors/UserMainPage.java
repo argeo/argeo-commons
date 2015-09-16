@@ -26,6 +26,7 @@ import org.argeo.security.ui.admin.internal.ColumnDefinition;
 import org.argeo.security.ui.admin.internal.CommonNameLP;
 import org.argeo.security.ui.admin.internal.RoleIconLP;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
+import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.UserNameLP;
 import org.argeo.security.ui.admin.internal.UserTableDefaultDClickListener;
 import org.argeo.security.ui.admin.internal.UserTableViewer;
@@ -57,6 +58,7 @@ import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
+import org.osgi.service.useradmin.UserAdminEvent;
 
 /** Display/edit the properties common to all users */
 public class UserMainPage extends FormPage implements ArgeoNames {
@@ -65,17 +67,17 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 	// private final static Log log = LogFactory.getLog(UserMainPage.class);
 
 	private final UserEditor editor;
-	private UserAdmin userAdmin;
+	private UserAdminWrapper userAdminWrapper;
 
 	private char[] newPassword;
 
 	// Local configuration
 	private final int PRE_TITLE_INDENT = 10;
 
-	public UserMainPage(FormEditor editor, UserAdmin userAdmin) {
+	public UserMainPage(FormEditor editor, UserAdminWrapper userAdminWrapper) {
 		super(editor, ID, "Main");
 		this.editor = (UserEditor) editor;
-		this.userAdmin = userAdmin;
+		this.userAdminWrapper = userAdminWrapper;
 	}
 
 	public String getNewPassword() {
@@ -232,7 +234,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 
 		// Create and configure the table
 		userTableViewerCmp = new MyUserTableViewer(body, SWT.MULTI
-				| SWT.H_SCROLL | SWT.V_SCROLL, userAdmin);
+				| SWT.H_SCROLL | SWT.V_SCROLL, userAdminWrapper.getUserAdmin());
 
 		userTableViewerCmp.setColumnDefinitions(columnDefs);
 		userTableViewerCmp.populate(true, false);
@@ -250,7 +252,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		int operations = DND.DROP_COPY | DND.DROP_MOVE;
 		Transfer[] tt = new Transfer[] { TextTransfer.getInstance() };
 		userViewer.addDropSupport(operations, tt, new GroupDropListener(
-				userViewer, userAdmin, editor.getDisplayedUser()));
+				userViewer, userAdminWrapper.getUserAdmin(), editor.getDisplayedUser()));
 
 	}
 
@@ -300,11 +302,11 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 			// TODO this check should be done before.
 			if (role.getType() == Role.GROUP) {
 				// TODO check if the user is already member of this group
-				// we expect here that there is already a begun transaction
-				// TODO implement the dirty state
-				editor.beginTransactionIfNeeded();
+				userAdminWrapper.beginTransactionIfNeeded();
 				Group group = (Group) role;
 				group.addMember(myUser);
+				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
+						UserAdminEvent.ROLE_CHANGED, group));
 			}
 			super.drop(event);
 		}

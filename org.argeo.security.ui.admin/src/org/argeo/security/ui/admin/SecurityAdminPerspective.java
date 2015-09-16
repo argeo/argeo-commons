@@ -15,8 +15,8 @@
  */
 package org.argeo.security.ui.admin;
 
-import org.argeo.security.ui.admin.views.GroupsView;
-import org.argeo.security.ui.admin.views.UsersView;
+import org.argeo.security.ui.admin.internal.parts.GroupsView;
+import org.argeo.security.ui.admin.internal.parts.UsersView;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;

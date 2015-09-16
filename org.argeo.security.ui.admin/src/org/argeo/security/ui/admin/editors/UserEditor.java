@@ -18,12 +18,10 @@ package org.argeo.security.ui.admin.editors;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.transaction.UserTransaction;
-
 import org.argeo.ArgeoException;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
-import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
+import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
@@ -33,6 +31,7 @@ import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
+import org.osgi.service.useradmin.UserAdminEvent;
 
 /** Editor for a user, might be a user or a group. */
 public class UserEditor extends FormEditor implements UserAdminConstants {
@@ -42,8 +41,8 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 			+ ".userEditor";
 
 	/* DEPENDENCY INJECTION */
+	private UserAdminWrapper userAdminWrapper;
 	private UserAdmin userAdmin;
-	private UserTransaction userTransaction;
 
 	// Context
 	private User user;
@@ -101,9 +100,9 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 	protected void addPages() {
 		try {
 			if (user.getType() == Role.GROUP)
-				addPage(new GroupMainPage(this, userAdmin));
+				addPage(new GroupMainPage(this, userAdminWrapper));
 			else
-				addPage(new UserMainPage(this, userAdmin));
+				addPage(new UserMainPage(this, userAdminWrapper));
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot add pages", e);
 		}
@@ -117,10 +116,6 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 			return "";
 	}
 
-	protected void beginTransactionIfNeeded() {
-		UiAdminUtils.beginTransactionIfNeeded(userTransaction);
-	}
-
 	/**
 	 * Updates the property in the working copy. The transaction must be
 	 * explicitly committed to persist the update.
@@ -132,15 +127,11 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		UiAdminUtils.beginTransactionIfNeeded(userTransaction);
+		userAdminWrapper.beginTransactionIfNeeded();
 		commitPages(true);
 		firePropertyChange(PROP_DIRTY);
-		// FIXME transaction should be managed at a higher level
-		// try {
-		// userTransaction.commit();
-		// } catch (Exception e) {
-		// throw new ArgeoException("Could not save user editor", e);
-		// }
+		userAdminWrapper.notifyListeners(new UserAdminEvent(null,
+				UserAdminEvent.ROLE_REMOVED, user));
 	}
 
 	@Override
@@ -162,12 +153,8 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 	}
 
 	/* DEPENDENCY INJECTION */
-	public void setUserAdmin(UserAdmin userAdmin) {
-		this.userAdmin = userAdmin;
+	public void setUserAdminWrapper(UserAdminWrapper userAdminWrapper) {
+		this.userAdminWrapper = userAdminWrapper;
+		this.userAdmin = userAdminWrapper.getUserAdmin();
 	}
-
-	public void setUserTransaction(UserTransaction userTransaction) {
-		this.userTransaction = userTransaction;
-	}
-
 }

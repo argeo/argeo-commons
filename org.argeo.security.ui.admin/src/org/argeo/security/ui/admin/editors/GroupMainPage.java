@@ -28,6 +28,7 @@ import org.argeo.security.ui.admin.internal.CommonNameLP;
 import org.argeo.security.ui.admin.internal.MailLP;
 import org.argeo.security.ui.admin.internal.RoleIconLP;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
+import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.UserNameLP;
 import org.argeo.security.ui.admin.internal.UserTableDefaultDClickListener;
 import org.argeo.security.ui.admin.internal.UserTableViewer;
@@ -59,21 +60,22 @@ import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
+import org.osgi.service.useradmin.UserAdminEvent;
 
 /** Display/edit main properties of a given group */
 public class GroupMainPage extends FormPage implements ArgeoNames {
 	final static String ID = "GroupEditor.mainPage";
 
 	private final UserEditor editor;
-	private UserAdmin userAdmin;
+	private UserAdminWrapper userAdminWrapper;
 
 	// Local configuration
 	private final int PRE_TITLE_INDENT = 10;
 
-	public GroupMainPage(FormEditor editor, UserAdmin userAdmin) {
+	public GroupMainPage(FormEditor editor, UserAdminWrapper userAdminWrapper) {
 		super(editor, ID, "Main");
 		this.editor = (UserEditor) editor;
-		this.userAdmin = userAdmin;
+		this.userAdminWrapper = userAdminWrapper;
 	}
 
 	protected void createFormContent(final IManagedForm mf) {
@@ -160,7 +162,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 
 		// Create and configure the table
 		userTableViewerCmp = new MyUserTableViewer(parent, SWT.MULTI
-				| SWT.H_SCROLL | SWT.V_SCROLL, userAdmin);
+				| SWT.H_SCROLL | SWT.V_SCROLL, userAdminWrapper.getUserAdmin());
 
 		userTableViewerCmp.setColumnDefinitions(columnDefs);
 		userTableViewerCmp.populate(true, false);
@@ -177,8 +179,9 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		// Drag and drop
 		int operations = DND.DROP_COPY | DND.DROP_MOVE;
 		Transfer[] tt = new Transfer[] { TextTransfer.getInstance() };
-		userViewer.addDropSupport(operations, tt, new GroupDropListener(
-				userViewer, userAdmin, (Group) editor.getDisplayedUser()));
+		userViewer.addDropSupport(operations, tt,
+				new GroupDropListener(userViewer, userAdminWrapper,
+						(Group) editor.getDisplayedUser()));
 	}
 
 	private class MyUserTableViewer extends UserTableViewer {
@@ -213,12 +216,13 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	private class GroupDropListener extends ViewerDropAdapter {
 		private static final long serialVersionUID = 2893468717831451621L;
 
-		private final UserAdmin myUserAdmin;
+		private final UserAdminWrapper userAdminWrapper;
 		private final Group myGroup;
 
-		public GroupDropListener(Viewer viewer, UserAdmin userAdmin, Group group) {
+		public GroupDropListener(Viewer viewer,
+				UserAdminWrapper userAdminWrapper, Group group) {
 			super(viewer);
-			this.myUserAdmin = userAdmin;
+			this.userAdminWrapper = userAdminWrapper;
 			this.myGroup = group;
 		}
 
@@ -233,23 +237,24 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 
 		@Override
 		public void drop(DropTargetEvent event) {
+			// TODO Is there an opportunity to perform ceck before?
+
 			String newUserName = (String) event.data;
+			UserAdmin myUserAdmin = userAdminWrapper.getUserAdmin();
 			Role role = myUserAdmin.getRole(newUserName);
-			// TODO this check should be done before.
 			if (role.getType() == Role.USER) {
 				// TODO check if the user is already member of this group
-				// we expect here that there is already a begun transaction
-				// TODO implement the dirty state
-				editor.beginTransactionIfNeeded();
+				userAdminWrapper.beginTransactionIfNeeded();
 				User user = (User) role;
 				myGroup.addMember(user);
+				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
+						UserAdminEvent.ROLE_CHANGED, myGroup));
 			} else if (role.getType() == Role.GROUP) {
 				Group newGroup = (Group) role;
 
 				Shell shell = getViewer().getControl().getShell();
 				// Sanity checks
 				if (myGroup == newGroup) { // Equality
-
 					MessageDialog.openError(shell, "Forbidden addition ",
 							"A group cannot be a member of itself.");
 					return;
@@ -274,9 +279,11 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 					return;
 				}
 
-				editor.beginTransactionIfNeeded();
+				userAdminWrapper.beginTransactionIfNeeded();
 				// TODO implement the dirty state
 				myGroup.addMember(newGroup);
+				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
+						UserAdminEvent.ROLE_CHANGED, myGroup));
 			}
 			super.drop(event);
 		}

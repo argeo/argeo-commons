@@ -7,41 +7,30 @@
 	<!-- USERS & GROUPS CRUDS -->
 	<bean id="newUser" class="org.argeo.security.ui.admin.commands.NewUser"
 		scope="prototype">
-		<property name="userAdmin" ref="userAdmin" />
-		<property name="userTransaction" ref="userTransaction" />
+		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
 
 	<bean id="newGroup" class="org.argeo.security.ui.admin.commands.NewGroup"
 		scope="prototype">
-		<property name="userAdmin" ref="userAdmin" />
-		<property name="userTransaction" ref="userTransaction" />
+		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
 	<bean id="deleteUsers" class="org.argeo.security.ui.admin.commands.DeleteUsers"
 		scope="prototype">
-		<property name="userAdmin" ref="userAdmin" />
-		<property name="userTransaction" ref="userTransaction" />
+		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
 	<bean id="deleteGroups" class="org.argeo.security.ui.admin.commands.DeleteGroups"
 		scope="prototype">
-		<property name="userAdmin" ref="userAdmin" />
-		<property name="userTransaction" ref="userTransaction" />
+		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
 
 	<!-- <bean id="userBatchUpdate" class="org.argeo.security.ui.admin.commands.UserBatchUpdate" 
 		scope="prototype"> <property name="repository" ref="nodeRepository" /> <property 
 		name="userAdminService" ref="userAdminService" /> </bean> -->
-	<!-- ROLES -->
-	<!-- <bean id="refreshRoles" class="org.argeo.security.ui.admin.commands.RefreshRoles" 
-		scope="prototype"> </bean> <bean id="addRole" class="org.argeo.security.ui.admin.commands.AddRole" 
-		scope="prototype"> <property name="userAdminService" ref="userAdminService" 
-		/> </bean> <bean id="deleteRole" class="org.argeo.security.ui.admin.commands.DeleteRole" 
-		scope="prototype"> <property name="userAdminService" ref="userAdminService" 
-		/> </bean> -->
 
 	<!-- TRANSACTIONS -->
 	<bean id="userTransactionHandler"
 		class="org.argeo.security.ui.admin.commands.UserTransactionHandler"
 		scope="prototype">
-		<property name="userTransaction" ref="userTransaction" />
+		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
 </beans>

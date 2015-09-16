@@ -8,11 +8,17 @@
 	<!-- Editors -->
 	<bean id="userEditor" class="org.argeo.security.ui.admin.editors.UserEditor"
 		scope="prototype">
-		<property name="userAdmin" ref="userAdmin" />
-		<property name="userTransaction" ref="userTransaction" />
+		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
 
-	<!-- <bean id="groupEditor" class="org.argeo.security.ui.admin.editors.GroupEditor" 
-		scope="prototype"> <property name="userAdmin" ref="userAdmin" /> </bean> -->
-	<!-- LEGACY -->
+	<!-- Views -->
+	<bean id="usersView" class="org.argeo.security.ui.admin.internal.parts.UsersView"
+		scope="prototype">
+		<property name="userAdminWrapper" ref="userAdminWrapper" />
+	</bean>
+	<bean id="groupsView" class="org.argeo.security.ui.admin.internal.parts.GroupsView"
+		scope="prototype">
+		<property name="userAdminWrapper" ref="userAdminWrapper" />
+	</bean>
+	
 </beans>

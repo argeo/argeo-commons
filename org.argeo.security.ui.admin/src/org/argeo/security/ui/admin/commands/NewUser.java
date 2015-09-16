@@ -17,8 +17,6 @@ package org.argeo.security.ui.admin.commands;
 
 import java.util.Dictionary;
 
-import javax.transaction.UserTransaction;
-
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.jcr.ArgeoNames;
@@ -26,11 +24,10 @@ import org.argeo.security.UserAdminService;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
-import org.argeo.security.ui.admin.views.UsersView;
+import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
@@ -40,13 +37,10 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
-import org.osgi.service.useradmin.UserAdmin;
+import org.osgi.service.useradmin.UserAdminEvent;
 
 /** Open a wizard that enables creation of a new user. */
 public class NewUser extends AbstractHandler {
@@ -54,8 +48,7 @@ public class NewUser extends AbstractHandler {
 	public final static String ID = SecurityAdminPlugin.PLUGIN_ID + ".newUser";
 
 	/* DEPENDENCY INJECTION */
-	private UserAdmin userAdmin;
-	private UserTransaction userTransaction;
+	private UserAdminWrapper userAdminWrapper;
 
 	// TODO implement a dynamic choice of the base dn
 	private String getDn(String uid) {
@@ -67,21 +60,23 @@ public class NewUser extends AbstractHandler {
 		WizardDialog dialog = new WizardDialog(
 				HandlerUtil.getActiveShell(event), newUserWizard);
 
-		// Force refresh until the listener are implemented
-		if (Window.OK == dialog.open())
-			forceRefresh(event);
+		dialog.open();
+
+		// // Force refresh until the listener are implemented
+		// if (Window.OK == dialog.open())
+		// forceRefresh(event);
 		return null;
 	}
 
-	private void forceRefresh(ExecutionEvent event) {
-		IWorkbenchWindow iww = HandlerUtil.getActiveWorkbenchWindow(event);
-		if (iww == null)
-			return;
-		IWorkbenchPage activePage = iww.getActivePage();
-		IWorkbenchPart part = activePage.getActivePart();
-		if (part instanceof UsersView)
-			((UsersView) part).refresh();
-	}
+	// private void forceRefresh(ExecutionEvent event) {
+	// IWorkbenchWindow iww = HandlerUtil.getActiveWorkbenchWindow(event);
+	// if (iww == null)
+	// return;
+	// IWorkbenchPage activePage = iww.getActivePage();
+	// IWorkbenchPart part = activePage.getActivePart();
+	// if (part instanceof UsersView)
+	// ((UsersView) part).refresh();
+	// }
 
 	private class NewUserWizard extends Wizard {
 
@@ -111,10 +106,10 @@ public class NewUser extends AbstractHandler {
 				return false;
 			String username = mainUserInfo.getUsername();
 			try {
-				UiAdminUtils.beginTransactionIfNeeded(userTransaction);
+				userAdminWrapper.beginTransactionIfNeeded();
 				char[] password = mainUserInfo.getPassword();
-				User user = (User) userAdmin.createRole(getDn(username),
-						Role.USER);
+				User user = (User) userAdminWrapper.getUserAdmin().createRole(
+						getDn(username), Role.USER);
 
 				Dictionary props = user.getProperties();
 
@@ -136,6 +131,9 @@ public class NewUser extends AbstractHandler {
 					props.put(UserAdminConstants.KEY_MAIL, mailStr);
 
 				user.getCredentials().put(null, password);
+
+				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
+						UserAdminEvent.ROLE_CREATED, user));
 				return true;
 			} catch (Exception e) {
 				ErrorFeedback.show("Cannot create new user " + username, e);
@@ -219,7 +217,8 @@ public class NewUser extends AbstractHandler {
 
 				if (name.trim().equals(""))
 					return "User name must not be empty";
-				Role role = userAdmin.getRole(getDn(name));
+				Role role = userAdminWrapper.getUserAdmin()
+						.getRole(getDn(name));
 				if (role != null)
 					return "User " + name + " already exists";
 				if (!primaryMailTxt.getText().matches(
@@ -255,11 +254,7 @@ public class NewUser extends AbstractHandler {
 	}
 
 	/* DEPENDENCY INJECTION */
-	public void setUserAdmin(UserAdmin userAdmin) {
-		this.userAdmin = userAdmin;
-	}
-
-	public void setUserTransaction(UserTransaction userTransaction) {
-		this.userTransaction = userTransaction;
+	public void setUserAdminWrapper(UserAdminWrapper userAdminWrapper) {
+		this.userAdminWrapper = userAdminWrapper;
 	}
 }

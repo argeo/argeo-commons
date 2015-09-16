@@ -1,5 +1,8 @@
 package org.argeo.security.ui.admin.internal;
 
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.SWT;
@@ -20,12 +23,18 @@ public abstract class UserAdminAbstractLP extends ColumnLabelProvider implements
 
 	@Override
 	public Font getFont(Object element) {
-
 		// Self as bold
-		String selfUserName = UiAdminUtils.getUsername();
-		String userName = ((User) element).getName();
-		if (userName.equals(selfUserName))
-			return bold;
+		try {
+			LdapName selfUserName = UiAdminUtils.getLdapName();
+			String userName = UiAdminUtils.getProperty((User) element,
+					UserAdminConstants.KEY_DN);
+			LdapName userLdapName = new LdapName(userName);
+			if (userLdapName.equals(selfUserName))
+				return bold;
+		} catch (InvalidNameException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		// Disabled as Italic
 		// Node userProfile = (Node) elem;

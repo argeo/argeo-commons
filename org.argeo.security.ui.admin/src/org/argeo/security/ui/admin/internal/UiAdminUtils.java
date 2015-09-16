@@ -1,8 +1,9 @@
 package org.argeo.security.ui.admin.internal;
 
 import java.security.AccessController;
-import java.security.Principal;
 
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 import javax.transaction.Status;
@@ -14,15 +15,49 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.ISourceProviderService;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
+import org.osgi.service.useradmin.UserAdmin;
 
 /** First effort to centralize back end methods used by the user admin UI */
 public class UiAdminUtils {
-	public final static String getUsername() {
-		Subject subject = Subject.getSubject(AccessController.getContext());
-		Principal principal = subject.getPrincipals(X500Principal.class)
-				.iterator().next();
-		return principal.getName();
 
+	/** returns the local name of the current connected user */
+	public final static String getUsername(UserAdmin userAdmin) {
+		LdapName dn = getLdapName();
+		return getUsername(getUser(userAdmin, dn));
+	}
+
+	public final static boolean isCurrentUser(User user) {
+		String userName = UiAdminUtils.getProperty(user,
+				UserAdminConstants.KEY_DN);
+		try {
+			LdapName selfUserName = UiAdminUtils.getLdapName();
+			LdapName userLdapName = new LdapName(userName);
+			if (userLdapName.equals(selfUserName))
+				return true;
+			else
+				return false;
+		} catch (InvalidNameException e) {
+			throw new ArgeoException("User " + user + " has an unvalid dn: "
+					+ userName, e);
+		}
+	}
+
+	public final static LdapName getLdapName() {
+		Subject subject = Subject.getSubject(AccessController.getContext());
+		String name = subject.getPrincipals(X500Principal.class).iterator()
+				.next().toString();
+		LdapName dn;
+		try {
+			dn = new LdapName(name);
+		} catch (InvalidNameException e) {
+			throw new ArgeoException("Invalid user dn " + name, e);
+		}
+		return dn;
+	}
+
+	public final static User getUser(UserAdmin userAdmin, LdapName dn) {
+		User user = userAdmin.getUser(UserAdminConstants.KEY_DN, dn.toString());
+		return user;
 	}
 
 	public final static String getUsername(User user) {

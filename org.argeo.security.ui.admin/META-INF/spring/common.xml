@@ -10,6 +10,13 @@
 		<property name="userTransaction" ref="userTransaction" />
 	</bean>
 
+	<bean id="userAdminWrapper"
+		class="org.argeo.security.ui.admin.internal.UserAdminWrapper"
+		scope="singleton" lazy-init="false">
+		<property name="userTransaction" ref="userTransaction" />
+		<property name="userAdmin" ref="userAdmin" />
+	</bean>
+
 	<bean
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
