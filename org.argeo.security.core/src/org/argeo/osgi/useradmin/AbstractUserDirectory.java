@@ -72,7 +72,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		// TODO make a copy?
 		this.properties = properties;
 
-		String uriStr = UserAdminProps.uri.getValue(properties);
+		String uriStr = UserAdminConf.uri.getValue(properties);
 		if (uriStr == null)
 			uri = null;
 		else
@@ -82,16 +82,16 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 				throw new UserDirectoryException("Badly formatted URI", e);
 			}
 
-		baseDn = UserAdminProps.baseDn.getValue(properties).toString();
-		String isReadOnly = UserAdminProps.readOnly.getValue(properties);
+		baseDn = UserAdminConf.baseDn.getValue(properties).toString();
+		String isReadOnly = UserAdminConf.readOnly.getValue(properties);
 		if (isReadOnly == null)
 			this.isReadOnly = readOnlyDefault(uri);
 		else
 			this.isReadOnly = new Boolean(isReadOnly);
 
-		this.userObjectClass = UserAdminProps.userObjectClass
+		this.userObjectClass = UserAdminConf.userObjectClass
 				.getValue(properties);
-		this.groupObjectClass = UserAdminProps.groupObjectClass
+		this.groupObjectClass = UserAdminConf.groupObjectClass
 				.getValue(properties);
 	}
 

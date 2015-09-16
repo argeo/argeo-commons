@@ -9,7 +9,7 @@ import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
-public class LdifAuthorization implements Authorization {
+class LdifAuthorization implements Authorization {
 	private final String name;
 	private final String displayName;
 	private final List<String> allRoles;

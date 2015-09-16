@@ -13,14 +13,13 @@ public enum LdifName {
 	// Object classes
 	inetOrgPerson, organizationalPerson, person, groupOfNames, top;
 
-	public final static String LDAP_PREFIX = "ldap:";
+	public final static String PREFIX = "ldap:";
 
 	public String property() {
-		return LDAP_PREFIX + name();
+		return PREFIX + name();
 	}
 
 	public static LdifName local(String property) {
-		String local = property.substring(LDAP_PREFIX.length());
-		return LdifName.valueOf(local);
+		return LdifName.valueOf(property.substring(PREFIX.length()));
 	}
 }

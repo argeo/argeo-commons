@@ -10,7 +10,7 @@ import javax.naming.ldap.LdapName;
 
 import org.osgi.service.useradmin.Role;
 
-public class LdifGroup extends LdifUser implements DirectoryGroup {
+class LdifGroup extends LdifUser implements DirectoryGroup {
 	private final String memberAttributeId;
 
 	public LdifGroup(AbstractUserDirectory userAdmin, LdapName dn,

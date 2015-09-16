@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.KernelHeader;
 import org.argeo.osgi.useradmin.UserDirectory;
-import org.argeo.osgi.useradmin.UserAdminProps;
+import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.osgi.useradmin.LdapUserAdmin;
 import org.argeo.osgi.useradmin.LdifUserAdmin;
 import org.argeo.osgi.useradmin.UserDirectoryException;
@@ -89,7 +89,7 @@ public class NodeUserAdmin implements UserAdmin {
 				throw new CmsException(
 						"Cannot interpret " + uri + " as an uri", e);
 			}
-			Dictionary<String, ?> properties = UserAdminProps.uriAsProperties(u
+			Dictionary<String, ?> properties = UserAdminConf.uriAsProperties(u
 					.toString());
 			UserDirectory businessRoles;
 			if (u.getScheme().startsWith("ldap")) {
@@ -120,9 +120,9 @@ public class NodeUserAdmin implements UserAdmin {
 			nodeRolesUri = nodeRolesFile.toURI().toString();
 		}
 
-		Dictionary<String, ?> nodeRolesProperties = UserAdminProps
+		Dictionary<String, ?> nodeRolesProperties = UserAdminConf
 				.uriAsProperties(nodeRolesUri);
-		if (!nodeRolesProperties.get(UserAdminProps.baseDn.property())
+		if (!nodeRolesProperties.get(UserAdminConf.baseDn.property())
 				.equals(baseNodeRoleDn)) {
 			throw new CmsException("Invalid base dn for node roles");
 			// TODO deal with "mounted" roles with a different baseDN
@@ -147,7 +147,7 @@ public class NodeUserAdmin implements UserAdmin {
 			if (userAdmins.get(name) instanceof UserDirectory) {
 				UserDirectory userDirectory = (UserDirectory) userAdmins
 						.get(name);
-				String uri = UserAdminProps.propertiesAsUri(
+				String uri = UserAdminConf.propertiesAsUri(
 						userDirectory.getProperties()).toString();
 				res.put(uri, "");
 			} else {

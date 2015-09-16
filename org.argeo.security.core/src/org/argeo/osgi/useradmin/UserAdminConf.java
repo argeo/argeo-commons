@@ -14,7 +14,7 @@ import java.util.Map;
 
 import javax.naming.Context;
 
-public enum UserAdminProps {
+public enum UserAdminConf {
 	/** Base DN */
 	baseDn("dc=example,dc=com"),
 
@@ -36,12 +36,12 @@ public enum UserAdminProps {
 	/** Read-only source */
 	readOnly(null);
 
-	private static String PREFIX = "argeo.useradmin";
+	public final static String PREFIX = "argeo.useradmin";
 
 	/** The default value. */
 	private Object def;
 
-	UserAdminProps(Object def) {
+	UserAdminConf(Object def) {
 		this.def = def;
 	}
 
@@ -72,6 +72,10 @@ public enum UserAdminProps {
 		return (T) res;
 	}
 
+	public static UserAdminConf local(String property) {
+		return UserAdminConf.valueOf(property.substring(PREFIX.length()));
+	}
+
 	/** Hides host and credentials. */
 	public static URI propertiesAsUri(Dictionary<String, ?> properties) {
 		StringBuilder query = new StringBuilder();
@@ -86,7 +90,7 @@ public enum UserAdminProps {
 					first = false;
 				else
 					query.append('&');
-				query.append(key.substring(PREFIX.length()));
+				query.append(local(key).name());
 				query.append('=').append(properties.get(key).toString());
 			}
 		}
@@ -126,7 +130,7 @@ public enum UserAdminProps {
 							+ scheme);
 			Map<String, List<String>> query = splitQuery(u.getQuery());
 			for (String key : query.keySet()) {
-				UserAdminProps ldapProp = UserAdminProps.valueOf(key);
+				UserAdminConf ldapProp = UserAdminConf.valueOf(key);
 				List<String> values = query.get(key);
 				if (values.size() == 1) {
 					res.put(ldapProp.property(), values.get(0));

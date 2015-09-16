@@ -14,7 +14,7 @@ import javax.naming.ldap.LdapName;
 import org.apache.commons.codec.binary.Base64;
 
 /** Basic LDIF writer */
-public class LdifWriter {
+class LdifWriter {
 	private final Writer writer;
 
 	public LdifWriter(OutputStream out) {
