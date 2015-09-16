@@ -37,6 +37,7 @@ import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.part.ViewPart;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
@@ -45,7 +46,7 @@ import org.osgi.service.useradmin.UserAdminEvent;
 import org.osgi.service.useradmin.UserAdminListener;
 
 /** List all groups with filter */
-public class GroupsView extends UsersView implements ArgeoNames {
+public class GroupsView extends ViewPart implements ArgeoNames {
 	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
 			+ ".groupsView";
 
