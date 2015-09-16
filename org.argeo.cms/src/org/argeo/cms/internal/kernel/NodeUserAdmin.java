@@ -122,7 +122,7 @@ public class NodeUserAdmin implements UserAdmin {
 
 		Dictionary<String, ?> nodeRolesProperties = UserAdminProps
 				.uriAsProperties(nodeRolesUri);
-		if (!nodeRolesProperties.get(UserAdminProps.baseDn.getFullName())
+		if (!nodeRolesProperties.get(UserAdminProps.baseDn.property())
 				.equals(baseNodeRoleDn)) {
 			throw new CmsException("Invalid base dn for node roles");
 			// TODO deal with "mounted" roles with a different baseDN

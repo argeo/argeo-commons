@@ -49,7 +49,7 @@ public enum UserAdminProps {
 		return def;
 	}
 
-	public String getFullName() {
+	public String property() {
 		return getPrefix() + name();
 	}
 
@@ -66,7 +66,7 @@ public enum UserAdminProps {
 
 	@SuppressWarnings("unchecked")
 	public <T> T getRawValue(Dictionary<String, ?> properties) {
-		Object res = properties.get(getFullName());
+		Object res = properties.get(property());
 		if (res == null)
 			res = getDefault();
 		return (T) res;
@@ -80,8 +80,8 @@ public enum UserAdminProps {
 		for (Enumeration<String> keys = properties.keys(); keys
 				.hasMoreElements();) {
 			String key = keys.nextElement();
-			if (key.startsWith(PREFIX) && !key.equals(baseDn.getFullName())
-					&& !key.equals(uri.getFullName())) {
+			if (key.startsWith(PREFIX) && !key.equals(baseDn.property())
+					&& !key.equals(uri.property())) {
 				if (first)
 					first = false;
 				else
@@ -91,7 +91,7 @@ public enum UserAdminProps {
 			}
 		}
 
-		String bDn = (String) properties.get(baseDn.getFullName());
+		String bDn = (String) properties.get(baseDn.property());
 		try {
 			return new URI(null, null, bDn != null ? '/' + bDn : null,
 					query.length() != 0 ? query.toString() : null, null);
@@ -129,13 +129,13 @@ public enum UserAdminProps {
 				UserAdminProps ldapProp = UserAdminProps.valueOf(key);
 				List<String> values = query.get(key);
 				if (values.size() == 1) {
-					res.put(ldapProp.getFullName(), values.get(0));
+					res.put(ldapProp.property(), values.get(0));
 				} else {
 					throw new UserDirectoryException(
 							"Only single values are supported");
 				}
 			}
-			res.put(baseDn.getFullName(), bDn);
+			res.put(baseDn.property(), bDn);
 			if (principal != null)
 				res.put(Context.SECURITY_PRINCIPAL, principal);
 			if (credentials != null)
@@ -143,7 +143,7 @@ public enum UserAdminProps {
 			if (scheme != null) {
 				URI bareUri = new URI(scheme, null, u.getHost(), u.getPort(),
 						scheme.equals("file") ? u.getPath() : null, null, null);
-				res.put(uri.getFullName(), bareUri.toString());
+				res.put(uri.property(), bareUri.toString());
 			}
 			return res;
 		} catch (Exception e) {
