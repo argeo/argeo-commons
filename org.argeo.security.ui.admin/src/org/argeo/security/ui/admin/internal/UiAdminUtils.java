@@ -85,7 +85,6 @@ public class UiAdminUtils {
 					.getService(ISourceProviderService.class);
 			UserTransactionProvider esp = (UserTransactionProvider) sourceProviderService
 					.getSourceProvider(UserTransactionProvider.TRANSACTION_STATE);
-			esp.setUserTransaction(userTransaction);
 			esp.fireTransactionStateChange();
 		} catch (Exception e) {
 			throw new ArgeoException("Unable to begin transaction", e);

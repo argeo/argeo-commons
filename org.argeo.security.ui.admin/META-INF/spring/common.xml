@@ -3,6 +3,13 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
+
+	<bean id="userTransactionProvider"
+		class="org.argeo.security.ui.admin.internal.UserTransactionProvider"
+		scope="singleton" lazy-init="false">
+		<property name="userTransaction" ref="userTransaction" />
+	</bean>
+
 	<bean
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
@@ -11,6 +18,7 @@
 		</property>
 	</bean>
 
-	<!-- <bean name="jcrSecurityModel" class="org.argeo.security.jackrabbit.JackrabbitSecurityModel" 
-		/> -->
+
+
+
 </beans>

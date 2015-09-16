@@ -135,8 +135,7 @@ public class NewUser extends AbstractHandler {
 				if (UiAdminUtils.notNull(mailStr))
 					props.put(UserAdminConstants.KEY_MAIL, mailStr);
 
-				// TODO MANAGE Password
-				// pwd1Txt.getText();
+				user.getCredentials().put(null, password);
 				return true;
 			} catch (Exception e) {
 				ErrorFeedback.show("Cannot create new user " + username, e);

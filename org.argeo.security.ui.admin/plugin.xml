@@ -200,9 +200,13 @@
 	<!-- SERVICES -->
 	<extension
       	point="org.eclipse.ui.services">
-	   	<sourceProvider
+	 <sourceProvider
+	        id="org.argeo.security.ui.admin.userTransactionProvider"
+            provider="org.argeo.eclipse.spring.SpringExtensionFactory" >
+	   	
+<!--	   	<sourceProvider
 	        provider="org.argeo.security.ui.admin.internal.UserTransactionProvider">
-	     	<variable
+-->	     	<variable
 	            name="org.argeo.security.ui.admin.userTransactionState"
 	            priorityLevel="workbench">
 	      	</variable>
