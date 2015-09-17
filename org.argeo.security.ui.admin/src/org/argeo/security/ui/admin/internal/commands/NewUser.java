@@ -107,7 +107,6 @@ public class NewUser extends AbstractHandler {
 			String username = mainUserInfo.getUsername();
 			try {
 				userAdminWrapper.beginTransactionIfNeeded();
-				char[] password = mainUserInfo.getPassword();
 				User user = (User) userAdminWrapper.getUserAdmin().createRole(
 						getDn(username), Role.USER);
 
@@ -130,6 +129,7 @@ public class NewUser extends AbstractHandler {
 				if (UiAdminUtils.notNull(mailStr))
 					props.put(UserAdminConstants.KEY_MAIL, mailStr);
 
+				char[] password = mainUserInfo.getPassword();
 				user.getCredentials().put(null, password);
 
 				userAdminWrapper.notifyListeners(new UserAdminEvent(null,

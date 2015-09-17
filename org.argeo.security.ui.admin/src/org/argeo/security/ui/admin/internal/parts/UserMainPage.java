@@ -16,20 +16,29 @@
 package org.argeo.security.ui.admin.internal.parts;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.jcr.ArgeoNames;
+import org.argeo.security.ui.admin.SecurityAdminImages;
 import org.argeo.security.ui.admin.internal.ColumnDefinition;
+import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.UserTableViewer;
+import org.argeo.security.ui.admin.internal.parts.UserEditor.GroupChangeListener;
+import org.argeo.security.ui.admin.internal.parts.UserEditor.MainInfoListener;
 import org.argeo.security.ui.admin.internal.providers.CommonNameLP;
 import org.argeo.security.ui.admin.internal.providers.RoleIconLP;
 import org.argeo.security.ui.admin.internal.providers.UserNameLP;
 import org.argeo.security.ui.admin.internal.providers.UserTableDefaultDClickListener;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerDropAdapter;
@@ -39,13 +48,17 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.dnd.TransferData;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.forms.AbstractFormPart;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.SectionPart;
@@ -60,16 +73,12 @@ import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.service.useradmin.UserAdminEvent;
 
-/** Display/edit the properties common to all users */
+/** Display/edit the properties of a given user */
 public class UserMainPage extends FormPage implements ArgeoNames {
-	final static String ID = "argeoUserEditor.mainPage";
-
-	// private final static Log log = LogFactory.getLog(UserMainPage.class);
+	final static String ID = "UserEditor.mainPage";
 
 	private final UserEditor editor;
 	private UserAdminWrapper userAdminWrapper;
-
-	private char[] newPassword;
 
 	// Local configuration
 	private final int PRE_TITLE_INDENT = 10;
@@ -80,62 +89,65 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		this.userAdminWrapper = userAdminWrapper;
 	}
 
-	public String getNewPassword() {
-		if (newPassword != null)
-			return new String(newPassword);
-		else
-			return null;
-	}
-
-	public void resetNewPassword() {
-		if (newPassword != null)
-			Arrays.fill(newPassword, 'x');
-		newPassword = null;
-	}
-
 	protected void createFormContent(final IManagedForm mf) {
 		ScrolledForm form = mf.getForm();
-		// Form page main title
-		form.setText(editor.getProperty(UserAdminConstants.KEY_CN));
-
-		// Body
 		Composite body = form.getBody();
-		GridLayout mainLayout = new GridLayout(1, true);
+		GridLayout mainLayout = new GridLayout();
 		body.setLayout(mainLayout);
-		appendOverviewPart(body);
-		appendPasswordPart(body);
-		appendMemberOfPart(body);
+		User user = editor.getDisplayedUser();
+		appendOverviewPart(body, user);
+		// Remove to ability to force the password for his own user. The user
+		// must then use the change pwd feature
+		if (!UiAdminUtils.isCurrentUser(user))
+			appendPasswordPart(body, user);
+		appendMemberOfPart(body, user);
 	}
 
 	/** Creates the general section */
-	protected void appendOverviewPart(Composite parent) {
+	private void appendOverviewPart(Composite parent, final User user) {
 		FormToolkit tk = getManagedForm().getToolkit();
-		Composite body = addSection(tk, parent, "Main information");
+
+		Section section = addSection(tk, parent, "Main information");
+		Composite body = (Composite) section.getClient();
 		body.setLayout(new GridLayout(2, false));
 
-		Text distinguishedName = createLT(body, "User Name",
-				editor.getProperty(UserAdminConstants.KEY_UID));
+		final Text distinguishedName = createLT(tk, body, "User Name",
+				UiAdminUtils.getProperty(user, UserAdminConstants.KEY_UID));
 		distinguishedName.setEnabled(false);
 
-		final Text commonName = createLT(body, "Common Name",
-				editor.getProperty(UserAdminConstants.KEY_CN));
+		final Text commonName = createLT(tk, body, "Common Name",
+				UiAdminUtils.getProperty(user, UserAdminConstants.KEY_CN));
 		commonName.setEnabled(false);
 
-		final Text firstName = createLT(body, "First name",
-				editor.getProperty(UserAdminConstants.KEY_FIRSTNAME));
+		final Text firstName = createLT(tk, body, "First name",
+				UiAdminUtils
+						.getProperty(user, UserAdminConstants.KEY_FIRSTNAME));
 
-		final Text lastName = createLT(body, "Last name",
-				editor.getProperty(UserAdminConstants.KEY_LASTNAME));
+		final Text lastName = createLT(tk, body, "Last name",
+				UiAdminUtils.getProperty(user, UserAdminConstants.KEY_LASTNAME));
 
-		final Text email = createLT(body, "Email",
-				editor.getProperty(UserAdminConstants.KEY_MAIL));
+		final Text email = createLT(tk, body, "Email",
+				UiAdminUtils.getProperty(user, UserAdminConstants.KEY_MAIL));
 
 		// create form part (controller)
 		AbstractFormPart part = new SectionPart((Section) body.getParent()) {
-			public void commit(boolean onSave) {
-				// TODO check changed ?
-				// TODO Sanity checks
+			private MainInfoListener listener;
 
+			@Override
+			public void initialize(IManagedForm form) {
+				super.initialize(form);
+				listener = editor.new MainInfoListener(this);
+				userAdminWrapper.addListener(listener);
+			}
+
+			@Override
+			public void dispose() {
+				userAdminWrapper.removeListener(listener);
+				super.dispose();
+			}
+
+			public void commit(boolean onSave) {
+				// TODO Sanity checks
 				editor.setProperty(UserAdminConstants.KEY_FIRSTNAME,
 						firstName.getText());
 				editor.setProperty(UserAdminConstants.KEY_LASTNAME,
@@ -150,8 +162,26 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 				// email.getText());
 				super.commit(onSave);
 			}
+
+			@Override
+			public void refresh() {
+				distinguishedName.setText(UiAdminUtils.getProperty(user,
+						UserAdminConstants.KEY_UID));
+				commonName.setText(UiAdminUtils.getProperty(user,
+						UserAdminConstants.KEY_CN));
+				firstName.setText(UiAdminUtils.getProperty(user,
+						UserAdminConstants.KEY_FIRSTNAME));
+				lastName.setText(UiAdminUtils.getProperty(user,
+						UserAdminConstants.KEY_LASTNAME));
+				email.setText(UiAdminUtils.getProperty(user,
+						UserAdminConstants.KEY_MAIL));
+				refreshFormTitle(user);
+				super.refresh();
+			}
 		};
 
+		// Improve this: automatically generate CN when first or last name
+		// changes
 		ModifyListener cnML = new ModifyListener() {
 			private static final long serialVersionUID = 4298649222869835486L;
 
@@ -168,37 +198,35 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		};
 		firstName.addModifyListener(cnML);
 		lastName.addModifyListener(cnML);
-		firstName.addModifyListener(new FormPartML(part));
-		lastName.addModifyListener(new FormPartML(part));
-		email.addModifyListener(new FormPartML(part));
+
+		ModifyListener defaultListener = editor.new FormPartML(part);
+		firstName.addModifyListener(defaultListener);
+		lastName.addModifyListener(defaultListener);
+		email.addModifyListener(defaultListener);
 		getManagedForm().addPart(part);
 	}
 
 	/** Creates the password section */
-	protected void appendPasswordPart(Composite parent) {
+	private void appendPasswordPart(Composite parent, final User user) {
 		FormToolkit tk = getManagedForm().getToolkit();
-		Composite body = addSection(tk, parent, "Password");
-
-		// Section section = tk.createSection(parent, Section.TITLE_BAR);
-		// section.setLayoutData(EclipseUiUtils.fillWidth());
-		// section.setText("Password");
-		// Composite body = tk.createComposite(section, SWT.NO_FOCUS);
-		// section.setClient(body);
-		// body.setLayoutData(EclipseUiUtils.fillWidth());
-
+		Section section = addSection(tk, parent, "Password");
+		Composite body = (Composite) section.getClient();
 		body.setLayout(new GridLayout(2, false));
+
 		// add widgets (view)
-		final Text password1 = createLP(body, "New password", "");
-		final Text password2 = createLP(body, "Repeat password", "");
+		final Text password1 = createLP(tk, body, "New password", "");
+		final Text password2 = createLP(tk, body, "Repeat password", "");
+
 		// create form part (controller)
 		AbstractFormPart part = new SectionPart((Section) body.getParent()) {
-
+			@SuppressWarnings("unchecked")
 			public void commit(boolean onSave) {
 				if (!password1.getText().equals("")
 						|| !password2.getText().equals("")) {
 					if (password1.getText().equals(password2.getText())) {
-						newPassword = password1.getText().toCharArray();
-						// TODO real set password
+						char[] newPassword = password1.getText().toCharArray();
+						userAdminWrapper.beginTransactionIfNeeded();
+						user.getCredentials().put(null, newPassword);
 						password1.setText("");
 						password2.setText("");
 						super.commit(onSave);
@@ -209,80 +237,185 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 					}
 				}
 			}
-
 		};
-		password1.addModifyListener(new FormPartML(part));
-		password2.addModifyListener(new FormPartML(part));
+		ModifyListener defaultListener = editor.new FormPartML(part);
+		password1.addModifyListener(defaultListener);
+		password2.addModifyListener(defaultListener);
 		getManagedForm().addPart(part);
 	}
 
-	private UserTableViewer userTableViewerCmp;
-	private TableViewer userViewer;
-
-	private void appendMemberOfPart(Composite parent) {
+	private UserTableViewer appendMemberOfPart(Composite parent, User user) {
 		FormToolkit tk = getManagedForm().getToolkit();
-		Composite body = addSection(tk, parent, "Roles");
+		Section section = addSection(tk, parent, "Roles");
+		Composite body = (Composite) section.getClient();
 		body.setLayout(EclipseUiUtils.noSpaceGridLayout());
 
-		// Define the displayed columns
+		// Displayed columns
 		List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
 		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 0, 24));
-		columnDefs.add(new ColumnDefinition(new UserNameLP(),
-				"Distinguished Name", 300));
 		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name",
 				150));
+		columnDefs.add(new ColumnDefinition(new UserNameLP(),
+				"Distinguished Name", 300));
 
 		// Create and configure the table
-		userTableViewerCmp = new MyUserTableViewer(body, SWT.MULTI
-				| SWT.H_SCROLL | SWT.V_SCROLL, userAdminWrapper.getUserAdmin());
+		final UserTableViewer userViewerCmp = new MyUserTableViewer(body,
+				SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL,
+				userAdminWrapper.getUserAdmin(), user);
 
-		userTableViewerCmp.setColumnDefinitions(columnDefs);
-		userTableViewerCmp.populate(true, false);
+		userViewerCmp.setColumnDefinitions(columnDefs);
+		userViewerCmp.populate(true, false);
 		GridData gd = EclipseUiUtils.fillAll();
 		gd.heightHint = 300;
-		userTableViewerCmp.setLayoutData(gd);
+		userViewerCmp.setLayoutData(gd);
 
-		// Links
-		userViewer = userTableViewerCmp.getTableViewer();
+		// Controllers
+		TableViewer userViewer = userViewerCmp.getTableViewer();
 		userViewer.addDoubleClickListener(new UserTableDefaultDClickListener());
-		// Really?
-		userTableViewerCmp.refresh();
-
-		// Drag and drop
 		int operations = DND.DROP_COPY | DND.DROP_MOVE;
 		Transfer[] tt = new Transfer[] { TextTransfer.getInstance() };
-		userViewer.addDropSupport(operations, tt, new GroupDropListener(
-				userViewer, userAdminWrapper.getUserAdmin(), editor.getDisplayedUser()));
+		GroupDropListener dropL = new GroupDropListener(userAdminWrapper,
+				userViewer, user);
+		userViewer.addDropSupport(operations, tt, dropL);
 
+		SectionPart part = new SectionPart((Section) body.getParent()) {
+
+			private GroupChangeListener listener;
+
+			@Override
+			public void initialize(IManagedForm form) {
+				super.initialize(form);
+				listener = editor.new GroupChangeListener(this);
+				userAdminWrapper.addListener(listener);
+			}
+
+			public void commit(boolean onSave) {
+				super.commit(onSave);
+			}
+
+			@Override
+			public void dispose() {
+				userAdminWrapper.removeListener(listener);
+				super.dispose();
+			}
+
+			@Override
+			public void refresh() {
+				userViewerCmp.refresh();
+				super.refresh();
+			}
+		};
+		getManagedForm().addPart(part);
+		addRemoveAbitily(part, userViewer, user);
+		return userViewerCmp;
 	}
 
 	private class MyUserTableViewer extends UserTableViewer {
 		private static final long serialVersionUID = 8467999509931900367L;
 
+		private final User user;
+
 		public MyUserTableViewer(Composite parent, int style,
-				UserAdmin userAdmin) {
+				UserAdmin userAdmin, User user) {
 			super(parent, style, userAdmin, true);
+			this.user = user;
 		}
 
 		@Override
 		protected List<User> listFilteredElements(String filter) {
-			return (List<User>) editor.getFlatGroups(null);
+			List<User> users = (List<User>) editor.getFlatGroups(null);
+			if (users.contains(user))
+				users.remove(user);
+			return users;
+		}
+	}
+
+	private void addRemoveAbitily(SectionPart sectionPart,
+			TableViewer userViewer, User user) {
+		Section section = sectionPart.getSection();
+		ToolBarManager toolBarManager = new ToolBarManager(SWT.FLAT);
+		ToolBar toolbar = toolBarManager.createControl(section);
+		final Cursor handCursor = new Cursor(section.getDisplay(),
+				SWT.CURSOR_HAND);
+		toolbar.setCursor(handCursor);
+		toolbar.addDisposeListener(new DisposeListener() {
+			private static final long serialVersionUID = 3882131405820522925L;
+
+			public void widgetDisposed(DisposeEvent e) {
+				if ((handCursor != null) && (handCursor.isDisposed() == false)) {
+					handCursor.dispose();
+				}
+			}
+		});
+
+		Action action = new RemoveMembershipAction(userViewer, user,
+				"Remove selected groups", SecurityAdminImages.ICON_REMOVE_DESC);
+		toolBarManager.add(action);
+		toolBarManager.update(true);
+		section.setTextClient(toolbar);
+	}
+
+	private class RemoveMembershipAction extends Action {
+		private static final long serialVersionUID = -1337713097184522588L;
+
+		private final TableViewer userViewer;
+		private final User user;
+
+		RemoveMembershipAction(TableViewer userViewer, User user, String name,
+				ImageDescriptor img) {
+			super(name, img);
+			this.userViewer = userViewer;
+			this.user = user;
+		}
+
+		@Override
+		public void run() {
+			ISelection selection = userViewer.getSelection();
+			if (selection.isEmpty())
+				return;
+
+			@SuppressWarnings("unchecked")
+			Iterator<Group> it = ((IStructuredSelection) selection).iterator();
+			List<Group> groups = new ArrayList<Group>();
+			// StringBuilder builder = new StringBuilder();
+			while (it.hasNext()) {
+				Group currGroup = it.next();
+				// String groupName = UiAdminUtils.getUsername(currGroup);
+				// builder.append(groupName).append("; ");
+				groups.add(currGroup);
+			}
+
+			// if (!MessageDialog.openQuestion(
+			// HandlerUtil.getActiveShell(event),
+			// "Re",
+			// "Are you sure that you want to delete these users?\n"
+			// + builder.substring(0, builder.length() - 2)))
+			// return null;
+
+			userAdminWrapper.beginTransactionIfNeeded();
+			for (Group group : groups) {
+				group.removeMember(user);
+				// sectionPart.refresh();
+				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
+						UserAdminEvent.ROLE_CHANGED, group));
+			}
 		}
 	}
 
 	/**
-	 * Defines this table as being a potential target to add group membership
+	 * Defines the table as being a potential target to add group memberships
 	 * (roles) to this user
 	 */
 	private class GroupDropListener extends ViewerDropAdapter {
 		private static final long serialVersionUID = 2893468717831451621L;
 
-		private final UserAdmin myUserAdmin;
+		private final UserAdminWrapper myUserAdminWrapper;
 		private final User myUser;
 
-		public GroupDropListener(Viewer viewer, UserAdmin userAdmin, User user) {
-			super(viewer);
-			this.myUserAdmin = userAdmin;
+		public GroupDropListener(UserAdminWrapper userAdminWrapper,
+				Viewer userViewer, User user) {
+			super(userViewer);
+			this.myUserAdminWrapper = userAdminWrapper;
 			this.myUser = user;
 		}
 
@@ -298,14 +431,15 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		@Override
 		public void drop(DropTargetEvent event) {
 			String name = (String) event.data;
+			UserAdmin myUserAdmin = myUserAdminWrapper.getUserAdmin();
 			Role role = myUserAdmin.getRole(name);
 			// TODO this check should be done before.
 			if (role.getType() == Role.GROUP) {
 				// TODO check if the user is already member of this group
-				userAdminWrapper.beginTransactionIfNeeded();
+				myUserAdminWrapper.beginTransactionIfNeeded();
 				Group group = (Group) role;
 				group.addMember(myUser);
-				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
+				myUserAdminWrapper.notifyListeners(new UserAdminEvent(null,
 						UserAdminEvent.ROLE_CHANGED, group));
 			}
 			super.drop(event);
@@ -313,28 +447,36 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 
 		@Override
 		public boolean performDrop(Object data) {
-			userTableViewerCmp.refresh();
+			// userTableViewerCmp.refresh();
 			return true;
 		}
 	}
 
 	// LOCAL HELPERS
+	private void refreshFormTitle(User group) {
+		getManagedForm().getForm().setText(
+				UiAdminUtils.getProperty(group, UserAdminConstants.KEY_CN));
+	}
+
 	/** Appends a section with a title */
-	private Composite addSection(FormToolkit tk, Composite parent, String title) {
+	private Section addSection(FormToolkit tk, Composite parent, String title) {
 		Section section = tk.createSection(parent, Section.TITLE_BAR);
 		GridData gd = EclipseUiUtils.fillWidth();
 		gd.verticalAlignment = PRE_TITLE_INDENT;
 		section.setLayoutData(gd);
 		section.setText(title);
+		// section.getMenu().setVisible(true);
+
 		Composite body = tk.createComposite(section, SWT.WRAP);
 		body.setLayoutData(EclipseUiUtils.fillAll());
 		section.setClient(body);
-		return body;
+
+		return section;
 	}
 
 	/** Creates label and multiline text. */
-	protected Text createLMT(Composite body, String label, String value) {
-		FormToolkit toolkit = getManagedForm().getToolkit();
+	Text createLMT(FormToolkit toolkit, Composite body, String label,
+			String value) {
 		Label lbl = toolkit.createLabel(body, label);
 		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		Text text = toolkit.createText(body, value, SWT.BORDER | SWT.MULTI);
@@ -343,8 +485,8 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 	}
 
 	/** Creates label and password. */
-	protected Text createLP(Composite body, String label, String value) {
-		FormToolkit toolkit = getManagedForm().getToolkit();
+	Text createLP(FormToolkit toolkit, Composite body, String label,
+			String value) {
 		Label lbl = toolkit.createLabel(body, label);
 		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		Text text = toolkit.createText(body, value, SWT.BORDER | SWT.PASSWORD);
@@ -353,25 +495,12 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 	}
 
 	/** Creates label and text. */
-	protected Text createLT(Composite body, String label, String value) {
-		FormToolkit toolkit = getManagedForm().getToolkit();
+	Text createLT(FormToolkit toolkit, Composite body, String label,
+			String value) {
 		Label lbl = toolkit.createLabel(body, label);
 		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		Text text = toolkit.createText(body, value, SWT.BORDER);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		return text;
-	}
-
-	private class FormPartML implements ModifyListener {
-		private static final long serialVersionUID = 6299808129505381333L;
-		private AbstractFormPart formPart;
-
-		public FormPartML(AbstractFormPart generalPart) {
-			this.formPart = generalPart;
-		}
-
-		public void modifyText(ModifyEvent e) {
-			formPart.markDirty();
-		}
 	}
 }

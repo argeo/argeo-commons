@@ -26,14 +26,19 @@
  */
 package org.argeo.security.ui.admin;
 
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 
 /** Shared icons that must be declared programmatically . */
 public class SecurityAdminImages {
 	private final static String PREFIX = "icons/";
 
-	public final static Image ICON_USER = SecurityAdminPlugin
-			.getImageDescriptor(PREFIX + "user.gif").createImage();
+	public final static ImageDescriptor ICON_REMOVE_DESC = SecurityAdminPlugin
+			.getImageDescriptor(PREFIX + "remove.gif");
+	public final static ImageDescriptor ICON_USER_DESC = SecurityAdminPlugin
+			.getImageDescriptor(PREFIX + "user.gif");
+	
+	public final static Image ICON_USER = ICON_USER_DESC.createImage();
 	public final static Image ICON_GROUP = SecurityAdminPlugin
 			.getImageDescriptor(PREFIX + "users.gif").createImage();
 

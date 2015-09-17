@@ -20,18 +20,30 @@ import java.util.List;
 
 import org.argeo.ArgeoException;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
+import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.forms.AbstractFormPart;
 import org.eclipse.ui.forms.editor.FormEditor;
+import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.service.useradmin.UserAdminEvent;
+import org.osgi.service.useradmin.UserAdminListener;
 
 /** Editor for a user, might be a user or a group. */
 public class UserEditor extends FormEditor implements UserAdminConstants {
@@ -48,15 +60,16 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 	private User user;
 	private String username;
 
+	private NameChangeListener listener;
+
 	public void init(IEditorSite site, IEditorInput input)
 			throws PartInitException {
 		super.init(site, input);
 		username = ((UserEditorInput) getEditorInput()).getUsername();
 		user = (User) userAdmin.getRole(username);
 
-		String commonName = getProperty(KEY_CN);
-
-		setPartName(commonName != null ? commonName : "username");
+		listener = new NameChangeListener(user);
+		userAdminWrapper.addListener(listener);
 
 		// TODO: following has been disabled because it causes NPE after a
 		// login/logout on RAP
@@ -94,6 +107,10 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 	}
 
 	void updateEditorTitle(String title) {
+		if (title == null) {
+			String commonName = UiAdminUtils.getProperty(user, KEY_CN);
+			title = "".equals(commonName) ? commonName : user.getName();
+		}
 		setPartName(title);
 	}
 
@@ -106,14 +123,6 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot add pages", e);
 		}
-	}
-
-	protected String getProperty(String key) {
-		Object obj = user.getProperties().get(key);
-		if (obj != null)
-			return (String) obj;
-		else
-			return "";
 	}
 
 	/**
@@ -143,13 +152,74 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 		return false;
 	}
 
-	public void refresh() {
-
-	}
-
 	@Override
 	public void dispose() {
+		userAdminWrapper.removeListener(listener);
 		super.dispose();
+	}
+
+	// CONTROLERS FOR THIS EDITOR AND ITS PAGES
+
+	class NameChangeListener implements UserAdminListener {
+
+		private final User user;
+
+		public NameChangeListener(User user) {
+			this.user = user;
+		}
+
+		@Override
+		public void roleChanged(UserAdminEvent event) {
+			Role changedRole = event.getRole();
+			if (changedRole == null || changedRole.equals(user))
+				updateEditorTitle(null);
+		}
+	}
+
+	class MainInfoListener implements UserAdminListener {
+		private final AbstractFormPart part;
+
+		public MainInfoListener(AbstractFormPart part) {
+			this.part = part;
+		}
+
+		@Override
+		public void roleChanged(UserAdminEvent event) {
+			// Rollback
+			if (event.getRole() == null)
+				part.markStale();
+		}
+	}
+
+	class GroupChangeListener implements UserAdminListener {
+		private final AbstractFormPart part;
+
+		public GroupChangeListener(AbstractFormPart part) {
+			this.part = part;
+		}
+
+		@Override
+		public void roleChanged(UserAdminEvent event) {
+			// always mark as stale
+			part.markStale();
+		}
+	}
+
+	/** Registers a listener that will notify this part */
+	class FormPartML implements ModifyListener {
+		private static final long serialVersionUID = 6299808129505381333L;
+		private AbstractFormPart formPart;
+
+		public FormPartML(AbstractFormPart generalPart) {
+			this.formPart = generalPart;
+		}
+
+		public void modifyText(ModifyEvent e) {
+			// Discard event when the control does not have the focus, typically
+			// to avoid all editors being marked as dirty during a Rollback
+			if (((Control) e.widget).isFocusControl())
+				formPart.markDirty();
+		}
 	}
 
 	/* DEPENDENCY INJECTION */

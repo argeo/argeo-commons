@@ -16,25 +16,31 @@
 package org.argeo.security.ui.admin.internal.parts;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-import javax.jcr.RepositoryException;
-
-import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.jcr.ArgeoNames;
+import org.argeo.security.ui.admin.SecurityAdminImages;
 import org.argeo.security.ui.admin.internal.ColumnDefinition;
+import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.UserTableViewer;
+import org.argeo.security.ui.admin.internal.parts.UserEditor.GroupChangeListener;
+import org.argeo.security.ui.admin.internal.parts.UserEditor.MainInfoListener;
 import org.argeo.security.ui.admin.internal.providers.CommonNameLP;
 import org.argeo.security.ui.admin.internal.providers.MailLP;
 import org.argeo.security.ui.admin.internal.providers.RoleIconLP;
 import org.argeo.security.ui.admin.internal.providers.UserNameLP;
 import org.argeo.security.ui.admin.internal.providers.UserTableDefaultDClickListener;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerDropAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
@@ -42,12 +48,16 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.dnd.TransferData;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.forms.AbstractFormPart;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.SectionPart;
@@ -79,110 +89,114 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	}
 
 	protected void createFormContent(final IManagedForm mf) {
-		try {
-			ScrolledForm form = mf.getForm();
-			refreshFormTitle();
-
-			// Body
-			Composite body = form.getBody();
-			GridLayout mainLayout = new GridLayout();
-			body.setLayout(mainLayout);
-			appendOverviewPart(body);
-			appendMembersPart(body);
-		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot create form content", e);
-		}
+		ScrolledForm form = mf.getForm();
+		Composite body = form.getBody();
+		GridLayout mainLayout = new GridLayout();
+		body.setLayout(mainLayout);
+		Group group = (Group) editor.getDisplayedUser();
+		appendOverviewPart(body, group);
+		appendMembersPart(body, group);
 	}
 
 	/** Creates the general section */
-	protected void appendOverviewPart(Composite parent) {
+	protected void appendOverviewPart(Composite parent, final Group group) {
 		FormToolkit tk = getManagedForm().getToolkit();
 		Composite body = addSection(tk, parent, "Main information");
 		GridLayout layout = new GridLayout(2, false);
 		body.setLayout(layout);
 
-		Text distinguishedName = createLT(body, "Group Name",
-				editor.getProperty(UserAdminConstants.KEY_UID));
+		final Text distinguishedName = createLT(body, "Group Name",
+				UiAdminUtils.getProperty(group, UserAdminConstants.KEY_UID));
 		distinguishedName.setEnabled(false);
 
 		final Text commonName = createLT(body, "Common Name",
-				editor.getProperty(UserAdminConstants.KEY_CN));
+				UiAdminUtils.getProperty(group, UserAdminConstants.KEY_CN));
 		commonName.setEnabled(false);
 
 		// create form part (controller)
 		AbstractFormPart part = new SectionPart((Section) body.getParent()) {
-			public void commit(boolean onSave) {
-				super.commit(onSave);
+
+			private MainInfoListener listener;
+
+			@Override
+			public void initialize(IManagedForm form) {
+				super.initialize(form);
+				listener = editor.new MainInfoListener(this);
+				userAdminWrapper.addListener(listener);
+			}
+
+			@Override
+			public void dispose() {
+				userAdminWrapper.removeListener(listener);
+				super.dispose();
+			}
+
+			@Override
+			public void refresh() {
+				refreshFormTitle(group);
+				distinguishedName.setText(UiAdminUtils.getProperty(group,
+						UserAdminConstants.KEY_UID));
+				commonName.setText(UiAdminUtils.getProperty(group,
+						UserAdminConstants.KEY_CN));
+				super.refresh();
 			}
 		};
 		getManagedForm().addPart(part);
 	}
 
 	/** Filtered table with members. Has drag & drop ability */
-	protected void appendMembersPart(Composite parent)
-			throws RepositoryException {
+	protected void appendMembersPart(Composite parent, Group group) {
 
 		FormToolkit tk = getManagedForm().getToolkit();
 		Section section = tk.createSection(parent, Section.TITLE_BAR);
 		section.setLayoutData(EclipseUiUtils.fillAll());
-		section.setText("Members of group "
-				+ editor.getProperty(UserAdminConstants.KEY_CN));
 
 		// Composite body = tk.createComposite(section, SWT.NONE);
 		Composite body = new Composite(section, SWT.NO_FOCUS);
 		section.setClient(body);
 		body.setLayoutData(EclipseUiUtils.fillAll());
 
-		createMemberPart(body);
+		UserTableViewer userTableViewerCmp = createMemberPart(body, group);
 
 		// create form part (controller)
-		AbstractFormPart part = new SectionPart(section) {
-			public void commit(boolean onSave) {
-				super.commit(onSave);
-			}
-		};
-
+		SectionPart part = new GroupMembersPart(section, userTableViewerCmp,
+				group);
 		getManagedForm().addPart(part);
+		addRemoveAbitily(part, userTableViewerCmp.getTableViewer(), group);
 	}
 
-	// UI Objects
-	private UserTableViewer userTableViewerCmp;
-	private TableViewer userViewer;
-	private List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
-
-	public void createMemberPart(Composite parent) {
+	public UserTableViewer createMemberPart(Composite parent, Group group) {
 		parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
 		// Define the displayed columns
+		List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
 		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 0, 24));
-		columnDefs.add(new ColumnDefinition(new UserNameLP(),
-				"Distinguished Name", 240));
 		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name",
 				150));
 		columnDefs.add(new ColumnDefinition(new MailLP(), "Primary Mail", 150));
+		columnDefs.add(new ColumnDefinition(new UserNameLP(),
+				"Distinguished Name", 240));
 
 		// Create and configure the table
-		userTableViewerCmp = new MyUserTableViewer(parent, SWT.MULTI
+		UserTableViewer userViewerCmp = new MyUserTableViewer(parent, SWT.MULTI
 				| SWT.H_SCROLL | SWT.V_SCROLL, userAdminWrapper.getUserAdmin());
 
-		userTableViewerCmp.setColumnDefinitions(columnDefs);
-		userTableViewerCmp.populate(true, false);
-		// userTableViewerCmp.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
-		// false, false));
-		userTableViewerCmp.setLayoutData(EclipseUiUtils.fillAll());
+		userViewerCmp.setColumnDefinitions(columnDefs);
+		userViewerCmp.populate(true, false);
+		userViewerCmp.setLayoutData(EclipseUiUtils.fillAll());
 
-		// Links
-		userViewer = userTableViewerCmp.getTableViewer();
+		// Controllers
+		TableViewer userViewer = userViewerCmp.getTableViewer();
 		userViewer.addDoubleClickListener(new UserTableDefaultDClickListener());
-		// Really?
-		userTableViewerCmp.refresh();
-
-		// Drag and drop
 		int operations = DND.DROP_COPY | DND.DROP_MOVE;
 		Transfer[] tt = new Transfer[] { TextTransfer.getInstance() };
 		userViewer.addDropSupport(operations, tt,
-				new GroupDropListener(userViewer, userAdminWrapper,
+				new GroupDropListener(userAdminWrapper, userViewerCmp,
 						(Group) editor.getDisplayedUser()));
+
+		return userViewerCmp;
 	}
+
+	// Local viewers
 
 	private class MyUserTableViewer extends UserTableViewer {
 		private static final long serialVersionUID = 8467999509931900367L;
@@ -204,26 +218,127 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		}
 	}
 
-	private void refreshFormTitle() throws RepositoryException {
-		getManagedForm().getForm().setText(
-				editor.getProperty(UserAdminConstants.KEY_CN));
+	private void addRemoveAbitily(SectionPart sectionPart,
+			TableViewer userViewer, Group group) {
+		Section section = sectionPart.getSection();
+		ToolBarManager toolBarManager = new ToolBarManager(SWT.FLAT);
+		ToolBar toolbar = toolBarManager.createControl(section);
+		final Cursor handCursor = new Cursor(section.getDisplay(),
+				SWT.CURSOR_HAND);
+		toolbar.setCursor(handCursor);
+		toolbar.addDisposeListener(new DisposeListener() {
+			private static final long serialVersionUID = 3882131405820522925L;
+
+			public void widgetDisposed(DisposeEvent e) {
+				if ((handCursor != null) && (handCursor.isDisposed() == false)) {
+					handCursor.dispose();
+				}
+			}
+		});
+
+		Action action = new RemoveMembershipAction(userViewer, group,
+				"Remove selected items from this group",
+				SecurityAdminImages.ICON_REMOVE_DESC);
+		toolBarManager.add(action);
+		toolBarManager.update(true);
+		section.setTextClient(toolbar);
+	}
+
+	private class RemoveMembershipAction extends Action {
+		private static final long serialVersionUID = -1337713097184522588L;
+
+		private final TableViewer userViewer;
+		private final Group group;
+
+		RemoveMembershipAction(TableViewer userViewer, Group group,
+				String name, ImageDescriptor img) {
+			super(name, img);
+			this.userViewer = userViewer;
+			this.group = group;
+		}
+
+		@Override
+		public void run() {
+			ISelection selection = userViewer.getSelection();
+			if (selection.isEmpty())
+				return;
+
+			@SuppressWarnings("unchecked")
+			Iterator<User> it = ((IStructuredSelection) selection).iterator();
+			List<User> users = new ArrayList<User>();
+			// StringBuilder builder = new StringBuilder();
+			while (it.hasNext()) {
+				User currUser = it.next();
+				// String groupName = UiAdminUtils.getUsername(currGroup);
+				// builder.append(groupName).append("; ");
+				users.add(currUser);
+			}
+
+			userAdminWrapper.beginTransactionIfNeeded();
+			for (User user : users) {
+				group.removeMember(user);
+			}
+			userAdminWrapper.notifyListeners(new UserAdminEvent(null,
+					UserAdminEvent.ROLE_CHANGED, group));
+		}
+	}
+
+	// LOCAL CONTROLLERS
+	private class GroupMembersPart extends SectionPart {
+		private final UserTableViewer userViewer;
+		private final Group group;
+
+		private GroupChangeListener listener;
+
+		public GroupMembersPart(Section section, UserTableViewer userViewer,
+				Group group) {
+			super(section);
+			this.userViewer = userViewer;
+			this.group = group;
+		}
+
+		@Override
+		public void initialize(IManagedForm form) {
+			super.initialize(form);
+			listener = editor.new GroupChangeListener(GroupMembersPart.this);
+			userAdminWrapper.addListener(listener);
+		}
+
+		@Override
+		public void dispose() {
+			userAdminWrapper.removeListener(listener);
+			super.dispose();
+		}
+
+		@Override
+		public void refresh() {
+			refreshFormTitle(group);
+			getSection().setText(
+					"Members of group "
+							+ UiAdminUtils.getProperty(group,
+									UserAdminConstants.KEY_CN));
+			userViewer.refresh();
+			super.refresh();
+		}
 	}
 
 	/**
 	 * Defines this table as being a potential target to add group membership
-	 * (roles) to this user
+	 * (roles) to this group
 	 */
 	private class GroupDropListener extends ViewerDropAdapter {
 		private static final long serialVersionUID = 2893468717831451621L;
 
 		private final UserAdminWrapper userAdminWrapper;
+		// private final UserTableViewer myUserViewerCmp;
 		private final Group myGroup;
 
-		public GroupDropListener(Viewer viewer,
-				UserAdminWrapper userAdminWrapper, Group group) {
-			super(viewer);
+		public GroupDropListener(UserAdminWrapper userAdminWrapper,
+				UserTableViewer userTableViewerCmp, Group group) {
+			super(userTableViewerCmp.getTableViewer());
 			this.userAdminWrapper = userAdminWrapper;
 			this.myGroup = group;
+			// this.myUserViewerCmp = userTableViewerCmp;
 		}
 
 		@Override
@@ -243,7 +358,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 			UserAdmin myUserAdmin = userAdminWrapper.getUserAdmin();
 			Role role = myUserAdmin.getRole(newUserName);
 			if (role.getType() == Role.USER) {
-				// TODO check if the user is already member of this group
+				// TODO check if the group is already member of this group
 				userAdminWrapper.beginTransactionIfNeeded();
 				User user = (User) role;
 				myGroup.addMember(user);
@@ -290,12 +405,17 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 
 		@Override
 		public boolean performDrop(Object data) {
-			userTableViewerCmp.refresh();
+			// myUserViewerCmp.refresh();
 			return true;
 		}
 	}
 
 	// LOCAL HELPERS
+	private void refreshFormTitle(Group group) {
+		getManagedForm().getForm().setText(
+				UiAdminUtils.getProperty(group, UserAdminConstants.KEY_CN));
+	}
+
 	private Composite addSection(FormToolkit tk, Composite parent, String title) {
 		Section section = tk.createSection(parent, Section.TITLE_BAR);
 		GridData gd = EclipseUiUtils.fillWidth();
@@ -309,7 +429,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	}
 
 	/** Creates label and text. */
-	protected Text createLT(Composite body, String label, String value) {
+	private Text createLT(Composite body, String label, String value) {
 		FormToolkit toolkit = getManagedForm().getToolkit();
 		Label lbl = toolkit.createLabel(body, label);
 		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));

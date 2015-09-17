@@ -143,11 +143,6 @@ public class UserTableViewer extends Composite {
 		refreshFilteredList(filter);
 	}
 
-	// /** Returns filter String or null if no filter Text widget */
-	// private String getFilterString() {
-	// return hasFilter ? filterTxt.getText() : null;
-	// }
-
 	/**
 	 * Build repository request : caller might overwrite in order to display a
 	 * subset of all users
@@ -158,8 +153,6 @@ public class UserTableViewer extends Composite {
 			Role[] roles = userAdmin.getRoles(filter);
 			// Display all users and groups
 			for (Role role : roles)
-				// if (role.getType() == Role.USER && role.getType() !=
-				// Role.GROUP)
 				users.add((User) role);
 		} catch (InvalidSyntaxException e) {
 			throw new ArgeoException("Unable to get roles with filter: "
