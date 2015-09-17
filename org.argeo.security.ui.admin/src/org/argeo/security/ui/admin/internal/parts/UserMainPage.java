@@ -146,23 +146,24 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 				super.dispose();
 			}
 
+			@SuppressWarnings("unchecked")
 			public void commit(boolean onSave) {
-				// TODO Sanity checks
-				editor.setProperty(UserAdminConstants.KEY_FIRSTNAME,
+				// TODO Sanity checks (mail validity...)
+				user.getProperties().put(UserAdminConstants.KEY_FIRSTNAME,
 						firstName.getText());
-				editor.setProperty(UserAdminConstants.KEY_LASTNAME,
+				user.getProperties().put(UserAdminConstants.KEY_LASTNAME,
 						lastName.getText());
-				editor.setProperty(UserAdminConstants.KEY_CN,
+				user.getProperties().put(UserAdminConstants.KEY_CN,
 						commonName.getText());
-				// TODO check mail validity
-				editor.setProperty(UserAdminConstants.KEY_MAIL, email.getText());
-
+				user.getProperties().put(UserAdminConstants.KEY_MAIL, email.getText());
 				// Enable common name ?
 				// editor.setProperty(UserAdminConstants.KEY_CN,
 				// email.getText());
 				super.commit(onSave);
 			}
 
+			
+			
 			@Override
 			public void refresh() {
 				distinguishedName.setText(UiAdminUtils.getProperty(user,
@@ -348,8 +349,10 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 			}
 		});
 
-		Action action = new RemoveMembershipAction(userViewer, user,
-				"Remove selected groups", SecurityAdminImages.ICON_REMOVE_DESC);
+		String tooltip = "Remove " + UiAdminUtils.getUsername(user)
+				+ " from the below selected groups";
+		Action action = new RemoveMembershipAction(userViewer, user, tooltip,
+				SecurityAdminImages.ICON_REMOVE_DESC);
 		toolBarManager.add(action);
 		toolBarManager.update(true);
 		section.setTextClient(toolbar);

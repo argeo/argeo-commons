@@ -10,6 +10,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
+import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.User;
 
 /**
@@ -30,8 +31,12 @@ public class UserTableDefaultDClickListener implements IDoubleClickListener {
 		UserEditorInput uei = new UserEditorInput(user.getName());
 
 		try {
-			// IEditorPart editor =
-			iwp.openEditor(uei, UserEditor.ID);
+			// Work around the fact that dynamic setting of the editor icon
+			// causes NPE after a login/logout on RAP
+			if (user instanceof Group)
+				iwp.openEditor(uei, UserEditor.GROUP_EDITOR_ID);
+			else
+				iwp.openEditor(uei, UserEditor.USER_EDITOR_ID);
 		} catch (PartInitException pie) {
 			throw new ArgeoException("Unable to open UserEditor for " + user,
 					pie);

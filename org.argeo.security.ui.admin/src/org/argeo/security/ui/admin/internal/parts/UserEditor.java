@@ -24,20 +24,14 @@ import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.forms.AbstractFormPart;
 import org.eclipse.ui.forms.editor.FormEditor;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
@@ -49,8 +43,10 @@ import org.osgi.service.useradmin.UserAdminListener;
 public class UserEditor extends FormEditor implements UserAdminConstants {
 	private static final long serialVersionUID = 8357851520380820241L;
 
-	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
+	public final static String USER_EDITOR_ID = SecurityAdminPlugin.PLUGIN_ID
 			+ ".userEditor";
+	public final static String GROUP_EDITOR_ID = SecurityAdminPlugin.PLUGIN_ID
+			+ ".groupEditor";
 
 	/* DEPENDENCY INJECTION */
 	private UserAdminWrapper userAdminWrapper;
@@ -70,13 +66,7 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 
 		listener = new NameChangeListener(user);
 		userAdminWrapper.addListener(listener);
-
-		// TODO: following has been disabled because it causes NPE after a
-		// login/logout on RAP
-		// Image titleIcon = user.getType() == Role.GROUP ?
-		// SecurityAdminImages.ICON_GROUP
-		// : SecurityAdminImages.ICON_USER;
-		// setTitleImage(titleIcon);
+		updateEditorTitle(null);
 	}
 
 	/**
@@ -109,7 +99,7 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 	void updateEditorTitle(String title) {
 		if (title == null) {
 			String commonName = UiAdminUtils.getProperty(user, KEY_CN);
-			title = "".equals(commonName) ? commonName : user.getName();
+			title = "".equals(commonName) ? user.getName() : commonName;
 		}
 		setPartName(title);
 	}
@@ -123,15 +113,6 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot add pages", e);
 		}
-	}
-
-	/**
-	 * Updates the property in the working copy. The transaction must be
-	 * explicitly committed to persist the update.
-	 */
-	@SuppressWarnings("unchecked")
-	protected void setProperty(String key, String value) {
-		user.getProperties().put(key, value);
 	}
 
 	@Override

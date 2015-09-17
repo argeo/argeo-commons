@@ -11,6 +11,11 @@
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
 
+	<bean id="groupEditor" class="org.argeo.security.ui.admin.internal.parts.UserEditor"
+		scope="prototype">
+		<property name="userAdminWrapper" ref="userAdminWrapper" />
+	</bean>
+
 	<!-- Views -->
 	<bean id="usersView" class="org.argeo.security.ui.admin.internal.parts.UsersView"
 		scope="prototype">
@@ -20,5 +25,5 @@
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
-	
+
 </beans>

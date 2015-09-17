@@ -40,6 +40,13 @@
             icon="icons/user.gif"
             default="false">
 		</editor>
+		<editor
+			class="org.argeo.eclipse.spring.SpringExtensionFactory"
+            id="org.argeo.security.ui.admin.groupEditor"
+            name="User"
+            icon="icons/users.gif"
+            default="false">
+		</editor>
 	</extension>
     
     <extension
