@@ -141,7 +141,7 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 
 	// CONTROLERS FOR THIS EDITOR AND ITS PAGES
 
-	class NameChangeListener implements UserAdminListener {
+	private class NameChangeListener implements UserAdminListener {
 
 		private final User user;
 

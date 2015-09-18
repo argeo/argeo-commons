@@ -22,12 +22,15 @@ import java.util.List;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
+import org.argeo.security.ui.admin.internal.parts.UserEditorInput;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.UserAdmin;
@@ -66,8 +69,21 @@ public class DeleteGroups extends AbstractHandler {
 
 		userAdminWrapper.beginTransactionIfNeeded();
 		UserAdmin userAdmin = userAdminWrapper.getUserAdmin();
+		IWorkbenchPage iwp = HandlerUtil.getActiveWorkbenchWindow(event)
+				.getActivePage();
+
 		for (Group group : groups) {
-			userAdmin.removeRole(group.getName());
+			String groupName = group.getName();
+
+			// TODO find a way to close the editor cleanly if opened. Cannot be
+			// done through the UserAdminListeners, it causes a
+			// java.util.ConcurrentModificationException because disposing the
+			// editor unregisters and disposes the listener
+			IEditorPart part = iwp.findEditor(new UserEditorInput(groupName));
+			if (part != null)
+				iwp.closeEditor(part, false);
+
+			userAdmin.removeRole(groupName);
 			userAdminWrapper.notifyListeners(new UserAdminEvent(null,
 					UserAdminEvent.ROLE_REMOVED, group));
 		}
