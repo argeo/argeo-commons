@@ -25,6 +25,7 @@ public class RemotingServlet extends JcrRemotingServlet {
 	public final static String INIT_PARAM_RESOURCE_PATH_PREFIX = JcrRemotingServlet.INIT_PARAM_RESOURCE_PATH_PREFIX;
 	public final static String INIT_PARAM_HOME = JcrRemotingServlet.INIT_PARAM_HOME;
 	public final static String INIT_PARAM_TMP_DIRECTORY = JcrRemotingServlet.INIT_PARAM_TMP_DIRECTORY;
+	public final static String INIT_PARAM_PROTECTED_HANDLERS_CONFIG = JcrRemotingServlet.INIT_PARAM_PROTECTED_HANDLERS_CONFIG;
 
 	private static final long serialVersionUID = 3131835511468341309L;
 
