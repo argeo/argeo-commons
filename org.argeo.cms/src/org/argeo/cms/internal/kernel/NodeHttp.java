@@ -135,6 +135,9 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 		ip.setProperty(RemotingServlet.INIT_PARAM_HOME,
 				KernelUtils.getOsgiInstanceDir() + "/tmp/jackrabbit");
 		ip.setProperty(RemotingServlet.INIT_PARAM_TMP_DIRECTORY, "remoting");
+		// in order to avoid annoying warning.
+		ip.setProperty(RemotingServlet.INIT_PARAM_PROTECTED_HANDLERS_CONFIG,
+				"");
 		// Cast to servlet because of a weird behaviour in Eclipse
 		httpService.registerFilter(path, anonymous ? new AnonymousFilter()
 				: new DavFilter(), null, null);
@@ -357,26 +360,22 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 			}
 			// do filter as subject
 			try {
-				Subject.doAs(subject,
-						new PrivilegedExceptionAction<Void>() {
-							public Void run() throws IOException,
-									ServletException {
-								// add security context to session
-								httpSession.setAttribute(
-										ACCESS_CONTROL_CONTEXT,
-										AccessController.getContext());
-								filterChain.doFilter(request, response);
-								return null;
-							}
-						});
+				Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
+					public Void run() throws IOException, ServletException {
+						// add security context to session
+						httpSession.setAttribute(ACCESS_CONTROL_CONTEXT,
+								AccessController.getContext());
+						filterChain.doFilter(request, response);
+						return null;
+					}
+				});
 			} catch (PrivilegedActionException e) {
 				if (e.getCause() instanceof ServletException)
 					throw (ServletException) e.getCause();
 				else if (e.getCause() instanceof IOException)
 					throw (IOException) e.getCause();
 				else
-					throw new CmsException("Unexpected exception",
-							e.getCause());
+					throw new CmsException("Unexpected exception", e.getCause());
 			}
 
 		}
