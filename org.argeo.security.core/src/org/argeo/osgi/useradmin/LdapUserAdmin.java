@@ -150,36 +150,6 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 		}
 	}
 
-	@Override
-	protected void doGetUser(String key, String value,
-			List<DirectoryUser> collectedUsers) {
-		try {
-			String searchFilter = "(&(" + objectClass + "="
-					+ getUserObjectClass() + ")(" + key + "=" + value + "))";
-
-			SearchControls searchControls = new SearchControls();
-			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-
-			String searchBase = getBaseDn();
-			NamingEnumeration<SearchResult> results = getLdapContext().search(
-					searchBase, searchFilter, searchControls);
-
-			SearchResult searchResult = null;
-			if (results.hasMoreElements()) {
-				searchResult = (SearchResult) results.nextElement();
-				if (results.hasMoreElements())
-					searchResult = null;
-			}
-			if (searchResult != null)
-				collectedUsers.add(new LdifUser(this, toDn(searchBase,
-						searchResult), searchResult.getAttributes()));
-		} catch (Exception e) {
-			throw new UserDirectoryException("Cannot get user with " + key
-					+ "=" + value, e);
-		}
-
-	}
-
 	private LdapName toDn(String baseDn, Binding binding)
 			throws InvalidNameException {
 		return new LdapName(binding.isRelative() ? binding.getName() + ","

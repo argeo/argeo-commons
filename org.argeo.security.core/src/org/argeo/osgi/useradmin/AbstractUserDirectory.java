@@ -109,9 +109,6 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 
 	protected abstract List<DirectoryUser> doGetRoles(Filter f);
 
-	protected abstract void doGetUser(String key, String value,
-			List<DirectoryUser> collectedUsers);
-
 	public void init() {
 
 	}
@@ -255,6 +252,19 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		if (collectedUsers.size() == 1)
 			return collectedUsers.get(0);
 		return null;
+	}
+
+	protected void doGetUser(String key, String value,
+			List<DirectoryUser> collectedUsers) {
+		try {
+			Filter f = FrameworkUtil.createFilter("(&(" + objectClass + "="
+					+ getUserObjectClass() + ")(" + key + "=" + value + "))");
+			List<DirectoryUser> users = doGetRoles(f);
+			collectedUsers.addAll(users);
+		} catch (InvalidSyntaxException e) {
+			throw new UserDirectoryException("Cannot get user with " + key
+					+ "=" + value, e);
+		}
 	}
 
 	@Override

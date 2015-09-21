@@ -8,9 +8,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -32,8 +30,6 @@ import org.osgi.service.useradmin.User;
 public class LdifUserAdmin extends AbstractUserDirectory {
 	private SortedMap<LdapName, DirectoryUser> users = new TreeMap<LdapName, DirectoryUser>();
 	private SortedMap<LdapName, DirectoryGroup> groups = new TreeMap<LdapName, DirectoryGroup>();
-
-	private Map<String, Map<String, DirectoryUser>> userIndexes = new LinkedHashMap<String, Map<String, DirectoryUser>>();
 
 	public LdifUserAdmin(String uri, String baseDn) {
 		this(fromUri(uri, baseDn));
@@ -93,7 +89,6 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	protected void load(InputStream in) {
 		try {
 			users.clear();
@@ -113,26 +108,6 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 					} else if (objectClass.equals("groupOfNames")) {
 						groups.put(key, new LdifGroup(this, key, attributes));
 						break objectClasses;
-					}
-				}
-			}
-
-			// indexes
-			for (String attr : getIndexedUserProperties())
-				userIndexes.put(attr, new TreeMap<String, DirectoryUser>());
-
-			for (DirectoryUser user : users.values()) {
-				Dictionary<String, ?> properties = user.getProperties();
-				for (String attr : getIndexedUserProperties()) {
-					Object value = properties.get(attr);
-					if (value != null) {
-						DirectoryUser otherUser = userIndexes.get(attr).put(
-								value.toString(), user);
-						if (otherUser != null)
-							throw new UserDirectoryException("User " + user
-									+ " and user " + otherUser
-									+ " both have property " + attr
-									+ " set to " + value);
 					}
 				}
 			}
@@ -177,14 +152,6 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 					res.add(group);
 		}
 		return res;
-	}
-
-	protected void doGetUser(String key, String value,
-			List<DirectoryUser> collectedUsers) {
-		assert key != null;
-		DirectoryUser user = userIndexes.get(key).get(value);
-		if (user != null)
-			collectedUsers.add(user);
 	}
 
 	@Override
