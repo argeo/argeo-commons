@@ -36,11 +36,11 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
-import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
+/** Base class for a {@link UserDirectory}. */
 abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	private final static Log log = LogFactory
 			.getLog(AbstractUserDirectory.class);
@@ -60,9 +60,6 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	private String memberAttributeId = "member";
 	private List<String> credentialAttributeIds = Arrays
 			.asList(new String[] { LdifName.userpassword.name() });
-
-	// private TransactionSynchronizationRegistry syncRegistry;
-	// private Object editingTransactionKey = null;
 
 	private TransactionManager transactionManager;
 	private ThreadLocal<WorkingCopy> workingCopy = new ThreadLocal<AbstractUserDirectory.WorkingCopy>();
@@ -95,13 +92,8 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 				.getValue(properties);
 	}
 
-	// public AbstractUserDirectory(URI uri, boolean isReadOnly) {
-	// this.uri = uri;
-	// this.isReadOnly = isReadOnly;
-	// }
-
-	/** Returns the {@link Group}s this user is a direct member of. */
-	protected abstract List<? extends DirectoryGroup> getDirectGroups(User user);
+	/** Returns the groups this user is a direct member of. */
+	protected abstract List<LdapName> getDirectGroups(LdapName dn);
 
 	protected abstract Boolean daoHasRole(LdapName dn);
 
@@ -121,10 +113,6 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		if (editingTransactionXid == null)
 			return false;
 		return workingCopy.get() != null;
-		// Object currentTrKey = syncRegistry.getTransactionKey();
-		// if (currentTrKey == null)
-		// return false;
-		// return editingTransactionKey.equals(currentTrKey);
 	}
 
 	protected WorkingCopy getWorkingCopy() {
@@ -168,7 +156,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		}
 	}
 
-	List<Role> getAllRoles(User user) {
+	List<Role> getAllRoles(DirectoryUser user) {
 		List<Role> allRoles = new ArrayList<Role>();
 		if (user != null) {
 			collectRoles(user, allRoles);
@@ -178,9 +166,10 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		return allRoles;
 	}
 
-	private void collectRoles(User user, List<Role> allRoles) {
-		for (Group group : getDirectGroups(user)) {
+	private void collectRoles(DirectoryUser user, List<Role> allRoles) {
+		for (LdapName groupDn : getDirectGroups(user.getDn())) {
 			// TODO check for loops
+			DirectoryUser group = doGetRole(groupDn);
 			allRoles.add(group);
 			collectRoles(group, allRoles);
 		}
@@ -193,13 +182,16 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	// USER ADMIN
 	@Override
 	public Role getRole(String name) {
-		LdapName key = toDn(name);
+		return doGetRole(toDn(name));
+	}
+
+	protected DirectoryUser doGetRole(LdapName dn) {
 		WorkingCopy wc = getWorkingCopy();
-		DirectoryUser user = daoGetRole(key);
+		DirectoryUser user = daoGetRole(dn);
 		if (wc != null) {
-			if (user == null && wc.getNewUsers().containsKey(key))
-				user = wc.getNewUsers().get(key);
-			else if (wc.getDeletedUsers().containsKey(key))
+			if (user == null && wc.getNewUsers().containsKey(dn))
+				user = wc.getNewUsers().get(dn);
+			else if (wc.getDeletedUsers().containsKey(dn))
 				user = null;
 		}
 		return user;
@@ -327,16 +319,20 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		checkEdit();
 		WorkingCopy wc = getWorkingCopy();
 		LdapName dn = toDn(name);
-		if (!daoHasRole(dn) && !wc.getNewUsers().containsKey(dn))
-			return false;
-		DirectoryUser user = (DirectoryUser) getRole(name);
-		wc.getDeletedUsers().put(dn, user);
-		// FIXME clarify directgroups
-		for (DirectoryGroup group : getDirectGroups(user)) {
+		boolean actuallyDeleted;
+		if (daoHasRole(dn) || wc.getNewUsers().containsKey(dn)) {
+			DirectoryUser user = (DirectoryUser) getRole(name);
+			wc.getDeletedUsers().put(dn, user);
+			actuallyDeleted = true;
+		} else {// just removing from groups (e.g. system roles)
+			actuallyDeleted = false;
+		}
+		for (LdapName groupDn : getDirectGroups(dn)) {
+			DirectoryUser group = doGetRole(groupDn);
 			group.getAttributes().get(getMemberAttributeId())
 					.remove(dn.toString());
 		}
-		return true;
+		return actuallyDeleted;
 	}
 
 	// TRANSACTION

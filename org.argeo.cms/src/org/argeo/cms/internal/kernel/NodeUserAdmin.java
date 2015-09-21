@@ -122,8 +122,8 @@ public class NodeUserAdmin implements UserAdmin {
 
 		Dictionary<String, ?> nodeRolesProperties = UserAdminConf
 				.uriAsProperties(nodeRolesUri);
-		if (!nodeRolesProperties.get(UserAdminConf.baseDn.property())
-				.equals(baseNodeRoleDn)) {
+		if (!nodeRolesProperties.get(UserAdminConf.baseDn.property()).equals(
+				baseNodeRoleDn)) {
 			throw new CmsException("Invalid base dn for node roles");
 			// TODO deal with "mounted" roles with a different baseDN
 		}
@@ -135,7 +135,7 @@ public class NodeUserAdmin implements UserAdmin {
 		}
 		nodeRoles.setExternalRoles(this);
 		nodeRoles.init();
-		addUserAdmin(baseNodeRoleDn, (UserAdmin)nodeRoles);
+		addUserAdmin(baseNodeRoleDn, (UserAdmin) nodeRoles);
 		if (log.isTraceEnabled())
 			log.trace("Node roles enabled.");
 	}
@@ -175,7 +175,9 @@ public class NodeUserAdmin implements UserAdmin {
 
 	@Override
 	public boolean removeRole(String name) {
-		return findUserAdmin(name).removeRole(name);
+		boolean actuallyDeleted = findUserAdmin(name).removeRole(name);
+		nodeRoles.removeRole(name);
+		return actuallyDeleted;
 	}
 
 	@Override

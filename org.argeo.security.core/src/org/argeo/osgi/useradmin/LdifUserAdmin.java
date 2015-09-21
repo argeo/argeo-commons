@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
@@ -21,7 +20,6 @@ import javax.transaction.TransactionManager;
 import org.apache.commons.io.IOUtils;
 import org.osgi.framework.Filter;
 import org.osgi.service.useradmin.Role;
-import org.osgi.service.useradmin.User;
 
 /**
  * A user admin based on a LDIF files. Requires a {@link TransactionManager} and
@@ -155,23 +153,12 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected List<DirectoryGroup> getDirectGroups(User user) {
-		LdapName dn;
-		if (user instanceof LdifUser)
-			dn = ((LdifUser) user).getDn();
-		else
-			try {
-				dn = new LdapName(user.getName());
-			} catch (InvalidNameException e) {
-				throw new UserDirectoryException("Badly formatted user name "
-						+ user.getName(), e);
-			}
-
-		List<DirectoryGroup> directGroups = new ArrayList<DirectoryGroup>();
+	protected List<LdapName> getDirectGroups(LdapName dn) {
+		List<LdapName> directGroups = new ArrayList<LdapName>();
 		for (LdapName name : groups.keySet()) {
 			DirectoryGroup group = groups.get(name);
 			if (group.getMemberNames().contains(dn))
-				directGroups.add(group);
+				directGroups.add(group.getDn());
 		}
 		return directGroups;
 	}

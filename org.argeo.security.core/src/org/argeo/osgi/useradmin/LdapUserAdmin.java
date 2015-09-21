@@ -24,7 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.osgi.framework.Filter;
-import org.osgi.service.useradmin.User;
 
 /**
  * A user admin based on a LDAP server. Requires a {@link TransactionManager}
@@ -157,12 +156,12 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected List<DirectoryGroup> getDirectGroups(User user) {
-		List<DirectoryGroup> directGroups = new ArrayList<DirectoryGroup>();
+	protected List<LdapName> getDirectGroups(LdapName dn) {
+		List<LdapName> directGroups = new ArrayList<LdapName>();
 		try {
 			String searchFilter = "(&(" + objectClass + "="
 					+ getGroupObjectClass() + ")(" + getMemberAttributeId()
-					+ "=" + user.getName() + "))";
+					+ "=" + dn + "))";
 
 			SearchControls searchControls = new SearchControls();
 			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -174,14 +173,12 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			while (results.hasMoreElements()) {
 				SearchResult searchResult = (SearchResult) results
 						.nextElement();
-				LdifGroup group = new LdifGroup(this, toDn(searchBase,
-						searchResult), searchResult.getAttributes());
-				directGroups.add(group);
+				directGroups.add(toDn(searchBase, searchResult));
 			}
 			return directGroups;
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot populate direct members of "
-					+ user, e);
+			throw new ArgeoException("Cannot populate direct members of " + dn,
+					e);
 		}
 	}
 
