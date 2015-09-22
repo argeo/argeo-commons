@@ -11,4 +11,7 @@ public interface UserAdminConstants {
 	public final static String KEY_MAIL = "mail";
 	public final static String KEY_DESC  = "description";
 
+	// TO BE CLEANED
+	public final static String SYSTEM_ROLE_BASE_DN = "ou=roles,ou=node";
+	
 }

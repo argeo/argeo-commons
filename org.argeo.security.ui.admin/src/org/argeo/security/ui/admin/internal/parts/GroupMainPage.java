@@ -50,6 +50,7 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -105,13 +106,22 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		GridLayout layout = new GridLayout(2, false);
 		body.setLayout(layout);
 
-		final Text distinguishedName = createLT(body, "Group Name",
-				UiAdminUtils.getProperty(group, UserAdminConstants.KEY_UID));
-		distinguishedName.setEnabled(false);
+		final Text dnTxt = createLT(body, "DN",
+				UiAdminUtils.getProperty(group, UserAdminConstants.KEY_DN));
+		dnTxt.setEnabled(false);
 
-		final Text commonName = createLT(body, "Common Name",
+		final Text cnTxt = createLT(body, "Common Name",
 				UiAdminUtils.getProperty(group, UserAdminConstants.KEY_CN));
-		commonName.setEnabled(false);
+		cnTxt.setEnabled(false);
+
+		Label descLbl = new Label(body, SWT.LEAD);
+		descLbl.setText("Description");
+		descLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false));
+		final Text descTxt = new Text(body, SWT.LEAD | SWT.MULTI | SWT.WRAP
+				| SWT.BORDER);
+		GridData gd = EclipseUiUtils.fillAll();
+		gd.heightHint = 100;
+		descTxt.setLayoutData(gd);
 
 		// create form part (controller)
 		AbstractFormPart part = new SectionPart((Section) body.getParent()) {
@@ -131,16 +141,31 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 				super.dispose();
 			}
 
+			@SuppressWarnings("unchecked")
+			public void commit(boolean onSave) {
+				group.getProperties().put(UserAdminConstants.KEY_DESC,
+						descTxt.getText());
+				// Enable common name ?
+				// editor.setProperty(UserAdminConstants.KEY_CN,
+				// email.getText());
+				super.commit(onSave);
+			}
+
 			@Override
 			public void refresh() {
 				refreshFormTitle(group);
-				distinguishedName.setText(UiAdminUtils.getProperty(group,
-						UserAdminConstants.KEY_UID));
-				commonName.setText(UiAdminUtils.getProperty(group,
+				dnTxt.setText(group.getName());
+				cnTxt.setText(UiAdminUtils.getProperty(group,
 						UserAdminConstants.KEY_CN));
+				descTxt.setText(UiAdminUtils.getProperty(group,
+						UserAdminConstants.KEY_DESC));
+
 				super.refresh();
 			}
 		};
+
+		ModifyListener defaultListener = editor.new FormPartML(part);
+		descTxt.addModifyListener(defaultListener);
 		getManagedForm().addPart(part);
 	}
 

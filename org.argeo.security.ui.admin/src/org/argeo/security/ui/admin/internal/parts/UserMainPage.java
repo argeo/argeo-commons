@@ -31,6 +31,7 @@ import org.argeo.security.ui.admin.internal.UserTableViewer;
 import org.argeo.security.ui.admin.internal.parts.UserEditor.GroupChangeListener;
 import org.argeo.security.ui.admin.internal.parts.UserEditor.MainInfoListener;
 import org.argeo.security.ui.admin.internal.providers.CommonNameLP;
+import org.argeo.security.ui.admin.internal.providers.DomainNameLP;
 import org.argeo.security.ui.admin.internal.providers.RoleIconLP;
 import org.argeo.security.ui.admin.internal.providers.UserNameLP;
 import org.argeo.security.ui.admin.internal.providers.UserTableDefaultDClickListener;
@@ -155,15 +156,14 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 						lastName.getText());
 				user.getProperties().put(UserAdminConstants.KEY_CN,
 						commonName.getText());
-				user.getProperties().put(UserAdminConstants.KEY_MAIL, email.getText());
+				user.getProperties().put(UserAdminConstants.KEY_MAIL,
+						email.getText());
 				// Enable common name ?
 				// editor.setProperty(UserAdminConstants.KEY_CN,
 				// email.getText());
 				super.commit(onSave);
 			}
 
-			
-			
 			@Override
 			public void refresh() {
 				distinguishedName.setText(UiAdminUtils.getProperty(user,
@@ -256,6 +256,8 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 0, 24));
 		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name",
 				150));
+		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain Name",
+				120));
 		columnDefs.add(new ColumnDefinition(new UserNameLP(),
 				"Distinguished Name", 300));
 

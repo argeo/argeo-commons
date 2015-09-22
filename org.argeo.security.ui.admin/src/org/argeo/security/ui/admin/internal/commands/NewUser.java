@@ -16,7 +16,13 @@
 package org.argeo.security.ui.admin.internal.commands;
 
 import java.util.Dictionary;
+import java.util.List;
 
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
+
+import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.jcr.ArgeoNames;
@@ -34,8 +40,11 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.osgi.service.useradmin.Role;
@@ -49,11 +58,6 @@ public class NewUser extends AbstractHandler {
 
 	/* DEPENDENCY INJECTION */
 	private UserAdminWrapper userAdminWrapper;
-
-	// TODO implement a dynamic choice of the base dn
-	private String getDn(String uid) {
-		return "uid=" + uid + ",ou=users,dc=example,dc=com";
-	}
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		NewUserWizard newUserWizard = new NewUserWizard();
@@ -86,6 +90,7 @@ public class NewUser extends AbstractHandler {
 		// End user fields
 		private Text dNameTxt, usernameTxt, firstNameTxt, lastNameTxt,
 				primaryMailTxt, pwd1Txt, pwd2Txt;
+		private Combo baseDnCmb;
 
 		public NewUserWizard() {
 		}
@@ -157,6 +162,19 @@ public class NewUser extends AbstractHandler {
 				dNameTxt = EclipseUiUtils.createGridLT(composite,
 						"Distinguished name", this);
 				dNameTxt.setEnabled(false);
+
+				baseDnCmb = createGridLC(composite, "Base DN", this);
+				initialiseDnCmb(baseDnCmb);
+				baseDnCmb.addModifyListener(new ModifyListener() {
+					private static final long serialVersionUID = -1435351236582736843L;
+
+					@Override
+					public void modifyText(ModifyEvent event) {
+						String name = usernameTxt.getText();
+						dNameTxt.setText(getDn(name));
+					}
+				});
+
 				usernameTxt = EclipseUiUtils.createGridLT(composite,
 						"Local ID", this);
 				usernameTxt.addModifyListener(new ModifyListener() {
@@ -174,7 +192,7 @@ public class NewUser extends AbstractHandler {
 						} else {
 							dNameTxt.setText(getDn(name));
 							lastNameTxt.setText(name.toUpperCase());
-							primaryMailTxt.setText(name + "@example.com");
+							primaryMailTxt.setText(getMail(name));
 							pwd1Txt.setText("demo");
 							pwd2Txt.setText("demo");
 						}
@@ -251,6 +269,47 @@ public class NewUser extends AbstractHandler {
 			}
 
 		}
+
+		private String getDn(String uid) {
+			return "uid=" + uid + ",ou=users," + baseDnCmb.getText();
+		}
+
+		private void initialiseDnCmb(Combo combo) {
+			List<String> dns = userAdminWrapper.getKnownBaseDns(true);
+			if (dns.isEmpty())
+				throw new ArgeoException(
+						"No writable base dn found. Cannot create user");
+			combo.setItems(dns.toArray(new String[0]));
+			// combo.select(0);
+		}
+
+		private String getMail(String username) {
+			if (baseDnCmb.getSelectionIndex() == -1)
+				return null;
+			String baseDn = baseDnCmb.getText();
+			try {
+				LdapName name = new LdapName(baseDn);
+				List<Rdn> rdns = name.getRdns();
+				return username + "@" + (String) rdns.get(1).getValue() + '.'
+						+ (String) rdns.get(0).getValue();
+			} catch (InvalidNameException e) {
+				throw new ArgeoException("Unable to generate mail for "
+						+ username + " with base dn " + baseDn, e);
+			}
+		}
+
+	}
+
+	private Combo createGridLC(Composite parent, String label,
+			ModifyListener modifyListener) {
+		Label lbl = new Label(parent, SWT.LEAD);
+		lbl.setText(label);
+		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+		Combo combo = new Combo(parent, SWT.LEAD | SWT.BORDER | SWT.READ_ONLY);
+		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		if (modifyListener != null)
+			combo.addModifyListener(modifyListener);
+		return combo;
 	}
 
 	/* DEPENDENCY INJECTION */

@@ -41,5 +41,7 @@ public class SecurityAdminImages {
 	public final static Image ICON_USER = ICON_USER_DESC.createImage();
 	public final static Image ICON_GROUP = SecurityAdminPlugin
 			.getImageDescriptor(PREFIX + "users.gif").createImage();
+	public final static Image ICON_ROLE = SecurityAdminPlugin
+			.getImageDescriptor(PREFIX + "role.gif").createImage();
 
 }

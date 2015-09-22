@@ -28,6 +28,7 @@ import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.UserTableViewer;
 import org.argeo.security.ui.admin.internal.providers.CommonNameLP;
+import org.argeo.security.ui.admin.internal.providers.DomainNameLP;
 import org.argeo.security.ui.admin.internal.providers.MailLP;
 import org.argeo.security.ui.admin.internal.providers.UserDragListener;
 import org.argeo.security.ui.admin.internal.providers.UserNameLP;
@@ -71,6 +72,7 @@ public class UsersView extends ViewPart implements ArgeoNames {
 		// Define the displayed columns
 		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name",
 				150));
+		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain", 120));
 		columnDefs.add(new ColumnDefinition(new MailLP(), "E-mail", 150));
 		columnDefs.add(new ColumnDefinition(new UserNameLP(),
 				"Distinguished Name", 300));

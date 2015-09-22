@@ -28,6 +28,8 @@ import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.UserTableViewer;
 import org.argeo.security.ui.admin.internal.providers.CommonNameLP;
+import org.argeo.security.ui.admin.internal.providers.DomainNameLP;
+import org.argeo.security.ui.admin.internal.providers.RoleIconLP;
 import org.argeo.security.ui.admin.internal.providers.UserDragListener;
 import org.argeo.security.ui.admin.internal.providers.UserNameLP;
 import org.argeo.security.ui.admin.internal.providers.UserTableDefaultDClickListener;
@@ -64,8 +66,10 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 	public void createPartControl(Composite parent) {
 		parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
 		// Define the displayed columns
+		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 26));
 		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name",
 				150));
+		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain", 120));
 		columnDefs.add(new ColumnDefinition(new UserNameLP(),
 				"Distinguished Name", 300));
 

@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.List;
 
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
@@ -72,17 +75,50 @@ public class UserAdminWrapper {
 	public void setUserAdminServiceReference(
 			ServiceReference<UserAdmin> userAdminServiceReference) {
 		this.userAdminServiceReference = userAdminServiceReference;
+		// for (String uri : userAdminServiceReference.getPropertyKeys()) {
+		// if (!uri.startsWith("/"))
+		// continue;
+		// log.debug(uri);
+		// Dictionary<String, ?> props = UserAdminConf.uriAsProperties(uri);
+		// log.debug(props);
+		// }
+	}
+
+	public List<String> getKnownBaseDns(boolean onlyWritable) {
+		List<String> dns = new ArrayList<String>();
 		for (String uri : userAdminServiceReference.getPropertyKeys()) {
 			if (!uri.startsWith("/"))
 				continue;
-			log.debug(uri);
 			Dictionary<String, ?> props = UserAdminConf.uriAsProperties(uri);
-			log.debug(props);
+			String readOnly = UserAdminConf.readOnly.getValue(props);
+			String baseDn = UserAdminConf.baseDn.getValue(props);
+
+			if (onlyWritable && "true".equals(readOnly))
+				continue;
+			dns.add(baseDn);
 		}
+		return dns;
 	}
+
+//	// Returns the human friendly domain name give a dn.
+//	public String getDomainName(String dn) {
+//		if (dn.endsWith("ou=roles, ou=node"))
+//			return "System roles";
+//		try {
+//
+//			LdapName name;
+//			name = new LdapName(dn);
+//			List<Rdn> rdns = name.getRdns();
+//
+//			String penultimate = (String) rdns.get(rdns.size() - 2).getValue();
+//			String last = (String) rdns.get(rdns.size() - 1).getValue();
+//			return (penultimate + '.' + last);
+//		} catch (InvalidNameException e) {
+//			throw new ArgeoException("Unable to get domain name for " + dn, e);
+//		}
+//	}
 
 	public void setUserTransaction(UserTransaction userTransaction) {
 		this.userTransaction = userTransaction;
 	}
-
 }
