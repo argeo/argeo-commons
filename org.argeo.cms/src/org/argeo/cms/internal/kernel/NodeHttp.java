@@ -243,6 +243,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 			int pathLength = path.length();
 			if (pathLength != 0 && (path.charAt(0) == '/')
 					&& !servletPath.endsWith("rwt-resources")
+					&& !path.startsWith(KernelConstants.PATH_WORKBENCH)
 					&& path.lastIndexOf('/') != 0) {
 				String newLocation = request.getServletPath() + "#" + path;
 				response.setHeader("Location", newLocation);
