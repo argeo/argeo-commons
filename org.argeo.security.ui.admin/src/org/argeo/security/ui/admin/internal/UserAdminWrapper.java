@@ -1,20 +1,27 @@
 package org.argeo.security.ui.admin.internal;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.List;
 
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
+import org.argeo.osgi.useradmin.UserAdminConf;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.service.useradmin.UserAdminEvent;
 import org.osgi.service.useradmin.UserAdminListener;
 
 /** Simplifies the interaction with the UserAdmin in this bundle */
 public class UserAdminWrapper {
+	private Log log = LogFactory.getLog(UserAdminWrapper.class);
 
 	private UserAdmin userAdmin;
+	private ServiceReference<UserAdmin> userAdminServiceReference;
 	private UserTransaction userTransaction;
 
 	// Registered listeners
@@ -60,6 +67,18 @@ public class UserAdminWrapper {
 	/* DEPENDENCY INJECTION */
 	public void setUserAdmin(UserAdmin userAdmin) {
 		this.userAdmin = userAdmin;
+	}
+
+	public void setUserAdminServiceReference(
+			ServiceReference<UserAdmin> userAdminServiceReference) {
+		this.userAdminServiceReference = userAdminServiceReference;
+		for (String uri : userAdminServiceReference.getPropertyKeys()) {
+			if (!uri.startsWith("/"))
+				continue;
+			log.debug(uri);
+			Dictionary<String, ?> props = UserAdminConf.uriAsProperties(uri);
+			log.debug(props);
+		}
 	}
 
 	public void setUserTransaction(UserTransaction userTransaction) {
