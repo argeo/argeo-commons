@@ -16,10 +16,10 @@ import javax.naming.Context;
 
 /** Properties used to configure user admins. */
 public enum UserAdminConf {
-	/** Base DN */
+	/** Base DN (cannot be configured externally) */
 	baseDn("dc=example,dc=com"),
 
-	/** URI of the underlying resource */
+	/** URI of the underlying resource (cannot be configured externally) */
 	uri("ldap://localhost:10389"),
 
 	/** User objectClass */
@@ -52,7 +52,7 @@ public enum UserAdminConf {
 
 	/** For use as Java property. */
 	public String property() {
-		return getPrefix() + name();
+		return getPrefix() + '.' + name();
 	}
 
 	public String getPrefix() {
@@ -75,7 +75,7 @@ public enum UserAdminConf {
 	}
 
 	public static UserAdminConf local(String property) {
-		return UserAdminConf.valueOf(property.substring(PREFIX.length()));
+		return UserAdminConf.valueOf(property.substring(PREFIX.length() + 1));
 	}
 
 	/** Hides host and credentials. */
