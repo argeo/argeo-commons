@@ -82,7 +82,9 @@ public class SecureEntryPoint implements EntryPoint {
 				.getAttribute(KernelHeader.ACCESS_CONTROL_CONTEXT);
 
 		final Subject subject;
-		if (acc != null) {
+		if (acc != null
+				&& Subject.getSubject(acc).getPrincipals(X500Principal.class)
+						.size() == 1) {
 			subject = Subject.getSubject(acc);
 		} else {
 			subject = new Subject();
