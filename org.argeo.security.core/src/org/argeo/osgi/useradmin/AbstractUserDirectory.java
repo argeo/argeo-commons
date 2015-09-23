@@ -12,7 +12,9 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -45,13 +47,13 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	private final static Log log = LogFactory
 			.getLog(AbstractUserDirectory.class);
 
-	private Dictionary<String, ?> properties;
-	private String baseDn = "dc=example,dc=com";
-	private String userObjectClass;
-	private String groupObjectClass;
+	private final Hashtable<String, Object> properties;
+	private final String baseDn;
+	private final String userObjectClass;
+	private final String groupObjectClass;
 
-	private boolean isReadOnly;
-	private URI uri;
+	private final boolean readOnly;
+	private final URI uri;
 
 	private UserAdmin externalRoles;
 	private List<String> indexedUserProperties = Arrays.asList(new String[] {
@@ -65,9 +67,12 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	private ThreadLocal<WorkingCopy> workingCopy = new ThreadLocal<AbstractUserDirectory.WorkingCopy>();
 	private Xid editingTransactionXid = null;
 
-	AbstractUserDirectory(Dictionary<String, ?> properties) {
-		// TODO make a copy?
-		this.properties = properties;
+	AbstractUserDirectory(Dictionary<String, ?> props) {
+		properties = new Hashtable<String, Object>();
+		for (Enumeration<String> keys = props.keys(); keys.hasMoreElements();) {
+			String key = keys.nextElement();
+			properties.put(key, props.get(key));
+		}
 
 		String uriStr = UserAdminConf.uri.getValue(properties);
 		if (uriStr == null)
@@ -76,20 +81,21 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 			try {
 				uri = new URI(uriStr);
 			} catch (URISyntaxException e) {
-				throw new UserDirectoryException("Badly formatted URI", e);
+				throw new UserDirectoryException("Badly formatted URI "
+						+ uriStr, e);
 			}
 
 		baseDn = UserAdminConf.baseDn.getValue(properties).toString();
-		String isReadOnly = UserAdminConf.readOnly.getValue(properties);
-		if (isReadOnly == null)
-			this.isReadOnly = readOnlyDefault(uri);
-		else
-			this.isReadOnly = new Boolean(isReadOnly);
+		String readOnlyStr = UserAdminConf.readOnly.getValue(properties);
+		if (readOnlyStr == null) {
+			readOnly = readOnlyDefault(uri);
+			properties.put(UserAdminConf.readOnly.property(),
+					Boolean.toString(readOnly));
+		} else
+			readOnly = new Boolean(readOnlyStr);
 
-		this.userObjectClass = UserAdminConf.userObjectClass
-				.getValue(properties);
-		this.groupObjectClass = UserAdminConf.groupObjectClass
-				.getValue(properties);
+		userObjectClass = UserAdminConf.userObjectClass.getValue(properties);
+		groupObjectClass = UserAdminConf.groupObjectClass.getValue(properties);
 	}
 
 	/** Returns the groups this user is a direct member of. */
@@ -371,10 +377,6 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		return uri;
 	}
 
-	protected void setUri(URI uri) {
-		this.uri = uri;
-	}
-
 	protected List<String> getIndexedUserProperties() {
 		return indexedUserProperties;
 	}
@@ -383,22 +385,21 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		this.indexedUserProperties = indexedUserProperties;
 	}
 
-	protected void setReadOnly(boolean isReadOnly) {
-		this.isReadOnly = isReadOnly;
-	}
-
 	private static boolean readOnlyDefault(URI uri) {
 		if (uri == null)
 			return true;
 		if (uri.getScheme().equals("file")) {
 			File file = new File(uri);
-			return !file.canWrite();
+			if (file.exists())
+				return !file.canWrite();
+			else
+				return !file.getParentFile().canWrite();
 		}
 		return true;
 	}
 
 	public boolean isReadOnly() {
-		return isReadOnly;
+		return readOnly;
 	}
 
 	UserAdmin getExternalRoles() {

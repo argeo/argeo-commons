@@ -3,7 +3,6 @@ package org.argeo.cms.internal.kernel;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
@@ -23,10 +22,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.KernelHeader;
-import org.argeo.osgi.useradmin.UserDirectory;
-import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.osgi.useradmin.LdapUserAdmin;
 import org.argeo.osgi.useradmin.LdifUserAdmin;
+import org.argeo.osgi.useradmin.UserAdminConf;
+import org.argeo.osgi.useradmin.UserDirectory;
 import org.argeo.osgi.useradmin.UserDirectoryException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
@@ -75,17 +74,23 @@ public class NodeUserAdmin implements UserAdmin {
 			URI u;
 			try {
 				u = new URI(uri);
+				if (u.getPath() == null)
+					throw new CmsException("URI " + uri
+							+ " must have a path in order to determine base DN");
 				if (u.getScheme() == null) {
-					if (uri.startsWith("/"))
-						u = new File(uri).getAbsoluteFile().toURI();
+					if (uri.startsWith("/") || uri.startsWith("./")
+							|| uri.startsWith("../"))
+						u = new File(uri).getCanonicalFile().toURI();
 					else if (!uri.contains("/"))
-						u = new File(nodeBaseDir, uri).getAbsoluteFile()
+						u = new File(nodeBaseDir, uri).getCanonicalFile()
 								.toURI();
 					else
 						throw new CmsException("Cannot interpret " + uri
 								+ " as an uri");
+				} else if (u.getScheme().equals("file")) {
+					u = new File(u).getCanonicalFile().toURI();
 				}
-			} catch (URISyntaxException e) {
+			} catch (Exception e) {
 				throw new CmsException(
 						"Cannot interpret " + uri + " as an uri", e);
 			}

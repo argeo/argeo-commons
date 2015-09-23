@@ -15,6 +15,7 @@ import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.x500.X500Principal;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -71,7 +72,9 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 		final HttpSession httpSession = httpRequest.getSession();
 		AccessControlContext acc = (AccessControlContext) httpSession
 				.getAttribute(KernelHeader.ACCESS_CONTROL_CONTEXT);
-		if (acc != null)
+		if (acc != null
+				&& Subject.getSubject(acc).getPrincipals(X500Principal.class)
+						.size() == 1)
 			subject = Subject.getSubject(acc);
 		else
 			subject = new Subject();

@@ -40,8 +40,6 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	public LdifUserAdmin(InputStream in) {
 		super(new Hashtable<String, Object>());
 		load(in);
-		setReadOnly(true);
-		setUri(null);
 	}
 
 	private static Dictionary<String, Object> fromUri(String uri, String baseDn) {
@@ -65,8 +63,12 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	}
 
 	public void save() {
-		if (getUri() == null || isReadOnly())
-			throw new UserDirectoryException("Cannot save LDIF user admin");
+		if (getUri() == null)
+			throw new UserDirectoryException(
+					"Cannot save LDIF user admin: no URI is set");
+		if (isReadOnly())
+			throw new UserDirectoryException("Cannot save LDIF user admin: "
+					+ getUri() + " is read-only");
 		try (FileOutputStream out = new FileOutputStream(new File(getUri()))) {
 			save(out);
 		} catch (IOException e) {
