@@ -15,7 +15,7 @@ public class ArgeoAccessControlProvider extends ACLProvider {
 	public void init(Session systemSession, Map configuration)
 			throws RepositoryException {
 		if (!configuration.containsKey(PARAM_ALLOW_UNKNOWN_PRINCIPALS))
-			configuration.put(PARAM_ALLOW_UNKNOWN_PRINCIPALS, true);
+			configuration.put(PARAM_ALLOW_UNKNOWN_PRINCIPALS, "true");
 		super.init(systemSession, configuration);
 	}
 
