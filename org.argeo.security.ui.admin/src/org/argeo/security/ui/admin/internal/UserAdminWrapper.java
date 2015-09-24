@@ -4,14 +4,9 @@ import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.List;
 
-import javax.naming.InvalidNameException;
-import javax.naming.ldap.LdapName;
-import javax.naming.ldap.Rdn;
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.osgi.framework.ServiceReference;
@@ -21,7 +16,7 @@ import org.osgi.service.useradmin.UserAdminListener;
 
 /** Simplifies the interaction with the UserAdmin in this bundle */
 public class UserAdminWrapper {
-	private Log log = LogFactory.getLog(UserAdminWrapper.class);
+	// private Log log = LogFactory.getLog(UserAdminWrapper.class);
 
 	private UserAdmin userAdmin;
 	private ServiceReference<UserAdmin> userAdminServiceReference;
@@ -100,23 +95,23 @@ public class UserAdminWrapper {
 		return dns;
 	}
 
-//	// Returns the human friendly domain name give a dn.
-//	public String getDomainName(String dn) {
-//		if (dn.endsWith("ou=roles, ou=node"))
-//			return "System roles";
-//		try {
-//
-//			LdapName name;
-//			name = new LdapName(dn);
-//			List<Rdn> rdns = name.getRdns();
-//
-//			String penultimate = (String) rdns.get(rdns.size() - 2).getValue();
-//			String last = (String) rdns.get(rdns.size() - 1).getValue();
-//			return (penultimate + '.' + last);
-//		} catch (InvalidNameException e) {
-//			throw new ArgeoException("Unable to get domain name for " + dn, e);
-//		}
-//	}
+	// // Returns the human friendly domain name give a dn.
+	// public String getDomainName(String dn) {
+	// if (dn.endsWith("ou=roles, ou=node"))
+	// return "System roles";
+	// try {
+	//
+	// LdapName name;
+	// name = new LdapName(dn);
+	// List<Rdn> rdns = name.getRdns();
+	//
+	// String penultimate = (String) rdns.get(rdns.size() - 2).getValue();
+	// String last = (String) rdns.get(rdns.size() - 1).getValue();
+	// return (penultimate + '.' + last);
+	// } catch (InvalidNameException e) {
+	// throw new ArgeoException("Unable to get domain name for " + dn, e);
+	// }
+	// }
 
 	public void setUserTransaction(UserTransaction userTransaction) {
 		this.userTransaction = userTransaction;
