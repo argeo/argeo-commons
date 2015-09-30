@@ -15,16 +15,17 @@
  */
 package org.argeo.security;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.security.AccessController;
+import java.security.Principal;
+import java.security.acl.Group;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
+import javax.security.auth.Subject;
+import javax.security.auth.x500.X500Principal;
+
+import org.argeo.ArgeoException;
 
 /** Static utilities */
 public final class SecurityUtils {
@@ -33,16 +34,7 @@ public final class SecurityUtils {
 
 	/** Whether the current thread has the admin role */
 	public static boolean hasCurrentThreadAuthority(String authority) {
-		SecurityContext securityContext = SecurityContextHolder.getContext();
-		if (securityContext != null) {
-			Authentication authentication = securityContext.getAuthentication();
-			if (authentication != null) {
-				for (GrantedAuthority ga : authentication.getAuthorities())
-					if (ga.getAuthority().equals(authority))
-						return true;
-			}
-		}
-		return false;
+		return roles().contains(authority);
 	}
 
 	/**
@@ -50,49 +42,32 @@ public final class SecurityUtils {
 	 *         anonymous
 	 */
 	public static String getCurrentThreadUsername() {
-		SecurityContext securityContext = SecurityContextHolder.getContext();
-		if (securityContext != null) {
-			Authentication authentication = securityContext.getAuthentication();
-			if (authentication != null) {
-				if (authentication instanceof AnonymousAuthenticationToken) {
-					return null;
-				}
-				return authentication.getName();
-			}
-		}
-		return null;
+		return getUsername();
 	}
 
-	/**
-	 * Returns the display name of the user details (by calling toString() on
-	 * it)
-	 */
-	public static String getUserDetailsDisplayName() {
-		SecurityContext securityContext = SecurityContextHolder.getContext();
-		if (securityContext != null) {
-			Authentication authentication = securityContext.getAuthentication();
-			if (authentication != null) {
-				if (authentication instanceof AnonymousAuthenticationToken) {
-					return null;
-				}
-				Object details = authentication.getDetails();
-				if (details != null)
-					return details.toString();
-				return authentication.getName();
-			}
-		}
-		return null;
+	public final static String getUsername() {
+		Subject subject = Subject.getSubject(AccessController.getContext());
+		if (subject == null)
+			return null;
+		if (subject.getPrincipals(X500Principal.class).size() != 1)
+			return null;
+		Principal principal = subject.getPrincipals(X500Principal.class)
+				.iterator().next();
+		return principal.getName();
+
 	}
 
-	/**
-	 * Converts an array of Spring Security {@link GrantedAuthority} to a
-	 * read-only list of strings, for portability and integration
-	 */
-	public static List<String> authoritiesToStringList(
-			Collection<? extends GrantedAuthority> authorities) {
-		List<String> lst = new ArrayList<String>();
-		for (GrantedAuthority ga : authorities)
-			lst.add(ga.getAuthority());
-		return Collections.unmodifiableList(lst);
+	public final static Set<String> roles() {
+		Set<String> roles = Collections.synchronizedSet(new HashSet<String>());
+		Subject subject = Subject.getSubject(AccessController.getContext());
+		if (subject == null)
+			throw new ArgeoException("Not authenticated.");
+		X500Principal userPrincipal = subject
+				.getPrincipals(X500Principal.class).iterator().next();
+		roles.add(userPrincipal.getName());
+		for (Principal group : subject.getPrincipals(Group.class)) {
+			roles.add(group.getName());
+		}
+		return roles;
 	}
 }

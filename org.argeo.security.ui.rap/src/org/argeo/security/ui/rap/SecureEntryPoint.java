@@ -23,7 +23,7 @@ import java.security.PrivilegedAction;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.login.CredentialNotFoundException;
+import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.x500.X500Principal;
@@ -43,7 +43,6 @@ import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.EntryPoint;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
-import org.springframework.security.authentication.BadCredentialsException;
 
 /**
  * RAP entry point with login capabilities. Once the user has been
@@ -117,14 +116,12 @@ public class SecureEntryPoint implements EntryPoint {
 
 					if (log.isDebugEnabled())
 						log.debug("Authenticated " + subject);
+				} catch (FailedLoginException e) {
+					MessageDialog.openInformation(display.getActiveShell(),
+							"Bad Credentials", e.getMessage());
+					// retry login
+					continue tryLogin;
 				} catch (LoginException e) {
-					BadCredentialsException bce = wasCausedByBadCredentials(e);
-					if (bce != null) {
-						MessageDialog.openInformation(display.getActiveShell(),
-								"Bad Credentials", bce.getMessage());
-						// retry login
-						continue tryLogin;
-					}
 					return processLoginDeath(display, e);
 				}
 			}
@@ -190,20 +187,6 @@ public class SecureEntryPoint implements EntryPoint {
 					"Unexpected exception during authentication", e);
 		}
 
-	}
-
-	/** Recursively look for {@link BadCredentialsException} in the root causes. */
-	private BadCredentialsException wasCausedByBadCredentials(Throwable t) {
-		if (t instanceof BadCredentialsException)
-			return (BadCredentialsException) t;
-
-		if (t instanceof CredentialNotFoundException)
-			return new BadCredentialsException("Login canceled");
-
-		if (t.getCause() != null)
-			return wasCausedByBadCredentials(t.getCause());
-		else
-			return null;
 	}
 
 	/**

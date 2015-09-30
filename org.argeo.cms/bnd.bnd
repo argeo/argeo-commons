@@ -1,12 +1,8 @@
 Bundle-SymbolicName: org.argeo.cms;singleton=true
 Bundle-Activator: org.argeo.cms.internal.kernel.Activator
-Import-Package: org.springframework.core,\
-org.springframework.dao,\
-javax.jcr.security,\
+Import-Package: javax.jcr.security,\
 org.xml.sax,\
 org.argeo.jcr,\
-org.springframework.context,\
-org.springframework.security.authentication.jaas,\
 org.apache.jackrabbit.api,\
 org.apache.jackrabbit.commons,\
 org.apache.jackrabbit.core.security.user,\
@@ -19,8 +15,7 @@ org.h2;resolution:=optional,\
 org.postgresql;resolution:=optional,\
 org.apache.commons.vfs2.*;resolution:=optional,\
 org.apache.jackrabbit.*;resolution:=optional,\
-org.springframework.ldap.*;resolution:=optional,\
-org.springframework.security.ldap.*;resolution:=optional,\
-org.springframework.security.provisioning;resolution:=optional,\
 org.joda.time.*;resolution:=optional,\
+org.springframework.context,\
+org.springframework.core.io,\
 *

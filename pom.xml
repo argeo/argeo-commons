@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
@@ -398,6 +399,36 @@ limitations under the License.
 			<artifactId>argeo-tp</artifactId>
 			<version>${version.argeo-distribution}</version>
 			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.argeo.tp.spring</groupId>
+					<artifactId>org.springframework.ldap</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.spring.security</groupId>
+					<artifactId>org.springframework.security.acls</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.spring.security</groupId>
+					<artifactId>org.springframework.security.aspects</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.spring.security</groupId>
+					<artifactId>org.springframework.security.config</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.spring.security</groupId>
+					<artifactId>org.springframework.security.core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.spring.security</groupId>
+					<artifactId>org.springframework.security.ldap</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.spring.security</groupId>
+					<artifactId>org.springframework.security.web</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 	<repositories>

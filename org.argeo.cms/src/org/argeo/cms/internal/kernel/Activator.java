@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.security.SystemAuthentication;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -13,12 +12,13 @@ import org.osgi.framework.BundleContext;
  * access to kernel information for the rest of the bundle (and only it)
  */
 public class Activator implements BundleActivator {
+	public final static String SYSTEM_KEY_PROPERTY = "argeo.security.systemKey";
 	private final Log log = LogFactory.getLog(Activator.class);
 
 	private final static String systemKey;
 	static {
 		systemKey = UUID.randomUUID().toString();
-		System.setProperty(SystemAuthentication.SYSTEM_KEY_PROPERTY, systemKey);
+		System.setProperty(SYSTEM_KEY_PROPERTY, systemKey);
 	}
 
 	private static BundleContext bundleContext;

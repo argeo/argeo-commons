@@ -29,12 +29,9 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.useradmin.UserAdmin;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 
 /** Authentication and user management. */
-class NodeSecurity implements AuthenticationManager {
+class NodeSecurity {
 	private final static Log log;
 	static {
 		log = LogFactory.getLog(NodeSecurity.class);
@@ -53,8 +50,6 @@ class NodeSecurity implements AuthenticationManager {
 	private final BundleContext bundleContext;
 	private final NodeUserAdmin userAdmin;
 	private final Subject kernelSubject;
-
-	private ServiceRegistration<AuthenticationManager> authenticationManagerReg;
 
 	private ServiceRegistration<UserAdmin> userAdminReg;
 
@@ -103,14 +98,9 @@ class NodeSecurity implements AuthenticationManager {
 	public void publish() {
 		userAdminReg = bundleContext.registerService(UserAdmin.class,
 				userAdmin, userAdmin.currentState());
-		// dummy auth manager, in order to smooth transition from Argeo 1
-		authenticationManagerReg = bundleContext.registerService(
-				AuthenticationManager.class, this, null);
-	}
+		}
 
 	void destroy() {
-		authenticationManagerReg.unregister();
-
 		userAdmin.destroy();
 		userAdminReg.unregister();
 
@@ -132,14 +122,6 @@ class NodeSecurity implements AuthenticationManager {
 
 	public Subject getKernelSubject() {
 		return kernelSubject;
-	}
-
-	@Override
-	public Authentication authenticate(Authentication authentication)
-			throws AuthenticationException {
-		log.error("Authentication manager is deprecated and should not be used.");
-		throw new ProviderNotFoundException(
-				"Authentication manager is deprecated and should not be used.");
 	}
 
 	private void createKeyStoreIfNeeded() {

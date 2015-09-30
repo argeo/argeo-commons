@@ -22,25 +22,14 @@ import javax.security.auth.login.LoginException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
-import org.springframework.security.authentication.AuthenticationManager;
 
 /** Provides base method for executing code with system authorization. */
 public abstract class AbstractSystemExecution {
 	private final static Log log = LogFactory
 			.getLog(AbstractSystemExecution.class);
-	// private AuthenticationManager authenticationManager;
 	private final Subject subject = new Subject();
-	// private String systemAuthenticationKey;
 
 	private final String loginModule = "SYSTEM";
-
-	/** Whether the current thread was authenticated by this component. */
-	// private ThreadLocal<Boolean> authenticatedBySelf = new
-	// ThreadLocal<Boolean>() {
-	// protected Boolean initialValue() {
-	// return false;
-	// }
-	// };
 
 	/**
 	 * Authenticate the calling thread to the underlying
@@ -53,33 +42,6 @@ public abstract class AbstractSystemExecution {
 		} catch (LoginException e) {
 			throw new ArgeoException("Cannot login as system", e);
 		}
-		// if (authenticatedBySelf.get())
-		// return;
-		// SecurityContext securityContext = SecurityContextHolder.getContext();
-		// Authentication currentAuth = securityContext.getAuthentication();
-		// if (currentAuth != null) {
-		// if (!(currentAuth instanceof SystemAuthentication))
-		// throw new ArgeoException(
-		// "System execution on an already authenticated thread: "
-		// + currentAuth + ", THREAD="
-		// + Thread.currentThread().getId());
-		// return;
-		// }
-		//
-		// String key = systemAuthenticationKey != null ?
-		// systemAuthenticationKey
-		// : System.getProperty(
-		// SystemAuthentication.SYSTEM_KEY_PROPERTY,
-		// InternalAuthentication.SYSTEM_KEY_DEFAULT);
-		// if (key == null)
-		// throw new ArgeoException("No system key defined");
-		// if (authenticationManager == null)
-		// throw new ArgeoException("Authentication manager cannot be null.");
-		// Authentication auth = authenticationManager
-		// .authenticate(new InternalAuthentication(key));
-		// securityContext.setAuthentication(auth);
-		//
-		// authenticatedBySelf.set(true);
 		if (log.isTraceEnabled())
 			log.trace("System authenticated");
 	}
@@ -95,23 +57,5 @@ public abstract class AbstractSystemExecution {
 
 	protected Subject getSubject() {
 		return subject;
-	}
-
-	// /**
-	// * Whether the current thread was authenticated by this component or a
-	// * parent thread.
-	// */
-	// protected Boolean isAuthenticatedBySelf() {
-	// return authenticatedBySelf.get();
-	// }
-	//
-	public void setAuthenticationManager(
-			AuthenticationManager authenticationManager) {
-		log.warn("Use of authenticationManager is deprecated, remove this property from the configuration.");
-	}
-
-	public void setSystemAuthenticationKey(String systemAuthenticationKey) {
-		log.warn("Use of systemAuthenticationKey is deprecated, remove this property from the configuration.");
-		// this.systemAuthenticationKey = systemAuthenticationKey;
 	}
 }

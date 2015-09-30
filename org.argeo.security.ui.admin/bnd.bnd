@@ -12,6 +12,4 @@ org.eclipse.swt.widgets,\
 org.eclipse.ui.services,\
 org.osgi.framework,\
 org.springframework.core,\
-org.springframework.dao,\
-org.springframework.security.provisioning,\
 *				

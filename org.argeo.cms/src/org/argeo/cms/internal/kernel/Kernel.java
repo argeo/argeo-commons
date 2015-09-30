@@ -20,14 +20,12 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.transaction.SimpleTransactionManager;
 import org.argeo.jackrabbit.OsgiJackrabbitRepositoryFactory;
 import org.argeo.jcr.ArgeoJcrConstants;
-import org.argeo.security.core.InternalAuthentication;
 import org.eclipse.equinox.http.servlet.ExtendedHttpService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Argeo CMS Kernel. Responsible for :
@@ -77,9 +75,6 @@ final class Kernel implements ServiceListener {
 		Thread.currentThread().setContextClassLoader(
 				Kernel.class.getClassLoader());
 		long begin = System.currentTimeMillis();
-		InternalAuthentication initAuth = new InternalAuthentication(
-				KernelConstants.DEFAULT_SECURITY_KEY);
-		SecurityContextHolder.getContext().setAuthentication(initAuth);
 
 		try {
 			// Transaction
