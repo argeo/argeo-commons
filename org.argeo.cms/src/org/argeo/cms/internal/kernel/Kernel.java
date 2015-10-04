@@ -4,6 +4,7 @@ import java.lang.management.ManagementFactory;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryFactory;
@@ -25,6 +26,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.http.HttpService;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
@@ -91,8 +93,12 @@ final class Kernel implements ServiceListener {
 					transactionManager);
 
 			// Equinox dependency
-			ExtendedHttpService httpService = waitForHttpService();
-			nodeHttp = new NodeHttp(httpService, node);
+			// ExtendedHttpService httpService = waitForHttpService();
+			// nodeHttp = new NodeHttp(httpService, node);
+			ServiceReference<ExtendedHttpService> sr = bundleContext
+					.getServiceReference(ExtendedHttpService.class);
+			if (sr != null)
+				addHttpService(sr);
 
 			// Kernel thread
 			kernelThread = new KernelThread(this);
@@ -159,28 +165,52 @@ final class Kernel implements ServiceListener {
 	@Override
 	public void serviceChanged(ServiceEvent event) {
 		ServiceReference<?> sr = event.getServiceReference();
-		Object jcrRepoAlias = sr
-				.getProperty(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS);
-		if (jcrRepoAlias != null) {// JCR repository
-			String alias = jcrRepoAlias.toString();
-			Repository repository = (Repository) bundleContext.getService(sr);
-			Map<String, Object> props = new HashMap<String, Object>();
-			for (String key : sr.getPropertyKeys())
-				props.put(key, sr.getProperty(key));
-			if (ServiceEvent.REGISTERED == event.getType()) {
-				try {
-					repositoryFactory.register(repository, props);
-					nodeHttp.registerRepositoryServlets(alias, repository);
-				} catch (Exception e) {
-					throw new CmsException("Could not publish JCR repository "
-							+ alias, e);
+		Object service = bundleContext.getService(sr);
+		if (service instanceof Repository) {
+			Object jcrRepoAlias = sr
+					.getProperty(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS);
+			if (jcrRepoAlias != null) {// JCR repository
+				String alias = jcrRepoAlias.toString();
+				Repository repository = (Repository) bundleContext
+						.getService(sr);
+				Map<String, Object> props = new HashMap<String, Object>();
+				for (String key : sr.getPropertyKeys())
+					props.put(key, sr.getProperty(key));
+				if (ServiceEvent.REGISTERED == event.getType()) {
+					try {
+						repositoryFactory.register(repository, props);
+						nodeHttp.registerRepositoryServlets(alias, repository);
+					} catch (Exception e) {
+						throw new CmsException(
+								"Could not publish JCR repository " + alias, e);
+					}
+				} else if (ServiceEvent.UNREGISTERING == event.getType()) {
+					repositoryFactory.unregister(repository, props);
+					nodeHttp.unregisterRepositoryServlets(alias);
 				}
+			}
+		} else if (service instanceof ExtendedHttpService) {
+			if (ServiceEvent.REGISTERED == event.getType()) {
+				addHttpService(sr);
 			} else if (ServiceEvent.UNREGISTERING == event.getType()) {
-				repositoryFactory.unregister(repository, props);
-				nodeHttp.unregisterRepositoryServlets(alias);
+				nodeHttp.destroy();
+				nodeHttp = null;
 			}
 		}
+	}
 
+	private void addHttpService(ServiceReference<?> sr) {
+//		for (String key : sr.getPropertyKeys())
+//			log.debug(key + "=" + sr.getProperty(key));
+		ExtendedHttpService httpService = (ExtendedHttpService) bundleContext
+				.getService(sr);
+		// TODO find constants
+		Object httpPort = sr.getProperty("http.port");
+		Object httpsPort = sr.getProperty("https.port");
+		nodeHttp = new NodeHttp(httpService, node);
+		if (log.isDebugEnabled())
+			log.debug("HTTP " + httpPort
+					+ (httpsPort != null ? " - HTTPS " + httpsPort : ""));
 	}
 
 	private ExtendedHttpService waitForHttpService() {
