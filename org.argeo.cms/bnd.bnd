@@ -18,4 +18,6 @@ org.apache.jackrabbit.*;resolution:=optional,\
 org.joda.time.*;resolution:=optional,\
 org.springframework.context,\
 org.springframework.core.io,\
+org.apache.jackrabbit.webdav.server,\
+org.apache.jackrabbit.webdav.jcr,\
 *

@@ -1,8 +1,8 @@
 package org.argeo.cms.util;
 
-import static org.argeo.cms.KernelHeader.ACCESS_CONTROL_CONTEXT;
-import static org.argeo.cms.KernelHeader.LOGIN_CONTEXT_ANONYMOUS;
-import static org.argeo.cms.KernelHeader.LOGIN_CONTEXT_USER;
+import static org.argeo.cms.auth.AuthConstants.ACCESS_CONTROL_CONTEXT;
+import static org.argeo.cms.auth.AuthConstants.LOGIN_CONTEXT_ANONYMOUS;
+import static org.argeo.cms.auth.AuthConstants.LOGIN_CONTEXT_USER;
 
 import java.io.IOException;
 import java.security.AccessController;
@@ -21,10 +21,10 @@ import javax.servlet.http.HttpSession;
 
 import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsMsg;
-import org.argeo.cms.CmsView;
 import org.argeo.cms.CmsStyles;
-import org.argeo.cms.KernelHeader;
-import org.argeo.cms.auth.ArgeoLoginContext;
+import org.argeo.cms.CmsView;
+import org.argeo.cms.auth.AuthConstants;
+import org.argeo.security.SecurityUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -50,13 +50,8 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 		super(source.getDisplay(), SWT.NO_TRIM | SWT.BORDER | SWT.ON_TOP);
 		setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU);
 
-		// Authentication authentication = SecurityContextHolder.getContext()
-		// .getAuthentication();
-		// if (authentication == null)
-		// throw new CmsException("No authentication available");
-
-		String username = CurrentUserUtils.getUsername();
-		if (username.equalsIgnoreCase(KernelHeader.ROLE_ANONYMOUS)) {
+		String username = SecurityUtils.getUsername(CmsUtils.getCmsView().getSubject());
+		if (username.equalsIgnoreCase(AuthConstants.ROLE_ANONYMOUS)) {
 			username = null;
 			anonymousUi();
 		} else {
@@ -86,15 +81,6 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 		c.setLayout(new GridLayout());
 		c.setLayoutData(CmsUtils.fillAll());
 
-		// String username = SecurityContextHolder.getContext()
-		// .getAuthentication().getName();
-		//
-		// Label l = new Label(c, SWT.NONE);
-		// l.setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU_ITEM);
-		// l.setData(RWT.MARKUP_ENABLED, true);
-		// l.setLayoutData(CmsUtils.fillWidth());
-		// l.setText("<b>" + username + "</b>");
-
 		specificUserUi(c);
 
 		Label l = new Label(c, SWT.NONE);
@@ -112,12 +98,6 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 			}
 		});
 	}
-
-	// protected String getUsername() {
-	// // String username = SecurityContextHolder.getContext()
-	// // .getAuthentication().getName();
-	// return CurrentUserUtils.getUsername();
-	// }
 
 	/** To be overridden */
 	protected void specificUserUi(Composite parent) {
@@ -168,16 +148,15 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 	}
 
 	protected void login() {
-		CmsView cmsSession = (CmsView) getDisplay().getData(
-				CmsView.KEY);
+		CmsView cmsSession = (CmsView) getDisplay().getData(CmsView.KEY);
 		Subject subject = cmsSession.getSubject();
 		try {
 			//
 			// LOGIN
 			//
-			new ArgeoLoginContext(LOGIN_CONTEXT_ANONYMOUS, subject).logout();
-			LoginContext loginContext = new ArgeoLoginContext(
-					LOGIN_CONTEXT_USER, subject, this);
+			new LoginContext(LOGIN_CONTEXT_ANONYMOUS, subject).logout();
+			LoginContext loginContext = new LoginContext(LOGIN_CONTEXT_USER,
+					subject, this);
 			loginContext.login();
 
 			// save context in session
@@ -193,7 +172,7 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 			});
 		} catch (LoginException e1) {
 			try {
-				new ArgeoLoginContext(LOGIN_CONTEXT_ANONYMOUS, subject).login();
+				new LoginContext(LOGIN_CONTEXT_ANONYMOUS, subject).login();
 			} catch (LoginException e) {
 				throw new CmsException("Cannot authenticate anonymous", e1);
 			}
@@ -205,15 +184,14 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 	}
 
 	protected void logout() {
-		final CmsView cmsSession = (CmsView) getDisplay().getData(
-				CmsView.KEY);
+		final CmsView cmsSession = (CmsView) getDisplay().getData(CmsView.KEY);
 		Subject subject = cmsSession.getSubject();
 		try {
 			//
 			// LOGOUT
 			//
-			new ArgeoLoginContext(LOGIN_CONTEXT_USER, subject).logout();
-			new ArgeoLoginContext(LOGIN_CONTEXT_ANONYMOUS, subject).login();
+			new LoginContext(LOGIN_CONTEXT_USER, subject).logout();
+			new LoginContext(LOGIN_CONTEXT_ANONYMOUS, subject).login();
 
 			HttpServletRequest httpRequest = RWT.getRequest();
 			HttpSession httpSession = httpRequest.getSession();

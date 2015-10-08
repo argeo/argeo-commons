@@ -1,8 +1,9 @@
-package org.argeo.cms.internal.auth;
+package org.argeo.cms.auth;
 
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -10,11 +11,7 @@ import java.util.Set;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.login.CredentialNotFoundException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.security.auth.x500.X500Principal;
@@ -23,17 +20,11 @@ import org.apache.jackrabbit.core.security.AnonymousPrincipal;
 import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.KernelHeader;
-import org.argeo.cms.internal.kernel.Activator;
-import org.osgi.framework.BundleContext;
+import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.osgi.service.useradmin.Authorization;
-import org.osgi.service.useradmin.User;
-import org.osgi.service.useradmin.UserAdmin;
 
-public class UserAdminLoginModule implements LoginModule {
+public class NodeUserLoginModule implements LoginModule {
 	private Subject subject;
-	private CallbackHandler callbackHandler;
-	private boolean isAnonymous = false;
 
 	private final static LdapName ROLE_KERNEL_NAME, ROLE_ADMIN_NAME,
 			ROLE_ANONYMOUS_NAME, ROLE_USER_NAME;
@@ -41,15 +32,15 @@ public class UserAdminLoginModule implements LoginModule {
 	private final static X500Principal ROLE_ANONYMOUS_PRINCIPAL;
 	static {
 		try {
-			ROLE_KERNEL_NAME = new LdapName(KernelHeader.ROLE_KERNEL);
-			ROLE_ADMIN_NAME = new LdapName(KernelHeader.ROLE_ADMIN);
-			ROLE_USER_NAME = new LdapName(KernelHeader.ROLE_USER);
-			ROLE_ANONYMOUS_NAME = new LdapName(KernelHeader.ROLE_ANONYMOUS);
+			ROLE_KERNEL_NAME = new LdapName(AuthConstants.ROLE_KERNEL);
+			ROLE_ADMIN_NAME = new LdapName(AuthConstants.ROLE_ADMIN);
+			ROLE_USER_NAME = new LdapName(AuthConstants.ROLE_USER);
+			ROLE_ANONYMOUS_NAME = new LdapName(AuthConstants.ROLE_ANONYMOUS);
 			RESERVED_ROLES = Collections.unmodifiableList(Arrays
 					.asList(new LdapName[] { ROLE_KERNEL_NAME, ROLE_ADMIN_NAME,
 							ROLE_ANONYMOUS_NAME, ROLE_USER_NAME,
-							new LdapName(KernelHeader.ROLE_GROUP_ADMIN),
-							new LdapName(KernelHeader.ROLE_USER_ADMIN) }));
+							new LdapName(AuthConstants.ROLE_GROUP_ADMIN),
+							new LdapName(AuthConstants.ROLE_USER_ADMIN) }));
 			ROLE_ANONYMOUS_PRINCIPAL = new X500Principal(
 					ROLE_ANONYMOUS_NAME.toString());
 		} catch (InvalidNameException e) {
@@ -62,61 +53,16 @@ public class UserAdminLoginModule implements LoginModule {
 	@Override
 	public void initialize(Subject subject, CallbackHandler callbackHandler,
 			Map<String, ?> sharedState, Map<String, ?> options) {
-		try {
-			this.subject = subject;
-			this.callbackHandler = callbackHandler;
-			if (options.containsKey("anonymous"))
-				isAnonymous = Boolean.parseBoolean(options.get("anonymous")
-						.toString());
-			// String ldifFile = options.get("ldifFile").toString();
-			// InputStream in = new URL(ldifFile).openStream();
-			// userAdmin = new LdifUserAdmin(in);
-		} catch (Exception e) {
-			throw new CmsException("Cannot initialize login module", e);
-		}
+		this.subject = subject;
 	}
 
 	@Override
 	public boolean login() throws LoginException {
-		// TODO use a callback in order to get the bundle context
-		BundleContext bc = Activator.getBundleContext();
-		UserAdmin userAdmin = bc.getService(bc
-				.getServiceReference(UserAdmin.class));
-		final User user;
-
-		if (!isAnonymous) {
-			// ask for username and password
-			NameCallback nameCallback = new NameCallback("User");
-			PasswordCallback passwordCallback = new PasswordCallback(
-					"Password", false);
-			// handle callbacks
-			try {
-				callbackHandler.handle(new Callback[] { nameCallback,
-						passwordCallback });
-			} catch (Exception e) {
-				throw new CmsException("Cannot handle callbacks", e);
-			}
-
-			// create credentials
-			final String username = nameCallback.getName();
-			if (username == null || username.trim().equals(""))
-				throw new CredentialNotFoundException("No credentials provided");
-
-			char[] password = {};
-			if (passwordCallback.getPassword() != null)
-				password = passwordCallback.getPassword();
-			else
-				throw new CredentialNotFoundException("No credentials provided");
-
-			user = userAdmin.getUser(null, username);
-			if (user == null)
-				return false;
-			if (!user.hasCredential(null, password))
-				return false;
-		} else
-			// anonymous
-			user = null;
-		this.authorization = userAdmin.getAuthorization(user);
+		Iterator<Authorization> auth = subject.getPrivateCredentials(
+				Authorization.class).iterator();
+		if (!auth.hasNext())
+			return false;
+		authorization = auth.next();
 		return true;
 	}
 
@@ -183,6 +129,10 @@ public class UserAdminLoginModule implements LoginModule {
 				subject.getPrincipals(X500Principal.class));
 		subject.getPrincipals().removeAll(
 				subject.getPrincipals(ImpliedByPrincipal.class));
+		subject.getPrincipals().removeAll(
+				subject.getPrincipals(AdminPrincipal.class));
+		subject.getPrincipals().removeAll(
+				subject.getPrincipals(AnonymousPrincipal.class));
 		cleanUp();
 		return true;
 	}

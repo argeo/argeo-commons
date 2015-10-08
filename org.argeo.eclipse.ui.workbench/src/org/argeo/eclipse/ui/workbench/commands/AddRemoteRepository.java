@@ -153,7 +153,7 @@ public class AddRemoteRepository extends AbstractHandler implements
 					char[] pwd = password.getText().toCharArray();
 					SimpleCredentials sc = new SimpleCredentials(
 							username.getText(), pwd);
-					session = repository.login(sc);
+					session = repository.login(sc, "main");
 					MessageDialog.openInformation(getParentShell(), "Success",
 							"Connection to '" + uri.getText() + "' successful");
 				}

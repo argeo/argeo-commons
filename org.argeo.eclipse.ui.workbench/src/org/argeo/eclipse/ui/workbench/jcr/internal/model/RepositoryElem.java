@@ -43,7 +43,7 @@ public class RepositoryElem extends TreeParent {
 
 	public void login() {
 		try {
-			defaultSession = repositoryLogin(null);
+			defaultSession = repositoryLogin("main");
 			String[] wkpNames = defaultSession.getWorkspace()
 					.getAccessibleWorkspaceNames();
 			for (String wkpName : wkpNames) {

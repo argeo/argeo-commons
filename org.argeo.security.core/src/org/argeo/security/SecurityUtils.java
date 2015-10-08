@@ -26,6 +26,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
 import org.argeo.ArgeoException;
+import org.osgi.service.useradmin.Authorization;
 
 /** Static utilities */
 public final class SecurityUtils {
@@ -42,19 +43,31 @@ public final class SecurityUtils {
 	 *         anonymous
 	 */
 	public static String getCurrentThreadUsername() {
-		return getUsername();
-	}
-
-	public final static String getUsername() {
 		Subject subject = Subject.getSubject(AccessController.getContext());
 		if (subject == null)
 			return null;
+		return getUsername(subject);
+	}
+
+	public final static String getUsername(Subject subject) {
+		// Subject subject = Subject.getSubject(AccessController.getContext());
+		// if (subject == null)
+		// return null;
 		if (subject.getPrincipals(X500Principal.class).size() != 1)
 			return null;
 		Principal principal = subject.getPrincipals(X500Principal.class)
 				.iterator().next();
 		return principal.getName();
 
+	}
+
+	public final static String getDisplayName(Subject subject) {
+		return getAuthorization(subject).toString();
+	}
+
+	public final static Authorization getAuthorization(Subject subject) {
+		return subject.getPrivateCredentials(Authorization.class).iterator()
+				.next();
 	}
 
 	public final static Set<String> roles() {

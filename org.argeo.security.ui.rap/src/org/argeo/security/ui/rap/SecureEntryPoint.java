@@ -15,7 +15,7 @@
  */
 package org.argeo.security.ui.rap;
 
-import static org.argeo.cms.KernelHeader.ACCESS_CONTROL_CONTEXT;
+import static org.argeo.cms.auth.AuthConstants.ACCESS_CONTROL_CONTEXT;
 
 import java.security.AccessControlContext;
 import java.security.AccessController;
@@ -33,8 +33,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
-import org.argeo.cms.KernelHeader;
-import org.argeo.cms.auth.ArgeoLoginContext;
+import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.widgets.auth.DefaultLoginDialog;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.util.LocaleUtils;
@@ -78,7 +77,7 @@ public class SecureEntryPoint implements EntryPoint {
 		HttpServletRequest httpRequest = RWT.getRequest();
 		final HttpSession httpSession = httpRequest.getSession();
 		AccessControlContext acc = (AccessControlContext) httpSession
-				.getAttribute(KernelHeader.ACCESS_CONTROL_CONTEXT);
+				.getAttribute(AuthConstants.ACCESS_CONTROL_CONTEXT);
 
 		final Subject subject;
 		if (acc != null
@@ -92,8 +91,8 @@ public class SecureEntryPoint implements EntryPoint {
 			try {
 				CallbackHandler callbackHandler = new DefaultLoginDialog(
 						display.getActiveShell());
-				loginContext = new ArgeoLoginContext(
-						KernelHeader.LOGIN_CONTEXT_USER, subject,
+				loginContext = new LoginContext(
+						AuthConstants.LOGIN_CONTEXT_USER, subject,
 						callbackHandler);
 			} catch (LoginException e1) {
 				throw new ArgeoException("Cannot initialize login context", e1);
@@ -134,8 +133,8 @@ public class SecureEntryPoint implements EntryPoint {
 				if (log.isTraceEnabled())
 					log.trace("Display disposed");
 				try {
-					LoginContext loginContext = new ArgeoLoginContext(
-							KernelHeader.LOGIN_CONTEXT_USER, subject);
+					LoginContext loginContext = new LoginContext(
+							AuthConstants.LOGIN_CONTEXT_USER, subject);
 					loginContext.logout();
 				} catch (LoginException e) {
 					log.error("Error when logging out", e);
@@ -205,8 +204,8 @@ public class SecureEntryPoint implements EntryPoint {
 
 	private void fullLogout(Subject subject, String username) {
 		try {
-			LoginContext loginContext = new ArgeoLoginContext(
-					KernelHeader.LOGIN_CONTEXT_USER, subject);
+			LoginContext loginContext = new LoginContext(
+					AuthConstants.LOGIN_CONTEXT_USER, subject);
 			loginContext.logout();
 			HttpServletRequest httpRequest = RWT.getRequest();
 			HttpSession httpSession = httpRequest.getSession();

@@ -4,10 +4,10 @@ import java.lang.management.ManagementFactory;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryFactory;
+import javax.jcr.Session;
 import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
 import javax.transaction.TransactionSynchronizationRegistry;
@@ -26,7 +26,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.http.HttpService;
+import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
@@ -48,14 +48,14 @@ final class Kernel implements ServiceListener {
 
 	ThreadGroup threadGroup = new ThreadGroup(Kernel.class.getSimpleName());
 	JackrabbitNode node;
-
+	private NodeUserAdmin userAdmin;
 	private SimpleTransactionManager transactionManager;
 	private OsgiJackrabbitRepositoryFactory repositoryFactory;
-	private NodeHttp nodeHttp;
+	private DataHttp nodeHttp;
 	private KernelThread kernelThread;
 
 	public Kernel() {
-		nodeSecurity = new NodeSecurity(bundleContext);
+		nodeSecurity = new NodeSecurity();
 	}
 
 	final void init() {
@@ -89,8 +89,11 @@ final class Kernel implements ServiceListener {
 			repositoryFactory = new OsgiJackrabbitRepositoryFactory();
 
 			// Authentication
-			nodeSecurity.getUserAdmin().setTransactionManager(
-					transactionManager);
+			Session adminSession = node.login();
+			userAdmin = new NodeUserAdmin(adminSession);
+			userAdmin.setTransactionManager(transactionManager);
+			bundleContext.registerService(UserAdmin.class, userAdmin,
+					userAdmin.currentState());
 
 			// Equinox dependency
 			// ExtendedHttpService httpService = waitForHttpService();
@@ -114,7 +117,6 @@ final class Kernel implements ServiceListener {
 					TransactionSynchronizationRegistry.class,
 					transactionManager.getTransactionSynchronizationRegistry(),
 					null);
-			nodeSecurity.publish();
 			node.publish(repositoryFactory);
 			bundleContext.registerService(RepositoryFactory.class,
 					repositoryFactory, null);
@@ -143,8 +145,8 @@ final class Kernel implements ServiceListener {
 
 		if (nodeHttp != null)
 			nodeHttp.destroy();
-		// if (nodeSecurity != null)
-		// nodeSecurity.destroy();
+		if (userAdmin != null)
+			userAdmin.destroy();
 		if (node != null)
 			node.destroy();
 
@@ -200,14 +202,14 @@ final class Kernel implements ServiceListener {
 	}
 
 	private void addHttpService(ServiceReference<?> sr) {
-//		for (String key : sr.getPropertyKeys())
-//			log.debug(key + "=" + sr.getProperty(key));
+		// for (String key : sr.getPropertyKeys())
+		// log.debug(key + "=" + sr.getProperty(key));
 		ExtendedHttpService httpService = (ExtendedHttpService) bundleContext
 				.getService(sr);
 		// TODO find constants
 		Object httpPort = sr.getProperty("http.port");
 		Object httpsPort = sr.getProperty("https.port");
-		nodeHttp = new NodeHttp(httpService, node);
+		nodeHttp = new DataHttp(httpService, node);
 		if (log.isDebugEnabled())
 			log.debug("HTTP " + httpPort
 					+ (httpsPort != null ? " - HTTPS " + httpsPort : ""));

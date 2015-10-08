@@ -3,9 +3,7 @@ package org.argeo.cms;
 import java.security.AccessControlContext;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
@@ -14,6 +12,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.x500.X500Principal;
 import javax.servlet.http.HttpServletRequest;
@@ -22,9 +21,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
-import org.argeo.cms.auth.ArgeoLoginContext;
-import org.argeo.cms.auth.LoginRequiredException;
-import org.argeo.cms.i18n.Msg;
+import org.argeo.cms.auth.AuthConstants;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
@@ -71,7 +68,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 		HttpServletRequest httpRequest = RWT.getRequest();
 		final HttpSession httpSession = httpRequest.getSession();
 		AccessControlContext acc = (AccessControlContext) httpSession
-				.getAttribute(KernelHeader.ACCESS_CONTROL_CONTEXT);
+				.getAttribute(AuthConstants.ACCESS_CONTROL_CONTEXT);
 		if (acc != null
 				&& Subject.getSubject(acc).getPrincipals(X500Principal.class)
 						.size() == 1) {
@@ -81,13 +78,13 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 
 			// Initial login
 			try {
-				new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_USER, subject)
+				new LoginContext(AuthConstants.LOGIN_CONTEXT_USER, subject)
 						.login();
 			} catch (LoginException e) {
 				// if (log.isTraceEnabled())
 				// log.trace("Cannot authenticate user", e);
 				try {
-					new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_ANONYMOUS,
+					new LoginContext(AuthConstants.LOGIN_CONTEXT_ANONYMOUS,
 							subject).login();
 				} catch (LoginException eAnonymous) {
 					throw new ArgeoException("Cannot initialize subject",
@@ -149,8 +146,9 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 	 */
 	protected Node getDefaultNode(Session session) throws RepositoryException {
 		if (!session.hasPermission(defaultPath, "read")) {
-			if (session.getUserID().equals("anonymous"))
-				throw new LoginRequiredException();
+			if (session.getUserID().equals(AuthConstants.ROLE_ANONYMOUS))
+				// TODO throw a special exception
+				throw new CmsException("Login required");
 			else
 				throw new CmsException("Unauthorized");
 		}
@@ -193,11 +191,11 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 						} catch (Exception e) {
 							try {
 								// TODO find a less hacky way to log out
-								new ArgeoLoginContext(
-										KernelHeader.LOGIN_CONTEXT_ANONYMOUS,
+								new LoginContext(
+										AuthConstants.LOGIN_CONTEXT_ANONYMOUS,
 										subject).logout();
-								new ArgeoLoginContext(
-										KernelHeader.LOGIN_CONTEXT_ANONYMOUS,
+								new LoginContext(
+										AuthConstants.LOGIN_CONTEXT_ANONYMOUS,
 										subject).login();
 							} catch (LoginException eAnonymous) {
 								throw new ArgeoException(

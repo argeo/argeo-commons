@@ -22,24 +22,17 @@ import org.osgi.framework.BundleContext;
 public class SecureRapActivator implements BundleActivator {
 	public final static String ID = "org.argeo.security.ui.rap";
 
-	private BundleContext bundleContext;
-	private static SecureRapActivator activator = null;
+	private static BundleContext bundleContext;
 
-	public void start(BundleContext bundleContext) throws Exception {
-		activator = this;
-		this.bundleContext = bundleContext;
+	public void start(BundleContext bc) throws Exception {
+		bundleContext = bc;
 	}
 
 	public void stop(BundleContext context) throws Exception {
 		bundleContext = null;
-		activator = null;
 	}
 
-	public BundleContext getBundleContext() {
+	public static BundleContext getBundleContext() {
 		return bundleContext;
-	}
-
-	public static SecureRapActivator getActivator() {
-		return activator;
 	}
 }

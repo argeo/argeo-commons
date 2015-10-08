@@ -3,12 +3,10 @@ package org.argeo.cms.internal.kernel;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.ProviderNotFoundException;
 import java.security.KeyStore;
 import java.security.Provider;
 import java.security.Security;
 import java.util.Arrays;
-import java.util.Hashtable;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -23,15 +21,14 @@ import javax.security.auth.x500.X500Principal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.KernelHeader;
+import org.argeo.cms.auth.AuthConstants;
 import org.argeo.security.crypto.PkiUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.useradmin.UserAdmin;
 
 /** Authentication and user management. */
 class NodeSecurity {
+	final static String SECURITY_PROVIDER = "BC";// Bouncy Castle
+
 	private final static Log log;
 	static {
 		log = LogFactory.getLog(NodeSecurity.class);
@@ -42,27 +39,21 @@ class NodeSecurity {
 			log.error("Provider " + provider.getName()
 					+ " already installed and could not be set as default");
 		Provider defaultProvider = Security.getProviders()[0];
-		if (!defaultProvider.getName().equals(KernelHeader.SECURITY_PROVIDER))
+		if (!defaultProvider.getName().equals(SECURITY_PROVIDER))
 			log.error("Provider name is " + defaultProvider.getName()
-					+ " but it should be " + KernelHeader.SECURITY_PROVIDER);
+					+ " but it should be " + SECURITY_PROVIDER);
 	}
 
-	private final BundleContext bundleContext;
-	private final NodeUserAdmin userAdmin;
 	private final Subject kernelSubject;
 
-	private ServiceRegistration<UserAdmin> userAdminReg;
-
-	public NodeSecurity(BundleContext bundleContext) {
+	public NodeSecurity() {
 		// Configure JAAS first
 		URL url = getClass().getClassLoader().getResource(
 				KernelConstants.JAAS_CONFIG);
 		System.setProperty("java.security.auth.login.config",
 				url.toExternalForm());
 
-		this.bundleContext = bundleContext;
 		this.kernelSubject = logKernel();
-		userAdmin = new NodeUserAdmin();
 	}
 
 	private Subject logKernel() {
@@ -75,7 +66,7 @@ class NodeSecurity {
 			public void handle(Callback[] callbacks) throws IOException,
 					UnsupportedCallbackException {
 				// alias
-				((NameCallback) callbacks[1]).setName(KernelHeader.ROLE_KERNEL);
+				((NameCallback) callbacks[1]).setName(AuthConstants.ROLE_KERNEL);
 				// store pwd
 				((PasswordCallback) callbacks[2]).setPassword("changeit"
 						.toCharArray());
@@ -95,15 +86,7 @@ class NodeSecurity {
 		return kernelSubject;
 	}
 
-	public void publish() {
-		userAdminReg = bundleContext.registerService(UserAdmin.class,
-				userAdmin, userAdmin.currentState());
-		}
-
 	void destroy() {
-		userAdmin.destroy();
-		userAdminReg.unregister();
-
 		// Logout kernel
 		try {
 			LoginContext kernelLc = new LoginContext(
@@ -113,11 +96,7 @@ class NodeSecurity {
 			throw new CmsException("Cannot log in kernel", e);
 		}
 
-		Security.removeProvider(KernelHeader.SECURITY_PROVIDER);
-	}
-
-	public NodeUserAdmin getUserAdmin() {
-		return userAdmin;
+		Security.removeProvider(SECURITY_PROVIDER);
 	}
 
 	public Subject getKernelSubject() {
@@ -134,7 +113,7 @@ class NodeSecurity {
 				keyStoreFile.getParentFile().mkdirs();
 				KeyStore keyStore = PkiUtils.getKeyStore(keyStoreFile, ksPwd);
 				PkiUtils.generateSelfSignedCertificate(keyStore,
-						new X500Principal(KernelHeader.ROLE_KERNEL), keyPwd);
+						new X500Principal(AuthConstants.ROLE_KERNEL), keyPwd);
 				PkiUtils.saveKeyStore(keyStoreFile, ksPwd, keyStore);
 			} catch (Exception e) {
 				throw new CmsException("Cannot create key store "

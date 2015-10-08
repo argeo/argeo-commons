@@ -1,9 +1,7 @@
-package org.argeo.cms;
+package org.argeo.cms.auth;
 
 /** Public properties of the CMS Kernel */
-public interface KernelHeader {
-	final static String SECURITY_PROVIDER = "BC";// Bouncy Castle
-
+public interface AuthConstants {
 	// LOGIN CONTEXTS
 	final static String LOGIN_CONTEXT_USER = "USER";
 	final static String LOGIN_CONTEXT_ANONYMOUS = "ANONYMOUS";
@@ -25,9 +23,7 @@ public interface KernelHeader {
 	public final static String ROLE_USER = "cn=user," + ROLES_BASEDN;
 	public final static String ROLE_ANONYMOUS = "cn=anonymous," + ROLES_BASEDN;
 
-	// RESERVED USERNAMES
-	public final static String USERNAME_ADMIN = "root";
-	public final static String USERNAME_DEMO = "demo";
-	@Deprecated
-	public final static String USERNAME_ANONYMOUS = "anonymous";
+	// SHARED STATE KEYS
+	public final static String BUNDLE_CONTEXT_KEY = "org.argeo.security.bundleContext";
+	public final static String AUTHORIZATION_KEY = "org.argeo.security.authorization";
 }

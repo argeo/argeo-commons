@@ -14,7 +14,7 @@ import javax.security.auth.x500.X500PrivateCredential;
 
 import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
-import org.argeo.cms.KernelHeader;
+import org.argeo.cms.auth.AuthConstants;
 
 public class KernelLoginModule implements LoginModule {
 	private Subject subject;
@@ -39,9 +39,9 @@ public class KernelLoginModule implements LoginModule {
 		if (names.isEmpty() || names.size() > 1)
 			throw new LoginException("Kernel must have been named");
 		X500Principal name = names.iterator().next();
-		if (!KernelHeader.ROLE_KERNEL.equals(name.getName()))
+		if (!AuthConstants.ROLE_KERNEL.equals(name.getName()))
 			throw new LoginException("Kernel must be named named "
-					+ KernelHeader.ROLE_KERNEL);
+					+ AuthConstants.ROLE_KERNEL);
 		// Private certificate
 		Set<X500PrivateCredential> privateCerts = subject
 				.getPrivateCredentials(X500PrivateCredential.class);

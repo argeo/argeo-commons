@@ -24,8 +24,7 @@ import javax.security.auth.login.LoginException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
-import org.argeo.cms.KernelHeader;
-import org.argeo.cms.auth.ArgeoLoginContext;
+import org.argeo.cms.auth.AuthConstants;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.EntryPoint;
 import org.eclipse.swt.widgets.Display;
@@ -57,8 +56,8 @@ public class AnonymousEntryPoint implements EntryPoint {
 
 		final LoginContext loginContext;
 		try {
-			loginContext = new ArgeoLoginContext(
-					KernelHeader.LOGIN_CONTEXT_ANONYMOUS, subject);
+			loginContext = new LoginContext(AuthConstants.LOGIN_CONTEXT_ANONYMOUS,
+					subject);
 			loginContext.login();
 		} catch (LoginException e1) {
 			throw new ArgeoException("Cannot initialize login context", e1);

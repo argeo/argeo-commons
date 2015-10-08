@@ -25,7 +25,7 @@ import org.argeo.security.SecurityUtils;
  */
 public class CurrentUser {
 	public final static String getUsername() {
-		return SecurityUtils.getUsername();
+		return SecurityUtils.getCurrentThreadUsername();
 	}
 
 	public final static Set<String> roles() {

@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.security.auth.x500.X500Principal;
+
 import org.osgi.service.useradmin.Authorization;
 
 class NodeAuthorization implements Authorization {
@@ -16,7 +18,7 @@ class NodeAuthorization implements Authorization {
 
 	public NodeAuthorization(String name, String displayName,
 			Collection<String> systemRoles, String[] roles) {
-		this.name = name;
+		this.name = new X500Principal(name).getName();
 		this.displayName = displayName;
 		this.systemRoles = Collections.unmodifiableList(new ArrayList<String>(
 				systemRoles));

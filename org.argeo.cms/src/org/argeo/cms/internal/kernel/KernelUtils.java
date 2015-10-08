@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.KernelHeader;
+import org.argeo.cms.auth.AuthConstants;
 
 /** Package utilities */
 class KernelUtils implements KernelConstants {
@@ -74,7 +74,7 @@ class KernelUtils implements KernelConstants {
 		Subject subject = new Subject();
 		LoginContext lc;
 		try {
-			lc = new LoginContext(KernelHeader.LOGIN_CONTEXT_ANONYMOUS, subject);
+			lc = new LoginContext(AuthConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
 			lc.login();
 			return subject;
 		} catch (LoginException e) {

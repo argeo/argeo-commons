@@ -13,6 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Value;
+import javax.jcr.security.Privilege;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.transaction.TransactionManager;
@@ -20,8 +25,14 @@ import javax.transaction.TransactionManager;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.ArgeoException;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.KernelHeader;
+import org.argeo.cms.auth.AuthConstants;
+import org.argeo.jcr.ArgeoJcrConstants;
+import org.argeo.jcr.ArgeoNames;
+import org.argeo.jcr.ArgeoTypes;
+import org.argeo.jcr.JcrUtils;
+import org.argeo.jcr.UserJcrUtils;
 import org.argeo.osgi.useradmin.LdapUserAdmin;
 import org.argeo.osgi.useradmin.LdifUserAdmin;
 import org.argeo.osgi.useradmin.UserAdminConf;
@@ -38,7 +49,7 @@ public class NodeUserAdmin implements UserAdmin {
 	final static LdapName ROLES_BASE;
 	static {
 		try {
-			ROLES_BASE = new LdapName(KernelHeader.ROLES_BASEDN);
+			ROLES_BASE = new LdapName(AuthConstants.ROLES_BASEDN);
 		} catch (InvalidNameException e) {
 			throw new UserDirectoryException("Cannot initialize "
 					+ NodeUserAdmin.class, e);
@@ -48,7 +59,13 @@ public class NodeUserAdmin implements UserAdmin {
 	private UserAdmin nodeRoles = null;
 	private Map<LdapName, UserAdmin> userAdmins = new HashMap<LdapName, UserAdmin>();
 
-	public NodeUserAdmin() {
+	/** The home base path. */
+	private String homeBasePath = "/home";
+	private String peopleBasePath = ArgeoJcrConstants.PEOPLE_BASE_PATH;
+	private Session adminSession;
+
+	public NodeUserAdmin(Session adminSession) {
+		this.adminSession = adminSession;
 		File osgiInstanceDir = KernelUtils.getOsgiInstanceDir();
 		File nodeBaseDir = new File(osgiInstanceDir, "node");
 		nodeBaseDir.mkdirs();
@@ -109,10 +126,10 @@ public class NodeUserAdmin implements UserAdmin {
 						+ u.getScheme() + "] enabled.");
 		}
 
-		// NOde roles
+		// Node roles
 		String nodeRolesUri = KernelUtils
 				.getFrameworkProp(KernelConstants.ROLES_URI);
-		String baseNodeRoleDn = KernelHeader.ROLES_BASEDN;
+		String baseNodeRoleDn = AuthConstants.ROLES_BASEDN;
 		if (nodeRolesUri == null) {
 			File nodeRolesFile = new File(nodeBaseDir, baseNodeRoleDn + ".ldif");
 			if (!nodeRolesFile.exists())
@@ -143,6 +160,9 @@ public class NodeUserAdmin implements UserAdmin {
 		addUserAdmin(baseNodeRoleDn, (UserAdmin) nodeRoles);
 		if (log.isTraceEnabled())
 			log.trace("Node roles enabled.");
+
+		// JCR
+		initJcr(adminSession);
 	}
 
 	Dictionary<String, ?> currentState() {
@@ -214,7 +234,7 @@ public class NodeUserAdmin implements UserAdmin {
 
 	@Override
 	public Authorization getAuthorization(User user) {
-		if (user == null) {
+		if (user == null) {// anonymous
 			return nodeRoles.getAuthorization(null);
 		}
 		UserAdmin userAdmin = findUserAdmin(user.getName());
@@ -226,16 +246,18 @@ public class NodeUserAdmin implements UserAdmin {
 					.getRole(role));
 			systemRoles.addAll(Arrays.asList(auth.getRoles()));
 		}
-		return new NodeAuthorization(rawAuthorization.getName(),
-				rawAuthorization.toString(), systemRoles,
-				rawAuthorization.getRoles());
+		Authorization authorization = new NodeAuthorization(
+				rawAuthorization.getName(), rawAuthorization.toString(),
+				systemRoles, rawAuthorization.getRoles());
+		syncJcr(adminSession, authorization);
+		return authorization;
 	}
 
 	//
 	// USER ADMIN AGGREGATOR
 	//
 	public synchronized void addUserAdmin(String baseDn, UserAdmin userAdmin) {
-		if (baseDn.equals(KernelHeader.ROLES_BASEDN)) {
+		if (baseDn.equals(AuthConstants.ROLES_BASEDN)) {
 			nodeRoles = userAdmin;
 			return;
 		}
@@ -252,7 +274,7 @@ public class NodeUserAdmin implements UserAdmin {
 	}
 
 	public synchronized void removeUserAdmin(String baseDn) {
-		if (baseDn.equals(KernelHeader.ROLES_BASEDN))
+		if (baseDn.equals(AuthConstants.ROLES_BASEDN))
 			throw new UserDirectoryException("Node roles cannot be removed.");
 		LdapName base;
 		try {
@@ -302,4 +324,143 @@ public class NodeUserAdmin implements UserAdmin {
 						.setTransactionManager(transactionManager);
 		}
 	}
+
+	/*
+	 * JCR
+	 */
+	private void initJcr(Session adminSession) {
+		try {
+			JcrUtils.mkdirs(adminSession, homeBasePath);
+			JcrUtils.mkdirs(adminSession, peopleBasePath);
+			adminSession.save();
+
+			JcrUtils.addPrivilege(adminSession, homeBasePath,
+					AuthConstants.ROLE_USER_ADMIN, Privilege.JCR_READ);
+			JcrUtils.addPrivilege(adminSession, peopleBasePath,
+					AuthConstants.ROLE_USER_ADMIN, Privilege.JCR_ALL);
+			adminSession.save();
+		} catch (RepositoryException e) {
+			throw new CmsException("Cannot initialize node user admin", e);
+		}
+	}
+
+	private Node syncJcr(Session session, Authorization authorization) {
+		// TODO check user name validity (e.g. should not start by ROLE_)
+		String username = authorization.getName();
+		String[] roles = authorization.getRoles();
+		try {
+			Node userHome = UserJcrUtils.getUserHome(session, username);
+			if (userHome == null) {
+				String homePath = generateUserPath(homeBasePath, username);
+				if (session.itemExists(homePath))// duplicate user id
+					userHome = session.getNode(homePath).getParent()
+							.addNode(JcrUtils.lastPathElement(homePath));
+				else
+					userHome = JcrUtils.mkdirs(session, homePath);
+				// userHome = JcrUtils.mkfolders(session, homePath);
+				userHome.addMixin(ArgeoTypes.ARGEO_USER_HOME);
+				userHome.setProperty(ArgeoNames.ARGEO_USER_ID, username);
+				session.save();
+
+				JcrUtils.clearAccessControList(session, homePath, username);
+				JcrUtils.addPrivilege(session, homePath, username,
+						Privilege.JCR_ALL);
+			}
+
+			Node userProfile = UserJcrUtils.getUserProfile(session, username);
+			// new user
+			if (userProfile == null) {
+				String personPath = generateUserPath(peopleBasePath, username);
+				Node personBase;
+				if (session.itemExists(personPath))// duplicate user id
+					personBase = session.getNode(personPath).getParent()
+							.addNode(JcrUtils.lastPathElement(personPath));
+				else
+					personBase = JcrUtils.mkdirs(session, personPath);
+				userProfile = personBase.addNode(ArgeoNames.ARGEO_PROFILE);
+				userProfile.addMixin(ArgeoTypes.ARGEO_USER_PROFILE);
+				userProfile.setProperty(ArgeoNames.ARGEO_USER_ID, username);
+				userProfile.setProperty(ArgeoNames.ARGEO_ENABLED, true);
+				userProfile.setProperty(ArgeoNames.ARGEO_ACCOUNT_NON_EXPIRED,
+						true);
+				userProfile.setProperty(ArgeoNames.ARGEO_ACCOUNT_NON_LOCKED,
+						true);
+				userProfile.setProperty(
+						ArgeoNames.ARGEO_CREDENTIALS_NON_EXPIRED, true);
+				session.save();
+
+				JcrUtils.clearAccessControList(session, userProfile.getPath(),
+						username);
+				JcrUtils.addPrivilege(session, userProfile.getPath(), username,
+						Privilege.JCR_READ);
+			}
+
+			// Remote roles
+			if (roles != null) {
+				writeRemoteRoles(userProfile, roles);
+			}
+			adminSession.save();
+			return userProfile;
+		} catch (RepositoryException e) {
+			JcrUtils.discardQuietly(session);
+			throw new ArgeoException("Cannot sync node security model for "
+					+ username, e);
+		}
+	}
+
+	/** Generate path for a new user home */
+	private String generateUserPath(String base, String username) {
+		LdapName dn;
+		try {
+			dn = new LdapName(username);
+		} catch (InvalidNameException e) {
+			throw new ArgeoException("Invalid name " + username, e);
+		}
+		String userId = dn.getRdn(dn.size() - 1).getValue().toString();
+		int atIndex = userId.indexOf('@');
+		if (atIndex > 0) {
+			String domain = userId.substring(0, atIndex);
+			String name = userId.substring(atIndex + 1);
+			return base + '/' + JcrUtils.firstCharsToPath(domain, 2) + '/'
+					+ domain + '/' + JcrUtils.firstCharsToPath(name, 2) + '/'
+					+ name;
+		} else if (atIndex == 0 || atIndex == (userId.length() - 1)) {
+			throw new ArgeoException("Unsupported username " + userId);
+		} else {
+			return base + '/' + JcrUtils.firstCharsToPath(userId, 2) + '/'
+					+ userId;
+		}
+	}
+
+	/** Write remote roles used by remote access in the home directory */
+	private void writeRemoteRoles(Node userHome, String[] roles)
+			throws RepositoryException {
+		boolean writeRoles = false;
+		if (userHome.hasProperty(ArgeoNames.ARGEO_REMOTE_ROLES)) {
+			Value[] remoteRoles = userHome.getProperty(
+					ArgeoNames.ARGEO_REMOTE_ROLES).getValues();
+			if (remoteRoles.length != roles.length)
+				writeRoles = true;
+			else
+				for (int i = 0; i < remoteRoles.length; i++)
+					if (!remoteRoles[i].getString().equals(roles[i]))
+						writeRoles = true;
+		} else
+			writeRoles = true;
+
+		if (writeRoles) {
+			userHome.getSession().getWorkspace().getVersionManager()
+					.checkout(userHome.getPath());
+			userHome.setProperty(ArgeoNames.ARGEO_REMOTE_ROLES, roles);
+			JcrUtils.updateLastModified(userHome);
+			userHome.getSession().save();
+			userHome.getSession().getWorkspace().getVersionManager()
+					.checkin(userHome.getPath());
+			if (log.isDebugEnabled())
+				log.debug("Wrote remote roles " + roles + " for "
+						+ userHome.getProperty(ArgeoNames.ARGEO_USER_ID));
+		}
+
+	}
+
 }
