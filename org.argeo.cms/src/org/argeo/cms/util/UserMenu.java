@@ -21,7 +21,7 @@ import javax.servlet.http.HttpSession;
 
 import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsMsg;
-import org.argeo.cms.CmsSession;
+import org.argeo.cms.CmsView;
 import org.argeo.cms.CmsStyles;
 import org.argeo.cms.KernelHeader;
 import org.argeo.cms.auth.ArgeoLoginContext;
@@ -168,8 +168,8 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 	}
 
 	protected void login() {
-		CmsSession cmsSession = (CmsSession) getDisplay().getData(
-				CmsSession.KEY);
+		CmsView cmsSession = (CmsView) getDisplay().getData(
+				CmsView.KEY);
 		Subject subject = cmsSession.getSubject();
 		try {
 			//
@@ -205,8 +205,8 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 	}
 
 	protected void logout() {
-		final CmsSession cmsSession = (CmsSession) getDisplay().getData(
-				CmsSession.KEY);
+		final CmsView cmsSession = (CmsView) getDisplay().getData(
+				CmsView.KEY);
 		Subject subject = cmsSession.getSubject();
 		try {
 			//

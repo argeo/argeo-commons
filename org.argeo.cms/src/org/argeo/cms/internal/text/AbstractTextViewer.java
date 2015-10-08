@@ -22,7 +22,6 @@ import org.argeo.cms.CmsEditable;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsImageManager;
 import org.argeo.cms.CmsNames;
-import org.argeo.cms.CmsSession;
 import org.argeo.cms.CmsTypes;
 import org.argeo.cms.text.Img;
 import org.argeo.cms.text.Paragraph;
@@ -64,7 +63,7 @@ public abstract class AbstractTextViewer extends AbstractPageViewer implements
 	private final Section mainSection;
 
 	private TextInterpreter textInterpreter = new TextInterpreterImpl();
-	private CmsImageManager imageManager = CmsSession.current.get()
+	private CmsImageManager imageManager = CmsUtils.getCmsView()
 			.getImageManager();
 
 	private FileUploadListener fileUploadListener;

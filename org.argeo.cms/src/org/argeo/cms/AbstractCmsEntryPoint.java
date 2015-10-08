@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /** Manages history and navigation */
 public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
-		implements CmsSession {
+		implements CmsView {
 	private final Log log = LogFactory.getLog(AbstractCmsEntryPoint.class);
 
 	private final Subject subject;
@@ -121,7 +121,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 
 	@Override
 	protected final void createContents(final Composite parent) {
-		getShell().getDisplay().setData(CmsSession.KEY, this);
+		getShell().getDisplay().setData(CmsView.KEY, this);
 		Subject.doAs(subject, new PrivilegedAction<Void>() {
 			@Override
 			public Void run() {
@@ -237,17 +237,17 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 		});
 	}
 
-	@Override
-	public Object local(Msg msg) {
-		String key = msg.getId();
-		int lastDot = key.lastIndexOf('.');
-		String className = key.substring(0, lastDot);
-		String fieldName = key.substring(lastDot + 1);
-		Locale locale = RWT.getLocale();
-		ResourceBundle rb = ResourceBundle.getBundle(className, locale,
-				msg.getClassLoader());
-		return rb.getString(fieldName);
-	}
+//	@Override
+//	public Object local(Msg msg) {
+//		String key = msg.getId();
+//		int lastDot = key.lastIndexOf('.');
+//		String className = key.substring(0, lastDot);
+//		String fieldName = key.substring(lastDot + 1);
+//		Locale locale = RWT.getLocale();
+//		ResourceBundle rb = ResourceBundle.getBundle(className, locale,
+//				msg.getClassLoader());
+//		return rb.getString(fieldName);
+//	}
 
 	/** Sets the state of the entry point and retrieve the related JCR node. */
 	protected synchronized String setState(String newState) {

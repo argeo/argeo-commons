@@ -26,7 +26,6 @@ import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
 import org.argeo.ArgeoException;
-import org.argeo.cms.CmsSession;
 
 /**
  * Retrieves information about the current user. Not an API, can change without
@@ -59,7 +58,7 @@ class CurrentUserUtils {
 	public final static Subject getSubject() {
 		Subject subject = Subject.getSubject(AccessController.getContext());
 		if (subject == null) {
-			subject = CmsSession.current.get().getSubject();
+			subject = CmsUtils.getCmsView().getSubject();
 			if (subject == null)
 				throw new ArgeoException("Not authenticated.");
 		}

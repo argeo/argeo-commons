@@ -2,9 +2,10 @@ package org.argeo.cms.i18n;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import org.argeo.cms.CmsException;
-import org.argeo.cms.CmsSession;
 import org.eclipse.rap.rwt.RWT;
 
 /** A single message to be internationalised. */
@@ -53,13 +54,23 @@ public class Msg {
 	}
 
 	public Object local() {
-		CmsSession cmSession = CmsSession.current.get();
-		Object local = cmSession.local(this);
+		Object local = local(this);
 		if (local == null)
 			local = getDefault();
 		if (local == null)
 			throw new CmsException("No translation found for " + id);
 		return local;
+	}
+
+	private static Object local(Msg msg) {
+		String key = msg.getId();
+		int lastDot = key.lastIndexOf('.');
+		String className = key.substring(0, lastDot);
+		String fieldName = key.substring(lastDot + 1);
+		Locale locale = RWT.getLocale();
+		ResourceBundle rb = ResourceBundle.getBundle(className, locale,
+				msg.getClassLoader());
+		return rb.getString(fieldName);
 	}
 
 	public static void init(Class<?> clss) {

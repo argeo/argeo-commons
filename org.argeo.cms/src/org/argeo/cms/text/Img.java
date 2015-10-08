@@ -5,7 +5,6 @@ import javax.jcr.RepositoryException;
 
 import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsImageManager;
-import org.argeo.cms.CmsSession;
 import org.argeo.cms.internal.JcrFileUploadReceiver;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.viewers.NodePart;
@@ -51,7 +50,7 @@ public class Img extends EditableImage implements SectionPart, NodePart {
 			Point preferredImageSize) throws RepositoryException {
 		super(parent, swtStyle, imgNode, false, preferredImageSize);
 		this.section = section;
-		imageManager = CmsSession.current.get().getImageManager();
+		imageManager = CmsUtils.getCmsView().getImageManager();
 		CmsUtils.style(this, TextStyles.TEXT_IMG);
 	}
 
@@ -93,8 +92,7 @@ public class Img extends EditableImage implements SectionPart, NodePart {
 		// FileDialog fileDialog = new FileDialog(getShell());
 		// fileDialog.open();
 		// String fileName = fileDialog.getFileName();
-		CmsImageManager imageManager = CmsSession.current.get()
-				.getImageManager();
+		CmsImageManager imageManager = CmsUtils.getCmsView().getImageManager();
 		Node node = getNode();
 		JcrFileUploadReceiver receiver = new JcrFileUploadReceiver(
 				node.getParent(), node.getName() + '[' + node.getIndex() + ']',

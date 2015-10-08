@@ -60,9 +60,12 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 				.getPrincipals(X500Principal.class);
 		if (userPrincipal.isEmpty())
 			return super.getUserID(subject, workspaceName);
-		if (userPrincipal.size() > 1)
-			throw new RuntimeException("Multiple user principals "
-					+ userPrincipal);
+		if (userPrincipal.size() > 1) {
+			StringBuilder buf = new StringBuilder();
+			for (X500Principal principal : userPrincipal)
+				buf.append(' ').append('\"').append(principal).append('\"');
+			throw new RuntimeException("Multiple user principals:" + buf);
+		}
 		return userPrincipal.iterator().next().getName();
 		// Authentication authentication = SecurityContextHolder.getContext()
 		// .getAuthentication();

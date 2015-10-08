@@ -10,6 +10,7 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.io.IOUtils;
 import org.argeo.cms.CmsConstants;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.CmsView;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.ResourceManager;
@@ -28,6 +29,17 @@ import org.eclipse.swt.widgets.Widget;
 
 /** Static utilities for the CMS framework. */
 public class CmsUtils implements CmsConstants {
+	/** The CMS view related to this display. */
+	public static CmsView getCmsView() {
+		Display display = Display.getCurrent();
+		if (display == null)
+			throw new CmsException("No display available");
+		CmsView cmsView = (CmsView) display.getData(CmsView.KEY);
+		if (cmsView == null)
+			throw new CmsException("No CMS view available");
+		return cmsView;
+	}
+
 	/** @deprecated Use rowData16px() instead. GridData should not be reused. */
 	@Deprecated
 	public static RowData ROW_DATA_16px = new RowData(16, 16);

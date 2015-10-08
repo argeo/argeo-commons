@@ -19,7 +19,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsConstants;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.CmsSession;
 import org.argeo.cms.CmsUiProvider;
 import org.argeo.cms.LifeCycleUiProvider;
 import org.argeo.jcr.JcrUtils;
@@ -60,6 +59,8 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration,
 	public void configure(Application application) {
 		try {
 			application.setOperationMode(OperationMode.SWT_COMPATIBILITY);
+			// application.setOperationMode(OperationMode.JEE_COMPATIBILITY);
+
 			application.setExceptionHandler(new CmsExceptionHandler());
 
 			// loading animated gif
@@ -235,7 +236,7 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration,
 
 		@Override
 		public void handleException(Throwable throwable) {
-			CmsSession.current.get().exception(throwable);
+			CmsUtils.getCmsView().exception(throwable);
 		}
 
 	}
@@ -261,7 +262,7 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration,
 			// entryPoint.setState("");
 			entryPoint.setHeader(header);
 			entryPoint.setHeaderHeight(headerHeight);
-			CmsSession.current.set(entryPoint);
+			// CmsSession.current.set(entryPoint);
 			return entryPoint;
 		}
 
