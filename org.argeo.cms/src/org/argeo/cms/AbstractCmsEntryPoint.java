@@ -74,24 +74,25 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 				.getAttribute(KernelHeader.ACCESS_CONTROL_CONTEXT);
 		if (acc != null
 				&& Subject.getSubject(acc).getPrincipals(X500Principal.class)
-						.size() == 1)
+						.size() == 1) {
 			subject = Subject.getSubject(acc);
-		else
+		} else {
 			subject = new Subject();
 
-		// Initial login
-		try {
-			new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_USER, subject)
-					.login();
-		} catch (LoginException e) {
-			// if (log.isTraceEnabled())
-			// log.trace("Cannot authenticate user", e);
+			// Initial login
 			try {
-				new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_ANONYMOUS,
-						subject).login();
-			} catch (LoginException eAnonymous) {
-				throw new ArgeoException("Cannot initialize subject",
-						eAnonymous);
+				new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_USER, subject)
+						.login();
+			} catch (LoginException e) {
+				// if (log.isTraceEnabled())
+				// log.trace("Cannot authenticate user", e);
+				try {
+					new ArgeoLoginContext(KernelHeader.LOGIN_CONTEXT_ANONYMOUS,
+							subject).login();
+				} catch (LoginException eAnonymous) {
+					throw new ArgeoException("Cannot initialize subject",
+							eAnonymous);
+				}
 			}
 		}
 		authChange();
@@ -237,17 +238,17 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 		});
 	}
 
-//	@Override
-//	public Object local(Msg msg) {
-//		String key = msg.getId();
-//		int lastDot = key.lastIndexOf('.');
-//		String className = key.substring(0, lastDot);
-//		String fieldName = key.substring(lastDot + 1);
-//		Locale locale = RWT.getLocale();
-//		ResourceBundle rb = ResourceBundle.getBundle(className, locale,
-//				msg.getClassLoader());
-//		return rb.getString(fieldName);
-//	}
+	// @Override
+	// public Object local(Msg msg) {
+	// String key = msg.getId();
+	// int lastDot = key.lastIndexOf('.');
+	// String className = key.substring(0, lastDot);
+	// String fieldName = key.substring(lastDot + 1);
+	// Locale locale = RWT.getLocale();
+	// ResourceBundle rb = ResourceBundle.getBundle(className, locale,
+	// msg.getClassLoader());
+	// return rb.getString(fieldName);
+	// }
 
 	/** Sets the state of the entry point and retrieve the related JCR node. */
 	protected synchronized String setState(String newState) {
