@@ -13,40 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security;
+package org.argeo.cms.auth;
 
 import java.security.AccessController;
 import java.security.Principal;
 import java.security.acl.Group;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
+import org.argeo.cms.CmsView;
+import org.argeo.cms.util.CmsUtils;
 import org.osgi.service.useradmin.Authorization;
 
 /** Static utilities */
-public final class SecurityUtils {
-	private SecurityUtils() {
-	}
-
-	/** Whether the current thread has the admin role */
-	public static boolean hasCurrentThreadAuthority(String authority) {
-		return roles().contains(authority);
-	}
-
+public final class CurrentUser {
 	/**
 	 * @return the authenticated username or null if not authenticated /
 	 *         anonymous
 	 */
-	public static String getCurrentThreadUsername() {
+	public static String getUsername() {
+		return getUsername(currentSubject());
+	}
+
+	public static String getDisplayName() {
+		return getDisplayName(currentSubject());
+	}
+
+	private static Subject currentSubject() {
 		Subject subject = Subject.getSubject(AccessController.getContext());
-		if (subject == null)
-			return null;
-		return getUsername(subject);
+		if (subject != null)
+			return subject;
+		if (subject == null) {
+			CmsView cmsView = CmsUtils.getCmsView();
+			if (cmsView != null)
+				return cmsView.getSubject();
+		}
+		throw new CmsException("Cannot find related subject");
 	}
 
 	public final static String getUsername(Subject subject) {
@@ -65,16 +71,17 @@ public final class SecurityUtils {
 		return getAuthorization(subject).toString();
 	}
 
-	public final static Authorization getAuthorization(Subject subject) {
+	private static Authorization getAuthorization(Subject subject) {
 		return subject.getPrivateCredentials(Authorization.class).iterator()
 				.next();
 	}
 
 	public final static Set<String> roles() {
-		Set<String> roles = Collections.synchronizedSet(new HashSet<String>());
-		Subject subject = Subject.getSubject(AccessController.getContext());
-		if (subject == null)
-			throw new ArgeoException("Not authenticated.");
+		return roles(currentSubject());
+	}
+
+	public final static Set<String> roles(Subject subject) {
+		Set<String> roles = new HashSet<String>();
 		X500Principal userPrincipal = subject
 				.getPrincipals(X500Principal.class).iterator().next();
 		roles.add(userPrincipal.getName());
@@ -82,5 +89,8 @@ public final class SecurityUtils {
 			roles.add(group.getName());
 		}
 		return roles;
+	}
+
+	private CurrentUser() {
 	}
 }

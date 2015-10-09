@@ -1,22 +1,25 @@
 package org.argeo.cms.internal.kernel;
 
+import static org.argeo.jcr.ArgeoJcrConstants.ALIAS_NODE;
+import static org.argeo.jcr.ArgeoJcrConstants.JCR_REPOSITORY_ALIAS;
+
 import java.lang.management.ManagementFactory;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryFactory;
-import javax.jcr.Session;
 import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
-import javax.transaction.TransactionSynchronizationRegistry;
 import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.util.TransientFileFactory;
 import org.argeo.ArgeoException;
+import org.argeo.ArgeoLogger;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.transaction.SimpleTransactionManager;
 import org.argeo.jackrabbit.OsgiJackrabbitRepositoryFactory;
@@ -26,8 +29,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.useradmin.UserAdmin;
-import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * Argeo CMS Kernel. Responsible for :
@@ -41,17 +44,32 @@ import org.osgi.util.tracker.ServiceTracker;
  * </ul>
  */
 final class Kernel implements ServiceListener {
-	private final static Log log = LogFactory.getLog(Kernel.class);
+	/*
+	 * REGISTERED SERVICES
+	 */
+	private ServiceRegistration<ArgeoLogger> loggerReg;
+	private ServiceRegistration<TransactionManager> tmReg;
+	private ServiceRegistration<UserTransaction> utReg;
+	// private ServiceRegistration<TransactionSynchronizationRegistry> tsrReg;
+	private ServiceRegistration<Repository> repositoryReg;
+	private ServiceRegistration<RepositoryFactory> repositoryFactoryReg;
+	private ServiceRegistration<UserAdmin> userAdminReg;
 
-	private final BundleContext bundleContext = Activator.getBundleContext();
-	private final NodeSecurity nodeSecurity;
-
-	ThreadGroup threadGroup = new ThreadGroup(Kernel.class.getSimpleName());
-	JackrabbitNode node;
-	private NodeUserAdmin userAdmin;
+	/*
+	 * SERVICES IMPLEMENTATIONS
+	 */
+	private NodeLogger logger;
 	private SimpleTransactionManager transactionManager;
 	private OsgiJackrabbitRepositoryFactory repositoryFactory;
-	private DataHttp nodeHttp;
+	NodeRepository repository;
+	private NodeUserAdmin userAdmin;
+
+	// Members
+	private final static Log log = LogFactory.getLog(Kernel.class);
+	ThreadGroup threadGroup = new ThreadGroup(Kernel.class.getSimpleName());
+	private final BundleContext bc = Activator.getBundleContext();
+	private final NodeSecurity nodeSecurity;
+	private DataHttp dataHttp;
 	private KernelThread kernelThread;
 
 	public Kernel() {
@@ -61,13 +79,11 @@ final class Kernel implements ServiceListener {
 	final void init() {
 		Subject.doAs(nodeSecurity.getKernelSubject(),
 				new PrivilegedAction<Void>() {
-
 					@Override
 					public Void run() {
 						doInit();
 						return null;
 					}
-
 				});
 	}
 
@@ -79,26 +95,15 @@ final class Kernel implements ServiceListener {
 		long begin = System.currentTimeMillis();
 
 		try {
-			// Transaction
+			// Initialise services
+			logger = new NodeLogger();
 			transactionManager = new SimpleTransactionManager();
-
-			// Jackrabbit node
-			node = new JackrabbitNode(bundleContext);
-
-			// JCR repository factory
+			repository = new NodeRepository(bc);
 			repositoryFactory = new OsgiJackrabbitRepositoryFactory();
+			userAdmin = new NodeUserAdmin(transactionManager, repository);
 
-			// Authentication
-			Session adminSession = node.login();
-			userAdmin = new NodeUserAdmin(adminSession);
-			userAdmin.setTransactionManager(transactionManager);
-			bundleContext.registerService(UserAdmin.class, userAdmin,
-					userAdmin.currentState());
-
-			// Equinox dependency
-			// ExtendedHttpService httpService = waitForHttpService();
-			// nodeHttp = new NodeHttp(httpService, node);
-			ServiceReference<ExtendedHttpService> sr = bundleContext
+			// HTTP
+			ServiceReference<ExtendedHttpService> sr = bc
 					.getServiceReference(ExtendedHttpService.class);
 			if (sr != null)
 				addHttpService(sr);
@@ -109,19 +114,7 @@ final class Kernel implements ServiceListener {
 			kernelThread.start();
 
 			// Publish services to OSGi
-			bundleContext.registerService(TransactionManager.class,
-					transactionManager, null);
-			bundleContext.registerService(UserTransaction.class,
-					transactionManager, null);
-			bundleContext.registerService(
-					TransactionSynchronizationRegistry.class,
-					transactionManager.getTransactionSynchronizationRegistry(),
-					null);
-			node.publish(repositoryFactory);
-			bundleContext.registerService(RepositoryFactory.class,
-					repositoryFactory, null);
-
-			bundleContext.addServiceListener(Kernel.this);
+			publish();
 		} catch (Exception e) {
 			log.error("Cannot initialize Argeo CMS", e);
 			throw new ArgeoException("Cannot initialize", e);
@@ -138,19 +131,45 @@ final class Kernel implements ServiceListener {
 		directorsCut(initDuration);
 	}
 
+	private void publish() {
+		// Listen to service publication (also ours)
+		bc.addServiceListener(Kernel.this);
+		
+		// Logging
+		loggerReg = bc.registerService(ArgeoLogger.class, logger, null);
+		// Transaction
+		tmReg = bc.registerService(TransactionManager.class,
+				transactionManager, null);
+		utReg = bc.registerService(UserTransaction.class, transactionManager,
+				null);
+		// tsrReg = bc.registerService(TransactionSynchronizationRegistry.class,
+		// transactionManager.getTsr(), null);
+		// User admin
+		userAdminReg = bc.registerService(UserAdmin.class, userAdmin,
+				userAdmin.currentState());
+		// JCR
+		Hashtable<String, String> regProps = new Hashtable<String, String>();
+		regProps.put(JCR_REPOSITORY_ALIAS, ALIAS_NODE);
+		repositoryReg = bc.registerService(Repository.class, repository,
+				regProps);
+		repositoryFactoryReg = bc.registerService(RepositoryFactory.class,
+				repositoryFactory, null);
+	}
+
 	void destroy() {
 		long begin = System.currentTimeMillis();
+		unpublish();
 
 		kernelThread.destroyAndJoin();
 
-		if (nodeHttp != null)
-			nodeHttp.destroy();
+		if (dataHttp != null)
+			dataHttp.destroy();
 		if (userAdmin != null)
 			userAdmin.destroy();
-		if (node != null)
-			node.destroy();
+		if (repository != null)
+			repository.destroy();
 
-		bundleContext.removeServiceListener(this);
+		bc.removeServiceListener(this);
 
 		// Clean hanging threads from Jackrabbit
 		TransientFileFactory.shutdown();
@@ -164,39 +183,47 @@ final class Kernel implements ServiceListener {
 				+ (duration % 1000) + "s ##");
 	}
 
+	private void unpublish() {
+		userAdminReg.unregister();
+		repositoryFactoryReg.unregister();
+		repositoryReg.unregister();
+		tmReg.unregister();
+		utReg.unregister();
+		loggerReg.unregister();
+	}
+
 	@Override
 	public void serviceChanged(ServiceEvent event) {
 		ServiceReference<?> sr = event.getServiceReference();
-		Object service = bundleContext.getService(sr);
+		Object service = bc.getService(sr);
 		if (service instanceof Repository) {
 			Object jcrRepoAlias = sr
 					.getProperty(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS);
 			if (jcrRepoAlias != null) {// JCR repository
 				String alias = jcrRepoAlias.toString();
-				Repository repository = (Repository) bundleContext
-						.getService(sr);
+				Repository repository = (Repository) bc.getService(sr);
 				Map<String, Object> props = new HashMap<String, Object>();
 				for (String key : sr.getPropertyKeys())
 					props.put(key, sr.getProperty(key));
 				if (ServiceEvent.REGISTERED == event.getType()) {
 					try {
 						repositoryFactory.register(repository, props);
-						nodeHttp.registerRepositoryServlets(alias, repository);
+						dataHttp.registerRepositoryServlets(alias, repository);
 					} catch (Exception e) {
 						throw new CmsException(
 								"Could not publish JCR repository " + alias, e);
 					}
 				} else if (ServiceEvent.UNREGISTERING == event.getType()) {
 					repositoryFactory.unregister(repository, props);
-					nodeHttp.unregisterRepositoryServlets(alias);
+					dataHttp.unregisterRepositoryServlets(alias);
 				}
 			}
 		} else if (service instanceof ExtendedHttpService) {
 			if (ServiceEvent.REGISTERED == event.getType()) {
 				addHttpService(sr);
 			} else if (ServiceEvent.UNREGISTERING == event.getType()) {
-				nodeHttp.destroy();
-				nodeHttp = null;
+				dataHttp.destroy();
+				dataHttp = null;
 			}
 		}
 	}
@@ -204,33 +231,34 @@ final class Kernel implements ServiceListener {
 	private void addHttpService(ServiceReference<?> sr) {
 		// for (String key : sr.getPropertyKeys())
 		// log.debug(key + "=" + sr.getProperty(key));
-		ExtendedHttpService httpService = (ExtendedHttpService) bundleContext
+		ExtendedHttpService httpService = (ExtendedHttpService) bc
 				.getService(sr);
 		// TODO find constants
 		Object httpPort = sr.getProperty("http.port");
 		Object httpsPort = sr.getProperty("https.port");
-		nodeHttp = new DataHttp(httpService, node);
+		dataHttp = new DataHttp(httpService, repository);
 		if (log.isDebugEnabled())
 			log.debug("HTTP " + httpPort
 					+ (httpsPort != null ? " - HTTPS " + httpsPort : ""));
 	}
 
-	private ExtendedHttpService waitForHttpService() {
-		final ServiceTracker<ExtendedHttpService, ExtendedHttpService> st = new ServiceTracker<ExtendedHttpService, ExtendedHttpService>(
-				bundleContext, ExtendedHttpService.class, null);
-		st.open();
-		ExtendedHttpService httpService;
-		try {
-			httpService = st.waitForService(1000);
-		} catch (InterruptedException e) {
-			httpService = null;
-		}
-
-		if (httpService == null)
-			throw new CmsException("Could not find "
-					+ ExtendedHttpService.class + " service.");
-		return httpService;
-	}
+	// private ExtendedHttpService waitForHttpService() {
+	// final ServiceTracker<ExtendedHttpService, ExtendedHttpService> st = new
+	// ServiceTracker<ExtendedHttpService, ExtendedHttpService>(
+	// bc, ExtendedHttpService.class, null);
+	// st.open();
+	// ExtendedHttpService httpService;
+	// try {
+	// httpService = st.waitForService(1000);
+	// } catch (InterruptedException e) {
+	// httpService = null;
+	// }
+	//
+	// if (httpService == null)
+	// throw new CmsException("Could not find "
+	// + ExtendedHttpService.class + " service.");
+	// return httpService;
+	// }
 
 	final private static void directorsCut(long initDuration) {
 		// final long ms = 128l + (long) (Math.random() * 128d);

@@ -35,7 +35,7 @@ class KernelThread extends Thread {
 	public KernelThread(Kernel kernel) {
 		super(kernel.threadGroup, kernel.getClass().getSimpleName());
 		this.kernel = kernel;
-		this.repoStats = kernel.node.getRepositoryStatistics();
+		this.repoStats = kernel.repository.getRepositoryStatistics();
 	}
 
 	private void doSmallestPeriod() {

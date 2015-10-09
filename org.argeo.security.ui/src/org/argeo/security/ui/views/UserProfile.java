@@ -17,9 +17,9 @@ package org.argeo.security.ui.views;
 
 import java.util.TreeSet;
 
+import org.argeo.cms.auth.CurrentUser;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.security.ui.SecurityUiPlugin;
-import org.argeo.security.ui.internal.CurrentUser;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
@@ -41,9 +41,9 @@ public class UserProfile extends ViewPart {
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new GridLayout(2, false));
 
-//		Authentication authentication = CurrentUser.getAuthentication();
-//		EclipseUiUtils.createGridLL(parent, "Name", authentication
-//				.getPrincipal().toString());
+		// Authentication authentication = CurrentUser.getAuthentication();
+		// EclipseUiUtils.createGridLL(parent, "Name", authentication
+		// .getPrincipal().toString());
 		EclipseUiUtils.createGridLL(parent, "User ID",
 				CurrentUser.getUsername());
 

@@ -24,7 +24,7 @@ import org.argeo.cms.CmsMsg;
 import org.argeo.cms.CmsStyles;
 import org.argeo.cms.CmsView;
 import org.argeo.cms.auth.AuthConstants;
-import org.argeo.security.SecurityUtils;
+import org.argeo.cms.auth.CurrentUser;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -50,7 +50,7 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 		super(source.getDisplay(), SWT.NO_TRIM | SWT.BORDER | SWT.ON_TOP);
 		setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU);
 
-		String username = SecurityUtils.getUsername(CmsUtils.getCmsView().getSubject());
+		String username = CurrentUser.getUsername(CmsUtils.getCmsView().getSubject());
 		if (username.equalsIgnoreCase(AuthConstants.ROLE_ANONYMOUS)) {
 			username = null;
 			anonymousUi();

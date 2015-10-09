@@ -13,22 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.ui.internal;
+package org.argeo.util.security;
 
-import java.util.Set;
-
-import org.argeo.security.SecurityUtils;
 
 /**
- * Retrieves information about the current user. Not an API, can change without
- * notice.
+ * Advanced keyring based on cryptography that can easily be centralized and
+ * coordinated with {@link KeyringLoginModule} (since they ar ein the same
+ * package)
  */
-public class CurrentUser {
-	public final static String getUsername() {
-		return SecurityUtils.getCurrentThreadUsername();
-	}
+public interface CryptoKeyring extends Keyring {
 
-	public final static Set<String> roles() {
-		return SecurityUtils.roles();
-	}
 }

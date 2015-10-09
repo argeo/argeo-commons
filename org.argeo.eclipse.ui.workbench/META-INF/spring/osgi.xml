@@ -18,6 +18,6 @@
 		filter="(argeo.jcr.repository.alias=node)" />
 	<reference id="repositoryFactory" interface="javax.jcr.RepositoryFactory" />
 
-	<reference id="keyring" interface="org.argeo.security.crypto.CryptoKeyring" />
+	<reference id="keyring" interface="org.argeo.util.security.CryptoKeyring" />
 
 </beans:beans>

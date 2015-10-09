@@ -1,4 +1,4 @@
-package org.argeo.security.crypto;
+package org.argeo.cms.internal.kernel;
 
 import java.io.File;
 import java.io.FileInputStream;

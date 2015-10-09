@@ -5,7 +5,7 @@ import javax.jcr.Node;
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.CmsStyles;
 import org.argeo.cms.auth.AuthConstants;
-import org.argeo.security.SecurityUtils;
+import org.argeo.cms.auth.CurrentUser;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;
@@ -23,12 +23,12 @@ public class UserMenuLink extends MenuLink {
 
 	@Override
 	public Control createUi(Composite parent, Node context) {
-		String username = SecurityUtils.getUsername(CmsUtils.getCmsView()
+		String username = CurrentUser.getUsername(CmsUtils.getCmsView()
 				.getSubject());
 		if (username.equalsIgnoreCase(AuthConstants.ROLE_ANONYMOUS))
 			setLabel(CmsMsg.login.lead());
 		else {
-			setLabel(SecurityUtils.getDisplayName(CmsUtils.getCmsView()
+			setLabel(CurrentUser.getDisplayName(CmsUtils.getCmsView()
 					.getSubject()));
 		}
 		Label link = (Label) ((Composite) super.createUi(parent, context))

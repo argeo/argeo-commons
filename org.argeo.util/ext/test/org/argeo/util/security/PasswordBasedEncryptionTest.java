@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.crypto;
+package org.argeo.util.security;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,7 +35,7 @@ import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.StreamUtils;
-import org.argeo.security.crypto.PasswordBasedEncryption;
+import org.argeo.util.security.PasswordBasedEncryption;
 
 public class PasswordBasedEncryptionTest extends TestCase {
 	private final static Log log = LogFactory

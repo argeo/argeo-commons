@@ -57,7 +57,6 @@ public class DefaultRepositoryRegister extends Observable implements
 	/** Registers a service, typically called when OSGi services are bound. */
 	@SuppressWarnings("rawtypes")
 	public synchronized void register(Repository repository, Map properties) {
-		// TODO: also check bean name?
 		String alias;
 		if (properties == null || !properties.containsKey(JCR_REPOSITORY_ALIAS)) {
 			log.warn("Cannot register a repository if no "
@@ -86,7 +85,10 @@ public class DefaultRepositoryRegister extends Observable implements
 		String alias = properties.get(JCR_REPOSITORY_ALIAS).toString();
 		Map<String, Repository> map = new TreeMap<String, Repository>(
 				repositories);
-		map.put(alias, repository);
+		if (map.remove(alias) == null) {
+			log.warn("No repository was registered with alias " + alias);
+			return;
+		}
 		repositories = Collections.unmodifiableMap(map);
 		setChanged();
 		notifyObservers(alias);

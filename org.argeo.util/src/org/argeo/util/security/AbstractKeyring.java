@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.crypto;
+package org.argeo.util.security;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,15 +43,9 @@ import javax.security.auth.login.LoginException;
 
 import org.argeo.ArgeoException;
 import org.argeo.StreamUtils;
-import org.argeo.util.security.Keyring;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /** username / password based keyring. TODO internationalize */
 public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
-	static {
-		Security.addProvider(new BouncyCastleProvider());
-	}
-
 	public final static String DEFAULT_KEYRING_LOGIN_CONTEXT = "KEYRING";
 
 	private String loginContextName = DEFAULT_KEYRING_LOGIN_CONTEXT;

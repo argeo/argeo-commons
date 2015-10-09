@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.jcr;
+package org.argeo.jcr.security;
 
 import java.io.ByteArrayInputStream;
 import java.io.CharArrayReader;
@@ -37,8 +37,8 @@ import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.UserJcrUtils;
-import org.argeo.security.crypto.AbstractKeyring;
-import org.argeo.security.crypto.PBEKeySpecCallback;
+import org.argeo.util.security.AbstractKeyring;
+import org.argeo.util.security.PBEKeySpecCallback;
 
 /** JCR based implementation of a keyring */
 public class JcrKeyring extends AbstractKeyring implements ArgeoNames {

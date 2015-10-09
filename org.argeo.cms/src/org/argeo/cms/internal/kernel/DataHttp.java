@@ -65,7 +65,7 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 	// WebDav / JCR remoting
 	private OpenInViewSessionProvider sessionProvider;
 
-	DataHttp(HttpService httpService, JackrabbitNode node) {
+	DataHttp(HttpService httpService, NodeRepository node) {
 		this.httpService = httpService;
 		sessionProvider = new OpenInViewSessionProvider();
 		registerRepositoryServlets(ALIAS_NODE, node);

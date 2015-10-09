@@ -29,14 +29,17 @@ import org.eclipse.swt.widgets.Widget;
 
 /** Static utilities for the CMS framework. */
 public class CmsUtils implements CmsConstants {
-	/** The CMS view related to this display. */
+	/**
+	 * The CMS view related to this display, or null if none is available from
+	 * this call.
+	 */
 	public static CmsView getCmsView() {
 		Display display = Display.getCurrent();
 		if (display == null)
-			throw new CmsException("No display available");
+			return null;
 		CmsView cmsView = (CmsView) display.getData(CmsView.KEY);
 		if (cmsView == null)
-			throw new CmsException("No CMS view available");
+			return null;
 		return cmsView;
 	}
 

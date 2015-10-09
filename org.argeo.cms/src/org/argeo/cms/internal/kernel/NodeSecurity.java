@@ -22,11 +22,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
-import org.argeo.security.crypto.PkiUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-/** Authentication and user management. */
+/** Low-level kernel security */
 class NodeSecurity {
+	public final static int HARDENED = 3;
+	public final static int STAGING = 2;
+	public final static int DEV = 1;
+
 	final static String SECURITY_PROVIDER = "BC";// Bouncy Castle
 
 	private final static Log log;
@@ -45,6 +48,7 @@ class NodeSecurity {
 	}
 
 	private final Subject kernelSubject;
+	private int securityLevel = STAGING;
 
 	public NodeSecurity() {
 		// Configure JAAS first
@@ -53,10 +57,10 @@ class NodeSecurity {
 		System.setProperty("java.security.auth.login.config",
 				url.toExternalForm());
 
-		this.kernelSubject = logKernel();
+		this.kernelSubject = logInKernel();
 	}
 
-	private Subject logKernel() {
+	private Subject logInKernel() {
 		final Subject kernelSubject = new Subject();
 		createKeyStoreIfNeeded();
 
@@ -66,7 +70,8 @@ class NodeSecurity {
 			public void handle(Callback[] callbacks) throws IOException,
 					UnsupportedCallbackException {
 				// alias
-				((NameCallback) callbacks[1]).setName(AuthConstants.ROLE_KERNEL);
+				((NameCallback) callbacks[1])
+						.setName(AuthConstants.ROLE_KERNEL);
 				// store pwd
 				((PasswordCallback) callbacks[2]).setPassword("changeit"
 						.toCharArray());
@@ -93,7 +98,7 @@ class NodeSecurity {
 					KernelConstants.LOGIN_CONTEXT_KERNEL, kernelSubject);
 			kernelLc.logout();
 		} catch (LoginException e) {
-			throw new CmsException("Cannot log in kernel", e);
+			throw new CmsException("Cannot log out kernel", e);
 		}
 
 		Security.removeProvider(SECURITY_PROVIDER);
@@ -101,6 +106,21 @@ class NodeSecurity {
 
 	public Subject getKernelSubject() {
 		return kernelSubject;
+	}
+
+	public synchronized int getSecurityLevel() {
+		return securityLevel;
+	}
+
+	public void setSecurityLevel(int newValue) {
+		if (newValue != STAGING || newValue != DEV)
+			throw new CmsException("Invalid value for security level "
+					+ newValue);
+		if (newValue >= securityLevel)
+			throw new CmsException(
+					"Impossible to increase security level (from "
+							+ securityLevel + " to " + newValue + ")");
+		securityLevel = newValue;
 	}
 
 	private void createKeyStoreIfNeeded() {

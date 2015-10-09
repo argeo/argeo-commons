@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.log4j;
+package org.argeo.cms.internal.kernel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,10 +36,10 @@ import org.apache.log4j.spi.LoggingEvent;
 import org.argeo.ArgeoException;
 import org.argeo.ArgeoLogListener;
 import org.argeo.ArgeoLogger;
-import org.argeo.security.SecurityUtils;
+import org.argeo.cms.auth.CurrentUser;
 
 /** Not meant to be used directly in standard log4j config */
-public class SecureLogger implements ArgeoLogger {
+class NodeLogger implements ArgeoLogger {
 
 	private Boolean disabled = false;
 
@@ -110,7 +110,7 @@ public class SecureLogger implements ArgeoLogger {
 
 	public synchronized void register(ArgeoLogListener listener,
 			Integer numberOfPreviousEvents) {
-		String username = SecurityUtils.getCurrentThreadUsername();
+		String username = CurrentUser.getUsername();
 		if (username == null)
 			throw new ArgeoException(
 					"Only authenticated users can register a log listener");
@@ -141,7 +141,9 @@ public class SecureLogger implements ArgeoLogger {
 	}
 
 	public synchronized void unregister(ArgeoLogListener listener) {
-		String username = SecurityUtils.getCurrentThreadUsername();
+		String username = CurrentUser.getUsername();
+		if (username == null)// FIXME
+			return;
 		if (!userListeners.containsKey(username))
 			throw new ArgeoException("No user listeners " + listener
 					+ " registered for user " + username);
@@ -269,7 +271,7 @@ public class SecureLogger implements ArgeoLogger {
 		protected void append(LoggingEvent event) {
 			if (events != null) {
 				try {
-					String username = SecurityUtils.getCurrentThreadUsername();
+					String username = CurrentUser.getUsername();
 					events.put(new LogEvent(username, event));
 				} catch (InterruptedException e) {
 					// silent

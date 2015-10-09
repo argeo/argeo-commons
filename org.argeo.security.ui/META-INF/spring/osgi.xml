@@ -17,6 +17,6 @@
 	<reference id="defaultCallbackHandler" interface="javax.security.auth.callback.CallbackHandler" />
 
 	<!-- SERVICES -->
-	<service interface="org.argeo.security.crypto.CryptoKeyring"
+	<service interface="org.argeo.util.security.CryptoKeyring"
 		ref="keyring" />
 </beans:beans>

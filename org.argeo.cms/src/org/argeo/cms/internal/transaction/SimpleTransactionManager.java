@@ -122,7 +122,7 @@ public class SimpleTransactionManager implements TransactionManager,
 		return transaction;
 	}
 
-	public TransactionSynchronizationRegistry getTransactionSynchronizationRegistry() {
+	public TransactionSynchronizationRegistry getTsr() {
 		return syncRegistry;
 	}
 

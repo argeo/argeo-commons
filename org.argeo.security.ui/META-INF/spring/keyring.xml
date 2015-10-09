@@ -18,7 +18,7 @@
 		<property name="repository" ref="nodeRepository" />
 	</bean>
 
-	<bean id="keyring" class="org.argeo.security.jcr.JcrKeyring">
+	<bean id="keyring" class="org.argeo.jcr.security.JcrKeyring">
 		<property name="session" ref="nodeSession" />
 		<property name="defaultCallbackHandler" ref="defaultCallbackHandler" />
 		<property name="secreteKeyLength" value="${argeo.keyring.secreteKeyLength}" />

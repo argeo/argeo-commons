@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.crypto;
+package org.argeo.util.security;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -23,7 +23,6 @@ import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.Key;
-import java.security.Security;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -34,21 +33,11 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.StreamUtils;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /** Simple password based encryption / decryption */
 public class PasswordBasedEncryption {
-	private final static Log log = LogFactory
-			.getLog(PasswordBasedEncryption.class);
-
-	static {
-		Security.addProvider(new BouncyCastleProvider());
-	}
-
 	public final static Integer DEFAULT_ITERATION_COUNT = 1024;
 	/** Stronger with 256, but causes problem with Oracle JVM */
 	public final static Integer DEFAULT_SECRETE_KEY_LENGTH = 256;
@@ -76,11 +65,7 @@ public class PasswordBasedEncryption {
 	private Cipher ecipher;
 	private Cipher dcipher;
 
-	/**
-	 * Default provider is bouncy castle, in order to have consistent behaviour
-	 * across implementations
-	 */
-	private String securityProviderName = "BC";
+	private String securityProviderName = null;
 
 	/**
 	 * This is up to the caller to clear the passed array. Neither copy of nor
@@ -101,8 +86,8 @@ public class PasswordBasedEncryption {
 		} catch (InvalidKeyException e) {
 			Integer previousSecreteKeyLength = secreteKeyLength;
 			secreteKeyLength = DEFAULT_SECRETE_KEY_LENGTH_RESTRICTED;
-			log.warn("'" + e.getMessage() + "', will use " + secreteKeyLength
-					+ " secrete key length instead of "
+			System.err.println("'" + e.getMessage() + "', will use "
+					+ secreteKeyLength + " secrete key length instead of "
 					+ previousSecreteKeyLength);
 			try {
 				initKeyAndCiphers(password, passwordSalt, initializationVector);
@@ -135,7 +120,10 @@ public class PasswordBasedEncryption {
 		} else {
 			key = keyFac.generateSecret(keySpec);
 		}
-		ecipher = Cipher.getInstance(getCipherName(), securityProviderName);
+		if (securityProviderName != null)
+			ecipher = Cipher.getInstance(getCipherName(), securityProviderName);
+		else
+			ecipher = Cipher.getInstance(getCipherName());
 		ecipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
 		dcipher = Cipher.getInstance(getCipherName());
 		dcipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));

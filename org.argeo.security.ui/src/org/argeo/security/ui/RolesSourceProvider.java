@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.argeo.security.ui.internal.CurrentUser;
+import org.argeo.cms.auth.CurrentUser;
 import org.eclipse.ui.AbstractSourceProvider;
 
 /**

@@ -9,7 +9,6 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Properties;
 
-import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.io.IOUtils;
@@ -25,21 +24,17 @@ import org.argeo.ArgeoException;
 import org.argeo.cms.CmsException;
 import org.argeo.jackrabbit.JackrabbitWrapper;
 import org.argeo.jcr.ArgeoJcrConstants;
-import org.argeo.jcr.DefaultRepositoryRegister;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.xml.sax.InputSource;
 
 /** Jacrabbit based data layer */
-class JackrabbitNode extends JackrabbitWrapper implements KernelConstants,
+class NodeRepository extends JackrabbitWrapper implements KernelConstants,
 		ArgeoJcrConstants {
-	private static Log log = LogFactory.getLog(JackrabbitNode.class);
+	private static Log log = LogFactory.getLog(NodeRepository.class);
 
 	private RepositoryContext repositoryContext;
 
-	private ServiceRegistration<Repository> repositoryReg;
-
-	public JackrabbitNode(BundleContext bundleContext) {
+	public NodeRepository(BundleContext bundleContext) {
 		setBundleContext(bundleContext);
 		JackrabbitNodeType type = JackrabbitNodeType.valueOf(prop(REPO_TYPE,
 				h2.name()));
@@ -53,16 +48,7 @@ class JackrabbitNode extends JackrabbitWrapper implements KernelConstants,
 		}
 	}
 
-	void publish(DefaultRepositoryRegister repositoryRegister) {
-		Hashtable<String, String> regProps = new Hashtable<String, String>();
-		regProps.put(JCR_REPOSITORY_ALIAS, ALIAS_NODE);
-		repositoryReg = getBundleContext().registerService(Repository.class,
-				this, regProps);
-		repositoryRegister.register(this, regProps);
-	}
-
 	public void destroy() {
-		repositoryReg.unregister();
 		((RepositoryImpl) getRepository()).shutdown();
 	}
 

@@ -1,4 +1,3 @@
-Bundle-ActivationPolicy: lazy
 Import-Package:org.bouncycastle.*;resolution:=optional,\
 javax.jcr.security,\
 org.apache.commons.codec,\

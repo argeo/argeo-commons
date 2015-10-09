@@ -65,7 +65,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	// WebDav / JCR remoting
 	private OpenInViewSessionProvider sessionProvider;
 
-	NodeHttp(ExtendedHttpService httpService, JackrabbitNode node) {
+	NodeHttp(ExtendedHttpService httpService, NodeRepository node) {
 		// this.bundleContext = bundleContext;
 		// this.authenticationManager = authenticationManager;
 
