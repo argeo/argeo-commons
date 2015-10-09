@@ -1,8 +1,14 @@
 package org.argeo.cms.internal.kernel;
 
+import static bitronix.tm.TransactionManagerServices.getTransactionManager;
+import static bitronix.tm.TransactionManagerServices.getTransactionSynchronizationRegistry;
+import static org.argeo.cms.internal.kernel.KernelUtils.getFrameworkProp;
+import static org.argeo.cms.internal.kernel.KernelUtils.getOsgiInstancePath;
 import static org.argeo.jcr.ArgeoJcrConstants.ALIAS_NODE;
 import static org.argeo.jcr.ArgeoJcrConstants.JCR_REPOSITORY_ALIAS;
+import static org.osgi.framework.Constants.FRAMEWORK_UUID;
 
+import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
@@ -13,6 +19,7 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryFactory;
 import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
+import javax.transaction.TransactionSynchronizationRegistry;
 import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
@@ -21,7 +28,6 @@ import org.apache.jackrabbit.util.TransientFileFactory;
 import org.argeo.ArgeoException;
 import org.argeo.ArgeoLogger;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.internal.transaction.SimpleTransactionManager;
 import org.argeo.jackrabbit.OsgiJackrabbitRepositoryFactory;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.eclipse.equinox.http.servlet.ExtendedHttpService;
@@ -31,6 +37,11 @@ import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.useradmin.UserAdmin;
+
+import bitronix.tm.BitronixTransactionManager;
+import bitronix.tm.BitronixTransactionSynchronizationRegistry;
+import bitronix.tm.Configuration;
+import bitronix.tm.TransactionManagerServices;
 
 /**
  * Argeo CMS Kernel. Responsible for :
@@ -43,14 +54,14 @@ import org.osgi.service.useradmin.UserAdmin;
  * <li>OS access</li>
  * </ul>
  */
-final class Kernel implements ServiceListener {
+final class Kernel implements KernelConstants, ServiceListener {
 	/*
 	 * REGISTERED SERVICES
 	 */
 	private ServiceRegistration<ArgeoLogger> loggerReg;
 	private ServiceRegistration<TransactionManager> tmReg;
 	private ServiceRegistration<UserTransaction> utReg;
-	// private ServiceRegistration<TransactionSynchronizationRegistry> tsrReg;
+	private ServiceRegistration<TransactionSynchronizationRegistry> tsrReg;
 	private ServiceRegistration<Repository> repositoryReg;
 	private ServiceRegistration<RepositoryFactory> repositoryFactoryReg;
 	private ServiceRegistration<UserAdmin> userAdminReg;
@@ -59,7 +70,8 @@ final class Kernel implements ServiceListener {
 	 * SERVICES IMPLEMENTATIONS
 	 */
 	private NodeLogger logger;
-	private SimpleTransactionManager transactionManager;
+	private BitronixTransactionManager transactionManager;
+	private BitronixTransactionSynchronizationRegistry transactionSynchronizationRegistry;
 	private OsgiJackrabbitRepositoryFactory repositoryFactory;
 	NodeRepository repository;
 	private NodeUserAdmin userAdmin;
@@ -97,7 +109,8 @@ final class Kernel implements ServiceListener {
 		try {
 			// Initialise services
 			logger = new NodeLogger();
-			transactionManager = new SimpleTransactionManager();
+			// transactionManager = new SimpleTransactionManager();
+			initBitronixTransactionManager();
 			repository = new NodeRepository(bc);
 			repositoryFactory = new OsgiJackrabbitRepositoryFactory();
 			userAdmin = new NodeUserAdmin(transactionManager, repository);
@@ -131,10 +144,28 @@ final class Kernel implements ServiceListener {
 		directorsCut(initDuration);
 	}
 
+	private void initBitronixTransactionManager() {
+		Configuration tmConf = TransactionManagerServices.getConfiguration();
+		tmConf.setServerId(getFrameworkProp(FRAMEWORK_UUID));
+
+		File tmBaseDir = new File(getFrameworkProp(TRANSACTIONS_HOME,
+				getOsgiInstancePath("transactions")));
+		File tmDir1 = new File(tmBaseDir, "btm1");
+		tmDir1.mkdirs();
+		tmConf.setLogPart1Filename(new File(tmDir1, tmDir1.getName() + ".tlog")
+				.getAbsolutePath());
+		File tmDir2 = new File(tmBaseDir, "btm2");
+		tmDir2.mkdirs();
+		tmConf.setLogPart2Filename(new File(tmDir2, tmDir2.getName() + ".tlog")
+				.getAbsolutePath());
+		transactionManager = getTransactionManager();
+		transactionSynchronizationRegistry = getTransactionSynchronizationRegistry();
+	}
+
 	private void publish() {
 		// Listen to service publication (also ours)
 		bc.addServiceListener(Kernel.this);
-		
+
 		// Logging
 		loggerReg = bc.registerService(ArgeoLogger.class, logger, null);
 		// Transaction
@@ -142,8 +173,8 @@ final class Kernel implements ServiceListener {
 				transactionManager, null);
 		utReg = bc.registerService(UserTransaction.class, transactionManager,
 				null);
-		// tsrReg = bc.registerService(TransactionSynchronizationRegistry.class,
-		// transactionManager.getTsr(), null);
+		tsrReg = bc.registerService(TransactionSynchronizationRegistry.class,
+				transactionSynchronizationRegistry, null);
 		// User admin
 		userAdminReg = bc.registerService(UserAdmin.class, userAdmin,
 				userAdmin.currentState());
@@ -168,6 +199,8 @@ final class Kernel implements ServiceListener {
 			userAdmin.destroy();
 		if (repository != null)
 			repository.destroy();
+		if (transactionManager != null)
+			transactionManager.shutdown();
 
 		bc.removeServiceListener(this);
 
@@ -189,6 +222,7 @@ final class Kernel implements ServiceListener {
 		repositoryReg.unregister();
 		tmReg.unregister();
 		utReg.unregister();
+		tsrReg.unregister();
 		loggerReg.unregister();
 	}
 

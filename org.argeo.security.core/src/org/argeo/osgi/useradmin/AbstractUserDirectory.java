@@ -13,11 +13,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.naming.InvalidNameException;
 import javax.naming.directory.Attributes;
@@ -28,12 +26,8 @@ import javax.naming.ldap.Rdn;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -44,9 +38,6 @@ import org.osgi.service.useradmin.UserAdmin;
 
 /** Base class for a {@link UserDirectory}. */
 abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
-	private final static Log log = LogFactory
-			.getLog(AbstractUserDirectory.class);
-
 	private final Hashtable<String, Object> properties;
 	private final String baseDn;
 	private final String userObjectClass;
@@ -64,7 +55,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 			.asList(new String[] { LdifName.userpassword.name() });
 
 	private TransactionManager transactionManager;
-	private ThreadLocal<WorkingCopy> workingCopy = new ThreadLocal<AbstractUserDirectory.WorkingCopy>();
+	private ThreadLocal<UserDirectoryWorkingCopy> workingCopy = new ThreadLocal<UserDirectoryWorkingCopy>();
 	private Xid editingTransactionXid = null;
 
 	AbstractUserDirectory(Dictionary<String, ?> props) {
@@ -121,11 +112,11 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		return workingCopy.get() != null;
 	}
 
-	protected WorkingCopy getWorkingCopy() {
-		WorkingCopy wc = workingCopy.get();
+	protected UserDirectoryWorkingCopy getWorkingCopy() {
+		UserDirectoryWorkingCopy wc = workingCopy.get();
 		if (wc == null)
 			return null;
-		if (wc.xid == null) {
+		if (wc.getXid() == null) {
 			workingCopy.set(null);
 			return null;
 		}
@@ -143,7 +134,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 			throw new UserDirectoryException(
 					"A transaction needs to be active in order to edit");
 		if (editingTransactionXid == null) {
-			WorkingCopy wc = new WorkingCopy();
+			UserDirectoryWorkingCopy wc = new UserDirectoryWorkingCopy(this);
 			try {
 				transaction.enlistResource(wc);
 				editingTransactionXid = wc.getXid();
@@ -192,7 +183,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	}
 
 	protected DirectoryUser doGetRole(LdapName dn) {
-		WorkingCopy wc = getWorkingCopy();
+		UserDirectoryWorkingCopy wc = getWorkingCopy();
 		DirectoryUser user = daoGetRole(dn);
 		if (wc != null) {
 			if (user == null && wc.getNewUsers().containsKey(dn))
@@ -206,7 +197,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Role[] getRoles(String filter) throws InvalidSyntaxException {
-		WorkingCopy wc = getWorkingCopy();
+		UserDirectoryWorkingCopy wc = getWorkingCopy();
 		Filter f = filter != null ? FrameworkUtil.createFilter(filter) : null;
 		List<DirectoryUser> res = doGetRoles(f);
 		if (wc != null) {
@@ -274,7 +265,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	@Override
 	public Role createRole(String name, int type) {
 		checkEdit();
-		WorkingCopy wc = getWorkingCopy();
+		UserDirectoryWorkingCopy wc = getWorkingCopy();
 		LdapName dn = toDn(name);
 		if ((daoHasRole(dn) && !wc.getDeletedUsers().containsKey(dn))
 				|| wc.getNewUsers().containsKey(dn))
@@ -323,7 +314,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	@Override
 	public boolean removeRole(String name) {
 		checkEdit();
-		WorkingCopy wc = getWorkingCopy();
+		UserDirectoryWorkingCopy wc = getWorkingCopy();
 		LdapName dn = toDn(name);
 		boolean actuallyDeleted;
 		if (daoHasRole(dn) || wc.getNewUsers().containsKey(dn)) {
@@ -342,16 +333,20 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	}
 
 	// TRANSACTION
-	protected void prepare(WorkingCopy wc) {
+	protected void prepare(UserDirectoryWorkingCopy wc) {
 
 	}
 
-	protected void commit(WorkingCopy wc) {
+	protected void commit(UserDirectoryWorkingCopy wc) {
 
 	}
 
-	protected void rollback(WorkingCopy wc) {
+	protected void rollback(UserDirectoryWorkingCopy wc) {
 
+	}
+
+	void clearEditingTransactionXid() {
+		editingTransactionXid = null;
 	}
 
 	// UTILITIES
@@ -430,156 +425,4 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		this.transactionManager = transactionManager;
 	}
 
-	//
-	// XA RESOURCE
-	//
-	protected class WorkingCopy implements XAResource {
-		private Xid xid;
-		private int transactionTimeout = 0;
-
-		private Map<LdapName, DirectoryUser> newUsers = new HashMap<LdapName, DirectoryUser>();
-		private Map<LdapName, Attributes> modifiedUsers = new HashMap<LdapName, Attributes>();
-		private Map<LdapName, DirectoryUser> deletedUsers = new HashMap<LdapName, DirectoryUser>();
-
-		@Override
-		public void start(Xid xid, int flags) throws XAException {
-			if (editingTransactionXid != null)
-				throw new UserDirectoryException("Transaction "
-						+ editingTransactionXid + " already editing");
-			this.xid = xid;
-		}
-
-		@Override
-		public void end(Xid xid, int flags) throws XAException {
-			checkXid(xid);
-
-			// clean collections
-			newUsers.clear();
-			newUsers = null;
-			modifiedUsers.clear();
-			modifiedUsers = null;
-			deletedUsers.clear();
-			deletedUsers = null;
-
-			// clean IDs
-			this.xid = null;
-			editingTransactionXid = null;
-		}
-
-		@Override
-		public int prepare(Xid xid) throws XAException {
-			checkXid(xid);
-			if (noModifications())
-				return XA_RDONLY;
-			try {
-				AbstractUserDirectory.this.prepare(this);
-			} catch (Exception e) {
-				log.error("Cannot prepare " + xid, e);
-				throw new XAException(XAException.XA_RBOTHER);
-			}
-			return XA_OK;
-		}
-
-		@Override
-		public void commit(Xid xid, boolean onePhase) throws XAException {
-			checkXid(xid);
-			if (noModifications())
-				return;
-			try {
-				if (onePhase)
-					AbstractUserDirectory.this.prepare(this);
-				AbstractUserDirectory.this.commit(this);
-			} catch (Exception e) {
-				log.error("Cannot commit " + xid, e);
-				throw new XAException(XAException.XA_RBOTHER);
-			}
-		}
-
-		@Override
-		public void rollback(Xid xid) throws XAException {
-			checkXid(xid);
-			try {
-				AbstractUserDirectory.this.rollback(this);
-			} catch (Exception e) {
-				log.error("Cannot rollback " + xid, e);
-				throw new XAException(XAException.XA_HEURMIX);
-			}
-		}
-
-		@Override
-		public void forget(Xid xid) throws XAException {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean isSameRM(XAResource xares) throws XAException {
-			return xares == this;
-		}
-
-		@Override
-		public Xid[] recover(int flag) throws XAException {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public int getTransactionTimeout() throws XAException {
-			return transactionTimeout;
-		}
-
-		@Override
-		public boolean setTransactionTimeout(int seconds) throws XAException {
-			transactionTimeout = seconds;
-			return true;
-		}
-
-		private Xid getXid() {
-			return xid;
-		}
-
-		private void checkXid(Xid xid) throws XAException {
-			if (this.xid == null)
-				throw new XAException(XAException.XAER_OUTSIDE);
-			if (!this.xid.equals(xid))
-				throw new XAException(XAException.XAER_NOTA);
-		}
-
-		@Override
-		protected void finalize() throws Throwable {
-			if (editingTransactionXid != null)
-				log.warn("Editing transaction still referenced but no working copy "
-						+ editingTransactionXid);
-			editingTransactionXid = null;
-		}
-
-		public boolean noModifications() {
-			return newUsers.size() == 0 && modifiedUsers.size() == 0
-					&& deletedUsers.size() == 0;
-		}
-
-		public Attributes getAttributes(LdapName dn) {
-			if (modifiedUsers.containsKey(dn))
-				return modifiedUsers.get(dn);
-			return null;
-		}
-
-		public void startEditing(DirectoryUser user) {
-			LdapName dn = user.getDn();
-			if (modifiedUsers.containsKey(dn))
-				throw new UserDirectoryException("Already editing " + dn);
-			modifiedUsers.put(dn, (Attributes) user.getAttributes().clone());
-		}
-
-		public Map<LdapName, DirectoryUser> getNewUsers() {
-			return newUsers;
-		}
-
-		public Map<LdapName, DirectoryUser> getDeletedUsers() {
-			return deletedUsers;
-		}
-
-		public Map<LdapName, Attributes> getModifiedUsers() {
-			return modifiedUsers;
-		}
-
-	}
 }

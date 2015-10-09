@@ -16,6 +16,8 @@ public interface KernelConstants {
 	final static String REPO_SEARCH_CACHE_SIZE = "argeo.node.repo.searchCacheSize";
 	final static String REPO_MAX_VOLATILE_INDEX_SIZE = "argeo.node.repo.maxVolatileIndexSize";
 
+	final static String TRANSACTIONS_HOME = "argeo.node.transactions.home";
+
 	// Node Security
 	final static String ROLES_URI = "argeo.node.roles.uri";
 	/** URI to an LDIF file or LDAP server used as initialization or backend */

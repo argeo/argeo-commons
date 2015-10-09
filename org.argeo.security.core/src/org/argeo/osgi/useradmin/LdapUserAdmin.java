@@ -183,7 +183,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected void prepare(WorkingCopy wc) {
+	protected void prepare(UserDirectoryWorkingCopy wc) {
 		try {
 			getLdapContext().reconnect(getLdapContext().getConnectControls());
 			// delete
@@ -214,7 +214,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected void commit(WorkingCopy wc) {
+	protected void commit(UserDirectoryWorkingCopy wc) {
 		try {
 			// delete
 			for (LdapName dn : wc.getDeletedUsers().keySet()) {
@@ -237,7 +237,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected void rollback(WorkingCopy wc) {
+	protected void rollback(UserDirectoryWorkingCopy wc) {
 		// prepare not impacting
 	}
 

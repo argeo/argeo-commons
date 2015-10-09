@@ -1,4 +1,5 @@
 Import-Package:org.bouncycastle.*;resolution:=optional,\
+bitronix.tm.*;resolution:=optional,\
 javax.jcr.security,\
 org.apache.commons.codec,\
 org.apache.commons.codec.digest,\

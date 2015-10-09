@@ -20,7 +20,6 @@ import javax.naming.ldap.LdapName;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.argeo.osgi.useradmin.AbstractUserDirectory.WorkingCopy;
 
 /** Directory user implementation */
 class LdifUser implements DirectoryUser {
@@ -144,7 +143,7 @@ class LdifUser implements DirectoryUser {
 		return getWc() != null && getModifiedAttributes() != null;
 	}
 
-	private synchronized WorkingCopy getWc() {
+	private synchronized UserDirectoryWorkingCopy getWc() {
 		return userAdmin.getWorkingCopy();
 	}
 

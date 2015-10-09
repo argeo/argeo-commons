@@ -47,6 +47,19 @@ class KernelUtils implements KernelConstants {
 				.getAbsoluteFile();
 	}
 
+	static String getOsgiInstancePath(String relativePath) {
+		try {
+			if (relativePath == null)
+				return getOsgiInstanceDir().getCanonicalPath();
+			else
+				return new File(getOsgiInstanceDir(), relativePath)
+						.getCanonicalPath();
+		} catch (IOException e) {
+			throw new CmsException("Cannot get instance path for "
+					+ relativePath, e);
+		}
+	}
+
 	static File getOsgiConfigurationFile(String relativePath) {
 		try {
 			return new File(new URI(Activator.getBundleContext().getProperty(
@@ -74,7 +87,8 @@ class KernelUtils implements KernelConstants {
 		Subject subject = new Subject();
 		LoginContext lc;
 		try {
-			lc = new LoginContext(AuthConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
+			lc = new LoginContext(AuthConstants.LOGIN_CONTEXT_ANONYMOUS,
+					subject);
 			lc.login();
 			return subject;
 		} catch (LoginException e) {

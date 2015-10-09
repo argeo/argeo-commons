@@ -166,7 +166,7 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected void prepare(WorkingCopy wc) {
+	protected void prepare(UserDirectoryWorkingCopy wc) {
 		// delete
 		for (LdapName dn : wc.getDeletedUsers().keySet()) {
 			if (users.containsKey(dn))
@@ -204,12 +204,12 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected void commit(WorkingCopy wc) {
+	protected void commit(UserDirectoryWorkingCopy wc) {
 		save();
 	}
 
 	@Override
-	protected void rollback(WorkingCopy wc) {
+	protected void rollback(UserDirectoryWorkingCopy wc) {
 		init();
 	}
 
