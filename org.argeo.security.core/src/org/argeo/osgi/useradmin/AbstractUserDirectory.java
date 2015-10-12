@@ -28,6 +28,8 @@ import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.Xid;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -38,6 +40,9 @@ import org.osgi.service.useradmin.UserAdmin;
 
 /** Base class for a {@link UserDirectory}. */
 abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
+	private final static Log log = LogFactory
+			.getLog(AbstractUserDirectory.class);
+
 	private final Hashtable<String, Object> properties;
 	private final String baseDn;
 	private final String userObjectClass;
@@ -240,6 +245,9 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		}
 		if (collectedUsers.size() == 1)
 			return collectedUsers.get(0);
+		else if (collectedUsers.size() > 1)
+			log.warn(collectedUsers.size() + " users for "
+					+ (key != null ? key + "=" : "") + value);
 		return null;
 	}
 

@@ -7,11 +7,13 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.naming.InvalidNameException;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
@@ -70,6 +72,31 @@ class LdifParser {
 					// manage DN attributes
 					if (attributeId.equals("dn") || isLastLine) {
 						if (currentDn != null) {
+							//
+							// ADD
+							//
+							Rdn nameRdn = currentDn
+									.getRdn(currentDn.size() - 1);
+							Attribute nameAttr = currentAttributes.get(nameRdn
+									.getType());
+							if (nameAttr == null)
+								currentAttributes.put(nameRdn.getType(),
+										nameRdn.getValue());
+							else
+								try {
+									if (!nameAttr.get().equals(
+											nameRdn.getValue()))
+										throw new UserDirectoryException(
+												"Attribute "
+														+ nameAttr.getID()
+														+ "="
+														+ nameAttr.get()
+														+ " not consistent with DN "
+														+ currentDn);
+								} catch (NamingException e) {
+									throw new UserDirectoryException(
+											"Cannot get attribute value", e);
+								}
 							Attributes previous = res.put(currentDn,
 									currentAttributes);
 							if (log.isTraceEnabled())
