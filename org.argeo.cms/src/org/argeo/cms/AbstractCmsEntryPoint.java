@@ -124,7 +124,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 			@Override
 			public Void run() {
 				try {
-					createUi(parent);
+					initUi(parent);
 				} catch (Exception e) {
 					throw new CmsException("Cannot create entrypoint contents",
 							e);
@@ -135,7 +135,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 	}
 
 	/** Create UI */
-	protected abstract void createUi(Composite parent);
+	protected abstract void initUi(Composite parent);
 
 	/** Recreate UI after navigation or auth change */
 	protected abstract void refresh();

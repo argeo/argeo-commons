@@ -6,7 +6,7 @@ ou: node
 dn: ou=roles,ou=node
 objectClass: organizationalUnit
 objectClass: top
-ou: system
+ou: roles
 
 dn: cn=admin,ou=roles,ou=node
 objectClass: groupOfNames
@@ -30,7 +30,7 @@ member: cn=admin,ou=roles,ou=node
 dn: cn=org.argeo.cms.editor,ou=roles,ou=node
 objectClass: groupOfNames
 objectClass: top
-cn: editor
+cn: org.argeo.cms.editor
 member: cn=admin,ou=roles,ou=node
 member: uid=demo,ou=users,dc=example,dc=com
 

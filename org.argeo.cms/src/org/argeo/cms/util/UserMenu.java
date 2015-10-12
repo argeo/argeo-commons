@@ -33,51 +33,80 @@ import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 /** The site-related user menu */
-public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
-	private static final long serialVersionUID = -5788157651532106301L;
+public class UserMenu implements CmsStyles, CallbackHandler {
+	private final CmsView cmsView;
+	private final Shell shell;
+
 	private Text username, password;
 
-	public UserMenu(Control source) {
-		super(source.getDisplay(), SWT.NO_TRIM | SWT.BORDER | SWT.ON_TOP);
-		setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU);
+	public UserMenu(Control source, boolean autoclose) {
+		shell = new Shell(source.getDisplay(), SWT.NO_TRIM | SWT.BORDER
+				| SWT.ON_TOP);
+		shell.setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU);
+		// cmsView = (CmsView) shell.getDisplay().getData(CmsView.KEY);
+		cmsView = CmsUtils.getCmsView();
 
-		String username = CurrentUser.getUsername(CmsUtils.getCmsView().getSubject());
-		if (username.equalsIgnoreCase(AuthConstants.ROLE_ANONYMOUS)) {
-			username = null;
-			anonymousUi();
+		if (cmsView != null) {
+			String username = CurrentUser.getUsername(CmsUtils.getCmsView()
+					.getSubject());
+			if (username == null
+					|| username.equalsIgnoreCase(AuthConstants.ROLE_ANONYMOUS)) {
+				username = null;
+				anonymousUi(shell);
+			} else {
+				userUi(shell);
+			}
 		} else {
-			userUi();
+			anonymousUi(shell);
 		}
 
-		pack();
-		layout();
-		setLocation(source.toDisplay(source.getSize().x - getSize().x,
-				source.getSize().y));
+		shell.pack();
+		shell.layout();
+		if (autoclose)// popup
+			shell.setLocation(source.toDisplay(
+					source.getSize().x - shell.getSize().x, source.getSize().y));
+		else // centered
+		{
+			Rectangle shellBounds = Display.getCurrent().getBounds();// RAP
+			Point dialogSize = shell.getSize();
+			int x = shellBounds.x + (shellBounds.width - dialogSize.x) / 2;
+			int y = shellBounds.y + (shellBounds.height - dialogSize.y) / 2;
+			shell.setLocation(x, y);
 
-		addShellListener(new ShellAdapter() {
-			private static final long serialVersionUID = 5178980294808435833L;
+		}
+		if (autoclose)
+			shell.addShellListener(new ShellAdapter() {
+				private static final long serialVersionUID = 5178980294808435833L;
 
-			@Override
-			public void shellDeactivated(ShellEvent e) {
-				close();
-				dispose();
-			}
-		});
-		open();
+				@Override
+				public void shellDeactivated(ShellEvent e) {
+					closeShell();
+				}
+			});
+		shell.open();
+
 	}
 
-	protected void userUi() {
-		setLayout(CmsUtils.noSpaceGridLayout());
-		Composite c = new Composite(this, SWT.NONE);
+	protected void closeShell() {
+		shell.close();
+		shell.dispose();
+	}
+
+	protected void userUi(Composite parent) {
+		parent.setLayout(CmsUtils.noSpaceGridLayout());
+		Composite c = new Composite(parent, SWT.NONE);
 		c.setLayout(new GridLayout());
 		c.setLayoutData(CmsUtils.fillAll());
 
@@ -104,16 +133,16 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 
 	}
 
-	protected void anonymousUi() {
-		setLayout(CmsUtils.noSpaceGridLayout());
+	protected void anonymousUi(Composite parent) {
+		parent.setLayout(CmsUtils.noSpaceGridLayout());
 
 		// We need a composite for the traversal
-		Composite c = new Composite(this, SWT.NONE);
+		Composite c = new Composite(parent, SWT.NONE);
 		c.setLayout(new GridLayout());
 		c.setLayoutData(CmsUtils.fillAll());
 
 		Integer textWidth = 120;
-		setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU);
+		parent.setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU);
 
 		// new Label(this, SWT.NONE).setText(CmsMsg.username.lead());
 		username = new Text(c, SWT.BORDER);
@@ -142,14 +171,13 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 		c.addTraverseListener(tl);
 		username.addTraverseListener(tl);
 		password.addTraverseListener(tl);
-		setTabList(new Control[] { c });
+		parent.setTabList(new Control[] { c });
 		c.setTabList(new Control[] { username, password });
 		c.setFocus();
 	}
 
 	protected void login() {
-		CmsView cmsSession = (CmsView) getDisplay().getData(CmsView.KEY);
-		Subject subject = cmsSession.getSubject();
+		Subject subject = cmsView.getSubject();
 		try {
 			//
 			// LOGIN
@@ -178,14 +206,12 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 			}
 			throw new CmsException("Cannot authenticate", e1);
 		}
-		close();
-		dispose();
-		cmsSession.authChange();
+		closeShell();
+		cmsView.authChange();
 	}
 
 	protected void logout() {
-		final CmsView cmsSession = (CmsView) getDisplay().getData(CmsView.KEY);
-		Subject subject = cmsSession.getSubject();
+		Subject subject = cmsView.getSubject();
 		try {
 			//
 			// LOGOUT
@@ -199,10 +225,9 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 		} catch (LoginException e1) {
 			throw new CmsException("Cannot authenticate anonymous", e1);
 		}
-		close();
-		dispose();
-		cmsSession.navigateTo("~");
-		cmsSession.authChange();
+		closeShell();
+		cmsView.navigateTo("~");
+		cmsView.authChange();
 	}
 
 	@Override
@@ -210,6 +235,10 @@ public class UserMenu extends Shell implements CmsStyles, CallbackHandler {
 			UnsupportedCallbackException {
 		((NameCallback) callbacks[0]).setName(username.getText());
 		((PasswordCallback) callbacks[1]).setPassword(password.getTextChars());
+	}
+
+	public Shell getShell() {
+		return shell;
 	}
 
 }

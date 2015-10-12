@@ -42,7 +42,7 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 	}
 
 	@Override
-	protected void createUi(Composite parent) {
+	protected void initUi(Composite parent) {
 		parent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		parent.setLayout(CmsUtils.noSpaceGridLayout());
 

@@ -15,6 +15,12 @@
             path="/public"
             brandingId="org.argeo.security.ui.rap.defaultBranding">
       </entrypoint>
+      <entrypoint
+            brandingId="org.argeo.security.ui.rap.defaultBranding"
+            class="org.argeo.security.ui.rap.RapLoginEntryPoint"
+            id="org.argeo.security.ui.rap.secureEntryPoint"
+            path="/login">
+      </entrypoint>
    </extension>
 
 	<!-- COMMANDS --> 

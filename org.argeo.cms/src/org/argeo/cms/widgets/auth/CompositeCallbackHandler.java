@@ -82,15 +82,15 @@ public class CompositeCallbackHandler extends Composite implements
 		if (!wasUsedAlready)
 			wasUsedAlready = true;
 
-		while (!isSubmitted() && !isCanceled()) {
-			try {
-				wait(1000l);
-			} catch (InterruptedException e) {
-				// silent
-			}
-		}
+//		while (!isSubmitted() && !isCanceled()) {
+//			try {
+//				wait(1000l);
+//			} catch (InterruptedException e) {
+//				// silent
+//			}
+//		}
 
-		cleanCallbacksAfterCancel(callbacks);
+//		cleanCallbacksAfterCancel(callbacks);
 	}
 
 	public void checkCallbackSupported(Callback callback)

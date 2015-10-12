@@ -38,7 +38,7 @@ public class UserMenuLink extends MenuLink {
 	}
 
 	protected UserMenu createUserMenu(Control source) {
-		return new UserMenu(source.getParent());
+		return new UserMenu(source.getParent(), true);
 	}
 
 	private class UserMenuLinkController implements MouseListener,
@@ -61,7 +61,7 @@ public class UserMenuLink extends MenuLink {
 					// avoid to reopen the menu, if one has clicked gain
 					if (durationSinceLastDispose > 200) {
 						userMenu = createUserMenu(source);
-						userMenu.addDisposeListener(this);
+						userMenu.getShell().addDisposeListener(this);
 					}
 				}
 			}
