@@ -49,7 +49,7 @@ member: uid=root+cn=Super Admin,ou=People,dc=demo,dc=example,dc=org
 dn: cn=editor,ou=Roles,dc=demo,dc=example,dc=org
 objectClass: groupOfNames
 objectClass: top
-cn: admin
+cn: editor
 member: cn=admin,ou=Roles,dc=demo,dc=example,dc=org
 member: uid=demo,ou=People,dc=demo,dc=example,dc=org
 

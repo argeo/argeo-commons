@@ -1,5 +1,7 @@
 package org.argeo.osgi.useradmin;
 
+import static org.argeo.osgi.useradmin.LdifName.dn;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -23,6 +25,32 @@ import org.apache.commons.logging.LogFactory;
 /** Basic LDIF parser. */
 class LdifParser {
 	private final static Log log = LogFactory.getLog(LdifParser.class);
+
+	protected Attributes addAttributes(SortedMap<LdapName, Attributes> res,
+			int lineNumber, LdapName currentDn, Attributes currentAttributes) {
+		try {
+			Rdn nameRdn = currentDn.getRdn(currentDn.size() - 1);
+			Attribute nameAttr = currentAttributes.get(nameRdn.getType());
+			if (nameAttr == null)
+				currentAttributes.put(nameRdn.getType(), nameRdn.getValue());
+			else if (!nameAttr.get().equals(nameRdn.getValue()))
+				throw new UserDirectoryException("Attribute "
+						+ nameAttr.getID() + "=" + nameAttr.get()
+						+ " not consistent with DN " + currentDn
+						+ " (shortly before line " + lineNumber
+						+ " in LDIF file)");
+			Attributes previous = res.put(currentDn, currentAttributes);
+			if (log.isTraceEnabled())
+				log.trace("Added " + currentDn);
+			return previous;
+		} catch (NamingException e) {
+			throw new UserDirectoryException("Cannot add " + currentDn, e);
+		}
+	}
+
+	static void checkDnConsistency() {
+
+	}
 
 	SortedMap<LdapName, Attributes> read(InputStream in) throws IOException {
 		SortedMap<LdapName, Attributes> res = new TreeMap<LdapName, Attributes>();
@@ -70,37 +98,13 @@ class LdifParser {
 							.decodeBase64(cleanValueStr) : cleanValueStr;
 
 					// manage DN attributes
-					if (attributeId.equals("dn") || isLastLine) {
+					if (attributeId.equals(dn.name()) || isLastLine) {
 						if (currentDn != null) {
 							//
 							// ADD
 							//
-							Rdn nameRdn = currentDn
-									.getRdn(currentDn.size() - 1);
-							Attribute nameAttr = currentAttributes.get(nameRdn
-									.getType());
-							if (nameAttr == null)
-								currentAttributes.put(nameRdn.getType(),
-										nameRdn.getValue());
-							else
-								try {
-									if (!nameAttr.get().equals(
-											nameRdn.getValue()))
-										throw new UserDirectoryException(
-												"Attribute "
-														+ nameAttr.getID()
-														+ "="
-														+ nameAttr.get()
-														+ " not consistent with DN "
-														+ currentDn);
-								} catch (NamingException e) {
-									throw new UserDirectoryException(
-											"Cannot get attribute value", e);
-								}
-							Attributes previous = res.put(currentDn,
-									currentAttributes);
-							if (log.isTraceEnabled())
-								log.trace("Added " + currentDn);
+							Attributes previous = addAttributes(res,
+									lineNumber, currentDn, currentAttributes);
 							if (previous != null) {
 								log.warn("There was already an entry with DN "
 										+ currentDn
@@ -108,7 +112,7 @@ class LdifParser {
 							}
 						}
 
-						if (attributeId.equals("dn"))
+						if (attributeId.equals(dn.name()))
 							try {
 								currentDn = new LdapName(
 										attributeValue.toString());

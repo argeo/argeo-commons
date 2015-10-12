@@ -1,5 +1,7 @@
 package org.argeo.osgi.useradmin;
 
+import static org.argeo.osgi.useradmin.LdifName.dn;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -10,6 +12,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -23,15 +26,22 @@ class LdifWriter {
 
 	void writeEntry(LdapName name, Attributes attributes) throws IOException {
 		try {
-			// TODO check consistency of DN with attributes
-			writer.append("dn:").append(name.toString()).append('\n');
+			// check consistency
+			Rdn nameRdn = name.getRdn(name.size() - 1);
+			Attribute nameAttr = attributes.get(nameRdn.getType());
+			if (!nameAttr.get().equals(nameRdn.getValue()))
+				throw new UserDirectoryException("Attribute "
+						+ nameAttr.getID() + "=" + nameAttr.get()
+						+ " not consistent with DN " + name);
+
+			writer.append(dn.name() + ":").append(name.toString()).append('\n');
 			Attribute objectClassAttr = attributes.get("objectClass");
 			if (objectClassAttr != null)
 				writeAttribute(objectClassAttr);
 			for (NamingEnumeration<? extends Attribute> attrs = attributes
 					.getAll(); attrs.hasMore();) {
 				Attribute attribute = attrs.next();
-				if (attribute.getID().equals("dn")
+				if (attribute.getID().equals(dn.name())
 						|| attribute.getID().equals("objectClass"))
 					continue;// skip DN attribute
 				writeAttribute(attribute);
