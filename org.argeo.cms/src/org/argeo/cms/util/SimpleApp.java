@@ -58,8 +58,8 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration,
 
 	public void configure(Application application) {
 		try {
-			// application.setOperationMode(OperationMode.SWT_COMPATIBILITY);
-			application.setOperationMode(OperationMode.JEE_COMPATIBILITY);
+			application.setOperationMode(OperationMode.SWT_COMPATIBILITY);
+			// application.setOperationMode(OperationMode.JEE_COMPATIBILITY);
 
 			application.setExceptionHandler(new CmsExceptionHandler());
 
