@@ -5,8 +5,8 @@ import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -17,8 +17,14 @@ public class UserMenu extends CmsLogin {
 
 	public UserMenu(Control source, boolean autoclose) {
 		super(CmsUtils.getCmsView());
-		shell = new Shell(source.getDisplay(), SWT.NO_TRIM | SWT.BORDER
-				| SWT.ON_TOP);
+		if (source != null) {
+			shell = new Shell(Display.getCurrent(), SWT.NO_TRIM | SWT.BORDER
+					| SWT.ON_TOP);
+		} else {
+			shell = new Shell(Display.getCurrent(), SWT.NO_TRIM);
+			shell.setMaximized(true);
+			shell.setLayout(CmsUtils.noSpaceGridLayout());
+		}
 		shell.setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU);
 
 		if (isAnonymous()) {
@@ -27,19 +33,20 @@ public class UserMenu extends CmsLogin {
 			userUi(shell);
 		}
 
-		shell.pack();
-		shell.layout();
-		if (autoclose)// popup
+		if (source != null) {// popup
+			shell.pack();
+			shell.layout();
 			shell.setLocation(source.toDisplay(
 					source.getSize().x - shell.getSize().x, source.getSize().y));
-		else // centered
-		{
-			Rectangle shellBounds = Display.getCurrent().getBounds();// RAP
-			Point dialogSize = shell.getSize();
-			int x = shellBounds.x + (shellBounds.width - dialogSize.x) / 2;
-			int y = shellBounds.y + (shellBounds.height - dialogSize.y) / 2;
-			shell.setLocation(x, y);
-
+		} else { // centered
+			Composite parent = getCredentialsBlock();
+			parent.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true,
+					true));
+			// Rectangle shellBounds = shell.getBounds();// RAP
+			// Point dialogSize = parent.getSize();
+			// int x = shellBounds.x + (shellBounds.width - dialogSize.x) / 2;
+			// int y = shellBounds.y + (shellBounds.height - dialogSize.y) / 2;
+			// parent.setLocation(x, y);
 		}
 		if (autoclose)
 			shell.addShellListener(new ShellAdapter() {

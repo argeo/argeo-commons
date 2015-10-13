@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.argeo.security.ui.login.WorkbenchLogin;
 import org.eclipse.rap.rwt.RWT;
+import org.eclipse.rap.rwt.client.service.JavaScriptExecutor;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
@@ -23,4 +24,14 @@ public class RapLoginEntryPoint extends WorkbenchLogin {
 	protected HttpServletRequest getRequest() {
 		return RWT.getRequest();
 	}
+
+	@Override
+	public int createUI() {
+		JavaScriptExecutor jsExecutor = RWT.getClient().getService(
+				JavaScriptExecutor.class);
+		int returnCode = super.createUI();
+		jsExecutor.execute("location.reload()");
+		return returnCode;
+	}
+
 }

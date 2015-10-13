@@ -36,6 +36,8 @@ import org.eclipse.swt.widgets.Text;
 
 public class CmsLogin implements CmsStyles, CallbackHandler {
 	private Text username, password;
+	private Composite credentialsBlock;
+
 	private final CmsView cmsView;
 
 	public CmsLogin(CmsView cmsView) {
@@ -46,15 +48,19 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		return CurrentUser.isAnonymous(cmsView.getSubject());
 	}
 
+	protected Composite getCredentialsBlock() {
+		return credentialsBlock;
+	}
+
 	protected void userUi(Composite parent) {
 		parent.setLayout(CmsUtils.noSpaceGridLayout());
-		Composite c = new Composite(parent, SWT.NONE);
-		c.setLayout(new GridLayout());
-		c.setLayoutData(CmsUtils.fillAll());
+		credentialsBlock = new Composite(parent, SWT.NONE);
+		credentialsBlock.setLayout(new GridLayout());
+		credentialsBlock.setLayoutData(CmsUtils.fillAll());
 
-		specificUserUi(c);
+		specificUserUi(credentialsBlock);
 
-		Label l = new Label(c, SWT.NONE);
+		Label l = new Label(credentialsBlock, SWT.NONE);
 		l.setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU_ITEM);
 		l.setText(CmsMsg.logout.lead());
 		GridData lData = CmsUtils.fillWidth();
@@ -79,15 +85,15 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		parent.setLayout(CmsUtils.noSpaceGridLayout());
 
 		// We need a composite for the traversal
-		Composite c = new Composite(parent, SWT.NONE);
-		c.setLayout(new GridLayout());
-		c.setLayoutData(CmsUtils.fillAll());
+		credentialsBlock = new Composite(parent, SWT.NONE);
+		credentialsBlock.setLayout(new GridLayout());
+		credentialsBlock.setLayoutData(CmsUtils.fillAll());
 
 		Integer textWidth = 120;
 		parent.setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU);
 
 		// new Label(this, SWT.NONE).setText(CmsMsg.username.lead());
-		username = new Text(c, SWT.BORDER);
+		username = new Text(credentialsBlock, SWT.BORDER);
 		username.setMessage(CmsMsg.username.lead());
 		username.setData(RWT.CUSTOM_VARIANT, CMS_LOGIN_DIALOG_USERNAME);
 		GridData gd = CmsUtils.fillWidth();
@@ -95,7 +101,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		username.setLayoutData(gd);
 
 		// new Label(this, SWT.NONE).setText(CmsMsg.password.lead());
-		password = new Text(c, SWT.BORDER | SWT.PASSWORD);
+		password = new Text(credentialsBlock, SWT.BORDER | SWT.PASSWORD);
 		password.setMessage(CmsMsg.password.lead());
 		password.setData(RWT.CUSTOM_VARIANT, CMS_LOGIN_DIALOG_PASSWORD);
 		gd = CmsUtils.fillWidth();
@@ -110,12 +116,12 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 					login();
 			}
 		};
-		c.addTraverseListener(tl);
+		credentialsBlock.addTraverseListener(tl);
 		username.addTraverseListener(tl);
 		password.addTraverseListener(tl);
-		parent.setTabList(new Control[] { c });
-		c.setTabList(new Control[] { username, password });
-		c.setFocus();
+		parent.setTabList(new Control[] { credentialsBlock });
+		credentialsBlock.setTabList(new Control[] { username, password });
+		credentialsBlock.setFocus();
 	}
 
 	protected void login() {

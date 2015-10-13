@@ -16,9 +16,11 @@ import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.cms.util.UserMenu;
+import org.argeo.cms.widgets.auth.CmsLogin;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.eclipse.rap.rwt.application.EntryPoint;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
@@ -37,11 +39,11 @@ public abstract class WorkbenchLogin implements EntryPoint, CmsView {
 					subject, new HttpRequestCallbackHandler(getRequest()));
 			loginContext.login();
 		} catch (CredentialNotFoundException e) {
-			Shell shell = new Shell(display, SWT.NO_TRIM);
-			shell.setMaximized(true);
-			//shell.setBackground(display.getSystemColor(SWT.COLOR_CYAN));
-			UserMenu userMenu = new UserMenu(shell, false);
-			shell.open();
+			// Shell shell = new Shell(display, SWT.NO_TRIM);
+			// shell.setMaximized(true);
+			// shell.setBackground(display.getSystemColor(SWT.COLOR_CYAN));
+			UserMenu userMenu = new UserMenu(null, false);
+			// shell.open();
 			while (!userMenu.getShell().isDisposed()) {
 				if (!display.readAndDispatch()) {
 					display.sleep();
@@ -62,34 +64,16 @@ public abstract class WorkbenchLogin implements EntryPoint, CmsView {
 					return new Integer(result);
 				}
 			});
+			// explicit workbench closing
+			logout();
 		} finally {
 			display.dispose();
 		}
-		// explicit workbench closing
-		logout();
 		return returnCode;
 	}
 
 	protected abstract int createAndRunWorkbench(Display display,
 			String username);
-
-	// private void fullLogout() {
-	// String username = CurrentUser.getUsername(subject);
-	// try {
-	// LoginContext loginContext = new LoginContext(
-	// AuthConstants.LOGIN_CONTEXT_USER, subject);
-	// loginContext.logout();
-	// HttpServletRequest httpRequest = getRequest();
-	// httpRequest.setAttribute(HttpContext.AUTHORIZATION, null);
-	// HttpSession httpSession = httpRequest.getSession();
-	// httpSession.setAttribute(HttpContext.AUTHORIZATION, null);
-	// httpSession.setMaxInactiveInterval(1);
-	// log.info("Logged out " + (username != null ? username : "")
-	// + " (THREAD=" + Thread.currentThread().getId() + ")");
-	// } catch (LoginException e) {
-	// log.error("Error when logging out", e);
-	// }
-	// }
 
 	protected HttpServletRequest getRequest() {
 		return UiContext.getHttpRequest();
@@ -134,4 +118,16 @@ public abstract class WorkbenchLogin implements EntryPoint, CmsView {
 		return null;
 	}
 
+	// private class WorbenchCmsLogin extends CmsLogin {
+	// private final Shell shell;
+	//
+	// public WorbenchCmsLogin(CmsView cmsView, Shell shell) {
+	// super(cmsView);
+	// this.shell = shell;
+	// shell
+	// Composite parent = new Composite(shell, SWT.NONE);
+	// anonymousUi(parent);
+	// }
+	//
+	// }
 }
