@@ -106,6 +106,8 @@ final class Kernel implements KernelConstants, ServiceListener {
 				Kernel.class.getClassLoader());
 		long begin = System.currentTimeMillis();
 
+		// KernelUtils.logFrameworkProperties(log);
+
 		try {
 			// Initialise services
 			logger = new NodeLogger();

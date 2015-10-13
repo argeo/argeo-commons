@@ -68,49 +68,48 @@ public class NodeUserLoginModule implements LoginModule {
 
 	@Override
 	public boolean commit() throws LoginException {
-		if (authorization != null) {
-			Set<Principal> principals = subject.getPrincipals();
-			try {
-				String authName = authorization.getName();
+		if (authorization == null)
+			throw new LoginException("Authorization should not be null");
+		Set<Principal> principals = subject.getPrincipals();
+		try {
+			String authName = authorization.getName();
 
-				// determine user's principal
-				final LdapName name;
-				final Principal userPrincipal;
-				if (authName == null) {
-					name = ROLE_ANONYMOUS_NAME;
-					userPrincipal = ROLE_ANONYMOUS_PRINCIPAL;
-					principals.add(userPrincipal);
-					principals.add(new AnonymousPrincipal());
-				} else {
-					name = new LdapName(authName);
-					checkUserName(name);
-					userPrincipal = new X500Principal(name.toString());
-					principals.add(userPrincipal);
-					principals.add(new ImpliedByPrincipal(ROLE_USER_NAME,
-							userPrincipal));
-				}
-
-				// Add roles provided by authorization
-				for (String role : authorization.getRoles()) {
-					LdapName roleName = new LdapName(role);
-					if (roleName.equals(name)) {
-						// skip
-					} else {
-						checkImpliedPrincipalName(roleName);
-						principals.add(new ImpliedByPrincipal(roleName
-								.toString(), userPrincipal));
-						if (roleName.equals(ROLE_ADMIN_NAME))
-							principals.add(new AdminPrincipal(
-									SecurityConstants.ADMIN_ID));
-					}
-				}
-
-				return true;
-			} catch (InvalidNameException e) {
-				throw new CmsException("Cannot commit", e);
+			// determine user's principal
+			final LdapName name;
+			final Principal userPrincipal;
+			if (authName == null) {
+				name = ROLE_ANONYMOUS_NAME;
+				userPrincipal = ROLE_ANONYMOUS_PRINCIPAL;
+				principals.add(userPrincipal);
+				principals.add(new AnonymousPrincipal());
+			} else {
+				name = new LdapName(authName);
+				checkUserName(name);
+				userPrincipal = new X500Principal(name.toString());
+				principals.add(userPrincipal);
+				principals.add(new ImpliedByPrincipal(ROLE_USER_NAME,
+						userPrincipal));
 			}
-		} else
-			return false;
+
+			// Add roles provided by authorization
+			for (String role : authorization.getRoles()) {
+				LdapName roleName = new LdapName(role);
+				if (roleName.equals(name)) {
+					// skip
+				} else {
+					checkImpliedPrincipalName(roleName);
+					principals.add(new ImpliedByPrincipal(roleName.toString(),
+							userPrincipal));
+					if (roleName.equals(ROLE_ADMIN_NAME))
+						principals.add(new AdminPrincipal(
+								SecurityConstants.ADMIN_ID));
+				}
+			}
+
+			return true;
+		} catch (InvalidNameException e) {
+			throw new CmsException("Cannot commit", e);
+		}
 	}
 
 	@Override
@@ -121,14 +120,14 @@ public class NodeUserLoginModule implements LoginModule {
 
 	@Override
 	public boolean logout() throws LoginException {
-		// TODO better deal with successive logout
 		if (subject == null)
-			return true;
-		// TODO make it less brutal
+			throw new LoginException("Subject should not be null");
+		// Argeo
 		subject.getPrincipals().removeAll(
 				subject.getPrincipals(X500Principal.class));
 		subject.getPrincipals().removeAll(
 				subject.getPrincipals(ImpliedByPrincipal.class));
+		// Jackrabbit
 		subject.getPrincipals().removeAll(
 				subject.getPrincipals(AdminPrincipal.class));
 		subject.getPrincipals().removeAll(

@@ -43,6 +43,15 @@ public final class CurrentUser {
 		return getDisplayName(currentSubject());
 	}
 
+	public static boolean isAnonymous() {
+		return isAnonymous(currentSubject());
+	}
+
+	public static boolean isAnonymous(Subject subject) {
+		return getUsername(subject).equalsIgnoreCase(
+				AuthConstants.ROLE_ANONYMOUS);
+	}
+
 	private static Subject currentSubject() {
 		Subject subject = Subject.getSubject(AccessController.getContext());
 		if (subject != null)

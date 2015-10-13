@@ -1,6 +1,5 @@
 package org.argeo.cms;
 
-import java.security.AccessControlContext;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,16 +11,16 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 import javax.security.auth.Subject;
+import javax.security.auth.login.CredentialNotFoundException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.security.auth.x500.X500Principal;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.cms.auth.AuthConstants;
+import org.argeo.cms.auth.HttpRequestCallbackHandler;
+import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
@@ -40,6 +39,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 	private final Log log = LogFactory.getLog(AbstractCmsEntryPoint.class);
 
 	private final Subject subject;
+	private LoginContext loginContext;
 
 	private final Repository repository;
 	private final String workspace;
@@ -63,36 +63,26 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 		this.workspace = workspace;
 		this.defaultPath = defaultPath;
 		this.factoryProperties = new HashMap<String, String>(factoryProperties);
+		subject = new Subject();
 
-		// load context from session
-		HttpServletRequest httpRequest = RWT.getRequest();
-		final HttpSession httpSession = httpRequest.getSession();
-		AccessControlContext acc = (AccessControlContext) httpSession
-				.getAttribute(AuthConstants.ACCESS_CONTROL_CONTEXT);
-		if (acc != null
-				&& Subject.getSubject(acc).getPrincipals(X500Principal.class)
-						.size() == 1) {
-			subject = Subject.getSubject(acc);
-		} else {
-			subject = new Subject();
-
-			// Initial login
+		// Initial login
+		try {
+			loginContext = new LoginContext(AuthConstants.LOGIN_CONTEXT_USER,
+					subject, new HttpRequestCallbackHandler(
+							UiContext.getHttpRequest()));
+			loginContext.login();
+		} catch (CredentialNotFoundException e) {
 			try {
-				new LoginContext(AuthConstants.LOGIN_CONTEXT_USER, subject)
-						.login();
-			} catch (LoginException e) {
-				// if (log.isTraceEnabled())
-				// log.trace("Cannot authenticate user", e);
-				try {
-					new LoginContext(AuthConstants.LOGIN_CONTEXT_ANONYMOUS,
-							subject).login();
-				} catch (LoginException eAnonymous) {
-					throw new ArgeoException("Cannot initialize subject",
-							eAnonymous);
-				}
+				loginContext = new LoginContext(
+						AuthConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
+				loginContext.login();
+			} catch (LoginException e1) {
+				throw new ArgeoException("Cannot log as anonymous", e);
 			}
+		} catch (LoginException e) {
+			throw new ArgeoException("Cannot initialize subject", e);
 		}
-		authChange();
+		authChange(loginContext);
 
 		jsExecutor = RWT.getClient().getService(JavaScriptExecutor.class);
 		browserNavigation = RWT.getClient().getService(BrowserNavigation.class);
@@ -119,7 +109,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 
 	@Override
 	protected final void createContents(final Composite parent) {
-		getShell().getDisplay().setData(CmsView.KEY, this);
+		UiContext.setData(CmsView.KEY, this);
 		Subject.doAs(subject, new PrivilegedAction<Void>() {
 			@Override
 			public Void run() {
@@ -173,7 +163,25 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 	}
 
 	@Override
-	public void authChange() {
+	public void logout() {
+		if (loginContext == null)
+			throw new CmsException("Login context should not be null");
+		try {
+			loginContext.logout();
+			LoginContext anonymousLc = new LoginContext(
+					AuthConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
+			anonymousLc.login();
+			authChange(anonymousLc);
+		} catch (LoginException e) {
+			throw new CmsException("Cannot logout", e);
+		}
+	}
+
+	@Override
+	public void authChange(LoginContext loginContext) {
+		if (loginContext == null)
+			throw new CmsException("Login context cannot be null");
+		this.loginContext = loginContext;
 		Subject.doAs(subject, new PrivilegedAction<Void>() {
 
 			@Override
@@ -189,19 +197,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 						try {
 							node = session.getNode(currentPath);
 						} catch (Exception e) {
-							try {
-								// TODO find a less hacky way to log out
-								new LoginContext(
-										AuthConstants.LOGIN_CONTEXT_ANONYMOUS,
-										subject).logout();
-								new LoginContext(
-										AuthConstants.LOGIN_CONTEXT_ANONYMOUS,
-										subject).login();
-							} catch (LoginException eAnonymous) {
-								throw new ArgeoException(
-										"Cannot reset to anonymous", eAnonymous);
-							}
-							JcrUtils.logoutQuietly(session);
+							logout();
 							session = repository.login(workspace);
 							navigateTo("~");
 							throw e;

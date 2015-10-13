@@ -1,16 +1,12 @@
 package org.argeo.cms.internal.kernel;
 
-import static org.argeo.cms.auth.AuthConstants.ACCESS_CONTROL_CONTEXT;
+import static org.argeo.cms.auth.AuthConstants.LOGIN_CONTEXT_USER;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
-import java.security.AccessControlContext;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
-import java.security.cert.X509Certificate;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
@@ -22,13 +18,13 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.login.CredentialNotFoundException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -38,6 +34,8 @@ import org.apache.jackrabbit.server.remoting.davex.JcrRemotingServlet;
 import org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
+import org.argeo.cms.auth.HttpRequestCallback;
+import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.JcrUtils;
 import org.osgi.service.http.HttpContext;
@@ -52,11 +50,10 @@ import org.osgi.service.useradmin.Authorization;
 class DataHttp implements KernelConstants, ArgeoJcrConstants {
 	private final static Log log = LogFactory.getLog(DataHttp.class);
 
-	private final static String ATTR_AUTH = "auth";
+	// private final static String ATTR_AUTH = "auth";
 	private final static String HEADER_AUTHORIZATION = "Authorization";
 	private final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
-	// private final AuthenticationManager authenticationManager;
 	private final HttpService httpService;
 
 	// FIXME Make it more unique
@@ -129,82 +126,29 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 				new DataHttpContext(anonymous));
 	}
 
-	// private Boolean isSessionAuthenticated(HttpSession httpSession) {
-	// SecurityContext contextFromSession = (SecurityContext) httpSession
-	// .getAttribute(SPRING_SECURITY_CONTEXT_KEY);
-	// return contextFromSession != null;
-	// }
-
-	private void requestBasicAuth(HttpSession httpSession,
-			HttpServletResponse response) {
-		response.setStatus(401);
-		response.setHeader(HEADER_WWW_AUTHENTICATE, "basic realm=\""
-				+ httpAuthRealm + "\"");
-		httpSession.setAttribute(ATTR_AUTH, Boolean.TRUE);
-	}
-
-	private CallbackHandler basicAuth(String authHeader) {
-		if (authHeader != null) {
-			StringTokenizer st = new StringTokenizer(authHeader);
-			if (st.hasMoreTokens()) {
-				String basic = st.nextToken();
-				if (basic.equalsIgnoreCase("Basic")) {
-					try {
-						// TODO manipulate char[]
-						String credentials = new String(Base64.decodeBase64(st
-								.nextToken()), "UTF-8");
-						// log.debug("Credentials: " + credentials);
-						int p = credentials.indexOf(":");
-						if (p != -1) {
-							final String login = credentials.substring(0, p)
-									.trim();
-							final char[] password = credentials
-									.substring(p + 1).trim().toCharArray();
-
-							return new CallbackHandler() {
-								public void handle(Callback[] callbacks) {
-									for (Callback cb : callbacks) {
-										if (cb instanceof NameCallback)
-											((NameCallback) cb).setName(login);
-										else if (cb instanceof PasswordCallback)
-											((PasswordCallback) cb)
-													.setPassword(password);
-									}
-								}
-							};
-						} else {
-							throw new CmsException(
-									"Invalid authentication token");
-						}
-					} catch (Exception e) {
-						throw new CmsException(
-								"Couldn't retrieve authentication", e);
-					}
-				}
-			}
-		}
-		throw new CmsException("Couldn't retrieve authentication");
-	}
-
-	private X509Certificate extractCertificate(HttpServletRequest req) {
-		X509Certificate[] certs = (X509Certificate[]) req
-				.getAttribute("javax.servlet.request.X509Certificate");
-		if (null != certs && certs.length > 0) {
-			return certs[0];
-		}
-		return null;
-	}
+//	private X509Certificate extractCertificate(HttpServletRequest req) {
+//		X509Certificate[] certs = (X509Certificate[]) req
+//				.getAttribute("javax.servlet.request.X509Certificate");
+//		if (null != certs && certs.length > 0) {
+//			return certs[0];
+//		}
+//		return null;
+//	}
 
 	private Subject subjectFromRequest(HttpServletRequest request) {
-		HttpSession httpSession = request.getSession();
 		Authorization authorization = (Authorization) request
 				.getAttribute(HttpContext.AUTHORIZATION);
 		if (authorization == null)
 			throw new CmsException("Not authenticated");
-		AccessControlContext acc = (AccessControlContext) httpSession
-				.getAttribute(AuthConstants.ACCESS_CONTROL_CONTEXT);
-		Subject subject = Subject.getSubject(acc);
-		return subject;
+		try {
+			LoginContext lc = new LoginContext(
+					AuthConstants.LOGIN_CONTEXT_USER,
+					new HttpRequestCallbackHandler(request));
+			lc.login();
+			return lc.getSubject();
+		} catch (LoginException e) {
+			throw new CmsException("Cannot login", e);
+		}
 	}
 
 	private class DataHttpContext implements HttpContext {
@@ -215,56 +159,44 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 		}
 
 		@Override
-		public boolean handleSecurity(HttpServletRequest request,
+		public boolean handleSecurity(final HttpServletRequest request,
 				HttpServletResponse response) throws IOException {
-			final Subject subject;
 
 			if (anonymous) {
-				subject = KernelUtils.anonymousLogin();
+				Subject subject = KernelUtils.anonymousLogin();
 				Authorization authorization = subject
 						.getPrivateCredentials(Authorization.class).iterator()
 						.next();
+				request.setAttribute(REMOTE_USER, AuthConstants.ROLE_ANONYMOUS);
 				request.setAttribute(AUTHORIZATION, authorization);
 				return true;
 			}
 
-			final HttpSession httpSession = request.getSession();
-			AccessControlContext acc = (AccessControlContext) httpSession
-					.getAttribute(AuthConstants.ACCESS_CONTROL_CONTEXT);
-			if (acc != null) {
-				subject = Subject.getSubject(acc);
-			} else {
-				// Process basic auth
-				String basicAuth = request.getHeader(HEADER_AUTHORIZATION);
-				if (basicAuth != null) {
-					CallbackHandler token = basicAuth(basicAuth);
+			KernelUtils.logRequestHeaders(log, request);
+			try {
+				new LoginContext(LOGIN_CONTEXT_USER,
+						new HttpRequestCallbackHandler(request)).login();
+				return true;
+			} catch (CredentialNotFoundException e) {
+				CallbackHandler token = basicAuth(request);
+				if (token != null) {
 					try {
-						LoginContext lc = new LoginContext(
-								AuthConstants.LOGIN_CONTEXT_USER, token);
+						LoginContext lc = new LoginContext(LOGIN_CONTEXT_USER,
+								token);
 						lc.login();
-						subject = lc.getSubject();
-					} catch (LoginException e) {
-						throw new CmsException("Could not login", e);
+						// Note: this is impossible to reliably clear the
+						// authorization header when access from a browser.
+						return true;
+					} catch (LoginException e1) {
+						throw new CmsException("Could not login", e1);
 					}
-					Subject.doAs(subject, new PrivilegedAction<Void>() {
-						public Void run() {
-							// add security context to session
-							httpSession.setAttribute(ACCESS_CONTROL_CONTEXT,
-									AccessController.getContext());
-							return null;
-						}
-					});
 				} else {
-					requestBasicAuth(httpSession, response);
+					requestBasicAuth(request, response);
 					return false;
 				}
+			} catch (LoginException e) {
+				throw new CmsException("Could not login", e);
 			}
-			// authenticate request
-			Authorization authorization = subject
-					.getPrivateCredentials(Authorization.class).iterator()
-					.next();
-			request.setAttribute(AUTHORIZATION, authorization);
-			return true;
 		}
 
 		@Override
@@ -274,6 +206,62 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 
 		@Override
 		public String getMimeType(String name) {
+			return null;
+		}
+
+		private void requestBasicAuth(HttpServletRequest request,
+				HttpServletResponse response) {
+			response.setStatus(401);
+			response.setHeader(HEADER_WWW_AUTHENTICATE, "basic realm=\""
+					+ httpAuthRealm + "\"");
+			// request.getSession().setAttribute(ATTR_AUTH, Boolean.TRUE);
+		}
+
+		private CallbackHandler basicAuth(final HttpServletRequest httpRequest) {
+			String authHeader = httpRequest.getHeader(HEADER_AUTHORIZATION);
+			if (authHeader != null) {
+				StringTokenizer st = new StringTokenizer(authHeader);
+				if (st.hasMoreTokens()) {
+					String basic = st.nextToken();
+					if (basic.equalsIgnoreCase("Basic")) {
+						try {
+							// TODO manipulate char[]
+							String credentials = new String(
+									Base64.decodeBase64(st.nextToken()),
+									"UTF-8");
+							// log.debug("Credentials: " + credentials);
+							int p = credentials.indexOf(":");
+							if (p != -1) {
+								final String login = credentials
+										.substring(0, p).trim();
+								final char[] password = credentials
+										.substring(p + 1).trim().toCharArray();
+								return new CallbackHandler() {
+									public void handle(Callback[] callbacks) {
+										for (Callback cb : callbacks) {
+											if (cb instanceof NameCallback)
+												((NameCallback) cb)
+														.setName(login);
+											else if (cb instanceof PasswordCallback)
+												((PasswordCallback) cb)
+														.setPassword(password);
+											else if (cb instanceof HttpRequestCallback)
+												((HttpRequestCallback) cb)
+														.setRequest(httpRequest);
+										}
+									}
+								};
+							} else {
+								throw new CmsException(
+										"Invalid authentication token");
+							}
+						} catch (Exception e) {
+							throw new CmsException(
+									"Couldn't retrieve authentication", e);
+						}
+					}
+				}
+			}
 			return null;
 		}
 

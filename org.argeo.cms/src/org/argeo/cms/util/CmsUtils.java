@@ -11,6 +11,7 @@ import org.apache.commons.io.IOUtils;
 import org.argeo.cms.CmsConstants;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsView;
+import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.ResourceManager;
@@ -34,13 +35,7 @@ public class CmsUtils implements CmsConstants {
 	 * this call.
 	 */
 	public static CmsView getCmsView() {
-		Display display = Display.getCurrent();
-		if (display == null)
-			return null;
-		CmsView cmsView = (CmsView) display.getData(CmsView.KEY);
-		if (cmsView == null)
-			return null;
-		return cmsView;
+		return UiContext.getData(CmsView.KEY);
 	}
 
 	/** @deprecated Use rowData16px() instead. GridData should not be reused. */

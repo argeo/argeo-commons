@@ -1,12 +1,9 @@
 package org.argeo.cms.util;
 
-import static org.argeo.cms.auth.AuthConstants.ACCESS_CONTROL_CONTEXT;
 import static org.argeo.cms.auth.AuthConstants.LOGIN_CONTEXT_ANONYMOUS;
 import static org.argeo.cms.auth.AuthConstants.LOGIN_CONTEXT_USER;
 
 import java.io.IOException;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -16,8 +13,6 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsMsg;
@@ -25,6 +20,7 @@ import org.argeo.cms.CmsStyles;
 import org.argeo.cms.CmsView;
 import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.auth.HttpRequestCallback;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -59,8 +55,7 @@ public class UserMenu implements CmsStyles, CallbackHandler {
 		cmsView = CmsUtils.getCmsView();
 
 		if (cmsView != null) {
-			String username = CurrentUser.getUsername(CmsUtils.getCmsView()
-					.getSubject());
+			String username = CurrentUser.getUsername(cmsView.getSubject());
 			if (username == null
 					|| username.equalsIgnoreCase(AuthConstants.ROLE_ANONYMOUS)) {
 				username = null;
@@ -178,67 +173,42 @@ public class UserMenu implements CmsStyles, CallbackHandler {
 
 	protected void login() {
 		Subject subject = cmsView.getSubject();
+		LoginContext loginContext;
 		try {
 			//
 			// LOGIN
 			//
 			new LoginContext(LOGIN_CONTEXT_ANONYMOUS, subject).logout();
-			LoginContext loginContext = new LoginContext(LOGIN_CONTEXT_USER,
-					subject, this);
+			loginContext = new LoginContext(LOGIN_CONTEXT_USER, subject, this);
 			loginContext.login();
-
-			// save context in session
-			final HttpSession httpSession = RWT.getRequest().getSession();
-			Subject.doAs(subject, new PrivilegedAction<Void>() {
-
-				@Override
-				public Void run() {
-					httpSession.setAttribute(ACCESS_CONTROL_CONTEXT,
-							AccessController.getContext());
-					return null;
-				}
-			});
 		} catch (LoginException e1) {
-			try {
-				new LoginContext(LOGIN_CONTEXT_ANONYMOUS, subject).login();
-			} catch (LoginException e) {
-				throw new CmsException("Cannot authenticate anonymous", e1);
-			}
 			throw new CmsException("Cannot authenticate", e1);
 		}
 		closeShell();
-		cmsView.authChange();
+		cmsView.authChange(loginContext);
 	}
 
 	protected void logout() {
-		Subject subject = cmsView.getSubject();
-		try {
-			//
-			// LOGOUT
-			//
-			new LoginContext(LOGIN_CONTEXT_USER, subject).logout();
-			new LoginContext(LOGIN_CONTEXT_ANONYMOUS, subject).login();
-
-			HttpServletRequest httpRequest = RWT.getRequest();
-			HttpSession httpSession = httpRequest.getSession();
-			httpSession.setAttribute(ACCESS_CONTROL_CONTEXT, null);
-		} catch (LoginException e1) {
-			throw new CmsException("Cannot authenticate anonymous", e1);
-		}
 		closeShell();
+		cmsView.logout();
 		cmsView.navigateTo("~");
-		cmsView.authChange();
 	}
 
 	@Override
 	public void handle(Callback[] callbacks) throws IOException,
 			UnsupportedCallbackException {
-		((NameCallback) callbacks[0]).setName(username.getText());
-		((PasswordCallback) callbacks[1]).setPassword(password.getTextChars());
+		for (Callback callback : callbacks) {
+			if (callback instanceof NameCallback)
+				((NameCallback) callback).setName(username.getText());
+			else if (callback instanceof PasswordCallback)
+				((PasswordCallback) callback).setPassword(password
+						.getTextChars());
+			else if (callback instanceof HttpRequestCallback)
+				((HttpRequestCallback) callback).setRequest(RWT.getRequest());
+		}
 	}
 
 	public Shell getShell() {
 		return shell;
 	}
-
 }

@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 
 /** Package utilities */
 class KernelUtils implements KernelConstants {
@@ -126,6 +128,19 @@ class KernelUtils implements KernelConstants {
 			Object headerValue = request.getHeader(headerName);
 			log.debug(headerName + ": " + headerValue);
 		}
+	}
+
+	static void logFrameworkProperties(Log log) {
+		BundleContext bc = Activator.getBundleContext();
+		String[] keys = { Constants.FRAMEWORK_STORAGE,
+				Constants.FRAMEWORK_OS_NAME, Constants.FRAMEWORK_OS_VERSION,
+				Constants.FRAMEWORK_PROCESSOR, Constants.FRAMEWORK_SECURITY,
+				Constants.FRAMEWORK_TRUST_REPOSITORIES,
+				Constants.FRAMEWORK_WINDOWSYSTEM, Constants.FRAMEWORK_VENDOR,
+				Constants.FRAMEWORK_VERSION, Constants.FRAMEWORK_STORAGE_CLEAN,
+				Constants.FRAMEWORK_LANGUAGE, Constants.FRAMEWORK_UUID };
+		for (String key : keys)
+			log.debug(key + "=" + bc.getProperty(key));
 	}
 
 	private KernelUtils() {

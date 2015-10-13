@@ -1,6 +1,9 @@
 package org.argeo.security.ui.rap;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.argeo.security.ui.login.WorkbenchLogin;
+import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
@@ -17,4 +20,7 @@ public class RapLoginEntryPoint extends WorkbenchLogin {
 		return new RapWorkbenchAdvisor(username);
 	}
 
+	protected HttpServletRequest getRequest() {
+		return RWT.getRequest();
+	}
 }
