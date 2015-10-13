@@ -48,8 +48,9 @@ public final class CurrentUser {
 	}
 
 	public static boolean isAnonymous(Subject subject) {
-		return getUsername(subject).equalsIgnoreCase(
-				AuthConstants.ROLE_ANONYMOUS);
+		String username = getUsername(subject);
+		return username == null
+				|| username.equalsIgnoreCase(AuthConstants.ROLE_ANONYMOUS);
 	}
 
 	private static Subject currentSubject() {
