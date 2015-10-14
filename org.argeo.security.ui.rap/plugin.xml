@@ -17,7 +17,7 @@
       </entrypoint>
       <entrypoint
             brandingId="org.argeo.security.ui.rap.defaultBranding"
-            class="org.argeo.security.ui.rap.RapLoginEntryPoint"
+            class="org.argeo.security.ui.rap.RapWorkbenchLogin"
             id="org.argeo.security.ui.rap.secureEntryPoint"
             path="/login">
       </entrypoint>

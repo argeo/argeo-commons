@@ -49,7 +49,11 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		return CurrentUser.isAnonymous(cmsView.getSubject());
 	}
 
-	protected void createContents(Composite parent) {
+	public void createContents(Composite parent) {
+		defaultCreateContents(parent);
+	}
+
+	public final void defaultCreateContents(Composite parent) {
 		parent.setLayout(CmsUtils.noSpaceGridLayout());
 		Composite credentialsBlock = createCredentialsBlock(parent);
 		if (parent instanceof Shell) {
@@ -58,7 +62,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		}
 	}
 
-	protected final Composite createCredentialsBlock(Composite parent) {
+	public final Composite createCredentialsBlock(Composite parent) {
 		if (isAnonymous()) {
 			return anonymousUi(parent);
 		} else {

@@ -1,4 +1,4 @@
-package org.argeo.security.ui.login;
+package org.argeo.security.ui.rap;
 
 import java.security.PrivilegedAction;
 
@@ -15,13 +15,16 @@ import org.argeo.cms.CmsView;
 import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
+import org.argeo.cms.widgets.auth.CmsLogin;
 import org.argeo.cms.widgets.auth.CmsLoginShell;
 import org.argeo.eclipse.ui.specific.UiContext;
+import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.EntryPoint;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
-public abstract class WorkbenchLogin implements EntryPoint, CmsView {
+abstract class WorkbenchLogin implements EntryPoint, CmsView {
 	// private final static Log log = LogFactory.getLog(WorkbenchLogin.class);
 	private final Subject subject = new Subject();
 	private LoginContext loginContext;
@@ -70,11 +73,27 @@ public abstract class WorkbenchLogin implements EntryPoint, CmsView {
 			String username);
 
 	protected HttpServletRequest getRequest() {
-		return UiContext.getHttpRequest();
+		return RWT.getRequest();
 	}
 
 	protected CmsLoginShell createCmsLoginShell() {
-		return new CmsLoginShell(this);
+		return new CmsLoginShell(this) {
+
+			@Override
+			public void createContents(Composite parent) {
+				createLoginPage(parent, this);
+			}
+		};
+	}
+
+	/**
+	 * To be overridden. CmsLogin#createCredentialsBlock() should be called at
+	 * some point in order to create the credentials composite. In order to use
+	 * the default layout, call CmsLogin#defaultCreateContents() but <b>not</b>
+	 * CmsLogin#createContent(), since it would lead to a stack overflow.
+	 */
+	protected void createLoginPage(Composite parent, CmsLogin login) {
+		login.defaultCreateContents(parent);
 	}
 
 	@Override
