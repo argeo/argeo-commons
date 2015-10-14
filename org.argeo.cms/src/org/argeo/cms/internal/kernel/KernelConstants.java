@@ -19,7 +19,7 @@ public interface KernelConstants {
 	final static String REPO_MAX_VOLATILE_INDEX_SIZE = "argeo.node.repo.maxVolatileIndexSize";
 
 	final static String DIR_NODE = "node";
-	final static String DIR_TRANSACTIONS = "tranactions";
+	final static String DIR_TRANSACTIONS = "transactions";
 	final static String TRANSACTIONS_HOME = "argeo.node.transactions.home";
 
 	final static String I18N_DEFAULT_LOCALE = "argeo.i18n.defaultLocale";
