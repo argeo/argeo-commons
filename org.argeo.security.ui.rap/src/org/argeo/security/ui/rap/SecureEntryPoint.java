@@ -15,8 +15,6 @@
  */
 package org.argeo.security.ui.rap;
 
-import static org.argeo.cms.auth.AuthConstants.ACCESS_CONTROL_CONTEXT;
-
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -49,6 +47,7 @@ import org.eclipse.ui.PlatformUI;
  * subject.
  */
 public class SecureEntryPoint implements EntryPoint {
+	final static String ACCESS_CONTROL_CONTEXT = "org.argeo.node.accessControlContext";
 	private final static Log log = LogFactory.getLog(SecureEntryPoint.class);
 
 	/**
@@ -77,7 +76,7 @@ public class SecureEntryPoint implements EntryPoint {
 		HttpServletRequest httpRequest = RWT.getRequest();
 		final HttpSession httpSession = httpRequest.getSession();
 		AccessControlContext acc = (AccessControlContext) httpSession
-				.getAttribute(AuthConstants.ACCESS_CONTROL_CONTEXT);
+				.getAttribute(ACCESS_CONTROL_CONTEXT);
 
 		final Subject subject;
 		if (acc != null

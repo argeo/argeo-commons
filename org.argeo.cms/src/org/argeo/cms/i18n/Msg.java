@@ -6,7 +6,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.argeo.cms.CmsException;
-import org.eclipse.rap.rwt.RWT;
+import org.argeo.eclipse.ui.specific.UiContext;
 
 /** A single message to be internationalised. */
 public class Msg {
@@ -49,7 +49,7 @@ public class Msg {
 	/** When used as the first word of a sentence. */
 	public String lead() {
 		String raw = toString();
-		return raw.substring(0, 1).toUpperCase(RWT.getLocale())
+		return raw.substring(0, 1).toUpperCase(UiContext.getLocale())
 				+ raw.substring(1);
 	}
 
@@ -67,7 +67,7 @@ public class Msg {
 		int lastDot = key.lastIndexOf('.');
 		String className = key.substring(0, lastDot);
 		String fieldName = key.substring(lastDot + 1);
-		Locale locale = RWT.getLocale();
+		Locale locale = UiContext.getLocale();
 		ResourceBundle rb = ResourceBundle.getBundle(className, locale,
 				msg.getClassLoader());
 		return rb.getString(fieldName);

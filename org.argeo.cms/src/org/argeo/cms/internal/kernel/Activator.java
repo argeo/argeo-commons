@@ -22,7 +22,7 @@ public class Activator implements BundleActivator {
 	}
 
 	private static BundleContext bundleContext;
-	private Kernel kernel;
+	private static Kernel kernel;
 
 	@Override
 	public void start(BundleContext context) throws Exception {
@@ -52,6 +52,10 @@ public class Activator implements BundleActivator {
 	 */
 	public static BundleContext getBundleContext() {
 		return bundleContext;
+	}
+
+	public static KernelHeader getKernelHeader() {
+		return kernel;
 	}
 
 	/**

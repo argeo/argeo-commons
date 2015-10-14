@@ -8,10 +8,6 @@ public interface AuthConstants {
 	final static String LOGIN_CONTEXT_SYSTEM = "SYSTEM";
 	final static String LOGIN_CONTEXT_SINGLE_USER = "SINGLE_USER";
 
-	// HTTP
-	@Deprecated
-	final static String ACCESS_CONTROL_CONTEXT = "org.argeo.node.accessControlContext";
-
 	// RESERVED ROLES
 	public final static String ROLE_KERNEL = "OU=node";
 	public final static String ROLES_BASEDN = "ou=roles,ou=node";
@@ -23,8 +19,4 @@ public interface AuthConstants {
 	// user U anonymous = everyone
 	public final static String ROLE_USER = "cn=user," + ROLES_BASEDN;
 	public final static String ROLE_ANONYMOUS = "cn=anonymous," + ROLES_BASEDN;
-
-	// SHARED STATE KEYS
-	//public final static String BUNDLE_CONTEXT_KEY = "org.argeo.security.bundleContext";
-	//public final static String AUTHORIZATION_KEY = "org.argeo.security.authorization";
 }

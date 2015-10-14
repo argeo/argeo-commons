@@ -18,6 +18,8 @@ public interface KernelConstants {
 
 	final static String TRANSACTIONS_HOME = "argeo.node.transactions.home";
 
+	final static String I18N_AVAILABLE_LOCALES = "argeo.i18n.availableLocales";
+
 	// Node Security
 	final static String ROLES_URI = "argeo.node.roles.uri";
 	/** URI to an LDIF file or LDAP server used as initialization or backend */

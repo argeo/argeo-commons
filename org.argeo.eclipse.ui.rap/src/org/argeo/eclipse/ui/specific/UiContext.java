@@ -1,5 +1,7 @@
 package org.argeo.eclipse.ui.specific;
 
+import java.util.Locale;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.rap.rwt.RWT;
@@ -10,6 +12,14 @@ public class UiContext {
 
 	public static HttpServletRequest getHttpRequest() {
 		return RWT.getRequest();
+	}
+
+	public static Locale getLocale() {
+		return RWT.getUISession().getLocale();
+	}
+
+	public static void setLocale(Locale locale) {
+		RWT.getUISession().setLocale(locale);
 	}
 
 	/** Can always be null */

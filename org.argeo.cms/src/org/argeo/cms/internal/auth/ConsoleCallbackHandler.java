@@ -14,7 +14,7 @@ import javax.security.auth.callback.TextOutputCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
 import org.argeo.ArgeoException;
-import org.argeo.util.LocaleCallback;
+import org.argeo.util.LocaleChoice;
 
 /** Callback handler to be used with a command line UI. */
 public class ConsoleCallbackHandler implements CallbackHandler {
@@ -49,9 +49,9 @@ public class ConsoleCallbackHandler implements CallbackHandler {
 				char[] answer = console.readPassword();
 				callback.setPassword(answer);
 				Arrays.fill(answer, ' ');
-			} else if (callbacks[i] instanceof LocaleCallback) {
-				LocaleCallback callback = (LocaleCallback) callbacks[i];
-				writer.write(callback.getPrompt());
+			} else if (callbacks[i] instanceof LocaleChoice) {
+				LocaleChoice callback = (LocaleChoice) callbacks[i];
+				writer.write("Language");
 				writer.write("\n");
 				for (int j = 0; j < callback.getAvailableLocales().size(); j++) {
 					Locale locale = callback.getAvailableLocales().get(j);

@@ -16,33 +16,31 @@
 package org.argeo.util;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.LanguageCallback;
 
 /** Choose in a list of locales. TODO: replace with {@link LanguageCallback} */
-public class LocaleCallback implements Callback {
+public class LocaleChoice {
 	private List<Locale> availableLocales = new ArrayList<Locale>();
 
 	private Integer selectedIndex = null;
 	private Integer defaultIndex = null;
-	private String prompt = "Language";
 
-	public LocaleCallback(Integer defaultIndex, List<Locale> availableLocales) {
-		this.availableLocales = Collections
-				.unmodifiableList(new ArrayList<Locale>(availableLocales));
-		this.defaultIndex = defaultIndex;
-		this.selectedIndex = defaultIndex;
-	}
+	// public LocaleCallback(Integer defaultIndex, List<Locale>
+	// availableLocales) {
+	// this.availableLocales = Collections
+	// .unmodifiableList(new ArrayList<Locale>(availableLocales));
+	// this.defaultIndex = defaultIndex;
+	// this.selectedIndex = defaultIndex;
+	// }
 
 	/**
 	 * Convenience constructor based on a comma separated list of iso codes (en,
 	 * en_US, fr_CA, etc.). Default selection is default locale.
 	 */
-	public LocaleCallback(String locales) {
+	public LocaleChoice(String locales, Locale defaultLocale) {
 		if (locales == null || locales.trim().equals(""))
 			return;
 		String[] codes = locales.split(",");
@@ -59,7 +57,7 @@ public class LocaleCallback implements Callback {
 				locale = new Locale(code);
 			}
 			availableLocales.add(locale);
-			if (locale.equals(Locale.getDefault()))
+			if (locale.equals(defaultLocale))
 				defaultIndex = i;
 		}
 
@@ -100,17 +98,12 @@ public class LocaleCallback implements Callback {
 		return defaultIndex;
 	}
 
-	public String getPrompt() {
-		// TODO localize it?
-		return prompt;
-	}
-
-	public void setPrompt(String prompt) {
-		this.prompt = prompt;
-	}
-
 	public List<Locale> getAvailableLocales() {
 		return availableLocales;
+	}
+
+	public Locale getDefaultLocale() {
+		return availableLocales.get(getDefaultIndex());
 	}
 
 	public static void main(String[] args) {

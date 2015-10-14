@@ -8,6 +8,7 @@ import java.io.IOException;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.LanguageCallback;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
@@ -21,6 +22,7 @@ import org.argeo.cms.CmsView;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallback;
 import org.argeo.cms.util.CmsUtils;
+import org.argeo.util.LocaleChoice;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -38,6 +40,7 @@ import org.eclipse.swt.widgets.Text;
 public class CmsLogin implements CmsStyles, CallbackHandler {
 	private Text username, password;
 	private Composite credentialsBlock;
+	private LocaleChoice localeChoice = null;
 
 	private final CmsView cmsView;
 
@@ -177,6 +180,10 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 						.getTextChars());
 			else if (callback instanceof HttpRequestCallback)
 				((HttpRequestCallback) callback).setRequest(RWT.getRequest());
+			else if (callback instanceof LanguageCallback
+					&& localeChoice != null)
+				((LanguageCallback) callback).setLocale(localeChoice
+						.getSelectedLocale());
 		}
 	}
 

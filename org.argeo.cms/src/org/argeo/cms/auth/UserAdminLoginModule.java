@@ -2,12 +2,14 @@ package org.argeo.cms.auth;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.LanguageCallback;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
@@ -19,6 +21,7 @@ import javax.servlet.http.HttpSession;
 
 import org.argeo.ArgeoException;
 import org.argeo.cms.internal.kernel.Activator;
+import org.argeo.eclipse.ui.specific.UiContext;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
@@ -60,9 +63,10 @@ public class UserAdminLoginModule implements LoginModule, AuthConstants {
 			NameCallback nameCallback = new NameCallback("User");
 			PasswordCallback passwordCallback = new PasswordCallback(
 					"Password", false);
+			LanguageCallback langCallback = new LanguageCallback();
 			try {
 				callbackHandler.handle(new Callback[] { httpCallback,
-						nameCallback, passwordCallback });
+						nameCallback, passwordCallback, langCallback });
 			} catch (IOException e) {
 				throw new LoginException("Cannot handle http callback: "
 						+ e.getMessage());
@@ -77,20 +81,12 @@ public class UserAdminLoginModule implements LoginModule, AuthConstants {
 					authorization = (Authorization) request.getSession()
 							.getAttribute(HttpContext.AUTHORIZATION);
 			}
-			// if (authorization == null || authorization.getName() == null)
-			// if (!isAnonymous) {
-			// // ask for username and password
-			// NameCallback nameCallback = new NameCallback("User");
-			// PasswordCallback passwordCallback = new PasswordCallback(
-			// "Password", false);
-			//
-			// // handle callbacks
-			// try {
-			// callbackHandler.handle(new Callback[] { nameCallback,
-			// passwordCallback });
-			// } catch (Exception e) {
-			// throw new ArgeoException("Cannot handle callbacks", e);
-			// }
+
+			// i18n
+			Locale locale = langCallback.getLocale();
+			if (locale == null)
+				locale = Locale.getDefault();
+			UiContext.setLocale(locale);
 
 			if (authorization == null) {
 				// create credentials

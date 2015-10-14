@@ -10,7 +10,7 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.TextOutputCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
-import org.argeo.util.LocaleCallback;
+import org.argeo.util.LocaleChoice;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.Text;
  * <p>
  * Supported Argeo {@link Callback}s are:<br>
  * <ul>
- * <li>{@link LocaleCallback}</li>
+ * <li>{@link LocaleChoice}</li>
  * </ul>
  * </p>
  */
@@ -98,7 +98,7 @@ public class CompositeCallbackHandler extends Composite implements
 		if (callback instanceof TextOutputCallback
 				|| callback instanceof NameCallback
 				|| callback instanceof PasswordCallback
-				|| callback instanceof LocaleCallback) {
+				|| callback instanceof LocaleChoice) {
 			return;
 		} else {
 			throw new UnsupportedCallbackException(callback);
@@ -137,8 +137,8 @@ public class CompositeCallbackHandler extends Composite implements
 				createNameHandler(composite, (NameCallback) callback);
 			} else if (callback instanceof PasswordCallback) {
 				createPasswordHandler(composite, (PasswordCallback) callback);
-			} else if (callback instanceof LocaleCallback) {
-				createLocaleHandler(composite, (LocaleCallback) callback);
+			} else if (callback instanceof LocaleChoice) {
+				createLocaleHandler(composite, (LocaleChoice) callback);
 			}
 		}
 	}
@@ -220,12 +220,12 @@ public class CompositeCallbackHandler extends Composite implements
 	}
 
 	protected Combo createLocaleHandler(Composite composite,
-			final LocaleCallback callback) {
+			final LocaleChoice callback) {
 		String[] labels = callback.getSupportedLocalesLabels();
 		if (labels.length == 0)
 			return null;
 		Label label = new Label(composite, SWT.NONE);
-		label.setText(callback.getPrompt());
+		label.setText("Language");
 
 		final Combo combo = new Combo(composite, SWT.READ_ONLY);
 		combo.setItems(labels);

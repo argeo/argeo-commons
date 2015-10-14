@@ -54,7 +54,7 @@ import bitronix.tm.TransactionManagerServices;
  * <li>OS access</li>
  * </ul>
  */
-final class Kernel implements KernelConstants, ServiceListener {
+final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 	/*
 	 * REGISTERED SERVICES
 	 */
@@ -100,12 +100,13 @@ final class Kernel implements KernelConstants, ServiceListener {
 	}
 
 	private void doInit() {
+		long begin = System.currentTimeMillis();
+
+		// Use CMS bundle classloader
 		ClassLoader currentContextCl = Thread.currentThread()
 				.getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(
 				Kernel.class.getClassLoader());
-		long begin = System.currentTimeMillis();
-
 		// KernelUtils.logFrameworkProperties(log);
 
 		try {
