@@ -1,5 +1,7 @@
 package org.argeo.cms.internal.kernel;
 
+import static org.argeo.cms.internal.kernel.KernelUtils.getOsgiInstanceDir;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -25,12 +27,14 @@ import org.argeo.cms.auth.AuthConstants;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /** Low-level kernel security */
-class NodeSecurity {
+class NodeSecurity implements KernelConstants {
 	public final static int HARDENED = 3;
 	public final static int STAGING = 2;
 	public final static int DEV = 1;
 
 	final static String SECURITY_PROVIDER = "BC";// Bouncy Castle
+
+	private final boolean firstInit;
 
 	private final static Log log;
 	static {
@@ -56,6 +60,8 @@ class NodeSecurity {
 				KernelConstants.JAAS_CONFIG);
 		System.setProperty("java.security.auth.login.config",
 				url.toExternalForm());
+
+		firstInit = !new File(getOsgiInstanceDir(), DIR_NODE).exists();
 
 		this.kernelSubject = logInKernel();
 	}
@@ -110,6 +116,10 @@ class NodeSecurity {
 
 	public synchronized int getSecurityLevel() {
 		return securityLevel;
+	}
+
+	public boolean isFirstInit() {
+		return firstInit;
 	}
 
 	public void setSecurityLevel(int newValue) {

@@ -1,6 +1,8 @@
 package org.argeo.cms.internal.kernel;
 
 public interface KernelConstants {
+	final static String NODE_INIT = "argeo.node.init";
+
 	// Node
 	final static String REPO_HOME = "argeo.node.repo.home";
 	final static String REPO_TYPE = "argeo.node.repo.type";
@@ -16,6 +18,8 @@ public interface KernelConstants {
 	final static String REPO_SEARCH_CACHE_SIZE = "argeo.node.repo.searchCacheSize";
 	final static String REPO_MAX_VOLATILE_INDEX_SIZE = "argeo.node.repo.maxVolatileIndexSize";
 
+	final static String DIR_NODE = "node";
+	final static String DIR_TRANSACTIONS = "tranactions";
 	final static String TRANSACTIONS_HOME = "argeo.node.transactions.home";
 
 	final static String I18N_DEFAULT_LOCALE = "argeo.i18n.defaultLocale";

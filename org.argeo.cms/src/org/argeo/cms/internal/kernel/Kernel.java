@@ -3,7 +3,9 @@ package org.argeo.cms.internal.kernel;
 import static bitronix.tm.TransactionManagerServices.getTransactionManager;
 import static bitronix.tm.TransactionManagerServices.getTransactionSynchronizationRegistry;
 import static java.util.Locale.ENGLISH;
+import static org.apache.commons.io.FileUtils.copyDirectory;
 import static org.argeo.cms.internal.kernel.KernelUtils.getFrameworkProp;
+import static org.argeo.cms.internal.kernel.KernelUtils.getOsgiInstanceDir;
 import static org.argeo.cms.internal.kernel.KernelUtils.getOsgiInstancePath;
 import static org.argeo.jcr.ArgeoJcrConstants.ALIAS_NODE;
 import static org.argeo.jcr.ArgeoJcrConstants.JCR_REPOSITORY_ALIAS;
@@ -11,6 +13,7 @@ import static org.argeo.util.LocaleChoice.asLocaleList;
 import static org.osgi.framework.Constants.FRAMEWORK_UUID;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
@@ -114,16 +117,18 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 				.getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(
 				Kernel.class.getClassLoader());
-		// KernelUtils.logFrameworkProperties(log);
-		defaultLocale = new Locale(getFrameworkProp(I18N_DEFAULT_LOCALE,
-				ENGLISH.getLanguage()));
-		locales = asLocaleList(getFrameworkProp(I18N_LOCALES));
-
 		try {
-			// Initialise services
+			if (nodeSecurity.isFirstInit())
+				firstInit();
+
+			defaultLocale = new Locale(getFrameworkProp(I18N_DEFAULT_LOCALE,
+					ENGLISH.getLanguage()));
+			locales = asLocaleList(getFrameworkProp(I18N_LOCALES));
 			logger = new NodeLogger();
-			initBitronixTransactionManager();
-			repository = new NodeRepository(bc);
+
+			// Initialise services
+			initTransactionManager();
+			repository = new NodeRepository();
 			repositoryFactory = new OsgiJackrabbitRepositoryFactory();
 			userAdmin = new NodeUserAdmin(transactionManager, repository);
 
@@ -156,12 +161,26 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		directorsCut(initDuration);
 	}
 
-	private void initBitronixTransactionManager() {
+	private void firstInit() {
+		log.info("## FIRST INIT ##");
+		File initDir = new File(getFrameworkProp(NODE_INIT,
+				KernelUtils.getOsgiInstancePath("../../../init")));
+		// TODO also uncompress archives
+		if (initDir.exists())
+			try {
+				copyDirectory(initDir, getOsgiInstanceDir());
+				log.info("CMS initialized from " + initDir.getCanonicalPath());
+			} catch (IOException e) {
+				throw new CmsException("Cannot initialize from " + initDir, e);
+			}
+	}
+
+	private void initTransactionManager() {
 		Configuration tmConf = TransactionManagerServices.getConfiguration();
 		tmConf.setServerId(getFrameworkProp(FRAMEWORK_UUID));
 
 		File tmBaseDir = new File(getFrameworkProp(TRANSACTIONS_HOME,
-				getOsgiInstancePath("transactions")));
+				getOsgiInstancePath(DIR_TRANSACTIONS)));
 		File tmDir1 = new File(tmBaseDir, "btm1");
 		tmDir1.mkdirs();
 		tmConf.setLogPart1Filename(new File(tmDir1, tmDir1.getName() + ".tlog")

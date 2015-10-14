@@ -1,0 +1,21 @@
+dn: ou=node
+objectClass: organizationalUnit
+objectClass: top
+ou: node
+
+dn: ou=roles,ou=node
+objectClass: organizationalUnit
+objectClass: top
+ou: roles
+
+dn: cn=admin,ou=roles,ou=node
+objectClass: groupOfNames
+objectClass: top
+cn: admin
+member: uid=root,ou=users,dc=example,dc=com
+
+dn: cn=userAdmin,ou=roles,ou=node
+objectClass: groupOfNames
+objectClass: top
+cn: userAdmin
+member: cn=admin,ou=roles,ou=node

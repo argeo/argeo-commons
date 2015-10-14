@@ -52,7 +52,7 @@ import org.osgi.service.useradmin.UserAdmin;
  * Aggregates multiple {@link UserDirectory} and integrates them with this node
  * system roles.
  */
-public class NodeUserAdmin implements UserAdmin {
+public class NodeUserAdmin implements UserAdmin, KernelConstants {
 	private final static Log log = LogFactory.getLog(NodeUserAdmin.class);
 	final static LdapName ROLES_BASE;
 	static {
@@ -85,11 +85,11 @@ public class NodeUserAdmin implements UserAdmin {
 		}
 
 		// DAOs
-		File nodeBaseDir = new File(getOsgiInstanceDir(), "node");
+		File nodeBaseDir = new File(getOsgiInstanceDir(), DIR_NODE);
 		nodeBaseDir.mkdirs();
-		String userAdminUri = getFrameworkProp(KernelConstants.USERADMIN_URIS);
+		String userAdminUri = getFrameworkProp(USERADMIN_URIS);
 		initUserAdmins(userAdminUri, nodeBaseDir);
-		String nodeRolesUri = getFrameworkProp(KernelConstants.ROLES_URI);
+		String nodeRolesUri = getFrameworkProp(ROLES_URI);
 		initNodeRoles(nodeRolesUri, nodeBaseDir);
 
 		// Transaction manager
@@ -316,7 +316,8 @@ public class NodeUserAdmin implements UserAdmin {
 			if (!nodeRolesFile.exists())
 				try {
 					FileUtils.copyInputStreamToFile(getClass()
-							.getResourceAsStream("demo.ldif"), nodeRolesFile);
+							.getResourceAsStream(baseNodeRoleDn + ".ldif"),
+							nodeRolesFile);
 				} catch (IOException e) {
 					throw new CmsException("Cannot copy demo resource", e);
 				}

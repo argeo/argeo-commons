@@ -24,7 +24,6 @@ import org.argeo.ArgeoException;
 import org.argeo.cms.CmsException;
 import org.argeo.jackrabbit.JackrabbitWrapper;
 import org.argeo.jcr.ArgeoJcrConstants;
-import org.osgi.framework.BundleContext;
 import org.xml.sax.InputSource;
 
 /** Jacrabbit based data layer */
@@ -34,8 +33,8 @@ class NodeRepository extends JackrabbitWrapper implements KernelConstants,
 
 	private RepositoryContext repositoryContext;
 
-	public NodeRepository(BundleContext bundleContext) {
-		setBundleContext(bundleContext);
+	public NodeRepository() {
+		setBundleContext(Activator.getBundleContext());
 		JackrabbitNodeType type = JackrabbitNodeType.valueOf(prop(REPO_TYPE,
 				h2.name()));
 		try {
@@ -96,7 +95,7 @@ class NodeRepository extends JackrabbitWrapper implements KernelConstants,
 
 		// home
 		File osgiInstanceDir = KernelUtils.getOsgiInstanceDir();
-		File homeDir = new File(osgiInstanceDir, "node");
+		File homeDir = new File(osgiInstanceDir, DIR_NODE);
 		// home cannot be overridden
 		defaults.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE,
 				homeDir.getAbsolutePath());
@@ -168,7 +167,6 @@ class NodeRepository extends JackrabbitWrapper implements KernelConstants,
 
 	private RepositoryContext createJackrabbitRepository(
 			RepositoryConfig repositoryConfig) throws RepositoryException {
-		File homeDirectory = null;
 		long begin = System.currentTimeMillis();
 		//
 		// Actual repository creation
@@ -179,7 +177,7 @@ class NodeRepository extends JackrabbitWrapper implements KernelConstants,
 		double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
 		if (log.isTraceEnabled())
 			log.trace("Created Jackrabbit repository in " + duration
-					+ " s, home: " + homeDirectory);
+					+ " s, home: " + repositoryConfig.getHomeDir());
 
 		return repositoryContext;
 	}
