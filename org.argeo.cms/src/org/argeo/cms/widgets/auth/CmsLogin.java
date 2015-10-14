@@ -1,9 +1,14 @@
 package org.argeo.cms.widgets.auth;
 
+import static org.argeo.cms.CmsMsg.password;
+import static org.argeo.cms.CmsMsg.username;
 import static org.argeo.cms.auth.AuthConstants.LOGIN_CONTEXT_ANONYMOUS;
 import static org.argeo.cms.auth.AuthConstants.LOGIN_CONTEXT_USER;
+import static org.argeo.cms.internal.kernel.Activator.getKernelHeader;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -21,16 +26,21 @@ import org.argeo.cms.CmsStyles;
 import org.argeo.cms.CmsView;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallback;
+import org.argeo.cms.i18n.Msg;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.util.LocaleChoice;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -38,14 +48,20 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class CmsLogin implements CmsStyles, CallbackHandler {
-	private Text username, password;
+	private Text usernameT, passwordT;
 	private Composite credentialsBlock;
+
+	private final Locale defaultLocale;
 	private LocaleChoice localeChoice = null;
 
 	private final CmsView cmsView;
 
 	public CmsLogin(CmsView cmsView) {
 		this.cmsView = cmsView;
+		defaultLocale = getKernelHeader().getDefaultLocale();
+		List<Locale> locales = getKernelHeader().getLocales();
+		if (locales != null)
+			localeChoice = new LocaleChoice(locales, defaultLocale);
 	}
 
 	protected boolean isAnonymous() {
@@ -116,20 +132,20 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		parent.setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU);
 
 		// new Label(this, SWT.NONE).setText(CmsMsg.username.lead());
-		username = new Text(credentialsBlock, SWT.BORDER);
-		username.setMessage(CmsMsg.username.lead());
-		username.setData(RWT.CUSTOM_VARIANT, CMS_LOGIN_DIALOG_USERNAME);
+		usernameT = new Text(credentialsBlock, SWT.BORDER);
+		usernameT.setMessage(username.lead(defaultLocale));
+		usernameT.setData(RWT.CUSTOM_VARIANT, CMS_LOGIN_DIALOG_USERNAME);
 		GridData gd = CmsUtils.fillWidth();
 		gd.widthHint = textWidth;
-		username.setLayoutData(gd);
+		usernameT.setLayoutData(gd);
 
 		// new Label(this, SWT.NONE).setText(CmsMsg.password.lead());
-		password = new Text(credentialsBlock, SWT.BORDER | SWT.PASSWORD);
-		password.setMessage(CmsMsg.password.lead());
-		password.setData(RWT.CUSTOM_VARIANT, CMS_LOGIN_DIALOG_PASSWORD);
+		passwordT = new Text(credentialsBlock, SWT.BORDER | SWT.PASSWORD);
+		passwordT.setMessage(password.lead(defaultLocale));
+		passwordT.setData(RWT.CUSTOM_VARIANT, CMS_LOGIN_DIALOG_PASSWORD);
 		gd = CmsUtils.fillWidth();
 		gd.widthHint = textWidth;
-		password.setLayoutData(gd);
+		passwordT.setLayoutData(gd);
 
 		TraverseListener tl = new TraverseListener() {
 			private static final long serialVersionUID = -1158892811534971856L;
@@ -140,12 +156,46 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 			}
 		};
 		credentialsBlock.addTraverseListener(tl);
-		username.addTraverseListener(tl);
-		password.addTraverseListener(tl);
+		usernameT.addTraverseListener(tl);
+		passwordT.addTraverseListener(tl);
 		parent.setTabList(new Control[] { credentialsBlock });
-		credentialsBlock.setTabList(new Control[] { username, password });
+		credentialsBlock.setTabList(new Control[] { usernameT, passwordT });
 		credentialsBlock.setFocus();
+
+		if (localeChoice != null)
+			createLocalesBlock(credentialsBlock);
 		return credentialsBlock;
+	}
+
+	protected Composite createLocalesBlock(final Composite parent) {
+		Composite c = new Composite(parent, SWT.NONE);
+		c.setLayout(CmsUtils.noSpaceGridLayout());
+		c.setLayoutData(CmsUtils.fillAll());
+
+		SelectionListener selectionListener = new SelectionAdapter() {
+			private static final long serialVersionUID = 4891637813567806762L;
+
+			public void widgetSelected(SelectionEvent event) {
+				localeChoice.setSelectedIndex((Integer) event.widget.getData());
+				Locale selectedLocale = localeChoice.getSelectedLocale();
+				usernameT.setMessage(username.lead(selectedLocale));
+				passwordT.setMessage(password.lead(selectedLocale));
+			};
+		};
+
+		List<Locale> locales = localeChoice.getLocales();
+		for (Integer i = 0; i < locales.size(); i++) {
+			Locale locale = locales.get(i);
+			Button button = new Button(c, SWT.RADIO);
+			button.setData(i);
+			button.setText(Msg.lead(locale.getDisplayName(locale), locale)
+					+ " (" + locale + ")");
+			// button.addListener(SWT.Selection, listener);
+			button.addSelectionListener(selectionListener);
+			if (i == localeChoice.getDefaultIndex())
+				button.setSelection(true);
+		}
+		return c;
 	}
 
 	protected void login() {
@@ -174,9 +224,9 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 			UnsupportedCallbackException {
 		for (Callback callback : callbacks) {
 			if (callback instanceof NameCallback)
-				((NameCallback) callback).setName(username.getText());
+				((NameCallback) callback).setName(usernameT.getText());
 			else if (callback instanceof PasswordCallback)
-				((PasswordCallback) callback).setPassword(password
+				((PasswordCallback) callback).setPassword(passwordT
 						.getTextChars());
 			else if (callback instanceof HttpRequestCallback)
 				((HttpRequestCallback) callback).setRequest(RWT.getRequest());

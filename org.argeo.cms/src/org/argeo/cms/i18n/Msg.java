@@ -48,9 +48,20 @@ public class Msg {
 
 	/** When used as the first word of a sentence. */
 	public String lead() {
-		String raw = toString();
-		return raw.substring(0, 1).toUpperCase(UiContext.getLocale())
-				+ raw.substring(1);
+		return lead(UiContext.getLocale());
+	}
+
+	public String lead(Locale locale) {
+		return lead(this, locale);
+	}
+
+	private static String lead(Msg msg, Locale locale) {
+		String raw = msg.local(locale).toString();
+		return lead(raw, locale);
+	}
+
+	public static String lead(String raw, Locale locale) {
+		return raw.substring(0, 1).toUpperCase(locale) + raw.substring(1);
 	}
 
 	public Object local() {
@@ -62,12 +73,25 @@ public class Msg {
 		return local;
 	}
 
+	public Object local(Locale locale) {
+		Object local = local(this, locale);
+		if (local == null)
+			local = getDefault();
+		if (local == null)
+			throw new CmsException("No translation found for " + id);
+		return local;
+	}
+
 	private static Object local(Msg msg) {
+		Locale locale = UiContext.getLocale();
+		return local(msg, locale);
+	}
+
+	private static Object local(Msg msg, Locale locale) {
 		String key = msg.getId();
 		int lastDot = key.lastIndexOf('.');
 		String className = key.substring(0, lastDot);
 		String fieldName = key.substring(lastDot + 1);
-		Locale locale = UiContext.getLocale();
 		ResourceBundle rb = ResourceBundle.getBundle(className, locale,
 				msg.getClassLoader());
 		return rb.getString(fieldName);

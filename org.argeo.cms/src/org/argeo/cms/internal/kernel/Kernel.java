@@ -2,10 +2,12 @@ package org.argeo.cms.internal.kernel;
 
 import static bitronix.tm.TransactionManagerServices.getTransactionManager;
 import static bitronix.tm.TransactionManagerServices.getTransactionSynchronizationRegistry;
+import static java.util.Locale.ENGLISH;
 import static org.argeo.cms.internal.kernel.KernelUtils.getFrameworkProp;
 import static org.argeo.cms.internal.kernel.KernelUtils.getOsgiInstancePath;
 import static org.argeo.jcr.ArgeoJcrConstants.ALIAS_NODE;
 import static org.argeo.jcr.ArgeoJcrConstants.JCR_REPOSITORY_ALIAS;
+import static org.argeo.util.LocaleChoice.asLocaleList;
 import static org.osgi.framework.Constants.FRAMEWORK_UUID;
 
 import java.io.File;
@@ -13,6 +15,8 @@ import java.lang.management.ManagementFactory;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.jcr.Repository;
@@ -84,6 +88,9 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 	private DataHttp dataHttp;
 	private KernelThread kernelThread;
 
+	private Locale defaultLocale = null;
+	private List<Locale> locales = null;
+
 	public Kernel() {
 		nodeSecurity = new NodeSecurity();
 	}
@@ -108,11 +115,13 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		Thread.currentThread().setContextClassLoader(
 				Kernel.class.getClassLoader());
 		// KernelUtils.logFrameworkProperties(log);
+		defaultLocale = new Locale(getFrameworkProp(I18N_DEFAULT_LOCALE,
+				ENGLISH.getLanguage()));
+		locales = asLocaleList(getFrameworkProp(I18N_LOCALES));
 
 		try {
 			// Initialise services
 			logger = new NodeLogger();
-			// transactionManager = new SimpleTransactionManager();
 			initBitronixTransactionManager();
 			repository = new NodeRepository(bc);
 			repositoryFactory = new OsgiJackrabbitRepositoryFactory();
@@ -279,23 +288,16 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 					+ (httpsPort != null ? " - HTTPS " + httpsPort : ""));
 	}
 
-	// private ExtendedHttpService waitForHttpService() {
-	// final ServiceTracker<ExtendedHttpService, ExtendedHttpService> st = new
-	// ServiceTracker<ExtendedHttpService, ExtendedHttpService>(
-	// bc, ExtendedHttpService.class, null);
-	// st.open();
-	// ExtendedHttpService httpService;
-	// try {
-	// httpService = st.waitForService(1000);
-	// } catch (InterruptedException e) {
-	// httpService = null;
-	// }
-	//
-	// if (httpService == null)
-	// throw new CmsException("Could not find "
-	// + ExtendedHttpService.class + " service.");
-	// return httpService;
-	// }
+	@Override
+	public Locale getDefaultLocale() {
+		return defaultLocale;
+	}
+
+	/** Can be null. */
+	@Override
+	public List<Locale> getLocales() {
+		return locales;
+	}
 
 	final private static void directorsCut(long initDuration) {
 		// final long ms = 128l + (long) (Math.random() * 128d);

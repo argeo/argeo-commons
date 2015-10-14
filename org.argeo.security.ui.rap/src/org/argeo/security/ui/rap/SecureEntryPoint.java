@@ -34,7 +34,6 @@ import org.argeo.ArgeoException;
 import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.widgets.auth.DefaultLoginDialog;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
-import org.argeo.util.LocaleUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.EntryPoint;
@@ -104,9 +103,9 @@ public class SecureEntryPoint implements EntryPoint {
 						throw new ArgeoException("Login succeeded but no auth");// fatal
 
 					// add thread locale to RWT session
-					if (log.isTraceEnabled())
-						log.trace("Locale " + LocaleUtils.threadLocale.get());
-					RWT.setLocale(LocaleUtils.threadLocale.get());
+					// if (log.isTraceEnabled())
+					// log.trace("Locale " + LocaleUtils.threadLocale.get());
+					// RWT.setLocale(LocaleUtils.threadLocale.get());
 
 					// once the user is logged in, longer session timeout
 					RWT.getRequest().getSession()

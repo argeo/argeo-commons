@@ -53,8 +53,8 @@ public class ConsoleCallbackHandler implements CallbackHandler {
 				LocaleChoice callback = (LocaleChoice) callbacks[i];
 				writer.write("Language");
 				writer.write("\n");
-				for (int j = 0; j < callback.getAvailableLocales().size(); j++) {
-					Locale locale = callback.getAvailableLocales().get(j);
+				for (int j = 0; j < callback.getLocales().size(); j++) {
+					Locale locale = callback.getLocales().get(j);
 					writer.print(j + " : " + locale.getDisplayName() + "\n");
 				}
 				writer.write("(" + callback.getDefaultIndex() + ") : ");

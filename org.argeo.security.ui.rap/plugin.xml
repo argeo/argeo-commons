@@ -33,7 +33,7 @@
 		<command
 			id="org.argeo.security.ui.rap.openChangePasswordDialog"
 			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-			name="Change Password">
+			name="%changePassword">
 		</command>
 		<!-- Enable an "open file" action in a single sourced application  -->  
 		<command
@@ -87,7 +87,7 @@
         	<command
 				commandId="org.argeo.security.ui.rap.openChangePasswordDialog"
 				icon="icons/password.gif"
-				label="Change password"/>
+				label="%changePassword"/>
 			<separator
 				name="org.argeo.security.ui.rap.beforeFile"
 				visible="true">

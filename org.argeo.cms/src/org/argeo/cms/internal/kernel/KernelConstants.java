@@ -18,7 +18,8 @@ public interface KernelConstants {
 
 	final static String TRANSACTIONS_HOME = "argeo.node.transactions.home";
 
-	final static String I18N_AVAILABLE_LOCALES = "argeo.i18n.availableLocales";
+	final static String I18N_DEFAULT_LOCALE = "argeo.i18n.defaultLocale";
+	final static String I18N_LOCALES = "argeo.i18n.locales";
 
 	// Node Security
 	final static String ROLES_URI = "argeo.node.roles.uri";

@@ -15,6 +15,13 @@
  */
 package org.argeo.security.ui.commands;
 
+import static org.argeo.cms.CmsMsg.changePassword;
+import static org.argeo.cms.CmsMsg.currentPassword;
+import static org.argeo.cms.CmsMsg.newPassword;
+import static org.argeo.cms.CmsMsg.passwordChanged;
+import static org.argeo.cms.CmsMsg.repeatNewPassword;
+import static org.eclipse.jface.dialogs.IMessageProvider.INFORMATION;
+
 import java.security.AccessController;
 
 import javax.naming.InvalidNameException;
@@ -30,7 +37,6 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
@@ -58,7 +64,7 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 				HandlerUtil.getActiveShell(event), userAdmin);
 		if (dialog.open() == Dialog.OK) {
 			MessageDialog.openInformation(HandlerUtil.getActiveShell(event),
-					"Password changed", "Password changed.");
+					passwordChanged.lead(), passwordChanged.lead());
 		}
 		return null;
 	}
@@ -103,7 +109,7 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 
 	class ChangePasswordDialog extends TitleAreaDialog {
 		private static final long serialVersionUID = -6963970583882720962L;
-		private Text currentPassword, newPassword1, newPassword2;
+		private Text oldPassword, newPassword1, newPassword2;
 
 		public ChangePasswordDialog(Shell parentShell, UserAdmin securityService) {
 			super(parentShell);
@@ -121,11 +127,11 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 			composite.setLayout(new GridLayout(2, false));
 			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
 					false));
-			currentPassword = createLP(composite, "Current password");
-			newPassword1 = createLP(composite, "New password");
-			newPassword2 = createLP(composite, "Repeat new password");
+			oldPassword = createLP(composite, currentPassword.lead());
+			newPassword1 = createLP(composite, newPassword.lead());
+			newPassword2 = createLP(composite, repeatNewPassword.lead());
 
-			setMessage("Change password", IMessageProvider.INFORMATION);
+			setMessage(changePassword.lead(), INFORMATION);
 			parent.pack();
 			return composite;
 		}
@@ -135,7 +141,7 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 			if (!newPassword1.getText().equals(newPassword2.getText()))
 				throw new ArgeoException("Passwords are different");
 			try {
-				changePassword(currentPassword.getTextChars(),
+				changePassword(oldPassword.getTextChars(),
 						newPassword1.getTextChars());
 				close();
 			} catch (Exception e) {
@@ -156,7 +162,7 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 
 		protected void configureShell(Shell shell) {
 			super.configureShell(shell);
-			shell.setText("Change password");
+			shell.setText(changePassword.lead());
 		}
 
 	}
