@@ -38,7 +38,7 @@ public class UserMenuLink extends MenuLink {
 	}
 
 	protected UserMenu createUserMenu(Control source) {
-		return new UserMenu(source.getParent(), true);
+		return new UserMenu(source.getParent());
 	}
 
 	private class UserMenuLinkController implements MouseListener,

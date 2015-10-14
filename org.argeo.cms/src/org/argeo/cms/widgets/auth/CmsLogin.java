@@ -32,6 +32,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class CmsLogin implements CmsStyles, CallbackHandler {
@@ -48,12 +49,28 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		return CurrentUser.isAnonymous(cmsView.getSubject());
 	}
 
+	protected void createContents(Composite parent) {
+		parent.setLayout(CmsUtils.noSpaceGridLayout());
+		Composite credentialsBlock = createCredentialsBlock(parent);
+		if (parent instanceof Shell) {
+			credentialsBlock.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER,
+					true, true));
+		}
+	}
+
+	protected final Composite createCredentialsBlock(Composite parent) {
+		if (isAnonymous()) {
+			return anonymousUi(parent);
+		} else {
+			return userUi(parent);
+		}
+	}
+
 	protected Composite getCredentialsBlock() {
 		return credentialsBlock;
 	}
 
-	protected void userUi(Composite parent) {
-		parent.setLayout(CmsUtils.noSpaceGridLayout());
+	protected Composite userUi(Composite parent) {
 		credentialsBlock = new Composite(parent, SWT.NONE);
 		credentialsBlock.setLayout(new GridLayout());
 		credentialsBlock.setLayoutData(CmsUtils.fillAll());
@@ -74,6 +91,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 				logout();
 			}
 		});
+		return credentialsBlock;
 	}
 
 	/** To be overridden */
@@ -81,9 +99,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 
 	}
 
-	protected void anonymousUi(Composite parent) {
-		parent.setLayout(CmsUtils.noSpaceGridLayout());
-
+	protected Composite anonymousUi(Composite parent) {
 		// We need a composite for the traversal
 		credentialsBlock = new Composite(parent, SWT.NONE);
 		credentialsBlock.setLayout(new GridLayout());
@@ -122,6 +138,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		parent.setTabList(new Control[] { credentialsBlock });
 		credentialsBlock.setTabList(new Control[] { username, password });
 		credentialsBlock.setFocus();
+		return credentialsBlock;
 	}
 
 	protected void login() {

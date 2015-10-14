@@ -11,7 +11,7 @@ public class OpenUserMenu extends MouseAdapter {
 	@Override
 	public void mouseDown(MouseEvent e) {
 		if (e.button == 1) {
-			new UserMenu((Control) e.getSource(), true);
+			new UserMenu((Control) e.getSource());
 		}
 	}
 }

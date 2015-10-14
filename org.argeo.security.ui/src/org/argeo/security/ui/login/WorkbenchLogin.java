@@ -15,14 +15,10 @@ import org.argeo.cms.CmsView;
 import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
-import org.argeo.cms.util.UserMenu;
-import org.argeo.cms.widgets.auth.CmsLogin;
+import org.argeo.cms.widgets.auth.CmsLoginShell;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.eclipse.rap.rwt.application.EntryPoint;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 public abstract class WorkbenchLogin implements EntryPoint, CmsView {
@@ -35,16 +31,14 @@ public abstract class WorkbenchLogin implements EntryPoint, CmsView {
 		final Display display = PlatformUI.createDisplay();
 		UiContext.setData(CmsView.KEY, this);
 		try {
+			// try pre-auth
 			loginContext = new LoginContext(AuthConstants.LOGIN_CONTEXT_USER,
 					subject, new HttpRequestCallbackHandler(getRequest()));
 			loginContext.login();
 		} catch (CredentialNotFoundException e) {
-			// Shell shell = new Shell(display, SWT.NO_TRIM);
-			// shell.setMaximized(true);
-			// shell.setBackground(display.getSystemColor(SWT.COLOR_CYAN));
-			UserMenu userMenu = new UserMenu(null, false);
-			// shell.open();
-			while (!userMenu.getShell().isDisposed()) {
+			CmsLoginShell loginShell = createCmsLoginShell();
+			loginShell.open();
+			while (!loginShell.getShell().isDisposed()) {
 				if (!display.readAndDispatch()) {
 					display.sleep();
 				}
@@ -77,6 +71,10 @@ public abstract class WorkbenchLogin implements EntryPoint, CmsView {
 
 	protected HttpServletRequest getRequest() {
 		return UiContext.getHttpRequest();
+	}
+
+	protected CmsLoginShell createCmsLoginShell() {
+		return new CmsLoginShell(this);
 	}
 
 	@Override
@@ -117,17 +115,4 @@ public abstract class WorkbenchLogin implements EntryPoint, CmsView {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	// private class WorbenchCmsLogin extends CmsLogin {
-	// private final Shell shell;
-	//
-	// public WorbenchCmsLogin(CmsView cmsView, Shell shell) {
-	// super(cmsView);
-	// this.shell = shell;
-	// shell
-	// Composite parent = new Composite(shell, SWT.NONE);
-	// anonymousUi(parent);
-	// }
-	//
-	// }
 }
