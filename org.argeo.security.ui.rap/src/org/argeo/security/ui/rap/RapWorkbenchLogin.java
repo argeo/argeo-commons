@@ -1,7 +1,15 @@
 package org.argeo.security.ui.rap;
 
+import java.util.Locale;
+
+import org.argeo.cms.CmsMsg;
+import org.argeo.cms.util.CmsUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.client.service.JavaScriptExecutor;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
@@ -32,6 +40,15 @@ public class RapWorkbenchLogin extends WorkbenchLogin {
 			jsExecutor.execute("location.reload()");
 		}
 		return returnCode;
+	}
+
+	@Override
+	protected void extendsCredentialsBlock(Composite credentialsBlock,
+			Locale selectedLocale, SelectionListener loginSelectionListener) {
+		Button loginButton = new Button(credentialsBlock, SWT.PUSH);
+		loginButton.setText(CmsMsg.login.lead(selectedLocale));
+		loginButton.setLayoutData(CmsUtils.fillWidth());
+		loginButton.addSelectionListener(loginSelectionListener);
 	}
 
 }

@@ -1,6 +1,7 @@
 package org.argeo.security.ui.rap;
 
 import java.security.PrivilegedAction;
+import java.util.Locale;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.CredentialNotFoundException;
@@ -21,6 +22,7 @@ import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.EntryPoint;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
@@ -91,8 +93,17 @@ abstract class WorkbenchLogin implements EntryPoint, CmsView {
 
 			@Override
 			public void createContents(Composite parent) {
-				createLoginPage(parent, this);
+				WorkbenchLogin.this.createLoginPage(parent, this);
 			}
+
+			@Override
+			protected void extendsCredentialsBlock(Composite credentialsBlock,
+					Locale selectedLocale,
+					SelectionListener loginSelectionListener) {
+				WorkbenchLogin.this.extendsCredentialsBlock(credentialsBlock,
+						selectedLocale, loginSelectionListener);
+			}
+
 		};
 	}
 
@@ -104,6 +115,11 @@ abstract class WorkbenchLogin implements EntryPoint, CmsView {
 	 */
 	protected void createLoginPage(Composite parent, CmsLogin login) {
 		login.defaultCreateContents(parent);
+	}
+
+	protected void extendsCredentialsBlock(Composite credentialsBlock,
+			Locale selectedLocale, SelectionListener loginSelectionListener) {
+
 	}
 
 	@Override

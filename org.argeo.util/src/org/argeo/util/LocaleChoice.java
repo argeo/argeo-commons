@@ -88,6 +88,10 @@ public class LocaleChoice {
 		this.selectedIndex = selectedIndex;
 	}
 
+	public Integer getSelectedIndex() {
+		return selectedIndex;
+	}
+
 	public Integer getDefaultIndex() {
 		return defaultIndex;
 	}

@@ -48,8 +48,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class CmsLogin implements CmsStyles, CallbackHandler {
+	private Composite parent;
 	private Text usernameT, passwordT;
 	private Composite credentialsBlock;
+	private final SelectionListener loginSelectionListener;
 
 	private final Locale defaultLocale;
 	private LocaleChoice localeChoice = null;
@@ -62,13 +64,30 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		List<Locale> locales = getKernelHeader().getLocales();
 		if (locales != null)
 			localeChoice = new LocaleChoice(locales, defaultLocale);
+		loginSelectionListener = new SelectionListener() {
+			private static final long serialVersionUID = -8832133363830973578L;
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				login();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		};
 	}
 
 	protected boolean isAnonymous() {
 		return CurrentUser.isAnonymous(cmsView.getSubject());
 	}
 
-	public void createContents(Composite parent) {
+	public final void createUi(Composite parent) {
+		this.parent = parent;
+		createContents(parent);
+	}
+
+	protected void createContents(Composite parent) {
 		defaultCreateContents(parent);
 	}
 
@@ -123,6 +142,8 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 	}
 
 	protected Composite anonymousUi(Composite parent) {
+		Locale locale = localeChoice == null ? this.defaultLocale
+				: localeChoice.getSelectedLocale();
 		// We need a composite for the traversal
 		credentialsBlock = new Composite(parent, SWT.NONE);
 		credentialsBlock.setLayout(new GridLayout());
@@ -133,7 +154,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 
 		// new Label(this, SWT.NONE).setText(CmsMsg.username.lead());
 		usernameT = new Text(credentialsBlock, SWT.BORDER);
-		usernameT.setMessage(username.lead(defaultLocale));
+		usernameT.setMessage(username.lead(locale));
 		usernameT.setData(RWT.CUSTOM_VARIANT, CMS_LOGIN_DIALOG_USERNAME);
 		GridData gd = CmsUtils.fillWidth();
 		gd.widthHint = textWidth;
@@ -141,7 +162,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 
 		// new Label(this, SWT.NONE).setText(CmsMsg.password.lead());
 		passwordT = new Text(credentialsBlock, SWT.BORDER | SWT.PASSWORD);
-		passwordT.setMessage(password.lead(defaultLocale));
+		passwordT.setMessage(password.lead(locale));
 		passwordT.setData(RWT.CUSTOM_VARIANT, CMS_LOGIN_DIALOG_PASSWORD);
 		gd = CmsUtils.fillWidth();
 		gd.widthHint = textWidth;
@@ -160,11 +181,34 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		passwordT.addTraverseListener(tl);
 		parent.setTabList(new Control[] { credentialsBlock });
 		credentialsBlock.setTabList(new Control[] { usernameT, passwordT });
-		credentialsBlock.setFocus();
+		// credentialsBlock.setFocus();
 
+		extendsCredentialsBlock(credentialsBlock, locale,
+				loginSelectionListener);
 		if (localeChoice != null)
 			createLocalesBlock(credentialsBlock);
 		return credentialsBlock;
+	}
+
+	/**
+	 * To be overridden in order to provide custome login button and other
+	 * links.
+	 */
+	protected void extendsCredentialsBlock(Composite credentialsBlock,
+			Locale selectedLocale, SelectionListener loginSelectionListener) {
+
+	}
+
+	protected void updateLocale(Locale selectedLocale) {
+		// usernameT.setMessage(username.lead(selectedLocale));
+		// passwordT.setMessage(password.lead(selectedLocale));
+		for (Control child : parent.getChildren())
+			child.dispose();
+		createContents(parent);
+		if (parent.getParent() != null)
+			parent.getParent().layout();
+		else
+			parent.layout();
 	}
 
 	protected Composite createLocalesBlock(final Composite parent) {
@@ -176,10 +220,12 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 			private static final long serialVersionUID = 4891637813567806762L;
 
 			public void widgetSelected(SelectionEvent event) {
-				localeChoice.setSelectedIndex((Integer) event.widget.getData());
-				Locale selectedLocale = localeChoice.getSelectedLocale();
-				usernameT.setMessage(username.lead(selectedLocale));
-				passwordT.setMessage(password.lead(selectedLocale));
+				Button button = (Button) event.widget;
+				if (button.getSelection()) {
+					localeChoice.setSelectedIndex((Integer) event.widget
+							.getData());
+					updateLocale(localeChoice.getSelectedLocale());
+				}
 			};
 		};
 
@@ -192,7 +238,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 					+ " (" + locale + ")");
 			// button.addListener(SWT.Selection, listener);
 			button.addSelectionListener(selectionListener);
-			if (i == localeChoice.getDefaultIndex())
+			if (i == localeChoice.getSelectedIndex())
 				button.setSelection(true);
 		}
 		return c;

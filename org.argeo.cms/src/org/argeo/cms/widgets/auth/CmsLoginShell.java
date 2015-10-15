@@ -14,7 +14,7 @@ public class CmsLoginShell extends CmsLogin {
 		super(cmsView);
 		shell = createShell();
 		shell.setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU);
-		createContents(shell);
+		createUi(shell);
 	}
 
 	/** To be overridden. */
