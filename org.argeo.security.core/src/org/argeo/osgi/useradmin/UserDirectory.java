@@ -3,6 +3,7 @@ package org.argeo.osgi.useradmin;
 import java.util.Dictionary;
 
 import javax.transaction.TransactionManager;
+import javax.transaction.xa.XAResource;
 
 import org.osgi.service.useradmin.UserAdmin;
 
@@ -21,4 +22,6 @@ public interface UserDirectory {
 	public void init();
 
 	public void destroy();
+
+	public XAResource getXaResource();
 }

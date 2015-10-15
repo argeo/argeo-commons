@@ -48,6 +48,8 @@ import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
+import bitronix.tm.resource.ehcache.EhCacheXAResourceProducer;
+
 /**
  * Aggregates multiple {@link UserDirectory} and integrates them with this node
  * system roles.
@@ -74,6 +76,8 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 	private String peopleBasePath = ArgeoJcrConstants.PEOPLE_BASE_PATH;
 	private Repository repository;
 	private Session adminSession;
+
+	private final String cacheName = UserDirectory.class.getName();
 
 	public NodeUserAdmin(TransactionManager transactionManager,
 			Repository repository) {
@@ -127,7 +131,15 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 			if (userAdmins.get(name) instanceof UserDirectory) {
 				UserDirectory userDirectory = (UserDirectory) userAdmins
 						.get(name);
+				try {
+					// FIXME Make it less bitronix dependant
+					EhCacheXAResourceProducer.unregisterXAResource(cacheName,
+							userDirectory.getXaResource());
+				} catch (Exception e) {
+					log.error("Cannot unregister resource from Bitronix", e);
+				}
 				userDirectory.destroy();
+
 			}
 		}
 	}
@@ -195,7 +207,7 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 	//
 	// USER ADMIN AGGREGATOR
 	//
-	public synchronized void addUserAdmin(String baseDn, UserAdmin userAdmin) {
+	public void addUserAdmin(String baseDn, UserAdmin userAdmin) {
 		if (userAdmins.containsKey(baseDn))
 			throw new UserDirectoryException(
 					"There is already a user admin for " + baseDn);
@@ -204,6 +216,15 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 		} catch (InvalidNameException e) {
 			throw new UserDirectoryException("Badly formatted base DN "
 					+ baseDn, e);
+		}
+		if (userAdmin instanceof UserDirectory) {
+			try {
+				// FIXME Make it less bitronix dependant
+				EhCacheXAResourceProducer.registerXAResource(cacheName,
+						((UserDirectory) userAdmin).getXaResource());
+			} catch (Exception e) {
+				log.error("Cannot register resource to Bitronix", e);
+			}
 		}
 	}
 

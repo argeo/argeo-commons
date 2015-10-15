@@ -26,7 +26,6 @@ import javax.naming.ldap.Rdn;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
-import javax.transaction.xa.Xid;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,8 +59,9 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 			.asList(new String[] { LdifName.userpassword.name() });
 
 	private TransactionManager transactionManager;
-	private ThreadLocal<UserDirectoryWorkingCopy> workingCopy = new ThreadLocal<UserDirectoryWorkingCopy>();
-	private Xid editingTransactionXid = null;
+	// private TransactionSynchronizationRegistry transactionRegistry;
+	// private Xid editingTransactionXid = null;
+	private WcXaResource xaResource = new WcXaResource(this);
 
 	AbstractUserDirectory(Dictionary<String, ?> props) {
 		properties = new Hashtable<String, Object>();
@@ -112,19 +112,21 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	}
 
 	boolean isEditing() {
-		if (editingTransactionXid == null)
-			return false;
-		return workingCopy.get() != null;
+		// if (editingTransactionXid == null)
+		// return false;
+		// return workingCopy.get() != null;
+		return xaResource.wc() != null;
 	}
 
 	protected UserDirectoryWorkingCopy getWorkingCopy() {
-		UserDirectoryWorkingCopy wc = workingCopy.get();
+		// UserDirectoryWorkingCopy wc = workingCopy.get();
+		UserDirectoryWorkingCopy wc = xaResource.wc();
 		if (wc == null)
 			return null;
-		if (wc.getXid() == null) {
-			workingCopy.set(null);
-			return null;
-		}
+		// if (wc.getXid() == null) {
+		// workingCopy.set(null);
+		// return null;
+		// }
 		return wc;
 	}
 
@@ -138,23 +140,26 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		if (transaction == null)
 			throw new UserDirectoryException(
 					"A transaction needs to be active in order to edit");
-		if (editingTransactionXid == null) {
-			UserDirectoryWorkingCopy wc = new UserDirectoryWorkingCopy(this);
+		if (xaResource.wc() == null) {
+			// UserDirectoryWorkingCopy wc = new UserDirectoryWorkingCopy(this);
 			try {
-				transaction.enlistResource(wc);
-				editingTransactionXid = wc.getXid();
-				workingCopy.set(wc);
+				transaction.enlistResource(xaResource);
+				// editingTransactionXid = wc.getXid();
+				// workingCopy.set(wc);
 			} catch (Exception e) {
-				throw new UserDirectoryException("Cannot enlist " + wc, e);
+				throw new UserDirectoryException("Cannot enlist " + xaResource,
+						e);
 			}
 		} else {
-			if (workingCopy.get() == null)
-				throw new UserDirectoryException("Transaction "
-						+ editingTransactionXid + " already editing");
-			else if (!editingTransactionXid.equals(workingCopy.get().getXid()))
-				throw new UserDirectoryException("Working copy Xid "
-						+ workingCopy.get().getXid() + " inconsistent with"
-						+ editingTransactionXid);
+			// UserDirectoryWorkingCopy wc = xaResource.wc();
+			// if (wc == null)
+			// throw new UserDirectoryException("Transaction "
+			// + editingTransactionXid + " already editing");
+			// else if
+			// (!editingTransactionXid.equals(workingCopy.get().getXid()))
+			// throw new UserDirectoryException("Working copy Xid "
+			// + workingCopy.get().getXid() + " inconsistent with"
+			// + editingTransactionXid);
 		}
 	}
 
@@ -353,9 +358,9 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 
 	}
 
-	void clearEditingTransactionXid() {
-		editingTransactionXid = null;
-	}
+	// void clearEditingTransactionXid() {
+	// editingTransactionXid = null;
+	// }
 
 	// UTILITIES
 	protected LdapName toDn(String name) {
@@ -431,6 +436,10 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 
 	public void setTransactionManager(TransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
+	}
+
+	public WcXaResource getXaResource() {
+		return xaResource;
 	}
 
 }
