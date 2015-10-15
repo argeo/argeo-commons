@@ -25,14 +25,8 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 /** Default action of the user menu */
 public class OpenHomePerspective extends AbstractHandler {
-
-	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
-		
-		String defaultCmdId = System.getProperty(
-				"argeo.try", "");
-		System.out.println("System prop" + defaultCmdId );
-		
+	
+	public Object execute(ExecutionEvent event) throws ExecutionException {		
 		try {
 			HandlerUtil.getActiveSite(event).getWorkbenchWindow()
 					.openPage(UserHomePerspective.ID, null);
@@ -41,5 +35,4 @@ public class OpenHomePerspective extends AbstractHandler {
 		}
 		return null;
 	}
-
 }
