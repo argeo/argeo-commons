@@ -20,7 +20,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import javax.security.auth.Subject;
-import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.CredentialNotFoundException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.cms.auth.AuthConstants;
+import org.argeo.cms.auth.ThreadDeathLoginException;
 import org.argeo.cms.widgets.auth.DefaultLoginDialog;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -86,8 +87,9 @@ public class SecureEntryPoint implements EntryPoint {
 			subject = new Subject();
 
 			final LoginContext loginContext;
+			DefaultLoginDialog callbackHandler;
 			try {
-				CallbackHandler callbackHandler = new DefaultLoginDialog(
+				callbackHandler = new DefaultLoginDialog(
 						display.getActiveShell());
 				loginContext = new LoginContext(
 						AuthConstants.LOGIN_CONTEXT_USER, subject,
@@ -118,7 +120,13 @@ public class SecureEntryPoint implements EntryPoint {
 							"Bad Credentials", e.getMessage());
 					// retry login
 					continue tryLogin;
+				} catch (CredentialNotFoundException e) {
+					MessageDialog.openInformation(display.getActiveShell(),
+							"No Credentials", e.getMessage());
+					// retry login
+					continue tryLogin;
 				} catch (LoginException e) {
+					callbackHandler.getShell().dispose();
 					return processLoginDeath(display, e);
 				}
 			}
@@ -166,7 +174,7 @@ public class SecureEntryPoint implements EntryPoint {
 		return returnCode;
 	}
 
-	private Integer processLoginDeath(Display display, LoginException e) {
+	private Integer processLoginDeath(Display display, Throwable e) {
 		// check thread death
 		ThreadDeath td = wasCausedByThreadDeath(e);
 		if (td != null) {
@@ -193,7 +201,8 @@ public class SecureEntryPoint implements EntryPoint {
 	protected ThreadDeath wasCausedByThreadDeath(Throwable t) {
 		if (t instanceof ThreadDeath)
 			return (ThreadDeath) t;
-
+		if (t instanceof ThreadDeathLoginException)
+			return ((ThreadDeathLoginException) t).getThreadDeath();
 		if (t.getCause() != null)
 			return wasCausedByThreadDeath(t.getCause());
 		else

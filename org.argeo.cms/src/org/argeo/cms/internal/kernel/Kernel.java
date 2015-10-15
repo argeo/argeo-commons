@@ -3,16 +3,15 @@ package org.argeo.cms.internal.kernel;
 import static bitronix.tm.TransactionManagerServices.getTransactionManager;
 import static bitronix.tm.TransactionManagerServices.getTransactionSynchronizationRegistry;
 import static java.util.Locale.ENGLISH;
-import static org.apache.commons.io.FileUtils.copyDirectory;
 import static org.argeo.cms.internal.kernel.KernelUtils.getFrameworkProp;
 import static org.argeo.cms.internal.kernel.KernelUtils.getOsgiInstanceDir;
-import static org.argeo.cms.internal.kernel.KernelUtils.getOsgiInstancePath;
 import static org.argeo.jcr.ArgeoJcrConstants.ALIAS_NODE;
 import static org.argeo.jcr.ArgeoJcrConstants.JCR_REPOSITORY_ALIAS;
 import static org.argeo.util.LocaleChoice.asLocaleList;
 import static org.osgi.framework.Constants.FRAMEWORK_UUID;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.security.PrivilegedAction;
@@ -29,6 +28,7 @@ import javax.transaction.TransactionManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.transaction.UserTransaction;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.util.TransientFileFactory;
@@ -37,17 +37,20 @@ import org.argeo.ArgeoLogger;
 import org.argeo.cms.CmsException;
 import org.argeo.jackrabbit.OsgiJackrabbitRepositoryFactory;
 import org.argeo.jcr.ArgeoJcrConstants;
+import org.eclipse.equinox.http.jetty.JettyConfigurator;
+import org.eclipse.equinox.http.jetty.JettyConstants;
 import org.eclipse.equinox.http.servlet.ExtendedHttpService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.useradmin.UserAdmin;
 
 import bitronix.tm.BitronixTransactionManager;
 import bitronix.tm.BitronixTransactionSynchronizationRegistry;
-import bitronix.tm.Configuration;
 import bitronix.tm.TransactionManagerServices;
 
 /**
@@ -62,6 +65,10 @@ import bitronix.tm.TransactionManagerServices;
  * </ul>
  */
 final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
+	/*
+	 * SERVICE REFERENCES
+	 */
+	private ServiceReference<ConfigurationAdmin> configurationAdmin;
 	/*
 	 * REGISTERED SERVICES
 	 */
@@ -96,6 +103,8 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 
 	public Kernel() {
 		nodeSecurity = new NodeSecurity();
+		// log.debug(bc.getDataFile(""));
+		// log.debug(bc.getDataFile("test"));
 	}
 
 	final void init() {
@@ -111,7 +120,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 
 	private void doInit() {
 		long begin = System.currentTimeMillis();
-
+		ConfigurationAdmin conf = findConfigurationAdmin();
 		// Use CMS bundle classloader
 		ClassLoader currentContextCl = Thread.currentThread()
 				.getContextClassLoader();
@@ -133,6 +142,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 			userAdmin = new NodeUserAdmin(transactionManager, repository);
 
 			// HTTP
+			initWebServer(conf);
 			ServiceReference<ExtendedHttpService> sr = bc
 					.getServiceReference(ExtendedHttpService.class);
 			if (sr != null)
@@ -168,19 +178,40 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		// TODO also uncompress archives
 		if (initDir.exists())
 			try {
-				copyDirectory(initDir, getOsgiInstanceDir());
+				FileUtils.copyDirectory(initDir, getOsgiInstanceDir(),
+						new FileFilter() {
+
+							@Override
+							public boolean accept(File pathname) {
+								if (pathname.getName().equals(".svn")
+										|| pathname.getName().equals(".git"))
+									return false;
+								return true;
+							}
+						});
 				log.info("CMS initialized from " + initDir.getCanonicalPath());
 			} catch (IOException e) {
 				throw new CmsException("Cannot initialize from " + initDir, e);
 			}
 	}
 
+	/** Can be null */
+	private ConfigurationAdmin findConfigurationAdmin() {
+		configurationAdmin = bc.getServiceReference(ConfigurationAdmin.class);
+		if (configurationAdmin == null) {
+			return null;
+		}
+		return bc.getService(configurationAdmin);
+	}
+
 	private void initTransactionManager() {
-		Configuration tmConf = TransactionManagerServices.getConfiguration();
+		bitronix.tm.Configuration tmConf = TransactionManagerServices
+				.getConfiguration();
 		tmConf.setServerId(getFrameworkProp(FRAMEWORK_UUID));
 
-		File tmBaseDir = new File(getFrameworkProp(TRANSACTIONS_HOME,
-				getOsgiInstancePath(DIR_TRANSACTIONS)));
+		// File tmBaseDir = new File(getFrameworkProp(TRANSACTIONS_HOME,
+		// getOsgiInstancePath(DIR_TRANSACTIONS)));
+		File tmBaseDir = bc.getDataFile(DIR_TRANSACTIONS);
 		File tmDir1 = new File(tmBaseDir, "btm1");
 		tmDir1.mkdirs();
 		tmConf.setLogPart1Filename(new File(tmDir1, tmDir1.getName() + ".tlog")
@@ -191,6 +222,44 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 				.getAbsolutePath());
 		transactionManager = getTransactionManager();
 		transactionSynchronizationRegistry = getTransactionSynchronizationRegistry();
+	}
+
+	private void initWebServer(ConfigurationAdmin conf) {
+		String httpPort = getFrameworkProp("org.osgi.service.http.port");
+		String httpsPort = getFrameworkProp("org.osgi.service.http.port.secure");
+		try {
+			if (httpPort != null || httpsPort != null) {
+				Hashtable<String, Object> jettyProps = new Hashtable<String, Object>();
+				if (httpPort != null) {
+					jettyProps.put(JettyConstants.HTTP_PORT, httpPort);
+					jettyProps.put(JettyConstants.HTTP_ENABLED, true);
+				}
+				if (httpsPort != null) {
+					jettyProps.put(JettyConstants.HTTPS_PORT, httpsPort);
+					jettyProps.put(JettyConstants.HTTPS_ENABLED, true);
+					jettyProps.put(JettyConstants.SSL_KEYSTORETYPE, "PKCS12");
+					jettyProps.put(JettyConstants.SSL_KEYSTORE, nodeSecurity
+							.getHttpServerKeyStore().getCanonicalPath());
+					jettyProps.put(JettyConstants.SSL_PASSWORD, "changeit");
+					jettyProps.put(JettyConstants.SSL_WANTCLIENTAUTH, true);
+				}
+				if (conf != null) {
+					// TODO make filter more generic
+					String filter = "(" + JettyConstants.HTTP_PORT + "="
+							+ httpPort + ")";
+					if (conf.listConfigurations(filter) != null)
+						return;
+					Configuration jettyConf = conf.createFactoryConfiguration(
+							JETTY_FACTORY_PID, null);
+					jettyConf.update(jettyProps);
+				} else {
+					JettyConfigurator.startServer("default", jettyProps);
+				}
+			}
+		} catch (Exception e) {
+			throw new CmsException("Cannot initialize web server on "
+					+ httpPortsMsg(httpPort, httpsPort), e);
+		}
 	}
 
 	private void publish() {
@@ -303,8 +372,12 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		Object httpsPort = sr.getProperty("https.port");
 		dataHttp = new DataHttp(httpService, repository);
 		if (log.isDebugEnabled())
-			log.debug("HTTP " + httpPort
-					+ (httpsPort != null ? " - HTTPS " + httpsPort : ""));
+			log.debug(httpPortsMsg(httpPort, httpsPort));
+	}
+
+	private String httpPortsMsg(Object httpPort, Object httpsPort) {
+		return "HTTP " + httpPort
+				+ (httpsPort != null ? " - HTTPS " + httpsPort : "");
 	}
 
 	@Override

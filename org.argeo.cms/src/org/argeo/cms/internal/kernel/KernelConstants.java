@@ -18,8 +18,6 @@ public interface KernelConstants {
 	final static String REPO_SEARCH_CACHE_SIZE = "argeo.node.repo.searchCacheSize";
 	final static String REPO_MAX_VOLATILE_INDEX_SIZE = "argeo.node.repo.maxVolatileIndexSize";
 
-	final static String DIR_NODE = "node";
-	final static String DIR_TRANSACTIONS = "transactions";
 	final static String TRANSACTIONS_HOME = "argeo.node.transactions.home";
 
 	final static String I18N_DEFAULT_LOCALE = "argeo.i18n.defaultLocale";
@@ -31,6 +29,12 @@ public interface KernelConstants {
 	final static String USERADMIN_URIS = "argeo.node.useradmin.uris";
 	final static String[] DEFAULT_CNDS = { "/org/argeo/jcr/argeo.cnd",
 			"/org/argeo/cms/cms.cnd" };
+
+	// Directories
+	final static String DIR_NODE = "node";
+	final static String DIR_TRANSACTIONS = "transactions";
+	final static String DIR_PKI = "pki";
+	final static String DIR_PKI_PRIVATE = DIR_PKI + "/private";
 
 	// Security
 	final static String DEFAULT_SECURITY_KEY = "argeo";
@@ -48,5 +52,7 @@ public interface KernelConstants {
 	// RWT / RAP
 	final static String PATH_WORKBENCH = "/ui";
 	final static String PATH_WORKBENCH_PUBLIC = PATH_WORKBENCH + "/public";
+
+	final static String JETTY_FACTORY_PID = "org.eclipse.equinox.http.jetty.config"; //$NON-NLS-1$
 
 }

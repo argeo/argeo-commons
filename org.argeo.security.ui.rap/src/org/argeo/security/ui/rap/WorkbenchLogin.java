@@ -17,6 +17,7 @@ import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.cms.widgets.auth.CmsLogin;
 import org.argeo.cms.widgets.auth.CmsLoginShell;
+import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.EntryPoint;
@@ -42,8 +43,17 @@ abstract class WorkbenchLogin implements EntryPoint, CmsView {
 			CmsLoginShell loginShell = createCmsLoginShell();
 			loginShell.open();
 			while (!loginShell.getShell().isDisposed()) {
-				if (!display.readAndDispatch()) {
-					display.sleep();
+				try {
+					if (!display.readAndDispatch())
+						display.sleep();
+				} catch (Exception e1) {
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e2) {
+						// silent
+					}
+					ErrorFeedback.show("Login failed", e1);
+					return -1;
 				}
 			}
 		} catch (LoginException e) {

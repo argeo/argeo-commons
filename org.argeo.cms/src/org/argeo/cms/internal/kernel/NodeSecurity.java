@@ -32,27 +32,12 @@ class NodeSecurity implements KernelConstants {
 	public final static int STAGING = 2;
 	public final static int DEV = 1;
 
-	final static String SECURITY_PROVIDER = "BC";// Bouncy Castle
-
 	private final boolean firstInit;
-
-	private final static Log log;
-	static {
-		log = LogFactory.getLog(NodeSecurity.class);
-		// Make Bouncy Castle the default provider
-		Provider provider = new BouncyCastleProvider();
-		int position = Security.insertProviderAt(provider, 1);
-		if (position == -1)
-			log.error("Provider " + provider.getName()
-					+ " already installed and could not be set as default");
-		Provider defaultProvider = Security.getProviders()[0];
-		if (!defaultProvider.getName().equals(SECURITY_PROVIDER))
-			log.error("Provider name is " + defaultProvider.getName()
-					+ " but it should be " + SECURITY_PROVIDER);
-	}
 
 	private final Subject kernelSubject;
 	private int securityLevel = STAGING;
+
+	private final File keyStoreFile;
 
 	public NodeSecurity() {
 		// Configure JAAS first
@@ -60,9 +45,15 @@ class NodeSecurity implements KernelConstants {
 				KernelConstants.JAAS_CONFIG);
 		System.setProperty("java.security.auth.login.config",
 				url.toExternalForm());
+		// log.debug("JASS config: " + url.toExternalForm());
+		// disable Jetty autostart
+		// System.setProperty("org.eclipse.equinox.http.jetty.autostart",
+		// "false");
 
 		firstInit = !new File(getOsgiInstanceDir(), DIR_NODE).exists();
 
+		this.keyStoreFile = new File(KernelUtils.getOsgiInstanceDir(),
+				"node.p12");
 		this.kernelSubject = logInKernel();
 	}
 
@@ -136,8 +127,6 @@ class NodeSecurity implements KernelConstants {
 	private void createKeyStoreIfNeeded() {
 		char[] ksPwd = "changeit".toCharArray();
 		char[] keyPwd = Arrays.copyOf(ksPwd, ksPwd.length);
-		File keyStoreFile = new File(KernelUtils.getOsgiInstanceDir(),
-				"node.p12");
 		if (!keyStoreFile.exists()) {
 			try {
 				keyStoreFile.getParentFile().mkdirs();
@@ -150,5 +139,25 @@ class NodeSecurity implements KernelConstants {
 						+ keyStoreFile, e);
 			}
 		}
+	}
+
+	File getHttpServerKeyStore() {
+		return keyStoreFile;
+	}
+
+	private final static String SECURITY_PROVIDER = "BC";// Bouncy Castle
+	private final static Log log;
+	static {
+		log = LogFactory.getLog(NodeSecurity.class);
+		// Make Bouncy Castle the default provider
+		Provider provider = new BouncyCastleProvider();
+		int position = Security.insertProviderAt(provider, 1);
+		if (position == -1)
+			log.error("Provider " + provider.getName()
+					+ " already installed and could not be set as default");
+		Provider defaultProvider = Security.getProviders()[0];
+		if (!defaultProvider.getName().equals(SECURITY_PROVIDER))
+			log.error("Provider name is " + defaultProvider.getName()
+					+ " but it should be " + SECURITY_PROVIDER);
 	}
 }
