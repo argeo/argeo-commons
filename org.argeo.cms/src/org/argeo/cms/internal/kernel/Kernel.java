@@ -173,8 +173,14 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 
 	private void firstInit() {
 		log.info("## FIRST INIT ##");
-		File initDir = new File(getFrameworkProp(NODE_INIT,
-				KernelUtils.getOsgiInstancePath("../../../init")));
+		String nodeInit = getFrameworkProp(NODE_INIT);
+		if (nodeInit == null)
+			nodeInit = "../../init";
+		File initDir;
+		if (nodeInit.startsWith("."))
+			initDir = KernelUtils.getExecutionDir(nodeInit);
+		else
+			initDir = new File(nodeInit);
 		// TODO also uncompress archives
 		if (initDir.exists())
 			try {

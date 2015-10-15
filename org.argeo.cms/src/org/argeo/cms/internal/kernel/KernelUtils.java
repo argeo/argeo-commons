@@ -43,6 +43,17 @@ class KernelUtils implements KernelConstants {
 		return asDictionary(props);
 	}
 
+	static File getExecutionDir(String relativePath) {
+		File executionDir = new File(getFrameworkProp("user.dir"));
+		if (relativePath == null)
+			return executionDir;
+		try {
+			return new File(executionDir, relativePath).getCanonicalFile();
+		} catch (IOException e) {
+			throw new CmsException("Cannot get canonical file", e);
+		}
+	}
+
 	static File getOsgiInstanceDir() {
 		return new File(Activator.getBundleContext()
 				.getProperty(OSGI_INSTANCE_AREA).substring("file:".length()))
