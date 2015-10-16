@@ -3,7 +3,6 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-
 	<bean id="userTransactionProvider"
 		class="org.argeo.security.ui.admin.internal.providers.UserTransactionProvider"
 		scope="singleton" lazy-init="false">
@@ -24,8 +23,5 @@
 			<value>osgibundle:security-admin.properties</value>
 		</property>
 	</bean>
-
-
-
 
 </beans>

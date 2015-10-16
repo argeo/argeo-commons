@@ -1,12 +1,12 @@
-package org.argeo.security.ui.admin.internal;
+package org.argeo.eclipse.ui.parts;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.utils.ViewerUtils;
-import org.argeo.security.ui.admin.internal.providers.UserAdminAbstractLP;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -23,27 +23,25 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
-import org.osgi.service.useradmin.UserAdmin;
 
 /**
  * Generic composite that display a filter and a table viewer to display users
  * (can also be groups)
  * 
  * Warning: this class does not extends <code>TableViewer</code>. Use the
- * getTableViewer to acces it.
+ * getTableViewer method to access it.
  * 
  */
-public class UserTableViewer extends Composite {
+public abstract class LdifUsersTable extends Composite {
 	private static final long serialVersionUID = -7385959046279360420L;
 
 	// Context
-	private UserAdmin userAdmin;
+	// private UserAdmin userAdmin;
 
 	// Configuration
 	private List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
@@ -61,20 +59,17 @@ public class UserTableViewer extends Composite {
 	/**
 	 * @param parent
 	 * @param style
-	 * @param userAdmin
 	 */
-	public UserTableViewer(Composite parent, int style, UserAdmin userAdmin) {
+	public LdifUsersTable(Composite parent, int style) {
 		super(parent, SWT.NO_FOCUS);
 		this.tableStyle = style;
-		this.userAdmin = userAdmin;
 	}
 
 	// TODO workaround the bug of the table layout in the Form
-	public UserTableViewer(Composite parent, int style, UserAdmin userAdmin,
+	public LdifUsersTable(Composite parent, int style,
 			boolean preventTableLayout) {
 		super(parent, SWT.NO_FOCUS);
 		this.tableStyle = style;
-		this.userAdmin = userAdmin;
 		this.preventTableLayout = preventTableLayout;
 	}
 
@@ -107,7 +102,32 @@ public class UserTableViewer extends Composite {
 		Composite tableComp = new Composite(parent, SWT.NO_FOCUS);
 		tableComp.setLayoutData(EclipseUiUtils.fillAll());
 		usersViewer = createTableViewer(tableComp);
+		usersViewer.setContentProvider(new UsersContentProvider());
+	}
 
+	/**
+	 * 
+	 * @param showMore
+	 *            display static filters on creation
+	 * @param addSelection
+	 *            choose to add a column to select some of the displayed results
+	 *            or not
+	 */
+	public void populateWithStaticFilters(boolean showMore, boolean addSelection) {
+		// initialization
+		Composite parent = this;
+		hasFilter = true;
+		hasSelectionColumn = addSelection;
+
+		// Main Layout
+		GridLayout layout = EclipseUiUtils.noSpaceGridLayout();
+		layout.verticalSpacing = 5;
+		this.setLayout(layout);
+		createStaticFilterPart(parent, showMore);
+
+		Composite tableComp = new Composite(parent, SWT.NO_FOCUS);
+		tableComp.setLayoutData(EclipseUiUtils.fillAll());
+		usersViewer = createTableViewer(tableComp);
 		usersViewer.setContentProvider(new UsersContentProvider());
 	}
 
@@ -143,23 +163,22 @@ public class UserTableViewer extends Composite {
 		refreshFilteredList(filter);
 	}
 
-	/**
-	 * Build repository request : caller might overwrite in order to display a
-	 * subset of all users
-	 */
-	protected List<User> listFilteredElements(String filter) {
-		List<User> users = new ArrayList<User>();
-		try {
-			Role[] roles = userAdmin.getRoles(filter);
-			// Display all users and groups
-			for (Role role : roles)
-				users.add((User) role);
-		} catch (InvalidSyntaxException e) {
-			throw new ArgeoException("Unable to get roles with filter: "
-					+ filter, e);
-		}
-		return users;
-	}
+	/** Effective repository request: caller must implement this method */
+	abstract protected List<User> listFilteredElements(String filter);
+
+	// protected List<User> listFilteredElements(String filter) {
+	// List<User> users = new ArrayList<User>();
+	// try {
+	// Role[] roles = userAdmin.getRoles(filter);
+	// // Display all users and groups
+	// for (Role role : roles)
+	// users.add((User) role);
+	// } catch (InvalidSyntaxException e) {
+	// throw new ArgeoException("Unable to get roles with filter: "
+	// + filter, e);
+	// }
+	// return users;
+	// }
 
 	/* GENERIC COMPOSITE METHODS */
 	@Override
@@ -210,6 +229,80 @@ public class UserTableViewer extends Composite {
 				refreshFilteredList(filterTxt.getText());
 			}
 		});
+	}
+
+	private void createStaticFilterPart(Composite parent, boolean showMore) {
+		Composite filterComp = new Composite(parent, SWT.NO_FOCUS);
+		filterComp.setLayout(new GridLayout(2, false));
+		filterComp.setLayoutData(EclipseUiUtils.fillWidth());
+		// generic search
+		filterTxt = new Text(filterComp, SWT.BORDER | SWT.SEARCH
+				| SWT.ICON_SEARCH | SWT.ICON_CANCEL);
+		filterTxt.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
+				| GridData.HORIZONTAL_ALIGN_FILL));
+		filterTxt.addModifyListener(new ModifyListener() {
+			private static final long serialVersionUID = 1L;
+
+			public void modifyText(ModifyEvent event) {
+				refreshFilteredList(filterTxt.getText());
+			}
+		});
+
+		// add static filter abilities
+		Link moreLk = new Link(filterComp, SWT.NONE);
+		Composite staticFilterCmp = new Composite(filterComp, SWT.NO_FOCUS);
+		staticFilterCmp.setLayoutData(EclipseUiUtils.fillWidth(2));
+		populateStaticFilters(staticFilterCmp);
+
+		MoreLinkListener listener = new MoreLinkListener(moreLk,
+				staticFilterCmp, showMore);
+		// initialise the layout
+		listener.refresh();
+		moreLk.addSelectionListener(listener);
+
+	}
+
+	/** Overwrite to add static filters */
+	protected void populateStaticFilters(Composite staticFilterCmp) {
+	}
+
+	// private void addMoreSL(final Link more) {
+	// more.addSelectionListener( }
+
+	private class MoreLinkListener extends SelectionAdapter {
+		private static final long serialVersionUID = -524987616510893463L;
+		private boolean isShown;
+		private final Composite staticFilterCmp;
+		private final Link moreLk;
+
+		public MoreLinkListener(Link moreLk, Composite staticFilterCmp,
+				boolean isShown) {
+			this.moreLk = moreLk;
+			this.staticFilterCmp = staticFilterCmp;
+			this.isShown = isShown;
+		}
+
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			isShown = !isShown;
+			refresh();
+		}
+
+		public void refresh() {
+			GridData gd = (GridData) staticFilterCmp.getLayoutData();
+			if (isShown) {
+				moreLk.setText("<a> Less... </a>");
+				gd.heightHint = SWT.DEFAULT;
+			} else {
+				moreLk.setText("<a> More... </a>");
+				gd.heightHint = 0;
+			}
+			forceLayout();
+		}
+	}
+
+	private void forceLayout() {
+		LdifUsersTable.this.getParent().layout(true, true);
 	}
 
 	private TableViewer createTableViewer(final Composite parent) {
@@ -282,7 +375,7 @@ public class UserTableViewer extends Composite {
 		// }
 
 		// IMPORTANT: initialize comparator before setting it
-		// ColumnDefinition firstCol = colDefs.get(0);
+		// JcrColumnDefinition firstCol = colDefs.get(0);
 		// comparator.setColumn(firstCol.getPropertyType(),
 		// firstCol.getPropertyName());
 		// viewer.setComparator(comparator);
@@ -304,9 +397,9 @@ public class UserTableViewer extends Composite {
 
 		ColumnLabelProvider lp = columnDef.getLabelProvider();
 		// add a reference to the display to enable font management
-		if (lp instanceof UserAdminAbstractLP)
-			((UserAdminAbstractLP) lp).setDisplay(tableViewer.getTable()
-					.getDisplay());
+		// if (lp instanceof UserAdminAbstractLP)
+		// ((UserAdminAbstractLP) lp).setDisplay(tableViewer.getTable()
+		// .getDisplay());
 		tvc.setLabelProvider(lp);
 
 		layout.setColumnData(column, new ColumnWeightData(

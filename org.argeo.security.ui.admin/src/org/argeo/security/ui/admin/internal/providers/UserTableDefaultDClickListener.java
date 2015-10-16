@@ -24,14 +24,13 @@ public class UserTableDefaultDClickListener implements IDoubleClickListener {
 		Object obj = ((IStructuredSelection) evt.getSelection())
 				.getFirstElement();
 		User user = (User) obj;
-		// IWorkbench iw =
 		IWorkbenchWindow iww = WorkbenchUiPlugin.getDefault().getWorkbench()
 				.getActiveWorkbenchWindow();
 		IWorkbenchPage iwp = iww.getActivePage();
 		UserEditorInput uei = new UserEditorInput(user.getName());
 
 		try {
-			// Work around the fact that dynamic setting of the editor icon
+			// Works around the fact that dynamic setting of the editor icon
 			// causes NPE after a login/logout on RAP
 			if (user instanceof Group)
 				iwp.openEditor(uei, UserEditor.GROUP_EDITOR_ID);

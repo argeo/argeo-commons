@@ -226,7 +226,6 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 		public void modifyText(ModifyEvent e) {
 			formPart.markDirty();
 		}
-
 	}
 
 	public String getNewPassword() {

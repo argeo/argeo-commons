@@ -19,14 +19,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
+import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.jcr.ArgeoNames;
+import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminImages;
-import org.argeo.security.ui.admin.internal.ColumnDefinition;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
-import org.argeo.security.ui.admin.internal.UserTableViewer;
 import org.argeo.security.ui.admin.internal.parts.UserEditor.GroupChangeListener;
 import org.argeo.security.ui.admin.internal.parts.UserEditor.MainInfoListener;
 import org.argeo.security.ui.admin.internal.providers.CommonNameLP;
@@ -107,11 +108,11 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		body.setLayout(layout);
 
 		final Text dnTxt = createLT(body, "DN",
-				UiAdminUtils.getProperty(group, UserAdminConstants.KEY_DN));
+				UiAdminUtils.getProperty(group, LdifName.dn.name()));
 		dnTxt.setEnabled(false);
 
 		final Text cnTxt = createLT(body, "Common Name",
-				UiAdminUtils.getProperty(group, UserAdminConstants.KEY_CN));
+				UiAdminUtils.getProperty(group, LdifName.cn.name()));
 		cnTxt.setEnabled(false);
 
 		Label descLbl = new Label(body, SWT.LEAD);
@@ -156,7 +157,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 				refreshFormTitle(group);
 				dnTxt.setText(group.getName());
 				cnTxt.setText(UiAdminUtils.getProperty(group,
-						UserAdminConstants.KEY_CN));
+						LdifName.cn.name()));
 				descTxt.setText(UiAdminUtils.getProperty(group,
 						UserAdminConstants.KEY_DESC));
 
@@ -181,7 +182,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		section.setClient(body);
 		body.setLayoutData(EclipseUiUtils.fillAll());
 
-		UserTableViewer userTableViewerCmp = createMemberPart(body, group);
+		LdifUsersTable userTableViewerCmp = createMemberPart(body, group);
 
 		// create form part (controller)
 		SectionPart part = new GroupMembersPart(section, userTableViewerCmp,
@@ -190,7 +191,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		addRemoveAbitily(part, userTableViewerCmp.getTableViewer(), group);
 	}
 
-	public UserTableViewer createMemberPart(Composite parent, Group group) {
+	public LdifUsersTable createMemberPart(Composite parent, Group group) {
 		parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
 		// Define the displayed columns
 		List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
@@ -202,7 +203,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 				"Distinguished Name", 240));
 
 		// Create and configure the table
-		UserTableViewer userViewerCmp = new MyUserTableViewer(parent, SWT.MULTI
+		LdifUsersTable userViewerCmp = new MyUserTableViewer(parent, SWT.MULTI
 				| SWT.H_SCROLL | SWT.V_SCROLL, userAdminWrapper.getUserAdmin());
 
 		userViewerCmp.setColumnDefinitions(columnDefs);
@@ -223,12 +224,12 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 
 	// Local viewers
 
-	private class MyUserTableViewer extends UserTableViewer {
+	private class MyUserTableViewer extends LdifUsersTable {
 		private static final long serialVersionUID = 8467999509931900367L;
 
 		public MyUserTableViewer(Composite parent, int style,
 				UserAdmin userAdmin) {
-			super(parent, style, userAdmin, true);
+			super(parent, style, true);
 		}
 
 		@Override
@@ -310,12 +311,12 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 
 	// LOCAL CONTROLLERS
 	private class GroupMembersPart extends SectionPart {
-		private final UserTableViewer userViewer;
+		private final LdifUsersTable userViewer;
 		private final Group group;
 
 		private GroupChangeListener listener;
 
-		public GroupMembersPart(Section section, UserTableViewer userViewer,
+		public GroupMembersPart(Section section, LdifUsersTable userViewer,
 				Group group) {
 			super(section);
 			this.userViewer = userViewer;
@@ -341,7 +342,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 			getSection().setText(
 					"Members of group "
 							+ UiAdminUtils.getProperty(group,
-									UserAdminConstants.KEY_CN));
+									LdifName.cn.name()));
 			userViewer.refresh();
 			super.refresh();
 		}
@@ -355,11 +356,11 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		private static final long serialVersionUID = 2893468717831451621L;
 
 		private final UserAdminWrapper userAdminWrapper;
-		// private final UserTableViewer myUserViewerCmp;
+		// private final LdifUsersTable myUserViewerCmp;
 		private final Group myGroup;
 
 		public GroupDropListener(UserAdminWrapper userAdminWrapper,
-				UserTableViewer userTableViewerCmp, Group group) {
+				LdifUsersTable userTableViewerCmp, Group group) {
 			super(userTableViewerCmp.getTableViewer());
 			this.userAdminWrapper = userAdminWrapper;
 			this.myGroup = group;
@@ -438,7 +439,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	// LOCAL HELPERS
 	private void refreshFormTitle(Group group) {
 		getManagedForm().getForm().setText(
-				UiAdminUtils.getProperty(group, UserAdminConstants.KEY_CN));
+				UiAdminUtils.getProperty(group, LdifName.cn.name()));
 	}
 
 	private Composite addSection(FormToolkit tk, Composite parent, String title) {

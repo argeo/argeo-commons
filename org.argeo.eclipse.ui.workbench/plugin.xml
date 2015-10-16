@@ -130,7 +130,7 @@
 	        name="Create a new folder">
 		</command>
 		<command
-			defaultHandler="org.argeo.eclipse.ui.workbench.commands.AddPrivileges"
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
 			id="org.argeo.eclipse.ui.workbench.addPrivileges"
 			name="Add Privileges">
 		</command>

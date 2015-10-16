@@ -20,14 +20,15 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
+import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.jcr.ArgeoNames;
+import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminImages;
-import org.argeo.security.ui.admin.internal.ColumnDefinition;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
-import org.argeo.security.ui.admin.internal.UserTableViewer;
 import org.argeo.security.ui.admin.internal.parts.UserEditor.GroupChangeListener;
 import org.argeo.security.ui.admin.internal.parts.UserEditor.MainInfoListener;
 import org.argeo.security.ui.admin.internal.providers.CommonNameLP;
@@ -113,11 +114,11 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		body.setLayout(new GridLayout(2, false));
 
 		final Text distinguishedName = createLT(tk, body, "User Name",
-				UiAdminUtils.getProperty(user, UserAdminConstants.KEY_UID));
+				UiAdminUtils.getProperty(user, LdifName.uid.name()));
 		distinguishedName.setEnabled(false);
 
 		final Text commonName = createLT(tk, body, "Common Name",
-				UiAdminUtils.getProperty(user, UserAdminConstants.KEY_CN));
+				UiAdminUtils.getProperty(user, LdifName.cn.name()));
 		commonName.setEnabled(false);
 
 		final Text firstName = createLT(tk, body, "First name",
@@ -128,7 +129,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 				UiAdminUtils.getProperty(user, UserAdminConstants.KEY_LASTNAME));
 
 		final Text email = createLT(tk, body, "Email",
-				UiAdminUtils.getProperty(user, UserAdminConstants.KEY_MAIL));
+				UiAdminUtils.getProperty(user, LdifName.mail.name()));
 
 		// create form part (controller)
 		AbstractFormPart part = new SectionPart((Section) body.getParent()) {
@@ -154,10 +155,9 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 						firstName.getText());
 				user.getProperties().put(UserAdminConstants.KEY_LASTNAME,
 						lastName.getText());
-				user.getProperties().put(UserAdminConstants.KEY_CN,
+				user.getProperties().put(LdifName.cn.name(),
 						commonName.getText());
-				user.getProperties().put(UserAdminConstants.KEY_MAIL,
-						email.getText());
+				user.getProperties().put(LdifName.mail.name(), email.getText());
 				// Enable common name ?
 				// editor.setProperty(UserAdminConstants.KEY_CN,
 				// email.getText());
@@ -167,15 +167,14 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 			@Override
 			public void refresh() {
 				distinguishedName.setText(UiAdminUtils.getProperty(user,
-						UserAdminConstants.KEY_UID));
+						LdifName.uid.name()));
 				commonName.setText(UiAdminUtils.getProperty(user,
-						UserAdminConstants.KEY_CN));
+						LdifName.cn.name()));
 				firstName.setText(UiAdminUtils.getProperty(user,
 						UserAdminConstants.KEY_FIRSTNAME));
 				lastName.setText(UiAdminUtils.getProperty(user,
 						UserAdminConstants.KEY_LASTNAME));
-				email.setText(UiAdminUtils.getProperty(user,
-						UserAdminConstants.KEY_MAIL));
+				email.setText(LdifName.mail.name());
 				refreshFormTitle(user);
 				super.refresh();
 			}
@@ -245,7 +244,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		getManagedForm().addPart(part);
 	}
 
-	private UserTableViewer appendMemberOfPart(Composite parent, User user) {
+	private LdifUsersTable appendMemberOfPart(Composite parent, User user) {
 		FormToolkit tk = getManagedForm().getToolkit();
 		Section section = addSection(tk, parent, "Roles");
 		Composite body = (Composite) section.getClient();
@@ -262,9 +261,8 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 				"Distinguished Name", 300));
 
 		// Create and configure the table
-		final UserTableViewer userViewerCmp = new MyUserTableViewer(body,
-				SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL,
-				userAdminWrapper.getUserAdmin(), user);
+		final LdifUsersTable userViewerCmp = new MyUserTableViewer(body,
+				SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, user);
 
 		userViewerCmp.setColumnDefinitions(columnDefs);
 		userViewerCmp.populate(true, false);
@@ -313,14 +311,13 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		return userViewerCmp;
 	}
 
-	private class MyUserTableViewer extends UserTableViewer {
+	private class MyUserTableViewer extends LdifUsersTable {
 		private static final long serialVersionUID = 8467999509931900367L;
 
 		private final User user;
 
-		public MyUserTableViewer(Composite parent, int style,
-				UserAdmin userAdmin, User user) {
-			super(parent, style, userAdmin, true);
+		public MyUserTableViewer(Composite parent, int style, User user) {
+			super(parent, style, true);
 			this.user = user;
 		}
 
@@ -460,7 +457,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 	// LOCAL HELPERS
 	private void refreshFormTitle(User group) {
 		getManagedForm().getForm().setText(
-				UiAdminUtils.getProperty(group, UserAdminConstants.KEY_CN));
+				UiAdminUtils.getProperty(group, LdifName.cn.name()));
 	}
 
 	/** Appends a section with a title */

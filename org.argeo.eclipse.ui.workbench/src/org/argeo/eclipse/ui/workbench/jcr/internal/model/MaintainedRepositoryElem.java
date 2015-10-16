@@ -6,7 +6,7 @@ import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.jcr.MaintainedRepository;
 
-/** Wraps a {@link MaintainedRepository} */
+/** Wrap a {@link MaintainedRepository} */
 public class MaintainedRepositoryElem extends RepositoryElem {
 
 	public MaintainedRepositoryElem(String alias, Repository repository,

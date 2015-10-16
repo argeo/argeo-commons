@@ -21,7 +21,7 @@ import javax.jcr.query.qom.StaticOperand;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.jcr.JcrUiUtils;
-import org.argeo.eclipse.ui.jcr.lists.ColumnDefinition;
+import org.argeo.eclipse.ui.jcr.lists.JcrColumnDefinition;
 import org.argeo.eclipse.ui.jcr.lists.NodeViewerComparator;
 import org.argeo.eclipse.ui.jcr.lists.SimpleJcrNodeLabelProvider;
 import org.argeo.eclipse.ui.utils.ViewerUtils;
@@ -46,7 +46,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 
-public class UsersTable extends Composite implements ArgeoNames {
+/**
+ * Composite that contains a JFace table to display users that are stored in JCR
+ * following the Argeo Conventions (See {@link ArgeoNames}
+ */
+public class JcrUsersTable extends Composite implements ArgeoNames {
 	// private final static Log log =
 	// LogFactory.getLog(UserTableComposite.class);
 
@@ -67,28 +71,28 @@ public class UsersTable extends Composite implements ArgeoNames {
 	private Font bold;
 
 	/** Overwrite to display other columns */
-	public List<ColumnDefinition> getColumnsDef() {
-		List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
+	public List<JcrColumnDefinition> getColumnsDef() {
+		List<JcrColumnDefinition> columnDefs = new ArrayList<JcrColumnDefinition>();
 
 		// User ID
-		columnDefs.add(new ColumnDefinition(null, ARGEO_USER_ID,
+		columnDefs.add(new JcrColumnDefinition(ARGEO_USER_ID,
 				PropertyType.STRING, "User ID", 100));
 		// Displayed name
-		columnDefs.add(new ColumnDefinition(null, Property.JCR_TITLE,
+		columnDefs.add(new JcrColumnDefinition(Property.JCR_TITLE,
 				PropertyType.STRING, "Name", 150));
 
 		// E-mail
-		columnDefs.add(new ColumnDefinition(null, ARGEO_PRIMARY_EMAIL,
+		columnDefs.add(new JcrColumnDefinition(ARGEO_PRIMARY_EMAIL,
 				PropertyType.STRING, "E-mail", 150));
 
 		// Description
-		columnDefs.add(new ColumnDefinition(null, Property.JCR_DESCRIPTION,
+		columnDefs.add(new JcrColumnDefinition(Property.JCR_DESCRIPTION,
 				PropertyType.STRING, "Description", 200));
 
 		return columnDefs;
 	}
 
-	public UsersTable(Composite parent, int style, Session session) {
+	public JcrUsersTable(Composite parent, int style, Session session) {
 		super(parent, SWT.NO_FOCUS);
 		this.tableStyle = style;
 		this.session = session;
@@ -148,7 +152,7 @@ public class UsersTable extends Composite implements ArgeoNames {
 	}
 
 	private TableViewer createTableViewer(final Composite parent) {
-		int style = tableStyle |  SWT.H_SCROLL | SWT.V_SCROLL;
+		int style = tableStyle | SWT.H_SCROLL | SWT.V_SCROLL;
 		if (hasSelectionColumn)
 			style = style | SWT.CHECK;
 
@@ -193,11 +197,11 @@ public class UsersTable extends Composite implements ArgeoNames {
 		}
 
 		// Create other columns
-		List<ColumnDefinition> colDefs = getColumnsDef();
+		List<JcrColumnDefinition> colDefs = getColumnsDef();
 
 		NodeViewerComparator comparator = new NodeViewerComparator();
 		int i = offset;
-		for (ColumnDefinition colDef : colDefs) {
+		for (JcrColumnDefinition colDef : colDefs) {
 			column = ViewerUtils.createTableViewerColumn(viewer,
 					colDef.getHeaderLabel(), SWT.NONE, colDef.getColumnSize());
 			column.setLabelProvider(new CLProvider(colDef.getPropertyName()));
@@ -209,7 +213,7 @@ public class UsersTable extends Composite implements ArgeoNames {
 		}
 
 		// IMPORTANT: initialize comparator before setting it
-		ColumnDefinition firstCol = colDefs.get(0);
+		JcrColumnDefinition firstCol = colDefs.get(0);
 		comparator.setColumn(firstCol.getPropertyType(),
 				firstCol.getPropertyName());
 		viewer.setComparator(comparator);

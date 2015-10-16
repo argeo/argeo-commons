@@ -19,14 +19,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
+import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.jcr.ArgeoNames;
+import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
-import org.argeo.security.ui.admin.internal.ColumnDefinition;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
-import org.argeo.security.ui.admin.internal.UserTableViewer;
 import org.argeo.security.ui.admin.internal.providers.CommonNameLP;
 import org.argeo.security.ui.admin.internal.providers.DomainNameLP;
 import org.argeo.security.ui.admin.internal.providers.MailLP;
@@ -43,23 +44,21 @@ import org.eclipse.ui.part.ViewPart;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
-import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.service.useradmin.UserAdminEvent;
 import org.osgi.service.useradmin.UserAdminListener;
 
 /** List all users with filter - based on Ldif userAdmin */
 public class UsersView extends ViewPart implements ArgeoNames {
 	// private final static Log log = LogFactory.getLog(UsersView.class);
+	
 	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
 			+ ".usersView";
 
 	/* DEPENDENCY INJECTION */
 	private UserAdminWrapper userAdminWrapper;
 
-	private UserAdmin userAdmin;
-
 	// UI Objects
-	private UserTableViewer userTableViewerCmp;
+	private LdifUsersTable userTableViewerCmp;
 	private TableViewer userViewer;
 	private List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
 
@@ -79,7 +78,7 @@ public class UsersView extends ViewPart implements ArgeoNames {
 
 		// Create and configure the table
 		userTableViewerCmp = new MyUserTableViewer(parent, SWT.MULTI
-				| SWT.H_SCROLL | SWT.V_SCROLL, userAdmin);
+				| SWT.H_SCROLL | SWT.V_SCROLL);
 		userTableViewerCmp.setLayoutData(EclipseUiUtils.fillAll());
 
 		userTableViewerCmp.setColumnDefinitions(columnDefs);
@@ -110,17 +109,16 @@ public class UsersView extends ViewPart implements ArgeoNames {
 		userAdminWrapper.addListener(listener);
 	}
 
-	private class MyUserTableViewer extends UserTableViewer {
+	private class MyUserTableViewer extends LdifUsersTable {
 		private static final long serialVersionUID = 8467999509931900367L;
 
-		private final String[] knownProps = { UserAdminConstants.KEY_UID,
-				UserAdminConstants.KEY_DN, UserAdminConstants.KEY_CN,
+		private final String[] knownProps = { LdifName.uid.name(),
+				LdifName.dn.name(), LdifName.cn.name(),
 				UserAdminConstants.KEY_FIRSTNAME,
-				UserAdminConstants.KEY_LASTNAME, UserAdminConstants.KEY_MAIL };
+				UserAdminConstants.KEY_LASTNAME, LdifName.mail.name() };
 
-		public MyUserTableViewer(Composite parent, int style,
-				UserAdmin userAdmin) {
-			super(parent, style, userAdmin);
+		public MyUserTableViewer(Composite parent, int style) {
+			super(parent, style);
 		}
 
 		@Override
@@ -145,7 +143,8 @@ public class UsersView extends ViewPart implements ArgeoNames {
 					builder.append("))");
 				} else
 					builder.append("(objectclass=inetOrgPerson)");
-				roles = userAdmin.getRoles(builder.toString());
+				roles = userAdminWrapper.getUserAdmin().getRoles(
+						builder.toString());
 			} catch (InvalidSyntaxException e) {
 				throw new ArgeoException("Unable to get roles with filter: "
 						+ filter, e);
@@ -178,6 +177,5 @@ public class UsersView extends ViewPart implements ArgeoNames {
 	/* DEPENDENCY INJECTION */
 	public void setUserAdminWrapper(UserAdminWrapper userAdminWrapper) {
 		this.userAdminWrapper = userAdminWrapper;
-		this.userAdmin = userAdminWrapper.getUserAdmin();
 	}
 }

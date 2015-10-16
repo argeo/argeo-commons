@@ -11,7 +11,7 @@ import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.eclipse.ui.AbstractSourceProvider;
 import org.eclipse.ui.ISources;
 
-/** Notifies the UI on UserTransaction state change */
+/** Observe and notify UI on UserTransaction state changes */
 public class UserTransactionProvider extends AbstractSourceProvider {
 	public final static String TRANSACTION_STATE = SecurityAdminPlugin.PLUGIN_ID
 			+ ".userTransactionState";
@@ -51,7 +51,7 @@ public class UserTransactionProvider extends AbstractSourceProvider {
 		}
 	}
 
-	/** Publish the ability to notify a state change */
+	/** Publishes the ability to notify a state change */
 	public void fireTransactionStateChange() {
 		fireSourceChanged(ISources.WORKBENCH, TRANSACTION_STATE,
 				getInternalCurrentState());

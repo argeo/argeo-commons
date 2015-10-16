@@ -36,7 +36,7 @@ import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.service.useradmin.UserAdminEvent;
 
-/** Deletes the selected users */
+/** Delete the selected users */
 public class DeleteUsers extends AbstractHandler {
 	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
 			+ ".deleteUsers";

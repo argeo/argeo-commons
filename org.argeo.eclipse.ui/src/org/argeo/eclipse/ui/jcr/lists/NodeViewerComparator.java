@@ -20,7 +20,7 @@ import org.eclipse.jface.viewers.ViewerComparator;
  * Note that the following snippet must be added before setting the comparator
  * to the corresponding control: <code>
  * // IMPORTANT: initialize comparator before setting it
- * ColumnDefinition firstCol = colDefs.get(0);
+ * JcrColumnDefinition firstCol = colDefs.get(0);
  * comparator.setColumn(firstCol.getPropertyType(),
  * firstCol.getPropertyName());
  * viewer.setComparator(comparator); </code>
@@ -51,7 +51,6 @@ public class NodeViewerComparator extends ViewerComparator {
 		long lc = 0;
 
 		try {
-
 			Node n1 = (Node) e1;
 			Node n2 = (Node) e2;
 
@@ -90,10 +89,8 @@ public class NodeViewerComparator extends ViewerComparator {
 					;
 				lc = c1.getTimeInMillis() - c2.getTimeInMillis();
 				if (lc < Integer.MIN_VALUE)
-					// rc = Integer.MIN_VALUE;
 					rc = -1;
 				else if (lc > Integer.MAX_VALUE)
-					// rc = Integer.MAX_VALUE;
 					rc = 1;
 				else
 					rc = (int) lc;
@@ -101,7 +98,7 @@ public class NodeViewerComparator extends ViewerComparator {
 			case PropertyType.LONG:
 				long l1;
 				long l2;
-				// FIXME sometimes an empty string is set instead of a long
+				// TODO Sometimes an empty string is set instead of a long
 				try {
 					l1 = v1.getLong();
 				} catch (ValueFormatException ve) {

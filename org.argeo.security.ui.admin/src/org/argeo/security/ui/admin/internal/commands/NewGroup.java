@@ -44,7 +44,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
-import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.service.useradmin.UserAdminEvent;
 
 /** Create a new group. */
@@ -53,7 +52,6 @@ public class NewGroup extends AbstractHandler {
 
 	/* DEPENDENCY INJECTION */
 	private UserAdminWrapper userAdminWrapper;
-	private UserAdmin userAdmin;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		NewGroupWizard newGroupWizard = new NewGroupWizard();
@@ -93,8 +91,8 @@ public class NewGroup extends AbstractHandler {
 			String commonName = commonNameTxt.getText();
 			try {
 				userAdminWrapper.beginTransactionIfNeeded();
-				Group group = (Group) userAdmin.createRole(getDn(commonName),
-						Role.GROUP);
+				Group group = (Group) userAdminWrapper.getUserAdmin()
+						.createRole(getDn(commonName), Role.GROUP);
 				Dictionary props = group.getProperties();
 				String descStr = descriptionTxt.getText();
 				if (UiAdminUtils.notNull(descStr))
@@ -189,7 +187,8 @@ public class NewGroup extends AbstractHandler {
 
 				if (name.trim().equals(""))
 					return "Common name must not be empty";
-				Role role = userAdmin.getRole(getDn(name));
+				Role role = userAdminWrapper.getUserAdmin()
+						.getRole(getDn(name));
 				if (role != null)
 					return "Group " + name + " already exists";
 				return null;
@@ -233,6 +232,5 @@ public class NewGroup extends AbstractHandler {
 	/* DEPENDENCY INJECTION */
 	public void setUserAdminWrapper(UserAdminWrapper userAdminWrapper) {
 		this.userAdminWrapper = userAdminWrapper;
-		this.userAdmin = userAdminWrapper.getUserAdmin();
 	}
 }

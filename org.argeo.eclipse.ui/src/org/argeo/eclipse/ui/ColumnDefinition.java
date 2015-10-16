@@ -1,20 +1,21 @@
-package org.argeo.security.ui.admin.internal;
+package org.argeo.eclipse.ui;
 
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 
-/** Centralize the colum definition for the various tables of the useradmin UI */
+/**
+ * Wraps the definition of a column to be used in the various JFace viewers
+ * (typically tree and table). It enables definition of generic viewers which
+ * column can be then defined externally. Also used to generate export.
+ */
 public class ColumnDefinition {
 	private ColumnLabelProvider labelProvider;
 	private String label;
-	private int weight;
-	private int minWidth;
+	private int weight = 0;
+	private int minWidth = 120;
 
-	public ColumnDefinition(ColumnLabelProvider labelProvider, String label,
-			int weight, int minimumWidth) {
+	public ColumnDefinition(ColumnLabelProvider labelProvider, String label) {
 		this.labelProvider = labelProvider;
 		this.label = label;
-		this.weight = weight;
-		this.minWidth = minimumWidth;
 	}
 
 	public ColumnDefinition(ColumnLabelProvider labelProvider, String label,
@@ -23,6 +24,14 @@ public class ColumnDefinition {
 		this.label = label;
 		this.weight = weight;
 		this.minWidth = weight;
+	}
+
+	public ColumnDefinition(ColumnLabelProvider labelProvider, String label,
+			int weight, int minimumWidth) {
+		this.labelProvider = labelProvider;
+		this.label = label;
+		this.weight = weight;
+		this.minWidth = minimumWidth;
 	}
 
 	public ColumnLabelProvider getLabelProvider() {

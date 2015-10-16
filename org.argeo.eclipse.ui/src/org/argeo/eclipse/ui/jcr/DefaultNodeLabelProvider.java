@@ -24,7 +24,10 @@ import org.argeo.ArgeoException;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.graphics.Image;
 
-/** Provides reasonable overridable defaults for know JCR types. */
+/**
+ * Default label provider to manage node and corresponding UI objects. It
+ * provides reasonable overwrite-able default for known JCR types.
+ */
 public class DefaultNodeLabelProvider extends ColumnLabelProvider {
 	private static final long serialVersionUID = 1216182332792151235L;
 
@@ -91,5 +94,4 @@ public class DefaultNodeLabelProvider extends ColumnLabelProvider {
 	protected String getToolTipText(Node node) throws RepositoryException {
 		return null;
 	}
-
 }

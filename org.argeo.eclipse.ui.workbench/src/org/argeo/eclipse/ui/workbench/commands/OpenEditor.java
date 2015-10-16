@@ -15,10 +15,12 @@
  */
 package org.argeo.eclipse.ui.workbench.commands;
 
+import javax.jcr.Node;
+
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
-import org.argeo.eclipse.ui.workbench.jcr.GenericJcrQueryEditor;
 import org.argeo.eclipse.ui.workbench.jcr.DefaultNodeEditor;
+import org.argeo.eclipse.ui.workbench.jcr.GenericJcrQueryEditor;
 import org.argeo.eclipse.ui.workbench.jcr.internal.parts.JcrQueryEditorInput;
 import org.argeo.eclipse.ui.workbench.jcr.internal.parts.NodeEditorInput;
 import org.eclipse.core.commands.AbstractHandler;
@@ -28,7 +30,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-/** Opens an editor given its ID. */
+/** Open a {@link Node} editor of a specific type given the node path */
 public class OpenEditor extends AbstractHandler {
 	public final static String ID = WorkbenchUiPlugin.ID + ".openEditor";
 

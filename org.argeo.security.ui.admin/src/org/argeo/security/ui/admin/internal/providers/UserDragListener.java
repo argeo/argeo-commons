@@ -6,6 +6,7 @@ import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.DragSourceListener;
 import org.osgi.service.useradmin.User;
 
+/** Default drag listener to modify group and users via the UI */
 public class UserDragListener implements DragSourceListener {
 	private static final long serialVersionUID = -2074337775033781454L;
 	private final Viewer viewer;

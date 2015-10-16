@@ -3,6 +3,8 @@ package org.argeo.security.ui.admin.internal.providers;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.ArgeoException;
+import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.eclipse.jface.resource.JFaceResources;
@@ -29,13 +31,17 @@ public abstract class UserAdminAbstractLP extends ColumnLabelProvider implements
 		try {
 			LdapName selfUserName = UiAdminUtils.getLdapName();
 			String userName = UiAdminUtils.getProperty((User) element,
-					UserAdminConstants.KEY_DN);
+					LdifName.dn.name());
 			LdapName userLdapName = new LdapName(userName);
-			if (userLdapName.equals(selfUserName))
+			if (userLdapName.equals(selfUserName)) {
+				if (bold == null)
+					bold = JFaceResources.getFontRegistry()
+							.defaultFontDescriptor().setStyle(SWT.BOLD)
+							.createFont(Display.getCurrent());
 				return bold;
+			}
 		} catch (InvalidNameException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new ArgeoException("cannot parse dn for " + element, e);
 		}
 
 		// Disabled as Italic
@@ -57,7 +63,7 @@ public abstract class UserAdminAbstractLP extends ColumnLabelProvider implements
 		// italic = JFaceResources.getFontRegistry().defaultFontDescriptor()
 		// .setStyle(SWT.ITALIC).createFont(display);
 		bold = JFaceResources.getFontRegistry().defaultFontDescriptor()
-				.setStyle(SWT.BOLD).createFont(display);
+				.setStyle(SWT.BOLD).createFont(Display.getCurrent());
 	}
 
 	public abstract String getText(User user);

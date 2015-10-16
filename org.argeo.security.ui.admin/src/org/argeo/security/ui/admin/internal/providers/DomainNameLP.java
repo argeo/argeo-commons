@@ -7,16 +7,17 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
 import org.argeo.ArgeoException;
+import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.osgi.service.useradmin.User;
 
-/** Returns the human friendly domain name for the corresponding user. */
+/** The human friendly domain name for the corresponding user. */
 public class DomainNameLP extends UserAdminAbstractLP {
 	private static final long serialVersionUID = 5256703081044911941L;
 
 	@Override
 	public String getText(User user) {
-		String dn = (String) user.getProperties().get(KEY_DN);
+		String dn = (String) user.getProperties().get(LdifName.dn.name());
 		if (dn.endsWith(UserAdminConstants.SYSTEM_ROLE_BASE_DN))
 			return "System roles";
 		try {

@@ -28,7 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.AbstractTreeContentProvider;
 
-/** Canonic implementation of tree content provider manipulating JCR nodes. */
+/** Canonical implementation of tree content provider manipulating JCR nodes. */
 public abstract class AbstractNodeContentProvider extends
 		AbstractTreeContentProvider {
 	private static final long serialVersionUID = -4905836490027272569L;

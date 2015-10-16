@@ -29,7 +29,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-/** Creates a new JCR workspace */
+/** Create a new JCR workspace */
 public class CreateWorkspace extends AbstractHandler {
 
 	public final static String ID = WorkbenchUiPlugin.ID + ".addFolderNode";

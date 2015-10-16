@@ -13,9 +13,7 @@ import javax.jcr.Value;
 import org.argeo.ArgeoException;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 
-/**
- * Base implementation of a label provider for widgets that display JCR Rows.
- */
+/** Base implementation of a label provider for controls that display JCR Nodes */
 public class SimpleJcrNodeLabelProvider extends ColumnLabelProvider {
 	private static final long serialVersionUID = -5215787695436221993L;
 

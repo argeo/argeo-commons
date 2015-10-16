@@ -17,19 +17,30 @@ package org.argeo.eclipse.ui.workbench.jcr.internal.parts;
 
 import javax.jcr.security.Privilege;
 
+import org.argeo.eclipse.ui.EclipseUiUtils;
+import org.argeo.eclipse.ui.workbench.users.PickUpGroupDialog;
+import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
+import org.osgi.service.useradmin.UserAdmin;
 
+/** Simple wizard page to choose a group and corresponding rights to assign */
 public class ChooseRightsPage extends WizardPage implements ModifyListener {
 	private static final long serialVersionUID = 8084431378762283920L;
+
+	// Context
+	final private UserAdmin userAdmin;
 
 	// This page widget
 	private Text groupNameTxt;
@@ -39,31 +50,45 @@ public class ChooseRightsPage extends WizardPage implements ModifyListener {
 	protected final static String[] validAuthType = { Privilege.JCR_READ,
 			Privilege.JCR_WRITE, Privilege.JCR_ALL };
 
-	public ChooseRightsPage(String path) {
+	public ChooseRightsPage(UserAdmin userAdmin, String path) {
 		super("Main");
+		this.userAdmin = userAdmin;
 		setTitle("Add privilege to " + path);
 	}
 
 	public void createControl(Composite parent) {
 		// specify subject
 		Composite composite = new Composite(parent, SWT.NONE);
-		composite.setLayout(new GridLayout(2, false));
+		composite.setLayout(new GridLayout(3, false));
 		Label lbl = new Label(composite, SWT.LEAD);
-		lbl.setText("Group or user name (no blank, no special chars)");
+		lbl.setText("Group name");
+		// lbl.setText("Group or user name (no blank, no special chars)");
 		lbl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		groupNameTxt = new Text(composite, SWT.LEAD | SWT.BORDER);
-		groupNameTxt.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
-				false));
+		groupNameTxt.setLayoutData(EclipseUiUtils.fillWidth());
 		if (groupNameTxt != null)
 			groupNameTxt.addModifyListener(this);
+
+		Link pickUpLk = new Link(composite, SWT.LEFT);
+		pickUpLk.setText("<a>Pick up</a>");
+		pickUpLk.addSelectionListener(new SelectionAdapter() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				PickUpGroupDialog dialog = new PickUpGroupDialog(getShell(),
+						"Choose a group", userAdmin);
+				if (dialog.open() == Window.OK)
+					groupNameTxt.setText(dialog.getSelected());
+			}
+
+		});
 
 		// Choose rigths
 		new Label(composite, SWT.NONE).setText("Choose corresponding rights");
 		authorizationCmb = new Combo(composite, SWT.BORDER | SWT.V_SCROLL);
 		authorizationCmb.setItems(validAuthType);
-		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-		authorizationCmb.setLayoutData(gd);
-
+		authorizationCmb.setLayoutData(EclipseUiUtils.fillWidth(2));
 		authorizationCmb.select(0);
 
 		// Compulsory
@@ -93,10 +118,6 @@ public class ChooseRightsPage extends WizardPage implements ModifyListener {
 		String groupStr = groupNameTxt.getText();
 		if (groupStr == null || "".equals(groupStr))
 			return "Please enter the name of the corresponding group.";
-		// Remove regexp check for the time being.
-		// else if (!match(groupStr))
-		// return
-		// "Please use only alphanumerical chars for the short technical name.";
 		return null;
 	}
 }

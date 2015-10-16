@@ -4,9 +4,15 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="addRemoteRepository" class="org.argeo.eclipse.ui.workbench.commands.AddRemoteRepository">
+	<bean id="addRemoteRepository"
+		class="org.argeo.eclipse.ui.workbench.commands.AddRemoteRepository">
 		<property name="repositoryFactory" ref="repositoryFactory" />
 		<property name="nodeRepository" ref="nodeRepository" />
 		<property name="keyring" ref="keyring" />
 	</bean>
+
+	<bean id="addPrivileges" class="org.argeo.eclipse.ui.workbench.commands.AddPrivileges">
+		<property name="userAdmin" ref="userAdmin" />
+	</bean>
+
 </beans>

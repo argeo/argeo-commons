@@ -339,6 +339,11 @@ public class JcrBrowserView extends ViewPart {
 		return sortChildNodes;
 	}
 
+	@Override
+	public void setFocus() {
+		getNodeViewer().getTree().setFocus();
+	}
+
 	/* DEPENDENCY INJECTION */
 	public void setRepositoryRegister(RepositoryRegister repositoryRegister) {
 		this.repositoryRegister = repositoryRegister;
@@ -354,10 +359,5 @@ public class JcrBrowserView extends ViewPart {
 
 	public void setNodeRepository(Repository nodeRepository) {
 		this.nodeRepository = nodeRepository;
-	}
-
-	@Override
-	public void setFocus() {
-		getNodeViewer().getTree().setFocus();
 	}
 }

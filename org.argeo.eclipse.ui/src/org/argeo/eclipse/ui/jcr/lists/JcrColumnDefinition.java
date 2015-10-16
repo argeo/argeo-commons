@@ -1,35 +1,44 @@
 package org.argeo.eclipse.ui.jcr.lists;
 
+import javax.jcr.Node;
+import javax.jcr.query.Row;
+
+import org.argeo.eclipse.ui.ColumnDefinition;
+
 /**
  * Utility object to manage column in various tables and extracts displaying
  * data from JCR
  */
-public class ColumnDefinition {
+public class JcrColumnDefinition extends ColumnDefinition {
 	private final static int DEFAULT_COLUMN_SIZE = 120;
 
 	private String selectorName;
 	private String propertyName;
-	private String headerLabel;
 	private int propertyType;
-	private int columnSize = DEFAULT_COLUMN_SIZE;
+	private int columnSize;
 
 	/**
-	 * new column using default width
+	 * Use this kind of columns to configure a table that displays JCR
+	 * {@link Row}
 	 * 
 	 * @param selectorName
 	 * @param propertyName
 	 * @param propertyType
 	 * @param headerLabel
 	 */
-	public ColumnDefinition(String selectorName, String propertyName,
+	public JcrColumnDefinition(String selectorName, String propertyName,
 			int propertyType, String headerLabel) {
+		super(new SimpleJcrRowLabelProvider(selectorName, propertyName),
+				headerLabel);
 		this.selectorName = selectorName;
 		this.propertyName = propertyName;
 		this.propertyType = propertyType;
-		this.headerLabel = headerLabel;
+		this.columnSize = DEFAULT_COLUMN_SIZE;
 	}
 
 	/**
+	 * Use this kind of columns to configure a table that displays JCR
+	 * {@link Row}
 	 * 
 	 * @param selectorName
 	 * @param propertyName
@@ -37,12 +46,31 @@ public class ColumnDefinition {
 	 * @param headerLabel
 	 * @param columnSize
 	 */
-	public ColumnDefinition(String selectorName, String propertyName,
+	public JcrColumnDefinition(String selectorName, String propertyName,
 			int propertyType, String headerLabel, int columnSize) {
+		super(new SimpleJcrRowLabelProvider(selectorName, propertyName),
+				headerLabel, columnSize);
 		this.selectorName = selectorName;
 		this.propertyName = propertyName;
 		this.propertyType = propertyType;
-		this.headerLabel = headerLabel;
+		this.columnSize = columnSize;
+	}
+
+	/**
+	 * Use this kind of columns to configure a table that displays JCR
+	 * {@link Node}
+	 * 
+	 * @param propertyName
+	 * @param propertyType
+	 * @param headerLabel
+	 * @param columnSize
+	 */
+	public JcrColumnDefinition(String propertyName, int propertyType,
+			String headerLabel, int columnSize) {
+		super(new SimpleJcrNodeLabelProvider(propertyName), headerLabel,
+				columnSize);
+		this.propertyName = propertyName;
+		this.propertyType = propertyType;
 		this.columnSize = columnSize;
 	}
 
@@ -62,14 +90,6 @@ public class ColumnDefinition {
 		this.propertyName = propertyName;
 	}
 
-	public String getHeaderLabel() {
-		return headerLabel;
-	}
-
-	public void setHeaderLabel(String headerLabel) {
-		this.headerLabel = headerLabel;
-	}
-
 	public int getPropertyType() {
 		return propertyType;
 	}
@@ -84,5 +104,13 @@ public class ColumnDefinition {
 
 	public void setColumnSize(int columnSize) {
 		this.columnSize = columnSize;
+	}
+
+	public String getHeaderLabel() {
+		return super.getLabel();
+	}
+
+	public void setHeaderLabel(String headerLabel) {
+		super.setLabel(headerLabel);
 	}
 }

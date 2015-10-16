@@ -36,7 +36,7 @@ import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.service.useradmin.UserAdminEvent;
 
-/** Deletes the selected groups */
+/** Delete the selected groups */
 public class DeleteGroups extends AbstractHandler {
 	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
 			+ ".deleteGroups";

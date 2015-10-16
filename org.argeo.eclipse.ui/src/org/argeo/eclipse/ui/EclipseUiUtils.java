@@ -46,6 +46,28 @@ public class EclipseUiUtils {
 	}
 
 	//
+	// FONTS
+	//
+	/** Shortcut to retrieve default italic font from display */
+	public static Font getItalicFont(Composite parent) {
+		return JFaceResources.getFontRegistry().defaultFontDescriptor()
+				.setStyle(SWT.ITALIC).createFont(parent.getDisplay());
+	}
+
+	/** Shortcut to retrieve default bold font from display */
+	public static Font getBoldFont(Composite parent) {
+		return JFaceResources.getFontRegistry().defaultFontDescriptor()
+				.setStyle(SWT.BOLD).createFont(parent.getDisplay());
+	}
+
+	/** Shortcut to retrieve default bold italic font from display */
+	public static Font getBoldItalicFont(Composite parent) {
+		return JFaceResources.getFontRegistry().defaultFontDescriptor()
+				.setStyle(SWT.BOLD | SWT.ITALIC)
+				.createFont(parent.getDisplay());
+	}
+	
+	//
 	// Simplify grid layouts management
 	//
 	public static GridLayout noSpaceGridLayout() {
@@ -166,25 +188,4 @@ public class EclipseUiUtils {
 		return txt;
 	}
 
-	//
-	// FONTS
-	//
-	/** Shortcut to retrieve default italic font from display */
-	public static Font getItalicFont(Composite parent) {
-		return JFaceResources.getFontRegistry().defaultFontDescriptor()
-				.setStyle(SWT.ITALIC).createFont(parent.getDisplay());
-	}
-
-	/** Shortcut to retrieve default bold font from display */
-	public static Font getBoldFont(Composite parent) {
-		return JFaceResources.getFontRegistry().defaultFontDescriptor()
-				.setStyle(SWT.BOLD).createFont(parent.getDisplay());
-	}
-
-	/** Shortcut to retrieve default bold italic font from display */
-	public static Font getBoldItalicFont(Composite parent) {
-		return JFaceResources.getFontRegistry().defaultFontDescriptor()
-				.setStyle(SWT.BOLD | SWT.ITALIC)
-				.createFont(parent.getDisplay());
-	}
 }

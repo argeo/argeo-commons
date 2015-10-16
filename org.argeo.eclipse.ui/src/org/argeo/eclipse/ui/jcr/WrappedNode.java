@@ -17,7 +17,7 @@ package org.argeo.eclipse.ui.jcr;
 
 import javax.jcr.Node;
 
-/** Wraps a node (created from a {@link NodesWrapper}) */
+/** Wrap a node (created from a {@link NodesWrapper}) */
 public class WrappedNode {
 	private final NodesWrapper parent;
 	private final Node node;

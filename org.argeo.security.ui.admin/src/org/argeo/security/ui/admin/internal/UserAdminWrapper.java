@@ -14,7 +14,7 @@ import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.service.useradmin.UserAdminEvent;
 import org.osgi.service.useradmin.UserAdminListener;
 
-/** Simplifies the interaction with the UserAdmin in this bundle */
+/** Centralize interaction with the UserAdmin in this bundle */
 public class UserAdminWrapper {
 	// private Log log = LogFactory.getLog(UserAdminWrapper.class);
 
@@ -62,21 +62,9 @@ public class UserAdminWrapper {
 		return userTransaction;
 	}
 
-	/* DEPENDENCY INJECTION */
-	public void setUserAdmin(UserAdmin userAdmin) {
-		this.userAdmin = userAdmin;
-	}
-
 	public void setUserAdminServiceReference(
 			ServiceReference<UserAdmin> userAdminServiceReference) {
 		this.userAdminServiceReference = userAdminServiceReference;
-		// for (String uri : userAdminServiceReference.getPropertyKeys()) {
-		// if (!uri.startsWith("/"))
-		// continue;
-		// log.debug(uri);
-		// Dictionary<String, ?> props = UserAdminConf.uriAsProperties(uri);
-		// log.debug(props);
-		// }
 	}
 
 	public List<String> getKnownBaseDns(boolean onlyWritable) {
@@ -90,28 +78,17 @@ public class UserAdminWrapper {
 
 			if (onlyWritable && "true".equals(readOnly))
 				continue;
+			if (baseDn.equalsIgnoreCase(UserAdminConstants.SYSTEM_ROLE_BASE_DN))
+				continue;
 			dns.add(baseDn);
 		}
 		return dns;
 	}
 
-	// // Returns the human friendly domain name give a dn.
-	// public String getDomainName(String dn) {
-	// if (dn.endsWith("ou=roles, ou=node"))
-	// return "System roles";
-	// try {
-	//
-	// LdapName name;
-	// name = new LdapName(dn);
-	// List<Rdn> rdns = name.getRdns();
-	//
-	// String penultimate = (String) rdns.get(rdns.size() - 2).getValue();
-	// String last = (String) rdns.get(rdns.size() - 1).getValue();
-	// return (penultimate + '.' + last);
-	// } catch (InvalidNameException e) {
-	// throw new ArgeoException("Unable to get domain name for " + dn, e);
-	// }
-	// }
+	/* DEPENDENCY INJECTION */
+	public void setUserAdmin(UserAdmin userAdmin) {
+		this.userAdmin = userAdmin;
+	}
 
 	public void setUserTransaction(UserTransaction userTransaction) {
 		this.userTransaction = userTransaction;

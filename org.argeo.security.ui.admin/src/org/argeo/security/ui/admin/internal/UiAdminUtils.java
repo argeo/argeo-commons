@@ -10,6 +10,7 @@ import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
 import org.argeo.ArgeoException;
+import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.internal.providers.UserTransactionProvider;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -28,8 +29,7 @@ public class UiAdminUtils {
 	}
 
 	public final static boolean isCurrentUser(User user) {
-		String userName = UiAdminUtils.getProperty(user,
-				UserAdminConstants.KEY_DN);
+		String userName = getProperty(user, LdifName.dn.name());
 		try {
 			LdapName selfUserName = UiAdminUtils.getLdapName();
 			LdapName userLdapName = new LdapName(userName);
@@ -57,14 +57,14 @@ public class UiAdminUtils {
 	}
 
 	public final static User getUser(UserAdmin userAdmin, LdapName dn) {
-		User user = userAdmin.getUser(UserAdminConstants.KEY_DN, dn.toString());
+		User user = userAdmin.getUser(LdifName.dn.name(), dn.toString());
 		return user;
 	}
 
 	public final static String getUsername(User user) {
-		String cn = getProperty(user, UserAdminConstants.KEY_CN);
+		String cn = getProperty(user, LdifName.dn.name());
 		if (isEmpty(cn))
-			cn = getProperty(user, UserAdminConstants.KEY_UID);
+			cn = getProperty(user, LdifName.uid.name());
 		return cn;
 	}
 

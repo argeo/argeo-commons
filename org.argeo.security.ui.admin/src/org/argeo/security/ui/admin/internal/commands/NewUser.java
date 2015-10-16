@@ -26,6 +26,7 @@ import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.jcr.ArgeoNames;
+import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
@@ -69,24 +70,9 @@ public class NewUser extends AbstractHandler {
 		NewUserWizard newUserWizard = new NewUserWizard();
 		WizardDialog dialog = new WizardDialog(
 				HandlerUtil.getActiveShell(event), newUserWizard);
-
 		dialog.open();
-
-		// // Force refresh until the listener are implemented
-		// if (Window.OK == dialog.open())
-		// forceRefresh(event);
 		return null;
 	}
-
-	// private void forceRefresh(ExecutionEvent event) {
-	// IWorkbenchWindow iww = HandlerUtil.getActiveWorkbenchWindow(event);
-	// if (iww == null)
-	// return;
-	// IWorkbenchPage activePage = iww.getActivePage();
-	// IWorkbenchPart part = activePage.getActivePart();
-	// if (part instanceof UsersView)
-	// ((UsersView) part).refresh();
-	// }
 
 	private class NewUserWizard extends Wizard {
 
@@ -125,7 +111,7 @@ public class NewUser extends AbstractHandler {
 
 				String lastNameStr = lastNameTxt.getText();
 				if (UiAdminUtils.notNull(lastNameStr))
-					props.put(UserAdminConstants.KEY_LASTNAME, lastNameStr);
+					props.put(LdifName.dn.name(), lastNameStr);
 
 				String firstNameStr = firstNameTxt.getText();
 				if (UiAdminUtils.notNull(firstNameStr))
@@ -134,11 +120,11 @@ public class NewUser extends AbstractHandler {
 				String cn = UiAdminUtils
 						.getDefaultCn(firstNameStr, lastNameStr);
 				if (UiAdminUtils.notNull(cn))
-					props.put(UserAdminConstants.KEY_CN, cn);
+					props.put(LdifName.cn.name(), cn);
 
 				String mailStr = primaryMailTxt.getText();
 				if (UiAdminUtils.notNull(mailStr))
-					props.put(UserAdminConstants.KEY_MAIL, mailStr);
+					props.put(LdifName.mail.name(), mailStr);
 
 				char[] password = mainUserInfo.getPassword();
 				user.getCredentials().put(null, password);

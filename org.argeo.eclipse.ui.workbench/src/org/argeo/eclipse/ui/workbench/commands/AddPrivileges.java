@@ -32,10 +32,14 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.osgi.service.useradmin.UserAdmin;
 
-/** Open a dialog to change rights on the selected node. */
+/** Open a dialog to add privileges on the selected node to a chosen group */
 public class AddPrivileges extends AbstractHandler {
 	public final static String ID = WorkbenchUiPlugin.ID + ".addPrivileges";
+
+	/* DEPENDENCY INJECTION */
+	private UserAdmin userAdmin;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
@@ -58,7 +62,8 @@ public class AddPrivileges extends AbstractHandler {
 
 			try {
 				ChangeRightsWizard wizard = new ChangeRightsWizard(
-						jcrParentNode.getSession(), jcrParentNode.getPath());
+						jcrParentNode.getSession(), jcrParentNode.getPath(),
+						userAdmin);
 				WizardDialog dialog = new WizardDialog(
 						HandlerUtil.getActiveShell(event), wizard);
 				dialog.open();
@@ -72,5 +77,10 @@ public class AddPrivileges extends AbstractHandler {
 			ErrorFeedback.show("Cannot add privileges");
 		}
 		return null;
+	}
+
+	/* DEPENDENCY INJECTION */
+	public void setUserAdmin(UserAdmin userAdmin) {
+		this.userAdmin = userAdmin;
 	}
 }

@@ -23,7 +23,7 @@ import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.TreeParent;
 
 /**
- * UI Tree component. Wraps a JCR {@link Repository}. It also keeps a reference
+ * UI Tree component that wraps a JCR {@link Repository}. It also keeps a reference
  * to its parent Tree Ui component; typically the unique {@link Repositories}
  * object of the current view to enable bi-directionnal browsing in the tree.
  */

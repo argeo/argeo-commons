@@ -34,7 +34,7 @@ import org.argeo.jcr.UserJcrUtils;
 import org.argeo.util.security.Keyring;
 
 /**
- * UI Tree component. Implements the Argeo abstraction of a
+ * UI Tree component that implements the Argeo abstraction of a
  * {@link RepositoryFactory} that enable a user to "mount" various repositories
  * in a single Tree like View. It is usually meant to be at the root of the UI
  * Tree and thus {@link getParent()} method will return null.

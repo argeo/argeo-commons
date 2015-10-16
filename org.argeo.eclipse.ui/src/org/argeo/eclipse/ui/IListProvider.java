@@ -1,11 +1,11 @@
-package org.argeo.eclipse.ui.jcr.lists;
+package org.argeo.eclipse.ui;
 
 import java.util.List;
 
 /**
- * Views and editors can implement this interface so that one of the row list
- * that is displayed in the part (For instance in a Table or a Tree Viewer) can
- * be rebuilt externally. typically to generate csv or calc extract.
+ * Views and editors can implement this interface so that one of the list that
+ * is displayed in the part (For instance in a Table or a Tree Viewer) can be
+ * rebuilt externally. Typically to generate csv or calc extract.
  */
 public interface IListProvider {
 	/**

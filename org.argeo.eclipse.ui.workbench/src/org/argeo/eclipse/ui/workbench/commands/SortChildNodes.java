@@ -26,9 +26,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-/**
- * Change isSorted state of the JcrExplorer Browser
- */
+/** Change isSorted state of the DataExplorer Browser */
 public class SortChildNodes extends AbstractHandler {
 	public final static String ID = WorkbenchUiPlugin.ID + ".sortChildNodes";
 

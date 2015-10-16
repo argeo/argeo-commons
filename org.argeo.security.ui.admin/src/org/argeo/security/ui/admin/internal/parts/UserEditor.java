@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.argeo.ArgeoException;
+import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
@@ -98,7 +99,8 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 
 	void updateEditorTitle(String title) {
 		if (title == null) {
-			String commonName = UiAdminUtils.getProperty(user, KEY_CN);
+			String commonName = UiAdminUtils.getProperty(user,
+					LdifName.cn.name());
 			title = "".equals(commonName) ? user.getName() : commonName;
 		}
 		setPartName(title);

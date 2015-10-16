@@ -31,8 +31,6 @@ public class SecurityAdminPerspective implements IPerspectiveFactory {
 		IFolderLayout left = layout.createFolder("left", IPageLayout.LEFT,
 				0.25f, editorArea);
 		left.addView(UsersView.ID);
-		// left.addView(JcrUsersView.ID);
-		// left.addView(JcrRolesView.ID);
 
 		IFolderLayout right = layout.createFolder("right", IPageLayout.RIGHT,
 				0.70f, editorArea);

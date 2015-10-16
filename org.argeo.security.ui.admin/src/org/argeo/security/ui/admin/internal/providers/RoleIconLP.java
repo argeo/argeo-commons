@@ -1,11 +1,13 @@
 package org.argeo.security.ui.admin.internal.providers;
 
+import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminImages;
 import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.eclipse.swt.graphics.Image;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
+/** Provide a bundle specific image depending on the current user type */
 public class RoleIconLP extends UserAdminAbstractLP {
 	private static final long serialVersionUID = 6550449442061090388L;
 
@@ -17,7 +19,7 @@ public class RoleIconLP extends UserAdminAbstractLP {
 	@Override
 	public Image getImage(Object element) {
 		User user = (User) element;
-		String dn = (String) user.getProperties().get(KEY_DN);
+		String dn = (String) user.getProperties().get(LdifName.dn.name());
 		if (dn.endsWith(UserAdminConstants.SYSTEM_ROLE_BASE_DN))
 			return SecurityAdminImages.ICON_ROLE;
 		else if (user.getType() == Role.GROUP)

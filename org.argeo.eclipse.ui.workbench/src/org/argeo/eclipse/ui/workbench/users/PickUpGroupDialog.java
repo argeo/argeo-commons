@@ -13,72 +13,80 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.ui.admin.internal.parts;
+package org.argeo.eclipse.ui.workbench.users;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
-import org.argeo.jcr.ArgeoNames;
 import org.argeo.osgi.useradmin.LdifName;
-import org.argeo.security.ui.admin.SecurityAdminPlugin;
-import org.argeo.security.ui.admin.internal.UiAdminUtils;
-import org.argeo.security.ui.admin.internal.UserAdminConstants;
-import org.argeo.security.ui.admin.internal.UserAdminWrapper;
-import org.argeo.security.ui.admin.internal.providers.CommonNameLP;
-import org.argeo.security.ui.admin.internal.providers.DomainNameLP;
-import org.argeo.security.ui.admin.internal.providers.RoleIconLP;
-import org.argeo.security.ui.admin.internal.providers.UserDragListener;
-import org.argeo.security.ui.admin.internal.providers.UserNameLP;
-import org.argeo.security.ui.admin.internal.providers.UserTableDefaultDClickListener;
+import org.eclipse.jface.dialogs.TrayDialog;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.dnd.DND;
-import org.eclipse.swt.dnd.TextTransfer;
-import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.part.ViewPart;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Shell;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
-import org.osgi.service.useradmin.UserAdminEvent;
-import org.osgi.service.useradmin.UserAdminListener;
+import org.osgi.service.useradmin.UserAdmin;
 
-/** List all groups with filter */
-public class GroupsView extends ViewPart implements ArgeoNames {
-	private final static Log log = LogFactory.getLog(GroupsView.class);
-	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
-			+ ".groupsView";
+/** Dialog with a group list to pick up one */
+public class PickUpGroupDialog extends TrayDialog {
+	private static final long serialVersionUID = -1420106871173920369L;
 
-	/* DEPENDENCY INJECTION */
-	private UserAdminWrapper userAdminWrapper;
+	// Business objects
+	private final UserAdmin userAdmin;
+	private Group selectedGroup;
 
-	// UI Objects
+	// this page widgets and UI objects
+	private String title;
 	private LdifUsersTable groupTableViewerCmp;
 	private TableViewer userViewer;
 	private List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
 
-	private UserAdminListener listener;
+	public PickUpGroupDialog(Shell parentShell, String title,
+			UserAdmin userAdmin) {
+		super(parentShell);
+		this.title = title;
+		this.userAdmin = userAdmin;
 
-	@Override
-	public void createPartControl(Composite parent) {
-		parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
 		// Define the displayed columns
-		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 26));
-		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name",
-				150));
-		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain", 120));
-		columnDefs.add(new ColumnDefinition(new UserNameLP(),
-				"Distinguished Name", 300));
+		columnDefs.add(new ColumnDefinition(new GroupLP(GroupLP.COL_ICON), "",
+				26, 0));
+		columnDefs.add(new ColumnDefinition(new GroupLP(
+				GroupLP.COL_DISPLAY_NAME), "Common Name", 150, 100));
+		columnDefs.add(new ColumnDefinition(new GroupLP(GroupLP.COL_DOMAIN),
+				"Domain", 100, 120));
+		columnDefs.add(new ColumnDefinition(new GroupLP(GroupLP.COL_DN),
+				"Distinguished Name", 300, 100));
+	}
+
+	protected Point getInitialSize() {
+		return new Point(600, 450);
+	}
+
+	protected Control createDialogArea(Composite parent) {
+		Composite dialogArea = (Composite) super.createDialogArea(parent);
+		dialogArea.setLayout(new FillLayout());
+
+		Composite bodyCmp = new Composite(dialogArea, SWT.NO_FOCUS);
+		bodyCmp.setLayout(new GridLayout());
 
 		// Create and configure the table
 		groupTableViewerCmp = new MyUserTableViewer(parent, SWT.MULTI
@@ -87,39 +95,66 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 		groupTableViewerCmp.setColumnDefinitions(columnDefs);
 		groupTableViewerCmp.populateWithStaticFilters(false, false);
 		groupTableViewerCmp.setLayoutData(EclipseUiUtils.fillAll());
-
-		// Links
-		userViewer = groupTableViewerCmp.getTableViewer();
-		userViewer.addDoubleClickListener(new UserTableDefaultDClickListener());
-		getViewSite().setSelectionProvider(userViewer);
-
-		// Really?
 		groupTableViewerCmp.refresh();
 
-		// Drag and drop
-		int operations = DND.DROP_COPY | DND.DROP_MOVE;
-		Transfer[] tt = new Transfer[] { TextTransfer.getInstance() };
-		userViewer.addDragSupport(operations, tt, new UserDragListener(
-				userViewer));
+		// Controllers
+		userViewer = groupTableViewerCmp.getTableViewer();
+		userViewer.addDoubleClickListener(new MyDoubleClickListener());
+		userViewer
+				.addSelectionChangedListener(new MySelectionChangedListener());
 
-		// Register a useradmin listener
-		listener = new UserAdminListener() {
-			@Override
-			public void roleChanged(UserAdminEvent event) {
-				if (userViewer != null && !userViewer.getTable().isDisposed())
-					refresh();
+		parent.pack();
+		return dialogArea;
+	}
+
+	public String getSelected() {
+		if (selectedGroup == null)
+			return null;
+		else
+			return selectedGroup.getName();
+	}
+
+	protected void configureShell(Shell shell) {
+		super.configureShell(shell);
+		shell.setText(title);
+	}
+
+	class MyDoubleClickListener implements IDoubleClickListener {
+		public void doubleClick(DoubleClickEvent evt) {
+			if (evt.getSelection().isEmpty())
+				return;
+
+			Object obj = ((IStructuredSelection) evt.getSelection())
+					.getFirstElement();
+			if (obj instanceof Group) {
+				selectedGroup = (Group) obj;
+				okPressed();
 			}
-		};
-		userAdminWrapper.addListener(listener);
+		}
+	}
+
+	class MySelectionChangedListener implements ISelectionChangedListener {
+		@Override
+		public void selectionChanged(SelectionChangedEvent event) {
+			if (event.getSelection().isEmpty()) {
+				selectedGroup = null;
+				return;
+			}
+			Object obj = ((IStructuredSelection) event.getSelection())
+					.getFirstElement();
+			if (obj instanceof Group) {
+				selectedGroup = (Group) obj;
+			}
+		}
 	}
 
 	private class MyUserTableViewer extends LdifUsersTable {
 		private static final long serialVersionUID = 8467999509931900367L;
 
-		private Button showSystemRoleBtn;
-
 		private final String[] knownProps = { LdifName.uid.name(),
 				LdifName.cn.name(), LdifName.dn.name() };
+
+		private Button showSystemRoleBtn;
 
 		public MyUserTableViewer(Composite parent, int style) {
 			super(parent, style);
@@ -128,7 +163,7 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 		protected void populateStaticFilters(Composite staticFilterCmp) {
 			staticFilterCmp.setLayout(new GridLayout());
 			showSystemRoleBtn = new Button(staticFilterCmp, SWT.CHECK);
-			showSystemRoleBtn.setText("Show system roles");
+			showSystemRoleBtn.setText("Show system roles  ");
 			showSystemRoleBtn.addSelectionListener(new SelectionAdapter() {
 				private static final long serialVersionUID = -7033424592697691676L;
 
@@ -146,7 +181,7 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 			try {
 				StringBuilder builder = new StringBuilder();
 				StringBuilder tmpBuilder = new StringBuilder();
-				if (UiAdminUtils.notNull(filter))
+				if (notNull(filter))
 					for (String prop : knownProps) {
 						tmpBuilder.append("(");
 						tmpBuilder.append(prop);
@@ -158,8 +193,7 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 					builder.append("(&(objectclass=groupOfNames)");
 					if (!showSystemRoleBtn.getSelection())
 						builder.append("(!(").append(LdifName.dn.name())
-								.append("=*")
-								.append(UserAdminConstants.SYSTEM_ROLE_BASE_DN)
+								.append("=*").append(GroupLP.ROLES_BASEDN)
 								.append("))");
 					builder.append("(|");
 					builder.append(tmpBuilder.toString());
@@ -168,47 +202,27 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 					if (!showSystemRoleBtn.getSelection())
 						builder.append("(&(objectclass=groupOfNames)(!(")
 								.append(LdifName.dn.name()).append("=*")
-								.append(UserAdminConstants.SYSTEM_ROLE_BASE_DN)
-								.append(")))");
+								.append(GroupLP.ROLES_BASEDN).append(")))");
 					else
 						builder.append("(objectclass=groupOfNames)");
 
 				}
-				roles = userAdminWrapper.getUserAdmin().getRoles(
-						builder.toString());
+				roles = userAdmin.getRoles(builder.toString());
 			} catch (InvalidSyntaxException e) {
 				throw new ArgeoException("Unable to get roles with filter: "
 						+ filter, e);
 			}
 			List<User> users = new ArrayList<User>();
 			for (Role role : roles)
-				if (!users.contains(role))
-					users.add((User) role);
-				else
-					log.warn("Duplicated role: " + role);
-
+				users.add((User) role);
 			return users;
 		}
 	}
 
-	public void refresh() {
-		groupTableViewerCmp.refresh();
-	}
-
-	// Override generic view methods
-	@Override
-	public void dispose() {
-		userAdminWrapper.removeListener(listener);
-		super.dispose();
-	}
-
-	@Override
-	public void setFocus() {
-		groupTableViewerCmp.setFocus();
-	}
-
-	/* DEPENDENCY INJECTION */
-	public void setUserAdminWrapper(UserAdminWrapper userAdminWrapper) {
-		this.userAdminWrapper = userAdminWrapper;
+	private boolean notNull(String string) {
+		if (string == null)
+			return false;
+		else
+			return !"".equals(string.trim());
 	}
 }

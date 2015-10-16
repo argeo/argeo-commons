@@ -15,6 +15,7 @@
  */
 package org.argeo.security.ui.rap;
 
+import org.argeo.cms.auth.CurrentUser;
 import org.argeo.security.ui.commands.OpenHomePerspective;
 import org.eclipse.core.commands.Category;
 import org.eclipse.core.commands.Command;
@@ -110,7 +111,8 @@ public class RapActionBarAdvisor extends ActionBarAdvisor {
 
 	@Override
 	protected void fillCoolBar(ICoolBarManager coolBar) {
-		// Add a command which label is the login of the current logged-in user
+		// Add a command which label is the display name of the current
+		// logged-in user
 		if (username != null) {
 			ICommandService cmdService = (ICommandService) getActionBarConfigurer()
 					.getWindowConfigurer().getWorkbenchConfigurer()
@@ -122,7 +124,10 @@ public class RapActionBarAdvisor extends ActionBarAdvisor {
 					+ ".userMenuCommand");
 			if (userMenu.isDefined())
 				userMenu.undefine();
-			userMenu.define(username, "User menu actions", userMenus);
+			userMenu.define(CurrentUser.getDisplayName(), "User menu actions",
+					userMenus);
+			// userMenu.define(username, "User menu actions", userMenus);
+			
 			userMenu.setHandler(new OpenHomePerspective());
 
 			// userToolbar.add(new UserMenuAction());

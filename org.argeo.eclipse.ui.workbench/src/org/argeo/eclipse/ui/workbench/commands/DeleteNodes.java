@@ -35,7 +35,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
- * Deletes the selected nodes: both in the JCR repository and in the UI view.
+ * Delete the selected nodes: both in the JCR repository and in the UI view.
  * Warning no check is done, except implementation dependent native checks,
  * handle with care.
  * 
