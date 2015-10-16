@@ -22,9 +22,9 @@ import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.jcr.ArgeoNames;
+import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
-import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -96,7 +96,7 @@ public class NewGroup extends AbstractHandler {
 				Dictionary props = group.getProperties();
 				String descStr = descriptionTxt.getText();
 				if (UiAdminUtils.notNull(descStr))
-					props.put(UserAdminConstants.KEY_DESC, descStr);
+					props.put(LdifName.description.name(), descStr);
 				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
 						UserAdminEvent.ROLE_CREATED, group));
 				return true;

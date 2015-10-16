@@ -155,7 +155,9 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 						tmpBuilder.append("*)");
 					}
 				if (tmpBuilder.length() > 1) {
-					builder.append("(&(objectclass=groupOfNames)");
+					builder.append("(&(").append(LdifName.objectClass.name())
+							.append("=").append(LdifName.groupOfNames.name())
+							.append(")");
 					if (!showSystemRoleBtn.getSelection())
 						builder.append("(!(").append(LdifName.dn.name())
 								.append("=*")
@@ -166,12 +168,19 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 					builder.append("))");
 				} else {
 					if (!showSystemRoleBtn.getSelection())
-						builder.append("(&(objectclass=groupOfNames)(!(")
-								.append(LdifName.dn.name()).append("=*")
+						builder.append("(&(")
+								.append(LdifName.objectClass.name())
+								.append("=")
+								.append(LdifName.groupOfNames.name())
+								.append(")(!(").append(LdifName.dn.name())
+								.append("=*")
 								.append(UserAdminConstants.SYSTEM_ROLE_BASE_DN)
 								.append(")))");
 					else
-						builder.append("(objectclass=groupOfNames)");
+						builder.append("(").append(LdifName.objectClass.name())
+								.append("=")
+								.append(LdifName.groupOfNames.name())
+								.append(")");
 
 				}
 				roles = userAdminWrapper.getUserAdmin().getRoles(

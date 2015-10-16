@@ -26,7 +26,6 @@ import org.argeo.jcr.ArgeoNames;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
-import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.providers.CommonNameLP;
 import org.argeo.security.ui.admin.internal.providers.DomainNameLP;
@@ -50,7 +49,7 @@ import org.osgi.service.useradmin.UserAdminListener;
 /** List all users with filter - based on Ldif userAdmin */
 public class UsersView extends ViewPart implements ArgeoNames {
 	// private final static Log log = LogFactory.getLog(UsersView.class);
-	
+
 	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
 			+ ".usersView";
 
@@ -114,8 +113,8 @@ public class UsersView extends ViewPart implements ArgeoNames {
 
 		private final String[] knownProps = { LdifName.uid.name(),
 				LdifName.dn.name(), LdifName.cn.name(),
-				UserAdminConstants.KEY_FIRSTNAME,
-				UserAdminConstants.KEY_LASTNAME, LdifName.mail.name() };
+				LdifName.givenname.name(), LdifName.sn.name(),
+				LdifName.mail.name() };
 
 		public MyUserTableViewer(Composite parent, int style) {
 			super(parent, style);
@@ -138,11 +137,15 @@ public class UsersView extends ViewPart implements ArgeoNames {
 						tmpBuilder.append("*)");
 					}
 				if (tmpBuilder.length() > 1) {
-					builder.append("(&(objectclass=inetOrgPerson)(|");
+					builder.append("(&(").append(LdifName.objectClass.name())
+							.append("=").append(LdifName.inetOrgPerson.name())
+							.append(")(|");
 					builder.append(tmpBuilder.toString());
 					builder.append("))");
 				} else
-					builder.append("(objectclass=inetOrgPerson)");
+					builder.append("(").append(LdifName.objectClass.name())
+							.append("=").append(LdifName.inetOrgPerson.name())
+							.append(")");
 				roles = userAdminWrapper.getUserAdmin().getRoles(
 						builder.toString());
 			} catch (InvalidSyntaxException e) {

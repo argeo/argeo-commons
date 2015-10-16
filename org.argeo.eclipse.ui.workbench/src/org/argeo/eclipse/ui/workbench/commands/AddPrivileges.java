@@ -24,7 +24,7 @@ import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.eclipse.ui.workbench.jcr.internal.model.SingleJcrNodeElem;
 import org.argeo.eclipse.ui.workbench.jcr.internal.model.WorkspaceElem;
-import org.argeo.eclipse.ui.workbench.jcr.internal.parts.ChangeRightsWizard;
+import org.argeo.eclipse.ui.workbench.jcr.internal.parts.AddPrivilegeWizard;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -61,17 +61,17 @@ public class AddPrivileges extends AbstractHandler {
 				return null;
 
 			try {
-				ChangeRightsWizard wizard = new ChangeRightsWizard(
-						jcrParentNode.getSession(), jcrParentNode.getPath(),
-						userAdmin);
+				String targetPath = jcrParentNode.getPath();
+				AddPrivilegeWizard wizard = new AddPrivilegeWizard(
+						jcrParentNode.getSession(), targetPath, userAdmin);
 				WizardDialog dialog = new WizardDialog(
 						HandlerUtil.getActiveShell(event), wizard);
 				dialog.open();
 				return null;
 			} catch (RepositoryException re) {
-				throw new ArgeoException(
-						"Unexpected error while creating the new workspace.",
-						re);
+				throw new ArgeoException("Unable to retrieve "
+						+ "path or JCR session to add privilege on "
+						+ jcrParentNode, re);
 			}
 		} else {
 			ErrorFeedback.show("Cannot add privileges");

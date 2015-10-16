@@ -9,7 +9,7 @@ import javax.naming.ldap.LdapName;
  */
 public enum LdifName {
 	// Attributes
-	dn, cn, sn, uid, mail, displayName, objectClass, userpassword,
+	dn, cn, sn, uid, mail, displayName, objectClass, userpassword, givenname, description,
 	// Object classes
 	inetOrgPerson, organizationalPerson, person, groupOfNames, top;
 

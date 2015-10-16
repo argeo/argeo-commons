@@ -1,9 +1,11 @@
 package org.argeo.security.ui.admin.internal;
 
 import java.security.AccessController;
+import java.util.List;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 import javax.transaction.Status;
@@ -66,6 +68,33 @@ public class UiAdminUtils {
 		if (isEmpty(cn))
 			cn = getProperty(user, LdifName.uid.name());
 		return cn;
+	}
+
+	/** Simply retrieves a display name of the relevant domain */
+	public final static String getDomainName(User user) {
+		String dn = (String) user.getProperties().get(LdifName.dn.name());
+		if (dn.endsWith(UserAdminConstants.SYSTEM_ROLE_BASE_DN))
+			return "System roles";
+		try {
+			LdapName name;
+			name = new LdapName(dn);
+			List<Rdn> rdns = name.getRdns();
+			String dname = null;
+			int i = 0;
+			loop: while (i < rdns.size()) {
+				Rdn currrRdn = rdns.get(i);
+				if (!"dc".equals(currrRdn.getType()))
+					break loop;
+				else {
+					String currVal = (String) currrRdn.getValue();
+					dname = dname == null ? currVal : currVal + "." + dname;
+				}
+				i++;
+			}
+			return dname;
+		} catch (InvalidNameException e) {
+			throw new ArgeoException("Unable to get domain name for " + dn, e);
+		}
 	}
 
 	public final static String getProperty(Role role, String key) {

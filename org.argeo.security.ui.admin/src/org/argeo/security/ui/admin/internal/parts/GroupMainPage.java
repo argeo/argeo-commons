@@ -26,13 +26,13 @@ import org.argeo.jcr.ArgeoNames;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminImages;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
-import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.parts.UserEditor.GroupChangeListener;
 import org.argeo.security.ui.admin.internal.parts.UserEditor.MainInfoListener;
 import org.argeo.security.ui.admin.internal.providers.CommonNameLP;
 import org.argeo.security.ui.admin.internal.providers.MailLP;
 import org.argeo.security.ui.admin.internal.providers.RoleIconLP;
+import org.argeo.security.ui.admin.internal.providers.UserFilter;
 import org.argeo.security.ui.admin.internal.providers.UserNameLP;
 import org.argeo.security.ui.admin.internal.providers.UserTableDefaultDClickListener;
 import org.eclipse.jface.action.Action;
@@ -144,7 +144,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 
 			@SuppressWarnings("unchecked")
 			public void commit(boolean onSave) {
-				group.getProperties().put(UserAdminConstants.KEY_DESC,
+				group.getProperties().put(LdifName.description.name(),
 						descTxt.getText());
 				// Enable common name ?
 				// editor.setProperty(UserAdminConstants.KEY_CN,
@@ -159,8 +159,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 				cnTxt.setText(UiAdminUtils.getProperty(group,
 						LdifName.cn.name()));
 				descTxt.setText(UiAdminUtils.getProperty(group,
-						UserAdminConstants.KEY_DESC));
-
+						LdifName.description.name()));
 				super.refresh();
 			}
 		};
@@ -227,9 +226,13 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	private class MyUserTableViewer extends LdifUsersTable {
 		private static final long serialVersionUID = 8467999509931900367L;
 
+		private final UserFilter userFilter;
+
 		public MyUserTableViewer(Composite parent, int style,
 				UserAdmin userAdmin) {
 			super(parent, style, true);
+			userFilter = new UserFilter();
+
 		}
 
 		@Override
@@ -237,9 +240,11 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 			Group group = (Group) editor.getDisplayedUser();
 			Role[] roles = group.getMembers();
 			List<User> users = new ArrayList<User>();
+			userFilter.setSearchText(filter);
 			for (Role role : roles)
 				// if (role.getType() == Role.GROUP)
-				users.add((User) role);
+				if (userFilter.select(null, null, role))
+					users.add((User) role);
 			return users;
 		}
 	}

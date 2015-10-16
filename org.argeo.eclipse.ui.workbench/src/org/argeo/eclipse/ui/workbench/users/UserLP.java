@@ -1,10 +1,7 @@
 package org.argeo.eclipse.ui.workbench.users;
 
-import java.util.List;
-
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
-import javax.naming.ldap.Rdn;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.workbench.users.internal.UsersImages;
@@ -20,11 +17,8 @@ import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
 /** Centralize label providers for the group table */
-class GroupLP extends ColumnLabelProvider {
+class UserLP extends ColumnLabelProvider {
 	private static final long serialVersionUID = -4645930210988368571L;
-
-	// TODO this constant is defined in the CMS
-	final static String ROLES_BASEDN = "ou=roles,ou=node";
 
 	final static String COL_ICON = "colID.icon";
 	final static String COL_DN = "colID.dn";
@@ -36,7 +30,7 @@ class GroupLP extends ColumnLabelProvider {
 	// private Font italic;
 	private Font bold;
 
-	GroupLP(String colId) {
+	UserLP(String colId) {
 		this.currType = colId;
 	}
 
@@ -73,7 +67,7 @@ class GroupLP extends ColumnLabelProvider {
 		if (COL_ICON.equals(currType)) {
 			User user = (User) element;
 			String dn = (String) user.getProperties().get(LdifName.dn.name());
-			if (dn.endsWith(ROLES_BASEDN))
+			if (dn.endsWith(UsersUtils.ROLES_BASEDN))
 				return UsersImages.ICON_ROLE;
 			else if (user.getType() == Role.GROUP)
 				return UsersImages.ICON_GROUP;
@@ -93,27 +87,11 @@ class GroupLP extends ColumnLabelProvider {
 	public String getText(User user) {
 		if (COL_DN.equals(currType))
 			return user.getName();
-		else if (COL_DISPLAY_NAME.equals(currType)) {
-			Object obj = user.getProperties().get(LdifName.cn.name());
-			if (obj != null)
-				return (String) obj;
-			else
-				return "";
-		} else if (COL_DOMAIN.equals(currType)) {
-			String dn = (String) user.getProperties().get(LdifName.dn.name());
-			if (dn.endsWith(ROLES_BASEDN))
-				return "System roles";
-			try {
-				LdapName name;
-				name = new LdapName(dn);
-				List<Rdn> rdns = name.getRdns();
-				return (String) rdns.get(1).getValue() + '.'
-						+ (String) rdns.get(0).getValue();
-			} catch (InvalidNameException e) {
-				throw new ArgeoException("Unable to get domain name for " + dn,
-						e);
-			}
-		} else
+		else if (COL_DISPLAY_NAME.equals(currType))
+			return UsersUtils.getCommonName(user);
+		else if (COL_DOMAIN.equals(currType))
+			return UsersUtils.getDomainName(user);
+		else
 			return "";
 	}
 }

@@ -1,9 +1,11 @@
 package org.argeo.eclipse.ui.workbench.users.internal;
 
 import java.security.AccessController;
+import java.util.List;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
@@ -14,6 +16,8 @@ import org.osgi.service.useradmin.User;
 
 /** Utility methods to manage user concepts in the ui.workbench bundle */
 public class UsersUtils {
+	// TODO this constant is defined in the CMS
+	public final static String ROLES_BASEDN = "ou=roles,ou=node";
 
 	public final static boolean isCurrentUser(User user) {
 		String userName = getProperty(user, LdifName.dn.name());
@@ -43,6 +47,37 @@ public class UsersUtils {
 		return dn;
 	}
 
+	public final static String getCommonName(User user) {
+		return getProperty(user, LdifName.cn.name());
+	}
+
+	/** Simply retrieves a display name of the relevant domain */
+	public final static String getDomainName(User user) {
+		String dn = (String) user.getProperties().get(LdifName.dn.name());
+		if (dn.endsWith(ROLES_BASEDN))
+			return "System roles";
+		try {
+			LdapName name;
+			name = new LdapName(dn);
+			List<Rdn> rdns = name.getRdns();
+			String dname = null;
+			int i = 0;
+			loop: while (i < rdns.size()) {
+				Rdn currrRdn = rdns.get(i);
+				if (!"dc".equals(currrRdn.getType()))
+					break loop;
+				else {
+					String currVal = (String) currrRdn.getValue();
+					dname = dname == null ? currVal : currVal + "." + dname;
+				}
+				i++;
+			}
+			return dname;
+		} catch (InvalidNameException e) {
+			throw new ArgeoException("Unable to get domain name for " + dn, e);
+		}
+	}
+
 	public final static String getProperty(Role role, String key) {
 		Object obj = role.getProperties().get(key);
 		if (obj != null)
@@ -61,4 +96,5 @@ public class UsersUtils {
 		else
 			return !"".equals(string.trim());
 	}
+
 }

@@ -29,7 +29,6 @@ import org.argeo.jcr.ArgeoNames;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
-import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -115,7 +114,7 @@ public class NewUser extends AbstractHandler {
 
 				String firstNameStr = firstNameTxt.getText();
 				if (UiAdminUtils.notNull(firstNameStr))
-					props.put(UserAdminConstants.KEY_FIRSTNAME, firstNameStr);
+					props.put(LdifName.givenname.name(), firstNameStr);
 
 				String cn = UiAdminUtils
 						.getDefaultCn(firstNameStr, lastNameStr);

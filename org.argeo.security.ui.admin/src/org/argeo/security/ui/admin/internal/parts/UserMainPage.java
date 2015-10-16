@@ -27,13 +27,13 @@ import org.argeo.jcr.ArgeoNames;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminImages;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
-import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.parts.UserEditor.GroupChangeListener;
 import org.argeo.security.ui.admin.internal.parts.UserEditor.MainInfoListener;
 import org.argeo.security.ui.admin.internal.providers.CommonNameLP;
 import org.argeo.security.ui.admin.internal.providers.DomainNameLP;
 import org.argeo.security.ui.admin.internal.providers.RoleIconLP;
+import org.argeo.security.ui.admin.internal.providers.UserFilter;
 import org.argeo.security.ui.admin.internal.providers.UserNameLP;
 import org.argeo.security.ui.admin.internal.providers.UserTableDefaultDClickListener;
 import org.eclipse.jface.action.Action;
@@ -122,11 +122,10 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		commonName.setEnabled(false);
 
 		final Text firstName = createLT(tk, body, "First name",
-				UiAdminUtils
-						.getProperty(user, UserAdminConstants.KEY_FIRSTNAME));
+				UiAdminUtils.getProperty(user, LdifName.givenname.name()));
 
 		final Text lastName = createLT(tk, body, "Last name",
-				UiAdminUtils.getProperty(user, UserAdminConstants.KEY_LASTNAME));
+				UiAdminUtils.getProperty(user, LdifName.sn.name()));
 
 		final Text email = createLT(tk, body, "Email",
 				UiAdminUtils.getProperty(user, LdifName.mail.name()));
@@ -151,10 +150,10 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 			@SuppressWarnings("unchecked")
 			public void commit(boolean onSave) {
 				// TODO Sanity checks (mail validity...)
-				user.getProperties().put(UserAdminConstants.KEY_FIRSTNAME,
+				user.getProperties().put(LdifName.givenname.name(),
 						firstName.getText());
-				user.getProperties().put(UserAdminConstants.KEY_LASTNAME,
-						lastName.getText());
+				user.getProperties()
+						.put(LdifName.sn.name(), lastName.getText());
 				user.getProperties().put(LdifName.cn.name(),
 						commonName.getText());
 				user.getProperties().put(LdifName.mail.name(), email.getText());
@@ -171,9 +170,9 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 				commonName.setText(UiAdminUtils.getProperty(user,
 						LdifName.cn.name()));
 				firstName.setText(UiAdminUtils.getProperty(user,
-						UserAdminConstants.KEY_FIRSTNAME));
+						LdifName.givenname.name()));
 				lastName.setText(UiAdminUtils.getProperty(user,
-						UserAdminConstants.KEY_LASTNAME));
+						LdifName.sn.name()));
 				email.setText(LdifName.mail.name());
 				refreshFormTitle(user);
 				super.refresh();
@@ -315,18 +314,25 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		private static final long serialVersionUID = 8467999509931900367L;
 
 		private final User user;
+		private final UserFilter userFilter;
 
 		public MyUserTableViewer(Composite parent, int style, User user) {
 			super(parent, style, true);
 			this.user = user;
+			userFilter = new UserFilter();
 		}
 
 		@Override
 		protected List<User> listFilteredElements(String filter) {
 			List<User> users = (List<User>) editor.getFlatGroups(null);
+			List<User> filteredUsers = new ArrayList<User>();
 			if (users.contains(user))
 				users.remove(user);
-			return users;
+			userFilter.setSearchText(filter);
+			for (User user : users)
+				if (userFilter.select(null, null, user))
+					filteredUsers.add(user);
+			return filteredUsers;
 		}
 	}
 

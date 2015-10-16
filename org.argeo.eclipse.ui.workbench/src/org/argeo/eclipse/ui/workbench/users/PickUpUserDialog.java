@@ -22,6 +22,7 @@ import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
+import org.argeo.eclipse.ui.workbench.users.internal.UsersUtils;
 import org.argeo.osgi.useradmin.LdifName;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -33,6 +34,7 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
@@ -47,38 +49,37 @@ import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
 /** Dialog with a group list to pick up one */
-public class PickUpGroupDialog extends TrayDialog {
+public class PickUpUserDialog extends TrayDialog {
 	private static final long serialVersionUID = -1420106871173920369L;
 
 	// Business objects
 	private final UserAdmin userAdmin;
-	private Group selectedGroup;
+	private User selectedUser;
 
 	// this page widgets and UI objects
 	private String title;
-	private LdifUsersTable groupTableViewerCmp;
+	private LdifUsersTable userTableViewerCmp;
 	private TableViewer userViewer;
 	private List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
 
-	public PickUpGroupDialog(Shell parentShell, String title,
-			UserAdmin userAdmin) {
+	public PickUpUserDialog(Shell parentShell, String title, UserAdmin userAdmin) {
 		super(parentShell);
 		this.title = title;
 		this.userAdmin = userAdmin;
 
 		// Define the displayed columns
-		columnDefs.add(new ColumnDefinition(new GroupLP(GroupLP.COL_ICON), "",
+		columnDefs.add(new ColumnDefinition(new UserLP(UserLP.COL_ICON), "",
 				26, 0));
-		columnDefs.add(new ColumnDefinition(new GroupLP(
-				GroupLP.COL_DISPLAY_NAME), "Common Name", 150, 100));
-		columnDefs.add(new ColumnDefinition(new GroupLP(GroupLP.COL_DOMAIN),
+		columnDefs.add(new ColumnDefinition(
+				new UserLP(UserLP.COL_DISPLAY_NAME), "Common Name", 150, 100));
+		columnDefs.add(new ColumnDefinition(new UserLP(UserLP.COL_DOMAIN),
 				"Domain", 100, 120));
-		columnDefs.add(new ColumnDefinition(new GroupLP(GroupLP.COL_DN),
+		columnDefs.add(new ColumnDefinition(new UserLP(UserLP.COL_DN),
 				"Distinguished Name", 300, 100));
 	}
 
 	protected Point getInitialSize() {
-		return new Point(600, 450);
+		return new Point(700, 450);
 	}
 
 	protected Control createDialogArea(Composite parent) {
@@ -89,16 +90,16 @@ public class PickUpGroupDialog extends TrayDialog {
 		bodyCmp.setLayout(new GridLayout());
 
 		// Create and configure the table
-		groupTableViewerCmp = new MyUserTableViewer(parent, SWT.MULTI
+		userTableViewerCmp = new MyUserTableViewer(bodyCmp, SWT.MULTI
 				| SWT.H_SCROLL | SWT.V_SCROLL);
 
-		groupTableViewerCmp.setColumnDefinitions(columnDefs);
-		groupTableViewerCmp.populateWithStaticFilters(false, false);
-		groupTableViewerCmp.setLayoutData(EclipseUiUtils.fillAll());
-		groupTableViewerCmp.refresh();
+		userTableViewerCmp.setColumnDefinitions(columnDefs);
+		userTableViewerCmp.populateWithStaticFilters(false, false);
+		userTableViewerCmp.setLayoutData(EclipseUiUtils.fillAll());
+		userTableViewerCmp.refresh();
 
 		// Controllers
-		userViewer = groupTableViewerCmp.getTableViewer();
+		userViewer = userTableViewerCmp.getTableViewer();
 		userViewer.addDoubleClickListener(new MyDoubleClickListener());
 		userViewer
 				.addSelectionChangedListener(new MySelectionChangedListener());
@@ -107,11 +108,11 @@ public class PickUpGroupDialog extends TrayDialog {
 		return dialogArea;
 	}
 
-	public String getSelected() {
-		if (selectedGroup == null)
+	public User getSelected() {
+		if (selectedUser == null)
 			return null;
 		else
-			return selectedGroup.getName();
+			return selectedUser;
 	}
 
 	protected void configureShell(Shell shell) {
@@ -126,8 +127,8 @@ public class PickUpGroupDialog extends TrayDialog {
 
 			Object obj = ((IStructuredSelection) evt.getSelection())
 					.getFirstElement();
-			if (obj instanceof Group) {
-				selectedGroup = (Group) obj;
+			if (obj instanceof User) {
+				selectedUser = (User) obj;
 				okPressed();
 			}
 		}
@@ -137,13 +138,13 @@ public class PickUpGroupDialog extends TrayDialog {
 		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
 			if (event.getSelection().isEmpty()) {
-				selectedGroup = null;
+				selectedUser = null;
 				return;
 			}
 			Object obj = ((IStructuredSelection) event.getSelection())
 					.getFirstElement();
 			if (obj instanceof Group) {
-				selectedGroup = (Group) obj;
+				selectedUser = (Group) obj;
 			}
 		}
 	}
@@ -155,6 +156,7 @@ public class PickUpGroupDialog extends TrayDialog {
 				LdifName.cn.name(), LdifName.dn.name() };
 
 		private Button showSystemRoleBtn;
+		private Button showUserBtn;
 
 		public MyUserTableViewer(Composite parent, int style) {
 			super(parent, style);
@@ -164,15 +166,21 @@ public class PickUpGroupDialog extends TrayDialog {
 			staticFilterCmp.setLayout(new GridLayout());
 			showSystemRoleBtn = new Button(staticFilterCmp, SWT.CHECK);
 			showSystemRoleBtn.setText("Show system roles  ");
-			showSystemRoleBtn.addSelectionListener(new SelectionAdapter() {
+
+			showUserBtn = new Button(staticFilterCmp, SWT.CHECK);
+			showUserBtn.setText("Show users  ");
+
+			SelectionListener sl = new SelectionAdapter() {
 				private static final long serialVersionUID = -7033424592697691676L;
 
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					refresh();
 				}
+			};
 
-			});
+			showSystemRoleBtn.addSelectionListener(sl);
+			showUserBtn.addSelectionListener(sl);
 		}
 
 		@Override
@@ -180,32 +188,35 @@ public class PickUpGroupDialog extends TrayDialog {
 			Role[] roles;
 			try {
 				StringBuilder builder = new StringBuilder();
-				StringBuilder tmpBuilder = new StringBuilder();
+
+				StringBuilder filterBuilder = new StringBuilder();
 				if (notNull(filter))
 					for (String prop : knownProps) {
-						tmpBuilder.append("(");
-						tmpBuilder.append(prop);
-						tmpBuilder.append("=*");
-						tmpBuilder.append(filter);
-						tmpBuilder.append("*)");
+						filterBuilder.append("(");
+						filterBuilder.append(prop);
+						filterBuilder.append("=*");
+						filterBuilder.append(filter);
+						filterBuilder.append("*)");
 					}
-				if (tmpBuilder.length() > 1) {
-					builder.append("(&(objectclass=groupOfNames)");
-					if (!showSystemRoleBtn.getSelection())
-						builder.append("(!(").append(LdifName.dn.name())
-								.append("=*").append(GroupLP.ROLES_BASEDN)
-								.append("))");
+
+				String typeStr = "(" + LdifName.objectClass.name() + "="
+						+ LdifName.groupOfNames.name() + ")";
+				if ((showUserBtn.getSelection()))
+					typeStr = "(|(" + LdifName.objectClass.name() + "="
+							+ LdifName.inetOrgPerson.name() + ")" + typeStr
+							+ ")";
+
+				if (!showSystemRoleBtn.getSelection())
+					typeStr = "(& " + typeStr + "(!(" + LdifName.dn.name()
+							+ "=*" + UsersUtils.ROLES_BASEDN + ")))";
+
+				if (filterBuilder.length() > 1) {
+					builder.append("(&" + typeStr);
 					builder.append("(|");
-					builder.append(tmpBuilder.toString());
+					builder.append(filterBuilder.toString());
 					builder.append("))");
 				} else {
-					if (!showSystemRoleBtn.getSelection())
-						builder.append("(&(objectclass=groupOfNames)(!(")
-								.append(LdifName.dn.name()).append("=*")
-								.append(GroupLP.ROLES_BASEDN).append(")))");
-					else
-						builder.append("(objectclass=groupOfNames)");
-
+					builder.append(typeStr);
 				}
 				roles = userAdmin.getRoles(builder.toString());
 			} catch (InvalidSyntaxException e) {
@@ -214,7 +225,8 @@ public class PickUpGroupDialog extends TrayDialog {
 			}
 			List<User> users = new ArrayList<User>();
 			for (Role role : roles)
-				users.add((User) role);
+				if (!users.contains(role))
+					users.add((User) role);
 			return users;
 		}
 	}
