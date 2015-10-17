@@ -18,16 +18,21 @@ package org.argeo.eclipse.ui.workbench.jcr.internal.parts;
 import javax.jcr.Node;
 
 import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
-import org.argeo.eclipse.ui.workbench.jcr.internal.GenericNodeDoubleClickListener;
+import org.argeo.eclipse.ui.workbench.jcr.DefaultNodeEditor;
 import org.argeo.eclipse.ui.workbench.jcr.internal.NodeLabelProvider;
 import org.argeo.eclipse.ui.workbench.jcr.internal.SingleNodeAsTreeContentProvider;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.forms.editor.FormPage;
@@ -64,7 +69,6 @@ public class ChildNodesPage extends FormPage {
 				managedForm.getToolkit().createLabel(body,
 						WorkbenchUiPlugin.getMessage("warningNoChildNode"));
 			} else {
-
 				nodeContentProvider = new SingleNodeAsTreeContentProvider();
 				nodesViewer = createNodeViewer(body, nodeContentProvider);
 				nodesViewer.setInput(currentNode);
@@ -78,16 +82,37 @@ public class ChildNodesPage extends FormPage {
 	protected TreeViewer createNodeViewer(Composite parent,
 			final ITreeContentProvider nodeContentProvider) {
 
-		final TreeViewer tmpNodeViewer = new TreeViewer(parent, SWT.MULTI);
-
-		tmpNodeViewer.getTree().setLayoutData(
-				new GridData(SWT.FILL, SWT.FILL, true, true));
-
+		final TreeViewer tmpNodeViewer = new TreeViewer(parent, SWT.BORDER);
+		Tree tree = tmpNodeViewer.getTree();
+		tree.setLinesVisible(true);
+		tmpNodeViewer.getTree().setLayoutData(EclipseUiUtils.fillAll());
 		tmpNodeViewer.setContentProvider(nodeContentProvider);
 		tmpNodeViewer.setLabelProvider(new NodeLabelProvider());
-		tmpNodeViewer
-				.addDoubleClickListener(new GenericNodeDoubleClickListener(
-						tmpNodeViewer));
+		tmpNodeViewer.addDoubleClickListener(new DClickListener());
 		return tmpNodeViewer;
+	}
+
+	public class DClickListener implements IDoubleClickListener {
+
+		public void doubleClick(DoubleClickEvent event) {
+			if (event.getSelection() == null || event.getSelection().isEmpty())
+				return;
+			Object obj = ((IStructuredSelection) event.getSelection())
+					.getFirstElement();
+			if (obj instanceof Node) {
+				Node node = (Node) obj;
+				try {
+					GenericNodeEditorInput gnei = new GenericNodeEditorInput(
+							node);
+					WorkbenchUiPlugin.getDefault().getWorkbench()
+							.getActiveWorkbenchWindow().getActivePage()
+							.openEditor(gnei, DefaultNodeEditor.ID);
+				} catch (PartInitException pie) {
+					throw new ArgeoException(
+							"Unexepected exception while opening node editor",
+							pie);
+				}
+			}
+		}
 	}
 }

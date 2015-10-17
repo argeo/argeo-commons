@@ -43,6 +43,8 @@ public class NodeLabelProvider extends ColumnLabelProvider {
 			if (element instanceof SingleJcrNodeElem) {
 				SingleJcrNodeElem sjn = (SingleJcrNodeElem) element;
 				return getText(sjn.getNode());
+			} else if (element instanceof Node) {
+				return getText((Node) element);
 			} else
 				return super.getText(element);
 		} catch (RepositoryException e) {
@@ -83,7 +85,7 @@ public class NodeLabelProvider extends ColumnLabelProvider {
 		} else if (element instanceof SingleJcrNodeElem) {
 			Node nodeElem = ((SingleJcrNodeElem) element).getNode();
 			return getImage(nodeElem);
-					
+
 			// if (element instanceof Node) {
 			// return getImage((Node) element);
 			// } else if (element instanceof WrappedNode) {

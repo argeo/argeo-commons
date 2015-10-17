@@ -110,7 +110,7 @@ public class NewUser extends AbstractHandler {
 
 				String lastNameStr = lastNameTxt.getText();
 				if (UiAdminUtils.notNull(lastNameStr))
-					props.put(LdifName.dn.name(), lastNameStr);
+					props.put(LdifName.sn.name(), lastNameStr);
 
 				String firstNameStr = firstNameTxt.getText();
 				if (UiAdminUtils.notNull(firstNameStr))

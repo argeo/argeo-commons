@@ -15,7 +15,14 @@
  */
 package org.argeo.eclipse.ui.workbench.jcr;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.jcr.Node;
+import javax.jcr.RepositoryException;
+import javax.jcr.nodetype.NodeType;
+import javax.jcr.security.AccessControlManager;
+import javax.jcr.security.Privilege;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
@@ -31,12 +38,9 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.forms.editor.FormEditor;
 
-/**
- * Container for the node editor page. At creation time, it takes a JCR Node
- * that cannot be changed afterwards.
- */
+/** Default form editor for a Jcr {@link Node} */
 public class DefaultNodeEditor extends FormEditor {
-	private static final long serialVersionUID = -5397680152514917137L;
+	private static final long serialVersionUID = 8322127770921612239L;
 
 	// private final static Log log =
 	// LogFactory.getLog(GenericNodeEditor.class);
@@ -75,19 +79,33 @@ public class DefaultNodeEditor extends FormEditor {
 					currentNode);
 			addPage(childNodesPage);
 
-			nodeRightsManagementPage = new NodeRightsManagementPage(this,
-					WorkbenchUiPlugin
-							.getMessage("nodeRightsManagementPageTitle"),
-					currentNode);
-			addPage(nodeRightsManagementPage);
+			AccessControlManager accessControlManager = currentNode
+					.getSession().getAccessControlManager();
+			List<Privilege> privileges = new ArrayList<Privilege>();
+			privileges.add(accessControlManager
+					.privilegeFromName(Privilege.JCR_READ_ACCESS_CONTROL));
+			if (accessControlManager.hasPrivileges(currentNode.getPath(),
+					privileges.toArray(new Privilege[0]))) {
+				nodeRightsManagementPage = new NodeRightsManagementPage(this,
+						WorkbenchUiPlugin
+								.getMessage("nodeRightsManagementPageTitle"),
+						currentNode);
+				addPage(nodeRightsManagementPage);
+			}
+			if (currentNode.isNodeType(NodeType.MIX_VERSIONABLE)) {
+				nodeVersionHistoryPage = new NodeVersionHistoryPage(this,
+						WorkbenchUiPlugin
+								.getMessage("nodeVersionHistoryPageTitle"),
+						currentNode);
+				addPage(nodeVersionHistoryPage);
+			}
 
-			nodeVersionHistoryPage = new NodeVersionHistoryPage(
-					this,
-					WorkbenchUiPlugin.getMessage("nodeVersionHistoryPageTitle"),
-					currentNode);
-			addPage(nodeVersionHistoryPage);
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot get node info for " + currentNode,
+					e);
 		} catch (PartInitException e) {
-			throw new ArgeoException("Not able to add an empty page ", e);
+			throw new ArgeoException("Cannot add page " + "on node editor for "
+					+ currentNode, e);
 		}
 	}
 

@@ -32,11 +32,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.PartInitException;
 
-/**
- * Centralizes the management of double click on a NodeTreeViewer
- */
+/** Centralizes the management of double click on a NodeTreeViewer */
 public class GenericNodeDoubleClickListener implements IDoubleClickListener {
-
 	// private final static Log log = LogFactory
 	// .getLog(GenericNodeDoubleClickListener.class);
 
