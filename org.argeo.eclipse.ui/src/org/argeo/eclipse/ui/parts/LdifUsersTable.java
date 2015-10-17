@@ -330,9 +330,9 @@ public abstract class LdifUsersTable extends Composite {
 		table.setHeaderVisible(true);
 
 		TableViewerColumn column;
-		int offset = 0;
+//		int offset = 0;
 		if (hasSelectionColumn) {
-			offset = 1;
+			// offset = 1;
 			column = ViewerUtils.createTableViewerColumn(viewer, "", SWT.NONE,
 					25);
 			column.setLabelProvider(new ColumnLabelProvider() {
@@ -360,7 +360,7 @@ public abstract class LdifUsersTable extends Composite {
 
 		// NodeViewerComparator comparator = new NodeViewerComparator();
 		// TODO enable the sort by click on the header
-		int i = offset;
+//		int i = offset;
 		for (ColumnDefinition colDef : columnDefs)
 			createTableColumn(viewer, layout, colDef);
 
