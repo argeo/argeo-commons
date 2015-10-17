@@ -21,7 +21,6 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.CredentialNotFoundException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -65,11 +64,11 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 	DataHttp(HttpService httpService, NodeRepository node) {
 		this.httpService = httpService;
 		sessionProvider = new OpenInViewSessionProvider();
-		registerRepositoryServlets(ALIAS_NODE, node);
+		// registerRepositoryServlets(ALIAS_NODE, node);
 	}
 
 	public void destroy() {
-		unregisterRepositoryServlets(ALIAS_NODE);
+		// unregisterRepositoryServlets(ALIAS_NODE);
 	}
 
 	void registerRepositoryServlets(String alias, Repository repository) {
@@ -97,10 +96,7 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 		Properties ip = new Properties();
 		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_CONFIG, WEBDAV_CONFIG);
 		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
-		// httpService.registerFilter(path, anonymous ? new AnonymousFilter()
-		// : new DavFilter(), null, null);
-		// Cast to servlet because of a weird behaviour in Eclipse
-		httpService.registerServlet(path, (Servlet) webdavServlet, ip,
+		httpService.registerServlet(path, webdavServlet, ip,
 				new DataHttpContext(anonymous));
 	}
 
@@ -119,21 +115,9 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 		ip.setProperty(RemotingServlet.INIT_PARAM_TMP_DIRECTORY, "remoting");
 		// in order to avoid annoying warning.
 		ip.setProperty(RemotingServlet.INIT_PARAM_PROTECTED_HANDLERS_CONFIG, "");
-		// Cast to servlet because of a weird behaviour in Eclipse
-		// httpService.registerFilter(path, anonymous ? new AnonymousFilter()
-		// : new DavFilter(), null, null);
-		httpService.registerServlet(path, (Servlet) remotingServlet, ip,
+		httpService.registerServlet(path, remotingServlet, ip,
 				new DataHttpContext(anonymous));
 	}
-
-//	private X509Certificate extractCertificate(HttpServletRequest req) {
-//		X509Certificate[] certs = (X509Certificate[]) req
-//				.getAttribute("javax.servlet.request.X509Certificate");
-//		if (null != certs && certs.length > 0) {
-//			return certs[0];
-//		}
-//		return null;
-//	}
 
 	private Subject subjectFromRequest(HttpServletRequest request) {
 		Authorization authorization = (Authorization) request
@@ -172,7 +156,8 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 				return true;
 			}
 
-			KernelUtils.logRequestHeaders(log, request);
+			if (log.isTraceEnabled())
+				KernelUtils.logRequestHeaders(log, request);
 			try {
 				new LoginContext(LOGIN_CONTEXT_USER,
 						new HttpRequestCallbackHandler(request)).login();

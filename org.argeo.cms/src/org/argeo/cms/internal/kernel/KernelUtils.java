@@ -139,6 +139,7 @@ class KernelUtils implements KernelConstants {
 			Object headerValue = request.getHeader(headerName);
 			log.debug(headerName + ": " + headerValue);
 		}
+		log.debug("");
 	}
 
 	static void logFrameworkProperties(Log log) {

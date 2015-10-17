@@ -15,8 +15,10 @@
  */
 package org.argeo.cms.internal.kernel;
 
+import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -27,6 +29,8 @@ import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
@@ -37,9 +41,13 @@ import org.argeo.ArgeoException;
 import org.argeo.ArgeoLogListener;
 import org.argeo.ArgeoLogger;
 import org.argeo.cms.auth.CurrentUser;
+import org.osgi.service.log.LogEntry;
+import org.osgi.service.log.LogListener;
+import org.osgi.service.log.LogReaderService;
+import org.osgi.service.log.LogService;
 
 /** Not meant to be used directly in standard log4j config */
-class NodeLogger implements ArgeoLogger {
+class NodeLogger implements ArgeoLogger, LogListener {
 
 	private Boolean disabled = false;
 
@@ -72,6 +80,14 @@ class NodeLogger implements ArgeoLogger {
 			return false;
 		}
 	};
+
+	@SuppressWarnings("unchecked")
+	public NodeLogger(LogReaderService lrs) {
+		Enumeration<LogEntry> logEntries = lrs.getLog();
+		while (logEntries.hasMoreElements())
+			logged(logEntries.nextElement());
+		lrs.addLogListener(this);
+	}
 
 	public void init() {
 		try {
@@ -107,6 +123,30 @@ class NodeLogger implements ArgeoLogger {
 	// public void setLayout(Layout layout) {
 	// this.layout = layout;
 	// }
+
+	//
+	// OSGi LOGGER
+	//
+	@Override
+	public void logged(LogEntry status) {
+		Log pluginLog = LogFactory.getLog(status.getBundle().getSymbolicName());
+		Integer severity = status.getLevel();
+		if (severity == LogService.LOG_ERROR) {
+			// FIXME Fix Argeo TP
+			if (status.getException() instanceof SignatureException)
+				return;
+			pluginLog.error(status.getMessage(), status.getException());
+		} else if (severity == LogService.LOG_WARNING)
+			pluginLog.warn(status.getMessage(), status.getException());
+		else if (severity == LogService.LOG_INFO && pluginLog.isDebugEnabled())
+			pluginLog.debug(status.getMessage(), status.getException());
+		else if (severity == LogService.LOG_DEBUG && pluginLog.isTraceEnabled())
+			pluginLog.trace(status.getMessage(), status.getException());
+	}
+
+	//
+	// ARGEO LOGGER
+	//
 
 	public synchronized void register(ArgeoLogListener listener,
 			Integer numberOfPreviousEvents) {

@@ -40,6 +40,7 @@ import org.argeo.jcr.ArgeoJcrConstants;
 import org.eclipse.equinox.http.jetty.JettyConfigurator;
 import org.eclipse.equinox.http.jetty.JettyConstants;
 import org.eclipse.equinox.http.servlet.ExtendedHttpService;
+import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
@@ -47,7 +48,9 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.log.LogReaderService;
 import org.osgi.service.useradmin.UserAdmin;
+import org.osgi.util.tracker.ServiceTracker;
 
 import bitronix.tm.BitronixTransactionManager;
 import bitronix.tm.BitronixTransactionSynchronizationRegistry;
@@ -133,7 +136,12 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 			defaultLocale = new Locale(getFrameworkProp(I18N_DEFAULT_LOCALE,
 					ENGLISH.getLanguage()));
 			locales = asLocaleList(getFrameworkProp(I18N_LOCALES));
-			logger = new NodeLogger();
+
+			ServiceTracker<LogReaderService, LogReaderService> logReaderService = new ServiceTracker<LogReaderService, LogReaderService>(
+					bc, LogReaderService.class, null);
+			logReaderService.open();
+			logger = new NodeLogger(logReaderService.getService());
+			logReaderService.close();
 
 			// Initialise services
 			initTransactionManager();
@@ -147,6 +155,11 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 					.getServiceReference(ExtendedHttpService.class);
 			if (sr != null)
 				addHttpService(sr);
+
+			UserUi userUi = new UserUi();
+			Hashtable<String, String> props = new Hashtable<String, String>();
+			props.put("contextName", "user");
+			bc.registerService(ApplicationConfiguration.class, userUi, props);
 
 			// Kernel thread
 			kernelThread = new KernelThread(this);

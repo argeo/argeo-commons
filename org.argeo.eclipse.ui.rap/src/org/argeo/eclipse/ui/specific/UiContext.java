@@ -19,7 +19,8 @@ public class UiContext {
 	}
 
 	public static void setLocale(Locale locale) {
-		RWT.getUISession().setLocale(locale);
+		if (Display.getCurrent() != null)
+			RWT.getUISession().setLocale(locale);
 	}
 
 	/** Can always be null */

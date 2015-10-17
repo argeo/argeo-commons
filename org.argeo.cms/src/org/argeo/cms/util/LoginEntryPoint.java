@@ -1,6 +1,5 @@
-package org.argeo.security.ui.rap;
+package org.argeo.cms.util;
 
-import java.security.PrivilegedAction;
 import java.util.Locale;
 
 import javax.security.auth.Subject;
@@ -14,7 +13,6 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsImageManager;
 import org.argeo.cms.CmsView;
 import org.argeo.cms.auth.AuthConstants;
-import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.cms.widgets.auth.CmsLogin;
 import org.argeo.cms.widgets.auth.CmsLoginShell;
@@ -25,16 +23,15 @@ import org.eclipse.rap.rwt.application.EntryPoint;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.PlatformUI;
 
-abstract class WorkbenchLogin implements EntryPoint, CmsView {
+public class LoginEntryPoint implements EntryPoint, CmsView {
 	// private final static Log log = LogFactory.getLog(WorkbenchLogin.class);
 	private final Subject subject = new Subject();
 	private LoginContext loginContext;
 
 	@Override
 	public int createUI() {
-		final Display display = PlatformUI.createDisplay();
+		final Display display = createDisplay();
 		UiContext.setData(CmsView.KEY, this);
 		try {
 			// try pre-auth
@@ -61,28 +58,16 @@ abstract class WorkbenchLogin implements EntryPoint, CmsView {
 		} catch (LoginException e) {
 			throw new ArgeoException("Cannot log in", e);
 		}
-		//
-		// RUN THE WORKBENCH
-		//
-		Integer returnCode = null;
-		try {
-			returnCode = Subject.doAs(subject, new PrivilegedAction<Integer>() {
-				public Integer run() {
-					int result = createAndRunWorkbench(display,
-							CurrentUser.getUsername(subject));
-					return new Integer(result);
-				}
-			});
-			// explicit workbench closing
-			logout();
-		} finally {
-			display.dispose();
-		}
-		return returnCode;
+		return postLogin();
 	}
 
-	protected abstract int createAndRunWorkbench(Display display,
-			String username);
+	protected Display createDisplay() {
+		return new Display();
+	}
+
+	protected int postLogin() {
+		return 0;
+	}
 
 	protected HttpServletRequest getRequest() {
 		return RWT.getRequest();
@@ -93,14 +78,14 @@ abstract class WorkbenchLogin implements EntryPoint, CmsView {
 
 			@Override
 			public void createContents(Composite parent) {
-				WorkbenchLogin.this.createLoginPage(parent, this);
+				LoginEntryPoint.this.createLoginPage(parent, this);
 			}
 
 			@Override
 			protected void extendsCredentialsBlock(Composite credentialsBlock,
 					Locale selectedLocale,
 					SelectionListener loginSelectionListener) {
-				WorkbenchLogin.this.extendsCredentialsBlock(credentialsBlock,
+				LoginEntryPoint.this.extendsCredentialsBlock(credentialsBlock,
 						selectedLocale, loginSelectionListener);
 			}
 
