@@ -12,8 +12,8 @@
 
 
 	<!-- RAP Specific command and corresponding service to enable open file -->
-	<bean id="org.argeo.security.ui.specific.openFile" class="org.argeo.eclipse.ui.specific.OpenFile"
-		scope="prototype">
+	<bean id="org.argeo.eclipse.ui.workbench.openFile" class="org.argeo.eclipse.ui.workbench.commands.OpenFile"
+	scope="prototype">
 		<property name="openFileServiceId"
 			value="org.argeo.security.ui.specific.openFileService" />
 	</bean>

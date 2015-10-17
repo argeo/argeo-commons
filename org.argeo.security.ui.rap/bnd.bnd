@@ -4,7 +4,7 @@ Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.rap.ui,org.eclipse.core.runtime
 
 Import-Package: org.argeo.eclipse.spring,\
-org.argeo.eclipse.ui.specific,\
+org.argeo.eclipse.ui.workbench.commands,\
 org.argeo.cms,\
 org.argeo.cms.auth,\
 org.argeo.security.ui,\

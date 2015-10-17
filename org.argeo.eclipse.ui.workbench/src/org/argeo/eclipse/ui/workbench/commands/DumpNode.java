@@ -30,7 +30,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.argeo.ArgeoException;
-import org.argeo.eclipse.ui.specific.OpenFile;
 import org.argeo.eclipse.ui.workbench.CommandUtils;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.eclipse.ui.workbench.jcr.internal.model.SingleJcrNodeElem;
@@ -105,7 +104,6 @@ public class DumpNode extends AbstractHandler {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(OpenFile.PARAM_FILE_NAME, fileName);
 		params.put(OpenFile.PARAM_FILE_URI, "file://" + path);
-		CommandUtils.callCommand("org.argeo.security.ui.specific.openFile",
-				params);
+		CommandUtils.callCommand(OpenFile.ID, params);
 	}
 }

@@ -38,7 +38,7 @@
 		<!-- Enable an "open file" action in a single sourced application  -->  
 		<command
 			defaultHandler="org.argeo.eclipse.spring.SpringExtensionFactory"
-			id="org.argeo.security.ui.specific.openFile"
+			id="org.argeo.eclipse.ui.workbench.openFile"
 			name="OpenFile">
 			<commandParameter
          		id="param.fileName"
