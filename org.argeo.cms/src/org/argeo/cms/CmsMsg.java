@@ -1,23 +1,22 @@
 package org.argeo.cms;
 
-import org.argeo.cms.i18n.DefaultsResourceBundle;
-import org.argeo.cms.i18n.Msg;
+import java.util.Locale;
 
-/** Standard CMS messages. */
-public class CmsMsg extends DefaultsResourceBundle {
-	public final static Msg username = new Msg("username");
-	public final static Msg password = new Msg("password");
-	public final static Msg logout = new Msg("log out");
-	public final static Msg login = new Msg("sign in");
-	public final static Msg register = new Msg("register");
+import org.argeo.cms.i18n.LocaleUtils;
+import org.argeo.cms.i18n.Localized;
 
-	public final static Msg changePassword = new Msg("change password");
-	public final static Msg currentPassword = new Msg("current password");
-	public final static Msg newPassword = new Msg("new password");
-	public final static Msg repeatNewPassword = new Msg("repeat new password");
-	public final static Msg passwordChanged = new Msg("password changed");
+public enum CmsMsg implements Localized {
+	username, password, login, logout, register, changePassword, currentPassword, newPassword, repeatNewPassword, passwordChanged;
 
-	static {
-		Msg.init(CmsMsg.class);
+	public Object local(Locale locale) {
+		return LocaleUtils.local(this, locale);
+	}
+
+	public String lead() {
+		return LocaleUtils.lead(this);
+	}
+
+	public String lead(Locale locale) {
+		return LocaleUtils.lead(local(locale).toString(), locale);
 	}
 }

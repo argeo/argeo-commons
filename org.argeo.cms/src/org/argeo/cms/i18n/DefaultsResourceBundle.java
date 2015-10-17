@@ -31,7 +31,7 @@ public class DefaultsResourceBundle extends ResourceBundle {
 
 		for (Field field : fieldArray) {
 			if (Modifier.isStatic(field.getModifiers())
-					&& field.getType().isAssignableFrom(Msg.class)) {
+					&& field.getType().isAssignableFrom(LocaleUtils.class)) {
 				res.add(field.getName());
 			}
 		}

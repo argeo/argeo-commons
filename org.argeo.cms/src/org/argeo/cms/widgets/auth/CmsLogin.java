@@ -26,7 +26,7 @@ import org.argeo.cms.CmsStyles;
 import org.argeo.cms.CmsView;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallback;
-import org.argeo.cms.i18n.Msg;
+import org.argeo.cms.i18n.LocaleUtils;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.util.LocaleChoice;
 import org.eclipse.rap.rwt.RWT;
@@ -113,6 +113,8 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 	}
 
 	protected Composite userUi(Composite parent) {
+		Locale locale = localeChoice == null ? this.defaultLocale
+				: localeChoice.getSelectedLocale();
 		credentialsBlock = new Composite(parent, SWT.NONE);
 		credentialsBlock.setLayout(new GridLayout());
 		credentialsBlock.setLayoutData(CmsUtils.fillAll());
@@ -121,7 +123,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 
 		Label l = new Label(credentialsBlock, SWT.NONE);
 		l.setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU_ITEM);
-		l.setText(CmsMsg.logout.lead());
+		l.setText(CmsMsg.logout.lead(locale));
 		GridData lData = CmsUtils.fillWidth();
 		lData.widthHint = 120;
 		l.setLayoutData(lData);
@@ -200,8 +202,10 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 	}
 
 	protected void updateLocale(Locale selectedLocale) {
-		// usernameT.setMessage(username.lead(selectedLocale));
-		// passwordT.setMessage(password.lead(selectedLocale));
+		// save already entered values
+		String usernameStr = usernameT.getText();
+		char[] pwd = passwordT.getTextChars();
+		
 		for (Control child : parent.getChildren())
 			child.dispose();
 		createContents(parent);
@@ -209,6 +213,8 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 			parent.getParent().layout();
 		else
 			parent.layout();
+		usernameT.setText(usernameStr);
+		passwordT.setTextChars(pwd);
 	}
 
 	protected Composite createLocalesBlock(final Composite parent) {
@@ -234,8 +240,8 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 			Locale locale = locales.get(i);
 			Button button = new Button(c, SWT.RADIO);
 			button.setData(i);
-			button.setText(Msg.lead(locale.getDisplayName(locale), locale)
-					+ " (" + locale + ")");
+			button.setText(LocaleUtils.lead(locale.getDisplayName(locale),
+					locale) + " (" + locale + ")");
 			// button.addListener(SWT.Selection, listener);
 			button.addSelectionListener(selectionListener);
 			if (i == localeChoice.getSelectedIndex())
