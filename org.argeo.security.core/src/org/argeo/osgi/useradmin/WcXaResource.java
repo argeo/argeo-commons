@@ -25,7 +25,7 @@ class WcXaResource implements XAResource {
 	}
 
 	@Override
-	public void start(Xid xid, int flags) throws XAException {
+	public synchronized void start(Xid xid, int flags) throws XAException {
 		if (editingXid != null)
 			throw new UserDirectoryException("Already editing " + editingXid);
 		UserDirectoryWorkingCopy wc = workingCopies.put(xid,
@@ -39,14 +39,13 @@ class WcXaResource implements XAResource {
 	@Override
 	public void end(Xid xid, int flags) throws XAException {
 		checkXid(xid);
-
 	}
 
 	private UserDirectoryWorkingCopy wc(Xid xid) {
 		return workingCopies.get(xid);
 	}
 
-	UserDirectoryWorkingCopy wc() {
+	synchronized UserDirectoryWorkingCopy wc() {
 		if (editingXid == null)
 			return null;
 		UserDirectoryWorkingCopy wc = workingCopies.get(editingXid);
@@ -56,13 +55,10 @@ class WcXaResource implements XAResource {
 		return wc;
 	}
 
-	private void cleanUp(Xid xid) {
-		// clean collections
+	private synchronized void cleanUp(Xid xid) {
 		wc(xid).cleanUp();
 		workingCopies.remove(xid);
-
-		// clean IDs
-		// userDirectory.clearEditingTransactionXid();
+		editingXid = null;
 	}
 
 	@Override
