@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
-import org.argeo.ArgeoException;
 import org.eclipse.rap.rwt.service.ServiceHandler;
 
 /**
@@ -80,8 +79,8 @@ public class OpenFileService implements ServiceHandler {
 				return FileUtils.readFileToByteArray(new File(
 						getFilePathFromUri(uri)));
 			} catch (IOException ioe) {
-				throw new ArgeoException("Error getting the file at " + uri,
-						ioe);
+				throw new SingleSourcingException("Error getting the file at "
+						+ uri, ioe);
 			}
 		}
 		return null;
