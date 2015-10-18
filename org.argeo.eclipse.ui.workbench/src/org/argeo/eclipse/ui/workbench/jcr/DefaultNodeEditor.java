@@ -29,7 +29,7 @@ import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.eclipse.ui.workbench.jcr.internal.parts.ChildNodesPage;
 import org.argeo.eclipse.ui.workbench.jcr.internal.parts.GenericNodeEditorInput;
 import org.argeo.eclipse.ui.workbench.jcr.internal.parts.GenericPropertyPage;
-import org.argeo.eclipse.ui.workbench.jcr.internal.parts.NodeRightsManagementPage;
+import org.argeo.eclipse.ui.workbench.jcr.internal.parts.NodePrivilegesPage;
 import org.argeo.eclipse.ui.workbench.jcr.internal.parts.NodeVersionHistoryPage;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -50,7 +50,7 @@ public class DefaultNodeEditor extends FormEditor {
 
 	private GenericPropertyPage genericPropertyPage;
 	private ChildNodesPage childNodesPage;
-	private NodeRightsManagementPage nodeRightsManagementPage;
+	private NodePrivilegesPage nodeRightsManagementPage;
 	private NodeVersionHistoryPage nodeVersionHistoryPage;
 
 	public void init(IEditorSite site, IEditorInput input)
@@ -86,7 +86,7 @@ public class DefaultNodeEditor extends FormEditor {
 					.privilegeFromName(Privilege.JCR_READ_ACCESS_CONTROL));
 			if (accessControlManager.hasPrivileges(currentNode.getPath(),
 					privileges.toArray(new Privilege[0]))) {
-				nodeRightsManagementPage = new NodeRightsManagementPage(this,
+				nodeRightsManagementPage = new NodePrivilegesPage(this,
 						WorkbenchUiPlugin
 								.getMessage("nodeRightsManagementPageTitle"),
 						currentNode);

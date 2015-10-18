@@ -42,16 +42,15 @@ import org.eclipse.ui.forms.editor.FormPage;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 /** Display and edit a given node rights */
-public class NodeRightsManagementPage extends FormPage {
+public class NodePrivilegesPage extends FormPage {
 
-	private Node currentNode;
+	private Node context;
 
 	private TableViewer viewer;
 
-	public NodeRightsManagementPage(FormEditor editor, String title,
-			Node currentNode) {
-		super(editor, "NodeRightsManagementPage", title);
-		this.currentNode = currentNode;
+	public NodePrivilegesPage(FormEditor editor, String title, Node context) {
+		super(editor, "NodePrivilegesPage", title);
+		this.context = context;
 	}
 
 	protected void createFormContent(IManagedForm managedForm) {
@@ -132,6 +131,29 @@ public class NodeRightsManagementPage extends FormPage {
 				return null;
 			}
 		});
+
+		// Relevant node
+		column = createTableViewerColumn(viewer, "Relevant node", 300);
+		column.setLabelProvider(new ColumnLabelProvider() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 4245522992038244849L;
+
+			public String getText(Object element) {
+				Node node = (Node) element;
+				try {
+					return node.getParent().getParent().getPath();
+				} catch (RepositoryException e) {
+					throw new ArgeoException("Unable get path for " + node, e);
+				}
+			}
+
+			public Image getImage(Object element) {
+				return null;
+			}
+		});
+
 		viewer.setContentProvider(new RightsContentProvider());
 		viewer.setInput(getEditorSite());
 	}
@@ -157,26 +179,38 @@ public class NodeRightsManagementPage extends FormPage {
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		}
 
-		// TODO clean retrieval of authorization
+		// TODO JackRabbit specific retrieval of authorization. Clean and
+		// generalize
 		public Object[] getElements(Object inputElement) {
 			try {
 				List<Node> privs = new ArrayList<Node>();
-				if (currentNode.hasNode("rep:policy")) {
-					NodeIterator nit = currentNode.getNode("rep:policy")
-							.getNodes();
-					while (nit.hasNext()) {
-						Node currNode = nit.nextNode();
-						if (currNode.getName().equals("allow"))
-							privs.add(currNode);
+
+				Node currNode = context;
+				String currPath = currNode.getPath();
+
+				loop: while (true) {
+					if (currNode.hasNode("rep:policy")) {
+						NodeIterator nit = currNode.getNode("rep:policy")
+								.getNodes();
+						while (nit.hasNext()) {
+							Node currPrivNode = nit.nextNode();
+							if (currPrivNode.getName().equals("allow"))
+								privs.add(currPrivNode);
+						}
 					}
-					return privs.toArray();
+					if ("/".equals(currPath))
+						break loop;
+					else {
+						currNode = currNode.getParent();
+						currPath = currNode.getPath();
+					}
 				}
-				return null;
+
+				return privs.toArray();
 			} catch (Exception e) {
-				throw new ArgeoException("Cannot retrieve authorization on "
-						+ currentNode, e);
+				throw new ArgeoException("Cannot retrieve authorization for "
+						+ context, e);
 			}
 		}
-
 	}
 }
