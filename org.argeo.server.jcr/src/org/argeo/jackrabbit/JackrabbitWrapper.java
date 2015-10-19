@@ -26,8 +26,11 @@ import java.util.List;
 import java.util.Map;
 
 import javax.jcr.Credentials;
+import javax.jcr.LoginException;
+import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 
@@ -35,6 +38,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.jackrabbit.api.JackrabbitRepository;
 import org.apache.jackrabbit.commons.NamespaceHelper;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.argeo.ArgeoException;
@@ -59,7 +63,7 @@ import org.springframework.core.io.ResourceLoader;
  */
 @SuppressWarnings("deprecation")
 public class JackrabbitWrapper extends JcrRepositoryWrapper implements
-		ResourceLoaderAware {
+		JackrabbitRepository, ResourceLoaderAware {
 	private final static Log log = LogFactory.getLog(JackrabbitWrapper.class);
 	private final static String DIGEST_ALGORITHM = "MD5";
 
@@ -298,8 +302,21 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 	}
 
 	/*
-	 * REPOSITORY INTERCEPTOR
+	 * JACKRABBIT REPOSITORY IMPLEMENTATION
 	 */
+	@Override
+	public Session login(Credentials credentials, String workspaceName,
+			Map<String, Object> attributes) throws LoginException,
+			NoSuchWorkspaceException, RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void shutdown() {
+		// TODO Auto-generated method stub
+
+	}
 
 	/*
 	 * UTILITIES

@@ -31,6 +31,7 @@ import javax.transaction.UserTransaction;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.jackrabbit.api.JackrabbitRepository;
 import org.apache.jackrabbit.util.TransientFileFactory;
 import org.argeo.ArgeoException;
 import org.argeo.ArgeoLogger;
@@ -79,7 +80,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 	private ServiceRegistration<TransactionManager> tmReg;
 	private ServiceRegistration<UserTransaction> utReg;
 	private ServiceRegistration<TransactionSynchronizationRegistry> tsrReg;
-	private ServiceRegistration<Repository> repositoryReg;
+	private ServiceRegistration<? extends Repository> repositoryReg;
 	private ServiceRegistration<RepositoryFactory> repositoryFactoryReg;
 	private ServiceRegistration<UserAdmin> userAdminReg;
 
@@ -106,8 +107,6 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 
 	public Kernel() {
 		nodeSecurity = new NodeSecurity();
-		// log.debug(bc.getDataFile(""));
-		// log.debug(bc.getDataFile("test"));
 	}
 
 	final void init() {
@@ -281,6 +280,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void publish() {
 		// Listen to service publication (also ours)
 		bc.addServiceListener(Kernel.this);
@@ -300,8 +300,10 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		// JCR
 		Hashtable<String, String> regProps = new Hashtable<String, String>();
 		regProps.put(JCR_REPOSITORY_ALIAS, ALIAS_NODE);
-		repositoryReg = bc.registerService(Repository.class, repository,
-				regProps);
+		repositoryReg = (ServiceRegistration<? extends Repository>) bc
+				.registerService(new String[] { Repository.class.getName(),
+						JackrabbitRepository.class.getName() }, repository,
+						regProps);
 		repositoryFactoryReg = bc.registerService(RepositoryFactory.class,
 				repositoryFactory, null);
 	}
