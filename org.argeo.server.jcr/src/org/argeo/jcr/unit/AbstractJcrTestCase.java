@@ -16,10 +16,15 @@
 package org.argeo.jcr.unit;
 
 import java.io.File;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import javax.jcr.Repository;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 
 import junit.framework.TestCase;
 
@@ -34,7 +39,9 @@ public abstract class AbstractJcrTestCase extends TestCase {
 	private Repository repository;
 	private Session session = null;
 
-//	protected abstract File getRepositoryFile() throws Exception;
+	public final static String LOGIN_CONTEXT_TEST_SYSTEM = "TEST_SYSTEM";
+
+	// protected abstract File getRepositoryFile() throws Exception;
 
 	protected abstract Repository createRepository() throws Exception;
 
@@ -59,17 +66,49 @@ public abstract class AbstractJcrTestCase extends TestCase {
 	}
 
 	protected Session session() {
-		if (session == null || !session.isLive()) {
+		if (session != null && session.isLive())
+			return session;
+		Session session;
+		if (getLoginContext() != null) {
+			LoginContext lc;
 			try {
-				if (log.isTraceEnabled())
-					log.trace("Login session");
-				session = getRepository().login(
-						new SimpleCredentials("demo", "demo".toCharArray()));
-			} catch (Exception e) {
-				throw new ArgeoException("Cannot login to repository", e);
+				lc = new LoginContext(getLoginContext());
+				lc.login();
+			} catch (LoginException e) {
+				throw new ArgeoException("JAAS login failed", e);
 			}
+			session = Subject.doAs(lc.getSubject(),
+					new PrivilegedAction<Session>() {
+
+						@Override
+						public Session run() {
+							return login();
+						}
+
+					});
+		} else
+			session = login();
+		this.session = session;
+		return this.session;
+	}
+
+	protected String getLoginContext() {
+		return null;
+	}
+
+	protected Session login() {
+		try {
+			if (log.isTraceEnabled())
+				log.trace("Login session");
+			Subject subject = Subject.getSubject(AccessController.getContext());
+			if (subject != null)
+				return getRepository().login();
+			else
+				return getRepository().login(
+						new SimpleCredentials("demo", "demo".toCharArray()));
+		} catch (Exception e) {
+			throw new ArgeoException("Cannot login to repository", e);
 		}
-		return session;
 	}
 
 	protected Repository getRepository() {

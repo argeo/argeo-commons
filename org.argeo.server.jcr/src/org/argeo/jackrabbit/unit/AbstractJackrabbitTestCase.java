@@ -15,6 +15,8 @@
  */
 package org.argeo.jackrabbit.unit;
 
+import java.net.URL;
+
 import javax.jcr.Repository;
 
 import org.apache.commons.io.FileUtils;
@@ -31,6 +33,12 @@ public abstract class AbstractJackrabbitTestCase extends AbstractJcrTestCase {
 	// "org/argeo/jackrabbit/unit/repository-memory.xml");
 	// return res.getFile();
 	// }
+
+	public AbstractJackrabbitTestCase() {
+		URL url = AbstractJackrabbitTestCase.class.getResource("jaas.config");
+		assert url != null;
+		System.setProperty("java.security.auth.login.config", url.toString());
+	}
 
 	protected Repository createRepository() throws Exception {
 		// Repository repository = new TransientRepository(getRepositoryFile(),
