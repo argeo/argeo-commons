@@ -156,10 +156,10 @@ public class DistributionBundle {
 	}
 
 	/**
-	 * List full URLs of the bunmdles, based on base URL, usable directly for
+	 * List full URLs of the bundles, based on base URL, usable directly for
 	 * download.
 	 */
-	public List/* <String> */listUrls() {
+	public List<String> listUrls() {
 		if (baseUrl == null)
 			throw new OsgiBootException("Base URL is not set");
 

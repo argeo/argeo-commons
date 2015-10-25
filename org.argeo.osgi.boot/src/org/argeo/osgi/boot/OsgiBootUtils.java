@@ -25,7 +25,6 @@ import java.util.StringTokenizer;
 import org.osgi.framework.Bundle;
 
 /** Utilities, mostly related to logging. */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class OsgiBootUtils {
 	/** ISO8601 (as per log4j) and difference to UTC */
 	private static DateFormat dateFormat = new SimpleDateFormat(
@@ -93,11 +92,11 @@ public class OsgiBootUtils {
 	 */
 	public static int compareVersions(String currentVersion,
 			String testedVersion) {
-		List cToks = new ArrayList();
+		List<String> cToks = new ArrayList<String>();
 		StringTokenizer cSt = new StringTokenizer(currentVersion, ".");
 		while (cSt.hasMoreTokens())
 			cToks.add(cSt.nextToken());
-		List tToks = new ArrayList();
+		List<String> tToks = new ArrayList<String>();
 		StringTokenizer tSt = new StringTokenizer(currentVersion, ".");
 		while (tSt.hasMoreTokens())
 			tToks.add(tSt.nextToken());

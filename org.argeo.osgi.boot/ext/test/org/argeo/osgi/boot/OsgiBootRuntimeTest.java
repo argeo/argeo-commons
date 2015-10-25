@@ -15,8 +15,10 @@
  */
 package org.argeo.osgi.boot;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.TreeMap;
 
 import junit.framework.TestCase;
@@ -24,9 +26,10 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.adaptor.EclipseStarter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.launch.Framework;
+import org.osgi.framework.launch.FrameworkFactory;
 
 /** Starts an Equinox runtime and provision it with OSGi boot. */
-@SuppressWarnings({ "unchecked", "rawtypes", "deprecation", "restriction" })
 public class OsgiBootRuntimeTest extends TestCase {
 	protected OsgiBoot osgiBoot = null;
 	private boolean osgiRuntimeAlreadyRunning = false;
@@ -39,25 +42,26 @@ public class OsgiBootRuntimeTest extends TestCase {
 		}
 		osgiBoot.installUrls(osgiBoot.getBundlesUrls(OsgiBoot.DEFAULT_BASE_URL,
 				OsgiBootNoRuntimeTest.BUNDLES));
-		Map map = new TreeMap(osgiBoot.getBundlesBySymbolicName());
-		for (Iterator keys = map.keySet().iterator(); keys.hasNext();) {
-			Object key = keys.next();
-			Bundle bundle = (Bundle) map.get(key);
+		Map<String, Bundle> map = new TreeMap<String, Bundle>(
+				osgiBoot.getBundlesBySymbolicName());
+		for (Iterator<String> keys = map.keySet().iterator(); keys.hasNext();) {
+			String key = keys.next();
+			Bundle bundle = map.get(key);
 			System.out.println(key + " : " + bundle.getLocation());
 		}
 		assertEquals(4, map.size());
-		Iterator keys = map.keySet().iterator();
+		Iterator<String> keys = map.keySet().iterator();
 		assertEquals("org.argeo.osgi.boot.test.bundle1", keys.next());
 		assertEquals("org.argeo.osgi.boot.test.bundle2", keys.next());
 		assertEquals("org.argeo.osgi.boot.test.bundle3", keys.next());
 		assertEquals("org.eclipse.osgi", keys.next());
 
-		osgiBoot.startBundles("org.argeo.osgi.boot.test.bundle2");
+		// osgiBoot.startBundles("org.argeo.osgi.boot.test.bundle2");
 		long begin = System.currentTimeMillis();
 		while (System.currentTimeMillis() - begin < 10000) {
-			Map mapBundles = osgiBoot.getBundlesBySymbolicName();
-			Bundle bundle = (Bundle) mapBundles
-					.get("org.argeo.osgi.boot.test.bundle2");
+			Map<String, Bundle> mapBundles = osgiBoot
+					.getBundlesBySymbolicName();
+			Bundle bundle = mapBundles.get("org.argeo.osgi.boot.test.bundle2");
 			if (bundle.getState() == Bundle.ACTIVE) {
 				System.out.println("Bundle " + bundle + " started.");
 				return;
@@ -69,6 +73,11 @@ public class OsgiBootRuntimeTest extends TestCase {
 	protected BundleContext startRuntime() throws Exception {
 		String[] args = { "-console", "-clean" };
 		BundleContext bundleContext = EclipseStarter.startup(args, null);
+
+//		ServiceLoader<FrameworkFactory> ff = ServiceLoader.load(FrameworkFactory.class);
+//		Map<String,String> config = new HashMap<String,String>();		
+//		Framework fwk = ff.iterator().next().newFramework(config);
+//		fwk.start();
 		return bundleContext;
 	}
 

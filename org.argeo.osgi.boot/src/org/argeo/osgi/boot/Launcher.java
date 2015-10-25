@@ -18,14 +18,13 @@ package org.argeo.osgi.boot;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import org.eclipse.core.runtime.adaptor.EclipseStarter;
 import org.osgi.framework.BundleContext;
 
 /** Command line interface. */
-@SuppressWarnings({ "rawtypes", "unchecked", "restriction" })
 public class Launcher {
 
 	public static void main(String[] args) {
@@ -80,8 +79,8 @@ public class Launcher {
 
 		try {
 			// Launch main method using reflection
-			Class clss = Class.forName(className);
-			Class[] mainArgsClasses = new Class[] { uiArgs.getClass() };
+			Class<?> clss = Class.forName(className);
+			Class<?>[] mainArgsClasses = new Class[] { uiArgs.getClass() };
 			Object[] mainArgs = { uiArgs };
 			Method mainMethod = clss.getMethod("main", mainArgsClasses);
 			mainMethod.invoke(null, mainArgs);
@@ -97,7 +96,7 @@ public class Launcher {
 	 */
 	private static String[] readArgumentsFromLine(String lineOrig) {
 		String line = lineOrig.trim();// remove trailing spaces
-		List args = new Vector();
+		List<String> args = new ArrayList<String>();
 		StringBuffer curr = new StringBuffer("");
 		boolean inQuote = false;
 		char[] arr = line.toCharArray();
