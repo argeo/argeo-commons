@@ -36,7 +36,6 @@ import org.osgi.framework.Constants;
  * expected that it is. The root of the repository is computed based on the file
  * name of the URL and of the content of the index.
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class DistributionBundle {
 	private final static String INDEX_FILE_NAME = "modularDistribution.csv";
 
@@ -51,7 +50,7 @@ public class DistributionBundle {
 	/** can be null */
 	private String relativeUrl;
 
-	private List/* <OsgiArtifact> */artifacts;
+	private List<OsgiArtifact> artifacts;
 
 	private String separator = ",";
 
@@ -126,8 +125,8 @@ public class DistributionBundle {
 		}
 	}
 
-	protected List/* <OsgiArtifact> */listArtifacts(InputStream in) {
-		List osgiArtifacts = new ArrayList();
+	protected List<OsgiArtifact> listArtifacts(InputStream in) {
+		List<OsgiArtifact> osgiArtifacts = new ArrayList<OsgiArtifact>();
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new InputStreamReader(in));
@@ -166,7 +165,7 @@ public class DistributionBundle {
 		if (artifacts == null)
 			throw new OsgiBootException("Artifact list not initialized");
 
-		List/* <String> */urls = new ArrayList();
+		List<String> urls = new ArrayList<String>();
 		for (int i = 0; i < artifacts.size(); i++) {
 			OsgiArtifact osgiArtifact = (OsgiArtifact) artifacts.get(i);
 			urls.add(baseUrl + osgiArtifact.getRelativeUrl());
