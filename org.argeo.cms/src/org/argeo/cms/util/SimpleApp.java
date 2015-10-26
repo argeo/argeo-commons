@@ -31,6 +31,7 @@ import org.eclipse.rap.rwt.application.EntryPointFactory;
 import org.eclipse.rap.rwt.application.ExceptionHandler;
 import org.eclipse.rap.rwt.client.WebClient;
 import org.eclipse.rap.rwt.service.ResourceLoader;
+import org.eclipse.swt.widgets.Composite;
 import org.osgi.framework.BundleContext;
 
 /** A basic generic app based on {@link SimpleErgonomics}. */
@@ -58,6 +59,11 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration,
 
 	public void configure(Application application) {
 		try {
+			StyleSheetResourceLoader styleSheetRL = new StyleSheetResourceLoader(
+					bundleContext);
+			BundleResourceLoader bundleRL = new BundleResourceLoader(
+					bundleContext);
+
 			application.setOperationMode(OperationMode.SWT_COMPATIBILITY);
 			// application.setOperationMode(OperationMode.JEE_COMPATIBILITY);
 
@@ -70,8 +76,7 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration,
 			application.addResource(NO_IMAGE, createResourceLoader(NO_IMAGE));
 
 			for (String resource : resources) {
-				application.addResource(resource, new BundleResourceLoader(
-						bundleContext));
+				application.addResource(resource, bundleRL);
 				if (log.isDebugEnabled())
 					log.debug("Registered resource " + resource);
 			}
@@ -123,8 +128,7 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration,
 			for (String themeId : styleSheets.keySet()) {
 				List<String> cssLst = styleSheets.get(themeId);
 				for (String css : cssLst) {
-					application.addStyleSheet(themeId, css,
-							new BundleResourceLoader(bundleContext));
+					application.addStyleSheet(themeId, css, styleSheetRL);
 				}
 
 			}
@@ -258,7 +262,14 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration,
 		@Override
 		public EntryPoint create() {
 			SimpleErgonomics entryPoint = new SimpleErgonomics(repository,
-					workspace, basePath, page, properties);
+					workspace, basePath, page, properties) {
+
+				@Override
+				protected void initUi(Composite parent) {
+					// TODO Auto-generated method stub
+					super.initUi(parent);
+				}
+			};
 			// entryPoint.setState("");
 			entryPoint.setHeader(header);
 			entryPoint.setHeaderHeight(headerHeight);
