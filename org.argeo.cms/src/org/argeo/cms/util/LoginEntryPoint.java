@@ -14,6 +14,7 @@ import org.argeo.cms.CmsImageManager;
 import org.argeo.cms.CmsView;
 import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
+import org.argeo.cms.ui.UxContext;
 import org.argeo.cms.widgets.auth.CmsLogin;
 import org.argeo.cms.widgets.auth.CmsLoginShell;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
@@ -28,6 +29,7 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 	// private final static Log log = LogFactory.getLog(WorkbenchLogin.class);
 	private final Subject subject = new Subject();
 	private LoginContext loginContext;
+	private UxContext uxContext = null;
 
 	@Override
 	public int createUI() {
@@ -58,6 +60,7 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 		} catch (LoginException e) {
 			throw new ArgeoException("Cannot log in", e);
 		}
+		uxContext = new SimpleUxContext();
 		return postLogin();
 	}
 
@@ -145,4 +148,10 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public UxContext getUxContext() {
+		return uxContext;
+	}
+
 }

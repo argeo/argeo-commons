@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
+import org.argeo.cms.ui.UxContext;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;

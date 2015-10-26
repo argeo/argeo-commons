@@ -13,6 +13,7 @@ import org.argeo.cms.CmsImageManager;
 import org.argeo.cms.CmsStyles;
 import org.argeo.cms.CmsUiProvider;
 import org.argeo.cms.internal.ImageManagerImpl;
+import org.argeo.cms.ui.UxContext;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -33,6 +34,8 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 	private Integer headerHeight = 40;
 
 	private CmsImageManager imageManager = new ImageManagerImpl();
+
+	private UxContext uxContext = null;
 
 	public SimpleErgonomics(Repository repository, String workspace,
 			String defaultPath, CmsUiProvider uiProvider,
@@ -56,7 +59,7 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 		bodyArea.setData(RWT.CUSTOM_VARIANT, CmsStyles.CMS_BODY);
 		bodyArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		bodyArea.setLayout(CmsUtils.noSpaceGridLayout());
-
+		uxContext = new SimpleUxContext();
 		uiInitialized = true;
 		refresh();
 	}
@@ -108,6 +111,11 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 		}
 
 		bodyArea.layout(true, true);
+	}
+
+	@Override
+	public UxContext getUxContext() {
+		return uxContext;
 	}
 
 	@Override
