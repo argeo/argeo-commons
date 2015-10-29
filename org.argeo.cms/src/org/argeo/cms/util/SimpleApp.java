@@ -271,10 +271,15 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 		this.resources = resources;
 	}
 
+	public void setContextName(String contextName) {
+		this.contextName = contextName;
+	}
+
 	class CmsExceptionHandler implements ExceptionHandler {
 
 		@Override
 		public void handleException(Throwable throwable) {
+			// TODO be smarter
 			CmsUtils.getCmsView().exception(throwable);
 		}
 
