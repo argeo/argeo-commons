@@ -19,8 +19,8 @@ import java.util.Iterator;
 
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
+import org.argeo.eclipse.ui.workbench.internal.jcr.JcrBrowserUtils;
 import org.argeo.eclipse.ui.workbench.jcr.JcrBrowserView;
-import org.argeo.eclipse.ui.workbench.jcr.internal.JcrBrowserUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;

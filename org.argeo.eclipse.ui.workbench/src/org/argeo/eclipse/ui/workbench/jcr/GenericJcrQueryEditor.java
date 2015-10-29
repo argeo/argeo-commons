@@ -16,7 +16,7 @@
 package org.argeo.eclipse.ui.workbench.jcr;
 
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
-import org.argeo.eclipse.ui.workbench.jcr.internal.parts.AbstractJcrQueryEditor;
+import org.argeo.eclipse.ui.workbench.internal.jcr.parts.AbstractJcrQueryEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;

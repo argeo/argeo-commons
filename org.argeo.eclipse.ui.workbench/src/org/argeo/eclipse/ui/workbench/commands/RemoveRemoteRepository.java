@@ -15,8 +15,8 @@
  */
 package org.argeo.eclipse.ui.workbench.commands;
 
+import org.argeo.eclipse.ui.workbench.internal.jcr.model.RemoteRepositoryElem;
 import org.argeo.eclipse.ui.workbench.jcr.JcrBrowserView;
-import org.argeo.eclipse.ui.workbench.jcr.internal.model.RemoteRepositoryElem;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;

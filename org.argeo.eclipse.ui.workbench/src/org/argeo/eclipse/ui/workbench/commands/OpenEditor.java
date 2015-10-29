@@ -19,10 +19,10 @@ import javax.jcr.Node;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
+import org.argeo.eclipse.ui.workbench.internal.jcr.parts.JcrQueryEditorInput;
+import org.argeo.eclipse.ui.workbench.internal.jcr.parts.NodeEditorInput;
 import org.argeo.eclipse.ui.workbench.jcr.DefaultNodeEditor;
 import org.argeo.eclipse.ui.workbench.jcr.GenericJcrQueryEditor;
-import org.argeo.eclipse.ui.workbench.jcr.internal.parts.JcrQueryEditorInput;
-import org.argeo.eclipse.ui.workbench.jcr.internal.parts.NodeEditorInput;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;

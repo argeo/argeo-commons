@@ -26,11 +26,11 @@ import javax.jcr.security.Privilege;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
-import org.argeo.eclipse.ui.workbench.jcr.internal.parts.ChildNodesPage;
-import org.argeo.eclipse.ui.workbench.jcr.internal.parts.GenericNodeEditorInput;
-import org.argeo.eclipse.ui.workbench.jcr.internal.parts.GenericPropertyPage;
-import org.argeo.eclipse.ui.workbench.jcr.internal.parts.NodePrivilegesPage;
-import org.argeo.eclipse.ui.workbench.jcr.internal.parts.NodeVersionHistoryPage;
+import org.argeo.eclipse.ui.workbench.internal.jcr.parts.ChildNodesPage;
+import org.argeo.eclipse.ui.workbench.internal.jcr.parts.GenericNodeEditorInput;
+import org.argeo.eclipse.ui.workbench.internal.jcr.parts.GenericPropertyPage;
+import org.argeo.eclipse.ui.workbench.internal.jcr.parts.NodePrivilegesPage;
+import org.argeo.eclipse.ui.workbench.internal.jcr.parts.NodeVersionHistoryPage;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IEditorInput;

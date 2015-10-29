@@ -34,7 +34,7 @@ import javax.jcr.RepositoryException;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
-import org.argeo.eclipse.ui.workbench.jcr.internal.model.SingleJcrNodeElem;
+import org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;

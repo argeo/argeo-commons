@@ -22,7 +22,7 @@ import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
-import org.argeo.eclipse.ui.workbench.users.internal.UsersUtils;
+import org.argeo.eclipse.ui.workbench.internal.users.UsersUtils;
 import org.argeo.osgi.useradmin.LdifName;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
