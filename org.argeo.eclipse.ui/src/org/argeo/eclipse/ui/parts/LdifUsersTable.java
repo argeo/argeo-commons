@@ -259,7 +259,6 @@ public abstract class LdifUsersTable extends Composite {
 		// initialise the layout
 		listener.refresh();
 		moreLk.addSelectionListener(listener);
-
 	}
 
 	/** Overwrite to add static filters */
