@@ -7,6 +7,7 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
+import java.util.TreeSet;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
@@ -17,7 +18,6 @@ import org.apache.commons.logging.Log;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 
 /** Package utilities */
 class KernelUtils implements KernelConstants {
@@ -144,15 +144,19 @@ class KernelUtils implements KernelConstants {
 
 	static void logFrameworkProperties(Log log) {
 		BundleContext bc = Activator.getBundleContext();
-		String[] keys = { Constants.FRAMEWORK_STORAGE,
-				Constants.FRAMEWORK_OS_NAME, Constants.FRAMEWORK_OS_VERSION,
-				Constants.FRAMEWORK_PROCESSOR, Constants.FRAMEWORK_SECURITY,
-				Constants.FRAMEWORK_TRUST_REPOSITORIES,
-				Constants.FRAMEWORK_WINDOWSYSTEM, Constants.FRAMEWORK_VENDOR,
-				Constants.FRAMEWORK_VERSION, Constants.FRAMEWORK_STORAGE_CLEAN,
-				Constants.FRAMEWORK_LANGUAGE, Constants.FRAMEWORK_UUID };
-		for (String key : keys)
-			log.debug(key + "=" + bc.getProperty(key));
+		for (Object sysProp : new TreeSet<Object>(System.getProperties()
+				.keySet())) {
+			log.debug(sysProp + "=" + bc.getProperty(sysProp.toString()));
+		}
+		// String[] keys = { Constants.FRAMEWORK_STORAGE,
+		// Constants.FRAMEWORK_OS_NAME, Constants.FRAMEWORK_OS_VERSION,
+		// Constants.FRAMEWORK_PROCESSOR, Constants.FRAMEWORK_SECURITY,
+		// Constants.FRAMEWORK_TRUST_REPOSITORIES,
+		// Constants.FRAMEWORK_WINDOWSYSTEM, Constants.FRAMEWORK_VENDOR,
+		// Constants.FRAMEWORK_VERSION, Constants.FRAMEWORK_STORAGE_CLEAN,
+		// Constants.FRAMEWORK_LANGUAGE, Constants.FRAMEWORK_UUID };
+		// for (String key : keys)
+		// log.debug(key + "=" + bc.getProperty(key));
 	}
 
 	private KernelUtils() {

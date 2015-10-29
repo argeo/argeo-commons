@@ -34,7 +34,6 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 	private Integer headerHeight = 40;
 
 	private CmsImageManager imageManager = new ImageManagerImpl();
-
 	private UxContext uxContext = null;
 
 	public SimpleErgonomics(Repository repository, String workspace,
@@ -49,6 +48,7 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 		parent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		parent.setLayout(CmsUtils.noSpaceGridLayout());
 
+		// createAdminArea(parent);
 		headerArea = new Composite(parent, SWT.NONE);
 		headerArea.setLayout(new FillLayout());
 		GridData headerData = new GridData(SWT.FILL, SWT.FILL, false, false);
@@ -74,6 +74,9 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 		refreshBody();
 		if (log.isTraceEnabled())
 			log.trace("UI refreshed " + getNode());
+	}
+
+	protected void createAdminArea(Composite parent) {
 	}
 
 	protected void refreshHeader() {

@@ -142,6 +142,8 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 			logger = new NodeLogger(logReaderService.getService());
 			logReaderService.close();
 
+			// KernelUtils.logFrameworkProperties(log);
+
 			// Initialise services
 			initTransactionManager();
 			repository = new NodeRepository();

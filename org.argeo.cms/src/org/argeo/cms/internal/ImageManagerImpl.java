@@ -178,8 +178,8 @@ public class ImageManagerImpl implements CmsImageManager, CmsNames {
 				IOUtils.closeQuietly(inputStream);
 				JcrUtils.closeQuietly(binary);
 			}
-			if (log.isDebugEnabled())
-				log.debug("Registered image " + name);
+			if (log.isTraceEnabled())
+				log.trace("Registered image " + name);
 		}
 		return resourceManager.getLocation(name);
 	}

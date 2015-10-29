@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsUiProvider;
 import org.argeo.cms.LifeCycleUiProvider;
 import org.argeo.jcr.JcrUtils;
-import org.eclipse.gemini.blueprint.context.BundleContextAware;
+import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.Application.OperationMode;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
@@ -30,14 +31,22 @@ import org.eclipse.rap.rwt.application.EntryPoint;
 import org.eclipse.rap.rwt.application.EntryPointFactory;
 import org.eclipse.rap.rwt.application.ExceptionHandler;
 import org.eclipse.rap.rwt.client.WebClient;
+import org.eclipse.rap.rwt.client.service.JavaScriptExecutor;
 import org.eclipse.rap.rwt.service.ResourceLoader;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 
 /** A basic generic app based on {@link SimpleErgonomics}. */
-public class SimpleApp implements CmsConstants, ApplicationConfiguration,
-		BundleContextAware {
+public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 	private final static Log log = LogFactory.getLog(SimpleApp.class);
+
+	private String contextName = null;
 
 	private Map<String, Map<String, String>> branding = new HashMap<String, Map<String, String>>();
 	private Map<String, List<String>> styleSheets = new HashMap<String, List<String>>();
@@ -48,7 +57,7 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration,
 
 	private Repository repository;
 	private String workspace = null;
-	private String basePath = "/";
+	private String jcrBasePath = "/";
 	private List<String> roPrincipals = Arrays.asList("anonymous", "everyone");
 	private List<String> rwPrincipals = Arrays.asList("everyone");
 
@@ -56,6 +65,8 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration,
 	private Map<String, CmsUiProvider> pages = new LinkedHashMap<String, CmsUiProvider>();
 
 	private Integer headerHeight = 40;
+
+	private ServiceRegistration<ApplicationConfiguration> appReg;
 
 	public void configure(Application application) {
 		try {
@@ -78,7 +89,7 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration,
 			for (String resource : resources) {
 				application.addResource(resource, bundleRL);
 				if (log.isDebugEnabled())
-					log.debug("Registered resource " + resource);
+					log.debug("Resource " + resource);
 			}
 
 			Map<String, String> defaultBranding = null;
@@ -98,7 +109,7 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration,
 					application.addResource(faviconRelPath,
 							new BundleResourceLoader(bundleContext));
 					if (log.isTraceEnabled())
-						log.trace("Registered favicon " + faviconRelPath);
+						log.trace("Favicon " + faviconRelPath);
 
 				}
 
@@ -121,14 +132,18 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration,
 				application.addEntryPoint("/" + page, new CmsEntryPointFactory(
 						pages.get(page), repository, workspace, properties),
 						properties);
-				log.info("Registered entry point /" + page);
+				log.info("Page /" + page);
 			}
 
 			// stylesheets
 			for (String themeId : styleSheets.keySet()) {
 				List<String> cssLst = styleSheets.get(themeId);
+				if (log.isDebugEnabled())
+					log.debug("Theme " + themeId);
 				for (String css : cssLst) {
 					application.addStyleSheet(themeId, css, styleSheetRL);
+					if (log.isDebugEnabled())
+						log.debug(" CSS " + css);
 				}
 
 			}
@@ -147,12 +162,12 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration,
 			VersionManager vm = session.getWorkspace().getVersionManager();
 			if (!vm.isCheckedOut("/"))
 				vm.checkout("/");
-			JcrUtils.mkdirs(session, basePath);
+			JcrUtils.mkdirs(session, jcrBasePath);
 			for (String principal : rwPrincipals)
-				JcrUtils.addPrivilege(session, basePath, principal,
+				JcrUtils.addPrivilege(session, jcrBasePath, principal,
 						Privilege.JCR_WRITE);
 			for (String principal : roPrincipals)
-				JcrUtils.addPrivilege(session, basePath, principal,
+				JcrUtils.addPrivilege(session, jcrBasePath, principal,
 						Privilege.JCR_READ);
 
 			for (String pageName : pages.keySet()) {
@@ -168,6 +183,9 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration,
 		} finally {
 			JcrUtils.logoutQuietly(session);
 		}
+
+		// publish to OSGi
+		register();
 	}
 
 	protected void initPage(Session adminSession, CmsUiProvider page)
@@ -188,6 +206,23 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration,
 		}
 	}
 
+	protected void register() {
+		Hashtable<String, String> props = new Hashtable<String, String>();
+		if (contextName != null)
+			props.put("contextName", contextName);
+		appReg = bundleContext.registerService(ApplicationConfiguration.class,
+				this, props);
+		if (log.isDebugEnabled())
+			log.debug("Registered " + (contextName == null ? "/" : contextName));
+	}
+
+	protected void unregister() {
+		appReg.unregister();
+		if (log.isDebugEnabled())
+			log.debug("Unregistered "
+					+ (contextName == null ? "/" : contextName));
+	}
+
 	public void setRepository(Repository repository) {
 		this.repository = repository;
 	}
@@ -204,8 +239,8 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration,
 		this.pages = pages;
 	}
 
-	public void setBasePath(String basePath) {
-		this.basePath = basePath;
+	public void setJcrBasePath(String basePath) {
+		this.jcrBasePath = basePath;
 	}
 
 	public void setRoPrincipals(List<String> roPrincipals) {
@@ -262,12 +297,30 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration,
 		@Override
 		public EntryPoint create() {
 			SimpleErgonomics entryPoint = new SimpleErgonomics(repository,
-					workspace, basePath, page, properties) {
+					workspace, jcrBasePath, page, properties) {
 
 				@Override
-				protected void initUi(Composite parent) {
-					// TODO Auto-generated method stub
-					super.initUi(parent);
+				protected void createAdminArea(Composite parent) {
+					Composite adminArea = new Composite(parent, SWT.NONE);
+					adminArea.setLayout(new FillLayout());
+					Button refresh = new Button(adminArea, SWT.PUSH);
+					refresh.setText("Reload App");
+					refresh.addSelectionListener(new SelectionAdapter() {
+						private static final long serialVersionUID = -7671999525536351366L;
+
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							long timeBeforeReload = 1000;
+							RWT.getClient()
+									.getService(JavaScriptExecutor.class)
+									.execute(
+											"setTimeout(function() { "
+													+ "location.reload();"
+													+ "}," + timeBeforeReload
+													+ ");");
+							reloadApp();
+						}
+					});
 				}
 			};
 			// entryPoint.setState("");
@@ -277,6 +330,15 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration,
 			return entryPoint;
 		}
 
+		private void reloadApp() {
+			new Thread("Refresh app") {
+				@Override
+				public void run() {
+					unregister();
+					register();
+				}
+			}.start();
+		}
 	}
 
 	private static ResourceLoader createResourceLoader(final String resourceName) {
