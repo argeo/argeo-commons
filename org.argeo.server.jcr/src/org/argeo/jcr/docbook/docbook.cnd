@@ -1,10 +1,6 @@
 <dbk = 'http://docbook.org/ns/docbook'>
 <argeodbk = 'http://www.argeo.org/ns/argeodbk'>
-<jcr = 'http://www.jcp.org/jcr/1.0'>
-<nt = 'http://www.jcp.org/jcr/nt/1.0'>
 <xlink = 'http://www.w3.org/1999/xlink'>
-<xs = 'http://www.w3.org/2001/XMLSchema'>
-<xml = 'http://www.w3.org/XML/1998/namespace'>
 
 [argeodbk:titled]
 mixin
@@ -106,9 +102,9 @@ abstract
  - dbk:version (String)
  - dbk:wordsize (String)
  - dbk:xreflabel (String)
- - xml:base (String)
- - xml:id (String)
- - xml:lang (String)
+// - {http://www.w3.org/XML/1998/namespace}base (String)
+// - {http://www.w3.org/XML/1998/namespace}id (String)
+// - {http://www.w3.org/XML/1998/namespace}lang (String)
 
 [dbk:alt] > argeodbk:base
  + dbk:inlinemediaobject (dbk:inlinemediaobject) = dbk:inlinemediaobject *
