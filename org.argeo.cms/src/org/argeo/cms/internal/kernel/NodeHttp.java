@@ -6,6 +6,7 @@ import java.util.Enumeration;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -20,29 +21,65 @@ import org.eclipse.equinox.http.servlet.ExtendedHttpService;
  * Intercepts and enriches http access, mainly focusing on security and
  * transactionality.
  */
-@Deprecated
 class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	private final static Log log = LogFactory.getLog(NodeHttp.class);
 
 	// Filters
-	private final RootFilter rootFilter;
+	// private final RootFilter rootFilter;
 
 	// private final DoSFilter dosFilter;
 	// private final QoSFilter qosFilter;
 
 	NodeHttp(ExtendedHttpService httpService) {
-		rootFilter = new RootFilter();
+		// rootFilter = new RootFilter();
 		// dosFilter = new CustomDosFilter();
 		// qosFilter = new QoSFilter();
 
 		try {
-			httpService.registerFilter("/", rootFilter, null, null);
+			httpService.registerServlet("/!", new LinkServlet(), null, null);
+			// httpService.registerFilter("/", rootFilter, null, null);
 		} catch (Exception e) {
 			throw new CmsException("Cannot register filters", e);
 		}
 	}
 
 	public void destroy() {
+	}
+
+	class LinkServlet extends HttpServlet {
+		private static final long serialVersionUID = 3749990143146845708L;
+
+		@Override
+		protected void service(HttpServletRequest request,
+				HttpServletResponse response) throws ServletException,
+				IOException {
+			String path = request.getPathInfo();
+			String userAgent = request.getHeader("User-Agent").toLowerCase();
+			boolean isBot = false;
+			boolean isCompatibleBrowser = false;
+			if (userAgent.contains("bot")) {
+				isBot = true;
+			} else if (userAgent.contains("webkit")
+					|| userAgent.contains("gecko")
+					|| userAgent.contains("firefox")
+					|| userAgent.contains("msie")
+					|| userAgent.contains("chrome")
+					|| userAgent.contains("chromium")
+					|| userAgent.contains("opera")
+					|| userAgent.contains("browser")) {
+				isCompatibleBrowser = true;
+			}
+
+			if (isCompatibleBrowser) {// redirect
+				response.setHeader("Location", "/#" + path);
+				response.setStatus(HttpServletResponse.SC_FOUND);
+			} else {
+				if (isBot && log.isDebugEnabled())
+					log.debug(request.getHeader("User-Agent") + " is a bot");
+				// TODO pure html
+				throw new UnsupportedOperationException();
+			}
+		}
 	}
 
 	/** Intercepts all requests. Authenticates. */

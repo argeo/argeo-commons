@@ -28,7 +28,7 @@ public interface KernelConstants {
 	/** URI to an LDIF file or LDAP server used as initialization or backend */
 	final static String USERADMIN_URIS = "argeo.node.useradmin.uris";
 	final static String[] DEFAULT_CNDS = { "/org/argeo/jcr/argeo.cnd",
-			"/org/argeo/cms/cms.cnd" };
+			"/org/argeo/cms/cms.cnd","/org/argeo/jcr/docbook/docbook.cnd" };
 
 	// Directories
 	final static String DIR_NODE = "node";

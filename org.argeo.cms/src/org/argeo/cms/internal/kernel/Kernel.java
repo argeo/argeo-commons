@@ -10,6 +10,8 @@ import static org.argeo.jcr.ArgeoJcrConstants.JCR_REPOSITORY_ALIAS;
 import static org.argeo.util.LocaleChoice.asLocaleList;
 import static org.osgi.framework.Constants.FRAMEWORK_UUID;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -21,8 +23,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryFactory;
+import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
 import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
 import javax.transaction.TransactionSynchronizationRegistry;
@@ -38,6 +43,7 @@ import org.argeo.ArgeoLogger;
 import org.argeo.cms.CmsException;
 import org.argeo.jackrabbit.OsgiJackrabbitRepositoryFactory;
 import org.argeo.jcr.ArgeoJcrConstants;
+import org.argeo.jcr.ArgeoJcrUtils;
 import org.eclipse.equinox.http.jetty.JettyConfigurator;
 import org.eclipse.equinox.http.jetty.JettyConstants;
 import org.eclipse.equinox.http.servlet.ExtendedHttpService;
@@ -100,6 +106,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 	private final BundleContext bc = Activator.getBundleContext();
 	private final NodeSecurity nodeSecurity;
 	private DataHttp dataHttp;
+	private NodeHttp nodeHttp;
 	private KernelThread kernelThread;
 
 	private Locale defaultLocale = null;
@@ -146,8 +153,10 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 
 			// Initialise services
 			initTransactionManager();
-			repository = new NodeRepository();
-			repositoryFactory = new OsgiJackrabbitRepositoryFactory();
+			if (repository == null)
+				repository = new NodeRepository();
+			if (repositoryFactory == null)
+				repositoryFactory = new OsgiJackrabbitRepositoryFactory();
 			userAdmin = new NodeUserAdmin(transactionManager, repository);
 
 			// HTTP
@@ -190,6 +199,10 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		String nodeInit = getFrameworkProp(NODE_INIT);
 		if (nodeInit == null)
 			nodeInit = "../../init";
+		if (nodeInit.startsWith("http")) {
+			remoteFirstInit(nodeInit);
+			return;
+		}
 		File initDir;
 		if (nodeInit.startsWith("."))
 			initDir = KernelUtils.getExecutionDir(nodeInit);
@@ -213,6 +226,32 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 			} catch (IOException e) {
 				throw new CmsException("Cannot initialize from " + initDir, e);
 			}
+	}
+
+	private void remoteFirstInit(String uri) {
+		try {
+			repository = new NodeRepository();
+			repositoryFactory = new OsgiJackrabbitRepositoryFactory();
+			Repository remoteRepository = ArgeoJcrUtils.getRepositoryByUri(
+					repositoryFactory, uri);
+			Session remoteSession = remoteRepository
+					.login(new SimpleCredentials("root", "demo".toCharArray()),
+							"main");
+			Session localSession = this.repository.login();
+			// FIXME register node type
+			// if (false)
+			// CndImporter.registerNodeTypes(null, localSession);
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			remoteSession.exportSystemView("/", out, true, false);
+			ByteArrayInputStream in = new ByteArrayInputStream(
+					out.toByteArray());
+			localSession.importXML("/", in,
+					ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
+			// JcrUtils.copy(remoteSession.getRootNode(),
+			// localSession.getRootNode());
+		} catch (Exception e) {
+			throw new CmsException("Cannot first init from " + uri, e);
+		}
 	}
 
 	/** Can be null */
@@ -318,6 +357,8 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 
 		if (dataHttp != null)
 			dataHttp.destroy();
+		if (nodeHttp != null)
+			nodeHttp.destroy();
 		if (userAdmin != null)
 			userAdmin.destroy();
 		if (repository != null)
@@ -394,6 +435,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		Object httpPort = sr.getProperty("http.port");
 		Object httpsPort = sr.getProperty("https.port");
 		dataHttp = new DataHttp(httpService, repository);
+		nodeHttp = new NodeHttp(httpService);
 		if (log.isDebugEnabled())
 			log.debug(httpPortsMsg(httpPort, httpsPort));
 	}

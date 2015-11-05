@@ -3,6 +3,7 @@ Bundle-Activator: org.argeo.cms.internal.kernel.Activator
 Import-Package: javax.jcr.security,\
 org.xml.sax,\
 org.argeo.jcr,\
+org.argeo.jcr.docbook,\
 org.apache.jackrabbit.api,\
 org.apache.jackrabbit.commons,\
 org.apache.jackrabbit.core.security.user,\
