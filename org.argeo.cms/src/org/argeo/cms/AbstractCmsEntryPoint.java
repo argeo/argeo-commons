@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.Property;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -14,13 +15,13 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.CredentialNotFoundException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
-import org.argeo.cms.ui.UxContext;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
@@ -233,18 +234,6 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 		});
 	}
 
-	// @Override
-	// public Object local(Msg msg) {
-	// String key = msg.getId();
-	// int lastDot = key.lastIndexOf('.');
-	// String className = key.substring(0, lastDot);
-	// String fieldName = key.substring(lastDot + 1);
-	// Locale locale = RWT.getLocale();
-	// ResourceBundle rb = ResourceBundle.getBundle(className, locale,
-	// msg.getClassLoader());
-	// return rb.getString(fieldName);
-	// }
-
 	/** Sets the state of the entry point and retrieve the related JCR node. */
 	protected synchronized String setState(String newState) {
 		String previousState = this.state;
@@ -284,7 +273,39 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 						+ " - " + getBaseTitle();
 			else
 				title = getBaseTitle();
-			jsExecutor.execute("document.title = \"" + title + "\"");
+
+			HttpServletRequest request = RWT.getRequest();
+			String url = request.getRequestURL().append('!')
+					.append(node.getPath()).toString();
+			String imgUrl = null;
+			for (NodeIterator it = node.getNodes(); it.hasNext();) {
+				Node child = it.nextNode();
+				if (child.isNodeType(CmsTypes.CMS_IMAGE))
+					imgUrl = request
+							.getRequestURL()
+							.append("data/public/node/")
+							.append(child.getSession().getWorkspace().getName())
+							.append(child.getPath()).toString();
+			}
+
+			StringBuilder js = new StringBuilder();
+			js.append("document.title = '" + title + "';");
+			js.append("var metas = document.getElementsByTagName('meta');");
+			js.append("for (var i=0; i<metas.length; i++) {");
+			js.append("	if (metas[i].getAttribute('property'))");
+			js.append("	 if(metas[i].getAttribute('property')=='og:title')");
+			js.append("	  metas[i].setAttribute('content','" + title + "');");
+			js.append("	 else if(metas[i].getAttribute('property')=='og:url')");
+			js.append("	  metas[i].setAttribute('content','" + url + "');");
+			if (imgUrl != null) {
+				js.append("	 else if(metas[i].getAttribute('property')=='og:image')");
+				js.append("	  metas[i].setAttribute('content','" + imgUrl
+						+ "');");
+			} else {
+				// TODO reset default image
+			}
+			js.append("	};");
+			jsExecutor.execute(js.toString());
 
 			if (log.isTraceEnabled())
 				log.trace("node=" + node + ", state=" + state + " (page="
