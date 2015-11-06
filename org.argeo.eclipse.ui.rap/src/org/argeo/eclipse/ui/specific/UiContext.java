@@ -9,18 +9,23 @@ import org.eclipse.swt.widgets.Display;
 
 /** Singleton class providing single sources infos about the UI context. */
 public class UiContext {
-
+	/** Can be null, thus indicating that we are not in a web context. */
 	public static HttpServletRequest getHttpRequest() {
 		return RWT.getRequest();
 	}
 
 	public static Locale getLocale() {
-		return RWT.getUISession().getLocale();
+		if (Display.getCurrent() != null)
+			return RWT.getUISession().getLocale();
+		else
+			return Locale.getDefault();
 	}
 
 	public static void setLocale(Locale locale) {
 		if (Display.getCurrent() != null)
 			RWT.getUISession().setLocale(locale);
+		else
+			Locale.setDefault(locale);
 	}
 
 	/** Can always be null */

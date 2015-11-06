@@ -275,33 +275,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 			else
 				title = getBaseTitle();
 
-			HttpServletRequest request = RWT.getRequest();
-			String url = CmsUtils.getCanonicalUrl(node, request);
-			String imgUrl = null;
-			for (NodeIterator it = node.getNodes(); it.hasNext();) {
-				Node child = it.nextNode();
-				if (child.isNodeType(CmsTypes.CMS_IMAGE))
-					imgUrl = CmsUtils.getDataUrl(child, request);
-			}
-
-			StringBuilder js = new StringBuilder();
-			js.append("document.title = '" + title + "';");
-			js.append("var metas = document.getElementsByTagName('meta');");
-			js.append("for (var i=0; i<metas.length; i++) {");
-			js.append("	if (metas[i].getAttribute('property'))");
-			js.append("	 if(metas[i].getAttribute('property')=='og:title')");
-			js.append("	  metas[i].setAttribute('content','" + title + "');");
-			js.append("	 else if(metas[i].getAttribute('property')=='og:url')");
-			js.append("	  metas[i].setAttribute('content','" + url + "');");
-			if (imgUrl != null) {
-				js.append("	 else if(metas[i].getAttribute('property')=='og:image')");
-				js.append("	  metas[i].setAttribute('content','" + imgUrl
-						+ "');");
-			} else {
-				// TODO reset default image
-			}
-			js.append("	};");
-			jsExecutor.execute(js.toString());
+			publishMetaData(title);
 
 			if (log.isTraceEnabled())
 				log.trace("node=" + node + ", state=" + state + " (page="
@@ -316,6 +290,37 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 			throw new CmsException("Unexpected issue when accessing #"
 					+ newState, e);
 		}
+	}
+
+	private void publishMetaData(String title) throws RepositoryException {
+		HttpServletRequest request = UiContext.getHttpRequest();
+		if (request == null)
+			return;
+		String url = CmsUtils.getCanonicalUrl(node, request);
+		String imgUrl = null;
+		for (NodeIterator it = node.getNodes(); it.hasNext();) {
+			Node child = it.nextNode();
+			if (child.isNodeType(CmsTypes.CMS_IMAGE))
+				imgUrl = CmsUtils.getDataUrl(child, request);
+		}
+
+		StringBuilder js = new StringBuilder();
+		js.append("document.title = '" + title + "';");
+		js.append("var metas = document.getElementsByTagName('meta');");
+		js.append("for (var i=0; i<metas.length; i++) {");
+		js.append("	if (metas[i].getAttribute('property'))");
+		js.append("	 if(metas[i].getAttribute('property')=='og:title')");
+		js.append("	  metas[i].setAttribute('content','" + title + "');");
+		js.append("	 else if(metas[i].getAttribute('property')=='og:url')");
+		js.append("	  metas[i].setAttribute('content','" + url + "');");
+		if (imgUrl != null) {
+			js.append("	 else if(metas[i].getAttribute('property')=='og:image')");
+			js.append("	  metas[i].setAttribute('content','" + imgUrl + "');");
+		} else {
+			// TODO reset default image
+		}
+		js.append("	};");
+		jsExecutor.execute(js.toString());
 	}
 
 	protected Node getNode() {
