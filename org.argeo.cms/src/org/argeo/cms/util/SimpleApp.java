@@ -142,8 +142,8 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 					log.debug("Theme " + themeId);
 				for (String css : cssLst) {
 					application.addStyleSheet(themeId, css, styleSheetRL);
-					if (log.isDebugEnabled())
-						log.debug(" CSS " + css);
+					if (log.isTraceEnabled())
+						log.trace(" CSS " + css);
 				}
 
 			}
