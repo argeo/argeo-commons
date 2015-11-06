@@ -164,27 +164,27 @@ public class ImageManagerImpl implements CmsImageManager, CmsNames {
 	/** @return null if not available */
 	@Override
 	public String getImageUrl(Node node) throws RepositoryException {
-//		String url = "/data/public/node/main"
-//				+ node.getPath();
-//		return url;
-		String name = getResourceName(node);
-		ResourceManager resourceManager = RWT.getResourceManager();
-		if (!resourceManager.isRegistered(name)) {
-			InputStream inputStream = null;
-			Binary binary = getImageBinary(node);
-			if (binary == null)
-				return null;
-			try {
-				inputStream = binary.getStream();
-				resourceManager.register(name, inputStream);
-			} finally {
-				IOUtils.closeQuietly(inputStream);
-				JcrUtils.closeQuietly(binary);
-			}
-			if (log.isTraceEnabled())
-				log.trace("Registered image " + name);
-		}
-		return resourceManager.getLocation(name);
+		String url = "/data/public/node/"
+				+ node.getSession().getWorkspace().getName() + node.getPath();
+		return url;
+		// String name = getResourceName(node);
+		// ResourceManager resourceManager = RWT.getResourceManager();
+		// if (!resourceManager.isRegistered(name)) {
+		// InputStream inputStream = null;
+		// Binary binary = getImageBinary(node);
+		// if (binary == null)
+		// return null;
+		// try {
+		// inputStream = binary.getStream();
+		// resourceManager.register(name, inputStream);
+		// } finally {
+		// IOUtils.closeQuietly(inputStream);
+		// JcrUtils.closeQuietly(binary);
+		// }
+		// if (log.isTraceEnabled())
+		// log.trace("Registered image " + name);
+		// }
+		// return resourceManager.getLocation(name);
 	}
 
 	protected String getResourceName(Node node) throws RepositoryException {
