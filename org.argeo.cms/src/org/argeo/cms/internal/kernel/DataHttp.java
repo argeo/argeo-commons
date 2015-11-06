@@ -303,6 +303,11 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 				IOException {
 			try {
 				Subject subject = subjectFromRequest(request);
+				if (request.getMethod().equals("GET")){
+					response.setHeader("Cache-Control",
+							"no-transform, public, max-age=300, s-maxage=900");
+				}
+
 				Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
 					@Override
 					public Void run() throws Exception {
