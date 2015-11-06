@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
+import org.argeo.cms.util.CmsUtils;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
@@ -275,17 +276,12 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 				title = getBaseTitle();
 
 			HttpServletRequest request = RWT.getRequest();
-			String url = request.getRequestURL().append('!')
-					.append(node.getPath()).toString();
+			String url = CmsUtils.getCanonicalUrl(node, request);
 			String imgUrl = null;
 			for (NodeIterator it = node.getNodes(); it.hasNext();) {
 				Node child = it.nextNode();
 				if (child.isNodeType(CmsTypes.CMS_IMAGE))
-					imgUrl = request
-							.getRequestURL()
-							.append("data/public/node/")
-							.append(child.getSession().getWorkspace().getName())
-							.append(child.getPath()).toString();
+					imgUrl = CmsUtils.getDataUrl(child, request);
 			}
 
 			StringBuilder js = new StringBuilder();

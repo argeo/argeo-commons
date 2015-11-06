@@ -164,9 +164,10 @@ public class ImageManagerImpl implements CmsImageManager, CmsNames {
 	/** @return null if not available */
 	@Override
 	public String getImageUrl(Node node) throws RepositoryException {
-		String url = "/data/public/node/"
-				+ node.getSession().getWorkspace().getName() + node.getPath();
-		return url;
+		return CmsUtils.getDataPath(node);
+		// String url = "/data/public/node/"
+		// + node.getSession().getWorkspace().getName() + node.getPath();
+		// return url;
 		// String name = getResourceName(node);
 		// ResourceManager resourceManager = RWT.getResourceManager();
 		// if (!resourceManager.isRegistered(name)) {

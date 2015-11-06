@@ -1,11 +1,15 @@
 package org.argeo.cms.util;
 
+import static org.argeo.cms.internal.kernel.KernelConstants.WEBDAV_PUBLIC;
+import static org.argeo.jcr.ArgeoJcrConstants.ALIAS_NODE;
+
 import java.io.InputStream;
 
 import javax.jcr.Item;
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.IOUtils;
 import org.argeo.cms.CmsConstants;
@@ -36,6 +40,25 @@ public class CmsUtils implements CmsConstants {
 	 */
 	public static CmsView getCmsView() {
 		return UiContext.getData(CmsView.KEY);
+	}
+
+	public static String getDataUrl(Node node, HttpServletRequest request)
+			throws RepositoryException {
+		return request.getRequestURL().append(getDataPath(node).substring(1))
+				.toString();
+	}
+
+	public static String getDataPath(Node node) throws RepositoryException {
+		return new StringBuilder().append(WEBDAV_PUBLIC).append('/')
+				.append(ALIAS_NODE + "/")
+				.append(node.getSession().getWorkspace().getName())
+				.append(node.getPath()).toString();
+	}
+
+	public static String getCanonicalUrl(Node node, HttpServletRequest request)
+			throws RepositoryException {
+		return request.getRequestURL().append('!').append(node.getPath())
+				.toString();
 	}
 
 	/** @deprecated Use rowData16px() instead. GridData should not be reused. */
