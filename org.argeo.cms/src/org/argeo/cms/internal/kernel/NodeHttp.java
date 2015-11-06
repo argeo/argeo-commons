@@ -57,7 +57,8 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 			String userAgent = request.getHeader("User-Agent").toLowerCase();
 			boolean isBot = false;
 			boolean isCompatibleBrowser = false;
-			if (userAgent.contains("bot")) {
+			if (userAgent.contains("bot") || userAgent.contains("facebook")
+					|| userAgent.contains("twitter")) {
 				isBot = true;
 			} else if (userAgent.contains("webkit")
 					|| userAgent.contains("gecko")
@@ -70,15 +71,14 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 				isCompatibleBrowser = true;
 			}
 
-			if (isCompatibleBrowser) {// redirect
-				response.setHeader("Location", "/#" + path);
-				response.setStatus(HttpServletResponse.SC_FOUND);
-			} else {
-				if (isBot && log.isDebugEnabled())
-					log.debug(request.getHeader("User-Agent") + " is a bot");
-				// TODO pure html
-				throw new UnsupportedOperationException();
-			}
+			if (isBot)
+				log.warn("# BOT " + request.getHeader("User-Agent"));
+			if (isCompatibleBrowser && log.isTraceEnabled())
+				log.trace("# BWS " + request.getHeader("User-Agent"));
+			// if (isCompatibleBrowser) {// redirect
+			response.setHeader("Location", "/#" + path);
+			response.setStatus(HttpServletResponse.SC_FOUND);
+			// }
 		}
 	}
 
