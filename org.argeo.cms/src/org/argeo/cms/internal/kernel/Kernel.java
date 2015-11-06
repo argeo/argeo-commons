@@ -41,6 +41,7 @@ import org.apache.jackrabbit.util.TransientFileFactory;
 import org.argeo.ArgeoException;
 import org.argeo.ArgeoLogger;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.maintenance.MaintenanceUi;
 import org.argeo.jackrabbit.OsgiJackrabbitRepositoryFactory;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.ArgeoJcrUtils;
@@ -53,6 +54,7 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.framework.startlevel.BundleStartLevel;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.log.LogReaderService;
@@ -113,6 +115,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 	private List<Locale> locales = null;
 
 	public Kernel() {
+		// KernelUtils.logFrameworkProperties(log);
 		nodeSecurity = new NodeSecurity();
 	}
 
@@ -129,7 +132,6 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 
 	private void doInit() {
 		long begin = System.currentTimeMillis();
-		ConfigurationAdmin conf = findConfigurationAdmin();
 		// Use CMS bundle classloader
 		ClassLoader currentContextCl = Thread.currentThread()
 				.getContextClassLoader();
@@ -149,35 +151,10 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 			logger = new NodeLogger(logReaderService.getService());
 			logReaderService.close();
 
-			// KernelUtils.logFrameworkProperties(log);
-
-			// Initialise services
-			initTransactionManager();
-			if (repository == null)
-				repository = new NodeRepository();
-			if (repositoryFactory == null)
-				repositoryFactory = new OsgiJackrabbitRepositoryFactory();
-			userAdmin = new NodeUserAdmin(transactionManager, repository);
-
-			// HTTP
-			initWebServer(conf);
-			ServiceReference<ExtendedHttpService> sr = bc
-					.getServiceReference(ExtendedHttpService.class);
-			if (sr != null)
-				addHttpService(sr);
-
-			UserUi userUi = new UserUi();
-			Hashtable<String, String> props = new Hashtable<String, String>();
-			props.put("contextName", "user");
-			bc.registerService(ApplicationConfiguration.class, userUi, props);
-
-			// Kernel thread
-			kernelThread = new KernelThread(this);
-			kernelThread.setContextClassLoader(Kernel.class.getClassLoader());
-			kernelThread.start();
-
-			// Publish services to OSGi
-			publish();
+			if (isMaintenance())
+				maintenanceInit();
+			else
+				normalInit();
 		} catch (Exception e) {
 			log.error("Cannot initialize Argeo CMS", e);
 			throw new ArgeoException("Cannot initialize", e);
@@ -192,6 +169,63 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		if (log.isTraceEnabled())
 			log.trace("Kernel initialization took " + initDuration + "ms");
 		directorsCut(initDuration);
+	}
+
+	private void normalInit() {
+		ConfigurationAdmin conf = findConfigurationAdmin();
+		// Initialise services
+		initTransactionManager();
+		if (repository == null)
+			repository = new NodeRepository();
+		if (repositoryFactory == null)
+			repositoryFactory = new OsgiJackrabbitRepositoryFactory();
+		userAdmin = new NodeUserAdmin(transactionManager, repository);
+
+		// HTTP
+		initWebServer(conf);
+		ServiceReference<ExtendedHttpService> sr = bc
+				.getServiceReference(ExtendedHttpService.class);
+		if (sr != null)
+			addHttpService(sr);
+
+		// ADMIN UIs
+		UserUi userUi = new UserUi();
+		Hashtable<String, String> props = new Hashtable<String, String>();
+		props.put("contextName", "user");
+		bc.registerService(ApplicationConfiguration.class, userUi, props);
+
+		// Kernel thread
+		kernelThread = new KernelThread(this);
+		kernelThread.setContextClassLoader(Kernel.class.getClassLoader());
+		kernelThread.start();
+
+		// Publish services to OSGi
+		publish();
+	}
+
+	private boolean isMaintenance() {
+		String startLevel = KernelUtils.getFrameworkProp("osgi.startLevel");
+		if (startLevel == null)
+			return false;
+		int bundleStartLevel = bc.getBundle().adapt(BundleStartLevel.class)
+				.getStartLevel();
+		// int frameworkStartLevel =
+		// bc.getBundle(0).adapt(BundleStartLevel.class)
+		// .getStartLevel();
+		int frameworkStartLevel = Integer.parseInt(startLevel);
+		// int frameworkStartLevel = bc.getBundle(0)
+		// .adapt(FrameworkStartLevel.class).getStartLevel();
+		return bundleStartLevel == frameworkStartLevel;
+	}
+
+	private void maintenanceInit() {
+		log.info("## MAINTENANCE ##");
+		bc.addServiceListener(Kernel.this);
+		initWebServer(null);
+		MaintenanceUi maintenanceUi = new MaintenanceUi();
+		Hashtable<String, String> props = new Hashtable<String, String>();
+		props.put("contextName", "maintenance");
+		bc.registerService(ApplicationConfiguration.class, maintenanceUi, props);
 	}
 
 	private void firstInit() {
