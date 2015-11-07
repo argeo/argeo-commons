@@ -54,14 +54,12 @@ public final class CurrentUser {
 	}
 
 	private static Subject currentSubject() {
+		CmsView cmsView = CmsUtils.getCmsView();
+		if (cmsView != null)
+			return cmsView.getSubject();
 		Subject subject = Subject.getSubject(AccessController.getContext());
 		if (subject != null)
 			return subject;
-		if (subject == null) {
-			CmsView cmsView = CmsUtils.getCmsView();
-			if (cmsView != null)
-				return cmsView.getSubject();
-		}
 		throw new CmsException("Cannot find related subject");
 	}
 
