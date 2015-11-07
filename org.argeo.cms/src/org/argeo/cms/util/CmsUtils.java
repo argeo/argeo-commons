@@ -1,5 +1,6 @@
 package org.argeo.cms.util;
 
+import static org.argeo.cms.internal.kernel.KernelConstants.WEBDAV_PRIVATE;
 import static org.argeo.cms.internal.kernel.KernelConstants.WEBDAV_PUBLIC;
 import static org.argeo.jcr.ArgeoJcrConstants.ALIAS_NODE;
 
@@ -12,9 +13,12 @@ import javax.jcr.RepositoryException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsConstants;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsView;
+import org.argeo.cms.auth.CurrentUser;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
@@ -34,6 +38,8 @@ import org.eclipse.swt.widgets.Widget;
 
 /** Static utilities for the CMS framework. */
 public class CmsUtils implements CmsConstants {
+	private final static Log log = LogFactory.getLog(CmsUtils.class);
+
 	/**
 	 * The CMS view related to this display, or null if none is available from
 	 * this call.
@@ -49,8 +55,15 @@ public class CmsUtils implements CmsConstants {
 	}
 
 	public static String getDataPath(Node node) throws RepositoryException {
-		return new StringBuilder().append(WEBDAV_PUBLIC).append('/')
-				.append(ALIAS_NODE + "/")
+		if (log.isTraceEnabled())
+			log.trace(CurrentUser.getUsername() + " : " + node.getPath());
+		StringBuilder buf = new StringBuilder();
+		if (CurrentUser.isAnonymous())
+			buf.append(WEBDAV_PUBLIC);
+		else
+			buf.append(WEBDAV_PRIVATE);
+		// TODO convey repo alias vie repository properties
+		return buf.append('/').append(ALIAS_NODE).append('/')
 				.append(node.getSession().getWorkspace().getName())
 				.append(node.getPath()).toString();
 	}
