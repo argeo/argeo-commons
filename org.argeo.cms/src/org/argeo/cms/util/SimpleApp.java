@@ -88,8 +88,8 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 
 			for (String resource : resources) {
 				application.addResource(resource, bundleRL);
-				if (log.isDebugEnabled())
-					log.debug("Resource " + resource);
+				if (log.isTraceEnabled())
+					log.trace("Resource " + resource);
 			}
 
 			Map<String, String> defaultBranding = null;
