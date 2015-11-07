@@ -388,16 +388,8 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 			String newUserName = (String) event.data;
 			UserAdmin myUserAdmin = userAdminWrapper.getUserAdmin();
 			Role role = myUserAdmin.getRole(newUserName);
-			if (role.getType() == Role.USER) {
-				// TODO check if the group is already member of this group
-				userAdminWrapper.beginTransactionIfNeeded();
-				User user = (User) role;
-				myGroup.addMember(user);
-				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
-						UserAdminEvent.ROLE_CHANGED, myGroup));
-			} else if (role.getType() == Role.GROUP) {
+			if (role.getType() == Role.GROUP) {
 				Group newGroup = (Group) role;
-
 				Shell shell = getViewer().getControl().getShell();
 				// Sanity checks
 				if (myGroup == newGroup) { // Equality
@@ -424,10 +416,16 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 									+ ", this membership already exists");
 					return;
 				}
-
 				userAdminWrapper.beginTransactionIfNeeded();
 				// TODO implement the dirty state
 				myGroup.addMember(newGroup);
+				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
+						UserAdminEvent.ROLE_CHANGED, myGroup));
+			} else if (role.getType() == Role.USER) {
+				// TODO check if the group is already member of this group
+				userAdminWrapper.beginTransactionIfNeeded();
+				User user = (User) role;
+				myGroup.addMember(user);
 				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
 						UserAdminEvent.ROLE_CHANGED, myGroup));
 			}
