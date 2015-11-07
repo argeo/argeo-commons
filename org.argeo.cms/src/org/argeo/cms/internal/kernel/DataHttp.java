@@ -52,12 +52,12 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 
 	// private final static String ATTR_AUTH = "auth";
 	private final static String HEADER_AUTHORIZATION = "Authorization";
-	private final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
+	// private final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
 	private final HttpService httpService;
 
 	// FIXME Make it more unique
-	private String httpAuthRealm = "Argeo";
+	// private String httpAuthRealm = "Argeo";
 
 	// WebDav / JCR remoting
 	private OpenInViewSessionProvider sessionProvider;
@@ -177,7 +177,7 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 						throw new CmsException("Could not login", e1);
 					}
 				} else {
-					requestBasicAuth(request, response);
+					// requestBasicAuth(request, response);
 					return false;
 				}
 			} catch (LoginException e) {
@@ -195,13 +195,13 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 			return null;
 		}
 
-		private void requestBasicAuth(HttpServletRequest request,
-				HttpServletResponse response) {
-			response.setStatus(401);
-			response.setHeader(HEADER_WWW_AUTHENTICATE, "basic realm=\""
-					+ httpAuthRealm + "\"");
-			// request.getSession().setAttribute(ATTR_AUTH, Boolean.TRUE);
-		}
+		// private void requestBasicAuth(HttpServletRequest request,
+		// HttpServletResponse response) {
+		// response.setStatus(401);
+		// response.setHeader(HEADER_WWW_AUTHENTICATE, "basic realm=\""
+		// + httpAuthRealm + "\"");
+		// // request.getSession().setAttribute(ATTR_AUTH, Boolean.TRUE);
+		// }
 
 		private CallbackHandler basicAuth(final HttpServletRequest httpRequest) {
 			String authHeader = httpRequest.getHeader(HEADER_AUTHORIZATION);
