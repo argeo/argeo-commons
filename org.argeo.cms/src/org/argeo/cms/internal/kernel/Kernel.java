@@ -29,6 +29,8 @@ import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 import javax.transaction.TransactionManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.transaction.UserTransaction;
@@ -160,6 +162,13 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 			throw new ArgeoException("Cannot initialize", e);
 		} finally {
 			Thread.currentThread().setContextClassLoader(currentContextCl);
+			// FIXME better manage lifecycle.
+			try {
+				new LoginContext(LOGIN_CONTEXT_KERNEL,
+						nodeSecurity.getKernelSubject()).logout();
+			} catch (LoginException e) {
+				e.printStackTrace();
+			}
 		}
 
 		long jvmUptime = ManagementFactory.getRuntimeMXBean().getUptime();
@@ -553,7 +562,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		rootThreadGroup.enumerate(threads);
 		int nonDameonCount = 0;
 		for (Thread t : threads)
-			if (!t.isDaemon())
+			if (t!=null && !t.isDaemon())
 				nonDameonCount++;
 		return nonDameonCount;
 	}
