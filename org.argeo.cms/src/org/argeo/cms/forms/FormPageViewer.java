@@ -381,10 +381,13 @@ public class FormPageViewer extends AbstractPageViewer {
 	}
 
 	protected Label createPropertyLbl(Composite parent, String value, int vAlign) {
-		Label label = new Label(parent, SWT.RIGHT | SWT.WRAP);
+		boolean isSmall = CmsUtils.getCmsView().getUxContext().isSmall();
+		Label label = new Label(parent, isSmall ? SWT.LEFT : SWT.RIGHT
+				| SWT.WRAP);
 		label.setText(value + " ");
 		CmsUtils.style(label, FormStyle.propertyLabel.style());
-		GridData gd = new GridData(SWT.RIGHT, vAlign, false, false);
+		GridData gd = new GridData(isSmall ? SWT.LEFT : SWT.RIGHT, vAlign,
+				false, false);
 		gd.widthHint = labelColWidth;
 		label.setLayoutData(gd);
 		return label;
