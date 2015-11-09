@@ -7,7 +7,7 @@ import org.eclipse.swt.widgets.Display;
 
 public class SimpleUxContext implements UxContext {
 	private Point size;
-	private Point small = new Point(200, 400);
+	private Point small = new Point(400, 400);
 
 	public SimpleUxContext() {
 		this(Display.getCurrent().getBounds());
