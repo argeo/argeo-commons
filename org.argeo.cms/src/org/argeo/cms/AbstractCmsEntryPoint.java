@@ -1,5 +1,7 @@
 package org.argeo.cms;
 
+import static javax.jcr.Property.JCR_DESCRIPTION;
+
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
@@ -297,6 +299,8 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 		if (request == null)
 			return;
 		String url = CmsUtils.getCanonicalUrl(node, request);
+		String desc = node.hasProperty(JCR_DESCRIPTION) ? node.getProperty(
+				JCR_DESCRIPTION).getString() : null;
 		String imgUrl = null;
 		for (NodeIterator it = node.getNodes(); it.hasNext();) {
 			Node child = it.nextNode();
@@ -313,6 +317,12 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 		js.append("	  metas[i].setAttribute('content','" + title + "');");
 		js.append("	 else if(metas[i].getAttribute('property')=='og:url')");
 		js.append("	  metas[i].setAttribute('content','" + url + "');");
+		js.append("	 else if(metas[i].getAttribute('property')=='og:type')");
+		js.append("	  metas[i].setAttribute('content','website');");
+		if (desc != null) {
+			js.append("	 else if(metas[i].getAttribute('property')=='og:decription')");
+			js.append("	  metas[i].setAttribute('content','" + desc + "');");
+		}
 		if (imgUrl != null) {
 			js.append("	 else if(metas[i].getAttribute('property')=='og:image')");
 			js.append("	  metas[i].setAttribute('content','" + imgUrl + "');");

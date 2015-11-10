@@ -477,8 +477,8 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		// TODO find constants
 		Object httpPort = sr.getProperty("http.port");
 		Object httpsPort = sr.getProperty("https.port");
-		dataHttp = new DataHttp(httpService, repository);
-		nodeHttp = new NodeHttp(httpService);
+		dataHttp = new DataHttp(httpService);
+		nodeHttp = new NodeHttp(httpService, repository);
 		if (log.isDebugEnabled())
 			log.debug(httpPortsMsg(httpPort, httpsPort));
 	}
@@ -562,7 +562,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		rootThreadGroup.enumerate(threads);
 		int nonDameonCount = 0;
 		for (Thread t : threads)
-			if (t!=null && !t.isDaemon())
+			if (t != null && !t.isDaemon())
 				nonDameonCount++;
 		return nonDameonCount;
 	}

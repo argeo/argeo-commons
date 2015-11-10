@@ -1,9 +1,21 @@
 package org.argeo.cms.internal.kernel;
 
+import static javax.jcr.Property.JCR_DESCRIPTION;
+import static javax.jcr.Property.JCR_TITLE;
+import static org.argeo.cms.CmsTypes.CMS_IMAGE;
+
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.security.PrivilegedExceptionAction;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.security.auth.Subject;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -14,7 +26,9 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.util.CmsUtils;
 import org.argeo.jcr.ArgeoJcrConstants;
+import org.argeo.jcr.JcrUtils;
 import org.eclipse.equinox.http.servlet.ExtendedHttpService;
 
 /**
@@ -30,14 +44,17 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	// private final DoSFilter dosFilter;
 	// private final QoSFilter qosFilter;
 
-	NodeHttp(ExtendedHttpService httpService) {
+	private Repository repository;
+
+	NodeHttp(ExtendedHttpService httpService, NodeRepository node) {
+		this.repository = node;
 		// rootFilter = new RootFilter();
 		// dosFilter = new CustomDosFilter();
 		// qosFilter = new QoSFilter();
 
 		try {
-			httpService.registerServlet("/!", new LinkServlet(), null, null);
-			// httpService.registerFilter("/", rootFilter, null, null);
+			httpService.registerServlet("/!", new LinkServlet(repository),
+					null, null);
 		} catch (Exception e) {
 			throw new CmsException("Cannot register filters", e);
 		}
@@ -46,8 +63,13 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	public void destroy() {
 	}
 
-	class LinkServlet extends HttpServlet {
+	static class LinkServlet extends HttpServlet {
 		private static final long serialVersionUID = 3749990143146845708L;
+		private final Repository repository;
+
+		public LinkServlet(Repository repository) {
+			this.repository = repository;
+		}
 
 		@Override
 		protected void service(HttpServletRequest request,
@@ -71,14 +93,104 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 				isCompatibleBrowser = true;
 			}
 
-			if (isBot)
+			if (isBot) {
 				log.warn("# BOT " + request.getHeader("User-Agent"));
+				canonicalAnswer(request, response, path);
+				return;
+			}
+
 			if (isCompatibleBrowser && log.isTraceEnabled())
 				log.trace("# BWS " + request.getHeader("User-Agent"));
-			// if (isCompatibleBrowser) {// redirect
-			response.setHeader("Location", "/#" + path);
+			redirectTo(response, "/#" + path);
+		}
+
+		private void redirectTo(HttpServletResponse response, String location) {
+			response.setHeader("Location", location);
 			response.setStatus(HttpServletResponse.SC_FOUND);
-			// }
+		}
+
+		// private boolean canonicalAnswerNeededBy(HttpServletRequest request) {
+		// String userAgent = request.getHeader("User-Agent").toLowerCase();
+		// return userAgent.startsWith("facebookexternalhit/");
+		// }
+
+		/** For bots which don't understand RWT. */
+		private void canonicalAnswer(HttpServletRequest request,
+				HttpServletResponse response, String path) {
+			Session session = null;
+			try {
+				PrintWriter writer = response.getWriter();
+				session = Subject.doAs(KernelUtils.anonymousLogin(),
+						new PrivilegedExceptionAction<Session>() {
+
+							@Override
+							public Session run() throws Exception {
+								return repository.login();
+							}
+
+						});
+				Node node = session.getNode(path);
+				String title = node.hasProperty(JCR_TITLE) ? node.getProperty(
+						JCR_TITLE).getString() : node.getName();
+				String desc = node.hasProperty(JCR_DESCRIPTION) ? node
+						.getProperty(JCR_DESCRIPTION).getString() : null;
+				String url = CmsUtils.getCanonicalUrl(node, request);
+				String imgUrl = null;
+				for (NodeIterator it = node.getNodes(); it.hasNext();) {
+					Node child = it.nextNode();
+					if (child.isNodeType(CMS_IMAGE))
+						imgUrl = CmsUtils.getDataUrl(child, request);
+				}
+				StringBuilder buf = new StringBuilder();
+				buf.append("<html>");
+				buf.append("<head>");
+				writeMeta(buf, "og:title", title);
+				writeMeta(buf, "og:type", "website");
+				writeMeta(buf, "og:url", url);
+				if (desc != null)
+					writeMeta(buf, "og:description", desc);
+				if (imgUrl != null)
+					writeMeta(buf, "og:image", imgUrl);
+				buf.append("</head>");
+				buf.append("<body>");
+				buf.append(
+						"<p><b>!! This page is meant for indexing robots, not for real people,"
+								+ " visit <a href='/#").append(path)
+						.append("'>").append(title)
+						.append("</a> instead.</b></p>");
+				writeCanonical(buf, node);
+				buf.append("</body>");
+				buf.append("</html>");
+				writer.print(buf.toString());
+				writer.flush();
+			} catch (Exception e) {
+				throw new CmsException("Cannot write canonical answer", e);
+			} finally {
+				JcrUtils.logoutQuietly(session);
+			}
+		}
+
+		private void writeMeta(StringBuilder buf, String tag, String value) {
+			buf.append("<meta property='").append(tag).append("' content='")
+					.append(value).append("'/>");
+		}
+
+		private void writeCanonical(StringBuilder buf, Node node)
+				throws RepositoryException {
+			buf.append("<div>");
+			if (node.hasProperty(JCR_TITLE))
+				buf.append("<p>")
+						.append(node.getProperty(JCR_TITLE).getString())
+						.append("</p>");
+			if (node.hasProperty(JCR_DESCRIPTION))
+				buf.append("<p>")
+						.append(node.getProperty(JCR_DESCRIPTION).getString())
+						.append("</p>");
+			NodeIterator children = node.getNodes();
+			while (children.hasNext()) {
+				writeCanonical(buf, children.nextNode());
+			}
+			buf.append("</div>");
 		}
 	}
 
