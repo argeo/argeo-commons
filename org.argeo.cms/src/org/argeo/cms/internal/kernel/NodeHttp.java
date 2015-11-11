@@ -57,6 +57,8 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 		try {
 			httpService.registerServlet("/!", new LinkServlet(repository),
 					null, null);
+			httpService.registerServlet("/robots.txt", new RobotServlet(),
+					null, null);
 		} catch (Exception e) {
 			throw new CmsException("Cannot register filters", e);
 		}
@@ -201,6 +203,22 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 			}
 			buf.append("</div>");
 		}
+	}
+
+	class RobotServlet extends HttpServlet {
+		private static final long serialVersionUID = 7935661175336419089L;
+
+		@Override
+		protected void service(HttpServletRequest request,
+				HttpServletResponse response) throws ServletException,
+				IOException {
+			PrintWriter writer = response.getWriter();
+			writer.append("User-agent: *\n");
+			writer.append("Disallow:\n");
+			response.setHeader("Content-Type", "text/plain");
+			writer.flush();
+		}
+
 	}
 
 	/** Intercepts all requests. Authenticates. */
