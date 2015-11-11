@@ -5,6 +5,8 @@ import static org.argeo.cms.internal.kernel.KernelConstants.WEBDAV_PUBLIC;
 import static org.argeo.jcr.ArgeoJcrConstants.ALIAS_NODE;
 
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import javax.jcr.Item;
 import javax.jcr.Node;
@@ -48,10 +50,29 @@ public class CmsUtils implements CmsConstants {
 		return UiContext.getData(CmsView.KEY);
 	}
 
+	public static StringBuilder getServerBaseUrl(HttpServletRequest request) {
+		try {
+			URL url = new URL(request.getRequestURL().toString());
+			StringBuilder buf = new StringBuilder();
+			buf.append(url.getProtocol()).append("://").append(url.getHost());
+			if (url.getPort() != -1)
+				buf.append(':').append(url.getPort());
+			return buf;
+		} catch (MalformedURLException e) {
+			throw new CmsException("Cannot extract server base URL from "
+					+ request.getRequestURL(), e);
+		}
+	}
+
 	public static String getDataUrl(Node node, HttpServletRequest request)
 			throws RepositoryException {
-		return request.getRequestURL().append(getDataPath(node).substring(1))
-				.toString();
+		try {
+			StringBuilder buf = getServerBaseUrl(request);
+			buf.append(getDataPath(node));
+			return new URL(buf.toString()).toString();
+		} catch (MalformedURLException e) {
+			throw new CmsException("Cannot build data URL for " + node, e);
+		}
 	}
 
 	public static String getDataPath(Node node) throws RepositoryException {
@@ -70,8 +91,15 @@ public class CmsUtils implements CmsConstants {
 
 	public static String getCanonicalUrl(Node node, HttpServletRequest request)
 			throws RepositoryException {
-		return request.getRequestURL().append('!').append(node.getPath())
-				.toString();
+		try {
+			StringBuilder buf = getServerBaseUrl(request);
+			buf.append('/').append('!').append(node.getPath());
+			return new URL(buf.toString()).toString();
+		} catch (MalformedURLException e) {
+			throw new CmsException("Cannot build data URL for " + node, e);
+		}
+		// return request.getRequestURL().append('!').append(node.getPath())
+		// .toString();
 	}
 
 	/** @deprecated Use rowData16px() instead. GridData should not be reused. */

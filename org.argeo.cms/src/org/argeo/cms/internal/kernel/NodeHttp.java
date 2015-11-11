@@ -1,6 +1,7 @@
 package org.argeo.cms.internal.kernel;
 
 import static javax.jcr.Property.JCR_DESCRIPTION;
+import static javax.jcr.Property.JCR_LAST_MODIFIED;
 import static javax.jcr.Property.JCR_TITLE;
 import static org.argeo.cms.CmsTypes.CMS_IMAGE;
 
@@ -8,6 +9,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.PrivilegedExceptionAction;
 import java.security.cert.X509Certificate;
+import java.util.Calendar;
 import java.util.Enumeration;
 
 import javax.jcr.Node;
@@ -134,6 +136,8 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 						JCR_TITLE).getString() : node.getName();
 				String desc = node.hasProperty(JCR_DESCRIPTION) ? node
 						.getProperty(JCR_DESCRIPTION).getString() : null;
+				Calendar lastUpdate = node.hasProperty(JCR_LAST_MODIFIED) ? node
+						.getProperty(JCR_LAST_MODIFIED).getDate() : null;
 				String url = CmsUtils.getCanonicalUrl(node, request);
 				String imgUrl = null;
 				for (NodeIterator it = node.getNodes(); it.hasNext();) {
@@ -151,6 +155,9 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 					writeMeta(buf, "og:description", desc);
 				if (imgUrl != null)
 					writeMeta(buf, "og:image", imgUrl);
+				if (lastUpdate != null)
+					writeMeta(buf, "og:updated_time",
+							Long.toString(lastUpdate.getTime().getTime()));
 				buf.append("</head>");
 				buf.append("<body>");
 				buf.append(
@@ -162,6 +169,8 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 				buf.append("</body>");
 				buf.append("</html>");
 				writer.print(buf.toString());
+
+				response.setHeader("Content-Type", "text/html");
 				writer.flush();
 			} catch (Exception e) {
 				throw new CmsException("Cannot write canonical answer", e);
