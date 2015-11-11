@@ -152,6 +152,8 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 				buf.append("<head>");
 				writeMeta(buf, "og:title", title);
 				writeMeta(buf, "og:type", "website");
+				buf.append("<meta name='twitter:card' content='summary' />");
+				buf.append("<meta name='twitter:site' content='@argeo_org' />");
 				writeMeta(buf, "og:url", url);
 				if (desc != null)
 					writeMeta(buf, "og:description", desc);
