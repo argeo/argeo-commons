@@ -11,7 +11,7 @@ public enum FormStyle {
 	// Date
 	popupCalendar,
 	// Buttons
-	starOverlay, deleteOverlay, updateOverlay, deleteOverlaySmall, calendar, delete,
+	starred, unstarred, starOverlay, deleteOverlay, updateOverlay, deleteOverlaySmall, calendar, delete,
 	// Contacts
 	email, address, phone, website,
 	// Social Media
