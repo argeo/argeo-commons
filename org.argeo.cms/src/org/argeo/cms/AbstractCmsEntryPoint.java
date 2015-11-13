@@ -310,28 +310,35 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 
 		StringBuilder js = new StringBuilder();
 		js.append("document.title = '" + title + "';");
-		js.append("var metas = document.getElementsByTagName('meta');");
-		js.append("for (var i=0; i<metas.length; i++) {");
-		js.append("	if (metas[i].getAttribute('property'))");
-		js.append("	 if(metas[i].getAttribute('property')=='og:title')");
-		js.append("	  metas[i].setAttribute('content','" + title + "');");
-		js.append("	 else if(metas[i].getAttribute('property')=='og:url')");
-		js.append("	  metas[i].setAttribute('content','" + url + "');");
-		js.append("	 else if(metas[i].getAttribute('property')=='og:type')");
-		js.append("	  metas[i].setAttribute('content','website');");
-		if (desc != null) {
-			js.append("	 else if(metas[i].getAttribute('property')=='og:decription')");
-			js.append("	  metas[i].setAttribute('content','" + desc + "');");
-		}
-		if (imgUrl != null) {
-			js.append("	 else if(metas[i].getAttribute('property')=='og:image')");
-			js.append("	  metas[i].setAttribute('content','" + imgUrl + "');");
-		} else {
-			// TODO reset default image
-		}
-		js.append("	};");
+//		js.append("var metas = document.getElementsByTagName('meta');");
+//		js.append("for (var i=0; i<metas.length; i++) {");
+//		js.append("	if (metas[i].getAttribute('property'))");
+//		js.append("	 if(metas[i].getAttribute('property')=='og:title')");
+//		js.append("	  metas[i].setAttribute('content','" + title + "');");
+//		js.append("	 else if(metas[i].getAttribute('property')=='og:url')");
+//		js.append("	  metas[i].setAttribute('content','" + url + "');");
+//		js.append("	 else if(metas[i].getAttribute('property')=='og:type')");
+//		js.append("	  metas[i].setAttribute('content','website');");
+//		if (desc != null) {
+//			js.append("	 else if(metas[i].getAttribute('property')=='og:decription')");
+//			js.append("	  metas[i].setAttribute('content','" + clean(desc)
+//					+ "');");
+//		}
+//		if (imgUrl != null) {
+//			js.append("	 else if(metas[i].getAttribute('property')=='og:image')");
+//			js.append("	  metas[i].setAttribute('content','" + imgUrl + "');");
+//		} else {
+//			// TODO reset default image
+//		}
+//		js.append("	};");
 		jsExecutor.execute(js.toString());
 	}
+
+	// Simply remove some illegal character
+//	private String clean(String stringToClean) {
+//		return stringToClean.replaceAll("'", "").replaceAll("\\n", "")
+//				.replaceAll("\\t", "");
+//	}
 
 	protected Node getNode() {
 		return node;
