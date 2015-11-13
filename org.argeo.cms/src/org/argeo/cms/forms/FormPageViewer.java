@@ -71,10 +71,6 @@ public class FormPageViewer extends AbstractPageViewer {
 
 	// TODO manage within the CSS
 	private int labelColWidth = 150;
-	private int sectionSeparatorHeight = 10;
-	private int sectionBodyVIndent = 30;
-	private int sectionBodyHSpacing = 15;
-	private int sectionBodyVSpacing = 15;
 	private int rowLayoutHSpacing = 8;
 
 	// Context cached in the viewer
@@ -410,29 +406,6 @@ public class FormPageViewer extends AbstractPageViewer {
 		rl.marginHeight = rl.marginWidth = 0;
 		rl.marginTop = rl.marginBottom = rl.marginLeft = rl.marginRight = 0;
 		bodyRow.setLayout(rl);
-		return bodyRow;
-	}
-
-	protected Composite createSectionBody(Composite parent, int nbOfCol) {
-		// The separator line. Ugly workaround that should be better managed via
-		// css
-		Composite header = new Composite(parent, SWT.NO_FOCUS);
-		CmsUtils.style(header, FormStyle.sectionHeader.style());
-		GridData gd = CmsUtils.fillWidth();
-		gd.verticalIndent = sectionSeparatorHeight;
-		gd.heightHint = 0;
-		header.setLayoutData(gd);
-
-		Composite bodyRow = new Composite(parent, SWT.NO_FOCUS);
-		gd = CmsUtils.fillWidth();
-		gd.verticalIndent = sectionBodyVIndent;
-		bodyRow.setLayoutData(gd);
-		GridLayout gl = new GridLayout(nbOfCol, false);
-		gl.horizontalSpacing = sectionBodyHSpacing;
-		gl.verticalSpacing = sectionBodyVSpacing;
-		bodyRow.setLayout(gl);
-		CmsUtils.style(bodyRow, FormStyle.section.style());
-
 		return bodyRow;
 	}
 
