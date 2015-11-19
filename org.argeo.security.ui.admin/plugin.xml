@@ -210,10 +210,7 @@
 	 <sourceProvider
 	        id="org.argeo.security.ui.admin.userTransactionProvider"
             provider="org.argeo.eclipse.spring.SpringExtensionFactory" >
-	   	
-<!--	   	<sourceProvider
-	        provider="org.argeo.security.ui.admin.internal.providers.UserTransactionProvider">
--->	     	<variable
+	   		<variable
 	            name="org.argeo.security.ui.admin.userTransactionState"
 	            priorityLevel="workbench">
 	      	</variable>
@@ -223,15 +220,16 @@
   	<!-- ACTIVITIES -->
 	<extension
 		point="org.eclipse.ui.activities">
-		<activityPatternBinding
+		<!-- group admin is intended to make all user and group maintenance operations -->
+		<!--<activityPatternBinding
 			activityId="org.argeo.security.ui.userAdminActivity"
 			isEqualityPattern="true"
 			pattern="org.argeo.security.ui.admin/org.argeo.security.ui.admin.adminSecurityPerspective">
-		</activityPatternBinding>
+		</activityPatternBinding>-->
 		<activityPatternBinding
 			activityId="org.argeo.security.ui.groupAdminActivity"
 			isEqualityPattern="true"
-			pattern="org.argeo.security.ui.admin/org.argeo.security.ui.admin.adminRolesView">
+			pattern="org.argeo.security.ui.admin/org.argeo.security.ui.admin.adminSecurityPerspective">
 		</activityPatternBinding>
 	</extension>
 	
