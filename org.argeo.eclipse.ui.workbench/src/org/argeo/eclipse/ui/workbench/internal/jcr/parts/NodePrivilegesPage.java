@@ -22,11 +22,6 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
-import javax.jcr.security.AccessControlEntry;
-import javax.jcr.security.AccessControlList;
-import javax.jcr.security.AccessControlManager;
-import javax.jcr.security.AccessControlPolicy;
-import javax.jcr.security.AccessControlPolicyIterator;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
@@ -46,7 +41,11 @@ import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.forms.editor.FormPage;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
-/** Display and edit a given node rights */
+/**
+ * Display and edit a given node privilege. For the time being it is completely
+ * JackRabbit specific (and hardcoded for this) and will display an empty page
+ * if using any other implementation
+ */
 public class NodePrivilegesPage extends FormPage {
 
 	private Node context;
@@ -66,7 +65,8 @@ public class NodePrivilegesPage extends FormPage {
 		layout.marginHeight = 5;
 		layout.marginWidth = 5;
 		form.getBody().setLayout(layout);
-		createRightsPart(form.getBody());
+		if (isJackRabbit())
+			createRightsPart(form.getBody());
 	}
 
 	/** Creates the authorization part */
@@ -199,7 +199,7 @@ public class NodePrivilegesPage extends FormPage {
 								.getNodes();
 						while (nit.hasNext()) {
 							Node currPrivNode = nit.nextNode();
-							if (currPrivNode.getName().equals("allow"))
+							if (currPrivNode.getName().startsWith("allow"))
 								privs.add(currPrivNode);
 						}
 					}
@@ -211,23 +211,24 @@ public class NodePrivilegesPage extends FormPage {
 					}
 				}
 
-				AccessControlManager acm = context.getSession()
-						.getAccessControlManager();
-				AccessControlPolicyIterator acpi = acm
-						.getApplicablePolicies(context.getPath());
-
-				List<AccessControlPolicy> acps = new ArrayList<AccessControlPolicy>();
-				try {
-					while (true) {
-						Object obj = acpi.next();
-						acps.add((AccessControlPolicy) obj);
-					}
-				} catch (Exception e) {
-					// No more elements
-				}
-
-				AccessControlList acl = ((AccessControlList) acps.get(0));
-				AccessControlEntry[] entries = acl.getAccessControlEntries();
+				// AccessControlManager acm = context.getSession()
+				// .getAccessControlManager();
+				// AccessControlPolicyIterator acpi = acm
+				// .getApplicablePolicies(context.getPath());
+				//
+				// List<AccessControlPolicy> acps = new
+				// ArrayList<AccessControlPolicy>();
+				// try {
+				// while (true) {
+				// Object obj = acpi.next();
+				// acps.add((AccessControlPolicy) obj);
+				// }
+				// } catch (Exception e) {
+				// // No more elements
+				// }
+				//
+				// AccessControlList acl = ((AccessControlList) acps.get(0));
+				// AccessControlEntry[] entries = acl.getAccessControlEntries();
 
 				return privs.toArray();
 			} catch (Exception e) {
@@ -236,4 +237,16 @@ public class NodePrivilegesPage extends FormPage {
 			}
 		}
 	}
+
+	// simply check if we are using jackrabbit without adding code dependencies
+	private boolean isJackRabbit() {
+		try {
+			String cname = context.getSession().getClass().getName();
+			return cname.startsWith("org.apache.jackrabbit");
+		} catch (RepositoryException e) {
+			throw new ArgeoException("Cannot check JCR implementation used on "
+					+ context, e);
+		}
+	}
+
 }

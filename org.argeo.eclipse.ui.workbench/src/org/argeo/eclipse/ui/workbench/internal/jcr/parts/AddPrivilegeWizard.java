@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.Text;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
-/** Add Jcr privileges to the chosen user group on a given node */
+/** Add JCR privileges to the chosen user group on a given node */
 public class AddPrivilegeWizard extends Wizard {
 
 	// Context
