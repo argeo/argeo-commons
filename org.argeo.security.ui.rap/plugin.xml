@@ -149,7 +149,8 @@
         </activity>
 		<activityPatternBinding
               activityId="org.argeo.security.ui.rap.notAnonymousActivity"
-              pattern="org.argeo.security.ui.rap/org.argeo.security.ui.rap.userMenuCommand"/>         <activityPatternBinding
+              pattern="org.argeo.security.ui.rap/org.argeo.security.ui.rap.userMenuCommand"/>         
+        <activityPatternBinding
               activityId="org.argeo.security.ui.rap.notAnonymousActivity"
               pattern="org.argeo.security.ui.rap/org.eclipse.ui.window.preferences"/>
         <activityPatternBinding
