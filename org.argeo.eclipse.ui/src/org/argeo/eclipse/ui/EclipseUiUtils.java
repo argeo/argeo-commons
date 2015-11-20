@@ -66,7 +66,7 @@ public class EclipseUiUtils {
 				.setStyle(SWT.BOLD | SWT.ITALIC)
 				.createFont(parent.getDisplay());
 	}
-	
+
 	//
 	// Simplify grid layouts management
 	//
@@ -176,6 +176,15 @@ public class EclipseUiUtils {
 	 * Create a label and a text field with password display for a grid layout,
 	 * the text field grabbing excess horizontal
 	 */
+	public static Text createGridLP(Composite parent, String label) {
+		return createGridLP(parent, label, null);
+	}
+
+	/**
+	 * Create a label and a text field with password display for a grid layout,
+	 * the text field grabbing excess horizontal. The given modify listener will
+	 * be added to the newly created text field if not null.
+	 */
 	public static Text createGridLP(Composite parent, String label,
 			ModifyListener modifyListener) {
 		Label lbl = new Label(parent, SWT.LEAD);
@@ -188,4 +197,15 @@ public class EclipseUiUtils {
 		return txt;
 	}
 
+	// MISCELLANEOUS
+
+	/** Simply checks if a string is not null nor empty */
+	public static boolean notEmpty(String stringToTest) {
+		return !(stringToTest == null || "".equals(stringToTest.trim()));
+	}
+
+	/** Simply checks if a string is null or empty */
+	public static boolean isEmpty(String stringToTest) {
+		return stringToTest == null || "".equals(stringToTest.trim());
+	}
 }
