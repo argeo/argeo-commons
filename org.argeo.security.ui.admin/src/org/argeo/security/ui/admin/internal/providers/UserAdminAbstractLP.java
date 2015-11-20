@@ -6,7 +6,6 @@ import javax.naming.ldap.LdapName;
 import org.argeo.ArgeoException;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
-import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.SWT;
@@ -18,8 +17,7 @@ import org.osgi.service.useradmin.User;
  * Utility class that add font modifications to a column label provider
  * depending on the given user properties
  */
-public abstract class UserAdminAbstractLP extends ColumnLabelProvider implements
-		UserAdminConstants {
+public abstract class UserAdminAbstractLP extends ColumnLabelProvider {
 	private static final long serialVersionUID = 137336765024922368L;
 
 	// private Font italic;

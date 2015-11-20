@@ -2,6 +2,7 @@ package org.argeo.security.ui.admin.internal;
 
 import java.security.AccessController;
 import java.util.List;
+import java.util.Set;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
@@ -12,6 +13,8 @@ import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
 import org.argeo.ArgeoException;
+import org.argeo.cms.auth.AuthConstants;
+import org.argeo.cms.auth.CurrentUser;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.internal.providers.UserTransactionProvider;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -28,6 +31,12 @@ public class UiAdminUtils {
 	public final static String getUsername(UserAdmin userAdmin) {
 		LdapName dn = getLdapName();
 		return getUsername(getUser(userAdmin, dn));
+	}
+
+	/** Returns true if the current user is in the specified role */
+	public static boolean isUserInRole(String role) {
+		Set<String> roles = CurrentUser.roles();
+		return roles.contains(role);
 	}
 
 	public final static boolean isCurrentUser(User user) {
@@ -73,7 +82,7 @@ public class UiAdminUtils {
 	/** Simply retrieves a display name of the relevant domain */
 	public final static String getDomainName(User user) {
 		String dn = (String) user.getProperties().get(LdifName.dn.name());
-		if (dn.endsWith(UserAdminConstants.SYSTEM_ROLE_BASE_DN))
+		if (dn.endsWith(AuthConstants.ROLES_BASEDN))
 			return "System roles";
 		try {
 			LdapName name;

@@ -8,6 +8,7 @@ import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
 import org.argeo.ArgeoException;
+import org.argeo.cms.auth.AuthConstants;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.useradmin.UserAdmin;
@@ -32,12 +33,13 @@ public class UserAdminWrapper {
 	}
 
 	/** Must be called from the UI Thread. */
-	public void beginTransactionIfNeeded() {
+	public UserTransaction beginTransactionIfNeeded() {
 		try {
 			if (userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION) {
 				userTransaction.begin();
 				UiAdminUtils.notifyTransactionStateChange(userTransaction);
 			}
+			return userTransaction;
 		} catch (Exception e) {
 			throw new ArgeoException("Unable to begin transaction", e);
 		}
@@ -78,7 +80,7 @@ public class UserAdminWrapper {
 
 			if (onlyWritable && "true".equals(readOnly))
 				continue;
-			if (baseDn.equalsIgnoreCase(UserAdminConstants.SYSTEM_ROLE_BASE_DN))
+			if (baseDn.equalsIgnoreCase(AuthConstants.ROLES_BASEDN))
 				continue;
 			dns.add(baseDn);
 		}

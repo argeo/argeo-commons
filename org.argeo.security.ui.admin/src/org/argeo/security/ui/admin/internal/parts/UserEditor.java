@@ -22,7 +22,6 @@ import org.argeo.ArgeoException;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
-import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.events.ModifyEvent;
@@ -41,7 +40,7 @@ import org.osgi.service.useradmin.UserAdminEvent;
 import org.osgi.service.useradmin.UserAdminListener;
 
 /** Editor for a user, might be a user or a group. */
-public class UserEditor extends FormEditor implements UserAdminConstants {
+public class UserEditor extends FormEditor {
 	private static final long serialVersionUID = 8357851520380820241L;
 
 	public final static String USER_EDITOR_ID = SecurityAdminPlugin.PLUGIN_ID
@@ -71,7 +70,7 @@ public class UserEditor extends FormEditor implements UserAdminConstants {
 	}
 
 	/**
-	 * returns the list of all authorisation for the given user or of the
+	 * returns the list of all authorization for the given user or of the
 	 * current displayed user if parameter is null
 	 */
 	protected List<User> getFlatGroups(User aUser) {

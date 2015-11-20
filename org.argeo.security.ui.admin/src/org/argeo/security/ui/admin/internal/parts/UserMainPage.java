@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.argeo.ArgeoException;
+import org.argeo.cms.auth.AuthConstants;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
@@ -54,9 +55,12 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -95,6 +99,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		ScrolledForm form = mf.getForm();
 		Composite body = form.getBody();
 		GridLayout mainLayout = new GridLayout();
+		// mainLayout.marginRight = 10;
 		body.setLayout(mainLayout);
 		User user = editor.getDisplayedUser();
 		appendOverviewPart(body, user);
@@ -157,9 +162,6 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 				user.getProperties().put(LdifName.cn.name(),
 						commonName.getText());
 				user.getProperties().put(LdifName.mail.name(), email.getText());
-				// Enable common name ?
-				// editor.setProperty(UserAdminConstants.KEY_CN,
-				// email.getText());
 				super.commit(onSave);
 			}
 
@@ -249,22 +251,29 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		Composite body = (Composite) section.getClient();
 		body.setLayout(EclipseUiUtils.noSpaceGridLayout());
 
+		boolean isAdmin = UiAdminUtils.isUserInRole(AuthConstants.ROLE_ADMIN);
+
 		// Displayed columns
 		List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
 		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 0, 24));
 		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name",
 				150));
 		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain Name",
-				120));
-		columnDefs.add(new ColumnDefinition(new UserNameLP(),
-				"Distinguished Name", 300));
+				200));
+		// Only show technical DN to administrators
+		if (isAdmin)
+			columnDefs.add(new ColumnDefinition(new UserNameLP(),
+					"Distinguished Name", 120));
 
 		// Create and configure the table
 		final LdifUsersTable userViewerCmp = new MyUserTableViewer(body,
 				SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, user);
 
 		userViewerCmp.setColumnDefinitions(columnDefs);
-		userViewerCmp.populate(true, false);
+		if (isAdmin)
+			userViewerCmp.populateWithStaticFilters(false, false);
+		else
+			userViewerCmp.populate(true, false);
 		GridData gd = EclipseUiUtils.fillAll();
 		gd.heightHint = 300;
 		userViewerCmp.setLayoutData(gd);
@@ -311,7 +320,9 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 	}
 
 	private class MyUserTableViewer extends LdifUsersTable {
-		private static final long serialVersionUID = 8467999509931900367L;
+		private static final long serialVersionUID = 2653790051461237329L;
+
+		private Button showSystemRoleBtn;
 
 		private final User user;
 		private final UserFilter userFilter;
@@ -320,6 +331,23 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 			super(parent, style, true);
 			this.user = user;
 			userFilter = new UserFilter();
+			userFilter.setShowSystemRole(false);
+		}
+
+		protected void populateStaticFilters(Composite staticFilterCmp) {
+			staticFilterCmp.setLayout(new GridLayout());
+			showSystemRoleBtn = new Button(staticFilterCmp, SWT.CHECK);
+			showSystemRoleBtn.setText("Show system roles");
+			showSystemRoleBtn.addSelectionListener(new SelectionAdapter() {
+				private static final long serialVersionUID = -7033424592697691676L;
+
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					userFilter.setShowSystemRole(showSystemRoleBtn
+							.getSelection());
+					refresh();
+				}
+			});
 		}
 
 		@Override

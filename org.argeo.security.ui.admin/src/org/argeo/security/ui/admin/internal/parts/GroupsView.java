@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
+import org.argeo.cms.auth.AuthConstants;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
@@ -28,7 +29,6 @@ import org.argeo.jcr.ArgeoNames;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
-import org.argeo.security.ui.admin.internal.UserAdminConstants;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.providers.CommonNameLP;
 import org.argeo.security.ui.admin.internal.providers.DomainNameLP;
@@ -72,20 +72,29 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 	@Override
 	public void createPartControl(Composite parent) {
 		parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
+
+		boolean isAdmin = UiAdminUtils.isUserInRole(AuthConstants.ROLE_ADMIN);
+
 		// Define the displayed columns
 		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 26));
 		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name",
 				150));
-		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain", 120));
-		columnDefs.add(new ColumnDefinition(new UserNameLP(),
-				"Distinguished Name", 300));
+		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain", 200));
+		// Only show technical DN to admin
+		if (isAdmin)
+			columnDefs.add(new ColumnDefinition(new UserNameLP(),
+					"Distinguished Name", 300));
 
 		// Create and configure the table
 		groupTableViewerCmp = new MyUserTableViewer(parent, SWT.MULTI
 				| SWT.H_SCROLL | SWT.V_SCROLL);
 
 		groupTableViewerCmp.setColumnDefinitions(columnDefs);
-		groupTableViewerCmp.populateWithStaticFilters(false, false);
+		if (isAdmin)
+			groupTableViewerCmp.populateWithStaticFilters(false, false);
+		else
+			groupTableViewerCmp.populate(true, false);
+
 		groupTableViewerCmp.setLayoutData(EclipseUiUtils.fillAll());
 
 		// Links
@@ -116,7 +125,7 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 	private class MyUserTableViewer extends LdifUsersTable {
 		private static final long serialVersionUID = 8467999509931900367L;
 
-		private Button showSystemRoleBtn;
+		private boolean showSystemRoles = false;
 
 		private final String[] knownProps = { LdifName.uid.name(),
 				LdifName.cn.name(), LdifName.dn.name() };
@@ -127,13 +136,15 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 
 		protected void populateStaticFilters(Composite staticFilterCmp) {
 			staticFilterCmp.setLayout(new GridLayout());
-			showSystemRoleBtn = new Button(staticFilterCmp, SWT.CHECK);
+			final Button showSystemRoleBtn = new Button(staticFilterCmp,
+					SWT.CHECK);
 			showSystemRoleBtn.setText("Show system roles");
 			showSystemRoleBtn.addSelectionListener(new SelectionAdapter() {
 				private static final long serialVersionUID = -7033424592697691676L;
 
 				@Override
 				public void widgetSelected(SelectionEvent e) {
+					showSystemRoles = showSystemRoleBtn.getSelection();
 					refresh();
 				}
 
@@ -158,23 +169,23 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 					builder.append("(&(").append(LdifName.objectClass.name())
 							.append("=").append(LdifName.groupOfNames.name())
 							.append(")");
-					if (!showSystemRoleBtn.getSelection())
+					if (!showSystemRoles)
 						builder.append("(!(").append(LdifName.dn.name())
 								.append("=*")
-								.append(UserAdminConstants.SYSTEM_ROLE_BASE_DN)
+								.append(AuthConstants.ROLES_BASEDN)
 								.append("))");
 					builder.append("(|");
 					builder.append(tmpBuilder.toString());
 					builder.append("))");
 				} else {
-					if (!showSystemRoleBtn.getSelection())
+					if (!showSystemRoles)
 						builder.append("(&(")
 								.append(LdifName.objectClass.name())
 								.append("=")
 								.append(LdifName.groupOfNames.name())
 								.append(")(!(").append(LdifName.dn.name())
 								.append("=*")
-								.append(UserAdminConstants.SYSTEM_ROLE_BASE_DN)
+								.append(AuthConstants.ROLES_BASEDN)
 								.append(")))");
 					else
 						builder.append("(").append(LdifName.objectClass.name())

@@ -15,43 +15,30 @@
  */
 package org.argeo.security.ui.admin.internal.commands;
 
+import org.argeo.security.ui.admin.internal.UserAdminWrapper;
+import org.argeo.security.ui.admin.internal.parts.UserBatchUpdateWizard;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.ui.handlers.HandlerUtil;
 
-/** Launch a wizard to update various properties about users in JCR. */
+/** Launch a wizard to perform batch process on users */
 public class UserBatchUpdate extends AbstractHandler {
-	// private Repository repository;
-	// private UserAdminService userAdminService;
+
+	/* DEPENDENCY INJECTION */
+	private UserAdminWrapper uaWrapper;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		// Session session = null;
-		// try {
-		// session = repository.login();
-		// UserBatchUpdateWizard userBatchUpdateWizard = new
-		// UserBatchUpdateWizard(
-		// session, userAdminService);
-		// WizardDialog dialog = new WizardDialog(
-		// HandlerUtil.getActiveShell(event), userBatchUpdateWizard);
-		// dialog.open();
-		// } catch (Exception e) {
-		// throw new ExecutionException("Cannot open wizard", e);
-		// } finally {
-		// JcrUtils.logoutQuietly(session);
-		// }
+		UserBatchUpdateWizard wizard = new UserBatchUpdateWizard(uaWrapper);
+		wizard.setWindowTitle("User batch processing");
+		WizardDialog dialog = new WizardDialog(
+				HandlerUtil.getActiveShell(event), wizard);
+		dialog.open();
 		return null;
 	}
 
-//	public void setRepository(Repository repository) {
-//		this.repository = repository;
-//	}
-	//
-	// public void setUserAdminService(UserAdminService userAdminService) {
-	// this.userAdminService = userAdminService;
-	// }
-
-	// public void setJcrSecurityModel(JcrSecurityModel jcrSecurityModel) {
-	// this.jcrSecurityModel = jcrSecurityModel;
-	// }
-
+	public void setUserAdminWrapper(UserAdminWrapper userAdminWrapper) {
+		this.uaWrapper = userAdminWrapper;
+	}
 }

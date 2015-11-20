@@ -55,9 +55,9 @@ public class NewGroup extends AbstractHandler {
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		NewGroupWizard newGroupWizard = new NewGroupWizard();
+		newGroupWizard.setWindowTitle("Group creation");
 		WizardDialog dialog = new WizardDialog(
 				HandlerUtil.getActiveShell(event), newGroupWizard);
-		dialog.setTitle("Create a new group");
 		dialog.open();
 		return null;
 	}
@@ -78,9 +78,6 @@ public class NewGroup extends AbstractHandler {
 		public void addPages() {
 			mainGroupInfo = new MainGroupInfoWizardPage();
 			addPage(mainGroupInfo);
-
-			setWindowTitle("Create a new group");
-			// mainGroupInfo.setMessage(message, WizardPage.WARNING);
 		}
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -113,7 +110,8 @@ public class NewGroup extends AbstractHandler {
 			public MainGroupInfoWizardPage() {
 				super("Main");
 				setTitle("General information");
-				setMessage("Please provide a common name and a free description");
+				setMessage("Please choose a domain, provide a common name "
+						+ "and a free description");
 			}
 
 			@Override
@@ -121,11 +119,13 @@ public class NewGroup extends AbstractHandler {
 				Composite bodyCmp = new Composite(parent, SWT.NONE);
 				bodyCmp.setLayout(new GridLayout(2, false));
 				dNameTxt = EclipseUiUtils.createGridLT(bodyCmp,
-						"Distinguished name", this);
+						"Distinguished name"); // Read-only -> no listener
 				dNameTxt.setEnabled(false);
 
-				baseDnCmb = createGridLC(bodyCmp, "Base DN", this);
+				baseDnCmb = createGridLC(bodyCmp, "Base DN");
+				// Initialise before adding the listener top avoid NPE
 				initialiseDnCmb(baseDnCmb);
+				baseDnCmb.addModifyListener(this);
 				baseDnCmb.addModifyListener(new ModifyListener() {
 					private static final long serialVersionUID = -1435351236582736843L;
 
@@ -198,7 +198,10 @@ public class NewGroup extends AbstractHandler {
 			public void setVisible(boolean visible) {
 				super.setVisible(visible);
 				if (visible)
-					commonNameTxt.setFocus();
+					if (baseDnCmb.getSelectionIndex() == -1)
+						baseDnCmb.setFocus();
+					else
+						commonNameTxt.setFocus();
 			}
 		}
 
@@ -212,20 +215,18 @@ public class NewGroup extends AbstractHandler {
 				throw new ArgeoException(
 						"No writable base dn found. Cannot create user");
 			combo.setItems(dns.toArray(new String[0]));
-			// combo.select(0);
+			if (dns.size() == 1)
+				combo.select(0);
 		}
 
 	}
 
-	private Combo createGridLC(Composite parent, String label,
-			ModifyListener modifyListener) {
+	private Combo createGridLC(Composite parent, String label) {
 		Label lbl = new Label(parent, SWT.LEAD);
 		lbl.setText(label);
 		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		Combo combo = new Combo(parent, SWT.LEAD | SWT.BORDER | SWT.READ_ONLY);
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		if (modifyListener != null)
-			combo.addModifyListener(modifyListener);
 		return combo;
 	}
 

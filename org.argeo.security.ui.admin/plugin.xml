@@ -62,6 +62,11 @@
             defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
 			name="Delete User">
 		</command>
+		<command
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            id="org.argeo.security.ui.admin.userBatchUpdate"
+            name="User batch update">
+		</command>
 		<!-- Group CRUD -->
 		<command
 			id="org.argeo.security.ui.admin.newGroup"
@@ -90,12 +95,6 @@
             id="org.argeo.security.ui.admin.forceRefresh"
             name="Force Refresh">
       </command>
-      <!-- 
-      <command
-            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            id="org.argeo.security.ui.admin.userBatchUpdate"
-            name="User batch update">
-      </command> -->
 	</extension>
 	
 	<!-- MENU CONTRIBUTIONS -->
@@ -104,15 +103,6 @@
 		<menuContribution
 			locationURI="toolbar:org.argeo.security.ui.rap.userToolbar?after=org.eclipse.ui.file.saveAll"> 
 			<!-- Transaction management --> 
-<!-- 			<command
-				commandId="org.argeo.security.ui.admin.userTransactionHandler"
-				icon="icons/begin.gif"
-				label="Begin Transaction"
-				style="push"
-				tooltip="Begin a user transaction">
-				<parameter name="param.commandId" value="transaction.begin" />
-			</command>-->
-			
  			<command
 				commandId="org.argeo.security.ui.admin.userTransactionHandler"
 				icon="icons/commit.gif"
@@ -162,12 +152,12 @@
                   label="Add User"
                   tooltip="Create a new user">
             </command>
-            <!--<command
+            <command
                   commandId="org.argeo.security.ui.admin.userBatchUpdate"
                   icon="icons/batch.gif"
                   label="Update users"
                   tooltip="Perform maintenance activities on a list of chosen users">
-            </command>-->
+            </command>
         </menuContribution>
 
     	<!-- GroupsView specific toolbar menu -->

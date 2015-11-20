@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.argeo.ArgeoException;
+import org.argeo.cms.auth.AuthConstants;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
@@ -70,16 +71,17 @@ public class UsersView extends ViewPart implements ArgeoNames {
 		// Define the displayed columns
 		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name",
 				150));
-		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain", 120));
 		columnDefs.add(new ColumnDefinition(new MailLP(), "E-mail", 150));
-		columnDefs.add(new ColumnDefinition(new UserNameLP(),
-				"Distinguished Name", 300));
+		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain", 200));
+		// Only show technical DN to admin
+		if (UiAdminUtils.isUserInRole(AuthConstants.ROLE_ADMIN))
+			columnDefs.add(new ColumnDefinition(new UserNameLP(),
+					"Distinguished Name", 300));
 
 		// Create and configure the table
 		userTableViewerCmp = new MyUserTableViewer(parent, SWT.MULTI
 				| SWT.H_SCROLL | SWT.V_SCROLL);
 		userTableViewerCmp.setLayoutData(EclipseUiUtils.fillAll());
-
 		userTableViewerCmp.setColumnDefinitions(columnDefs);
 		userTableViewerCmp.populate(true, false);
 
