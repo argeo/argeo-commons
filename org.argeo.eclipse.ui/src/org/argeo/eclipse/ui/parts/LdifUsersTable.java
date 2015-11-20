@@ -157,8 +157,8 @@ public abstract class LdifUsersTable extends Composite {
 	 * if relevant
 	 */
 	public void refresh() {
-		String filter = hasFilter ? filterTxt.getText() : null;
-		if ("".equals(filter.trim()))
+		String filter = hasFilter ? filterTxt.getText().trim() : null;
+		if ("".equals(filter))
 			filter = null;
 		refreshFilteredList(filter);
 	}
@@ -329,7 +329,7 @@ public abstract class LdifUsersTable extends Composite {
 		table.setHeaderVisible(true);
 
 		TableViewerColumn column;
-//		int offset = 0;
+		// int offset = 0;
 		if (hasSelectionColumn) {
 			// offset = 1;
 			column = ViewerUtils.createTableViewerColumn(viewer, "", SWT.NONE,
@@ -342,6 +342,9 @@ public abstract class LdifUsersTable extends Composite {
 					return null;
 				}
 			});
+			layout.setColumnData(column.getColumn(), new ColumnWeightData(25,
+					25, false));
+
 			SelectionAdapter selectionAdapter = new SelectionAdapter() {
 				private static final long serialVersionUID = 1L;
 
@@ -359,7 +362,7 @@ public abstract class LdifUsersTable extends Composite {
 
 		// NodeViewerComparator comparator = new NodeViewerComparator();
 		// TODO enable the sort by click on the header
-//		int i = offset;
+		// int i = offset;
 		for (ColumnDefinition colDef : columnDefs)
 			createTableColumn(viewer, layout, colDef);
 
