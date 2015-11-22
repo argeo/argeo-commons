@@ -1,13 +1,11 @@
 package org.argeo.cms;
 
-import static javax.jcr.Property.JCR_DESCRIPTION;
-
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -24,7 +22,6 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
-import org.argeo.cms.util.CmsUtils;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
@@ -54,6 +51,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 	// Current state
 	private Session session;
 	private Node node;
+	private String nodePath;// useful when changing auth
 	private String state;
 	private String page;
 	private Throwable exception;
@@ -163,12 +161,12 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 	}
 
 	@Override
-	public Subject getSubject() {
+	public synchronized Subject getSubject() {
 		return subject;
 	}
 
 	@Override
-	public void logout() {
+	public synchronized void logout() {
 		if (loginContext == null)
 			throw new CmsException("Login context should not be null");
 		try {
@@ -183,27 +181,23 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 	}
 
 	@Override
-	public void authChange(LoginContext loginContext) {
+	public synchronized void authChange(LoginContext loginContext) {
 		if (loginContext == null)
 			throw new CmsException("Login context cannot be null");
 		this.loginContext = loginContext;
-		Subject.doAs(subject, new PrivilegedAction<Void>() {
+		Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Void>() {
 
 			@Override
 			public Void run() {
 				try {
-					String currentPath = null;
-					if (node != null)
-						currentPath = node.getPath();
 					JcrUtils.logoutQuietly(session);
-
 					session = repository.login(workspace);
-					if (currentPath != null)
+					if (nodePath != null)
 						try {
-							node = session.getNode(currentPath);
-						} catch (Exception e) {
-							logout();
-							session = repository.login(workspace);
+							node = session.getNode(nodePath);
+						} catch (PathNotFoundException e) {
+							// logout();
+							// session = repository.login(workspace);
 							navigateTo("~");
 							throw e;
 						}
@@ -227,7 +221,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 		doRefresh();
 	}
 
-	protected void doRefresh() {
+	protected synchronized void doRefresh() {
 		Subject.doAs(subject, new PrivilegedAction<Void>() {
 			@Override
 			public Void run() {
@@ -241,7 +235,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 	protected synchronized String setState(String newState) {
 		String previousState = this.state;
 
-		node = null;
+		Node node = null;
 		page = null;
 		this.state = newState;
 		if (newState.equals("~"))
@@ -267,21 +261,12 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 				node = getDefaultNode(session);
 				page = state;
 			}
-
-			// Title
-			String title;
-			if (node.isNodeType(NodeType.MIX_TITLE)
-					&& node.hasProperty(Property.JCR_TITLE))
-				title = node.getProperty(Property.JCR_TITLE).getString()
-						+ " - " + getBaseTitle();
-			else
-				title = getBaseTitle();
-
-			publishMetaData(title);
+			setNode(node);
+			String title = publishMetaData(node);
 
 			if (log.isTraceEnabled())
 				log.trace("node=" + node + ", state=" + state + " (page="
-						+ page + ", title=" + title + ")");
+						+ page + ")");
 
 			return title;
 		} catch (Exception e) {
@@ -294,54 +279,69 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 		}
 	}
 
-	private void publishMetaData(String title) throws RepositoryException {
+	private String publishMetaData(Node node) throws RepositoryException {
+		// Title
+		String title;
+		if (node.isNodeType(NodeType.MIX_TITLE)
+				&& node.hasProperty(Property.JCR_TITLE))
+			title = node.getProperty(Property.JCR_TITLE).getString() + " - "
+					+ getBaseTitle();
+		else
+			title = getBaseTitle();
+
 		HttpServletRequest request = UiContext.getHttpRequest();
 		if (request == null)
-			return;
-		String url = CmsUtils.getCanonicalUrl(node, request);
-		String desc = node.hasProperty(JCR_DESCRIPTION) ? node.getProperty(
-				JCR_DESCRIPTION).getString() : null;
-		String imgUrl = null;
-		for (NodeIterator it = node.getNodes(); it.hasNext();) {
-			Node child = it.nextNode();
-			if (child.isNodeType(CmsTypes.CMS_IMAGE))
-				imgUrl = CmsUtils.getDataUrl(child, request);
-		}
+			return null;
+		// String url = CmsUtils.getCanonicalUrl(node, request);
+		// String desc = node.hasProperty(JCR_DESCRIPTION) ? node.getProperty(
+		// JCR_DESCRIPTION).getString() : null;
+		// String imgUrl = null;
+		// for (NodeIterator it = node.getNodes(); it.hasNext();) {
+		// Node child = it.nextNode();
+		// if (child.isNodeType(CmsTypes.CMS_IMAGE))
+		// imgUrl = CmsUtils.getDataUrl(child, request);
+		// }
 
 		StringBuilder js = new StringBuilder();
 		js.append("document.title = '" + title + "';");
-//		js.append("var metas = document.getElementsByTagName('meta');");
-//		js.append("for (var i=0; i<metas.length; i++) {");
-//		js.append("	if (metas[i].getAttribute('property'))");
-//		js.append("	 if(metas[i].getAttribute('property')=='og:title')");
-//		js.append("	  metas[i].setAttribute('content','" + title + "');");
-//		js.append("	 else if(metas[i].getAttribute('property')=='og:url')");
-//		js.append("	  metas[i].setAttribute('content','" + url + "');");
-//		js.append("	 else if(metas[i].getAttribute('property')=='og:type')");
-//		js.append("	  metas[i].setAttribute('content','website');");
-//		if (desc != null) {
-//			js.append("	 else if(metas[i].getAttribute('property')=='og:decription')");
-//			js.append("	  metas[i].setAttribute('content','" + clean(desc)
-//					+ "');");
-//		}
-//		if (imgUrl != null) {
-//			js.append("	 else if(metas[i].getAttribute('property')=='og:image')");
-//			js.append("	  metas[i].setAttribute('content','" + imgUrl + "');");
-//		} else {
-//			// TODO reset default image
-//		}
-//		js.append("	};");
+		// js.append("var metas = document.getElementsByTagName('meta');");
+		// js.append("for (var i=0; i<metas.length; i++) {");
+		// js.append("	if (metas[i].getAttribute('property'))");
+		// js.append("	 if(metas[i].getAttribute('property')=='og:title')");
+		// js.append("	  metas[i].setAttribute('content','" + title + "');");
+		// js.append("	 else if(metas[i].getAttribute('property')=='og:url')");
+		// js.append("	  metas[i].setAttribute('content','" + url + "');");
+		// js.append("	 else if(metas[i].getAttribute('property')=='og:type')");
+		// js.append("	  metas[i].setAttribute('content','website');");
+		// if (desc != null) {
+		// js.append("	 else if(metas[i].getAttribute('property')=='og:decription')");
+		// js.append("	  metas[i].setAttribute('content','" + clean(desc)
+		// + "');");
+		// }
+		// if (imgUrl != null) {
+		// js.append("	 else if(metas[i].getAttribute('property')=='og:image')");
+		// js.append("	  metas[i].setAttribute('content','" + imgUrl + "');");
+		// } else {
+		// // TODO reset default image
+		// }
+		// js.append("	};");
 		jsExecutor.execute(js.toString());
+		return title;
 	}
 
 	// Simply remove some illegal character
-//	private String clean(String stringToClean) {
-//		return stringToClean.replaceAll("'", "").replaceAll("\\n", "")
-//				.replaceAll("\\t", "");
-//	}
+	// private String clean(String stringToClean) {
+	// return stringToClean.replaceAll("'", "").replaceAll("\\n", "")
+	// .replaceAll("\\t", "");
+	// }
 
-	protected Node getNode() {
+	protected synchronized Node getNode() {
 		return node;
+	}
+
+	private synchronized void setNode(Node node) throws RepositoryException {
+		this.node = node;
+		this.nodePath = node == null ? null : node.getPath();
 	}
 
 	protected String getState() {
