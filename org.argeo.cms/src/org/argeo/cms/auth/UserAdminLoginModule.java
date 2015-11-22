@@ -126,7 +126,7 @@ public class UserAdminLoginModule implements LoginModule, AuthConstants {
 	public boolean commit() throws LoginException {
 		Authorization authorization = subject
 				.getPrivateCredentials(Authorization.class).iterator().next();
-		if (request != null) {
+		if (request != null && authorization.getName() != null) {
 			request.setAttribute(HttpContext.REMOTE_USER,
 					authorization.getName());
 			request.setAttribute(HttpContext.AUTHORIZATION, authorization);
