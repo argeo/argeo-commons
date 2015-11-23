@@ -20,7 +20,8 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.argeo.cms.CmsException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.CmsStyles;
 import org.argeo.cms.CmsView;
@@ -48,6 +49,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class CmsLogin implements CmsStyles, CallbackHandler {
+	private final static Log log = LogFactory.getLog(CmsLogin.class);
+
 	private Composite parent;
 	private Text usernameT, passwordT;
 	private Composite credentialsBlock;
@@ -205,7 +208,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		// save already entered values
 		String usernameStr = usernameT.getText();
 		char[] pwd = passwordT.getTextChars();
-		
+
 		for (Control child : parent.getChildren())
 			child.dispose();
 		createContents(parent);
@@ -250,7 +253,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		return c;
 	}
 
-	protected void login() {
+	protected boolean login() {
 		Subject subject = cmsView.getSubject();
 		LoginContext loginContext;
 		try {
@@ -260,10 +263,13 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 			new LoginContext(LOGIN_CONTEXT_ANONYMOUS, subject).logout();
 			loginContext = new LoginContext(LOGIN_CONTEXT_USER, subject, this);
 			loginContext.login();
-		} catch (LoginException e1) {
-			throw new CmsException("Cannot authenticate", e1);
+		} catch (LoginException e) {
+			// throw new CmsException("Cannot authenticate", e1);
+			log.error("Cannot login", e);
+			return false;
 		}
 		cmsView.authChange(loginContext);
+		return true;
 	}
 
 	protected void logout() {

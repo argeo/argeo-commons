@@ -30,9 +30,12 @@ public class CmsLoginShell extends CmsLogin {
 	}
 
 	@Override
-	protected void login() {
-		super.login();
-		closeShell();
+	protected boolean login() {
+		try {
+			return super.login();
+		} finally {
+			closeShell();
+		}
 	}
 
 	@Override
