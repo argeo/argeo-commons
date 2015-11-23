@@ -12,6 +12,7 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.security.auth.x500.X500Principal;
@@ -61,7 +62,7 @@ public class NodeUserLoginModule implements LoginModule {
 		Iterator<Authorization> auth = subject.getPrivateCredentials(
 				Authorization.class).iterator();
 		if (!auth.hasNext())
-			return false;
+			throw new FailedLoginException("No authorization available");
 		authorization = auth.next();
 		return true;
 	}

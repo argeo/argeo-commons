@@ -17,6 +17,7 @@ import javax.security.auth.callback.LanguageCallback;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
@@ -263,8 +264,10 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 			new LoginContext(LOGIN_CONTEXT_ANONYMOUS, subject).logout();
 			loginContext = new LoginContext(LOGIN_CONTEXT_USER, subject, this);
 			loginContext.login();
+		} catch (FailedLoginException e) {
+			log.warn(e.getMessage());
+			return false;
 		} catch (LoginException e) {
-			// throw new CmsException("Cannot authenticate", e1);
 			log.error("Cannot login", e);
 			return false;
 		}

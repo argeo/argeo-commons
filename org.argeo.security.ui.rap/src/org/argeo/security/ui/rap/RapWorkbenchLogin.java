@@ -4,6 +4,7 @@ import java.security.PrivilegedAction;
 import java.util.Locale;
 
 import javax.security.auth.Subject;
+import javax.security.auth.x500.X500Principal;
 
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.auth.CurrentUser;
@@ -44,6 +45,11 @@ public class RapWorkbenchLogin extends LoginEntryPoint {
 	@Override
 	protected int postLogin() {
 		final Display display = Display.getCurrent();
+		Subject subject = getSubject();
+		if (subject.getPrincipals(X500Principal.class).isEmpty()) {
+			RWT.getClient().getService(JavaScriptExecutor.class)
+					.execute("location.reload()");
+		}
 		//
 		// RUN THE WORKBENCH
 		//

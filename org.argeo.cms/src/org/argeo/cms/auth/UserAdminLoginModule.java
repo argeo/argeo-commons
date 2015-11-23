@@ -14,6 +14,7 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.CredentialNotFoundException;
+import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.servlet.http.HttpServletRequest;
@@ -108,9 +109,10 @@ public class UserAdminLoginModule implements LoginModule, AuthConstants {
 
 					User user = userAdmin.getUser(null, username);
 					if (user == null)
-						return false;
+						throw new FailedLoginException("Invalid credentials");
 					if (!user.hasCredential(null, password))
-						return false;
+						throw new FailedLoginException("Invalid credentials");
+					// return false;
 					authorization = userAdmin.getAuthorization(user);
 				}
 			}
