@@ -135,6 +135,11 @@
 			name="Add Privileges">
 		</command>
 		<command
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+			id="org.argeo.eclipse.ui.workbench.removePrivileges"
+			name="Remove Privileges">
+		</command>
+		<command
 			defaultHandler="org.argeo.eclipse.ui.workbench.commands.CreateWorkspace"
 			id="org.argeo.eclipse.ui.workbench.createWorkspace"
 			name="Create a new workspace">
@@ -226,7 +231,7 @@
 			<command
 		         commandId="org.argeo.eclipse.ui.workbench.addFolderNode"
 		         icon="icons/addFolder.gif"
-		         label="Add Folder"
+		         label="Add Folder..."
 		         style="push">
 				<visibleWhen>
 					<iterate>
@@ -246,8 +251,29 @@
 			</command>
 			<command
 		         commandId="org.argeo.eclipse.ui.workbench.addPrivileges"
-		         icon="icons/addPrivileges.png"
-		         label="Add Privileges"
+		         icon="icons/addPrivileges.gif"
+		         label="Add Privileges..."
+		         style="push">
+				<visibleWhen>
+					<iterate>
+				      <and>
+				         <or>
+				            <instanceof
+				                  value="org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem">
+				            </instanceof>
+				            <instanceof
+				                  value="org.argeo.eclipse.ui.workbench.internal.jcr.model.WorkspaceElem">
+				            </instanceof>
+				         </or>
+             			<with variable="activeMenuSelection"><count value="1"/></with>
+				      </and>
+					</iterate>
+				</visibleWhen>
+			</command>
+			<command
+		         commandId="org.argeo.eclipse.ui.workbench.removePrivileges"
+		         icon="icons/removePrivileges.gif"
+		         label="Remove Privileges..."
 		         style="push">
 				<visibleWhen>
 					<iterate>
@@ -268,7 +294,7 @@
 			<command
 		         commandId="org.argeo.eclipse.ui.workbench.createWorkspace"
 		         icon="icons/addWorkspace.png"
-		         label="Create Workspace"
+		         label="Create Workspace..."
 		         style="push">
 				<visibleWhen>
 					<iterate>

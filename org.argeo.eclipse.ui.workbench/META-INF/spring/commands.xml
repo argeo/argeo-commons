@@ -14,5 +14,9 @@
 	<bean id="addPrivileges" class="org.argeo.eclipse.ui.workbench.commands.AddPrivileges">
 		<property name="userAdmin" ref="userAdmin" />
 	</bean>
+	<bean id="removePrivileges"
+		class="org.argeo.eclipse.ui.workbench.commands.RemovePrivileges">
+		<!-- <property name="userAdmin" ref="userAdmin" /> -->
+	</bean>
 
 </beans>

@@ -32,6 +32,8 @@ public class JcrImages {
 			"icons/home.gif").createImage();
 	public final static Image SORT = WorkbenchUiPlugin.getImageDescriptor(
 			"icons/sort.gif").createImage();
+	public final static Image REMOVE = WorkbenchUiPlugin.getImageDescriptor(
+			"icons/remove.gif").createImage();
 
 	public final static Image REPOSITORIES = WorkbenchUiPlugin
 			.getImageDescriptor("icons/repositories.gif").createImage();

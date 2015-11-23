@@ -24,6 +24,7 @@ import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.eclipse.ui.workbench.internal.users.UsersUtils;
 import org.argeo.osgi.useradmin.LdifName;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -35,8 +36,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -62,14 +63,17 @@ public class PickUpUserDialog extends TrayDialog {
 	private TableViewer userViewer;
 	private List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
 
+	/**
+	 * A dialog to pick up a group or a user, showing a table with default
+	 * columns
+	 */
 	public PickUpUserDialog(Shell parentShell, String title, UserAdmin userAdmin) {
 		super(parentShell);
 		this.title = title;
 		this.userAdmin = userAdmin;
 
-		// Define the displayed columns
 		columnDefs.add(new ColumnDefinition(new UserLP(UserLP.COL_ICON), "",
-				26, 0));
+				24, 24));
 		columnDefs.add(new ColumnDefinition(
 				new UserLP(UserLP.COL_DISPLAY_NAME), "Common Name", 150, 100));
 		columnDefs.add(new ColumnDefinition(new UserLP(UserLP.COL_DOMAIN),
@@ -78,8 +82,22 @@ public class PickUpUserDialog extends TrayDialog {
 				"Distinguished Name", 300, 100));
 	}
 
-	protected Point getInitialSize() {
-		return new Point(700, 450);
+	/** A dialog to pick up a group or a user */
+	public PickUpUserDialog(Shell parentShell, String title,
+			UserAdmin userAdmin, List<ColumnDefinition> columnDefs) {
+		super(parentShell);
+		this.title = title;
+		this.userAdmin = userAdmin;
+		this.columnDefs = columnDefs;
+	}
+
+	@Override
+	protected void okPressed() {
+		if (getSelected() == null)
+			MessageDialog.openError(getShell(), "No user chosen",
+					"Please, choose a user or press Cancel.");
+		else
+			super.okPressed();
 	}
 
 	protected Control createDialogArea(Composite parent) {
@@ -95,7 +113,9 @@ public class PickUpUserDialog extends TrayDialog {
 
 		userTableViewerCmp.setColumnDefinitions(columnDefs);
 		userTableViewerCmp.populateWithStaticFilters(false, false);
-		userTableViewerCmp.setLayoutData(EclipseUiUtils.fillAll());
+		GridData gd = EclipseUiUtils.fillAll();
+		gd.minimumHeight = 300;
+		userTableViewerCmp.setLayoutData(gd);
 		userTableViewerCmp.refresh();
 
 		// Controllers
