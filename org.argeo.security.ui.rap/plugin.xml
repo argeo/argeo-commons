@@ -5,7 +5,7 @@
          point="org.eclipse.rap.ui.entrypoint">
       <entrypoint
             id="org.argeo.security.ui.rap.secureEntryPoint"
-            class="org.argeo.security.ui.rap.SecureEntryPoint"
+            class="org.argeo.security.ui.rap.RapWorkbenchLogin"
             path="/node"
             brandingId="org.argeo.security.ui.rap.defaultBranding">
       </entrypoint>

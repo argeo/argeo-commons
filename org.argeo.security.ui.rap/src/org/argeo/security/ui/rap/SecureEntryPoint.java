@@ -46,6 +46,7 @@ import org.eclipse.ui.PlatformUI;
  * authenticated, the workbench is run as a privileged action by the related
  * subject.
  */
+@Deprecated
 public class SecureEntryPoint implements EntryPoint {
 	final static String ACCESS_CONTROL_CONTEXT = "org.argeo.node.accessControlContext";
 	private final static Log log = LogFactory.getLog(SecureEntryPoint.class);
