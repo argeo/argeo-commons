@@ -175,7 +175,8 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 						LdifName.givenname.name()));
 				lastName.setText(UiAdminUtils.getProperty(user,
 						LdifName.sn.name()));
-				email.setText(LdifName.mail.name());
+				email.setText(UiAdminUtils.getProperty(user,
+						LdifName.mail.name()));
 				refreshFormTitle(user);
 				super.refresh();
 			}
