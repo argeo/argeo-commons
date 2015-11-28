@@ -1,5 +1,6 @@
 package org.argeo.osgi.useradmin;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -8,8 +9,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -73,7 +76,7 @@ class LdifUser implements DirectoryUser {
 			// TODO check other sources (like PKCS12)
 			char[] password = toChars(value);
 			byte[] hashedPassword = hash(password);
-			return hasCredential(LdifName.userpassword.name(), hashedPassword);
+			return hasCredential(LdifName.userPassword.name(), hashedPassword);
 		}
 
 		Object storedValue = getCredentials().get(key);
@@ -161,13 +164,6 @@ class LdifUser implements DirectoryUser {
 		publishedAttributes = modifiedAttributes;
 	}
 
-	// protected synchronized void stopEditing(boolean apply) {
-	// assert getModifiedAttributes() != null;
-	// if (apply)
-	// publishedAttributes = getModifiedAttributes();
-	// // modifiedAttributes = null;
-	// }
-
 	public DirectoryUser getPublished() {
 		return new LdifUser(userAdmin, dn, publishedAttributes, true);
 	}
@@ -248,12 +244,7 @@ class LdifUser implements DirectoryUser {
 				@Override
 				public Object nextElement() {
 					String key = it.next();
-					try {
-						return getAttributes().get(key).get();
-					} catch (NamingException e) {
-						throw new UserDirectoryException(
-								"Cannot get value for key " + key, e);
-					}
+					return get(key);
 				}
 
 			};
@@ -265,7 +256,32 @@ class LdifUser implements DirectoryUser {
 				Attribute attr = getAttributes().get(key.toString());
 				if (attr == null)
 					return null;
-				return attr.get();
+				Object value = attr.get();
+				if (value instanceof byte[]) {
+					if (key.equals(LdifName.userPassword.name()))
+						// TODO other cases (certificates, images)
+						return value;
+					value = new String((byte[]) value, Charset.forName("UTF-8"));
+				}
+				if (attr.size() == 1)
+					return value;
+				if (!attr.getID().equals(LdifName.objectClass.name()))
+					return value;
+				// special case for object class
+				NamingEnumeration<?> en = attr.getAll();
+				Set<String> objectClasses = new HashSet<String>();
+				while (en.hasMore()) {
+					String objectClass = en.next().toString();
+					objectClasses.add(objectClass);
+				}
+
+				if (objectClasses.contains(userAdmin.getUserObjectClass()))
+					return userAdmin.getUserObjectClass();
+				else if (objectClasses
+						.contains(userAdmin.getGroupObjectClass()))
+					return userAdmin.getGroupObjectClass();
+				else
+					return value;
 			} catch (NamingException e) {
 				throw new UserDirectoryException(
 						"Cannot get value for attribute " + key, e);
@@ -278,7 +294,7 @@ class LdifUser implements DirectoryUser {
 				// TODO persist to other sources (like PKCS12)
 				char[] password = toChars(value);
 				byte[] hashedPassword = hash(password);
-				return put(LdifName.userpassword.name(), hashedPassword);
+				return put(LdifName.userPassword.name(), hashedPassword);
 			}
 
 			userAdmin.checkEdit();
@@ -299,7 +315,16 @@ class LdifUser implements DirectoryUser {
 				Attribute attribute = getModifiedAttributes().get(
 						key.toString());
 				attribute = new BasicAttribute(key.toString());
-				attribute.add(value);
+				if (value instanceof String
+						&& !isAsciiPrintable(((String) value)))
+					try {
+						attribute.add(((String) value).getBytes("UTF-8"));
+					} catch (UnsupportedEncodingException e) {
+						throw new UserDirectoryException("Cannot encode "
+								+ value, e);
+					}
+				else
+					attribute.add(value);
 				Attribute previousAttribute = getModifiedAttributes().put(
 						attribute);
 				if (previousAttribute != null)
@@ -335,6 +360,23 @@ class LdifUser implements DirectoryUser {
 						+ key, e);
 			}
 		}
+	}
+
+	private static boolean isAsciiPrintable(String str) {
+		if (str == null) {
+			return false;
+		}
+		int sz = str.length();
+		for (int i = 0; i < sz; i++) {
+			if (isAsciiPrintable(str.charAt(i)) == false) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private static boolean isAsciiPrintable(char ch) {
+		return ch >= 32 && ch < 127;
 	}
 
 }

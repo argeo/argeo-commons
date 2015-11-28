@@ -1,10 +1,15 @@
 package org.argeo.osgi.useradmin;
 
+import static org.argeo.osgi.useradmin.LdifName.gidNumber;
+import static org.argeo.osgi.useradmin.LdifName.homeDirectory;
 import static org.argeo.osgi.useradmin.LdifName.inetOrgPerson;
 import static org.argeo.osgi.useradmin.LdifName.objectClass;
 import static org.argeo.osgi.useradmin.LdifName.organizationalPerson;
 import static org.argeo.osgi.useradmin.LdifName.person;
+import static org.argeo.osgi.useradmin.LdifName.posixAccount;
 import static org.argeo.osgi.useradmin.LdifName.top;
+import static org.argeo.osgi.useradmin.LdifName.uid;
+import static org.argeo.osgi.useradmin.LdifName.uidNumber;
 
 import java.io.File;
 import java.net.URI;
@@ -18,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.naming.InvalidNameException;
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
@@ -29,6 +35,7 @@ import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.ArgeoException;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -56,12 +63,15 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 
 	private String memberAttributeId = "member";
 	private List<String> credentialAttributeIds = Arrays
-			.asList(new String[] { LdifName.userpassword.name() });
+			.asList(new String[] { LdifName.userPassword.name() });
 
 	private TransactionManager transactionManager;
 	// private TransactionSynchronizationRegistry transactionRegistry;
 	// private Xid editingTransactionXid = null;
 	private WcXaResource xaResource = new WcXaResource(this);
+
+	// POSIX
+	private String homeDirectoryBase = "/home";
 
 	AbstractUserDirectory(Dictionary<String, ?> props) {
 		properties = new Hashtable<String, Object>();
@@ -259,8 +269,8 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	protected void doGetUser(String key, String value,
 			List<DirectoryUser> collectedUsers) {
 		try {
-			Filter f = FrameworkUtil.createFilter("(&(" + objectClass + "="
-					+ getUserObjectClass() + ")(" + key + "=" + value + "))");
+			Filter f = FrameworkUtil
+					.createFilter("(" + key + "=" + value + ")");
 			List<DirectoryUser> users = doGetRoles(f);
 			collectedUsers.addAll(users);
 		} catch (InvalidSyntaxException e) {
@@ -303,9 +313,29 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		LdifUser newRole;
 		BasicAttribute objClass = new BasicAttribute(objectClass.name());
 		if (type == Role.USER) {
-			String userObjClass = getUserObjectClass();
+			String userObjClass = newUserObjectClass(dn);
 			objClass.add(userObjClass);
-			if (inetOrgPerson.name().equals(userObjClass)) {
+			if (posixAccount.name().equals(userObjClass)) {
+				objClass.add(inetOrgPerson.name());
+				objClass.add(organizationalPerson.name());
+				objClass.add(person.name());
+
+				String username;
+				try {
+					username = dn.getRdn(dn.size() - 1).toAttributes()
+							.get(uid.name()).get().toString();
+				} catch (NamingException e) {
+					throw new UserDirectoryException(
+							"Cannot extract username from " + dn, e);
+				}
+				// TODO look for uid in attributes too?
+				attrs.put(uidNumber.name(), new Long(max(uidNumber.name()) + 1));
+				attrs.put(homeDirectory.name(), generateHomeDirectory(username));
+				// TODO create user private group
+				// NB: on RHEL, the 'users' group has gid 100
+				attrs.put(gidNumber.name(), 100);
+				// attrs.put(LdifName.loginShell.name(),"/sbin/nologin");
+			} else if (inetOrgPerson.name().equals(userObjClass)) {
 				objClass.add(organizationalPerson.name());
 				objClass.add(person.name());
 			} else if (organizationalPerson.name().equals(userObjClass)) {
@@ -315,7 +345,10 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 			attrs.put(objClass);
 			newRole = new LdifUser(this, dn, attrs);
 		} else if (type == Role.GROUP) {
-			objClass.add(getGroupObjectClass());
+			String groupObjClass = getGroupObjectClass();
+			objClass.add(groupObjClass);
+			objClass.add(LdifName.extensibleObject.name());
+			attrs.put(gidNumber.name(), new Long(max(gidNumber.name()) + 1));
 			objClass.add(top);
 			attrs.put(objClass);
 			newRole = new LdifGroup(this, dn, attrs);
@@ -343,6 +376,60 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 					.remove(dn.toString());
 		}
 		return actuallyDeleted;
+	}
+
+	// POSIX
+	/** Generate path for a new user home */
+	protected String generateHomeDirectory(String username) {
+		String base = homeDirectoryBase;
+		int atIndex = username.indexOf('@');
+		if (atIndex > 0) {
+			String domain = username.substring(0, atIndex);
+			String name = username.substring(atIndex + 1);
+			return base + '/' + firstCharsToPath(domain, 2) + '/' + domain
+					+ '/' + firstCharsToPath(name, 2) + '/' + name;
+		} else if (atIndex == 0 || atIndex == (username.length() - 1)) {
+			throw new ArgeoException("Unsupported username " + username);
+		} else {
+			return base + '/' + firstCharsToPath(username, 2) + '/' + username;
+		}
+	}
+
+	protected long max(String attr) {
+		long max;
+		try {
+			List<DirectoryUser> users = doGetRoles(FrameworkUtil
+					.createFilter("(" + attr + "=*)"));
+			max = 1000;
+			for (DirectoryUser user : users) {
+				long uid = Long.parseLong(user.getAttributes().get(attr).get()
+						.toString());
+				if (uid > max)
+					max = uid;
+			}
+		} catch (Exception e) {
+			throw new UserDirectoryException("Cannot get max of " + attr, e);
+		}
+		return max;
+	}
+
+	/**
+	 * Creates depth from a string (typically a username) by adding levels based
+	 * on its first characters: "aBcD",2 => a/aB
+	 */
+	public static String firstCharsToPath(String str, Integer nbrOfChars) {
+		if (str.length() < nbrOfChars)
+			throw new ArgeoException("String " + str
+					+ " length must be greater or equal than " + nbrOfChars);
+		StringBuffer path = new StringBuffer("");
+		StringBuffer curr = new StringBuffer("");
+		for (int i = 0; i < nbrOfChars; i++) {
+			curr.append(str.charAt(i));
+			path.append(curr);
+			if (i < nbrOfChars - 1)
+				path.append('/');
+		}
+		return path.toString();
 	}
 
 	// TRANSACTION
@@ -418,8 +505,17 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		return baseDn;
 	}
 
+	/** dn can be null, in that case a default should be returned. */
 	protected String getUserObjectClass() {
 		return userObjectClass;
+	}
+
+	protected String newUserObjectClass(LdapName dn) {
+		if (dn != null
+				&& dn.getRdn(dn.size() - 1).toAttributes().get(uid.name()) != null)
+			return posixAccount.name();
+		else
+			return getUserObjectClass();
 	}
 
 	protected String getGroupObjectClass() {

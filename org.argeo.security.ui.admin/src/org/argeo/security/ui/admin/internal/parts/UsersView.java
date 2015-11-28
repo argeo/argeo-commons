@@ -115,7 +115,7 @@ public class UsersView extends ViewPart implements ArgeoNames {
 
 		private final String[] knownProps = { LdifName.uid.name(),
 				LdifName.dn.name(), LdifName.cn.name(),
-				LdifName.givenname.name(), LdifName.sn.name(),
+				LdifName.givenName.name(), LdifName.sn.name(),
 				LdifName.mail.name() };
 
 		public MyUserTableViewer(Composite parent, int style) {

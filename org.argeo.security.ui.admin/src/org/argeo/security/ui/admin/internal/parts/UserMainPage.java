@@ -127,7 +127,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		commonName.setEnabled(false);
 
 		final Text firstName = createLT(tk, body, "First name",
-				UiAdminUtils.getProperty(user, LdifName.givenname.name()));
+				UiAdminUtils.getProperty(user, LdifName.givenName.name()));
 
 		final Text lastName = createLT(tk, body, "Last name",
 				UiAdminUtils.getProperty(user, LdifName.sn.name()));
@@ -155,7 +155,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 			@SuppressWarnings("unchecked")
 			public void commit(boolean onSave) {
 				// TODO Sanity checks (mail validity...)
-				user.getProperties().put(LdifName.givenname.name(),
+				user.getProperties().put(LdifName.givenName.name(),
 						firstName.getText());
 				user.getProperties()
 						.put(LdifName.sn.name(), lastName.getText());
@@ -172,7 +172,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 				commonName.setText(UiAdminUtils.getProperty(user,
 						LdifName.cn.name()));
 				firstName.setText(UiAdminUtils.getProperty(user,
-						LdifName.givenname.name()));
+						LdifName.givenName.name()));
 				lastName.setText(UiAdminUtils.getProperty(user,
 						LdifName.sn.name()));
 				email.setText(UiAdminUtils.getProperty(user,

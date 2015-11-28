@@ -16,7 +16,7 @@ public class UserFilter extends ViewerFilter {
 	private boolean showSystemRole = true;
 
 	private final String[] knownProps = { LdifName.dn.name(),
-			LdifName.cn.name(), LdifName.givenname.name(), LdifName.sn.name(),
+			LdifName.cn.name(), LdifName.givenName.name(), LdifName.sn.name(),
 			LdifName.uid.name(), LdifName.description.name(),
 			LdifName.mail.name() };
 

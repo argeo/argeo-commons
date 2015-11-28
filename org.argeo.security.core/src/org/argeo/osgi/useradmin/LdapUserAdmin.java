@@ -42,7 +42,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 					"com.sun.jndi.ldap.LdapCtxFactory");
 			connEnv.put(Context.PROVIDER_URL, getUri().toString());
 			connEnv.put("java.naming.ldap.attributes.binary",
-					LdifName.userpassword.name());
+					LdifName.userPassword.name());
 
 			initialLdapContext = new InitialLdapContext(connEnv, null);
 			// StartTlsResponse tls = (StartTlsResponse) ctx
@@ -111,7 +111,6 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 
 	@Override
 	protected List<DirectoryUser> doGetRoles(Filter f) {
-		// TODO Auto-generated method stub
 		try {
 			String searchFilter = f != null ? f.toString() : "(|("
 					+ objectClass + "=" + getUserObjectClass() + ")("
@@ -127,15 +126,14 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			while (results.hasMoreElements()) {
 				SearchResult searchResult = results.next();
 				Attributes attrs = searchResult.getAttributes();
+				LdapName dn = toDn(searchBase, searchResult);
 				LdifUser role;
 				if (attrs.get(objectClass.name()).contains(
 						getGroupObjectClass()))
-					role = new LdifGroup(this, toDn(searchBase, searchResult),
-							attrs);
+					role = new LdifGroup(this, dn, attrs);
 				else if (attrs.get(objectClass.name()).contains(
 						getUserObjectClass()))
-					role = new LdifUser(this, toDn(searchBase, searchResult),
-							attrs);
+					role = new LdifUser(this, dn, attrs);
 				else
 					throw new UserDirectoryException(
 							"Unsupported LDAP type for "

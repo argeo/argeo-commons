@@ -455,7 +455,7 @@ public class UserBatchUpdateWizard extends Wizard {
 			private static final long serialVersionUID = 5080437561015853124L;
 			private final String[] knownProps = { LdifName.uid.name(),
 					LdifName.dn.name(), LdifName.cn.name(),
-					LdifName.givenname.name(), LdifName.sn.name(),
+					LdifName.givenName.name(), LdifName.sn.name(),
 					LdifName.mail.name() };
 
 			public ChooseUserTableViewer(Composite parent, int style) {

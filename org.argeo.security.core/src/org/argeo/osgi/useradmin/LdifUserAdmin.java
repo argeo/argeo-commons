@@ -1,5 +1,8 @@
 package org.argeo.osgi.useradmin;
 
+import static org.argeo.osgi.useradmin.LdifName.inetOrgPerson;
+import static org.argeo.osgi.useradmin.LdifName.objectClass;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -7,8 +10,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -98,14 +103,28 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 			SortedMap<LdapName, Attributes> allEntries = ldifParser.read(in);
 			for (LdapName key : allEntries.keySet()) {
 				Attributes attributes = allEntries.get(key);
+				// check for inconsistency
+				Set<String> lowerCase = new HashSet<String>();
+				NamingEnumeration<String> ids = attributes.getIDs();
+				while (ids.hasMoreElements()) {
+					String id = ids.nextElement().toLowerCase();
+					if (lowerCase.contains(id))
+						throw new UserDirectoryException(key
+								+ " has duplicate id " + id);
+					lowerCase.add(id);
+				}
+
+				// analyse object classes
 				NamingEnumeration<?> objectClasses = attributes.get(
-						"objectClass").getAll();
+						objectClass.name()).getAll();
+				// System.out.println(key);
 				objectClasses: while (objectClasses.hasMore()) {
 					String objectClass = objectClasses.next().toString();
-					if (objectClass.equals("inetOrgPerson")) {
+					// System.out.println(" " + objectClass);
+					if (objectClass.equals(inetOrgPerson.name())) {
 						users.put(key, new LdifUser(this, key, attributes));
 						break objectClasses;
-					} else if (objectClass.equals("groupOfNames")) {
+					} else if (objectClass.equals(getGroupObjectClass())) {
 						groups.put(key, new LdifGroup(this, key, attributes));
 						break objectClasses;
 					}
@@ -143,10 +162,17 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 			res.addAll(users.values());
 			res.addAll(groups.values());
 		} else {
-			// Filter f = FrameworkUtil.createFilter(filter);
-			for (DirectoryUser user : users.values())
+			for (DirectoryUser user : users.values()) {
+//				System.out.println("\n" + user.getName());
+//				Dictionary<String, Object> props = user.getProperties();
+//				for (Enumeration<String> keys = props.keys(); keys
+//						.hasMoreElements();) {
+//					String key = keys.nextElement();
+//					System.out.println(" " + key + "=" + props.get(key));
+//				}
 				if (f.match(user.getProperties()))
 					res.add(user);
+			}
 			for (DirectoryUser group : groups.values())
 				if (f.match(group.getProperties()))
 					res.add(group);
