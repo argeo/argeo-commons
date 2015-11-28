@@ -290,10 +290,11 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 					if (uri.startsWith("/") || uri.startsWith("./")
 							|| uri.startsWith("../"))
 						u = new File(uri).getCanonicalFile().toURI();
-					else if (!uri.contains("/"))
-						u = new File(nodeBaseDir, uri).getCanonicalFile()
-								.toURI();
-					else
+					else if (!uri.contains("/")) {
+						u = new URI(nodeBaseDir.toURI()+ uri);
+						// u = new File(nodeBaseDir, uri).getCanonicalFile()
+						// .toURI();
+					} else
 						throw new CmsException("Cannot interpret " + uri
 								+ " as an uri");
 				} else if (u.getScheme().equals("file")) {
