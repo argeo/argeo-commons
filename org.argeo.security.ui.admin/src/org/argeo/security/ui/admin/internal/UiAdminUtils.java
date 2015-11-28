@@ -73,7 +73,7 @@ public class UiAdminUtils {
 	}
 
 	public final static String getUsername(User user) {
-		String cn = getProperty(user, LdifName.dn.name());
+		String cn = getProperty(user, LdifName.cn.name());
 		if (isEmpty(cn))
 			cn = getProperty(user, LdifName.uid.name());
 		return cn;
@@ -81,7 +81,7 @@ public class UiAdminUtils {
 
 	/** Simply retrieves a display name of the relevant domain */
 	public final static String getDomainName(User user) {
-		String dn = (String) user.getProperties().get(LdifName.dn.name());
+		String dn = user.getName();
 		if (dn.endsWith(AuthConstants.ROLES_BASEDN))
 			return "System roles";
 		try {

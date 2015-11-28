@@ -107,8 +107,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		GridLayout layout = new GridLayout(2, false);
 		body.setLayout(layout);
 
-		final Text dnTxt = createLT(body, "DN",
-				UiAdminUtils.getProperty(group, LdifName.dn.name()));
+		final Text dnTxt = createLT(body, "DN",group.getName());
 		dnTxt.setEnabled(false);
 
 		final Text cnTxt = createLT(body, "Common Name",

@@ -12,6 +12,7 @@ import javax.naming.Context;
 import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
@@ -123,21 +124,21 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 					searchBase, searchFilter, searchControls);
 
 			ArrayList<DirectoryUser> res = new ArrayList<DirectoryUser>();
-			while (results.hasMoreElements()) {
+			results: while (results.hasMoreElements()) {
 				SearchResult searchResult = results.next();
 				Attributes attrs = searchResult.getAttributes();
+				Attribute objectClassAttr = attrs.get(objectClass.name());
 				LdapName dn = toDn(searchBase, searchResult);
 				LdifUser role;
-				if (attrs.get(objectClass.name()).contains(
-						getGroupObjectClass()))
+				if (objectClassAttr.contains(getGroupObjectClass()))
 					role = new LdifGroup(this, dn, attrs);
-				else if (attrs.get(objectClass.name()).contains(
-						getUserObjectClass()))
+				else if (objectClassAttr.contains(getUserObjectClass()))
 					role = new LdifUser(this, dn, attrs);
-				else
-					throw new UserDirectoryException(
-							"Unsupported LDAP type for "
-									+ searchResult.getName());
+				else {
+					log.warn("Unsupported LDAP type for "
+							+ searchResult.getName());
+					continue results;
+				}
 				res.add(role);
 			}
 			return res;

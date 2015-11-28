@@ -1,7 +1,6 @@
 package org.argeo.security.ui.admin.internal.providers;
 
 import org.argeo.cms.auth.AuthConstants;
-import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminImages;
 import org.eclipse.swt.graphics.Image;
 import org.osgi.service.useradmin.Role;
@@ -19,7 +18,7 @@ public class RoleIconLP extends UserAdminAbstractLP {
 	@Override
 	public Image getImage(Object element) {
 		User user = (User) element;
-		String dn = (String) user.getProperties().get(LdifName.dn.name());
+		String dn = user.getName();
 		if (dn.endsWith(AuthConstants.ROLES_BASEDN))
 			return SecurityAdminImages.ICON_ROLE;
 		else if (user.getType() == Role.GROUP)
