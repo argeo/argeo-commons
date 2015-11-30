@@ -66,8 +66,10 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 		byte[] hashedPassword = ("{SHA}" + Base64
 				.encodeBase64String(DigestUtils.sha1("demo".getBytes())))
 				.getBytes();
-		assertTrue(rootUser.hasCredential("userpassword", hashedPassword));
-		assertTrue(demoUser.hasCredential("userpassword", hashedPassword));
+		assertTrue(rootUser.hasCredential(LdifName.userPassword.name(),
+				hashedPassword));
+		assertTrue(demoUser.hasCredential(LdifName.userPassword.name(),
+				hashedPassword));
 
 		// search
 		Role[] search = userAdmin.getRoles(null);

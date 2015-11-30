@@ -22,19 +22,20 @@ public class LdifParserTest extends TestCase implements BasicTestConstants {
 		LdapName rootDn = new LdapName(ROOT_USER_DN);
 		Attributes rootAttributes = res.get(rootDn);
 		assertNotNull(rootAttributes);
-		assertEquals("Superuser", rootAttributes.get("description").get());
-		byte[] rawPwEntry = (byte[]) rootAttributes.get("userpassword").get();
+		assertEquals("Superuser",
+				rootAttributes.get(LdifName.description.name()).get());
+		byte[] rawPwEntry = (byte[]) rootAttributes.get(
+				LdifName.userPassword.name()).get();
 		assertEquals("{SHA}ieSV55Qc+eQOaYDRSha/AjzNTJE=",
 				new String(rawPwEntry));
 		byte[] hashedPassword = DigestUtils.sha1("demo".getBytes());
 		assertEquals("{SHA}" + Base64.encodeBase64String(hashedPassword),
 				new String(rawPwEntry));
 
-		LdapName adminDn = new LdapName(
-				ADMIN_GROUP_DN);
+		LdapName adminDn = new LdapName(ADMIN_GROUP_DN);
 		Attributes adminAttributes = res.get(adminDn);
 		assertNotNull(adminAttributes);
-		Attribute memberAttribute = adminAttributes.get("member");
+		Attribute memberAttribute = adminAttributes.get(LdifName.member.name());
 		assertNotNull(memberAttribute);
 		NamingEnumeration<?> members = memberAttribute.getAll();
 		List<String> users = new ArrayList<String>();
