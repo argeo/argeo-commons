@@ -21,11 +21,11 @@ objectClass: person
 objectClass: top
 cn: Demo User
 description: Demo user
-givenname: Demo
+givenName: Demo
 mail: demo@localhost
 sn: User
 uid: demo
-userpassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
+userPassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
 
 dn: uid=root,ou=users,dc=example,dc=com
 objectClass: inetOrgPerson
@@ -34,8 +34,8 @@ objectClass: organizationalPerson
 objectClass: top
 cn: Super User
 description: Superuser
-givenname: Super
+givenName: Super
 mail: root@localhost
 sn: User
 uid: root
-userpassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
+userPassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9

@@ -19,3 +19,11 @@ objectClass: groupOfNames
 objectClass: top
 cn: userAdmin
 member: cn=admin,ou=roles,ou=node
+
+dn: cn=groupAdmin,ou=roles,ou=node
+objectClass: groupOfNames
+objectClass: top
+cn: groupAdmin
+member: cn=admin,ou=roles,ou=node
+
+
