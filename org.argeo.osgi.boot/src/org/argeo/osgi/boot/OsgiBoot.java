@@ -67,7 +67,8 @@ public class OsgiBoot {
 	// "argeo.osgi.boot.installInLexicographicOrder";
 
 	public final static String PROP_ARGEO_OSGI_BOOT_DEFAULT_TIMEOUT = "argeo.osgi.boot.defaultTimeout";
-//	public final static String PROP_ARGEO_OSGI_BOOT_MODULES_URL_SEPARATOR = "argeo.osgi.boot.modulesUrlSeparator";
+	// public final static String PROP_ARGEO_OSGI_BOOT_MODULES_URL_SEPARATOR =
+	// "argeo.osgi.boot.modulesUrlSeparator";
 	public final static String PROP_ARGEO_OSGI_BOOT_SYSTEM_PROPERTIES_FILE = "argeo.osgi.boot.systemPropertiesFile";
 	public final static String PROP_ARGEO_OSGI_BOOT_APPCLASS = "argeo.osgi.boot.appclass";
 	public final static String PROP_ARGEO_OSGI_BOOT_APPARGS = "argeo.osgi.boot.appargs";
@@ -96,7 +97,7 @@ public class OsgiBoot {
 	private long defaultTimeout;
 
 	/** Default is ',' (set in constructor) */
-//	private String modulesUrlSeparator = ",";
+	// private String modulesUrlSeparator = ",";
 
 	private final BundleContext bundleContext;
 
@@ -108,8 +109,8 @@ public class OsgiBoot {
 		this.bundleContext = bundleContext;
 		defaultTimeout = Long.parseLong(OsgiBootUtils.getProperty(
 				PROP_ARGEO_OSGI_BOOT_DEFAULT_TIMEOUT, "10000"));
-//		modulesUrlSeparator = OsgiBootUtils.getProperty(
-//				PROP_ARGEO_OSGI_BOOT_MODULES_URL_SEPARATOR, ",");
+		// modulesUrlSeparator = OsgiBootUtils.getProperty(
+		// PROP_ARGEO_OSGI_BOOT_MODULES_URL_SEPARATOR, ",");
 		initSystemProperties();
 	}
 
@@ -539,23 +540,23 @@ public class OsgiBoot {
 	 * Gets a list of URLs based on explicit locations, resolving placeholder
 	 * ${...} containing system properties, e.g. ${user.home}.
 	 */
-	public List<String> getLocationsUrls(String baseUrl, String bundleLocations) {
-		List<String> urls = new ArrayList<String>();
-
-		if (bundleLocations == null)
-			return urls;
-		bundleLocations = SystemPropertyUtils
-				.resolvePlaceholders(bundleLocations);
-		// if (debug)
-		// debug(PROP_ARGEO_OSGI_LOCATIONS + "=" + bundleLocations);
-
-		StringTokenizer st = new StringTokenizer(bundleLocations,
-				File.pathSeparator);
-		while (st.hasMoreTokens()) {
-			urls.add(locationToUrl(baseUrl, st.nextToken().trim()));
-		}
-		return urls;
-	}
+//	public List<String> getLocationsUrls(String baseUrl, String bundleLocations) {
+//		List<String> urls = new ArrayList<String>();
+//
+//		if (bundleLocations == null)
+//			return urls;
+//		bundleLocations = SystemPropertyUtils
+//				.resolvePlaceholders(bundleLocations);
+//		// if (debug)
+//		// debug(PROP_ARGEO_OSGI_LOCATIONS + "=" + bundleLocations);
+//
+//		StringTokenizer st = new StringTokenizer(bundleLocations,
+//				File.pathSeparator);
+//		while (st.hasMoreTokens()) {
+//			urls.add(locationToUrl(baseUrl, st.nextToken().trim()));
+//		}
+//		return urls;
+//	}
 
 	/*
 	 * BUNDLE PATTERNS INSTALLATION
@@ -599,7 +600,12 @@ public class OsgiBoot {
 		StringTokenizer st = new StringTokenizer(bundlePatterns, ",");
 		List<BundlesSet> bundlesSets = new ArrayList<BundlesSet>();
 		while (st.hasMoreTokens()) {
-			bundlesSets.add(new BundlesSet(st.nextToken()));
+			String token = st.nextToken();
+			if (new File(token).exists()) {
+				String url = locationToUrl(baseUrl, token);
+				urls.add(url);
+			} else
+				bundlesSets.add(new BundlesSet(token));
 		}
 
 		// find included
@@ -901,9 +907,9 @@ public class OsgiBoot {
 		this.defaultTimeout = defaultTimeout;
 	}
 
-//	public void setModulesUrlSeparator(String modulesUrlSeparator) {
-//		this.modulesUrlSeparator = modulesUrlSeparator;
-//	}
+	// public void setModulesUrlSeparator(String modulesUrlSeparator) {
+	// this.modulesUrlSeparator = modulesUrlSeparator;
+	// }
 
 	public boolean isExcludeSvn() {
 		return excludeSvn;

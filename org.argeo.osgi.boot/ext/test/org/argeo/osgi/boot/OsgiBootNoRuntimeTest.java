@@ -15,12 +15,9 @@
  */
 package org.argeo.osgi.boot;
 
-import java.io.File;
 import java.util.List;
 
 import junit.framework.TestCase;
-
-import org.argeo.osgi.boot.OsgiBoot;
 
 /** Tests which do not require a runtime. */
 @SuppressWarnings("rawtypes")
@@ -29,18 +26,18 @@ public class OsgiBootNoRuntimeTest extends TestCase {
 			+ "src/test/bundles/others;in=**/org.argeo.*";
 
 	/** Tests that location lists are properly parsed. */
-	public void testLocations() {
-		String baseUrl = "file:";
-		String locations = "/mydir/myfile" + File.pathSeparator
-				+ "/myotherdir/myotherfile";
-
-		OsgiBoot osgiBoot = new OsgiBoot(null);
-		osgiBoot.setExcludeSvn(true);
-		List urls = osgiBoot.getLocationsUrls(baseUrl, locations);
-		assertEquals(2, urls.size());
-		assertEquals("file:/mydir/myfile", urls.get(0));
-		assertEquals("file:/myotherdir/myotherfile", urls.get(1));
-	}
+	// public void testLocations() {
+	// String baseUrl = "file:";
+	// String locations = "/mydir/myfile" + File.pathSeparator
+	// + "/myotherdir/myotherfile";
+	//
+	// OsgiBoot osgiBoot = new OsgiBoot(null);
+	// osgiBoot.setExcludeSvn(true);
+	// List urls = osgiBoot.getLocationsUrls(baseUrl, locations);
+	// assertEquals(2, urls.size());
+	// assertEquals("file:/mydir/myfile", urls.get(0));
+	// assertEquals("file:/myotherdir/myotherfile", urls.get(1));
+	// }
 
 	/** Tests that bundle lists are properly parsed. */
 	public void testBundles() {
