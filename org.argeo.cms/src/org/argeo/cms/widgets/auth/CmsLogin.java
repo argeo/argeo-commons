@@ -30,6 +30,7 @@ import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallback;
 import org.argeo.cms.i18n.LocaleUtils;
 import org.argeo.cms.util.CmsUtils;
+import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.util.LocaleChoice;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
@@ -266,6 +267,12 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 			loginContext.login();
 		} catch (FailedLoginException e) {
 			log.warn(e.getMessage());
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e2) {
+				// silent
+			}
+			ErrorFeedback.show("Login failed", e);
 			return false;
 		} catch (LoginException e) {
 			log.error("Cannot login", e);

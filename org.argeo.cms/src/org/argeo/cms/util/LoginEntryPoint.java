@@ -13,11 +13,11 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsImageManager;
 import org.argeo.cms.CmsView;
 import org.argeo.cms.auth.AuthConstants;
+import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.cms.ui.UxContext;
 import org.argeo.cms.widgets.auth.CmsLogin;
 import org.argeo.cms.widgets.auth.CmsLoginShell;
-import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.EntryPoint;
@@ -44,22 +44,25 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 			CmsLoginShell loginShell = createCmsLoginShell();
 			loginShell.open();
 			while (!loginShell.getShell().isDisposed()) {
-				try {
-					if (!display.readAndDispatch())
-						display.sleep();
-				} catch (Exception e1) {
-					try {
-						Thread.sleep(3000);
-					} catch (InterruptedException e2) {
-						// silent
-					}
-					ErrorFeedback.show("Login failed", e1);
-					return -1;
-				}
+				// try {
+				if (!display.readAndDispatch())
+					display.sleep();
+				// } catch (Exception e1) {
+				// try {
+				// Thread.sleep(3000);
+				// } catch (InterruptedException e2) {
+				// // silent
+				// }
+				// ErrorFeedback.show("Login failed", e1);
+				// return -1;
+				// }
 			}
 		} catch (LoginException e) {
 			throw new ArgeoException("Cannot log in", e);
 		}
+
+		if (CurrentUser.getUsername() == null)
+			return -1;
 		uxContext = new SimpleUxContext();
 		return postLogin();
 	}
