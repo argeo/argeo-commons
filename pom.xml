@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
@@ -12,8 +13,8 @@
 		<developmentCycle.argeo-commons.startDate>2012-12-19</developmentCycle.argeo-commons.startDate>
 		<version.argeo-distribution>2.1.12</version.argeo-distribution>
 		<!-- RPM -->
-		<rpm.release>6</rpm.release>
-		<rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-2-staging/6/x86_64</rpm.stagingRepository>
+		<argeo.rpm.release>6</argeo.rpm.release>
+		<argeo.rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-2-staging/6/x86_64</argeo.rpm.stagingRepository>
 		<!-- encoding, see http://is.gd/mvn_source_encoding -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -194,7 +195,7 @@ limitations under the License.
 				</plugin>
 				<plugin>
 					<artifactId>maven-antrun-plugin</artifactId>
-					<version>1.7</version>
+					<version>1.8</version>
 				</plugin>
 				<plugin>
 					<artifactId>maven-resources-plugin</artifactId>
@@ -247,12 +248,11 @@ limitations under the License.
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>rpm-maven-plugin</artifactId>
-					<version>2.1-alpha-1</version>
+					<version>2.1.4</version>
 					<extensions>true</extensions>
 					<configuration>
 						<version>${project.version}</version>
-						<release>1.el${rpm.release}</release>
-						<distribution>argeo${rpm.release}</distribution>
+						<distribution>argeo${argeo.rpm.release}</distribution>
 						<group>Applications/System</group>
 						<prefix>/usr</prefix>
 					</configuration>
@@ -266,7 +266,7 @@ limitations under the License.
 				<plugin>
 					<groupId>org.argeo.maven.plugins</groupId>
 					<artifactId>maven-argeo-osgi-plugin</artifactId>
-					<version>1.1.4</version>
+					<version>1.1.5</version>
 				</plugin>
 				<!-- Site -->
 				<plugin>
@@ -470,6 +470,60 @@ limitations under the License.
 					<url>dav:http://localhost:7080/data/files/java/argeo-commons-${developmentCycle.argeo-commons}</url>
 				</repository>
 			</distributionManagement>
+		</profile>
+		<profile>
+			<id>rpmbuild</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>install</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<target>
+										<copy todir="${argeo.rpm.stagingRepository}" quiet="true" failonerror="false">
+											<fileset dir="${project.build.directory}/rpm"
+												includes="*/RPMS/**/*.rpm" />
+											<flattenmapper />
+										</copy>
+									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>rpmbuild-tp</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>install</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<target>
+										<copy todir="${argeo.rpm.stagingRepository}" quiet="true" failonerror="false">
+											<fileset dir="${project.build.directory}/rpm"
+												includes="*/RPMS/**/*.rpm" />
+											<flattenmapper />
+										</copy>
+									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 	</profiles>
 </project>
