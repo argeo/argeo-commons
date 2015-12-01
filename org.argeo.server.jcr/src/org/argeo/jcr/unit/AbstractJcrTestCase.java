@@ -39,7 +39,7 @@ public abstract class AbstractJcrTestCase extends TestCase {
 	private Repository repository;
 	private Session session = null;
 
-	public final static String LOGIN_CONTEXT_TEST_SYSTEM = "TEST_SYSTEM";
+	public final static String LOGIN_CONTEXT_TEST_SYSTEM = "TEST_JACKRABBIT_ADMIN";
 
 	// protected abstract File getRepositoryFile() throws Exception;
 
