@@ -293,7 +293,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		if ((daoHasRole(dn) && !wc.getDeletedUsers().containsKey(dn))
 				|| wc.getNewUsers().containsKey(dn))
 			throw new UserDirectoryException("Already a role " + name);
-		BasicAttributes attrs = new BasicAttributes();
+		BasicAttributes attrs = new BasicAttributes(true);
 		attrs.put("dn", dn.toString());
 		Rdn nameRdn = dn.getRdn(dn.size() - 1);
 		// TODO deal with multiple attr RDN

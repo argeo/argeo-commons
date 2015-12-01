@@ -127,6 +127,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			results: while (results.hasMoreElements()) {
 				SearchResult searchResult = results.next();
 				Attributes attrs = searchResult.getAttributes();
+				log.debug(attrs.isCaseIgnored());
 				Attribute objectClassAttr = attrs.get(objectClass.name());
 				LdapName dn = toDn(searchBase, searchResult);
 				LdifUser role;

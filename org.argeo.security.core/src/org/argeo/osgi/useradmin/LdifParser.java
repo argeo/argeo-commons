@@ -116,7 +116,7 @@ class LdifParser {
 							try {
 								currentDn = new LdapName(
 										attributeValue.toString());
-								currentAttributes = new BasicAttributes();
+								currentAttributes = new BasicAttributes(true);
 							} catch (InvalidNameException e) {
 								log.error(attributeValue
 										+ " not a valid DN, skipping the entry.");
