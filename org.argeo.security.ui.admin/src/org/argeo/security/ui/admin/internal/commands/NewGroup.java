@@ -16,13 +16,14 @@
 package org.argeo.security.ui.admin.internal.commands;
 
 import java.util.Dictionary;
-import java.util.List;
+import java.util.Map;
 
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.osgi.useradmin.LdifName;
+import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
@@ -205,20 +206,32 @@ public class NewGroup extends AbstractHandler {
 			}
 		}
 
+		private Map<String, String> getDns() {
+			return userAdminWrapper.getKnownBaseDns(true);
+		}
+
 		private String getDn(String cn) {
-			return "cn=" + cn + ",ou=groups," + baseDnCmb.getText();
+			Map<String, String> dns = getDns();
+			String bdn = baseDnCmb.getText();
+			if (EclipseUiUtils.notEmpty(bdn)) {
+				Dictionary<String, ?> props = UserAdminConf.uriAsProperties(dns
+						.get(bdn));
+				String dn = LdifName.cn.name()+"=" + cn + ","
+						+ UserAdminConf.groupBase.getValue(props) + "," + bdn;
+				return dn;
+			}
+			return null;
 		}
 
 		private void initialiseDnCmb(Combo combo) {
-			List<String> dns = userAdminWrapper.getKnownBaseDns(true);
+			Map<String, String> dns = userAdminWrapper.getKnownBaseDns(true);
 			if (dns.isEmpty())
 				throw new ArgeoException(
-						"No writable base dn found. Cannot create user");
-			combo.setItems(dns.toArray(new String[0]));
+						"No writable base dn found. Cannot create group");
+			combo.setItems(dns.keySet().toArray(new String[0]));
 			if (dns.size() == 1)
 				combo.select(0);
 		}
-
 	}
 
 	private Combo createGridLC(Composite parent, String label) {

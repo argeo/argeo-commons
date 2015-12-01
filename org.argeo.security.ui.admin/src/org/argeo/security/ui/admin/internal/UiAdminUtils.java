@@ -92,7 +92,7 @@ public class UiAdminUtils {
 			int i = 0;
 			loop: while (i < rdns.size()) {
 				Rdn currrRdn = rdns.get(i);
-				if (!"dc".equals(currrRdn.getType()))
+				if (!LdifName.dc.name().equals(currrRdn.getType()))
 					break loop;
 				else {
 					String currVal = (String) currrRdn.getValue();

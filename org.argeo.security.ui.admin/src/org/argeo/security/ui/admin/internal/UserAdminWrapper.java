@@ -2,7 +2,9 @@ package org.argeo.security.ui.admin.internal;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
@@ -69,8 +71,8 @@ public class UserAdminWrapper {
 		this.userAdminServiceReference = userAdminServiceReference;
 	}
 
-	public List<String> getKnownBaseDns(boolean onlyWritable) {
-		List<String> dns = new ArrayList<String>();
+	public Map<String, String> getKnownBaseDns(boolean onlyWritable) {
+		Map<String, String> dns = new HashMap<String, String>();
 		for (String uri : userAdminServiceReference.getPropertyKeys()) {
 			if (!uri.startsWith("/"))
 				continue;
@@ -82,11 +84,11 @@ public class UserAdminWrapper {
 				continue;
 			if (baseDn.equalsIgnoreCase(AuthConstants.ROLES_BASEDN))
 				continue;
-			dns.add(baseDn);
+			dns.put(baseDn, uri);
 		}
 		return dns;
 	}
-
+	
 	/* DEPENDENCY INJECTION */
 	public void setUserAdmin(UserAdmin userAdmin) {
 		this.userAdmin = userAdmin;
