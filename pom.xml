@@ -127,9 +127,9 @@ limitations under the License.
 				<!-- Maven -->
 				<plugin>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.2</version>
+					<version>3.3</version>
 					<configuration>
-						<source>1.7</source>
+						<source>1.8</source>
 						<target>1.7</target>
 						<compilerId>eclipse</compilerId>
 						<!-- Required for compliance level, see http://jira.codehaus.org/browse/PLXCOMP-231 -->
@@ -142,7 +142,7 @@ limitations under the License.
 						<dependency>
 							<groupId>org.codehaus.plexus</groupId>
 							<artifactId>plexus-compiler-eclipse</artifactId>
-							<version>2.3</version>
+							<version>2.6</version>
 						</dependency>
 					</dependencies>
 				</plugin>
