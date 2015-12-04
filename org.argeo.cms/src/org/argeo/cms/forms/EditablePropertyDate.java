@@ -79,13 +79,13 @@ public class EditablePropertyDate extends StyledControl implements EditablePart 
 		Control child = getControl();
 		if (child instanceof Label) {
 			Label lbl = (Label) child;
-			if (FormUtils.notEmpty(text))
+			if (EclipseUiUtils.isEmpty(text))
 				lbl.setText(message);
 			else
 				lbl.setText(text);
 		} else if (child instanceof Text) {
 			Text txt = (Text) child;
-			if (FormUtils.notEmpty(text)) {
+			if (EclipseUiUtils.isEmpty(text)) {
 				txt.setText("");
 			} else
 				txt.setText(text);
@@ -99,7 +99,7 @@ public class EditablePropertyDate extends StyledControl implements EditablePart 
 	}
 
 	public synchronized void stopEditing() {
-		if (FormUtils.notEmpty(dateTxt.getText()))
+		if (EclipseUiUtils.isEmpty(dateTxt.getText()))
 			getControl().setData(STYLE, FormStyle.propertyMessage.style());
 		else
 			getControl().setData(STYLE, FormStyle.propertyText.style());

@@ -8,6 +8,7 @@ import javax.jcr.RepositoryException;
 
 import org.argeo.cms.viewers.EditablePart;
 import org.argeo.cms.widgets.EditableText;
+import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -41,13 +42,13 @@ public class EditablePropertyString extends EditableText implements
 		Control child = getControl();
 		if (child instanceof Label) {
 			Label lbl = (Label) child;
-			if (FormUtils.notEmpty(text))
+			if (EclipseUiUtils.isEmpty(text))
 				lbl.setText(message + "  ");
 			else
 				lbl.setText(text);
 		} else if (child instanceof Text) {
 			Text txt = (Text) child;
-			if (FormUtils.notEmpty(text)) {
+			if (EclipseUiUtils.isEmpty(text)) {
 				txt.setText("");
 				txt.setMessage(message + " ");
 			} else
@@ -61,7 +62,7 @@ public class EditablePropertyString extends EditableText implements
 	}
 
 	public synchronized void stopEditing() {
-		if (FormUtils.notEmpty(((Text) getControl()).getText()))
+		if (EclipseUiUtils.isEmpty(((Text) getControl()).getText()))
 			getControl().setData(STYLE, propertyMessage.style());
 		else
 			getControl().setData(STYLE, propertyText.style());

@@ -121,7 +121,7 @@ public class FormPageViewer extends AbstractPageViewer {
 			// JCR : Model
 			node = ept.getNode();
 			String propName = ept.getPropertyName();
-			if (FormUtils.notEmpty(txt)) {
+			if (EclipseUiUtils.isEmpty(txt)) {
 				if (node.hasProperty(propName))
 					node.getProperty(propName).remove();
 			} else {

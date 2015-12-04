@@ -4,6 +4,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.argeo.cms.viewers.EditablePart;
+import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -40,7 +41,7 @@ public class EditableLink extends EditablePropertyString implements
 		Control child = getControl();
 		if (child instanceof Label) {
 			Label lbl = (Label) child;
-			if (FormUtils.notEmpty(text))
+			if (EclipseUiUtils.isEmpty(text))
 				lbl.setText(message);
 			else if (readOnly)
 				setLinkValue(lbl, text);
@@ -50,7 +51,7 @@ public class EditableLink extends EditablePropertyString implements
 				lbl.setText(text);
 		} else if (child instanceof Text) {
 			Text txt = (Text) child;
-			if (FormUtils.notEmpty(text)) {
+			if (EclipseUiUtils.isEmpty(text)) {
 				txt.setText("");
 				txt.setMessage(message);
 			} else

@@ -33,15 +33,10 @@ public class FormUtils {
 
 	public final static String DEFAULT_SHORT_DATE_FORMAT = "dd/MM/yyyy";
 
-	/** Simply checks if a string is not null nor empty */
-	public static boolean notEmpty(String stringToTest) {
-		return EclipseUiUtils.notEmpty(stringToTest);
-	}
-
 	/** Best effort to convert a String to a calendar. Fails silently */
 	public static Calendar parseDate(DateFormat dateFormat, String calStr) {
 		Calendar cal = null;
-		if (notEmpty(calStr)) {
+		if (EclipseUiUtils.notEmpty(calStr)) {
 			try {
 				Date date = dateFormat.parse(calStr);
 				cal = new GregorianCalendar();

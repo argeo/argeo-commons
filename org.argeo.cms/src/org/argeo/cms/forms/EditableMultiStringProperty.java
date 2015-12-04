@@ -196,7 +196,7 @@ public class EditableMultiStringProperty extends StyledControl implements
 		String value = text.getText();
 		String errMsg = null;
 
-		if (FormUtils.notEmpty(value))
+		if (EclipseUiUtils.isEmpty(value))
 			return;
 
 		if (values.contains(value))
