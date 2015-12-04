@@ -14,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.cms.CmsView;
 import org.argeo.cms.util.CmsUtils;
+import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -34,7 +35,7 @@ public class FormUtils {
 
 	/** Simply checks if a string is not null nor empty */
 	public static boolean notEmpty(String stringToTest) {
-		return stringToTest == null || "".equals(stringToTest.trim());
+		return EclipseUiUtils.notEmpty(stringToTest);
 	}
 
 	/** Best effort to convert a String to a calendar. Fails silently */
