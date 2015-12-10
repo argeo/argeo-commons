@@ -22,13 +22,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.cms.auth.AuthConstants;
+import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
-import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.providers.CommonNameLP;
 import org.argeo.security.ui.admin.internal.providers.DomainNameLP;
@@ -73,7 +73,7 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 	public void createPartControl(Composite parent) {
 		parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
 
-		boolean isAdmin = UiAdminUtils.isUserInRole(AuthConstants.ROLE_ADMIN);
+		boolean isAdmin = UserAdminUtils.isUserInRole(AuthConstants.ROLE_ADMIN);
 
 		// Define the displayed columns
 		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 26));
@@ -157,7 +157,7 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 			try {
 				StringBuilder builder = new StringBuilder();
 				StringBuilder tmpBuilder = new StringBuilder();
-				if (UiAdminUtils.notNull(filter))
+				if (EclipseUiUtils.notEmpty(filter))
 					for (String prop : knownProps) {
 						tmpBuilder.append("(");
 						tmpBuilder.append(prop);

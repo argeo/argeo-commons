@@ -1,6 +1,6 @@
 package org.argeo.security.ui.admin.internal.providers;
 
-import org.argeo.security.ui.admin.internal.UiAdminUtils;
+import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.osgi.service.useradmin.User;
 
 /** The human friendly domain name for the corresponding user. */
@@ -9,6 +9,6 @@ public class DomainNameLP extends UserAdminAbstractLP {
 
 	@Override
 	public String getText(User user) {
-		return UiAdminUtils.getDomainName(user);
+		return UserAdminUtils.getDomainName(user);
 	}
 }

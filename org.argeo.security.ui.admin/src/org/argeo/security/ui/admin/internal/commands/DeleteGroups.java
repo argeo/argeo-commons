@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
-import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.parts.UserEditorInput;
 import org.eclipse.core.commands.AbstractHandler;
@@ -55,7 +55,7 @@ public class DeleteGroups extends AbstractHandler {
 		StringBuilder builder = new StringBuilder();
 		while (it.hasNext()) {
 			Group currGroup = it.next();
-			String groupName = UiAdminUtils.getUsername(currGroup);
+			String groupName = UserAdminUtils.getUsername(currGroup);
 			// TODO add checks
 			builder.append(groupName).append("; ");
 			groups.add(currGroup);

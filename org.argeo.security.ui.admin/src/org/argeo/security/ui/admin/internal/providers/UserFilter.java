@@ -3,8 +3,8 @@ package org.argeo.security.ui.admin.internal.providers;
 import static org.argeo.eclipse.ui.EclipseUiUtils.notEmpty;
 
 import org.argeo.cms.auth.AuthConstants;
+import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.osgi.useradmin.LdifName;
-import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.osgi.service.useradmin.User;
@@ -39,7 +39,7 @@ public class UserFilter extends ViewerFilter {
 		if (!showSystemRole
 				&& user.getName().matches(
 						".*(" + AuthConstants.ROLES_BASEDN + ")"))
-			// UiAdminUtils.getProperty(user, LdifName.dn.name())
+			// UserAdminUtils.getProperty(user, LdifName.dn.name())
 			// .toLowerCase().endsWith(AuthConstants.ROLES_BASEDN))
 			return false;
 
@@ -50,7 +50,7 @@ public class UserFilter extends ViewerFilter {
 			return true;
 
 		for (String key : knownProps) {
-			String currVal = UiAdminUtils.getProperty(user, key);
+			String currVal = UserAdminUtils.getProperty(user, key);
 			if (notEmpty(currVal)
 					&& currVal.toLowerCase().matches(searchString))
 				return true;

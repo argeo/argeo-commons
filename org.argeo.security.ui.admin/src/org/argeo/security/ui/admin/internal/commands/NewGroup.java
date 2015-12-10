@@ -25,7 +25,6 @@ import org.argeo.jcr.ArgeoNames;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
-import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -93,7 +92,7 @@ public class NewGroup extends AbstractHandler {
 						.createRole(getDn(commonName), Role.GROUP);
 				Dictionary props = group.getProperties();
 				String descStr = descriptionTxt.getText();
-				if (UiAdminUtils.notNull(descStr))
+				if (EclipseUiUtils.notEmpty(descStr))
 					props.put(LdifName.description.name(), descStr);
 				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
 						UserAdminEvent.ROLE_CREATED, group));
@@ -216,7 +215,7 @@ public class NewGroup extends AbstractHandler {
 			if (EclipseUiUtils.notEmpty(bdn)) {
 				Dictionary<String, ?> props = UserAdminConf.uriAsProperties(dns
 						.get(bdn));
-				String dn = LdifName.cn.name()+"=" + cn + ","
+				String dn = LdifName.cn.name() + "=" + cn + ","
 						+ UserAdminConf.groupBase.getValue(props) + "," + bdn;
 				return dn;
 			}

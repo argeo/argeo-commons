@@ -5,6 +5,7 @@ Bundle-ActivationPolicy: lazy
 Require-Bundle:	org.eclipse.core.runtime
 
 Import-Package:	org.eclipse.core.runtime.jobs,\
+org.argeo.cms.auth,\
 org.argeo.eclipse.spring,\
 org.eclipse.jface.window,\
 org.eclipse.swt,\

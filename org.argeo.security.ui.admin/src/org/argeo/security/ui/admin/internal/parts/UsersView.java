@@ -20,13 +20,13 @@ import java.util.List;
 
 import org.argeo.ArgeoException;
 import org.argeo.cms.auth.AuthConstants;
+import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
-import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.providers.CommonNameLP;
 import org.argeo.security.ui.admin.internal.providers.DomainNameLP;
@@ -74,7 +74,7 @@ public class UsersView extends ViewPart implements ArgeoNames {
 		columnDefs.add(new ColumnDefinition(new MailLP(), "E-mail", 150));
 		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain", 200));
 		// Only show technical DN to admin
-		if (UiAdminUtils.isUserInRole(AuthConstants.ROLE_ADMIN))
+		if (UserAdminUtils.isUserInRole(AuthConstants.ROLE_ADMIN))
 			columnDefs.add(new ColumnDefinition(new UserNameLP(),
 					"Distinguished Name", 300));
 
@@ -130,7 +130,7 @@ public class UsersView extends ViewPart implements ArgeoNames {
 				StringBuilder builder = new StringBuilder();
 
 				StringBuilder tmpBuilder = new StringBuilder();
-				if (UiAdminUtils.notNull(filter))
+				if (EclipseUiUtils.notEmpty(filter))
 					for (String prop : knownProps) {
 						tmpBuilder.append("(");
 						tmpBuilder.append(prop);

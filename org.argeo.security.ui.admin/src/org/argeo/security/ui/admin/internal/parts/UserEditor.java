@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.argeo.ArgeoException;
+import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
-import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.events.ModifyEvent;
@@ -98,7 +98,7 @@ public class UserEditor extends FormEditor {
 
 	void updateEditorTitle(String title) {
 		if (title == null) {
-			String commonName = UiAdminUtils.getProperty(user,
+			String commonName = UserAdminUtils.getProperty(user,
 					LdifName.cn.name());
 			title = "".equals(commonName) ? user.getName() : commonName;
 		}

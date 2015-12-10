@@ -4,7 +4,7 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
 import org.argeo.ArgeoException;
-import org.argeo.security.ui.admin.internal.UiAdminUtils;
+import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.SWT;
@@ -26,7 +26,7 @@ public abstract class UserAdminAbstractLP extends ColumnLabelProvider {
 	public Font getFont(Object element) {
 		// Self as bold
 		try {
-			LdapName selfUserName = UiAdminUtils.getLdapName();
+			LdapName selfUserName = UserAdminUtils.getCurrentUserLdapName();
 			String userName = ((User) element).getName();
 			LdapName userLdapName = new LdapName(userName);
 			if (userLdapName.equals(selfUserName)) {

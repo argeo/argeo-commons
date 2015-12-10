@@ -21,13 +21,13 @@ import java.util.List;
 
 import org.argeo.ArgeoException;
 import org.argeo.cms.auth.AuthConstants;
+import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminImages;
-import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.parts.UserEditor.GroupChangeListener;
 import org.argeo.security.ui.admin.internal.parts.UserEditor.MainInfoListener;
@@ -105,7 +105,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		appendOverviewPart(body, user);
 		// Remove to ability to force the password for his own user. The user
 		// must then use the change pwd feature
-		if (!UiAdminUtils.isCurrentUser(user))
+		if (!UserAdminUtils.isCurrentUser(user))
 			appendPasswordPart(body, user);
 		appendMemberOfPart(body, user);
 	}
@@ -119,21 +119,21 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		body.setLayout(new GridLayout(2, false));
 
 		final Text distinguishedName = createLT(tk, body, "User Name",
-				UiAdminUtils.getProperty(user, LdifName.uid.name()));
+				UserAdminUtils.getProperty(user, LdifName.uid.name()));
 		distinguishedName.setEnabled(false);
 
 		final Text commonName = createLT(tk, body, "Common Name",
-				UiAdminUtils.getProperty(user, LdifName.cn.name()));
+				UserAdminUtils.getProperty(user, LdifName.cn.name()));
 		commonName.setEnabled(false);
 
 		final Text firstName = createLT(tk, body, "First name",
-				UiAdminUtils.getProperty(user, LdifName.givenName.name()));
+				UserAdminUtils.getProperty(user, LdifName.givenName.name()));
 
 		final Text lastName = createLT(tk, body, "Last name",
-				UiAdminUtils.getProperty(user, LdifName.sn.name()));
+				UserAdminUtils.getProperty(user, LdifName.sn.name()));
 
 		final Text email = createLT(tk, body, "Email",
-				UiAdminUtils.getProperty(user, LdifName.mail.name()));
+				UserAdminUtils.getProperty(user, LdifName.mail.name()));
 
 		// create form part (controller)
 		AbstractFormPart part = new SectionPart((Section) body.getParent()) {
@@ -167,15 +167,15 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 
 			@Override
 			public void refresh() {
-				distinguishedName.setText(UiAdminUtils.getProperty(user,
+				distinguishedName.setText(UserAdminUtils.getProperty(user,
 						LdifName.uid.name()));
-				commonName.setText(UiAdminUtils.getProperty(user,
+				commonName.setText(UserAdminUtils.getProperty(user,
 						LdifName.cn.name()));
-				firstName.setText(UiAdminUtils.getProperty(user,
+				firstName.setText(UserAdminUtils.getProperty(user,
 						LdifName.givenName.name()));
-				lastName.setText(UiAdminUtils.getProperty(user,
+				lastName.setText(UserAdminUtils.getProperty(user,
 						LdifName.sn.name()));
-				email.setText(UiAdminUtils.getProperty(user,
+				email.setText(UserAdminUtils.getProperty(user,
 						LdifName.mail.name()));
 				refreshFormTitle(user);
 				super.refresh();
@@ -252,7 +252,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		Composite body = (Composite) section.getClient();
 		body.setLayout(EclipseUiUtils.noSpaceGridLayout());
 
-		boolean isAdmin = UiAdminUtils.isUserInRole(AuthConstants.ROLE_ADMIN);
+		boolean isAdmin = UserAdminUtils.isUserInRole(AuthConstants.ROLE_ADMIN);
 
 		// Displayed columns
 		List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
@@ -383,7 +383,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 			}
 		});
 
-		String tooltip = "Remove " + UiAdminUtils.getUsername(user)
+		String tooltip = "Remove " + UserAdminUtils.getUsername(user)
 				+ " from the below selected groups";
 		Action action = new RemoveMembershipAction(userViewer, user, tooltip,
 				SecurityAdminImages.ICON_REMOVE_DESC);
@@ -417,7 +417,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 			// StringBuilder builder = new StringBuilder();
 			while (it.hasNext()) {
 				Group currGroup = it.next();
-				// String groupName = UiAdminUtils.getUsername(currGroup);
+				// String groupName = UserAdminUtils.getUsername(currGroup);
 				// builder.append(groupName).append("; ");
 				groups.add(currGroup);
 			}
@@ -492,7 +492,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 	// LOCAL HELPERS
 	private void refreshFormTitle(User group) {
 		getManagedForm().getForm().setText(
-				UiAdminUtils.getProperty(group, LdifName.cn.name()));
+				UserAdminUtils.getProperty(group, LdifName.cn.name()));
 	}
 
 	/** Appends a section with a title */

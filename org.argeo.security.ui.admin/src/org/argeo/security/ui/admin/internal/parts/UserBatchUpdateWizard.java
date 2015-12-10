@@ -12,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.cms.auth.AuthConstants;
+import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
@@ -417,7 +418,7 @@ public class UserBatchUpdateWizard extends Wizard {
 					200));
 
 			// Only show technical DN to admin
-			if (UiAdminUtils.isUserInRole(AuthConstants.ROLE_ADMIN))
+			if (UserAdminUtils.isUserInRole(AuthConstants.ROLE_ADMIN))
 				columnDefs.add(new ColumnDefinition(new UserNameLP(),
 						"Distinguished Name", 300));
 
@@ -470,7 +471,7 @@ public class UserBatchUpdateWizard extends Wizard {
 					StringBuilder builder = new StringBuilder();
 
 					StringBuilder tmpBuilder = new StringBuilder();
-					if (UiAdminUtils.notNull(filter))
+					if (EclipseUiUtils.notEmpty(filter))
 						for (String prop : knownProps) {
 							tmpBuilder.append("(");
 							tmpBuilder.append(prop);
@@ -501,7 +502,7 @@ public class UserBatchUpdateWizard extends Wizard {
 				for (Role role : roles)
 					// Prevent current logged in user to perform batch on
 					// himself
-					if (!UiAdminUtils.isCurrentUser((User) role))
+					if (!UserAdminUtils.isCurrentUser((User) role))
 						users.add((User) role);
 				return users;
 			}
@@ -531,7 +532,7 @@ public class UserBatchUpdateWizard extends Wizard {
 			columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain",
 					200));
 			// Only show technical DN to admin
-			if (UiAdminUtils.isUserInRole(AuthConstants.ROLE_ADMIN))
+			if (UserAdminUtils.isUserInRole(AuthConstants.ROLE_ADMIN))
 				columnDefs.add(new ColumnDefinition(new UserNameLP(),
 						"Distinguished Name", 300));
 			userTableCmp = new ChosenUsersTableViewer(pageCmp, SWT.MULTI

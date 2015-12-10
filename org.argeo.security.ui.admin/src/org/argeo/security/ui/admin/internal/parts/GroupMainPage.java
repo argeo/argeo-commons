@@ -19,13 +19,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminImages;
-import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.parts.UserEditor.GroupChangeListener;
 import org.argeo.security.ui.admin.internal.parts.UserEditor.MainInfoListener;
@@ -107,11 +107,11 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		GridLayout layout = new GridLayout(2, false);
 		body.setLayout(layout);
 
-		final Text dnTxt = createLT(body, "DN",group.getName());
+		final Text dnTxt = createLT(body, "DN", group.getName());
 		dnTxt.setEnabled(false);
 
 		final Text cnTxt = createLT(body, "Common Name",
-				UiAdminUtils.getProperty(group, LdifName.cn.name()));
+				UserAdminUtils.getProperty(group, LdifName.cn.name()));
 		cnTxt.setEnabled(false);
 
 		Label descLbl = new Label(body, SWT.LEAD);
@@ -155,9 +155,9 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 			public void refresh() {
 				refreshFormTitle(group);
 				dnTxt.setText(group.getName());
-				cnTxt.setText(UiAdminUtils.getProperty(group,
+				cnTxt.setText(UserAdminUtils.getProperty(group,
 						LdifName.cn.name()));
-				descTxt.setText(UiAdminUtils.getProperty(group,
+				descTxt.setText(UserAdminUtils.getProperty(group,
 						LdifName.description.name()));
 				super.refresh();
 			}
@@ -299,7 +299,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 			// StringBuilder builder = new StringBuilder();
 			while (it.hasNext()) {
 				User currUser = it.next();
-				// String groupName = UiAdminUtils.getUsername(currGroup);
+				// String groupName = UserAdminUtils.getUsername(currGroup);
 				// builder.append(groupName).append("; ");
 				users.add(currUser);
 			}
@@ -345,7 +345,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 			refreshFormTitle(group);
 			getSection().setText(
 					"Members of group "
-							+ UiAdminUtils.getProperty(group,
+							+ UserAdminUtils.getProperty(group,
 									LdifName.cn.name()));
 			userViewer.refresh();
 			super.refresh();
@@ -441,7 +441,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	// LOCAL HELPERS
 	private void refreshFormTitle(Group group) {
 		getManagedForm().getForm().setText(
-				UiAdminUtils.getProperty(group, LdifName.cn.name()));
+				UserAdminUtils.getProperty(group, LdifName.cn.name()));
 	}
 
 	private Composite addSection(FormToolkit tk, Composite parent, String title) {

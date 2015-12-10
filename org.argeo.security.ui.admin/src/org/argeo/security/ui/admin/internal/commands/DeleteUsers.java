@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
-import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.parts.UserEditorInput;
 import org.eclipse.core.commands.AbstractHandler;
@@ -56,8 +56,8 @@ public class DeleteUsers extends AbstractHandler {
 
 		while (it.hasNext()) {
 			User currUser = it.next();
-			String userName = UiAdminUtils.getUsername(currUser);
-			if (UiAdminUtils.isCurrentUser(currUser)) {
+			String userName = UserAdminUtils.getUsername(currUser);
+			if (UserAdminUtils.isCurrentUser(currUser)) {
 				MessageDialog.openError(HandlerUtil.getActiveShell(event),
 						"Deletion forbidden",
 						"You cannot delete your own user this way.");
