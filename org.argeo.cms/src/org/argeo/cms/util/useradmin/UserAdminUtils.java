@@ -27,10 +27,10 @@ import org.osgi.service.useradmin.UserAdmin;
 /** Centralise common patterns to manage roles with a user admin */
 public class UserAdminUtils {
 
-	/** Retrieves a {@link User} given a LDAP name */
-	public final static User getUser(UserAdmin userAdmin, LdapName dn) {
-		User user = userAdmin.getUser(LdifName.dn.name(), dn.toString());
-		return user;
+	/** Retrieves a {@link Role} given a LDAP name */
+	public final static Role getRole(UserAdmin userAdmin, LdapName dn) {
+		Role role = userAdmin.getRole(dn.toString());
+		return role;
 	}
 
 	/** Retrieves the unique local username given a {@link User}. */
@@ -44,8 +44,8 @@ public class UserAdminUtils {
 	}
 
 	/**
-	 * Easily retrieves one of the Role property or an empty String if the
-	 * requested property is not defined for the passed user
+	 * Easily retrieves one of the {@link Role}'s property or an empty String if
+	 * the requested property is not defined
 	 */
 	public final static String getProperty(Role role, String key) {
 		Object obj = role.getProperties().get(key);
@@ -69,7 +69,7 @@ public class UserAdminUtils {
 	// SELF HELPERS
 	/** Simply retrieves the current logged-in user display name. */
 	public static User getCurrentUser(UserAdmin userAdmin) {
-		return getUser(userAdmin, getCurrentUserLdapName());
+		return (User) getRole(userAdmin, getCurrentUserLdapName());
 	}
 
 	/** Simply retrieves the current logged-in user display name. */
@@ -87,7 +87,7 @@ public class UserAdminUtils {
 	/** Returns the local name of the current connected user */
 	public final static String getUsername(UserAdmin userAdmin) {
 		LdapName dn = getCurrentUserLdapName();
-		return getUsername(getUser(userAdmin, dn));
+		return getUsername((User) getRole(userAdmin, dn));
 	}
 
 	/** Returns true if the current user is in the specified role */
@@ -164,7 +164,8 @@ public class UserAdminUtils {
 		try {
 			LdapName ldapName = new LdapName(dn);
 			Rdn last = ldapName.getRdn(ldapName.size() - 1);
-			if (last.getType().equals(LdifName.uid.name()))
+			if (last.getType().toLowerCase().equals(LdifName.uid.name())
+					|| last.getType().toLowerCase().equals(LdifName.cn.name()))
 				return (String) last.getValue();
 			else
 				throw new ArgeoException("Cannot retrieve user uid, "
@@ -179,7 +180,7 @@ public class UserAdminUtils {
 	 * found user has no defined display name
 	 */
 	public static String getUserDisplayName(UserAdmin userAdmin, String dn) {
-		User user = getUser(userAdmin, getLdapName(dn));
+		Role user = getRole(userAdmin, getLdapName(dn));
 		if (user == null)
 			return getUserUid(dn);
 		String displayName = getProperty(user, LdifName.displayName.name());
@@ -196,7 +197,7 @@ public class UserAdminUtils {
 	 * defined mail
 	 */
 	public static String getUserMail(UserAdmin userAdmin, String dn) {
-		User user = getUser(userAdmin, getLdapName(dn));
+		Role user = getRole(userAdmin, getLdapName(dn));
 		if (user == null)
 			return null;
 		else
@@ -204,7 +205,7 @@ public class UserAdminUtils {
 	}
 
 	// VARIOUS UI HELPERS
-	public final static String getDefaultCn(String firstName, String lastName) {
+	public final static String buildDefaultCn(String firstName, String lastName) {
 		return (firstName.trim() + " " + lastName.trim() + " ").trim();
 	}
 
@@ -243,5 +244,4 @@ public class UserAdminUtils {
 			throw new ArgeoException("Cannot parse LDAP name " + dn, e);
 		}
 	}
-
 }

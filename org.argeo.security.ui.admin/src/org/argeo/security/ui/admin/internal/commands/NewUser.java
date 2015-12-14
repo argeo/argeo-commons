@@ -121,7 +121,7 @@ public class NewUser extends AbstractHandler {
 				if (EclipseUiUtils.notEmpty(firstNameStr))
 					props.put(LdifName.givenName.name(), firstNameStr);
 
-				String cn = UserAdminUtils.getDefaultCn(firstNameStr,
+				String cn = UserAdminUtils.buildDefaultCn(firstNameStr,
 						lastNameStr);
 				if (EclipseUiUtils.notEmpty(cn))
 					props.put(LdifName.cn.name(), cn);
