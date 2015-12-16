@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.argeo.commons</groupId>
+		<version>2.1.31-SNAPSHOT</version>
+		<artifactId>dep</artifactId>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>org.argeo.dep.cms.node</artifactId>
+	<name>CMS Node</name>
+	<dependencies>
+
+		<!-- Argeo Commons -->
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.dep.cms.client</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.cms</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.security.jackrabbit</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+
+		<!-- Argeo Commons UI -->
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.eclipse.ui.rap</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+
+		<!-- CMS Dependencies -->
+		<dependency>
+			<groupId>org.argeo.tp.javax</groupId>
+			<artifactId>javax.transaction</artifactId>
+		</dependency>
+		<!-- TODO: not bitronix dependent -->
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>bitronix.tm</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>org.joda.time</artifactId>
+		</dependency>
+
+		<!-- Third Parties -->
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>org.h2</artifactId>
+		</dependency>
+
+		<!-- Jackrabbit -->
+		<dependency>
+			<groupId>org.argeo.tp.apache.jackrabbit</groupId>
+			<artifactId>org.apache.jackrabbit.data</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.jackrabbit</groupId>
+			<artifactId>org.apache.jackrabbit.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.jackrabbit</groupId>
+			<artifactId>org.apache.jackrabbit.server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>EDU.oswego.cs.dl.util.concurrent</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.commons</groupId>
+			<artifactId>org.apache.commons.fileupload</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.tika.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.lucene</artifactId>
+		</dependency>
+
+		<!-- UI -->
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.rap.rwt</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.core.commands</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.rap.jface</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap</groupId>
+			<artifactId>org.eclipse.rap.addons.filedialog</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap</groupId>
+			<artifactId>org.eclipse.rap.addons.fileupload</artifactId>
+		</dependency>
+
+		<!-- TODO: remove Spring dependency -->
+		<dependency>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.beans</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.javax</groupId>
+			<artifactId>javax.el</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.javax</groupId>
+			<artifactId>javax.inject</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.gemini</groupId>
+			<artifactId>org.eclipse.gemini.blueprint.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.gemini</groupId>
+			<artifactId>org.eclipse.gemini.blueprint.extender</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.gemini</groupId>
+			<artifactId>org.eclipse.gemini.blueprint.io</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>org.aspectj.weaver</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>org.aopalliance</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.aop</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.context</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.expression</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.instrument</artifactId>
+		</dependency>
+
+		<!-- HTTP Server -->
+		<dependency>
+			<groupId>org.argeo.tp.equinox</groupId>
+			<artifactId>org.eclipse.equinox.http.registry</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.equinox</groupId>
+			<artifactId>org.eclipse.equinox.http.servlet</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.equinox</groupId>
+			<artifactId>org.eclipse.equinox.http.jetty</artifactId>
+		</dependency>
+
+		<!-- Jetty -->
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.continuation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.http</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.io</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.jmx</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.servlet</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.servlets</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.util</artifactId>
+		</dependency>
+
+	</dependencies>
+</project>
