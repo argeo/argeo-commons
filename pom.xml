@@ -130,7 +130,7 @@ limitations under the License.
 					<version>3.3</version>
 					<configuration>
 						<source>1.8</source>
-						<target>1.7</target>
+						<target>1.8</target>
 						<compilerId>eclipse</compilerId>
 						<!-- Required for compliance level, see http://jira.codehaus.org/browse/PLXCOMP-231 -->
 						<optimize>true</optimize>
@@ -228,7 +228,7 @@ limitations under the License.
 							<_include>bnd.bnd</_include>
 							<Bundle-Version>${project.version}-r${tstamp}</Bundle-Version>
 							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-							<Bundle-RequiredExecutionEnvironment>JavaSE-1.7</Bundle-RequiredExecutionEnvironment>
+							<Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
 							<_removeheaders>Bnd-LastModified,Build-Jdk,Built-By,Tool,Created-By</_removeheaders>
 							<!-- SLC specific instructions -->
 							<SLC-Category>${project.groupId}</SLC-Category>
