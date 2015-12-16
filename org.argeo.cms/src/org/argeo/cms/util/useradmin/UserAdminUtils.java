@@ -161,18 +161,14 @@ public class UserAdminUtils {
 	// HELPERS TO RETRIEVE REMARKABLE PROPERTIES
 	/** Simply retrieves the user uid from his dn with no useradmin */
 	public static String getUserUid(String dn) {
-		try {
-			LdapName ldapName = new LdapName(dn);
-			Rdn last = ldapName.getRdn(ldapName.size() - 1);
-			if (last.getType().toLowerCase().equals(LdifName.uid.name())
-					|| last.getType().toLowerCase().equals(LdifName.cn.name()))
-				return (String) last.getValue();
-			else
-				throw new ArgeoException("Cannot retrieve user uid, "
-						+ "non valid dn: " + dn);
-		} catch (InvalidNameException e) {
-			throw new ArgeoException("Cannot parse LDAP name " + dn, e);
-		}
+		LdapName ldapName = getLdapName(dn);
+		Rdn last = ldapName.getRdn(ldapName.size() - 1);
+		if (last.getType().toLowerCase().equals(LdifName.uid.name())
+				|| last.getType().toLowerCase().equals(LdifName.cn.name()))
+			return (String) last.getValue();
+		else
+			throw new ArgeoException("Cannot retrieve user uid, "
+					+ "non valid dn: " + dn);
 	}
 
 	/**
