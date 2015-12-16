@@ -15,7 +15,7 @@
 		<!-- Argeo Commons -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.security.core</artifactId>
+			<artifactId>org.argeo.util</artifactId>
 			<version>2.1.31-SNAPSHOT</version>
 		</dependency>
 		<dependency>
@@ -220,11 +220,11 @@
 								</goals>
 								<configuration>
 									<includeTypes>jar</includeTypes>
-									<stripVersion>true</stripVersion>
 									<outputDirectory>${project.build.directory}/lib-argeo</outputDirectory>
 									<includeGroupIds>org.argeo.commons</includeGroupIds>
 									<excludeTransitive>true</excludeTransitive>
 									<includeTypes>jar</includeTypes>
+									<includeScope>runtime</includeScope>
 								</configuration>
 							</execution>
 							<execution>
@@ -235,11 +235,11 @@
 								</goals>
 								<configuration>
 									<includeTypes>jar</includeTypes>
-									<stripVersion>true</stripVersion>
 									<outputDirectory>${project.build.directory}/lib-tp</outputDirectory>
 									<excludeGroupIds>org.argeo.commons</excludeGroupIds>
 									<excludeTransitive>true</excludeTransitive>
 									<includeTypes>jar</includeTypes>
+									<includeScope>runtime</includeScope>
 								</configuration>
 							</execution>
 						</executions>
@@ -274,7 +274,7 @@
 										</mapping>
 									</mappings>
 									<requires>
-										<!-- <require>osgi-boot-equinox</require> -->
+										<require>argeo-cms-client-tp</require>
 									</requires>
 								</configuration>
 							</execution>
@@ -325,5 +325,4 @@
 			</build>
 		</profile>
 	</profiles>
-
 </project>

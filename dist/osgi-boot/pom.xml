@@ -126,6 +126,7 @@
 											<filemode>644</filemode>
 											<directoryIncluded>false</directoryIncluded>
 											<dependency>
+												<stripVersion>true</stripVersion>
 												<includes>
 													<include>org.argeo.commons:org.argeo.osgi.boot</include>
 												</includes>
@@ -175,6 +176,7 @@
 											<filemode>644</filemode>
 											<directoryIncluded>false</directoryIncluded>
 											<dependency>
+												<stripVersion>true</stripVersion>
 												<includes>
 													<include>org.argeo.tp.equinox:org.eclipse.osgi</include>
 												</includes>

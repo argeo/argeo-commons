@@ -2,7 +2,6 @@
 <?pde version="3.6"?>
 <target name="org.argeo.dep.cms.client - Local Maven repository (v2.1.31-SNAPSHOT)">
 <locations>
-<location path="${system_property:user.home}/.m2/repository/org/argeo/commons/org.argeo.security.core/2.1.31-SNAPSHOT" type="Directory"/>
 <location path="${system_property:user.home}/.m2/repository/org/argeo/commons/org.argeo.util/2.1.31-SNAPSHOT" type="Directory"/>
 <location path="${system_property:user.home}/.m2/repository/org/argeo/commons/org.argeo.server.jcr/2.1.31-SNAPSHOT" type="Directory"/>
 <location path="${system_property:user.home}/.m2/repository/org/argeo/commons/org.argeo.osgi.boot/2.1.31-SNAPSHOT" type="Directory"/>
@@ -90,7 +89,6 @@
 <location path="${system_property:user.home}/.m2/repository/org/argeo/tp/apache/jackrabbit/org.apache.jackrabbit.jcr2spi.source/2.10.1" type="Directory"/>
 </locations>
 <includeBundles>
-<plugin id="org.argeo.security.core"/>
 <plugin id="org.argeo.util"/>
 <plugin id="org.argeo.server.jcr"/>
 <plugin id="org.argeo.osgi.boot"/>
