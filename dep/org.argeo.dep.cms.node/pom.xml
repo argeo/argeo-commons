@@ -15,29 +15,29 @@
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.dep.cms.client</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>2.1.32-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.cms</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>2.1.32-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.security.jackrabbit</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>2.1.32-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Argeo Commons UI -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.ui</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>2.1.32-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.ui.rap</artifactId>
-			<version>${version.argeo-commons}</version>
+			<version>2.1.32-SNAPSHOT</version>
 		</dependency>
 
 		<!-- CMS Dependencies -->
