@@ -30,6 +30,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.security.ui.admin</artifactId>
+			<version>${version.argeo-commons}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.ui.workbench.rap</artifactId>
 			<version>${version.argeo-commons}</version>
 		</dependency>
@@ -39,11 +44,127 @@
 			<version>${version.argeo-commons}</version>
 		</dependency>
 
-		<!-- All Core Third Parties -->
+		<!-- Misc Third Parties -->
 		<dependency>
-			<groupId>org.argeo.tp</groupId>
-			<artifactId>argeo-tp</artifactId>
-			<version>${version.argeo-distribution}</version>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.tika.parser</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.bouncycastle</groupId>
+			<artifactId>bcmail</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.bouncycastle</groupId>
+			<artifactId>bcpg</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.ant</groupId>
+			<artifactId>org.apache.ant</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.ant</groupId>
+			<artifactId>org.apache.ant.launch</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>org.quartz-scheduler.quartz</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>org.quartz-scheduler.quartz.jobs</artifactId>
+		</dependency>
+
+
+		<!-- RAP Workbench -->
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.rap.ui</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.rap.ui.forms</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.rap.ui.views</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.rap.ui.workbench</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.core.databinding</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.core.databinding.beans</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.core.runtime</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.core.databinding.property</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>com.ibm.icu.base</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.core.contenttype</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.rap.rwt.osgi</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.rap.jface.databinding</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.core.jobs</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.core.expressions</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.core.databinding.observable</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.help</artifactId>
+		</dependency>
+
+		<!-- Spring -->
+		<dependency>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.aspects</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.context.support</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.tx</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.web.servlet</artifactId>
 		</dependency>
 	</dependencies>
 </project>

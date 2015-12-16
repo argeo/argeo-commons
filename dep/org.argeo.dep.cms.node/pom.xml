@@ -56,6 +56,22 @@
 			<groupId>org.argeo.tp.misc</groupId>
 			<artifactId>org.h2</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>org.w3c.css.sac</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>com.steadystate.css</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>com.google.guava</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>com.google.gson</artifactId>
+		</dependency>
 
 		<!-- Jackrabbit -->
 		<dependency>
