@@ -102,6 +102,7 @@
 												<source>
 													<location>src/main/rpm/etc/osgiboot</location>
 													<includes>
+														<include>*.policy</include>
 														<include>*-functions.sh</include>
 													</includes>
 												</source>
