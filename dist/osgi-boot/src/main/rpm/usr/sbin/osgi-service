@@ -44,7 +44,12 @@ start() {
 		fi
 	fi
 
-	cp --preserve $CONF_DIR/config.ini $CONF_RW/config.ini
+	if [ ! -f $CONF_RW/config.ini ]; then
+		echo osgi.configuration.cascaded=true > $CONF_RW/config.ini
+		echo osgi.sharedConfiguration.area=$CONF_DIR >> $CONF_RW/config.ini
+		echo osgi.sharedConfiguration.area.readOnly=true >> $CONF_RW/config.ini
+		#cp --preserve $CONF_DIR/config.ini $CONF_RW/config.ini
+	fi
 	touch $SHUTDOWN_FILE
 	cd $EXEC_DIR
 	$JVM \
