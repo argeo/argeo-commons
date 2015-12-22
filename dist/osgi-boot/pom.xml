@@ -116,6 +116,9 @@
 											<sources>
 												<source>
 													<location>src/main/rpm/usr/sbin</location>
+													<includes>
+														<include>osgi-service</include>
+													</includes>
 												</source>
 											</sources>
 										</mapping>
