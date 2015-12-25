@@ -71,6 +71,9 @@ class NodeRepository extends JackrabbitWrapper implements KernelConstants,
 			case memory:
 				in = cl.getResourceAsStream(base + "/repository-memory.xml");
 				break;
+			case localfs:
+				in = cl.getResourceAsStream(base + "/repository-localfs.xml");
+				break;
 			default:
 				throw new CmsException("Unsupported node type " + type);
 			}
@@ -126,6 +129,8 @@ class NodeRepository extends JackrabbitWrapper implements KernelConstants,
 			setProp(defaults, REPO_DBPASSWORD, "argeo");
 			break;
 		case memory:
+			break;
+		case localfs:
 			break;
 		default:
 			throw new CmsException("Unsupported node type " + type);

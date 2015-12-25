@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Repository PUBLIC "Jackrabbit 2.6" "http://jackrabbit.apache.org/dtd/repository-2.6.dtd">
+<Repository>
+	<!-- File system and datastore -->
+	<FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
+		<param name="path" value="${rep.home}/repository" />
+	</FileSystem>
+	<DataStore class="org.apache.jackrabbit.core.data.FileDataStore">
+		<param name="path" value="${rep.home}/datastore" />
+	</DataStore>
+
+	<!-- Workspace templates -->
+	<Workspaces rootPath="${rep.home}/workspaces"
+		defaultWorkspace="${argeo.node.repo.defaultWorkspace}" />
+	<Workspace name="${wsp.name}">
+		<FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
+			<param name="path" value="${wsp.home}" />
+		</FileSystem>
+		<PersistenceManager
+			class="org.apache.jackrabbit.core.persistence.bundle.BundleFsPersistenceManager">
+			<param name="bundleCacheSize" value="${argeo.node.repo.bundleCacheMB}" />
+		</PersistenceManager>
+		<SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
+			<param name="path" value="${wsp.home}/index" />
+			<param name="extractorPoolSize" value="${argeo.node.repo.extractorPoolSize}" />
+			<param name="cacheSize" value="${argeo.node.repo.searchCacheSize}" />
+			<param name="maxVolatileIndexSize" value="${argeo.node.repo.maxVolatileIndexSize}" />
+		</SearchIndex>
+		<WorkspaceSecurity>
+			<AccessControlProvider
+				class="org.argeo.security.jackrabbit.ArgeoAccessControlProvider" />
+		</WorkspaceSecurity>
+	</Workspace>
+
+	<!-- Versioning -->
+	<Versioning rootPath="${rep.home}/version">
+		<FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
+			<param name="path" value="${rep.home}/version" />
+		</FileSystem>
+		<PersistenceManager
+			class="org.apache.jackrabbit.core.persistence.bundle.BundleFsPersistenceManager">
+			<param name="bundleCacheSize" value="${argeo.node.repo.bundleCacheMB}" />
+		</PersistenceManager>
+	</Versioning>
+
+	<!-- Indexing -->
+	<SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
+		<param name="path" value="${rep.home}/index" />
+		<param name="extractorPoolSize" value="${argeo.node.repo.extractorPoolSize}" />
+		<param name="cacheSize" value="${argeo.node.repo.searchCacheSize}" />
+		<param name="maxVolatileIndexSize" value="${argeo.node.repo.maxVolatileIndexSize}" />
+	</SearchIndex>
+
+	<!-- Security -->
+	<Security appName="Jackrabbit">
+		<SecurityManager class="org.argeo.security.jackrabbit.ArgeoSecurityManager"
+			workspaceName="security" />
+		<AccessManager class="org.argeo.security.jackrabbit.ArgeoAccessManager" />
+	</Security>
+</Repository>
