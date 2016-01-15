@@ -59,7 +59,7 @@ class NodeSecurity implements KernelConstants {
 
 	private Subject logInKernel() {
 		final Subject kernelSubject = new Subject();
-		createKeyStoreIfNeeded();
+		// createKeyStoreIfNeeded();
 
 		CallbackHandler cbHandler = new CallbackHandler() {
 
@@ -98,7 +98,7 @@ class NodeSecurity implements KernelConstants {
 			throw new CmsException("Cannot log out kernel", e);
 		}
 
-		Security.removeProvider(SECURITY_PROVIDER);
+		// Security.removeProvider(SECURITY_PROVIDER);
 	}
 
 	public Subject getKernelSubject() {
@@ -145,19 +145,19 @@ class NodeSecurity implements KernelConstants {
 		return keyStoreFile;
 	}
 
-	private final static String SECURITY_PROVIDER = "BC";// Bouncy Castle
-	private final static Log log;
-	static {
-		log = LogFactory.getLog(NodeSecurity.class);
-		// Make Bouncy Castle the default provider
-		Provider provider = new BouncyCastleProvider();
-		int position = Security.insertProviderAt(provider, 1);
-		if (position == -1)
-			log.error("Provider " + provider.getName()
-					+ " already installed and could not be set as default");
-		Provider defaultProvider = Security.getProviders()[0];
-		if (!defaultProvider.getName().equals(SECURITY_PROVIDER))
-			log.error("Provider name is " + defaultProvider.getName()
-					+ " but it should be " + SECURITY_PROVIDER);
-	}
+	// private final static String SECURITY_PROVIDER = "BC";// Bouncy Castle
+	// private final static Log log;
+	// static {
+	// log = LogFactory.getLog(NodeSecurity.class);
+	// // Make Bouncy Castle the default provider
+	// Provider provider = new BouncyCastleProvider();
+	// int position = Security.insertProviderAt(provider, 1);
+	// if (position == -1)
+	// log.error("Provider " + provider.getName()
+	// + " already installed and could not be set as default");
+	// Provider defaultProvider = Security.getProviders()[0];
+	// if (!defaultProvider.getName().equals(SECURITY_PROVIDER))
+	// log.error("Provider name is " + defaultProvider.getName()
+	// + " but it should be " + SECURITY_PROVIDER);
+	// }
 }
