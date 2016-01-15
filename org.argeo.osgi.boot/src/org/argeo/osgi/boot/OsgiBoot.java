@@ -562,7 +562,7 @@ public class OsgiBoot {
 	 * BUNDLE PATTERNS INSTALLATION
 	 */
 	/**
-	 * Computes a list of URLs based on Ant-like incluide/exclude patterns
+	 * Computes a list of URLs based on Ant-like include/exclude patterns
 	 * defined by ${argeo.osgi.bundles} with the following format:<br>
 	 * <code>/base/directory;in=*.jar;in=**;ex=org.eclipse.osgi_*;jar</code><br>
 	 * WARNING: <code>/base/directory;in=*.jar,\</code> at the end of a file,
