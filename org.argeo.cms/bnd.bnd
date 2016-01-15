@@ -21,4 +21,5 @@ org.springframework.context,\
 org.springframework.core.io,\
 org.apache.jackrabbit.webdav.server,\
 org.apache.jackrabbit.webdav.jcr,\
+org.bouncycastle.asn1.x509,\
 *

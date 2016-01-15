@@ -6,8 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.security.KeyStore;
-import java.security.Provider;
-import java.security.Security;
 import java.util.Arrays;
 
 import javax.security.auth.Subject;
@@ -20,11 +18,8 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.x500.X500Principal;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /** Low-level kernel security */
 class NodeSecurity implements KernelConstants {
