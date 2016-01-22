@@ -1,10 +1,13 @@
 package org.argeo.cms.widgets.auth;
 
 import org.argeo.cms.CmsView;
+import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Widget;
 
 /** The site-related user menu */
 public class CmsLoginShell extends CmsLogin {
@@ -31,10 +34,20 @@ public class CmsLoginShell extends CmsLogin {
 
 	@Override
 	protected boolean login() {
+		boolean success = false;
 		try {
-			return super.login();
+			success = super.login();
+			return success;
 		} finally {
-			closeShell();
+			if (success)
+				closeShell();
+			else {
+				for (Control child : shell.getChildren())
+					child.dispose();
+				createUi(shell);
+				shell.layout();
+				// TODO error message
+			}
 		}
 	}
 
@@ -45,8 +58,10 @@ public class CmsLoginShell extends CmsLogin {
 	}
 
 	protected void closeShell() {
-		shell.close();
-		shell.dispose();
+		if (!shell.isDisposed()) {
+			shell.close();
+			shell.dispose();
+		}
 	}
 
 	public Shell getShell() {

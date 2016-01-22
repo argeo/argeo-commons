@@ -272,7 +272,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 			} catch (InterruptedException e2) {
 				// silent
 			}
-			ErrorFeedback.show("Login failed", e);
+//			ErrorFeedback.show("Login failed", e);
 			return false;
 		} catch (LoginException e) {
 			log.error("Cannot login", e);

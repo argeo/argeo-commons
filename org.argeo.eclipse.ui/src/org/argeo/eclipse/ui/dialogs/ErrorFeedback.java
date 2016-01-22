@@ -47,11 +47,15 @@ public class ErrorFeedback extends TitleAreaDialog {
 		if (e instanceof ThreadDeath)
 			throw (ThreadDeath) e;
 
-		new ErrorFeedback(getDisplay().getActiveShell(), message, e).open();
+		new ErrorFeedback(newShell(), message, e).open();
 	}
 
 	public static void show(String message) {
-		new ErrorFeedback(getDisplay().getActiveShell(), message, null).open();
+		new ErrorFeedback(newShell(), message, null).open();
+	}
+
+	private static Shell newShell() {
+		return new Shell(getDisplay(), SWT.NO_TRIM);
 	}
 
 	/** Tries to find a display */
@@ -69,6 +73,7 @@ public class ErrorFeedback extends TitleAreaDialog {
 
 	public ErrorFeedback(Shell parentShell, String message, Throwable e) {
 		super(parentShell);
+		setShellStyle(SWT.NO_TRIM);
 		this.message = message;
 		this.exception = e;
 		log.error(message, e);
@@ -89,14 +94,11 @@ public class ErrorFeedback extends TitleAreaDialog {
 		composite.setLayout(new GridLayout(2, false));
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		setMessage(message != null ? message
-				+ (exception != null ? ": " + exception.getMessage() : "")
-				: exception != null ? exception.getMessage() : "Unkown Error",
-				IMessageProvider.ERROR);
+		setMessage(message != null ? message + (exception != null ? ": " + exception.getMessage() : "")
+				: exception != null ? exception.getMessage() : "Unkown Error", IMessageProvider.ERROR);
 
 		if (exception != null) {
-			Text stack = new Text(composite, SWT.MULTI | SWT.LEAD | SWT.BORDER
-					| SWT.V_SCROLL | SWT.H_SCROLL);
+			Text stack = new Text(composite, SWT.MULTI | SWT.LEAD | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 			stack.setEditable(false);
 			stack.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 			StringWriter sw = new StringWriter();
