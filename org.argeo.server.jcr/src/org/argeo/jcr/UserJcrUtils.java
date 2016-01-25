@@ -27,7 +27,11 @@ import javax.jcr.query.qom.StaticOperand;
 
 import org.argeo.ArgeoException;
 
-/** Utilities related to the user home and properties based on Argeo JCR model. */
+/**
+ * Utilities related to the user home and properties based on Argeo JCR model.
+ * Do not use anymore. Does not fit with current security model
+ */
+@Deprecated
 public class UserJcrUtils {
 	/** The home base path. Not yet configurable */
 	public final static String DEFAULT_HOME_BASE_PATH = "/home";
