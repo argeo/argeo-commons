@@ -41,6 +41,10 @@
 			<param name="cacheSize" value="${argeo.node.repo.searchCacheSize}" />
 			<param name="maxVolatileIndexSize" value="${argeo.node.repo.maxVolatileIndexSize}" />
 		</SearchIndex>
+		<WorkspaceSecurity>
+			<AccessControlProvider
+				class="org.argeo.security.jackrabbit.ArgeoAccessControlProvider" />
+		</WorkspaceSecurity>
 	</Workspace>
 
 	<!-- Versioning -->
@@ -69,11 +73,7 @@
 	<!-- Security -->
 	<Security appName="Jackrabbit">
 		<SecurityManager class="org.argeo.security.jackrabbit.ArgeoSecurityManager"
-			workspaceName="security">
-		</SecurityManager>
-		<AccessManager class="org.argeo.security.jackrabbit.ArgeoAccessManager">
-		</AccessManager>
-		<LoginModule class="org.argeo.security.jackrabbit.ArgeoLoginModule">
-		</LoginModule>
+			workspaceName="security" />
+		<AccessManager class="org.argeo.security.jackrabbit.ArgeoAccessManager" />
 	</Security>
 </Repository>
