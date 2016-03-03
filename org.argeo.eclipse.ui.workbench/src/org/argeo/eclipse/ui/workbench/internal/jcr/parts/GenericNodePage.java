@@ -31,6 +31,7 @@ import javax.jcr.RepositoryException;
 import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.workbench.WorkbenchConstants;
 import org.argeo.jcr.JcrUtils;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
@@ -106,6 +107,8 @@ public class GenericNodePage extends FormPage implements WorkbenchConstants {
 							// thus it is still possible to save after a tab
 							// change.
 							super.commit(onSave);
+							if (currentNode.getSession().hasPendingChanges())
+								currentNode.getSession().save();
 						}
 					} catch (RepositoryException re) {
 						throw new ArgeoException(
@@ -169,8 +172,9 @@ public class GenericNodePage extends FormPage implements WorkbenchConstants {
 			AbstractFormPart part, Property prop) {
 		GridData gd;
 		try {
-			if (prop.getType() == PropertyType.STRING) {
-				Text txt = tk.createText(parent, prop.getString());
+			if (prop.getType() == PropertyType.STRING && !prop.isMultiple()) {
+				Text txt = tk.createText(parent, prop.getString(), SWT.WRAP
+						| SWT.MULTI);
 				gd = new GridData(GridData.FILL_HORIZONTAL);
 				txt.setLayoutData(gd);
 				txt.addModifyListener(new ModifiedFieldListener(part));

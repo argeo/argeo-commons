@@ -28,6 +28,7 @@ import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.eclipse.ui.workbench.internal.jcr.parts.ChildNodesPage;
 import org.argeo.eclipse.ui.workbench.internal.jcr.parts.GenericNodeEditorInput;
+import org.argeo.eclipse.ui.workbench.internal.jcr.parts.GenericNodePage;
 import org.argeo.eclipse.ui.workbench.internal.jcr.parts.GenericPropertyPage;
 import org.argeo.eclipse.ui.workbench.internal.jcr.parts.NodePrivilegesPage;
 import org.argeo.eclipse.ui.workbench.internal.jcr.parts.NodeVersionHistoryPage;
@@ -48,6 +49,7 @@ public class DefaultNodeEditor extends FormEditor {
 
 	private Node currentNode;
 
+	private GenericNodePage genericNodePage;
 	private GenericPropertyPage genericPropertyPage;
 	private ChildNodesPage childNodesPage;
 	private NodePrivilegesPage nodeRightsManagementPage;
@@ -64,11 +66,6 @@ public class DefaultNodeEditor extends FormEditor {
 	@Override
 	protected void addPages() {
 		try {
-			// genericNodePage = new GenericNodePage(this,
-			// JcrExplorerPlugin.getMessage("genericNodePageTitle"),
-			// currentNode);
-			// addPage(genericNodePage);
-
 			genericPropertyPage = new GenericPropertyPage(this,
 					WorkbenchUiPlugin.getMessage("genericNodePageTitle"),
 					currentNode);
@@ -98,6 +95,17 @@ public class DefaultNodeEditor extends FormEditor {
 								.getMessage("nodeVersionHistoryPageTitle"),
 						currentNode);
 				addPage(nodeVersionHistoryPage);
+			}
+
+			privileges = new ArrayList<Privilege>();
+			privileges.add(accessControlManager
+					.privilegeFromName(Privilege.JCR_ALL));
+			if (accessControlManager.hasPrivileges(currentNode.getPath(),
+					privileges.toArray(new Privilege[0]))) {
+				genericNodePage = new GenericNodePage(this,
+						WorkbenchUiPlugin.getMessage("propertyEditorPageTitle"),
+						currentNode);
+				addPage(genericNodePage);
 			}
 
 		} catch (RepositoryException e) {
