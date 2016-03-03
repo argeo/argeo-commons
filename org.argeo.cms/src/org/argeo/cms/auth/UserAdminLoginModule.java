@@ -20,6 +20,8 @@ import javax.security.auth.spi.LoginModule;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.cms.internal.kernel.Activator;
 import org.argeo.eclipse.ui.specific.UiContext;
@@ -30,6 +32,9 @@ import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
 public class UserAdminLoginModule implements LoginModule, AuthConstants {
+	private final static Log log = LogFactory
+			.getLog(UserAdminLoginModule.class);
+
 	private Subject subject;
 	private CallbackHandler callbackHandler;
 	private boolean isAnonymous = false;
@@ -113,6 +118,11 @@ public class UserAdminLoginModule implements LoginModule, AuthConstants {
 					if (!user.hasCredential(null, password))
 						throw new FailedLoginException("Invalid credentials");
 					// return false;
+
+					// Log and monitor new login
+					if (log.isDebugEnabled())
+						log.debug("Logged in to CMS with username [" + username+"]");
+
 					authorization = userAdmin.getAuthorization(user);
 				}
 			}
