@@ -142,10 +142,13 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 						.getProperty(JCR_LAST_MODIFIED).getDate() : null;
 				String url = CmsUtils.getCanonicalUrl(node, request);
 				String imgUrl = null;
-				for (NodeIterator it = node.getNodes(); it.hasNext();) {
+				loop: for (NodeIterator it = node.getNodes(); it.hasNext();) {
+					// Takes the first found cms:image
 					Node child = it.nextNode();
-					if (child.isNodeType(CMS_IMAGE))
+					if (child.isNodeType(CMS_IMAGE)){
 						imgUrl = CmsUtils.getDataUrl(child, request);
+						break loop;
+					}
 				}
 				StringBuilder buf = new StringBuilder();
 				buf.append("<html>");
