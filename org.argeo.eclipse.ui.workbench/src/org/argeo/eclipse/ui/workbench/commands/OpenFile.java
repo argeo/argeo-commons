@@ -48,7 +48,7 @@ public class OpenFile extends AbstractHandler {
 	/* DEPENDENCY INJECTION */
 	private String openFileServiceId;
 
-	public final static String ID = WorkbenchUiPlugin.ID + ".dumpNode";
+	public final static String ID = WorkbenchUiPlugin.ID + ".openFile";
 	public final static String PARAM_FILE_NAME = OpenFileService.PARAM_FILE_NAME;
 	public final static String PARAM_FILE_URI = OpenFileService.PARAM_FILE_URI; // "param.fileURI";
 

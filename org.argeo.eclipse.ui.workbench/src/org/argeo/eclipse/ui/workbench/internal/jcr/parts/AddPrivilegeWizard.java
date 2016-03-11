@@ -156,8 +156,8 @@ public class AddPrivilegeWizard extends Wizard {
 
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					PickUpUserDialog dialog = new PickUpUserDialog(
-							getShell(), "Choose a group or a user", userAdmin);
+					PickUpUserDialog dialog = new PickUpUserDialog(getShell(),
+							"Choose a group or a user", userAdmin);
 					if (dialog.open() == Window.OK) {
 						chosenUser = dialog.getSelected();
 						groupNameLbl.setText(UsersUtils
@@ -173,6 +173,9 @@ public class AddPrivilegeWizard extends Wizard {
 				@Override
 				public void focusLost(FocusEvent event) {
 					String dn = groupNameTxt.getText();
+					if (EclipseUiUtils.isEmpty(dn))
+						return;
+
 					User newChosen = null;
 					try {
 						newChosen = (User) userAdmin.getRole(dn);
