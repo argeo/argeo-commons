@@ -52,12 +52,12 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 
 	// private final static String ATTR_AUTH = "auth";
 	private final static String HEADER_AUTHORIZATION = "Authorization";
-	// private final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
+	private final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
 	private final HttpService httpService;
 
 	// FIXME Make it more unique
-	// private String httpAuthRealm = "Argeo";
+	private String httpAuthRealm = "Argeo";
 
 	// WebDav / JCR remoting
 	private OpenInViewSessionProvider sessionProvider;
@@ -79,8 +79,7 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 			registerRemotingServlet(alias, repository, true);
 			registerRemotingServlet(alias, repository, false);
 		} catch (Exception e) {
-			throw new CmsException(
-					"Could not register servlets for repository " + alias, e);
+			throw new CmsException("Could not register servlets for repository " + alias, e);
 		}
 	}
 
@@ -88,46 +87,39 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 		// FIXME unregister servlets
 	}
 
-	void registerWebdavServlet(String alias, Repository repository,
-			boolean anonymous) throws NamespaceException, ServletException {
-		WebdavServlet webdavServlet = new WebdavServlet(repository,
-				sessionProvider);
+	void registerWebdavServlet(String alias, Repository repository, boolean anonymous)
+			throws NamespaceException, ServletException {
+		WebdavServlet webdavServlet = new WebdavServlet(repository, sessionProvider);
 		String pathPrefix = anonymous ? WEBDAV_PUBLIC : WEBDAV_PRIVATE;
 		String path = pathPrefix + "/" + alias;
 		Properties ip = new Properties();
 		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_CONFIG, WEBDAV_CONFIG);
 		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
-		httpService.registerServlet(path, webdavServlet, ip,
-				new DataHttpContext(anonymous));
+		httpService.registerServlet(path, webdavServlet, ip, new DataHttpContext(anonymous));
 	}
 
-	void registerRemotingServlet(String alias, Repository repository,
-			boolean anonymous) throws NamespaceException, ServletException {
+	void registerRemotingServlet(String alias, Repository repository, boolean anonymous)
+			throws NamespaceException, ServletException {
 		String pathPrefix = anonymous ? REMOTING_PUBLIC : REMOTING_PRIVATE;
-		RemotingServlet remotingServlet = new RemotingServlet(repository,
-				sessionProvider);
+		RemotingServlet remotingServlet = new RemotingServlet(repository, sessionProvider);
 		String path = pathPrefix + "/" + alias;
 		Properties ip = new Properties();
 		ip.setProperty(JcrRemotingServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
 
 		// Looks like a bug in Jackrabbit remoting init
-		ip.setProperty(RemotingServlet.INIT_PARAM_HOME,
-				KernelUtils.getOsgiInstanceDir() + "/tmp/jackrabbit");
+		ip.setProperty(RemotingServlet.INIT_PARAM_HOME, KernelUtils.getOsgiInstanceDir() + "/tmp/jackrabbit");
 		ip.setProperty(RemotingServlet.INIT_PARAM_TMP_DIRECTORY, "remoting");
 		// in order to avoid annoying warning.
 		ip.setProperty(RemotingServlet.INIT_PARAM_PROTECTED_HANDLERS_CONFIG, "");
-		httpService.registerServlet(path, remotingServlet, ip,
-				new DataHttpContext(anonymous));
+		httpService.registerServlet(path, remotingServlet, ip, new DataHttpContext(anonymous));
 	}
 
 	private Subject subjectFromRequest(HttpServletRequest request) {
-		Authorization authorization = (Authorization) request
-				.getAttribute(HttpContext.AUTHORIZATION);
+		Authorization authorization = (Authorization) request.getAttribute(HttpContext.AUTHORIZATION);
 		if (authorization == null)
 			throw new CmsException("Not authenticated");
 		try {
-			LoginContext lc = new LoginContext(
-					AuthConstants.LOGIN_CONTEXT_USER,
+			LoginContext lc = new LoginContext(AuthConstants.LOGIN_CONTEXT_USER,
 					new HttpRequestCallbackHandler(request));
 			lc.login();
 			return lc.getSubject();
@@ -144,14 +136,12 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 		}
 
 		@Override
-		public boolean handleSecurity(final HttpServletRequest request,
-				HttpServletResponse response) throws IOException {
+		public boolean handleSecurity(final HttpServletRequest request, HttpServletResponse response)
+				throws IOException {
 
 			if (anonymous) {
 				Subject subject = KernelUtils.anonymousLogin();
-				Authorization authorization = subject
-						.getPrivateCredentials(Authorization.class).iterator()
-						.next();
+				Authorization authorization = subject.getPrivateCredentials(Authorization.class).iterator().next();
 				request.setAttribute(REMOTE_USER, AuthConstants.ROLE_ANONYMOUS);
 				request.setAttribute(AUTHORIZATION, authorization);
 				return true;
@@ -160,15 +150,13 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 			if (log.isTraceEnabled())
 				KernelUtils.logRequestHeaders(log, request);
 			try {
-				new LoginContext(LOGIN_CONTEXT_USER,
-						new HttpRequestCallbackHandler(request)).login();
+				new LoginContext(LOGIN_CONTEXT_USER, new HttpRequestCallbackHandler(request)).login();
 				return true;
 			} catch (CredentialNotFoundException e) {
 				CallbackHandler token = basicAuth(request);
 				if (token != null) {
 					try {
-						LoginContext lc = new LoginContext(LOGIN_CONTEXT_USER,
-								token);
+						LoginContext lc = new LoginContext(LOGIN_CONTEXT_USER, token);
 						lc.login();
 						// Note: this is impossible to reliably clear the
 						// authorization header when access from a browser.
@@ -177,7 +165,9 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 						throw new CmsException("Could not login", e1);
 					}
 				} else {
-					// requestBasicAuth(request, response);
+					String path = request.getServletPath();
+					if (path.startsWith(REMOTING_PRIVATE))
+						requestBasicAuth(request, response);
 					return false;
 				}
 			} catch (LoginException e) {
@@ -195,13 +185,11 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 			return null;
 		}
 
-		// private void requestBasicAuth(HttpServletRequest request,
-		// HttpServletResponse response) {
-		// response.setStatus(401);
-		// response.setHeader(HEADER_WWW_AUTHENTICATE, "basic realm=\""
-		// + httpAuthRealm + "\"");
-		// // request.getSession().setAttribute(ATTR_AUTH, Boolean.TRUE);
-		// }
+		private void requestBasicAuth(HttpServletRequest request, HttpServletResponse response) {
+			response.setStatus(401);
+			response.setHeader(HEADER_WWW_AUTHENTICATE, "basic realm=\"" + httpAuthRealm + "\"");
+			// request.getSession().setAttribute(ATTR_AUTH, Boolean.TRUE);
+		}
 
 		private CallbackHandler basicAuth(final HttpServletRequest httpRequest) {
 			String authHeader = httpRequest.getHeader(HEADER_AUTHORIZATION);
@@ -212,38 +200,29 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 					if (basic.equalsIgnoreCase("Basic")) {
 						try {
 							// TODO manipulate char[]
-							String credentials = new String(
-									Base64.decodeBase64(st.nextToken()),
-									"UTF-8");
+							String credentials = new String(Base64.decodeBase64(st.nextToken()), "UTF-8");
 							// log.debug("Credentials: " + credentials);
 							int p = credentials.indexOf(":");
 							if (p != -1) {
-								final String login = credentials
-										.substring(0, p).trim();
-								final char[] password = credentials
-										.substring(p + 1).trim().toCharArray();
+								final String login = credentials.substring(0, p).trim();
+								final char[] password = credentials.substring(p + 1).trim().toCharArray();
 								return new CallbackHandler() {
 									public void handle(Callback[] callbacks) {
 										for (Callback cb : callbacks) {
 											if (cb instanceof NameCallback)
-												((NameCallback) cb)
-														.setName(login);
+												((NameCallback) cb).setName(login);
 											else if (cb instanceof PasswordCallback)
-												((PasswordCallback) cb)
-														.setPassword(password);
+												((PasswordCallback) cb).setPassword(password);
 											else if (cb instanceof HttpRequestCallback)
-												((HttpRequestCallback) cb)
-														.setRequest(httpRequest);
+												((HttpRequestCallback) cb).setRequest(httpRequest);
 										}
 									}
 								};
 							} else {
-								throw new CmsException(
-										"Invalid authentication token");
+								throw new CmsException("Invalid authentication token");
 							}
 						} catch (Exception e) {
-							throw new CmsException(
-									"Couldn't retrieve authentication", e);
+							throw new CmsException("Couldn't retrieve authentication", e);
 						}
 					}
 				}
@@ -257,23 +236,19 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 	 * Implements an open session in view patter: a new JCR session is created
 	 * for each request
 	 */
-	private class OpenInViewSessionProvider implements SessionProvider,
-			Serializable {
+	private class OpenInViewSessionProvider implements SessionProvider, Serializable {
 		private static final long serialVersionUID = 2270957712453841368L;
 
-		public Session getSession(HttpServletRequest request, Repository rep,
-				String workspace) throws javax.jcr.LoginException,
-				ServletException, RepositoryException {
+		public Session getSession(HttpServletRequest request, Repository rep, String workspace)
+				throws javax.jcr.LoginException, ServletException, RepositoryException {
 			return login(request, rep, workspace);
 		}
 
-		protected Session login(HttpServletRequest request,
-				Repository repository, String workspace)
+		protected Session login(HttpServletRequest request, Repository repository, String workspace)
 				throws RepositoryException {
 			if (log.isTraceEnabled())
-				log.trace("Login to workspace "
-						+ (workspace == null ? "<default>" : workspace)
-						+ " in web session " + request.getSession().getId());
+				log.trace("Login to workspace " + (workspace == null ? "<default>" : workspace) + " in web session "
+						+ request.getSession().getId());
 			return repository.login(workspace);
 		}
 
@@ -288,8 +263,7 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 		private static final long serialVersionUID = -4687354117811443881L;
 		private final Repository repository;
 
-		public WebdavServlet(Repository repository,
-				SessionProvider sessionProvider) {
+		public WebdavServlet(Repository repository, SessionProvider sessionProvider) {
 			this.repository = repository;
 			setSessionProvider(sessionProvider);
 		}
@@ -299,15 +273,12 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 		}
 
 		@Override
-		protected void service(final HttpServletRequest request,
-				final HttpServletResponse response) throws ServletException,
-				IOException {
+		protected void service(final HttpServletRequest request, final HttpServletResponse response)
+				throws ServletException, IOException {
 			try {
 				Subject subject = subjectFromRequest(request);
-				if (CurrentUser.isAnonymous(subject)
-						&& request.getMethod().equals("GET")) {
-					response.setHeader("Cache-Control",
-							"no-transform, public, max-age=300, s-maxage=900");
+				if (CurrentUser.isAnonymous(subject) && request.getMethod().equals("GET")) {
+					response.setHeader("Cache-Control", "no-transform, public, max-age=300, s-maxage=900");
 				}
 
 				Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
@@ -318,8 +289,7 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 					}
 				});
 			} catch (PrivilegedActionException e) {
-				throw new CmsException("Cannot process webdav request",
-						e.getException());
+				throw new CmsException("Cannot process webdav request", e.getException());
 			}
 		}
 	}
@@ -329,8 +299,7 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 		private final Repository repository;
 		private final SessionProvider sessionProvider;
 
-		public RemotingServlet(Repository repository,
-				SessionProvider sessionProvider) {
+		public RemotingServlet(Repository repository, SessionProvider sessionProvider) {
 			this.repository = repository;
 			this.sessionProvider = sessionProvider;
 		}
@@ -346,9 +315,8 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 		}
 
 		@Override
-		protected void service(final HttpServletRequest request,
-				final HttpServletResponse response) throws ServletException,
-				IOException {
+		protected void service(final HttpServletRequest request, final HttpServletResponse response)
+				throws ServletException, IOException {
 			try {
 				Subject subject = subjectFromRequest(request);
 				Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
@@ -359,8 +327,7 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 					}
 				});
 			} catch (PrivilegedActionException e) {
-				throw new CmsException("Cannot process JCR remoting request",
-						e.getException());
+				throw new CmsException("Cannot process JCR remoting request", e.getException());
 			}
 		}
 	}
