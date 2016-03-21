@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
-	<version>2.1.35</version>
+	<version>2.1.36-SNAPSHOT</version>
 	<name>Argeo Commons</name>
 	<packaging>pom</packaging>
 	<properties>
@@ -41,9 +41,9 @@
 		<module>dist</module>
 	</modules>
 	<scm>
-		<connection>scm:svn:https://svn.argeo.org/commons/tags/argeo-commons-2.1.35</connection>
-		<developerConnection>scm:svn:https://svn.argeo.org/commons/tags/argeo-commons-2.1.35</developerConnection>
-		<url>https://svn.argeo.org/commons/tags/argeo-commons-2.1.35</url>
+		<connection>scm:svn:https://svn.argeo.org/commons/trunk</connection>
+		<developerConnection>scm:svn:https://svn.argeo.org/commons/trunk</developerConnection>
+		<url>https://svn.argeo.org/commons/trunk</url>
 	</scm>
 	<inceptionYear>2007</inceptionYear>
 	<licenses>
