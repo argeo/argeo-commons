@@ -214,17 +214,24 @@ public class ManagedJackrabbitRepository extends JcrRepositoryWrapper implements
 	}
 
 	private RepositoryContext createJackrabbitRepository(RepositoryConfig repositoryConfig) throws RepositoryException {
-		long begin = System.currentTimeMillis();
-		//
-		// Actual repository creation
-		//
-		RepositoryContext repositoryContext = RepositoryContext.create(repositoryConfig);
+		ClassLoader currentContextCl = Thread.currentThread().getContextClassLoader();
+		Thread.currentThread().setContextClassLoader(ManagedJackrabbitRepository.class.getClassLoader());
+		try {
+			long begin = System.currentTimeMillis();
+			//
+			// Actual repository creation
+			//
+			RepositoryContext repositoryContext = RepositoryContext.create(repositoryConfig);
 
-		double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
-		if (log.isTraceEnabled())
-			log.trace("Created Jackrabbit repository in " + duration + " s, home: " + repositoryConfig.getHomeDir());
+			double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
+			if (log.isTraceEnabled())
+				log.trace(
+						"Created Jackrabbit repository in " + duration + " s, home: " + repositoryConfig.getHomeDir());
 
-		return repositoryContext;
+			return repositoryContext;
+		} finally {
+			Thread.currentThread().setContextClassLoader(currentContextCl);
+		}
 	}
 
 	/*
