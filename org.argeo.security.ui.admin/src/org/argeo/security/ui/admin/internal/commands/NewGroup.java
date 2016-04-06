@@ -33,8 +33,8 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
@@ -46,7 +46,7 @@ import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.UserAdminEvent;
 
-/** Create a new group. */
+/** Create a new group */
 public class NewGroup extends AbstractHandler {
 	public final static String ID = SecurityAdminPlugin.PLUGIN_ID + ".newGroup";
 
@@ -104,7 +104,7 @@ public class NewGroup extends AbstractHandler {
 		}
 
 		private class MainGroupInfoWizardPage extends WizardPage implements
-				ModifyListener, ArgeoNames {
+				FocusListener, ArgeoNames {
 			private static final long serialVersionUID = -3150193365151601807L;
 
 			public MainGroupInfoWizardPage() {
@@ -117,41 +117,23 @@ public class NewGroup extends AbstractHandler {
 			@Override
 			public void createControl(Composite parent) {
 				Composite bodyCmp = new Composite(parent, SWT.NONE);
+				setControl(bodyCmp);
 				bodyCmp.setLayout(new GridLayout(2, false));
+
 				dNameTxt = EclipseUiUtils.createGridLT(bodyCmp,
-						"Distinguished name"); // Read-only -> no listener
+						"Distinguished name");
 				dNameTxt.setEnabled(false);
 
 				baseDnCmb = createGridLC(bodyCmp, "Base DN");
-				// Initialise before adding the listener top avoid NPE
+				// Initialise before adding the listener to avoid NPE
 				initialiseDnCmb(baseDnCmb);
-				baseDnCmb.addModifyListener(this);
-				baseDnCmb.addModifyListener(new ModifyListener() {
-					private static final long serialVersionUID = -1435351236582736843L;
-
-					@Override
-					public void modifyText(ModifyEvent event) {
-						String name = commonNameTxt.getText();
-						dNameTxt.setText(getDn(name));
-					}
-				});
+				baseDnCmb.addFocusListener(this);
 
 				commonNameTxt = EclipseUiUtils.createGridLT(bodyCmp,
-						"Common name", this);
-				commonNameTxt.addModifyListener(new ModifyListener() {
-					private static final long serialVersionUID = -1435351236582736843L;
+						"Common name");
+				commonNameTxt.addFocusListener(this);
 
-					@Override
-					public void modifyText(ModifyEvent event) {
-						String name = commonNameTxt.getText();
-						if (name.trim().equals("")) {
-							dNameTxt.setText("");
-						} else {
-							dNameTxt.setText(getDn(name));
-						}
-					}
-				});
-
+				
 				Label descLbl = new Label(bodyCmp, SWT.LEAD);
 				descLbl.setText("Description");
 				descLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false,
@@ -159,9 +141,7 @@ public class NewGroup extends AbstractHandler {
 				descriptionTxt = new Text(bodyCmp, SWT.LEAD | SWT.MULTI
 						| SWT.WRAP | SWT.BORDER);
 				descriptionTxt.setLayoutData(EclipseUiUtils.fillAll());
-				descriptionTxt.addModifyListener(this);
-
-				setControl(bodyCmp);
+				descriptionTxt.addFocusListener(this);
 
 				// Initialize buttons
 				setPageComplete(false);
@@ -169,7 +149,13 @@ public class NewGroup extends AbstractHandler {
 			}
 
 			@Override
-			public void modifyText(ModifyEvent event) {
+			public void focusLost(FocusEvent event) {
+				String name = commonNameTxt.getText();
+				if (EclipseUiUtils.isEmpty(name))
+					dNameTxt.setText("");
+				else
+					dNameTxt.setText(getDn(name));
+
 				String message = checkComplete();
 				if (message != null) {
 					setMessage(message, WizardPage.ERROR);
@@ -179,6 +165,10 @@ public class NewGroup extends AbstractHandler {
 					setPageComplete(true);
 				}
 				getContainer().updateButtons();
+			}
+
+			@Override
+			public void focusGained(FocusEvent event) {
 			}
 
 			/** @return error message or null if complete */
