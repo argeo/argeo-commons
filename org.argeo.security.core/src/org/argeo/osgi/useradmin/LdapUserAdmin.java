@@ -106,7 +106,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 						+ name);
 			return res;
 		} catch (NamingException e) {
-			throw new UserDirectoryException("Cannot get role for " + name, e);
+			return null;
 		}
 	}
 
@@ -193,7 +193,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			}
 			// add
 			for (LdapName dn : wc.getNewUsers().keySet()) {
-				if (!entryExists(dn))
+				if (entryExists(dn))
 					throw new UserDirectoryException("User to create found "
 							+ dn);
 			}

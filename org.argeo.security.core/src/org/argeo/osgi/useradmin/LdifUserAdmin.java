@@ -163,13 +163,13 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 			res.addAll(groups.values());
 		} else {
 			for (DirectoryUser user : users.values()) {
-//				System.out.println("\n" + user.getName());
-//				Dictionary<String, Object> props = user.getProperties();
-//				for (Enumeration<String> keys = props.keys(); keys
-//						.hasMoreElements();) {
-//					String key = keys.nextElement();
-//					System.out.println(" " + key + "=" + props.get(key));
-//				}
+				// System.out.println("\n" + user.getName());
+				// Dictionary<String, Object> props = user.getProperties();
+				// for (Enumeration<String> keys = props.keys(); keys
+				// .hasMoreElements();) {
+				// String key = keys.nextElement();
+				// System.out.println(" " + key + "=" + props.get(key));
+				// }
 				if (f.match(user.getProperties()))
 					res.add(user);
 			}
@@ -200,13 +200,15 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 			else if (groups.containsKey(dn))
 				groups.remove(dn);
 			else
-				throw new UserDirectoryException("User to delete no found "
+				throw new UserDirectoryException("User to delete not found "
 						+ dn);
 		}
 		// add
 		for (LdapName dn : wc.getNewUsers().keySet()) {
 			DirectoryUser user = wc.getNewUsers().get(dn);
-			if (Role.USER == user.getType())
+			if (users.containsKey(dn) || groups.containsKey(dn))
+				throw new UserDirectoryException("User to create found " + dn);
+			else if (Role.USER == user.getType())
 				users.put(dn, user);
 			else if (Role.GROUP == user.getType())
 				groups.put(dn, (DirectoryGroup) user);
