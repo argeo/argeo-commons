@@ -1,30 +1,7 @@
 package org.argeo.cms.internal.kernel;
 
-import static org.argeo.cms.internal.kernel.JackrabbitNodeType.h2;
-
-import java.io.File;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.Hashtable;
-import java.util.Properties;
-
-import javax.jcr.RepositoryException;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.jackrabbit.core.RepositoryContext;
-import org.apache.jackrabbit.core.RepositoryImpl;
-import org.apache.jackrabbit.core.cache.CacheManager;
-import org.apache.jackrabbit.core.config.RepositoryConfig;
-import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
-import org.apache.jackrabbit.stats.RepositoryStatisticsImpl;
-import org.argeo.ArgeoException;
-import org.argeo.cms.CmsException;
 import org.argeo.jackrabbit.JackrabbitWrapper;
 import org.argeo.jcr.ArgeoJcrConstants;
-import org.xml.sax.InputSource;
 
 /** Jacrabbit based data layer */
 class NodeRepository extends JackrabbitWrapper implements KernelConstants,
