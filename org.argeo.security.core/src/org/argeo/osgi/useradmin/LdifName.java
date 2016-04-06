@@ -10,10 +10,8 @@ import javax.naming.ldap.LdapName;
 public enum LdifName {
 	// Attributes
 	dn, dc, cn, sn, uid, mail, displayName, objectClass, userPassword, givenName, description, member,
-	// POSIX attributes
-	uidNumber, gidNumber, homeDirectory, loginShell, gecos,
 	// Object classes
-	posixAccount, inetOrgPerson, organizationalPerson, person, groupOfNames, groupOfUniqueNames, extensibleObject, top;
+	inetOrgPerson, organizationalPerson, person, groupOfNames, groupOfUniqueNames, top;
 
 	public final static String PREFIX = "ldap:";
 

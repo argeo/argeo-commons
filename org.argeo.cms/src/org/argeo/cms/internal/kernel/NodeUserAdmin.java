@@ -20,7 +20,6 @@ import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.Value;
 import javax.jcr.security.Privilege;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
@@ -61,8 +60,7 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 		try {
 			ROLES_BASE = new LdapName(AuthConstants.ROLES_BASEDN);
 		} catch (InvalidNameException e) {
-			throw new UserDirectoryException("Cannot initialize "
-					+ NodeUserAdmin.class, e);
+			throw new UserDirectoryException("Cannot initialize " + NodeUserAdmin.class, e);
 		}
 	}
 
@@ -79,8 +77,7 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 
 	private final String cacheName = UserDirectory.class.getName();
 
-	public NodeUserAdmin(TransactionManager transactionManager,
-			Repository repository) {
+	public NodeUserAdmin(TransactionManager transactionManager, Repository repository) {
 		this.repository = repository;
 		try {
 			this.adminSession = this.repository.login();
@@ -100,8 +97,7 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 		((UserDirectory) nodeRoles).setTransactionManager(transactionManager);
 		for (UserAdmin userAdmin : userAdmins.values()) {
 			if (userAdmin instanceof UserDirectory)
-				((UserDirectory) userAdmin)
-						.setTransactionManager(transactionManager);
+				((UserDirectory) userAdmin).setTransactionManager(transactionManager);
 		}
 
 		// JCR
@@ -113,14 +109,11 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 		for (LdapName name : userAdmins.keySet()) {
 			StringBuilder buf = new StringBuilder();
 			if (userAdmins.get(name) instanceof UserDirectory) {
-				UserDirectory userDirectory = (UserDirectory) userAdmins
-						.get(name);
-				String uri = UserAdminConf.propertiesAsUri(
-						userDirectory.getProperties()).toString();
+				UserDirectory userDirectory = (UserDirectory) userAdmins.get(name);
+				String uri = UserAdminConf.propertiesAsUri(userDirectory.getProperties()).toString();
 				res.put(uri, "");
 			} else {
-				buf.append('/').append(name.toString())
-						.append("?readOnly=true");
+				buf.append('/').append(name.toString()).append("?readOnly=true");
 			}
 		}
 		return res;
@@ -129,12 +122,10 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 	public void destroy() {
 		for (LdapName name : userAdmins.keySet()) {
 			if (userAdmins.get(name) instanceof UserDirectory) {
-				UserDirectory userDirectory = (UserDirectory) userAdmins
-						.get(name);
+				UserDirectory userDirectory = (UserDirectory) userAdmins.get(name);
 				try {
 					// FIXME Make it less bitronix dependant
-					EhCacheXAResourceProducer.unregisterXAResource(cacheName,
-							userDirectory.getXaResource());
+					EhCacheXAResourceProducer.unregisterXAResource(cacheName, userDirectory.getXaResource());
 				} catch (Exception e) {
 					log.error("Cannot unregister resource from Bitronix", e);
 				}
@@ -193,12 +184,10 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 		// gather system roles
 		Set<String> systemRoles = new HashSet<String>();
 		for (String role : rawAuthorization.getRoles()) {
-			Authorization auth = nodeRoles.getAuthorization((User) userAdmin
-					.getRole(role));
+			Authorization auth = nodeRoles.getAuthorization((User) userAdmin.getRole(role));
 			systemRoles.addAll(Arrays.asList(auth.getRoles()));
 		}
-		Authorization authorization = new NodeAuthorization(
-				rawAuthorization.getName(), rawAuthorization.toString(),
+		Authorization authorization = new NodeAuthorization(rawAuthorization.getName(), rawAuthorization.toString(),
 				systemRoles, rawAuthorization.getRoles());
 		syncJcr(adminSession, authorization);
 		return authorization;
@@ -209,19 +198,16 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 	//
 	public void addUserAdmin(String baseDn, UserAdmin userAdmin) {
 		if (userAdmins.containsKey(baseDn))
-			throw new UserDirectoryException(
-					"There is already a user admin for " + baseDn);
+			throw new UserDirectoryException("There is already a user admin for " + baseDn);
 		try {
 			userAdmins.put(new LdapName(baseDn), userAdmin);
 		} catch (InvalidNameException e) {
-			throw new UserDirectoryException("Badly formatted base DN "
-					+ baseDn, e);
+			throw new UserDirectoryException("Badly formatted base DN " + baseDn, e);
 		}
 		if (userAdmin instanceof UserDirectory) {
 			try {
 				// FIXME Make it less bitronix dependant
-				EhCacheXAResourceProducer.registerXAResource(cacheName,
-						((UserDirectory) userAdmin).getXaResource());
+				EhCacheXAResourceProducer.registerXAResource(cacheName, ((UserDirectory) userAdmin).getXaResource());
 			} catch (Exception e) {
 				log.error("Cannot register resource to Bitronix", e);
 			}
@@ -245,22 +231,18 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 				res.add(userAdmins.get(baseDn));
 		}
 		if (res.size() == 0)
-			throw new UserDirectoryException("Cannot find user admin for "
-					+ name);
+			throw new UserDirectoryException("Cannot find user admin for " + name);
 		if (res.size() > 1)
-			throw new UserDirectoryException("Multiple user admin found for "
-					+ name);
+			throw new UserDirectoryException("Multiple user admin found for " + name);
 		return res.get(0);
 	}
 
 	public void setTransactionManager(TransactionManager transactionManager) {
 		if (nodeRoles instanceof UserDirectory)
-			((UserDirectory) nodeRoles)
-					.setTransactionManager(transactionManager);
+			((UserDirectory) nodeRoles).setTransactionManager(transactionManager);
 		for (UserAdmin userAdmin : userAdmins.values()) {
 			if (userAdmin instanceof UserDirectory)
-				((UserDirectory) userAdmin)
-						.setTransactionManager(transactionManager);
+				((UserDirectory) userAdmin).setTransactionManager(transactionManager);
 		}
 	}
 
@@ -270,8 +252,7 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 			File businessRolesFile = new File(nodeBaseDir, demoBaseDn + ".ldif");
 			if (!businessRolesFile.exists())
 				try {
-					FileUtils.copyInputStreamToFile(getClass()
-							.getResourceAsStream(demoBaseDn + ".ldif"),
+					FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(demoBaseDn + ".ldif"),
 							businessRolesFile);
 				} catch (IOException e) {
 					throw new CmsException("Cannot copy demo resource", e);
@@ -284,28 +265,23 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 			try {
 				u = new URI(uri);
 				if (u.getPath() == null)
-					throw new CmsException("URI " + uri
-							+ " must have a path in order to determine base DN");
+					throw new CmsException("URI " + uri + " must have a path in order to determine base DN");
 				if (u.getScheme() == null) {
-					if (uri.startsWith("/") || uri.startsWith("./")
-							|| uri.startsWith("../"))
+					if (uri.startsWith("/") || uri.startsWith("./") || uri.startsWith("../"))
 						u = new File(uri).getCanonicalFile().toURI();
 					else if (!uri.contains("/")) {
-						u = new URI(nodeBaseDir.toURI()+ uri);
+						u = new URI(nodeBaseDir.toURI() + uri);
 						// u = new File(nodeBaseDir, uri).getCanonicalFile()
 						// .toURI();
 					} else
-						throw new CmsException("Cannot interpret " + uri
-								+ " as an uri");
+						throw new CmsException("Cannot interpret " + uri + " as an uri");
 				} else if (u.getScheme().equals("file")) {
 					u = new File(u).getCanonicalFile().toURI();
 				}
 			} catch (Exception e) {
-				throw new CmsException(
-						"Cannot interpret " + uri + " as an uri", e);
+				throw new CmsException("Cannot interpret " + uri + " as an uri", e);
 			}
-			Dictionary<String, ?> properties = UserAdminConf.uriAsProperties(u
-					.toString());
+			Dictionary<String, ?> properties = UserAdminConf.uriAsProperties(u.toString());
 			UserDirectory businessRoles;
 			if (u.getScheme().startsWith("ldap")) {
 				businessRoles = new LdapUserAdmin(properties);
@@ -315,18 +291,15 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 			businessRoles.init();
 			String baseDn = businessRoles.getBaseDn();
 			if (userAdmins.containsKey(baseDn))
-				throw new UserDirectoryException(
-						"There is already a user admin for " + baseDn);
+				throw new UserDirectoryException("There is already a user admin for " + baseDn);
 			try {
 				userAdmins.put(new LdapName(baseDn), (UserAdmin) businessRoles);
 			} catch (InvalidNameException e) {
-				throw new UserDirectoryException("Badly formatted base DN "
-						+ baseDn, e);
+				throw new UserDirectoryException("Badly formatted base DN " + baseDn, e);
 			}
 			addUserAdmin(businessRoles.getBaseDn(), (UserAdmin) businessRoles);
 			if (log.isDebugEnabled())
-				log.debug("User directory " + businessRoles.getBaseDn() + " ["
-						+ u.getScheme() + "] enabled.");
+				log.debug("User directory " + businessRoles.getBaseDn() + " [" + u.getScheme() + "] enabled.");
 		}
 
 	}
@@ -337,8 +310,7 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 			File nodeRolesFile = new File(nodeBaseDir, baseNodeRoleDn + ".ldif");
 			if (!nodeRolesFile.exists())
 				try {
-					FileUtils.copyInputStreamToFile(getClass()
-							.getResourceAsStream(baseNodeRoleDn + ".ldif"),
+					FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(baseNodeRoleDn + ".ldif"),
 							nodeRolesFile);
 				} catch (IOException e) {
 					throw new CmsException("Cannot copy demo resource", e);
@@ -346,10 +318,8 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 			nodeRolesUri = nodeRolesFile.toURI().toString();
 		}
 
-		Dictionary<String, ?> nodeRolesProperties = UserAdminConf
-				.uriAsProperties(nodeRolesUri);
-		if (!nodeRolesProperties.get(UserAdminConf.baseDn.property()).equals(
-				baseNodeRoleDn)) {
+		Dictionary<String, ?> nodeRolesProperties = UserAdminConf.uriAsProperties(nodeRolesUri);
+		if (!nodeRolesProperties.get(UserAdminConf.baseDn.property()).equals(baseNodeRoleDn)) {
 			throw new CmsException("Invalid base dn for node roles");
 			// TODO deal with "mounted" roles with a different baseDN
 		}
@@ -375,10 +345,8 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 			JcrUtils.mkdirs(adminSession, peopleBasePath);
 			adminSession.save();
 
-			JcrUtils.addPrivilege(adminSession, homeBasePath,
-					AuthConstants.ROLE_USER_ADMIN, Privilege.JCR_READ);
-			JcrUtils.addPrivilege(adminSession, peopleBasePath,
-					AuthConstants.ROLE_USER_ADMIN, Privilege.JCR_ALL);
+			JcrUtils.addPrivilege(adminSession, homeBasePath, AuthConstants.ROLE_USER_ADMIN, Privilege.JCR_READ);
+			JcrUtils.addPrivilege(adminSession, peopleBasePath, AuthConstants.ROLE_USER_ADMIN, Privilege.JCR_ALL);
 			adminSession.save();
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot initialize node user admin", e);
@@ -388,14 +356,13 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 	private Node syncJcr(Session session, Authorization authorization) {
 		// TODO check user name validity (e.g. should not start by ROLE_)
 		String username = authorization.getName();
-		String[] roles = authorization.getRoles();
+		// String[] roles = authorization.getRoles();
 		try {
 			Node userHome = UserJcrUtils.getUserHome(session, username);
 			if (userHome == null) {
 				String homePath = generateUserPath(homeBasePath, username);
 				if (session.itemExists(homePath))// duplicate user id
-					userHome = session.getNode(homePath).getParent()
-							.addNode(JcrUtils.lastPathElement(homePath));
+					userHome = session.getNode(homePath).getParent().addNode(JcrUtils.lastPathElement(homePath));
 				else
 					userHome = JcrUtils.mkdirs(session, homePath);
 				// userHome = JcrUtils.mkfolders(session, homePath);
@@ -404,8 +371,7 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 				session.save();
 
 				JcrUtils.clearAccessControList(session, homePath, username);
-				JcrUtils.addPrivilege(session, homePath, username,
-						Privilege.JCR_ALL);
+				JcrUtils.addPrivilege(session, homePath, username, Privilege.JCR_ALL);
 			}
 
 			Node userProfile = UserJcrUtils.getUserProfile(session, username);
@@ -414,38 +380,32 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 				String personPath = generateUserPath(peopleBasePath, username);
 				Node personBase;
 				if (session.itemExists(personPath))// duplicate user id
-					personBase = session.getNode(personPath).getParent()
-							.addNode(JcrUtils.lastPathElement(personPath));
+					personBase = session.getNode(personPath).getParent().addNode(JcrUtils.lastPathElement(personPath));
 				else
 					personBase = JcrUtils.mkdirs(session, personPath);
 				userProfile = personBase.addNode(ArgeoNames.ARGEO_PROFILE);
 				userProfile.addMixin(ArgeoTypes.ARGEO_USER_PROFILE);
 				userProfile.setProperty(ArgeoNames.ARGEO_USER_ID, username);
 				userProfile.setProperty(ArgeoNames.ARGEO_ENABLED, true);
-				userProfile.setProperty(ArgeoNames.ARGEO_ACCOUNT_NON_EXPIRED,
-						true);
-				userProfile.setProperty(ArgeoNames.ARGEO_ACCOUNT_NON_LOCKED,
-						true);
-				userProfile.setProperty(
-						ArgeoNames.ARGEO_CREDENTIALS_NON_EXPIRED, true);
+				userProfile.setProperty(ArgeoNames.ARGEO_ACCOUNT_NON_EXPIRED, true);
+				userProfile.setProperty(ArgeoNames.ARGEO_ACCOUNT_NON_LOCKED, true);
+				userProfile.setProperty(ArgeoNames.ARGEO_CREDENTIALS_NON_EXPIRED, true);
 				session.save();
 
-				JcrUtils.clearAccessControList(session, userProfile.getPath(),
-						username);
-				JcrUtils.addPrivilege(session, userProfile.getPath(), username,
-						Privilege.JCR_READ);
+				JcrUtils.clearAccessControList(session, userProfile.getPath(), username);
+				JcrUtils.addPrivilege(session, userProfile.getPath(), username, Privilege.JCR_READ);
 			}
 
 			// Remote roles
-			if (roles != null) {
-				writeRemoteRoles(userProfile, roles);
-			}
-			adminSession.save();
+			// if (roles != null) {
+			// writeRemoteRoles(userProfile, roles);
+			// }
+			if (adminSession.hasPendingChanges())
+				adminSession.save();
 			return userProfile;
 		} catch (RepositoryException e) {
 			JcrUtils.discardQuietly(session);
-			throw new ArgeoException("Cannot sync node security model for "
-					+ username, e);
+			throw new ArgeoException("Cannot sync node security model for " + username, e);
 		}
 	}
 
@@ -462,46 +422,43 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 		if (atIndex > 0) {
 			String domain = userId.substring(0, atIndex);
 			String name = userId.substring(atIndex + 1);
-			return base + '/' + JcrUtils.firstCharsToPath(domain, 2) + '/'
-					+ domain + '/' + JcrUtils.firstCharsToPath(name, 2) + '/'
-					+ name;
+			return base + '/' + JcrUtils.firstCharsToPath(domain, 2) + '/' + domain + '/'
+					+ JcrUtils.firstCharsToPath(name, 2) + '/' + name;
 		} else if (atIndex == 0 || atIndex == (userId.length() - 1)) {
 			throw new ArgeoException("Unsupported username " + userId);
 		} else {
-			return base + '/' + JcrUtils.firstCharsToPath(userId, 2) + '/'
-					+ userId;
+			return base + '/' + JcrUtils.firstCharsToPath(userId, 2) + '/' + userId;
 		}
 	}
 
-	/** Write remote roles used by remote access in the home directory */
-	private void writeRemoteRoles(Node userHome, String[] roles)
-			throws RepositoryException {
-		boolean writeRoles = false;
-		if (userHome.hasProperty(ArgeoNames.ARGEO_REMOTE_ROLES)) {
-			Value[] remoteRoles = userHome.getProperty(
-					ArgeoNames.ARGEO_REMOTE_ROLES).getValues();
-			if (remoteRoles.length != roles.length)
-				writeRoles = true;
-			else
-				for (int i = 0; i < remoteRoles.length; i++)
-					if (!remoteRoles[i].getString().equals(roles[i]))
-						writeRoles = true;
-		} else
-			writeRoles = true;
-
-		if (writeRoles) {
-			userHome.getSession().getWorkspace().getVersionManager()
-					.checkout(userHome.getPath());
-			userHome.setProperty(ArgeoNames.ARGEO_REMOTE_ROLES, roles);
-			JcrUtils.updateLastModified(userHome);
-			userHome.getSession().save();
-			userHome.getSession().getWorkspace().getVersionManager()
-					.checkin(userHome.getPath());
-			if (log.isDebugEnabled())
-				log.debug("Wrote remote roles " + roles + " for "
-						+ userHome.getProperty(ArgeoNames.ARGEO_USER_ID));
-		}
-
-	}
-
+	// /** Write remote roles used by remote access in the home directory */
+	// private void writeRemoteRoles(Node userHome, String[] roles)
+	// throws RepositoryException {
+	// boolean writeRoles = false;
+	// if (userHome.hasProperty(ArgeoNames.ARGEO_REMOTE_ROLES)) {
+	// Value[] remoteRoles = userHome.getProperty(
+	// ArgeoNames.ARGEO_REMOTE_ROLES).getValues();
+	// if (remoteRoles.length != roles.length)
+	// writeRoles = true;
+	// else
+	// for (int i = 0; i < remoteRoles.length; i++)
+	// if (!remoteRoles[i].getString().equals(roles[i]))
+	// writeRoles = true;
+	// } else
+	// writeRoles = true;
+	//
+	// if (writeRoles) {
+	// userHome.getSession().getWorkspace().getVersionManager()
+	// .checkout(userHome.getPath());
+	// userHome.setProperty(ArgeoNames.ARGEO_REMOTE_ROLES, roles);
+	// JcrUtils.updateLastModified(userHome);
+	// userHome.getSession().save();
+	// userHome.getSession().getWorkspace().getVersionManager()
+	// .checkin(userHome.getPath());
+	// if (log.isDebugEnabled())
+	// log.debug("Wrote remote roles " + roles + " for "
+	// + userHome.getProperty(ArgeoNames.ARGEO_USER_ID));
+	// }
+	//
+	// }
 }
