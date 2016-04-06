@@ -26,13 +26,13 @@ public enum UserAdminConf {
 	userObjectClass("inetOrgPerson"),
 
 	/** Relative base DN for users */
-	userBase("ou=users"),
+	userBase("ou=People"),
 
 	/** Groups objectClass */
 	groupObjectClass("groupOfNames"),
 
 	/** Relative base DN for users */
-	groupBase("ou=groups"),
+	groupBase("ou=Groups"),
 
 	/** Read-only source */
 	readOnly(null);
