@@ -71,7 +71,7 @@ class WcXaResource implements XAResource {
 			userDirectory.prepare(wc);
 		} catch (Exception e) {
 			log.error("Cannot prepare " + xid, e);
-			throw new XAException(XAException.XA_RBOTHER);
+			throw new XAException(XAException.XAER_RMERR);
 		}
 		return XA_OK;
 	}
@@ -88,7 +88,7 @@ class WcXaResource implements XAResource {
 			userDirectory.commit(wc);
 		} catch (Exception e) {
 			log.error("Cannot commit " + xid, e);
-			throw new XAException(XAException.XA_RBOTHER);
+			throw new XAException(XAException.XAER_RMERR);
 		} finally {
 			cleanUp(xid);
 		}
@@ -101,7 +101,7 @@ class WcXaResource implements XAResource {
 			userDirectory.rollback(wc(xid));
 		} catch (Exception e) {
 			log.error("Cannot rollback " + xid, e);
-			throw new XAException(XAException.XA_HEURMIX);
+			throw new XAException(XAException.XAER_RMERR);
 		} finally {
 			cleanUp(xid);
 		}
