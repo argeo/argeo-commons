@@ -10,6 +10,7 @@ import java.util.List;
 import javax.naming.Binding;
 import javax.naming.Context;
 import javax.naming.InvalidNameException;
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -200,7 +201,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			// modify
 			for (LdapName dn : wc.getModifiedUsers().keySet()) {
 				if (!entryExists(dn))
-					throw new UserDirectoryException("User to modify no found "
+					throw new UserDirectoryException("User to modify not found "
 							+ dn);
 			}
 		} catch (NamingException e) {
@@ -209,7 +210,11 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	}
 
 	private boolean entryExists(LdapName dn) throws NamingException {
-		return getLdapContext().getAttributes(dn).size() != 0;
+		try {
+			return getLdapContext().getAttributes(dn).size() != 0;
+		} catch (NameNotFoundException e) {
+			return false;
+		}
 	}
 
 	@Override
