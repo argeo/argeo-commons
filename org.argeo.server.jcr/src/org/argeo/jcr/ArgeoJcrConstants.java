@@ -20,10 +20,8 @@ import javax.jcr.Repository;
 /** Argeo model specific constants */
 public interface ArgeoJcrConstants {
 	public final static String ARGEO_BASE_PATH = "/argeo:system";
-	public final static String DATA_MODELS_BASE_PATH = ARGEO_BASE_PATH
-			+ "/argeo:dataModels";
-	public final static String PEOPLE_BASE_PATH = ARGEO_BASE_PATH
-			+ "/argeo:people";
+	public final static String DATA_MODELS_BASE_PATH = ARGEO_BASE_PATH + "/argeo:dataModels";
+	public final static String PEOPLE_BASE_PATH = ARGEO_BASE_PATH + "/argeo:people";
 
 	// parameters (typically for call to a RepositoryFactory)
 	/** Key for a JCR repository alias */
@@ -37,5 +35,7 @@ public interface ArgeoJcrConstants {
 	 * JCR repository.
 	 */
 	public final static String ALIAS_NODE = "node";
+	public final static String BASE_REPO_PID = "argeo.repo.";
+	public final static String REPO_PID_NODE = BASE_REPO_PID + ALIAS_NODE;
 
 }

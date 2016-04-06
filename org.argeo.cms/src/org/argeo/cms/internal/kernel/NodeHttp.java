@@ -48,7 +48,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 
 	private Repository repository;
 
-	NodeHttp(ExtendedHttpService httpService, NodeRepository node) {
+	NodeHttp(ExtendedHttpService httpService, Repository node) {
 		this.repository = node;
 		// rootFilter = new RootFilter();
 		// dosFilter = new CustomDosFilter();

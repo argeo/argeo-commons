@@ -16,7 +16,7 @@ import org.argeo.cms.CmsException;
 class KernelThread extends Thread {
 	@SuppressWarnings("unused")
 	private final Kernel kernel;
-	private final RepositoryStatisticsImpl repoStats;
+	private RepositoryStatisticsImpl repoStats;
 
 	/** The smallest period of operation, in ms */
 	private final long PERIOD = 60 * 1000l;
@@ -35,7 +35,7 @@ class KernelThread extends Thread {
 	public KernelThread(Kernel kernel) {
 		super(kernel.threadGroup, kernel.getClass().getSimpleName());
 		this.kernel = kernel;
-		this.repoStats = kernel.repository.getRepositoryStatistics();
+		// this.repoStats = kernel.repository.getRepositoryStatistics();
 	}
 
 	private void doSmallestPeriod() {
@@ -45,19 +45,17 @@ class KernelThread extends Thread {
 			long freeMem = Runtime.getRuntime().freeMemory() / M;
 			long totalMem = Runtime.getRuntime().totalMemory() / M;
 			long maxMem = Runtime.getRuntime().maxMemory() / M;
-			double loadAvg = ManagementFactory.getOperatingSystemMXBean()
-					.getSystemLoadAverage();
+			double loadAvg = ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage();
 			// in min
 			boolean min = true;
-			long uptime = ManagementFactory.getRuntimeMXBean().getUptime()
-					/ (1000 * 60);
+			long uptime = ManagementFactory.getRuntimeMXBean().getUptime() / (1000 * 60);
 			if (uptime > 24 * 60) {
 				min = false;
 				uptime = uptime / 60;
 			}
 			line.append(uptime).append(min ? " min" : " h").append('\t');
-			line.append(loadAvg).append('\t').append(maxMem).append('\t')
-					.append(totalMem).append('\t').append(freeMem).append('\t');
+			line.append(loadAvg).append('\t').append(maxMem).append('\t').append(totalMem).append('\t').append(freeMem)
+					.append('\t');
 			kernelStatsLog.debug(line);
 		}
 
@@ -77,15 +75,14 @@ class KernelThread extends Thread {
 			// }
 			// long totalSpace = currentRoot.getTotalSpace();
 			StringBuilder line = new StringBuilder(128);
-			line.append("§\t").append(freeSpace)
-					.append(" MB left in " + dataDir);
+			line.append("§\t").append(freeSpace).append(" MB left in " + dataDir);
 			line.append('\n');
-			for (RepositoryStatistics.Type type : RepositoryStatistics.Type
-					.values()) {
-				long[] vals = repoStats.getTimeSeries(type).getValuePerMinute();
-				long val = vals[vals.length - 1];
-				line.append(type.name()).append('\t').append(val).append('\n');
-			}
+			if (repoStats != null)
+				for (RepositoryStatistics.Type type : RepositoryStatistics.Type.values()) {
+					long[] vals = repoStats.getTimeSeries(type).getValuePerMinute();
+					long val = vals[vals.length - 1];
+					line.append(type.name()).append('\t').append(val).append('\n');
+				}
 			nodeStatsLog.debug(line);
 		}
 	}

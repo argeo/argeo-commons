@@ -1,14 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!DOCTYPE Repository PUBLIC "Jackrabbit 2.6" "http://jackrabbit.apache.org/dtd/repository-2.6.dtd">
 <Repository>
 	<!-- Shared datasource -->
 	<DataSources>
 		<DataSource name="dataSource">
-			<param name="driver" value="org.h2.Driver" />
+			<param name="driver" value="org.postgresql.Driver" />
 			<param name="url" value="${dburl}" />
 			<param name="user" value="${dbuser}" />
 			<param name="password" value="${dbpassword}" />
-			<param name="databaseType" value="h2" />
+			<param name="databaseType" value="postgresql" />
 			<param name="maxPoolSize" value="${maxPoolSize}" />
 		</DataSource>
 	</DataSources>
@@ -16,7 +16,7 @@
 	<!-- File system and datastore -->
 	<FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
 		<param name="dataSourceName" value="dataSource" />
-		<param name="schema" value="default" />
+		<param name="schema" value="postgresql" />
 		<param name="schemaObjectPrefix" value="fs_" />
 	</FileSystem>
 	<DataStore class="org.apache.jackrabbit.core.data.FileDataStore">
@@ -29,11 +29,11 @@
 	<Workspace name="${wsp.name}">
 		<FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
 			<param name="dataSourceName" value="dataSource" />
-			<param name="schema" value="default" />
+			<param name="schema" value="postgresql" />
 			<param name="schemaObjectPrefix" value="${wsp.name}_fs_" />
 		</FileSystem>
 		<PersistenceManager
-			class="org.apache.jackrabbit.core.persistence.pool.H2PersistenceManager">
+			class="org.apache.jackrabbit.core.persistence.pool.PostgreSQLPersistenceManager">
 			<param name="dataSourceName" value="dataSource" />
 			<param name="schemaObjectPrefix" value="${wsp.name}_pm_" />
 			<param name="bundleCacheSize" value="${bundleCacheMB}" />
@@ -54,11 +54,11 @@
 	<Versioning rootPath="${rep.home}/version">
 		<FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
 			<param name="dataSourceName" value="dataSource" />
-			<param name="schema" value="default" />
+			<param name="schema" value="postgresql" />
 			<param name="schemaObjectPrefix" value="fs_ver_" />
 		</FileSystem>
 		<PersistenceManager
-			class="org.apache.jackrabbit.core.persistence.pool.H2PersistenceManager">
+			class="org.apache.jackrabbit.core.persistence.pool.PostgreSQLPersistenceManager">
 			<param name="dataSourceName" value="dataSource" />
 			<param name="schemaObjectPrefix" value="pm_ver_" />
 			<param name="bundleCacheSize" value="${bundleCacheMB}" />

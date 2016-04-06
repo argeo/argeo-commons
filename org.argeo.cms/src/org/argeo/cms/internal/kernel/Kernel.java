@@ -17,6 +17,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.security.PrivilegedAction;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -44,14 +45,18 @@ import org.argeo.ArgeoException;
 import org.argeo.ArgeoLogger;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.maintenance.MaintenanceUi;
+import org.argeo.jackrabbit.JackrabbitDataModel;
+import org.argeo.jackrabbit.ManagedJackrabbitRepository;
 import org.argeo.jackrabbit.OsgiJackrabbitRepositoryFactory;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.ArgeoJcrUtils;
+import org.argeo.jcr.RepoConf;
 import org.eclipse.equinox.http.jetty.JettyConfigurator;
 import org.eclipse.equinox.http.jetty.JettyConstants;
 import org.eclipse.equinox.http.servlet.ExtendedHttpService;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
@@ -59,6 +64,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.framework.startlevel.BundleStartLevel;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogReaderService;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
@@ -101,7 +107,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 	private BitronixTransactionManager transactionManager;
 	private BitronixTransactionSynchronizationRegistry transactionSynchronizationRegistry;
 	private OsgiJackrabbitRepositoryFactory repositoryFactory;
-	NodeRepository repository;
+	JackrabbitRepository repository;
 	private NodeUserAdmin userAdmin;
 
 	// Members
@@ -122,29 +128,25 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 	}
 
 	final void init() {
-		Subject.doAs(nodeSecurity.getKernelSubject(),
-				new PrivilegedAction<Void>() {
-					@Override
-					public Void run() {
-						doInit();
-						return null;
-					}
-				});
+		Subject.doAs(nodeSecurity.getKernelSubject(), new PrivilegedAction<Void>() {
+			@Override
+			public Void run() {
+				doInit();
+				return null;
+			}
+		});
 	}
 
 	private void doInit() {
 		long begin = System.currentTimeMillis();
 		// Use CMS bundle classloader
-		ClassLoader currentContextCl = Thread.currentThread()
-				.getContextClassLoader();
-		Thread.currentThread().setContextClassLoader(
-				Kernel.class.getClassLoader());
+		ClassLoader currentContextCl = Thread.currentThread().getContextClassLoader();
+		Thread.currentThread().setContextClassLoader(Kernel.class.getClassLoader());
 		try {
 			if (nodeSecurity.isFirstInit())
 				firstInit();
 
-			defaultLocale = new Locale(getFrameworkProp(I18N_DEFAULT_LOCALE,
-					ENGLISH.getLanguage()));
+			defaultLocale = new Locale(getFrameworkProp(I18N_DEFAULT_LOCALE, ENGLISH.getLanguage()));
 			locales = asLocaleList(getFrameworkProp(I18N_LOCALES));
 
 			ServiceTracker<LogReaderService, LogReaderService> logReaderService = new ServiceTracker<LogReaderService, LogReaderService>(
@@ -164,16 +166,14 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 			Thread.currentThread().setContextClassLoader(currentContextCl);
 			// FIXME better manage lifecycle.
 			try {
-				new LoginContext(LOGIN_CONTEXT_KERNEL,
-						nodeSecurity.getKernelSubject()).logout();
+				new LoginContext(LOGIN_CONTEXT_KERNEL, nodeSecurity.getKernelSubject()).logout();
 			} catch (LoginException e) {
 				e.printStackTrace();
 			}
 		}
 
 		long jvmUptime = ManagementFactory.getRuntimeMXBean().getUptime();
-		log.info("## ARGEO CMS UP in " + (jvmUptime / 1000) + "."
-				+ (jvmUptime % 1000) + "s ##");
+		log.info("## ARGEO CMS UP in " + (jvmUptime / 1000) + "." + (jvmUptime % 1000) + "s ##");
 		long initDuration = System.currentTimeMillis() - begin;
 		if (log.isTraceEnabled())
 			log.trace("Kernel initialization took " + initDuration + "ms");
@@ -182,20 +182,45 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 
 	private void normalInit() {
 		ConfigurationAdmin conf = findConfigurationAdmin();
+
+		// HTTP
+		initWebServer(conf);
+		ServiceReference<ExtendedHttpService> sr = bc.getServiceReference(ExtendedHttpService.class);
+		if (sr != null)
+			addHttpService(sr);
+
 		// Initialise services
 		initTransactionManager();
+
+		try {
+			Configuration nodeConf = conf.getConfiguration(ArgeoJcrConstants.REPO_PID_NODE);
+			if (nodeConf.getProperties() == null) {
+				Dictionary<String, ?> props = getNodeConfigFromFrameworkProperties();
+				if(props==null)// TODO interactive configuration
+					return;
+				nodeConf.update(props);
+			}
+		} catch (IOException e) {
+			throw new CmsException("Cannot get configuration", e);
+		}
+
+		ManagedJackrabbitRepository nodeRepo = new ManagedJackrabbitRepository();
+		String[] clazzes = { ManagedService.class.getName(), Repository.class.getName(),
+				JackrabbitRepository.class.getName() };
+		Hashtable<String, String> serviceProps = new Hashtable<String, String>();
+		serviceProps.put(Constants.SERVICE_PID, ArgeoJcrConstants.REPO_PID_NODE);
+		serviceProps.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, ArgeoJcrConstants.ALIAS_NODE);
+		ServiceRegistration<?> nodeSr = bc.registerService(clazzes, nodeRepo, serviceProps);
+		nodeRepo.waitForInit();
+		new JackrabbitDataModel(bc).prepareDataModel(nodeRepo);
+
+		repository = (JackrabbitRepository) bc.getService(nodeSr.getReference());
+
 		if (repository == null)
 			repository = new NodeRepository();
 		if (repositoryFactory == null)
 			repositoryFactory = new OsgiJackrabbitRepositoryFactory();
 		userAdmin = new NodeUserAdmin(transactionManager, repository);
-
-		// HTTP
-		initWebServer(conf);
-		ServiceReference<ExtendedHttpService> sr = bc
-				.getServiceReference(ExtendedHttpService.class);
-		if (sr != null)
-			addHttpService(sr);
 
 		// ADMIN UIs
 		UserUi userUi = new UserUi();
@@ -212,12 +237,26 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		publish();
 	}
 
+	private Dictionary<String, ?> getNodeConfigFromFrameworkProperties() {
+		String repoType = KernelUtils
+				.getFrameworkProp(KernelConstants.NODE_REPO_PROP_PREFIX + RepoConf.type.name());
+		if (repoType == null)
+			return null;
+		
+		Hashtable<String, Object> props = new Hashtable<String, Object>();
+		for (RepoConf repoConf : RepoConf.values()) {
+			String value = KernelUtils.getFrameworkProp(KernelConstants.NODE_REPO_PROP_PREFIX + repoConf.name());
+			if (value != null)
+				props.put(repoConf.name(), value);
+		}
+		return props;
+	}
+
 	private boolean isMaintenance() {
 		String startLevel = KernelUtils.getFrameworkProp("osgi.startLevel");
 		if (startLevel == null)
 			return false;
-		int bundleStartLevel = bc.getBundle().adapt(BundleStartLevel.class)
-				.getStartLevel();
+		int bundleStartLevel = bc.getBundle().adapt(BundleStartLevel.class).getStartLevel();
 		// int frameworkStartLevel =
 		// bc.getBundle(0).adapt(BundleStartLevel.class)
 		// .getStartLevel();
@@ -254,17 +293,15 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		// TODO also uncompress archives
 		if (initDir.exists())
 			try {
-				FileUtils.copyDirectory(initDir, getOsgiInstanceDir(),
-						new FileFilter() {
+				FileUtils.copyDirectory(initDir, getOsgiInstanceDir(), new FileFilter() {
 
-							@Override
-							public boolean accept(File pathname) {
-								if (pathname.getName().equals(".svn")
-										|| pathname.getName().equals(".git"))
-									return false;
-								return true;
-							}
-						});
+					@Override
+					public boolean accept(File pathname) {
+						if (pathname.getName().equals(".svn") || pathname.getName().equals(".git"))
+							return false;
+						return true;
+					}
+				});
 				log.info("CMS initialized from " + initDir.getCanonicalPath());
 			} catch (IOException e) {
 				throw new CmsException("Cannot initialize from " + initDir, e);
@@ -275,21 +312,16 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		try {
 			repository = new NodeRepository();
 			repositoryFactory = new OsgiJackrabbitRepositoryFactory();
-			Repository remoteRepository = ArgeoJcrUtils.getRepositoryByUri(
-					repositoryFactory, uri);
-			Session remoteSession = remoteRepository
-					.login(new SimpleCredentials("root", "demo".toCharArray()),
-							"main");
+			Repository remoteRepository = ArgeoJcrUtils.getRepositoryByUri(repositoryFactory, uri);
+			Session remoteSession = remoteRepository.login(new SimpleCredentials("root", "demo".toCharArray()), "main");
 			Session localSession = this.repository.login();
 			// FIXME register node type
 			// if (false)
 			// CndImporter.registerNodeTypes(null, localSession);
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			remoteSession.exportSystemView("/", out, true, false);
-			ByteArrayInputStream in = new ByteArrayInputStream(
-					out.toByteArray());
-			localSession.importXML("/", in,
-					ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
+			ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+			localSession.importXML("/", in, ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
 			// JcrUtils.copy(remoteSession.getRootNode(),
 			// localSession.getRootNode());
 		} catch (Exception e) {
@@ -307,8 +339,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 	}
 
 	private void initTransactionManager() {
-		bitronix.tm.Configuration tmConf = TransactionManagerServices
-				.getConfiguration();
+		bitronix.tm.Configuration tmConf = TransactionManagerServices.getConfiguration();
 		tmConf.setServerId(getFrameworkProp(FRAMEWORK_UUID));
 
 		// File tmBaseDir = new File(getFrameworkProp(TRANSACTIONS_HOME,
@@ -316,12 +347,10 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		File tmBaseDir = bc.getDataFile(DIR_TRANSACTIONS);
 		File tmDir1 = new File(tmBaseDir, "btm1");
 		tmDir1.mkdirs();
-		tmConf.setLogPart1Filename(new File(tmDir1, tmDir1.getName() + ".tlog")
-				.getAbsolutePath());
+		tmConf.setLogPart1Filename(new File(tmDir1, tmDir1.getName() + ".tlog").getAbsolutePath());
 		File tmDir2 = new File(tmBaseDir, "btm2");
 		tmDir2.mkdirs();
-		tmConf.setLogPart2Filename(new File(tmDir2, tmDir2.getName() + ".tlog")
-				.getAbsolutePath());
+		tmConf.setLogPart2Filename(new File(tmDir2, tmDir2.getName() + ".tlog").getAbsolutePath());
 		transactionManager = getTransactionManager();
 		transactionSynchronizationRegistry = getTransactionSynchronizationRegistry();
 	}
@@ -340,27 +369,24 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 					jettyProps.put(JettyConstants.HTTPS_PORT, httpsPort);
 					jettyProps.put(JettyConstants.HTTPS_ENABLED, true);
 					jettyProps.put(JettyConstants.SSL_KEYSTORETYPE, "PKCS12");
-					jettyProps.put(JettyConstants.SSL_KEYSTORE, nodeSecurity
-							.getHttpServerKeyStore().getCanonicalPath());
+					jettyProps.put(JettyConstants.SSL_KEYSTORE,
+							nodeSecurity.getHttpServerKeyStore().getCanonicalPath());
 					jettyProps.put(JettyConstants.SSL_PASSWORD, "changeit");
 					jettyProps.put(JettyConstants.SSL_WANTCLIENTAUTH, true);
 				}
 				if (conf != null) {
 					// TODO make filter more generic
-					String filter = "(" + JettyConstants.HTTP_PORT + "="
-							+ httpPort + ")";
+					String filter = "(" + JettyConstants.HTTP_PORT + "=" + httpPort + ")";
 					if (conf.listConfigurations(filter) != null)
 						return;
-					Configuration jettyConf = conf.createFactoryConfiguration(
-							JETTY_FACTORY_PID, null);
+					Configuration jettyConf = conf.createFactoryConfiguration(JETTY_FACTORY_PID, null);
 					jettyConf.update(jettyProps);
 				} else {
 					JettyConfigurator.startServer("default", jettyProps);
 				}
 			}
 		} catch (Exception e) {
-			throw new CmsException("Cannot initialize web server on "
-					+ httpPortsMsg(httpPort, httpsPort), e);
+			throw new CmsException("Cannot initialize web server on " + httpPortsMsg(httpPort, httpsPort), e);
 		}
 	}
 
@@ -372,24 +398,18 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		// Logging
 		loggerReg = bc.registerService(ArgeoLogger.class, logger, null);
 		// Transaction
-		tmReg = bc.registerService(TransactionManager.class,
-				transactionManager, null);
-		utReg = bc.registerService(UserTransaction.class, transactionManager,
-				null);
-		tsrReg = bc.registerService(TransactionSynchronizationRegistry.class,
-				transactionSynchronizationRegistry, null);
+		tmReg = bc.registerService(TransactionManager.class, transactionManager, null);
+		utReg = bc.registerService(UserTransaction.class, transactionManager, null);
+		tsrReg = bc.registerService(TransactionSynchronizationRegistry.class, transactionSynchronizationRegistry, null);
 		// User admin
-		userAdminReg = bc.registerService(UserAdmin.class, userAdmin,
-				userAdmin.currentState());
+		userAdminReg = bc.registerService(UserAdmin.class, userAdmin, userAdmin.currentState());
 		// JCR
 		Hashtable<String, String> regProps = new Hashtable<String, String>();
 		regProps.put(JCR_REPOSITORY_ALIAS, ALIAS_NODE);
-		repositoryReg = (ServiceRegistration<? extends Repository>) bc
-				.registerService(new String[] { Repository.class.getName(),
-						JackrabbitRepository.class.getName() }, repository,
-						regProps);
-		repositoryFactoryReg = bc.registerService(RepositoryFactory.class,
-				repositoryFactory, null);
+		repositoryReg = (ServiceRegistration<? extends Repository>) bc.registerService(
+				new String[] { Repository.class.getName(), JackrabbitRepository.class.getName() }, repository,
+				regProps);
+		repositoryFactoryReg = bc.registerService(RepositoryFactory.class, repositoryFactory, null);
 	}
 
 	void destroy() {
@@ -405,7 +425,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		if (userAdmin != null)
 			userAdmin.destroy();
 		if (repository != null)
-			repository.destroy();
+			repository.shutdown();
 		if (transactionManager != null)
 			transactionManager.shutdown();
 
@@ -419,8 +439,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 
 		nodeSecurity.destroy();
 		long duration = System.currentTimeMillis() - begin;
-		log.info("## ARGEO CMS DOWN in " + (duration / 1000) + "."
-				+ (duration % 1000) + "s ##");
+		log.info("## ARGEO CMS DOWN in " + (duration / 1000) + "." + (duration % 1000) + "s ##");
 	}
 
 	private void unpublish() {
@@ -438,8 +457,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		ServiceReference<?> sr = event.getServiceReference();
 		Object service = bc.getService(sr);
 		if (service instanceof Repository) {
-			Object jcrRepoAlias = sr
-					.getProperty(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS);
+			Object jcrRepoAlias = sr.getProperty(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS);
 			if (jcrRepoAlias != null) {// JCR repository
 				String alias = jcrRepoAlias.toString();
 				Repository repository = (Repository) bc.getService(sr);
@@ -451,8 +469,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 						repositoryFactory.register(repository, props);
 						dataHttp.registerRepositoryServlets(alias, repository);
 					} catch (Exception e) {
-						throw new CmsException(
-								"Could not publish JCR repository " + alias, e);
+						throw new CmsException("Could not publish JCR repository " + alias, e);
 					}
 				} else if (ServiceEvent.UNREGISTERING == event.getType()) {
 					repositoryFactory.unregister(repository, props);
@@ -472,8 +489,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 	private void addHttpService(ServiceReference<?> sr) {
 		// for (String key : sr.getPropertyKeys())
 		// log.debug(key + "=" + sr.getProperty(key));
-		ExtendedHttpService httpService = (ExtendedHttpService) bc
-				.getService(sr);
+		ExtendedHttpService httpService = (ExtendedHttpService) bc.getService(sr);
 		// TODO find constants
 		Object httpPort = sr.getProperty("http.port");
 		Object httpsPort = sr.getProperty("https.port");
@@ -484,8 +500,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 	}
 
 	private String httpPortsMsg(Object httpPort, Object httpsPort) {
-		return "HTTP " + httpPort
-				+ (httpsPort != null ? " - HTTPS " + httpsPort : "");
+		return "HTTP " + httpPort + (httpsPort != null ? " - HTTPS " + httpsPort : "");
 	}
 
 	@Override
@@ -502,9 +517,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 	final private static void directorsCut(long initDuration) {
 		// final long ms = 128l + (long) (Math.random() * 128d);
 		long ms = initDuration / 100;
-		log.info("Spend " + ms + "ms"
-				+ " reflecting on the progress brought to mankind"
-				+ " by Free Software...");
+		log.info("Spend " + ms + "ms" + " reflecting on the progress brought to mankind" + " by Free Software...");
 		long beginNano = System.nanoTime();
 		try {
 			Thread.sleep(ms, 0);
@@ -515,9 +528,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		final double M = 1000d * 1000d;
 		double sleepAccuracy = ((double) durationNano) / (ms * M);
 		if (log.isDebugEnabled())
-			log.debug("Sleep accuracy: "
-					+ String.format("%.2f", 100 - (sleepAccuracy * 100 - 100))
-					+ " %");
+			log.debug("Sleep accuracy: " + String.format("%.2f", 100 - (sleepAccuracy * 100 - 100)) + " %");
 	}
 
 	/** Workaround for blocking Gogo shell by system shutdown. */
