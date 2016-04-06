@@ -60,7 +60,7 @@ public class DefaultRepositoryRegister extends Observable implements
 		String alias;
 		if (properties == null || !properties.containsKey(JCR_REPOSITORY_ALIAS)) {
 			log.warn("Cannot register a repository if no "
-					+ JCR_REPOSITORY_ALIAS + " property is speecified.");
+					+ JCR_REPOSITORY_ALIAS + " property is specified.");
 			return;
 		}
 		alias = properties.get(JCR_REPOSITORY_ALIAS).toString();
