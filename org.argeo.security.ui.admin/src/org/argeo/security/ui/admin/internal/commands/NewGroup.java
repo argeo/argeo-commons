@@ -64,10 +64,10 @@ public class NewGroup extends AbstractHandler {
 
 	private class NewGroupWizard extends Wizard {
 
-		// pages
+		// Pages
 		private MainGroupInfoWizardPage mainGroupInfo;
 
-		// End user fields
+		// UI fields
 		private Text dNameTxt, commonNameTxt, descriptionTxt;
 		private Combo baseDnCmb;
 
@@ -88,8 +88,9 @@ public class NewGroup extends AbstractHandler {
 			String commonName = commonNameTxt.getText();
 			try {
 				userAdminWrapper.beginTransactionIfNeeded();
+				String dn = getDn(commonName);
 				Group group = (Group) userAdminWrapper.getUserAdmin()
-						.createRole(getDn(commonName), Role.GROUP);
+						.createRole(dn, Role.GROUP);
 				Dictionary props = group.getProperties();
 				String descStr = descriptionTxt.getText();
 				if (EclipseUiUtils.notEmpty(descStr))
@@ -133,7 +134,6 @@ public class NewGroup extends AbstractHandler {
 						"Common name");
 				commonNameTxt.addFocusListener(this);
 
-				
 				Label descLbl = new Label(bodyCmp, SWT.LEAD);
 				descLbl.setText("Description");
 				descLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false,
@@ -171,7 +171,7 @@ public class NewGroup extends AbstractHandler {
 			public void focusGained(FocusEvent event) {
 			}
 
-			/** @return error message or null if complete */
+			/** @return the error message or null if complete */
 			protected String checkComplete() {
 				String name = commonNameTxt.getText();
 
