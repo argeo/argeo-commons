@@ -32,9 +32,5 @@ public class SecurityAdminPerspective implements IPerspectiveFactory {
 				0.25f, editorArea);
 		left.addView(UsersView.ID);
 		left.addView(GroupsView.ID);
-
-		// IFolderLayout right = layout.createFolder("right", IPageLayout.RIGHT,
-		// 0.70f, editorArea);
-		// right.addView(GroupsView.ID);
 	}
 }

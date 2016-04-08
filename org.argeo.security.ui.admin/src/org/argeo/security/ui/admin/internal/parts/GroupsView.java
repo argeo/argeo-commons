@@ -29,6 +29,7 @@ import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
+import org.argeo.security.ui.admin.internal.UiUserAdminListener;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.providers.CommonNameLP;
 import org.argeo.security.ui.admin.internal.providers.DomainNameLP;
@@ -46,6 +47,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.part.ViewPart;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Role;
@@ -111,15 +113,32 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 		userViewer.addDragSupport(operations, tt, new UserDragListener(
 				userViewer));
 
+		// // Register a useradmin listener
+		// listener = new UserAdminListener() {
+		// @Override
+		// public void roleChanged(UserAdminEvent event) {
+		// if (userViewer != null && !userViewer.getTable().isDisposed())
+		// refresh();
+		// }
+		// };
+		// userAdminWrapper.addListener(listener);
+		// }
+
 		// Register a useradmin listener
-		listener = new UserAdminListener() {
-			@Override
-			public void roleChanged(UserAdminEvent event) {
-				if (userViewer != null && !userViewer.getTable().isDisposed())
-					refresh();
-			}
-		};
+		listener = new MyUiUAListener(parent.getDisplay());
 		userAdminWrapper.addListener(listener);
+	}
+
+	private class MyUiUAListener extends UiUserAdminListener {
+		public MyUiUAListener(Display display) {
+			super(display);
+		}
+
+		@Override
+		public void roleChangedToUiThread(UserAdminEvent event) {
+			if (userViewer != null && !userViewer.getTable().isDisposed())
+				refresh();
+		}
 	}
 
 	private class MyUserTableViewer extends LdifUsersTable {

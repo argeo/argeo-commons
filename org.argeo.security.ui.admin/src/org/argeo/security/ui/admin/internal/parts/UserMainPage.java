@@ -142,7 +142,8 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 			@Override
 			public void initialize(IManagedForm form) {
 				super.initialize(form);
-				listener = editor.new MainInfoListener(this);
+				listener = editor.new MainInfoListener(parent.getDisplay(),
+						this);
 				userAdminWrapper.addListener(listener);
 			}
 
@@ -295,7 +296,8 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 			@Override
 			public void initialize(IManagedForm form) {
 				super.initialize(form);
-				listener = editor.new GroupChangeListener(this);
+				listener = editor.new GroupChangeListener(parent.getDisplay(),
+						this);
 				userAdminWrapper.addListener(listener);
 			}
 

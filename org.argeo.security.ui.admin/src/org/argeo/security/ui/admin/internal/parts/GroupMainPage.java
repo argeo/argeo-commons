@@ -131,7 +131,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 			@Override
 			public void initialize(IManagedForm form) {
 				super.initialize(form);
-				listener = editor.new MainInfoListener(this);
+				listener = editor.new MainInfoListener(parent.getDisplay(), this);
 				userAdminWrapper.addListener(listener);
 			}
 
@@ -175,14 +175,12 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		Section section = tk.createSection(parent, Section.TITLE_BAR);
 		section.setLayoutData(EclipseUiUtils.fillAll());
 
-		// Composite body = tk.createComposite(section, SWT.NONE);
 		Composite body = new Composite(section, SWT.NO_FOCUS);
 		section.setClient(body);
 		body.setLayoutData(EclipseUiUtils.fillAll());
 
 		LdifUsersTable userTableViewerCmp = createMemberPart(body, group);
 
-		// create form part (controller)
 		SectionPart part = new GroupMembersPart(section, userTableViewerCmp,
 				group);
 		getManagedForm().addPart(part);
@@ -191,6 +189,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 
 	public LdifUsersTable createMemberPart(Composite parent, Group group) {
 		parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
+
 		// Define the displayed columns
 		List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
 		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 0, 24));
@@ -221,7 +220,6 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	}
 
 	// Local viewers
-
 	private class MyUserTableViewer extends LdifUsersTable {
 		private static final long serialVersionUID = 8467999509931900367L;
 
@@ -330,7 +328,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		@Override
 		public void initialize(IManagedForm form) {
 			super.initialize(form);
-			listener = editor.new GroupChangeListener(GroupMembersPart.this);
+			listener = editor.new GroupChangeListener(userViewer.getDisplay(), GroupMembersPart.this);
 			userAdminWrapper.addListener(listener);
 		}
 
@@ -382,7 +380,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 
 		@Override
 		public void drop(DropTargetEvent event) {
-			// TODO Is there an opportunity to perform ceck before?
+			// TODO Is there an opportunity to perform the check before?
 
 			String newUserName = (String) event.data;
 			UserAdmin myUserAdmin = userAdminWrapper.getUserAdmin();

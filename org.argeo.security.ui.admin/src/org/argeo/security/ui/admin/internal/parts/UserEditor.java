@@ -22,11 +22,13 @@ import org.argeo.ArgeoException;
 import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
+import org.argeo.security.ui.admin.internal.UiUserAdminListener;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
@@ -37,7 +39,6 @@ import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.service.useradmin.UserAdminEvent;
-import org.osgi.service.useradmin.UserAdminListener;
 
 /** Editor for a user, might be a user or a group. */
 public class UserEditor extends FormEditor {
@@ -64,7 +65,7 @@ public class UserEditor extends FormEditor {
 		username = ((UserEditorInput) getEditorInput()).getUsername();
 		user = (User) userAdmin.getRole(username);
 
-		listener = new NameChangeListener(user);
+		listener = new NameChangeListener(site.getShell().getDisplay(), user);
 		userAdminWrapper.addListener(listener);
 		updateEditorTitle(null);
 	}
@@ -142,46 +143,49 @@ public class UserEditor extends FormEditor {
 
 	// CONTROLERS FOR THIS EDITOR AND ITS PAGES
 
-	private class NameChangeListener implements UserAdminListener {
+	private class NameChangeListener extends UiUserAdminListener {
 
 		private final User user;
 
-		public NameChangeListener(User user) {
+		public NameChangeListener(Display display, User user) {
+			super(display);
 			this.user = user;
 		}
 
 		@Override
-		public void roleChanged(UserAdminEvent event) {
+		public void roleChangedToUiThread(UserAdminEvent event) {
 			Role changedRole = event.getRole();
 			if (changedRole == null || changedRole.equals(user))
 				updateEditorTitle(null);
 		}
 	}
 
-	class MainInfoListener implements UserAdminListener {
+	class MainInfoListener extends UiUserAdminListener {
 		private final AbstractFormPart part;
 
-		public MainInfoListener(AbstractFormPart part) {
+		public MainInfoListener(Display display, AbstractFormPart part) {
+			super(display);
 			this.part = part;
 		}
 
 		@Override
-		public void roleChanged(UserAdminEvent event) {
+		public void roleChangedToUiThread(UserAdminEvent event) {
 			// Rollback
 			if (event.getRole() == null)
 				part.markStale();
 		}
 	}
 
-	class GroupChangeListener implements UserAdminListener {
+	class GroupChangeListener extends UiUserAdminListener {
 		private final AbstractFormPart part;
 
-		public GroupChangeListener(AbstractFormPart part) {
+		public GroupChangeListener(Display display, AbstractFormPart part) {
+			super(display);
 			this.part = part;
 		}
 
 		@Override
-		public void roleChanged(UserAdminEvent event) {
+		public void roleChangedToUiThread(UserAdminEvent event) {
 			// always mark as stale
 			part.markStale();
 		}
