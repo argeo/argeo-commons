@@ -49,7 +49,7 @@ import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
-/** Dialog with a group list to pick up one */
+/** Dialog with a user (or group) list to pick up one */
 public class PickUpUserDialog extends TrayDialog {
 	private static final long serialVersionUID = -1420106871173920369L;
 
