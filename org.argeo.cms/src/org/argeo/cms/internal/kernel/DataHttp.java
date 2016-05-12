@@ -33,7 +33,6 @@ import org.apache.jackrabbit.server.remoting.davex.JcrRemotingServlet;
 import org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
-import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallback;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.jcr.ArgeoJcrConstants;
@@ -277,9 +276,12 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 				throws ServletException, IOException {
 			try {
 				Subject subject = subjectFromRequest(request);
-				if (CurrentUser.isAnonymous(subject) && request.getMethod().equals("GET")) {
-					response.setHeader("Cache-Control", "no-transform, public, max-age=300, s-maxage=900");
-				}
+				// TODO make it stronger, with eTags.
+				// if (CurrentUser.isAnonymous(subject) &&
+				// request.getMethod().equals("GET")) {
+				// response.setHeader("Cache-Control", "no-transform, public,
+				// max-age=300, s-maxage=900");
+				// }
 
 				Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
 					@Override
