@@ -143,6 +143,9 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		ClassLoader currentContextCl = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(Kernel.class.getClassLoader());
 		try {
+			// Listen to service publication (also ours)
+			bc.addServiceListener(Kernel.this);
+
 			if (nodeSecurity.isFirstInit())
 				firstInit();
 
@@ -185,9 +188,11 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 
 		// HTTP
 		initWebServer(conf);
-		ServiceReference<ExtendedHttpService> sr = bc.getServiceReference(ExtendedHttpService.class);
-		if (sr != null)
-			addHttpService(sr);
+//		ServiceReference<ExtendedHttpService> sr = bc.getServiceReference(ExtendedHttpService.class);
+//		if (sr != null)
+//			addHttpService(sr);
+//		else
+//			log.warn("No http service found");
 
 		// Initialise services
 		initTransactionManager();
@@ -196,7 +201,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 			Configuration nodeConf = conf.getConfiguration(ArgeoJcrConstants.REPO_PID_NODE);
 			if (nodeConf.getProperties() == null) {
 				Dictionary<String, ?> props = getNodeConfigFromFrameworkProperties();
-				if(props==null)// TODO interactive configuration
+				if (props == null)// TODO interactive configuration
 					return;
 				nodeConf.update(props);
 			}
@@ -238,11 +243,10 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 	}
 
 	private Dictionary<String, ?> getNodeConfigFromFrameworkProperties() {
-		String repoType = KernelUtils
-				.getFrameworkProp(KernelConstants.NODE_REPO_PROP_PREFIX + RepoConf.type.name());
+		String repoType = KernelUtils.getFrameworkProp(KernelConstants.NODE_REPO_PROP_PREFIX + RepoConf.type.name());
 		if (repoType == null)
 			return null;
-		
+
 		Hashtable<String, Object> props = new Hashtable<String, Object>();
 		for (RepoConf repoConf : RepoConf.values()) {
 			String value = KernelUtils.getFrameworkProp(KernelConstants.NODE_REPO_PROP_PREFIX + repoConf.name());
@@ -392,8 +396,6 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 
 	@SuppressWarnings("unchecked")
 	private void publish() {
-		// Listen to service publication (also ours)
-		bc.addServiceListener(Kernel.this);
 
 		// Logging
 		loggerReg = bc.registerService(ArgeoLogger.class, logger, null);
