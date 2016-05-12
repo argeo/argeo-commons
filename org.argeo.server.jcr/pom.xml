@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.argeo.commons</groupId>
 		<artifactId>argeo-commons</artifactId>
-		<version>2.1.38-SNAPSHOT</version>
+		<version>2.1.38</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.server.jcr</artifactId>
@@ -12,7 +12,7 @@
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.util</artifactId>
-			<version>2.1.38-SNAPSHOT</version>
+			<version>2.1.38</version>
 		</dependency>
 	</dependencies>
 </project>
