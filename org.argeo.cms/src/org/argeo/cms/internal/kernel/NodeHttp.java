@@ -55,10 +55,8 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 		// qosFilter = new QoSFilter();
 
 		try {
-			httpService.registerServlet("/!", new LinkServlet(repository),
-					null, null);
-			httpService.registerServlet("/robots.txt", new RobotServlet(),
-					null, null);
+			httpService.registerServlet("/!", new LinkServlet(repository), null, null);
+			httpService.registerServlet("/robots.txt", new RobotServlet(), null, null);
 		} catch (Exception e) {
 			throw new CmsException("Cannot register filters", e);
 		}
@@ -76,24 +74,17 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 		}
 
 		@Override
-		protected void service(HttpServletRequest request,
-				HttpServletResponse response) throws ServletException,
-				IOException {
+		protected void service(HttpServletRequest request, HttpServletResponse response)
+				throws ServletException, IOException {
 			String path = request.getPathInfo();
 			String userAgent = request.getHeader("User-Agent").toLowerCase();
 			boolean isBot = false;
 			boolean isCompatibleBrowser = false;
-			if (userAgent.contains("bot") || userAgent.contains("facebook")
-					|| userAgent.contains("twitter")) {
+			if (userAgent.contains("bot") || userAgent.contains("facebook") || userAgent.contains("twitter")) {
 				isBot = true;
-			} else if (userAgent.contains("webkit")
-					|| userAgent.contains("gecko")
-					|| userAgent.contains("firefox")
-					|| userAgent.contains("msie")
-					|| userAgent.contains("chrome")
-					|| userAgent.contains("chromium")
-					|| userAgent.contains("opera")
-					|| userAgent.contains("browser")) {
+			} else if (userAgent.contains("webkit") || userAgent.contains("gecko") || userAgent.contains("firefox")
+					|| userAgent.contains("msie") || userAgent.contains("chrome") || userAgent.contains("chromium")
+					|| userAgent.contains("opera") || userAgent.contains("browser")) {
 				isCompatibleBrowser = true;
 			}
 
@@ -119,33 +110,29 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 		// }
 
 		/** For bots which don't understand RWT. */
-		private void canonicalAnswer(HttpServletRequest request,
-				HttpServletResponse response, String path) {
+		private void canonicalAnswer(HttpServletRequest request, HttpServletResponse response, String path) {
 			Session session = null;
 			try {
 				PrintWriter writer = response.getWriter();
-				session = Subject.doAs(KernelUtils.anonymousLogin(),
-						new PrivilegedExceptionAction<Session>() {
+				session = Subject.doAs(KernelUtils.anonymousLogin(), new PrivilegedExceptionAction<Session>() {
 
-							@Override
-							public Session run() throws Exception {
-								return repository.login();
-							}
+					@Override
+					public Session run() throws Exception {
+						return repository.login();
+					}
 
-						});
+				});
 				Node node = session.getNode(path);
-				String title = node.hasProperty(JCR_TITLE) ? node.getProperty(
-						JCR_TITLE).getString() : node.getName();
-				String desc = node.hasProperty(JCR_DESCRIPTION) ? node
-						.getProperty(JCR_DESCRIPTION).getString() : null;
-				Calendar lastUpdate = node.hasProperty(JCR_LAST_MODIFIED) ? node
-						.getProperty(JCR_LAST_MODIFIED).getDate() : null;
+				String title = node.hasProperty(JCR_TITLE) ? node.getProperty(JCR_TITLE).getString() : node.getName();
+				String desc = node.hasProperty(JCR_DESCRIPTION) ? node.getProperty(JCR_DESCRIPTION).getString() : null;
+				Calendar lastUpdate = node.hasProperty(JCR_LAST_MODIFIED)
+						? node.getProperty(JCR_LAST_MODIFIED).getDate() : null;
 				String url = CmsUtils.getCanonicalUrl(node, request);
 				String imgUrl = null;
 				loop: for (NodeIterator it = node.getNodes(); it.hasNext();) {
 					// Takes the first found cms:image
 					Node child = it.nextNode();
-					if (child.isNodeType(CMS_IMAGE)){
+					if (child.isNodeType(CMS_IMAGE)) {
 						imgUrl = CmsUtils.getDataUrl(child, request);
 						break loop;
 					}
@@ -153,25 +140,22 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 				StringBuilder buf = new StringBuilder();
 				buf.append("<html>");
 				buf.append("<head>");
-				writeMeta(buf, "og:title", title);
+				writeMeta(buf, "og:title", escapeHTML(title));
 				writeMeta(buf, "og:type", "website");
 				buf.append("<meta name='twitter:card' content='summary' />");
 				buf.append("<meta name='twitter:site' content='@argeo_org' />");
 				writeMeta(buf, "og:url", url);
 				if (desc != null)
-					writeMeta(buf, "og:description", desc);
+					writeMeta(buf, "og:description", escapeHTML(desc));
 				if (imgUrl != null)
 					writeMeta(buf, "og:image", imgUrl);
 				if (lastUpdate != null)
-					writeMeta(buf, "og:updated_time",
-							Long.toString(lastUpdate.getTime().getTime()));
+					writeMeta(buf, "og:updated_time", Long.toString(lastUpdate.getTime().getTime()));
 				buf.append("</head>");
 				buf.append("<body>");
 				buf.append(
-						"<p><b>!! This page is meant for indexing robots, not for real people,"
-								+ " visit <a href='/#").append(path)
-						.append("'>").append(title)
-						.append("</a> instead.</b></p>");
+						"<p><b>!! This page is meant for indexing robots, not for real people," + " visit <a href='/#")
+						.append(path).append("'>").append(escapeHTML(title)).append("</a> instead.</b></p>");
 				writeCanonical(buf, node);
 				buf.append("</body>");
 				buf.append("</html>");
@@ -186,22 +170,37 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 			}
 		}
 
-		private void writeMeta(StringBuilder buf, String tag, String value) {
-			buf.append("<meta property='").append(tag).append("' content='")
-					.append(value).append("'/>");
+		/**
+		 * From
+		 * http://stackoverflow.com/questions/1265282/recommended-method-for-
+		 * escaping-html-in-java (+ escaping '). TODO Use
+		 * org.apache.commons.lang.StringEscapeUtils
+		 */
+		private static String escapeHTML(String s) {
+			StringBuilder out = new StringBuilder(Math.max(16, s.length()));
+			for (int i = 0; i < s.length(); i++) {
+				char c = s.charAt(i);
+				if (c > 127 || c == '\'' || c == '"' || c == '<' || c == '>' || c == '&') {
+					out.append("&#");
+					out.append((int) c);
+					out.append(';');
+				} else {
+					out.append(c);
+				}
+			}
+			return out.toString();
 		}
 
-		private void writeCanonical(StringBuilder buf, Node node)
-				throws RepositoryException {
+		private void writeMeta(StringBuilder buf, String tag, String value) {
+			buf.append("<meta property='").append(tag).append("' content='").append(value).append("'/>");
+		}
+
+		private void writeCanonical(StringBuilder buf, Node node) throws RepositoryException {
 			buf.append("<div>");
 			if (node.hasProperty(JCR_TITLE))
-				buf.append("<p>")
-						.append(node.getProperty(JCR_TITLE).getString())
-						.append("</p>");
+				buf.append("<p>").append(node.getProperty(JCR_TITLE).getString()).append("</p>");
 			if (node.hasProperty(JCR_DESCRIPTION))
-				buf.append("<p>")
-						.append(node.getProperty(JCR_DESCRIPTION).getString())
-						.append("</p>");
+				buf.append("<p>").append(node.getProperty(JCR_DESCRIPTION).getString()).append("</p>");
 			NodeIterator children = node.getNodes();
 			while (children.hasNext()) {
 				writeCanonical(buf, children.nextNode());
@@ -214,9 +213,8 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 		private static final long serialVersionUID = 7935661175336419089L;
 
 		@Override
-		protected void service(HttpServletRequest request,
-				HttpServletResponse response) throws ServletException,
-				IOException {
+		protected void service(HttpServletRequest request, HttpServletResponse response)
+				throws ServletException, IOException {
 			PrintWriter writer = response.getWriter();
 			writer.append("User-agent: *\n");
 			writer.append("Disallow:\n");
@@ -230,13 +228,11 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	class RootFilter extends HttpFilter {
 
 		@Override
-		public void doFilter(HttpSession httpSession,
-				HttpServletRequest request, HttpServletResponse response,
+		public void doFilter(HttpSession httpSession, HttpServletRequest request, HttpServletResponse response,
 				FilterChain filterChain) throws IOException, ServletException {
 			if (log.isTraceEnabled()) {
-				log.trace(request.getRequestURL().append(
-						request.getQueryString() != null ? "?"
-								+ request.getQueryString() : ""));
+				log.trace(request.getRequestURL()
+						.append(request.getQueryString() != null ? "?" + request.getQueryString() : ""));
 				logRequest(request);
 			}
 
@@ -263,13 +259,10 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 			}
 
 			// redirect long RWT paths to anchor
-			String path = request.getRequestURI().substring(
-					servletPath.length());
+			String path = request.getRequestURI().substring(servletPath.length());
 			int pathLength = path.length();
-			if (pathLength != 0 && (path.charAt(0) == '/')
-					&& !servletPath.endsWith("rwt-resources")
-					&& !path.startsWith(KernelConstants.PATH_WORKBENCH)
-					&& path.lastIndexOf('/') != 0) {
+			if (pathLength != 0 && (path.charAt(0) == '/') && !servletPath.endsWith("rwt-resources")
+					&& !path.startsWith(KernelConstants.PATH_WORKBENCH) && path.lastIndexOf('/') != 0) {
 				String newLocation = request.getServletPath() + "#" + path;
 				response.setHeader("Location", newLocation);
 				response.setStatus(HttpServletResponse.SC_FOUND);
@@ -309,8 +302,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	}
 
 	private X509Certificate extractCertificate(HttpServletRequest req) {
-		X509Certificate[] certs = (X509Certificate[]) req
-				.getAttribute("javax.servlet.request.X509Certificate");
+		X509Certificate[] certs = (X509Certificate[]) req.getAttribute("javax.servlet.request.X509Certificate");
 		if (null != certs && certs.length > 0) {
 			return certs[0];
 		}
