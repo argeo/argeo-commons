@@ -36,8 +36,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 /** Manages history and navigation */
-public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
-		implements CmsView {
+public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements CmsView {
 	private final Log log = LogFactory.getLog(AbstractCmsEntryPoint.class);
 
 	private final Subject subject;
@@ -60,8 +59,8 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 	private final JavaScriptExecutor jsExecutor;
 	private final BrowserNavigation browserNavigation;
 
-	public AbstractCmsEntryPoint(Repository repository, String workspace,
-			String defaultPath, Map<String, String> factoryProperties) {
+	public AbstractCmsEntryPoint(Repository repository, String workspace, String defaultPath,
+			Map<String, String> factoryProperties) {
 		this.repository = repository;
 		this.workspace = workspace;
 		this.defaultPath = defaultPath;
@@ -70,14 +69,12 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 
 		// Initial login
 		try {
-			loginContext = new LoginContext(AuthConstants.LOGIN_CONTEXT_USER,
-					subject, new HttpRequestCallbackHandler(
-							UiContext.getHttpRequest()));
+			loginContext = new LoginContext(AuthConstants.LOGIN_CONTEXT_USER, subject,
+					new HttpRequestCallbackHandler(UiContext.getHttpRequest()));
 			loginContext.login();
 		} catch (CredentialNotFoundException e) {
 			try {
-				loginContext = new LoginContext(
-						AuthConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
+				loginContext = new LoginContext(AuthConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
 				loginContext.login();
 			} catch (LoginException e1) {
 				throw new ArgeoException("Cannot log as anonymous", e);
@@ -90,8 +87,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 		jsExecutor = RWT.getClient().getService(JavaScriptExecutor.class);
 		browserNavigation = RWT.getClient().getService(BrowserNavigation.class);
 		if (browserNavigation != null)
-			browserNavigation
-					.addBrowserNavigationListener(new CmsNavigationListener());
+			browserNavigation.addBrowserNavigationListener(new CmsNavigationListener());
 	}
 
 	@Override
@@ -119,8 +115,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 				try {
 					initUi(parent);
 				} catch (Exception e) {
-					throw new CmsException("Cannot create entrypoint contents",
-							e);
+					throw new CmsException("Cannot create entrypoint contents", e);
 				}
 				return null;
 			}
@@ -171,8 +166,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 			throw new CmsException("Login context should not be null");
 		try {
 			loginContext.logout();
-			LoginContext anonymousLc = new LoginContext(
-					AuthConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
+			LoginContext anonymousLc = new LoginContext(AuthConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
 			anonymousLc.login();
 			authChange(anonymousLc);
 		} catch (LoginException e) {
@@ -265,8 +259,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 			String title = publishMetaData(node);
 
 			if (log.isTraceEnabled())
-				log.trace("node=" + node + ", state=" + state + " (page="
-						+ page + ")");
+				log.trace("node=" + node + ", state=" + state + " (page=" + page + ")");
 
 			return title;
 		} catch (Exception e) {
@@ -274,57 +267,25 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint
 			if (previousState.equals(""))
 				previousState = "~";
 			navigateTo(previousState);
-			throw new CmsException("Unexpected issue when accessing #"
-					+ newState, e);
+			throw new CmsException("Unexpected issue when accessing #" + newState, e);
 		}
 	}
 
 	private String publishMetaData(Node node) throws RepositoryException {
 		// Title
 		String title;
-		if (node.isNodeType(NodeType.MIX_TITLE)
-				&& node.hasProperty(Property.JCR_TITLE))
-			title = node.getProperty(Property.JCR_TITLE).getString() + " - "
-					+ getBaseTitle();
+		if (node.isNodeType(NodeType.MIX_TITLE) && node.hasProperty(Property.JCR_TITLE))
+			title = node.getProperty(Property.JCR_TITLE).getString() + " - " + getBaseTitle();
 		else
 			title = getBaseTitle();
 
 		HttpServletRequest request = UiContext.getHttpRequest();
 		if (request == null)
 			return null;
-		// String url = CmsUtils.getCanonicalUrl(node, request);
-		// String desc = node.hasProperty(JCR_DESCRIPTION) ? node.getProperty(
-		// JCR_DESCRIPTION).getString() : null;
-		// String imgUrl = null;
-		// for (NodeIterator it = node.getNodes(); it.hasNext();) {
-		// Node child = it.nextNode();
-		// if (child.isNodeType(CmsTypes.CMS_IMAGE))
-		// imgUrl = CmsUtils.getDataUrl(child, request);
-		// }
 
 		StringBuilder js = new StringBuilder();
+		title = title.replace("'", "\\'");// sanitize
 		js.append("document.title = '" + title + "';");
-		// js.append("var metas = document.getElementsByTagName('meta');");
-		// js.append("for (var i=0; i<metas.length; i++) {");
-		// js.append("	if (metas[i].getAttribute('property'))");
-		// js.append("	 if(metas[i].getAttribute('property')=='og:title')");
-		// js.append("	  metas[i].setAttribute('content','" + title + "');");
-		// js.append("	 else if(metas[i].getAttribute('property')=='og:url')");
-		// js.append("	  metas[i].setAttribute('content','" + url + "');");
-		// js.append("	 else if(metas[i].getAttribute('property')=='og:type')");
-		// js.append("	  metas[i].setAttribute('content','website');");
-		// if (desc != null) {
-		// js.append("	 else if(metas[i].getAttribute('property')=='og:decription')");
-		// js.append("	  metas[i].setAttribute('content','" + clean(desc)
-		// + "');");
-		// }
-		// if (imgUrl != null) {
-		// js.append("	 else if(metas[i].getAttribute('property')=='og:image')");
-		// js.append("	  metas[i].setAttribute('content','" + imgUrl + "');");
-		// } else {
-		// // TODO reset default image
-		// }
-		// js.append("	};");
 		jsExecutor.execute(js.toString());
 		return title;
 	}
