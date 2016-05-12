@@ -22,6 +22,10 @@ public class EditablePropertyString extends EditableText implements
 	private String propertyName;
 	private String message;
 
+	// encode the '&' character in rap
+	private final static String AMPERSAND = "&#38;";
+	private final static String AMPERSAND_REGEX = "&(?![#a-zA-Z0-9]+;)";
+
 	public EditablePropertyString(Composite parent, int style, Node node,
 			String propertyName, String message) throws RepositoryException {
 		super(parent, style, node, true);
@@ -45,7 +49,8 @@ public class EditablePropertyString extends EditableText implements
 			if (EclipseUiUtils.isEmpty(text))
 				lbl.setText(message + "  ");
 			else
-				lbl.setText(text);
+				// TODO enhance this
+				lbl.setText(text.replaceAll(AMPERSAND_REGEX, AMPERSAND));
 		} else if (child instanceof Text) {
 			Text txt = (Text) child;
 			if (EclipseUiUtils.isEmpty(text)) {

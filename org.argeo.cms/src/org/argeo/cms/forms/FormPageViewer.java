@@ -461,8 +461,12 @@ public class FormPageViewer extends AbstractPageViewer {
 
 			if (name == null)
 				name = details.getFileName();
+
+			// TODO clean image name more carefully
+			String cleanedName = name.replaceAll("[^a-zA-Z0-9-.]", "_");
+
 			try {
-				imageManager().uploadImage(context, name, stream);
+				imageManager().uploadImage(context, cleanedName, stream);
 				// TODO clean refresh strategy
 				section.getDisplay().asyncExec(new Runnable() {
 					@Override
