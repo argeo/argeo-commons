@@ -193,7 +193,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 							// logout();
 							// session = repository.login(workspace);
 							navigateTo("~");
-							throw e;
+							// throw e;
 						}
 
 					// refresh UI
