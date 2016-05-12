@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.security.PrivilegedExceptionAction;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Enumeration;
 
 import javax.jcr.Node;
@@ -32,6 +33,8 @@ import org.argeo.cms.util.CmsUtils;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.equinox.http.servlet.ExtendedHttpService;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 /**
  * Intercepts and enriches http access, mainly focusing on security and
@@ -46,16 +49,16 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	// private final DoSFilter dosFilter;
 	// private final QoSFilter qosFilter;
 
-	private Repository repository;
+	private BundleContext bc;
 
-	NodeHttp(ExtendedHttpService httpService, Repository node) {
-		this.repository = node;
+	NodeHttp(ExtendedHttpService httpService, BundleContext bc) {
+		this.bc = bc;
 		// rootFilter = new RootFilter();
 		// dosFilter = new CustomDosFilter();
 		// qosFilter = new QoSFilter();
 
 		try {
-			httpService.registerServlet("/!", new LinkServlet(repository), null, null);
+			httpService.registerServlet("/!", new LinkServlet(), null, null);
 			httpService.registerServlet("/robots.txt", new RobotServlet(), null, null);
 		} catch (Exception e) {
 			throw new CmsException("Cannot register filters", e);
@@ -65,20 +68,15 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 	public void destroy() {
 	}
 
-	static class LinkServlet extends HttpServlet {
+	class LinkServlet extends HttpServlet {
 		private static final long serialVersionUID = 3749990143146845708L;
-		private final Repository repository;
-
-		public LinkServlet(Repository repository) {
-			this.repository = repository;
-		}
 
 		@Override
 		protected void service(HttpServletRequest request, HttpServletResponse response)
 				throws ServletException, IOException {
 			String path = request.getPathInfo();
 			String userAgent = request.getHeader("User-Agent").toLowerCase();
-			boolean isBot = false;
+			boolean isBot = true;
 			boolean isCompatibleBrowser = false;
 			if (userAgent.contains("bot") || userAgent.contains("facebook") || userAgent.contains("twitter")) {
 				isBot = true;
@@ -118,6 +116,9 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 
 					@Override
 					public Session run() throws Exception {
+						Collection<ServiceReference<Repository>> srs = bc.getServiceReferences(Repository.class, "("
+								+ ArgeoJcrConstants.JCR_REPOSITORY_ALIAS + "=" + ArgeoJcrConstants.ALIAS_NODE + ")");
+						Repository repository = bc.getService(srs.iterator().next());
 						return repository.login();
 					}
 
@@ -176,7 +177,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 		 * escaping-html-in-java (+ escaping '). TODO Use
 		 * org.apache.commons.lang.StringEscapeUtils
 		 */
-		private static String escapeHTML(String s) {
+		private String escapeHTML(String s) {
 			StringBuilder out = new StringBuilder(Math.max(16, s.length()));
 			for (int i = 0; i < s.length(); i++) {
 				char c = s.charAt(i);

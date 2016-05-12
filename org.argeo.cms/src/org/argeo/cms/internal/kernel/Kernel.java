@@ -188,11 +188,12 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 
 		// HTTP
 		initWebServer(conf);
-//		ServiceReference<ExtendedHttpService> sr = bc.getServiceReference(ExtendedHttpService.class);
-//		if (sr != null)
-//			addHttpService(sr);
-//		else
-//			log.warn("No http service found");
+		// ServiceReference<ExtendedHttpService> sr =
+		// bc.getServiceReference(ExtendedHttpService.class);
+		// if (sr != null)
+		// addHttpService(sr);
+		// else
+		// log.warn("No http service found");
 
 		// Initialise services
 		initTransactionManager();
@@ -496,7 +497,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		Object httpPort = sr.getProperty("http.port");
 		Object httpsPort = sr.getProperty("https.port");
 		dataHttp = new DataHttp(httpService);
-		nodeHttp = new NodeHttp(httpService, repository);
+		nodeHttp = new NodeHttp(httpService, bc);
 		if (log.isDebugEnabled())
 			log.debug(httpPortsMsg(httpPort, httpsPort));
 	}
