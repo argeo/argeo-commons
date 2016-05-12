@@ -76,7 +76,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 				throws ServletException, IOException {
 			String path = request.getPathInfo();
 			String userAgent = request.getHeader("User-Agent").toLowerCase();
-			boolean isBot = true;
+			boolean isBot = false;
 			boolean isCompatibleBrowser = false;
 			if (userAgent.contains("bot") || userAgent.contains("facebook") || userAgent.contains("twitter")) {
 				isBot = true;
