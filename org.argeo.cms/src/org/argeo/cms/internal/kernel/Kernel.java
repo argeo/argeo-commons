@@ -15,17 +15,23 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.lang.management.ManagementFactory;
+import java.net.URL;
 import java.security.PrivilegedAction;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
@@ -40,6 +46,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.JackrabbitRepository;
+import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.util.TransientFileFactory;
 import org.argeo.ArgeoException;
 import org.argeo.ArgeoLogger;
@@ -50,11 +57,13 @@ import org.argeo.jackrabbit.ManagedJackrabbitRepository;
 import org.argeo.jackrabbit.OsgiJackrabbitRepositoryFactory;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.ArgeoJcrUtils;
+import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.RepoConf;
 import org.eclipse.equinox.http.jetty.JettyConfigurator;
 import org.eclipse.equinox.http.jetty.JettyConstants;
 import org.eclipse.equinox.http.servlet.ExtendedHttpService;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceEvent;
@@ -62,6 +71,9 @@ import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.framework.startlevel.BundleStartLevel;
+import org.osgi.framework.wiring.BundleCapability;
+import org.osgi.framework.wiring.BundleWire;
+import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
@@ -218,7 +230,9 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		serviceProps.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, ArgeoJcrConstants.ALIAS_NODE);
 		ServiceRegistration<?> nodeSr = bc.registerService(clazzes, nodeRepo, serviceProps);
 		nodeRepo.waitForInit();
+
 		new JackrabbitDataModel(bc).prepareDataModel(nodeRepo);
+		prepareDataModel(nodeRepo);
 
 		repository = (JackrabbitRepository) bc.getService(nodeSr.getReference());
 
@@ -255,6 +269,68 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 				props.put(repoConf.name(), value);
 		}
 		return props;
+	}
+
+	private final static String CMS_DATA_MODEL = "cms.datamodel";
+
+	private void prepareDataModel(ManagedJackrabbitRepository nodeRepo) {
+		Session adminSession = null;
+		try {
+			Set<String> processed = new HashSet<String>();
+			adminSession = nodeRepo.login();
+			bundles: for (Bundle bundle : bc.getBundles()) {
+				BundleWiring wiring = bundle.adapt(BundleWiring.class);
+				if (wiring == null) {
+					if (log.isTraceEnabled())
+						log.error("No wiring for " + bundle.getSymbolicName());
+					continue bundles;
+				}
+				processWiring(adminSession, wiring, processed);
+			}
+		} catch (RepositoryException e) {
+			throw new CmsException("Cannot prepare data model", e);
+		} finally {
+			JcrUtils.logoutQuietly(adminSession);
+		}
+	}
+
+	private void processWiring(Session adminSession, BundleWiring wiring, Set<String> processed) {
+		// recursively process requirements first
+		List<BundleWire> requiredWires = wiring.getRequiredWires(CMS_DATA_MODEL);
+		for (BundleWire wire : requiredWires) {
+			processWiring(adminSession, wire.getProviderWiring(), processed);
+			// registerCnd(adminSession, wire.getCapability(), processed);
+		}
+		List<BundleCapability> capabilities = wiring.getCapabilities(CMS_DATA_MODEL);
+		for (BundleCapability capability : capabilities) {
+			registerCnd(adminSession, capability, processed);
+		}
+	}
+
+	private void registerCnd(Session adminSession, BundleCapability capability, Set<String> processed) {
+		Map<String, Object> attrs = capability.getAttributes();
+		String name = attrs.get("name").toString();
+		if (processed.contains(name)) {
+			if (log.isTraceEnabled())
+				log.trace("Data model " + name + " has already been processed");
+			return;
+		}
+		String path = attrs.get("cnd").toString();
+		URL url = capability.getRevision().getBundle().getResource(path);
+		try (Reader reader = new InputStreamReader(url.openStream())) {
+			CndImporter.registerNodeTypes(reader, adminSession, true);
+			processed.add(name);
+			if (log.isDebugEnabled())
+				log.debug("Registered CND " + url);
+		} catch (Exception e) {
+			throw new CmsException("Cannot read cnd " + url, e);
+		}
+
+		Hashtable<String, Object> properties = new Hashtable<>();
+		properties.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, name);
+		bc.registerService(Repository.class, adminSession.getRepository(), properties);
+		if (log.isDebugEnabled())
+			log.debug("Published data model " + name);
 	}
 
 	private boolean isMaintenance() {
