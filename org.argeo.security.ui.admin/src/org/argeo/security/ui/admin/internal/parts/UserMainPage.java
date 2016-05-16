@@ -111,7 +111,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 	}
 
 	/** Creates the general section */
-	private void appendOverviewPart(Composite parent, final User user) {
+	private void appendOverviewPart(final Composite parent, final User user) {
 		FormToolkit tk = getManagedForm().getToolkit();
 
 		Section section = addSection(tk, parent, "Main information");
@@ -247,7 +247,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		getManagedForm().addPart(part);
 	}
 
-	private LdifUsersTable appendMemberOfPart(Composite parent, User user) {
+	private LdifUsersTable appendMemberOfPart(final Composite parent, User user) {
 		FormToolkit tk = getManagedForm().getToolkit();
 		Section section = addSection(tk, parent, "Roles");
 		Composite body = (Composite) section.getClient();

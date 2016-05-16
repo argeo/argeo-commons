@@ -101,7 +101,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	}
 
 	/** Creates the general section */
-	protected void appendOverviewPart(Composite parent, final Group group) {
+	protected void appendOverviewPart(final Composite parent, final Group group) {
 		FormToolkit tk = getManagedForm().getToolkit();
 		Composite body = addSection(tk, parent, "Main information");
 		GridLayout layout = new GridLayout(2, false);
