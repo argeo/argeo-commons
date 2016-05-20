@@ -26,6 +26,7 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+@Deprecated
 public class DefaultRepositoryRegister extends Observable implements
 		RepositoryRegister, ArgeoJcrConstants {
 	private final static Log log = LogFactory

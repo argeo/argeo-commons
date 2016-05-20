@@ -214,8 +214,13 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 			Configuration nodeConf = conf.getConfiguration(ArgeoJcrConstants.REPO_PID_NODE);
 			if (nodeConf.getProperties() == null) {
 				Dictionary<String, ?> props = getNodeConfigFromFrameworkProperties();
-				if (props == null)// TODO interactive configuration
+				if (props == null) {
+					// TODO interactive configuration
+					if (log.isDebugEnabled())
+						log.debug("No argeo.node.repo.type=localfs|h2|postgresql|memory"
+								+ " property defined, entering interactive mode...");
 					return;
+				}
 				nodeConf.update(props);
 			}
 		} catch (IOException e) {
@@ -238,8 +243,10 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 
 		if (repository == null)
 			repository = new NodeRepository();
-		if (repositoryFactory == null)
+		if (repositoryFactory == null) {
 			repositoryFactory = new OsgiJackrabbitRepositoryFactory();
+			repositoryFactory.setBundleContext(bc);
+		}
 		userAdmin = new NodeUserAdmin(transactionManager, repository);
 
 		// ADMIN UIs
@@ -545,13 +552,13 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 					props.put(key, sr.getProperty(key));
 				if (ServiceEvent.REGISTERED == event.getType()) {
 					try {
-						repositoryFactory.register(repository, props);
+						// repositoryFactory.register(repository, props);
 						dataHttp.registerRepositoryServlets(alias, repository);
 					} catch (Exception e) {
 						throw new CmsException("Could not publish JCR repository " + alias, e);
 					}
 				} else if (ServiceEvent.UNREGISTERING == event.getType()) {
-					repositoryFactory.unregister(repository, props);
+					// repositoryFactory.unregister(repository, props);
 					dataHttp.unregisterRepositoryServlets(alias);
 				}
 			}

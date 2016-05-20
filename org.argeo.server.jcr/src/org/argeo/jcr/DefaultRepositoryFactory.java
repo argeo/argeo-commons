@@ -29,6 +29,7 @@ import org.argeo.ArgeoException;
 /**
  * Simple implementation of {@link RepositoryFactory}, supporting OSGi aliases.
  */
+@Deprecated
 public class DefaultRepositoryFactory extends DefaultRepositoryRegister
 		implements RepositoryFactory, ArgeoJcrConstants {
 	@SuppressWarnings("rawtypes")

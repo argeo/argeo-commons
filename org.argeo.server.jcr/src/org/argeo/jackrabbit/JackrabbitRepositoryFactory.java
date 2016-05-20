@@ -17,6 +17,8 @@ package org.argeo.jackrabbit;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -36,7 +38,7 @@ import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
 import org.apache.jackrabbit.jcr2dav.Jcr2davRepositoryFactory;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoJcrConstants;
-import org.argeo.jcr.DefaultRepositoryFactory;
+import org.argeo.jcr.ArgeoJcrException;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.xml.sax.InputSource;
@@ -45,23 +47,21 @@ import org.xml.sax.InputSource;
  * Repository factory which can create new repositories and access remote
  * Jackrabbit repositories
  */
-public class JackrabbitRepositoryFactory extends DefaultRepositoryFactory
-		implements RepositoryFactory, ArgeoJcrConstants {
+public class JackrabbitRepositoryFactory implements RepositoryFactory, ArgeoJcrConstants {
 
-	private final static Log log = LogFactory
-			.getLog(JackrabbitRepositoryFactory.class);
+	private final static Log log = LogFactory.getLog(JackrabbitRepositoryFactory.class);
 
-	private Resource fileRepositoryConfiguration = new ClassPathResource(
-			"/org/argeo/jackrabbit/repository-h2.xml");
+	private Resource fileRepositoryConfiguration = new ClassPathResource("/org/argeo/jackrabbit/repository-h2.xml");
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Repository getRepository(Map parameters) throws RepositoryException {
-		// check if can be found by alias
-		Repository repository = super.getRepository(parameters);
-		if (repository != null)
-			return repository;
+		// // check if can be found by alias
+		// Repository repository = super.getRepository(parameters);
+		// if (repository != null)
+		// return repository;
 
 		// check if remote
+		Repository repository;
 		String uri = null;
 		if (parameters.containsKey(JCR_REPOSITORY_URI))
 			uri = parameters.get(JCR_REPOSITORY_URI).toString();
@@ -73,43 +73,50 @@ public class JackrabbitRepositoryFactory extends DefaultRepositoryFactory
 				repository = createRemoteRepository(uri);
 			else if (uri.startsWith("file"))// http, https
 				repository = createFileRepository(uri, parameters);
-			else if (uri.startsWith("vm")) {
-				log.warn("URI "
-						+ uri
-						+ " should have been managed by generic JCR repository factory");
-				repository = getRepositoryByAlias(getAliasFromURI(uri));
-			}
+			 else if (uri.startsWith("vm")) {
+			 log.warn("URI "
+			 + uri
+			 + " should have been managed by generic JCR repository factory");
+			 repository = getRepositoryByAlias(getAliasFromURI(uri));
+			 }
+			else
+				throw new ArgeoJcrException("Unrecognized URI format " + uri);
+
 		}
 
-		// publish under alias
-		if (parameters.containsKey(JCR_REPOSITORY_ALIAS)) {
-			Properties properties = new Properties();
-			properties.putAll(parameters);
+		else if (parameters.containsKey(JCR_REPOSITORY_ALIAS)) {
+			// Properties properties = new Properties();
+			// properties.putAll(parameters);
 			String alias = parameters.get(JCR_REPOSITORY_ALIAS).toString();
-			publish(alias, repository, properties);
-			log.info("Registered JCR repository under alias '" + alias
-					+ "' with properties " + properties);
-		}
+			// publish(alias, repository, properties);
+			// log.info("Registered JCR repository under alias '" + alias + "'
+			// with properties " + properties);
+			repository = getRepositoryByAlias(alias);
+		} else
+			throw new ArgeoJcrException("Not enough information in " + parameters);
+
+		if (repository == null)
+			throw new ArgeoJcrException("Repository not found " + parameters);
 
 		return repository;
 	}
 
-	protected Repository createRemoteRepository(String uri)
-			throws RepositoryException {
+	protected Repository getRepositoryByAlias(String alias) {
+		return null;
+	}
+
+	protected Repository createRemoteRepository(String uri) throws RepositoryException {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(JcrUtils.REPOSITORY_URI, uri);
-		Repository repository = new Jcr2davRepositoryFactory()
-				.getRepository(params);
+		Repository repository = new Jcr2davRepositoryFactory().getRepository(params);
 		if (repository == null)
-			throw new ArgeoException("Remote Davex repository " + uri
-					+ " not found");
+			throw new ArgeoException("Remote Davex repository " + uri + " not found");
 		log.info("Initialized remote Jackrabbit repository from uri " + uri);
 		return repository;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected Repository createFileRepository(final String uri, Map parameters)
-			throws RepositoryException {
+	protected Repository createFileRepository(final String uri, Map parameters) throws RepositoryException {
 		InputStream configurationIn = null;
 		try {
 			Properties vars = new Properties();
@@ -117,38 +124,46 @@ public class JackrabbitRepositoryFactory extends DefaultRepositoryFactory
 			String dirPath = uri.substring("file:".length());
 			File homeDir = new File(dirPath);
 			if (homeDir.exists() && !homeDir.isDirectory())
-				throw new ArgeoException("Repository home " + dirPath
-						+ " is not a directory");
+				throw new ArgeoException("Repository home " + dirPath + " is not a directory");
 			if (!homeDir.exists())
 				homeDir.mkdirs();
 			configurationIn = fileRepositoryConfiguration.getInputStream();
-			vars.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE,
-					homeDir.getCanonicalPath());
-			RepositoryConfig repositoryConfig = RepositoryConfig.create(
-					new InputSource(configurationIn), vars);
+			vars.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE, homeDir.getCanonicalPath());
+			RepositoryConfig repositoryConfig = RepositoryConfig.create(new InputSource(configurationIn), vars);
 
 			// TransientRepository repository = new
 			// TransientRepository(repositoryConfig);
-			final RepositoryImpl repository = RepositoryImpl
-					.create(repositoryConfig);
+			final RepositoryImpl repository = RepositoryImpl.create(repositoryConfig);
 			Session session = repository.login();
 			// FIXME make it generic
-			org.argeo.jcr.JcrUtils.addPrivilege(session, "/", "ROLE_ADMIN",
-					"jcr:all");
+			org.argeo.jcr.JcrUtils.addPrivilege(session, "/", "ROLE_ADMIN", "jcr:all");
 			org.argeo.jcr.JcrUtils.logoutQuietly(session);
-			Runtime.getRuntime().addShutdownHook(
-					new Thread("Clean JCR repository " + uri) {
-						public void run() {
-							repository.shutdown();
-							log.info("Destroyed repository " + uri);
-						}
-					});
+			Runtime.getRuntime().addShutdownHook(new Thread("Clean JCR repository " + uri) {
+				public void run() {
+					repository.shutdown();
+					log.info("Destroyed repository " + uri);
+				}
+			});
 			log.info("Initialized file Jackrabbit repository from uri " + uri);
 			return repository;
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot create repository " + uri, e);
 		} finally {
 			IOUtils.closeQuietly(configurationIn);
+		}
+	}
+
+	protected String getAliasFromURI(String uri) {
+		try {
+			URI uriObj = new URI(uri);
+			String alias = uriObj.getPath();
+			if (alias.charAt(0) == '/')
+				alias = alias.substring(1);
+			if (alias.charAt(alias.length() - 1) == '/')
+				alias = alias.substring(0, alias.length() - 1);
+			return alias;
+		} catch (URISyntaxException e) {
+			throw new ArgeoException("Cannot interpret URI " + uri, e);
 		}
 	}
 
@@ -161,8 +176,7 @@ public class JackrabbitRepositoryFactory extends DefaultRepositoryFactory
 
 	}
 
-	public void setFileRepositoryConfiguration(
-			Resource fileRepositoryConfiguration) {
+	public void setFileRepositoryConfiguration(Resource fileRepositoryConfiguration) {
 		this.fileRepositoryConfiguration = fileRepositoryConfiguration;
 	}
 
