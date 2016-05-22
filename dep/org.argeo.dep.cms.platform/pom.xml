@@ -78,18 +78,9 @@
 			<artifactId>org.quartz-scheduler.quartz.jobs</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>biz.aQute.bnd</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.argeo.tp.javax</groupId>
 			<artifactId>javax.mail</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>org.junit</artifactId>
-		</dependency>
-
 
 		<!-- RAP Workbench -->
 		<dependency>
