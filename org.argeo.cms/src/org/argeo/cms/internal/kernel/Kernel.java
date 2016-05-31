@@ -3,6 +3,7 @@ package org.argeo.cms.internal.kernel;
 import static bitronix.tm.TransactionManagerServices.getTransactionManager;
 import static bitronix.tm.TransactionManagerServices.getTransactionSynchronizationRegistry;
 import static java.util.Locale.ENGLISH;
+import static org.argeo.cms.internal.kernel.DataModelNamespace.CMS_DATA_MODEL_NAMESPACE;
 import static org.argeo.cms.internal.kernel.KernelUtils.getFrameworkProp;
 import static org.argeo.cms.internal.kernel.KernelUtils.getOsgiInstanceDir;
 import static org.argeo.jcr.ArgeoJcrConstants.ALIAS_NODE;
@@ -278,8 +279,6 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		return props;
 	}
 
-	private final static String CMS_DATA_MODEL = "cms.datamodel";
-
 	private void prepareDataModel(ManagedJackrabbitRepository nodeRepo) {
 		Session adminSession = null;
 		try {
@@ -303,12 +302,12 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 
 	private void processWiring(Session adminSession, BundleWiring wiring, Set<String> processed) {
 		// recursively process requirements first
-		List<BundleWire> requiredWires = wiring.getRequiredWires(CMS_DATA_MODEL);
+		List<BundleWire> requiredWires = wiring.getRequiredWires(CMS_DATA_MODEL_NAMESPACE);
 		for (BundleWire wire : requiredWires) {
 			processWiring(adminSession, wire.getProviderWiring(), processed);
 			// registerCnd(adminSession, wire.getCapability(), processed);
 		}
-		List<BundleCapability> capabilities = wiring.getCapabilities(CMS_DATA_MODEL);
+		List<BundleCapability> capabilities = wiring.getCapabilities(CMS_DATA_MODEL_NAMESPACE);
 		for (BundleCapability capability : capabilities) {
 			registerCnd(adminSession, capability, processed);
 		}
@@ -316,13 +315,13 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 
 	private void registerCnd(Session adminSession, BundleCapability capability, Set<String> processed) {
 		Map<String, Object> attrs = capability.getAttributes();
-		String name = attrs.get("name").toString();
+		String name = attrs.get(DataModelNamespace.CAPABILITY_NAME_ATTRIBUTE).toString();
 		if (processed.contains(name)) {
 			if (log.isTraceEnabled())
 				log.trace("Data model " + name + " has already been processed");
 			return;
 		}
-		String path = attrs.get("cnd").toString();
+		String path = attrs.get(DataModelNamespace.CAPABILITY_CND_ATTRIBUTE).toString();
 		URL url = capability.getRevision().getBundle().getResource(path);
 		try (Reader reader = new InputStreamReader(url.openStream())) {
 			CndImporter.registerNodeTypes(reader, adminSession, true);
