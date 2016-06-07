@@ -23,11 +23,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.rap.addons.fileupload.FileDetails;
-import org.eclipse.rap.addons.fileupload.FileUploadEvent;
-import org.eclipse.rap.addons.fileupload.FileUploadHandler;
-import org.eclipse.rap.addons.fileupload.FileUploadListener;
-import org.eclipse.rap.addons.fileupload.FileUploadReceiver;
+import org.eclipse.rap.fileupload.FileDetails;
+import org.eclipse.rap.fileupload.FileUploadEvent;
+import org.eclipse.rap.fileupload.FileUploadHandler;
+import org.eclipse.rap.fileupload.FileUploadListener;
+import org.eclipse.rap.fileupload.FileUploadReceiver;
 import org.eclipse.rap.rwt.service.ServerPushSession;
 import org.eclipse.rap.rwt.widgets.FileUpload;
 import org.eclipse.swt.SWT;

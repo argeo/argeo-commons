@@ -15,8 +15,8 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsImageManager;
 import org.argeo.cms.CmsNames;
 import org.argeo.jcr.JcrUtils;
-import org.eclipse.rap.addons.fileupload.FileDetails;
-import org.eclipse.rap.addons.fileupload.FileUploadReceiver;
+import org.eclipse.rap.fileupload.FileDetails;
+import org.eclipse.rap.fileupload.FileUploadReceiver;
 
 public class JcrFileUploadReceiver extends FileUploadReceiver implements
 		CmsNames {
