@@ -150,6 +150,14 @@
 			<artifactId>org.eclipse.equinox.app</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.argeo.tp.equinox</groupId>
+			<artifactId>org.eclipse.equinox.ds</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.equinox</groupId>
+			<artifactId>org.eclipse.equinox.metatype</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.argeo.tp.apache.felix</groupId>
 			<artifactId>org.apache.felix.gogo.runtime</artifactId>
 		</dependency>
