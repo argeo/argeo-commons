@@ -53,6 +53,8 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 	private final static String HEADER_AUTHORIZATION = "Authorization";
 	private final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
+	private final static String DEFAULT_PROTECTED_HANDLERS = "/org/argeo/cms/internal/kernel/protectedHandlers.xml";
+
 	private final HttpService httpService;
 
 	// FIXME Make it more unique
@@ -108,8 +110,7 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 		// Looks like a bug in Jackrabbit remoting init
 		ip.setProperty(RemotingServlet.INIT_PARAM_HOME, KernelUtils.getOsgiInstanceDir() + "/tmp/jackrabbit");
 		ip.setProperty(RemotingServlet.INIT_PARAM_TMP_DIRECTORY, "remoting");
-		// in order to avoid annoying warning.
-		ip.setProperty(RemotingServlet.INIT_PARAM_PROTECTED_HANDLERS_CONFIG, "");
+		ip.setProperty(RemotingServlet.INIT_PARAM_PROTECTED_HANDLERS_CONFIG, DEFAULT_PROTECTED_HANDLERS);
 		httpService.registerServlet(path, remotingServlet, ip, new DataHttpContext(anonymous));
 	}
 
