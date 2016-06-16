@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
-	<version>2.1.42-SNAPSHOT</version>
+	<version>2.1.41-SNAPSHOT</version>
 	<name>Argeo Commons</name>
 	<packaging>pom</packaging>
 	<properties>
