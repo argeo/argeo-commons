@@ -25,6 +25,7 @@ import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.ui.handlers.HandlerUtil;
 import org.osgi.service.useradmin.UserAdminEvent;
 
 /** Manage the transaction that is bound to the current perspective */
@@ -43,7 +44,8 @@ public class UserTransactionHandler extends AbstractHandler {
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		String commandId = event.getParameter(PARAM_COMMAND_ID);
-		UserTransaction userTransaction = userAdminWrapper.getUserTransaction();
+		final UserTransaction userTransaction = userAdminWrapper
+				.getUserTransaction();
 		try {
 			if (TRANSACTION_BEGIN.equals(commandId)) {
 				if (userTransaction.getStatus() != Status.STATUS_NO_TRANSACTION)
@@ -64,7 +66,17 @@ public class UserTransactionHandler extends AbstractHandler {
 							UserAdminEvent.ROLE_CHANGED, null));
 				}
 			}
-			UiAdminUtils.notifyTransactionStateChange(userTransaction);
+
+			// Try to remove invalid thread access errors when managing users.
+			HandlerUtil.getActivePart(event).getSite().getShell().getDisplay()
+					.asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							UiAdminUtils
+									.notifyTransactionStateChange(userTransaction);
+						}
+					});
+
 		} catch (ArgeoException e) {
 			throw e;
 		} catch (Exception e) {
