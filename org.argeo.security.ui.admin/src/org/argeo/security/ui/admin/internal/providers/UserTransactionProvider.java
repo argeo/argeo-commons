@@ -6,13 +6,19 @@ import java.util.Map;
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.ArgeoException;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
+import org.eclipse.swt.SWTException;
 import org.eclipse.ui.AbstractSourceProvider;
 import org.eclipse.ui.ISources;
 
 /** Observe and notify UI on UserTransaction state changes */
 public class UserTransactionProvider extends AbstractSourceProvider {
+	private final static Log log = LogFactory
+			.getLog(UserTransactionProvider.class);
+
 	public final static String TRANSACTION_STATE = SecurityAdminPlugin.PLUGIN_ID
 			+ ".userTransactionState";
 	public final static String STATUS_ACTIVE = "status.active";
@@ -53,8 +59,14 @@ public class UserTransactionProvider extends AbstractSourceProvider {
 
 	/** Publishes the ability to notify a state change */
 	public void fireTransactionStateChange() {
-		fireSourceChanged(ISources.WORKBENCH, TRANSACTION_STATE,
-				getInternalCurrentState());
+		try {
+			fireSourceChanged(ISources.WORKBENCH, TRANSACTION_STATE,
+					getInternalCurrentState());
+		} catch (SWTException e) {
+			// FIXME
+			log.warn("Cannot fire transaction state change event: "
+					+ e.getMessage());
+		}
 	}
 
 	/* DEPENDENCY INJECTION */
