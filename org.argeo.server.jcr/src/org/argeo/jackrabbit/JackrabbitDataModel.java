@@ -38,7 +38,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
 public class JackrabbitDataModel {
 	private final static Log log = LogFactory.getLog(JackrabbitDataModel.class);
 	private final static String DIGEST_ALGORITHM = "MD5";
-	final static String[] DEFAULT_CNDS = { "/org/argeo/jcr/argeo.cnd", "/org/argeo/cms/cms.cnd", "/org/argeo/jcr/docbook/docbook.cnd" };
+	final static String[] DEFAULT_CNDS = { "/org/argeo/jcr/argeo.cnd", "/org/argeo/cms/cms.cnd" };
 
 	// data model
 	/** Node type definitions in CND format */
