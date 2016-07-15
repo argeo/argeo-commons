@@ -256,6 +256,26 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		props.put("contextName", "user");
 		bc.registerService(ApplicationConfiguration.class, userUi, props);
 
+		// Bundle rapWorkbenchBundle =
+		// findBundle("org.eclipse.rap.ui.workbench");
+		// if (rapWorkbenchBundle != null)
+		// try {
+		// Class<?> clss = rapWorkbenchBundle
+		// .loadClass("org.eclipse.rap.ui.internal.servlet.WorkbenchApplicationConfiguration");
+		//
+		// Hashtable<String, String> rapWorkbenchProps = new Hashtable<String,
+		// String>();
+		// rapWorkbenchProps.put("contextName", "ui");
+		// ApplicationConfiguration workbenchApplicationConfiguration =
+		// (ApplicationConfiguration) clss
+		// .newInstance();
+		// bc.registerService(ApplicationConfiguration.class,
+		// workbenchApplicationConfiguration,
+		// rapWorkbenchProps);
+		// } catch (Exception e) {
+		// log.error("Cannot initalize RAP workbench", e);
+		// }
+
 		// Kernel thread
 		kernelThread = new KernelThread(this);
 		kernelThread.setContextClassLoader(Kernel.class.getClassLoader());
@@ -423,6 +443,14 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 			return null;
 		}
 		return bc.getService(configurationAdmin);
+	}
+
+	/** Can be null */
+	Bundle findBundle(String symbolicName) {
+		for (Bundle b : bc.getBundles())
+			if (b.getSymbolicName().equals(symbolicName))
+				return b;
+		return null;
 	}
 
 	private void initTransactionManager() {

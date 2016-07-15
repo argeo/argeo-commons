@@ -3,7 +3,6 @@ package org.argeo.cms.auth;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,11 +23,11 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.osgi.service.useradmin.Authorization;
 
-public class NodeUserLoginModule implements LoginModule {
+public class NodeUserLoginModule implements LoginModule, AuthConstants {
 	private Subject subject;
+	private Map<String, Object> sharedState = null;
 
-	private final static LdapName ROLE_KERNEL_NAME, ROLE_ADMIN_NAME,
-			ROLE_ANONYMOUS_NAME, ROLE_USER_NAME;
+	private final static LdapName ROLE_KERNEL_NAME, ROLE_ADMIN_NAME, ROLE_ANONYMOUS_NAME, ROLE_USER_NAME;
 	private final static List<LdapName> RESERVED_ROLES;
 	private final static X500Principal ROLE_ANONYMOUS_PRINCIPAL;
 	static {
@@ -37,13 +36,10 @@ public class NodeUserLoginModule implements LoginModule {
 			ROLE_ADMIN_NAME = new LdapName(AuthConstants.ROLE_ADMIN);
 			ROLE_USER_NAME = new LdapName(AuthConstants.ROLE_USER);
 			ROLE_ANONYMOUS_NAME = new LdapName(AuthConstants.ROLE_ANONYMOUS);
-			RESERVED_ROLES = Collections.unmodifiableList(Arrays
-					.asList(new LdapName[] { ROLE_KERNEL_NAME, ROLE_ADMIN_NAME,
-							ROLE_ANONYMOUS_NAME, ROLE_USER_NAME,
-							new LdapName(AuthConstants.ROLE_GROUP_ADMIN),
-							new LdapName(AuthConstants.ROLE_USER_ADMIN) }));
-			ROLE_ANONYMOUS_PRINCIPAL = new X500Principal(
-					ROLE_ANONYMOUS_NAME.toString());
+			RESERVED_ROLES = Collections.unmodifiableList(Arrays.asList(new LdapName[] { ROLE_KERNEL_NAME,
+					ROLE_ADMIN_NAME, ROLE_ANONYMOUS_NAME, ROLE_USER_NAME, new LdapName(AuthConstants.ROLE_GROUP_ADMIN),
+					new LdapName(AuthConstants.ROLE_USER_ADMIN) }));
+			ROLE_ANONYMOUS_PRINCIPAL = new X500Principal(ROLE_ANONYMOUS_NAME.toString());
 		} catch (InvalidNameException e) {
 			throw new Error("Cannot initialize login module class", e);
 		}
@@ -51,19 +47,24 @@ public class NodeUserLoginModule implements LoginModule {
 
 	private Authorization authorization;
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public void initialize(Subject subject, CallbackHandler callbackHandler,
-			Map<String, ?> sharedState, Map<String, ?> options) {
+	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,
+			Map<String, ?> options) {
 		this.subject = subject;
+		this.sharedState = (Map<String, Object>) sharedState;
 	}
 
 	@Override
 	public boolean login() throws LoginException {
-		Iterator<Authorization> auth = subject.getPrivateCredentials(
-				Authorization.class).iterator();
-		if (!auth.hasNext())
+		authorization = (Authorization) sharedState.get(SHARED_STATE_AUTHORIZATION);
+		if (authorization == null)
 			throw new FailedLoginException("No authorization available");
-		authorization = auth.next();
+		// Iterator<Authorization> auth = subject.getPrivateCredentials(
+		// Authorization.class).iterator();
+		// if (!auth.hasNext())
+		// throw new FailedLoginException("No authorization available");
+		// authorization = auth.next();
 		return true;
 	}
 
@@ -71,6 +72,9 @@ public class NodeUserLoginModule implements LoginModule {
 	public boolean commit() throws LoginException {
 		if (authorization == null)
 			throw new LoginException("Authorization should not be null");
+		// required for display name:
+		subject.getPrivateCredentials().add(authorization);
+
 		Set<Principal> principals = subject.getPrincipals();
 		try {
 			String authName = authorization.getName();
@@ -88,8 +92,7 @@ public class NodeUserLoginModule implements LoginModule {
 				checkUserName(name);
 				userPrincipal = new X500Principal(name.toString());
 				principals.add(userPrincipal);
-				principals.add(new ImpliedByPrincipal(ROLE_USER_NAME,
-						userPrincipal));
+				principals.add(new ImpliedByPrincipal(ROLE_USER_NAME, userPrincipal));
 			}
 
 			// Add roles provided by authorization
@@ -99,11 +102,9 @@ public class NodeUserLoginModule implements LoginModule {
 					// skip
 				} else {
 					checkImpliedPrincipalName(roleName);
-					principals.add(new ImpliedByPrincipal(roleName.toString(),
-							userPrincipal));
+					principals.add(new ImpliedByPrincipal(roleName.toString(), userPrincipal));
 					if (roleName.equals(ROLE_ADMIN_NAME))
-						principals.add(new AdminPrincipal(
-								SecurityConstants.ADMIN_ID));
+						principals.add(new AdminPrincipal(SecurityConstants.ADMIN_ID));
 				}
 			}
 
@@ -124,15 +125,11 @@ public class NodeUserLoginModule implements LoginModule {
 		if (subject == null)
 			throw new LoginException("Subject should not be null");
 		// Argeo
-		subject.getPrincipals().removeAll(
-				subject.getPrincipals(X500Principal.class));
-		subject.getPrincipals().removeAll(
-				subject.getPrincipals(ImpliedByPrincipal.class));
+		subject.getPrincipals().removeAll(subject.getPrincipals(X500Principal.class));
+		subject.getPrincipals().removeAll(subject.getPrincipals(ImpliedByPrincipal.class));
 		// Jackrabbit
-		subject.getPrincipals().removeAll(
-				subject.getPrincipals(AdminPrincipal.class));
-		subject.getPrincipals().removeAll(
-				subject.getPrincipals(AnonymousPrincipal.class));
+		subject.getPrincipals().removeAll(subject.getPrincipals(AdminPrincipal.class));
+		subject.getPrincipals().removeAll(subject.getPrincipals(AnonymousPrincipal.class));
 		cleanUp();
 		return true;
 	}
@@ -148,8 +145,7 @@ public class NodeUserLoginModule implements LoginModule {
 	}
 
 	private void checkImpliedPrincipalName(LdapName roleName) {
-		if (ROLE_USER_NAME.equals(roleName)
-				|| ROLE_ANONYMOUS_NAME.equals(roleName)
+		if (ROLE_USER_NAME.equals(roleName) || ROLE_ANONYMOUS_NAME.equals(roleName)
 				|| ROLE_KERNEL_NAME.equals(roleName))
 			throw new CmsException(roleName + " cannot be listed as role");
 	}

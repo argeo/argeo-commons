@@ -16,6 +16,7 @@
 		<argeo.rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-2-staging/7/x86_64</argeo.rpm.stagingRepository>
 		<!-- encoding, see http://is.gd/mvn_source_encoding -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.scm.id>code.argeo.org</project.scm.id>
 	</properties>
 	<modules>
 		<!-- Base -->

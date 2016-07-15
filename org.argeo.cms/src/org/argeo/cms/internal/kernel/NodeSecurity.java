@@ -18,11 +18,15 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.x500.X500Principal;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
 
 /** Low-level kernel security */
 class NodeSecurity implements KernelConstants {
+	private final static Log log = LogFactory.getLog(NodeSecurity.class);
+
 	public final static int HARDENED = 3;
 	public final static int STAGING = 2;
 	public final static int DEV = 1;
@@ -36,10 +40,8 @@ class NodeSecurity implements KernelConstants {
 
 	public NodeSecurity() {
 		// Configure JAAS first
-		URL url = getClass().getClassLoader().getResource(
-				KernelConstants.JAAS_CONFIG);
-		System.setProperty("java.security.auth.login.config",
-				url.toExternalForm());
+		URL url = getClass().getClassLoader().getResource(KernelConstants.JAAS_CONFIG);
+		System.setProperty("java.security.auth.login.config", url.toExternalForm());
 		// log.debug("JASS config: " + url.toExternalForm());
 		// disable Jetty autostart
 		// System.setProperty("org.eclipse.equinox.http.jetty.autostart",
@@ -47,34 +49,43 @@ class NodeSecurity implements KernelConstants {
 
 		firstInit = !new File(getOsgiInstanceDir(), DIR_NODE).exists();
 
-		this.keyStoreFile = new File(KernelUtils.getOsgiInstanceDir(),
-				"node.p12");
-		this.kernelSubject = logInKernel();
+		this.keyStoreFile = new File(KernelUtils.getOsgiInstanceDir(), "node.p12");
+		createKeyStoreIfNeeded();
+		if (keyStoreFile.exists())
+			this.kernelSubject = logInHardenedKernel();
+		else
+			this.kernelSubject = logInKernel();
 	}
 
 	private Subject logInKernel() {
 		final Subject kernelSubject = new Subject();
-		// createKeyStoreIfNeeded();
+		try {
+			LoginContext kernelLc = new LoginContext(KernelConstants.LOGIN_CONTEXT_KERNEL, kernelSubject);
+			kernelLc.login();
+		} catch (LoginException e) {
+			throw new CmsException("Cannot log in kernel", e);
+		}
+		return kernelSubject;
+	}
+
+	private Subject logInHardenedKernel() {
+		final Subject kernelSubject = new Subject();
+		createKeyStoreIfNeeded();
 
 		CallbackHandler cbHandler = new CallbackHandler() {
 
 			@Override
-			public void handle(Callback[] callbacks) throws IOException,
-					UnsupportedCallbackException {
+			public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
 				// alias
-				((NameCallback) callbacks[1])
-						.setName(AuthConstants.ROLE_KERNEL);
+				((NameCallback) callbacks[1]).setName(AuthConstants.ROLE_KERNEL);
 				// store pwd
-				((PasswordCallback) callbacks[2]).setPassword("changeit"
-						.toCharArray());
+				((PasswordCallback) callbacks[2]).setPassword("changeit".toCharArray());
 				// key pwd
-				((PasswordCallback) callbacks[3]).setPassword("changeit"
-						.toCharArray());
+				((PasswordCallback) callbacks[3]).setPassword("changeit".toCharArray());
 			}
 		};
 		try {
-			LoginContext kernelLc = new LoginContext(
-					KernelConstants.LOGIN_CONTEXT_KERNEL, kernelSubject,
+			LoginContext kernelLc = new LoginContext(KernelConstants.LOGIN_CONTEXT_HARDENED_KERNEL, kernelSubject,
 					cbHandler);
 			kernelLc.login();
 		} catch (LoginException e) {
@@ -86,8 +97,7 @@ class NodeSecurity implements KernelConstants {
 	void destroy() {
 		// Logout kernel
 		try {
-			LoginContext kernelLc = new LoginContext(
-					KernelConstants.LOGIN_CONTEXT_KERNEL, kernelSubject);
+			LoginContext kernelLc = new LoginContext(KernelConstants.LOGIN_CONTEXT_KERNEL, kernelSubject);
 			kernelLc.logout();
 		} catch (LoginException e) {
 			throw new CmsException("Cannot log out kernel", e);
@@ -110,28 +120,31 @@ class NodeSecurity implements KernelConstants {
 
 	public void setSecurityLevel(int newValue) {
 		if (newValue != STAGING || newValue != DEV)
-			throw new CmsException("Invalid value for security level "
-					+ newValue);
+			throw new CmsException("Invalid value for security level " + newValue);
 		if (newValue >= securityLevel)
 			throw new CmsException(
-					"Impossible to increase security level (from "
-							+ securityLevel + " to " + newValue + ")");
+					"Impossible to increase security level (from " + securityLevel + " to " + newValue + ")");
 		securityLevel = newValue;
 	}
 
 	private void createKeyStoreIfNeeded() {
+		// for (Provider provider : Security.getProviders())
+		// System.out.println(provider.getName());
+
 		char[] ksPwd = "changeit".toCharArray();
 		char[] keyPwd = Arrays.copyOf(ksPwd, ksPwd.length);
 		if (!keyStoreFile.exists()) {
 			try {
 				keyStoreFile.getParentFile().mkdirs();
 				KeyStore keyStore = PkiUtils.getKeyStore(keyStoreFile, ksPwd);
-				PkiUtils.generateSelfSignedCertificate(keyStore,
-						new X500Principal(AuthConstants.ROLE_KERNEL), keyPwd);
+				PkiUtils.generateSelfSignedCertificate(keyStore, new X500Principal(AuthConstants.ROLE_KERNEL), keyPwd);
 				PkiUtils.saveKeyStore(keyStoreFile, ksPwd, keyStore);
+				if (log.isDebugEnabled())
+					log.debug("Created keystore " + keyStoreFile);
 			} catch (Exception e) {
-				throw new CmsException("Cannot create key store "
-						+ keyStoreFile, e);
+				if (keyStoreFile.length() == 0)
+					keyStoreFile.delete();
+				log.error("Cannot create keystore " + keyStoreFile, e);
 			}
 		}
 	}
