@@ -35,7 +35,6 @@ public class UserFilter extends ViewerFilter {
 	@Override
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
 		User user = (User) element;
-
 		if (!showSystemRole
 				&& user.getName().matches(
 						".*(" + AuthConstants.ROLES_BASEDN + ")"))

@@ -39,8 +39,7 @@ class UserLP extends ColumnLabelProvider {
 		// Self as bold
 		try {
 			LdapName selfUserName = UsersUtils.getLdapName();
-			String userName = UsersUtils.getProperty((User) element,
-					LdifName.dn.name());
+			String userName = ((User) element).getName();
 			LdapName userLdapName = new LdapName(userName);
 			if (userLdapName.equals(selfUserName)) {
 				if (bold == null)
@@ -66,7 +65,7 @@ class UserLP extends ColumnLabelProvider {
 	public Image getImage(Object element) {
 		if (COL_ICON.equals(currType)) {
 			User user = (User) element;
-			String dn = (String) user.getProperties().get(LdifName.dn.name());
+			String dn = user.getName();
 			if (dn.endsWith(UsersUtils.ROLES_BASEDN))
 				return UsersImages.ICON_ROLE;
 			else if (user.getType() == Role.GROUP)
