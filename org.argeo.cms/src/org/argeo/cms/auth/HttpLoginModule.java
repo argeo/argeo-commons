@@ -18,9 +18,9 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.internal.kernel.Activator;
 import org.argeo.cms.internal.kernel.WebCmsSessionImpl;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
@@ -42,7 +42,8 @@ public class HttpLoginModule implements LoginModule, AuthConstants {
 	@Override
 	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,
 			Map<String, ?> options) {
-		bc = Activator.getBundleContext();
+		bc = FrameworkUtil.getBundle(HttpLoginModule.class).getBundleContext();
+		assert bc != null;
 		this.subject = subject;
 		this.callbackHandler = callbackHandler;
 		this.sharedState = (Map<String, Object>) sharedState;

@@ -17,9 +17,9 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
 import org.argeo.ArgeoException;
-import org.argeo.cms.internal.kernel.Activator;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
@@ -42,7 +42,8 @@ public class UserAdminLoginModule implements LoginModule, AuthConstants {
 	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,
 			Map<String, ?> options) {
 		try {
-			bc = Activator.getBundleContext();
+			bc = FrameworkUtil.getBundle(UserAdminLoginModule.class).getBundleContext();
+			assert bc != null;
 			// this.subject = subject;
 			this.callbackHandler = callbackHandler;
 			this.sharedState = (Map<String, Object>) sharedState;

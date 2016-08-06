@@ -3,12 +3,17 @@ package org.argeo.cms.internal.kernel;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.PrivilegedAction;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.TreeSet;
 
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
@@ -17,7 +22,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 
 /** Package utilities */
 class KernelUtils implements KernelConstants {
@@ -37,8 +44,7 @@ class KernelUtils implements KernelConstants {
 		try {
 			props.load(cl.getResourceAsStream(resource));
 		} catch (IOException e) {
-			throw new CmsException("Cannot load " + resource
-					+ " from classpath", e);
+			throw new CmsException("Cannot load " + resource + " from classpath", e);
 		}
 		return asDictionary(props);
 	}
@@ -55,9 +61,17 @@ class KernelUtils implements KernelConstants {
 	}
 
 	static File getOsgiInstanceDir() {
-		return new File(Activator.getBundleContext()
-				.getProperty(OSGI_INSTANCE_AREA).substring("file:".length()))
+		return new File(getBundleContext().getProperty(OSGI_INSTANCE_AREA).substring("file:".length()))
 				.getAbsoluteFile();
+	}
+
+	static URI getOsgiInstanceUri(String relativePath) {
+		String osgiInstanceBaseUri = getFrameworkProp(OSGI_INSTANCE_AREA);
+		try {
+			return new URI(osgiInstanceBaseUri + (relativePath != null ? relativePath : ""));
+		} catch (URISyntaxException e) {
+			throw new CmsException("Cannot get OSGi instance URI for " + relativePath, e);
+		}
 	}
 
 	static String getOsgiInstancePath(String relativePath) {
@@ -65,27 +79,23 @@ class KernelUtils implements KernelConstants {
 			if (relativePath == null)
 				return getOsgiInstanceDir().getCanonicalPath();
 			else
-				return new File(getOsgiInstanceDir(), relativePath)
-						.getCanonicalPath();
+				return new File(getOsgiInstanceDir(), relativePath).getCanonicalPath();
 		} catch (IOException e) {
-			throw new CmsException("Cannot get instance path for "
-					+ relativePath, e);
+			throw new CmsException("Cannot get instance path for " + relativePath, e);
 		}
 	}
 
 	static File getOsgiConfigurationFile(String relativePath) {
 		try {
-			return new File(new URI(Activator.getBundleContext().getProperty(
-					OSGI_CONFIGURATION_AREA)
-					+ relativePath)).getCanonicalFile();
+			return new File(new URI(getBundleContext().getProperty(OSGI_CONFIGURATION_AREA) + relativePath))
+					.getCanonicalFile();
 		} catch (Exception e) {
-			throw new CmsException("Cannot get configuration file for "
-					+ relativePath, e);
+			throw new CmsException("Cannot get configuration file for " + relativePath, e);
 		}
 	}
 
 	static String getFrameworkProp(String key, String def) {
-		String value = Activator.getBundleContext().getProperty(key);
+		String value = getBundleContext().getProperty(key);
 		if (value == null)
 			return def;
 		return value;
@@ -100,8 +110,7 @@ class KernelUtils implements KernelConstants {
 		Subject subject = new Subject();
 		LoginContext lc;
 		try {
-			lc = new LoginContext(AuthConstants.LOGIN_CONTEXT_ANONYMOUS,
-					subject);
+			lc = new LoginContext(AuthConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
 			lc.login();
 			return subject;
 		} catch (LoginException e) {
@@ -133,19 +142,17 @@ class KernelUtils implements KernelConstants {
 	static void logRequestHeaders(Log log, HttpServletRequest request) {
 		if (!log.isDebugEnabled())
 			return;
-		for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames
-				.hasMoreElements();) {
+		for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
 			String headerName = headerNames.nextElement();
 			Object headerValue = request.getHeader(headerName);
 			log.debug(headerName + ": " + headerValue);
 		}
-		log.debug(request.getRequestURI()+"\n");
+		log.debug(request.getRequestURI() + "\n");
 	}
 
 	static void logFrameworkProperties(Log log) {
-		BundleContext bc = Activator.getBundleContext();
-		for (Object sysProp : new TreeSet<Object>(System.getProperties()
-				.keySet())) {
+		BundleContext bc = getBundleContext();
+		for (Object sysProp : new TreeSet<Object>(System.getProperties().keySet())) {
 			log.debug(sysProp + "=" + bc.getProperty(sysProp.toString()));
 		}
 		// String[] keys = { Constants.FRAMEWORK_STORAGE,
@@ -157,6 +164,54 @@ class KernelUtils implements KernelConstants {
 		// Constants.FRAMEWORK_LANGUAGE, Constants.FRAMEWORK_UUID };
 		// for (String key : keys)
 		// log.debug(key + "=" + bc.getProperty(key));
+	}
+
+	static Session openAdminSession(Repository repository) {
+		return openAdminSession(repository, null);
+	}
+
+	static Session openAdminSession(final Repository repository, final String workspaceName) {
+		ClassLoader currentCl = Thread.currentThread().getContextClassLoader();
+		Thread.currentThread().setContextClassLoader(KernelUtils.class.getClassLoader());
+		LoginContext loginContext;
+		try {
+			loginContext = new LoginContext(AuthConstants.LOGIN_CONTEXT_DATA_ADMIN);
+			loginContext.login();
+		} catch (LoginException e1) {
+			throw new CmsException("Could not login as data admin", e1);
+		} finally {
+			Thread.currentThread().setContextClassLoader(currentCl);
+		}
+		return Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Session>() {
+
+			@Override
+			public Session run() {
+				try {
+					return repository.login(workspaceName);
+				} catch (RepositoryException e) {
+					throw new CmsException("Cannot open admin session", e);
+				}
+			}
+
+		});
+	}
+
+	/**
+	 * @return the {@link BundleContext} of the {@link Bundle} which provided
+	 *         this class, never null.
+	 * @throws CmsException
+	 *             if the related bundle is not active
+	 */
+	public static BundleContext getBundleContext(Class<?> clzz) {
+		Bundle bundle = FrameworkUtil.getBundle(clzz);
+		BundleContext bc = bundle.getBundleContext();
+		if (bc == null)
+			throw new CmsException("Bundle " + bundle.getSymbolicName() + " is not active");
+		return bc;
+	}
+
+	private static BundleContext getBundleContext() {
+		return getBundleContext(KernelUtils.class);
 	}
 
 	private KernelUtils() {

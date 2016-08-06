@@ -16,11 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jcr.Node;
 import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.security.Privilege;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.transaction.TransactionManager;
@@ -28,24 +24,24 @@ import javax.transaction.TransactionManager;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
-import org.argeo.jcr.ArgeoJcrConstants;
-import org.argeo.jcr.ArgeoNames;
-import org.argeo.jcr.ArgeoTypes;
-import org.argeo.jcr.JcrUtils;
-import org.argeo.jcr.UserJcrUtils;
+import org.argeo.node.NodeConstants;
 import org.argeo.osgi.useradmin.LdapUserAdmin;
 import org.argeo.osgi.useradmin.LdifUserAdmin;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.osgi.useradmin.UserDirectory;
 import org.argeo.osgi.useradmin.UserDirectoryException;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
+import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 import bitronix.tm.resource.ehcache.EhCacheXAResourceProducer;
 
@@ -64,33 +60,77 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 		}
 	}
 
+	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
+
 	// DAOs
 	private UserAdmin nodeRoles = null;
 	private Map<LdapName, UserAdmin> userAdmins = new HashMap<LdapName, UserAdmin>();
 
 	// JCR
-	/** The home base path. */
-	private String homeBasePath = "/home";
-	private String peopleBasePath = ArgeoJcrConstants.PEOPLE_BASE_PATH;
-	private Repository repository;
-	private Session adminSession;
+	// private String homeBasePath = "/home";
+	// private String peopleBasePath = ArgeoJcrConstants.PEOPLE_BASE_PATH;
+	// private Repository repository;
+	// private Session adminSession;
 
 	private final String cacheName = UserDirectory.class.getName();
 
-	public NodeUserAdmin(TransactionManager transactionManager, Repository repository) {
-		this.repository = repository;
-		try {
-			this.adminSession = this.repository.login();
-		} catch (RepositoryException e) {
-			throw new CmsException("Cannot log-in", e);
+	public NodeUserAdmin() {
+		// DAOs
+		File nodeBaseDir = new File(getOsgiInstanceDir(), DIR_NODE);
+		nodeBaseDir.mkdirs();
+		String userAdminUri = getFrameworkProp(NodeConstants.USERADMIN_URIS);
+		initUserAdmins(userAdminUri, nodeBaseDir);
+		String nodeRolesUri = getFrameworkProp(NodeConstants.ROLES_URI);
+		initNodeRoles(nodeRolesUri, nodeBaseDir);
+
+		new ServiceTracker<>(bc, TransactionManager.class, new TransactionManagerStc()).open();
+	}
+
+	private class TransactionManagerStc implements ServiceTrackerCustomizer<TransactionManager, TransactionManager> {
+
+		@Override
+		public TransactionManager addingService(ServiceReference<TransactionManager> reference) {
+			TransactionManager transactionManager = bc.getService(reference);
+			((UserDirectory) nodeRoles).setTransactionManager(transactionManager);
+			for (UserAdmin userAdmin : userAdmins.values()) {
+				if (userAdmin instanceof UserDirectory)
+					((UserDirectory) userAdmin).setTransactionManager(transactionManager);
+			}
+			if (log.isDebugEnabled())
+				log.debug("Set transaction manager");
+			return transactionManager;
 		}
+
+		@Override
+		public void modifiedService(ServiceReference<TransactionManager> reference, TransactionManager service) {
+		}
+
+		@Override
+		public void removedService(ServiceReference<TransactionManager> reference, TransactionManager service) {
+			((UserDirectory) nodeRoles).setTransactionManager(null);
+			for (UserAdmin userAdmin : userAdmins.values()) {
+				if (userAdmin instanceof UserDirectory)
+					((UserDirectory) userAdmin).setTransactionManager(null);
+			}
+		}
+
+	}
+
+	@Deprecated
+	public NodeUserAdmin(TransactionManager transactionManager, Repository repository) {
+		// this.repository = repository;
+		// try {
+		// this.adminSession = this.repository.login();
+		// } catch (RepositoryException e) {
+		// throw new CmsException("Cannot log-in", e);
+		// }
 
 		// DAOs
 		File nodeBaseDir = new File(getOsgiInstanceDir(), DIR_NODE);
 		nodeBaseDir.mkdirs();
-		String userAdminUri = getFrameworkProp(USERADMIN_URIS);
+		String userAdminUri = getFrameworkProp(NodeConstants.USERADMIN_URIS);
 		initUserAdmins(userAdminUri, nodeBaseDir);
-		String nodeRolesUri = getFrameworkProp(ROLES_URI);
+		String nodeRolesUri = getFrameworkProp(NodeConstants.ROLES_URI);
 		initNodeRoles(nodeRolesUri, nodeBaseDir);
 
 		// Transaction manager
@@ -101,10 +141,10 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 		}
 
 		// JCR
-		initJcr(adminSession);
+		// initJcr(adminSession);
 	}
 
-	Dictionary<String, ?> currentState() {
+	Dictionary<String, Object> currentState() {
 		Dictionary<String, Object> res = new Hashtable<String, Object>();
 		for (LdapName name : userAdmins.keySet()) {
 			StringBuilder buf = new StringBuilder();
@@ -189,7 +229,7 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 		}
 		Authorization authorization = new NodeAuthorization(rawAuthorization.getName(), rawAuthorization.toString(),
 				systemRoles, rawAuthorization.getRoles());
-		syncJcr(adminSession, authorization);
+		// syncJcr(adminSession, authorization);
 		return authorization;
 	}
 
@@ -339,97 +379,104 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 	/*
 	 * JCR
 	 */
-	private void initJcr(Session adminSession) {
-		try {
-			JcrUtils.mkdirs(adminSession, homeBasePath);
-			JcrUtils.mkdirs(adminSession, peopleBasePath);
-			adminSession.save();
-
-			JcrUtils.addPrivilege(adminSession, homeBasePath, AuthConstants.ROLE_USER_ADMIN, Privilege.JCR_READ);
-			JcrUtils.addPrivilege(adminSession, peopleBasePath, AuthConstants.ROLE_USER_ADMIN, Privilege.JCR_ALL);
-			adminSession.save();
-		} catch (RepositoryException e) {
-			throw new CmsException("Cannot initialize node user admin", e);
-		}
-	}
-
-	private Node syncJcr(Session session, Authorization authorization) {
-		// TODO check user name validity (e.g. should not start by ROLE_)
-		String username = authorization.getName();
-		// String[] roles = authorization.getRoles();
-		try {
-			Node userHome = UserJcrUtils.getUserHome(session, username);
-			if (userHome == null) {
-				String homePath = generateUserPath(homeBasePath, username);
-				if (session.itemExists(homePath))// duplicate user id
-					userHome = session.getNode(homePath).getParent().addNode(JcrUtils.lastPathElement(homePath));
-				else
-					userHome = JcrUtils.mkdirs(session, homePath);
-				// userHome = JcrUtils.mkfolders(session, homePath);
-				userHome.addMixin(ArgeoTypes.ARGEO_USER_HOME);
-				userHome.setProperty(ArgeoNames.ARGEO_USER_ID, username);
-				session.save();
-
-				JcrUtils.clearAccessControList(session, homePath, username);
-				JcrUtils.addPrivilege(session, homePath, username, Privilege.JCR_ALL);
-			}
-
-			Node userProfile = UserJcrUtils.getUserProfile(session, username);
-			// new user
-			if (userProfile == null) {
-				String personPath = generateUserPath(peopleBasePath, username);
-				Node personBase;
-				if (session.itemExists(personPath))// duplicate user id
-					personBase = session.getNode(personPath).getParent().addNode(JcrUtils.lastPathElement(personPath));
-				else
-					personBase = JcrUtils.mkdirs(session, personPath);
-				userProfile = personBase.addNode(ArgeoNames.ARGEO_PROFILE);
-				userProfile.addMixin(ArgeoTypes.ARGEO_USER_PROFILE);
-				userProfile.setProperty(ArgeoNames.ARGEO_USER_ID, username);
-				userProfile.setProperty(ArgeoNames.ARGEO_ENABLED, true);
-				userProfile.setProperty(ArgeoNames.ARGEO_ACCOUNT_NON_EXPIRED, true);
-				userProfile.setProperty(ArgeoNames.ARGEO_ACCOUNT_NON_LOCKED, true);
-				userProfile.setProperty(ArgeoNames.ARGEO_CREDENTIALS_NON_EXPIRED, true);
-				session.save();
-
-				JcrUtils.clearAccessControList(session, userProfile.getPath(), username);
-				JcrUtils.addPrivilege(session, userProfile.getPath(), username, Privilege.JCR_READ);
-			}
-
-			// Remote roles
-			// if (roles != null) {
-			// writeRemoteRoles(userProfile, roles);
-			// }
-			if (adminSession.hasPendingChanges())
-				adminSession.save();
-			return userProfile;
-		} catch (RepositoryException e) {
-			JcrUtils.discardQuietly(session);
-			throw new ArgeoException("Cannot sync node security model for " + username, e);
-		}
-	}
-
-	/** Generate path for a new user home */
-	private String generateUserPath(String base, String username) {
-		LdapName dn;
-		try {
-			dn = new LdapName(username);
-		} catch (InvalidNameException e) {
-			throw new ArgeoException("Invalid name " + username, e);
-		}
-		String userId = dn.getRdn(dn.size() - 1).getValue().toString();
-		int atIndex = userId.indexOf('@');
-		if (atIndex > 0) {
-			String domain = userId.substring(0, atIndex);
-			String name = userId.substring(atIndex + 1);
-			return base + '/' + JcrUtils.firstCharsToPath(domain, 2) + '/' + domain + '/'
-					+ JcrUtils.firstCharsToPath(name, 2) + '/' + name;
-		} else if (atIndex == 0 || atIndex == (userId.length() - 1)) {
-			throw new ArgeoException("Unsupported username " + userId);
-		} else {
-			return base + '/' + JcrUtils.firstCharsToPath(userId, 2) + '/' + userId;
-		}
-	}
+	// private void initJcr(Session adminSession) {
+	// try {
+	// JcrUtils.mkdirs(adminSession, homeBasePath);
+	// JcrUtils.mkdirs(adminSession, peopleBasePath);
+	// adminSession.save();
+	//
+	// JcrUtils.addPrivilege(adminSession, homeBasePath,
+	// AuthConstants.ROLE_USER_ADMIN, Privilege.JCR_READ);
+	// JcrUtils.addPrivilege(adminSession, peopleBasePath,
+	// AuthConstants.ROLE_USER_ADMIN, Privilege.JCR_ALL);
+	// adminSession.save();
+	// } catch (RepositoryException e) {
+	// throw new CmsException("Cannot initialize node user admin", e);
+	// }
+	// }
+	//
+	// private Node syncJcr(Session session, Authorization authorization) {
+	// // TODO check user name validity (e.g. should not start by ROLE_)
+	// String username = authorization.getName();
+	// // String[] roles = authorization.getRoles();
+	// try {
+	// Node userHome = UserJcrUtils.getUserHome(session, username);
+	// if (userHome == null) {
+	// String homePath = generateUserPath(homeBasePath, username);
+	// if (session.itemExists(homePath))// duplicate user id
+	// userHome =
+	// session.getNode(homePath).getParent().addNode(JcrUtils.lastPathElement(homePath));
+	// else
+	// userHome = JcrUtils.mkdirs(session, homePath);
+	// // userHome = JcrUtils.mkfolders(session, homePath);
+	// userHome.addMixin(ArgeoTypes.ARGEO_USER_HOME);
+	// userHome.setProperty(ArgeoNames.ARGEO_USER_ID, username);
+	// session.save();
+	//
+	// JcrUtils.clearAccessControList(session, homePath, username);
+	// JcrUtils.addPrivilege(session, homePath, username, Privilege.JCR_ALL);
+	// }
+	//
+	// Node userProfile = UserJcrUtils.getUserProfile(session, username);
+	// // new user
+	// if (userProfile == null) {
+	// String personPath = generateUserPath(peopleBasePath, username);
+	// Node personBase;
+	// if (session.itemExists(personPath))// duplicate user id
+	// personBase =
+	// session.getNode(personPath).getParent().addNode(JcrUtils.lastPathElement(personPath));
+	// else
+	// personBase = JcrUtils.mkdirs(session, personPath);
+	// userProfile = personBase.addNode(ArgeoNames.ARGEO_PROFILE);
+	// userProfile.addMixin(ArgeoTypes.ARGEO_USER_PROFILE);
+	// userProfile.setProperty(ArgeoNames.ARGEO_USER_ID, username);
+	// userProfile.setProperty(ArgeoNames.ARGEO_ENABLED, true);
+	// userProfile.setProperty(ArgeoNames.ARGEO_ACCOUNT_NON_EXPIRED, true);
+	// userProfile.setProperty(ArgeoNames.ARGEO_ACCOUNT_NON_LOCKED, true);
+	// userProfile.setProperty(ArgeoNames.ARGEO_CREDENTIALS_NON_EXPIRED, true);
+	// session.save();
+	//
+	// JcrUtils.clearAccessControList(session, userProfile.getPath(), username);
+	// JcrUtils.addPrivilege(session, userProfile.getPath(), username,
+	// Privilege.JCR_READ);
+	// }
+	//
+	// // Remote roles
+	// // if (roles != null) {
+	// // writeRemoteRoles(userProfile, roles);
+	// // }
+	// if (adminSession.hasPendingChanges())
+	// adminSession.save();
+	// return userProfile;
+	// } catch (RepositoryException e) {
+	// JcrUtils.discardQuietly(session);
+	// throw new ArgeoException("Cannot sync node security model for " +
+	// username, e);
+	// }
+	// }
+	//
+	// /** Generate path for a new user home */
+	// private String generateUserPath(String base, String username) {
+	// LdapName dn;
+	// try {
+	// dn = new LdapName(username);
+	// } catch (InvalidNameException e) {
+	// throw new ArgeoException("Invalid name " + username, e);
+	// }
+	// String userId = dn.getRdn(dn.size() - 1).getValue().toString();
+	// int atIndex = userId.indexOf('@');
+	// if (atIndex > 0) {
+	// String domain = userId.substring(0, atIndex);
+	// String name = userId.substring(atIndex + 1);
+	// return base + '/' + JcrUtils.firstCharsToPath(domain, 2) + '/' + domain +
+	// '/'
+	// + JcrUtils.firstCharsToPath(name, 2) + '/' + name;
+	// } else if (atIndex == 0 || atIndex == (userId.length() - 1)) {
+	// throw new ArgeoException("Unsupported username " + userId);
+	// } else {
+	// return base + '/' + JcrUtils.firstCharsToPath(userId, 2) + '/' + userId;
+	// }
+	// }
 
 	// /** Write remote roles used by remote access in the home directory */
 	// private void writeRemoteRoles(Node userHome, String[] roles)

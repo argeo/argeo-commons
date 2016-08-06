@@ -35,7 +35,9 @@ public interface ArgeoJcrConstants {
 	 * JCR repository.
 	 */
 	public final static String ALIAS_NODE = "node";
+	public final static String ALIAS_HOME = "home";
 	public final static String BASE_REPO_PID = "argeo.repo.";
 	public final static String REPO_PID_NODE = BASE_REPO_PID + ALIAS_NODE;
+	public final static String JACKRABBIT_REPO_FACTORY_PID = "argeo.repo.factory.jackrabbit";
 
 }

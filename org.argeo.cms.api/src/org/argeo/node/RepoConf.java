@@ -1,4 +1,4 @@
-package org.argeo.jcr;
+package org.argeo.node;
 
 /** JCR repository configuration */
 public enum RepoConf {
@@ -12,6 +12,9 @@ public enum RepoConf {
 	dbuser(null),
 	/** Database password */
 	dbpassword(null),
+
+	/** The identifier (can be an URL locating the repo) */
+	uri(null),
 
 	//
 	// JACKRABBIT SPECIFIC

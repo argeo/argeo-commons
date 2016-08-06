@@ -41,13 +41,11 @@ public class LocaleChoice {
 		// based on language only
 		if (defaultIndex == null)
 			for (int i = 0; i < locales.size(); i++)
-				if (locales.get(i).getLanguage()
-						.equals(defaultLocale.getLanguage()))
+				if (locales.get(i).getLanguage().equals(defaultLocale.getLanguage()))
 					defaultIndex = i;
 
 		if (defaultIndex == null)
-			throw new ArgeoException("Default locale " + defaultLocale
-					+ " is not in available locales " + locales);
+			throw new ArgeoException("Default locale " + defaultLocale + " is not in available locales " + locales);
 		this.defaultIndex = defaultIndex;
 
 		this.selectedIndex = defaultIndex;
@@ -66,13 +64,10 @@ public class LocaleChoice {
 		for (int i = 0; i < locales.size(); i++) {
 			Locale locale = locales.get(i);
 			if (locale.getCountry().equals(""))
-				labels[i] = locale.getDisplayLanguage(locale) + " ["
-						+ locale.getLanguage() + "]";
+				labels[i] = locale.getDisplayLanguage(locale) + " [" + locale.getLanguage() + "]";
 			else
-				labels[i] = locale.getDisplayLanguage(locale) + " ("
-						+ locale.getDisplayCountry(locale) + ") ["
-						+ locale.getLanguage() + "_" + locale.getCountry()
-						+ "]";
+				labels[i] = locale.getDisplayLanguage(locale) + " (" + locale.getDisplayCountry(locale) + ") ["
+						+ locale.getLanguage() + "_" + locale.getCountry() + "]";
 
 		}
 		return labels;
@@ -105,11 +100,11 @@ public class LocaleChoice {
 	}
 
 	/** Returns null if argument is null. */
-	public static List<Locale> asLocaleList(String locales) {
+	public static List<Locale> asLocaleList(Object locales) {
 		if (locales == null)
 			return null;
 		ArrayList<Locale> availableLocales = new ArrayList<Locale>();
-		String[] codes = locales.split(",");
+		String[] codes = locales.toString().split(",");
 		for (int i = 0; i < codes.length; i++) {
 			String code = codes[i];
 			// variant not supported
@@ -130,8 +125,7 @@ public class LocaleChoice {
 	public static void main(String[] args) {
 		for (String isoL : Locale.getISOLanguages()) {
 			Locale locale = new Locale(isoL);
-			System.out.println(isoL + "\t" + locale.getDisplayLanguage() + "\t"
-					+ locale.getDisplayLanguage(locale));
+			System.out.println(isoL + "\t" + locale.getDisplayLanguage() + "\t" + locale.getDisplayLanguage(locale));
 		}
 	}
 

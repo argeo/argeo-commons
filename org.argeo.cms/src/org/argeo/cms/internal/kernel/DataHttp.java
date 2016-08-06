@@ -37,10 +37,15 @@ import org.argeo.cms.auth.HttpRequestCallback;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.JcrUtils;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.osgi.service.useradmin.Authorization;
+import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 /**
  * Intercepts and enriches http access, mainly focusing on security and
@@ -55,7 +60,9 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 
 	private final static String DEFAULT_PROTECTED_HANDLERS = "/org/argeo/cms/internal/kernel/protectedHandlers.xml";
 
+	private final BundleContext bc;
 	private final HttpService httpService;
+	private final ServiceTracker<Repository, Repository> repositories;
 
 	// FIXME Make it more unique
 	private String httpAuthRealm = "Argeo";
@@ -64,13 +71,15 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 	private OpenInViewSessionProvider sessionProvider;
 
 	DataHttp(HttpService httpService) {
-		this.httpService = httpService;
+		this.bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 		sessionProvider = new OpenInViewSessionProvider();
-		// registerRepositoryServlets(ALIAS_NODE, node);
+		this.httpService = httpService;
+		repositories = new ServiceTracker<>(bc, Repository.class, new RepositoriesStc());
+		repositories.open();
 	}
 
 	public void destroy() {
-		// unregisterRepositoryServlets(ALIAS_NODE);
+		repositories.close();
 	}
 
 	void registerRepositoryServlets(String alias, Repository repository) {
@@ -79,20 +88,30 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 			registerWebdavServlet(alias, repository, false);
 			registerRemotingServlet(alias, repository, true);
 			registerRemotingServlet(alias, repository, false);
+			if (log.isDebugEnabled())
+				log.debug("Registered servlets for repository '" + alias + "'");
 		} catch (Exception e) {
-			throw new CmsException("Could not register servlets for repository " + alias, e);
+			throw new CmsException("Could not register servlets for repository '" + alias + "'", e);
 		}
 	}
 
 	void unregisterRepositoryServlets(String alias) {
-		// FIXME unregister servlets
+		try {
+			httpService.unregister(webdavPath(alias, true));
+			httpService.unregister(webdavPath(alias, false));
+			httpService.unregister(remotingPath(alias, true));
+			httpService.unregister(remotingPath(alias, false));
+			if (log.isDebugEnabled())
+				log.debug("Unregistered servlets for repository '" + alias + "'");
+		} catch (Exception e) {
+			log.error("Could not unregister servlets for repository '" + alias + "'", e);
+		}
 	}
 
 	void registerWebdavServlet(String alias, Repository repository, boolean anonymous)
 			throws NamespaceException, ServletException {
 		WebdavServlet webdavServlet = new WebdavServlet(repository, sessionProvider);
-		String pathPrefix = anonymous ? WEBDAV_PUBLIC : WEBDAV_PRIVATE;
-		String path = pathPrefix + "/" + alias;
+		String path = webdavPath(alias, anonymous);
 		Properties ip = new Properties();
 		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_CONFIG, WEBDAV_CONFIG);
 		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
@@ -101,9 +120,8 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 
 	void registerRemotingServlet(String alias, Repository repository, boolean anonymous)
 			throws NamespaceException, ServletException {
-		String pathPrefix = anonymous ? REMOTING_PUBLIC : REMOTING_PRIVATE;
 		RemotingServlet remotingServlet = new RemotingServlet(repository, sessionProvider);
-		String path = pathPrefix + "/" + alias;
+		String path = remotingPath(alias, anonymous);
 		Properties ip = new Properties();
 		ip.setProperty(JcrRemotingServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
 
@@ -112,6 +130,16 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 		ip.setProperty(RemotingServlet.INIT_PARAM_TMP_DIRECTORY, "remoting");
 		ip.setProperty(RemotingServlet.INIT_PARAM_PROTECTED_HANDLERS_CONFIG, DEFAULT_PROTECTED_HANDLERS);
 		httpService.registerServlet(path, remotingServlet, ip, new DataHttpContext(anonymous));
+	}
+
+	private String webdavPath(String alias, boolean anonymous) {
+		String pathPrefix = anonymous ? WEBDAV_PUBLIC : WEBDAV_PRIVATE;
+		return pathPrefix + "/" + alias;
+	}
+
+	private String remotingPath(String alias, boolean anonymous) {
+		String pathPrefix = anonymous ? REMOTING_PUBLIC : REMOTING_PRIVATE;
+		return pathPrefix + "/" + alias;
 	}
 
 	private Subject subjectFromRequest(HttpServletRequest request) {
@@ -125,6 +153,33 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 			return lc.getSubject();
 		} catch (LoginException e) {
 			throw new CmsException("Cannot login", e);
+		}
+	}
+
+	private class RepositoriesStc implements ServiceTrackerCustomizer<Repository, Repository> {
+
+		@Override
+		public Repository addingService(ServiceReference<Repository> reference) {
+			Repository repository = bc.getService(reference);
+			Object jcrRepoAlias = reference.getProperty(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS);
+			if (jcrRepoAlias != null) {
+				String alias = jcrRepoAlias.toString();
+				registerRepositoryServlets(alias, repository);
+			}
+			return repository;
+		}
+
+		@Override
+		public void modifiedService(ServiceReference<Repository> reference, Repository service) {
+		}
+
+		@Override
+		public void removedService(ServiceReference<Repository> reference, Repository service) {
+			Object jcrRepoAlias = reference.getProperty(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS);
+			if (jcrRepoAlias != null) {
+				String alias = jcrRepoAlias.toString();
+				unregisterRepositoryServlets(alias);
+			}
 		}
 	}
 
@@ -177,7 +232,7 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 
 		@Override
 		public URL getResource(String name) {
-			return Activator.getBundleContext().getBundle().getResource(name);
+			return KernelUtils.getBundleContext(DataHttp.class).getBundle().getResource(name);
 		}
 
 		@Override

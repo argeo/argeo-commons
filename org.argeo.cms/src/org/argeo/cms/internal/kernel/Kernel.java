@@ -3,39 +3,40 @@ package org.argeo.cms.internal.kernel;
 import static bitronix.tm.TransactionManagerServices.getTransactionManager;
 import static bitronix.tm.TransactionManagerServices.getTransactionSynchronizationRegistry;
 import static java.util.Locale.ENGLISH;
-import static org.argeo.cms.internal.kernel.DataModelNamespace.CMS_DATA_MODEL_NAMESPACE;
 import static org.argeo.cms.internal.kernel.KernelUtils.getFrameworkProp;
 import static org.argeo.cms.internal.kernel.KernelUtils.getOsgiInstanceDir;
-import static org.argeo.jcr.ArgeoJcrConstants.ALIAS_NODE;
-import static org.argeo.jcr.ArgeoJcrConstants.JCR_REPOSITORY_ALIAS;
+import static org.argeo.node.DataModelNamespace.CMS_DATA_MODEL_NAMESPACE;
 import static org.argeo.util.LocaleChoice.asLocaleList;
 import static org.osgi.framework.Constants.FRAMEWORK_UUID;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FilePermission;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.ReflectPermission;
+import java.net.SocketPermission;
 import java.net.URL;
+import java.security.AllPermission;
 import java.security.PrivilegedAction;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.PropertyPermission;
 import java.util.Set;
 
-import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
+import javax.management.MBeanPermission;
+import javax.management.MBeanServerPermission;
+import javax.management.MBeanTrustPermission;
+import javax.security.auth.AuthPermission;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
@@ -53,22 +54,21 @@ import org.argeo.ArgeoException;
 import org.argeo.ArgeoLogger;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.maintenance.MaintenanceUi;
-import org.argeo.jackrabbit.JackrabbitDataModel;
-import org.argeo.jackrabbit.ManagedJackrabbitRepository;
 import org.argeo.jackrabbit.OsgiJackrabbitRepositoryFactory;
 import org.argeo.jcr.ArgeoJcrConstants;
-import org.argeo.jcr.ArgeoJcrUtils;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.jcr.RepoConf;
+import org.argeo.node.DataModelNamespace;
+import org.argeo.node.NodeConstants;
+import org.argeo.node.RepoConf;
 import org.eclipse.equinox.http.jetty.JettyConfigurator;
 import org.eclipse.equinox.http.jetty.JettyConstants;
-import org.eclipse.equinox.http.servlet.ExtendedHttpService;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
+import org.osgi.framework.AdminPermission;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceEvent;
-import org.osgi.framework.ServiceListener;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServicePermission;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.framework.startlevel.BundleStartLevel;
@@ -77,10 +77,19 @@ import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.cm.ManagedService;
+import org.osgi.service.cm.ConfigurationPermission;
+import org.osgi.service.cm.ManagedServiceFactory;
+import org.osgi.service.condpermadmin.BundleLocationCondition;
+import org.osgi.service.condpermadmin.ConditionInfo;
+import org.osgi.service.condpermadmin.ConditionalPermissionAdmin;
+import org.osgi.service.condpermadmin.ConditionalPermissionInfo;
+import org.osgi.service.condpermadmin.ConditionalPermissionUpdate;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogReaderService;
+import org.osgi.service.permissionadmin.PermissionInfo;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 import bitronix.tm.BitronixTransactionManager;
 import bitronix.tm.BitronixTransactionSynchronizationRegistry;
@@ -97,11 +106,15 @@ import bitronix.tm.TransactionManagerServices;
  * <li>OS access</li>
  * </ul>
  */
-final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
+final class Kernel implements KernelHeader, KernelConstants {
 	/*
 	 * SERVICE REFERENCES
 	 */
-	private ServiceReference<ConfigurationAdmin> configurationAdmin;
+	// private ServiceReference<ConfigurationAdmin> configurationAdmin;
+	private final ServiceTracker<ConfigurationAdmin, ConfigurationAdmin> configurationAdmin;
+	private final ServiceTracker<LogReaderService, LogReaderService> logReaderService;
+	private final ServiceTracker<HttpService, HttpService> httpService;
+	private final ConditionalPermissionAdmin permissionAdmin;
 	/*
 	 * REGISTERED SERVICES
 	 */
@@ -109,7 +122,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 	private ServiceRegistration<TransactionManager> tmReg;
 	private ServiceRegistration<UserTransaction> utReg;
 	private ServiceRegistration<TransactionSynchronizationRegistry> tsrReg;
-	private ServiceRegistration<? extends Repository> repositoryReg;
+	private ServiceRegistration<?> repositoryReg;
 	private ServiceRegistration<RepositoryFactory> repositoryFactoryReg;
 	private ServiceRegistration<UserAdmin> userAdminReg;
 
@@ -120,14 +133,15 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 	private BitronixTransactionManager transactionManager;
 	private BitronixTransactionSynchronizationRegistry transactionSynchronizationRegistry;
 	private OsgiJackrabbitRepositoryFactory repositoryFactory;
-	JackrabbitRepository repository;
+	private Repository repository;
 	private NodeUserAdmin userAdmin;
 
 	// Members
+	private final BundleContext bc;// = Activator.getBundleContext();
+	private final NodeSecurity nodeSecurity;
+
 	private final static Log log = LogFactory.getLog(Kernel.class);
 	ThreadGroup threadGroup = new ThreadGroup(Kernel.class.getSimpleName());
-	private final BundleContext bc = Activator.getBundleContext();
-	private final NodeSecurity nodeSecurity;
 	private DataHttp dataHttp;
 	private NodeHttp nodeHttp;
 	private KernelThread kernelThread;
@@ -138,7 +152,279 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 	public Kernel() {
 		// KernelUtils.logFrameworkProperties(log);
 		nodeSecurity = new NodeSecurity();
+		bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
+		configurationAdmin = new ServiceTracker<ConfigurationAdmin, ConfigurationAdmin>(bc, ConfigurationAdmin.class,
+				new PrepareStc<ConfigurationAdmin>());
+		configurationAdmin.open();
+		logReaderService = new ServiceTracker<LogReaderService, LogReaderService>(bc, LogReaderService.class,
+				new PrepareStc<LogReaderService>());
+		logReaderService.open();
+		httpService = new ServiceTracker<HttpService, HttpService>(bc, HttpService.class, new PrepareHttpStc());
+		httpService.open();
+
+		permissionAdmin = bc.getService(bc.getServiceReference(ConditionalPermissionAdmin.class));
+
+		applySystemPermissions();
 	}
+
+	private void applySystemPermissions() {
+		ConditionalPermissionUpdate update = permissionAdmin.newConditionalPermissionUpdate();
+		// Self
+		update.getConditionalPermissionInfos()
+				.add(permissionAdmin.newConditionalPermissionInfo(null,
+						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+								new String[] { locate(Kernel.class) }) },
+						new PermissionInfo[] { new PermissionInfo(AllPermission.class.getName(), null, null) },
+						ConditionalPermissionInfo.ALLOW));
+		update.getConditionalPermissionInfos()
+				.add(permissionAdmin.newConditionalPermissionInfo(null,
+						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+								new String[] { bc.getBundle(0).getLocation() }) },
+						new PermissionInfo[] { new PermissionInfo(AllPermission.class.getName(), null, null) },
+						ConditionalPermissionInfo.ALLOW));
+		// All
+		// FIXME understand why Jetty and Jackrabbit require that
+		update.getConditionalPermissionInfos()
+				.add(permissionAdmin.newConditionalPermissionInfo(null, null, new PermissionInfo[] {
+						new PermissionInfo(SocketPermission.class.getName(), "localhost:7070", "listen,resolve"),
+						new PermissionInfo(FilePermission.class.getName(), "<<ALL FILES>>", "read,write,delete"),
+						new PermissionInfo(PropertyPermission.class.getName(), "DEBUG", "read"),
+						new PermissionInfo(PropertyPermission.class.getName(), "STOP.*", "read"),
+						new PermissionInfo(PropertyPermission.class.getName(), "org.apache.jackrabbit.*", "read"),
+						new PermissionInfo(RuntimePermission.class.getName(), "*", "*"), },
+						ConditionalPermissionInfo.ALLOW));
+
+		// Eclipse
+		// update.getConditionalPermissionInfos()
+		// .add(permissionAdmin.newConditionalPermissionInfo(null,
+		// new ConditionInfo[] { new
+		// ConditionInfo(BundleLocationCondition.class.getName(),
+		// new String[] { "*/org.eclipse.*" }) },
+		// new PermissionInfo[] { new
+		// PermissionInfo(RuntimePermission.class.getName(), "*", "*"),
+		// new PermissionInfo(AdminPermission.class.getName(), "*", "*"),
+		// new PermissionInfo(ServicePermission.class.getName(), "*", "get"),
+		// new PermissionInfo(ServicePermission.class.getName(), "*",
+		// "register"),
+		// new PermissionInfo(TopicPermission.class.getName(), "*", "publish"),
+		// new PermissionInfo(TopicPermission.class.getName(), "*",
+		// "subscribe"),
+		// new PermissionInfo(PropertyPermission.class.getName(), "osgi.*",
+		// "read"),
+		// new PermissionInfo(PropertyPermission.class.getName(), "eclipse.*",
+		// "read"),
+		// new PermissionInfo(PropertyPermission.class.getName(),
+		// "org.eclipse.*", "read"),
+		// new PermissionInfo(PropertyPermission.class.getName(), "equinox.*",
+		// "read"),
+		// new PermissionInfo(PropertyPermission.class.getName(), "xml.*",
+		// "read"),
+		// new PermissionInfo("org.eclipse.equinox.log.LogPermission", "*",
+		// "log"), },
+		// ConditionalPermissionInfo.ALLOW));
+		update.getConditionalPermissionInfos()
+				.add(permissionAdmin.newConditionalPermissionInfo(null,
+						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+								new String[] { "*/org.eclipse.*" }) },
+						new PermissionInfo[] { new PermissionInfo(AllPermission.class.getName(), null, null), },
+						ConditionalPermissionInfo.ALLOW));
+		update.getConditionalPermissionInfos()
+				.add(permissionAdmin.newConditionalPermissionInfo(null,
+						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+								new String[] { "*/org.apache.felix.*" }) },
+						new PermissionInfo[] { new PermissionInfo(AllPermission.class.getName(), null, null), },
+						ConditionalPermissionInfo.ALLOW));
+
+		// Configuration admin
+		update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
+				new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+						new String[] { locate(configurationAdmin.getService().getClass()) }) },
+				new PermissionInfo[] { new PermissionInfo(ConfigurationPermission.class.getName(), "*", "configure"),
+						new PermissionInfo(AdminPermission.class.getName(), "*", "*"),
+						new PermissionInfo(PropertyPermission.class.getName(), "osgi.*", "read"), },
+				ConditionalPermissionInfo.ALLOW));
+
+		// Bitronix
+		update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
+				new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+						new String[] { locate(BitronixTransactionManager.class) }) },
+				new PermissionInfo[] { new PermissionInfo(PropertyPermission.class.getName(), "bitronix.tm.*", "read"),
+						new PermissionInfo(RuntimePermission.class.getName(), "getClassLoader", null),
+						new PermissionInfo(MBeanServerPermission.class.getName(), "createMBeanServer", null),
+						new PermissionInfo(MBeanPermission.class.getName(), "bitronix.tm.*", "registerMBean"),
+						new PermissionInfo(MBeanTrustPermission.class.getName(), "register", null) },
+				ConditionalPermissionInfo.ALLOW));
+
+		// DS
+		Bundle dsBundle = findBundle("org.eclipse.equinox.ds");
+		update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
+				new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+						new String[] { dsBundle.getLocation() }) },
+				new PermissionInfo[] { new PermissionInfo(ConfigurationPermission.class.getName(), "*", "configure"),
+						new PermissionInfo(AdminPermission.class.getName(), "*", "*"),
+						new PermissionInfo(ServicePermission.class.getName(), "*", "get"),
+						new PermissionInfo(ServicePermission.class.getName(), "*", "register"),
+						new PermissionInfo(PropertyPermission.class.getName(), "osgi.*", "read"),
+						new PermissionInfo(PropertyPermission.class.getName(), "xml.*", "read"),
+						new PermissionInfo(PropertyPermission.class.getName(), "equinox.*", "read"),
+						new PermissionInfo(RuntimePermission.class.getName(), "accessDeclaredMembers", null),
+						new PermissionInfo(RuntimePermission.class.getName(), "getClassLoader", null),
+						new PermissionInfo(ReflectPermission.class.getName(), "suppressAccessChecks", null), },
+				ConditionalPermissionInfo.ALLOW));
+
+		// Jetty
+		Bundle jettyUtilBundle = findBundle("org.eclipse.equinox.http.jetty");
+		update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
+				new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+						new String[] { "*/org.eclipse.jetty.*" }) },
+				new PermissionInfo[] {
+						new PermissionInfo(FilePermission.class.getName(), "<<ALL FILES>>", "read,write,delete"), },
+				ConditionalPermissionInfo.ALLOW));
+
+		// Blueprint
+		Bundle blueprintBundle = findBundle("org.eclipse.gemini.blueprint.core");
+		update.getConditionalPermissionInfos()
+				.add(permissionAdmin.newConditionalPermissionInfo(null,
+						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+								new String[] { blueprintBundle.getLocation() }) },
+						new PermissionInfo[] { new PermissionInfo(RuntimePermission.class.getName(), "*", null),
+								new PermissionInfo(AdminPermission.class.getName(), "*", "*"), },
+						ConditionalPermissionInfo.ALLOW));
+		Bundle blueprintExtenderBundle = findBundle("org.eclipse.gemini.blueprint.extender");
+		update.getConditionalPermissionInfos()
+				.add(permissionAdmin
+						.newConditionalPermissionInfo(null,
+								new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+										new String[] { blueprintExtenderBundle.getLocation() }) },
+								new PermissionInfo[] { new PermissionInfo(RuntimePermission.class.getName(), "*", null),
+										new PermissionInfo(PropertyPermission.class.getName(), "org.eclipse.gemini.*",
+												"read"),
+										new PermissionInfo(AdminPermission.class.getName(), "*", "*"),
+										new PermissionInfo(ServicePermission.class.getName(), "*", "register"), },
+								ConditionalPermissionInfo.ALLOW));
+		Bundle springCoreBundle = findBundle("org.springframework.core");
+		update.getConditionalPermissionInfos()
+				.add(permissionAdmin.newConditionalPermissionInfo(null,
+						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+								new String[] { springCoreBundle.getLocation() }) },
+						new PermissionInfo[] { new PermissionInfo(RuntimePermission.class.getName(), "*", null),
+								new PermissionInfo(AdminPermission.class.getName(), "*", "*"), },
+						ConditionalPermissionInfo.ALLOW));
+		Bundle blueprintIoBundle = findBundle("org.eclipse.gemini.blueprint.io");
+		update.getConditionalPermissionInfos()
+				.add(permissionAdmin.newConditionalPermissionInfo(null,
+						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+								new String[] { blueprintIoBundle.getLocation() }) },
+						new PermissionInfo[] { new PermissionInfo(RuntimePermission.class.getName(), "*", null),
+								new PermissionInfo(AdminPermission.class.getName(), "*", "*"), },
+						ConditionalPermissionInfo.ALLOW));
+
+		// Equinox
+		Bundle registryBundle = findBundle("org.eclipse.equinox.registry");
+		update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
+				new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+						new String[] { registryBundle.getLocation() }) },
+				new PermissionInfo[] { new PermissionInfo(PropertyPermission.class.getName(), "eclipse.*", "read"),
+						new PermissionInfo(PropertyPermission.class.getName(), "osgi.*", "read"),
+						new PermissionInfo(FilePermission.class.getName(), "<<ALL FILES>>", "read,write,delete"), },
+				ConditionalPermissionInfo.ALLOW));
+
+		Bundle equinoxUtilBundle = findBundle("org.eclipse.equinox.util");
+		update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
+				new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+						new String[] { equinoxUtilBundle.getLocation() }) },
+				new PermissionInfo[] { new PermissionInfo(PropertyPermission.class.getName(), "equinox.*", "read"),
+						new PermissionInfo(ServicePermission.class.getName(), "*", "get"),
+						new PermissionInfo(ServicePermission.class.getName(), "*", "register"), },
+				ConditionalPermissionInfo.ALLOW));
+		Bundle equinoxCommonBundle = findBundle("org.eclipse.equinox.common");
+		update.getConditionalPermissionInfos()
+				.add(permissionAdmin.newConditionalPermissionInfo(null,
+						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+								new String[] { equinoxCommonBundle.getLocation() }) },
+						new PermissionInfo[] { new PermissionInfo(AdminPermission.class.getName(), "*", "*"), },
+						ConditionalPermissionInfo.ALLOW));
+
+		Bundle consoleBundle = findBundle("org.eclipse.equinox.console");
+		update.getConditionalPermissionInfos()
+				.add(permissionAdmin.newConditionalPermissionInfo(null,
+						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+								new String[] { consoleBundle.getLocation() }) },
+						new PermissionInfo[] { new PermissionInfo(ServicePermission.class.getName(), "*", "register"),
+								new PermissionInfo(AdminPermission.class.getName(), "*", "listener") },
+						ConditionalPermissionInfo.ALLOW));
+		Bundle preferencesBundle = findBundle("org.eclipse.equinox.preferences");
+		update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
+				new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+						new String[] { preferencesBundle.getLocation() }) },
+				new PermissionInfo[] {
+						new PermissionInfo(FilePermission.class.getName(), "<<ALL FILES>>", "read,write,delete"), },
+				ConditionalPermissionInfo.ALLOW));
+		Bundle appBundle = findBundle("org.eclipse.equinox.app");
+		update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
+				new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+						new String[] { appBundle.getLocation() }) },
+				new PermissionInfo[] {
+						new PermissionInfo(FilePermission.class.getName(), "<<ALL FILES>>", "read,write,delete"), },
+				ConditionalPermissionInfo.ALLOW));
+
+		// Jackrabbit
+		Bundle jackrabbitCoreBundle = findBundle("org.apache.jackrabbit.core");
+		update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
+				new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+						new String[] { jackrabbitCoreBundle.getLocation() }) },
+				new PermissionInfo[] {
+						new PermissionInfo(FilePermission.class.getName(), "<<ALL FILES>>", "read,write,delete"),
+						new PermissionInfo(PropertyPermission.class.getName(), "*", "read,write"),
+						new PermissionInfo(AuthPermission.class.getName(), "getLoginConfiguration", null),
+						new PermissionInfo(AuthPermission.class.getName(), "createLoginContext.Jackrabbit", null), },
+				ConditionalPermissionInfo.ALLOW));
+		Bundle jackrabbitCommonBundle = findBundle("org.apache.jackrabbit.jcr.commons");
+		update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
+				new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+						new String[] { jackrabbitCommonBundle.getLocation() }) },
+				new PermissionInfo[] {
+						new PermissionInfo(AuthPermission.class.getName(), "createLoginContext.Jackrabbit", null), },
+				ConditionalPermissionInfo.ALLOW));
+		Bundle tikaCoreBundle = findBundle("org.apache.tika.core");
+		update.getConditionalPermissionInfos()
+				.add(permissionAdmin.newConditionalPermissionInfo(null,
+						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+								new String[] { tikaCoreBundle.getLocation() }) },
+						new PermissionInfo[] { new PermissionInfo(PropertyPermission.class.getName(), "*", "read"),
+								new PermissionInfo(AdminPermission.class.getName(), "*", "*") },
+						ConditionalPermissionInfo.ALLOW));
+		Bundle luceneBundle = findBundle("org.apache.lucene");
+		update.getConditionalPermissionInfos()
+				.add(permissionAdmin.newConditionalPermissionInfo(null,
+						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+								new String[] { luceneBundle.getLocation() }) },
+						new PermissionInfo[] {
+								new PermissionInfo(FilePermission.class.getName(), "<<ALL FILES>>",
+										"read,write,delete"),
+								new PermissionInfo(PropertyPermission.class.getName(), "*", "read"),
+								new PermissionInfo(AdminPermission.class.getName(), "*", "*") },
+						ConditionalPermissionInfo.ALLOW));
+
+		// COMMIT
+		update.commit();
+	}
+
+	/** @return bundle location */
+	private String locate(Class<?> clzz) {
+		return FrameworkUtil.getBundle(clzz).getLocation();
+	}
+
+	/*
+	 * PACKAGE RESTRICTED INTERFACE
+	 */
+	Subject getKernelSubject() {
+		return nodeSecurity.getKernelSubject();
+	}
+
+	/*
+	 * INITIALISATION
+	 */
 
 	final void init() {
 		Subject.doAs(nodeSecurity.getKernelSubject(), new PrivilegedAction<Void>() {
@@ -157,25 +443,27 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		Thread.currentThread().setContextClassLoader(Kernel.class.getClassLoader());
 		try {
 			// Listen to service publication (also ours)
-			bc.addServiceListener(Kernel.this);
+			// bc.addServiceListener(Kernel.this);
 
 			if (nodeSecurity.isFirstInit())
 				firstInit();
 
-			defaultLocale = new Locale(getFrameworkProp(I18N_DEFAULT_LOCALE, ENGLISH.getLanguage()));
-			locales = asLocaleList(getFrameworkProp(I18N_LOCALES));
+			defaultLocale = new Locale(getFrameworkProp(NodeConstants.I18N_DEFAULT_LOCALE, ENGLISH.getLanguage()));
+			locales = asLocaleList(getFrameworkProp(NodeConstants.I18N_LOCALES));
 
-			ServiceTracker<LogReaderService, LogReaderService> logReaderService = new ServiceTracker<LogReaderService, LogReaderService>(
-					bc, LogReaderService.class, null);
-			logReaderService.open();
+			// ServiceTracker<LogReaderService, LogReaderService>
+			// logReaderService = new ServiceTracker<LogReaderService,
+			// LogReaderService>(
+			// bc, LogReaderService.class, null);
+			// logReaderService.open();
 			logger = new NodeLogger(logReaderService.getService());
-			logReaderService.close();
+			// logReaderService.close();
 
 			if (isMaintenance())
 				maintenanceInit();
 			else
 				normalInit();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.error("Cannot initialize Argeo CMS", e);
 			throw new ArgeoException("Cannot initialize", e);
 		} finally {
@@ -211,10 +499,18 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		// Initialise services
 		initTransactionManager();
 
+		JackrabbitRepositoryServiceFactory jrsf = new JackrabbitRepositoryServiceFactory();
+		String[] clazzes = { ManagedServiceFactory.class.getName() };
+		Hashtable<String, String> serviceProps = new Hashtable<String, String>();
+		serviceProps.put(Constants.SERVICE_PID, ArgeoJcrConstants.JACKRABBIT_REPO_FACTORY_PID);
+		bc.registerService(clazzes, jrsf, serviceProps);
+
 		try {
-			Configuration nodeConf = conf.getConfiguration(ArgeoJcrConstants.REPO_PID_NODE);
+			Configuration nodeConf = conf.createFactoryConfiguration(ArgeoJcrConstants.JACKRABBIT_REPO_FACTORY_PID);
+			// Configuration nodeConf =
+			// conf.getConfiguration(ArgeoJcrConstants.REPO_PID_NODE);
 			if (nodeConf.getProperties() == null) {
-				Dictionary<String, ?> props = getNodeConfigFromFrameworkProperties();
+				Dictionary<String, Object> props = getNodeConfigFromFrameworkProperties();
 				if (props == null) {
 					// TODO interactive configuration
 					if (log.isDebugEnabled())
@@ -222,33 +518,84 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 								+ " property defined, entering interactive mode...");
 					return;
 				}
+				// props.put(ConfigurationAdmin.SERVICE_FACTORYPID,
+				// ArgeoJcrConstants.JACKRABBIT_REPO_FACTORY_PID);
+				props.put(Constants.SERVICE_PID, ArgeoJcrConstants.REPO_PID_NODE);
 				nodeConf.update(props);
 			}
 		} catch (IOException e) {
 			throw new CmsException("Cannot get configuration", e);
 		}
 
-		ManagedJackrabbitRepository nodeRepo = new ManagedJackrabbitRepository();
-		String[] clazzes = { ManagedService.class.getName(), Repository.class.getName(),
-				JackrabbitRepository.class.getName() };
-		Hashtable<String, String> serviceProps = new Hashtable<String, String>();
-		serviceProps.put(Constants.SERVICE_PID, ArgeoJcrConstants.REPO_PID_NODE);
-		serviceProps.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, ArgeoJcrConstants.ALIAS_NODE);
-		ServiceRegistration<?> nodeSr = bc.registerService(clazzes, nodeRepo, serviceProps);
-		nodeRepo.waitForInit();
+		// ManagedJackrabbitRepository nodeRepo = new
+		// ManagedJackrabbitRepository();
+		// String[] clazzes = { ManagedService.class.getName(),
+		// Repository.class.getName(),
+		// JackrabbitRepository.class.getName() };
+		// Hashtable<String, String> serviceProps = new Hashtable<String,
+		// String>();
+		// serviceProps.put(Constants.SERVICE_PID,
+		// ArgeoJcrConstants.REPO_PID_NODE);
+		// serviceProps.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS,
+		// ArgeoJcrConstants.ALIAS_NODE);
+		// repositoryReg = bc.registerService(clazzes, nodeRepo, serviceProps);
+		// nodeRepo.waitForInit();
 
-		new JackrabbitDataModel(bc).prepareDataModel(nodeRepo);
-		prepareDataModel(nodeRepo);
+		ServiceTracker<JackrabbitRepository, JackrabbitRepository> jackrabbitSt = new ServiceTracker<>(bc,
+				JackrabbitRepository.class, new ServiceTrackerCustomizer<JackrabbitRepository, JackrabbitRepository>() {
 
-		repository = (JackrabbitRepository) bc.getService(nodeSr.getReference());
+					@Override
+					public JackrabbitRepository addingService(ServiceReference<JackrabbitRepository> reference) {
+						JackrabbitRepository nodeRepo = bc.getService(reference);
+						// new
+						// JackrabbitDataModel(bc).prepareDataModel(nodeRepo);
+						prepareDataModel(KernelUtils.openAdminSession( nodeRepo));
 
-		if (repository == null)
-			repository = new NodeRepository();
-		if (repositoryFactory == null) {
-			repositoryFactory = new OsgiJackrabbitRepositoryFactory();
-			repositoryFactory.setBundleContext(bc);
-		}
-		userAdmin = new NodeUserAdmin(transactionManager, repository);
+						// repository = (JackrabbitRepository)
+						// bc.getService(repositoryReg.getReference());
+						repository = new HomeRepository( nodeRepo);
+						Hashtable<String, String> regProps = new Hashtable<String, String>();
+						regProps.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, ArgeoJcrConstants.ALIAS_NODE);
+						repositoryReg = (ServiceRegistration<? extends Repository>) bc.registerService(Repository.class,
+								repository, regProps);
+
+						// if (repository == null)
+						// repository = new NodeRepository();
+						if (repositoryFactory == null) {
+							repositoryFactory = new OsgiJackrabbitRepositoryFactory();
+							repositoryFactory.setBundleContext(bc);
+							repositoryFactoryReg = bc.registerService(RepositoryFactory.class, repositoryFactory, null);
+						}
+						userAdmin = new NodeUserAdmin(transactionManager, repository);
+						userAdminReg = bc.registerService(UserAdmin.class, userAdmin, userAdmin.currentState());
+						return nodeRepo;
+					}
+
+					@Override
+					public void modifiedService(ServiceReference<JackrabbitRepository> reference,
+							JackrabbitRepository service) {
+					}
+
+					@Override
+					public void removedService(ServiceReference<JackrabbitRepository> reference,
+							JackrabbitRepository service) {
+					}
+				});
+		jackrabbitSt.open();
+
+		// new JackrabbitDataModel(bc).prepareDataModel(nodeRepo);
+		// prepareDataModel(nodeRepo);
+		//
+		// repository = (JackrabbitRepository)
+		// bc.getService(repositoryReg.getReference());
+		//
+		//// if (repository == null)
+		//// repository = new NodeRepository();
+		// if (repositoryFactory == null) {
+		// repositoryFactory = new OsgiJackrabbitRepositoryFactory();
+		// repositoryFactory.setBundleContext(bc);
+		// }
+		// userAdmin = new NodeUserAdmin(transactionManager, repository);
 
 		// ADMIN UIs
 		UserUi userUi = new UserUi();
@@ -285,25 +632,24 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		publish();
 	}
 
-	private Dictionary<String, ?> getNodeConfigFromFrameworkProperties() {
-		String repoType = KernelUtils.getFrameworkProp(KernelConstants.NODE_REPO_PROP_PREFIX + RepoConf.type.name());
+	private Dictionary<String, Object> getNodeConfigFromFrameworkProperties() {
+		String repoType = KernelUtils.getFrameworkProp(NodeConstants.NODE_REPO_PROP_PREFIX + RepoConf.type.name());
 		if (repoType == null)
 			return null;
 
 		Hashtable<String, Object> props = new Hashtable<String, Object>();
 		for (RepoConf repoConf : RepoConf.values()) {
-			String value = KernelUtils.getFrameworkProp(KernelConstants.NODE_REPO_PROP_PREFIX + repoConf.name());
+			String value = KernelUtils.getFrameworkProp(NodeConstants.NODE_REPO_PROP_PREFIX + repoConf.name());
 			if (value != null)
 				props.put(repoConf.name(), value);
 		}
 		return props;
 	}
 
-	private void prepareDataModel(ManagedJackrabbitRepository nodeRepo) {
-		Session adminSession = null;
+	/** Session is logged out. */
+	private void prepareDataModel(Session adminSession) {
 		try {
 			Set<String> processed = new HashSet<String>();
-			adminSession = nodeRepo.login();
 			bundles: for (Bundle bundle : bc.getBundles()) {
 				BundleWiring wiring = bundle.adapt(BundleWiring.class);
 				if (wiring == null) {
@@ -313,8 +659,6 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 				}
 				processWiring(adminSession, wiring, processed);
 			}
-		} catch (RepositoryException e) {
-			throw new CmsException("Cannot prepare data model", e);
 		} finally {
 			JcrUtils.logoutQuietly(adminSession);
 		}
@@ -375,7 +719,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 
 	private void maintenanceInit() {
 		log.info("## MAINTENANCE ##");
-		bc.addServiceListener(Kernel.this);
+		// bc.addServiceListener(Kernel.this);
 		initWebServer(null);
 		MaintenanceUi maintenanceUi = new MaintenanceUi();
 		Hashtable<String, String> props = new Hashtable<String, String>();
@@ -385,11 +729,11 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 
 	private void firstInit() {
 		log.info("## FIRST INIT ##");
-		String nodeInit = getFrameworkProp(NODE_INIT);
+		String nodeInit = getFrameworkProp(NodeConstants.NODE_INIT);
 		if (nodeInit == null)
 			nodeInit = "../../init";
 		if (nodeInit.startsWith("http")) {
-			remoteFirstInit(nodeInit);
+			// remoteFirstInit(nodeInit);
 			return;
 		}
 		File initDir;
@@ -415,34 +759,39 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 			}
 	}
 
-	private void remoteFirstInit(String uri) {
-		try {
-			repository = new NodeRepository();
-			repositoryFactory = new OsgiJackrabbitRepositoryFactory();
-			Repository remoteRepository = ArgeoJcrUtils.getRepositoryByUri(repositoryFactory, uri);
-			Session remoteSession = remoteRepository.login(new SimpleCredentials("root", "demo".toCharArray()), "main");
-			Session localSession = this.repository.login();
-			// FIXME register node type
-			// if (false)
-			// CndImporter.registerNodeTypes(null, localSession);
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			remoteSession.exportSystemView("/", out, true, false);
-			ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-			localSession.importXML("/", in, ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
-			// JcrUtils.copy(remoteSession.getRootNode(),
-			// localSession.getRootNode());
-		} catch (Exception e) {
-			throw new CmsException("Cannot first init from " + uri, e);
-		}
-	}
+	// private void remoteFirstInit(String uri) {
+	// try {
+	// repository = new NodeRepository();
+	// repositoryFactory = new OsgiJackrabbitRepositoryFactory();
+	// Repository remoteRepository =
+	// ArgeoJcrUtils.getRepositoryByUri(repositoryFactory, uri);
+	// Session remoteSession = remoteRepository.login(new
+	// SimpleCredentials("root", "demo".toCharArray()), "main");
+	// Session localSession = this.repository.login();
+	// // FIXME register node type
+	// // if (false)
+	// // CndImporter.registerNodeTypes(null, localSession);
+	// ByteArrayOutputStream out = new ByteArrayOutputStream();
+	// remoteSession.exportSystemView("/", out, true, false);
+	// ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+	// localSession.importXML("/", in,
+	// ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
+	// // JcrUtils.copy(remoteSession.getRootNode(),
+	// // localSession.getRootNode());
+	// } catch (Exception e) {
+	// throw new CmsException("Cannot first init from " + uri, e);
+	// }
+	// }
 
 	/** Can be null */
 	private ConfigurationAdmin findConfigurationAdmin() {
-		configurationAdmin = bc.getServiceReference(ConfigurationAdmin.class);
-		if (configurationAdmin == null) {
-			return null;
-		}
-		return bc.getService(configurationAdmin);
+		// configurationAdmin =
+		// bc.getServiceReference(ConfigurationAdmin.class);
+		// if (configurationAdmin == null) {
+		// return null;
+		// }
+		// return bc.getService(configurationAdmin);
+		return configurationAdmin.getService();
 	}
 
 	/** Can be null */
@@ -459,7 +808,9 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 
 		// File tmBaseDir = new File(getFrameworkProp(TRANSACTIONS_HOME,
 		// getOsgiInstancePath(DIR_TRANSACTIONS)));
-		File tmBaseDir = bc.getDataFile(DIR_TRANSACTIONS);
+		Bundle bitronixBundle = FrameworkUtil.getBundle(bitronix.tm.Configuration.class);
+		File tmBaseDir = bitronixBundle.getDataFile(DIR_TRANSACTIONS);
+		// File tmBaseDir = bc.getDataFile(DIR_TRANSACTIONS);
 		File tmDir1 = new File(tmBaseDir, "btm1");
 		tmDir1.mkdirs();
 		tmConf.setLogPart1Filename(new File(tmDir1, tmDir1.getName() + ".tlog").getAbsolutePath());
@@ -470,12 +821,12 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		transactionSynchronizationRegistry = getTransactionSynchronizationRegistry();
 	}
 
-	private void initWebServer(ConfigurationAdmin conf) {
+	private void initWebServer(final ConfigurationAdmin conf) {
 		String httpPort = getFrameworkProp("org.osgi.service.http.port");
 		String httpsPort = getFrameworkProp("org.osgi.service.http.port.secure");
 		try {
 			if (httpPort != null || httpsPort != null) {
-				Hashtable<String, Object> jettyProps = new Hashtable<String, Object>();
+				final Hashtable<String, Object> jettyProps = new Hashtable<String, Object>();
 				if (httpPort != null) {
 					jettyProps.put(JettyConstants.HTTP_PORT, httpPort);
 					jettyProps.put(JettyConstants.HTTP_ENABLED, true);
@@ -496,6 +847,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 						return;
 					Configuration jettyConf = conf.createFactoryConfiguration(JETTY_FACTORY_PID, null);
 					jettyConf.update(jettyProps);
+
 				} else {
 					JettyConfigurator.startServer("default", jettyProps);
 				}
@@ -505,7 +857,6 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private void publish() {
 
 		// Logging
@@ -515,14 +866,17 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		utReg = bc.registerService(UserTransaction.class, transactionManager, null);
 		tsrReg = bc.registerService(TransactionSynchronizationRegistry.class, transactionSynchronizationRegistry, null);
 		// User admin
-		userAdminReg = bc.registerService(UserAdmin.class, userAdmin, userAdmin.currentState());
+		// userAdminReg = bc.registerService(UserAdmin.class, userAdmin,
+		// userAdmin.currentState());
 		// JCR
-		Hashtable<String, String> regProps = new Hashtable<String, String>();
-		regProps.put(JCR_REPOSITORY_ALIAS, ALIAS_NODE);
-		repositoryReg = (ServiceRegistration<? extends Repository>) bc.registerService(
-				new String[] { Repository.class.getName(), JackrabbitRepository.class.getName() }, repository,
-				regProps);
-		repositoryFactoryReg = bc.registerService(RepositoryFactory.class, repositoryFactory, null);
+		// Hashtable<String, String> regProps = new Hashtable<String, String>();
+		// regProps.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS,
+		// ArgeoJcrConstants.ALIAS_NODE);
+		// repositoryReg = (ServiceRegistration<? extends Repository>)
+		// bc.registerService(Repository.class, repository,
+		// regProps);
+		// repositoryFactoryReg = bc.registerService(RepositoryFactory.class,
+		// repositoryFactory, null);
 	}
 
 	void destroy() {
@@ -537,12 +891,12 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 			nodeHttp.destroy();
 		if (userAdmin != null)
 			userAdmin.destroy();
-		if (repository != null)
-			repository.shutdown();
+		// if (repository != null)
+		// repository.shutdown();
 		if (transactionManager != null)
 			transactionManager.shutdown();
 
-		bc.removeServiceListener(this);
+		// bc.removeServiceListener(this);
 
 		// Clean hanging threads from Jackrabbit
 		TransientFileFactory.shutdown();
@@ -565,44 +919,46 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		loggerReg.unregister();
 	}
 
-	@Override
-	public void serviceChanged(ServiceEvent event) {
-		ServiceReference<?> sr = event.getServiceReference();
-		Object service = bc.getService(sr);
-		if (service instanceof Repository) {
-			Object jcrRepoAlias = sr.getProperty(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS);
-			if (jcrRepoAlias != null) {// JCR repository
-				String alias = jcrRepoAlias.toString();
-				Repository repository = (Repository) bc.getService(sr);
-				Map<String, Object> props = new HashMap<String, Object>();
-				for (String key : sr.getPropertyKeys())
-					props.put(key, sr.getProperty(key));
-				if (ServiceEvent.REGISTERED == event.getType()) {
-					try {
-						// repositoryFactory.register(repository, props);
-						dataHttp.registerRepositoryServlets(alias, repository);
-					} catch (Exception e) {
-						throw new CmsException("Could not publish JCR repository " + alias, e);
-					}
-				} else if (ServiceEvent.UNREGISTERING == event.getType()) {
-					// repositoryFactory.unregister(repository, props);
-					dataHttp.unregisterRepositoryServlets(alias);
-				}
-			}
-		} else if (service instanceof ExtendedHttpService) {
-			if (ServiceEvent.REGISTERED == event.getType()) {
-				addHttpService(sr);
-			} else if (ServiceEvent.UNREGISTERING == event.getType()) {
-				dataHttp.destroy();
-				dataHttp = null;
-			}
-		}
-	}
+	// @Override
+	// public void serviceChanged(ServiceEvent event) {
+	// ServiceReference<?> sr = event.getServiceReference();
+	// Object service = bc.getService(sr);
+	// if (service instanceof Repository) {
+	// Object jcrRepoAlias =
+	// sr.getProperty(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS);
+	// if (jcrRepoAlias != null) {// JCR repository
+	// String alias = jcrRepoAlias.toString();
+	// Repository repository = (Repository) bc.getService(sr);
+	// Map<String, Object> props = new HashMap<String, Object>();
+	// for (String key : sr.getPropertyKeys())
+	// props.put(key, sr.getProperty(key));
+	// if (ServiceEvent.REGISTERED == event.getType()) {
+	// try {
+	// // repositoryFactory.register(repository, props);
+	// dataHttp.registerRepositoryServlets(alias, repository);
+	// } catch (Exception e) {
+	// throw new CmsException("Could not publish JCR repository " + alias, e);
+	// }
+	// } else if (ServiceEvent.UNREGISTERING == event.getType()) {
+	// // repositoryFactory.unregister(repository, props);
+	// dataHttp.unregisterRepositoryServlets(alias);
+	// }
+	// }
+	// }
+	// // else if (service instanceof ExtendedHttpService) {
+	// // if (ServiceEvent.REGISTERED == event.getType()) {
+	// // addHttpService(sr);
+	// // } else if (ServiceEvent.UNREGISTERING == event.getType()) {
+	// // dataHttp.destroy();
+	// // dataHttp = null;
+	// // }
+	// // }
+	// }
 
-	private void addHttpService(ServiceReference<?> sr) {
+	private HttpService addHttpService(ServiceReference<HttpService> sr) {
 		// for (String key : sr.getPropertyKeys())
 		// log.debug(key + "=" + sr.getProperty(key));
-		ExtendedHttpService httpService = (ExtendedHttpService) bc.getService(sr);
+		HttpService httpService = bc.getService(sr);
 		// TODO find constants
 		Object httpPort = sr.getProperty("http.port");
 		Object httpsPort = sr.getProperty("https.port");
@@ -610,6 +966,7 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		nodeHttp = new NodeHttp(httpService, bc);
 		if (log.isDebugEnabled())
 			log.debug(httpPortsMsg(httpPort, httpsPort));
+		return httpService;
 	}
 
 	private String httpPortsMsg(Object httpPort, Object httpsPort) {
@@ -642,6 +999,47 @@ final class Kernel implements KernelHeader, KernelConstants, ServiceListener {
 		double sleepAccuracy = ((double) durationNano) / (ms * M);
 		if (log.isDebugEnabled())
 			log.debug("Sleep accuracy: " + String.format("%.2f", 100 - (sleepAccuracy * 100 - 100)) + " %");
+	}
+
+	private class PrepareStc<T> implements ServiceTrackerCustomizer<T, T> {
+
+		@Override
+		public T addingService(ServiceReference<T> reference) {
+			T service = bc.getService(reference);
+			System.out.println("addingService " + service);
+			return service;
+		}
+
+		@Override
+		public void modifiedService(ServiceReference<T> reference, T service) {
+			System.out.println("modifiedService " + service);
+		}
+
+		@Override
+		public void removedService(ServiceReference<T> reference, T service) {
+			System.out.println("removedService " + service);
+		}
+
+	}
+
+	private class PrepareHttpStc implements ServiceTrackerCustomizer<HttpService, HttpService> {
+
+		@Override
+		public HttpService addingService(ServiceReference<HttpService> reference) {
+			HttpService httpService = addHttpService(reference);
+			return httpService;
+		}
+
+		@Override
+		public void modifiedService(ServiceReference<HttpService> reference, HttpService service) {
+		}
+
+		@Override
+		public void removedService(ServiceReference<HttpService> reference, HttpService service) {
+			dataHttp.destroy();
+			dataHttp = null;
+		}
+
 	}
 
 	/** Workaround for blocking Gogo shell by system shutdown. */

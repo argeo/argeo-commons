@@ -32,9 +32,9 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.JcrUtils;
-import org.eclipse.equinox.http.servlet.ExtendedHttpService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.http.HttpService;
 
 /**
  * Intercepts and enriches http access, mainly focusing on security and
@@ -51,7 +51,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 
 	private BundleContext bc;
 
-	NodeHttp(ExtendedHttpService httpService, BundleContext bc) {
+	NodeHttp(HttpService httpService, BundleContext bc) {
 		this.bc = bc;
 		// rootFilter = new RootFilter();
 		// dosFilter = new CustomDosFilter();

@@ -8,21 +8,9 @@
 		<version>2.1.45-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>org.argeo.security.jackrabbit</artifactId>
-	<name>Commons Jackrabbit Extensions</name>
+	<artifactId>org.argeo.cms.api</artifactId>
+	<name>Commons CMS API</name>
+	<packaging>jar</packaging>
 	<dependencies>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.cms.api</artifactId>
-			<version>2.1.45-SNAPSHOT</version>
-		</dependency>
-
-		<!-- TESTING -->
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.server.jcr</artifactId>
-			<version>2.1.45-SNAPSHOT</version>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 </project>

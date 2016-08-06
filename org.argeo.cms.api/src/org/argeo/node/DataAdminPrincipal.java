@@ -1,9 +1,10 @@
-package org.argeo.security;
+package org.argeo.node;
 
 import java.security.Principal;
 
-public final class SystemAuth implements Principal {
-	private final String name = "init";
+/** Allows to modify any data. */
+public final class DataAdminPrincipal implements Principal {
+	private final String name = "ou=dataAdmin";
 
 	@Override
 	public String getName() {

@@ -139,7 +139,9 @@ class NodeLogger implements ArgeoLogger, LogListener {
 		} else if (severity == LogService.LOG_WARNING)
 			pluginLog.warn(status.getMessage(), status.getException());
 		else if (severity == LogService.LOG_INFO && pluginLog.isDebugEnabled())
-			pluginLog.debug(status.getMessage(), status.getException());
+			pluginLog.debug(
+					status.getMessage() + (status.getServiceReference() != null ?" "+ status.getServiceReference() : ""),
+					status.getException());
 		else if (severity == LogService.LOG_DEBUG && pluginLog.isTraceEnabled())
 			pluginLog.trace(status.getMessage(), status.getException());
 	}
@@ -148,33 +150,28 @@ class NodeLogger implements ArgeoLogger, LogListener {
 	// ARGEO LOGGER
 	//
 
-	public synchronized void register(ArgeoLogListener listener,
-			Integer numberOfPreviousEvents) {
+	public synchronized void register(ArgeoLogListener listener, Integer numberOfPreviousEvents) {
 		String username = CurrentUser.getUsername();
 		if (username == null)
-			throw new ArgeoException(
-					"Only authenticated users can register a log listener");
+			throw new ArgeoException("Only authenticated users can register a log listener");
 
 		if (!userListeners.containsKey(username)) {
-			List<ArgeoLogListener> lst = Collections
-					.synchronizedList(new ArrayList<ArgeoLogListener>());
+			List<ArgeoLogListener> lst = Collections.synchronizedList(new ArrayList<ArgeoLogListener>());
 			userListeners.put(username, lst);
 		}
 		userListeners.get(username).add(listener);
-		List<LogEvent> lastEvents = logDispatcherThread.getLastEvents(username,
-				numberOfPreviousEvents);
+		List<LogEvent> lastEvents = logDispatcherThread.getLastEvents(username, numberOfPreviousEvents);
 		for (LogEvent evt : lastEvents)
 			dispatchEvent(listener, evt);
 	}
 
-	public synchronized void registerForAll(ArgeoLogListener listener,
-			Integer numberOfPreviousEvents, boolean everything) {
+	public synchronized void registerForAll(ArgeoLogListener listener, Integer numberOfPreviousEvents,
+			boolean everything) {
 		if (everything)
 			everythingListeners.add(listener);
 		else
 			allUsersListeners.add(listener);
-		List<LogEvent> lastEvents = logDispatcherThread.getLastEvents(null,
-				numberOfPreviousEvents);
+		List<LogEvent> lastEvents = logDispatcherThread.getLastEvents(null, numberOfPreviousEvents);
 		for (LogEvent evt : lastEvents)
 			if (everything || evt.getUsername() != null)
 				dispatchEvent(listener, evt);
@@ -185,11 +182,9 @@ class NodeLogger implements ArgeoLogger, LogListener {
 		if (username == null)// FIXME
 			return;
 		if (!userListeners.containsKey(username))
-			throw new ArgeoException("No user listeners " + listener
-					+ " registered for user " + username);
+			throw new ArgeoException("No user listeners " + listener + " registered for user " + username);
 		if (!userListeners.get(username).contains(listener))
-			throw new ArgeoException("No user listeners " + listener
-					+ " registered for user " + username);
+			throw new ArgeoException("No user listeners " + listener + " registered for user " + username);
 		userListeners.get(username).remove(listener);
 		if (userListeners.get(username).isEmpty())
 			userListeners.remove(username);
@@ -231,7 +226,9 @@ class NodeLogger implements ArgeoLogger, LogListener {
 		return configuration;
 	}
 
-	/** Reloads configuration (if the configuration {@link Properties} is set) */
+	/**
+	 * Reloads configuration (if the configuration {@link Properties} is set)
+	 */
 	protected void reloadConfiguration() {
 		if (configuration != null) {
 			LogManager.resetConfiguration();
@@ -251,36 +248,29 @@ class NodeLogger implements ArgeoLogger, LogListener {
 				try {
 					log4jLevel = Level.toLevel(level);
 				} catch (Exception e) {
-					System.err
-							.println("Log4j level could not be set for level '"
-									+ level + "', resetting it to null.");
+					System.err.println("Log4j level could not be set for level '" + level + "', resetting it to null.");
 					e.printStackTrace();
 					level = null;
 				}
 
-			if (log4jLevel != null
-					&& !event.getLoggingEvent().getLevel()
-							.isGreaterOrEqual(log4jLevel)) {
+			if (log4jLevel != null && !event.getLoggingEvent().getLevel().isGreaterOrEqual(log4jLevel)) {
 				return;
 			}
 		}
 
 		try {
 			// admin listeners
-			Iterator<ArgeoLogListener> everythingIt = everythingListeners
-					.iterator();
+			Iterator<ArgeoLogListener> everythingIt = everythingListeners.iterator();
 			while (everythingIt.hasNext())
 				dispatchEvent(everythingIt.next(), event);
 
 			if (event.getUsername() != null) {
-				Iterator<ArgeoLogListener> allUsersIt = allUsersListeners
-						.iterator();
+				Iterator<ArgeoLogListener> allUsersIt = allUsersListeners.iterator();
 				while (allUsersIt.hasNext())
 					dispatchEvent(allUsersIt.next(), event);
 
 				if (userListeners.containsKey(event.getUsername())) {
-					Iterator<ArgeoLogListener> userIt = userListeners.get(
-							event.getUsername()).iterator();
+					Iterator<ArgeoLogListener> userIt = userListeners.get(event.getUsername()).iterator();
 					while (userIt.hasNext())
 						dispatchEvent(userIt.next(), event);
 				}
@@ -293,10 +283,8 @@ class NodeLogger implements ArgeoLogger, LogListener {
 
 	protected void dispatchEvent(ArgeoLogListener logListener, LogEvent evt) {
 		LoggingEvent event = evt.getLoggingEvent();
-		logListener.appendLog(evt.getUsername(), event.getTimeStamp(), event
-				.getLevel().toString(), event.getLoggerName(), event
-				.getThreadName(), event.getMessage(), event
-				.getThrowableStrRep());
+		logListener.appendLog(evt.getUsername(), event.getTimeStamp(), event.getLevel().toString(),
+				event.getLoggerName(), event.getThreadName(), event.getMessage(), event.getThrowableStrRep());
 	}
 
 	private class AppenderImpl extends AppenderSkeleton {
@@ -348,11 +336,9 @@ class NodeLogger implements ArgeoLogger, LogListener {
 			lastEvents.add(loggingEvent);
 		}
 
-		public synchronized List<LogEvent> getLastEvents(String username,
-				Integer maxCount) {
+		public synchronized List<LogEvent> getLastEvents(String username, Integer maxCount) {
 			LinkedList<LogEvent> evts = new LinkedList<LogEvent>();
-			ListIterator<LogEvent> it = lastEvents.listIterator(lastEvents
-					.size());
+			ListIterator<LogEvent> it = lastEvents.listIterator(lastEvents.size());
 			int count = 0;
 			while (it.hasPrevious() && (count < maxCount)) {
 				LogEvent evt = it.previous();

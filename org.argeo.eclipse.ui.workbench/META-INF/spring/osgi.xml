@@ -15,7 +15,7 @@
 	</list>
 
 	<reference id="nodeRepository" interface="javax.jcr.Repository"
-		filter="(argeo.jcr.repository.alias=node)" />
+		filter="(argeo.jcr.repository.alias=home)" />
 	<reference id="repositoryFactory" interface="javax.jcr.RepositoryFactory" />
 	<reference id="keyring" interface="org.argeo.util.security.CryptoKeyring" />
 	<reference id="userAdmin" interface="org.osgi.service.useradmin.UserAdmin" />
