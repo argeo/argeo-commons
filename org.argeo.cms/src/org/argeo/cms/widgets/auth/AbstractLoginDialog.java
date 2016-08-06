@@ -25,7 +25,6 @@ import javax.security.auth.callback.PasswordCallback;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.internal.kernel.Activator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -37,10 +36,10 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.osgi.framework.FrameworkUtil;
 
 /** Base for login dialogs */
-public abstract class AbstractLoginDialog extends TrayDialog implements
-		CallbackHandler {
+public abstract class AbstractLoginDialog extends TrayDialog implements CallbackHandler {
 	private static final long serialVersionUID = -8046708963512717709L;
 
 	private final static Log log = LogFactory.getLog(AbstractLoginDialog.class);
@@ -139,13 +138,14 @@ public abstract class AbstractLoginDialog extends TrayDialog implements
 					// event).
 					while (!processCallbacks && (modalContextThread != null)
 							&& (modalContextThread == Thread.currentThread())
-							&& Activator.getBundleContext() != null) {
+							&& FrameworkUtil.getBundle(AbstractLoginDialog.class).getBundleContext() != null) {
 						// Note: SecurityUiPlugin.getDefault() != null is false
 						// when the OSGi runtime is shut down
 						try {
 							Thread.sleep(100);
 							// if (display.isDisposed()) {
-							// log.warn("Display is disposed, killing login dialog thread");
+							// log.warn("Display is disposed, killing login
+							// dialog thread");
 							// throw new ThreadDeath();
 							// }
 						} catch (final Exception e) {
@@ -160,12 +160,10 @@ public abstract class AbstractLoginDialog extends TrayDialog implements
 						// clear callbacks are when cancelling
 						for (Callback callback : callbacks)
 							if (callback instanceof PasswordCallback) {
-								char[] arr = ((PasswordCallback) callback)
-										.getPassword();
+								char[] arr = ((PasswordCallback) callback).getPassword();
 								if (arr != null) {
 									Arrays.fill(arr, '*');
-									((PasswordCallback) callback)
-											.setPassword(null);
+									((PasswordCallback) callback).setPassword(null);
 								}
 							} else if (callback instanceof NameCallback)
 								((NameCallback) callback).setName(null);
@@ -177,8 +175,7 @@ public abstract class AbstractLoginDialog extends TrayDialog implements
 			throw e;
 		} catch (Exception e) {
 			isCancelled = true;
-			IOException ioe = new IOException(
-					"Unexpected issue in login dialog, see root cause for more details");
+			IOException ioe = new IOException("Unexpected issue in login dialog, see root cause for more details");
 			ioe.initCause(e);
 			throw ioe;
 		} finally {

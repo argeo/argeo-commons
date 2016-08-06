@@ -4,7 +4,7 @@ import static org.argeo.cms.CmsMsg.password;
 import static org.argeo.cms.CmsMsg.username;
 import static org.argeo.cms.auth.AuthConstants.LOGIN_CONTEXT_ANONYMOUS;
 import static org.argeo.cms.auth.AuthConstants.LOGIN_CONTEXT_USER;
-import static org.argeo.cms.internal.kernel.Activator.getKernelHeader;
+import static org.argeo.cms.internal.kernel.Activator.getNodeState;
 
 import java.io.IOException;
 import java.util.List;
@@ -65,8 +65,8 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 
 	public CmsLogin(CmsView cmsView) {
 		this.cmsView = cmsView;
-		defaultLocale = getKernelHeader().getDefaultLocale();
-		List<Locale> locales = getKernelHeader().getLocales();
+		defaultLocale = getNodeState().getDefaultLocale();
+		List<Locale> locales = getNodeState().getLocales();
 		if (locales != null)
 			localeChoice = new LocaleChoice(locales, defaultLocale);
 		loginSelectionListener = new SelectionListener() {
