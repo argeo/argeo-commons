@@ -1,19 +1,33 @@
 <argeo = 'http://www.argeo.org/ns/argeo'>
 
+// DATA MODEL
+[argeo:dataModel] > mix:created, mix:lastModified, mix:versionable
+mixin
+- argeo:uri (STRING) m
+- argeo:dataModelVersion (STRING) m
+
 // USER NODES
+// user should be lower case, between 3 and 15 characters long
 [argeo:userHome] > mix:created, mix:lastModified
 mixin
 - argeo:userID (STRING) m
+- argeo:remoteRoles (STRING) *
+// deprecated. for backward compatibility:
++ argeo:profile (argeo:userProfile)
 + argeo:keyring (argeo:pbeSpec)
-//+ argeo:preferences (argeo:preferenceNode)
++ argeo:preferences (argeo:preferenceNode)
 
 [argeo:userProfile] > mix:created, mix:lastModified, mix:title, mix:versionable
 mixin
 - argeo:userID (STRING) m
+- argeo:enabled (BOOLEAN)
+- argeo:accountNonExpired (BOOLEAN)
+- argeo:accountNonLocked (BOOLEAN)
+- argeo:credentialsNonExpired (BOOLEAN)
 
-//[argeo:preferenceNode] > mix:lastModified, mix:versionable
-//mixin
-//+ * (argeo:preferenceNode) * version
+[argeo:preferenceNode] > mix:lastModified, mix:versionable
+mixin
++ * (argeo:preferenceNode) * version
 
 [argeo:remoteRepository] > nt:unstructured
 - argeo:uri (STRING)
