@@ -14,8 +14,6 @@ import org.argeo.cms.CmsException;
  * monitor/control other processes.
  */
 class KernelThread extends Thread {
-	@SuppressWarnings("unused")
-	private final Kernel kernel;
 	private RepositoryStatisticsImpl repoStats;
 
 	/** The smallest period of operation, in ms */
@@ -32,10 +30,8 @@ class KernelThread extends Thread {
 	@SuppressWarnings("unused")
 	private long cycle = 0l;
 
-	public KernelThread(Kernel kernel) {
-		super(kernel.threadGroup, kernel.getClass().getSimpleName());
-		this.kernel = kernel;
-		// this.repoStats = kernel.repository.getRepositoryStatistics();
+	public KernelThread(CmsState cmState) {
+		super(cmState.threadGroup, cmState.getClass().getSimpleName());
 	}
 
 	private void doSmallestPeriod() {

@@ -64,8 +64,8 @@ public class CmsState implements NodeState, ManagedService {
 	private final BundleContext bc = FrameworkUtil.getBundle(CmsState.class).getBundleContext();
 
 	// avoid dependency to RWT OSGi
-	private final static String PROPERTY_CONTEXT_NAME="contextName";
-	
+	private final static String PROPERTY_CONTEXT_NAME = "contextName";
+
 	// REFERENCES
 	private ConfigurationAdmin configurationAdmin;
 
@@ -88,6 +88,9 @@ public class CmsState implements NodeState, ManagedService {
 
 	private boolean cleanState = false;
 	private URI nodeRepoUri = null;
+
+	ThreadGroup threadGroup = new ThreadGroup("CMS State");
+	private KernelThread kernelThread;
 
 	private String hostname;
 
@@ -135,22 +138,10 @@ public class CmsState implements NodeState, ManagedService {
 			initWebServer();
 			initNodeDeployment();
 
-			// MetaTypeService metaTypeService =
-			// bc.getService(bc.getServiceReference(MetaTypeService.class));
-			// MetaTypeInformation metaInfo =
-			// metaTypeService.getMetaTypeInformation(bc.getBundle());
-			// String[] pids = metaInfo.getPids();
-			// for (String pid : pids) {
-			// log.debug("MetaType PID : " + pid);
-			// ObjectClassDefinition ocd =
-			// metaInfo.getObjectClassDefinition(pid, null);
-			// log.debug(ocd.getID());
-			// for (AttributeDefinition attr :
-			// ocd.getAttributeDefinitions(ObjectClassDefinition.ALL)) {
-			// log.debug(attr.getID());
-			// }
-			// }
-
+			// kernel thread
+			kernelThread = new KernelThread(this);
+			kernelThread.setContextClassLoader(getClass().getClassLoader());
+			kernelThread.start();
 		} catch (Exception e) {
 			throw new CmsException("Cannot get configuration", e);
 		}
@@ -198,8 +189,7 @@ public class CmsState implements NodeState, ManagedService {
 	private void initUi() {
 		bc.registerService(ApplicationConfiguration.class, new MaintenanceUi(),
 				LangUtils.init(PROPERTY_CONTEXT_NAME, "system"));
-		bc.registerService(ApplicationConfiguration.class, new UserUi(),
-				LangUtils.init(PROPERTY_CONTEXT_NAME, "user"));
+		bc.registerService(ApplicationConfiguration.class, new UserUi(), LangUtils.init(PROPERTY_CONTEXT_NAME, "user"));
 	}
 
 	private void initDeployConfigs(Dictionary<String, ?> stateProps) throws IOException {
@@ -301,6 +291,9 @@ public class CmsState implements NodeState, ManagedService {
 	}
 
 	void shutdown() {
+		if (kernelThread != null)
+			kernelThread.destroyAndJoin();
+
 		if (transactionManager != null)
 			transactionManager.shutdown();
 		if (userAdmin != null)
@@ -340,7 +333,7 @@ public class CmsState implements NodeState, ManagedService {
 				nodeDeployment.setDeployedNodeRepository(nodeRepo.getRepository());
 				Dictionary<String, Object> props = LangUtils.init(Constants.SERVICE_PID,
 						NodeConstants.NODE_DEPLOYMENT_PID);
-				props.put("uid", nodeRepo.getRootNodeId().toString());
+				props.put(NodeConstants.CN, nodeRepo.getRootNodeId().toString());
 				// register
 				bc.registerService(LangUtils.names(NodeDeployment.class, ManagedService.class), nodeDeployment, props);
 			}
@@ -374,8 +367,12 @@ public class CmsState implements NodeState, ManagedService {
 
 		@Override
 		public void removedService(ServiceReference<HttpService> reference, HttpService service) {
-			dataHttp.destroy();
+			if (dataHttp != null)
+				dataHttp.destroy();
 			dataHttp = null;
+			if (nodeHttp != null)
+				nodeHttp.destroy();
+			nodeHttp = null;
 		}
 
 		private HttpService addHttpService(ServiceReference<HttpService> sr) {

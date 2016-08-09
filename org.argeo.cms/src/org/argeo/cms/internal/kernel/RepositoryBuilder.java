@@ -57,13 +57,16 @@ class RepositoryBuilder {
 		ClassLoader cl = getClass().getClassLoader();
 		InputStream in = null;
 		try {
-			final String base = "/org/argeo/jackrabbit";
+			final String base = "/org/argeo/cms/internal/kernel";
 			switch (type) {
 			case h2:
 				in = cl.getResourceAsStream(base + "/repository-h2.xml");
 				break;
 			case postgresql:
 				in = cl.getResourceAsStream(base + "/repository-postgresql.xml");
+				break;
+			case postgresql_ds:
+				in = cl.getResourceAsStream(base + "/repository-postgresql-ds.xml");
 				break;
 			case memory:
 				in = cl.getResourceAsStream(base + "/repository-memory.xml");

@@ -624,9 +624,9 @@ final class Kernel implements KernelHeader, KernelConstants {
 		// }
 
 		// Kernel thread
-		kernelThread = new KernelThread(this);
-		kernelThread.setContextClassLoader(Kernel.class.getClassLoader());
-		kernelThread.start();
+//		kernelThread = new KernelThread(this);
+//		kernelThread.setContextClassLoader(Kernel.class.getClassLoader());
+//		kernelThread.start();
 
 		// Publish services to OSGi
 		publish();
