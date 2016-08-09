@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.jackrabbit;
+package org.argeo.cms.internal.kernel;
 
 import java.util.Collection;
-import java.util.Hashtable;
-import java.util.Properties;
 
 import javax.jcr.Repository;
 
+import org.argeo.jackrabbit.JackrabbitRepositoryFactory;
 import org.argeo.jcr.ArgeoJcrException;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
@@ -30,8 +30,8 @@ import org.osgi.framework.ServiceReference;
  * OSGi-aware Jackrabbit repository factory which can retrieve/publish
  * {@link Repository} as OSGi services.
  */
-public class OsgiJackrabbitRepositoryFactory extends JackrabbitRepositoryFactory {
-	private BundleContext bundleContext;
+class NodeRepositoryFactory extends JackrabbitRepositoryFactory {
+	private final BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
 	@Override
 	protected Repository getRepositoryByAlias(String alias) {
@@ -49,18 +49,13 @@ public class OsgiJackrabbitRepositoryFactory extends JackrabbitRepositoryFactory
 		}
 	}
 
-	protected void publish(String alias, Repository repository, Properties properties) {
-		if (bundleContext != null) {
-			// do not modify reference
-			Hashtable<String, String> props = new Hashtable<String, String>();
-			props.putAll(props);
-			props.put(JCR_REPOSITORY_ALIAS, alias);
-			bundleContext.registerService(Repository.class.getName(), repository, props);
-		}
-	}
-
-	public void setBundleContext(BundleContext bundleContext) {
-		this.bundleContext = bundleContext;
-	}
-
+//	private void publish(String alias, Repository repository, Properties properties) {
+//		if (bundleContext != null) {
+//			// do not modify reference
+//			Hashtable<String, String> props = new Hashtable<String, String>();
+//			props.putAll(props);
+//			props.put(JCR_REPOSITORY_ALIAS, alias);
+//			bundleContext.registerService(Repository.class.getName(), repository, props);
+//		}
+//	}
 }

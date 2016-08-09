@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,7 +19,6 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
@@ -38,7 +39,7 @@ public class Activator implements BundleActivator {
 	// System.setProperty(SYSTEM_KEY_PROPERTY, systemKey);
 	// }
 
-//	private static Kernel kernel;
+	// private static Kernel kernel;
 	private static Activator instance;
 
 	private BundleContext bc;
@@ -83,18 +84,20 @@ public class Activator implements BundleActivator {
 
 	private void initNodeState() throws IOException {
 		nodeState = new CmsState();
-		bc.registerService(LangUtils.names(NodeState.class, ManagedService.class), nodeState,
-				LangUtils.init(Constants.SERVICE_PID, NodeConstants.NODE_STATE_PID));
 
+		Object cn;
 		Configuration nodeConf = configurationAdmin.getConfiguration(NodeConstants.NODE_STATE_PID);
 		Dictionary<String, Object> props = nodeConf.getProperties();
 		if (props == null) {
 			if (log.isDebugEnabled())
 				log.debug("Clean node state");
 			Dictionary<String, Object> envProps = getStatePropertiesFromEnvironment();
+			// Use the UUID of the first framework run as state UUID
+			cn = KernelUtils.getFrameworkProp(Constants.FRAMEWORK_UUID);
+			envProps.put(NodeConstants.CN, cn);
 			nodeConf.update(envProps);
 		} else {
-			// Check id state is in line with environment
+			// Check if state is in line with environment
 			Dictionary<String, Object> envProps = getStatePropertiesFromEnvironment();
 			for (String key : LangUtils.keys(envProps)) {
 				Object envValue = envProps.get(key);
@@ -106,7 +109,14 @@ public class Activator implements BundleActivator {
 					throw new CmsException("State value for " + key + "=" + storedValue
 							+ " is different from env value =" + envValue + ", please clean the OSGi configuration.");
 			}
+			cn = props.get(NodeConstants.CN);
+			if (cn == null)
+				throw new CmsException("No state UUID available");
 		}
+
+		Dictionary<String, Object> regProps = LangUtils.init(Constants.SERVICE_PID, NodeConstants.NODE_STATE_PID);
+		regProps.put(NodeConstants.CN, cn);
+		bc.registerService(LangUtils.names(NodeState.class, ManagedService.class), nodeState, regProps);
 
 	}
 
@@ -120,10 +130,10 @@ public class Activator implements BundleActivator {
 		this.logReaderService = null;
 		this.configurationAdmin = null;
 
-//		if (kernel != null) {
-//			kernel.destroy();
-//			kernel = null;
-//		}
+		// if (kernel != null) {
+		// kernel.destroy();
+		// kernel = null;
+		// }
 
 	}
 
@@ -158,4 +168,14 @@ public class Activator implements BundleActivator {
 	public static NodeState getNodeState() {
 		return instance.nodeState;
 	}
+
+	public String[] getLocales() {
+		// TODO optimize?
+		List<Locale> locales = getNodeState().getLocales();
+		String[] res = new String[locales.size()];
+		for (int i = 0; i < locales.size(); i++)
+			res[i] = locales.get(i).toString();
+		return res;
+	}
+
 }

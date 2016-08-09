@@ -1,7 +1,7 @@
 package org.argeo.node;
 
 /** JCR repository configuration */
-public enum RepoConf {
+public enum RepoConf implements EnumAD {
 	/** Repository type */
 	type("localfs"),
 	/** Default workspace */
@@ -14,8 +14,9 @@ public enum RepoConf {
 	dbpassword(null),
 
 	/** The identifier (can be an URL locating the repo) */
-	uri(null),
+	labeledUri(null),
 
+	httpPort(8080),
 	//
 	// JACKRABBIT SPECIFIC
 	//
@@ -34,6 +35,12 @@ public enum RepoConf {
 
 	/** The default value. */
 	private Object def;
+	private String oid;
+
+	RepoConf(String oid, Object def) {
+		this.oid = oid;
+		this.def = def;
+	}
 
 	RepoConf(Object def) {
 		this.def = def;
@@ -42,4 +49,18 @@ public enum RepoConf {
 	public Object getDefault() {
 		return def;
 	}
+
+	@Override
+	public String getID() {
+		if (oid != null)
+			return oid;
+		return EnumAD.super.getID();
+	}
+
+	public static class OCD extends EnumOCD<RepoConf> {
+		public OCD(String locale) {
+			super(RepoConf.class, locale);
+		}
+	}
+
 }

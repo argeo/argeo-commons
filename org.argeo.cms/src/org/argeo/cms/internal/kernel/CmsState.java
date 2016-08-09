@@ -9,7 +9,12 @@ import static org.osgi.framework.Constants.FRAMEWORK_UUID;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.UnknownHostException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -22,9 +27,9 @@ import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.jackrabbit.api.JackrabbitRepository;
+import org.apache.jackrabbit.core.RepositoryContext;
 import org.argeo.cms.CmsException;
-import org.argeo.jackrabbit.OsgiJackrabbitRepositoryFactory;
+import org.argeo.cms.maintenance.MaintenanceUi;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeDeployment;
@@ -33,6 +38,7 @@ import org.argeo.node.RepoConf;
 import org.argeo.util.LangUtils;
 import org.eclipse.equinox.http.jetty.JettyConfigurator;
 import org.eclipse.equinox.http.jetty.JettyConstants;
+import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -44,6 +50,7 @@ import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.http.HttpService;
+import org.osgi.service.metatype.MetaTypeProvider;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
@@ -56,6 +63,9 @@ public class CmsState implements NodeState, ManagedService {
 	private final Log log = LogFactory.getLog(CmsState.class);
 	private final BundleContext bc = FrameworkUtil.getBundle(CmsState.class).getBundleContext();
 
+	// avoid dependency to RWT OSGi
+	private final static String PROPERTY_CONTEXT_NAME="contextName";
+	
 	// REFERENCES
 	private ConfigurationAdmin configurationAdmin;
 
@@ -66,11 +76,12 @@ public class CmsState implements NodeState, ManagedService {
 	// Standalone services
 	private BitronixTransactionManager transactionManager;
 	private BitronixTransactionSynchronizationRegistry transactionSynchronizationRegistry;
-	private OsgiJackrabbitRepositoryFactory repositoryFactory;
+	private NodeRepositoryFactory repositoryFactory;
 
 	// Security
 	private NodeUserAdmin userAdmin;
-	private JackrabbitRepositoryServiceFactory repositoryServiceFactory;
+	private RepositoryServiceFactory repositoryServiceFactory;
+	private RepositoryService repositoryService;
 
 	// Deployment
 	private final CmsDeployment nodeDeployment = new CmsDeployment();
@@ -78,29 +89,68 @@ public class CmsState implements NodeState, ManagedService {
 	private boolean cleanState = false;
 	private URI nodeRepoUri = null;
 
+	private String hostname;
+
+	public CmsState() {
+		try {
+			this.hostname = InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) {
+			log.error("Cannot set hostname", e);
+		}
+	}
+
 	@Override
 	public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
 		if (properties == null) {
+			// TODO this should not happen anymore
 			this.cleanState = true;
 			if (log.isTraceEnabled())
 				log.trace("Clean state");
 			return;
 		}
+		String stateUuid = properties.get(NodeConstants.CN).toString();
+		String frameworkUuid = KernelUtils.getFrameworkProp(Constants.FRAMEWORK_UUID);
+		this.cleanState = stateUuid.equals(frameworkUuid);
 
 		try {
 			if (log.isDebugEnabled())
-				log.debug(
-						"## CMS STARTED " + (cleanState ? " (clean state) " : "") + LangUtils.toJson(properties, true));
+				log.debug("## CMS STARTED " + stateUuid + (cleanState ? " (clean state) " : " ")
+						+ LangUtils.toJson(properties, true));
 			configurationAdmin = bc.getService(bc.getServiceReference(ConfigurationAdmin.class));
 
+			nodeRepoUri = KernelUtils.getOsgiInstanceUri("repos/node");
+
+			// pre-requisite
 			initI18n(properties);
 			initTrackers();
+			// standalone services
 			initTransactionManager();
 			initRepositoryFactory();
+			// UI
+			initUi();
+			// Deployment
+			initDeployConfigs(properties);
 			initUserAdmin();
 			initRepositories(properties);
 			initWebServer();
 			initNodeDeployment();
+
+			// MetaTypeService metaTypeService =
+			// bc.getService(bc.getServiceReference(MetaTypeService.class));
+			// MetaTypeInformation metaInfo =
+			// metaTypeService.getMetaTypeInformation(bc.getBundle());
+			// String[] pids = metaInfo.getPids();
+			// for (String pid : pids) {
+			// log.debug("MetaType PID : " + pid);
+			// ObjectClassDefinition ocd =
+			// metaInfo.getObjectClassDefinition(pid, null);
+			// log.debug(ocd.getID());
+			// for (AttributeDefinition attr :
+			// ocd.getAttributeDefinitions(ObjectClassDefinition.ALL)) {
+			// log.debug(attr.getID());
+			// }
+			// }
+
 		} catch (Exception e) {
 			throw new CmsException("Cannot get configuration", e);
 		}
@@ -108,7 +158,7 @@ public class CmsState implements NodeState, ManagedService {
 
 	private void initTrackers() {
 		new ServiceTracker<HttpService, HttpService>(bc, HttpService.class, new PrepareHttpStc()).open();
-		new ServiceTracker<>(bc, JackrabbitRepository.class, new JackrabbitrepositoryStc()).open();
+		new ServiceTracker<>(bc, RepositoryContext.class, new RepositoryContextStc()).open();
 	}
 
 	private void initI18n(Dictionary<String, ?> stateProps) {
@@ -140,43 +190,72 @@ public class CmsState implements NodeState, ManagedService {
 
 	private void initRepositoryFactory() {
 		// TODO rationalise RepositoryFactory
-		repositoryFactory = new OsgiJackrabbitRepositoryFactory();
-		repositoryFactory.setBundleContext(bc);
+		repositoryFactory = new NodeRepositoryFactory();
 		// register
 		bc.registerService(RepositoryFactory.class, repositoryFactory, null);
+	}
+
+	private void initUi() {
+		bc.registerService(ApplicationConfiguration.class, new MaintenanceUi(),
+				LangUtils.init(PROPERTY_CONTEXT_NAME, "system"));
+		bc.registerService(ApplicationConfiguration.class, new UserUi(),
+				LangUtils.init(PROPERTY_CONTEXT_NAME, "user"));
+	}
+
+	private void initDeployConfigs(Dictionary<String, ?> stateProps) throws IOException {
+		Path deployPath = KernelUtils.getOsgiInstancePath(KernelConstants.DIR_NODE + '/' + KernelConstants.DIR_DEPLOY);
+		Files.createDirectories(deployPath);
+
+		Path nodeConfigPath = deployPath.resolve(NodeConstants.NODE_REPO_PID + ".properties");
+		if (!Files.exists(nodeConfigPath)) {
+			Dictionary<String, Object> nodeConfig = getNodeConfig(stateProps);
+			nodeConfig.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, ArgeoJcrConstants.ALIAS_NODE);
+			nodeConfig.put(RepoConf.labeledUri.name(), nodeRepoUri.toString());
+			LangUtils.storeAsProperties(nodeConfig, nodeConfigPath);
+		}
+
+		if (cleanState) {
+			try (DirectoryStream<Path> ds = Files.newDirectoryStream(deployPath)) {
+				for (Path path : ds) {
+					if (Files.isDirectory(path)) {// managed factories
+						try (DirectoryStream<Path> factoryDs = Files.newDirectoryStream(path)) {
+							for (Path confPath : factoryDs) {
+								Configuration conf = configurationAdmin
+										.createFactoryConfiguration(path.getFileName().toString());
+								Dictionary<String, Object> props = LangUtils.loadFromProperties(confPath);
+								conf.update(props);
+							}
+						}
+					} else {// managed services
+						String pid = path.getFileName().toString();
+						pid = pid.substring(0, pid.length() - ".properties".length());
+						Configuration conf = configurationAdmin.getConfiguration(pid);
+						Dictionary<String, Object> props = LangUtils.loadFromProperties(path);
+						conf.update(props);
+					}
+				}
+			}
+		}
 	}
 
 	private void initUserAdmin() {
 		userAdmin = new NodeUserAdmin();
 		// register
 		Dictionary<String, Object> props = userAdmin.currentState();
-		props.put(Constants.SERVICE_PID, NodeConstants.NODE_REPO_PID);
+		props.put(Constants.SERVICE_PID, NodeConstants.NODE_USER_ADMIN_PID);
 		// TODO use ManagedService
 		bc.registerService(UserAdmin.class, userAdmin, props);
 	}
 
 	private void initRepositories(Dictionary<String, ?> stateProps) throws IOException {
-		nodeRepoUri = KernelUtils.getOsgiInstanceUri("repos/node");
 		// register
-		repositoryServiceFactory = new JackrabbitRepositoryServiceFactory();
+		repositoryServiceFactory = new RepositoryServiceFactory();
 		bc.registerService(ManagedServiceFactory.class, repositoryServiceFactory,
 				LangUtils.init(Constants.SERVICE_PID, NodeConstants.JACKRABBIT_FACTORY_PID));
 
-		if (cleanState) {
-			Configuration newNodeConf = configurationAdmin
-					.createFactoryConfiguration(NodeConstants.JACKRABBIT_FACTORY_PID);
-			Dictionary<String, Object> props = getNodeConfig(stateProps);
-			if (props == null) {
-				if (log.isDebugEnabled())
-					log.debug("No argeo.node.repo.type=localfs|h2|postgresql|memory"
-							+ " property defined, entering interactive mode...");
-				// TODO interactive configuration
-				return;
-			}
-			// props.put(Constants.SERVICE_PID, NodeConstants.NODE_REPO_PID);
-			props.put(RepoConf.uri.name(), nodeRepoUri.toString());
-			newNodeConf.update(props);
-		}
+		repositoryService = new RepositoryService();
+		Dictionary<String, Object> regProps = LangUtils.init(Constants.SERVICE_PID, NodeConstants.NODE_REPO_PID);
+		bc.registerService(LangUtils.names(ManagedService.class, MetaTypeProvider.class), repositoryService, regProps);
 	}
 
 	private void initWebServer() {
@@ -231,15 +310,16 @@ public class CmsState implements NodeState, ManagedService {
 
 		// Clean hanging Gogo shell thread
 		new GogoShellKiller().start();
-		
+
 		if (log.isDebugEnabled())
 			log.debug("## CMS STOPPED");
 	}
 
 	private Dictionary<String, Object> getNodeConfig(Dictionary<String, ?> properties) {
-		Object repoType = properties.get(NodeConstants.NODE_REPO_PROP_PREFIX + RepoConf.type.name());
-		if (repoType == null)
-			return null;
+		// Object repoType = properties.get(NodeConstants.NODE_REPO_PROP_PREFIX
+		// + RepoConf.type.name());
+		// if (repoType == null)
+		// return null;
 
 		Hashtable<String, Object> props = new Hashtable<String, Object>();
 		for (RepoConf repoConf : RepoConf.values()) {
@@ -250,29 +330,30 @@ public class CmsState implements NodeState, ManagedService {
 		return props;
 	}
 
-	private class JackrabbitrepositoryStc
-			implements ServiceTrackerCustomizer<JackrabbitRepository, JackrabbitRepository> {
+	private class RepositoryContextStc implements ServiceTrackerCustomizer<RepositoryContext, RepositoryContext> {
 
 		@Override
-		public JackrabbitRepository addingService(ServiceReference<JackrabbitRepository> reference) {
-			JackrabbitRepository nodeRepo = bc.getService(reference);
+		public RepositoryContext addingService(ServiceReference<RepositoryContext> reference) {
+			RepositoryContext nodeRepo = bc.getService(reference);
 			Object repoUri = reference.getProperty(ArgeoJcrConstants.JCR_REPOSITORY_URI);
 			if (repoUri != null && repoUri.equals(nodeRepoUri.toString())) {
-				nodeDeployment.setDeployedNodeRepository(nodeRepo);
+				nodeDeployment.setDeployedNodeRepository(nodeRepo.getRepository());
+				Dictionary<String, Object> props = LangUtils.init(Constants.SERVICE_PID,
+						NodeConstants.NODE_DEPLOYMENT_PID);
+				props.put("uid", nodeRepo.getRootNodeId().toString());
 				// register
-				bc.registerService(LangUtils.names(NodeDeployment.class, ManagedService.class), nodeDeployment,
-						LangUtils.init(Constants.SERVICE_PID, NodeConstants.NODE_DEPLOYMENT_PID));
+				bc.registerService(LangUtils.names(NodeDeployment.class, ManagedService.class), nodeDeployment, props);
 			}
 
 			return nodeRepo;
 		}
 
 		@Override
-		public void modifiedService(ServiceReference<JackrabbitRepository> reference, JackrabbitRepository service) {
+		public void modifiedService(ServiceReference<RepositoryContext> reference, RepositoryContext service) {
 		}
 
 		@Override
-		public void removedService(ServiceReference<JackrabbitRepository> reference, JackrabbitRepository service) {
+		public void removedService(ServiceReference<RepositoryContext> reference, RepositoryContext service) {
 		}
 
 	}
@@ -320,6 +401,10 @@ public class CmsState implements NodeState, ManagedService {
 
 	public List<Locale> getLocales() {
 		return locales;
+	}
+
+	public String getHostname() {
+		return hostname;
 	}
 
 	/*

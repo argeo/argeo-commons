@@ -9,6 +9,7 @@ public interface KernelConstants {
 
 	// Directories
 	final static String DIR_NODE = "node";
+	final static String DIR_DEPLOY = "deploy";
 	final static String DIR_TRANSACTIONS = "transactions";
 	final static String DIR_PKI = "pki";
 	final static String DIR_PKI_PRIVATE = DIR_PKI + "/private";

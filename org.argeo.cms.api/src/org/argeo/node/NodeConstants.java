@@ -10,7 +10,7 @@ public interface NodeConstants {
 
 	String NODE_REPO_PID = "org.argeo.node.repo";
 	String NODE_USER_ADMIN_PID = "org.argeo.node.userAdmin";
-	
+
 	/*
 	 * FACTORY PIDs
 	 */
@@ -30,4 +30,9 @@ public interface NodeConstants {
 	/** Properties configuring the node repository */
 	String NODE_REPO_PROP_PREFIX = "argeo.node.repo.";
 
+	/*
+	 * STANDARD ATTRIBUTES
+	 */
+	String CN = "cn";
+	String LABELED_URI = "labeledUri";
 }

@@ -38,19 +38,32 @@ public class CmsDeployment implements NodeDeployment, ManagedService {
 
 	private Repository deployedNodeRepository;
 	private HomeRepository homeRepository;
-	
+
+	private Long availableSince;
+
 	@Override
 	public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
 		if (properties == null)
 			return;
 
-		prepareDataModel(KernelUtils.openAdminSession(deployedNodeRepository));
-		Hashtable<String, String> regProps = new Hashtable<String, String>();
-		regProps.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, ArgeoJcrConstants.ALIAS_HOME);
-		homeRepository = new HomeRepository(deployedNodeRepository);
-		// register
-		bc.registerService(Repository.class, homeRepository, regProps);
-}
+		if (deployedNodeRepository != null) {
+			if (availableSince != null) {
+				throw new CmsException("Deployment is already available");
+			}
+
+			availableSince = System.currentTimeMillis();
+
+			prepareDataModel(KernelUtils.openAdminSession(deployedNodeRepository));
+			Hashtable<String, String> regProps = new Hashtable<String, String>();
+			regProps.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, ArgeoJcrConstants.ALIAS_HOME);
+			homeRepository = new HomeRepository(deployedNodeRepository);
+			// register
+			bc.registerService(Repository.class, homeRepository, regProps);
+
+		} else {
+			throw new CmsException("No node repository available");
+		}
+	}
 
 	/** Session is logged out. */
 	private void prepareDataModel(Session adminSession) {
@@ -113,5 +126,9 @@ public class CmsDeployment implements NodeDeployment, ManagedService {
 		this.deployedNodeRepository = deployedNodeRepository;
 	}
 
-	
+	@Override
+	public long getAvailableSince() {
+		return availableSince;
+	}
+
 }

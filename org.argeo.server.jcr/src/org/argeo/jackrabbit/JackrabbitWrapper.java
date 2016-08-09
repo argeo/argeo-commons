@@ -61,7 +61,7 @@ import org.springframework.core.io.ResourceLoader;
  * Wrapper around a Jackrabbit repository which allows to simplify configuration
  * and intercept some actions. It exposes itself as a {@link Repository}.
  */
-@SuppressWarnings("deprecation")
+@Deprecated
 public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 		JackrabbitRepository, ResourceLoaderAware {
 	private final static Log log = LogFactory.getLog(JackrabbitWrapper.class);

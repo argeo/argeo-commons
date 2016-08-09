@@ -5,11 +5,11 @@
 	<DataSources>
 		<DataSource name="dataSource">
 			<param name="driver" value="org.postgresql.Driver" />
-			<param name="url" value="${argeo.node.repo.dburl}" />
-			<param name="user" value="${argeo.node.repo.dbuser}" />
-			<param name="password" value="${argeo.node.repo.dbpassword}" />
+			<param name="url" value="${dburl}" />
+			<param name="user" value="${dbuser}" />
+			<param name="password" value="${dbpassword}" />
 			<param name="databaseType" value="postgresql" />
-			<param name="maxPoolSize" value="${argeo.node.repo.maxPoolSize}" />
+			<param name="maxPoolSize" value="${maxPoolSize}" />
 		</DataSource>
 	</DataSources>
 
@@ -25,7 +25,7 @@
 
 	<!-- Workspace templates -->
 	<Workspaces rootPath="${rep.home}/workspaces"
-		defaultWorkspace="${argeo.node.repo.defaultWorkspace}" />
+		defaultWorkspace="${defaultWorkspace}" />
 	<Workspace name="${wsp.name}">
 		<FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
 			<param name="dataSourceName" value="dataSource" />
@@ -36,13 +36,13 @@
 			class="org.apache.jackrabbit.core.persistence.pool.PostgreSQLPersistenceManager">
 			<param name="dataSourceName" value="dataSource" />
 			<param name="schemaObjectPrefix" value="${wsp.name}_pm_" />
-			<param name="bundleCacheSize" value="${argeo.node.repo.bundleCacheMB}" />
+			<param name="bundleCacheSize" value="${bundleCacheMB}" />
 		</PersistenceManager>
 		<SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
 			<param name="path" value="${wsp.home}/index" />
-			<param name="extractorPoolSize" value="${argeo.node.repo.extractorPoolSize}" />
-			<param name="cacheSize" value="${argeo.node.repo.searchCacheSize}" />
-			<param name="maxVolatileIndexSize" value="${argeo.node.repo.maxVolatileIndexSize}" />
+			<param name="extractorPoolSize" value="${extractorPoolSize}" />
+			<param name="cacheSize" value="${searchCacheSize}" />
+			<param name="maxVolatileIndexSize" value="${maxVolatileIndexSize}" />
 		</SearchIndex>
 		<WorkspaceSecurity>
 			<AccessControlProvider
@@ -61,16 +61,16 @@
 			class="org.apache.jackrabbit.core.persistence.pool.PostgreSQLPersistenceManager">
 			<param name="dataSourceName" value="dataSource" />
 			<param name="schemaObjectPrefix" value="pm_ver_" />
-			<param name="bundleCacheSize" value="${argeo.node.repo.bundleCacheMB}" />
+			<param name="bundleCacheSize" value="${bundleCacheMB}" />
 		</PersistenceManager>
 	</Versioning>
 
 	<!-- Indexing -->
 	<SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
 		<param name="path" value="${rep.home}/index" />
-		<param name="extractorPoolSize" value="${argeo.node.repo.extractorPoolSize}" />
-		<param name="cacheSize" value="${argeo.node.repo.searchCacheSize}" />
-		<param name="maxVolatileIndexSize" value="${argeo.node.repo.maxVolatileIndexSize}" />
+		<param name="extractorPoolSize" value="${extractorPoolSize}" />
+		<param name="cacheSize" value="${searchCacheSize}" />
+		<param name="maxVolatileIndexSize" value="${maxVolatileIndexSize}" />
 	</SearchIndex>
 
 	<!-- Security -->

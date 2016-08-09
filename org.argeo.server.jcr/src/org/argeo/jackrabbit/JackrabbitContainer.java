@@ -41,7 +41,6 @@ import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.jcr.MaintainedRepository;
 import org.springframework.core.io.Resource;
 import org.springframework.util.SystemPropertyUtils;
 import org.xml.sax.InputSource;
@@ -50,8 +49,8 @@ import org.xml.sax.InputSource;
  * Wrapper around a Jackrabbit repository which allows to configure it in Spring
  * and expose it as a {@link Repository}.
  */
-public class JackrabbitContainer extends JackrabbitWrapper implements
-		MaintainedRepository {
+@Deprecated
+public class JackrabbitContainer extends JackrabbitWrapper {
 	private final static Log log = LogFactory.getLog(JackrabbitContainer.class);
 
 	// local
@@ -81,8 +80,7 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 		// long begin = System.currentTimeMillis();
 
 		if (getRepository() != null)
-			throw new ArgeoException(
-					"Cannot be used to wrap another repository");
+			throw new ArgeoException("Cannot be used to wrap another repository");
 		Repository repository = createJackrabbitRepository();
 		super.setRepository(repository);
 
@@ -108,14 +106,12 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 			// temporary
 			if (inMemory && getHomeDirectory().exists()) {
 				FileUtils.deleteDirectory(getHomeDirectory());
-				log.warn("Deleted Jackrabbit home directory "
-						+ getHomeDirectory());
+				log.warn("Deleted Jackrabbit home directory " + getHomeDirectory());
 			}
 
 			// process configuration file
 			Properties vars = getConfigurationProperties();
-			vars.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE,
-					getHomeDirectory().getCanonicalPath());
+			vars.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE, getHomeDirectory().getCanonicalPath());
 			InputSource is;
 			if (configurationXml != null)
 				is = configurationXml;
@@ -132,13 +128,11 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 
 			double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
 			if (log.isTraceEnabled())
-				log.trace("Created Jackrabbit repository in " + duration
-						+ " s, home: " + getHomeDirectory());
+				log.trace("Created Jackrabbit repository in " + duration + " s, home: " + getHomeDirectory());
 
 			return repository;
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot create Jackrabbit repository "
-					+ getHomeDirectory(), e);
+			throw new ArgeoException("Cannot create Jackrabbit repository " + getHomeDirectory(), e);
 		} finally {
 			IOUtils.closeQuietly(configurationIn);
 		}
@@ -149,12 +143,8 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 		try {
 			if (homeDirectory == null) {
 				if (inMemory) {
-					homeDirectory = new File(
-							System.getProperty("java.io.tmpdir")
-									+ File.separator
-									+ System.getProperty("user.name")
-									+ File.separator + "jackrabbit-"
-									+ UUID.randomUUID());
+					homeDirectory = new File(System.getProperty("java.io.tmpdir") + File.separator
+							+ System.getProperty("user.name") + File.separator + "jackrabbit-" + UUID.randomUUID());
 					homeDirectory.mkdirs();
 					// will it work if directory is not empty??
 					homeDirectory.deleteOnExit();
@@ -163,8 +153,7 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 
 			return homeDirectory.getCanonicalFile();
 		} catch (IOException e) {
-			throw new ArgeoException("Cannot get canonical file for "
-					+ homeDirectory, e);
+			throw new ArgeoException("Cannot get canonical file for " + homeDirectory, e);
 		}
 	}
 
@@ -198,9 +187,7 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 		if (restartAndClearCaches) {
 			Repository repository = getRepository();
 			if (repository instanceof RepositoryImpl) {
-				JackrabbitDataModelMigration
-						.clearRepositoryCaches(((RepositoryImpl) repository)
-								.getConfig());
+				JackrabbitDataModelMigration.clearRepositoryCaches(((RepositoryImpl) repository).getConfig());
 			}
 			((JackrabbitRepository) repository).shutdown();
 			createJackrabbitRepository();
@@ -216,12 +203,9 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 		for (JackrabbitDataModelMigration dataModelMigration : new TreeSet<JackrabbitDataModelMigration>(
 				dataModelMigrations)) {
 			try {
-				if (session.itemExists(dataModelMigration
-						.getDataModelNodePath())) {
-					Node dataModelNode = session.getNode(dataModelMigration
-							.getDataModelNodePath());
-					dataModelNode.setProperty(
-							ArgeoNames.ARGEO_DATA_MODEL_VERSION,
+				if (session.itemExists(dataModelMigration.getDataModelNodePath())) {
+					Node dataModelNode = session.getNode(dataModelMigration.getDataModelNodePath());
+					dataModelNode.setProperty(ArgeoNames.ARGEO_DATA_MODEL_VERSION,
 							dataModelMigration.getTargetVersion());
 					session.save();
 				}
@@ -243,20 +227,17 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 				if (getHomeDirectory().exists()) {
 					FileUtils.deleteDirectory(getHomeDirectory());
 					if (log.isDebugEnabled())
-						log.debug("Deleted Jackrabbit home directory "
-								+ getHomeDirectory());
+						log.debug("Deleted Jackrabbit home directory " + getHomeDirectory());
 				}
 			double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
 			if (log.isTraceEnabled())
-				log.trace("Destroyed Jackrabbit repository in " + duration
-						+ " s, home: " + getHomeDirectory());
+				log.trace("Destroyed Jackrabbit repository in " + duration + " s, home: " + getHomeDirectory());
 		}
 		repository = null;
 	}
 
 	public void dispose() {
-		throw new IllegalArgumentException(
-				"Call destroy() method instead of dispose()");
+		throw new IllegalArgumentException("Call destroy() method instead of dispose()");
 	}
 
 	/*
@@ -267,11 +248,9 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 	 */
 	protected InputStream readConfiguration() {
 		try {
-			return configuration != null ? configuration.getInputStream()
-					: null;
+			return configuration != null ? configuration.getInputStream() : null;
 		} catch (IOException e) {
-			throw new ArgeoException("Cannot read Jackrabbit configuration "
-					+ configuration, e);
+			throw new ArgeoException("Cannot read Jackrabbit configuration " + configuration, e);
 		}
 	}
 
@@ -285,8 +264,7 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 		try {
 			return variables != null ? variables.getInputStream() : null;
 		} catch (IOException e) {
-			throw new ArgeoException("Cannot read Jackrabbit variables "
-					+ variables, e);
+			throw new ArgeoException("Cannot read Jackrabbit variables " + variables, e);
 		}
 	}
 
@@ -294,8 +272,7 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 	 * Resolves ${} placeholders in the provided string. Based on system
 	 * properties if no map is provided.
 	 */
-	protected String resolvePlaceholders(String string,
-			Map<String, String> variables) {
+	protected String resolvePlaceholders(String string, Map<String, String> variables) {
 		return SystemPropertyUtils.resolvePlaceholders(string);
 	}
 
@@ -315,8 +292,7 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 			// resolve system properties
 			for (Object key : vars.keySet()) {
 				// TODO: implement a smarter mechanism to resolve nested ${}
-				String newValue = resolvePlaceholders(
-						vars.getProperty(key.toString()), null);
+				String newValue = resolvePlaceholders(vars.getProperty(key.toString()), null);
 				vars.put(key, newValue);
 			}
 			// override with system properties
@@ -352,8 +328,7 @@ public class JackrabbitContainer extends JackrabbitWrapper implements
 		throw new ArgeoException("Cannot be used to wrap another repository");
 	}
 
-	public void setDataModelMigrations(
-			Set<JackrabbitDataModelMigration> dataModelMigrations) {
+	public void setDataModelMigrations(Set<JackrabbitDataModelMigration> dataModelMigrations) {
 		this.dataModelMigrations = dataModelMigrations;
 	}
 

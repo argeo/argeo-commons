@@ -35,10 +35,10 @@ class PkiUtils {
 	}
 
 	public static X509Certificate generateSelfSignedCertificate(KeyStore keyStore, X500Principal x500Principal,
-			char[] keyPassword) {
+			int keySize, char[] keyPassword) {
 		try {
 			KeyPairGenerator kpGen = KeyPairGenerator.getInstance("RSA", SECURITY_PROVIDER);
-			kpGen.initialize(1024, new SecureRandom());
+			kpGen.initialize(keySize, new SecureRandom());
 			KeyPair pair = kpGen.generateKeyPair();
 			Date notBefore = new Date(System.currentTimeMillis() - 10000);
 			Date notAfter = new Date(System.currentTimeMillis() + 24L * 3600 * 1000);
@@ -83,6 +83,77 @@ class PkiUtils {
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot save keystore " + keyStoreFile, e);
 		}
+	}
+
+	public static void main(String[] args) {
+		final String ALGORITHM = "RSA";
+		final String provider = "BC";
+		SecureRandom secureRandom = new SecureRandom();
+		long begin = System.currentTimeMillis();
+		for (int i = 512; i < 1024; i = i + 2) {
+			try {
+				KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGORITHM,provider);
+				keyGen.initialize(i, secureRandom);
+				keyGen.generateKeyPair();
+			} catch (Exception e) {
+				System.err.println(i + " : " + e.getMessage());
+			}
+		}
+		System.out.println( (System.currentTimeMillis() - begin) + " ms");
+
+//		// String text = "a";
+//		String text = "testtesttesttesttesttesttesttesttesttesttesttesttesttesttest";
+//		try {
+//			System.out.println(text);
+//			PrivateKey privateKey;
+//			PublicKey publicKey;
+//			char[] password = "changeit".toCharArray();
+//			String alias = "CN=test";
+//			KeyStore keyStore = KeyStore.getInstance("pkcs12");
+//			File p12file = new File("test.p12");
+//			p12file.delete();
+//			if (!p12file.exists()) {
+//				keyStore.load(null);
+//				generateSelfSignedCertificate(keyStore, new X500Principal(alias), 513, password);
+//				try (OutputStream out = new FileOutputStream(p12file)) {
+//					keyStore.store(out, password);
+//				}
+//			}
+//			try (InputStream in = new FileInputStream(p12file)) {
+//				keyStore.load(in, password);
+//				privateKey = (PrivateKey) keyStore.getKey(alias, password);
+//				publicKey = keyStore.getCertificateChain(alias)[0].getPublicKey();
+//			}
+//			// KeyPair key;
+//			// final KeyPairGenerator keyGen =
+//			// KeyPairGenerator.getInstance(ALGORITHM);
+//			// keyGen.initialize(4096, new SecureRandom());
+//			// long begin = System.currentTimeMillis();
+//			// key = keyGen.generateKeyPair();
+//			// System.out.println((System.currentTimeMillis() - begin) + " ms");
+//			// keyStore.load(null);
+//			// keyStore.setKeyEntry("test", key.getPrivate(), password, null);
+//			// try(OutputStream out=new FileOutputStream(p12file)) {
+//			// keyStore.store(out, password);
+//			// }
+//			// privateKey = key.getPrivate();
+//			// publicKey = key.getPublic();
+//
+//			Cipher encrypt = Cipher.getInstance(ALGORITHM);
+//			encrypt.init(Cipher.ENCRYPT_MODE, publicKey);
+//			byte[] encrypted = encrypt.doFinal(text.getBytes());
+//			String encryptedBase64 = Base64.getEncoder().encodeToString(encrypted);
+//			System.out.println(encryptedBase64);
+//			byte[] encryptedFromBase64 = Base64.getDecoder().decode(encryptedBase64);
+//
+//			Cipher decrypt = Cipher.getInstance(ALGORITHM);
+//			decrypt.init(Cipher.DECRYPT_MODE, privateKey);
+//			byte[] decrypted = decrypt.doFinal(encryptedFromBase64);
+//			System.out.println(new String(decrypted));
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+
 	}
 
 }

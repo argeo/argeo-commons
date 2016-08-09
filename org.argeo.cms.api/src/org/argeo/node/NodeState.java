@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Locale;
 
 public interface NodeState {
-	public Locale getDefaultLocale();
+	Locale getDefaultLocale();
 
-	public List<Locale> getLocales();
+	List<Locale> getLocales();
+
+	String getHostname();
 }

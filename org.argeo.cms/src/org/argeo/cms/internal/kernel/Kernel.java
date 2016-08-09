@@ -54,7 +54,6 @@ import org.argeo.ArgeoException;
 import org.argeo.ArgeoLogger;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.maintenance.MaintenanceUi;
-import org.argeo.jackrabbit.OsgiJackrabbitRepositoryFactory;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.node.DataModelNamespace;
@@ -106,6 +105,7 @@ import bitronix.tm.TransactionManagerServices;
  * <li>OS access</li>
  * </ul>
  */
+@Deprecated
 final class Kernel implements KernelHeader, KernelConstants {
 	/*
 	 * SERVICE REFERENCES
@@ -132,7 +132,7 @@ final class Kernel implements KernelHeader, KernelConstants {
 	private NodeLogger logger;
 	private BitronixTransactionManager transactionManager;
 	private BitronixTransactionSynchronizationRegistry transactionSynchronizationRegistry;
-	private OsgiJackrabbitRepositoryFactory repositoryFactory;
+	private NodeRepositoryFactory repositoryFactory;
 	private Repository repository;
 	private NodeUserAdmin userAdmin;
 
@@ -499,7 +499,7 @@ final class Kernel implements KernelHeader, KernelConstants {
 		// Initialise services
 		initTransactionManager();
 
-		JackrabbitRepositoryServiceFactory jrsf = new JackrabbitRepositoryServiceFactory();
+		RepositoryServiceFactory jrsf = new RepositoryServiceFactory();
 		String[] clazzes = { ManagedServiceFactory.class.getName() };
 		Hashtable<String, String> serviceProps = new Hashtable<String, String>();
 		serviceProps.put(Constants.SERVICE_PID, ArgeoJcrConstants.JACKRABBIT_REPO_FACTORY_PID);
@@ -549,11 +549,11 @@ final class Kernel implements KernelHeader, KernelConstants {
 						JackrabbitRepository nodeRepo = bc.getService(reference);
 						// new
 						// JackrabbitDataModel(bc).prepareDataModel(nodeRepo);
-						prepareDataModel(KernelUtils.openAdminSession( nodeRepo));
+						prepareDataModel(KernelUtils.openAdminSession(nodeRepo));
 
 						// repository = (JackrabbitRepository)
 						// bc.getService(repositoryReg.getReference());
-						repository = new HomeRepository( nodeRepo);
+						repository = new HomeRepository(nodeRepo);
 						Hashtable<String, String> regProps = new Hashtable<String, String>();
 						regProps.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, ArgeoJcrConstants.ALIAS_NODE);
 						repositoryReg = (ServiceRegistration<? extends Repository>) bc.registerService(Repository.class,
@@ -562,8 +562,8 @@ final class Kernel implements KernelHeader, KernelConstants {
 						// if (repository == null)
 						// repository = new NodeRepository();
 						if (repositoryFactory == null) {
-							repositoryFactory = new OsgiJackrabbitRepositoryFactory();
-							repositoryFactory.setBundleContext(bc);
+							repositoryFactory = new NodeRepositoryFactory();
+							// repositoryFactory.setBundleContext(bc);
 							repositoryFactoryReg = bc.registerService(RepositoryFactory.class, repositoryFactory, null);
 						}
 						userAdmin = new NodeUserAdmin(transactionManager, repository);

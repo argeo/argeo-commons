@@ -126,6 +126,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 	}
 
 	public void init() throws Exception {
+		log.error("SHOULD NOT BE USED ANYMORE");
 		monitoringThread = new MonitoringThread();
 		monitoringThread.start();
 	}

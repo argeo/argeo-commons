@@ -1,103 +1,59 @@
 package org.argeo.cms.internal.kernel;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Dictionary;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.jackrabbit.api.JackrabbitRepository;
 import org.apache.jackrabbit.core.RepositoryContext;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.cache.CacheManager;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
-import org.argeo.ArgeoException;
 import org.argeo.cms.CmsException;
-import org.argeo.jackrabbit.JackrabbitNodeType;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.node.RepoConf;
-import org.argeo.util.LangUtils;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedServiceFactory;
 import org.xml.sax.InputSource;
 
-public class JackrabbitRepositoryServiceFactory implements ManagedServiceFactory {
-	private final static Log log = LogFactory.getLog(JackrabbitRepositoryServiceFactory.class);
-	private final BundleContext bc = FrameworkUtil.getBundle(JackrabbitRepositoryServiceFactory.class)
-			.getBundleContext();
+/** Can interpret properties in order to create an actual JCR repository. */
+class RepositoryBuilder {
+	private final static Log log = LogFactory.getLog(RepositoryBuilder.class);
 
-	// Node
-	final static String REPO_TYPE = "repoType";
+	RepositoryContext createRepositoryContext(Dictionary<String, ?> properties) throws RepositoryException {
+		RepositoryConfig repositoryConfig = createRepositoryConfig(properties);
+		RepositoryContext repositoryContext = createJackrabbitRepository(repositoryConfig);
+		RepositoryImpl repository = repositoryContext.getRepository();
 
-	private Map<String, RepositoryContext> repositories = new HashMap<String, RepositoryContext>();
-
-	@Override
-	public String getName() {
-		return "Jackrabbit repository service factory";
-	}
-
-	@Override
-	public void updated(String pid, Dictionary<String, ?> properties) throws ConfigurationException {
-		if (repositories.containsKey(pid))
-			throw new ArgeoException("Already a repository registered for " + pid);
-
-		if (properties == null)
-			return;
-
-		if (repositories.containsKey(pid)) {
-			log.warn("Ignore update of Jackrabbit repository " + pid);
-			return;
+		// cache
+		Object maxCacheMbStr = prop(properties, RepoConf.maxCacheMB);
+		if (maxCacheMbStr != null) {
+			Integer maxCacheMB = Integer.parseInt(maxCacheMbStr.toString());
+			CacheManager cacheManager = repository.getCacheManager();
+			cacheManager.setMaxMemory(maxCacheMB * 1024l * 1024l);
+			cacheManager.setMaxMemoryPerCache((maxCacheMB / 4) * 1024l * 1024l);
 		}
 
-		try {
-			RepositoryContext repositoryContext = createNode(properties);
-			repositories.put(pid, repositoryContext);
-			Dictionary<String, Object> props = LangUtils.init(Constants.SERVICE_PID, pid);
-			props.put(ArgeoJcrConstants.JCR_REPOSITORY_URI, properties.get(RepoConf.uri.name()));
-			bc.registerService(JackrabbitRepository.class, repositoryContext.getRepository(), props);
-		} catch (Exception e) {
-			throw new ArgeoException("Cannot create Jackrabbit repository " + pid, e);
-		}
-
+		return repositoryContext;
 	}
 
-	@Override
-	public void deleted(String pid) {
-		RepositoryContext repositoryContext = repositories.remove(pid);
-		repositoryContext.getRepository().shutdown();
-		if (log.isDebugEnabled())
-			log.debug("Deleted repository " + pid);
-	}
-
-	public void shutdown() {
-		for (String pid : repositories.keySet()) {
-			try {
-				repositories.get(pid).getRepository().shutdown();
-			} catch (Exception e) {
-				log.error("Error when shutting down Jackrabbit repository " + pid, e);
-			}
-		}
-	}
-
-	private RepositoryConfig getConfiguration(Dictionary<String, ?> properties) throws RepositoryException {
-		JackrabbitNodeType type = JackrabbitNodeType.valueOf(prop(properties, RepoConf.type).toString());
+	RepositoryConfig createRepositoryConfig(Dictionary<String, ?> properties) throws RepositoryException {
+		JackrabbitType type = JackrabbitType.valueOf(prop(properties, RepoConf.type).toString());
 		ClassLoader cl = getClass().getClassLoader();
 		InputStream in = null;
 		try {
@@ -130,11 +86,12 @@ public class JackrabbitRepositoryServiceFactory implements ManagedServiceFactory
 		}
 	}
 
-	private Properties getConfigurationProperties(JackrabbitNodeType type, Dictionary<String, ?> properties) {
+	private Properties getConfigurationProperties(JackrabbitType type, Dictionary<String, ?> properties) {
 		Properties props = new Properties();
 		keys: for (Enumeration<String> keys = properties.keys(); keys.hasMoreElements();) {
 			String key = keys.nextElement();
-			if (key.equals(ConfigurationAdmin.SERVICE_FACTORYPID) || key.equals(Constants.SERVICE_PID))
+			if (key.equals(ConfigurationAdmin.SERVICE_FACTORYPID) || key.equals(Constants.SERVICE_PID)
+					|| key.equals(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS))
 				continue keys;
 			String value = prop(properties, RepoConf.valueOf(key));
 			if (value != null)
@@ -142,19 +99,26 @@ public class JackrabbitRepositoryServiceFactory implements ManagedServiceFactory
 		}
 
 		// home
-		// File osgiInstanceDir = getOsgiInstanceDir();
-		String homeUri = props.getProperty(RepoConf.uri.name());
+		String homeUri = props.getProperty(RepoConf.labeledUri.name());
 		Path homePath;
 		try {
-			homePath = Paths.get(new URI(homeUri));
+			homePath = Paths.get(new URI(homeUri)).toAbsolutePath();
 		} catch (URISyntaxException e) {
 			throw new CmsException("Invalid repository home URI", e);
 		}
-		// File homeDir = new File(osgiInstanceDir, "repos/node");
+		Path rootUuidPath = homePath.resolve("repository/meta/rootUUID");
+		if (!Files.exists(rootUuidPath)) {
+			try {
+				Files.createDirectories(rootUuidPath.getParent());
+				Files.write(rootUuidPath, UUID.randomUUID().toString().getBytes());
+			} catch (IOException e) {
+				log.error("Could not set rootUUID", e);
+			}
+		}
 		File homeDir = homePath.toFile();
 		homeDir.mkdirs();
 		// home cannot be overridden
-		props.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE, homeDir.getAbsolutePath());
+		props.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE, homePath.toString());
 
 		// common
 		setProp(props, RepoConf.defaultWorkspace);
@@ -213,26 +177,9 @@ public class JackrabbitRepositoryServiceFactory implements ManagedServiceFactory
 			return value.toString();
 	}
 
-	private RepositoryContext createNode(Dictionary<String, ?> properties) throws RepositoryException {
-		RepositoryConfig repositoryConfig = getConfiguration(properties);
-		RepositoryContext repositoryContext = createJackrabbitRepository(repositoryConfig);
-		RepositoryImpl repository = repositoryContext.getRepository();
-
-		// cache
-		Object maxCacheMbStr = prop(properties, RepoConf.maxCacheMB);
-		if (maxCacheMbStr != null) {
-			Integer maxCacheMB = Integer.parseInt(maxCacheMbStr.toString());
-			CacheManager cacheManager = repository.getCacheManager();
-			cacheManager.setMaxMemory(maxCacheMB * 1024l * 1024l);
-			cacheManager.setMaxMemoryPerCache((maxCacheMB / 4) * 1024l * 1024l);
-		}
-
-		return repositoryContext;
-	}
-
 	private RepositoryContext createJackrabbitRepository(RepositoryConfig repositoryConfig) throws RepositoryException {
 		ClassLoader currentContextCl = Thread.currentThread().getContextClassLoader();
-		Thread.currentThread().setContextClassLoader(JackrabbitRepositoryServiceFactory.class.getClassLoader());
+		Thread.currentThread().setContextClassLoader(RepositoryBuilder.class.getClassLoader());
 		try {
 			long begin = System.currentTimeMillis();
 			//

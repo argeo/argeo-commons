@@ -48,12 +48,11 @@ import org.xml.sax.InputSource;
  * Jackrabbit repositories
  */
 public class JackrabbitRepositoryFactory implements RepositoryFactory, ArgeoJcrConstants {
-
 	private final static Log log = LogFactory.getLog(JackrabbitRepositoryFactory.class);
 
 	private Resource fileRepositoryConfiguration = new ClassPathResource("/org/argeo/jackrabbit/repository-h2.xml");
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	public Repository getRepository(Map parameters) throws RepositoryException {
 		// // check if can be found by alias
 		// Repository repository = super.getRepository(parameters);
@@ -73,13 +72,10 @@ public class JackrabbitRepositoryFactory implements RepositoryFactory, ArgeoJcrC
 				repository = createRemoteRepository(uri);
 			else if (uri.startsWith("file"))// http, https
 				repository = createFileRepository(uri, parameters);
-			 else if (uri.startsWith("vm")) {
-			 log.warn("URI "
-			 + uri
-			 + " should have been managed by generic JCR repository factory");
-			 repository = getRepositoryByAlias(getAliasFromURI(uri));
-			 }
-			else
+			else if (uri.startsWith("vm")) {
+				log.warn("URI " + uri + " should have been managed by generic JCR repository factory");
+				repository = getRepositoryByAlias(getAliasFromURI(uri));
+			} else
 				throw new ArgeoJcrException("Unrecognized URI format " + uri);
 
 		}

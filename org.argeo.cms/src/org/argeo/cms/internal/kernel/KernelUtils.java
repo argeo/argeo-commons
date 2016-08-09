@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.PrivilegedAction;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -65,25 +67,25 @@ class KernelUtils implements KernelConstants {
 				.getAbsoluteFile();
 	}
 
-	static URI getOsgiInstanceUri(String relativePath) {
-		String osgiInstanceBaseUri = getFrameworkProp(OSGI_INSTANCE_AREA);
-		try {
-			return new URI(osgiInstanceBaseUri + (relativePath != null ? relativePath : ""));
-		} catch (URISyntaxException e) {
-			throw new CmsException("Cannot get OSGi instance URI for " + relativePath, e);
-		}
+	static Path getOsgiInstancePath(String relativePath) {
+		return Paths.get(getOsgiInstanceUri(relativePath));
 	}
 
-	static String getOsgiInstancePath(String relativePath) {
-		try {
-			if (relativePath == null)
-				return getOsgiInstanceDir().getCanonicalPath();
-			else
-				return new File(getOsgiInstanceDir(), relativePath).getCanonicalPath();
-		} catch (IOException e) {
-			throw new CmsException("Cannot get instance path for " + relativePath, e);
-		}
+	static URI getOsgiInstanceUri(String relativePath) {
+		String osgiInstanceBaseUri = getFrameworkProp(OSGI_INSTANCE_AREA);
+			return safeUri(osgiInstanceBaseUri + (relativePath != null ? relativePath : ""));
 	}
+
+//	static String getOsgiInstancePath(String relativePath) {
+//		try {
+//			if (relativePath == null)
+//				return getOsgiInstanceDir().getCanonicalPath();
+//			else
+//				return new File(getOsgiInstanceDir(), relativePath).getCanonicalPath();
+//		} catch (IOException e) {
+//			throw new CmsException("Cannot get instance path for " + relativePath, e);
+//		}
+//	}
 
 	static File getOsgiConfigurationFile(String relativePath) {
 		try {
@@ -117,26 +119,6 @@ class KernelUtils implements KernelConstants {
 			throw new CmsException("Cannot login as anonymous", e);
 		}
 	}
-
-	// @Deprecated
-	// static void anonymousLogin(AuthenticationManager authenticationManager) {
-	// try {
-	// List<GrantedAuthorityPrincipal> anonAuthorities = Collections
-	// .singletonList(new GrantedAuthorityPrincipal(
-	// KernelHeader.ROLE_ANONYMOUS));
-	// UserDetails anonUser = new User(KernelHeader.USERNAME_ANONYMOUS,
-	// "", true, true, true, true, anonAuthorities);
-	// AnonymousAuthenticationToken anonToken = new
-	// AnonymousAuthenticationToken(
-	// DEFAULT_SECURITY_KEY, anonUser, anonAuthorities);
-	// Authentication authentication = authenticationManager
-	// .authenticate(anonToken);
-	// SecurityContextHolder.getContext()
-	// .setAuthentication(authentication);
-	// } catch (Exception e) {
-	// throw new CmsException("Cannot authenticate", e);
-	// }
-	// }
 
 	// HTTP
 	static void logRequestHeaders(Log log, HttpServletRequest request) {
@@ -212,6 +194,16 @@ class KernelUtils implements KernelConstants {
 
 	private static BundleContext getBundleContext() {
 		return getBundleContext(KernelUtils.class);
+	}
+	
+	private static URI safeUri(String uri){
+		if(uri==null)
+			throw new CmsException("URI cannot be null");
+		try {
+			return new URI(uri);
+		} catch (URISyntaxException e) {
+			throw new CmsException("Dadly formatted URI "+uri, e);
+		}
 	}
 
 	private KernelUtils() {

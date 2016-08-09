@@ -137,7 +137,8 @@ class NodeSecurity implements KernelConstants {
 			try {
 				keyStoreFile.getParentFile().mkdirs();
 				KeyStore keyStore = PkiUtils.getKeyStore(keyStoreFile, ksPwd);
-				PkiUtils.generateSelfSignedCertificate(keyStore, new X500Principal(AuthConstants.ROLE_KERNEL), keyPwd);
+				PkiUtils.generateSelfSignedCertificate(keyStore, new X500Principal(AuthConstants.ROLE_KERNEL), 1024,
+						keyPwd);
 				PkiUtils.saveKeyStore(keyStoreFile, ksPwd, keyStore);
 				if (log.isDebugEnabled())
 					log.debug("Created keystore " + keyStoreFile);
