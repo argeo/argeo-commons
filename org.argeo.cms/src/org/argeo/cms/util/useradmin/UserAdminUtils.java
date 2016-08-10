@@ -1,4 +1,4 @@
-package org.argeo.security.ui.admin.internal;
+package org.argeo.cms.util.useradmin;
 
 import java.security.AccessController;
 import java.util.List;

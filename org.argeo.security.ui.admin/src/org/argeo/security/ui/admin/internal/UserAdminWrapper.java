@@ -12,7 +12,7 @@ import org.osgi.service.useradmin.UserAdminListener;
 
 /** Centralize interaction with the UserAdmin in this bundle */
 public class UserAdminWrapper extends
-		org.argeo.security.ui.admin.internal.AbstractUserAdminWrapper {
+		org.argeo.cms.util.useradmin.UserAdminWrapper {
 	// private Log log = LogFactory.getLog(UserAdminWrapper.class);
 
 	// Registered listeners

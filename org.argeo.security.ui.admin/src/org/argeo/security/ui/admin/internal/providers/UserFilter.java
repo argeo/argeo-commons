@@ -3,8 +3,8 @@ package org.argeo.security.ui.admin.internal.providers;
 import static org.argeo.eclipse.ui.EclipseUiUtils.notEmpty;
 
 import org.argeo.cms.auth.AuthConstants;
+import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.osgi.useradmin.LdifName;
-import org.argeo.security.ui.admin.internal.UserAdminUtils;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.osgi.service.useradmin.User;

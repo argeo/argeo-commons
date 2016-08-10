@@ -1,4 +1,4 @@
-package org.argeo.security.ui.admin.internal;
+package org.argeo.cms.util.useradmin;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -21,7 +21,7 @@ import org.osgi.service.useradmin.UserAdminListener;
  * Base useradmin wrapper. Implementing application might extends to add
  * business specific behaviour
  */
-public abstract class AbstractUserAdminWrapper {
+public abstract class UserAdminWrapper {
 	// private Log log = LogFactory.getLog(UserAdminWrapper.class);
 
 	private UserAdmin userAdmin;
