@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo;
+package org.argeo.node;
 
 /** Framework agnostic interface for log notifications */
 public interface ArgeoLogListener {

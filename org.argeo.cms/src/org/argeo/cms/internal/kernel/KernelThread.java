@@ -30,8 +30,8 @@ class KernelThread extends Thread {
 	@SuppressWarnings("unused")
 	private long cycle = 0l;
 
-	public KernelThread(CmsState cmState) {
-		super(cmState.threadGroup, cmState.getClass().getSimpleName());
+	public KernelThread(ThreadGroup threadGroup, String name) {
+		super(threadGroup, name);
 	}
 
 	private void doSmallestPeriod() {

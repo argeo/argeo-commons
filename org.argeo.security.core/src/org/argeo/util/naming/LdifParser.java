@@ -1,4 +1,4 @@
-package org.argeo.osgi.useradmin;
+package org.argeo.util.naming;
 
 import static org.argeo.osgi.useradmin.LdifName.dn;
 
@@ -21,9 +21,10 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.osgi.useradmin.UserDirectoryException;
 
 /** Basic LDIF parser. */
-class LdifParser {
+public class LdifParser {
 	private final static Log log = LogFactory.getLog(LdifParser.class);
 
 	protected Attributes addAttributes(SortedMap<LdapName, Attributes> res,
@@ -48,11 +49,7 @@ class LdifParser {
 		}
 	}
 
-	static void checkDnConsistency() {
-
-	}
-
-	SortedMap<LdapName, Attributes> read(InputStream in) throws IOException {
+	public SortedMap<LdapName, Attributes> read(InputStream in) throws IOException {
 		SortedMap<LdapName, Attributes> res = new TreeMap<LdapName, Attributes>();
 		try {
 			List<String> lines = IOUtils.readLines(in);

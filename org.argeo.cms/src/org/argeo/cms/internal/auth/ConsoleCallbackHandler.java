@@ -14,7 +14,6 @@ import javax.security.auth.callback.TextOutputCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
 import org.argeo.ArgeoException;
-import org.argeo.util.LocaleChoice;
 
 /** Callback handler to be used with a command line UI. */
 public class ConsoleCallbackHandler implements CallbackHandler {

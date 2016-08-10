@@ -9,8 +9,8 @@ import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoLogger;
 import org.argeo.cms.CmsException;
+import org.argeo.node.ArgeoLogger;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeState;
 import org.argeo.node.RepoConf;
@@ -93,7 +93,7 @@ public class Activator implements BundleActivator {
 				log.debug("Clean node state");
 			Dictionary<String, Object> envProps = getStatePropertiesFromEnvironment();
 			// Use the UUID of the first framework run as state UUID
-			cn = KernelUtils.getFrameworkProp(Constants.FRAMEWORK_UUID);
+			cn = bc.getProperty(Constants.FRAMEWORK_UUID);
 			envProps.put(NodeConstants.CN, cn);
 			nodeConf.update(envProps);
 		} else {

@@ -23,7 +23,7 @@ public class RepositoryService implements ManagedService, MetaTypeProvider {
 	private ServiceRegistration<RepositoryContext> repositoryContextReg;
 
 	@Override
-	public synchronized void updated(Dictionary<String, ?> properties) throws ConfigurationException {
+	public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
 		if (properties == null)
 			return;
 
@@ -52,7 +52,7 @@ public class RepositoryService implements ManagedService, MetaTypeProvider {
 
 	}
 
-	public synchronized void shutdown() {
+	public void shutdown() {
 		if (repositoryContextReg == null)
 			return;
 		RepositoryContext repositoryContext = bc.getService(repositoryContextReg.getReference());

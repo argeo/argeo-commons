@@ -3,9 +3,8 @@ package org.argeo.cms.internal.kernel;
 import static bitronix.tm.TransactionManagerServices.getTransactionManager;
 import static bitronix.tm.TransactionManagerServices.getTransactionSynchronizationRegistry;
 import static java.util.Locale.ENGLISH;
+import static org.argeo.cms.internal.auth.LocaleChoice.asLocaleList;
 import static org.argeo.cms.internal.kernel.KernelUtils.getFrameworkProp;
-import static org.argeo.util.LocaleChoice.asLocaleList;
-import static org.osgi.framework.Constants.FRAMEWORK_UUID;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,10 +14,12 @@ import java.net.UnknownHostException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 import javax.jcr.RepositoryFactory;
 import javax.transaction.TransactionManager;
@@ -73,15 +74,13 @@ public class CmsState implements NodeState, ManagedService {
 	private Locale defaultLocale;
 	private List<Locale> locales = null;
 
-	// Standalone services
-	private BitronixTransactionManager transactionManager;
-	private BitronixTransactionSynchronizationRegistry transactionSynchronizationRegistry;
-	private NodeRepositoryFactory repositoryFactory;
-
-	// Security
-	private NodeUserAdmin userAdmin;
-	private RepositoryServiceFactory repositoryServiceFactory;
-	private RepositoryService repositoryService;
+	// private BitronixTransactionManager transactionManager;
+	// private BitronixTransactionSynchronizationRegistry
+	// transactionSynchronizationRegistry;
+	// private NodeRepositoryFactory repositoryFactory;
+	// private NodeUserAdmin userAdmin;
+	// private RepositoryServiceFactory repositoryServiceFactory;
+	// private RepositoryService repositoryService;
 
 	// Deployment
 	private final CmsDeployment nodeDeployment = new CmsDeployment();
@@ -89,8 +88,9 @@ public class CmsState implements NodeState, ManagedService {
 	private boolean cleanState = false;
 	private URI nodeRepoUri = null;
 
-	ThreadGroup threadGroup = new ThreadGroup("CMS State");
+	private ThreadGroup threadGroup = new ThreadGroup("CMS");
 	private KernelThread kernelThread;
+	private List<Runnable> shutdownHooks = new ArrayList<>();
 
 	private String hostname;
 
@@ -123,33 +123,19 @@ public class CmsState implements NodeState, ManagedService {
 
 			nodeRepoUri = KernelUtils.getOsgiInstanceUri("repos/node");
 
-			// pre-requisite
 			initI18n(properties);
-			initTrackers();
-			// standalone services
-			initTransactionManager();
-			initRepositoryFactory();
-			// UI
-			initUi();
-			// Deployment
+			initServices();
 			initDeployConfigs(properties);
-			initUserAdmin();
-			initRepositories(properties);
 			initWebServer();
 			initNodeDeployment();
 
 			// kernel thread
-			kernelThread = new KernelThread(this);
+			kernelThread = new KernelThread(threadGroup, "Kernel Thread");
 			kernelThread.setContextClassLoader(getClass().getClassLoader());
 			kernelThread.start();
 		} catch (Exception e) {
 			throw new CmsException("Cannot get configuration", e);
 		}
-	}
-
-	private void initTrackers() {
-		new ServiceTracker<HttpService, HttpService>(bc, HttpService.class, new PrepareHttpStc()).open();
-		new ServiceTracker<>(bc, RepositoryContext.class, new RepositoryContextStc()).open();
 	}
 
 	private void initI18n(Dictionary<String, ?> stateProps) {
@@ -159,9 +145,57 @@ public class CmsState implements NodeState, ManagedService {
 		locales = asLocaleList(stateProps.get(NodeConstants.I18N_LOCALES));
 	}
 
+	private void initServices() {
+		// trackers
+		new ServiceTracker<HttpService, HttpService>(bc, HttpService.class, new PrepareHttpStc()).open();
+		new ServiceTracker<>(bc, RepositoryContext.class, new RepositoryContextStc()).open();
+
+		initTransactionManager();
+
+		// JCR
+		RepositoryServiceFactory repositoryServiceFactory = new RepositoryServiceFactory();
+		shutdownHooks.add(() -> repositoryServiceFactory.shutdown());
+		bc.registerService(ManagedServiceFactory.class, repositoryServiceFactory,
+				LangUtils.init(Constants.SERVICE_PID, NodeConstants.JACKRABBIT_FACTORY_PID));
+
+		NodeRepositoryFactory repositoryFactory = new NodeRepositoryFactory();
+		bc.registerService(RepositoryFactory.class, repositoryFactory, null);
+
+		RepositoryService repositoryService = new RepositoryService();
+		shutdownHooks.add(() -> repositoryService.shutdown());
+		bc.registerService(LangUtils.names(ManagedService.class, MetaTypeProvider.class), repositoryService,
+				LangUtils.init(Constants.SERVICE_PID, NodeConstants.NODE_REPO_PID));
+
+		// Security
+		NodeUserAdmin userAdmin = new NodeUserAdmin();
+		shutdownHooks.add(() -> userAdmin.destroy());
+		Dictionary<String, Object> props = userAdmin.currentState();
+		props.put(Constants.SERVICE_PID, NodeConstants.NODE_USER_ADMIN_PID);
+		bc.registerService(UserAdmin.class, userAdmin, props);
+
+		// UI
+		bc.registerService(ApplicationConfiguration.class, new MaintenanceUi(),
+				LangUtils.init(PROPERTY_CONTEXT_NAME, "system"));
+		bc.registerService(ApplicationConfiguration.class, new UserUi(), LangUtils.init(PROPERTY_CONTEXT_NAME, "user"));
+	}
+	// private void initUserAdmin() {
+	// userAdmin = new NodeUserAdmin();
+	// // register
+	// Dictionary<String, Object> props = userAdmin.currentState();
+	// props.put(Constants.SERVICE_PID, NodeConstants.NODE_USER_ADMIN_PID);
+	// // TODO use ManagedService
+	// bc.registerService(UserAdmin.class, userAdmin, props);
+	// }
+
 	private void initTransactionManager() {
+		// TODO manage it in a managed service, as startup could be long
+		ServiceReference<TransactionManager> existingTm = bc.getServiceReference(TransactionManager.class);
+		if (existingTm != null) {
+			if (log.isDebugEnabled())
+				log.debug("Using provided transaction manager " + existingTm);
+		}
 		bitronix.tm.Configuration tmConf = TransactionManagerServices.getConfiguration();
-		tmConf.setServerId(getFrameworkProp(FRAMEWORK_UUID));
+		tmConf.setServerId(UUID.randomUUID().toString());
 
 		Bundle bitronixBundle = FrameworkUtil.getBundle(bitronix.tm.Configuration.class);
 		File tmBaseDir = bitronixBundle.getDataFile(KernelConstants.DIR_TRANSACTIONS);
@@ -171,26 +205,31 @@ public class CmsState implements NodeState, ManagedService {
 		File tmDir2 = new File(tmBaseDir, "btm2");
 		tmDir2.mkdirs();
 		tmConf.setLogPart2Filename(new File(tmDir2, tmDir2.getName() + ".tlog").getAbsolutePath());
-		transactionManager = getTransactionManager();
-		transactionSynchronizationRegistry = getTransactionSynchronizationRegistry();
+
+		BitronixTransactionManager transactionManager = getTransactionManager();
+		shutdownHooks.add(() -> transactionManager.shutdown());
+		BitronixTransactionSynchronizationRegistry transactionSynchronizationRegistry = getTransactionSynchronizationRegistry();
 		// register
 		bc.registerService(TransactionManager.class, transactionManager, null);
 		bc.registerService(UserTransaction.class, transactionManager, null);
 		bc.registerService(TransactionSynchronizationRegistry.class, transactionSynchronizationRegistry, null);
+		if (log.isDebugEnabled())
+			log.debug("Initialised default Bitronix transaction manager");
 	}
 
-	private void initRepositoryFactory() {
-		// TODO rationalise RepositoryFactory
-		repositoryFactory = new NodeRepositoryFactory();
-		// register
-		bc.registerService(RepositoryFactory.class, repositoryFactory, null);
-	}
+	// private void initRepositoryFactory() {
+	// // TODO rationalise RepositoryFactory
+	// repositoryFactory = new NodeRepositoryFactory();
+	// // register
+	// bc.registerService(RepositoryFactory.class, repositoryFactory, null);
+	// }
 
-	private void initUi() {
-		bc.registerService(ApplicationConfiguration.class, new MaintenanceUi(),
-				LangUtils.init(PROPERTY_CONTEXT_NAME, "system"));
-		bc.registerService(ApplicationConfiguration.class, new UserUi(), LangUtils.init(PROPERTY_CONTEXT_NAME, "user"));
-	}
+	// private void initUi() {
+	// bc.registerService(ApplicationConfiguration.class, new MaintenanceUi(),
+	// LangUtils.init(PROPERTY_CONTEXT_NAME, "system"));
+	// bc.registerService(ApplicationConfiguration.class, new UserUi(),
+	// LangUtils.init(PROPERTY_CONTEXT_NAME, "user"));
+	// }
 
 	private void initDeployConfigs(Dictionary<String, ?> stateProps) throws IOException {
 		Path deployPath = KernelUtils.getOsgiInstancePath(KernelConstants.DIR_NODE + '/' + KernelConstants.DIR_DEPLOY);
@@ -228,25 +267,20 @@ public class CmsState implements NodeState, ManagedService {
 		}
 	}
 
-	private void initUserAdmin() {
-		userAdmin = new NodeUserAdmin();
-		// register
-		Dictionary<String, Object> props = userAdmin.currentState();
-		props.put(Constants.SERVICE_PID, NodeConstants.NODE_USER_ADMIN_PID);
-		// TODO use ManagedService
-		bc.registerService(UserAdmin.class, userAdmin, props);
-	}
-
-	private void initRepositories(Dictionary<String, ?> stateProps) throws IOException {
-		// register
-		repositoryServiceFactory = new RepositoryServiceFactory();
-		bc.registerService(ManagedServiceFactory.class, repositoryServiceFactory,
-				LangUtils.init(Constants.SERVICE_PID, NodeConstants.JACKRABBIT_FACTORY_PID));
-
-		repositoryService = new RepositoryService();
-		Dictionary<String, Object> regProps = LangUtils.init(Constants.SERVICE_PID, NodeConstants.NODE_REPO_PID);
-		bc.registerService(LangUtils.names(ManagedService.class, MetaTypeProvider.class), repositoryService, regProps);
-	}
+	// private void initRepositories(Dictionary<String, ?> stateProps) throws
+	// IOException {
+	// // register
+	// repositoryServiceFactory = new RepositoryServiceFactory();
+	// bc.registerService(ManagedServiceFactory.class, repositoryServiceFactory,
+	// LangUtils.init(Constants.SERVICE_PID,
+	// NodeConstants.JACKRABBIT_FACTORY_PID));
+	//
+	// repositoryService = new RepositoryService();
+	// Dictionary<String, Object> regProps =
+	// LangUtils.init(Constants.SERVICE_PID, NodeConstants.NODE_REPO_PID);
+	// bc.registerService(LangUtils.names(ManagedService.class,
+	// MetaTypeProvider.class), repositoryService, regProps);
+	// }
 
 	private void initWebServer() {
 		String httpPort = getFrameworkProp("org.osgi.service.http.port");
@@ -291,21 +325,35 @@ public class CmsState implements NodeState, ManagedService {
 	}
 
 	void shutdown() {
+		// if (transactionManager != null)
+		// transactionManager.shutdown();
+		// if (userAdmin != null)
+		// userAdmin.destroy();
+		// if (repositoryServiceFactory != null)
+		// repositoryServiceFactory.shutdown();
+
+		applyShutdownHooks();
+
 		if (kernelThread != null)
 			kernelThread.destroyAndJoin();
 
-		if (transactionManager != null)
-			transactionManager.shutdown();
-		if (userAdmin != null)
-			userAdmin.destroy();
-		if (repositoryServiceFactory != null)
-			repositoryServiceFactory.shutdown();
-
-		// Clean hanging Gogo shell thread
-		new GogoShellKiller().start();
-
 		if (log.isDebugEnabled())
 			log.debug("## CMS STOPPED");
+	}
+
+	/** Apply shutdown hoos in reverse order. */
+	private void applyShutdownHooks() {
+		for (int i = shutdownHooks.size() - 1; i >= 0; i--) {
+			try {
+				// new Thread(shutdownHooks.get(i), "CMS Shutdown Hook #" +
+				// i).start();
+				shutdownHooks.get(i).run();
+			} catch (Exception e) {
+				log.error("Could not run shutdown hook #" + i);
+			}
+		}
+		// Clean hanging Gogo shell thread
+		new GogoShellKiller().start();
 	}
 
 	private Dictionary<String, Object> getNodeConfig(Dictionary<String, ?> properties) {
@@ -415,7 +463,7 @@ public class CmsState implements NodeState, ManagedService {
 	private class GogoShellKiller extends Thread {
 
 		public GogoShellKiller() {
-			super("Gogo shell killer");
+			super("Gogo Shell Killer");
 			setDaemon(true);
 		}
 

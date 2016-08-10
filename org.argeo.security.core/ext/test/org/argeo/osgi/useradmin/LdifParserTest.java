@@ -13,6 +13,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.argeo.util.naming.LdifParser;
 
 public class LdifParserTest extends TestCase implements BasicTestConstants {
 	public void testBasicLdif() throws Exception {

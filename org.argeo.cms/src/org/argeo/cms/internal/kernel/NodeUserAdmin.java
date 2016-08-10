@@ -36,6 +36,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
@@ -49,7 +51,7 @@ import bitronix.tm.resource.ehcache.EhCacheXAResourceProducer;
  * Aggregates multiple {@link UserDirectory} and integrates them with this node
  * system roles.
  */
-public class NodeUserAdmin implements UserAdmin, KernelConstants {
+class NodeUserAdmin implements UserAdmin, ManagedService, KernelConstants {
 	private final static Log log = LogFactory.getLog(NodeUserAdmin.class);
 	final static LdapName ROLES_BASE;
 	static {
@@ -84,6 +86,10 @@ public class NodeUserAdmin implements UserAdmin, KernelConstants {
 		initNodeRoles(nodeRolesUri, nodeBaseDir);
 
 		new ServiceTracker<>(bc, TransactionManager.class, new TransactionManagerStc()).open();
+	}
+
+	@Override
+	public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
 	}
 
 	private class TransactionManagerStc implements ServiceTrackerCustomizer<TransactionManager, TransactionManager> {

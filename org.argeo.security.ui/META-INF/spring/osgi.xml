@@ -8,7 +8,7 @@
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
 	<!-- REFERENCES -->
-	<reference id="secureLogger" interface="org.argeo.ArgeoLogger"
+	<reference id="secureLogger" interface="org.argeo.node.ArgeoLogger"
 		cardinality="0..1" />
 
 	<reference id="nodeRepository" interface="javax.jcr.Repository"

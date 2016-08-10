@@ -5,6 +5,7 @@ public enum RepoConf implements EnumAD {
 	/** Repository type */
 	type("localfs"),
 	/** Default workspace */
+	@Deprecated
 	defaultWorkspace("main"),
 	/** Database URL */
 	dburl(null),
@@ -15,14 +16,13 @@ public enum RepoConf implements EnumAD {
 
 	/** The identifier (can be an URL locating the repo) */
 	labeledUri(null),
-
-	httpPort(8080),
 	//
 	// JACKRABBIT SPECIFIC
 	//
 	/** Maximum database pool size */
 	maxPoolSize(10),
 	/** Maximum cache size in MB */
+	@Deprecated
 	maxCacheMB(null),
 	/** Bundle cache size in MB */
 	bundleCacheMB(8),
