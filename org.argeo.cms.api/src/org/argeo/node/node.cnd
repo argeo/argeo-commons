@@ -1,5 +1,14 @@
 <argeo = 'http://www.argeo.org/ns/argeo'>
 
+// GENERIC TYPES NOT AVAILABLE IN JCR
+[argeo:link] > mix:created, mix:lastModified
+mixin
+// URI(s)
+- argeo:uri (STRING) m
+
+[argeo:references] > nt:unstructured
+- * (REFERENCE) *
+
 // DATA MODEL
 [argeo:dataModel] > mix:created, mix:lastModified, mix:versionable
 mixin
