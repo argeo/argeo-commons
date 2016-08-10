@@ -51,8 +51,8 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 
 	private static Dictionary<String, Object> fromUri(String uri, String baseDn) {
 		Hashtable<String, Object> res = new Hashtable<String, Object>();
-		res.put(UserAdminConf.uri.property(), uri);
-		res.put(UserAdminConf.baseDn.property(), baseDn);
+		res.put(UserAdminConf.uri.name(), uri);
+		res.put(UserAdminConf.baseDn.name(), baseDn);
 		return res;
 	}
 

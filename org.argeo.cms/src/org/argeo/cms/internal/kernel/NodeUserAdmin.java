@@ -365,7 +365,7 @@ class NodeUserAdmin implements UserAdmin, ManagedService, KernelConstants {
 		}
 
 		Dictionary<String, ?> nodeRolesProperties = UserAdminConf.uriAsProperties(nodeRolesUri);
-		if (!nodeRolesProperties.get(UserAdminConf.baseDn.property()).equals(baseNodeRoleDn)) {
+		if (!nodeRolesProperties.get(UserAdminConf.baseDn.name()).equals(baseNodeRoleDn)) {
 			throw new CmsException("Invalid base dn for node roles");
 			// TODO deal with "mounted" roles with a different baseDN
 		}

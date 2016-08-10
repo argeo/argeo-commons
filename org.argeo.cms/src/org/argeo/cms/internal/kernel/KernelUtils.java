@@ -30,8 +30,8 @@ import org.osgi.framework.FrameworkUtil;
 
 /** Package utilities */
 class KernelUtils implements KernelConstants {
-	private final static String OSGI_INSTANCE_AREA = "osgi.instance.area";
-	private final static String OSGI_CONFIGURATION_AREA = "osgi.configuration.area";
+	final static String OSGI_INSTANCE_AREA = "osgi.instance.area";
+	final static String OSGI_CONFIGURATION_AREA = "osgi.configuration.area";
 
 	static Dictionary<String, ?> asDictionary(Properties props) {
 		Hashtable<String, Object> hashtable = new Hashtable<String, Object>();
@@ -73,19 +73,20 @@ class KernelUtils implements KernelConstants {
 
 	static URI getOsgiInstanceUri(String relativePath) {
 		String osgiInstanceBaseUri = getFrameworkProp(OSGI_INSTANCE_AREA);
-			return safeUri(osgiInstanceBaseUri + (relativePath != null ? relativePath : ""));
+		return safeUri(osgiInstanceBaseUri + (relativePath != null ? relativePath : ""));
 	}
 
-//	static String getOsgiInstancePath(String relativePath) {
-//		try {
-//			if (relativePath == null)
-//				return getOsgiInstanceDir().getCanonicalPath();
-//			else
-//				return new File(getOsgiInstanceDir(), relativePath).getCanonicalPath();
-//		} catch (IOException e) {
-//			throw new CmsException("Cannot get instance path for " + relativePath, e);
-//		}
-//	}
+	// static String getOsgiInstancePath(String relativePath) {
+	// try {
+	// if (relativePath == null)
+	// return getOsgiInstanceDir().getCanonicalPath();
+	// else
+	// return new File(getOsgiInstanceDir(), relativePath).getCanonicalPath();
+	// } catch (IOException e) {
+	// throw new CmsException("Cannot get instance path for " + relativePath,
+	// e);
+	// }
+	// }
 
 	static File getOsgiConfigurationFile(String relativePath) {
 		try {
@@ -195,14 +196,14 @@ class KernelUtils implements KernelConstants {
 	private static BundleContext getBundleContext() {
 		return getBundleContext(KernelUtils.class);
 	}
-	
-	private static URI safeUri(String uri){
-		if(uri==null)
+
+	private static URI safeUri(String uri) {
+		if (uri == null)
 			throw new CmsException("URI cannot be null");
 		try {
 			return new URI(uri);
 		} catch (URISyntaxException e) {
-			throw new CmsException("Dadly formatted URI "+uri, e);
+			throw new CmsException("Dadly formatted URI " + uri, e);
 		}
 	}
 

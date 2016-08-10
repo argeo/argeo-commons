@@ -1,7 +1,7 @@
 package org.argeo.security.ui.admin.internal.providers;
 
-import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.osgi.useradmin.LdifName;
+import org.argeo.security.ui.admin.internal.UserAdminUtils;
 import org.osgi.service.useradmin.User;
 
 /** Simply declare a label provider that returns the Primary Mail of a user */

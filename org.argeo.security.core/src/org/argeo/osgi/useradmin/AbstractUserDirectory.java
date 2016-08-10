@@ -57,12 +57,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	private List<String> credentialAttributeIds = Arrays.asList(new String[] { LdifName.userPassword.name() });
 
 	private TransactionManager transactionManager;
-	// private TransactionSynchronizationRegistry transactionRegistry;
-	// private Xid editingTransactionXid = null;
 	private WcXaResource xaResource = new WcXaResource(this);
-
-	// POSIX
-	private String homeDirectoryBase = "/home";
 
 	AbstractUserDirectory(Dictionary<String, ?> props) {
 		properties = new Hashtable<String, Object>();
@@ -85,7 +80,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		String readOnlyStr = UserAdminConf.readOnly.getValue(properties);
 		if (readOnlyStr == null) {
 			readOnly = readOnlyDefault(uri);
-			properties.put(UserAdminConf.readOnly.property(), Boolean.toString(readOnly));
+			properties.put(UserAdminConf.readOnly.name(), Boolean.toString(readOnly));
 		} else
 			readOnly = new Boolean(readOnlyStr);
 
@@ -111,21 +106,13 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	}
 
 	boolean isEditing() {
-		// if (editingTransactionXid == null)
-		// return false;
-		// return workingCopy.get() != null;
 		return xaResource.wc() != null;
 	}
 
 	protected UserDirectoryWorkingCopy getWorkingCopy() {
-		// UserDirectoryWorkingCopy wc = workingCopy.get();
 		UserDirectoryWorkingCopy wc = xaResource.wc();
 		if (wc == null)
 			return null;
-		// if (wc.getXid() == null) {
-		// workingCopy.set(null);
-		// return null;
-		// }
 		return wc;
 	}
 
@@ -139,24 +126,12 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		if (transaction == null)
 			throw new UserDirectoryException("A transaction needs to be active in order to edit");
 		if (xaResource.wc() == null) {
-			// UserDirectoryWorkingCopy wc = new UserDirectoryWorkingCopy(this);
 			try {
 				transaction.enlistResource(xaResource);
-				// editingTransactionXid = wc.getXid();
-				// workingCopy.set(wc);
 			} catch (Exception e) {
 				throw new UserDirectoryException("Cannot enlist " + xaResource, e);
 			}
 		} else {
-			// UserDirectoryWorkingCopy wc = xaResource.wc();
-			// if (wc == null)
-			// throw new UserDirectoryException("Transaction "
-			// + editingTransactionXid + " already editing");
-			// else if
-			// (!editingTransactionXid.equals(workingCopy.get().getXid()))
-			// throw new UserDirectoryException("Working copy Xid "
-			// + workingCopy.get().getXid() + " inconsistent with"
-			// + editingTransactionXid);
 		}
 	}
 
@@ -336,62 +311,6 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		return actuallyDeleted;
 	}
 
-	// // POSIX
-	// /** Generate path for a new user home */
-	// protected String generateHomeDirectory(String username) {
-	// String base = homeDirectoryBase;
-	// int atIndex = username.indexOf('@');
-	// if (atIndex > 0) {
-	// String domain = username.substring(0, atIndex);
-	// String name = username.substring(atIndex + 1);
-	// return base + '/' + firstCharsToPath(domain, 2) + '/' + domain + '/' +
-	// firstCharsToPath(name, 2) + '/'
-	// + name;
-	// } else if (atIndex == 0 || atIndex == (username.length() - 1)) {
-	// throw new ArgeoException("Unsupported username " + username);
-	// } else {
-	// return base + '/' + firstCharsToPath(username, 2) + '/' + username;
-	// }
-	// }
-	//
-	// protected long max(String attr) {
-	// long max;
-	// try {
-	// List<DirectoryUser> users = doGetRoles(FrameworkUtil.createFilter("(" +
-	// attr + "=*)"));
-	// max = 1000;
-	// for (DirectoryUser user : users) {
-	// long uid =
-	// Long.parseLong(user.getAttributes().get(attr).get().toString());
-	// if (uid > max)
-	// max = uid;
-	// }
-	// } catch (Exception e) {
-	// throw new UserDirectoryException("Cannot get max of " + attr, e);
-	// }
-	// return max;
-	// }
-
-	// /**
-	// * Creates depth from a string (typically a username) by adding levels
-	// based
-	// * on its first characters: "aBcD",2 => a/aB
-	// */
-	// public static String firstCharsToPath(String str, Integer nbrOfChars) {
-	// if (str.length() < nbrOfChars)
-	// throw new ArgeoException("String " + str + " length must be greater or
-	// equal than " + nbrOfChars);
-	// StringBuffer path = new StringBuffer("");
-	// StringBuffer curr = new StringBuffer("");
-	// for (int i = 0; i < nbrOfChars; i++) {
-	// curr.append(str.charAt(i));
-	// path.append(curr);
-	// if (i < nbrOfChars - 1)
-	// path.append('/');
-	// }
-	// return path.toString();
-	// }
-
 	// TRANSACTION
 	protected void prepare(UserDirectoryWorkingCopy wc) {
 
@@ -405,10 +324,6 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 
 	}
 
-	// void clearEditingTransactionXid() {
-	// editingTransactionXid = null;
-	// }
-
 	// UTILITIES
 	protected LdapName toDn(String name) {
 		try {
@@ -419,7 +334,6 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	}
 
 	// GETTERS
-
 	String getMemberAttributeId() {
 		return memberAttributeId;
 	}

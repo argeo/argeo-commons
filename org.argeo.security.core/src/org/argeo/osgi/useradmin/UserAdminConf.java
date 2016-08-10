@@ -37,7 +37,7 @@ public enum UserAdminConf {
 	/** Read-only source */
 	readOnly(null);
 
-	public final static String PREFIX = "argeo.useradmin";
+	public final static String FACTORY_PID = "org.argeo.osgi.useradmin.config";
 
 	/** The default value. */
 	private Object def;
@@ -50,13 +50,14 @@ public enum UserAdminConf {
 		return def;
 	}
 
-	/** For use as Java property. */
+	/**
+	 * For use as Java property.
+	 * 
+	 * @deprecated use {@link #name()} instead
+	 */
+	@Deprecated
 	public String property() {
-		return getPrefix() + '.' + name();
-	}
-
-	public String getPrefix() {
-		return PREFIX;
+		return name();
 	}
 
 	public String getValue(Dictionary<String, ?> properties) {
@@ -68,14 +69,16 @@ public enum UserAdminConf {
 
 	@SuppressWarnings("unchecked")
 	public <T> T getRawValue(Dictionary<String, ?> properties) {
-		Object res = properties.get(property());
+		Object res = properties.get(name());
 		if (res == null)
 			res = getDefault();
 		return (T) res;
 	}
 
+	/** @deprecated use {@link #valueOf(String)} instead */
+	@Deprecated
 	public static UserAdminConf local(String property) {
-		return UserAdminConf.valueOf(property.substring(PREFIX.length() + 1));
+		return UserAdminConf.valueOf(property);
 	}
 
 	/** Hides host and credentials. */
@@ -83,27 +86,24 @@ public enum UserAdminConf {
 		StringBuilder query = new StringBuilder();
 
 		boolean first = true;
-		for (Enumeration<String> keys = properties.keys(); keys
-				.hasMoreElements();) {
+		for (Enumeration<String> keys = properties.keys(); keys.hasMoreElements();) {
 			String key = keys.nextElement();
-			if (key.startsWith(PREFIX) && !key.equals(baseDn.property())
-					&& !key.equals(uri.property())) {
+			if (!key.startsWith("java") && !key.equals(baseDn.name()) && !key.equals(uri.name())) {
 				if (first)
 					first = false;
 				else
 					query.append('&');
-				query.append(local(key).name());
+				query.append(valueOf(key).name());
 				query.append('=').append(properties.get(key).toString());
 			}
 		}
 
-		String bDn = (String) properties.get(baseDn.property());
+		String bDn = (String) properties.get(baseDn.name());
 		try {
-			return new URI(null, null, bDn != null ? '/' + bDn : null,
-					query.length() != 0 ? query.toString() : null, null);
+			return new URI(null, null, bDn != null ? '/' + bDn : null, query.length() != 0 ? query.toString() : null,
+					null);
 		} catch (URISyntaxException e) {
-			throw new UserDirectoryException(
-					"Cannot create URI from properties", e);
+			throw new UserDirectoryException("Cannot create URI from properties", e);
 		}
 	}
 
@@ -113,8 +113,7 @@ public enum UserAdminConf {
 			URI u = new URI(uriStr);
 			String scheme = u.getScheme();
 			String path = u.getPath();
-			String bDn = path.substring(path.lastIndexOf('/') + 1,
-					path.length());
+			String bDn = path.substring(path.lastIndexOf('/') + 1, path.length());
 			if (bDn.endsWith(".ldif"))
 				bDn = bDn.substring(0, bDn.length() - ".ldif".length());
 
@@ -128,20 +127,18 @@ public enum UserAdminConf {
 					credentials = userInfo.length > 1 ? userInfo[1] : null;
 				} else if (scheme.equals("file")) {
 				} else
-					throw new UserDirectoryException("Unsupported scheme "
-							+ scheme);
+					throw new UserDirectoryException("Unsupported scheme " + scheme);
 			Map<String, List<String>> query = splitQuery(u.getQuery());
 			for (String key : query.keySet()) {
 				UserAdminConf ldapProp = UserAdminConf.valueOf(key);
 				List<String> values = query.get(key);
 				if (values.size() == 1) {
-					res.put(ldapProp.property(), values.get(0));
+					res.put(ldapProp.name(), values.get(0));
 				} else {
-					throw new UserDirectoryException(
-							"Only single values are supported");
+					throw new UserDirectoryException("Only single values are supported");
 				}
 			}
-			res.put(baseDn.property(), bDn);
+			res.put(baseDn.name(), bDn);
 			if (principal != null)
 				res.put(Context.SECURITY_PRINCIPAL, principal);
 			if (credentials != null)
@@ -149,48 +146,42 @@ public enum UserAdminConf {
 			if (scheme != null) {
 				URI bareUri = new URI(scheme, null, u.getHost(), u.getPort(),
 						scheme.equals("file") ? u.getPath() : null, null, null);
-				res.put(uri.property(), bareUri.toString());
+				res.put(uri.name(), bareUri.toString());
 			}
 			return res;
 		} catch (Exception e) {
-			throw new UserDirectoryException("Cannot convert " + uri
-					+ " to properties", e);
+			throw new UserDirectoryException("Cannot convert " + uri + " to properties", e);
 		}
 	}
 
-	private static Map<String, List<String>> splitQuery(String query)
-			throws UnsupportedEncodingException {
+	private static Map<String, List<String>> splitQuery(String query) throws UnsupportedEncodingException {
 		final Map<String, List<String>> query_pairs = new LinkedHashMap<String, List<String>>();
 		if (query == null)
 			return query_pairs;
 		final String[] pairs = query.split("&");
 		for (String pair : pairs) {
 			final int idx = pair.indexOf("=");
-			final String key = idx > 0 ? URLDecoder.decode(
-					pair.substring(0, idx), "UTF-8") : pair;
+			final String key = idx > 0 ? URLDecoder.decode(pair.substring(0, idx), "UTF-8") : pair;
 			if (!query_pairs.containsKey(key)) {
 				query_pairs.put(key, new LinkedList<String>());
 			}
-			final String value = idx > 0 && pair.length() > idx + 1 ? URLDecoder
-					.decode(pair.substring(idx + 1), "UTF-8") : null;
+			final String value = idx > 0 && pair.length() > idx + 1
+					? URLDecoder.decode(pair.substring(idx + 1), "UTF-8") : null;
 			query_pairs.get(key).add(value);
 		}
 		return query_pairs;
 	}
 
 	public static void main(String[] args) {
-		Dictionary<String, ?> props = uriAsProperties("ldap://"
-				+ "uid=admin,ou=system:secret@localhost:10389"
-				+ "/dc=example,dc=com"
-				+ "?readOnly=false&userObjectClass=person");
+		Dictionary<String, ?> props = uriAsProperties("ldap://" + "uid=admin,ou=system:secret@localhost:10389"
+				+ "/dc=example,dc=com" + "?readOnly=false&userObjectClass=person");
 		System.out.println(props);
 		System.out.println(propertiesAsUri(props));
 
-		System.out
-				.println(uriAsProperties("file://some/dir/dc=example,dc=com.ldif"));
+		System.out.println(uriAsProperties("file://some/dir/dc=example,dc=com.ldif"));
 
-		props = uriAsProperties("/dc=example,dc=com.ldif?readOnly=true"
-				+ "&userBase=ou=CoWorkers,ou=People&groupBase=ou=Roles");
+		props = uriAsProperties(
+				"/dc=example,dc=com.ldif?readOnly=true" + "&userBase=ou=CoWorkers,ou=People&groupBase=ou=Roles");
 		System.out.println(props);
 		System.out.println(propertiesAsUri(props));
 	}
