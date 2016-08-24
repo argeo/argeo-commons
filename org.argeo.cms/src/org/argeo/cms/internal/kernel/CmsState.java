@@ -285,6 +285,8 @@ public class CmsState implements NodeState, ManagedService {
 	private void initWebServer() {
 		String httpPort = getFrameworkProp("org.osgi.service.http.port");
 		String httpsPort = getFrameworkProp("org.osgi.service.http.port.secure");
+		/// TODO make it more generic
+		String httpHost = getFrameworkProp("org.eclipse.equinox.http.jetty.http.host");
 		try {
 			if (httpPort != null || httpsPort != null) {
 				final Hashtable<String, Object> jettyProps = new Hashtable<String, Object>();
@@ -300,6 +302,9 @@ public class CmsState implements NodeState, ManagedService {
 					// nodeSecurity.getHttpServerKeyStore().getCanonicalPath());
 					jettyProps.put(JettyConstants.SSL_PASSWORD, "changeit");
 					jettyProps.put(JettyConstants.SSL_WANTCLIENTAUTH, true);
+				}
+				if(httpHost!=null){
+					jettyProps.put(JettyConstants.HTTP_HOST, httpHost);
 				}
 				if (configurationAdmin != null) {
 					// TODO make filter more generic
