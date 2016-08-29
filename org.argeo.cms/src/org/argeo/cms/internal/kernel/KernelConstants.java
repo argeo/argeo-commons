@@ -1,5 +1,7 @@
 package org.argeo.cms.internal.kernel;
 
+import org.argeo.node.NodeConstants;
+
 public interface KernelConstants {
 	
 
@@ -9,11 +11,15 @@ public interface KernelConstants {
 
 	// Directories
 	final static String DIR_NODE = "node";
-	final static String DIR_DEPLOY = "deploy";
+	final static String DIR_REPOS = "repos";
+//	final static String DIR_DEPLOY = "deploy";
 	final static String DIR_TRANSACTIONS = "transactions";
 	final static String DIR_PKI = "pki";
 	final static String DIR_PKI_PRIVATE = DIR_PKI + "/private";
 
+	// Files
+	String DEPLOY_PATH = KernelConstants.DIR_NODE + '/' + NodeConstants.DEPLOY_BASEDN + ".ldif";
+	
 	// Security
 	final static String DEFAULT_SECURITY_KEY = "argeo";
 	final static String JAAS_CONFIG = "/org/argeo/cms/internal/kernel/jaas.cfg";

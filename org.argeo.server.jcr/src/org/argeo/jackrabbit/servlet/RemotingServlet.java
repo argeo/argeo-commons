@@ -21,6 +21,7 @@ import org.apache.jackrabbit.server.SessionProvider;
 import org.apache.jackrabbit.server.remoting.davex.JcrRemotingServlet;
 
 /** Provides remote access to a JCR repository */
+@Deprecated
 public class RemotingServlet extends JcrRemotingServlet {
 	public final static String INIT_PARAM_RESOURCE_PATH_PREFIX = JcrRemotingServlet.INIT_PARAM_RESOURCE_PATH_PREFIX;
 	public final static String INIT_PARAM_HOME = JcrRemotingServlet.INIT_PARAM_HOME;

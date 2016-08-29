@@ -33,6 +33,7 @@ import org.argeo.jcr.JcrUtils;
  * Implements an open session in view patter: a new JCR session is created for
  * each request
  */
+@Deprecated
 public class OpenInViewSessionProvider implements SessionProvider, Serializable {
 	private static final long serialVersionUID = 2270957712453841368L;
 

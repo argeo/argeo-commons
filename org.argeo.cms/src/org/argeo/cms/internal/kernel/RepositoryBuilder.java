@@ -26,6 +26,7 @@ import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
 import org.argeo.cms.CmsException;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.ArgeoJcrException;
+import org.argeo.node.NodeConstants;
 import org.argeo.node.RepoConf;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -91,23 +92,35 @@ class RepositoryBuilder {
 
 	private Properties getConfigurationProperties(JackrabbitType type, Dictionary<String, ?> properties) {
 		Properties props = new Properties();
-		keys: for (Enumeration<String> keys = properties.keys(); keys.hasMoreElements();) {
+		for (Enumeration<String> keys = properties.keys(); keys.hasMoreElements();) {
 			String key = keys.nextElement();
-			if (key.equals(ConfigurationAdmin.SERVICE_FACTORYPID) || key.equals(Constants.SERVICE_PID)
-					|| key.equals(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS))
-				continue keys;
-			String value = prop(properties, RepoConf.valueOf(key));
-			if (value != null)
-				props.put(key, value);
+			// if (key.equals(ConfigurationAdmin.SERVICE_FACTORYPID) ||
+			// key.equals(Constants.SERVICE_PID)
+			// || key.equals(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS))
+			// continue keys;
+			// try {
+			// String value = prop(properties, RepoConf.valueOf(key));
+			// if (value != null)
+			props.put(key, properties.get(key));
+			// } catch (IllegalArgumentException e) {
+			// // ignore non RepoConf
+			// // FIXME make it more flexible/extensible
+			// }
 		}
 
 		// home
 		String homeUri = props.getProperty(RepoConf.labeledUri.name());
 		Path homePath;
-		try {
-			homePath = Paths.get(new URI(homeUri)).toAbsolutePath();
-		} catch (URISyntaxException e) {
-			throw new CmsException("Invalid repository home URI", e);
+		if (homeUri == null) {
+			String cn = props.getProperty(NodeConstants.CN);
+			assert cn != null;
+			homePath = KernelUtils.getOsgiInstancePath(KernelConstants.DIR_REPOS + '/' + cn);
+		} else {
+			try {
+				homePath = Paths.get(new URI(homeUri)).toAbsolutePath();
+			} catch (URISyntaxException e) {
+				throw new CmsException("Invalid repository home URI", e);
+			}
 		}
 		Path rootUuidPath = homePath.resolve("repository/meta/rootUUID");
 		if (!Files.exists(rootUuidPath)) {

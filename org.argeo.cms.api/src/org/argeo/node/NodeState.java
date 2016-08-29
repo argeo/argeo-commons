@@ -9,4 +9,6 @@ public interface NodeState {
 	List<Locale> getLocales();
 
 	String getHostname();
+
+	boolean isClean();
 }

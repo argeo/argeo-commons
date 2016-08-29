@@ -6,11 +6,10 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.jackrabbit.api.JackrabbitRepository;
 import org.apache.jackrabbit.core.RepositoryContext;
 import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoJcrConstants;
-import org.argeo.node.RepoConf;
+import org.argeo.node.NodeConstants;
 import org.argeo.util.LangUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -23,6 +22,7 @@ class RepositoryServiceFactory implements ManagedServiceFactory {
 	private final BundleContext bc = FrameworkUtil.getBundle(RepositoryServiceFactory.class).getBundleContext();
 
 	private Map<String, RepositoryContext> repositories = new HashMap<String, RepositoryContext>();
+	private Map<String, Object> pidToCn = new HashMap<String, Object>();
 
 	@Override
 	public String getName() {
@@ -47,8 +47,15 @@ class RepositoryServiceFactory implements ManagedServiceFactory {
 			RepositoryContext repositoryContext = repositoryBuilder.createRepositoryContext(properties);
 			repositories.put(pid, repositoryContext);
 			Dictionary<String, Object> props = LangUtils.init(Constants.SERVICE_PID, pid);
-			props.put(ArgeoJcrConstants.JCR_REPOSITORY_URI, properties.get(RepoConf.labeledUri.name()));
-			bc.registerService(JackrabbitRepository.class, repositoryContext.getRepository(), props);
+			// props.put(ArgeoJcrConstants.JCR_REPOSITORY_URI,
+			// properties.get(RepoConf.labeledUri.name()));
+			Object cn = properties.get(NodeConstants.CN);
+			if (cn != null) {
+				props.put(NodeConstants.CN, cn);
+				props.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, cn);
+				pidToCn.put(pid, cn);
+			}
+			bc.registerService(RepositoryContext.class, repositoryContext, props);
 		} catch (Exception e) {
 			throw new ArgeoException("Cannot create Jackrabbit repository " + pid, e);
 		}
@@ -67,6 +74,9 @@ class RepositoryServiceFactory implements ManagedServiceFactory {
 		for (String pid : repositories.keySet()) {
 			try {
 				repositories.get(pid).getRepository().shutdown();
+				if (log.isDebugEnabled())
+					log.debug("Shut down repository " + pid
+							+ (pidToCn.containsKey(pid) ? " (" + pidToCn.get(pid) + ")" : ""));
 			} catch (Exception e) {
 				log.error("Error when shutting down Jackrabbit repository " + pid, e);
 			}

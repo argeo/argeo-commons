@@ -48,7 +48,7 @@ class DataDeploymentUi extends AbstractOsgiComposite {
 		try {
 			ConfigurationAdmin confAdmin = bc.getService(bc.getServiceReference(ConfigurationAdmin.class));
 			Configuration[] confs = confAdmin.listConfigurations(
-					"(" + ConfigurationAdmin.SERVICE_FACTORYPID + "=" + NodeConstants.JACKRABBIT_FACTORY_PID + ")");
+					"(" + ConfigurationAdmin.SERVICE_FACTORYPID + "=" + NodeConstants.NODE_REPOS_FACTORY_PID + ")");
 			if (confs == null || confs.length == 0) {
 				Group buttonGroup = new Group(parent, SWT.NONE);
 				buttonGroup.setText("Repository Type");

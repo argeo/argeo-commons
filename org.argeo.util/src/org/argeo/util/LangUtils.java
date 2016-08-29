@@ -3,13 +3,17 @@ package org.argeo.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Map;
 import java.util.Properties;
+
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
 
 public class LangUtils {
 	/*
@@ -89,6 +93,36 @@ public class LangUtils {
 		}
 		try (OutputStream out = Files.newOutputStream(path)) {
 			toStore.store(out, null);
+		}
+	}
+
+	public static void appendAsLdif(String dnBase, String dnKey, Dictionary<String, Object> props, Path path)
+			throws IOException {
+		if (props == null)
+			throw new IllegalArgumentException("Props cannot be null");
+		Object dnValue = props.get(dnKey);
+		String dnStr = dnKey + '=' + dnValue + ',' + dnBase;
+		LdapName dn;
+		try {
+			dn = new LdapName(dnStr);
+		} catch (InvalidNameException e) {
+			throw new IllegalArgumentException("Cannot interpret DN " + dnStr, e);
+		}
+		if (dnValue == null)
+			throw new IllegalArgumentException("DN key " + dnKey + " must have a value");
+		try (Writer writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND, StandardOpenOption.CREATE)) {
+			writer.append("\ndn: ");
+			writer.append(dn.toString());
+			writer.append('\n');
+			for (Enumeration<String> keys = props.keys(); keys.hasMoreElements();) {
+				String key = keys.nextElement();
+				Object value = props.get(key);
+				writer.append(key);
+				writer.append(": ");
+				// FIXME deal with binary and multiple values
+				writer.append(value.toString());
+				writer.append('\n');
+			}
 		}
 	}
 

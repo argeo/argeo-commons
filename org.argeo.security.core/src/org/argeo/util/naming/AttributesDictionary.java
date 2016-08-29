@@ -118,9 +118,12 @@ public class AttributesDictionary extends Dictionary<String, Object> {
 				attr.set(i, values[i]);
 			}
 		} else {
-			if (attr.size() != 1)
+			if (attr.size() > 1)
 				throw new IllegalArgumentException("Attribute " + key + " is multi-valued");
-			attr.set(0, value.toString());
+			if (attr.size() == 1)
+				attr.set(0, value.toString());
+			else
+				attr.add(value.toString());
 		}
 		return oldValue;
 	}

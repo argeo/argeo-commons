@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.Map;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -55,6 +56,11 @@ public class LdifWriter {
 		} catch (NamingException e) {
 			throw new UserDirectoryException("Cannot write LDIF", e);
 		}
+	}
+
+	public void write(Map<LdapName, Attributes> entries) throws IOException {
+		for (LdapName dn : entries.keySet())
+			writeEntry(dn, entries.get(dn));
 	}
 
 	protected void writeAttribute(Attribute attribute) throws NamingException, IOException {

@@ -30,6 +30,7 @@ import org.apache.jackrabbit.webdav.WebdavResponse;
 import org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet;
 
 /** WebDav servlet whose repository is injected */
+@Deprecated
 public class WebdavServlet extends SimpleWebdavServlet {
 	public final static String INIT_PARAM_RESOURCE_CONFIG = SimpleWebdavServlet.INIT_PARAM_RESOURCE_CONFIG;
 	public final static String INIT_PARAM_RESOURCE_PATH_PREFIX = SimpleWebdavServlet.INIT_PARAM_RESOURCE_PATH_PREFIX;

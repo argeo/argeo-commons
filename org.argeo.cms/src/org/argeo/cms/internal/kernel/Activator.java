@@ -12,8 +12,8 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.node.ArgeoLogger;
 import org.argeo.node.NodeConstants;
+import org.argeo.node.NodeDeployment;
 import org.argeo.node.NodeState;
-import org.argeo.node.RepoConf;
 import org.argeo.util.LangUtils;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -49,6 +49,7 @@ public class Activator implements BundleActivator {
 
 	private NodeLogger logger;
 	private CmsState nodeState;
+	private CmsDeployment nodeDeployment;
 
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
@@ -91,24 +92,27 @@ public class Activator implements BundleActivator {
 		if (props == null) {
 			if (log.isDebugEnabled())
 				log.debug("Clean node state");
-			Dictionary<String, Object> envProps = getStatePropertiesFromEnvironment();
+			Dictionary<String, Object> envProps = new Hashtable<>();
 			// Use the UUID of the first framework run as state UUID
 			cn = bc.getProperty(Constants.FRAMEWORK_UUID);
 			envProps.put(NodeConstants.CN, cn);
 			nodeConf.update(envProps);
 		} else {
 			// Check if state is in line with environment
-			Dictionary<String, Object> envProps = getStatePropertiesFromEnvironment();
-			for (String key : LangUtils.keys(envProps)) {
-				Object envValue = envProps.get(key);
-				Object storedValue = props.get(key);
-				if (storedValue == null)
-					throw new CmsException("No state value for env " + key + "=" + envValue
-							+ ", please clean the OSGi configuration.");
-				if (!storedValue.equals(envValue))
-					throw new CmsException("State value for " + key + "=" + storedValue
-							+ " is different from env value =" + envValue + ", please clean the OSGi configuration.");
-			}
+			// Dictionary<String, Object> envProps = new Hashtable<>();
+			// for (String key : LangUtils.keys(envProps)) {
+			// Object envValue = envProps.get(key);
+			// Object storedValue = props.get(key);
+			// if (storedValue == null)
+			// throw new CmsException("No state value for env " + key + "=" +
+			// envValue
+			// + ", please clean the OSGi configuration.");
+			// if (!storedValue.equals(envValue))
+			// throw new CmsException("State value for " + key + "=" +
+			// storedValue
+			// + " is different from env value =" + envValue + ", please clean
+			// the OSGi configuration.");
+			// }
 			cn = props.get(NodeConstants.CN);
 			if (cn == null)
 				throw new CmsException("No state UUID available");
@@ -118,6 +122,13 @@ public class Activator implements BundleActivator {
 		regProps.put(NodeConstants.CN, cn);
 		bc.registerService(LangUtils.names(NodeState.class, ManagedService.class), nodeState, regProps);
 
+		try {
+			nodeDeployment = new CmsDeployment();
+			bc.registerService(LangUtils.names(NodeDeployment.class), nodeDeployment, null);
+		} catch (RuntimeException e) {
+			e.printStackTrace();
+			throw e;
+		}
 	}
 
 	@Override
@@ -142,27 +153,6 @@ public class Activator implements BundleActivator {
 		if (sr == null)
 			throw new CmsException("No service available for " + clazz);
 		return bc.getService(sr);
-	}
-
-	protected Dictionary<String, Object> getStatePropertiesFromEnvironment() {
-		Hashtable<String, Object> props = new Hashtable<>();
-		// i18n
-		copyFrameworkProp(NodeConstants.I18N_DEFAULT_LOCALE, props);
-		copyFrameworkProp(NodeConstants.I18N_LOCALES, props);
-		// user admin
-		copyFrameworkProp(NodeConstants.ROLES_URI, props);
-		copyFrameworkProp(NodeConstants.USERADMIN_URIS, props);
-		// data
-		for (RepoConf repoConf : RepoConf.values())
-			copyFrameworkProp(NodeConstants.NODE_REPO_PROP_PREFIX + repoConf.name(), props);
-		// TODO add other environment sources
-		return props;
-	}
-
-	private void copyFrameworkProp(String key, Dictionary<String, Object> props) {
-		String value = bc.getProperty(key);
-		if (value != null)
-			props.put(key, value);
 	}
 
 	public static NodeState getNodeState() {

@@ -14,7 +14,14 @@ public interface NodeConstants {
 	/*
 	 * FACTORY PIDs
 	 */
-	String JACKRABBIT_FACTORY_PID = "org.argeo.jackrabbit.config";
+	String NODE_REPOS_FACTORY_PID = "org.argeo.node.repos";
+
+	/*
+	 * DEPLOY
+	 */
+	String DEPLOY_BASEDN = "ou=deploy,ou=node";
+//	String DEPLOY_SERVICES_BASEDN = "ou=services," + DEPLOY_BASEDN;
+//	String DEPLOY_SERVICE_FACTORIES_BASEDN = "ou=serviceFactories," + DEPLOY_BASEDN;
 
 	/*
 	 * FRAMEWORK PROPERTIES
@@ -34,5 +41,6 @@ public interface NodeConstants {
 	 * STANDARD ATTRIBUTES
 	 */
 	String CN = "cn";
+	String OU = "ou";
 	String LABELED_URI = "labeledUri";
 }

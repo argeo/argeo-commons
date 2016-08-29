@@ -8,10 +8,10 @@ import static org.argeo.cms.internal.kernel.KernelUtils.getFrameworkProp;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -19,9 +19,14 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
+import java.util.SortedMap;
 import java.util.UUID;
 
 import javax.jcr.RepositoryFactory;
+import javax.naming.InvalidNameException;
+import javax.naming.directory.Attributes;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 import javax.transaction.TransactionManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.transaction.UserTransaction;
@@ -37,6 +42,8 @@ import org.argeo.node.NodeDeployment;
 import org.argeo.node.NodeState;
 import org.argeo.node.RepoConf;
 import org.argeo.util.LangUtils;
+import org.argeo.util.naming.AttributesDictionary;
+import org.argeo.util.naming.LdifParser;
 import org.eclipse.equinox.http.jetty.JettyConfigurator;
 import org.eclipse.equinox.http.jetty.JettyConstants;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
@@ -83,7 +90,7 @@ public class CmsState implements NodeState, ManagedService {
 	// private RepositoryService repositoryService;
 
 	// Deployment
-	private final CmsDeployment nodeDeployment = new CmsDeployment();
+	// private final CmsDeployment nodeDeployment = new CmsDeployment();
 
 	private boolean cleanState = false;
 	private URI nodeRepoUri = null;
@@ -105,10 +112,10 @@ public class CmsState implements NodeState, ManagedService {
 	@Override
 	public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
 		if (properties == null) {
-			// TODO this should not happen anymore
-			this.cleanState = true;
-			if (log.isTraceEnabled())
-				log.trace("Clean state");
+			// // TODO this should not happen anymore
+			// this.cleanState = true;
+			// if (log.isTraceEnabled())
+			// log.trace("Clean state");
 			return;
 		}
 		String stateUuid = properties.get(NodeConstants.CN).toString();
@@ -123,11 +130,11 @@ public class CmsState implements NodeState, ManagedService {
 
 			nodeRepoUri = KernelUtils.getOsgiInstanceUri("repos/node");
 
-			initI18n(properties);
+			initI18n();
 			initServices();
-			initDeployConfigs(properties);
-			initWebServer();
-			initNodeDeployment();
+//			initDeployConfigs();
+			// initWebServer();
+			// initNodeDeployment();
 
 			// kernel thread
 			kernelThread = new KernelThread(threadGroup, "Kernel Thread");
@@ -138,17 +145,16 @@ public class CmsState implements NodeState, ManagedService {
 		}
 	}
 
-	private void initI18n(Dictionary<String, ?> stateProps) {
-		Object defaultLocaleValue = stateProps.get(NodeConstants.I18N_DEFAULT_LOCALE);
+	private void initI18n() {
+		Object defaultLocaleValue = KernelUtils.getFrameworkProp(NodeConstants.I18N_DEFAULT_LOCALE);
 		defaultLocale = defaultLocaleValue != null ? new Locale(defaultLocaleValue.toString())
 				: new Locale(ENGLISH.getLanguage());
-		locales = asLocaleList(stateProps.get(NodeConstants.I18N_LOCALES));
+		locales = asLocaleList(KernelUtils.getFrameworkProp(NodeConstants.I18N_LOCALES));
 	}
 
 	private void initServices() {
 		// trackers
 		new ServiceTracker<HttpService, HttpService>(bc, HttpService.class, new PrepareHttpStc()).open();
-		new ServiceTracker<>(bc, RepositoryContext.class, new RepositoryContextStc()).open();
 
 		initTransactionManager();
 
@@ -156,15 +162,16 @@ public class CmsState implements NodeState, ManagedService {
 		RepositoryServiceFactory repositoryServiceFactory = new RepositoryServiceFactory();
 		shutdownHooks.add(() -> repositoryServiceFactory.shutdown());
 		bc.registerService(ManagedServiceFactory.class, repositoryServiceFactory,
-				LangUtils.init(Constants.SERVICE_PID, NodeConstants.JACKRABBIT_FACTORY_PID));
+				LangUtils.init(Constants.SERVICE_PID, NodeConstants.NODE_REPOS_FACTORY_PID));
 
 		NodeRepositoryFactory repositoryFactory = new NodeRepositoryFactory();
 		bc.registerService(RepositoryFactory.class, repositoryFactory, null);
 
-		RepositoryService repositoryService = new RepositoryService();
-		shutdownHooks.add(() -> repositoryService.shutdown());
-		bc.registerService(LangUtils.names(ManagedService.class, MetaTypeProvider.class), repositoryService,
-				LangUtils.init(Constants.SERVICE_PID, NodeConstants.NODE_REPO_PID));
+		// RepositoryService repositoryService = new RepositoryService();
+		// shutdownHooks.add(() -> repositoryService.shutdown());
+		// bc.registerService(LangUtils.names(ManagedService.class,
+		// MetaTypeProvider.class), repositoryService,
+		// LangUtils.init(Constants.SERVICE_PID, NodeConstants.NODE_REPO_PID));
 
 		// Security
 		NodeUserAdmin userAdmin = new NodeUserAdmin();
@@ -231,42 +238,6 @@ public class CmsState implements NodeState, ManagedService {
 	// LangUtils.init(PROPERTY_CONTEXT_NAME, "user"));
 	// }
 
-	private void initDeployConfigs(Dictionary<String, ?> stateProps) throws IOException {
-		Path deployPath = KernelUtils.getOsgiInstancePath(KernelConstants.DIR_NODE + '/' + KernelConstants.DIR_DEPLOY);
-		Files.createDirectories(deployPath);
-
-		Path nodeConfigPath = deployPath.resolve(NodeConstants.NODE_REPO_PID + ".properties");
-		if (!Files.exists(nodeConfigPath)) {
-			Dictionary<String, Object> nodeConfig = getNodeConfig(stateProps);
-			nodeConfig.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, ArgeoJcrConstants.ALIAS_NODE);
-			nodeConfig.put(RepoConf.labeledUri.name(), nodeRepoUri.toString());
-			LangUtils.storeAsProperties(nodeConfig, nodeConfigPath);
-		}
-
-		if (cleanState) {
-			try (DirectoryStream<Path> ds = Files.newDirectoryStream(deployPath)) {
-				for (Path path : ds) {
-					if (Files.isDirectory(path)) {// managed factories
-						try (DirectoryStream<Path> factoryDs = Files.newDirectoryStream(path)) {
-							for (Path confPath : factoryDs) {
-								Configuration conf = configurationAdmin
-										.createFactoryConfiguration(path.getFileName().toString());
-								Dictionary<String, Object> props = LangUtils.loadFromProperties(confPath);
-								conf.update(props);
-							}
-						}
-					} else {// managed services
-						String pid = path.getFileName().toString();
-						pid = pid.substring(0, pid.length() - ".properties".length());
-						Configuration conf = configurationAdmin.getConfiguration(pid);
-						Dictionary<String, Object> props = LangUtils.loadFromProperties(path);
-						conf.update(props);
-					}
-				}
-			}
-		}
-	}
-
 	// private void initRepositories(Dictionary<String, ?> stateProps) throws
 	// IOException {
 	// // register
@@ -282,52 +253,11 @@ public class CmsState implements NodeState, ManagedService {
 	// MetaTypeProvider.class), repositoryService, regProps);
 	// }
 
-	private void initWebServer() {
-		String httpPort = getFrameworkProp("org.osgi.service.http.port");
-		String httpsPort = getFrameworkProp("org.osgi.service.http.port.secure");
-		/// TODO make it more generic
-		String httpHost = getFrameworkProp("org.eclipse.equinox.http.jetty.http.host");
-		try {
-			if (httpPort != null || httpsPort != null) {
-				final Hashtable<String, Object> jettyProps = new Hashtable<String, Object>();
-				if (httpPort != null) {
-					jettyProps.put(JettyConstants.HTTP_PORT, httpPort);
-					jettyProps.put(JettyConstants.HTTP_ENABLED, true);
-				}
-				if (httpsPort != null) {
-					jettyProps.put(JettyConstants.HTTPS_PORT, httpsPort);
-					jettyProps.put(JettyConstants.HTTPS_ENABLED, true);
-					jettyProps.put(JettyConstants.SSL_KEYSTORETYPE, "PKCS12");
-					// jettyProps.put(JettyConstants.SSL_KEYSTORE,
-					// nodeSecurity.getHttpServerKeyStore().getCanonicalPath());
-					jettyProps.put(JettyConstants.SSL_PASSWORD, "changeit");
-					jettyProps.put(JettyConstants.SSL_WANTCLIENTAUTH, true);
-				}
-				if(httpHost!=null){
-					jettyProps.put(JettyConstants.HTTP_HOST, httpHost);
-				}
-				if (configurationAdmin != null) {
-					// TODO make filter more generic
-					String filter = "(" + JettyConstants.HTTP_PORT + "=" + httpPort + ")";
-					if (configurationAdmin.listConfigurations(filter) != null)
-						return;
-					Configuration jettyConf = configurationAdmin
-							.createFactoryConfiguration(KernelConstants.JETTY_FACTORY_PID, null);
-					jettyConf.update(jettyProps);
-
-				} else {
-					JettyConfigurator.startServer("default", jettyProps);
-				}
-			}
-		} catch (Exception e) {
-			throw new CmsException("Cannot initialize web server on " + httpPortsMsg(httpPort, httpsPort), e);
-		}
-	}
-
-	private void initNodeDeployment() throws IOException {
-		Configuration nodeDeploymentConf = configurationAdmin.getConfiguration(NodeConstants.NODE_DEPLOYMENT_PID);
-		nodeDeploymentConf.update(new Hashtable<>());
-	}
+	// private void initNodeDeployment() throws IOException {
+	// Configuration nodeDeploymentConf =
+	// configurationAdmin.getConfiguration(NodeConstants.NODE_DEPLOYMENT_PID);
+	// nodeDeploymentConf.update(new Hashtable<>());
+	// }
 
 	void shutdown() {
 		// if (transactionManager != null)
@@ -359,49 +289,6 @@ public class CmsState implements NodeState, ManagedService {
 		}
 		// Clean hanging Gogo shell thread
 		new GogoShellKiller().start();
-	}
-
-	private Dictionary<String, Object> getNodeConfig(Dictionary<String, ?> properties) {
-		// Object repoType = properties.get(NodeConstants.NODE_REPO_PROP_PREFIX
-		// + RepoConf.type.name());
-		// if (repoType == null)
-		// return null;
-
-		Hashtable<String, Object> props = new Hashtable<String, Object>();
-		for (RepoConf repoConf : RepoConf.values()) {
-			Object value = properties.get(NodeConstants.NODE_REPO_PROP_PREFIX + repoConf.name());
-			if (value != null)
-				props.put(repoConf.name(), value);
-		}
-		return props;
-	}
-
-	private class RepositoryContextStc implements ServiceTrackerCustomizer<RepositoryContext, RepositoryContext> {
-
-		@Override
-		public RepositoryContext addingService(ServiceReference<RepositoryContext> reference) {
-			RepositoryContext nodeRepo = bc.getService(reference);
-			Object repoUri = reference.getProperty(ArgeoJcrConstants.JCR_REPOSITORY_URI);
-			if (repoUri != null && repoUri.equals(nodeRepoUri.toString())) {
-				nodeDeployment.setDeployedNodeRepository(nodeRepo.getRepository());
-				Dictionary<String, Object> props = LangUtils.init(Constants.SERVICE_PID,
-						NodeConstants.NODE_DEPLOYMENT_PID);
-				props.put(NodeConstants.CN, nodeRepo.getRootNodeId().toString());
-				// register
-				bc.registerService(LangUtils.names(NodeDeployment.class, ManagedService.class), nodeDeployment, props);
-			}
-
-			return nodeRepo;
-		}
-
-		@Override
-		public void modifiedService(ServiceReference<RepositoryContext> reference, RepositoryContext service) {
-		}
-
-		@Override
-		public void removedService(ServiceReference<RepositoryContext> reference, RepositoryContext service) {
-		}
-
 	}
 
 	private class PrepareHttpStc implements ServiceTrackerCustomizer<HttpService, HttpService> {
@@ -440,6 +327,11 @@ public class CmsState implements NodeState, ManagedService {
 			return httpService;
 		}
 
+	}
+
+	@Override
+	public boolean isClean() {
+		return cleanState;
 	}
 
 	/*
