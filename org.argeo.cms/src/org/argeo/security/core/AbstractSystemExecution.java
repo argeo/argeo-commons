@@ -25,8 +25,7 @@ import org.argeo.ArgeoException;
 
 /** Provides base method for executing code with system authorization. */
 public abstract class AbstractSystemExecution {
-	private final static Log log = LogFactory
-			.getLog(AbstractSystemExecution.class);
+	private final static Log log = LogFactory.getLog(AbstractSystemExecution.class);
 	private final Subject subject = new Subject();
 
 	private final String loginModule = "SYSTEM";
@@ -36,22 +35,30 @@ public abstract class AbstractSystemExecution {
 	 * {@link AuthenticationManager}
 	 */
 	protected void authenticateAsSystem() {
+		ClassLoader origClassLoader = Thread.currentThread().getContextClassLoader();
+		Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 		try {
 			LoginContext lc = new LoginContext(loginModule, subject);
 			lc.login();
 		} catch (LoginException e) {
 			throw new ArgeoException("Cannot login as system", e);
+		} finally {
+			Thread.currentThread().setContextClassLoader(origClassLoader);
 		}
 		if (log.isTraceEnabled())
 			log.trace("System authenticated");
 	}
 
 	protected void deauthenticateAsSystem() {
+		ClassLoader origClassLoader = Thread.currentThread().getContextClassLoader();
+		Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 		try {
 			LoginContext lc = new LoginContext(loginModule, subject);
 			lc.logout();
 		} catch (LoginException e) {
 			throw new ArgeoException("Cannot logout as system", e);
+		} finally {
+			Thread.currentThread().setContextClassLoader(origClassLoader);
 		}
 	}
 
