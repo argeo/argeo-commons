@@ -27,19 +27,17 @@ import org.argeo.osgi.useradmin.UserDirectoryException;
 public class LdifParser {
 	private final static Log log = LogFactory.getLog(LdifParser.class);
 
-	protected Attributes addAttributes(SortedMap<LdapName, Attributes> res,
-			int lineNumber, LdapName currentDn, Attributes currentAttributes) {
+	protected Attributes addAttributes(SortedMap<LdapName, Attributes> res, int lineNumber, LdapName currentDn,
+			Attributes currentAttributes) {
 		try {
 			Rdn nameRdn = currentDn.getRdn(currentDn.size() - 1);
 			Attribute nameAttr = currentAttributes.get(nameRdn.getType());
 			if (nameAttr == null)
 				currentAttributes.put(nameRdn.getType(), nameRdn.getValue());
 			else if (!nameAttr.get().equals(nameRdn.getValue()))
-				throw new UserDirectoryException("Attribute "
-						+ nameAttr.getID() + "=" + nameAttr.get()
-						+ " not consistent with DN " + currentDn
-						+ " (shortly before line " + lineNumber
-						+ " in LDIF file)");
+				throw new UserDirectoryException(
+						"Attribute " + nameAttr.getID() + "=" + nameAttr.get() + " not consistent with DN " + currentDn
+								+ " (shortly before line " + lineNumber + " in LDIF file)");
 			Attributes previous = res.put(currentDn, currentAttributes);
 			if (log.isTraceEnabled())
 				log.trace("Added " + currentDn);
@@ -53,6 +51,8 @@ public class LdifParser {
 		SortedMap<LdapName, Attributes> res = new TreeMap<LdapName, Attributes>();
 		try {
 			List<String> lines = IOUtils.readLines(in);
+			if (lines.size() == 0)
+				return res;
 			// add an empty new line since the last line is not checked
 			if (!lines.get(lines.size() - 1).equals(""))
 				lines.add("");
@@ -79,8 +79,7 @@ public class LdifParser {
 					readAttrId: for (int i = 0; i < currentEntry.length(); i++) {
 						char c = currentEntry.charAt(i);
 						if (c == ':') {
-							if (i + 1 < currentEntry.length()
-									&& currentEntry.charAt(i + 1) == ':')
+							if (i + 1 < currentEntry.length() && currentEntry.charAt(i + 1) == ':')
 								isBase64 = true;
 							currentEntry.delete(0, i + (isBase64 ? 2 : 1));
 							break readAttrId;
@@ -91,8 +90,7 @@ public class LdifParser {
 
 					String attributeId = attrId.toString();
 					String cleanValueStr = currentEntry.toString().trim();
-					Object attributeValue = isBase64 ? Base64
-							.decodeBase64(cleanValueStr) : cleanValueStr;
+					Object attributeValue = isBase64 ? Base64.decodeBase64(cleanValueStr) : cleanValueStr;
 
 					// manage DN attributes
 					if (attributeId.equals(dn.name()) || isLastLine) {
@@ -100,23 +98,19 @@ public class LdifParser {
 							//
 							// ADD
 							//
-							Attributes previous = addAttributes(res,
-									lineNumber, currentDn, currentAttributes);
+							Attributes previous = addAttributes(res, lineNumber, currentDn, currentAttributes);
 							if (previous != null) {
-								log.warn("There was already an entry with DN "
-										+ currentDn
+								log.warn("There was already an entry with DN " + currentDn
 										+ ", which has been discarded by a subsequent one.");
 							}
 						}
 
 						if (attributeId.equals(dn.name()))
 							try {
-								currentDn = new LdapName(
-										attributeValue.toString());
+								currentDn = new LdapName(attributeValue.toString());
 								currentAttributes = new BasicAttributes(true);
 							} catch (InvalidNameException e) {
-								log.error(attributeValue
-										+ " not a valid DN, skipping the entry.");
+								log.error(attributeValue + " not a valid DN, skipping the entry.");
 								currentDn = null;
 								currentAttributes = null;
 							}
@@ -124,8 +118,7 @@ public class LdifParser {
 
 					// store attribute
 					if (currentAttributes != null) {
-						Attribute attribute = currentAttributes
-								.get(attributeId);
+						Attribute attribute = currentAttributes.get(attributeId);
 						if (attribute == null) {
 							attribute = new BasicAttribute(attributeId);
 							currentAttributes.put(attribute);

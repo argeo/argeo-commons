@@ -18,7 +18,7 @@ public interface KernelConstants {
 	final static String DIR_PKI_PRIVATE = DIR_PKI + "/private";
 
 	// Files
-	String DEPLOY_PATH = KernelConstants.DIR_NODE + '/' + NodeConstants.DEPLOY_BASEDN + ".ldif";
+	String DEPLOY_CONFIG_PATH = KernelConstants.DIR_NODE + '/' + NodeConstants.DEPLOY_BASEDN + ".ldif";
 	
 	// Security
 	final static String DEFAULT_SECURITY_KEY = "argeo";

@@ -2,9 +2,16 @@ package org.argeo.cms.internal.kernel;
 
 import static org.argeo.cms.internal.kernel.KernelUtils.getFrameworkProp;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.argeo.cms.CmsException;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.RepoConf;
@@ -15,8 +22,15 @@ import org.eclipse.equinox.http.jetty.JettyConstants;
  * configuration.
  */
 class FirstInitProperties {
-	Dictionary<String, Object> getNodeRepositoryConfig() {
-		Hashtable<String, Object> props = new Hashtable<String, Object>();
+	private final static Log log = LogFactory.getLog(FirstInitProperties.class);
+
+	public FirstInitProperties() {
+		log.info("## FIRST INIT ##");
+	}
+
+	/** Override the provided config with the framework properties */
+	Dictionary<String, Object> getNodeRepositoryConfig(Dictionary<String, Object> provided) {
+		Dictionary<String, Object> props = provided != null ? provided : new Hashtable<String, Object>();
 		for (RepoConf repoConf : RepoConf.values()) {
 			Object value = getFrameworkProp(NodeConstants.NODE_REPO_PROP_PREFIX + repoConf.name());
 			if (value != null)
@@ -27,7 +41,7 @@ class FirstInitProperties {
 		return props;
 	}
 
-	Dictionary<String, Object> getHttpServerConfig() {
+	Dictionary<String, Object> getHttpServerConfig(Dictionary<String, Object> provided) {
 		String httpPort = getFrameworkProp("org.osgi.service.http.port");
 		String httpsPort = getFrameworkProp("org.osgi.service.http.port.secure");
 		/// TODO make it more generic
@@ -56,4 +70,42 @@ class FirstInitProperties {
 		}
 		return props;
 	}
+
+	/**
+	 * Called before node initialisation, in order populate OSGi instance are
+	 * with some files (typically LDIF, etc).
+	 */
+	void prepareInstanceArea() {
+		String nodeInit = getFrameworkProp(NodeConstants.NODE_INIT);
+		if (nodeInit == null)
+			nodeInit = "../../init";
+		if (nodeInit.startsWith("http")) {
+			// remoteFirstInit(nodeInit);
+			return;
+		}
+
+		// TODO use java.nio.file
+		File initDir;
+		if (nodeInit.startsWith("."))
+			initDir = KernelUtils.getExecutionDir(nodeInit);
+		else
+			initDir = new File(nodeInit);
+		// TODO also uncompress archives
+		if (initDir.exists())
+			try {
+				FileUtils.copyDirectory(initDir, KernelUtils.getOsgiInstanceDir(), new FileFilter() {
+
+					@Override
+					public boolean accept(File pathname) {
+						if (pathname.getName().equals(".svn") || pathname.getName().equals(".git"))
+							return false;
+						return true;
+					}
+				});
+				log.info("CMS initialized from " + initDir.getCanonicalPath());
+			} catch (IOException e) {
+				throw new CmsException("Cannot initialize from " + initDir, e);
+			}
+	}
+
 }

@@ -120,10 +120,16 @@ public class AttributesDictionary extends Dictionary<String, Object> {
 		} else {
 			if (attr.size() > 1)
 				throw new IllegalArgumentException("Attribute " + key + " is multi-valued");
-			if (attr.size() == 1)
-				attr.set(0, value.toString());
-			else
+			if (attr.size() == 1) {
+				try {
+					if (!attr.get(0).equals(value))
+						attr.set(0, value.toString());
+				} catch (NamingException e) {
+					throw new RuntimeException("Cannot check existing value", e);
+				}
+			} else {
 				attr.add(value.toString());
+			}
 		}
 		return oldValue;
 	}
