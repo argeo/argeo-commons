@@ -6,6 +6,7 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Dictionary;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -20,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.node.NodeConstants;
+import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.util.naming.AttributesDictionary;
 import org.argeo.util.naming.LdifParser;
 import org.argeo.util.naming.LdifWriter;
@@ -64,13 +66,25 @@ class DeployConfig implements ConfigurationListener {
 			deployConfigs = new LdifParser().read(in);
 		}
 
+		// node repository
 		Dictionary<String, Object> nodeConfig = firstInit
 				.getNodeRepositoryConfig(getProps(NodeConstants.NODE_REPOS_FACTORY_PID, ArgeoJcrConstants.ALIAS_NODE));
 		// node repository is mandatory
 		putFactoryDeployConfig(NodeConstants.NODE_REPOS_FACTORY_PID, nodeConfig);
 
+		// user admin
+
+		List<Dictionary<String, Object>> userDirectoryConfigs = firstInit.getUserDirectoryConfigs();
+		for (int i = 0; i < userDirectoryConfigs.size(); i++) {
+			Dictionary<String, Object> userDirectoryConfig = userDirectoryConfigs.get(i);
+			String cn = Integer.toString(i);
+			userDirectoryConfig.put(NodeConstants.CN, cn);
+			putFactoryDeployConfig(NodeConstants.NODE_USER_ADMIN_PID, userDirectoryConfig);
+		}
+
+		// http server
 		Dictionary<String, Object> webServerConfig = firstInit
-				.getHttpServerConfig(getProps(KernelConstants.JETTY_FACTORY_PID, ArgeoJcrConstants.ALIAS_NODE));
+				.getHttpServerConfig(getProps(KernelConstants.JETTY_FACTORY_PID, NodeConstants.DEFAULT));
 		if (!webServerConfig.isEmpty())
 			putFactoryDeployConfig(KernelConstants.JETTY_FACTORY_PID, webServerConfig);
 

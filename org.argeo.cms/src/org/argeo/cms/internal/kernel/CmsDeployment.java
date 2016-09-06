@@ -118,6 +118,7 @@ public class CmsDeployment implements NodeDeployment {
 
 		prepareDataModel(KernelUtils.openAdminSession(deployedNodeRepository));
 		Hashtable<String, String> regProps = new Hashtable<String, String>();
+		regProps.put(NodeConstants.CN, ArgeoJcrConstants.ALIAS_HOME);
 		regProps.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, ArgeoJcrConstants.ALIAS_HOME);
 		homeRepository = new HomeRepository(deployedNodeRepository);
 		// register

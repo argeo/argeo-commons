@@ -100,16 +100,22 @@ public class CmsState implements NodeState {
 		bc.registerService(RepositoryFactory.class, repositoryFactory, null);
 
 		// Security
+//		UserDirectoryServiceFactory userDirectoryServiceFactory = new UserDirectoryServiceFactory();
+//		shutdownHooks.add(() -> userDirectoryServiceFactory.shutdown());
+//		bc.registerService(ManagedServiceFactory.class, userDirectoryServiceFactory,
+//				LangUtils.init(Constants.SERVICE_PID, NodeConstants.NODE_USER_DIRECTORIES_FACTORY_PID));
+
 		NodeUserAdmin userAdmin = new NodeUserAdmin();
 		shutdownHooks.add(() -> userAdmin.destroy());
 		Dictionary<String, Object> props = userAdmin.currentState();
 		props.put(Constants.SERVICE_PID, NodeConstants.NODE_USER_ADMIN_PID);
-		bc.registerService(UserAdmin.class, userAdmin, props);
+		bc.registerService(ManagedServiceFactory.class, userAdmin, props);
 
 		// UI
 		bc.registerService(ApplicationConfiguration.class, new MaintenanceUi(),
 				LangUtils.init(KernelConstants.CONTEXT_NAME_PROP, "system"));
-		bc.registerService(ApplicationConfiguration.class, new UserUi(), LangUtils.init(KernelConstants.CONTEXT_NAME_PROP, "user"));
+		bc.registerService(ApplicationConfiguration.class, new UserUi(),
+				LangUtils.init(KernelConstants.CONTEXT_NAME_PROP, "user"));
 	}
 
 	private void initTransactionManager() {

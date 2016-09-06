@@ -5,16 +5,21 @@ import static org.argeo.cms.internal.kernel.KernelUtils.getFrameworkProp;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.auth.AuthConstants;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.RepoConf;
+import org.argeo.osgi.useradmin.UserAdminConf;
 import org.eclipse.equinox.http.jetty.JettyConstants;
 
 /**
@@ -41,6 +46,7 @@ class FirstInitProperties {
 		return props;
 	}
 
+	/** Override the provided config with the framework properties */
 	Dictionary<String, Object> getHttpServerConfig(Dictionary<String, Object> provided) {
 		String httpPort = getFrameworkProp("org.osgi.service.http.port");
 		String httpsPort = getFrameworkProp("org.osgi.service.http.port.secure");
@@ -66,9 +72,75 @@ class FirstInitProperties {
 			if (httpHost != null) {
 				props.put(JettyConstants.HTTP_HOST, httpHost);
 			}
-			props.put(NodeConstants.CN, "default");
+			props.put(NodeConstants.CN, NodeConstants.DEFAULT);
 		}
 		return props;
+	}
+
+	List<Dictionary<String, Object>> getUserDirectoryConfigs() {
+		List<Dictionary<String, Object>> res = new ArrayList<>();
+		File nodeBaseDir = KernelUtils.getOsgiInstancePath(KernelConstants.DIR_NODE).toFile();
+		List<String> uris = new ArrayList<>();
+
+		// node roles
+		String nodeRolesUri = getFrameworkProp(NodeConstants.ROLES_URI);
+		String baseNodeRoleDn = AuthConstants.ROLES_BASEDN;
+		if (nodeRolesUri == null) {
+			File nodeRolesFile = new File(nodeBaseDir, baseNodeRoleDn + ".ldif");
+			if (!nodeRolesFile.exists())
+				try {
+					FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(baseNodeRoleDn + ".ldif"),
+							nodeRolesFile);
+				} catch (IOException e) {
+					throw new CmsException("Cannot copy demo resource", e);
+				}
+			nodeRolesUri = nodeRolesFile.toURI().toString();
+		}
+		uris.add(nodeRolesUri);
+
+		// Business roles
+		String userAdminUris = getFrameworkProp(NodeConstants.USERADMIN_URIS);
+		if (userAdminUris == null) {
+			String demoBaseDn = "dc=example,dc=com";
+			File businessRolesFile = new File(nodeBaseDir, demoBaseDn + ".ldif");
+			if (!businessRolesFile.exists())
+				try {
+					FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(demoBaseDn + ".ldif"),
+							businessRolesFile);
+				} catch (IOException e) {
+					throw new CmsException("Cannot copy demo resource", e);
+				}
+			userAdminUris = businessRolesFile.toURI().toString();
+		}
+		for (String userAdminUri : userAdminUris.split(" "))
+			uris.add(userAdminUri);
+
+		// Interprets URIs
+		for (String uri : uris) {
+			URI u;
+			try {
+				u = new URI(uri);
+				if (u.getPath() == null)
+					throw new CmsException("URI " + uri + " must have a path in order to determine base DN");
+				if (u.getScheme() == null) {
+					if (uri.startsWith("/") || uri.startsWith("./") || uri.startsWith("../"))
+						u = new File(uri).getCanonicalFile().toURI();
+					else if (!uri.contains("/")) {
+						u = KernelUtils.getOsgiInstanceUri(KernelConstants.DIR_NODE + '/' + uri);
+						// u = new URI(nodeBaseDir.toURI() + uri);
+					} else
+						throw new CmsException("Cannot interpret " + uri + " as an uri");
+				} else if (u.getScheme().equals("file")) {
+					u = new File(u).getCanonicalFile().toURI();
+				}
+			} catch (Exception e) {
+				throw new CmsException("Cannot interpret " + uri + " as an uri", e);
+			}
+			Dictionary<String, Object> properties = UserAdminConf.uriAsProperties(u.toString());
+			res.add(properties);
+		}
+
+		return res;
 	}
 
 	/**

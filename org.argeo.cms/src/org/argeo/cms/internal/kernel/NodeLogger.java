@@ -42,6 +42,7 @@ import org.argeo.cms.auth.CurrentUser;
 import org.argeo.node.ArgeoLogListener;
 import org.argeo.node.ArgeoLogger;
 import org.argeo.node.NodeConstants;
+import org.argeo.osgi.useradmin.UserAdminConf;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -161,11 +162,11 @@ class NodeLogger implements ArgeoLogger, LogListener {
 			Object factoryPid = sr.getProperty(ConfigurationAdmin.SERVICE_FACTORYPID);
 			if (factoryPid != null)
 				sb.append(" " + ConfigurationAdmin.SERVICE_FACTORYPID + ": " + factoryPid);
-			else {
-				Object servicePid = sr.getProperty(Constants.SERVICE_PID);
-				if (servicePid != null)
-					sb.append(" " + Constants.SERVICE_PID + ": " + servicePid);
-			}
+//			else {
+//				Object servicePid = sr.getProperty(Constants.SERVICE_PID);
+//				if (servicePid != null)
+//					sb.append(" " + Constants.SERVICE_PID + ": " + servicePid);
+//			}
 			// servlets
 			Object whiteBoardPattern = sr.getProperty(KernelConstants.WHITEBOARD_PATTERN_PROP);
 			if (whiteBoardPattern != null)
@@ -175,6 +176,11 @@ class NodeLogger implements ArgeoLogger, LogListener {
 			Object contextName = sr.getProperty(KernelConstants.CONTEXT_NAME_PROP);
 			if (contextName != null)
 				sb.append(" " + KernelConstants.CONTEXT_NAME_PROP + ": " + contextName);
+			
+			// user directories
+			Object baseDn = sr.getProperty(UserAdminConf.baseDn.name());
+			if (baseDn != null)
+				sb.append(" " + UserAdminConf.baseDn.name() + ": " + baseDn);
 		}
 		return sb.toString();
 	}

@@ -14,6 +14,8 @@ import java.util.Map;
 
 import javax.naming.Context;
 
+import org.osgi.framework.Constants;
+
 /** Properties used to configure user admins. */
 public enum UserAdminConf {
 	/** Base DN (cannot be configured externally) */
@@ -88,7 +90,10 @@ public enum UserAdminConf {
 		boolean first = true;
 		for (Enumeration<String> keys = properties.keys(); keys.hasMoreElements();) {
 			String key = keys.nextElement();
-			if (!key.startsWith("java") && !key.equals(baseDn.name()) && !key.equals(uri.name())) {
+			// TODO clarify which keys are relevant (list only the enum?)
+			if (!key.equals("service.factoryPid") && !key.equals("cn") && !key.equals("dn")
+					&& !key.equals(Constants.SERVICE_PID) && !key.startsWith("java") && !key.equals(baseDn.name())
+					&& !key.equals(uri.name())) {
 				if (first)
 					first = false;
 				else
@@ -107,7 +112,7 @@ public enum UserAdminConf {
 		}
 	}
 
-	public static Dictionary<String, ?> uriAsProperties(String uriStr) {
+	public static Dictionary<String, Object> uriAsProperties(String uriStr) {
 		try {
 			Hashtable<String, Object> res = new Hashtable<String, Object>();
 			URI u = new URI(uriStr);

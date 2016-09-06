@@ -8,20 +8,19 @@ public interface NodeConstants {
 	String NODE_DEPLOYMENT_PID = "org.argeo.node.deployment";
 	String NODE_INSTANCE_PID = "org.argeo.node.instance";
 
-	String NODE_REPO_PID = "org.argeo.node.repo";
+//	String NODE_REPO_PID = "org.argeo.node.repo";
 	String NODE_USER_ADMIN_PID = "org.argeo.node.userAdmin";
 
 	/*
 	 * FACTORY PIDs
 	 */
 	String NODE_REPOS_FACTORY_PID = "org.argeo.node.repos";
+	String NODE_USER_DIRECTORIES_FACTORY_PID = "org.argeo.node.userDirectories";
 
 	/*
 	 * DEPLOY
 	 */
 	String DEPLOY_BASEDN = "ou=deploy,ou=node";
-//	String DEPLOY_SERVICES_BASEDN = "ou=services," + DEPLOY_BASEDN;
-//	String DEPLOY_SERVICE_FACTORIES_BASEDN = "ou=serviceFactories," + DEPLOY_BASEDN;
 
 	/*
 	 * FRAMEWORK PROPERTIES
@@ -43,4 +42,9 @@ public interface NodeConstants {
 	String CN = "cn";
 	String OU = "ou";
 	String LABELED_URI = "labeledUri";
+	
+	/*
+	 * STANDARD VALUES
+	 */
+	String DEFAULT = "default";
 }

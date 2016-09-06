@@ -1,11 +1,7 @@
 package org.argeo.cms.internal.kernel;
 
-import static org.argeo.cms.internal.kernel.KernelUtils.getFrameworkProp;
-import static org.argeo.cms.internal.kernel.KernelUtils.getOsgiInstanceDir;
-
-import java.io.File;
-import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
@@ -16,12 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jcr.Repository;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.transaction.TransactionManager;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
@@ -33,17 +27,18 @@ import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.osgi.useradmin.UserDirectory;
 import org.argeo.osgi.useradmin.UserDirectoryException;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedService;
+import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 import bitronix.tm.resource.ehcache.EhCacheXAResourceProducer;
 
@@ -51,7 +46,7 @@ import bitronix.tm.resource.ehcache.EhCacheXAResourceProducer;
  * Aggregates multiple {@link UserDirectory} and integrates them with this node
  * system roles.
  */
-class NodeUserAdmin implements UserAdmin, ManagedService, KernelConstants {
+class NodeUserAdmin implements UserAdmin, ManagedServiceFactory, KernelConstants {
 	private final static Log log = LogFactory.getLog(NodeUserAdmin.class);
 	final static LdapName ROLES_BASE;
 	static {
@@ -67,6 +62,11 @@ class NodeUserAdmin implements UserAdmin, ManagedService, KernelConstants {
 	// DAOs
 	private UserAdmin nodeRoles = null;
 	private Map<LdapName, UserAdmin> userAdmins = new HashMap<LdapName, UserAdmin>();
+	private Map<String, LdapName> pidToBaseDn = new HashMap<>();
+
+	private ServiceRegistration<UserAdmin> userAdminReg;
+
+	private final ServiceTracker<TransactionManager, TransactionManager> tmTracker;
 
 	// JCR
 	// private String homeBasePath = "/home";
@@ -78,26 +78,89 @@ class NodeUserAdmin implements UserAdmin, ManagedService, KernelConstants {
 
 	public NodeUserAdmin() {
 		// DAOs
-		File nodeBaseDir = new File(getOsgiInstanceDir(), DIR_NODE);
-		nodeBaseDir.mkdirs();
-		String userAdminUri = getFrameworkProp(NodeConstants.USERADMIN_URIS);
-		initUserAdmins(userAdminUri, nodeBaseDir);
-		String nodeRolesUri = getFrameworkProp(NodeConstants.ROLES_URI);
-		initNodeRoles(nodeRolesUri, nodeBaseDir);
+		// File nodeBaseDir = new File(getOsgiInstanceDir(), DIR_NODE);
+		// nodeBaseDir.mkdirs();
+		// String userAdminUri = getFrameworkProp(NodeConstants.USERADMIN_URIS);
+		// initUserAdmins(userAdminUri, nodeBaseDir);
+		// String nodeRolesUri = getFrameworkProp(NodeConstants.ROLES_URI);
+		// initNodeRoles(nodeRolesUri, nodeBaseDir);
 
-		new ServiceTracker<>(bc, TransactionManager.class, new TransactionManagerStc()).open();
+		// new ServiceTracker<>(bc, TransactionManager.class, new
+		// TransactionManagerStc()).open();
+		tmTracker = new TransactionManagerStc();
+		tmTracker.open();
 	}
 
 	@Override
-	public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
+	public void updated(String pid, Dictionary<String, ?> properties) throws ConfigurationException {
+		String uri = (String) properties.get(UserAdminConf.uri.name());
+		URI u;
+		try {
+			u = new URI(uri);
+		} catch (URISyntaxException e) {
+			throw new CmsException("Badly formatted URI " + uri, e);
+		}
+		UserDirectory userDirectory = u.getScheme().equals("ldap") ? new LdapUserAdmin(properties)
+				: new LdifUserAdmin(properties);
+		LdapName baseDn;
+		try {
+			baseDn = new LdapName(userDirectory.getBaseDn());
+		} catch (InvalidNameException e) {
+			throw new CmsException("Badly formatted base DN " + userDirectory.getBaseDn(), e);
+		}
+		if (isRolesDnBase(baseDn)) {
+			nodeRoles = (UserAdmin) userDirectory;
+			userDirectory.setExternalRoles(this);
+		}
+		userDirectory.init();
+		addUserAdmin(baseDn.toString(), (UserAdmin) userDirectory);
+
+		// publish user directory
+		Dictionary<String, Object> regProps = new Hashtable<>();
+		regProps.put(Constants.SERVICE_PID, pid);
+		regProps.put(UserAdminConf.baseDn.name(), baseDn);
+		bc.registerService(UserDirectory.class, userDirectory, regProps);
+		pidToBaseDn.put(pid, baseDn);
+
+		if (log.isDebugEnabled()) {
+			log.debug("User directory " + userDirectory.getBaseDn() + " [" + u.getScheme() + "] enabled.");
+		}
+
+		if (!isRolesDnBase(baseDn)) {
+			if (userAdminReg != null)
+				userAdminReg.unregister();
+			// register self as main user admin
+			userAdminReg = bc.registerService(UserAdmin.class, this, currentState());
+		}
 	}
 
-	private class TransactionManagerStc implements ServiceTrackerCustomizer<TransactionManager, TransactionManager> {
+	private boolean isRolesDnBase(LdapName baseDn) {
+		return baseDn.equals(ROLES_BASE);
+	}
+
+	@Override
+	public void deleted(String pid) {
+		LdapName baseDn = pidToBaseDn.remove(pid);
+		UserAdmin userAdmin = userAdmins.remove(baseDn);
+		((UserDirectory) userAdmin).destroy();
+	}
+
+	@Override
+	public String getName() {
+		return "Node user admin";
+	}
+
+	private class TransactionManagerStc extends ServiceTracker<TransactionManager, TransactionManager> {
+
+		public TransactionManagerStc() {
+			super(bc, TransactionManager.class, null);
+		}
 
 		@Override
 		public TransactionManager addingService(ServiceReference<TransactionManager> reference) {
 			TransactionManager transactionManager = bc.getService(reference);
-			((UserDirectory) nodeRoles).setTransactionManager(transactionManager);
+			if (nodeRoles != null)
+				((UserDirectory) nodeRoles).setTransactionManager(transactionManager);
 			for (UserAdmin userAdmin : userAdmins.values()) {
 				if (userAdmin instanceof UserDirectory)
 					((UserDirectory) userAdmin).setTransactionManager(transactionManager);
@@ -105,10 +168,6 @@ class NodeUserAdmin implements UserAdmin, ManagedService, KernelConstants {
 			if (log.isDebugEnabled())
 				log.debug("Set transaction manager");
 			return transactionManager;
-		}
-
-		@Override
-		public void modifiedService(ServiceReference<TransactionManager> reference, TransactionManager service) {
 		}
 
 		@Override
@@ -122,36 +181,38 @@ class NodeUserAdmin implements UserAdmin, ManagedService, KernelConstants {
 
 	}
 
-	@Deprecated
-	public NodeUserAdmin(TransactionManager transactionManager, Repository repository) {
-		// this.repository = repository;
-		// try {
-		// this.adminSession = this.repository.login();
-		// } catch (RepositoryException e) {
-		// throw new CmsException("Cannot log-in", e);
-		// }
-
-		// DAOs
-		File nodeBaseDir = new File(getOsgiInstanceDir(), DIR_NODE);
-		nodeBaseDir.mkdirs();
-		String userAdminUri = getFrameworkProp(NodeConstants.USERADMIN_URIS);
-		initUserAdmins(userAdminUri, nodeBaseDir);
-		String nodeRolesUri = getFrameworkProp(NodeConstants.ROLES_URI);
-		initNodeRoles(nodeRolesUri, nodeBaseDir);
-
-		// Transaction manager
-		((UserDirectory) nodeRoles).setTransactionManager(transactionManager);
-		for (UserAdmin userAdmin : userAdmins.values()) {
-			if (userAdmin instanceof UserDirectory)
-				((UserDirectory) userAdmin).setTransactionManager(transactionManager);
-		}
-
-		// JCR
-		// initJcr(adminSession);
-	}
+	// @Deprecated
+	// public NodeUserAdmin(TransactionManager transactionManager, Repository
+	// repository) {
+	// // this.repository = repository;
+	// // try {
+	// // this.adminSession = this.repository.login();
+	// // } catch (RepositoryException e) {
+	// // throw new CmsException("Cannot log-in", e);
+	// // }
+	//
+	// // DAOs
+	// File nodeBaseDir = new File(getOsgiInstanceDir(), DIR_NODE);
+	// nodeBaseDir.mkdirs();
+	// String userAdminUri = getFrameworkProp(NodeConstants.USERADMIN_URIS);
+	// initUserAdmins(userAdminUri, nodeBaseDir);
+	// String nodeRolesUri = getFrameworkProp(NodeConstants.ROLES_URI);
+	// initNodeRoles(nodeRolesUri, nodeBaseDir);
+	//
+	// // Transaction manager
+	// ((UserDirectory) nodeRoles).setTransactionManager(transactionManager);
+	// for (UserAdmin userAdmin : userAdmins.values()) {
+	// if (userAdmin instanceof UserDirectory)
+	// ((UserDirectory) userAdmin).setTransactionManager(transactionManager);
+	// }
+	//
+	// // JCR
+	// // initJcr(adminSession);
+	// }
 
 	Dictionary<String, Object> currentState() {
 		Dictionary<String, Object> res = new Hashtable<String, Object>();
+		res.put(NodeConstants.CN, NodeConstants.DEFAULT);
 		for (LdapName name : userAdmins.keySet()) {
 			StringBuilder buf = new StringBuilder();
 			if (userAdmins.get(name) instanceof UserDirectory) {
@@ -243,15 +304,18 @@ class NodeUserAdmin implements UserAdmin, ManagedService, KernelConstants {
 	// USER ADMIN AGGREGATOR
 	//
 	public void addUserAdmin(String baseDn, UserAdmin userAdmin) {
-		if (userAdmins.containsKey(baseDn))
-			throw new UserDirectoryException("There is already a user admin for " + baseDn);
 		try {
-			userAdmins.put(new LdapName(baseDn), userAdmin);
+			LdapName key = new LdapName(baseDn);
+			if (userAdmins.containsKey(key))
+				throw new UserDirectoryException("There is already a user admin for " + baseDn);
+			userAdmins.put(key, userAdmin);
 		} catch (InvalidNameException e) {
 			throw new UserDirectoryException("Badly formatted base DN " + baseDn, e);
 		}
 		if (userAdmin instanceof UserDirectory) {
+			UserDirectory userDirectory = (UserDirectory) userAdmin;
 			try {
+				userDirectory.setTransactionManager(tmTracker.getService());
 				// FIXME Make it less bitronix dependant
 				EhCacheXAResourceProducer.registerXAResource(cacheName, ((UserDirectory) userAdmin).getXaResource());
 			} catch (Exception e) {
@@ -292,95 +356,105 @@ class NodeUserAdmin implements UserAdmin, ManagedService, KernelConstants {
 		}
 	}
 
-	private void initUserAdmins(String userAdminUri, File nodeBaseDir) {
-		if (userAdminUri == null) {
-			String demoBaseDn = "dc=example,dc=com";
-			File businessRolesFile = new File(nodeBaseDir, demoBaseDn + ".ldif");
-			if (!businessRolesFile.exists())
-				try {
-					FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(demoBaseDn + ".ldif"),
-							businessRolesFile);
-				} catch (IOException e) {
-					throw new CmsException("Cannot copy demo resource", e);
-				}
-			userAdminUri = businessRolesFile.toURI().toString();
-		}
-		String[] uris = userAdminUri.split(" ");
-		for (String uri : uris) {
-			URI u;
-			try {
-				u = new URI(uri);
-				if (u.getPath() == null)
-					throw new CmsException("URI " + uri + " must have a path in order to determine base DN");
-				if (u.getScheme() == null) {
-					if (uri.startsWith("/") || uri.startsWith("./") || uri.startsWith("../"))
-						u = new File(uri).getCanonicalFile().toURI();
-					else if (!uri.contains("/")) {
-						u = new URI(nodeBaseDir.toURI() + uri);
-						// u = new File(nodeBaseDir, uri).getCanonicalFile()
-						// .toURI();
-					} else
-						throw new CmsException("Cannot interpret " + uri + " as an uri");
-				} else if (u.getScheme().equals("file")) {
-					u = new File(u).getCanonicalFile().toURI();
-				}
-			} catch (Exception e) {
-				throw new CmsException("Cannot interpret " + uri + " as an uri", e);
-			}
-			Dictionary<String, ?> properties = UserAdminConf.uriAsProperties(u.toString());
-			UserDirectory businessRoles;
-			if (u.getScheme().startsWith("ldap")) {
-				businessRoles = new LdapUserAdmin(properties);
-			} else {
-				businessRoles = new LdifUserAdmin(properties);
-			}
-			businessRoles.init();
-			String baseDn = businessRoles.getBaseDn();
-			if (userAdmins.containsKey(baseDn))
-				throw new UserDirectoryException("There is already a user admin for " + baseDn);
-			try {
-				userAdmins.put(new LdapName(baseDn), (UserAdmin) businessRoles);
-			} catch (InvalidNameException e) {
-				throw new UserDirectoryException("Badly formatted base DN " + baseDn, e);
-			}
-			addUserAdmin(businessRoles.getBaseDn(), (UserAdmin) businessRoles);
-			if (log.isDebugEnabled())
-				log.debug("User directory " + businessRoles.getBaseDn() + " [" + u.getScheme() + "] enabled.");
-		}
-
-	}
-
-	private void initNodeRoles(String nodeRolesUri, File nodeBaseDir) {
-		String baseNodeRoleDn = AuthConstants.ROLES_BASEDN;
-		if (nodeRolesUri == null) {
-			File nodeRolesFile = new File(nodeBaseDir, baseNodeRoleDn + ".ldif");
-			if (!nodeRolesFile.exists())
-				try {
-					FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(baseNodeRoleDn + ".ldif"),
-							nodeRolesFile);
-				} catch (IOException e) {
-					throw new CmsException("Cannot copy demo resource", e);
-				}
-			nodeRolesUri = nodeRolesFile.toURI().toString();
-		}
-
-		Dictionary<String, ?> nodeRolesProperties = UserAdminConf.uriAsProperties(nodeRolesUri);
-		if (!nodeRolesProperties.get(UserAdminConf.baseDn.name()).equals(baseNodeRoleDn)) {
-			throw new CmsException("Invalid base dn for node roles");
-			// TODO deal with "mounted" roles with a different baseDN
-		}
-		if (nodeRolesUri.startsWith("ldap")) {
-			nodeRoles = new LdapUserAdmin(nodeRolesProperties);
-		} else {
-			nodeRoles = new LdifUserAdmin(nodeRolesProperties);
-		}
-		((UserDirectory) nodeRoles).setExternalRoles(this);
-		((UserDirectory) nodeRoles).init();
-		addUserAdmin(baseNodeRoleDn, (UserAdmin) nodeRoles);
-		if (log.isTraceEnabled())
-			log.trace("Node roles enabled.");
-
-	}
+	// private void initUserAdmins(String userAdminUri, File nodeBaseDir) {
+	// // if (userAdminUri == null) {
+	// // String demoBaseDn = "dc=example,dc=com";
+	// // File businessRolesFile = new File(nodeBaseDir, demoBaseDn + ".ldif");
+	// // if (!businessRolesFile.exists())
+	// // try {
+	// //
+	// FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(demoBaseDn
+	// // + ".ldif"),
+	// // businessRolesFile);
+	// // } catch (IOException e) {
+	// // throw new CmsException("Cannot copy demo resource", e);
+	// // }
+	// // userAdminUri = businessRolesFile.toURI().toString();
+	// // }
+	// String[] uris = userAdminUri.split(" ");
+	// for (String uri : uris) {
+	// URI u;
+	// try {
+	// u = new URI(uri);
+	// if (u.getPath() == null)
+	// throw new CmsException("URI " + uri + " must have a path in order to
+	// determine base DN");
+	// if (u.getScheme() == null) {
+	// if (uri.startsWith("/") || uri.startsWith("./") || uri.startsWith("../"))
+	// u = new File(uri).getCanonicalFile().toURI();
+	// else if (!uri.contains("/")) {
+	// u = new URI(nodeBaseDir.toURI() + uri);
+	// // u = new File(nodeBaseDir, uri).getCanonicalFile()
+	// // .toURI();
+	// } else
+	// throw new CmsException("Cannot interpret " + uri + " as an uri");
+	// } else if (u.getScheme().equals("file")) {
+	// u = new File(u).getCanonicalFile().toURI();
+	// }
+	// } catch (Exception e) {
+	// throw new CmsException("Cannot interpret " + uri + " as an uri", e);
+	// }
+	// Dictionary<String, ?> properties =
+	// UserAdminConf.uriAsProperties(u.toString());
+	// UserDirectory businessRoles;
+	// if (u.getScheme().startsWith("ldap")) {
+	// businessRoles = new LdapUserAdmin(properties);
+	// } else {
+	// businessRoles = new LdifUserAdmin(properties);
+	// }
+	// businessRoles.init();
+	// String baseDn = businessRoles.getBaseDn();
+	// if (userAdmins.containsKey(baseDn))
+	// throw new UserDirectoryException("There is already a user admin for " +
+	// baseDn);
+	// try {
+	// userAdmins.put(new LdapName(baseDn), (UserAdmin) businessRoles);
+	// } catch (InvalidNameException e) {
+	// throw new UserDirectoryException("Badly formatted base DN " + baseDn, e);
+	// }
+	// addUserAdmin(businessRoles.getBaseDn(), (UserAdmin) businessRoles);
+	// if (log.isDebugEnabled())
+	// log.debug("User directory " + businessRoles.getBaseDn() + " [" +
+	// u.getScheme() + "] enabled.");
+	// }
+	//
+	// }
+	//
+	// private void initNodeRoles(String nodeRolesUri, File nodeBaseDir) {
+	// String baseNodeRoleDn = AuthConstants.ROLES_BASEDN;
+	// if (nodeRolesUri == null) {
+	// File nodeRolesFile = new File(nodeBaseDir, baseNodeRoleDn + ".ldif");
+	// if (!nodeRolesFile.exists())
+	// try {
+	// FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(baseNodeRoleDn
+	// + ".ldif"),
+	// nodeRolesFile);
+	// } catch (IOException e) {
+	// throw new CmsException("Cannot copy demo resource", e);
+	// }
+	// nodeRolesUri = nodeRolesFile.toURI().toString();
+	// }
+	//
+	// Dictionary<String, ?> nodeRolesProperties =
+	// UserAdminConf.uriAsProperties(nodeRolesUri);
+	// if
+	// (!nodeRolesProperties.get(UserAdminConf.baseDn.name()).equals(baseNodeRoleDn))
+	// {
+	// throw new CmsException("Invalid base dn for node roles");
+	// // TODO deal with "mounted" roles with a different baseDN
+	// }
+	// if (nodeRolesUri.startsWith("ldap")) {
+	// nodeRoles = new LdapUserAdmin(nodeRolesProperties);
+	// } else {
+	// nodeRoles = new LdifUserAdmin(nodeRolesProperties);
+	// }
+	// ((UserDirectory) nodeRoles).setExternalRoles(this);
+	// ((UserDirectory) nodeRoles).init();
+	// addUserAdmin(baseNodeRoleDn, (UserAdmin) nodeRoles);
+	// if (log.isTraceEnabled())
+	// log.trace("Node roles enabled.");
+	//
+	// }
 
 	/*
 	 * JCR
