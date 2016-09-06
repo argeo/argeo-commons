@@ -2,30 +2,18 @@ package org.argeo.cms.internal.kernel;
 
 import static org.argeo.node.DataModelNamespace.CMS_DATA_MODEL_NAMESPACE;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.Writer;
+import java.lang.management.ManagementFactory;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import javax.jcr.Repository;
 import javax.jcr.Session;
-import javax.naming.InvalidNameException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.ldap.LdapName;
-import javax.naming.ldap.Rdn;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,9 +26,6 @@ import org.argeo.node.DataModelNamespace;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeDeployment;
 import org.argeo.node.NodeState;
-import org.argeo.util.naming.AttributesDictionary;
-import org.argeo.util.naming.LdifParser;
-import org.argeo.util.naming.LdifWriter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -48,37 +33,88 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.cm.ConfigurationEvent;
-import org.osgi.service.cm.SynchronousConfigurationListener;
+import org.osgi.service.http.HttpService;
+import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 public class CmsDeployment implements NodeDeployment {
 	private final Log log = LogFactory.getLog(getClass());
 	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
 	private final DeployConfig deployConfig;
-	// private Repository deployedNodeRepository;
 	private HomeRepository homeRepository;
 
 	private Long availableSince;
 
-	public CmsDeployment() {
-		// FIXME no guarantee this is already available
-		NodeState nodeState = bc.getService(bc.getServiceReference(NodeState.class));
-		deployConfig = new DeployConfig(nodeState.isClean());
+	// Readiness
+	private boolean nodeAvailable = false;
+	private boolean userAdminAvailable = false;
+	private boolean httpExpected = false;
+	private boolean httpAvailable = false;
 
-		new ServiceTracker<>(bc, RepositoryContext.class, new RepositoryContextStc()).open();
+	public CmsDeployment() {
+		ServiceReference<NodeState> nodeStateSr = bc.getServiceReference(NodeState.class);
+		if (nodeStateSr == null)
+			throw new CmsException("No node state available");
+
+		NodeState nodeState = bc.getService(nodeStateSr);
+		deployConfig = new DeployConfig(nodeState.isClean());
+		httpExpected = deployConfig.getProps(KernelConstants.JETTY_FACTORY_PID, "default") != null;
+
+		initTrackers();
+	}
+
+	private void initTrackers() {
+		new PrepareHttpStc().open();
+		new RepositoryContextStc().open();
+		new ServiceTracker<UserAdmin, UserAdmin>(bc, UserAdmin.class, null) {
+			@Override
+			public UserAdmin addingService(ServiceReference<UserAdmin> reference) {
+				userAdminAvailable = true;
+				checkReadiness();
+				return super.addingService(reference);
+			}
+		}.open();
+	}
+
+	public void shutdown() {
+		deployConfig.save();
+	}
+
+	private void checkReadiness() {
+		if (nodeAvailable && userAdminAvailable && (httpExpected ? httpAvailable : true)) {
+			availableSince = System.currentTimeMillis();
+			long jvmUptime = ManagementFactory.getRuntimeMXBean().getUptime();
+			log.info("## ARGEO CMS AVAILABLE in " + (jvmUptime / 1000) + "." + (jvmUptime % 1000) + "s ##");
+			long begin = bc.getService(bc.getServiceReference(NodeState.class)).getAvailableSince();
+			long initDuration = System.currentTimeMillis() - begin;
+			if (log.isTraceEnabled())
+				log.trace("Kernel initialization took " + initDuration + "ms");
+			directorsCut(initDuration);
+		}
+	}
+
+	final private void directorsCut(long initDuration) {
+		// final long ms = 128l + (long) (Math.random() * 128d);
+		long ms = initDuration / 100;
+		log.info("Spend " + ms + "ms" + " reflecting on the progress brought to mankind" + " by Free Software...");
+		long beginNano = System.nanoTime();
+		try {
+			Thread.sleep(ms, 0);
+		} catch (InterruptedException e) {
+			// silent
+		}
+		long durationNano = System.nanoTime() - beginNano;
+		final double M = 1000d * 1000d;
+		double sleepAccuracy = ((double) durationNano) / (ms * M);
+		if (log.isDebugEnabled())
+			log.debug("Sleep accuracy: " + String.format("%.2f", 100 - (sleepAccuracy * 100 - 100)) + " %");
 	}
 
 	private void prepareNodeRepository(Repository deployedNodeRepository) {
 		if (availableSince != null) {
 			throw new CmsException("Deployment is already available");
 		}
-
-		availableSince = System.currentTimeMillis();
 
 		prepareDataModel(KernelUtils.openAdminSession(deployedNodeRepository));
 		Hashtable<String, String> regProps = new Hashtable<String, String>();
@@ -140,22 +176,22 @@ public class CmsDeployment implements NodeDeployment {
 
 		Hashtable<String, Object> properties = new Hashtable<>();
 		properties.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, name);
+		properties.put(NodeConstants.CN, name);
 		bc.registerService(Repository.class, adminSession.getRepository(), properties);
 		if (log.isDebugEnabled())
 			log.debug("Published data model " + name);
 	}
 
-	// public void setDeployedNodeRepository(Repository deployedNodeRepository)
-	// {
-	// this.deployedNodeRepository = deployedNodeRepository;
-	// }
-
 	@Override
-	public long getAvailableSince() {
+	public Long getAvailableSince() {
 		return availableSince;
 	}
 
-	private class RepositoryContextStc implements ServiceTrackerCustomizer<RepositoryContext, RepositoryContext> {
+	private class RepositoryContextStc extends ServiceTracker<RepositoryContext, RepositoryContext> {
+
+		public RepositoryContextStc() {
+			super(bc, RepositoryContext.class, null);
+		}
 
 		@Override
 		public RepositoryContext addingService(ServiceReference<RepositoryContext> reference) {
@@ -163,17 +199,9 @@ public class CmsDeployment implements NodeDeployment {
 			Object cn = reference.getProperty(NodeConstants.CN);
 			if (cn != null && cn.equals(ArgeoJcrConstants.ALIAS_NODE)) {
 				prepareNodeRepository(nodeRepo.getRepository());
-				// nodeDeployment.setDeployedNodeRepository(nodeRepo.getRepository());
-				// Dictionary<String, Object> props =
-				// LangUtils.init(Constants.SERVICE_PID,
-				// NodeConstants.NODE_DEPLOYMENT_PID);
-				// props.put(NodeConstants.CN,
-				// nodeRepo.getRootNodeId().toString());
-				// register
-				// bc.registerService(LangUtils.names(NodeDeployment.class,
-				// ManagedService.class), nodeDeployment, props);
+				nodeAvailable = true;
+				checkReadiness();
 			}
-
 			return nodeRepo;
 		}
 
@@ -185,6 +213,48 @@ public class CmsDeployment implements NodeDeployment {
 		public void removedService(ServiceReference<RepositoryContext> reference, RepositoryContext service) {
 		}
 
+	}
+
+	private class PrepareHttpStc extends ServiceTracker<HttpService, HttpService> {
+		private DataHttp dataHttp;
+		private NodeHttp nodeHttp;
+
+		public PrepareHttpStc() {
+			super(bc, HttpService.class, null);
+		}
+
+		@Override
+		public HttpService addingService(ServiceReference<HttpService> reference) {
+			HttpService httpService = addHttpService(reference);
+			return httpService;
+		}
+
+		@Override
+		public void removedService(ServiceReference<HttpService> reference, HttpService service) {
+			if (dataHttp != null)
+				dataHttp.destroy();
+			dataHttp = null;
+			if (nodeHttp != null)
+				nodeHttp.destroy();
+			nodeHttp = null;
+		}
+
+		private HttpService addHttpService(ServiceReference<HttpService> sr) {
+			HttpService httpService = bc.getService(sr);
+			// TODO find constants
+			Object httpPort = sr.getProperty("http.port");
+			Object httpsPort = sr.getProperty("https.port");
+			dataHttp = new DataHttp(httpService);
+			nodeHttp = new NodeHttp(httpService, bc);
+			log.info(httpPortsMsg(httpPort, httpsPort));
+			httpAvailable = true;
+			checkReadiness();
+			return httpService;
+		}
+
+		private String httpPortsMsg(Object httpPort, Object httpsPort) {
+			return "HTTP " + httpPort + (httpsPort != null ? " - HTTPS " + httpsPort : "");
+		}
 	}
 
 }

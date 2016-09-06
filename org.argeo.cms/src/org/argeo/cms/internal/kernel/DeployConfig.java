@@ -20,7 +20,6 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.node.NodeConstants;
-import org.argeo.node.NodeState;
 import org.argeo.util.naming.AttributesDictionary;
 import org.argeo.util.naming.LdifParser;
 import org.argeo.util.naming.LdifWriter;
@@ -29,9 +28,9 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
-import org.osgi.service.cm.SynchronousConfigurationListener;
+import org.osgi.service.cm.ConfigurationListener;
 
-class DeployConfig implements SynchronousConfigurationListener {
+class DeployConfig implements ConfigurationListener {
 	private final Log log = LogFactory.getLog(getClass());
 	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
@@ -48,7 +47,8 @@ class DeployConfig implements SynchronousConfigurationListener {
 		} catch (IOException e) {
 			throw new CmsException("Could not init deploy configs", e);
 		}
-		bc.registerService(SynchronousConfigurationListener.class, this, null);
+		// FIXME check race conditions during initialization
+		// bc.registerService(ConfigurationListener.class, this, null);
 	}
 
 	private void firstInit() throws IOException {
@@ -74,7 +74,7 @@ class DeployConfig implements SynchronousConfigurationListener {
 		if (!webServerConfig.isEmpty())
 			putFactoryDeployConfig(KernelConstants.JETTY_FACTORY_PID, webServerConfig);
 
-		saveDeployedConfigs();
+		save();
 	}
 
 	private void init(ConfigurationAdmin configurationAdmin, boolean isClean) throws IOException {
@@ -144,7 +144,7 @@ class DeployConfig implements SynchronousConfigurationListener {
 							assert attrs != null;
 							AttributesDictionary.copy(conf.getProperties(), attrs);
 						}
-						saveDeployedConfigs();
+						save();
 						if (log.isDebugEnabled())
 							log.debug("Updated deploy config " + serviceDn(factoryPid, cn.toString()));
 					} else {
@@ -156,7 +156,7 @@ class DeployConfig implements SynchronousConfigurationListener {
 						Attributes attrs = deployConfigs.get(serviceDn);
 						assert attrs != null;
 						AttributesDictionary.copy(conf.getProperties(), attrs);
-						saveDeployedConfigs();
+						save();
 						if (log.isDebugEnabled())
 							log.debug("Updated deploy config " + serviceDn);
 					} else {
@@ -189,9 +189,11 @@ class DeployConfig implements SynchronousConfigurationListener {
 		deployConfigs.put(serviceDn, attrs);
 	}
 
-	void saveDeployedConfigs() throws IOException {
+	void save() {
 		try (Writer writer = Files.newBufferedWriter(deployConfigPath)) {
 			new LdifWriter(writer).write(deployConfigs);
+		} catch (IOException e) {
+			throw new CmsException("Cannot save deploy configs", e);
 		}
 	}
 
@@ -222,7 +224,7 @@ class DeployConfig implements SynchronousConfigurationListener {
 		}
 	}
 
-	private Dictionary<String, Object> getProps(String factoryPid, String cn) {
+	Dictionary<String, Object> getProps(String factoryPid, String cn) {
 		Attributes attrs = deployConfigs.get(serviceDn(factoryPid, cn));
 		if (attrs != null)
 			return new AttributesDictionary(attrs);

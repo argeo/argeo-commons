@@ -3,41 +3,39 @@ package org.argeo.cms.internal.kernel;
 import org.argeo.node.NodeConstants;
 
 public interface KernelConstants {
-	
-
-	//final static String TRANSACTIONS_HOME = "argeo.node.transactions.home";
-
-	final static String[] DEFAULT_CNDS = { "/org/argeo/jcr/argeo.cnd", "/org/argeo/cms/cms.cnd" };
+	String[] DEFAULT_CNDS = { "/org/argeo/jcr/argeo.cnd", "/org/argeo/cms/cms.cnd" };
 
 	// Directories
-	final static String DIR_NODE = "node";
-	final static String DIR_REPOS = "repos";
-//	final static String DIR_DEPLOY = "deploy";
-	final static String DIR_TRANSACTIONS = "transactions";
-	final static String DIR_PKI = "pki";
-	final static String DIR_PKI_PRIVATE = DIR_PKI + "/private";
+	String DIR_NODE = "node";
+	String DIR_REPOS = "repos";
+	String DIR_TRANSACTIONS = "transactions";
+	String DIR_PKI = "pki";
+	String DIR_PKI_PRIVATE = DIR_PKI + "/private";
 
 	// Files
 	String DEPLOY_CONFIG_PATH = KernelConstants.DIR_NODE + '/' + NodeConstants.DEPLOY_BASEDN + ".ldif";
-	
+
 	// Security
-	final static String DEFAULT_SECURITY_KEY = "argeo";
-	final static String JAAS_CONFIG = "/org/argeo/cms/internal/kernel/jaas.cfg";
-	final static String LOGIN_CONTEXT_KERNEL = "KERNEL";
-	final static String LOGIN_CONTEXT_HARDENED_KERNEL = "HARDENED_KERNEL";
+	String DEFAULT_SECURITY_KEY = "argeo";
+	String JAAS_CONFIG = "/org/argeo/cms/internal/kernel/jaas.cfg";
+	String LOGIN_CONTEXT_KERNEL = "KERNEL";
+	String LOGIN_CONTEXT_HARDENED_KERNEL = "HARDENED_KERNEL";
 
 	// DAV
-	final static String WEBDAV_CONFIG = "/org/argeo/cms/internal/kernel/webdav-config.xml";
-	final static String PATH_DATA = "/data";
-	final static String WEBDAV_PUBLIC = PATH_DATA + "/public";
-	final static String WEBDAV_PRIVATE = PATH_DATA + "/files";
-	final static String REMOTING_PUBLIC = PATH_DATA + "/pub";
-	final static String REMOTING_PRIVATE = PATH_DATA + "/jcr";
+	String WEBDAV_CONFIG = "/org/argeo/cms/internal/kernel/webdav-config.xml";
+	String PATH_DATA = "/data";
+	String WEBDAV_PUBLIC = PATH_DATA + "/public";
+	String WEBDAV_PRIVATE = PATH_DATA + "/files";
+	String REMOTING_PUBLIC = PATH_DATA + "/pub";
+	String REMOTING_PRIVATE = PATH_DATA + "/jcr";
 
 	// RWT / RAP
-	final static String PATH_WORKBENCH = "/ui";
-	final static String PATH_WORKBENCH_PUBLIC = PATH_WORKBENCH + "/public";
+	String PATH_WORKBENCH = "/ui";
+	String PATH_WORKBENCH_PUBLIC = PATH_WORKBENCH + "/public";
 
-	final static String JETTY_FACTORY_PID = "org.eclipse.equinox.http.jetty.config"; //$NON-NLS-1$
+	String JETTY_FACTORY_PID = "org.eclipse.equinox.http.jetty.config";
+	String WHITEBOARD_PATTERN_PROP = "osgi.http.whiteboard.servlet.pattern";
 
+	// avoid dependency to RWT OSGi
+	String CONTEXT_NAME_PROP = "contextName";
 }

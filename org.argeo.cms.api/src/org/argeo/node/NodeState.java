@@ -11,4 +11,7 @@ public interface NodeState {
 	String getHostname();
 
 	boolean isClean();
+	
+	Long getAvailableSince();
+
 }

@@ -41,6 +41,10 @@ import org.argeo.ArgeoException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.node.ArgeoLogListener;
 import org.argeo.node.ArgeoLogger;
+import org.argeo.node.NodeConstants;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.log.LogEntry;
 import org.osgi.service.log.LogListener;
 import org.osgi.service.log.LogReaderService;
@@ -135,15 +139,56 @@ class NodeLogger implements ArgeoLogger, LogListener {
 			// FIXME Fix Argeo TP
 			if (status.getException() instanceof SignatureException)
 				return;
-			pluginLog.error(status.getMessage(), status.getException());
+			pluginLog.error(msg(status), status.getException());
 		} else if (severity == LogService.LOG_WARNING)
-			pluginLog.warn(status.getMessage(), status.getException());
+			pluginLog.warn(msg(status), status.getException());
 		else if (severity == LogService.LOG_INFO && pluginLog.isDebugEnabled())
-			pluginLog.debug(
-					status.getMessage() + (status.getServiceReference() != null ?" "+ status.getServiceReference() : ""),
-					status.getException());
+			pluginLog.debug(msg(status), status.getException());
 		else if (severity == LogService.LOG_DEBUG && pluginLog.isTraceEnabled())
-			pluginLog.trace(status.getMessage(), status.getException());
+			pluginLog.trace(msg(status), status.getException());
+	}
+
+	private String msg(LogEntry status) {
+		StringBuilder sb = new StringBuilder(status.getMessage());
+		ServiceReference<?> sr = status.getServiceReference();
+		if (sr != null) {
+			sb.append(' ');
+			String[] objectClasses = (String[]) sr.getProperty(Constants.OBJECTCLASS);
+			sb.append(arrayToString(objectClasses));
+			Object cn = sr.getProperty(NodeConstants.CN);
+			if (cn != null)
+				sb.append(" " + NodeConstants.CN + ": " + cn);
+			Object factoryPid = sr.getProperty(ConfigurationAdmin.SERVICE_FACTORYPID);
+			if (factoryPid != null)
+				sb.append(" " + ConfigurationAdmin.SERVICE_FACTORYPID + ": " + factoryPid);
+			else {
+				Object servicePid = sr.getProperty(Constants.SERVICE_PID);
+				if (servicePid != null)
+					sb.append(" " + Constants.SERVICE_PID + ": " + servicePid);
+			}
+			// servlets
+			Object whiteBoardPattern = sr.getProperty(KernelConstants.WHITEBOARD_PATTERN_PROP);
+			if (whiteBoardPattern != null)
+				sb.append(" " + KernelConstants.WHITEBOARD_PATTERN_PROP + ": "
+						+ arrayToString((String[]) whiteBoardPattern));
+			// RWT
+			Object contextName = sr.getProperty(KernelConstants.CONTEXT_NAME_PROP);
+			if (contextName != null)
+				sb.append(" " + KernelConstants.CONTEXT_NAME_PROP + ": " + contextName);
+		}
+		return sb.toString();
+	}
+
+	private String arrayToString(Object[] arr) {
+		StringBuilder sb = new StringBuilder();
+		sb.append('{');
+		for (int i = 0; i < arr.length; i++) {
+			if (i != 0)
+				sb.append(',');
+			sb.append(arr[i]);
+		}
+		sb.append('}');
+		return sb.toString();
 	}
 
 	//
