@@ -4,7 +4,6 @@ import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.jcr.LoginException;
 import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -62,17 +61,38 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants, Ar
 		});
 	}
 
+	// @Override
+	// public Session login() throws LoginException, RepositoryException {
+	// Session session = super.login();
+	// String username = session.getUserID();
+	// if (username == null)
+	// return session;
+	// if (session.getUserID().equals(AuthConstants.ROLE_ANONYMOUS))
+	// return session;
+	//
+	// if (checkedUsers.contains(username))
+	// return session;
+	// Session adminSession = KernelUtils.openAdminSession(getRepository(),
+	// session.getWorkspace().getName());
+	// try {
+	// syncJcr(adminSession, username);
+	// checkedUsers.add(username);
+	// } finally {
+	// JcrUtils.logoutQuietly(adminSession);
+	// }
+	// return session;
+	// }
+
 	@Override
-	public Session login() throws LoginException, RepositoryException {
-		Session session = super.login();
+	protected void processNewSession(Session session) {
 		String username = session.getUserID();
 		if (username == null)
-			return session;
+			return;
 		if (session.getUserID().equals(AuthConstants.ROLE_ANONYMOUS))
-			return session;
+			return;
 
 		if (checkedUsers.contains(username))
-			return session;
+			return;
 		Session adminSession = KernelUtils.openAdminSession(getRepository(), session.getWorkspace().getName());
 		try {
 			syncJcr(adminSession, username);
@@ -80,7 +100,6 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants, Ar
 		} finally {
 			JcrUtils.logoutQuietly(adminSession);
 		}
-		return session;
 	}
 
 	/*
@@ -133,10 +152,13 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants, Ar
 				userProfile = personBase.addNode(ArgeoNames.ARGEO_PROFILE);
 				userProfile.addMixin(ArgeoTypes.ARGEO_USER_PROFILE);
 				userProfile.setProperty(ArgeoNames.ARGEO_USER_ID, username);
-//				userProfile.setProperty(ArgeoNames.ARGEO_ENABLED, true);
-//				userProfile.setProperty(ArgeoNames.ARGEO_ACCOUNT_NON_EXPIRED, true);
-//				userProfile.setProperty(ArgeoNames.ARGEO_ACCOUNT_NON_LOCKED, true);
-//				userProfile.setProperty(ArgeoNames.ARGEO_CREDENTIALS_NON_EXPIRED, true);
+				// userProfile.setProperty(ArgeoNames.ARGEO_ENABLED, true);
+				// userProfile.setProperty(ArgeoNames.ARGEO_ACCOUNT_NON_EXPIRED,
+				// true);
+				// userProfile.setProperty(ArgeoNames.ARGEO_ACCOUNT_NON_LOCKED,
+				// true);
+				// userProfile.setProperty(ArgeoNames.ARGEO_CREDENTIALS_NON_EXPIRED,
+				// true);
 				session.save();
 
 				JcrUtils.clearAccessControList(session, userProfile.getPath(), username);
