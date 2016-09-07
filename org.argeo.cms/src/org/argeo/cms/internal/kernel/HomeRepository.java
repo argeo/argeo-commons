@@ -90,6 +90,8 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants, Ar
 			return;
 		if (session.getUserID().equals(AuthConstants.ROLE_ANONYMOUS))
 			return;
+		if (session.getUserID().equals(AuthConstants.ROLE_KERNEL))
+			return;
 
 		if (checkedUsers.contains(username))
 			return;

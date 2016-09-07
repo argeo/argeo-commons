@@ -4,7 +4,8 @@ import java.security.Principal;
 
 /** Allows to modify any data. */
 public final class DataAdminPrincipal implements Principal {
-	private final String name = "ou=dataAdmin";
+	// FIXME put auth constants in API
+	private final String name = "OU=node";
 
 	@Override
 	public String getName() {

@@ -18,8 +18,8 @@ public class SystemJackrabbitLoginModule implements LoginModule {
 	private Subject subject;
 
 	@Override
-	public void initialize(Subject subject, CallbackHandler callbackHandler,
-			Map<String, ?> sharedState, Map<String, ?> options) {
+	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,
+			Map<String, ?> options) {
 		this.subject = subject;
 	}
 
@@ -30,21 +30,17 @@ public class SystemJackrabbitLoginModule implements LoginModule {
 
 	@Override
 	public boolean commit() throws LoginException {
-		Set<DataAdminPrincipal> initPrincipal = subject
-				.getPrincipals(DataAdminPrincipal.class);
+		Set<DataAdminPrincipal> initPrincipal = subject.getPrincipals(DataAdminPrincipal.class);
 		if (!initPrincipal.isEmpty()) {
-			subject.getPrincipals().add(
-					new AdminPrincipal(SecurityConstants.ADMIN_ID));
+			subject.getPrincipals().add(new AdminPrincipal(initPrincipal.iterator().next().getName()));
 			return true;
 		}
 
-		Set<X500Principal> userPrincipal = subject
-				.getPrincipals(X500Principal.class);
+		Set<X500Principal> userPrincipal = subject.getPrincipals(X500Principal.class);
 		if (userPrincipal.isEmpty())
 			throw new LoginException("Subject must be pre-authenticated");
 		if (userPrincipal.size() > 1)
-			throw new LoginException("Multiple user principals "
-					+ userPrincipal);
+			throw new LoginException("Multiple user principals " + userPrincipal);
 
 		return true;
 	}
@@ -56,8 +52,7 @@ public class SystemJackrabbitLoginModule implements LoginModule {
 
 	@Override
 	public boolean logout() throws LoginException {
-		Set<DataAdminPrincipal> initPrincipal = subject
-				.getPrincipals(DataAdminPrincipal.class);
+		Set<DataAdminPrincipal> initPrincipal = subject.getPrincipals(DataAdminPrincipal.class);
 		if (!initPrincipal.isEmpty()) {
 			subject.getPrincipals(AdminPrincipal.class);
 			return true;
