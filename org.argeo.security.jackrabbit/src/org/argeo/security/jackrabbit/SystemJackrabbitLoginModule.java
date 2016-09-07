@@ -32,7 +32,7 @@ public class SystemJackrabbitLoginModule implements LoginModule {
 	public boolean commit() throws LoginException {
 		Set<DataAdminPrincipal> initPrincipal = subject.getPrincipals(DataAdminPrincipal.class);
 		if (!initPrincipal.isEmpty()) {
-			subject.getPrincipals().add(new AdminPrincipal(initPrincipal.iterator().next().getName()));
+			subject.getPrincipals().add(new AdminPrincipal(SecurityConstants.ADMIN_ID));
 			return true;
 		}
 
