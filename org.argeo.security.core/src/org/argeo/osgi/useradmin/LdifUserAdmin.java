@@ -71,16 +71,13 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 
 	public void save() {
 		if (getUri() == null)
-			throw new UserDirectoryException(
-					"Cannot save LDIF user admin: no URI is set");
+			throw new UserDirectoryException("Cannot save LDIF user admin: no URI is set");
 		if (isReadOnly())
-			throw new UserDirectoryException("Cannot save LDIF user admin: "
-					+ getUri() + " is read-only");
+			throw new UserDirectoryException("Cannot save LDIF user admin: " + getUri() + " is read-only");
 		try (FileOutputStream out = new FileOutputStream(new File(getUri()))) {
 			save(out);
 		} catch (IOException e) {
-			throw new UserDirectoryException("Cannot save user admin to "
-					+ getUri(), e);
+			throw new UserDirectoryException("Cannot save user admin to " + getUri(), e);
 		}
 	}
 
@@ -111,14 +108,12 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 				while (ids.hasMoreElements()) {
 					String id = ids.nextElement().toLowerCase();
 					if (lowerCase.contains(id))
-						throw new UserDirectoryException(key
-								+ " has duplicate id " + id);
+						throw new UserDirectoryException(key + " has duplicate id " + id);
 					lowerCase.add(id);
 				}
 
 				// analyse object classes
-				NamingEnumeration<?> objectClasses = attributes.get(
-						objectClass.name()).getAll();
+				NamingEnumeration<?> objectClasses = attributes.get(objectClass.name()).getAll();
 				// System.out.println(key);
 				objectClasses: while (objectClasses.hasMore()) {
 					String objectClass = objectClasses.next().toString();
@@ -133,12 +128,13 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 				}
 			}
 		} catch (Exception e) {
-			throw new UserDirectoryException(
-					"Cannot load user admin service from LDIF", e);
+			throw new UserDirectoryException("Cannot load user admin service from LDIF", e);
 		}
 	}
 
 	public void destroy() {
+		if (users == null || groups == null)
+			throw new UserDirectoryException("User directory " + getBaseDn() + " is already destroyed");
 		users.clear();
 		users = null;
 		groups.clear();
@@ -202,8 +198,7 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 			else if (groups.containsKey(dn))
 				groups.remove(dn);
 			else
-				throw new UserDirectoryException("User to delete not found "
-						+ dn);
+				throw new UserDirectoryException("User to delete not found " + dn);
 		}
 		// add
 		for (LdapName dn : wc.getNewUsers().keySet()) {
@@ -215,8 +210,7 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 			else if (Role.GROUP == user.getType())
 				groups.put(dn, (DirectoryGroup) user);
 			else
-				throw new UserDirectoryException("Unsupported role type "
-						+ user.getType() + " for new user " + dn);
+				throw new UserDirectoryException("Unsupported role type " + user.getType() + " for new user " + dn);
 		}
 		// modify
 		for (LdapName dn : wc.getModifiedUsers().keySet()) {
@@ -227,8 +221,7 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 			else if (groups.containsKey(dn))
 				user = groups.get(dn);
 			else
-				throw new UserDirectoryException("User to modify no found "
-						+ dn);
+				throw new UserDirectoryException("User to modify no found " + dn);
 			user.publishAttributes(modifiedAttrs);
 		}
 	}

@@ -392,7 +392,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		return groupObjectClass;
 	}
 
-	public Dictionary<String, ?> getProperties() {
+	public Dictionary<String, Object> getProperties() {
 		return properties;
 	}
 

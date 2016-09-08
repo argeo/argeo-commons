@@ -14,7 +14,7 @@ public interface UserDirectory {
 	public void setExternalRoles(UserAdmin externalRoles);
 
 	/** Keys listed and described in {@link UserAdminConf}. */
-	public Dictionary<String, ?> getProperties();
+	public Dictionary<String, Object> getProperties();
 
 	// Transitional. In the future, more will be managed in OSGi.
 	public void setTransactionManager(TransactionManager transactionManager);
