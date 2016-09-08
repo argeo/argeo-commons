@@ -45,7 +45,7 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 		assertEquals(1, members.length);
 		assertEquals(rootUser, members[0]);
 
-		Group editorGroup = (Group) userAdmin.getRole(EDITOR_GROUP_DN);
+		Group editorGroup = (Group) userAdmin.getRole(EDITORS_GROUP_DN);
 		assertNotNull(editorGroup);
 		members = editorGroup.getMembers();
 		assertEquals(2, members.length);
@@ -57,7 +57,7 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 		assertEquals(3, rootRoles.size());
 		assertTrue(rootRoles.contains(ROOT_USER_DN));
 		assertTrue(rootRoles.contains(ADMIN_GROUP_DN));
-		assertTrue(rootRoles.contains(EDITOR_GROUP_DN));
+		assertTrue(rootRoles.contains(EDITORS_GROUP_DN));
 
 		// properties
 		assertEquals("root@localhost", rootUser.getProperties().get("mail"));

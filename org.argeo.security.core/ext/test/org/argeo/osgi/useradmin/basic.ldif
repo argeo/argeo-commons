@@ -1,25 +1,25 @@
-dn: dc=demo,dc=example,dc=org
+dn: dc=example,dc=com
 objectClass: domain
 objectClass: extensibleObject
 objectClass: top
-dc: demo
+dc: example
 
-dn: ou=Roles,dc=demo,dc=example,dc=org
+dn: ou=groups,dc=example,dc=com
 objectClass: organizationalUnit
 objectClass: top
-ou: Roles
+ou: groups
 
-dn: ou=People,dc=demo,dc=example,dc=org
+dn: ou=users,dc=example,dc=com
 objectClass: organizationalUnit
 objectClass: top
-ou: People
+ou: users
 
-dn: uid=demo,ou=People,dc=demo,dc=example,dc=org
+dn: uid=demo,ou=users,dc=example,dc=com
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
 objectClass: person
 objectClass: top
-cn: demo User
+cn: Demo User
 description: Demo user
 givenName: Demo
 mail: demo@localhost
@@ -27,29 +27,28 @@ sn: User
 uid: demo
 userPassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
 
-dn: uid=root+cn=Super Admin,ou=People,dc=demo,dc=example,dc=org
+dn: uid=root,ou=users,dc=example,dc=com
 objectClass: inetOrgPerson
 objectClass: person
 objectClass: organizationalPerson
 objectClass: top
-cn: Super Admin
+cn: Super User
 description: Superuser
-givenName: Root
+givenName: Super
 mail: root@localhost
-sn: Root
+sn: User
 uid: root
 userPassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
 
-dn: cn=admin,ou=Roles,dc=demo,dc=example,dc=org
+dn: cn=admin,ou=groups,dc=example,dc=com
 objectClass: groupOfNames
 objectClass: top
 cn: admin
-member: uid=root+cn=Super Admin,ou=People,dc=demo,dc=example,dc=org
+member: uid=root,ou=users,dc=example,dc=com
 
-dn: cn=editor,ou=Roles,dc=demo,dc=example,dc=org
+dn: cn=editors,ou=groups,dc=example,dc=com
 objectClass: groupOfNames
 objectClass: top
-cn: editor
-member: cn=admin,ou=Roles,dc=demo,dc=example,dc=org
-member: uid=demo,ou=People,dc=demo,dc=example,dc=org
-
+cn: editors
+member: cn=admin,ou=groups,dc=example,dc=com
+member: uid=demo,ou=users,dc=example,dc=com
