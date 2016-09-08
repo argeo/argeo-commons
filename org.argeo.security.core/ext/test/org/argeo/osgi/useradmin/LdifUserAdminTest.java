@@ -110,8 +110,8 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 			byte[] arr = out.toByteArray();
 			IOUtils.closeQuietly(out);
 			userAdmin.destroy();
-			String written = new String(arr);
-			System.out.print(written);
+			// String written = new String(arr);
+			// System.out.print(written);
 			try (ByteArrayInputStream in = new ByteArrayInputStream(arr)) {
 				userAdmin = new LdifUserAdmin(props);
 				((LdifUserAdmin) userAdmin).load(in);
