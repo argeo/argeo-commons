@@ -25,7 +25,6 @@ import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.ui.handlers.HandlerUtil;
 import org.osgi.service.useradmin.UserAdminEvent;
 
 /** Manage the transaction that is bound to the current perspective */
@@ -67,15 +66,16 @@ public class UserTransactionHandler extends AbstractHandler {
 				}
 			}
 
+			UiAdminUtils.notifyTransactionStateChange(userTransaction);
 			// Try to remove invalid thread access errors when managing users.
-			HandlerUtil.getActivePart(event).getSite().getShell().getDisplay()
-					.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							UiAdminUtils
-									.notifyTransactionStateChange(userTransaction);
-						}
-					});
+			// HandlerUtil.getActivePart(event).getSite().getShell().getDisplay()
+			// 		.asyncExec(new Runnable() {
+			// 			@Override
+			// 			public void run() {
+			// 				UiAdminUtils
+			// 						.notifyTransactionStateChange(userTransaction);
+			// 			}
+			// 		});
 
 		} catch (CmsException e) {
 			throw e;

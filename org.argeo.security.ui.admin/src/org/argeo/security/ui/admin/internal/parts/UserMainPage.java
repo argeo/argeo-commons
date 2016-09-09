@@ -475,7 +475,16 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 			// TODO this check should be done before.
 			if (role.getType() == Role.GROUP) {
 				// TODO check if the user is already member of this group
-				myUserAdminWrapper.beginTransactionIfNeeded();
+
+				// Remove invalid thread access errors when managing users.
+				// myUserAdminWrapper.beginTransactionIfNeeded();
+				event.display.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						myUserAdminWrapper.beginTransactionIfNeeded();
+					}
+				});
+
 				Group group = (Group) role;
 				group.addMember(myUser);
 				myUserAdminWrapper.notifyListeners(new UserAdminEvent(null,

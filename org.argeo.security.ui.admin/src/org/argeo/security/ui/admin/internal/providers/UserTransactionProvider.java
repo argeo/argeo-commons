@@ -10,7 +10,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
-import org.eclipse.swt.SWTException;
 import org.eclipse.ui.AbstractSourceProvider;
 import org.eclipse.ui.ISources;
 
@@ -62,10 +61,9 @@ public class UserTransactionProvider extends AbstractSourceProvider {
 		try {
 			fireSourceChanged(ISources.WORKBENCH, TRANSACTION_STATE,
 					getInternalCurrentState());
-		} catch (SWTException e) {
-			// FIXME
-			log.warn("Cannot fire transaction state change event: "
-					+ e.getMessage());
+		} catch (Exception e) {
+			log.warn("Cannot fire transaction state change event. Caught exception: "
+					+ e.getClass().getCanonicalName() + " - " + e.getMessage());
 		}
 	}
 
