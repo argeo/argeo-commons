@@ -13,6 +13,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.UUID;
 
+import javax.transaction.TransactionManager;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
@@ -27,8 +29,12 @@ import bitronix.tm.resource.ehcache.EhCacheXAResourceProducer;
 import junit.framework.TestCase;
 
 public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
-	private AbstractUserDirectory userAdmin;
 	private BitronixTransactionManager tm;
+	private URI uri;
+	private AbstractUserDirectory userAdmin;
+
+	public void testConcurrent() throws Exception {
+	}
 
 	@SuppressWarnings("unchecked")
 	public void testEdition() throws Exception {
@@ -40,11 +46,13 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 		demoUser.getProperties().put("cn", newName);
 		assertEquals(newName, demoUser.getProperties().get("cn"));
 		tm.commit();
+		persistAndRestart();
 		assertEquals(newName, demoUser.getProperties().get("cn"));
 
 		tm.begin();
 		userAdmin.removeRole(DEMO_USER_DN);
 		tm.commit();
+		persistAndRestart();
 
 		// check data
 		Role[] search = userAdmin.getRoles("(objectclass=inetOrgPerson)");
@@ -126,8 +134,7 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 	@Override
 	protected void setUp() throws Exception {
 		Path tempDir = Files.createTempDirectory(getClass().getName());
-		URI uri;
-		String uriProp = System.getProperty("argeo.useradmin.uri");
+		String uriProp = System.getProperty("argeo.userdirectory.uri");
 		if (uriProp != null)
 			uri = new URI(uriProp);
 		else {
@@ -139,25 +146,39 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 			uri = ldifPath.toUri();
 		}
 
-		Dictionary<String, Object> props = new Hashtable<>();
-		props.put(UserAdminConf.uri.name(), uri.toString());
-		props.put(UserAdminConf.baseDn.name(), BASE_DN);
-		props.put(UserAdminConf.userBase.name(), "ou=users");
-		props.put(UserAdminConf.groupBase.name(), "ou=groups");
-		if (uri.getScheme().startsWith("ldap"))
-			userAdmin = new LdapUserAdmin(props);
-		else
-			userAdmin = new LdifUserAdmin(props);
-		userAdmin.init();
-
 		bitronix.tm.Configuration tmConf = TransactionManagerServices.getConfiguration();
 		tmConf.setServerId(UUID.randomUUID().toString());
 		tmConf.setLogPart1Filename(new File(tempDir.toFile(), "btm1.tlog").getAbsolutePath());
 		tmConf.setLogPart2Filename(new File(tempDir.toFile(), "btm2.tlog").getAbsolutePath());
 		tm = TransactionManagerServices.getTransactionManager();
-		EhCacheXAResourceProducer.registerXAResource(UserDirectory.class.getName(), userAdmin.getXaResource());
 
+		userAdmin = initUserAdmin(uri, tm);
+	}
+
+	private AbstractUserDirectory initUserAdmin(URI uri, TransactionManager tm) {
+		Dictionary<String, Object> props = new Hashtable<>();
+		props.put(UserAdminConf.uri.name(), uri.toString());
+		props.put(UserAdminConf.baseDn.name(), BASE_DN);
+		props.put(UserAdminConf.userBase.name(), "ou=users");
+		props.put(UserAdminConf.groupBase.name(), "ou=groups");
+		AbstractUserDirectory userAdmin;
+		if (uri.getScheme().startsWith("ldap"))
+			userAdmin = new LdapUserAdmin(props);
+		else
+			userAdmin = new LdifUserAdmin(props);
+		userAdmin.init();
+		// JTA
+		EhCacheXAResourceProducer.registerXAResource(UserDirectory.class.getName(), userAdmin.getXaResource());
 		userAdmin.setTransactionManager(tm);
+		return userAdmin;
+	}
+
+	private void persistAndRestart() {
+		EhCacheXAResourceProducer.unregisterXAResource(UserDirectory.class.getName(), userAdmin.getXaResource());
+		if (userAdmin instanceof LdifUserAdmin)
+			((LdifUserAdmin) userAdmin).save();
+		userAdmin.destroy();
+		userAdmin = initUserAdmin(uri, tm);
 	}
 
 	@Override

@@ -1,27 +1,23 @@
 package org.argeo.osgi.useradmin;
 
-import java.util.Dictionary;
-
-import javax.transaction.TransactionManager;
+import javax.naming.ldap.LdapName;
 import javax.transaction.xa.XAResource;
-
-import org.osgi.service.useradmin.UserAdmin;
 
 /** Information about a user directory. */
 public interface UserDirectory {
-	public String getBaseDn();
+	/** The base DN of all entries in this user directory */
+	public LdapName getBaseDn();
 
-	public void setExternalRoles(UserAdmin externalRoles);
-
-	/** Keys listed and described in {@link UserAdminConf}. */
-	public Dictionary<String, Object> getProperties();
-
-	// Transitional. In the future, more will be managed in OSGi.
-	public void setTransactionManager(TransactionManager transactionManager);
-
-	public void init();
-
-	public void destroy();
-
+	/** The related {@link XAResource} */
 	public XAResource getXaResource();
+
+	public boolean isReadOnly();
+
+	public String getUserObjectClass();
+
+	public String getUserBase();
+
+	public String getGroupObjectClass();
+
+	public String getGroupBase();
 }

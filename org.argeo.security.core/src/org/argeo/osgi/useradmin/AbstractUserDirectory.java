@@ -38,13 +38,12 @@ import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
 /** Base class for a {@link UserDirectory}. */
-abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
+public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	private final static Log log = LogFactory.getLog(AbstractUserDirectory.class);
 
 	private final Hashtable<String, Object> properties;
-	private final String baseDn;
-	private final String userObjectClass;
-	private final String groupObjectClass;
+	private final LdapName baseDn;
+	private final String userObjectClass, userBase, groupObjectClass, groupBase;
 
 	private final boolean readOnly;
 	private final URI uri;
@@ -56,10 +55,11 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	private String memberAttributeId = "member";
 	private List<String> credentialAttributeIds = Arrays.asList(new String[] { LdifName.userPassword.name() });
 
+	// JTA
 	private TransactionManager transactionManager;
 	private WcXaResource xaResource = new WcXaResource(this);
 
-	AbstractUserDirectory(Dictionary<String, ?> props) {
+	public AbstractUserDirectory(Dictionary<String, ?> props) {
 		properties = new Hashtable<String, Object>();
 		for (Enumeration<String> keys = props.keys(); keys.hasMoreElements();) {
 			String key = keys.nextElement();
@@ -76,7 +76,11 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 				throw new UserDirectoryException("Badly formatted URI " + uriStr, e);
 			}
 
-		baseDn = UserAdminConf.baseDn.getValue(properties).toString();
+		try {
+			baseDn = new LdapName(UserAdminConf.baseDn.getValue(properties));
+		} catch (InvalidNameException e) {
+			throw new UserDirectoryException("Badly formated base DN " + UserAdminConf.baseDn.getValue(properties), e);
+		}
 		String readOnlyStr = UserAdminConf.readOnly.getValue(properties);
 		if (readOnlyStr == null) {
 			readOnly = readOnlyDefault(uri);
@@ -85,7 +89,9 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 			readOnly = new Boolean(readOnlyStr);
 
 		userObjectClass = UserAdminConf.userObjectClass.getValue(properties);
+		userBase = UserAdminConf.userBase.getValue(properties);
 		groupObjectClass = UserAdminConf.groupObjectClass.getValue(properties);
+		groupBase = UserAdminConf.groupBase.getValue(properties);
 	}
 
 	/** Returns the groups this user is a direct member of. */
@@ -105,7 +111,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 
 	}
 
-	boolean isEditing() {
+	protected boolean isEditing() {
 		return xaResource.wc() != null;
 	}
 
@@ -116,7 +122,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		return wc;
 	}
 
-	void checkEdit() {
+	protected void checkEdit() {
 		Transaction transaction;
 		try {
 			transaction = transactionManager.getTransaction();
@@ -135,7 +141,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		}
 	}
 
-	List<Role> getAllRoles(DirectoryUser user) {
+	protected List<Role> getAllRoles(DirectoryUser user) {
 		List<Role> allRoles = new ArrayList<Role>();
 		if (user != null) {
 			collectRoles(user, allRoles);
@@ -334,11 +340,11 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	}
 
 	// GETTERS
-	String getMemberAttributeId() {
+	protected String getMemberAttributeId() {
 		return memberAttributeId;
 	}
 
-	List<String> getCredentialAttributeIds() {
+	protected List<String> getCredentialAttributeIds() {
 		return credentialAttributeIds;
 	}
 
@@ -371,25 +377,34 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		return readOnly;
 	}
 
-	UserAdmin getExternalRoles() {
+	protected UserAdmin getExternalRoles() {
 		return externalRoles;
 	}
 
-	public String getBaseDn() {
-		return baseDn;
+	public LdapName getBaseDn() {
+		// always clone so that the property is not modified by reference
+		return (LdapName) baseDn.clone();
 	}
 
 	/** dn can be null, in that case a default should be returned. */
-	protected String getUserObjectClass() {
+	public String getUserObjectClass() {
 		return userObjectClass;
+	}
+
+	public String getUserBase() {
+		return userBase;
 	}
 
 	protected String newUserObjectClass(LdapName dn) {
 		return getUserObjectClass();
 	}
 
-	protected String getGroupObjectClass() {
+	public String getGroupObjectClass() {
 		return groupObjectClass;
+	}
+
+	public String getGroupBase() {
+		return groupBase;
 	}
 
 	public Dictionary<String, Object> getProperties() {

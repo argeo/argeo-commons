@@ -10,6 +10,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -21,6 +22,7 @@ import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.maintenance.MaintenanceUi;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeState;
@@ -32,7 +34,6 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ManagedServiceFactory;
-import org.osgi.service.useradmin.UserAdmin;
 
 import bitronix.tm.BitronixTransactionManager;
 import bitronix.tm.BitronixTransactionSynchronizationRegistry;
@@ -88,6 +89,7 @@ public class CmsState implements NodeState {
 	}
 
 	private void initServices() {
+		// JTA
 		initTransactionManager();
 
 		// JCR
@@ -100,14 +102,9 @@ public class CmsState implements NodeState {
 		bc.registerService(RepositoryFactory.class, repositoryFactory, null);
 
 		// Security
-//		UserDirectoryServiceFactory userDirectoryServiceFactory = new UserDirectoryServiceFactory();
-//		shutdownHooks.add(() -> userDirectoryServiceFactory.shutdown());
-//		bc.registerService(ManagedServiceFactory.class, userDirectoryServiceFactory,
-//				LangUtils.init(Constants.SERVICE_PID, NodeConstants.NODE_USER_DIRECTORIES_FACTORY_PID));
-
-		NodeUserAdmin userAdmin = new NodeUserAdmin();
+		NodeUserAdmin userAdmin = new NodeUserAdmin(AuthConstants.ROLES_BASEDN);
 		shutdownHooks.add(() -> userAdmin.destroy());
-		Dictionary<String, Object> props = userAdmin.currentState();
+		Dictionary<String, Object> props = new Hashtable<>();
 		props.put(Constants.SERVICE_PID, NodeConstants.NODE_USER_ADMIN_PID);
 		bc.registerService(ManagedServiceFactory.class, userAdmin, props);
 

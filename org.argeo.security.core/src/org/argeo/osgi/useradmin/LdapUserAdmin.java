@@ -113,7 +113,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			SearchControls searchControls = new SearchControls();
 			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-			String searchBase = getBaseDn();
+			LdapName searchBase = getBaseDn();
 			NamingEnumeration<SearchResult> results = getLdapContext().search(searchBase, searchFilter, searchControls);
 
 			ArrayList<DirectoryUser> res = new ArrayList<DirectoryUser>();
@@ -139,7 +139,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 		}
 	}
 
-	private LdapName toDn(String baseDn, Binding binding) throws InvalidNameException {
+	private LdapName toDn(LdapName baseDn, Binding binding) throws InvalidNameException {
 		return new LdapName(binding.isRelative() ? binding.getName() + "," + baseDn : binding.getName());
 	}
 
@@ -153,7 +153,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			SearchControls searchControls = new SearchControls();
 			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-			String searchBase = getBaseDn();
+			LdapName searchBase = getBaseDn();
 			NamingEnumeration<SearchResult> results = getLdapContext().search(searchBase, searchFilter, searchControls);
 
 			while (results.hasMoreElements()) {

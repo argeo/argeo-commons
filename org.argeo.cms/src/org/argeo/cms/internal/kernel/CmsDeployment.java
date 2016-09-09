@@ -28,6 +28,7 @@ import org.argeo.node.NodeDeployment;
 import org.argeo.node.NodeState;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.wiring.BundleCapability;
@@ -178,6 +179,8 @@ public class CmsDeployment implements NodeDeployment {
 		Hashtable<String, Object> properties = new Hashtable<>();
 		properties.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, name);
 		properties.put(NodeConstants.CN, name);
+		if (name.equals(ArgeoJcrConstants.ALIAS_NODE))
+			properties.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
 		bc.registerService(Repository.class, adminSession.getRepository(), properties);
 		if (log.isDebugEnabled())
 			log.debug("Published data model " + name);
