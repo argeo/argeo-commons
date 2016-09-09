@@ -19,7 +19,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.version.Version;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 
 /**
@@ -40,7 +40,7 @@ public class VersionLabelProvider extends ColumnLabelProvider {
 				return ((Node) element).getName();
 			}
 		} catch (RepositoryException re) {
-			throw new ArgeoException(
+			throw new EclipseUiException(
 					"Unexpected error while getting element name", re);
 		}
 		return super.getText(element);

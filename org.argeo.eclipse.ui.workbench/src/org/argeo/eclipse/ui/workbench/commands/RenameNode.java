@@ -21,7 +21,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.dialogs.SingleValue;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
@@ -77,7 +77,7 @@ public class RenameNode extends AbstractHandler {
 					if (iwp.getActivePart() instanceof JcrBrowserView)
 						((JcrBrowserView) iwp.getActivePart()).refresh(sjn);
 				} catch (RepositoryException e) {
-					throw new ArgeoException("Unable to rename " + node
+					throw new EclipseUiException("Unable to rename " + node
 							+ " to " + newName, e);
 				}
 			}

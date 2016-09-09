@@ -6,7 +6,7 @@ import javax.jcr.Node;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.jcr.lists.NodeViewerComparator;
 import org.argeo.eclipse.ui.jcr.lists.RowViewerComparator;
 import org.eclipse.jface.viewers.TableViewer;
@@ -82,10 +82,10 @@ public class JcrUiUtils {
 				}
 
 			default:
-				throw new ArgeoException("Unimplemented property save");
+				throw new EclipseUiException("Unimplemented property save");
 			}
 		} catch (RepositoryException re) {
-			throw new ArgeoException("Unexpected error while setting property",
+			throw new EclipseUiException("Unexpected error while setting property",
 					re);
 		}
 	}

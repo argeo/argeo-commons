@@ -18,8 +18,8 @@ package org.argeo.eclipse.ui.workbench.users;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.ColumnDefinition;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.eclipse.ui.workbench.internal.users.UsersUtils;
@@ -240,7 +240,7 @@ public class PickUpUserDialog extends TrayDialog {
 				}
 				roles = userAdmin.getRoles(builder.toString());
 			} catch (InvalidSyntaxException e) {
-				throw new ArgeoException("Unable to get roles with filter: "
+				throw new EclipseUiException("Unable to get roles with filter: "
 						+ filter, e);
 			}
 			List<User> users = new ArrayList<User>();

@@ -23,7 +23,7 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
@@ -289,7 +289,7 @@ public class NewUser extends AbstractHandler {
 		private void initialiseDnCmb(Combo combo) {
 			Map<String, String> dns = userAdminWrapper.getKnownBaseDns(true);
 			if (dns.isEmpty())
-				throw new ArgeoException(
+				throw new CmsException(
 						"No writable base dn found. Cannot create user");
 			combo.setItems(dns.keySet().toArray(new String[0]));
 			if (dns.size() == 1)
@@ -306,7 +306,7 @@ public class NewUser extends AbstractHandler {
 				return username + "@" + (String) rdns.get(1).getValue() + '.'
 						+ (String) rdns.get(0).getValue();
 			} catch (InvalidNameException e) {
-				throw new ArgeoException("Unable to generate mail for "
+				throw new CmsException("Unable to generate mail for "
 						+ username + " with base dn " + baseDn, e);
 			}
 		}

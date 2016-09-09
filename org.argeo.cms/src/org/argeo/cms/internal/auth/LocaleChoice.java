@@ -22,7 +22,7 @@ import java.util.Locale;
 
 import javax.security.auth.callback.LanguageCallback;
 
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 
 /** Choose in a list of locales. TODO: replace with {@link LanguageCallback} */
 public class LocaleChoice {
@@ -45,7 +45,7 @@ public class LocaleChoice {
 					defaultIndex = i;
 
 		if (defaultIndex == null)
-			throw new ArgeoException("Default locale " + defaultLocale + " is not in available locales " + locales);
+			throw new CmsException("Default locale " + defaultLocale + " is not in available locales " + locales);
 		this.defaultIndex = defaultIndex;
 
 		this.selectedIndex = defaultIndex;

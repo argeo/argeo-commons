@@ -18,7 +18,7 @@ package org.argeo.security.ui.admin.internal.parts;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
@@ -113,7 +113,7 @@ public class UserEditor extends FormEditor {
 			else
 				addPage(new UserMainPage(this, userAdminWrapper));
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot add pages", e);
+			throw new CmsException("Cannot add pages", e);
 		}
 	}
 

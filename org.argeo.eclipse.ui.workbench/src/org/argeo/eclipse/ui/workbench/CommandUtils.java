@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.Parameterization;
 import org.eclipse.core.commands.ParameterizedCommand;
@@ -173,7 +173,7 @@ public class CommandUtils {
 			// execute the command
 			handlerService.executeCommand(pc, null);
 		} catch (Exception e) {
-			throw new ArgeoException("Unexpected error while"
+			throw new EclipseUiException("Unexpected error while"
 					+ " calling the command " + commandID, e);
 		}
 	}

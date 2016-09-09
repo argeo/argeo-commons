@@ -4,7 +4,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.query.Row;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.jface.viewers.Viewer;
 
 /**
@@ -33,7 +33,7 @@ public class RowViewerComparator extends NodeViewerComparator {
 			Node n2 = ((Row) e2).getNode(selectorName);
 			return super.compare(viewer, n1, n2);
 		} catch (RepositoryException re) {
-			throw new ArgeoException("Unexpected error "
+			throw new EclipseUiException("Unexpected error "
 					+ "while comparing nodes", re);
 		}
 	}

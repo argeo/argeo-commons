@@ -10,7 +10,7 @@ import javax.naming.ldap.Rdn;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsView;
 import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.auth.CurrentUser;
@@ -106,7 +106,7 @@ public class UserAdminUtils {
 			else
 				return false;
 		} catch (InvalidNameException e) {
-			throw new ArgeoException("User " + user + " has an unvalid dn: "
+			throw new CmsException("User " + user + " has an unvalid dn: "
 					+ userName, e);
 		}
 	}
@@ -166,7 +166,7 @@ public class UserAdminUtils {
 				|| last.getType().toLowerCase().equals(LdifName.cn.name()))
 			return (String) last.getValue();
 		else
-			throw new ArgeoException("Cannot retrieve user uid, "
+			throw new CmsException("Cannot retrieve user uid, "
 					+ "non valid dn: " + dn);
 	}
 
@@ -226,7 +226,7 @@ public class UserAdminUtils {
 			}
 			return dname;
 		} catch (InvalidNameException e) {
-			throw new ArgeoException("Unable to get domain name for " + dn, e);
+			throw new CmsException("Unable to get domain name for " + dn, e);
 		}
 	}
 
@@ -236,7 +236,7 @@ public class UserAdminUtils {
 		try {
 			return new LdapName(dn);
 		} catch (InvalidNameException e) {
-			throw new ArgeoException("Cannot parse LDAP name " + dn, e);
+			throw new CmsException("Cannot parse LDAP name " + dn, e);
 		}
 	}
 }

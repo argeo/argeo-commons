@@ -16,7 +16,6 @@ import javax.jcr.ValueFormatException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
 import org.argeo.cms.CmsEditable;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsImageManager;
@@ -476,13 +475,13 @@ public class FormPageViewer extends AbstractPageViewer {
 							section.layout();
 							section.getParent().layout();
 						} catch (RepositoryException re) {
-							throw new ArgeoException("unable to refresh "
+							throw new CmsException("unable to refresh "
 									+ "image section for " + context);
 						}
 					}
 				});
 			} catch (RepositoryException re) {
-				throw new ArgeoException("unable to upload image " + name
+				throw new CmsException("unable to upload image " + name
 						+ " at " + context);
 			}
 		}
@@ -554,7 +553,7 @@ public class FormPageViewer extends AbstractPageViewer {
 							refresh(parSection);
 							layout(parSection);
 						} catch (RepositoryException re) {
-							throw new ArgeoException("Unable to delete "
+							throw new CmsException("Unable to delete "
 									+ sessionNode, re);
 						}
 
@@ -604,7 +603,7 @@ public class FormPageViewer extends AbstractPageViewer {
 								edit(emsp, 0);
 								cancelEdit();
 							} catch (RepositoryException e1) {
-								throw new ArgeoException(
+								throw new CmsException(
 										"Unable to remove value " + obj, e1);
 							}
 							layout(emsp);

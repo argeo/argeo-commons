@@ -1,6 +1,7 @@
 package org.argeo.osgi.useradmin;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.SortedMap;
 
@@ -9,11 +10,9 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
-import junit.framework.TestCase;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.argeo.util.naming.LdifParser;
+
+import junit.framework.TestCase;
 
 public class LdifParserTest extends TestCase implements BasicTestConstants {
 	public void testBasicLdif() throws Exception {
@@ -30,7 +29,7 @@ public class LdifParserTest extends TestCase implements BasicTestConstants {
 		assertEquals("{SHA}ieSV55Qc+eQOaYDRSha/AjzNTJE=",
 				new String(rawPwEntry));
 		byte[] hashedPassword = DigestUtils.sha1("demo".getBytes());
-		assertEquals("{SHA}" + Base64.encodeBase64String(hashedPassword),
+		assertEquals("{SHA}" + Base64.getEncoder().encodeToString(hashedPassword),
 				new String(rawPwEntry));
 
 		LdapName adminDn = new LdapName(ADMIN_GROUP_DN);

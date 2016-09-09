@@ -23,7 +23,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.io.IOUtils;
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.FileProvider;
 
 /**
@@ -92,7 +92,7 @@ public class JcrFileProvider implements FileProvider {
 			ba = IOUtils.toByteArray(fis);
 
 		} catch (Exception e) {
-			throw new ArgeoException("Stream error while opening file", e);
+			throw new EclipseUiException("Stream error while opening file", e);
 		} finally {
 			IOUtils.closeQuietly(fis);
 		}
@@ -108,7 +108,7 @@ public class JcrFileProvider implements FileProvider {
 					.getBinary().getStream();
 			return fis;
 		} catch (RepositoryException re) {
-			throw new ArgeoException("Cannot get stream from file node for Id "
+			throw new EclipseUiException("Cannot get stream from file node for Id "
 					+ fileId, re);
 		}
 	}
@@ -147,7 +147,7 @@ public class JcrFileProvider implements FileProvider {
 
 			// Sanity checks
 			if (result == null)
-				throw new ArgeoException("File node not found for ID" + fileId);
+				throw new EclipseUiException("File node not found for ID" + fileId);
 
 			Node child = null;
 			
@@ -164,7 +164,7 @@ public class JcrFileProvider implements FileProvider {
 			}
 
 			if (!isValid)
-				throw new ArgeoException(
+				throw new EclipseUiException(
 						"ERROR: In the current implemented model, '"
 								+ NodeType.NT_FILE
 								+ "' file node must have a child node named jcr:content "
@@ -173,7 +173,7 @@ public class JcrFileProvider implements FileProvider {
 			return child;
 
 		} catch (RepositoryException re) {
-			throw new ArgeoException("Erreur while getting file node of ID "
+			throw new EclipseUiException("Erreur while getting file node of ID "
 					+ fileId, re);
 		}
 	}

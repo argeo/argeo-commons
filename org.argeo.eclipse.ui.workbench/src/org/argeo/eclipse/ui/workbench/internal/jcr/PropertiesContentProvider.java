@@ -23,7 +23,7 @@ import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.jcr.utils.JcrItemsComparator;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -49,7 +49,7 @@ public class PropertiesContentProvider implements IStructuredContentProvider {
 			}
 			return new Object[] {};
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot get element for " + inputElement,
+			throw new EclipseUiException("Cannot get element for " + inputElement,
 					e);
 		}
 	}

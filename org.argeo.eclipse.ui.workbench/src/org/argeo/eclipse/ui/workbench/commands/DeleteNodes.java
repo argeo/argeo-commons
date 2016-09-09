@@ -20,7 +20,7 @@ import java.util.Iterator;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
@@ -112,7 +112,7 @@ public class DeleteNodes extends AbstractHandler {
 			else
 				return A.getNode().getDepth() <= B.getNode().getDepth() ? A : B;
 		} catch (RepositoryException re) {
-			throw new ArgeoException("Cannot find ancestor", re);
+			throw new EclipseUiException("Cannot find ancestor", re);
 		}
 	}
 }

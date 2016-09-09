@@ -25,8 +25,6 @@ import javax.jcr.query.qom.QueryObjectModelFactory;
 import javax.jcr.query.qom.Selector;
 import javax.jcr.query.qom.StaticOperand;
 
-import org.argeo.ArgeoException;
-
 /**
  * Utilities related to the user home and properties based on Argeo JCR model.
  * Do not use anymore. Does not fit with current security model
@@ -65,7 +63,7 @@ public class UserJcrUtils {
 			Query query = qomf.createQuery(userHomeSel, constraint, null, null);
 			return JcrUtils.querySingleNode(query);
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot find home for user " + username, e);
+			throw new ArgeoJcrException("Cannot find home for user " + username, e);
 		}
 	}
 
@@ -84,7 +82,7 @@ public class UserJcrUtils {
 			Query query = qomf.createQuery(userHomeSel, constraint, null, null);
 			return JcrUtils.querySingleNode(query);
 		} catch (RepositoryException e) {
-			throw new ArgeoException(
+			throw new ArgeoJcrException(
 					"Cannot find profile for user " + username, e);
 		}
 	}

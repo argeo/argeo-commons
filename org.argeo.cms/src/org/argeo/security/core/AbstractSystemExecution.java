@@ -21,7 +21,7 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 
 /** Provides base method for executing code with system authorization. */
 public abstract class AbstractSystemExecution {
@@ -41,7 +41,7 @@ public abstract class AbstractSystemExecution {
 			LoginContext lc = new LoginContext(loginModule, subject);
 			lc.login();
 		} catch (LoginException e) {
-			throw new ArgeoException("Cannot login as system", e);
+			throw new CmsException("Cannot login as system", e);
 		} finally {
 			Thread.currentThread().setContextClassLoader(origClassLoader);
 		}
@@ -56,7 +56,7 @@ public abstract class AbstractSystemExecution {
 			LoginContext lc = new LoginContext(loginModule, subject);
 			lc.logout();
 		} catch (LoginException e) {
-			throw new ArgeoException("Cannot logout as system", e);
+			throw new CmsException("Cannot logout as system", e);
 		} finally {
 			Thread.currentThread().setContextClassLoader(origClassLoader);
 		}

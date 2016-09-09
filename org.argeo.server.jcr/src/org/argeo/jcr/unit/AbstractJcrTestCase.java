@@ -26,12 +26,12 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
+import org.argeo.jcr.ArgeoJcrException;
+
+import junit.framework.TestCase;
 
 public abstract class AbstractJcrTestCase extends TestCase {
 	private final static Log log = LogFactory.getLog(AbstractJcrTestCase.class);
@@ -75,7 +75,7 @@ public abstract class AbstractJcrTestCase extends TestCase {
 				lc = new LoginContext(getLoginContext());
 				lc.login();
 			} catch (LoginException e) {
-				throw new ArgeoException("JAAS login failed", e);
+				throw new ArgeoJcrException("JAAS login failed", e);
 			}
 			session = Subject.doAs(lc.getSubject(),
 					new PrivilegedAction<Session>() {
@@ -107,7 +107,7 @@ public abstract class AbstractJcrTestCase extends TestCase {
 				return getRepository().login(
 						new SimpleCredentials("demo", "demo".toCharArray()));
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot login to repository", e);
+			throw new ArgeoJcrException("Cannot login to repository", e);
 		}
 	}
 
@@ -122,30 +122,6 @@ public abstract class AbstractJcrTestCase extends TestCase {
 	public void setRepository(Repository repository) {
 		this.repository = repository;
 	}
-
-	// public void logout() {
-	// if (session != null && session.isLive())
-	// JcrUtils.logoutQuietly(session);
-	// }
-	//
-	// protected static TestSuite defaultTestSuite(Class<? extends TestCase>
-	// clss) {
-	// String testSuiteClassName =
-	// "org.argeo.jackrabbit.unit.JackrabbitTestSuite";
-	// try {
-	// Class<?> testSuiteClass = AbstractJcrTestCase.class
-	// .getClassLoader().loadClass(testSuiteClassName);
-	// if (clss == null) {
-	// return (TestSuite) testSuiteClass.newInstance();
-	// } else {
-	// return (TestSuite) testSuiteClass.getConstructor(Class.class)
-	// .newInstance(clss);
-	// }
-	// } catch (Exception e) {
-	// throw new ArgeoException("Cannot find default test suite "
-	// + testSuiteClassName, e);
-	// }
-	// }
 
 	protected File getHomeDir() {
 		File homeDir = new File(System.getProperty("java.io.tmpdir"),

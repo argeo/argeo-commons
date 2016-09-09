@@ -8,6 +8,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -15,9 +16,6 @@ import java.util.UUID;
 
 import javax.transaction.TransactionManager;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.IOUtils;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
@@ -95,7 +93,8 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 		assertEquals("root@localhost", rootUser.getProperties().get("mail"));
 
 		// credentials
-		byte[] hashedPassword = ("{SHA}" + Base64.encodeBase64String(DigestUtils.sha1("demo".getBytes()))).getBytes();
+		byte[] hashedPassword = ("{SHA}" + Base64.getEncoder().encodeToString(DigestUtils.sha1("demo".getBytes())))
+				.getBytes();
 		assertTrue(rootUser.hasCredential(LdifName.userPassword.name(), hashedPassword));
 		assertTrue(demoUser.hasCredential(LdifName.userPassword.name(), hashedPassword));
 
@@ -116,7 +115,7 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			((LdifUserAdmin) userAdmin).save(out);
 			byte[] arr = out.toByteArray();
-			IOUtils.closeQuietly(out);
+			out.close();
 			userAdmin.destroy();
 			// String written = new String(arr);
 			// System.out.print(written);

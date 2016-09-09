@@ -41,8 +41,8 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.argeo.ArgeoException;
-import org.argeo.StreamUtils;
+import org.argeo.util.internal.UtilsException;
+import org.argeo.util.internal.StreamUtils;
 
 /** username / password based keyring. TODO internationalize */
 public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
@@ -95,13 +95,13 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 						.iterator();
 				return iterator.next();
 			} catch (LoginException e) {
-				throw new ArgeoException("Keyring login failed", e);
+				throw new UtilsException("Keyring login failed", e);
 			}
 
 		} else {
 			SecretKey secretKey = iterator.next();
 			if (iterator.hasNext())
-				throw new ArgeoException(
+				throw new UtilsException(
 						"More than one secret key in private credentials");
 			return secretKey;
 		}
@@ -125,7 +125,7 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 			StreamUtils.copy(reader, writer);
 			return writer.toCharArray();
 		} catch (IOException e) {
-			throw new ArgeoException("Cannot decrypt to char array", e);
+			throw new UtilsException("Cannot decrypt to char array", e);
 		} finally {
 			StreamUtils.closeQuietly(reader);
 			StreamUtils.closeQuietly(in);
@@ -144,7 +144,7 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 			in = new ByteArrayInputStream(out.toByteArray());
 			set(path, in);
 		} catch (IOException e) {
-			throw new ArgeoException("Cannot encrypt to char array", e);
+			throw new UtilsException("Cannot encrypt to char array", e);
 		} finally {
 			StreamUtils.closeQuietly(writer);
 			StreamUtils.closeQuietly(out);
@@ -191,7 +191,7 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 			}
 			return btPass;
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot hash", e);
+			throw new UtilsException("Cannot hash", e);
 		} finally {
 			StreamUtils.closeQuietly(out);
 			StreamUtils.closeQuietly(writer);
@@ -211,7 +211,7 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 			char[] password = passwordCb.getPassword();
 			return password;
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot ask for a password", e);
+			throw new UtilsException("Cannot ask for a password", e);
 		}
 
 	}

@@ -15,7 +15,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.util.zip.Checksum;
 
-import org.argeo.ArgeoException;
+import org.argeo.util.internal.UtilsException;
 
 /** Allows to fine tune how files are read. */
 public class ChecksumFactory {
@@ -91,7 +91,7 @@ public class ChecksumFactory {
 				}
 			}
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot digest " + path, e);
+			throw new UtilsException("Cannot digest " + path, e);
 		}
 	}
 
@@ -124,7 +124,7 @@ public class ChecksumFactory {
 			}
 			return crc.getValue();
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot checksum " + path, e);
+			throw new UtilsException("Cannot checksum " + path, e);
 		} finally {
 			long duration = System.currentTimeMillis() - begin;
 			System.out.println(duration / 1000 + "s");

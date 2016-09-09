@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.io.IOUtils;
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsStyles;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
@@ -59,7 +59,7 @@ public class SystemNotifications extends Shell implements CmsStyles,
 
 		Label lbl = new Label(pane, SWT.NONE);
 		lbl.setText(exception.getLocalizedMessage()
-				+ (exception instanceof ArgeoException ? "" : "("
+				+ (exception instanceof CmsException ? "" : "("
 						+ exception.getClass().getName() + ")") + "\n");
 		lbl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		lbl.addMouseListener(this);

@@ -27,11 +27,11 @@ import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 
 import org.argeo.eclipse.ui.TreeParent;
+import org.argeo.eclipse.ui.workbench.internal.jcr.model.RepositoriesElem;
+import org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.RepositoryRegister;
 import org.argeo.jcr.UserJcrUtils;
-import org.argeo.eclipse.ui.workbench.internal.jcr.model.RepositoriesElem;
-import org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
 import org.argeo.util.security.Keyring;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;

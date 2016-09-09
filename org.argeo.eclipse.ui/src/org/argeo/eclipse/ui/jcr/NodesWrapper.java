@@ -22,7 +22,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 
 /**
  * Element of tree which is based on a node, but whose children are not
@@ -51,7 +51,7 @@ public class NodesWrapper {
 		try {
 			return getWrappedNodes().toArray();
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot get wrapped children", e);
+			throw new EclipseUiException("Cannot get wrapped children", e);
 		}
 	}
 

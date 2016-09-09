@@ -24,8 +24,8 @@ import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.argeo.ArgeoException;
-import org.argeo.StreamUtils;
+import org.argeo.util.internal.UtilsException;
+import org.argeo.util.internal.StreamUtils;
 
 /** Utilities around cryptographic digests */
 public class DigestUtils {
@@ -38,11 +38,10 @@ public class DigestUtils {
 			MessageDigest digest = MessageDigest.getInstance(algorithm);
 			digest.update(bytes);
 			byte[] checksum = digest.digest();
-			String res = StreamUtils.encodeHexString(checksum);
+			String res = encodeHexString(checksum);
 			return res;
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot digest with algorithm "
-					+ algorithm, e);
+			throw new UtilsException("Cannot digest with algorithm " + algorithm, e);
 		}
 	}
 
@@ -60,11 +59,10 @@ public class DigestUtils {
 			}
 
 			byte[] checksum = digest.digest();
-			String res = StreamUtils.encodeHexString(checksum);
+			String res = encodeHexString(checksum);
 			return res;
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot digest with algorithm "
-					+ algorithm, e);
+			throw new UtilsException("Cannot digest with algorithm " + algorithm, e);
 		} finally {
 			StreamUtils.closeQuietly(in);
 		}
@@ -82,8 +80,7 @@ public class DigestUtils {
 			ByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, sz);
 			return digest(algorithm, bb);
 		} catch (IOException e) {
-			throw new ArgeoException("Cannot digest " + file
-					+ " with algorithm " + algorithm, e);
+			throw new UtilsException("Cannot digest " + file + " with algorithm " + algorithm, e);
 		} finally {
 			StreamUtils.closeQuietly(fis);
 			if (fc.isOpen())
@@ -101,15 +98,13 @@ public class DigestUtils {
 			MessageDigest digest = MessageDigest.getInstance(algorithm);
 			digest.update(bb);
 			byte[] checksum = digest.digest();
-			String res = StreamUtils.encodeHexString(checksum);
+			String res = encodeHexString(checksum);
 			long end = System.currentTimeMillis();
 			if (debug)
-				System.out.println((end - begin) + " ms / "
-						+ ((end - begin) / 1000) + " s");
+				System.out.println((end - begin) + " ms / " + ((end - begin) / 1000) + " s");
 			return res;
 		} catch (NoSuchAlgorithmException e) {
-			throw new ArgeoException("Cannot digest with algorithm "
-					+ algorithm, e);
+			throw new UtilsException("Cannot digest with algorithm " + algorithm, e);
 		}
 	}
 
@@ -118,8 +113,7 @@ public class DigestUtils {
 		if (args.length > 0)
 			file = new File(args[0]);
 		else {
-			System.err.println("Usage: <file> [<algorithm>]"
-					+ " (see http://java.sun.com/j2se/1.5.0/"
+			System.err.println("Usage: <file> [<algorithm>]" + " (see http://java.sun.com/j2se/1.5.0/"
 					+ "docs/guide/security/CryptoSpec.html#AppA)");
 			return;
 		}
@@ -137,6 +131,23 @@ public class DigestUtils {
 			algorithm = "SHA-512";
 			System.out.println(algorithm + ": " + digest(algorithm, file));
 		}
+	}
+
+	final private static char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+	/**
+	 * From
+	 * http://stackoverflow.com/questions/9655181/how-to-convert-a-byte-array-to
+	 * -a-hex-string-in-java
+	 */
+	private static String encodeHexString(byte[] bytes) {
+		char[] hexChars = new char[bytes.length * 2];
+		for (int j = 0; j < bytes.length; j++) {
+			int v = bytes[j] & 0xFF;
+			hexChars[j * 2] = hexArray[v >>> 4];
+			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+		}
+		return new String(hexChars);
 	}
 
 }

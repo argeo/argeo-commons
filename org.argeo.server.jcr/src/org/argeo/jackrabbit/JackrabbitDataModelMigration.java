@@ -26,7 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
-import org.argeo.ArgeoException;
+import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrCallback;
 import org.argeo.jcr.JcrUtils;
@@ -91,7 +91,7 @@ public class JackrabbitDataModelMigration implements
 			return true;
 		} catch (Exception e) {
 			JcrUtils.discardQuietly(session);
-			throw new ArgeoException("Migration of data model "
+			throw new ArgeoJcrException("Migration of data model "
 					+ dataModelNodePath + " to " + targetVersion + " failed.",
 					e);
 		} finally {
@@ -114,7 +114,7 @@ public class JackrabbitDataModelMigration implements
 			if (log.isDebugEnabled())
 				log.debug("Cleared " + customeNodeTypesPath);
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot clear caches", e);
+			throw new ArgeoJcrException("Cannot clear caches", e);
 		}
 
 		// File customNodeTypes = new File(home.getPath()

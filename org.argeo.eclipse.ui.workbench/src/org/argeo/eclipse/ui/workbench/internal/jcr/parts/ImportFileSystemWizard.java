@@ -28,7 +28,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.eclipse.ui.specific.UploadFileWizardPage;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -117,7 +117,7 @@ public class ImportFileSystemWizard extends Wizard {
 							if (e instanceof RuntimeException)
 								throw (RuntimeException) e;
 							else
-								throw new ArgeoException("Cannot import "
+								throw new EclipseUiException("Cannot import "
 										+ objectPath, e);
 						}
 					}
@@ -225,7 +225,7 @@ public class ImportFileSystemWizard extends Wizard {
 				}
 			}
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot import " + dir + " to " + folder,
+			throw new EclipseUiException("Cannot import " + dir + " to " + folder,
 					e);
 		}
 	}

@@ -1,6 +1,6 @@
 package org.argeo.security.ui.admin.internal;
 
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IStartup;
@@ -23,7 +23,7 @@ public class PartStateChanged implements IPartListener, IStartup {
 					if (iwp != null)
 						iwp.addPartListener(new PartStateChanged());
 				} catch (Exception e) {
-					throw new ArgeoException(
+					throw new CmsException(
 							"Error while registering the PartStateChangedListener",
 							e);
 				}

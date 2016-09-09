@@ -22,8 +22,6 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
 
-import org.argeo.ArgeoException;
-
 /** Utilities related to Argeo model in JCR */
 public class ArgeoJcrUtils implements ArgeoJcrConstants {
 	/**
@@ -38,7 +36,7 @@ public class ArgeoJcrUtils implements ArgeoJcrConstants {
 			parameters.put(JCR_REPOSITORY_ALIAS, alias);
 			return repositoryFactory.getRepository(parameters);
 		} catch (RepositoryException e) {
-			throw new ArgeoException(
+			throw new ArgeoJcrException(
 					"Unexpected exception when trying to retrieve repository with alias "
 							+ alias, e);
 		}
@@ -68,7 +66,7 @@ public class ArgeoJcrUtils implements ArgeoJcrConstants {
 				parameters.put(JCR_REPOSITORY_ALIAS, alias);
 			return repositoryFactory.getRepository(parameters);
 		} catch (RepositoryException e) {
-			throw new ArgeoException(
+			throw new ArgeoJcrException(
 					"Unexpected exception when trying to retrieve repository with uri "
 							+ uri, e);
 		}

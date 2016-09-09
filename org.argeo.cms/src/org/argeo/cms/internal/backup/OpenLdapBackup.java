@@ -16,7 +16,7 @@
 package org.argeo.cms.internal.backup;
 
 import org.apache.commons.vfs2.FileObject;
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 
 /** Backups an OpenLDAP server using slapcat */
 public class OpenLdapBackup extends OsCallBackup {
@@ -36,7 +36,7 @@ public class OpenLdapBackup extends OsCallBackup {
 	@Override
 	public void writeBackup(FileObject targetFo) {
 		if (baseDn == null)
-			throw new ArgeoException("Base DN must be set");
+			throw new CmsException("Base DN must be set");
 
 		if (getCommand() == null)
 			setCommand(slapcatLocation

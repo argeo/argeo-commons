@@ -25,7 +25,7 @@ import javax.jcr.observation.EventListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.swt.widgets.Display;
 
 /** {@link EventListener} which simplifies running actions within the UI thread. */
@@ -70,7 +70,7 @@ public abstract class AsyncUiEventListener implements EventListener {
 			if (!willProcessInUiThread(events))
 				return;
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot test skip events " + events, e);
+			throw new EclipseUiException("Cannot test skip events " + events, e);
 		}
 
 //		Job job = new Job("JCR Events") {
@@ -85,7 +85,7 @@ public abstract class AsyncUiEventListener implements EventListener {
 						try {
 							onEventInUiThread(events);
 						} catch (RepositoryException e) {
-							throw new ArgeoException("Cannot process events "
+							throw new EclipseUiException("Cannot process events "
 									+ events, e);
 						}
 					}

@@ -10,7 +10,7 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 
 /** Base implementation of a label provider for controls that display JCR Nodes */
@@ -76,7 +76,7 @@ public class SimpleJcrNodeLabelProvider extends ColumnLabelProvider {
 			} else
 				return "";
 		} catch (RepositoryException re) {
-			throw new ArgeoException("Unable to get text from row", re);
+			throw new EclipseUiException("Unable to get text from row", re);
 		}
 	}
 
@@ -98,7 +98,7 @@ public class SimpleJcrNodeLabelProvider extends ColumnLabelProvider {
 		case PropertyType.NAME:
 			return value.getString();
 		default:
-			throw new ArgeoException("Unimplemented label provider "
+			throw new EclipseUiException("Unimplemented label provider "
 					+ "for property type " + value.getType()
 					+ " while getting property " + propertyName + " - value: "
 					+ value.getString());

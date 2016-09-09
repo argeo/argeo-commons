@@ -32,7 +32,6 @@ import javax.jcr.version.VersionIterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
 
 /**
  * Bridge Spring resources and JCR folder / files semantics (nt:folder /
@@ -63,7 +62,7 @@ public class JcrResourceAdapter {
 	public void create(String path, InputStream in, String mimeType) {
 		try {
 			if (session().itemExists(path)) {
-				throw new ArgeoException("Node " + path + " already exists.");
+				throw new ArgeoJcrException("Node " + path + " already exists.");
 			}
 
 			int index = path.lastIndexOf('/');
@@ -72,7 +71,7 @@ public class JcrResourceAdapter {
 				parentPath = "/";
 			String fileName = path.substring(index + 1);
 			if (!session().itemExists(parentPath))
-				throw new ArgeoException("Parent folder of node " + path
+				throw new ArgeoJcrException("Parent folder of node " + path
 						+ " does not exist: " + parentPath);
 
 			Node folderNode = (Node) session().getItem(parentPath);
@@ -103,7 +102,7 @@ public class JcrResourceAdapter {
 			if (log.isDebugEnabled())
 				log.debug("Created " + path);
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot create node for " + path, e);
+			throw new ArgeoJcrException("Cannot create node for " + path, e);
 		}
 
 	}
@@ -141,13 +140,13 @@ public class JcrResourceAdapter {
 			if (log.isDebugEnabled())
 				log.debug("Updated " + path);
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot update node " + path, e);
+			throw new ArgeoJcrException("Cannot update node " + path, e);
 		}
 	}
 
 	public List<Calendar> listVersions(String path) {
 		if (!versioning)
-			throw new ArgeoException("Versioning is not activated");
+			throw new ArgeoJcrException("Versioning is not activated");
 
 		try {
 			List<Calendar> versions = new ArrayList<Calendar>();
@@ -164,7 +163,7 @@ public class JcrResourceAdapter {
 			}
 			return versions;
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot list version of node " + path, e);
+			throw new ArgeoJcrException("Cannot list version of node " + path, e);
 		}
 	}
 
@@ -175,13 +174,13 @@ public class JcrResourceAdapter {
 			Property property = node.getProperty(Property.JCR_DATA);
 			return property.getBinary().getStream();
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot retrieve " + path, e);
+			throw new ArgeoJcrException("Cannot retrieve " + path, e);
 		}
 	}
 
 	public synchronized InputStream retrieve(String path, Integer revision) {
 		if (!versioning)
-			throw new ArgeoException("Versioning is not activated");
+			throw new ArgeoJcrException("Versioning is not activated");
 
 		try {
 			Node fileNode = (Node) session().getItem(path);
@@ -201,11 +200,11 @@ public class JcrResourceAdapter {
 				count++;
 			}
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot retrieve version " + revision
+			throw new ArgeoJcrException("Cannot retrieve version " + revision
 					+ " of " + path, e);
 		}
 
-		throw new ArgeoException("Version " + revision
+		throw new ArgeoJcrException("Version " + revision
 				+ " does not exist for node " + path);
 	}
 

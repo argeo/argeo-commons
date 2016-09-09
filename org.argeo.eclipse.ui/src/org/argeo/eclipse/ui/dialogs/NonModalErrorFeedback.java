@@ -20,7 +20,7 @@ import java.io.StringWriter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
@@ -81,7 +81,7 @@ class NonModalErrorFeedback {
 
 	public void open() {
 		if (shell != null)
-			throw new ArgeoException("There is already a shell");
+			throw new EclipseUiException("There is already a shell");
 		shell = new Shell(getDisplay(), SWT.NO_TRIM | SWT.BORDER | SWT.ON_TOP);
 		shell.setLayout(new GridLayout());
 		// shell.setText("Error");

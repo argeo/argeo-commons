@@ -24,7 +24,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.jcr.ArgeoNames;
@@ -88,7 +88,7 @@ public class RepositoriesElem extends TreeParent implements ArgeoNames {
 				try {
 					addRemoteRepositories(keyring);
 				} catch (RepositoryException e) {
-					throw new ArgeoException("Cannot browse remote repositories", e);
+					throw new EclipseUiException("Cannot browse remote repositories", e);
 				}
 			}
 			return super.getChildren();

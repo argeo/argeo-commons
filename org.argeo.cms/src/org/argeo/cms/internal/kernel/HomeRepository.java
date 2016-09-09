@@ -15,7 +15,6 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
 import org.apache.jackrabbit.core.security.SecurityConstants;
-import org.argeo.ArgeoException;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
 import org.argeo.jcr.ArgeoJcrConstants;
@@ -179,7 +178,7 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants, Ar
 			return userProfile;
 		} catch (RepositoryException e) {
 			JcrUtils.discardQuietly(session);
-			throw new ArgeoException("Cannot sync node security model for " + username, e);
+			throw new CmsException("Cannot sync node security model for " + username, e);
 		}
 	}
 
@@ -189,7 +188,7 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants, Ar
 		try {
 			dn = new LdapName(username);
 		} catch (InvalidNameException e) {
-			throw new ArgeoException("Invalid name " + username, e);
+			throw new CmsException("Invalid name " + username, e);
 		}
 		String userId = dn.getRdn(dn.size() - 1).getValue().toString();
 		int atIndex = userId.indexOf('@');
@@ -199,7 +198,7 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants, Ar
 			return base + '/' + JcrUtils.firstCharsToPath(domain, 2) + '/' + domain + '/'
 					+ JcrUtils.firstCharsToPath(name, 2) + '/' + name;
 		} else if (atIndex == 0 || atIndex == (userId.length() - 1)) {
-			throw new ArgeoException("Unsupported username " + userId);
+			throw new CmsException("Unsupported username " + userId);
 		} else {
 			return base + '/' + JcrUtils.firstCharsToPath(userId, 2) + '/' + userId;
 		}

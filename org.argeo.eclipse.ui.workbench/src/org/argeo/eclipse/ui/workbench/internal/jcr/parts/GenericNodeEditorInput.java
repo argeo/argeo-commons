@@ -18,7 +18,7 @@ package org.argeo.eclipse.ui.workbench.internal.jcr.parts;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPersistableElement;
@@ -43,7 +43,7 @@ public class GenericNodeEditorInput implements IEditorInput {
 			uid = currentNode.getIdentifier();
 			path = currentNode.getPath();
 		} catch (RepositoryException re) {
-			throw new ArgeoException(
+			throw new EclipseUiException(
 					"unexpected error while getting node key values at creation time",
 					re);
 		}

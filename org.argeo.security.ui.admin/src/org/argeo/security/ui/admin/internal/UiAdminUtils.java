@@ -2,7 +2,7 @@ package org.argeo.security.ui.admin.internal;
 
 import javax.transaction.UserTransaction;
 
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.security.ui.admin.internal.providers.UserTransactionProvider;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -26,7 +26,7 @@ public class UiAdminUtils {
 					.getSourceProvider(UserTransactionProvider.TRANSACTION_STATE);
 			esp.fireTransactionStateChange();
 		} catch (Exception e) {
-			throw new ArgeoException("Unable to begin transaction", e);
+			throw new CmsException("Unable to begin transaction", e);
 		}
 	}
 }

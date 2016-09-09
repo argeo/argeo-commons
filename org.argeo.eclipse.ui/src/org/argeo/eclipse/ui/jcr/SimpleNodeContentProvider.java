@@ -23,7 +23,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.jcr.JcrUtils;
 
 /** Simple JCR node content provider taking a list of String as base path. */
@@ -58,7 +58,7 @@ public class SimpleNodeContentProvider extends AbstractNodeContentProvider {
 					baseNodes.add(getSession().getNode(basePath));
 			return baseNodes.toArray();
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot get base nodes for " + basePaths,
+			throw new EclipseUiException("Cannot get base nodes for " + basePaths,
 					e);
 		}
 	}

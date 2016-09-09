@@ -8,7 +8,7 @@ import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.eclipse.swt.SWTException;
 import org.eclipse.ui.AbstractSourceProvider;
@@ -53,7 +53,7 @@ public class UserTransactionProvider extends AbstractSourceProvider {
 				transactionState = STATUS_ACTIVE;
 			return transactionState;
 		} catch (Exception e) {
-			throw new ArgeoException("Unable to begin transaction", e);
+			throw new CmsException("Unable to begin transaction", e);
 		}
 	}
 

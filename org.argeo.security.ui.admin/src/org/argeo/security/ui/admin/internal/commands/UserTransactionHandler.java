@@ -18,7 +18,7 @@ package org.argeo.security.ui.admin.internal.commands;
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.security.ui.admin.SecurityAdminPlugin;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
@@ -49,17 +49,17 @@ public class UserTransactionHandler extends AbstractHandler {
 		try {
 			if (TRANSACTION_BEGIN.equals(commandId)) {
 				if (userTransaction.getStatus() != Status.STATUS_NO_TRANSACTION)
-					throw new ArgeoException("A transaction already exists");
+					throw new CmsException("A transaction already exists");
 				else
 					userTransaction.begin();
 			} else if (TRANSACTION_COMMIT.equals(commandId)) {
 				if (userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION)
-					throw new ArgeoException("No transaction.");
+					throw new CmsException("No transaction.");
 				else
 					userTransaction.commit();
 			} else if (TRANSACTION_ROLLBACK.equals(commandId)) {
 				if (userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION)
-					throw new ArgeoException("No transaction to rollback.");
+					throw new CmsException("No transaction to rollback.");
 				else {
 					userTransaction.rollback();
 					userAdminWrapper.notifyListeners(new UserAdminEvent(null,
@@ -77,10 +77,10 @@ public class UserTransactionHandler extends AbstractHandler {
 						}
 					});
 
-		} catch (ArgeoException e) {
+		} catch (CmsException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new ArgeoException("Unable to call " + commandId + " on "
+			throw new CmsException("Unable to call " + commandId + " on "
 					+ userTransaction, e);
 		}
 		return null;

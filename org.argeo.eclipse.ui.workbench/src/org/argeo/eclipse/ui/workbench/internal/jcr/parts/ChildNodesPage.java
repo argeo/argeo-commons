@@ -17,7 +17,7 @@ package org.argeo.eclipse.ui.workbench.internal.jcr.parts;
 
 import javax.jcr.Node;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.eclipse.ui.workbench.internal.jcr.NodeLabelProvider;
@@ -74,7 +74,7 @@ public class ChildNodesPage extends FormPage {
 				nodesViewer.setInput(currentNode);
 			}
 		} catch (Exception e) {
-			throw new ArgeoException(
+			throw new EclipseUiException(
 					"Unexpected error while creating child node page", e);
 		}
 	}
@@ -108,7 +108,7 @@ public class ChildNodesPage extends FormPage {
 							.getActiveWorkbenchWindow().getActivePage()
 							.openEditor(gnei, DefaultNodeEditor.ID);
 				} catch (PartInitException pie) {
-					throw new ArgeoException(
+					throw new EclipseUiException(
 							"Unexepected exception while opening node editor",
 							pie);
 				}

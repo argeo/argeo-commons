@@ -7,7 +7,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.RepositoryContext;
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.node.NodeConstants;
 import org.argeo.util.LangUtils;
@@ -32,7 +32,7 @@ class RepositoryServiceFactory implements ManagedServiceFactory {
 	@Override
 	public void updated(String pid, Dictionary<String, ?> properties) throws ConfigurationException {
 		if (repositories.containsKey(pid))
-			throw new ArgeoException("Already a repository registered for " + pid);
+			throw new CmsException("Already a repository registered for " + pid);
 
 		if (properties == null)
 			return;
@@ -57,7 +57,7 @@ class RepositoryServiceFactory implements ManagedServiceFactory {
 			}
 			bc.registerService(RepositoryContext.class, repositoryContext, props);
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot create Jackrabbit repository " + pid, e);
+			throw new CmsException("Cannot create Jackrabbit repository " + pid, e);
 		}
 
 	}

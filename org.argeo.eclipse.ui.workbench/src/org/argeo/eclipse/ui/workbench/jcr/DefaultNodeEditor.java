@@ -24,7 +24,7 @@ import javax.jcr.nodetype.NodeType;
 import javax.jcr.security.AccessControlManager;
 import javax.jcr.security.Privilege;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.eclipse.ui.workbench.internal.jcr.parts.ChildNodesPage;
 import org.argeo.eclipse.ui.workbench.internal.jcr.parts.GenericNodeEditorInput;
@@ -109,10 +109,10 @@ public class DefaultNodeEditor extends FormEditor {
 			}
 
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot get node info for " + currentNode,
+			throw new EclipseUiException("Cannot get node info for " + currentNode,
 					e);
 		} catch (PartInitException e) {
-			throw new ArgeoException("Cannot add page " + "on node editor for "
+			throw new EclipseUiException("Cannot add page " + "on node editor for "
 					+ currentNode, e);
 		}
 	}
@@ -129,7 +129,7 @@ public class DefaultNodeEditor extends FormEditor {
 			commitPages(true);
 			firePropertyChange(PROP_DIRTY);
 		} catch (Exception e) {
-			throw new ArgeoException("Error while saving node", e);
+			throw new EclipseUiException("Error while saving node", e);
 		}
 
 	}

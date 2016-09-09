@@ -19,7 +19,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.eclipse.ui.workbench.internal.jcr.model.RepositoryElem;
 import org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
@@ -103,10 +103,10 @@ public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 						.getActiveWorkbenchWindow().getActivePage()
 						.openEditor(gnei, DefaultNodeEditor.ID);
 			} catch (RepositoryException re) {
-				throw new ArgeoException(
+				throw new EclipseUiException(
 						"Repository error while getting node info", re);
 			} catch (PartInitException pie) {
-				throw new ArgeoException(
+				throw new EclipseUiException(
 						"Unexepected exception while opening node editor", pie);
 			}
 		}

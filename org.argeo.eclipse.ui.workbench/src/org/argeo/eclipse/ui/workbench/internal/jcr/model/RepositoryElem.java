@@ -19,7 +19,7 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 
 /**
@@ -53,7 +53,7 @@ public class RepositoryElem extends TreeParent {
 					addChild(new WorkspaceElem(this, wkpName));
 			}
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot connect to repository " + alias, e);
+			throw new EclipseUiException("Cannot connect to repository " + alias, e);
 		}
 	}
 
@@ -71,7 +71,7 @@ public class RepositoryElem extends TreeParent {
 		try {
 			return defaultSession.getWorkspace().getAccessibleWorkspaceNames();
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot retrieve workspace names", e);
+			throw new EclipseUiException("Cannot retrieve workspace names", e);
 		}
 	}
 
@@ -81,7 +81,7 @@ public class RepositoryElem extends TreeParent {
 		try {
 			defaultSession.getWorkspace().createWorkspace(workspaceName);
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot create workspace", e);
+			throw new EclipseUiException("Cannot create workspace", e);
 		}
 	}
 

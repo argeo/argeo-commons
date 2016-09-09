@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
@@ -236,7 +236,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 					} else {
 						password1.setText("");
 						password2.setText("");
-						throw new ArgeoException("Passwords are not equals");
+						throw new CmsException("Passwords are not equals");
 					}
 				}
 			}

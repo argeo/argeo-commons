@@ -24,7 +24,7 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.workbench.WorkbenchConstants;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.eclipse.ui.workbench.internal.jcr.PropertyLabelProvider;
@@ -138,7 +138,7 @@ public class GenericPropertyPage extends FormPage implements WorkbenchConstants 
 	// super.commit(onSave);
 	// }
 	// } catch (RepositoryException re) {
-	// throw new ArgeoException(
+	// throw new EclipseUiException(
 	// "Unexpected error while saving properties", re);
 	// }
 	// }
@@ -151,7 +151,7 @@ public class GenericPropertyPage extends FormPage implements WorkbenchConstants 
 	//
 	// getManagedForm().addPart(part);
 	// } catch (RepositoryException re) {
-	// throw new ArgeoException(
+	// throw new EclipseUiException(
 	// "Error during creation of network details section", re);
 	// }
 	//
@@ -169,7 +169,7 @@ public class GenericPropertyPage extends FormPage implements WorkbenchConstants 
 	// } else
 	// addModifyableValueWidget(parent, part, prop);
 	// } catch (RepositoryException re) {
-	// throw new ArgeoException("Cannot get property " + prop, re);
+	// throw new EclipseUiException("Cannot get property " + prop, re);
 	// }
 	// }
 	//
@@ -189,7 +189,7 @@ public class GenericPropertyPage extends FormPage implements WorkbenchConstants 
 	//
 	// return strValue;
 	// } catch (RepositoryException re) {
-	// throw new ArgeoException(
+	// throw new EclipseUiException(
 	// "Unexpected error while formatting read only property value",
 	// re);
 	// }
@@ -214,7 +214,7 @@ public class GenericPropertyPage extends FormPage implements WorkbenchConstants 
 	// }
 	// return null;
 	// } catch (RepositoryException re) {
-	// throw new ArgeoException(
+	// throw new EclipseUiException(
 	// "Unexpected error while formatting read only property value",
 	// re);
 	// }
@@ -258,7 +258,7 @@ public class GenericPropertyPage extends FormPage implements WorkbenchConstants 
 					props = propList.toArray();
 				}
 			} catch (RepositoryException e) {
-				throw new ArgeoException(
+				throw new EclipseUiException(
 						"Unexpected exception while listing node properties", e);
 			}
 			return props;
@@ -287,7 +287,7 @@ public class GenericPropertyPage extends FormPage implements WorkbenchConstants 
 						return values;
 					}
 				} catch (RepositoryException e) {
-					throw new ArgeoException(
+					throw new EclipseUiException(
 							"Unexpected error getting multiple values property.",
 							e);
 				}
@@ -302,7 +302,7 @@ public class GenericPropertyPage extends FormPage implements WorkbenchConstants 
 					return true;
 				}
 			} catch (RepositoryException e) {
-				throw new ArgeoException(
+				throw new EclipseUiException(
 						"Unexpected exception while checking if property is multiple",
 						e);
 			}

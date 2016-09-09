@@ -2,8 +2,12 @@ package org.argeo.util.naming;
 
 import static org.argeo.osgi.useradmin.LdifName.dn;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -17,8 +21,6 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.osgi.useradmin.UserDirectoryException;
@@ -50,7 +52,13 @@ public class LdifParser {
 	public SortedMap<LdapName, Attributes> read(InputStream in) throws IOException {
 		SortedMap<LdapName, Attributes> res = new TreeMap<LdapName, Attributes>();
 		try {
-			List<String> lines = IOUtils.readLines(in);
+			List<String> lines = new ArrayList<>();
+			try (BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
+				String line;
+				while ((line = br.readLine()) != null) {
+					lines.add(line);
+				}
+			}
 			if (lines.size() == 0)
 				return res;
 			// add an empty new line since the last line is not checked
@@ -90,7 +98,7 @@ public class LdifParser {
 
 					String attributeId = attrId.toString();
 					String cleanValueStr = currentEntry.toString().trim();
-					Object attributeValue = isBase64 ? Base64.decodeBase64(cleanValueStr) : cleanValueStr;
+					Object attributeValue = isBase64 ? Base64.getDecoder().decode(cleanValueStr) : cleanValueStr;
 
 					// manage DN attributes
 					if (attributeId.equals(dn.name()) || isLastLine) {
@@ -130,7 +138,7 @@ public class LdifParser {
 				currentEntry.append(line);
 			}
 		} finally {
-			IOUtils.closeQuietly(in);
+			in.close();
 		}
 		return res;
 	}

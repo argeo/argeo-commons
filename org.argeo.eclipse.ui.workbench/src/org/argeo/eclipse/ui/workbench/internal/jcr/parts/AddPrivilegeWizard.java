@@ -23,7 +23,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.security.Privilege;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.workbench.internal.users.UsersUtils;
 import org.argeo.eclipse.ui.workbench.users.PickUpUserDialog;
@@ -103,7 +103,7 @@ public class AddPrivilegeWizard extends Wizard {
 			page = new DefinePrivilegePage(userAdmin, targetPath);
 			addPage(page);
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot add page to wizard ", e);
+			throw new EclipseUiException("Cannot add page to wizard ", e);
 		}
 	}
 
@@ -115,7 +115,7 @@ public class AddPrivilegeWizard extends Wizard {
 			JcrUtils.addPrivilege(currentSession, targetPath,
 					chosenUser.getName(), jcrPrivilege);
 		} catch (RepositoryException re) {
-			throw new ArgeoException("Cannot set " + jcrPrivilege + " for "
+			throw new EclipseUiException("Cannot set " + jcrPrivilege + " for "
 					+ chosenUser.getName() + " on " + targetPath, re);
 		}
 		return true;

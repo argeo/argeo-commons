@@ -24,7 +24,7 @@ import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.io.IOUtils;
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.FileProvider;
 
 /**
@@ -58,7 +58,7 @@ public class SingleSessionFileProvider implements FileProvider {
 			ba = IOUtils.toByteArray(fis);
 
 		} catch (Exception e) {
-			throw new ArgeoException("Stream error while opening file", e);
+			throw new EclipseUiException("Stream error while opening file", e);
 		} finally {
 			IOUtils.closeQuietly(fis);
 		}
@@ -74,7 +74,7 @@ public class SingleSessionFileProvider implements FileProvider {
 					.getBinary().getStream();
 			return fis;
 		} catch (RepositoryException re) {
-			throw new ArgeoException("Cannot get stream from file node for Id "
+			throw new EclipseUiException("Cannot get stream from file node for Id "
 					+ fileId, re);
 		}
 	}
@@ -93,23 +93,23 @@ public class SingleSessionFileProvider implements FileProvider {
 
 			// Sanity checks
 			if (result == null)
-				throw new ArgeoException("File node not found for ID" + fileId);
+				throw new EclipseUiException("File node not found for ID" + fileId);
 
 			// Ensure that the node have the correct type.
 			if (!result.isNodeType(NodeType.NT_FILE))
-				throw new ArgeoException(
+				throw new EclipseUiException(
 						"Cannot open file children Node that are not of "
 								+ NodeType.NT_RESOURCE + " type.");
 
 			Node child = result.getNodes().nextNode();
 			if (child == null || !child.isNodeType(NodeType.NT_RESOURCE))
-				throw new ArgeoException(
+				throw new EclipseUiException(
 						"ERROR: IN the current implemented model, "
 								+ NodeType.NT_FILE
 								+ "  file node must have one and only one child of the nt:ressource, where actual data is stored");
 			return child;
 		} catch (RepositoryException re) {
-			throw new ArgeoException("Erreur while getting file node of ID "
+			throw new EclipseUiException("Erreur while getting file node of ID "
 					+ fileId, re);
 		}
 	}

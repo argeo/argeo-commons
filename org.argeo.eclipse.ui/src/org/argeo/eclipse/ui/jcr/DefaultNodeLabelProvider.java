@@ -20,7 +20,7 @@ import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.graphics.Image;
 
@@ -42,7 +42,7 @@ public class DefaultNodeLabelProvider extends ColumnLabelProvider {
 			}
 			return super.getText(element);
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot get text for of " + element, e);
+			throw new EclipseUiException("Cannot get text for of " + element, e);
 		}
 	}
 
@@ -65,7 +65,7 @@ public class DefaultNodeLabelProvider extends ColumnLabelProvider {
 				return getImage(((NodesWrapper) element).getNode());
 			}
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot retrieve image for " + element, e);
+			throw new EclipseUiException("Cannot retrieve image for " + element, e);
 		}
 		return super.getImage(element);
 	}
@@ -86,7 +86,7 @@ public class DefaultNodeLabelProvider extends ColumnLabelProvider {
 				return getToolTipText(((NodesWrapper) element).getNode());
 			}
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot get tooltip for " + element, e);
+			throw new EclipseUiException("Cannot get tooltip for " + element, e);
 		}
 		return super.getToolTipText(element);
 	}

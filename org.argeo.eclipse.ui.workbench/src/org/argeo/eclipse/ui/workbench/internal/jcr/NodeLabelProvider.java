@@ -21,7 +21,7 @@ import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.workbench.internal.jcr.model.RemoteRepositoryElem;
 import org.argeo.eclipse.ui.workbench.internal.jcr.model.RepositoriesElem;
 import org.argeo.eclipse.ui.workbench.internal.jcr.model.RepositoryElem;
@@ -48,7 +48,7 @@ public class NodeLabelProvider extends ColumnLabelProvider {
 			} else
 				return super.getText(element);
 		} catch (RepositoryException e) {
-			throw new ArgeoException(
+			throw new EclipseUiException(
 					"Unexpected JCR error while getting node name.");
 		}
 	}

@@ -26,7 +26,7 @@ import javax.jcr.query.RowIterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.GenericTableComparator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -146,7 +146,7 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 				}
 				viewer.setInput(rows);
 			} catch (RepositoryException e) {
-				throw new ArgeoException("Cannot read query result", e);
+				throw new EclipseUiException("Cannot read query result", e);
 			}
 
 		} catch (RepositoryException e) {
@@ -209,7 +209,7 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 				try {
 					return row.getValue(columnName).getString();
 				} catch (RepositoryException e) {
-					throw new ArgeoException("Cannot display row " + row, e);
+					throw new EclipseUiException("Cannot display row " + row, e);
 				}
 			}
 
@@ -274,7 +274,7 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 				// }
 				return rows.toArray();
 			} catch (RepositoryException e) {
-				throw new ArgeoException("Cannot read query result", e);
+				throw new EclipseUiException("Cannot read query result", e);
 			}
 		}
 

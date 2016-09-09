@@ -9,7 +9,7 @@ import javax.naming.ldap.Rdn;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.osgi.useradmin.LdifName;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
@@ -29,7 +29,7 @@ public class UsersUtils {
 			else
 				return false;
 		} catch (InvalidNameException e) {
-			throw new ArgeoException("User " + user + " has an unvalid dn: "
+			throw new EclipseUiException("User " + user + " has an unvalid dn: "
 					+ userName, e);
 		}
 	}
@@ -42,7 +42,7 @@ public class UsersUtils {
 		try {
 			dn = new LdapName(name);
 		} catch (InvalidNameException e) {
-			throw new ArgeoException("Invalid user dn " + name, e);
+			throw new EclipseUiException("Invalid user dn " + name, e);
 		}
 		return dn;
 	}
@@ -74,7 +74,7 @@ public class UsersUtils {
 			}
 			return dname;
 		} catch (InvalidNameException e) {
-			throw new ArgeoException("Unable to get domain name for " + dn, e);
+			throw new EclipseUiException("Unable to get domain name for " + dn, e);
 		}
 	}
 

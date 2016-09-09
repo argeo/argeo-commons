@@ -11,7 +11,7 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsView;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
@@ -62,7 +62,7 @@ public class FormUtils {
 				try {
 					cmsView.navigateTo(node.getPath());
 				} catch (RepositoryException e) {
-					throw new ArgeoException("Unable to get path for node "
+					throw new CmsException("Unable to get path for node "
 							+ node + " before calling navigateTo(path)", e);
 				}
 			}

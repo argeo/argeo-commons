@@ -23,8 +23,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
 
-import org.argeo.ArgeoException;
-
 /**
  * Wrapper around a JCR repository which allows to simplify configuration and
  * intercept some actions. It exposes itself as a {@link Repository}.
@@ -103,7 +101,7 @@ public abstract class JcrRepositoryWrapper implements Repository {
 	/** Wraps access to the repository, making sure it is available. */
 	protected synchronized Repository getRepository() {
 //		if (repository == null) {
-//			throw new ArgeoException("No repository initialized."
+//			throw new ArgeoJcrException("No repository initialized."
 //					+ " Was the init() method called?"
 //					+ " The destroy() method should also"
 //					+ " be called on shutdown.");
@@ -118,7 +116,7 @@ public abstract class JcrRepositoryWrapper implements Repository {
 	protected Session createWorkspaceAndLogsIn(Credentials credentials,
 			String workspaceName) throws RepositoryException {
 		if (workspaceName == null)
-			throw new ArgeoException("No workspace specified.");
+			throw new ArgeoJcrException("No workspace specified.");
 		Session session = getRepository().login(credentials);
 		session.getWorkspace().createWorkspace(workspaceName);
 		session.logout();

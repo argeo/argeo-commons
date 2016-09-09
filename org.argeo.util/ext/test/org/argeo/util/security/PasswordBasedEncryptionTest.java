@@ -34,7 +34,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.StreamUtils;
+import org.argeo.util.internal.StreamUtils;
 import org.argeo.util.security.PasswordBasedEncryption;
 
 public class PasswordBasedEncryptionTest extends TestCase {

@@ -32,7 +32,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
+import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.jcr.JcrUtils;
 
 /** Wraps a proxy via HTTP */
@@ -126,7 +126,7 @@ public class ResourceProxyServlet extends HttpServlet {
 			in = binary.getStream();
 			IOUtils.copy(in, response.getOutputStream());
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot download " + node, e);
+			throw new ArgeoJcrException("Cannot download " + node, e);
 		} finally {
 			IOUtils.closeQuietly(in);
 			JcrUtils.closeQuietly(binary);

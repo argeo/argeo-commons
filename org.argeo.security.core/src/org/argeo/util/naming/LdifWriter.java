@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.Base64;
 import java.util.Map;
 
 import javax.naming.NamingEnumeration;
@@ -15,7 +16,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
-import org.apache.commons.codec.binary.Base64;
 import org.argeo.osgi.useradmin.UserDirectoryException;
 
 /** Basic LDIF writer */
@@ -67,7 +67,7 @@ public class LdifWriter {
 		for (NamingEnumeration<?> attrValues = attribute.getAll(); attrValues.hasMore();) {
 			Object value = attrValues.next();
 			if (value instanceof byte[]) {
-				String encoded = Base64.encodeBase64String((byte[]) value);
+				String encoded = Base64.getEncoder().encodeToString((byte[]) value);
 				writer.append(attribute.getID()).append("::").append(encoded).append('\n');
 			} else {
 				writer.append(attribute.getID()).append(':').append(value.toString()).append('\n');

@@ -27,7 +27,7 @@ import javax.jcr.Session;
 import javax.jcr.security.AccessControlManager;
 import javax.jcr.security.Privilege;
 
-import org.argeo.ArgeoException;
+import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.util.security.SimplePrincipal;
 
@@ -70,7 +70,7 @@ public class JcrAuthorizations implements Runnable {
 			}
 		} catch (Exception e) {
 			JcrUtils.discardQuietly(session);
-			throw new ArgeoException(
+			throw new ArgeoJcrException(
 					"Cannot set authorizations " + principalPrivileges
 							+ " on workspace " + currentWorkspace, e);
 		} finally {
@@ -85,7 +85,7 @@ public class JcrAuthorizations implements Runnable {
 			initAuthorizations(session);
 		} catch (Exception e) {
 			JcrUtils.discardQuietly(session);
-			throw new ArgeoException("Cannot set authorizations "
+			throw new ArgeoJcrException("Cannot set authorizations "
 					+ principalPrivileges + " on repository " + repository, e);
 		} finally {
 			JcrUtils.logoutQuietly(session);
@@ -106,7 +106,7 @@ public class JcrAuthorizations implements Runnable {
 			String path = null;
 			int slashIndex = privileges.indexOf('/');
 			if (slashIndex == 0) {
-				throw new ArgeoException("Privilege " + privileges
+				throw new ArgeoJcrException("Privilege " + privileges
 						+ " badly formatted it starts with /");
 			} else if (slashIndex > 0) {
 				path = privileges.substring(slashIndex);
@@ -192,7 +192,7 @@ public class JcrAuthorizations implements Runnable {
 	// + session.getWorkspace().getName() + "'");
 	// }
 	// } else {
-	// throw new ArgeoException("Don't know how to apply  privileges "
+	// throw new ArgeoJcrException("Don't know how to apply  privileges "
 	// + privs + " to " + principal + " on " + path
 	// + " from workspace '" + session.getWorkspace().getName()
 	// + "'");

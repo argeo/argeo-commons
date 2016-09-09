@@ -17,7 +17,7 @@ package org.argeo.eclipse.spring;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
@@ -47,7 +47,7 @@ public class SpringCommandHandler implements IHandler {
 			ApplicationContext applicationContext = ApplicationContextTracker
 					.getApplicationContext(bundleSymbolicName);
 			if (applicationContext == null)
-				throw new ArgeoException("No application context found for "
+				throw new EclipseUiException("No application context found for "
 						+ bundleSymbolicName);
 
 			// retrieve the command via its id

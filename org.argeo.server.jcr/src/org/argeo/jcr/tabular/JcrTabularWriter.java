@@ -27,7 +27,7 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.io.IOUtils;
-import org.argeo.ArgeoException;
+import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.util.CsvWriter;
@@ -70,7 +70,7 @@ public class JcrTabularWriter implements TabularWriter {
 				csvWriter = new CsvWriter(out);
 			}
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot create table node " + tableNode, e);
+			throw new ArgeoJcrException("Cannot create table node " + tableNode, e);
 		}
 	}
 
@@ -88,7 +88,7 @@ public class JcrTabularWriter implements TabularWriter {
 					.createBinary(in);
 			contentNode.setProperty(Property.JCR_DATA, binary);
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot store data in " + contentNode, e);
+			throw new ArgeoJcrException("Cannot store data in " + contentNode, e);
 		} finally {
 			IOUtils.closeQuietly(in);
 			JcrUtils.closeQuietly(binary);

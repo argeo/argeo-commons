@@ -25,7 +25,7 @@ import javax.jcr.security.AccessControlList;
 import javax.jcr.security.AccessControlManager;
 import javax.jcr.security.Privilege;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
@@ -86,7 +86,7 @@ public class RemovePrivileges extends AbstractHandler {
 				dialog.open();
 				return null;
 			} catch (RepositoryException re) {
-				throw new ArgeoException("Unable to retrieve "
+				throw new EclipseUiException("Unable to retrieve "
 						+ "path or JCR session to add privilege on " + jcrNode,
 						re);
 			}
@@ -145,7 +145,7 @@ public class RemovePrivileges extends AbstractHandler {
 							IMessageProvider.INFORMATION);
 				}
 			} catch (RepositoryException e) {
-				throw new ArgeoException(
+				throw new EclipseUiException(
 						"Unable to list privileges on " + path, e);
 			}
 			body.layout(true, true);
@@ -176,7 +176,7 @@ public class RemovePrivileges extends AbstractHandler {
 							session.save();
 							refreshContent();
 						} catch (RepositoryException re) {
-							throw new ArgeoException("Unable to "
+							throw new EclipseUiException("Unable to "
 									+ "remove privilege for "
 									+ currPrincipalName + " on " + path, re);
 						}

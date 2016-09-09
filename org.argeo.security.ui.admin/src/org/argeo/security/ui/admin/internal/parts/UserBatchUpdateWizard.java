@@ -10,7 +10,7 @@ import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
@@ -98,7 +98,7 @@ public class UserBatchUpdateWizard extends Wizard {
 									+ "are you sure you want to proceed ?"))
 				return false;
 		} catch (SystemException e) {
-			throw new ArgeoException("Cannot get user transaction state "
+			throw new CmsException("Cannot get user transaction state "
 					+ "before user batch update", e);
 		}
 
@@ -111,7 +111,7 @@ public class UserBatchUpdateWizard extends Wizard {
 		if (CMD_UPDATE_PASSWORD.equals(chooseCommandPage.getCommand())) {
 			char[] newValue = chooseCommandPage.getPwdValue();
 			if (newValue == null)
-				throw new ArgeoException(
+				throw new CmsException(
 						"Password cannot be null or an empty string");
 			ResetPassword job = new ResetPassword(userAdminWrapper,
 					userListPage.getSelectedUsers(), newValue);
@@ -150,7 +150,7 @@ public class UserBatchUpdateWizard extends Wizard {
 				userTransaction.commit();
 				UiAdminUtils.notifyTransactionStateChange(userTransaction);
 			} catch (Exception e) {
-				throw new ArgeoException(
+				throw new CmsException(
 						"Cannot perform batch update on users", e);
 			} finally {
 				UserTransaction ut = userAdminWrapper.getUserTransaction();
@@ -183,9 +183,9 @@ public class UserBatchUpdateWizard extends Wizard {
 	// log.info("Add/Remove to group actions are not yet implemented");
 	// // TODO implement this
 	// // try {
-	// // throw new ArgeoException("Not yet implemented");
+	// // throw new CmsException("Not yet implemented");
 	// // } catch (RepositoryException re) {
-	// // throw new ArgeoException(
+	// // throw new CmsException(
 	// // "Unable to update boolean value for node " + node, re);
 	// // }
 	// }
@@ -223,7 +223,7 @@ public class UserBatchUpdateWizard extends Wizard {
 	// }
 	// userAdminWrapper.getUserTransaction().commit();
 	// } catch (Exception e) {
-	// throw new ArgeoException(
+	// throw new CmsException(
 	// "Cannot perform batch update on users", e);
 	// } finally {
 	// UserTransaction ut = userAdminWrapper.getUserTransaction();
@@ -495,7 +495,7 @@ public class UserBatchUpdateWizard extends Wizard {
 					roles = userAdminWrapper.getUserAdmin().getRoles(
 							builder.toString());
 				} catch (InvalidSyntaxException e) {
-					throw new ArgeoException(
+					throw new CmsException(
 							"Unable to get roles with filter: " + filter, e);
 				}
 				List<User> users = new ArrayList<User>();

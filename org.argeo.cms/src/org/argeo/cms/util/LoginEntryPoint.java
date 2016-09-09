@@ -8,7 +8,6 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.argeo.ArgeoException;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsImageManager;
 import org.argeo.cms.CmsView;
@@ -58,7 +57,7 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 				// }
 			}
 		} catch (LoginException e) {
-			throw new ArgeoException("Cannot log in", e);
+			throw new CmsException("Cannot log in", e);
 		}
 
 		if (CurrentUser.getUsername() == null)

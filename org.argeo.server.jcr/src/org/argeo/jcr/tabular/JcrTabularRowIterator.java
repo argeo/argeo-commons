@@ -28,7 +28,7 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.io.IOUtils;
-import org.argeo.ArgeoException;
+import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.util.CsvParser;
 import org.argeo.util.tabular.ArrayTabularRow;
@@ -101,7 +101,7 @@ public class JcrTabularRowIterator implements TabularRowIterator {
 				thread.start();
 			}
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot read table " + tableNode, e);
+			throw new ArgeoJcrException("Cannot read table " + tableNode, e);
 		}
 	}
 

@@ -17,7 +17,7 @@ package org.argeo.eclipse.ui.workbench.commands;
 
 import javax.jcr.Node;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.eclipse.ui.workbench.internal.jcr.parts.JcrQueryEditorInput;
 import org.argeo.eclipse.ui.workbench.internal.jcr.parts.NodeEditorInput;
@@ -52,7 +52,7 @@ public class OpenEditor extends AbstractHandler {
 				activePage.openEditor(editorInput, editorId);
 			}
 		} catch (PartInitException e) {
-			throw new ArgeoException("Cannot open editor of ID " + editorId, e);
+			throw new EclipseUiException("Cannot open editor of ID " + editorId, e);
 		}
 		return null;
 	}

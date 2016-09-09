@@ -37,7 +37,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.spi.LoggingEvent;
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.node.ArgeoLogListener;
 import org.argeo.node.ArgeoLogger;
@@ -109,7 +109,7 @@ class NodeLogger implements ArgeoLogger, LogListener {
 			logDispatcherThread = new LogDispatcherThread();
 			logDispatcherThread.start();
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot initialize log4j");
+			throw new CmsException("Cannot initialize log4j");
 		}
 	}
 
@@ -204,7 +204,7 @@ class NodeLogger implements ArgeoLogger, LogListener {
 	public synchronized void register(ArgeoLogListener listener, Integer numberOfPreviousEvents) {
 		String username = CurrentUser.getUsername();
 		if (username == null)
-			throw new ArgeoException("Only authenticated users can register a log listener");
+			throw new CmsException("Only authenticated users can register a log listener");
 
 		if (!userListeners.containsKey(username)) {
 			List<ArgeoLogListener> lst = Collections.synchronizedList(new ArrayList<ArgeoLogListener>());
@@ -233,9 +233,9 @@ class NodeLogger implements ArgeoLogger, LogListener {
 		if (username == null)// FIXME
 			return;
 		if (!userListeners.containsKey(username))
-			throw new ArgeoException("No user listeners " + listener + " registered for user " + username);
+			throw new CmsException("No user listeners " + listener + " registered for user " + username);
 		if (!userListeners.get(username).contains(listener))
-			throw new ArgeoException("No user listeners " + listener + " registered for user " + username);
+			throw new CmsException("No user listeners " + listener + " registered for user " + username);
 		userListeners.get(username).remove(listener);
 		if (userListeners.get(username).isEmpty())
 			userListeners.remove(username);

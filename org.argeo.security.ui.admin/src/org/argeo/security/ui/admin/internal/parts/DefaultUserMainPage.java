@@ -23,7 +23,7 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.jcr.ArgeoNames;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -66,7 +66,7 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 			createGeneralPart(form.getBody());
 			createPassworPart(form.getBody());
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot create form content", e);
+			throw new CmsException("Cannot create form content", e);
 		}
 	}
 
@@ -118,7 +118,7 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 					if (log.isTraceEnabled())
 						log.trace("General part committed");
 				} catch (RepositoryException e) {
-					throw new ArgeoException("Cannot commit", e);
+					throw new CmsException("Cannot commit", e);
 				}
 			}
 		};
@@ -174,7 +174,7 @@ public class DefaultUserMainPage extends FormPage implements ArgeoNames {
 					} else {
 						password1.setText("");
 						password2.setText("");
-						throw new ArgeoException("Passwords are not equals");
+						throw new CmsException("Passwords are not equals");
 					}
 				}
 			}

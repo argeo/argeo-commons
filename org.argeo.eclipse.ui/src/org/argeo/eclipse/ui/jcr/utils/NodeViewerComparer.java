@@ -18,7 +18,7 @@ package org.argeo.eclipse.ui.jcr.utils;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.jface.viewers.IElementComparer;
 
 /** Compare JCR nodes based on their JCR identifiers, for use in JFace viewers. */
@@ -37,7 +37,7 @@ public class NodeViewerComparer implements IElementComparer {
 				String idB = ((Node) elementB).getIdentifier();
 				result = idA == null ? idB == null : idA.equals(idB);
 			} catch (RepositoryException re) {
-				throw new ArgeoException("cannot compare nodes", re);
+				throw new EclipseUiException("cannot compare nodes", re);
 			}
 
 			return result;

@@ -17,7 +17,7 @@ package org.argeo.util.security;
 
 import java.security.Principal;
 
-import org.argeo.ArgeoException;
+import org.argeo.util.internal.UtilsException;
 
 /** Canonical implementation of a {@link Principal} */
 public class SimplePrincipal implements Principal {
@@ -25,7 +25,7 @@ public class SimplePrincipal implements Principal {
 
 	public SimplePrincipal(String name) {
 		if (name == null)
-			throw new ArgeoException("Principal name cannot be null");
+			throw new UtilsException("Principal name cannot be null");
 		this.name = name;
 	}
 

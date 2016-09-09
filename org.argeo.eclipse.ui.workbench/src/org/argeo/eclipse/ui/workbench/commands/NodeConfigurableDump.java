@@ -31,7 +31,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
@@ -122,10 +122,10 @@ public class NodeConfigurableDump extends AbstractHandler {
 							fos.close();
 						}
 					} catch (RepositoryException e) {
-						throw new ArgeoException(
+						throw new EclipseUiException(
 								"Unable to perform SystemExport on " + node, e);
 					} catch (IOException e) {
-						throw new ArgeoException("Unable to SystemExport "
+						throw new EclipseUiException("Unable to SystemExport "
 								+ node, e);
 					}
 				}
@@ -187,7 +187,7 @@ public class NodeConfigurableDump extends AbstractHandler {
 				page = new BasicPage("Main page");
 				addPage(page);
 			} catch (Exception e) {
-				throw new ArgeoException("Cannot add page to wizard", e);
+				throw new EclipseUiException("Cannot add page to wizard", e);
 			}
 		}
 

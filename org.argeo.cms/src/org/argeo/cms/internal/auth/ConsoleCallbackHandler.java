@@ -13,7 +13,7 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.TextOutputCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 
 /** Callback handler to be used with a command line UI. */
 public class ConsoleCallbackHandler implements CallbackHandler {
@@ -23,7 +23,7 @@ public class ConsoleCallbackHandler implements CallbackHandler {
 			UnsupportedCallbackException {
 		Console console = System.console();
 		if (console == null)
-			throw new ArgeoException("No console available");
+			throw new CmsException("No console available");
 
 		PrintWriter writer = console.writer();
 		for (int i = 0; i < callbacks.length; i++) {

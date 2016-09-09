@@ -17,8 +17,6 @@ package org.argeo.jcr;
 
 import javax.jcr.Value;
 
-import org.argeo.ArgeoException;
-
 /** The result of the comparison of two JCR properties. */
 public class PropertyDiff {
 	public final static Integer MODIFIED = 0;
@@ -36,22 +34,22 @@ public class PropertyDiff {
 
 		if (type == MODIFIED) {
 			if (referenceValue == null || newValue == null)
-				throw new ArgeoException(
+				throw new ArgeoJcrException(
 						"Reference and new values must be specified.");
 		} else if (type == ADDED) {
 			if (referenceValue != null || newValue == null)
-				throw new ArgeoException(
+				throw new ArgeoJcrException(
 						"New value and only it must be specified.");
 		} else if (type == REMOVED) {
 			if (referenceValue == null || newValue != null)
-				throw new ArgeoException(
+				throw new ArgeoJcrException(
 						"Reference value and only it must be specified.");
 		} else {
-			throw new ArgeoException("Unkown diff type " + type);
+			throw new ArgeoJcrException("Unkown diff type " + type);
 		}
 
 		if (relPath == null)
-			throw new ArgeoException("Relative path must be specified");
+			throw new ArgeoJcrException("Relative path must be specified");
 
 		this.type = type;
 		this.relPath = relPath;

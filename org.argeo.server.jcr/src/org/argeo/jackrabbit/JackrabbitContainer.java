@@ -38,7 +38,7 @@ import org.apache.jackrabbit.api.JackrabbitRepository;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
-import org.argeo.ArgeoException;
+import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrUtils;
 import org.springframework.core.io.Resource;
@@ -80,7 +80,7 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 		// long begin = System.currentTimeMillis();
 
 		if (getRepository() != null)
-			throw new ArgeoException("Cannot be used to wrap another repository");
+			throw new ArgeoJcrException("Cannot be used to wrap another repository");
 		Repository repository = createJackrabbitRepository();
 		super.setRepository(repository);
 
@@ -132,7 +132,7 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 
 			return repository;
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot create Jackrabbit repository " + getHomeDirectory(), e);
+			throw new ArgeoJcrException("Cannot create Jackrabbit repository " + getHomeDirectory(), e);
 		} finally {
 			IOUtils.closeQuietly(configurationIn);
 		}
@@ -153,7 +153,7 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 
 			return homeDirectory.getCanonicalFile();
 		} catch (IOException e) {
-			throw new ArgeoException("Cannot get canonical file for " + homeDirectory, e);
+			throw new ArgeoJcrException("Cannot get canonical file for " + homeDirectory, e);
 		}
 	}
 
@@ -175,10 +175,10 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 					restartAndClearCaches = true;
 				}
 			}
-		} catch (ArgeoException e) {
+		} catch (ArgeoJcrException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot migrate", e);
+			throw new ArgeoJcrException("Cannot migrate", e);
 		} finally {
 			JcrUtils.logoutQuietly(session);
 		}
@@ -197,7 +197,7 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 		try {
 			session = login();
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot login to migrated repository", e);
+			throw new ArgeoJcrException("Cannot login to migrated repository", e);
 		}
 
 		for (JackrabbitDataModelMigration dataModelMigration : new TreeSet<JackrabbitDataModelMigration>(
@@ -250,7 +250,7 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 		try {
 			return configuration != null ? configuration.getInputStream() : null;
 		} catch (IOException e) {
-			throw new ArgeoException("Cannot read Jackrabbit configuration " + configuration, e);
+			throw new ArgeoJcrException("Cannot read Jackrabbit configuration " + configuration, e);
 		}
 	}
 
@@ -264,7 +264,7 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 		try {
 			return variables != null ? variables.getInputStream() : null;
 		} catch (IOException e) {
-			throw new ArgeoException("Cannot read Jackrabbit variables " + variables, e);
+			throw new ArgeoJcrException("Cannot read Jackrabbit variables " + variables, e);
 		}
 	}
 
@@ -305,7 +305,7 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 			}
 
 		} catch (IOException e) {
-			throw new ArgeoException("Cannot read configuration properties", e);
+			throw new ArgeoJcrException("Cannot read configuration properties", e);
 		} finally {
 			IOUtils.closeQuietly(propsIn);
 		}
@@ -325,7 +325,7 @@ public class JackrabbitContainer extends JackrabbitWrapper {
 	}
 
 	public void setRepository(Repository repository) {
-		throw new ArgeoException("Cannot be used to wrap another repository");
+		throw new ArgeoJcrException("Cannot be used to wrap another repository");
 	}
 
 	public void setDataModelMigrations(Set<JackrabbitDataModelMigration> dataModelMigrations) {

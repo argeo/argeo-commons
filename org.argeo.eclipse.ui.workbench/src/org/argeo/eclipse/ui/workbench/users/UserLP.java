@@ -3,10 +3,9 @@ package org.argeo.eclipse.ui.workbench.users;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.workbench.internal.users.UsersImages;
 import org.argeo.eclipse.ui.workbench.internal.users.UsersUtils;
-import org.argeo.osgi.useradmin.LdifName;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.SWT;
@@ -49,7 +48,7 @@ class UserLP extends ColumnLabelProvider {
 				return bold;
 			}
 		} catch (InvalidNameException e) {
-			throw new ArgeoException("cannot parse dn for " + element, e);
+			throw new EclipseUiException("cannot parse dn for " + element, e);
 		}
 
 		// Disabled as Italic

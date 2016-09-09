@@ -21,7 +21,7 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.cms.widgets.auth.DefaultLoginDialog;
 import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.BundleActivator;
@@ -50,13 +50,6 @@ public class SecurityUiPlugin implements BundleActivator {
 	private ServiceRegistration<CallbackHandler> defaultCallbackHandlerReg;
 
 	public void start(BundleContext context) throws Exception {
-		if (bundleContext != null)
-			if (!bundleContext.equals(bundleContext))
-				throw new ArgeoException(
-						"Bundle context already set with a different value");
-			else
-				return;
-
 		bundleContext = context;
 
 		defaultCallbackHandler = new DefaultCallbackHandler();
@@ -88,7 +81,7 @@ public class SecurityUiPlugin implements BundleActivator {
 					try {
 						dialog.handle(callbacks);
 					} catch (IOException e) {
-						throw new ArgeoException("Cannot open dialog", e);
+						throw new CmsException("Cannot open dialog", e);
 					}
 				}
 			});

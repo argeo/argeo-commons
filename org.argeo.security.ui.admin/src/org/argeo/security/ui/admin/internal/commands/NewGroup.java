@@ -18,7 +18,7 @@ package org.argeo.security.ui.admin.internal.commands;
 import java.util.Dictionary;
 import java.util.Map;
 
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.jcr.ArgeoNames;
@@ -215,7 +215,7 @@ public class NewGroup extends AbstractHandler {
 		private void initialiseDnCmb(Combo combo) {
 			Map<String, String> dns = userAdminWrapper.getKnownBaseDns(true);
 			if (dns.isEmpty())
-				throw new ArgeoException(
+				throw new CmsException(
 						"No writable base dn found. Cannot create group");
 			combo.setItems(dns.keySet().toArray(new String[0]));
 			if (dns.size() == 1)

@@ -34,7 +34,6 @@ import javax.jcr.SimpleCredentials;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
 
 /** Proxy JCR sessions and attach them to calling threads. */
 @Deprecated
@@ -74,7 +73,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 	/** Logs in to the repository using various strategies. */
 	protected synchronized Session login() {
 		if (!isActive())
-			throw new ArgeoException("Thread bound session factory inactive");
+			throw new ArgeoJcrException("Thread bound session factory inactive");
 
 		// discard session previously attached to this thread
 		Thread thread = Thread.currentThread();
@@ -96,7 +95,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 				// invalid credentials, go to the next step
 			} catch (RepositoryException e1) {
 				// other kind of exception, fail
-				throw new ArgeoException("Cannot log in to repository", e1);
+				throw new ArgeoJcrException("Cannot log in to repository", e1);
 			}
 
 		// log using default username / password (useful for testing purposes)
@@ -106,7 +105,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 						defaultPassword.toCharArray());
 				newSession = repository().login(sc, workspace);
 			} catch (RepositoryException e) {
-				throw new ArgeoException("Cannot log in to repository", e);
+				throw new ArgeoJcrException("Cannot log in to repository", e);
 			}
 
 		session.set(newSession);
@@ -214,7 +213,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 			if (it.hasNext())
 				return it.next();
 		}
-		throw new ArgeoException("No repository injected");
+		throw new ArgeoJcrException("No repository injected");
 	}
 
 	// /** Useful for declarative registration of OSGi services (blueprint) */

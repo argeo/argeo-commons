@@ -3,8 +3,8 @@ package org.argeo.eclipse.ui.parts;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.ColumnDefinition;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.utils.ViewerUtils;
 import org.eclipse.jface.layout.TableColumnLayout;
@@ -143,7 +143,7 @@ public abstract class LdifUsersTable extends Composite {
 			}
 			return result;
 		} else
-			throw new ArgeoException("Unvalid request: no selection column "
+			throw new EclipseUiException("Unvalid request: no selection column "
 					+ "has been created for the current table");
 	}
 
@@ -174,7 +174,7 @@ public abstract class LdifUsersTable extends Composite {
 	// for (Role role : roles)
 	// users.add((User) role);
 	// } catch (InvalidSyntaxException e) {
-	// throw new ArgeoException("Unable to get roles with filter: "
+	// throw new EclipseUiException("Unable to get roles with filter: "
 	// + filter, e);
 	// }
 	// return users;

@@ -3,7 +3,7 @@ package org.argeo.security.ui.admin.internal.providers;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -37,7 +37,7 @@ public abstract class UserAdminAbstractLP extends ColumnLabelProvider {
 				return bold;
 			}
 		} catch (InvalidNameException e) {
-			throw new ArgeoException("cannot parse dn for " + element, e);
+			throw new CmsException("cannot parse dn for " + element, e);
 		}
 
 		// Disabled as Italic

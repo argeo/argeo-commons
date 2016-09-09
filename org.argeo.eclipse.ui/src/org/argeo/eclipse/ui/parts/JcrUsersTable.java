@@ -18,7 +18,7 @@ import javax.jcr.query.qom.QueryObjectModelFactory;
 import javax.jcr.query.qom.Selector;
 import javax.jcr.query.qom.StaticOperand;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.jcr.JcrUiUtils;
 import org.argeo.eclipse.ui.jcr.lists.JcrColumnDefinition;
@@ -137,7 +137,7 @@ public class JcrUsersTable extends Composite implements ArgeoNames {
 			}
 			return result;
 		} else
-			throw new ArgeoException("Unvalid request: no selection column "
+			throw new EclipseUiException("Unvalid request: no selection column "
 					+ "has been created for the current table");
 	}
 
@@ -247,7 +247,7 @@ public class JcrUsersTable extends Composite implements ArgeoNames {
 				else
 					return null;
 			} catch (RepositoryException e) {
-				throw new ArgeoException("Cannot get font for " + username, e);
+				throw new EclipseUiException("Cannot get font for " + username, e);
 			}
 		}
 	}
@@ -273,7 +273,7 @@ public class JcrUsersTable extends Composite implements ArgeoNames {
 			return userProfile.hasProperty(name) ? userProfile
 					.getProperty(name).getString() : "";
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot get property " + name, e);
+			throw new EclipseUiException("Cannot get property " + name, e);
 		}
 	}
 
@@ -319,7 +319,7 @@ public class JcrUsersTable extends Composite implements ArgeoNames {
 					hasFilter ? filterTxt.getText() : null));
 			usersViewer.setInput(nodes.toArray());
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Unable to list users", e);
+			throw new EclipseUiException("Unable to list users", e);
 		}
 	}
 

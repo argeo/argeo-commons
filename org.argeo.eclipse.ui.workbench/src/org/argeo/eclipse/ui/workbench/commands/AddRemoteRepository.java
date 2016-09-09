@@ -24,7 +24,7 @@ import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.eclipse.ui.workbench.CommandUtils;
 import org.argeo.eclipse.ui.workbench.WorkbenchConstants;
@@ -175,7 +175,7 @@ public class AddRemoteRepository extends AbstractHandler implements
 				Node remote = home.hasNode(ARGEO_REMOTE) ? home
 						.getNode(ARGEO_REMOTE) : home.addNode(ARGEO_REMOTE);
 				if (remote.hasNode(name.getText()))
-					throw new ArgeoException(
+					throw new EclipseUiException(
 							"There is already a remote repository named "
 									+ name.getText());
 				Node remoteRepository = remote.addNode(name.getText(),

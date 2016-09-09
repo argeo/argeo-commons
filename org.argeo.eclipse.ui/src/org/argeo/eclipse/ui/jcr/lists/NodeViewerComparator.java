@@ -9,7 +9,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 
@@ -129,7 +129,7 @@ public class NodeViewerComparator extends ViewerComparator {
 				rc = d1.compareTo(d2);
 				break;
 			default:
-				throw new ArgeoException(
+				throw new EclipseUiException(
 						"Unimplemented comparaison for PropertyType "
 								+ propertyType);
 			}
@@ -139,7 +139,7 @@ public class NodeViewerComparator extends ViewerComparator {
 			}
 
 		} catch (RepositoryException re) {
-			throw new ArgeoException("Unexpected error "
+			throw new EclipseUiException("Unexpected error "
 					+ "while comparing nodes", re);
 		}
 		return rc;

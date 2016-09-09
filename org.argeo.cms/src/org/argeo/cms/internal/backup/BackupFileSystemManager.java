@@ -24,7 +24,7 @@ import org.apache.commons.vfs2.provider.local.DefaultLocalFileProvider;
 import org.apache.commons.vfs2.provider.ram.RamFileProvider;
 import org.apache.commons.vfs2.provider.sftp.SftpFileProvider;
 import org.apache.commons.vfs2.provider.url.UrlFileProvider;
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 
 /**
  * Programatically configured VFS file system manager which can be declared as a
@@ -46,7 +46,7 @@ public class BackupFileSystemManager extends DefaultFileSystemManager {
 			addProvider("ram", new RamFileProvider());
 			setDefaultProvider(new UrlFileProvider());
 		} catch (FileSystemException e) {
-			throw new ArgeoException("Cannot configure backup file provider", e);
+			throw new CmsException("Cannot configure backup file provider", e);
 		}
 	}
 }

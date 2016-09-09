@@ -18,7 +18,7 @@ package org.argeo.eclipse.ui.workbench.internal.jcr;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.workbench.internal.jcr.model.RepositoriesElem;
 import org.argeo.eclipse.ui.workbench.internal.jcr.model.RepositoryElem;
@@ -69,7 +69,7 @@ public class JcrBrowserUtils {
 				element.getChildren();
 			}
 		} catch (RepositoryException re) {
-			throw new ArgeoException(
+			throw new EclipseUiException(
 					"Unexpected error while synchronising the UI with the JCR repository",
 					re);
 		}

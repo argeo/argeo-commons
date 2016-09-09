@@ -10,7 +10,7 @@ import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.UserAdmin;
 
@@ -44,7 +44,7 @@ public class SimpleRoleRegistration implements Runnable {
 			} catch (Exception e1) {
 				log.error("Cannot rollback", e1);
 			}
-			throw new ArgeoException("Cannot add roles", e);
+			throw new CmsException("Cannot add roles", e);
 		}
 	}
 
@@ -66,7 +66,7 @@ public class SimpleRoleRegistration implements Runnable {
 		try {
 			return new LdapName("cn=" + name + ",ou=roles,ou=node");
 		} catch (InvalidNameException e) {
-			throw new ArgeoException("Badly formatted role name " + name, e);
+			throw new CmsException("Badly formatted role name " + name, e);
 		}
 	}
 

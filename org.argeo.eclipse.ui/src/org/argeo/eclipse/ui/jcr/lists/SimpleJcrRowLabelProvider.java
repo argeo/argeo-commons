@@ -4,7 +4,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.query.Row;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 
 /**
  * Base implementation of a label provider for widgets that display JCR Rows.
@@ -40,7 +40,7 @@ public class SimpleJcrRowLabelProvider extends SimpleJcrNodeLabelProvider {
 			Node currNode = currRow.getNode(selectorName);
 			return super.getText(currNode);
 		} catch (RepositoryException re) {
-			throw new ArgeoException("Unable to get Node " + selectorName
+			throw new EclipseUiException("Unable to get Node " + selectorName
 					+ " from row " + element, re);
 		}
 	}

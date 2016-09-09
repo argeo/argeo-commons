@@ -26,7 +26,7 @@ import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
@@ -57,7 +57,7 @@ public class FullVersioningTreeContentProvider implements ITreeContentProvider {
 			}
 			return result.toArray();
 		} catch (RepositoryException re) {
-			throw new ArgeoException(
+			throw new EclipseUiException(
 					"Unexpected error while getting version elements", re);
 		}
 	}
@@ -70,7 +70,7 @@ public class FullVersioningTreeContentProvider implements ITreeContentProvider {
 				return tmp.toArray();
 			}
 		} catch (RepositoryException re) {
-			throw new ArgeoException("Unexpected error while getting child "
+			throw new EclipseUiException("Unexpected error while getting child "
 					+ "node for version element", re);
 		}
 		return null;
@@ -100,7 +100,7 @@ public class FullVersioningTreeContentProvider implements ITreeContentProvider {
 			else
 				return false;
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot check children of " + element, e);
+			throw new EclipseUiException("Cannot check children of " + element, e);
 		}
 	}
 

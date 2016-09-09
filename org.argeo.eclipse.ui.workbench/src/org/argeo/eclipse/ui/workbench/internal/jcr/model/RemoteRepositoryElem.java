@@ -24,7 +24,7 @@ import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.jcr.ArgeoJcrUtils;
 import org.argeo.jcr.ArgeoNames;
@@ -87,7 +87,7 @@ public class RemoteRepositoryElem extends RepositoryElem {
 			remoteNode.remove();
 			remoteNode.getSession().save();
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot remove " + remoteNodePath, e);
+			throw new EclipseUiException("Cannot remove " + remoteNodePath, e);
 		}
 	}
 

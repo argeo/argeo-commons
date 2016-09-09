@@ -15,7 +15,7 @@
  */
 package org.argeo.eclipse.spring;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExecutableExtension;
@@ -55,7 +55,7 @@ public class SpringExtensionFactory implements IExecutableExtensionFactory,
 
 	public Object create() throws CoreException {
 		if (bean == null)
-			throw new ArgeoException("No underlying bean for extension");
+			throw new EclipseUiException("No underlying bean for extension");
 		return bean;
 	}
 
@@ -65,13 +65,13 @@ public class SpringExtensionFactory implements IExecutableExtensionFactory,
 		ApplicationContext applicationContext = ApplicationContextTracker
 				.getApplicationContext(bundleSymbolicName);
 		if (applicationContext == null)
-			throw new ArgeoException(
+			throw new EclipseUiException(
 					"Cannot find application context for bundle "
 							+ bundleSymbolicName);
 
 		String beanName = getBeanName(data, config);
 		if (beanName == null)
-			throw new ArgeoException("Cannot find bean name for extension "
+			throw new EclipseUiException("Cannot find bean name for extension "
 					+ config);
 
 		if (!applicationContext.containsBean(beanName)) {
@@ -80,7 +80,7 @@ public class SpringExtensionFactory implements IExecutableExtensionFactory,
 		}
 
 		if (!applicationContext.containsBean(beanName))
-			throw new ArgeoException("No bean with name '" + beanName + "'");
+			throw new EclipseUiException("No bean with name '" + beanName + "'");
 
 		this.bean = applicationContext.getBean(beanName);
 		if (this.bean instanceof IExecutableExtension) {

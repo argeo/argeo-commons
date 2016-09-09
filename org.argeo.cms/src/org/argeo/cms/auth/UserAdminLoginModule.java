@@ -16,7 +16,7 @@ import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -50,7 +50,7 @@ public class UserAdminLoginModule implements LoginModule, AuthConstants {
 			if (options.containsKey("anonymous"))
 				isAnonymous = Boolean.parseBoolean(options.get("anonymous").toString());
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot initialize login module", e);
+			throw new CmsException("Cannot initialize login module", e);
 		}
 	}
 

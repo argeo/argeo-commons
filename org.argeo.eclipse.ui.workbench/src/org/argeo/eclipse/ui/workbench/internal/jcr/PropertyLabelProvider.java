@@ -23,7 +23,7 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.workbench.WorkbenchConstants;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -87,7 +87,7 @@ public class PropertyLabelProvider extends ColumnLabelProvider implements
 			}
 
 		} catch (RepositoryException re) {
-			throw new ArgeoException(
+			throw new EclipseUiException(
 					"Unexepected error while getting property values", re);
 		}
 		return null;
@@ -106,7 +106,7 @@ public class PropertyLabelProvider extends ColumnLabelProvider implements
 				strValue = value.getString();
 			return strValue;
 		} catch (RepositoryException e) {
-			throw new ArgeoException("unexpected error while formatting value",
+			throw new EclipseUiException("unexpected error while formatting value",
 					e);
 		}
 	}

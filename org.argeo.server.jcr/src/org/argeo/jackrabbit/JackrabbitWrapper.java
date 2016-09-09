@@ -30,6 +30,7 @@ import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
@@ -41,8 +42,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.JackrabbitRepository;
 import org.apache.jackrabbit.commons.NamespaceHelper;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
-import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoJcrConstants;
+import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrRepositoryWrapper;
@@ -132,7 +133,7 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 			}
 		} catch (Exception e) {
 			JcrUtils.discardQuietly(session);
-			throw new ArgeoException("Cannot import node type definitions "
+			throw new ArgeoJcrException("Cannot import node type definitions "
 					+ cndFiles, e);
 		} finally {
 			JcrUtils.logoutQuietly(session);
@@ -245,7 +246,7 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 						+ (bundle != null ? ", version " + bundle.getVersion()
 								+ ", bundle " + bundle.getSymbolicName() : ""));
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot process data model " + resUrl, e);
+			throw new ArgeoJcrException("Cannot process data model " + resUrl, e);
 		} finally {
 			IOUtils.closeQuietly(reader);
 		}
@@ -289,13 +290,13 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 				in = res.getInputStream();
 				url = res.getURL();
 			} else {
-				throw new ArgeoException("No " + resUrl + " in the classpath,"
+				throw new ArgeoJcrException("No " + resUrl + " in the classpath,"
 						+ " make sure the containing" + " package is visible.");
 			}
 
 			return IOUtils.toByteArray(in);
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot read CND from " + resUrl, e);
+			throw new ArgeoJcrException("Cannot read CND from " + resUrl, e);
 		} finally {
 			IOUtils.closeQuietly(in);
 		}
@@ -340,7 +341,7 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 		ExportedPackage[] exportedPackages = packageAdmin
 				.getExportedPackages(pkg);
 		if (exportedPackages == null)
-			throw new ArgeoException("No exported package found for " + pkg);
+			throw new ArgeoJcrException("No exported package found for " + pkg);
 		for (ExportedPackage ep : exportedPackages) {
 			for (Bundle b : ep.getImportingBundles()) {
 				if (b.getBundleId() == bundleContext.getBundle().getBundleId()) {
@@ -356,7 +357,7 @@ public class JackrabbitWrapper extends JcrRepositoryWrapper implements
 		} else {
 			// assume this is in the same bundle
 			exportingBundle = bundleContext.getBundle();
-			// throw new ArgeoException("No OSGi exporting package found for "
+			// throw new ArgeoJcrException("No OSGi exporting package found for "
 			// + resUrl);
 		}
 		return exportingBundle;

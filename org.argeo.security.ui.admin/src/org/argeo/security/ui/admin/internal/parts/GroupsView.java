@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
@@ -216,7 +216,7 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 				roles = userAdminWrapper.getUserAdmin().getRoles(
 						builder.toString());
 			} catch (InvalidSyntaxException e) {
-				throw new ArgeoException("Unable to get roles with filter: "
+				throw new CmsException("Unable to get roles with filter: "
 						+ filter, e);
 			}
 			List<User> users = new ArrayList<User>();

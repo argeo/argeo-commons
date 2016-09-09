@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.argeo.ArgeoException;
-import org.argeo.StreamUtils;
+import org.argeo.util.internal.StreamUtils;
+import org.argeo.util.internal.UtilsException;
 
 /**
  * Parses a CSV file interpreting the first line as a header. The
@@ -114,7 +114,7 @@ public abstract class CsvParser {
 					if (tokenSize == 1 && line.trim().equals(""))
 						continue lines;// empty line
 					if (headerSize != tokenSize) {
-						throw new ArgeoException("Token size " + tokenSize
+						throw new UtilsException("Token size " + tokenSize
 								+ " is different from header size "
 								+ headerSize + " at line " + lineCount
 								+ ", line: " + line + ", header: " + header
@@ -123,10 +123,10 @@ public abstract class CsvParser {
 				}
 				processLine(lineCount, header, tokens);
 			}
-		} catch (ArgeoException e) {
+		} catch (UtilsException e) {
 			throw e;
 		} catch (IOException e) {
-			throw new ArgeoException("Cannot parse CSV file (line: "
+			throw new UtilsException("Cannot parse CSV file (line: "
 					+ lineCount + ")", e);
 		} finally {
 			StreamUtils.closeQuietly(reader);

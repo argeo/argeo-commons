@@ -6,6 +6,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -20,9 +21,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.ldap.LdapName;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
 
 /** Directory user implementation */
 class LdifUser implements DirectoryUser {
@@ -40,8 +38,7 @@ class LdifUser implements DirectoryUser {
 		this(userAdmin, dn, attributes, false);
 	}
 
-	private LdifUser(AbstractUserDirectory userAdmin, LdapName dn,
-			Attributes attributes, boolean frozen) {
+	private LdifUser(AbstractUserDirectory userAdmin, LdapName dn, Attributes attributes, boolean frozen) {
 		this.userAdmin = userAdmin;
 		this.dn = dn;
 		this.publishedAttributes = attributes;
@@ -93,8 +90,7 @@ class LdifUser implements DirectoryUser {
 
 	/** Hash and clear the password */
 	private byte[] hash(char[] password) {
-		byte[] hashedPassword = ("{SHA}" + Base64
-				.encodeBase64String(DigestUtils.sha1(toBytes(password))))
+		byte[] hashedPassword = ("{SHA}" + Base64.getEncoder().encodeToString(DigestUtils.sha1(toBytes(password))))
 				.getBytes();
 		Arrays.fill(password, '\u0000');
 		return hashedPassword;
@@ -103,8 +99,7 @@ class LdifUser implements DirectoryUser {
 	private byte[] toBytes(char[] chars) {
 		CharBuffer charBuffer = CharBuffer.wrap(chars);
 		ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(charBuffer);
-		byte[] bytes = Arrays.copyOfRange(byteBuffer.array(),
-				byteBuffer.position(), byteBuffer.limit());
+		byte[] bytes = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
 		Arrays.fill(charBuffer.array(), '\u0000'); // clear sensitive data
 		Arrays.fill(byteBuffer.array(), (byte) 0); // clear sensitive data
 		return bytes;
@@ -114,12 +109,10 @@ class LdifUser implements DirectoryUser {
 		if (obj instanceof char[])
 			return (char[]) obj;
 		if (!(obj instanceof byte[]))
-			throw new IllegalArgumentException(obj.getClass()
-					+ " is not a byte array");
+			throw new IllegalArgumentException(obj.getClass() + " is not a byte array");
 		ByteBuffer fromBuffer = ByteBuffer.wrap((byte[]) obj);
 		CharBuffer toBuffer = Charset.forName("UTF-8").decode(fromBuffer);
-		char[] res = Arrays.copyOfRange(toBuffer.array(), toBuffer.position(),
-				toBuffer.limit());
+		char[] res = Arrays.copyOfRange(toBuffer.array(), toBuffer.position(), toBuffer.limit());
 		Arrays.fill(fromBuffer.array(), (byte) 0); // clear sensitive data
 		Arrays.fill((byte[]) obj, (byte) 0); // clear sensitive data
 		Arrays.fill(toBuffer.array(), '\u0000'); // clear sensitive data
@@ -211,8 +204,7 @@ class LdifUser implements DirectoryUser {
 						effectiveKeys.add(id);
 				}
 			} catch (NamingException e) {
-				throw new UserDirectoryException(
-						"Cannot initialise attribute dictionary", e);
+				throw new UserDirectoryException("Cannot initialise attribute dictionary", e);
 			}
 		}
 
@@ -277,14 +269,12 @@ class LdifUser implements DirectoryUser {
 
 				if (objectClasses.contains(userAdmin.getUserObjectClass()))
 					return userAdmin.getUserObjectClass();
-				else if (objectClasses
-						.contains(userAdmin.getGroupObjectClass()))
+				else if (objectClasses.contains(userAdmin.getGroupObjectClass()))
 					return userAdmin.getGroupObjectClass();
 				else
 					return value;
 			} catch (NamingException e) {
-				throw new UserDirectoryException(
-						"Cannot get value for attribute " + key, e);
+				throw new UserDirectoryException("Cannot get value for attribute " + key, e);
 			}
 		}
 
@@ -302,38 +292,31 @@ class LdifUser implements DirectoryUser {
 				startEditing();
 
 			if (!(value instanceof String || value instanceof byte[]))
-				throw new IllegalArgumentException(
-						"Value must be String or byte[]");
+				throw new IllegalArgumentException("Value must be String or byte[]");
 
 			if (includeFilter && !attrFilter.contains(key))
-				throw new IllegalArgumentException("Key " + key
-						+ " not included");
+				throw new IllegalArgumentException("Key " + key + " not included");
 			else if (!includeFilter && attrFilter.contains(key))
 				throw new IllegalArgumentException("Key " + key + " excluded");
 
 			try {
-				Attribute attribute = getModifiedAttributes().get(
-						key.toString());
+				Attribute attribute = getModifiedAttributes().get(key.toString());
 				attribute = new BasicAttribute(key.toString());
-				if (value instanceof String
-						&& !isAsciiPrintable(((String) value)))
+				if (value instanceof String && !isAsciiPrintable(((String) value)))
 					try {
 						attribute.add(((String) value).getBytes("UTF-8"));
 					} catch (UnsupportedEncodingException e) {
-						throw new UserDirectoryException("Cannot encode "
-								+ value, e);
+						throw new UserDirectoryException("Cannot encode " + value, e);
 					}
 				else
 					attribute.add(value);
-				Attribute previousAttribute = getModifiedAttributes().put(
-						attribute);
+				Attribute previousAttribute = getModifiedAttributes().put(attribute);
 				if (previousAttribute != null)
 					return previousAttribute.get();
 				else
 					return null;
 			} catch (NamingException e) {
-				throw new UserDirectoryException(
-						"Cannot get value for attribute " + key, e);
+				throw new UserDirectoryException("Cannot get value for attribute " + key, e);
 			}
 		}
 
@@ -344,8 +327,7 @@ class LdifUser implements DirectoryUser {
 				startEditing();
 
 			if (includeFilter && !attrFilter.contains(key))
-				throw new IllegalArgumentException("Key " + key
-						+ " not included");
+				throw new IllegalArgumentException("Key " + key + " not included");
 			else if (!includeFilter && attrFilter.contains(key))
 				throw new IllegalArgumentException("Key " + key + " excluded");
 
@@ -356,8 +338,7 @@ class LdifUser implements DirectoryUser {
 				else
 					return null;
 			} catch (NamingException e) {
-				throw new UserDirectoryException("Cannot remove attribute "
-						+ key, e);
+				throw new UserDirectoryException("Cannot remove attribute " + key, e);
 			}
 		}
 	}

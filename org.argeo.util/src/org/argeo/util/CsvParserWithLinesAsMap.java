@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.argeo.ArgeoException;
+import org.argeo.util.internal.UtilsException;
 
 /**
  * CSV parser allowing to process lines as maps whose keys are the header
@@ -42,7 +42,7 @@ public abstract class CsvParserWithLinesAsMap extends CsvParser {
 	protected final void processLine(Integer lineNumber, List<String> header,
 			List<String> tokens) {
 		if (header == null)
-			throw new ArgeoException("Only CSV with header is supported");
+			throw new UtilsException("Only CSV with header is supported");
 		Map<String, String> line = new HashMap<String, String>();
 		for (int i = 0; i < header.size(); i++) {
 			String key = header.get(i);

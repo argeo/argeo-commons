@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
 import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.eclipse.ui.specific.UiContext;
@@ -77,10 +76,10 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 				loginContext = new LoginContext(AuthConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
 				loginContext.login();
 			} catch (LoginException e1) {
-				throw new ArgeoException("Cannot log as anonymous", e);
+				throw new CmsException("Cannot log as anonymous", e);
 			}
 		} catch (LoginException e) {
-			throw new ArgeoException("Cannot initialize subject", e);
+			throw new CmsException("Cannot initialize subject", e);
 		}
 		authChange(loginContext);
 

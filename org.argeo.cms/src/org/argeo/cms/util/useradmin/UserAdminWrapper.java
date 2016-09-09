@@ -9,7 +9,7 @@ import java.util.Map;
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.osgi.framework.ServiceReference;
@@ -48,7 +48,7 @@ public abstract class UserAdminWrapper {
 			}
 			return userTransaction;
 		} catch (Exception e) {
-			throw new ArgeoException("Unable to begin transaction", e);
+			throw new CmsException("Unable to begin transaction", e);
 		}
 	}
 

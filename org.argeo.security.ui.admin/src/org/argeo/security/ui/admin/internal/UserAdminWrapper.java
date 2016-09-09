@@ -6,7 +6,7 @@ import java.util.List;
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.osgi.service.useradmin.UserAdminEvent;
 import org.osgi.service.useradmin.UserAdminListener;
 
@@ -31,7 +31,7 @@ public class UserAdminWrapper extends
 			}
 			return userTransaction;
 		} catch (Exception e) {
-			throw new ArgeoException("Unable to begin transaction", e);
+			throw new CmsException("Unable to begin transaction", e);
 		}
 	}
 

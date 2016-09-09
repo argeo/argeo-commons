@@ -23,7 +23,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.jcr.utils.JcrItemsComparator;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -52,7 +52,7 @@ public class SingleNodeAsTreeContentProvider implements ITreeContentProvider {
 
 			return result.toArray();
 		} catch (RepositoryException re) {
-			throw new ArgeoException(
+			throw new EclipseUiException(
 					"Unexpected error while getting child nodes for children editor page ",
 					re);
 		}
@@ -78,7 +78,7 @@ public class SingleNodeAsTreeContentProvider implements ITreeContentProvider {
 		try {
 			return ((Node) element).hasNodes();
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot check children of " + element, e);
+			throw new EclipseUiException("Cannot check children of " + element, e);
 		}
 	}
 
@@ -100,7 +100,7 @@ public class SingleNodeAsTreeContentProvider implements ITreeContentProvider {
 			Arrays.sort(arr, itemComparator);
 			return arr;
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot list children of " + parentNode, e);
+			throw new EclipseUiException("Cannot list children of " + parentNode, e);
 		}
 	}
 }

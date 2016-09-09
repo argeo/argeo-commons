@@ -23,7 +23,7 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.EntryPoint;
@@ -60,7 +60,7 @@ public class AnonymousEntryPoint implements EntryPoint {
 					subject);
 			loginContext.login();
 		} catch (LoginException e1) {
-			throw new ArgeoException("Cannot initialize login context", e1);
+			throw new CmsException("Cannot initialize login context", e1);
 		}
 
 		// identify after successful login

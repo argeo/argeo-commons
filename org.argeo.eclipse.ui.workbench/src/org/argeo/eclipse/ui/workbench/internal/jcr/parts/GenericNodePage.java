@@ -28,7 +28,7 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.workbench.WorkbenchConstants;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.swt.SWT;
@@ -111,7 +111,7 @@ public class GenericNodePage extends FormPage implements WorkbenchConstants {
 								currentNode.getSession().save();
 						}
 					} catch (RepositoryException re) {
-						throw new ArgeoException(
+						throw new EclipseUiException(
 								"Unexpected error while saving properties", re);
 					}
 				}
@@ -124,7 +124,7 @@ public class GenericNodePage extends FormPage implements WorkbenchConstants {
 
 			getManagedForm().addPart(part);
 		} catch (RepositoryException re) {
-			throw new ArgeoException(
+			throw new EclipseUiException(
 					"Error during creation of network details section", re);
 		}
 
@@ -142,7 +142,7 @@ public class GenericNodePage extends FormPage implements WorkbenchConstants {
 			} else
 				addModifyableValueWidget(parent, part, prop);
 		} catch (RepositoryException re) {
-			throw new ArgeoException("Cannot get property " + prop, re);
+			throw new EclipseUiException("Cannot get property " + prop, re);
 		}
 	}
 
@@ -162,7 +162,7 @@ public class GenericNodePage extends FormPage implements WorkbenchConstants {
 
 			return strValue;
 		} catch (RepositoryException re) {
-			throw new ArgeoException(
+			throw new EclipseUiException(
 					"Unexpected error while formatting read only property value",
 					re);
 		}
@@ -188,7 +188,7 @@ public class GenericNodePage extends FormPage implements WorkbenchConstants {
 			}
 			return null;
 		} catch (RepositoryException re) {
-			throw new ArgeoException(
+			throw new EclipseUiException(
 					"Unexpected error while formatting read only property value",
 					re);
 		}

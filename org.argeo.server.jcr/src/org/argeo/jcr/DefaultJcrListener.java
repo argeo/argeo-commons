@@ -24,7 +24,6 @@ import javax.jcr.observation.ObservationManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
 
 /** To be overridden */
 public class DefaultJcrListener implements EventListener {
@@ -39,7 +38,7 @@ public class DefaultJcrListener implements EventListener {
 			if (log.isDebugEnabled())
 				log.debug("Registered JCR event listener on " + path);
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot register event listener", e);
+			throw new ArgeoJcrException("Cannot register event listener", e);
 		}
 	}
 
@@ -50,7 +49,7 @@ public class DefaultJcrListener implements EventListener {
 			if (log.isDebugEnabled())
 				log.debug("Unregistered JCR event listener on " + path);
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot unregister event listener", e);
+			throw new ArgeoJcrException("Cannot unregister event listener", e);
 		}
 	}
 

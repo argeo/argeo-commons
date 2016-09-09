@@ -22,7 +22,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 import javax.transaction.TransactionManager;
 
-import org.apache.commons.io.IOUtils;
 import org.argeo.util.naming.LdifParser;
 import org.argeo.util.naming.LdifWriter;
 import org.osgi.framework.Filter;
@@ -89,7 +88,7 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 			for (LdapName name : users.keySet())
 				ldifWriter.writeEntry(name, users.get(name).getAttributes());
 		} finally {
-			IOUtils.closeQuietly(out);
+			out.close();
 		}
 	}
 

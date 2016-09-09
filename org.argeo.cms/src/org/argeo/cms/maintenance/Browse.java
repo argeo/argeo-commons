@@ -16,7 +16,6 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
-import org.argeo.ArgeoException;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsTypes;
 import org.argeo.cms.CmsUiProvider;
@@ -217,7 +216,7 @@ public class Browse implements CmsUiProvider {
 						e.doit = false;
 					}
 				} catch (RepositoryException e1) {
-					throw new ArgeoException(
+					throw new CmsException(
 							"Unexpected error in key management for "
 									+ currEdited + "with filter "
 									+ filterTxt.getText(), e1);
@@ -236,7 +235,7 @@ public class Browse implements CmsUiProvider {
 			refreshFilters(node);
 			refreshBrowser(node);
 		} catch (RepositoryException re) {
-			throw new ArgeoException("Unable to update browser for " + node, re);
+			throw new CmsException("Unable to update browser for " + node, re);
 		}
 	}
 
@@ -336,7 +335,7 @@ public class Browse implements CmsUiProvider {
 		try {
 			return node.getPath();
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Unable to get path for node " + node, e);
+			throw new CmsException("Unable to get path for node " + node, e);
 		}
 	}
 
@@ -458,7 +457,7 @@ public class Browse implements CmsUiProvider {
 				NodeIterator nit = context.getNodes(filter);
 				refreshFilteredList(nit);
 			} catch (RepositoryException e) {
-				throw new ArgeoException("Unable to filter " + getNode()
+				throw new CmsException("Unable to filter " + getNode()
 						+ " children with filter " + filter, e);
 			}
 
@@ -557,7 +556,7 @@ public class Browse implements CmsUiProvider {
 							}
 						}
 					} catch (RepositoryException ie) {
-						throw new ArgeoException("Error while managing arrow "
+						throw new CmsException("Error while managing arrow "
 								+ "events in the browser for " + selected, ie);
 					}
 				}
@@ -606,7 +605,7 @@ public class Browse implements CmsUiProvider {
 					try {
 						return curr.getName();
 					} catch (RepositoryException e) {
-						throw new ArgeoException("Unable to get name for"
+						throw new CmsException("Unable to get name for"
 								+ curr);
 					}
 				}

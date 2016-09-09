@@ -19,7 +19,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
 
-import org.argeo.ArgeoException;
+import org.argeo.util.internal.UtilsException;
 
 public class Throughput {
 	private final static NumberFormat usNumberFormat = NumberFormat
@@ -47,7 +47,7 @@ public class Throughput {
 		else if (unit.equals(Unit.d))
 			value = ((double) count * 24d * 60d * 60d * 1000d) / periodMs;
 		else
-			throw new ArgeoException("Unsupported unit " + unit);
+			throw new UtilsException("Unsupported unit " + unit);
 		this.unit = unit;
 	}
 
@@ -58,14 +58,14 @@ public class Throughput {
 	public Throughput(String def) {
 		int index = def.indexOf('/');
 		if (def.length() < 3 || index <= 0 || index != def.length() - 2)
-			throw new ArgeoException(def + " no a proper throughput definition"
+			throw new UtilsException(def + " no a proper throughput definition"
 					+ " (should be <value>/<unit>, e.g. 3.54/s or 1500/h");
 		String valueStr = def.substring(0, index);
 		String unitStr = def.substring(index + 1);
 		try {
 			this.value = usNumberFormat.parse(valueStr).doubleValue();
 		} catch (ParseException e) {
-			throw new ArgeoException("Cannot parse " + valueStr
+			throw new UtilsException("Cannot parse " + valueStr
 					+ " as a number.", e);
 		}
 		this.unit = Unit.valueOf(unitStr);
@@ -81,7 +81,7 @@ public class Throughput {
 		else if (unit.equals(Unit.d))
 			return Math.round((24d * 60d * 60d * 1000d) / value);
 		else
-			throw new ArgeoException("Unsupported unit " + unit);
+			throw new UtilsException("Unsupported unit " + unit);
 	}
 
 	@Override

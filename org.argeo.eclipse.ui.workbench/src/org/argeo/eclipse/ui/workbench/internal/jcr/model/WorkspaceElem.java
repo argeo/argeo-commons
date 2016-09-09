@@ -20,8 +20,9 @@ import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 // import javax.jcr.Workspace;
+import javax.jcr.Workspace;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.jcr.JcrUtils;
 
@@ -54,7 +55,7 @@ public class WorkspaceElem extends TreeParent {
 			else
 				return null;
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot get root node of workspace "
+			throw new EclipseUiException("Cannot get root node of workspace "
 					+ getName(), e);
 		}
 	}
@@ -63,7 +64,7 @@ public class WorkspaceElem extends TreeParent {
 		try {
 			session = ((RepositoryElem) getParent()).repositoryLogin(getName());
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot connect to repository "
+			throw new EclipseUiException("Cannot connect to repository "
 					+ getName(), e);
 		}
 	}
@@ -96,7 +97,7 @@ public class WorkspaceElem extends TreeParent {
 			else
 				return false;
 		} catch (RepositoryException re) {
-			throw new ArgeoException(
+			throw new EclipseUiException(
 					"Unexpected error while checking children node existence",
 					re);
 		}
@@ -122,7 +123,7 @@ public class WorkspaceElem extends TreeParent {
 				}
 				return super.getChildren();
 			} catch (RepositoryException e) {
-				throw new ArgeoException(
+				throw new EclipseUiException(
 						"Cannot initialize WorkspaceNode UI object."
 								+ getName(), e);
 			}

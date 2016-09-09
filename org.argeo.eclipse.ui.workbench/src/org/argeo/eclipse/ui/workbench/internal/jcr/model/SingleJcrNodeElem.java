@@ -20,7 +20,7 @@ import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Workspace;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 
 /**
@@ -84,7 +84,7 @@ public class SingleJcrNodeElem extends TreeParent {
 				}
 				return super.getChildren();
 			} catch (RepositoryException re) {
-				throw new ArgeoException(
+				throw new EclipseUiException(
 						"Unexcpected error while initializing children SingleJcrNode",
 						re);
 			}
@@ -99,7 +99,7 @@ public class SingleJcrNodeElem extends TreeParent {
 			else
 				return false;
 		} catch (RepositoryException re) {
-			throw new ArgeoException(
+			throw new EclipseUiException(
 					"Unexpected error while checking children node existence",
 					re);
 		}

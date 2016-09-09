@@ -24,7 +24,6 @@ import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
 import org.osgi.framework.Filter;
 
 /**
@@ -162,7 +161,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			}
 			return directGroups;
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot populate direct members of " + dn, e);
+			throw new UserDirectoryException("Cannot populate direct members of " + dn, e);
 		}
 	}
 

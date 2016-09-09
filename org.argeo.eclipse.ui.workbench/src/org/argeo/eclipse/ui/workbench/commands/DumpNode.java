@@ -29,7 +29,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.workbench.CommandUtils;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
@@ -89,10 +89,10 @@ public class DumpNode extends AbstractHandler {
 							+ JcrUtils.replaceInvalidChars(node.getName())
 							+ "-" + dateVal + ".xml");
 				} catch (RepositoryException e) {
-					throw new ArgeoException(
+					throw new EclipseUiException(
 							"Unable to perform SystemExport on " + node, e);
 				} catch (IOException e) {
-					throw new ArgeoException("Unable to SystemExport " + node,
+					throw new EclipseUiException("Unable to SystemExport " + node,
 							e);
 				}
 			}

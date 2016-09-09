@@ -33,8 +33,8 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.argeo.ArgeoException;
-import org.argeo.StreamUtils;
+import org.argeo.util.internal.UtilsException;
+import org.argeo.util.internal.StreamUtils;
 
 /** Simple password based encryption / decryption */
 public class PasswordBasedEncryption {
@@ -92,11 +92,11 @@ public class PasswordBasedEncryption {
 			try {
 				initKeyAndCiphers(password, passwordSalt, initializationVector);
 			} catch (Exception e1) {
-				throw new ArgeoException(
+				throw new UtilsException(
 						"Cannot get secret key (with restricted length)", e1);
 			}
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot get secret key", e);
+			throw new UtilsException("Cannot get secret key", e);
 		}
 	}
 
@@ -139,7 +139,7 @@ public class PasswordBasedEncryption {
 		} catch (IOException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot encrypt", e);
+			throw new UtilsException("Cannot encrypt", e);
 		} finally {
 			StreamUtils.closeQuietly(decryptedIn);
 		}
@@ -154,7 +154,7 @@ public class PasswordBasedEncryption {
 		} catch (IOException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot decrypt", e);
+			throw new UtilsException("Cannot decrypt", e);
 		} finally {
 			StreamUtils.closeQuietly(encryptedIn);
 		}
@@ -169,7 +169,7 @@ public class PasswordBasedEncryption {
 			encrypt(in, out);
 			return out.toByteArray();
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot encrypt", e);
+			throw new UtilsException("Cannot encrypt", e);
 		} finally {
 			StreamUtils.closeQuietly(out);
 		}
@@ -183,7 +183,7 @@ public class PasswordBasedEncryption {
 			decrypt(in, out);
 			return new String(out.toByteArray(), DEFAULT_CHARSET);
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot decrypt", e);
+			throw new UtilsException("Cannot decrypt", e);
 		} finally {
 			StreamUtils.closeQuietly(out);
 		}

@@ -28,7 +28,7 @@ import javax.jcr.observation.Event;
 import javax.jcr.observation.EventListener;
 import javax.jcr.observation.ObservationManager;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.jcr.AsyncUiEventListener;
 import org.argeo.eclipse.ui.jcr.utils.NodeViewerComparer;
@@ -99,7 +99,7 @@ public class JcrBrowserView extends ViewPart {
 		try {
 			this.userSession = this.nodeRepository.login();
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot open user session", e);
+			throw new EclipseUiException("Cannot open user session", e);
 		}
 
 		nodeContentProvider = new NodeContentProvider(userSession, keyring,
@@ -184,7 +184,7 @@ public class JcrBrowserView extends ViewPart {
 						Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED, "/",
 						true, null, null, false);
 			} catch (RepositoryException e) {
-				throw new ArgeoException("Cannot register listeners", e);
+				throw new EclipseUiException("Cannot register listeners", e);
 			}
 
 		tmpNodeViewer
@@ -210,7 +210,7 @@ public class JcrBrowserView extends ViewPart {
 				try {
 					return ((Property) element).getName();
 				} catch (RepositoryException e) {
-					throw new ArgeoException(
+					throw new EclipseUiException(
 							"Unexpected exception in label provider", e);
 				}
 			}
@@ -239,7 +239,7 @@ public class JcrBrowserView extends ViewPart {
 					} else
 						return property.getValue().getString();
 				} catch (RepositoryException e) {
-					throw new ArgeoException(
+					throw new EclipseUiException(
 							"Unexpected exception in label provider", e);
 				}
 			}
@@ -255,7 +255,7 @@ public class JcrBrowserView extends ViewPart {
 					return PropertyType.nameFromValue(((Property) element)
 							.getType());
 				} catch (RepositoryException e) {
-					throw new ArgeoException(
+					throw new EclipseUiException(
 							"Unexpected exception in label provider", e);
 				}
 			}

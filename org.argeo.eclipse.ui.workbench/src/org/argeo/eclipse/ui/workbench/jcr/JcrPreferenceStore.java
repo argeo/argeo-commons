@@ -28,7 +28,7 @@ import javax.jcr.Session;
 import javax.jcr.version.VersionManager;
 
 import org.apache.commons.io.IOUtils;
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
@@ -57,7 +57,7 @@ public class JcrPreferenceStore extends PreferenceStore implements ArgeoNames {
 				session.save();
 			Node userHome = UserJcrUtils.getUserHome(session);
 			if (userHome == null)
-				throw new ArgeoException("No user home for "
+				throw new EclipseUiException("No user home for "
 						+ session.getUserID());
 			Node preferences;
 			if (!userHome.hasNode(ARGEO_PREFERENCES)) {
@@ -83,7 +83,7 @@ public class JcrPreferenceStore extends PreferenceStore implements ArgeoNames {
 		} catch (RepositoryException e) {
 			e.printStackTrace();
 			JcrUtils.discardQuietly(session);
-			throw new ArgeoException("Cannot retrieve preferences", e);
+			throw new EclipseUiException("Cannot retrieve preferences", e);
 		}
 
 	}
@@ -107,7 +107,7 @@ public class JcrPreferenceStore extends PreferenceStore implements ArgeoNames {
 			load(in);
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ArgeoException("Cannot load preferences", e);
+			throw new EclipseUiException("Cannot load preferences", e);
 		} finally {
 			IOUtils.closeQuietly(in);
 			IOUtils.closeQuietly(out);
@@ -139,7 +139,7 @@ public class JcrPreferenceStore extends PreferenceStore implements ArgeoNames {
 			vm.checkin(pluginPreferences.getPath());
 		} catch (Exception e) {
 			JcrUtils.discardUnderlyingSessionQuietly(pluginPreferences);
-			throw new ArgeoException("Cannot save preferences", e);
+			throw new EclipseUiException("Cannot save preferences", e);
 		} finally {
 			IOUtils.closeQuietly(in);
 			IOUtils.closeQuietly(out);
@@ -150,7 +150,7 @@ public class JcrPreferenceStore extends PreferenceStore implements ArgeoNames {
 		try {
 			load();
 		} catch (IOException e) {
-			throw new ArgeoException("Cannot initialize preference store", e);
+			throw new EclipseUiException("Cannot initialize preference store", e);
 		}
 	}
 

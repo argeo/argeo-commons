@@ -32,7 +32,7 @@ import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -79,13 +79,13 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 		try {
 			dn = new LdapName(name);
 		} catch (InvalidNameException e) {
-			throw new ArgeoException("Invalid user dn " + name, e);
+			throw new CmsException("Invalid user dn " + name, e);
 		}
 		User user = (User) userAdmin.getRole(dn.toString());
 		if (!user.hasCredential(null, oldPassword))
-			throw new ArgeoException("Invalid password");
+			throw new CmsException("Invalid password");
 		if (newPassword.equals(""))
-			throw new ArgeoException("New password empty");
+			throw new CmsException("New password empty");
 		try {
 			userTransaction.begin();
 			user.getCredentials().put(null, newPassword);
@@ -99,7 +99,7 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 			if (e instanceof RuntimeException)
 				throw (RuntimeException) e;
 			else
-				throw new ArgeoException("Cannot change password", e);
+				throw new CmsException("Cannot change password", e);
 		}
 	}
 
@@ -144,7 +144,7 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 		protected void okPressed() {
 			try {
 				if (!newPassword1.getText().equals(newPassword2.getText()))
-					throw new ArgeoException("New passwords are different");
+					throw new CmsException("New passwords are different");
 				changePassword(oldPassword.getTextChars(),
 						newPassword1.getTextChars());
 				close();

@@ -1,6 +1,6 @@
 package org.argeo.security.ui.admin.internal.providers;
 
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.security.ui.admin.internal.parts.UserEditor;
 import org.argeo.security.ui.admin.internal.parts.UserEditorInput;
@@ -37,7 +37,7 @@ public class UserTableDefaultDClickListener implements IDoubleClickListener {
 			else
 				iwp.openEditor(uei, UserEditor.USER_EDITOR_ID);
 		} catch (PartInitException pie) {
-			throw new ArgeoException("Unable to open UserEditor for " + user,
+			throw new CmsException("Unable to open UserEditor for " + user,
 					pie);
 		}
 	}

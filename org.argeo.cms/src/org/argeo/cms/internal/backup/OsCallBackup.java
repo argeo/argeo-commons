@@ -30,7 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 
 /**
  * Runs an OS command and save its standard output as a file. Typically used for
@@ -81,20 +81,17 @@ public class OsCallBackup extends AbstractAtomicBackup {
 			// stdout
 			FileContent targetContent = targetFo.getContent();
 			// stderr
-			ExecuteStreamHandler streamHandler = new PumpStreamHandler(
-					targetContent.getOutputStream(), errBos);
+			ExecuteStreamHandler streamHandler = new PumpStreamHandler(targetContent.getOutputStream(), errBos);
 			executor.setStreamHandler(streamHandler);
 			executor.execute(commandLine, environment);
 		} catch (ExecuteException e) {
 			byte[] err = errBos.toByteArray();
 			String errStr = new String(err);
-			throw new ArgeoException("Process " + commandLine + " failed ("
-					+ e.getExitValue() + "): " + errStr, e);
+			throw new CmsException("Process " + commandLine + " failed (" + e.getExitValue() + "): " + errStr, e);
 		} catch (Exception e) {
 			byte[] err = errBos.toByteArray();
 			String errStr = new String(err);
-			throw new ArgeoException("Process " + commandLine + " failed: "
-					+ errStr, e);
+			throw new CmsException("Process " + commandLine + " failed: " + errStr, e);
 		} finally {
 			IOUtils.closeQuietly(errBos);
 		}

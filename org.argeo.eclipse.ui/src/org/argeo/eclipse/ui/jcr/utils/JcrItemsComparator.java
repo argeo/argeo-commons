@@ -20,7 +20,7 @@ import java.util.Comparator;
 import javax.jcr.Item;
 import javax.jcr.RepositoryException;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 
 /** Compares two JCR items (node or properties) based on their names. */
 public class JcrItemsComparator implements Comparator<Item> {
@@ -29,7 +29,7 @@ public class JcrItemsComparator implements Comparator<Item> {
 			// TODO: put folder before files
 			return o1.getName().compareTo(o2.getName());
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot compare " + o1 + " and " + o2, e);
+			throw new EclipseUiException("Cannot compare " + o1 + " and " + o2, e);
 		}
 	}
 

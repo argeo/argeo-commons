@@ -33,15 +33,15 @@ import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.workbench.WorkbenchConstants;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
-import org.argeo.jcr.JcrUtils;
-import org.argeo.jcr.PropertyDiff;
-import org.argeo.jcr.VersionDiff;
 import org.argeo.eclipse.ui.workbench.internal.jcr.FullVersioningTreeContentProvider;
 import org.argeo.eclipse.ui.workbench.internal.jcr.GenericNodeDoubleClickListener;
 import org.argeo.eclipse.ui.workbench.internal.jcr.VersionLabelProvider;
+import org.argeo.jcr.JcrUtils;
+import org.argeo.jcr.PropertyDiff;
+import org.argeo.jcr.VersionDiff;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
@@ -105,7 +105,7 @@ public class NodeVersionHistoryPage extends FormPage implements
 				createTreeSection(form.getBody());
 			}
 		} catch (RepositoryException e) {
-			throw new ArgeoException(
+			throw new EclipseUiException(
 					"Unexpected error while checking if node is versionable", e);
 		}
 	}
@@ -253,7 +253,7 @@ public class NodeVersionHistoryPage extends FormPage implements
 			}
 			styledText.setText(main.toString());
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot generate history for node", e);
+			throw new EclipseUiException("Cannot generate history for node", e);
 		}
 
 	}
@@ -307,7 +307,7 @@ public class NodeVersionHistoryPage extends FormPage implements
 			}
 			return res;
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot generate history for node ");
+			throw new EclipseUiException("Cannot generate history for node ");
 		}
 
 	}

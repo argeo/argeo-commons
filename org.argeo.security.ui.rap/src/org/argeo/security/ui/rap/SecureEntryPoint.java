@@ -30,7 +30,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.auth.ThreadDeathLoginException;
 import org.argeo.cms.widgets.auth.DefaultLoginDialog;
@@ -96,14 +96,14 @@ public class SecureEntryPoint implements EntryPoint {
 						AuthConstants.LOGIN_CONTEXT_USER, subject,
 						callbackHandler);
 			} catch (LoginException e1) {
-				throw new ArgeoException("Cannot initialize login context", e1);
+				throw new CmsException("Cannot initialize login context", e1);
 			}
 
 			tryLogin: while (subject.getPrincipals(X500Principal.class).size() == 0) {
 				try {
 					loginContext.login();
 					if (subject.getPrincipals(X500Principal.class).size() == 0)
-						throw new ArgeoException("Login succeeded but no auth");// fatal
+						throw new CmsException("Login succeeded but no auth");// fatal
 
 					// add thread locale to RWT session
 					// if (log.isTraceEnabled())
@@ -189,7 +189,7 @@ public class SecureEntryPoint implements EntryPoint {
 			display.dispose();
 			return -1;
 		} else {
-			throw new ArgeoException(
+			throw new CmsException(
 					"Unexpected exception during authentication", e);
 		}
 

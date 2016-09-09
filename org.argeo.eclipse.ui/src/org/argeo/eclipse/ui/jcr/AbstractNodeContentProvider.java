@@ -25,8 +25,8 @@ import javax.jcr.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
 import org.argeo.eclipse.ui.AbstractTreeContentProvider;
+import org.argeo.eclipse.ui.EclipseUiException;
 
 /** Canonical implementation of tree content provider manipulating JCR nodes. */
 public abstract class AbstractNodeContentProvider extends
@@ -59,14 +59,14 @@ public abstract class AbstractNodeContentProvider extends
 				Node node = (Node) element;
 				children = getChildren(node);
 			} catch (RepositoryException e) {
-				throw new ArgeoException("Cannot get children of " + element, e);
+				throw new EclipseUiException("Cannot get children of " + element, e);
 			}
 		} else if (element instanceof WrappedNode) {
 			WrappedNode wrappedNode = (WrappedNode) element;
 			try {
 				children = getChildren(wrappedNode.getNode());
 			} catch (RepositoryException e) {
-				throw new ArgeoException("Cannot get children of "
+				throw new EclipseUiException("Cannot get children of "
 						+ wrappedNode, e);
 			}
 		} else if (element instanceof NodesWrapper) {
@@ -142,7 +142,7 @@ public abstract class AbstractNodeContentProvider extends
 			}
 
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot check whether " + element
+			throw new EclipseUiException("Cannot check whether " + element
 					+ " has children", e);
 		}
 		return super.hasChildren(element);

@@ -18,7 +18,10 @@ package org.argeo;
 /**
  * Simple monitor abstraction. Inspired by Eclipse IProgressMOnitor, but without
  * dependency to it.
+ * 
+ * @deprecated use org.argeo.jcr.JcrMonitor instead
  */
+@Deprecated
 public interface ArgeoMonitor {
 	/**
 	 * Constant indicating an unknown amount of work.

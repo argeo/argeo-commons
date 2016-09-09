@@ -30,7 +30,7 @@ import javax.jcr.nodetype.NodeType;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoException;
+import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.jcr.JcrUtils;
 
 /** Base class for URL based proxys. */
@@ -52,7 +52,7 @@ public abstract class AbstractUrlProxy implements ResourceProxy {
 				jcrAdminSession.save();
 		} catch (Exception e) {
 			JcrUtils.discardQuietly(jcrAdminSession);
-			throw new ArgeoException("Cannot initialize Maven proxy", e);
+			throw new ArgeoJcrException("Cannot initialize Maven proxy", e);
 		}
 	}
 
@@ -92,7 +92,7 @@ public abstract class AbstractUrlProxy implements ResourceProxy {
 				nodeClient = clientSession.getNode(path);
 			return nodeClient;
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot proxy " + path, e);
+			throw new ArgeoJcrException("Cannot proxy " + path, e);
 		} finally {
 			if (nodeClient == null)
 				JcrUtils.logoutQuietly(clientSession);
@@ -108,7 +108,7 @@ public abstract class AbstractUrlProxy implements ResourceProxy {
 			return node;
 		} catch (RepositoryException e) {
 			JcrUtils.discardQuietly(jcrAdminSession);
-			throw new ArgeoException("Cannot retrieve and save " + path, e);
+			throw new ArgeoJcrException("Cannot retrieve and save " + path, e);
 		} finally {
 			notifyAll();
 		}
@@ -119,7 +119,7 @@ public abstract class AbstractUrlProxy implements ResourceProxy {
 			String path) throws RepositoryException {
 		Node node = null;
 		if (session.itemExists(path)) {
-			// throw new ArgeoException("Node " + path + " already exists");
+			// throw new ArgeoJcrException("Node " + path + " already exists");
 		}
 		InputStream in = null;
 		try {

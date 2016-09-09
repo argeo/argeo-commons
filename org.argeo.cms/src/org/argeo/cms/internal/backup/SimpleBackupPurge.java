@@ -26,7 +26,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.Selectors;
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -82,7 +82,7 @@ public class SimpleBackupPurge implements BackupPurge {
 					log.debug("Deleted backup " + backupFo);
 			}
 		} catch (Exception e) {
-			throw new ArgeoException("Could not purge previous backups", e);
+			throw new CmsException("Could not purge previous backups", e);
 		}
 
 	}

@@ -15,7 +15,7 @@ import java.util.Date;
 
 import javax.security.auth.x500.X500Principal;
 
-import org.argeo.ArgeoException;
+import org.argeo.cms.CmsException;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
@@ -55,7 +55,7 @@ class PkiUtils {
 			keyStore.setKeyEntry(x500Principal.getName(), pair.getPrivate(), keyPassword, new Certificate[] { cert });
 			return cert;
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot generate self-signed certificate", e);
+			throw new CmsException("Cannot generate self-signed certificate", e);
 		}
 	}
 
@@ -71,7 +71,7 @@ class PkiUtils {
 			}
 			return store;
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot load keystore " + keyStoreFile, e);
+			throw new CmsException("Cannot load keystore " + keyStoreFile, e);
 		}
 	}
 
@@ -81,7 +81,7 @@ class PkiUtils {
 				keyStore.store(fis, keyStorePassword);
 			}
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot save keystore " + keyStoreFile, e);
+			throw new CmsException("Cannot save keystore " + keyStoreFile, e);
 		}
 	}
 

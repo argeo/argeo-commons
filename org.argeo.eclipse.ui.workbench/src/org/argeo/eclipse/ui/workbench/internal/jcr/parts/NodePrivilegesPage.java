@@ -23,7 +23,7 @@ import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
-import org.argeo.ArgeoException;
+import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -89,7 +89,7 @@ public class NodePrivilegesPage extends FormPage {
 						return node.getProperty("rep:principalName")
 								.getString();
 				} catch (RepositoryException e) {
-					throw new ArgeoException("Unable to retrieve "
+					throw new EclipseUiException("Unable to retrieve "
 							+ "principal name on " + node, e);
 				}
 				return "";
@@ -126,7 +126,7 @@ public class NodePrivilegesPage extends FormPage {
 
 					}
 				} catch (RepositoryException e) {
-					throw new ArgeoException("Unable to retrieve "
+					throw new EclipseUiException("Unable to retrieve "
 							+ "privileges on " + node, e);
 				}
 				return "";
@@ -150,7 +150,7 @@ public class NodePrivilegesPage extends FormPage {
 				try {
 					return node.getParent().getParent().getPath();
 				} catch (RepositoryException e) {
-					throw new ArgeoException("Unable get path for " + node, e);
+					throw new EclipseUiException("Unable get path for " + node, e);
 				}
 			}
 
@@ -232,7 +232,7 @@ public class NodePrivilegesPage extends FormPage {
 
 				return privs.toArray();
 			} catch (Exception e) {
-				throw new ArgeoException("Cannot retrieve authorization for "
+				throw new EclipseUiException("Cannot retrieve authorization for "
 						+ context, e);
 			}
 		}
@@ -244,7 +244,7 @@ public class NodePrivilegesPage extends FormPage {
 			String cname = context.getSession().getClass().getName();
 			return cname.startsWith("org.apache.jackrabbit");
 		} catch (RepositoryException e) {
-			throw new ArgeoException("Cannot check JCR implementation used on "
+			throw new EclipseUiException("Cannot check JCR implementation used on "
 					+ context, e);
 		}
 	}

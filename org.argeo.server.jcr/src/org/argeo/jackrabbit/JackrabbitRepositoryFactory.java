@@ -36,7 +36,6 @@ import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
 import org.apache.jackrabbit.jcr2dav.Jcr2davRepositoryFactory;
-import org.argeo.ArgeoException;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.ArgeoJcrException;
 import org.springframework.core.io.ClassPathResource;
@@ -106,7 +105,7 @@ public class JackrabbitRepositoryFactory implements RepositoryFactory, ArgeoJcrC
 		params.put(JcrUtils.REPOSITORY_URI, uri);
 		Repository repository = new Jcr2davRepositoryFactory().getRepository(params);
 		if (repository == null)
-			throw new ArgeoException("Remote Davex repository " + uri + " not found");
+			throw new ArgeoJcrException("Remote Davex repository " + uri + " not found");
 		log.info("Initialized remote Jackrabbit repository from uri " + uri);
 		return repository;
 	}
@@ -120,7 +119,7 @@ public class JackrabbitRepositoryFactory implements RepositoryFactory, ArgeoJcrC
 			String dirPath = uri.substring("file:".length());
 			File homeDir = new File(dirPath);
 			if (homeDir.exists() && !homeDir.isDirectory())
-				throw new ArgeoException("Repository home " + dirPath + " is not a directory");
+				throw new ArgeoJcrException("Repository home " + dirPath + " is not a directory");
 			if (!homeDir.exists())
 				homeDir.mkdirs();
 			configurationIn = fileRepositoryConfiguration.getInputStream();
@@ -143,7 +142,7 @@ public class JackrabbitRepositoryFactory implements RepositoryFactory, ArgeoJcrC
 			log.info("Initialized file Jackrabbit repository from uri " + uri);
 			return repository;
 		} catch (Exception e) {
-			throw new ArgeoException("Cannot create repository " + uri, e);
+			throw new ArgeoJcrException("Cannot create repository " + uri, e);
 		} finally {
 			IOUtils.closeQuietly(configurationIn);
 		}
@@ -159,7 +158,7 @@ public class JackrabbitRepositoryFactory implements RepositoryFactory, ArgeoJcrC
 				alias = alias.substring(0, alias.length() - 1);
 			return alias;
 		} catch (URISyntaxException e) {
-			throw new ArgeoException("Cannot interpret URI " + uri, e);
+			throw new ArgeoJcrException("Cannot interpret URI " + uri, e);
 		}
 	}
 

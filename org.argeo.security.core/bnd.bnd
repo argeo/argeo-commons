@@ -1,5 +1,0 @@
-Import-Package:org.bouncycastle.*;resolution:=optional,\
-bitronix.tm.*;resolution:=optional,\
-org.apache.commons.codec,\
-org.apache.commons.codec.digest,\
-*

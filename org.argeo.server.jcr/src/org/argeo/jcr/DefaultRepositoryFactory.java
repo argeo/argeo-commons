@@ -24,8 +24,6 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
 
-import org.argeo.ArgeoException;
-
 /**
  * Simple implementation of {@link RepositoryFactory}, supporting OSGi aliases.
  */
@@ -54,7 +52,7 @@ public class DefaultRepositoryFactory extends DefaultRepositoryRegister
 				alias = alias.substring(0, alias.length() - 1);
 			return alias;
 		} catch (URISyntaxException e) {
-			throw new ArgeoException("Cannot interpret URI " + uri, e);
+			throw new ArgeoJcrException("Cannot interpret URI " + uri, e);
 		}
 	}
 
