@@ -38,8 +38,7 @@ import org.apache.commons.logging.LogFactory;
 /** Proxy JCR sessions and attach them to calling threads. */
 @Deprecated
 public abstract class ThreadBoundJcrSessionFactory {
-	private final static Log log = LogFactory
-			.getLog(ThreadBoundJcrSessionFactory.class);
+	private final static Log log = LogFactory.getLog(ThreadBoundJcrSessionFactory.class);
 
 	private Repository repository;
 	/** can be injected as list, only used if repository is null */
@@ -57,16 +56,13 @@ public abstract class ThreadBoundJcrSessionFactory {
 	private boolean active = true;
 
 	// monitoring
-	private final List<Thread> threads = Collections
-			.synchronizedList(new ArrayList<Thread>());
-	private final Map<Long, Session> activeSessions = Collections
-			.synchronizedMap(new HashMap<Long, Session>());
+	private final List<Thread> threads = Collections.synchronizedList(new ArrayList<Thread>());
+	private final Map<Long, Session> activeSessions = Collections.synchronizedMap(new HashMap<Long, Session>());
 	private MonitoringThread monitoringThread;
 
 	public ThreadBoundJcrSessionFactory() {
 		Class<?>[] interfaces = { Session.class };
-		proxiedSession = (Session) Proxy.newProxyInstance(
-				ThreadBoundJcrSessionFactory.class.getClassLoader(),
+		proxiedSession = (Session) Proxy.newProxyInstance(ThreadBoundJcrSessionFactory.class.getClassLoader(),
 				interfaces, new JcrSessionInvocationHandler());
 	}
 
@@ -101,8 +97,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 		// log using default username / password (useful for testing purposes)
 		if (newSession == null)
 			try {
-				SimpleCredentials sc = new SimpleCredentials(defaultUsername,
-						defaultPassword.toCharArray());
+				SimpleCredentials sc = new SimpleCredentials(defaultUsername, defaultPassword.toCharArray());
 				newSession = repository().login(sc, workspace);
 			} catch (RepositoryException e) {
 				throw new ArgeoJcrException("Cannot log in to repository", e);
@@ -111,8 +106,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 		session.set(newSession);
 		// Log and monitor new session
 		if (log.isTraceEnabled())
-			log.trace("Logged in to JCR session " + newSession + "; userId="
-					+ newSession.getUserID());
+			log.trace("Logged in to JCR session " + newSession + "; userId=" + newSession.getUserID());
 
 		// monitoring
 		activeSessions.put(thread.getId(), newSession);
@@ -125,7 +119,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 	}
 
 	public void init() throws Exception {
-		log.error("SHOULD NOT BE USED ANYMORE");
+		// log.error("SHOULD NOT BE USED ANYMORE");
 		monitoringThread = new MonitoringThread();
 		monitoringThread.start();
 	}
@@ -135,8 +129,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 		// return;
 
 		if (log.isTraceEnabled())
-			log.trace("Cleaning up " + activeSessions.size()
-					+ " active JCR sessions...");
+			log.trace("Cleaning up " + activeSessions.size() + " active JCR sessions...");
 
 		deactivate();
 		for (Session sess : activeSessions.values()) {
@@ -173,8 +166,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 					activeSessions.remove(thread.getId());
 					session.logout();
 					if (log.isTraceEnabled())
-						log.trace("Cleaned up JCR session (userID="
-								+ session.getUserID() + ") from dead thread "
+						log.trace("Cleaned up JCR session (userID=" + session.getUserID() + ") from dead thread "
 								+ thread.getId());
 				}
 				it.remove();
@@ -252,8 +244,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 
 	protected class JcrSessionInvocationHandler implements InvocationHandler {
 
-		public Object invoke(Object proxy, Method method, Object[] args)
-				throws Throwable, RepositoryException {
+		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable, RepositoryException {
 			Session threadSession = session.get();
 			if (threadSession == null) {
 				if ("logout".equals(method.getName()))// no need to login
@@ -279,8 +270,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 				Thread thread = Thread.currentThread();
 				removeSession(thread);
 				if (log.isTraceEnabled())
-					log.trace("Logged out JCR session (userId="
-							+ threadSession.getUserID() + ") on thread "
+					log.trace("Logged out JCR session (userId=" + threadSession.getUserID() + ") on thread "
 							+ thread.getId());
 			}
 			return ret;
