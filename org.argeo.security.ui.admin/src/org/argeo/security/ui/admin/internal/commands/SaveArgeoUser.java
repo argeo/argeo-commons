@@ -34,7 +34,6 @@ public class SaveArgeoUser extends AbstractHandler {
 		try {
 			IWorkbenchPart iwp = HandlerUtil.getActiveWorkbenchWindow(event)
 					.getActivePage().getActivePart();
-
 			if (!(iwp instanceof IEditorPart))
 				return null;
 			IEditorPart editor = (IEditorPart) iwp;

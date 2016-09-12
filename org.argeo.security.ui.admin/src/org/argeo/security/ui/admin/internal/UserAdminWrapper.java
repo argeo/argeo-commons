@@ -10,28 +10,52 @@ import org.argeo.cms.CmsException;
 import org.osgi.service.useradmin.UserAdminEvent;
 import org.osgi.service.useradmin.UserAdminListener;
 
-/** Centralize interaction with the UserAdmin in this bundle */
+/** Centralise interaction with the UserAdmin in this bundle */
 public class UserAdminWrapper extends
 		org.argeo.cms.util.useradmin.UserAdminWrapper {
-	// private Log log = LogFactory.getLog(UserAdminWrapper.class);
+
+	// First effort to simplify UX while managing users and groups
+	public final static boolean COMMIT_ON_SAVE = true;
 
 	// Registered listeners
 	List<UserAdminListener> listeners = new ArrayList<UserAdminListener>();
 
 	/**
-	 * Overwrite the normal begin transaction behaviour to also notify the UI.
-	 * Must be called from the UI Thread.
+	 * Starts a transaction if necessary. Should always been called together
+	 * with {@link UserAdminWrapper#commitOrNotifyTransactionStateChange()} once
+	 * the security model changes have been performed.
 	 */
 	public UserTransaction beginTransactionIfNeeded() {
 		try {
 			UserTransaction userTransaction = getUserTransaction();
 			if (userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION) {
 				userTransaction.begin();
-				UiAdminUtils.notifyTransactionStateChange(userTransaction);
+				// UiAdminUtils.notifyTransactionStateChange(userTransaction);
 			}
 			return userTransaction;
 		} catch (Exception e) {
 			throw new CmsException("Unable to begin transaction", e);
+		}
+	}
+
+	/**
+	 * Depending on the current application configuration, it will either commit
+	 * the current transaction or throw a notification that the transaction
+	 * state has changed (In the later case, it must be called from the UI
+	 * thread).
+	 */
+	public void commitOrNotifyTransactionStateChange() {
+		try {
+			UserTransaction userTransaction = getUserTransaction();
+			if (userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION)
+				return;
+
+			if (UserAdminWrapper.COMMIT_ON_SAVE)
+				userTransaction.commit();
+			else
+				UiAdminUtils.notifyTransactionStateChange(userTransaction);
+		} catch (Exception e) {
+			throw new CmsException("Unable to clean transaction", e);
 		}
 	}
 
@@ -41,7 +65,6 @@ public class UserAdminWrapper extends
 			listeners.add(userAdminListener);
 	}
 
-	// Expose this?
 	public void removeListener(UserAdminListener userAdminListener) {
 		if (listeners.contains(userAdminListener))
 			listeners.remove(userAdminListener);

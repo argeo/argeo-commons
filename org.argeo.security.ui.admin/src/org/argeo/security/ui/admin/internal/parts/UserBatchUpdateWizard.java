@@ -18,7 +18,6 @@ import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.osgi.useradmin.LdifName;
-import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.providers.CommonNameLP;
 import org.argeo.security.ui.admin.internal.providers.DomainNameLP;
@@ -140,18 +139,16 @@ public class UserBatchUpdateWizard extends Wizard {
 
 		@SuppressWarnings("unchecked")
 		protected void doUpdate() {
-			UserTransaction userTransaction = userAdminWrapper
-					.beginTransactionIfNeeded();
+			userAdminWrapper.beginTransactionIfNeeded();
 			try {
 				for (User user : usersToUpdate) {
 					// the char array is emptied after being used.
 					user.getCredentials().put(null, newPwd.clone());
 				}
-				userTransaction.commit();
-				UiAdminUtils.notifyTransactionStateChange(userTransaction);
+				userAdminWrapper.commitOrNotifyTransactionStateChange();
 			} catch (Exception e) {
-				throw new CmsException(
-						"Cannot perform batch update on users", e);
+				throw new CmsException("Cannot perform batch update on users",
+						e);
 			} finally {
 				UserTransaction ut = userAdminWrapper.getUserTransaction();
 				try {
@@ -495,8 +492,8 @@ public class UserBatchUpdateWizard extends Wizard {
 					roles = userAdminWrapper.getUserAdmin().getRoles(
 							builder.toString());
 				} catch (InvalidSyntaxException e) {
-					throw new CmsException(
-							"Unable to get roles with filter: " + filter, e);
+					throw new CmsException("Unable to get roles with filter: "
+							+ filter, e);
 				}
 				List<User> users = new ArrayList<User>();
 				for (Role role : roles)

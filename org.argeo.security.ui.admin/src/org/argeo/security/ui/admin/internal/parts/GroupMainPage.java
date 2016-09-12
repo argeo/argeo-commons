@@ -19,6 +19,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.transaction.UserTransaction;
+
+import org.argeo.cms.CmsException;
 import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
@@ -131,7 +134,8 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 			@Override
 			public void initialize(IManagedForm form) {
 				super.initialize(form);
-				listener = editor.new MainInfoListener(parent.getDisplay(), this);
+				listener = editor.new MainInfoListener(parent.getDisplay(),
+						this);
 				userAdminWrapper.addListener(listener);
 			}
 
@@ -294,11 +298,8 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 			@SuppressWarnings("unchecked")
 			Iterator<User> it = ((IStructuredSelection) selection).iterator();
 			List<User> users = new ArrayList<User>();
-			// StringBuilder builder = new StringBuilder();
 			while (it.hasNext()) {
 				User currUser = it.next();
-				// String groupName = UserAdminUtils.getUsername(currGroup);
-				// builder.append(groupName).append("; ");
 				users.add(currUser);
 			}
 
@@ -306,6 +307,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 			for (User user : users) {
 				group.removeMember(user);
 			}
+			userAdminWrapper.commitOrNotifyTransactionStateChange();
 			userAdminWrapper.notifyListeners(new UserAdminEvent(null,
 					UserAdminEvent.ROLE_CHANGED, group));
 		}
@@ -328,7 +330,8 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		@Override
 		public void initialize(IManagedForm form) {
 			super.initialize(form);
-			listener = editor.new GroupChangeListener(userViewer.getDisplay(), GroupMembersPart.this);
+			listener = editor.new GroupChangeListener(userViewer.getDisplay(),
+					GroupMembersPart.this);
 			userAdminWrapper.addListener(listener);
 		}
 
@@ -414,15 +417,23 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 					return;
 				}
 				userAdminWrapper.beginTransactionIfNeeded();
-				// TODO implement the dirty state
 				myGroup.addMember(newGroup);
+				userAdminWrapper.commitOrNotifyTransactionStateChange();
 				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
 						UserAdminEvent.ROLE_CHANGED, myGroup));
 			} else if (role.getType() == Role.USER) {
 				// TODO check if the group is already member of this group
-				userAdminWrapper.beginTransactionIfNeeded();
+				UserTransaction transaction = userAdminWrapper
+						.beginTransactionIfNeeded();
 				User user = (User) role;
 				myGroup.addMember(user);
+				if (UserAdminWrapper.COMMIT_ON_SAVE)
+					try {
+						transaction.commit();
+					} catch (Exception e) {
+						throw new CmsException("Cannot commit transaction "
+								+ "after user group membership update", e);
+					}
 				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
 						UserAdminEvent.ROLE_CHANGED, myGroup));
 			}

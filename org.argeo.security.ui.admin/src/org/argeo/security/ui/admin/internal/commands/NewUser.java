@@ -106,8 +106,8 @@ public class NewUser extends AbstractHandler {
 			if (!canFinish())
 				return false;
 			String username = mainUserInfo.getUsername();
+			userAdminWrapper.beginTransactionIfNeeded();
 			try {
-				userAdminWrapper.beginTransactionIfNeeded();
 				User user = (User) userAdminWrapper.getUserAdmin().createRole(
 						getDn(username), Role.USER);
 
@@ -132,7 +132,7 @@ public class NewUser extends AbstractHandler {
 
 				char[] password = mainUserInfo.getPassword();
 				user.getCredentials().put(null, password);
-
+				userAdminWrapper.commitOrNotifyTransactionStateChange();
 				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
 						UserAdminEvent.ROLE_CREATED, user));
 				return true;

@@ -28,13 +28,13 @@ public class UserTransactionProvider extends AbstractSourceProvider {
 
 	@Override
 	public String[] getProvidedSourceNames() {
-		return new String[] { TRANSACTION_STATE };
+		return new String[] { TRANSACTION_STATE};
 	}
 
 	@Override
 	public Map<String, String> getCurrentState() {
 		Map<String, String> currentState = new HashMap<String, String>(1);
-		currentState.put(TRANSACTION_STATE, getInternalCurrentState());
+			currentState.put(TRANSACTION_STATE, getInternalCurrentState());
 		return currentState;
 	}
 

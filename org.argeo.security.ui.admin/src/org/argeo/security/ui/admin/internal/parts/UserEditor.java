@@ -121,6 +121,7 @@ public class UserEditor extends FormEditor {
 	public void doSave(IProgressMonitor monitor) {
 		userAdminWrapper.beginTransactionIfNeeded();
 		commitPages(true);
+		userAdminWrapper.commitOrNotifyTransactionStateChange();
 		firePropertyChange(PROP_DIRTY);
 		userAdminWrapper.notifyListeners(new UserAdminEvent(null,
 				UserAdminEvent.ROLE_REMOVED, user));

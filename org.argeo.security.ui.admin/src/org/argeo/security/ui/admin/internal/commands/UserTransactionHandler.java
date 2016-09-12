@@ -69,13 +69,13 @@ public class UserTransactionHandler extends AbstractHandler {
 			UiAdminUtils.notifyTransactionStateChange(userTransaction);
 			// Try to remove invalid thread access errors when managing users.
 			// HandlerUtil.getActivePart(event).getSite().getShell().getDisplay()
-			// 		.asyncExec(new Runnable() {
-			// 			@Override
-			// 			public void run() {
-			// 				UiAdminUtils
-			// 						.notifyTransactionStateChange(userTransaction);
-			// 			}
-			// 		});
+			// .asyncExec(new Runnable() {
+			// @Override
+			// public void run() {
+			// UiAdminUtils
+			// .notifyTransactionStateChange(userTransaction);
+			// }
+			// });
 
 		} catch (CmsException e) {
 			throw e;

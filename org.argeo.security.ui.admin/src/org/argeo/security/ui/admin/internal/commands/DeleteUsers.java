@@ -81,7 +81,6 @@ public class DeleteUsers extends AbstractHandler {
 
 		for (User user : users) {
 			String userName = user.getName();
-
 			// TODO find a way to close the editor cleanly if opened. Cannot be
 			// done through the UserAdminListeners, it causes a
 			// java.util.ConcurrentModificationException because disposing the
@@ -89,8 +88,11 @@ public class DeleteUsers extends AbstractHandler {
 			IEditorPart part = iwp.findEditor(new UserEditorInput(userName));
 			if (part != null)
 				iwp.closeEditor(part, false);
-
 			userAdmin.removeRole(userName);
+		}
+		userAdminWrapper.commitOrNotifyTransactionStateChange();
+
+		for (User user : users) {
 			userAdminWrapper.notifyListeners(new UserAdminEvent(null,
 					UserAdminEvent.ROLE_REMOVED, user));
 		}

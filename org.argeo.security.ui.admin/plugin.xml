@@ -112,7 +112,7 @@
 				<parameter name="param.commandId" value="transaction.commit" />
 				<visibleWhen>
 					<with variable="org.argeo.security.ui.admin.userTransactionState">
-							<equals value="status.active" />
+						<equals value="status.active" />
 					</with>
 				</visibleWhen>
 			</command>

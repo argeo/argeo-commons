@@ -71,10 +71,8 @@ public class DeleteGroups extends AbstractHandler {
 		UserAdmin userAdmin = userAdminWrapper.getUserAdmin();
 		IWorkbenchPage iwp = HandlerUtil.getActiveWorkbenchWindow(event)
 				.getActivePage();
-
 		for (Group group : groups) {
 			String groupName = group.getName();
-
 			// TODO find a way to close the editor cleanly if opened. Cannot be
 			// done through the UserAdminListeners, it causes a
 			// java.util.ConcurrentModificationException because disposing the
@@ -82,11 +80,16 @@ public class DeleteGroups extends AbstractHandler {
 			IEditorPart part = iwp.findEditor(new UserEditorInput(groupName));
 			if (part != null)
 				iwp.closeEditor(part, false);
-
 			userAdmin.removeRole(groupName);
+		}
+		userAdminWrapper.commitOrNotifyTransactionStateChange();
+
+		// Update the view
+		for (Group group : groups) {
 			userAdminWrapper.notifyListeners(new UserAdminEvent(null,
 					UserAdminEvent.ROLE_REMOVED, group));
 		}
+
 		return null;
 	}
 

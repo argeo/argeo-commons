@@ -228,7 +228,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 						|| !password2.getText().equals("")) {
 					if (password1.getText().equals(password2.getText())) {
 						char[] newPassword = password1.getText().toCharArray();
-						userAdminWrapper.beginTransactionIfNeeded();
+						// userAdminWrapper.beginTransactionIfNeeded();
 						user.getCredentials().put(null, newPassword);
 						password1.setText("");
 						password2.setText("");
@@ -416,25 +416,17 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 			@SuppressWarnings("unchecked")
 			Iterator<Group> it = ((IStructuredSelection) selection).iterator();
 			List<Group> groups = new ArrayList<Group>();
-			// StringBuilder builder = new StringBuilder();
 			while (it.hasNext()) {
 				Group currGroup = it.next();
-				// String groupName = UserAdminUtils.getUsername(currGroup);
-				// builder.append(groupName).append("; ");
 				groups.add(currGroup);
 			}
-
-			// if (!MessageDialog.openQuestion(
-			// HandlerUtil.getActiveShell(event),
-			// "Re",
-			// "Are you sure that you want to delete these users?\n"
-			// + builder.substring(0, builder.length() - 2)))
-			// return null;
 
 			userAdminWrapper.beginTransactionIfNeeded();
 			for (Group group : groups) {
 				group.removeMember(user);
-				// sectionPart.refresh();
+			}
+			userAdminWrapper.commitOrNotifyTransactionStateChange();
+			for (Group group : groups) {
 				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
 						UserAdminEvent.ROLE_CHANGED, group));
 			}
@@ -476,17 +468,10 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 			if (role.getType() == Role.GROUP) {
 				// TODO check if the user is already member of this group
 
-				// Remove invalid thread access errors when managing users.
-				// myUserAdminWrapper.beginTransactionIfNeeded();
-				event.display.asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						myUserAdminWrapper.beginTransactionIfNeeded();
-					}
-				});
-
+				myUserAdminWrapper.beginTransactionIfNeeded();
 				Group group = (Group) role;
 				group.addMember(myUser);
+				userAdminWrapper.commitOrNotifyTransactionStateChange();
 				myUserAdminWrapper.notifyListeners(new UserAdminEvent(null,
 						UserAdminEvent.ROLE_CHANGED, group));
 			}

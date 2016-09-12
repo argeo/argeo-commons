@@ -95,6 +95,7 @@ public class NewGroup extends AbstractHandler {
 				String descStr = descriptionTxt.getText();
 				if (EclipseUiUtils.notEmpty(descStr))
 					props.put(LdifName.description.name(), descStr);
+				userAdminWrapper.commitOrNotifyTransactionStateChange();
 				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
 						UserAdminEvent.ROLE_CREATED, group));
 				return true;
