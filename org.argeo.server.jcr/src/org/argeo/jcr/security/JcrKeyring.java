@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.CharArrayReader;
 import java.io.InputStream;
 import java.io.Reader;
+import java.security.Provider;
 import java.security.SecureRandom;
 
 import javax.crypto.Cipher;
@@ -119,12 +120,11 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 			// TODO check if algo and key length are available, use DES if not
 			keyring.setProperty(ARGEO_SECRET_KEY_FACTORY, secreteKeyFactoryName);
 			keyring.setProperty(ARGEO_KEY_LENGTH, secreteKeyLength);
-			keyring.setProperty(ARGEO_SECRET_KEY_ENCRYPTION,
-					secreteKeyEncryption);
+			keyring.setProperty(ARGEO_SECRET_KEY_ENCRYPTION, secreteKeyEncryption);
 			keyring.setProperty(ARGEO_CIPHER, cipherName);
 
-			//keyring.getSession().save();
-			
+			// keyring.getSession().save();
+
 			// encrypted password hash
 			// IOUtils.closeQuietly(in);
 			// JcrUtils.closeQuietly(binary);
@@ -155,13 +155,11 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 			else
 				throw new ArgeoJcrException("Keyring not setup");
 
-			pbeCallback.set(keyring.getProperty(ARGEO_SECRET_KEY_FACTORY)
-					.getString(), JcrUtils.getBinaryAsBytes(keyring
-					.getProperty(ARGEO_SALT)),
+			pbeCallback.set(keyring.getProperty(ARGEO_SECRET_KEY_FACTORY).getString(),
+					JcrUtils.getBinaryAsBytes(keyring.getProperty(ARGEO_SALT)),
 					(int) keyring.getProperty(ARGEO_ITERATION_COUNT).getLong(),
 					(int) keyring.getProperty(ARGEO_KEY_LENGTH).getLong(),
-					keyring.getProperty(ARGEO_SECRET_KEY_ENCRYPTION)
-							.getString());
+					keyring.getProperty(ARGEO_SECRET_KEY_ENCRYPTION).getString());
 
 			if (notYetSavedKeyring.get() != null)
 				notYetSavedKeyring.remove();
@@ -228,10 +226,8 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 
 				Node node = session.getNode(path);
 				if (node.hasProperty(ARGEO_IV)) {
-					byte[] iv = JcrUtils.getBinaryAsBytes(node
-							.getProperty(ARGEO_IV));
-					cipher.init(Cipher.DECRYPT_MODE, secretKey,
-							new IvParameterSpec(iv));
+					byte[] iv = JcrUtils.getBinaryAsBytes(node.getProperty(ARGEO_IV));
+					cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(iv));
 				} else {
 					cipher.init(Cipher.DECRYPT_MODE, secretKey);
 				}
@@ -255,17 +251,20 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 			if (!userHome.hasNode(ARGEO_KEYRING))
 				throw new ArgeoJcrException("Keyring not setup");
 			Node keyring = userHome.getNode(ARGEO_KEYRING);
-			Cipher cipher = Cipher.getInstance(keyring
-					.getProperty(ARGEO_CIPHER).getString(),
-					getSecurityProvider());
+			String cipherName = keyring.getProperty(ARGEO_CIPHER).getString();
+			Provider securityProvider = getSecurityProvider();
+			Cipher cipher;
+			if (securityProvider == null)// TODO use BC?
+				cipher = Cipher.getInstance(cipherName);
+			else
+				cipher = Cipher.getInstance(cipherName, securityProvider);
 			return cipher;
 		} catch (Exception e) {
 			throw new ArgeoJcrException("Cannot get cipher", e);
 		}
 	}
 
-	public synchronized void changePassword(char[] oldPassword,
-			char[] newPassword) {
+	public synchronized void changePassword(char[] oldPassword, char[] newPassword) {
 		// TODO decrypt with old pw / encrypt with new pw all argeo:encrypted
 	}
 
