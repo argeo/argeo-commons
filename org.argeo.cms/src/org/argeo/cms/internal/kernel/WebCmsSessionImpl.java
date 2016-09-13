@@ -79,7 +79,7 @@ public class WebCmsSessionImpl implements WebCmsSession {
 		public void cleanUp() {
 			try {
 				httpSession.setAttribute(HttpContext.AUTHORIZATION, null);
-				//httpSession.setMaxInactiveInterval(1);
+				httpSession.setMaxInactiveInterval(1);
 			} catch (Exception e) {
 				log.warn("Could not clean up " + sessionId, e);
 			}
