@@ -124,12 +124,15 @@ public class NodeUserLoginModule implements LoginModule, AuthConstants {
 	public boolean logout() throws LoginException {
 		if (subject == null)
 			throw new LoginException("Subject should not be null");
+		// Clean up principals
 		// Argeo
 		subject.getPrincipals().removeAll(subject.getPrincipals(X500Principal.class));
 		subject.getPrincipals().removeAll(subject.getPrincipals(ImpliedByPrincipal.class));
 		// Jackrabbit
 		subject.getPrincipals().removeAll(subject.getPrincipals(AdminPrincipal.class));
 		subject.getPrincipals().removeAll(subject.getPrincipals(AnonymousPrincipal.class));
+		// Clean up private credentials
+		subject.getPrivateCredentials().clear();
 		cleanUp();
 		return true;
 	}

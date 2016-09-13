@@ -60,16 +60,16 @@ public class WebCmsSessionImpl implements WebCmsSession {
 	static class SubHttpSession {
 		private final HttpSession httpSession;
 		private final String sessionId;
-		private final String originalURI;
-		private final String servletPath;
+//		private final String originalURI;
+//		private final String servletPath;
 
 		private final Date start = new Date();
 
 		public SubHttpSession(HttpServletRequest request) {
 			this.httpSession = request.getSession();
 			this.sessionId = httpSession.getId();
-			this.originalURI = request.getRequestURI();
-			this.servletPath = request.getServletPath();
+//			this.originalURI = request.getRequestURI();
+//			this.servletPath = request.getServletPath();
 		}
 
 		public Date getStart() {
@@ -79,7 +79,7 @@ public class WebCmsSessionImpl implements WebCmsSession {
 		public void cleanUp() {
 			try {
 				httpSession.setAttribute(HttpContext.AUTHORIZATION, null);
-				httpSession.setMaxInactiveInterval(1);
+				//httpSession.setMaxInactiveInterval(1);
 			} catch (Exception e) {
 				log.warn("Could not clean up " + sessionId, e);
 			}
