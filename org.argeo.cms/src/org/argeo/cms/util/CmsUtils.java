@@ -20,7 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsConstants;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsView;
-import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.auth.AuthConstants;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
@@ -59,13 +59,11 @@ public class CmsUtils implements CmsConstants {
 				buf.append(':').append(url.getPort());
 			return buf;
 		} catch (MalformedURLException e) {
-			throw new CmsException("Cannot extract server base URL from "
-					+ request.getRequestURL(), e);
+			throw new CmsException("Cannot extract server base URL from " + request.getRequestURL(), e);
 		}
 	}
 
-	public static String getDataUrl(Node node, HttpServletRequest request)
-			throws RepositoryException {
+	public static String getDataUrl(Node node, HttpServletRequest request) throws RepositoryException {
 		try {
 			StringBuilder buf = getServerBaseUrl(request);
 			buf.append(getDataPath(node));
@@ -76,21 +74,22 @@ public class CmsUtils implements CmsConstants {
 	}
 
 	public static String getDataPath(Node node) throws RepositoryException {
+		assert node != null;
+		String userId = node.getSession().getUserID();
 		if (log.isTraceEnabled())
-			log.trace(CurrentUser.getUsername() + " : " + node.getPath());
+			log.trace(userId + " : " + node.getPath());
 		StringBuilder buf = new StringBuilder();
-		if (CurrentUser.isAnonymous())
+		boolean isAnonymous = userId.equalsIgnoreCase(AuthConstants.ROLE_ANONYMOUS);
+		if (isAnonymous)
 			buf.append(WEBDAV_PUBLIC);
 		else
 			buf.append(WEBDAV_PRIVATE);
 		// TODO convey repo alias vie repository properties
-		return buf.append('/').append(ALIAS_NODE).append('/')
-				.append(node.getSession().getWorkspace().getName())
+		return buf.append('/').append(ALIAS_NODE).append('/').append(node.getSession().getWorkspace().getName())
 				.append(node.getPath()).toString();
 	}
 
-	public static String getCanonicalUrl(Node node, HttpServletRequest request)
-			throws RepositoryException {
+	public static String getCanonicalUrl(Node node, HttpServletRequest request) throws RepositoryException {
 		try {
 			StringBuilder buf = getServerBaseUrl(request);
 			buf.append('/').append('!').append(node.getPath());
@@ -129,10 +128,8 @@ public class CmsUtils implements CmsConstants {
 		return new GridData(SWT.FILL, SWT.FILL, true, true);
 	}
 
-	public static GridData grabWidth(int horizontalAlignment,
-			int verticalAlignment) {
-		return new GridData(horizontalAlignment, horizontalAlignment, true,
-				false);
+	public static GridData grabWidth(int horizontalAlignment, int verticalAlignment) {
+		return new GridData(horizontalAlignment, horizontalAlignment, true, false);
 	}
 
 	public static RowData rowData16px() {
@@ -161,8 +158,7 @@ public class CmsUtils implements CmsConstants {
 			try {
 				return ((Item) data).getPath();
 			} catch (RepositoryException e) {
-				throw new CmsException("Cannot find data path of " + data
-						+ " for " + widget);
+				throw new CmsException("Cannot find data path of " + data + " for " + widget);
 			}
 		}
 
@@ -183,30 +179,25 @@ public class CmsUtils implements CmsConstants {
 	//
 	// JCR
 	//
-	public static Node getOrAddEmptyFile(Node parent, Enum<?> child)
-			throws RepositoryException {
+	public static Node getOrAddEmptyFile(Node parent, Enum<?> child) throws RepositoryException {
 		if (has(parent, child))
 			return child(parent, child);
 		return JcrUtils.copyBytesAsFile(parent, child.name(), new byte[0]);
 	}
 
-	public static Node child(Node parent, Enum<?> en)
-			throws RepositoryException {
+	public static Node child(Node parent, Enum<?> en) throws RepositoryException {
 		return parent.getNode(en.name());
 	}
 
-	public static Boolean has(Node parent, Enum<?> en)
-			throws RepositoryException {
+	public static Boolean has(Node parent, Enum<?> en) throws RepositoryException {
 		return parent.hasNode(en.name());
 	}
 
-	public static Node getOrAdd(Node parent, Enum<?> en)
-			throws RepositoryException {
+	public static Node getOrAdd(Node parent, Enum<?> en) throws RepositoryException {
 		return getOrAdd(parent, en, null);
 	}
 
-	public static Node getOrAdd(Node parent, Enum<?> en, String primaryType)
-			throws RepositoryException {
+	public static Node getOrAdd(Node parent, Enum<?> en, String primaryType) throws RepositoryException {
 		if (has(parent, en))
 			return child(parent, en);
 		else if (primaryType == null)
@@ -224,11 +215,9 @@ public class CmsUtils implements CmsConstants {
 		return img(src, Integer.toString(size.x), Integer.toString(size.y));
 	}
 
-	public static StringBuilder imgBuilder(String src, String width,
-			String height) {
-		return new StringBuilder(64).append("<img width='").append(width)
-				.append("' height='").append(height).append("' src='")
-				.append(src).append("'");
+	public static StringBuilder imgBuilder(String src, String width, String height) {
+		return new StringBuilder(64).append("<img width='").append(width).append("' height='").append(height)
+				.append("' src='").append(src).append("'");
 	}
 
 	public static String noImg(Point size) {
