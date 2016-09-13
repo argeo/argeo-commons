@@ -15,10 +15,6 @@
 		<module>org.argeo.dep.cms.node</module>
 		<module>org.argeo.dep.cms.platform</module>
 		<module>org.argeo.dep.cms.sdk</module>
-		<!-- legacy -->
-		<!-- <module>org.argeo.security.dep.node</module> -->
-		<!-- <module>org.argeo.dep.cms</module> -->
-		<!-- <module>org.argeo.security.dep.node.rap</module> -->
 	</modules>
 	<build>
 		<plugins>
