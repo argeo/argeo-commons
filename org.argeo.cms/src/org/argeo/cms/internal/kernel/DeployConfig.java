@@ -39,8 +39,9 @@ class DeployConfig implements ConfigurationListener {
 	private Path deployConfigPath = KernelUtils.getOsgiInstancePath(KernelConstants.DEPLOY_CONFIG_PATH);
 	private SortedMap<LdapName, Attributes> deployConfigs = new TreeMap<>();
 
-	public DeployConfig(boolean isClean) {
-		ConfigurationAdmin configurationAdmin = bc.getService(bc.getServiceReference(ConfigurationAdmin.class));
+	public DeployConfig(ConfigurationAdmin configurationAdmin,boolean isClean) {
+		// ConfigurationAdmin configurationAdmin =
+		// bc.getService(bc.getServiceReference(ConfigurationAdmin.class));
 		try {
 			if (!Files.exists(deployConfigPath)) { // first init
 				firstInit();

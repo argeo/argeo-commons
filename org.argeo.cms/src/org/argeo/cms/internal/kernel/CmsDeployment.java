@@ -34,6 +34,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
@@ -42,11 +43,12 @@ public class CmsDeployment implements NodeDeployment {
 	private final Log log = LogFactory.getLog(getClass());
 	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
-	private final DeployConfig deployConfig;
+	private DeployConfig deployConfig;
 	private HomeRepository homeRepository;
 
 	private Long availableSince;
 
+	private final boolean cleanState;
 	// Readiness
 	private boolean nodeAvailable = false;
 	private boolean userAdminAvailable = false;
@@ -59,8 +61,7 @@ public class CmsDeployment implements NodeDeployment {
 			throw new CmsException("No node state available");
 
 		NodeState nodeState = bc.getService(nodeStateSr);
-		deployConfig = new DeployConfig(nodeState.isClean());
-		httpExpected = deployConfig.getProps(KernelConstants.JETTY_FACTORY_PID, "default") != null;
+		cleanState = nodeState.isClean();
 
 		initTrackers();
 	}
@@ -76,10 +77,20 @@ public class CmsDeployment implements NodeDeployment {
 				return super.addingService(reference);
 			}
 		}.open();
+		new ServiceTracker<ConfigurationAdmin, ConfigurationAdmin>(bc, ConfigurationAdmin.class, null) {
+			@Override
+			public ConfigurationAdmin addingService(ServiceReference<ConfigurationAdmin> reference) {
+				ConfigurationAdmin configurationAdmin = bc.getService(reference);
+				deployConfig = new DeployConfig(configurationAdmin, cleanState);
+				httpExpected = deployConfig.getProps(KernelConstants.JETTY_FACTORY_PID, "default") != null;
+				return super.addingService(reference);
+			}
+		}.open();
 	}
 
 	public void shutdown() {
-		deployConfig.save();
+		if (deployConfig != null)
+			deployConfig.save();
 	}
 
 	private void checkReadiness() {
