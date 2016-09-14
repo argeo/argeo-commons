@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.argeo.eclipse.ui.workbench.rap</name>
+	<name>org.argeo.ext.rap.ui.workbench</name>
 	<comment></comment>
 	<projects>
 	</projects>
