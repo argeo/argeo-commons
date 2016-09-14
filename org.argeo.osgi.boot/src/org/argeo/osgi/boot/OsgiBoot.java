@@ -83,8 +83,8 @@ public class OsgiBoot implements OsgiBootConstants {
 	private boolean excludeSvn = Boolean.valueOf(System.getProperty(PROP_ARGEO_OSGI_BOOT_EXCLUDE_SVN, "false"))
 			.booleanValue();
 
-	// /** Default is 10s (set in constructor) */
-	// private long defaultTimeout;
+	/** Default is 10s */
+	private long defaultTimeout = 10000l;
 
 	private final BundleContext bundleContext;
 
@@ -331,115 +331,107 @@ public class OsgiBoot implements OsgiBootConstants {
 		}
 	}
 
-	// /**
-	// * Start the provided list of bundles
-	// *
-	// * @return whether all bundles are now in active state
-	// */
-	// private boolean startBundles(List<String> bundlesToStart) {
-	// if (bundlesToStart.size() == 0)
-	// return true;
-	//
-	// // used to monitor ACTIVE states
-	// List<Bundle> startedBundles = new ArrayList<Bundle>();
-	// // used to log the bundles not found
-	// List<String> notFoundBundles = new ArrayList<String>(bundlesToStart);
-	//
-	// Bundle[] bundles = bundleContext.getBundles();
-	// long startBegin = System.currentTimeMillis();
-	// for (int i = 0; i < bundles.length; i++) {
-	// Bundle bundle = bundles[i];
-	// String symbolicName = bundle.getSymbolicName();
-	// if (bundlesToStart.contains(symbolicName))
-	// try {
-	// try {
-	// bundle.start();
-	// if (debug)
-	// debug("Bundle " + symbolicName + " started");
-	// } catch (Exception e) {
-	// OsgiBootUtils.warn("Start of bundle " + symbolicName + " failed because
-	// of " + e
-	// + ", maybe bundle is not yet resolved," + " waiting and trying again.");
-	// waitForBundleResolvedOrActive(startBegin, bundle);
-	// bundle.start();
-	// startedBundles.add(bundle);
-	// }
-	// notFoundBundles.remove(symbolicName);
-	// } catch (Exception e) {
-	// OsgiBootUtils.warn("Bundle " + symbolicName + " cannot be started: " +
-	// e.getMessage());
-	// if (debug)
-	// e.printStackTrace();
-	// // was found even if start failed
-	// notFoundBundles.remove(symbolicName);
-	// }
-	// }
-	//
-	// for (int i = 0; i < notFoundBundles.size(); i++)
-	// OsgiBootUtils.warn("Bundle '" + notFoundBundles.get(i) + "' not started
-	// because it was not found.");
-	//
-	// // monitors that all bundles are started
-	// long beginMonitor = System.currentTimeMillis();
-	// boolean allStarted = !(startedBundles.size() > 0);
-	// List<String> notStarted = new ArrayList<String>();
-	// while (!allStarted && (System.currentTimeMillis() - beginMonitor) <
-	// defaultTimeout) {
-	// notStarted = new ArrayList<String>();
-	// allStarted = true;
-	// for (int i = 0; i < startedBundles.size(); i++) {
-	// Bundle bundle = (Bundle) startedBundles.get(i);
-	// // TODO check behaviour of lazs bundles
-	// if (bundle.getState() != Bundle.ACTIVE) {
-	// allStarted = false;
-	// notStarted.add(bundle.getSymbolicName());
-	// }
-	// }
-	// try {
-	// Thread.sleep(100);
-	// } catch (InterruptedException e) {
-	// // silent
-	// }
-	// }
-	// long duration = System.currentTimeMillis() - beginMonitor;
-	//
-	// if (!allStarted)
-	// for (int i = 0; i < notStarted.size(); i++)
-	// OsgiBootUtils.warn("Bundle '" + notStarted.get(i) + "' not ACTIVE after "
-	// + (duration / 1000) + "s");
-	//
-	// return allStarted;
-	// }
+	/**
+	 * Start the provided list of bundles
+	 *
+	 * @return whether all bundles are now in active state
+	 * @deprecated
+	 */
+	@Deprecated
+	public boolean startBundles(List<String> bundlesToStart) {
+		if (bundlesToStart.size() == 0)
+			return true;
 
-	// /** Waits for a bundle to become active or resolved */
-	// private void waitForBundleResolvedOrActive(long startBegin, Bundle
-	// bundle) throws Exception {
-	// int originalState = bundle.getState();
-	// if ((originalState == Bundle.RESOLVED) || (originalState ==
-	// Bundle.ACTIVE))
-	// return;
-	//
-	// String originalStateStr = OsgiBootUtils.stateAsString(originalState);
-	//
-	// int currentState = bundle.getState();
-	// while (!(currentState == Bundle.RESOLVED || currentState ==
-	// Bundle.ACTIVE)) {
-	// long now = System.currentTimeMillis();
-	// if ((now - startBegin) > defaultTimeout * 10)
-	// throw new Exception("Bundle " + bundle.getSymbolicName() + " was not
-	// RESOLVED or ACTIVE after "
-	// + (now - startBegin) + "ms (originalState=" + originalStateStr + ",
-	// currentState="
-	// + OsgiBootUtils.stateAsString(currentState) + ")");
-	//
-	// try {
-	// Thread.sleep(100l);
-	// } catch (InterruptedException e) {
-	// // silent
-	// }
-	// currentState = bundle.getState();
-	// }
-	// }
+		// used to monitor ACTIVE states
+		List<Bundle> startedBundles = new ArrayList<Bundle>();
+		// used to log the bundles not found
+		List<String> notFoundBundles = new ArrayList<String>(bundlesToStart);
+
+		Bundle[] bundles = bundleContext.getBundles();
+		long startBegin = System.currentTimeMillis();
+		for (int i = 0; i < bundles.length; i++) {
+			Bundle bundle = bundles[i];
+			String symbolicName = bundle.getSymbolicName();
+			if (bundlesToStart.contains(symbolicName))
+				try {
+					try {
+						bundle.start();
+						if (debug)
+							debug("Bundle " + symbolicName + " started");
+					} catch (Exception e) {
+						OsgiBootUtils.warn("Start of bundle " + symbolicName + " failed because of " + e
+								+ ", maybe bundle is not yet resolved," + " waiting and trying again.");
+						waitForBundleResolvedOrActive(startBegin, bundle);
+						bundle.start();
+						startedBundles.add(bundle);
+					}
+					notFoundBundles.remove(symbolicName);
+				} catch (Exception e) {
+					OsgiBootUtils.warn("Bundle " + symbolicName + " cannot be started: " + e.getMessage());
+					if (debug)
+						e.printStackTrace();
+					// was found even if start failed
+					notFoundBundles.remove(symbolicName);
+				}
+		}
+
+		for (int i = 0; i < notFoundBundles.size(); i++)
+			OsgiBootUtils.warn("Bundle '" + notFoundBundles.get(i) + "' not started	 because it was not found.");
+
+		// monitors that all bundles are started
+		long beginMonitor = System.currentTimeMillis();
+		boolean allStarted = !(startedBundles.size() > 0);
+		List<String> notStarted = new ArrayList<String>();
+		while (!allStarted && (System.currentTimeMillis() - beginMonitor) < defaultTimeout) {
+			notStarted = new ArrayList<String>();
+			allStarted = true;
+			for (int i = 0; i < startedBundles.size(); i++) {
+				Bundle bundle = (Bundle) startedBundles.get(i);
+				// TODO check behaviour of lazs bundles
+				if (bundle.getState() != Bundle.ACTIVE) {
+					allStarted = false;
+					notStarted.add(bundle.getSymbolicName());
+				}
+			}
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// silent
+			}
+		}
+		long duration = System.currentTimeMillis() - beginMonitor;
+
+		if (!allStarted)
+			for (int i = 0; i < notStarted.size(); i++)
+				OsgiBootUtils.warn("Bundle '" + notStarted.get(i) + "' not ACTIVE after " + (duration / 1000) + "s");
+
+		return allStarted;
+	}
+
+	/** Waits for a bundle to become active or resolved */
+	private void waitForBundleResolvedOrActive(long startBegin, Bundle bundle) throws Exception {
+		int originalState = bundle.getState();
+		if ((originalState == Bundle.RESOLVED) || (originalState == Bundle.ACTIVE))
+			return;
+
+		String originalStateStr = OsgiBootUtils.stateAsString(originalState);
+
+		int currentState = bundle.getState();
+		while (!(currentState == Bundle.RESOLVED || currentState == Bundle.ACTIVE)) {
+			long now = System.currentTimeMillis();
+			if ((now - startBegin) > defaultTimeout * 10)
+				throw new Exception("Bundle " + bundle.getSymbolicName() + " was not RESOLVED or ACTIVE after "
+						+ (now - startBegin) + "ms (originalState=" + originalStateStr + ", currentState="
+						+ OsgiBootUtils.stateAsString(currentState) + ")");
+
+			try {
+				Thread.sleep(100l);
+			} catch (InterruptedException e) {
+				// silent
+			}
+			currentState = bundle.getState();
+		}
+	}
 
 	/*
 	 * BUNDLE PATTERNS INSTALLATION
