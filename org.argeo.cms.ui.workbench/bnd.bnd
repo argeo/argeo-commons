@@ -2,7 +2,8 @@ Bundle-SymbolicName: org.argeo.cms.ui.workbench;singleton:=true
 Bundle-Activator: org.argeo.security.ui.SecurityUiPlugin
 Bundle-ActivationPolicy: lazy
 
-Require-Bundle:	org.eclipse.core.runtime
+Require-Bundle:	org.eclipse.core.runtime,\
+org.eclipse.core.commands
 
 Import-Package:	org.argeo.cms.auth,\
 org.argeo.eclipse.spring,\
@@ -13,6 +14,10 @@ org.eclipse.swt.widgets,\
 org.eclipse.ui.services,\
 org.osgi.framework,\
 org.springframework.core,\
+org.osgi.util.tracker,\
+org.springframework.beans.factory,\
+org.springframework.core.io.support,\
+!org.eclipse.core.runtime,\
 *				
 
 

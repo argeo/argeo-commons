@@ -1,6 +1,7 @@
 Bundle-SymbolicName: org.argeo.cms.ui.workbench.rap;singleton:=true
 Bundle-Activator: org.argeo.security.ui.rap.SecureRapActivator
 Bundle-ActivationPolicy: lazy
+
 Require-Bundle: org.eclipse.rap.ui,org.eclipse.core.runtime
 
 Import-Package: org.argeo.eclipse.spring,\

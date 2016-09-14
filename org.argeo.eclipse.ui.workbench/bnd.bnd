@@ -4,15 +4,14 @@ Bundle-Activator: org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin
 
 Require-Bundle: org.eclipse.ui;resolution:=optional,\
 org.eclipse.core.runtime,\
-org.eclipse.rap.ui;resolution:=optional,\
-org.eclipse.rap.ui.workbench;resolution:=optional
+#org.eclipse.rap.ui;resolution:=optional,\
+#org.eclipse.rap.ui.workbench;resolution:=optional
 
 Import-Package: org.argeo.eclipse.ui.specific,\
 org.eclipse.swt.widgets,\
 org.osgi.framework,\
 org.osgi.service.packageadmin,\
-org.osgi.util.tracker,\
-org.springframework.beans.factory,\
-org.springframework.core.io.support,\
 !org.eclipse.core.runtime,\
+org.eclipse.swt,\
+org.eclipse.jface.window,\
 *

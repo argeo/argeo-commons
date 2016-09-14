@@ -34,7 +34,6 @@ import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.UserJcrUtils;
 import org.eclipse.jface.preference.PreferenceStore;
-import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -42,7 +41,7 @@ import org.osgi.framework.BundleContext;
  * TODO: better integrate JCR and Eclipse:<br>
  * - typing<br>
  * - use eclipse preferences<br>
- * - better integrate with {@link ScopedPreferenceStore} provided by RAP
+ * - better integrate with <code>ScopedPreferenceStore</code> provided by RAP
  */
 public class JcrPreferenceStore extends PreferenceStore implements ArgeoNames {
 	private static final long serialVersionUID = 1854011367784598758L;
