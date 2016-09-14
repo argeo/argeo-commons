@@ -6,7 +6,7 @@
 		<version>2.1.46-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>org.argeo.server.jcr</artifactId>
+	<artifactId>org.argeo.jcr</artifactId>
 	<name>Commons JCR</name>
 	<dependencies>
 		<dependency>

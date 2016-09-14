@@ -7,18 +7,6 @@
 		<version>2.1.46-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>org.argeo.security.core</artifactId>
-	<name>Commons Security</name>
-	<dependencies>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.util</artifactId>
-			<version>2.1.46-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.server.jcr</artifactId>
-			<version>2.1.46-SNAPSHOT</version>
-		</dependency>
-	</dependencies>
+	<artifactId>org.argeo.enterprise</artifactId>
+	<name>Commons Enterprise</name>
 </project>

@@ -205,10 +205,13 @@ public class OsgiBoot implements OsgiBootConstants {
 					warn("Skip " + url);
 				return;
 			} else {
-
 				Bundle bundle = bundleContext.installBundle(url);
-				OsgiBootUtils
-						.info("Installed " + bundle.getSymbolicName() + "-" + bundle.getVersion() + " from " + url);
+				if (url.startsWith("http"))
+					OsgiBootUtils
+							.info("Installed " + bundle.getSymbolicName() + "-" + bundle.getVersion() + " from " + url);
+				else if (debug)
+					OsgiBootUtils.debug(
+							"Installed " + bundle.getSymbolicName() + "-" + bundle.getVersion() + " from " + url);
 			}
 		} catch (BundleException e) {
 			String message = e.getMessage();
@@ -642,14 +645,14 @@ public class OsgiBoot implements OsgiBootConstants {
 		return (basePath + '/' + relativePath).replace('/', File.separatorChar);
 	}
 
-	private String removeFilePrefix(String url) {
-		if (url.startsWith("file:"))
-			return url.substring("file:".length());
-		else if (url.startsWith("reference:file:"))
-			return url.substring("reference:file:".length());
-		else
-			return url;
-	}
+	// private String removeFilePrefix(String url) {
+	// if (url.startsWith("file:"))
+	// return url.substring("file:".length());
+	// else if (url.startsWith("reference:file:"))
+	// return url.substring("reference:file:".length());
+	// else
+	// return url;
+	// }
 
 	/*
 	 * BEAN METHODS

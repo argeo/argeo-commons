@@ -17,12 +17,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.server.jcr</artifactId>
-			<version>2.1.46-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.security.core</artifactId>
+			<artifactId>org.argeo.jcr</artifactId>
 			<version>2.1.46-SNAPSHOT</version>
 		</dependency>
 	</dependencies>

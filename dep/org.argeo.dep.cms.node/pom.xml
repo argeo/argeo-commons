@@ -19,7 +19,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.cms.api</artifactId>
+			<artifactId>org.argeo.node.api</artifactId>
 			<version>2.1.46-SNAPSHOT</version>
 		</dependency>
 		<dependency>
@@ -29,12 +29,12 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.security.core</artifactId>
+			<artifactId>org.argeo.enterprise</artifactId>
 			<version>2.1.46-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.security.jackrabbit</artifactId>
+			<artifactId>org.argeo.ext.jackrabbit</artifactId>
 			<version>2.1.46-SNAPSHOT</version>
 		</dependency>
 

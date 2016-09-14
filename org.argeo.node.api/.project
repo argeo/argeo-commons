@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.argeo.server.jcr</name>
+	<name>org.argeo.node.api</name>
 	<comment></comment>
 	<projects>
 	</projects>

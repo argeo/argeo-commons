@@ -7,9 +7,21 @@
 		<version>2.1.46-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>org.argeo.cms.api</artifactId>
-	<name>Commons CMS API</name>
-	<packaging>jar</packaging>
+	<artifactId>org.argeo.ext.jackrabbit</artifactId>
+	<name>Extensions Apache Jackrabbit</name>
 	<dependencies>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.node.api</artifactId>
+			<version>2.1.46-SNAPSHOT</version>
+		</dependency>
+
+		<!-- TESTING -->
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.jcr</artifactId>
+			<version>2.1.46-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>

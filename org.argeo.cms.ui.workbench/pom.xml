@@ -7,8 +7,8 @@
 		<artifactId>argeo-commons</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>org.argeo.security.ui.admin</artifactId>
-	<name>Commons CMS Workbench Admin</name>
+	<artifactId>org.argeo.cms.ui.workbench</artifactId>
+	<name>CMS Workbench</name>
 	<packaging>jar</packaging>
 	<dependencies>
 		<dependency>
@@ -28,7 +28,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.security.core</artifactId>
+			<artifactId>org.argeo.enterprise</artifactId>
 			<version>2.1.46-SNAPSHOT</version>
 		</dependency>
 		<dependency>

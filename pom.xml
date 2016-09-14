@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
@@ -21,23 +22,23 @@
 	<modules>
 		<!-- Base -->
 		<module>org.argeo.util</module>
+		<module>org.argeo.enterprise</module>
+		<module>org.argeo.jcr</module>
 		<module>org.argeo.osgi.boot</module>
-		<module>org.argeo.server.jcr</module>
-		<!-- Security -->
-		<module>org.argeo.security.core</module>
 		<!-- Eclipse -->
 		<module>org.argeo.eclipse.ui</module>
 		<module>org.argeo.eclipse.ui.rap</module>
-		<!-- CMS -->
-		<module>org.argeo.cms.api</module>
-		<module>org.argeo.cms</module>
-		<module>org.argeo.security.jackrabbit</module>
-		<!-- Workbench -->
 		<module>org.argeo.eclipse.ui.workbench</module>
-		<module>org.argeo.eclipse.ui.workbench.rap</module>
+		<!-- CMS -->
+		<module>org.argeo.node.api</module>
+		<module>org.argeo.cms</module>
+		<!-- CMS Workbench -->
 		<module>org.argeo.security.ui</module>
-		<module>org.argeo.security.ui.admin</module>
-		<module>org.argeo.security.ui.rap</module>
+		<module>org.argeo.cms.ui.workbench</module>
+		<module>org.argeo.cms.ui.workbench.rap</module>
+		<!-- Third Parties Extensions -->
+		<module>org.argeo.ext.jackrabbit</module>
+		<module>org.argeo.ext.rap.ui.workbench</module>
 		<!-- Distribution -->
 		<module>dep</module>
 		<module>dist</module>
@@ -502,8 +503,10 @@ limitations under the License.
 								</goals>
 								<configuration>
 									<target>
-										<copy todir="${argeo.rpm.stagingRepository}" quiet="true" failonerror="false">
-											<fileset dir="${project.build.directory}/rpm" includes="*/RPMS/**/*.rpm" />
+										<copy todir="${argeo.rpm.stagingRepository}" quiet="true"
+											failonerror="false">
+											<fileset dir="${project.build.directory}/rpm"
+												includes="*/RPMS/**/*.rpm" />
 											<flattenmapper />
 										</copy>
 									</target>
@@ -528,8 +531,10 @@ limitations under the License.
 								</goals>
 								<configuration>
 									<target>
-										<copy todir="${argeo.rpm.stagingRepository}" quiet="true" failonerror="false">
-											<fileset dir="${project.build.directory}/rpm" includes="*/RPMS/**/*.rpm" />
+										<copy todir="${argeo.rpm.stagingRepository}" quiet="true"
+											failonerror="false">
+											<fileset dir="${project.build.directory}/rpm"
+												includes="*/RPMS/**/*.rpm" />
 											<flattenmapper />
 										</copy>
 									</target>

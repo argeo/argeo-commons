@@ -1,4 +1,4 @@
-Bundle-SymbolicName: org.argeo.security.ui.admin;singleton:=true
+Bundle-SymbolicName: org.argeo.cms.ui.workbench;singleton:=true
 Bundle-Activator: org.argeo.security.ui.admin.SecurityAdminPlugin
 Bundle-ActivationPolicy: lazy
 
