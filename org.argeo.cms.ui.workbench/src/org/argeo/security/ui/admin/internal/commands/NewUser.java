@@ -30,7 +30,7 @@ import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.osgi.useradmin.UserAdminConf;
-import org.argeo.security.ui.admin.SecurityAdminPlugin;
+import org.argeo.security.ui.SecurityUiPlugin;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -62,7 +62,7 @@ public class NewUser extends AbstractHandler {
 	 */
 	public final static String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 	// private final static Log log = LogFactory.getLog(NewUser.class);
-	public final static String ID = SecurityAdminPlugin.PLUGIN_ID + ".newUser";
+	public final static String ID = SecurityUiPlugin.PLUGIN_ID + ".newUser";
 
 	/* DEPENDENCY INJECTION */
 	private UserAdminWrapper userAdminWrapper;

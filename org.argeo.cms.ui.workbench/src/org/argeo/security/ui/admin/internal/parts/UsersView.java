@@ -26,7 +26,7 @@ import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.osgi.useradmin.LdifName;
-import org.argeo.security.ui.admin.SecurityAdminPlugin;
+import org.argeo.security.ui.SecurityUiPlugin;
 import org.argeo.security.ui.admin.internal.UiUserAdminListener;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.providers.CommonNameLP;
@@ -53,8 +53,7 @@ import org.osgi.service.useradmin.UserAdminListener;
 public class UsersView extends ViewPart implements ArgeoNames {
 	// private final static Log log = LogFactory.getLog(UsersView.class);
 
-	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
-			+ ".usersView";
+	public final static String ID = SecurityUiPlugin.PLUGIN_ID + ".usersView";
 
 	/* DEPENDENCY INJECTION */
 	private UserAdminWrapper userAdminWrapper;

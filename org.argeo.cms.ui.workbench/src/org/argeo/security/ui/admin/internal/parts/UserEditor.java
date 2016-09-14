@@ -21,7 +21,7 @@ import java.util.List;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.osgi.useradmin.LdifName;
-import org.argeo.security.ui.admin.SecurityAdminPlugin;
+import org.argeo.security.ui.SecurityUiPlugin;
 import org.argeo.security.ui.admin.internal.UiUserAdminListener;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -44,9 +44,9 @@ import org.osgi.service.useradmin.UserAdminEvent;
 public class UserEditor extends FormEditor {
 	private static final long serialVersionUID = 8357851520380820241L;
 
-	public final static String USER_EDITOR_ID = SecurityAdminPlugin.PLUGIN_ID
+	public final static String USER_EDITOR_ID = SecurityUiPlugin.PLUGIN_ID
 			+ ".userEditor";
-	public final static String GROUP_EDITOR_ID = SecurityAdminPlugin.PLUGIN_ID
+	public final static String GROUP_EDITOR_ID = SecurityUiPlugin.PLUGIN_ID
 			+ ".groupEditor";
 
 	/* DEPENDENCY INJECTION */

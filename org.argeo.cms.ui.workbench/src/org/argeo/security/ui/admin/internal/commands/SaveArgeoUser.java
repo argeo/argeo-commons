@@ -15,7 +15,7 @@
  */
 package org.argeo.security.ui.admin.internal.commands;
 
-import org.argeo.security.ui.admin.SecurityAdminPlugin;
+import org.argeo.security.ui.SecurityUiPlugin;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -27,7 +27,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 /** Save the currently edited Argeo user. */
 public class SaveArgeoUser extends AbstractHandler {
-	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
+	public final static String ID = SecurityUiPlugin.PLUGIN_ID
 			+ ".saveArgeoUser";
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {

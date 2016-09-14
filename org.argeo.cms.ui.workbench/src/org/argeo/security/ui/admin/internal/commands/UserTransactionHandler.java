@@ -19,7 +19,7 @@ import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
 import org.argeo.cms.CmsException;
-import org.argeo.security.ui.admin.SecurityAdminPlugin;
+import org.argeo.security.ui.SecurityUiPlugin;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.commands.AbstractHandler;
@@ -29,7 +29,7 @@ import org.osgi.service.useradmin.UserAdminEvent;
 
 /** Manage the transaction that is bound to the current perspective */
 public class UserTransactionHandler extends AbstractHandler {
-	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
+	public final static String ID = SecurityUiPlugin.PLUGIN_ID
 			+ ".userTransactionHandler";
 
 	public final static String PARAM_COMMAND_ID = "param.commandId";

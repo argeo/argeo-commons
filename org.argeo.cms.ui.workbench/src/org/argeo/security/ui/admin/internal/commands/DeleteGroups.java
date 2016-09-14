@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.argeo.cms.util.useradmin.UserAdminUtils;
-import org.argeo.security.ui.admin.SecurityAdminPlugin;
+import org.argeo.security.ui.SecurityUiPlugin;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.parts.UserEditorInput;
 import org.eclipse.core.commands.AbstractHandler;
@@ -38,7 +38,7 @@ import org.osgi.service.useradmin.UserAdminEvent;
 
 /** Delete the selected groups */
 public class DeleteGroups extends AbstractHandler {
-	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
+	public final static String ID = SecurityUiPlugin.PLUGIN_ID
 			+ ".deleteGroups";
 
 	/* DEPENDENCY INJECTION */

@@ -8,10 +8,24 @@
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
 	osgi:default-timeout="30000">
 
+<!-- 	<reference id="nodeRepository" interface="javax.jcr.Repository" -->
+<!-- 		filter="(argeo.jcr.repository.alias=node)" /> -->
+
 	<reference id="nodeRepository" interface="javax.jcr.Repository"
-		filter="(argeo.jcr.repository.alias=node)" />
+		filter="(argeo.jcr.repository.alias=home)" />
+
 		
 	<!-- New user admin -->
 	<reference id="userAdmin" interface="org.osgi.service.useradmin.UserAdmin" />
 	<reference id="userTransaction" interface="javax.transaction.UserTransaction" />
+	
+	<reference id="secureLogger" interface="org.argeo.node.ArgeoLogger"
+		cardinality="0..1" />
+
+
+	<reference id="defaultCallbackHandler" interface="javax.security.auth.callback.CallbackHandler" />
+
+	<!-- SERVICES -->
+	<service interface="org.argeo.util.security.CryptoKeyring"
+		ref="keyring" />
 </beans:beans>

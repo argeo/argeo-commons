@@ -6,28 +6,65 @@
       <perspective
             class="org.argeo.security.ui.admin.SecurityAdminPerspective"
             icon="icons/security.gif"
-            id="org.argeo.security.ui.admin.adminSecurityPerspective"
+            id="org.argeo.cms.ui.workbench.adminSecurityPerspective"
             name="Security">
+      </perspective>
+      <perspective
+            class="org.argeo.security.ui.UserHomePerspective"
+            icon="icons/home.gif"
+            id="org.argeo.cms.ui.workbench.userHomePerspective"
+            name="Home">
+      </perspective>
+      <perspective
+            class="org.argeo.security.ui.MaintenancePerspective"
+            icon="icons/maintenance.gif"
+            id="org.argeo.cms.ui.workbench.adminMaintenancePerspective"
+            name="Maintenance">
       </perspective>
    </extension>
    
    <!-- VIEWS -->
    <extension
 		point="org.eclipse.ui.views">
+      <!-- Security -->
       <view
             class="org.argeo.eclipse.spring.SpringExtensionFactory"
             icon="icons/users.gif"
-            id="org.argeo.security.ui.admin.usersView"
+            id="org.argeo.cms.ui.workbench.usersView"
             name="Users"
             restorable="true">
       </view>
       <view
             class="org.argeo.eclipse.spring.SpringExtensionFactory"
             icon="icons/role.gif"
-            id="org.argeo.security.ui.admin.groupsView"
+            id="org.argeo.cms.ui.workbench.groupsView"
             name="Groups"
             restorable="false">
       </view>
+      <!-- Home -->
+      <view
+            id="org.argeo.cms.ui.workbench.userProfile"
+            class="org.argeo.security.ui.views.UserProfile"
+            icon="icons/user.gif"
+            name="Profile"
+            restorable="true">
+      </view>
+      <!-- Maintenance -->
+      <view
+            id="org.argeo.cms.ui.workbench.logView"
+            class="org.argeo.eclipse.spring.SpringExtensionFactory"
+            name="Log"
+            icon="icons/log.gif"
+            restorable="true">
+      </view>
+      <view
+            id="org.argeo.cms.ui.workbench.adminLogView"
+            class="org.argeo.eclipse.spring.SpringExtensionFactory"
+            name="Admin Log"
+            icon="icons/adminLog.gif"
+            restorable="true">
+      </view>
+      
     </extension> 
 	
 	<!-- EDITORS -->
@@ -35,14 +72,14 @@
 		point="org.eclipse.ui.editors">
 		<editor
 			class="org.argeo.eclipse.spring.SpringExtensionFactory"
-            id="org.argeo.security.ui.admin.userEditor"
+            id="org.argeo.cms.ui.workbench.userEditor"
             name="User"
             icon="icons/user.gif"
             default="false">
 		</editor>
 		<editor
 			class="org.argeo.eclipse.spring.SpringExtensionFactory"
-            id="org.argeo.security.ui.admin.groupEditor"
+            id="org.argeo.cms.ui.workbench.groupEditor"
             name="User"
             icon="icons/users.gif"
             default="false">
@@ -53,34 +90,34 @@
          point="org.eclipse.ui.commands">
 		<!-- User CRUD -->
 		<command
-            id="org.argeo.security.ui.admin.newUser"
+            id="org.argeo.cms.ui.workbench.newUser"
             defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
             name="New User">
       	</command>
 		<command
-			id="org.argeo.security.ui.admin.deleteUsers"
+			id="org.argeo.cms.ui.workbench.deleteUsers"
             defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
 			name="Delete User">
 		</command>
 		<command
 			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            id="org.argeo.security.ui.admin.userBatchUpdate"
+            id="org.argeo.cms.ui.workbench.userBatchUpdate"
             name="User batch update">
 		</command>
 		<!-- Group CRUD -->
 		<command
-			id="org.argeo.security.ui.admin.newGroup"
+			id="org.argeo.cms.ui.workbench.newGroup"
 			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
             name="New Group">
 		</command>
 		<command
-            id="org.argeo.security.ui.admin.deleteGroups"
+            id="org.argeo.cms.ui.workbench.deleteGroups"
 			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
             name="Delete Group">
 		</command>
 		<!-- Transaction -->
 		<command
-		    id="org.argeo.security.ui.admin.userTransactionHandler"
+		    id="org.argeo.cms.ui.workbench.userTransactionHandler"
             defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
         	name="Manage a user transaction">
 			<commandParameter
@@ -92,7 +129,7 @@
  	  <!-- Force the refresh when the various listener are not enough -->
       <command
             defaultHandler="org.argeo.security.ui.admin.internal.commands.ForceRefresh"
-            id="org.argeo.security.ui.admin.forceRefresh"
+            id="org.argeo.cms.ui.workbench.forceRefresh"
             name="Force Refresh">
       </command>
 	</extension>
@@ -101,30 +138,30 @@
 	<extension
 		point="org.eclipse.ui.menus">
 		<menuContribution
-			locationURI="toolbar:org.argeo.security.ui.rap.userToolbar?after=org.eclipse.ui.file.saveAll"> 
+			locationURI="toolbar:org.argeo.cms.ui.workbench.rap.userToolbar?after=org.eclipse.ui.file.saveAll"> 
 			<!-- Transaction management --> 
  			<command
-				commandId="org.argeo.security.ui.admin.userTransactionHandler"
+				commandId="org.argeo.cms.ui.workbench.userTransactionHandler"
 				icon="icons/commit.gif"
 				label="Commit Transaction"
 				style="push"
 				tooltip="Commit a user transaction">
 				<parameter name="param.commandId" value="transaction.commit" />
 				<visibleWhen>
-					<with variable="org.argeo.security.ui.admin.userTransactionState">
+					<with variable="org.argeo.cms.ui.workbench.userTransactionState">
 						<equals value="status.active" />
 					</with>
 				</visibleWhen>
 			</command>
  			<command
-				commandId="org.argeo.security.ui.admin.userTransactionHandler"
+				commandId="org.argeo.cms.ui.workbench.userTransactionHandler"
 				icon="icons/rollback.gif"
 				label="Rollback Transaction"
 				style="push"
 				tooltip="Abandon current changes and rollback to the latest commited version">
 				<parameter name="param.commandId" value="transaction.rollback" />
 				<visibleWhen>
-					<with variable="org.argeo.security.ui.admin.userTransactionState">
+					<with variable="org.argeo.cms.ui.workbench.userTransactionState">
 							<equals value="status.active" />
 					</with>
 				</visibleWhen>
@@ -133,27 +170,27 @@
     
     	<!-- UsersView specific toolbar menu -->
 		<menuContribution
-            locationURI="toolbar:org.argeo.security.ui.admin.usersView">
+            locationURI="toolbar:org.argeo.cms.ui.workbench.usersView">
             <command
-                  commandId="org.argeo.security.ui.admin.deleteUsers"
+                  commandId="org.argeo.cms.ui.workbench.deleteUsers"
                   icon="icons/remove.gif"
                   label="Delete User"
                   tooltip="Delete selected users">
             </command>
             <command
-                  commandId="org.argeo.security.ui.admin.forceRefresh"
+                  commandId="org.argeo.cms.ui.workbench.forceRefresh"
                   icon="icons/refresh.png"
                   label="Refresh list"
                   tooltip="Force the full refresh of the user list">
             </command>
             <command
-                  commandId="org.argeo.security.ui.admin.newUser"
+                  commandId="org.argeo.cms.ui.workbench.newUser"
                   icon="icons/add.gif"
                   label="Add User"
                   tooltip="Create a new user">
             </command>
             <command
-                  commandId="org.argeo.security.ui.admin.userBatchUpdate"
+                  commandId="org.argeo.cms.ui.workbench.userBatchUpdate"
                   icon="icons/batch.gif"
                   label="Update users"
                   tooltip="Perform maintenance activities on a list of chosen users">
@@ -162,21 +199,21 @@
 
     	<!-- GroupsView specific toolbar menu -->
         <menuContribution
-            locationURI="toolbar:org.argeo.security.ui.admin.groupsView">
+            locationURI="toolbar:org.argeo.cms.ui.workbench.groupsView">
             <command
-                  commandId="org.argeo.security.ui.admin.deleteGroups"
+                  commandId="org.argeo.cms.ui.workbench.deleteGroups"
                   icon="icons/remove.gif"
                   label="Delete Group"
                   tooltip="Delete selected groups">
             </command>
             <command
-                  commandId="org.argeo.security.ui.admin.forceRefresh"
+                  commandId="org.argeo.cms.ui.workbench.forceRefresh"
                   icon="icons/refresh.png"
                   label="Refresh list"
                   tooltip="Force the full refresh of the group list">
             </command>
             <command
-                  commandId="org.argeo.security.ui.admin.newGroup"
+                  commandId="org.argeo.cms.ui.workbench.newGroup"
                   icon="icons/add.gif"
                   label="Add Group"
                   tooltip="Create a new group">
@@ -184,9 +221,9 @@
         </menuContribution>
          
 		<!--      	<menuContribution
-            locationURI="toolbar:org.argeo.security.ui.admin.adminRolesView">
+            locationURI="toolbar:org.argeo.cms.ui.workbench.admin.adminRolesView">
             <command
-                  commandId="org.argeo.security.ui.admin.refreshRoles"
+                  commandId="org.argeo.cms.ui.workbench.admin.refreshRoles"
                   icon="icons/sync.gif"
                   label="LDAP Roles Sync"
                   tooltip="Synchronize roles from LDAP">
@@ -197,14 +234,21 @@
 	<!-- SERVICES -->
 	<extension
       	point="org.eclipse.ui.services">
-	 <sourceProvider
-	        id="org.argeo.security.ui.admin.userTransactionProvider"
+		<sourceProvider
+	        id="org.argeo.cms.ui.workbench.userTransactionProvider"
             provider="org.argeo.eclipse.spring.SpringExtensionFactory" >
 	   		<variable
-	            name="org.argeo.security.ui.admin.userTransactionState"
+	            name="org.argeo.cms.ui.workbench.userTransactionState"
 	            priorityLevel="workbench">
 	      	</variable>
 	   	</sourceProvider>
+	   	<sourceProvider
+              provider="org.argeo.cms.ui.workbench.RolesSourceProvider">
+           <variable
+                 name="org.argeo.cms.ui.workbench.rolesVariable"
+                 priorityLevel="workbench">
+           </variable>
+        </sourceProvider>
 	</extension>
   
   	<!-- ACTIVITIES -->
@@ -212,15 +256,113 @@
 		point="org.eclipse.ui.activities">
 		<!-- group admin is intended to make all user and group maintenance operations -->
 		<!--<activityPatternBinding
-			activityId="org.argeo.security.ui.userAdminActivity"
+			activityId="org.argeo.cms.ui.workbench.userAdminActivity"
 			isEqualityPattern="true"
-			pattern="org.argeo.security.ui.admin/org.argeo.security.ui.admin.adminSecurityPerspective">
+			pattern="org.argeo.cms.ui.workbench.admin/org.argeo.cms.ui.workbench.admin.adminSecurityPerspective">
 		</activityPatternBinding>-->
 		<activityPatternBinding
-			activityId="org.argeo.security.ui.groupAdminActivity"
+			activityId="org.argeo.cms.ui.workbench.groupAdminActivity"
 			isEqualityPattern="true"
-			pattern="org.argeo.security.ui.admin/org.argeo.security.ui.admin.adminSecurityPerspective">
+			pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.adminSecurityPerspective">
 		</activityPatternBinding>
+		
+		        <activity
+              description="Authenticated users"
+              id="org.argeo.cms.ui.workbench.userActivity"
+              name="User">
+		  <enabledWhen>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="cn=user,ou=roles,ou=node" />
+		      </iterate>
+		    </with>
+		  </enabledWhen>
+        </activity>
+        <activity
+              description="Admins"
+              id="org.argeo.cms.ui.workbench.adminActivity"
+              name="Admin">
+		  <enabledWhen>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="cn=admin,ou=roles,ou=node" />
+		      </iterate>
+		    </with>
+		  </enabledWhen>
+        </activity>
+        <activity
+              description="User Admins"
+              id="org.argeo.cms.ui.workbench.userAdminActivity"
+              name="User Admin">
+		  <enabledWhen>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="cn=userAdmin,ou=roles,ou=node" />
+		      </iterate>
+		    </with>
+		  </enabledWhen>
+        </activity>
+        <activity
+              description="Group Admins"
+              id="org.argeo.cms.ui.workbench.groupAdminActivity"
+              name="User Admin">
+		  <enabledWhen>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="cn=groupAdmin,ou=roles,ou=node" />
+		      </iterate>
+		    </with>
+		  </enabledWhen>
+        </activity>
+        <activity
+              description="Non admins"
+              id="org.argeo.cms.ui.workbench.notAdminActivity"
+              name="Not Admin">
+		  <enabledWhen>
+		  	<not>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="cn=admin,ou=roles,ou=node" />
+		      </iterate>
+		    </with>
+		  	</not>
+		  </enabledWhen>
+        </activity>
+        <activity
+              description="Non remote"
+              id="org.argeo.cms.ui.workbench.notRemoteActivity"
+              name="NonRemote">
+		  <enabledWhen>
+		  	<not>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="ROLE_REMOTE" />
+		      </iterate>
+		    </with>
+		  	</not>
+		  </enabledWhen>
+        </activity>
+        <activityPatternBinding
+              activityId="org.argeo.cms.ui.workbench.adminActivity"
+              isEqualityPattern="true"
+              pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.adminMaintenancePerspective">
+        </activityPatternBinding>
+        <activityPatternBinding
+              activityId="org.argeo.cms.ui.workbench.adminActivity"
+              isEqualityPattern="true"
+              pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.adminLogView">
+        </activityPatternBinding>
+        <activityPatternBinding
+              activityId="org.argeo.cms.ui.workbench.userActivity"
+              isEqualityPattern="true"
+              pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.userHomePerspective">
+        </activityPatternBinding>
+        <activityPatternBinding
+              activityId="org.argeo.cms.ui.workbench.userActivity"
+              isEqualityPattern="true"
+              pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.userProfile">
+        </activityPatternBinding>
+		
 	</extension>
 	
 	<!-- STARTUP  --> 

@@ -28,7 +28,7 @@ import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.osgi.useradmin.LdifName;
-import org.argeo.security.ui.admin.SecurityAdminPlugin;
+import org.argeo.security.ui.SecurityUiPlugin;
 import org.argeo.security.ui.admin.internal.UiUserAdminListener;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.providers.CommonNameLP;
@@ -58,8 +58,7 @@ import org.osgi.service.useradmin.UserAdminListener;
 /** List all groups with filter */
 public class GroupsView extends ViewPart implements ArgeoNames {
 	private final static Log log = LogFactory.getLog(GroupsView.class);
-	public final static String ID = SecurityAdminPlugin.PLUGIN_ID
-			+ ".groupsView";
+	public final static String ID = SecurityUiPlugin.PLUGIN_ID + ".groupsView";
 
 	/* DEPENDENCY INJECTION */
 	private UserAdminWrapper userAdminWrapper;

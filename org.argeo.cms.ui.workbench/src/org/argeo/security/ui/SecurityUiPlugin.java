@@ -23,15 +23,16 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 
 import org.argeo.cms.CmsException;
 import org.argeo.cms.widgets.auth.DefaultLoginDialog;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Display;
-import org.osgi.framework.BundleActivator;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class SecurityUiPlugin implements BundleActivator {
+public class SecurityUiPlugin extends AbstractUIPlugin {
 	private static BundleContext bundleContext;
 	public static InheritableThreadLocal<Display> display = new InheritableThreadLocal<Display>() {
 
@@ -42,7 +43,8 @@ public class SecurityUiPlugin implements BundleActivator {
 	};
 
 	// The plug-in ID
-	public final static String PLUGIN_ID = "org.argeo.security.ui"; //$NON-NLS-1$
+	// 	public final static String PLUGIN_ID = "org.argeo.security.ui"; //$NON-NLS-1$
+	public final static String PLUGIN_ID = "org.argeo.cms.ui.workbench"; //$NON-NLS-1$
 
 	final static String CONTEXT_KEYRING = "KEYRING";
 
@@ -91,5 +93,9 @@ public class SecurityUiPlugin implements BundleActivator {
 			// }
 		}
 
+	}
+
+	public static ImageDescriptor getImageDescriptor(String path) {
+		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
 }

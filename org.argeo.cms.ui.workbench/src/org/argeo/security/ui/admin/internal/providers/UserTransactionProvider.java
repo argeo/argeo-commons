@@ -9,7 +9,7 @@ import javax.transaction.UserTransaction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.security.ui.admin.SecurityAdminPlugin;
+import org.argeo.security.ui.SecurityUiPlugin;
 import org.eclipse.ui.AbstractSourceProvider;
 import org.eclipse.ui.ISources;
 
@@ -18,7 +18,7 @@ public class UserTransactionProvider extends AbstractSourceProvider {
 	private final static Log log = LogFactory
 			.getLog(UserTransactionProvider.class);
 
-	public final static String TRANSACTION_STATE = SecurityAdminPlugin.PLUGIN_ID
+	public final static String TRANSACTION_STATE = SecurityUiPlugin.PLUGIN_ID
 			+ ".userTransactionState";
 	public final static String STATUS_ACTIVE = "status.active";
 	public final static String STATUS_NO_TRANSACTION = "status.noTransaction";
@@ -28,13 +28,13 @@ public class UserTransactionProvider extends AbstractSourceProvider {
 
 	@Override
 	public String[] getProvidedSourceNames() {
-		return new String[] { TRANSACTION_STATE};
+		return new String[] { TRANSACTION_STATE };
 	}
 
 	@Override
 	public Map<String, String> getCurrentState() {
 		Map<String, String> currentState = new HashMap<String, String>(1);
-			currentState.put(TRANSACTION_STATE, getInternalCurrentState());
+		currentState.put(TRANSACTION_STATE, getInternalCurrentState());
 		return currentState;
 	}
 

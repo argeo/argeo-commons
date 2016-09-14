@@ -24,7 +24,7 @@ import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.osgi.useradmin.UserAdminConf;
-import org.argeo.security.ui.admin.SecurityAdminPlugin;
+import org.argeo.security.ui.SecurityUiPlugin;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -48,7 +48,7 @@ import org.osgi.service.useradmin.UserAdminEvent;
 
 /** Create a new group */
 public class NewGroup extends AbstractHandler {
-	public final static String ID = SecurityAdminPlugin.PLUGIN_ID + ".newGroup";
+	public final static String ID = SecurityUiPlugin.PLUGIN_ID + ".newGroup";
 
 	/* DEPENDENCY INJECTION */
 	private UserAdminWrapper userAdminWrapper;
