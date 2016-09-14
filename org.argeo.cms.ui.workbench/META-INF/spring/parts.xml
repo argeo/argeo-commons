@@ -5,6 +5,8 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 
+	<!-- SECURITY  -->
+
 	<!-- Editors -->
 	<bean id="userEditor" class="org.argeo.security.ui.admin.internal.parts.UserEditor"
 		scope="prototype">
@@ -15,7 +17,7 @@
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
-
+	
 	<!-- Views -->
 	<bean id="usersView" class="org.argeo.security.ui.admin.internal.parts.UsersView"
 		scope="prototype">
@@ -25,5 +27,27 @@
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
+
+
+	<!-- DATA EXPLORER  -->
+	<!-- Editors -->
+	<bean id="genericJcrQueryEditor"
+		class="org.argeo.eclipse.ui.workbench.jcr.GenericJcrQueryEditor"
+		scope="prototype">
+		<property name="session" ref="nodeSession" />
+	</bean>
+	<bean id="defaultNodeEditor" class="org.argeo.eclipse.ui.workbench.jcr.DefaultNodeEditor"
+		scope="prototype">
+	</bean>
+
+	<!-- Views -->
+	<bean id="jcrBrowserView" class="org.argeo.eclipse.ui.workbench.jcr.JcrBrowserView"
+		scope="prototype">
+		<property name="repositoryRegister" ref="repositoryRegister" />
+		<property name="repositoryFactory" ref="repositoryFactory" />
+		<property name="nodeRepository" ref="nodeRepository" />
+		<property name="keyring" ref="keyring" />
+	</bean>
+
 
 </beans>

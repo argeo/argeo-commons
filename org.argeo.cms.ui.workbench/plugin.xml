@@ -4,33 +4,68 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
+            id="org.argeo.cms.ui.workbench.adminSecurityPerspective"
             class="org.argeo.security.ui.admin.SecurityAdminPerspective"
             icon="icons/security.gif"
-            id="org.argeo.cms.ui.workbench.adminSecurityPerspective"
             name="Security">
       </perspective>
       <perspective
+            id="org.argeo.cms.ui.workbench.userHomePerspective"
             class="org.argeo.security.ui.UserHomePerspective"
             icon="icons/home.gif"
-            id="org.argeo.cms.ui.workbench.userHomePerspective"
             name="Home">
       </perspective>
       <perspective
+            id="org.argeo.cms.ui.workbench.adminMaintenancePerspective"
             class="org.argeo.security.ui.MaintenancePerspective"
             icon="icons/maintenance.gif"
-            id="org.argeo.cms.ui.workbench.adminMaintenancePerspective"
             name="Maintenance">
       </perspective>
+            <perspective
+            id="org.argeo.cms.ui.workbench.osgiPerspective"
+            class="org.argeo.eclipse.ui.workbench.osgi.OsgiExplorerPerspective"
+            name="Monitoring"
+            icon="icons/osgi_explorer.gif">
+      </perspective>
+      <perspective
+            id="org.argeo.cms.ui.workbench.jcrBrowserPerspective"
+            class="org.argeo.eclipse.ui.workbench.jcr.JcrBrowserPerspective"
+            name="Data Explorer"
+            icon="icons/nodes.gif">
+      </perspective>
    </extension>
+   
+    <!-- Definition of the OSGI perspective -->
+    <extension point="org.eclipse.ui.perspectiveExtensions"> 
+        <perspectiveExtension targetID="org.argeo.eclipse.ui.workbench.osgiPerspective"> 
+            <view 
+            	id="org.argeo.cms.ui.workbench.modulesView" 
+            	minimized="false"
+             	ratio="0.5" 
+             	relationship="left" 
+             	relative="org.eclipse.ui.editorss"/> 
+            <view 
+            	id="org.argeo.cms.ui.workbench.bundlesView" 
+            	minimized="false"
+             	relationship="stack" 
+             	relative="org.argeo.cms.ui.workbench.modulesView"/> 
+             <view 
+            	id="org.argeo.cms.ui.workbench.multiplePackagesView" 
+            	minimized="false"
+             	relationship="stack" 
+             	relative="org.argeo.cms.ui.workbench.bundlesView"/> 
+        </perspectiveExtension> 
+    </extension> 
+   
    
    <!-- VIEWS -->
    <extension
 		point="org.eclipse.ui.views">
       <!-- Security -->
       <view
+            id="org.argeo.cms.ui.workbench.usersView"
             class="org.argeo.eclipse.spring.SpringExtensionFactory"
             icon="icons/users.gif"
-            id="org.argeo.cms.ui.workbench.usersView"
             name="Users"
             restorable="true">
       </view>
@@ -64,7 +99,32 @@
             icon="icons/adminLog.gif"
             restorable="true">
       </view>
-      
+	  <!-- OSGi Monitor -->
+      <view
+      		name="Modules"
+            id="org.argeo.cms.ui.workbench.modulesView"
+            icon="icons/service_published.gif"
+			class="org.argeo.eclipse.ui.workbench.osgi.ModulesView">
+		</view>
+		<view
+      		name="Bundles"
+            id="org.argeo.cms.ui.workbench.bundlesView" 
+            icon="icons/bundles.gif"
+            class="org.argeo.eclipse.ui.workbench.osgi.BundlesView">
+		</view>
+		<view
+      		name="Multiple Packages"
+            id="org.argeo.cms.ui.workbench.multiplePackagesView" 
+            icon="icons/node.gif"
+            class="org.argeo.eclipse.ui.workbench.osgi.MultiplePackagesView">
+		</view>
+		<!-- Data Explorer -->
+		<view
+          name="JCR Browser"
+          id="org.argeo.cms.ui.workbench.jcrBrowserView"
+          icon="icons/browser.gif"
+          class="org.argeo.eclipse.spring.SpringExtensionFactory">
+	   </view>
     </extension> 
 	
 	<!-- EDITORS -->
@@ -84,6 +144,22 @@
             icon="icons/users.gif"
             default="false">
 		</editor>
+		<!-- Data Explorer -->
+		<editor
+			name="JCR Query"
+			id="org.argeo.cms.ui.workbench.genericJcrQueryEditor"
+			icon="icons/query.png"
+			class="org.argeo.eclipse.spring.SpringExtensionFactory"
+			default="false">
+        </editor>
+		<editor
+			name="Node Editor"
+            id="org.argeo.cms.ui.workbench.defaultNodeEditor"
+			icon="icons/query.png"
+			class="org.argeo.eclipse.spring.SpringExtensionFactory"
+			default="false">
+		</editor>
+		
 	</extension>
     
     <extension
@@ -132,6 +208,110 @@
             id="org.argeo.cms.ui.workbench.forceRefresh"
             name="Force Refresh">
       </command>
+      <!-- Data Explorer -->
+      <command
+			defaultHandler="org.argeo.eclipse.ui.workbench.commands.OpenEditor"
+            id="org.argeo.cms.ui.workbench.openEditor"
+            name="Open an editor given its ID">
+            <commandParameter
+				id="param.jcrNodePath"
+				name="Node path">
+  	 		</commandParameter>
+            <!-- The path to the corresponding node if needed. -->
+            <commandParameter
+				id="param.jcrNodePath"
+				name="Node path">
+  	 		</commandParameter>
+		</command>
+    	<command
+			defaultHandler="org.argeo.eclipse.ui.workbench.commands.GetNodeSize"
+			id="org.argeo.cms.ui.workbench.getNodeSize"
+			name="Get node size">
+		</command>    
+    	<command
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+			id="org.argeo.cms.ui.workbench.addRemoteRepository"
+			name="Add remote JCR repository">
+			<!-- <commandParameter
+				id="param.repositoryUri"
+				name="Repository URI">
+  	 		</commandParameter> -->
+		</command>    
+    	<command
+			defaultHandler="org.argeo.eclipse.ui.workbench.commands.RemoveRemoteRepository"
+			id="org.argeo.cms.ui.workbench.removeRemoteRepository"
+			name="Remove remote JCR repository">
+		</command>    
+		<command
+	        defaultHandler="org.argeo.eclipse.ui.workbench.commands.AddFolderNode"
+	        id="org.argeo.cms.ui.workbench.addFolderNode"
+	        name="Create a new folder">
+		</command>
+		<command
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+			id="org.argeo.cms.ui.workbench.addPrivileges"
+			name="Add Privileges">
+		</command>
+		<command
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+			id="org.argeo.cms.ui.workbench.removePrivileges"
+			name="Remove Privileges">
+		</command>
+		<command
+			defaultHandler="org.argeo.eclipse.ui.workbench.commands.CreateWorkspace"
+			id="org.argeo.cms.ui.workbench.createWorkspace"
+			name="Create a new workspace">
+		</command>
+		<command
+			defaultHandler="org.argeo.eclipse.ui.workbench.commands.Refresh"
+			id="org.argeo.cms.ui.workbench.refresh"
+			name="Refresh">
+		</command>
+		<command
+			defaultHandler="org.argeo.eclipse.ui.workbench.commands.DeleteNodes"
+			id="org.argeo.cms.ui.workbench.deleteNodes"
+			name="Delete nodes">
+		</command>
+		<command
+	        defaultHandler="org.argeo.eclipse.ui.workbench.commands.ImportFileSystem"
+	        id="org.argeo.cms.ui.workbench.importFileSystem"
+	        name="Import files...">
+		</command>
+		<!-- <command
+	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+	        id="org.argeo.cms.ui.workbench.openFile"
+	        name="Open current file">
+		</command> -->
+		<command
+	        defaultHandler="org.argeo.eclipse.ui.workbench.commands.DumpNode"
+	        id="org.argeo.cms.ui.workbench.dumpNode"
+	        name="Dump Current Selected Node">
+		</command>
+		<command
+	        defaultHandler="org.argeo.eclipse.ui.workbench.commands.RenameNode"
+	        id="org.argeo.cms.ui.workbench.renameNode"
+	        name="Rename Current Selected Node">
+		</command>
+		<command
+	        defaultHandler="org.argeo.eclipse.ui.workbench.commands.NodeConfigurableDump"
+	        id="org.argeo.cms.ui.workbench.nodeConfigurableDump"
+	        name="Configurable dump of the selected Node">
+		</command>
+		<command
+			defaultHandler="org.argeo.eclipse.ui.workbench.commands.SortChildNodes"
+			id="org.argeo.cms.ui.workbench.sortChildNodes"
+			name="Sort node tree">
+            <!-- FIXME: default value does not work -->
+            <state 
+				id="org.argeo.cms.ui.workbench.sortChildNodes.toggleState" 
+				class="org.eclipse.ui.handlers.RegistryToggleState:true" >
+				<!-- <class class="org.eclipse.jface.commands.ToggleState"> 
+					<parameter
+						name="default"
+               			value="true" />
+				</class> -->
+			</state>
+		</command>
 	</extension>
 	
 	<!-- MENU CONTRIBUTIONS -->
@@ -165,7 +345,7 @@
 							<equals value="status.active" />
 					</with>
 				</visibleWhen>
-			</command>
+			</command>			
 		</menuContribution>
     
     	<!-- UsersView specific toolbar menu -->
@@ -229,6 +409,235 @@
                   tooltip="Synchronize roles from LDAP">
             </command>
         </menuContribution> -->
+        <!-- Browser view specific menu --> 
+		<menuContribution
+			locationURI="menu:org.argeo.cms.ui.workbench.jcrBrowserView">
+            <!-- See bug 149 --> 
+            <!-- <command
+            	commandId="org.argeo.cms.ui.workbench.openGenericJcrQueryEditor"
+                icon="icons/query.png"
+                style="push">
+            </command> --> 
+            <command
+            	commandId="org.argeo.cms.ui.workbench.addRemoteRepository"
+                icon="icons/addRepo.gif"
+                style="push">
+            </command>
+             <command
+            	commandId="org.argeo.cms.ui.workbench.sortChildNodes"
+                icon="icons/sort.gif"
+                style="toggle"
+                label="Sort child nodes"
+                tooltip="NOTE: displaying unsorted nodes will enhance overall performances">
+            </command>
+		</menuContribution>
+		<!-- Browser view popup context menu --> 
+		<menuContribution
+			locationURI="popup:org.argeo.cms.ui.workbench.jcrBrowserView">
+			<command
+				commandId="org.argeo.cms.ui.workbench.refresh"
+				icon="icons/refresh.png"
+				style="push">
+			</command>
+			<command
+		         commandId="org.argeo.cms.ui.workbench.addFolderNode"
+		         icon="icons/addFolder.gif"
+		         label="Add Folder..."
+		         style="push">
+				<visibleWhen>
+					<iterate>
+				      <and>
+				         <or>
+				            <instanceof
+				                  value="org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem">
+				            </instanceof>
+				            <instanceof
+				                  value="org.argeo.eclipse.ui.workbench.internal.jcr.model.WorkspaceElem">
+				            </instanceof>
+				         </or>
+             			<with variable="activeMenuSelection"><count value="1"/></with>
+				      </and>
+					</iterate>
+				</visibleWhen>
+			</command>
+			<command
+		         commandId="org.argeo.cms.ui.workbench.addPrivileges"
+		         icon="icons/addPrivileges.gif"
+		         label="Add Privileges..."
+		         style="push">
+				<visibleWhen>
+					<iterate>
+				      <and>
+				         <or>
+				            <instanceof
+				                  value="org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem">
+				            </instanceof>
+				            <instanceof
+				                  value="org.argeo.eclipse.ui.workbench.internal.jcr.model.WorkspaceElem">
+				            </instanceof>
+				         </or>
+             			<with variable="activeMenuSelection"><count value="1"/></with>
+				      </and>
+					</iterate>
+				</visibleWhen>
+			</command>
+			<command
+		         commandId="org.argeo.cms.ui.workbench.removePrivileges"
+		         icon="icons/removePrivileges.gif"
+		         label="Remove Privileges..."
+		         style="push">
+				<visibleWhen>
+					<iterate>
+				      <and>
+				         <or>
+				            <instanceof
+				                  value="org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem">
+				            </instanceof>
+				            <instanceof
+				                  value="org.argeo.eclipse.ui.workbench.internal.jcr.model.WorkspaceElem">
+				            </instanceof>
+				         </or>
+             			<with variable="activeMenuSelection"><count value="1"/></with>
+				      </and>
+					</iterate>
+				</visibleWhen>
+			</command>
+			<command
+		         commandId="org.argeo.cms.ui.workbench.createWorkspace"
+		         icon="icons/addWorkspace.png"
+		         label="Create Workspace..."
+		         style="push">
+				<visibleWhen>
+					<iterate>
+			      		<and>
+			         		<or>
+			            		<instanceof
+			                  		value="org.argeo.eclipse.ui.workbench.internal.jcr.model.RepositoryElem">
+			            		</instanceof>
+			         		</or>
+             				<with variable="activeMenuSelection"><count value="1"/></with>
+						</and>
+					</iterate>
+				</visibleWhen>
+			</command>
+			<command
+				commandId="org.argeo.cms.ui.workbench.deleteNodes"
+				icon="icons/remove.gif"
+				label="Delete Nodes"
+				style="push">
+				<visibleWhen>
+					<iterate>
+						<or>
+							<instanceof
+								value="org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem" />
+							<instanceof
+								value="org.argeo.eclipse.ui.workbench.internal.jcr.model.WorkspaceElem" />
+						</or>
+					</iterate>
+				</visibleWhen>
+			</command>
+			<command
+				commandId="org.argeo.cms.ui.workbench.importFileSystem"
+				icon="icons/import_fs.png"
+				style="push"
+				tooltip="Import files from the files sytem">
+				<visibleWhen>
+					<iterate>
+						<and>
+							<or>
+								<instanceof
+									value="org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem" />
+								<instanceof
+                          			value="org.argeo.eclipse.ui.workbench.internal.jcr.model.WorkspaceElem" />
+                 			</or>
+                 			<with variable="activeMenuSelection"><count value="1"/></with>
+						</and>
+					</iterate>
+				</visibleWhen>
+			</command>
+			<command
+				commandId="org.argeo.cms.ui.workbench.addRemoteRepository"
+				icon="icons/addRepo.gif"
+				style="push">
+					<visibleWhen>
+						<iterate> 
+							<or>
+								<instanceof
+                    				value="org.argeo.eclipse.ui.workbench.internal.jcr.model.RepositoriesElem" />
+								<instanceof
+									value="org.argeo.eclipse.ui.workbench.internal.jcr.model.RepositoryElem" />
+							</or> 
+						</iterate>
+					</visibleWhen>
+			</command>
+			<command
+				commandId="org.argeo.cms.ui.workbench.removeRemoteRepository"
+				icon="icons/remove.gif"
+				style="push">
+				<visibleWhen>
+					<iterate> 
+						<or>
+							<instanceof
+								value="org.argeo.eclipse.ui.workbench.internal.jcr.model.RemoteRepositoryElem" />
+						</or> 
+           			</iterate>
+				</visibleWhen>
+			</command>
+			<command
+				commandId="org.argeo.cms.ui.workbench.getNodeSize"
+				icon="icons/getSize.gif"
+				style="push">
+					<visibleWhen>
+						<iterate>
+							<or>
+								<instanceof
+									value="org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem" />
+								<instanceof
+									value="org.argeo.eclipse.ui.workbench.internal.jcr.model.WorkspaceElem" />
+              				</or>
+           				</iterate>
+					</visibleWhen>
+			</command>
+			<command
+		        commandId="org.argeo.cms.ui.workbench.dumpNode"
+		        icon="icons/dumpNode.gif"
+				label="Dump Node"
+				style="push">
+				<visibleWhen>
+					<iterate> <and>
+						<instanceof value="org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem"></instanceof>
+             			<with variable="activeMenuSelection"><count value="1"/></with>
+					</and> </iterate>
+				</visibleWhen>
+			</command>
+			<command
+		        commandId="org.argeo.cms.ui.workbench.renameNode"
+		        icon="icons/rename.gif"
+				label="Rename..."
+				style="push">
+				<visibleWhen>
+					<iterate> <and>
+						<instanceof value="org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem"></instanceof>
+             			<with variable="activeMenuSelection"><count value="1"/></with>
+					</and> </iterate>
+				</visibleWhen>
+			</command>
+			<command
+		        commandId="org.argeo.cms.ui.workbench.nodeConfigurableDump"
+		        icon="icons/dumpNode.gif"
+				label="Configurable dump..."
+				style="push">
+				<visibleWhen>
+					<iterate> 
+						<and>
+							<instanceof value="org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem"></instanceof>
+             				<with variable="activeMenuSelection"><count value="1"/></with>
+						</and> 
+					</iterate>
+				</visibleWhen>
+			</command>
+		</menuContribution>
+        
 	</extension>
 
 	<!-- SERVICES -->
@@ -243,7 +652,7 @@
 	      	</variable>
 	   	</sourceProvider>
 	   	<sourceProvider
-              provider="org.argeo.cms.ui.workbench.RolesSourceProvider">
+              provider="org.argeo.security.ui.RolesSourceProvider">
            <variable
                  name="org.argeo.cms.ui.workbench.rolesVariable"
                  priorityLevel="workbench">
@@ -265,8 +674,19 @@
 			isEqualityPattern="true"
 			pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.adminSecurityPerspective">
 		</activityPatternBinding>
+		 <activityPatternBinding
+			pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.osgiPerspective"
+			isEqualityPattern="true"
+			activityId="org.argeo.security.ui.adminActivity">
+			<!-- activityId="org.argeo.security.ui.adminActivity" -->
+        </activityPatternBinding>
+        <activityPatternBinding
+			pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.jcrBrowserPerspective"
+			isEqualityPattern="true"
+			activityId="org.argeo.security.ui.adminActivity">
+		</activityPatternBinding>
 		
-		        <activity
+		<activity
               description="Authenticated users"
               id="org.argeo.cms.ui.workbench.userActivity"
               name="User">

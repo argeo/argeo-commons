@@ -9,7 +9,7 @@ import javax.transaction.UserTransaction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.security.ui.SecurityUiPlugin;
+import org.argeo.cms.ui.workbench.SecurityUiPlugin;
 import org.eclipse.ui.AbstractSourceProvider;
 import org.eclipse.ui.ISources;
 

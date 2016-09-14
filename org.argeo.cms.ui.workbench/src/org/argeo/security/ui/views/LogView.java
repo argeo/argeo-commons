@@ -17,9 +17,9 @@ package org.argeo.security.ui.views;
 
 import java.util.ArrayList;
 
+import org.argeo.cms.ui.workbench.SecurityUiPlugin;
 import org.argeo.node.ArgeoLogListener;
 import org.argeo.node.ArgeoLogger;
-import org.argeo.security.ui.SecurityUiPlugin;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;

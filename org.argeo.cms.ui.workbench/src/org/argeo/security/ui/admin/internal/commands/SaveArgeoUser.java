@@ -15,7 +15,7 @@
  */
 package org.argeo.security.ui.admin.internal.commands;
 
-import org.argeo.security.ui.SecurityUiPlugin;
+import org.argeo.cms.ui.workbench.SecurityUiPlugin;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;

@@ -24,13 +24,13 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
 import org.argeo.cms.CmsException;
+import org.argeo.cms.ui.workbench.SecurityUiPlugin;
 import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.jcr.ArgeoNames;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.osgi.useradmin.UserAdminConf;
-import org.argeo.security.ui.SecurityUiPlugin;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;

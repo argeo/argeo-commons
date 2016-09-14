@@ -18,8 +18,8 @@ package org.argeo.security.ui.views;
 import java.util.TreeSet;
 
 import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.ui.workbench.SecurityUiPlugin;
 import org.argeo.eclipse.ui.EclipseUiUtils;
-import org.argeo.security.ui.SecurityUiPlugin;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;

@@ -15,6 +15,7 @@
  */
 package org.argeo.security.ui;
 
+import org.argeo.cms.ui.workbench.SecurityUiPlugin;
 import org.argeo.security.ui.views.LogView;
 import org.argeo.security.ui.views.UserProfile;
 import org.eclipse.ui.IFolderLayout;

@@ -19,7 +19,7 @@ import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
 import org.argeo.cms.CmsException;
-import org.argeo.security.ui.SecurityUiPlugin;
+import org.argeo.cms.ui.workbench.SecurityUiPlugin;
 import org.argeo.security.ui.admin.internal.UiAdminUtils;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.commands.AbstractHandler;

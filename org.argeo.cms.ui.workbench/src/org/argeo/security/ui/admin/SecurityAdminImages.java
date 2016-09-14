@@ -26,7 +26,7 @@
  */
 package org.argeo.security.ui.admin;
 
-import org.argeo.security.ui.SecurityUiPlugin;
+import org.argeo.cms.ui.workbench.SecurityUiPlugin;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 

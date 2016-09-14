@@ -1,7 +1,7 @@
 package org.argeo.security.ui.admin.internal.providers;
 
 import org.argeo.cms.CmsException;
-import org.argeo.eclipse.ui.workbench.WorkbenchUiPlugin;
+import org.argeo.cms.ui.workbench.SecurityUiPlugin;
 import org.argeo.security.ui.admin.internal.parts.UserEditor;
 import org.argeo.security.ui.admin.internal.parts.UserEditorInput;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -24,7 +24,7 @@ public class UserTableDefaultDClickListener implements IDoubleClickListener {
 		Object obj = ((IStructuredSelection) evt.getSelection())
 				.getFirstElement();
 		User user = (User) obj;
-		IWorkbenchWindow iww = WorkbenchUiPlugin.getDefault().getWorkbench()
+		IWorkbenchWindow iww = SecurityUiPlugin.getDefault().getWorkbench()
 				.getActiveWorkbenchWindow();
 		IWorkbenchPage iwp = iww.getActivePage();
 		UserEditorInput uei = new UserEditorInput(user.getName());
@@ -37,8 +37,7 @@ public class UserTableDefaultDClickListener implements IDoubleClickListener {
 			else
 				iwp.openEditor(uei, UserEditor.USER_EDITOR_ID);
 		} catch (PartInitException pie) {
-			throw new CmsException("Unable to open UserEditor for " + user,
-					pie);
+			throw new CmsException("Unable to open UserEditor for " + user, pie);
 		}
 	}
 }

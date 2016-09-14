@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.argeo.cms.ui.workbench.SecurityUiPlugin;
 import org.argeo.cms.util.useradmin.UserAdminUtils;
-import org.argeo.security.ui.SecurityUiPlugin;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.argeo.security.ui.admin.internal.parts.UserEditorInput;
 import org.eclipse.core.commands.AbstractHandler;

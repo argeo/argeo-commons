@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.argeo.cms.CmsException;
+import org.argeo.cms.ui.workbench.SecurityUiPlugin;
 import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.osgi.useradmin.LdifName;
-import org.argeo.security.ui.SecurityUiPlugin;
 import org.argeo.security.ui.admin.internal.UiUserAdminListener;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;
 import org.eclipse.core.runtime.IProgressMonitor;

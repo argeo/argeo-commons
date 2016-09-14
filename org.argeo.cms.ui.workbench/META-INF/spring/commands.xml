@@ -36,4 +36,20 @@
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
+	
+	<!-- DATA EXPLORER -->
+	<bean id="addRemoteRepository"
+		class="org.argeo.eclipse.ui.workbench.commands.AddRemoteRepository">
+		<property name="repositoryFactory" ref="repositoryFactory" />
+		<property name="nodeRepository" ref="nodeRepository" />
+		<property name="keyring" ref="keyring" />
+	</bean>
+
+	<bean id="addPrivileges" class="org.argeo.eclipse.ui.workbench.commands.AddPrivileges">
+		<property name="userAdmin" ref="userAdmin" />
+	</bean>
+	<bean id="removePrivileges"
+		class="org.argeo.eclipse.ui.workbench.commands.RemovePrivileges">
+		<!-- <property name="userAdmin" ref="userAdmin" /> -->
+	</bean>
 </beans>

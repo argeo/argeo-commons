@@ -28,7 +28,7 @@
 		<!-- Eclipse -->
 		<module>org.argeo.eclipse.ui</module>
 		<module>org.argeo.eclipse.ui.rap</module>
-		<module>org.argeo.eclipse.ui.workbench</module>
+<!-- 		<module>org.argeo.eclipse.ui.workbench</module> -->
 		<!-- CMS -->
 		<module>org.argeo.node.api</module>
 		<module>org.argeo.cms</module>

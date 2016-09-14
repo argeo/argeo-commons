@@ -8,16 +8,6 @@
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
 	osgi:default-timeout="30000">
 
-	<list id="repositories" interface="javax.jcr.Repository"
-		cardinality="0..N">
-		<listener ref="repositoryRegister" bind-method="register"
-			unbind-method="unregister" />
-	</list>
 
-	<reference id="nodeRepository" interface="javax.jcr.Repository"
-		filter="(argeo.jcr.repository.alias=home)" />
-	<reference id="repositoryFactory" interface="javax.jcr.RepositoryFactory" />
-	<reference id="keyring" interface="org.argeo.util.security.CryptoKeyring" />
-	<reference id="userAdmin" interface="org.osgi.service.useradmin.UserAdmin" />
 
 </beans:beans>
