@@ -3,23 +3,24 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
-		<version>2.1.46-SNAPSHOT</version>
 		<artifactId>argeo-commons</artifactId>
+		<version>2.1.46-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>org.argeo.cms.ui.workbench.rap</artifactId>
-	<name>CMS Workbench RAP</name>
+	<artifactId>org.argeo.cms.ui</artifactId>
+	<name>Argeo CMS UI</name>
 	<packaging>jar</packaging>
 	<dependencies>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.cms.ui.workbench</artifactId>
+			<artifactId>org.argeo.cms</artifactId>
 			<version>2.1.46-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.ui.rap</artifactId>
 			<version>2.1.46-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>

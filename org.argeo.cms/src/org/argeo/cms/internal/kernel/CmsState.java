@@ -3,7 +3,6 @@ package org.argeo.cms.internal.kernel;
 import static bitronix.tm.TransactionManagerServices.getTransactionManager;
 import static bitronix.tm.TransactionManagerServices.getTransactionSynchronizationRegistry;
 import static java.util.Locale.ENGLISH;
-import static org.argeo.cms.internal.auth.LocaleChoice.asLocaleList;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -23,11 +22,10 @@ import javax.transaction.UserTransaction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.auth.AuthConstants;
-import org.argeo.cms.maintenance.MaintenanceUi;
+import org.argeo.cms.i18n.LocaleUtils;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeState;
 import org.argeo.util.LangUtils;
-import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -85,7 +83,7 @@ public class CmsState implements NodeState {
 		Object defaultLocaleValue = KernelUtils.getFrameworkProp(NodeConstants.I18N_DEFAULT_LOCALE);
 		defaultLocale = defaultLocaleValue != null ? new Locale(defaultLocaleValue.toString())
 				: new Locale(ENGLISH.getLanguage());
-		locales = asLocaleList(KernelUtils.getFrameworkProp(NodeConstants.I18N_LOCALES));
+		locales = LocaleUtils.asLocaleList(KernelUtils.getFrameworkProp(NodeConstants.I18N_LOCALES));
 	}
 
 	private void initServices() {
@@ -107,12 +105,6 @@ public class CmsState implements NodeState {
 		Dictionary<String, Object> props = new Hashtable<>();
 		props.put(Constants.SERVICE_PID, NodeConstants.NODE_USER_ADMIN_PID);
 		bc.registerService(ManagedServiceFactory.class, userAdmin, props);
-
-		// UI
-		bc.registerService(ApplicationConfiguration.class, new MaintenanceUi(),
-				LangUtils.init(KernelConstants.CONTEXT_NAME_PROP, "system"));
-		bc.registerService(ApplicationConfiguration.class, new UserUi(),
-				LangUtils.init(KernelConstants.CONTEXT_NAME_PROP, "user"));
 	}
 
 	private void initTransactionManager() {

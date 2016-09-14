@@ -1,27 +1,10 @@
 Bundle-SymbolicName: org.argeo.cms;singleton:=true
 Bundle-Activator: org.argeo.cms.internal.kernel.Activator
 Import-Package: javax.jcr.security,\
-org.xml.sax,\
-org.argeo.jcr,\
-org.argeo.jcr.docbook,\
-org.apache.jackrabbit.api,\
-org.apache.jackrabbit.commons,\
-org.apache.jackrabbit.core.security.user,\
-org.argeo.eclipse.ui.dialogs;resolution:=optional,\
-org.eclipse.*;resolution:=optional,\
-org.eclipse.core.commands;resolution:=optional,\
-org.eclipse.swt;resolution:=optional,\
-org.eclipse.jface.window;resolution:=optional,\
 org.h2;resolution:=optional,\
 org.postgresql;resolution:=optional,\
-org.apache.commons.vfs2.*;resolution:=optional,\
-org.apache.jackrabbit.*;resolution:=optional,\
-org.joda.time.*;resolution:=optional,\
-org.springframework.context,\
-org.springframework.core.io,\
 org.apache.jackrabbit.webdav.server,\
 org.apache.jackrabbit.webdav.jcr,\
-org.bouncycastle.asn1.x509,\
 org.eclipse.equinox.http.jetty,\
 *
 Provide-Capability: cms.datamodel;name=cms;cnd=/org/argeo/cms/cms.cnd

@@ -4,7 +4,6 @@ import java.io.Console;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.Locale;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -48,21 +47,22 @@ public class ConsoleCallbackHandler implements CallbackHandler {
 				char[] answer = console.readPassword();
 				callback.setPassword(answer);
 				Arrays.fill(answer, ' ');
-			} else if (callbacks[i] instanceof LocaleChoice) {
-				LocaleChoice callback = (LocaleChoice) callbacks[i];
-				writer.write("Language");
-				writer.write("\n");
-				for (int j = 0; j < callback.getLocales().size(); j++) {
-					Locale locale = callback.getLocales().get(j);
-					writer.print(j + " : " + locale.getDisplayName() + "\n");
-				}
-				writer.write("(" + callback.getDefaultIndex() + ") : ");
-				String answer = console.readLine();
-				if (answer.trim().equals(""))
-					callback.setSelectedIndex(callback.getDefaultIndex());
-				else
-					callback.setSelectedIndex(new Integer(answer.trim()));
 			}
+//			else if (callbacks[i] instanceof LocaleChoice) {
+//				LocaleChoice callback = (LocaleChoice) callbacks[i];
+//				writer.write("Language");
+//				writer.write("\n");
+//				for (int j = 0; j < callback.getLocales().size(); j++) {
+//					Locale locale = callback.getLocales().get(j);
+//					writer.print(j + " : " + locale.getDisplayName() + "\n");
+//				}
+//				writer.write("(" + callback.getDefaultIndex() + ") : ");
+//				String answer = console.readLine();
+//				if (answer.trim().equals(""))
+//					callback.setSelectedIndex(callback.getDefaultIndex());
+//				else
+//					callback.setSelectedIndex(new Integer(answer.trim()));
+//			}
 		}
 	}
 

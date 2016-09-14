@@ -29,7 +29,6 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.util.CmsUtils;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.JcrUtils;
 import org.osgi.framework.BundleContext;
@@ -128,13 +127,13 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 				String desc = node.hasProperty(JCR_DESCRIPTION) ? node.getProperty(JCR_DESCRIPTION).getString() : null;
 				Calendar lastUpdate = node.hasProperty(JCR_LAST_MODIFIED)
 						? node.getProperty(JCR_LAST_MODIFIED).getDate() : null;
-				String url = CmsUtils.getCanonicalUrl(node, request);
+				String url = KernelUtils.getCanonicalUrl(node, request);
 				String imgUrl = null;
 				loop: for (NodeIterator it = node.getNodes(); it.hasNext();) {
 					// Takes the first found cms:image
 					Node child = it.nextNode();
 					if (child.isNodeType(CMS_IMAGE)) {
-						imgUrl = CmsUtils.getDataUrl(child, request);
+						imgUrl = KernelUtils.getDataUrl(child, request);
 						break loop;
 					}
 				}

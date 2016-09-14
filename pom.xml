@@ -32,8 +32,8 @@
 		<!-- CMS -->
 		<module>org.argeo.node.api</module>
 		<module>org.argeo.cms</module>
+		<module>org.argeo.cms.ui</module>
 		<!-- CMS Workbench -->
-		<module>org.argeo.security.ui</module>
 		<module>org.argeo.cms.ui.workbench</module>
 		<module>org.argeo.cms.ui.workbench.rap</module>
 		<!-- Third Parties Extensions -->

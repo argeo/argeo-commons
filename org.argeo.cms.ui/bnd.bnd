@@ -1,0 +1,11 @@
+Bundle-Activator: org.argeo.cms.ui.internal.Activator
+Bundle-ActivationPolicy: lazy
+
+Import-Package: org.eclipse.swt,\
+org.eclipse.jface.window,\
+org.eclipse.core.commands,\
+javax.jcr.security,\
+org.argeo.eclipse.ui.dialogs,\
+org.springframework.context,\
+org.springframework.core.io,\
+*

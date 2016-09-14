@@ -8,7 +8,7 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.argeo.cms.maintenance.DataMigration;
+import org.argeo.cms.DataMigration;
 import org.argeo.jcr.JcrUtils;
 
 /** Migrate data between two workspaces, at JCR level. */
