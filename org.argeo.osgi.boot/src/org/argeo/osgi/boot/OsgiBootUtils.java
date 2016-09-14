@@ -27,22 +27,24 @@ import org.osgi.framework.Bundle;
 /** Utilities, mostly related to logging. */
 public class OsgiBootUtils {
 	/** ISO8601 (as per log4j) and difference to UTC */
-	private static DateFormat dateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd HH:mm:ss,SSS Z");
+	private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS Z");
 
 	public static void info(Object obj) {
-		System.out.println("# OSGiBOOT      # " + dateFormat.format(new Date())
-				+ " # " + obj);
+		System.out.println("# OSGiBOOT      # " + dateFormat.format(new Date()) + " # " + obj);
 	}
 
 	public static void debug(Object obj) {
-		System.out.println("# OSGiBOOT DBG  # " + dateFormat.format(new Date())
-				+ " # " + obj);
+		System.out.println("# OSGiBOOT DBG  # " + dateFormat.format(new Date()) + " # " + obj);
 	}
 
 	public static void warn(Object obj) {
-		System.out.println("# OSGiBOOT WARN # " + dateFormat.format(new Date())
-				+ " # " + obj);
+		System.out.println("# OSGiBOOT WARN # " + dateFormat.format(new Date()) + " # " + obj);
+	}
+
+	public static void error(Object obj, Throwable e) {
+		System.err.println("# OSGiBOOT ERR  # " + dateFormat.format(new Date()) + " # " + obj);
+		if (e != null)
+			e.printStackTrace();
 	}
 
 	/**
@@ -90,8 +92,7 @@ public class OsgiBootUtils {
 	 * @return ==0: versions are identical, <0: tested version is newer, >0:
 	 *         currentVersion is newer.
 	 */
-	public static int compareVersions(String currentVersion,
-			String testedVersion) {
+	public static int compareVersions(String currentVersion, String testedVersion) {
 		List<String> cToks = new ArrayList<String>();
 		StringTokenizer cSt = new StringTokenizer(currentVersion, ".");
 		while (cSt.hasMoreTokens())
