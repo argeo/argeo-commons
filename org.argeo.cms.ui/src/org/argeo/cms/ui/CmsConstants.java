@@ -1,4 +1,4 @@
-package org.argeo.cms;
+package org.argeo.cms.ui;
 
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.graphics.Point;

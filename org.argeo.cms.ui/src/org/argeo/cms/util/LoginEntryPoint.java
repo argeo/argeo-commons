@@ -9,12 +9,12 @@ import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.argeo.cms.CmsException;
-import org.argeo.cms.CmsImageManager;
-import org.argeo.cms.CmsView;
-import org.argeo.cms.UxContext;
 import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
+import org.argeo.cms.ui.CmsImageManager;
+import org.argeo.cms.ui.CmsView;
+import org.argeo.cms.ui.UxContext;
 import org.argeo.cms.widgets.auth.CmsLogin;
 import org.argeo.cms.widgets.auth.CmsLoginShell;
 import org.argeo.eclipse.ui.specific.UiContext;

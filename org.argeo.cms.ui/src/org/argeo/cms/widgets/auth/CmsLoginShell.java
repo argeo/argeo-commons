@@ -1,6 +1,6 @@
 package org.argeo.cms.widgets.auth;
 
-import org.argeo.cms.CmsView;
+import org.argeo.cms.ui.CmsView;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;

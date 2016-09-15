@@ -1,4 +1,4 @@
-package org.argeo.cms;
+package org.argeo.cms.ui;
 
 public interface UxContext {
 	boolean isPortrait();

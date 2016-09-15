@@ -5,7 +5,7 @@ import static org.argeo.cms.util.CmsUtils.fillWidth;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.CmsEditable;
+import org.argeo.cms.ui.CmsEditable;
 import org.argeo.cms.ui.internal.text.AbstractTextViewer;
 import org.argeo.cms.viewers.Section;
 import org.eclipse.swt.widgets.Composite;

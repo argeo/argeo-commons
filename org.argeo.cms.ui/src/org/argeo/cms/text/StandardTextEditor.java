@@ -6,8 +6,8 @@ import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.CmsEditable;
 import org.argeo.cms.CmsTypes;
+import org.argeo.cms.ui.CmsEditable;
 import org.argeo.cms.ui.internal.text.AbstractTextViewer;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.viewers.Section;

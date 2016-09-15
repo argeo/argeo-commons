@@ -5,7 +5,7 @@ import java.util.Observer;
 
 import javax.jcr.Node;
 
-import org.argeo.cms.CmsEditable;
+import org.argeo.cms.ui.CmsEditable;
 import org.argeo.cms.util.CmsUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;

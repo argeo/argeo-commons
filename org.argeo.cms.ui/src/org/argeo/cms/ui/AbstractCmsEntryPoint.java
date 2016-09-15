@@ -1,4 +1,4 @@
-package org.argeo.cms;
+package org.argeo.cms.ui;
 
 import java.security.PrivilegedAction;
 import java.util.HashMap;
@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.eclipse.ui.specific.UiContext;

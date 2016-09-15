@@ -1,4 +1,4 @@
-package org.argeo.cms;
+package org.argeo.cms.ui;
 
 /** API NOT STABLE (yet). */
 public interface CmsEditable {

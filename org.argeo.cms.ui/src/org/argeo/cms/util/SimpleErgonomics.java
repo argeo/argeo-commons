@@ -7,12 +7,12 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.AbstractCmsEntryPoint;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.CmsImageManager;
-import org.argeo.cms.CmsStyles;
-import org.argeo.cms.CmsUiProvider;
-import org.argeo.cms.UxContext;
+import org.argeo.cms.ui.AbstractCmsEntryPoint;
+import org.argeo.cms.ui.CmsImageManager;
+import org.argeo.cms.ui.CmsStyles;
+import org.argeo.cms.ui.CmsUiProvider;
+import org.argeo.cms.ui.UxContext;
 import org.argeo.cms.ui.internal.ImageManagerImpl;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;

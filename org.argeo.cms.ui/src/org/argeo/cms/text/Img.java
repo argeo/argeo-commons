@@ -4,7 +4,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.argeo.cms.CmsException;
-import org.argeo.cms.CmsImageManager;
+import org.argeo.cms.ui.CmsImageManager;
 import org.argeo.cms.ui.internal.JcrFileUploadReceiver;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.viewers.NodePart;

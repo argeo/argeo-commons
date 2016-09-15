@@ -1,4 +1,4 @@
-package org.argeo.cms;
+package org.argeo.cms.ui;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;

@@ -18,15 +18,15 @@ import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.CmsEditable;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.CmsImageManager;
 import org.argeo.cms.CmsNames;
 import org.argeo.cms.CmsTypes;
 import org.argeo.cms.text.Img;
 import org.argeo.cms.text.Paragraph;
 import org.argeo.cms.text.TextInterpreter;
 import org.argeo.cms.text.TextSection;
+import org.argeo.cms.ui.CmsEditable;
+import org.argeo.cms.ui.CmsImageManager;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.viewers.AbstractPageViewer;
 import org.argeo.cms.viewers.EditablePart;

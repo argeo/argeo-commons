@@ -16,11 +16,11 @@ import javax.jcr.ValueFormatException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.CmsEditable;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.CmsImageManager;
 import org.argeo.cms.CmsNames;
 import org.argeo.cms.text.Img;
+import org.argeo.cms.ui.CmsEditable;
+import org.argeo.cms.ui.CmsImageManager;
 import org.argeo.cms.ui.internal.text.MarkupValidatorCopy;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.viewers.AbstractPageViewer;

@@ -18,10 +18,10 @@ import javax.jcr.version.VersionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.CmsConstants;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.CmsUiProvider;
-import org.argeo.cms.LifeCycleUiProvider;
+import org.argeo.cms.ui.CmsConstants;
+import org.argeo.cms.ui.CmsUiProvider;
+import org.argeo.cms.ui.LifeCycleUiProvider;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.Application;

@@ -12,8 +12,8 @@ import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.io.FilenameUtils;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.CmsImageManager;
 import org.argeo.cms.CmsNames;
+import org.argeo.cms.ui.CmsImageManager;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.fileupload.FileDetails;
 import org.eclipse.rap.fileupload.FileUploadReceiver;
