@@ -36,7 +36,6 @@ import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
 import org.apache.jackrabbit.jcr2dav.Jcr2davRepositoryFactory;
-import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.ArgeoJcrException;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -46,10 +45,19 @@ import org.xml.sax.InputSource;
  * Repository factory which can create new repositories and access remote
  * Jackrabbit repositories
  */
-public class JackrabbitRepositoryFactory implements RepositoryFactory, ArgeoJcrConstants {
-	private final static Log log = LogFactory.getLog(JackrabbitRepositoryFactory.class);
+@Deprecated
+public class JackrabbitRepositoryFactory implements RepositoryFactory {
+	// FIXME factorize with node
+	/** Key for a JCR repository alias */
+	public final static String JCR_REPOSITORY_ALIAS = "argeo.jcr.repository.alias";
+	/** Key for a JCR repository URI */
+	public final static String JCR_REPOSITORY_URI = "argeo.jcr.repository.uri";
 
-	private Resource fileRepositoryConfiguration = new ClassPathResource("/org/argeo/jackrabbit/repository-h2.xml");
+	private final static Log log = LogFactory
+			.getLog(JackrabbitRepositoryFactory.class);
+
+	private Resource fileRepositoryConfiguration = new ClassPathResource(
+			"/org/argeo/jackrabbit/repository-h2.xml");
 
 	@SuppressWarnings({ "rawtypes" })
 	public Repository getRepository(Map parameters) throws RepositoryException {
@@ -72,7 +80,9 @@ public class JackrabbitRepositoryFactory implements RepositoryFactory, ArgeoJcrC
 			else if (uri.startsWith("file"))// http, https
 				repository = createFileRepository(uri, parameters);
 			else if (uri.startsWith("vm")) {
-				log.warn("URI " + uri + " should have been managed by generic JCR repository factory");
+				log.warn("URI "
+						+ uri
+						+ " should have been managed by generic JCR repository factory");
 				repository = getRepositoryByAlias(getAliasFromURI(uri));
 			} else
 				throw new ArgeoJcrException("Unrecognized URI format " + uri);
@@ -88,7 +98,8 @@ public class JackrabbitRepositoryFactory implements RepositoryFactory, ArgeoJcrC
 			// with properties " + properties);
 			repository = getRepositoryByAlias(alias);
 		} else
-			throw new ArgeoJcrException("Not enough information in " + parameters);
+			throw new ArgeoJcrException("Not enough information in "
+					+ parameters);
 
 		if (repository == null)
 			throw new ArgeoJcrException("Repository not found " + parameters);
@@ -100,18 +111,22 @@ public class JackrabbitRepositoryFactory implements RepositoryFactory, ArgeoJcrC
 		return null;
 	}
 
-	protected Repository createRemoteRepository(String uri) throws RepositoryException {
+	protected Repository createRemoteRepository(String uri)
+			throws RepositoryException {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(JcrUtils.REPOSITORY_URI, uri);
-		Repository repository = new Jcr2davRepositoryFactory().getRepository(params);
+		Repository repository = new Jcr2davRepositoryFactory()
+				.getRepository(params);
 		if (repository == null)
-			throw new ArgeoJcrException("Remote Davex repository " + uri + " not found");
+			throw new ArgeoJcrException("Remote Davex repository " + uri
+					+ " not found");
 		log.info("Initialized remote Jackrabbit repository from uri " + uri);
 		return repository;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected Repository createFileRepository(final String uri, Map parameters) throws RepositoryException {
+	protected Repository createFileRepository(final String uri, Map parameters)
+			throws RepositoryException {
 		InputStream configurationIn = null;
 		try {
 			Properties vars = new Properties();
@@ -119,26 +134,32 @@ public class JackrabbitRepositoryFactory implements RepositoryFactory, ArgeoJcrC
 			String dirPath = uri.substring("file:".length());
 			File homeDir = new File(dirPath);
 			if (homeDir.exists() && !homeDir.isDirectory())
-				throw new ArgeoJcrException("Repository home " + dirPath + " is not a directory");
+				throw new ArgeoJcrException("Repository home " + dirPath
+						+ " is not a directory");
 			if (!homeDir.exists())
 				homeDir.mkdirs();
 			configurationIn = fileRepositoryConfiguration.getInputStream();
-			vars.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE, homeDir.getCanonicalPath());
-			RepositoryConfig repositoryConfig = RepositoryConfig.create(new InputSource(configurationIn), vars);
+			vars.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE,
+					homeDir.getCanonicalPath());
+			RepositoryConfig repositoryConfig = RepositoryConfig.create(
+					new InputSource(configurationIn), vars);
 
 			// TransientRepository repository = new
 			// TransientRepository(repositoryConfig);
-			final RepositoryImpl repository = RepositoryImpl.create(repositoryConfig);
+			final RepositoryImpl repository = RepositoryImpl
+					.create(repositoryConfig);
 			Session session = repository.login();
 			// FIXME make it generic
-			org.argeo.jcr.JcrUtils.addPrivilege(session, "/", "ROLE_ADMIN", "jcr:all");
+			org.argeo.jcr.JcrUtils.addPrivilege(session, "/", "ROLE_ADMIN",
+					"jcr:all");
 			org.argeo.jcr.JcrUtils.logoutQuietly(session);
-			Runtime.getRuntime().addShutdownHook(new Thread("Clean JCR repository " + uri) {
-				public void run() {
-					repository.shutdown();
-					log.info("Destroyed repository " + uri);
-				}
-			});
+			Runtime.getRuntime().addShutdownHook(
+					new Thread("Clean JCR repository " + uri) {
+						public void run() {
+							repository.shutdown();
+							log.info("Destroyed repository " + uri);
+						}
+					});
 			log.info("Initialized file Jackrabbit repository from uri " + uri);
 			return repository;
 		} catch (Exception e) {
@@ -171,7 +192,8 @@ public class JackrabbitRepositoryFactory implements RepositoryFactory, ArgeoJcrC
 
 	}
 
-	public void setFileRepositoryConfiguration(Resource fileRepositoryConfiguration) {
+	public void setFileRepositoryConfiguration(
+			Resource fileRepositoryConfiguration) {
 		this.fileRepositoryConfiguration = fileRepositoryConfiguration;
 	}
 

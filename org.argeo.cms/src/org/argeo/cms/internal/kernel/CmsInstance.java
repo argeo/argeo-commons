@@ -4,7 +4,6 @@ import javax.jcr.Repository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeInstance;
 import org.osgi.framework.BundleContext;
@@ -27,7 +26,7 @@ public class CmsInstance implements NodeInstance {
 			@Override
 			public Repository addingService(ServiceReference<Repository> reference) {
 				Object cn = reference.getProperty(NodeConstants.CN);
-				if (cn != null && cn.equals(ArgeoJcrConstants.ALIAS_NODE)) {
+				if (cn != null && cn.equals(NodeConstants.ALIAS_NODE)) {
 					if (log.isDebugEnabled())
 						log.debug("Node repository is available");
 				}

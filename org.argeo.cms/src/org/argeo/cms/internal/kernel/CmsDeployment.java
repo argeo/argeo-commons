@@ -20,7 +20,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.core.RepositoryContext;
 import org.argeo.cms.CmsException;
-import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.node.DataModelNamespace;
 import org.argeo.node.NodeConstants;
@@ -130,8 +129,8 @@ public class CmsDeployment implements NodeDeployment {
 
 		prepareDataModel(KernelUtils.openAdminSession(deployedNodeRepository));
 		Hashtable<String, String> regProps = new Hashtable<String, String>();
-		regProps.put(NodeConstants.CN, ArgeoJcrConstants.ALIAS_HOME);
-		regProps.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, ArgeoJcrConstants.ALIAS_HOME);
+		regProps.put(NodeConstants.CN, NodeConstants.ALIAS_HOME);
+		regProps.put(NodeConstants.JCR_REPOSITORY_ALIAS, NodeConstants.ALIAS_HOME);
 		homeRepository = new HomeRepository(deployedNodeRepository);
 		// register
 		bc.registerService(Repository.class, homeRepository, regProps);
@@ -186,9 +185,9 @@ public class CmsDeployment implements NodeDeployment {
 
 		if (!asBoolean((String) attrs.get(DataModelNamespace.CAPABILITY_ABSTRACT_ATTRIBUTE))) {
 			Hashtable<String, Object> properties = new Hashtable<>();
-			properties.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, name);
+			properties.put(NodeConstants.JCR_REPOSITORY_ALIAS, name);
 			properties.put(NodeConstants.CN, name);
-			if (name.equals(ArgeoJcrConstants.ALIAS_NODE))
+			if (name.equals(NodeConstants.ALIAS_NODE))
 				properties.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
 			LocalRepository localRepository = new LocalRepository(adminSession.getRepository(), capability);
 			bc.registerService(Repository.class, localRepository, properties);
@@ -226,7 +225,7 @@ public class CmsDeployment implements NodeDeployment {
 		public RepositoryContext addingService(ServiceReference<RepositoryContext> reference) {
 			RepositoryContext nodeRepo = bc.getService(reference);
 			Object cn = reference.getProperty(NodeConstants.CN);
-			if (cn != null && cn.equals(ArgeoJcrConstants.ALIAS_NODE)) {
+			if (cn != null && cn.equals(NodeConstants.ALIAS_NODE)) {
 				prepareNodeRepository(nodeRepo.getRepository());
 				nodeAvailable = true;
 				checkReadiness();

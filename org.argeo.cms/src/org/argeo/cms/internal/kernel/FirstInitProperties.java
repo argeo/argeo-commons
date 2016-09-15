@@ -16,7 +16,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
-import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.RepoConf;
 import org.argeo.osgi.useradmin.UserAdminConf;
@@ -41,8 +40,8 @@ class FirstInitProperties {
 			if (value != null)
 				props.put(repoConf.name(), value);
 		}
-		props.put(NodeConstants.CN, ArgeoJcrConstants.ALIAS_NODE);
-		props.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, ArgeoJcrConstants.ALIAS_NODE);
+		props.put(NodeConstants.CN, NodeConstants.ALIAS_NODE);
+		props.put(NodeConstants.JCR_REPOSITORY_ALIAS, NodeConstants.ALIAS_NODE);
 		return props;
 	}
 

@@ -68,7 +68,7 @@ import org.argeo.util.security.DigestUtils;
 import org.argeo.util.security.SimplePrincipal;
 
 /** Utility methods to simplify common JCR operations. */
-public class JcrUtils implements ArgeoJcrConstants {
+public class JcrUtils {
 
 	final private static Log log = LogFactory.getLog(JcrUtils.class);
 

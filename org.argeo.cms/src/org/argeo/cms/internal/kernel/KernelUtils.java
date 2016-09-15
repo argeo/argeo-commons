@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
-import org.argeo.jcr.ArgeoJcrConstants;
+import org.argeo.node.NodeConstants;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -250,7 +250,7 @@ class KernelUtils implements KernelConstants {
 		else
 			buf.append(WEBDAV_PRIVATE);
 		// TODO convey repo alias vie repository properties
-		return buf.append('/').append(ArgeoJcrConstants.ALIAS_NODE).append('/').append(node.getSession().getWorkspace().getName())
+		return buf.append('/').append(NodeConstants.ALIAS_NODE).append('/').append(node.getSession().getWorkspace().getName())
 				.append(node.getPath()).toString();
 	}
 

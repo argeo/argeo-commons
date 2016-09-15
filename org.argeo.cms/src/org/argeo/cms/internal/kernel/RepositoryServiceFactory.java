@@ -8,7 +8,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.RepositoryContext;
 import org.argeo.cms.CmsException;
-import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.node.NodeConstants;
 import org.argeo.util.LangUtils;
 import org.osgi.framework.BundleContext;
@@ -52,7 +51,7 @@ class RepositoryServiceFactory implements ManagedServiceFactory {
 			Object cn = properties.get(NodeConstants.CN);
 			if (cn != null) {
 				props.put(NodeConstants.CN, cn);
-				props.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, cn);
+				props.put(NodeConstants.JCR_REPOSITORY_ALIAS, cn);
 				pidToCn.put(pid, cn);
 			}
 			bc.registerService(RepositoryContext.class, repositoryContext, props);

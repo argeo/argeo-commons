@@ -28,7 +28,7 @@ import org.argeo.eclipse.ui.workbench.internal.jcr.model.RepositoryElem;
 import org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
 import org.argeo.eclipse.ui.workbench.internal.jcr.model.WorkspaceElem;
 import org.argeo.eclipse.ui.workbench.jcr.JcrImages;
-import org.argeo.jcr.ArgeoTypes;
+import org.argeo.node.ArgeoTypes;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.graphics.Image;
 

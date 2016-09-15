@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.jcr.tabular;
+package org.argeo.cms.tabular;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.io.IOUtils;
 import org.argeo.jcr.ArgeoJcrException;
-import org.argeo.jcr.ArgeoTypes;
+import org.argeo.node.ArgeoTypes;
 import org.argeo.util.CsvParser;
 import org.argeo.util.tabular.ArrayTabularRow;
 import org.argeo.util.tabular.TabularColumn;

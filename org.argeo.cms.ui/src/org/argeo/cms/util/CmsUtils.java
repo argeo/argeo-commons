@@ -18,9 +18,9 @@ import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.ui.CmsView;
 import org.argeo.eclipse.ui.specific.UiContext;
-import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.node.NodeAuthenticated;
+import org.argeo.node.NodeConstants;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.ResourceManager;
 import org.eclipse.swt.SWT;
@@ -86,7 +86,7 @@ public class CmsUtils implements CmsConstants {
 		else
 			buf.append(WEBDAV_PRIVATE);
 		// TODO convey repo alias vie repository properties
-		return buf.append('/').append(ArgeoJcrConstants.ALIAS_NODE).append('/').append(node.getSession().getWorkspace().getName())
+		return buf.append('/').append(NodeConstants.ALIAS_NODE).append('/').append(node.getSession().getWorkspace().getName())
 				.append(node.getPath()).toString();
 	}
 //

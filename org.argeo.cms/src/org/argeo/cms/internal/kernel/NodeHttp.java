@@ -29,8 +29,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.node.NodeConstants;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
@@ -39,7 +39,7 @@ import org.osgi.service.http.HttpService;
  * Intercepts and enriches http access, mainly focusing on security and
  * transactionality.
  */
-class NodeHttp implements KernelConstants, ArgeoJcrConstants {
+class NodeHttp implements KernelConstants {
 	private final static Log log = LogFactory.getLog(NodeHttp.class);
 
 	// Filters
@@ -116,7 +116,7 @@ class NodeHttp implements KernelConstants, ArgeoJcrConstants {
 					@Override
 					public Session run() throws Exception {
 						Collection<ServiceReference<Repository>> srs = bc.getServiceReferences(Repository.class, "("
-								+ ArgeoJcrConstants.JCR_REPOSITORY_ALIAS + "=" + ArgeoJcrConstants.ALIAS_NODE + ")");
+								+ NodeConstants.JCR_REPOSITORY_ALIAS + "=" + NodeConstants.ALIAS_NODE + ")");
 						Repository repository = bc.getService(srs.iterator().next());
 						return repository.login();
 					}

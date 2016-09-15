@@ -17,20 +17,20 @@ import javax.security.auth.login.LoginContext;
 import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
-import org.argeo.jcr.ArgeoJcrConstants;
-import org.argeo.jcr.ArgeoNames;
-import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrRepositoryWrapper;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.jcr.UserJcrUtils;
+import org.argeo.node.ArgeoNames;
+import org.argeo.node.ArgeoTypes;
+import org.argeo.node.NodeConstants;
+import org.argeo.node.NodeUtils;
 
 /**
  * Make sure each user has a home directory available in the default workspace.
  */
-class HomeRepository extends JcrRepositoryWrapper implements KernelConstants, ArgeoJcrConstants {
+class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 	/** The home base path. */
 	private String homeBasePath = "/home";
-	private String peopleBasePath = ArgeoJcrConstants.PEOPLE_BASE_PATH;
+	private String peopleBasePath = NodeConstants.PEOPLE_BASE_PATH;
 
 	private Set<String> checkedUsers = new HashSet<String>();
 
@@ -94,7 +94,8 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants, Ar
 
 		if (checkedUsers.contains(username))
 			return;
-		Session adminSession = KernelUtils.openAdminSession(getRepository(), session.getWorkspace().getName());
+		Session adminSession = KernelUtils.openAdminSession(getRepository(),
+				session.getWorkspace().getName());
 		try {
 			syncJcr(adminSession, username);
 			checkedUsers.add(username);
@@ -113,8 +114,10 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants, Ar
 			JcrUtils.mkdirs(adminSession, peopleBasePath);
 			adminSession.save();
 
-			JcrUtils.addPrivilege(adminSession, homeBasePath, AuthConstants.ROLE_USER_ADMIN, Privilege.JCR_READ);
-			JcrUtils.addPrivilege(adminSession, peopleBasePath, AuthConstants.ROLE_USER_ADMIN, Privilege.JCR_ALL);
+			JcrUtils.addPrivilege(adminSession, homeBasePath,
+					AuthConstants.ROLE_USER_ADMIN, Privilege.JCR_READ);
+			JcrUtils.addPrivilege(adminSession, peopleBasePath,
+					AuthConstants.ROLE_USER_ADMIN, Privilege.JCR_ALL);
 			adminSession.save();
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot initialize node user admin", e);
@@ -125,11 +128,12 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants, Ar
 
 	private Node syncJcr(Session session, String username) {
 		try {
-			Node userHome = UserJcrUtils.getUserHome(session, username);
+			Node userHome = NodeUtils.getUserHome(session, username);
 			if (userHome == null) {
 				String homePath = generateUserPath(homeBasePath, username);
 				if (session.itemExists(homePath))// duplicate user id
-					userHome = session.getNode(homePath).getParent().addNode(JcrUtils.lastPathElement(homePath));
+					userHome = session.getNode(homePath).getParent()
+							.addNode(JcrUtils.lastPathElement(homePath));
 				else
 					userHome = JcrUtils.mkdirs(session, homePath);
 				// userHome = JcrUtils.mkfolders(session, homePath);
@@ -138,16 +142,18 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants, Ar
 				session.save();
 
 				JcrUtils.clearAccessControList(session, homePath, username);
-				JcrUtils.addPrivilege(session, homePath, username, Privilege.JCR_ALL);
+				JcrUtils.addPrivilege(session, homePath, username,
+						Privilege.JCR_ALL);
 			}
 
-			Node userProfile = UserJcrUtils.getUserProfile(session, username);
+			Node userProfile = NodeUtils.getUserProfile(session, username);
 			// new user
 			if (userProfile == null) {
 				String personPath = generateUserPath(peopleBasePath, username);
 				Node personBase;
 				if (session.itemExists(personPath))// duplicate user id
-					personBase = session.getNode(personPath).getParent().addNode(JcrUtils.lastPathElement(personPath));
+					personBase = session.getNode(personPath).getParent()
+							.addNode(JcrUtils.lastPathElement(personPath));
 				else
 					personBase = JcrUtils.mkdirs(session, personPath);
 				userProfile = personBase.addNode(ArgeoNames.ARGEO_PROFILE);
@@ -162,8 +168,10 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants, Ar
 				// true);
 				session.save();
 
-				JcrUtils.clearAccessControList(session, userProfile.getPath(), username);
-				JcrUtils.addPrivilege(session, userProfile.getPath(), username, Privilege.JCR_READ);
+				JcrUtils.clearAccessControList(session, userProfile.getPath(),
+						username);
+				JcrUtils.addPrivilege(session, userProfile.getPath(), username,
+						Privilege.JCR_READ);
 			}
 
 			// Remote roles
@@ -175,7 +183,8 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants, Ar
 			return userProfile;
 		} catch (RepositoryException e) {
 			JcrUtils.discardQuietly(session);
-			throw new CmsException("Cannot sync node security model for " + username, e);
+			throw new CmsException("Cannot sync node security model for "
+					+ username, e);
 		}
 	}
 
@@ -192,12 +201,14 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants, Ar
 		if (atIndex > 0) {
 			String domain = userId.substring(0, atIndex);
 			String name = userId.substring(atIndex + 1);
-			return base + '/' + JcrUtils.firstCharsToPath(domain, 2) + '/' + domain + '/'
-					+ JcrUtils.firstCharsToPath(name, 2) + '/' + name;
+			return base + '/' + JcrUtils.firstCharsToPath(domain, 2) + '/'
+					+ domain + '/' + JcrUtils.firstCharsToPath(name, 2) + '/'
+					+ name;
 		} else if (atIndex == 0 || atIndex == (userId.length() - 1)) {
 			throw new CmsException("Unsupported username " + userId);
 		} else {
-			return base + '/' + JcrUtils.firstCharsToPath(userId, 2) + '/' + userId;
+			return base + '/' + JcrUtils.firstCharsToPath(userId, 2) + '/'
+					+ userId;
 		}
 	}
 

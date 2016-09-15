@@ -35,8 +35,8 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.auth.HttpRequestCallback;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
-import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.node.NodeConstants;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -51,7 +51,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * Intercepts and enriches http access, mainly focusing on security and
  * transactionality.
  */
-class DataHttp implements KernelConstants, ArgeoJcrConstants {
+class DataHttp implements KernelConstants {
 	private final static Log log = LogFactory.getLog(DataHttp.class);
 
 	// private final static String ATTR_AUTH = "auth";
@@ -161,7 +161,7 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 		@Override
 		public Repository addingService(ServiceReference<Repository> reference) {
 			Repository repository = bc.getService(reference);
-			Object jcrRepoAlias = reference.getProperty(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS);
+			Object jcrRepoAlias = reference.getProperty(NodeConstants.JCR_REPOSITORY_ALIAS);
 			if (jcrRepoAlias != null) {
 				String alias = jcrRepoAlias.toString();
 				registerRepositoryServlets(alias, repository);
@@ -175,7 +175,7 @@ class DataHttp implements KernelConstants, ArgeoJcrConstants {
 
 		@Override
 		public void removedService(ServiceReference<Repository> reference, Repository service) {
-			Object jcrRepoAlias = reference.getProperty(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS);
+			Object jcrRepoAlias = reference.getProperty(NodeConstants.JCR_REPOSITORY_ALIAS);
 			if (jcrRepoAlias != null) {
 				String alias = jcrRepoAlias.toString();
 				unregisterRepositoryServlets(alias);

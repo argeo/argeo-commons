@@ -28,7 +28,12 @@ import org.apache.commons.logging.LogFactory;
 
 @Deprecated
 public class DefaultRepositoryRegister extends Observable implements
-		RepositoryRegister, ArgeoJcrConstants {
+		RepositoryRegister {
+	// FIXME factorize with node
+	/** Key for a JCR repository alias */
+	public final static String JCR_REPOSITORY_ALIAS = "argeo.jcr.repository.alias";
+	/** Key for a JCR repository URI */
+	public final static String JCR_REPOSITORY_URI = "argeo.jcr.repository.uri";
 	private final static Log log = LogFactory
 			.getLog(DefaultRepositoryRegister.class);
 

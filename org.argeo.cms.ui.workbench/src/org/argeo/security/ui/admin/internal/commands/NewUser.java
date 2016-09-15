@@ -28,7 +28,7 @@ import org.argeo.cms.ui.workbench.SecurityUiPlugin;
 import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
-import org.argeo.jcr.ArgeoNames;
+import org.argeo.node.ArgeoNames;
 import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.security.ui.admin.internal.UserAdminWrapper;

@@ -19,7 +19,6 @@ import javax.naming.ldap.Rdn;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.node.NodeConstants;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.util.naming.AttributesDictionary;
@@ -69,7 +68,7 @@ class DeployConfig implements ConfigurationListener {
 
 		// node repository
 		Dictionary<String, Object> nodeConfig = firstInit
-				.getNodeRepositoryConfig(getProps(NodeConstants.NODE_REPOS_FACTORY_PID, ArgeoJcrConstants.ALIAS_NODE));
+				.getNodeRepositoryConfig(getProps(NodeConstants.NODE_REPOS_FACTORY_PID, NodeConstants.ALIAS_NODE));
 		// node repository is mandatory
 		putFactoryDeployConfig(NodeConstants.NODE_REPOS_FACTORY_PID, nodeConfig);
 

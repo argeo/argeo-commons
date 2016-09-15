@@ -27,12 +27,12 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.argeo.jcr.ArgeoJcrException;
-import org.argeo.jcr.ArgeoNames;
 import org.argeo.jcr.JcrCallback;
 import org.argeo.jcr.JcrUtils;
 import org.springframework.core.io.Resource;
 
 /** Migrate the data in a Jackrabbit repository. */
+@Deprecated
 public class JackrabbitDataModelMigration implements
 		Comparable<JackrabbitDataModelMigration> {
 	private final static Log log = LogFactory
@@ -61,15 +61,15 @@ public class JackrabbitDataModelMigration implements
 				return false;
 			}
 			Node dataModelNode = session.getNode(dataModelNodePath);
-			if (dataModelNode.hasProperty(ArgeoNames.ARGEO_DATA_MODEL_VERSION)) {
-				String currentVersion = dataModelNode.getProperty(
-						ArgeoNames.ARGEO_DATA_MODEL_VERSION).getString();
-				if (compareVersions(currentVersion, targetVersion) >= 0) {
-					log.info("Data model at version " + currentVersion
-							+ ", no need to migrate.");
-					return false;
-				}
-			}
+//			if (dataModelNode.hasProperty(ArgeoNames.ARGEO_DATA_MODEL_VERSION)) {
+//				String currentVersion = dataModelNode.getProperty(
+//						ArgeoNames.ARGEO_DATA_MODEL_VERSION).getString();
+//				if (compareVersions(currentVersion, targetVersion) >= 0) {
+//					log.info("Data model at version " + currentVersion
+//							+ ", no need to migrate.");
+//					return false;
+//				}
+//			}
 
 			// apply transitional CND
 			if (migrationCnd != null) {

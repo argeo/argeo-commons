@@ -28,11 +28,11 @@ import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.eclipse.ui.workbench.CommandUtils;
 import org.argeo.eclipse.ui.workbench.WorkbenchConstants;
-import org.argeo.jcr.ArgeoJcrConstants;
-import org.argeo.jcr.ArgeoNames;
-import org.argeo.jcr.ArgeoTypes;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.jcr.UserJcrUtils;
+import org.argeo.node.ArgeoNames;
+import org.argeo.node.ArgeoTypes;
+import org.argeo.node.NodeConstants;
+import org.argeo.node.NodeUtils;
 import org.argeo.util.security.Keyring;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -143,7 +143,7 @@ public class AddRemoteRepository extends AbstractHandler implements
 				String checkedUriStr = checkedUri.toString();
 
 				Hashtable<String, String> params = new Hashtable<String, String>();
-				params.put(ArgeoJcrConstants.JCR_REPOSITORY_URI, checkedUriStr);
+				params.put(NodeConstants.JCR_REPOSITORY_URI, checkedUriStr);
 				Repository repository = repositoryFactory.getRepository(params);
 				if (username.getText().trim().equals("")) {// anonymous
 					session = repository.login();
@@ -170,7 +170,7 @@ public class AddRemoteRepository extends AbstractHandler implements
 			Session nodeSession = null;
 			try {
 				nodeSession = nodeRepository.login();
-				Node home = UserJcrUtils.getUserHome(nodeSession);
+				Node home = NodeUtils.getUserHome(nodeSession);
 
 				Node remote = home.hasNode(ARGEO_REMOTE) ? home
 						.getNode(ARGEO_REMOTE) : home.addNode(ARGEO_REMOTE);

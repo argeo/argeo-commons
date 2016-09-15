@@ -26,8 +26,8 @@ import javax.jcr.SimpleCredentials;
 
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
-import org.argeo.jcr.ArgeoJcrUtils;
-import org.argeo.jcr.ArgeoNames;
+import org.argeo.node.ArgeoNames;
+import org.argeo.node.NodeUtils;
 import org.argeo.util.security.Keyring;
 
 /** Root of a remote repository */
@@ -76,7 +76,7 @@ public class RemoteRepositoryElem extends RepositoryElem {
 	@Override
 	public Repository getRepository() {
 		if (repository == null)
-			repository = ArgeoJcrUtils.getRepositoryByUri(repositoryFactory,
+			repository = NodeUtils.getRepositoryByUri(repositoryFactory,
 					uri);
 		return super.getRepository();
 	}

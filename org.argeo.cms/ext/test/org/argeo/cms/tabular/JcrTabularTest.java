@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.jcr.tabular;
+package org.argeo.cms.tabular;
 
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -25,9 +25,11 @@ import javax.jcr.PropertyType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
+import org.argeo.cms.tabular.JcrTabularRowIterator;
+import org.argeo.cms.tabular.JcrTabularWriter;
 import org.argeo.jackrabbit.unit.AbstractJackrabbitTestCase;
-import org.argeo.jcr.ArgeoNames;
-import org.argeo.jcr.ArgeoTypes;
+import org.argeo.node.ArgeoNames;
+import org.argeo.node.ArgeoTypes;
 import org.argeo.util.tabular.TabularColumn;
 import org.argeo.util.tabular.TabularRow;
 import org.argeo.util.tabular.TabularRowIterator;
@@ -39,7 +41,7 @@ public class JcrTabularTest extends AbstractJackrabbitTestCase {
 	public void testWriteReadCsv() throws Exception {
 		session().setNamespacePrefix("argeo", ArgeoNames.ARGEO_NAMESPACE);
 		InputStreamReader reader = new InputStreamReader(getClass()
-				.getResourceAsStream("/org/argeo/jcr/argeo.cnd"));
+				.getResourceAsStream("/org/argeo/node/node.cnd"));
 		CndImporter.registerNodeTypes(reader, session());
 		reader.close();
 

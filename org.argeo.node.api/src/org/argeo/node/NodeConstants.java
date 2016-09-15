@@ -1,5 +1,7 @@
 package org.argeo.node;
 
+import javax.jcr.Repository;
+
 public interface NodeConstants {
 	/*
 	 * PIDs
@@ -8,7 +10,7 @@ public interface NodeConstants {
 	String NODE_DEPLOYMENT_PID = "org.argeo.node.deployment";
 	String NODE_INSTANCE_PID = "org.argeo.node.instance";
 
-//	String NODE_REPO_PID = "org.argeo.node.repo";
+	// String NODE_REPO_PID = "org.argeo.node.repo";
 	String NODE_USER_ADMIN_PID = "org.argeo.node.userAdmin";
 
 	/*
@@ -42,9 +44,28 @@ public interface NodeConstants {
 	String CN = "cn";
 	String OU = "ou";
 	String LABELED_URI = "labeledUri";
-	
+
 	/*
 	 * STANDARD VALUES
 	 */
 	String DEFAULT = "default";
+	/*
+	 * LEGACY
+	 */
+	String ARGEO_BASE_PATH = "/argeo:system";
+	String PEOPLE_BASE_PATH = NodeConstants.ARGEO_BASE_PATH + "/argeo:people";
+	String DATA_MODELS_BASE_PATH = NodeConstants.ARGEO_BASE_PATH
+			+ "/argeo:dataModels";
+	String ALIAS_HOME = "home";
+	// standard aliases
+	/**
+	 * Reserved alias for the "node" {@link Repository}, that is, the default
+	 * JCR repository.
+	 */
+	String ALIAS_NODE = "node";
+	/** Key for a JCR repository URI */
+	String JCR_REPOSITORY_URI = "argeo.jcr.repository.uri";
+	// parameters (typically for call to a RepositoryFactory)
+	/** Key for a JCR repository alias */
+	String JCR_REPOSITORY_ALIAS = "argeo.jcr.repository.alias";
 }
