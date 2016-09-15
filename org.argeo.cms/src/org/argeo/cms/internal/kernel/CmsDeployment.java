@@ -143,11 +143,8 @@ public class CmsDeployment implements NodeDeployment {
 			Set<String> processed = new HashSet<String>();
 			bundles: for (Bundle bundle : bc.getBundles()) {
 				BundleWiring wiring = bundle.adapt(BundleWiring.class);
-				if (wiring == null) {
-					if (log.isTraceEnabled())
-						log.error("No wiring for " + bundle.getSymbolicName());
+				if (wiring == null)
 					continue bundles;
-				}
 				processWiring(adminSession, wiring, processed);
 			}
 		} finally {
@@ -170,13 +167,13 @@ public class CmsDeployment implements NodeDeployment {
 
 	private void registerCnd(Session adminSession, BundleCapability capability, Set<String> processed) {
 		Map<String, Object> attrs = capability.getAttributes();
-		String name = attrs.get(DataModelNamespace.CAPABILITY_NAME_ATTRIBUTE).toString();
+		String name = (String) attrs.get(DataModelNamespace.CAPABILITY_NAME_ATTRIBUTE);
 		if (processed.contains(name)) {
 			if (log.isTraceEnabled())
 				log.trace("Data model " + name + " has already been processed");
 			return;
 		}
-		String path = attrs.get(DataModelNamespace.CAPABILITY_CND_ATTRIBUTE).toString();
+		String path = (String) attrs.get(DataModelNamespace.CAPABILITY_CND_ATTRIBUTE);
 		URL url = capability.getRevision().getBundle().getResource(path);
 		try (Reader reader = new InputStreamReader(url.openStream())) {
 			CndImporter.registerNodeTypes(reader, adminSession, true);
@@ -187,14 +184,31 @@ public class CmsDeployment implements NodeDeployment {
 			throw new CmsException("Cannot import CND " + url, e);
 		}
 
-		Hashtable<String, Object> properties = new Hashtable<>();
-		properties.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, name);
-		properties.put(NodeConstants.CN, name);
-		if (name.equals(ArgeoJcrConstants.ALIAS_NODE))
-			properties.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
-		bc.registerService(Repository.class, adminSession.getRepository(), properties);
-		if (log.isDebugEnabled())
-			log.debug("Published data model " + name);
+		if (!asBoolean((String) attrs.get(DataModelNamespace.CAPABILITY_ABSTRACT_ATTRIBUTE))) {
+			Hashtable<String, Object> properties = new Hashtable<>();
+			properties.put(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS, name);
+			properties.put(NodeConstants.CN, name);
+			if (name.equals(ArgeoJcrConstants.ALIAS_NODE))
+				properties.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
+			LocalRepository localRepository = new LocalRepository(adminSession.getRepository(), capability);
+			bc.registerService(Repository.class, localRepository, properties);
+			if (log.isDebugEnabled())
+				log.debug("Published data model " + name);
+		}
+	}
+
+	private boolean asBoolean(String value) {
+		if (value == null)
+			return false;
+		switch (value) {
+		case "true":
+			return true;
+		case "false":
+			return false;
+		default:
+			throw new CmsException("Unsupported value for attribute " + DataModelNamespace.CAPABILITY_ABSTRACT_ATTRIBUTE
+					+ ": " + value);
+		}
 	}
 
 	@Override

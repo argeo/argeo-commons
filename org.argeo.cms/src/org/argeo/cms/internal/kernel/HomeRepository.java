@@ -28,8 +28,6 @@ import org.argeo.jcr.UserJcrUtils;
  * Make sure each user has a home directory available in the default workspace.
  */
 class HomeRepository extends JcrRepositoryWrapper implements KernelConstants, ArgeoJcrConstants {
-	// private final Kernel kernel;
-
 	/** The home base path. */
 	private String homeBasePath = "/home";
 	private String peopleBasePath = ArgeoJcrConstants.PEOPLE_BASE_PATH;
@@ -37,7 +35,6 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants, Ar
 	private Set<String> checkedUsers = new HashSet<String>();
 
 	public HomeRepository(Repository repository) {
-		// this.kernel = kernel;
 		setRepository(repository);
 		LoginContext lc;
 		try {
