@@ -8,8 +8,6 @@ import java.util.Dictionary;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.node.ArgeoLogger;
 import org.argeo.node.NodeConstants;
@@ -21,7 +19,6 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.condpermadmin.ConditionalPermissionAdmin;
 import org.osgi.service.log.LogReaderService;
 
 /**
@@ -29,12 +26,9 @@ import org.osgi.service.log.LogReaderService;
  * access to kernel information for the rest of the bundle (and only it)
  */
 public class Activator implements BundleActivator {
-	private final Log log = LogFactory.getLog(Activator.class);
-
 	private static Activator instance;
 
 	private BundleContext bc;
-	private ConditionalPermissionAdmin permissionAdmin;
 	private LogReaderService logReaderService;
 	// private ConfigurationAdmin configurationAdmin;
 
@@ -47,7 +41,6 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext bundleContext) throws Exception {
 		instance = this;
 		this.bc = bundleContext;
-		this.permissionAdmin = getService(ConditionalPermissionAdmin.class);
 		this.logReaderService = getService(LogReaderService.class);
 		// this.configurationAdmin = getService(ConfigurationAdmin.class);
 
@@ -62,8 +55,10 @@ public class Activator implements BundleActivator {
 	}
 
 	private void initSecurity() {
-		URL url = getClass().getClassLoader().getResource(KernelConstants.JAAS_CONFIG);
-		System.setProperty("java.security.auth.login.config", url.toExternalForm());
+		URL url = getClass().getClassLoader().getResource(
+				KernelConstants.JAAS_CONFIG);
+		System.setProperty("java.security.auth.login.config",
+				url.toExternalForm());
 	}
 
 	private void initArgeoLogger() {
@@ -82,24 +77,8 @@ public class Activator implements BundleActivator {
 			Files.write(stateUuidPath, stateUuid.getBytes());
 		}
 		nodeState = new CmsState(stateUuid);
-		// Object cn;
-		// Configuration nodeConf =
-		// configurationAdmin.getConfiguration(NodeConstants.NODE_STATE_PID);
-		// Dictionary<String, Object> props = nodeConf.getProperties();
-		// if (props == null) {
-		// if (log.isDebugEnabled())
-		// log.debug("Clean node state");
-		// Dictionary<String, Object> envProps = new Hashtable<>();
-		// // Use the UUID of the first framework run as state UUID
-		// cn = bc.getProperty(Constants.FRAMEWORK_UUID);
-		// envProps.put(NodeConstants.CN, cn);
-		// nodeConf.update(envProps);
-		// } else {
-		// cn = props.get(NodeConstants.CN);
-		// if (cn == null)
-		// throw new CmsException("No state UUID available");
-		// }
-		Dictionary<String, Object> regProps = LangUtils.init(Constants.SERVICE_PID, NodeConstants.NODE_STATE_PID);
+		Dictionary<String, Object> regProps = LangUtils.init(
+				Constants.SERVICE_PID, NodeConstants.NODE_STATE_PID);
 		regProps.put(NodeConstants.CN, stateUuid);
 		bc.registerService(NodeState.class, nodeState, regProps);
 
@@ -120,7 +99,6 @@ public class Activator implements BundleActivator {
 
 		instance = null;
 		this.bc = null;
-		this.permissionAdmin = null;
 		this.logReaderService = null;
 		// this.configurationAdmin = null;
 	}

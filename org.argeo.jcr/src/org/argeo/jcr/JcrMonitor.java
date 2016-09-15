@@ -1,13 +1,11 @@
 package org.argeo.jcr;
 
-import org.argeo.ArgeoMonitor;
 
 /**
  * Simple monitor abstraction. Inspired by Eclipse IProgressMOnitor, but without
  * dependency to it.
  */
-@SuppressWarnings("deprecation")
-public interface JcrMonitor extends ArgeoMonitor {
+public interface JcrMonitor {
 	/**
 	 * Constant indicating an unknown amount of work.
 	 */

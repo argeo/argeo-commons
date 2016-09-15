@@ -13,25 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.util.tabular;
+package org.argeo.node.tabular;
 
-import java.io.OutputStream;
+/** A row of tabular data */
+public interface TabularRow {
+	/** The value at this column index */
+	public Object get(Integer col);
 
-import org.argeo.util.CsvWriter;
+	/** The raw objects (direct references) */
+	public Object[] toArray();
 
-/** Write tabular content in a stream as CSV. Wraps a {@link CsvWriter}. */
-public class CsvTabularWriter implements TabularWriter {
-	private CsvWriter csvWriter;
-
-	public CsvTabularWriter(OutputStream out) {
-		this.csvWriter = new CsvWriter(out);
-	}
-
-	public void appendRow(Object[] row) {
-		csvWriter.writeLine(row);
-	}
-
-	public void close() {
-	}
-
+	/** Number of columns */
+	public int size();
 }

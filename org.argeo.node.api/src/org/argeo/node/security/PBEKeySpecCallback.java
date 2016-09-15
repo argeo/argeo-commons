@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.util.security;
+package org.argeo.node.security;
 
 import javax.crypto.spec.PBEKeySpec;
 import javax.security.auth.callback.Callback;

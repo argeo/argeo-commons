@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.util.security;
+package org.argeo.cms.security;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -33,8 +33,8 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.argeo.util.internal.UtilsException;
-import org.argeo.util.internal.StreamUtils;
+import org.apache.commons.io.IOUtils;
+import org.argeo.cms.CmsException;
 
 /** Simple password based encryption / decryption */
 public class PasswordBasedEncryption {
@@ -92,11 +92,11 @@ public class PasswordBasedEncryption {
 			try {
 				initKeyAndCiphers(password, passwordSalt, initializationVector);
 			} catch (Exception e1) {
-				throw new UtilsException(
+				throw new CmsException(
 						"Cannot get secret key (with restricted length)", e1);
 			}
 		} catch (Exception e) {
-			throw new UtilsException("Cannot get secret key", e);
+			throw new CmsException("Cannot get secret key", e);
 		}
 	}
 
@@ -134,14 +134,14 @@ public class PasswordBasedEncryption {
 		try {
 			CipherOutputStream out = new CipherOutputStream(encryptedOut,
 					ecipher);
-			StreamUtils.copy(decryptedIn, out);
-			StreamUtils.closeQuietly(out);
+			IOUtils.copy(decryptedIn, out);
+			IOUtils.closeQuietly(out);
 		} catch (IOException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new UtilsException("Cannot encrypt", e);
+			throw new CmsException("Cannot encrypt", e);
 		} finally {
-			StreamUtils.closeQuietly(decryptedIn);
+			IOUtils.closeQuietly(decryptedIn);
 		}
 	}
 
@@ -150,13 +150,13 @@ public class PasswordBasedEncryption {
 		try {
 			CipherInputStream decryptedIn = new CipherInputStream(encryptedIn,
 					dcipher);
-			StreamUtils.copy(decryptedIn, decryptedOut);
+			IOUtils.copy(decryptedIn, decryptedOut);
 		} catch (IOException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new UtilsException("Cannot decrypt", e);
+			throw new CmsException("Cannot decrypt", e);
 		} finally {
-			StreamUtils.closeQuietly(encryptedIn);
+			IOUtils.closeQuietly(encryptedIn);
 		}
 	}
 
@@ -169,9 +169,9 @@ public class PasswordBasedEncryption {
 			encrypt(in, out);
 			return out.toByteArray();
 		} catch (Exception e) {
-			throw new UtilsException("Cannot encrypt", e);
+			throw new CmsException("Cannot encrypt", e);
 		} finally {
-			StreamUtils.closeQuietly(out);
+			IOUtils.closeQuietly(out);
 		}
 	}
 
@@ -183,9 +183,9 @@ public class PasswordBasedEncryption {
 			decrypt(in, out);
 			return new String(out.toByteArray(), DEFAULT_CHARSET);
 		} catch (Exception e) {
-			throw new UtilsException("Cannot decrypt", e);
+			throw new CmsException("Cannot decrypt", e);
 		} finally {
-			StreamUtils.closeQuietly(out);
+			IOUtils.closeQuietly(out);
 		}
 	}
 

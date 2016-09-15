@@ -63,9 +63,7 @@ import javax.jcr.security.Privilege;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.ArgeoMonitor;
-import org.argeo.util.security.DigestUtils;
-import org.argeo.util.security.SimplePrincipal;
+import org.argeo.util.DigestUtils;
 
 /** Utility methods to simplify common JCR operations. */
 public class JcrUtils {
@@ -1417,9 +1415,8 @@ public class JcrUtils {
 	 *            files
 	 * @return how many files were copied
 	 */
-	@SuppressWarnings("deprecation")
 	public static Long copyFiles(Node fromNode, Node toNode, Boolean recursive,
-			ArgeoMonitor monitor) {
+			JcrMonitor monitor) {
 		long count = 0l;
 
 		Binary binary = null;

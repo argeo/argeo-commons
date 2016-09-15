@@ -210,7 +210,7 @@ public class UserBatchUpdateWizard extends Wizard {
 	// @Override
 	// protected IStatus doRun(IProgressMonitor progressMonitor) {
 	// try {
-	// ArgeoMonitor monitor = new EclipseArgeoMonitor(progressMonitor);
+	// JcrMonitor monitor = new EclipseJcrMonitor(progressMonitor);
 	// int total = usersToUpdate.size();
 	// monitor.beginTask("Performing change", total);
 	// userAdminWrapper.beginTransactionIfNeeded();

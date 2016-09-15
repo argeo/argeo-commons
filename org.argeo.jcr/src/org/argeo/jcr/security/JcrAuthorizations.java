@@ -29,7 +29,7 @@ import javax.jcr.security.Privilege;
 
 import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.util.security.SimplePrincipal;
+import org.argeo.jcr.SimplePrincipal;
 
 /** Apply authorizations to a JCR repository. */
 public class JcrAuthorizations implements Runnable {

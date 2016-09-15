@@ -20,7 +20,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.node.NodeConstants;
-import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.util.naming.AttributesDictionary;
 import org.argeo.util.naming.LdifParser;
 import org.argeo.util.naming.LdifWriter;

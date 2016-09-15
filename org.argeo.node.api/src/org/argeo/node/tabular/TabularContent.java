@@ -13,20 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.util;
+package org.argeo.node.tabular;
 
-import java.beans.PropertyEditorSupport;
+import java.util.List;
 
-public class ThroughputEditor extends PropertyEditorSupport {
+/**
+ * Content organized as a table, possibly with headers. Only JCR types are
+ * supported even though there is not direct dependency on JCR.
+ */
+public interface TabularContent {
+	/** The headers of this table or <code>null</code> is none available. */
+	public List<TabularColumn> getColumns();
 
-	@Override
-	public String getAsText() {
-		return getValue().toString();
-	}
-
-	@Override
-	public void setAsText(String text) throws IllegalArgumentException {
-		setValue(new Throughput(text));
-	}
-
+	public TabularRowIterator read();
 }

@@ -28,7 +28,7 @@ import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.node.ArgeoNames;
 import org.argeo.node.NodeUtils;
-import org.argeo.util.security.Keyring;
+import org.argeo.node.security.Keyring;
 
 /** Root of a remote repository */
 public class RemoteRepositoryElem extends RepositoryElem {

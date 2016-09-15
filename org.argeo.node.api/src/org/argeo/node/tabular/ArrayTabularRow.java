@@ -13,16 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.util.tabular;
+package org.argeo.node.tabular;
 
-/** A row of tabular data */
-public interface TabularRow {
-	/** The value at this column index */
-	public Object get(Integer col);
+import java.util.List;
 
-	/** The raw objects (direct references) */
-	public Object[] toArray();
+/** Minimal tabular row wrapping an {@link Object} array */
+public class ArrayTabularRow implements TabularRow {
+	private final Object[] arr;
 
-	/** Number of columns */
-	public int size();
+	public ArrayTabularRow(List<?> objs) {
+		this.arr = objs.toArray();
+	}
+
+	public Object get(Integer col) {
+		return arr[col];
+	}
+
+	public int size() {
+		return arr.length;
+	}
+
+	public Object[] toArray() {
+		return arr;
+	}
+
 }

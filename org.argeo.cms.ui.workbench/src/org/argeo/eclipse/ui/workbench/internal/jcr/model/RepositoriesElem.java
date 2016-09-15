@@ -30,7 +30,7 @@ import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.jcr.RepositoryRegister;
 import org.argeo.node.ArgeoNames;
 import org.argeo.node.NodeUtils;
-import org.argeo.util.security.Keyring;
+import org.argeo.node.security.Keyring;
 
 /**
  * UI Tree component that implements the Argeo abstraction of a

@@ -19,8 +19,6 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
 
-import org.argeo.util.internal.UtilsException;
-
 public class Throughput {
 	private final static NumberFormat usNumberFormat = NumberFormat
 			.getInstance(Locale.US);

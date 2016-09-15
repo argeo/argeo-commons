@@ -16,6 +16,8 @@ import java.util.UUID;
 
 import javax.transaction.TransactionManager;
 
+import junit.framework.TestCase;
+
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
@@ -24,7 +26,6 @@ import org.osgi.service.useradmin.User;
 import bitronix.tm.BitronixTransactionManager;
 import bitronix.tm.TransactionManagerServices;
 import bitronix.tm.resource.ehcache.EhCacheXAResourceProducer;
-import junit.framework.TestCase;
 
 public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 	private BitronixTransactionManager tm;

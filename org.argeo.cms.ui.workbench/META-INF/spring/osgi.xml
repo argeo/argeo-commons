@@ -15,7 +15,7 @@
 			unbind-method="unregister" />
 	</list>
 	<reference id="repositoryFactory" interface="javax.jcr.RepositoryFactory" />
-<!-- 	<reference id="keyring" interface="org.argeo.util.security.CryptoKeyring" /> -->
+<!-- 	<reference id="keyring" interface="org.argeo.node.security.CryptoKeyring" /> -->
 
 	<!-- <reference id="nodeRepository" interface="javax.jcr.Repository" -->
 	<!-- filter="(argeo.jcr.repository.alias=node)" /> -->
@@ -37,5 +37,5 @@
 
 
 	<!-- SERVICES -->
-	<service interface="org.argeo.util.security.CryptoKeyring" ref="keyring" />
+	<service interface="org.argeo.node.security.CryptoKeyring" ref="keyring" />
 </beans:beans>

@@ -13,23 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo;
+package org.argeo.cms.tabular;
 
-/** The current operating system. */
-public class OperatingSystem {
-	public final static int NIX = 1;
-	public final static int WINDOWS = 2;
-	public final static int SOLARIS = 3;
+import java.io.OutputStream;
 
-	public final static int os;
-	static {
-		String osName = System.getProperty("os.name");
-		if (osName.startsWith("Win"))
-			os = WINDOWS;
-		else if (osName.startsWith("Solaris"))
-			os = SOLARIS;
-		else
-			os = NIX;
+import org.argeo.node.tabular.TabularWriter;
+import org.argeo.util.CsvWriter;
+
+/** Write tabular content in a stream as CSV. Wraps a {@link CsvWriter}. */
+public class CsvTabularWriter implements TabularWriter {
+	private CsvWriter csvWriter;
+
+	public CsvTabularWriter(OutputStream out) {
+		this.csvWriter = new CsvWriter(out);
+	}
+
+	public void appendRow(Object[] row) {
+		csvWriter.writeLine(row);
+	}
+
+	public void close() {
 	}
 
 }

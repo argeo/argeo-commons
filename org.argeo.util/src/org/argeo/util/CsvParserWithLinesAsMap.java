@@ -19,8 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.argeo.util.internal.UtilsException;
-
 /**
  * CSV parser allowing to process lines as maps whose keys are the header
  * fields.

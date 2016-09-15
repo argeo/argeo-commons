@@ -23,9 +23,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.argeo.util.internal.StreamUtils;
-import org.argeo.util.internal.UtilsException;
-
 /**
  * Parses a CSV file interpreting the first line as a header. The
  * {@link #parse(InputStream)} method and the setters are synchronized so that

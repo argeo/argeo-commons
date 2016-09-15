@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.util.security;
+package org.argeo.cms.security;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -32,10 +32,10 @@ import javax.xml.bind.DatatypeConverter;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.util.internal.StreamUtils;
-import org.argeo.util.security.PasswordBasedEncryption;
+import org.argeo.cms.security.PasswordBasedEncryption;
 
 public class PasswordBasedEncryptionTest extends TestCase {
 	private final static Log log = LogFactory
@@ -57,7 +57,7 @@ public class PasswordBasedEncryptionTest extends TestCase {
 		in = new ByteArrayInputStream(encrypted);
 		String decrypted = pbeDec.decryptAsString(in);
 		log.info("Decrypted:\t'" + decrypted + "'");
-		StreamUtils.closeQuietly(in);
+		IOUtils.closeQuietly(in);
 		assertEquals(message, decrypted);
 	}
 
@@ -132,13 +132,13 @@ public class PasswordBasedEncryptionTest extends TestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		CipherOutputStream cipherOut = new CipherOutputStream(out, ecipher);
 		cipherOut.write(message.getBytes());
-		StreamUtils.closeQuietly(cipherOut);
+		IOUtils.closeQuietly(cipherOut);
 		byte[] enc = out.toByteArray();
 
 		ByteArrayInputStream in = new ByteArrayInputStream(enc);
 		CipherInputStream cipherIn = new CipherInputStream(in, dcipher);
 		ByteArrayOutputStream dec = new ByteArrayOutputStream();
-		StreamUtils.copy(cipherIn, dec);
+		IOUtils.copy(cipherIn, dec);
 		assertEquals(message, new String(dec.toByteArray()));
 	}
 }

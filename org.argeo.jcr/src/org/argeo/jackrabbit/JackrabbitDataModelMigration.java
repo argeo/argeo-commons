@@ -18,7 +18,6 @@ package org.argeo.jackrabbit;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
-import javax.jcr.Node;
 import javax.jcr.Session;
 
 import org.apache.commons.io.IOUtils;
@@ -60,7 +59,7 @@ public class JackrabbitDataModelMigration implements
 						+ " does not exist: nothing to migrate.");
 				return false;
 			}
-			Node dataModelNode = session.getNode(dataModelNodePath);
+//			Node dataModelNode = session.getNode(dataModelNodePath);
 //			if (dataModelNode.hasProperty(ArgeoNames.ARGEO_DATA_MODEL_VERSION)) {
 //				String currentVersion = dataModelNode.getProperty(
 //						ArgeoNames.ARGEO_DATA_MODEL_VERSION).getString();

@@ -30,11 +30,11 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.io.IOUtils;
 import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.node.ArgeoTypes;
+import org.argeo.node.tabular.ArrayTabularRow;
+import org.argeo.node.tabular.TabularColumn;
+import org.argeo.node.tabular.TabularRow;
+import org.argeo.node.tabular.TabularRowIterator;
 import org.argeo.util.CsvParser;
-import org.argeo.util.tabular.ArrayTabularRow;
-import org.argeo.util.tabular.TabularColumn;
-import org.argeo.util.tabular.TabularRow;
-import org.argeo.util.tabular.TabularRowIterator;
 
 /** Iterates over the rows of a {@link ArgeoTypes#ARGEO_TABLE} node. */
 public class JcrTabularRowIterator implements TabularRowIterator {

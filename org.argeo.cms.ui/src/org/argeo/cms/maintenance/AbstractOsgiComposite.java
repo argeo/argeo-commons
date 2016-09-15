@@ -7,7 +7,6 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.util.CmsUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;

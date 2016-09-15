@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.util.tabular;
+package org.argeo.node.tabular;
 
+import java.util.Iterator;
 
-/** Write to a tabular content */
-public interface TabularWriter {
-	/** Append a new row of data */
-	public void appendRow(Object[] row);
-
-	/** Finish persisting data and release resources */
-	public void close();
+/** Navigation of rows */
+public interface TabularRowIterator extends Iterator<TabularRow> {
+	/**
+	 * Current row number, has to be incremented by each call to next() ; starts at 0, will
+	 * therefore be 1 for the first row returned.
+	 */
+	public Long getCurrentRowNumber();
 }

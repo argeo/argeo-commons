@@ -1,7 +1,6 @@
 package org.argeo.cms.ui.internal;
 
 import org.argeo.cms.maintenance.MaintenanceUi;
-import org.argeo.cms.ui.CmsStyles;
 import org.argeo.cms.ui.internal.rwt.UserUi;
 import org.argeo.node.NodeState;
 import org.argeo.util.LangUtils;

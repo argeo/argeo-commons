@@ -10,9 +10,9 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.util.naming.LdifParser;
-
 import junit.framework.TestCase;
+
+import org.argeo.util.naming.LdifParser;
 
 public class LdifParserTest extends TestCase implements BasicTestConstants {
 	public void testBasicLdif() throws Exception {

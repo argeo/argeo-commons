@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.util.security;
+package org.argeo.util;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,9 +23,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import org.argeo.util.internal.UtilsException;
-import org.argeo.util.internal.StreamUtils;
 
 /** Utilities around cryptographic digests */
 public class DigestUtils {

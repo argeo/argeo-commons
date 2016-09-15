@@ -32,7 +32,7 @@ import org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
 import org.argeo.jcr.RepositoryRegister;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeUtils;
-import org.argeo.util.security.Keyring;
+import org.argeo.node.security.Keyring;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 

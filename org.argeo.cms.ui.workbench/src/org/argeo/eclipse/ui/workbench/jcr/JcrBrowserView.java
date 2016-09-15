@@ -40,7 +40,7 @@ import org.argeo.eclipse.ui.workbench.internal.jcr.NodeLabelProvider;
 import org.argeo.eclipse.ui.workbench.internal.jcr.PropertiesContentProvider;
 import org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
 import org.argeo.jcr.RepositoryRegister;
-import org.argeo.util.security.Keyring;
+import org.argeo.node.security.Keyring;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;

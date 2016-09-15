@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.util.security;
+package org.argeo.cms.auth;
 
 import java.security.AccessController;
 import java.util.Map;
@@ -29,6 +29,9 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
+
+import org.argeo.cms.security.PasswordBasedEncryption;
+import org.argeo.node.security.PBEKeySpecCallback;
 
 /** Adds a secret key to the private credentials */
 public class KeyringLoginModule implements LoginModule {

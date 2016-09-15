@@ -13,28 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo;
+package org.argeo.util;
 
-import javax.naming.OperationNotSupportedException;
-
-/**
- * Argeo Commons specific exception.
- * 
- * @deprecated Use project specific exceptions or standard ones like
- *             {@link OperationNotSupportedException},
- *             {@link IllegalArgumentException}, etc.
- */
-@Deprecated
-public class ArgeoException extends RuntimeException {
+/** Utils specific exception. */
+class UtilsException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	/** Creates an exception with a message. */
-	public ArgeoException(String message) {
+	public UtilsException(String message) {
 		super(message);
 	}
 
 	/** Creates an exception with a message and a root cause. */
-	public ArgeoException(String message, Throwable e) {
+	public UtilsException(String message, Throwable e) {
 		super(message, e);
 	}
 

@@ -23,8 +23,6 @@ import java.io.Writer;
 import java.util.Iterator;
 import java.util.List;
 
-import org.argeo.util.internal.UtilsException;
-
 /** Write in CSV format. */
 public class CsvWriter {
 	private final Writer out;

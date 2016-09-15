@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.util.security;
+package org.argeo.node.tabular;
 
 
-/**
- * Advanced keyring based on cryptography that can easily be centralized and
- * coordinated with {@link KeyringLoginModule} (since they ar ein the same
- * package)
- */
-public interface CryptoKeyring extends Keyring {
+/** Write to a tabular content */
+public interface TabularWriter {
+	/** Append a new row of data */
+	public void appendRow(Object[] row);
 
+	/** Finish persisting data and release resources */
+	public void close();
 }

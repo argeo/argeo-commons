@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.util.internal;
+package org.argeo.util;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +22,7 @@ import java.io.Reader;
 import java.io.Writer;
 
 /** Utilities to be used when APache COmmons IO is not available. */
-public class StreamUtils {
+class StreamUtils {
 	private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
 	/*

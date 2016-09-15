@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.util.security;
+package org.argeo.jcr;
 
 import java.security.Principal;
-
-import org.argeo.util.internal.UtilsException;
 
 /** Canonical implementation of a {@link Principal} */
 public class SimplePrincipal implements Principal {
@@ -25,7 +23,7 @@ public class SimplePrincipal implements Principal {
 
 	public SimplePrincipal(String name) {
 		if (name == null)
-			throw new UtilsException("Principal name cannot be null");
+			throw new IllegalArgumentException("Principal name cannot be null");
 		this.name = name;
 	}
 

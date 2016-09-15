@@ -33,7 +33,7 @@ import org.argeo.node.ArgeoNames;
 import org.argeo.node.ArgeoTypes;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeUtils;
-import org.argeo.util.security.Keyring;
+import org.argeo.node.security.Keyring;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;

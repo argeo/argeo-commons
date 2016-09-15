@@ -23,6 +23,10 @@ class EnumOCD<T extends Enum<T>> implements ObjectClassDefinition {
 		return null;
 	}
 
+	public String getLocale() {
+		return locale;
+	}
+
 	@Override
 	public String getID() {
 		return enumClass.getName();

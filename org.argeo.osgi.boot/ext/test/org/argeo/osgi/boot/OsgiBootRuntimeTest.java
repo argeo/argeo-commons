@@ -15,10 +15,8 @@
  */
 package org.argeo.osgi.boot;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.ServiceLoader;
 import java.util.TreeMap;
 
 import junit.framework.TestCase;
@@ -26,8 +24,6 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.adaptor.EclipseStarter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.launch.Framework;
-import org.osgi.framework.launch.FrameworkFactory;
 
 /** Starts an Equinox runtime and provision it with OSGi boot. */
 public class OsgiBootRuntimeTest extends TestCase {

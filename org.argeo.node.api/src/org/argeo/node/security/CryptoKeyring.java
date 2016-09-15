@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.util.tabular;
+package org.argeo.node.security;
 
-import java.util.Iterator;
 
-/** Navigation of rows */
-public interface TabularRowIterator extends Iterator<TabularRow> {
-	/**
-	 * Current row number, has to be incremented by each call to next() ; starts at 0, will
-	 * therefore be 1 for the first row returned.
-	 */
-	public Long getCurrentRowNumber();
+
+/**
+ * Advanced keyring based on cryptography that can easily be centralized and
+ * coordinated with {@link KeyringLoginModule} (since they ar ein the same
+ * package)
+ */
+public interface CryptoKeyring extends Keyring {
+
 }

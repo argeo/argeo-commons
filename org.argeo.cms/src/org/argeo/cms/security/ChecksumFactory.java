@@ -1,4 +1,4 @@
-package org.argeo.util.security;
+package org.argeo.cms.security;
 
 import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 
@@ -15,7 +15,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.util.zip.Checksum;
 
-import org.argeo.util.internal.UtilsException;
+import org.argeo.cms.CmsException;
 
 /** Allows to fine tune how files are read. */
 public class ChecksumFactory {
@@ -71,7 +71,7 @@ public class ChecksumFactory {
 						// subMd.update(mb);
 						// byte[] subDigest = subMd.digest();
 						// System.out.println(" -> " + cursor);
-						// System.out.println(StreamUtils.encodeHexString(subDigest));
+						// System.out.println(IOUtils.encodeHexString(subDigest));
 						// System.out.println(new BigInteger(1,
 						// subDigest).toString(16));
 						// System.out.println(new BigInteger(1, subDigest)
@@ -91,7 +91,7 @@ public class ChecksumFactory {
 				}
 			}
 		} catch (Exception e) {
-			throw new UtilsException("Cannot digest " + path, e);
+			throw new CmsException("Cannot digest " + path, e);
 		}
 	}
 
@@ -124,7 +124,7 @@ public class ChecksumFactory {
 			}
 			return crc.getValue();
 		} catch (Exception e) {
-			throw new UtilsException("Cannot checksum " + path, e);
+			throw new CmsException("Cannot checksum " + path, e);
 		} finally {
 			long duration = System.currentTimeMillis() - begin;
 			System.out.println(duration / 1000 + "s");

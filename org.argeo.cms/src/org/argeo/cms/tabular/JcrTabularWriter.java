@@ -30,9 +30,9 @@ import org.apache.commons.io.IOUtils;
 import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.node.ArgeoTypes;
+import org.argeo.node.tabular.TabularColumn;
+import org.argeo.node.tabular.TabularWriter;
 import org.argeo.util.CsvWriter;
-import org.argeo.util.tabular.TabularColumn;
-import org.argeo.util.tabular.TabularWriter;
 
 /** Write / reference tabular content in a JCR repository. */
 public class JcrTabularWriter implements TabularWriter {

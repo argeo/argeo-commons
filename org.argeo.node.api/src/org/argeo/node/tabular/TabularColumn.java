@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.util.tabular;
+package org.argeo.node.tabular;
 
 /** The column in a tabular content */
 public class TabularColumn {

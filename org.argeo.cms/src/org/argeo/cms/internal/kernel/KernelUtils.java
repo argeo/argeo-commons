@@ -1,8 +1,5 @@
 package org.argeo.cms.internal.kernel;
 
-import static org.argeo.cms.internal.kernel.KernelConstants.WEBDAV_PRIVATE;
-import static org.argeo.cms.internal.kernel.KernelConstants.WEBDAV_PUBLIC;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
