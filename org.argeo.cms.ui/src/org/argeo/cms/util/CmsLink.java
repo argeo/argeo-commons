@@ -27,8 +27,7 @@ import org.osgi.framework.FrameworkUtil;
 /** A link to an internal or external location. */
 public class CmsLink implements CmsUiProvider {
 	private final static Log log = LogFactory.getLog(CmsLink.class);
-	private BundleContext bc = FrameworkUtil.getBundle(getClass())
-			.getBundleContext();
+	private BundleContext bundleContext ;
 
 	private String label;
 	private String custom;
@@ -174,13 +173,17 @@ public class CmsLink implements CmsUiProvider {
 			// pure URL
 			url = new URL(image);
 		} catch (MalformedURLException e1) {
-			url = bc.getBundle().getResource(image);
+			url = bundleContext.getBundle().getResource(image);
 		}
 
 		if (url == null)
 			throw new CmsException("No image " + image + " available.");
 
 		return url;
+	}
+
+	public void setBundleContext(BundleContext bundleContext) {
+		this.bundleContext = bundleContext;
 	}
 
 	public void setLabel(String label) {
