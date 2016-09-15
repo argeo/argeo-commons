@@ -1,4 +1,4 @@
-package org.argeo.util.naming;
+package org.argeo.naming;
 
 import static org.argeo.osgi.useradmin.LdifName.dn;
 

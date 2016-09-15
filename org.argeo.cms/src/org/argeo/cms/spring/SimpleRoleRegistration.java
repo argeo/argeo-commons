@@ -1,4 +1,4 @@
-package org.argeo.security.core;
+package org.argeo.cms.spring;
 
 import java.util.ArrayList;
 import java.util.List;

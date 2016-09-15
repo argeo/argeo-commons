@@ -1,4 +1,4 @@
-package org.argeo.security.core;
+package org.argeo.cms.spring.osgi;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

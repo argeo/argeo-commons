@@ -6,5 +6,7 @@ org.postgresql;resolution:=optional,\
 org.apache.jackrabbit.webdav.server,\
 org.apache.jackrabbit.webdav.jcr,\
 org.eclipse.equinox.http.jetty,\
+org.springframework.context,\
+org.springframework.core.io,\
 *
 Provide-Capability: cms.datamodel;name=cms;cnd=/org/argeo/cms/cms.cnd;abstract=true

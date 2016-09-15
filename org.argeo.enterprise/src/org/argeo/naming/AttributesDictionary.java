@@ -1,4 +1,4 @@
-package org.argeo.util.naming;
+package org.argeo.naming;
 
 import java.util.Dictionary;
 import java.util.Enumeration;

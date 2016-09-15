@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.jcr.security;
+package org.argeo.jcr;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -26,10 +26,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.security.AccessControlManager;
 import javax.jcr.security.Privilege;
-
-import org.argeo.jcr.ArgeoJcrException;
-import org.argeo.jcr.JcrUtils;
-import org.argeo.jcr.SimplePrincipal;
 
 /** Apply authorizations to a JCR repository. */
 public class JcrAuthorizations implements Runnable {

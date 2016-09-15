@@ -12,7 +12,7 @@ import javax.naming.ldap.LdapName;
 
 import junit.framework.TestCase;
 
-import org.argeo.util.naming.LdifParser;
+import org.argeo.naming.LdifParser;
 
 public class LdifParserTest extends TestCase implements BasicTestConstants {
 	public void testBasicLdif() throws Exception {

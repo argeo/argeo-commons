@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.core;
+package org.argeo.cms.spring;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;

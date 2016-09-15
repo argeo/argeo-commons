@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.core;
+package org.argeo.cms.spring;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 
 /** Provides base method for executing code with system authorization. */
-public abstract class AbstractSystemExecution {
+abstract class AbstractSystemExecution {
 	private final static Log log = LogFactory.getLog(AbstractSystemExecution.class);
 	private final Subject subject = new Subject();
 

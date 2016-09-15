@@ -18,11 +18,11 @@ import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
 import org.argeo.cms.CmsException;
+import org.argeo.naming.AttributesDictionary;
+import org.argeo.naming.LdifParser;
+import org.argeo.naming.LdifWriter;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.RepoConf;
-import org.argeo.util.naming.AttributesDictionary;
-import org.argeo.util.naming.LdifParser;
-import org.argeo.util.naming.LdifWriter;
 
 class NodeDeployConfig {
 	private final String BASE = "ou=deploy,ou=node";

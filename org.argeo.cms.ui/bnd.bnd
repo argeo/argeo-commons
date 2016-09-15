@@ -6,6 +6,4 @@ org.eclipse.jface.window,\
 org.eclipse.core.commands,\
 javax.jcr.security,\
 org.argeo.eclipse.ui.dialogs,\
-org.springframework.context,\
-org.springframework.core.io,\
 *
