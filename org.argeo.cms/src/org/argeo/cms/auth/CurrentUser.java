@@ -25,8 +25,8 @@ import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
 import org.argeo.cms.CmsException;
-import org.argeo.cms.CmsView;
 import org.argeo.eclipse.ui.specific.UiContext;
+import org.argeo.node.NodeAuthenticated;
 import org.osgi.service.useradmin.Authorization;
 
 /** Static utilities */
@@ -49,11 +49,12 @@ public final class CurrentUser {
 
 	public static boolean isAnonymous(Subject subject) {
 		String username = getUsername(subject);
-		return username == null || username.equalsIgnoreCase(AuthConstants.ROLE_ANONYMOUS);
+		return username == null
+				|| username.equalsIgnoreCase(AuthConstants.ROLE_ANONYMOUS);
 	}
 
 	private static Subject currentSubject() {
-		CmsView cmsView = getCmsView();
+		NodeAuthenticated cmsView = getNodeAuthenticated();
 		if (cmsView != null)
 			return cmsView.getSubject();
 		Subject subject = Subject.getSubject(AccessController.getContext());
@@ -63,22 +64,19 @@ public final class CurrentUser {
 	}
 
 	/**
-	 * The CMS view related to this display, or null if none is available from
-	 * this call.
+	 * The node authenticated component (typically a CMS view) related to this
+	 * display, or null if none is available from this call.
 	 */
-	private static CmsView getCmsView() {
-		return UiContext.getData(CmsView.KEY);
+	public static NodeAuthenticated getNodeAuthenticated() {
+		return UiContext.getData(NodeAuthenticated.KEY);
 	}
 
 	public final static String getUsername(Subject subject) {
-		// Subject subject = Subject.getSubject(AccessController.getContext());
-		// if (subject == null)
-		// return null;
 		if (subject.getPrincipals(X500Principal.class).size() != 1)
 			return null;
-		Principal principal = subject.getPrincipals(X500Principal.class).iterator().next();
+		Principal principal = subject.getPrincipals(X500Principal.class)
+				.iterator().next();
 		return principal.getName();
-
 	}
 
 	public final static String getDisplayName(Subject subject) {
@@ -86,7 +84,8 @@ public final class CurrentUser {
 	}
 
 	private static Authorization getAuthorization(Subject subject) {
-		return subject.getPrivateCredentials(Authorization.class).iterator().next();
+		return subject.getPrivateCredentials(Authorization.class).iterator()
+				.next();
 	}
 
 	public final static Set<String> roles() {
@@ -95,7 +94,8 @@ public final class CurrentUser {
 
 	public final static Set<String> roles(Subject subject) {
 		Set<String> roles = new HashSet<String>();
-		X500Principal userPrincipal = subject.getPrincipals(X500Principal.class).iterator().next();
+		X500Principal userPrincipal = subject
+				.getPrincipals(X500Principal.class).iterator().next();
 		roles.add(userPrincipal.getName());
 		for (Principal group : subject.getPrincipals(Group.class)) {
 			roles.add(group.getName());

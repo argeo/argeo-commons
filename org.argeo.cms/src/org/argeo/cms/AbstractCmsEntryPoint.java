@@ -23,6 +23,7 @@ import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.node.NodeAuthenticated;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.client.WebClient;
@@ -107,7 +108,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 
 	@Override
 	protected final void createContents(final Composite parent) {
-		UiContext.setData(CmsView.KEY, this);
+		UiContext.setData(NodeAuthenticated.KEY, this);
 		Subject.doAs(subject, new PrivilegedAction<Void>() {
 			@Override
 			public Void run() {

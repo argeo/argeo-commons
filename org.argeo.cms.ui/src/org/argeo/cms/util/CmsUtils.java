@@ -20,6 +20,7 @@ import org.argeo.cms.auth.AuthConstants;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.ArgeoJcrConstants;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.node.NodeAuthenticated;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.ResourceManager;
 import org.eclipse.swt.SWT;
@@ -44,7 +45,7 @@ public class CmsUtils implements CmsConstants {
 	 * this call.
 	 */
 	public static CmsView getCmsView() {
-		return UiContext.getData(CmsView.KEY);
+		return UiContext.getData(NodeAuthenticated.KEY);
 	}
 
 	public static StringBuilder getServerBaseUrl(HttpServletRequest request) {

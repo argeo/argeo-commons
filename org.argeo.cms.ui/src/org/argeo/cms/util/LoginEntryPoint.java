@@ -18,6 +18,7 @@ import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.cms.widgets.auth.CmsLogin;
 import org.argeo.cms.widgets.auth.CmsLoginShell;
 import org.argeo.eclipse.ui.specific.UiContext;
+import org.argeo.node.NodeAuthenticated;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.EntryPoint;
 import org.eclipse.swt.events.SelectionListener;
@@ -33,7 +34,7 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 	@Override
 	public int createUI() {
 		final Display display = createDisplay();
-		UiContext.setData(CmsView.KEY, this);
+		UiContext.setData(NodeAuthenticated.KEY, this);
 		try {
 			// try pre-auth
 			loginContext = new LoginContext(AuthConstants.LOGIN_CONTEXT_USER,

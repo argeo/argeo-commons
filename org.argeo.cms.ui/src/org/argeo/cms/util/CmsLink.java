@@ -12,7 +12,6 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsStyles;
 import org.argeo.cms.CmsUiProvider;
-import org.eclipse.gemini.blueprint.context.BundleContextAware;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.ResourceManager;
 import org.eclipse.swt.SWT;
@@ -23,12 +22,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.osgi.framework.BundleContext;
-import org.springframework.beans.factory.InitializingBean;
+import org.osgi.framework.FrameworkUtil;
 
 /** A link to an internal or external location. */
-public class CmsLink implements CmsUiProvider, InitializingBean,
-		BundleContextAware {
+public class CmsLink implements CmsUiProvider {
 	private final static Log log = LogFactory.getLog(CmsLink.class);
+	private BundleContext bc = FrameworkUtil.getBundle(getClass())
+			.getBundleContext();
 
 	private String label;
 	private String custom;
@@ -41,8 +41,6 @@ public class CmsLink implements CmsUiProvider, InitializingBean,
 	// internal
 	// private Boolean isUrl = false;
 	private Integer imageWidth, imageHeight;
-
-	private BundleContext bundleContext;
 
 	public CmsLink() {
 		super();
@@ -57,24 +55,10 @@ public class CmsLink implements CmsUiProvider, InitializingBean,
 		this.label = label;
 		this.target = target;
 		this.custom = custom;
-		afterPropertiesSet();
+		init();
 	}
 
-	@Override
-	public void afterPropertiesSet() {
-		// if (target != null) {
-		// if (target.startsWith("/")) {
-		// isUrl = true;
-		// } else {
-		// try {
-		// new URL(target);
-		// isUrl = true;
-		// } catch (MalformedURLException e1) {
-		// isUrl = false;
-		// }
-		// }
-		// }
-
+	public void init() {
 		if (image != null) {
 			ImageData image = loadImage();
 			imageWidth = image.width;
@@ -190,10 +174,7 @@ public class CmsLink implements CmsUiProvider, InitializingBean,
 			// pure URL
 			url = new URL(image);
 		} catch (MalformedURLException e1) {
-			// in OSGi bundle
-			if (bundleContext == null)
-				throw new CmsException("No bundle context available");
-			url = bundleContext.getBundle().getResource(image);
+			url = bc.getBundle().getResource(image);
 		}
 
 		if (url == null)
@@ -224,11 +205,6 @@ public class CmsLink implements CmsUiProvider, InitializingBean,
 		this.image = image;
 	}
 
-	@Override
-	public void setBundleContext(BundleContext bundleContext) {
-		this.bundleContext = bundleContext;
-	}
-
 	public void setMouseListener(MouseListener mouseListener) {
 		this.mouseListener = mouseListener;
 	}
@@ -245,30 +221,4 @@ public class CmsLink implements CmsUiProvider, InitializingBean,
 					+ " (must be: top, bottom or center)");
 		}
 	}
-
-	// private class MListener extends MouseAdapter {
-	// private static final long serialVersionUID = 3634864186295639792L;
-	//
-	// @Override
-	// public void mouseDown(MouseEvent e) {
-	// if (e.button == 1) {
-	// }
-	// }
-	// }
-	//
-	// private class DListener implements DisposeListener {
-	// private static final long serialVersionUID = -3808587499269394812L;
-	// private final Image img;
-	//
-	// public DListener(Image img) {
-	// super();
-	// this.img = img;
-	// }
-	//
-	// @Override
-	// public void widgetDisposed(DisposeEvent event) {
-	// img.dispose();
-	// }
-	//
-	// }
 }
