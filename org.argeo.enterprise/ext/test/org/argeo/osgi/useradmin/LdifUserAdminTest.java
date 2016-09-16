@@ -3,10 +3,14 @@ package org.argeo.osgi.useradmin;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Dictionary;
@@ -16,8 +20,6 @@ import java.util.UUID;
 
 import javax.transaction.TransactionManager;
 
-import junit.framework.TestCase;
-
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
@@ -26,14 +28,16 @@ import org.osgi.service.useradmin.User;
 import bitronix.tm.BitronixTransactionManager;
 import bitronix.tm.TransactionManagerServices;
 import bitronix.tm.resource.ehcache.EhCacheXAResourceProducer;
+import junit.framework.TestCase;
 
 public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 	private BitronixTransactionManager tm;
 	private URI uri;
 	private AbstractUserDirectory userAdmin;
+	private Path tempDir;
 
-	public void testConcurrent() throws Exception {
-	}
+	// public void testConcurrent() throws Exception {
+	// }
 
 	@SuppressWarnings("unchecked")
 	public void testEdition() throws Exception {
@@ -133,7 +137,8 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 
 	@Override
 	protected void setUp() throws Exception {
-		Path tempDir = Files.createTempDirectory(getClass().getName());
+		tempDir = Files.createTempDirectory(getClass().getName());
+		tempDir.toFile().deleteOnExit();
 		String uriProp = System.getProperty("argeo.userdirectory.uri");
 		if (uriProp != null)
 			uri = new URI(uriProp);
@@ -187,6 +192,21 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 		tm.shutdown();
 		if (userAdmin != null)
 			userAdmin.destroy();
+		if (tempDir != null)
+			Files.walkFileTree(tempDir, new SimpleFileVisitor<Path>() {
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					Files.delete(file);
+					return FileVisitResult.CONTINUE;
+				}
+
+				@Override
+				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+					Files.delete(dir);
+					return FileVisitResult.CONTINUE;
+				}
+
+			});
 	}
 
 }
