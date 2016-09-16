@@ -92,7 +92,7 @@ public class CmsState implements NodeState {
 		RepositoryServiceFactory repositoryServiceFactory = new RepositoryServiceFactory();
 		shutdownHooks.add(() -> repositoryServiceFactory.shutdown());
 		bc.registerService(ManagedServiceFactory.class, repositoryServiceFactory,
-				LangUtils.init(Constants.SERVICE_PID, NodeConstants.NODE_REPOS_FACTORY_PID));
+				LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_REPOS_FACTORY_PID));
 
 		NodeRepositoryFactory repositoryFactory = new NodeRepositoryFactory();
 		bc.registerService(RepositoryFactory.class, repositoryFactory, null);
@@ -101,7 +101,7 @@ public class CmsState implements NodeState {
 		NodeUserAdmin userAdmin = new NodeUserAdmin(AuthConstants.ROLES_BASEDN);
 		shutdownHooks.add(() -> userAdmin.destroy());
 		bc.registerService(ManagedServiceFactory.class, userAdmin,
-				LangUtils.init(Constants.SERVICE_PID, NodeConstants.NODE_USER_ADMIN_PID));
+				LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_USER_ADMIN_PID));
 	}
 
 	private void initTransactionManager() {

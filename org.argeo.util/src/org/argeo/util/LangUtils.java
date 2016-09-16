@@ -38,7 +38,7 @@ public class LangUtils {
 	 * Creates a new {@link Dictionary} with one key-value pair (neither key not
 	 * value should be null)
 	 */
-	public static Dictionary<String, Object> init(String key, Object value) {
+	public static Dictionary<String, Object> dico(String key, Object value) {
 		assert key != null;
 		assert value != null;
 		Hashtable<String, Object> props = new Hashtable<>();
@@ -54,11 +54,11 @@ public class LangUtils {
 		return new DictionaryKeys(props);
 	}
 
-	public static String toJson(Dictionary<String, ?> props) {
+	static String toJson(Dictionary<String, ?> props) {
 		return toJson(props, false);
 	}
 
-	public static String toJson(Dictionary<String, ?> props, boolean pretty) {
+	static String toJson(Dictionary<String, ?> props, boolean pretty) {
 		StringBuilder sb = new StringBuilder();
 		sb.append('{');
 		if (pretty)
@@ -83,7 +83,7 @@ public class LangUtils {
 		return sb.toString();
 	}
 
-	public static void storeAsProperties(Dictionary<String, Object> props, Path path) throws IOException {
+	static void storeAsProperties(Dictionary<String, Object> props, Path path) throws IOException {
 		if (props == null)
 			throw new IllegalArgumentException("Props cannot be null");
 		Properties toStore = new Properties();
@@ -96,7 +96,7 @@ public class LangUtils {
 		}
 	}
 
-	public static void appendAsLdif(String dnBase, String dnKey, Dictionary<String, Object> props, Path path)
+	static void appendAsLdif(String dnBase, String dnKey, Dictionary<String, Object> props, Path path)
 			throws IOException {
 		if (props == null)
 			throw new IllegalArgumentException("Props cannot be null");
@@ -126,7 +126,7 @@ public class LangUtils {
 		}
 	}
 
-	public static Dictionary<String, Object> loadFromProperties(Path path) throws IOException {
+	static Dictionary<String, Object> loadFromProperties(Path path) throws IOException {
 		Properties toLoad = new Properties();
 		try (InputStream in = Files.newInputStream(path)) {
 			toLoad.load(in);
@@ -136,7 +136,7 @@ public class LangUtils {
 			res.put(key.toString(), toLoad.get(key));
 		return res;
 	}
-	
+
 	/*
 	 * EXCEPTIONS
 	 */
@@ -152,8 +152,7 @@ public class LangUtils {
 
 	/** Recursive chaining of messages */
 	private static void chainCauseMessage(StringBuffer buf, Throwable t) {
-		buf.append('\n').append(' ').append(t.getClass().getCanonicalName())
-				.append(": ").append(t.getMessage());
+		buf.append('\n').append(' ').append(t.getClass().getCanonicalName()).append(": ").append(t.getMessage());
 		if (t.getCause() != null)
 			chainCauseMessage(buf, t.getCause());
 	}

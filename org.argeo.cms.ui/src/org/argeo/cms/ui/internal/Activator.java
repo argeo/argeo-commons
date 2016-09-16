@@ -20,8 +20,8 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext bc) throws Exception {
 		// UI
 		bc.registerService(ApplicationConfiguration.class, new MaintenanceUi(),
-				LangUtils.init(CONTEXT_NAME_PROP, "system"));
-		bc.registerService(ApplicationConfiguration.class, new UserUi(), LangUtils.init(CONTEXT_NAME_PROP, "user"));
+				LangUtils.dico(CONTEXT_NAME_PROP, "system"));
+		bc.registerService(ApplicationConfiguration.class, new UserUi(), LangUtils.dico(CONTEXT_NAME_PROP, "user"));
 
 		nodeState = new ServiceTracker<>(bc, NodeState.class, null);
 		nodeState.open();

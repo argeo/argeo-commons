@@ -45,7 +45,7 @@ class RepositoryServiceFactory implements ManagedServiceFactory {
 			RepositoryBuilder repositoryBuilder = new RepositoryBuilder();
 			RepositoryContext repositoryContext = repositoryBuilder.createRepositoryContext(properties);
 			repositories.put(pid, repositoryContext);
-			Dictionary<String, Object> props = LangUtils.init(Constants.SERVICE_PID, pid);
+			Dictionary<String, Object> props = LangUtils.dico(Constants.SERVICE_PID, pid);
 			// props.put(ArgeoJcrConstants.JCR_REPOSITORY_URI,
 			// properties.get(RepoConf.labeledUri.name()));
 			Object cn = properties.get(NodeConstants.CN);

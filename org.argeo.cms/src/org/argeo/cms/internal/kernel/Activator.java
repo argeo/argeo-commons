@@ -77,7 +77,7 @@ public class Activator implements BundleActivator {
 			Files.write(stateUuidPath, stateUuid.getBytes());
 		}
 		nodeState = new CmsState(stateUuid);
-		Dictionary<String, Object> regProps = LangUtils.init(
+		Dictionary<String, Object> regProps = LangUtils.dico(
 				Constants.SERVICE_PID, NodeConstants.NODE_STATE_PID);
 		regProps.put(NodeConstants.CN, stateUuid);
 		bc.registerService(NodeState.class, nodeState, regProps);

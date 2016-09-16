@@ -148,7 +148,7 @@ public class CmsDeployment implements NodeDeployment {
 				CallbackHandler callbackHandler = bc.getService(reference);
 				nodeKeyring.setDefaultCallbackHandler(callbackHandler);
 				bc.registerService(LangUtils.names(CryptoKeyring.class, ManagedService.class), nodeKeyring,
-						LangUtils.init(Constants.SERVICE_PID, NodeConstants.NODE_KEYRING_PID));
+						LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_KEYRING_PID));
 				return callbackHandler;
 			}
 
