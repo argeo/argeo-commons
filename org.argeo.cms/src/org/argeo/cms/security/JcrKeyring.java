@@ -29,10 +29,12 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.jcr.Binary;
 import javax.jcr.Node;
 import javax.jcr.Property;
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.apache.commons.io.IOUtils;
+import org.argeo.cms.CmsException;
 import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.node.ArgeoNames;
@@ -57,8 +59,17 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 	private String secreteKeyEncryption = DEFAULT_SECRETE_KEY_ENCRYPTION;
 	private String cipherName = DEFAULT_CIPHER_NAME;
 
-	private Session session;
+	private final Repository repository;
+	private ThreadLocal<Session> sessionThreadLocal = new ThreadLocal<Session>() {
 
+		@Override
+		protected Session initialValue() {
+			return login();
+		}
+
+	};
+
+	// FIXME is it really still needed?
 	/**
 	 * When setup is called the session has not yet been saved and we don't want
 	 * to save it since there maybe other data which would be inconsistent. So
@@ -74,13 +85,34 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 		}
 	};
 
+	public JcrKeyring(Repository repository) {
+		this.repository = repository;
+	}
+
+	private Session session() {
+		Session session = this.sessionThreadLocal.get();
+		if (!session.isLive()) {
+			session = login();
+			sessionThreadLocal.set(session);
+		}
+		return session;
+	}
+
+	private Session login() {
+		try {
+			return repository.login();
+		} catch (RepositoryException e) {
+			throw new CmsException("Cannot login key ring session", e);
+		}
+	}
+
 	@Override
 	protected Boolean isSetup() {
 		try {
 			if (notYetSavedKeyring.get() != null)
 				return true;
 
-			Node userHome = NodeUtils.getUserHome(session);
+			Node userHome = NodeUtils.getUserHome(session());
 			return userHome.hasNode(ARGEO_KEYRING);
 		} catch (RepositoryException e) {
 			throw new ArgeoJcrException("Cannot check whether keyring is setup", e);
@@ -92,14 +124,14 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 		Binary binary = null;
 		InputStream in = null;
 		try {
-			Node userHome = NodeUtils.getUserHome(session);
+			Node userHome = NodeUtils.getUserHome(session());
 			if (userHome.hasNode(ARGEO_KEYRING))
 				throw new ArgeoJcrException("Keyring already setup");
 			Node keyring = userHome.addNode(ARGEO_KEYRING);
 			keyring.addMixin(ArgeoTypes.ARGEO_PBE_SPEC);
 
 			// deterministic salt and iteration count based on username
-			String username = session.getUserID();
+			String username = session().getUserID();
 			byte[] salt = new byte[8];
 			byte[] usernameBytes = username.getBytes();
 			for (int i = 0; i < salt.length; i++) {
@@ -109,7 +141,7 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 					salt[i] = 0;
 			}
 			in = new ByteArrayInputStream(salt);
-			binary = session.getValueFactory().createBinary(in);
+			binary = session().getValueFactory().createBinary(in);
 			keyring.setProperty(ARGEO_SALT, binary);
 
 			Integer iterationCount = username.length() * iterationCountFactor;
@@ -129,7 +161,7 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 			// JcrUtils.closeQuietly(binary);
 			// byte[] btPass = hash(password, salt, iterationCount);
 			// in = new ByteArrayInputStream(btPass);
-			// binary = session.getValueFactory().createBinary(in);
+			// binary = session().getValueFactory().createBinary(in);
 			// keyring.setProperty(ARGEO_PASSWORD, binary);
 
 			notYetSavedKeyring.set(keyring);
@@ -138,14 +170,14 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 		} finally {
 			JcrUtils.closeQuietly(binary);
 			IOUtils.closeQuietly(in);
-			// JcrUtils.discardQuietly(session);
+			// JcrUtils.discardQuietly(session());
 		}
 	}
 
 	@Override
 	protected void handleKeySpecCallback(PBEKeySpecCallback pbeCallback) {
 		try {
-			Node userHome = NodeUtils.getUserHome(session);
+			Node userHome = NodeUtils.getUserHome(session());
 			Node keyring;
 			if (userHome.hasNode(ARGEO_KEYRING))
 				keyring = userHome.getNode(ARGEO_KEYRING);
@@ -178,14 +210,14 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 		try {
 			Cipher cipher = createCipher();
 			Node node;
-			if (!session.nodeExists(path)) {
+			if (!session().nodeExists(path)) {
 				String parentPath = JcrUtils.parentPath(path);
-				if (!session.nodeExists(parentPath))
+				if (!session().nodeExists(parentPath))
 					throw new ArgeoJcrException("No parent node of " + path);
-				Node parentNode = session.getNode(parentPath);
+				Node parentNode = session().getNode(parentPath);
 				node = parentNode.addNode(JcrUtils.nodeNameFromPath(path));
 			} else {
-				node = session.getNode(path);
+				node = session().getNode(path);
 			}
 			node.addMixin(ArgeoTypes.ARGEO_ENCRYPTED);
 			SecureRandom random = new SecureRandom();
@@ -195,15 +227,16 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 			JcrUtils.setBinaryAsBytes(node, ARGEO_IV, iv);
 
 			in = new CipherInputStream(unencrypted, cipher);
-			binary = session.getValueFactory().createBinary(in);
+			binary = session().getValueFactory().createBinary(in);
 			node.setProperty(Property.JCR_DATA, binary);
-			session.save();
+			session().save();
 		} catch (Exception e) {
 			throw new ArgeoJcrException("Cannot encrypt", e);
 		} finally {
 			IOUtils.closeQuietly(unencrypted);
 			IOUtils.closeQuietly(in);
 			JcrUtils.closeQuietly(binary);
+			JcrUtils.logoutQuietly(session());
 		}
 	}
 
@@ -213,7 +246,7 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 		InputStream encrypted = null;
 		Reader reader = null;
 		try {
-			if (!session.nodeExists(path)) {
+			if (!session().nodeExists(path)) {
 				char[] password = ask();
 				reader = new CharArrayReader(password);
 				return new ByteArrayInputStream(IOUtils.toByteArray(reader));
@@ -223,7 +256,7 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 
 				Cipher cipher = createCipher();
 
-				Node node = session.getNode(path);
+				Node node = session().getNode(path);
 				if (node.hasProperty(ARGEO_IV)) {
 					byte[] iv = JcrUtils.getBinaryAsBytes(node.getProperty(ARGEO_IV));
 					cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(iv));
@@ -241,12 +274,13 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 			IOUtils.closeQuietly(encrypted);
 			IOUtils.closeQuietly(reader);
 			JcrUtils.closeQuietly(binary);
+			JcrUtils.logoutQuietly(session());
 		}
 	}
 
 	protected Cipher createCipher() {
 		try {
-			Node userHome = NodeUtils.getUserHome(session);
+			Node userHome = NodeUtils.getUserHome(session());
 			if (!userHome.hasNode(ARGEO_KEYRING))
 				throw new ArgeoJcrException("Keyring not setup");
 			Node keyring = userHome.getNode(ARGEO_KEYRING);
@@ -267,9 +301,9 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 		// TODO decrypt with old pw / encrypt with new pw all argeo:encrypted
 	}
 
-	public synchronized void setSession(Session session) {
-		this.session = session;
-	}
+	// public synchronized void setSession(Session session) {
+	// this.session = session;
+	// }
 
 	public void setIterationCountFactor(Integer iterationCountFactor) {
 		this.iterationCountFactor = iterationCountFactor;

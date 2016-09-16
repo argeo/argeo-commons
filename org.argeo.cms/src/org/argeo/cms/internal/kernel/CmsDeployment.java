@@ -14,6 +14,7 @@ import java.util.Set;
 
 import javax.jcr.Repository;
 import javax.jcr.Session;
+import javax.security.auth.callback.CallbackHandler;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,6 +26,8 @@ import org.argeo.node.DataModelNamespace;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeDeployment;
 import org.argeo.node.NodeState;
+import org.argeo.node.security.CryptoKeyring;
+import org.argeo.util.LangUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -34,6 +37,7 @@ import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ManagedService;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
@@ -127,6 +131,7 @@ public class CmsDeployment implements NodeDeployment {
 			throw new CmsException("Deployment is already available");
 		}
 
+		// home
 		prepareDataModel(KernelUtils.openAdminSession(deployedNodeRepository));
 		Hashtable<String, String> regProps = new Hashtable<String, String>();
 		regProps.put(NodeConstants.CN, NodeConstants.ALIAS_HOME);
@@ -134,6 +139,20 @@ public class CmsDeployment implements NodeDeployment {
 		homeRepository = new HomeRepository(deployedNodeRepository);
 		// register
 		bc.registerService(Repository.class, homeRepository, regProps);
+
+		new ServiceTracker<CallbackHandler, CallbackHandler>(bc, CallbackHandler.class, null) {
+
+			@Override
+			public CallbackHandler addingService(ServiceReference<CallbackHandler> reference) {
+				NodeKeyRing nodeKeyring = new NodeKeyRing(homeRepository);
+				CallbackHandler callbackHandler = bc.getService(reference);
+				nodeKeyring.setDefaultCallbackHandler(callbackHandler);
+				bc.registerService(LangUtils.names(CryptoKeyring.class, ManagedService.class), nodeKeyring,
+						LangUtils.init(Constants.SERVICE_PID, NodeConstants.NODE_KEYRING_PID));
+				return callbackHandler;
+			}
+
+		}.open();
 	}
 
 	/** Session is logged out. */

@@ -8,8 +8,6 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -102,9 +100,8 @@ public class CmsState implements NodeState {
 		// Security
 		NodeUserAdmin userAdmin = new NodeUserAdmin(AuthConstants.ROLES_BASEDN);
 		shutdownHooks.add(() -> userAdmin.destroy());
-		Dictionary<String, Object> props = new Hashtable<>();
-		props.put(Constants.SERVICE_PID, NodeConstants.NODE_USER_ADMIN_PID);
-		bc.registerService(ManagedServiceFactory.class, userAdmin, props);
+		bc.registerService(ManagedServiceFactory.class, userAdmin,
+				LangUtils.init(Constants.SERVICE_PID, NodeConstants.NODE_USER_ADMIN_PID));
 	}
 
 	private void initTransactionManager() {

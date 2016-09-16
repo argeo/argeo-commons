@@ -10,8 +10,8 @@ public interface NodeConstants {
 	String NODE_DEPLOYMENT_PID = "org.argeo.node.deployment";
 	String NODE_INSTANCE_PID = "org.argeo.node.instance";
 
-	// String NODE_REPO_PID = "org.argeo.node.repo";
 	String NODE_USER_ADMIN_PID = "org.argeo.node.userAdmin";
+	String NODE_KEYRING_PID = "org.argeo.node.keyring";
 
 	/*
 	 * FACTORY PIDs
