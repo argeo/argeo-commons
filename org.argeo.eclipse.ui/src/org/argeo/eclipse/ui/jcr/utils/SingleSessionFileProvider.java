@@ -35,9 +35,6 @@ import org.argeo.eclipse.ui.FileProvider;
  * Note that considered id is the JCR path
  * 
  * Relies on common approach for JCR file handling implementation.
- * 
- * @author bsinou
- * 
  */
 @SuppressWarnings("deprecation")
 public class SingleSessionFileProvider implements FileProvider {

@@ -30,7 +30,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-/** Dialog retrieve a single value. */
+/** Dialog to retrieve a single value. */
 public class SingleValue extends TitleAreaDialog {
 	private static final long serialVersionUID = 2843538207460082349L;
 
