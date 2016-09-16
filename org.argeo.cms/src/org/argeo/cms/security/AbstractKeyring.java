@@ -85,27 +85,27 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 	protected SecretKey getSecretKey() {
 		Subject subject = Subject.getSubject(AccessController.getContext());
 		// we assume only one secrete key is available
-		Iterator<SecretKey> iterator = subject.getPrivateCredentials(
-				SecretKey.class).iterator();
+		Iterator<SecretKey> iterator = subject.getPrivateCredentials(SecretKey.class).iterator();
 		if (!iterator.hasNext()) {// not initialized
 			CallbackHandler callbackHandler = new KeyringCallbackHandler();
+			ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
+			Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 			try {
-				LoginContext loginContext = new LoginContext(loginContextName,
-						subject, callbackHandler);
+				LoginContext loginContext = new LoginContext(loginContextName, subject, callbackHandler);
 				loginContext.login();
 				// FIXME will login even if password is wrong
-				iterator = subject.getPrivateCredentials(SecretKey.class)
-						.iterator();
+				iterator = subject.getPrivateCredentials(SecretKey.class).iterator();
 				return iterator.next();
 			} catch (LoginException e) {
 				throw new CmsException("Keyring login failed", e);
+			} finally {
+				Thread.currentThread().setContextClassLoader(currentContextClassLoader);
 			}
 
 		} else {
 			SecretKey secretKey = iterator.next();
 			if (iterator.hasNext())
-				throw new CmsException(
-						"More than one secret key in private credentials");
+				throw new CmsException("More than one secret key in private credentials");
 			return secretKey;
 		}
 	}
@@ -176,8 +176,7 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 	}
 
 	@Deprecated
-	protected static byte[] hash(char[] password, byte[] salt,
-			Integer iterationCount) {
+	protected static byte[] hash(char[] password, byte[] salt, Integer iterationCount) {
 		ByteArrayOutputStream out = null;
 		OutputStreamWriter writer = null;
 		try {
@@ -220,8 +219,7 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 	}
 
 	class KeyringCallbackHandler implements CallbackHandler {
-		public void handle(Callback[] callbacks) throws IOException,
-				UnsupportedCallbackException {
+		public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
 			// checks
 			if (callbacks.length != 2)
 				throw new IllegalArgumentException(
@@ -238,31 +236,23 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 				Callback[] dialogCbs = new Callback[] { passwordCb };
 				defaultCallbackHandler.handle(dialogCbs);
 			} else {// setup keyring
-				TextOutputCallback textCb1 = new TextOutputCallback(
-						TextOutputCallback.INFORMATION,
+				TextOutputCallback textCb1 = new TextOutputCallback(TextOutputCallback.INFORMATION,
 						"Enter a master password which will protect your private data");
-				TextOutputCallback textCb2 = new TextOutputCallback(
-						TextOutputCallback.INFORMATION,
+				TextOutputCallback textCb2 = new TextOutputCallback(TextOutputCallback.INFORMATION,
 						"(for example your credentials to third-party services)");
-				TextOutputCallback textCb3 = new TextOutputCallback(
-						TextOutputCallback.INFORMATION,
+				TextOutputCallback textCb3 = new TextOutputCallback(TextOutputCallback.INFORMATION,
 						"Don't forget this password since the data cannot be read without it");
-				PasswordCallback confirmPasswordCb = new PasswordCallback(
-						"Confirm password", false);
+				PasswordCallback confirmPasswordCb = new PasswordCallback("Confirm password", false);
 				// first try
-				Callback[] dialogCbs = new Callback[] { textCb1, textCb2,
-						textCb3, passwordCb, confirmPasswordCb };
+				Callback[] dialogCbs = new Callback[] { textCb1, textCb2, textCb3, passwordCb, confirmPasswordCb };
 				defaultCallbackHandler.handle(dialogCbs);
 
 				// if passwords different, retry (except if cancelled)
 				while (passwordCb.getPassword() != null
-						&& !Arrays.equals(passwordCb.getPassword(),
-								confirmPasswordCb.getPassword())) {
-					TextOutputCallback textCb = new TextOutputCallback(
-							TextOutputCallback.ERROR,
+						&& !Arrays.equals(passwordCb.getPassword(), confirmPasswordCb.getPassword())) {
+					TextOutputCallback textCb = new TextOutputCallback(TextOutputCallback.ERROR,
 							"The passwords do not match");
-					dialogCbs = new Callback[] { textCb, passwordCb,
-							confirmPasswordCb };
+					dialogCbs = new Callback[] { textCb, passwordCb, confirmPasswordCb };
 					defaultCallbackHandler.handle(dialogCbs);
 				}
 
