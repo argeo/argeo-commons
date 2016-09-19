@@ -19,15 +19,24 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedMap;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
 import org.osgi.framework.Constants;
+import org.osgi.framework.Version;
 
 /**
  * A distribution bundle is a bundle within a maven-like distribution
@@ -60,15 +69,106 @@ public class DistributionBundle {
 
 	public DistributionBundle(String baseUrl, String relativeUrl) {
 		if (baseUrl == null || !baseUrl.endsWith("/"))
-			throw new OsgiBootException("Base url " + baseUrl
-					+ " badly formatted");
+			throw new OsgiBootException("Base url " + baseUrl + " badly formatted");
 		if (relativeUrl.startsWith("http") || relativeUrl.startsWith("file:"))
-			throw new OsgiBootException("Relative URL " + relativeUrl
-					+ " badly formatted");
-		this.url = baseUrl + relativeUrl;
+			throw new OsgiBootException("Relative URL " + relativeUrl + " badly formatted");
+		this.url = constructUrl(baseUrl, relativeUrl);
 		this.baseUrl = baseUrl;
 		this.relativeUrl = relativeUrl;
 	}
+
+	protected String constructUrl(String baseUrl, String relativeUrl) {
+		try {
+			if (relativeUrl.indexOf('*') >= 0) {
+				if (!baseUrl.startsWith("file:"))
+					throw new IllegalArgumentException(
+							"Wildcard support only for file:, badly formatted " + baseUrl + " and " + relativeUrl);
+				Path basePath = Paths.get(new URI(baseUrl));
+				// Path basePath = Paths.get(new URI(baseUrl));
+				// int li = relativeUrl.lastIndexOf('/');
+				// String relativeDir = relativeUrl.substring(0, li);
+				// String relativeFile = relativeUrl.substring(li,
+				// relativeUrl.length());
+				String pattern = "glob:" + basePath + '/' + relativeUrl;
+				PathMatcher pm = basePath.getFileSystem().getPathMatcher(pattern);
+				SortedMap<Version, Path> res = new TreeMap<>();
+				checkDir(basePath, pm, res);
+				if (res.size() == 0)
+					throw new OsgiBootException("No file matching " + relativeUrl + " found in " + baseUrl);
+				return res.get(res.firstKey()).toUri().toString();
+				// try (DirectoryStream<Path> ds =
+				// Files.newDirectoryStream(basePath)) {
+				// Path res = null;
+				// for (Path path : ds) {
+				// if (pm.matches(path)) {
+				// if (res == null)
+				// res = path;
+				// else
+				// throw new OsgiBootException(
+				// "More than one file matching " + relativeUrl + " found in " +
+				// baseUrl);
+				// }
+				// }
+				// if (res == null)
+				// throw new OsgiBootException("No file matching " + relativeUrl
+				// + " found in " + baseUrl);
+				// return res.toUri().toURL().toString();
+				// // Iterator<Path> it = ds.iterator();
+				// // if (!it.hasNext())
+				// // throw new OsgiBootException("No file matching " +
+				// // relativeUrl + " found in " + baseUrl);
+				// // Path distributionBundlePath = it.next();
+				// // if (it.hasNext())// TODO implement version ordered
+				// // throw new OsgiBootException(
+				// // "More than one file matching " + relativeUrl + " found in
+				// // " + baseUrl);
+				// // return distributionBundlePath.toUri().toURL().toString();
+				// }
+			} else {
+				return baseUrl + relativeUrl;
+			}
+		} catch (Exception e) {
+			throw new OsgiBootException("Cannot build URL from " + baseUrl + " and " + relativeUrl, e);
+		}
+	}
+
+	private void checkDir(Path dir, PathMatcher pm, SortedMap<Version, Path> res) throws IOException {
+		try (DirectoryStream<Path> ds = Files.newDirectoryStream(dir)) {
+			for (Path path : ds) {
+				if (Files.isDirectory(path))
+					checkDir(path, pm, res);
+				else if (pm.matches(path)) {
+					String fileName = path.getFileName().toString();
+					fileName = fileName.substring(0, fileName.lastIndexOf('.'));
+					if (fileName.endsWith("-SNAPSHOT"))
+						fileName = fileName.substring(0, fileName.lastIndexOf('-')) + ".SNAPSHOT";
+					fileName = fileName.substring(fileName.lastIndexOf('-') + 1);
+					Version version = new Version(fileName);
+					res.put(version, path);
+				}
+			}
+		}
+	}
+
+	// public static void main(String[] args) {
+	// try {
+	// String baseUrl = "file:///home/mbaudier/.m2/repository/";
+	// String relativeUrl =
+	// "org/argeo/commons/org.argeo.dep.cms.node/2.1.*-SNAPSHOT/org.argeo.dep.cms.node-2.1.*-SNAPSHOT.jar";
+	// Path basePath = Paths.get(new URI(baseUrl));
+	// PathMatcher pm = basePath.getFileSystem().getPathMatcher("glob:" +
+	// relativeUrl);
+	//
+	// try (DirectoryStream<Path> ds = Files.newDirectoryStream(basePath, "**"))
+	// {
+	// for (Path path : ds) {
+	// System.out.println(path);
+	// }
+	// }
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// }
+	// }
 
 	public void processUrl() {
 		JarInputStream jarIn = null;
@@ -78,10 +178,8 @@ public class DistributionBundle {
 
 			// meta data
 			manifest = jarIn.getManifest();
-			symbolicName = manifest.getMainAttributes().getValue(
-					Constants.BUNDLE_SYMBOLICNAME);
-			version = manifest.getMainAttributes().getValue(
-					Constants.BUNDLE_VERSION);
+			symbolicName = manifest.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
+			version = manifest.getMainAttributes().getValue(Constants.BUNDLE_VERSION);
 
 			JarEntry indexEntry;
 			while ((indexEntry = jarIn.getNextJarEntry()) != null) {
@@ -94,8 +192,7 @@ public class DistributionBundle {
 
 			// list artifacts
 			if (indexEntry == null)
-				throw new OsgiBootException("No index " + INDEX_FILE_NAME
-						+ " in " + url);
+				throw new OsgiBootException("No index " + INDEX_FILE_NAME + " in " + url);
 			artifacts = listArtifacts(jarIn);
 			jarIn.closeEntry();
 
@@ -103,12 +200,10 @@ public class DistributionBundle {
 			// won't work if distribution artifact is not listed
 			for (int i = 0; i < artifacts.size(); i++) {
 				OsgiArtifact osgiArtifact = (OsgiArtifact) artifacts.get(i);
-				if (osgiArtifact.getSymbolicName().equals(symbolicName)
-						&& osgiArtifact.getVersion().equals(version)) {
+				if (osgiArtifact.getSymbolicName().equals(symbolicName) && osgiArtifact.getVersion().equals(version)) {
 					String relativeUrl = osgiArtifact.getRelativeUrl();
 					if (url.endsWith(relativeUrl)) {
-						baseUrl = url.substring(0, url.length()
-								- osgiArtifact.getRelativeUrl().length());
+						baseUrl = url.substring(0, url.length() - osgiArtifact.getRelativeUrl().length());
 						break;
 					}
 				}
@@ -136,8 +231,7 @@ public class DistributionBundle {
 				String moduleName = st.nextToken();
 				String moduleVersion = st.nextToken();
 				String relativeUrl = st.nextToken();
-				osgiArtifacts.add(new OsgiArtifact(moduleName, moduleVersion,
-						relativeUrl));
+				osgiArtifacts.add(new OsgiArtifact(moduleName, moduleVersion, relativeUrl));
 			}
 		} catch (Exception e) {
 			throw new OsgiBootException("Cannot list artifacts", e);
@@ -146,10 +240,8 @@ public class DistributionBundle {
 	}
 
 	/** Convenience method */
-	public static DistributionBundle processUrl(String baseUrl,
-			String realtiveUrl) {
-		DistributionBundle distributionBundle = new DistributionBundle(baseUrl,
-				realtiveUrl);
+	public static DistributionBundle processUrl(String baseUrl, String realtiveUrl) {
+		DistributionBundle distributionBundle = new DistributionBundle(baseUrl, realtiveUrl);
 		distributionBundle.processUrl();
 		return distributionBundle;
 	}
@@ -192,8 +284,7 @@ public class DistributionBundle {
 		private final String version;
 		private final String relativeUrl;
 
-		public OsgiArtifact(String symbolicName, String version,
-				String relativeUrl) {
+		public OsgiArtifact(String symbolicName, String version, String relativeUrl) {
 			super();
 			this.symbolicName = symbolicName;
 			this.version = version;

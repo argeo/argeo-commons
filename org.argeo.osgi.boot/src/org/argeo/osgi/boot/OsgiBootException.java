@@ -26,8 +26,8 @@ public class OsgiBootException extends RuntimeException {
 		super(message);
 	}
 
-	public OsgiBootException(String message, Throwable cause) {
-		super(message, cause);
+	public OsgiBootException(String message, Throwable e) {
+		super(message, e);
 	}
 
 }
