@@ -27,8 +27,9 @@ class DeploymentEntryPoint extends AbstractEntryPoint {
 
 	@Override
 	protected void createContents(Composite parent) {
-		if (!CurrentUser.roles().contains(AuthConstants.ROLE_ADMIN))
-			return;
+		// FIXME manage authentication if needed
+		// if (!CurrentUser.roles().contains(AuthConstants.ROLE_ADMIN))
+		// return;
 
 		// parent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		if (isDesktop()) {

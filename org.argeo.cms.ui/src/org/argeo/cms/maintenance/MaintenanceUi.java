@@ -7,7 +7,8 @@ public class MaintenanceUi implements ApplicationConfiguration {
 
 	@Override
 	public void configure(Application application) {
-		application.addEntryPoint("/status", DeploymentEntryPoint.class, null);
+		// application.addEntryPoint("/status", DeploymentEntryPoint.class,
+		// null);
 	}
 
 }
