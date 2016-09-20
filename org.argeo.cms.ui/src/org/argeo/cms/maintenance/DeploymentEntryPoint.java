@@ -3,6 +3,8 @@ package org.argeo.cms.maintenance;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
+import org.argeo.cms.auth.AuthConstants;
+import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeDeployment;
@@ -25,6 +27,9 @@ class DeploymentEntryPoint extends AbstractEntryPoint {
 
 	@Override
 	protected void createContents(Composite parent) {
+		if (!CurrentUser.roles().contains(AuthConstants.ROLE_ADMIN))
+			return;
+
 		// parent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		if (isDesktop()) {
 			parent.setLayout(new GridLayout(2, true));

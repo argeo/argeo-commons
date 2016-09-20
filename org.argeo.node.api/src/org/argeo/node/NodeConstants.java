@@ -43,7 +43,7 @@ public interface NodeConstants {
 	 */
 	String CN = "cn";
 	String OU = "ou";
-	String LABELED_URI = "labeledUri";
+	String URI = "uri";
 
 	/*
 	 * STANDARD VALUES
