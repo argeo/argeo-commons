@@ -16,7 +16,7 @@
 package org.argeo.security.ui.rap;
 
 import org.argeo.cms.auth.CurrentUser;
-import org.argeo.security.ui.commands.OpenHomePerspective;
+import org.argeo.cms.ui.workbench.commands.OpenHomePerspective;
 import org.eclipse.core.commands.Category;
 import org.eclipse.core.commands.Command;
 import org.eclipse.jface.action.ICoolBarManager;

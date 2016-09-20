@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="openChangePasswordDialog" class="org.argeo.security.ui.commands.OpenChangePasswordDialog"
+	<bean id="openChangePasswordDialog" class="org.argeo.cms.ui.workbench.commands.OpenChangePasswordDialog"
 		scope="prototype">
 		<property name="userAdmin" ref="userAdmin" />
 		<property name="userTransaction" ref="userTransaction" />
@@ -12,7 +12,7 @@
 
 
 	<!-- RAP Specific command and corresponding service to enable open file -->
-	<bean id="org.argeo.eclipse.ui.workbench.openFile" class="org.argeo.eclipse.ui.workbench.commands.OpenFile"
+	<bean id="org.argeo.eclipse.ui.workbench.openFile" class="org.argeo.cms.ui.workbench.commands.OpenFile"
 	scope="prototype">
 		<property name="openFileServiceId"
 			value="org.argeo.security.ui.specific.openFileService" />

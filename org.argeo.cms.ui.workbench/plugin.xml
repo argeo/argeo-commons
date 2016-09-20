@@ -5,31 +5,31 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             id="org.argeo.cms.ui.workbench.adminSecurityPerspective"
-            class="org.argeo.security.ui.admin.SecurityAdminPerspective"
+            class="org.argeo.cms.ui.workbench.SecurityAdminPerspective"
             icon="icons/security.gif"
             name="Security">
       </perspective>
       <perspective
             id="org.argeo.cms.ui.workbench.userHomePerspective"
-            class="org.argeo.security.ui.UserHomePerspective"
+            class="org.argeo.cms.ui.workbench.UserHomePerspective"
             icon="icons/home.gif"
             name="Home">
       </perspective>
       <perspective
             id="org.argeo.cms.ui.workbench.adminMaintenancePerspective"
-            class="org.argeo.security.ui.MaintenancePerspective"
+            class="org.argeo.cms.ui.workbench.MaintenancePerspective"
             icon="icons/maintenance.gif"
             name="Maintenance">
       </perspective>
-            <perspective
+      <perspective
             id="org.argeo.cms.ui.workbench.osgiPerspective"
-            class="org.argeo.eclipse.ui.workbench.osgi.OsgiExplorerPerspective"
+            class="org.argeo.cms.ui.workbench.OsgiExplorerPerspective"
             name="Monitoring"
             icon="icons/osgi_explorer.gif">
       </perspective>
       <perspective
             id="org.argeo.cms.ui.workbench.jcrBrowserPerspective"
-            class="org.argeo.eclipse.ui.workbench.jcr.JcrBrowserPerspective"
+            class="org.argeo.cms.ui.workbench.JcrBrowserPerspective"
             name="Data Explorer"
             icon="icons/nodes.gif">
       </perspective>
@@ -37,7 +37,7 @@
    
     <!-- Definition of the OSGI perspective -->
     <extension point="org.eclipse.ui.perspectiveExtensions"> 
-        <perspectiveExtension targetID="org.argeo.eclipse.ui.workbench.osgiPerspective"> 
+        <perspectiveExtension targetID="org.argeo.cms.ui.workbench.osgiPerspective"> 
             <view 
             	id="org.argeo.cms.ui.workbench.modulesView" 
             	minimized="false"
@@ -79,7 +79,7 @@
       <!-- Home -->
       <view
             id="org.argeo.cms.ui.workbench.userProfile"
-            class="org.argeo.security.ui.views.UserProfile"
+            class="org.argeo.cms.ui.workbench.useradmin.UserProfile"
             icon="icons/user.gif"
             name="Profile"
             restorable="true">
@@ -104,19 +104,19 @@
       		name="Modules"
             id="org.argeo.cms.ui.workbench.modulesView"
             icon="icons/service_published.gif"
-			class="org.argeo.eclipse.ui.workbench.osgi.ModulesView">
+			class="org.argeo.cms.ui.workbench.osgi.ModulesView">
 		</view>
 		<view
       		name="Bundles"
             id="org.argeo.cms.ui.workbench.bundlesView" 
             icon="icons/bundles.gif"
-            class="org.argeo.eclipse.ui.workbench.osgi.BundlesView">
+            class="org.argeo.cms.ui.workbench.osgi.BundlesView">
 		</view>
 		<view
       		name="Multiple Packages"
             id="org.argeo.cms.ui.workbench.multiplePackagesView" 
             icon="icons/node.gif"
-            class="org.argeo.eclipse.ui.workbench.osgi.MultiplePackagesView">
+            class="org.argeo.cms.ui.workbench.osgi.MultiplePackagesView">
 		</view>
 		<!-- Data Explorer -->
 		<view
@@ -204,13 +204,13 @@
 
  	  <!-- Force the refresh when the various listener are not enough -->
       <command
-            defaultHandler="org.argeo.security.ui.admin.internal.commands.ForceRefresh"
+            defaultHandler="org.argeo.cms.ui.workbench.internal.useradmin.commands.ForceRefresh"
             id="org.argeo.cms.ui.workbench.forceRefresh"
             name="Force Refresh">
       </command>
       <!-- Data Explorer -->
       <command
-			defaultHandler="org.argeo.eclipse.ui.workbench.commands.OpenEditor"
+			defaultHandler="org.argeo.cms.ui.workbench.commands.OpenEditor"
             id="org.argeo.cms.ui.workbench.openEditor"
             name="Open an editor given its ID">
             <commandParameter
@@ -224,7 +224,7 @@
   	 		</commandParameter>
 		</command>
     	<command
-			defaultHandler="org.argeo.eclipse.ui.workbench.commands.GetNodeSize"
+			defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.GetNodeSize"
 			id="org.argeo.cms.ui.workbench.getNodeSize"
 			name="Get node size">
 		</command>    
@@ -238,12 +238,12 @@
   	 		</commandParameter> -->
 		</command>    
     	<command
-			defaultHandler="org.argeo.eclipse.ui.workbench.commands.RemoveRemoteRepository"
+			defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.RemoveRemoteRepository"
 			id="org.argeo.cms.ui.workbench.removeRemoteRepository"
 			name="Remove remote JCR repository">
 		</command>    
 		<command
-	        defaultHandler="org.argeo.eclipse.ui.workbench.commands.AddFolderNode"
+	        defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.AddFolderNode"
 	        id="org.argeo.cms.ui.workbench.addFolderNode"
 	        name="Create a new folder">
 		</command>
@@ -258,22 +258,22 @@
 			name="Remove Privileges">
 		</command>
 		<command
-			defaultHandler="org.argeo.eclipse.ui.workbench.commands.CreateWorkspace"
+			defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.CreateWorkspace"
 			id="org.argeo.cms.ui.workbench.createWorkspace"
 			name="Create a new workspace">
 		</command>
 		<command
-			defaultHandler="org.argeo.eclipse.ui.workbench.commands.Refresh"
+			defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.Refresh"
 			id="org.argeo.cms.ui.workbench.refresh"
 			name="Refresh">
 		</command>
 		<command
-			defaultHandler="org.argeo.eclipse.ui.workbench.commands.DeleteNodes"
+			defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.DeleteNodes"
 			id="org.argeo.cms.ui.workbench.deleteNodes"
 			name="Delete nodes">
 		</command>
 		<command
-	        defaultHandler="org.argeo.eclipse.ui.workbench.commands.ImportFileSystem"
+	        defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.ImportFileSystem"
 	        id="org.argeo.cms.ui.workbench.importFileSystem"
 	        name="Import files...">
 		</command>
@@ -283,22 +283,22 @@
 	        name="Open current file">
 		</command> -->
 		<command
-	        defaultHandler="org.argeo.eclipse.ui.workbench.commands.DumpNode"
+	        defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.DumpNode"
 	        id="org.argeo.cms.ui.workbench.dumpNode"
 	        name="Dump Current Selected Node">
 		</command>
 		<command
-	        defaultHandler="org.argeo.eclipse.ui.workbench.commands.RenameNode"
+	        defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.RenameNode"
 	        id="org.argeo.cms.ui.workbench.renameNode"
 	        name="Rename Current Selected Node">
 		</command>
 		<command
-	        defaultHandler="org.argeo.eclipse.ui.workbench.commands.NodeConfigurableDump"
+	        defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.NodeConfigurableDump"
 	        id="org.argeo.cms.ui.workbench.nodeConfigurableDump"
 	        name="Configurable dump of the selected Node">
 		</command>
 		<command
-			defaultHandler="org.argeo.eclipse.ui.workbench.commands.SortChildNodes"
+			defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.SortChildNodes"
 			id="org.argeo.cms.ui.workbench.sortChildNodes"
 			name="Sort node tree">
             <!-- FIXME: default value does not work -->
@@ -449,10 +449,10 @@
 				      <and>
 				         <or>
 				            <instanceof
-				                  value="org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem">
+				                  value="org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem">
 				            </instanceof>
 				            <instanceof
-				                  value="org.argeo.eclipse.ui.workbench.internal.jcr.model.WorkspaceElem">
+				                  value="org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem">
 				            </instanceof>
 				         </or>
              			<with variable="activeMenuSelection"><count value="1"/></with>
@@ -470,10 +470,10 @@
 				      <and>
 				         <or>
 				            <instanceof
-				                  value="org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem">
+				                  value="org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem">
 				            </instanceof>
 				            <instanceof
-				                  value="org.argeo.eclipse.ui.workbench.internal.jcr.model.WorkspaceElem">
+				                  value="org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem">
 				            </instanceof>
 				         </or>
              			<with variable="activeMenuSelection"><count value="1"/></with>
@@ -491,10 +491,10 @@
 				      <and>
 				         <or>
 				            <instanceof
-				                  value="org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem">
+				                  value="org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem">
 				            </instanceof>
 				            <instanceof
-				                  value="org.argeo.eclipse.ui.workbench.internal.jcr.model.WorkspaceElem">
+				                  value="org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem">
 				            </instanceof>
 				         </or>
              			<with variable="activeMenuSelection"><count value="1"/></with>
@@ -512,7 +512,7 @@
 			      		<and>
 			         		<or>
 			            		<instanceof
-			                  		value="org.argeo.eclipse.ui.workbench.internal.jcr.model.RepositoryElem">
+			                  		value="org.argeo.cms.ui.workbench.internal.jcr.model.RepositoryElem">
 			            		</instanceof>
 			         		</or>
              				<with variable="activeMenuSelection"><count value="1"/></with>
@@ -529,9 +529,9 @@
 					<iterate>
 						<or>
 							<instanceof
-								value="org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem" />
+								value="org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem" />
 							<instanceof
-								value="org.argeo.eclipse.ui.workbench.internal.jcr.model.WorkspaceElem" />
+								value="org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem" />
 						</or>
 					</iterate>
 				</visibleWhen>
@@ -546,9 +546,9 @@
 						<and>
 							<or>
 								<instanceof
-									value="org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem" />
+									value="org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem" />
 								<instanceof
-                          			value="org.argeo.eclipse.ui.workbench.internal.jcr.model.WorkspaceElem" />
+                          			value="org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem" />
                  			</or>
                  			<with variable="activeMenuSelection"><count value="1"/></with>
 						</and>
@@ -563,9 +563,9 @@
 						<iterate> 
 							<or>
 								<instanceof
-                    				value="org.argeo.eclipse.ui.workbench.internal.jcr.model.RepositoriesElem" />
+                    				value="org.argeo.cms.ui.workbench.internal.jcr.model.RepositoriesElem" />
 								<instanceof
-									value="org.argeo.eclipse.ui.workbench.internal.jcr.model.RepositoryElem" />
+									value="org.argeo.cms.ui.workbench.internal.jcr.model.RepositoryElem" />
 							</or> 
 						</iterate>
 					</visibleWhen>
@@ -578,7 +578,7 @@
 					<iterate> 
 						<or>
 							<instanceof
-								value="org.argeo.eclipse.ui.workbench.internal.jcr.model.RemoteRepositoryElem" />
+								value="org.argeo.cms.ui.workbench.internal.jcr.model.RemoteRepositoryElem" />
 						</or> 
            			</iterate>
 				</visibleWhen>
@@ -591,9 +591,9 @@
 						<iterate>
 							<or>
 								<instanceof
-									value="org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem" />
+									value="org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem" />
 								<instanceof
-									value="org.argeo.eclipse.ui.workbench.internal.jcr.model.WorkspaceElem" />
+									value="org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem" />
               				</or>
            				</iterate>
 					</visibleWhen>
@@ -605,7 +605,7 @@
 				style="push">
 				<visibleWhen>
 					<iterate> <and>
-						<instanceof value="org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem"></instanceof>
+						<instanceof value="org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem"></instanceof>
              			<with variable="activeMenuSelection"><count value="1"/></with>
 					</and> </iterate>
 				</visibleWhen>
@@ -617,7 +617,7 @@
 				style="push">
 				<visibleWhen>
 					<iterate> <and>
-						<instanceof value="org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem"></instanceof>
+						<instanceof value="org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem"></instanceof>
              			<with variable="activeMenuSelection"><count value="1"/></with>
 					</and> </iterate>
 				</visibleWhen>
@@ -630,7 +630,7 @@
 				<visibleWhen>
 					<iterate> 
 						<and>
-							<instanceof value="org.argeo.eclipse.ui.workbench.internal.jcr.model.SingleJcrNodeElem"></instanceof>
+							<instanceof value="org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem"></instanceof>
              				<with variable="activeMenuSelection"><count value="1"/></with>
 						</and> 
 					</iterate>
@@ -652,7 +652,7 @@
 	      	</variable>
 	   	</sourceProvider>
 	   	<sourceProvider
-              provider="org.argeo.security.ui.RolesSourceProvider">
+              provider="org.argeo.cms.ui.workbench.util.RolesSourceProvider">
            <variable
                  name="org.argeo.cms.ui.workbench.rolesVariable"
                  priorityLevel="workbench">
@@ -677,13 +677,13 @@
 		 <activityPatternBinding
 			pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.osgiPerspective"
 			isEqualityPattern="true"
-			activityId="org.argeo.security.ui.adminActivity">
+			activityId="org.argeo.cms.ui.workbench.adminActivity">
 			<!-- activityId="org.argeo.security.ui.adminActivity" -->
         </activityPatternBinding>
         <activityPatternBinding
 			pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.jcrBrowserPerspective"
 			isEqualityPattern="true"
-			activityId="org.argeo.security.ui.adminActivity">
+			activityId="org.argeo.cms.ui.workbench.adminActivity">
 		</activityPatternBinding>
 		
 		<activity
@@ -787,6 +787,6 @@
 	
 	<!-- STARTUP  --> 
 	<extension point="org.eclipse.ui.startup">
-   		<startup class="org.argeo.security.ui.admin.internal.PartStateChanged"/>
+   		<startup class="org.argeo.cms.ui.workbench.internal.useradmin.PartStateChanged"/>
 	</extension>
 </plugin>

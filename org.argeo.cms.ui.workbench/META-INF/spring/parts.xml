@@ -8,22 +8,22 @@
 	<!-- SECURITY  -->
 
 	<!-- Editors -->
-	<bean id="userEditor" class="org.argeo.security.ui.admin.internal.parts.UserEditor"
+	<bean id="userEditor" class="org.argeo.cms.ui.workbench.internal.useradmin.parts.UserEditor"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
 
-	<bean id="groupEditor" class="org.argeo.security.ui.admin.internal.parts.UserEditor"
+	<bean id="groupEditor" class="org.argeo.cms.ui.workbench.internal.useradmin.parts.UserEditor"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
 	
 	<!-- Views -->
-	<bean id="usersView" class="org.argeo.security.ui.admin.internal.parts.UsersView"
+	<bean id="usersView" class="org.argeo.cms.ui.workbench.internal.useradmin.parts.UsersView"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
-	<bean id="groupsView" class="org.argeo.security.ui.admin.internal.parts.GroupsView"
+	<bean id="groupsView" class="org.argeo.cms.ui.workbench.internal.useradmin.parts.GroupsView"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
@@ -32,16 +32,16 @@
 	<!-- DATA EXPLORER  -->
 	<!-- Editors -->
 	<bean id="genericJcrQueryEditor"
-		class="org.argeo.eclipse.ui.workbench.jcr.GenericJcrQueryEditor"
+		class="org.argeo.cms.ui.workbench.jcr.GenericJcrQueryEditor"
 		scope="prototype">
 		<property name="session" ref="nodeSession" />
 	</bean>
-	<bean id="defaultNodeEditor" class="org.argeo.eclipse.ui.workbench.jcr.DefaultNodeEditor"
+	<bean id="defaultNodeEditor" class="org.argeo.cms.ui.workbench.jcr.DefaultNodeEditor"
 		scope="prototype">
 	</bean>
 
 	<!-- Views -->
-	<bean id="jcrBrowserView" class="org.argeo.eclipse.ui.workbench.jcr.JcrBrowserView"
+	<bean id="jcrBrowserView" class="org.argeo.cms.ui.workbench.jcr.JcrBrowserView"
 		scope="prototype">
 		<property name="repositoryRegister" ref="repositoryRegister" />
 		<property name="repositoryFactory" ref="repositoryFactory" />

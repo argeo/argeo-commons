@@ -5,51 +5,51 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!-- USERS CRUDS -->
-	<bean id="newUser" class="org.argeo.security.ui.admin.internal.commands.NewUser"
+	<bean id="newUser" class="org.argeo.cms.ui.workbench.internal.useradmin.commands.NewUser"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
 	<bean id="deleteUsers"
-		class="org.argeo.security.ui.admin.internal.commands.DeleteUsers"
+		class="org.argeo.cms.ui.workbench.internal.useradmin.commands.DeleteUsers"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
 	<bean id="userBatchUpdate"
-		class="org.argeo.security.ui.admin.internal.commands.UserBatchUpdate"
+		class="org.argeo.cms.ui.workbench.internal.useradmin.commands.UserBatchUpdate"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
 	<!-- GROUPS CRUDS -->
-	<bean id="newGroup" class="org.argeo.security.ui.admin.internal.commands.NewGroup"
+	<bean id="newGroup" class="org.argeo.cms.ui.workbench.internal.useradmin.commands.NewGroup"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
 	<bean id="deleteGroups"
-		class="org.argeo.security.ui.admin.internal.commands.DeleteGroups"
+		class="org.argeo.cms.ui.workbench.internal.useradmin.commands.DeleteGroups"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
 
 	<!-- TRANSACTIONS -->
 	<bean id="userTransactionHandler"
-		class="org.argeo.security.ui.admin.internal.commands.UserTransactionHandler"
+		class="org.argeo.cms.ui.workbench.internal.useradmin.commands.UserTransactionHandler"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
 	
 	<!-- DATA EXPLORER -->
 	<bean id="addRemoteRepository"
-		class="org.argeo.eclipse.ui.workbench.commands.AddRemoteRepository">
+		class="org.argeo.cms.ui.workbench.internal.jcr.commands.AddRemoteRepository">
 		<property name="repositoryFactory" ref="repositoryFactory" />
 		<property name="nodeRepository" ref="nodeRepository" />
 		<property name="keyring" ref="keyring" />
 	</bean>
 
-	<bean id="addPrivileges" class="org.argeo.eclipse.ui.workbench.commands.AddPrivileges">
+	<bean id="addPrivileges" class="org.argeo.cms.ui.workbench.internal.jcr.commands.AddPrivileges">
 		<property name="userAdmin" ref="userAdmin" />
 	</bean>
 	<bean id="removePrivileges"
-		class="org.argeo.eclipse.ui.workbench.commands.RemovePrivileges">
+		class="org.argeo.cms.ui.workbench.internal.jcr.commands.RemovePrivileges">
 		<!-- <property name="userAdmin" ref="userAdmin" /> -->
 	</bean>
 </beans>

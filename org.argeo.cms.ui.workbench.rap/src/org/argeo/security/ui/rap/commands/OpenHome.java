@@ -15,9 +15,9 @@
  */
 package org.argeo.security.ui.rap.commands;
 
+import org.argeo.cms.ui.workbench.UserHomePerspective;
+import org.argeo.cms.ui.workbench.util.CommandUtils;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
-import org.argeo.eclipse.ui.workbench.CommandUtils;
-import org.argeo.security.ui.UserHomePerspective;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
