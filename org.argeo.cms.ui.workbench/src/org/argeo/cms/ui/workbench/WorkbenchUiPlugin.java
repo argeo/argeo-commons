@@ -91,10 +91,11 @@ public class WorkbenchUiPlugin extends AbstractUIPlugin implements ILogListener 
 		return bundleContext;
 	}
 
-	// * Returns the shared instance
-	// *
-	// * @return the shared instance
-	// */
+	/*
+	 * Returns the shared instance
+	 * 
+	 * @return the shared instance
+	 */
 	public static WorkbenchUiPlugin getDefault() {
 		return plugin;
 	}

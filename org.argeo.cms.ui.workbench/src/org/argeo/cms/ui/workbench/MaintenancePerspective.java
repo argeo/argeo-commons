@@ -21,7 +21,7 @@ import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
-/** Home perspective for the current user */
+/** First draft of a maintenance perspective. Not yet used */
 public class MaintenancePerspective implements IPerspectiveFactory {
 	public final static String ID = WorkbenchUiPlugin.PLUGIN_ID
 			+ ".adminMaintenancePerspective";
@@ -38,6 +38,5 @@ public class MaintenancePerspective implements IPerspectiveFactory {
 		IFolderLayout left = layout.createFolder("left", IPageLayout.LEFT,
 				0.30f, editorArea);
 		left.addView(UserProfile.ID);
-		// left.addView(RolesView.ID);
 	}
 }

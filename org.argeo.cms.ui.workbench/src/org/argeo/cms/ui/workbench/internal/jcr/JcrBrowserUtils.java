@@ -25,7 +25,7 @@ import org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 
-/** Centralizes useful methods to manage the JCR Browser */
+/** Useful methods to manage the JCR Browser */
 public class JcrBrowserUtils {
 
 	/** Insure that the UI component is not stale, refresh if needed */

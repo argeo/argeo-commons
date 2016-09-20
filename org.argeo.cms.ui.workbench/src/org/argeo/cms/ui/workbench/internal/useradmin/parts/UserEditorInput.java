@@ -30,6 +30,7 @@ public class UserEditorInput implements IEditorInput {
 		this.username = username;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
 		return null;
 	}

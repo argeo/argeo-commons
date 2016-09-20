@@ -53,6 +53,7 @@ public class GenericNodeEditorInput implements IEditorInput {
 		return currentNode;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
 		return null;
 	}

@@ -120,7 +120,5 @@ public class NodeLabelProvider extends ColumnLabelProvider {
 			e.printStackTrace();
 			return null;
 		}
-
 	}
-
 }

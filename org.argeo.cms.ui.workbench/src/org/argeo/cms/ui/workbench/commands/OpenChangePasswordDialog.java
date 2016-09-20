@@ -53,7 +53,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
-/** Opens the change password dialog. */
+/** Open the change password dialog */
 public class OpenChangePasswordDialog extends AbstractHandler {
 	private final static Log log = LogFactory
 			.getLog(OpenChangePasswordDialog.class);
@@ -166,6 +166,5 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 			super.configureShell(shell);
 			shell.setText(changePassword.lead());
 		}
-
 	}
 }

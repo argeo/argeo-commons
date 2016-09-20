@@ -1,5 +1,5 @@
 Bundle-SymbolicName: org.argeo.cms.ui.workbench;singleton:=true
-Bundle-Activator: org.argeo.cms.ui.workbench.SecurityUiPlugin
+Bundle-Activator: org.argeo.cms.ui.workbench.WorkbenchUiPlugin
 Bundle-ActivationPolicy: lazy
 
 Require-Bundle:	org.eclipse.core.runtime,\

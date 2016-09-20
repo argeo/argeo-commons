@@ -29,6 +29,5 @@ public class JcrBrowserPerspective implements IPerspectiveFactory {
 				WorkbenchUiPlugin.PLUGIN_ID + ".upperLeft", IPageLayout.LEFT,
 				0.4f, layout.getEditorArea());
 		upperLeft.addView(JcrBrowserView.ID);
-
 	}
 }

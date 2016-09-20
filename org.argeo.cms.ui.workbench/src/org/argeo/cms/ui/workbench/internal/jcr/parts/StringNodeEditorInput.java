@@ -54,6 +54,7 @@ public class StringNodeEditorInput implements IEditorInput {
 		this.workspaceName = workspaceName;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
 		return null;
 	}

@@ -33,6 +33,7 @@ public class JcrQueryEditorInput implements IEditorInput {
 			this.queryType = queryType;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
 		return null;
 	}
