@@ -14,6 +14,7 @@
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.dep.cms.platform</artifactId>
 			<version>2.1.46-SNAPSHOT</version>
+			<type>pom</type>
 		</dependency>
 
 		<!-- ALM Third Parties -->

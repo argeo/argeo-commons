@@ -16,6 +16,7 @@
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.dep.cms.node</artifactId>
 			<version>2.1.46-SNAPSHOT</version>
+			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
@@ -226,7 +227,7 @@
 											<username>root</username>
 											<groupname>root</groupname>
 											<filemode>644</filemode>
-											<directoryIncluded>true</directoryIncluded>
+											<directoryIncluded>false</directoryIncluded>
 											<sources>
 												<source>
 													<location>${project.build.directory}/lib-argeo</location>
@@ -240,8 +241,7 @@
 											<directory>/usr/share/osgi/org/argeo/commons/${project.artifactId}/${project.version}</directory>
 											<username>root</username>
 											<groupname>root</groupname>
-											<filemode>644</filemode>
-											<directoryIncluded>true</directoryIncluded>
+											<directoryIncluded>false</directoryIncluded>
 											<artifact />
 										</mapping>
 									</mappings>
