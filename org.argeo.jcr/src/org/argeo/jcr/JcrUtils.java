@@ -75,8 +75,8 @@ public class JcrUtils {
 	 * http://www.day.com/specs/jcr/2.0/3_Repository_Model.html#3.2.2%20Local
 	 * %20Names
 	 */
-	public final static char[] INVALID_NAME_CHARACTERS = { '/', ':', '[', ']',
-			'|', '*', /*
+	public final static char[] INVALID_NAME_CHARACTERS = { '/', ':', '[', ']', '|',
+			'*', /*
 					 * invalid XML chars :
 					 */
 			'<', '>', '&' };
@@ -172,23 +172,20 @@ public class JcrUtils {
 			node.setProperty(Property.JCR_PORT, Integer.toString(u.getPort()));
 			node.setProperty(Property.JCR_PATH, normalizePath(u.getPath()));
 		} catch (Exception e) {
-			throw new ArgeoJcrException("Cannot set URL " + url
-					+ " as nt:address properties", e);
+			throw new ArgeoJcrException("Cannot set URL " + url + " as nt:address properties", e);
 		}
 	}
 
 	/** Build URL based on the {@link NodeType#NT_ADDRESS} properties. */
 	public static String urlFromAddressProperties(Node node) {
 		try {
-			URL u = new URL(
-					node.getProperty(Property.JCR_PROTOCOL).getString(), node
-							.getProperty(Property.JCR_HOST).getString(),
-					(int) node.getProperty(Property.JCR_PORT).getLong(), node
-							.getProperty(Property.JCR_PATH).getString());
+			URL u = new URL(node.getProperty(Property.JCR_PROTOCOL).getString(),
+					node.getProperty(Property.JCR_HOST).getString(),
+					(int) node.getProperty(Property.JCR_PORT).getLong(),
+					node.getProperty(Property.JCR_PATH).getString());
 			return u.toString();
 		} catch (Exception e) {
-			throw new ArgeoJcrException(
-					"Cannot get URL from nt:address properties of " + node, e);
+			throw new ArgeoJcrException("Cannot get URL from nt:address properties of " + node, e);
 		}
 	}
 
@@ -196,7 +193,9 @@ public class JcrUtils {
 	 * PATH UTILITIES
 	 */
 
-	/** Make sure that: starts with '/', do not end with '/', do not have '//' */
+	/**
+	 * Make sure that: starts with '/', do not end with '/', do not have '//'
+	 */
 	public static String normalizePath(String path) {
 		List<String> tokens = tokenize(path);
 		StringBuffer buf = new StringBuffer(path.length());
@@ -285,8 +284,7 @@ public class JcrUtils {
 			calendar.setTime(date);
 			return calendar;
 		} catch (ParseException e) {
-			throw new ArgeoJcrException("Cannot parse " + value
-					+ " with date format " + dateFormat, e);
+			throw new ArgeoJcrException("Cannot parse " + value + " with date format " + dateFormat, e);
 		}
 
 	}
@@ -329,20 +327,16 @@ public class JcrUtils {
 	 * Routine that get the child with this name, adding id it does not already
 	 * exist
 	 */
-	public static Node getOrAdd(Node parent, String childName,
-			String childPrimaryNodeType) throws RepositoryException {
-		return parent.hasNode(childName) ? parent.getNode(childName) : parent
-				.addNode(childName, childPrimaryNodeType);
+	public static Node getOrAdd(Node parent, String childName, String childPrimaryNodeType) throws RepositoryException {
+		return parent.hasNode(childName) ? parent.getNode(childName) : parent.addNode(childName, childPrimaryNodeType);
 	}
 
 	/**
 	 * Routine that get the child with this name, adding id it does not already
 	 * exist
 	 */
-	public static Node getOrAdd(Node parent, String childName)
-			throws RepositoryException {
-		return parent.hasNode(childName) ? parent.getNode(childName) : parent
-				.addNode(childName);
+	public static Node getOrAdd(Node parent, String childName) throws RepositoryException {
+		return parent.hasNode(childName) ? parent.getNode(childName) : parent.addNode(childName);
 	}
 
 	/** Convert a {@link NodeIterator} to a list of {@link Node} */
@@ -368,8 +362,7 @@ public class JcrUtils {
 				return null;
 			return node.getProperty(propertyName).getString();
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot get property " + propertyName
-					+ " of " + node, e);
+			throw new ArgeoJcrException("Cannot get property " + propertyName + " of " + node, e);
 		}
 	}
 
@@ -378,8 +371,7 @@ public class JcrUtils {
 		try {
 			return node.getProperty(propertyName).getBoolean();
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot get property " + propertyName
-					+ " of " + node, e);
+			throw new ArgeoJcrException("Cannot get property " + propertyName + " of " + node, e);
 		}
 	}
 
@@ -388,33 +380,19 @@ public class JcrUtils {
 		try {
 			return getBinaryAsBytes(node.getProperty(propertyName));
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot get property " + propertyName
-					+ " of " + node, e);
+			throw new ArgeoJcrException("Cannot get property " + propertyName + " of " + node, e);
 		}
 	}
 
-	/** Creates the nodes making path, if they don't exist. */
-	public static Node mkdirs(Session session, String path) {
-		return mkdirs(session, path, null, null, false);
-	}
+	/*
+	 * MKDIRS
+	 */
 
 	/**
-	 * use {@link #mkdirs(Session, String, String, String, Boolean)} instead.
-	 * 
-	 * @deprecated
+	 * Create sub nodes relative to a parent node
 	 */
-	@Deprecated
-	public static Node mkdirs(Session session, String path, String type,
-			Boolean versioning) {
-		return mkdirs(session, path, type, type, false);
-	}
-
-	/**
-	 * @param type
-	 *            the type of the leaf node
-	 */
-	public static Node mkdirs(Session session, String path, String type) {
-		return mkdirs(session, path, type, null, false);
+	public static Node mkdirs(Node parentNode, String relativePath) {
+		return mkdirs(parentNode, relativePath, null, null);
 	}
 
 	/**
@@ -423,8 +401,7 @@ public class JcrUtils {
 	 * @param nodeType
 	 *            the type of the leaf node
 	 */
-	public static Node mkdirs(Node parentNode, String relativePath,
-			String nodeType) {
+	public static Node mkdirs(Node parentNode, String relativePath, String nodeType) {
 		return mkdirs(parentNode, relativePath, nodeType, null);
 	}
 
@@ -434,8 +411,7 @@ public class JcrUtils {
 	 * @param nodeType
 	 *            the type of the leaf node
 	 */
-	public static Node mkdirs(Node parentNode, String relativePath,
-			String nodeType, String intermediaryNodeType) {
+	public static Node mkdirs(Node parentNode, String relativePath, String nodeType, String intermediaryNodeType) {
 		List<String> tokens = tokenize(relativePath);
 		Node currParent = parentNode;
 		try {
@@ -445,8 +421,7 @@ public class JcrUtils {
 					currParent = currParent.getNode(name);
 				} else {
 					if (i != (tokens.size() - 1)) {// intermediary
-						currParent = currParent.addNode(name,
-								intermediaryNodeType);
+						currParent = currParent.addNode(name, intermediaryNodeType);
 					} else {// leaf
 						currParent = currParent.addNode(name, nodeType);
 					}
@@ -454,8 +429,7 @@ public class JcrUtils {
 			}
 			return currParent;
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot mkdirs relative path "
-					+ relativePath + " from " + parentNode, e);
+			throw new ArgeoJcrException("Cannot mkdirs relative path " + relativePath + " from " + parentNode, e);
 		}
 	}
 
@@ -463,12 +437,10 @@ public class JcrUtils {
 	 * Synchronized and save is performed, to avoid race conditions in
 	 * initializers leading to duplicate nodes.
 	 */
-	public synchronized static Node mkdirsSafe(Session session, String path,
-			String type) {
+	public synchronized static Node mkdirsSafe(Session session, String path, String type) {
 		try {
 			if (session.hasPendingChanges())
-				throw new ArgeoJcrException(
-						"Session has pending changes, save them first.");
+				throw new ArgeoJcrException("Session has pending changes, save them first.");
 			Node node = mkdirs(session, path, type);
 			session.save();
 			return node;
@@ -482,13 +454,27 @@ public class JcrUtils {
 		return mkdirsSafe(session, path, null);
 	}
 
+	/** Creates the nodes making path, if they don't exist. */
+	public static Node mkdirs(Session session, String path) {
+		return mkdirs(session, path, null, null, false);
+	}
+
+	/**
+	 * @param type
+	 *            the type of the leaf node
+	 */
+	public static Node mkdirs(Session session, String path, String type) {
+		return mkdirs(session, path, type, null, false);
+	}
+
 	/**
 	 * Creates the nodes making path, if they don't exist. This is up to the
 	 * caller to save the session. Use with caution since it can create
-	 * duplicate nodes if used concurrently.
+	 * duplicate nodes if used concurrently. Requires read access to the root
+	 * node of the workspace.
 	 */
-	public static Node mkdirs(Session session, String path, String type,
-			String intermediaryNodeType, Boolean versioning) {
+	public static Node mkdirs(Session session, String path, String type, String intermediaryNodeType,
+			Boolean versioning) {
 		try {
 			if (path.equals('/'))
 				return session.getRootNode();
@@ -496,19 +482,22 @@ public class JcrUtils {
 			if (session.itemExists(path)) {
 				Node node = session.getNode(path);
 				// check type
-				if (type != null && !node.isNodeType(type)
-						&& !node.getPath().equals("/"))
-					throw new ArgeoJcrException("Node " + node
-							+ " exists but is of type "
-							+ node.getPrimaryNodeType().getName()
-							+ " not of type " + type);
+				if (type != null && !node.isNodeType(type) && !node.getPath().equals("/"))
+					throw new ArgeoJcrException("Node " + node + " exists but is of type "
+							+ node.getPrimaryNodeType().getName() + " not of type " + type);
 				// TODO: check versioning
 				return node;
 			}
 
-			StringBuffer current = new StringBuffer("/");
-			Node currentNode = session.getRootNode();
-			Iterator<String> it = tokenize(path).iterator();
+			// StringBuffer current = new StringBuffer("/");
+			// Node currentNode = session.getRootNode();
+
+			Node currentNode = findClosestExistingParent(session, path);
+			String closestExistingParentPath = currentNode.getPath();
+			StringBuffer current = new StringBuffer(closestExistingParentPath);
+			if (!closestExistingParentPath.endsWith("/"))
+				current.append('/');
+			Iterator<String> it = tokenize(path.substring(closestExistingParentPath.length())).iterator();
 			while (it.hasNext()) {
 				String part = it.next();
 				current.append(part).append('/');
@@ -516,8 +505,7 @@ public class JcrUtils {
 					if (!it.hasNext() && type != null)
 						currentNode = currentNode.addNode(part, type);
 					else if (it.hasNext() && intermediaryNodeType != null)
-						currentNode = currentNode.addNode(part,
-								intermediaryNodeType);
+						currentNode = currentNode.addNode(part, intermediaryNodeType);
 					else
 						currentNode = currentNode.addNode(part);
 					if (versioning)
@@ -534,6 +522,17 @@ public class JcrUtils {
 			throw new ArgeoJcrException("Cannot mkdirs " + path, e);
 		} finally {
 		}
+	}
+
+	private static Node findClosestExistingParent(Session session, String path) throws RepositoryException {
+		int idx = path.lastIndexOf('/');
+		if (idx == 0)
+			return session.getRootNode();
+		String parentPath = path.substring(0, idx);
+		if (session.itemExists(parentPath))
+			return session.getNode(parentPath);
+		else
+			return findClosestExistingParent(session, parentPath);
 	}
 
 	/** Convert a path to the list of its tokens */
@@ -569,15 +568,24 @@ public class JcrUtils {
 		return Collections.unmodifiableList(tokens);
 	}
 
+	// /**
+	// * use {@link #mkdirs(Session, String, String, String, Boolean)} instead.
+	// *
+	// * @deprecated
+	// */
+	// @Deprecated
+	// public static Node mkdirs(Session session, String path, String type,
+	// Boolean versioning) {
+	// return mkdirs(session, path, type, type, false);
+	// }
+
 	/**
 	 * Safe and repository implementation independent registration of a
 	 * namespace.
 	 */
-	public static void registerNamespaceSafely(Session session, String prefix,
-			String uri) {
+	public static void registerNamespaceSafely(Session session, String prefix, String uri) {
 		try {
-			registerNamespaceSafely(session.getWorkspace()
-					.getNamespaceRegistry(), prefix, uri);
+			registerNamespaceSafely(session.getWorkspace().getNamespaceRegistry(), prefix, uri);
 		} catch (RepositoryException e) {
 			throw new ArgeoJcrException("Cannot find namespace registry", e);
 		}
@@ -587,26 +595,21 @@ public class JcrUtils {
 	 * Safe and repository implementation independent registration of a
 	 * namespace.
 	 */
-	public static void registerNamespaceSafely(NamespaceRegistry nr,
-			String prefix, String uri) {
+	public static void registerNamespaceSafely(NamespaceRegistry nr, String prefix, String uri) {
 		try {
 			String[] prefixes = nr.getPrefixes();
 			for (String pref : prefixes)
 				if (pref.equals(prefix)) {
 					String registeredUri = nr.getURI(pref);
 					if (!registeredUri.equals(uri))
-						throw new ArgeoJcrException("Prefix " + pref
-								+ " already registered for URI "
-								+ registeredUri
-								+ " which is different from provided URI "
-								+ uri);
+						throw new ArgeoJcrException("Prefix " + pref + " already registered for URI " + registeredUri
+								+ " which is different from provided URI " + uri);
 					else
 						return;// skip
 				}
 			nr.registerNamespace(prefix, uri);
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot register namespace " + uri
-					+ " under prefix " + prefix, e);
+			throw new ArgeoJcrException("Cannot register namespace " + uri + " under prefix " + prefix, e);
 		}
 	}
 
@@ -644,8 +647,7 @@ public class JcrUtils {
 					// A multi-valued property, print all values
 					Value[] values = property.getValues();
 					for (int i = 0; i < values.length; i++) {
-						log.debug(property.getPath() + "="
-								+ values[i].getString());
+						log.debug(property.getPath() + "=" + values[i].getString());
 					}
 				} else {
 					// A single-valued property
@@ -673,14 +675,12 @@ public class JcrUtils {
 			return;
 
 		try {
-			AccessControlPolicy[] effectivePolicies = session
-					.getAccessControlManager().getEffectivePolicies(path);
+			AccessControlPolicy[] effectivePolicies = session.getAccessControlManager().getEffectivePolicies(path);
 			if (effectivePolicies.length > 0) {
 				for (AccessControlPolicy policy : effectivePolicies) {
 					if (policy instanceof AccessControlList) {
 						AccessControlList acl = (AccessControlList) policy;
-						log.debug("Access control list for " + path + "\n"
-								+ accessControlListSummary(acl));
+						log.debug("Access control list for " + path + "\n" + accessControlListSummary(acl));
 					}
 				}
 			} else {
@@ -696,8 +696,7 @@ public class JcrUtils {
 		StringBuffer buf = new StringBuffer("");
 		try {
 			for (AccessControlEntry ace : acl.getAccessControlEntries()) {
-				buf.append('\t').append(ace.getPrincipal().getName())
-						.append('\n');
+				buf.append('\t').append(ace.getPrincipal().getName()).append('\n');
 				for (Privilege priv : ace.getPrivileges())
 					buf.append("\t\t").append(priv.getName()).append('\n');
 			}
@@ -725,18 +724,14 @@ public class JcrUtils {
 			properties: while (pit.hasNext()) {
 				Property fromProperty = pit.nextProperty();
 				String propertyName = fromProperty.getName();
-				if (toNode.hasProperty(propertyName)
-						&& toNode.getProperty(propertyName).getDefinition()
-								.isProtected())
+				if (toNode.hasProperty(propertyName) && toNode.getProperty(propertyName).getDefinition().isProtected())
 					continue properties;
 
 				if (fromProperty.getDefinition().isProtected())
 					continue properties;
 
-				if (propertyName.equals("jcr:created")
-						|| propertyName.equals("jcr:createdBy")
-						|| propertyName.equals("jcr:lastModified")
-						|| propertyName.equals("jcr:lastModifiedBy"))
+				if (propertyName.equals("jcr:created") || propertyName.equals("jcr:createdBy")
+						|| propertyName.equals("jcr:lastModified") || propertyName.equals("jcr:lastModifiedBy"))
 					continue properties;
 
 				if (fromProperty.isMultiple()) {
@@ -765,13 +760,11 @@ public class JcrUtils {
 				if (toNode.hasNode(nodeRelPath))
 					toChild = toNode.getNode(nodeRelPath);
 				else
-					toChild = toNode.addNode(fromChild.getName(), fromChild
-							.getPrimaryNodeType().getName());
+					toChild = toNode.addNode(fromChild.getName(), fromChild.getPrimaryNodeType().getName());
 				copy(fromChild, toChild);
 			}
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot copy " + fromNode + " to "
-					+ toNode, e);
+			throw new ArgeoJcrException("Cannot copy " + fromNode + " to " + toNode, e);
 		}
 	}
 
@@ -779,8 +772,7 @@ public class JcrUtils {
 	 * Check whether all first-level properties (except jcr:* properties) are
 	 * equal. Skip jcr:* properties
 	 */
-	public static Boolean allPropertiesEquals(Node reference, Node observed,
-			Boolean onlyCommonProperties) {
+	public static Boolean allPropertiesEquals(Node reference, Node observed, Boolean onlyCommonProperties) {
 		try {
 			PropertyIterator pit = reference.getProperties();
 			props: while (pit.hasNext()) {
@@ -795,19 +787,16 @@ public class JcrUtils {
 					else
 						return false;
 				// TODO: deal with multiple property values?
-				if (!observed.getProperty(propName).getValue()
-						.equals(propReference.getValue()))
+				if (!observed.getProperty(propName).getValue().equals(propReference.getValue()))
 					return false;
 			}
 			return true;
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot check all properties equals of "
-					+ reference + " and " + observed, e);
+			throw new ArgeoJcrException("Cannot check all properties equals of " + reference + " and " + observed, e);
 		}
 	}
 
-	public static Map<String, PropertyDiff> diffProperties(Node reference,
-			Node observed) {
+	public static Map<String, PropertyDiff> diffProperties(Node reference, Node observed) {
 		Map<String, PropertyDiff> diffs = new TreeMap<String, PropertyDiff>();
 		diffPropertiesLevel(diffs, null, reference, observed);
 		return diffs;
@@ -817,8 +806,8 @@ public class JcrUtils {
 	 * Compare the properties of two nodes. Recursivity to child nodes is not
 	 * yet supported. Skip jcr:* properties.
 	 */
-	static void diffPropertiesLevel(Map<String, PropertyDiff> diffs,
-			String baseRelPath, Node reference, Node observed) {
+	static void diffPropertiesLevel(Map<String, PropertyDiff> diffs, String baseRelPath, Node reference,
+			Node observed) {
 		try {
 			// check removed and modified
 			PropertyIterator pit = reference.getProperties();
@@ -830,8 +819,7 @@ public class JcrUtils {
 
 				if (!observed.hasProperty(name)) {
 					String relPath = propertyRelPath(baseRelPath, name);
-					PropertyDiff pDiff = new PropertyDiff(PropertyDiff.REMOVED,
-							relPath, p.getValue(), null);
+					PropertyDiff pDiff = new PropertyDiff(PropertyDiff.REMOVED, relPath, p.getValue(), null);
 					diffs.put(relPath, pDiff);
 				} else {
 					if (p.isMultiple()) {
@@ -841,9 +829,8 @@ public class JcrUtils {
 						Value newValue = observed.getProperty(name).getValue();
 						if (!referenceValue.equals(newValue)) {
 							String relPath = propertyRelPath(baseRelPath, name);
-							PropertyDiff pDiff = new PropertyDiff(
-									PropertyDiff.MODIFIED, relPath,
-									referenceValue, newValue);
+							PropertyDiff pDiff = new PropertyDiff(PropertyDiff.MODIFIED, relPath, referenceValue,
+									newValue);
 							diffs.put(relPath, pDiff);
 						}
 					}
@@ -861,15 +848,13 @@ public class JcrUtils {
 						// FIXME implement multiple
 					} else {
 						String relPath = propertyRelPath(baseRelPath, name);
-						PropertyDiff pDiff = new PropertyDiff(
-								PropertyDiff.ADDED, relPath, null, p.getValue());
+						PropertyDiff pDiff = new PropertyDiff(PropertyDiff.ADDED, relPath, null, p.getValue());
 						diffs.put(relPath, pDiff);
 					}
 				}
 			}
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot diff " + reference + " and "
-					+ observed, e);
+			throw new ArgeoJcrException("Cannot diff " + reference + " and " + observed, e);
 		}
 	}
 
@@ -878,8 +863,7 @@ public class JcrUtils {
 	 * recursivity.
 	 * 
 	 */
-	public static Map<String, PropertyDiff> diffProperties(Node reference,
-			Node observed, List<String> properties) {
+	public static Map<String, PropertyDiff> diffProperties(Node reference, Node observed, List<String> properties) {
 		Map<String, PropertyDiff> diffs = new TreeMap<String, PropertyDiff>();
 		try {
 			Iterator<String> pit = properties.iterator();
@@ -897,35 +881,29 @@ public class JcrUtils {
 					} catch (Exception e) {
 						// not parseable as String, silent
 					}
-					PropertyDiff pDiff = new PropertyDiff(PropertyDiff.ADDED,
-							name, null, val);
+					PropertyDiff pDiff = new PropertyDiff(PropertyDiff.ADDED, name, null, val);
 					diffs.put(name, pDiff);
 				} else if (!observed.hasProperty(name)) {
-					PropertyDiff pDiff = new PropertyDiff(PropertyDiff.REMOVED,
-							name, reference.getProperty(name).getValue(), null);
+					PropertyDiff pDiff = new PropertyDiff(PropertyDiff.REMOVED, name,
+							reference.getProperty(name).getValue(), null);
 					diffs.put(name, pDiff);
 				} else {
-					Value referenceValue = reference.getProperty(name)
-							.getValue();
+					Value referenceValue = reference.getProperty(name).getValue();
 					Value newValue = observed.getProperty(name).getValue();
 					if (!referenceValue.equals(newValue)) {
-						PropertyDiff pDiff = new PropertyDiff(
-								PropertyDiff.MODIFIED, name, referenceValue,
-								newValue);
+						PropertyDiff pDiff = new PropertyDiff(PropertyDiff.MODIFIED, name, referenceValue, newValue);
 						diffs.put(name, pDiff);
 					}
 				}
 			}
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot diff " + reference + " and "
-					+ observed, e);
+			throw new ArgeoJcrException("Cannot diff " + reference + " and " + observed, e);
 		}
 		return diffs;
 	}
 
 	/** Builds a property relPath to be used in the diff. */
-	private static String propertyRelPath(String baseRelPath,
-			String propertyName) {
+	private static String propertyRelPath(String baseRelPath, String propertyName) {
 		if (baseRelPath == null)
 			return propertyName;
 		else
@@ -982,8 +960,7 @@ public class JcrUtils {
 	 * @deprecated use {@link #replaceInvalidChars(String)} instead
 	 */
 	public static String removeForbiddenCharacters(String str) {
-		return str.replace('[', '_').replace(']', '_').replace('/', '_')
-				.replace('*', '_');
+		return str.replace('[', '_').replace(']', '_').replace('/', '_').replace('*', '_');
 
 	}
 
@@ -1005,8 +982,7 @@ public class JcrUtils {
 			IOUtils.copy(in, out);
 			return out.toByteArray();
 		} catch (Exception e) {
-			throw new ArgeoJcrException("Cannot read binary " + property
-					+ " as bytes", e);
+			throw new ArgeoJcrException("Cannot read binary " + property + " as bytes", e);
 		} finally {
 			IOUtils.closeQuietly(out);
 			IOUtils.closeQuietly(in);
@@ -1023,8 +999,7 @@ public class JcrUtils {
 			binary = node.getSession().getValueFactory().createBinary(in);
 			node.setProperty(property, binary);
 		} catch (Exception e) {
-			throw new ArgeoJcrException("Cannot read binary " + property
-					+ " as bytes", e);
+			throw new ArgeoJcrException("Cannot read binary " + property + " as bytes", e);
 		} finally {
 			IOUtils.closeQuietly(in);
 			closeQuietly(binary);
@@ -1037,8 +1012,7 @@ public class JcrUtils {
 	 */
 	public static String firstCharsToPath(String str, Integer nbrOfChars) {
 		if (str.length() < nbrOfChars)
-			throw new ArgeoJcrException("String " + str
-					+ " length must be greater or equal than " + nbrOfChars);
+			throw new ArgeoJcrException("String " + str + " length must be greater or equal than " + nbrOfChars);
 		StringBuffer path = new StringBuffer("");
 		StringBuffer curr = new StringBuffer("");
 		for (int i = 0; i < nbrOfChars; i++) {
@@ -1060,8 +1034,7 @@ public class JcrUtils {
 		try {
 			discardQuietly(node.getSession());
 		} catch (RepositoryException e) {
-			log.warn("Cannot quietly discard session of node " + node + ": "
-					+ e.getMessage());
+			log.warn("Cannot quietly discard session of node " + node + ": " + e.getMessage());
 		}
 	}
 
@@ -1075,8 +1048,7 @@ public class JcrUtils {
 			if (session != null)
 				session.refresh(false);
 		} catch (RepositoryException e) {
-			log.warn("Cannot quietly discard session " + session + ": "
-					+ e.getMessage());
+			log.warn("Cannot quietly discard session " + session + ": " + e.getMessage());
 		}
 	}
 
@@ -1084,8 +1056,8 @@ public class JcrUtils {
 	 * Login to a workspace with implicit credentials, creates the workspace
 	 * with these credentials if it does not already exist.
 	 */
-	public static Session loginOrCreateWorkspace(Repository repository,
-			String workspaceName) throws RepositoryException {
+	public static Session loginOrCreateWorkspace(Repository repository, String workspaceName)
+			throws RepositoryException {
 		Session workspaceSession = null;
 		Session defaultSession = null;
 		try {
@@ -1118,33 +1090,22 @@ public class JcrUtils {
 	 * Convenient method to add a listener. uuids passed as null, deep=true,
 	 * local=true, only one node type
 	 */
-	public static void addListener(Session session, EventListener listener,
-			int eventTypes, String basePath, String nodeType) {
+	public static void addListener(Session session, EventListener listener, int eventTypes, String basePath,
+			String nodeType) {
 		try {
-			session.getWorkspace()
-					.getObservationManager()
-					.addEventListener(
-							listener,
-							eventTypes,
-							basePath,
-							true,
-							null,
-							nodeType == null ? null : new String[] { nodeType },
-							true);
+			session.getWorkspace().getObservationManager().addEventListener(listener, eventTypes, basePath, true, null,
+					nodeType == null ? null : new String[] { nodeType }, true);
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot add JCR listener " + listener
-					+ " to session " + session, e);
+			throw new ArgeoJcrException("Cannot add JCR listener " + listener + " to session " + session, e);
 		}
 	}
 
 	/** Removes a listener without throwing exception */
-	public static void removeListenerQuietly(Session session,
-			EventListener listener) {
+	public static void removeListenerQuietly(Session session, EventListener listener) {
 		if (session == null || !session.isLive())
 			return;
 		try {
-			session.getWorkspace().getObservationManager()
-					.removeEventListener(listener);
+			session.getWorkspace().getObservationManager().removeEventListener(listener);
 		} catch (RepositoryException e) {
 			// silent
 		}
@@ -1160,24 +1121,20 @@ public class JcrUtils {
 		} catch (RepositoryException e) {
 			// silent
 			if (log.isTraceEnabled())
-				log.trace("Could not unregister event listener "
-						+ eventListener);
+				log.trace("Could not unregister event listener " + eventListener);
 		}
 	}
 
 	/** Quietly unregisters an {@link EventListener} from this workspace */
-	public static void unregisterQuietly(Workspace workspace,
-			EventListener eventListener) {
+	public static void unregisterQuietly(Workspace workspace, EventListener eventListener) {
 		if (eventListener == null)
 			return;
 		try {
-			workspace.getObservationManager()
-					.removeEventListener(eventListener);
+			workspace.getObservationManager().removeEventListener(eventListener);
 		} catch (RepositoryException e) {
 			// silent
 			if (log.isTraceEnabled())
-				log.trace("Could not unregister event listener "
-						+ eventListener);
+				log.trace("Could not unregister event listener " + eventListener);
 		}
 	}
 
@@ -1185,8 +1142,8 @@ public class JcrUtils {
 	 * If this node is has the {@link NodeType#MIX_LAST_MODIFIED} mixin, it
 	 * updates the {@link Property#JCR_LAST_MODIFIED} property with the current
 	 * time and the {@link Property#JCR_LAST_MODIFIED_BY} property with the
-	 * underlying session user id. In Jackrabbit 2.x, <a
-	 * href="https://issues.apache.org/jira/browse/JCR-2233">these properties
+	 * underlying session user id. In Jackrabbit 2.x,
+	 * <a href="https://issues.apache.org/jira/browse/JCR-2233">these properties
 	 * are not automatically updated</a>, hence the need for manual update. The
 	 * session is not saved.
 	 */
@@ -1194,13 +1151,10 @@ public class JcrUtils {
 		try {
 			if (!node.isNodeType(NodeType.MIX_LAST_MODIFIED))
 				node.addMixin(NodeType.MIX_LAST_MODIFIED);
-			node.setProperty(Property.JCR_LAST_MODIFIED,
-					new GregorianCalendar());
-			node.setProperty(Property.JCR_LAST_MODIFIED_BY, node.getSession()
-					.getUserID());
+			node.setProperty(Property.JCR_LAST_MODIFIED, new GregorianCalendar());
+			node.setProperty(Property.JCR_LAST_MODIFIED_BY, node.getSession().getUserID());
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot update last modified on " + node,
-					e);
+			throw new ArgeoJcrException("Cannot update last modified on " + node, e);
 		}
 	}
 
@@ -1225,14 +1179,13 @@ public class JcrUtils {
 					updateLastModifiedAndParents(node.getParent(), untilPath);
 			}
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot update lastModified from " + node
-					+ " until " + untilPath, e);
+			throw new ArgeoJcrException("Cannot update lastModified from " + node + " until " + untilPath, e);
 		}
 	}
 
 	/**
-	 * Returns a String representing the short version (see <a
-	 * href="http://jackrabbit.apache.org/node-type-notation.html"> Node type
+	 * Returns a String representing the short version (see
+	 * <a href="http://jackrabbit.apache.org/node-type-notation.html"> Node type
 	 * Notation </a> attributes grammar) of the main business attributes of this
 	 * property definition
 	 * 
@@ -1250,9 +1203,7 @@ public class JcrUtils {
 			if (prop.getDefinition().isMultiple())
 				sbuf.append("*");
 		} catch (RepositoryException re) {
-			throw new ArgeoJcrException(
-					"unexpected error while getting property definition as String",
-					re);
+			throw new ArgeoJcrException("unexpected error while getting property definition as String", re);
 		}
 		return sbuf.toString();
 	}
@@ -1272,8 +1223,7 @@ public class JcrUtils {
 				if (prop.isMultiple()) {
 					int nb = prop.getLengths().length;
 					for (int i = 0; i < nb; i++) {
-						curNodeSize += (prop.getLengths()[i] > 0 ? prop
-								.getLengths()[i] : 0);
+						curNodeSize += (prop.getLengths()[i] > 0 ? prop.getLengths()[i] : 0);
 					}
 				} else
 					curNodeSize += (prop.getLength() > 0 ? prop.getLength() : 0);
@@ -1284,9 +1234,7 @@ public class JcrUtils {
 				curNodeSize += getNodeApproxSize(ni.nextNode());
 			return curNodeSize;
 		} catch (RepositoryException re) {
-			throw new ArgeoJcrException(
-					"Unexpected error while recursively determining node size.",
-					re);
+			throw new ArgeoJcrException("Unexpected error while recursively determining node size.", re);
 		}
 	}
 
@@ -1298,11 +1246,10 @@ public class JcrUtils {
 	 * Convenience method for adding a single privilege to a principal (user or
 	 * role), typically jcr:all
 	 */
-	public synchronized static void addPrivilege(Session session, String path,
-			String principal, String privilege) throws RepositoryException {
+	public synchronized static void addPrivilege(Session session, String path, String principal, String privilege)
+			throws RepositoryException {
 		List<Privilege> privileges = new ArrayList<Privilege>();
-		privileges.add(session.getAccessControlManager().privilegeFromName(
-				privilege));
+		privileges.add(session.getAccessControlManager().privilegeFromName(privilege));
 		addPrivileges(session, path, new SimplePrincipal(principal), privileges);
 	}
 
@@ -1311,16 +1258,14 @@ public class JcrUtils {
 	 * exist. Session is saved. Synchronized to prevent concurrent modifications
 	 * of the same node.
 	 */
-	public synchronized static Boolean addPrivileges(Session session,
-			String path, Principal principal, List<Privilege> privs)
-			throws RepositoryException {
+	public synchronized static Boolean addPrivileges(Session session, String path, Principal principal,
+			List<Privilege> privs) throws RepositoryException {
 		// make sure the session is in line with the persisted state
 		session.refresh(false);
 		AccessControlManager acm = session.getAccessControlManager();
 		AccessControlList acl = getAccessControlList(acm, path);
 
-		accessControlEntries: for (AccessControlEntry ace : acl
-				.getAccessControlEntries()) {
+		accessControlEntries: for (AccessControlEntry ace : acl.getAccessControlEntries()) {
 			Principal currentPrincipal = ace.getPrincipal();
 			if (currentPrincipal.getName().equals(principal.getName())) {
 				Privilege[] currentPrivileges = ace.getPrivileges();
@@ -1344,8 +1289,7 @@ public class JcrUtils {
 			StringBuffer privBuf = new StringBuffer();
 			for (Privilege priv : privs)
 				privBuf.append(priv.getName());
-			log.debug("Added privileges " + privBuf + " to "
-					+ principal.getName() + " on " + path + " in '"
+			log.debug("Added privileges " + privBuf + " to " + principal.getName() + " on " + path + " in '"
 					+ session.getWorkspace().getName() + "'");
 		}
 		session.refresh(true);
@@ -1354,16 +1298,14 @@ public class JcrUtils {
 	}
 
 	/** Gets access control list for this path, throws exception if not found */
-	public synchronized static AccessControlList getAccessControlList(
-			AccessControlManager acm, String path) throws RepositoryException {
+	public synchronized static AccessControlList getAccessControlList(AccessControlManager acm, String path)
+			throws RepositoryException {
 		// search for an access control list
 		AccessControlList acl = null;
-		AccessControlPolicyIterator policyIterator = acm
-				.getApplicablePolicies(path);
+		AccessControlPolicyIterator policyIterator = acm.getApplicablePolicies(path);
 		if (policyIterator.hasNext()) {
 			while (policyIterator.hasNext()) {
-				AccessControlPolicy acp = policyIterator
-						.nextAccessControlPolicy();
+				AccessControlPolicy acp = policyIterator.nextAccessControlPolicy();
 				if (acp instanceof AccessControlList)
 					acl = ((AccessControlList) acp);
 			}
@@ -1381,8 +1323,8 @@ public class JcrUtils {
 	}
 
 	/** Clear authorizations for a user at this path */
-	public synchronized static void clearAccessControList(Session session,
-			String path, String username) throws RepositoryException {
+	public synchronized static void clearAccessControList(Session session, String path, String username)
+			throws RepositoryException {
 		AccessControlManager acm = session.getAccessControlManager();
 		AccessControlList acl = getAccessControlList(acm, path);
 		for (AccessControlEntry ace : acl.getAccessControlEntries()) {
@@ -1402,8 +1344,7 @@ public class JcrUtils {
 	 * Creates the nodes making the path as {@link NodeType#NT_FOLDER}
 	 */
 	public static Node mkfolders(Session session, String path) {
-		return mkdirs(session, path, NodeType.NT_FOLDER, NodeType.NT_FOLDER,
-				false);
+		return mkdirs(session, path, NodeType.NT_FOLDER, NodeType.NT_FOLDER, false);
 	}
 
 	/**
@@ -1415,8 +1356,7 @@ public class JcrUtils {
 	 *            files
 	 * @return how many files were copied
 	 */
-	public static Long copyFiles(Node fromNode, Node toNode, Boolean recursive,
-			JcrMonitor monitor) {
+	public static Long copyFiles(Node fromNode, Node toNode, Boolean recursive, JcrMonitor monitor) {
 		long count = 0l;
 
 		Binary binary = null;
@@ -1425,16 +1365,14 @@ public class JcrUtils {
 			NodeIterator fromChildren = fromNode.getNodes();
 			while (fromChildren.hasNext()) {
 				if (monitor != null && monitor.isCanceled())
-					throw new ArgeoJcrException(
-							"Copy cancelled before it was completed");
+					throw new ArgeoJcrException("Copy cancelled before it was completed");
 
 				Node fromChild = fromChildren.nextNode();
 				String fileName = fromChild.getName();
 				if (fromChild.isNodeType(NodeType.NT_FILE)) {
 					if (monitor != null)
 						monitor.subTask("Copy " + fileName);
-					binary = fromChild.getNode(Node.JCR_CONTENT)
-							.getProperty(Property.JCR_DATA).getBinary();
+					binary = fromChild.getNode(Node.JCR_CONTENT).getProperty(Property.JCR_DATA).getBinary();
 					in = binary.getStream();
 					copyStreamAsFile(toNode, fileName, in);
 					IOUtils.closeQuietly(in);
@@ -1448,30 +1386,24 @@ public class JcrUtils {
 						log.debug("Copied file " + fromChild.getPath());
 					if (monitor != null)
 						monitor.worked(1);
-				} else if (fromChild.isNodeType(NodeType.NT_FOLDER)
-						&& recursive) {
+				} else if (fromChild.isNodeType(NodeType.NT_FOLDER) && recursive) {
 					Node toChildFolder;
 					if (toNode.hasNode(fileName)) {
 						toChildFolder = toNode.getNode(fileName);
 						if (!toChildFolder.isNodeType(NodeType.NT_FOLDER))
-							throw new ArgeoJcrException(toChildFolder
-									+ " is not of type nt:folder");
+							throw new ArgeoJcrException(toChildFolder + " is not of type nt:folder");
 					} else {
-						toChildFolder = toNode.addNode(fileName,
-								NodeType.NT_FOLDER);
+						toChildFolder = toNode.addNode(fileName, NodeType.NT_FOLDER);
 
 						// save session
 						toNode.getSession().save();
 					}
-					count = count
-							+ copyFiles(fromChild, toChildFolder, recursive,
-									monitor);
+					count = count + copyFiles(fromChild, toChildFolder, recursive, monitor);
 				}
 			}
 			return count;
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot copy files between " + fromNode
-					+ " and " + toNode);
+			throw new ArgeoJcrException("Cannot copy files between " + fromNode + " and " + toNode);
 		} finally {
 			// in case there was an exception
 			IOUtils.closeQuietly(in);
@@ -1511,23 +1443,20 @@ public class JcrUtils {
 			in = new FileInputStream(file);
 			return copyStreamAsFile(folderNode, file.getName(), in);
 		} catch (IOException e) {
-			throw new ArgeoJcrException("Cannot copy file " + file + " under "
-					+ folderNode, e);
+			throw new ArgeoJcrException("Cannot copy file " + file + " under " + folderNode, e);
 		} finally {
 			IOUtils.closeQuietly(in);
 		}
 	}
 
 	/** Copy bytes as an nt:file */
-	public static Node copyBytesAsFile(Node folderNode, String fileName,
-			byte[] bytes) {
+	public static Node copyBytesAsFile(Node folderNode, String fileName, byte[] bytes) {
 		InputStream in = null;
 		try {
 			in = new ByteArrayInputStream(bytes);
 			return copyStreamAsFile(folderNode, fileName, in);
 		} catch (Exception e) {
-			throw new ArgeoJcrException("Cannot copy file " + fileName + " under "
-					+ folderNode, e);
+			throw new ArgeoJcrException("Cannot copy file " + fileName + " under " + folderNode, e);
 		} finally {
 			IOUtils.closeQuietly(in);
 		}
@@ -1539,8 +1468,7 @@ public class JcrUtils {
 	 * 
 	 * @return the created file node
 	 */
-	public static Node copyStreamAsFile(Node folderNode, String fileName,
-			InputStream in) {
+	public static Node copyStreamAsFile(Node folderNode, String fileName, InputStream in) {
 		Binary binary = null;
 		try {
 			Node fileNode;
@@ -1548,22 +1476,18 @@ public class JcrUtils {
 			if (folderNode.hasNode(fileName)) {
 				fileNode = folderNode.getNode(fileName);
 				if (!fileNode.isNodeType(NodeType.NT_FILE))
-					throw new ArgeoJcrException(fileNode
-							+ " is not of type nt:file");
+					throw new ArgeoJcrException(fileNode + " is not of type nt:file");
 				// we assume that the content node is already there
 				contentNode = fileNode.getNode(Node.JCR_CONTENT);
 			} else {
 				fileNode = folderNode.addNode(fileName, NodeType.NT_FILE);
-				contentNode = fileNode.addNode(Node.JCR_CONTENT,
-						NodeType.NT_RESOURCE);
+				contentNode = fileNode.addNode(Node.JCR_CONTENT, NodeType.NT_RESOURCE);
 			}
-			binary = contentNode.getSession().getValueFactory()
-					.createBinary(in);
+			binary = contentNode.getSession().getValueFactory().createBinary(in);
 			contentNode.setProperty(Property.JCR_DATA, binary);
 			return fileNode;
 		} catch (Exception e) {
-			throw new ArgeoJcrException("Cannot create file node " + fileName
-					+ " under " + folderNode, e);
+			throw new ArgeoJcrException("Cannot create file node " + fileName + " under " + folderNode, e);
 		} finally {
 			closeQuietly(binary);
 		}
@@ -1574,8 +1498,7 @@ public class JcrUtils {
 		Binary data = null;
 		InputStream in = null;
 		try {
-			data = fileNode.getNode(Node.JCR_CONTENT)
-					.getProperty(Property.JCR_DATA).getBinary();
+			data = fileNode.getNode(Node.JCR_CONTENT).getProperty(Property.JCR_DATA).getBinary();
 			in = data.getStream();
 			return DigestUtils.digest(algorithm, in);
 		} catch (RepositoryException e) {

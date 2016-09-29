@@ -26,6 +26,8 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.security.AccessControlManager;
 import javax.jcr.security.Privilege;
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
 
 /** Apply authorizations to a JCR repository. */
 public class JcrAuthorizations implements Runnable {
@@ -49,8 +51,7 @@ public class JcrAuthorizations implements Runnable {
 		try {
 			if (workspace != null && workspace.equals("*")) {
 				session = repository.login();
-				String[] workspaces = session.getWorkspace()
-						.getAccessibleWorkspaceNames();
+				String[] workspaces = session.getWorkspace().getAccessibleWorkspaceNames();
 				JcrUtils.logoutQuietly(session);
 				for (String wksp : workspaces) {
 					currentWorkspace = wksp;
@@ -67,8 +68,7 @@ public class JcrAuthorizations implements Runnable {
 		} catch (Exception e) {
 			JcrUtils.discardQuietly(session);
 			throw new ArgeoJcrException(
-					"Cannot set authorizations " + principalPrivileges
-							+ " on workspace " + currentWorkspace, e);
+					"Cannot set authorizations " + principalPrivileges + " on workspace " + currentWorkspace, e);
 		} finally {
 			JcrUtils.logoutQuietly(session);
 		}
@@ -81,8 +81,8 @@ public class JcrAuthorizations implements Runnable {
 			initAuthorizations(session);
 		} catch (Exception e) {
 			JcrUtils.discardQuietly(session);
-			throw new ArgeoJcrException("Cannot set authorizations "
-					+ principalPrivileges + " on repository " + repository, e);
+			throw new ArgeoJcrException(
+					"Cannot set authorizations " + principalPrivileges + " on repository " + repository, e);
 		} finally {
 			JcrUtils.logoutQuietly(session);
 		}
@@ -94,16 +94,14 @@ public class JcrAuthorizations implements Runnable {
 		run();
 	}
 
-	protected void initAuthorizations(Session session)
-			throws RepositoryException {
+	protected void initAuthorizations(Session session) throws RepositoryException {
 		AccessControlManager acm = session.getAccessControlManager();
 
 		for (String privileges : principalPrivileges.keySet()) {
 			String path = null;
 			int slashIndex = privileges.indexOf('/');
 			if (slashIndex == 0) {
-				throw new ArgeoJcrException("Privilege " + privileges
-						+ " badly formatted it starts with /");
+				throw new ArgeoJcrException("Privilege " + privileges + " badly formatted it starts with /");
 			} else if (slashIndex > 0) {
 				path = privileges.substring(slashIndex);
 				privileges = privileges.substring(0, slashIndex);
@@ -118,18 +116,24 @@ public class JcrAuthorizations implements Runnable {
 			}
 
 			String principalNames = principalPrivileges.get(privileges);
-			for (String principalName : principalNames.split(",")) {
-				Principal principal = getOrCreatePrincipal(session,
-						principalName);
+			try {
+				new LdapName(principalNames);
+				// TODO differentiate groups and users ?
+				Principal principal = getOrCreatePrincipal(session, principalNames);
 				JcrUtils.addPrivileges(session, path, principal, privs);
-				// if (log.isDebugEnabled()) {
-				// StringBuffer privBuf = new StringBuffer();
-				// for (Privilege priv : privs)
-				// privBuf.append(priv.getName());
-				// log.debug("Added privileges " + privBuf + " to "
-				// + principal.getName() + " on " + path + " in '"
-				// + session.getWorkspace().getName() + "'");
-				// }
+			} catch (InvalidNameException e) {
+				for (String principalName : principalNames.split(",")) {
+					Principal principal = getOrCreatePrincipal(session, principalName);
+					JcrUtils.addPrivileges(session, path, principal, privs);
+					// if (log.isDebugEnabled()) {
+					// StringBuffer privBuf = new StringBuffer();
+					// for (Privilege priv : privs)
+					// privBuf.append(priv.getName());
+					// log.debug("Added privileges " + privBuf + " to "
+					// + principal.getName() + " on " + path + " in '"
+					// + session.getWorkspace().getName() + "'");
+					// }
+				}
 			}
 		}
 
@@ -143,8 +147,7 @@ public class JcrAuthorizations implements Runnable {
 	 * such capabilities is not provided by the standard JCR API. Can be
 	 * overridden to provide smarter handling
 	 */
-	protected Principal getOrCreatePrincipal(Session session,
-			String principalName) throws RepositoryException {
+	protected Principal getOrCreatePrincipal(Session session, String principalName) throws RepositoryException {
 		return new SimplePrincipal(principalName);
 	}
 
@@ -188,7 +191,7 @@ public class JcrAuthorizations implements Runnable {
 	// + session.getWorkspace().getName() + "'");
 	// }
 	// } else {
-	// throw new ArgeoJcrException("Don't know how to apply  privileges "
+	// throw new ArgeoJcrException("Don't know how to apply privileges "
 	// + privs + " to " + principal + " on " + path
 	// + " from workspace '" + session.getWorkspace().getName()
 	// + "'");
