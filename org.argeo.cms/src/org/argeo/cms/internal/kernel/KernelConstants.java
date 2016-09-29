@@ -36,6 +36,7 @@ public interface KernelConstants {
 	String JETTY_FACTORY_PID = "org.eclipse.equinox.http.jetty.config";
 	String WHITEBOARD_PATTERN_PROP = "osgi.http.whiteboard.servlet.pattern";
 
-	// avoid dependency to RWT OSGi
+	// avoid dependencies
 	String CONTEXT_NAME_PROP = "contextName";
+	String JACKRABBIT_REPOSITORY_URI = "org.apache.jackrabbit.repository.uri";
 }
