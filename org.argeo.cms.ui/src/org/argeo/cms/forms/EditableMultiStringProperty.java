@@ -31,7 +31,7 @@ public class EditableMultiStringProperty extends StyledControl implements
 	private String propertyName;
 	private String message;
 	// TODO implement the ability to provide a list of legal values
-	private String[] possibleValues;
+//	private String[] possibleValues;
 	private boolean canEdit;
 	private SelectionListener removeValueSL;
 	private List<String> values;
@@ -52,7 +52,7 @@ public class EditableMultiStringProperty extends StyledControl implements
 
 		this.propertyName = propertyName;
 		this.values = values;
-		this.possibleValues = possibleValues;
+//		this.possibleValues = possibleValues;
 		this.message = addValueMsg;
 		this.canEdit = removeValueSelectionListener != null;
 		this.removeValueSL = removeValueSelectionListener;

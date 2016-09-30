@@ -38,6 +38,8 @@ import org.eclipse.swt.widgets.Shell;
 
 /** Manages history and navigation */
 public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements CmsView {
+	private static final long serialVersionUID = 906558779562569784L;
+
 	private final Log log = LogFactory.getLog(AbstractCmsEntryPoint.class);
 
 	private final Subject subject;
@@ -191,10 +193,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 						try {
 							node = session.getNode(nodePath);
 						} catch (PathNotFoundException e) {
-							// logout();
-							// session = repository.login(workspace);
 							navigateTo("~");
-							// throw e;
 						}
 
 					// refresh UI
@@ -239,10 +238,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 		try {
 			int firstSlash = state.indexOf('/');
 			if (firstSlash == 0) {
-				if (session.nodeExists(state))
-					node = session.getNode(state);
-				else
-					throw new CmsException("Data " + state + " does not exist");
+				node = session.getNode(state);
 				page = "";
 			} else if (firstSlash > 0) {
 				String prefix = state.substring(0, firstSlash);
@@ -265,6 +261,8 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 			return title;
 		} catch (Exception e) {
 			log.error("Cannot set state '" + state + "'", e);
+			if (state.equals("") || newState.equals("~") || newState.equals(previousState))
+				return "Unrecoverable exception : " + e.getClass().getSimpleName();
 			if (previousState.equals(""))
 				previousState = "~";
 			navigateTo(previousState);

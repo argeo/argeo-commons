@@ -3,8 +3,6 @@ package org.argeo.cms.maintenance;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-import org.argeo.cms.auth.AuthConstants;
-import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeDeployment;

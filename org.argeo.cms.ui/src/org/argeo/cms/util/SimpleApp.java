@@ -70,10 +70,8 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 
 	public void configure(Application application) {
 		try {
-			StyleSheetResourceLoader styleSheetRL = new StyleSheetResourceLoader(
-					bundleContext);
-			BundleResourceLoader bundleRL = new BundleResourceLoader(
-					bundleContext);
+			StyleSheetResourceLoader styleSheetRL = new StyleSheetResourceLoader(bundleContext);
+			BundleResourceLoader bundleRL = new BundleResourceLoader(bundleContext);
 
 			application.setOperationMode(OperationMode.SWT_COMPATIBILITY);
 			// application.setOperationMode(OperationMode.JEE_COMPATIBILITY);
@@ -81,8 +79,7 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 			application.setExceptionHandler(new CmsExceptionHandler());
 
 			// loading animated gif
-			application.addResource(LOADING_IMAGE,
-					createResourceLoader(LOADING_IMAGE));
+			application.addResource(LOADING_IMAGE, createResourceLoader(LOADING_IMAGE));
 			// empty image
 			application.addResource(NO_IMAGE, createResourceLoader(NO_IMAGE));
 
@@ -98,16 +95,15 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 
 			// entry points
 			for (String page : pages.keySet()) {
-				Map<String, String> properties = defaultBranding != null ? new HashMap<String, String>(
-						defaultBranding) : new HashMap<String, String>();
+				Map<String, String> properties = defaultBranding != null ? new HashMap<String, String>(defaultBranding)
+						: new HashMap<String, String>();
 				if (branding.containsKey(page)) {
 					properties.putAll(branding.get(page));
 				}
 				// favicon
 				if (properties.containsKey(WebClient.FAVICON)) {
 					String faviconRelPath = properties.get(WebClient.FAVICON);
-					application.addResource(faviconRelPath,
-							new BundleResourceLoader(bundleContext));
+					application.addResource(faviconRelPath, new BundleResourceLoader(bundleContext));
 					if (log.isTraceEnabled())
 						log.trace("Favicon " + faviconRelPath);
 
@@ -116,10 +112,7 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 				// page title
 				if (!properties.containsKey(WebClient.PAGE_TITLE)) {
 					if (page.length() > 0)
-						properties.put(
-								WebClient.PAGE_TITLE,
-								Character.toUpperCase(page.charAt(0))
-										+ page.substring(1));
+						properties.put(WebClient.PAGE_TITLE, Character.toUpperCase(page.charAt(0)) + page.substring(1));
 				}
 
 				// default body HTML
@@ -129,9 +122,8 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 				//
 				// ADD ENTRY POINT
 				//
-				application.addEntryPoint("/" + page, new CmsEntryPointFactory(
-						pages.get(page), repository, workspace, properties),
-						properties);
+				application.addEntryPoint("/" + page,
+						new CmsEntryPointFactory(pages.get(page), repository, workspace, properties), properties);
 				log.info("Page /" + page);
 			}
 
@@ -149,8 +141,7 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 			}
 		} catch (RuntimeException e) {
 			// Easier access to initialisation errors
-			log.error("Unexpected exception when configuring RWT application.",
-					e);
+			log.error("Unexpected exception when configuring RWT application.", e);
 			throw e;
 		}
 	}
@@ -164,19 +155,16 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 				vm.checkout("/");
 			JcrUtils.mkdirs(session, jcrBasePath);
 			for (String principal : rwPrincipals)
-				JcrUtils.addPrivilege(session, jcrBasePath, principal,
-						Privilege.JCR_WRITE);
+				JcrUtils.addPrivilege(session, jcrBasePath, principal, Privilege.JCR_WRITE);
 			for (String principal : roPrincipals)
-				JcrUtils.addPrivilege(session, jcrBasePath, principal,
-						Privilege.JCR_READ);
+				JcrUtils.addPrivilege(session, jcrBasePath, principal, Privilege.JCR_READ);
 
 			for (String pageName : pages.keySet()) {
 				try {
 					initPage(session, pages.get(pageName));
 					session.save();
 				} catch (Exception e) {
-					throw new CmsException(
-							"Cannot initialize page " + pageName, e);
+					throw new CmsException("Cannot initialize page " + pageName, e);
 				}
 			}
 
@@ -188,8 +176,7 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 		register();
 	}
 
-	protected void initPage(Session adminSession, CmsUiProvider page)
-			throws RepositoryException {
+	protected void initPage(Session adminSession, CmsUiProvider page) throws RepositoryException {
 		if (page instanceof LifeCycleUiProvider)
 			((LifeCycleUiProvider) page).init(adminSession);
 	}
@@ -210,8 +197,7 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 		Hashtable<String, String> props = new Hashtable<String, String>();
 		if (contextName != null)
 			props.put("contextName", contextName);
-		appReg = bundleContext.registerService(ApplicationConfiguration.class,
-				this, props);
+		appReg = bundleContext.registerService(ApplicationConfiguration.class, this, props);
 		if (log.isDebugEnabled())
 			log.debug("Registered " + (contextName == null ? "/" : contextName));
 	}
@@ -219,8 +205,7 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 	protected void unregister() {
 		appReg.unregister();
 		if (log.isDebugEnabled())
-			log.debug("Unregistered "
-					+ (contextName == null ? "/" : contextName));
+			log.debug("Unregistered " + (contextName == null ? "/" : contextName));
 	}
 
 	public void setRepository(Repository repository) {
@@ -291,8 +276,8 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 		private final String workspace;
 		private final Map<String, String> properties;
 
-		public CmsEntryPointFactory(CmsUiProvider page, Repository repository,
-				String workspace, Map<String, String> properties) {
+		public CmsEntryPointFactory(CmsUiProvider page, Repository repository, String workspace,
+				Map<String, String> properties) {
 			this.page = page;
 			this.repository = repository;
 			this.workspace = workspace;
@@ -301,8 +286,8 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 
 		@Override
 		public EntryPoint create() {
-			SimpleErgonomics entryPoint = new SimpleErgonomics(repository,
-					workspace, jcrBasePath, page, properties) {
+			SimpleErgonomics entryPoint = new SimpleErgonomics(repository, workspace, jcrBasePath, page, properties) {
+				private static final long serialVersionUID = -637940404865527290L;
 
 				@Override
 				protected void createAdminArea(Composite parent) {
@@ -316,13 +301,8 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 						@Override
 						public void widgetSelected(SelectionEvent e) {
 							long timeBeforeReload = 1000;
-							RWT.getClient()
-									.getService(JavaScriptExecutor.class)
-									.execute(
-											"setTimeout(function() { "
-													+ "location.reload();"
-													+ "}," + timeBeforeReload
-													+ ");");
+							RWT.getClient().getService(JavaScriptExecutor.class).execute(
+									"setTimeout(function() { " + "location.reload();" + "}," + timeBeforeReload + ");");
 							reloadApp();
 						}
 					});
@@ -348,10 +328,8 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 
 	private static ResourceLoader createResourceLoader(final String resourceName) {
 		return new ResourceLoader() {
-			public InputStream getResourceAsStream(String resourceName)
-					throws IOException {
-				return getClass().getClassLoader().getResourceAsStream(
-						resourceName);
+			public InputStream getResourceAsStream(String resourceName) throws IOException {
+				return getClass().getClassLoader().getResourceAsStream(resourceName);
 			}
 		};
 	}
@@ -371,6 +349,5 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 	private static String DEFAULT_LOADING_BODY = "<div"
 			+ " style=\"position: absolute; left: 50%; top: 50%; margin: -32px -32px; width: 64px; height:64px\">"
 			+ "<img src=\"./rwt-resources/" + LOADING_IMAGE
-			+ "\" width=\"32\" height=\"32\" style=\"margin: 16px 16px\"/>"
-			+ "</div>";
+			+ "\" width=\"32\" height=\"32\" style=\"margin: 16px 16px\"/>" + "</div>";
 }

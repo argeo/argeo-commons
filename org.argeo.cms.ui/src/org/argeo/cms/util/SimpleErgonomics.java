@@ -2,6 +2,7 @@ package org.argeo.cms.util;
 
 import java.util.Map;
 
+import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 
@@ -23,6 +24,8 @@ import org.eclipse.swt.widgets.Control;
 
 /** Simple header/body ergonomics. */
 public class SimpleErgonomics extends AbstractCmsEntryPoint {
+	private static final long serialVersionUID = 8743413921359548523L;
+
 	private final static Log log = LogFactory.getLog(SimpleErgonomics.class);
 
 	private boolean uiInitialized = false;
@@ -36,8 +39,7 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 	private CmsImageManager imageManager = new ImageManagerImpl();
 	private UxContext uxContext = null;
 
-	public SimpleErgonomics(Repository repository, String workspace,
-			String defaultPath, CmsUiProvider uiProvider,
+	public SimpleErgonomics(Repository repository, String workspace, String defaultPath, CmsUiProvider uiProvider,
 			Map<String, String> factoryProperties) {
 		super(repository, workspace, defaultPath, factoryProperties);
 		this.uiProvider = uiProvider;
@@ -94,8 +96,7 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 		// Exception
 		Throwable exception = getException();
 		if (exception != null) {
-			SystemNotifications systemNotifications = new SystemNotifications(
-					bodyArea);
+			SystemNotifications systemNotifications = new SystemNotifications(bodyArea);
 			systemNotifications.notifyException(exception);
 			resetException();
 			return;
@@ -108,7 +109,10 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 		bodyArea.setLayout(CmsUtils.noSpaceGridLayout());
 
 		try {
-			uiProvider.createUi(bodyArea, getNode());
+			Node node = getNode();
+			if (node == null)
+				throw new CmsException("Context cannot be null");
+			uiProvider.createUi(bodyArea, node);
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot refresh body", e);
 		}
