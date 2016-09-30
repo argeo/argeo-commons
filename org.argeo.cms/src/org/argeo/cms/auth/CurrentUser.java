@@ -27,6 +27,7 @@ import javax.security.auth.x500.X500Principal;
 import org.argeo.cms.CmsException;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.node.NodeAuthenticated;
+import org.argeo.node.NodeConstants;
 import org.osgi.service.useradmin.Authorization;
 
 /** Static utilities */
@@ -50,7 +51,7 @@ public final class CurrentUser {
 	public static boolean isAnonymous(Subject subject) {
 		String username = getUsername(subject);
 		return username == null
-				|| username.equalsIgnoreCase(AuthConstants.ROLE_ANONYMOUS);
+				|| username.equalsIgnoreCase(NodeConstants.ROLE_ANONYMOUS);
 	}
 
 	private static Subject currentSubject() {

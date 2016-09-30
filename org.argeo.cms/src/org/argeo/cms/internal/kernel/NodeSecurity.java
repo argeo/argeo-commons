@@ -24,6 +24,7 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.AuthConstants;
 
 /** Low-level kernel security */
+@Deprecated
 class NodeSecurity implements KernelConstants {
 	private final static Log log = LogFactory.getLog(NodeSecurity.class);
 
@@ -77,7 +78,7 @@ class NodeSecurity implements KernelConstants {
 			@Override
 			public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
 				// alias
-				((NameCallback) callbacks[1]).setName(AuthConstants.ROLE_KERNEL);
+//				((NameCallback) callbacks[1]).setName(AuthConstants.ROLE_KERNEL);
 				// store pwd
 				((PasswordCallback) callbacks[2]).setPassword("changeit".toCharArray());
 				// key pwd
@@ -137,8 +138,8 @@ class NodeSecurity implements KernelConstants {
 			try {
 				keyStoreFile.getParentFile().mkdirs();
 				KeyStore keyStore = PkiUtils.getKeyStore(keyStoreFile, ksPwd);
-				PkiUtils.generateSelfSignedCertificate(keyStore, new X500Principal(AuthConstants.ROLE_KERNEL), 1024,
-						keyPwd);
+//				PkiUtils.generateSelfSignedCertificate(keyStore, new X500Principal(AuthConstants.ROLE_KERNEL), 1024,
+//						keyPwd);
 				PkiUtils.saveKeyStore(keyStoreFile, ksPwd, keyStore);
 				if (log.isDebugEnabled())
 					log.debug("Created keystore " + keyStoreFile);

@@ -1,4 +1,4 @@
-package org.argeo.node;
+package org.argeo.osgi.metatype;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,7 +9,7 @@ import java.util.List;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.ObjectClassDefinition;
 
-class EnumOCD<T extends Enum<T>> implements ObjectClassDefinition {
+public class EnumOCD<T extends Enum<T>> implements ObjectClassDefinition {
 	private final Class<T> enumClass;
 	private String locale;
 

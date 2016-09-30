@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.auth.AuthConstants;
 import org.argeo.node.NodeConstants;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -117,7 +116,7 @@ class KernelUtils implements KernelConstants {
 		Subject subject = new Subject();
 		LoginContext lc;
 		try {
-			lc = new LoginContext(AuthConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
+			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
 			lc.login();
 			return subject;
 		} catch (LoginException e) {
@@ -162,7 +161,7 @@ class KernelUtils implements KernelConstants {
 		Thread.currentThread().setContextClassLoader(KernelUtils.class.getClassLoader());
 		LoginContext loginContext;
 		try {
-			loginContext = new LoginContext(AuthConstants.LOGIN_CONTEXT_DATA_ADMIN);
+			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_DATA_ADMIN);
 			loginContext.login();
 		} catch (LoginException e1) {
 			throw new CmsException("Could not login as data admin", e1);
@@ -241,7 +240,7 @@ class KernelUtils implements KernelConstants {
 //		if (log.isTraceEnabled())
 //			log.trace(userId + " : " + node.getPath());
 		StringBuilder buf = new StringBuilder();
-		boolean isAnonymous = userId.equalsIgnoreCase(AuthConstants.ROLE_ANONYMOUS);
+		boolean isAnonymous = userId.equalsIgnoreCase(NodeConstants.ROLE_ANONYMOUS);
 		if (isAnonymous)
 			buf.append(WEBDAV_PUBLIC);
 		else

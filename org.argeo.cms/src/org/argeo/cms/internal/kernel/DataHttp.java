@@ -1,7 +1,5 @@
 package org.argeo.cms.internal.kernel;
 
-import static org.argeo.cms.auth.AuthConstants.LOGIN_CONTEXT_USER;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
@@ -32,7 +30,6 @@ import org.apache.jackrabbit.server.SessionProvider;
 import org.apache.jackrabbit.server.remoting.davex.JcrRemotingServlet;
 import org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.auth.HttpRequestCallback;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.jcr.JcrUtils;
@@ -147,7 +144,7 @@ class DataHttp implements KernelConstants {
 		if (authorization == null)
 			throw new CmsException("Not authenticated");
 		try {
-			LoginContext lc = new LoginContext(AuthConstants.LOGIN_CONTEXT_USER,
+			LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
 					new HttpRequestCallbackHandler(request));
 			lc.login();
 			return lc.getSubject();
@@ -197,7 +194,7 @@ class DataHttp implements KernelConstants {
 			if (anonymous) {
 				Subject subject = KernelUtils.anonymousLogin();
 				Authorization authorization = subject.getPrivateCredentials(Authorization.class).iterator().next();
-				request.setAttribute(REMOTE_USER, AuthConstants.ROLE_ANONYMOUS);
+				request.setAttribute(REMOTE_USER, NodeConstants.ROLE_ANONYMOUS);
 				request.setAttribute(AUTHORIZATION, authorization);
 				return true;
 			}
@@ -205,13 +202,13 @@ class DataHttp implements KernelConstants {
 			if (log.isTraceEnabled())
 				KernelUtils.logRequestHeaders(log, request);
 			try {
-				new LoginContext(LOGIN_CONTEXT_USER, new HttpRequestCallbackHandler(request)).login();
+				new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new HttpRequestCallbackHandler(request)).login();
 				return true;
 			} catch (CredentialNotFoundException e) {
 				CallbackHandler token = basicAuth(request);
 				if (token != null) {
 					try {
-						LoginContext lc = new LoginContext(LOGIN_CONTEXT_USER, token);
+						LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, token);
 						lc.login();
 						// Note: this is impossible to reliably clear the
 						// authorization header when access from a browser.

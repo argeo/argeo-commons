@@ -10,7 +10,7 @@ import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
 import org.argeo.cms.CmsException;
-import org.argeo.cms.auth.AuthConstants;
+import org.argeo.node.NodeConstants;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.useradmin.UserAdmin;
@@ -74,7 +74,7 @@ public abstract class UserAdminWrapper {
 
 			if (onlyWritable && "true".equals(readOnly))
 				continue;
-			if (baseDn.equalsIgnoreCase(AuthConstants.ROLES_BASEDN))
+			if (baseDn.equalsIgnoreCase(NodeConstants.ROLES_BASEDN))
 				continue;
 			dns.put(baseDn, uri);
 		}

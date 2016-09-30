@@ -11,12 +11,12 @@ import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
 import org.argeo.cms.CmsException;
-import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.ui.CmsView;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.node.NodeConstants;
 import org.argeo.osgi.useradmin.LdifName;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
@@ -207,7 +207,7 @@ public class UserAdminUtils {
 	/** Simply retrieves a display name of the relevant domain */
 	public final static String getDomainName(User user) {
 		String dn = user.getName();
-		if (dn.endsWith(AuthConstants.ROLES_BASEDN))
+		if (dn.endsWith(NodeConstants.ROLES_BASEDN))
 			return "System roles";
 		try {
 			LdapName name = new LdapName(dn);

@@ -9,7 +9,6 @@ import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.argeo.cms.CmsException;
-import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.cms.ui.CmsImageManager;
@@ -19,6 +18,7 @@ import org.argeo.cms.widgets.auth.CmsLogin;
 import org.argeo.cms.widgets.auth.CmsLoginShell;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.node.NodeAuthenticated;
+import org.argeo.node.NodeConstants;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.EntryPoint;
 import org.eclipse.swt.events.SelectionListener;
@@ -37,7 +37,7 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 		UiContext.setData(NodeAuthenticated.KEY, this);
 		try {
 			// try pre-auth
-			loginContext = new LoginContext(AuthConstants.LOGIN_CONTEXT_USER,
+			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
 					subject, new HttpRequestCallbackHandler(getRequest()));
 			loginContext.login();
 		} catch (CredentialNotFoundException e) {

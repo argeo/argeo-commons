@@ -21,24 +21,25 @@ import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
+import org.argeo.node.NodeConstants;
 import org.osgi.service.useradmin.Authorization;
 
 public class NodeUserLoginModule implements LoginModule, AuthConstants {
 	private Subject subject;
 	private Map<String, Object> sharedState = null;
 
-	private final static LdapName ROLE_KERNEL_NAME, ROLE_ADMIN_NAME, ROLE_ANONYMOUS_NAME, ROLE_USER_NAME;
+	private final static LdapName ROLE_ADMIN_NAME, ROLE_ANONYMOUS_NAME, ROLE_USER_NAME;
 	private final static List<LdapName> RESERVED_ROLES;
 	private final static X500Principal ROLE_ANONYMOUS_PRINCIPAL;
 	static {
 		try {
-			ROLE_KERNEL_NAME = new LdapName(AuthConstants.ROLE_KERNEL);
-			ROLE_ADMIN_NAME = new LdapName(AuthConstants.ROLE_ADMIN);
-			ROLE_USER_NAME = new LdapName(AuthConstants.ROLE_USER);
-			ROLE_ANONYMOUS_NAME = new LdapName(AuthConstants.ROLE_ANONYMOUS);
-			RESERVED_ROLES = Collections.unmodifiableList(Arrays.asList(new LdapName[] { ROLE_KERNEL_NAME,
-					ROLE_ADMIN_NAME, ROLE_ANONYMOUS_NAME, ROLE_USER_NAME, new LdapName(AuthConstants.ROLE_GROUP_ADMIN),
-					new LdapName(AuthConstants.ROLE_USER_ADMIN) }));
+			// ROLE_KERNEL_NAME = new LdapName(AuthConstants.ROLE_KERNEL);
+			ROLE_ADMIN_NAME = new LdapName(NodeConstants.ROLE_ADMIN);
+			ROLE_USER_NAME = new LdapName(NodeConstants.ROLE_USER);
+			ROLE_ANONYMOUS_NAME = new LdapName(NodeConstants.ROLE_ANONYMOUS);
+			RESERVED_ROLES = Collections.unmodifiableList(Arrays.asList(new LdapName[] { ROLE_ADMIN_NAME,
+					ROLE_ANONYMOUS_NAME, ROLE_USER_NAME, new LdapName(AuthConstants.ROLE_GROUP_ADMIN),
+					new LdapName(NodeConstants.ROLE_USER_ADMIN) }));
 			ROLE_ANONYMOUS_PRINCIPAL = new X500Principal(ROLE_ANONYMOUS_NAME.toString());
 		} catch (InvalidNameException e) {
 			throw new Error("Cannot initialize login module class", e);
@@ -148,8 +149,7 @@ public class NodeUserLoginModule implements LoginModule, AuthConstants {
 	}
 
 	private void checkImpliedPrincipalName(LdapName roleName) {
-		if (ROLE_USER_NAME.equals(roleName) || ROLE_ANONYMOUS_NAME.equals(roleName)
-				|| ROLE_KERNEL_NAME.equals(roleName))
+		if (ROLE_USER_NAME.equals(roleName) || ROLE_ANONYMOUS_NAME.equals(roleName))
 			throw new CmsException(roleName + " cannot be listed as role");
 	}
 }

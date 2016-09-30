@@ -20,11 +20,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.node.NodeAuthenticated;
+import org.argeo.node.NodeConstants;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.client.WebClient;
@@ -72,12 +72,12 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 
 		// Initial login
 		try {
-			loginContext = new LoginContext(AuthConstants.LOGIN_CONTEXT_USER, subject,
+			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, subject,
 					new HttpRequestCallbackHandler(UiContext.getHttpRequest()));
 			loginContext.login();
 		} catch (CredentialNotFoundException e) {
 			try {
-				loginContext = new LoginContext(AuthConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
+				loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
 				loginContext.login();
 			} catch (LoginException e1) {
 				throw new CmsException("Cannot log as anonymous", e);
@@ -137,7 +137,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 	 */
 	protected Node getDefaultNode(Session session) throws RepositoryException {
 		if (!session.hasPermission(defaultPath, "read")) {
-			if (session.getUserID().equals(AuthConstants.ROLE_ANONYMOUS))
+			if (session.getUserID().equals(NodeConstants.ROLE_ANONYMOUS))
 				// TODO throw a special exception
 				throw new CmsException("Login required");
 			else
@@ -169,7 +169,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 			throw new CmsException("Login context should not be null");
 		try {
 			loginContext.logout();
-			LoginContext anonymousLc = new LoginContext(AuthConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
+			LoginContext anonymousLc = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
 			anonymousLc.login();
 			authChange(anonymousLc);
 		} catch (LoginException e) {

@@ -1,12 +1,14 @@
-package org.argeo.node;
+package org.argeo.cms.internal.kernel;
+
+import org.argeo.osgi.metatype.EnumAD;
+import org.argeo.osgi.metatype.EnumOCD;
 
 /** JCR repository configuration */
-public enum RepoConf implements EnumAD {
+enum RepoConf implements EnumAD {
 	/** Repository type */
 	type("localfs"),
 	/** Default workspace */
-	@Deprecated
-	defaultWorkspace("main"),
+	@Deprecated defaultWorkspace("main"),
 	/** Database URL */
 	dburl(null),
 	/** Database user */
@@ -22,8 +24,7 @@ public enum RepoConf implements EnumAD {
 	/** Maximum database pool size */
 	maxPoolSize(10),
 	/** Maximum cache size in MB */
-	@Deprecated
-	maxCacheMB(null),
+	@Deprecated maxCacheMB(null),
 	/** Bundle cache size in MB */
 	bundleCacheMB(8),
 	/** Extractor pool size */

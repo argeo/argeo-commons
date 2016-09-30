@@ -1,7 +1,7 @@
 package org.argeo.cms.ui.workbench.internal.useradmin.providers;
 
-import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.ui.workbench.internal.useradmin.SecurityAdminImages;
+import org.argeo.node.NodeConstants;
 import org.eclipse.swt.graphics.Image;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
@@ -19,7 +19,7 @@ public class RoleIconLP extends UserAdminAbstractLP {
 	public Image getImage(Object element) {
 		User user = (User) element;
 		String dn = user.getName();
-		if (dn.endsWith(AuthConstants.ROLES_BASEDN))
+		if (dn.endsWith(NodeConstants.ROLES_BASEDN))
 			return SecurityAdminImages.ICON_ROLE;
 		else if (user.getType() == Role.GROUP)
 			return SecurityAdminImages.ICON_GROUP;

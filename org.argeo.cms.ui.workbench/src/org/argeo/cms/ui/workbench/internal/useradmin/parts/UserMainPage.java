@@ -20,7 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.argeo.cms.CmsException;
-import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.ui.workbench.internal.useradmin.SecurityAdminImages;
 import org.argeo.cms.ui.workbench.internal.useradmin.UserAdminWrapper;
 import org.argeo.cms.ui.workbench.internal.useradmin.parts.UserEditor.GroupChangeListener;
@@ -36,6 +35,7 @@ import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.node.ArgeoNames;
+import org.argeo.node.NodeConstants;
 import org.argeo.osgi.useradmin.LdifName;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
@@ -253,7 +253,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		Composite body = (Composite) section.getClient();
 		body.setLayout(EclipseUiUtils.noSpaceGridLayout());
 
-		boolean isAdmin = UserAdminUtils.isUserInRole(AuthConstants.ROLE_ADMIN);
+		boolean isAdmin = UserAdminUtils.isUserInRole(NodeConstants.ROLE_ADMIN);
 
 		// Displayed columns
 		List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();

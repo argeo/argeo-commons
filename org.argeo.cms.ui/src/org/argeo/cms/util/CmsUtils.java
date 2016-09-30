@@ -14,7 +14,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.ui.CmsView;
 import org.argeo.eclipse.ui.specific.UiContext;
@@ -80,7 +79,7 @@ public class CmsUtils implements CmsConstants {
 		if (log.isTraceEnabled())
 			log.trace(userId + " : " + node.getPath());
 		StringBuilder buf = new StringBuilder();
-		boolean isAnonymous = userId.equalsIgnoreCase(AuthConstants.ROLE_ANONYMOUS);
+		boolean isAnonymous = userId.equalsIgnoreCase(NodeConstants.ROLE_ANONYMOUS);
 		if (isAnonymous)
 			buf.append(WEBDAV_PUBLIC);
 		else

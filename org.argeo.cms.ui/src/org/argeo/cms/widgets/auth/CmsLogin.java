@@ -2,8 +2,6 @@ package org.argeo.cms.widgets.auth;
 
 import static org.argeo.cms.CmsMsg.password;
 import static org.argeo.cms.CmsMsg.username;
-import static org.argeo.cms.auth.AuthConstants.LOGIN_CONTEXT_ANONYMOUS;
-import static org.argeo.cms.auth.AuthConstants.LOGIN_CONTEXT_USER;
 
 import java.io.IOException;
 import java.util.List;
@@ -30,6 +28,7 @@ import org.argeo.cms.ui.CmsStyles;
 import org.argeo.cms.ui.CmsView;
 import org.argeo.cms.ui.internal.Activator;
 import org.argeo.cms.util.CmsUtils;
+import org.argeo.node.NodeConstants;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -254,8 +253,8 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 			//
 			// LOGIN
 			//
-			new LoginContext(LOGIN_CONTEXT_ANONYMOUS, subject).logout();
-			loginContext = new LoginContext(LOGIN_CONTEXT_USER, subject, this);
+			new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS, subject).logout();
+			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, subject, this);
 			loginContext.login();
 		} catch (FailedLoginException e) {
 			log.warn(e.getMessage());

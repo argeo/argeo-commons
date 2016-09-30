@@ -49,13 +49,32 @@ public interface NodeConstants {
 	 * STANDARD VALUES
 	 */
 	String DEFAULT = "default";
+
+	/*
+	 * RESERVED ROLES
+	 */
+	String ROLES_BASEDN = "ou=roles,ou=node";
+	String ROLE_ADMIN = "cn=admin," + ROLES_BASEDN;
+	String ROLE_USER_ADMIN = "cn=userAdmin," + ROLES_BASEDN;
+	// Special system groups that cannot be edited:
+	// user U anonymous = everyone
+	String ROLE_USER = "cn=user," + ROLES_BASEDN;
+	String ROLE_ANONYMOUS = "cn=anonymous," + ROLES_BASEDN;
+
+	/*
+	 * LOGIN CONTEXTS
+	 */
+	String LOGIN_CONTEXT_USER = "USER";
+	String LOGIN_CONTEXT_ANONYMOUS = "ANONYMOUS";
+	String LOGIN_CONTEXT_DATA_ADMIN = "DATA_ADMIN";
+	String LOGIN_CONTEXT_SINGLE_USER = "SINGLE_USER";
+
 	/*
 	 * LEGACY
 	 */
 	String ARGEO_BASE_PATH = "/argeo:system";
 	String PEOPLE_BASE_PATH = NodeConstants.ARGEO_BASE_PATH + "/argeo:people";
-	String DATA_MODELS_BASE_PATH = NodeConstants.ARGEO_BASE_PATH
-			+ "/argeo:dataModels";
+	String DATA_MODELS_BASE_PATH = NodeConstants.ARGEO_BASE_PATH + "/argeo:dataModels";
 	String ALIAS_HOME = "home";
 	// standard aliases
 	/**

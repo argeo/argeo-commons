@@ -24,7 +24,7 @@ import javax.security.auth.login.LoginException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.auth.AuthConstants;
+import org.argeo.node.NodeConstants;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.EntryPoint;
 import org.eclipse.swt.widgets.Display;
@@ -56,7 +56,7 @@ public class AnonymousEntryPoint implements EntryPoint {
 
 		final LoginContext loginContext;
 		try {
-			loginContext = new LoginContext(AuthConstants.LOGIN_CONTEXT_ANONYMOUS,
+			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS,
 					subject);
 			loginContext.login();
 		} catch (LoginException e1) {

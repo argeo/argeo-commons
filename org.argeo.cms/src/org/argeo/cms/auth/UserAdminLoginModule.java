@@ -64,8 +64,8 @@ public class UserAdminLoginModule implements LoginModule, AuthConstants {
 				callbackHandler.handle(new Callback[] { nameCallback, passwordCallback, langCallback });
 			} catch (IOException e) {
 				throw new LoginException("Cannot handle callback: " + e.getMessage());
-			} catch (ThreadDeath e) {
-				throw new ThreadDeathLoginException("Callbackhandler thread died", e);
+//			} catch (ThreadDeath e) {
+//				throw new ThreadDeathLoginException("Callbackhandler thread died", e);
 			} catch (UnsupportedCallbackException e) {
 				return false;
 			}

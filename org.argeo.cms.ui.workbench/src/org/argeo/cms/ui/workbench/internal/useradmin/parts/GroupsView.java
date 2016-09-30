@@ -21,7 +21,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.cms.ui.workbench.internal.useradmin.UiUserAdminListener;
 import org.argeo.cms.ui.workbench.internal.useradmin.UserAdminWrapper;
@@ -36,6 +35,7 @@ import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.node.ArgeoNames;
+import org.argeo.node.NodeConstants;
 import org.argeo.osgi.useradmin.LdifName;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
@@ -74,7 +74,7 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 	public void createPartControl(Composite parent) {
 		parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
 
-		boolean isAdmin = UserAdminUtils.isUserInRole(AuthConstants.ROLE_ADMIN);
+		boolean isAdmin = UserAdminUtils.isUserInRole(NodeConstants.ROLE_ADMIN);
 
 		// Define the displayed columns
 		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 26));
@@ -190,7 +190,7 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 					if (!showSystemRoles)
 						builder.append("(!(").append(LdifName.dn.name())
 								.append("=*")
-								.append(AuthConstants.ROLES_BASEDN)
+								.append(NodeConstants.ROLES_BASEDN)
 								.append("))");
 					builder.append("(|");
 					builder.append(tmpBuilder.toString());
@@ -203,7 +203,7 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 								.append(LdifName.groupOfNames.name())
 								.append(")(!(").append(LdifName.dn.name())
 								.append("=*")
-								.append(AuthConstants.ROLES_BASEDN)
+								.append(NodeConstants.ROLES_BASEDN)
 								.append(")))");
 					else
 						builder.append("(").append(LdifName.objectClass.name())

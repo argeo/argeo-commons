@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.argeo.cms.CmsException;
-import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.cms.ui.workbench.internal.useradmin.UiUserAdminListener;
 import org.argeo.cms.ui.workbench.internal.useradmin.UserAdminWrapper;
@@ -34,6 +33,7 @@ import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.node.ArgeoNames;
+import org.argeo.node.NodeConstants;
 import org.argeo.osgi.useradmin.LdifName;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
@@ -75,7 +75,7 @@ public class UsersView extends ViewPart implements ArgeoNames {
 		columnDefs.add(new ColumnDefinition(new MailLP(), "E-mail", 150));
 		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain", 200));
 		// Only show technical DN to admin
-		if (UserAdminUtils.isUserInRole(AuthConstants.ROLE_ADMIN))
+		if (UserAdminUtils.isUserInRole(NodeConstants.ROLE_ADMIN))
 			columnDefs.add(new ColumnDefinition(new UserNameLP(),
 					"Distinguished Name", 300));
 

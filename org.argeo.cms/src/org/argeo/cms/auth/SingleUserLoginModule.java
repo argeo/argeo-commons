@@ -13,6 +13,7 @@ import javax.security.auth.x500.X500Principal;
 import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
+import org.argeo.node.NodeConstants;
 
 public class SingleUserLoginModule implements LoginModule, AuthConstants {
 	private Subject subject;
@@ -35,7 +36,7 @@ public class SingleUserLoginModule implements LoginModule, AuthConstants {
 				+ ",dc=localhost,dc=localdomain");
 		Set<Principal> principals = subject.getPrincipals();
 		principals.add(principal);
-		principals.add(new ImpliedByPrincipal(ROLE_ADMIN, principal));
+		principals.add(new ImpliedByPrincipal(NodeConstants.ROLE_ADMIN, principal));
 		// Jackrabbit
 		principals.add(new AdminPrincipal(SecurityConstants.ADMIN_ID));
 		return true;

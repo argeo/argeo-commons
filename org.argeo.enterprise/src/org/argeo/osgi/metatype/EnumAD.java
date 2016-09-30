@@ -1,8 +1,8 @@
-package org.argeo.node;
+package org.argeo.osgi.metatype;
 
 import org.osgi.service.metatype.AttributeDefinition;
 
-interface EnumAD extends AttributeDefinition {
+public interface EnumAD extends AttributeDefinition {
 	String name();
 
 	default Object getDefault() {

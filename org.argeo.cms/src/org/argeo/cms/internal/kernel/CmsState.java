@@ -19,7 +19,6 @@ import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.auth.AuthConstants;
 import org.argeo.cms.i18n.LocaleUtils;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeState;
@@ -98,7 +97,7 @@ public class CmsState implements NodeState {
 		bc.registerService(RepositoryFactory.class, repositoryFactory, null);
 
 		// Security
-		NodeUserAdmin userAdmin = new NodeUserAdmin(AuthConstants.ROLES_BASEDN);
+		NodeUserAdmin userAdmin = new NodeUserAdmin(NodeConstants.ROLES_BASEDN);
 		shutdownHooks.add(() -> userAdmin.destroy());
 		bc.registerService(ManagedServiceFactory.class, userAdmin,
 				LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_USER_ADMIN_PID));

@@ -15,9 +15,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.auth.AuthConstants;
 import org.argeo.node.NodeConstants;
-import org.argeo.node.RepoConf;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.eclipse.equinox.http.jetty.JettyConstants;
 
@@ -83,7 +81,7 @@ class FirstInitProperties {
 
 		// node roles
 		String nodeRolesUri = getFrameworkProp(NodeConstants.ROLES_URI);
-		String baseNodeRoleDn = AuthConstants.ROLES_BASEDN;
+		String baseNodeRoleDn = NodeConstants.ROLES_BASEDN;
 		if (nodeRolesUri == null) {
 			File nodeRolesFile = new File(nodeBaseDir, baseNodeRoleDn + ".ldif");
 			if (!nodeRolesFile.exists())

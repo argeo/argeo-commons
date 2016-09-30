@@ -111,8 +111,9 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 		try {
 			Node node = getNode();
 			if (node == null)
-				throw new CmsException("Context cannot be null");
-			uiProvider.createUi(bodyArea, node);
+				log.error("Context cannot be null");
+			else
+				uiProvider.createUi(bodyArea, node);
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot refresh body", e);
 		}

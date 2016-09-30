@@ -16,7 +16,6 @@ import javax.security.auth.login.LoginContext;
 
 import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.auth.AuthConstants;
 import org.argeo.jcr.JcrRepositoryWrapper;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.node.ArgeoNames;
@@ -38,7 +37,7 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 		setRepository(repository);
 		LoginContext lc;
 		try {
-			lc = new LoginContext(AuthConstants.LOGIN_CONTEXT_DATA_ADMIN);
+			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_DATA_ADMIN);
 			lc.login();
 		} catch (javax.security.auth.login.LoginException e1) {
 			throw new CmsException("Cannot login as systrem", e1);
@@ -85,10 +84,10 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 		String username = session.getUserID();
 		if (username == null)
 			return;
-		if (session.getUserID().equals(AuthConstants.ROLE_ANONYMOUS))
+		if (session.getUserID().equals(NodeConstants.ROLE_ANONYMOUS))
 			return;
-		if (session.getUserID().equals(AuthConstants.ROLE_KERNEL))
-			return;
+//		if (session.getUserID().equals(AuthConstants.ROLE_KERNEL))
+//			return;
 		if (session.getUserID().equals(SecurityConstants.ADMIN_ID))
 			return;
 
@@ -115,9 +114,9 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 			adminSession.save();
 
 			JcrUtils.addPrivilege(adminSession, homeBasePath,
-					AuthConstants.ROLE_USER_ADMIN, Privilege.JCR_READ);
+					NodeConstants.ROLE_USER_ADMIN, Privilege.JCR_READ);
 			JcrUtils.addPrivilege(adminSession, peopleBasePath,
-					AuthConstants.ROLE_USER_ADMIN, Privilege.JCR_ALL);
+					NodeConstants.ROLE_USER_ADMIN, Privilege.JCR_ALL);
 			adminSession.save();
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot initialize node user admin", e);

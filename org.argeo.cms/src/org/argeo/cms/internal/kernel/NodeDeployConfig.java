@@ -22,7 +22,6 @@ import org.argeo.naming.AttributesDictionary;
 import org.argeo.naming.LdifParser;
 import org.argeo.naming.LdifWriter;
 import org.argeo.node.NodeConstants;
-import org.argeo.node.RepoConf;
 
 class NodeDeployConfig {
 	private final String BASE = "ou=deploy,ou=node";
