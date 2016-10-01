@@ -18,9 +18,9 @@
 	<reference id="keyring" interface="org.argeo.node.security.CryptoKeyring" />
 
 	<!-- <reference id="nodeRepository" interface="javax.jcr.Repository" -->
-	<!-- filter="(argeo.jcr.repository.alias=node)" /> -->
+	<!-- filter="(cn=node)" /> -->
 	<reference id="nodeRepository" interface="javax.jcr.Repository"
-		filter="(argeo.jcr.repository.alias=home)" />
+		filter="(cn=home)" />
 
 
 	<!-- New user admin -->
