@@ -1,7 +1,5 @@
 package org.argeo.naming;
 
-import static org.argeo.osgi.useradmin.LdifName.dn;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -41,13 +39,13 @@ public class LdifWriter {
 				throw new UserDirectoryException(
 						"Attribute " + nameAttr.getID() + "=" + nameAttr.get() + " not consistent with DN " + name);
 
-			writer.append(dn.name() + ":").append(name.toString()).append('\n');
+			writer.append(LdapAttrs.DN + ":").append(name.toString()).append('\n');
 			Attribute objectClassAttr = attributes.get("objectClass");
 			if (objectClassAttr != null)
 				writeAttribute(objectClassAttr);
 			for (NamingEnumeration<? extends Attribute> attrs = attributes.getAll(); attrs.hasMore();) {
 				Attribute attribute = attrs.next();
-				if (attribute.getID().equals(dn.name()) || attribute.getID().equals("objectClass"))
+				if (attribute.getID().equals(LdapAttrs.DN) || attribute.getID().equals("objectClass"))
 					continue;// skip DN attribute
 				writeAttribute(attribute);
 			}

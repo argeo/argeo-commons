@@ -1,7 +1,5 @@
 package org.argeo.naming;
 
-import static org.argeo.osgi.useradmin.LdifName.dn;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -101,7 +99,7 @@ public class LdifParser {
 					Object attributeValue = isBase64 ? Base64.getDecoder().decode(cleanValueStr) : cleanValueStr;
 
 					// manage DN attributes
-					if (attributeId.equals(dn.name()) || isLastLine) {
+					if (attributeId.equals(LdapAttrs.DN) || isLastLine) {
 						if (currentDn != null) {
 							//
 							// ADD
@@ -113,7 +111,7 @@ public class LdifParser {
 							}
 						}
 
-						if (attributeId.equals(dn.name()))
+						if (attributeId.equals(LdapAttrs.DN))
 							try {
 								currentDn = new LdapName(attributeValue.toString());
 								currentAttributes = new BasicAttributes(true);
