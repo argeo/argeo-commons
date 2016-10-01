@@ -3,25 +3,15 @@ package org.argeo.cms.internal.kernel;
 import static org.argeo.cms.internal.kernel.KernelUtils.getOsgiInstanceDir;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.security.KeyStore;
 import java.util.Arrays;
 
 import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.x500.X500Principal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.auth.AuthConstants;
 
 /** Low-level kernel security */
 @Deprecated
@@ -34,7 +24,7 @@ class NodeSecurity implements KernelConstants {
 
 	private final boolean firstInit;
 
-	private final Subject kernelSubject;
+	private  Subject kernelSubject;
 	private int securityLevel = STAGING;
 
 	private final File keyStoreFile;
@@ -52,60 +42,60 @@ class NodeSecurity implements KernelConstants {
 
 		this.keyStoreFile = new File(KernelUtils.getOsgiInstanceDir(), "node.p12");
 		createKeyStoreIfNeeded();
-		if (keyStoreFile.exists())
-			this.kernelSubject = logInHardenedKernel();
-		else
-			this.kernelSubject = logInKernel();
+//		if (keyStoreFile.exists())
+//			this.kernelSubject = logInHardenedKernel();
+//		else
+//			this.kernelSubject = logInKernel();
 	}
 
-	private Subject logInKernel() {
-		final Subject kernelSubject = new Subject();
-		try {
-			LoginContext kernelLc = new LoginContext(KernelConstants.LOGIN_CONTEXT_KERNEL, kernelSubject);
-			kernelLc.login();
-		} catch (LoginException e) {
-			throw new CmsException("Cannot log in kernel", e);
-		}
-		return kernelSubject;
-	}
+//	private Subject logInKernel() {
+//		final Subject kernelSubject = new Subject();
+//		try {
+//			LoginContext kernelLc = new LoginContext(KernelConstants.LOGIN_CONTEXT_KERNEL, kernelSubject);
+//			kernelLc.login();
+//		} catch (LoginException e) {
+//			throw new CmsException("Cannot log in kernel", e);
+//		}
+//		return kernelSubject;
+//	}
+//
+//	private Subject logInHardenedKernel() {
+//		final Subject kernelSubject = new Subject();
+//		createKeyStoreIfNeeded();
+//
+//		CallbackHandler cbHandler = new CallbackHandler() {
+//
+//			@Override
+//			public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+//				// alias
+////				((NameCallback) callbacks[1]).setName(AuthConstants.ROLE_KERNEL);
+//				// store pwd
+//				((PasswordCallback) callbacks[2]).setPassword("changeit".toCharArray());
+//				// key pwd
+//				((PasswordCallback) callbacks[3]).setPassword("changeit".toCharArray());
+//			}
+//		};
+//		try {
+//			LoginContext kernelLc = new LoginContext(KernelConstants.LOGIN_CONTEXT_HARDENED_KERNEL, kernelSubject,
+//					cbHandler);
+//			kernelLc.login();
+//		} catch (LoginException e) {
+//			throw new CmsException("Cannot log in kernel", e);
+//		}
+//		return kernelSubject;
+//	}
 
-	private Subject logInHardenedKernel() {
-		final Subject kernelSubject = new Subject();
-		createKeyStoreIfNeeded();
-
-		CallbackHandler cbHandler = new CallbackHandler() {
-
-			@Override
-			public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-				// alias
-//				((NameCallback) callbacks[1]).setName(AuthConstants.ROLE_KERNEL);
-				// store pwd
-				((PasswordCallback) callbacks[2]).setPassword("changeit".toCharArray());
-				// key pwd
-				((PasswordCallback) callbacks[3]).setPassword("changeit".toCharArray());
-			}
-		};
-		try {
-			LoginContext kernelLc = new LoginContext(KernelConstants.LOGIN_CONTEXT_HARDENED_KERNEL, kernelSubject,
-					cbHandler);
-			kernelLc.login();
-		} catch (LoginException e) {
-			throw new CmsException("Cannot log in kernel", e);
-		}
-		return kernelSubject;
-	}
-
-	void destroy() {
-		// Logout kernel
-		try {
-			LoginContext kernelLc = new LoginContext(KernelConstants.LOGIN_CONTEXT_KERNEL, kernelSubject);
-			kernelLc.logout();
-		} catch (LoginException e) {
-			throw new CmsException("Cannot log out kernel", e);
-		}
-
-		// Security.removeProvider(SECURITY_PROVIDER);
-	}
+//	void destroy() {
+//		// Logout kernel
+//		try {
+//			LoginContext kernelLc = new LoginContext(KernelConstants.LOGIN_CONTEXT_KERNEL, kernelSubject);
+//			kernelLc.logout();
+//		} catch (LoginException e) {
+//			throw new CmsException("Cannot log out kernel", e);
+//		}
+//
+//		// Security.removeProvider(SECURITY_PROVIDER);
+//	}
 
 	public Subject getKernelSubject() {
 		return kernelSubject;

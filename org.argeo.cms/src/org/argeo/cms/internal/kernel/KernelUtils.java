@@ -2,10 +2,8 @@ package org.argeo.cms.internal.kernel;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.PrivilegedAction;
@@ -15,7 +13,6 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.TreeSet;
 
-import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -210,67 +207,7 @@ class KernelUtils implements KernelConstants {
 		}
 	}
 
-	// DATA
-	public static StringBuilder getServerBaseUrl(HttpServletRequest request) {
-		try {
-			URL url = new URL(request.getRequestURL().toString());
-			StringBuilder buf = new StringBuilder();
-			buf.append(url.getProtocol()).append("://").append(url.getHost());
-			if (url.getPort() != -1)
-				buf.append(':').append(url.getPort());
-			return buf;
-		} catch (MalformedURLException e) {
-			throw new CmsException("Cannot extract server base URL from " + request.getRequestURL(), e);
-		}
-	}
 
-	public static String getDataUrl(Node node, HttpServletRequest request) throws RepositoryException {
-		try {
-			StringBuilder buf = getServerBaseUrl(request);
-			buf.append(getDataPath(node));
-			return new URL(buf.toString()).toString();
-		} catch (MalformedURLException e) {
-			throw new CmsException("Cannot build data URL for " + node, e);
-		}
-	}
-
-	public static String getDataPath(Node node) throws RepositoryException {
-		assert node != null;
-		String userId = node.getSession().getUserID();
-//		if (log.isTraceEnabled())
-//			log.trace(userId + " : " + node.getPath());
-		StringBuilder buf = new StringBuilder();
-		boolean isAnonymous = userId.equalsIgnoreCase(NodeConstants.ROLE_ANONYMOUS);
-		if (isAnonymous)
-			buf.append(WEBDAV_PUBLIC);
-		else
-			buf.append(WEBDAV_PRIVATE);
-		Session session = node.getSession();
-		Repository repository = session.getRepository();
-		String cn;
-		if (repository.isSingleValueDescriptor(NodeConstants.CN)) {
-			cn = repository.getDescriptor(NodeConstants.CN);
-		} else {
-//			log.warn("No cn defined in repository, using " + NodeConstants.NODE);
-			cn = NodeConstants.NODE;
-		}
-		return buf.append('/').append(cn).append('/').append(session.getWorkspace().getName()).append(node.getPath())
-				.toString();
-	}
-
-	public static String getCanonicalUrl(Node node, HttpServletRequest request) throws RepositoryException {
-		try {
-			StringBuilder buf = getServerBaseUrl(request);
-			buf.append('/').append('!').append(node.getPath());
-			return new URL(buf.toString()).toString();
-		} catch (MalformedURLException e) {
-			throw new CmsException("Cannot build data URL for " + node, e);
-		}
-		// return request.getRequestURL().append('!').append(node.getPath())
-		// .toString();
-	}
-
-	
 	private KernelUtils() {
 
 	}

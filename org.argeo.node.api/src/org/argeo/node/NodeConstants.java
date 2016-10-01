@@ -69,6 +69,13 @@ public interface NodeConstants {
 	String LOGIN_CONTEXT_ANONYMOUS = "ANONYMOUS";
 	String LOGIN_CONTEXT_DATA_ADMIN = "DATA_ADMIN";
 	String LOGIN_CONTEXT_SINGLE_USER = "SINGLE_USER";
+	
+	/*
+	 * PATHS
+	 */
+	String PATH_DATA = "/data";
+	String PATH_JCR = "/jcr";
+	String PATH_JCR_PUB = "/pub";
 
 	/*
 	 * FRAMEWORK PROPERTIES

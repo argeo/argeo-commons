@@ -22,6 +22,7 @@ import javax.security.auth.login.LoginException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -81,8 +82,8 @@ class DataHttp implements KernelConstants {
 
 	void registerRepositoryServlets(String alias, Repository repository) {
 		try {
-			registerWebdavServlet(alias, repository, true);
-			registerWebdavServlet(alias, repository, false);
+			registerWebdavServlet(alias, repository);
+			// registerWebdavServlet(alias, repository, false);
 			registerRemotingServlet(alias, repository, true);
 			registerRemotingServlet(alias, repository, false);
 			if (log.isDebugEnabled())
@@ -94,8 +95,8 @@ class DataHttp implements KernelConstants {
 
 	void unregisterRepositoryServlets(String alias) {
 		try {
-			httpService.unregister(webdavPath(alias, true));
-			httpService.unregister(webdavPath(alias, false));
+			httpService.unregister(webdavPath(alias));
+			// httpService.unregister(webdavPath(alias, false));
 			httpService.unregister(remotingPath(alias, true));
 			httpService.unregister(remotingPath(alias, false));
 			if (log.isDebugEnabled())
@@ -105,14 +106,13 @@ class DataHttp implements KernelConstants {
 		}
 	}
 
-	void registerWebdavServlet(String alias, Repository repository, boolean anonymous)
-			throws NamespaceException, ServletException {
+	void registerWebdavServlet(String alias, Repository repository) throws NamespaceException, ServletException {
 		WebdavServlet webdavServlet = new WebdavServlet(repository, sessionProvider);
-		String path = webdavPath(alias, anonymous);
+		String path = webdavPath(alias);
 		Properties ip = new Properties();
 		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_CONFIG, WEBDAV_CONFIG);
 		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
-		httpService.registerServlet(path, webdavServlet, ip, new DataHttpContext(anonymous));
+		httpService.registerServlet(path, webdavServlet, ip, new DataHttpContext());
 	}
 
 	void registerRemotingServlet(String alias, Repository repository, boolean anonymous)
@@ -126,16 +126,17 @@ class DataHttp implements KernelConstants {
 		ip.setProperty(RemotingServlet.INIT_PARAM_HOME, KernelUtils.getOsgiInstanceDir() + "/tmp/jackrabbit");
 		ip.setProperty(RemotingServlet.INIT_PARAM_TMP_DIRECTORY, "remoting");
 		ip.setProperty(RemotingServlet.INIT_PARAM_PROTECTED_HANDLERS_CONFIG, DEFAULT_PROTECTED_HANDLERS);
-		httpService.registerServlet(path, remotingServlet, ip, new DataHttpContext(anonymous));
+		httpService.registerServlet(path, remotingServlet, ip, new RemotingHttpContext(anonymous));
 	}
 
-	private String webdavPath(String alias, boolean anonymous) {
-		String pathPrefix = anonymous ? WEBDAV_PUBLIC : WEBDAV_PRIVATE;
-		return pathPrefix + "/" + alias;
+	private String webdavPath(String alias) {
+		return NodeConstants.PATH_DATA + "/" + alias;
+		// String pathPrefix = anonymous ? WEBDAV_PUBLIC : WEBDAV_PRIVATE;
+		// return pathPrefix + "/" + alias;
 	}
 
 	private String remotingPath(String alias, boolean anonymous) {
-		String pathPrefix = anonymous ? REMOTING_PUBLIC : REMOTING_PRIVATE;
+		String pathPrefix = anonymous ? NodeConstants.PATH_JCR_PUB : NodeConstants.PATH_JCR;
 		return pathPrefix + "/" + alias;
 	}
 
@@ -181,9 +182,87 @@ class DataHttp implements KernelConstants {
 	}
 
 	private class DataHttpContext implements HttpContext {
+		// private final boolean anonymous;
+
+		DataHttpContext() {
+			// this.anonymous = anonymous;
+		}
+
+		@Override
+		public boolean handleSecurity(final HttpServletRequest request, HttpServletResponse response)
+				throws IOException {
+
+			// optimization
+			HttpSession httpSession = request.getSession();
+			Object remoteUser = httpSession.getAttribute(REMOTE_USER);
+			Object authorization = httpSession.getAttribute(AUTHORIZATION);
+			if (remoteUser != null && authorization != null) {
+				request.setAttribute(REMOTE_USER, remoteUser);
+				request.setAttribute(AUTHORIZATION, authorization);
+				return true;
+			}
+
+			// if (anonymous) {
+			// Subject subject = KernelUtils.anonymousLogin();
+			// Authorization authorization =
+			// subject.getPrivateCredentials(Authorization.class).iterator().next();
+			// request.setAttribute(REMOTE_USER, NodeConstants.ROLE_ANONYMOUS);
+			// request.setAttribute(AUTHORIZATION, authorization);
+			// return true;
+			// }
+
+			// if (log.isTraceEnabled())
+			// KernelUtils.logRequestHeaders(log, request);
+			try {
+				new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new HttpRequestCallbackHandler(request)).login();
+				return true;
+			} catch (CredentialNotFoundException e) {
+				Subject subject = KernelUtils.anonymousLogin();
+				authorization = subject.getPrivateCredentials(Authorization.class).iterator().next();
+				request.setAttribute(REMOTE_USER, NodeConstants.ROLE_ANONYMOUS);
+				request.setAttribute(AUTHORIZATION, authorization);
+				httpSession.setAttribute(REMOTE_USER, NodeConstants.ROLE_ANONYMOUS);
+				httpSession.setAttribute(AUTHORIZATION, authorization);
+				return true;
+				// CallbackHandler token = basicAuth(request);
+				// if (token != null) {
+				// try {
+				// LoginContext lc = new
+				// LoginContext(NodeConstants.LOGIN_CONTEXT_USER, token);
+				// lc.login();
+				// // Note: this is impossible to reliably clear the
+				// // authorization header when access from a browser.
+				// return true;
+				// } catch (LoginException e1) {
+				// throw new CmsException("Could not login", e1);
+				// }
+				// } else {
+				// String path = request.getServletPath();
+				// if (path.startsWith(REMOTING_PRIVATE))
+				// requestBasicAuth(request, response);
+				// return false;
+				// }
+			} catch (LoginException e) {
+				throw new CmsException("Could not login", e);
+			}
+		}
+
+		@Override
+		public URL getResource(String name) {
+			return KernelUtils.getBundleContext(DataHttp.class).getBundle().getResource(name);
+		}
+
+		@Override
+		public String getMimeType(String name) {
+			return null;
+		}
+
+	}
+
+	private class RemotingHttpContext implements HttpContext {
 		private final boolean anonymous;
 
-		DataHttpContext(boolean anonymous) {
+		RemotingHttpContext(boolean anonymous) {
 			this.anonymous = anonymous;
 		}
 
@@ -217,9 +296,7 @@ class DataHttp implements KernelConstants {
 						throw new CmsException("Could not login", e1);
 					}
 				} else {
-					String path = request.getServletPath();
-					if (path.startsWith(REMOTING_PRIVATE))
-						requestBasicAuth(request, response);
+					requestBasicAuth(request, response);
 					return false;
 				}
 			} catch (LoginException e) {

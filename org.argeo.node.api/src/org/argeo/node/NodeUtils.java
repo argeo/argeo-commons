@@ -159,6 +159,13 @@ public class NodeUtils {
 		return getUserHome(session, userID);
 	}
 
+	public static String getDataPath(String cn, Node node) throws RepositoryException {
+		assert node != null;
+		StringBuilder buf = new StringBuilder(NodeConstants.PATH_DATA);
+		return buf.append('/').append(cn).append('/').append(node.getSession().getWorkspace().getName())
+				.append(node.getPath()).toString();
+	}
+
 	// public static Node getUserProfile(Session session, String username) {
 	// try {
 	// QueryObjectModelFactory qomf = session.getWorkspace()

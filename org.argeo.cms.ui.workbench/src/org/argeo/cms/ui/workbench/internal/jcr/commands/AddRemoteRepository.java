@@ -114,7 +114,7 @@ public class AddRemoteRepository extends AbstractHandler implements
 			setMessage("Login to remote repository", IMessageProvider.NONE);
 			name = createLT(composite, "Name", "remoteRepository");
 			uri = createLT(composite, "URI",
-					"http://localhost:7070/data/jcr/node");
+					"http://localhost:7070/jcr/node");
 			username = createLT(composite, "User", "");
 			password = createLP(composite, "Password");
 

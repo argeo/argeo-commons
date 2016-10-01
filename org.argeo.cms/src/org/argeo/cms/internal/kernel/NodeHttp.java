@@ -7,6 +7,8 @@ import static org.argeo.cms.CmsTypes.CMS_IMAGE;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.PrivilegedExceptionAction;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
@@ -31,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.node.NodeConstants;
+import org.argeo.node.NodeUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
@@ -115,8 +118,8 @@ class NodeHttp implements KernelConstants {
 
 					@Override
 					public Session run() throws Exception {
-						Collection<ServiceReference<Repository>> srs = bc.getServiceReferences(Repository.class, "("
-								+ NodeConstants.CN + "=" + NodeConstants.NODE + ")");
+						Collection<ServiceReference<Repository>> srs = bc.getServiceReferences(Repository.class,
+								"(" + NodeConstants.CN + "=" + NodeConstants.NODE + ")");
 						Repository repository = bc.getService(srs.iterator().next());
 						return repository.login();
 					}
@@ -127,13 +130,13 @@ class NodeHttp implements KernelConstants {
 				String desc = node.hasProperty(JCR_DESCRIPTION) ? node.getProperty(JCR_DESCRIPTION).getString() : null;
 				Calendar lastUpdate = node.hasProperty(JCR_LAST_MODIFIED)
 						? node.getProperty(JCR_LAST_MODIFIED).getDate() : null;
-				String url = KernelUtils.getCanonicalUrl(node, request);
+				String url = getCanonicalUrl(node, request);
 				String imgUrl = null;
 				loop: for (NodeIterator it = node.getNodes(); it.hasNext();) {
 					// Takes the first found cms:image
 					Node child = it.nextNode();
 					if (child.isNodeType(CMS_IMAGE)) {
-						imgUrl = KernelUtils.getDataUrl(child, request);
+						imgUrl = getDataUrl(child, request);
 						break loop;
 					}
 				}
@@ -207,6 +210,71 @@ class NodeHttp implements KernelConstants {
 			}
 			buf.append("</div>");
 		}
+
+		// DATA
+		private StringBuilder getServerBaseUrl(HttpServletRequest request) {
+			try {
+				URL url = new URL(request.getRequestURL().toString());
+				StringBuilder buf = new StringBuilder();
+				buf.append(url.getProtocol()).append("://").append(url.getHost());
+				if (url.getPort() != -1)
+					buf.append(':').append(url.getPort());
+				return buf;
+			} catch (MalformedURLException e) {
+				throw new CmsException("Cannot extract server base URL from " + request.getRequestURL(), e);
+			}
+		}
+
+		private String getDataUrl(Node node, HttpServletRequest request) throws RepositoryException {
+			try {
+				StringBuilder buf = getServerBaseUrl(request);
+				buf.append(NodeUtils.getDataPath(NodeConstants.NODE, node));
+				return new URL(buf.toString()).toString();
+			} catch (MalformedURLException e) {
+				throw new CmsException("Cannot build data URL for " + node, e);
+			}
+		}
+
+		// public static String getDataPath(Node node) throws
+		// RepositoryException {
+		// assert node != null;
+		// String userId = node.getSession().getUserID();
+		//// if (log.isTraceEnabled())
+		//// log.trace(userId + " : " + node.getPath());
+		// StringBuilder buf = new StringBuilder();
+		// boolean isAnonymous =
+		// userId.equalsIgnoreCase(NodeConstants.ROLE_ANONYMOUS);
+		// if (isAnonymous)
+		// buf.append(WEBDAV_PUBLIC);
+		// else
+		// buf.append(WEBDAV_PRIVATE);
+		// Session session = node.getSession();
+		// Repository repository = session.getRepository();
+		// String cn;
+		// if (repository.isSingleValueDescriptor(NodeConstants.CN)) {
+		// cn = repository.getDescriptor(NodeConstants.CN);
+		// } else {
+		//// log.warn("No cn defined in repository, using " +
+		// NodeConstants.NODE);
+		// cn = NodeConstants.NODE;
+		// }
+		// return
+		// buf.append('/').append(cn).append('/').append(session.getWorkspace().getName()).append(node.getPath())
+		// .toString();
+		// }
+
+		private String getCanonicalUrl(Node node, HttpServletRequest request) throws RepositoryException {
+			try {
+				StringBuilder buf = getServerBaseUrl(request);
+				buf.append('/').append('!').append(node.getPath());
+				return new URL(buf.toString()).toString();
+			} catch (MalformedURLException e) {
+				throw new CmsException("Cannot build data URL for " + node, e);
+			}
+			// return request.getRequestURL().append('!').append(node.getPath())
+			// .toString();
+		}
+
 	}
 
 	class RobotServlet extends HttpServlet {
@@ -247,7 +315,7 @@ class NodeHttp implements KernelConstants {
 			}
 
 			// skip data
-			if (servletPath.startsWith(PATH_DATA)) {
+			if (servletPath.startsWith(NodeConstants.PATH_DATA)) {
 				filterChain.doFilter(request, response);
 				return;
 			}

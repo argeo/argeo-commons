@@ -135,6 +135,7 @@ public class HttpLoginModule implements LoginModule, AuthConstants {
 				if (log.isTraceEnabled())
 					log.trace("Added " + request.getServletPath() + " to " + cmsSession + " (" + request.getRequestURI()
 							+ ")");
+				httpSession.setAttribute(HttpContext.REMOTE_USER, authorization.getName());
 				httpSession.setAttribute(HttpContext.AUTHORIZATION, authorization);
 			}
 		}
@@ -170,7 +171,7 @@ public class HttpLoginModule implements LoginModule, AuthConstants {
 		}
 
 		if (srs.size() == 0)
-			throw new CmsException("No CMS web sesison found for http session " + httpSessionId);
+			throw new CmsException("No CMS web session found for http session " + httpSessionId);
 		else if (srs.size() > 1)
 			throw new CmsException(srs.size() + " CMS web sessions found for http session " + httpSessionId);
 

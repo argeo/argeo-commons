@@ -4,17 +4,11 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.jcr.Item;
 import javax.jcr.Node;
-import javax.jcr.Property;
-import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
-import javax.jcr.Session;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.ui.CmsView;
@@ -22,6 +16,7 @@ import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.node.NodeAuthenticated;
 import org.argeo.node.NodeConstants;
+import org.argeo.node.NodeUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.ResourceManager;
 import org.eclipse.swt.SWT;
@@ -39,7 +34,7 @@ import org.eclipse.swt.widgets.Widget;
 
 /** Static utilities for the CMS framework. */
 public class CmsUtils implements CmsConstants {
-	private final static Log log = LogFactory.getLog(CmsUtils.class);
+	// private final static Log log = LogFactory.getLog(CmsUtils.class);
 
 	/**
 	 * The CMS view related to this display, or null if none is available from
@@ -73,33 +68,40 @@ public class CmsUtils implements CmsConstants {
 		}
 	}
 
-	// FIXME
-	private final static String PATH_DATA = "/data";
-	private final static String WEBDAV_PUBLIC = PATH_DATA + "/public";
-	private final static String WEBDAV_PRIVATE = PATH_DATA + "/files";
+	// private final static String PATH_DATA = "/data";
+	// private final static String WEBDAV_PUBLIC = PATH_DATA + "/public";
+	// private final static String WEBDAV_PRIVATE = PATH_DATA + "/files";
 
+	/** A path in the node repository */
 	public static String getDataPath(Node node) throws RepositoryException {
-		assert node != null;
-		String userId = node.getSession().getUserID();
-		if (log.isTraceEnabled())
-			log.trace(userId + " : " + node.getPath());
-		StringBuilder buf = new StringBuilder();
-		boolean isAnonymous = userId.equalsIgnoreCase(NodeConstants.ROLE_ANONYMOUS);
-		if (isAnonymous)
-			buf.append(WEBDAV_PUBLIC);
-		else
-			buf.append(WEBDAV_PRIVATE);
-		Session session = node.getSession();
-		Repository repository = session.getRepository();
-		String cn;
-		if (repository.isSingleValueDescriptor(NodeConstants.CN)) {
-			cn = repository.getDescriptor(NodeConstants.CN);
-		} else {
-			log.warn("No cn defined in repository, using " + NodeConstants.NODE);
-			cn = NodeConstants.NODE;
-		}
-		return buf.append('/').append(cn).append('/').append(session.getWorkspace().getName()).append(node.getPath())
-				.toString();
+		return getDataPath(NodeConstants.NODE, node);
+	}
+
+	public static String getDataPath(String cn, Node node) throws RepositoryException {
+		return NodeUtils.getDataPath(cn, node);
+		// assert node != null;
+		// String userId = node.getSession().getUserID();
+		// if (log.isTraceEnabled())
+		// log.trace(userId + " : " + node.getPath());
+		// StringBuilder buf = new StringBuilder();
+		// boolean isAnonymous =
+		// userId.equalsIgnoreCase(NodeConstants.ROLE_ANONYMOUS);
+		// if (isAnonymous)
+		// buf.append(WEBDAV_PUBLIC);
+		// else
+		// buf.append(WEBDAV_PRIVATE);
+		// Session session = node.getSession();
+		// Repository repository = session.getRepository();
+		// String cn;
+		// if (repository.isSingleValueDescriptor(NodeConstants.CN)) {
+		// cn = repository.getDescriptor(NodeConstants.CN);
+		// } else {
+		// log.warn("No cn defined in repository, using " + NodeConstants.NODE);
+		// cn = NodeConstants.NODE;
+		// }
+		// return
+		// buf.append('/').append(cn).append('/').append(session.getWorkspace().getName()).append(node.getPath())
+		// .toString();
 	}
 	//
 	// public static String getCanonicalUrl(Node node, HttpServletRequest
@@ -164,25 +166,27 @@ public class CmsUtils implements CmsConstants {
 		table.setData(CmsConstants.ITEM_HEIGHT, height);
 	}
 
-	/** @return the path or null if not instrumented */
-	public static String getDataPath(Widget widget) {
-		// JCR item
-		Object data = widget.getData();
-		if (data != null && data instanceof Item) {
-			try {
-				return ((Item) data).getPath();
-			} catch (RepositoryException e) {
-				throw new CmsException("Cannot find data path of " + data + " for " + widget);
-			}
-		}
-
-		// JCR path
-		data = widget.getData(Property.JCR_PATH);
-		if (data != null)
-			return data.toString();
-
-		return null;
-	}
+	// /** @return the path or null if not instrumented */
+	// @Deprecated
+	// public static String getDataPath(Widget widget) {
+	// // JCR item
+	// Object data = widget.getData();
+	// if (data != null && data instanceof Item) {
+	// try {
+	// return ((Item) data).getPath();
+	// } catch (RepositoryException e) {
+	// throw new CmsException("Cannot find data path of " + data + " for " +
+	// widget);
+	// }
+	// }
+	//
+	// // JCR path
+	// data = widget.getData(Property.JCR_PATH);
+	// if (data != null)
+	// return data.toString();
+	//
+	// return null;
+	// }
 
 	/** Dispose all children of a Composite */
 	public static void clear(Composite composite) {

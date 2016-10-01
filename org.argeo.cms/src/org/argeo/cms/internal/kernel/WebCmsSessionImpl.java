@@ -86,6 +86,7 @@ public class WebCmsSessionImpl implements WebCmsSession {
 
 		public void cleanUp() {
 			try {
+				httpSession.setAttribute(HttpContext.REMOTE_USER, null);
 				httpSession.setAttribute(HttpContext.AUTHORIZATION, null);
 				// httpSession.setMaxInactiveInterval(1);
 			} catch (Exception e) {
