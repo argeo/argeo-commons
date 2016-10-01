@@ -15,13 +15,24 @@
  */
 package org.argeo.jcr;
 
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.jcr.Binary;
 import javax.jcr.Credentials;
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
+import javax.jcr.PropertyType;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
+import javax.jcr.ValueFormatException;
 
 /**
  * Wrapper around a JCR repository which allows to simplify configuration and
@@ -34,21 +45,35 @@ public abstract class JcrRepositoryWrapper implements Repository {
 	// wrapped repository
 	private Repository repository;
 
+	private Map<String, String> additionalDescriptors = new HashMap<>();
+
 	private Boolean autocreateWorkspaces = false;
 
+	public JcrRepositoryWrapper(Repository repository) {
+		setRepository(repository);
+	}
+
 	/**
-	 * Empty constructor, {@link #init()} should be called after properties have
-	 * been set
+	 * Empty constructor
 	 */
 	public JcrRepositoryWrapper() {
 	}
 
-	/** Initializes */
-	public void init() {
-	}
+	// /** Initializes */
+	// public void init() {
+	// }
+	//
+	// /** Shutdown the repository */
+	// public void destroy() throws Exception {
+	// }
 
-	/** Shutdown the repository */
-	public void destroy() throws Exception {
+	protected void putDescriptor(String key, String value) {
+		if (Arrays.asList(getRepository().getDescriptorKeys()).contains(key))
+			throw new IllegalArgumentException("Descriptor key " + key + " is already defined in wrapped repository");
+		if (value == null)
+			additionalDescriptors.remove(key);
+		else
+			additionalDescriptors.put(key, value);
 	}
 
 	/*
@@ -56,17 +81,22 @@ public abstract class JcrRepositoryWrapper implements Repository {
 	 */
 
 	public String getDescriptor(String key) {
+		if (additionalDescriptors.containsKey(key))
+			return additionalDescriptors.get(key);
 		return getRepository().getDescriptor(key);
 	}
 
 	public String[] getDescriptorKeys() {
-		return getRepository().getDescriptorKeys();
+		if (additionalDescriptors.size() == 0)
+			return getRepository().getDescriptorKeys();
+		List<String> keys = Arrays.asList(getRepository().getDescriptorKeys());
+		keys.addAll(additionalDescriptors.keySet());
+		return keys.toArray(new String[keys.size()]);
 	}
 
 	/** Central login method */
 	public Session login(Credentials credentials, String workspaceName)
-			throws LoginException, NoSuchWorkspaceException,
-			RepositoryException {
+			throws LoginException, NoSuchWorkspaceException, RepositoryException {
 		Session session;
 		try {
 			session = getRepository().login(credentials, workspaceName);
@@ -84,13 +114,11 @@ public abstract class JcrRepositoryWrapper implements Repository {
 		return login(null, null);
 	}
 
-	public Session login(Credentials credentials) throws LoginException,
-			RepositoryException {
+	public Session login(Credentials credentials) throws LoginException, RepositoryException {
 		return login(credentials, null);
 	}
 
-	public Session login(String workspaceName) throws LoginException,
-			NoSuchWorkspaceException, RepositoryException {
+	public Session login(String workspaceName) throws LoginException, NoSuchWorkspaceException, RepositoryException {
 		return login(null, workspaceName);
 	}
 
@@ -100,12 +128,12 @@ public abstract class JcrRepositoryWrapper implements Repository {
 
 	/** Wraps access to the repository, making sure it is available. */
 	protected synchronized Repository getRepository() {
-//		if (repository == null) {
-//			throw new ArgeoJcrException("No repository initialized."
-//					+ " Was the init() method called?"
-//					+ " The destroy() method should also"
-//					+ " be called on shutdown.");
-//		}
+		// if (repository == null) {
+		// throw new ArgeoJcrException("No repository initialized."
+		// + " Was the init() method called?"
+		// + " The destroy() method should also"
+		// + " be called on shutdown.");
+		// }
 		return repository;
 	}
 
@@ -113,8 +141,8 @@ public abstract class JcrRepositoryWrapper implements Repository {
 	 * Logs in to the default workspace, creates the required workspace, logs
 	 * out, logs in to the required workspace.
 	 */
-	protected Session createWorkspaceAndLogsIn(Credentials credentials,
-			String workspaceName) throws RepositoryException {
+	protected Session createWorkspaceAndLogsIn(Credentials credentials, String workspaceName)
+			throws RepositoryException {
 		if (workspaceName == null)
 			throw new ArgeoJcrException("No workspace specified.");
 		Session session = getRepository().login(credentials);
@@ -128,10 +156,14 @@ public abstract class JcrRepositoryWrapper implements Repository {
 	}
 
 	public boolean isSingleValueDescriptor(String key) {
+		if (additionalDescriptors.containsKey(key))
+			return true;
 		return getRepository().isSingleValueDescriptor(key);
 	}
 
 	public Value getDescriptorValue(String key) {
+		if (additionalDescriptors.containsKey(key))
+			return new StrValue(additionalDescriptors.get(key));
 		return getRepository().getDescriptorValue(key);
 	}
 
@@ -145,6 +177,76 @@ public abstract class JcrRepositoryWrapper implements Repository {
 
 	public void setAutocreateWorkspaces(Boolean autocreateWorkspaces) {
 		this.autocreateWorkspaces = autocreateWorkspaces;
+	}
+
+	protected static class StrValue implements Value {
+		private final String str;
+
+		public StrValue(String str) {
+			this.str = str;
+		}
+
+		@Override
+		public String getString() throws ValueFormatException, IllegalStateException, RepositoryException {
+			return str;
+		}
+
+		@Override
+		public InputStream getStream() throws RepositoryException {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Binary getBinary() throws RepositoryException {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public long getLong() throws ValueFormatException, RepositoryException {
+			try {
+				return Long.parseLong(str);
+			} catch (NumberFormatException e) {
+				throw new ValueFormatException("Cannot convert", e);
+			}
+		}
+
+		@Override
+		public double getDouble() throws ValueFormatException, RepositoryException {
+			try {
+				return Double.parseDouble(str);
+			} catch (NumberFormatException e) {
+				throw new ValueFormatException("Cannot convert", e);
+			}
+		}
+
+		@Override
+		public BigDecimal getDecimal() throws ValueFormatException, RepositoryException {
+			try {
+				return new BigDecimal(str);
+			} catch (NumberFormatException e) {
+				throw new ValueFormatException("Cannot convert", e);
+			}
+		}
+
+		@Override
+		public Calendar getDate() throws ValueFormatException, RepositoryException {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean getBoolean() throws ValueFormatException, RepositoryException {
+			try {
+				return Boolean.parseBoolean(str);
+			} catch (NumberFormatException e) {
+				throw new ValueFormatException("Cannot convert", e);
+			}
+		}
+
+		@Override
+		public int getType() {
+			return PropertyType.STRING;
+		}
+
 	}
 
 }

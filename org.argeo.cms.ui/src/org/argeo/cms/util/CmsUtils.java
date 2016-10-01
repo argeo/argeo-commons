@@ -7,7 +7,9 @@ import java.net.URL;
 import javax.jcr.Item;
 import javax.jcr.Node;
 import javax.jcr.Property;
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.IOUtils;
@@ -59,7 +61,8 @@ public class CmsUtils implements CmsConstants {
 			throw new CmsException("Cannot extract server base URL from " + request.getRequestURL(), e);
 		}
 	}
-//
+
+	//
 	public static String getDataUrl(Node node, HttpServletRequest request) throws RepositoryException {
 		try {
 			StringBuilder buf = getServerBaseUrl(request);
@@ -69,10 +72,12 @@ public class CmsUtils implements CmsConstants {
 			throw new CmsException("Cannot build data URL for " + node, e);
 		}
 	}
-// FIXME
+
+	// FIXME
 	private final static String PATH_DATA = "/data";
 	private final static String WEBDAV_PUBLIC = PATH_DATA + "/public";
 	private final static String WEBDAV_PRIVATE = PATH_DATA + "/files";
+
 	public static String getDataPath(Node node) throws RepositoryException {
 		assert node != null;
 		String userId = node.getSession().getUserID();
@@ -84,22 +89,31 @@ public class CmsUtils implements CmsConstants {
 			buf.append(WEBDAV_PUBLIC);
 		else
 			buf.append(WEBDAV_PRIVATE);
-		// TODO convey repo alias vie repository properties
-		return buf.append('/').append(NodeConstants.ALIAS_NODE).append('/').append(node.getSession().getWorkspace().getName())
-				.append(node.getPath()).toString();
+		Session session = node.getSession();
+		Repository repository = session.getRepository();
+		String cn;
+		if (repository.isSingleValueDescriptor(NodeConstants.CN)) {
+			cn = repository.getDescriptor(NodeConstants.CN);
+		} else {
+			log.warn("No cn defined in repository, using " + NodeConstants.NODE);
+			cn = NodeConstants.NODE;
+		}
+		return buf.append('/').append(cn).append('/').append(session.getWorkspace().getName()).append(node.getPath())
+				.toString();
 	}
-//
-//	public static String getCanonicalUrl(Node node, HttpServletRequest request) throws RepositoryException {
-//		try {
-//			StringBuilder buf = getServerBaseUrl(request);
-//			buf.append('/').append('!').append(node.getPath());
-//			return new URL(buf.toString()).toString();
-//		} catch (MalformedURLException e) {
-//			throw new CmsException("Cannot build data URL for " + node, e);
-//		}
-//		// return request.getRequestURL().append('!').append(node.getPath())
-//		// .toString();
-//	}
+	//
+	// public static String getCanonicalUrl(Node node, HttpServletRequest
+	// request) throws RepositoryException {
+	// try {
+	// StringBuilder buf = getServerBaseUrl(request);
+	// buf.append('/').append('!').append(node.getPath());
+	// return new URL(buf.toString()).toString();
+	// } catch (MalformedURLException e) {
+	// throw new CmsException("Cannot build data URL for " + node, e);
+	// }
+	// // return request.getRequestURL().append('!').append(node.getPath())
+	// // .toString();
+	// }
 
 	/** @deprecated Use rowData16px() instead. GridData should not be reused. */
 	@Deprecated

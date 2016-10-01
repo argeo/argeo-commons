@@ -78,7 +78,7 @@ public class NodeContentProvider implements ITreeContentProvider {
 				if (homeNode != null)
 					homeNode.dispose();
 				homeNode = new SingleJcrNodeElem(null, userHome,
-						userSession.getUserID(), NodeConstants.ALIAS_NODE);
+						userSession.getUserID(), NodeConstants.NODE);
 			}
 		}
 		if (repositoryRegister != null) {

@@ -38,8 +38,8 @@ class FirstInitProperties {
 			if (value != null)
 				props.put(repoConf.name(), value);
 		}
-		props.put(NodeConstants.CN, NodeConstants.ALIAS_NODE);
-		props.put(NodeConstants.JCR_REPOSITORY_ALIAS, NodeConstants.ALIAS_NODE);
+		props.put(NodeConstants.CN, NodeConstants.NODE);
+//		props.put(NodeConstants.JCR_REPOSITORY_ALIAS, NodeConstants.NODE);
 		return props;
 	}
 

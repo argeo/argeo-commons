@@ -245,9 +245,17 @@ class KernelUtils implements KernelConstants {
 			buf.append(WEBDAV_PUBLIC);
 		else
 			buf.append(WEBDAV_PRIVATE);
-		// TODO convey repo alias vie repository properties
-		return buf.append('/').append(NodeConstants.ALIAS_NODE).append('/').append(node.getSession().getWorkspace().getName())
-				.append(node.getPath()).toString();
+		Session session = node.getSession();
+		Repository repository = session.getRepository();
+		String cn;
+		if (repository.isSingleValueDescriptor(NodeConstants.CN)) {
+			cn = repository.getDescriptor(NodeConstants.CN);
+		} else {
+//			log.warn("No cn defined in repository, using " + NodeConstants.NODE);
+			cn = NodeConstants.NODE;
+		}
+		return buf.append('/').append(cn).append('/').append(session.getWorkspace().getName()).append(node.getPath())
+				.toString();
 	}
 
 	public static String getCanonicalUrl(Node node, HttpServletRequest request) throws RepositoryException {

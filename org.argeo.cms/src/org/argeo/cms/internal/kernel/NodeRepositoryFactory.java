@@ -50,7 +50,7 @@ class NodeRepositoryFactory implements RepositoryFactory {
 	protected Repository getRepositoryByAlias(String alias) {
 		try {
 			Collection<ServiceReference<Repository>> srs = bundleContext.getServiceReferences(Repository.class,
-					"(" + NodeConstants.JCR_REPOSITORY_ALIAS + "=" + alias + ")");
+					"(" + NodeConstants.CN + "=" + alias + ")");
 			if (srs.size() == 0)
 				throw new ArgeoJcrException("No repository with alias " + alias + " found in OSGi registry");
 			else if (srs.size() > 1)
@@ -84,8 +84,8 @@ class NodeRepositoryFactory implements RepositoryFactory {
 		// check if remote
 		Repository repository;
 		String uri = null;
-		if (parameters.containsKey(NodeConstants.JCR_REPOSITORY_URI))
-			uri = parameters.get(NodeConstants.JCR_REPOSITORY_URI).toString();
+		if (parameters.containsKey(NodeConstants.LABELED_URI))
+			uri = parameters.get(NodeConstants.LABELED_URI).toString();
 		else if (parameters.containsKey(KernelConstants.JACKRABBIT_REPOSITORY_URI))
 			uri = parameters.get(KernelConstants.JACKRABBIT_REPOSITORY_URI).toString();
 
@@ -103,10 +103,10 @@ class NodeRepositoryFactory implements RepositoryFactory {
 
 		}
 
-		else if (parameters.containsKey(NodeConstants.JCR_REPOSITORY_ALIAS)) {
+		else if (parameters.containsKey(NodeConstants.CN)) {
 			// Properties properties = new Properties();
 			// properties.putAll(parameters);
-			String alias = parameters.get(NodeConstants.JCR_REPOSITORY_ALIAS).toString();
+			String alias = parameters.get(NodeConstants.CN).toString();
 			// publish(alias, repository, properties);
 			// log.info("Registered JCR repository under alias '" + alias + "'
 			// with properties " + properties);

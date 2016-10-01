@@ -1,7 +1,5 @@
 package org.argeo.node;
 
-import javax.jcr.Repository;
-
 public interface NodeConstants {
 	/*
 	 * PIDs
@@ -20,30 +18,33 @@ public interface NodeConstants {
 	String NODE_USER_DIRECTORIES_FACTORY_PID = "org.argeo.node.userDirectories";
 
 	/*
-	 * DEPLOY
+	 * DN ATTRIBUTES (RFC 4514)
 	 */
-	String DEPLOY_BASEDN = "ou=deploy,ou=node";
-
-	/*
-	 * FRAMEWORK PROPERTIES
-	 */
-	String NODE_INIT = "argeo.node.init";
-	String I18N_DEFAULT_LOCALE = "argeo.i18n.defaultLocale";
-	String I18N_LOCALES = "argeo.i18n.locales";
-	// Node Security
-	String ROLES_URI = "argeo.node.roles.uri";
-	/** URI to an LDIF file or LDAP server used as initialization or backend */
-	String USERADMIN_URIS = "argeo.node.useradmin.uris";
-	// Node
-	/** Properties configuring the node repository */
-	String NODE_REPO_PROP_PREFIX = "argeo.node.repo.";
+	String CN = "cn";
+	String L = "l";
+	String ST = "st";
+	String O = "o";
+	String OU = "ou";
+	String C = "c";
+	String STREET = "street";
+	String DC = "dc";
+	String UID = "uid";
 
 	/*
 	 * STANDARD ATTRIBUTES
 	 */
-	String CN = "cn";
-	String OU = "ou";
-	String URI = "uri";
+	String LABELED_URI = "labeledUri";
+
+	/*
+	 * COMMON NAMES
+	 */
+	String NODE = "node";
+	String HOME = "home";
+
+	/*
+	 * BASE DNs
+	 */
+	String DEPLOY_BASEDN = "ou=deploy,ou=node";
 
 	/*
 	 * STANDARD VALUES
@@ -70,21 +71,44 @@ public interface NodeConstants {
 	String LOGIN_CONTEXT_SINGLE_USER = "SINGLE_USER";
 
 	/*
+	 * FRAMEWORK PROPERTIES
+	 */
+	String NODE_INIT = "argeo.node.init";
+	String I18N_DEFAULT_LOCALE = "argeo.i18n.defaultLocale";
+	String I18N_LOCALES = "argeo.i18n.locales";
+	// Node Security
+	String ROLES_URI = "argeo.node.roles.uri";
+	/** URI to an LDIF file or LDAP server used as initialization or backend */
+	String USERADMIN_URIS = "argeo.node.useradmin.uris";
+	// Node
+	/** Properties configuring the node repository */
+	String NODE_REPO_PROP_PREFIX = "argeo.node.repo.";
+
+	/*
 	 * LEGACY
 	 */
-	String ARGEO_BASE_PATH = "/argeo:system";
-	String PEOPLE_BASE_PATH = NodeConstants.ARGEO_BASE_PATH + "/argeo:people";
-	String DATA_MODELS_BASE_PATH = NodeConstants.ARGEO_BASE_PATH + "/argeo:dataModels";
-	String ALIAS_HOME = "home";
+	// @Deprecated
+	// String ARGEO_BASE_PATH = "/argeo:system";
+	// @Deprecated
+	// String PEOPLE_BASE_PATH = NodeConstants.ARGEO_BASE_PATH +
+	// "/argeo:people";
+	// @Deprecated
+	// String DATA_MODELS_BASE_PATH = NodeConstants.ARGEO_BASE_PATH +
+	// "/argeo:dataModels";
+	// @Deprecated
+	// String ALIAS_HOME = "home";
 	// standard aliases
 	/**
 	 * Reserved alias for the "node" {@link Repository}, that is, the default
 	 * JCR repository.
 	 */
-	String ALIAS_NODE = "node";
+	// @Deprecated
+	// String ALIAS_NODE = "node";
 	/** Key for a JCR repository URI */
-	String JCR_REPOSITORY_URI = "argeo.jcr.repository.uri";
+//	@Deprecated
+//	String JCR_REPOSITORY_URI = "argeo.jcr.repository.uri";
 	// parameters (typically for call to a RepositoryFactory)
 	/** Key for a JCR repository alias */
-	String JCR_REPOSITORY_ALIAS = "argeo.jcr.repository.alias";
+	// @Deprecated
+	// String JCR_REPOSITORY_ALIAS = "argeo.jcr.repository.alias";
 }

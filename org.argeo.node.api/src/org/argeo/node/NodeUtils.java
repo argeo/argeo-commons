@@ -39,16 +39,14 @@ public class NodeUtils {
 	 * {@link NodeConstants#JCR_REPOSITORY_ALIAS} in order to simplify it and
 	 * protect against future API changes.
 	 */
-	public static Repository getRepositoryByAlias(
-			RepositoryFactory repositoryFactory, String alias) {
+	public static Repository getRepositoryByAlias(RepositoryFactory repositoryFactory, String alias) {
 		try {
 			Map<String, String> parameters = new HashMap<String, String>();
-			parameters.put(NodeConstants.JCR_REPOSITORY_ALIAS, alias);
+			parameters.put(NodeConstants.CN, alias);
 			return repositoryFactory.getRepository(parameters);
 		} catch (RepositoryException e) {
-			throw new RuntimeException(
-					"Unexpected exception when trying to retrieve repository with alias "
-							+ alias, e);
+			throw new RuntimeException("Unexpected exception when trying to retrieve repository with alias " + alias,
+					e);
 		}
 	}
 
@@ -57,8 +55,7 @@ public class NodeUtils {
 	 * {@link NodeConstants#JCR_REPOSITORY_URI} in order to simplify it and
 	 * protect against future API changes.
 	 */
-	public static Repository getRepositoryByUri(
-			RepositoryFactory repositoryFactory, String uri) {
+	public static Repository getRepositoryByUri(RepositoryFactory repositoryFactory, String uri) {
 		return getRepositoryByUri(repositoryFactory, uri, null);
 	}
 
@@ -67,18 +64,15 @@ public class NodeUtils {
 	 * {@link NodeConstants#JCR_REPOSITORY_URI} in order to simplify it and
 	 * protect against future API changes.
 	 */
-	public static Repository getRepositoryByUri(
-			RepositoryFactory repositoryFactory, String uri, String alias) {
+	public static Repository getRepositoryByUri(RepositoryFactory repositoryFactory, String uri, String alias) {
 		try {
 			Map<String, String> parameters = new HashMap<String, String>();
-			parameters.put(NodeConstants.JCR_REPOSITORY_URI, uri);
+			parameters.put(NodeConstants.LABELED_URI, uri);
 			if (alias != null)
-				parameters.put(NodeConstants.JCR_REPOSITORY_ALIAS, alias);
+				parameters.put(NodeConstants.CN, alias);
 			return repositoryFactory.getRepository(parameters);
 		} catch (RepositoryException e) {
-			throw new RuntimeException(
-					"Unexpected exception when trying to retrieve repository with uri "
-							+ uri, e);
+			throw new RuntimeException("Unexpected exception when trying to retrieve repository with uri " + uri, e);
 		}
 	}
 
@@ -97,24 +91,39 @@ public class NodeUtils {
 	 */
 	public static Node getUserHome(Session session, String username) {
 		try {
-			// String homePath = UserJcrUtils.getUserHomePath(username);
-			// return session.itemExists(homePath) ? session.getNode(homePath)
-			// : null;
-			// kept for example of QOM queries
-			QueryObjectModelFactory qomf = session.getWorkspace()
-					.getQueryManager().getQOMFactory();
-			Selector userHomeSel = qomf.selector(ArgeoTypes.ARGEO_USER_HOME,
-					"userHome");
-			DynamicOperand userIdDop = qomf.propertyValue(
-					userHomeSel.getSelectorName(), ArgeoNames.ARGEO_USER_ID);
-			StaticOperand userIdSop = qomf.literal(session.getValueFactory()
-					.createValue(username));
-			Constraint constraint = qomf.comparison(userIdDop,
-					QueryObjectModelFactory.JCR_OPERATOR_EQUAL_TO, userIdSop);
-			Query query = qomf.createQuery(userHomeSel, constraint, null, null);
+			QueryObjectModelFactory qomf = session.getWorkspace().getQueryManager().getQOMFactory();
+			Selector sel = qomf.selector(NodeTypes.NODE_USER_HOME, "sel");
+			DynamicOperand dop = qomf.propertyValue(sel.getSelectorName(), NodeNames.LDAP_UID);
+			StaticOperand sop = qomf.literal(session.getValueFactory().createValue(username));
+			Constraint constraint = qomf.comparison(dop, QueryObjectModelFactory.JCR_OPERATOR_EQUAL_TO, sop);
+			Query query = qomf.createQuery(sel, constraint, null, null);
 			return querySingleNode(query);
 		} catch (RepositoryException e) {
 			throw new RuntimeException("Cannot find home for user " + username, e);
+		}
+	}
+
+	/**
+	 * Returns the home node of the user or null if none was found.
+	 * 
+	 * @param session
+	 *            the session to use in order to perform the search, this can be
+	 *            a session with a different user ID than the one searched,
+	 *            typically when a system or admin session is used.
+	 * @param cn
+	 *            the username of the user
+	 */
+	public static Node getGroupHome(Session session, String cn) {
+		try {
+			QueryObjectModelFactory qomf = session.getWorkspace().getQueryManager().getQOMFactory();
+			Selector sel = qomf.selector(NodeTypes.NODE_GROUP_HOME, "sel");
+			DynamicOperand dop = qomf.propertyValue(sel.getSelectorName(), NodeNames.LDAP_CN);
+			StaticOperand sop = qomf.literal(session.getValueFactory().createValue(cn));
+			Constraint constraint = qomf.comparison(dop, QueryObjectModelFactory.JCR_OPERATOR_EQUAL_TO, sop);
+			Query query = qomf.createQuery(sel, constraint, null, null);
+			return querySingleNode(query);
+		} catch (RepositoryException e) {
+			throw new RuntimeException("Cannot find home for user " + cn, e);
 		}
 	}
 
@@ -150,24 +159,24 @@ public class NodeUtils {
 		return getUserHome(session, userID);
 	}
 
-	public static Node getUserProfile(Session session, String username) {
-		try {
-			QueryObjectModelFactory qomf = session.getWorkspace()
-					.getQueryManager().getQOMFactory();
-			Selector userHomeSel = qomf.selector(ArgeoTypes.ARGEO_USER_PROFILE,
-					"userProfile");
-			DynamicOperand userIdDop = qomf.propertyValue(
-					userHomeSel.getSelectorName(), ArgeoNames.ARGEO_USER_ID);
-			StaticOperand userIdSop = qomf.literal(session.getValueFactory()
-					.createValue(username));
-			Constraint constraint = qomf.comparison(userIdDop,
-					QueryObjectModelFactory.JCR_OPERATOR_EQUAL_TO, userIdSop);
-			Query query = qomf.createQuery(userHomeSel, constraint, null, null);
-			return querySingleNode(query);
-		} catch (RepositoryException e) {
-			throw new RuntimeException(
-					"Cannot find profile for user " + username, e);
-		}
-	}
-
+	// public static Node getUserProfile(Session session, String username) {
+	// try {
+	// QueryObjectModelFactory qomf = session.getWorkspace()
+	// .getQueryManager().getQOMFactory();
+	// Selector userHomeSel = qomf.selector(ArgeoTypes.ARGEO_USER_PROFILE,
+	// "userProfile");
+	// DynamicOperand userIdDop = qomf.propertyValue(
+	// userHomeSel.getSelectorName(), ArgeoNames.ARGEO_USER_ID);
+	// StaticOperand userIdSop = qomf.literal(session.getValueFactory()
+	// .createValue(username));
+	// Constraint constraint = qomf.comparison(userIdDop,
+	// QueryObjectModelFactory.JCR_OPERATOR_EQUAL_TO, userIdSop);
+	// Query query = qomf.createQuery(userHomeSel, constraint, null, null);
+	// return querySingleNode(query);
+	// } catch (RepositoryException e) {
+	// throw new RuntimeException(
+	// "Cannot find profile for user " + username, e);
+	// }
+	// }
+	//
 }

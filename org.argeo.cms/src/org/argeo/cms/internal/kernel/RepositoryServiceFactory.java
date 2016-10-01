@@ -51,7 +51,7 @@ class RepositoryServiceFactory implements ManagedServiceFactory {
 			Object cn = properties.get(NodeConstants.CN);
 			if (cn != null) {
 				props.put(NodeConstants.CN, cn);
-				props.put(NodeConstants.JCR_REPOSITORY_ALIAS, cn);
+//				props.put(NodeConstants.JCR_REPOSITORY_ALIAS, cn);
 				pidToCn.put(pid, cn);
 			}
 			bc.registerService(RepositoryContext.class, repositoryContext, props);

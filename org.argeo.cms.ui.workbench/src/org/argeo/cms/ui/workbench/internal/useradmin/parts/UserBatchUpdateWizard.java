@@ -358,7 +358,7 @@ public class UserBatchUpdateWizard extends Wizard {
 		@SuppressWarnings("unused")
 		protected boolean getBoleanValue() {
 			// FIXME this is not consistent and will lead to errors.
-			if (ArgeoNames.ARGEO_ENABLED.equals(getCommand()))
+			if ("argeo:enabled".equals(getCommand()))
 				return trueChk.getSelection();
 			else
 				return !trueChk.getSelection();

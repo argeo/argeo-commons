@@ -28,7 +28,7 @@ import org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
 import org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem;
 import org.argeo.cms.ui.workbench.jcr.JcrImages;
 import org.argeo.eclipse.ui.EclipseUiException;
-import org.argeo.node.ArgeoTypes;
+import org.argeo.node.NodeTypes;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.graphics.Image;
 
@@ -110,7 +110,7 @@ public class NodeLabelProvider extends ColumnLabelProvider {
 				return JcrImages.FOLDER;
 			else if (node.getPrimaryNodeType().isNodeType(NodeType.NT_RESOURCE))
 				return JcrImages.BINARY;
-			else if (node.isNodeType(ArgeoTypes.ARGEO_USER_HOME))
+			else if (node.isNodeType(NodeTypes.NODE_USER_HOME))
 				return JcrImages.HOME;
 			else
 				return JcrImages.NODE;

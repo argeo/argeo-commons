@@ -1,7 +1,7 @@
 package org.argeo.osgi.useradmin;
 
-import static org.argeo.osgi.useradmin.LdifName.inetOrgPerson;
-import static org.argeo.osgi.useradmin.LdifName.objectClass;
+import static org.argeo.naming.LdapObjs.inetOrgPerson;
+import static org.argeo.naming.LdapAttrs.objectClass;
 
 import java.io.File;
 import java.io.FileOutputStream;

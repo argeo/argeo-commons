@@ -1,6 +1,6 @@
 package org.argeo.osgi.useradmin;
 
-import static org.argeo.osgi.useradmin.LdifName.objectClass;
+import static org.argeo.naming.LdapAttrs.objectClass;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -24,6 +24,7 @@ import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.naming.LdapAttrs;
 import org.osgi.framework.Filter;
 
 /**
@@ -41,7 +42,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			Hashtable<String, Object> connEnv = new Hashtable<String, Object>();
 			connEnv.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
 			connEnv.put(Context.PROVIDER_URL, getUri().toString());
-			connEnv.put("java.naming.ldap.attributes.binary", LdifName.userPassword.name());
+			connEnv.put("java.naming.ldap.attributes.binary", LdapAttrs.userPassword.name());
 
 			initialLdapContext = new InitialLdapContext(connEnv, null);
 			// StartTlsResponse tls = (StartTlsResponse) ctx

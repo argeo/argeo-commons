@@ -82,12 +82,12 @@ class DataDeploymentUi extends AbstractOsgiComposite {
 	private void initCurrentUi(Composite parent) {
 		parent.setLayout(new GridLayout());
 		Collection<ServiceReference<RepositoryContext>> contexts = getServiceReferences(RepositoryContext.class,
-				"(" + NodeConstants.JCR_REPOSITORY_ALIAS + "=*)");
+				"(" + NodeConstants.CN + "=*)");
 		StringBuffer text = new StringBuffer();
 		text.append("<span style='font-variant: small-caps;'>Jackrabbit Repositories</span><br/>");
 		for (ServiceReference<RepositoryContext> sr : contexts) {
 			RepositoryContext repositoryContext = bc.getService(sr);
-			String alias = sr.getProperty(NodeConstants.JCR_REPOSITORY_ALIAS).toString();
+			String alias = sr.getProperty(NodeConstants.CN).toString();
 			String rootNodeId = repositoryContext.getRootNodeId().toString();
 			RepositoryConfig repositoryConfig = repositoryContext.getRepositoryConfig();
 			Path repoHomePath = new File(repositoryConfig.getHomeDir()).toPath().toAbsolutePath();

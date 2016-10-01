@@ -143,7 +143,7 @@ public class AddRemoteRepository extends AbstractHandler implements
 				String checkedUriStr = checkedUri.toString();
 
 				Hashtable<String, String> params = new Hashtable<String, String>();
-				params.put(NodeConstants.JCR_REPOSITORY_URI, checkedUriStr);
+				params.put(NodeConstants.LABELED_URI, checkedUriStr);
 				Repository repository = repositoryFactory.getRepository(params);
 				if (username.getText().trim().equals("")) {// anonymous
 					session = repository.login();

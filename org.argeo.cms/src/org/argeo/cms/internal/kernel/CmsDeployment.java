@@ -43,6 +43,8 @@ import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
 public class CmsDeployment implements NodeDeployment {
+	private final static String LEGACY_JCR_REPOSITORY_ALIAS = "argeo.jcr.repository.alias";
+	
 	private final Log log = LogFactory.getLog(getClass());
 	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
@@ -133,10 +135,13 @@ public class CmsDeployment implements NodeDeployment {
 
 		// home
 		prepareDataModel(KernelUtils.openAdminSession(deployedNodeRepository));
+	}
+
+	private void prepareHomeRepository(Repository deployedRepository) {
 		Hashtable<String, String> regProps = new Hashtable<String, String>();
-		regProps.put(NodeConstants.CN, NodeConstants.ALIAS_HOME);
-		regProps.put(NodeConstants.JCR_REPOSITORY_ALIAS, NodeConstants.ALIAS_HOME);
-		homeRepository = new HomeRepository(deployedNodeRepository);
+		regProps.put(NodeConstants.CN, NodeConstants.HOME);
+		regProps.put(LEGACY_JCR_REPOSITORY_ALIAS, NodeConstants.HOME);
+		homeRepository = new HomeRepository(deployedRepository);
 		// register
 		bc.registerService(Repository.class, homeRepository, regProps);
 
@@ -204,9 +209,9 @@ public class CmsDeployment implements NodeDeployment {
 
 		if (!asBoolean((String) attrs.get(DataModelNamespace.CAPABILITY_ABSTRACT_ATTRIBUTE))) {
 			Hashtable<String, Object> properties = new Hashtable<>();
-			properties.put(NodeConstants.JCR_REPOSITORY_ALIAS, name);
+			properties.put(LEGACY_JCR_REPOSITORY_ALIAS, name);
 			properties.put(NodeConstants.CN, name);
-			if (name.equals(NodeConstants.ALIAS_NODE))
+			if (name.equals(NodeConstants.NODE))
 				properties.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
 			LocalRepository localRepository = new LocalRepository(adminSession.getRepository(), capability);
 			bc.registerService(Repository.class, localRepository, properties);
@@ -244,10 +249,15 @@ public class CmsDeployment implements NodeDeployment {
 		public RepositoryContext addingService(ServiceReference<RepositoryContext> reference) {
 			RepositoryContext nodeRepo = bc.getService(reference);
 			Object cn = reference.getProperty(NodeConstants.CN);
-			if (cn != null && cn.equals(NodeConstants.ALIAS_NODE)) {
-				prepareNodeRepository(nodeRepo.getRepository());
-				nodeAvailable = true;
-				checkReadiness();
+			if (cn != null) {
+				if (cn.equals(NodeConstants.NODE)) {
+					prepareNodeRepository(nodeRepo.getRepository());
+					prepareHomeRepository(nodeRepo.getRepository());
+					nodeAvailable = true;
+					checkReadiness();
+				}else{
+					// TODO standalone
+				}
 			}
 			return nodeRepo;
 		}

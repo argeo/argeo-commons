@@ -22,6 +22,8 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.naming.LdapAttrs;
+
 /** Directory user implementation */
 class LdifUser implements DirectoryUser {
 	private final AbstractUserDirectory userAdmin;
@@ -73,7 +75,7 @@ class LdifUser implements DirectoryUser {
 			// TODO check other sources (like PKCS12)
 			char[] password = toChars(value);
 			byte[] hashedPassword = hash(password);
-			return hasCredential(LdifName.userPassword.name(), hashedPassword);
+			return hasCredential(LdapAttrs.userPassword.name(), hashedPassword);
 		}
 
 		Object storedValue = getCredentials().get(key);
@@ -250,14 +252,14 @@ class LdifUser implements DirectoryUser {
 					return null;
 				Object value = attr.get();
 				if (value instanceof byte[]) {
-					if (key.equals(LdifName.userPassword.name()))
+					if (key.equals(LdapAttrs.userPassword.name()))
 						// TODO other cases (certificates, images)
 						return value;
 					value = new String((byte[]) value, Charset.forName("UTF-8"));
 				}
 				if (attr.size() == 1)
 					return value;
-				if (!attr.getID().equals(LdifName.objectClass.name()))
+				if (!attr.getID().equals(LdapAttrs.objectClass.name()))
 					return value;
 				// special case for object class
 				NamingEnumeration<?> en = attr.getAll();
@@ -284,7 +286,7 @@ class LdifUser implements DirectoryUser {
 				// TODO persist to other sources (like PKCS12)
 				char[] password = toChars(value);
 				byte[] hashedPassword = hash(password);
-				return put(LdifName.userPassword.name(), hashedPassword);
+				return put(LdapAttrs.userPassword.name(), hashedPassword);
 			}
 
 			userAdmin.checkEdit();

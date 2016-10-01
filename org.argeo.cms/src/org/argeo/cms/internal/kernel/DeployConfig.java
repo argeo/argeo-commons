@@ -67,7 +67,7 @@ class DeployConfig implements ConfigurationListener {
 
 		// node repository
 		Dictionary<String, Object> nodeConfig = firstInit
-				.getNodeRepositoryConfig(getProps(NodeConstants.NODE_REPOS_FACTORY_PID, NodeConstants.ALIAS_NODE));
+				.getNodeRepositoryConfig(getProps(NodeConstants.NODE_REPOS_FACTORY_PID, NodeConstants.NODE));
 		// node repository is mandatory
 		putFactoryDeployConfig(NodeConstants.NODE_REPOS_FACTORY_PID, nodeConfig);
 

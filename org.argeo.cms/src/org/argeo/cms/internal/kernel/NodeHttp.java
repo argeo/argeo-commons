@@ -116,7 +116,7 @@ class NodeHttp implements KernelConstants {
 					@Override
 					public Session run() throws Exception {
 						Collection<ServiceReference<Repository>> srs = bc.getServiceReferences(Repository.class, "("
-								+ NodeConstants.JCR_REPOSITORY_ALIAS + "=" + NodeConstants.ALIAS_NODE + ")");
+								+ NodeConstants.CN + "=" + NodeConstants.NODE + ")");
 						Repository repository = bc.getService(srs.iterator().next());
 						return repository.login();
 					}

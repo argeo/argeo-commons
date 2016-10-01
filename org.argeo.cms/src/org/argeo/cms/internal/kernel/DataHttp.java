@@ -158,7 +158,7 @@ class DataHttp implements KernelConstants {
 		@Override
 		public Repository addingService(ServiceReference<Repository> reference) {
 			Repository repository = bc.getService(reference);
-			Object jcrRepoAlias = reference.getProperty(NodeConstants.JCR_REPOSITORY_ALIAS);
+			Object jcrRepoAlias = reference.getProperty(NodeConstants.CN);
 			if (jcrRepoAlias != null) {
 				String alias = jcrRepoAlias.toString();
 				registerRepositoryServlets(alias, repository);
@@ -172,7 +172,7 @@ class DataHttp implements KernelConstants {
 
 		@Override
 		public void removedService(ServiceReference<Repository> reference, Repository service) {
-			Object jcrRepoAlias = reference.getProperty(NodeConstants.JCR_REPOSITORY_ALIAS);
+			Object jcrRepoAlias = reference.getProperty(NodeConstants.CN);
 			if (jcrRepoAlias != null) {
 				String alias = jcrRepoAlias.toString();
 				unregisterRepositoryServlets(alias);

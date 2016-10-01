@@ -1,10 +1,10 @@
 package org.argeo.osgi.useradmin;
 
-import static org.argeo.osgi.useradmin.LdifName.inetOrgPerson;
-import static org.argeo.osgi.useradmin.LdifName.objectClass;
-import static org.argeo.osgi.useradmin.LdifName.organizationalPerson;
-import static org.argeo.osgi.useradmin.LdifName.person;
-import static org.argeo.osgi.useradmin.LdifName.top;
+import static org.argeo.naming.LdapAttrs.objectClass;
+import static org.argeo.naming.LdapObjs.inetOrgPerson;
+import static org.argeo.naming.LdapObjs.organizationalPerson;
+import static org.argeo.naming.LdapObjs.person;
+import static org.argeo.naming.LdapObjs.top;
 
 import java.io.File;
 import java.net.URI;
@@ -29,6 +29,7 @@ import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.naming.LdapAttrs;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -50,10 +51,10 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 
 	private UserAdmin externalRoles;
 	private List<String> indexedUserProperties = Arrays
-			.asList(new String[] { LdifName.uid.name(), LdifName.mail.name(), LdifName.cn.name() });
+			.asList(new String[] { LdapAttrs.uid.name(), LdapAttrs.mail.name(), LdapAttrs.cn.name() });
 
 	private String memberAttributeId = "member";
-	private List<String> credentialAttributeIds = Arrays.asList(new String[] { LdifName.userPassword.name() });
+	private List<String> credentialAttributeIds = Arrays.asList(new String[] { LdapAttrs.userPassword.name() });
 
 	// JTA
 	private TransactionManager transactionManager;
