@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 /** Stateless factory building an SWT user interface given a JCR context. */
+@FunctionalInterface
 public interface CmsUiProvider {
 	/**
 	 * Initialises a user interface.
