@@ -18,12 +18,13 @@ package org.argeo.cms.ui.workbench.useradmin;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.argeo.cms.ui.workbench.internal.useradmin.UsersUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
-import org.argeo.osgi.useradmin.LdifName;
+import org.argeo.naming.LdapAttrs;
+import org.argeo.naming.LdapObjs;
+import org.argeo.node.NodeConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -172,8 +173,8 @@ public class PickUpUserDialog extends TrayDialog {
 	private class MyUserTableViewer extends LdifUsersTable {
 		private static final long serialVersionUID = 8467999509931900367L;
 
-		private final String[] knownProps = { LdifName.uid.name(),
-				LdifName.cn.name(), LdifName.dn.name() };
+		private final String[] knownProps = { LdapAttrs.uid.name(),
+				LdapAttrs.cn.name(), LdapAttrs.DN };
 
 		private Button showSystemRoleBtn;
 		private Button showUserBtn;
@@ -219,16 +220,16 @@ public class PickUpUserDialog extends TrayDialog {
 						filterBuilder.append("*)");
 					}
 
-				String typeStr = "(" + LdifName.objectClass.name() + "="
-						+ LdifName.groupOfNames.name() + ")";
+				String typeStr = "(" + LdapAttrs.objectClass.name() + "="
+						+ LdapObjs.groupOfNames.name() + ")";
 				if ((showUserBtn.getSelection()))
-					typeStr = "(|(" + LdifName.objectClass.name() + "="
-							+ LdifName.inetOrgPerson.name() + ")" + typeStr
+					typeStr = "(|(" + LdapAttrs.objectClass.name() + "="
+							+ LdapObjs.inetOrgPerson.name() + ")" + typeStr
 							+ ")";
 
 				if (!showSystemRoleBtn.getSelection())
-					typeStr = "(& " + typeStr + "(!(" + LdifName.dn.name()
-							+ "=*" + UsersUtils.ROLES_BASEDN + ")))";
+					typeStr = "(& " + typeStr + "(!(" + LdapAttrs.DN + "=*"
+							+ NodeConstants.ROLES_BASEDN + ")))";
 
 				if (filterBuilder.length() > 1) {
 					builder.append("(&" + typeStr);
@@ -240,8 +241,8 @@ public class PickUpUserDialog extends TrayDialog {
 				}
 				roles = userAdmin.getRoles(builder.toString());
 			} catch (InvalidSyntaxException e) {
-				throw new EclipseUiException("Unable to get roles with filter: "
-						+ filter, e);
+				throw new EclipseUiException(
+						"Unable to get roles with filter: " + filter, e);
 			}
 			List<User> users = new ArrayList<User>();
 			for (Role role : roles)

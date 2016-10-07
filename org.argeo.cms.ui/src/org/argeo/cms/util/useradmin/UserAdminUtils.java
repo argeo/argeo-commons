@@ -16,8 +16,8 @@ import org.argeo.cms.ui.CmsView;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.naming.LdapAttrs;
 import org.argeo.node.NodeConstants;
-import org.argeo.osgi.useradmin.LdifName;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
@@ -36,9 +36,9 @@ public class UserAdminUtils {
 	public final static String getUsername(User user) {
 		String username = null;
 		if (user instanceof Group)
-			username = getProperty(user, LdifName.cn.name());
+			username = getProperty(user, LdapAttrs.cn.name());
 		else
-			username = getProperty(user, LdifName.uid.name());
+			username = getProperty(user, LdapAttrs.uid.name());
 		return username;
 	}
 
@@ -97,7 +97,7 @@ public class UserAdminUtils {
 
 	/** Simply checks if current user is the same as the passed one */
 	public static boolean isCurrentUser(User user) {
-		String userName = getProperty(user, LdifName.dn.name());
+		String userName = getProperty(user, LdapAttrs.DN);
 		try {
 			LdapName selfUserName = getCurrentUserLdapName();
 			LdapName userLdapName = new LdapName(userName);
@@ -162,8 +162,8 @@ public class UserAdminUtils {
 	public static String getUserUid(String dn) {
 		LdapName ldapName = getLdapName(dn);
 		Rdn last = ldapName.getRdn(ldapName.size() - 1);
-		if (last.getType().toLowerCase().equals(LdifName.uid.name())
-				|| last.getType().toLowerCase().equals(LdifName.cn.name()))
+		if (last.getType().toLowerCase().equals(LdapAttrs.uid.name())
+				|| last.getType().toLowerCase().equals(LdapAttrs.cn.name()))
 			return (String) last.getValue();
 		else
 			throw new CmsException("Cannot retrieve user uid, "
@@ -178,9 +178,9 @@ public class UserAdminUtils {
 		Role user = getRole(userAdmin, getLdapName(dn));
 		if (user == null)
 			return getUserUid(dn);
-		String displayName = getProperty(user, LdifName.displayName.name());
+		String displayName = getProperty(user, LdapAttrs.displayName.name());
 		if (EclipseUiUtils.isEmpty(displayName))
-			displayName = getProperty(user, LdifName.cn.name());
+			displayName = getProperty(user, LdapAttrs.cn.name());
 		if (EclipseUiUtils.isEmpty(displayName))
 			return getUserUid(dn);
 		else
@@ -196,7 +196,7 @@ public class UserAdminUtils {
 		if (user == null)
 			return null;
 		else
-			return getProperty(user, LdifName.mail.name());
+			return getProperty(user, LdapAttrs.mail.name());
 	}
 
 	// VARIOUS UI HELPERS
@@ -216,7 +216,7 @@ public class UserAdminUtils {
 			int i = 0;
 			loop: while (i < rdns.size()) {
 				Rdn currrRdn = rdns.get(i);
-				if (!LdifName.dc.name().equals(currrRdn.getType()))
+				if (!LdapAttrs.dc.name().equals(currrRdn.getType()))
 					break loop;
 				else {
 					String currVal = (String) currrRdn.getValue();

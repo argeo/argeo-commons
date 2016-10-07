@@ -1,18 +1,28 @@
 package org.argeo.cms.ui.workbench.internal.useradmin;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
 import org.argeo.cms.CmsException;
+import org.argeo.node.NodeConstants;
+import org.argeo.osgi.useradmin.UserAdminConf;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.service.useradmin.UserAdminEvent;
 import org.osgi.service.useradmin.UserAdminListener;
 
 /** Centralise interaction with the UserAdmin in this bundle */
-public class UserAdminWrapper extends
-		org.argeo.cms.util.useradmin.UserAdminWrapper {
+public class UserAdminWrapper {
+
+	private UserAdmin userAdmin;
+	private ServiceReference<UserAdmin> userAdminServiceReference;
+	private UserTransaction userTransaction;
 
 	// First effort to simplify UX while managing users and groups
 	public final static boolean COMMIT_ON_SAVE = true;
@@ -27,7 +37,7 @@ public class UserAdminWrapper extends
 	 */
 	public UserTransaction beginTransactionIfNeeded() {
 		try {
-			UserTransaction userTransaction = getUserTransaction();
+			// UserTransaction userTransaction = getUserTransaction();
 			if (userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION) {
 				userTransaction.begin();
 				// UiAdminUtils.notifyTransactionStateChange(userTransaction);
@@ -46,7 +56,7 @@ public class UserAdminWrapper extends
 	 */
 	public void commitOrNotifyTransactionStateChange() {
 		try {
-			UserTransaction userTransaction = getUserTransaction();
+			// UserTransaction userTransaction = getUserTransaction();
 			if (userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION)
 				return;
 
@@ -74,4 +84,45 @@ public class UserAdminWrapper extends
 		for (UserAdminListener listener : listeners)
 			listener.roleChanged(event);
 	}
+
+	public Map<String, String> getKnownBaseDns(boolean onlyWritable) {
+		Map<String, String> dns = new HashMap<String, String>();
+		for (String uri : userAdminServiceReference.getPropertyKeys()) {
+			if (!uri.startsWith("/"))
+				continue;
+			Dictionary<String, ?> props = UserAdminConf.uriAsProperties(uri);
+			String readOnly = UserAdminConf.readOnly.getValue(props);
+			String baseDn = UserAdminConf.baseDn.getValue(props);
+
+			if (onlyWritable && "true".equals(readOnly))
+				continue;
+			if (baseDn.equalsIgnoreCase(NodeConstants.ROLES_BASEDN))
+				continue;
+			dns.put(baseDn, uri);
+		}
+		return dns;
+	}
+
+	public UserAdmin getUserAdmin() {
+		return userAdmin;
+	}
+
+	public UserTransaction getUserTransaction() {
+		return userTransaction;
+	}
+
+	/* DEPENDENCY INJECTION */
+	public void setUserAdmin(UserAdmin userAdmin) {
+		this.userAdmin = userAdmin;
+	}
+
+	public void setUserTransaction(UserTransaction userTransaction) {
+		this.userTransaction = userTransaction;
+	}
+
+	public void setUserAdminServiceReference(
+			ServiceReference<UserAdmin> userAdminServiceReference) {
+		this.userAdminServiceReference = userAdminServiceReference;
+	}
+
 }

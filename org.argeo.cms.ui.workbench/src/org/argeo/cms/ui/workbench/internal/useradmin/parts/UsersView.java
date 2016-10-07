@@ -32,9 +32,10 @@ import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
+import org.argeo.naming.LdapAttrs;
+import org.argeo.naming.LdapObjs;
 import org.argeo.node.ArgeoNames;
 import org.argeo.node.NodeConstants;
-import org.argeo.osgi.useradmin.LdifName;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
@@ -120,10 +121,10 @@ public class UsersView extends ViewPart implements ArgeoNames {
 	private class MyUserTableViewer extends LdifUsersTable {
 		private static final long serialVersionUID = 8467999509931900367L;
 
-		private final String[] knownProps = { LdifName.uid.name(),
-				LdifName.dn.name(), LdifName.cn.name(),
-				LdifName.givenName.name(), LdifName.sn.name(),
-				LdifName.mail.name() };
+		private final String[] knownProps = { LdapAttrs.DN,
+				LdapAttrs.uid.name(), LdapAttrs.cn.name(),
+				LdapAttrs.givenName.name(), LdapAttrs.sn.name(),
+				LdapAttrs.mail.name() };
 
 		public MyUserTableViewer(Composite parent, int style) {
 			super(parent, style);
@@ -146,14 +147,14 @@ public class UsersView extends ViewPart implements ArgeoNames {
 						tmpBuilder.append("*)");
 					}
 				if (tmpBuilder.length() > 1) {
-					builder.append("(&(").append(LdifName.objectClass.name())
-							.append("=").append(LdifName.inetOrgPerson.name())
+					builder.append("(&(").append(LdapAttrs.objectClass.name())
+							.append("=").append(LdapObjs.inetOrgPerson.name())
 							.append(")(|");
 					builder.append(tmpBuilder.toString());
 					builder.append("))");
 				} else
-					builder.append("(").append(LdifName.objectClass.name())
-							.append("=").append(LdifName.inetOrgPerson.name())
+					builder.append("(").append(LdapAttrs.objectClass.name())
+							.append("=").append(LdapObjs.inetOrgPerson.name())
 							.append(")");
 				roles = userAdminWrapper.getUserAdmin().getRoles(
 						builder.toString());

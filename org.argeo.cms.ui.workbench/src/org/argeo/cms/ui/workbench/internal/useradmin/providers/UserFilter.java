@@ -3,8 +3,8 @@ package org.argeo.cms.ui.workbench.internal.useradmin.providers;
 import static org.argeo.eclipse.ui.EclipseUiUtils.notEmpty;
 
 import org.argeo.cms.util.useradmin.UserAdminUtils;
+import org.argeo.naming.LdapAttrs;
 import org.argeo.node.NodeConstants;
-import org.argeo.osgi.useradmin.LdifName;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.osgi.service.useradmin.User;
@@ -15,10 +15,10 @@ public class UserFilter extends ViewerFilter {
 	private String searchString;
 	private boolean showSystemRole = true;
 
-	private final String[] knownProps = { LdifName.dn.name(),
-			LdifName.cn.name(), LdifName.givenName.name(), LdifName.sn.name(),
-			LdifName.uid.name(), LdifName.description.name(),
-			LdifName.mail.name() };
+	private final String[] knownProps = { LdapAttrs.DN, LdapAttrs.cn.name(),
+			LdapAttrs.givenName.name(), LdapAttrs.sn.name(),
+			LdapAttrs.uid.name(), LdapAttrs.description.name(),
+			LdapAttrs.mail.name() };
 
 	public void setSearchText(String s) {
 		// ensure that the value can be used for matching

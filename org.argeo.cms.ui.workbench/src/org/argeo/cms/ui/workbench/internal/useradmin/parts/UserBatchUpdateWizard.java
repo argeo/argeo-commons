@@ -20,9 +20,9 @@ import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
-import org.argeo.node.ArgeoNames;
+import org.argeo.naming.LdapAttrs;
+import org.argeo.naming.LdapObjs;
 import org.argeo.node.NodeConstants;
-import org.argeo.osgi.useradmin.LdifName;
 import org.eclipse.jface.dialogs.IPageChangeProvider;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -451,10 +451,10 @@ public class UserBatchUpdateWizard extends Wizard {
 
 		private class ChooseUserTableViewer extends LdifUsersTable {
 			private static final long serialVersionUID = 5080437561015853124L;
-			private final String[] knownProps = { LdifName.uid.name(),
-					LdifName.dn.name(), LdifName.cn.name(),
-					LdifName.givenName.name(), LdifName.sn.name(),
-					LdifName.mail.name() };
+			private final String[] knownProps = { LdapAttrs.uid.name(),
+					LdapAttrs.DN, LdapAttrs.cn.name(),
+					LdapAttrs.givenName.name(), LdapAttrs.sn.name(),
+					LdapAttrs.mail.name() };
 
 			public ChooseUserTableViewer(Composite parent, int style) {
 				super(parent, style);
@@ -478,16 +478,17 @@ public class UserBatchUpdateWizard extends Wizard {
 						}
 					if (tmpBuilder.length() > 1) {
 						builder.append("(&(")
-								.append(LdifName.objectClass.name())
+								.append(LdapAttrs.objectClass.name())
 								.append("=")
-								.append(LdifName.inetOrgPerson.name())
+								.append(LdapObjs.inetOrgPerson.name())
 								.append(")(|");
 						builder.append(tmpBuilder.toString());
 						builder.append("))");
 					} else
-						builder.append("(").append(LdifName.objectClass.name())
+						builder.append("(")
+								.append(LdapAttrs.objectClass.name())
 								.append("=")
-								.append(LdifName.inetOrgPerson.name())
+								.append(LdapObjs.inetOrgPerson.name())
 								.append(")");
 					roles = userAdminWrapper.getUserAdmin().getRoles(
 							builder.toString());

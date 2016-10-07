@@ -29,8 +29,8 @@ import org.argeo.cms.ui.workbench.internal.useradmin.UserAdminWrapper;
 import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
+import org.argeo.naming.LdapAttrs;
 import org.argeo.node.ArgeoNames;
-import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -115,20 +115,20 @@ public class NewUser extends AbstractHandler {
 
 				String lastNameStr = lastNameTxt.getText();
 				if (EclipseUiUtils.notEmpty(lastNameStr))
-					props.put(LdifName.sn.name(), lastNameStr);
+					props.put(LdapAttrs.sn.name(), lastNameStr);
 
 				String firstNameStr = firstNameTxt.getText();
 				if (EclipseUiUtils.notEmpty(firstNameStr))
-					props.put(LdifName.givenName.name(), firstNameStr);
+					props.put(LdapAttrs.givenName.name(), firstNameStr);
 
 				String cn = UserAdminUtils.buildDefaultCn(firstNameStr,
 						lastNameStr);
 				if (EclipseUiUtils.notEmpty(cn))
-					props.put(LdifName.cn.name(), cn);
+					props.put(LdapAttrs.cn.name(), cn);
 
 				String mailStr = primaryMailTxt.getText();
 				if (EclipseUiUtils.notEmpty(mailStr))
-					props.put(LdifName.mail.name(), mailStr);
+					props.put(LdapAttrs.mail.name(), mailStr);
 
 				char[] password = mainUserInfo.getPassword();
 				user.getCredentials().put(null, password);
@@ -279,7 +279,7 @@ public class NewUser extends AbstractHandler {
 			if (EclipseUiUtils.notEmpty(bdn)) {
 				Dictionary<String, ?> props = UserAdminConf.uriAsProperties(dns
 						.get(bdn));
-				String dn = LdifName.uid.name() + "=" + uid + ","
+				String dn = LdapAttrs.uid.name() + "=" + uid + ","
 						+ UserAdminConf.userBase.getValue(props) + "," + bdn;
 				return dn;
 			}

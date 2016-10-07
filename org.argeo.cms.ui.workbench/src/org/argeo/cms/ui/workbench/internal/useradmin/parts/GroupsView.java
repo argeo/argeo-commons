@@ -34,9 +34,10 @@ import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
+import org.argeo.naming.LdapAttrs;
+import org.argeo.naming.LdapObjs;
 import org.argeo.node.ArgeoNames;
 import org.argeo.node.NodeConstants;
-import org.argeo.osgi.useradmin.LdifName;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
@@ -145,8 +146,8 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 
 		private boolean showSystemRoles = false;
 
-		private final String[] knownProps = { LdifName.uid.name(),
-				LdifName.cn.name(), LdifName.dn.name() };
+		private final String[] knownProps = { LdapAttrs.uid.name(),
+				LdapAttrs.cn.name(), LdapAttrs.DN };
 
 		public MyUserTableViewer(Composite parent, int style) {
 			super(parent, style);
@@ -184,12 +185,11 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 						tmpBuilder.append("*)");
 					}
 				if (tmpBuilder.length() > 1) {
-					builder.append("(&(").append(LdifName.objectClass.name())
-							.append("=").append(LdifName.groupOfNames.name())
+					builder.append("(&(").append(LdapAttrs.objectClass.name())
+							.append("=").append(LdapObjs.groupOfNames.name())
 							.append(")");
 					if (!showSystemRoles)
-						builder.append("(!(").append(LdifName.dn.name())
-								.append("=*")
+						builder.append("(!(").append(LdapAttrs.DN).append("=*")
 								.append(NodeConstants.ROLES_BASEDN)
 								.append("))");
 					builder.append("(|");
@@ -198,17 +198,18 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 				} else {
 					if (!showSystemRoles)
 						builder.append("(&(")
-								.append(LdifName.objectClass.name())
+								.append(LdapAttrs.objectClass.name())
 								.append("=")
-								.append(LdifName.groupOfNames.name())
-								.append(")(!(").append(LdifName.dn.name())
+								.append(LdapObjs.groupOfNames.name())
+								.append(")(!(").append(LdapAttrs.DN)
 								.append("=*")
 								.append(NodeConstants.ROLES_BASEDN)
 								.append(")))");
 					else
-						builder.append("(").append(LdifName.objectClass.name())
+						builder.append("(")
+								.append(LdapAttrs.objectClass.name())
 								.append("=")
-								.append(LdifName.groupOfNames.name())
+								.append(LdapObjs.groupOfNames.name())
 								.append(")");
 
 				}

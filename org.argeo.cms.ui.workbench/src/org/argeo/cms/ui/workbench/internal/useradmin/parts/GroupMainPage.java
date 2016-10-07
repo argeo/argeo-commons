@@ -36,8 +36,8 @@ import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
+import org.argeo.naming.LdapAttrs;
 import org.argeo.node.ArgeoNames;
-import org.argeo.osgi.useradmin.LdifName;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -114,7 +114,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		dnTxt.setEnabled(false);
 
 		final Text cnTxt = createLT(body, "Common Name",
-				UserAdminUtils.getProperty(group, LdifName.cn.name()));
+				UserAdminUtils.getProperty(group, LdapAttrs.cn.name()));
 		cnTxt.setEnabled(false);
 
 		Label descLbl = new Label(body, SWT.LEAD);
@@ -147,7 +147,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 
 			@SuppressWarnings("unchecked")
 			public void commit(boolean onSave) {
-				group.getProperties().put(LdifName.description.name(),
+				group.getProperties().put(LdapAttrs.description.name(),
 						descTxt.getText());
 				// Enable common name ?
 				// editor.setProperty(UserAdminConstants.KEY_CN,
@@ -160,9 +160,9 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 				refreshFormTitle(group);
 				dnTxt.setText(group.getName());
 				cnTxt.setText(UserAdminUtils.getProperty(group,
-						LdifName.cn.name()));
+						LdapAttrs.cn.name()));
 				descTxt.setText(UserAdminUtils.getProperty(group,
-						LdifName.description.name()));
+						LdapAttrs.description.name()));
 				super.refresh();
 			}
 		};
@@ -347,7 +347,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 			getSection().setText(
 					"Members of group "
 							+ UserAdminUtils.getProperty(group,
-									LdifName.cn.name()));
+									LdapAttrs.cn.name()));
 			userViewer.refresh();
 			super.refresh();
 		}
@@ -450,7 +450,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	// LOCAL HELPERS
 	private void refreshFormTitle(Group group) {
 		getManagedForm().getForm().setText(
-				UserAdminUtils.getProperty(group, LdifName.cn.name()));
+				UserAdminUtils.getProperty(group, LdapAttrs.cn.name()));
 	}
 
 	private Composite addSection(FormToolkit tk, Composite parent, String title) {

@@ -6,6 +6,7 @@ import javax.naming.ldap.LdapName;
 import org.argeo.cms.ui.workbench.internal.useradmin.UsersImages;
 import org.argeo.cms.ui.workbench.internal.useradmin.UsersUtils;
 import org.argeo.eclipse.ui.EclipseUiException;
+import org.argeo.node.NodeConstants;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.SWT;
@@ -37,6 +38,7 @@ class UserLP extends ColumnLabelProvider {
 	public Font getFont(Object element) {
 		// Self as bold
 		try {
+			// LdapName selfUserName = new LdapName(CurrentUser.getUsername());
 			LdapName selfUserName = UsersUtils.getLdapName();
 			String userName = ((User) element).getName();
 			LdapName userLdapName = new LdapName(userName);
@@ -65,7 +67,7 @@ class UserLP extends ColumnLabelProvider {
 		if (COL_ICON.equals(currType)) {
 			User user = (User) element;
 			String dn = user.getName();
-			if (dn.endsWith(UsersUtils.ROLES_BASEDN))
+			if (dn.endsWith(NodeConstants.ROLES_BASEDN))
 				return UsersImages.ICON_ROLE;
 			else if (user.getType() == Role.GROUP)
 				return UsersImages.ICON_GROUP;

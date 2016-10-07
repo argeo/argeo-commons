@@ -23,8 +23,8 @@ import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.cms.ui.workbench.internal.useradmin.UserAdminWrapper;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
+import org.argeo.naming.LdapAttrs;
 import org.argeo.node.ArgeoNames;
-import org.argeo.osgi.useradmin.LdifName;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -94,7 +94,7 @@ public class NewGroup extends AbstractHandler {
 				Dictionary props = group.getProperties();
 				String descStr = descriptionTxt.getText();
 				if (EclipseUiUtils.notEmpty(descStr))
-					props.put(LdifName.description.name(), descStr);
+					props.put(LdapAttrs.description.name(), descStr);
 				userAdminWrapper.commitOrNotifyTransactionStateChange();
 				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
 						UserAdminEvent.ROLE_CREATED, group));
@@ -206,7 +206,7 @@ public class NewGroup extends AbstractHandler {
 			if (EclipseUiUtils.notEmpty(bdn)) {
 				Dictionary<String, ?> props = UserAdminConf.uriAsProperties(dns
 						.get(bdn));
-				String dn = LdifName.cn.name() + "=" + cn + ","
+				String dn = LdapAttrs.cn.name() + "=" + cn + ","
 						+ UserAdminConf.groupBase.getValue(props) + "," + bdn;
 				return dn;
 			}

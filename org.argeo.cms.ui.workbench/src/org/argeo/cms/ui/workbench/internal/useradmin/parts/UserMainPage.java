@@ -34,9 +34,9 @@ import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
+import org.argeo.naming.LdapAttrs;
 import org.argeo.node.ArgeoNames;
 import org.argeo.node.NodeConstants;
-import org.argeo.osgi.useradmin.LdifName;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -119,21 +119,21 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		body.setLayout(new GridLayout(2, false));
 
 		final Text distinguishedName = createLT(tk, body, "User Name",
-				UserAdminUtils.getProperty(user, LdifName.uid.name()));
+				UserAdminUtils.getProperty(user, LdapAttrs.uid.name()));
 		distinguishedName.setEnabled(false);
 
 		final Text commonName = createLT(tk, body, "Common Name",
-				UserAdminUtils.getProperty(user, LdifName.cn.name()));
+				UserAdminUtils.getProperty(user, LdapAttrs.cn.name()));
 		commonName.setEnabled(false);
 
 		final Text firstName = createLT(tk, body, "First name",
-				UserAdminUtils.getProperty(user, LdifName.givenName.name()));
+				UserAdminUtils.getProperty(user, LdapAttrs.givenName.name()));
 
 		final Text lastName = createLT(tk, body, "Last name",
-				UserAdminUtils.getProperty(user, LdifName.sn.name()));
+				UserAdminUtils.getProperty(user, LdapAttrs.sn.name()));
 
 		final Text email = createLT(tk, body, "Email",
-				UserAdminUtils.getProperty(user, LdifName.mail.name()));
+				UserAdminUtils.getProperty(user, LdapAttrs.mail.name()));
 
 		// create form part (controller)
 		AbstractFormPart part = new SectionPart((Section) body.getParent()) {
@@ -156,28 +156,29 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 			@SuppressWarnings("unchecked")
 			public void commit(boolean onSave) {
 				// TODO Sanity checks (mail validity...)
-				user.getProperties().put(LdifName.givenName.name(),
+				user.getProperties().put(LdapAttrs.givenName.name(),
 						firstName.getText());
-				user.getProperties()
-						.put(LdifName.sn.name(), lastName.getText());
-				user.getProperties().put(LdifName.cn.name(),
+				user.getProperties().put(LdapAttrs.sn.name(),
+						lastName.getText());
+				user.getProperties().put(LdapAttrs.cn.name(),
 						commonName.getText());
-				user.getProperties().put(LdifName.mail.name(), email.getText());
+				user.getProperties()
+						.put(LdapAttrs.mail.name(), email.getText());
 				super.commit(onSave);
 			}
 
 			@Override
 			public void refresh() {
 				distinguishedName.setText(UserAdminUtils.getProperty(user,
-						LdifName.uid.name()));
+						LdapAttrs.uid.name()));
 				commonName.setText(UserAdminUtils.getProperty(user,
-						LdifName.cn.name()));
+						LdapAttrs.cn.name()));
 				firstName.setText(UserAdminUtils.getProperty(user,
-						LdifName.givenName.name()));
+						LdapAttrs.givenName.name()));
 				lastName.setText(UserAdminUtils.getProperty(user,
-						LdifName.sn.name()));
+						LdapAttrs.sn.name()));
 				email.setText(UserAdminUtils.getProperty(user,
-						LdifName.mail.name()));
+						LdapAttrs.mail.name()));
 				refreshFormTitle(user);
 				super.refresh();
 			}
@@ -488,7 +489,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 	// LOCAL HELPERS
 	private void refreshFormTitle(User group) {
 		getManagedForm().getForm().setText(
-				UserAdminUtils.getProperty(group, LdifName.cn.name()));
+				UserAdminUtils.getProperty(group, LdapAttrs.cn.name()));
 	}
 
 	/** Appends a section with a title */

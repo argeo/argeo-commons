@@ -10,17 +10,21 @@ import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
 import org.argeo.eclipse.ui.EclipseUiException;
-import org.argeo.osgi.useradmin.LdifName;
+import org.argeo.naming.LdapAttrs;
+import org.argeo.node.NodeConstants;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
-/** Utility methods to manage user concepts in the ui.workbench bundle */
+/**
+ * Utility methods to manage user concepts in the ui.workbench bundle 
+ * 
+ * FIXME refactor amd centralise userAdminUtils
+ */
+@Deprecated
 public class UsersUtils {
-	// TODO this constant is defined in the CMS
-	public final static String ROLES_BASEDN = "ou=roles,ou=node";
 
 	public final static boolean isCurrentUser(User user) {
-		String userName = getProperty(user, LdifName.dn.name());
+		String userName = getProperty(user, LdapAttrs.DN);
 		try {
 			LdapName selfUserName = getLdapName();
 			LdapName userLdapName = new LdapName(userName);
@@ -29,8 +33,8 @@ public class UsersUtils {
 			else
 				return false;
 		} catch (InvalidNameException e) {
-			throw new EclipseUiException("User " + user + " has an unvalid dn: "
-					+ userName, e);
+			throw new EclipseUiException("User " + user
+					+ " has an unvalid dn: " + userName, e);
 		}
 	}
 
@@ -48,13 +52,13 @@ public class UsersUtils {
 	}
 
 	public final static String getCommonName(User user) {
-		return getProperty(user, LdifName.cn.name());
+		return getProperty(user, LdapAttrs.cn.name());
 	}
 
 	/** Simply retrieves a display name of the relevant domain */
 	public final static String getDomainName(User user) {
-		String dn = (String) user.getProperties().get(LdifName.dn.name());
-		if (dn.endsWith(ROLES_BASEDN))
+		String dn = (String) user.getProperties().get(LdapAttrs.DN);
+		if (dn.endsWith(NodeConstants.ROLES_BASEDN))
 			return "System roles";
 		try {
 			LdapName name;
@@ -74,7 +78,8 @@ public class UsersUtils {
 			}
 			return dname;
 		} catch (InvalidNameException e) {
-			throw new EclipseUiException("Unable to get domain name for " + dn, e);
+			throw new EclipseUiException("Unable to get domain name for " + dn,
+					e);
 		}
 	}
 
@@ -85,16 +90,4 @@ public class UsersUtils {
 		else
 			return "";
 	}
-
-	/*
-	 * INTERNAL METHODS: Below methods are meant to stay here and are not part
-	 * of a potential generic backend to manage the useradmin
-	 */
-	public final static boolean notNull(String string) {
-		if (string == null)
-			return false;
-		else
-			return !"".equals(string.trim());
-	}
-
 }

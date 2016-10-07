@@ -23,7 +23,7 @@ import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.cms.ui.workbench.internal.useradmin.UiUserAdminListener;
 import org.argeo.cms.ui.workbench.internal.useradmin.UserAdminWrapper;
 import org.argeo.cms.util.useradmin.UserAdminUtils;
-import org.argeo.osgi.useradmin.LdifName;
+import org.argeo.naming.LdapAttrs;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -100,7 +100,7 @@ public class UserEditor extends FormEditor {
 	void updateEditorTitle(String title) {
 		if (title == null) {
 			String commonName = UserAdminUtils.getProperty(user,
-					LdifName.cn.name());
+					LdapAttrs.cn.name());
 			title = "".equals(commonName) ? user.getName() : commonName;
 		}
 		setPartName(title);
