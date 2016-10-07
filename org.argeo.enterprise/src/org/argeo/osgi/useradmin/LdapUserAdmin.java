@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.naming.LdapAttrs;
 import org.osgi.framework.Filter;
+import org.osgi.service.useradmin.User;
 
 /**
  * A user admin based on a LDAP server. Requires a {@link TransactionManager}
@@ -74,6 +75,21 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 		} catch (NamingException e) {
 			log.error("Cannot destroy LDAP user admin", e);
 		}
+	}
+	
+	
+
+	@SuppressWarnings("unchecked")
+	@Override
+	protected AbstractUserDirectory scope(User user) {
+		Dictionary<String, Object> credentials = user.getCredentials();
+		// FIXME use arrays
+		Object usernameObj =	credentials.get(SHARED_STATE_USERNAME);
+		Object passwordObj =	credentials.get(SHARED_STATE_PASSWORD);
+		Dictionary<String, Object> properties = cloneProperties();
+		properties.put(Context.SECURITY_PRINCIPAL, usernameObj.toString());
+		properties.put(Context.SECURITY_CREDENTIALS, passwordObj.toString());
+		return new LdapUserAdmin(properties);
 	}
 
 	protected InitialLdapContext getLdapContext() {

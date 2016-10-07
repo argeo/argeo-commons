@@ -40,6 +40,9 @@ import org.osgi.service.useradmin.UserAdmin;
 
 /** Base class for a {@link UserDirectory}. */
 public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
+	static final String SHARED_STATE_USERNAME = "javax.security.auth.login.name";
+	static final String SHARED_STATE_PASSWORD = "javax.security.auth.login.password";
+
 	private final static Log log = LogFactory.getLog(AbstractUserDirectory.class);
 
 	private final Hashtable<String, Object> properties;
@@ -103,6 +106,8 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 	protected abstract DirectoryUser daoGetRole(LdapName key);
 
 	protected abstract List<DirectoryUser> doGetRoles(Filter f);
+
+	protected abstract AbstractUserDirectory scope(User user);
 
 	public void init() {
 
@@ -245,7 +250,17 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 
 	@Override
 	public Authorization getAuthorization(User user) {
-		return new LdifAuthorization((DirectoryUser) user, getAllRoles((DirectoryUser) user));
+		if (user == null || user instanceof DirectoryUser) {
+			return new LdifAuthorization(user, getAllRoles((DirectoryUser) user));
+		} else {
+			// bind
+			AbstractUserDirectory scopedUserAdmin = scope(user);
+			DirectoryUser directoryUser = (DirectoryUser) scopedUserAdmin.getRole(user.getName());
+			LdifAuthorization authorization = new LdifAuthorization(directoryUser,
+					scopedUserAdmin.getAllRoles(directoryUser));
+			scopedUserAdmin.destroy();
+			return authorization;
+		}
 	}
 
 	@Override
@@ -410,6 +425,10 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 
 	public Dictionary<String, Object> getProperties() {
 		return properties;
+	}
+
+	public Dictionary<String, Object> cloneProperties() {
+		return new Hashtable<>(properties);
 	}
 
 	public void setExternalRoles(UserAdmin externalRoles) {

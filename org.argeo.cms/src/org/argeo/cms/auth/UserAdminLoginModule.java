@@ -25,17 +25,21 @@ import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
 public class UserAdminLoginModule implements LoginModule, AuthConstants {
+	private Subject subject;
 	private CallbackHandler callbackHandler;
 	private Map<String, Object> sharedState = null;
 
 	private boolean isAnonymous = false;
 
+	// private state
 	private BundleContext bc;
+	private Authorization authorization;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,
 			Map<String, ?> options) {
+		this.subject = subject;
 		try {
 			bc = FrameworkUtil.getBundle(UserAdminLoginModule.class).getBundleContext();
 			assert bc != null;
@@ -52,7 +56,6 @@ public class UserAdminLoginModule implements LoginModule, AuthConstants {
 	@Override
 	public boolean login() throws LoginException {
 		UserAdmin userAdmin = bc.getService(bc.getServiceReference(UserAdmin.class));
-		Authorization authorization = null;
 		if (isAnonymous) {
 			authorization = userAdmin.getAuthorization(null);
 		} else {
@@ -64,8 +67,9 @@ public class UserAdminLoginModule implements LoginModule, AuthConstants {
 				callbackHandler.handle(new Callback[] { nameCallback, passwordCallback, langCallback });
 			} catch (IOException e) {
 				throw new LoginException("Cannot handle callback: " + e.getMessage());
-//			} catch (ThreadDeath e) {
-//				throw new ThreadDeathLoginException("Callbackhandler thread died", e);
+				// } catch (ThreadDeath e) {
+				// throw new ThreadDeathLoginException("Callbackhandler thread
+				// died", e);
 			} catch (UnsupportedCallbackException e) {
 				return false;
 			}
@@ -107,23 +111,43 @@ public class UserAdminLoginModule implements LoginModule, AuthConstants {
 				}
 			}
 		}
-		if (!sharedState.containsKey(SHARED_STATE_AUTHORIZATION))
-			sharedState.put(SHARED_STATE_AUTHORIZATION, authorization);
-		return true;
+		// if (!sharedState.containsKey(SHARED_STATE_AUTHORIZATION))
+		// sharedState.put(SHARED_STATE_AUTHORIZATION, authorization);
+		return authorization != null;
 	}
 
 	@Override
 	public boolean commit() throws LoginException {
-		return true;
+		// Set<KerberosPrincipal> kerberosPrincipals =
+		// subject.getPrincipals(KerberosPrincipal.class);
+		// if (kerberosPrincipals.size() != 0) {
+		// KerberosPrincipal kerberosPrincipal =
+		// kerberosPrincipals.iterator().next();
+		// System.out.println(kerberosPrincipal);
+		// UserAdmin userAdmin =
+		// bc.getService(bc.getServiceReference(UserAdmin.class));
+		// User user = userAdmin.getUser(null, kerberosPrincipal.getName());
+		// Authorization authorization = userAdmin.getAuthorization(user);
+		// sharedState.put(SHARED_STATE_AUTHORIZATION, authorization);
+		// }
+		if (authorization == null) {
+			return false;
+			// throw new LoginException("Authorization should not be null");
+		} else {
+			CmsAuthUtils.addAuthentication(subject, authorization);
+			return true;
+		}
 	}
 
 	@Override
 	public boolean abort() throws LoginException {
+		authorization = null;
 		return true;
 	}
 
 	@Override
 	public boolean logout() throws LoginException {
+		CmsAuthUtils.cleanUp(subject);
 		return true;
 	}
 }

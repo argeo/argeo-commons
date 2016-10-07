@@ -1,7 +1,7 @@
 package org.argeo.osgi.useradmin;
 
-import static org.argeo.naming.LdapObjs.inetOrgPerson;
 import static org.argeo.naming.LdapAttrs.objectClass;
+import static org.argeo.naming.LdapObjs.inetOrgPerson;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,6 +26,7 @@ import org.argeo.naming.LdifParser;
 import org.argeo.naming.LdifWriter;
 import org.osgi.framework.Filter;
 import org.osgi.service.useradmin.Role;
+import org.osgi.service.useradmin.User;
 
 /**
  * A user admin based on a LDIF files. Requires a {@link TransactionManager} and
@@ -46,6 +47,13 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	public LdifUserAdmin(InputStream in) {
 		super(new Hashtable<String, Object>());
 		load(in);
+	}
+
+	@Override
+	protected AbstractUserDirectory scope(User user) {
+		Dictionary<String, Object> properties = cloneProperties();
+		properties.put(UserAdminConf.readOnly.name(), "true");
+		return new LdifUserAdmin(properties);
 	}
 
 	private static Dictionary<String, Object> fromUri(String uri, String baseDn) {

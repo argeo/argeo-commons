@@ -51,8 +51,8 @@ public interface AuthConstants {
 
 	// SHARED STATE KEYS
 	// compatible with com.sun.security.auth.module.*LoginModule
-	public static final String SHARED_STATE_USERNAME = "javax.security.auth.login.name";
-	public static final String SHARED_STATE_PASSWORD = "javax.security.auth.login.password";
+//	public static final String SHARED_STATE_USERNAME = "javax.security.auth.login.name";
+//	public static final String SHARED_STATE_PASSWORD = "javax.security.auth.login.password";
 	public static final String SHARED_STATE_AUTHORIZATION = HttpContext.AUTHORIZATION;
 
 }
