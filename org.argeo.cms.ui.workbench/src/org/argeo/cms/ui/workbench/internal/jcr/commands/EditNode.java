@@ -48,7 +48,7 @@ public class EditNode extends AbstractHandler {
 		if (editorId == null)
 			editorId = nodeTypeToEditor.containsKey(type) ? nodeTypeToEditor
 					.get(type) : defaultEditorId;
-					
+
 		NodeEditorInput nei = new NodeEditorInput(path);
 
 		try {
@@ -58,12 +58,10 @@ public class EditNode extends AbstractHandler {
 			ErrorFeedback.show("Cannot open " + editorId + " with " + path
 					+ " of type " + type, e);
 		}
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public void setDefaultEditorId(String defaultEditorId) {
 		this.defaultEditorId = defaultEditorId;
 	}
-
 }

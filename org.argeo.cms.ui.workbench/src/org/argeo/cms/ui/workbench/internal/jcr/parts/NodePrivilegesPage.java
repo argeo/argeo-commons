@@ -239,7 +239,9 @@ public class NodePrivilegesPage extends FormPage {
 		}
 	}
 
-	// simply check if we are using jackrabbit without adding code dependencies
+	/**
+	 * Simply checks if we are using jackrabbit without adding code dependencies
+	 */
 	private boolean isJackRabbit() {
 		try {
 			String cname = context.getSession().getClass().getName();
@@ -249,5 +251,4 @@ public class NodePrivilegesPage extends FormPage {
 					"Cannot check JCR implementation used on " + context, e);
 		}
 	}
-
 }

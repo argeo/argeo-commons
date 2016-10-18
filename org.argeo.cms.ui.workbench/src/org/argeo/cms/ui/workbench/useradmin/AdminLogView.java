@@ -85,5 +85,4 @@ public class AdminLogView extends ViewPart {
 	public void setArgeoLogger(ArgeoLogger argeoLogger) {
 		this.argeoLogger = argeoLogger;
 	}
-
 }

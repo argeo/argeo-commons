@@ -56,5 +56,4 @@ public class UserFilter extends ViewerFilter {
 		}
 		return false;
 	}
-
 }

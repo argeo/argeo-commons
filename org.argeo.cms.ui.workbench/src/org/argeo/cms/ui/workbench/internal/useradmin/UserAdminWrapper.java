@@ -124,5 +124,4 @@ public class UserAdminWrapper {
 			ServiceReference<UserAdmin> userAdminServiceReference) {
 		this.userAdminServiceReference = userAdminServiceReference;
 	}
-
 }

@@ -28,6 +28,7 @@ import org.argeo.eclipse.ui.jcr.utils.JcrItemsComparator;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
+/** Simple content provider that displays all properties of a given Node */
 public class PropertiesContentProvider implements IStructuredContentProvider {
 	private static final long serialVersionUID = 5227554668841613078L;
 	private JcrItemsComparator itemComparator = new JcrItemsComparator();
@@ -49,8 +50,8 @@ public class PropertiesContentProvider implements IStructuredContentProvider {
 			}
 			return new Object[] {};
 		} catch (RepositoryException e) {
-			throw new EclipseUiException("Cannot get element for " + inputElement,
-					e);
+			throw new EclipseUiException("Cannot get element for "
+					+ inputElement, e);
 		}
 	}
 }

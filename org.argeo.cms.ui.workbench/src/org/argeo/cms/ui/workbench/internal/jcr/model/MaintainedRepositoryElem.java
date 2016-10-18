@@ -11,7 +11,7 @@ public class MaintainedRepositoryElem extends RepositoryElem {
 		super(alias, repository, parent);
 		// if (!(repository instanceof MaintainedRepository)) {
 		// throw new ArgeoException("Repository " + alias
-		// + " is not amiantained repository");
+		// + " is not a maintained repository");
 		// }
 	}
 

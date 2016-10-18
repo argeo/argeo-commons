@@ -35,9 +35,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-/**
- * The activator class controls the plug-in life cycle
- */
+/** The activator class controls the plug-in life cycle */
 public class WorkbenchUiPlugin extends AbstractUIPlugin implements ILogListener {
 
 	private final static Log log = LogFactory.getLog(WorkbenchUiPlugin.class);

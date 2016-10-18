@@ -47,8 +47,9 @@ public class SpringCommandHandler implements IHandler {
 			ApplicationContext applicationContext = ApplicationContextTracker
 					.getApplicationContext(bundleSymbolicName);
 			if (applicationContext == null)
-				throw new EclipseUiException("No application context found for "
-						+ bundleSymbolicName);
+				throw new EclipseUiException(
+						"No application context found for "
+								+ bundleSymbolicName);
 
 			// retrieve the command via its id
 			String beanName = event.getCommand().getId();
@@ -89,5 +90,4 @@ public class SpringCommandHandler implements IHandler {
 
 	public void removeHandlerListener(IHandlerListener handlerListener) {
 	}
-
 }

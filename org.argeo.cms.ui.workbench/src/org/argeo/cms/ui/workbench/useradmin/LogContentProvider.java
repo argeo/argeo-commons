@@ -184,6 +184,5 @@ class LogContentProvider implements ILazyContentProvider, ArgeoLogListener {
 		public String toString() {
 			return message;
 		}
-
 	}
 }

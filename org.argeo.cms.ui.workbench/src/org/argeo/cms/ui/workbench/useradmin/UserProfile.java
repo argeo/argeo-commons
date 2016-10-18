@@ -76,7 +76,5 @@ public class UserProfile extends ViewPart {
 
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		}
-
 	}
-
 }

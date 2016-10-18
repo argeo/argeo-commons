@@ -231,17 +231,17 @@ public class NodeConfigurableDump extends AbstractHandler {
 			}
 
 			public void createControl(Composite parent) {
-				parent.setLayout(noSpaceGridLayout());
+				parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
 
 				// Main Layout
 				Composite mainCmp = new Composite(parent, SWT.NONE);
 				mainCmp.setLayout(new GridLayout(2, false));
-				mainCmp.setLayoutData(fillAll());
+				mainCmp.setLayoutData(EclipseUiUtils.fillAll());
 
 				// The path
 				createBoldLabel(mainCmp, "Prefix");
 				prefixTxt = new Text(mainCmp, SWT.SINGLE | SWT.BORDER);
-				prefixTxt.setLayoutData(fillAll());
+				prefixTxt.setLayoutData(EclipseUiUtils.fillAll());
 				prefixTxt.addModifyListener(new ModifyListener() {
 					private static final long serialVersionUID = 1L;
 
@@ -291,22 +291,5 @@ public class NodeConfigurableDump extends AbstractHandler {
 		label.setFont(EclipseUiUtils.getBoldFont(parent));
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		return label;
-	}
-
-	// TODO rather use EclipseUiUtils methods
-	private GridLayout noSpaceGridLayout() {
-		return noSpaceGridLayout(new GridLayout());
-	}
-
-	private GridLayout noSpaceGridLayout(GridLayout layout) {
-		layout.horizontalSpacing = 0;
-		layout.verticalSpacing = 0;
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		return layout;
-	}
-
-	private GridData fillAll() {
-		return new GridData(SWT.FILL, SWT.FILL, true, true);
 	}
 }

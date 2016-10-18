@@ -142,6 +142,5 @@ public class BundlesView extends ViewPart {
 
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		}
-
 	}
 }
