@@ -10,17 +10,16 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.security.auth.x500.X500Principal;
 
-import org.apache.jackrabbit.core.security.SecurityConstants;
-import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.node.NodeConstants;
+import org.argeo.node.security.DataAdminPrincipal;
 
 public class SingleUserLoginModule implements LoginModule, AuthConstants {
 	private Subject subject;
 
 	@Override
-	public void initialize(Subject subject, CallbackHandler callbackHandler,
-			Map<String, ?> sharedState, Map<String, ?> options) {
+	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,
+			Map<String, ?> options) {
 		this.subject = subject;
 	}
 
@@ -32,13 +31,11 @@ public class SingleUserLoginModule implements LoginModule, AuthConstants {
 	@Override
 	public boolean commit() throws LoginException {
 		String username = System.getProperty("user.name");
-		X500Principal principal = new X500Principal("uid=" + username
-				+ ",dc=localhost,dc=localdomain");
+		X500Principal principal = new X500Principal("uid=" + username + ",dc=localhost,dc=localdomain");
 		Set<Principal> principals = subject.getPrincipals();
 		principals.add(principal);
 		principals.add(new ImpliedByPrincipal(NodeConstants.ROLE_ADMIN, principal));
-		// Jackrabbit
-		principals.add(new AdminPrincipal(SecurityConstants.ADMIN_ID));
+		principals.add(new DataAdminPrincipal());
 		return true;
 	}
 

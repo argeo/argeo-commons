@@ -14,7 +14,6 @@ import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
-import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.argeo.cms.CmsException;
 import org.argeo.jcr.JcrRepositoryWrapper;
 import org.argeo.jcr.JcrUtils;
@@ -89,8 +88,8 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 			return;
 //		if (session.getUserID().equals(AuthConstants.ROLE_KERNEL))
 //			return;
-		if (session.getUserID().equals(SecurityConstants.ADMIN_ID))
-			return;
+//		if (session.getUserID().equals(SecurityConstants.ADMIN_ID))
+//			return;
 
 		if (checkedUsers.contains(username))
 			return;
