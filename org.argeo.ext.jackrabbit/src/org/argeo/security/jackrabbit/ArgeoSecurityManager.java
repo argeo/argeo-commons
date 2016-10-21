@@ -31,20 +31,19 @@ import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.security.AnonymousPrincipal;
+import org.argeo.node.security.DataAdminPrincipal;
 
 /** Integrates Spring Security and Jackrabbit Security users and roles. */
 public class ArgeoSecurityManager extends DefaultSecurityManager {
 	@Override
-	public AccessManager getAccessManager(Session session, AMContext amContext)
-			throws RepositoryException {
+	public AccessManager getAccessManager(Session session, AMContext amContext) throws RepositoryException {
 		synchronized (getSystemSession()) {
 			return super.getAccessManager(session, amContext);
 		}
 	}
 
 	@Override
-	public UserManager getUserManager(Session session)
-			throws RepositoryException {
+	public UserManager getUserManager(Session session) throws RepositoryException {
 		synchronized (getSystemSession()) {
 			return super.getUserManager(session);
 		}
@@ -56,17 +55,18 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 	 * Security name and authorities.
 	 */
 	@Override
-	public String getUserID(Subject subject, String workspaceName)
-			throws RepositoryException {
-		Set<AnonymousPrincipal> anonymousPrincipal = subject
-				.getPrincipals(AnonymousPrincipal.class);
-		if(!anonymousPrincipal.isEmpty())
+	public String getUserID(Subject subject, String workspaceName) throws RepositoryException {
+		Set<AnonymousPrincipal> anonymousPrincipal = subject.getPrincipals(AnonymousPrincipal.class);
+		if (!anonymousPrincipal.isEmpty())
 			return NodeConstants.ROLE_ANONYMOUS;
-		Set<X500Principal> userPrincipal = subject
-				.getPrincipals(X500Principal.class);
-		if (userPrincipal.isEmpty())
+		Set<X500Principal> userPrincipal = subject.getPrincipals(X500Principal.class);
+		if (userPrincipal.isEmpty()) {
+			Set<DataAdminPrincipal> dataAdminPrincipal = subject.getPrincipals(DataAdminPrincipal.class);
+			if (!dataAdminPrincipal.isEmpty())
+				return NodeConstants.ROLE_DATA_ADMIN;
 			throw new IllegalStateException("Subject is neither anonymous nor logged-in");
-//			return super.getUserID(subject, workspaceName);
+		}
+		// return super.getUserID(subject, workspaceName);
 		if (userPrincipal.size() > 1) {
 			StringBuilder buf = new StringBuilder();
 			for (X500Principal principal : userPrincipal)
@@ -84,13 +84,11 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 
 	@Override
 	protected WorkspaceAccessManager createDefaultWorkspaceAccessManager() {
-		WorkspaceAccessManager wam = super
-				.createDefaultWorkspaceAccessManager();
+		WorkspaceAccessManager wam = super.createDefaultWorkspaceAccessManager();
 		return new ArgeoWorkspaceAccessManagerImpl(wam);
 	}
 
-	private class ArgeoWorkspaceAccessManagerImpl implements SecurityConstants,
-			WorkspaceAccessManager {
+	private class ArgeoWorkspaceAccessManagerImpl implements SecurityConstants, WorkspaceAccessManager {
 		private final WorkspaceAccessManager wam;
 
 		public ArgeoWorkspaceAccessManagerImpl(WorkspaceAccessManager wam) {
@@ -105,8 +103,7 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		public void close() throws RepositoryException {
 		}
 
-		public boolean grants(Set<Principal> principals, String workspaceName)
-				throws RepositoryException {
+		public boolean grants(Set<Principal> principals, String workspaceName) throws RepositoryException {
 			// TODO: implements finer access to workspaces
 			return true;
 		}
