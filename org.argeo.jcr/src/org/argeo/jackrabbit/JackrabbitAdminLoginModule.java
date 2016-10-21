@@ -10,6 +10,7 @@ import javax.security.auth.spi.LoginModule;
 import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 
+@Deprecated
 public class JackrabbitAdminLoginModule implements LoginModule {
 	private Subject subject;
 
