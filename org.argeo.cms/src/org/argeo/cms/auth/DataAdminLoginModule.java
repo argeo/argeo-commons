@@ -7,7 +7,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.argeo.node.DataAdminPrincipal;
+import org.argeo.node.security.DataAdminPrincipal;
 
 public class DataAdminLoginModule implements LoginModule {
 	private Subject subject;

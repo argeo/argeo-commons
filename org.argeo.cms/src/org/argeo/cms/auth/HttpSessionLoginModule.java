@@ -24,8 +24,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
 
-public class HttpLoginModule implements LoginModule, AuthConstants {
-	private final static Log log = LogFactory.getLog(HttpLoginModule.class);
+public class HttpSessionLoginModule implements LoginModule, AuthConstants {
+	private final static Log log = LogFactory.getLog(HttpSessionLoginModule.class);
 
 	private Subject subject = null;
 	private CallbackHandler callbackHandler = null;
@@ -35,11 +35,13 @@ public class HttpLoginModule implements LoginModule, AuthConstants {
 
 	private BundleContext bc;
 
+	private Authorization authorization;
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,
 			Map<String, ?> options) {
-		bc = FrameworkUtil.getBundle(HttpLoginModule.class).getBundleContext();
+		bc = FrameworkUtil.getBundle(HttpSessionLoginModule.class).getBundleContext();
 		assert bc != null;
 		this.subject = subject;
 		this.callbackHandler = callbackHandler;
@@ -59,7 +61,7 @@ public class HttpLoginModule implements LoginModule, AuthConstants {
 		request = httpCallback.getRequest();
 		if (request == null)
 			return false;
-		Authorization authorization = checkHttp();
+		authorization = checkHttp();
 		if (authorization == null)
 			return false;
 		sharedState.put(SHARED_STATE_AUTHORIZATION, authorization);
@@ -99,9 +101,15 @@ public class HttpLoginModule implements LoginModule, AuthConstants {
 
 	@Override
 	public boolean commit() throws LoginException {
-		Authorization authorization = (Authorization) sharedState.get(SHARED_STATE_AUTHORIZATION);
-		if (authorization == null)
+		// TODO create CmsSession in another module
+		if (authorization == null) {
+			authorization = (Authorization) sharedState.get(SHARED_STATE_AUTHORIZATION);
+		} else { // this login module did the authorization
+			CmsAuthUtils.addAuthentication(subject, authorization);
+		}
+		if (authorization == null) {
 			return false;
+		}
 		if (request == null)
 			return false;
 		String httpSessionId = request.getSession().getId();
@@ -147,7 +155,13 @@ public class HttpLoginModule implements LoginModule, AuthConstants {
 				throw new LoginException(
 						"Subject already logged with session " + storedSessionId + " (not " + httpSessionId + ")");
 		}
-		return true;
+
+		if (authorization != null) {
+			CmsAuthUtils.addAuthentication(subject, authorization);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	@Override

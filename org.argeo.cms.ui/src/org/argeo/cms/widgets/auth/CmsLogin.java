@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
-import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.LanguageCallback;
@@ -28,8 +27,8 @@ import org.argeo.cms.ui.CmsStyles;
 import org.argeo.cms.ui.CmsView;
 import org.argeo.cms.ui.internal.Activator;
 import org.argeo.cms.util.CmsUtils;
+import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.node.NodeConstants;
-import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -81,7 +80,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 	}
 
 	protected boolean isAnonymous() {
-		return CurrentUser.isAnonymous(cmsView.getSubject());
+		return CurrentUser.isAnonymous(cmsView.getLoginContext().getSubject());
 	}
 
 	public final void createUi(Composite parent) {
@@ -122,7 +121,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		specificUserUi(credentialsBlock);
 
 		Label l = new Label(credentialsBlock, SWT.NONE);
-		l.setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU_ITEM);
+		CmsUtils.style(l, CMS_USER_MENU_ITEM);
 		l.setText(CmsMsg.logout.lead(locale));
 		GridData lData = CmsUtils.fillWidth();
 		lData.widthHint = 120;
@@ -151,12 +150,12 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		credentialsBlock.setLayoutData(CmsUtils.fillAll());
 
 		Integer textWidth = 120;
-		parent.setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU);
+		CmsUtils.style(parent, CMS_USER_MENU);
 
 		// new Label(this, SWT.NONE).setText(CmsMsg.username.lead());
 		usernameT = new Text(credentialsBlock, SWT.BORDER);
 		usernameT.setMessage(username.lead(locale));
-		usernameT.setData(RWT.CUSTOM_VARIANT, CMS_LOGIN_DIALOG_USERNAME);
+		CmsUtils.style(usernameT, CMS_LOGIN_DIALOG_USERNAME);
 		GridData gd = CmsUtils.fillWidth();
 		gd.widthHint = textWidth;
 		usernameT.setLayoutData(gd);
@@ -164,7 +163,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		// new Label(this, SWT.NONE).setText(CmsMsg.password.lead());
 		passwordT = new Text(credentialsBlock, SWT.BORDER | SWT.PASSWORD);
 		passwordT.setMessage(password.lead(locale));
-		passwordT.setData(RWT.CUSTOM_VARIANT, CMS_LOGIN_DIALOG_PASSWORD);
+		CmsUtils.style(passwordT, CMS_LOGIN_DIALOG_PASSWORD);
 		gd = CmsUtils.fillWidth();
 		gd.widthHint = textWidth;
 		passwordT.setLayoutData(gd);
@@ -247,14 +246,14 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 	}
 
 	protected boolean login() {
-		Subject subject = cmsView.getSubject();
-		LoginContext loginContext;
+		// Subject subject = cmsView.getLoginContext().getSubject();
+		LoginContext loginContext = cmsView.getLoginContext();
 		try {
 			//
 			// LOGIN
 			//
-			new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS, subject).logout();
-			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, subject, this);
+			loginContext.logout();
+			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, this);
 			loginContext.login();
 		} catch (FailedLoginException e) {
 			log.warn(e.getMessage());
@@ -281,12 +280,12 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 	@Override
 	public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
 		for (Callback callback : callbacks) {
-			if (callback instanceof NameCallback)
+			if (callback instanceof NameCallback && usernameT != null)
 				((NameCallback) callback).setName(usernameT.getText());
-			else if (callback instanceof PasswordCallback)
+			else if (callback instanceof PasswordCallback && passwordT != null)
 				((PasswordCallback) callback).setPassword(passwordT.getTextChars());
 			else if (callback instanceof HttpRequestCallback)
-				((HttpRequestCallback) callback).setRequest(RWT.getRequest());
+				((HttpRequestCallback) callback).setRequest(UiContext.getHttpRequest());
 			else if (callback instanceof LanguageCallback && localeChoice != null)
 				((LanguageCallback) callback).setLocale(localeChoice.getSelectedLocale());
 		}

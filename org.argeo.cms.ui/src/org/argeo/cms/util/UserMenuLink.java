@@ -1,7 +1,6 @@
 package org.argeo.cms.util;
 
 import javax.jcr.Node;
-import javax.security.auth.Subject;
 
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.auth.CurrentUser;
@@ -24,12 +23,10 @@ public class UserMenuLink extends MenuLink {
 
 	@Override
 	public Control createUi(Composite parent, Node context) {
-		Subject subject = CmsUtils.getCmsView().getSubject();
-		String username = CurrentUser.getUsername(subject);
-		if (username.equalsIgnoreCase(NodeConstants.ROLE_ANONYMOUS))
+		if (CurrentUser.isAnonymous())
 			setLabel(CmsMsg.login.lead());
 		else {
-			setLabel(CurrentUser.getDisplayName(subject));
+			setLabel(CurrentUser.getDisplayName());
 		}
 		Label link = (Label) ((Composite) super.createUi(parent, context))
 				.getChildren()[0];

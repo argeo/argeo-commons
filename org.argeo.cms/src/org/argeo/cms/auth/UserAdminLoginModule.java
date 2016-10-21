@@ -111,8 +111,8 @@ public class UserAdminLoginModule implements LoginModule, AuthConstants {
 				}
 			}
 		}
-		// if (!sharedState.containsKey(SHARED_STATE_AUTHORIZATION))
-		// sharedState.put(SHARED_STATE_AUTHORIZATION, authorization);
+		if (!sharedState.containsKey(SHARED_STATE_AUTHORIZATION))
+			sharedState.put(SHARED_STATE_AUTHORIZATION, authorization);
 		return authorization != null;
 	}
 

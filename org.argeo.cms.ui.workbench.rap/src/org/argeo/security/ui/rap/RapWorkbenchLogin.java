@@ -30,13 +30,13 @@ public class RapWorkbenchLogin extends LoginEntryPoint {
 
 	@Override
 	public int createUI() {
-		JavaScriptExecutor jsExecutor = RWT.getClient().getService(
-				JavaScriptExecutor.class);
+		JavaScriptExecutor jsExecutor = RWT.getClient().getService(JavaScriptExecutor.class);
 		int returnCode;
 		try {
 			returnCode = super.createUI();
 		} finally {
 			// always reload
+			// TODO optimise?
 			jsExecutor.execute("location.reload()");
 		}
 		return returnCode;
@@ -44,25 +44,22 @@ public class RapWorkbenchLogin extends LoginEntryPoint {
 
 	@Override
 	protected int postLogin() {
+		Subject subject = getLoginContext().getSubject();
 		final Display display = Display.getCurrent();
-		Subject subject = getSubject();
 		if (subject.getPrincipals(X500Principal.class).isEmpty()) {
-			RWT.getClient().getService(JavaScriptExecutor.class)
-					.execute("location.reload()");
+			RWT.getClient().getService(JavaScriptExecutor.class).execute("location.reload()");
 		}
 		//
 		// RUN THE WORKBENCH
 		//
 		Integer returnCode = null;
 		try {
-			returnCode = Subject.doAs(getSubject(),
-					new PrivilegedAction<Integer>() {
-						public Integer run() {
-							int result = createAndRunWorkbench(display,
-									CurrentUser.getUsername(getSubject()));
-							return new Integer(result);
-						}
-					});
+			returnCode = Subject.doAs(subject, new PrivilegedAction<Integer>() {
+				public Integer run() {
+					int result = createAndRunWorkbench(display, CurrentUser.getUsername(subject));
+					return new Integer(result);
+				}
+			});
 			// explicit workbench closing
 			logout();
 		} finally {
@@ -77,8 +74,8 @@ public class RapWorkbenchLogin extends LoginEntryPoint {
 	}
 
 	@Override
-	protected void extendsCredentialsBlock(Composite credentialsBlock,
-			Locale selectedLocale, SelectionListener loginSelectionListener) {
+	protected void extendsCredentialsBlock(Composite credentialsBlock, Locale selectedLocale,
+			SelectionListener loginSelectionListener) {
 		Button loginButton = new Button(credentialsBlock, SWT.PUSH);
 		loginButton.setText(CmsMsg.login.lead(selectedLocale));
 		loginButton.setLayoutData(CmsUtils.fillWidth());

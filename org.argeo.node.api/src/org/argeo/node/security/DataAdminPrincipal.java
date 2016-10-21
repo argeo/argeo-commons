@@ -1,11 +1,12 @@
-package org.argeo.node;
+package org.argeo.node.security;
 
 import java.security.Principal;
 
+import org.argeo.node.NodeConstants;
+
 /** Allows to modify any data. */
 public final class DataAdminPrincipal implements Principal {
-	// FIXME put auth constants in API
-	private final String name = "OU=node";
+	private final String name = NodeConstants.ROLE_DATA_ADMIN;
 
 	@Override
 	public String getName() {

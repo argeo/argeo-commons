@@ -1,19 +1,14 @@
 package org.argeo.cms.util.useradmin;
 
-import java.security.AccessController;
 import java.util.List;
 import java.util.Set;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
-import javax.security.auth.Subject;
-import javax.security.auth.x500.X500Principal;
 
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
-import org.argeo.cms.ui.CmsView;
-import org.argeo.cms.util.CmsUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.naming.LdapAttrs;
@@ -73,13 +68,13 @@ public class UserAdminUtils {
 
 	/** Simply retrieves the current logged-in user display name. */
 	public static String getCurrentUserDisplayName(UserAdmin userAdmin) {
-		String username = getCurrentUsername();
+		String username = CurrentUser.getUsername();
 		return getUserDisplayName(userAdmin, username);
 	}
 
 	/** Simply retrieves the current logged-in user display name. */
 	public static String getCurrentUserMail(UserAdmin userAdmin) {
-		String username = getCurrentUsername();
+		String username = CurrentUser.getUsername();
 		return getUserMail(userAdmin, username);
 	}
 
@@ -106,37 +101,38 @@ public class UserAdminUtils {
 			else
 				return false;
 		} catch (InvalidNameException e) {
-			throw new CmsException("User " + user + " has an unvalid dn: "
-					+ userName, e);
+			throw new CmsException("User " + user + " has an unvalid dn: " + userName, e);
 		}
 	}
 
 	public final static LdapName getCurrentUserLdapName() {
-		String name = getCurrentUsername();
+		String name = CurrentUser.getUsername();
 		return getLdapName(name);
 	}
 
-	/** Simply retrieves username for current user, generally a LDAP dn */
+	/**
+	 * Simply retrieves username for current user, generally a LDAP dn
+	 * 
+	 * @deprecated Use {@link CurrentUser#getUsername()}
+	 */
+	@Deprecated
 	public static String getCurrentUsername() {
-		Subject subject = currentSubject();
-		String name = subject.getPrincipals(X500Principal.class).iterator()
-				.next().toString();
-		return name;
+		return CurrentUser.getUsername();
 	}
 
-	/**
-	 * Fork of the {@link CurrentUser#currentSubject} method that is private.
-	 * TODO Enhance and factorize
-	 */
-	private static Subject currentSubject() {
-		CmsView cmsView = CmsUtils.getCmsView();
-		if (cmsView != null)
-			return cmsView.getSubject();
-		Subject subject = Subject.getSubject(AccessController.getContext());
-		if (subject != null)
-			return subject;
-		throw new RuntimeException("Cannot find related subject");
-	}
+	// /**
+	// * Fork of the {@link CurrentUser#currentSubject} method that is private.
+	// * TODO Enhance and factorize
+	// */
+	// private static Subject currentSubject() {
+	// CmsView cmsView = CmsUtils.getCmsView();
+	// if (cmsView != null)
+	// return cmsView.getSubject();
+	// Subject subject = Subject.getSubject(AccessController.getContext());
+	// if (subject != null)
+	// return subject;
+	// throw new RuntimeException("Cannot find related subject");
+	// }
 
 	// HOME MANAGEMENT
 	/**
@@ -144,7 +140,7 @@ public class UserAdminUtils {
 	 * the base home node
 	 */
 	public static String getCurrentUserHomeRelPath() {
-		return getHomeRelPath(getCurrentUsername());
+		return getHomeRelPath(CurrentUser.getUsername());
 	}
 
 	/**
@@ -166,8 +162,7 @@ public class UserAdminUtils {
 				|| last.getType().toLowerCase().equals(LdapAttrs.cn.name()))
 			return (String) last.getValue();
 		else
-			throw new CmsException("Cannot retrieve user uid, "
-					+ "non valid dn: " + dn);
+			throw new CmsException("Cannot retrieve user uid, " + "non valid dn: " + dn);
 	}
 
 	/**

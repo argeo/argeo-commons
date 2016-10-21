@@ -2,7 +2,6 @@ package org.argeo.cms.util;
 
 import java.util.Locale;
 
-import javax.security.auth.Subject;
 import javax.security.auth.login.CredentialNotFoundException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
@@ -10,15 +9,14 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
-import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.cms.ui.CmsImageManager;
 import org.argeo.cms.ui.CmsView;
 import org.argeo.cms.ui.UxContext;
 import org.argeo.cms.widgets.auth.CmsLogin;
 import org.argeo.cms.widgets.auth.CmsLoginShell;
 import org.argeo.eclipse.ui.specific.UiContext;
-import org.argeo.node.NodeAuthenticated;
 import org.argeo.node.NodeConstants;
+import org.argeo.node.security.NodeAuthenticated;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.EntryPoint;
 import org.eclipse.swt.events.SelectionListener;
@@ -27,7 +25,7 @@ import org.eclipse.swt.widgets.Display;
 
 public class LoginEntryPoint implements EntryPoint, CmsView {
 	// private final static Log log = LogFactory.getLog(WorkbenchLogin.class);
-	private final Subject subject = new Subject();
+	// private final Subject subject = new Subject();
 	private LoginContext loginContext;
 	private UxContext uxContext = null;
 
@@ -35,13 +33,13 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 	public int createUI() {
 		final Display display = createDisplay();
 		UiContext.setData(NodeAuthenticated.KEY, this);
+		CmsLoginShell loginShell = createCmsLoginShell();
 		try {
 			// try pre-auth
-			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
-					subject, new HttpRequestCallbackHandler(getRequest()));
+			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, loginShell);
 			loginContext.login();
 		} catch (CredentialNotFoundException e) {
-			CmsLoginShell loginShell = createCmsLoginShell();
+			loginShell.createUi();
 			loginShell.open();
 			while (!loginShell.getShell().isDisposed()) {
 				// try {
@@ -78,6 +76,8 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 	protected HttpServletRequest getRequest() {
 		return RWT.getRequest();
 	}
+	
+	
 
 	protected CmsLoginShell createCmsLoginShell() {
 		return new CmsLoginShell(this) {
@@ -88,11 +88,9 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 			}
 
 			@Override
-			protected void extendsCredentialsBlock(Composite credentialsBlock,
-					Locale selectedLocale,
+			protected void extendsCredentialsBlock(Composite credentialsBlock, Locale selectedLocale,
 					SelectionListener loginSelectionListener) {
-				LoginEntryPoint.this.extendsCredentialsBlock(credentialsBlock,
-						selectedLocale, loginSelectionListener);
+				LoginEntryPoint.this.extendsCredentialsBlock(credentialsBlock, selectedLocale, loginSelectionListener);
 			}
 
 		};
@@ -108,8 +106,8 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 		login.defaultCreateContents(parent);
 	}
 
-	protected void extendsCredentialsBlock(Composite credentialsBlock,
-			Locale selectedLocale, SelectionListener loginSelectionListener) {
+	protected void extendsCredentialsBlock(Composite credentialsBlock, Locale selectedLocale,
+			SelectionListener loginSelectionListener) {
 
 	}
 
@@ -134,16 +132,29 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 			throw new CmsException("Cannot log out", e);
 		}
 	}
+	
+	
 
-	@Override
-	public final Subject getSubject() {
-		return subject;
-	}
+	// @Override
+	// public final Subject getSubject() {
+	// return subject;
+	// }
+
+//	@Override
+//	public void registerCallbackHandler(CallbackHandler callbackHandler) {
+//		throw new UnsupportedOperationException();
+//		
+//	}
 
 	@Override
 	public void exception(Throwable e) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public LoginContext getLoginContext() {
+		return loginContext;
 	}
 
 	@Override

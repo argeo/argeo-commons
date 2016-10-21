@@ -57,6 +57,7 @@ public interface NodeConstants {
 	String ROLES_BASEDN = "ou=roles,ou=node";
 	String ROLE_ADMIN = "cn=admin," + ROLES_BASEDN;
 	String ROLE_USER_ADMIN = "cn=userAdmin," + ROLES_BASEDN;
+	String ROLE_DATA_ADMIN = "cn=dataAdmin," + ROLES_BASEDN;
 	// Special system groups that cannot be edited:
 	// user U anonymous = everyone
 	String ROLE_USER = "cn=user," + ROLES_BASEDN;

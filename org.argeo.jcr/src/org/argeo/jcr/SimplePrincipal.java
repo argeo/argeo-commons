@@ -18,7 +18,7 @@ package org.argeo.jcr;
 import java.security.Principal;
 
 /** Canonical implementation of a {@link Principal} */
-public class SimplePrincipal implements Principal {
+class SimplePrincipal implements Principal {
 	private final String name;
 
 	public SimplePrincipal(String name) {

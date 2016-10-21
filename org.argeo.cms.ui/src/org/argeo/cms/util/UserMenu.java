@@ -15,6 +15,7 @@ public class UserMenu extends CmsLoginShell {
 
 	public UserMenu(Control source) {
 		super(CmsUtils.getCmsView());
+		createUi();
 		if (source == null)
 			throw new CmsException("Source control cannot be null.");
 		this.source = source;

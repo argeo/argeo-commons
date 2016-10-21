@@ -23,8 +23,8 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.node.NodeAuthenticated;
 import org.argeo.node.NodeConstants;
+import org.argeo.node.security.NodeAuthenticated;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.client.WebClient;
@@ -42,7 +42,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 
 	private final Log log = LogFactory.getLog(AbstractCmsEntryPoint.class);
 
-	private final Subject subject;
+	// private final Subject subject;
 	private LoginContext loginContext;
 
 	private final Repository repository;
@@ -68,16 +68,16 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 		this.workspace = workspace;
 		this.defaultPath = defaultPath;
 		this.factoryProperties = new HashMap<String, String>(factoryProperties);
-		subject = new Subject();
+		// subject = new Subject();
 
 		// Initial login
 		try {
-			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, subject,
+			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
 					new HttpRequestCallbackHandler(UiContext.getHttpRequest()));
 			loginContext.login();
 		} catch (CredentialNotFoundException e) {
 			try {
-				loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
+				loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS);
 				loginContext.login();
 			} catch (LoginException e1) {
 				throw new CmsException("Cannot log as anonymous", e);
@@ -112,7 +112,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 	@Override
 	protected final void createContents(final Composite parent) {
 		UiContext.setData(NodeAuthenticated.KEY, this);
-		Subject.doAs(subject, new PrivilegedAction<Void>() {
+		Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Void>() {
 			@Override
 			public Void run() {
 				try {
@@ -137,7 +137,8 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 	 */
 	protected Node getDefaultNode(Session session) throws RepositoryException {
 		if (!session.hasPermission(defaultPath, "read")) {
-			if (session.getUserID().equals(NodeConstants.ROLE_ANONYMOUS))
+			String userId = session.getUserID();
+			if (userId.equals(NodeConstants.ROLE_ANONYMOUS))
 				// TODO throw a special exception
 				throw new CmsException("Login required");
 			else
@@ -158,9 +159,14 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 			browserNavigation.pushState(state, title);
 	}
 
+	// @Override
+	// public synchronized Subject getSubject() {
+	// return subject;
+	// }
+
 	@Override
-	public synchronized Subject getSubject() {
-		return subject;
+	public LoginContext getLoginContext() {
+		return loginContext;
 	}
 
 	@Override
@@ -169,7 +175,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 			throw new CmsException("Login context should not be null");
 		try {
 			loginContext.logout();
-			LoginContext anonymousLc = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
+			LoginContext anonymousLc = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS);
 			anonymousLc.login();
 			authChange(anonymousLc);
 		} catch (LoginException e) {
@@ -216,7 +222,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 	}
 
 	protected synchronized void doRefresh() {
-		Subject.doAs(subject, new PrivilegedAction<Void>() {
+		Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Void>() {
 			@Override
 			public Void run() {
 				refresh();

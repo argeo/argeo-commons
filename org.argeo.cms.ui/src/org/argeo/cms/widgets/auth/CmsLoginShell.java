@@ -1,7 +1,7 @@
 package org.argeo.cms.widgets.auth;
 
 import org.argeo.cms.ui.CmsView;
-import org.eclipse.rap.rwt.RWT;
+import org.argeo.cms.util.CmsUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -14,8 +14,8 @@ public class CmsLoginShell extends CmsLogin {
 	public CmsLoginShell(CmsView cmsView) {
 		super(cmsView);
 		shell = createShell();
-		shell.setData(RWT.CUSTOM_VARIANT, CMS_USER_MENU);
-		createUi(shell);
+		CmsUtils.style(shell, CMS_USER_MENU);
+//		createUi(shell);
 	}
 
 	/** To be overridden. */
@@ -64,5 +64,9 @@ public class CmsLoginShell extends CmsLogin {
 
 	public Shell getShell() {
 		return shell;
+	}
+	
+	public void createUi(){
+		createUi(shell);
 	}
 }

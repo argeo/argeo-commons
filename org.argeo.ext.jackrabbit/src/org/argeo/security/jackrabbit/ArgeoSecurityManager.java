@@ -29,6 +29,8 @@ import org.apache.jackrabbit.core.security.AMContext;
 import org.apache.jackrabbit.core.security.AccessManager;
 import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
+import org.argeo.node.NodeConstants;
+import org.argeo.node.security.AnonymousPrincipal;
 
 /** Integrates Spring Security and Jackrabbit Security users and roles. */
 public class ArgeoSecurityManager extends DefaultSecurityManager {
@@ -56,10 +58,15 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 	@Override
 	public String getUserID(Subject subject, String workspaceName)
 			throws RepositoryException {
+		Set<AnonymousPrincipal> anonymousPrincipal = subject
+				.getPrincipals(AnonymousPrincipal.class);
+		if(!anonymousPrincipal.isEmpty())
+			return NodeConstants.ROLE_ANONYMOUS;
 		Set<X500Principal> userPrincipal = subject
 				.getPrincipals(X500Principal.class);
 		if (userPrincipal.isEmpty())
-			return super.getUserID(subject, workspaceName);
+			throw new IllegalStateException("Subject is neither anonymous nor logged-in");
+//			return super.getUserID(subject, workspaceName);
 		if (userPrincipal.size() > 1) {
 			StringBuilder buf = new StringBuilder();
 			for (X500Principal principal : userPrincipal)

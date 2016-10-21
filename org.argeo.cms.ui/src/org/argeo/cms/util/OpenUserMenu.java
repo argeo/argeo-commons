@@ -5,6 +5,7 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.widgets.Control;
 
 /** Open the user menu when clicked */
+@Deprecated
 public class OpenUserMenu extends MouseAdapter {
 	private static final long serialVersionUID = 3634864186295639792L;
 
