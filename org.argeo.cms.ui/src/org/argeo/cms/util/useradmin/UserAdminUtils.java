@@ -19,6 +19,7 @@ import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
 /** Centralise common patterns to manage roles with a user admin */
+@Deprecated
 public class UserAdminUtils {
 
 	/** Retrieves a {@link Role} given a LDAP name */
@@ -60,16 +61,15 @@ public class UserAdminUtils {
 		return isRegistered();
 	}
 
+	/** Simply retrieves the current logged-in user display name. */
+	public static String getCurrentUserDisplayName() {
+		return CurrentUser.getDisplayName();
+	}
+
 	// SELF HELPERS
 	/** Simply retrieves the current logged-in user display name. */
 	public static User getCurrentUser(UserAdmin userAdmin) {
 		return (User) getRole(userAdmin, getCurrentUserLdapName());
-	}
-
-	/** Simply retrieves the current logged-in user display name. */
-	public static String getCurrentUserDisplayName(UserAdmin userAdmin) {
-		String username = CurrentUser.getUsername();
-		return getUserDisplayName(userAdmin, username);
 	}
 
 	/** Simply retrieves the current logged-in user display name. */
@@ -79,9 +79,8 @@ public class UserAdminUtils {
 	}
 
 	/** Returns the local name of the current connected user */
-	public final static String getUsername(UserAdmin userAdmin) {
-		LdapName dn = getCurrentUserLdapName();
-		return getUsername((User) getRole(userAdmin, dn));
+	public final static String getUsername() {
+		return CurrentUser.getUsername();
 	}
 
 	/** Returns true if the current user is in the specified role */
@@ -101,7 +100,8 @@ public class UserAdminUtils {
 			else
 				return false;
 		} catch (InvalidNameException e) {
-			throw new CmsException("User " + user + " has an unvalid dn: " + userName, e);
+			throw new CmsException("User " + user + " has an unvalid dn: "
+					+ userName, e);
 		}
 	}
 
@@ -109,30 +109,6 @@ public class UserAdminUtils {
 		String name = CurrentUser.getUsername();
 		return getLdapName(name);
 	}
-
-	/**
-	 * Simply retrieves username for current user, generally a LDAP dn
-	 * 
-	 * @deprecated Use {@link CurrentUser#getUsername()}
-	 */
-	@Deprecated
-	public static String getCurrentUsername() {
-		return CurrentUser.getUsername();
-	}
-
-	// /**
-	// * Fork of the {@link CurrentUser#currentSubject} method that is private.
-	// * TODO Enhance and factorize
-	// */
-	// private static Subject currentSubject() {
-	// CmsView cmsView = CmsUtils.getCmsView();
-	// if (cmsView != null)
-	// return cmsView.getSubject();
-	// Subject subject = Subject.getSubject(AccessController.getContext());
-	// if (subject != null)
-	// return subject;
-	// throw new RuntimeException("Cannot find related subject");
-	// }
 
 	// HOME MANAGEMENT
 	/**
@@ -162,7 +138,8 @@ public class UserAdminUtils {
 				|| last.getType().toLowerCase().equals(LdapAttrs.cn.name()))
 			return (String) last.getValue();
 		else
-			throw new CmsException("Cannot retrieve user uid, " + "non valid dn: " + dn);
+			throw new CmsException("Cannot retrieve user uid, "
+					+ "non valid dn: " + dn);
 	}
 
 	/**
