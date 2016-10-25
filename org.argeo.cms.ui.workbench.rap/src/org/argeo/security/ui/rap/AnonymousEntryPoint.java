@@ -56,7 +56,7 @@ public class AnonymousEntryPoint implements EntryPoint {
 
 		final LoginContext loginContext;
 		try {
-			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS,
+			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
 					subject);
 			loginContext.login();
 		} catch (LoginException e1) {

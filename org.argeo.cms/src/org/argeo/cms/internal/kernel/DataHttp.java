@@ -22,7 +22,6 @@ import javax.security.auth.login.LoginException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -193,14 +192,14 @@ class DataHttp implements KernelConstants {
 				throws IOException {
 
 			// optimization
-			HttpSession httpSession = request.getSession();
-			Object remoteUser = httpSession.getAttribute(REMOTE_USER);
-			Object authorization = httpSession.getAttribute(AUTHORIZATION);
-			if (remoteUser != null && authorization != null) {
-				request.setAttribute(REMOTE_USER, remoteUser);
-				request.setAttribute(AUTHORIZATION, authorization);
-				return true;
-			}
+			// HttpSession httpSession = request.getSession();
+			// Object remoteUser = httpSession.getAttribute(REMOTE_USER);
+			// Object authorization = httpSession.getAttribute(AUTHORIZATION);
+			// if (remoteUser != null && authorization != null) {
+			// request.setAttribute(REMOTE_USER, remoteUser);
+			// request.setAttribute(AUTHORIZATION, authorization);
+			// return true;
+			// }
 
 			// if (anonymous) {
 			// Subject subject = KernelUtils.anonymousLogin();
@@ -213,17 +212,30 @@ class DataHttp implements KernelConstants {
 
 			// if (log.isTraceEnabled())
 			// KernelUtils.logRequestHeaders(log, request);
+			LoginContext lc;
 			try {
-				new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new HttpRequestCallbackHandler(request)).login();
-				return true;
+				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new HttpRequestCallbackHandler(request));
+				lc.login();
+				// return true;
 			} catch (CredentialNotFoundException e) {
-				Subject subject = KernelUtils.anonymousLogin();
-				authorization = subject.getPrivateCredentials(Authorization.class).iterator().next();
-				request.setAttribute(REMOTE_USER, NodeConstants.ROLE_ANONYMOUS);
-				request.setAttribute(AUTHORIZATION, authorization);
-				httpSession.setAttribute(REMOTE_USER, NodeConstants.ROLE_ANONYMOUS);
-				httpSession.setAttribute(AUTHORIZATION, authorization);
-				return true;
+				try {
+					lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER);
+					lc.login();
+				} catch (LoginException e1) {
+					if (log.isDebugEnabled())
+						log.error("Cannot log in anonynous", e1);
+					return false;
+				}
+				// Subject subject = KernelUtils.anonymousLogin();
+				// authorization =
+				// subject.getPrivateCredentials(Authorization.class).iterator().next();
+				// request.setAttribute(REMOTE_USER,
+				// NodeConstants.ROLE_ANONYMOUS);
+				// request.setAttribute(AUTHORIZATION, authorization);
+				// httpSession.setAttribute(REMOTE_USER,
+				// NodeConstants.ROLE_ANONYMOUS);
+				// httpSession.setAttribute(AUTHORIZATION, authorization);
+				// return true;
 				// CallbackHandler token = basicAuth(request);
 				// if (token != null) {
 				// try {
@@ -245,6 +257,8 @@ class DataHttp implements KernelConstants {
 			} catch (LoginException e) {
 				throw new CmsException("Could not login", e);
 			}
+			request.setAttribute(NodeConstants.LOGIN_CONTEXT_USER, lc);
+			return true;
 		}
 
 		@Override
@@ -378,7 +392,20 @@ class DataHttp implements KernelConstants {
 			if (log.isTraceEnabled())
 				log.trace("Login to workspace " + (workspace == null ? "<default>" : workspace) + " in web session "
 						+ request.getSession().getId());
-			return repository.login(workspace);
+			LoginContext lc = (LoginContext) request.getAttribute(NodeConstants.LOGIN_CONTEXT_USER);
+			if (lc == null)
+				throw new CmsException("No login context available");
+			try {
+				return Subject.doAs(lc.getSubject(), new PrivilegedExceptionAction<Session>() {
+					@Override
+					public Session run() throws Exception {
+						return repository.login(workspace);
+					}
+				});
+			} catch (PrivilegedActionException e) {
+				throw new CmsException("Cannot log in to JCR", e);
+			}
+			// return repository.login(workspace);
 		}
 
 		public void releaseSession(Session session) {
@@ -404,25 +431,27 @@ class DataHttp implements KernelConstants {
 		@Override
 		protected void service(final HttpServletRequest request, final HttpServletResponse response)
 				throws ServletException, IOException {
-			try {
-				Subject subject = subjectFromRequest(request);
-				// TODO make it stronger, with eTags.
-				// if (CurrentUser.isAnonymous(subject) &&
-				// request.getMethod().equals("GET")) {
-				// response.setHeader("Cache-Control", "no-transform, public,
-				// max-age=300, s-maxage=900");
-				// }
-
-				Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
-					@Override
-					public Void run() throws Exception {
-						WebdavServlet.super.service(request, response);
-						return null;
-					}
-				});
-			} catch (PrivilegedActionException e) {
-				throw new CmsException("Cannot process webdav request", e.getException());
-			}
+			WebdavServlet.super.service(request, response);
+			// try {
+			// Subject subject = subjectFromRequest(request);
+			// // TODO make it stronger, with eTags.
+			// // if (CurrentUser.isAnonymous(subject) &&
+			// // request.getMethod().equals("GET")) {
+			// // response.setHeader("Cache-Control", "no-transform, public,
+			// // max-age=300, s-maxage=900");
+			// // }
+			//
+			// Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
+			// @Override
+			// public Void run() throws Exception {
+			// WebdavServlet.super.service(request, response);
+			// return null;
+			// }
+			// });
+			// } catch (PrivilegedActionException e) {
+			// throw new CmsException("Cannot process webdav request",
+			// e.getException());
+			// }
 		}
 	}
 

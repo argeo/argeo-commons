@@ -24,12 +24,12 @@ import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
-public class UserAdminLoginModule implements LoginModule, AuthConstants {
+public class UserAdminLoginModule implements LoginModule {
 	private Subject subject;
 	private CallbackHandler callbackHandler;
 	private Map<String, Object> sharedState = null;
 
-	private boolean isAnonymous = false;
+	// private boolean isAnonymous = false;
 
 	// private state
 	private BundleContext bc;
@@ -46,8 +46,9 @@ public class UserAdminLoginModule implements LoginModule, AuthConstants {
 			// this.subject = subject;
 			this.callbackHandler = callbackHandler;
 			this.sharedState = (Map<String, Object>) sharedState;
-			if (options.containsKey("anonymous"))
-				isAnonymous = Boolean.parseBoolean(options.get("anonymous").toString());
+			// if (options.containsKey("anonymous"))
+			// isAnonymous =
+			// Boolean.parseBoolean(options.get("anonymous").toString());
 		} catch (Exception e) {
 			throw new CmsException("Cannot initialize login module", e);
 		}
@@ -55,10 +56,28 @@ public class UserAdminLoginModule implements LoginModule, AuthConstants {
 
 	@Override
 	public boolean login() throws LoginException {
+		Authorization sharedAuth = (Authorization) sharedState.get(CmsAuthUtils.SHARED_STATE_AUTHORIZATION);
+		if (sharedAuth != null) {
+			if (callbackHandler == null && sharedAuth.getName() != null)
+				throw new LoginException("Shared authorization should be anonymous");
+			return false;
+		}
 		UserAdmin userAdmin = bc.getService(bc.getServiceReference(UserAdmin.class));
-		if (isAnonymous) {
+		if (callbackHandler == null) {// anonymous
 			authorization = userAdmin.getAuthorization(null);
+			sharedState.put(CmsAuthUtils.SHARED_STATE_AUTHORIZATION, authorization);
+			return true;
+		}
+
+		final String username;
+		final char[] password;
+		if (sharedState.containsKey(CmsAuthUtils.SHARED_STATE_NAME)
+				&& sharedState.containsKey(CmsAuthUtils.SHARED_STATE_PWD)) {
+			username = (String) sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
+			password = (char[]) sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
+			// TODO locale?
 		} else {
+
 			// ask for username and password
 			NameCallback nameCallback = new NameCallback("User");
 			PasswordCallback passwordCallback = new PasswordCallback("Password", false);
@@ -80,39 +99,43 @@ public class UserAdminLoginModule implements LoginModule, AuthConstants {
 				locale = Locale.getDefault();
 			UiContext.setLocale(locale);
 
-			authorization = (Authorization) sharedState.get(SHARED_STATE_AUTHORIZATION);
-
-			if (authorization == null) {
-				// create credentials
-				final String username = nameCallback.getName();
-				if (username == null || username.trim().equals("")) {
-					// authorization = userAdmin.getAuthorization(null);
-					throw new CredentialNotFoundException("No credentials provided");
-				} else {
-					char[] password = {};
-					if (passwordCallback.getPassword() != null)
-						password = passwordCallback.getPassword();
-					else
-						throw new CredentialNotFoundException("No credentials provided");
-
-					User user = userAdmin.getUser(null, username);
-					if (user == null)
-						throw new FailedLoginException("Invalid credentials");
-					if (!user.hasCredential(null, password))
-						throw new FailedLoginException("Invalid credentials");
-					// return false;
-
-					// Log and monitor new login
-					// if (log.isDebugEnabled())
-					// log.debug("Logged in to CMS with username [" + username +
-					// "]");
-
-					authorization = userAdmin.getAuthorization(user);
-				}
+			// authorization = (Authorization)
+			// sharedState.get(CmsAuthUtils.SHARED_STATE_AUTHORIZATION);
+			//
+			// if (authorization == null) {
+			// create credentials
+			username = nameCallback.getName();
+			if (username == null || username.trim().equals("")) {
+				// authorization = userAdmin.getAuthorization(null);
+				throw new CredentialNotFoundException("No credentials provided");
 			}
+			// char[] password = {};
+			if (passwordCallback.getPassword() != null)
+				password = passwordCallback.getPassword();
+			else
+				throw new CredentialNotFoundException("No credentials provided");
 		}
-		if (!sharedState.containsKey(SHARED_STATE_AUTHORIZATION))
-			sharedState.put(SHARED_STATE_AUTHORIZATION, authorization);
+
+		// FIXME move Argeo specific convention from user admin to here
+		User user = userAdmin.getUser(null, username);
+		if (user == null)
+			throw new FailedLoginException("Invalid credentials");
+		if (!user.hasCredential(null, password))
+			throw new FailedLoginException("Invalid credentials");
+		// return false;
+
+		// Log and monitor new login
+		// if (log.isDebugEnabled())
+		// log.debug("Logged in to CMS with username [" + username +
+		// "]");
+
+		authorization = userAdmin.getAuthorization(user);
+		assert authorization != null;
+
+		// }
+		// if
+		// (!sharedState.containsKey(CmsAuthUtils.SHARED_STATE_AUTHORIZATION))
+		sharedState.put(CmsAuthUtils.SHARED_STATE_AUTHORIZATION, authorization);
 		return authorization != null;
 	}
 

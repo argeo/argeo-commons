@@ -77,10 +77,10 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 			loginContext.login();
 		} catch (CredentialNotFoundException e) {
 			try {
-				loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS);
+				loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER);
 				loginContext.login();
 			} catch (LoginException e1) {
-				throw new CmsException("Cannot log as anonymous", e);
+				throw new CmsException("Cannot log in as anonymous", e1);
 			}
 		} catch (LoginException e) {
 			throw new CmsException("Cannot initialize subject", e);
@@ -175,7 +175,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 			throw new CmsException("Login context should not be null");
 		try {
 			loginContext.logout();
-			LoginContext anonymousLc = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS);
+			LoginContext anonymousLc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER);
 			anonymousLc.login();
 			authChange(anonymousLc);
 		} catch (LoginException e) {

@@ -9,7 +9,7 @@ import javax.security.auth.spi.LoginModule;
 
 import org.osgi.service.useradmin.Authorization;
 
-public class NodeUserLoginModule implements LoginModule, AuthConstants {
+public class NodeUserLoginModule implements LoginModule {
 	private Subject subject;
 	private Map<String, Object> sharedState = null;
 
@@ -55,7 +55,7 @@ public class NodeUserLoginModule implements LoginModule, AuthConstants {
 
 	@Override
 	public boolean commit() throws LoginException {
-		Authorization authorization = (Authorization) sharedState.get(SHARED_STATE_AUTHORIZATION);
+		Authorization authorization = (Authorization) sharedState.get(CmsAuthUtils.SHARED_STATE_AUTHORIZATION);
 		if (authorization == null)
 			throw new LoginException("Authorization should not be null");
 		CmsAuthUtils.addAuthentication(subject, authorization);

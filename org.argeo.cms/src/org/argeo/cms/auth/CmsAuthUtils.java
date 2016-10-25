@@ -14,13 +14,21 @@ import javax.security.auth.x500.X500Principal;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.node.security.AnonymousPrincipal;
+import org.argeo.node.security.DataAdminPrincipal;
 import org.argeo.node.security.NodeSecurityUtils;
 import org.osgi.service.useradmin.Authorization;
 
 class CmsAuthUtils {
+	/** From org.osgi.service.http.HttpContext */
+	static final String SHARED_STATE_AUTHORIZATION = "org.osgi.service.useradmin.authorization";
+	/** From com.sun.security.auth.module.*LoginModule */
+	static final String SHARED_STATE_NAME = "javax.security.auth.login.name";
+	/** From com.sun.security.auth.module.*LoginModule */
+	static final String SHARED_STATE_PWD = "javax.security.auth.login.password";
 
 	static void addAuthentication(Subject subject, Authorization authorization) {
 		assert subject != null;
+		checkSubjectEmpty(subject);
 		assert authorization != null;
 
 		// required for display name:
@@ -65,6 +73,17 @@ class CmsAuthUtils {
 		}
 	}
 
+	private static void checkSubjectEmpty(Subject subject) {
+		if (!subject.getPrincipals(AnonymousPrincipal.class).isEmpty())
+			throw new IllegalStateException("Already logged in as anonymous: " + subject);
+		if (!subject.getPrincipals(X500Principal.class).isEmpty())
+			throw new IllegalStateException("Already logged in as user: " + subject);
+		if (!subject.getPrincipals(DataAdminPrincipal.class).isEmpty())
+			throw new IllegalStateException("Already logged in as data admin: " + subject);
+		if (!subject.getPrincipals(ImpliedByPrincipal.class).isEmpty())
+			throw new IllegalStateException("Already authorized: " + subject);
+	}
+
 	static void cleanUp(Subject subject) {
 		// Argeo
 		subject.getPrincipals().removeAll(subject.getPrincipals(X500Principal.class));
@@ -73,6 +92,13 @@ class CmsAuthUtils {
 		// subject.getPrincipals().removeAll(subject.getPrincipals(AdminPrincipal.class));
 		// subject.getPrincipals().removeAll(subject.getPrincipals(AnonymousPrincipal.class));
 	}
+
+	// SHARED STATE KEYS
+	// compatible with com.sun.security.auth.module.*LoginModule
+	// public static final String SHARED_STATE_USERNAME =
+	// "javax.security.auth.login.name";
+	// public static final String SHARED_STATE_PASSWORD =
+	// "javax.security.auth.login.password";
 
 	private CmsAuthUtils() {
 

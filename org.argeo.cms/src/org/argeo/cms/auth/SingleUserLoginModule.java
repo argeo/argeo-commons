@@ -14,7 +14,7 @@ import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.security.DataAdminPrincipal;
 
-public class SingleUserLoginModule implements LoginModule, AuthConstants {
+public class SingleUserLoginModule implements LoginModule {
 	private Subject subject;
 
 	@Override

@@ -109,11 +109,12 @@ class KernelUtils implements KernelConstants {
 	}
 
 	// Security
+	@Deprecated
 	static Subject anonymousLogin() {
 		Subject subject = new Subject();
 		LoginContext lc;
 		try {
-			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
+			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, subject);
 			lc.login();
 			return subject;
 		} catch (LoginException e) {
