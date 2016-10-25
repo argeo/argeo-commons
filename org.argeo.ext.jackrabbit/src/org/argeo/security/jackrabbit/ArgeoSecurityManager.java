@@ -64,6 +64,18 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 				throw new IllegalStateException("Inconsistent " + subject);
 			else
 				return NodeConstants.ROLE_ANONYMOUS;
+		} else if (isRegularUser) {// must be before DataAdmin
+			if (isAnonymous || isJackrabbitSystem)
+				throw new IllegalStateException("Inconsistent " + subject);
+			else {
+				if (userPrincipal.size() > 1) {
+					StringBuilder buf = new StringBuilder();
+					for (X500Principal principal : userPrincipal)
+						buf.append(' ').append('\"').append(principal).append('\"');
+					throw new RuntimeException("Multiple user principals:" + buf);
+				}
+				return userPrincipal.iterator().next().getName();
+			}
 		} else if (isDataAdmin) {
 			if (isAnonymous || isJackrabbitSystem || isRegularUser)
 				throw new IllegalStateException("Inconsistent " + subject);
@@ -76,18 +88,6 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 				throw new IllegalStateException("Inconsistent " + subject);
 			else
 				return super.getUserID(subject, workspaceName);
-		} else if (isRegularUser) {
-			if (isAnonymous || isDataAdmin || isJackrabbitSystem)
-				throw new IllegalStateException("Inconsistent " + subject);
-			else {
-				if (userPrincipal.size() > 1) {
-					StringBuilder buf = new StringBuilder();
-					for (X500Principal principal : userPrincipal)
-						buf.append(' ').append('\"').append(principal).append('\"');
-					throw new RuntimeException("Multiple user principals:" + buf);
-				}
-				return userPrincipal.iterator().next().getName();
-			}
 		} else {
 			throw new IllegalStateException("Unrecognized subject type: " + subject);
 		}
