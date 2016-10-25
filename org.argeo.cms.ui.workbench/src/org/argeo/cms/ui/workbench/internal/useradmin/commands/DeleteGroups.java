@@ -22,7 +22,7 @@ import java.util.List;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.cms.ui.workbench.internal.useradmin.UserAdminWrapper;
 import org.argeo.cms.ui.workbench.internal.useradmin.parts.UserEditorInput;
-import org.argeo.cms.util.useradmin.UserAdminUtils;
+import org.argeo.cms.util.UserAdminUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -38,8 +38,7 @@ import org.osgi.service.useradmin.UserAdminEvent;
 
 /** Delete the selected groups */
 public class DeleteGroups extends AbstractHandler {
-	public final static String ID = WorkbenchUiPlugin.PLUGIN_ID
-			+ ".deleteGroups";
+	public final static String ID = WorkbenchUiPlugin.PLUGIN_ID + ".deleteGroups";
 
 	/* DEPENDENCY INJECTION */
 	private UserAdminWrapper userAdminWrapper;
@@ -55,22 +54,19 @@ public class DeleteGroups extends AbstractHandler {
 		StringBuilder builder = new StringBuilder();
 		while (it.hasNext()) {
 			Group currGroup = it.next();
-			String groupName = UserAdminUtils.getUsername(currGroup);
+			String groupName = UserAdminUtils.getUserLocalId(currGroup.getName());
 			// TODO add checks
 			builder.append(groupName).append("; ");
 			groups.add(currGroup);
 		}
 
-		if (!MessageDialog.openQuestion(HandlerUtil.getActiveShell(event),
-				"Delete Groups",
-				"Are you sure that you " + "want to delete these groups?\n"
-						+ builder.substring(0, builder.length() - 2)))
+		if (!MessageDialog.openQuestion(HandlerUtil.getActiveShell(event), "Delete Groups", "Are you sure that you "
+				+ "want to delete these groups?\n" + builder.substring(0, builder.length() - 2)))
 			return null;
 
 		userAdminWrapper.beginTransactionIfNeeded();
 		UserAdmin userAdmin = userAdminWrapper.getUserAdmin();
-		IWorkbenchPage iwp = HandlerUtil.getActiveWorkbenchWindow(event)
-				.getActivePage();
+		IWorkbenchPage iwp = HandlerUtil.getActiveWorkbenchWindow(event).getActivePage();
 		for (Group group : groups) {
 			String groupName = group.getName();
 			// TODO find a way to close the editor cleanly if opened. Cannot be
@@ -86,8 +82,7 @@ public class DeleteGroups extends AbstractHandler {
 
 		// Update the view
 		for (Group group : groups) {
-			userAdminWrapper.notifyListeners(new UserAdminEvent(null,
-					UserAdminEvent.ROLE_REMOVED, group));
+			userAdminWrapper.notifyListeners(new UserAdminEvent(null, UserAdminEvent.ROLE_REMOVED, group));
 		}
 
 		return null;

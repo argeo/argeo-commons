@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.cms.ui.workbench.internal.useradmin.UiUserAdminListener;
 import org.argeo.cms.ui.workbench.internal.useradmin.UserAdminWrapper;
@@ -30,7 +31,6 @@ import org.argeo.cms.ui.workbench.internal.useradmin.providers.RoleIconLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserDragListener;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserNameLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserTableDefaultDClickListener;
-import org.argeo.cms.util.useradmin.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
@@ -75,7 +75,7 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 	public void createPartControl(Composite parent) {
 		parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
 
-		boolean isAdmin = UserAdminUtils.isUserInRole(NodeConstants.ROLE_ADMIN);
+		boolean isAdmin = CurrentUser.isInRole(NodeConstants.ROLE_ADMIN);
 
 		// Define the displayed columns
 		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 26));

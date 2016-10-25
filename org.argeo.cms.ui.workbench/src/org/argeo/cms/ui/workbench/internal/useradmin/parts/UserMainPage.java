@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.argeo.cms.CmsException;
+import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.ui.workbench.internal.useradmin.SecurityAdminImages;
 import org.argeo.cms.ui.workbench.internal.useradmin.UserAdminWrapper;
 import org.argeo.cms.ui.workbench.internal.useradmin.parts.UserEditor.GroupChangeListener;
@@ -30,7 +31,7 @@ import org.argeo.cms.ui.workbench.internal.useradmin.providers.RoleIconLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserFilter;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserNameLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserTableDefaultDClickListener;
-import org.argeo.cms.util.useradmin.UserAdminUtils;
+import org.argeo.cms.util.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
@@ -129,11 +130,9 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		final Text firstName = createLT(tk, body, "First name",
 				UserAdminUtils.getProperty(user, LdapAttrs.givenName.name()));
 
-		final Text lastName = createLT(tk, body, "Last name",
-				UserAdminUtils.getProperty(user, LdapAttrs.sn.name()));
+		final Text lastName = createLT(tk, body, "Last name", UserAdminUtils.getProperty(user, LdapAttrs.sn.name()));
 
-		final Text email = createLT(tk, body, "Email",
-				UserAdminUtils.getProperty(user, LdapAttrs.mail.name()));
+		final Text email = createLT(tk, body, "Email", UserAdminUtils.getProperty(user, LdapAttrs.mail.name()));
 
 		// create form part (controller)
 		AbstractFormPart part = new SectionPart((Section) body.getParent()) {
@@ -142,8 +141,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 			@Override
 			public void initialize(IManagedForm form) {
 				super.initialize(form);
-				listener = editor.new MainInfoListener(parent.getDisplay(),
-						this);
+				listener = editor.new MainInfoListener(parent.getDisplay(), this);
 				userAdminWrapper.addListener(listener);
 			}
 
@@ -156,29 +154,20 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 			@SuppressWarnings("unchecked")
 			public void commit(boolean onSave) {
 				// TODO Sanity checks (mail validity...)
-				user.getProperties().put(LdapAttrs.givenName.name(),
-						firstName.getText());
-				user.getProperties().put(LdapAttrs.sn.name(),
-						lastName.getText());
-				user.getProperties().put(LdapAttrs.cn.name(),
-						commonName.getText());
-				user.getProperties()
-						.put(LdapAttrs.mail.name(), email.getText());
+				user.getProperties().put(LdapAttrs.givenName.name(), firstName.getText());
+				user.getProperties().put(LdapAttrs.sn.name(), lastName.getText());
+				user.getProperties().put(LdapAttrs.cn.name(), commonName.getText());
+				user.getProperties().put(LdapAttrs.mail.name(), email.getText());
 				super.commit(onSave);
 			}
 
 			@Override
 			public void refresh() {
-				distinguishedName.setText(UserAdminUtils.getProperty(user,
-						LdapAttrs.uid.name()));
-				commonName.setText(UserAdminUtils.getProperty(user,
-						LdapAttrs.cn.name()));
-				firstName.setText(UserAdminUtils.getProperty(user,
-						LdapAttrs.givenName.name()));
-				lastName.setText(UserAdminUtils.getProperty(user,
-						LdapAttrs.sn.name()));
-				email.setText(UserAdminUtils.getProperty(user,
-						LdapAttrs.mail.name()));
+				distinguishedName.setText(UserAdminUtils.getProperty(user, LdapAttrs.uid.name()));
+				commonName.setText(UserAdminUtils.getProperty(user, LdapAttrs.cn.name()));
+				firstName.setText(UserAdminUtils.getProperty(user, LdapAttrs.givenName.name()));
+				lastName.setText(UserAdminUtils.getProperty(user, LdapAttrs.sn.name()));
+				email.setText(UserAdminUtils.getProperty(user, LdapAttrs.mail.name()));
 				refreshFormTitle(user);
 				super.refresh();
 			}
@@ -225,8 +214,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		AbstractFormPart part = new SectionPart((Section) body.getParent()) {
 			@SuppressWarnings("unchecked")
 			public void commit(boolean onSave) {
-				if (!password1.getText().equals("")
-						|| !password2.getText().equals("")) {
+				if (!password1.getText().equals("") || !password2.getText().equals("")) {
 					if (password1.getText().equals(password2.getText())) {
 						char[] newPassword = password1.getText().toCharArray();
 						// userAdminWrapper.beginTransactionIfNeeded();
@@ -254,23 +242,19 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		Composite body = (Composite) section.getClient();
 		body.setLayout(EclipseUiUtils.noSpaceGridLayout());
 
-		boolean isAdmin = UserAdminUtils.isUserInRole(NodeConstants.ROLE_ADMIN);
+		boolean isAdmin = CurrentUser.isInRole(NodeConstants.ROLE_ADMIN);
 
 		// Displayed columns
 		List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
 		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 0, 24));
-		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name",
-				150));
-		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain Name",
-				200));
+		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name", 150));
+		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain Name", 200));
 		// Only show technical DN to administrators
 		if (isAdmin)
-			columnDefs.add(new ColumnDefinition(new UserNameLP(),
-					"Distinguished Name", 120));
+			columnDefs.add(new ColumnDefinition(new UserNameLP(), "Distinguished Name", 120));
 
 		// Create and configure the table
-		final LdifUsersTable userViewerCmp = new MyUserTableViewer(body,
-				SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, user);
+		final LdifUsersTable userViewerCmp = new MyUserTableViewer(body, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, user);
 
 		userViewerCmp.setColumnDefinitions(columnDefs);
 		if (isAdmin)
@@ -286,8 +270,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		userViewer.addDoubleClickListener(new UserTableDefaultDClickListener());
 		int operations = DND.DROP_COPY | DND.DROP_MOVE;
 		Transfer[] tt = new Transfer[] { TextTransfer.getInstance() };
-		GroupDropListener dropL = new GroupDropListener(userAdminWrapper,
-				userViewer, user);
+		GroupDropListener dropL = new GroupDropListener(userAdminWrapper, userViewer, user);
 		userViewer.addDropSupport(operations, tt, dropL);
 
 		SectionPart part = new SectionPart((Section) body.getParent()) {
@@ -297,8 +280,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 			@Override
 			public void initialize(IManagedForm form) {
 				super.initialize(form);
-				listener = editor.new GroupChangeListener(parent.getDisplay(),
-						this);
+				listener = editor.new GroupChangeListener(parent.getDisplay(), this);
 				userAdminWrapper.addListener(listener);
 			}
 
@@ -347,8 +329,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					userFilter.setShowSystemRole(showSystemRoleBtn
-							.getSelection());
+					userFilter.setShowSystemRole(showSystemRoleBtn.getSelection());
 					refresh();
 				}
 			});
@@ -368,13 +349,11 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		}
 	}
 
-	private void addRemoveAbitily(SectionPart sectionPart,
-			TableViewer userViewer, User user) {
+	private void addRemoveAbitily(SectionPart sectionPart, TableViewer userViewer, User user) {
 		Section section = sectionPart.getSection();
 		ToolBarManager toolBarManager = new ToolBarManager(SWT.FLAT);
 		ToolBar toolbar = toolBarManager.createControl(section);
-		final Cursor handCursor = new Cursor(section.getDisplay(),
-				SWT.CURSOR_HAND);
+		final Cursor handCursor = new Cursor(section.getDisplay(), SWT.CURSOR_HAND);
 		toolbar.setCursor(handCursor);
 		toolbar.addDisposeListener(new DisposeListener() {
 			private static final long serialVersionUID = 3882131405820522925L;
@@ -386,10 +365,8 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 			}
 		});
 
-		String tooltip = "Remove " + UserAdminUtils.getUsername(user)
-				+ " from the below selected groups";
-		Action action = new RemoveMembershipAction(userViewer, user, tooltip,
-				SecurityAdminImages.ICON_REMOVE_DESC);
+		String tooltip = "Remove " + UserAdminUtils.getUserLocalId(user.getName()) + " from the below selected groups";
+		Action action = new RemoveMembershipAction(userViewer, user, tooltip, SecurityAdminImages.ICON_REMOVE_DESC);
 		toolBarManager.add(action);
 		toolBarManager.update(true);
 		section.setTextClient(toolbar);
@@ -401,8 +378,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		private final TableViewer userViewer;
 		private final User user;
 
-		RemoveMembershipAction(TableViewer userViewer, User user, String name,
-				ImageDescriptor img) {
+		RemoveMembershipAction(TableViewer userViewer, User user, String name, ImageDescriptor img) {
 			super(name, img);
 			this.userViewer = userViewer;
 			this.user = user;
@@ -428,8 +404,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 			}
 			userAdminWrapper.commitOrNotifyTransactionStateChange();
 			for (Group group : groups) {
-				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
-						UserAdminEvent.ROLE_CHANGED, group));
+				userAdminWrapper.notifyListeners(new UserAdminEvent(null, UserAdminEvent.ROLE_CHANGED, group));
 			}
 		}
 	}
@@ -444,16 +419,14 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		private final UserAdminWrapper myUserAdminWrapper;
 		private final User myUser;
 
-		public GroupDropListener(UserAdminWrapper userAdminWrapper,
-				Viewer userViewer, User user) {
+		public GroupDropListener(UserAdminWrapper userAdminWrapper, Viewer userViewer, User user) {
 			super(userViewer);
 			this.myUserAdminWrapper = userAdminWrapper;
 			this.myUser = user;
 		}
 
 		@Override
-		public boolean validateDrop(Object target, int operation,
-				TransferData transferType) {
+		public boolean validateDrop(Object target, int operation, TransferData transferType) {
 			// Target is always OK in a list only view
 			// TODO check if not a string
 			boolean validDrop = true;
@@ -473,8 +446,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 				Group group = (Group) role;
 				group.addMember(myUser);
 				userAdminWrapper.commitOrNotifyTransactionStateChange();
-				myUserAdminWrapper.notifyListeners(new UserAdminEvent(null,
-						UserAdminEvent.ROLE_CHANGED, group));
+				myUserAdminWrapper.notifyListeners(new UserAdminEvent(null, UserAdminEvent.ROLE_CHANGED, group));
 			}
 			super.drop(event);
 		}
@@ -488,8 +460,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 
 	// LOCAL HELPERS
 	private void refreshFormTitle(User group) {
-		getManagedForm().getForm().setText(
-				UserAdminUtils.getProperty(group, LdapAttrs.cn.name()));
+		getManagedForm().getForm().setText(UserAdminUtils.getProperty(group, LdapAttrs.cn.name()));
 	}
 
 	/** Appends a section with a title */
@@ -509,8 +480,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 	}
 
 	/** Creates label and multiline text. */
-	Text createLMT(FormToolkit toolkit, Composite body, String label,
-			String value) {
+	Text createLMT(FormToolkit toolkit, Composite body, String label, String value) {
 		Label lbl = toolkit.createLabel(body, label);
 		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		Text text = toolkit.createText(body, value, SWT.BORDER | SWT.MULTI);
@@ -519,8 +489,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 	}
 
 	/** Creates label and password. */
-	Text createLP(FormToolkit toolkit, Composite body, String label,
-			String value) {
+	Text createLP(FormToolkit toolkit, Composite body, String label, String value) {
 		Label lbl = toolkit.createLabel(body, label);
 		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		Text text = toolkit.createText(body, value, SWT.BORDER | SWT.PASSWORD);
@@ -529,8 +498,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 	}
 
 	/** Creates label and text. */
-	Text createLT(FormToolkit toolkit, Composite body, String label,
-			String value) {
+	Text createLT(FormToolkit toolkit, Composite body, String label, String value) {
 		Label lbl = toolkit.createLabel(body, label);
 		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		Text text = toolkit.createText(body, value, SWT.BORDER);

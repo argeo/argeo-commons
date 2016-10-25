@@ -32,6 +32,7 @@ import org.osgi.service.useradmin.Authorization;
 
 /** Static utilities */
 public final class CurrentUser {
+
 	/**
 	 * @return the authenticated username or null if not authenticated /
 	 *         anonymous
@@ -48,21 +49,16 @@ public final class CurrentUser {
 		return isAnonymous(currentSubject());
 	}
 
+	public static boolean isRegistered() {
+		return !isAnonymous();
+	}
+
 	public static boolean isAnonymous(Subject subject) {
 		if (subject == null)
 			return true;
 		String username = getUsername(subject);
-		return username == null || username.equalsIgnoreCase(NodeConstants.ROLE_ANONYMOUS);
-	}
-
-	private static Subject currentSubject() {
-		NodeAuthenticated cmsView = getNodeAuthenticated();
-		if (cmsView != null)
-			return cmsView.getLoginContext().getSubject();
-		Subject subject = Subject.getSubject(AccessController.getContext());
-		if (subject != null)
-			return subject;
-		throw new CmsException("Cannot find related subject");
+		return username == null
+				|| username.equalsIgnoreCase(NodeConstants.ROLE_ANONYMOUS);
 	}
 
 	/**
@@ -78,7 +74,8 @@ public final class CurrentUser {
 			throw new CmsException("Subject cannot be null");
 		if (subject.getPrincipals(X500Principal.class).size() != 1)
 			return NodeConstants.ROLE_ANONYMOUS;
-		Principal principal = subject.getPrincipals(X500Principal.class).iterator().next();
+		Principal principal = subject.getPrincipals(X500Principal.class)
+				.iterator().next();
 		return principal.getName();
 	}
 
@@ -87,11 +84,28 @@ public final class CurrentUser {
 	}
 
 	private static Authorization getAuthorization(Subject subject) {
-		return subject.getPrivateCredentials(Authorization.class).iterator().next();
+		return subject.getPrivateCredentials(Authorization.class).iterator()
+				.next();
 	}
 
 	public final static Set<String> roles() {
 		return roles(currentSubject());
+	}
+
+	private static Subject currentSubject() {
+		NodeAuthenticated cmsView = getNodeAuthenticated();
+		if (cmsView != null)
+			return cmsView.getLoginContext().getSubject();
+		Subject subject = Subject.getSubject(AccessController.getContext());
+		if (subject != null)
+			return subject;
+		throw new CmsException("Cannot find related subject");
+	}
+
+	/** Returns true if the current user is in the specified role */
+	public static boolean isInRole(String role) {
+		Set<String> roles = roles();
+		return roles.contains(role);
 	}
 
 	public final static Set<String> roles(Subject subject) {

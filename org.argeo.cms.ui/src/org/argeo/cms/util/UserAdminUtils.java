@@ -1,7 +1,6 @@
-package org.argeo.cms.util.useradmin;
+package org.argeo.cms.util;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
@@ -18,17 +17,6 @@ import org.osgi.service.useradmin.UserAdmin;
 
 /** Centralise common patterns to manage users with a {@link UserAdmin} */
 public class UserAdminUtils {
-
-	/** Checks if current user is registered */
-	public static boolean isRegistered() {
-		return !CurrentUser.isAnonymous();
-	}
-
-	/** Returns true if the current user is in the specified role */
-	public static boolean isUserInRole(String role) {
-		Set<String> roles = CurrentUser.roles();
-		return roles.contains(role);
-	}
 
 	// CURRENTUSER HELPERS
 	/** Checks if current user is the same as the passed one */

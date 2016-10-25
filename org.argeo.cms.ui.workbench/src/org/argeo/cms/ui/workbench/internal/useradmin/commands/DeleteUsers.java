@@ -22,7 +22,7 @@ import java.util.List;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.cms.ui.workbench.internal.useradmin.UserAdminWrapper;
 import org.argeo.cms.ui.workbench.internal.useradmin.parts.UserEditorInput;
-import org.argeo.cms.util.useradmin.UserAdminUtils;
+import org.argeo.cms.util.UserAdminUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -55,10 +55,9 @@ public class DeleteUsers extends AbstractHandler {
 
 		while (it.hasNext()) {
 			User currUser = it.next();
-			String userName = UserAdminUtils.getUsername(currUser);
+			String userName = UserAdminUtils.getUserLocalId(currUser.getName());
 			if (UserAdminUtils.isCurrentUser(currUser)) {
-				MessageDialog.openError(HandlerUtil.getActiveShell(event),
-						"Deletion forbidden",
+				MessageDialog.openError(HandlerUtil.getActiveShell(event), "Deletion forbidden",
 						"You cannot delete your own user this way.");
 				return null;
 			}
@@ -66,17 +65,13 @@ public class DeleteUsers extends AbstractHandler {
 			users.add(currUser);
 		}
 
-		if (!MessageDialog.openQuestion(
-				HandlerUtil.getActiveShell(event),
-				"Delete Users",
-				"Are you sure that you want to delete these users?\n"
-						+ builder.substring(0, builder.length() - 2)))
+		if (!MessageDialog.openQuestion(HandlerUtil.getActiveShell(event), "Delete Users",
+				"Are you sure that you want to delete these users?\n" + builder.substring(0, builder.length() - 2)))
 			return null;
 
 		userAdminWrapper.beginTransactionIfNeeded();
 		UserAdmin userAdmin = userAdminWrapper.getUserAdmin();
-		IWorkbenchPage iwp = HandlerUtil.getActiveWorkbenchWindow(event)
-				.getActivePage();
+		IWorkbenchPage iwp = HandlerUtil.getActiveWorkbenchWindow(event).getActivePage();
 
 		for (User user : users) {
 			String userName = user.getName();
@@ -92,8 +87,7 @@ public class DeleteUsers extends AbstractHandler {
 		userAdminWrapper.commitOrNotifyTransactionStateChange();
 
 		for (User user : users) {
-			userAdminWrapper.notifyListeners(new UserAdminEvent(null,
-					UserAdminEvent.ROLE_REMOVED, user));
+			userAdminWrapper.notifyListeners(new UserAdminEvent(null, UserAdminEvent.ROLE_REMOVED, user));
 		}
 		return null;
 	}

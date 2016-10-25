@@ -1,6 +1,6 @@
 package org.argeo.cms.ui.workbench.internal.useradmin.providers;
 
-import org.argeo.cms.util.useradmin.UserAdminUtils;
+import org.argeo.cms.util.UserAdminUtils;
 import org.argeo.naming.LdapAttrs;
 import org.osgi.service.useradmin.User;
 
