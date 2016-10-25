@@ -19,35 +19,9 @@ import org.osgi.service.useradmin.UserAdmin;
 /** Centralise common patterns to manage users with a {@link UserAdmin} */
 public class UserAdminUtils {
 
-	// SELF HELPERS
-	/** Simply checks if current user is registered */
+	/** Checks if current user is registered */
 	public static boolean isRegistered() {
 		return !CurrentUser.isAnonymous();
-	}
-
-	/** Simply checks if current user is the same as the passed one */
-	public static boolean isCurrentUser(User user) {
-		String userUsername = getProperty(user, LdapAttrs.DN);
-		LdapName userLdapName = getLdapName(userUsername);
-		LdapName selfUserName = getCurrentUserLdapName();
-		return userLdapName.equals(selfUserName);
-	}
-
-	/** Simply retrieves the current logged-in {@link User} */
-	public static User getCurrentUser(UserAdmin userAdmin) {
-		return (User) userAdmin.getRole(CurrentUser.getUsername());
-	}
-
-	/** Simply retrieves the current logged-in user {@link LdapName} */
-	public final static LdapName getCurrentUserLdapName() {
-		String name = CurrentUser.getUsername();
-		return getLdapName(name);
-	}
-
-	/** Simply retrieves the current logged-in user display name. */
-	public static String getCurrentUserMail(UserAdmin userAdmin) {
-		String username = CurrentUser.getUsername();
-		return getUserMail(userAdmin, username);
 	}
 
 	/** Returns true if the current user is in the specified role */
@@ -56,10 +30,36 @@ public class UserAdminUtils {
 		return roles.contains(role);
 	}
 
+	// CURRENTUSER HELPERS
+	/** Checks if current user is the same as the passed one */
+	public static boolean isCurrentUser(User user) {
+		String userUsername = getProperty(user, LdapAttrs.DN);
+		LdapName userLdapName = getLdapName(userUsername);
+		LdapName selfUserName = getCurrentUserLdapName();
+		return userLdapName.equals(selfUserName);
+	}
+
+	/** Retrieves the current logged-in {@link User} */
+	public static User getCurrentUser(UserAdmin userAdmin) {
+		return (User) userAdmin.getRole(CurrentUser.getUsername());
+	}
+
+	/** Retrieves the current logged-in user {@link LdapName} */
+	public final static LdapName getCurrentUserLdapName() {
+		String name = CurrentUser.getUsername();
+		return getLdapName(name);
+	}
+
+	/** Retrieves the current logged-in user display name. */
+	public static String getCurrentUserMail(UserAdmin userAdmin) {
+		String username = CurrentUser.getUsername();
+		return getUserMail(userAdmin, username);
+	}
+
 	// OTHER USERS HELPERS
 	/**
-	 * Simply retrieves the local id of a user or group, that is respectively
-	 * the uid or cn of the passed dn with no {@link UserAdmin}
+	 * Retrieves the local id of a user or group, that is respectively the uid
+	 * or cn of the passed dn with no {@link UserAdmin}
 	 */
 	public static String getUserLocalId(String dn) {
 		LdapName ldapName = getLdapName(dn);
@@ -119,7 +119,7 @@ public class UserAdminUtils {
 	 * Simply retrieves a LDAP name from a {@link LdapAttrs.DN} with no
 	 * exception
 	 */
-	public static LdapName getLdapName(String dn) {
+	private static LdapName getLdapName(String dn) {
 		try {
 			return new LdapName(dn);
 		} catch (InvalidNameException e) {
