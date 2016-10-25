@@ -28,12 +28,14 @@ import org.apache.jackrabbit.core.DefaultSecurityManager;
 import org.apache.jackrabbit.core.security.AMContext;
 import org.apache.jackrabbit.core.security.AccessManager;
 import org.apache.jackrabbit.core.security.SecurityConstants;
+import org.apache.jackrabbit.core.security.SystemPrincipal;
 import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
+import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.security.AnonymousPrincipal;
 import org.argeo.node.security.DataAdminPrincipal;
 
-/** Integrates Spring Security and Jackrabbit Security users and roles. */
+/** Customises Jackrabbit security. */
 public class ArgeoSecurityManager extends DefaultSecurityManager {
 	@Override
 	public AccessManager getAccessManager(Session session, AMContext amContext) throws RepositoryException {
@@ -49,37 +51,46 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		}
 	}
 
-	/**
-	 * Since this is called once when the session is created, we take the
-	 * opportunity to make sure that Jackrabbit users and groups reflect Spring
-	 * Security name and authorities.
-	 */
+	/** Called once when the session is created */
 	@Override
 	public String getUserID(Subject subject, String workspaceName) throws RepositoryException {
-		Set<AnonymousPrincipal> anonymousPrincipal = subject.getPrincipals(AnonymousPrincipal.class);
-		if (!anonymousPrincipal.isEmpty())
-			return NodeConstants.ROLE_ANONYMOUS;
+		boolean isAnonymous = !subject.getPrincipals(AnonymousPrincipal.class).isEmpty();
+		boolean isDataAdmin = !subject.getPrincipals(DataAdminPrincipal.class).isEmpty();
+		boolean isJackrabbitSystem = !subject.getPrincipals(SystemPrincipal.class).isEmpty();
 		Set<X500Principal> userPrincipal = subject.getPrincipals(X500Principal.class);
-		if (userPrincipal.isEmpty()) {
-			Set<DataAdminPrincipal> dataAdminPrincipal = subject.getPrincipals(DataAdminPrincipal.class);
-			if (!dataAdminPrincipal.isEmpty())
+		boolean isRegularUser = !userPrincipal.isEmpty();
+		if (isAnonymous) {
+			if (isDataAdmin || isJackrabbitSystem || isRegularUser)
+				throw new IllegalStateException("Inconsistent " + subject);
+			else
+				return NodeConstants.ROLE_ANONYMOUS;
+		} else if (isDataAdmin) {
+			if (isAnonymous || isJackrabbitSystem || isRegularUser)
+				throw new IllegalStateException("Inconsistent " + subject);
+			else {
+				assert !subject.getPrincipals(AdminPrincipal.class).isEmpty();
 				return NodeConstants.ROLE_DATA_ADMIN;
-			throw new IllegalStateException("Subject is neither anonymous nor logged-in");
+			}
+		} else if (isJackrabbitSystem) {
+			if (isAnonymous || isDataAdmin || isRegularUser)
+				throw new IllegalStateException("Inconsistent " + subject);
+			else
+				return super.getUserID(subject, workspaceName);
+		} else if (isRegularUser) {
+			if (isAnonymous || isDataAdmin || isJackrabbitSystem)
+				throw new IllegalStateException("Inconsistent " + subject);
+			else {
+				if (userPrincipal.size() > 1) {
+					StringBuilder buf = new StringBuilder();
+					for (X500Principal principal : userPrincipal)
+						buf.append(' ').append('\"').append(principal).append('\"');
+					throw new RuntimeException("Multiple user principals:" + buf);
+				}
+				return userPrincipal.iterator().next().getName();
+			}
+		} else {
+			throw new IllegalStateException("Unrecognized subject type: " + subject);
 		}
-		// return super.getUserID(subject, workspaceName);
-		if (userPrincipal.size() > 1) {
-			StringBuilder buf = new StringBuilder();
-			for (X500Principal principal : userPrincipal)
-				buf.append(' ').append('\"').append(principal).append('\"');
-			throw new RuntimeException("Multiple user principals:" + buf);
-		}
-		return userPrincipal.iterator().next().getName();
-		// Authentication authentication = SecurityContextHolder.getContext()
-		// .getAuthentication();
-		// if (authentication != null)
-		// return authentication.getName();
-		// else
-		// return super.getUserID(subject, workspaceName);
 	}
 
 	@Override

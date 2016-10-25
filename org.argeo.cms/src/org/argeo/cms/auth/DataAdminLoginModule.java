@@ -9,12 +9,13 @@ import javax.security.auth.spi.LoginModule;
 
 import org.argeo.node.security.DataAdminPrincipal;
 
+/** Logs a system process as data admin */
 public class DataAdminLoginModule implements LoginModule {
 	private Subject subject;
 
 	@Override
-	public void initialize(Subject subject, CallbackHandler callbackHandler,
-			Map<String, ?> sharedState, Map<String, ?> options) {
+	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,
+			Map<String, ?> options) {
 		this.subject = subject;
 	}
 
@@ -37,9 +38,7 @@ public class DataAdminLoginModule implements LoginModule {
 
 	@Override
 	public boolean logout() throws LoginException {
-		// remove ALL credentials (e.g. additional Jackrabbit credentials)
-		subject.getPrincipals().clear();
+		subject.getPrincipals().removeAll(subject.getPrincipals(DataAdminPrincipal.class));
 		return true;
 	}
-
 }

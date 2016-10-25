@@ -47,7 +47,8 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 			@Override
 			public Void run() {
 				try {
-					initJcr(getRepository().login());
+					Session adminSession = getRepository().login();
+					initJcr(adminSession);
 				} catch (RepositoryException e) {
 					throw new CmsException("Cannot init JCR home", e);
 				}
