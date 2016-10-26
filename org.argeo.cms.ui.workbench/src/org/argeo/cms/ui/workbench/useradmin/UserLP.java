@@ -1,11 +1,7 @@
 package org.argeo.cms.ui.workbench.useradmin;
 
-import javax.naming.InvalidNameException;
-import javax.naming.ldap.LdapName;
-
 import org.argeo.cms.ui.workbench.internal.useradmin.UsersImages;
-import org.argeo.cms.ui.workbench.internal.useradmin.UsersUtils;
-import org.argeo.eclipse.ui.EclipseUiException;
+import org.argeo.cms.util.UserAdminUtils;
 import org.argeo.node.NodeConstants;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -36,30 +32,14 @@ class UserLP extends ColumnLabelProvider {
 
 	@Override
 	public Font getFont(Object element) {
-		// Self as bold
-		try {
-			// LdapName selfUserName = new LdapName(CurrentUser.getUsername());
-			LdapName selfUserName = UsersUtils.getLdapName();
-			String userName = ((User) element).getName();
-			LdapName userLdapName = new LdapName(userName);
-			if (userLdapName.equals(selfUserName)) {
-				if (bold == null)
-					bold = JFaceResources.getFontRegistry()
-							.defaultFontDescriptor().setStyle(SWT.BOLD)
-							.createFont(Display.getCurrent());
-				return bold;
-			}
-		} catch (InvalidNameException e) {
-			throw new EclipseUiException("cannot parse dn for " + element, e);
+		// Current user as bold
+		if (UserAdminUtils.isCurrentUser(((User) element))) {
+			if (bold == null)
+				bold = JFaceResources.getFontRegistry().defaultFontDescriptor().setStyle(SWT.BOLD)
+						.createFont(Display.getCurrent());
+			return bold;
 		}
-
-		// Disabled as Italic
-		// Node userProfile = (Node) elem;
-		// if (!userProfile.getProperty(ARGEO_ENABLED).getBoolean())
-		// return italic;
-
 		return null;
-		// return super.getFont(element);
 	}
 
 	@Override
@@ -88,9 +68,9 @@ class UserLP extends ColumnLabelProvider {
 		if (COL_DN.equals(currType))
 			return user.getName();
 		else if (COL_DISPLAY_NAME.equals(currType))
-			return UsersUtils.getCommonName(user);
+			return UserAdminUtils.getCommonName(user);
 		else if (COL_DOMAIN.equals(currType))
-			return UsersUtils.getDomainName(user);
+			return UserAdminUtils.getDomainName(user);
 		else
 			return "";
 	}

@@ -23,8 +23,8 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.security.Privilege;
 
-import org.argeo.cms.ui.workbench.internal.useradmin.UsersUtils;
 import org.argeo.cms.ui.workbench.useradmin.PickUpUserDialog;
+import org.argeo.cms.util.UserAdminUtils;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.jcr.JcrUtils;
@@ -77,19 +77,15 @@ public class AddPrivilegeWizard extends Wizard {
 	protected static final Map<String, String> AUTH_TYPE_DESC;
 	static {
 		Map<String, String> tmpMap = new HashMap<String, String>();
-		tmpMap.put(Privilege.JCR_READ,
-				"The privilege to retrieve a node and get its properties and their values.");
+		tmpMap.put(Privilege.JCR_READ, "The privilege to retrieve a node and get its properties and their values.");
 		tmpMap.put(Privilege.JCR_WRITE, "An aggregate privilege that "
-				+ "contains: jcr:modifyProperties, jcr:addChildNodes, "
-				+ "jcr:removeNode, jcr:removeChildNodes");
-		tmpMap.put(Privilege.JCR_ALL, "An aggregate privilege that "
-				+ "contains all JCR predefined privileges, "
+				+ "contains: jcr:modifyProperties, jcr:addChildNodes, " + "jcr:removeNode, jcr:removeChildNodes");
+		tmpMap.put(Privilege.JCR_ALL, "An aggregate privilege that " + "contains all JCR predefined privileges, "
 				+ "plus all implementation-defined privileges. ");
 		AUTH_TYPE_DESC = Collections.unmodifiableMap(tmpMap);
 	}
 
-	public AddPrivilegeWizard(Session currentSession, String path,
-			UserAdmin userAdmin) {
+	public AddPrivilegeWizard(Session currentSession, String path, UserAdmin userAdmin) {
 		super();
 		this.userAdmin = userAdmin;
 		this.currentSession = currentSession;
@@ -112,17 +108,15 @@ public class AddPrivilegeWizard extends Wizard {
 		if (!canFinish())
 			return false;
 		try {
-			JcrUtils.addPrivilege(currentSession, targetPath,
-					chosenUser.getName(), jcrPrivilege);
+			JcrUtils.addPrivilege(currentSession, targetPath, chosenUser.getName(), jcrPrivilege);
 		} catch (RepositoryException re) {
-			throw new EclipseUiException("Cannot set " + jcrPrivilege + " for "
-					+ chosenUser.getName() + " on " + targetPath, re);
+			throw new EclipseUiException(
+					"Cannot set " + jcrPrivilege + " for " + chosenUser.getName() + " on " + targetPath, re);
 		}
 		return true;
 	}
 
-	private class DefinePrivilegePage extends WizardPage implements
-			ModifyListener {
+	private class DefinePrivilegePage extends WizardPage implements ModifyListener {
 		private static final long serialVersionUID = 8084431378762283920L;
 
 		// Context
@@ -156,12 +150,10 @@ public class AddPrivilegeWizard extends Wizard {
 
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					PickUpUserDialog dialog = new PickUpUserDialog(getShell(),
-							"Choose a group or a user", userAdmin);
+					PickUpUserDialog dialog = new PickUpUserDialog(getShell(), "Choose a group or a user", userAdmin);
 					if (dialog.open() == Window.OK) {
 						chosenUser = dialog.getSelected();
-						groupNameLbl.setText(UsersUtils
-								.getCommonName(chosenUser));
+						groupNameLbl.setText(UserAdminUtils.getCommonName(chosenUser));
 						groupNameTxt.setText(chosenUser.getName());
 					}
 				}
@@ -180,10 +172,8 @@ public class AddPrivilegeWizard extends Wizard {
 					try {
 						newChosen = (User) userAdmin.getRole(dn);
 					} catch (Exception e) {
-						boolean tryAgain = MessageDialog.openQuestion(
-								getShell(), "Unvalid DN",
-								"DN " + dn + " is not valid.\nError message: "
-										+ e.getMessage()
+						boolean tryAgain = MessageDialog.openQuestion(getShell(), "Unvalid DN",
+								"DN " + dn + " is not valid.\nError message: " + e.getMessage()
 										+ "\n\t\tDo you want to try again?");
 						if (tryAgain)
 							groupNameTxt.setFocus();
@@ -192,24 +182,20 @@ public class AddPrivilegeWizard extends Wizard {
 					}
 
 					if (userAdmin.getRole(dn) == null) {
-						boolean tryAgain = MessageDialog.openQuestion(
-								getShell(), "Unexisting role", "User/group "
-										+ dn + " does not exist. "
-										+ "Do you want to try again?");
+						boolean tryAgain = MessageDialog.openQuestion(getShell(), "Unexisting role",
+								"User/group " + dn + " does not exist. " + "Do you want to try again?");
 						if (tryAgain)
 							groupNameTxt.setFocus();
 						else
 							resetOnFail();
 					} else {
 						chosenUser = newChosen;
-						groupNameLbl.setText(UsersUtils
-								.getCommonName(chosenUser));
+						groupNameLbl.setText(UserAdminUtils.getCommonName(chosenUser));
 					}
 				}
 
 				private void resetOnFail() {
-					String oldDn = chosenUser == null ? "" : chosenUser
-							.getName();
+					String oldDn = chosenUser == null ? "" : chosenUser.getName();
 					groupNameTxt.setText(oldDn);
 				}
 
@@ -220,10 +206,8 @@ public class AddPrivilegeWizard extends Wizard {
 
 			// JCR Privileges
 			createBoldLabel(composite, "Privilege type");
-			Combo authorizationCmb = new Combo(composite, SWT.BORDER
-					| SWT.READ_ONLY | SWT.V_SCROLL);
-			authorizationCmb.setItems(AUTH_TYPE_LABELS.values().toArray(
-					new String[0]));
+			Combo authorizationCmb = new Combo(composite, SWT.BORDER | SWT.READ_ONLY | SWT.V_SCROLL);
+			authorizationCmb.setItems(AUTH_TYPE_LABELS.values().toArray(new String[0]));
 			authorizationCmb.setLayoutData(EclipseUiUtils.fillWidth(2));
 			createBoldLabel(composite, ""); // empty cell
 			final Label descLbl = new Label(composite, SWT.WRAP);
