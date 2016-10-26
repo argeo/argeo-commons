@@ -5,7 +5,6 @@ import javax.jcr.Node;
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.ui.CmsStyles;
-import org.argeo.node.NodeConstants;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;
@@ -28,8 +27,7 @@ public class UserMenuLink extends MenuLink {
 		else {
 			setLabel(CurrentUser.getDisplayName());
 		}
-		Label link = (Label) ((Composite) super.createUi(parent, context))
-				.getChildren()[0];
+		Label link = (Label) ((Composite) super.createUi(parent, context)).getChildren()[0];
 		link.addMouseListener(new UserMenuLinkController());
 		return link.getParent();
 	}
@@ -38,8 +36,7 @@ public class UserMenuLink extends MenuLink {
 		return new UserMenu(source.getParent());
 	}
 
-	private class UserMenuLinkController implements MouseListener,
-			DisposeListener {
+	private class UserMenuLinkController implements MouseListener, DisposeListener {
 		private static final long serialVersionUID = 3634864186295639792L;
 
 		private UserMenu userMenu = null;
@@ -53,8 +50,7 @@ public class UserMenuLink extends MenuLink {
 			if (e.button == 1) {
 				Control source = (Control) e.getSource();
 				if (userMenu == null) {
-					long durationSinceLastDispose = System.currentTimeMillis()
-							- lastDisposeTS;
+					long durationSinceLastDispose = System.currentTimeMillis() - lastDisposeTS;
 					// avoid to reopen the menu, if one has clicked gain
 					if (durationSinceLastDispose > 200) {
 						userMenu = createUserMenu(source);

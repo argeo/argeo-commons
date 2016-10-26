@@ -38,10 +38,15 @@ public class UserAdminUtils {
 		return getLdapName(name);
 	}
 
-	/** Retrieves the current logged-in user display name. */
+	/** Retrieves the current logged-in user mail */
 	public static String getCurrentUserMail(UserAdmin userAdmin) {
 		String username = CurrentUser.getUsername();
 		return getUserMail(userAdmin, username);
+	}
+
+	/** Retrieves the current logged-in user common name */
+	public final static String getCommonName(User user) {
+		return getProperty(user, LdapAttrs.cn.name());
 	}
 
 	// OTHER USERS HELPERS
