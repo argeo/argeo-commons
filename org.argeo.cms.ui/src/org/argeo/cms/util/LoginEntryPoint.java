@@ -2,7 +2,6 @@ package org.argeo.cms.util;
 
 import java.util.Locale;
 
-import javax.security.auth.login.CredentialNotFoundException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
@@ -38,25 +37,13 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 			// try pre-auth
 			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, loginShell);
 			loginContext.login();
-		} catch (CredentialNotFoundException e) {
+		} catch (LoginException e) {
 			loginShell.createUi();
 			loginShell.open();
 			while (!loginShell.getShell().isDisposed()) {
-				// try {
 				if (!display.readAndDispatch())
 					display.sleep();
-				// } catch (Exception e1) {
-				// try {
-				// Thread.sleep(3000);
-				// } catch (InterruptedException e2) {
-				// // silent
-				// }
-				// ErrorFeedback.show("Login failed", e1);
-				// return -1;
-				// }
 			}
-		} catch (LoginException e) {
-			throw new CmsException("Cannot log in", e);
 		}
 
 		if (CurrentUser.getUsername() == null)
@@ -76,8 +63,6 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 	protected HttpServletRequest getRequest() {
 		return RWT.getRequest();
 	}
-	
-	
 
 	protected CmsLoginShell createCmsLoginShell() {
 		return new CmsLoginShell(this) {
@@ -132,19 +117,6 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 			throw new CmsException("Cannot log out", e);
 		}
 	}
-	
-	
-
-	// @Override
-	// public final Subject getSubject() {
-	// return subject;
-	// }
-
-//	@Override
-//	public void registerCallbackHandler(CallbackHandler callbackHandler) {
-//		throw new UnsupportedOperationException();
-//		
-//	}
 
 	@Override
 	public void exception(Throwable e) {
@@ -167,5 +139,4 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 	public UxContext getUxContext() {
 		return uxContext;
 	}
-
 }

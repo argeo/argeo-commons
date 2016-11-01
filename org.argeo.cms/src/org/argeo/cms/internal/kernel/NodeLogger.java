@@ -150,7 +150,8 @@ class NodeLogger implements ArgeoLogger, LogListener {
 	}
 
 	private String msg(LogEntry status) {
-		StringBuilder sb = new StringBuilder(status.getMessage());
+		StringBuilder sb = new StringBuilder();
+		sb.append(status.getMessage());
 		ServiceReference<?> sr = status.getServiceReference();
 		if (sr != null) {
 			sb.append(' ');

@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.naming.LdapAttrs;
 import org.osgi.framework.Filter;
+import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
 /**
@@ -49,7 +50,11 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			// StartTlsResponse tls = (StartTlsResponse) ctx
 			// .extendedOperation(new StartTlsRequest());
 			// tls.negotiate();
-			initialLdapContext.addToEnvironment(Context.SECURITY_AUTHENTICATION, "simple");
+			Object securityAuthentication = properties.get(Context.SECURITY_AUTHENTICATION);
+			if (securityAuthentication != null)
+				initialLdapContext.addToEnvironment(Context.SECURITY_AUTHENTICATION, securityAuthentication);
+			else
+				initialLdapContext.addToEnvironment(Context.SECURITY_AUTHENTICATION, "simple");
 			Object principal = properties.get(Context.SECURITY_PRINCIPAL);
 			if (principal != null) {
 				initialLdapContext.addToEnvironment(Context.SECURITY_PRINCIPAL, principal.toString());
@@ -59,10 +64,6 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 
 				}
 			}
-			// initialLdapContext.addToEnvironment(Context.SECURITY_PRINCIPAL,
-			// "uid=admin,ou=system");
-			// initialLdapContext.addToEnvironment(Context.SECURITY_CREDENTIALS,
-			// "secret");
 		} catch (Exception e) {
 			throw new UserDirectoryException("Cannot connect to LDAP", e);
 		}
@@ -76,19 +77,21 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			log.error("Cannot destroy LDAP user admin", e);
 		}
 	}
-	
-	
 
 	@SuppressWarnings("unchecked")
 	@Override
 	protected AbstractUserDirectory scope(User user) {
 		Dictionary<String, Object> credentials = user.getCredentials();
 		// FIXME use arrays
-		Object usernameObj =	credentials.get(SHARED_STATE_USERNAME);
-		Object passwordObj =	credentials.get(SHARED_STATE_PASSWORD);
+		String username = (String) credentials.get(SHARED_STATE_USERNAME);
+		if (username == null)
+			username = user.getName();
+		// byte[] pwd = (byte[]) credentials.get(SHARED_STATE_PASSWORD);
+		// char[] password = DigestUtils.bytesToChars(pwd);
 		Dictionary<String, Object> properties = cloneProperties();
-		properties.put(Context.SECURITY_PRINCIPAL, usernameObj.toString());
-		properties.put(Context.SECURITY_CREDENTIALS, passwordObj.toString());
+		properties.put(Context.SECURITY_PRINCIPAL, username.toString());
+		// properties.put(Context.SECURITY_CREDENTIALS, password);
+		properties.put(Context.SECURITY_AUTHENTICATION, "GSSAPI");
 		return new LdapUserAdmin(properties);
 	}
 
@@ -107,15 +110,17 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			Attributes attrs = getLdapContext().getAttributes(name);
 			if (attrs.size() == 0)
 				return null;
+			int roleType = roleType(name);
 			LdifUser res;
-			if (attrs.get(objectClass.name()).contains(getGroupObjectClass()))
+			if (roleType == Role.GROUP)
 				res = new LdifGroup(this, name, attrs);
-			else if (attrs.get(objectClass.name()).contains(getUserObjectClass()))
+			else if (roleType == Role.USER)
 				res = new LdifUser(this, name, attrs);
 			else
 				throw new UserDirectoryException("Unsupported LDAP type for " + name);
 			return res;
 		} catch (NamingException e) {
+			log.error("Cannot get role: "+e.getMessage());
 			return null;
 		}
 	}

@@ -127,9 +127,11 @@ public enum UserAdminConf {
 			if (scheme != null)
 				if (scheme.equals("ldap") || scheme.equals("ldaps")) {
 					// TODO additional checks
-					String[] userInfo = u.getUserInfo().split(":");
-					principal = userInfo.length > 0 ? userInfo[0] : null;
-					credentials = userInfo.length > 1 ? userInfo[1] : null;
+					if (u.getUserInfo() != null) {
+						String[] userInfo = u.getUserInfo().split(":");
+						principal = userInfo.length > 0 ? userInfo[0] : null;
+						credentials = userInfo.length > 1 ? userInfo[1] : null;
+					}
 				} else if (scheme.equals("file")) {
 				} else
 					throw new UserDirectoryException("Unsupported scheme " + scheme);

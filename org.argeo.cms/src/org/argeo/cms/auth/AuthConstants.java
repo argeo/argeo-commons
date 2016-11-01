@@ -3,8 +3,11 @@ package org.argeo.cms.auth;
 import org.argeo.node.NodeConstants;
 
 /** Public properties of the CMS Kernel */
-@Deprecated
 interface AuthConstants {
+	
+	static final String SHARED_STATE_USERNAME = "javax.security.auth.login.name";
+	static final String SHARED_STATE_PASSWORD = "javax.security.auth.login.password";
+
 	// LOGIN CONTEXTS
 	/**
 	 * @deprecated Use {@link NodeConstants#LOGIN_CONTEXT_USER} instead

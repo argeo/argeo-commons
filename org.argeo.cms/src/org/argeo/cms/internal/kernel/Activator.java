@@ -8,6 +8,8 @@ import java.util.Dictionary;
 import java.util.List;
 import java.util.Locale;
 
+import javax.security.auth.login.Configuration;
+
 import org.argeo.cms.CmsException;
 import org.argeo.node.ArgeoLogger;
 import org.argeo.node.NodeConstants;
@@ -44,9 +46,9 @@ public class Activator implements BundleActivator {
 		this.logReaderService = getService(LogReaderService.class);
 		// this.configurationAdmin = getService(ConfigurationAdmin.class);
 
-		initSecurity();// must be first
-		initArgeoLogger();
 		try {
+			initSecurity();// must be first
+			initArgeoLogger();
 			initNode();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -55,10 +57,10 @@ public class Activator implements BundleActivator {
 	}
 
 	private void initSecurity() {
-		URL url = getClass().getClassLoader().getResource(
-				KernelConstants.JAAS_CONFIG);
-		System.setProperty("java.security.auth.login.config",
-				url.toExternalForm());
+		URL url = getClass().getClassLoader().getResource(KernelConstants.JAAS_CONFIG);
+//		URL url = getClass().getClassLoader().getResource(KernelConstants.JAAS_CONFIG_IPA);
+		System.setProperty("java.security.auth.login.config", url.toExternalForm());
+		Configuration.getConfiguration();
 	}
 
 	private void initArgeoLogger() {
@@ -77,8 +79,7 @@ public class Activator implements BundleActivator {
 			Files.write(stateUuidPath, stateUuid.getBytes());
 		}
 		nodeState = new CmsState(stateUuid);
-		Dictionary<String, Object> regProps = LangUtils.dico(
-				Constants.SERVICE_PID, NodeConstants.NODE_STATE_PID);
+		Dictionary<String, Object> regProps = LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_STATE_PID);
 		regProps.put(NodeConstants.CN, stateUuid);
 		bc.registerService(NodeState.class, nodeState, regProps);
 

@@ -74,8 +74,10 @@ public class UserAdminLoginModule implements LoginModule {
 		if (sharedState.containsKey(CmsAuthUtils.SHARED_STATE_NAME)
 				&& sharedState.containsKey(CmsAuthUtils.SHARED_STATE_PWD)) {
 			username = (String) sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
-			password = (char[]) sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
+			password = (char[]) sharedState.get(CmsAuthUtils.SHARED_STATE_PWD);
 			// TODO locale?
+			AuthenticatingUser authenticatingUser = new AuthenticatingUser(username, password);
+			authorization = userAdmin.getAuthorization(authenticatingUser);
 		} else {
 
 			// ask for username and password
@@ -114,23 +116,22 @@ public class UserAdminLoginModule implements LoginModule {
 				password = passwordCallback.getPassword();
 			else
 				throw new CredentialNotFoundException("No credentials provided");
+			// FIXME move Argeo specific convention from user admin to here
+			User user = userAdmin.getUser(null, username);
+			if (user == null)
+				throw new FailedLoginException("Invalid credentials");
+			if (!user.hasCredential(null, password))
+				throw new FailedLoginException("Invalid credentials");
+			// return false;
+
+			// Log and monitor new login
+			// if (log.isDebugEnabled())
+			// log.debug("Logged in to CMS with username [" + username +
+			// "]");
+
+			authorization = userAdmin.getAuthorization(user);
+			assert authorization != null;
 		}
-
-		// FIXME move Argeo specific convention from user admin to here
-		User user = userAdmin.getUser(null, username);
-		if (user == null)
-			throw new FailedLoginException("Invalid credentials");
-		if (!user.hasCredential(null, password))
-			throw new FailedLoginException("Invalid credentials");
-		// return false;
-
-		// Log and monitor new login
-		// if (log.isDebugEnabled())
-		// log.debug("Logged in to CMS with username [" + username +
-		// "]");
-
-		authorization = userAdmin.getAuthorization(user);
-		assert authorization != null;
 
 		// }
 		// if

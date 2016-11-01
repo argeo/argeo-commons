@@ -1,0 +1,98 @@
+package org.argeo.cms.auth;
+
+import java.security.PrivilegedAction;
+import java.util.Map;
+import java.util.Set;
+
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
+
+import org.argeo.cms.CmsException;
+import org.argeo.naming.LdapAttrs;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.service.useradmin.Authorization;
+import org.osgi.service.useradmin.UserAdmin;
+
+public class IpaLoginModule implements LoginModule {
+	private BundleContext bc;
+	private Subject subject;
+
+	@Override
+	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,
+			Map<String, ?> options) {
+		this.subject = subject;
+		try {
+			bc = FrameworkUtil.getBundle(IpaLoginModule.class).getBundleContext();
+			assert bc != null;
+		} catch (Exception e) {
+			throw new CmsException("Cannot initialize login module", e);
+		}
+	}
+
+	@Override
+	public boolean login() throws LoginException {
+		return true;
+	}
+
+	@Override
+	public boolean commit() throws LoginException {
+		UserAdmin userAdmin = bc.getService(bc.getServiceReference(UserAdmin.class));
+		Authorization authorization = null;
+		Set<KerberosPrincipal> kerberosPrincipals = subject.getPrincipals(KerberosPrincipal.class);
+		if (kerberosPrincipals.isEmpty()) {
+			authorization = userAdmin.getAuthorization(null);
+		} else {
+			KerberosPrincipal kerberosPrincipal = kerberosPrincipals.iterator().next();
+			LdapName dn = kerberosToIpa(kerberosPrincipal);
+			AuthenticatingUser authenticatingUser = new AuthenticatingUser(dn);
+			authorization = Subject.doAs(subject, new PrivilegedAction<Authorization>() {
+
+				@Override
+				public Authorization run() {
+					Authorization authorization = userAdmin.getAuthorization(authenticatingUser);
+					return authorization;
+				}
+
+			});
+		}
+		if (authorization == null)
+			return false;
+		CmsAuthUtils.addAuthentication(subject, authorization);
+		return true;
+	}
+
+	private LdapName kerberosToIpa(KerberosPrincipal kerberosPrincipal) {
+		String[] kname = kerberosPrincipal.getName().split("@");
+		String username = kname[0];
+		String[] dcs = kname[1].split("\\.");
+		StringBuilder sb = new StringBuilder();
+		for (String dc : dcs) {
+			sb.append(',').append(LdapAttrs.dc.name()).append('=').append(dc.toLowerCase());
+		}
+		String dn = LdapAttrs.uid + "=" + username + ",cn=users,cn=accounts" + sb;
+		try {
+			return new LdapName(dn);
+		} catch (InvalidNameException e) {
+			throw new CmsException("Badly formatted name for " + kerberosPrincipal + ": " + dn);
+		}
+	}
+
+	@Override
+	public boolean abort() throws LoginException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean logout() throws LoginException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+}

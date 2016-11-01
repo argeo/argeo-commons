@@ -109,7 +109,6 @@ class KernelUtils implements KernelConstants {
 	}
 
 	// Security
-	@Deprecated
 	static Subject anonymousLogin() {
 		Subject subject = new Subject();
 		LoginContext lc;

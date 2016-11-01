@@ -46,7 +46,7 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 	private final static Log log = LogFactory.getLog(AbstractUserDirectory.class);
 
 	private final Hashtable<String, Object> properties;
-	private final LdapName baseDn;
+	private final LdapName baseDn, userBaseDn, groupBaseDn;
 	private final String userObjectClass, userBase, groupObjectClass, groupBase;
 
 	private final boolean readOnly;
@@ -80,8 +80,14 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 				throw new UserDirectoryException("Badly formatted URI " + uriStr, e);
 			}
 
+		userObjectClass = UserAdminConf.userObjectClass.getValue(properties);
+		userBase = UserAdminConf.userBase.getValue(properties);
+		groupObjectClass = UserAdminConf.groupObjectClass.getValue(properties);
+		groupBase = UserAdminConf.groupBase.getValue(properties);
 		try {
 			baseDn = new LdapName(UserAdminConf.baseDn.getValue(properties));
+			userBaseDn = new LdapName(userBase + "," + baseDn);
+			groupBaseDn = new LdapName(groupBase + "," + baseDn);
 		} catch (InvalidNameException e) {
 			throw new UserDirectoryException("Badly formated base DN " + UserAdminConf.baseDn.getValue(properties), e);
 		}
@@ -91,11 +97,6 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 			properties.put(UserAdminConf.readOnly.name(), Boolean.toString(readOnly));
 		} else
 			readOnly = new Boolean(readOnlyStr);
-
-		userObjectClass = UserAdminConf.userObjectClass.getValue(properties);
-		userBase = UserAdminConf.userBase.getValue(properties);
-		groupObjectClass = UserAdminConf.groupObjectClass.getValue(properties);
-		groupBase = UserAdminConf.groupBase.getValue(properties);
 	}
 
 	/** Returns the groups this user is a direct member of. */
@@ -397,9 +398,13 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 		return externalRoles;
 	}
 
-	public LdapName getBaseDn() {
-		// always clone so that the property is not modified by reference
-		return (LdapName) baseDn.clone();
+	protected int roleType(LdapName dn) {
+		if (dn.startsWith(groupBaseDn))
+			return Role.GROUP;
+		else if (dn.startsWith(userBaseDn))
+			return Role.USER;
+		else
+			return Role.GROUP;
 	}
 
 	/** dn can be null, in that case a default should be returned. */
@@ -421,6 +426,10 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 
 	public String getGroupBase() {
 		return groupBase;
+	}
+
+	public LdapName getBaseDn() {
+		return (LdapName) baseDn.clone();
 	}
 
 	public Dictionary<String, Object> getProperties() {

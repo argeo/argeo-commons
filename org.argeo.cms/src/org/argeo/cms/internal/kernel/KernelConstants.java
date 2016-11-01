@@ -18,6 +18,7 @@ public interface KernelConstants {
 	// Security
 //	String DEFAULT_SECURITY_KEY = "argeo";
 	String JAAS_CONFIG = "/org/argeo/cms/internal/kernel/jaas.cfg";
+	String JAAS_CONFIG_IPA = "/org/argeo/cms/internal/kernel/jaas-ipa.cfg";
 //	String LOGIN_CONTEXT_KERNEL = "KERNEL";
 //	String LOGIN_CONTEXT_HARDENED_KERNEL = "HARDENED_KERNEL";
 
