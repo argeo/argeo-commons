@@ -21,12 +21,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /** Utilities around cryptographic digests */
 public class DigestUtils {
-	private static Boolean debug = true;
+	private static Boolean debug = false;
 	// TODO: make it writable
 	private final static Integer byteBufferCapacity = 100 * 1024;// 100 KB
 
@@ -105,6 +108,39 @@ public class DigestUtils {
 		}
 	}
 
+	public static byte[] digestRaw(String algorithm, Path file, long bufferSize) {
+		long begin = System.currentTimeMillis();
+		try {
+			MessageDigest md = MessageDigest.getInstance(algorithm);
+			FileChannel fc = FileChannel.open(file);
+			long fileSize = Files.size(file);
+			if (fileSize <= bufferSize) {
+				ByteBuffer bb = fc.map(MapMode.READ_ONLY, 0, fileSize);
+				md.update(bb);
+			} else {
+				long lastCycle = (fileSize / bufferSize) - 1;
+				long position = 0;
+				for (int i = 0; i <= lastCycle; i++) {
+					ByteBuffer bb;
+					if (i != lastCycle) {
+						bb = fc.map(MapMode.READ_ONLY, position, bufferSize);
+						position = position + bufferSize;
+					} else {
+						bb = fc.map(MapMode.READ_ONLY, position, fileSize - bufferSize);
+						position = fileSize;
+					}
+					md.update(bb);
+				}
+			}
+			long end = System.currentTimeMillis();
+			if (debug)
+				System.out.println((end - begin) + " ms / " + ((end - begin) / 1000) + " s");
+			return md.digest();
+		} catch (Exception e) {
+			throw new UtilsException("Cannot digest " + file + "  with algorithm " + algorithm, e);
+		}
+	}
+
 	public static void main(String[] args) {
 		File file;
 		if (args.length > 0)
@@ -130,14 +166,14 @@ public class DigestUtils {
 		}
 	}
 
-	final private static char[] hexArray = "0123456789ABCDEF".toCharArray();
+	final private static char[] hexArray = "0123456789abcdef".toCharArray();
 
 	/**
 	 * From
 	 * http://stackoverflow.com/questions/9655181/how-to-convert-a-byte-array-to
 	 * -a-hex-string-in-java
 	 */
-	private static String encodeHexString(byte[] bytes) {
+	public static String encodeHexString(byte[] bytes) {
 		char[] hexChars = new char[bytes.length * 2];
 		for (int j = 0; j < bytes.length; j++) {
 			int v = bytes[j] & 0xFF;
