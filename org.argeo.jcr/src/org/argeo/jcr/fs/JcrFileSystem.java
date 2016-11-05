@@ -8,8 +8,10 @@ import java.nio.file.PathMatcher;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.UserPrincipalLookupService;
 import java.nio.file.spi.FileSystemProvider;
+import java.util.HashSet;
 import java.util.Set;
 
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.argeo.jcr.JcrUtils;
@@ -51,43 +53,56 @@ public class JcrFileSystem extends FileSystem {
 
 	@Override
 	public Iterable<Path> getRootDirectories() {
-		return null;
+		try {
+			Set<Path> single = new HashSet<>();
+			single.add(new JcrPath(this, session.getRootNode()));
+			return single;
+		} catch (RepositoryException e) {
+			throw new JcrFsException("Cannot get root path", e);
+		}
 	}
 
 	@Override
 	public Iterable<FileStore> getFileStores() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public Set<String> supportedFileAttributeViews() {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			String[] prefixes = session.getNamespacePrefixes();
+			Set<String> res = new HashSet<>();
+			for (String prefix : prefixes)
+				res.add(prefix);
+			res.add("basic");
+			return res;
+		} catch (RepositoryException e) {
+			throw new JcrFsException("Cannot get supported file attributes views", e);
+		}
 	}
 
 	@Override
 	public Path getPath(String first, String... more) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder sb = new StringBuilder(first);
+		// TODO Make it more robust
+		for (String part : more)
+			sb.append('/').append(part);
+		return new JcrPath(this, sb.toString());
 	}
 
 	@Override
 	public PathMatcher getPathMatcher(String syntaxAndPattern) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public UserPrincipalLookupService getUserPrincipalLookupService() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public WatchService newWatchService() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	public Session getSession() {

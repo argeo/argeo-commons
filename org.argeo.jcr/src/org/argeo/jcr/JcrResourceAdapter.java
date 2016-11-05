@@ -37,6 +37,7 @@ import org.apache.commons.logging.LogFactory;
  * Bridge Spring resources and JCR folder / files semantics (nt:folder /
  * nt:file), supporting versioning as well.
  */
+@Deprecated
 public class JcrResourceAdapter {
 	private final static Log log = LogFactory.getLog(JcrResourceAdapter.class);
 

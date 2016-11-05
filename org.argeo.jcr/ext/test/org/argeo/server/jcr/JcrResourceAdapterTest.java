@@ -28,6 +28,7 @@ import org.argeo.jcr.JcrResourceAdapter;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
+@Deprecated
 public class JcrResourceAdapterTest extends AbstractJackrabbitTestCase {
 	private static SimpleDateFormat sdf = new SimpleDateFormat(
 			"yyyyMMdd:hhmmss.SSS");
