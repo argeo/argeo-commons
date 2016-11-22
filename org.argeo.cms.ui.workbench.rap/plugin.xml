@@ -75,11 +75,11 @@
 		<menuContribution locationURI="menu:org.argeo.cms.ui.workbench.rap.mainMenu">
 			<!-- Managed programmatically in the RapActionBarAdvisor to enable 
 			     the display of the current logged-in user id -->
-		<!--	<command
+			<command
 				commandId="org.argeo.cms.ui.workbench.rap.userMenuCommand"
 				icon="icons/main.gif"
 				id="org.argeo.cms.ui.workbench.rap.userMenu">
-			</command> -->
+			</command>
 			<!-- Still unused
 			<command
 				commandId="org.eclipse.ui.window.preferences"
