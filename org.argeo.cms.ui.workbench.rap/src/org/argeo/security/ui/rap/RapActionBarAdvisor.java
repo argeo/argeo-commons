@@ -33,7 +33,7 @@ import org.eclipse.ui.commands.ICommandService;
 
 /** Eclipse rap specific action bar advisor */
 public class RapActionBarAdvisor extends ActionBarAdvisor {
-	private final static String ID_BASE = "org.argeo.security.ui.rap";
+	private final static String ID_BASE = SecureRapActivator.ID;
 	// private final static Log log = LogFactory
 	// .getLog(SecureActionBarAdvisor.class);
 
@@ -154,7 +154,7 @@ public class RapActionBarAdvisor extends ActionBarAdvisor {
 	//
 	// @Override
 	// public String getId() {
-	// return "org.argeo.security.ui.rap.userMenu";
+	// return "org.argeo.cms.ui.workbench.rap.userMenu";
 	// }
 	//
 	// @Override

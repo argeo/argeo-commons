@@ -4,41 +4,41 @@
    <extension
          point="org.eclipse.rap.ui.entrypoint">
       <entrypoint
-            id="org.argeo.security.ui.rap.secureEntryPoint"
+            id="org.argeo.cms.ui.workbench.rap.secureEntryPoint"
             class="org.argeo.security.ui.rap.RapWorkbenchLogin"
             path="/node"
-            brandingId="org.argeo.security.ui.rap.defaultBranding">
+            brandingId="org.argeo.cms.ui.workbench.rap.defaultBranding">
       </entrypoint>
       <entrypoint
-            id="org.argeo.security.ui.rap.anonymousEntryPoint"
+            id="org.argeo.cms.ui.workbench.rap.anonymousEntryPoint"
             class="org.argeo.security.ui.rap.AnonymousEntryPoint"
             path="/public"
-            brandingId="org.argeo.security.ui.rap.defaultBranding">
+            brandingId="org.argeo.cms.ui.workbench.rap.defaultBranding">
       </entrypoint>
-      <entrypoint
-            brandingId="org.argeo.security.ui.rap.defaultBranding"
+<!--      <entrypoint
+            id="org.argeo.cms.ui.workbench.rap.secureEntryPoint"
             class="org.argeo.security.ui.rap.RapWorkbenchLogin"
-            id="org.argeo.security.ui.rap.secureEntryPoint"
-            path="/login">
-      </entrypoint>
+            path="/login"
+            brandingId="org.argeo.cms.ui.workbench.rap.defaultBranding">
+      </entrypoint> -->
    </extension>
 
 	<!-- COMMANDS --> 
 	<extension point="org.eclipse.ui.commands">
 		<command
-			id="org.argeo.security.ui.rap.mainMenuCommand"
-			defaultHandler="org.argeo.security.ui.rap.commands.OpenHome"
+			id="org.argeo.cms.ui.workbench.rap.mainMenuCommand"
+			defaultHandler="org.argeo.cms.ui.workbench.rap.commands.OpenHome"
 			name="Main"> 
 		</command>
 		<command
-			id="org.argeo.security.ui.rap.openChangePasswordDialog"
+			id="org.argeo.cms.ui.workbench.rap.openChangePasswordDialog"
 			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
 			name="%changePassword">
 		</command>
 		<!-- Enable an "open file" action in a single sourced application  -->  
 		<command
-			defaultHandler="org.argeo.eclipse.spring.SpringExtensionFactory"
 			id="org.argeo.eclipse.ui.workbench.openFile"
+			defaultHandler="org.argeo.eclipse.spring.SpringExtensionFactory"
 			name="OpenFile">
 			<commandParameter
          		id="param.fileName"
@@ -59,11 +59,11 @@
 	<extension point="org.eclipse.ui.menus">
     	<!-- Main tool bar menu -->
     	<menuContribution locationURI="toolbar:org.eclipse.ui.main.toolbar">
-        	<toolbar id="org.argeo.security.ui.rap.userToolbar">
+        	<toolbar id="org.argeo.cms.ui.workbench.rap.userToolbar">
 				<command
-					commandId="org.argeo.security.ui.rap.mainMenuCommand"
+					commandId="org.argeo.cms.ui.workbench.rap.mainMenuCommand"
 					icon="icons/home.gif"
-					id="org.argeo.security.ui.rap.mainMenu"
+					id="org.argeo.cms.ui.workbench.rap.mainMenu"
 					style="pulldown">
 				</command>
 				<command commandId="org.eclipse.ui.file.save"/>
@@ -72,24 +72,24 @@
 		</menuContribution>
 		
 		<!-- User drop down default menu -->
-		<menuContribution locationURI="menu:org.argeo.security.ui.rap.mainMenu">
+		<menuContribution locationURI="menu:org.argeo.cms.ui.workbench.rap.mainMenu">
 			<!-- Managed programmatically in the RapActionBarAdvisor to enable 
 			     the display of the current logged-in user id -->
-			<command
-				commandId="org.argeo.security.ui.rap.userMenuCommand"
+		<!--	<command
+				commandId="org.argeo.cms.ui.workbench.rap.userMenuCommand"
 				icon="icons/main.gif"
-				id="org.argeo.security.ui.rap.userMenu">
-			</command>
+				id="org.argeo.cms.ui.workbench.rap.userMenu">
+			</command> -->
 			<!-- Still unused
 			<command
 				commandId="org.eclipse.ui.window.preferences"
 				icon="icons/preferences.png"/> -->
         	<command
-				commandId="org.argeo.security.ui.rap.openChangePasswordDialog"
+				commandId="org.argeo.cms.ui.workbench.rap.openChangePasswordDialog"
 				icon="icons/password.gif"
 				label="%changePassword"/>
 			<separator
-				name="org.argeo.security.ui.rap.beforeFile"
+				name="org.argeo.cms.ui.workbench.rap.beforeFile"
 				visible="true">
 			</separator>
 			<command
@@ -100,9 +100,8 @@
 	
 			<!--<command commandId="org.eclipse.ui.views.showView"/>-->
     		<!--<command commandId="org.eclipse.ui.perspectives.showPerspective"/>-->
-	
 			<separator
-				name="org.argeo.security.ui.rap.beforeExit"
+				name="org.argeo.cms.ui.workbench.rap.beforeExit"
 				visible="true">
 			</separator>
 			<command commandId="org.eclipse.ui.file.exit" icon="icons/exit.png"/>
@@ -123,7 +122,7 @@
            point="org.eclipse.ui.activities">
         <activity
               description="Anonymous"
-              id="org.argeo.security.ui.rap.anonymousActivity"
+              id="org.argeo.cms.ui.workbench.rap.anonymousActivity"
               name="Anonymous">
 		  <enabledWhen>
 		    <with variable="roles">
@@ -135,7 +134,7 @@
         </activity>
         <activity
               description="Not anonymous"
-              id="org.argeo.security.ui.rap.notAnonymousActivity"
+              id="org.argeo.cms.ui.workbench.rap.notAnonymousActivity"
               name="NotAnonymous">
 		  <enabledWhen>
 		  	<not>
@@ -148,21 +147,21 @@
 		  </enabledWhen>
         </activity>
 		<activityPatternBinding
-              activityId="org.argeo.security.ui.rap.notAnonymousActivity"
-              pattern="org.argeo.security.ui.rap/org.argeo.security.ui.rap.userMenuCommand"/>         
+              activityId="org.argeo.cms.ui.workbench.rap.notAnonymousActivity"
+              pattern="org.argeo.cms.ui.workbench.rap/org.argeo.cms.ui.workbench.rap.userMenuCommand"/>         
         <activityPatternBinding
-              activityId="org.argeo.security.ui.rap.notAnonymousActivity"
-              pattern="org.argeo.security.ui.rap/org.eclipse.ui.window.preferences"/>
+              activityId="org.argeo.cms.ui.workbench.rap.notAnonymousActivity"
+              pattern="org.argeo.cms.ui.workbench.rap/org.eclipse.ui.window.preferences"/>
         <activityPatternBinding
-              activityId="org.argeo.security.ui.rap.notAnonymousActivity"
-              pattern="org.argeo.security.ui.rap/org.argeo.security.ui.rap.openChangePasswordDialog"/>
+              activityId="org.argeo.cms.ui.workbench.rap.notAnonymousActivity"
+              pattern="org.argeo.cms.ui.workbench.rap/org.argeo.cms.ui.workbench.rap.openChangePasswordDialog"/>
      </extension>
     
     <!-- BRANDINGS --> 
      <extension
          point="org.eclipse.rap.ui.branding">
     	<branding
-			id="org.argeo.security.ui.rap.defaultBranding"
+			id="org.argeo.cms.ui.workbench.rap.defaultBranding"
             themeId="org.eclipse.rap.rwt.theme.Default"
             title="Argeo Web UI"
             favicon="branding/favicon.ico">
@@ -170,7 +169,7 @@
       	<!-- we need a servlet with this name j_spring_security_logout
       		 for the logout filter -->
     	<branding
-			id="org.argeo.security.ui.rap.logoutBranding"
+			id="org.argeo.cms.ui.workbench.rap.logoutBranding"
             title="Argeo Logout"
             favicon="branding/favicon.ico"
             body="branding/empty.html">

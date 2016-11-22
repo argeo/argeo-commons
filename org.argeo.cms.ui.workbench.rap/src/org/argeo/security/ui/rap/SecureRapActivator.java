@@ -20,7 +20,7 @@ import org.osgi.framework.BundleContext;
 
 /** Configure Equinox login context from the bundle context. */
 public class SecureRapActivator implements BundleActivator {
-	public final static String ID = "org.argeo.security.ui.rap";
+	public final static String ID = "org.argeo.cms.ui.workbench.rap";
 
 	private static BundleContext bundleContext;
 

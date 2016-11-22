@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.ui.rap.commands;
+package org.argeo.cms.ui.workbench.rap.commands;
 
 import org.argeo.cms.ui.workbench.UserHomePerspective;
 import org.argeo.cms.ui.workbench.util.CommandUtils;
