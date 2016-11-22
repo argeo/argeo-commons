@@ -25,6 +25,7 @@ import javax.naming.ldap.Rdn;
 
 import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
+import org.argeo.cms.ui.workbench.internal.useradmin.UiAdminUtils;
 import org.argeo.cms.ui.workbench.internal.useradmin.UserAdminWrapper;
 import org.argeo.cms.util.UserAdminUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
@@ -54,13 +55,6 @@ import org.osgi.service.useradmin.UserAdminEvent;
 
 /** Open a wizard that enables creation of a new user. */
 public class NewUser extends AbstractHandler {
-	/**
-	 * Email addresses must match this regexp pattern ({@value #EMAIL_PATTERN}.
-	 * Thanks to <a href=
-	 * "http://www.mkyong.com/regular-expressions/how-to-validate-email-address-with-regular-expression/"
-	 * >this tip</a>.
-	 */
-	public final static String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 	// private final static Log log = LogFactory.getLog(NewUser.class);
 	public final static String ID = WorkbenchUiPlugin.PLUGIN_ID + ".newUser";
 
@@ -236,7 +230,7 @@ public class NewUser extends AbstractHandler {
 						.getRole(getDn(name));
 				if (role != null)
 					return "User " + name + " already exists";
-				if (!primaryMailTxt.getText().matches(EMAIL_PATTERN))
+				if (!primaryMailTxt.getText().matches(UiAdminUtils.EMAIL_PATTERN))
 					return "Not a valid email address";
 				if (lastNameTxt.getText().trim().equals(""))
 					return "Specify a last name";

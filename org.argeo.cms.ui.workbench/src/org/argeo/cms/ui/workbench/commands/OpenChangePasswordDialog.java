@@ -55,17 +55,15 @@ import org.osgi.service.useradmin.UserAdmin;
 
 /** Open the change password dialog */
 public class OpenChangePasswordDialog extends AbstractHandler {
-	private final static Log log = LogFactory
-			.getLog(OpenChangePasswordDialog.class);
+	private final static Log log = LogFactory.getLog(OpenChangePasswordDialog.class);
 	private UserAdmin userAdmin;
 	private UserTransaction userTransaction;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		ChangePasswordDialog dialog = new ChangePasswordDialog(
-				HandlerUtil.getActiveShell(event), userAdmin);
+		ChangePasswordDialog dialog = new ChangePasswordDialog(HandlerUtil.getActiveShell(event), userAdmin);
 		if (dialog.open() == Dialog.OK) {
-			MessageDialog.openInformation(HandlerUtil.getActiveShell(event),
-					passwordChanged.lead(), passwordChanged.lead());
+			MessageDialog.openInformation(HandlerUtil.getActiveShell(event), passwordChanged.lead(),
+					passwordChanged.lead());
 		}
 		return null;
 	}
@@ -73,8 +71,7 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 	@SuppressWarnings("unchecked")
 	protected void changePassword(char[] oldPassword, char[] newPassword) {
 		Subject subject = Subject.getSubject(AccessController.getContext());
-		String name = subject.getPrincipals(X500Principal.class).iterator()
-				.next().toString();
+		String name = subject.getPrincipals(X500Principal.class).iterator().next().toString();
 		LdapName dn;
 		try {
 			dn = new LdapName(name);
@@ -103,14 +100,6 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 		}
 	}
 
-	public void setUserAdmin(UserAdmin userDetailsManager) {
-		this.userAdmin = userDetailsManager;
-	}
-
-	public void setUserTransaction(UserTransaction userTransaction) {
-		this.userTransaction = userTransaction;
-	}
-
 	class ChangePasswordDialog extends TitleAreaDialog {
 		private static final long serialVersionUID = -6963970583882720962L;
 		private Text oldPassword, newPassword1, newPassword2;
@@ -125,12 +114,10 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 
 		protected Control createDialogArea(Composite parent) {
 			Composite dialogarea = (Composite) super.createDialogArea(parent);
-			dialogarea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-					true));
+			dialogarea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 			Composite composite = new Composite(dialogarea, SWT.NONE);
 			composite.setLayout(new GridLayout(2, false));
-			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-					false));
+			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 			oldPassword = createLP(composite, currentPassword.lead());
 			newPassword1 = createLP(composite, newPassword.lead());
 			newPassword2 = createLP(composite, repeatNewPassword.lead());
@@ -145,8 +132,7 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 			try {
 				if (!newPassword1.getText().equals(newPassword2.getText()))
 					throw new CmsException("New passwords are different");
-				changePassword(oldPassword.getTextChars(),
-						newPassword1.getTextChars());
+				changePassword(oldPassword.getTextChars(), newPassword1.getTextChars());
 				close();
 			} catch (Exception e) {
 				ErrorFeedback.show("Cannot change password", e);
@@ -156,8 +142,7 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 		/** Creates label and password. */
 		protected Text createLP(Composite parent, String label) {
 			new Label(parent, SWT.NONE).setText(label);
-			Text text = new Text(parent, SWT.SINGLE | SWT.LEAD | SWT.PASSWORD
-					| SWT.BORDER);
+			Text text = new Text(parent, SWT.SINGLE | SWT.LEAD | SWT.PASSWORD | SWT.BORDER);
 			text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 			return text;
 		}
@@ -166,5 +151,13 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 			super.configureShell(shell);
 			shell.setText(changePassword.lead());
 		}
+	}
+
+	public void setUserAdmin(UserAdmin userAdmin) {
+		this.userAdmin = userAdmin;
+	}
+
+	public void setUserTransaction(UserTransaction userTransaction) {
+		this.userTransaction = userTransaction;
 	}
 }

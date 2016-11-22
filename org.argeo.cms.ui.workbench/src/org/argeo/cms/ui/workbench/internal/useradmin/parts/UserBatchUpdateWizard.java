@@ -12,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.ui.workbench.internal.useradmin.UiAdminUtils;
 import org.argeo.cms.ui.workbench.internal.useradmin.UserAdminWrapper;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.CommonNameLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.DomainNameLP;
@@ -45,12 +46,12 @@ import org.eclipse.swt.widgets.Text;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
+import org.osgi.service.useradmin.UserAdminEvent;
 
 /** Wizard to update users */
 public class UserBatchUpdateWizard extends Wizard {
 
-	private final static Log log = LogFactory
-			.getLog(UserBatchUpdateWizard.class);
+	private final static Log log = LogFactory.getLog(UserBatchUpdateWizard.class);
 	private UserAdminWrapper userAdminWrapper;
 
 	// pages
@@ -60,12 +61,14 @@ public class UserBatchUpdateWizard extends Wizard {
 
 	// Various implemented commands keys
 	private final static String CMD_UPDATE_PASSWORD = "resetPassword";
+	private final static String CMD_UPDATE_EMAIL = "resetEmail";
 	private final static String CMD_GROUP_MEMBERSHIP = "groupMembership";
 
 	private final Map<String, String> commands = new HashMap<String, String>() {
 		private static final long serialVersionUID = 1L;
 		{
 			put("Reset password(s)", CMD_UPDATE_PASSWORD);
+			put("Reset email(s)", CMD_UPDATE_EMAIL);
 			// TODO implement role / group management
 			// put("Add/Remove from group", CMD_GROUP_MEMBERSHIP);
 		}
@@ -92,14 +95,11 @@ public class UserBatchUpdateWizard extends Wizard {
 		UserTransaction ut = userAdminWrapper.getUserTransaction();
 		try {
 			if (ut.getStatus() != javax.transaction.Status.STATUS_NO_TRANSACTION
-					&& !MessageDialog.openConfirm(getShell(),
-							"Existing Transaction",
-							"A user transaction is already existing, "
-									+ "are you sure you want to proceed ?"))
+					&& !MessageDialog.openConfirm(getShell(), "Existing Transaction",
+							"A user transaction is already existing, " + "are you sure you want to proceed ?"))
 				return false;
 		} catch (SystemException e) {
-			throw new CmsException("Cannot get user transaction state "
-					+ "before user batch update", e);
+			throw new CmsException("Cannot get user transaction state " + "before user batch update", e);
 		}
 
 		// We cannot use jobs, user modifications are still meant to be done in
@@ -111,10 +111,14 @@ public class UserBatchUpdateWizard extends Wizard {
 		if (CMD_UPDATE_PASSWORD.equals(chooseCommandPage.getCommand())) {
 			char[] newValue = chooseCommandPage.getPwdValue();
 			if (newValue == null)
-				throw new CmsException(
-						"Password cannot be null or an empty string");
-			ResetPassword job = new ResetPassword(userAdminWrapper,
-					userListPage.getSelectedUsers(), newValue);
+				throw new CmsException("Password cannot be null or an empty string");
+			ResetPassword job = new ResetPassword(userAdminWrapper, userListPage.getSelectedUsers(), newValue);
+			job.doUpdate();
+		} else if (CMD_UPDATE_EMAIL.equals(chooseCommandPage.getCommand())) {
+			String newValue = chooseCommandPage.getEmailValue();
+			if (newValue == null)
+				throw new CmsException("Password cannot be null or an empty string");
+			ResetEmail job = new ResetEmail(userAdminWrapper, userListPage.getSelectedUsers(), newValue);
 			job.doUpdate();
 		}
 		return true;
@@ -131,8 +135,7 @@ public class UserBatchUpdateWizard extends Wizard {
 		private UserAdminWrapper userAdminWrapper;
 		private List<User> usersToUpdate;
 
-		public ResetPassword(UserAdminWrapper userAdminWrapper,
-				List<User> usersToUpdate, char[] newPwd) {
+		public ResetPassword(UserAdminWrapper userAdminWrapper, List<User> usersToUpdate, char[] newPwd) {
 			this.newPwd = newPwd;
 			this.usersToUpdate = usersToUpdate;
 			this.userAdminWrapper = userAdminWrapper;
@@ -148,17 +151,53 @@ public class UserBatchUpdateWizard extends Wizard {
 				}
 				userAdminWrapper.commitOrNotifyTransactionStateChange();
 			} catch (Exception e) {
-				throw new CmsException("Cannot perform batch update on users",
-						e);
+				throw new CmsException("Cannot perform batch update on users", e);
 			} finally {
 				UserTransaction ut = userAdminWrapper.getUserTransaction();
 				try {
 					if (ut.getStatus() != javax.transaction.Status.STATUS_NO_TRANSACTION)
 						ut.rollback();
-				} catch (IllegalStateException | SecurityException
-						| SystemException e) {
-					log.error("Unable to rollback session in 'finally', "
-							+ "the system might be in a dirty state");
+				} catch (IllegalStateException | SecurityException | SystemException e) {
+					log.error("Unable to rollback session in 'finally', " + "the system might be in a dirty state");
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	private class ResetEmail {
+		private String newEmail;
+		private UserAdminWrapper userAdminWrapper;
+		private List<User> usersToUpdate;
+
+		public ResetEmail(UserAdminWrapper userAdminWrapper, List<User> usersToUpdate, String newEmail) {
+			this.newEmail = newEmail;
+			this.usersToUpdate = usersToUpdate;
+			this.userAdminWrapper = userAdminWrapper;
+		}
+
+		@SuppressWarnings("unchecked")
+		protected void doUpdate() {
+			userAdminWrapper.beginTransactionIfNeeded();
+			try {
+				for (User user : usersToUpdate) {
+					// the char array is emptied after being used.
+					user.getProperties().put(LdapAttrs.mail.name(), newEmail);
+				}
+
+				userAdminWrapper.commitOrNotifyTransactionStateChange();
+				if (!usersToUpdate.isEmpty())
+					userAdminWrapper.notifyListeners(
+							new UserAdminEvent(null, UserAdminEvent.ROLE_CHANGED, usersToUpdate.get(0)));
+			} catch (Exception e) {
+				throw new CmsException("Cannot perform batch update on users", e);
+			} finally {
+				UserTransaction ut = userAdminWrapper.getUserTransaction();
+				try {
+					if (ut.getStatus() != javax.transaction.Status.STATUS_NO_TRANSACTION)
+						ut.rollback();
+				} catch (IllegalStateException | SecurityException | SystemException e) {
+					log.error("Unable to rollback session in finally block, the system might be in a dirty state");
 					e.printStackTrace();
 				}
 			}
@@ -240,7 +279,9 @@ public class UserBatchUpdateWizard extends Wizard {
 	// }
 
 	// PAGES
-	/** Displays a combo box that enables user to choose which action to perform */
+	/**
+	 * Displays a combo box that enables user to choose which action to perform
+	 */
 	private class ChooseCommandWizardPage extends WizardPage {
 		private static final long serialVersionUID = -8069434295293996633L;
 		private Combo chooseCommandCmb;
@@ -276,6 +317,8 @@ public class UserBatchUpdateWizard extends Wizard {
 				public void widgetSelected(SelectionEvent e) {
 					if (getCommand().equals(CMD_UPDATE_PASSWORD))
 						populatePasswordCmp(bottomPart);
+					else if (getCommand().equals(CMD_UPDATE_EMAIL))
+						populateEmailCmp(bottomPart);
 					else if (getCommand().equals(CMD_GROUP_MEMBERSHIP))
 						populateGroupCmp(bottomPart);
 					else
@@ -314,13 +357,33 @@ public class UserBatchUpdateWizard extends Wizard {
 			pwd2Txt = EclipseUiUtils.createGridLP(body, "Repeat password", ml);
 		}
 
+		private void populateEmailCmp(Composite parent) {
+			EclipseUiUtils.clear(parent);
+			Composite body = new Composite(parent, SWT.NO_FOCUS);
+
+			ModifyListener ml = new ModifyListener() {
+				private static final long serialVersionUID = 2147704227294268317L;
+
+				@Override
+				public void modifyText(ModifyEvent event) {
+					checkPageComplete();
+				}
+			};
+
+			body.setLayout(new GridLayout(2, false));
+			body.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			valueTxt = EclipseUiUtils.createGridLT(body, "New e-mail", ml);
+		}
+
 		private void checkPageComplete() {
 			String errorMsg = null;
 			if (chooseCommandCmb.getSelectionIndex() < 0)
 				errorMsg = "Please select an action";
-			else if (CMD_UPDATE_PASSWORD.equals(getCommand())) {
-				if (EclipseUiUtils.isEmpty(pwdTxt.getText())
-						|| pwdTxt.getText().length() < 4)
+			else if (CMD_UPDATE_EMAIL.equals(getCommand())) {
+				if (!valueTxt.getText().matches(UiAdminUtils.EMAIL_PATTERN))
+					errorMsg = "Not a valid e-mail address";
+			} else if (CMD_UPDATE_PASSWORD.equals(getCommand())) {
+				if (EclipseUiUtils.isEmpty(pwdTxt.getText()) || pwdTxt.getText().length() < 4)
 					errorMsg = "Please enter a password that is at least 4 character long";
 				else if (!pwdTxt.getText().equals(pwd2Txt.getText()))
 					errorMsg = "Passwords are different";
@@ -329,8 +392,7 @@ public class UserBatchUpdateWizard extends Wizard {
 				setMessage(errorMsg, WizardPage.ERROR);
 				setPageComplete(false);
 			} else {
-				setMessage("Page complete, you can proceed to user choice",
-						WizardPage.INFORMATION);
+				setMessage("Page complete, you can proceed to user choice", WizardPage.INFORMATION);
 				setPageComplete(true);
 			}
 
@@ -340,20 +402,17 @@ public class UserBatchUpdateWizard extends Wizard {
 		private void populateGroupCmp(Composite parent) {
 			EclipseUiUtils.clear(parent);
 			trueChk = new Button(parent, SWT.CHECK);
-			trueChk.setText("Add to group. (It will remove user(s) from the "
-					+ "corresponding group if unchecked)");
+			trueChk.setText("Add to group. (It will remove user(s) from the " + "corresponding group if unchecked)");
 			trueChk.setSelection(true);
 			trueChk.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
 		}
 
 		protected String getCommand() {
-			return commands.get(chooseCommandCmb.getItem(chooseCommandCmb
-					.getSelectionIndex()));
+			return commands.get(chooseCommandCmb.getItem(chooseCommandCmb.getSelectionIndex()));
 		}
 
 		protected String getCommandLbl() {
-			return chooseCommandCmb.getItem(chooseCommandCmb
-					.getSelectionIndex());
+			return chooseCommandCmb.getItem(chooseCommandCmb.getSelectionIndex());
 		}
 
 		@SuppressWarnings("unused")
@@ -386,14 +445,24 @@ public class UserBatchUpdateWizard extends Wizard {
 			else
 				return pwdTxt.getText().toCharArray();
 		}
+
+		protected String getEmailValue() {
+			// We do not directly reset the password text fields: There is no
+			// need to over secure this process: setting a pwd to multi users
+			// at the same time is anyhow a bad practice and should be used only
+			// in test environment or for temporary access
+			if (valueTxt == null || valueTxt.isDisposed())
+				return null;
+			else
+				return valueTxt.getText();
+		}
 	}
 
 	/**
 	 * Displays a list of users with a check box to be able to choose some of
 	 * them
 	 */
-	private class ChooseUsersWizardPage extends WizardPage implements
-			IPageChangedListener {
+	private class ChooseUsersWizardPage extends WizardPage implements IPageChangedListener {
 		private static final long serialVersionUID = 7651807402211214274L;
 		private ChooseUserTableViewer userTableCmp;
 
@@ -409,19 +478,15 @@ public class UserBatchUpdateWizard extends Wizard {
 
 			// Define the displayed columns
 			List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
-			columnDefs.add(new ColumnDefinition(new CommonNameLP(),
-					"Common Name", 150));
+			columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name", 150));
 			columnDefs.add(new ColumnDefinition(new MailLP(), "E-mail", 150));
-			columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain",
-					200));
+			columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain", 200));
 
 			// Only show technical DN to admin
 			if (CurrentUser.isInRole(NodeConstants.ROLE_ADMIN))
-				columnDefs.add(new ColumnDefinition(new UserNameLP(),
-						"Distinguished Name", 300));
+				columnDefs.add(new ColumnDefinition(new UserNameLP(), "Distinguished Name", 300));
 
-			userTableCmp = new ChooseUserTableViewer(pageCmp, SWT.MULTI
-					| SWT.H_SCROLL | SWT.V_SCROLL);
+			userTableCmp = new ChooseUserTableViewer(pageCmp, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 			userTableCmp.setLayoutData(EclipseUiUtils.fillAll());
 			userTableCmp.setColumnDefinitions(columnDefs);
 			userTableCmp.populate(true, true);
@@ -440,8 +505,7 @@ public class UserBatchUpdateWizard extends Wizard {
 		@Override
 		public void pageChanged(PageChangedEvent event) {
 			if (event.getSelectedPage() == this) {
-				String msg = "Chosen batch action: "
-						+ chooseCommandPage.getCommandLbl();
+				String msg = "Chosen batch action: " + chooseCommandPage.getCommandLbl();
 				((WizardPage) event.getSelectedPage()).setMessage(msg);
 			}
 		}
@@ -452,10 +516,8 @@ public class UserBatchUpdateWizard extends Wizard {
 
 		private class ChooseUserTableViewer extends LdifUsersTable {
 			private static final long serialVersionUID = 5080437561015853124L;
-			private final String[] knownProps = { LdapAttrs.uid.name(),
-					LdapAttrs.DN, LdapAttrs.cn.name(),
-					LdapAttrs.givenName.name(), LdapAttrs.sn.name(),
-					LdapAttrs.mail.name() };
+			private final String[] knownProps = { LdapAttrs.uid.name(), LdapAttrs.DN, LdapAttrs.cn.name(),
+					LdapAttrs.givenName.name(), LdapAttrs.sn.name(), LdapAttrs.mail.name() };
 
 			public ChooseUserTableViewer(Composite parent, int style) {
 				super(parent, style);
@@ -478,24 +540,16 @@ public class UserBatchUpdateWizard extends Wizard {
 							tmpBuilder.append("*)");
 						}
 					if (tmpBuilder.length() > 1) {
-						builder.append("(&(")
-								.append(LdapAttrs.objectClass.name())
-								.append("=")
-								.append(LdapObjs.inetOrgPerson.name())
-								.append(")(|");
+						builder.append("(&(").append(LdapAttrs.objectClass.name()).append("=")
+								.append(LdapObjs.inetOrgPerson.name()).append(")(|");
 						builder.append(tmpBuilder.toString());
 						builder.append("))");
 					} else
-						builder.append("(")
-								.append(LdapAttrs.objectClass.name())
-								.append("=")
-								.append(LdapObjs.inetOrgPerson.name())
-								.append(")");
-					roles = userAdminWrapper.getUserAdmin().getRoles(
-							builder.toString());
+						builder.append("(").append(LdapAttrs.objectClass.name()).append("=")
+								.append(LdapObjs.inetOrgPerson.name()).append(")");
+					roles = userAdminWrapper.getUserAdmin().getRoles(builder.toString());
 				} catch (InvalidSyntaxException e) {
-					throw new CmsException("Unable to get roles with filter: "
-							+ filter, e);
+					throw new CmsException("Unable to get roles with filter: " + filter, e);
 				}
 				List<User> users = new ArrayList<User>();
 				for (Role role : roles)
@@ -509,8 +563,7 @@ public class UserBatchUpdateWizard extends Wizard {
 	}
 
 	/** Summary of input data before launching the process */
-	private class ValidateAndLaunchWizardPage extends WizardPage implements
-			IPageChangedListener {
+	private class ValidateAndLaunchWizardPage extends WizardPage implements IPageChangedListener {
 		private static final long serialVersionUID = 7098918351451743853L;
 		private ChosenUsersTableViewer userTableCmp;
 
@@ -525,17 +578,13 @@ public class UserBatchUpdateWizard extends Wizard {
 			pageCmp.setLayout(EclipseUiUtils.noSpaceGridLayout());
 
 			List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
-			columnDefs.add(new ColumnDefinition(new CommonNameLP(),
-					"Common Name", 150));
+			columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name", 150));
 			columnDefs.add(new ColumnDefinition(new MailLP(), "E-mail", 150));
-			columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain",
-					200));
+			columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain", 200));
 			// Only show technical DN to admin
 			if (CurrentUser.isInRole(NodeConstants.ROLE_ADMIN))
-				columnDefs.add(new ColumnDefinition(new UserNameLP(),
-						"Distinguished Name", 300));
-			userTableCmp = new ChosenUsersTableViewer(pageCmp, SWT.MULTI
-					| SWT.H_SCROLL | SWT.V_SCROLL);
+				columnDefs.add(new ColumnDefinition(new UserNameLP(), "Distinguished Name", 300));
+			userTableCmp = new ChosenUsersTableViewer(pageCmp, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 			userTableCmp.setLayoutData(EclipseUiUtils.fillAll());
 			userTableCmp.setColumnDefinitions(columnDefs);
 			userTableCmp.populate(false, false);
@@ -553,11 +602,9 @@ public class UserBatchUpdateWizard extends Wizard {
 			if (event.getSelectedPage() == this) {
 				@SuppressWarnings({ "unchecked", "rawtypes" })
 				Object[] values = ((ArrayList) userListPage.getSelectedUsers())
-						.toArray(new Object[userListPage.getSelectedUsers()
-								.size()]);
+						.toArray(new Object[userListPage.getSelectedUsers().size()]);
 				userTableCmp.getTableViewer().setInput(values);
-				String msg = "Following batch action: ["
-						+ chooseCommandPage.getCommandLbl()
+				String msg = "Following batch action: [" + chooseCommandPage.getCommandLbl()
 						+ "] will be perfomed on the users listed below.\n";
 				// + "Are you sure you want to proceed?";
 				setMessage(msg);

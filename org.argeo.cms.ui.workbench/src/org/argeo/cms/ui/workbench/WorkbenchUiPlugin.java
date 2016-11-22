@@ -37,12 +37,14 @@ import org.osgi.framework.ServiceRegistration;
 
 /** The activator class controls the plug-in life cycle */
 public class WorkbenchUiPlugin extends AbstractUIPlugin implements ILogListener {
-
 	private final static Log log = LogFactory.getLog(WorkbenchUiPlugin.class);
 
+	// The plug-in ID
+	public final static String PLUGIN_ID = "org.argeo.cms.ui.workbench"; //$NON-NLS-1$
+	
 	private ResourceBundle messages;
-
 	private static BundleContext bundleContext;
+
 	public static InheritableThreadLocal<Display> display = new InheritableThreadLocal<Display>() {
 
 		@Override
@@ -51,9 +53,6 @@ public class WorkbenchUiPlugin extends AbstractUIPlugin implements ILogListener 
 		}
 	};
 
-	// The plug-in ID
-	// 	public final static String PLUGIN_ID = "org.argeo.security.ui"; //$NON-NLS-1$
-	public final static String PLUGIN_ID = "org.argeo.cms.ui.workbench"; //$NON-NLS-1$
 
 	final static String CONTEXT_KEYRING = "KEYRING";
 
@@ -65,9 +64,7 @@ public class WorkbenchUiPlugin extends AbstractUIPlugin implements ILogListener 
 
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-
 		bundleContext = context;
-
 		defaultCallbackHandler = new DefaultCallbackHandler();
 		defaultCallbackHandlerReg = context.registerService(
 				CallbackHandler.class, defaultCallbackHandler, null);
@@ -77,7 +74,6 @@ public class WorkbenchUiPlugin extends AbstractUIPlugin implements ILogListener 
 		Platform.addLogListener(this);
 		if (log.isTraceEnabled())
 			log.trace("Eclipse logging now directed to standard logging");
-
 	}
 
 	public void stop(BundleContext context) throws Exception {

@@ -15,13 +15,7 @@
 		<property name="userAdmin" ref="userAdmin" />
 		<property name="userAdminServiceReference" ref="userAdmin" />
 	</bean>
-
-<!-- 	<bean -->
-<!-- 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"> -->
-<!-- 		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" /> -->
-<!-- 		<property name="locations"> -->
-<!-- 			<value>osgibundle:keyring.properties</value> -->
-<!-- 		</property> -->
-<!-- 	</bean> -->
-
+	
+	<bean id="repositoryRegister" class="org.argeo.jcr.DefaultRepositoryRegister" />
+	
 </beans>

@@ -4,42 +4,41 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-
-	<!-- SECURITY  -->
-
+	<!-- SECURITY -->
 	<!-- Editors -->
-	<bean id="userEditor" class="org.argeo.cms.ui.workbench.internal.useradmin.parts.UserEditor"
+	<bean id="userEditor"
+		class="org.argeo.cms.ui.workbench.internal.useradmin.parts.UserEditor"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
 
-	<bean id="groupEditor" class="org.argeo.cms.ui.workbench.internal.useradmin.parts.UserEditor"
+	<bean id="groupEditor"
+		class="org.argeo.cms.ui.workbench.internal.useradmin.parts.UserEditor"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
-	
 	<!-- Views -->
-	<bean id="usersView" class="org.argeo.cms.ui.workbench.internal.useradmin.parts.UsersView"
+	<bean id="usersView"
+		class="org.argeo.cms.ui.workbench.internal.useradmin.parts.UsersView"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
-	<bean id="groupsView" class="org.argeo.cms.ui.workbench.internal.useradmin.parts.GroupsView"
+	<bean id="groupsView"
+		class="org.argeo.cms.ui.workbench.internal.useradmin.parts.GroupsView"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 	</bean>
 
 
-	<!-- DATA EXPLORER  -->
+	<!-- DATA EXPLORER -->
 	<!-- Editors -->
-	<bean id="genericJcrQueryEditor"
-		class="org.argeo.cms.ui.workbench.jcr.GenericJcrQueryEditor"
+	<bean id="genericJcrQueryEditor" class="org.argeo.cms.ui.workbench.jcr.GenericJcrQueryEditor"
 		scope="prototype">
-		<property name="session" ref="nodeSession" />
+		<property name="nodeRepository" ref="nodeRepository" />
 	</bean>
 	<bean id="defaultNodeEditor" class="org.argeo.cms.ui.workbench.jcr.DefaultNodeEditor"
 		scope="prototype">
 	</bean>
-
 	<!-- Views -->
 	<bean id="jcrBrowserView" class="org.argeo.cms.ui.workbench.jcr.JcrBrowserView"
 		scope="prototype">
@@ -49,5 +48,13 @@
 		<property name="keyring" ref="keyring" />
 	</bean>
 
-
+	<!-- LOGGERS -->
+	<bean id="logView" class="org.argeo.cms.ui.workbench.useradmin.LogView"
+		scope="prototype">
+		<property name="argeoLogger" ref="secureLogger" />
+	</bean>
+	<bean id="adminLogView" class="org.argeo.cms.ui.workbench.useradmin.AdminLogView"
+		scope="prototype">
+		<property name="argeoLogger" ref="secureLogger" />
+	</bean>
 </beans>

@@ -29,4 +29,12 @@ public class UiAdminUtils {
 			throw new CmsException("Unable to begin transaction", e);
 		}
 	}
+
+	/**
+	 * Email addresses must match this regexp pattern ({@value #EMAIL_PATTERN}.
+	 * Thanks to <a href=
+	 * "http://www.mkyong.com/regular-expressions/how-to-validate-email-address-with-regular-expression/"
+	 * >this tip</a>.
+	 */
+	public final static String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 }

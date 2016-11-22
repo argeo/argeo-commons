@@ -61,46 +61,46 @@
    <!-- VIEWS -->
    <extension
 		point="org.eclipse.ui.views">
-      <!-- Security -->
-      <view
-            id="org.argeo.cms.ui.workbench.usersView"
-            class="org.argeo.eclipse.spring.SpringExtensionFactory"
-            icon="icons/users.gif"
-            name="Users"
-            restorable="true">
-      </view>
-      <view
-            class="org.argeo.eclipse.spring.SpringExtensionFactory"
-            icon="icons/role.gif"
-            id="org.argeo.cms.ui.workbench.groupsView"
-            name="Groups"
-            restorable="false">
-      </view>
-      <!-- Home -->
-      <view
-            id="org.argeo.cms.ui.workbench.userProfile"
-            class="org.argeo.cms.ui.workbench.useradmin.UserProfile"
-            icon="icons/user.gif"
-            name="Profile"
-            restorable="true">
-      </view>
-      <!-- Maintenance -->
-      <view
-            id="org.argeo.cms.ui.workbench.logView"
-            class="org.argeo.eclipse.spring.SpringExtensionFactory"
-            name="Log"
-            icon="icons/log.gif"
-            restorable="true">
-      </view>
-      <view
+		<!-- Security -->
+		<view
+			id="org.argeo.cms.ui.workbench.usersView"
+			class="org.argeo.eclipse.spring.SpringExtensionFactory"
+			icon="icons/users.gif"
+			name="Users"
+			restorable="true">
+		</view>
+		<view
+			class="org.argeo.eclipse.spring.SpringExtensionFactory"
+			icon="icons/role.gif"
+			id="org.argeo.cms.ui.workbench.groupsView"
+			name="Groups"
+			restorable="false">
+		</view>
+		<!-- Home -->
+		<view
+			id="org.argeo.cms.ui.workbench.userProfile"
+			class="org.argeo.cms.ui.workbench.useradmin.UserProfile"
+			icon="icons/user.gif"
+			name="Profile"
+			restorable="true">
+		</view>
+		<!-- Maintenance -->
+		<view
+			id="org.argeo.cms.ui.workbench.logView"
+			class="org.argeo.eclipse.spring.SpringExtensionFactory"
+			name="Log"
+			icon="icons/log.gif"
+			restorable="true">
+		</view>
+		<view
             id="org.argeo.cms.ui.workbench.adminLogView"
             class="org.argeo.eclipse.spring.SpringExtensionFactory"
             name="Admin Log"
             icon="icons/adminLog.gif"
             restorable="true">
-      </view>
-	  <!-- OSGi Monitor -->
-      <view
+		</view>
+		<!-- OSGi Monitor -->
+		<view
       		name="Modules"
             id="org.argeo.cms.ui.workbench.modulesView"
             icon="icons/service_published.gif"
@@ -130,6 +130,7 @@
 	<!-- EDITORS -->
 	<extension
 		point="org.eclipse.ui.editors">
+		<!-- Security -->
 		<editor
 			class="org.argeo.eclipse.spring.SpringExtensionFactory"
             id="org.argeo.cms.ui.workbench.userEditor"
@@ -159,7 +160,6 @@
 			class="org.argeo.eclipse.spring.SpringExtensionFactory"
 			default="false">
 		</editor>
-		
 	</extension>
     
     <extension
@@ -176,8 +176,8 @@
 			name="Delete User">
 		</command>
 		<command
-			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
-            id="org.argeo.cms.ui.workbench.userBatchUpdate"
+	        id="org.argeo.cms.ui.workbench.userBatchUpdate"
+    		defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
             name="User batch update">
 		</command>
 		<!-- Group CRUD -->
@@ -201,15 +201,14 @@
 					name="begin, commit or rollback">
  			</commandParameter>
   		</command>
-
- 	  <!-- Force the refresh when the various listener are not enough -->
-      <command
+		<!-- Force the refresh when the various listener are not enough -->
+		<command
             defaultHandler="org.argeo.cms.ui.workbench.internal.useradmin.commands.ForceRefresh"
             id="org.argeo.cms.ui.workbench.forceRefresh"
             name="Force Refresh">
-      </command>
-      <!-- Data Explorer -->
-      <command
+      	</command>
+		<!-- Data Explorer -->
+		<command
 			defaultHandler="org.argeo.cms.ui.workbench.commands.OpenEditor"
             id="org.argeo.cms.ui.workbench.openEditor"
             name="Open an editor given its ID">
@@ -399,16 +398,7 @@
                   tooltip="Create a new group">
             </command>
         </menuContribution>
-         
-		<!--      	<menuContribution
-            locationURI="toolbar:org.argeo.cms.ui.workbench.admin.adminRolesView">
-            <command
-                  commandId="org.argeo.cms.ui.workbench.admin.refreshRoles"
-                  icon="icons/sync.gif"
-                  label="LDAP Roles Sync"
-                  tooltip="Synchronize roles from LDAP">
-            </command>
-        </menuContribution> -->
+
         <!-- Browser view specific menu --> 
 		<menuContribution
 			locationURI="menu:org.argeo.cms.ui.workbench.jcrBrowserView">
@@ -678,7 +668,6 @@
 			pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.osgiPerspective"
 			isEqualityPattern="true"
 			activityId="org.argeo.cms.ui.workbench.adminActivity">
-			<!-- activityId="org.argeo.security.ui.adminActivity" -->
         </activityPatternBinding>
         <activityPatternBinding
 			pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.jcrBrowserPerspective"
@@ -782,7 +771,6 @@
               isEqualityPattern="true"
               pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.userProfile">
         </activityPatternBinding>
-		
 	</extension>
 	
 	<!-- STARTUP  --> 
