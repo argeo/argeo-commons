@@ -60,7 +60,7 @@ public class CmsState implements NodeState {
 		try {
 			this.hostname = InetAddress.getLocalHost().getHostName();
 		} catch (UnknownHostException e) {
-			log.error("Cannot set hostname", e);
+			log.error("Cannot set hostname: "+ e);
 		}
 
 		availableSince = System.currentTimeMillis();

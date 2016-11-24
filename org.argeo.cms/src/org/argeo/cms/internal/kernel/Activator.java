@@ -57,9 +57,12 @@ public class Activator implements BundleActivator {
 	}
 
 	private void initSecurity() {
-		URL url = getClass().getClassLoader().getResource(KernelConstants.JAAS_CONFIG);
-//		URL url = getClass().getClassLoader().getResource(KernelConstants.JAAS_CONFIG_IPA);
-		System.setProperty("java.security.auth.login.config", url.toExternalForm());
+		if (System.getProperty(KernelConstants.JAAS_CONFIG_PROP) == null) {
+			URL url = getClass().getClassLoader().getResource(KernelConstants.JAAS_CONFIG);
+			// URL url =
+			// getClass().getClassLoader().getResource(KernelConstants.JAAS_CONFIG_IPA);
+			System.setProperty(KernelConstants.JAAS_CONFIG_PROP, url.toExternalForm());
+		}
 		Configuration.getConfiguration();
 	}
 

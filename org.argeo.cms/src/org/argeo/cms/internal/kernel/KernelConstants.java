@@ -16,11 +16,11 @@ public interface KernelConstants {
 	String DEPLOY_CONFIG_PATH = KernelConstants.DIR_NODE + '/' + NodeConstants.DEPLOY_BASEDN + ".ldif";
 
 	// Security
-//	String DEFAULT_SECURITY_KEY = "argeo";
+	// String DEFAULT_SECURITY_KEY = "argeo";
 	String JAAS_CONFIG = "/org/argeo/cms/internal/kernel/jaas.cfg";
 	String JAAS_CONFIG_IPA = "/org/argeo/cms/internal/kernel/jaas-ipa.cfg";
-//	String LOGIN_CONTEXT_KERNEL = "KERNEL";
-//	String LOGIN_CONTEXT_HARDENED_KERNEL = "HARDENED_KERNEL";
+	// String LOGIN_CONTEXT_KERNEL = "KERNEL";
+	// String LOGIN_CONTEXT_HARDENED_KERNEL = "HARDENED_KERNEL";
 
 	// DAV
 	String WEBDAV_CONFIG = "/org/argeo/cms/internal/kernel/webdav-config.xml";
@@ -29,6 +29,9 @@ public interface KernelConstants {
 	// String WEBDAV_PRIVATE = PATH_DATA + "/files";
 	// String REMOTING_PUBLIC = PATH_DATA + "/pub";
 	// String REMOTING_PRIVATE = PATH_DATA + "/jcr";
+
+	// Java
+	String JAAS_CONFIG_PROP = "java.security.auth.login.config";
 
 	// RWT / RAP
 	String PATH_WORKBENCH = "/ui";
