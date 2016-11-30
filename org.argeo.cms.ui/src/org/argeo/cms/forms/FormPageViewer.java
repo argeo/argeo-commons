@@ -74,13 +74,11 @@ public class FormPageViewer extends AbstractPageViewer {
 
 	// Context cached in the viewer
 	// The reference to translate from text to calendar and reverse
-	private DateFormat dateFormat = new SimpleDateFormat(
-			FormUtils.DEFAULT_SHORT_DATE_FORMAT);
+	private DateFormat dateFormat = new SimpleDateFormat(FormUtils.DEFAULT_SHORT_DATE_FORMAT);
 	private CmsImageManager imageManager;
 	private FileUploadListener fileUploadListener;
 
-	public FormPageViewer(Section mainSection, int style,
-			CmsEditable cmsEditable) throws RepositoryException {
+	public FormPageViewer(Section mainSection, int style, CmsEditable cmsEditable) throws RepositoryException {
 		super(mainSection, style, cmsEditable);
 		this.mainSection = mainSection;
 
@@ -131,8 +129,7 @@ public class FormPageViewer extends AbstractPageViewer {
 			// => Viewer : Controller
 		} else if (part instanceof EditablePropertyDate) {
 			EditablePropertyDate ept = (EditablePropertyDate) part;
-			Calendar cal = FormUtils.parseDate(dateFormat,
-					((Text) ept.getControl()).getText());
+			Calendar cal = FormUtils.parseDate(dateFormat, ((Text) ept.getControl()).getText());
 			node = ept.getNode();
 			String propName = ept.getPropertyName();
 			if (cal == null) {
@@ -184,8 +181,7 @@ public class FormPageViewer extends AbstractPageViewer {
 			Node node = ept.getNode();
 			String propName = ept.getPropertyName();
 			if (node.hasProperty(propName))
-				ept.setText(dateFormat.format(node.getProperty(propName)
-						.getDate().getTime()));
+				ept.setText(dateFormat.format(node.getProperty(propName).getDate().getTime()));
 			else
 				ept.setText("");
 		} else if (part instanceof SectionPart) {
@@ -194,8 +190,7 @@ public class FormPageViewer extends AbstractPageViewer {
 			// use control AFTER setting style, since it may have been reset
 			if (part instanceof EditableImage) {
 				EditableImage editableImage = (EditableImage) part;
-				imageManager().load(partNode, part.getControl(),
-						editableImage.getPreferredImageSize());
+				imageManager().load(partNode, part.getControl(), editableImage.getPreferredImageSize());
 			}
 		}
 	}
@@ -211,8 +206,7 @@ public class FormPageViewer extends AbstractPageViewer {
 		}
 
 		public void uploadFailed(FileUploadEvent event) {
-			throw new CmsException("Upload failed " + event,
-					event.getException());
+			throw new CmsException("Upload failed " + event, event.getException());
 		}
 
 		public void uploadFinished(FileUploadEvent event) {
@@ -226,8 +220,7 @@ public class FormPageViewer extends AbstractPageViewer {
 					saveEdit();
 				}
 			});
-			FileUploadHandler uploadHandler = (FileUploadHandler) event
-					.getSource();
+			FileUploadHandler uploadHandler = (FileUploadHandler) event.getSource();
 			uploadHandler.dispose();
 		}
 	}
@@ -265,8 +258,7 @@ public class FormPageViewer extends AbstractPageViewer {
 			if (e.button == 1) {
 				Control source = (Control) e.getSource();
 				if (getCmsEditable().canEdit()) {
-					if (getCmsEditable().isEditing()
-							&& !(getEdited() instanceof Img)) {
+					if (getCmsEditable().isEditing() && !(getEdited() instanceof Img)) {
 						if (source == mainSection)
 							return;
 						EditablePart part = findDataParent(source);
@@ -320,8 +312,7 @@ public class FormPageViewer extends AbstractPageViewer {
 	}
 
 	// LOCAL UI HELPERS
-	protected Section createSectionIfNeeded(Composite body, Node node)
-			throws RepositoryException {
+	protected Section createSectionIfNeeded(Composite body, Node node) throws RepositoryException {
 		Section section = null;
 		if (node != null) {
 			section = new Section(body, SWT.NO_FOCUS, node);
@@ -331,21 +322,18 @@ public class FormPageViewer extends AbstractPageViewer {
 		return section;
 	}
 
-	protected void createSimpleLT(Composite bodyRow, Node node,
-			String propName, String label, String msg)
+	protected void createSimpleLT(Composite bodyRow, Node node, String propName, String label, String msg)
 			throws RepositoryException {
 		if (getCmsEditable().canEdit() || node.hasProperty(propName)) {
 			createPropertyLbl(bodyRow, label);
-			EditablePropertyString eps = new EditablePropertyString(bodyRow,
-					SWT.WRAP | SWT.LEFT, node, propName, msg);
+			EditablePropertyString eps = new EditablePropertyString(bodyRow, SWT.WRAP | SWT.LEFT, node, propName, msg);
 			eps.setMouseListener(getMouseListener());
 			eps.setFocusListener(getFocusListener());
 			eps.setLayoutData(CmsUtils.fillWidth());
 		}
 	}
 
-	protected void createMultiStringLT(Composite bodyRow, Node node,
-			String propName, String label, String msg)
+	protected void createMultiStringLT(Composite bodyRow, Node node, String propName, String label, String msg)
 			throws RepositoryException {
 		boolean canEdit = getCmsEditable().canEdit();
 		if (canEdit || node.hasProperty(propName)) {
@@ -360,9 +348,8 @@ public class FormPageViewer extends AbstractPageViewer {
 			}
 
 			// TODO use a drop down to display possible values to the end user
-			EditableMultiStringProperty emsp = new EditableMultiStringProperty(
-					bodyRow, SWT.SINGLE | SWT.LEAD, node, propName,
-					valueStrings, new String[] { "Implement this" }, msg,
+			EditableMultiStringProperty emsp = new EditableMultiStringProperty(bodyRow, SWT.SINGLE | SWT.LEAD, node,
+					propName, valueStrings, new String[] { "Implement this" }, msg,
 					canEdit ? getRemoveValueSelListener() : null);
 			addListeners(emsp);
 			// emsp.setMouseListener(getMouseListener());
@@ -377,12 +364,10 @@ public class FormPageViewer extends AbstractPageViewer {
 
 	protected Label createPropertyLbl(Composite parent, String value, int vAlign) {
 		boolean isSmall = CmsUtils.getCmsView().getUxContext().isSmall();
-		Label label = new Label(parent, isSmall ? SWT.LEFT : SWT.RIGHT
-				| SWT.WRAP);
+		Label label = new Label(parent, isSmall ? SWT.LEFT : SWT.RIGHT | SWT.WRAP);
 		label.setText(value + " ");
 		CmsUtils.style(label, FormStyle.propertyLabel.style());
-		GridData gd = new GridData(isSmall ? SWT.LEFT : SWT.RIGHT, vAlign,
-				false, false);
+		GridData gd = new GridData(isSmall ? SWT.LEFT : SWT.RIGHT, vAlign, false, false);
 		gd.widthHint = labelColWidth;
 		label.setLayoutData(gd);
 		return label;
@@ -395,8 +380,7 @@ public class FormPageViewer extends AbstractPageViewer {
 		return label;
 	}
 
-	protected Composite createRowLayoutComposite(Composite parent)
-			throws RepositoryException {
+	protected Composite createRowLayoutComposite(Composite parent) throws RepositoryException {
 		Composite bodyRow = new Composite(parent, SWT.NO_FOCUS);
 		bodyRow.setLayoutData(CmsUtils.fillWidth());
 		RowLayout rl = new RowLayout(SWT.WRAP);
@@ -408,24 +392,21 @@ public class FormPageViewer extends AbstractPageViewer {
 		return bodyRow;
 	}
 
-	protected Composite createAddImgComposite(final Section section,
-			Composite parent, final Node parentNode) throws RepositoryException {
+	protected Composite createAddImgComposite(final Section section, Composite parent, final Node parentNode)
+			throws RepositoryException {
 
 		Composite body = new Composite(parent, SWT.NO_FOCUS);
 		body.setLayout(new GridLayout());
 
-		FormFileUploadReceiver receiver = new FormFileUploadReceiver(section,
-				parentNode, null);
-		final FileUploadHandler currentUploadHandler = new FileUploadHandler(
-				receiver);
+		FormFileUploadReceiver receiver = new FormFileUploadReceiver(section, parentNode, null);
+		final FileUploadHandler currentUploadHandler = new FileUploadHandler(receiver);
 		if (fileUploadListener != null)
 			currentUploadHandler.addUploadListener(fileUploadListener);
 
 		// Button creation
 		final FileUpload fileUpload = new FileUpload(body, SWT.BORDER);
 		fileUpload.setText("Import an image");
-		fileUpload.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true,
-				true));
+		fileUpload.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
 		fileUpload.addSelectionListener(new SelectionAdapter() {
 			private static final long serialVersionUID = 4869523412991968759L;
 
@@ -441,8 +422,7 @@ public class FormPageViewer extends AbstractPageViewer {
 		return body;
 	}
 
-	protected class FormFileUploadReceiver extends FileUploadReceiver implements
-			CmsNames {
+	protected class FormFileUploadReceiver extends FileUploadReceiver implements CmsNames {
 
 		private Node context;
 		private Section section;
@@ -455,14 +435,18 @@ public class FormPageViewer extends AbstractPageViewer {
 		}
 
 		@Override
-		public void receive(InputStream stream, FileDetails details)
-				throws IOException {
+		public void receive(InputStream stream, FileDetails details) throws IOException {
 
 			if (name == null)
 				name = details.getFileName();
 
 			// TODO clean image name more carefully
-			String cleanedName = name.replaceAll("[^a-zA-Z0-9-.]", "_");
+			String cleanedName = name.replaceAll("[^a-zA-Z0-9-.]", "");
+			// We add a unique prefix to workaround the cache issue: when
+			// deleting and re-adding a new image with same name, the end user
+			// browser will use the cache and the image will remain unchanged
+			// for a while
+			cleanedName = System.currentTimeMillis() % 100000 + "_" + cleanedName;
 
 			try {
 				imageManager().uploadImage(context, cleanedName, stream);
@@ -475,14 +459,12 @@ public class FormPageViewer extends AbstractPageViewer {
 							section.layout();
 							section.getParent().layout();
 						} catch (RepositoryException re) {
-							throw new CmsException("unable to refresh "
-									+ "image section for " + context);
+							throw new CmsException("unable to refresh " + "image section for " + context);
 						}
 					}
 				});
 			} catch (RepositoryException re) {
-				throw new CmsException("unable to upload image " + name
-						+ " at " + context);
+				throw new CmsException("unable to upload image " + name + " at " + context);
 			}
 		}
 	}
@@ -492,21 +474,18 @@ public class FormPageViewer extends AbstractPageViewer {
 		control.setFocusListener(getFocusListener());
 	}
 
-	protected Img createImgComposite(Composite parent, Node node,
-			Point preferredSize) throws RepositoryException {
+	protected Img createImgComposite(Composite parent, Node node, Point preferredSize) throws RepositoryException {
 		Img img = new Img(parent, SWT.NONE, node, preferredSize) {
 			private static final long serialVersionUID = 1297900641952417540L;
 
 			@Override
 			protected void setContainerLayoutData(Composite composite) {
-				composite.setLayoutData(CmsUtils.grabWidth(SWT.CENTER,
-						SWT.DEFAULT));
+				composite.setLayoutData(CmsUtils.grabWidth(SWT.CENTER, SWT.DEFAULT));
 			}
 
 			@Override
 			protected void setControlLayoutData(Control control) {
-				control.setLayoutData(CmsUtils.grabWidth(SWT.CENTER,
-						SWT.DEFAULT));
+				control.setLayoutData(CmsUtils.grabWidth(SWT.CENTER, SWT.DEFAULT));
 			}
 		};
 		img.setLayoutData(CmsUtils.grabWidth(SWT.CENTER, SWT.DEFAULT));
@@ -515,8 +494,8 @@ public class FormPageViewer extends AbstractPageViewer {
 		return img;
 	}
 
-	protected Composite addDeleteAbility(final Section section,
-			final Node sessionNode, int topWeight, int rightWeight) {
+	protected Composite addDeleteAbility(final Section section, final Node sessionNode, int topWeight,
+			int rightWeight) {
 		Composite comp = new Composite(section, SWT.NONE);
 		comp.setLayoutData(CmsUtils.fillAll());
 		comp.setLayout(new FormLayout());
@@ -541,8 +520,7 @@ public class FormPageViewer extends AbstractPageViewer {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					super.widgetSelected(e);
-					if (MessageDialog.openConfirm(section.getShell(),
-							"Confirm deletion",
+					if (MessageDialog.openConfirm(section.getShell(), "Confirm deletion",
 							"Are you really you want to remove this?")) {
 						Session session;
 						try {
@@ -553,8 +531,7 @@ public class FormPageViewer extends AbstractPageViewer {
 							refresh(parSection);
 							layout(parSection);
 						} catch (RepositoryException re) {
-							throw new CmsException("Unable to delete "
-									+ sessionNode, re);
+							throw new CmsException("Unable to delete " + sessionNode, re);
 						}
 
 					}
@@ -566,8 +543,7 @@ public class FormPageViewer extends AbstractPageViewer {
 	}
 
 	// LOCAL HELPERS FOR NODE MANAGEMENT
-	protected Node getOrCreateNode(Node parent, String nodeType, String nodeName)
-			throws RepositoryException {
+	protected Node getOrCreateNode(Node parent, String nodeType, String nodeName) throws RepositoryException {
 		Node node = null;
 		if (getCmsEditable().canEdit() && !parent.hasNode(nodeName)) {
 			node = JcrUtils.mkdirs(parent, nodeName, nodeType);
@@ -603,8 +579,7 @@ public class FormPageViewer extends AbstractPageViewer {
 								edit(emsp, 0);
 								cancelEdit();
 							} catch (RepositoryException e1) {
-								throw new CmsException(
-										"Unable to remove value " + obj, e1);
+								throw new CmsException("Unable to remove value " + obj, e1);
 							}
 							layout(emsp);
 						}
@@ -614,8 +589,7 @@ public class FormPageViewer extends AbstractPageViewer {
 		};
 	}
 
-	protected void setPropertySilently(Node node, String propName, String value)
-			throws RepositoryException {
+	protected void setPropertySilently(Node node, String propName, String value) throws RepositoryException {
 		try {
 			// TODO Clean this:
 			// Format strings to replace \n
@@ -624,9 +598,8 @@ public class FormPageViewer extends AbstractPageViewer {
 			try {
 				MarkupValidatorCopy.getInstance().validate(value);
 			} catch (Exception e) {
-				log.warn("Cannot set [" + value + "] on prop " + propName
-						+ "of " + node + ", String cannot be validated - "
-						+ e.getMessage());
+				log.warn("Cannot set [" + value + "] on prop " + propName + "of " + node
+						+ ", String cannot be validated - " + e.getMessage());
 				return;
 			}
 			// TODO check if the newly created property is of the correct type,
@@ -634,8 +607,7 @@ public class FormPageViewer extends AbstractPageViewer {
 			// property type.
 			node.setProperty(propName, value);
 		} catch (ValueFormatException vfe) {
-			log.warn("Cannot set [" + value + "] on prop " + propName + "of "
-					+ node + " - " + vfe.getMessage());
+			log.warn("Cannot set [" + value + "] on prop " + propName + "of " + node + " - " + vfe.getMessage());
 		}
 	}
 }
