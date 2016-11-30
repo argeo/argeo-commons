@@ -15,17 +15,35 @@
  */
 package org.argeo.cms.ui.workbench.internal.jcr;
 
+import static javax.jcr.Node.JCR_CONTENT;
+import static javax.jcr.Property.JCR_DATA;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.jcr.Binary;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
 
+import org.apache.commons.io.IOUtils;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
+import org.argeo.cms.ui.workbench.commands.OpenFile;
 import org.argeo.cms.ui.workbench.internal.jcr.model.RepositoryElem;
 import org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
 import org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem;
 import org.argeo.cms.ui.workbench.internal.jcr.parts.GenericNodeEditorInput;
 import org.argeo.cms.ui.workbench.jcr.DefaultNodeEditor;
+import org.argeo.cms.ui.workbench.util.CommandUtils;
 import org.argeo.eclipse.ui.EclipseUiException;
+import org.argeo.eclipse.ui.specific.SingleSourcingException;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -53,8 +71,7 @@ public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 	public void doubleClick(DoubleClickEvent event) {
 		if (event.getSelection() == null || event.getSelection().isEmpty())
 			return;
-		Object obj = ((IStructuredSelection) event.getSelection())
-				.getFirstElement();
+		Object obj = ((IStructuredSelection) event.getSelection()).getFirstElement();
 		if (obj instanceof RepositoryElem) {
 			RepositoryElem rpNode = (RepositoryElem) obj;
 			if (!rpNode.isConnected()) {
@@ -73,41 +90,57 @@ public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 			Node node = sjn.getNode();
 			try {
 				if (node.isNodeType(NodeType.NT_FILE)) {
-					// double click on a file node triggers its opening
-					// String name = node.getName();
-					// String id = node.getIdentifier();
+					// Also open it
 
-					// TODO add integration of direct retrieval of the binary in
-					// a JCR repo.
-					// Map<String, String> params = new HashMap<String,
-					// String>();
-					// params.put(OpenFile.PARAM_FILE_NAME, name);
-					// params.put(OpenFile.PARAM_FILE_URI, "jcr://" + id);
-					// CommandUtils
-					// .callCommand("org.argeo.security.ui.specific.openFile",
-					// params);
+					String name = node.getName();
+					Map<String, String> params = new HashMap<String, String>();
+					params.put(OpenFile.PARAM_FILE_NAME, name);
 
-					// For the file provider to be able to browse the
-					// various
-					// repository.
-					// TODO : enhanced that.
-					// ITreeContentProvider itcp = (ITreeContentProvider)
-					// nodeViewer
-					// .getContentProvider();
-					// jfp.setReferenceNode(node);
-					// if (fileHandler != null)
-					// fileHandler.openFile(name, id);
+					// TODO rather directly transmit the path to the node, once
+					// we have defined convention to provide an Absolute URI to
+					// a node in a multi repo / workspace / user context
+					// params.put(OpenFile.PARAM_FILE_URI,
+					// OpenFileService.JCR_SCHEME + node.getPath());
+
+					// we copy the node to a tmp file to be opened as a dirty
+					// workaround
+					File tmpFile = null;
+					OutputStream os = null;
+					InputStream is = null;
+					int i = name.lastIndexOf('.');
+					String prefix, suffix;
+					if (i == -1) {
+						prefix = name;
+						suffix = null;
+					} else {
+						prefix = name.substring(0, i);
+						suffix = name.substring(i);
+					}
+					try {
+						tmpFile = File.createTempFile(prefix, suffix);
+						tmpFile.deleteOnExit();
+						os = new FileOutputStream(tmpFile);
+						Binary binary = node.getNode(JCR_CONTENT).getProperty(JCR_DATA).getBinary();
+						is = binary.getStream();
+						IOUtils.copy(is, os);
+					} catch (IOException e) {
+						throw new SingleSourcingException("Cannot open file " + prefix + "." + suffix, e);
+					} finally {
+						IOUtils.closeQuietly(is);
+						IOUtils.closeQuietly(os);
+					}
+					Path path = Paths.get(tmpFile.getAbsolutePath());
+					String uri = path.toUri().toString();
+					params.put(OpenFile.PARAM_FILE_URI, uri);
+					CommandUtils.callCommand(OpenFile.ID, params);
 				}
 				GenericNodeEditorInput gnei = new GenericNodeEditorInput(node);
-				WorkbenchUiPlugin.getDefault().getWorkbench()
-						.getActiveWorkbenchWindow().getActivePage()
+				WorkbenchUiPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage()
 						.openEditor(gnei, DefaultNodeEditor.ID);
 			} catch (RepositoryException re) {
-				throw new EclipseUiException(
-						"Repository error while getting node info", re);
+				throw new EclipseUiException("Repository error while getting node info", re);
 			} catch (PartInitException pie) {
-				throw new EclipseUiException(
-						"Unexepected exception while opening node editor", pie);
+				throw new EclipseUiException("Unexepected exception while opening node editor", pie);
 			}
 		}
 	}

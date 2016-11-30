@@ -46,15 +46,11 @@ public class SingleNodeAsTreeContentProvider implements ITreeContentProvider {
 			Node rootNode = (Node) inputElement;
 			List<Node> result = new ArrayList<Node>();
 			NodeIterator ni = rootNode.getNodes();
-			while (ni.hasNext()) {
+			while (ni.hasNext())
 				result.add(ni.nextNode());
-			}
-
 			return result.toArray();
 		} catch (RepositoryException re) {
-			throw new EclipseUiException(
-					"Unexpected error while getting child nodes for children editor page ",
-					re);
+			throw new EclipseUiException("Unable to retrieve elements for " + inputElement, re);
 		}
 	}
 
@@ -78,7 +74,21 @@ public class SingleNodeAsTreeContentProvider implements ITreeContentProvider {
 		try {
 			return ((Node) element).hasNodes();
 		} catch (RepositoryException e) {
-			throw new EclipseUiException("Cannot check children of " + element, e);
+			throw new EclipseUiException("Cannot check children existence on " + element, e);
+		}
+	}
+
+	protected Object[] childrenNodes(Node parentNode) {
+		try {
+			List<Node> children = new ArrayList<Node>();
+			NodeIterator nit = parentNode.getNodes();
+			while (nit.hasNext())
+				children.add(nit.nextNode());
+			Node[] arr = children.toArray(new Node[0]);
+			Arrays.sort(arr, itemComparator);
+			return arr;
+		} catch (RepositoryException e) {
+			throw new EclipseUiException("Cannot list children of " + parentNode, e);
 		}
 	}
 
@@ -86,21 +96,5 @@ public class SingleNodeAsTreeContentProvider implements ITreeContentProvider {
 	}
 
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-	}
-
-	protected Object[] childrenNodes(Node parentNode) {
-		try {
-			List<Node> children = new ArrayList<Node>();
-			NodeIterator nit = parentNode.getNodes();
-			while (nit.hasNext()) {
-				Node node = nit.nextNode();
-				children.add(node);
-			}
-			Node[] arr = children.toArray(new Node[children.size()]);
-			Arrays.sort(arr, itemComparator);
-			return arr;
-		} catch (RepositoryException e) {
-			throw new EclipseUiException("Cannot list children of " + parentNode, e);
-		}
 	}
 }

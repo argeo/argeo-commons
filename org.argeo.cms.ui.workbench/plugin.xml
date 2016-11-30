@@ -272,9 +272,9 @@
 			name="Delete nodes">
 		</command>
 		<command
-	        defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.ImportFileSystem"
-	        id="org.argeo.cms.ui.workbench.importFileSystem"
-	        name="Import files...">
+	        defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.UploadFiles"
+	        id="org.argeo.cms.ui.workbench.uploadFiles"
+	        name="Upload files">
 		</command>
 		<!-- <command
 	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
@@ -527,10 +527,10 @@
 				</visibleWhen>
 			</command>
 			<command
-				commandId="org.argeo.cms.ui.workbench.importFileSystem"
+				commandId="org.argeo.cms.ui.workbench.uploadFiles"
 				icon="icons/import_fs.png"
 				style="push"
-				tooltip="Import files from the files sytem">
+				tooltip="Upload files from the local file sytem">
 				<visibleWhen>
 					<iterate>
 						<and>

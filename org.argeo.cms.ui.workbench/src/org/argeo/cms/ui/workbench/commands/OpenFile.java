@@ -28,7 +28,7 @@ import org.eclipse.core.commands.ExecutionException;
  * 
  * <p>
  * The parameter "URI" is used to determine the correct file service, the path
- * and the file name. An optional file name can be precized to present a
+ * and the file name. An optional file name can be precised to present a
  * different file name as the one used to retrieve it to the end user.
  * </p>
  * 
@@ -44,13 +44,12 @@ import org.eclipse.core.commands.ExecutionException;
  */
 public class OpenFile extends AbstractHandler {
 	// private final static Log log = LogFactory.getLog(OpenFile.class);
-
-	/* DEPENDENCY INJECTION */
-	private String openFileServiceId;
-
 	public final static String ID = WorkbenchUiPlugin.PLUGIN_ID + ".openFile";
+
 	public final static String PARAM_FILE_NAME = OpenFileService.PARAM_FILE_NAME;
 	public final static String PARAM_FILE_URI = OpenFileService.PARAM_FILE_URI; // "param.fileURI";
+	/* DEPENDENCY INJECTION */
+	private String openFileServiceId;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
