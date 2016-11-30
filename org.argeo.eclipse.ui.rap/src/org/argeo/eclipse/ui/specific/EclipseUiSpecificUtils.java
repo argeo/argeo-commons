@@ -21,6 +21,7 @@ import org.eclipse.jface.viewers.Viewer;
 
 /** Static utilities to bridge differences between RCP and RAP */
 public class EclipseUiSpecificUtils {
+
 	/**
 	 * TootlTip support is supported only for {@link AbstractTableViewer} in RAP
 	 * 
@@ -33,5 +34,4 @@ public class EclipseUiSpecificUtils {
 
 	private EclipseUiSpecificUtils() {
 	}
-
 }

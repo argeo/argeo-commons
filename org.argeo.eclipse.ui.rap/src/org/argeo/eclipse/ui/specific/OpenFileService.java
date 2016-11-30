@@ -15,14 +15,16 @@
  */
 package org.argeo.eclipse.ui.specific;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.FileUtils;
+import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.eclipse.rap.rwt.service.ServiceHandler;
 
 /**
@@ -38,70 +40,88 @@ public class OpenFileService implements ServiceHandler {
 
 	public final static String SCHEME_HOST_SEPARATOR = "://";
 	public final static String FILE_SCHEME = "file";
+	public final static String JCR_SCHEME = "jcr";
 
 	public OpenFileService() {
 	}
 
-	public void service(HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException {
+	public void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		String fileName = request.getParameter(PARAM_FILE_NAME);
 		String uri = request.getParameter(PARAM_FILE_URI);
 
 		// Set the Metadata
-		response.setContentLength((int) getFileLength(uri));
+		response.setContentLength((int) getFileSize(uri));
 		if (fileName == null || "".equals(fileName.trim()))
 			fileName = getFileName(uri);
-		response.setContentType(getMimeTypeFromName(fileName));
+		response.setContentType(getMimeType(uri, fileName));
 		String contentDisposition = "attachment; filename=\"" + fileName + "\"";
 		response.setHeader("Content-Disposition", contentDisposition);
 
 		// Useless for current use
-		// response.setContentType("application/force-download");
 		// response.setHeader("Content-Transfer-Encoding", "binary");
 		// response.setHeader("Pragma", "no-cache");
 		// response.setHeader("Cache-Control", "no-cache, must-revalidate");
 
-		// TODO use buffered array to directly write the stream?
+		// Use buffered array to directly write the stream?
 		response.getOutputStream().write(getFileAsByteArray(uri));
 	}
 
 	/**
 	 * Retrieves the data as Byte Array given an uri.
 	 * 
-	 * <p>
-	 * Overwrite to provide application specific abilities, among other to open
-	 * from a JCR repository
-	 * </p>
+	 * Overwrite to provide application specific behaviours, like opening from a
+	 * JCR repository
 	 */
 	protected byte[] getFileAsByteArray(String uri) {
-		if (uri.startsWith(FILE_SCHEME)) {
-			try {
-				return FileUtils.readFileToByteArray(new File(
-						getFilePathFromUri(uri)));
-			} catch (IOException ioe) {
-				throw new SingleSourcingException("Error getting the file at "
-						+ uri, ioe);
+		try {
+			if (uri.startsWith(FILE_SCHEME)) {
+				Path path = Paths.get(getAbsPathFromUri(uri));
+				return Files.readAllBytes(path);
 			}
+			// else if (uri.startsWith(JCR_SCHEME)) {
+			// String absPath = Paths.get(getAbsPathFromUri(uri));
+			// return Files.readAllBytes(path);
+			// }
+
+		} catch (IOException ioe) {
+			throw new SingleSourcingException("Error getting the file at " + uri, ioe);
 		}
 		return null;
 	}
 
-	protected long getFileLength(String uri) {
+	protected long getFileSize(String uri) throws IOException {
 		if (uri.startsWith(FILE_SCHEME)) {
-			return new File(getFilePathFromUri(uri)).length();
+			Path path = Paths.get(getAbsPathFromUri(uri));
+			return Files.size(path);
 		}
 		return -1l;
 	}
 
 	protected String getFileName(String uri) {
 		if (uri.startsWith(FILE_SCHEME)) {
-			return new File(getFilePathFromUri(uri)).getName();
+			Path path = Paths.get(getAbsPathFromUri(uri));
+			return path.getFileName().toString();
 		}
 		return null;
 	}
 
-	private String getFilePathFromUri(String uri) {
-		return uri.substring((FILE_SCHEME + SCHEME_HOST_SEPARATOR).length());
+	private String getAbsPathFromUri(String uri) {
+		if (uri.startsWith(FILE_SCHEME))
+			return uri.substring((FILE_SCHEME + SCHEME_HOST_SEPARATOR).length());
+		else if (uri.startsWith(JCR_SCHEME))
+			return uri.substring((JCR_SCHEME + SCHEME_HOST_SEPARATOR).length());
+		else
+			throw new SingleSourcingException("Unknown URI prefix for" + uri);
+	}
+
+	protected String getMimeType(String uri, String fileName) throws IOException {
+		if (uri.startsWith(FILE_SCHEME)) {
+			Path path = Paths.get(getAbsPathFromUri(uri));
+			String mimeType = Files.probeContentType(path);
+			if (EclipseUiUtils.notEmpty(mimeType))
+				return mimeType;
+		}
+		return getMimeTypeFromName(fileName);
 	}
 
 	/** Overwrite to precise the content type */
