@@ -1,4 +1,4 @@
-package org.argeo.security.ui.rap;
+package org.argeo.cms.ui.workbench.rap;
 
 import java.security.PrivilegedAction;
 import java.util.Locale;

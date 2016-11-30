@@ -5,13 +5,13 @@
          point="org.eclipse.rap.ui.entrypoint">
       <entrypoint
             id="org.argeo.cms.ui.workbench.rap.secureEntryPoint"
-            class="org.argeo.security.ui.rap.RapWorkbenchLogin"
+            class="org.argeo.cms.ui.workbench.rap.RapWorkbenchLogin"
             path="/node"
             brandingId="org.argeo.cms.ui.workbench.rap.defaultBranding">
       </entrypoint>
       <entrypoint
             id="org.argeo.cms.ui.workbench.rap.anonymousEntryPoint"
-            class="org.argeo.security.ui.rap.AnonymousEntryPoint"
+            class="org.argeo.cms.ui.workbench.rap.AnonymousEntryPoint"
             path="/public"
             brandingId="org.argeo.cms.ui.workbench.rap.defaultBranding">
       </entrypoint>

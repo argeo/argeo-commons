@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.security.ui.rap;
+package org.argeo.cms.ui.workbench.rap;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
