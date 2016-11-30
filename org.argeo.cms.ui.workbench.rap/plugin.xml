@@ -37,7 +37,7 @@
 		</command>
 		<!-- Enable an "open file" action in a single sourced application  -->  
 		<command
-			id="org.argeo.eclipse.ui.workbench.openFile"
+			id="org.argeo.cms.ui.workbench.openFile"
 			defaultHandler="org.argeo.eclipse.spring.SpringExtensionFactory"
 			name="OpenFile">
 			<commandParameter
