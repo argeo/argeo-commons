@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-/** Dialog to change the current user password */
+/** Ask end user for a name */
 public class ChooseNameDialog extends TitleAreaDialog {
 	private static final long serialVersionUID = 280139710002698692L;
 	private Text nameTxt;
@@ -48,9 +48,9 @@ public class ChooseNameDialog extends TitleAreaDialog {
 		composite.setLayout(new GridLayout(2, false));
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		nameTxt = createLT(composite, "Name");
-
 		setMessage("Choose name", IMessageProvider.INFORMATION);
 		parent.pack();
+		nameTxt.setFocus();
 		return composite;
 	}
 

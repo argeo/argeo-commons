@@ -1,3 +1,4 @@
 Import-Package: org.eclipse.swt,\
  org.eclipse.jface.dialogs,\
+ org.argeo.eclipse.ui.utils,\
 *

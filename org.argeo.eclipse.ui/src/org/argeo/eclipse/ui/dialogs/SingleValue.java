@@ -99,6 +99,7 @@ public class SingleValue extends TitleAreaDialog {
 		setMessage(message, IMessageProvider.NONE);
 
 		parent.pack();
+		valueT.setFocus();
 		return composite;
 	}
 

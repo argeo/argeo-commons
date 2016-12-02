@@ -17,9 +17,6 @@ package org.argeo.cms.ui.workbench.internal;
 
 /** Constants used across the application. */
 public interface WorkbenchConstants {
-	/*
-	 * MISCEALLENEOUS
-	 */
+	// MISCEALLENEOUS
 	public final static String DATE_TIME_FORMAT = "dd/MM/yyyy, HH:mm";
-
 }

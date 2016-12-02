@@ -17,6 +17,9 @@ package org.argeo.eclipse.ui.specific;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.eclipse.ui.utils.SingleSourcingConstants;
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.client.service.UrlLauncher;
 
@@ -37,19 +40,29 @@ import org.eclipse.rap.rwt.client.service.UrlLauncher;
  * externally created
  * </p>
  */
-public class OpenFile {
+public class OpenFile extends AbstractHandler {
 	private final static Log log = LogFactory.getLog(OpenFile.class);
 
-	// /* DEPENDENCY INJECTION */
-	// private String openFileServiceId;
-	//
-	// public final static String PARAM_FILE_NAME =
-	// OpenFileService.PARAM_FILE_NAME;
-	// public final static String PARAM_FILE_URI =
-	// OpenFileService.PARAM_FILE_URI; // "param.fileURI";
+	public final static String ID = SingleSourcingConstants.OPEN_FILE_CMD_ID;
+	public final static String PARAM_FILE_NAME = SingleSourcingConstants.PARAM_FILE_NAME;
+	public final static String PARAM_FILE_URI = SingleSourcingConstants.PARAM_FILE_URI;;
+	/* DEPENDENCY INJECTION */
+	private String openFileServiceId;
 
-	public Object execute(String openFileServiceId, String fileUri,
-			String fileName) {
+	public Object execute(ExecutionEvent event) {
+		String fileName = event.getParameter(PARAM_FILE_NAME);
+		String fileUri = event.getParameter(PARAM_FILE_URI);
+		// Sanity check
+		if (fileUri == null || "".equals(fileUri.trim()) || openFileServiceId == null
+				|| "".equals(openFileServiceId.trim()))
+			return null;
+
+		org.argeo.eclipse.ui.specific.OpenFile openFileClient = new org.argeo.eclipse.ui.specific.OpenFile();
+		openFileClient.execute(openFileServiceId, fileUri, fileName);
+		return null;
+	}
+
+	public Object execute(String openFileServiceId, String fileUri, String fileName) {
 		// // Sanity check
 		// if (fileUri == null || "".equals(fileUri.trim())
 		// || openFileServiceId == null
@@ -57,12 +70,11 @@ public class OpenFile {
 		// return null;
 
 		StringBuilder url = new StringBuilder();
-		url.append(RWT.getServiceManager().getServiceHandlerUrl(
-				openFileServiceId));
+		url.append(RWT.getServiceManager().getServiceHandlerUrl(openFileServiceId));
 
-		url.append("&").append(OpenFileService.PARAM_FILE_NAME).append("=");
+		url.append("&").append(SingleSourcingConstants.PARAM_FILE_NAME).append("=");
 		url.append(fileName);
-		url.append("&").append(OpenFileService.PARAM_FILE_URI).append("=");
+		url.append("&").append(SingleSourcingConstants.PARAM_FILE_URI).append("=");
 		url.append(fileUri);
 
 		String downloadUrl = url.toString();
@@ -74,8 +86,8 @@ public class OpenFile {
 		return null;
 	}
 
-	// /* DEPENDENCY INJECTION */
-	// public void setOpenFileServiceId(String openFileServiceId) {
-	// this.openFileServiceId = openFileServiceId;
-	// }
+	/* DEPENDENCY INJECTION */
+	public void setOpenFileServiceId(String openFileServiceId) {
+		this.openFileServiceId = openFileServiceId;
+	}
 }

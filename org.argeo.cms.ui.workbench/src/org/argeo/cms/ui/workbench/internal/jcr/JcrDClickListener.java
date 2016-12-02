@@ -35,7 +35,6 @@ import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.io.IOUtils;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
-import org.argeo.cms.ui.workbench.commands.OpenFile;
 import org.argeo.cms.ui.workbench.internal.jcr.model.RepositoryElem;
 import org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
 import org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem;
@@ -43,6 +42,7 @@ import org.argeo.cms.ui.workbench.internal.jcr.parts.GenericNodeEditorInput;
 import org.argeo.cms.ui.workbench.jcr.DefaultNodeEditor;
 import org.argeo.cms.ui.workbench.util.CommandUtils;
 import org.argeo.eclipse.ui.EclipseUiException;
+import org.argeo.eclipse.ui.specific.OpenFile;
 import org.argeo.eclipse.ui.specific.SingleSourcingException;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -51,7 +51,7 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.PartInitException;
 
 /** Centralizes the management of double click on a NodeTreeViewer */
-public class GenericNodeDoubleClickListener implements IDoubleClickListener {
+public class JcrDClickListener implements IDoubleClickListener {
 	// private final static Log log = LogFactory
 	// .getLog(GenericNodeDoubleClickListener.class);
 
@@ -60,7 +60,7 @@ public class GenericNodeDoubleClickListener implements IDoubleClickListener {
 	// private JcrFileProvider jfp;
 	// private FileHandler fileHandler;
 
-	public GenericNodeDoubleClickListener(TreeViewer nodeViewer) {
+	public JcrDClickListener(TreeViewer nodeViewer) {
 		this.nodeViewer = nodeViewer;
 		// jfp = new JcrFileProvider();
 		// Commented out. see https://www.argeo.org/bugzilla/show_bug.cgi?id=188

@@ -292,7 +292,7 @@
 	        name="Rename Current Selected Node">
 		</command>
 		<command
-	        defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.NodeConfigurableDump"
+	        defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.ConfigurableNodeDump"
 	        id="org.argeo.cms.ui.workbench.nodeConfigurableDump"
 	        name="Configurable dump of the selected Node">
 		</command>

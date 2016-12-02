@@ -32,7 +32,7 @@ import org.eclipse.jface.viewers.Viewer;
  * Implementation of the {@code ITreeContentProvider} in order to display a
  * single JCR node and its children in a tree like structure
  */
-public class SingleNodeAsTreeContentProvider implements ITreeContentProvider {
+public class JcrTreeContentProvider implements ITreeContentProvider {
 	private static final long serialVersionUID = -2128326504754297297L;
 	// private Node rootNode;
 	private JcrItemsComparator itemComparator = new JcrItemsComparator();

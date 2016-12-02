@@ -49,7 +49,7 @@ public class ViewerUtils {
 	public static TableViewerColumn createTableViewerColumn(TableViewer parent,
 			String name, int style, int width) {
 		TableViewerColumn tvc = new TableViewerColumn(parent, style);
-		final TableColumn column = tvc.getColumn();
+		TableColumn column = tvc.getColumn();
 		column.setText(name);
 		column.setWidth(width);
 		column.setResizable(true);
@@ -63,7 +63,7 @@ public class ViewerUtils {
 	public static TreeViewerColumn createTreeViewerColumn(TreeViewer parent,
 			String name, int style, int width) {
 		TreeViewerColumn tvc = new TreeViewerColumn(parent, style);
-		final TreeColumn column = tvc.getColumn();
+		TreeColumn column = tvc.getColumn();
 		column.setText(name);
 		column.setWidth(width);
 		column.setResizable(true);

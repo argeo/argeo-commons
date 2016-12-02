@@ -36,7 +36,7 @@ import javax.jcr.version.VersionManager;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.cms.ui.workbench.internal.WorkbenchConstants;
 import org.argeo.cms.ui.workbench.internal.jcr.FullVersioningTreeContentProvider;
-import org.argeo.cms.ui.workbench.internal.jcr.GenericNodeDoubleClickListener;
+import org.argeo.cms.ui.workbench.internal.jcr.JcrDClickListener;
 import org.argeo.cms.ui.workbench.internal.jcr.VersionLabelProvider;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.jcr.JcrUtils;
@@ -141,7 +141,7 @@ public class NodeVersionHistoryPage extends FormPage implements
 		tmpNodeViewer.setContentProvider(nodeContentProvider);
 		tmpNodeViewer.setLabelProvider(new VersionLabelProvider());
 		tmpNodeViewer
-				.addDoubleClickListener(new GenericNodeDoubleClickListener(
+				.addDoubleClickListener(new JcrDClickListener(
 						tmpNodeViewer));
 		return tmpNodeViewer;
 	}

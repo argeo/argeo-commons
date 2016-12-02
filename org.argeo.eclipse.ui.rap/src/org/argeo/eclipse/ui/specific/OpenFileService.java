@@ -15,6 +15,10 @@
  */
 package org.argeo.eclipse.ui.specific;
 
+import static org.argeo.eclipse.ui.utils.SingleSourcingConstants.FILE_SCHEME;
+import static org.argeo.eclipse.ui.utils.SingleSourcingConstants.JCR_SCHEME;
+import static org.argeo.eclipse.ui.utils.SingleSourcingConstants.SCHEME_HOST_SEPARATOR;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.argeo.eclipse.ui.EclipseUiUtils;
+import org.argeo.eclipse.ui.utils.SingleSourcingConstants;
 import org.eclipse.rap.rwt.service.ServiceHandler;
 
 /**
@@ -35,19 +40,12 @@ import org.eclipse.rap.rwt.service.ServiceHandler;
  * Clients might extend to provide context specific services
  */
 public class OpenFileService implements ServiceHandler {
-	public final static String PARAM_FILE_NAME = "param.fileName";
-	public final static String PARAM_FILE_URI = "param.fileURI";
-
-	public final static String SCHEME_HOST_SEPARATOR = "://";
-	public final static String FILE_SCHEME = "file";
-	public final static String JCR_SCHEME = "jcr";
-
 	public OpenFileService() {
 	}
 
 	public void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		String fileName = request.getParameter(PARAM_FILE_NAME);
-		String uri = request.getParameter(PARAM_FILE_URI);
+		String fileName = request.getParameter(SingleSourcingConstants.PARAM_FILE_NAME);
+		String uri = request.getParameter(SingleSourcingConstants.PARAM_FILE_URI);
 
 		// Set the Metadata
 		response.setContentLength((int) getFileSize(uri));
@@ -74,7 +72,7 @@ public class OpenFileService implements ServiceHandler {
 	 */
 	protected byte[] getFileAsByteArray(String uri) {
 		try {
-			if (uri.startsWith(FILE_SCHEME)) {
+			if (uri.startsWith(SingleSourcingConstants.FILE_SCHEME)) {
 				Path path = Paths.get(getAbsPathFromUri(uri));
 				return Files.readAllBytes(path);
 			}
@@ -90,7 +88,7 @@ public class OpenFileService implements ServiceHandler {
 	}
 
 	protected long getFileSize(String uri) throws IOException {
-		if (uri.startsWith(FILE_SCHEME)) {
+		if (uri.startsWith(SingleSourcingConstants.FILE_SCHEME)) {
 			Path path = Paths.get(getAbsPathFromUri(uri));
 			return Files.size(path);
 		}
@@ -98,7 +96,7 @@ public class OpenFileService implements ServiceHandler {
 	}
 
 	protected String getFileName(String uri) {
-		if (uri.startsWith(FILE_SCHEME)) {
+		if (uri.startsWith(SingleSourcingConstants.FILE_SCHEME)) {
 			Path path = Paths.get(getAbsPathFromUri(uri));
 			return path.getFileName().toString();
 		}

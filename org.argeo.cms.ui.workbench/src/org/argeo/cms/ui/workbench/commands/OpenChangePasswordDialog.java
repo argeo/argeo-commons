@@ -124,6 +124,7 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 
 			setMessage(changePassword.lead(), INFORMATION);
 			parent.pack();
+			oldPassword.setFocus();
 			return composite;
 		}
 

@@ -15,6 +15,9 @@
  */
 package org.argeo.cms.ui.workbench.internal.jcr.commands;
 
+import static org.argeo.eclipse.ui.utils.SingleSourcingConstants.FILE_SCHEME;
+import static org.argeo.eclipse.ui.utils.SingleSourcingConstants.SCHEME_HOST_SEPARATOR;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -30,10 +33,10 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
-import org.argeo.cms.ui.workbench.commands.OpenFile;
 import org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
 import org.argeo.cms.ui.workbench.util.CommandUtils;
 import org.argeo.eclipse.ui.EclipseUiException;
+import org.argeo.eclipse.ui.specific.OpenFile;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -54,12 +57,10 @@ import org.eclipse.ui.handlers.HandlerUtil;
 public class DumpNode extends AbstractHandler {
 	public final static String ID = WorkbenchUiPlugin.PLUGIN_ID + ".dumpNode";
 
-	private final static DateFormat df = new SimpleDateFormat(
-			"yyyy-MM-dd_HH-mm");
+	private final static DateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm");
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		ISelection selection = HandlerUtil.getActiveWorkbenchWindow(event)
-				.getActivePage().getSelection();
+		ISelection selection = HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getSelection();
 		if (selection == null || !(selection instanceof IStructuredSelection))
 			return null;
 
@@ -73,8 +74,8 @@ public class DumpNode extends AbstractHandler {
 				// TODO add a dialog to configure the export and ask for
 				// confirmation
 				// Boolean ok = MessageDialog.openConfirm(
-				// HandlerUtil.getActiveShell(event), "Confirm deletion",
-				// "Do you want to delete " + buf + "?");
+				// HandlerUtil.getActiveShell(event), "Confirm dump",
+				// "Do you want to dump " + buf + "?");
 
 				File tmpFile;
 				FileOutputStream fos;
@@ -82,19 +83,14 @@ public class DumpNode extends AbstractHandler {
 					tmpFile = File.createTempFile("JcrExport", ".xml");
 					tmpFile.deleteOnExit();
 					fos = new FileOutputStream(tmpFile);
-					String dateVal = df.format(new GregorianCalendar()
-							.getTime());
-					node.getSession().exportSystemView(node.getPath(), fos,
-							true, false);
-					openGeneratedFile(tmpFile.getAbsolutePath(), "Dump-"
-							+ JcrUtils.replaceInvalidChars(node.getName())
-							+ "-" + dateVal + ".xml");
+					String dateVal = df.format(new GregorianCalendar().getTime());
+					node.getSession().exportSystemView(node.getPath(), fos, true, false);
+					openGeneratedFile(tmpFile.getAbsolutePath(),
+							"Dump-" + JcrUtils.replaceInvalidChars(node.getName()) + "-" + dateVal + ".xml");
 				} catch (RepositoryException e) {
-					throw new EclipseUiException(
-							"Unable to perform SystemExport on " + node, e);
+					throw new EclipseUiException("Unable to perform SystemExport on " + node, e);
 				} catch (IOException e) {
-					throw new EclipseUiException("Unable to SystemExport "
-							+ node, e);
+					throw new EclipseUiException("Unable to SystemExport " + node, e);
 				}
 			}
 		}
@@ -104,7 +100,7 @@ public class DumpNode extends AbstractHandler {
 	private synchronized void openGeneratedFile(String path, String fileName) {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(OpenFile.PARAM_FILE_NAME, fileName);
-		params.put(OpenFile.PARAM_FILE_URI, "file://" + path);
+		params.put(OpenFile.PARAM_FILE_URI, FILE_SCHEME + SCHEME_HOST_SEPARATOR + path);
 		CommandUtils.callCommand(OpenFile.ID, params);
 	}
 }

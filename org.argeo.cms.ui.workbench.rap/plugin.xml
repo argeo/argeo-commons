@@ -48,10 +48,6 @@
          		id="param.fileURI"
          		name="The URI of this file on the server">
   	 		</commandParameter>
-  	 		<commandParameter
-         		id="param.filePath"
-         		name="The absolute path of this file on the server file system">
-  	 		</commandParameter>
 		</command>
  	</extension>
 

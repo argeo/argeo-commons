@@ -63,7 +63,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
  * children Nodes and to choose to export binaries or not. It is useful to
  * retrieve business data from live systems to prepare migration or test locally
  */
-public class NodeConfigurableDump extends AbstractHandler {
+public class ConfigurableNodeDump extends AbstractHandler {
 	public final static String ID = WorkbenchUiPlugin.PLUGIN_ID
 			+ ".nodeConfigurableDump";
 

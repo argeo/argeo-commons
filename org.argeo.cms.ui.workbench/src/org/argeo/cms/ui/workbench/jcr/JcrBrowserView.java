@@ -29,7 +29,7 @@ import javax.jcr.observation.EventListener;
 import javax.jcr.observation.ObservationManager;
 
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
-import org.argeo.cms.ui.workbench.internal.jcr.GenericNodeDoubleClickListener;
+import org.argeo.cms.ui.workbench.internal.jcr.JcrDClickListener;
 import org.argeo.cms.ui.workbench.internal.jcr.JcrBrowserUtils;
 import org.argeo.cms.ui.workbench.internal.jcr.NodeContentProvider;
 import org.argeo.cms.ui.workbench.internal.jcr.NodeLabelProvider;
@@ -189,7 +189,7 @@ public class JcrBrowserView extends ViewPart {
 			}
 
 		tmpNodeViewer
-				.addDoubleClickListener(new GenericNodeDoubleClickListener(
+				.addDoubleClickListener(new JcrDClickListener(
 						tmpNodeViewer));
 		return tmpNodeViewer;
 	}
