@@ -29,8 +29,8 @@ import javax.jcr.observation.EventListener;
 import javax.jcr.observation.ObservationManager;
 
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
-import org.argeo.cms.ui.workbench.internal.jcr.JcrDClickListener;
 import org.argeo.cms.ui.workbench.internal.jcr.JcrBrowserUtils;
+import org.argeo.cms.ui.workbench.internal.jcr.JcrDClickListener;
 import org.argeo.cms.ui.workbench.internal.jcr.NodeContentProvider;
 import org.argeo.cms.ui.workbench.internal.jcr.NodeLabelProvider;
 import org.argeo.cms.ui.workbench.internal.jcr.PropertiesContentProvider;
@@ -66,8 +66,7 @@ import org.eclipse.ui.part.ViewPart;
  * repository environment
  */
 public class JcrBrowserView extends ViewPart {
-	public final static String ID = WorkbenchUiPlugin.PLUGIN_ID
-			+ ".jcrBrowserView";
+	public final static String ID = WorkbenchUiPlugin.PLUGIN_ID + ".jcrBrowserView";
 	private boolean sortChildNodes = true;
 
 	/* DEPENDENCY INJECTION */
@@ -103,8 +102,8 @@ public class JcrBrowserView extends ViewPart {
 			throw new EclipseUiException("Cannot open user session", e);
 		}
 
-		nodeContentProvider = new NodeContentProvider(userSession, keyring,
-				repositoryRegister, repositoryFactory, sortChildNodes);
+		nodeContentProvider = new NodeContentProvider(userSession, keyring, repositoryRegister, repositoryFactory,
+				sortChildNodes);
 
 		// nodes viewer
 		nodesViewer = createNodeViewer(top, nodeContentProvider);
@@ -149,59 +148,47 @@ public class JcrBrowserView extends ViewPart {
 		return new int[] { 70, 30 };
 	}
 
-	protected TreeViewer createNodeViewer(Composite parent,
-			final ITreeContentProvider nodeContentProvider) {
+	protected TreeViewer createNodeViewer(Composite parent, final ITreeContentProvider nodeContentProvider) {
 
 		final TreeViewer tmpNodeViewer = new TreeViewer(parent, SWT.MULTI);
 
-		tmpNodeViewer.getTree().setLayoutData(
-				new GridData(SWT.FILL, SWT.FILL, true, true));
+		tmpNodeViewer.getTree().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		tmpNodeViewer.setContentProvider(nodeContentProvider);
 		tmpNodeViewer.setLabelProvider(new NodeLabelProvider());
-		tmpNodeViewer
-				.addSelectionChangedListener(new ISelectionChangedListener() {
-					public void selectionChanged(SelectionChangedEvent event) {
-						if (!event.getSelection().isEmpty()) {
-							IStructuredSelection sel = (IStructuredSelection) event
-									.getSelection();
-							Object firstItem = sel.getFirstElement();
-							if (firstItem instanceof SingleJcrNodeElem)
-								propertiesViewer
-										.setInput(((SingleJcrNodeElem) firstItem)
-												.getNode());
-						} else {
-							propertiesViewer.setInput(getViewSite());
-						}
-					}
-				});
+		tmpNodeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			public void selectionChanged(SelectionChangedEvent event) {
+				if (!event.getSelection().isEmpty()) {
+					IStructuredSelection sel = (IStructuredSelection) event.getSelection();
+					Object firstItem = sel.getFirstElement();
+					if (firstItem instanceof SingleJcrNodeElem)
+						propertiesViewer.setInput(((SingleJcrNodeElem) firstItem).getNode());
+				} else {
+					propertiesViewer.setInput(getViewSite());
+				}
+			}
+		});
 
 		resultsObserver = new TreeObserver(tmpNodeViewer.getTree().getDisplay());
 		if (keyring != null)
 			try {
-				ObservationManager observationManager = userSession
-						.getWorkspace().getObservationManager();
-				observationManager.addEventListener(resultsObserver,
-						Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED, "/",
+				ObservationManager observationManager = userSession.getWorkspace().getObservationManager();
+				observationManager.addEventListener(resultsObserver, Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED, "/",
 						true, null, null, false);
 			} catch (RepositoryException e) {
 				throw new EclipseUiException("Cannot register listeners", e);
 			}
 
-		tmpNodeViewer
-				.addDoubleClickListener(new JcrDClickListener(
-						tmpNodeViewer));
+		tmpNodeViewer.addDoubleClickListener(new JcrDClickListener(tmpNodeViewer));
 		return tmpNodeViewer;
 	}
 
 	protected TableViewer createPropertiesViewer(Composite parent) {
 		propertiesViewer = new TableViewer(parent);
-		propertiesViewer.getTable().setLayoutData(
-				new GridData(SWT.FILL, SWT.FILL, true, true));
+		propertiesViewer.getTable().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		propertiesViewer.getTable().setHeaderVisible(true);
 		propertiesViewer.setContentProvider(new PropertiesContentProvider());
-		TableViewerColumn col = new TableViewerColumn(propertiesViewer,
-				SWT.NONE);
+		TableViewerColumn col = new TableViewerColumn(propertiesViewer, SWT.NONE);
 		col.getColumn().setText("Name");
 		col.getColumn().setWidth(200);
 		col.setLabelProvider(new ColumnLabelProvider() {
@@ -211,8 +198,7 @@ public class JcrBrowserView extends ViewPart {
 				try {
 					return ((Property) element).getName();
 				} catch (RepositoryException e) {
-					throw new EclipseUiException(
-							"Unexpected exception in label provider", e);
+					throw new EclipseUiException("Unexpected exception in label provider", e);
 				}
 			}
 		});
@@ -240,8 +226,7 @@ public class JcrBrowserView extends ViewPart {
 					} else
 						return property.getValue().getString();
 				} catch (RepositoryException e) {
-					throw new EclipseUiException(
-							"Unexpected exception in label provider", e);
+					throw new EclipseUiException("Unexpected exception in label provider", e);
 				}
 			}
 		});
@@ -252,13 +237,7 @@ public class JcrBrowserView extends ViewPart {
 			private static final long serialVersionUID = -6009599998150286070L;
 
 			public String getText(Object element) {
-				try {
-					return PropertyType.nameFromValue(((Property) element)
-							.getType());
-				} catch (RepositoryException e) {
-					throw new EclipseUiException(
-							"Unexpected exception in label provider", e);
-				}
+				return JcrBrowserUtils.getPropertyTypeAsString((Property) element);
 			}
 		});
 		propertiesViewer.setInput(getViewSite());
@@ -280,11 +259,10 @@ public class JcrBrowserView extends ViewPart {
 	 * @param sortChildNodes
 	 *            if true the content provider will use a comparer to sort nodes
 	 *            that might slow down the display
-	 * */
+	 */
 	public void setSortChildNodes(boolean sortChildNodes) {
 		this.sortChildNodes = sortChildNodes;
-		((NodeContentProvider) nodesViewer.getContentProvider())
-				.setSortChildren(sortChildNodes);
+		((NodeContentProvider) nodesViewer.getContentProvider()).setSortChildren(sortChildNodes);
 		nodesViewer.setInput(getViewSite());
 	}
 
@@ -301,8 +279,7 @@ public class JcrBrowserView extends ViewPart {
 		IStructuredSelection newSel = new StructuredSelection(parentNode);
 		getNodeViewer().setSelection(newSel, true);
 		// Force refresh
-		IStructuredSelection tmpSel = (IStructuredSelection) getNodeViewer()
-				.getSelection();
+		IStructuredSelection tmpSel = (IStructuredSelection) getNodeViewer().getSelection();
 		getNodeViewer().refresh(tmpSel.getFirstElement());
 	}
 
@@ -313,8 +290,7 @@ public class JcrBrowserView extends ViewPart {
 		}
 
 		@Override
-		protected Boolean willProcessInUiThread(List<Event> events)
-				throws RepositoryException {
+		protected Boolean willProcessInUiThread(List<Event> events) throws RepositoryException {
 			for (Event event : events) {
 				if (getLog().isTraceEnabled())
 					getLog().debug("Received event " + event);
@@ -327,8 +303,7 @@ public class JcrBrowserView extends ViewPart {
 			return false;
 		}
 
-		protected void onEventInUiThread(List<Event> events)
-				throws RepositoryException {
+		protected void onEventInUiThread(List<Event> events) throws RepositoryException {
 			if (getLog().isTraceEnabled())
 				getLog().trace("Refresh result list");
 			nodesViewer.refresh();

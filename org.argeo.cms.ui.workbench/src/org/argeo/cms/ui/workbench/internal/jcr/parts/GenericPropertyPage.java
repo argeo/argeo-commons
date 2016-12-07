@@ -22,7 +22,6 @@ import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
-import javax.jcr.Value;
 
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.cms.ui.workbench.internal.WorkbenchConstants;
@@ -82,6 +81,7 @@ public class GenericPropertyPage extends FormPage implements WorkbenchConstants 
 
 		createColumn(tree, tableColumnLayout, "Property", SWT.LEFT, 200, 30);
 		createColumn(tree, tableColumnLayout, "Value(s)", SWT.LEFT, 300, 60);
+		createColumn(tree, tableColumnLayout, "Type", SWT.LEFT, 75, 10);
 		createColumn(tree, tableColumnLayout, "Attributes", SWT.LEFT, 75, 0);
 		// Do not apply the treeColumnLayout it does not work yet
 		// parent.setLayout(tableColumnLayout);
@@ -97,148 +97,16 @@ public class GenericPropertyPage extends FormPage implements WorkbenchConstants 
 		return treeViewer;
 	}
 
-	private static TreeColumn createColumn(Tree parent,
-			TreeColumnLayout tableColumnLayout, String name, int style,
+	private static TreeColumn createColumn(Tree parent, TreeColumnLayout tableColumnLayout, String name, int style,
 			int width, int weight) {
 		TreeColumn column = new TreeColumn(parent, style);
 		column.setText(name);
 		column.setWidth(width);
 		column.setMoveable(true);
 		column.setResizable(true);
-		tableColumnLayout.setColumnData(column, new ColumnWeightData(weight,
-				width, true));
+		tableColumnLayout.setColumnData(column, new ColumnWeightData(weight, width, true));
 		return column;
 	}
-
-	//
-	// private void createPropertiesPart(Composite parent) {
-	// try {
-	//
-	// PropertyIterator pi = currentNode.getProperties();
-	//
-	// // Initializes form part
-	// AbstractFormPart part = new AbstractFormPart() {
-	// public void commit(boolean onSave) {
-	// try {
-	// if (onSave) {
-	// ListIterator<Control> it = modifyableProperties
-	// .listIterator();
-	// while (it.hasNext()) {
-	// // we only support Text controls for the time
-	// // being
-	// Text curControl = (Text) it.next();
-	// String value = curControl.getText();
-	// currentNode.setProperty((String) curControl
-	// .getData(JCR_PROPERTY_NAME), value);
-	// }
-	//
-	// // We only commit when onSave = true,
-	// // thus it is still possible to save after a tab
-	// // change.
-	// super.commit(onSave);
-	// }
-	// } catch (RepositoryException re) {
-	// throw new EclipseUiException(
-	// "Unexpected error while saving properties", re);
-	// }
-	// }
-	// };
-	//
-	// while (pi.hasNext()) {
-	// Property prop = pi.nextProperty();
-	// addPropertyLine(parent, part, prop);
-	// }
-	//
-	// getManagedForm().addPart(part);
-	// } catch (RepositoryException re) {
-	// throw new EclipseUiException(
-	// "Error during creation of network details section", re);
-	// }
-	//
-	// }
-	//
-	// private void addPropertyLine(Composite parent, AbstractFormPart part,
-	// Property prop) {
-	// try {
-	// tk.createLabel(parent, prop.getName());
-	// tk.createLabel(parent,
-	// "[" + JcrUtils.getPropertyDefinitionAsString(prop) + "]");
-	//
-	// if (prop.getDefinition().isProtected()) {
-	// tk.createLabel(parent, formatReadOnlyPropertyValue(prop));
-	// } else
-	// addModifyableValueWidget(parent, part, prop);
-	// } catch (RepositoryException re) {
-	// throw new EclipseUiException("Cannot get property " + prop, re);
-	// }
-	// }
-	//
-	// private String formatReadOnlyPropertyValue(Property prop) {
-	// try {
-	// String strValue;
-	//
-	// if (prop.getType() == PropertyType.BINARY)
-	// strValue = "<binary>";
-	// else if (prop.isMultiple())
-	// strValue = Arrays.asList(prop.getValues()).toString();
-	// else if (prop.getType() == PropertyType.DATE)
-	// strValue = timeFormatter.format(prop.getValue().getDate()
-	// .getTime());
-	// else
-	// strValue = prop.getValue().getString();
-	//
-	// return strValue;
-	// } catch (RepositoryException re) {
-	// throw new EclipseUiException(
-	// "Unexpected error while formatting read only property value",
-	// re);
-	// }
-	// }
-	//
-	// private Control addModifyableValueWidget(Composite parent,
-	// AbstractFormPart part, Property prop) {
-	// GridData gd;
-	// try {
-	// if (prop.getType() == PropertyType.STRING) {
-	// Text txt = tk.createText(parent, prop.getString());
-	// gd = new GridData(GridData.FILL_HORIZONTAL);
-	// txt.setLayoutData(gd);
-	// txt.addModifyListener(new ModifiedFieldListener(part));
-	// txt.setData(JCR_PROPERTY_NAME, prop.getName());
-	// modifyableProperties.add(txt);
-	// } else {
-	// // unsupported property type for editing, we create a read only
-	// // label.
-	// return tk
-	// .createLabel(parent, formatReadOnlyPropertyValue(prop));
-	// }
-	// return null;
-	// } catch (RepositoryException re) {
-	// throw new EclipseUiException(
-	// "Unexpected error while formatting read only property value",
-	// re);
-	// }
-	//
-	// }
-
-	// Multiple Value Model
-	// protected class MultipleValueItem {
-	// private int index;
-	// private Value value;
-	//
-	// public MultipleValueItem(int index, Value value) {
-	// this.index = index;
-	// this.value = value;
-	// }
-	//
-	// public int getIndex() {
-	// return index;
-	// }
-	//
-	// public Object getValue() {
-	// return value;
-	// }
-	// }
 
 	private class TreeContentProvider implements ITreeContentProvider {
 		private static final long serialVersionUID = -6162736530019406214L;
@@ -258,8 +126,7 @@ public class GenericPropertyPage extends FormPage implements WorkbenchConstants 
 					props = propList.toArray();
 				}
 			} catch (RepositoryException e) {
-				throw new EclipseUiException(
-						"Unexpected exception while listing node properties", e);
+				throw new EclipseUiException("Unexpected exception while listing node properties", e);
 			}
 			return props;
 		}
@@ -269,44 +136,24 @@ public class GenericPropertyPage extends FormPage implements WorkbenchConstants 
 		}
 
 		public Object[] getChildren(Object parent) {
-			Object[] result = null;
 			if (parent instanceof Property) {
 				Property prop = (Property) parent;
 				try {
-
-					if (prop.isMultiple()) {
-						Value[] values = prop.getValues();
-						// List<MultipleValueItem> list = new
-						// ArrayList<MultipleValueItem>();
-						// for (int i = 0; i < values.length; i++) {
-						// MultipleValueItem mvi = new MultipleValueItem(i,
-						// values[i]);
-						// list.add(mvi);
-						// }
-
-						return values;
-					}
+					if (prop.isMultiple())
+						return prop.getValues();
 				} catch (RepositoryException e) {
-					throw new EclipseUiException(
-							"Unexpected error getting multiple values property.",
-							e);
+					throw new EclipseUiException("Cannot get multi-prop values on " + prop, e);
 				}
 			}
-			return result;
+			return null;
 		}
 
 		public boolean hasChildren(Object parent) {
 			try {
-				if (parent instanceof Property
-						&& ((Property) parent).isMultiple()) {
-					return true;
-				}
+				return (parent instanceof Property && ((Property) parent).isMultiple());
 			} catch (RepositoryException e) {
-				throw new EclipseUiException(
-						"Unexpected exception while checking if property is multiple",
-						e);
+				throw new EclipseUiException("Cannot check if property is multiple for " + parent, e);
 			}
-			return false;
 		}
 
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {

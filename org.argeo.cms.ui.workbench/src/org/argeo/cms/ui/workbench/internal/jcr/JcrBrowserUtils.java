@@ -16,6 +16,8 @@
 package org.argeo.cms.ui.workbench.internal.jcr;
 
 import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
 import org.argeo.cms.ui.workbench.internal.jcr.model.RepositoriesElem;
@@ -27,6 +29,14 @@ import org.argeo.eclipse.ui.TreeParent;
 
 /** Useful methods to manage the JCR Browser */
 public class JcrBrowserUtils {
+
+	public static String getPropertyTypeAsString(Property prop) {
+		try {
+			return PropertyType.nameFromValue(prop.getType());
+		} catch (RepositoryException e) {
+			throw new EclipseUiException("Cannot check type for " + prop, e);
+		}
+	}
 
 	/** Insure that the UI component is not stale, refresh if needed */
 	public static void forceRefreshIfNeeded(TreeParent element) {
@@ -41,9 +51,7 @@ public class JcrBrowserUtils {
 				curNode = ((WorkspaceElem) element).getRootNode();
 			}
 
-			if (curNode != null
-					&& element.getChildren().length != curNode.getNodes()
-							.getSize())
+			if (curNode != null && element.getChildren().length != curNode.getNodes().getSize())
 				doRefresh = true;
 			else if (element instanceof RepositoryElem) {
 				RepositoryElem rn = (RepositoryElem) element;
@@ -69,9 +77,7 @@ public class JcrBrowserUtils {
 				element.getChildren();
 			}
 		} catch (RepositoryException re) {
-			throw new EclipseUiException(
-					"Unexpected error while synchronising the UI with the JCR repository",
-					re);
+			throw new EclipseUiException("Unexpected error while synchronising the UI with the JCR repository", re);
 		}
 	}
 }
