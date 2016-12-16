@@ -392,17 +392,19 @@ class DataHttp implements KernelConstants {
 			if (log.isTraceEnabled())
 				log.trace("Login to workspace " + (workspace == null ? "<default>" : workspace) + " in web session "
 						+ request.getSession().getId());
-			LoginContext lc = (LoginContext) request.getAttribute(NodeConstants.LOGIN_CONTEXT_USER);
-			if (lc == null)
-				throw new CmsException("No login context available");
+//			LoginContext lc = (LoginContext) request.getAttribute(NodeConstants.LOGIN_CONTEXT_USER);
+//			if (lc == null)
+//				throw new CmsException("No login context available");
 			try {
+				LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new HttpRequestCallbackHandler(request));
+				lc.login();
 				return Subject.doAs(lc.getSubject(), new PrivilegedExceptionAction<Session>() {
 					@Override
 					public Session run() throws Exception {
 						return repository.login(workspace);
 					}
 				});
-			} catch (PrivilegedActionException e) {
+			} catch (Exception e) {
 				throw new CmsException("Cannot log in to JCR", e);
 			}
 			// return repository.login(workspace);
