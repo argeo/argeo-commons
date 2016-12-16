@@ -653,40 +653,62 @@
   	<!-- ACTIVITIES -->
 	<extension
 		point="org.eclipse.ui.activities">
-		<!-- group admin is intended to make all user and group maintenance operations -->
-		<!--<activityPatternBinding
-			activityId="org.argeo.cms.ui.workbench.userAdminActivity"
-			isEqualityPattern="true"
-			pattern="org.argeo.cms.ui.workbench.admin/org.argeo.cms.ui.workbench.admin.adminSecurityPerspective">
-		</activityPatternBinding>-->
+
+		<!-- Admin -->
 		<activityPatternBinding
-			activityId="org.argeo.cms.ui.workbench.groupAdminActivity"
-			isEqualityPattern="true"
-			pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.adminSecurityPerspective">
-		</activityPatternBinding>
-		 <activityPatternBinding
 			pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.osgiPerspective"
 			isEqualityPattern="true"
 			activityId="org.argeo.cms.ui.workbench.adminActivity">
-        </activityPatternBinding>
-        <activityPatternBinding
+		</activityPatternBinding>
+		<activityPatternBinding
 			pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.jcrBrowserPerspective"
 			isEqualityPattern="true"
 			activityId="org.argeo.cms.ui.workbench.adminActivity">
 		</activityPatternBinding>
+        <activityPatternBinding
+              pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.adminMaintenancePerspective"
+              isEqualityPattern="true"
+              activityId="org.argeo.cms.ui.workbench.adminActivity">
+        </activityPatternBinding>
+        <activityPatternBinding
+              pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.adminLogView"
+              isEqualityPattern="true"
+              activityId="org.argeo.cms.ui.workbench.adminActivity">
+        </activityPatternBinding>
 		
+		<!-- UserAdmin -->
+		<activityPatternBinding
+			activityId="org.argeo.cms.ui.workbench.userAdminActivity"
+			isEqualityPattern="true"
+			pattern="org.argeo.cms.ui.workbench.admin/org.argeo.cms.ui.workbench.admin.adminSecurityPerspective">
+		</activityPatternBinding>
+
+		<!-- Users -->
+        <activityPatternBinding
+              pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.userHomePerspective"
+              isEqualityPattern="true"
+              activityId="org.argeo.cms.ui.workbench.userActivity">
+        </activityPatternBinding>
+        <activityPatternBinding
+              pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.userProfile"
+              isEqualityPattern="true"
+              activityId="org.argeo.cms.ui.workbench.userActivity">
+        </activityPatternBinding>
+
+
+		<!-- Activity declaration -->
 		<activity
-              description="Authenticated users"
-              id="org.argeo.cms.ui.workbench.userActivity"
-              name="User">
-		  <enabledWhen>
-		    <with variable="roles">
-		      <iterate ifEmpty="false" operator="or">
-		        <equals value="cn=user,ou=roles,ou=node" />
-		      </iterate>
-		    </with>
-		  </enabledWhen>
-        </activity>
+			description="Authenticated users"
+			id="org.argeo.cms.ui.workbench.userActivity"
+			name="User">
+			<enabledWhen>
+				<with variable="roles">
+					<iterate ifEmpty="false" operator="or">
+						<equals value="cn=user,ou=roles,ou=node" />
+					</iterate>
+				</with>
+			</enabledWhen>
+		</activity>
         <activity
               description="Admins"
               id="org.argeo.cms.ui.workbench.adminActivity"
@@ -707,18 +729,6 @@
 		    <with variable="roles">
 		      <iterate ifEmpty="false" operator="or">
 		        <equals value="cn=userAdmin,ou=roles,ou=node" />
-		      </iterate>
-		    </with>
-		  </enabledWhen>
-        </activity>
-        <activity
-              description="Group Admins"
-              id="org.argeo.cms.ui.workbench.groupAdminActivity"
-              name="User Admin">
-		  <enabledWhen>
-		    <with variable="roles">
-		      <iterate ifEmpty="false" operator="or">
-		        <equals value="cn=groupAdmin,ou=roles,ou=node" />
 		      </iterate>
 		    </with>
 		  </enabledWhen>
@@ -751,26 +761,6 @@
 		  	</not>
 		  </enabledWhen>
         </activity>
-        <activityPatternBinding
-              activityId="org.argeo.cms.ui.workbench.adminActivity"
-              isEqualityPattern="true"
-              pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.adminMaintenancePerspective">
-        </activityPatternBinding>
-        <activityPatternBinding
-              activityId="org.argeo.cms.ui.workbench.adminActivity"
-              isEqualityPattern="true"
-              pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.adminLogView">
-        </activityPatternBinding>
-        <activityPatternBinding
-              activityId="org.argeo.cms.ui.workbench.userActivity"
-              isEqualityPattern="true"
-              pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.userHomePerspective">
-        </activityPatternBinding>
-        <activityPatternBinding
-              activityId="org.argeo.cms.ui.workbench.userActivity"
-              isEqualityPattern="true"
-              pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.userProfile">
-        </activityPatternBinding>
 	</extension>
 	
 	<!-- STARTUP  --> 
