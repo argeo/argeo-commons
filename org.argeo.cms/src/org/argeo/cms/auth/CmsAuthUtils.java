@@ -62,9 +62,8 @@ class CmsAuthUtils {
 				} else {
 					NodeSecurityUtils.checkImpliedPrincipalName(roleName);
 					principals.add(new ImpliedByPrincipal(roleName.toString(), userPrincipal));
-					// if (roleName.equals(ROLE_ADMIN_NAME))
-					// principals.add(new
-					// AdminPrincipal(SecurityConstants.ADMIN_ID));
+					if (roleName.equals(NodeSecurityUtils.ROLE_ADMIN_NAME))
+						principals.add(new DataAdminPrincipal());
 				}
 			}
 
