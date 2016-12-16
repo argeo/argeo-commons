@@ -64,12 +64,8 @@ class DataHttp implements KernelConstants {
 	// FIXME Make it more unique
 	private String httpAuthRealm = "Argeo";
 
-	// WebDav / JCR remoting
-	private OpenInViewSessionProvider sessionProvider;
-
 	DataHttp(HttpService httpService) {
 		this.bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
-		sessionProvider = new OpenInViewSessionProvider();
 		this.httpService = httpService;
 		repositories = new ServiceTracker<>(bc, Repository.class, new RepositoriesStc());
 		repositories.open();
@@ -83,8 +79,8 @@ class DataHttp implements KernelConstants {
 		try {
 			registerWebdavServlet(alias, repository);
 			// registerWebdavServlet(alias, repository, false);
-			registerRemotingServlet(alias, repository, true);
-			registerRemotingServlet(alias, repository, false);
+			// registerRemotingServlet(alias, repository, true);
+			registerRemotingServlet(alias, repository);
 			if (log.isDebugEnabled())
 				log.debug("Registered servlets for repository '" + alias + "'");
 		} catch (Exception e) {
@@ -96,8 +92,8 @@ class DataHttp implements KernelConstants {
 		try {
 			httpService.unregister(webdavPath(alias));
 			// httpService.unregister(webdavPath(alias, false));
-			httpService.unregister(remotingPath(alias, true));
-			httpService.unregister(remotingPath(alias, false));
+			// httpService.unregister(remotingPath(alias, true));
+			httpService.unregister(remotingPath(alias));
 			if (log.isDebugEnabled())
 				log.debug("Unregistered servlets for repository '" + alias + "'");
 		} catch (Exception e) {
@@ -106,7 +102,7 @@ class DataHttp implements KernelConstants {
 	}
 
 	void registerWebdavServlet(String alias, Repository repository) throws NamespaceException, ServletException {
-		WebdavServlet webdavServlet = new WebdavServlet(repository, sessionProvider);
+		WebdavServlet webdavServlet = new WebdavServlet(repository, new OpenInViewSessionProvider(alias));
 		String path = webdavPath(alias);
 		Properties ip = new Properties();
 		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_CONFIG, WEBDAV_CONFIG);
@@ -114,19 +110,18 @@ class DataHttp implements KernelConstants {
 		httpService.registerServlet(path, webdavServlet, ip, new DataHttpContext());
 	}
 
-	void registerRemotingServlet(String alias, Repository repository, boolean anonymous)
-			throws NamespaceException, ServletException {
-		RemotingServlet remotingServlet = new RemotingServlet(repository, sessionProvider);
-		String path = remotingPath(alias, anonymous);
+	void registerRemotingServlet(String alias, Repository repository) throws NamespaceException, ServletException {
+		RemotingServlet remotingServlet = new RemotingServlet(repository, new OpenInViewSessionProvider(alias));
+		String path = remotingPath(alias);
 		Properties ip = new Properties();
 		ip.setProperty(JcrRemotingServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
 
 		// Looks like a bug in Jackrabbit remoting init
-		ip.setProperty(RemotingServlet.INIT_PARAM_HOME, KernelUtils.getOsgiInstanceDir() + "/tmp/remoting_"+alias);
-		ip.setProperty(RemotingServlet.INIT_PARAM_TMP_DIRECTORY, "remoting_"+alias);
+		ip.setProperty(RemotingServlet.INIT_PARAM_HOME, KernelUtils.getOsgiInstanceDir() + "/tmp/remoting_" + alias);
+		ip.setProperty(RemotingServlet.INIT_PARAM_TMP_DIRECTORY, "remoting_" + alias);
 		ip.setProperty(RemotingServlet.INIT_PARAM_PROTECTED_HANDLERS_CONFIG, DEFAULT_PROTECTED_HANDLERS);
 		ip.setProperty(RemotingServlet.INIT_PARAM_CREATE_ABSOLUTE_URI, "false");
-		httpService.registerServlet(path, remotingServlet, ip, new RemotingHttpContext(anonymous));
+		httpService.registerServlet(path, remotingServlet, ip, new RemotingHttpContext());
 	}
 
 	private String webdavPath(String alias) {
@@ -135,9 +130,10 @@ class DataHttp implements KernelConstants {
 		// return pathPrefix + "/" + alias;
 	}
 
-	private String remotingPath(String alias, boolean anonymous) {
-		String pathPrefix = anonymous ? NodeConstants.PATH_JCR_PUB : NodeConstants.PATH_JCR;
-		return pathPrefix + "/" + alias;
+	private String remotingPath(String alias) {
+		return NodeConstants.PATH_JCR + "/" + alias;
+		// String pathPrefix = anonymous ? NodeConstants.PATH_JCR_PUB :
+		// NodeConstants.PATH_JCR;
 	}
 
 	private Subject subjectFromRequest(HttpServletRequest request) {
@@ -275,47 +271,55 @@ class DataHttp implements KernelConstants {
 	}
 
 	private class RemotingHttpContext implements HttpContext {
-		private final boolean anonymous;
+		// private final boolean anonymous;
 
-		RemotingHttpContext(boolean anonymous) {
-			this.anonymous = anonymous;
+		RemotingHttpContext() {
+			// this.anonymous = anonymous;
 		}
 
 		@Override
 		public boolean handleSecurity(final HttpServletRequest request, HttpServletResponse response)
 				throws IOException {
 
-			if (anonymous) {
-				Subject subject = KernelUtils.anonymousLogin();
-				Authorization authorization = subject.getPrivateCredentials(Authorization.class).iterator().next();
-				request.setAttribute(REMOTE_USER, NodeConstants.ROLE_ANONYMOUS);
-				request.setAttribute(AUTHORIZATION, authorization);
-				return true;
-			}
+			// if (anonymous) {
+			// Subject subject = KernelUtils.anonymousLogin();
+			// Authorization authorization =
+			// subject.getPrivateCredentials(Authorization.class).iterator().next();
+			// request.setAttribute(REMOTE_USER, NodeConstants.ROLE_ANONYMOUS);
+			// request.setAttribute(AUTHORIZATION, authorization);
+			// return true;
+			// }
 
 			if (log.isTraceEnabled())
 				KernelUtils.logRequestHeaders(log, request);
+			LoginContext lc;
 			try {
-				new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new HttpRequestCallbackHandler(request)).login();
-				return true;
+				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new HttpRequestCallbackHandler(request));
+				lc.login();
 			} catch (CredentialNotFoundException e) {
 				CallbackHandler token = basicAuth(request);
 				if (token != null) {
 					try {
-						LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, token);
+						lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, token);
 						lc.login();
 						// Note: this is impossible to reliably clear the
 						// authorization header when access from a browser.
-						return true;
 					} catch (LoginException e1) {
 						throw new CmsException("Could not login", e1);
 					}
 				} else {
 					requestBasicAuth(request, response);
-					return false;
+					lc = null;
 				}
 			} catch (LoginException e) {
 				throw new CmsException("Could not login", e);
+			}
+
+			if (lc != null) {
+				request.setAttribute(NodeConstants.LOGIN_CONTEXT_USER, lc);
+				return true;
+			} else {
+				return false;
 			}
 		}
 
@@ -382,6 +386,11 @@ class DataHttp implements KernelConstants {
 	 */
 	private class OpenInViewSessionProvider implements SessionProvider, Serializable {
 		private static final long serialVersionUID = 2270957712453841368L;
+		private final String alias;
+
+		public OpenInViewSessionProvider(String alias) {
+			this.alias = alias;
+		}
 
 		public Session getSession(HttpServletRequest request, Repository rep, String workspace)
 				throws javax.jcr.LoginException, ServletException, RepositoryException {
@@ -391,14 +400,16 @@ class DataHttp implements KernelConstants {
 		protected Session login(HttpServletRequest request, Repository repository, String workspace)
 				throws RepositoryException {
 			if (log.isTraceEnabled())
-				log.trace("Login to workspace " + (workspace == null ? "<default>" : workspace) + " in web session "
-						+ request.getSession().getId());
-//			LoginContext lc = (LoginContext) request.getAttribute(NodeConstants.LOGIN_CONTEXT_USER);
-//			if (lc == null)
-//				throw new CmsException("No login context available");
+				log.trace("Repo " + alias + ", login to workspace " + (workspace == null ? "<default>" : workspace)
+						+ " in web session " + request.getSession().getId());
+			LoginContext lc = (LoginContext) request.getAttribute(NodeConstants.LOGIN_CONTEXT_USER);
+			if (lc == null)
+				throw new CmsException("No login context available");
 			try {
-				LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new HttpRequestCallbackHandler(request));
-				lc.login();
+				// LoginContext lc = new
+				// LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
+				// new HttpRequestCallbackHandler(request));
+				// lc.login();
 				return Subject.doAs(lc.getSubject(), new PrivilegedExceptionAction<Session>() {
 					@Override
 					public Session run() throws Exception {
