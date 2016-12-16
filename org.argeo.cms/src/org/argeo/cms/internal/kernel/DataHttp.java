@@ -122,9 +122,10 @@ class DataHttp implements KernelConstants {
 		ip.setProperty(JcrRemotingServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
 
 		// Looks like a bug in Jackrabbit remoting init
-		ip.setProperty(RemotingServlet.INIT_PARAM_HOME, KernelUtils.getOsgiInstanceDir() + "/tmp/jackrabbit");
-		ip.setProperty(RemotingServlet.INIT_PARAM_TMP_DIRECTORY, "remoting");
+		ip.setProperty(RemotingServlet.INIT_PARAM_HOME, KernelUtils.getOsgiInstanceDir() + "/tmp/remoting_"+alias);
+		ip.setProperty(RemotingServlet.INIT_PARAM_TMP_DIRECTORY, "remoting_"+alias);
 		ip.setProperty(RemotingServlet.INIT_PARAM_PROTECTED_HANDLERS_CONFIG, DEFAULT_PROTECTED_HANDLERS);
+		ip.setProperty(RemotingServlet.INIT_PARAM_CREATE_ABSOLUTE_URI, "false");
 		httpService.registerServlet(path, remotingServlet, ip, new RemotingHttpContext(anonymous));
 	}
 
