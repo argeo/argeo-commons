@@ -28,8 +28,8 @@ mixin
 // URI(s)
 //- argeo:uri (STRING) m
 
-//[argeo:references] > nt:unstructured
-//- * (REFERENCE) *
+[argeo:references] > nt:unstructured
+- * (REFERENCE) *
 
 // DATA MODEL
 //[argeo:dataModel] > mix:created, mix:lastModified, mix:versionable
