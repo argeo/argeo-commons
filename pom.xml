@@ -43,7 +43,7 @@
 	</modules>
 	<scm>
 		<connection>scm:svn:https://svn.argeo.org/commons/trunk</connection>
-		<developerConnection>scm:svn:https://svn.argeo.org/commons/trunk</developerConnection>
+		<developerConnection>scm:git:https://code.argeo.org/git/apache2/argeo-commons</developerConnection>
 		<url>https://svn.argeo.org/commons/trunk</url>
 	</scm>
 	<inceptionYear>2007</inceptionYear>
