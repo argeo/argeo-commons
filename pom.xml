@@ -419,7 +419,7 @@ limitations under the License.
 	<repositories>
 		<repository>
 			<id>argeo</id>
-			<url>http://forge.argeo.org/data/public/java/argeo-2.1/</url>
+			<url>http://forge.argeo.org/data/java/argeo-2.1/</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
@@ -461,7 +461,7 @@ limitations under the License.
 	<distributionManagement>
 		<repository>
 			<id>staging</id>
-			<url>dav:https://forge.argeo.org/data/files/java/argeo-${developmentCycle.argeo-commons}</url>
+			<url>dav:https://forge.argeo.org/data/java/argeo-${developmentCycle.argeo-commons}</url>
 			<uniqueVersion>false</uniqueVersion>
 		</repository>
 	</distributionManagement>
@@ -471,7 +471,7 @@ limitations under the License.
 			<repositories>
 				<repository>
 					<id>argeo</id>
-					<url>http://localhost:7080/data/public/java/argeo-${developmentCycle.argeo-commons}</url>
+					<url>http://localhost:7080/data/java/argeo-${developmentCycle.argeo-commons}</url>
 					<releases>
 						<enabled>true</enabled>
 						<updatePolicy>daily</updatePolicy>
@@ -482,11 +482,11 @@ limitations under the License.
 			<distributionManagement>
 				<repository>
 					<id>staging</id>
-					<url>dav:http://localhost:7080/data/files/java/argeo-${developmentCycle.argeo-commons}</url>
+					<url>dav:http://localhost:7080/data/java/argeo-${developmentCycle.argeo-commons}</url>
 				</repository>
 				<site>
 					<id>staging</id>
-					<url>dav:http://localhost:7080/data/files/docs/argeo-${developmentCycle.argeo-commons}</url>
+					<url>dav:http://localhost:7080/data/docs/argeo-${developmentCycle.argeo-commons}</url>
 				</site>
 			</distributionManagement>
 		</profile>
