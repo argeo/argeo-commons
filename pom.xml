@@ -42,9 +42,9 @@
 		<module>dist</module>
 	</modules>
 	<scm>
-		<connection>scm:svn:https://svn.argeo.org/commons/trunk</connection>
-		<developerConnection>scm:git:https://code.argeo.org/git/apache2/argeo-commons</developerConnection>
-		<url>https://svn.argeo.org/commons/trunk</url>
+		<connection>scm:git:http://git.argeo.org/apache2/argeo-commons.git</connection>
+		<url>http://git.argeo.org/?p=apache2/argeo-commons.git;a=summary</url>
+		<developerConnection>scm:git:https://code.argeo.org/git/apache2/argeo-commons.git</developerConnection>
 	</scm>
 	<inceptionYear>2007</inceptionYear>
 	<licenses>
