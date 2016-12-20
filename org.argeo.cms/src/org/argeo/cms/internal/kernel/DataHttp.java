@@ -150,6 +150,51 @@ class DataHttp implements KernelConstants {
 		}
 	}
 
+	private void requestBasicAuth(HttpServletRequest request, HttpServletResponse response) {
+		response.setStatus(401);
+		response.setHeader(HEADER_WWW_AUTHENTICATE, "basic realm=\"" + httpAuthRealm + "\"");
+		// request.getSession().setAttribute(ATTR_AUTH, Boolean.TRUE);
+	}
+
+	private CallbackHandler basicAuth(final HttpServletRequest httpRequest) {
+		String authHeader = httpRequest.getHeader(HEADER_AUTHORIZATION);
+		if (authHeader != null) {
+			StringTokenizer st = new StringTokenizer(authHeader);
+			if (st.hasMoreTokens()) {
+				String basic = st.nextToken();
+				if (basic.equalsIgnoreCase("Basic")) {
+					try {
+						// TODO manipulate char[]
+						String credentials = new String(Base64.decodeBase64(st.nextToken()), "UTF-8");
+						// log.debug("Credentials: " + credentials);
+						int p = credentials.indexOf(":");
+						if (p != -1) {
+							final String login = credentials.substring(0, p).trim();
+							final char[] password = credentials.substring(p + 1).trim().toCharArray();
+							return new CallbackHandler() {
+								public void handle(Callback[] callbacks) {
+									for (Callback cb : callbacks) {
+										if (cb instanceof NameCallback)
+											((NameCallback) cb).setName(login);
+										else if (cb instanceof PasswordCallback)
+											((PasswordCallback) cb).setPassword(password);
+										else if (cb instanceof HttpRequestCallback)
+											((HttpRequestCallback) cb).setRequest(httpRequest);
+									}
+								}
+							};
+						} else {
+							throw new CmsException("Invalid authentication token");
+						}
+					} catch (Exception e) {
+						throw new CmsException("Couldn't retrieve authentication", e);
+					}
+				}
+			}
+		}
+		return null;
+	}
+
 	private class RepositoriesStc implements ServiceTrackerCustomizer<Repository, Repository> {
 
 		@Override
@@ -208,20 +253,34 @@ class DataHttp implements KernelConstants {
 			// }
 
 			// if (log.isTraceEnabled())
-			// KernelUtils.logRequestHeaders(log, request);
+			KernelUtils.logRequestHeaders(log, request);
 			LoginContext lc;
 			try {
 				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new HttpRequestCallbackHandler(request));
 				lc.login();
 				// return true;
 			} catch (CredentialNotFoundException e) {
-				try {
-					lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER);
-					lc.login();
-				} catch (LoginException e1) {
-					if (log.isDebugEnabled())
-						log.error("Cannot log in anonynous", e1);
-					return false;
+				CallbackHandler token = basicAuth(request);
+				if (token != null) {
+					try {
+						lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, token);
+						lc.login();
+						// Note: this is impossible to reliably clear the
+						// authorization header when access from a browser.
+						return true;
+					} catch (LoginException e1) {
+						throw new CmsException("Could not login", e1);
+					}
+				} else {
+					// anonymous
+					try {
+						lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER);
+						lc.login();
+					} catch (LoginException e1) {
+						if (log.isDebugEnabled())
+							log.error("Cannot log in anonynous", e1);
+						return false;
+					}
 				}
 				// Subject subject = KernelUtils.anonymousLogin();
 				// authorization =
@@ -330,51 +389,6 @@ class DataHttp implements KernelConstants {
 
 		@Override
 		public String getMimeType(String name) {
-			return null;
-		}
-
-		private void requestBasicAuth(HttpServletRequest request, HttpServletResponse response) {
-			response.setStatus(401);
-			response.setHeader(HEADER_WWW_AUTHENTICATE, "basic realm=\"" + httpAuthRealm + "\"");
-			// request.getSession().setAttribute(ATTR_AUTH, Boolean.TRUE);
-		}
-
-		private CallbackHandler basicAuth(final HttpServletRequest httpRequest) {
-			String authHeader = httpRequest.getHeader(HEADER_AUTHORIZATION);
-			if (authHeader != null) {
-				StringTokenizer st = new StringTokenizer(authHeader);
-				if (st.hasMoreTokens()) {
-					String basic = st.nextToken();
-					if (basic.equalsIgnoreCase("Basic")) {
-						try {
-							// TODO manipulate char[]
-							String credentials = new String(Base64.decodeBase64(st.nextToken()), "UTF-8");
-							// log.debug("Credentials: " + credentials);
-							int p = credentials.indexOf(":");
-							if (p != -1) {
-								final String login = credentials.substring(0, p).trim();
-								final char[] password = credentials.substring(p + 1).trim().toCharArray();
-								return new CallbackHandler() {
-									public void handle(Callback[] callbacks) {
-										for (Callback cb : callbacks) {
-											if (cb instanceof NameCallback)
-												((NameCallback) cb).setName(login);
-											else if (cb instanceof PasswordCallback)
-												((PasswordCallback) cb).setPassword(password);
-											else if (cb instanceof HttpRequestCallback)
-												((HttpRequestCallback) cb).setRequest(httpRequest);
-										}
-									}
-								};
-							} else {
-								throw new CmsException("Invalid authentication token");
-							}
-						} catch (Exception e) {
-							throw new CmsException("Couldn't retrieve authentication", e);
-						}
-					}
-				}
-			}
 			return null;
 		}
 
