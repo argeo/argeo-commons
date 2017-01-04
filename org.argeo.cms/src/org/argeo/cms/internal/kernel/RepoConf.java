@@ -32,7 +32,9 @@ enum RepoConf implements EnumAD {
 	/** Search cache size */
 	searchCacheSize(1000),
 	/** Max volatile index size */
-	maxVolatileIndexSize(1048576);
+	maxVolatileIndexSize(1048576),
+	/** Cluster id (if appropriate configuration) */
+	clusterId("default");
 
 	/** The default value. */
 	private Object def;

@@ -55,25 +55,26 @@ class RepositoryBuilder {
 		InputStream in = null;
 		try {
 			final String base = "/org/argeo/cms/internal/kernel";
-			switch (type) {
-			case h2:
-				in = cl.getResourceAsStream(base + "/repository-h2.xml");
-				break;
-			case postgresql:
-				in = cl.getResourceAsStream(base + "/repository-postgresql.xml");
-				break;
-			case postgresql_ds:
-				in = cl.getResourceAsStream(base + "/repository-postgresql-ds.xml");
-				break;
-			case memory:
-				in = cl.getResourceAsStream(base + "/repository-memory.xml");
-				break;
-			case localfs:
-				in = cl.getResourceAsStream(base + "/repository-localfs.xml");
-				break;
-			default:
-				throw new ArgeoJcrException("Unsupported node type " + type);
-			}
+//			switch (type) {
+//			case h2:
+//				in = cl.getResourceAsStream(base + "/repository-h2.xml");
+//				break;
+//			case postgresql:
+//				in = cl.getResourceAsStream(base + "/repository-postgresql.xml");
+//				break;
+//			case postgresql_ds:
+//				in = cl.getResourceAsStream(base + "/repository-postgresql-ds.xml");
+//				break;
+//			case memory:
+//				in = cl.getResourceAsStream(base + "/repository-memory.xml");
+//				break;
+//			case localfs:
+//				in = cl.getResourceAsStream(base + "/repository-localfs.xml");
+//				break;
+//			default:
+//				throw new ArgeoJcrException("Unsupported node type " + type);
+//			}
+			in = cl.getResourceAsStream(base + "/repository-"+type.name()+".xml");
 
 			if (in == null)
 				throw new ArgeoJcrException("Repository configuration not found");
@@ -152,6 +153,8 @@ class RepositoryBuilder {
 			setProp(props, RepoConf.dbpassword, "");
 			break;
 		case postgresql:
+		case postgresql_ds:
+		case postgresql_cluster:
 			dburl = "jdbc:postgresql://localhost/demo";
 			setProp(props, RepoConf.dburl, dburl);
 			setProp(props, RepoConf.dbuser, "argeo");

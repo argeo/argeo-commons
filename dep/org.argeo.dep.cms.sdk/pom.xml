@@ -76,6 +76,16 @@
 			<groupId>org.argeo.tp.sdk</groupId>
 			<artifactId>org.tmatesoft.svnkit</artifactId>
 		</dependency>
+		
+		<!-- Database drivers -->
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>org.postgresql.postgresql</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>org.h2</artifactId>
+		</dependency>
 	</dependencies>
 
 	<profiles>

@@ -23,6 +23,7 @@ import org.argeo.naming.LdifParser;
 import org.argeo.naming.LdifWriter;
 import org.argeo.node.NodeConstants;
 
+@Deprecated
 class NodeDeployConfig {
 	private final String BASE = "ou=deploy,ou=node";
 	private final Path path;
