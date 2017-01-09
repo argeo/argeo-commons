@@ -120,7 +120,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 				throw new UserDirectoryException("Unsupported LDAP type for " + name);
 			return res;
 		} catch (NamingException e) {
-			log.error("Cannot get role: "+e.getMessage());
+			log.error("Cannot get role: " + e.getMessage());
 			return null;
 		}
 	}
@@ -144,9 +144,11 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 				Attribute objectClassAttr = attrs.get(objectClass.name());
 				LdapName dn = toDn(searchBase, searchResult);
 				LdifUser role;
-				if (objectClassAttr.contains(getGroupObjectClass()))
+				if (objectClassAttr.contains(getGroupObjectClass())
+						|| objectClassAttr.contains(getGroupObjectClass().toLowerCase()))
 					role = new LdifGroup(this, dn, attrs);
-				else if (objectClassAttr.contains(getUserObjectClass()))
+				else if (objectClassAttr.contains(getUserObjectClass())
+						|| objectClassAttr.contains(getUserObjectClass().toLowerCase()))
 					role = new LdifUser(this, dn, attrs);
 				else {
 					log.warn("Unsupported LDAP type for " + searchResult.getName());
