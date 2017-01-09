@@ -12,7 +12,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 import javax.security.auth.Subject;
-import javax.security.auth.login.CredentialNotFoundException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
@@ -75,15 +74,13 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
 					new HttpRequestCallbackHandler(UiContext.getHttpRequest()));
 			loginContext.login();
-		} catch (CredentialNotFoundException e) {
+		} catch (LoginException e) {
 			try {
 				loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER);
 				loginContext.login();
 			} catch (LoginException e1) {
 				throw new CmsException("Cannot log in as anonymous", e1);
 			}
-		} catch (LoginException e) {
-			throw new CmsException("Cannot initialize subject", e);
 		}
 		authChange(loginContext);
 
@@ -179,7 +176,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 			anonymousLc.login();
 			authChange(anonymousLc);
 		} catch (LoginException e) {
-			throw new CmsException("Cannot logout", e);
+			log.error("Cannot logout", e);
 		}
 	}
 

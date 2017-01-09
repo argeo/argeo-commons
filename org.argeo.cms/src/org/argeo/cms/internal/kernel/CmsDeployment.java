@@ -36,6 +36,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
+import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.http.HttpService;
@@ -88,6 +89,15 @@ public class CmsDeployment implements NodeDeployment {
 				ConfigurationAdmin configurationAdmin = bc.getService(reference);
 				deployConfig = new DeployConfig(configurationAdmin, cleanState);
 				httpExpected = deployConfig.getProps(KernelConstants.JETTY_FACTORY_PID, "default") != null;
+				try {
+					Configuration[] configs= configurationAdmin.listConfigurations("(service.factoryPid="+NodeConstants.NODE_REPOS_FACTORY_PID+")");
+					for(Configuration config:configs){
+						Object cn = config.getProperties().get(NodeConstants.CN);
+						log.debug("Standalone repo cn: "+cn);
+					}
+				} catch (Exception e) {
+					throw new CmsException("Cannot initialize config", e);
+				}
 				return super.addingService(reference);
 			}
 		}.open();
