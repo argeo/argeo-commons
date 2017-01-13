@@ -15,9 +15,14 @@
  */
 package org.argeo.cms.ui.workbench.jcr;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
 
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
+import org.argeo.eclipse.ui.EclipseUiUtils;
+import org.argeo.eclipse.ui.fs.SimpleFsBrowser;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
@@ -31,10 +36,10 @@ public class NodeFsBrowserView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-//		SimpleFsBrowser browser = new SimpleFsBrowser(parent, SWT.NO_FOCUS);
-//		Path path = Paths.get("/");
-//		browser.setInput(path);
-//		browser.setLayoutData(EclipseUiUtils.fillAll());
+		SimpleFsBrowser browser = new SimpleFsBrowser(parent, SWT.NO_FOCUS);
+		Path path = Paths.get("/");
+		browser.setInput(path);
+		browser.setLayoutData(EclipseUiUtils.fillAll());
 	}
 
 	@Override
@@ -46,6 +51,4 @@ public class NodeFsBrowserView extends ViewPart {
 	public void setNodeFileSystemProvider(FileSystemProvider nodeFileSystemProvider) {
 		this.nodeFileSystemProvider = nodeFileSystemProvider;
 	}
-
-	
 }

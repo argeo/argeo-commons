@@ -78,5 +78,4 @@ class JcrContentProvider implements ITreeContentProvider {
 			throw new CmsException("Cannot get elements", e);
 		}
 	}
-
 }
