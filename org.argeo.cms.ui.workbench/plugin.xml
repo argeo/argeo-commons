@@ -120,8 +120,14 @@
 		</view>
 		<!-- Data Explorer -->
 		<view
-          name="JCR Browser"
+          name="JCR"
           id="org.argeo.cms.ui.workbench.jcrBrowserView"
+          icon="icons/browser.gif"
+          class="org.argeo.eclipse.spring.SpringExtensionFactory">
+	   </view>
+		<view
+          name="Files"
+          id="org.argeo.cms.ui.workbench.nodeFsBrowserView"
           icon="icons/browser.gif"
           class="org.argeo.eclipse.spring.SpringExtensionFactory">
 	   </view>

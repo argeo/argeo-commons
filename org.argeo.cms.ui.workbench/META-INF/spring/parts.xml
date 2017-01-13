@@ -47,6 +47,11 @@
 		<property name="nodeRepository" ref="nodeRepository" />
 		<property name="keyring" ref="keyring" />
 	</bean>
+	<bean id="nodeFsBrowserView" class="org.argeo.cms.ui.workbench.jcr.NodeFsBrowserView"
+		scope="prototype">
+		<property name="nodeFileSystemProvider" ref="nodeFileSystemProvider" />
+		<!-- <property name="keyring" ref="keyring" /> -->
+	</bean>
 
 	<!-- LOGGERS -->
 	<bean id="logView" class="org.argeo.cms.ui.workbench.useradmin.LogView"

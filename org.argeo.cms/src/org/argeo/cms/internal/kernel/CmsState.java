@@ -7,6 +7,7 @@ import static java.util.Locale.ENGLISH;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.spi.FileSystemProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -60,7 +61,7 @@ public class CmsState implements NodeState {
 		try {
 			this.hostname = InetAddress.getLocalHost().getHostName();
 		} catch (UnknownHostException e) {
-			log.error("Cannot set hostname: "+ e);
+			log.error("Cannot set hostname: " + e);
 		}
 
 		availableSince = System.currentTimeMillis();
@@ -101,6 +102,11 @@ public class CmsState implements NodeState {
 		shutdownHooks.add(() -> userAdmin.destroy());
 		bc.registerService(ManagedServiceFactory.class, userAdmin,
 				LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_USER_ADMIN_PID));
+
+		// File System
+		CmsFsProvider cmsFsProvider = new CmsFsProvider();
+		bc.registerService(FileSystemProvider.class, cmsFsProvider,
+				LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_FS_PROVIDER_PID));
 	}
 
 	private void initTransactionManager() {

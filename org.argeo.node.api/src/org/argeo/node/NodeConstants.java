@@ -10,6 +10,7 @@ public interface NodeConstants {
 
 	String NODE_USER_ADMIN_PID = "org.argeo.node.userAdmin";
 	String NODE_KEYRING_PID = "org.argeo.node.keyring";
+	String NODE_FS_PROVIDER_PID = "org.argeo.node.fsProvider";
 
 	/*
 	 * FACTORY PIDs

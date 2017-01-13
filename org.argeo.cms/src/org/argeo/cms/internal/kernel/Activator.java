@@ -10,6 +10,8 @@ import java.util.Locale;
 
 import javax.security.auth.login.Configuration;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.node.ArgeoLogger;
 import org.argeo.node.NodeConstants;
@@ -28,6 +30,8 @@ import org.osgi.service.log.LogReaderService;
  * access to kernel information for the rest of the bundle (and only it)
  */
 public class Activator implements BundleActivator {
+	private final static Log log = LogFactory.getLog(Activator.class);
+
 	private static Activator instance;
 
 	private BundleContext bc;
@@ -51,8 +55,8 @@ public class Activator implements BundleActivator {
 			initArgeoLogger();
 			initNode();
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new CmsException("Cannot initialize node", e);
+			log.error("## FATAL: CMS activator failed", e);
+			// throw new CmsException("Cannot initialize node", e);
 		}
 	}
 

@@ -19,6 +19,8 @@
 
 	<reference id="nodeRepository" interface="javax.jcr.Repository"
 		filter="(cn=home)" />
+	<reference id="nodeFileSystemProvider" interface="java.nio.file.spi.FileSystemProvider"
+		filter="(service.pid=org.argeo.node.fsProvider)" />
 
 	<!-- UserAdmin -->
 	<reference id="userAdmin" interface="org.osgi.service.useradmin.UserAdmin" />

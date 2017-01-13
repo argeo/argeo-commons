@@ -16,6 +16,7 @@
 package org.argeo.cms.ui.workbench;
 
 import org.argeo.cms.ui.workbench.jcr.JcrBrowserView;
+import org.argeo.cms.ui.workbench.jcr.NodeFsBrowserView;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
@@ -29,5 +30,6 @@ public class JcrBrowserPerspective implements IPerspectiveFactory {
 				WorkbenchUiPlugin.PLUGIN_ID + ".upperLeft", IPageLayout.LEFT,
 				0.4f, layout.getEditorArea());
 		upperLeft.addView(JcrBrowserView.ID);
+		upperLeft.addView(NodeFsBrowserView.ID);
 	}
 }
