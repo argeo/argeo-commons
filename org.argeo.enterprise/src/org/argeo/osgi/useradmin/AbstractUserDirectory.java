@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.naming.InvalidNameException;
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
@@ -159,11 +161,32 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 	}
 
 	private void collectRoles(DirectoryUser user, List<Role> allRoles) {
-		for (LdapName groupDn : getDirectGroups(user.getDn())) {
-			// TODO check for loops
-			DirectoryUser group = doGetRole(groupDn);
-			allRoles.add(group);
-			collectRoles(group, allRoles);
+		Attributes attrs = user.getAttributes();
+		// TODO centralize attribute name
+		Attribute memberOf = attrs.get("memberOf");
+		if (memberOf != null) {
+			try {
+				NamingEnumeration<?> values = memberOf.getAll();
+				while (values.hasMore()) {
+					Object value = values.next();
+					LdapName groupDn = new LdapName(value.toString());
+					DirectoryUser group = doGetRole(groupDn);
+					allRoles.add(group);
+					if (log.isDebugEnabled())
+						log.debug("Add memberOf " + groupDn);
+				}
+			} catch (Exception e) {
+				throw new UserDirectoryException("Cannot get memberOf groups for " + user, e);
+			}
+		} else {
+			for (LdapName groupDn : getDirectGroups(user.getDn())) {
+				// TODO check for loops
+				DirectoryUser group = doGetRole(groupDn);
+				allRoles.add(group);
+				if (log.isDebugEnabled())
+					log.debug("Add direct group " + groupDn);
+				collectRoles(group, allRoles);
+			}
 		}
 	}
 
