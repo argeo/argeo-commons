@@ -78,8 +78,6 @@ class DataHttp implements KernelConstants {
 	void registerRepositoryServlets(String alias, Repository repository) {
 		try {
 			registerWebdavServlet(alias, repository);
-			// registerWebdavServlet(alias, repository, false);
-			// registerRemotingServlet(alias, repository, true);
 			registerRemotingServlet(alias, repository);
 			if (log.isDebugEnabled())
 				log.debug("Registered servlets for repository '" + alias + "'");
@@ -91,8 +89,6 @@ class DataHttp implements KernelConstants {
 	void unregisterRepositoryServlets(String alias) {
 		try {
 			httpService.unregister(webdavPath(alias));
-			// httpService.unregister(webdavPath(alias, false));
-			// httpService.unregister(remotingPath(alias, true));
 			httpService.unregister(remotingPath(alias));
 			if (log.isDebugEnabled())
 				log.debug("Unregistered servlets for repository '" + alias + "'");
@@ -126,14 +122,10 @@ class DataHttp implements KernelConstants {
 
 	private String webdavPath(String alias) {
 		return NodeConstants.PATH_DATA + "/" + alias;
-		// String pathPrefix = anonymous ? WEBDAV_PUBLIC : WEBDAV_PRIVATE;
-		// return pathPrefix + "/" + alias;
 	}
 
 	private String remotingPath(String alias) {
 		return NodeConstants.PATH_JCR + "/" + alias;
-		// String pathPrefix = anonymous ? NodeConstants.PATH_JCR_PUB :
-		// NodeConstants.PATH_JCR;
 	}
 
 	private Subject subjectFromRequest(HttpServletRequest request) {
@@ -153,7 +145,6 @@ class DataHttp implements KernelConstants {
 	private void requestBasicAuth(HttpServletRequest request, HttpServletResponse response) {
 		response.setStatus(401);
 		response.setHeader(HEADER_WWW_AUTHENTICATE, "basic realm=\"" + httpAuthRealm + "\"");
-		// request.getSession().setAttribute(ATTR_AUTH, Boolean.TRUE);
 	}
 
 	private CallbackHandler basicAuth(final HttpServletRequest httpRequest) {
@@ -223,43 +214,17 @@ class DataHttp implements KernelConstants {
 	}
 
 	private class DataHttpContext implements HttpContext {
-		// private final boolean anonymous;
-
-		DataHttpContext() {
-			// this.anonymous = anonymous;
-		}
-
 		@Override
 		public boolean handleSecurity(final HttpServletRequest request, HttpServletResponse response)
 				throws IOException {
-
-			// optimization
-			// HttpSession httpSession = request.getSession();
-			// Object remoteUser = httpSession.getAttribute(REMOTE_USER);
-			// Object authorization = httpSession.getAttribute(AUTHORIZATION);
-			// if (remoteUser != null && authorization != null) {
-			// request.setAttribute(REMOTE_USER, remoteUser);
-			// request.setAttribute(AUTHORIZATION, authorization);
-			// return true;
-			// }
-
-			// if (anonymous) {
-			// Subject subject = KernelUtils.anonymousLogin();
-			// Authorization authorization =
-			// subject.getPrivateCredentials(Authorization.class).iterator().next();
-			// request.setAttribute(REMOTE_USER, NodeConstants.ROLE_ANONYMOUS);
-			// request.setAttribute(AUTHORIZATION, authorization);
-			// return true;
-			// }
-
-			// if (log.isTraceEnabled())
-			KernelUtils.logRequestHeaders(log, request);
+			if (log.isTraceEnabled())
+				KernelUtils.logRequestHeaders(log, request);
 			LoginContext lc;
 			try {
 				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new HttpRequestCallbackHandler(request));
 				lc.login();
 				// return true;
-			} catch (CredentialNotFoundException e) {
+			} catch (LoginException e) {
 				CallbackHandler token = basicAuth(request);
 				if (token != null) {
 					try {
@@ -282,36 +247,6 @@ class DataHttp implements KernelConstants {
 						return false;
 					}
 				}
-				// Subject subject = KernelUtils.anonymousLogin();
-				// authorization =
-				// subject.getPrivateCredentials(Authorization.class).iterator().next();
-				// request.setAttribute(REMOTE_USER,
-				// NodeConstants.ROLE_ANONYMOUS);
-				// request.setAttribute(AUTHORIZATION, authorization);
-				// httpSession.setAttribute(REMOTE_USER,
-				// NodeConstants.ROLE_ANONYMOUS);
-				// httpSession.setAttribute(AUTHORIZATION, authorization);
-				// return true;
-				// CallbackHandler token = basicAuth(request);
-				// if (token != null) {
-				// try {
-				// LoginContext lc = new
-				// LoginContext(NodeConstants.LOGIN_CONTEXT_USER, token);
-				// lc.login();
-				// // Note: this is impossible to reliably clear the
-				// // authorization header when access from a browser.
-				// return true;
-				// } catch (LoginException e1) {
-				// throw new CmsException("Could not login", e1);
-				// }
-				// } else {
-				// String path = request.getServletPath();
-				// if (path.startsWith(REMOTING_PRIVATE))
-				// requestBasicAuth(request, response);
-				// return false;
-				// }
-			} catch (LoginException e) {
-				throw new CmsException("Could not login", e);
 			}
 			request.setAttribute(NodeConstants.LOGIN_CONTEXT_USER, lc);
 			return true;

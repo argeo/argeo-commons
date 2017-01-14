@@ -26,6 +26,7 @@ public class IpaLoginModule implements LoginModule {
 	private Map<String, Object> sharedState = null;
 	private CallbackHandler callbackHandler;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,
 			Map<String, ?> options) {
