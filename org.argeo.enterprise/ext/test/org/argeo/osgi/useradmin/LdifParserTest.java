@@ -10,9 +10,10 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
-import junit.framework.TestCase;
-
+import org.argeo.naming.LdapAttrs;
 import org.argeo.naming.LdifParser;
+
+import junit.framework.TestCase;
 
 public class LdifParserTest extends TestCase implements BasicTestConstants {
 	public void testBasicLdif() throws Exception {
@@ -23,9 +24,9 @@ public class LdifParserTest extends TestCase implements BasicTestConstants {
 		Attributes rootAttributes = res.get(rootDn);
 		assertNotNull(rootAttributes);
 		assertEquals("Superuser",
-				rootAttributes.get(LdifName.description.name()).get());
+				rootAttributes.get(LdapAttrs.description.name()).get());
 		byte[] rawPwEntry = (byte[]) rootAttributes.get(
-				LdifName.userPassword.name()).get();
+				LdapAttrs.userPassword.name()).get();
 		assertEquals("{SHA}ieSV55Qc+eQOaYDRSha/AjzNTJE=",
 				new String(rawPwEntry));
 		byte[] hashedPassword = DigestUtils.sha1("demo".getBytes());
@@ -35,7 +36,7 @@ public class LdifParserTest extends TestCase implements BasicTestConstants {
 		LdapName adminDn = new LdapName(ADMIN_GROUP_DN);
 		Attributes adminAttributes = res.get(adminDn);
 		assertNotNull(adminAttributes);
-		Attribute memberAttribute = adminAttributes.get(LdifName.member.name());
+		Attribute memberAttribute = adminAttributes.get(LdapAttrs.member.name());
 		assertNotNull(memberAttribute);
 		NamingEnumeration<?> members = memberAttribute.getAll();
 		List<String> users = new ArrayList<String>();

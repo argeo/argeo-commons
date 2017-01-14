@@ -20,6 +20,7 @@ import java.util.UUID;
 
 import javax.transaction.TransactionManager;
 
+import org.argeo.naming.LdapAttrs;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
@@ -100,8 +101,8 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 		// credentials
 		byte[] hashedPassword = ("{SHA}" + Base64.getEncoder().encodeToString(DigestUtils.sha1("demo".getBytes())))
 				.getBytes();
-		assertTrue(rootUser.hasCredential(LdifName.userPassword.name(), hashedPassword));
-		assertTrue(demoUser.hasCredential(LdifName.userPassword.name(), hashedPassword));
+		assertTrue(rootUser.hasCredential(LdapAttrs.userPassword.name(), hashedPassword));
+		assertTrue(demoUser.hasCredential(LdapAttrs.userPassword.name(), hashedPassword));
 
 		// search
 		Role[] search = userAdmin.getRoles(null);
