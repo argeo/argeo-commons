@@ -63,7 +63,10 @@ public class JcrBasicfileAttributes implements NodeFileAttributes {
 	@Override
 	public boolean isDirectory() {
 		try {
-			return node.isNodeType(NodeType.NT_FOLDER);
+			if (node.isNodeType(NodeType.NT_FOLDER))
+				return true;
+			// all other non file nodes
+			return !(node.isNodeType(NodeType.NT_FILE) || node.isNodeType(NodeType.NT_LINKED_FILE));
 		} catch (RepositoryException e) {
 			throw new JcrFsException("Cannot check if directory", e);
 		}
@@ -88,7 +91,7 @@ public class JcrBasicfileAttributes implements NodeFileAttributes {
 		if (isRegularFile()) {
 			Binary binary = null;
 			try {
-				binary = node.getNode(Property.JCR_DATA).getProperty(Property.JCR_CONTENT).getBinary();
+				binary = node.getNode(Property.JCR_CONTENT).getProperty(Property.JCR_DATA).getBinary();
 				return binary.getSize();
 			} catch (RepositoryException e) {
 				throw new JcrFsException("Cannot check size", e);
