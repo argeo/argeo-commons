@@ -14,6 +14,7 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.KeyEvent;
@@ -40,6 +41,10 @@ public class SimpleFsBrowser extends Composite {
 		super(parent, style);
 		createContent(this);
 		// parent.layout(true, true);
+	}
+
+	public Viewer getViewer() {
+		return directoryDisplayViewer;
 	}
 
 	private void createContent(Composite parent) {

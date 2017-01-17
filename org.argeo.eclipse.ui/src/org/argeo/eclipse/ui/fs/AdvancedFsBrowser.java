@@ -22,7 +22,6 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -36,7 +35,9 @@ public class AdvancedFsBrowser {
 	private final static Log log = LogFactory.getLog(AdvancedFsBrowser.class);
 
 	// Some local constants to experiment. should be cleaned
-	private final static int THUMBNAIL_WIDTH = 400;
+	// private final static int THUMBNAIL_WIDTH = 400;
+	// private Point imageWidth = new Point(250, 0);
+
 	private final static int COLUMN_WIDTH = 160;
 
 	private Path initialPath;
@@ -104,6 +105,7 @@ public class AdvancedFsBrowser {
 		scrolledCmpBody = new Composite(scrolledCmp, SWT.NO_FOCUS);
 		scrolledCmp.setContent(scrolledCmpBody);
 		scrolledCmpBody.addControlListener(new ControlAdapter() {
+			private static final long serialVersionUID = 183238447102854553L;
 
 			@Override
 			public void controlResized(ControlEvent e) {
@@ -283,8 +285,6 @@ public class AdvancedFsBrowser {
 					table.filterList(filter);
 			}
 	}
-
-	private Point imageWidth = new Point(250, 0);
 
 	/**
 	 * Recreates the content of the box that displays information about the
