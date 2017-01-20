@@ -90,40 +90,33 @@ public class NodeVersionHistoryPage extends FormPage implements
 		ScrolledForm form = managedForm.getForm();
 		form.setText(WorkbenchUiPlugin.getMessage("nodeVersionHistoryPageTitle"));
 		tk = managedForm.getToolkit();
+		Composite body = form.getBody();
 		GridLayout twt = new GridLayout(1, false);
 		twt.marginWidth = twt.marginHeight = 5;
-		Composite body = form.getBody();
 		body.setLayout(twt);
-
 		try {
 			if (!currentNode.isNodeType(NodeType.MIX_VERSIONABLE)) {
 				tk.createLabel(body,
 						WorkbenchUiPlugin.getMessage("warningUnversionableNode"));
 			} else {
-				createHistorySection(form.getBody());
-				createTreeSection(form.getBody());
+				createHistorySection(body);
+				createTreeSection(body);
 			}
 		} catch (RepositoryException e) {
-			throw new EclipseUiException(
-					"Unexpected error while checking if node is versionable", e);
+			throw new EclipseUiException("Unable to check if node is versionable", e);
 		}
 	}
 
 	protected void createTreeSection(Composite parent) {
-		// Section Layout & MetaData
 		Section section = tk.createSection(parent, Section.TWISTIE);
 		section.setLayoutData(new GridData(GridData.FILL_BOTH));
 		section.setText(WorkbenchUiPlugin.getMessage("versionTreeSectionTitle"));
 
-		// Section Body
 		Composite body = tk.createComposite(section, SWT.FILL);
-		// WARNING : 2 following lines are compulsory or body won't be
-		// displayed.
-		body.setLayout(new GridLayout());
 		section.setClient(body);
-
-		body.setLayoutData(new GridData(GridData.FILL_BOTH));
 		section.setExpanded(true);
+		body.setLayoutData(new GridData(GridData.FILL_BOTH));
+		body.setLayout(new GridLayout());
 
 		nodeContentProvider = new FullVersioningTreeContentProvider();
 		nodesViewer = createNodeViewer(body, nodeContentProvider);
@@ -160,8 +153,8 @@ public class NodeVersionHistoryPage extends FormPage implements
 
 		final Text styledText = tk.createText(section, "", SWT.FULL_SELECTION
 				| SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
-		styledText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		section.setClient(styledText);
+		styledText.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.FILL_GRAB));
 		refreshHistory(styledText);
 		styledText.setEditable(false);
 		section.setExpanded(false);
@@ -254,7 +247,6 @@ public class NodeVersionHistoryPage extends FormPage implements
 		} catch (RepositoryException e) {
 			throw new EclipseUiException("Cannot generate history for node", e);
 		}
-
 	}
 
 	public List<VersionDiff> listHistoryDiff() {

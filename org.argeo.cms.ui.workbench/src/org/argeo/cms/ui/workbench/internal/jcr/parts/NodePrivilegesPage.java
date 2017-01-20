@@ -59,8 +59,7 @@ public class NodePrivilegesPage extends FormPage {
 
 	protected void createFormContent(IManagedForm managedForm) {
 		ScrolledForm form = managedForm.getForm();
-		form.setText(WorkbenchUiPlugin
-				.getMessage("nodeRightsManagementPageTitle"));
+		form.setText(WorkbenchUiPlugin.getMessage("nodeRightsManagementPageTitle"));
 		FillLayout layout = new FillLayout();
 		layout.marginHeight = 5;
 		layout.marginWidth = 5;
@@ -77,8 +76,7 @@ public class NodePrivilegesPage extends FormPage {
 		viewer = new TableViewer(table);
 
 		// Group / user name
-		TableViewerColumn column = createTableViewerColumn(viewer,
-				"User/Group Name", 280);
+		TableViewerColumn column = createTableViewerColumn(viewer, "User/Group Name", 280);
 		column.setLabelProvider(new ColumnLabelProvider() {
 			private static final long serialVersionUID = -2290781173498395973L;
 
@@ -86,11 +84,9 @@ public class NodePrivilegesPage extends FormPage {
 				Node node = (Node) element;
 				try {
 					if (node.hasProperty("rep:principalName"))
-						return node.getProperty("rep:principalName")
-								.getString();
+						return node.getProperty("rep:principalName").getString();
 				} catch (RepositoryException e) {
-					throw new EclipseUiException("Unable to retrieve "
-							+ "principal name on " + node, e);
+					throw new EclipseUiException("Unable to retrieve " + "principal name on " + node, e);
 				}
 				return "";
 			}
@@ -111,23 +107,20 @@ public class NodePrivilegesPage extends FormPage {
 				try {
 					if (node.hasProperty(propertyName)) {
 						String separator = ", ";
-						Value[] langs = node.getProperty(propertyName)
-								.getValues();
+						Value[] langs = node.getProperty(propertyName).getValues();
 						StringBuilder builder = new StringBuilder();
 						for (Value val : langs) {
 							String currStr = val.getString();
 							builder.append(currStr).append(separator);
 						}
 						if (builder.lastIndexOf(separator) >= 0)
-							return builder.substring(0, builder.length()
-									- separator.length());
+							return builder.substring(0, builder.length() - separator.length());
 						else
 							return builder.toString();
 
 					}
 				} catch (RepositoryException e) {
-					throw new EclipseUiException("Unable to retrieve "
-							+ "privileges on " + node, e);
+					throw new EclipseUiException("Unable to retrieve " + "privileges on " + node, e);
 				}
 				return "";
 			}
@@ -150,8 +143,7 @@ public class NodePrivilegesPage extends FormPage {
 				try {
 					return node.getParent().getParent().getPath();
 				} catch (RepositoryException e) {
-					throw new EclipseUiException("Unable get path for " + node,
-							e);
+					throw new EclipseUiException("Unable get path for " + node, e);
 				}
 			}
 
@@ -164,11 +156,9 @@ public class NodePrivilegesPage extends FormPage {
 		viewer.setInput(getEditorSite());
 	}
 
-	protected TableViewerColumn createTableViewerColumn(TableViewer viewer,
-			String title, int bound) {
-		final TableViewerColumn viewerColumn = new TableViewerColumn(viewer,
-				SWT.NONE);
-		final TableColumn column = viewerColumn.getColumn();
+	protected TableViewerColumn createTableViewerColumn(TableViewer viewer, String title, int bound) {
+		TableViewerColumn viewerColumn = new TableViewerColumn(viewer, SWT.NONE);
+		TableColumn column = viewerColumn.getColumn();
 		column.setText(title);
 		column.setWidth(bound);
 		column.setResizable(true);
@@ -196,8 +186,7 @@ public class NodePrivilegesPage extends FormPage {
 
 				loop: while (true) {
 					if (currNode.hasNode("rep:policy")) {
-						NodeIterator nit = currNode.getNode("rep:policy")
-								.getNodes();
+						NodeIterator nit = currNode.getNode("rep:policy").getNodes();
 						while (nit.hasNext()) {
 							Node currPrivNode = nit.nextNode();
 							if (currPrivNode.getName().startsWith("allow"))
@@ -233,8 +222,7 @@ public class NodePrivilegesPage extends FormPage {
 
 				return privs.toArray();
 			} catch (Exception e) {
-				throw new EclipseUiException(
-						"Cannot retrieve authorization for " + context, e);
+				throw new EclipseUiException("Cannot retrieve authorization for " + context, e);
 			}
 		}
 	}
@@ -247,8 +235,7 @@ public class NodePrivilegesPage extends FormPage {
 			String cname = context.getSession().getClass().getName();
 			return cname.startsWith("org.apache.jackrabbit");
 		} catch (RepositoryException e) {
-			throw new EclipseUiException(
-					"Cannot check JCR implementation used on " + context, e);
+			throw new EclipseUiException("Cannot check JCR implementation used on " + context, e);
 		}
 	}
 }
