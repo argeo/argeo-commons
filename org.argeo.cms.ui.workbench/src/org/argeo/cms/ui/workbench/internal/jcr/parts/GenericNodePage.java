@@ -47,8 +47,9 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 /**
- * Main node editor page. Lists all properties of the current node and enable
- * access and editing for some of them.
+ * Work-In-Progress Node editor page: provides edition feature on String
+ * properties for power users. TODO implement manual modification of all
+ * property types.
  */
 
 public class GenericNodePage extends FormPage implements WorkbenchConstants {
@@ -75,124 +76,94 @@ public class GenericNodePage extends FormPage implements WorkbenchConstants {
 	protected void createFormContent(IManagedForm managedForm) {
 		tk = managedForm.getToolkit();
 		ScrolledForm form = managedForm.getForm();
+		Composite innerBox = form.getBody();
+		// Composite innerBox = new Composite(form.getBody(), SWT.NO_FOCUS);
 		GridLayout twt = new GridLayout(3, false);
-		twt.marginWidth = twt.marginHeight = 5;
-
-		form.getBody().setLayout(twt);
-		createPropertiesPart(form.getBody());
+		innerBox.setLayout(twt);
+		createPropertiesPart(innerBox);
 	}
 
 	private void createPropertiesPart(Composite parent) {
 		try {
-
-			PropertyIterator pi = currentNode.getProperties();
-
-			// Initializes form part
 			AbstractFormPart part = new AbstractFormPart() {
 				public void commit(boolean onSave) {
 					try {
 						if (onSave) {
-							ListIterator<Control> it = modifyableProperties
-									.listIterator();
+							ListIterator<Control> it = modifyableProperties.listIterator();
 							while (it.hasNext()) {
-								// we only support Text controls for the time
-								// being
+								// we only support Text controls
 								Text curControl = (Text) it.next();
 								String value = curControl.getText();
-								currentNode.setProperty((String) curControl
-										.getData(JCR_PROPERTY_NAME), value);
+								currentNode.setProperty((String) curControl.getData(JCR_PROPERTY_NAME), value);
 							}
 
 							// We only commit when onSave = true,
 							// thus it is still possible to save after a tab
 							// change.
-							super.commit(onSave);
 							if (currentNode.getSession().hasPendingChanges())
 								currentNode.getSession().save();
+							super.commit(onSave);
 						}
 					} catch (RepositoryException re) {
-						throw new EclipseUiException(
-								"Unexpected error while saving properties", re);
+						throw new EclipseUiException("Cannot save properties on " + currentNode, re);
 					}
 				}
 			};
 
+			PropertyIterator pi = currentNode.getProperties();
 			while (pi.hasNext()) {
 				Property prop = pi.nextProperty();
 				addPropertyLine(parent, part, prop);
 			}
-
 			getManagedForm().addPart(part);
 		} catch (RepositoryException re) {
-			throw new EclipseUiException(
-					"Error during creation of network details section", re);
+			throw new EclipseUiException("Cannot display properties for " + currentNode, re);
 		}
-
 	}
 
-	private void addPropertyLine(Composite parent, AbstractFormPart part,
-			Property prop) {
+	private void addPropertyLine(Composite parent, AbstractFormPart part, Property prop) {
 		try {
 			tk.createLabel(parent, prop.getName());
-			tk.createLabel(parent,
-					"[" + JcrUtils.getPropertyDefinitionAsString(prop) + "]");
+			tk.createLabel(parent, "[" + JcrUtils.getPropertyDefinitionAsString(prop) + "]");
 
 			if (prop.getDefinition().isProtected()) {
 				tk.createLabel(parent, formatReadOnlyPropertyValue(prop));
 			} else
 				addModifyableValueWidget(parent, part, prop);
 		} catch (RepositoryException re) {
-			throw new EclipseUiException("Cannot get property " + prop, re);
+			throw new EclipseUiException("Cannot display property " + prop, re);
 		}
 	}
 
-	private String formatReadOnlyPropertyValue(Property prop) {
-		try {
-			String strValue;
-
-			if (prop.getType() == PropertyType.BINARY)
-				strValue = "<binary>";
-			else if (prop.isMultiple())
-				strValue = Arrays.asList(prop.getValues()).toString();
-			else if (prop.getType() == PropertyType.DATE)
-				strValue = timeFormatter.format(prop.getValue().getDate()
-						.getTime());
-			else
-				strValue = prop.getValue().getString();
-
-			return strValue;
-		} catch (RepositoryException re) {
-			throw new EclipseUiException(
-					"Unexpected error while formatting read only property value",
-					re);
-		}
+	private String formatReadOnlyPropertyValue(Property prop) throws RepositoryException {
+		String strValue;
+		if (prop.getType() == PropertyType.BINARY)
+			strValue = "<binary>";
+		else if (prop.isMultiple())
+			strValue = Arrays.asList(prop.getValues()).toString();
+		else if (prop.getType() == PropertyType.DATE)
+			strValue = timeFormatter.format(prop.getValue().getDate().getTime());
+		else
+			strValue = prop.getValue().getString();
+		return strValue;
 	}
 
-	private Control addModifyableValueWidget(Composite parent,
-			AbstractFormPart part, Property prop) {
+	private Control addModifyableValueWidget(Composite parent, AbstractFormPart part, Property prop)
+			throws RepositoryException {
 		GridData gd;
-		try {
-			if (prop.getType() == PropertyType.STRING && !prop.isMultiple()) {
-				Text txt = tk.createText(parent, prop.getString(), SWT.WRAP
-						| SWT.MULTI);
-				gd = new GridData(GridData.FILL_HORIZONTAL);
-				txt.setLayoutData(gd);
-				txt.addModifyListener(new ModifiedFieldListener(part));
-				txt.setData(JCR_PROPERTY_NAME, prop.getName());
-				modifyableProperties.add(txt);
-			} else {
-				// unsupported property type for editing, we create a read only
-				// label.
-				return tk
-						.createLabel(parent, formatReadOnlyPropertyValue(prop));
-			}
-			return null;
-		} catch (RepositoryException re) {
-			throw new EclipseUiException(
-					"Unexpected error while formatting read only property value",
-					re);
+		if (prop.getType() == PropertyType.STRING && !prop.isMultiple()) {
+			Text txt = tk.createText(parent, prop.getString(), SWT.WRAP | SWT.MULTI);
+			gd = new GridData(GridData.FILL_HORIZONTAL);
+			txt.setLayoutData(gd);
+			txt.addModifyListener(new ModifiedFieldListener(part));
+			txt.setData(JCR_PROPERTY_NAME, prop.getName());
+			modifyableProperties.add(txt);
+		} else {
+			// unsupported property type for editing, we create a read only
+			// label.
+			return tk.createLabel(parent, formatReadOnlyPropertyValue(prop));
 		}
-
+		return null;
 	}
 
 	private class ModifiedFieldListener implements ModifyListener {
@@ -207,5 +178,4 @@ public class GenericNodePage extends FormPage implements WorkbenchConstants {
 			formPart.markDirty();
 		}
 	}
-
 }

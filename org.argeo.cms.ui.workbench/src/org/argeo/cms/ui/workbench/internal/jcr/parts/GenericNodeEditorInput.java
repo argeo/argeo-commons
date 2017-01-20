@@ -28,8 +28,7 @@ public class GenericNodeEditorInput implements IEditorInput {
 	private final Node currentNode;
 
 	// Caches key properties at creation time to avoid Exception at recovering
-	// time
-	// when the session has been closed
+	// time when the session has been closed
 	private String path;
 	private String uid;
 	private String name;
@@ -41,7 +40,7 @@ public class GenericNodeEditorInput implements IEditorInput {
 			uid = currentNode.getIdentifier();
 			path = currentNode.getPath();
 		} catch (RepositoryException re) {
-			throw new EclipseUiException("unexpected error while getting node key values at creation time", re);
+			throw new EclipseUiException("Cannot cache the key properties for " + currentNode, re);
 		}
 	}
 
@@ -83,7 +82,7 @@ public class GenericNodeEditorInput implements IEditorInput {
 	}
 
 	/**
-	 * equals method based on UID that is unique within a workspace and path of
+	 * Equals method based on UID that is unique within a workspace and path of
 	 * the node, thus 2 shared node that have same UID as defined in the spec
 	 * but 2 different paths will open two distinct editors.
 	 * 

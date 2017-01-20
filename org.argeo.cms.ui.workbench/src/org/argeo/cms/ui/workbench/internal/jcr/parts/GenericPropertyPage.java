@@ -61,13 +61,13 @@ public class GenericPropertyPage extends FormPage implements WorkbenchConstants 
 	protected void createFormContent(IManagedForm managedForm) {
 		ScrolledForm form = managedForm.getForm();
 		form.setText(WorkbenchUiPlugin.getMessage("genericNodePageTitle"));
-
-		Composite body = form.getBody();
+		Composite innerBox = form.getBody();
+		//Composite innerBox = new Composite(body, SWT.NO_FOCUS);
 		FillLayout layout = new FillLayout();
 		layout.marginHeight = 5;
 		layout.marginWidth = 5;
-		body.setLayout(layout);
-		createComplexTree(body);
+		innerBox.setLayout(layout);
+		createComplexTree(innerBox);
 		// TODO TreeColumnLayout triggers a scroll issue with the form:
 		// The inside body is always to big and a scroll bar is shown
 		// Composite tableCmp = new Composite(body, SWT.NO_FOCUS);

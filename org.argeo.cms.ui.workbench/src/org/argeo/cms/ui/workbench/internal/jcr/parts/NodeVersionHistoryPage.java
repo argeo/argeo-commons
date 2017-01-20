@@ -63,9 +63,8 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
  * Offers two main sections : one to display a text area with a summary of all
  * variations between a version and its predecessor and one tree view that
  * enable browsing
- * */
-public class NodeVersionHistoryPage extends FormPage implements
-		WorkbenchConstants {
+ */
+public class NodeVersionHistoryPage extends FormPage implements WorkbenchConstants {
 	// private final static Log log = LogFactory
 	// .getLog(NodeVersionHistoryPage.class);
 
@@ -80,8 +79,7 @@ public class NodeVersionHistoryPage extends FormPage implements
 	private TreeViewer nodesViewer;
 	private FormToolkit tk;
 
-	public NodeVersionHistoryPage(FormEditor editor, String title,
-			Node currentNode) {
+	public NodeVersionHistoryPage(FormEditor editor, String title, Node currentNode) {
 		super(editor, "NodeVersionHistoryPage", title);
 		this.currentNode = currentNode;
 	}
@@ -90,17 +88,17 @@ public class NodeVersionHistoryPage extends FormPage implements
 		ScrolledForm form = managedForm.getForm();
 		form.setText(WorkbenchUiPlugin.getMessage("nodeVersionHistoryPageTitle"));
 		tk = managedForm.getToolkit();
-		Composite body = form.getBody();
+		Composite innerBox = form.getBody();
+		// Composite innerBox = new Composite(body, SWT.NO_FOCUS);
 		GridLayout twt = new GridLayout(1, false);
 		twt.marginWidth = twt.marginHeight = 5;
-		body.setLayout(twt);
+		innerBox.setLayout(twt);
 		try {
 			if (!currentNode.isNodeType(NodeType.MIX_VERSIONABLE)) {
-				tk.createLabel(body,
-						WorkbenchUiPlugin.getMessage("warningUnversionableNode"));
+				tk.createLabel(innerBox, WorkbenchUiPlugin.getMessage("warningUnversionableNode"));
 			} else {
-				createHistorySection(body);
-				createTreeSection(body);
+				createHistorySection(innerBox);
+				createTreeSection(innerBox);
 			}
 		} catch (RepositoryException e) {
 			throw new EclipseUiException("Unable to check if node is versionable", e);
@@ -123,19 +121,15 @@ public class NodeVersionHistoryPage extends FormPage implements
 		nodesViewer.setInput(currentNode);
 	}
 
-	protected TreeViewer createNodeViewer(Composite parent,
-			final ITreeContentProvider nodeContentProvider) {
+	protected TreeViewer createNodeViewer(Composite parent, final ITreeContentProvider nodeContentProvider) {
 
 		final TreeViewer tmpNodeViewer = new TreeViewer(parent, SWT.MULTI);
 
-		tmpNodeViewer.getTree().setLayoutData(
-				new GridData(SWT.FILL, SWT.FILL, true, true));
+		tmpNodeViewer.getTree().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		tmpNodeViewer.setContentProvider(nodeContentProvider);
 		tmpNodeViewer.setLabelProvider(new VersionLabelProvider());
-		tmpNodeViewer
-				.addDoubleClickListener(new JcrDClickListener(
-						tmpNodeViewer));
+		tmpNodeViewer.addDoubleClickListener(new JcrDClickListener(tmpNodeViewer));
 		return tmpNodeViewer;
 	}
 
@@ -148,11 +142,10 @@ public class NodeVersionHistoryPage extends FormPage implements
 		section.setLayout(twt);
 
 		// Set title of the section
-		section.setText(WorkbenchUiPlugin
-				.getMessage("versionHistorySectionTitle"));
+		section.setText(WorkbenchUiPlugin.getMessage("versionHistorySectionTitle"));
 
-		final Text styledText = tk.createText(section, "", SWT.FULL_SELECTION
-				| SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
+		final Text styledText = tk.createText(section, "",
+				SWT.FULL_SELECTION | SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
 		section.setClient(styledText);
 		styledText.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.FILL_GRAB));
 		refreshHistory(styledText);
@@ -185,14 +178,11 @@ public class NodeVersionHistoryPage extends FormPage implements
 				if (lst.get(i).getUserId() != null)
 					main.append("UserId : " + lst.get(i).getUserId());
 
-				if (lst.get(i).getUserId() != null
-						&& lst.get(i).getUpdateTime() != null)
+				if (lst.get(i).getUserId() != null && lst.get(i).getUpdateTime() != null)
 					main.append(", ");
 
 				if (lst.get(i).getUpdateTime() != null)
-					main.append("Date : "
-							+ timeFormatter.format(lst.get(i).getUpdateTime()
-									.getTime()) + ")\n");
+					main.append("Date : " + timeFormatter.format(lst.get(i).getUpdateTime().getTime()) + ")\n");
 
 				StringBuffer buf = new StringBuffer("");
 				Map<String, PropertyDiff> diffs = lst.get(i).getDiffs();
@@ -206,15 +196,13 @@ public class NodeVersionHistoryPage extends FormPage implements
 
 					if (refValue != null) {
 						if (refValue.getType() == PropertyType.DATE) {
-							refValueStr = timeFormatter.format(refValue
-									.getDate().getTime());
+							refValueStr = timeFormatter.format(refValue.getDate().getTime());
 						} else
 							refValueStr = refValue.getString();
 					}
 					if (newValue != null) {
 						if (newValue.getType() == PropertyType.DATE) {
-							newValueStr = timeFormatter.format(newValue
-									.getDate().getTime());
+							newValueStr = timeFormatter.format(newValue.getDate().getTime());
 						} else
 							newValueStr = newValue.getString();
 					}
@@ -225,8 +213,7 @@ public class NodeVersionHistoryPage extends FormPage implements
 						buf.append(" > ");
 						buf.append(newValueStr);
 						buf.append("\n");
-					} else if (pd.getType() == PropertyDiff.ADDED
-							&& !"".equals(newValueStr)) {
+					} else if (pd.getType() == PropertyDiff.ADDED && !"".equals(newValueStr)) {
 						// we don't list property that have been added with an
 						// empty string as value
 						buf.append(prop).append(": ");
@@ -252,10 +239,8 @@ public class NodeVersionHistoryPage extends FormPage implements
 	public List<VersionDiff> listHistoryDiff() {
 		try {
 			List<VersionDiff> res = new ArrayList<VersionDiff>();
-			VersionManager versionManager = currentNode.getSession()
-					.getWorkspace().getVersionManager();
-			VersionHistory versionHistory = versionManager
-					.getVersionHistory(currentNode.getPath());
+			VersionManager versionManager = currentNode.getSession().getWorkspace().getVersionManager();
+			VersionHistory versionHistory = versionManager.getVersionHistory(currentNode.getPath());
 
 			VersionIterator vit = versionHistory.getAllLinearVersions();
 			while (vit.hasNext()) {
@@ -270,28 +255,21 @@ public class NodeVersionHistoryPage extends FormPage implements
 				}
 				if (predecessor == null) {// original
 				} else {
-					Map<String, PropertyDiff> diffs = JcrUtils.diffProperties(
-							predecessor.getFrozenNode(), node);
+					Map<String, PropertyDiff> diffs = JcrUtils.diffProperties(predecessor.getFrozenNode(), node);
 					if (!diffs.isEmpty()) {
 						String lastUserName = null;
 						Calendar lastUpdate = null;
 						try {
-							if (currentNode
-									.isNodeType(NodeType.MIX_LAST_MODIFIED)) {
-								lastUserName = node.getProperty(
-										Property.JCR_LAST_MODIFIED_BY)
-										.getString();
-								lastUpdate = node.getProperty(
-										Property.JCR_LAST_MODIFIED).getDate();
+							if (currentNode.isNodeType(NodeType.MIX_LAST_MODIFIED)) {
+								lastUserName = node.getProperty(Property.JCR_LAST_MODIFIED_BY).getString();
+								lastUpdate = node.getProperty(Property.JCR_LAST_MODIFIED).getDate();
 							} else
-								lastUpdate = version.getProperty(
-										Property.JCR_CREATED).getDate();
+								lastUpdate = version.getProperty(Property.JCR_CREATED).getDate();
 
 						} catch (Exception e) {
 							// Silent that info is optional
 						}
-						VersionDiff vd = new VersionDiff(lastUserName,
-								lastUpdate, diffs);
+						VersionDiff vd = new VersionDiff(lastUserName, lastUpdate, diffs);
 						res.add(vd);
 					}
 				}

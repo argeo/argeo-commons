@@ -43,7 +43,7 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 /**
  * Display and edit a given node privilege. For the time being it is completely
- * JackRabbit specific (and hardcoded for this) and will display an empty page
+ * JackRabbit specific (and hard coded for this) and will display an empty page
  * if using any other implementation
  */
 public class NodePrivilegesPage extends FormPage {
@@ -133,9 +133,6 @@ public class NodePrivilegesPage extends FormPage {
 		// Relevant node
 		column = createTableViewerColumn(viewer, "Relevant node", 300);
 		column.setLabelProvider(new ColumnLabelProvider() {
-			/**
-			 * 
-			 */
 			private static final long serialVersionUID = 4245522992038244849L;
 
 			public String getText(Object element) {

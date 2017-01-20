@@ -18,8 +18,8 @@ package org.argeo.cms.ui.workbench.internal.jcr.parts;
 import javax.jcr.Node;
 
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
-import org.argeo.cms.ui.workbench.internal.jcr.NodeLabelProvider;
 import org.argeo.cms.ui.workbench.internal.jcr.JcrTreeContentProvider;
+import org.argeo.cms.ui.workbench.internal.jcr.NodeLabelProvider;
 import org.argeo.cms.ui.workbench.jcr.DefaultNodeEditor;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
@@ -38,17 +38,12 @@ import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.forms.editor.FormPage;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
-/**
- * List all childs of the current node and brings some browsing capabilities
- * accross the repository
- */
+/** List all children of the current node */
 public class ChildNodesPage extends FormPage {
 	// private final static Log log = LogFactory.getLog(ChildNodesPage.class);
 
-	// business objects
 	private Node currentNode;
 
-	// this page UI components
 	private JcrTreeContentProvider nodeContentProvider;
 	private TreeViewer nodesViewer;
 
@@ -61,26 +56,24 @@ public class ChildNodesPage extends FormPage {
 		try {
 			ScrolledForm form = managedForm.getForm();
 			form.setText(WorkbenchUiPlugin.getMessage("childNodesPageTitle"));
-			Composite body = form.getBody();
+			Composite innerBox = form.getBody();
+			// Composite innerBox = new Composite(body, SWT.NO_FOCUS);
 			GridLayout twt = new GridLayout(1, false);
 			twt.marginWidth = twt.marginHeight = 5;
-			body.setLayout(twt);
+			innerBox.setLayout(twt);
 			if (!currentNode.hasNodes()) {
-				managedForm.getToolkit().createLabel(body,
-						WorkbenchUiPlugin.getMessage("warningNoChildNode"));
+				managedForm.getToolkit().createLabel(innerBox, WorkbenchUiPlugin.getMessage("warningNoChildNode"));
 			} else {
 				nodeContentProvider = new JcrTreeContentProvider();
-				nodesViewer = createNodeViewer(body, nodeContentProvider);
+				nodesViewer = createNodeViewer(innerBox, nodeContentProvider);
 				nodesViewer.setInput(currentNode);
 			}
 		} catch (Exception e) {
-			throw new EclipseUiException(
-					"Unexpected error while creating child node page", e);
+			throw new EclipseUiException("Cannot create children page for " + currentNode, e);
 		}
 	}
 
-	protected TreeViewer createNodeViewer(Composite parent,
-			final ITreeContentProvider nodeContentProvider) {
+	protected TreeViewer createNodeViewer(Composite parent, final ITreeContentProvider nodeContentProvider) {
 
 		final TreeViewer tmpNodeViewer = new TreeViewer(parent, SWT.BORDER);
 		Tree tree = tmpNodeViewer.getTree();
@@ -97,20 +90,15 @@ public class ChildNodesPage extends FormPage {
 		public void doubleClick(DoubleClickEvent event) {
 			if (event.getSelection() == null || event.getSelection().isEmpty())
 				return;
-			Object obj = ((IStructuredSelection) event.getSelection())
-					.getFirstElement();
+			Object obj = ((IStructuredSelection) event.getSelection()).getFirstElement();
 			if (obj instanceof Node) {
 				Node node = (Node) obj;
 				try {
-					GenericNodeEditorInput gnei = new GenericNodeEditorInput(
-							node);
-					WorkbenchUiPlugin.getDefault().getWorkbench()
-							.getActiveWorkbenchWindow().getActivePage()
+					GenericNodeEditorInput gnei = new GenericNodeEditorInput(node);
+					WorkbenchUiPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage()
 							.openEditor(gnei, DefaultNodeEditor.ID);
 				} catch (PartInitException pie) {
-					throw new EclipseUiException(
-							"Unexepected exception while opening node editor",
-							pie);
+					throw new EclipseUiException("Cannot open editor for " + node, pie);
 				}
 			}
 		}
