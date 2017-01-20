@@ -24,7 +24,7 @@ import java.nio.file.spi.FileSystemProvider;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.eclipse.ui.EclipseUiUtils;
-import org.argeo.eclipse.ui.fs.SimpleFsBrowser;
+// import org.argeo.eclipse.ui.fs.SimpleFsBrowser;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
