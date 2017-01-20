@@ -40,17 +40,18 @@ public class NodeFsBrowserView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		try {
-			URI uri = new URI("node:///home");
-			FileSystem fileSystem = nodeFileSystemProvider.getFileSystem(uri);
-			if(fileSystem==null)
-				fileSystem = nodeFileSystemProvider.newFileSystem(uri,null);
-			Path nodePath = fileSystem.getPath("/home");
-//			Path nodePath = Paths.get(uri);
-			
-			Path path = Paths.get("/");
-			SimpleFsBrowser browser = new SimpleFsBrowser(parent, SWT.NO_FOCUS);
-			browser.setInput(path, nodePath);
-			browser.setLayoutData(EclipseUiUtils.fillAll());
+// Display nothing yet
+//			URI uri = new URI("node:///home");
+//			FileSystem fileSystem = nodeFileSystemProvider.getFileSystem(uri);
+//			if(fileSystem==null)
+//				fileSystem = nodeFileSystemProvider.newFileSystem(uri,null);
+//			Path nodePath = fileSystem.getPath("/home");
+////			Path nodePath = Paths.get(uri);
+//			
+//			Path path = Paths.get("/");
+//			SimpleFsBrowser browser = new SimpleFsBrowser(parent, SWT.NO_FOCUS);
+//			browser.setInput(path, nodePath);
+//			browser.setLayoutData(EclipseUiUtils.fillAll());
 		} catch (Exception e) {
 			throw new CmsException("Cannot open file system browser", e);
 		}
@@ -58,8 +59,6 @@ public class NodeFsBrowserView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void setNodeFileSystemProvider(FileSystemProvider nodeFileSystemProvider) {
