@@ -294,7 +294,7 @@ public class CmsFsBrowser extends Composite {
 					}
 
 				};
-				fileSystem = CurrentUser.doAs(pea);
+				fileSystem = CurrentUser.tryAs(pea);
 			}
 			return fileSystem.getPath(getCurrentHomePath() + "/" + FS_FILES);
 		} catch (URISyntaxException | PrivilegedActionException e) {

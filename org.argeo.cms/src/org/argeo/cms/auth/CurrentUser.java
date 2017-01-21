@@ -82,7 +82,7 @@ public final class CurrentUser {
 	}
 
 	/** Executes as the current user */
-	public final static <T> T doAs(PrivilegedExceptionAction<T> action) throws PrivilegedActionException {
+	public final static <T> T tryAs(PrivilegedExceptionAction<T> action) throws PrivilegedActionException {
 		return Subject.doAs(currentSubject(), action);
 	}
 
