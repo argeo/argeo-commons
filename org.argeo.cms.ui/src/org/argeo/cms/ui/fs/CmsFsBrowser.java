@@ -1,4 +1,4 @@
-package org.argeo.cms.fs;
+package org.argeo.cms.ui.fs;
 
 import java.io.IOException;
 import java.net.URI;
@@ -15,17 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.jcr.Node;
-import javax.jcr.Property;
-import javax.jcr.RepositoryException;
+import javax.jcr.Repository;
 import javax.jcr.Session;
-import javax.jcr.nodetype.NodeType;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.util.CmsUtils;
-import org.argeo.cms.util.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.fs.FileIconNameLabelProvider;
@@ -33,7 +28,7 @@ import org.argeo.eclipse.ui.fs.FsTableViewer;
 import org.argeo.eclipse.ui.fs.FsUiConstants;
 import org.argeo.eclipse.ui.fs.FsUiUtils;
 import org.argeo.eclipse.ui.fs.NioFileLabelProvider;
-import org.argeo.jcr.JcrUtils;
+import org.argeo.node.NodeUtils;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -63,11 +58,11 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 
 /**
- * Default CMS single page browser: a sashForm layout with bookmarks at the left
+ * Default CMS browser composite: a sashForm layout with bookmarks at the left
  * hand side, a simple table in the middle and an overview at right hand side.
  */
 public class CmsFsBrowser extends Composite {
-	private final static Log log = LogFactory.getLog(CmsFsBrowser.class);
+	// private final static Log log = LogFactory.getLog(CmsFsBrowser.class);
 	private static final long serialVersionUID = -40347919096946585L;
 
 	private final FileSystemProvider nodeFileSystemProvider;
@@ -89,6 +84,61 @@ public class CmsFsBrowser extends Composite {
 
 	// local variables (to be cleaned)
 	private int bookmarkColWith = 500;
+
+	/*
+	 * WARNING: unfinalised implementation of the mechanism to retrieve base
+	 * paths
+	 */
+
+	private final static String NODE_PREFIX = "node://";
+
+	private String getCurrentHomePath() {
+		try {
+			Repository repo = currentBaseContext.getSession().getRepository();
+			Session session = CurrentUser.tryAs(() -> repo.login());
+			String homepath = NodeUtils.getUserHome(session).getPath();
+			return homepath;
+		} catch (Exception e) {
+			throw new CmsException("Cannot retrieve Current User Home Path", e);
+		}
+	}
+
+	protected Path[] getMyFilesPath() {
+		// return Paths.get(System.getProperty("user.dir"));
+		String currHomeUriStr = NODE_PREFIX + getCurrentHomePath();
+		try {
+			URI uri = new URI(currHomeUriStr);
+			FileSystem fileSystem = nodeFileSystemProvider.getFileSystem(uri);
+			if (fileSystem == null) {
+				PrivilegedExceptionAction<FileSystem> pea = new PrivilegedExceptionAction<FileSystem>() {
+					@Override
+					public FileSystem run() throws Exception {
+						return nodeFileSystemProvider.newFileSystem(uri, null);
+					}
+
+				};
+				fileSystem = CurrentUser.tryAs(pea);
+			}
+			Path[] paths = { fileSystem.getPath(getCurrentHomePath()), fileSystem.getPath("/") };
+			return paths;
+		} catch (URISyntaxException | PrivilegedActionException e) {
+			throw new RuntimeException("unable to initialise home file system for " + currHomeUriStr, e);
+		}
+	}
+
+	private Path[] getMyGroupsFilesPath() {
+		// TODO
+		Path[] paths = { Paths.get(System.getProperty("user.dir")), Paths.get("/tmp") };
+		return paths;
+	}
+
+	private Path[] getMyBookmarks() {
+		// TODO
+		Path[] paths = { Paths.get(System.getProperty("user.dir")), Paths.get("/tmp"), Paths.get("/opt") };
+		return paths;
+	}
+
+	/* End of warning */
 
 	public CmsFsBrowser(Composite parent, int style, Node context, FileSystemProvider fileSystemProvider) {
 		super(parent, style);
@@ -217,7 +267,12 @@ public class CmsFsBrowser extends Composite {
 
 	private void addPathElementBtn(Path path) {
 		Button elemBtn = new Button(filterCmp, SWT.PUSH);
-		elemBtn.setText(path.getFileName().toString() + " >> ");
+		String nameStr;
+		if (path.toString().equals("/"))
+			nameStr = "[jcr:root]";
+		else
+			nameStr = path.getFileName().toString();
+		elemBtn.setText(nameStr + " >> ");
 		CmsUtils.style(elemBtn, FsStyles.BREAD_CRUMB_BTN);
 		elemBtn.addSelectionListener(new SelectionAdapter() {
 			private static final long serialVersionUID = -4103695476023480651L;
@@ -257,62 +312,6 @@ public class CmsFsBrowser extends Composite {
 	private void setSelected(Path path) {
 		currSelected = path;
 		setOverviewInput(path);
-	}
-
-	private String getCurrentHomePath() {
-		// FIXME dirty retrieval of the default home path
-		String id = UserAdminUtils.getUserLocalId(CurrentUser.getUsername());
-		String homepath = "/home/" + JcrUtils.firstCharsToPath(id, 2) + "/" + id;
-		// FIXME also insure the file subfolder is here
-		try {
-			Session session = currentBaseContext.getSession();
-			Node home = session.getNode(homepath);
-			Node fileParent = JcrUtils.mkdirs(home, FS_FILES, NodeType.NT_FOLDER);
-			fileParent.addMixin(NodeType.MIX_TITLE);
-			fileParent.setProperty(Property.JCR_TITLE, "My Files");
-			if (session.hasPendingChanges())
-				session.save();
-		} catch (RepositoryException e) {
-			throw new CmsException("Cannot initialise parent node for My files at " + homepath, e);
-		}
-		return homepath;
-	}
-
-	private final static String NODE_PREFIX = "node://";
-	private final static String FS_FILES = "files";
-
-	protected Path getMyFilesPath() {
-		String currHomeUriStr = NODE_PREFIX + getCurrentHomePath() + "/" + FS_FILES;
-		try {
-			URI uri = new URI(currHomeUriStr);
-			FileSystem fileSystem = nodeFileSystemProvider.getFileSystem(uri);
-			if (fileSystem == null) {
-				PrivilegedExceptionAction<FileSystem> pea = new PrivilegedExceptionAction<FileSystem>() {
-					@Override
-					public FileSystem run() throws Exception {
-						return nodeFileSystemProvider.newFileSystem(uri, null);
-					}
-
-				};
-				fileSystem = CurrentUser.tryAs(pea);
-			}
-			return fileSystem.getPath(getCurrentHomePath() + "/" + FS_FILES);
-		} catch (URISyntaxException | PrivilegedActionException e) {
-			throw new RuntimeException("unable to initialise home file system for " + currHomeUriStr, e);
-		}
-		// return Paths.get(System.getProperty("user.dir"));
-	}
-
-	private Path[] getMyGroupsFilesPath() {
-		// TODO
-		Path[] paths = { Paths.get(System.getProperty("user.dir")), Paths.get("/tmp") };
-		return paths;
-	}
-
-	private Path[] getMyBookmarks() {
-		// TODO
-		Path[] paths = { Paths.get(System.getProperty("user.dir")), Paths.get("/tmp"), Paths.get("/opt") };
-		return paths;
 	}
 
 	public Viewer getViewer() {

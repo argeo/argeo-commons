@@ -1,4 +1,4 @@
-package org.argeo.cms.fs;
+package org.argeo.cms.ui.fs;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -51,10 +51,6 @@ public class FsContextMenu extends Shell {
 	public final static String ACTION_ID_UPLOAD_FILE = "uploadFiles";
 	public final static String ACTION_ID_OPEN = "open";
 
-	// TODO
-	private final static String cmBox = "contextMenu_box";
-	private final static String button_suffix = "_btn";
-
 	// Local context
 	private final CmsFsBrowser browser;
 	// private final Viewer viewer;
@@ -74,7 +70,7 @@ public class FsContextMenu extends Shell {
 
 		Composite boxCmp = new Composite(this, SWT.NO_FOCUS | SWT.BORDER);
 		boxCmp.setLayout(EclipseUiUtils.noSpaceGridLayout());
-		CmsUtils.style(boxCmp, cmBox);
+		CmsUtils.style(boxCmp, FsStyles.CONTEXT_MENU_BOX);
 		createContextMenu(boxCmp);
 
 		addShellListener(new ActionsShellListener());
@@ -87,7 +83,7 @@ public class FsContextMenu extends Shell {
 			btn.setText(getLabel(actionId));
 			btn.setLayoutData(EclipseUiUtils.fillWidth());
 			CmsUtils.markup(btn);
-			CmsUtils.style(btn, actionId + button_suffix);
+			CmsUtils.style(btn, actionId + FsStyles.BUTTON_SUFFIX);
 			btn.setData(KEY_ACTION_ID, actionId);
 			btn.addSelectionListener(asl);
 			actionButtons.put(actionId, btn);
