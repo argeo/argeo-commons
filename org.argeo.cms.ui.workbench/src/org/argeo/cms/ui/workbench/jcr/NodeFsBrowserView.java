@@ -18,20 +18,18 @@ package org.argeo.cms.ui.workbench.jcr;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
 
 import org.argeo.cms.CmsException;
+import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
-import org.argeo.eclipse.ui.EclipseUiUtils;
-// import org.argeo.eclipse.ui.fs.SimpleFsBrowser;
+import org.argeo.eclipse.ui.fs.SimpleFsBrowser;
+import org.argeo.node.NodeConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
-/**
- * Browse the node file system.
- */
+/** Browse the node file system. */
 public class NodeFsBrowserView extends ViewPart {
 	public final static String ID = WorkbenchUiPlugin.PLUGIN_ID + ".nodeFsBrowserView";
 
@@ -39,22 +37,18 @@ public class NodeFsBrowserView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		try {
-// Display nothing yet
-//			URI uri = new URI("node:///home");
-//			FileSystem fileSystem = nodeFileSystemProvider.getFileSystem(uri);
-//			if(fileSystem==null)
-//				fileSystem = nodeFileSystemProvider.newFileSystem(uri,null);
-//			Path nodePath = fileSystem.getPath("/home");
-////			Path nodePath = Paths.get(uri);
-//			
-//			Path path = Paths.get("/");
-//			SimpleFsBrowser browser = new SimpleFsBrowser(parent, SWT.NO_FOCUS);
-//			browser.setInput(path, nodePath);
-//			browser.setLayoutData(EclipseUiUtils.fillAll());
-		} catch (Exception e) {
-			throw new CmsException("Cannot open file system browser", e);
-		}
+		if (CurrentUser.isInRole(NodeConstants.ROLE_ADMIN))
+			try {
+				URI uri = new URI("node:///home");
+				FileSystem fileSystem = nodeFileSystemProvider.getFileSystem(uri);
+				if (fileSystem == null)
+					fileSystem = nodeFileSystemProvider.newFileSystem(uri, null);
+				Path nodePath = fileSystem.getPath("/home");
+				SimpleFsBrowser browser = new SimpleFsBrowser(parent, SWT.NO_FOCUS);
+				browser.setInput(nodePath);
+			} catch (Exception e) {
+				throw new CmsException("Cannot open file system browser", e);
+			}
 	}
 
 	@Override
