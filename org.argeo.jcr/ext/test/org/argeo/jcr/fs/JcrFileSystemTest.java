@@ -29,7 +29,18 @@ public class JcrFileSystemTest extends TestCase {
 		FileSystemProvider fsProvider = new JackrabbitMemoryFsProvider();
 
 		// Simple file
+		Path rootPath = fsProvider.getPath(new URI("jcr+memory:/"));
+		log.debug("Got root " + rootPath);
 		Path testPath = fsProvider.getPath(new URI("jcr+memory:/test.txt"));
+		log.debug("Test path");
+		assertEquals("test.txt", testPath.getFileName().toString());
+		assertEquals(rootPath, testPath.getParent());
+		assertEquals(testPath.getFileName(), rootPath.relativize(testPath));
+		// relativize self should be empty path
+		Path selfRelative = testPath.relativize(testPath);
+		assertEquals("", selfRelative.toString());
+
+		log.debug("Create file " + testPath);
 		Files.createFile(testPath);
 		BasicFileAttributes bfa = Files.readAttributes(testPath, BasicFileAttributes.class);
 		FileTime ft = bfa.creationTime();
@@ -46,8 +57,6 @@ public class JcrFileSystemTest extends TestCase {
 		assertTrue(Arrays.equals(arr, read));
 		assertEquals(txt, new String(read));
 		log.debug("Read " + testPath);
-		Path rootPath = fsProvider.getPath(new URI("jcr+memory:/"));
-		log.debug("Got root " + rootPath);
 		Path testDir = rootPath.resolve("testDir");
 		log.debug("Resolved " + testDir);
 		// Copy

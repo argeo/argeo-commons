@@ -41,6 +41,11 @@ public class JcrPath implements Path {
 			this.absolute = true;
 			this.hashCode = 0;
 			return;
+		} else if (path.equals("")) {// empty path
+			this.path = new String[] { "" };
+			this.absolute = false;
+			this.hashCode = "".hashCode();
+			return;
 		}
 		this.absolute = path.charAt(0) == delimChar ? true : false;
 		String trimmedPath = path.substring(absolute ? 1 : 0,
@@ -234,7 +239,7 @@ public class JcrPath implements Path {
 			String p2 = other.toString();
 			return new JcrPath(fs, p2.substring(p1.length(), p2.length()));
 		}
-		throw new UnsupportedOperationException();
+		throw new IllegalArgumentException(other + " cannot be realtivized against " + this);
 	}
 
 	@Override
@@ -296,6 +301,17 @@ public class JcrPath implements Path {
 		if (!(obj instanceof JcrPath))
 			return false;
 		JcrPath other = (JcrPath) obj;
+
+		if (path == null) {// root
+			if (other.path == null)// root
+				return true;
+			else
+				return false;
+		} else {
+			if (other.path == null)// root
+				return false;
+		}
+		// non root
 		if (path.length != other.path.length)
 			return false;
 		for (int i = 0; i < path.length; i++) {
