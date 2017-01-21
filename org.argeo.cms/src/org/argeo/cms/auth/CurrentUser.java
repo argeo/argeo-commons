@@ -65,15 +65,6 @@ public final class CurrentUser {
 		return isAnonymous(currentSubject());
 	}
 
-	/**
-	 * Whether a user is currently authenticated. @deprecate User !isAnonymous()
-	 * instead.
-	 */
-	@Deprecated
-	public static boolean isRegistered() {
-		return !isAnonymous();
-	}
-
 	/** Roles of the currently logged-in user */
 	public final static Set<String> roles() {
 		return roles(currentSubject());
