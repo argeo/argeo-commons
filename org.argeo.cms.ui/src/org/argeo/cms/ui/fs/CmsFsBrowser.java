@@ -28,6 +28,7 @@ import org.argeo.eclipse.ui.fs.FsTableViewer;
 import org.argeo.eclipse.ui.fs.FsUiConstants;
 import org.argeo.eclipse.ui.fs.FsUiUtils;
 import org.argeo.eclipse.ui.fs.NioFileLabelProvider;
+import org.argeo.jcr.JcrUtils;
 import org.argeo.node.NodeUtils;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -93,13 +94,16 @@ public class CmsFsBrowser extends Composite {
 	private final static String NODE_PREFIX = "node://";
 
 	private String getCurrentHomePath() {
+		Session session = null;
 		try {
 			Repository repo = currentBaseContext.getSession().getRepository();
-			Session session = CurrentUser.tryAs(() -> repo.login());
+			session = CurrentUser.tryAs(() -> repo.login());
 			String homepath = NodeUtils.getUserHome(session).getPath();
 			return homepath;
 		} catch (Exception e) {
 			throw new CmsException("Cannot retrieve Current User Home Path", e);
+		} finally {
+			JcrUtils.logoutQuietly(session);
 		}
 	}
 
