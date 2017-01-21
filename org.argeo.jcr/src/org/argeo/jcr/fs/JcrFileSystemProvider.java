@@ -76,8 +76,9 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 				Node parent = toNode(dir.getParent());
 				if (parent == null)
 					throw new IOException("Parent of " + dir + " does not exist");
-				if (!(parent.getPath().equals("/") || parent.getPrimaryNodeType().isNodeType(NodeType.NT_FOLDER)))
-					throw new JcrFsException(dir + " parent is not a directory");
+				if (parent.getPrimaryNodeType().isNodeType(NodeType.NT_FILE)
+						|| parent.getPrimaryNodeType().isNodeType(NodeType.NT_LINKED_FILE))
+					throw new JcrFsException(dir + " parent is a file");
 				node = parent.addNode(dir.getFileName().toString(), NodeType.NT_FOLDER);
 				node.addMixin(NodeType.MIX_CREATED);
 				node.addMixin(NodeType.MIX_LAST_MODIFIED);
