@@ -33,16 +33,15 @@ public class FsTableViewer extends TableViewer {
 	public Table configureDefaultSingleColumnTable(int tableWidthHint) {
 		Table table = this.getTable();
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
-		table.setLinesVisible(true);
+		table.setLinesVisible(false);
 		table.setHeaderVisible(false);
-//		CmsUtils.markup(table);
-//		CmsUtils.style(table, MaintenanceStyles.BROWSER_COLUMN);
+		// CmsUtils.markup(table);
+		// CmsUtils.style(table, MaintenanceStyles.BROWSER_COLUMN);
 
 		TableViewerColumn column = new TableViewerColumn(this, SWT.NONE);
 		TableColumn tcol = column.getColumn();
 		tcol.setWidth(tableWidthHint);
 		column.setLabelProvider(new FileIconNameLabelProvider());
-
 		this.setContentProvider(new MyLazyCP());
 		return table;
 	}

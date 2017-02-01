@@ -24,14 +24,13 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 /** Display, add or remove values from a list in a CMS context */
-public class EditableMultiStringProperty extends StyledControl implements
-		EditablePart {
+public class EditableMultiStringProperty extends StyledControl implements EditablePart {
 	private static final long serialVersionUID = -7044614381252178595L;
 
 	private String propertyName;
 	private String message;
-	// TODO implement the ability to provide a list of legal values
-//	private String[] possibleValues;
+	// TODO implement the ability to provide a list of possible values
+	private String[] possibleValues;
 	private boolean canEdit;
 	private SelectionListener removeValueSL;
 	private List<String> values;
@@ -44,15 +43,14 @@ public class EditableMultiStringProperty extends StyledControl implements
 	private int btnHeight = 16;
 	private int btnHorizontalIndent = 3;
 
-	public EditableMultiStringProperty(Composite parent, int style, Node node,
-			String propertyName, List<String> values, String[] possibleValues,
-			String addValueMsg, SelectionListener removeValueSelectionListener)
+	public EditableMultiStringProperty(Composite parent, int style, Node node, String propertyName, List<String> values,
+			String[] possibleValues, String addValueMsg, SelectionListener removeValueSelectionListener)
 			throws RepositoryException {
 		super(parent, style, node, true);
 
 		this.propertyName = propertyName;
 		this.values = values;
-//		this.possibleValues = possibleValues;
+		this.possibleValues = new String[]{"Un", "Deux", "Trois"};
 		this.message = addValueMsg;
 		this.canEdit = removeValueSelectionListener != null;
 		this.removeValueSL = removeValueSelectionListener;
@@ -122,11 +120,9 @@ public class EditableMultiStringProperty extends StyledControl implements
 		return label;
 	}
 
-	private Composite createRemovableValue(Composite parent, int style,
-			String value) {
+	private Composite createRemovableValue(Composite parent, int style, String value) {
 		Composite valCmp = new Composite(parent, SWT.NO_FOCUS);
-		GridLayout gl = EclipseUiUtils.noSpaceGridLayout(new GridLayout(2,
-				false));
+		GridLayout gl = EclipseUiUtils.noSpaceGridLayout(new GridLayout(2, false));
 		gl.marginRight = oneValueMargingRight;
 		valCmp.setLayout(gl);
 
@@ -135,8 +131,7 @@ public class EditableMultiStringProperty extends StyledControl implements
 		Button deleteBtn = new Button(valCmp, SWT.FLAT);
 		deleteBtn.setData(FormConstants.LINKED_VALUE, value);
 		deleteBtn.addSelectionListener(removeValueSL);
-		CmsUtils.style(deleteBtn, FormStyle.delete.style()
-				+ FormStyle.BUTTON_SUFFIX);
+		CmsUtils.style(deleteBtn, FormStyle.delete.style() + FormStyle.BUTTON_SUFFIX);
 		GridData gd = new GridData();
 		gd.heightHint = btnHeight;
 		gd.widthHint = btnWidth;
@@ -200,15 +195,12 @@ public class EditableMultiStringProperty extends StyledControl implements
 			return;
 
 		if (values.contains(value))
-			errMsg = "Dupplicated value: " + value
-					+ ", please correct and try again";
+			errMsg = "Dupplicated value: " + value + ", please correct and try again";
 		if (errMsg != null)
-			MessageDialog.openError(this.getShell(), "Addition not allowed",
-					errMsg);
+			MessageDialog.openError(this.getShell(), "Addition not allowed", errMsg);
 		else {
 			values.add(value);
-			Composite newCmp = createRemovableValue(text.getParent(),
-					SWT.SINGLE, value);
+			Composite newCmp = createRemovableValue(text.getParent(), SWT.SINGLE, value);
 			newCmp.moveAbove(text);
 			text.setText("");
 			newCmp.getParent().layout();

@@ -22,7 +22,10 @@ public class NioFileLabelProvider extends ColumnLabelProvider {
 		try {
 			switch (propName) {
 			case FsUiConstants.PROPERTY_SIZE:
-				return FsUiUtils.humanReadableByteCount(Files.size(path), false);
+				if (Files.isDirectory(path))
+					return "-";
+				else
+					return FsUiUtils.humanReadableByteCount(Files.size(path), false);
 			case FsUiConstants.PROPERTY_LAST_MODIFIED:
 				return Files.getLastModifiedTime(path).toString();
 			case FsUiConstants.PROPERTY_TYPE:
