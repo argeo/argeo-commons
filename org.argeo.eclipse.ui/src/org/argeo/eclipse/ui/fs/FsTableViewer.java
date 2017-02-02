@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import org.argeo.eclipse.ui.ColumnDefinition;
+import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ILazyContentProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -31,6 +32,11 @@ public class FsTableViewer extends TableViewer {
 	}
 
 	public Table configureDefaultSingleColumnTable(int tableWidthHint) {
+
+		return configureDefaultSingleColumnTable(tableWidthHint, new FileIconNameLabelProvider());
+	}
+
+	public Table configureDefaultSingleColumnTable(int tableWidthHint, CellLabelProvider labelProvider) {
 		Table table = this.getTable();
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
 		table.setLinesVisible(false);
@@ -41,7 +47,7 @@ public class FsTableViewer extends TableViewer {
 		TableViewerColumn column = new TableViewerColumn(this, SWT.NONE);
 		TableColumn tcol = column.getColumn();
 		tcol.setWidth(tableWidthHint);
-		column.setLabelProvider(new FileIconNameLabelProvider());
+		column.setLabelProvider(labelProvider);
 		this.setContentProvider(new MyLazyCP());
 		return table;
 	}
