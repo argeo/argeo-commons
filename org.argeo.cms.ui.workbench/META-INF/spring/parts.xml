@@ -16,7 +16,9 @@
 		class="org.argeo.cms.ui.workbench.internal.useradmin.parts.UserEditor"
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
+		<property name="repository" ref="nodeRepository" />
 	</bean>
+	
 	<!-- Views -->
 	<bean id="usersView"
 		class="org.argeo.cms.ui.workbench.internal.useradmin.parts.UsersView"

@@ -18,6 +18,8 @@ package org.argeo.cms.ui.workbench.internal.useradmin.parts;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.jcr.Repository;
+
 import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.cms.ui.workbench.internal.useradmin.UiUserAdminListener;
@@ -44,24 +46,24 @@ import org.osgi.service.useradmin.UserAdminEvent;
 public class UserEditor extends FormEditor {
 	private static final long serialVersionUID = 8357851520380820241L;
 
-	public final static String USER_EDITOR_ID = WorkbenchUiPlugin.PLUGIN_ID
-			+ ".userEditor";
-	public final static String GROUP_EDITOR_ID = WorkbenchUiPlugin.PLUGIN_ID
-			+ ".groupEditor";
+	public final static String USER_EDITOR_ID = WorkbenchUiPlugin.PLUGIN_ID + ".userEditor";
+	public final static String GROUP_EDITOR_ID = WorkbenchUiPlugin.PLUGIN_ID + ".groupEditor";
 
 	/* DEPENDENCY INJECTION */
+	private Repository repository;
 	private UserAdminWrapper userAdminWrapper;
 	private UserAdmin userAdmin;
 
+	
 	// Context
 	private User user;
 	private String username;
 
 	private NameChangeListener listener;
 
-	public void init(IEditorSite site, IEditorInput input)
-			throws PartInitException {
+	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		super.init(site, input);
+		this.userAdmin = userAdminWrapper.getUserAdmin();
 		username = ((UserEditorInput) getEditorInput()).getUsername();
 		user = (User) userAdmin.getRole(username);
 
@@ -99,8 +101,7 @@ public class UserEditor extends FormEditor {
 
 	void updateEditorTitle(String title) {
 		if (title == null) {
-			String commonName = UserAdminUtils.getProperty(user,
-					LdapAttrs.cn.name());
+			String commonName = UserAdminUtils.getProperty(user, LdapAttrs.cn.name());
 			title = "".equals(commonName) ? user.getName() : commonName;
 		}
 		setPartName(title);
@@ -109,7 +110,7 @@ public class UserEditor extends FormEditor {
 	protected void addPages() {
 		try {
 			if (user.getType() == Role.GROUP)
-				addPage(new GroupMainPage(this, userAdminWrapper));
+				addPage(new GroupMainPage(this, userAdminWrapper, repository));
 			else
 				addPage(new UserMainPage(this, userAdminWrapper));
 		} catch (Exception e) {
@@ -123,8 +124,7 @@ public class UserEditor extends FormEditor {
 		commitPages(true);
 		userAdminWrapper.commitOrNotifyTransactionStateChange();
 		firePropertyChange(PROP_DIRTY);
-		userAdminWrapper.notifyListeners(new UserAdminEvent(null,
-				UserAdminEvent.ROLE_REMOVED, user));
+		userAdminWrapper.notifyListeners(new UserAdminEvent(null, UserAdminEvent.ROLE_REMOVED, user));
 	}
 
 	@Override
@@ -212,6 +212,10 @@ public class UserEditor extends FormEditor {
 	/* DEPENDENCY INJECTION */
 	public void setUserAdminWrapper(UserAdminWrapper userAdminWrapper) {
 		this.userAdminWrapper = userAdminWrapper;
-		this.userAdmin = userAdminWrapper.getUserAdmin();
 	}
+	
+	public void setRepository(Repository repository) {
+		this.repository = repository;
+	}
+	
 }

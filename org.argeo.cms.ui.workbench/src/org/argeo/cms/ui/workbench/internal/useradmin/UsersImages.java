@@ -28,4 +28,6 @@ public class UsersImages {
 			PREFIX + "users.gif").createImage();
 	public final static Image ICON_ROLE = WorkbenchUiPlugin.getImageDescriptor(
 			PREFIX + "role.gif").createImage();
+	public final static Image ICON_CHANGE_PASSWORD = WorkbenchUiPlugin.getImageDescriptor(
+			PREFIX + "changePassword.gif").createImage();
 }

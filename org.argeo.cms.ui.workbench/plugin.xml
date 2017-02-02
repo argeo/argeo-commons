@@ -684,9 +684,9 @@
 		
 		<!-- UserAdmin -->
 		<activityPatternBinding
+			pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.adminSecurityPerspective"
 			activityId="org.argeo.cms.ui.workbench.userAdminActivity"
-			isEqualityPattern="true"
-			pattern="org.argeo.cms.ui.workbench.admin/org.argeo.cms.ui.workbench.admin.adminSecurityPerspective">
+			isEqualityPattern="true">
 		</activityPatternBinding>
 
 		<!-- Users -->

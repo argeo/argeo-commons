@@ -19,9 +19,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.jcr.Node;
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.nodetype.NodeType;
+import javax.jcr.security.Privilege;
 import javax.transaction.UserTransaction;
 
 import org.argeo.cms.CmsException;
+import org.argeo.cms.ui.workbench.CmsWorkbenchStyles;
 import org.argeo.cms.ui.workbench.internal.useradmin.SecurityAdminImages;
 import org.argeo.cms.ui.workbench.internal.useradmin.UserAdminWrapper;
 import org.argeo.cms.ui.workbench.internal.useradmin.parts.UserEditor.GroupChangeListener;
@@ -32,12 +39,17 @@ import org.argeo.cms.ui.workbench.internal.useradmin.providers.RoleIconLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserFilter;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserNameLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserTableDefaultDClickListener;
+import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.util.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
+import org.argeo.jcr.JcrUtils;
 import org.argeo.naming.LdapAttrs;
 import org.argeo.node.ArgeoNames;
+import org.argeo.node.NodeNames;
+import org.argeo.node.NodeTypes;
+import org.argeo.node.NodeUtils;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -54,12 +66,14 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
@@ -83,12 +97,15 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 
 	private final UserEditor editor;
 	private UserAdminWrapper userAdminWrapper;
+	private final Session session;
 
-	// Local configuration
-	private final int PRE_TITLE_INDENT = 10;
-
-	public GroupMainPage(FormEditor editor, UserAdminWrapper userAdminWrapper) {
+	public GroupMainPage(FormEditor editor, UserAdminWrapper userAdminWrapper, Repository repository) {
 		super(editor, ID, "Main");
+		try {
+			session = repository.login();
+		} catch (RepositoryException e) {
+			throw new CmsException("Cannot retrieve session of in MainGroupPage constructor", e);
+		}
 		this.editor = (UserEditor) editor;
 		this.userAdminWrapper = userAdminWrapper;
 	}
@@ -103,28 +120,38 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		appendMembersPart(body, group);
 	}
 
+	@Override
+	public void dispose() {
+		JcrUtils.logoutQuietly(session);
+		super.dispose();
+	}
+
 	/** Creates the general section */
 	protected void appendOverviewPart(final Composite parent, final Group group) {
 		FormToolkit tk = getManagedForm().getToolkit();
-		Composite body = addSection(tk, parent, "Main information");
-		GridLayout layout = new GridLayout(2, false);
+		Composite body = addSection(tk, parent);
+		GridLayout layout = new GridLayout(5, false);
 		body.setLayout(layout);
 
 		final Text dnTxt = createLT(body, "DN", group.getName());
 		dnTxt.setEnabled(false);
 
-		final Text cnTxt = createLT(body, "Common Name",
-				UserAdminUtils.getProperty(group, LdapAttrs.cn.name()));
+		final String cn = UserAdminUtils.getProperty(group, LdapAttrs.cn.name());
+		final Text cnTxt = createLT(body, "Common Name", cn);
 		cnTxt.setEnabled(false);
 
-		Label descLbl = new Label(body, SWT.LEAD);
-		descLbl.setText("Description");
-		descLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false));
-		final Text descTxt = new Text(body, SWT.LEAD | SWT.MULTI | SWT.WRAP
-				| SWT.BORDER);
-		GridData gd = EclipseUiUtils.fillAll();
-		gd.heightHint = 100;
-		descTxt.setLayoutData(gd);
+		final Link markAsWorkgroupLk = new Link(body, SWT.NONE);
+		markAsWorkgroupLk.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+
+		// Label descLbl = new Label(body, SWT.LEAD);
+		// descLbl.setText("Description");
+		// descLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false,
+		// false));
+		// final Text descTxt = new Text(body, SWT.LEAD | SWT.MULTI | SWT.WRAP
+		// | SWT.BORDER);
+		// GridData gd = EclipseUiUtils.fillAll();
+		// gd.heightHint = 100;
+		// descTxt.setLayoutData(gd);
 
 		// create form part (controller)
 		AbstractFormPart part = new SectionPart((Section) body.getParent()) {
@@ -134,8 +161,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 			@Override
 			public void initialize(IManagedForm form) {
 				super.initialize(form);
-				listener = editor.new MainInfoListener(parent.getDisplay(),
-						this);
+				listener = editor.new MainInfoListener(parent.getDisplay(), this);
 				userAdminWrapper.addListener(listener);
 			}
 
@@ -145,31 +171,76 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 				super.dispose();
 			}
 
-			@SuppressWarnings("unchecked")
 			public void commit(boolean onSave) {
-				group.getProperties().put(LdapAttrs.description.name(),
-						descTxt.getText());
-				// Enable common name ?
-				// editor.setProperty(UserAdminConstants.KEY_CN,
-				// email.getText());
+				// group.getProperties().put(LdapAttrs.description.name(),
+				// descTxt.getText());
 				super.commit(onSave);
 			}
 
 			@Override
 			public void refresh() {
-				refreshFormTitle(group);
 				dnTxt.setText(group.getName());
-				cnTxt.setText(UserAdminUtils.getProperty(group,
-						LdapAttrs.cn.name()));
-				descTxt.setText(UserAdminUtils.getProperty(group,
-						LdapAttrs.description.name()));
+				cnTxt.setText(UserAdminUtils.getProperty(group, LdapAttrs.cn.name()));
+				Node workgroupHome = NodeUtils.getGroupHome(session, cn);
+				if (workgroupHome == null)
+					markAsWorkgroupLk.setText("<a>Mark as workgroup</a>");
+				else
+					markAsWorkgroupLk.setText(cn + " is already marked as being a workgroup");
 				super.refresh();
 			}
 		};
 
-		ModifyListener defaultListener = editor.new FormPartML(part);
-		descTxt.addModifyListener(defaultListener);
+		markAsWorkgroupLk.addSelectionListener(new SelectionAdapter() {
+			private static final long serialVersionUID = -6439340898096365078L;
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+
+				boolean confirmed = MessageDialog.openConfirm(parent.getShell(), "Mark as workgroup",
+						"Are you sure you want to mark " + cn + " as being a workgroup? ");
+				if (confirmed) {
+					Node workgroupHome = NodeUtils.getGroupHome(session, cn);
+					if (workgroupHome != null)
+						// already marked as workgroup, do nothing
+						return;
+					else {
+						// Insure the session is clean to enable rollback
+						try {
+							if (session.hasPendingChanges())
+								MessageDialog.openError(getSite().getShell(), "Cannot create home group home",
+										"The current session is dirty. Please save and try again.");
+						} catch (RepositoryException e2) {
+							throw new CmsException("Cannot check session state", e2);
+						}
+						try {
+							// FIXME hardcoded base path
+							String relPath = generateWorkgroupHomeRelPath(cn);
+							Node newHome = JcrUtils.mkdirs(session.getNode("/groups"), relPath,
+									NodeType.NT_UNSTRUCTURED);
+							newHome.addMixin(NodeTypes.NODE_GROUP_HOME);
+							newHome.setProperty(NodeNames.LDAP_CN, cn);
+							session.save();
+							JcrUtils.addPrivilege(session, newHome.getPath(), group.getName(), Privilege.JCR_ALL);
+							session.save();
+						} catch (RepositoryException e2) {
+							JcrUtils.discardQuietly(session);
+							throw new CmsException("Cannot check session state", e2);
+						}
+					}
+				}
+			}
+		});
+
+		// ModifyListener defaultListener = editor.new FormPartML(part);
+		// descTxt.addModifyListener(defaultListener);
 		getManagedForm().addPart(part);
+	}
+
+	// FIXME finalise and centralise Workgroup home path management
+	private String generateWorkgroupHomeRelPath(String cn) {
+		// Dirty management of space and special characters
+		String cleanedName = cn.replaceAll("[^a-zA-Z0-9]", "_");
+		return JcrUtils.firstCharsToPath(cleanedName, 2) + '/' + cleanedName;
 	}
 
 	/** Filtered table with members. Has drag & drop ability */
@@ -185,8 +256,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 
 		LdifUsersTable userTableViewerCmp = createMemberPart(body, group);
 
-		SectionPart part = new GroupMembersPart(section, userTableViewerCmp,
-				group);
+		SectionPart part = new GroupMembersPart(section, userTableViewerCmp, group);
 		getManagedForm().addPart(part);
 		addRemoveAbitily(part, userTableViewerCmp.getTableViewer(), group);
 	}
@@ -197,15 +267,13 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		// Define the displayed columns
 		List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
 		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 0, 24));
-		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name",
-				150));
+		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name", 150));
 		columnDefs.add(new ColumnDefinition(new MailLP(), "Primary Mail", 150));
-		columnDefs.add(new ColumnDefinition(new UserNameLP(),
-				"Distinguished Name", 240));
+		columnDefs.add(new ColumnDefinition(new UserNameLP(), "Distinguished Name", 240));
 
 		// Create and configure the table
-		LdifUsersTable userViewerCmp = new MyUserTableViewer(parent, SWT.MULTI
-				| SWT.H_SCROLL | SWT.V_SCROLL, userAdminWrapper.getUserAdmin());
+		LdifUsersTable userViewerCmp = new MyUserTableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL,
+				userAdminWrapper.getUserAdmin());
 
 		userViewerCmp.setColumnDefinitions(columnDefs);
 		userViewerCmp.populate(true, false);
@@ -217,8 +285,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		int operations = DND.DROP_COPY | DND.DROP_MOVE;
 		Transfer[] tt = new Transfer[] { TextTransfer.getInstance() };
 		userViewer.addDropSupport(operations, tt,
-				new GroupDropListener(userAdminWrapper, userViewerCmp,
-						(Group) editor.getDisplayedUser()));
+				new GroupDropListener(userAdminWrapper, userViewerCmp, (Group) editor.getDisplayedUser()));
 
 		return userViewerCmp;
 	}
@@ -229,8 +296,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 
 		private final UserFilter userFilter;
 
-		public MyUserTableViewer(Composite parent, int style,
-				UserAdmin userAdmin) {
+		public MyUserTableViewer(Composite parent, int style, UserAdmin userAdmin) {
 			super(parent, style, true);
 			userFilter = new UserFilter();
 
@@ -250,13 +316,11 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		}
 	}
 
-	private void addRemoveAbitily(SectionPart sectionPart,
-			TableViewer userViewer, Group group) {
+	private void addRemoveAbitily(SectionPart sectionPart, TableViewer userViewer, Group group) {
 		Section section = sectionPart.getSection();
 		ToolBarManager toolBarManager = new ToolBarManager(SWT.FLAT);
 		ToolBar toolbar = toolBarManager.createControl(section);
-		final Cursor handCursor = new Cursor(section.getDisplay(),
-				SWT.CURSOR_HAND);
+		final Cursor handCursor = new Cursor(section.getDisplay(), SWT.CURSOR_HAND);
 		toolbar.setCursor(handCursor);
 		toolbar.addDisposeListener(new DisposeListener() {
 			private static final long serialVersionUID = 3882131405820522925L;
@@ -268,8 +332,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 			}
 		});
 
-		Action action = new RemoveMembershipAction(userViewer, group,
-				"Remove selected items from this group",
+		Action action = new RemoveMembershipAction(userViewer, group, "Remove selected items from this group",
 				SecurityAdminImages.ICON_REMOVE_DESC);
 		toolBarManager.add(action);
 		toolBarManager.update(true);
@@ -282,8 +345,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		private final TableViewer userViewer;
 		private final Group group;
 
-		RemoveMembershipAction(TableViewer userViewer, Group group,
-				String name, ImageDescriptor img) {
+		RemoveMembershipAction(TableViewer userViewer, Group group, String name, ImageDescriptor img) {
 			super(name, img);
 			this.userViewer = userViewer;
 			this.group = group;
@@ -308,8 +370,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 				group.removeMember(user);
 			}
 			userAdminWrapper.commitOrNotifyTransactionStateChange();
-			userAdminWrapper.notifyListeners(new UserAdminEvent(null,
-					UserAdminEvent.ROLE_CHANGED, group));
+			userAdminWrapper.notifyListeners(new UserAdminEvent(null, UserAdminEvent.ROLE_CHANGED, group));
 		}
 	}
 
@@ -320,8 +381,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 
 		private GroupChangeListener listener;
 
-		public GroupMembersPart(Section section, LdifUsersTable userViewer,
-				Group group) {
+		public GroupMembersPart(Section section, LdifUsersTable userViewer, Group group) {
 			super(section);
 			this.userViewer = userViewer;
 			this.group = group;
@@ -330,8 +390,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		@Override
 		public void initialize(IManagedForm form) {
 			super.initialize(form);
-			listener = editor.new GroupChangeListener(userViewer.getDisplay(),
-					GroupMembersPart.this);
+			listener = editor.new GroupChangeListener(userViewer.getDisplay(), GroupMembersPart.this);
 			userAdminWrapper.addListener(listener);
 		}
 
@@ -343,11 +402,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 
 		@Override
 		public void refresh() {
-			refreshFormTitle(group);
-			getSection().setText(
-					"Members of group "
-							+ UserAdminUtils.getProperty(group,
-									LdapAttrs.cn.name()));
+			getSection().setText("Members of group " + UserAdminUtils.getProperty(group, LdapAttrs.cn.name()));
 			userViewer.refresh();
 			super.refresh();
 		}
@@ -364,8 +419,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		// private final LdifUsersTable myUserViewerCmp;
 		private final Group myGroup;
 
-		public GroupDropListener(UserAdminWrapper userAdminWrapper,
-				LdifUsersTable userTableViewerCmp, Group group) {
+		public GroupDropListener(UserAdminWrapper userAdminWrapper, LdifUsersTable userTableViewerCmp, Group group) {
 			super(userTableViewerCmp.getTableViewer());
 			this.userAdminWrapper = userAdminWrapper;
 			this.myGroup = group;
@@ -373,8 +427,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		}
 
 		@Override
-		public boolean validateDrop(Object target, int operation,
-				TransferData transferType) {
+		public boolean validateDrop(Object target, int operation, TransferData transferType) {
 			// Target is always OK in a list only view
 			// TODO check if not a string
 			boolean validDrop = true;
@@ -393,8 +446,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 				Shell shell = getViewer().getControl().getShell();
 				// Sanity checks
 				if (myGroup == newGroup) { // Equality
-					MessageDialog.openError(shell, "Forbidden addition ",
-							"A group cannot be a member of itself.");
+					MessageDialog.openError(shell, "Forbidden addition ", "A group cannot be a member of itself.");
 					return;
 				}
 
@@ -403,8 +455,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 				List<User> myMemberships = editor.getFlatGroups(myGroup);
 				if (myMemberships.contains(newGroup)) {
 					MessageDialog.openError(shell, "Forbidden addition: cycle",
-							"Cannot add " + newUserName + " to group " + myName
-									+ ". This would create a cycle");
+							"Cannot add " + newUserName + " to group " + myName + ". This would create a cycle");
 					return;
 				}
 
@@ -412,30 +463,25 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 				List<User> newGroupMemberships = editor.getFlatGroups(newGroup);
 				if (newGroupMemberships.contains(myGroup)) {
 					MessageDialog.openError(shell, "Forbidden addition",
-							"Cannot add " + newUserName + " to group " + myName
-									+ ", this membership already exists");
+							"Cannot add " + newUserName + " to group " + myName + ", this membership already exists");
 					return;
 				}
 				userAdminWrapper.beginTransactionIfNeeded();
 				myGroup.addMember(newGroup);
 				userAdminWrapper.commitOrNotifyTransactionStateChange();
-				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
-						UserAdminEvent.ROLE_CHANGED, myGroup));
+				userAdminWrapper.notifyListeners(new UserAdminEvent(null, UserAdminEvent.ROLE_CHANGED, myGroup));
 			} else if (role.getType() == Role.USER) {
 				// TODO check if the group is already member of this group
-				UserTransaction transaction = userAdminWrapper
-						.beginTransactionIfNeeded();
+				UserTransaction transaction = userAdminWrapper.beginTransactionIfNeeded();
 				User user = (User) role;
 				myGroup.addMember(user);
 				if (UserAdminWrapper.COMMIT_ON_SAVE)
 					try {
 						transaction.commit();
 					} catch (Exception e) {
-						throw new CmsException("Cannot commit transaction "
-								+ "after user group membership update", e);
+						throw new CmsException("Cannot commit transaction " + "after user group membership update", e);
 					}
-				userAdminWrapper.notifyListeners(new UserAdminEvent(null,
-						UserAdminEvent.ROLE_CHANGED, myGroup));
+				userAdminWrapper.notifyListeners(new UserAdminEvent(null, UserAdminEvent.ROLE_CHANGED, myGroup));
 			}
 			super.drop(event);
 		}
@@ -448,17 +494,9 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	}
 
 	// LOCAL HELPERS
-	private void refreshFormTitle(Group group) {
-		getManagedForm().getForm().setText(
-				UserAdminUtils.getProperty(group, LdapAttrs.cn.name()));
-	}
-
-	private Composite addSection(FormToolkit tk, Composite parent, String title) {
-		Section section = tk.createSection(parent, Section.TITLE_BAR);
-		GridData gd = EclipseUiUtils.fillWidth();
-		gd.verticalAlignment = PRE_TITLE_INDENT;
-		section.setLayoutData(gd);
-		section.setText(title);
+	private Composite addSection(FormToolkit tk, Composite parent) {
+		Section section = tk.createSection(parent, SWT.NO_FOCUS);
+		section.setLayoutData(EclipseUiUtils.fillWidth());
 		Composite body = tk.createComposite(section, SWT.WRAP);
 		body.setLayoutData(EclipseUiUtils.fillAll());
 		section.setClient(body);
@@ -466,12 +504,14 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	}
 
 	/** Creates label and text. */
-	private Text createLT(Composite body, String label, String value) {
+	private Text createLT(Composite parent, String label, String value) {
 		FormToolkit toolkit = getManagedForm().getToolkit();
-		Label lbl = toolkit.createLabel(body, label);
-		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-		Text text = toolkit.createText(body, value, SWT.BORDER);
+		Label lbl = toolkit.createLabel(parent, label);
+		lbl.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+		lbl.setFont(EclipseUiUtils.getBoldFont(parent));
+		Text text = toolkit.createText(parent, value, SWT.BORDER);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		CmsUtils.style(text, CmsWorkbenchStyles.WORKBENCH_FORM_TEXT);
 		return text;
 	}
 }

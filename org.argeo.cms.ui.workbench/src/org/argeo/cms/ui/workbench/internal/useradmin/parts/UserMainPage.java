@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.ui.workbench.CmsWorkbenchStyles;
 import org.argeo.cms.ui.workbench.internal.useradmin.SecurityAdminImages;
 import org.argeo.cms.ui.workbench.internal.useradmin.UserAdminWrapper;
 import org.argeo.cms.ui.workbench.internal.useradmin.parts.UserEditor.GroupChangeListener;
@@ -31,6 +31,7 @@ import org.argeo.cms.ui.workbench.internal.useradmin.providers.RoleIconLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserFilter;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserNameLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserTableDefaultDClickListener;
+import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.util.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
@@ -40,6 +41,8 @@ import org.argeo.node.ArgeoNames;
 import org.argeo.node.NodeConstants;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -63,7 +66,11 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.forms.AbstractFormPart;
@@ -106,8 +113,6 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		appendOverviewPart(body, user);
 		// Remove to ability to force the password for his own user. The user
 		// must then use the change pwd feature
-		if (!UserAdminUtils.isCurrentUser(user))
-			appendPasswordPart(body, user);
 		appendMemberOfPart(body, user);
 	}
 
@@ -115,17 +120,27 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 	private void appendOverviewPart(final Composite parent, final User user) {
 		FormToolkit tk = getManagedForm().getToolkit();
 
-		Section section = addSection(tk, parent, "Main information");
-		Composite body = (Composite) section.getClient();
-		body.setLayout(new GridLayout(2, false));
+		Section section = tk.createSection(parent, SWT.NO_FOCUS);
+		GridData gd = EclipseUiUtils.fillWidth();
+		// gd.verticalAlignment = PRE_TITLE_INDENT;
+		section.setLayoutData(gd);
+		Composite body = tk.createComposite(section, SWT.WRAP);
+		body.setLayoutData(EclipseUiUtils.fillAll());
+		section.setClient(body);
+		body.setLayout(new GridLayout(6, false));
 
-		final Text distinguishedName = createLT(tk, body, "User Name",
+		final Text commonName = createLT(tk, body, "User Name", UserAdminUtils.getProperty(user, LdapAttrs.cn.name()));
+		commonName.setEnabled(false);
+
+		final Text distinguishedName = createLT(tk, body, "Login",
 				UserAdminUtils.getProperty(user, LdapAttrs.uid.name()));
 		distinguishedName.setEnabled(false);
 
-		final Text commonName = createLT(tk, body, "Common Name",
-				UserAdminUtils.getProperty(user, LdapAttrs.cn.name()));
-		commonName.setEnabled(false);
+		Link resetPwdLk = new Link(body, SWT.NONE);
+		if (!UserAdminUtils.isCurrentUser(user)) {
+			resetPwdLk.setText("<a>Reset password</a>");
+		}
+		resetPwdLk.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 
 		final Text firstName = createLT(tk, body, "First name",
 				UserAdminUtils.getProperty(user, LdapAttrs.givenName.name()));
@@ -185,7 +200,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 				String cn = first.trim() + " " + last.trim() + " ";
 				cn = cn.trim();
 				commonName.setText(cn);
-				getManagedForm().getForm().setText(cn);
+				// getManagedForm().getForm().setText(cn);
 				editor.updateEditorTitle(cn);
 			}
 		};
@@ -196,44 +211,76 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		firstName.addModifyListener(defaultListener);
 		lastName.addModifyListener(defaultListener);
 		email.addModifyListener(defaultListener);
+
+		if (!UserAdminUtils.isCurrentUser(user))
+			resetPwdLk.addSelectionListener(new SelectionAdapter() {
+				private static final long serialVersionUID = 5881800534589073787L;
+
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					new ChangePasswordDialog(tk, user, "Reset password").open();
+				}
+			});
+
 		getManagedForm().addPart(part);
 	}
 
-	/** Creates the password section */
-	private void appendPasswordPart(Composite parent, final User user) {
-		FormToolkit tk = getManagedForm().getToolkit();
-		Section section = addSection(tk, parent, "Password");
-		Composite body = (Composite) section.getClient();
-		body.setLayout(new GridLayout(2, false));
+	private class ChangePasswordDialog extends TrayDialog {
+		private static final long serialVersionUID = 2843538207460082349L;
 
-		// add widgets (view)
-		final Text password1 = createLP(tk, body, "New password", "");
-		final Text password2 = createLP(tk, body, "Repeat password", "");
+		private User user;
+		private Text password1;
+		private Text password2;
+		private String title;
+		private FormToolkit tk;
 
-		// create form part (controller)
-		AbstractFormPart part = new SectionPart((Section) body.getParent()) {
-			@SuppressWarnings("unchecked")
-			public void commit(boolean onSave) {
-				if (!password1.getText().equals("") || !password2.getText().equals("")) {
-					if (password1.getText().equals(password2.getText())) {
-						char[] newPassword = password1.getText().toCharArray();
-						// userAdminWrapper.beginTransactionIfNeeded();
-						user.getCredentials().put(null, newPassword);
-						password1.setText("");
-						password2.setText("");
-						super.commit(onSave);
-					} else {
-						password1.setText("");
-						password2.setText("");
-						throw new CmsException("Passwords are not equals");
-					}
-				}
+		public ChangePasswordDialog(FormToolkit tk, User user, String title) {
+			super(Display.getDefault().getActiveShell());
+			this.tk = tk;
+			this.user = user;
+			this.title = title;
+		}
+
+		protected Control createDialogArea(Composite parent) {
+			Composite dialogarea = (Composite) super.createDialogArea(parent);
+			dialogarea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			Composite body = new Composite(dialogarea, SWT.NO_FOCUS);
+			body.setLayoutData(EclipseUiUtils.fillAll());
+			GridLayout layout = new GridLayout(2, false);
+			body.setLayout(layout);
+
+			password1 = createLP(tk, body, "New password", "");
+			password2 = createLP(tk, body, "Repeat password", "");
+			parent.pack();
+			return body;
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		protected void okPressed() {
+			String msg = null;
+
+			if (password1.getText().equals(""))
+				msg = "Password cannot be empty";
+			else if (password1.getText().equals(password2.getText())) {
+				char[] newPassword = password1.getText().toCharArray();
+				// userAdminWrapper.beginTransactionIfNeeded();
+				userAdminWrapper.beginTransactionIfNeeded();
+				user.getCredentials().put(null, newPassword);
+				userAdminWrapper.commitOrNotifyTransactionStateChange();
+				super.okPressed();
+			} else {
+				msg = "Passwords are not equals";
 			}
-		};
-		ModifyListener defaultListener = editor.new FormPartML(part);
-		password1.addModifyListener(defaultListener);
-		password2.addModifyListener(defaultListener);
-		getManagedForm().addPart(part);
+
+			if (EclipseUiUtils.notEmpty(msg))
+				MessageDialog.openError(getParentShell(), "Cannot reset pasword", msg);
+		}
+
+		protected void configureShell(Shell shell) {
+			super.configureShell(shell);
+			shell.setText(title);
+		}
 	}
 
 	private LdifUsersTable appendMemberOfPart(final Composite parent, User user) {
@@ -460,7 +507,8 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 
 	// LOCAL HELPERS
 	private void refreshFormTitle(User group) {
-		getManagedForm().getForm().setText(UserAdminUtils.getProperty(group, LdapAttrs.cn.name()));
+		// getManagedForm().getForm().setText(UserAdminUtils.getProperty(group,
+		// LdapAttrs.cn.name()));
 	}
 
 	/** Appends a section with a title */
@@ -498,11 +546,13 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 	}
 
 	/** Creates label and text. */
-	Text createLT(FormToolkit toolkit, Composite body, String label, String value) {
-		Label lbl = toolkit.createLabel(body, label);
-		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-		Text text = toolkit.createText(body, value, SWT.BORDER);
+	Text createLT(FormToolkit toolkit, Composite parent, String label, String value) {
+		Label lbl = toolkit.createLabel(parent, label);
+		lbl.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+		lbl.setFont(EclipseUiUtils.getBoldFont(parent));
+		Text text = toolkit.createText(parent, value, SWT.BORDER);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		CmsUtils.style(text, CmsWorkbenchStyles.WORKBENCH_FORM_TEXT);
 		return text;
 	}
 }
