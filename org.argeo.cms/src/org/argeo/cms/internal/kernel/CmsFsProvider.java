@@ -16,6 +16,7 @@ import org.argeo.cms.auth.CurrentUser;
 import org.argeo.jackrabbit.fs.AbstractJackrabbitFsProvider;
 import org.argeo.jcr.fs.JcrFileSystem;
 import org.argeo.jcr.fs.JcrFsException;
+import org.argeo.node.NodeConstants;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 
@@ -25,7 +26,7 @@ public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 
 	@Override
 	public String getScheme() {
-		return "node";
+		return NodeConstants.SCHEME_NODE;
 	}
 
 	@Override

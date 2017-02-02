@@ -78,6 +78,11 @@ public interface NodeConstants {
 	String PATH_DATA = "/data";
 	String PATH_JCR = "/jcr";
 	String PATH_JCR_PUB = "/pub";
+	
+	/*
+	 * FILE SYSTEMS
+	 */
+	String SCHEME_NODE = "node";
 
 	/*
 	 * FRAMEWORK PROPERTIES
