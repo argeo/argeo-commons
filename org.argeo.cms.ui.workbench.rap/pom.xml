@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
-		<version>2.1.59</version>
+		<version>2.1.60-SNAPSHOT</version>
 		<artifactId>argeo-commons</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -14,13 +14,13 @@
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.cms.ui.workbench</artifactId>
-			<version>2.1.59</version>
+			<version>2.1.60-SNAPSHOT</version>
 		</dependency>
 		<!-- RAP specific -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.ui.rap</artifactId>
-			<version>2.1.59</version>
+			<version>2.1.60-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>
