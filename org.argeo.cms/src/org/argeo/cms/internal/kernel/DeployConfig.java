@@ -34,14 +34,14 @@ class DeployConfig implements ConfigurationListener {
 	private final Log log = LogFactory.getLog(getClass());
 	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
-	private Path deployConfigPath = KernelUtils.getOsgiInstancePath(KernelConstants.DEPLOY_CONFIG_PATH);
+	private static Path deployConfigPath = KernelUtils.getOsgiInstancePath(KernelConstants.DEPLOY_CONFIG_PATH);
 	private SortedMap<LdapName, Attributes> deployConfigs = new TreeMap<>();
 
-	public DeployConfig(ConfigurationAdmin configurationAdmin,boolean isClean) {
+	public DeployConfig(ConfigurationAdmin configurationAdmin, boolean isClean) {
 		// ConfigurationAdmin configurationAdmin =
 		// bc.getService(bc.getServiceReference(ConfigurationAdmin.class));
 		try {
-			if (!Files.exists(deployConfigPath)) { // first init
+			if (!isInitialized()) { // first init
 				firstInit();
 			}
 			init(configurationAdmin, isClean);
@@ -55,15 +55,15 @@ class DeployConfig implements ConfigurationListener {
 	private void firstInit() throws IOException {
 		Files.createDirectories(deployConfigPath.getParent());
 
-		FirstInitProperties firstInit = new FirstInitProperties();
-		firstInit.prepareInstanceArea();
+		FirstInit firstInit = new FirstInit();
+		// firstInit.prepareInstanceArea();
 
-		if (!Files.exists(deployConfigPath))// could have juste been copied
-			Files.createFile(deployConfigPath);
-
-		try (InputStream in = Files.newInputStream(deployConfigPath)) {
-			deployConfigs = new LdifParser().read(in);
-		}
+		if (!Files.exists(deployConfigPath))
+			deployConfigs = new TreeMap<>();
+		else// config file could have juste been copied by preparation
+			try (InputStream in = Files.newInputStream(deployConfigPath)) {
+				deployConfigs = new LdifParser().read(in);
+			}
 
 		// node repository
 		Dictionary<String, Object> nodeConfig = firstInit
@@ -243,6 +243,10 @@ class DeployConfig implements ConfigurationListener {
 			return new AttributesDictionary(attrs);
 		else
 			return null;
+	}
+
+	static boolean isInitialized() {
+		return Files.exists(deployConfigPath);
 	}
 
 }

@@ -1,5 +1,6 @@
 package org.argeo.osgi.useradmin;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,7 +14,11 @@ import java.util.List;
 import java.util.Map;
 
 import javax.naming.Context;
+import javax.naming.NamingException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.argeo.naming.DnsBrowser;
 import org.osgi.framework.Constants;
 
 /** Properties used to configure user admins. */
@@ -40,6 +45,7 @@ public enum UserAdminConf {
 	readOnly(null);
 
 	public final static String FACTORY_PID = "org.argeo.osgi.useradmin.config";
+	private final static Log log = LogFactory.getLog(UserAdminConf.class);
 
 	/** The default value. */
 	private Object def;
@@ -117,6 +123,10 @@ public enum UserAdminConf {
 			Hashtable<String, Object> res = new Hashtable<String, Object>();
 			URI u = new URI(uriStr);
 			String scheme = u.getScheme();
+			if (scheme.equals("ipa")) {
+				u = convertIpaConfig(u);
+				scheme = u.getScheme();
+			}
 			String path = u.getPath();
 			String bDn = path.substring(path.lastIndexOf('/') + 1, path.length());
 			if (bDn.endsWith(".ldif"))
@@ -133,6 +143,7 @@ public enum UserAdminConf {
 						credentials = userInfo.length > 1 ? userInfo[1] : null;
 					}
 				} else if (scheme.equals("file")) {
+				} else if (scheme.equals("ipa")) {
 				} else
 					throw new UserDirectoryException("Unsupported scheme " + scheme);
 			Map<String, List<String>> query = splitQuery(u.getQuery());
@@ -158,6 +169,30 @@ public enum UserAdminConf {
 			return res;
 		} catch (Exception e) {
 			throw new UserDirectoryException("Cannot convert " + uri + " to properties", e);
+		}
+	}
+
+	private static URI convertIpaConfig(URI uri) {
+		assert uri.getPath() != null;
+		assert uri.getPath().length() > 1;
+		String kerberosDomain = uri.getPath().substring(1);
+		try (DnsBrowser dnsBrowser = new DnsBrowser()) {
+			String ldapHostsStr = uri.getHost();
+			if (ldapHostsStr == null || ldapHostsStr.trim().equals("")) {
+				List<String> ldapHosts = dnsBrowser.getSrvRecordsAsHosts("_ldap._tcp." + kerberosDomain.toLowerCase());
+				if (ldapHosts == null || ldapHosts.size() == 0) {
+					throw new UserDirectoryException("Cannot configure LDAP for IPA " + uri);
+				} else {
+					ldapHostsStr = ldapHosts.get(0);
+				}
+			}
+			URI convertedUri = new URI(
+					"ldap://" + ldapHostsStr + "/" + IpaUtils.domainToUserDirectoryConfigPath(kerberosDomain));
+			if (log.isDebugEnabled())
+				log.debug("Converted " + uri + " to " + convertedUri);
+			return convertedUri;
+		} catch (NamingException | IOException | URISyntaxException e) {
+			throw new UserDirectoryException("cannot convert IPA uri " + uri, e);
 		}
 	}
 

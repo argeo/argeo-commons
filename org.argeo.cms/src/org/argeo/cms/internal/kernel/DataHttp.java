@@ -34,6 +34,12 @@ import org.argeo.cms.auth.HttpRequestCallback;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.node.NodeConstants;
+import org.ietf.jgss.GSSContext;
+import org.ietf.jgss.GSSCredential;
+import org.ietf.jgss.GSSException;
+import org.ietf.jgss.GSSManager;
+import org.ietf.jgss.GSSName;
+import org.ietf.jgss.Oid;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -79,6 +85,7 @@ class DataHttp implements KernelConstants {
 		try {
 			registerWebdavServlet(alias, repository);
 			registerRemotingServlet(alias, repository);
+			registerFilesServlet(alias, repository);
 			if (log.isDebugEnabled())
 				log.debug("Registered servlets for repository '" + alias + "'");
 		} catch (Exception e) {
@@ -90,6 +97,7 @@ class DataHttp implements KernelConstants {
 		try {
 			httpService.unregister(webdavPath(alias));
 			httpService.unregister(remotingPath(alias));
+			httpService.unregister(filesPath(alias));
 			if (log.isDebugEnabled())
 				log.debug("Unregistered servlets for repository '" + alias + "'");
 		} catch (Exception e) {
@@ -104,6 +112,15 @@ class DataHttp implements KernelConstants {
 		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_CONFIG, WEBDAV_CONFIG);
 		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
 		httpService.registerServlet(path, webdavServlet, ip, new DataHttpContext());
+	}
+
+	void registerFilesServlet(String alias, Repository repository) throws NamespaceException, ServletException {
+		WebdavServlet filesServlet = new WebdavServlet(repository, new OpenInViewSessionProvider(alias));
+		String path = filesPath(alias);
+		Properties ip = new Properties();
+		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_CONFIG, WEBDAV_CONFIG);
+		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
+		httpService.registerServlet(path, filesServlet, ip, new FilesHttpContext());
 	}
 
 	void registerRemotingServlet(String alias, Repository repository) throws NamespaceException, ServletException {
@@ -128,6 +145,10 @@ class DataHttp implements KernelConstants {
 		return NodeConstants.PATH_JCR + "/" + alias;
 	}
 
+	private String filesPath(String alias) {
+		return NodeConstants.PATH_FILES + "/" + alias;
+	}
+
 	private Subject subjectFromRequest(HttpServletRequest request) {
 		Authorization authorization = (Authorization) request.getAttribute(HttpContext.AUTHORIZATION);
 		if (authorization == null)
@@ -142,12 +163,23 @@ class DataHttp implements KernelConstants {
 		}
 	}
 
-	private void requestBasicAuth(HttpServletRequest request, HttpServletResponse response) {
+	private void askForWwwAuth(HttpServletRequest request, HttpServletResponse response) {
 		response.setStatus(401);
-		response.setHeader(HEADER_WWW_AUTHENTICATE, "basic realm=\"" + httpAuthRealm + "\"");
+		 response.setHeader(HEADER_WWW_AUTHENTICATE, "basic realm=\"" +
+		 httpAuthRealm + "\"");
+		
+		// SPNEGO
+//		response.setHeader(HEADER_WWW_AUTHENTICATE, "Negotiate");
+//		response.setDateHeader("Date", System.currentTimeMillis());
+//		response.setDateHeader("Expires", System.currentTimeMillis() + (24 * 60 * 60 * 1000));
+//		response.setHeader("Accept-Ranges", "bytes");
+//		response.setHeader("Connection", "Keep-Alive");
+//		response.setHeader("Keep-Alive", "timeout=5, max=97");
+//		response.setContentType("text/html; charset=UTF-8");
+		
 	}
 
-	private CallbackHandler basicAuth(final HttpServletRequest httpRequest) {
+	private CallbackHandler extractHttpAuth(final HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
 		String authHeader = httpRequest.getHeader(HEADER_AUTHORIZATION);
 		if (authHeader != null) {
 			StringTokenizer st = new StringTokenizer(authHeader);
@@ -180,6 +212,44 @@ class DataHttp implements KernelConstants {
 					} catch (Exception e) {
 						throw new CmsException("Couldn't retrieve authentication", e);
 					}
+				} else if (basic.equalsIgnoreCase("Negotiate")) {
+					// FIXME generalise
+					String _targetName = "HTTP/mostar.desktop.argeo.pro";
+					String spnegoToken = st.nextToken();
+					byte[] authToken = Base64.decodeBase64(spnegoToken);
+					GSSManager manager = GSSManager.getInstance();
+					try {
+						Oid krb5Oid = new Oid("1.3.6.1.5.5.2"); // http://java.sun.com/javase/6/docs/technotes/guides/security/jgss/jgss-features.html
+						GSSName gssName = manager.createName(_targetName, null);
+						GSSCredential serverCreds = manager.createCredential(gssName, GSSCredential.INDEFINITE_LIFETIME,
+								krb5Oid, GSSCredential.ACCEPT_ONLY);
+						GSSContext gContext = manager.createContext(serverCreds);
+
+						if (gContext == null) {
+							log.debug("SpnegoUserRealm: failed to establish GSSContext");
+						} else {
+							while (!gContext.isEstablished()) {
+								byte[] outToken = gContext.acceptSecContext(authToken, 0, authToken.length);
+								String outTokenStr = Base64.encodeBase64String(outToken);
+								httpResponse.setHeader("WWW-Authenticate","Negotiate "+ outTokenStr);
+							}
+							if (gContext.isEstablished()) {
+								String clientName = gContext.getSrcName().toString();
+								String role = clientName.substring(clientName.indexOf('@') + 1);
+
+								log.debug("SpnegoUserRealm: established a security context");
+								log.debug("Client Principal is: " + gContext.getSrcName());
+								log.debug("Server Principal is: " + gContext.getTargName());
+								log.debug("Client Default Role: " + role);
+								
+								// TODO log in
+							}
+						}
+
+					} catch (GSSException gsse) {
+						log.warn(gsse,gsse);
+					}
+
 				}
 			}
 		}
@@ -217,6 +287,7 @@ class DataHttp implements KernelConstants {
 		@Override
 		public boolean handleSecurity(final HttpServletRequest request, HttpServletResponse response)
 				throws IOException {
+
 			if (log.isTraceEnabled())
 				KernelUtils.logRequestHeaders(log, request);
 			LoginContext lc;
@@ -225,7 +296,7 @@ class DataHttp implements KernelConstants {
 				lc.login();
 				// return true;
 			} catch (LoginException e) {
-				CallbackHandler token = basicAuth(request);
+				CallbackHandler token = extractHttpAuth(request,response);
 				if (token != null) {
 					try {
 						lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, token);
@@ -246,6 +317,51 @@ class DataHttp implements KernelConstants {
 							log.error("Cannot log in anonynous", e1);
 						return false;
 					}
+				}
+			}
+			request.setAttribute(NodeConstants.LOGIN_CONTEXT_USER, lc);
+			return true;
+		}
+
+		@Override
+		public URL getResource(String name) {
+			return KernelUtils.getBundleContext(DataHttp.class).getBundle().getResource(name);
+		}
+
+		@Override
+		public String getMimeType(String name) {
+			return null;
+		}
+
+	}
+
+	private class FilesHttpContext implements HttpContext {
+		@Override
+		public boolean handleSecurity(final HttpServletRequest request, HttpServletResponse response)
+				throws IOException {
+
+			if (log.isTraceEnabled())
+				KernelUtils.logRequestHeaders(log, request);
+			LoginContext lc;
+			try {
+				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new HttpRequestCallbackHandler(request));
+				lc.login();
+				// return true;
+			} catch (LoginException e) {
+				CallbackHandler token = extractHttpAuth(request,response);
+				if (token != null) {
+					try {
+						lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, token);
+						lc.login();
+						// Note: this is impossible to reliably clear the
+						// authorization header when access from a browser.
+					} catch (LoginException e1) {
+						throw new CmsException("Could not login", e1);
+					}
+				} else {
+					askForWwwAuth(request, response);
+					lc = null;
+					return false;
 				}
 			}
 			request.setAttribute(NodeConstants.LOGIN_CONTEXT_USER, lc);
@@ -291,7 +407,7 @@ class DataHttp implements KernelConstants {
 				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new HttpRequestCallbackHandler(request));
 				lc.login();
 			} catch (CredentialNotFoundException e) {
-				CallbackHandler token = basicAuth(request);
+				CallbackHandler token = extractHttpAuth(request,response);
 				if (token != null) {
 					try {
 						lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, token);
@@ -302,7 +418,7 @@ class DataHttp implements KernelConstants {
 						throw new CmsException("Could not login", e1);
 					}
 				} else {
-					requestBasicAuth(request, response);
+					askForWwwAuth(request, response);
 					lc = null;
 				}
 			} catch (LoginException e) {

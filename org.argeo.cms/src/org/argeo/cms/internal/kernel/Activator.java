@@ -1,14 +1,11 @@
 package org.argeo.cms.internal.kernel;
 
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.Locale;
-
-import javax.security.auth.login.Configuration;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -19,6 +16,7 @@ import org.argeo.node.NodeDeployment;
 import org.argeo.node.NodeInstance;
 import org.argeo.node.NodeState;
 import org.argeo.util.LangUtils;
+import org.ietf.jgss.GSSCredential;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -35,6 +33,7 @@ public class Activator implements BundleActivator {
 	private static Activator instance;
 
 	private BundleContext bc;
+	private CmsSecurity nodeSecurity;
 	private LogReaderService logReaderService;
 	// private ConfigurationAdmin configurationAdmin;
 
@@ -51,23 +50,13 @@ public class Activator implements BundleActivator {
 		// this.configurationAdmin = getService(ConfigurationAdmin.class);
 
 		try {
-			initSecurity();// must be first
+			nodeSecurity = new CmsSecurity();
 			initArgeoLogger();
 			initNode();
 		} catch (Exception e) {
 			log.error("## FATAL: CMS activator failed", e);
 			// throw new CmsException("Cannot initialize node", e);
 		}
-	}
-
-	private void initSecurity() {
-		if (System.getProperty(KernelConstants.JAAS_CONFIG_PROP) == null) {
-			URL url = getClass().getClassLoader().getResource(KernelConstants.JAAS_CONFIG);
-			// URL url =
-			// getClass().getClassLoader().getResource(KernelConstants.JAAS_CONFIG_IPA);
-			System.setProperty(KernelConstants.JAAS_CONFIG_PROP, url.toExternalForm());
-		}
-		Configuration.getConfiguration();
 	}
 
 	private void initArgeoLogger() {
@@ -120,6 +109,14 @@ public class Activator implements BundleActivator {
 
 	public static NodeState getNodeState() {
 		return instance.nodeState;
+	}
+
+	public static GSSCredential getAcceptorCredentials() {
+		return getCmsSecurity().getServerCredentials();
+	}
+
+	static CmsSecurity getCmsSecurity() {
+		return instance.nodeSecurity;
 	}
 
 	public String[] getLocales() {

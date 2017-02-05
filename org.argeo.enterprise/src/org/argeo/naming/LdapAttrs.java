@@ -1,11 +1,13 @@
 package org.argeo.naming;
 
 /**
- * Standard LDAP attributes as per
- * <a href="https://www.ldap.com/ldap-oid-reference">https://www.ldap.com/ldap-
- * oid-reference</a>
+ * Standard LDAP attributes as per:<br>
+ * - <a href= "https://www.ldap.com/ldap-oid-reference">Standard LDAP</a><br>
+ * - <a href=
+ * "https://github.com/krb5/krb5/blob/master/src/plugins/kdb/ldap/libkdb_ldap/kerberos.schema">Kerberos
+ * LDAP (partial)</a>
  */
-public enum LdapAttrs implements SpecifiedName{
+public enum LdapAttrs implements SpecifiedName {
 	/** */
 	uid("0.9.2342.19200300.100.1.1", "RFC 4519"),
 	/** */
@@ -263,7 +265,10 @@ public enum LdapAttrs implements SpecifiedName{
 	/** */
 	userPKCS12("2.16.840.1.113730.3.1.216", "RFC 2798"),
 	/** */
-	displayName("2.16.840.1.113730.3.1.241", "RFC 2798");
+	displayName("2.16.840.1.113730.3.1.241", "RFC 2798"),
+
+	// KERBEROS (partial
+	krbPrincipalName("2.16.840.1.113719.1.301.6.8.1", "Novell Kerberos Schema Definitions");
 
 	public final static String DN = "dn";
 

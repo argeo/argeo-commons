@@ -1,8 +1,10 @@
 package org.argeo.cms.auth;
 
 import java.io.IOException;
+import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -12,10 +14,10 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.internal.kernel.WebCmsSessionImpl;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -87,6 +89,8 @@ public class HttpSessionLoginModule implements LoginModule {
 
 		}
 		sharedState.put(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST, request);
+		extractHttpAuth(request);
+		extractClientCertificate(request);
 		if (authorization == null)
 			return false;
 		sharedState.put(CmsAuthUtils.SHARED_STATE_AUTHORIZATION, authorization);
@@ -169,6 +173,46 @@ public class HttpSessionLoginModule implements LoginModule {
 	@Override
 	public boolean logout() throws LoginException {
 		return CmsAuthUtils.logoutSession(bc, subject);
+	}
+
+	private void extractHttpAuth(final HttpServletRequest httpRequest) {
+		String authHeader = httpRequest.getHeader(CmsAuthUtils.HEADER_AUTHORIZATION);
+		if (authHeader != null) {
+			StringTokenizer st = new StringTokenizer(authHeader);
+			if (st.hasMoreTokens()) {
+				String basic = st.nextToken();
+				if (basic.equalsIgnoreCase("Basic")) {
+					try {
+						// TODO manipulate char[]
+						String credentials = new String(Base64.decodeBase64(st.nextToken()), "UTF-8");
+						// log.debug("Credentials: " + credentials);
+						int p = credentials.indexOf(":");
+						if (p != -1) {
+							final String login = credentials.substring(0, p).trim();
+							final char[] password = credentials.substring(p + 1).trim().toCharArray();
+							sharedState.put(CmsAuthUtils.SHARED_STATE_NAME, login);
+							sharedState.put(CmsAuthUtils.SHARED_STATE_PWD, password);
+						} else {
+							throw new CmsException("Invalid authentication token");
+						}
+					} catch (Exception e) {
+						throw new CmsException("Couldn't retrieve authentication", e);
+					}
+				} else if (basic.equalsIgnoreCase("Negotiate")) {
+					String spnegoToken = st.nextToken();
+					byte[] authToken = Base64.decodeBase64(spnegoToken);
+					sharedState.put(CmsAuthUtils.SHARED_STATE_SPNEGO_TOKEN, authToken);
+				}
+			}
+		}
+	}
+
+	private X509Certificate[] extractClientCertificate(HttpServletRequest req) {
+		X509Certificate[] certs = (X509Certificate[]) req.getAttribute("javax.servlet.request.X509Certificate");
+		if (null != certs && certs.length > 0) {
+			return certs;
+		}
+		return null;
 	}
 
 }

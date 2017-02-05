@@ -2,6 +2,7 @@ package org.argeo.cms.internal.kernel;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -11,6 +12,7 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.jcr.Repository;
@@ -147,6 +149,14 @@ class KernelUtils implements KernelConstants {
 		// Constants.FRAMEWORK_LANGUAGE, Constants.FRAMEWORK_UUID };
 		// for (String key : keys)
 		// log.debug(key + "=" + bc.getProperty(key));
+	}
+	
+	static void printSystemProperties(PrintStream out){
+		TreeMap<String, String> display = new TreeMap<>();
+		for (Object key : System.getProperties().keySet())
+			display.put(key.toString(), System.getProperty(key.toString()));
+		for (String key : display.keySet())
+			out.println(key + "=" + display.get(key));
 	}
 
 	static Session openAdminSession(Repository repository) {

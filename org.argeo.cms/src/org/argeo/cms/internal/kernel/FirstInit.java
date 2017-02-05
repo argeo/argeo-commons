@@ -23,10 +23,10 @@ import org.eclipse.equinox.http.jetty.JettyConstants;
  * Interprets framework properties in order to generate the initial deploy
  * configuration.
  */
-class FirstInitProperties {
-	private final static Log log = LogFactory.getLog(FirstInitProperties.class);
+class FirstInit {
+	private final static Log log = LogFactory.getLog(FirstInit.class);
 
-	public FirstInitProperties() {
+	public FirstInit() {
 		log.info("## FIRST INIT ##");
 	}
 
@@ -39,7 +39,7 @@ class FirstInitProperties {
 				props.put(repoConf.name(), value);
 		}
 		props.put(NodeConstants.CN, NodeConstants.NODE);
-//		props.put(NodeConstants.JCR_REPOSITORY_ALIAS, NodeConstants.NODE);
+		// props.put(NodeConstants.JCR_REPOSITORY_ALIAS, NodeConstants.NODE);
 		return props;
 	}
 
@@ -61,6 +61,7 @@ class FirstInitProperties {
 				props.put(JettyConstants.HTTPS_PORT, httpsPort);
 				props.put(JettyConstants.HTTPS_ENABLED, true);
 				props.put(JettyConstants.SSL_KEYSTORETYPE, "PKCS12");
+				props.put(JettyConstants.SSL_KEYSTORE, "../../ssl/server.p12");
 				// jettyProps.put(JettyConstants.SSL_KEYSTORE,
 				// nodeSecurity.getHttpServerKeyStore().getCanonicalPath());
 				props.put(JettyConstants.SSL_PASSWORD, "changeit");
@@ -98,16 +99,23 @@ class FirstInitProperties {
 		// Business roles
 		String userAdminUris = getFrameworkProp(NodeConstants.USERADMIN_URIS);
 		if (userAdminUris == null) {
-			String demoBaseDn = "dc=example,dc=com";
-			File businessRolesFile = new File(nodeBaseDir, demoBaseDn + ".ldif");
-			if (!businessRolesFile.exists())
-				try {
-					FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(demoBaseDn + ".ldif"),
-							businessRolesFile);
-				} catch (IOException e) {
-					throw new CmsException("Cannot copy demo resource", e);
-				}
-			userAdminUris = businessRolesFile.toURI().toString();
+			String kerberosDomain = Activator.getCmsSecurity().getKerberosDomain();
+			if (kerberosDomain != null) {
+				userAdminUris = "ipa:///" + kerberosDomain;
+			} else {
+				String demoBaseDn = "dc=example,dc=com";
+				File businessRolesFile = new File(nodeBaseDir, demoBaseDn + ".ldif");
+				if (!businessRolesFile.exists())
+					try {
+						FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(demoBaseDn + ".ldif"),
+								businessRolesFile);
+					} catch (IOException e) {
+						throw new CmsException("Cannot copy demo resource", e);
+					}
+				userAdminUris = businessRolesFile.toURI().toString();
+				log.warn("## DEV Using dummy base DN " + demoBaseDn);
+				// TODO downgrade security level
+			}
 		}
 		for (String userAdminUri : userAdminUris.split(" "))
 			uris.add(userAdminUri);
@@ -144,7 +152,7 @@ class FirstInitProperties {
 	 * Called before node initialisation, in order populate OSGi instance are
 	 * with some files (typically LDIF, etc).
 	 */
-	void prepareInstanceArea() {
+	static void prepareInstanceArea() {
 		String nodeInit = getFrameworkProp(NodeConstants.NODE_INIT);
 		if (nodeInit == null)
 			nodeInit = "../../init";

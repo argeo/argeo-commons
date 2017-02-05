@@ -67,22 +67,28 @@ public interface NodeConstants {
 	/*
 	 * LOGIN CONTEXTS
 	 */
+	String LOGIN_CONTEXT_NODE = "NODE";
 	String LOGIN_CONTEXT_USER = "USER";
-//	String LOGIN_CONTEXT_ANONYMOUS = "ANONYMOUS";
 	String LOGIN_CONTEXT_DATA_ADMIN = "DATA_ADMIN";
 	String LOGIN_CONTEXT_SINGLE_USER = "SINGLE_USER";
-	
+
 	/*
 	 * PATHS
 	 */
 	String PATH_DATA = "/data";
 	String PATH_JCR = "/jcr";
-	String PATH_JCR_PUB = "/pub";
-	
+	String PATH_FILES = "/files";
+	// String PATH_JCR_PUB = "/pub";
+
 	/*
 	 * FILE SYSTEMS
 	 */
-	String SCHEME_NODE = "node";
+	String SCHEME_NODE = NODE;
+
+	/*
+	 * KERBEROS
+	 */
+	String NODE_SERVICE = NODE;
 
 	/*
 	 * FRAMEWORK PROPERTIES
@@ -119,8 +125,8 @@ public interface NodeConstants {
 	// @Deprecated
 	// String ALIAS_NODE = "node";
 	/** Key for a JCR repository URI */
-//	@Deprecated
-//	String JCR_REPOSITORY_URI = "argeo.jcr.repository.uri";
+	// @Deprecated
+	// String JCR_REPOSITORY_URI = "argeo.jcr.repository.uri";
 	// parameters (typically for call to a RepositoryFactory)
 	/** Key for a JCR repository alias */
 	// @Deprecated

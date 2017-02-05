@@ -40,6 +40,11 @@ class CmsAuthUtils {
 	/** From com.sun.security.auth.module.*LoginModule */
 	static final String SHARED_STATE_PWD = "javax.security.auth.login.password";
 
+	static final String SHARED_STATE_SPNEGO_TOKEN = "org.argeo.cms.auth.spnegoToken";
+	static final String SHARED_STATE_SPNEGO_OUT_TOKEN = "org.argeo.cms.auth.spnegoOutToken";
+
+	static final String HEADER_AUTHORIZATION = "Authorization";
+
 	static void addAuthentication(Subject subject, Authorization authorization) {
 		assert subject != null;
 		checkSubjectEmpty(subject);

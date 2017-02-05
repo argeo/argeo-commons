@@ -15,6 +15,12 @@
             path="/public"
             brandingId="org.argeo.cms.ui.workbench.rap.defaultBranding">
       </entrypoint>
+      <entrypoint
+            brandingId="org.argeo.cms.ui.workbench.rap.defaultBranding"
+            class="org.argeo.cms.ui.workbench.rap.SpnegoWorkbenchLogin"
+            id="org.argeo.cms.ui.workbench.rap.loginEntryPoint"
+            path="/login">
+      </entrypoint>
 <!--      <entrypoint
             id="org.argeo.cms.ui.workbench.rap.secureEntryPoint"
             class="org.argeo.security.ui.rap.RapWorkbenchLogin"

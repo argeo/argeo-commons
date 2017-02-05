@@ -5,6 +5,7 @@ import java.util.Locale;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
@@ -23,6 +24,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 public class LoginEntryPoint implements EntryPoint, CmsView {
+	protected final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
+	protected final static String HEADER_AUTHORIZATION = "Authorization";
 	// private final static Log log = LogFactory.getLog(WorkbenchLogin.class);
 	// private final Subject subject = new Subject();
 	private LoginContext loginContext;
@@ -40,6 +43,21 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 		} catch (LoginException e) {
 			loginShell.createUi();
 			loginShell.open();
+
+//			HttpServletRequest request = RWT.getRequest();
+//			String authorization = request.getHeader(HEADER_AUTHORIZATION);
+//			if (authorization == null || !authorization.startsWith("Negotiate")) {
+//				HttpServletResponse response = RWT.getResponse();
+//				response.setStatus(401);
+//				response.setHeader(HEADER_WWW_AUTHENTICATE, "Negotiate");
+//				response.setDateHeader("Date", System.currentTimeMillis());
+//				response.setDateHeader("Expires", System.currentTimeMillis() + (24 * 60 * 60 * 1000));
+//				response.setHeader("Accept-Ranges", "bytes");
+//				response.setHeader("Connection", "Keep-Alive");
+//				response.setHeader("Keep-Alive", "timeout=5, max=97");
+//				// response.setContentType("text/html; charset=UTF-8");
+//			}
+
 			while (!loginShell.getShell().isDisposed()) {
 				if (!display.readAndDispatch())
 					display.sleep();
