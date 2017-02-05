@@ -1,4 +1,5 @@
 /CA/
-/demo.p12
-/root.p12
-/server.jks
+/*.p12
+/*.jks
+/nssdb/
+/*.pem
