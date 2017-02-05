@@ -13,6 +13,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -33,6 +34,7 @@ public class HttpSessionLoginModule implements LoginModule {
 	private Map<String, Object> sharedState = null;
 
 	private HttpServletRequest request = null;
+	private HttpServletResponse response = null;
 
 	private BundleContext bc;
 
@@ -97,41 +99,6 @@ public class HttpSessionLoginModule implements LoginModule {
 		return true;
 	}
 
-	// private Authorization checkHttp() {
-	// Authorization authorization = null;
-	// if (request != null) {
-	// authorization = (Authorization)
-	// request.getAttribute(HttpContext.AUTHORIZATION);
-	// if (authorization == null) {
-	// String httpSessionId = request.getSession().getId();
-	// authorization = (Authorization)
-	// request.getSession().getAttribute(HttpContext.AUTHORIZATION);
-	// if (authorization == null) {
-	// Collection<ServiceReference<WebCmsSession>> sr;
-	// try {
-	// sr = bc.getServiceReferences(WebCmsSession.class,
-	// "(" + WebCmsSession.CMS_SESSION_ID + "=" + httpSessionId + ")");
-	// } catch (InvalidSyntaxException e) {
-	// throw new CmsException("Cannot get CMS session for id " + httpSessionId,
-	// e);
-	// }
-	// if (sr.size() == 1) {
-	// WebCmsSession cmsSession = bc.getService(sr.iterator().next());
-	// authorization = cmsSession.getAuthorization();
-	// if (log.isTraceEnabled())
-	// log.trace("Retrieved authorization from " + cmsSession);
-	// } else if (sr.size() == 0)
-	// return null;
-	// else
-	// throw new CmsException(
-	// sr.size() + ">1 web sessions detected for http session " +
-	// httpSessionId);
-	// }
-	// }
-	// }
-	// return authorization;
-	// }
-
 	@Override
 	public boolean commit() throws LoginException {
 		// TODO create CmsSession in another module
@@ -148,6 +115,12 @@ public class HttpSessionLoginModule implements LoginModule {
 		if (request == null)
 			return false;
 		CmsAuthUtils.registerSessionAuthorization(bc, request, subject, authorizationToRegister);
+
+		byte[] outToken = (byte[]) sharedState.get(CmsAuthUtils.SHARED_STATE_SPNEGO_OUT_TOKEN);
+		if (outToken != null) {
+			response.setHeader(CmsAuthUtils.HEADER_WWW_AUTHENTICATE,
+					"Negotiate " + java.util.Base64.getEncoder().encodeToString(outToken));
+		}
 
 		if (authorization != null) {
 			// CmsAuthUtils.addAuthentication(subject, authorization);

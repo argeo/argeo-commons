@@ -284,8 +284,10 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 				((NameCallback) callback).setName(usernameT.getText());
 			else if (callback instanceof PasswordCallback && passwordT != null)
 				((PasswordCallback) callback).setPassword(passwordT.getTextChars());
-			else if (callback instanceof HttpRequestCallback)
+			else if (callback instanceof HttpRequestCallback){
 				((HttpRequestCallback) callback).setRequest(UiContext.getHttpRequest());
+				((HttpRequestCallback) callback).setResponse(UiContext.getHttpResponse());
+			}
 			else if (callback instanceof LanguageCallback && localeChoice != null)
 				((LanguageCallback) callback).setLocale(localeChoice.getSelectedLocale());
 		}

@@ -3,6 +3,7 @@ package org.argeo.eclipse.ui.specific;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.widgets.Display;
@@ -12,6 +13,10 @@ public class UiContext {
 	/** Can be null, thus indicating that we are not in a web context. */
 	public static HttpServletRequest getHttpRequest() {
 		return RWT.getRequest();
+	}
+
+	public static HttpServletResponse getHttpResponse() {
+		return RWT.getResponse();
 	}
 
 	public static Locale getLocale() {
@@ -40,8 +45,7 @@ public class UiContext {
 	public static void setData(String key, Object value) {
 		Display display = getDisplay();
 		if (display == null)
-			throw new SingleSourcingException(
-					"Not display available in RAP context");
+			throw new SingleSourcingException("Not display available in RAP context");
 		display.setData(key, value);
 	}
 

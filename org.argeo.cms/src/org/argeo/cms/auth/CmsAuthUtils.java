@@ -32,18 +32,19 @@ class CmsAuthUtils {
 	private final static Log log = LogFactory.getLog(CmsAuthUtils.class);
 
 	/** Shared HTTP request */
-	static final String SHARED_STATE_HTTP_REQUEST = "org.argeo.cms.auth.http.request";
+	final static String SHARED_STATE_HTTP_REQUEST = "org.argeo.cms.auth.http.request";
 	/** From org.osgi.service.http.HttpContext */
-	static final String SHARED_STATE_AUTHORIZATION = "org.osgi.service.useradmin.authorization";
+	final static String SHARED_STATE_AUTHORIZATION = "org.osgi.service.useradmin.authorization";
 	/** From com.sun.security.auth.module.*LoginModule */
-	static final String SHARED_STATE_NAME = "javax.security.auth.login.name";
+	final static String SHARED_STATE_NAME = "javax.security.auth.login.name";
 	/** From com.sun.security.auth.module.*LoginModule */
-	static final String SHARED_STATE_PWD = "javax.security.auth.login.password";
+	final static String SHARED_STATE_PWD = "javax.security.auth.login.password";
 
-	static final String SHARED_STATE_SPNEGO_TOKEN = "org.argeo.cms.auth.spnegoToken";
-	static final String SHARED_STATE_SPNEGO_OUT_TOKEN = "org.argeo.cms.auth.spnegoOutToken";
+	final static String SHARED_STATE_SPNEGO_TOKEN = "org.argeo.cms.auth.spnegoToken";
+	final static String SHARED_STATE_SPNEGO_OUT_TOKEN = "org.argeo.cms.auth.spnegoOutToken";
 
-	static final String HEADER_AUTHORIZATION = "Authorization";
+	final static String HEADER_AUTHORIZATION = "Authorization";
+	final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
 	static void addAuthentication(Subject subject, Authorization authorization) {
 		assert subject != null;

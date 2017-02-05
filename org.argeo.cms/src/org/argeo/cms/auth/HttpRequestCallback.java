@@ -2,9 +2,11 @@ package org.argeo.cms.auth;
 
 import javax.security.auth.callback.Callback;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class HttpRequestCallback implements Callback {
 	private HttpServletRequest request;
+	private HttpServletResponse response;
 
 	public HttpServletRequest getRequest() {
 		return request;
@@ -13,4 +15,13 @@ public class HttpRequestCallback implements Callback {
 	public void setRequest(HttpServletRequest request) {
 		this.request = request;
 	}
+
+	public HttpServletResponse getResponse() {
+		return response;
+	}
+
+	public void setResponse(HttpServletResponse response) {
+		this.response = response;
+	}
+
 }

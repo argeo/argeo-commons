@@ -149,13 +149,13 @@ class DataHttp implements KernelConstants {
 		return NodeConstants.PATH_FILES + "/" + alias;
 	}
 
-	private Subject subjectFromRequest(HttpServletRequest request) {
+	private Subject subjectFromRequest(HttpServletRequest request, HttpServletResponse response) {
 		Authorization authorization = (Authorization) request.getAttribute(HttpContext.AUTHORIZATION);
 		if (authorization == null)
 			throw new CmsException("Not authenticated");
 		try {
 			LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
-					new HttpRequestCallbackHandler(request));
+					new HttpRequestCallbackHandler(request, response));
 			lc.login();
 			return lc.getSubject();
 		} catch (LoginException e) {
@@ -165,18 +165,18 @@ class DataHttp implements KernelConstants {
 
 	private void askForWwwAuth(HttpServletRequest request, HttpServletResponse response) {
 		response.setStatus(401);
-		 response.setHeader(HEADER_WWW_AUTHENTICATE, "basic realm=\"" +
-		 httpAuthRealm + "\"");
-		
+		response.setHeader(HEADER_WWW_AUTHENTICATE, "basic realm=\"" + httpAuthRealm + "\"");
+
 		// SPNEGO
-//		response.setHeader(HEADER_WWW_AUTHENTICATE, "Negotiate");
-//		response.setDateHeader("Date", System.currentTimeMillis());
-//		response.setDateHeader("Expires", System.currentTimeMillis() + (24 * 60 * 60 * 1000));
-//		response.setHeader("Accept-Ranges", "bytes");
-//		response.setHeader("Connection", "Keep-Alive");
-//		response.setHeader("Keep-Alive", "timeout=5, max=97");
-//		response.setContentType("text/html; charset=UTF-8");
-		
+		// response.setHeader(HEADER_WWW_AUTHENTICATE, "Negotiate");
+		// response.setDateHeader("Date", System.currentTimeMillis());
+		// response.setDateHeader("Expires", System.currentTimeMillis() + (24 *
+		// 60 * 60 * 1000));
+		// response.setHeader("Accept-Ranges", "bytes");
+		// response.setHeader("Connection", "Keep-Alive");
+		// response.setHeader("Keep-Alive", "timeout=5, max=97");
+		// response.setContentType("text/html; charset=UTF-8");
+
 	}
 
 	private CallbackHandler extractHttpAuth(final HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
@@ -201,8 +201,10 @@ class DataHttp implements KernelConstants {
 											((NameCallback) cb).setName(login);
 										else if (cb instanceof PasswordCallback)
 											((PasswordCallback) cb).setPassword(password);
-										else if (cb instanceof HttpRequestCallback)
+										else if (cb instanceof HttpRequestCallback) {
 											((HttpRequestCallback) cb).setRequest(httpRequest);
+											((HttpRequestCallback) cb).setResponse(httpResponse);
+										}
 									}
 								}
 							};
@@ -231,7 +233,7 @@ class DataHttp implements KernelConstants {
 							while (!gContext.isEstablished()) {
 								byte[] outToken = gContext.acceptSecContext(authToken, 0, authToken.length);
 								String outTokenStr = Base64.encodeBase64String(outToken);
-								httpResponse.setHeader("WWW-Authenticate","Negotiate "+ outTokenStr);
+								httpResponse.setHeader("WWW-Authenticate", "Negotiate " + outTokenStr);
 							}
 							if (gContext.isEstablished()) {
 								String clientName = gContext.getSrcName().toString();
@@ -241,13 +243,13 @@ class DataHttp implements KernelConstants {
 								log.debug("Client Principal is: " + gContext.getSrcName());
 								log.debug("Server Principal is: " + gContext.getTargName());
 								log.debug("Client Default Role: " + role);
-								
+
 								// TODO log in
 							}
 						}
 
 					} catch (GSSException gsse) {
-						log.warn(gsse,gsse);
+						log.warn(gsse, gsse);
 					}
 
 				}
@@ -292,11 +294,12 @@ class DataHttp implements KernelConstants {
 				KernelUtils.logRequestHeaders(log, request);
 			LoginContext lc;
 			try {
-				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new HttpRequestCallbackHandler(request));
+				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
+						new HttpRequestCallbackHandler(request, response));
 				lc.login();
 				// return true;
 			} catch (LoginException e) {
-				CallbackHandler token = extractHttpAuth(request,response);
+				CallbackHandler token = extractHttpAuth(request, response);
 				if (token != null) {
 					try {
 						lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, token);
@@ -344,11 +347,12 @@ class DataHttp implements KernelConstants {
 				KernelUtils.logRequestHeaders(log, request);
 			LoginContext lc;
 			try {
-				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new HttpRequestCallbackHandler(request));
+				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
+						new HttpRequestCallbackHandler(request, response));
 				lc.login();
 				// return true;
 			} catch (LoginException e) {
-				CallbackHandler token = extractHttpAuth(request,response);
+				CallbackHandler token = extractHttpAuth(request, response);
 				if (token != null) {
 					try {
 						lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, token);
@@ -404,10 +408,11 @@ class DataHttp implements KernelConstants {
 				KernelUtils.logRequestHeaders(log, request);
 			LoginContext lc;
 			try {
-				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new HttpRequestCallbackHandler(request));
+				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
+						new HttpRequestCallbackHandler(request, response));
 				lc.login();
 			} catch (CredentialNotFoundException e) {
-				CallbackHandler token = extractHttpAuth(request,response);
+				CallbackHandler token = extractHttpAuth(request, response);
 				if (token != null) {
 					try {
 						lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, token);
@@ -558,7 +563,7 @@ class DataHttp implements KernelConstants {
 		protected void service(final HttpServletRequest request, final HttpServletResponse response)
 				throws ServletException, IOException {
 			try {
-				Subject subject = subjectFromRequest(request);
+				Subject subject = subjectFromRequest(request, response);
 				Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
 					@Override
 					public Void run() throws Exception {

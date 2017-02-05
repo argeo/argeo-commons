@@ -72,7 +72,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 		// Initial login
 		try {
 			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
-					new HttpRequestCallbackHandler(UiContext.getHttpRequest()));
+					new HttpRequestCallbackHandler(UiContext.getHttpRequest(), UiContext.getHttpResponse()));
 			loginContext.login();
 		} catch (LoginException e) {
 			try {

@@ -6,6 +6,7 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Callback handler populating {@link HttpRequestCallback}s with the provided
@@ -13,17 +14,20 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class HttpRequestCallbackHandler implements CallbackHandler {
 	final private HttpServletRequest request;
+	final private HttpServletResponse response;
 
-	public HttpRequestCallbackHandler(HttpServletRequest request) {
+	public HttpRequestCallbackHandler(HttpServletRequest request, HttpServletResponse response) {
 		this.request = request;
+		this.response = response;
 	}
 
 	@Override
-	public void handle(Callback[] callbacks) throws IOException,
-			UnsupportedCallbackException {
+	public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
 		for (Callback callback : callbacks)
-			if (callback instanceof HttpRequestCallback)
+			if (callback instanceof HttpRequestCallback) {
 				((HttpRequestCallback) callback).setRequest(request);
+				((HttpRequestCallback) callback).setResponse(response);
+			}
 	}
 
 }
