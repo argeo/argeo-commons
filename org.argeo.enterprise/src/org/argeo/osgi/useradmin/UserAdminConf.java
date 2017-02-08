@@ -123,7 +123,7 @@ public enum UserAdminConf {
 			Hashtable<String, Object> res = new Hashtable<String, Object>();
 			URI u = new URI(uriStr);
 			String scheme = u.getScheme();
-			if (scheme.equals("ipa")) {
+			if (scheme != null && scheme.equals("ipa")) {
 				u = convertIpaConfig(u);
 				scheme = u.getScheme();
 			}
