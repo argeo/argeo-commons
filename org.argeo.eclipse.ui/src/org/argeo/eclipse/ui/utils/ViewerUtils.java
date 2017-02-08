@@ -24,8 +24,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TreeColumn;
 
 /**
- * Centralizes useful methods to manage Jface Table, Tree and TreeColumn
- * viewers.
+ * Centralise useful methods to manage JFace Table, Tree and TreeColumn viewers.
  */
 public class ViewerUtils {
 
@@ -33,8 +32,7 @@ public class ViewerUtils {
 	 * Creates a basic column for the given table. For the time being, we do not
 	 * support movable columns.
 	 */
-	public static TableColumn createColumn(Table parent, String name,
-			int style, int width) {
+	public static TableColumn createColumn(Table parent, String name, int style, int width) {
 		TableColumn result = new TableColumn(parent, style);
 		result.setText(name);
 		result.setWidth(width);
@@ -46,8 +44,7 @@ public class ViewerUtils {
 	 * Creates a TableViewerColumn for the given viewer. For the time being, we
 	 * do not support movable columns.
 	 */
-	public static TableViewerColumn createTableViewerColumn(TableViewer parent,
-			String name, int style, int width) {
+	public static TableViewerColumn createTableViewerColumn(TableViewer parent, String name, int style, int width) {
 		TableViewerColumn tvc = new TableViewerColumn(parent, style);
 		TableColumn column = tvc.getColumn();
 		column.setText(name);
@@ -60,8 +57,7 @@ public class ViewerUtils {
 	 * Creates a TreeViewerColumn for the given viewer. For the time being, we
 	 * do not support movable columns.
 	 */
-	public static TreeViewerColumn createTreeViewerColumn(TreeViewer parent,
-			String name, int style, int width) {
+	public static TreeViewerColumn createTreeViewerColumn(TreeViewer parent, String name, int style, int width) {
 		TreeViewerColumn tvc = new TreeViewerColumn(parent, style);
 		TreeColumn column = tvc.getColumn();
 		column.setText(name);

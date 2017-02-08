@@ -61,12 +61,12 @@ public class DeleteNodes extends AbstractHandler {
 			SingleJcrNodeElem sjn = ((SingleJcrNodeElem) lst.next());
 			buf.append(sjn.getName()).append(' ');
 		}
-		Boolean ok = MessageDialog.openConfirm(
+		Boolean doRemove = MessageDialog.openConfirm(
 				HandlerUtil.getActiveShell(event), "Confirm deletion",
 				"Do you want to delete " + buf + "?");
 
 		// operation
-		if (ok) {
+		if (doRemove) {
 			Iterator<?> it = ((IStructuredSelection) selection).iterator();
 			Object obj = null;
 			SingleJcrNodeElem ancestor = null;

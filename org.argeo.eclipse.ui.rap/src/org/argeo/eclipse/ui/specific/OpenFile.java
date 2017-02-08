@@ -17,6 +17,7 @@ package org.argeo.eclipse.ui.specific;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.utils.SingleSourcingConstants;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -46,6 +47,7 @@ public class OpenFile extends AbstractHandler {
 	public final static String ID = SingleSourcingConstants.OPEN_FILE_CMD_ID;
 	public final static String PARAM_FILE_NAME = SingleSourcingConstants.PARAM_FILE_NAME;
 	public final static String PARAM_FILE_URI = SingleSourcingConstants.PARAM_FILE_URI;;
+	
 	/* DEPENDENCY INJECTION */
 	private String openFileServiceId;
 
@@ -63,23 +65,16 @@ public class OpenFile extends AbstractHandler {
 	}
 
 	public Object execute(String openFileServiceId, String fileUri, String fileName) {
-		// // Sanity check
-		// if (fileUri == null || "".equals(fileUri.trim())
-		// || openFileServiceId == null
-		// || "".equals(openFileServiceId.trim()))
-		// return null;
-
 		StringBuilder url = new StringBuilder();
 		url.append(RWT.getServiceManager().getServiceHandlerUrl(openFileServiceId));
 
-		url.append("&").append(SingleSourcingConstants.PARAM_FILE_NAME).append("=");
-		url.append(fileName);
-		url.append("&").append(SingleSourcingConstants.PARAM_FILE_URI).append("=");
-		url.append(fileUri);
+		if (EclipseUiUtils.notEmpty(fileName))
+			url.append("&").append(SingleSourcingConstants.PARAM_FILE_NAME).append("=").append(fileName);
+		url.append("&").append(SingleSourcingConstants.PARAM_FILE_URI).append("=").append(fileUri);
 
 		String downloadUrl = url.toString();
 		if (log.isTraceEnabled())
-			log.debug("URL : " + downloadUrl);
+			log.trace("Calling OpenFileService with ID: " + openFileServiceId + " , with download URL: " + downloadUrl);
 
 		UrlLauncher launcher = RWT.getClient().getService(UrlLauncher.class);
 		launcher.openURL(downloadUrl);

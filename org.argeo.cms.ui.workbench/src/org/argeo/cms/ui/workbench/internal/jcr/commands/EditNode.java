@@ -29,9 +29,9 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-/** Generic command to open a path in an editor. */
+/** Generic command to open a Node in an editor. */
 public class EditNode extends AbstractHandler {
-	public final static String EDITOR_PARAM = "editor";
+	public final static String PARAM_EDITOR_ID = "editor";
 
 	private String defaultEditorId;
 
@@ -39,18 +39,16 @@ public class EditNode extends AbstractHandler {
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		String path = event.getParameter(Property.JCR_PATH);
-
 		String type = event.getParameter(NodeType.NT_NODE_TYPE);
 		if (type == null)
 			type = NodeType.NT_UNSTRUCTURED;
 
-		String editorId = event.getParameter(NodeType.NT_NODE_TYPE);
+		String editorId = event.getParameter(PARAM_EDITOR_ID);
 		if (editorId == null)
 			editorId = nodeTypeToEditor.containsKey(type) ? nodeTypeToEditor
 					.get(type) : defaultEditorId;
 
 		NodeEditorInput nei = new NodeEditorInput(path);
-
 		try {
 			HandlerUtil.getActiveWorkbenchWindow(event).getActivePage()
 					.openEditor(nei, editorId);

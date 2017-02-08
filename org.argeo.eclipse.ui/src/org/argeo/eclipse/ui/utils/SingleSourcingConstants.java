@@ -2,7 +2,7 @@ package org.argeo.eclipse.ui.utils;
 
 /**
  * Centralise constants that are used in both RAP and RCP specific code to avoid
- * dupplicated declaration
+ * duplicated declaration
  */
 public interface SingleSourcingConstants {
 

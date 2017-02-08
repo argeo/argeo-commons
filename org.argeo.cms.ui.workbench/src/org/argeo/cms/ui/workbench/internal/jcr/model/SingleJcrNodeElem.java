@@ -26,18 +26,13 @@ import org.argeo.eclipse.ui.TreeParent;
 /**
  * UI Tree component. Wraps a node of a JCR {@link Workspace}. It also keeps a
  * reference to its parent node that can either be a {@link WorkspaceElem}, a
- * {@link SingleJcrNodeElem} or null if the node is "mounted" as the root of the UI
- * tree.
+ * {@link SingleJcrNodeElem} or null if the node is "mounted" as the root of the
+ * UI tree.
  */
-
 public class SingleJcrNodeElem extends TreeParent {
 
 	private final Node node;
 	private String alias = null;
-
-	// keeps a local reference to the node's name to avoid exception when the
-	// session is lost
-	// private final String name;
 
 	/** Creates a new UiNode in the UI Tree */
 	public SingleJcrNodeElem(TreeParent parent, Node node, String name) {
@@ -58,7 +53,7 @@ public class SingleJcrNodeElem extends TreeParent {
 		this.alias = alias;
 	}
 
-	/** returns the node wrapped by the current Ui object */
+	/** Returns the node wrapped by the current UI object */
 	public Node getNode() {
 		return node;
 	}
@@ -68,7 +63,8 @@ public class SingleJcrNodeElem extends TreeParent {
 	}
 
 	/**
-	 * Override normal behavior to initialize children only when first requested
+	 * Overrides normal behaviour to initialise children only when first
+	 * requested
 	 */
 	@Override
 	public synchronized Object[] getChildren() {
@@ -84,9 +80,7 @@ public class SingleJcrNodeElem extends TreeParent {
 				}
 				return super.getChildren();
 			} catch (RepositoryException re) {
-				throw new EclipseUiException(
-						"Unexcpected error while initializing children SingleJcrNode",
-						re);
+				throw new EclipseUiException("Cannot initialize SingleJcrNode children", re);
 			}
 		}
 	}
@@ -99,10 +93,7 @@ public class SingleJcrNodeElem extends TreeParent {
 			else
 				return false;
 		} catch (RepositoryException re) {
-			throw new EclipseUiException(
-					"Unexpected error while checking children node existence",
-					re);
+			throw new EclipseUiException("Cannot check children node existence", re);
 		}
 	}
-
 }

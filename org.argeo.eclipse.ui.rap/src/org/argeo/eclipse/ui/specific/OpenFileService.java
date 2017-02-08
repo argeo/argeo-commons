@@ -16,7 +16,6 @@
 package org.argeo.eclipse.ui.specific;
 
 import static org.argeo.eclipse.ui.utils.SingleSourcingConstants.FILE_SCHEME;
-import static org.argeo.eclipse.ui.utils.SingleSourcingConstants.JCR_SCHEME;
 import static org.argeo.eclipse.ui.utils.SingleSourcingConstants.SCHEME_HOST_SEPARATOR;
 
 import java.io.IOException;
@@ -47,9 +46,14 @@ public class OpenFileService implements ServiceHandler {
 		String fileName = request.getParameter(SingleSourcingConstants.PARAM_FILE_NAME);
 		String uri = request.getParameter(SingleSourcingConstants.PARAM_FILE_URI);
 
+		// Use buffered array to directly write the stream?
+		if (!uri.startsWith(SingleSourcingConstants.FILE_SCHEME))
+			throw new IllegalArgumentException(
+					"Open file service can only handle files that are on the server file system");
+
 		// Set the Metadata
 		response.setContentLength((int) getFileSize(uri));
-		if (fileName == null || "".equals(fileName.trim()))
+		if (EclipseUiUtils.isEmpty(fileName))
 			fileName = getFileName(uri);
 		response.setContentType(getMimeType(uri, fileName));
 		String contentDisposition = "attachment; filename=\"" + fileName + "\"";
@@ -60,31 +64,14 @@ public class OpenFileService implements ServiceHandler {
 		// response.setHeader("Pragma", "no-cache");
 		// response.setHeader("Cache-Control", "no-cache, must-revalidate");
 
-		// Use buffered array to directly write the stream?
-		response.getOutputStream().write(getFileAsByteArray(uri));
-	}
+		Path path = Paths.get(getAbsPathFromUri(uri));
+		Files.copy(path, response.getOutputStream());
 
-	/**
-	 * Retrieves the data as Byte Array given an uri.
-	 * 
-	 * Overwrite to provide application specific behaviours, like opening from a
-	 * JCR repository
-	 */
-	protected byte[] getFileAsByteArray(String uri) {
-		try {
-			if (uri.startsWith(SingleSourcingConstants.FILE_SCHEME)) {
-				Path path = Paths.get(getAbsPathFromUri(uri));
-				return Files.readAllBytes(path);
-			}
-			// else if (uri.startsWith(JCR_SCHEME)) {
-			// String absPath = Paths.get(getAbsPathFromUri(uri));
-			// return Files.readAllBytes(path);
-			// }
-
-		} catch (IOException ioe) {
-			throw new SingleSourcingException("Error getting the file at " + uri, ioe);
-		}
-		return null;
+		// FIXME we always use temporary files for the time being.
+		// the deleteOnClose file only works when the JVM is closed so we
+		// explicitly delete to avoid overloading the server
+		if (path.startsWith("/tmp"))
+			path.toFile().delete();
 	}
 
 	protected long getFileSize(String uri) throws IOException {
@@ -106,10 +93,10 @@ public class OpenFileService implements ServiceHandler {
 	private String getAbsPathFromUri(String uri) {
 		if (uri.startsWith(FILE_SCHEME))
 			return uri.substring((FILE_SCHEME + SCHEME_HOST_SEPARATOR).length());
-		else if (uri.startsWith(JCR_SCHEME))
-			return uri.substring((JCR_SCHEME + SCHEME_HOST_SEPARATOR).length());
+		// else if (uri.startsWith(JCR_SCHEME))
+		// return uri.substring((JCR_SCHEME + SCHEME_HOST_SEPARATOR).length());
 		else
-			throw new SingleSourcingException("Unknown URI prefix for" + uri);
+			throw new IllegalArgumentException("Unknown URI prefix for" + uri);
 	}
 
 	protected String getMimeType(String uri, String fileName) throws IOException {
@@ -119,11 +106,6 @@ public class OpenFileService implements ServiceHandler {
 			if (EclipseUiUtils.notEmpty(mimeType))
 				return mimeType;
 		}
-		return getMimeTypeFromName(fileName);
-	}
-
-	/** Overwrite to precise the content type */
-	protected String getMimeTypeFromName(String fileName) {
 		return "application/octet-stream";
 	}
 }
