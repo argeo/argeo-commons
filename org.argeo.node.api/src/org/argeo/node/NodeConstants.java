@@ -91,7 +91,7 @@ public interface NodeConstants {
 	String NODE_SERVICE = NODE;
 
 	/*
-	 * FRAMEWORK PROPERTIES
+	 * FIRST INIT FRAMEWORK PROPERTIES
 	 */
 	String NODE_INIT = "argeo.node.init";
 	String I18N_DEFAULT_LOCALE = "argeo.i18n.defaultLocale";
@@ -103,32 +103,7 @@ public interface NodeConstants {
 	// Node
 	/** Properties configuring the node repository */
 	String NODE_REPO_PROP_PREFIX = "argeo.node.repo.";
-
-	/*
-	 * LEGACY
-	 */
-	// @Deprecated
-	// String ARGEO_BASE_PATH = "/argeo:system";
-	// @Deprecated
-	// String PEOPLE_BASE_PATH = NodeConstants.ARGEO_BASE_PATH +
-	// "/argeo:people";
-	// @Deprecated
-	// String DATA_MODELS_BASE_PATH = NodeConstants.ARGEO_BASE_PATH +
-	// "/argeo:dataModels";
-	// @Deprecated
-	// String ALIAS_HOME = "home";
-	// standard aliases
-	/**
-	 * Reserved alias for the "node" {@link Repository}, that is, the default
-	 * JCR repository.
-	 */
-	// @Deprecated
-	// String ALIAS_NODE = "node";
-	/** Key for a JCR repository URI */
-	// @Deprecated
-	// String JCR_REPOSITORY_URI = "argeo.jcr.repository.uri";
-	// parameters (typically for call to a RepositoryFactory)
-	/** Key for a JCR repository alias */
-	// @Deprecated
-	// String JCR_REPOSITORY_ALIAS = "argeo.jcr.repository.alias";
+	// HTTP
+	String HTTP_PORT = "org.osgi.service.http.port";
+	String HTTP_PORT_SECURE = "org.osgi.service.http.port.secure";
 }
