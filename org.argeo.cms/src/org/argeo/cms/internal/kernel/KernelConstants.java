@@ -9,11 +9,12 @@ public interface KernelConstants {
 	String DIR_NODE = "node";
 	String DIR_REPOS = "repos";
 	String DIR_TRANSACTIONS = "transactions";
-	String DIR_PKI = "pki";
-	String DIR_PKI_PRIVATE = DIR_PKI + "/private";
+	// String DIR_PKI = "pki";
+	// String DIR_PKI_PRIVATE = DIR_PKI + "/private";
 
 	// Files
-	String DEPLOY_CONFIG_PATH = KernelConstants.DIR_NODE + '/' + NodeConstants.DEPLOY_BASEDN + ".ldif";
+	String DEPLOY_CONFIG_PATH = DIR_NODE + '/' + NodeConstants.DEPLOY_BASEDN + ".ldif";
+	String DEFAULT_KEYSTORE_PATH = DIR_NODE + '/' + NodeConstants.NODE + ".p12";
 
 	// Security
 	// String DEFAULT_SECURITY_KEY = "argeo";

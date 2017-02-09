@@ -5,11 +5,18 @@ import static org.argeo.cms.internal.kernel.KernelUtils.getFrameworkProp;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.KeyStore;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+
+import javax.security.auth.x500.X500Principal;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
@@ -48,7 +55,8 @@ class FirstInit {
 		String httpPort = getFrameworkProp("org.osgi.service.http.port");
 		String httpsPort = getFrameworkProp("org.osgi.service.http.port.secure");
 		/// TODO make it more generic
-		String httpHost = getFrameworkProp("org.eclipse.equinox.http.jetty.http.host");
+		String httpHost = getFrameworkProp(JettyConstants.PROPERTY_PREFIX + '.' + JettyConstants.HTTP_HOST);
+		String httpsHost = getFrameworkProp(JettyConstants.PROPERTY_PREFIX + '.' + JettyConstants.HTTPS_HOST);
 
 		final Hashtable<String, Object> props = new Hashtable<String, Object>();
 		// try {
@@ -60,16 +68,23 @@ class FirstInit {
 			if (httpsPort != null) {
 				props.put(JettyConstants.HTTPS_PORT, httpsPort);
 				props.put(JettyConstants.HTTPS_ENABLED, true);
+				Path keyStorePath = KernelUtils.getOsgiInstancePath(KernelConstants.DEFAULT_KEYSTORE_PATH);
+				String keyStorePassword = getFrameworkProp(
+						JettyConstants.PROPERTY_PREFIX + '.' + JettyConstants.SSL_PASSWORD);
+				if (keyStorePassword == null)
+					keyStorePassword = "changeit";
+				if (!Files.exists(keyStorePath))
+					createSelfSignedKeyStore(keyStorePath);
 				props.put(JettyConstants.SSL_KEYSTORETYPE, "PKCS12");
-				props.put(JettyConstants.SSL_KEYSTORE, "../../ssl/server.p12");
-				// jettyProps.put(JettyConstants.SSL_KEYSTORE,
-				// nodeSecurity.getHttpServerKeyStore().getCanonicalPath());
-				props.put(JettyConstants.SSL_PASSWORD, "changeit");
+				props.put(JettyConstants.SSL_KEYSTORE, keyStorePath.toString());
+				props.put(JettyConstants.SSL_PASSWORD, keyStorePassword);
 				props.put(JettyConstants.SSL_WANTCLIENTAUTH, true);
 			}
-			if (httpHost != null) {
+			if (httpHost != null)
 				props.put(JettyConstants.HTTP_HOST, httpHost);
-			}
+			if (httpsHost != null)
+				props.put(JettyConstants.HTTPS_HOST, httpHost);
+
 			props.put(NodeConstants.CN, NodeConstants.DEFAULT);
 		}
 		return props;
@@ -183,6 +198,32 @@ class FirstInit {
 			} catch (IOException e) {
 				throw new CmsException("Cannot initialize from " + initDir, e);
 			}
+	}
+
+	private void createSelfSignedKeyStore(Path keyStorePath) {
+		// for (Provider provider : Security.getProviders())
+		// System.out.println(provider.getName());
+		File keyStoreFile = keyStorePath.toFile();
+		char[] ksPwd = "changeit".toCharArray();
+		char[] keyPwd = Arrays.copyOf(ksPwd, ksPwd.length);
+		if (!keyStoreFile.exists()) {
+			try {
+				keyStoreFile.getParentFile().mkdirs();
+				KeyStore keyStore = PkiUtils.getKeyStore(keyStoreFile, ksPwd);
+				PkiUtils.generateSelfSignedCertificate(keyStore,
+						new X500Principal("CN=" + InetAddress.getLocalHost().getHostName() + ",OU=UNSECURE,O=UNSECURE"),
+						1024, keyPwd);
+				PkiUtils.saveKeyStore(keyStoreFile, ksPwd, keyStore);
+				if (log.isDebugEnabled())
+					log.debug("Created self-signed unsecure keystore " + keyStoreFile);
+			} catch (Exception e) {
+				if (keyStoreFile.length() == 0)
+					keyStoreFile.delete();
+				log.error("Cannot create keystore " + keyStoreFile, e);
+			}
+		} else {
+			throw new CmsException("Keystore " + keyStorePath + " already exists");
+		}
 	}
 
 }

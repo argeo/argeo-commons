@@ -1,6 +1,5 @@
 package org.argeo.cms.internal.kernel;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -61,7 +60,6 @@ class CmsSecurity implements KernelConstants {
 	private GSSCredential acceptorCredentials;
 
 	private Path nodeKeyTab = KernelUtils.getOsgiInstancePath("node/krb5.keytab");
-	private File keyStoreFile;
 
 	public CmsSecurity() {
 		if (!DeployConfig.isInitialized()) // first init
@@ -244,10 +242,6 @@ class CmsSecurity implements KernelConstants {
 		}
 
 		// Security.removeProvider(SECURITY_PROVIDER);
-	}
-
-	File getNodeKeyStore() {
-		return keyStoreFile;
 	}
 
 	public synchronized int getSecurityLevel() {
