@@ -317,6 +317,12 @@
 				</class> -->
 			</state>
 		</command>
+		<!-- Utility to provide sub menues when we don't want to define a default command for this menu -->
+		<command
+			id="org.argeo.cms.ui.workbench.doNothing"
+			defaultHandler="org.argeo.cms.ui.workbench.commands.DoNothing"
+			name="Open menu">
+		</command>    
 	</extension>
 	
 	<!-- MENU CONTRIBUTIONS -->
