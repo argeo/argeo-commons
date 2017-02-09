@@ -39,7 +39,7 @@
 			<param name="bundleCacheSize" value="${bundleCacheMB}" />
 		</PersistenceManager>
 		<SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
-			<param name="path" value="${wsp.home}/index" />
+			<param name="path" value="${indexesBase}/${cn}/${wsp.name}/index" />
 			<param name="extractorPoolSize" value="${extractorPoolSize}" />
 			<param name="cacheSize" value="${searchCacheSize}" />
 			<param name="maxVolatileIndexSize" value="${maxVolatileIndexSize}" />
@@ -67,7 +67,7 @@
 
 	<!-- Indexing -->
 	<SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
-		<param name="path" value="${rep.home}/index" />
+		<param name="path" value="${indexesBase}/${cn}/index" />
 		<param name="extractorPoolSize" value="${extractorPoolSize}" />
 		<param name="cacheSize" value="${searchCacheSize}" />
 		<param name="maxVolatileIndexSize" value="${maxVolatileIndexSize}" />

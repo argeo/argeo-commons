@@ -59,7 +59,7 @@ class CmsSecurity implements KernelConstants {
 	private String service = null;
 	private GSSCredential acceptorCredentials;
 
-	private Path nodeKeyTab = KernelUtils.getOsgiInstancePath("node/krb5.keytab");
+	private Path nodeKeyTab = KernelUtils.getOsgiInstancePath(KernelConstants.NODE_KEY_TAB_PATH);
 
 	public CmsSecurity() {
 		if (!DeployConfig.isInitialized()) // first init

@@ -7,8 +7,8 @@ public class CmsPaths {
 		return KernelUtils.getOsgiInstancePath(KernelConstants.DIR_REPOS + '/' + cn);
 	}
 
-	public static Path getRepoIndexBase() {
-		return KernelUtils.getOsgiInstancePath(KernelConstants.DIR_REPOS);
+	public static Path getRepoIndexesBase() {
+		return KernelUtils.getOsgiInstancePath(KernelConstants.DIR_INDEXES);
 	}
 
 	private CmsPaths() {

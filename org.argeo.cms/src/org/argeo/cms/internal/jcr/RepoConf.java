@@ -8,7 +8,7 @@ public enum RepoConf implements EnumAD {
 	/** Repository type */
 	type("localfs"),
 	/** Default workspace */
-	@Deprecated defaultWorkspace("main"),
+	defaultWorkspace("main"),
 	/** Database URL */
 	dburl(null),
 	/** Database user */
@@ -24,7 +24,7 @@ public enum RepoConf implements EnumAD {
 	/** Maximum database pool size */
 	maxPoolSize(10),
 	/** Maximum cache size in MB */
-	@Deprecated maxCacheMB(null),
+	maxCacheMB(null),
 	/** Bundle cache size in MB */
 	bundleCacheMB(8),
 	/** Extractor pool size */
@@ -34,7 +34,9 @@ public enum RepoConf implements EnumAD {
 	/** Max volatile index size */
 	maxVolatileIndexSize(1048576),
 	/** Cluster id (if appropriate configuration) */
-	clusterId("default");
+	clusterId("default"),
+	/** Indexes base path */
+	indexesBase(null);
 
 	/** The default value. */
 	private Object def;

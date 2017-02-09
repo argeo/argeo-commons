@@ -103,10 +103,8 @@ public class RepositoryBuilder {
 		homeDir.mkdirs();
 		// home cannot be overridden
 		props.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE, homePath.toString());
-		
-		Path indexBase = CmsPaths.getRepoIndexBase();
-		props.put("indexBase", indexBase.toString());
 
+		setProp(props, RepoConf.indexesBase, CmsPaths.getRepoIndexesBase().toString());
 		// common
 		setProp(props, RepoConf.defaultWorkspace);
 		setProp(props, RepoConf.maxPoolSize);

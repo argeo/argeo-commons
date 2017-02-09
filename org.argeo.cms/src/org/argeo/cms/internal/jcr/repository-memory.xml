@@ -15,7 +15,7 @@
 			<param name="bundleCacheSize" value="${bundleCacheMB}" />
 		</PersistenceManager>
 		<SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
-			<param name="path" value="${wsp.home}/index" />
+			<param name="path" value="${indexesBase}/${cn}/${wsp.name}/index" />
 			<param name="directoryManagerClass"
 				value="org.apache.jackrabbit.core.query.lucene.directory.RAMDirectoryManager" />
 			<param name="extractorPoolSize" value="${extractorPoolSize}" />
@@ -37,7 +37,7 @@
 
 	<!-- Indexing -->
 	<SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
-		<param name="path" value="${rep.home}/index" />
+		<param name="path" value="${indexesBase}/${cn}/index" />
 		<param name="directoryManagerClass"
 			value="org.apache.jackrabbit.core.query.lucene.directory.RAMDirectoryManager" />
 		<param name="extractorPoolSize" value="${extractorPoolSize}" />
