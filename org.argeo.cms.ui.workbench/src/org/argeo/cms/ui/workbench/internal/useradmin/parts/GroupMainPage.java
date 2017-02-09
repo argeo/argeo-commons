@@ -154,7 +154,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		// descTxt.setLayoutData(gd);
 
 		// create form part (controller)
-		AbstractFormPart part = new SectionPart((Section) body.getParent()) {
+		final AbstractFormPart part = new SectionPart((Section) body.getParent()) {
 
 			private MainInfoListener listener;
 
@@ -186,6 +186,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 					markAsWorkgroupLk.setText("<a>Mark as workgroup</a>");
 				else
 					markAsWorkgroupLk.setText(cn + " is already marked as being a workgroup");
+				parent.layout(true, true);
 				super.refresh();
 			}
 		};
@@ -222,6 +223,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 							session.save();
 							JcrUtils.addPrivilege(session, newHome.getPath(), group.getName(), Privilege.JCR_ALL);
 							session.save();
+							part.refresh();
 						} catch (RepositoryException e2) {
 							JcrUtils.discardQuietly(session);
 							throw new CmsException("Cannot check session state", e2);
@@ -238,9 +240,10 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 
 	// FIXME finalise and centralise Workgroup home path management
 	private String generateWorkgroupHomeRelPath(String cn) {
-		// Dirty management of space and special characters
-		String cleanedName = cn.replaceAll("[^a-zA-Z0-9]", "_");
-		return JcrUtils.firstCharsToPath(cleanedName, 2) + '/' + cleanedName;
+		// // Dirty management of space and special characters
+		// String cleanedName = cn.replaceAll("[^a-zA-Z0-9]", "_");
+		// return JcrUtils.firstCharsToPath(cleanedName, 2) + '/' + cleanedName;
+		return cn;
 	}
 
 	/** Filtered table with members. Has drag & drop ability */
