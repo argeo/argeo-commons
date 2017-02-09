@@ -23,9 +23,13 @@ public interface KernelConstants {
 	// Java
 	String JAAS_CONFIG_PROP = "java.security.auth.login.config";
 
+	// DEFAULTS JCR PATH
+	String DEFAULT_HOME_BASE_PATH = "/home";
+	String DEFAULT_GROUPS_BASE_PATH = "/groups";
+
 	// RWT / RAP
-	String PATH_WORKBENCH = "/ui";
-	String PATH_WORKBENCH_PUBLIC = PATH_WORKBENCH + "/public";
+	// String PATH_WORKBENCH = "/ui";
+	// String PATH_WORKBENCH_PUBLIC = PATH_WORKBENCH + "/public";
 
 	String JETTY_FACTORY_PID = "org.eclipse.equinox.http.jetty.config";
 	String WHITEBOARD_PATTERN_PROP = "osgi.http.whiteboard.servlet.pattern";

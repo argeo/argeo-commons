@@ -111,7 +111,7 @@ public class NodeUtils {
 	 *            a session with a different user ID than the one searched,
 	 *            typically when a system or admin session is used.
 	 * @param cn
-	 *            the username of the user
+	 *            the name of the group
 	 */
 	public static Node getGroupHome(Session session, String cn) {
 		try {
