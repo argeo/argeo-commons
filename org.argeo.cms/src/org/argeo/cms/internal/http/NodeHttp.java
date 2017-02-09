@@ -153,7 +153,7 @@ public class NodeHttp implements KernelConstants {
 	}
 
 	private String filesPath(String alias) {
-		return NodeConstants.PATH_FILES + "/" + alias;
+		return NodeConstants.PATH_FILES;
 	}
 
 	// private Subject subjectFromRequest(HttpServletRequest request,
