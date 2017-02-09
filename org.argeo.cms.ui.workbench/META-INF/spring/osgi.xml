@@ -19,6 +19,9 @@
 
 	<reference id="nodeRepository" interface="javax.jcr.Repository"
 		filter="(cn=home)" />
+		
+	<reference id="nodeInstance" interface="org.argeo.node.NodeInstance" />
+
 	<reference id="nodeFileSystemProvider" interface="java.nio.file.spi.FileSystemProvider"
 		filter="(service.pid=org.argeo.node.fsProvider)" />
 

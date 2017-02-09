@@ -17,6 +17,7 @@
 		scope="prototype">
 		<property name="userAdminWrapper" ref="userAdminWrapper" />
 		<property name="repository" ref="nodeRepository" />
+		<property name="nodeInstance" ref="nodeInstance" />
 	</bean>
 	
 	<!-- Views -->

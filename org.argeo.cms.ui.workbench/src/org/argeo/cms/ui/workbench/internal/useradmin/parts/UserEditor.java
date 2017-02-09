@@ -26,6 +26,7 @@ import org.argeo.cms.ui.workbench.internal.useradmin.UiUserAdminListener;
 import org.argeo.cms.ui.workbench.internal.useradmin.UserAdminWrapper;
 import org.argeo.cms.util.UserAdminUtils;
 import org.argeo.naming.LdapAttrs;
+import org.argeo.node.NodeInstance;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -53,8 +54,8 @@ public class UserEditor extends FormEditor {
 	private Repository repository;
 	private UserAdminWrapper userAdminWrapper;
 	private UserAdmin userAdmin;
+	private NodeInstance nodeInstance;
 
-	
 	// Context
 	private User user;
 	private String username;
@@ -110,7 +111,7 @@ public class UserEditor extends FormEditor {
 	protected void addPages() {
 		try {
 			if (user.getType() == Role.GROUP)
-				addPage(new GroupMainPage(this, userAdminWrapper, repository));
+				addPage(new GroupMainPage(this, userAdminWrapper, repository, nodeInstance));
 			else
 				addPage(new UserMainPage(this, userAdminWrapper));
 		} catch (Exception e) {
@@ -213,9 +214,13 @@ public class UserEditor extends FormEditor {
 	public void setUserAdminWrapper(UserAdminWrapper userAdminWrapper) {
 		this.userAdminWrapper = userAdminWrapper;
 	}
-	
+
 	public void setRepository(Repository repository) {
 		this.repository = repository;
 	}
-	
+
+	public void setNodeInstance(NodeInstance nodeInstance) {
+		this.nodeInstance = nodeInstance;
+	}
+
 }

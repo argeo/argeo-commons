@@ -23,8 +23,8 @@ import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.nodetype.NodeType;
-import javax.jcr.security.Privilege;
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
 import javax.transaction.UserTransaction;
 
 import org.argeo.cms.CmsException;
@@ -47,8 +47,7 @@ import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.naming.LdapAttrs;
 import org.argeo.node.ArgeoNames;
-import org.argeo.node.NodeNames;
-import org.argeo.node.NodeTypes;
+import org.argeo.node.NodeInstance;
 import org.argeo.node.NodeUtils;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
@@ -96,10 +95,12 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	final static String ID = "GroupEditor.mainPage";
 
 	private final UserEditor editor;
-	private UserAdminWrapper userAdminWrapper;
+	private final NodeInstance nodeInstance;
+	private final UserAdminWrapper userAdminWrapper;
 	private final Session session;
 
-	public GroupMainPage(FormEditor editor, UserAdminWrapper userAdminWrapper, Repository repository) {
+	public GroupMainPage(FormEditor editor, UserAdminWrapper userAdminWrapper, Repository repository,
+			NodeInstance nodeInstance) {
 		super(editor, ID, "Main");
 		try {
 			session = repository.login();
@@ -108,6 +109,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		}
 		this.editor = (UserEditor) editor;
 		this.userAdminWrapper = userAdminWrapper;
+		this.nodeInstance = nodeInstance;
 	}
 
 	protected void createFormContent(final IManagedForm mf) {
@@ -202,33 +204,15 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 				if (confirmed) {
 					Node workgroupHome = NodeUtils.getGroupHome(session, cn);
 					if (workgroupHome != null)
-						// already marked as workgroup, do nothing
-						return;
-					else {
-						// Insure the session is clean to enable rollback
+						return; // already marked as workgroup, do nothing
+					else
 						try {
-							if (session.hasPendingChanges())
-								MessageDialog.openError(getSite().getShell(), "Cannot create home group home",
-										"The current session is dirty. Please save and try again.");
-						} catch (RepositoryException e2) {
-							throw new CmsException("Cannot check session state", e2);
-						}
-						try {
-							// FIXME hardcoded base path
-							String relPath = generateWorkgroupHomeRelPath(cn);
-							Node newHome = JcrUtils.mkdirs(session.getNode("/groups"), relPath,
-									NodeType.NT_UNSTRUCTURED);
-							newHome.addMixin(NodeTypes.NODE_GROUP_HOME);
-							newHome.setProperty(NodeNames.LDAP_CN, cn);
-							session.save();
-							JcrUtils.addPrivilege(session, newHome.getPath(), group.getName(), Privilege.JCR_ALL);
-							session.save();
+							nodeInstance.createWorkgroup(new LdapName(group.getName()));
 							part.refresh();
-						} catch (RepositoryException e2) {
-							JcrUtils.discardQuietly(session);
-							throw new CmsException("Cannot check session state", e2);
+						} catch (InvalidNameException e1) {
+							throw new CmsException("Cannot create Workgroup for " + group.toString(), e1);
 						}
-					}
+
 				}
 			}
 		});
@@ -236,14 +220,6 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		// ModifyListener defaultListener = editor.new FormPartML(part);
 		// descTxt.addModifyListener(defaultListener);
 		getManagedForm().addPart(part);
-	}
-
-	// FIXME finalise and centralise Workgroup home path management
-	private String generateWorkgroupHomeRelPath(String cn) {
-		// // Dirty management of space and special characters
-		// String cleanedName = cn.replaceAll("[^a-zA-Z0-9]", "_");
-		// return JcrUtils.firstCharsToPath(cleanedName, 2) + '/' + cleanedName;
-		return cn;
 	}
 
 	/** Filtered table with members. Has drag & drop ability */
@@ -440,7 +416,6 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		@Override
 		public void drop(DropTargetEvent event) {
 			// TODO Is there an opportunity to perform the check before?
-
 			String newUserName = (String) event.data;
 			UserAdmin myUserAdmin = userAdminWrapper.getUserAdmin();
 			Role role = myUserAdmin.getRole(newUserName);
