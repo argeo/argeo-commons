@@ -8,6 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.RepositoryContext;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.internal.jcr.RepositoryBuilder;
 import org.argeo.node.NodeConstants;
 import org.argeo.util.LangUtils;
 import org.osgi.framework.BundleContext;

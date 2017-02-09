@@ -1,10 +1,10 @@
-package org.argeo.cms.internal.kernel;
+package org.argeo.cms.internal.jcr;
 
 import org.argeo.osgi.metatype.EnumAD;
 import org.argeo.osgi.metatype.EnumOCD;
 
 /** JCR repository configuration */
-enum RepoConf implements EnumAD {
+public enum RepoConf implements EnumAD {
 	/** Repository type */
 	type("localfs"),
 	/** Default workspace */

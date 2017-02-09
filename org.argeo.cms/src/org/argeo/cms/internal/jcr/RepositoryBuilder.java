@@ -1,4 +1,4 @@
-package org.argeo.cms.internal.kernel;
+package org.argeo.cms.internal.jcr;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,15 +24,16 @@ import org.apache.jackrabbit.core.cache.CacheManager;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.internal.kernel.CmsPaths;
 import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.node.NodeConstants;
 import org.xml.sax.InputSource;
 
 /** Can interpret properties in order to create an actual JCR repository. */
-class RepositoryBuilder {
+public class RepositoryBuilder {
 	private final static Log log = LogFactory.getLog(RepositoryBuilder.class);
 
-	RepositoryContext createRepositoryContext(Dictionary<String, ?> properties) throws RepositoryException {
+	public RepositoryContext createRepositoryContext(Dictionary<String, ?> properties) throws RepositoryException {
 		RepositoryConfig repositoryConfig = createRepositoryConfig(properties);
 		RepositoryContext repositoryContext = createJackrabbitRepository(repositoryConfig);
 		RepositoryImpl repository = repositoryContext.getRepository();
@@ -54,27 +55,8 @@ class RepositoryBuilder {
 		ClassLoader cl = getClass().getClassLoader();
 		InputStream in = null;
 		try {
-			final String base = "/org/argeo/cms/internal/kernel";
-//			switch (type) {
-//			case h2:
-//				in = cl.getResourceAsStream(base + "/repository-h2.xml");
-//				break;
-//			case postgresql:
-//				in = cl.getResourceAsStream(base + "/repository-postgresql.xml");
-//				break;
-//			case postgresql_ds:
-//				in = cl.getResourceAsStream(base + "/repository-postgresql-ds.xml");
-//				break;
-//			case memory:
-//				in = cl.getResourceAsStream(base + "/repository-memory.xml");
-//				break;
-//			case localfs:
-//				in = cl.getResourceAsStream(base + "/repository-localfs.xml");
-//				break;
-//			default:
-//				throw new ArgeoJcrException("Unsupported node type " + type);
-//			}
-			in = cl.getResourceAsStream(base + "/repository-"+type.name()+".xml");
+			final String base = "/org/argeo/cms/internal/jcr";
+			in = cl.getResourceAsStream(base + "/repository-" + type.name() + ".xml");
 
 			if (in == null)
 				throw new ArgeoJcrException("Repository configuration not found");
@@ -91,18 +73,7 @@ class RepositoryBuilder {
 		Properties props = new Properties();
 		for (Enumeration<String> keys = properties.keys(); keys.hasMoreElements();) {
 			String key = keys.nextElement();
-			// if (key.equals(ConfigurationAdmin.SERVICE_FACTORYPID) ||
-			// key.equals(Constants.SERVICE_PID)
-			// || key.equals(ArgeoJcrConstants.JCR_REPOSITORY_ALIAS))
-			// continue keys;
-			// try {
-			// String value = prop(properties, RepoConf.valueOf(key));
-			// if (value != null)
 			props.put(key, properties.get(key));
-			// } catch (IllegalArgumentException e) {
-			// // ignore non RepoConf
-			// // FIXME make it more flexible/extensible
-			// }
 		}
 
 		// home
@@ -111,7 +82,7 @@ class RepositoryBuilder {
 		if (homeUri == null) {
 			String cn = props.getProperty(NodeConstants.CN);
 			assert cn != null;
-			homePath = KernelUtils.getOsgiInstancePath(KernelConstants.DIR_REPOS + '/' + cn);
+			homePath = CmsPaths.getRepoDirPath(cn);
 		} else {
 			try {
 				homePath = Paths.get(new URI(homeUri)).toAbsolutePath();
@@ -132,6 +103,9 @@ class RepositoryBuilder {
 		homeDir.mkdirs();
 		// home cannot be overridden
 		props.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE, homePath.toString());
+		
+		Path indexBase = CmsPaths.getRepoIndexBase();
+		props.put("indexBase", indexBase.toString());
 
 		// common
 		setProp(props, RepoConf.defaultWorkspace);
