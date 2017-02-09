@@ -40,8 +40,8 @@ public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 			throw new FileSystemAlreadyExistsException("CMS file system already exists for user " + username);
 
 		try {
-			Repository repository = bc
-					.getService(bc.getServiceReferences(Repository.class, "(cn=node)").iterator().next());
+			Repository repository = bc.getService(
+					bc.getServiceReferences(Repository.class, "(cn=" + NodeConstants.HOME + ")").iterator().next());
 			Session session = repository.login();
 			JcrFileSystem fileSystem = new JcrFileSystem(this, session);
 			fileSystems.put(username, fileSystem);

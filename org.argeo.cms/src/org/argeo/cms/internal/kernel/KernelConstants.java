@@ -24,7 +24,7 @@ public interface KernelConstants {
 	// String LOGIN_CONTEXT_HARDENED_KERNEL = "HARDENED_KERNEL";
 
 	// DAV
-	String WEBDAV_CONFIG = "/org/argeo/cms/internal/kernel/webdav-config.xml";
+//	String WEBDAV_CONFIG = "/org/argeo/cms/internal/http/webdav-config.xml";
 	// String PATH_DATA = "/data";
 	// String WEBDAV_PUBLIC = PATH_DATA + "/public";
 	// String WEBDAV_PRIVATE = PATH_DATA + "/files";

@@ -1,0 +1,344 @@
+package org.argeo.cms.internal.http;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Properties;
+
+import javax.jcr.Repository;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.jackrabbit.server.SessionProvider;
+import org.apache.jackrabbit.server.remoting.davex.JcrRemotingServlet;
+import org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet;
+import org.argeo.cms.CmsException;
+import org.argeo.cms.internal.kernel.KernelConstants;
+import org.argeo.node.NodeConstants;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.http.HttpService;
+import org.osgi.service.http.NamespaceException;
+import org.osgi.util.tracker.ServiceTracker;
+
+/**
+ * Intercepts and enriches http access, mainly focusing on security and
+ * transactionality.
+ */
+public class NodeHttp implements KernelConstants {
+	private final static Log log = LogFactory.getLog(NodeHttp.class);
+
+	// Filters
+	// private final RootFilter rootFilter;
+
+	// private final DoSFilter dosFilter;
+	// private final QoSFilter qosFilter;
+
+	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
+
+	private ServiceTracker<Repository, Repository> repositories;
+	private final ServiceTracker<HttpService, HttpService> httpServiceTracker;
+
+	public NodeHttp() {
+		// rootFilter = new RootFilter();
+		// dosFilter = new CustomDosFilter();
+		// qosFilter = new QoSFilter();
+
+		httpServiceTracker = new PrepareHttpStc();
+		httpServiceTracker.open();
+	}
+
+	// class CustomDosFilter extends DoSFilter {
+	// @Override
+	// protected String extractUserId(ServletRequest request) {
+	// HttpSession httpSession = ((HttpServletRequest) request)
+	// .getSession();
+	// if (isSessionAuthenticated(httpSession)) {
+	// String userId = ((SecurityContext) httpSession
+	// .getAttribute(SPRING_SECURITY_CONTEXT_KEY))
+	// .getAuthentication().getName();
+	// return userId;
+	// }
+	// return super.extractUserId(request);
+	//
+	// }
+	// }
+
+	public void destroy() {
+		repositories.close();
+	}
+
+	void registerRepositoryServlets(HttpService httpService, String alias, Repository repository) {
+		if (httpService == null)
+			throw new CmsException("No HTTP service available");
+		try {
+			registerWebdavServlet(httpService, alias, repository);
+			registerRemotingServlet(httpService, alias, repository);
+			if (NodeConstants.HOME.equals(alias))
+				registerFilesServlet(httpService, alias, repository);
+			if (log.isDebugEnabled())
+				log.debug("Registered servlets for repository '" + alias + "'");
+		} catch (Exception e) {
+			throw new CmsException("Could not register servlets for repository '" + alias + "'", e);
+		}
+	}
+
+	void unregisterRepositoryServlets(HttpService httpService, String alias) {
+		if (httpService == null)
+			return;
+		try {
+			httpService.unregister(webdavPath(alias));
+			httpService.unregister(remotingPath(alias));
+			httpService.unregister(filesPath(alias));
+			if (log.isDebugEnabled())
+				log.debug("Unregistered servlets for repository '" + alias + "'");
+		} catch (Exception e) {
+			log.error("Could not unregister servlets for repository '" + alias + "'", e);
+		}
+	}
+
+	void registerWebdavServlet(HttpService httpService, String alias, Repository repository)
+			throws NamespaceException, ServletException {
+		// WebdavServlet webdavServlet = new WebdavServlet(repository, new
+		// OpenInViewSessionProvider(alias));
+		WebdavServlet webdavServlet = new WebdavServlet(repository, new CmsSessionProvider(alias));
+		String path = webdavPath(alias);
+		Properties ip = new Properties();
+		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_CONFIG, HttpUtils.WEBDAV_CONFIG);
+		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
+		httpService.registerServlet(path, webdavServlet, ip, new DataHttpContext());
+	}
+
+	void registerFilesServlet(HttpService httpService, String alias, Repository repository)
+			throws NamespaceException, ServletException {
+		WebdavServlet filesServlet = new WebdavServlet(repository, new CmsSessionProvider(alias));
+		String path = filesPath(alias);
+		Properties ip = new Properties();
+		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_CONFIG, HttpUtils.WEBDAV_CONFIG);
+		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
+		httpService.registerServlet(path, filesServlet, ip, new PrivateHttpContext());
+	}
+
+	void registerRemotingServlet(HttpService httpService, String alias, Repository repository)
+			throws NamespaceException, ServletException {
+		RemotingServlet remotingServlet = new RemotingServlet(repository, new CmsSessionProvider(alias));
+		String path = remotingPath(alias);
+		Properties ip = new Properties();
+		ip.setProperty(JcrRemotingServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
+
+		// Looks like a bug in Jackrabbit remoting init
+		Path tmpDir;
+		try {
+			tmpDir = Files.createTempDirectory("remoting_" + alias);
+		} catch (IOException e) {
+			throw new CmsException("Cannot create temp directory for remoting servlet", e);
+		}
+		ip.setProperty(RemotingServlet.INIT_PARAM_HOME, tmpDir.toString());
+		ip.setProperty(RemotingServlet.INIT_PARAM_TMP_DIRECTORY, "remoting_" + alias);
+		ip.setProperty(RemotingServlet.INIT_PARAM_PROTECTED_HANDLERS_CONFIG, HttpUtils.DEFAULT_PROTECTED_HANDLERS);
+		ip.setProperty(RemotingServlet.INIT_PARAM_CREATE_ABSOLUTE_URI, "false");
+		httpService.registerServlet(path, remotingServlet, ip, new PrivateHttpContext());
+	}
+
+	private String webdavPath(String alias) {
+		return NodeConstants.PATH_DATA + "/" + alias;
+	}
+
+	private String remotingPath(String alias) {
+		return NodeConstants.PATH_JCR + "/" + alias;
+	}
+
+	private String filesPath(String alias) {
+		return NodeConstants.PATH_FILES + "/" + alias;
+	}
+
+	// private Subject subjectFromRequest(HttpServletRequest request,
+	// HttpServletResponse response) {
+	// Authorization authorization = (Authorization)
+	// request.getAttribute(HttpContext.AUTHORIZATION);
+	// if (authorization == null)
+	// throw new CmsException("Not authenticated");
+	// try {
+	// LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
+	// new HttpRequestCallbackHandler(request, response));
+	// lc.login();
+	// return lc.getSubject();
+	// } catch (LoginException e) {
+	// throw new CmsException("Cannot login", e);
+	// }
+	// }
+
+	private class RepositoriesStc extends ServiceTracker<Repository, Repository> {
+		private final HttpService httpService;
+
+		public RepositoriesStc(HttpService httpService) {
+			super(bc, Repository.class, null);
+			this.httpService = httpService;
+		}
+
+		@Override
+		public Repository addingService(ServiceReference<Repository> reference) {
+			Repository repository = bc.getService(reference);
+			Object jcrRepoAlias = reference.getProperty(NodeConstants.CN);
+			if (jcrRepoAlias != null) {
+				String alias = jcrRepoAlias.toString();
+				registerRepositoryServlets(httpService, alias, repository);
+			}
+			return repository;
+		}
+
+		@Override
+		public void modifiedService(ServiceReference<Repository> reference, Repository service) {
+		}
+
+		@Override
+		public void removedService(ServiceReference<Repository> reference, Repository service) {
+			Object jcrRepoAlias = reference.getProperty(NodeConstants.CN);
+			if (jcrRepoAlias != null) {
+				String alias = jcrRepoAlias.toString();
+				unregisterRepositoryServlets(httpService, alias);
+			}
+		}
+	}
+
+	private class PrepareHttpStc extends ServiceTracker<HttpService, HttpService> {
+		// private DataHttp dataHttp;
+		// private NodeHttp nodeHttp;
+
+		public PrepareHttpStc() {
+			super(bc, HttpService.class, null);
+		}
+
+		@Override
+		public HttpService addingService(ServiceReference<HttpService> reference) {
+			HttpService httpService = addHttpService(reference);
+			return httpService;
+		}
+
+		@Override
+		public void removedService(ServiceReference<HttpService> reference, HttpService service) {
+			// if (dataHttp != null)
+			// dataHttp.destroy();
+			// dataHttp = null;
+			// if (nodeHttp != null)
+			// nodeHttp.destroy();
+			// nodeHttp = null;
+			// destroy();
+			repositories.close();
+			repositories = null;
+		}
+
+		private HttpService addHttpService(ServiceReference<HttpService> sr) {
+			HttpService httpService = bc.getService(sr);
+			// TODO find constants
+			Object httpPort = sr.getProperty("http.port");
+			Object httpsPort = sr.getProperty("https.port");
+
+			try {
+				httpService.registerServlet("/!", new LinkServlet(), null, null);
+				httpService.registerServlet("/robots.txt", new RobotServlet(), null, null);
+			} catch (Exception e) {
+				throw new CmsException("Cannot register filters", e);
+			}
+			// track repositories
+			if (repositories != null)
+				throw new CmsException("An http service is already configured");
+			repositories = new RepositoriesStc(httpService);
+			repositories.open();
+			log.info(httpPortsMsg(httpPort, httpsPort));
+			// httpAvailable = true;
+			// checkReadiness();
+
+			bc.registerService(NodeHttp.class, NodeHttp.this, null);
+			return httpService;
+		}
+
+		private String httpPortsMsg(Object httpPort, Object httpsPort) {
+			return "HTTP " + httpPort + (httpsPort != null ? " - HTTPS " + httpsPort : "");
+		}
+	}
+
+	private class WebdavServlet extends SimpleWebdavServlet {
+		private static final long serialVersionUID = -4687354117811443881L;
+		private final Repository repository;
+
+		public WebdavServlet(Repository repository, SessionProvider sessionProvider) {
+			this.repository = repository;
+			setSessionProvider(sessionProvider);
+		}
+
+		public Repository getRepository() {
+			return repository;
+		}
+
+		@Override
+		protected void service(final HttpServletRequest request, final HttpServletResponse response)
+				throws ServletException, IOException {
+			WebdavServlet.super.service(request, response);
+			// try {
+			// Subject subject = subjectFromRequest(request);
+			// // TODO make it stronger, with eTags.
+			// // if (CurrentUser.isAnonymous(subject) &&
+			// // request.getMethod().equals("GET")) {
+			// // response.setHeader("Cache-Control", "no-transform, public,
+			// // max-age=300, s-maxage=900");
+			// // }
+			//
+			// Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
+			// @Override
+			// public Void run() throws Exception {
+			// WebdavServlet.super.service(request, response);
+			// return null;
+			// }
+			// });
+			// } catch (PrivilegedActionException e) {
+			// throw new CmsException("Cannot process webdav request",
+			// e.getException());
+			// }
+		}
+	}
+
+	private class RemotingServlet extends JcrRemotingServlet {
+		private static final long serialVersionUID = 4605238259548058883L;
+		private final Repository repository;
+		private final SessionProvider sessionProvider;
+
+		public RemotingServlet(Repository repository, SessionProvider sessionProvider) {
+			this.repository = repository;
+			this.sessionProvider = sessionProvider;
+		}
+
+		@Override
+		protected Repository getRepository() {
+			return repository;
+		}
+
+		@Override
+		protected SessionProvider getSessionProvider() {
+			return sessionProvider;
+		}
+
+		@Override
+		protected void service(final HttpServletRequest request, final HttpServletResponse response)
+				throws ServletException, IOException {
+			// try {
+			// Subject subject = subjectFromRequest(request, response);
+			// Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
+			// @Override
+			// public Void run() throws Exception {
+			RemotingServlet.super.service(request, response);
+			// return null;
+			// }
+			// });
+			// } catch (PrivilegedActionException e) {
+			// throw new CmsException("Cannot process JCR remoting request",
+			// e.getException());
+			// }
+		}
+	}
+
+}

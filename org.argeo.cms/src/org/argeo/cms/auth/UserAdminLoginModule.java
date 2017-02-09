@@ -71,11 +71,12 @@ public class UserAdminLoginModule implements LoginModule {
 
 		final String username;
 		final char[] password;
-		if (sharedState.containsKey(CmsAuthUtils.SHARED_STATE_NAME)
+		if (callbackHandler == null && sharedState.containsKey(CmsAuthUtils.SHARED_STATE_NAME)
 				&& sharedState.containsKey(CmsAuthUtils.SHARED_STATE_PWD)) {
 			username = (String) sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
 			password = (char[]) sharedState.get(CmsAuthUtils.SHARED_STATE_PWD);
 			// TODO locale?
+			// NB: raw user name is used
 			AuthenticatingUser authenticatingUser = new AuthenticatingUser(username, password);
 			authorization = userAdmin.getAuthorization(authenticatingUser);
 		} else {

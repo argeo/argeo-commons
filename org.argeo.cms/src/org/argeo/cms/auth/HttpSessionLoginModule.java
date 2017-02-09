@@ -72,15 +72,15 @@ public class HttpSessionLoginModule implements LoginModule {
 			// authorization = (Authorization)
 			// request.getSession().getAttribute(HttpContext.AUTHORIZATION);
 			// if (authorization == null) {
-			Collection<ServiceReference<WebCmsSession>> sr;
+			Collection<ServiceReference<CmsSession>> sr;
 			try {
-				sr = bc.getServiceReferences(WebCmsSession.class,
-						"(" + WebCmsSession.CMS_SESSION_ID + "=" + httpSessionId + ")");
+				sr = bc.getServiceReferences(CmsSession.class,
+						"(" + CmsSession.SESSION_LOCAL_ID + "=" + httpSessionId + ")");
 			} catch (InvalidSyntaxException e) {
 				throw new CmsException("Cannot get CMS session for id " + httpSessionId, e);
 			}
 			if (sr.size() == 1) {
-				WebCmsSession cmsSession = bc.getService(sr.iterator().next());
+				CmsSession cmsSession = bc.getService(sr.iterator().next());
 				authorization = cmsSession.getAuthorization();
 				if (log.isTraceEnabled())
 					log.trace("Retrieved authorization from " + cmsSession);

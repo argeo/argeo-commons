@@ -3,6 +3,7 @@ package org.argeo.cms.auth;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
@@ -17,8 +18,9 @@ import org.apache.commons.logging.LogFactory;
 //import org.apache.jackrabbit.core.security.SecurityConstants;
 //import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
-import org.argeo.cms.internal.kernel.WebCmsSessionImpl;
+import org.argeo.cms.internal.http.WebCmsSessionImpl;
 import org.argeo.node.security.AnonymousPrincipal;
 import org.argeo.node.security.DataAdminPrincipal;
 import org.argeo.node.security.NodeSecurityUtils;
@@ -121,78 +123,92 @@ class CmsAuthUtils {
 
 	static void registerSessionAuthorization(BundleContext bc, HttpServletRequest request, Subject subject,
 			Authorization authorization) {
-		String httpSessId = request.getSession().getId();
+		HttpSession httpSession = request.getSession();
+		String httpSessId = httpSession.getId();
 		if (authorization.getName() != null) {
 			request.setAttribute(HttpContext.REMOTE_USER, authorization.getName());
 			request.setAttribute(HttpContext.AUTHORIZATION, authorization);
 
-			HttpSession httpSession = request.getSession();
-			if (httpSession.getAttribute(HttpContext.AUTHORIZATION) == null) {
+			CmsSession cmsSession = CmsSessionImpl.getByLocalId(httpSessId);
+			if (cmsSession == null)
+				cmsSession = new WebCmsSessionImpl(subject, authorization, httpSessId);
+			request.setAttribute(CmsSession.class.getName(), cmsSession);
+			// else
+			// throw new CmsException("Already a CMS session registered for
+			// "+httpSessId);
 
-				Collection<ServiceReference<WebCmsSession>> sr;
-				try {
-					sr = bc.getServiceReferences(WebCmsSession.class,
-							"(" + WebCmsSession.CMS_SESSION_ID + "=" + httpSessId + ")");
-				} catch (InvalidSyntaxException e) {
-					throw new CmsException("Cannot get CMS session for id " + httpSessId, e);
-				}
-				ServiceReference<WebCmsSession> cmsSessionRef;
-				if (sr.size() == 1) {
-					cmsSessionRef = sr.iterator().next();
-				} else if (sr.size() == 0) {
-					WebCmsSessionImpl cmsSessionImpl = new WebCmsSessionImpl(httpSessId, authorization);
-					cmsSessionRef = cmsSessionImpl.getServiceRegistration().getReference();
-					if (log.isDebugEnabled())
-						log.debug("Initialized " + cmsSessionImpl + " for " + authorization.getName());
-				} else
-					throw new CmsException(sr.size() + " CMS sessions registered for " + httpSessId);
+			// if (httpSession.getAttribute(HttpContext.AUTHORIZATION) == null)
+			// {
 
-				WebCmsSessionImpl cmsSession = (WebCmsSessionImpl) bc.getService(cmsSessionRef);
-				cmsSession.addHttpSession(request);
-				if (log.isTraceEnabled())
-					log.trace("Added " + request.getServletPath() + " to " + cmsSession + " (" + request.getRequestURI()
-							+ ")");
-				// httpSession.setAttribute(HttpContext.REMOTE_USER,
-				// authorization.getName());
-				// httpSession.setAttribute(HttpContext.AUTHORIZATION,
-				// authorization);
+			// Collection<ServiceReference<CmsSession>> sr;
+			// try {
+			// sr = bc.getServiceReferences(CmsSession.class,
+			// "(" + CmsSession.SESSION_LOCAL_ID + "=" + httpSessId + ")");
+			// } catch (InvalidSyntaxException e) {
+			// throw new CmsException("Cannot get CMS session for id " +
+			// httpSessId, e);
+			// }
+			// ServiceReference<CmsSession> cmsSessionRef;
+			// if (sr.size() == 1) {
+			// cmsSessionRef = sr.iterator().next();
+			// } else if (sr.size() == 0) {
+			// WebCmsSessionImpl cmsSessionImpl = new WebCmsSessionImpl(subject,
+			// authorization, httpSessId);
+			// cmsSessionRef =
+			// cmsSessionImpl.getServiceRegistration().getReference();
+			// if (log.isDebugEnabled())
+			// log.debug("Initialized " + cmsSessionImpl + " for " +
+			// authorization.getName());
+			// } else
+			// throw new CmsException(sr.size() + " CMS sessions registered for
+			// " + httpSessId);
+			//
+			// cmsSession = (CmsSession) bc.getService(cmsSessionRef);
+			// cmsSession.addHttpSession(request);
+			// if (log.isTraceEnabled())
+			// log.trace("Added " + request.getServletPath() + " to " +
+			// cmsSession + " (" + request.getRequestURI()
+			// + ")");
+			// httpSession.setAttribute(HttpContext.REMOTE_USER,
+			// authorization.getName());
+			// httpSession.setAttribute(HttpContext.AUTHORIZATION,
+			// authorization);
+			CmsSessionId nodeSessionId = new CmsSessionId(cmsSession.getUuid());
+			if (subject.getPrivateCredentials(CmsSessionId.class).size() == 0)
+				subject.getPrivateCredentials().add(nodeSessionId);
+			else {
+				UUID storedSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next().getUuid();
+				// if (storedSessionId.equals(httpSessionId.getValue()))
+				throw new CmsException(
+						"Subject already logged with session " + storedSessionId + " (not " + nodeSessionId + ")");
 			}
 		}
-		HttpSessionId httpSessionId = new HttpSessionId(httpSessId);
-		if (subject.getPrivateCredentials(HttpSessionId.class).size() == 0)
-			subject.getPrivateCredentials().add(httpSessionId);
-		else {
-			String storedSessionId = subject.getPrivateCredentials(HttpSessionId.class).iterator().next().getValue();
-			// if (storedSessionId.equals(httpSessionId.getValue()))
-			throw new CmsException(
-					"Subject already logged with session " + storedSessionId + " (not " + httpSessionId + ")");
-		}
+		// }
 	}
 
 	static boolean logoutSession(BundleContext bc, Subject subject) {
-		String httpSessionId;
-		if (subject.getPrivateCredentials(HttpSessionId.class).size() == 1)
-			httpSessionId = subject.getPrivateCredentials(HttpSessionId.class).iterator().next().getValue();
+		UUID nodeSessionId;
+		if (subject.getPrivateCredentials(CmsSessionId.class).size() == 1)
+			nodeSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next().getUuid();
 		else
 			return false;
-		Collection<ServiceReference<WebCmsSession>> srs;
+		Collection<ServiceReference<CmsSession>> srs;
 		try {
-			srs = bc.getServiceReferences(WebCmsSession.class,
-					"(" + WebCmsSession.CMS_SESSION_ID + "=" + httpSessionId + ")");
+			srs = bc.getServiceReferences(CmsSession.class, "(" + CmsSession.SESSION_UUID + "=" + nodeSessionId + ")");
 		} catch (InvalidSyntaxException e) {
-			throw new CmsException("Cannot retrieve CMS session #" + httpSessionId, e);
+			throw new CmsException("Cannot retrieve CMS session #" + nodeSessionId, e);
 		}
 
 		if (srs.size() == 0) {
 			if (log.isTraceEnabled())
-				log.warn("No CMS web session found for http session " + httpSessionId);
+				log.warn("No CMS web session found for http session " + nodeSessionId);
 			return false;
 		} else if (srs.size() > 1)
-			throw new CmsException(srs.size() + " CMS web sessions found for http session " + httpSessionId);
+			throw new CmsException(srs.size() + " CMS web sessions found for http session " + nodeSessionId);
 
 		WebCmsSessionImpl cmsSession = (WebCmsSessionImpl) bc.getService(srs.iterator().next());
 		cmsSession.cleanUp();
-		subject.getPrivateCredentials().removeAll(subject.getPrivateCredentials(HttpSessionId.class));
+		subject.getPrivateCredentials().removeAll(subject.getPrivateCredentials(CmsSessionId.class));
 		if (log.isDebugEnabled())
 			log.debug("Cleaned up " + cmsSession);
 		return true;

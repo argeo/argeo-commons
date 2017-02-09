@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.core.RepositoryContext;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.internal.http.NodeHttp;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.node.DataModelNamespace;
 import org.argeo.node.NodeConstants;
@@ -39,13 +40,12 @@ import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
-import org.osgi.service.http.HttpService;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
 public class CmsDeployment implements NodeDeployment {
 	private final static String LEGACY_JCR_REPOSITORY_ALIAS = "argeo.jcr.repository.alias";
-	
+
 	private final Log log = LogFactory.getLog(getClass());
 	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
@@ -55,6 +55,9 @@ public class CmsDeployment implements NodeDeployment {
 	private Long availableSince;
 
 	private final boolean cleanState;
+
+	private NodeHttp nodeHttp;
+
 	// Readiness
 	private boolean nodeAvailable = false;
 	private boolean userAdminAvailable = false;
@@ -69,11 +72,20 @@ public class CmsDeployment implements NodeDeployment {
 		NodeState nodeState = bc.getService(nodeStateSr);
 		cleanState = nodeState.isClean();
 
+		nodeHttp = new NodeHttp();
 		initTrackers();
 	}
 
 	private void initTrackers() {
-		new PrepareHttpStc().open();
+		new ServiceTracker<NodeHttp, NodeHttp>(bc, NodeHttp.class, null) {
+
+			@Override
+			public NodeHttp addingService(ServiceReference<NodeHttp> reference) {
+				httpAvailable = true;
+				checkReadiness();
+				return super.addingService(reference);
+			}
+		}.open();
 		new RepositoryContextStc().open();
 		new ServiceTracker<UserAdmin, UserAdmin>(bc, UserAdmin.class, null) {
 			@Override
@@ -90,10 +102,11 @@ public class CmsDeployment implements NodeDeployment {
 				deployConfig = new DeployConfig(configurationAdmin, cleanState);
 				httpExpected = deployConfig.getProps(KernelConstants.JETTY_FACTORY_PID, "default") != null;
 				try {
-					Configuration[] configs= configurationAdmin.listConfigurations("(service.factoryPid="+NodeConstants.NODE_REPOS_FACTORY_PID+")");
-					for(Configuration config:configs){
+					Configuration[] configs = configurationAdmin
+							.listConfigurations("(service.factoryPid=" + NodeConstants.NODE_REPOS_FACTORY_PID + ")");
+					for (Configuration config : configs) {
 						Object cn = config.getProperties().get(NodeConstants.CN);
-						log.debug("Standalone repo cn: "+cn);
+						log.debug("Standalone repo cn: " + cn);
 					}
 				} catch (Exception e) {
 					throw new CmsException("Cannot initialize config", e);
@@ -104,6 +117,8 @@ public class CmsDeployment implements NodeDeployment {
 	}
 
 	public void shutdown() {
+		if(nodeHttp!=null)
+			nodeHttp.destroy();
 		if (deployConfig != null)
 			deployConfig.save();
 	}
@@ -265,7 +280,7 @@ public class CmsDeployment implements NodeDeployment {
 					prepareHomeRepository(nodeRepo.getRepository());
 					nodeAvailable = true;
 					checkReadiness();
-				}else{
+				} else {
 					// TODO standalone
 				}
 			}
@@ -280,48 +295,6 @@ public class CmsDeployment implements NodeDeployment {
 		public void removedService(ServiceReference<RepositoryContext> reference, RepositoryContext service) {
 		}
 
-	}
-
-	private class PrepareHttpStc extends ServiceTracker<HttpService, HttpService> {
-		private DataHttp dataHttp;
-		private NodeHttp nodeHttp;
-
-		public PrepareHttpStc() {
-			super(bc, HttpService.class, null);
-		}
-
-		@Override
-		public HttpService addingService(ServiceReference<HttpService> reference) {
-			HttpService httpService = addHttpService(reference);
-			return httpService;
-		}
-
-		@Override
-		public void removedService(ServiceReference<HttpService> reference, HttpService service) {
-			if (dataHttp != null)
-				dataHttp.destroy();
-			dataHttp = null;
-			if (nodeHttp != null)
-				nodeHttp.destroy();
-			nodeHttp = null;
-		}
-
-		private HttpService addHttpService(ServiceReference<HttpService> sr) {
-			HttpService httpService = bc.getService(sr);
-			// TODO find constants
-			Object httpPort = sr.getProperty("http.port");
-			Object httpsPort = sr.getProperty("https.port");
-			dataHttp = new DataHttp(httpService);
-			nodeHttp = new NodeHttp(httpService, bc);
-			log.info(httpPortsMsg(httpPort, httpsPort));
-			httpAvailable = true;
-			checkReadiness();
-			return httpService;
-		}
-
-		private String httpPortsMsg(Object httpPort, Object httpsPort) {
-			return "HTTP " + httpPort + (httpsPort != null ? " - HTTPS " + httpsPort : "");
-		}
 	}
 
 }

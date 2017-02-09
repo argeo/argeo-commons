@@ -111,29 +111,17 @@ class KernelUtils implements KernelConstants {
 	}
 
 	// Security
-	static Subject anonymousLogin() {
-		Subject subject = new Subject();
-		LoginContext lc;
-		try {
-			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, subject);
-			lc.login();
-			return subject;
-		} catch (LoginException e) {
-			throw new CmsException("Cannot login as anonymous", e);
-		}
-	}
-
-	// HTTP
-	static void logRequestHeaders(Log log, HttpServletRequest request) {
-		if (!log.isDebugEnabled())
-			return;
-		for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
-			String headerName = headerNames.nextElement();
-			Object headerValue = request.getHeader(headerName);
-			log.debug(headerName + ": " + headerValue);
-		}
-		log.debug(request.getRequestURI() + "\n");
-	}
+//	static Subject anonymousLogin() {
+//		Subject subject = new Subject();
+//		LoginContext lc;
+//		try {
+//			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, subject);
+//			lc.login();
+//			return subject;
+//		} catch (LoginException e) {
+//			throw new CmsException("Cannot login as anonymous", e);
+//		}
+//	}
 
 	static void logFrameworkProperties(Log log) {
 		BundleContext bc = getBundleContext();
@@ -150,8 +138,8 @@ class KernelUtils implements KernelConstants {
 		// for (String key : keys)
 		// log.debug(key + "=" + bc.getProperty(key));
 	}
-	
-	static void printSystemProperties(PrintStream out){
+
+	static void printSystemProperties(PrintStream out) {
 		TreeMap<String, String> display = new TreeMap<>();
 		for (Object key : System.getProperties().keySet())
 			display.put(key.toString(), System.getProperty(key.toString()));
@@ -216,7 +204,6 @@ class KernelUtils implements KernelConstants {
 			throw new CmsException("Dadly formatted URI " + uri, e);
 		}
 	}
-
 
 	private KernelUtils() {
 
