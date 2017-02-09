@@ -8,6 +8,7 @@ import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.nodetype.NodeType;
 import javax.jcr.security.Privilege;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
@@ -28,7 +29,7 @@ import org.argeo.node.NodeUtils;
 class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 	/** The home base path. */
 	private String homeBasePath = KernelConstants.DEFAULT_HOME_BASE_PATH;
-//	private String groupsBasePath = KernelConstants.DEFAULT_GROUPS_BASE_PATH;
+	private String groupsBasePath = KernelConstants.DEFAULT_GROUPS_BASE_PATH;
 
 	private Set<String> checkedUsers = new HashSet<String>();
 
@@ -84,11 +85,11 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 	private void initJcr(Session adminSession) {
 		try {
 			JcrUtils.mkdirs(adminSession, homeBasePath);
-//			JcrUtils.mkdirs(adminSession, groupsBasePath);
+			JcrUtils.mkdirs(adminSession, groupsBasePath);
 			adminSession.save();
 
-			JcrUtils.addPrivilege(adminSession, homeBasePath, NodeConstants.ROLE_USER_ADMIN, Privilege.JCR_ALL);
-//			JcrUtils.addPrivilege(adminSession, groupsBasePath, NodeConstants.ROLE_USER_ADMIN, Privilege.JCR_ALL);
+			JcrUtils.addPrivilege(adminSession, homeBasePath, NodeConstants.ROLE_USER_ADMIN, Privilege.JCR_READ);
+			JcrUtils.addPrivilege(adminSession, groupsBasePath, NodeConstants.ROLE_USER_ADMIN, Privilege.JCR_READ);
 			adminSession.save();
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot initialize node user admin", e);
@@ -143,12 +144,29 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 		}
 	}
 
-	public String getHomeBasePath() {
-		return homeBasePath;
-	}
+	public void createWorkgroup(LdapName dn) {
+		Session adminSession = KernelUtils.openAdminSession(this);
+		String cn = dn.getRdn(dn.size() - 1).getValue().toString();
+		Node newWorkgroup = NodeUtils.getGroupHome(adminSession, cn);
+		if (newWorkgroup != null) {
+			JcrUtils.logoutQuietly(adminSession);
+			throw new CmsException("Workgroup " + newWorkgroup + " already exists for " + dn);
+		}
+		try {
+			// TODO enhance transformation of cn to a valid node name
+			String relPath = cn.replaceAll("[^a-zA-Z0-9]", "_");
+			newWorkgroup = JcrUtils.mkdirs(adminSession.getNode(groupsBasePath), relPath, NodeType.NT_UNSTRUCTURED);
+			newWorkgroup.addMixin(NodeTypes.NODE_GROUP_HOME);
+			newWorkgroup.setProperty(NodeNames.LDAP_CN, cn);
+			adminSession.save();
+			JcrUtils.addPrivilege(adminSession, newWorkgroup.getPath(), dn.toString(), Privilege.JCR_ALL);
+			adminSession.save();
+		} catch (RepositoryException e) {
+			throw new CmsException("Cannot create workgroup", e);
+		} finally {
+			JcrUtils.logoutQuietly(adminSession);
+		}
 
-//	public String getGroupsBasePath() {
-//		return groupsBasePath;
-//	}
+	}
 
 }
