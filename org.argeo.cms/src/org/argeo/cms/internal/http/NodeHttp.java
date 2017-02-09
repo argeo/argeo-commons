@@ -93,7 +93,8 @@ public class NodeHttp implements KernelConstants {
 		try {
 			httpService.unregister(webdavPath(alias));
 			httpService.unregister(remotingPath(alias));
-			httpService.unregister(filesPath(alias));
+			if (NodeConstants.HOME.equals(alias))
+				httpService.unregister(filesPath(alias));
 			if (log.isDebugEnabled())
 				log.debug("Unregistered servlets for repository '" + alias + "'");
 		} catch (Exception e) {
