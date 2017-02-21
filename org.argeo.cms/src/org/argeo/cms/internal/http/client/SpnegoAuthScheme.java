@@ -1,5 +1,6 @@
 package org.argeo.cms.internal.http.client;
 
+import java.net.URI;
 import java.net.URL;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
@@ -44,10 +45,14 @@ public class SpnegoAuthScheme implements AuthScheme {
 
 	private boolean complete = false;
 	private String realm;
+	private String tokenStr;
 
 	@Override
 	public void processChallenge(String challenge) throws MalformedChallengeException {
-		log.debug("processChallenge " + challenge);
+//		if(tokenStr!=null){
+//			log.error("Received challenge while there is a token. Failing.");
+//			complete = false;
+//		}
 
 	}
 
@@ -58,7 +63,6 @@ public class SpnegoAuthScheme implements AuthScheme {
 
 	@Override
 	public String getParameter(String name) {
-		log.debug("getParameter " + name);
 		return null;
 	}
 
@@ -79,19 +83,18 @@ public class SpnegoAuthScheme implements AuthScheme {
 
 	@Override
 	public boolean isComplete() {
-		log.debug("isComplete");
 		return complete;
 	}
 
 	@Override
 	public String authenticate(Credentials credentials, String method, String uri) throws AuthenticationException {
-		log.debug("authenticate " + method + " " + uri);
-		return null;
+//		log.debug("authenticate " + method + " " + uri);
+//		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public String authenticate(Credentials credentials, HttpMethod method) throws AuthenticationException {
-		log.debug("authenticate " + method);
 		GSSContext context = null;
 		String tokenStr = null;
 		String hostname;
@@ -126,8 +129,13 @@ public class SpnegoAuthScheme implements AuthScheme {
 			}
 			return "Negotiate " + tokenStr;
 		} catch (GSSException e) {
+			complete = true;
 			throw new AuthenticationException("Cannot authenticate to " + serverPrinc, e);
 		}
+	}
+	
+	private void doAuthenticate(URI uri){
+		
 	}
 
 	public static void main(String[] args) {
