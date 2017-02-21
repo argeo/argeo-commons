@@ -59,16 +59,14 @@ import org.eclipse.swt.widgets.Text;
  * Connect to a remote repository and, if successful publish it as an OSGi
  * service.
  */
-public class AddRemoteRepository extends AbstractHandler implements
-		WorkbenchConstants, ArgeoNames {
+public class AddRemoteRepository extends AbstractHandler implements WorkbenchConstants, ArgeoNames {
 
 	private RepositoryFactory repositoryFactory;
 	private Repository nodeRepository;
 	private Keyring keyring;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		RemoteRepositoryLoginDialog dlg = new RemoteRepositoryLoginDialog(
-				Display.getDefault().getActiveShell());
+		RemoteRepositoryLoginDialog dlg = new RemoteRepositoryLoginDialog(Display.getDefault().getActiveShell());
 		if (dlg.open() == Dialog.OK) {
 			CommandUtils.callCommand(Refresh.ID);
 		}
@@ -105,16 +103,13 @@ public class AddRemoteRepository extends AbstractHandler implements
 
 		protected Control createDialogArea(Composite parent) {
 			Composite dialogarea = (Composite) super.createDialogArea(parent);
-			dialogarea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-					true));
+			dialogarea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 			Composite composite = new Composite(dialogarea, SWT.NONE);
 			composite.setLayout(new GridLayout(2, false));
-			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-					false));
+			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 			setMessage("Login to remote repository", IMessageProvider.NONE);
 			name = createLT(composite, "Name", "remoteRepository");
-			uri = createLT(composite, "URI",
-					"http://localhost:7070/jcr/node");
+			uri = createLT(composite, "URI", "http://localhost:7070/jcr/node");
 			username = createLT(composite, "User", "");
 			password = createLP(composite, "Password");
 
@@ -146,20 +141,19 @@ public class AddRemoteRepository extends AbstractHandler implements
 				params.put(NodeConstants.LABELED_URI, checkedUriStr);
 				Repository repository = repositoryFactory.getRepository(params);
 				if (username.getText().trim().equals("")) {// anonymous
-					session = repository.login();
+					// FIXME make it more generic
+					session = repository.login("main");
 				} else {
 					// FIXME use getTextChars() when upgrading to 3.7
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=297412
 					char[] pwd = password.getText().toCharArray();
-					SimpleCredentials sc = new SimpleCredentials(
-							username.getText(), pwd);
+					SimpleCredentials sc = new SimpleCredentials(username.getText(), pwd);
 					session = repository.login(sc, "main");
 					MessageDialog.openInformation(getParentShell(), "Success",
 							"Connection to '" + uri.getText() + "' successful");
 				}
 			} catch (Exception e) {
-				ErrorFeedback.show(
-						"Connection test failed for " + uri.getText(), e);
+				ErrorFeedback.show("Connection test failed for " + uri.getText(), e);
 			} finally {
 				JcrUtils.logoutQuietly(session);
 			}
@@ -172,28 +166,20 @@ public class AddRemoteRepository extends AbstractHandler implements
 				nodeSession = nodeRepository.login();
 				Node home = NodeUtils.getUserHome(nodeSession);
 
-				Node remote = home.hasNode(ARGEO_REMOTE) ? home
-						.getNode(ARGEO_REMOTE) : home.addNode(ARGEO_REMOTE);
+				Node remote = home.hasNode(ARGEO_REMOTE) ? home.getNode(ARGEO_REMOTE) : home.addNode(ARGEO_REMOTE);
 				if (remote.hasNode(name.getText()))
-					throw new EclipseUiException(
-							"There is already a remote repository named "
-									+ name.getText());
-				Node remoteRepository = remote.addNode(name.getText(),
-						ArgeoTypes.ARGEO_REMOTE_REPOSITORY);
+					throw new EclipseUiException("There is already a remote repository named " + name.getText());
+				Node remoteRepository = remote.addNode(name.getText(), ArgeoTypes.ARGEO_REMOTE_REPOSITORY);
 				remoteRepository.setProperty(ARGEO_URI, uri.getText());
 				remoteRepository.setProperty(ARGEO_USER_ID, username.getText());
 				nodeSession.save();
 				if (saveInKeyring.getSelection()) {
-					String pwdPath = remoteRepository.getPath() + '/'
-							+ ARGEO_PASSWORD;
+					String pwdPath = remoteRepository.getPath() + '/' + ARGEO_PASSWORD;
 					keyring.set(pwdPath, password.getText().toCharArray());
 				}
 				nodeSession.save();
-				MessageDialog.openInformation(
-						getParentShell(),
-						"Repository Added",
-						"Remote repository '" + username.getText() + "@"
-								+ uri.getText() + "' added");
+				MessageDialog.openInformation(getParentShell(), "Repository Added",
+						"Remote repository '" + username.getText() + "@" + uri.getText() + "' added");
 
 				super.okPressed();
 			} catch (Exception e) {
@@ -213,8 +199,7 @@ public class AddRemoteRepository extends AbstractHandler implements
 		}
 
 		/** Creates label and check. */
-		protected Button createLC(Composite parent, String label,
-				Boolean initial) {
+		protected Button createLC(Composite parent, String label, Boolean initial) {
 			new Label(parent, SWT.NONE).setText(label);
 			Button check = new Button(parent, SWT.CHECK);
 			check.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -224,8 +209,7 @@ public class AddRemoteRepository extends AbstractHandler implements
 
 		protected Text createLP(Composite parent, String label) {
 			new Label(parent, SWT.NONE).setText(label);
-			Text text = new Text(parent, SWT.SINGLE | SWT.LEAD | SWT.BORDER
-					| SWT.PASSWORD);
+			Text text = new Text(parent, SWT.SINGLE | SWT.LEAD | SWT.BORDER | SWT.PASSWORD);
 			text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 			return text;
 		}

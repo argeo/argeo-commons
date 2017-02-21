@@ -75,6 +75,9 @@ public class CmsSessionImpl implements CmsSession {
 
 	@Override
 	public synchronized Session getDataSession(String cn, String workspace, Repository repository) {
+		// FIXME make it more robust
+		if (workspace == null)
+			workspace = "main";
 		String path = cn + '/' + workspace;
 		if (dataSessionsInUse.contains(path)) {
 			try {
@@ -167,7 +170,7 @@ public class CmsSessionImpl implements CmsSession {
 	}
 
 	public String toString() {
-		return "CMS Session #" + localSessionId;
+		return "CMS Session local=" + localSessionId + ", uuid=" + uuid;
 	}
 
 	public static CmsSession getByLocalId(String localId) {

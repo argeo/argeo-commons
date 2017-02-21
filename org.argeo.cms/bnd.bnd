@@ -8,5 +8,6 @@ org.apache.jackrabbit.webdav.jcr,\
 org.eclipse.equinox.http.jetty,\
 org.springframework.context,\
 org.springframework.core.io,\
+org.apache.commons.httpclient.cookie;resolution:=optional,\
 *
 Provide-Capability: cms.datamodel;name=cms;cnd=/org/argeo/cms/cms.cnd;abstract=true

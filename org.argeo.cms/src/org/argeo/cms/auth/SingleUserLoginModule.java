@@ -1,37 +1,70 @@
 package org.argeo.cms.auth;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.Principal;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.security.auth.x500.X500Principal;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
+import org.argeo.naming.LdapAttrs;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.security.DataAdminPrincipal;
+import org.argeo.osgi.useradmin.IpaUtils;
 
 public class SingleUserLoginModule implements LoginModule {
-	private Subject subject;
+	private final static Log log = LogFactory.getLog(SingleUserLoginModule.class);
 
+	private Subject subject;
+	private Map<String, Object> sharedState = null;
+
+	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,
 			Map<String, ?> options) {
 		this.subject = subject;
+		this.sharedState = (Map<String, Object>) sharedState;
 	}
 
 	@Override
 	public boolean login() throws LoginException {
+		String username = System.getProperty("user.name");
+		if (!sharedState.containsKey(CmsAuthUtils.SHARED_STATE_NAME))
+			sharedState.put(CmsAuthUtils.SHARED_STATE_NAME, username);
 		return true;
 	}
 
 	@Override
 	public boolean commit() throws LoginException {
-		String username = System.getProperty("user.name");
-		X500Principal principal = new X500Principal("uid=" + username + ",dc=localhost,dc=localdomain");
+		X500Principal principal;
+		KerberosPrincipal kerberosPrincipal = CmsAuthUtils.getSinglePrincipal(subject, KerberosPrincipal.class);
+		if (kerberosPrincipal != null) {
+			LdapName userDn = IpaUtils.kerberosToDn(kerberosPrincipal.getName());
+			principal = new X500Principal(userDn.toString());
+		} else {
+			Object username = sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
+			if (username == null)
+				throw new LoginException("No username available");
+			String hostname;
+			try {
+				hostname = InetAddress.getLocalHost().getHostName();
+			} catch (UnknownHostException e) {
+				log.warn("Using localhost as hostname", e);
+				hostname = "localhost";
+			}
+			String baseDn = ("." + hostname).replaceAll("\\.", ",dc=");
+			principal = new X500Principal(LdapAttrs.uid + "=" + username + baseDn);
+		}
 		Set<Principal> principals = subject.getPrincipals();
 		principals.add(principal);
 		principals.add(new ImpliedByPrincipal(NodeConstants.ROLE_ADMIN, principal));

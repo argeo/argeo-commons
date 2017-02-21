@@ -43,8 +43,7 @@ public class RemoteRepositoryElem extends RepositoryElem {
 	private final RepositoryFactory repositoryFactory;
 	private final String uri;
 
-	public RemoteRepositoryElem(String alias,
-			RepositoryFactory repositoryFactory, String uri, TreeParent parent,
+	public RemoteRepositoryElem(String alias, RepositoryFactory repositoryFactory, String uri, TreeParent parent,
 			Session userSession, Keyring keyring, String remoteNodePath) {
 		super(alias, null, parent);
 		this.repositoryFactory = repositoryFactory;
@@ -55,29 +54,27 @@ public class RemoteRepositoryElem extends RepositoryElem {
 	}
 
 	@Override
-	protected Session repositoryLogin(String workspaceName)
-			throws RepositoryException {
+	protected Session repositoryLogin(String workspaceName) throws RepositoryException {
 		Node remoteRepository = userSession.getNode(remoteNodePath);
-		String userID = remoteRepository.getProperty(ArgeoNames.ARGEO_USER_ID)
-				.getString();
-		String pwdPath = remoteRepository.getPath() + '/'
-				+ ArgeoNames.ARGEO_PASSWORD;
-		char[] password = keyring.getAsChars(pwdPath);
-
-		try {
-			SimpleCredentials credentials = new SimpleCredentials(userID,
-					password);
-			return getRepository().login(credentials, workspaceName);
-		} finally {
-			Arrays.fill(password, 0, password.length, ' ');
+		String userID = remoteRepository.getProperty(ArgeoNames.ARGEO_USER_ID).getString();
+		if (userID.trim().equals("")) {
+			return getRepository().login(workspaceName);
+		} else {
+			String pwdPath = remoteRepository.getPath() + '/' + ArgeoNames.ARGEO_PASSWORD;
+			char[] password = keyring.getAsChars(pwdPath);
+			try {
+				SimpleCredentials credentials = new SimpleCredentials(userID, password);
+				return getRepository().login(credentials, workspaceName);
+			} finally {
+				Arrays.fill(password, 0, password.length, ' ');
+			}
 		}
 	}
 
 	@Override
 	public Repository getRepository() {
 		if (repository == null)
-			repository = NodeUtils.getRepositoryByUri(repositoryFactory,
-					uri);
+			repository = NodeUtils.getRepositoryByUri(repositoryFactory, uri);
 		return super.getRepository();
 	}
 

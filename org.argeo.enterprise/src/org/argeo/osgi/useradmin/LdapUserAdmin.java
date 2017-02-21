@@ -120,7 +120,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 				throw new UserDirectoryException("Unsupported LDAP type for " + name);
 			return res;
 		} catch (NamingException e) {
-			log.error("Cannot get role: " + e.getMessage());
+			log.error("Cannot get role: " + name, e);
 			return null;
 		}
 	}

@@ -12,6 +12,8 @@ import javax.security.auth.login.LoginContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.server.SessionProvider;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CmsSession;
@@ -25,8 +27,7 @@ import org.argeo.node.NodeConstants;
 class CmsSessionProvider implements SessionProvider, Serializable {
 	private static final long serialVersionUID = -1358136599534938466L;
 
-	// private final static Log log =
-	// LogFactory.getLog(CmsSessionProvider.class);
+	private final static Log log = LogFactory.getLog(CmsSessionProvider.class);
 
 	private final String alias;
 
@@ -42,6 +43,9 @@ class CmsSessionProvider implements SessionProvider, Serializable {
 		CmsSession cmsSession = WebCmsSessionImpl.getCmsSession(request);
 		if (cmsSession == null)
 			return anonymousSession(request, rep, workspace);
+		if (log.isTraceEnabled()) {
+			log.debug("Get JCR session from " + cmsSession);
+		}
 		Session session = cmsSession.getDataSession(alias, workspace, rep);
 		cmsSessions.put(session, cmsSession);
 		return session;

@@ -8,6 +8,7 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.PrivilegedExceptionAction;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.security.auth.Subject;
@@ -20,9 +21,18 @@ import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import org.apache.commons.httpclient.auth.AuthPolicy;
+import org.apache.commons.httpclient.auth.CredentialsProvider;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.httpclient.params.HttpParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.internal.http.NodeHttp;
+import org.argeo.cms.internal.http.client.SpnegoAuthScheme;
+import org.argeo.cms.internal.http.client.SpnegoCredentialProvider;
 import org.argeo.naming.DnsBrowser;
 import org.argeo.node.NodeConstants;
 import org.ietf.jgss.GSSCredential;
@@ -32,10 +42,10 @@ import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
 
 /** Low-level kernel security */
-class CmsSecurity implements KernelConstants {
+public class CmsSecurity implements KernelConstants {
 	private final static Log log = LogFactory.getLog(CmsSecurity.class);
 	// http://java.sun.com/javase/6/docs/technotes/guides/security/jgss/jgss-features.html
-	private final static Oid KERBEROS_OID;
+	public final static Oid KERBEROS_OID;
 	static {
 		try {
 			KERBEROS_OID = new Oid("1.3.6.1.5.5.2");
@@ -61,7 +71,17 @@ class CmsSecurity implements KernelConstants {
 
 	private Path nodeKeyTab = KernelUtils.getOsgiInstancePath(KernelConstants.NODE_KEY_TAB_PATH);
 
-	public CmsSecurity() {
+	CmsSecurity() {
+		// Register client-side SPNEGO auth scheme
+		AuthPolicy.registerAuthScheme(SpnegoAuthScheme.NAME, SpnegoAuthScheme.class);
+		HttpParams params = DefaultHttpParams.getDefaultParams();
+		ArrayList<String> schemes = new ArrayList<>();
+		schemes.add(SpnegoAuthScheme.NAME);
+		params.setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, schemes);
+		params.setParameter(CredentialsProvider.PROVIDER, new SpnegoCredentialProvider());
+		params.setParameter(HttpMethodParams.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
+//		params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+
 		if (!DeployConfig.isInitialized()) // first init
 			FirstInit.prepareInstanceArea();
 
@@ -96,7 +116,7 @@ class CmsSecurity implements KernelConstants {
 				res = DEPLOYED;
 			} else {
 				res = STANDALONE;
-				kerberosDomain = null;
+				// kerberosDomain = null;
 				// FIXME make state more robust
 			}
 		} catch (UnknownHostException e) {
@@ -118,7 +138,8 @@ class CmsSecurity implements KernelConstants {
 
 		CallbackHandler callbackHandler;
 		if (Files.exists(nodeKeyTab)) {
-			service = NodeConstants.NODE_SERVICE;
+			service = NodeHttp.DEFAULT_SERVICE;
+			// service = NodeConstants.NODE_SERVICE;
 			callbackHandler = new CallbackHandler() {
 
 				@Override
@@ -146,7 +167,7 @@ class CmsSecurity implements KernelConstants {
 			// throw new CmsException("Cannot create text callback handler", e);
 			// }
 			try {
-				LoginContext kernelLc = new LoginContext(NodeConstants.LOGIN_CONTEXT_SINGLE_USER, nodeSubject);
+				LoginContext kernelLc = new LoginContext(NodeConstants.LOGIN_CONTEXT_NODE, nodeSubject);
 				kernelLc.login();
 			} catch (LoginException e) {
 				throw new CmsException("Cannot log in kernel", e);

@@ -17,6 +17,7 @@ import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.GSSName;
 
+/** SPNEGO login */
 public class SpnegoLoginModule implements LoginModule {
 	private final static Log log = LogFactory.getLog(SpnegoLoginModule.class);
 
@@ -41,22 +42,20 @@ public class SpnegoLoginModule implements LoginModule {
 		gssContext = checkToken(spnegoToken);
 		if (gssContext == null)
 			return false;
-		try {
-			String clientName = gssContext.getSrcName().toString();
-			String role = clientName.substring(clientName.indexOf('@') + 1);
-
-			log.debug("SpnegoUserRealm: established a security context");
-			log.debug("Client Principal is: " + gssContext.getSrcName());
-			log.debug("Server Principal is: " + gssContext.getTargName());
-			log.debug("Client Default Role: " + role);
-		} catch (GSSException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		// TODO log in
-
-		return false;
+		else
+			return true;
+		// try {
+		// String clientName = gssContext.getSrcName().toString();
+		// String role = clientName.substring(clientName.indexOf('@') + 1);
+		//
+		// log.debug("SpnegoUserRealm: established a security context");
+		// log.debug("Client Principal is: " + gssContext.getSrcName());
+		// log.debug("Server Principal is: " + gssContext.getTargName());
+		// log.debug("Client Default Role: " + role);
+		// } catch (GSSException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 	}
 
 	@Override
@@ -67,29 +66,47 @@ public class SpnegoLoginModule implements LoginModule {
 		try {
 			Class<?> gssUtilsClass = Class.forName("com.sun.security.jgss.GSSUtil");
 			Method createSubjectMethod = gssUtilsClass.getMethod("createSubject", GSSName.class, GSSCredential.class);
-			Subject gssSubject = (Subject) createSubjectMethod.invoke(null, gssContext.getSrcName(),
-					gssContext.getDelegCred());
+			Subject gssSubject;
+			if (gssContext.getCredDelegState())
+				gssSubject = (Subject) createSubjectMethod.invoke(null, gssContext.getSrcName(),
+						gssContext.getDelegCred());
+			else
+				gssSubject = (Subject) createSubjectMethod.invoke(null, gssContext.getSrcName(), null);
 			subject.getPrincipals().addAll(gssSubject.getPrincipals());
 			subject.getPrivateCredentials().addAll(gssSubject.getPrivateCredentials());
 			return true;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
+			throw new LoginException("Cannot commit SPNEGO " + e);
 		}
 
 	}
 
 	@Override
 	public boolean abort() throws LoginException {
-		// TODO Auto-generated method stub
-		return false;
+		if (gssContext != null) {
+			try {
+				gssContext.dispose();
+			} catch (GSSException e) {
+				if (log.isTraceEnabled())
+					log.warn("Could not abort", e);
+			}
+			gssContext = null;
+		}
+		return true;
 	}
 
 	@Override
 	public boolean logout() throws LoginException {
-		// TODO Auto-generated method stub
-		return false;
+		if (gssContext != null) {
+			try {
+				gssContext.dispose();
+			} catch (GSSException e) {
+				if (log.isTraceEnabled())
+					log.warn("Could not abort", e);
+			}
+			gssContext = null;
+		}
+		return true;
 	}
 
 	private GSSContext checkToken(byte[] authToken) {

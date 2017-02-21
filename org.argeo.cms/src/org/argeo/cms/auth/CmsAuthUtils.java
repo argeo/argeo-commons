@@ -214,6 +214,15 @@ class CmsAuthUtils {
 		return true;
 	}
 
+	public static <T extends Principal> T getSinglePrincipal(Subject subject, Class<T> clss) {
+		Set<T> principals = subject.getPrincipals(clss);
+		if (principals.isEmpty())
+			return null;
+		if (principals.size() > 1)
+			throw new IllegalStateException("Only one " + clss + " principal expected in " + subject);
+		return principals.iterator().next();
+	}
+
 	private CmsAuthUtils() {
 
 	}

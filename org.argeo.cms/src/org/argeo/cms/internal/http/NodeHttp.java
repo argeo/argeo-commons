@@ -32,41 +32,19 @@ import org.osgi.util.tracker.ServiceTracker;
 public class NodeHttp implements KernelConstants {
 	private final static Log log = LogFactory.getLog(NodeHttp.class);
 
-	// Filters
-	// private final RootFilter rootFilter;
-
-	// private final DoSFilter dosFilter;
-	// private final QoSFilter qosFilter;
+	public final static String DEFAULT_SERVICE = "HTTP";
 
 	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
 	private ServiceTracker<Repository, Repository> repositories;
 	private final ServiceTracker<HttpService, HttpService> httpServiceTracker;
 
-	public NodeHttp() {
-		// rootFilter = new RootFilter();
-		// dosFilter = new CustomDosFilter();
-		// qosFilter = new QoSFilter();
+	private String httpRealm = "Argeo";
 
+	public NodeHttp() {
 		httpServiceTracker = new PrepareHttpStc();
 		httpServiceTracker.open();
 	}
-
-	// class CustomDosFilter extends DoSFilter {
-	// @Override
-	// protected String extractUserId(ServletRequest request) {
-	// HttpSession httpSession = ((HttpServletRequest) request)
-	// .getSession();
-	// if (isSessionAuthenticated(httpSession)) {
-	// String userId = ((SecurityContext) httpSession
-	// .getAttribute(SPRING_SECURITY_CONTEXT_KEY))
-	// .getAuthentication().getName();
-	// return userId;
-	// }
-	// return super.extractUserId(request);
-	//
-	// }
-	// }
 
 	public void destroy() {
 		repositories.close();
@@ -111,7 +89,7 @@ public class NodeHttp implements KernelConstants {
 		Properties ip = new Properties();
 		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_CONFIG, HttpUtils.WEBDAV_CONFIG);
 		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
-		httpService.registerServlet(path, webdavServlet, ip, new DataHttpContext());
+		httpService.registerServlet(path, webdavServlet, ip, new DataHttpContext(httpRealm));
 	}
 
 	void registerFilesServlet(HttpService httpService, String alias, Repository repository)
@@ -121,7 +99,7 @@ public class NodeHttp implements KernelConstants {
 		Properties ip = new Properties();
 		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_CONFIG, HttpUtils.WEBDAV_CONFIG);
 		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
-		httpService.registerServlet(path, filesServlet, ip, new PrivateHttpContext());
+		httpService.registerServlet(path, filesServlet, ip, new PrivateHttpContext(httpRealm, true));
 	}
 
 	void registerRemotingServlet(HttpService httpService, String alias, Repository repository)
@@ -130,6 +108,7 @@ public class NodeHttp implements KernelConstants {
 		String path = remotingPath(alias);
 		Properties ip = new Properties();
 		ip.setProperty(JcrRemotingServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
+		ip.setProperty(JcrRemotingServlet.INIT_PARAM_AUTHENTICATE_HEADER, "Negotiate");
 
 		// Looks like a bug in Jackrabbit remoting init
 		Path tmpDir;
@@ -142,7 +121,7 @@ public class NodeHttp implements KernelConstants {
 		ip.setProperty(RemotingServlet.INIT_PARAM_TMP_DIRECTORY, "remoting_" + alias);
 		ip.setProperty(RemotingServlet.INIT_PARAM_PROTECTED_HANDLERS_CONFIG, HttpUtils.DEFAULT_PROTECTED_HANDLERS);
 		ip.setProperty(RemotingServlet.INIT_PARAM_CREATE_ABSOLUTE_URI, "false");
-		httpService.registerServlet(path, remotingServlet, ip, new PrivateHttpContext());
+		httpService.registerServlet(path, remotingServlet, ip, new PrivateHttpContext(httpRealm));
 	}
 
 	private String webdavPath(String alias) {
@@ -304,6 +283,7 @@ public class NodeHttp implements KernelConstants {
 	}
 
 	private class RemotingServlet extends JcrRemotingServlet {
+		private final Log log = LogFactory.getLog(RemotingServlet.class);
 		private static final long serialVersionUID = 4605238259548058883L;
 		private final Repository repository;
 		private final SessionProvider sessionProvider;
@@ -331,6 +311,8 @@ public class NodeHttp implements KernelConstants {
 			// Subject.doAs(subject, new PrivilegedExceptionAction<Void>() {
 			// @Override
 			// public Void run() throws Exception {
+			if (log.isTraceEnabled())
+				HttpUtils.logRequest(log, request);
 			RemotingServlet.super.service(request, response);
 			// return null;
 			// }
