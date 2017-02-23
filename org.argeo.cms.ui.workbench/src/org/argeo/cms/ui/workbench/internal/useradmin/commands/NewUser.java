@@ -23,6 +23,7 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
+import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.cms.ui.workbench.internal.useradmin.UiAdminUtils;
@@ -31,7 +32,6 @@ import org.argeo.cms.util.UserAdminUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.naming.LdapAttrs;
-import org.argeo.node.ArgeoNames;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;

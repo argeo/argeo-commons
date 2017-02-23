@@ -115,10 +115,6 @@ class FirstInit {
 		// Business roles
 		String userAdminUris = getFrameworkProp(NodeConstants.USERADMIN_URIS);
 		if (userAdminUris == null) {
-			String kerberosDomain = Activator.getCmsSecurity().getKerberosDomain();
-			if (kerberosDomain != null) {
-				userAdminUris = "ipa:///" + kerberosDomain;
-			} else {
 				String demoBaseDn = "dc=example,dc=com";
 				File businessRolesFile = new File(nodeBaseDir, demoBaseDn + ".ldif");
 				if (!businessRolesFile.exists())
@@ -131,7 +127,6 @@ class FirstInit {
 				userAdminUris = businessRolesFile.toURI().toString();
 				log.warn("## DEV Using dummy base DN " + demoBaseDn);
 				// TODO downgrade security level
-			}
 		}
 		for (String userAdminUri : userAdminUris.split(" "))
 			uris.add(userAdminUri);
@@ -163,7 +158,7 @@ class FirstInit {
 
 		return res;
 	}
-
+	
 	/**
 	 * Called before node initialisation, in order populate OSGi instance are
 	 * with some files (typically LDIF, etc).

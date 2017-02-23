@@ -7,6 +7,7 @@ import javax.naming.ldap.LdapName;
 import org.argeo.node.NodeConstants;
 
 /** Marker for logged in users. */
+@Deprecated
 public final class UserPrincipal implements Principal {
 	private final String name = NodeConstants.ROLE_USER;
 

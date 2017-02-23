@@ -101,20 +101,26 @@ public class HttpSessionLoginModule implements LoginModule {
 
 	@Override
 	public boolean commit() throws LoginException {
-		// TODO create CmsSession in another module
-		Authorization authorizationToRegister;
-		if (authorization == null) {
-			authorizationToRegister = (Authorization) sharedState.get(CmsAuthUtils.SHARED_STATE_AUTHORIZATION);
-		} else { // this login module did the authorization
+		if(authorization!=null){
 			CmsAuthUtils.addAuthentication(subject, authorization);
-			authorizationToRegister = authorization;
+			CmsAuthUtils.registerSessionAuthorization(bc, request, subject, authorization);
 		}
-		if (authorizationToRegister == null) {
-			return false;
-		}
-		if (request == null)
-			return false;
-		CmsAuthUtils.registerSessionAuthorization(bc, request, subject, authorizationToRegister);
+		
+		// TODO create CmsSession in another module
+//		Authorization authorizationToRegister;
+//		if (authorization == null) {
+//			authorizationToRegister = (Authorization) sharedState.get(CmsAuthUtils.SHARED_STATE_AUTHORIZATION);
+//		}
+//		else { // this login module did the authorization
+//			CmsAuthUtils.addAuthentication(subject, authorization);
+//			authorizationToRegister = authorization;
+//		}
+//		if (authorizationToRegister == null) {
+//			return false;
+//		}
+//		if (request == null)
+//			return false;
+//		CmsAuthUtils.registerSessionAuthorization(bc, request, subject, authorizationToRegister);
 
 		byte[] outToken = (byte[]) sharedState.get(CmsAuthUtils.SHARED_STATE_SPNEGO_OUT_TOKEN);
 		if (outToken != null) {

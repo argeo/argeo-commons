@@ -16,8 +16,8 @@ public class IpaUtils {
 	public final static String IPA_USER_DIRECTORY_CONFIG = UserAdminConf.userBase + "=" + IPA_USER_BASE + "&"
 			+ UserAdminConf.groupBase + "=" + IPA_GROUP_BASE + "&" + UserAdminConf.readOnly + "=true";
 
-	static String domainToUserDirectoryConfigPath(String domain) {
-		return domainToBaseDn(domain) + "?" + IPA_USER_DIRECTORY_CONFIG;
+	static String domainToUserDirectoryConfigPath(String realm) {
+		return domainToBaseDn(realm) + "?" + IPA_USER_DIRECTORY_CONFIG + "&" + UserAdminConf.realm.name() + "=" + realm;
 	}
 
 	public static String domainToBaseDn(String domain) {

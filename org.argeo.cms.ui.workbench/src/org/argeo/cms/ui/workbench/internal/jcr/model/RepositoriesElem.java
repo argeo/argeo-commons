@@ -24,11 +24,11 @@ import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 
+import org.argeo.cms.ArgeoNames;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.jcr.RepositoryRegister;
-import org.argeo.node.ArgeoNames;
 import org.argeo.node.NodeUtils;
 import org.argeo.node.security.Keyring;
 

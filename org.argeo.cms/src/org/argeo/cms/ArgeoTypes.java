@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.node;
+package org.argeo.cms;
 
 /** JCR types in the http://www.argeo.org/argeo namespace */
 public interface ArgeoTypes {

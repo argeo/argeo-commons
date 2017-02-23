@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.ui.workbench.CmsWorkbenchStyles;
 import org.argeo.cms.ui.workbench.internal.useradmin.SecurityAdminImages;
@@ -37,7 +38,6 @@ import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.naming.LdapAttrs;
-import org.argeo.node.ArgeoNames;
 import org.argeo.node.NodeConstants;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;

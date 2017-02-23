@@ -32,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.http.NodeHttp;
 import org.argeo.cms.internal.http.client.SpnegoAuthScheme;
-import org.argeo.cms.internal.http.client.SpnegoCredentialProvider;
+import org.argeo.cms.internal.http.client.HttpCredentialProvider;
 import org.argeo.naming.DnsBrowser;
 import org.argeo.node.NodeConstants;
 import org.ietf.jgss.GSSCredential;
@@ -42,10 +42,11 @@ import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
 
 /** Low-level kernel security */
+@Deprecated
 public class CmsSecurity implements KernelConstants {
 	private final static Log log = LogFactory.getLog(CmsSecurity.class);
 	// http://java.sun.com/javase/6/docs/technotes/guides/security/jgss/jgss-features.html
-	public final static Oid KERBEROS_OID;
+	private final static Oid KERBEROS_OID;
 	static {
 		try {
 			KERBEROS_OID = new Oid("1.3.6.1.5.5.2");
@@ -72,20 +73,25 @@ public class CmsSecurity implements KernelConstants {
 	private Path nodeKeyTab = KernelUtils.getOsgiInstancePath(KernelConstants.NODE_KEY_TAB_PATH);
 
 	CmsSecurity() {
-		// Register client-side SPNEGO auth scheme
-		AuthPolicy.registerAuthScheme(SpnegoAuthScheme.NAME, SpnegoAuthScheme.class);
-		HttpParams params = DefaultHttpParams.getDefaultParams();
-		ArrayList<String> schemes = new ArrayList<>();
-		schemes.add(SpnegoAuthScheme.NAME);
-		params.setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, schemes);
-		params.setParameter(CredentialsProvider.PROVIDER, new SpnegoCredentialProvider());
-		params.setParameter(HttpMethodParams.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
-		// params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 
 		if (!DeployConfig.isInitialized()) // first init
 			FirstInit.prepareInstanceArea();
 
 		securityLevel = evaluateSecurityLevel();
+
+		if (securityLevel == DEPLOYED) {
+			// Register client-side SPNEGO auth scheme
+			AuthPolicy.registerAuthScheme(SpnegoAuthScheme.NAME, SpnegoAuthScheme.class);
+			HttpParams params = DefaultHttpParams.getDefaultParams();
+			ArrayList<String> schemes = new ArrayList<>();
+			schemes.add(SpnegoAuthScheme.NAME);// SPNEGO preferred
+			// schemes.add(AuthPolicy.BASIC);// incompatible with Basic
+			params.setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, schemes);
+			params.setParameter(CredentialsProvider.PROVIDER, new HttpCredentialProvider());
+			params.setParameter(HttpMethodParams.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
+			// params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+		}
+
 		// Configure JAAS first
 		if (System.getProperty(JAAS_CONFIG_PROP) == null) {
 			String jaasConfig = securityLevel < DEPLOYED ? JAAS_CONFIG : JAAS_CONFIG_IPA;
@@ -269,17 +275,17 @@ public class CmsSecurity implements KernelConstants {
 		return securityLevel;
 	}
 
-	public String getKerberosDomain() {
-		return kerberosDomain;
-	}
+//	public String getKerberosDomain() {
+//		return kerberosDomain;
+//	}
 
-	public Subject getNodeSubject() {
-		return nodeSubject;
-	}
+//	public Subject getNodeSubject() {
+//		return nodeSubject;
+//	}
 
-	public GSSCredential getServerCredentials() {
-		return acceptorCredentials;
-	}
+//	public GSSCredential getServerCredentials() {
+//		return acceptorCredentials;
+//	}
 
 	// public void setSecurityLevel(int newValue) {
 	// if (newValue != STANDALONE || newValue != DEV)

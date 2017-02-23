@@ -2,6 +2,7 @@ package org.argeo.osgi.useradmin;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
@@ -42,7 +43,10 @@ public enum UserAdminConf {
 	groupBase("ou=Groups"),
 
 	/** Read-only source */
-	readOnly(null);
+	readOnly(null),
+
+	/** Authentication realm */
+	realm(null);
 
 	public final static String FACTORY_PID = "org.argeo.osgi.useradmin.config";
 	private final static Log log = LogFactory.getLog(UserAdminConf.class);
@@ -173,13 +177,20 @@ public enum UserAdminConf {
 	}
 
 	private static URI convertIpaConfig(URI uri) {
-		assert uri.getPath() != null;
-		assert uri.getPath().length() > 1;
-		String kerberosDomain = uri.getPath().substring(1);
+		String path = uri.getPath();
+		String kerberosRealm;
+		if (path == null || path.length() <= 1) {
+			kerberosRealm = kerberosDomainFromDns();
+		} else {
+			kerberosRealm = path.substring(1);
+		}
+
+		if (kerberosRealm == null)
+			throw new UserDirectoryException("No Kerberos domain available for " + uri);
 		try (DnsBrowser dnsBrowser = new DnsBrowser()) {
 			String ldapHostsStr = uri.getHost();
 			if (ldapHostsStr == null || ldapHostsStr.trim().equals("")) {
-				List<String> ldapHosts = dnsBrowser.getSrvRecordsAsHosts("_ldap._tcp." + kerberosDomain.toLowerCase());
+				List<String> ldapHosts = dnsBrowser.getSrvRecordsAsHosts("_ldap._tcp." + kerberosRealm.toLowerCase());
 				if (ldapHosts == null || ldapHosts.size() == 0) {
 					throw new UserDirectoryException("Cannot configure LDAP for IPA " + uri);
 				} else {
@@ -187,13 +198,27 @@ public enum UserAdminConf {
 				}
 			}
 			URI convertedUri = new URI(
-					"ldap://" + ldapHostsStr + "/" + IpaUtils.domainToUserDirectoryConfigPath(kerberosDomain));
+					"ldap://" + ldapHostsStr + "/" + IpaUtils.domainToUserDirectoryConfigPath(kerberosRealm));
 			if (log.isDebugEnabled())
 				log.debug("Converted " + uri + " to " + convertedUri);
 			return convertedUri;
 		} catch (NamingException | IOException | URISyntaxException e) {
 			throw new UserDirectoryException("cannot convert IPA uri " + uri, e);
 		}
+	}
+
+	private static String kerberosDomainFromDns() {
+		String kerberosDomain;
+		try (DnsBrowser dnsBrowser = new DnsBrowser()) {
+			InetAddress localhost = InetAddress.getLocalHost();
+			String hostname = localhost.getHostName();
+			String dnsZone = hostname.substring(hostname.indexOf('.') + 1);
+			kerberosDomain = dnsBrowser.getRecord("_kerberos." + dnsZone, "TXT");
+			return kerberosDomain;
+		} catch (Exception e) {
+			throw new UserDirectoryException("Cannot determine Kerberos domain from DNS", e);
+		}
+
 	}
 
 	private static Map<String, List<String>> splitQuery(String query) throws UnsupportedEncodingException {

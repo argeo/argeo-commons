@@ -1,11 +1,15 @@
 package org.argeo.cms.internal.kernel;
 
+import java.awt.image.Kernel;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.Locale;
+
+import javax.security.auth.login.Configuration;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,6 +26,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogReaderService;
+import org.osgi.service.useradmin.UserAdmin;
 
 /**
  * Activates the {@link Kernel} from the provided {@link BundleContext}. Gives
@@ -33,7 +38,7 @@ public class Activator implements BundleActivator {
 	private static Activator instance;
 
 	private BundleContext bc;
-	private CmsSecurity nodeSecurity;
+	// private CmsSecurity nodeSecurity;
 	private LogReaderService logReaderService;
 	// private ConfigurationAdmin configurationAdmin;
 
@@ -50,13 +55,24 @@ public class Activator implements BundleActivator {
 		// this.configurationAdmin = getService(ConfigurationAdmin.class);
 
 		try {
-			nodeSecurity = new CmsSecurity();
+			// nodeSecurity = new CmsSecurity();
+			initSecurity();
 			initArgeoLogger();
 			initNode();
 		} catch (Exception e) {
 			log.error("## FATAL: CMS activator failed", e);
 			// throw new CmsException("Cannot initialize node", e);
 		}
+	}
+
+	private void initSecurity() {
+		if (System.getProperty(KernelConstants.JAAS_CONFIG_PROP) == null) {
+			String jaasConfig = KernelConstants.JAAS_CONFIG;
+			URL url = getClass().getClassLoader().getResource(jaasConfig);
+			System.setProperty(KernelConstants.JAAS_CONFIG_PROP, url.toExternalForm());
+		}
+		// explicitly load JAAS configuration
+		Configuration.getConfiguration();
 	}
 
 	private void initArgeoLogger() {
@@ -112,12 +128,14 @@ public class Activator implements BundleActivator {
 	}
 
 	public static GSSCredential getAcceptorCredentials() {
-		return getCmsSecurity().getServerCredentials();
+		ServiceReference<UserAdmin> sr = instance.bc.getServiceReference(UserAdmin.class);
+		NodeUserAdmin userAdmin = (NodeUserAdmin) instance.bc.getService(sr);
+		return userAdmin.getAcceptorCredentials();
 	}
 
-	static CmsSecurity getCmsSecurity() {
-		return instance.nodeSecurity;
-	}
+	// static CmsSecurity getCmsSecurity() {
+	// return instance.nodeSecurity;
+	// }
 
 	public String[] getLocales() {
 		// TODO optimize?

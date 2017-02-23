@@ -1,6 +1,5 @@
 package org.argeo.cms.internal.http.client;
 
-import java.net.URI;
 import java.net.URL;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
@@ -21,8 +20,7 @@ import org.apache.commons.httpclient.auth.MalformedChallengeException;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpParams;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.cms.internal.http.NodeHttp;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
@@ -31,7 +29,7 @@ import org.ietf.jgss.Oid;
 
 /** Implementation of the SPNEGO auth scheme. */
 public class SpnegoAuthScheme implements AuthScheme {
-	private final static Log log = LogFactory.getLog(SpnegoAuthScheme.class);
+//	private final static Log log = LogFactory.getLog(SpnegoAuthScheme.class);
 
 	public static final String NAME = "Negotiate";
 	private final static Oid KERBEROS_OID;
@@ -45,14 +43,13 @@ public class SpnegoAuthScheme implements AuthScheme {
 
 	private boolean complete = false;
 	private String realm;
-	private String tokenStr;
 
 	@Override
 	public void processChallenge(String challenge) throws MalformedChallengeException {
-//		if(tokenStr!=null){
-//			log.error("Received challenge while there is a token. Failing.");
-//			complete = false;
-//		}
+		// if(tokenStr!=null){
+		// log.error("Received challenge while there is a token. Failing.");
+		// complete = false;
+		// }
 
 	}
 
@@ -88,8 +85,8 @@ public class SpnegoAuthScheme implements AuthScheme {
 
 	@Override
 	public String authenticate(Credentials credentials, String method, String uri) throws AuthenticationException {
-//		log.debug("authenticate " + method + " " + uri);
-//		return null;
+		// log.debug("authenticate " + method + " " + uri);
+		// return null;
 		throw new UnsupportedOperationException();
 	}
 
@@ -103,7 +100,7 @@ public class SpnegoAuthScheme implements AuthScheme {
 		} catch (URIException e1) {
 			throw new IllegalStateException("Cannot authenticate", e1);
 		}
-		String serverPrinc = "HTTP@" + hostname;
+		String serverPrinc = NodeHttp.DEFAULT_SERVICE + "@" + hostname;
 
 		try {
 			// Get service's principal name
@@ -133,10 +130,6 @@ public class SpnegoAuthScheme implements AuthScheme {
 			throw new AuthenticationException("Cannot authenticate to " + serverPrinc, e);
 		}
 	}
-	
-	private void doAuthenticate(URI uri){
-		
-	}
 
 	public static void main(String[] args) {
 		if (args.length == 0) {
@@ -157,7 +150,7 @@ public class SpnegoAuthScheme implements AuthScheme {
 			ArrayList<String> schemes = new ArrayList<>();
 			schemes.add(SpnegoAuthScheme.NAME);
 			params.setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, schemes);
-			params.setParameter(CredentialsProvider.PROVIDER, new SpnegoCredentialProvider());
+			params.setParameter(CredentialsProvider.PROVIDER, new HttpCredentialProvider());
 
 			int responseCode = Subject.doAs(lc.getSubject(), new PrivilegedExceptionAction<Integer>() {
 				public Integer run() throws Exception {

@@ -18,6 +18,7 @@ package org.argeo.cms.ui.workbench.internal.useradmin.parts;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
@@ -34,7 +35,6 @@ import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.naming.LdapAttrs;
 import org.argeo.naming.LdapObjs;
-import org.argeo.node.ArgeoNames;
 import org.argeo.node.NodeConstants;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;

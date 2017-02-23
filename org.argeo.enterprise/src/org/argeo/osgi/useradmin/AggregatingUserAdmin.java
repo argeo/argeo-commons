@@ -183,7 +183,7 @@ public class AggregatingUserAdmin implements UserAdmin {
 	 * Called before each user directory is destroyed, so that additional
 	 * actions can be performed.
 	 */
-	protected void preDestroy(UserDirectory userDirectory) {
+	protected void preDestroy(AbstractUserDirectory userDirectory) {
 	}
 
 }

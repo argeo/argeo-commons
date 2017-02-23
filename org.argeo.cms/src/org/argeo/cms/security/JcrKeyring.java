@@ -34,11 +34,11 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.apache.commons.io.IOUtils;
+import org.argeo.cms.ArgeoNames;
+import org.argeo.cms.ArgeoTypes;
 import org.argeo.cms.CmsException;
 import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.node.ArgeoNames;
-import org.argeo.node.ArgeoTypes;
 import org.argeo.node.NodeUtils;
 import org.argeo.node.security.PBEKeySpecCallback;
 

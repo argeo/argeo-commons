@@ -28,8 +28,8 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.io.IOUtils;
+import org.argeo.cms.ArgeoTypes;
 import org.argeo.jcr.ArgeoJcrException;
-import org.argeo.node.ArgeoTypes;
 import org.argeo.node.tabular.ArrayTabularRow;
 import org.argeo.node.tabular.TabularColumn;
 import org.argeo.node.tabular.TabularRow;

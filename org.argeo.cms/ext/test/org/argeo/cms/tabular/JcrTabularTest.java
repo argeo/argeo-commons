@@ -25,9 +25,9 @@ import javax.jcr.PropertyType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
+import org.argeo.cms.ArgeoNames;
+import org.argeo.cms.ArgeoTypes;
 import org.argeo.jackrabbit.unit.AbstractJackrabbitTestCase;
-import org.argeo.node.ArgeoNames;
-import org.argeo.node.ArgeoTypes;
 import org.argeo.node.tabular.TabularColumn;
 import org.argeo.node.tabular.TabularRow;
 import org.argeo.node.tabular.TabularRowIterator;
@@ -40,6 +40,10 @@ public class JcrTabularTest extends AbstractJackrabbitTestCase {
 		session().setNamespacePrefix("argeo", ArgeoNames.ARGEO_NAMESPACE);
 		InputStreamReader reader = new InputStreamReader(getClass()
 				.getResourceAsStream("/org/argeo/node/node.cnd"));
+		CndImporter.registerNodeTypes(reader, session());
+		reader.close();
+		reader = new InputStreamReader(getClass()
+				.getResourceAsStream("/org/argeo/cms/cms.cnd"));
 		CndImporter.registerNodeTypes(reader, session());
 		reader.close();
 

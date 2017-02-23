@@ -55,8 +55,9 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 	private final URI uri;
 
 	private UserAdmin externalRoles;
-	private List<String> indexedUserProperties = Arrays
-			.asList(new String[] { LdapAttrs.uid.name(), LdapAttrs.mail.name(), LdapAttrs.cn.name() });
+	// private List<String> indexedUserProperties = Arrays
+	// .asList(new String[] { LdapAttrs.uid.name(), LdapAttrs.mail.name(),
+	// LdapAttrs.cn.name() });
 
 	private String memberAttributeId = "member";
 	private List<String> credentialAttributeIds = Arrays.asList(new String[] { LdapAttrs.userPassword.name() });
@@ -238,22 +239,23 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 	@Override
 	public User getUser(String key, String value) {
 		// TODO check value null or empty
-		List<DirectoryUser> collectedUsers = new ArrayList<DirectoryUser>(getIndexedUserProperties().size());
+		List<DirectoryUser> collectedUsers = new ArrayList<DirectoryUser>();
 		if (key != null) {
 			doGetUser(key, value, collectedUsers);
 		} else {
-			// try dn
-			DirectoryUser user = null;
-			try {
-				user = (DirectoryUser) getRole(value);
-				if (user != null)
-					collectedUsers.add(user);
-			} catch (Exception e) {
-				// silent
-			}
-			// try all indexes
-			for (String attr : getIndexedUserProperties())
-				doGetUser(attr, value, collectedUsers);
+			throw new UserDirectoryException("Key cannot be null");
+			// // try dn
+			// DirectoryUser user = null;
+			// try {
+			// user = (DirectoryUser) getRole(value);
+			// if (user != null)
+			// collectedUsers.add(user);
+			// } catch (Exception e) {
+			// // silent
+			// }
+			// // try all indexes
+			// for (String attr : getIndexedUserProperties())
+			// doGetUser(attr, value, collectedUsers);
 		}
 		if (collectedUsers.size() == 1)
 			return collectedUsers.get(0);
@@ -279,11 +281,14 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 		} else {
 			// bind
 			AbstractUserDirectory scopedUserAdmin = scope(user);
-			DirectoryUser directoryUser = (DirectoryUser) scopedUserAdmin.getRole(user.getName());
-			LdifAuthorization authorization = new LdifAuthorization(directoryUser,
-					scopedUserAdmin.getAllRoles(directoryUser));
-			scopedUserAdmin.destroy();
-			return authorization;
+			try {
+				DirectoryUser directoryUser = (DirectoryUser) scopedUserAdmin.getRole(user.getName());
+				LdifAuthorization authorization = new LdifAuthorization(directoryUser,
+						scopedUserAdmin.getAllRoles(directoryUser));
+				return authorization;
+			} finally {
+				scopedUserAdmin.destroy();
+			}
 		}
 	}
 
@@ -392,13 +397,14 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 		return uri;
 	}
 
-	protected List<String> getIndexedUserProperties() {
-		return indexedUserProperties;
-	}
-
-	protected void setIndexedUserProperties(List<String> indexedUserProperties) {
-		this.indexedUserProperties = indexedUserProperties;
-	}
+	// protected List<String> getIndexedUserProperties() {
+	// return indexedUserProperties;
+	// }
+	//
+	// protected void setIndexedUserProperties(List<String>
+	// indexedUserProperties) {
+	// this.indexedUserProperties = indexedUserProperties;
+	// }
 
 	private static boolean readOnlyDefault(URI uri) {
 		if (uri == null)

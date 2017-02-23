@@ -1,6 +1,5 @@
 <ldap = 'http://www.argeo.org/ns/ldap'>
 <node = 'http://www.argeo.org/ns/node'>
-<argeo = 'http://www.argeo.org/ns/argeo'>
 
 // DN (see https://tools.ietf.org/html/rfc4514)
 <cn = 'http://www.argeo.org/ns/rfc4514/cn'>
@@ -21,36 +20,3 @@ mixin
 [node:groupHome]
 mixin
 - ldap:cn (STRING) m
-
-[argeo:remoteRepository] > nt:unstructured
-- argeo:uri (STRING)
-- argeo:userID (STRING)
-+ argeo:password (argeo:encrypted)
-
-// TABULAR CONTENT
-[argeo:table] > nt:file
-+ * (argeo:column) *
-
-[argeo:column] > mix:title
-- jcr:requiredType (STRING) = 'STRING'
-
-[argeo:csv] > nt:resource
-
-// CRYPTO
-[argeo:encrypted] > nt:base
-mixin
-// initialization vector used by some algorithms
-- argeo:iv (BINARY)
-
-[argeo:pbeKeySpec] > nt:base
-mixin
-- argeo:secretKeyFactory (STRING)
-- argeo:salt (BINARY)
-- argeo:iterationCount (LONG)
-- argeo:keyLength (LONG)
-- argeo:secretKeyEncryption (STRING)
-
-[argeo:pbeSpec] > argeo:pbeKeySpec
-mixin
-- argeo:cipher (STRING)
-

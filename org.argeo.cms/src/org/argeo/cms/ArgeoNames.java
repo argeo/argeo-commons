@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.node;
+package org.argeo.cms;
 
 /** JCR names in the http://www.argeo.org/argeo namespace */
 public interface ArgeoNames {
@@ -33,25 +33,22 @@ public interface ArgeoNames {
 //	public final static String ARGEO_PROFILE = "argeo:profile";
 
 	// spring security
-	@Deprecated
-	public final static String ARGEO_ENABLED = "argeo:enabled";
-//	public final static String ARGEO_ACCOUNT_NON_EXPIRED = "argeo:accountNonExpired";
-//	public final static String ARGEO_ACCOUNT_NON_LOCKED = "argeo:accountNonLocked";
-//	public final static String ARGEO_CREDENTIALS_NON_EXPIRED = "argeo:credentialsNonExpired";
-
-	// personal details
-	/** @deprecated Use org.argeo.naming.LdapAttrs */
-	@Deprecated
-	public final static String ARGEO_FIRST_NAME = "argeo:firstName";
-	/** @deprecated Use org.argeo.naming.LdapAttrs */
-	@Deprecated
-	public final static String ARGEO_LAST_NAME = "argeo:lastName";
-	/** @deprecated Use org.argeo.naming.LdapAttrs */
-	@Deprecated
-	public final static String ARGEO_PRIMARY_EMAIL = "argeo:primaryEmail";
-	/** @deprecated Use org.argeo.naming.LdapAttrs */
-	@Deprecated
-	public final static String ARGEO_PRIMARY_ORGANIZATION = "argeo:primaryOrganization";
+//	@Deprecated
+//	public final static String ARGEO_ENABLED = "argeo:enabled";
+//
+//	// personal details
+//	/** @deprecated Use org.argeo.naming.LdapAttrs */
+//	@Deprecated
+//	public final static String ARGEO_FIRST_NAME = "argeo:firstName";
+//	/** @deprecated Use org.argeo.naming.LdapAttrs */
+//	@Deprecated
+//	public final static String ARGEO_LAST_NAME = "argeo:lastName";
+//	/** @deprecated Use org.argeo.naming.LdapAttrs */
+//	@Deprecated
+//	public final static String ARGEO_PRIMARY_EMAIL = "argeo:primaryEmail";
+//	/** @deprecated Use org.argeo.naming.LdapAttrs */
+//	@Deprecated
+//	public final static String ARGEO_PRIMARY_ORGANIZATION = "argeo:primaryOrganization";
 
 	// tabular
 	public final static String ARGEO_IS_KEY = "argeo:isKey";
