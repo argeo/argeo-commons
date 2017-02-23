@@ -80,7 +80,7 @@ public class CmsSecurity implements KernelConstants {
 		params.setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, schemes);
 		params.setParameter(CredentialsProvider.PROVIDER, new SpnegoCredentialProvider());
 		params.setParameter(HttpMethodParams.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
-//		params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+		// params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 
 		if (!DeployConfig.isInitialized()) // first init
 			FirstInit.prepareInstanceArea();
@@ -116,7 +116,7 @@ public class CmsSecurity implements KernelConstants {
 				res = DEPLOYED;
 			} else {
 				res = STANDALONE;
-				// kerberosDomain = null;
+				kerberosDomain = null;
 				// FIXME make state more robust
 			}
 		} catch (UnknownHostException e) {
