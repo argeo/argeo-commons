@@ -81,8 +81,9 @@ public class UserAdminLoginModule implements LoginModule {
 		}
 		UserAdmin userAdmin = bc.getService(bc.getServiceReference(UserAdmin.class));
 		if (callbackHandler == null) {// anonymous
-//			authorization = userAdmin.getAuthorization(null);
-//			sharedState.put(CmsAuthUtils.SHARED_STATE_AUTHORIZATION, authorization);
+			// authorization = userAdmin.getAuthorization(null);
+			// sharedState.put(CmsAuthUtils.SHARED_STATE_AUTHORIZATION,
+			// authorization);
 			return true;
 		}
 
@@ -138,11 +139,6 @@ public class UserAdminLoginModule implements LoginModule {
 		authenticatedUser = user;
 		// return false;
 
-		// Log and monitor new login
-		// if (log.isDebugEnabled())
-		// log.debug("Logged in to CMS with username [" + username +
-		// "]");
-
 		// authorization = userAdmin.getAuthorization(user);
 		// assert authorization != null;
 		//
@@ -190,7 +186,10 @@ public class UserAdminLoginModule implements LoginModule {
 			});
 		if (authorization == null)
 			return false;
+		// Log and monitor new login
 		CmsAuthUtils.addAuthentication(subject, authorization);
+		if (log.isDebugEnabled())
+			log.debug("Logged in to CMS: " + subject);
 		HttpServletRequest request = (HttpServletRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
 		if (request != null) {
 			CmsAuthUtils.registerSessionAuthorization(bc, request, subject, authorization);
@@ -200,12 +199,14 @@ public class UserAdminLoginModule implements LoginModule {
 
 	@Override
 	public boolean abort() throws LoginException {
-//		authorization = null;
+		// authorization = null;
 		return true;
 	}
 
 	@Override
 	public boolean logout() throws LoginException {
+		if (log.isDebugEnabled())
+			log.debug("Logging out from CMS... " + subject);
 		CmsAuthUtils.cleanUp(subject);
 		return true;
 	}
