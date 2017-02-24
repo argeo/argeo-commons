@@ -56,7 +56,7 @@ class DeployConfig implements ConfigurationListener {
 		Files.createDirectories(deployConfigPath.getParent());
 
 		FirstInit firstInit = new FirstInit();
-		// firstInit.prepareInstanceArea();
+		FirstInit.prepareInstanceArea();
 
 		if (!Files.exists(deployConfigPath))
 			deployConfigs = new TreeMap<>();
