@@ -157,43 +157,48 @@ public class UserAdminLoginModule implements LoginModule {
 		// return true;
 		// }
 		UserAdmin userAdmin = bc.getService(bc.getServiceReference(UserAdmin.class));
-		Authorization authorization = null;
-		User authenticatingUser;
-		Set<KerberosPrincipal> kerberosPrincipals = subject.getPrincipals(KerberosPrincipal.class);
-		if (kerberosPrincipals.isEmpty()) {
-			if (callbackHandler == null) {
-				authorization = userAdmin.getAuthorization(null);
-			}
-			if (authenticatedUser == null) {
-				return false;
-			} else {
-				authenticatingUser = authenticatedUser;
-			}
+		Authorization authorization;
+		if (callbackHandler == null) {// anonymous
+			authorization = userAdmin.getAuthorization(null);
 		} else {
-			KerberosPrincipal kerberosPrincipal = kerberosPrincipals.iterator().next();
-			LdapName dn = IpaUtils.kerberosToDn(kerberosPrincipal.getName());
-			authenticatingUser = new AuthenticatingUser(dn);
-		}
-		if (authorization == null)
-			authorization = Subject.doAs(subject, new PrivilegedAction<Authorization>() {
-
-				@Override
-				public Authorization run() {
-					Authorization authorization = userAdmin.getAuthorization(authenticatingUser);
-					return authorization;
+			User authenticatingUser;
+			Set<KerberosPrincipal> kerberosPrincipals = subject.getPrincipals(KerberosPrincipal.class);
+			if (kerberosPrincipals.isEmpty()) {
+				if (authenticatedUser == null) {
+					if(log.isTraceEnabled())
+						log.trace("Neither kerberos nor user admin login succeeded. Login failed.");
+					return false;
+				} else {
+					authenticatingUser = authenticatedUser;
 				}
+			} else {
+				KerberosPrincipal kerberosPrincipal = kerberosPrincipals.iterator().next();
+				LdapName dn = IpaUtils.kerberosToDn(kerberosPrincipal.getName());
+				authenticatingUser = new AuthenticatingUser(dn);
+				if (authenticatedUser != null && !authenticatingUser.getName().equals(authenticatedUser.getName()))
+					throw new LoginException("Kerberos login " + authenticatingUser.getName()
+							+ " is inconsistent with user admin login " + authenticatedUser.getName());
+			}
+				authorization = Subject.doAs(subject, new PrivilegedAction<Authorization>() {
 
-			});
-		if (authorization == null)
-			return false;
+					@Override
+					public Authorization run() {
+						Authorization authorization = userAdmin.getAuthorization(authenticatingUser);
+						return authorization;
+					}
+
+				});
+			if (authorization == null)
+				throw new LoginException("User admin found no authorization for authenticated user "+authenticatingUser.getName());
+		}
 		// Log and monitor new login
-		CmsAuthUtils.addAuthentication(subject, authorization);
+		CmsAuthUtils.addAuthorization(subject, authorization, (HttpServletRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST));
+//		HttpServletRequest request = (HttpServletRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
+//		if (request != null) {
+//			CmsAuthUtils.registerSessionAuthorization(bc, request, subject, authorization);
+//		}
 		if (log.isDebugEnabled())
 			log.debug("Logged in to CMS: " + subject);
-		HttpServletRequest request = (HttpServletRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
-		if (request != null) {
-			CmsAuthUtils.registerSessionAuthorization(bc, request, subject, authorization);
-		}
 		return true;
 	}
 

@@ -48,7 +48,7 @@ class CmsAuthUtils {
 	final static String HEADER_AUTHORIZATION = "Authorization";
 	final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
-	static void addAuthentication(Subject subject, Authorization authorization) {
+	static void addAuthorization(Subject subject, Authorization authorization, HttpServletRequest request) {
 		assert subject != null;
 		checkSubjectEmpty(subject);
 		assert authorization != null;
@@ -92,6 +92,8 @@ class CmsAuthUtils {
 		} catch (InvalidNameException e) {
 			throw new CmsException("Cannot commit", e);
 		}
+
+		registerSessionAuthorization(request, subject, authorization);
 	}
 
 	private static void checkSubjectEmpty(Subject subject) {
@@ -121,69 +123,33 @@ class CmsAuthUtils {
 	// public static final String SHARED_STATE_PASSWORD =
 	// "javax.security.auth.login.password";
 
-	static void registerSessionAuthorization(BundleContext bc, HttpServletRequest request, Subject subject,
+	private static void registerSessionAuthorization(HttpServletRequest request, Subject subject,
 			Authorization authorization) {
-		HttpSession httpSession = request.getSession();
-		String httpSessId = httpSession.getId();
-		if (authorization.getName() != null) {
-			request.setAttribute(HttpContext.REMOTE_USER, authorization.getName());
-			request.setAttribute(HttpContext.AUTHORIZATION, authorization);
+		if (request != null) {
+			HttpSession httpSession = request.getSession();
+			String httpSessId = httpSession.getId();
+			if (authorization.getName() != null) {
+				request.setAttribute(HttpContext.REMOTE_USER, authorization.getName());
+				request.setAttribute(HttpContext.AUTHORIZATION, authorization);
 
-			CmsSession cmsSession = CmsSessionImpl.getByLocalId(httpSessId);
-			if (cmsSession == null)
-				cmsSession = new WebCmsSessionImpl(subject, authorization, httpSessId);
-			request.setAttribute(CmsSession.class.getName(), cmsSession);
-			// else
-			// throw new CmsException("Already a CMS session registered for
-			// "+httpSessId);
-
-			// if (httpSession.getAttribute(HttpContext.AUTHORIZATION) == null)
-			// {
-
-			// Collection<ServiceReference<CmsSession>> sr;
-			// try {
-			// sr = bc.getServiceReferences(CmsSession.class,
-			// "(" + CmsSession.SESSION_LOCAL_ID + "=" + httpSessId + ")");
-			// } catch (InvalidSyntaxException e) {
-			// throw new CmsException("Cannot get CMS session for id " +
-			// httpSessId, e);
-			// }
-			// ServiceReference<CmsSession> cmsSessionRef;
-			// if (sr.size() == 1) {
-			// cmsSessionRef = sr.iterator().next();
-			// } else if (sr.size() == 0) {
-			// WebCmsSessionImpl cmsSessionImpl = new WebCmsSessionImpl(subject,
-			// authorization, httpSessId);
-			// cmsSessionRef =
-			// cmsSessionImpl.getServiceRegistration().getReference();
-			// if (log.isDebugEnabled())
-			// log.debug("Initialized " + cmsSessionImpl + " for " +
-			// authorization.getName());
-			// } else
-			// throw new CmsException(sr.size() + " CMS sessions registered for
-			// " + httpSessId);
-			//
-			// cmsSession = (CmsSession) bc.getService(cmsSessionRef);
-			// cmsSession.addHttpSession(request);
-			// if (log.isTraceEnabled())
-			// log.trace("Added " + request.getServletPath() + " to " +
-			// cmsSession + " (" + request.getRequestURI()
-			// + ")");
-			// httpSession.setAttribute(HttpContext.REMOTE_USER,
-			// authorization.getName());
-			// httpSession.setAttribute(HttpContext.AUTHORIZATION,
-			// authorization);
-			CmsSessionId nodeSessionId = new CmsSessionId(cmsSession.getUuid());
-			if (subject.getPrivateCredentials(CmsSessionId.class).size() == 0)
-				subject.getPrivateCredentials().add(nodeSessionId);
-			else {
-				UUID storedSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next().getUuid();
-				// if (storedSessionId.equals(httpSessionId.getValue()))
-				throw new CmsException(
-						"Subject already logged with session " + storedSessionId + " (not " + nodeSessionId + ")");
+				CmsSession cmsSession = CmsSessionImpl.getByLocalId(httpSessId);
+				if (cmsSession == null)
+					cmsSession = new WebCmsSessionImpl(subject, authorization, httpSessId);
+				request.setAttribute(CmsSession.class.getName(), cmsSession);
+				CmsSessionId nodeSessionId = new CmsSessionId(cmsSession.getUuid());
+				if (subject.getPrivateCredentials(CmsSessionId.class).size() == 0)
+					subject.getPrivateCredentials().add(nodeSessionId);
+				else {
+					UUID storedSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next()
+							.getUuid();
+					// if (storedSessionId.equals(httpSessionId.getValue()))
+					throw new CmsException(
+							"Subject already logged with session " + storedSessionId + " (not " + nodeSessionId + ")");
+				}
 			}
+		} else {
+			// TODO desktop, CLI
 		}
-		// }
 	}
 
 	static boolean logoutSession(BundleContext bc, Subject subject) {

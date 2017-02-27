@@ -102,8 +102,8 @@ public class HttpSessionLoginModule implements LoginModule {
 	@Override
 	public boolean commit() throws LoginException {
 		if(authorization!=null){
-			CmsAuthUtils.addAuthentication(subject, authorization);
-			CmsAuthUtils.registerSessionAuthorization(bc, request, subject, authorization);
+			CmsAuthUtils.addAuthorization(subject, authorization,request);
+//			CmsAuthUtils.registerSessionAuthorization(bc, request, subject, authorization);
 		}
 		
 		// TODO create CmsSession in another module
