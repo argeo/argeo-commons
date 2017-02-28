@@ -31,13 +31,14 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 
+
+/** Simple UI provider that populates a composite parent given a NIO path */
 public class AdvancedFsBrowser {
 	private final static Log log = LogFactory.getLog(AdvancedFsBrowser.class);
 
 	// Some local constants to experiment. should be cleaned
 	// private final static int THUMBNAIL_WIDTH = 400;
 	// private Point imageWidth = new Point(250, 0);
-
 	private final static int COLUMN_WIDTH = 160;
 
 	private Path initialPath;

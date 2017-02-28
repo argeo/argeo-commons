@@ -7,6 +7,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.graphics.Image;
 
+/** Basic label provider with icon for NIO file viewers */
 public class FileIconNameLabelProvider extends ColumnLabelProvider {
 	private static final long serialVersionUID = 8187902187946523148L;
 

@@ -22,7 +22,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Tree;
 
-/** Draft for some UI upon Java 7 nio files api */
+/** A simple Java 7 nio files browser with a tree */
 public class SimpleFsTreeBrowser extends Composite {
 	private final static Log log = LogFactory.getLog(SimpleFsTreeBrowser.class);
 	private static final long serialVersionUID = -40347919096946585L;

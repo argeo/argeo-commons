@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/** Centralize additionnal utilitary methods to manage Java7 NIO files */
+/** Centralise additional utilitary methods to manage Java7 NIO files */
 public class FsUiUtils {
 
 	/**
