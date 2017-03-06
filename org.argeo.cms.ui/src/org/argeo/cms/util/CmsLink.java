@@ -26,7 +26,7 @@ import org.osgi.framework.BundleContext;
 /** A link to an internal or external location. */
 public class CmsLink implements CmsUiProvider {
 	private final static Log log = LogFactory.getLog(CmsLink.class);
-	private BundleContext bundleContext ;
+	private BundleContext bundleContext;
 
 	private String label;
 	private String custom;
@@ -67,13 +67,17 @@ public class CmsLink implements CmsUiProvider {
 	/** @return {@link Composite} with a single {@link Label} child. */
 	@Override
 	public Control createUi(final Composite parent, Node context) {
+		if (image != null && (imageWidth == null || imageHeight == null)) {
+			throw new CmsException("Image is not properly configured."
+					+ " Make sure bundleContext property is set and init() method has been called.");
+		}
+
 		Composite comp = new Composite(parent, SWT.BOTTOM);
 		comp.setLayout(CmsUtils.noSpaceGridLayout());
 
 		Label link = new Label(comp, SWT.NONE);
 		link.setData(RWT.MARKUP_ENABLED, Boolean.TRUE);
-		GridData layoutData = new GridData(SWT.CENTER, verticalAlignment, true,
-				true);
+		GridData layoutData = new GridData(SWT.CENTER, verticalAlignment, true, true);
 		if (image != null) {
 			layoutData.heightHint = imageHeight;
 			if (label == null)
@@ -92,8 +96,7 @@ public class CmsLink implements CmsUiProvider {
 		// label
 		StringBuilder labelText = new StringBuilder();
 		if (target != null) {
-			labelText
-					.append("<a style='color:inherit;text-decoration:inherit;' href=\"");
+			labelText.append("<a style='color:inherit;text-decoration:inherit;' href=\"");
 			// if (!isUrl)
 			// labelText.append('#');
 			labelText.append(target);
@@ -102,8 +105,7 @@ public class CmsLink implements CmsUiProvider {
 		if (image != null) {
 			registerImageIfNeeded();
 			String imageLocation = RWT.getResourceManager().getLocation(image);
-			labelText.append("<img width='").append(imageWidth)
-					.append("' height='").append(imageHeight)
+			labelText.append("<img width='").append(imageWidth).append("' height='").append(imageHeight)
 					.append("' src=\"").append(imageLocation).append("\"/>");
 
 			// final Image img = loadImage(parent.getDisplay());
@@ -219,8 +221,7 @@ public class CmsLink implements CmsUiProvider {
 		} else if ("center".equals(vAlign)) {
 			verticalAlignment = SWT.CENTER;
 		} else {
-			throw new CmsException("Unsupported vertical allignment " + vAlign
-					+ " (must be: top, bottom or center)");
+			throw new CmsException("Unsupported vertical allignment " + vAlign + " (must be: top, bottom or center)");
 		}
 	}
 }
