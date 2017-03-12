@@ -364,13 +364,15 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 			super(parent, style, true);
 			this.user = user;
 			userFilter = new UserFilter();
-			userFilter.setShowSystemRole(false);
 		}
 
 		protected void populateStaticFilters(Composite staticFilterCmp) {
 			staticFilterCmp.setLayout(new GridLayout());
 			showSystemRoleBtn = new Button(staticFilterCmp, SWT.CHECK);
 			showSystemRoleBtn.setText("Show system roles");
+			boolean showSysRole = CurrentUser.isInRole(NodeConstants.ROLE_ADMIN);
+			showSystemRoleBtn.setSelection(showSysRole);
+			userFilter.setShowSystemRole(showSysRole);
 			showSystemRoleBtn.addSelectionListener(new SelectionAdapter() {
 				private static final long serialVersionUID = -7033424592697691676L;
 
