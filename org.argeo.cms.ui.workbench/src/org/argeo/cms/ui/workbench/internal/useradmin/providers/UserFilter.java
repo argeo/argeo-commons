@@ -9,16 +9,18 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.osgi.service.useradmin.User;
 
+/**
+ * Filter user list using JFace mechanism on the client (yet on the server) side
+ * rather than having the UserAdmin to process the search
+ */
 public class UserFilter extends ViewerFilter {
 	private static final long serialVersionUID = 5082509381672880568L;
 
 	private String searchString;
 	private boolean showSystemRole = true;
 
-	private final String[] knownProps = { LdapAttrs.DN, LdapAttrs.cn.name(),
-			LdapAttrs.givenName.name(), LdapAttrs.sn.name(),
-			LdapAttrs.uid.name(), LdapAttrs.description.name(),
-			LdapAttrs.mail.name() };
+	private final String[] knownProps = { LdapAttrs.DN, LdapAttrs.cn.name(), LdapAttrs.givenName.name(),
+			LdapAttrs.sn.name(), LdapAttrs.uid.name(), LdapAttrs.description.name(), LdapAttrs.mail.name() };
 
 	public void setSearchText(String s) {
 		// ensure that the value can be used for matching
@@ -35,9 +37,7 @@ public class UserFilter extends ViewerFilter {
 	@Override
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
 		User user = (User) element;
-		if (!showSystemRole
-				&& user.getName().matches(
-						".*(" + NodeConstants.ROLES_BASEDN + ")"))
+		if (!showSystemRole && user.getName().matches(".*(" + NodeConstants.ROLES_BASEDN + ")"))
 			// UserAdminUtils.getProperty(user, LdifName.dn.name())
 			// .toLowerCase().endsWith(AuthConstants.ROLES_BASEDN))
 			return false;
@@ -50,8 +50,7 @@ public class UserFilter extends ViewerFilter {
 
 		for (String key : knownProps) {
 			String currVal = UserAdminUtils.getProperty(user, key);
-			if (notEmpty(currVal)
-					&& currVal.toLowerCase().matches(searchString))
+			if (notEmpty(currVal) && currVal.toLowerCase().matches(searchString))
 				return true;
 		}
 		return false;

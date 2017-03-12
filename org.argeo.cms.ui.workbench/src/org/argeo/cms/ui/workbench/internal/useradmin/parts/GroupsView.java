@@ -144,7 +144,7 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 	private class MyUserTableViewer extends LdifUsersTable {
 		private static final long serialVersionUID = 8467999509931900367L;
 
-		private boolean showSystemRoles = false;
+		private boolean showSystemRoles;
 
 		private final String[] knownProps = { LdapAttrs.uid.name(),
 				LdapAttrs.cn.name(), LdapAttrs.DN };
@@ -158,6 +158,9 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 			final Button showSystemRoleBtn = new Button(staticFilterCmp,
 					SWT.CHECK);
 			showSystemRoleBtn.setText("Show system roles");
+			showSystemRoles = CurrentUser.isInRole(NodeConstants.ROLE_ADMIN);
+			showSystemRoleBtn.setSelection(showSystemRoles);
+			
 			showSystemRoleBtn.addSelectionListener(new SelectionAdapter() {
 				private static final long serialVersionUID = -7033424592697691676L;
 
