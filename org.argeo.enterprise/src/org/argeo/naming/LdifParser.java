@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -26,6 +29,7 @@ import org.argeo.osgi.useradmin.UserDirectoryException;
 /** Basic LDIF parser. */
 public class LdifParser {
 	private final static Log log = LogFactory.getLog(LdifParser.class);
+	private final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
 	protected Attributes addAttributes(SortedMap<LdapName, Attributes> res, int lineNumber, LdapName currentDn,
 			Attributes currentAttributes) {
@@ -47,11 +51,26 @@ public class LdifParser {
 		}
 	}
 
+	/** With UTF-8 charset */
 	public SortedMap<LdapName, Attributes> read(InputStream in) throws IOException {
+		try (Reader reader = new InputStreamReader(in, DEFAULT_CHARSET)) {
+			return read(reader);
+		} finally {
+			try {
+				in.close();
+			} catch (IOException e) {
+				if (log.isTraceEnabled())
+					log.error("Cannot close stream", e);
+			}
+		}
+	}
+
+	/** Will close the reader. */
+	public SortedMap<LdapName, Attributes> read(Reader reader) throws IOException {
 		SortedMap<LdapName, Attributes> res = new TreeMap<LdapName, Attributes>();
 		try {
 			List<String> lines = new ArrayList<>();
-			try (BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
+			try (BufferedReader br = new BufferedReader(reader)) {
 				String line;
 				while ((line = br.readLine()) != null) {
 					lines.add(line);
@@ -136,7 +155,12 @@ public class LdifParser {
 				currentEntry.append(line);
 			}
 		} finally {
-			in.close();
+			try {
+				reader.close();
+			} catch (IOException e) {
+				if (log.isTraceEnabled())
+					log.error("Cannot close stream", e);
+			}
 		}
 		return res;
 	}

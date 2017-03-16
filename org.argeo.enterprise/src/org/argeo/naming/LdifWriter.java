@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 
@@ -18,6 +20,7 @@ import org.argeo.osgi.useradmin.UserDirectoryException;
 
 /** Basic LDIF writer */
 public class LdifWriter {
+	private final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 	private final Writer writer;
 
 	/** Writer must be closed by caller */
@@ -27,7 +30,7 @@ public class LdifWriter {
 
 	/** Stream must be closed by caller */
 	public LdifWriter(OutputStream out) {
-		this(new OutputStreamWriter(out));
+		this(new OutputStreamWriter(out, DEFAULT_CHARSET));
 	}
 
 	public void writeEntry(LdapName name, Attributes attributes) throws IOException {
