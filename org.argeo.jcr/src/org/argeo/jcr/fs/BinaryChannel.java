@@ -45,6 +45,8 @@ public class BinaryChannel implements SeekableByteChannel {
 				try (InputStream in = new ByteArrayInputStream(new byte[0])) {
 					this.binary = data.getSession().getValueFactory().createBinary(in);
 				}
+				data.setProperty(Property.JCR_DATA, this.binary);
+				data.getSession().save();
 			}
 		} else {
 			throw new IllegalArgumentException(
@@ -60,7 +62,7 @@ public class BinaryChannel implements SeekableByteChannel {
 	@Override
 	public synchronized void close() throws IOException {
 		if (isModified()) {
-			Binary newBinary=null;
+			Binary newBinary = null;
 			try {
 				Session session = file.getSession();
 				// byte[] arr = new byte[(int) position];
@@ -74,7 +76,7 @@ public class BinaryChannel implements SeekableByteChannel {
 				open = false;
 			} catch (RepositoryException e) {
 				throw new JcrFsException("Cannot close " + file, e);
-			}finally{
+			} finally {
 				JcrUtils.closeQuietly(newBinary);
 				IOUtils.closeQuietly(fc);
 			}
@@ -92,10 +94,10 @@ public class BinaryChannel implements SeekableByteChannel {
 
 			try {
 				int read;
-//				int capacity = dst.capacity();
+				// int capacity = dst.capacity();
 				byte[] arr = dst.array();
 				read = binary.read(arr, position);
-				//dst.put(arr, 0, read);
+				// dst.put(arr, 0, read);
 
 				// try {
 				// byte[] arr = dst.array();
@@ -174,7 +176,8 @@ public class BinaryChannel implements SeekableByteChannel {
 		try {
 			if (fc == null) {
 				Path tempPath = Files.createTempFile(getClass().getSimpleName(), null);
-				fc = FileChannel.open(tempPath, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.DELETE_ON_CLOSE, StandardOpenOption.SPARSE);
+				fc = FileChannel.open(tempPath, StandardOpenOption.WRITE, StandardOpenOption.READ,
+						StandardOpenOption.DELETE_ON_CLOSE, StandardOpenOption.SPARSE);
 				ReadableByteChannel readChannel = Channels.newChannel(binary.getStream());
 				fc.transferFrom(readChannel, 0, binary.getSize());
 				clearReadState();
@@ -188,10 +191,10 @@ public class BinaryChannel implements SeekableByteChannel {
 	private boolean isModified() {
 		return fc != null;
 	}
-	
-	private void clearReadState(){
+
+	private void clearReadState() {
 		position = -1;
 		JcrUtils.closeQuietly(binary);
-		binary=null;
+		binary = null;
 	}
 }
