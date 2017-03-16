@@ -51,6 +51,9 @@ public class JcrPath implements Path {
 		String trimmedPath = path.substring(absolute ? 1 : 0,
 				path.charAt(path.length() - 1) == delimChar ? path.length() - 1 : path.length());
 		this.path = trimmedPath.split(delimStr);
+		for (int i = 0; i < this.path.length; i++) {
+			this.path[i] = Text.unescapeIllegalJcrChars(this.path[i]);
+		}
 		this.hashCode = this.path[this.path.length - 1].hashCode();
 	}
 
@@ -98,6 +101,20 @@ public class JcrPath implements Path {
 			if (i != 0)
 				sb.append('/');
 			sb.append(path[i]);
+		}
+		return sb.toString();
+	}
+
+	public String toJcrPath() {
+		if (path == null)
+			return "/";
+		StringBuilder sb = new StringBuilder();
+		if (isAbsolute())
+			sb.append('/');
+		for (int i = 0; i < path.length; i++) {
+			if (i != 0)
+				sb.append('/');
+			sb.append(Text.escapeIllegalJcrChars(path[i]));
 		}
 		return sb.toString();
 	}
@@ -288,7 +305,7 @@ public class JcrPath implements Path {
 	public Node getNode() throws RepositoryException {
 		if (!isAbsolute())// TODO default dir
 			throw new JcrFsException("Cannot get node from relative path");
-		String pathStr = toString();
+		String pathStr = toJcrPath();
 		Session session = fs.getSession();
 		// TODO synchronize on the session ?
 		if (!session.itemExists(pathStr))

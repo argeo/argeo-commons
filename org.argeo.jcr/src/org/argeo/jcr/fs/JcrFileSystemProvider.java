@@ -47,7 +47,9 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 						|| parent.getPrimaryNodeType().isNodeType(NodeType.NT_LINKED_FILE))
 					throw new JcrFsException(path + " parent is a file");
 
-				node = parent.addNode(path.getFileName().toString(), NodeType.NT_FILE);
+				String fileName = path.getFileName().toString();
+				fileName = Text.escapeIllegalJcrChars(fileName);
+				node = parent.addNode(fileName, NodeType.NT_FILE);
 				node.addMixin(NodeType.MIX_CREATED);
 				node.addMixin(NodeType.MIX_LAST_MODIFIED);
 			}
@@ -80,7 +82,9 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 				if (parent.getPrimaryNodeType().isNodeType(NodeType.NT_FILE)
 						|| parent.getPrimaryNodeType().isNodeType(NodeType.NT_LINKED_FILE))
 					throw new JcrFsException(dir + " parent is a file");
-				node = parent.addNode(dir.getFileName().toString(), NodeType.NT_FOLDER);
+				String fileName = dir.getFileName().toString();
+				fileName = Text.escapeIllegalJcrChars(fileName);
+				node = parent.addNode(fileName, NodeType.NT_FOLDER);
 				node.addMixin(NodeType.MIX_CREATED);
 				node.addMixin(NodeType.MIX_LAST_MODIFIED);
 				node.getSession().save();

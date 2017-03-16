@@ -103,4 +103,24 @@ public class JcrFileSystemTest extends TestCase {
 		assertEquals(6, attrs.size());
 		log.debug("Read attributes of " + copiedFile + ": " + attrs.keySet());
 	}
+
+	public void testIllegalCharacters() throws Exception {
+		FileSystemProvider fsProvider = new JackrabbitMemoryFsProvider();
+		String fileName = "tüßçt[1].txt";
+		String pathStr = "/testDir/" + fileName;
+		Path testDir = fsProvider.getPath(new URI("jcr+memory:/testDir"));
+		Files.createDirectory(testDir);
+		Path testPath = testDir.resolve(fileName);
+		assertEquals(pathStr, testPath.toString());
+		Files.createFile(testPath);
+		DirectoryStream<Path> files = Files.newDirectoryStream(testDir);
+		Path listedPath = files.iterator().next();
+		assertEquals(pathStr, listedPath.toString());
+
+		String dirName = "*[~WeirdDir~]*";
+		Path subDir = testDir.resolve(dirName);
+		Files.createDirectory(subDir);
+		subDir = testDir.resolve(dirName);
+		assertEquals(dirName, subDir.getFileName().toString());
+	}
 }
