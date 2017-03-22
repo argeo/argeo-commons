@@ -542,19 +542,19 @@ public class FormPageViewer extends AbstractPageViewer {
 		return body;
 	}
 
-	// LOCAL HELPERS FOR NODE MANAGEMENT
-	protected Node getOrCreateNode(Node parent, String nodeType, String nodeName) throws RepositoryException {
-		Node node = null;
-		if (getCmsEditable().canEdit() && !parent.hasNode(nodeName)) {
-			node = JcrUtils.mkdirs(parent, nodeName, nodeType);
-			parent.getSession().save();
-		}
-
-		if (getCmsEditable().canEdit() || parent.hasNode(nodeName))
-			node = parent.getNode(nodeName);
-
-		return node;
-	}
+//	// LOCAL HELPERS FOR NODE MANAGEMENT
+//	private Node getOrCreateNode(Node parent, String nodeName, String nodeType) throws RepositoryException {
+//		Node node = null;
+//		if (getCmsEditable().canEdit() && !parent.hasNode(nodeName)) {
+//			node = JcrUtils.mkdirs(parent, nodeName, nodeType);
+//			parent.getSession().save();
+//		}
+//
+//		if (getCmsEditable().canEdit() || parent.hasNode(nodeName))
+//			node = parent.getNode(nodeName);
+//
+//		return node;
+//	}
 
 	private SelectionListener getRemoveValueSelListener() {
 		return new SelectionAdapter() {

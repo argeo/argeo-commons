@@ -57,6 +57,7 @@ public class AddPrivilegeWizard extends Wizard {
 	private Session currentSession;
 	private String targetPath;
 	// Chosen parameters
+	private String chosenDn;
 	private User chosenUser;
 	private String jcrPrivilege;
 
@@ -108,7 +109,12 @@ public class AddPrivilegeWizard extends Wizard {
 		if (!canFinish())
 			return false;
 		try {
-			JcrUtils.addPrivilege(currentSession, targetPath, chosenUser.getName(), jcrPrivilege);
+			String username = chosenUser.getName();
+			if (EclipseUiUtils.notEmpty(chosenDn) && chosenDn.equalsIgnoreCase(username))
+				// Enable forcing the username case. TODO clean once this issue
+				// has been generally addressed
+				username = chosenDn;
+			JcrUtils.addPrivilege(currentSession, targetPath, username, jcrPrivilege);
 		} catch (RepositoryException re) {
 			throw new EclipseUiException(
 					"Cannot set " + jcrPrivilege + " for " + chosenUser.getName() + " on " + targetPath, re);
@@ -135,15 +141,15 @@ public class AddPrivilegeWizard extends Wizard {
 
 			// specify subject
 			createBoldLabel(composite, "User or group name");
-			final Label groupNameLbl = new Label(composite, SWT.LEAD);
-			groupNameLbl.setLayoutData(EclipseUiUtils.fillWidth());
+			final Label userNameLbl = new Label(composite, SWT.LEAD);
+			userNameLbl.setLayoutData(EclipseUiUtils.fillWidth());
 
 			Link pickUpLk = new Link(composite, SWT.LEFT);
 			pickUpLk.setText(" <a>Change</a> ");
 
 			createBoldLabel(composite, "User or group DN");
-			final Text groupNameTxt = new Text(composite, SWT.LEAD | SWT.BORDER);
-			groupNameTxt.setLayoutData(EclipseUiUtils.fillWidth(2));
+			final Text userNameTxt = new Text(composite, SWT.LEAD | SWT.BORDER);
+			userNameTxt.setLayoutData(EclipseUiUtils.fillWidth(2));
 
 			pickUpLk.addSelectionListener(new SelectionAdapter() {
 				private static final long serialVersionUID = 1L;
@@ -153,18 +159,18 @@ public class AddPrivilegeWizard extends Wizard {
 					PickUpUserDialog dialog = new PickUpUserDialog(getShell(), "Choose a group or a user", userAdmin);
 					if (dialog.open() == Window.OK) {
 						chosenUser = dialog.getSelected();
-						groupNameLbl.setText(UserAdminUtils.getCommonName(chosenUser));
-						groupNameTxt.setText(chosenUser.getName());
+						userNameLbl.setText(UserAdminUtils.getCommonName(chosenUser));
+						userNameTxt.setText(chosenUser.getName());
 					}
 				}
 			});
 
-			groupNameTxt.addFocusListener(new FocusListener() {
+			userNameTxt.addFocusListener(new FocusListener() {
 				private static final long serialVersionUID = 1965498600105667738L;
 
 				@Override
 				public void focusLost(FocusEvent event) {
-					String dn = groupNameTxt.getText();
+					String dn = userNameTxt.getText();
 					if (EclipseUiUtils.isEmpty(dn))
 						return;
 
@@ -176,7 +182,7 @@ public class AddPrivilegeWizard extends Wizard {
 								"DN " + dn + " is not valid.\nError message: " + e.getMessage()
 										+ "\n\t\tDo you want to try again?");
 						if (tryAgain)
-							groupNameTxt.setFocus();
+							userNameTxt.setFocus();
 						else
 							resetOnFail();
 					}
@@ -185,18 +191,19 @@ public class AddPrivilegeWizard extends Wizard {
 						boolean tryAgain = MessageDialog.openQuestion(getShell(), "Unexisting role",
 								"User/group " + dn + " does not exist. " + "Do you want to try again?");
 						if (tryAgain)
-							groupNameTxt.setFocus();
+							userNameTxt.setFocus();
 						else
 							resetOnFail();
 					} else {
 						chosenUser = newChosen;
-						groupNameLbl.setText(UserAdminUtils.getCommonName(chosenUser));
+						chosenDn = dn;
+						userNameLbl.setText(UserAdminUtils.getCommonName(chosenUser));
 					}
 				}
 
 				private void resetOnFail() {
 					String oldDn = chosenUser == null ? "" : chosenUser.getName();
-					groupNameTxt.setText(oldDn);
+					userNameTxt.setText(oldDn);
 				}
 
 				@Override
