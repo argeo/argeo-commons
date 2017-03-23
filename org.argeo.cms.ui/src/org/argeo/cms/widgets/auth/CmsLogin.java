@@ -255,8 +255,12 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 			loginContext.logout();
 			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, this);
 			loginContext.login();
-		} catch (FailedLoginException e) {
-			log.warn(e.getMessage());
+		} catch (LoginException e) {
+			if (log.isTraceEnabled())
+				log.warn("Login failed: " + e.getMessage(), e);
+			else
+				log.warn("Login failed: " + e.getMessage());
+
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e2) {
@@ -264,10 +268,11 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 			}
 			// ErrorFeedback.show("Login failed", e);
 			return false;
-		} catch (LoginException e) {
-			log.error("Cannot login", e);
-			return false;
 		}
+		// catch (LoginException e) {
+		// log.error("Cannot login", e);
+		// return false;
+		// }
 		cmsView.authChange(loginContext);
 		return true;
 	}
@@ -284,11 +289,10 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 				((NameCallback) callback).setName(usernameT.getText());
 			else if (callback instanceof PasswordCallback && passwordT != null)
 				((PasswordCallback) callback).setPassword(passwordT.getTextChars());
-			else if (callback instanceof HttpRequestCallback){
+			else if (callback instanceof HttpRequestCallback) {
 				((HttpRequestCallback) callback).setRequest(UiContext.getHttpRequest());
 				((HttpRequestCallback) callback).setResponse(UiContext.getHttpResponse());
-			}
-			else if (callback instanceof LanguageCallback && localeChoice != null)
+			} else if (callback instanceof LanguageCallback && localeChoice != null)
 				((LanguageCallback) callback).setLocale(localeChoice.getSelectedLocale());
 		}
 	}
