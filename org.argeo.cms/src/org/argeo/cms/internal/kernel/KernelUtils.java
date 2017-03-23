@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.PrivilegedAction;
+import java.security.URIParameter;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Properties;
@@ -32,6 +34,17 @@ import org.osgi.framework.FrameworkUtil;
 class KernelUtils implements KernelConstants {
 	final static String OSGI_INSTANCE_AREA = "osgi.instance.area";
 	final static String OSGI_CONFIGURATION_AREA = "osgi.configuration.area";
+
+	static void setJaasConfiguration(URL jaasConfigurationUrl) {
+		try {
+			URIParameter uriParameter = new URIParameter(jaasConfigurationUrl.toURI());
+			javax.security.auth.login.Configuration jaasConfiguration = javax.security.auth.login.Configuration
+					.getInstance("JavaLoginConfig", uriParameter);
+			javax.security.auth.login.Configuration.setConfiguration(jaasConfiguration);
+		} catch (Exception e) {
+			throw new CmsException("Cannot set configuration " + jaasConfigurationUrl, e);
+		}
+	}
 
 	static Dictionary<String, ?> asDictionary(Properties props) {
 		Hashtable<String, Object> hashtable = new Hashtable<String, Object>();
@@ -109,17 +122,17 @@ class KernelUtils implements KernelConstants {
 	}
 
 	// Security
-//	static Subject anonymousLogin() {
-//		Subject subject = new Subject();
-//		LoginContext lc;
-//		try {
-//			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, subject);
-//			lc.login();
-//			return subject;
-//		} catch (LoginException e) {
-//			throw new CmsException("Cannot login as anonymous", e);
-//		}
-//	}
+	// static Subject anonymousLogin() {
+	// Subject subject = new Subject();
+	// LoginContext lc;
+	// try {
+	// lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, subject);
+	// lc.login();
+	// return subject;
+	// } catch (LoginException e) {
+	// throw new CmsException("Cannot login as anonymous", e);
+	// }
+	// }
 
 	static void logFrameworkProperties(Log log) {
 		BundleContext bc = getBundleContext();

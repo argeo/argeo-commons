@@ -28,6 +28,7 @@ import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeDeployment;
 import org.argeo.node.NodeState;
 import org.argeo.node.security.CryptoKeyring;
+import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.util.LangUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -108,6 +109,20 @@ public class CmsDeployment implements NodeDeployment {
 						Object cn = config.getProperties().get(NodeConstants.CN);
 						log.debug("Standalone repo cn: " + cn);
 					}
+					configs = configurationAdmin
+							.listConfigurations("(service.factoryPid=" + NodeConstants.NODE_USER_ADMIN_PID + ")");
+
+					boolean hasDomain = false;
+					for (Configuration config : configs) {
+						Object realm = config.getProperties().get(UserAdminConf.realm.name());
+						if (realm != null) {
+							log.debug("Realm: " + realm);
+							hasDomain = true;
+						}
+					}
+					if (!hasDomain) {
+						loadNoIpaJaasConfiguration();
+					}
 				} catch (Exception e) {
 					throw new CmsException("Cannot initialize config", e);
 				}
@@ -116,8 +131,18 @@ public class CmsDeployment implements NodeDeployment {
 		}.open();
 	}
 
+	private void loadNoIpaJaasConfiguration() {
+		if (System.getProperty(KernelConstants.JAAS_CONFIG_PROP) == null) {
+			String jaasConfig = KernelConstants.JAAS_CONFIG_NOIPA;
+			URL url = getClass().getClassLoader().getResource(jaasConfig);
+			KernelUtils.setJaasConfiguration(url);
+			if (log.isDebugEnabled())
+				log.debug("Set no-IPA JAAS configuration.");
+		}
+	}
+
 	public void shutdown() {
-		if(nodeHttp!=null)
+		if (nodeHttp != null)
 			nodeHttp.destroy();
 		if (deployConfig != null)
 			deployConfig.save();

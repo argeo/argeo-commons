@@ -69,7 +69,9 @@ public class Activator implements BundleActivator {
 		if (System.getProperty(KernelConstants.JAAS_CONFIG_PROP) == null) {
 			String jaasConfig = KernelConstants.JAAS_CONFIG;
 			URL url = getClass().getClassLoader().getResource(jaasConfig);
-			System.setProperty(KernelConstants.JAAS_CONFIG_PROP, url.toExternalForm());
+			// System.setProperty(KernelConstants.JAAS_CONFIG_PROP,
+			// url.toExternalForm());
+			KernelUtils.setJaasConfiguration(url);
 		}
 		// explicitly load JAAS configuration
 		Configuration.getConfiguration();

@@ -8,7 +8,6 @@ public interface NodeConstants {
 	String NODE_DEPLOYMENT_PID = "org.argeo.node.deployment";
 	String NODE_INSTANCE_PID = "org.argeo.node.instance";
 
-	String NODE_USER_ADMIN_PID = "org.argeo.node.userAdmin";
 	String NODE_KEYRING_PID = "org.argeo.node.keyring";
 	String NODE_FS_PROVIDER_PID = "org.argeo.node.fsProvider";
 
@@ -16,7 +15,7 @@ public interface NodeConstants {
 	 * FACTORY PIDs
 	 */
 	String NODE_REPOS_FACTORY_PID = "org.argeo.node.repos";
-	String NODE_USER_DIRECTORIES_FACTORY_PID = "org.argeo.node.userDirectories";
+	String NODE_USER_ADMIN_PID = "org.argeo.node.userAdmin";
 
 	/*
 	 * DN ATTRIBUTES (RFC 4514)
