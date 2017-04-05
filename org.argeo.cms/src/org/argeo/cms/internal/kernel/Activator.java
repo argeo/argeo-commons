@@ -42,7 +42,7 @@ public class Activator implements BundleActivator {
 	private LogReaderService logReaderService;
 	// private ConfigurationAdmin configurationAdmin;
 
-	private NodeLogger logger;
+//	private NodeLogger logger;
 	private CmsState nodeState;
 	private CmsDeployment nodeDeployment;
 	private CmsInstance nodeInstance;
@@ -78,8 +78,8 @@ public class Activator implements BundleActivator {
 	}
 
 	private void initArgeoLogger() {
-		logger = new NodeLogger(logReaderService);
-		bc.registerService(ArgeoLogger.class, logger, null);
+//		logger = new NodeLogger(logReaderService);
+//		bc.registerService(ArgeoLogger.class, logger, null);
 	}
 
 	private void initNode() throws IOException {
