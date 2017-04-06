@@ -25,17 +25,12 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.ext.rap.ui.workbench</artifactId>
-			<version>2.1.67-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.cms.ui.workbench</artifactId>
-			<version>2.1.67-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.cms.ui.workbench.rap</artifactId>
+			<version>2.1.67-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.ext.rap.ui.workbench</artifactId>
 			<version>2.1.67-SNAPSHOT</version>
 		</dependency>
 
