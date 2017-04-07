@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
@@ -76,7 +77,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 			loginContext.login();
 		} catch (LoginException e) {
 			try {
-				loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER);
+				loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS);
 				loginContext.login();
 			} catch (LoginException e1) {
 				throw new CmsException("Cannot log in as anonymous", e1);
@@ -171,8 +172,9 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 		if (loginContext == null)
 			throw new CmsException("Login context should not be null");
 		try {
+			CurrentUser.logoutCmsSession(loginContext.getSubject());
 			loginContext.logout();
-			LoginContext anonymousLc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER);
+			LoginContext anonymousLc = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS);
 			anonymousLc.login();
 			authChange(anonymousLc);
 		} catch (LoginException e) {

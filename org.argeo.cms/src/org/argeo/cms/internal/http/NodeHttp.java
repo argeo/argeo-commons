@@ -280,6 +280,7 @@ public class NodeHttp implements KernelConstants {
 			// e.getException());
 			// }
 		}
+
 	}
 
 	private class RemotingServlet extends JcrRemotingServlet {

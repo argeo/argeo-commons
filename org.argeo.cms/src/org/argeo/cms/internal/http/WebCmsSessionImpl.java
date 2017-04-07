@@ -14,9 +14,9 @@ public class WebCmsSessionImpl extends CmsSessionImpl {
 	}
 
 	public static CmsSession getCmsSession(HttpServletRequest request) {
-		CmsSession cmsSession = (CmsSession) request.getAttribute(CmsSession.class.getName());
-		if (cmsSession != null)
-			return cmsSession;
+//		CmsSession cmsSession = (CmsSession) request.getAttribute(CmsSession.class.getName());
+//		if (cmsSession != null)
+//			return cmsSession;
 		return CmsSessionImpl.getByLocalId(request.getSession().getId());
 	}
 }

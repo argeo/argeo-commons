@@ -1,7 +1,6 @@
 package org.argeo.cms.auth;
 
 import java.security.Principal;
-import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 
@@ -12,8 +11,6 @@ import javax.security.auth.x500.X500Principal;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 //import org.apache.jackrabbit.core.security.AnonymousPrincipal;
 //import org.apache.jackrabbit.core.security.SecurityConstants;
 //import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
@@ -21,22 +18,19 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.cms.internal.http.WebCmsSessionImpl;
+import org.argeo.node.NodeConstants;
 import org.argeo.node.security.AnonymousPrincipal;
 import org.argeo.node.security.DataAdminPrincipal;
 import org.argeo.node.security.NodeSecurityUtils;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
 
 class CmsAuthUtils {
-	private final static Log log = LogFactory.getLog(CmsAuthUtils.class);
-
 	/** Shared HTTP request */
 	final static String SHARED_STATE_HTTP_REQUEST = "org.argeo.cms.auth.http.request";
 	/** From org.osgi.service.http.HttpContext */
-	final static String SHARED_STATE_AUTHORIZATION = "org.osgi.service.useradmin.authorization";
+	// final static String SHARED_STATE_AUTHORIZATION =
+	// "org.osgi.service.useradmin.authorization";
 	/** From com.sun.security.auth.module.*LoginModule */
 	final static String SHARED_STATE_NAME = "javax.security.auth.login.name";
 	/** From com.sun.security.auth.module.*LoginModule */
@@ -111,73 +105,61 @@ class CmsAuthUtils {
 		// Argeo
 		subject.getPrincipals().removeAll(subject.getPrincipals(X500Principal.class));
 		subject.getPrincipals().removeAll(subject.getPrincipals(ImpliedByPrincipal.class));
+		subject.getPrincipals().removeAll(subject.getPrincipals(AnonymousPrincipal.class));
+		subject.getPrincipals().removeAll(subject.getPrincipals(DataAdminPrincipal.class));
+
+		subject.getPrivateCredentials().removeAll(subject.getPrivateCredentials(CmsSessionId.class));
+		subject.getPrivateCredentials().removeAll(subject.getPrivateCredentials(Authorization.class));
 		// Jackrabbit
 		// subject.getPrincipals().removeAll(subject.getPrincipals(AdminPrincipal.class));
 		// subject.getPrincipals().removeAll(subject.getPrincipals(AnonymousPrincipal.class));
 	}
-
-	// SHARED STATE KEYS
-	// compatible with com.sun.security.auth.module.*LoginModule
-	// public static final String SHARED_STATE_USERNAME =
-	// "javax.security.auth.login.name";
-	// public static final String SHARED_STATE_PASSWORD =
-	// "javax.security.auth.login.password";
 
 	private static void registerSessionAuthorization(HttpServletRequest request, Subject subject,
 			Authorization authorization) {
 		if (request != null) {
 			HttpSession httpSession = request.getSession();
 			String httpSessId = httpSession.getId();
-			if (authorization.getName() != null) {
-				request.setAttribute(HttpContext.REMOTE_USER, authorization.getName());
-				request.setAttribute(HttpContext.AUTHORIZATION, authorization);
+			String remoteUser = authorization.getName() != null ? authorization.getName()
+					: NodeConstants.ROLE_ANONYMOUS;
+			request.setAttribute(HttpContext.REMOTE_USER, remoteUser);
+			request.setAttribute(HttpContext.AUTHORIZATION, authorization);
 
-				CmsSession cmsSession = CmsSessionImpl.getByLocalId(httpSessId);
-				if (cmsSession == null)
-					cmsSession = new WebCmsSessionImpl(subject, authorization, httpSessId);
-				request.setAttribute(CmsSession.class.getName(), cmsSession);
-				CmsSessionId nodeSessionId = new CmsSessionId(cmsSession.getUuid());
-				if (subject.getPrivateCredentials(CmsSessionId.class).size() == 0)
-					subject.getPrivateCredentials().add(nodeSessionId);
-				else {
-					UUID storedSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next()
-							.getUuid();
-					// if (storedSessionId.equals(httpSessionId.getValue()))
-					throw new CmsException(
-							"Subject already logged with session " + storedSessionId + " (not " + nodeSessionId + ")");
+			CmsSession cmsSession = CmsSessionImpl.getByLocalId(httpSessId);
+			if (cmsSession != null) {
+				if (authorization.getName() != null) {
+					if (cmsSession.getAuthorization().getName() == null) {
+						// FIXME make it more generic
+						((WebCmsSessionImpl) cmsSession).cleanUp();
+						cmsSession = null;
+					} else if (!authorization.getName().equals(cmsSession.getAuthorization().getName())) {
+						throw new CmsException("Inconsistent user " + authorization.getName()
+								+ " for existing CMS session " + cmsSession);
+					}
+				} else {// anonymous
+					if (cmsSession.getAuthorization().getName() != null) {
+						// FIXME make it more generic
+						((WebCmsSessionImpl) cmsSession).cleanUp();
+						cmsSession = null;
+					}
 				}
+			}
+
+			if (cmsSession == null)
+				cmsSession = new WebCmsSessionImpl(subject, authorization, httpSessId);
+			// request.setAttribute(CmsSession.class.getName(), cmsSession);
+			CmsSessionId nodeSessionId = new CmsSessionId(cmsSession.getUuid());
+			if (subject.getPrivateCredentials(CmsSessionId.class).size() == 0)
+				subject.getPrivateCredentials().add(nodeSessionId);
+			else {
+				UUID storedSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next().getUuid();
+				// if (storedSessionId.equals(httpSessionId.getValue()))
+				throw new CmsException(
+						"Subject already logged with session " + storedSessionId + " (not " + nodeSessionId + ")");
 			}
 		} else {
 			// TODO desktop, CLI
 		}
-	}
-
-	static boolean logoutSession(BundleContext bc, Subject subject) {
-		UUID nodeSessionId;
-		if (subject.getPrivateCredentials(CmsSessionId.class).size() == 1)
-			nodeSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next().getUuid();
-		else
-			return false;
-		Collection<ServiceReference<CmsSession>> srs;
-		try {
-			srs = bc.getServiceReferences(CmsSession.class, "(" + CmsSession.SESSION_UUID + "=" + nodeSessionId + ")");
-		} catch (InvalidSyntaxException e) {
-			throw new CmsException("Cannot retrieve CMS session #" + nodeSessionId, e);
-		}
-
-		if (srs.size() == 0) {
-			if (log.isTraceEnabled())
-				log.warn("No CMS web session found for http session " + nodeSessionId);
-			return false;
-		} else if (srs.size() > 1)
-			throw new CmsException(srs.size() + " CMS web sessions found for http session " + nodeSessionId);
-
-		WebCmsSessionImpl cmsSession = (WebCmsSessionImpl) bc.getService(srs.iterator().next());
-		cmsSession.cleanUp();
-		subject.getPrivateCredentials().removeAll(subject.getPrivateCredentials(CmsSessionId.class));
-		if (log.isDebugEnabled())
-			log.debug("Cleaned up " + cmsSession);
-		return true;
 	}
 
 	public static <T extends Principal> T getSinglePrincipal(Subject subject, Class<T> clss) {

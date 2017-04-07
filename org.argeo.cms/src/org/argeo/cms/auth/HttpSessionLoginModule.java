@@ -82,6 +82,8 @@ public class HttpSessionLoginModule implements LoginModule {
 			if (sr.size() == 1) {
 				CmsSession cmsSession = bc.getService(sr.iterator().next());
 				authorization = cmsSession.getAuthorization();
+				if (authorization.getName() == null)
+					authorization = null;// anonymous is not sufficient
 				if (log.isTraceEnabled())
 					log.trace("Retrieved authorization from " + cmsSession);
 			} else if (sr.size() == 0)
@@ -93,35 +95,15 @@ public class HttpSessionLoginModule implements LoginModule {
 		sharedState.put(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST, request);
 		extractHttpAuth(request);
 		extractClientCertificate(request);
-		if (authorization == null)
+		if (authorization == null) {
 			return false;
-		sharedState.put(CmsAuthUtils.SHARED_STATE_AUTHORIZATION, authorization);
-		return true;
+		} else {
+			return true;
+		}
 	}
 
 	@Override
 	public boolean commit() throws LoginException {
-		if(authorization!=null){
-			CmsAuthUtils.addAuthorization(subject, authorization,request);
-//			CmsAuthUtils.registerSessionAuthorization(bc, request, subject, authorization);
-		}
-		
-		// TODO create CmsSession in another module
-//		Authorization authorizationToRegister;
-//		if (authorization == null) {
-//			authorizationToRegister = (Authorization) sharedState.get(CmsAuthUtils.SHARED_STATE_AUTHORIZATION);
-//		}
-//		else { // this login module did the authorization
-//			CmsAuthUtils.addAuthentication(subject, authorization);
-//			authorizationToRegister = authorization;
-//		}
-//		if (authorizationToRegister == null) {
-//			return false;
-//		}
-//		if (request == null)
-//			return false;
-//		CmsAuthUtils.registerSessionAuthorization(bc, request, subject, authorizationToRegister);
-
 		byte[] outToken = (byte[]) sharedState.get(CmsAuthUtils.SHARED_STATE_SPNEGO_OUT_TOKEN);
 		if (outToken != null) {
 			response.setHeader(CmsAuthUtils.HEADER_WWW_AUTHENTICATE,
@@ -129,7 +111,7 @@ public class HttpSessionLoginModule implements LoginModule {
 		}
 
 		if (authorization != null) {
-			// CmsAuthUtils.addAuthentication(subject, authorization);
+			CmsAuthUtils.addAuthorization(subject, authorization, request);
 			cleanUp();
 			return true;
 		} else {
@@ -151,7 +133,8 @@ public class HttpSessionLoginModule implements LoginModule {
 
 	@Override
 	public boolean logout() throws LoginException {
-		return CmsAuthUtils.logoutSession(bc, subject);
+		cleanUp();
+		return true;
 	}
 
 	private void extractHttpAuth(final HttpServletRequest httpRequest) {

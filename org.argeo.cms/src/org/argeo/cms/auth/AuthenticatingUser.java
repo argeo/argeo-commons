@@ -32,9 +32,9 @@ class AuthenticatingUser implements User {
 	public AuthenticatingUser(String name, char[] password) {
 		this.name = name;
 		credentials = new Hashtable<>();
-		credentials.put(AuthConstants.SHARED_STATE_USERNAME, name);
+		credentials.put(CmsAuthUtils.SHARED_STATE_NAME, name);
 		byte[] pwd = charsToBytes(password);
-		credentials.put(AuthConstants.SHARED_STATE_PASSWORD, pwd);
+		credentials.put(CmsAuthUtils.SHARED_STATE_PWD, pwd);
 	}
 
 	@Override

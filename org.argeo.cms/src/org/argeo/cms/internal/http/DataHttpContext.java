@@ -43,27 +43,11 @@ class DataHttpContext implements HttpContext {
 		try {
 			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new HttpRequestCallbackHandler(request, response));
 			lc.login();
-			// return true;
 		} catch (LoginException e) {
-			// CallbackHandler token = extractHttpAuth(request, response);
-			// String token = request.getHeader(HttpUtils.HEADER_AUTHORIZATION);
-			// if (token != null) {
-			// try {
-			// lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER);
-			// lc.login();
-			// } catch (LoginException e1) {
-			// throw new CmsException("Could not login", e1);
-			// }
-			// } else {
 			lc = processUnauthorized(request, response);
 			if (lc == null)
 				return false;
-			// }
 		}
-
-		// still required by open session in view
-		// TODO remove it
-		request.setAttribute(NodeConstants.LOGIN_CONTEXT_USER, lc);
 		return true;
 	}
 
@@ -80,7 +64,7 @@ class DataHttpContext implements HttpContext {
 	protected LoginContext processUnauthorized(HttpServletRequest request, HttpServletResponse response) {
 		// anonymous
 		try {
-			LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER);
+			LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS, new HttpRequestCallbackHandler(request, response));
 			lc.login();
 			return lc;
 		} catch (LoginException e1) {
@@ -89,103 +73,6 @@ class DataHttpContext implements HttpContext {
 			return null;
 		}
 	}
-
-	// protected CallbackHandler extractHttpAuth(final HttpServletRequest
-	// httpRequest, HttpServletResponse httpResponse) {
-	// String authHeader =
-	// httpRequest.getHeader(HttpUtils.HEADER_AUTHORIZATION);
-	// if (authHeader != null) {
-	// StringTokenizer st = new StringTokenizer(authHeader);
-	// if (st.hasMoreTokens()) {
-	// String basic = st.nextToken();
-	// if (basic.equalsIgnoreCase("Basic")) {
-	// try {
-	// // TODO manipulate char[]
-	// String credentials = new String(Base64.decodeBase64(st.nextToken()),
-	// "UTF-8");
-	// // log.debug("Credentials: " + credentials);
-	// int p = credentials.indexOf(":");
-	// if (p != -1) {
-	// final String login = credentials.substring(0, p).trim();
-	// final char[] password = credentials.substring(p +
-	// 1).trim().toCharArray();
-	// return new CallbackHandler() {
-	// public void handle(Callback[] callbacks) {
-	// for (Callback cb : callbacks) {
-	// if (cb instanceof NameCallback)
-	// ((NameCallback) cb).setName(login);
-	// else if (cb instanceof PasswordCallback)
-	// ((PasswordCallback) cb).setPassword(password);
-	// else if (cb instanceof HttpRequestCallback) {
-	// ((HttpRequestCallback) cb).setRequest(httpRequest);
-	// ((HttpRequestCallback) cb).setResponse(httpResponse);
-	// }
-	// }
-	// }
-	// };
-	// } else {
-	// throw new CmsException("Invalid authentication token");
-	// }
-	// } catch (Exception e) {
-	// throw new CmsException("Couldn't retrieve authentication", e);
-	// }
-	// } else if (basic.equalsIgnoreCase("Negotiate")) {
-	// // FIXME generalise
-	// String _targetName;
-	// try {
-	// _targetName = NodeHttp.DEFAULT_SERVICE + "@"
-	// + InetAddress.getLocalHost().getCanonicalHostName();
-	// } catch (UnknownHostException e) {
-	// throw new CmsException("Cannot determins target name", e);
-	// }
-	// String spnegoToken = st.nextToken();
-	// byte[] authToken = Base64.decodeBase64(spnegoToken);
-	// GSSManager manager = GSSManager.getInstance();
-	// try {
-	//// Oid krb5Oid = new Oid("1.3.6.1.5.5.2"); //
-	// http://java.sun.com/javase/6/docs/technotes/guides/security/jgss/jgss-features.html
-	//// GSSName gssName = manager.createName(_targetName,
-	// GSSName.NT_HOSTBASED_SERVICE, krb5Oid);
-	//// GSSCredential serverCreds = manager.createCredential(gssName,
-	// GSSCredential.INDEFINITE_LIFETIME,
-	//// krb5Oid, GSSCredential.ACCEPT_ONLY);
-	// GSSCredential serverCreds = Activator.getAcceptorCredentials();
-	// if(serverCreds==null)
-	// throw new CmsException("No GSS server credentials available");
-	// GSSContext gContext = manager.createContext(serverCreds);
-	//
-	// if (gContext == null) {
-	// log.debug("SpnegoUserRealm: failed to establish GSSContext");
-	// } else {
-	// while (!gContext.isEstablished()) {
-	// byte[] outToken = gContext.acceptSecContext(authToken, 0,
-	// authToken.length);
-	// String outTokenStr = Base64.encodeBase64String(outToken);
-	// httpResponse.setHeader("WWW-Authenticate", "Negotiate " + outTokenStr);
-	// }
-	// if (gContext.isEstablished()) {
-	// String clientName = gContext.getSrcName().toString();
-	// String role = clientName.substring(clientName.indexOf('@') + 1);
-	//
-	// log.debug("SpnegoUserRealm: established a security context");
-	// log.debug("Client Principal is: " + gContext.getSrcName());
-	// log.debug("Server Principal is: " + gContext.getTargName());
-	// log.debug("Client Default Role: " + role);
-	//
-	// // TODO log in
-	// }
-	// }
-	//
-	// } catch (GSSException gsse) {
-	// log.warn(gsse, gsse);
-	// }
-	//
-	// }
-	// }
-	// }
-	// return null;
-	// }
-
 	protected void askForWwwAuth(HttpServletRequest request, HttpServletResponse response) {
 		response.setStatus(401);
 		// response.setHeader(HttpUtils.HEADER_WWW_AUTHENTICATE, "basic

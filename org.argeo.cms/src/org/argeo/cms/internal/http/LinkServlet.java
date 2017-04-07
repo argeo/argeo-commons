@@ -247,7 +247,7 @@ class LinkServlet extends HttpServlet {
 		Subject subject = new Subject();
 		LoginContext lc;
 		try {
-			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, subject);
+			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
 			lc.login();
 			return subject;
 		} catch (LoginException e) {

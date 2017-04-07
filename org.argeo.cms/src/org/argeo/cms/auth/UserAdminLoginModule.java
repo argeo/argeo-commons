@@ -43,13 +43,11 @@ public class UserAdminLoginModule implements LoginModule {
 	private CallbackHandler callbackHandler;
 	private Map<String, Object> sharedState = null;
 
-	// private boolean isAnonymous = false;
 	private List<String> indexedUserProperties = Arrays
 			.asList(new String[] { LdapAttrs.uid.name(), LdapAttrs.mail.name(), LdapAttrs.cn.name() });
 
 	// private state
 	private BundleContext bc;
-	// private Authorization authorization;
 	private User authenticatedUser = null;
 
 	@SuppressWarnings("unchecked")
@@ -59,13 +57,8 @@ public class UserAdminLoginModule implements LoginModule {
 		this.subject = subject;
 		try {
 			bc = FrameworkUtil.getBundle(UserAdminLoginModule.class).getBundleContext();
-			assert bc != null;
-			// this.subject = subject;
 			this.callbackHandler = callbackHandler;
 			this.sharedState = (Map<String, Object>) sharedState;
-			// if (options.containsKey("anonymous"))
-			// isAnonymous =
-			// Boolean.parseBoolean(options.get("anonymous").toString());
 		} catch (Exception e) {
 			throw new CmsException("Cannot initialize login module", e);
 		}
@@ -73,12 +66,13 @@ public class UserAdminLoginModule implements LoginModule {
 
 	@Override
 	public boolean login() throws LoginException {
-		Authorization sharedAuth = (Authorization) sharedState.get(CmsAuthUtils.SHARED_STATE_AUTHORIZATION);
-		if (sharedAuth != null) {
-			if (callbackHandler == null && sharedAuth.getName() != null)
-				throw new LoginException("Shared authorization should be anonymous");
-			return false;
-		}
+		// Authorization sharedAuth = (Authorization)
+		// sharedState.get(CmsAuthUtils.SHARED_STATE_AUTHORIZATION);
+		// if (sharedAuth != null) {
+		// if (callbackHandler == null && sharedAuth.getName() != null)
+		// throw new LoginException("Shared authorization should be anonymous");
+		// return false;
+		// }
 		UserAdmin userAdmin = bc.getService(bc.getServiceReference(UserAdmin.class));
 		if (callbackHandler == null) {// anonymous
 			// authorization = userAdmin.getAuthorization(null);
@@ -91,6 +85,7 @@ public class UserAdminLoginModule implements LoginModule {
 		final char[] password;
 		if (sharedState.containsKey(CmsAuthUtils.SHARED_STATE_NAME)
 				&& sharedState.containsKey(CmsAuthUtils.SHARED_STATE_PWD)) {
+			// NB: required by Basic http auth
 			username = (String) sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
 			password = (char[]) sharedState.get(CmsAuthUtils.SHARED_STATE_PWD);
 			// // TODO locale?
@@ -126,7 +121,6 @@ public class UserAdminLoginModule implements LoginModule {
 				password = passwordCallback.getPassword();
 			else
 				throw new CredentialNotFoundException("No credentials provided");
-			// FIXME move Argeo specific convention from user admin to here
 		}
 
 		// User user = userAdmin.getUser(null, username);
@@ -137,25 +131,11 @@ public class UserAdminLoginModule implements LoginModule {
 		if (!user.hasCredential(null, password))
 			throw new FailedLoginException("Invalid credentials");
 		authenticatedUser = user;
-		// return false;
-
-		// authorization = userAdmin.getAuthorization(user);
-		// assert authorization != null;
-		//
-		// sharedState.put(CmsAuthUtils.SHARED_STATE_AUTHORIZATION,
-		// authorization);
 		return true;
 	}
 
 	@Override
 	public boolean commit() throws LoginException {
-		// if (authorization == null) {
-		// return false;
-		// // throw new LoginException("Authorization should not be null");
-		// } else {
-		// CmsAuthUtils.addAuthentication(subject, authorization);
-		// return true;
-		// }
 		UserAdmin userAdmin = bc.getService(bc.getServiceReference(UserAdmin.class));
 		Authorization authorization;
 		if (callbackHandler == null) {// anonymous
@@ -165,7 +145,7 @@ public class UserAdminLoginModule implements LoginModule {
 			Set<KerberosPrincipal> kerberosPrincipals = subject.getPrincipals(KerberosPrincipal.class);
 			if (kerberosPrincipals.isEmpty()) {
 				if (authenticatedUser == null) {
-					if(log.isTraceEnabled())
+					if (log.isTraceEnabled())
 						log.trace("Neither kerberos nor user admin login succeeded. Login failed.");
 					return false;
 				} else {
@@ -179,24 +159,22 @@ public class UserAdminLoginModule implements LoginModule {
 					throw new LoginException("Kerberos login " + authenticatingUser.getName()
 							+ " is inconsistent with user admin login " + authenticatedUser.getName());
 			}
-				authorization = Subject.doAs(subject, new PrivilegedAction<Authorization>() {
+			authorization = Subject.doAs(subject, new PrivilegedAction<Authorization>() {
 
-					@Override
-					public Authorization run() {
-						Authorization authorization = userAdmin.getAuthorization(authenticatingUser);
-						return authorization;
-					}
+				@Override
+				public Authorization run() {
+					Authorization authorization = userAdmin.getAuthorization(authenticatingUser);
+					return authorization;
+				}
 
-				});
+			});
 			if (authorization == null)
-				throw new LoginException("User admin found no authorization for authenticated user "+authenticatingUser.getName());
+				throw new LoginException(
+						"User admin found no authorization for authenticated user " + authenticatingUser.getName());
 		}
 		// Log and monitor new login
-		CmsAuthUtils.addAuthorization(subject, authorization, (HttpServletRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST));
-//		HttpServletRequest request = (HttpServletRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
-//		if (request != null) {
-//			CmsAuthUtils.registerSessionAuthorization(bc, request, subject, authorization);
-//		}
+		CmsAuthUtils.addAuthorization(subject, authorization,
+				(HttpServletRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST));
 		if (log.isDebugEnabled())
 			log.debug("Logged in to CMS: " + subject);
 		return true;
@@ -204,7 +182,6 @@ public class UserAdminLoginModule implements LoginModule {
 
 	@Override
 	public boolean abort() throws LoginException {
-		// authorization = null;
 		return true;
 	}
 
@@ -212,6 +189,8 @@ public class UserAdminLoginModule implements LoginModule {
 	public boolean logout() throws LoginException {
 		if (log.isDebugEnabled())
 			log.debug("Logging out from CMS... " + subject);
+		// boolean httpSessionLogoutOk = CmsAuthUtils.logoutSession(bc,
+		// subject);
 		CmsAuthUtils.cleanUp(subject);
 		return true;
 	}

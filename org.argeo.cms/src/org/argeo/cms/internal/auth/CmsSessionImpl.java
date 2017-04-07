@@ -1,5 +1,8 @@
 package org.argeo.cms.internal.auth;
 
+import java.security.AccessControlContext;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CmsSession;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.node.security.NodeSecurityUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -32,11 +36,13 @@ public class CmsSessionImpl implements CmsSession {
 	private final static BundleContext bc = FrameworkUtil.getBundle(CmsSessionImpl.class).getBundleContext();
 	private final static Log log = LogFactory.getLog(CmsSessionImpl.class);
 
-	private final Subject initialSubject;
+	// private final Subject initialSubject;
+	private final AccessControlContext initialContext;
 	private final UUID uuid;
 	private final String localSessionId;
 	private final Authorization authorization;
 	private final LdapName userDn;
+	private final boolean anonymous;
 
 	private ServiceRegistration<CmsSession> serviceRegistration;
 
@@ -45,18 +51,32 @@ public class CmsSessionImpl implements CmsSession {
 	private LinkedHashSet<Session> additionalDataSessions = new LinkedHashSet<>();
 
 	public CmsSessionImpl(Subject initialSubject, Authorization authorization, String localSessionId) {
-		this.initialSubject = initialSubject;
+		this.initialContext = Subject.doAs(initialSubject, new PrivilegedAction<AccessControlContext>() {
+
+			@Override
+			public AccessControlContext run() {
+				return AccessController.getContext();
+			}
+
+		});
+		// this.initialSubject = initialSubject;
 		this.localSessionId = localSessionId;
 		this.authorization = authorization;
-		try {
-			this.userDn = new LdapName(authorization.getName());
-		} catch (InvalidNameException e) {
-			throw new CmsException("Invalid user name " + authorization.getName(), e);
+		if (authorization.getName() != null)
+			try {
+				this.userDn = new LdapName(authorization.getName());
+				this.anonymous = false;
+			} catch (InvalidNameException e) {
+				throw new CmsException("Invalid user name " + authorization.getName(), e);
+			}
+		else {
+			this.userDn = NodeSecurityUtils.ROLE_ANONYMOUS_NAME;
+			this.anonymous = true;
 		}
 		this.uuid = UUID.randomUUID();
 		// register as service
 		Hashtable<String, String> props = new Hashtable<>();
-		props.put(CmsSession.USER_DN, authorization.getName());
+		props.put(CmsSession.USER_DN, userDn.toString());
 		props.put(CmsSession.SESSION_UUID, uuid.toString());
 		props.put(CmsSession.SESSION_LOCAL_ID, localSessionId);
 		serviceRegistration = bc.registerService(CmsSession.class, this, props);
@@ -109,6 +129,7 @@ public class CmsSessionImpl implements CmsSession {
 
 	private Session login(Repository repository, String workspace) {
 		try {
+			Subject initialSubject = Subject.getSubject(initialContext);
 			return Subject.doAs(initialSubject, new PrivilegedExceptionAction<Session>() {
 				@Override
 				public Session run() throws Exception {
@@ -147,10 +168,6 @@ public class CmsSessionImpl implements CmsSession {
 		return uuid;
 	}
 
-	public Subject getInitialSubject() {
-		return initialSubject;
-	}
-
 	public String getLocalSessionId() {
 		return localSessionId;
 	}
@@ -167,6 +184,10 @@ public class CmsSessionImpl implements CmsSession {
 	@Override
 	public String getLocalId() {
 		return localSessionId;
+	}
+
+	public boolean isAnonymous() {
+		return anonymous;
 	}
 
 	public String toString() {

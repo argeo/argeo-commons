@@ -5,7 +5,6 @@ import java.util.Locale;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
@@ -130,6 +129,7 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 		if (loginContext == null)
 			throw new CmsException("Login context should not bet null");
 		try {
+			CurrentUser.logoutCmsSession(loginContext.getSubject());
 			loginContext.logout();
 		} catch (LoginException e) {
 			throw new CmsException("Cannot log out", e);
