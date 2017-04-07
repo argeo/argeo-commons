@@ -191,7 +191,7 @@ public class CmsSessionImpl implements CmsSession {
 	}
 
 	public String toString() {
-		return "CMS Session local=" + localSessionId + ", uuid=" + uuid;
+		return "CMS Session " + userDn + " local=" + localSessionId + ", uuid=" + uuid;
 	}
 
 	public static CmsSession getByLocalId(String localId) {
