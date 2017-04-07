@@ -29,17 +29,14 @@ public class Launcher {
 
 	public static void main(String[] args) {
 		// Try to load system properties
-		String systemPropertiesFilePath = OsgiBootUtils
-				.getProperty(OsgiBoot.PROP_ARGEO_OSGI_BOOT_SYSTEM_PROPERTIES_FILE);
+		String systemPropertiesFilePath = getProperty(OsgiBoot.PROP_ARGEO_OSGI_BOOT_SYSTEM_PROPERTIES_FILE);
 		if (systemPropertiesFilePath != null) {
 			FileInputStream in;
 			try {
 				in = new FileInputStream(systemPropertiesFilePath);
 				System.getProperties().load(in);
 			} catch (IOException e1) {
-				throw new RuntimeException(
-						"Cannot load system properties from "
-								+ systemPropertiesFilePath, e1);
+				throw new RuntimeException("Cannot load system properties from " + systemPropertiesFilePath, e1);
 			}
 			if (in != null) {
 				try {
@@ -67,13 +64,11 @@ public class Launcher {
 	}
 
 	protected static void startMainClass() {
-		String className = OsgiBootUtils
-				.getProperty(OsgiBoot.PROP_ARGEO_OSGI_BOOT_APPCLASS);
+		String className = getProperty(OsgiBoot.PROP_ARGEO_OSGI_BOOT_APPCLASS);
 		if (className == null)
 			return;
 
-		String line = System.getProperty(OsgiBoot.PROP_ARGEO_OSGI_BOOT_APPARGS,
-				"");
+		String line = System.getProperty(OsgiBoot.PROP_ARGEO_OSGI_BOOT_APPARGS, "");
 
 		String[] uiArgs = readArgumentsFromLine(line);
 
@@ -131,6 +126,23 @@ public class Launcher {
 			res[i] = args.get(i).toString();
 		}
 		return res;
+	}
+
+	public static String getProperty(String name, String defaultValue) {
+		final String value;
+		if (defaultValue != null)
+			value = System.getProperty(name, defaultValue);
+		else
+			value = System.getProperty(name);
+
+		if (value == null || value.equals(""))
+			return null;
+		else
+			return value;
+	}
+
+	public static String getProperty(String name) {
+		return getProperty(name, null);
 	}
 
 }

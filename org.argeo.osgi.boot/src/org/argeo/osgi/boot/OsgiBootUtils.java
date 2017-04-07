@@ -47,27 +47,6 @@ public class OsgiBootUtils {
 			e.printStackTrace();
 	}
 
-	/**
-	 * Gets a property value
-	 * 
-	 * @return null when defaultValue is ""
-	 */
-	public static String getProperty(String name, String defaultValue) {
-		final String value;
-		if (defaultValue != null)
-			value = System.getProperty(name, defaultValue);
-		else
-			value = System.getProperty(name);
-
-		if (value == null || value.equals(""))
-			return null;
-		else
-			return value;
-	}
-
-	public static String getProperty(String name) {
-		return getProperty(name, null);
-	}
 
 	public static String stateAsString(int state) {
 		switch (state) {

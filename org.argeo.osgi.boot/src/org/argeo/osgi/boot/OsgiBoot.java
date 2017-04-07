@@ -232,15 +232,19 @@ public class OsgiBoot implements OsgiBootConstants {
 	 * START
 	 */
 	public void startBundles() {
+		startBundles(System.getProperties());
+	}
+
+	public void startBundles(Properties properties) {
 		FrameworkStartLevel frameworkStartLevel = bundleContext.getBundle(0).adapt(FrameworkStartLevel.class);
 
 		// default and active start levels from System properties
 		Integer defaultStartLevel = new Integer(
-				Integer.parseInt(OsgiBootUtils.getProperty(PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL, "4")));
-		Integer activeStartLevel = new Integer(OsgiBootUtils.getProperty(PROP_OSGI_STARTLEVEL, "6"));
+				Integer.parseInt(getProperty(PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL, "4")));
+		Integer activeStartLevel = new Integer(getProperty(PROP_OSGI_STARTLEVEL, "6"));
 
 		SortedMap<Integer, List<String>> startLevels = new TreeMap<Integer, List<String>>();
-		computeStartLevels(startLevels, System.getProperties(), defaultStartLevel);
+		computeStartLevels(startLevels, properties, defaultStartLevel);
 		// inverts the map for the time being, TODO optimise
 		Map<String, Integer> bundleStartLevels = new HashMap<>();
 		for (Integer level : startLevels.keySet()) {
@@ -445,7 +449,7 @@ public class OsgiBoot implements OsgiBootConstants {
 	 * effects.
 	 */
 	public List<String> getBundlesUrls() {
-		String bundlePatterns = OsgiBootUtils.getProperty(PROP_ARGEO_OSGI_BUNDLES);
+		String bundlePatterns = getProperty(PROP_ARGEO_OSGI_BUNDLES);
 		return getBundlesUrls(bundlePatterns);
 	}
 
@@ -454,7 +458,7 @@ public class OsgiBoot implements OsgiBootConstants {
 	 * default base url
 	 */
 	public List<String> getBundlesUrls(String bundlePatterns) {
-		String baseUrl = OsgiBootUtils.getProperty(PROP_ARGEO_OSGI_BASE_URL, DEFAULT_BASE_URL);
+		String baseUrl = getProperty(PROP_ARGEO_OSGI_BASE_URL, DEFAULT_BASE_URL);
 		return getBundlesUrls(baseUrl, bundlePatterns);
 	}
 
@@ -514,11 +518,15 @@ public class OsgiBoot implements OsgiBootConstants {
 	 * DISTRIBUTION JAR INSTALLATION
 	 */
 	public List<String> getDistributionUrls() {
+		String distributionUrl = getProperty(PROP_ARGEO_OSGI_DISTRIBUTION_URL);
+		String baseUrl = getProperty(PROP_ARGEO_OSGI_BASE_URL);
+		return getDistributionUrls(distributionUrl, baseUrl);
+	}
+
+	public List<String> getDistributionUrls(String distributionUrl, String baseUrl) {
 		List<String> urls = new ArrayList<String>();
-		String distributionUrl = OsgiBootUtils.getProperty(PROP_ARGEO_OSGI_DISTRIBUTION_URL);
 		if (distributionUrl == null)
 			return urls;
-		String baseUrl = OsgiBootUtils.getProperty(PROP_ARGEO_OSGI_BASE_URL);
 
 		DistributionBundle distributionBundle;
 		if (baseUrl != null && !(distributionUrl.startsWith("http") || distributionUrl.startsWith("file"))) {
@@ -645,6 +653,33 @@ public class OsgiBoot implements OsgiBootConstants {
 	// else
 	// return url;
 	// }
+
+	/**
+	 * Gets a property value
+	 * 
+	 * @return null when defaultValue is ""
+	 */
+	public String getProperty(String name, String defaultValue) {
+		String value = bundleContext.getProperty(name);
+		if (value == null) 
+			return defaultValue; // may be null
+		else
+			return value;
+
+//		if (defaultValue != null)
+//			value = System.getProperty(name, defaultValue);
+//		else
+//			value = System.getProperty(name);
+//
+//		if (value == null || value.equals(""))
+//			return null;
+//		else
+//			return value;
+	}
+
+	public String getProperty(String name) {
+		return getProperty(name, null);
+	}
 
 	/*
 	 * BEAN METHODS
