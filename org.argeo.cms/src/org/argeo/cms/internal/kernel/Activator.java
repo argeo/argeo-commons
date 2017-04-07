@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.AllPermission;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.Locale;
@@ -14,7 +15,6 @@ import javax.security.auth.login.Configuration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.node.ArgeoLogger;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeDeployment;
 import org.argeo.node.NodeInstance;
@@ -25,7 +25,13 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.condpermadmin.BundleLocationCondition;
+import org.osgi.service.condpermadmin.ConditionInfo;
+import org.osgi.service.condpermadmin.ConditionalPermissionAdmin;
+import org.osgi.service.condpermadmin.ConditionalPermissionInfo;
+import org.osgi.service.condpermadmin.ConditionalPermissionUpdate;
 import org.osgi.service.log.LogReaderService;
+import org.osgi.service.permissionadmin.PermissionInfo;
 import org.osgi.service.useradmin.UserAdmin;
 
 /**
@@ -42,7 +48,7 @@ public class Activator implements BundleActivator {
 	private LogReaderService logReaderService;
 	// private ConfigurationAdmin configurationAdmin;
 
-//	private NodeLogger logger;
+	// private NodeLogger logger;
 	private CmsState nodeState;
 	private CmsDeployment nodeDeployment;
 	private CmsInstance nodeInstance;
@@ -75,11 +81,23 @@ public class Activator implements BundleActivator {
 		}
 		// explicitly load JAAS configuration
 		Configuration.getConfiguration();
+
+		ConditionalPermissionAdmin permissionAdmin = bc
+				.getService(bc.getServiceReference(ConditionalPermissionAdmin.class));
+		ConditionalPermissionUpdate update = permissionAdmin.newConditionalPermissionUpdate();
+		// Self
+		update.getConditionalPermissionInfos()
+				.add(permissionAdmin.newConditionalPermissionInfo(null,
+						new ConditionInfo[] {
+								new ConditionInfo(BundleLocationCondition.class.getName(), new String[] { "*" }) },
+						new PermissionInfo[] { new PermissionInfo(AllPermission.class.getName(), null, null) },
+						ConditionalPermissionInfo.ALLOW));
+
 	}
 
 	private void initArgeoLogger() {
-//		logger = new NodeLogger(logReaderService);
-//		bc.registerService(ArgeoLogger.class, logger, null);
+		// logger = new NodeLogger(logReaderService);
+		// bc.registerService(ArgeoLogger.class, logger, null);
 	}
 
 	private void initNode() throws IOException {
