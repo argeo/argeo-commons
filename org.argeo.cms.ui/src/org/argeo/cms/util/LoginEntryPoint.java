@@ -2,12 +2,16 @@ package org.argeo.cms.util;
 
 import java.util.Locale;
 
+import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.auth.CmsAuthenticated;
 import org.argeo.cms.ui.CmsImageManager;
 import org.argeo.cms.ui.CmsView;
 import org.argeo.cms.ui.UxContext;
@@ -15,7 +19,6 @@ import org.argeo.cms.widgets.auth.CmsLogin;
 import org.argeo.cms.widgets.auth.CmsLoginShell;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.node.NodeConstants;
-import org.argeo.node.security.NodeAuthenticated;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.EntryPoint;
 import org.eclipse.swt.events.SelectionListener;
@@ -25,15 +28,14 @@ import org.eclipse.swt.widgets.Display;
 public class LoginEntryPoint implements EntryPoint, CmsView {
 	protected final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 	protected final static String HEADER_AUTHORIZATION = "Authorization";
-	// private final static Log log = LogFactory.getLog(WorkbenchLogin.class);
-	// private final Subject subject = new Subject();
+	private final static Log log = LogFactory.getLog(LoginEntryPoint.class);
 	private LoginContext loginContext;
 	private UxContext uxContext = null;
 
 	@Override
 	public int createUI() {
 		final Display display = createDisplay();
-		UiContext.setData(NodeAuthenticated.KEY, this);
+		UiContext.setData(CmsAuthenticated.KEY, this);
 		CmsLoginShell loginShell = createCmsLoginShell();
 		try {
 			// try pre-auth
@@ -43,19 +45,21 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 			loginShell.createUi();
 			loginShell.open();
 
-//			HttpServletRequest request = RWT.getRequest();
-//			String authorization = request.getHeader(HEADER_AUTHORIZATION);
-//			if (authorization == null || !authorization.startsWith("Negotiate")) {
-//				HttpServletResponse response = RWT.getResponse();
-//				response.setStatus(401);
-//				response.setHeader(HEADER_WWW_AUTHENTICATE, "Negotiate");
-//				response.setDateHeader("Date", System.currentTimeMillis());
-//				response.setDateHeader("Expires", System.currentTimeMillis() + (24 * 60 * 60 * 1000));
-//				response.setHeader("Accept-Ranges", "bytes");
-//				response.setHeader("Connection", "Keep-Alive");
-//				response.setHeader("Keep-Alive", "timeout=5, max=97");
-//				// response.setContentType("text/html; charset=UTF-8");
-//			}
+			// HttpServletRequest request = RWT.getRequest();
+			// String authorization = request.getHeader(HEADER_AUTHORIZATION);
+			// if (authorization == null ||
+			// !authorization.startsWith("Negotiate")) {
+			// HttpServletResponse response = RWT.getResponse();
+			// response.setStatus(401);
+			// response.setHeader(HEADER_WWW_AUTHENTICATE, "Negotiate");
+			// response.setDateHeader("Date", System.currentTimeMillis());
+			// response.setDateHeader("Expires", System.currentTimeMillis() +
+			// (24 * 60 * 60 * 1000));
+			// response.setHeader("Accept-Ranges", "bytes");
+			// response.setHeader("Connection", "Keep-Alive");
+			// response.setHeader("Keep-Alive", "timeout=5, max=97");
+			// // response.setContentType("text/html; charset=UTF-8");
+			// }
 
 			while (!loginShell.getShell().isDisposed()) {
 				if (!display.readAndDispatch())
@@ -121,6 +125,15 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 
 	@Override
 	public void authChange(LoginContext loginContext) {
+		if (loginContext == null)
+			throw new CmsException("Login context cannot be null");
+		// logout previous login context
+		if (this.loginContext != null)
+			try {
+				this.loginContext.logout();
+			} catch (LoginException e1) {
+				log.warn("Could not log out: " + e1);
+			}
 		this.loginContext = loginContext;
 	}
 
@@ -142,9 +155,13 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 
 	}
 
-	@Override
-	public LoginContext getLoginContext() {
-		return loginContext;
+	// @Override
+	// public LoginContext getLoginContext() {
+	// return loginContext;
+	// }
+
+	public Subject getSubject() {
+		return loginContext.getSubject();
 	}
 
 	@Override

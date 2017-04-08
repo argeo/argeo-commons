@@ -8,6 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.stats.RepositoryStatistics;
 import org.apache.jackrabbit.stats.RepositoryStatisticsImpl;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.internal.auth.CmsSessionImpl;
 
 /**
  * Background thread started by the {@link Kernel}, which gather statistics and
@@ -35,6 +36,9 @@ class KernelThread extends Thread {
 	}
 
 	private void doSmallestPeriod() {
+		// Clean expired sessions
+		CmsSessionImpl.closeInvalidSessions();
+
 		if (kernelStatsLog.isDebugEnabled()) {
 			StringBuilder line = new StringBuilder(64);
 			line.append("§\t");

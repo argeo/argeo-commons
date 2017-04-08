@@ -64,8 +64,8 @@ public class AnonymousLoginModule implements LoginModule {
 
 	@Override
 	public boolean logout() throws LoginException {
-		if (log.isDebugEnabled())
-			log.debug("Logging out anonymous from CMS... " + subject);
+		if (log.isTraceEnabled())
+			log.trace("Logging out anonymous from CMS... " + subject);
 		CmsAuthUtils.cleanUp(subject);
 		return true;
 	}

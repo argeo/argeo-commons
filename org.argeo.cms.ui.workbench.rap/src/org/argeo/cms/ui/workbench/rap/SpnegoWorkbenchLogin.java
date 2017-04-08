@@ -53,7 +53,7 @@ public class SpnegoWorkbenchLogin extends LoginEntryPoint {
 
 	@Override
 	protected int postLogin() {
-		Subject subject = getLoginContext().getSubject();
+		Subject subject = getSubject();
 		final Display display = Display.getCurrent();
 		if (subject.getPrincipals(X500Principal.class).isEmpty()) {
 			RWT.getClient().getService(JavaScriptExecutor.class).execute("location.reload()");

@@ -4,6 +4,7 @@ import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,12 +19,15 @@ import javax.jcr.Session;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CmsSession;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.node.NodeConstants;
 import org.argeo.node.security.NodeSecurityUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -44,6 +48,9 @@ public class CmsSessionImpl implements CmsSession {
 	private final LdapName userDn;
 	private final boolean anonymous;
 
+	private final ZonedDateTime creationTime;
+	private ZonedDateTime end;
+
 	private ServiceRegistration<CmsSession> serviceRegistration;
 
 	private Map<String, Session> dataSessions = new HashMap<>();
@@ -51,6 +58,7 @@ public class CmsSessionImpl implements CmsSession {
 	private LinkedHashSet<Session> additionalDataSessions = new LinkedHashSet<>();
 
 	public CmsSessionImpl(Subject initialSubject, Authorization authorization, String localSessionId) {
+		this.creationTime = ZonedDateTime.now();
 		this.initialContext = Subject.doAs(initialSubject, new PrivilegedAction<AccessControlContext>() {
 
 			@Override
@@ -82,7 +90,8 @@ public class CmsSessionImpl implements CmsSession {
 		serviceRegistration = bc.registerService(CmsSession.class, this, props);
 	}
 
-	public synchronized void cleanUp() {
+	public synchronized void close() {
+		end = ZonedDateTime.now();
 		serviceRegistration.unregister();
 
 		// TODO check data session in use ?
@@ -90,10 +99,25 @@ public class CmsSessionImpl implements CmsSession {
 			JcrUtils.logoutQuietly(dataSessions.get(path));
 		for (Session session : additionalDataSessions)
 			JcrUtils.logoutQuietly(session);
+
+		try {
+			LoginContext lc;
+			if (isAnonymous()) {
+				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS, getSubject());
+			} else {
+				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, getSubject());
+			}
+			lc.logout();
+		} catch (LoginException e) {
+			log.warn("Could not logout " + getSubject() + ": " + e);
+		}
 		notifyAll();
 	}
 
-	@Override
+	private Subject getSubject() {
+		return Subject.getSubject(initialContext);
+	}
+
 	public synchronized Session getDataSession(String cn, String workspace, Repository repository) {
 		// FIXME make it more robust
 		if (workspace == null)
@@ -129,8 +153,7 @@ public class CmsSessionImpl implements CmsSession {
 
 	private Session login(Repository repository, String workspace) {
 		try {
-			Subject initialSubject = Subject.getSubject(initialContext);
-			return Subject.doAs(initialSubject, new PrivilegedExceptionAction<Session>() {
+			return Subject.doAs(getSubject(), new PrivilegedExceptionAction<Session>() {
 				@Override
 				public Session run() throws Exception {
 					return repository.login(workspace);
@@ -141,7 +164,6 @@ public class CmsSessionImpl implements CmsSession {
 		}
 	}
 
-	@Override
 	public synchronized void releaseDataSession(String cn, Session session) {
 		if (additionalDataSessions.contains(session)) {
 			JcrUtils.logoutQuietly(session);
@@ -156,6 +178,15 @@ public class CmsSessionImpl implements CmsSession {
 		if (session != registeredSession)
 			log.warn("Data session " + path + " not consistent for " + userDn);
 		notifyAll();
+	}
+
+	@Override
+	public boolean isValid() {
+		return !isClosed();
+	}
+
+	protected boolean isClosed() {
+		return getEnd() != null;
 	}
 
 	@Override
@@ -188,6 +219,16 @@ public class CmsSessionImpl implements CmsSession {
 
 	public boolean isAnonymous() {
 		return anonymous;
+	}
+
+	@Override
+	public ZonedDateTime getCreationTime() {
+		return creationTime;
+	}
+
+	@Override
+	public ZonedDateTime getEnd() {
+		return end;
 	}
 
 	public String toString() {
@@ -228,5 +269,22 @@ public class CmsSessionImpl implements CmsSession {
 		} else
 			throw new CmsException(sr.size() + " CMS sessions registered for " + uuid);
 
+	}
+
+	public static void closeInvalidSessions() {
+		Collection<ServiceReference<CmsSession>> srs;
+		try {
+			srs = bc.getServiceReferences(CmsSession.class, null);
+			for (ServiceReference<CmsSession> sr : srs) {
+				CmsSession cmsSession = bc.getService(sr);
+				if (!cmsSession.isValid()) {
+					((CmsSessionImpl) cmsSession).close();
+					if (log.isDebugEnabled())
+						log.debug("Closed expired CMS session " + cmsSession);
+				}
+			}
+		} catch (InvalidSyntaxException e) {
+			throw new CmsException("Cannot get CMS sessions", e);
+		}
 	}
 }

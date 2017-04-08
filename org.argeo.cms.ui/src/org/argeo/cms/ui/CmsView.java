@@ -2,10 +2,10 @@ package org.argeo.cms.ui;
 
 import javax.security.auth.login.LoginContext;
 
-import org.argeo.node.security.NodeAuthenticated;
+import org.argeo.cms.auth.CmsAuthenticated;
 
 /** Provides interaction with the CMS system. UNSTABLE API at this stage. */
-public interface CmsView extends NodeAuthenticated {
+public interface CmsView extends CmsAuthenticated {
 	UxContext getUxContext();
 
 	// NAVIGATION

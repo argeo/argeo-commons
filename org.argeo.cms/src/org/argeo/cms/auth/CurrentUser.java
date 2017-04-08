@@ -21,7 +21,6 @@ import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.security.acl.Group;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -32,14 +31,9 @@ import javax.security.auth.x500.X500Principal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.internal.http.WebCmsSessionImpl;
+import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.node.NodeConstants;
-import org.argeo.node.security.NodeAuthenticated;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.useradmin.Authorization;
 
 /**
@@ -48,7 +42,7 @@ import org.osgi.service.useradmin.Authorization;
  */
 public final class CurrentUser {
 	private final static Log log = LogFactory.getLog(CurrentUser.class);
-	private final static BundleContext bc = FrameworkUtil.getBundle(CurrentUser.class).getBundleContext();
+//	private final static BundleContext bc = FrameworkUtil.getBundle(CurrentUser.class).getBundleContext();
 	/*
 	 * CURRENT USER API
 	 */
@@ -135,9 +129,9 @@ public final class CurrentUser {
 	 */
 
 	private static Subject currentSubject() {
-		NodeAuthenticated cmsView = getNodeAuthenticated();
+		CmsAuthenticated cmsView = getNodeAuthenticated();
 		if (cmsView != null)
-			return cmsView.getLoginContext().getSubject();
+			return cmsView.getSubject();
 		Subject subject = Subject.getSubject(AccessController.getContext());
 		if (subject != null)
 			return subject;
@@ -149,8 +143,8 @@ public final class CurrentUser {
 	 * display, or null if none is available from this call. <b>Not API: Only
 	 * for low-level access.</b>
 	 */
-	private static NodeAuthenticated getNodeAuthenticated() {
-		return UiContext.getData(NodeAuthenticated.KEY);
+	private static CmsAuthenticated getNodeAuthenticated() {
+		return UiContext.getData(CmsAuthenticated.KEY);
 	}
 
 	private static Authorization getAuthorization(Subject subject) {
@@ -163,24 +157,30 @@ public final class CurrentUser {
 			nodeSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next().getUuid();
 		else
 			return false;
-		Collection<ServiceReference<CmsSession>> srs;
-		try {
-			srs = bc.getServiceReferences(CmsSession.class, "(" + CmsSession.SESSION_UUID + "=" + nodeSessionId + ")");
-		} catch (InvalidSyntaxException e) {
-			throw new CmsException("Cannot retrieve CMS session #" + nodeSessionId, e);
-		}
-
-		if (srs.size() == 0) {
-			// if (log.isTraceEnabled())
-			// log.warn("No CMS web session found for http session " +
-			// nodeSessionId);
-			return false;
-		} else if (srs.size() > 1)
-			throw new CmsException(srs.size() + " CMS web sessions found for http session " + nodeSessionId);
-
-		WebCmsSessionImpl cmsSession = (WebCmsSessionImpl) bc.getService(srs.iterator().next());
-		cmsSession.cleanUp();
-//		subject.getPrivateCredentials().removeAll(subject.getPrivateCredentials(CmsSessionId.class));
+		CmsSessionImpl cmsSession = (CmsSessionImpl) CmsSessionImpl.getByUuid(nodeSessionId.toString());
+		cmsSession.close();
+		// Collection<ServiceReference<CmsSession>> srs;
+		// try {
+		// srs = bc.getServiceReferences(CmsSession.class, "(" +
+		// CmsSession.SESSION_UUID + "=" + nodeSessionId + ")");
+		// } catch (InvalidSyntaxException e) {
+		// throw new CmsException("Cannot retrieve CMS session #" +
+		// nodeSessionId, e);
+		// }
+		//
+		// if (srs.size() == 0) {
+		// // if (log.isTraceEnabled())
+		// // log.warn("No CMS web session found for http session " +
+		// // nodeSessionId);
+		// return false;
+		// } else if (srs.size() > 1)
+		// throw new CmsException(srs.size() + " CMS web sessions found for http
+		// session " + nodeSessionId);
+		//
+		// WebCmsSessionImpl cmsSession = (WebCmsSessionImpl)
+		// bc.getService(srs.iterator().next());
+//		cmsSession.cleanUp();
+		// subject.getPrivateCredentials().removeAll(subject.getPrivateCredentials(CmsSessionId.class));
 		if (log.isDebugEnabled())
 			log.debug("Logged out CMS session " + cmsSession.getUuid());
 		return true;

@@ -68,7 +68,7 @@ public class HttpSessionLoginModule implements LoginModule {
 			return false;
 		authorization = (Authorization) request.getAttribute(HttpContext.AUTHORIZATION);
 		if (authorization == null) {// search by session ID
-			String httpSessionId = request.getSession().getId();
+			String httpSessionId = request.getSession(false).getId();
 			// authorization = (Authorization)
 			// request.getSession().getAttribute(HttpContext.AUTHORIZATION);
 			// if (authorization == null) {

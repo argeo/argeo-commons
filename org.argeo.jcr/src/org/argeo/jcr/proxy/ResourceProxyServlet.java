@@ -54,7 +54,7 @@ public class ResourceProxyServlet extends HttpServlet {
 		if (log.isTraceEnabled()) {
 			log.trace("path=" + path);
 			log.trace("UserPrincipal = " + request.getUserPrincipal().getName());
-			log.trace("SessionID = " + request.getSession().getId());
+			log.trace("SessionID = " + request.getSession(false).getId());
 			log.trace("ContextPath = " + request.getContextPath());
 			log.trace("ServletPath = " + request.getServletPath());
 			log.trace("PathInfo = " + request.getPathInfo());

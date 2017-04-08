@@ -187,8 +187,8 @@ public class UserAdminLoginModule implements LoginModule {
 
 	@Override
 	public boolean logout() throws LoginException {
-		if (log.isDebugEnabled())
-			log.debug("Logging out from CMS... " + subject);
+		if (log.isTraceEnabled())
+			log.trace("Logging out from CMS... " + subject);
 		// boolean httpSessionLogoutOk = CmsAuthUtils.logoutSession(bc,
 		// subject);
 		CmsAuthUtils.cleanUp(subject);

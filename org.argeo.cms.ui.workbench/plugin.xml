@@ -39,12 +39,17 @@
     <extension point="org.eclipse.ui.perspectiveExtensions"> 
         <perspectiveExtension targetID="org.argeo.cms.ui.workbench.osgiPerspective"> 
             <view 
-            	id="org.argeo.cms.ui.workbench.modulesView" 
+            	id="org.argeo.cms.ui.workbench.cmsSessionsView" 
             	minimized="false"
              	ratio="0.5" 
              	relationship="left" 
              	relative="org.eclipse.ui.editorss"/> 
             <view 
+            	id="org.argeo.cms.ui.workbench.modulesView" 
+            	minimized="false"
+             	relationship="stack"
+             	relative="org.argeo.cms.ui.workbench.cmsSessionsView"/> 
+             <view 
             	id="org.argeo.cms.ui.workbench.bundlesView" 
             	minimized="false"
              	relationship="stack" 
@@ -105,6 +110,12 @@
             id="org.argeo.cms.ui.workbench.modulesView"
             icon="icons/service_published.gif"
 			class="org.argeo.cms.ui.workbench.osgi.ModulesView">
+		</view>
+		<view
+      		name="CMS Session"
+            id="org.argeo.cms.ui.workbench.cmsSessionsView"
+            icon="icons/service_published.gif"
+			class="org.argeo.cms.ui.workbench.osgi.CmsSessionsView">
 		</view>
 		<view
       		name="Bundles"

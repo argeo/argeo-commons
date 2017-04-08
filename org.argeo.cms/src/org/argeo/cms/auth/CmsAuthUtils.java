@@ -118,19 +118,19 @@ class CmsAuthUtils {
 	private static void registerSessionAuthorization(HttpServletRequest request, Subject subject,
 			Authorization authorization) {
 		if (request != null) {
-			HttpSession httpSession = request.getSession();
+			HttpSession httpSession = request.getSession(false);
 			String httpSessId = httpSession.getId();
 			String remoteUser = authorization.getName() != null ? authorization.getName()
 					: NodeConstants.ROLE_ANONYMOUS;
 			request.setAttribute(HttpContext.REMOTE_USER, remoteUser);
 			request.setAttribute(HttpContext.AUTHORIZATION, authorization);
 
-			CmsSession cmsSession = CmsSessionImpl.getByLocalId(httpSessId);
+			CmsSessionImpl cmsSession = (CmsSessionImpl) CmsSessionImpl.getByLocalId(httpSessId);
 			if (cmsSession != null) {
 				if (authorization.getName() != null) {
 					if (cmsSession.getAuthorization().getName() == null) {
 						// FIXME make it more generic
-						((WebCmsSessionImpl) cmsSession).cleanUp();
+						cmsSession.close();
 						cmsSession = null;
 					} else if (!authorization.getName().equals(cmsSession.getAuthorization().getName())) {
 						throw new CmsException("Inconsistent user " + authorization.getName()
@@ -139,14 +139,14 @@ class CmsAuthUtils {
 				} else {// anonymous
 					if (cmsSession.getAuthorization().getName() != null) {
 						// FIXME make it more generic
-						((WebCmsSessionImpl) cmsSession).cleanUp();
+						cmsSession.close();
 						cmsSession = null;
 					}
 				}
 			}
 
 			if (cmsSession == null)
-				cmsSession = new WebCmsSessionImpl(subject, authorization, httpSessId);
+				cmsSession = new WebCmsSessionImpl(subject, authorization, request);
 			// request.setAttribute(CmsSession.class.getName(), cmsSession);
 			CmsSessionId nodeSessionId = new CmsSessionId(cmsSession.getUuid());
 			if (subject.getPrivateCredentials(CmsSessionId.class).size() == 0)

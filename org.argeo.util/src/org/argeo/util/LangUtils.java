@@ -7,6 +7,9 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -155,6 +158,30 @@ public class LangUtils {
 		buf.append('\n').append(' ').append(t.getClass().getCanonicalName()).append(": ").append(t.getMessage());
 		if (t.getCause() != null)
 			chainCauseMessage(buf, t.getCause());
+	}
+
+	/*
+	 * TIME
+	 */
+	/** Formats time elapsed since start. */
+	public static String since(ZonedDateTime start) {
+		ZonedDateTime now = ZonedDateTime.now();
+		return duration(start, now);
+	}
+
+	/** Formats a duration. */
+	public static String duration(Temporal start, Temporal end) {
+		long count = ChronoUnit.DAYS.between(start, end);
+		if (count != 0)
+			return count > 1 ? count + " days" : count + " day";
+		count = ChronoUnit.HOURS.between(start, end);
+		if (count != 0)
+			return count > 1 ? count + " hours" : count + " hours";
+		count = ChronoUnit.MINUTES.between(start, end);
+		if (count != 0)
+			return count > 1 ? count + " minutes" : count + " minute";
+		count = ChronoUnit.SECONDS.between(start, end);
+		return count > 1 ? count + " seconds" : count + " second";
 	}
 
 	/** Singleton constructor. */

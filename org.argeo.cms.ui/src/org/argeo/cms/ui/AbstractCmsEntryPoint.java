@@ -21,10 +21,10 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
+import org.argeo.cms.auth.CmsAuthenticated;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.node.NodeConstants;
-import org.argeo.node.security.NodeAuthenticated;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.client.WebClient;
@@ -71,19 +71,20 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 		// subject = new Subject();
 
 		// Initial login
+		LoginContext lc;
 		try {
-			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
+			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
 					new HttpRequestCallbackHandler(UiContext.getHttpRequest(), UiContext.getHttpResponse()));
-			loginContext.login();
+			lc.login();
 		} catch (LoginException e) {
 			try {
-				loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS);
-				loginContext.login();
+				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS);
+				lc.login();
 			} catch (LoginException e1) {
 				throw new CmsException("Cannot log in as anonymous", e1);
 			}
 		}
-		authChange(loginContext);
+		authChange(lc);
 
 		jsExecutor = RWT.getClient().getService(JavaScriptExecutor.class);
 		browserNavigation = RWT.getClient().getService(BrowserNavigation.class);
@@ -109,8 +110,8 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 
 	@Override
 	protected final void createContents(final Composite parent) {
-		UiContext.setData(NodeAuthenticated.KEY, this);
-		Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Void>() {
+		UiContext.setData(CmsAuthenticated.KEY, this);
+		Subject.doAs(getSubject(), new PrivilegedAction<Void>() {
 			@Override
 			public Void run() {
 				try {
@@ -162,9 +163,12 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 	// return subject;
 	// }
 
-	@Override
-	public LoginContext getLoginContext() {
-		return loginContext;
+	// @Override
+	// public LoginContext getLoginContext() {
+	// return loginContext;
+	// }
+	public Subject getSubject() {
+		return loginContext.getSubject();
 	}
 
 	@Override
@@ -183,11 +187,18 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 	}
 
 	@Override
-	public synchronized void authChange(LoginContext loginContext) {
-		if (loginContext == null)
+	public synchronized void authChange(LoginContext lc) {
+		if (lc == null)
 			throw new CmsException("Login context cannot be null");
-		this.loginContext = loginContext;
-		Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Void>() {
+		// logout previous login context
+		if (this.loginContext != null)
+			try {
+				this.loginContext.logout();
+			} catch (LoginException e1) {
+				log.warn("Could not log out: " + e1);
+			}
+		this.loginContext = lc;
+		Subject.doAs(getSubject(), new PrivilegedAction<Void>() {
 
 			@Override
 			public Void run() {
@@ -210,7 +221,6 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 			}
 
 		});
-
 	}
 
 	@Override
@@ -221,7 +231,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 	}
 
 	protected synchronized void doRefresh() {
-		Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Void>() {
+		Subject.doAs(getSubject(), new PrivilegedAction<Void>() {
 			@Override
 			public Void run() {
 				refresh();

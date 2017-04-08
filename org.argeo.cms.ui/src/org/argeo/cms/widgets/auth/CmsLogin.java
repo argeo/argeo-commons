@@ -13,7 +13,6 @@ import javax.security.auth.callback.LanguageCallback;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
@@ -80,7 +79,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 	}
 
 	protected boolean isAnonymous() {
-		return CurrentUser.isAnonymous(cmsView.getLoginContext().getSubject());
+		return CurrentUser.isAnonymous(cmsView.getSubject());
 	}
 
 	public final void createUi(Composite parent) {
@@ -247,14 +246,16 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 
 	protected boolean login() {
 		// Subject subject = cmsView.getLoginContext().getSubject();
-		LoginContext loginContext = cmsView.getLoginContext();
+//		LoginContext loginContext = cmsView.getLoginContext();
 		try {
 			//
 			// LOGIN
 			//
-			loginContext.logout();
-			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, this);
+//			loginContext.logout();
+			LoginContext loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, this);
 			loginContext.login();
+			cmsView.authChange(loginContext);
+			return true;
 		} catch (LoginException e) {
 			if (log.isTraceEnabled())
 				log.warn("Login failed: " + e.getMessage(), e);
@@ -273,8 +274,6 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		// log.error("Cannot login", e);
 		// return false;
 		// }
-		cmsView.authChange(loginContext);
-		return true;
 	}
 
 	protected void logout() {
