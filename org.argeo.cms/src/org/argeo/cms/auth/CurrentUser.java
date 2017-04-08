@@ -28,8 +28,6 @@ import java.util.UUID;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.node.NodeConstants;
@@ -40,7 +38,7 @@ import org.osgi.service.useradmin.Authorization;
  * context.
  */
 public final class CurrentUser {
-	private final static Log log = LogFactory.getLog(CurrentUser.class);
+//	private final static Log log = LogFactory.getLog(CurrentUser.class);
 	// private final static BundleContext bc =
 	// FrameworkUtil.getBundle(CurrentUser.class).getBundleContext();
 	/*
@@ -173,8 +171,8 @@ public final class CurrentUser {
 			return false;
 		CmsSessionImpl cmsSession = CmsSessionImpl.getByUuid(nodeSessionId.toString());
 		cmsSession.close();
-		if (log.isDebugEnabled())
-			log.debug("Logged out CMS session " + cmsSession.getUuid());
+//		if (log.isDebugEnabled())
+//			log.debug("Logged out CMS session " + cmsSession.getUuid());
 		return true;
 	}
 
