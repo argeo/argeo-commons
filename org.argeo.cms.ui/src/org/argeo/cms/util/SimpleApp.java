@@ -23,6 +23,7 @@ import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.ui.LifeCycleUiProvider;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.node.NodeConstants;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.Application.OperationMode;
@@ -58,8 +59,8 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 	private Repository repository;
 	private String workspace = null;
 	private String jcrBasePath = "/";
-	private List<String> roPrincipals = Arrays.asList("anonymous", "everyone");
-	private List<String> rwPrincipals = Arrays.asList("everyone");
+	private List<String> roPrincipals = Arrays.asList(NodeConstants.ROLE_ANONYMOUS, NodeConstants.ROLE_USER);
+	private List<String> rwPrincipals = Arrays.asList(NodeConstants.ROLE_USER);
 
 	private CmsUiProvider header;
 	private Map<String, CmsUiProvider> pages = new LinkedHashMap<String, CmsUiProvider>();
@@ -151,9 +152,10 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 		try {
 			session = JcrUtils.loginOrCreateWorkspace(repository, workspace);
 			VersionManager vm = session.getWorkspace().getVersionManager();
-			if (!vm.isCheckedOut("/"))
-				vm.checkout("/");
 			JcrUtils.mkdirs(session, jcrBasePath);
+			session.save();
+			if (!vm.isCheckedOut(jcrBasePath))
+				vm.checkout(jcrBasePath);
 			for (String principal : rwPrincipals)
 				JcrUtils.addPrivilege(session, jcrBasePath, principal, Privilege.JCR_WRITE);
 			for (String principal : roPrincipals)

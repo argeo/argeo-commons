@@ -111,7 +111,7 @@ public class HttpSessionLoginModule implements LoginModule {
 		}
 
 		if (authorization != null) {
-			CmsAuthUtils.addAuthorization(subject, authorization, request);
+			CmsAuthUtils.addAuthorization(subject, authorization, request.getLocale(), request);
 			cleanUp();
 			return true;
 		} else {

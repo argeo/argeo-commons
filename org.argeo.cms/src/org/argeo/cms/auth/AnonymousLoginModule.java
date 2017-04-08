@@ -1,5 +1,6 @@
 package org.argeo.cms.auth;
 
+import java.util.Locale;
 import java.util.Map;
 
 import javax.security.auth.Subject;
@@ -49,8 +50,11 @@ public class AnonymousLoginModule implements LoginModule {
 	public boolean commit() throws LoginException {
 		UserAdmin userAdmin = bc.getService(bc.getServiceReference(UserAdmin.class));
 		Authorization authorization = userAdmin.getAuthorization(null);
-		CmsAuthUtils.addAuthorization(subject, authorization,
-				(HttpServletRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST));
+		HttpServletRequest request = (HttpServletRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
+		Locale locale = Locale.getDefault();
+		if (request != null)
+			locale = request.getLocale();
+		CmsAuthUtils.addAuthorization(subject, authorization, locale, request);
 		if (log.isDebugEnabled())
 			log.debug("Anonymous logged in to CMS: " + subject);
 		return true;

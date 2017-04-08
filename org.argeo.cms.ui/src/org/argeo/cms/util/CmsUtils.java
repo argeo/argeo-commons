@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.IOUtils;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.auth.CmsAuthenticated;
 import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.ui.CmsView;
 import org.argeo.eclipse.ui.specific.UiContext;
@@ -41,7 +40,7 @@ public class CmsUtils implements CmsConstants {
 	 * this call.
 	 */
 	public static CmsView getCmsView() {
-		return UiContext.getData(CmsAuthenticated.KEY);
+		return UiContext.getData(CmsView.KEY);
 	}
 
 	public static StringBuilder getServerBaseUrl(HttpServletRequest request) {

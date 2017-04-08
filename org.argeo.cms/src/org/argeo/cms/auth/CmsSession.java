@@ -1,6 +1,7 @@
 package org.argeo.cms.auth;
 
 import java.time.ZonedDateTime;
+import java.util.Locale;
 import java.util.UUID;
 
 import javax.naming.ldap.LdapName;
@@ -27,6 +28,8 @@ public interface CmsSession {
 
 	ZonedDateTime getCreationTime();
 	ZonedDateTime getEnd();
+	
+	Locale getLocale();
 
 	boolean isValid();
 

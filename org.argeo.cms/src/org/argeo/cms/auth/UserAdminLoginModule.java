@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.naming.LdapAttrs;
 import org.argeo.osgi.useradmin.IpaUtils;
 import org.osgi.framework.BundleContext;
@@ -49,6 +48,7 @@ public class UserAdminLoginModule implements LoginModule {
 	// private state
 	private BundleContext bc;
 	private User authenticatedUser = null;
+	private Locale locale;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -107,10 +107,11 @@ public class UserAdminLoginModule implements LoginModule {
 			}
 
 			// i18n
-			Locale locale = langCallback.getLocale();
+			locale = langCallback.getLocale();
 			if (locale == null)
 				locale = Locale.getDefault();
-			UiContext.setLocale(locale);
+			// FIXME add it to Subject
+			// UiContext.setLocale(locale);
 
 			username = nameCallback.getName();
 			if (username == null || username.trim().equals("")) {
@@ -173,7 +174,7 @@ public class UserAdminLoginModule implements LoginModule {
 						"User admin found no authorization for authenticated user " + authenticatingUser.getName());
 		}
 		// Log and monitor new login
-		CmsAuthUtils.addAuthorization(subject, authorization,
+		CmsAuthUtils.addAuthorization(subject, authorization, locale,
 				(HttpServletRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST));
 		if (log.isDebugEnabled())
 			log.debug("Logged in to CMS: " + subject);

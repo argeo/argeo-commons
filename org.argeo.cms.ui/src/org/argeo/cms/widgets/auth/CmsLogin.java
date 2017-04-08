@@ -19,7 +19,6 @@ import javax.security.auth.login.LoginException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsMsg;
-import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallback;
 import org.argeo.cms.i18n.LocaleUtils;
 import org.argeo.cms.ui.CmsStyles;
@@ -79,7 +78,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 	}
 
 	protected boolean isAnonymous() {
-		return CurrentUser.isAnonymous(cmsView.getSubject());
+		return cmsView.isAnonymous();
 	}
 
 	public final void createUi(Composite parent) {
@@ -246,12 +245,12 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 
 	protected boolean login() {
 		// Subject subject = cmsView.getLoginContext().getSubject();
-//		LoginContext loginContext = cmsView.getLoginContext();
+		// LoginContext loginContext = cmsView.getLoginContext();
 		try {
 			//
 			// LOGIN
 			//
-//			loginContext.logout();
+			// loginContext.logout();
 			LoginContext loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, this);
 			loginContext.login();
 			cmsView.authChange(loginContext);

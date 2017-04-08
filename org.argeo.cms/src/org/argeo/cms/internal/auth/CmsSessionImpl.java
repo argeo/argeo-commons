@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -50,6 +51,7 @@ public class CmsSessionImpl implements CmsSession {
 
 	private final ZonedDateTime creationTime;
 	private ZonedDateTime end;
+	private final Locale locale;
 
 	private ServiceRegistration<CmsSession> serviceRegistration;
 
@@ -57,8 +59,9 @@ public class CmsSessionImpl implements CmsSession {
 	private Set<String> dataSessionsInUse = new HashSet<>();
 	private LinkedHashSet<Session> additionalDataSessions = new LinkedHashSet<>();
 
-	public CmsSessionImpl(Subject initialSubject, Authorization authorization, String localSessionId) {
+	public CmsSessionImpl(Subject initialSubject, Authorization authorization, Locale locale, String localSessionId) {
 		this.creationTime = ZonedDateTime.now();
+		this.locale = locale;
 		this.initialContext = Subject.doAs(initialSubject, new PrivilegedAction<AccessControlContext>() {
 
 			@Override
@@ -90,15 +93,17 @@ public class CmsSessionImpl implements CmsSession {
 		serviceRegistration = bc.registerService(CmsSession.class, this, props);
 	}
 
-	public synchronized void close() {
+	public void close() {
 		end = ZonedDateTime.now();
 		serviceRegistration.unregister();
 
-		// TODO check data session in use ?
-		for (String path : dataSessions.keySet())
-			JcrUtils.logoutQuietly(dataSessions.get(path));
-		for (Session session : additionalDataSessions)
-			JcrUtils.logoutQuietly(session);
+		synchronized (this) {
+			// TODO check data session in use ?
+			for (String path : dataSessions.keySet())
+				JcrUtils.logoutQuietly(dataSessions.get(path));
+			for (Session session : additionalDataSessions)
+				JcrUtils.logoutQuietly(session);
+		}
 
 		try {
 			LoginContext lc;
@@ -111,7 +116,7 @@ public class CmsSessionImpl implements CmsSession {
 		} catch (LoginException e) {
 			log.warn("Could not logout " + getSubject() + ": " + e);
 		}
-		notifyAll();
+		log.debug("Closed " + this);
 	}
 
 	private Subject getSubject() {
@@ -199,14 +204,6 @@ public class CmsSessionImpl implements CmsSession {
 		return uuid;
 	}
 
-	public String getLocalSessionId() {
-		return localSessionId;
-	}
-
-	public ServiceRegistration<CmsSession> getServiceRegistration() {
-		return serviceRegistration;
-	}
-
 	@Override
 	public LdapName getUserDn() {
 		return userDn;
@@ -217,8 +214,14 @@ public class CmsSessionImpl implements CmsSession {
 		return localSessionId;
 	}
 
+	@Override
 	public boolean isAnonymous() {
 		return anonymous;
+	}
+
+	@Override
+	public Locale getLocale() {
+		return locale;
 	}
 
 	@Override
@@ -235,7 +238,7 @@ public class CmsSessionImpl implements CmsSession {
 		return "CMS Session " + userDn + " local=" + localSessionId + ", uuid=" + uuid;
 	}
 
-	public static CmsSession getByLocalId(String localId) {
+	public static CmsSessionImpl getByLocalId(String localId) {
 		Collection<ServiceReference<CmsSession>> sr;
 		try {
 			sr = bc.getServiceReferences(CmsSession.class, "(" + CmsSession.SESSION_LOCAL_ID + "=" + localId + ")");
@@ -245,7 +248,7 @@ public class CmsSessionImpl implements CmsSession {
 		ServiceReference<CmsSession> cmsSessionRef;
 		if (sr.size() == 1) {
 			cmsSessionRef = sr.iterator().next();
-			return bc.getService(cmsSessionRef);
+			return (CmsSessionImpl) bc.getService(cmsSessionRef);
 		} else if (sr.size() == 0) {
 			return null;
 		} else
@@ -253,7 +256,7 @@ public class CmsSessionImpl implements CmsSession {
 
 	}
 
-	public static CmsSession getByUuid(String uuid) {
+	public static CmsSessionImpl getByUuid(Object uuid) {
 		Collection<ServiceReference<CmsSession>> sr;
 		try {
 			sr = bc.getServiceReferences(CmsSession.class, "(" + CmsSession.SESSION_UUID + "=" + uuid + ")");
@@ -263,7 +266,7 @@ public class CmsSessionImpl implements CmsSession {
 		ServiceReference<CmsSession> cmsSessionRef;
 		if (sr.size() == 1) {
 			cmsSessionRef = sr.iterator().next();
-			return bc.getService(cmsSessionRef);
+			return (CmsSessionImpl) bc.getService(cmsSessionRef);
 		} else if (sr.size() == 0) {
 			return null;
 		} else

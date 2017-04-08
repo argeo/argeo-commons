@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import org.argeo.eclipse.ui.specific.UiContext;
-
 /** Utilities simplifying the development of localization enums. */
 public class LocaleUtils {
 	public static Object local(Enum<?> en) {
@@ -21,10 +19,8 @@ public class LocaleUtils {
 		return local(en, locale, resource, en.getClass().getClassLoader());
 	}
 
-	public static Object local(Enum<?> en, Locale locale, String resource,
-			ClassLoader classLoader) {
-		ResourceBundle rb = ResourceBundle.getBundle(resource, locale,
-				classLoader);
+	public static Object local(Enum<?> en, Locale locale, String resource, ClassLoader classLoader) {
+		ResourceBundle rb = ResourceBundle.getBundle(resource, locale, classLoader);
 		return rb.getString(en.name());
 	}
 
@@ -41,7 +37,9 @@ public class LocaleUtils {
 	}
 
 	static Locale getCurrentLocale() {
-		return UiContext.getLocale();
+		// return UiContext.getLocale();
+		// FIXME look into Subject or settings
+		return Locale.getDefault();
 	}
 
 	/** Returns null if argument is null. */

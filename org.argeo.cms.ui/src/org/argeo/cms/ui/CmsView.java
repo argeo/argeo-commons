@@ -2,10 +2,10 @@ package org.argeo.cms.ui;
 
 import javax.security.auth.login.LoginContext;
 
-import org.argeo.cms.auth.CmsAuthenticated;
+/** Provides interaction with the CMS system. */
+public interface CmsView {
+	String KEY = "org.argeo.cms.ui.view";
 
-/** Provides interaction with the CMS system. UNSTABLE API at this stage. */
-public interface CmsView extends CmsAuthenticated {
 	UxContext getUxContext();
 
 	// NAVIGATION
@@ -15,11 +15,13 @@ public interface CmsView extends CmsAuthenticated {
 	void authChange(LoginContext loginContext);
 
 	void logout();
-	
-//	void registerCallbackHandler(CallbackHandler callbackHandler);
+
+	// void registerCallbackHandler(CallbackHandler callbackHandler);
 
 	// SERVICES
 	void exception(Throwable e);
 
 	CmsImageManager getImageManager();
+
+	boolean isAnonymous();
 }

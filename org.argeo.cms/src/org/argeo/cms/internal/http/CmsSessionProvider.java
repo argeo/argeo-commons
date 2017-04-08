@@ -35,7 +35,7 @@ class CmsSessionProvider implements SessionProvider, Serializable {
 	public Session getSession(HttpServletRequest request, Repository rep, String workspace)
 			throws javax.jcr.LoginException, ServletException, RepositoryException {
 
-		CmsSessionImpl cmsSession = (CmsSessionImpl) WebCmsSessionImpl.getCmsSession(request);
+		CmsSessionImpl cmsSession = WebCmsSessionImpl.getCmsSession(request);
 		// if (cmsSession == null)
 		// return anonymousSession(request, rep, workspace);
 		if (log.isTraceEnabled()) {

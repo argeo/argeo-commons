@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.LanguageCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +28,8 @@ public class HttpRequestCallbackHandler implements CallbackHandler {
 			if (callback instanceof HttpRequestCallback) {
 				((HttpRequestCallback) callback).setRequest(request);
 				((HttpRequestCallback) callback).setResponse(response);
+			} else if (callback instanceof LanguageCallback) {
+				((LanguageCallback) callback).setLocale(request.getLocale());
 			}
 	}
 

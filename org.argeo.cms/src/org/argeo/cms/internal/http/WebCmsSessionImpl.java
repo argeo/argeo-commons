@@ -1,10 +1,11 @@
 package org.argeo.cms.internal.http;
 
+import java.util.Locale;
+
 import javax.security.auth.Subject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.argeo.cms.auth.CmsSession;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.osgi.service.useradmin.Authorization;
 
@@ -14,8 +15,8 @@ public class WebCmsSessionImpl extends CmsSessionImpl {
 
 	private HttpSession httpSession;
 
-	public WebCmsSessionImpl(Subject initialSubject, Authorization authorization, HttpServletRequest request) {
-		super(initialSubject, authorization, request.getSession(false).getId());
+	public WebCmsSessionImpl(Subject initialSubject, Authorization authorization, Locale locale, HttpServletRequest request) {
+		super(initialSubject, authorization, locale,request.getSession(false).getId());
 		httpSession = request.getSession(false);
 	}
 
@@ -31,7 +32,7 @@ public class WebCmsSessionImpl extends CmsSessionImpl {
 		}
 	}
 
-	public static CmsSession getCmsSession(HttpServletRequest request) {
+	public static CmsSessionImpl getCmsSession(HttpServletRequest request) {
 		return CmsSessionImpl.getByLocalId(request.getSession(false).getId());
 	}
 }

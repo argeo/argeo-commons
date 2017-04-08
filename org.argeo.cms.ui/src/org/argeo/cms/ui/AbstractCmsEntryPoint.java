@@ -21,7 +21,6 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
-import org.argeo.cms.auth.CmsAuthenticated;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.node.NodeConstants;
@@ -110,7 +109,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 
 	@Override
 	protected final void createContents(final Composite parent) {
-		UiContext.setData(CmsAuthenticated.KEY, this);
+		UiContext.setData(CmsView.KEY, this);
 		Subject.doAs(getSubject(), new PrivilegedAction<Void>() {
 			@Override
 			public Void run() {
@@ -167,8 +166,13 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 	// public LoginContext getLoginContext() {
 	// return loginContext;
 	// }
-	public Subject getSubject() {
+	protected Subject getSubject() {
 		return loginContext.getSubject();
+	}
+
+	@Override
+	public boolean isAnonymous() {
+		return CurrentUser.isAnonymous(getSubject());
 	}
 
 	@Override
@@ -341,7 +345,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 		@Override
 		public void navigated(BrowserNavigationEvent event) {
 			setState(event.getState());
-			refresh();
+			doRefresh();
 		}
 	}
 }

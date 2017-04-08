@@ -1,6 +1,7 @@
 package org.argeo.cms.auth;
 
 import java.security.Principal;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
@@ -42,7 +43,8 @@ class CmsAuthUtils {
 	final static String HEADER_AUTHORIZATION = "Authorization";
 	final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
-	static void addAuthorization(Subject subject, Authorization authorization, HttpServletRequest request) {
+	static void addAuthorization(Subject subject, Authorization authorization, Locale locale,
+			HttpServletRequest request) {
 		assert subject != null;
 		checkSubjectEmpty(subject);
 		assert authorization != null;
@@ -87,7 +89,7 @@ class CmsAuthUtils {
 			throw new CmsException("Cannot commit", e);
 		}
 
-		registerSessionAuthorization(request, subject, authorization);
+		registerSessionAuthorization(request, subject, authorization, locale);
 	}
 
 	private static void checkSubjectEmpty(Subject subject) {
@@ -116,7 +118,7 @@ class CmsAuthUtils {
 	}
 
 	private static void registerSessionAuthorization(HttpServletRequest request, Subject subject,
-			Authorization authorization) {
+			Authorization authorization, Locale locale) {
 		if (request != null) {
 			HttpSession httpSession = request.getSession(false);
 			String httpSessId = httpSession.getId();
@@ -125,7 +127,7 @@ class CmsAuthUtils {
 			request.setAttribute(HttpContext.REMOTE_USER, remoteUser);
 			request.setAttribute(HttpContext.AUTHORIZATION, authorization);
 
-			CmsSessionImpl cmsSession = (CmsSessionImpl) CmsSessionImpl.getByLocalId(httpSessId);
+			CmsSessionImpl cmsSession = CmsSessionImpl.getByLocalId(httpSessId);
 			if (cmsSession != null) {
 				if (authorization.getName() != null) {
 					if (cmsSession.getAuthorization().getName() == null) {
@@ -146,7 +148,7 @@ class CmsAuthUtils {
 			}
 
 			if (cmsSession == null)
-				cmsSession = new WebCmsSessionImpl(subject, authorization, request);
+				cmsSession = new WebCmsSessionImpl(subject, authorization, locale, request);
 			// request.setAttribute(CmsSession.class.getName(), cmsSession);
 			CmsSessionId nodeSessionId = new CmsSessionId(cmsSession.getUuid());
 			if (subject.getPrivateCredentials(CmsSessionId.class).size() == 0)

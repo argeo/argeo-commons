@@ -11,7 +11,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
-import org.argeo.cms.auth.CmsAuthenticated;
 import org.argeo.cms.ui.CmsImageManager;
 import org.argeo.cms.ui.CmsView;
 import org.argeo.cms.ui.UxContext;
@@ -35,7 +34,7 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 	@Override
 	public int createUI() {
 		final Display display = createDisplay();
-		UiContext.setData(CmsAuthenticated.KEY, this);
+		UiContext.setData(CmsView.KEY, this);
 		CmsLoginShell loginShell = createCmsLoginShell();
 		try {
 			// try pre-auth
@@ -67,7 +66,7 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 			}
 		}
 
-		if (CurrentUser.getUsername() == null)
+		if (CurrentUser.getUsername(getSubject()) == null)
 			return -1;
 		uxContext = new SimpleUxContext();
 		return postLogin();
@@ -160,8 +159,13 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 	// return loginContext;
 	// }
 
-	public Subject getSubject() {
+	protected Subject getSubject() {
 		return loginContext.getSubject();
+	}
+
+	@Override
+	public boolean isAnonymous() {
+		return CurrentUser.isAnonymous(getSubject());
 	}
 
 	@Override
