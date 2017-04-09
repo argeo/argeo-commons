@@ -294,11 +294,11 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		// Displayed columns
 		List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
 		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 0, 24));
-		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name", 150));
-		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain Name", 200));
+		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name", 250));
+		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain Name", 120));
 		// Only show technical DN to administrators
 		if (isAdmin)
-			columnDefs.add(new ColumnDefinition(new UserNameLP(), "Distinguished Name", 120));
+			columnDefs.add(new ColumnDefinition(new UserNameLP(), "Distinguished Name", 300));
 
 		// Create and configure the table
 		final LdifUsersTable userViewerCmp = new MyUserTableViewer(body, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, user);
@@ -309,7 +309,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		else
 			userViewerCmp.populate(true, false);
 		GridData gd = EclipseUiUtils.fillAll();
-		gd.heightHint = 300;
+		gd.heightHint = 500;
 		userViewerCmp.setLayoutData(gd);
 
 		// Controllers
