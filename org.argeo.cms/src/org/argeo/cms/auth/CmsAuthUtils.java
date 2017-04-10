@@ -117,10 +117,13 @@ class CmsAuthUtils {
 		// subject.getPrincipals().removeAll(subject.getPrincipals(AnonymousPrincipal.class));
 	}
 
-	private static void registerSessionAuthorization(HttpServletRequest request, Subject subject,
+	private synchronized static void registerSessionAuthorization(HttpServletRequest request, Subject subject,
 			Authorization authorization, Locale locale) {
+		// synchronized in order to avoid multiple registrations
+		// TODO move it to a service in order to avoid static synchronization
 		if (request != null) {
 			HttpSession httpSession = request.getSession(false);
+			assert httpSession != null;
 			String httpSessId = httpSession.getId();
 			String remoteUser = authorization.getName() != null ? authorization.getName()
 					: NodeConstants.ROLE_ANONYMOUS;
@@ -131,7 +134,6 @@ class CmsAuthUtils {
 			if (cmsSession != null) {
 				if (authorization.getName() != null) {
 					if (cmsSession.getAuthorization().getName() == null) {
-						// FIXME make it more generic
 						cmsSession.close();
 						cmsSession = null;
 					} else if (!authorization.getName().equals(cmsSession.getAuthorization().getName())) {
@@ -140,8 +142,8 @@ class CmsAuthUtils {
 					}
 				} else {// anonymous
 					if (cmsSession.getAuthorization().getName() != null) {
-						// FIXME make it more generic
 						cmsSession.close();
+						// TODO rather throw an exception ? log a warning ?
 						cmsSession = null;
 					}
 				}
