@@ -28,12 +28,12 @@ public class UserMenuLink extends MenuLink {
 			setLabel(CurrentUser.getDisplayName());
 		}
 		Label link = (Label) ((Composite) super.createUi(parent, context)).getChildren()[0];
-		link.addMouseListener(new UserMenuLinkController());
+		link.addMouseListener(new UserMenuLinkController(context));
 		return link.getParent();
 	}
 
-	protected UserMenu createUserMenu(Control source) {
-		return new UserMenu(source.getParent());
+	protected UserMenu createUserMenu(Control source,Node context) {
+		return new UserMenu(source.getParent(),context);
 	}
 
 	private class UserMenuLinkController implements MouseListener, DisposeListener {
@@ -41,6 +41,12 @@ public class UserMenuLink extends MenuLink {
 
 		private UserMenu userMenu = null;
 		private long lastDisposeTS = 0l;
+
+		private final Node context;
+		
+		public UserMenuLinkController(Node context) {
+			this.context = context;
+		}
 
 		//
 		// MOUSE LISTENER
@@ -53,7 +59,7 @@ public class UserMenuLink extends MenuLink {
 					long durationSinceLastDispose = System.currentTimeMillis() - lastDisposeTS;
 					// avoid to reopen the menu, if one has clicked gain
 					if (durationSinceLastDispose > 200) {
-						userMenu = createUserMenu(source);
+						userMenu = createUserMenu(source,context);
 						userMenu.getShell().addDisposeListener(this);
 					}
 				}
