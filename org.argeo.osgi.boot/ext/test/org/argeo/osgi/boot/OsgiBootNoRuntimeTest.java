@@ -44,7 +44,7 @@ public class OsgiBootNoRuntimeTest extends TestCase {
 		String baseUrl = "file:";
 		String bundles = BUNDLES;
 		OsgiBoot osgiBoot = new OsgiBoot(null);
-		osgiBoot.setExcludeSvn(true);
+//		osgiBoot.setExcludeSvn(true);
 		List urls = osgiBoot.getBundlesUrls(baseUrl, bundles);
 		for (int i = 0; i < urls.size(); i++)
 			System.out.println(urls.get(i));

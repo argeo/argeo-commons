@@ -19,7 +19,6 @@ import static org.argeo.osgi.boot.OsgiBootUtils.debug;
 import static org.argeo.osgi.boot.OsgiBootUtils.warn;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,8 +37,10 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkEvent;
+import org.osgi.framework.Version;
 import org.osgi.framework.startlevel.BundleStartLevel;
 import org.osgi.framework.startlevel.FrameworkStartLevel;
+import org.osgi.framework.wiring.FrameworkWiring;
 
 /**
  * Basic provisioning of an OSGi runtime via file path patterns and system
@@ -47,46 +48,44 @@ import org.osgi.framework.startlevel.FrameworkStartLevel;
  * methods, configured via properties.
  */
 public class OsgiBoot implements OsgiBootConstants {
-	// public final static String PROP_ARGEO_OSGI_DATA_DIR =
-	// "argeo.osgi.data.dir";
 	public final static String PROP_ARGEO_OSGI_START = "argeo.osgi.start";
 	public final static String PROP_ARGEO_OSGI_BUNDLES = "argeo.osgi.bundles";
 	public final static String PROP_ARGEO_OSGI_BASE_URL = "argeo.osgi.baseUrl";
+	public final static String PROP_ARGEO_OSGI_LOCAL_CACHE = "argeo.osgi.localCache";
 	public final static String PROP_ARGEO_OSGI_DISTRIBUTION_URL = "argeo.osgi.distributionUrl";
 
 	// booleans
 	public final static String PROP_ARGEO_OSGI_BOOT_DEBUG = "argeo.osgi.boot.debug";
-	public final static String PROP_ARGEO_OSGI_BOOT_EXCLUDE_SVN = "argeo.osgi.boot.excludeSvn";
+	// public final static String PROP_ARGEO_OSGI_BOOT_EXCLUDE_SVN =
+	// "argeo.osgi.boot.excludeSvn";
 
-	// public final static String PROP_ARGEO_OSGI_BOOT_DEFAULT_TIMEOUT =
-	// "argeo.osgi.boot.defaultTimeout";
 	public final static String PROP_ARGEO_OSGI_BOOT_SYSTEM_PROPERTIES_FILE = "argeo.osgi.boot.systemPropertiesFile";
 	public final static String PROP_ARGEO_OSGI_BOOT_APPCLASS = "argeo.osgi.boot.appclass";
 	public final static String PROP_ARGEO_OSGI_BOOT_APPARGS = "argeo.osgi.boot.appargs";
 
 	public final static String DEFAULT_BASE_URL = "reference:file:";
-	public final static String EXCLUDES_SVN_PATTERN = "**/.svn/**";
+	// public final static String EXCLUDES_SVN_PATTERN = "**/.svn/**";
 
 	// OSGi system properties
 	public final static String PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL = "osgi.bundles.defaultStartLevel";
 	public final static String PROP_OSGI_STARTLEVEL = "osgi.startLevel";
 	public final static String INSTANCE_AREA_PROP = "osgi.instance.area";
-	// public final static String INSTANCE_AREA_DEFAULT_PROP =
-	// "osgi.instance.area.default";
 
 	// Symbolic names
 	public final static String SYMBOLIC_NAME_OSGI_BOOT = "org.argeo.osgi.boot";
 	public final static String SYMBOLIC_NAME_EQUINOX = "org.eclipse.osgi";
 
-	private boolean debug = Boolean.valueOf(System.getProperty(PROP_ARGEO_OSGI_BOOT_DEBUG, "false")).booleanValue();
 	/** Exclude svn metadata implicitely(a bit costly) */
-	private boolean excludeSvn = Boolean.valueOf(System.getProperty(PROP_ARGEO_OSGI_BOOT_EXCLUDE_SVN, "false"))
-			.booleanValue();
+	// private boolean excludeSvn =
+	// Boolean.valueOf(System.getProperty(PROP_ARGEO_OSGI_BOOT_EXCLUDE_SVN,
+	// "false"))
+	// .booleanValue();
 
 	/** Default is 10s */
-	private long defaultTimeout = 10000l;
+	// private long defaultTimeout = 10000l;
 
 	private final BundleContext bundleContext;
+	private final String localCache;
 
 	/*
 	 * INITIALIZATION
@@ -94,37 +93,9 @@ public class OsgiBoot implements OsgiBootConstants {
 	/** Constructor */
 	public OsgiBoot(BundleContext bundleContext) {
 		this.bundleContext = bundleContext;
-		// defaultTimeout =
-		// Long.parseLong(OsgiBootUtils.getProperty(PROP_ARGEO_OSGI_BOOT_DEFAULT_TIMEOUT,
-		// "10000"));
-		// initSystemProperties();
+		localCache = getProperty(PROP_ARGEO_OSGI_LOCAL_CACHE,
+				"file://" + System.getProperty("user.home") + "/.m2/repository/");
 	}
-
-	// /**
-	// * Set additional system properties, especially ${argeo.osgi.data.dir} as
-	// an
-	// * OS file path (and not a file:// URL)
-	// */
-	// private void initSystemProperties() {
-	// String osgiInstanceArea = System.getProperty(INSTANCE_AREA_PROP);
-	// String osgiInstanceAreaDefault =
-	// System.getProperty(INSTANCE_AREA_DEFAULT_PROP);
-	// String tempDir = System.getProperty("java.io.tmpdir");
-	//
-	// File dataDir = null;
-	// if (osgiInstanceArea != null) {
-	// // within OSGi with -data specified
-	// osgiInstanceArea = removeFilePrefix(osgiInstanceArea);
-	// dataDir = new File(osgiInstanceArea);
-	// } else if (osgiInstanceAreaDefault != null) {
-	// // within OSGi without -data specified
-	// osgiInstanceAreaDefault = removeFilePrefix(osgiInstanceAreaDefault);
-	// dataDir = new File(osgiInstanceAreaDefault);
-	// } else {// outside OSGi
-	// dataDir = new File(tempDir + File.separator + "argeoOsgiData");
-	// }
-	// System.setProperty(PROP_ARGEO_OSGI_DATA_DIR, dataDir.getAbsolutePath());
-	// }
 
 	/*
 	 * HIGH-LEVEL METHODS
@@ -137,9 +108,6 @@ public class OsgiBoot implements OsgiBootConstants {
 			String osgiInstancePath = bundleContext.getProperty(INSTANCE_AREA_PROP);
 			OsgiBootUtils
 					.info("OSGi bootstrap starting" + (osgiInstancePath != null ? " (" + osgiInstancePath + ")" : ""));
-			// OsgiBootUtils.info("Writable data directory : " +
-			// System.getProperty(PROP_ARGEO_OSGI_DATA_DIR)
-			// + " (set as system property " + PROP_ARGEO_OSGI_DATA_DIR + ")");
 			installUrls(getBundlesUrls());
 			installUrls(getDistributionUrls());
 			startBundles();
@@ -152,7 +120,7 @@ public class OsgiBoot implements OsgiBootConstants {
 		}
 
 		// diagnostics
-		if (debug) {
+		if (OsgiBootUtils.debug) {
 			OsgiBootDiagnostics diagnostics = new OsgiBootDiagnostics(bundleContext);
 			diagnostics.checkUnresolved();
 			Map<String, Set<String>> duplicatePackages = diagnostics.findPackagesExportedTwice();
@@ -190,6 +158,7 @@ public class OsgiBoot implements OsgiBootConstants {
 			String url = (String) urls.get(i);
 			installUrl(url, installedBundles);
 		}
+		refreshFramework();
 	}
 
 	/** Actually install the provided URL */
@@ -197,11 +166,11 @@ public class OsgiBoot implements OsgiBootConstants {
 		try {
 			if (installedBundles.containsKey(url)) {
 				Bundle bundle = (Bundle) installedBundles.get(url);
-				if (debug)
+				if (OsgiBootUtils.debug)
 					debug("Bundle " + bundle.getSymbolicName() + " already installed from " + url);
 			} else if (url.contains("/" + SYMBOLIC_NAME_EQUINOX + "/")
 					|| url.contains("/" + SYMBOLIC_NAME_OSGI_BOOT + "/")) {
-				if (debug)
+				if (OsgiBootUtils.debug)
 					warn("Skip " + url);
 				return;
 			} else {
@@ -209,9 +178,34 @@ public class OsgiBoot implements OsgiBootConstants {
 				if (url.startsWith("http"))
 					OsgiBootUtils
 							.info("Installed " + bundle.getSymbolicName() + "-" + bundle.getVersion() + " from " + url);
-				else if (debug)
+				else if (OsgiBootUtils.debug)
 					OsgiBootUtils.debug(
 							"Installed " + bundle.getSymbolicName() + "-" + bundle.getVersion() + " from " + url);
+				// uninstall previous versions
+				bundles: for (Bundle b : bundleContext.getBundles()) {
+					if (bundle.getSymbolicName().equals(b.getSymbolicName())) {
+						Version bundleV = bundle.getVersion();
+						Version bV = b.getVersion();
+						if (bundleV.getMajor() == bV.getMajor() && bundleV.getMinor() == bV.getMinor()) {
+							if (bundleV.getMicro() > bV.getMicro()) {
+								// uninstall older bundles
+								b.uninstall();
+								OsgiBootUtils.debug("Uninstalled " + b);
+							} else if (bundleV.getMicro() < bV.getMicro()) {
+								// uninstall just installed bundle if newer
+								bundle.uninstall();
+								OsgiBootUtils.debug("Uninstalled " + bundle);
+								break bundles;
+							} else {
+								// uninstall any other with same major/minor
+								if (!bundleV.getQualifier().equals(bV.getQualifier())) {
+									b.uninstall();
+									OsgiBootUtils.debug("Uninstalled " + b);
+								}
+							}
+						}
+					}
+				}
 			}
 		} catch (BundleException e) {
 			String message = e.getMessage();
@@ -223,7 +217,7 @@ public class OsgiBoot implements OsgiBootConstants {
 			} else {
 				OsgiBootUtils.warn("Could not install bundle from " + url + ": " + message);
 			}
-			if (debug)
+			if (OsgiBootUtils.debug && !message.contains("is already installed"))
 				e.printStackTrace();
 		}
 	}
@@ -275,17 +269,6 @@ public class OsgiBoot implements OsgiBootConstants {
 			int startLevel = frameworkStartLevel.getStartLevel();
 			OsgiBootUtils.debug("Framework start level: " + startLevel + " (initial: " + initialStartLevel + ")");
 		});
-
-		// Iterator<Integer> levels = startLevels.keySet().iterator();
-		// while (levels.hasNext()) {
-		// Integer level = (Integer) levels.next();
-		// boolean allStarted = startBundles(startLevels.get(level));
-		// if (!allStarted)
-		// OsgiBootUtils.warn("Not all bundles started for level " + level);
-		// if (level.equals(activeStartLevel))
-		// break;// active start level reached
-		// }
-
 	}
 
 	public static void computeStartLevels(SortedMap<Integer, List<String>> startLevels, Properties properties,
@@ -341,101 +324,111 @@ public class OsgiBoot implements OsgiBootConstants {
 	 * @return whether all bundles are now in active state
 	 * @deprecated
 	 */
-	@Deprecated
-	public boolean startBundles(List<String> bundlesToStart) {
-		if (bundlesToStart.size() == 0)
-			return true;
-
-		// used to monitor ACTIVE states
-		List<Bundle> startedBundles = new ArrayList<Bundle>();
-		// used to log the bundles not found
-		List<String> notFoundBundles = new ArrayList<String>(bundlesToStart);
-
-		Bundle[] bundles = bundleContext.getBundles();
-		long startBegin = System.currentTimeMillis();
-		for (int i = 0; i < bundles.length; i++) {
-			Bundle bundle = bundles[i];
-			String symbolicName = bundle.getSymbolicName();
-			if (bundlesToStart.contains(symbolicName))
-				try {
-					try {
-						bundle.start();
-						if (debug)
-							debug("Bundle " + symbolicName + " started");
-					} catch (Exception e) {
-						OsgiBootUtils.warn("Start of bundle " + symbolicName + " failed because of " + e
-								+ ", maybe bundle is not yet resolved," + " waiting and trying again.");
-						waitForBundleResolvedOrActive(startBegin, bundle);
-						bundle.start();
-						startedBundles.add(bundle);
-					}
-					notFoundBundles.remove(symbolicName);
-				} catch (Exception e) {
-					OsgiBootUtils.warn("Bundle " + symbolicName + " cannot be started: " + e.getMessage());
-					if (debug)
-						e.printStackTrace();
-					// was found even if start failed
-					notFoundBundles.remove(symbolicName);
-				}
-		}
-
-		for (int i = 0; i < notFoundBundles.size(); i++)
-			OsgiBootUtils.warn("Bundle '" + notFoundBundles.get(i) + "' not started	 because it was not found.");
-
-		// monitors that all bundles are started
-		long beginMonitor = System.currentTimeMillis();
-		boolean allStarted = !(startedBundles.size() > 0);
-		List<String> notStarted = new ArrayList<String>();
-		while (!allStarted && (System.currentTimeMillis() - beginMonitor) < defaultTimeout) {
-			notStarted = new ArrayList<String>();
-			allStarted = true;
-			for (int i = 0; i < startedBundles.size(); i++) {
-				Bundle bundle = (Bundle) startedBundles.get(i);
-				// TODO check behaviour of lazs bundles
-				if (bundle.getState() != Bundle.ACTIVE) {
-					allStarted = false;
-					notStarted.add(bundle.getSymbolicName());
-				}
-			}
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				// silent
-			}
-		}
-		long duration = System.currentTimeMillis() - beginMonitor;
-
-		if (!allStarted)
-			for (int i = 0; i < notStarted.size(); i++)
-				OsgiBootUtils.warn("Bundle '" + notStarted.get(i) + "' not ACTIVE after " + (duration / 1000) + "s");
-
-		return allStarted;
-	}
+	// @Deprecated
+	// public boolean startBundles(List<String> bundlesToStart) {
+	// if (bundlesToStart.size() == 0)
+	// return true;
+	//
+	// // used to monitor ACTIVE states
+	// List<Bundle> startedBundles = new ArrayList<Bundle>();
+	// // used to log the bundles not found
+	// List<String> notFoundBundles = new ArrayList<String>(bundlesToStart);
+	//
+	// Bundle[] bundles = bundleContext.getBundles();
+	// long startBegin = System.currentTimeMillis();
+	// for (int i = 0; i < bundles.length; i++) {
+	// Bundle bundle = bundles[i];
+	// String symbolicName = bundle.getSymbolicName();
+	// if (bundlesToStart.contains(symbolicName))
+	// try {
+	// try {
+	// bundle.start();
+	// if (OsgiBootUtils.debug)
+	// debug("Bundle " + symbolicName + " started");
+	// } catch (Exception e) {
+	// OsgiBootUtils.warn("Start of bundle " + symbolicName + " failed because
+	// of " + e
+	// + ", maybe bundle is not yet resolved," + " waiting and trying again.");
+	// waitForBundleResolvedOrActive(startBegin, bundle);
+	// bundle.start();
+	// startedBundles.add(bundle);
+	// }
+	// notFoundBundles.remove(symbolicName);
+	// } catch (Exception e) {
+	// OsgiBootUtils.warn("Bundle " + symbolicName + " cannot be started: " +
+	// e.getMessage());
+	// if (OsgiBootUtils.debug)
+	// e.printStackTrace();
+	// // was found even if start failed
+	// notFoundBundles.remove(symbolicName);
+	// }
+	// }
+	//
+	// for (int i = 0; i < notFoundBundles.size(); i++)
+	// OsgiBootUtils.warn("Bundle '" + notFoundBundles.get(i) + "' not started
+	// because it was not found.");
+	//
+	// // monitors that all bundles are started
+	// long beginMonitor = System.currentTimeMillis();
+	// boolean allStarted = !(startedBundles.size() > 0);
+	// List<String> notStarted = new ArrayList<String>();
+	// while (!allStarted && (System.currentTimeMillis() - beginMonitor) <
+	// defaultTimeout) {
+	// notStarted = new ArrayList<String>();
+	// allStarted = true;
+	// for (int i = 0; i < startedBundles.size(); i++) {
+	// Bundle bundle = (Bundle) startedBundles.get(i);
+	// // TODO check behaviour of lazs bundles
+	// if (bundle.getState() != Bundle.ACTIVE) {
+	// allStarted = false;
+	// notStarted.add(bundle.getSymbolicName());
+	// }
+	// }
+	// try {
+	// Thread.sleep(100);
+	// } catch (InterruptedException e) {
+	// // silent
+	// }
+	// }
+	// long duration = System.currentTimeMillis() - beginMonitor;
+	//
+	// if (!allStarted)
+	// for (int i = 0; i < notStarted.size(); i++)
+	// OsgiBootUtils.warn("Bundle '" + notStarted.get(i) + "' not ACTIVE after "
+	// + (duration / 1000) + "s");
+	//
+	// return allStarted;
+	// }
 
 	/** Waits for a bundle to become active or resolved */
-	private void waitForBundleResolvedOrActive(long startBegin, Bundle bundle) throws Exception {
-		int originalState = bundle.getState();
-		if ((originalState == Bundle.RESOLVED) || (originalState == Bundle.ACTIVE))
-			return;
-
-		String originalStateStr = OsgiBootUtils.stateAsString(originalState);
-
-		int currentState = bundle.getState();
-		while (!(currentState == Bundle.RESOLVED || currentState == Bundle.ACTIVE)) {
-			long now = System.currentTimeMillis();
-			if ((now - startBegin) > defaultTimeout * 10)
-				throw new Exception("Bundle " + bundle.getSymbolicName() + " was not RESOLVED or ACTIVE after "
-						+ (now - startBegin) + "ms (originalState=" + originalStateStr + ", currentState="
-						+ OsgiBootUtils.stateAsString(currentState) + ")");
-
-			try {
-				Thread.sleep(100l);
-			} catch (InterruptedException e) {
-				// silent
-			}
-			currentState = bundle.getState();
-		}
-	}
+	// private void waitForBundleResolvedOrActive(long startBegin, Bundle
+	// bundle) throws Exception {
+	// int originalState = bundle.getState();
+	// if ((originalState == Bundle.RESOLVED) || (originalState ==
+	// Bundle.ACTIVE))
+	// return;
+	//
+	// String originalStateStr = OsgiBootUtils.stateAsString(originalState);
+	//
+	// int currentState = bundle.getState();
+	// while (!(currentState == Bundle.RESOLVED || currentState ==
+	// Bundle.ACTIVE)) {
+	// long now = System.currentTimeMillis();
+	// if ((now - startBegin) > defaultTimeout * 10)
+	// throw new Exception("Bundle " + bundle.getSymbolicName() + " was not
+	// RESOLVED or ACTIVE after "
+	// + (now - startBegin) + "ms (originalState=" + originalStateStr + ",
+	// currentState="
+	// + OsgiBootUtils.stateAsString(currentState) + ")");
+	//
+	// try {
+	// Thread.sleep(100l);
+	// } catch (InterruptedException e) {
+	// // silent
+	// }
+	// currentState = bundle.getState();
+	// }
+	// }
 
 	/*
 	 * BUNDLE PATTERNS INSTALLATION
@@ -469,8 +462,8 @@ public class OsgiBoot implements OsgiBootConstants {
 			return urls;
 
 		bundlePatterns = SystemPropertyUtils.resolvePlaceholders(bundlePatterns);
-		if (debug)
-			debug(PROP_ARGEO_OSGI_BUNDLES + "=" + bundlePatterns + " (excludeSvn=" + excludeSvn + ")");
+		if (OsgiBootUtils.debug)
+			debug(PROP_ARGEO_OSGI_BUNDLES + "=" + bundlePatterns);
 
 		StringTokenizer st = new StringTokenizer(bundlePatterns, ",");
 		List<BundlesSet> bundlesSets = new ArrayList<BundlesSet>();
@@ -531,7 +524,7 @@ public class OsgiBoot implements OsgiBootConstants {
 		DistributionBundle distributionBundle;
 		if (baseUrl != null && !(distributionUrl.startsWith("http") || distributionUrl.startsWith("file"))) {
 			// relative url
-			distributionBundle = new DistributionBundle(baseUrl, distributionUrl);
+			distributionBundle = new DistributionBundle(baseUrl, distributionUrl, localCache);
 		} else {
 			distributionBundle = new DistributionBundle(distributionUrl);
 			if (baseUrl != null)
@@ -553,7 +546,7 @@ public class OsgiBoot implements OsgiBootConstants {
 			File[] files = baseDir.listFiles();
 
 			if (files == null) {
-				if (debug)
+				if (OsgiBootUtils.debug)
 					OsgiBootUtils.warn("Base dir " + baseDir + " has no children, exists=" + baseDir.exists()
 							+ ", isDirectory=" + baseDir.isDirectory());
 				return;
@@ -585,13 +578,13 @@ public class OsgiBoot implements OsgiBootConstants {
 								// recurse only if start matches
 								match(matcher, matched, base, newCurrentPath, pattern);
 							} else {
-								if (debug)
+								if (OsgiBootUtils.debug)
 									debug(newCurrentPath + " does not start match with " + pattern);
 
 							}
 						} else {
 							boolean nonDirectoryOk = matcher.match(pattern, newCurrentPath);
-							if (debug)
+							if (OsgiBootUtils.debug)
 								debug(currentPath + " " + (ok ? "" : " not ") + " matched with " + pattern);
 							if (nonDirectoryOk)
 								matched.add(relativeToFullPath(base, newCurrentPath));
@@ -645,14 +638,11 @@ public class OsgiBoot implements OsgiBootConstants {
 		return (basePath + '/' + relativePath).replace('/', File.separatorChar);
 	}
 
-	// private String removeFilePrefix(String url) {
-	// if (url.startsWith("file:"))
-	// return url.substring("file:".length());
-	// else if (url.startsWith("reference:file:"))
-	// return url.substring("reference:file:".length());
-	// else
-	// return url;
-	// }
+	private void refreshFramework() {
+		Bundle systemBundle = bundleContext.getBundle(0);
+		FrameworkWiring frameworkWiring = systemBundle.adapt(FrameworkWiring.class);
+		frameworkWiring.refreshBundles(null);
+	}
 
 	/**
 	 * Gets a property value
@@ -661,20 +651,10 @@ public class OsgiBoot implements OsgiBootConstants {
 	 */
 	public String getProperty(String name, String defaultValue) {
 		String value = bundleContext.getProperty(name);
-		if (value == null) 
+		if (value == null)
 			return defaultValue; // may be null
 		else
 			return value;
-
-//		if (defaultValue != null)
-//			value = System.getProperty(name, defaultValue);
-//		else
-//			value = System.getProperty(name);
-//
-//		if (value == null || value.equals(""))
-//			return null;
-//		else
-//			return value;
 	}
 
 	public String getProperty(String name) {
@@ -686,12 +666,12 @@ public class OsgiBoot implements OsgiBootConstants {
 	 */
 
 	public boolean getDebug() {
-		return debug;
+		return OsgiBootUtils.debug;
 	}
 
-	public void setDebug(boolean debug) {
-		this.debug = debug;
-	}
+	// public void setDebug(boolean debug) {
+	// this.debug = debug;
+	// }
 
 	public BundleContext getBundleContext() {
 		return bundleContext;
@@ -701,79 +681,16 @@ public class OsgiBoot implements OsgiBootConstants {
 	// this.defaultTimeout = defaultTimeout;
 	// }
 
-	public boolean isExcludeSvn() {
-		return excludeSvn;
-	}
-
-	public void setExcludeSvn(boolean excludeSvn) {
-		this.excludeSvn = excludeSvn;
-	}
+	// public boolean isExcludeSvn() {
+	// return excludeSvn;
+	// }
+	//
+	// public void setExcludeSvn(boolean excludeSvn) {
+	// this.excludeSvn = excludeSvn;
+	// }
 
 	/*
 	 * INTERNAL CLASSES
 	 */
 
-	/** Intermediary structure used by path matching */
-	protected class BundlesSet {
-		private String baseUrl = "reference:file";// not used yet
-		private final String dir;
-		private List<String> includes = new ArrayList<String>();
-		private List<String> excludes = new ArrayList<String>();
-
-		public BundlesSet(String def) {
-			StringTokenizer st = new StringTokenizer(def, ";");
-
-			if (!st.hasMoreTokens())
-				throw new RuntimeException("Base dir not defined.");
-			try {
-				String dirPath = st.nextToken();
-
-				if (dirPath.startsWith("file:"))
-					dirPath = dirPath.substring("file:".length());
-
-				dir = new File(dirPath.replace('/', File.separatorChar)).getCanonicalPath();
-				if (debug)
-					debug("Base dir: " + dir);
-			} catch (IOException e) {
-				throw new RuntimeException("Cannot convert to absolute path", e);
-			}
-
-			while (st.hasMoreTokens()) {
-				String tk = st.nextToken();
-				StringTokenizer stEq = new StringTokenizer(tk, "=");
-				String type = stEq.nextToken();
-				String pattern = stEq.nextToken();
-				if ("in".equals(type) || "include".equals(type)) {
-					includes.add(pattern);
-				} else if ("ex".equals(type) || "exclude".equals(type)) {
-					excludes.add(pattern);
-				} else if ("baseUrl".equals(type)) {
-					baseUrl = pattern;
-				} else {
-					System.err.println("Unkown bundles pattern type " + type);
-				}
-			}
-
-			if (excludeSvn && !excludes.contains(EXCLUDES_SVN_PATTERN)) {
-				excludes.add(EXCLUDES_SVN_PATTERN);
-			}
-		}
-
-		public String getDir() {
-			return dir;
-		}
-
-		public List<String> getIncludes() {
-			return includes;
-		}
-
-		public List<String> getExcludes() {
-			return excludes;
-		}
-
-		public String getBaseUrl() {
-			return baseUrl;
-		}
-
-	}
 }

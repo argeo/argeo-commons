@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -58,6 +59,7 @@ public class DistributionBundle {
 	private String baseUrl;
 	/** can be null */
 	private String relativeUrl;
+	private String localCache;
 
 	private List<OsgiArtifact> artifacts;
 
@@ -67,7 +69,7 @@ public class DistributionBundle {
 		this.url = url;
 	}
 
-	public DistributionBundle(String baseUrl, String relativeUrl) {
+	public DistributionBundle(String baseUrl, String relativeUrl, String localCache) {
 		if (baseUrl == null || !baseUrl.endsWith("/"))
 			throw new OsgiBootException("Base url " + baseUrl + " badly formatted");
 		if (relativeUrl.startsWith("http") || relativeUrl.startsWith("file:"))
@@ -75,6 +77,7 @@ public class DistributionBundle {
 		this.url = constructUrl(baseUrl, relativeUrl);
 		this.baseUrl = baseUrl;
 		this.relativeUrl = relativeUrl;
+		this.localCache = localCache;
 	}
 
 	protected String constructUrl(String baseUrl, String relativeUrl) {
@@ -96,34 +99,6 @@ public class DistributionBundle {
 				if (res.size() == 0)
 					throw new OsgiBootException("No file matching " + relativeUrl + " found in " + baseUrl);
 				return res.get(res.firstKey()).toUri().toString();
-				// try (DirectoryStream<Path> ds =
-				// Files.newDirectoryStream(basePath)) {
-				// Path res = null;
-				// for (Path path : ds) {
-				// if (pm.matches(path)) {
-				// if (res == null)
-				// res = path;
-				// else
-				// throw new OsgiBootException(
-				// "More than one file matching " + relativeUrl + " found in " +
-				// baseUrl);
-				// }
-				// }
-				// if (res == null)
-				// throw new OsgiBootException("No file matching " + relativeUrl
-				// + " found in " + baseUrl);
-				// return res.toUri().toURL().toString();
-				// // Iterator<Path> it = ds.iterator();
-				// // if (!it.hasNext())
-				// // throw new OsgiBootException("No file matching " +
-				// // relativeUrl + " found in " + baseUrl);
-				// // Path distributionBundlePath = it.next();
-				// // if (it.hasNext())// TODO implement version ordered
-				// // throw new OsgiBootException(
-				// // "More than one file matching " + relativeUrl + " found in
-				// // " + baseUrl);
-				// // return distributionBundlePath.toUri().toURL().toString();
-				// }
 			} else {
 				return baseUrl + relativeUrl;
 			}
@@ -150,30 +125,16 @@ public class DistributionBundle {
 		}
 	}
 
-	// public static void main(String[] args) {
-	// try {
-	// String baseUrl = "file:///home/mbaudier/.m2/repository/";
-	// String relativeUrl =
-	// "org/argeo/commons/org.argeo.dep.cms.node/2.1.*-SNAPSHOT/org.argeo.dep.cms.node-2.1.*-SNAPSHOT.jar";
-	// Path basePath = Paths.get(new URI(baseUrl));
-	// PathMatcher pm = basePath.getFileSystem().getPathMatcher("glob:" +
-	// relativeUrl);
-	//
-	// try (DirectoryStream<Path> ds = Files.newDirectoryStream(basePath, "**"))
-	// {
-	// for (Path path : ds) {
-	// System.out.println(path);
-	// }
-	// }
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	// }
-
 	public void processUrl() {
 		JarInputStream jarIn = null;
 		try {
 			URL u = new URL(url);
+
+			// local cache
+			URI localUri = new URI(localCache + relativeUrl);
+			Path localPath = Paths.get(localUri);
+			if (Files.exists(localPath))
+				u = localUri.toURL();
 			jarIn = new JarInputStream(u.openStream());
 
 			// meta data
@@ -240,8 +201,8 @@ public class DistributionBundle {
 	}
 
 	/** Convenience method */
-	public static DistributionBundle processUrl(String baseUrl, String realtiveUrl) {
-		DistributionBundle distributionBundle = new DistributionBundle(baseUrl, realtiveUrl);
+	public static DistributionBundle processUrl(String baseUrl, String realtiveUrl, String localCache) {
+		DistributionBundle distributionBundle = new DistributionBundle(baseUrl, realtiveUrl, localCache);
 		distributionBundle.processUrl();
 		return distributionBundle;
 	}
@@ -260,7 +221,21 @@ public class DistributionBundle {
 		List<String> urls = new ArrayList<String>();
 		for (int i = 0; i < artifacts.size(); i++) {
 			OsgiArtifact osgiArtifact = (OsgiArtifact) artifacts.get(i);
-			urls.add(baseUrl + osgiArtifact.getRelativeUrl());
+			// local cache
+			URI localUri;
+			try {
+				localUri = new URI(localCache + relativeUrl);
+			} catch (URISyntaxException e) {
+				OsgiBootUtils.warn(e.getMessage());
+				localUri = null;
+			}
+			Version version = new Version(osgiArtifact.getVersion());
+			if (localUri != null && Files.exists(Paths.get(localUri))
+					&& version.getQualifier()!=null		&& version.getQualifier().startsWith("SNAPSHOT")) {
+				urls.add(localCache + osgiArtifact.getRelativeUrl());
+			} else {
+				urls.add(baseUrl + osgiArtifact.getRelativeUrl());
+			}
 		}
 		return urls;
 	}

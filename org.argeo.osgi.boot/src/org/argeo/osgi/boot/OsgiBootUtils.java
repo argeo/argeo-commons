@@ -29,12 +29,16 @@ public class OsgiBootUtils {
 	/** ISO8601 (as per log4j) and difference to UTC */
 	private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS Z");
 
+	static boolean debug = Boolean.valueOf(System.getProperty(OsgiBoot.PROP_ARGEO_OSGI_BOOT_DEBUG, "false"))
+			.booleanValue();
+
 	public static void info(Object obj) {
 		System.out.println("# OSGiBOOT      # " + dateFormat.format(new Date()) + " # " + obj);
 	}
 
 	public static void debug(Object obj) {
-		System.out.println("# OSGiBOOT DBG  # " + dateFormat.format(new Date()) + " # " + obj);
+		if (debug)
+			System.out.println("# OSGiBOOT DBG  # " + dateFormat.format(new Date()) + " # " + obj);
 	}
 
 	public static void warn(Object obj) {
@@ -46,7 +50,6 @@ public class OsgiBootUtils {
 		if (e != null)
 			e.printStackTrace();
 	}
-
 
 	public static String stateAsString(int state) {
 		switch (state) {
