@@ -14,6 +14,7 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -68,7 +69,14 @@ public class HttpSessionLoginModule implements LoginModule {
 			return false;
 		authorization = (Authorization) request.getAttribute(HttpContext.AUTHORIZATION);
 		if (authorization == null) {// search by session ID
-			String httpSessionId = request.getSession(false).getId();
+			HttpSession httpSession = request.getSession(false);
+			if (httpSession == null) {
+				// TODO make sure this is always safe
+				if (log.isTraceEnabled())
+					log.trace("Create http session");
+				httpSession = request.getSession(true);
+			}
+			String httpSessionId = httpSession.getId();
 			// authorization = (Authorization)
 			// request.getSession().getAttribute(HttpContext.AUTHORIZATION);
 			// if (authorization == null) {
