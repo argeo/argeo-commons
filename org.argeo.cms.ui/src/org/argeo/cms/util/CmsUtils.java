@@ -67,10 +67,6 @@ public class CmsUtils implements CmsConstants {
 		}
 	}
 
-	// private final static String PATH_DATA = "/data";
-	// private final static String WEBDAV_PUBLIC = PATH_DATA + "/public";
-	// private final static String WEBDAV_PRIVATE = PATH_DATA + "/files";
-
 	/** A path in the node repository */
 	public static String getDataPath(Node node) throws RepositoryException {
 		return getDataPath(NodeConstants.NODE, node);
@@ -78,43 +74,7 @@ public class CmsUtils implements CmsConstants {
 
 	public static String getDataPath(String cn, Node node) throws RepositoryException {
 		return NodeUtils.getDataPath(cn, node);
-		// assert node != null;
-		// String userId = node.getSession().getUserID();
-		// if (log.isTraceEnabled())
-		// log.trace(userId + " : " + node.getPath());
-		// StringBuilder buf = new StringBuilder();
-		// boolean isAnonymous =
-		// userId.equalsIgnoreCase(NodeConstants.ROLE_ANONYMOUS);
-		// if (isAnonymous)
-		// buf.append(WEBDAV_PUBLIC);
-		// else
-		// buf.append(WEBDAV_PRIVATE);
-		// Session session = node.getSession();
-		// Repository repository = session.getRepository();
-		// String cn;
-		// if (repository.isSingleValueDescriptor(NodeConstants.CN)) {
-		// cn = repository.getDescriptor(NodeConstants.CN);
-		// } else {
-		// log.warn("No cn defined in repository, using " + NodeConstants.NODE);
-		// cn = NodeConstants.NODE;
-		// }
-		// return
-		// buf.append('/').append(cn).append('/').append(session.getWorkspace().getName()).append(node.getPath())
-		// .toString();
 	}
-	//
-	// public static String getCanonicalUrl(Node node, HttpServletRequest
-	// request) throws RepositoryException {
-	// try {
-	// StringBuilder buf = getServerBaseUrl(request);
-	// buf.append('/').append('!').append(node.getPath());
-	// return new URL(buf.toString()).toString();
-	// } catch (MalformedURLException e) {
-	// throw new CmsException("Cannot build data URL for " + node, e);
-	// }
-	// // return request.getRequestURL().append('!').append(node.getPath())
-	// // .toString();
-	// }
 
 	/** @deprecated Use rowData16px() instead. GridData should not be reused. */
 	@Deprecated
@@ -164,28 +124,6 @@ public class CmsUtils implements CmsConstants {
 	public static void setItemHeight(Table table, int height) {
 		table.setData(CmsConstants.ITEM_HEIGHT, height);
 	}
-
-	// /** @return the path or null if not instrumented */
-	// @Deprecated
-	// public static String getDataPath(Widget widget) {
-	// // JCR item
-	// Object data = widget.getData();
-	// if (data != null && data instanceof Item) {
-	// try {
-	// return ((Item) data).getPath();
-	// } catch (RepositoryException e) {
-	// throw new CmsException("Cannot find data path of " + data + " for " +
-	// widget);
-	// }
-	// }
-	//
-	// // JCR path
-	// data = widget.getData(Property.JCR_PATH);
-	// if (data != null)
-	// return data.toString();
-	//
-	// return null;
-	// }
 
 	/** Dispose all children of a Composite */
 	public static void clear(Composite composite) {
