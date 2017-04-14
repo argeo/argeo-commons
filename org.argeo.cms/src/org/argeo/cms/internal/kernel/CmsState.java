@@ -115,19 +115,22 @@ public class CmsState implements NodeState {
 		if (existingTm != null) {
 			if (log.isDebugEnabled())
 				log.debug("Using provided transaction manager " + existingTm);
+			return;
 		}
-		bitronix.tm.Configuration tmConf = TransactionManagerServices.getConfiguration();
-		tmConf.setServerId(UUID.randomUUID().toString());
 
-		Bundle bitronixBundle = FrameworkUtil.getBundle(bitronix.tm.Configuration.class);
-		File tmBaseDir = bitronixBundle.getDataFile(KernelConstants.DIR_TRANSACTIONS);
-		File tmDir1 = new File(tmBaseDir, "btm1");
-		tmDir1.mkdirs();
-		tmConf.setLogPart1Filename(new File(tmDir1, tmDir1.getName() + ".tlog").getAbsolutePath());
-		File tmDir2 = new File(tmBaseDir, "btm2");
-		tmDir2.mkdirs();
-		tmConf.setLogPart2Filename(new File(tmDir2, tmDir2.getName() + ".tlog").getAbsolutePath());
+		if (!TransactionManagerServices.isTransactionManagerRunning()) {
+			bitronix.tm.Configuration tmConf = TransactionManagerServices.getConfiguration();
+			tmConf.setServerId(UUID.randomUUID().toString());
 
+			Bundle bitronixBundle = FrameworkUtil.getBundle(bitronix.tm.Configuration.class);
+			File tmBaseDir = bitronixBundle.getDataFile(KernelConstants.DIR_TRANSACTIONS);
+			File tmDir1 = new File(tmBaseDir, "btm1");
+			tmDir1.mkdirs();
+			tmConf.setLogPart1Filename(new File(tmDir1, tmDir1.getName() + ".tlog").getAbsolutePath());
+			File tmDir2 = new File(tmBaseDir, "btm2");
+			tmDir2.mkdirs();
+			tmConf.setLogPart2Filename(new File(tmDir2, tmDir2.getName() + ".tlog").getAbsolutePath());
+		}
 		BitronixTransactionManager transactionManager = getTransactionManager();
 		shutdownHooks.add(() -> transactionManager.shutdown());
 		BitronixTransactionSynchronizationRegistry transactionSynchronizationRegistry = getTransactionSynchronizationRegistry();
@@ -140,10 +143,10 @@ public class CmsState implements NodeState {
 	}
 
 	void shutdown() {
-		applyShutdownHooks();
-
 		if (kernelThread != null)
 			kernelThread.destroyAndJoin();
+
+		applyShutdownHooks();
 
 		if (log.isDebugEnabled())
 			log.debug("## CMS STOPPED");

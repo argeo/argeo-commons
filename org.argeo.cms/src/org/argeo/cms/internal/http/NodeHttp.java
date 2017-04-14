@@ -47,7 +47,8 @@ public class NodeHttp implements KernelConstants {
 	}
 
 	public void destroy() {
-		repositories.close();
+		if (repositories != null)
+			repositories.close();
 	}
 
 	void registerRepositoryServlets(HttpService httpService, String alias, Repository repository) {
