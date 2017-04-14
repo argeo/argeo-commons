@@ -181,11 +181,16 @@ public class OsgiBoot implements OsgiBootConstants {
 				else if (OsgiBootUtils.debug)
 					OsgiBootUtils.debug(
 							"Installed " + bundle.getSymbolicName() + "-" + bundle.getVersion() + " from " + url);
+				assert bundle.getSymbolicName() != null;
 				// uninstall previous versions
 				bundles: for (Bundle b : bundleContext.getBundles()) {
+					if (b.getSymbolicName() == null)
+						continue bundles;
 					if (bundle.getSymbolicName().equals(b.getSymbolicName())) {
 						Version bundleV = bundle.getVersion();
 						Version bV = b.getVersion();
+						if (bV == null)
+							continue bundles;
 						if (bundleV.getMajor() == bV.getMajor() && bundleV.getMinor() == bV.getMinor()) {
 							if (bundleV.getMicro() > bV.getMicro()) {
 								// uninstall older bundles
