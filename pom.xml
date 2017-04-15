@@ -40,6 +40,7 @@
 		<module>org.argeo.ext.rap.ui.workbench</module>
 		<!-- Distribution -->
 		<module>dep</module>
+		<module>doc</module>
 		<module>dist</module>
 	</modules>
 	<scm>
@@ -375,9 +376,9 @@ limitations under the License.
 			<plugin>
 				<artifactId>maven-site-plugin</artifactId>
 				<inherited>false</inherited>
-				<configuration>
-					<skip>true</skip>
-				</configuration>
+<!-- 				<configuration> -->
+<!-- 					<skip>true</skip> -->
+<!-- 				</configuration> -->
 			</plugin>
 			<plugin>
 				<artifactId>maven-release-plugin</artifactId>
@@ -485,7 +486,7 @@ limitations under the License.
 				</repository>
 				<site>
 					<id>staging</id>
-					<url>dav:http://localhost:7080/data/docs/argeo-${developmentCycle.argeo-commons}</url>
+					<url>dav:http://localhost:7080/files/docs/argeo-${developmentCycle.argeo-commons}</url>
 				</site>
 			</distributionManagement>
 		</profile>
