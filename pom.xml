@@ -377,7 +377,7 @@ limitations under the License.
 				<artifactId>maven-site-plugin</artifactId>
 				<inherited>false</inherited>
 				<configuration>
-					<skip>true</skip>
+					<skip>false</skip>
 				</configuration>
 			</plugin>
 			<plugin>
