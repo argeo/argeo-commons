@@ -19,7 +19,6 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.CredentialNotFoundException;
-import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.servlet.http.HttpServletRequest;
@@ -66,21 +65,7 @@ public class UserAdminLoginModule implements LoginModule {
 
 	@Override
 	public boolean login() throws LoginException {
-		// Authorization sharedAuth = (Authorization)
-		// sharedState.get(CmsAuthUtils.SHARED_STATE_AUTHORIZATION);
-		// if (sharedAuth != null) {
-		// if (callbackHandler == null && sharedAuth.getName() != null)
-		// throw new LoginException("Shared authorization should be anonymous");
-		// return false;
-		// }
 		UserAdmin userAdmin = bc.getService(bc.getServiceReference(UserAdmin.class));
-		if (callbackHandler == null) {// anonymous
-			// authorization = userAdmin.getAuthorization(null);
-			// sharedState.put(CmsAuthUtils.SHARED_STATE_AUTHORIZATION,
-			// authorization);
-			return true;
-		}
-
 		final String username;
 		final char[] password;
 		if (sharedState.containsKey(CmsAuthUtils.SHARED_STATE_NAME)
@@ -89,10 +74,6 @@ public class UserAdminLoginModule implements LoginModule {
 			username = (String) sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
 			password = (char[]) sharedState.get(CmsAuthUtils.SHARED_STATE_PWD);
 			// // TODO locale?
-			// // NB: raw user name is used
-			// AuthenticatingUser authenticatingUser = new
-			// AuthenticatingUser(username, password);
-			// authorization = userAdmin.getAuthorization(authenticatingUser);
 		} else {
 			// ask for username and password
 			NameCallback nameCallback = new NameCallback("User");
@@ -130,7 +111,8 @@ public class UserAdminLoginModule implements LoginModule {
 			return true;// expect Kerberos
 		// throw new FailedLoginException("Invalid credentials");
 		if (!user.hasCredential(null, password))
-			throw new FailedLoginException("Invalid credentials");
+			return false;
+//			throw new FailedLoginException("Invalid credentials");
 		authenticatedUser = user;
 		return true;
 	}
