@@ -55,7 +55,7 @@ start() {
 	$JVM \
 		-Dargeo.osgi.shutdownFile="$SHUTDOWN_FILE" \
 		-Dlog4j.configuration="file:$CONF_DIR/log4j.properties" \
-		-Dorg.osgi.framework.security=osgi \
+		-Djava.security.manager= \
 		-Djava.security.policy="file:/etc/osgiboot/all.policy" \
 		$JAVA_OPTS -jar $OSGI_FRAMEWORK \
 		-clean \
