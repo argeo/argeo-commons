@@ -43,8 +43,8 @@ public class NodeRunner {
 		}
 
 		this.baseDir = baseDir;
-		this.confDir = baseDir.resolve("state");
-		this.dataDir = baseDir.resolve("data");
+		this.confDir = this.baseDir.resolve("state");
+		this.dataDir = this.baseDir.resolve("data");
 
 	}
 
@@ -121,9 +121,9 @@ public class NodeRunner {
 
 	private void defaultConfiguration(Map<String, String> configuration) {
 		// all permissions to OSGi security manager
-		Path policyFile = confDir.resolve("osgi.policy");
+		Path policyFile = confDir.resolve("node.policy");
 		if (!Files.exists(policyFile))
-			copyResource("/org/argeo/osgi/boot/osgi.policy", policyFile);
+			copyResource("/org/argeo/osgi/boot/node.policy", policyFile);
 		configuration.put("java.security.policy", "file://" + policyFile.toAbsolutePath());
 
 		configuration.put("org.eclipse.rap.workbenchAutostart", "false");
