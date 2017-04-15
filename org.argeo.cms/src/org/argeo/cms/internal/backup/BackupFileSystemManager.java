@@ -30,7 +30,7 @@ import org.argeo.cms.CmsException;
  * Programatically configured VFS file system manager which can be declared as a
  * bean and associated with a life cycle (methods
  * {@link DefaultFileSystemManager#init()} and
- * {@link DefaultFileSystemManager#closet()}). Supports bz2, file, ram, gzip,
+ * {@link DefaultFileSystemManager#close()}). Supports bz2, file, ram, gzip,
  * ftp, sftp
  */
 public class BackupFileSystemManager extends DefaultFileSystemManager {

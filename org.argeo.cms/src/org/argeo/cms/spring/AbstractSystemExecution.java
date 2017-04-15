@@ -29,10 +29,7 @@ abstract class AbstractSystemExecution {
 	private final static Log log = LogFactory.getLog(AbstractSystemExecution.class);
 	private final Subject subject = new Subject();
 
-	/**
-	 * Authenticate the calling thread to the underlying
-	 * {@link AuthenticationManager}
-	 */
+	/** Authenticate the calling thread */
 	protected void authenticateAsSystem() {
 		ClassLoader origClassLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(getClass().getClassLoader());

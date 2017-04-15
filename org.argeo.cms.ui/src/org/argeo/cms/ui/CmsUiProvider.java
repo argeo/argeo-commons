@@ -14,9 +14,8 @@ public interface CmsUiProvider {
 	 * 
 	 * @param parent
 	 *            the parent composite
-	 * @param a
-	 *            context node or null
+	 * @param context
+	 *            a context node (holding the JCR underlying session), or null
 	 */
-	public Control createUi(Composite parent, Node context)
-			throws RepositoryException;
+	public Control createUi(Composite parent, Node context) throws RepositoryException;
 }

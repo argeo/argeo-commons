@@ -27,24 +27,19 @@ import org.eclipse.swt.widgets.Text;
 /**
  * A composite that can populate itself based on {@link Callback}s. It can be
  * used directly as a {@link CallbackHandler} or be used by one by calling the
- * {@link #createCallbackHandlers(Callback[])}.
- * <p>
- * Supported standard {@link Callback}s are:<br>
+ * {@link #createCallbackHandlers(Callback[])}. Supported standard
+ * {@link Callback}s are:<br>
  * <ul>
  * <li>{@link PasswordCallback}</li>
  * <li>{@link NameCallback}</li>
  * <li>{@link TextOutputCallback}</li>
  * </ul>
- * </p>
- * <p>
  * Supported Argeo {@link Callback}s are:<br>
  * <ul>
  * <li>{@link LocaleChoice}</li>
  * </ul>
- * </p>
  */
-public class CompositeCallbackHandler extends Composite implements
-		CallbackHandler {
+public class CompositeCallbackHandler extends Composite implements CallbackHandler {
 	private static final long serialVersionUID = -928223893722723777L;
 
 	private boolean wasUsedAlready = false;
@@ -56,8 +51,7 @@ public class CompositeCallbackHandler extends Composite implements
 	}
 
 	@Override
-	public synchronized void handle(final Callback[] callbacks)
-			throws IOException, UnsupportedCallbackException {
+	public synchronized void handle(final Callback[] callbacks) throws IOException, UnsupportedCallbackException {
 		// reset
 		if (wasUsedAlready && !isSubmitted() && !isCanceled()) {
 			cancel();
@@ -81,23 +75,20 @@ public class CompositeCallbackHandler extends Composite implements
 		if (!wasUsedAlready)
 			wasUsedAlready = true;
 
-//		while (!isSubmitted() && !isCanceled()) {
-//			try {
-//				wait(1000l);
-//			} catch (InterruptedException e) {
-//				// silent
-//			}
-//		}
+		// while (!isSubmitted() && !isCanceled()) {
+		// try {
+		// wait(1000l);
+		// } catch (InterruptedException e) {
+		// // silent
+		// }
+		// }
 
-//		cleanCallbacksAfterCancel(callbacks);
+		// cleanCallbacksAfterCancel(callbacks);
 	}
 
-	public void checkCallbackSupported(Callback callback)
-			throws UnsupportedCallbackException {
-		if (callback instanceof TextOutputCallback
-				|| callback instanceof NameCallback
-				|| callback instanceof PasswordCallback
-				|| callback instanceof LocaleChoice) {
+	public void checkCallbackSupported(Callback callback) throws UnsupportedCallbackException {
+		if (callback instanceof TextOutputCallback || callback instanceof NameCallback
+				|| callback instanceof PasswordCallback || callback instanceof LocaleChoice) {
 			return;
 		} else {
 			throw new UnsupportedCallbackException(callback);
@@ -130,8 +121,7 @@ public class CompositeCallbackHandler extends Composite implements
 		for (int i = 0; i < callbacks.length; i++) {
 			Callback callback = callbacks[i];
 			if (callback instanceof TextOutputCallback) {
-				createLabelTextoutputHandler(composite,
-						(TextOutputCallback) callback);
+				createLabelTextoutputHandler(composite, (TextOutputCallback) callback);
 			} else if (callback instanceof NameCallback) {
 				createNameHandler(composite, (NameCallback) callback);
 			} else if (callback instanceof PasswordCallback) {
@@ -142,12 +132,10 @@ public class CompositeCallbackHandler extends Composite implements
 		}
 	}
 
-	protected Text createNameHandler(Composite composite,
-			final NameCallback callback) {
+	protected Text createNameHandler(Composite composite, final NameCallback callback) {
 		Label label = new Label(composite, SWT.NONE);
 		label.setText(callback.getPrompt());
-		final Text text = new Text(composite, SWT.SINGLE | SWT.LEAD
-				| SWT.BORDER);
+		final Text text = new Text(composite, SWT.SINGLE | SWT.LEAD | SWT.BORDER);
 		if (callback.getDefaultName() != null) {
 			// set default value, if provided
 			text.setText(callback.getDefaultName());
@@ -188,14 +176,11 @@ public class CompositeCallbackHandler extends Composite implements
 		return text;
 	}
 
-	protected Text createPasswordHandler(Composite composite,
-			final PasswordCallback callback) {
+	protected Text createPasswordHandler(Composite composite, final PasswordCallback callback) {
 		Label label = new Label(composite, SWT.NONE);
 		label.setText(callback.getPrompt());
-		final Text passwordText = new Text(composite, SWT.SINGLE | SWT.LEAD
-				| SWT.PASSWORD | SWT.BORDER);
-		passwordText
-				.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		final Text passwordText = new Text(composite, SWT.SINGLE | SWT.LEAD | SWT.PASSWORD | SWT.BORDER);
+		passwordText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		passwordText.addModifyListener(new ModifyListener() {
 			private static final long serialVersionUID = -7099363995047686732L;
 
@@ -218,8 +203,7 @@ public class CompositeCallbackHandler extends Composite implements
 		return passwordText;
 	}
 
-	protected Combo createLocaleHandler(Composite composite,
-			final LocaleChoice callback) {
+	protected Combo createLocaleHandler(Composite composite, final LocaleChoice callback) {
 		String[] labels = callback.getSupportedLocalesLabels();
 		if (labels.length == 0)
 			return null;
@@ -245,8 +229,7 @@ public class CompositeCallbackHandler extends Composite implements
 		return combo;
 	}
 
-	protected Label createLabelTextoutputHandler(Composite composite,
-			final TextOutputCallback callback) {
+	protected Label createLabelTextoutputHandler(Composite composite, final TextOutputCallback callback) {
 		Label label = new Label(composite, SWT.NONE);
 		label.setText(callback.getMessage());
 		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);

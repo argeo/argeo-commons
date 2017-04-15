@@ -183,7 +183,7 @@ public class FormUtils {
 	private static String AMPERSAND = "&#38;";
 
 	/**
-	 * Cleans a String by replacing any '&' by its HTML encoding '&#38;' to
+	 * Cleans a String by replacing any '&#38;' by its HTML encoding '&#38;#38;' to
 	 * avoid <code>SAXParseException</code> while rendering HTML with RWT
 	 */
 	public static String replaceAmpersand(String value) {

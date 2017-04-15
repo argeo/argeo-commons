@@ -47,19 +47,10 @@ public class CommandUtils {
 	 * 
 	 * Note: that this method should be called with a false show command flag to
 	 * remove a contribution that have been previously contributed
-	 * 
-	 * @param menuManager
-	 * @param locator
-	 * @param cmdId
-	 * @param label
-	 * @param icon
-	 * @param showCommand
 	 */
-	public static void refreshCommand(IMenuManager menuManager,
-			IServiceLocator locator, String cmdId, String label,
+	public static void refreshCommand(IMenuManager menuManager, IServiceLocator locator, String cmdId, String label,
 			ImageDescriptor icon, boolean showCommand) {
-		refreshParameterizedCommand(menuManager, locator, cmdId, label, icon,
-				showCommand, null);
+		refreshParameterizedCommand(menuManager, locator, cmdId, label, icon, showCommand, null);
 	}
 
 	/**
@@ -67,20 +58,10 @@ public class CommandUtils {
 	 * parameters in a context menu
 	 * 
 	 * The command ID is used has contribution item ID
-	 * 
-	 * @param menuManager
-	 * @param locator
-	 * @param cmdId
-	 * @param label
-	 * @param iconPath
-	 * @param showCommand
 	 */
-	public static void refreshParameterizedCommand(IMenuManager menuManager,
-			IServiceLocator locator, String cmdId, String label,
-			ImageDescriptor icon, boolean showCommand,
-			Map<String, String> params) {
-		refreshParameterizedCommand(menuManager, locator, cmdId, cmdId, label,
-				icon, showCommand, params);
+	public static void refreshParameterizedCommand(IMenuManager menuManager, IServiceLocator locator, String cmdId,
+			String label, ImageDescriptor icon, boolean showCommand, Map<String, String> params) {
+		refreshParameterizedCommand(menuManager, locator, cmdId, cmdId, label, icon, showCommand, params);
 	}
 
 	/**
@@ -96,16 +77,15 @@ public class CommandUtils {
 	 * @param showCommand
 	 * @param params
 	 */
-	public static void refreshParameterizedCommand(IMenuManager menuManager,
-			IServiceLocator locator, String contributionId, String commandId,
-			String label, ImageDescriptor icon, boolean showCommand,
+	public static void refreshParameterizedCommand(IMenuManager menuManager, IServiceLocator locator,
+			String contributionId, String commandId, String label, ImageDescriptor icon, boolean showCommand,
 			Map<String, String> params) {
 		IContributionItem ici = menuManager.find(contributionId);
 		if (ici != null)
 			menuManager.remove(ici);
 		if (showCommand) {
-			CommandContributionItemParameter contributionItemParameter = new CommandContributionItemParameter(
-					locator, null, commandId, SWT.PUSH);
+			CommandContributionItemParameter contributionItemParameter = new CommandContributionItemParameter(locator,
+					null, commandId, SWT.PUSH);
 
 			// Set Params
 			contributionItemParameter.label = label;
@@ -114,8 +94,7 @@ public class CommandUtils {
 			if (params != null)
 				contributionItemParameter.parameters = params;
 
-			CommandContributionItem cci = new CommandContributionItem(
-					contributionItemParameter);
+			CommandContributionItem cci = new CommandContributionItem(contributionItemParameter);
 			cci.setId(contributionId);
 			menuManager.add(cci);
 		}
@@ -127,8 +106,7 @@ public class CommandUtils {
 	}
 
 	/** Helper to call a command with a single parameter easily */
-	public static void callCommand(String commandID, String parameterID,
-			String parameterValue) {
+	public static void callCommand(String commandID, String parameterID, String parameterValue) {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(parameterID, parameterValue);
 		callCommand(commandID, params);
@@ -141,15 +119,12 @@ public class CommandUtils {
 	 *            a map that links various command IDs with corresponding String
 	 *            values.
 	 */
-	public static void callCommand(String commandID,
-			Map<String, String> paramMap) {
+	public static void callCommand(String commandID, Map<String, String> paramMap) {
 		try {
 			IWorkbench iw = WorkbenchUiPlugin.getDefault().getWorkbench();
-			IHandlerService handlerService = (IHandlerService) iw
-					.getService(IHandlerService.class);
-			ICommandService cmdService = (ICommandService) iw
-					.getActiveWorkbenchWindow().getService(
-							ICommandService.class);
+			IHandlerService handlerService = (IHandlerService) iw.getService(IHandlerService.class);
+			ICommandService cmdService = (ICommandService) iw.getActiveWorkbenchWindow()
+					.getService(ICommandService.class);
 			Command cmd = cmdService.getCommand(commandID);
 
 			ArrayList<Parameterization> parameters = null;
@@ -161,21 +136,17 @@ public class CommandUtils {
 				Parameterization parameterization;
 
 				for (String id : paramMap.keySet()) {
-					parameterization = new Parameterization(
-							cmd.getParameter(id), paramMap.get(id));
+					parameterization = new Parameterization(cmd.getParameter(id), paramMap.get(id));
 					parameters.add(parameterization);
 				}
-				pc = new ParameterizedCommand(cmd,
-						parameters.toArray(new Parameterization[parameters
-								.size()]));
+				pc = new ParameterizedCommand(cmd, parameters.toArray(new Parameterization[parameters.size()]));
 			} else
 				pc = new ParameterizedCommand(cmd, null);
 
 			// execute the command
 			handlerService.executeCommand(pc, null);
 		} catch (Exception e) {
-			throw new EclipseUiException("Unexpected error while"
-					+ " calling the command " + commandID, e);
+			throw new EclipseUiException("Unexpected error while" + " calling the command " + commandID, e);
 		}
 	}
 }

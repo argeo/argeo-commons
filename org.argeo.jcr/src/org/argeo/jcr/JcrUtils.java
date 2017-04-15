@@ -146,7 +146,7 @@ public class JcrUtils {
 
 	/**
 	 * Creates a deep path based on a URL:
-	 * http://subdomain.example.com/to/content?args =>
+	 * http://subdomain.example.com/to/content?args becomes
 	 * com/example/subdomain/to/content
 	 */
 	public static String urlAsPath(String url) {
@@ -208,7 +208,7 @@ public class JcrUtils {
 
 	/**
 	 * Creates a path from a FQDN, inverting the order of the component:
-	 * www.argeo.org => org.argeo.www
+	 * www.argeo.org becomes org.argeo.www
 	 */
 	public static String hostAsPath(String host) {
 		StringBuffer path = new StringBuffer(host.length());
@@ -222,7 +222,7 @@ public class JcrUtils {
 	}
 
 	/**
-	 * Creates a path from a UUID (e.g. 6ebda899-217d-4bf1-abe4-2839085c8f3c =>
+	 * Creates a path from a UUID (e.g. 6ebda899-217d-4bf1-abe4-2839085c8f3c becomes
 	 * 6ebda899-217d/4bf1/abe4/2839085c8f3c/). '/' at the end, not the beginning
 	 */
 	public static String uuidAsPath(String uuid) {
@@ -1008,7 +1008,7 @@ public class JcrUtils {
 
 	/**
 	 * Creates depth from a string (typically a username) by adding levels based
-	 * on its first characters: "aBcD",2 => a/aB
+	 * on its first characters: "aBcD",2 becomes a/aB
 	 */
 	public static String firstCharsToPath(String str, Integer nbrOfChars) {
 		if (str.length() < nbrOfChars)
@@ -1210,7 +1210,7 @@ public class JcrUtils {
 
 	/**
 	 * Estimate the sub tree size from current node. Computation is based on the
-	 * Jcr {@link Property.getLength()} method. Note : it is not the exact size
+	 * Jcr {@link Property#getLength()} method. Note : it is not the exact size
 	 * used on the disk by the current part of the JCR Tree.
 	 */
 

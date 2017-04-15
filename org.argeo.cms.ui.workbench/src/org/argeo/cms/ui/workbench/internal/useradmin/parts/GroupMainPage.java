@@ -222,7 +222,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		getManagedForm().addPart(part);
 	}
 
-	/** Filtered table with members. Has drag & drop ability */
+	/** Filtered table with members. Has drag and drop ability */
 	protected void appendMembersPart(Composite parent, Group group) {
 
 		FormToolkit tk = getManagedForm().getToolkit();

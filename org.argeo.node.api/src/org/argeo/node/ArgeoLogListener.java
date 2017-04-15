@@ -31,7 +31,7 @@ public interface ArgeoLogListener {
 	 * @param msg
 	 *            any object as long as its toString() method returns the
 	 *            message
-	 * @param the
+	 * @param exception
 	 *            exception in log4j ThrowableStrRep format
 	 */
 	public void appendLog(String username, Long timestamp, String level,

@@ -24,7 +24,7 @@ import org.argeo.eclipse.ui.TreeParent;
 
 /**
  * UI Tree component that wraps a JCR {@link Repository}. It also keeps a reference
- * to its parent Tree Ui component; typically the unique {@link Repositories}
+ * to its parent Tree Ui component; typically the unique {@link RepositoriesElem}
  * object of the current view to enable bi-directionnal browsing in the tree.
  */
 
@@ -33,7 +33,7 @@ public class RepositoryElem extends TreeParent {
 	protected Repository repository;
 	private Session defaultSession = null;
 
-	/** Create a new repository with distinct name & alias */
+	/** Create a new repository with distinct name and alias */
 	public RepositoryElem(String alias, Repository repository, TreeParent parent) {
 		super(alias);
 		this.repository = repository;

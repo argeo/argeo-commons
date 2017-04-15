@@ -36,7 +36,7 @@ import javax.jcr.query.qom.StaticOperand;
 public class NodeUtils {
 	/**
 	 * Wraps the call to the repository factory based on parameter
-	 * {@link NodeConstants#JCR_REPOSITORY_ALIAS} in order to simplify it and
+	 * {@link NodeConstants#CN} in order to simplify it and
 	 * protect against future API changes.
 	 */
 	public static Repository getRepositoryByAlias(RepositoryFactory repositoryFactory, String alias) {
@@ -52,7 +52,7 @@ public class NodeUtils {
 
 	/**
 	 * Wraps the call to the repository factory based on parameter
-	 * {@link NodeConstants#JCR_REPOSITORY_URI} in order to simplify it and
+	 * {@link NodeConstants#LABELED_URI} in order to simplify it and
 	 * protect against future API changes.
 	 */
 	public static Repository getRepositoryByUri(RepositoryFactory repositoryFactory, String uri) {
@@ -61,7 +61,7 @@ public class NodeUtils {
 
 	/**
 	 * Wraps the call to the repository factory based on parameter
-	 * {@link NodeConstants#JCR_REPOSITORY_URI} in order to simplify it and
+	 * {@link NodeConstants#LABELED_URI} in order to simplify it and
 	 * protect against future API changes.
 	 */
 	public static Repository getRepositoryByUri(RepositoryFactory repositoryFactory, String uri, String alias) {
@@ -165,25 +165,4 @@ public class NodeUtils {
 		return buf.append('/').append(cn).append('/').append(node.getSession().getWorkspace().getName())
 				.append(node.getPath()).toString();
 	}
-
-	// public static Node getUserProfile(Session session, String username) {
-	// try {
-	// QueryObjectModelFactory qomf = session.getWorkspace()
-	// .getQueryManager().getQOMFactory();
-	// Selector userHomeSel = qomf.selector(ArgeoTypes.ARGEO_USER_PROFILE,
-	// "userProfile");
-	// DynamicOperand userIdDop = qomf.propertyValue(
-	// userHomeSel.getSelectorName(), ArgeoNames.ARGEO_USER_ID);
-	// StaticOperand userIdSop = qomf.literal(session.getValueFactory()
-	// .createValue(username));
-	// Constraint constraint = qomf.comparison(userIdDop,
-	// QueryObjectModelFactory.JCR_OPERATOR_EQUAL_TO, userIdSop);
-	// Query query = qomf.createQuery(userHomeSel, constraint, null, null);
-	// return querySingleNode(query);
-	// } catch (RepositoryException e) {
-	// throw new RuntimeException(
-	// "Cannot find profile for user " + username, e);
-	// }
-	// }
-	//
 }

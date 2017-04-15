@@ -71,7 +71,7 @@ public class OsgiBootUtils {
 	}
 
 	/**
-	 * @return ==0: versions are identical, <0: tested version is newer, >0:
+	 * @return ==0: versions are identical, &lt;0: tested version is newer, &gt;0:
 	 *         currentVersion is newer.
 	 */
 	public static int compareVersions(String currentVersion, String testedVersion) {

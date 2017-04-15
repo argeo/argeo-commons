@@ -27,7 +27,7 @@ public abstract class GenericTableComparator extends ViewerComparator {
 	/**
 	 * Creates an instance of a sorter for TableViewer.
 	 * 
-	 * @param defaultColumn
+	 * @param defaultColumnIndex
 	 *            the default sorter column
 	 */
 

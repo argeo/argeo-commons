@@ -13,24 +13,25 @@ import org.eclipse.swt.widgets.Control;
 /** Read and write access to images. */
 public interface CmsImageManager {
 	/** Load image in control */
-	public Boolean load(Node node, Control control, Point size)
-			throws RepositoryException;
+	public Boolean load(Node node, Control control, Point size) throws RepositoryException;
 
 	/** @return (0,0) if not available */
 	public Point getImageSize(Node node) throws RepositoryException;
 
 	/**
-	 * The related <img tag, with src, width and height set. @return null if not
-	 * available
+	 * The related &lt;img&gt; tag, with src, width and height set.
+	 * 
+	 * @return null if not available
 	 */
 	public String getImageTag(Node node) throws RepositoryException;
 
 	/**
-	 * The related <img tag, with url, width and height set. Caller must close
-	 * the tag (or add additional attributes). @return null if not available
+	 * The related &lt;img&gt; tag, with url, width and height set. Caller must
+	 * close the tag (or add additional attributes).
+	 * 
+	 * @return null if not available
 	 */
-	public StringBuilder getImageTagBuilder(Node node, Point size)
-			throws RepositoryException;
+	public StringBuilder getImageTagBuilder(Node node, Point size) throws RepositoryException;
 
 	/**
 	 * Returns the remotely accessible URL of the image (registering it if
@@ -43,6 +44,5 @@ public interface CmsImageManager {
 	public Image getSwtImage(Node node) throws RepositoryException;
 
 	/** @return URL */
-	public String uploadImage(Node parentNode, String fileName, InputStream in)
-			throws RepositoryException;
+	public String uploadImage(Node parentNode, String fileName, InputStream in) throws RepositoryException;
 }

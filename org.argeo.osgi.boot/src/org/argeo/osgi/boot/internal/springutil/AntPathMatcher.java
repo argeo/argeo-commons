@@ -366,14 +366,14 @@ public class AntPathMatcher implements PathMatcher {
 	 * Given a pattern and a full path, determine the pattern-mapped part.
 	 * <p>For example:
 	 * <ul>
-	 * <li>'<code>/docs/cvs/commit.html</code>' and '<code>/docs/cvs/commit.html</code> -> ''</li>
-	 * <li>'<code>/docs/*</code>' and '<code>/docs/cvs/commit</code> -> '<code>cvs/commit</code>'</li>
-	 * <li>'<code>/docs/cvs/*.html</code>' and '<code>/docs/cvs/commit.html</code> -> '<code>commit.html</code>'</li>
-	 * <li>'<code>/docs/**</code>' and '<code>/docs/cvs/commit</code> -> '<code>cvs/commit</code>'</li>
-	 * <li>'<code>/docs/**\/*.html</code>' and '<code>/docs/cvs/commit.html</code> -> '<code>cvs/commit.html</code>'</li>
-	 * <li>'<code>/*.html</code>' and '<code>/docs/cvs/commit.html</code> -> '<code>docs/cvs/commit.html</code>'</li>
-	 * <li>'<code>*.html</code>' and '<code>/docs/cvs/commit.html</code> -> '<code>/docs/cvs/commit.html</code>'</li>
-	 * <li>'<code>*</code>' and '<code>/docs/cvs/commit.html</code> -> '<code>/docs/cvs/commit.html</code>'</li>
+	 * <li>'<code>/docs/cvs/commit.html</code>' and '<code>/docs/cvs/commit.html</code> to ''</li>
+	 * <li>'<code>/docs/*</code>' and '<code>/docs/cvs/commit</code> to '<code>cvs/commit</code>'</li>
+	 * <li>'<code>/docs/cvs/*.html</code>' and '<code>/docs/cvs/commit.html</code> to '<code>commit.html</code>'</li>
+	 * <li>'<code>/docs/**</code>' and '<code>/docs/cvs/commit</code> to '<code>cvs/commit</code>'</li>
+	 * <li>'<code>/docs/**\/*.html</code>' and '<code>/docs/cvs/commit.html</code> to '<code>cvs/commit.html</code>'</li>
+	 * <li>'<code>/*.html</code>' and '<code>/docs/cvs/commit.html</code> to '<code>docs/cvs/commit.html</code>'</li>
+	 * <li>'<code>*.html</code>' and '<code>/docs/cvs/commit.html</code> to '<code>/docs/cvs/commit.html</code>'</li>
+	 * <li>'<code>*</code>' and '<code>/docs/cvs/commit.html</code> to '<code>/docs/cvs/commit.html</code>'</li>
 	 * </ul>
 	 * <p>Assumes that {@link #match} returns <code>true</code> for '<code>pattern</code>'
 	 * and '<code>path</code>', but does <strong>not</strong> enforce this.

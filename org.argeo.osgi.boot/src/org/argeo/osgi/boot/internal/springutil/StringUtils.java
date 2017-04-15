@@ -49,7 +49,6 @@ import java.util.TreeSet;
  * @author Rob Harrop
  * @author Rick Evans
  * @since 16 April 2001
- * @see org.apache.commons.lang.StringUtils
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class StringUtils {
@@ -431,7 +430,7 @@ public abstract class StringUtils {
 	 * Quote the given String with single quotes.
 	 * @param str the input String (e.g. "myString")
 	 * @return the quoted String (e.g. "'myString'"),
-	 * or <code>null<code> if the input was <code>null</code>
+	 * or <code>null</code> if the input was <code>null</code>
 	 */
 	public static String quote(String str) {
 		return (str != null ? "'" + str + "'" : null);
@@ -506,7 +505,7 @@ public abstract class StringUtils {
 
 	/**
 	 * Extract the filename from the given path,
-	 * e.g. "mypath/myfile.txt" -> "myfile.txt".
+	 * e.g. "mypath/myfile.txt" to "myfile.txt".
 	 * @param path the file path (may be <code>null</code>)
 	 * @return the extracted filename, or <code>null</code> if none
 	 */
@@ -520,7 +519,7 @@ public abstract class StringUtils {
 
 	/**
 	 * Extract the filename extension from the given path,
-	 * e.g. "mypath/myfile.txt" -> "txt".
+	 * e.g. "mypath/myfile.txt" to "txt".
 	 * @param path the file path (may be <code>null</code>)
 	 * @return the extracted filename extension, or <code>null</code> if none
 	 */
@@ -534,7 +533,7 @@ public abstract class StringUtils {
 
 	/**
 	 * Strip the filename extension from the given path,
-	 * e.g. "mypath/myfile.txt" -> "mypath/myfile".
+	 * e.g. "mypath/myfile.txt" to "mypath/myfile".
 	 * @param path the file path (may be <code>null</code>)
 	 * @return the path with stripped filename extension,
 	 * or <code>null</code> if none

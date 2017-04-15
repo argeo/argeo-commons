@@ -28,7 +28,7 @@ import org.argeo.eclipse.ui.FileProvider;
 
 /**
  * Implements a FileProvider for UI purposes. Note that it might not be very
- * reliable as long as we have not fixed login & multi repository issues that
+ * reliable as long as we have not fixed login and multi repository issues that
  * will be addressed in the next version.
  * 
  * NOTE: id used here is the real id of the JCR Node, not the JCR Path
@@ -47,48 +47,19 @@ public class JcrFileProvider implements FileProvider {
 	 * and thus have the ability to get the file node corresponding to a given
 	 * file ID
 	 * 
-	 * FIXME : this introduces some concurrences ISSUES.
-	 * 
-	 * @param repositoryNode
+	 * @param refNode
 	 */
 	public void setReferenceNode(Node refNode) {
+		// FIXME : this introduces some concurrency ISSUES.
 		this.refNode = refNode;
 	}
-
-	/**
-	 * Must be set in order for the provider to be able to search the repository
-	 * Provided object might be either JCR Nodes or UI RepositoryNode for the
-	 * time being.
-	 * 
-	 * @param repositoryNode
-	 */
-	// public void setRootNodes(Object[] rootNodes) {
-	// List<Object> tmpNodes = new ArrayList<Object>();
-	// for (int i = 0; i < rootNodes.length; i++) {
-	// Object obj = rootNodes[i];
-	// if (obj instanceof Node) {
-	// tmpNodes.add(obj);
-	// } else if (obj instanceof RepositoryRegister) {
-	// RepositoryRegister repositoryRegister = (RepositoryRegister) obj;
-	// Map<String, Repository> repositories = repositoryRegister
-	// .getRepositories();
-	// for (String name : repositories.keySet()) {
-	// // tmpNodes.add(new RepositoryNode(name, repositories
-	// // .get(name)));
-	// }
-	//
-	// }
-	// }
-	// this.rootNodes = tmpNodes.toArray();
-	// }
 
 	public byte[] getByteArrayFileFromId(String fileId) {
 		InputStream fis = null;
 		byte[] ba = null;
 		Node child = getFileNodeFromId(fileId);
 		try {
-			fis = (InputStream) child.getProperty(Property.JCR_DATA)
-					.getBinary().getStream();
+			fis = (InputStream) child.getProperty(Property.JCR_DATA).getBinary().getStream();
 			ba = IOUtils.toByteArray(fis);
 
 		} catch (Exception e) {
@@ -104,12 +75,10 @@ public class JcrFileProvider implements FileProvider {
 			InputStream fis = null;
 
 			Node child = getFileNodeFromId(fileId);
-			fis = (InputStream) child.getProperty(Property.JCR_DATA)
-					.getBinary().getStream();
+			fis = (InputStream) child.getProperty(Property.JCR_DATA).getBinary().getStream();
 			return fis;
 		} catch (RepositoryException re) {
-			throw new EclipseUiException("Cannot get stream from file node for Id "
-					+ fileId, re);
+			throw new EclipseUiException("Cannot get stream from file node for Id " + fileId, re);
 		}
 	}
 
@@ -150,31 +119,26 @@ public class JcrFileProvider implements FileProvider {
 				throw new EclipseUiException("File node not found for ID" + fileId);
 
 			Node child = null;
-			
+
 			boolean isValid = true;
-			if (!result.isNodeType(NodeType.NT_FILE)) 
+			if (!result.isNodeType(NodeType.NT_FILE))
 				// useless: mandatory child node
-				// || !result.hasNode(Property.JCR_CONTENT)) 
+				// || !result.hasNode(Property.JCR_CONTENT))
 				isValid = false;
 			else {
 				child = result.getNode(Property.JCR_CONTENT);
-				if (!(child.isNodeType(NodeType.NT_RESOURCE) || child
-							.hasProperty(Property.JCR_DATA)))
+				if (!(child.isNodeType(NodeType.NT_RESOURCE) || child.hasProperty(Property.JCR_DATA)))
 					isValid = false;
 			}
 
 			if (!isValid)
-				throw new EclipseUiException(
-						"ERROR: In the current implemented model, '"
-								+ NodeType.NT_FILE
-								+ "' file node must have a child node named jcr:content "
-								+ "that has a BINARY Property named jcr:data "
-								+ "where the actual data is stored");
+				throw new EclipseUiException("ERROR: In the current implemented model, '" + NodeType.NT_FILE
+						+ "' file node must have a child node named jcr:content "
+						+ "that has a BINARY Property named jcr:data " + "where the actual data is stored");
 			return child;
 
 		} catch (RepositoryException re) {
-			throw new EclipseUiException("Erreur while getting file node of ID "
-					+ fileId, re);
+			throw new EclipseUiException("Erreur while getting file node of ID " + fileId, re);
 		}
 	}
 }

@@ -24,8 +24,6 @@ public class EclipseUiSpecificUtils {
 
 	/**
 	 * TootlTip support is supported only for {@link AbstractTableViewer} in RAP
-	 * 
-	 * @see ColumnViewerToolTipSupport#enableFor(AbstractTableViewer)
 	 */
 	public static void enableToolTipSupport(Viewer viewer) {
 		if (viewer instanceof AbstractTableViewer)

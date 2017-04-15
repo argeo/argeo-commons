@@ -30,7 +30,6 @@ import java.util.Map;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
-import javax.jcr.Session;
 
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
@@ -46,10 +45,10 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
- * Canonically call JCR {@link Session#exportSystemView()} on the first element
- * returned by {@link HandlerUtil#getActiveWorkbenchWindow()}
+ * Canonically call JCR Session#exportSystemView() on the first element returned
+ * by HandlerUtil#getActiveWorkbenchWindow()
  * (...getActivePage().getSelection()), if it is a {@link SingleJcrNodeElem},
- * with both skipBinary & noRecurse boolean flags set to false.
+ * with both skipBinary and noRecurse boolean flags set to false.
  * 
  * Resulting stream is saved in a tmp file and opened via the {@link OpenFile}
  * single-sourced command.

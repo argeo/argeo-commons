@@ -55,8 +55,7 @@ import org.eclipse.ui.part.EditorPart;
 
 /** Executes any JCR query. */
 public abstract class AbstractJcrQueryEditor extends EditorPart {
-	private final static Log log = LogFactory
-			.getLog(AbstractJcrQueryEditor.class);
+	private final static Log log = LogFactory.getLog(AbstractJcrQueryEditor.class);
 
 	protected String initialQuery;
 	protected String initialQueryType;
@@ -73,8 +72,7 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 	protected abstract void createQueryForm(Composite parent);
 
 	@Override
-	public void init(IEditorSite site, IEditorInput input)
-			throws PartInitException {
+	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		JcrQueryEditorInput editorInput = (JcrQueryEditorInput) input;
 		initialQuery = editorInput.getQuery();
 		initialQueryType = editorInput.getQueryType();
@@ -101,8 +99,7 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 		sashForm.setWeights(getWeights());
 
 		viewer = new TableViewer(bottom);
-		viewer.getTable().setLayoutData(
-				new GridData(SWT.FILL, SWT.FILL, true, true));
+		viewer.getTable().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		viewer.getTable().setHeaderVisible(true);
 		viewer.setContentProvider(getQueryResultContentProvider());
 		viewer.setInput(getEditorSite());
@@ -121,8 +118,8 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 			if (log.isDebugEnabled())
 				log.debug("Query : " + statement);
 
-			QueryResult qr = session.getWorkspace().getQueryManager()
-					.createQuery(statement, initialQueryType).execute();
+			QueryResult qr = session.getWorkspace().getQueryManager().createQuery(statement, initialQueryType)
+					.execute();
 
 			// remove previous columns
 			for (TableViewerColumn tvc : tableViewerColumns)
@@ -150,9 +147,8 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 			}
 
 		} catch (RepositoryException e) {
-			ErrorDialog.openError(null, "Error", "Cannot execute JCR query: "
-					+ statement, new Status(IStatus.ERROR,
-					"org.argeo.eclipse.ui.jcr", e.getMessage()));
+			ErrorDialog.openError(null, "Error", "Cannot execute JCR query: " + statement,
+					new Status(IStatus.ERROR, "org.argeo.eclipse.ui.jcr", e.getMessage()));
 		}
 	}
 
@@ -222,26 +218,22 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 	/**
 	 * To be overridden in order to configure the columns.
 	 * 
-	 * @deprecated use {@link
-	 *             org.argeo.eclipse.ui.jcr.editors.AbstractJcrQueryEditor.
-	 *             configureColumn(String jcrColumnName, TableViewerColumn
-	 *             column, int columnIndex)} instead
+	 * @deprecated use
+	 *             {@link AbstractJcrQueryEditor#configureColumn(String, TableViewerColumn , int )}
+	 *             instead
 	 */
-	protected void configureColumn(String jcrColumnName,
-			TableViewerColumn column) {
+	protected void configureColumn(String jcrColumnName, TableViewerColumn column) {
 		column.getColumn().setWidth(50);
 		column.getColumn().setText(jcrColumnName);
 	}
 
 	/** To be overridden in order to configure the columns. */
-	protected void configureColumn(String jcrColumnName,
-			TableViewerColumn column, int columnIndex) {
+	protected void configureColumn(String jcrColumnName, TableViewerColumn column, int columnIndex) {
 		column.getColumn().setWidth(50);
 		column.getColumn().setText(jcrColumnName);
 	}
 
-	private class QueryResultContentProvider implements
-			IStructuredContentProvider {
+	private class QueryResultContentProvider implements IStructuredContentProvider {
 		private static final long serialVersionUID = -5421095459600554741L;
 
 		public void dispose() {
@@ -287,8 +279,7 @@ public abstract class AbstractJcrQueryEditor extends EditorPart {
 	 * @param index
 	 * @return
 	 */
-	protected SelectionAdapter getSelectionAdapter(final TableColumn column,
-			final int index) {
+	protected SelectionAdapter getSelectionAdapter(final TableColumn column, final int index) {
 
 		// A comparator must be define
 		if (comparator == null)

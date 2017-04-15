@@ -145,8 +145,8 @@ public class AttributesDictionary extends Dictionary<String, Object> {
 	}
 
 	/**
-	 * Copy the <b>content</b> of an {@link javax.naming.Attributes} to the
-	 * provided {@link Dictionary}.
+	 * Copy the <b>content</b> of an {@link Attributes} to the provided
+	 * {@link Dictionary}.
 	 */
 	public static void copy(Attributes attributes, Dictionary<String, Object> dictionary) {
 		AttributesDictionary ad = new AttributesDictionary(attributes);
@@ -158,7 +158,7 @@ public class AttributesDictionary extends Dictionary<String, Object> {
 	}
 
 	/**
-	 * Copy a {@link Dictionary} into an {@link javax.naming.Attributes}.
+	 * Copy a {@link Dictionary} into an {@link Attributes}.
 	 */
 	public static void copy(Dictionary<String, Object> dictionary, Attributes attributes) {
 		AttributesDictionary ad = new AttributesDictionary(attributes);

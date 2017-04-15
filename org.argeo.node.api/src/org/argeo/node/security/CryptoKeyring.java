@@ -15,12 +15,8 @@
  */
 package org.argeo.node.security;
 
-
-
 /**
- * Advanced keyring based on cryptography that can easily be centralized and
- * coordinated with {@link KeyringLoginModule} (since they ar ein the same
- * package)
+ * Marker interface for an advanced keyring based on cryptography.
  */
 public interface CryptoKeyring extends Keyring {
 
