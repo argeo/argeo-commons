@@ -2,8 +2,8 @@ package org.argeo.cms.auth;
 
 import java.io.IOException;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -112,7 +112,7 @@ public class UserAdminLoginModule implements LoginModule {
 		// throw new FailedLoginException("Invalid credentials");
 		if (!user.hasCredential(null, password))
 			return false;
-//			throw new FailedLoginException("Invalid credentials");
+		// throw new FailedLoginException("Invalid credentials");
 		authenticatedUser = user;
 		return true;
 	}
@@ -181,7 +181,7 @@ public class UserAdminLoginModule implements LoginModule {
 	protected User searchForUser(UserAdmin userAdmin, String providedUsername) {
 		try {
 			// TODO check value null or empty
-			List<User> collectedUsers = new ArrayList<User>();
+			Set<User> collectedUsers = new HashSet<>();
 			// try dn
 			User user = null;
 			try {
@@ -198,7 +198,7 @@ public class UserAdminLoginModule implements LoginModule {
 					collectedUsers.add(user);
 			}
 			if (collectedUsers.size() == 1)
-				return collectedUsers.get(0);
+				return collectedUsers.iterator().next();
 			else if (collectedUsers.size() > 1)
 				log.warn(collectedUsers.size() + " users for provided username" + providedUsername);
 			return null;
