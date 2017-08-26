@@ -61,6 +61,14 @@
 			<artifactId>bcpkix</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.httpcomponents.httpcore</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.httpcomponents.httpclient</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.argeo.tp.apache.commons</groupId>
 			<artifactId>org.apache.commons.io</artifactId>
 		</dependency>
@@ -151,6 +159,10 @@
 		<dependency>
 			<groupId>org.argeo.tp.equinox</groupId>
 			<artifactId>org.eclipse.equinox.metatype</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.felix</groupId>
+			<artifactId>org.apache.felix.scr</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp.apache.felix</groupId>

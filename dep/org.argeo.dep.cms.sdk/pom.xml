@@ -72,20 +72,27 @@
 			<groupId>org.argeo.tp.sdk</groupId>
 			<artifactId>org.redline-rpm</artifactId>
 		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.sdk</groupId> -->
+<!-- 			<artifactId>org.tmatesoft.svnkit</artifactId> -->
+<!-- 		</dependency> -->
 		<dependency>
-			<groupId>org.argeo.tp.sdk</groupId>
-			<artifactId>org.tmatesoft.svnkit</artifactId>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>com.googlecode.javaewah.JavaEWAH</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>org.eclipse.jgit</artifactId>
 		</dependency>
 		
-		<!-- Database drivers -->
-		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>org.postgresql.postgresql</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>org.h2</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.misc</groupId> -->
+<!-- 			<artifactId>org.postgresql.postgresql</artifactId> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.misc</groupId> -->
+<!-- 			<artifactId>org.h2</artifactId> -->
+<!-- 		</dependency> -->
 	</dependencies>
 
 	<profiles>

@@ -55,14 +55,14 @@
 			<groupId>org.argeo.tp.apache.ant</groupId>
 			<artifactId>org.apache.ant.launch</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>org.quartz-scheduler.quartz</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>org.quartz-scheduler.quartz.jobs</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.misc</groupId> -->
+<!-- 			<artifactId>org.quartz-scheduler.quartz</artifactId> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.misc</groupId> -->
+<!-- 			<artifactId>org.quartz-scheduler.quartz.jobs</artifactId> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.argeo.tp.javax</groupId>
 			<artifactId>javax.mail</artifactId>

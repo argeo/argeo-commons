@@ -66,27 +66,52 @@
 			<groupId>org.argeo.tp.misc</groupId>
 			<artifactId>bitronix.tm</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>org.joda.time</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.misc</groupId> -->
+<!-- 			<artifactId>org.joda.time</artifactId> -->
+<!-- 		</dependency> -->
 
-		<!-- Third Parties -->
+		<!-- Database drivers -->
 		<dependency>
 			<groupId>org.argeo.tp.misc</groupId>
 			<artifactId>org.h2</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>org.w3c.css.sac</artifactId>
+			<artifactId>org.postgresql.jdbc42</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>com.steadystate.css</artifactId>
-		</dependency>
+		<!-- Third Parties -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.misc</groupId> -->
+<!-- 			<artifactId>org.w3c.css.sac</artifactId> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.misc</groupId> -->
+<!-- 			<artifactId>com.steadystate.css</artifactId> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.argeo.tp.misc</groupId>
 			<artifactId>com.google.gson</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.xmlgraphics.commons</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>org.w3c.dom.svg</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.batik.i18n</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.batik.util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.batik.css</artifactId>
 		</dependency>
 
 		<!-- Jackrabbit -->
