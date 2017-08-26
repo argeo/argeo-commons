@@ -33,6 +33,17 @@ public class DigestUtils {
 	// TODO: make it writable
 	private final static Integer byteBufferCapacity = 100 * 1024;// 100 KB
 
+	public static byte[] sha1(byte[] bytes) {
+		try {
+			MessageDigest digest = MessageDigest.getInstance("SHA1");
+			digest.update(bytes);
+			byte[] checksum = digest.digest();
+			return checksum;
+		} catch (Exception e) {
+			throw new UtilsException("Cannot SHA1 digest", e);
+		}
+	}
+
 	public static String digest(String algorithm, byte[] bytes) {
 		try {
 			MessageDigest digest = MessageDigest.getInstance(algorithm);
