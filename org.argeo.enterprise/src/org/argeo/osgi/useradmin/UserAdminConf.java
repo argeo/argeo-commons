@@ -1,16 +1,12 @@
 package org.argeo.osgi.useradmin;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +16,7 @@ import javax.naming.NamingException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.naming.DnsBrowser;
+import org.argeo.naming.NamingUtils;
 import org.osgi.framework.Constants;
 
 /** Properties used to configure user admins. */
@@ -150,7 +147,7 @@ public enum UserAdminConf {
 				} else if (scheme.equals("ipa")) {
 				} else
 					throw new UserDirectoryException("Unsupported scheme " + scheme);
-			Map<String, List<String>> query = splitQuery(u.getQuery());
+			Map<String, List<String>> query = NamingUtils.queryToMap(u);
 			for (String key : query.keySet()) {
 				UserAdminConf ldapProp = UserAdminConf.valueOf(key);
 				List<String> values = query.get(key);
@@ -221,23 +218,26 @@ public enum UserAdminConf {
 
 	}
 
-	private static Map<String, List<String>> splitQuery(String query) throws UnsupportedEncodingException {
-		final Map<String, List<String>> query_pairs = new LinkedHashMap<String, List<String>>();
-		if (query == null)
-			return query_pairs;
-		final String[] pairs = query.split("&");
-		for (String pair : pairs) {
-			final int idx = pair.indexOf("=");
-			final String key = idx > 0 ? URLDecoder.decode(pair.substring(0, idx), "UTF-8") : pair;
-			if (!query_pairs.containsKey(key)) {
-				query_pairs.put(key, new LinkedList<String>());
-			}
-			final String value = idx > 0 && pair.length() > idx + 1
-					? URLDecoder.decode(pair.substring(idx + 1), "UTF-8") : null;
-			query_pairs.get(key).add(value);
-		}
-		return query_pairs;
-	}
+	// private static Map<String, List<String>> splitQuery(String query) throws
+	// UnsupportedEncodingException {
+	// final Map<String, List<String>> query_pairs = new LinkedHashMap<String,
+	// List<String>>();
+	// if (query == null)
+	// return query_pairs;
+	// final String[] pairs = query.split("&");
+	// for (String pair : pairs) {
+	// final int idx = pair.indexOf("=");
+	// final String key = idx > 0 ? URLDecoder.decode(pair.substring(0, idx),
+	// "UTF-8") : pair;
+	// if (!query_pairs.containsKey(key)) {
+	// query_pairs.put(key, new LinkedList<String>());
+	// }
+	// final String value = idx > 0 && pair.length() > idx + 1
+	// ? URLDecoder.decode(pair.substring(idx + 1), "UTF-8") : null;
+	// query_pairs.get(key).add(value);
+	// }
+	// return query_pairs;
+	// }
 
 	public static void main(String[] args) {
 		Dictionary<String, ?> props = uriAsProperties("ldap://" + "uid=admin,ou=system:secret@localhost:10389"

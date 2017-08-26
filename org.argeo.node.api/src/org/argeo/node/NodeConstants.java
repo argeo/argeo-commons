@@ -62,6 +62,8 @@ public interface NodeConstants {
 	// user U anonymous = everyone
 	String ROLE_USER = "cn=user," + ROLES_BASEDN;
 	String ROLE_ANONYMOUS = "cn=anonymous," + ROLES_BASEDN;
+	// Account lifecycle
+	String ROLE_REGISTERING = "cn=registering," + ROLES_BASEDN;
 
 	/*
 	 * LOGIN CONTEXTS

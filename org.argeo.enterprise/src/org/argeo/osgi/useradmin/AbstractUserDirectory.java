@@ -60,7 +60,8 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 	// LdapAttrs.cn.name() });
 
 	private String memberAttributeId = "member";
-	private List<String> credentialAttributeIds = Arrays.asList(new String[] { LdapAttrs.userPassword.name() });
+	private List<String> credentialAttributeIds = Arrays
+			.asList(new String[] { LdapAttrs.userPassword.name(), LdapAttrs.authPassword.name() });
 
 	// JTA
 	private TransactionManager transactionManager;

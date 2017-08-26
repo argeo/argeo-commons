@@ -1,9 +1,12 @@
 package org.argeo.osgi.useradmin;
 
-import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -13,7 +16,9 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -23,6 +28,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.ldap.LdapName;
 
 import org.argeo.naming.LdapAttrs;
+import org.argeo.naming.NamingUtils;
 
 /** Directory user implementation */
 class LdifUser implements DirectoryUser {
@@ -73,12 +79,47 @@ class LdifUser implements DirectoryUser {
 	public boolean hasCredential(String key, Object value) {
 		if (key == null) {
 			// TODO check other sources (like PKCS12)
+			String pwd = new String((char[]) value);
 			char[] password = toChars(value);
 			byte[] hashedPassword = hash(password);
-			return hasCredential(LdapAttrs.userPassword.name(), hashedPassword);
+			if (hasCredential(LdapAttrs.userPassword.name(), hashedPassword))
+				return true;
+			if (hasCredential(LdapAttrs.authPassword.name(), pwd))
+				return true;
+			return false;
 		}
 
 		Object storedValue = getCredentials().get(key);
+
+		// authPassword (RFC 312 https://tools.ietf.org/html/rfc3112)
+		if (LdapAttrs.authPassword.name().equals(key)) {
+			StringTokenizer st = new StringTokenizer((String) storedValue, "$ ");
+			// TODO make it more robust, deal with bad formatting
+			String authScheme = st.nextToken();
+			String authInfo = st.nextToken();
+			String authValue = st.nextToken();
+			if (authScheme.equals("X-Node-Token")) {
+				try {
+					URI uri = new URI(authInfo);
+					Map<String, List<String>> query = NamingUtils.queryToMap(uri);
+					String expiryTimestamp = NamingUtils.getQueryValue(query, LdapAttrs.modifyTimestamp.name());
+					if (expiryTimestamp != null) {
+						OffsetDateTime expiryOdt = NamingUtils.ldapDateToInstant(expiryTimestamp);
+						if (expiryOdt.isBefore(OffsetDateTime.now()))
+							return false;
+					} else {
+						throw new UnsupportedOperationException("An expiry timestamp "
+								+ LdapAttrs.modifyTimestamp.name() + " must be set in the URI query");
+					}
+					byte[] hash = Base64.getDecoder().decode(authValue);
+					byte[] hashedInput = DigestUtils.sha1((authInfo + value).getBytes(StandardCharsets.US_ASCII));
+					return Arrays.equals(hash, hashedInput);
+				} catch (URISyntaxException e) {
+					throw new UserDirectoryException("Badly formatted " + authInfo, e);
+				}
+			}
+		}
+
 		if (storedValue == null || value == null)
 			return false;
 		if (!(value instanceof String || value instanceof byte[]))
@@ -93,14 +134,14 @@ class LdifUser implements DirectoryUser {
 	/** Hash and clear the password */
 	private byte[] hash(char[] password) {
 		byte[] hashedPassword = ("{SHA}" + Base64.getEncoder().encodeToString(DigestUtils.sha1(toBytes(password))))
-				.getBytes();
-		Arrays.fill(password, '\u0000');
+				.getBytes(StandardCharsets.UTF_8);
+		// Arrays.fill(password, '\u0000');
 		return hashedPassword;
 	}
 
 	private byte[] toBytes(char[] chars) {
 		CharBuffer charBuffer = CharBuffer.wrap(chars);
-		ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(charBuffer);
+		ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(charBuffer);
 		byte[] bytes = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
 		Arrays.fill(charBuffer.array(), '\u0000'); // clear sensitive data
 		Arrays.fill(byteBuffer.array(), (byte) 0); // clear sensitive data
@@ -113,7 +154,7 @@ class LdifUser implements DirectoryUser {
 		if (!(obj instanceof byte[]))
 			throw new IllegalArgumentException(obj.getClass() + " is not a byte array");
 		ByteBuffer fromBuffer = ByteBuffer.wrap((byte[]) obj);
-		CharBuffer toBuffer = Charset.forName("UTF-8").decode(fromBuffer);
+		CharBuffer toBuffer = StandardCharsets.UTF_8.decode(fromBuffer);
 		char[] res = Arrays.copyOfRange(toBuffer.array(), toBuffer.position(), toBuffer.limit());
 		Arrays.fill(fromBuffer.array(), (byte) 0); // clear sensitive data
 		Arrays.fill((byte[]) obj, (byte) 0); // clear sensitive data
@@ -255,7 +296,7 @@ class LdifUser implements DirectoryUser {
 					if (key.equals(LdapAttrs.userPassword.name()))
 						// TODO other cases (certificates, images)
 						return value;
-					value = new String((byte[]) value, Charset.forName("UTF-8"));
+					value = new String((byte[]) value, StandardCharsets.UTF_8);
 				}
 				if (attr.size() == 1)
 					return value;
@@ -305,11 +346,7 @@ class LdifUser implements DirectoryUser {
 				Attribute attribute = getModifiedAttributes().get(key.toString());
 				attribute = new BasicAttribute(key.toString());
 				if (value instanceof String && !isAsciiPrintable(((String) value)))
-					try {
-						attribute.add(((String) value).getBytes("UTF-8"));
-					} catch (UnsupportedEncodingException e) {
-						throw new UserDirectoryException("Cannot encode " + value, e);
-					}
+					attribute.add(((String) value).getBytes(StandardCharsets.UTF_8));
 				else
 					attribute.add(value);
 				Attribute previousAttribute = getModifiedAttributes().put(attribute);

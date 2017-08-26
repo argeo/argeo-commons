@@ -20,6 +20,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
+import org.argeo.naming.LdapAttrs;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -175,6 +176,15 @@ public class HttpSessionLoginModule implements LoginModule {
 				}
 			}
 		}
+
+		// auth token
+//		String mail = request.getParameter(LdapAttrs.mail.name());
+//		String authPassword = request.getParameter(LdapAttrs.authPassword.name());
+//		if (authPassword != null) {
+//			sharedState.put(CmsAuthUtils.SHARED_STATE_PWD, authPassword);
+//			if (mail != null)
+//				sharedState.put(CmsAuthUtils.SHARED_STATE_NAME, mail);
+//		}
 	}
 
 	private X509Certificate[] extractClientCertificate(HttpServletRequest req) {
