@@ -161,20 +161,27 @@ public class NodeRunner {
 
 	public static void main(String[] args) {
 		try {
-			// Prepare directories
-			Path executionDir = Paths.get(System.getProperty("user.dir"));
-
 			String distributionUrl;
-			if (args.length == 0) {
-				distributionUrl = "org/argeo/commons/org.argeo.dep.cms.sdk/2.1.65/org.argeo.dep.cms.sdk-2.1.65.jar";
-			} else {
+			Path executionDir;
+			if (args.length == 2) {
 				distributionUrl = args[0];
+				executionDir = Paths.get(args[1]);
+			} else if (args.length == 1) {
+				executionDir = Paths.get(System.getProperty("user.dir"));
+				distributionUrl = args[0];
+			} else if (args.length == 0) {
+				executionDir = Paths.get(System.getProperty("user.dir"));
+				distributionUrl = "org/argeo/commons/org.argeo.dep.cms.sdk/2.1.70/org.argeo.dep.cms.sdk-2.1.70.jar";
+			}else{
+				printUsage();
+				System.exit(1);
+				return;
 			}
 
 			NodeRunner nodeRunner = new NodeRunner(distributionUrl, executionDir);
 			nodeRunner.start();
-			if (args.length != 0)
-				System.exit(0);
+//			if (args.length != 0)
+//				System.exit(0);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -222,4 +229,7 @@ public class NodeRunner {
 
 	}
 
+	static void printUsage(){
+		err("Usage: <distribution url> <base dir>");
+	}
 }
