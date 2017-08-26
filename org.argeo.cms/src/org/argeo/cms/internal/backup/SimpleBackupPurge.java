@@ -16,6 +16,9 @@
 package org.argeo.cms.internal.backup;
 
 import java.text.DateFormat;
+import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -27,8 +30,6 @@ import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.Selectors;
 import org.argeo.cms.CmsException;
-import org.joda.time.DateTime;
-import org.joda.time.Period;
 
 /** Simple backup purge which keeps backups only for a given number of days */
 public class SimpleBackupPurge implements BackupPurge {
@@ -37,14 +38,13 @@ public class SimpleBackupPurge implements BackupPurge {
 	private Integer daysKept = 30;
 
 	@Override
-	public void purge(FileSystemManager fileSystemManager, String base,
-			String name, DateFormat dateFormat, FileSystemOptions opts) {
+	public void purge(FileSystemManager fileSystemManager, String base, String name, DateFormat dateFormat,
+			FileSystemOptions opts) {
 		try {
-			DateTime nowDt = new DateTime();
-			FileObject baseFo = fileSystemManager.resolveFile(
-					base + '/' + name, opts);
+			ZonedDateTime nowDt = ZonedDateTime.now();
+			FileObject baseFo = fileSystemManager.resolveFile(base + '/' + name, opts);
 
-			SortedMap<DateTime, FileObject> toDelete = new TreeMap<DateTime, FileObject>();
+			SortedMap<ZonedDateTime, FileObject> toDelete = new TreeMap<ZonedDateTime, FileObject>();
 			int backupCount = 0;
 
 			// make sure base dir exists
@@ -55,9 +55,9 @@ public class SimpleBackupPurge implements BackupPurge {
 				String backupName = backupFo.getName().getBaseName();
 				Date backupDate = dateFormat.parse(backupName);
 				backupCount++;
-
-				DateTime backupDt = new DateTime(backupDate.getTime());
-				Period sinceThen = new Period(backupDt, nowDt);
+				ZonedDateTime backupDt = ZonedDateTime.ofInstant(backupDate.toInstant(), ZoneId.systemDefault());
+				Period sinceThen = Period.between(backupDt.toLocalDate(), nowDt.toLocalDate());
+				// new Period(backupDt, nowDt);
 				int days = sinceThen.getDays();
 				// int days = sinceThen.getMinutes();
 				if (days > daysKept) {
@@ -68,11 +68,9 @@ public class SimpleBackupPurge implements BackupPurge {
 			if (toDelete.size() != 0 && toDelete.size() == backupCount) {
 				// all backups would be deleted
 				// but we want to keep at least one
-				DateTime lastBackupDt = toDelete.firstKey();
+				ZonedDateTime lastBackupDt = toDelete.firstKey();
 				FileObject keptFo = toDelete.remove(lastBackupDt);
-				log.warn("Backup " + keptFo
-						+ " kept although it is older than " + daysKept
-						+ " days.");
+				log.warn("Backup " + keptFo + " kept although it is older than " + daysKept + " days.");
 			}
 
 			// delete old backups

@@ -28,10 +28,12 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.swt.widgets.Display;
 
-/** {@link EventListener} which simplifies running actions within the UI thread. */
+/**
+ * {@link EventListener} which simplifies running actions within the UI thread.
+ */
 public abstract class AsyncUiEventListener implements EventListener {
-//	private final static Log logSuper = LogFactory
-//			.getLog(AsyncUiEventListener.class);
+	// private final static Log logSuper = LogFactory
+	// .getLog(AsyncUiEventListener.class);
 	private final Log logThis = LogFactory.getLog(getClass());
 
 	private final Display display;
@@ -42,15 +44,13 @@ public abstract class AsyncUiEventListener implements EventListener {
 	}
 
 	/** Called asynchronously in the UI thread. */
-	protected abstract void onEventInUiThread(List<Event> events)
-			throws RepositoryException;
+	protected abstract void onEventInUiThread(List<Event> events) throws RepositoryException;
 
 	/**
 	 * Whether these events should be processed in the UI or skipped with no UI
 	 * job created.
 	 */
-	protected Boolean willProcessInUiThread(List<Event> events)
-			throws RepositoryException {
+	protected Boolean willProcessInUiThread(List<Event> events) throws RepositoryException {
 		return true;
 	}
 
@@ -73,27 +73,27 @@ public abstract class AsyncUiEventListener implements EventListener {
 			throw new EclipseUiException("Cannot test skip events " + events, e);
 		}
 
-//		Job job = new Job("JCR Events") {
-//			protected IStatus run(IProgressMonitor monitor) {
-//				if (display.isDisposed()) {
-//					logSuper.warn("Display is disposed cannot update UI");
-//					return Status.CANCEL_STATUS;
-//				}
+		// Job job = new Job("JCR Events") {
+		// protected IStatus run(IProgressMonitor monitor) {
+		// if (display.isDisposed()) {
+		// logSuper.warn("Display is disposed cannot update UI");
+		// return Status.CANCEL_STATUS;
+		// }
 
-				display.asyncExec(new Runnable() {
-					public void run() {
-						try {
-							onEventInUiThread(events);
-						} catch (RepositoryException e) {
-							throw new EclipseUiException("Cannot process events "
-									+ events, e);
-						}
+		if (!display.isDisposed())
+			display.asyncExec(new Runnable() {
+				public void run() {
+					try {
+						onEventInUiThread(events);
+					} catch (RepositoryException e) {
+						throw new EclipseUiException("Cannot process events " + events, e);
 					}
-				});
+				}
+			});
 
-//				return Status.OK_STATUS;
-//			}
-//		};
-//		job.schedule();
+		// return Status.OK_STATUS;
+		// }
+		// };
+		// job.schedule();
 	}
 }

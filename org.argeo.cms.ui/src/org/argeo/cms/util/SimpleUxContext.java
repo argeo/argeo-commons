@@ -41,4 +41,9 @@ public class SimpleUxContext implements UxContext {
 		return size.x <= small.x || size.y <= small.y;
 	}
 
+	@Override
+	public boolean isMasterData() {
+		return false;
+	}
+
 }

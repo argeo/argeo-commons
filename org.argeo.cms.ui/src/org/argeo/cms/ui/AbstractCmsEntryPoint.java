@@ -1,5 +1,6 @@
 package org.argeo.cms.ui;
 
+import java.io.IOException;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +13,11 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
@@ -54,7 +60,6 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 	private Node node;
 	private String nodePath;// useful when changing auth
 	private String state;
-	private String page;
 	private Throwable exception;
 
 	// Client services
@@ -133,7 +138,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 	 * The node to return when no node was found (for authenticated users and
 	 * anonymous)
 	 */
-	protected Node getDefaultNode(Session session) throws RepositoryException {
+	private Node getDefaultNode(Session session) throws RepositoryException {
 		if (!session.hasPermission(defaultPath, "read")) {
 			String userId = session.getUserID();
 			if (userId.equals(NodeConstants.ROLE_ANONYMOUS))
@@ -248,8 +253,8 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 	protected synchronized String setState(String newState) {
 		String previousState = this.state;
 
-		Node node = null;
-		page = null;
+		String newNodePath = null;
+		String prefix = null;
 		this.state = newState;
 		if (newState.equals("~"))
 			this.state = "";
@@ -257,25 +262,53 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 		try {
 			int firstSlash = state.indexOf('/');
 			if (firstSlash == 0) {
-				node = session.getNode(state);
-				page = "";
+				newNodePath = state;
+				prefix = "";
 			} else if (firstSlash > 0) {
-				String prefix = state.substring(0, firstSlash);
-				String path = state.substring(firstSlash);
-				if (session.nodeExists(path))
-					node = session.getNode(path);
-				else
-					throw new CmsException("Data " + path + " does not exist");
-				page = prefix;
+				prefix = state.substring(0, firstSlash);
+				newNodePath = state.substring(firstSlash);
 			} else {
-				node = getDefaultNode(session);
-				page = state;
+				newNodePath = defaultPath;
+				prefix = state;
+
 			}
-			setNode(node);
-			String title = publishMetaData(node);
+
+			// auth
+			int colonIndex = prefix.indexOf(':');
+			if (colonIndex > 0) {
+				String user = prefix.substring(0, colonIndex);
+				// if (isAnonymous()) {
+				String token = prefix.substring(colonIndex + 1);
+				LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new CallbackHandler() {
+
+					@Override
+					public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+						for (Callback callback : callbacks) {
+							if (callback instanceof NameCallback)
+								((NameCallback) callback).setName(user);
+							else if (callback instanceof PasswordCallback)
+								((PasswordCallback) callback).setPassword(token.toCharArray());
+						}
+
+					}
+				});
+				lc.login();
+				authChange(lc);// sets the node as well
+				// } else {
+				// // TODO check consistency
+				// }
+			} else {
+				Node newNode = null;
+				if (session.nodeExists(newNodePath))
+					newNode = session.getNode(newNodePath);
+				else
+					throw new CmsException("Data " + newNodePath + " does not exist");
+				setNode(newNode);
+			}
+			String title = publishMetaData(getNode());
 
 			if (log.isTraceEnabled())
-				log.trace("node=" + node + ", state=" + state + " (page=" + page + ")");
+				log.trace("node=" + newNodePath + ", state=" + state + " (prefix=" + prefix + ")");
 
 			return title;
 		} catch (Exception e) {

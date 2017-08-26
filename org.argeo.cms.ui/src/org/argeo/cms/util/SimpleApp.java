@@ -2,13 +2,17 @@ package org.argeo.cms.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -40,6 +44,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
@@ -71,8 +76,7 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 
 	public void configure(Application application) {
 		try {
-			StyleSheetResourceLoader styleSheetRL = new StyleSheetResourceLoader(bundleContext);
-			BundleResourceLoader bundleRL = new BundleResourceLoader(bundleContext);
+			BundleResourceLoader bundleRL = new BundleResourceLoader(bundleContext.getBundle());
 
 			application.setOperationMode(OperationMode.SWT_COMPATIBILITY);
 			// application.setOperationMode(OperationMode.JEE_COMPATIBILITY);
@@ -93,6 +97,7 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 			Map<String, String> defaultBranding = null;
 			if (branding.containsKey("*"))
 				defaultBranding = branding.get("*");
+			String defaultTheme = defaultBranding.get(WebClient.THEME_ID);
 
 			// entry points
 			for (String page : pages.keySet()) {
@@ -103,8 +108,11 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 				}
 				// favicon
 				if (properties.containsKey(WebClient.FAVICON)) {
+					String themeId = defaultBranding.get(WebClient.THEME_ID);
+					Bundle themeBundle = findThemeBundle(themeId);
 					String faviconRelPath = properties.get(WebClient.FAVICON);
-					application.addResource(faviconRelPath, new BundleResourceLoader(bundleContext));
+					application.addResource(faviconRelPath,
+							new BundleResourceLoader(themeBundle != null ? themeBundle : bundleContext.getBundle()));
 					if (log.isTraceEnabled())
 						log.trace("Favicon " + faviconRelPath);
 
@@ -128,8 +136,14 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 				log.info("Page /" + page);
 			}
 
-			// stylesheets
+			// stylesheets and themes
+			Set<Bundle> themeBundles = new HashSet<>();
 			for (String themeId : styleSheets.keySet()) {
+				Bundle themeBundle = findThemeBundle(themeId);
+				StyleSheetResourceLoader styleSheetRL = new StyleSheetResourceLoader(
+						themeBundle != null ? themeBundle : bundleContext.getBundle());
+				if (themeBundle != null)
+					themeBundles.add(themeBundle);
 				List<String> cssLst = styleSheets.get(themeId);
 				if (log.isDebugEnabled())
 					log.debug("Theme " + themeId);
@@ -140,11 +154,52 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 				}
 
 			}
+			for (Bundle themeBundle : themeBundles) {
+				BundleResourceLoader themeBRL = new BundleResourceLoader(themeBundle);
+				addThemeResources(application, themeBundle, themeBRL, "*.png");
+				addThemeResources(application, themeBundle, themeBRL, "*.gif");
+				addThemeResources(application, themeBundle, themeBRL, "*.jpg");
+			}
 		} catch (RuntimeException e) {
 			// Easier access to initialisation errors
 			log.error("Unexpected exception when configuring RWT application.", e);
 			throw e;
 		}
+	}
+
+	private Bundle findThemeBundle(String themeId) {
+		if (themeId == null)
+			return null;
+		// TODO optimize
+		// TODO deal with multiple versions
+		Bundle themeBundle = null;
+		if (themeId != null) {
+			for (Bundle bundle : bundleContext.getBundles())
+				if (themeId.equals(bundle.getSymbolicName())) {
+					themeBundle = bundle;
+					break;
+				}
+		}
+		return themeBundle;
+	}
+
+	private void addThemeResources(Application application, Bundle themeBundle, BundleResourceLoader themeBRL,
+			String pattern) {
+		Enumeration<URL> themeResources = themeBundle.findEntries("/", pattern, true);
+		if (themeResources == null)
+			return;
+		while (themeResources.hasMoreElements()) {
+			String resource = themeResources.nextElement().getPath();
+			// remove first '/' so that RWT registers it
+			resource = resource.substring(1);
+			if (!resource.endsWith("/")) {
+				application.addResource(resource, themeBRL);
+				if (log.isTraceEnabled())
+					log.trace("Registered " + resource + " from theme " + themeBundle);
+			}
+
+		}
+
 	}
 
 	public void init() throws RepositoryException {

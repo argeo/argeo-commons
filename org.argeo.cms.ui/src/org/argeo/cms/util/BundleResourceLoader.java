@@ -7,40 +7,20 @@ import java.net.URL;
 import org.argeo.cms.CmsException;
 import org.eclipse.rap.rwt.service.ResourceLoader;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 
 /** {@link ResourceLoader} implementation wrapping an {@link Bundle}. */
-public class BundleResourceLoader implements ResourceLoader {
-	private final BundleContext bundleContext;
+class BundleResourceLoader implements ResourceLoader {
+	private final Bundle bundle;
 
-	public BundleResourceLoader(BundleContext bundleContext) {
-		this.bundleContext = bundleContext;
+	public BundleResourceLoader(Bundle bundle) {
+		this.bundle = bundle;
 	}
 
 	@Override
-	public InputStream getResourceAsStream(String resourceName)
-			throws IOException {
-		// TODO deal with other bundles
-		Bundle bundle = bundleContext.getBundle();
-		// String location =
-		// bundle.getLocation().substring("initial@reference:".length());
-		// if (location.startsWith("file:")) {
-		// Path path = null;
-		// try {
-		// path = Paths.get(new URI(location));
-		// } catch (URISyntaxException e) {
-		// e.printStackTrace();
-		// }
-		// if (path != null) {
-		// Path resourcePath = path.resolve(resourceName);
-		// if (Files.exists(resourcePath))
-		// return Files.newInputStream(resourcePath);
-		// }
-		// }
+	public InputStream getResourceAsStream(String resourceName) throws IOException {
 		URL res = bundle.getResource(resourceName);
 		if (res == null)
-			throw new CmsException("Resource " + resourceName
-					+ " not found in bundle " + bundle.getSymbolicName());
+			throw new CmsException("Resource " + resourceName + " not found in bundle " + bundle.getSymbolicName());
 		return res.openStream();
 	}
 

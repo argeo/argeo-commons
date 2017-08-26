@@ -50,7 +50,9 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 		parent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		parent.setLayout(CmsUtils.noSpaceGridLayout());
 
-		// createAdminArea(parent);
+		uxContext = new SimpleUxContext();
+		if (!getUxContext().isMasterData())
+			createAdminArea(parent);
 		headerArea = new Composite(parent, SWT.NONE);
 		headerArea.setLayout(new FillLayout());
 		GridData headerData = new GridData(SWT.FILL, SWT.FILL, false, false);
@@ -61,7 +63,6 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 		bodyArea.setData(RWT.CUSTOM_VARIANT, CmsStyles.CMS_BODY);
 		bodyArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		bodyArea.setLayout(CmsUtils.noSpaceGridLayout());
-		uxContext = new SimpleUxContext();
 		uiInitialized = true;
 		refresh();
 	}

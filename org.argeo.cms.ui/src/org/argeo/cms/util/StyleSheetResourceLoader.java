@@ -12,24 +12,21 @@ import org.apache.commons.io.IOUtils;
 import org.argeo.cms.CmsException;
 import org.eclipse.rap.rwt.service.ResourceLoader;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 
 /** {@link ResourceLoader} caching stylesheets. */
-public class StyleSheetResourceLoader implements ResourceLoader {
-	private final BundleContext bundleContext;
-
+class StyleSheetResourceLoader implements ResourceLoader {
+	private Bundle themeBundle;
 	private Map<String, StyleSheet> stylesheets = new LinkedHashMap<String, StyleSheet>();
 
-	public StyleSheetResourceLoader(BundleContext bundleContext) {
-		this.bundleContext = bundleContext;
+	public StyleSheetResourceLoader(Bundle themeBundle) {
+		this.themeBundle = themeBundle;
 	}
 
 	@Override
-	public InputStream getResourceAsStream(String resourceName)
-			throws IOException {
+	public InputStream getResourceAsStream(String resourceName) throws IOException {
 		if (!stylesheets.containsKey(resourceName)) {
 			// TODO deal with other bundles
-			Bundle bundle = bundleContext.getBundle();
+			// Bundle bundle = bundleContext.getBundle();
 			// String location =
 			// bundle.getLocation().substring("initial@reference:".length());
 			// if (location.startsWith("file:")) {
@@ -45,10 +42,11 @@ public class StyleSheetResourceLoader implements ResourceLoader {
 			// return Files.newInputStream(resourcePath);
 			// }
 			// }
-			URL res = bundle.getResource(resourceName);
+
+			URL res = themeBundle.getResource(resourceName);
 			if (res == null)
-				throw new CmsException("Resource " + resourceName
-						+ " not found in bundle " + bundle.getSymbolicName());
+				throw new CmsException(
+						"Resource " + resourceName + " not found in bundle " + themeBundle.getSymbolicName());
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			IOUtils.copy(res.openStream(), out);
 			stylesheets.put(resourceName, new StyleSheet(out.toByteArray()));
