@@ -4,7 +4,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -12,11 +15,15 @@ import java.util.List;
 import java.util.Map;
 
 public class NamingUtils {
-	private final static DateTimeFormatter ldapDateTimeFormatter = DateTimeFormatter
-			.ofPattern("uuuuMMddHHmmss[,S][.S]X");
+	private final static DateTimeFormatter utcLdapDate = DateTimeFormatter.ofPattern("uuuuMMddHHmmssX")
+			.withZone(ZoneOffset.UTC);
 
-	public static OffsetDateTime ldapDateToInstant(String ldapDate) {
-		return OffsetDateTime.parse(ldapDate, ldapDateTimeFormatter);
+	public static Instant ldapDateToInstant(String ldapDate) {
+		return OffsetDateTime.parse(ldapDate, utcLdapDate).toInstant();
+	}
+
+	public static String instantToLdapDate(ZonedDateTime instant) {
+		return utcLdapDate.format(instant.withZoneSameInstant(ZoneOffset.UTC));
 	}
 
 	public static String getQueryValue(Map<String, List<String>> query, String key) {
@@ -59,4 +66,11 @@ public class NamingUtils {
 	private NamingUtils() {
 
 	}
+
+//	public static void main(String args[]) {
+//		ZonedDateTime now = ZonedDateTime.now().withZoneSameInstant(ZoneOffset.UTC);
+//		String str = utcLdapDate.format(now);
+//		System.out.println(str);
+//		utcLdapDate.parse(str);
+//	}
 }

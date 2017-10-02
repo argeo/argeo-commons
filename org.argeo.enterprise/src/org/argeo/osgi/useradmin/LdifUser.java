@@ -4,9 +4,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -104,8 +103,8 @@ class LdifUser implements DirectoryUser {
 					Map<String, List<String>> query = NamingUtils.queryToMap(uri);
 					String expiryTimestamp = NamingUtils.getQueryValue(query, LdapAttrs.modifyTimestamp.name());
 					if (expiryTimestamp != null) {
-						OffsetDateTime expiryOdt = NamingUtils.ldapDateToInstant(expiryTimestamp);
-						if (expiryOdt.isBefore(OffsetDateTime.now()))
+						Instant expiryOdt = NamingUtils.ldapDateToInstant(expiryTimestamp);
+						if (expiryOdt.isBefore(Instant.now()))
 							return false;
 					} else {
 						throw new UnsupportedOperationException("An expiry timestamp "
@@ -143,7 +142,7 @@ class LdifUser implements DirectoryUser {
 		CharBuffer charBuffer = CharBuffer.wrap(chars);
 		ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(charBuffer);
 		byte[] bytes = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
-		Arrays.fill(charBuffer.array(), '\u0000'); // clear sensitive data
+		// Arrays.fill(charBuffer.array(), '\u0000'); // clear sensitive data
 		Arrays.fill(byteBuffer.array(), (byte) 0); // clear sensitive data
 		return bytes;
 	}
