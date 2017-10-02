@@ -1,6 +1,8 @@
 package org.argeo.cms.internal.kernel;
 
 import java.security.PrivilegedAction;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,11 +29,15 @@ import org.argeo.node.NodeUtils;
  * Make sure each user has a home directory available in the default workspace.
  */
 class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
+
 	/** The home base path. */
 	private String homeBasePath = KernelConstants.DEFAULT_HOME_BASE_PATH;
+	private String usersBasePath = KernelConstants.DEFAULT_USERS_BASE_PATH;
 	private String groupsBasePath = KernelConstants.DEFAULT_GROUPS_BASE_PATH;
 
 	private Set<String> checkedUsers = new HashSet<String>();
+
+	private SimpleDateFormat usersDatePath = new SimpleDateFormat("YYYY/MM");
 
 	public HomeRepository(Repository repository) {
 		super(repository);
@@ -102,7 +108,7 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 		try {
 			Node userHome = NodeUtils.getUserHome(session, username);
 			if (userHome == null) {
-				String homePath = generateUserPath(homeBasePath, username);
+				String homePath = generateUserPath(username);
 				if (session.itemExists(homePath))// duplicate user id
 					userHome = session.getNode(homePath).getParent().addNode(JcrUtils.lastPathElement(homePath));
 				else
@@ -124,7 +130,7 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 	}
 
 	/** Generate path for a new user home */
-	private String generateUserPath(String base, String username) {
+	private String generateUserPath(String username) {
 		LdapName dn;
 		try {
 			dn = new LdapName(username);
@@ -133,15 +139,20 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 		}
 		String userId = dn.getRdn(dn.size() - 1).getValue().toString();
 		int atIndex = userId.indexOf('@');
-		if (atIndex > 0) {
-			String domain = userId.substring(0, atIndex);
-			String name = userId.substring(atIndex + 1);
-			return base + '/' + domain + '/' + name;
-		} else if (atIndex == 0 || atIndex == (userId.length() - 1)) {
-			throw new CmsException("Unsupported username " + userId);
+		if (atIndex < 0) {
+			return homeBasePath + '/' + userId;
 		} else {
-			return base + '/' + userId;
+			return usersBasePath + '/' + usersDatePath.format(new Date()) + '/' + userId;
 		}
+		// if (atIndex > 0) {
+		// String domain = userId.substring(0, atIndex);
+		// String name = userId.substring(atIndex + 1);
+		// return base + '/' + domain + '/' + name;
+		// } else if (atIndex == 0 || atIndex == (userId.length() - 1)) {
+		// throw new CmsException("Unsupported username " + userId);
+		// } else {
+		// return base + '/' + userId;
+		// }
 	}
 
 	public void createWorkgroup(LdapName dn) {

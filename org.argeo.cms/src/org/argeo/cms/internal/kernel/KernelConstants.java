@@ -25,6 +25,7 @@ public interface KernelConstants {
 
 	// DEFAULTS JCR PATH
 	String DEFAULT_HOME_BASE_PATH = "/home";
+	String DEFAULT_USERS_BASE_PATH = "/users";
 	String DEFAULT_GROUPS_BASE_PATH = "/groups";
 
 	// RWT / RAP
