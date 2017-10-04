@@ -267,8 +267,21 @@ public enum LdapAttrs implements SpecifiedName {
 	/** */
 	displayName("2.16.840.1.113730.3.1.241", "RFC 2798"),
 
-	// KERBEROS (partial
-	krbPrincipalName("2.16.840.1.113719.1.301.6.8.1", "Novell Kerberos Schema Definitions");
+	// KERBEROS (partial)
+	krbPrincipalName("2.16.840.1.113719.1.301.6.8.1", "Novell Kerberos Schema Definitions"),
+
+	// RFC 2985 and RFC 3039 (partial)
+	dateOfBirth("1.3.6.1.5.5.7.9.1", "RFC 2985"),
+	/** */
+	placeOfBirth("1.3.6.1.5.5.7.9.2", "RFC 2985"),
+	/** */
+	gender("1.3.6.1.5.5.7.9.3", "RFC 2985"),
+	/** */
+	countryOfCitizenship("1.3.6.1.5.5.7.9.4", "RFC 2985"),
+	/** */
+	countryOfResidence("1.3.6.1.5.5.7.9.5", "RFC 2985"),
+	//
+	;
 
 	public final static String DN = "dn";
 
