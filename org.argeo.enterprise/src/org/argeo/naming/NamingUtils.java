@@ -9,6 +9,9 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,6 +23,15 @@ public class NamingUtils {
 
 	public static Instant ldapDateToInstant(String ldapDate) {
 		return OffsetDateTime.parse(ldapDate, utcLdapDate).toInstant();
+	}
+
+	public static Calendar ldapDateToCalendar(String ldapDate) {
+		OffsetDateTime instant = OffsetDateTime.parse(ldapDate, utcLdapDate);
+		GregorianCalendar calendar = new GregorianCalendar();
+		calendar.set(calendar.DAY_OF_MONTH, instant.get(ChronoField.DAY_OF_MONTH));
+		calendar.set(calendar.MONTH, instant.get(ChronoField.MONTH_OF_YEAR));
+		calendar.set(calendar.YEAR, instant.get(ChronoField.YEAR));
+		return calendar;
 	}
 
 	public static String instantToLdapDate(ZonedDateTime instant) {
@@ -67,10 +79,11 @@ public class NamingUtils {
 
 	}
 
-//	public static void main(String args[]) {
-//		ZonedDateTime now = ZonedDateTime.now().withZoneSameInstant(ZoneOffset.UTC);
-//		String str = utcLdapDate.format(now);
-//		System.out.println(str);
-//		utcLdapDate.parse(str);
-//	}
+	public static void main(String args[]) {
+		ZonedDateTime now = ZonedDateTime.now().withZoneSameInstant(ZoneOffset.UTC);
+		String str = utcLdapDate.format(now);
+		System.out.println(str);
+		utcLdapDate.parse(str);
+		utcLdapDate.parse("19520512000000Z");
+	}
 }
