@@ -1,0 +1,17 @@
+if [ $1 = "1" ];then
+	APP=node
+	
+	# check if user exists
+	/bin/id $APP 2>/dev/null
+	if [ $? -ne 0 ];then
+		echo Create user $APP...
+		useradd --system --home-dir /var/lib/$APP --shell /bin/bash --user-group --create-home $APP
+	fi
+	
+	mkdir -p /var/lib/$APP/{state,data,indexes}
+	chown $APP.$APP /var/lib/$APP/{state,data,indexes}
+	mkdir -p /var/run/$APP
+	chown $APP.$APP /var/run/$APP
+	mkdir -p /var/log/$APP
+	chown $APP.$APP /var/log/$APP
+fi

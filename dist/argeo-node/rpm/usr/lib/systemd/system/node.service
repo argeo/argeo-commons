@@ -1,0 +1,15 @@
+[Unit]
+Description=Argeo Node
+After=network.target
+Wants=postgresql.service
+
+[Service]
+Type=simple
+PIDFile=/var/run/node/node.pid
+ExecStart=/usr/sbin/node-service start
+#ExecReload=/usr/sbin/node-service reload
+#ExecStop=/usr/sbin/node-service stop
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

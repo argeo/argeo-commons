@@ -12,5 +12,6 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>osgi-boot</module>
+		<module>argeo-node</module>
 	</modules>
 </project>
