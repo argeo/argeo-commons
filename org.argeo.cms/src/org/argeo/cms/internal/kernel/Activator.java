@@ -49,6 +49,7 @@ public class Activator implements BundleActivator {
 
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
+		Runtime.getRuntime().addShutdownHook(new CmsShutdown());
 		instance = this;
 		this.bc = bundleContext;
 		this.logReaderService = getService(LogReaderService.class);

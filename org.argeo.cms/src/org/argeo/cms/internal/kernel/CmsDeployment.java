@@ -157,25 +157,25 @@ public class CmsDeployment implements NodeDeployment {
 			long initDuration = System.currentTimeMillis() - begin;
 			if (log.isTraceEnabled())
 				log.trace("Kernel initialization took " + initDuration + "ms");
-			directorsCut(initDuration);
+			tributeToFreeSoftware(initDuration);
 		}
 	}
 
-	final private void directorsCut(long initDuration) {
-		// final long ms = 128l + (long) (Math.random() * 128d);
-		long ms = initDuration / 100;
-		log.info("Spend " + ms + "ms" + " reflecting on the progress brought to mankind" + " by Free Software...");
-		long beginNano = System.nanoTime();
-		try {
-			Thread.sleep(ms, 0);
-		} catch (InterruptedException e) {
-			// silent
+	final private void tributeToFreeSoftware(long initDuration) {
+		if (log.isTraceEnabled()) {
+			long ms = initDuration / 100;
+			log.trace("Spend " + ms + "ms" + " reflecting on the progress brought to mankind" + " by Free Software...");
+			long beginNano = System.nanoTime();
+			try {
+				Thread.sleep(ms, 0);
+			} catch (InterruptedException e) {
+				// silent
+			}
+			long durationNano = System.nanoTime() - beginNano;
+			final double M = 1000d * 1000d;
+			double sleepAccuracy = ((double) durationNano) / (ms * M);
+			log.trace("Sleep accuracy: " + String.format("%.2f", 100 - (sleepAccuracy * 100 - 100)) + " %");
 		}
-		long durationNano = System.nanoTime() - beginNano;
-		final double M = 1000d * 1000d;
-		double sleepAccuracy = ((double) durationNano) / (ms * M);
-		if (log.isDebugEnabled())
-			log.debug("Sleep accuracy: " + String.format("%.2f", 100 - (sleepAccuracy * 100 - 100)) + " %");
 	}
 
 	private void prepareNodeRepository(Repository deployedNodeRepository) {

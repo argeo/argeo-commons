@@ -43,7 +43,8 @@ public class SimpleUxContext implements UxContext {
 
 	@Override
 	public boolean isMasterData() {
-		return false;
+		// TODO make it configurable
+		return true;
 	}
 
 }

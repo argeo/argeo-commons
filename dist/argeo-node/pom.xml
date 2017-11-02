@@ -65,7 +65,7 @@
 												<source>
 													<location>rpm/usr/sbin</location>
 													<includes>
-														<include>node-service</include>
+														<include>nodectl</include>
 													</includes>
 												</source>
 											</sources>

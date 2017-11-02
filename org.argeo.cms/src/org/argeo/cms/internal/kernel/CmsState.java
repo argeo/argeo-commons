@@ -5,6 +5,7 @@ import static bitronix.tm.TransactionManagerServices.getTransactionSynchronizati
 import static java.util.Locale.ENGLISH;
 
 import java.io.File;
+import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.spi.FileSystemProvider;
@@ -48,7 +49,7 @@ public class CmsState implements NodeState {
 
 	private ThreadGroup threadGroup = new ThreadGroup("CMS");
 	private KernelThread kernelThread;
-	private List<Runnable> shutdownHooks = new ArrayList<>();
+	private List<Runnable> stopHooks = new ArrayList<>();
 
 	private final String stateUuid;
 	private final boolean cleanState;
@@ -66,7 +67,7 @@ public class CmsState implements NodeState {
 
 		availableSince = System.currentTimeMillis();
 		if (log.isDebugEnabled())
-			log.debug("## CMS STARTED " + this.stateUuid + (cleanState ? " (clean state) " : " "));
+			log.debug("## CMS starting... stateUuid=" + this.stateUuid + (cleanState ? " (clean state) " : " "));
 
 		initI18n();
 		initServices();
@@ -90,7 +91,7 @@ public class CmsState implements NodeState {
 
 		// JCR
 		RepositoryServiceFactory repositoryServiceFactory = new RepositoryServiceFactory();
-		shutdownHooks.add(() -> repositoryServiceFactory.shutdown());
+		stopHooks.add(() -> repositoryServiceFactory.shutdown());
 		bc.registerService(ManagedServiceFactory.class, repositoryServiceFactory,
 				LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_REPOS_FACTORY_PID));
 
@@ -99,7 +100,7 @@ public class CmsState implements NodeState {
 
 		// Security
 		NodeUserAdmin userAdmin = new NodeUserAdmin(NodeConstants.ROLES_BASEDN);
-		shutdownHooks.add(() -> userAdmin.destroy());
+		stopHooks.add(() -> userAdmin.destroy());
 		bc.registerService(ManagedServiceFactory.class, userAdmin,
 				LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_USER_ADMIN_PID));
 
@@ -132,7 +133,7 @@ public class CmsState implements NodeState {
 			tmConf.setLogPart2Filename(new File(tmDir2, tmDir2.getName() + ".tlog").getAbsolutePath());
 		}
 		BitronixTransactionManager transactionManager = getTransactionManager();
-		shutdownHooks.add(() -> transactionManager.shutdown());
+		stopHooks.add(() -> transactionManager.shutdown());
 		BitronixTransactionSynchronizationRegistry transactionSynchronizationRegistry = getTransactionSynchronizationRegistry();
 		// register
 		bc.registerService(TransactionManager.class, transactionManager, null);
@@ -143,20 +144,22 @@ public class CmsState implements NodeState {
 	}
 
 	void shutdown() {
+		if (log.isDebugEnabled())
+			log.debug("CMS stopping...  stateUuid=" + this.stateUuid + (cleanState ? " (clean state) " : " "));
+
 		if (kernelThread != null)
 			kernelThread.destroyAndJoin();
+		applyStopHooks();
 
-		applyShutdownHooks();
-
-		if (log.isDebugEnabled())
-			log.debug("## CMS STOPPED");
+		long duration = ((System.currentTimeMillis() - availableSince) / 1000) / 60;
+		log.info("## ARGEO CMS STOPPED after " + (duration / 60) + "h " + (duration % 60) + "min uptime ##");
 	}
 
 	/** Apply shutdown hoos in reverse order. */
-	private void applyShutdownHooks() {
-		for (int i = shutdownHooks.size() - 1; i >= 0; i--) {
+	private void applyStopHooks() {
+		for (int i = stopHooks.size() - 1; i >= 0; i--) {
 			try {
-				shutdownHooks.get(i).run();
+				stopHooks.get(i).run();
 			} catch (Exception e) {
 				log.error("Could not run shutdown hook #" + i);
 			}
@@ -189,62 +192,4 @@ public class CmsState implements NodeState {
 	public String getHostname() {
 		return hostname;
 	}
-
-	/** Workaround for blocking Gogo shell by system shutdown. */
-	private class GogoShellKiller extends Thread {
-
-		public GogoShellKiller() {
-			super("Gogo Shell Killer");
-			setDaemon(true);
-		}
-
-		@Override
-		public void run() {
-			ThreadGroup rootTg = getRootThreadGroup(null);
-			Thread gogoShellThread = findGogoShellThread(rootTg);
-			if (gogoShellThread == null)
-				return;
-			while (getNonDaemonCount(rootTg) > 2) {
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					// silent
-				}
-			}
-			gogoShellThread = findGogoShellThread(rootTg);
-			if (gogoShellThread == null)
-				return;
-			System.exit(0);
-		}
-	}
-
-	private static ThreadGroup getRootThreadGroup(ThreadGroup tg) {
-		if (tg == null)
-			tg = Thread.currentThread().getThreadGroup();
-		if (tg.getParent() == null)
-			return tg;
-		else
-			return getRootThreadGroup(tg.getParent());
-	}
-
-	private static int getNonDaemonCount(ThreadGroup rootThreadGroup) {
-		Thread[] threads = new Thread[rootThreadGroup.activeCount()];
-		rootThreadGroup.enumerate(threads);
-		int nonDameonCount = 0;
-		for (Thread t : threads)
-			if (t != null && !t.isDaemon())
-				nonDameonCount++;
-		return nonDameonCount;
-	}
-
-	private static Thread findGogoShellThread(ThreadGroup rootThreadGroup) {
-		Thread[] threads = new Thread[rootThreadGroup.activeCount()];
-		rootThreadGroup.enumerate(threads, true);
-		for (Thread thread : threads) {
-			if (thread.getName().equals("Gogo shell"))
-				return thread;
-		}
-		return null;
-	}
-
 }

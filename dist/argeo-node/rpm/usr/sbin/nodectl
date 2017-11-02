@@ -14,7 +14,7 @@ LOG_FILE=$LOG_DIR/$APP.log
 
 RUN_DIR=/var/run/$APP
 PID_FILE=$RUN_DIR/$APP.pid
-SHUTDOWN_FILE=$RUN_DIR/$APP.shutdown
+#SHUTDOWN_FILE=$RUN_DIR/$APP.shutdown
 
 OSGI_INSTALL_AREA=/usr/share/osgi/boot
 OSGI_FRAMEWORK=$OSGI_INSTALL_AREA/org.eclipse.osgi.jar
@@ -41,19 +41,22 @@ start() {
 		fi
 	fi
 
-	if [ ! -f $CONF_RW/config.ini ]; then
+#	if [ ! -f $CONF_RW/config.ini ]; then
 		cp --preserve $CONF_DIR/config.ini $CONF_RW/config.ini
-	fi
-	touch $SHUTDOWN_FILE
+#	fi
+#	touch $SHUTDOWN_FILE
 	cd $EXEC_DIR
 	$JVM \
-		-Dargeo.osgi.shutdownFile="$SHUTDOWN_FILE" \
 		-Dlog4j.configuration="file:$CONF_DIR/log4j.properties" \
 		-Djava.security.manager= \
 		-Djava.security.policy="file:$CONF_DIR/node.policy" \
 		$JAVA_OPTS -jar $OSGI_FRAMEWORK \
 		-configuration "$CONF_RW" \
 		-data "$DATA_DIR"
+}
+
+reload() {
+	echo Not yet implemented
 }
 
 stop() {
@@ -76,8 +79,8 @@ stop() {
 	# notifies application by removing the shutdown file
 	rm -f $SHUTDOWN_FILE
 	
-	# wait 5 min for application to shutdown, then kill it
-	TIMEOUT=$((5*60))
+	# wait 10 min for application to shutdown, then kill it
+	TIMEOUT=$((10*60))
 	BEGIN=$(date +%s)
 	while kill -0 $PID &> /dev/null
 	do
@@ -133,6 +136,9 @@ status() {
 case "$1" in
   start)
         start
+        ;;
+  reload)
+        reload
         ;;
   stop)
         stop

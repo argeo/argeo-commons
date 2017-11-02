@@ -75,7 +75,7 @@ class FirstInit {
 				if (keyStorePassword == null)
 					keyStorePassword = "changeit";
 				if (!Files.exists(keyStorePath))
-					createSelfSignedKeyStore(keyStorePath);
+					createSelfSignedKeyStore(keyStorePath, keyStorePassword);
 				props.put(JettyConstants.SSL_KEYSTORETYPE, "PKCS12");
 				props.put(JettyConstants.SSL_KEYSTORE, keyStorePath.toString());
 				props.put(JettyConstants.SSL_PASSWORD, keyStorePassword);
@@ -115,18 +115,18 @@ class FirstInit {
 		// Business roles
 		String userAdminUris = getFrameworkProp(NodeConstants.USERADMIN_URIS);
 		if (userAdminUris == null) {
-				String demoBaseDn = "dc=example,dc=com";
-				File businessRolesFile = new File(nodeBaseDir, demoBaseDn + ".ldif");
-				if (!businessRolesFile.exists())
-					try {
-						FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(demoBaseDn + ".ldif"),
-								businessRolesFile);
-					} catch (IOException e) {
-						throw new CmsException("Cannot copy demo resource", e);
-					}
-				userAdminUris = businessRolesFile.toURI().toString();
-				log.warn("## DEV Using dummy base DN " + demoBaseDn);
-				// TODO downgrade security level
+			String demoBaseDn = "dc=example,dc=com";
+			File businessRolesFile = new File(nodeBaseDir, demoBaseDn + ".ldif");
+			if (!businessRolesFile.exists())
+				try {
+					FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(demoBaseDn + ".ldif"),
+							businessRolesFile);
+				} catch (IOException e) {
+					throw new CmsException("Cannot copy demo resource", e);
+				}
+			userAdminUris = businessRolesFile.toURI().toString();
+			log.warn("## DEV Using dummy base DN " + demoBaseDn);
+			// TODO downgrade security level
 		}
 		for (String userAdminUri : userAdminUris.split(" "))
 			uris.add(userAdminUri);
@@ -158,10 +158,10 @@ class FirstInit {
 
 		return res;
 	}
-	
+
 	/**
-	 * Called before node initialisation, in order populate OSGi instance are
-	 * with some files (typically LDIF, etc).
+	 * Called before node initialisation, in order populate OSGi instance are with
+	 * some files (typically LDIF, etc).
 	 */
 	static void prepareInstanceArea() {
 		String nodeInit = getFrameworkProp(NodeConstants.NODE_INIT);
@@ -196,11 +196,11 @@ class FirstInit {
 			}
 	}
 
-	private void createSelfSignedKeyStore(Path keyStorePath) {
+	private void createSelfSignedKeyStore(Path keyStorePath, String keyStorePassword) {
 		// for (Provider provider : Security.getProviders())
 		// System.out.println(provider.getName());
 		File keyStoreFile = keyStorePath.toFile();
-		char[] ksPwd = "changeit".toCharArray();
+		char[] ksPwd = keyStorePassword.toCharArray();
 		char[] keyPwd = Arrays.copyOf(ksPwd, ksPwd.length);
 		if (!keyStoreFile.exists()) {
 			try {

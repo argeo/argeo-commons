@@ -156,18 +156,25 @@ class NodeLogger implements ArgeoLogger, LogListener {
 		if (sr != null) {
 			sb.append(' ');
 			String[] objectClasses = (String[]) sr.getProperty(Constants.OBJECTCLASS);
-			sb.append(arrayToString(objectClasses));
+			if (isSpringApplicationContext(objectClasses)) {
+				sb.append("{org.springframework.context.ApplicationContext}");
+				Object symbolicName = sr.getProperty(Constants.BUNDLE_SYMBOLICNAME);
+				if (symbolicName != null)
+					sb.append(" " + Constants.BUNDLE_SYMBOLICNAME + ": " + symbolicName);
+			} else {
+				sb.append(arrayToString(objectClasses));
+			}
 			Object cn = sr.getProperty(NodeConstants.CN);
 			if (cn != null)
 				sb.append(" " + NodeConstants.CN + ": " + cn);
 			Object factoryPid = sr.getProperty(ConfigurationAdmin.SERVICE_FACTORYPID);
 			if (factoryPid != null)
 				sb.append(" " + ConfigurationAdmin.SERVICE_FACTORYPID + ": " + factoryPid);
-//			else {
-//				Object servicePid = sr.getProperty(Constants.SERVICE_PID);
-//				if (servicePid != null)
-//					sb.append(" " + Constants.SERVICE_PID + ": " + servicePid);
-//			}
+			// else {
+			// Object servicePid = sr.getProperty(Constants.SERVICE_PID);
+			// if (servicePid != null)
+			// sb.append(" " + Constants.SERVICE_PID + ": " + servicePid);
+			// }
 			// servlets
 			Object whiteBoardPattern = sr.getProperty(KernelConstants.WHITEBOARD_PATTERN_PROP);
 			if (whiteBoardPattern != null)
@@ -177,11 +184,12 @@ class NodeLogger implements ArgeoLogger, LogListener {
 			Object contextName = sr.getProperty(KernelConstants.CONTEXT_NAME_PROP);
 			if (contextName != null)
 				sb.append(" " + KernelConstants.CONTEXT_NAME_PROP + ": " + contextName);
-			
+
 			// user directories
 			Object baseDn = sr.getProperty(UserAdminConf.baseDn.name());
 			if (baseDn != null)
 				sb.append(" " + UserAdminConf.baseDn.name() + ": " + baseDn);
+
 		}
 		return sb.toString();
 	}
@@ -196,6 +204,15 @@ class NodeLogger implements ArgeoLogger, LogListener {
 		}
 		sb.append('}');
 		return sb.toString();
+	}
+
+	private boolean isSpringApplicationContext(String[] objectClasses) {
+		for (String clss : objectClasses) {
+			if (clss.equals("org.eclipse.gemini.blueprint.context.DelegatedExecutionOsgiBundleApplicationContext")) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	//
