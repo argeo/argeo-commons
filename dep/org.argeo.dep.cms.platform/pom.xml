@@ -186,22 +186,6 @@
 									<useRepositoryLayout>true</useRepositoryLayout>
 								</configuration>
 							</execution>
-							<execution>
-								<id>copy-tp</id>
-								<phase>package</phase>
-								<goals>
-									<goal>copy-dependencies</goal>
-								</goals>
-								<configuration>
-									<includeTypes>jar</includeTypes>
-									<outputDirectory>${project.build.directory}/lib-tp</outputDirectory>
-									<excludeGroupIds>org.argeo.commons</excludeGroupIds>
-									<excludeTransitive>true</excludeTransitive>
-									<includeTypes>jar</includeTypes>
-									<includeScope>runtime</includeScope>
-									<useRepositoryLayout>true</useRepositoryLayout>
-								</configuration>
-							</execution>
 						</executions>
 					</plugin>
 					<plugin>
@@ -255,6 +239,28 @@
 			<id>rpmbuild-tp</id>
 			<build>
 				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>copy-tp</id>
+								<phase>package</phase>
+								<goals>
+									<goal>copy-dependencies</goal>
+								</goals>
+								<configuration>
+									<includeTypes>jar</includeTypes>
+									<outputDirectory>${project.build.directory}/lib-tp</outputDirectory>
+									<excludeGroupIds>org.argeo.commons</excludeGroupIds>
+									<excludeTransitive>true</excludeTransitive>
+									<includeTypes>jar</includeTypes>
+									<includeScope>runtime</includeScope>
+									<useRepositoryLayout>true</useRepositoryLayout>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>rpm-maven-plugin</artifactId>
