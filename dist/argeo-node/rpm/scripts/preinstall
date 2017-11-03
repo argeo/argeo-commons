@@ -9,7 +9,7 @@ if [ $1 = "1" ];then
 	fi
 	
 	mkdir -p /var/lib/$APP/{state,data,indexes}
-	chown $APP.$APP /var/lib/$APP/{state,data,indexes}
+	chown $APP.$APP /var/lib/$APP
 	mkdir -p /var/run/$APP
 	chown $APP.$APP /var/run/$APP
 	mkdir -p /var/log/$APP
