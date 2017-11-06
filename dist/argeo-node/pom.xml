@@ -41,6 +41,23 @@
 											</sources>
 										</mapping>
 										<mapping>
+											<directory>/etc/node/conf.d</directory>
+											<username>root</username>
+											<groupname>node</groupname>
+											<filemode>640</filemode>
+											<configuration>noreplace</configuration>
+											<directoryIncluded>false</directoryIncluded>
+											<sources>
+												<source>
+													<location>rpm/etc/node/conf.d</location>
+													<includes>
+														<include>*.ini</include>
+														<include>*.txt</include>
+													</includes>
+												</source>
+											</sources>
+										</mapping>
+										<mapping>
 											<directory>/usr/lib/systemd/system</directory>
 											<username>root</username>
 											<groupname>root</groupname>
@@ -51,6 +68,22 @@
 													<location>rpm/usr/lib/systemd/system</location>
 													<includes>
 														<include>*.service</include>
+													</includes>
+												</source>
+											</sources>
+										</mapping>
+										<mapping>
+											<directory>/usr/share/node</directory>
+											<username>root</username>
+											<groupname>root</groupname>
+											<filemode>644</filemode>
+											<directoryIncluded>false</directoryIncluded>
+											<sources>
+												<source>
+													<location>rpm/usr/share/node</location>
+													<includes>
+														<include>config.ini</include>
+														<include>all.policy</include>
 													</includes>
 												</source>
 											</sources>
@@ -75,7 +108,7 @@
 										<scriptFile>rpm/scripts/preinstall</scriptFile>
 									</preinstallScriptlet>
 									<requires>
-<!-- 										<require>argeo-cms-platform</require> -->
+										<require>argeo-cms-node</require>
 										<require>osgi-boot</require>
 										<!-- do not explicitely require java -->
 									</requires>
