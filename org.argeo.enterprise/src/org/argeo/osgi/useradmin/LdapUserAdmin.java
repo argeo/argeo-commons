@@ -39,7 +39,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	private InitialLdapContext initialLdapContext = null;
 
 	public LdapUserAdmin(Dictionary<String, ?> properties) {
-		super(properties);
+		super(null, properties);
 		try {
 			Hashtable<String, Object> connEnv = new Hashtable<String, Object>();
 			connEnv.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");

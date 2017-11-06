@@ -100,7 +100,8 @@ class FirstInit {
 		String nodeRolesUri = getFrameworkProp(NodeConstants.ROLES_URI);
 		String baseNodeRoleDn = NodeConstants.ROLES_BASEDN;
 		if (nodeRolesUri == null) {
-			File nodeRolesFile = new File(nodeBaseDir, baseNodeRoleDn + ".ldif");
+			nodeRolesUri = baseNodeRoleDn + ".ldif";
+			File nodeRolesFile = new File(nodeBaseDir, nodeRolesUri);
 			if (!nodeRolesFile.exists())
 				try {
 					FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(baseNodeRoleDn + ".ldif"),
@@ -108,7 +109,7 @@ class FirstInit {
 				} catch (IOException e) {
 					throw new CmsException("Cannot copy demo resource", e);
 				}
-			nodeRolesUri = nodeRolesFile.toURI().toString();
+			// nodeRolesUri = nodeRolesFile.toURI().toString();
 		}
 		uris.add(nodeRolesUri);
 
@@ -116,7 +117,8 @@ class FirstInit {
 		String userAdminUris = getFrameworkProp(NodeConstants.USERADMIN_URIS);
 		if (userAdminUris == null) {
 			String demoBaseDn = "dc=example,dc=com";
-			File businessRolesFile = new File(nodeBaseDir, demoBaseDn + ".ldif");
+			userAdminUris = demoBaseDn + ".ldif";
+			File businessRolesFile = new File(nodeBaseDir, userAdminUris);
 			if (!businessRolesFile.exists())
 				try {
 					FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(demoBaseDn + ".ldif"),
@@ -124,7 +126,7 @@ class FirstInit {
 				} catch (IOException e) {
 					throw new CmsException("Cannot copy demo resource", e);
 				}
-			userAdminUris = businessRolesFile.toURI().toString();
+			// userAdminUris = businessRolesFile.toURI().toString();
 			log.warn("## DEV Using dummy base DN " + demoBaseDn);
 			// TODO downgrade security level
 		}
@@ -142,8 +144,8 @@ class FirstInit {
 					if (uri.startsWith("/") || uri.startsWith("./") || uri.startsWith("../"))
 						u = new File(uri).getCanonicalFile().toURI();
 					else if (!uri.contains("/")) {
-						u = KernelUtils.getOsgiInstanceUri(KernelConstants.DIR_NODE + '/' + uri);
-						// u = new URI(nodeBaseDir.toURI() + uri);
+						// u = KernelUtils.getOsgiInstanceUri(KernelConstants.DIR_NODE + '/' + uri);
+						u = new URI(uri);
 					} else
 						throw new CmsException("Cannot interpret " + uri + " as an uri");
 				} else if (u.getScheme().equals("file")) {

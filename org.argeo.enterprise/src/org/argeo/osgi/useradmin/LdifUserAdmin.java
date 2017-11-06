@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashSet;
@@ -41,11 +42,16 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	}
 
 	public LdifUserAdmin(Dictionary<String, ?> properties) {
-		super(properties);
+		super(null, properties);
 	}
 
+	public LdifUserAdmin(URI uri, Dictionary<String, ?> properties) {
+		super(uri, properties);
+	}
+
+	@Deprecated
 	public LdifUserAdmin(InputStream in) {
-		super(new Hashtable<String, Object>());
+		super(null, new Hashtable<String, Object>());
 		load(in);
 	}
 

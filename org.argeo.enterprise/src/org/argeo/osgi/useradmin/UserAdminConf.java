@@ -129,6 +129,7 @@ public enum UserAdminConf {
 				scheme = u.getScheme();
 			}
 			String path = u.getPath();
+			// base DN
 			String bDn = path.substring(path.lastIndexOf('/') + 1, path.length());
 			if (bDn.endsWith(".ldif"))
 				bDn = bDn.substring(0, bDn.length() - ".ldif".length());
@@ -162,7 +163,7 @@ public enum UserAdminConf {
 				res.put(Context.SECURITY_PRINCIPAL, principal);
 			if (credentials != null)
 				res.put(Context.SECURITY_CREDENTIALS, credentials);
-			if (scheme != null) {
+			if (scheme != null) {// relative URIs are dealt with externally
 				URI bareUri = new URI(scheme, null, u.getHost(), u.getPort(),
 						scheme.equals("file") ? u.getPath() : null, null, null);
 				res.put(uri.name(), bareUri.toString());

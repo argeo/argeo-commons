@@ -67,22 +67,27 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 	private TransactionManager transactionManager;
 	private WcXaResource xaResource = new WcXaResource(this);
 
-	public AbstractUserDirectory(Dictionary<String, ?> props) {
+	public AbstractUserDirectory(URI uriArg, Dictionary<String, ?> props) {
 		properties = new Hashtable<String, Object>();
 		for (Enumeration<String> keys = props.keys(); keys.hasMoreElements();) {
 			String key = keys.nextElement();
 			properties.put(key, props.get(key));
 		}
 
-		String uriStr = UserAdminConf.uri.getValue(properties);
-		if (uriStr == null)
-			uri = null;
-		else
-			try {
-				uri = new URI(uriStr);
-			} catch (URISyntaxException e) {
-				throw new UserDirectoryException("Badly formatted URI " + uriStr, e);
-			}
+		if (uriArg != null) {
+			uri = uriArg;
+			// uri from properties is ignored
+		} else {
+			String uriStr = UserAdminConf.uri.getValue(properties);
+			if (uriStr == null)
+				uri = null;
+			else
+				try {
+					uri = new URI(uriStr);
+				} catch (URISyntaxException e) {
+					throw new UserDirectoryException("Badly formatted URI " + uriStr, e);
+				}
+		}
 
 		userObjectClass = UserAdminConf.userObjectClass.getValue(properties);
 		userBase = UserAdminConf.userBase.getValue(properties);
@@ -410,6 +415,8 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 	private static boolean readOnlyDefault(URI uri) {
 		if (uri == null)
 			return true;
+		if (uri.getScheme() == null)
+			return false;// assume relative file to be writable
 		if (uri.getScheme().equals("file")) {
 			File file = new File(uri);
 			if (file.exists())

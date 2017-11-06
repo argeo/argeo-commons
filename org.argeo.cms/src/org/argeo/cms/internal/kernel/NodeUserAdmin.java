@@ -95,14 +95,18 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 		String uri = (String) properties.get(UserAdminConf.uri.name());
 		URI u;
 		try {
-			u = new URI(uri);
+			if (uri == null) {
+				String baseDn = (String) properties.get(UserAdminConf.baseDn.name());
+				u = KernelUtils.getOsgiInstanceUri(KernelConstants.DIR_NODE + '/' + baseDn + ".ldif");
+			} else
+				u = new URI(uri);
 		} catch (URISyntaxException e) {
 			throw new CmsException("Badly formatted URI " + uri, e);
 		}
 
 		// Create
 		AbstractUserDirectory userDirectory = u.getScheme().equals("ldap") ? new LdapUserAdmin(properties)
-				: new LdifUserAdmin(properties);
+				: new LdifUserAdmin(u, properties);
 		Object realm = userDirectory.getProperties().get(UserAdminConf.realm.name());
 		addUserDirectory(userDirectory);
 
