@@ -1,6 +1,19 @@
 package org.argeo.cms.internal.jcr;
 
-/** The available Jackrabbit node types */
+/** Pre-defined Jackrabbit repository configurations. */
 enum JackrabbitType {
-	localfs, h2, postgresql, postgresql_ds, postgresql_cluster, memory;
+	/** Local file system */
+	localfs,
+	/** Embedded Java H2 database */
+	h2,
+	/** PostgreSQL */
+	postgresql,
+	/** PostgreSQL with datastore */
+	postgresql_ds,
+	/** PostgreSQL with cluster */
+	postgresql_cluster,
+	/** PostgreSQL with cluster and datastore */
+	postgresql_cluster_ds,
+	/** Memory */
+	memory;
 }

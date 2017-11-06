@@ -1,6 +1,5 @@
 package org.argeo.cms.internal.jcr;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -76,13 +75,30 @@ public class RepositoryBuilder {
 			props.put(key, properties.get(key));
 		}
 
+		// cluster id
+		// cf. https://wiki.apache.org/jackrabbit/Clustering
+		// TODO deal with multiple repos
+		String clusterId = System.getProperty("org.apache.jackrabbit.core.cluster.node_id");
+		String clusterIdProp = props.getProperty(RepoConf.clusterId.name());
+		if (clusterId != null) {
+			if (clusterIdProp != null)
+				throw new CmsException("Cluster id defined as System properties and in deploy config");
+			props.put(RepoConf.clusterId.name(), clusterId);
+		} else {
+			clusterId = clusterIdProp;
+		}
+
 		// home
 		String homeUri = props.getProperty(RepoConf.labeledUri.name());
 		Path homePath;
 		if (homeUri == null) {
 			String cn = props.getProperty(NodeConstants.CN);
 			assert cn != null;
-			homePath = CmsPaths.getRepoDirPath(cn);
+			if (clusterId != null) {
+				homePath = CmsPaths.getRepoDirPath(cn + '/' + clusterId);
+			} else {
+				homePath = CmsPaths.getRepoDirPath(cn);
+			}
 		} else {
 			try {
 				homePath = Paths.get(new URI(homeUri)).toAbsolutePath();
@@ -90,17 +106,18 @@ public class RepositoryBuilder {
 				throw new CmsException("Invalid repository home URI", e);
 			}
 		}
+		// TODO use Jackrabbit API (?)
 		Path rootUuidPath = homePath.resolve("repository/meta/rootUUID");
-		if (!Files.exists(rootUuidPath)) {
-			try {
+		try {
+			if (!Files.exists(rootUuidPath)) {
 				Files.createDirectories(rootUuidPath.getParent());
 				Files.write(rootUuidPath, UUID.randomUUID().toString().getBytes());
-			} catch (IOException e) {
-				log.error("Could not set rootUUID", e);
 			}
+			// File homeDir = homePath.toFile();
+			// homeDir.mkdirs();
+		} catch (IOException e) {
+			throw new CmsException("Cannot set up repository  home " + homePath, e);
 		}
-		File homeDir = homePath.toFile();
-		homeDir.mkdirs();
 		// home cannot be overridden
 		props.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE, homePath.toString());
 
@@ -119,7 +136,7 @@ public class RepositoryBuilder {
 		String dburl;
 		switch (type) {
 		case h2:
-			dburl = "jdbc:h2:" + homeDir.getPath() + "/h2/repository";
+			dburl = "jdbc:h2:" + homePath.toAbsolutePath() + "/h2/repository";
 			setProp(props, RepoConf.dburl, dburl);
 			setProp(props, RepoConf.dbuser, "sa");
 			setProp(props, RepoConf.dbpassword, "");
@@ -127,6 +144,7 @@ public class RepositoryBuilder {
 		case postgresql:
 		case postgresql_ds:
 		case postgresql_cluster:
+		case postgresql_cluster_ds:
 			dburl = "jdbc:postgresql://localhost/demo";
 			setProp(props, RepoConf.dburl, dburl);
 			setProp(props, RepoConf.dbuser, "argeo");
