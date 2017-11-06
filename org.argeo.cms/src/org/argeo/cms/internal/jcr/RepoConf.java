@@ -6,7 +6,7 @@ import org.argeo.osgi.metatype.EnumOCD;
 /** JCR repository configuration */
 public enum RepoConf implements EnumAD {
 	/** Repository type */
-	type("localfs"),
+	type("h2"),
 	/** Default workspace */
 	defaultWorkspace("main"),
 	/** Database URL */
