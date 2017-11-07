@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
@@ -154,14 +155,16 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 		groups = null;
 	}
 
-	protected DirectoryUser daoGetRole(LdapName key) {
+	@Override
+	protected DirectoryUser daoGetRole(LdapName key) throws NameNotFoundException {
 		if (groups.containsKey(key))
 			return groups.get(key);
 		if (users.containsKey(key))
 			return users.get(key);
-		return null;
+		throw new NameNotFoundException(key + " not persisted");
 	}
 
+	@Override
 	protected Boolean daoHasRole(LdapName dn) {
 		return users.containsKey(dn) || groups.containsKey(dn);
 	}

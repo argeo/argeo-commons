@@ -1,6 +1,7 @@
 package org.argeo.osgi.useradmin;
 
 import static org.argeo.naming.LdapAttrs.objectClass;
+import static org.argeo.naming.LdapObjs.extensibleObject;
 import static org.argeo.naming.LdapObjs.inetOrgPerson;
 import static org.argeo.naming.LdapObjs.organizationalPerson;
 import static org.argeo.naming.LdapObjs.person;
@@ -18,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.naming.InvalidNameException;
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -32,6 +34,7 @@ import javax.transaction.TransactionManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.naming.LdapAttrs;
+import org.argeo.naming.LdapObjs;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -113,7 +116,7 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 
 	protected abstract Boolean daoHasRole(LdapName dn);
 
-	protected abstract DirectoryUser daoGetRole(LdapName key);
+	protected abstract DirectoryUser daoGetRole(LdapName key) throws NameNotFoundException;
 
 	protected abstract List<DirectoryUser> doGetRoles(Filter f);
 
@@ -209,7 +212,12 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 
 	protected DirectoryUser doGetRole(LdapName dn) {
 		UserDirectoryWorkingCopy wc = getWorkingCopy();
-		DirectoryUser user = daoGetRole(dn);
+		DirectoryUser user;
+		try {
+			user = daoGetRole(dn);
+		} catch (NameNotFoundException e) {
+			user = null;
+		}
 		if (wc != null) {
 			if (user == null && wc.getNewUsers().containsKey(dn))
 				user = wc.getNewUsers().get(dn);
@@ -313,12 +321,13 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 		if (wc.getDeletedUsers().containsKey(dn)) {
 			wc.getDeletedUsers().remove(dn);
 			wc.getModifiedUsers().put(dn, attrs);
+			return getRole(name);
 		} else {
 			wc.getModifiedUsers().put(dn, attrs);
 			DirectoryUser newRole = newRole(dn, type, attrs);
 			wc.getNewUsers().put(dn, newRole);
+			return newRole;
 		}
-		return getRole(name);
 	}
 
 	protected DirectoryUser newRole(LdapName dn, int type, Attributes attrs) {
@@ -334,6 +343,7 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 				objClass.add(person.name());
 			}
 			objClass.add(top.name());
+			objClass.add(extensibleObject.name());
 			attrs.put(objClass);
 			newRole = new LdifUser(this, dn, attrs);
 		} else if (type == Role.GROUP) {

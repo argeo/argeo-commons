@@ -42,7 +42,7 @@ public class LdifWriter {
 				throw new UserDirectoryException(
 						"Attribute " + nameAttr.getID() + "=" + nameAttr.get() + " not consistent with DN " + name);
 
-			writer.append(LdapAttrs.DN + ":").append(name.toString()).append('\n');
+			writer.append(LdapAttrs.DN + ": ").append(name.toString()).append('\n');
 			Attribute objectClassAttr = attributes.get("objectClass");
 			if (objectClassAttr != null)
 				writeAttribute(objectClassAttr);
@@ -69,9 +69,9 @@ public class LdifWriter {
 			Object value = attrValues.next();
 			if (value instanceof byte[]) {
 				String encoded = Base64.getEncoder().encodeToString((byte[]) value);
-				writer.append(attribute.getID()).append("::").append(encoded).append('\n');
+				writer.append(attribute.getID()).append(":: ").append(encoded).append('\n');
 			} else {
-				writer.append(attribute.getID()).append(':').append(value.toString()).append('\n');
+				writer.append(attribute.getID()).append(": ").append(value.toString()).append('\n');
 			}
 		}
 	}

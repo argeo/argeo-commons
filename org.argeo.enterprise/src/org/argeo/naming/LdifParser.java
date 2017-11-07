@@ -114,6 +114,7 @@ public class LdifParser {
 					}
 
 					String attributeId = attrId.toString();
+					// TODO should we really trim the end of the string as well?
 					String cleanValueStr = currentEntry.toString().trim();
 					Object attributeValue = isBase64 ? Base64.getDecoder().decode(cleanValueStr) : cleanValueStr;
 

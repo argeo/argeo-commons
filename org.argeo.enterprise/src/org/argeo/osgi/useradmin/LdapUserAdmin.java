@@ -101,11 +101,15 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 
 	@Override
 	protected Boolean daoHasRole(LdapName dn) {
-		return daoGetRole(dn) != null;
+		try {
+			return daoGetRole(dn) != null;
+		} catch (NameNotFoundException e) {
+			return false;
+		}
 	}
 
 	@Override
-	protected DirectoryUser daoGetRole(LdapName name) {
+	protected DirectoryUser daoGetRole(LdapName name) throws NameNotFoundException {
 		try {
 			Attributes attrs = getLdapContext().getAttributes(name);
 			if (attrs.size() == 0)
@@ -119,6 +123,8 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			else
 				throw new UserDirectoryException("Unsupported LDAP type for " + name);
 			return res;
+		} catch (NameNotFoundException e) {
+			throw e;
 		} catch (NamingException e) {
 			log.error("Cannot get role: " + name, e);
 			return null;
