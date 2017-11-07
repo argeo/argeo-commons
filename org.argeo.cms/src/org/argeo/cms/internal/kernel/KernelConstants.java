@@ -18,7 +18,7 @@ public interface KernelConstants {
 
 	// Security
 	String JAAS_CONFIG = "/org/argeo/cms/internal/kernel/jaas.cfg";
-	String JAAS_CONFIG_NOIPA = "/org/argeo/cms/internal/kernel/jaas-noipa.cfg";
+	String JAAS_CONFIG_IPA = "/org/argeo/cms/internal/kernel/jaas-ipa.cfg";
 
 	// Java
 	String JAAS_CONFIG_PROP = "java.security.auth.login.config";

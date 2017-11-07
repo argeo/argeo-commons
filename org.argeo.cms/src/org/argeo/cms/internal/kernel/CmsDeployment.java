@@ -103,25 +103,27 @@ public class CmsDeployment implements NodeDeployment {
 				deployConfig = new DeployConfig(configurationAdmin, cleanState);
 				httpExpected = deployConfig.getProps(KernelConstants.JETTY_FACTORY_PID, "default") != null;
 				try {
+					// Configuration[] configs = configurationAdmin
+					// .listConfigurations("(service.factoryPid=" +
+					// NodeConstants.NODE_REPOS_FACTORY_PID + ")");
+					// for (Configuration config : configs) {
+					// Object cn = config.getProperties().get(NodeConstants.CN);
+					// if (log.isDebugEnabled())
+					// log.debug("Standalone repo cn: " + cn);
+					// }
 					Configuration[] configs = configurationAdmin
-							.listConfigurations("(service.factoryPid=" + NodeConstants.NODE_REPOS_FACTORY_PID + ")");
-					for (Configuration config : configs) {
-						Object cn = config.getProperties().get(NodeConstants.CN);
-						log.debug("Standalone repo cn: " + cn);
-					}
-					configs = configurationAdmin
 							.listConfigurations("(service.factoryPid=" + NodeConstants.NODE_USER_ADMIN_PID + ")");
 
 					boolean hasDomain = false;
 					for (Configuration config : configs) {
 						Object realm = config.getProperties().get(UserAdminConf.realm.name());
 						if (realm != null) {
-							log.debug("Realm: " + realm);
+							log.debug("Found realm: " + realm);
 							hasDomain = true;
 						}
 					}
-					if (!hasDomain) {
-						loadNoIpaJaasConfiguration();
+					if (hasDomain) {
+						loadIpaJaasConfiguration();
 					}
 				} catch (Exception e) {
 					throw new CmsException("Cannot initialize config", e);
@@ -131,13 +133,12 @@ public class CmsDeployment implements NodeDeployment {
 		}.open();
 	}
 
-	private void loadNoIpaJaasConfiguration() {
+	private void loadIpaJaasConfiguration() {
 		if (System.getProperty(KernelConstants.JAAS_CONFIG_PROP) == null) {
-			String jaasConfig = KernelConstants.JAAS_CONFIG_NOIPA;
+			String jaasConfig = KernelConstants.JAAS_CONFIG_IPA;
 			URL url = getClass().getClassLoader().getResource(jaasConfig);
 			KernelUtils.setJaasConfiguration(url);
-			if (log.isDebugEnabled())
-				log.debug("Set no-IPA JAAS configuration.");
+			log.debug("Set IPA JAAS configuration.");
 		}
 	}
 
