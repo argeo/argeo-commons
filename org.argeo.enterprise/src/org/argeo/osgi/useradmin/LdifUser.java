@@ -368,8 +368,8 @@ class LdifUser implements DirectoryUser {
 
 			try {
 				Attribute attribute = getModifiedAttributes().get(key.toString());
-				if (attribute == null)
-					attribute = new BasicAttribute(key.toString());
+				// if (attribute == null) // block unit tests
+				attribute = new BasicAttribute(key.toString());
 				if (value instanceof String && !isAsciiPrintable(((String) value)))
 					attribute.add(((String) value).getBytes(StandardCharsets.UTF_8));
 				else
