@@ -103,20 +103,22 @@ public class AuthPassword implements CallbackHandler {
 	public static AuthPassword matchAuthValue(Attributes attributes, char[] value) {
 		try {
 			Attribute authPassword = attributes.get(LdapAttrs.authPassword.name());
-			NamingEnumeration<?> values = authPassword.getAll();
-			while (values.hasMore()) {
-				Object val = values.next();
-				AuthPassword token = new AuthPassword(val.toString());
-				String auth;
-				if (Arrays.binarySearch(value, '$') >= 0) {
-					auth = token.authInfo + '$' + token.authValue;
-				} else {
-					auth = token.authValue;
+			if (authPassword != null) {
+				NamingEnumeration<?> values = authPassword.getAll();
+				while (values.hasMore()) {
+					Object val = values.next();
+					AuthPassword token = new AuthPassword(val.toString());
+					String auth;
+					if (Arrays.binarySearch(value, '$') >= 0) {
+						auth = token.authInfo + '$' + token.authValue;
+					} else {
+						auth = token.authValue;
+					}
+					if (Arrays.equals(auth.toCharArray(), value))
+						return token;
+					// if (token.matchAuthValue(value))
+					// return token;
 				}
-				if (Arrays.equals(auth.toCharArray(), value))
-					return token;
-				// if (token.matchAuthValue(value))
-				// return token;
 			}
 			return null;
 		} catch (NamingException e) {
