@@ -173,7 +173,7 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 	private void collectRoles(DirectoryUser user, List<Role> allRoles) {
 		Attributes attrs = user.getAttributes();
 		// TODO centralize attribute name
-		Attribute memberOf = attrs.get("memberOf");
+		Attribute memberOf = attrs.get(LdapAttrs.memberOf.name());
 		if (memberOf != null) {
 			try {
 				NamingEnumeration<?> values = memberOf.getAll();

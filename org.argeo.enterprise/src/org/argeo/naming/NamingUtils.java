@@ -4,11 +4,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -21,8 +23,13 @@ public class NamingUtils {
 	private final static DateTimeFormatter utcLdapDate = DateTimeFormatter.ofPattern("uuuuMMddHHmmssX")
 			.withZone(ZoneOffset.UTC);
 
+	/** @return null if not parseable */
 	public static Instant ldapDateToInstant(String ldapDate) {
-		return OffsetDateTime.parse(ldapDate, utcLdapDate).toInstant();
+		try {
+			return OffsetDateTime.parse(ldapDate, utcLdapDate).toInstant();
+		} catch (DateTimeParseException e) {
+			return null;
+		}
 	}
 
 	public static Calendar ldapDateToCalendar(String ldapDate) {
@@ -66,7 +73,8 @@ public class NamingUtils {
 					query_pairs.put(key, new LinkedList<String>());
 				}
 				final String value = idx > 0 && pair.length() > idx + 1
-						? URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8.name()) : null;
+						? URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8.name())
+						: null;
 				query_pairs.get(key).add(value);
 			}
 			return query_pairs;

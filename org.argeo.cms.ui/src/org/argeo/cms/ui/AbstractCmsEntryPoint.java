@@ -1,6 +1,7 @@
 package org.argeo.cms.ui;
 
-import java.io.IOException;
+import static org.argeo.naming.SharedSecret.X_SHARED_SECRET;
+
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,11 +14,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +25,8 @@ import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.naming.AuthPassword;
+import org.argeo.naming.SharedSecret;
 import org.argeo.node.NodeConstants;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
@@ -274,24 +272,28 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 			}
 
 			// auth
-			int colonIndex = prefix.indexOf(':');
+			int colonIndex = prefix.indexOf('$');
 			if (colonIndex > 0) {
-				String user = prefix.substring(0, colonIndex);
-				// if (isAnonymous()) {
-				String token = prefix.substring(colonIndex + 1);
-				LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new CallbackHandler() {
-
-					@Override
-					public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-						for (Callback callback : callbacks) {
-							if (callback instanceof NameCallback)
-								((NameCallback) callback).setName(user);
-							else if (callback instanceof PasswordCallback)
-								((PasswordCallback) callback).setPassword(token.toCharArray());
-						}
-
-					}
-				});
+				// String user = prefix.substring(0, colonIndex);
+				// // if (isAnonymous()) {
+				// String token = prefix.substring(colonIndex + 1);
+				// LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new
+				// CallbackHandler() {
+				//
+				// @Override
+				// public void handle(Callback[] callbacks) throws IOException,
+				// UnsupportedCallbackException {
+				// for (Callback callback : callbacks) {
+				// if (callback instanceof NameCallback)
+				// ((NameCallback) callback).setName(user);
+				// else if (callback instanceof PasswordCallback)
+				// ((PasswordCallback) callback).setPassword(token.toCharArray());
+				// }
+				//
+				// }
+				// });
+				SharedSecret token = new SharedSecret(new AuthPassword(X_SHARED_SECRET + '$' + prefix));
+				LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, token);
 				lc.login();
 				authChange(lc);// sets the node as well
 				// } else {

@@ -1,11 +1,8 @@
 package org.argeo.osgi.useradmin;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -15,9 +12,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -26,8 +21,9 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.naming.AuthPassword;
 import org.argeo.naming.LdapAttrs;
-import org.argeo.naming.NamingUtils;
+import org.argeo.naming.SharedSecret;
 
 /** Directory user implementation */
 class LdifUser implements DirectoryUser {
@@ -78,47 +74,73 @@ class LdifUser implements DirectoryUser {
 	public boolean hasCredential(String key, Object value) {
 		if (key == null) {
 			// TODO check other sources (like PKCS12)
-			String pwd = new String((char[]) value);
+			// String pwd = new String((char[]) value);
+			// authPassword (RFC 312 https://tools.ietf.org/html/rfc3112)
 			char[] password = toChars(value);
+			AuthPassword authPassword = AuthPassword.matchAuthValue(getAttributes(), password);
+			if (authPassword != null) {
+				if (authPassword.getAuthScheme().equals(SharedSecret.X_SHARED_SECRET)) {
+					SharedSecret onceToken = new SharedSecret(authPassword);
+					if (onceToken.isExpired()) {
+						// AuthPassword.remove(getAttributes(), onceToken);
+						return false;
+					} else {
+						// boolean wasRemoved = AuthPassword.remove(getAttributes(), onceToken);
+						return true;
+					}
+					// TODO delete expired tokens?
+				} else {
+					// TODO implement SHA
+					throw new UnsupportedOperationException(
+							"Unsupported authPassword scheme " + authPassword.getAuthScheme());
+				}
+			}
+
+			// Regular password
 			byte[] hashedPassword = hash(password);
 			if (hasCredential(LdapAttrs.userPassword.name(), hashedPassword))
 				return true;
-			if (hasCredential(LdapAttrs.authPassword.name(), pwd))
-				return true;
+			// if (hasCredential(LdapAttrs.authPassword.name(), pwd))
+			// return true;
 			return false;
 		}
 
+		// authPassword (RFC 3112 https://tools.ietf.org/html/rfc3112)
+		// if (key.startsWith(ClientToken.X_CLIENT_TOKEN)) {
+		// return ClientToken.checkAttribute(getAttributes(), key, value);
+		// } else if (key.startsWith(OnceToken.X_ONCE_TOKEN)) {
+		// return OnceToken.checkAttribute(getAttributes(), key, value);
+		// }
+		// StringTokenizer st = new StringTokenizer((String) storedValue, "$ ");
+		// // TODO make it more robust, deal with bad formatting
+		// String authScheme = st.nextToken();
+		// String authInfo = st.nextToken();
+		// String authValue = st.nextToken();
+		// if (authScheme.equals(UriToken.X_URI_TOKEN)) {
+		// UriToken token = new UriToken((String)storedValue);
+		// try {
+		// URI uri = new URI(authInfo);
+		// Map<String, List<String>> query = NamingUtils.queryToMap(uri);
+		// String expiryTimestamp = NamingUtils.getQueryValue(query,
+		// LdapAttrs.modifyTimestamp.name());
+		// if (expiryTimestamp != null) {
+		// Instant expiryOdt = NamingUtils.ldapDateToInstant(expiryTimestamp);
+		// if (expiryOdt.isBefore(Instant.now()))
+		// return false;
+		// } else {
+		// throw new UnsupportedOperationException("An expiry timestamp "
+		// + LdapAttrs.modifyTimestamp.name() + " must be set in the URI query");
+		// }
+		// byte[] hash = Base64.getDecoder().decode(authValue);
+		// byte[] hashedInput = DigestUtils.sha1((authInfo +
+		// value).getBytes(StandardCharsets.US_ASCII));
+		// return Arrays.equals(hash, hashedInput);
+		// } catch (URISyntaxException e) {
+		// throw new UserDirectoryException("Badly formatted " + authInfo, e);
+		// }
+		// }
+
 		Object storedValue = getCredentials().get(key);
-
-		// authPassword (RFC 312 https://tools.ietf.org/html/rfc3112)
-		if (LdapAttrs.authPassword.name().equals(key)) {
-			StringTokenizer st = new StringTokenizer((String) storedValue, "$ ");
-			// TODO make it more robust, deal with bad formatting
-			String authScheme = st.nextToken();
-			String authInfo = st.nextToken();
-			String authValue = st.nextToken();
-			if (authScheme.equals("X-Node-Token")) {
-				try {
-					URI uri = new URI(authInfo);
-					Map<String, List<String>> query = NamingUtils.queryToMap(uri);
-					String expiryTimestamp = NamingUtils.getQueryValue(query, LdapAttrs.modifyTimestamp.name());
-					if (expiryTimestamp != null) {
-						Instant expiryOdt = NamingUtils.ldapDateToInstant(expiryTimestamp);
-						if (expiryOdt.isBefore(Instant.now()))
-							return false;
-					} else {
-						throw new UnsupportedOperationException("An expiry timestamp "
-								+ LdapAttrs.modifyTimestamp.name() + " must be set in the URI query");
-					}
-					byte[] hash = Base64.getDecoder().decode(authValue);
-					byte[] hashedInput = DigestUtils.sha1((authInfo + value).getBytes(StandardCharsets.US_ASCII));
-					return Arrays.equals(hash, hashedInput);
-				} catch (URISyntaxException e) {
-					throw new UserDirectoryException("Badly formatted " + authInfo, e);
-				}
-			}
-		}
-
 		if (storedValue == null || value == null)
 			return false;
 		if (!(value instanceof String || value instanceof byte[]))
@@ -328,6 +350,9 @@ class LdifUser implements DirectoryUser {
 				byte[] hashedPassword = hash(password);
 				return put(LdapAttrs.userPassword.name(), hashedPassword);
 			}
+			if (key.startsWith("X-")) {
+				return put(LdapAttrs.authPassword.name(), value);
+			}
 
 			userAdmin.checkEdit();
 			if (!isEditing())
@@ -343,7 +368,8 @@ class LdifUser implements DirectoryUser {
 
 			try {
 				Attribute attribute = getModifiedAttributes().get(key.toString());
-				attribute = new BasicAttribute(key.toString());
+				if (attribute == null)
+					attribute = new BasicAttribute(key.toString());
 				if (value instanceof String && !isAsciiPrintable(((String) value)))
 					attribute.add(((String) value).getBytes(StandardCharsets.UTF_8));
 				else

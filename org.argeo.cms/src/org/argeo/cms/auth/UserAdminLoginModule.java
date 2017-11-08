@@ -42,7 +42,7 @@ public class UserAdminLoginModule implements LoginModule {
 	private Map<String, Object> sharedState = null;
 
 	private List<String> indexedUserProperties = Arrays
-			.asList(new String[] { LdapAttrs.uid.name(), LdapAttrs.mail.name(), LdapAttrs.cn.name() });
+			.asList(new String[] { LdapAttrs.mail.name(), LdapAttrs.uid.name(), LdapAttrs.authPassword.name() });
 
 	// private state
 	private BundleContext bc;
