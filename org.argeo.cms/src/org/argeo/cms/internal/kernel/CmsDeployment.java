@@ -235,11 +235,11 @@ public class CmsDeployment implements NodeDeployment {
 		}
 		List<BundleCapability> capabilities = wiring.getCapabilities(CMS_DATA_MODEL_NAMESPACE);
 		for (BundleCapability capability : capabilities) {
-			registerCnd(adminSession, capability, processed);
+			registerDataModelCapability(adminSession, capability, processed);
 		}
 	}
 
-	private void registerCnd(Session adminSession, BundleCapability capability, Set<String> processed) {
+	private void registerDataModelCapability(Session adminSession, BundleCapability capability, Set<String> processed) {
 		Map<String, Object> attrs = capability.getAttributes();
 		String name = (String) attrs.get(DataModelNamespace.CAPABILITY_NAME_ATTRIBUTE);
 		if (processed.contains(name)) {
@@ -247,15 +247,21 @@ public class CmsDeployment implements NodeDeployment {
 				log.trace("Data model " + name + " has already been processed");
 			return;
 		}
+
+		// CND
 		String path = (String) attrs.get(DataModelNamespace.CAPABILITY_CND_ATTRIBUTE);
-		URL url = capability.getRevision().getBundle().getResource(path);
-		try (Reader reader = new InputStreamReader(url.openStream())) {
-			CndImporter.registerNodeTypes(reader, adminSession, true);
-			processed.add(name);
-			if (log.isDebugEnabled())
-				log.debug("Registered CND " + url);
-		} catch (Exception e) {
-			throw new CmsException("Cannot import CND " + url, e);
+		if (path != null) {
+			URL url = capability.getRevision().getBundle().getResource(path);
+			if (url == null)
+				throw new CmsException("No data model '" + name + "' found under path " + path);
+			try (Reader reader = new InputStreamReader(url.openStream())) {
+				CndImporter.registerNodeTypes(reader, adminSession, true);
+				processed.add(name);
+				if (log.isDebugEnabled())
+					log.debug("Registered CND " + url);
+			} catch (Exception e) {
+				throw new CmsException("Cannot import CND " + url, e);
+			}
 		}
 
 		if (!asBoolean((String) attrs.get(DataModelNamespace.CAPABILITY_ABSTRACT_ATTRIBUTE))) {
