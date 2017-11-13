@@ -41,8 +41,8 @@ public class UserAdminLoginModule implements LoginModule {
 	private CallbackHandler callbackHandler;
 	private Map<String, Object> sharedState = null;
 
-	private List<String> indexedUserProperties = Arrays
-			.asList(new String[] { LdapAttrs.mail.name(), LdapAttrs.uid.name(), LdapAttrs.authPassword.name() });
+	private List<String> indexedUserProperties = Arrays.asList(
+			new String[] { LdapAttrs.DN, LdapAttrs.mail.name(), LdapAttrs.uid.name(), LdapAttrs.authPassword.name() });
 
 	// private state
 	private BundleContext bc;
