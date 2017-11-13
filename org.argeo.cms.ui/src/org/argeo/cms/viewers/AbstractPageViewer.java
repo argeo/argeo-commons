@@ -1,11 +1,15 @@
 package org.argeo.cms.viewers;
 
+import java.security.AccessControlContext;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.security.auth.Subject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,8 +30,7 @@ import org.eclipse.swt.widgets.Widget;
 import org.xml.sax.SAXParseException;
 
 /** Base class for viewers related to a page */
-public abstract class AbstractPageViewer extends ContentViewer implements
-		Observer {
+public abstract class AbstractPageViewer extends ContentViewer implements Observer {
 	private static final long serialVersionUID = 5438688173410341485L;
 
 	private final static Log log = LogFactory.getLog(AbstractPageViewer.class);
@@ -43,13 +46,13 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 	private EditablePart edited;
 	private ISelection selection = StructuredSelection.EMPTY;
 
-	protected AbstractPageViewer(Section parent, int style,
-			CmsEditable cmsEditable) {
+	private AccessControlContext accessControlContext;
+
+	protected AbstractPageViewer(Section parent, int style, CmsEditable cmsEditable) {
 		// read only at UI level
 		readOnly = SWT.READ_ONLY == (style & SWT.READ_ONLY);
 
-		this.cmsEditable = cmsEditable == null ? CmsEditable.NON_EDITABLE
-				: cmsEditable;
+		this.cmsEditable = cmsEditable == null ? CmsEditable.NON_EDITABLE : cmsEditable;
 		if (this.cmsEditable instanceof Observable)
 			((Observable) this.cmsEditable).addObserver(this);
 
@@ -58,11 +61,11 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 			focusListener = createFocusListener();
 		}
 		page = findPage(parent);
+		accessControlContext = AccessController.getContext();
 	}
 
 	/**
-	 * Can be called to simplify the called to isModelInitialized() and
-	 * initModel()
+	 * Can be called to simplify the called to isModelInitialized() and initModel()
 	 */
 	protected void initModelIfNeeded(Node node) {
 		try {
@@ -141,16 +144,21 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 
 	@Override
 	public void refresh() {
-		try {
-			if (cmsEditable.canEdit() && !readOnly)
-				mouseListener = createMouseListener();
-			else
-				mouseListener = null;
-			refresh(getControl());
-			layout(getControl());
-		} catch (RepositoryException e) {
-			throw new CmsException("Cannot refresh", e);
-		}
+		// TODO check actual context in order to notice a discrepancy
+		Subject viewerSubject = getViewerSubject();
+		Subject.doAs(viewerSubject, (PrivilegedAction<Void>) () -> {
+			try {
+				if (cmsEditable.canEdit() && !readOnly)
+					mouseListener = createMouseListener();
+				else
+					mouseListener = null;
+				refresh(getControl());
+				layout(getControl());
+			} catch (RepositoryException e) {
+				throw new CmsException("Cannot refresh", e);
+			}
+			return null;
+		});
 	}
 
 	@Override
@@ -235,8 +243,7 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 	}
 
 	/**
-	 * Find the first {@link EditablePart} in the parents hierarchy of this
-	 * control
+	 * Find the first {@link EditablePart} in the parents hierarchy of this control
 	 */
 	protected EditablePart findDataParent(Control parent) {
 		if (parent instanceof EditablePart) {
@@ -251,10 +258,8 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 	// UTILITIES
 	/** Check whether the edited part is in a proper state */
 	protected void checkEdited() {
-		if (edited == null || (edited instanceof Widget)
-				&& ((Widget) edited).isDisposed())
-			throw new CmsException(
-					"Edited should not be null or disposed at this stage");
+		if (edited == null || (edited instanceof Widget) && ((Widget) edited).isDisposed())
+			throw new CmsException("Edited should not be null or disposed at this stage");
 	}
 
 	/** Persist all changes. */
@@ -279,6 +284,16 @@ public abstract class AbstractPageViewer extends ContentViewer implements
 		if (log.isTraceEnabled())
 			log.trace("Full stack of " + eToLog.getMessage(), e);
 		// TODO Light error notification popup
+	}
+
+	protected Subject getViewerSubject() {
+		Subject res = null;
+		if (accessControlContext != null) {
+			res = Subject.getSubject(accessControlContext);
+		}
+		if (res == null)
+			throw new CmsException("No subject associated with this viewer");
+		return res;
 	}
 
 	// GETTERS / SETTERS
