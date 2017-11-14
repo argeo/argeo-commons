@@ -13,9 +13,8 @@ org.eclipse.jface.window,\
 org.eclipse.swt,\
 org.eclipse.swt.widgets,\
 org.eclipse.ui.services,\
-org.osgi.framework,\
+org.osgi.*;version=0.0.0,\
 org.springframework.core,\
-org.osgi.util.tracker,\
 org.springframework.beans.factory,\
 org.springframework.core.io.support,\
 !org.eclipse.core.runtime,\
