@@ -75,10 +75,9 @@ public class JcrUtils {
 	 * http://www.day.com/specs/jcr/2.0/3_Repository_Model.html#3.2.2%20Local
 	 * %20Names
 	 */
-	public final static char[] INVALID_NAME_CHARACTERS = { '/', ':', '[', ']', '|',
-			'*', /*
-					 * invalid XML chars :
-					 */
+	public final static char[] INVALID_NAME_CHARACTERS = { '/', ':', '[', ']', '|', '*', /*
+																							 * invalid XML chars :
+																							 */
 			'<', '>', '&' };
 
 	/** Prevents instantiation */
@@ -434,8 +433,8 @@ public class JcrUtils {
 	}
 
 	/**
-	 * Synchronized and save is performed, to avoid race conditions in
-	 * initializers leading to duplicate nodes.
+	 * Synchronized and save is performed, to avoid race conditions in initializers
+	 * leading to duplicate nodes.
 	 */
 	public synchronized static Node mkdirsSafe(Session session, String path, String type) {
 		try {
@@ -468,10 +467,9 @@ public class JcrUtils {
 	}
 
 	/**
-	 * Creates the nodes making path, if they don't exist. This is up to the
-	 * caller to save the session. Use with caution since it can create
-	 * duplicate nodes if used concurrently. Requires read access to the root
-	 * node of the workspace.
+	 * Creates the nodes making path, if they don't exist. This is up to the caller
+	 * to save the session. Use with caution since it can create duplicate nodes if
+	 * used concurrently. Requires read access to the root node of the workspace.
 	 */
 	public static Node mkdirs(Session session, String path, String type, String intermediaryNodeType,
 			Boolean versioning) {
@@ -580,8 +578,7 @@ public class JcrUtils {
 	// }
 
 	/**
-	 * Safe and repository implementation independent registration of a
-	 * namespace.
+	 * Safe and repository implementation independent registration of a namespace.
 	 */
 	public static void registerNamespaceSafely(Session session, String prefix, String uri) {
 		try {
@@ -592,8 +589,7 @@ public class JcrUtils {
 	}
 
 	/**
-	 * Safe and repository implementation independent registration of a
-	 * namespace.
+	 * Safe and repository implementation independent registration of a namespace.
 	 */
 	public static void registerNamespaceSafely(NamespaceRegistry nr, String prefix, String uri) {
 		try {
@@ -710,9 +706,9 @@ public class JcrUtils {
 	 * Copies recursively the content of a node to another one. Do NOT copy the
 	 * property values of {@link NodeType#MIX_CREATED} and
 	 * {@link NodeType#MIX_LAST_MODIFIED}, but update the
-	 * {@link Property#JCR_LAST_MODIFIED} and
-	 * {@link Property#JCR_LAST_MODIFIED_BY} properties if the target node has
-	 * the {@link NodeType#MIX_LAST_MODIFIED} mixin.
+	 * {@link Property#JCR_LAST_MODIFIED} and {@link Property#JCR_LAST_MODIFIED_BY}
+	 * properties if the target node has the {@link NodeType#MIX_LAST_MODIFIED}
+	 * mixin.
 	 */
 	public static void copy(Node fromNode, Node toNode) {
 		try {
@@ -769,8 +765,8 @@ public class JcrUtils {
 	}
 
 	/**
-	 * Check whether all first-level properties (except jcr:* properties) are
-	 * equal. Skip jcr:* properties
+	 * Check whether all first-level properties (except jcr:* properties) are equal.
+	 * Skip jcr:* properties
 	 */
 	public static Boolean allPropertiesEquals(Node reference, Node observed, Boolean onlyCommonProperties) {
 		try {
@@ -803,8 +799,8 @@ public class JcrUtils {
 	}
 
 	/**
-	 * Compare the properties of two nodes. Recursivity to child nodes is not
-	 * yet supported. Skip jcr:* properties.
+	 * Compare the properties of two nodes. Recursivity to child nodes is not yet
+	 * supported. Skip jcr:* properties.
 	 */
 	static void diffPropertiesLevel(Map<String, PropertyDiff> diffs, String baseRelPath, Node reference,
 			Node observed) {
@@ -859,8 +855,7 @@ public class JcrUtils {
 	}
 
 	/**
-	 * Compare only a restricted list of properties of two nodes. No
-	 * recursivity.
+	 * Compare only a restricted list of properties of two nodes. No recursivity.
 	 * 
 	 */
 	public static Map<String, PropertyDiff> diffProperties(Node reference, Node observed, List<String> properties) {
@@ -911,8 +906,8 @@ public class JcrUtils {
 	}
 
 	/**
-	 * Normalizes a name so that it can be stored in contexts not supporting
-	 * names with ':' (typically databases). Replaces ':' by '_'.
+	 * Normalizes a name so that it can be stored in contexts not supporting names
+	 * with ':' (typically databases). Replaces ':' by '_'.
 	 */
 	public static String normalize(String name) {
 		return name.replace(':', '_');
@@ -1007,8 +1002,8 @@ public class JcrUtils {
 	}
 
 	/**
-	 * Creates depth from a string (typically a username) by adding levels based
-	 * on its first characters: "aBcD",2 becomes a/aB
+	 * Creates depth from a string (typically a username) by adding levels based on
+	 * its first characters: "aBcD",2 becomes a/aB
 	 */
 	public static String firstCharsToPath(String str, Integer nbrOfChars) {
 		if (str.length() < nbrOfChars)
@@ -1025,8 +1020,8 @@ public class JcrUtils {
 	}
 
 	/**
-	 * Discards the current changes in the session attached to this node. To be
-	 * used typically in a catch block.
+	 * Discards the current changes in the session attached to this node. To be used
+	 * typically in a catch block.
 	 * 
 	 * @see #discardQuietly(Session)
 	 */
@@ -1053,8 +1048,8 @@ public class JcrUtils {
 	}
 
 	/**
-	 * Login to a workspace with implicit credentials, creates the workspace
-	 * with these credentials if it does not already exist.
+	 * Login to a workspace with implicit credentials, creates the workspace with
+	 * these credentials if it does not already exist.
 	 */
 	public static Session loginOrCreateWorkspace(Repository repository, String workspaceName)
 			throws RepositoryException {
@@ -1112,8 +1107,8 @@ public class JcrUtils {
 	}
 
 	/**
-	 * Quietly unregisters an {@link EventListener} from the udnerlying
-	 * workspace of this node.
+	 * Quietly unregisters an {@link EventListener} from the udnerlying workspace of
+	 * this node.
 	 */
 	public static void unregisterQuietly(Node node, EventListener eventListener) {
 		try {
@@ -1139,13 +1134,13 @@ public class JcrUtils {
 	}
 
 	/**
-	 * If this node is has the {@link NodeType#MIX_LAST_MODIFIED} mixin, it
-	 * updates the {@link Property#JCR_LAST_MODIFIED} property with the current
-	 * time and the {@link Property#JCR_LAST_MODIFIED_BY} property with the
-	 * underlying session user id. In Jackrabbit 2.x,
-	 * <a href="https://issues.apache.org/jira/browse/JCR-2233">these properties
-	 * are not automatically updated</a>, hence the need for manual update. The
-	 * session is not saved.
+	 * If this node is has the {@link NodeType#MIX_LAST_MODIFIED} mixin, it updates
+	 * the {@link Property#JCR_LAST_MODIFIED} property with the current time and the
+	 * {@link Property#JCR_LAST_MODIFIED_BY} property with the underlying session
+	 * user id. In Jackrabbit 2.x,
+	 * <a href="https://issues.apache.org/jira/browse/JCR-2233">these properties are
+	 * not automatically updated</a>, hence the need for manual update. The session
+	 * is not saved.
 	 */
 	public static void updateLastModified(Node node) {
 		try {
@@ -1209,9 +1204,9 @@ public class JcrUtils {
 	}
 
 	/**
-	 * Estimate the sub tree size from current node. Computation is based on the
-	 * Jcr {@link Property#getLength()} method. Note : it is not the exact size
-	 * used on the disk by the current part of the JCR Tree.
+	 * Estimate the sub tree size from current node. Computation is based on the Jcr
+	 * {@link Property#getLength()} method. Note : it is not the exact size used on
+	 * the disk by the current part of the JCR Tree.
 	 */
 
 	public static long getNodeApproxSize(Node node) {
@@ -1254,9 +1249,9 @@ public class JcrUtils {
 	}
 
 	/**
-	 * Add privileges on a path to a {@link Principal}. The path must already
-	 * exist. Session is saved. Synchronized to prevent concurrent modifications
-	 * of the same node.
+	 * Add privileges on a path to a {@link Principal}. The path must already exist.
+	 * Session is saved. Synchronized to prevent concurrent modifications of the
+	 * same node.
 	 */
 	public synchronized static Boolean addPrivileges(Session session, String path, Principal principal,
 			List<Privilege> privs) throws RepositoryException {
@@ -1352,24 +1347,28 @@ public class JcrUtils {
 	 * properties.
 	 * 
 	 * @param recursive
-	 *            if true copies folders as well, otherwise only first level
-	 *            files
+	 *            if true copies folders as well, otherwise only first level files
 	 * @return how many files were copied
 	 */
-	public static Long copyFiles(Node fromNode, Node toNode, Boolean recursive, JcrMonitor monitor) {
+	public static Long copyFiles(Node fromNode, Node toNode, Boolean recursive, JcrMonitor monitor, boolean onlyAdd) {
 		long count = 0l;
 
 		Binary binary = null;
 		InputStream in = null;
 		try {
 			NodeIterator fromChildren = fromNode.getNodes();
-			while (fromChildren.hasNext()) {
+			children: while (fromChildren.hasNext()) {
 				if (monitor != null && monitor.isCanceled())
 					throw new ArgeoJcrException("Copy cancelled before it was completed");
 
 				Node fromChild = fromChildren.nextNode();
 				String fileName = fromChild.getName();
 				if (fromChild.isNodeType(NodeType.NT_FILE)) {
+					if (onlyAdd && toNode.hasNode(fileName)) {
+						monitor.subTask("Skip existing " + fileName);
+						continue children;
+					}
+
 					if (monitor != null)
 						monitor.subTask("Copy " + fileName);
 					binary = fromChild.getNode(Node.JCR_CONTENT).getProperty(Property.JCR_DATA).getBinary();
@@ -1398,7 +1397,7 @@ public class JcrUtils {
 						// save session
 						toNode.getSession().save();
 					}
-					count = count + copyFiles(fromChild, toChildFolder, recursive, monitor);
+					count = count + copyFiles(fromChild, toChildFolder, recursive, monitor, onlyAdd);
 				}
 			}
 			return count;
@@ -1412,8 +1411,8 @@ public class JcrUtils {
 	}
 
 	/**
-	 * Iteratively count all file nodes in subtree, inefficient but can be
-	 * useful when query are poorly supported, such as in remoting.
+	 * Iteratively count all file nodes in subtree, inefficient but can be useful
+	 * when query are poorly supported, such as in remoting.
 	 */
 	public static Long countFiles(Node node) {
 		Long localCount = 0l;
@@ -1432,8 +1431,8 @@ public class JcrUtils {
 	}
 
 	/**
-	 * Copy a file as an nt:file, assuming an nt:folder hierarchy. The session
-	 * is NOT saved.
+	 * Copy a file as an nt:file, assuming an nt:folder hierarchy. The session is
+	 * NOT saved.
 	 * 
 	 * @return the created file node
 	 */
@@ -1463,8 +1462,8 @@ public class JcrUtils {
 	}
 
 	/**
-	 * Copy a stream as an nt:file, assuming an nt:folder hierarchy. The session
-	 * is NOT saved.
+	 * Copy a stream as an nt:file, assuming an nt:folder hierarchy. The session is
+	 * NOT saved.
 	 * 
 	 * @return the created file node
 	 */
