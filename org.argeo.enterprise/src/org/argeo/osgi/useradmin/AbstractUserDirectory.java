@@ -34,7 +34,6 @@ import javax.transaction.TransactionManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.naming.LdapAttrs;
-import org.argeo.naming.LdapObjs;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -297,6 +296,8 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 			AbstractUserDirectory scopedUserAdmin = scope(user);
 			try {
 				DirectoryUser directoryUser = (DirectoryUser) scopedUserAdmin.getRole(user.getName());
+				if (directoryUser == null)
+					throw new UserDirectoryException("No scoped user found for " + user);
 				LdifAuthorization authorization = new LdifAuthorization(directoryUser,
 						scopedUserAdmin.getAllRoles(directoryUser));
 				return authorization;

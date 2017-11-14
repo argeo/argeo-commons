@@ -82,16 +82,19 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	@Override
 	protected AbstractUserDirectory scope(User user) {
 		Dictionary<String, Object> credentials = user.getCredentials();
-		// FIXME use arrays
 		String username = (String) credentials.get(SHARED_STATE_USERNAME);
 		if (username == null)
 			username = user.getName();
-		// byte[] pwd = (byte[]) credentials.get(SHARED_STATE_PASSWORD);
-		// char[] password = DigestUtils.bytesToChars(pwd);
 		Dictionary<String, Object> properties = cloneProperties();
 		properties.put(Context.SECURITY_PRINCIPAL, username.toString());
-		// properties.put(Context.SECURITY_CREDENTIALS, password);
-		properties.put(Context.SECURITY_AUTHENTICATION, "GSSAPI");
+		Object pwdCred = credentials.get(SHARED_STATE_PASSWORD);
+		byte[] pwd = (byte[]) pwdCred;
+		if (pwd != null) {
+			char[] password = DigestUtils.bytesToChars(pwd);
+			properties.put(Context.SECURITY_CREDENTIALS, new String(password));
+		} else {
+			properties.put(Context.SECURITY_AUTHENTICATION, "GSSAPI");
+		}
 		return new LdapUserAdmin(properties);
 	}
 

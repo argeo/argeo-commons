@@ -1,4 +1,4 @@
-package org.argeo.cms.auth;
+package org.argeo.osgi.useradmin;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -15,7 +15,12 @@ import org.osgi.service.useradmin.User;
  * A special user type used during authentication in order to provide the
  * credentials required for scoping the user admin.
  */
-class AuthenticatingUser implements User {
+public class AuthenticatingUser implements User {
+	/** From com.sun.security.auth.module.*LoginModule */
+	public final static String SHARED_STATE_NAME = "javax.security.auth.login.name";
+	/** From com.sun.security.auth.module.*LoginModule */
+	public final static String SHARED_STATE_PWD = "javax.security.auth.login.password";
+
 	private final String name;
 	private final Dictionary<String, Object> credentials;
 
@@ -32,9 +37,9 @@ class AuthenticatingUser implements User {
 	public AuthenticatingUser(String name, char[] password) {
 		this.name = name;
 		credentials = new Hashtable<>();
-		credentials.put(CmsAuthUtils.SHARED_STATE_NAME, name);
+		credentials.put(SHARED_STATE_NAME, name);
 		byte[] pwd = charsToBytes(password);
-		credentials.put(CmsAuthUtils.SHARED_STATE_PWD, pwd);
+		credentials.put(SHARED_STATE_PWD, pwd);
 	}
 
 	@Override
@@ -64,7 +69,6 @@ class AuthenticatingUser implements User {
 		throw new UnsupportedOperationException();
 	}
 
-
 	static byte[] charsToBytes(char[] chars) {
 		CharBuffer charBuffer = CharBuffer.wrap(chars);
 		ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(charBuffer);
@@ -82,6 +86,5 @@ class AuthenticatingUser implements User {
 		Arrays.fill(byteBuffer.array(), (byte) 0); // clear sensitive data
 		return chars;
 	}
-
 
 }

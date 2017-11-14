@@ -23,25 +23,21 @@ import org.argeo.node.NodeConstants;
 import org.argeo.node.security.AnonymousPrincipal;
 import org.argeo.node.security.DataAdminPrincipal;
 import org.argeo.node.security.NodeSecurityUtils;
+import org.argeo.osgi.useradmin.AuthenticatingUser;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
 
 class CmsAuthUtils {
-	/** Shared HTTP request */
-	final static String SHARED_STATE_HTTP_REQUEST = "org.argeo.cms.auth.http.request";
-	/** From org.osgi.service.http.HttpContext */
-	// final static String SHARED_STATE_AUTHORIZATION =
-	// "org.osgi.service.useradmin.authorization";
-	/** From com.sun.security.auth.module.*LoginModule */
-	final static String SHARED_STATE_NAME = "javax.security.auth.login.name";
-	/** From com.sun.security.auth.module.*LoginModule */
-	final static String SHARED_STATE_PWD = "javax.security.auth.login.password";
-
-	final static String SHARED_STATE_SPNEGO_TOKEN = "org.argeo.cms.auth.spnegoToken";
-	final static String SHARED_STATE_SPNEGO_OUT_TOKEN = "org.argeo.cms.auth.spnegoOutToken";
-
+	// Standard
+	final static String SHARED_STATE_NAME = AuthenticatingUser.SHARED_STATE_NAME;
+	final static String SHARED_STATE_PWD = AuthenticatingUser.SHARED_STATE_PWD;
 	final static String HEADER_AUTHORIZATION = "Authorization";
 	final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
+
+	// Argeo specific
+	final static String SHARED_STATE_HTTP_REQUEST = "org.argeo.cms.auth.http.request";
+	final static String SHARED_STATE_SPNEGO_TOKEN = "org.argeo.cms.auth.spnegoToken";
+	final static String SHARED_STATE_SPNEGO_OUT_TOKEN = "org.argeo.cms.auth.spnegoOutToken";
 
 	static void addAuthorization(Subject subject, Authorization authorization, Locale locale,
 			HttpServletRequest request) {

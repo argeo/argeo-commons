@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.naming.LdapAttrs;
+import org.argeo.osgi.useradmin.AuthenticatingUser;
 import org.argeo.osgi.useradmin.IpaUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -41,13 +42,15 @@ public class UserAdminLoginModule implements LoginModule {
 	private CallbackHandler callbackHandler;
 	private Map<String, Object> sharedState = null;
 
-	private List<String> indexedUserProperties = Arrays.asList(
-			new String[] { LdapAttrs.DN, LdapAttrs.mail.name(), LdapAttrs.uid.name(), LdapAttrs.authPassword.name() });
+	private List<String> indexedUserProperties = Arrays
+			.asList(new String[] { LdapAttrs.mail.name(), LdapAttrs.uid.name(), LdapAttrs.authPassword.name() });
 
 	// private state
 	private BundleContext bc;
 	private User authenticatedUser = null;
 	private Locale locale;
+
+	private Authorization bindAuthorization = null;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -105,14 +108,27 @@ public class UserAdminLoginModule implements LoginModule {
 				throw new CredentialNotFoundException("No credentials provided");
 		}
 
-		// User user = userAdmin.getUser(null, username);
 		User user = searchForUser(userAdmin, username);
 		if (user == null)
 			return true;// expect Kerberos
-		// throw new FailedLoginException("Invalid credentials");
-		if (!user.hasCredential(null, password))
+		
+		// try bind first
+		try {
+			AuthenticatingUser authenticatingUser = new AuthenticatingUser(user.getName(), password);
+			bindAuthorization = userAdmin.getAuthorization(authenticatingUser);
+			// TODO check tokens as well
+			if (bindAuthorization != null)
+				return true;
+		} catch (Exception e) {
+			// silent
+			if(log.isTraceEnabled())
+				log.trace("Bind failed", e);
+		}
+		
+		// works only if a connection password is provided
+		if (!user.hasCredential(null, password)) {
 			return false;
-		// throw new FailedLoginException("Invalid credentials");
+		}
 		authenticatedUser = user;
 		return true;
 	}
@@ -123,7 +139,9 @@ public class UserAdminLoginModule implements LoginModule {
 		Authorization authorization;
 		if (callbackHandler == null) {// anonymous
 			authorization = userAdmin.getAuthorization(null);
-		} else {
+		} else if (bindAuthorization != null) {// bind
+			authorization = bindAuthorization;
+		} else {// Kerberos
 			User authenticatingUser;
 			Set<KerberosPrincipal> kerberosPrincipals = subject.getPrincipals(KerberosPrincipal.class);
 			if (kerberosPrincipals.isEmpty()) {
@@ -184,23 +202,26 @@ public class UserAdminLoginModule implements LoginModule {
 			Set<User> collectedUsers = new HashSet<>();
 			// try dn
 			User user = null;
-			try {
-				user = (User) userAdmin.getRole(providedUsername);
-				if (user != null)
-					collectedUsers.add(user);
-			} catch (Exception e) {
-				// silent
-			}
 			// try all indexes
 			for (String attr : indexedUserProperties) {
 				user = userAdmin.getUser(attr, providedUsername);
 				if (user != null)
 					collectedUsers.add(user);
 			}
-			if (collectedUsers.size() == 1)
-				return collectedUsers.iterator().next();
-			else if (collectedUsers.size() > 1)
+			if (collectedUsers.size() == 1) {
+				user = collectedUsers.iterator().next();
+				return user;
+			} else if (collectedUsers.size() > 1) {
 				log.warn(collectedUsers.size() + " users for provided username" + providedUsername);
+			}
+			// try DN as a last resort
+			try {
+				user = (User) userAdmin.getRole(providedUsername);
+				if (user != null)
+					return user;
+			} catch (Exception e) {
+				// silent
+			}
 			return null;
 		} catch (Exception e) {
 			if (log.isTraceEnabled())

@@ -118,7 +118,8 @@ public class AggregatingUserAdmin implements UserAdmin {
 
 	private UserAdmin findUserAdmin(String name) {
 		try {
-			return findUserAdmin(new LdapName(name));
+			UserAdmin userAdmin = findUserAdmin(new LdapName(name));
+			return userAdmin;
 		} catch (InvalidNameException e) {
 			throw new UserDirectoryException("Badly formatted name " + name, e);
 		}
