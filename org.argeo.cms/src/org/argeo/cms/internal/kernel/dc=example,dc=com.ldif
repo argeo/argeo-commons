@@ -4,17 +4,17 @@ objectClass: extensibleObject
 objectClass: top
 dc: example
 
-dn: ou=groups,dc=example,dc=com
+dn: ou=Groups,dc=example,dc=com
 objectClass: organizationalUnit
 objectClass: top
-ou: groups
+ou: Groups
 
-dn: ou=users,dc=example,dc=com
+dn: ou=People,dc=example,dc=com
 objectClass: organizationalUnit
 objectClass: top
-ou: users
+ou: People
 
-dn: uid=demo,ou=users,dc=example,dc=com
+dn: uid=demo,ou=People,dc=example,dc=com
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
 objectClass: person
@@ -27,7 +27,7 @@ sn: User
 uid: demo
 userPassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
 
-dn: uid=root,ou=users,dc=example,dc=com
+dn: uid=root,ou=People,dc=example,dc=com
 objectClass: inetOrgPerson
 objectClass: person
 objectClass: organizationalPerson

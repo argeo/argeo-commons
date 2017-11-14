@@ -12,7 +12,7 @@ dn: cn=admin,ou=roles,ou=node
 objectClass: groupOfNames
 objectClass: top
 cn: admin
-member: uid=root,ou=users,dc=example,dc=com
+member: uid=root,ou=People,dc=example,dc=com
 
 dn: cn=userAdmin,ou=roles,ou=node
 objectClass: groupOfNames
