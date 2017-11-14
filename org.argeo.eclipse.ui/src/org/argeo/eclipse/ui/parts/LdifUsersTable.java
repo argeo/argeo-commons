@@ -66,8 +66,7 @@ public abstract class LdifUsersTable extends Composite {
 	}
 
 	// TODO workaround the bug of the table layout in the Form
-	public LdifUsersTable(Composite parent, int style,
-			boolean preventTableLayout) {
+	public LdifUsersTable(Composite parent, int style, boolean preventTableLayout) {
 		super(parent, SWT.NO_FOCUS);
 		this.tableStyle = style;
 		this.preventTableLayout = preventTableLayout;
@@ -83,8 +82,8 @@ public abstract class LdifUsersTable extends Composite {
 	 * @param addFilter
 	 *            choose to add a field to filter results or not
 	 * @param addSelection
-	 *            choose to add a column to select some of the displayed results
-	 *            or not
+	 *            choose to add a column to select some of the displayed results or
+	 *            not
 	 */
 	public void populate(boolean addFilter, boolean addSelection) {
 		// initialization
@@ -110,8 +109,8 @@ public abstract class LdifUsersTable extends Composite {
 	 * @param showMore
 	 *            display static filters on creation
 	 * @param addSelection
-	 *            choose to add a column to select some of the displayed results
-	 *            or not
+	 *            choose to add a column to select some of the displayed results or
+	 *            not
 	 */
 	public void populateWithStaticFilters(boolean showMore, boolean addSelection) {
 		// initialization
@@ -134,8 +133,7 @@ public abstract class LdifUsersTable extends Composite {
 	/** Enable access to the selected users or groups */
 	public List<User> getSelectedUsers() {
 		if (hasSelectionColumn) {
-			Object[] elements = ((CheckboxTableViewer) usersViewer)
-					.getCheckedElements();
+			Object[] elements = ((CheckboxTableViewer) usersViewer).getCheckedElements();
 
 			List<User> result = new ArrayList<User>();
 			for (Object obj : elements) {
@@ -143,8 +141,8 @@ public abstract class LdifUsersTable extends Composite {
 			}
 			return result;
 		} else
-			throw new EclipseUiException("Unvalid request: no selection column "
-					+ "has been created for the current table");
+			throw new EclipseUiException(
+					"Unvalid request: no selection column " + "has been created for the current table");
 	}
 
 	/** Returns the User table viewer, typically to add doubleclick listener */
@@ -153,8 +151,8 @@ public abstract class LdifUsersTable extends Composite {
 	}
 
 	/**
-	 * Force the refresh of the underlying table using the current filter string
-	 * if relevant
+	 * Force the refresh of the underlying table using the current filter string if
+	 * relevant
 	 */
 	public void refresh() {
 		String filter = hasFilter ? filterTxt.getText().trim() : null;
@@ -218,10 +216,8 @@ public abstract class LdifUsersTable extends Composite {
 	/* MANAGE FILTER */
 	private void createFilterPart(Composite parent) {
 		// Text Area for the filter
-		filterTxt = new Text(parent, SWT.BORDER | SWT.SEARCH | SWT.ICON_SEARCH
-				| SWT.ICON_CANCEL);
-		filterTxt.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
-				| GridData.HORIZONTAL_ALIGN_FILL));
+		filterTxt = new Text(parent, SWT.BORDER | SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL);
+		filterTxt.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
 		filterTxt.addModifyListener(new ModifyListener() {
 			private static final long serialVersionUID = 1L;
 
@@ -236,10 +232,10 @@ public abstract class LdifUsersTable extends Composite {
 		filterComp.setLayout(new GridLayout(2, false));
 		filterComp.setLayoutData(EclipseUiUtils.fillWidth());
 		// generic search
-		filterTxt = new Text(filterComp, SWT.BORDER | SWT.SEARCH
-				| SWT.ICON_SEARCH | SWT.ICON_CANCEL);
-		filterTxt.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
-				| GridData.HORIZONTAL_ALIGN_FILL));
+		filterTxt = new Text(filterComp, SWT.BORDER | SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL);
+		filterTxt.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
+		// filterTxt.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL |
+		// GridData.HORIZONTAL_ALIGN_FILL));
 		filterTxt.addModifyListener(new ModifyListener() {
 			private static final long serialVersionUID = 1L;
 
@@ -254,8 +250,7 @@ public abstract class LdifUsersTable extends Composite {
 		staticFilterCmp.setLayoutData(EclipseUiUtils.fillWidth(2));
 		populateStaticFilters(staticFilterCmp);
 
-		MoreLinkListener listener = new MoreLinkListener(moreLk,
-				staticFilterCmp, showMore);
+		MoreLinkListener listener = new MoreLinkListener(moreLk, staticFilterCmp, showMore);
 		// initialise the layout
 		listener.refresh();
 		moreLk.addSelectionListener(listener);
@@ -274,8 +269,7 @@ public abstract class LdifUsersTable extends Composite {
 		private final Composite staticFilterCmp;
 		private final Link moreLk;
 
-		public MoreLinkListener(Link moreLk, Composite staticFilterCmp,
-				boolean isShown) {
+		public MoreLinkListener(Link moreLk, Composite staticFilterCmp, boolean isShown) {
 			this.moreLk = moreLk;
 			this.staticFilterCmp = staticFilterCmp;
 			this.isShown = isShown;
@@ -332,8 +326,7 @@ public abstract class LdifUsersTable extends Composite {
 		// int offset = 0;
 		if (hasSelectionColumn) {
 			// offset = 1;
-			column = ViewerUtils.createTableViewerColumn(viewer, "", SWT.NONE,
-					25);
+			column = ViewerUtils.createTableViewerColumn(viewer, "", SWT.NONE, 25);
 			column.setLabelProvider(new ColumnLabelProvider() {
 				private static final long serialVersionUID = 1L;
 
@@ -342,8 +335,7 @@ public abstract class LdifUsersTable extends Composite {
 					return null;
 				}
 			});
-			layout.setColumnData(column.getColumn(), new ColumnWeightData(25,
-					25, false));
+			layout.setColumnData(column.getColumn(), new ColumnWeightData(25, 25, false));
 
 			SelectionAdapter selectionAdapter = new SelectionAdapter() {
 				private static final long serialVersionUID = 1L;
@@ -353,8 +345,7 @@ public abstract class LdifUsersTable extends Composite {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					allSelected = !allSelected;
-					((CheckboxTableViewer) usersViewer)
-							.setAllChecked(allSelected);
+					((CheckboxTableViewer) usersViewer).setAllChecked(allSelected);
 				}
 			};
 			column.getColumn().addSelectionListener(selectionAdapter);
@@ -386,8 +377,8 @@ public abstract class LdifUsersTable extends Composite {
 	}
 
 	/** Default creation of a column for a user table */
-	private TableViewerColumn createTableColumn(TableViewer tableViewer,
-			TableColumnLayout layout, ColumnDefinition columnDef) {
+	private TableViewerColumn createTableColumn(TableViewer tableViewer, TableColumnLayout layout,
+			ColumnDefinition columnDef) {
 
 		boolean resizable = true;
 		TableViewerColumn tvc = new TableViewerColumn(tableViewer, SWT.NONE);
@@ -404,8 +395,7 @@ public abstract class LdifUsersTable extends Composite {
 		// .getDisplay());
 		tvc.setLabelProvider(lp);
 
-		layout.setColumnData(column, new ColumnWeightData(
-				columnDef.getWeight(), columnDef.getMinWidth(), resizable));
+		layout.setColumnData(column, new ColumnWeightData(columnDef.getWeight(), columnDef.getMinWidth(), resizable));
 
 		return tvc;
 	}

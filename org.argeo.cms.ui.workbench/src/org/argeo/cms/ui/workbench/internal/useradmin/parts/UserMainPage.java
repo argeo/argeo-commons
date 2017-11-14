@@ -15,6 +15,13 @@
  */
 package org.argeo.cms.ui.workbench.internal.useradmin.parts;
 
+import static org.argeo.cms.util.UserAdminUtils.getProperty;
+import static org.argeo.naming.LdapAttrs.cn;
+import static org.argeo.naming.LdapAttrs.givenName;
+import static org.argeo.naming.LdapAttrs.mail;
+import static org.argeo.naming.LdapAttrs.sn;
+import static org.argeo.naming.LdapAttrs.uid;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -30,7 +37,6 @@ import org.argeo.cms.ui.workbench.internal.useradmin.providers.CommonNameLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.DomainNameLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.RoleIconLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserFilter;
-import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserNameLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserTableDefaultDClickListener;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.util.UserAdminUtils;
@@ -127,27 +133,20 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		Composite body = tk.createComposite(section, SWT.WRAP);
 		body.setLayoutData(EclipseUiUtils.fillAll());
 		section.setClient(body);
-		body.setLayout(new GridLayout(6, false));
+		// body.setLayout(new GridLayout(6, false));
+		body.setLayout(new GridLayout(2, false));
 
-		final Text commonName = createLT(tk, body, "User Name", UserAdminUtils.getProperty(user, LdapAttrs.cn.name()));
-		commonName.setEnabled(false);
-
-		final Text distinguishedName = createLT(tk, body, "Login",
-				UserAdminUtils.getProperty(user, LdapAttrs.uid.name()));
-		distinguishedName.setEnabled(false);
+		Text commonName = createReadOnlyLT(tk, body, "Name", getProperty(user, cn));
+		Text distinguishedName = createReadOnlyLT(tk, body, "Login", getProperty(user, uid));
+		Text firstName = createLT(tk, body, "First name", getProperty(user, givenName));
+		Text lastName = createLT(tk, body, "Last name", getProperty(user, sn));
+		Text email = createLT(tk, body, "Email", getProperty(user, mail));
 
 		Link resetPwdLk = new Link(body, SWT.NONE);
 		if (!UserAdminUtils.isCurrentUser(user)) {
 			resetPwdLk.setText("<a>Reset password</a>");
 		}
 		resetPwdLk.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-
-		final Text firstName = createLT(tk, body, "First name",
-				UserAdminUtils.getProperty(user, LdapAttrs.givenName.name()));
-
-		final Text lastName = createLT(tk, body, "Last name", UserAdminUtils.getProperty(user, LdapAttrs.sn.name()));
-
-		final Text email = createLT(tk, body, "Email", UserAdminUtils.getProperty(user, LdapAttrs.mail.name()));
 
 		// create form part (controller)
 		AbstractFormPart part = new SectionPart((Section) body.getParent()) {
@@ -289,25 +288,26 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		Composite body = (Composite) section.getClient();
 		body.setLayout(EclipseUiUtils.noSpaceGridLayout());
 
-		boolean isAdmin = CurrentUser.isInRole(NodeConstants.ROLE_ADMIN);
+		// boolean isAdmin = CurrentUser.isInRole(NodeConstants.ROLE_ADMIN);
 
 		// Displayed columns
 		List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
 		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 0, 24));
-		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name", 250));
-		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain Name", 120));
+		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name", 150));
+		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain Name", 100));
 		// Only show technical DN to administrators
-		if (isAdmin)
-			columnDefs.add(new ColumnDefinition(new UserNameLP(), "Distinguished Name", 300));
+		// if (isAdmin)
+		// columnDefs.add(new ColumnDefinition(new UserNameLP(), "Distinguished Name",
+		// 300));
 
 		// Create and configure the table
 		final LdifUsersTable userViewerCmp = new MyUserTableViewer(body, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, user);
 
 		userViewerCmp.setColumnDefinitions(columnDefs);
-		if (isAdmin)
-			userViewerCmp.populateWithStaticFilters(false, false);
-		else
-			userViewerCmp.populate(true, false);
+		// if (isAdmin)
+		// userViewerCmp.populateWithStaticFilters(false, false);
+		// else
+		userViewerCmp.populate(true, false);
 		GridData gd = EclipseUiUtils.fillAll();
 		gd.heightHint = 500;
 		userViewerCmp.setLayoutData(gd);
@@ -554,6 +554,17 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		lbl.setFont(EclipseUiUtils.getBoldFont(parent));
 		Text text = toolkit.createText(parent, value, SWT.BORDER);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		CmsUtils.style(text, CmsWorkbenchStyles.WORKBENCH_FORM_TEXT);
+		return text;
+	}
+
+	Text createReadOnlyLT(FormToolkit toolkit, Composite parent, String label, String value) {
+		Label lbl = toolkit.createLabel(parent, label);
+		lbl.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+		lbl.setFont(EclipseUiUtils.getBoldFont(parent));
+		Text text = toolkit.createText(parent, value, SWT.NONE);
+		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		text.setEditable(false);
 		CmsUtils.style(text, CmsWorkbenchStyles.WORKBENCH_FORM_TEXT);
 		return text;
 	}

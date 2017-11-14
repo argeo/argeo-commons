@@ -12,4 +12,10 @@ public class CommonNameLP extends UserAdminAbstractLP {
 	public String getText(User user) {
 		return UserAdminUtils.getProperty(user, LdapAttrs.cn.name());
 	}
+
+	@Override
+	public String getToolTipText(Object element) {
+		return UserAdminUtils.getProperty((User) element, LdapAttrs.DN);
+	}
+
 }

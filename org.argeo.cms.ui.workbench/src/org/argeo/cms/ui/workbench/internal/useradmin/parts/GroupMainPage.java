@@ -38,7 +38,6 @@ import org.argeo.cms.ui.workbench.internal.useradmin.providers.CommonNameLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.MailLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.RoleIconLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserFilter;
-import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserNameLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserTableDefaultDClickListener;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.util.UserAdminUtils;
@@ -132,18 +131,17 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	protected void appendOverviewPart(final Composite parent, final Group group) {
 		FormToolkit tk = getManagedForm().getToolkit();
 		Composite body = addSection(tk, parent);
-		GridLayout layout = new GridLayout(5, false);
+		// GridLayout layout = new GridLayout(5, false);
+		GridLayout layout = new GridLayout(2, false);
 		body.setLayout(layout);
 
-		final Text dnTxt = createLT(body, "DN", group.getName());
-		dnTxt.setEnabled(false);
+		String cn = UserAdminUtils.getProperty(group, LdapAttrs.cn.name());
+		Text cnTxt = createReadOnlyLT(body, "Common Name", cn);
 
-		final String cn = UserAdminUtils.getProperty(group, LdapAttrs.cn.name());
-		final Text cnTxt = createLT(body, "Common Name", cn);
-		cnTxt.setEnabled(false);
+		Text dnTxt = createReadOnlyLT(body, "DN", group.getName());
 
-		final Link markAsWorkgroupLk = new Link(body, SWT.NONE);
-		markAsWorkgroupLk.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		Link markAsWorkgroupLk = new Link(body, SWT.NONE);
+		markAsWorkgroupLk.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
 
 		// Label descLbl = new Label(body, SWT.LEAD);
 		// descLbl.setText("Description");
@@ -248,7 +246,8 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 0, 24));
 		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name", 150));
 		columnDefs.add(new ColumnDefinition(new MailLP(), "Primary Mail", 150));
-		columnDefs.add(new ColumnDefinition(new UserNameLP(), "Distinguished Name", 240));
+		// columnDefs.add(new ColumnDefinition(new UserNameLP(), "Distinguished Name",
+		// 240));
 
 		// Create and configure the table
 		LdifUsersTable userViewerCmp = new MyUserTableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL,
@@ -287,6 +286,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 			Role[] roles = group.getMembers();
 			List<User> users = new ArrayList<User>();
 			userFilter.setSearchText(filter);
+			// userFilter.setShowSystemRole(true);
 			for (Role role : roles)
 				// if (role.getType() == Role.GROUP)
 				if (userFilter.select(null, null, role))
@@ -482,14 +482,27 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	}
 
 	/** Creates label and text. */
-	private Text createLT(Composite parent, String label, String value) {
+//	private Text createLT(Composite parent, String label, String value) {
+//		FormToolkit toolkit = getManagedForm().getToolkit();
+//		Label lbl = toolkit.createLabel(parent, label);
+//		lbl.setLayoutData(new GridData(SWT.LEAD, SWT.CENTER, false, false));
+//		lbl.setFont(EclipseUiUtils.getBoldFont(parent));
+//		Text text = toolkit.createText(parent, value, SWT.BORDER);
+//		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+//		CmsUtils.style(text, CmsWorkbenchStyles.WORKBENCH_FORM_TEXT);
+//		return text;
+//	}
+//	
+	Text createReadOnlyLT(Composite parent, String label, String value) {
 		FormToolkit toolkit = getManagedForm().getToolkit();
 		Label lbl = toolkit.createLabel(parent, label);
 		lbl.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 		lbl.setFont(EclipseUiUtils.getBoldFont(parent));
-		Text text = toolkit.createText(parent, value, SWT.BORDER);
+		Text text = toolkit.createText(parent, value, SWT.NONE);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		text.setEditable(false);
 		CmsUtils.style(text, CmsWorkbenchStyles.WORKBENCH_FORM_TEXT);
 		return text;
 	}
+
 }

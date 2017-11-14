@@ -30,7 +30,6 @@ import org.argeo.cms.ui.workbench.internal.useradmin.providers.CommonNameLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.DomainNameLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.RoleIconLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserDragListener;
-import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserNameLP;
 import org.argeo.cms.ui.workbench.internal.useradmin.providers.UserTableDefaultDClickListener;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
@@ -45,6 +44,7 @@ import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -75,29 +75,27 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 	public void createPartControl(Composite parent) {
 		parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
 
-		boolean isAdmin = CurrentUser.isInRole(NodeConstants.ROLE_ADMIN);
+//		boolean isAdmin = CurrentUser.isInRole(NodeConstants.ROLE_ADMIN);
 
 		// Define the displayed columns
-		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 26));
-		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name",
-				150));
-		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain", 200));
+		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 19));
+		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name", 150));
+		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain", 100));
 		// Only show technical DN to admin
-		if (isAdmin)
-			columnDefs.add(new ColumnDefinition(new UserNameLP(),
-					"Distinguished Name", 300));
+		// if (isAdmin)
+		// columnDefs.add(new ColumnDefinition(new UserNameLP(),
+		// "Distinguished Name", 300));
 
 		// Create and configure the table
-		groupTableViewerCmp = new MyUserTableViewer(parent, SWT.MULTI
-				| SWT.H_SCROLL | SWT.V_SCROLL);
+		groupTableViewerCmp = new MyUserTableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 
 		groupTableViewerCmp.setColumnDefinitions(columnDefs);
-		if (isAdmin)
-			groupTableViewerCmp.populateWithStaticFilters(false, false);
-		else
+//		if (isAdmin)
+//			groupTableViewerCmp.populateWithStaticFilters(false, false);
+//		else
 			groupTableViewerCmp.populate(true, false);
 
-		groupTableViewerCmp.setLayoutData(EclipseUiUtils.fillAll());
+		groupTableViewerCmp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		// Links
 		userViewer = groupTableViewerCmp.getTableViewer();
@@ -110,8 +108,7 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 		// Drag and drop
 		int operations = DND.DROP_COPY | DND.DROP_MOVE;
 		Transfer[] tt = new Transfer[] { TextTransfer.getInstance() };
-		userViewer.addDragSupport(operations, tt, new UserDragListener(
-				userViewer));
+		userViewer.addDragSupport(operations, tt, new UserDragListener(userViewer));
 
 		// // Register a useradmin listener
 		// listener = new UserAdminListener() {
@@ -144,23 +141,22 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 	private class MyUserTableViewer extends LdifUsersTable {
 		private static final long serialVersionUID = 8467999509931900367L;
 
-		private boolean showSystemRoles;
+		private boolean showSystemRoles = true;
 
-		private final String[] knownProps = { LdapAttrs.uid.name(),
-				LdapAttrs.cn.name(), LdapAttrs.DN };
+		private final String[] knownProps = { LdapAttrs.uid.name(), LdapAttrs.cn.name(), LdapAttrs.DN };
 
 		public MyUserTableViewer(Composite parent, int style) {
 			super(parent, style);
+			showSystemRoles = CurrentUser.isInRole(NodeConstants.ROLE_ADMIN);
 		}
 
 		protected void populateStaticFilters(Composite staticFilterCmp) {
 			staticFilterCmp.setLayout(new GridLayout());
-			final Button showSystemRoleBtn = new Button(staticFilterCmp,
-					SWT.CHECK);
+			final Button showSystemRoleBtn = new Button(staticFilterCmp, SWT.CHECK);
 			showSystemRoleBtn.setText("Show system roles");
 			showSystemRoles = CurrentUser.isInRole(NodeConstants.ROLE_ADMIN);
 			showSystemRoleBtn.setSelection(showSystemRoles);
-			
+
 			showSystemRoleBtn.addSelectionListener(new SelectionAdapter() {
 				private static final long serialVersionUID = -7033424592697691676L;
 
@@ -188,39 +184,27 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 						tmpBuilder.append("*)");
 					}
 				if (tmpBuilder.length() > 1) {
-					builder.append("(&(").append(LdapAttrs.objectClass.name())
-							.append("=").append(LdapObjs.groupOfNames.name())
-							.append(")");
+					builder.append("(&(").append(LdapAttrs.objectClass.name()).append("=")
+							.append(LdapObjs.groupOfNames.name()).append(")");
 					if (!showSystemRoles)
-						builder.append("(!(").append(LdapAttrs.DN).append("=*")
-								.append(NodeConstants.ROLES_BASEDN)
+						builder.append("(!(").append(LdapAttrs.DN).append("=*").append(NodeConstants.ROLES_BASEDN)
 								.append("))");
 					builder.append("(|");
 					builder.append(tmpBuilder.toString());
 					builder.append("))");
 				} else {
 					if (!showSystemRoles)
-						builder.append("(&(")
-								.append(LdapAttrs.objectClass.name())
-								.append("=")
-								.append(LdapObjs.groupOfNames.name())
-								.append(")(!(").append(LdapAttrs.DN)
-								.append("=*")
-								.append(NodeConstants.ROLES_BASEDN)
-								.append(")))");
+						builder.append("(&(").append(LdapAttrs.objectClass.name()).append("=")
+								.append(LdapObjs.groupOfNames.name()).append(")(!(").append(LdapAttrs.DN).append("=*")
+								.append(NodeConstants.ROLES_BASEDN).append(")))");
 					else
-						builder.append("(")
-								.append(LdapAttrs.objectClass.name())
-								.append("=")
-								.append(LdapObjs.groupOfNames.name())
-								.append(")");
+						builder.append("(").append(LdapAttrs.objectClass.name()).append("=")
+								.append(LdapObjs.groupOfNames.name()).append(")");
 
 				}
-				roles = userAdminWrapper.getUserAdmin().getRoles(
-						builder.toString());
+				roles = userAdminWrapper.getUserAdmin().getRoles(builder.toString());
 			} catch (InvalidSyntaxException e) {
-				throw new CmsException("Unable to get roles with filter: "
-						+ filter, e);
+				throw new CmsException("Unable to get roles with filter: " + filter, e);
 			}
 			List<User> users = new ArrayList<User>();
 			for (Role role : roles)

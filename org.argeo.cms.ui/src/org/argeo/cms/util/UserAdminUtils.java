@@ -51,8 +51,8 @@ public class UserAdminUtils {
 
 	// OTHER USERS HELPERS
 	/**
-	 * Retrieves the local id of a user or group, that is respectively the uid
-	 * or cn of the passed dn with no {@link UserAdmin}
+	 * Retrieves the local id of a user or group, that is respectively the uid or cn
+	 * of the passed dn with no {@link UserAdmin}
 	 */
 	public static String getUserLocalId(String dn) {
 		LdapName ldapName = getLdapName(dn);
@@ -65,8 +65,8 @@ public class UserAdminUtils {
 	}
 
 	/**
-	 * Returns the local username if no user with this dn is found or if the
-	 * found user has no defined display name
+	 * Returns the local username if no user with this dn is found or if the found
+	 * user has no defined display name
 	 */
 	public static String getUserDisplayName(UserAdmin userAdmin, String dn) {
 		Role user = userAdmin.getRole(dn);
@@ -97,8 +97,8 @@ public class UserAdminUtils {
 
 	// LDAP NAMES HELPERS
 	/**
-	 * Easily retrieves one of the {@link Role}'s property or an empty String if
-	 * the requested property is not defined
+	 * Easily retrieves one of the {@link Role}'s property or an empty String if the
+	 * requested property is not defined
 	 */
 	public final static String getProperty(Role role, String key) {
 		Object obj = role.getProperties().get(key);
@@ -108,9 +108,16 @@ public class UserAdminUtils {
 			return "";
 	}
 
+	public final static String getProperty(Role role, Enum<?> key) {
+		Object obj = role.getProperties().get(key.name());
+		if (obj != null)
+			return (String) obj;
+		else
+			return "";
+	}
+
 	/**
-	 * Simply retrieves a LDAP name from a {@link LdapAttrs.DN} with no
-	 * exception
+	 * Simply retrieves a LDAP name from a {@link LdapAttrs.DN} with no exception
 	 */
 	private static LdapName getLdapName(String dn) {
 		try {
