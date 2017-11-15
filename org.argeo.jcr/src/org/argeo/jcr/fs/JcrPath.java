@@ -31,8 +31,6 @@ public class JcrPath implements Path {
 	private final int hashCode;
 
 	public JcrPath(JcrFileSystem filesSystem, String path) {
-		// this(filesSystem, path.equals("/") ? null : path.split("/"), path ==
-		// null ? true : path.startsWith("/"));
 		this.fs = filesSystem;
 		if (path == null)
 			throw new JcrFsException("Path cannot be null");
@@ -47,6 +45,13 @@ public class JcrPath implements Path {
 			this.hashCode = "".hashCode();
 			return;
 		}
+
+		if (path.equals("~")) {// home
+			path = filesSystem.getUserHomePath();
+			if (path == null)
+				throw new JcrFsException("No home directory available");
+		}
+
 		this.absolute = path.charAt(0) == delimChar ? true : false;
 		String trimmedPath = path.substring(absolute ? 1 : 0,
 				path.charAt(path.length() - 1) == delimChar ? path.length() - 1 : path.length());

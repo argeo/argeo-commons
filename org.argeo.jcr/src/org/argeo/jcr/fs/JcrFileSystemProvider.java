@@ -197,6 +197,9 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 		try {
 			// TODO check if assignable
 			Node node = toNode(path);
+			if(node==null) {
+				throw new JcrFsException("JCR node not found for "+path);
+			}
 			return (A) new JcrBasicfileAttributes(node);
 		} catch (RepositoryException e) {
 			throw new JcrFsException("Cannot read basic attributes of " + path, e);
@@ -264,4 +267,13 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 		return ((JcrPath) path).getNode();
 	}
 
+	/**
+	 * To be overriden in order to support the ~ path, with an implementation
+	 * specific concept of user home.
+	 * 
+	 * @return null by default
+	 */
+	public Node getUserHome(Session session) {
+		return null;
+	}
 }

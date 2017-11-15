@@ -17,6 +17,8 @@ public class JcrBasicfileAttributes implements NodeFileAttributes {
 	private FileTime EPOCH = FileTime.fromMillis(0);
 
 	public JcrBasicfileAttributes(Node node) {
+		if (node == null)
+			throw new JcrFsException("Node underlying the attributes cannot be null");
 		this.node = node;
 	}
 

@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.Session;
 
@@ -17,6 +18,7 @@ import org.argeo.jackrabbit.fs.AbstractJackrabbitFsProvider;
 import org.argeo.jcr.fs.JcrFileSystem;
 import org.argeo.jcr.fs.JcrFsException;
 import org.argeo.node.NodeConstants;
+import org.argeo.node.NodeUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 
@@ -72,5 +74,9 @@ public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 	protected JcrFileSystem currentUserFileSystem() {
 		String username = CurrentUser.getUsername();
 		return fileSystems.get(username);
+	}
+
+	public Node getUserHome(Session session) {
+		return NodeUtils.getUserHome(session);
 	}
 }

@@ -11,6 +11,7 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
@@ -19,11 +20,23 @@ import org.argeo.jcr.JcrUtils;
 public class JcrFileSystem extends FileSystem {
 	private final JcrFileSystemProvider provider;
 	private final Session session;
+	private String userHomePath = null;
 
 	public JcrFileSystem(JcrFileSystemProvider provider, Session session) {
 		super();
 		this.provider = provider;
 		this.session = session;
+		Node userHome = provider.getUserHome(session);
+		if (userHome != null)
+			try {
+				userHomePath = userHome.getPath();
+			} catch (RepositoryException e) {
+				throw new JcrFsException("Cannot retrieve user home path", e);
+			}
+	}
+
+	public String getUserHomePath() {
+		return userHomePath;
 	}
 
 	@Override

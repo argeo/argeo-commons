@@ -21,10 +21,8 @@ import java.nio.file.Path;
 import java.nio.file.spi.FileSystemProvider;
 
 import org.argeo.cms.CmsException;
-import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.eclipse.ui.fs.SimpleFsBrowser;
-import org.argeo.node.NodeConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
@@ -37,18 +35,17 @@ public class NodeFsBrowserView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		if (CurrentUser.isInRole(NodeConstants.ROLE_ADMIN))
-			try {
-				URI uri = new URI("node:///home");
-				FileSystem fileSystem = nodeFileSystemProvider.getFileSystem(uri);
-				if (fileSystem == null)
-					fileSystem = nodeFileSystemProvider.newFileSystem(uri, null);
-				Path nodePath = fileSystem.getPath("/home");
-				SimpleFsBrowser browser = new SimpleFsBrowser(parent, SWT.NO_FOCUS);
-				browser.setInput(nodePath);
-			} catch (Exception e) {
-				throw new CmsException("Cannot open file system browser", e);
-			}
+		try {
+			URI uri = new URI("node:///");
+			FileSystem fileSystem = nodeFileSystemProvider.getFileSystem(uri);
+			if (fileSystem == null)
+				fileSystem = nodeFileSystemProvider.newFileSystem(uri, null);
+			Path nodePath = fileSystem.getPath("~");
+			SimpleFsBrowser browser = new SimpleFsBrowser(parent, SWT.NO_FOCUS);
+			browser.setInput(nodePath);
+		} catch (Exception e) {
+			throw new CmsException("Cannot open file system browser", e);
+		}
 	}
 
 	@Override

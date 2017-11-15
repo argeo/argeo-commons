@@ -75,10 +75,8 @@ public class JcrUtils {
 	 * http://www.day.com/specs/jcr/2.0/3_Repository_Model.html#3.2.2%20Local
 	 * %20Names
 	 */
-	public final static char[] INVALID_NAME_CHARACTERS = { '/', ':', '[', ']', '|', '*', /*
-																							 * invalid XML chars :
-																							 */
-			'<', '>', '&' };
+	public final static char[] INVALID_NAME_CHARACTERS = { '/', ':', '[', ']', '|', '*', /* invalid for XML: */ '<',
+			'>', '&' };
 
 	/** Prevents instantiation */
 	private JcrUtils() {
@@ -949,15 +947,15 @@ public class JcrUtils {
 			return name;
 	}
 
-	/**
-	 * Removes forbidden characters from a path, replacing them with '_'
-	 * 
-	 * @deprecated use {@link #replaceInvalidChars(String)} instead
-	 */
-	public static String removeForbiddenCharacters(String str) {
-		return str.replace('[', '_').replace(']', '_').replace('/', '_').replace('*', '_');
-
-	}
+//	/**
+//	 * Removes forbidden characters from a path, replacing them with '_'
+//	 * 
+//	 * @deprecated use {@link #replaceInvalidChars(String)} instead
+//	 */
+//	public static String removeForbiddenCharacters(String str) {
+//		return str.replace('[', '_').replace(']', '_').replace('/', '_').replace('*', '_');
+//
+//	}
 
 	/** Cleanly disposes a {@link Binary} even if it is null. */
 	public static void closeQuietly(Binary binary) {

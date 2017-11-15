@@ -35,6 +35,9 @@ public class NodeDirectoryStream implements DirectoryStream<Path> {
 				nodes: while (nodeIterator.hasNext()) {
 					try {
 						Node node = nodeIterator.nextNode();
+						String nodeName = node.getName();
+						if (nodeName.startsWith("rep:") || nodeName.startsWith("jcr:"))
+							continue nodes;
 						next = new JcrPath(fs, node);
 						if (filter != null) {
 							if (filter.accept(next))

@@ -165,12 +165,13 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 		}
 		try {
 			// TODO enhance transformation of cn to a valid node name
-			String relPath = cn.replaceAll("[^a-zA-Z0-9]", "_");
+			// String relPath = cn.replaceAll("[^a-zA-Z0-9]", "_");
+			String relPath = JcrUtils.replaceInvalidChars(cn);
 			newWorkgroup = JcrUtils.mkdirs(adminSession.getNode(groupsBasePath), relPath, NodeType.NT_UNSTRUCTURED);
 			newWorkgroup.addMixin(NodeTypes.NODE_GROUP_HOME);
 			newWorkgroup.setProperty(NodeNames.LDAP_CN, cn);
 			adminSession.save();
-			JcrUtils.addPrivilege(adminSession, newWorkgroup.getPath(), dn.toString(), Privilege.JCR_ALL);
+			JcrUtils.addPrivilege(adminSession, newWorkgroup.getPath(), dn.toString(), Privilege.JCR_READ);
 			adminSession.save();
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot create workgroup", e);
