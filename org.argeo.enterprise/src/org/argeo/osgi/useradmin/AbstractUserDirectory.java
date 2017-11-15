@@ -414,15 +414,6 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 		return uri;
 	}
 
-	// protected List<String> getIndexedUserProperties() {
-	// return indexedUserProperties;
-	// }
-	//
-	// protected void setIndexedUserProperties(List<String>
-	// indexedUserProperties) {
-	// this.indexedUserProperties = indexedUserProperties;
-	// }
-
 	private static boolean readOnlyDefault(URI uri) {
 		if (uri == null)
 			return true;
@@ -434,8 +425,11 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 				return !file.canWrite();
 			else
 				return !file.getParentFile().canWrite();
+		} else if (uri.getScheme().equals("ldap")) {
+			if (uri.getAuthority() != null)// assume writable if authenticated
+				return false;
 		}
-		return true;
+		return true;// read only by default
 	}
 
 	public boolean isReadOnly() {

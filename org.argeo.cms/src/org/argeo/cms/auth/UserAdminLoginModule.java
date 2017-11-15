@@ -117,8 +117,10 @@ public class UserAdminLoginModule implements LoginModule {
 			AuthenticatingUser authenticatingUser = new AuthenticatingUser(user.getName(), password);
 			bindAuthorization = userAdmin.getAuthorization(authenticatingUser);
 			// TODO check tokens as well
-			if (bindAuthorization != null)
+			if (bindAuthorization != null) {
+				authenticatedUser = user;
 				return true;
+			}
 		} catch (Exception e) {
 			// silent
 			if(log.isTraceEnabled())
