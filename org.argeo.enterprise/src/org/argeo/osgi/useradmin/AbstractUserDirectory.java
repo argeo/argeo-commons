@@ -181,8 +181,8 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 					LdapName groupDn = new LdapName(value.toString());
 					DirectoryUser group = doGetRole(groupDn);
 					allRoles.add(group);
-					if (log.isDebugEnabled())
-						log.debug("Add memberOf " + groupDn);
+					if (log.isTraceEnabled())
+						log.trace("Add memberOf " + groupDn);
 				}
 			} catch (Exception e) {
 				throw new UserDirectoryException("Cannot get memberOf groups for " + user, e);
@@ -192,8 +192,8 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 				// TODO check for loops
 				DirectoryUser group = doGetRole(groupDn);
 				allRoles.add(group);
-				if (log.isDebugEnabled())
-					log.debug("Add direct group " + groupDn);
+				if (log.isTraceEnabled())
+					log.trace("Add direct group " + groupDn);
 				collectRoles(group, allRoles);
 			}
 		}
