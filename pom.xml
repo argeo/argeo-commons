@@ -110,6 +110,7 @@ limitations under the License.
 					<exclude>build.properties</exclude>
 					<exclude>*.bnd</exclude>
 					<exclude>*.target</exclude>
+					<exclude>**/*.xcf</exclude>
 				</excludes>
 			</resource>
 		</resources>
