@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -35,9 +34,9 @@ public class NamingUtils {
 	public static Calendar ldapDateToCalendar(String ldapDate) {
 		OffsetDateTime instant = OffsetDateTime.parse(ldapDate, utcLdapDate);
 		GregorianCalendar calendar = new GregorianCalendar();
-		calendar.set(calendar.DAY_OF_MONTH, instant.get(ChronoField.DAY_OF_MONTH));
-		calendar.set(calendar.MONTH, instant.get(ChronoField.MONTH_OF_YEAR));
-		calendar.set(calendar.YEAR, instant.get(ChronoField.YEAR));
+		calendar.set(Calendar.DAY_OF_MONTH, instant.get(ChronoField.DAY_OF_MONTH));
+		calendar.set(Calendar.MONTH, instant.get(ChronoField.MONTH_OF_YEAR));
+		calendar.set(Calendar.YEAR, instant.get(ChronoField.YEAR));
 		return calendar;
 	}
 
