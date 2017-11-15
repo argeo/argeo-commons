@@ -293,8 +293,8 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 		// Displayed columns
 		List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
 		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 0, 24));
-		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name", 150));
-		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain Name", 100));
+		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Name", 150));
+		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain", 100));
 		// Only show technical DN to administrators
 		// if (isAdmin)
 		// columnDefs.add(new ColumnDefinition(new UserNameLP(), "Distinguished Name",
@@ -541,7 +541,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 	/** Creates label and password. */
 	Text createLP(FormToolkit toolkit, Composite body, String label, String value) {
 		Label lbl = toolkit.createLabel(body, label);
-		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+		lbl.setLayoutData(new GridData(SWT.LEAD, SWT.CENTER, false, false));
 		Text text = toolkit.createText(body, value, SWT.BORDER | SWT.PASSWORD);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		return text;
@@ -550,7 +550,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 	/** Creates label and text. */
 	Text createLT(FormToolkit toolkit, Composite parent, String label, String value) {
 		Label lbl = toolkit.createLabel(parent, label);
-		lbl.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+		lbl.setLayoutData(new GridData(SWT.LEAD, SWT.CENTER, false, false));
 		lbl.setFont(EclipseUiUtils.getBoldFont(parent));
 		Text text = toolkit.createText(parent, value, SWT.BORDER);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -560,7 +560,7 @@ public class UserMainPage extends FormPage implements ArgeoNames {
 
 	Text createReadOnlyLT(FormToolkit toolkit, Composite parent, String label, String value) {
 		Label lbl = toolkit.createLabel(parent, label);
-		lbl.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+		lbl.setLayoutData(new GridData(SWT.LEAD, SWT.CENTER, false, false));
 		lbl.setFont(EclipseUiUtils.getBoldFont(parent));
 		Text text = toolkit.createText(parent, value, SWT.NONE);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));

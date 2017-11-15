@@ -79,7 +79,7 @@ public class GroupsView extends ViewPart implements ArgeoNames {
 
 		// Define the displayed columns
 		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 19));
-		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name", 150));
+		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Name", 150));
 		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain", 100));
 		// Only show technical DN to admin
 		// if (isAdmin)

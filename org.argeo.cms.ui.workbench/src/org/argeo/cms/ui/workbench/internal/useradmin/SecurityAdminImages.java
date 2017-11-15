@@ -26,7 +26,8 @@
  */
 package org.argeo.cms.ui.workbench.internal.useradmin;
 
-import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
+import static org.argeo.cms.ui.workbench.WorkbenchUiPlugin.getImageDescriptor;
+
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 
@@ -34,15 +35,12 @@ import org.eclipse.swt.graphics.Image;
 public class SecurityAdminImages {
 	private final static String PREFIX = "icons/";
 
-	public final static ImageDescriptor ICON_REMOVE_DESC = WorkbenchUiPlugin
-			.getImageDescriptor(PREFIX + "remove.gif");
-	public final static ImageDescriptor ICON_USER_DESC = WorkbenchUiPlugin
-			.getImageDescriptor(PREFIX + "user.gif");
+	public final static ImageDescriptor ICON_REMOVE_DESC = getImageDescriptor(PREFIX + "remove.gif");
+	public final static ImageDescriptor ICON_USER_DESC = getImageDescriptor(PREFIX + "user.gif");
 
 	public final static Image ICON_USER = ICON_USER_DESC.createImage();
-	public final static Image ICON_GROUP = WorkbenchUiPlugin.getImageDescriptor(
-			PREFIX + "users.gif").createImage();
-	public final static Image ICON_ROLE = WorkbenchUiPlugin.getImageDescriptor(
-			PREFIX + "role.gif").createImage();
+	public final static Image ICON_GROUP = getImageDescriptor(PREFIX + "users.gif").createImage();
+	public final static Image ICON_WORKGROUP = getImageDescriptor(PREFIX + "workgroup.png").createImage();
+	public final static Image ICON_ROLE = getImageDescriptor(PREFIX + "role.gif").createImage();
 
 }

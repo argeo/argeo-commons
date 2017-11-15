@@ -15,6 +15,11 @@
  */
 package org.argeo.cms.ui.workbench.internal.useradmin.parts;
 
+import static org.argeo.cms.util.UserAdminUtils.setProperty;
+import static org.argeo.naming.LdapAttrs.businessCategory;
+import static org.argeo.naming.LdapAttrs.description;
+import static org.argeo.node.NodeInstance.WORKGROUP;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -64,6 +69,7 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
@@ -136,22 +142,24 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		body.setLayout(layout);
 
 		String cn = UserAdminUtils.getProperty(group, LdapAttrs.cn.name());
-		Text cnTxt = createReadOnlyLT(body, "Common Name", cn);
+		createReadOnlyLT(body, "Name", cn);
+		// Text dnTxt = createReadOnlyLT(body, "DN", group.getName());
+		createReadOnlyLT(body, "Domain", UserAdminUtils.getDomainName(group));
 
-		Text dnTxt = createReadOnlyLT(body, "DN", group.getName());
+		// Description
+		Label descLbl = new Label(body, SWT.LEAD);
+		descLbl.setFont(EclipseUiUtils.getBoldFont(body));
+		descLbl.setText("Description");
+		descLbl.setLayoutData(new GridData(SWT.LEAD, SWT.CENTER, false, false, 2, 1));
+		final Text descTxt = new Text(body, SWT.LEAD | SWT.MULTI | SWT.WRAP | SWT.BORDER);
+		GridData gd = EclipseUiUtils.fillAll();
+		gd.heightHint = 50;
+		gd.horizontalSpan = 2;
+		descTxt.setLayoutData(gd);
 
+		// Mark as workgroup
 		Link markAsWorkgroupLk = new Link(body, SWT.NONE);
 		markAsWorkgroupLk.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
-
-		// Label descLbl = new Label(body, SWT.LEAD);
-		// descLbl.setText("Description");
-		// descLbl.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false,
-		// false));
-		// final Text descTxt = new Text(body, SWT.LEAD | SWT.MULTI | SWT.WRAP
-		// | SWT.BORDER);
-		// GridData gd = EclipseUiUtils.fillAll();
-		// gd.heightHint = 100;
-		// descTxt.setLayoutData(gd);
 
 		// create form part (controller)
 		final AbstractFormPart part = new SectionPart((Section) body.getParent()) {
@@ -172,20 +180,21 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 			}
 
 			public void commit(boolean onSave) {
-				// group.getProperties().put(LdapAttrs.description.name(),
-				// descTxt.getText());
+				// group.getProperties().put(LdapAttrs.description.name(), descTxt.getText());
+				setProperty(group, description, descTxt.getText());
 				super.commit(onSave);
 			}
 
 			@Override
 			public void refresh() {
-				dnTxt.setText(group.getName());
-				cnTxt.setText(UserAdminUtils.getProperty(group, LdapAttrs.cn.name()));
+				// dnTxt.setText(group.getName());
+				// cnTxt.setText(UserAdminUtils.getProperty(group, LdapAttrs.cn.name()));
+				descTxt.setText(UserAdminUtils.getProperty(group, LdapAttrs.description.name()));
 				Node workgroupHome = NodeUtils.getGroupHome(session, cn);
 				if (workgroupHome == null)
 					markAsWorkgroupLk.setText("<a>Mark as workgroup</a>");
 				else
-					markAsWorkgroupLk.setText(cn + " is already marked as being a workgroup");
+					markAsWorkgroupLk.setText("Configured as workgroup");
 				parent.layout(true, true);
 				super.refresh();
 			}
@@ -206,6 +215,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 					else
 						try {
 							nodeInstance.createWorkgroup(new LdapName(group.getName()));
+							setProperty(group, businessCategory, WORKGROUP);
 							part.refresh();
 						} catch (InvalidNameException e1) {
 							throw new CmsException("Cannot create Workgroup for " + group.toString(), e1);
@@ -215,16 +225,16 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 			}
 		});
 
-		// ModifyListener defaultListener = editor.new FormPartML(part);
-		// descTxt.addModifyListener(defaultListener);
+		ModifyListener defaultListener = editor.new FormPartML(part);
+		descTxt.addModifyListener(defaultListener);
 		getManagedForm().addPart(part);
 	}
 
 	/** Filtered table with members. Has drag and drop ability */
 	protected void appendMembersPart(Composite parent, Group group) {
-
 		FormToolkit tk = getManagedForm().getToolkit();
 		Section section = tk.createSection(parent, Section.TITLE_BAR);
+		section.setText("Members");
 		section.setLayoutData(EclipseUiUtils.fillAll());
 
 		Composite body = new Composite(section, SWT.NO_FOCUS);
@@ -233,7 +243,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 
 		LdifUsersTable userTableViewerCmp = createMemberPart(body, group);
 
-		SectionPart part = new GroupMembersPart(section, userTableViewerCmp, group);
+		SectionPart part = new GroupMembersPart(section, userTableViewerCmp);
 		getManagedForm().addPart(part);
 		addRemoveAbitily(part, userTableViewerCmp.getTableViewer(), group);
 	}
@@ -244,8 +254,8 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 		// Define the displayed columns
 		List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
 		columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 0, 24));
-		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Common Name", 150));
-		columnDefs.add(new ColumnDefinition(new MailLP(), "Primary Mail", 150));
+		columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Name", 150));
+		columnDefs.add(new ColumnDefinition(new MailLP(), "Mail", 150));
 		// columnDefs.add(new ColumnDefinition(new UserNameLP(), "Distinguished Name",
 		// 240));
 
@@ -282,6 +292,7 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 
 		@Override
 		protected List<User> listFilteredElements(String filter) {
+			// reload user and set it in the editor
 			Group group = (Group) editor.getDisplayedUser();
 			Role[] roles = group.getMembers();
 			List<User> users = new ArrayList<User>();
@@ -356,14 +367,14 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	// LOCAL CONTROLLERS
 	private class GroupMembersPart extends SectionPart {
 		private final LdifUsersTable userViewer;
-		private final Group group;
+		// private final Group group;
 
 		private GroupChangeListener listener;
 
-		public GroupMembersPart(Section section, LdifUsersTable userViewer, Group group) {
+		public GroupMembersPart(Section section, LdifUsersTable userViewer) {
 			super(section);
 			this.userViewer = userViewer;
-			this.group = group;
+			// this.group = group;
 		}
 
 		@Override
@@ -381,7 +392,6 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 
 		@Override
 		public void refresh() {
-			getSection().setText("Members of group " + UserAdminUtils.getProperty(group, LdapAttrs.cn.name()));
 			userViewer.refresh();
 			super.refresh();
 		}
@@ -482,21 +492,21 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 	}
 
 	/** Creates label and text. */
-//	private Text createLT(Composite parent, String label, String value) {
-//		FormToolkit toolkit = getManagedForm().getToolkit();
-//		Label lbl = toolkit.createLabel(parent, label);
-//		lbl.setLayoutData(new GridData(SWT.LEAD, SWT.CENTER, false, false));
-//		lbl.setFont(EclipseUiUtils.getBoldFont(parent));
-//		Text text = toolkit.createText(parent, value, SWT.BORDER);
-//		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-//		CmsUtils.style(text, CmsWorkbenchStyles.WORKBENCH_FORM_TEXT);
-//		return text;
-//	}
-//	
+	// private Text createLT(Composite parent, String label, String value) {
+	// FormToolkit toolkit = getManagedForm().getToolkit();
+	// Label lbl = toolkit.createLabel(parent, label);
+	// lbl.setLayoutData(new GridData(SWT.LEAD, SWT.CENTER, false, false));
+	// lbl.setFont(EclipseUiUtils.getBoldFont(parent));
+	// Text text = toolkit.createText(parent, value, SWT.BORDER);
+	// text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+	// CmsUtils.style(text, CmsWorkbenchStyles.WORKBENCH_FORM_TEXT);
+	// return text;
+	// }
+	//
 	Text createReadOnlyLT(Composite parent, String label, String value) {
 		FormToolkit toolkit = getManagedForm().getToolkit();
 		Label lbl = toolkit.createLabel(parent, label);
-		lbl.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+		lbl.setLayoutData(new GridData(SWT.LEAD, SWT.CENTER, false, false));
 		lbl.setFont(EclipseUiUtils.getBoldFont(parent));
 		Text text = toolkit.createText(parent, value, SWT.NONE);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));

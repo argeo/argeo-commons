@@ -116,6 +116,15 @@ public class UserAdminUtils {
 			return "";
 	}
 
+	@SuppressWarnings("unchecked")
+	public final static void setProperty(Role role, String key, String value) {
+		role.getProperties().put(key, value);
+	}
+
+	public final static void setProperty(Role role, Enum<?> key, String value) {
+		setProperty(role, key.name(), value);
+	}
+
 	/**
 	 * Simply retrieves a LDAP name from a {@link LdapAttrs.DN} with no exception
 	 */
@@ -133,6 +142,7 @@ public class UserAdminUtils {
 		if (dn.endsWith(NodeConstants.ROLES_BASEDN))
 			return "System roles";
 		try {
+			// FIXME deal with non-DC
 			LdapName name = new LdapName(dn);
 			List<Rdn> rdns = name.getRdns();
 			String dname = null;

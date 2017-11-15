@@ -1,7 +1,10 @@
 package org.argeo.cms.ui.workbench.internal.useradmin.providers;
 
 import org.argeo.cms.ui.workbench.internal.useradmin.SecurityAdminImages;
+import org.argeo.cms.util.UserAdminUtils;
+import org.argeo.naming.LdapAttrs;
 import org.argeo.node.NodeConstants;
+import org.argeo.node.NodeInstance;
 import org.eclipse.swt.graphics.Image;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
@@ -21,9 +24,12 @@ public class RoleIconLP extends UserAdminAbstractLP {
 		String dn = user.getName();
 		if (dn.endsWith(NodeConstants.ROLES_BASEDN))
 			return SecurityAdminImages.ICON_ROLE;
-		else if (user.getType() == Role.GROUP)
+		else if (user.getType() == Role.GROUP) {
+			String businessCategory = UserAdminUtils.getProperty(user, LdapAttrs.businessCategory);
+			if (businessCategory != null && businessCategory.equals(NodeInstance.WORKGROUP))
+				return SecurityAdminImages.ICON_WORKGROUP;
 			return SecurityAdminImages.ICON_GROUP;
-		else
+		} else
 			return SecurityAdminImages.ICON_USER;
 	}
 }

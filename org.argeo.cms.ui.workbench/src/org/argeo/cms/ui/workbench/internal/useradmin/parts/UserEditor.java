@@ -68,14 +68,14 @@ public class UserEditor extends FormEditor {
 		username = ((UserEditorInput) getEditorInput()).getUsername();
 		user = (User) userAdmin.getRole(username);
 
-		listener = new NameChangeListener(site.getShell().getDisplay(), user);
+		listener = new NameChangeListener(site.getShell().getDisplay());
 		userAdminWrapper.addListener(listener);
 		updateEditorTitle(null);
 	}
 
 	/**
-	 * returns the list of all authorization for the given user or of the
-	 * current displayed user if parameter is null
+	 * returns the list of all authorization for the given user or of the current
+	 * displayed user if parameter is null
 	 */
 	protected List<User> getFlatGroups(User aUser) {
 		Authorization currAuth;
@@ -98,6 +98,10 @@ public class UserEditor extends FormEditor {
 	/** Exposes the user (or group) that is displayed by the current editor */
 	protected User getDisplayedUser() {
 		return user;
+	}
+
+	private void setDisplayedUser(User user) {
+		this.user = user;
 	}
 
 	void updateEditorTitle(String title) {
@@ -146,19 +150,18 @@ public class UserEditor extends FormEditor {
 	// CONTROLERS FOR THIS EDITOR AND ITS PAGES
 
 	private class NameChangeListener extends UiUserAdminListener {
-
-		private final User user;
-
-		public NameChangeListener(Display display, User user) {
+		public NameChangeListener(Display display) {
 			super(display);
-			this.user = user;
 		}
 
 		@Override
 		public void roleChangedToUiThread(UserAdminEvent event) {
 			Role changedRole = event.getRole();
-			if (changedRole == null || changedRole.equals(user))
+			if (changedRole == null || changedRole.equals(user)) {
 				updateEditorTitle(null);
+				User reloadedUser = (User) userAdminWrapper.getUserAdmin().getRole(user.getName());
+				setDisplayedUser(reloadedUser);
+			}
 		}
 	}
 
