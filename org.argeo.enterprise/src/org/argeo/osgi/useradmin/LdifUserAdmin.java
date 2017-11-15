@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -50,17 +51,29 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 		super(uri, properties);
 	}
 
-	@Deprecated
-	public LdifUserAdmin(InputStream in) {
-		super(null, new Hashtable<String, Object>());
-		load(in);
-	}
-
+	@SuppressWarnings("unchecked")
 	@Override
 	protected AbstractUserDirectory scope(User user) {
+		Dictionary<String, Object> credentials = user.getCredentials();
+		String username = (String) credentials.get(SHARED_STATE_USERNAME);
+		if (username == null)
+			username = user.getName();
+		Object pwdCred = credentials.get(SHARED_STATE_PASSWORD);
+		byte[] pwd = (byte[]) pwdCred;
+		if (pwd != null) {
+			char[] password = DigestUtils.bytesToChars(pwd);
+			User directoryUser = (User) getRole(username);
+			if (!directoryUser.hasCredential(null, password))
+				throw new UserDirectoryException("Invalid credentials");
+		} else {
+			throw new UserDirectoryException("Password is required");
+		}
 		Dictionary<String, Object> properties = cloneProperties();
 		properties.put(UserAdminConf.readOnly.name(), "true");
-		return new LdifUserAdmin(properties);
+		LdifUserAdmin scopedUserAdmin = new LdifUserAdmin(properties);
+		scopedUserAdmin.groups = Collections.unmodifiableSortedMap(groups);
+		scopedUserAdmin.users = Collections.unmodifiableSortedMap(users);
+		return scopedUserAdmin;
 	}
 
 	private static Dictionary<String, Object> fromUri(String uri, String baseDn) {
@@ -149,9 +162,7 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	public void destroy() {
 		if (users == null || groups == null)
 			throw new UserDirectoryException("User directory " + getBaseDn() + " is already destroyed");
-		users.clear();
 		users = null;
-		groups.clear();
 		groups = null;
 	}
 
@@ -177,13 +188,6 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 			res.addAll(groups.values());
 		} else {
 			for (DirectoryUser user : users.values()) {
-				// System.out.println("\n" + user.getName());
-				// Dictionary<String, Object> props = user.getProperties();
-				// for (Enumeration<String> keys = props.keys(); keys
-				// .hasMoreElements();) {
-				// String key = keys.nextElement();
-				// System.out.println(" " + key + "=" + props.get(key));
-				// }
 				if (f.match(user.getProperties()))
 					res.add(user);
 			}
