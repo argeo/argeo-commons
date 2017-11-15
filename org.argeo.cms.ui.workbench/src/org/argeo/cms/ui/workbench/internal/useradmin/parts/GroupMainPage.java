@@ -214,8 +214,13 @@ public class GroupMainPage extends FormPage implements ArgeoNames {
 						return; // already marked as workgroup, do nothing
 					else
 						try {
+							// improve transaction management
+							userAdminWrapper.beginTransactionIfNeeded();
 							nodeInstance.createWorkgroup(new LdapName(group.getName()));
 							setProperty(group, businessCategory, WORKGROUP);
+							userAdminWrapper.commitOrNotifyTransactionStateChange();
+							userAdminWrapper
+									.notifyListeners(new UserAdminEvent(null, UserAdminEvent.ROLE_CHANGED, group));
 							part.refresh();
 						} catch (InvalidNameException e1) {
 							throw new CmsException("Cannot create Workgroup for " + group.toString(), e1);
