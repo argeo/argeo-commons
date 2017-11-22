@@ -8,6 +8,11 @@ public class SharedSecret extends AuthPassword {
 	public final static String X_SHARED_SECRET = "X-SharedSecret";
 	private final Instant expiry;
 
+	public SharedSecret(String authInfo, String authValue) {
+		super(authInfo, authValue);
+		expiry = null;
+	}
+
 	public SharedSecret(AuthPassword authPassword) {
 		super(authPassword);
 		String authInfo = getAuthInfo();
