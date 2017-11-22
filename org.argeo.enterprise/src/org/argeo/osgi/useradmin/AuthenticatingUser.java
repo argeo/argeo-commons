@@ -1,9 +1,5 @@
 package org.argeo.osgi.useradmin;
 
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
@@ -38,7 +34,7 @@ public class AuthenticatingUser implements User {
 		this.name = name;
 		credentials = new Hashtable<>();
 		credentials.put(SHARED_STATE_NAME, name);
-		byte[] pwd = charsToBytes(password);
+		byte[] pwd = DigestUtils.charsToBytes(password);
 		credentials.put(SHARED_STATE_PWD, pwd);
 	}
 
@@ -67,24 +63,6 @@ public class AuthenticatingUser implements User {
 	@Override
 	public boolean hasCredential(String key, Object value) {
 		throw new UnsupportedOperationException();
-	}
-
-	static byte[] charsToBytes(char[] chars) {
-		CharBuffer charBuffer = CharBuffer.wrap(chars);
-		ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(charBuffer);
-		byte[] bytes = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
-		Arrays.fill(charBuffer.array(), '\u0000'); // clear sensitive data
-		Arrays.fill(byteBuffer.array(), (byte) 0); // clear sensitive data
-		return bytes;
-	}
-
-	static char[] bytesToChars(byte[] bytes) {
-		ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-		CharBuffer charBuffer = Charset.forName("UTF-8").decode(byteBuffer);
-		char[] chars = Arrays.copyOfRange(charBuffer.array(), charBuffer.position(), charBuffer.limit());
-		Arrays.fill(charBuffer.array(), '\u0000'); // clear sensitive data
-		Arrays.fill(byteBuffer.array(), (byte) 0); // clear sensitive data
-		return chars;
 	}
 
 }
