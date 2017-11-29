@@ -177,9 +177,14 @@ class NodeLogger implements ArgeoLogger, LogListener {
 			// }
 			// servlets
 			Object whiteBoardPattern = sr.getProperty(KernelConstants.WHITEBOARD_PATTERN_PROP);
-			if (whiteBoardPattern != null)
-				sb.append(" " + KernelConstants.WHITEBOARD_PATTERN_PROP + ": "
-						+ arrayToString((String[]) whiteBoardPattern));
+			if (whiteBoardPattern != null) {
+				if (whiteBoardPattern instanceof String) {
+					sb.append(" " + KernelConstants.WHITEBOARD_PATTERN_PROP + ": " + whiteBoardPattern);
+				} else {
+					sb.append(" " + KernelConstants.WHITEBOARD_PATTERN_PROP + ": "
+							+ arrayToString((String[]) whiteBoardPattern));
+				}
+			}
 			// RWT
 			Object contextName = sr.getProperty(KernelConstants.CONTEXT_NAME_PROP);
 			if (contextName != null)
