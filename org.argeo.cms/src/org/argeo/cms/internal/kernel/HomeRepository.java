@@ -171,7 +171,7 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 			newWorkgroup.addMixin(NodeTypes.NODE_GROUP_HOME);
 			newWorkgroup.setProperty(NodeNames.LDAP_CN, cn);
 			adminSession.save();
-			JcrUtils.addPrivilege(adminSession, newWorkgroup.getPath(), dn.toString(), Privilege.JCR_READ);
+			JcrUtils.addPrivilege(adminSession, newWorkgroup.getPath(), dn.toString(), Privilege.JCR_ALL);
 			adminSession.save();
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot create workgroup", e);
