@@ -344,12 +344,12 @@
         	<toolbar id="org.argeo.cms.ui.workbench.userToolbar">
 				<command
 					commandId="org.argeo.cms.ui.workbench.rap.mainMenuCommand"
-					icon="icons/home.gif"
+					icon="icons/home.png"
 					id="org.argeo.cms.ui.workbench.rap.mainMenu"
 					style="pulldown">
 				</command>
-				<command commandId="org.eclipse.ui.file.save"/>
-				<command commandId="org.eclipse.ui.file.saveAll"/>
+				<command commandId="org.eclipse.ui.file.save" icon="icons/save.png"/>
+				<command commandId="org.eclipse.ui.file.saveAll" icon="icons/save-all.png"/>
 			</toolbar>
 		</menuContribution>
 		
@@ -389,7 +389,7 @@
             locationURI="toolbar:org.argeo.cms.ui.workbench.usersView">
             <command
                   commandId="org.argeo.cms.ui.workbench.deleteUsers"
-                  icon="icons/remove.gif"
+                  icon="icons/delete.png"
                   label="Delete User"
                   tooltip="Delete selected users">
             </command>
@@ -401,7 +401,7 @@
             </command>
             <command
                   commandId="org.argeo.cms.ui.workbench.newUser"
-                  icon="icons/add.gif"
+                  icon="icons/add.png"
                   label="Add User"
                   tooltip="Create a new user">
             </command>

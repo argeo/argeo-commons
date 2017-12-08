@@ -99,11 +99,11 @@
 			<command
 				commandId="org.eclipse.ui.file.closeAll"
 				icon="icons/closeAll.gif"/>
-			<command commandId="org.eclipse.ui.file.save"/>
-			<command commandId="org.eclipse.ui.file.saveAll"/>
+			<command commandId="org.eclipse.ui.file.save" icon="icons/save.png"/>
+			<command commandId="org.eclipse.ui.file.saveAll" icon="icons/save-all.png"/>
 	
 			<!--<command commandId="org.eclipse.ui.views.showView"/>-->
-    		<!--<command commandId="org.eclipse.ui.perspectives.showPerspective"/>-->
+    		<command commandId="org.eclipse.ui.perspectives.showPerspective"/>
 			<separator
 				name="org.argeo.cms.ui.workbench.rap.beforeExit"
 				visible="true">
