@@ -7,7 +7,7 @@ public enum FormStyle {
 	// main part
 	header, headerBtn, headerCombo, section, sectionHeader,
 	// Property fields
-	propertyLabel, propertyText, propertyMessage,
+	propertyLabel, propertyText, propertyMessage, errorMessage,
 	// Date
 	popupCalendar,
 	// Buttons
