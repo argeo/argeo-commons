@@ -81,7 +81,7 @@
 			     the display of the current logged-in user id -->
 			<command
 				commandId="org.argeo.cms.ui.workbench.rap.userMenuCommand"
-				icon="icons/main.gif"
+				icon="icons/person-logged-in.png"
 				id="org.argeo.cms.ui.workbench.rap.userMenu">
 			</command>
 			<!-- Still unused
@@ -96,9 +96,7 @@
 				name="org.argeo.cms.ui.workbench.rap.beforeFile"
 				visible="true">
 			</separator>
-			<command
-				commandId="org.eclipse.ui.file.closeAll"
-				icon="icons/closeAll.gif"/>
+			<command commandId="org.eclipse.ui.file.closeAll" icon="icons/close-all.png"/>
 			<command commandId="org.eclipse.ui.file.save" icon="icons/save.png"/>
 			<command commandId="org.eclipse.ui.file.saveAll" icon="icons/save-all.png"/>
 	

@@ -16,8 +16,8 @@ public class FileIconNameLabelProvider extends ColumnLabelProvider {
 
 	public FileIconNameLabelProvider() {
 		// if (!PlatformUI.isWorkbenchRunning()) {
-		folderIcon = ImageDescriptor.createFromFile(getClass(), "fldr_obj.gif").createImage();
-		fileIcon = ImageDescriptor.createFromFile(getClass(), "file_obj.gif").createImage();
+		folderIcon = ImageDescriptor.createFromFile(getClass(), "folder.png").createImage();
+		fileIcon = ImageDescriptor.createFromFile(getClass(), "file.png").createImage();
 		// }
 	}
 

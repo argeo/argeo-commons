@@ -12,7 +12,7 @@
       <perspective
             id="org.argeo.cms.ui.workbench.userHomePerspective"
             class="org.argeo.cms.ui.workbench.UserHomePerspective"
-            icon="icons/home.gif"
+            icon="icons/home.png"
             name="Home">
       </perspective>
       <perspective
