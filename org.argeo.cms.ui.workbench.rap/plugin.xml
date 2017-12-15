@@ -90,7 +90,7 @@
 				icon="icons/preferences.png"/> -->
         	<command
 				commandId="org.argeo.cms.ui.workbench.rap.openChangePasswordDialog"
-				icon="icons/password.gif"
+				icon="icons/security.gif"
 				label="%changePassword"/>
 			<separator
 				name="org.argeo.cms.ui.workbench.rap.beforeFile"

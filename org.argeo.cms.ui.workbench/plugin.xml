@@ -6,7 +6,7 @@
       <perspective
             id="org.argeo.cms.ui.workbench.adminSecurityPerspective"
             class="org.argeo.cms.ui.workbench.SecurityAdminPerspective"
-            icon="icons/security.gif"
+            icon="icons/group.png"
             name="Security">
       </perspective>
       <perspective
@@ -70,13 +70,13 @@
 		<view
 			id="org.argeo.cms.ui.workbench.usersView"
 			class="org.argeo.eclipse.spring.SpringExtensionFactory"
-			icon="icons/users.gif"
+			icon="icons/person.png"
 			name="Users"
 			restorable="true">
 		</view>
 		<view
 			class="org.argeo.eclipse.spring.SpringExtensionFactory"
-			icon="icons/role.gif"
+			icon="icons/group.png"
 			id="org.argeo.cms.ui.workbench.groupsView"
 			name="Groups"
 			restorable="false">
@@ -85,7 +85,7 @@
 		<view
 			id="org.argeo.cms.ui.workbench.userProfile"
 			class="org.argeo.cms.ui.workbench.useradmin.UserProfile"
-			icon="icons/user.gif"
+			icon="icons/person-logged-in.png"
 			name="Profile"
 			restorable="true">
 		</view>
@@ -152,14 +152,14 @@
 			class="org.argeo.eclipse.spring.SpringExtensionFactory"
             id="org.argeo.cms.ui.workbench.userEditor"
             name="User"
-            icon="icons/user.gif"
+            icon="icons/person.png"
             default="false">
 		</editor>
 		<editor
 			class="org.argeo.eclipse.spring.SpringExtensionFactory"
             id="org.argeo.cms.ui.workbench.groupEditor"
             name="User"
-            icon="icons/users.gif"
+            icon="icons/group.png"
             default="false">
 		</editor>
 		<!-- Data Explorer -->
@@ -390,19 +390,19 @@
             <command
                   commandId="org.argeo.cms.ui.workbench.deleteUsers"
                   icon="icons/delete.png"
-                  label="Delete User"
+                  label="Delete"
                   tooltip="Delete selected users">
             </command>
             <command
                   commandId="org.argeo.cms.ui.workbench.forceRefresh"
                   icon="icons/refresh.png"
-                  label="Refresh list"
+                  label="Refresh"
                   tooltip="Force the full refresh of the user list">
             </command>
             <command
                   commandId="org.argeo.cms.ui.workbench.newUser"
                   icon="icons/add.png"
-                  label="Add User"
+                  label="Add"
                   tooltip="Create a new user">
             </command>
             <command
@@ -418,7 +418,7 @@
             locationURI="toolbar:org.argeo.cms.ui.workbench.groupsView">
             <command
                   commandId="org.argeo.cms.ui.workbench.deleteGroups"
-                  icon="icons/remove.gif"
+                  icon="icons/delete.png"
                   label="Delete Group"
                   tooltip="Delete selected groups">
             </command>
@@ -430,7 +430,7 @@
             </command>
             <command
                   commandId="org.argeo.cms.ui.workbench.newGroup"
-                  icon="icons/add.gif"
+                  icon="icons/add.png"
                   label="Add Group"
                   tooltip="Create a new group">
             </command>

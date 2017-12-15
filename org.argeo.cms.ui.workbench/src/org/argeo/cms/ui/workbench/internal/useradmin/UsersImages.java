@@ -23,11 +23,11 @@ public class UsersImages {
 	private final static String PREFIX = "icons/";
 
 	public final static Image ICON_USER = WorkbenchUiPlugin.getImageDescriptor(
-			PREFIX + "user.gif").createImage();
+			PREFIX + "person.png").createImage();
 	public final static Image ICON_GROUP = WorkbenchUiPlugin.getImageDescriptor(
-			PREFIX + "users.gif").createImage();
+			PREFIX + "group.png").createImage();
 	public final static Image ICON_ROLE = WorkbenchUiPlugin.getImageDescriptor(
 			PREFIX + "role.gif").createImage();
 	public final static Image ICON_CHANGE_PASSWORD = WorkbenchUiPlugin.getImageDescriptor(
-			PREFIX + "changePassword.gif").createImage();
+			PREFIX + "security.gif").createImage();
 }
