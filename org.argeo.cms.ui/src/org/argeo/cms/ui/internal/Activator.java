@@ -1,10 +1,6 @@
 package org.argeo.cms.ui.internal;
 
-import org.argeo.cms.maintenance.MaintenanceUi;
-import org.argeo.cms.ui.internal.rwt.UserUi;
 import org.argeo.node.NodeState;
-import org.argeo.util.LangUtils;
-import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
@@ -19,9 +15,9 @@ public class Activator implements BundleActivator {
 	// @Override
 	public void start(BundleContext bc) throws Exception {
 		// UI
-		bc.registerService(ApplicationConfiguration.class, new MaintenanceUi(),
-				LangUtils.dico(CONTEXT_NAME_PROP, "system"));
-		bc.registerService(ApplicationConfiguration.class, new UserUi(), LangUtils.dico(CONTEXT_NAME_PROP, "user"));
+//		bc.registerService(ApplicationConfiguration.class, new MaintenanceUi(),
+//				LangUtils.dico(CONTEXT_NAME_PROP, "system"));
+//		bc.registerService(ApplicationConfiguration.class, new UserUi(), LangUtils.dico(CONTEXT_NAME_PROP, "user"));
 
 		nodeState = new ServiceTracker<>(bc, NodeState.class, null);
 		nodeState.open();
