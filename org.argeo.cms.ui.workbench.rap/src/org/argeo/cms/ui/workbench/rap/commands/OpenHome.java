@@ -35,8 +35,10 @@ public class OpenHome extends AbstractHandler {
 			CommandUtils.callCommand(defaultCmdId);
 		else {
 			try {
+				String defaultPerspective = HandlerUtil.getActiveWorkbenchWindow(event).getWorkbench()
+						.getPerspectiveRegistry().getDefaultPerspective();
 				HandlerUtil.getActiveSite(event).getWorkbenchWindow()
-						.openPage(UserHomePerspective.ID, null);
+						.openPage(defaultPerspective != null ? defaultPerspective : UserHomePerspective.ID, null);
 			} catch (WorkbenchException e) {
 				ErrorFeedback.show("Cannot open home perspective", e);
 			}

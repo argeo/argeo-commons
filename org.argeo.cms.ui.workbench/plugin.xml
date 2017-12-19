@@ -339,7 +339,7 @@
 	<!-- MENU CONTRIBUTIONS -->
 	<extension
 		point="org.eclipse.ui.menus">
-    	<!-- Main tool bar menu -->
+    	<!-- Main tool bar menu
     	<menuContribution locationURI="toolbar:org.eclipse.ui.main.toolbar">
         	<toolbar id="org.argeo.cms.ui.workbench.userToolbar">
 				<command
@@ -352,7 +352,7 @@
 				<command commandId="org.eclipse.ui.file.saveAll" icon="icons/save-all.png"/>
 			</toolbar>
 		</menuContribution>
-		
+		-->
 		<menuContribution
 			locationURI="toolbar:org.argeo.cms.ui.workbench.userToolbar?after=org.eclipse.ui.file.saveAll"> 
 			<!-- Transaction management --> 
