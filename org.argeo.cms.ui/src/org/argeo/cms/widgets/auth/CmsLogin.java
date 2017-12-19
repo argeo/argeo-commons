@@ -149,7 +149,6 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 
 		Integer textWidth = 120;
 		CmsUtils.style(parent, CMS_USER_MENU);
-
 		// new Label(this, SWT.NONE).setText(CmsMsg.username.lead());
 		usernameT = new Text(credentialsBlock, SWT.BORDER);
 		usernameT.setMessage(username.lead(locale));
@@ -188,8 +187,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 	}
 
 	/**
-	 * To be overridden in order to provide custome login button and other
-	 * links.
+	 * To be overridden in order to provide custome login button and other links.
 	 */
 	protected void extendsCredentialsBlock(Composite credentialsBlock, Locale selectedLocale,
 			SelectionListener loginSelectionListener) {
@@ -290,8 +288,19 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 			else if (callback instanceof HttpRequestCallback) {
 				((HttpRequestCallback) callback).setRequest(UiContext.getHttpRequest());
 				((HttpRequestCallback) callback).setResponse(UiContext.getHttpResponse());
-			} else if (callback instanceof LanguageCallback && localeChoice != null)
-				((LanguageCallback) callback).setLocale(localeChoice.getSelectedLocale());
+			} else if (callback instanceof LanguageCallback) {
+				Locale toUse = null;
+				if (localeChoice != null)
+					toUse = localeChoice.getSelectedLocale();
+				else if (defaultLocale != null)
+					toUse = defaultLocale;
+
+				if (toUse != null) {
+					((LanguageCallback) callback).setLocale(toUse);
+					UiContext.setLocale(toUse);
+				}
+
+			}
 		}
 	}
 

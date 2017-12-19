@@ -95,7 +95,7 @@ public class UserAdminLoginModule implements LoginModule {
 			if (locale == null)
 				locale = Locale.getDefault();
 			// FIXME add it to Subject
-			// UiContext.setLocale(locale);
+//			Locale.setDefault(locale);
 
 			username = nameCallback.getName();
 			if (username == null || username.trim().equals("")) {
