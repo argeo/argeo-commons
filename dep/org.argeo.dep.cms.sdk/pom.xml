@@ -40,34 +40,34 @@
 			<groupId>org.argeo.tp.sdk</groupId>
 			<artifactId>org.dbunit</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.aether</groupId>
-			<artifactId>org.eclipse.aether.api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.aether</groupId>
-			<artifactId>org.eclipse.aether.spi</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.aether</groupId>
-			<artifactId>org.eclipse.aether.util</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.aether</groupId>
-			<artifactId>org.eclipse.aether.impl</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.aether</groupId>
-			<artifactId>org.eclipse.aether.connector.basic</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.aether</groupId>
-			<artifactId>org.eclipse.aether.transport.classpath</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.aether</groupId>
-			<artifactId>org.eclipse.aether.transport.file</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.aether</groupId> -->
+<!-- 			<artifactId>org.eclipse.aether.api</artifactId> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.aether</groupId> -->
+<!-- 			<artifactId>org.eclipse.aether.spi</artifactId> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.aether</groupId> -->
+<!-- 			<artifactId>org.eclipse.aether.util</artifactId> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.aether</groupId> -->
+<!-- 			<artifactId>org.eclipse.aether.impl</artifactId> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.aether</groupId> -->
+<!-- 			<artifactId>org.eclipse.aether.connector.basic</artifactId> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.aether</groupId> -->
+<!-- 			<artifactId>org.eclipse.aether.transport.classpath</artifactId> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.aether</groupId> -->
+<!-- 			<artifactId>org.eclipse.aether.transport.file</artifactId> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.argeo.tp.sdk</groupId>
 			<artifactId>org.redline-rpm</artifactId>

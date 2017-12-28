@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
@@ -55,36 +56,46 @@
 			<groupId>org.argeo.tp.apache.ant</groupId>
 			<artifactId>org.apache.ant.launch</artifactId>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp.misc</groupId> -->
-<!-- 			<artifactId>org.quartz-scheduler.quartz</artifactId> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp.misc</groupId> -->
-<!-- 			<artifactId>org.quartz-scheduler.quartz.jobs</artifactId> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.misc</groupId> -->
+		<!-- <artifactId>org.quartz-scheduler.quartz</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.misc</groupId> -->
+		<!-- <artifactId>org.quartz-scheduler.quartz.jobs</artifactId> -->
+		<!-- </dependency> -->
 		<dependency>
 			<groupId>org.argeo.tp.javax</groupId>
 			<artifactId>javax.mail</artifactId>
 		</dependency>
 
-		<!-- RAP Workbench -->
+		<!-- Spring -->
 		<dependency>
-			<groupId>org.argeo.tp.rap.platform</groupId>
-			<artifactId>org.eclipse.rap.ui</artifactId>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.aspects</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.tp.rap.platform</groupId>
-			<artifactId>org.eclipse.rap.ui.forms</artifactId>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.context.support</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.tp.rap.platform</groupId>
-			<artifactId>org.eclipse.rap.ui.views</artifactId>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.jdbc</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.tp.rap.platform</groupId>
-			<artifactId>org.eclipse.rap.ui.workbench</artifactId>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.tx</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.web.servlet</artifactId>
+		</dependency>
+
+		<!-- Eclipse Core -->
 		<dependency>
 			<groupId>org.argeo.tp.rap.platform</groupId>
 			<artifactId>org.eclipse.core.databinding</artifactId>
@@ -134,31 +145,110 @@
 			<artifactId>org.eclipse.help</artifactId>
 		</dependency>
 
-		<!-- Spring -->
+		<!-- RAP Workbench -->
 		<dependency>
-			<groupId>org.argeo.tp.spring</groupId>
-			<artifactId>org.springframework.aspects</artifactId>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.rap.ui</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.tp.spring</groupId>
-			<artifactId>org.springframework.context.support</artifactId>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.rap.ui.forms</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.tp.spring</groupId>
-			<artifactId>org.springframework.jdbc</artifactId>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.rap.ui.views</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.tp.spring</groupId>
-			<artifactId>org.springframework.tx</artifactId>
+			<groupId>org.argeo.tp.rap.platform</groupId>
+			<artifactId>org.eclipse.rap.ui.workbench</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.spring</groupId>
-			<artifactId>org.springframework.web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.spring</groupId>
-			<artifactId>org.springframework.web.servlet</artifactId>
-		</dependency>
+
+		<!-- Eclipse 4 -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.rap.e4</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.emf.common</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.emf.ecore.change</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.emf.ecore.xmi</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.e4.ui.workbench.renderers.swt</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.e4.ui.di</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.e4.core.di</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.e4.ui.workbench.addons.swt</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.e4.core.commands</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.e4.ui.bindings</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.e4.ui.workbench.swt</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.e4.core.di.extensions.supplier</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.e4.ui.model.workbench</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.e4.emf.xpath</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.e4.core.contexts</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.e4.core.services</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.e4.core.di.annotations</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.e4.ui.services</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.rap.fileupload</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.e4.core.di.extensions</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+		<!-- <artifactId>org.eclipse.e4.ui.workbench</artifactId> -->
+		<!-- </dependency> -->
+
 	</dependencies>
 
 	<profiles>
