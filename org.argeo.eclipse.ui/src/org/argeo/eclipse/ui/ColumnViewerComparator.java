@@ -42,7 +42,7 @@ public class ColumnViewerComparator<T> extends ViewerComparator {
 	private ColumnViewer viewer;
 
 	public ColumnViewerComparator(TableViewerColumn column, Comparator<T> comparator) {
-		super((Comparator<? super String>) comparator);
+		super((Comparator<?>) comparator);
 		this.column = column;
 		this.viewer = column.getViewer();
 		this.column.getColumn().addSelectionListener(new SelectionAdapter() {
@@ -92,9 +92,7 @@ public class ColumnViewerComparator<T> extends ViewerComparator {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public int compare(Viewer viewer, Object e1, Object e2) {
-		// return direction * getComparator().compare((T) e1, (T) e2);
 		return direction * super.compare(viewer, e1, e2);
 	}
 }
