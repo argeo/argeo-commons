@@ -15,8 +15,6 @@
  */
 package org.argeo.eclipse.ui;
 
-import java.util.Comparator;
-
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
@@ -26,7 +24,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 
 /** Generic column viewer sorter */
-public class ColumnViewerComparator<T> extends ViewerComparator {
+public class ColumnViewerComparator extends ViewerComparator {
 	private static final long serialVersionUID = -2266218906355859909L;
 
 	public static final int ASC = 1;
@@ -41,8 +39,8 @@ public class ColumnViewerComparator<T> extends ViewerComparator {
 
 	private ColumnViewer viewer;
 
-	public ColumnViewerComparator(TableViewerColumn column, Comparator<T> comparator) {
-		super((Comparator<?>) comparator);
+	public ColumnViewerComparator(TableViewerColumn column) {
+		super(null);
 		this.column = column;
 		this.viewer = column.getViewer();
 		this.column.getColumn().addSelectionListener(new SelectionAdapter() {

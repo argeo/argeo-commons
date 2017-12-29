@@ -20,7 +20,6 @@ package org.argeo.cms.ui.workbench.osgi;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.naming.ldap.LdapName;
@@ -75,11 +74,7 @@ public class CmsSessionsView extends ViewPart {
 				return ((CmsSession) element).getUserDn().toString();
 			}
 		});
-		new ColumnViewerComparator<CmsSession>(column, new Comparator<CmsSession>() {
-			public int compare(CmsSession o1, CmsSession o2) {
-				return o1.getAuthorization().toString().compareTo(o2.getAuthorization().toString());
-			}
-		});
+		new ColumnViewerComparator(column);
 
 		// Creation time
 		column = new TableViewerColumn(viewer, SWT.NONE);
@@ -96,11 +91,7 @@ public class CmsSessionsView extends ViewPart {
 				return ((CmsSession) element).getCreationTime().toString();
 			}
 		});
-		new ColumnViewerComparator<CmsSession>(column, new Comparator<CmsSession>() {
-			public int compare(CmsSession o1, CmsSession o2) {
-				return o1.getCreationTime().compareTo(o2.getCreationTime());
-			}
-		});
+		new ColumnViewerComparator(column);
 
 		// Username
 		column = new TableViewerColumn(viewer, SWT.NONE);
@@ -118,11 +109,7 @@ public class CmsSessionsView extends ViewPart {
 				return ((CmsSession) element).getUserDn().toString();
 			}
 		});
-		new ColumnViewerComparator<CmsSession>(column, new Comparator<CmsSession>() {
-			public int compare(CmsSession o1, CmsSession o2) {
-				return o1.getUserDn().compareTo(o2.getUserDn());
-			}
-		});
+		new ColumnViewerComparator(column);
 
 		// UUID
 		column = new TableViewerColumn(viewer, SWT.NONE);
@@ -139,11 +126,7 @@ public class CmsSessionsView extends ViewPart {
 				return getText(element);
 			}
 		});
-		new ColumnViewerComparator<CmsSession>(column, new Comparator<CmsSession>() {
-			public int compare(CmsSession o1, CmsSession o2) {
-				return o1.getUuid().compareTo(o2.getUuid());
-			}
-		});
+		new ColumnViewerComparator(column);
 
 		// Local ID
 		column = new TableViewerColumn(viewer, SWT.NONE);
@@ -160,11 +143,7 @@ public class CmsSessionsView extends ViewPart {
 				return getText(element);
 			}
 		});
-		new ColumnViewerComparator<CmsSession>(column, new Comparator<CmsSession>() {
-			public int compare(CmsSession o1, CmsSession o2) {
-				return o1.getLocalId().compareTo(o2.getLocalId());
-			}
-		});
+		new ColumnViewerComparator(column);
 
 		viewer.setInput(WorkbenchUiPlugin.getDefault().getBundle().getBundleContext());
 

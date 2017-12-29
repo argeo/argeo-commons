@@ -18,8 +18,6 @@
  */
 package org.argeo.cms.ui.workbench.osgi;
 
-import java.util.Comparator;
-
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.eclipse.ui.ColumnViewerComparator;
 import org.argeo.eclipse.ui.specific.EclipseUiSpecificUtils;
@@ -61,22 +59,14 @@ public class BundlesView extends ViewPart {
 				return Long.toString(((Bundle) element).getBundleId());
 			}
 		});
-		new ColumnViewerComparator<Bundle>(column, new Comparator<Bundle>() {
-			public int compare(Bundle o1, Bundle o2) {
-				return (int) (o1.getBundleId() - o2.getBundleId());
-			}
-		});
+		new ColumnViewerComparator(column);
 
 		// State
 		column = new TableViewerColumn(viewer, SWT.NONE);
 		column.getColumn().setWidth(18);
 		column.getColumn().setText("State");
 		column.setLabelProvider(new StateLabelProvider());
-		new ColumnViewerComparator<Bundle>(column, new Comparator<Bundle>() {
-			public int compare(Bundle o1, Bundle o2) {
-				return o1.getState() - o2.getState();
-			}
-		});
+		new ColumnViewerComparator(column);
 
 		// Symbolic name
 		column = new TableViewerColumn(viewer, SWT.NONE);
@@ -89,11 +79,7 @@ public class BundlesView extends ViewPart {
 				return ((Bundle) element).getSymbolicName();
 			}
 		});
-		new ColumnViewerComparator<Bundle>(column, new Comparator<Bundle>() {
-			public int compare(Bundle o1, Bundle o2) {
-				return o1.getSymbolicName().compareTo(o2.getSymbolicName());
-			}
-		});
+		new ColumnViewerComparator(column);
 
 		// Version
 		column = new TableViewerColumn(viewer, SWT.NONE);
@@ -107,14 +93,9 @@ public class BundlesView extends ViewPart {
 				return bundle.getVersion().toString();
 			}
 		});
-		new ColumnViewerComparator<Bundle>(column, new Comparator<Bundle>() {
-			public int compare(Bundle o1, Bundle o2) {
-				return o1.getVersion().compareTo(o2.getVersion());
-			}
-		});
+		new ColumnViewerComparator(column);
 
-		viewer.setInput(WorkbenchUiPlugin.getDefault().getBundle()
-				.getBundleContext());
+		viewer.setInput(WorkbenchUiPlugin.getDefault().getBundle().getBundleContext());
 
 	}
 
@@ -125,8 +106,7 @@ public class BundlesView extends ViewPart {
 	}
 
 	/** Content provider managing the array of bundles */
-	private static class BundleContentProvider implements
-			IStructuredContentProvider {
+	private static class BundleContentProvider implements IStructuredContentProvider {
 		private static final long serialVersionUID = -8533792785725875977L;
 
 		public Object[] getElements(Object inputElement) {
