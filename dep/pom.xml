@@ -14,6 +14,7 @@
 		<module>org.argeo.dep.cms.client</module>
 		<module>org.argeo.dep.cms.node</module>
 		<module>org.argeo.dep.cms.platform</module>
+		<module>org.argeo.dep.cms.rap.e4</module>
 		<module>org.argeo.dep.cms.sdk</module>
 	</modules>
 	<build>

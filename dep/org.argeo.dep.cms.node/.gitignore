@@ -1,4 +1,4 @@
 /target/
 /feature.xml
 /modularDistribution.csv
-/org.argeo.dep.cms.node-maven.target
+/*-maven.target
