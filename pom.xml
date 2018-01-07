@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
@@ -10,7 +11,7 @@
 		<version.argeo-commons>2.1.71-SNAPSHOT</version.argeo-commons>
 		<developmentCycle.argeo-commons>2.1</developmentCycle.argeo-commons>
 		<developmentCycle.argeo-commons.startDate>2012-12-19</developmentCycle.argeo-commons.startDate>
-		<version.argeo-distribution>2.1.19</version.argeo-distribution>
+		<version.argeo-distribution>2.1.20</version.argeo-distribution>
 		<!-- RPM -->
 		<argeo.rpm.release>7</argeo.rpm.release>
 		<argeo.rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-2-staging/7/x86_64</argeo.rpm.stagingRepository>
@@ -410,6 +411,13 @@ limitations under the License.
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.argeo.tp</groupId>
+				<artifactId>argeo-tp-rap-e4</artifactId>
+				<version>${version.argeo-distribution}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<repositories>
@@ -505,8 +513,10 @@ limitations under the License.
 								</goals>
 								<configuration>
 									<target>
-										<copy todir="${argeo.rpm.stagingRepository}" quiet="true" failonerror="false">
-											<fileset dir="${project.build.directory}/rpm" includes="*/RPMS/**/*.rpm" />
+										<copy todir="${argeo.rpm.stagingRepository}" quiet="true"
+											failonerror="false">
+											<fileset dir="${project.build.directory}/rpm"
+												includes="*/RPMS/**/*.rpm" />
 											<flattenmapper />
 										</copy>
 									</target>
@@ -531,8 +541,10 @@ limitations under the License.
 								</goals>
 								<configuration>
 									<target>
-										<copy todir="${argeo.rpm.stagingRepository}" quiet="true" failonerror="false">
-											<fileset dir="${project.build.directory}/rpm" includes="*/RPMS/**/*.rpm" />
+										<copy todir="${argeo.rpm.stagingRepository}" quiet="true"
+											failonerror="false">
+											<fileset dir="${project.build.directory}/rpm"
+												includes="*/RPMS/**/*.rpm" />
 											<flattenmapper />
 										</copy>
 									</target>

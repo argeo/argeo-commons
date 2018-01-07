@@ -250,6 +250,17 @@
 		<!-- </dependency> -->
 
 	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.argeo.tp</groupId>
+				<artifactId>argeo-tp-rap-e3</artifactId>
+				<version>${version.argeo-distribution}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<profiles>
 		<profile>

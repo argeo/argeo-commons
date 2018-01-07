@@ -158,23 +158,23 @@
 
 		<!-- UI -->
 		<dependency>
-			<groupId>org.argeo.tp.rap.platform</groupId>
+			<groupId>org.argeo.tp.rap.e4</groupId>
 			<artifactId>org.eclipse.rap.rwt</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.tp.rap.platform</groupId>
+			<groupId>org.argeo.tp.rap.e4</groupId>
 			<artifactId>org.eclipse.core.commands</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.tp.rap.platform</groupId>
+			<groupId>org.argeo.tp.rap.e4</groupId>
 			<artifactId>org.eclipse.rap.jface</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.tp.rap.platform</groupId>
+			<groupId>org.argeo.tp.rap.e4</groupId>
 			<artifactId>org.eclipse.rap.filedialog</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.tp.rap.platform</groupId>
+			<groupId>org.argeo.tp.rap.e4</groupId>
 			<artifactId>org.eclipse.rap.fileupload</artifactId>
 		</dependency>
 
@@ -243,10 +243,10 @@
 		</dependency>
 
 		<!-- Jetty -->
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.client</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.jetty</groupId> -->
+<!-- 			<artifactId>org.eclipse.jetty.client</artifactId> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.argeo.tp.jetty</groupId>
 			<artifactId>org.eclipse.jetty.continuation</artifactId>
@@ -259,10 +259,10 @@
 			<groupId>org.argeo.tp.jetty</groupId>
 			<artifactId>org.eclipse.jetty.io</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.jmx</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.jetty</groupId> -->
+<!-- 			<artifactId>org.eclipse.jetty.jmx</artifactId> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.argeo.tp.jetty</groupId>
 			<artifactId>org.eclipse.jetty.security</artifactId>
@@ -275,10 +275,10 @@
 			<groupId>org.argeo.tp.jetty</groupId>
 			<artifactId>org.eclipse.jetty.servlet</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.servlets</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.jetty</groupId> -->
+<!-- 			<artifactId>org.eclipse.jetty.servlets</artifactId> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.argeo.tp.jetty</groupId>
 			<artifactId>org.eclipse.jetty.util</artifactId>

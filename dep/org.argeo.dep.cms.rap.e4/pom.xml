@@ -69,12 +69,6 @@
 			<artifactId>javax.mail</artifactId>
 		</dependency>
 
-		<!-- Required by Eclipse 4 -->
-		<dependency>
-			<groupId>org.argeo.tp.apache.commons</groupId>
-			<artifactId>org.apache.commons.jxpath</artifactId>
-		</dependency>
-
 		<!-- Spring -->
 		<dependency>
 			<groupId>org.argeo.tp.spring</groupId>
@@ -168,6 +162,13 @@
 		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
 		<!-- <artifactId>org.eclipse.rap.ui.workbench</artifactId> -->
 		<!-- </dependency> -->
+
+
+		<!-- Dependencies required / provided by Eclipse 4 -->
+		<dependency>
+			<groupId>org.argeo.tp.rap.e4</groupId>
+			<artifactId>org.apache.commons.jxpath</artifactId>
+		</dependency>
 
 		<!-- Eclipse 4 -->
 		<dependency>
@@ -276,15 +277,6 @@
 
 	</dependencies>
 	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.argeo.tp</groupId>
-				<artifactId>argeo-tp-rap-e4</artifactId>
-				<version>${version.argeo-distribution}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
 	</dependencyManagement>
 
 	<profiles>

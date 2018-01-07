@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
@@ -142,10 +143,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp.equinox</groupId>
-			<artifactId>org.eclipse.equinox.console</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.equinox</groupId>
 			<artifactId>org.eclipse.equinox.event</artifactId>
 		</dependency>
 		<dependency>
@@ -160,6 +157,18 @@
 			<groupId>org.argeo.tp.equinox</groupId>
 			<artifactId>org.eclipse.equinox.metatype</artifactId>
 		</dependency>
+
+		<!-- SSH -->
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.mina.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.sshd.core</artifactId>
+		</dependency>
+
+		<!-- Console -->
 		<dependency>
 			<groupId>org.argeo.tp.apache.felix</groupId>
 			<artifactId>org.apache.felix.scr</artifactId>
@@ -172,6 +181,12 @@
 			<groupId>org.argeo.tp.apache.felix</groupId>
 			<artifactId>org.apache.felix.gogo.shell</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.equinox</groupId>
+			<artifactId>org.eclipse.equinox.console</artifactId>
+		</dependency>
+
+		<!-- Jackrabbit client -->
 		<dependency>
 			<groupId>org.argeo.tp.apache.jackrabbit</groupId>
 			<artifactId>org.apache.jackrabbit.api</artifactId>
