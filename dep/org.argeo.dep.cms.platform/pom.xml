@@ -255,7 +255,7 @@
 			<dependency>
 				<groupId>org.argeo.tp</groupId>
 				<artifactId>argeo-tp-rap-e3</artifactId>
-				<version>${version.argeo-distribution}</version>
+				<version>${version.argeo-tp}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -374,7 +374,7 @@
 								</goals>
 								<configuration>
 									<name>argeo-cms-platform-tp</name>
-									<projversion>${version.argeo-distribution}</projversion>
+									<projversion>${version.argeo-tp}</projversion>
 									<mappings>
 										<mapping>
 											<directory>/usr/share/osgi</directory>

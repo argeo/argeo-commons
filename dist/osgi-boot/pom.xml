@@ -16,7 +16,7 @@
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
 			<artifactId>argeo-tp</artifactId>
-			<version>${version.argeo-distribution}</version>
+			<version>${version.argeo-tp}</version>
 		</dependency>
 
 		<!-- OSGi Boot (and Equinox) -->
@@ -139,7 +139,7 @@
 								</goals>
 								<configuration>
 									<name>osgi-boot-equinox</name>
-									<projversion>${version.argeo-distribution}</projversion>
+									<projversion>${version.argeo-tp}</projversion>
 									<mappings>
 										<mapping>
 											<directory>/usr/share/osgi/boot</directory>
