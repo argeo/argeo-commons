@@ -2,6 +2,7 @@ package org.argeo.cms.ui;
 
 import static org.argeo.naming.SharedSecret.X_SHARED_SECRET;
 
+import java.io.IOException;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +15,8 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.auth.HttpRequestCallback;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
@@ -136,17 +140,17 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 	 * The node to return when no node was found (for authenticated users and
 	 * anonymous)
 	 */
-	private Node getDefaultNode(Session session) throws RepositoryException {
-		if (!session.hasPermission(defaultPath, "read")) {
-			String userId = session.getUserID();
-			if (userId.equals(NodeConstants.ROLE_ANONYMOUS))
-				// TODO throw a special exception
-				throw new CmsException("Login required");
-			else
-				throw new CmsException("Unauthorized");
-		}
-		return session.getNode(defaultPath);
-	}
+//	private Node getDefaultNode(Session session) throws RepositoryException {
+//		if (!session.hasPermission(defaultPath, "read")) {
+//			String userId = session.getUserID();
+//			if (userId.equals(NodeConstants.ROLE_ANONYMOUS))
+//				// TODO throw a special exception
+//				throw new CmsException("Login required");
+//			else
+//				throw new CmsException("Unauthorized");
+//		}
+//		return session.getNode(defaultPath);
+//	}
 
 	protected String getBaseTitle() {
 		return factoryProperties.get(WebClient.PAGE_TITLE);
@@ -292,7 +296,20 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 				//
 				// }
 				// });
-				SharedSecret token = new SharedSecret(new AuthPassword(X_SHARED_SECRET + '$' + prefix));
+				SharedSecret token = new SharedSecret(new AuthPassword(X_SHARED_SECRET + '$' + prefix)) {
+
+					@Override
+					public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+						super.handle(callbacks);
+						// handle HTTP context
+						for (Callback callback : callbacks) {
+							if (callback instanceof HttpRequestCallback) {
+								((HttpRequestCallback) callback).setRequest(UiContext.getHttpRequest());
+								((HttpRequestCallback) callback).setResponse(UiContext.getHttpResponse());
+							}
+						}
+					}
+				};
 				LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, token);
 				lc.login();
 				authChange(lc);// sets the node as well
