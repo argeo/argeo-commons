@@ -38,8 +38,8 @@ public class EclipseUiUtils {
 	}
 
 	/**
-	 * Enables efficient call to the layout method of a composite, refreshing
-	 * only some of the children controls.
+	 * Enables efficient call to the layout method of a composite, refreshing only
+	 * some of the children controls.
 	 */
 	public static void layout(Composite parent, Control... toUpdateControls) {
 		parent.layout(toUpdateControls);
@@ -50,20 +50,19 @@ public class EclipseUiUtils {
 	//
 	/** Shortcut to retrieve default italic font from display */
 	public static Font getItalicFont(Composite parent) {
-		return JFaceResources.getFontRegistry().defaultFontDescriptor()
-				.setStyle(SWT.ITALIC).createFont(parent.getDisplay());
+		return JFaceResources.getFontRegistry().defaultFontDescriptor().setStyle(SWT.ITALIC)
+				.createFont(parent.getDisplay());
 	}
 
 	/** Shortcut to retrieve default bold font from display */
 	public static Font getBoldFont(Composite parent) {
-		return JFaceResources.getFontRegistry().defaultFontDescriptor()
-				.setStyle(SWT.BOLD).createFont(parent.getDisplay());
+		return JFaceResources.getFontRegistry().defaultFontDescriptor().setStyle(SWT.BOLD)
+				.createFont(parent.getDisplay());
 	}
 
 	/** Shortcut to retrieve default bold italic font from display */
 	public static Font getBoldItalicFont(Composite parent) {
-		return JFaceResources.getFontRegistry().defaultFontDescriptor()
-				.setStyle(SWT.BOLD | SWT.ITALIC)
+		return JFaceResources.getFontRegistry().defaultFontDescriptor().setStyle(SWT.BOLD | SWT.ITALIC)
 				.createFont(parent.getDisplay());
 	}
 
@@ -72,6 +71,10 @@ public class EclipseUiUtils {
 	//
 	public static GridLayout noSpaceGridLayout() {
 		return noSpaceGridLayout(new GridLayout());
+	}
+
+	public static GridLayout noSpaceGridLayout(int columns) {
+		return noSpaceGridLayout(new GridLayout(columns, false));
 	}
 
 	public static GridLayout noSpaceGridLayout(GridLayout layout) {
@@ -100,10 +103,8 @@ public class EclipseUiUtils {
 		return new GridData(SWT.FILL, SWT.FILL, true, true, colSpan, rowSpan);
 	}
 
-	public static GridData grabWidth(int horizontalAlignment,
-			int verticalAlignment) {
-		return new GridData(horizontalAlignment, horizontalAlignment, true,
-				false);
+	public static GridData grabWidth(int horizontalAlignment, int verticalAlignment) {
+		return new GridData(horizontalAlignment, horizontalAlignment, true, false);
 	}
 
 	//
@@ -124,24 +125,23 @@ public class EclipseUiUtils {
 	}
 
 	/**
-	 * Create a label and a text field for a grid layout, the text field
-	 * grabbing excess horizontal
+	 * Create a label and a text field for a grid layout, the text field grabbing
+	 * excess horizontal
 	 * 
 	 * @param parent
 	 *            the parent composite
 	 * @param label
 	 *            the label to display
 	 * @param modifyListener
-	 *            a {@link ModifyListener} to listen on events on the text, can
-	 *            be null
+	 *            a {@link ModifyListener} to listen on events on the text, can be
+	 *            null
 	 * @return the created text
 	 * 
 	 */
 	// FIXME why was this deprecated.
 	// * @ deprecated use { @ link #createGridLT(Composite, String)} instead
 	// @ Deprecated
-	public static Text createGridLT(Composite parent, String label,
-			ModifyListener modifyListener) {
+	public static Text createGridLT(Composite parent, String label, ModifyListener modifyListener) {
 		Label lbl = new Label(parent, SWT.LEAD);
 		lbl.setText(label);
 		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
@@ -153,16 +153,16 @@ public class EclipseUiUtils {
 	}
 
 	/**
-	 * Create a label and a text field for a grid layout, the text field
-	 * grabbing excess horizontal
+	 * Create a label and a text field for a grid layout, the text field grabbing
+	 * excess horizontal
 	 */
 	public static Text createGridLT(Composite parent, String label) {
 		return createGridLT(parent, label, null);
 	}
 
 	/**
-	 * Creates one label and a text field not editable with background colour of
-	 * the parent (like a label but with selectable text)
+	 * Creates one label and a text field not editable with background colour of the
+	 * parent (like a label but with selectable text)
 	 */
 	public static Text createGridLL(Composite parent, String label, String text) {
 		Text txt = createGridLT(parent, label);
@@ -173,20 +173,19 @@ public class EclipseUiUtils {
 	}
 
 	/**
-	 * Create a label and a text field with password display for a grid layout,
-	 * the text field grabbing excess horizontal
+	 * Create a label and a text field with password display for a grid layout, the
+	 * text field grabbing excess horizontal
 	 */
 	public static Text createGridLP(Composite parent, String label) {
 		return createGridLP(parent, label, null);
 	}
 
 	/**
-	 * Create a label and a text field with password display for a grid layout,
-	 * the text field grabbing excess horizontal. The given modify listener will
-	 * be added to the newly created text field if not null.
+	 * Create a label and a text field with password display for a grid layout, the
+	 * text field grabbing excess horizontal. The given modify listener will be
+	 * added to the newly created text field if not null.
 	 */
-	public static Text createGridLP(Composite parent, String label,
-			ModifyListener modifyListener) {
+	public static Text createGridLP(Composite parent, String label, ModifyListener modifyListener) {
 		Label lbl = new Label(parent, SWT.LEAD);
 		lbl.setText(label);
 		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
