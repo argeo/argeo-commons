@@ -23,6 +23,7 @@ import static org.argeo.cms.CmsMsg.repeatNewPassword;
 import static org.eclipse.jface.dialogs.IMessageProvider.INFORMATION;
 
 import java.security.AccessController;
+import java.util.Arrays;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
@@ -81,7 +82,7 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 		User user = (User) userAdmin.getRole(dn.toString());
 		if (!user.hasCredential(null, oldPassword))
 			throw new CmsException("Invalid password");
-		if (newPassword.equals(""))
+		if (Arrays.equals(newPassword, new char[0]))
 			throw new CmsException("New password empty");
 		try {
 			userTransaction.begin();
