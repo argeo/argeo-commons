@@ -1,6 +1,5 @@
 package org.argeo.cms.internal.kernel;
 
-import java.awt.image.Kernel;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -29,8 +28,8 @@ import org.osgi.service.log.LogReaderService;
 import org.osgi.service.useradmin.UserAdmin;
 
 /**
- * Activates the {@link Kernel} from the provided {@link BundleContext}. Gives
- * access to kernel information for the rest of the bundle (and only it)
+ * Activates the kernel. Gives access to kernel information for the rest of the
+ * bundle (and only it)
  */
 public class Activator implements BundleActivator {
 	private final static Log log = LogFactory.getLog(Activator.class);
