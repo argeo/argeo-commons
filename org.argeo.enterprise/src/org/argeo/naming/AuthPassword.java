@@ -16,11 +16,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 
 import org.argeo.osgi.useradmin.UserDirectoryException;
 
-/**
- * LDAP authPassword field according to RFC 3112.
- * 
- * @see https://www.ietf.org/rfc/rfc3112.txt
- */
+/** LDAP authPassword field according to RFC 3112 */
 public class AuthPassword implements CallbackHandler {
 	private final String authScheme;
 	private final String authInfo;
