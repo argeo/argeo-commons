@@ -56,8 +56,8 @@ class FirstInit {
 		String httpPort = getFrameworkProp("org.osgi.service.http.port");
 		String httpsPort = getFrameworkProp("org.osgi.service.http.port.secure");
 		/// TODO make it more generic
-		String httpHost = getFrameworkProp(JettyConstants.PROPERTY_PREFIX + '.' + JettyConstants.HTTP_HOST);
-		String httpsHost = getFrameworkProp(JettyConstants.PROPERTY_PREFIX + '.' + JettyConstants.HTTPS_HOST);
+		String httpHost = getFrameworkProp(JettyConstants.PROPERTY_PREFIX + JettyConstants.HTTP_HOST);
+		String httpsHost = getFrameworkProp(JettyConstants.PROPERTY_PREFIX + JettyConstants.HTTPS_HOST);
 
 		final Hashtable<String, Object> props = new Hashtable<String, Object>();
 		// try {
@@ -71,7 +71,7 @@ class FirstInit {
 				props.put(JettyConstants.HTTPS_ENABLED, true);
 				Path keyStorePath = KernelUtils.getOsgiInstancePath(KernelConstants.DEFAULT_KEYSTORE_PATH);
 				String keyStorePassword = getFrameworkProp(
-						JettyConstants.PROPERTY_PREFIX + '.' + JettyConstants.SSL_PASSWORD);
+						JettyConstants.PROPERTY_PREFIX + JettyConstants.SSL_PASSWORD);
 				if (keyStorePassword == null)
 					keyStorePassword = "changeit";
 				if (!Files.exists(keyStorePath))
