@@ -38,6 +38,7 @@ class CmsAuthUtils {
 	final static String SHARED_STATE_HTTP_REQUEST = "org.argeo.cms.auth.http.request";
 	final static String SHARED_STATE_SPNEGO_TOKEN = "org.argeo.cms.auth.spnegoToken";
 	final static String SHARED_STATE_SPNEGO_OUT_TOKEN = "org.argeo.cms.auth.spnegoOutToken";
+	final static String SHARED_STATE_CERTIFICATE_CHAIN = "org.argeo.cms.auth.certificateChain";
 
 	static void addAuthorization(Subject subject, Authorization authorization, Locale locale,
 			HttpServletRequest request) {

@@ -2,6 +2,7 @@ package org.argeo.cms.auth;
 
 import java.io.IOException;
 import java.security.PrivilegedAction;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -71,12 +72,19 @@ public class UserAdminLoginModule implements LoginModule {
 		UserAdmin userAdmin = bc.getService(bc.getServiceReference(UserAdmin.class));
 		final String username;
 		final char[] password;
+		X509Certificate[] certificateChain = null;
 		if (sharedState.containsKey(CmsAuthUtils.SHARED_STATE_NAME)
 				&& sharedState.containsKey(CmsAuthUtils.SHARED_STATE_PWD)) {
 			// NB: required by Basic http auth
 			username = (String) sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
 			password = (char[]) sharedState.get(CmsAuthUtils.SHARED_STATE_PWD);
 			// // TODO locale?
+		} else if (sharedState.containsKey(CmsAuthUtils.SHARED_STATE_NAME)
+				&& sharedState.containsKey(CmsAuthUtils.SHARED_STATE_CERTIFICATE_CHAIN)) {
+			// NB: required by Basic http auth
+			username = (String) sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
+			certificateChain = (X509Certificate[]) sharedState.get(CmsAuthUtils.SHARED_STATE_CERTIFICATE_CHAIN);
+			password = null;
 		} else {
 			// ask for username and password
 			NameCallback nameCallback = new NameCallback("User");
@@ -95,7 +103,7 @@ public class UserAdminLoginModule implements LoginModule {
 			if (locale == null)
 				locale = Locale.getDefault();
 			// FIXME add it to Subject
-//			Locale.setDefault(locale);
+			// Locale.setDefault(locale);
 
 			username = nameCallback.getName();
 			if (username == null || username.trim().equals("")) {
@@ -107,30 +115,37 @@ public class UserAdminLoginModule implements LoginModule {
 			else
 				throw new CredentialNotFoundException("No credentials provided");
 		}
-
 		User user = searchForUser(userAdmin, username);
 		if (user == null)
 			return true;// expect Kerberos
-		
-		// try bind first
-		try {
-			AuthenticatingUser authenticatingUser = new AuthenticatingUser(user.getName(), password);
-			bindAuthorization = userAdmin.getAuthorization(authenticatingUser);
-			// TODO check tokens as well
-			if (bindAuthorization != null) {
-				authenticatedUser = user;
-				return true;
+
+		if (password != null) {
+			// try bind first
+			try {
+				AuthenticatingUser authenticatingUser = new AuthenticatingUser(user.getName(), password);
+				bindAuthorization = userAdmin.getAuthorization(authenticatingUser);
+				// TODO check tokens as well
+				if (bindAuthorization != null) {
+					authenticatedUser = user;
+					return true;
+				}
+			} catch (Exception e) {
+				// silent
+				if (log.isTraceEnabled())
+					log.trace("Bind failed", e);
 			}
-		} catch (Exception e) {
-			// silent
-			if(log.isTraceEnabled())
-				log.trace("Bind failed", e);
+
+			// works only if a connection password is provided
+			if (!user.hasCredential(null, password)) {
+				return false;
+			}
+		} else if (certificateChain != null) {
+			// TODO check CRLs/OSCP validity?
+			// NB: authorization in commit() will work only if an LDAP connection password is provided
+		}else {
+			throw new CredentialNotFoundException("No credentials provided");
 		}
-		
-		// works only if a connection password is provided
-		if (!user.hasCredential(null, password)) {
-			return false;
-		}
+
 		authenticatedUser = user;
 		return true;
 	}

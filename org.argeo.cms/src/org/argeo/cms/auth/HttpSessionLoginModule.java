@@ -20,7 +20,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.naming.LdapAttrs;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -178,21 +177,21 @@ public class HttpSessionLoginModule implements LoginModule {
 		}
 
 		// auth token
-//		String mail = request.getParameter(LdapAttrs.mail.name());
-//		String authPassword = request.getParameter(LdapAttrs.authPassword.name());
-//		if (authPassword != null) {
-//			sharedState.put(CmsAuthUtils.SHARED_STATE_PWD, authPassword);
-//			if (mail != null)
-//				sharedState.put(CmsAuthUtils.SHARED_STATE_NAME, mail);
-//		}
+		// String mail = request.getParameter(LdapAttrs.mail.name());
+		// String authPassword = request.getParameter(LdapAttrs.authPassword.name());
+		// if (authPassword != null) {
+		// sharedState.put(CmsAuthUtils.SHARED_STATE_PWD, authPassword);
+		// if (mail != null)
+		// sharedState.put(CmsAuthUtils.SHARED_STATE_NAME, mail);
+		// }
 	}
 
-	private X509Certificate[] extractClientCertificate(HttpServletRequest req) {
+	private void extractClientCertificate(HttpServletRequest req) {
 		X509Certificate[] certs = (X509Certificate[]) req.getAttribute("javax.servlet.request.X509Certificate");
 		if (null != certs && certs.length > 0) {
-			return certs;
+			sharedState.put(CmsAuthUtils.SHARED_STATE_NAME, certs[0].getSubjectX500Principal().getName());
+			sharedState.put(CmsAuthUtils.SHARED_STATE_CERTIFICATE_CHAIN, certs);
 		}
-		return null;
 	}
 
 }
