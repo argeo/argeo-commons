@@ -44,6 +44,7 @@ import org.argeo.osgi.useradmin.AbstractUserDirectory;
 import org.argeo.osgi.useradmin.AggregatingUserAdmin;
 import org.argeo.osgi.useradmin.LdapUserAdmin;
 import org.argeo.osgi.useradmin.LdifUserAdmin;
+import org.argeo.osgi.useradmin.OsUserDirectory;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.osgi.useradmin.UserDirectory;
 import org.ietf.jgss.GSSCredential;
@@ -84,6 +85,8 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 	private Path nodeKeyTab = KernelUtils.getOsgiInstancePath(KernelConstants.NODE_KEY_TAB_PATH);
 	private GSSCredential acceptorCredentials;
 
+	private boolean singleUser = false;
+
 	public NodeUserAdmin(String systemRolesBaseDn) {
 		super(systemRolesBaseDn);
 		tmTracker = new ServiceTracker<>(bc, TransactionManager.class, null);
@@ -105,8 +108,17 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 		}
 
 		// Create
-		AbstractUserDirectory userDirectory = u.getScheme().equals("ldap") ? new LdapUserAdmin(properties)
-				: new LdifUserAdmin(u, properties);
+		AbstractUserDirectory userDirectory;
+		if (UserAdminConf.SCHEME_LDAP.equals(u.getScheme())) {
+			userDirectory = new LdapUserAdmin(properties);
+		} else if (UserAdminConf.SCHEME_FILE.equals(u.getScheme())) {
+			userDirectory = new LdifUserAdmin(u, properties);
+		} else if (UserAdminConf.SCHEME_OS.equals(u.getScheme())) {
+			userDirectory = new OsUserDirectory(u, properties);
+			singleUser = true;
+		} else {
+			throw new CmsException("Unsupported scheme " + u.getScheme());
+		}
 		Object realm = userDirectory.getProperties().get(UserAdminConf.realm.name());
 		addUserDirectory(userDirectory);
 
@@ -270,6 +282,10 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 
 	public GSSCredential getAcceptorCredentials() {
 		return acceptorCredentials;
+	}
+
+	public boolean isSingleUser() {
+		return singleUser;
 	}
 
 	public final static Oid KERBEROS_OID;

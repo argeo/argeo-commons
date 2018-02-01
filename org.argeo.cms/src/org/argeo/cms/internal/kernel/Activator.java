@@ -161,9 +161,18 @@ public class Activator implements BundleActivator {
 	}
 
 	public static GSSCredential getAcceptorCredentials() {
+		return getNodeUserAdmin().getAcceptorCredentials();
+	}
+
+	public static boolean isSingleUser() {
+		return getNodeUserAdmin().isSingleUser();
+	}
+
+	private static NodeUserAdmin getNodeUserAdmin() {
 		ServiceReference<UserAdmin> sr = instance.bc.getServiceReference(UserAdmin.class);
 		NodeUserAdmin userAdmin = (NodeUserAdmin) instance.bc.getService(sr);
-		return userAdmin.getAcceptorCredentials();
+		return userAdmin;
+
 	}
 
 	// static CmsSecurity getCmsSecurity() {

@@ -148,7 +148,7 @@ class FirstInit {
 						u = new URI(uri);
 					} else
 						throw new CmsException("Cannot interpret " + uri + " as an uri");
-				} else if (u.getScheme().equals("file")) {
+				} else if (u.getScheme().equals(UserAdminConf.SCHEME_FILE)) {
 					u = new File(u).getCanonicalFile().toURI();
 				}
 			} catch (Exception e) {

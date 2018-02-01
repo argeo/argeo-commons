@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -47,6 +48,11 @@ public enum UserAdminConf {
 
 	public final static String FACTORY_PID = "org.argeo.osgi.useradmin.config";
 	private final static Log log = LogFactory.getLog(UserAdminConf.class);
+
+	public final static String SCHEME_LDAP = "ldap";
+	public final static String SCHEME_FILE = "file";
+	public final static String SCHEME_OS = "os";
+	public final static String SCHEME_IPA = "ipa";
 
 	/** The default value. */
 	private Object def;
@@ -124,28 +130,33 @@ public enum UserAdminConf {
 			Hashtable<String, Object> res = new Hashtable<String, Object>();
 			URI u = new URI(uriStr);
 			String scheme = u.getScheme();
-			if (scheme != null && scheme.equals("ipa")) {
+			if (scheme != null && scheme.equals(SCHEME_IPA)) {
 				u = convertIpaConfig(u);
 				scheme = u.getScheme();
 			}
 			String path = u.getPath();
 			// base DN
 			String bDn = path.substring(path.lastIndexOf('/') + 1, path.length());
+			if (bDn.equals("") && SCHEME_OS.equals(scheme)) {
+				bDn = getBaseDnFromHostname();
+			}
+
 			if (bDn.endsWith(".ldif"))
 				bDn = bDn.substring(0, bDn.length() - ".ldif".length());
 
 			String principal = null;
 			String credentials = null;
 			if (scheme != null)
-				if (scheme.equals("ldap") || scheme.equals("ldaps")) {
+				if (scheme.equals(SCHEME_LDAP) || scheme.equals("ldaps")) {
 					// TODO additional checks
 					if (u.getUserInfo() != null) {
 						String[] userInfo = u.getUserInfo().split(":");
 						principal = userInfo.length > 0 ? userInfo[0] : null;
 						credentials = userInfo.length > 1 ? userInfo[1] : null;
 					}
-				} else if (scheme.equals("file")) {
-				} else if (scheme.equals("ipa")) {
+				} else if (scheme.equals(SCHEME_FILE)) {
+				} else if (scheme.equals(SCHEME_IPA)) {
+				} else if (scheme.equals(SCHEME_OS)) {
 				} else
 					throw new UserDirectoryException("Unsupported scheme " + scheme);
 			Map<String, List<String>> query = NamingUtils.queryToMap(u);
@@ -159,14 +170,20 @@ public enum UserAdminConf {
 				}
 			}
 			res.put(baseDn.name(), bDn);
+			if (SCHEME_OS.equals(scheme))
+				res.put(readOnly.name(), "true");
 			if (principal != null)
 				res.put(Context.SECURITY_PRINCIPAL, principal);
 			if (credentials != null)
 				res.put(Context.SECURITY_CREDENTIALS, credentials);
 			if (scheme != null) {// relative URIs are dealt with externally
-				URI bareUri = new URI(scheme, null, u.getHost(), u.getPort(),
-						scheme.equals("file") ? u.getPath() : null, null, null);
-				res.put(uri.name(), bareUri.toString());
+				if (SCHEME_OS.equals(scheme)) {
+					res.put(uri.name(), SCHEME_OS + ":///");
+				} else {
+					URI bareUri = new URI(scheme, null, u.getHost(), u.getPort(),
+							scheme.equals(SCHEME_FILE) ? u.getPath() : null, null, null);
+					res.put(uri.name(), bareUri.toString());
+				}
 			}
 			return res;
 		} catch (Exception e) {
@@ -196,7 +213,7 @@ public enum UserAdminConf {
 				}
 			}
 			URI convertedUri = new URI(
-					"ldap://" + ldapHostsStr + "/" + IpaUtils.domainToUserDirectoryConfigPath(kerberosRealm));
+					SCHEME_LDAP + "://" + ldapHostsStr + "/" + IpaUtils.domainToUserDirectoryConfigPath(kerberosRealm));
 			if (log.isDebugEnabled())
 				log.debug("Converted " + uri + " to " + convertedUri);
 			return convertedUri;
@@ -219,38 +236,22 @@ public enum UserAdminConf {
 
 	}
 
-	// private static Map<String, List<String>> splitQuery(String query) throws
-	// UnsupportedEncodingException {
-	// final Map<String, List<String>> query_pairs = new LinkedHashMap<String,
-	// List<String>>();
-	// if (query == null)
-	// return query_pairs;
-	// final String[] pairs = query.split("&");
-	// for (String pair : pairs) {
-	// final int idx = pair.indexOf("=");
-	// final String key = idx > 0 ? URLDecoder.decode(pair.substring(0, idx),
-	// "UTF-8") : pair;
-	// if (!query_pairs.containsKey(key)) {
-	// query_pairs.put(key, new LinkedList<String>());
-	// }
-	// final String value = idx > 0 && pair.length() > idx + 1
-	// ? URLDecoder.decode(pair.substring(idx + 1), "UTF-8") : null;
-	// query_pairs.get(key).add(value);
-	// }
-	// return query_pairs;
-	// }
-
-	public static void main(String[] args) {
-		Dictionary<String, ?> props = uriAsProperties("ldap://" + "uid=admin,ou=system:secret@localhost:10389"
-				+ "/dc=example,dc=com" + "?readOnly=false&userObjectClass=person");
-		System.out.println(props);
-		System.out.println(propertiesAsUri(props));
-
-		System.out.println(uriAsProperties("file://some/dir/dc=example,dc=com.ldif"));
-
-		props = uriAsProperties(
-				"/dc=example,dc=com.ldif?readOnly=true" + "&userBase=ou=CoWorkers,ou=People&groupBase=ou=Roles");
-		System.out.println(props);
-		System.out.println(propertiesAsUri(props));
+	private static String getBaseDnFromHostname() {
+		String hostname;
+		try {
+			hostname = InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) {
+			log.warn("Using localhost as hostname", e);
+			hostname = "localhost.localdomain";
+		}
+		int dotIdx = hostname.indexOf('.');
+		if (dotIdx >= 0) {
+			String domain = hostname.substring(dotIdx + 1, hostname.length());
+			String bDn = ("." + domain).replaceAll("\\.", ",dc=");
+			bDn = bDn.substring(1, bDn.length());
+			return bDn;
+		} else {
+			return "dc=" + hostname;
+		}
 	}
 }

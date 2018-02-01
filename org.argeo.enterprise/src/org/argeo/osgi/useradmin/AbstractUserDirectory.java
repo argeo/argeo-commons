@@ -419,15 +419,17 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 			return true;
 		if (uri.getScheme() == null)
 			return false;// assume relative file to be writable
-		if (uri.getScheme().equals("file")) {
+		if (uri.getScheme().equals(UserAdminConf.SCHEME_FILE)) {
 			File file = new File(uri);
 			if (file.exists())
 				return !file.canWrite();
 			else
 				return !file.getParentFile().canWrite();
-		} else if (uri.getScheme().equals("ldap")) {
+		} else if (uri.getScheme().equals(UserAdminConf.SCHEME_LDAP)) {
 			if (uri.getAuthority() != null)// assume writable if authenticated
 				return false;
+		} else if (uri.getScheme().equals(UserAdminConf.SCHEME_OS)) {
+			return true;
 		}
 		return true;// read only by default
 	}

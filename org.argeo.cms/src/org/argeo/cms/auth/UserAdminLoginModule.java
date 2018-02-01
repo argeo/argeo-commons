@@ -27,9 +27,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.internal.kernel.Activator;
 import org.argeo.naming.LdapAttrs;
 import org.argeo.osgi.useradmin.AuthenticatingUser;
 import org.argeo.osgi.useradmin.IpaUtils;
+import org.argeo.osgi.useradmin.OsUserUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.useradmin.Authorization;
@@ -52,6 +54,8 @@ public class UserAdminLoginModule implements LoginModule {
 	private Locale locale;
 
 	private Authorization bindAuthorization = null;
+
+	private boolean singleUser = Activator.isSingleUser();
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -85,7 +89,11 @@ public class UserAdminLoginModule implements LoginModule {
 			username = (String) sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
 			certificateChain = (X509Certificate[]) sharedState.get(CmsAuthUtils.SHARED_STATE_CERTIFICATE_CHAIN);
 			password = null;
+		} else if (singleUser) {
+			username = OsUserUtils.getOsUsername();
+			password = null;
 		} else {
+
 			// ask for username and password
 			NameCallback nameCallback = new NameCallback("User");
 			PasswordCallback passwordCallback = new PasswordCallback("Password", false);
@@ -141,8 +149,11 @@ public class UserAdminLoginModule implements LoginModule {
 			}
 		} else if (certificateChain != null) {
 			// TODO check CRLs/OSCP validity?
-			// NB: authorization in commit() will work only if an LDAP connection password is provided
-		}else {
+			// NB: authorization in commit() will work only if an LDAP connection password
+			// is provided
+		} else if (singleUser) {
+			// TODO verify IP address?
+		} else {
 			throw new CredentialNotFoundException("No credentials provided");
 		}
 
@@ -152,6 +163,9 @@ public class UserAdminLoginModule implements LoginModule {
 
 	@Override
 	public boolean commit() throws LoginException {
+		if (singleUser) {
+			OsUserUtils.loginAsSystemUser(subject);
+		}
 		UserAdmin userAdmin = bc.getService(bc.getServiceReference(UserAdmin.class));
 		Authorization authorization;
 		if (callbackHandler == null) {// anonymous

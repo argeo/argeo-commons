@@ -19,6 +19,7 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.cms.internal.http.WebCmsSessionImpl;
+import org.argeo.cms.internal.kernel.Activator;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.security.AnonymousPrincipal;
 import org.argeo.node.security.DataAdminPrincipal;
@@ -48,6 +49,10 @@ class CmsAuthUtils {
 
 		// required for display name:
 		subject.getPrivateCredentials().add(authorization);
+
+		if (Activator.isSingleUser()) {
+			subject.getPrincipals().add(new DataAdminPrincipal());
+		}
 
 		Set<Principal> principals = subject.getPrincipals();
 		try {

@@ -20,7 +20,7 @@ public final class DataAdminPrincipal implements Principal {
 
 	@Override
 	public boolean equals(Object obj) {
-		return this == obj;
+		return obj instanceof DataAdminPrincipal;
 	}
 
 	@Override

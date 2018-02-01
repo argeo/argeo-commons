@@ -10,11 +10,13 @@ import javax.naming.ldap.LdapName;
 import org.argeo.node.NodeConstants;
 
 public class NodeSecurityUtils {
-	public final static LdapName ROLE_ADMIN_NAME, ROLE_ANONYMOUS_NAME, ROLE_USER_NAME, ROLE_USER_ADMIN_NAME;
+	public final static LdapName ROLE_ADMIN_NAME, ROLE_DATA_ADMIN_NAME, ROLE_ANONYMOUS_NAME, ROLE_USER_NAME,
+			ROLE_USER_ADMIN_NAME;
 	public final static List<LdapName> RESERVED_ROLES;
 	static {
 		try {
 			ROLE_ADMIN_NAME = new LdapName(NodeConstants.ROLE_ADMIN);
+			ROLE_DATA_ADMIN_NAME = new LdapName(NodeConstants.ROLE_DATA_ADMIN);
 			ROLE_USER_NAME = new LdapName(NodeConstants.ROLE_USER);
 			ROLE_USER_ADMIN_NAME = new LdapName(NodeConstants.ROLE_USER_ADMIN);
 			ROLE_ANONYMOUS_NAME = new LdapName(NodeConstants.ROLE_ANONYMOUS);
