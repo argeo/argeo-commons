@@ -2,6 +2,7 @@ var System = Java.type("java.lang.System")
 var OsgiBuilder = Java.type("org.argeo.osgi.boot.OsgiBuilder");
 
 var osgi = new OsgiBuilder();
+// default bundles
 osgi.start(2, "org.eclipse.equinox.http.servlet");
 osgi.start(2, "org.eclipse.equinox.http.jetty");
 osgi.start(2, "org.eclipse.equinox.metatype");
@@ -10,6 +11,7 @@ osgi.start(2, "org.eclipse.rap.rwt.osgi");
 osgi.start(3, "org.argeo.cms");
 osgi.start(4, "org.eclipse.gemini.blueprint.extender");
 osgi.start(4, "org.eclipse.equinox.http.registry");
+// specific properties
 osgi.conf("org.eclipse.rap.workbenchAutostart", "false");
 osgi.conf("org.eclipse.equinox.http.jetty.autostart", "false");
 osgi.conf("org.osgi.framework.bootdelegation", "com.sun.jndi.ldap,"
@@ -24,7 +26,7 @@ if (typeof app !== 'undefined') {
 		var appConf = $ENV.HOME + "/.a2/etc/" + app;
 	}
 	if (typeof policyFile == 'undefined') {
-		var policyFile = app + ".policy";
+		var policyFile = "node.policy";
 	}
 	osgi.conf("osgi.configuration.area", appHome + "/state");
 	osgi.conf("osgi.instance.area", appHome + "/data");
@@ -35,7 +37,7 @@ if (typeof app !== 'undefined') {
 			+ "/log4j.properties");
 }
 
-function openUi(){
+function openUi() {
 	osgi.spring("org.argeo.cms.ui.workbench.rap");
 	var appUrl = "http://localhost:" + osgi.httpPort + "/ui/node";
 	$EXEC("/usr/bin/chromium-browser --app=" + appUrl);

@@ -1,9 +1,13 @@
 #!/bin/sh
 
-PREFIX=$HOME/.a2
-#PREFIX=/usr
+export A2_HOME=$HOME/.a2
+if [ -d "$A2_HOME/share/osgi/boot" ]; then
+	PREFIX=$A2_HOME
+else
+	PREFIX=/usr
+fi
 
-/usr/bin/jjs \
- -cp "$PREFIX/share/osgi/boot/org.eclipse.osgi.jar:$PREFIX/share/osgi/boot/org.argeo.osgi.boot.jar" \
- $*
+EQUINOX=$PREFIX/share/osgi/boot/org.eclipse.osgi.jar
+OSGI_BOOT=$PREFIX/share/osgi/boot/org.argeo.osgi.boot.jar
 
+/usr/bin/jjs -cp "$EQUINOX:$OSGI_BOOT" $*
