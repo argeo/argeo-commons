@@ -6,14 +6,10 @@ var appHome = demoHome + "/exec/argeo_node.js";
 var appConf = demoHome;
 var policyFile = "all.policy";
 
-// CMS config
 load("../dist/argeo-node/rpm/usr/share/node/jjs/cms.js");
-// Provisioning
 osgi.baseUrl = "http://forge.argeo.org/data/java/argeo-2.1/";
-osgi.install("org.argeo.commons:org.argeo.dep.cms.platform:2.1.70");
-// HTTP
-osgi.conf("org.osgi.service.http.port", 0);
-
-// osgi.conf("osgi.clean", true);
+osgi.install("org.argeo.commons:org.argeo.dep.cms.platform:2.1.71-SNAPSHOT");
+osgi.httpPort = 0;
+//osgi.clean = true;
 osgi.launch();
 openUi();

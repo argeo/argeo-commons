@@ -25,6 +25,10 @@ import org.osgi.util.tracker.ServiceTracker;
 
 /** OSGi builder, focusing on ease of use for scripting. */
 public class OsgiBuilder {
+	private final static String PROP_HTTP_PORT = "org.osgi.service.http.port";
+	private final static String PROP_HTTPS_PORT = "org.osgi.service.https.port";
+	private final static String PROP_OSGI_CLEAN = "osgi.clean";
+
 	private Map<Integer, StartLevel> startLevels = new TreeMap<>();
 	private List<String> distributionBundles = new ArrayList<>();
 
@@ -36,6 +40,7 @@ public class OsgiBuilder {
 		// configuration.put("osgi.clean", "true");
 		configuration.put(OsgiBoot.CONFIGURATION_AREA_PROP, System.getProperty(OsgiBoot.CONFIGURATION_AREA_PROP));
 		configuration.put(OsgiBoot.INSTANCE_AREA_PROP, System.getProperty(OsgiBoot.INSTANCE_AREA_PROP));
+		configuration.put(PROP_OSGI_CLEAN, System.getProperty(PROP_OSGI_CLEAN));
 	}
 
 	public Framework launch() {
@@ -168,24 +173,55 @@ public class OsgiBuilder {
 		System.exit(0);
 	}
 
+	public void setHttpPort(Integer port) {
+		checkNotLaunched();
+		configuration.put(PROP_HTTP_PORT, Integer.toString(port));
+	}
+
+	public void setHttpsPort(Integer port) {
+		checkNotLaunched();
+		configuration.put(PROP_HTTPS_PORT, Integer.toString(port));
+	}
+
+	public void setClean(boolean clean) {
+		checkNotLaunched();
+		configuration.put(PROP_OSGI_CLEAN, Boolean.toString(clean));
+	}
+
 	public Integer getHttpPort() {
-		ServiceReference<?> sr = getBc().getServiceReference("org.osgi.service.http.HttpService");
-		if (sr == null)
-			return -1;
-		Object port = sr.getProperty("http.port");
-		if (port == null)
-			return -1;
-		return Integer.parseInt(port.toString());
+		if (!isLaunched()) {
+			if (configuration.containsKey(PROP_HTTP_PORT))
+				return Integer.parseInt(configuration.get(PROP_HTTP_PORT));
+			else
+				return -1;
+		} else {
+			// TODO wait for service?
+			ServiceReference<?> sr = getBc().getServiceReference("org.osgi.service.http.HttpService");
+			if (sr == null)
+				return -1;
+			Object port = sr.getProperty("http.port");
+			if (port == null)
+				return -1;
+			return Integer.parseInt(port.toString());
+		}
 	}
 
 	public Integer getHttpsPort() {
-		ServiceReference<?> sr = getBc().getServiceReference("org.osgi.service.http.HttpService");
-		if (sr == null)
-			return -1;
-		Object port = sr.getProperty("https.port");
-		if (port == null)
-			return -1;
-		return Integer.parseInt(port.toString());
+		if (!isLaunched()) {
+			if (configuration.containsKey(PROP_HTTPS_PORT))
+				return Integer.parseInt(configuration.get(PROP_HTTPS_PORT));
+			else
+				return -1;
+		} else {
+			// TODO wait for service?
+			ServiceReference<?> sr = getBc().getServiceReference("org.osgi.service.http.HttpService");
+			if (sr == null)
+				return -1;
+			Object port = sr.getProperty("https.port");
+			if (port == null)
+				return -1;
+			return Integer.parseInt(port.toString());
+		}
 	}
 
 	public Object spring(String bundle) {
