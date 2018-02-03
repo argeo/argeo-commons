@@ -1,0 +1,9 @@
+#!/bin/sh
+
+PREFIX=$HOME/.a2
+#PREFIX=/usr
+
+/usr/bin/jjs \
+ -cp "$PREFIX/share/osgi/boot/org.eclipse.osgi.jar:$PREFIX/share/osgi/boot/org.argeo.osgi.boot.jar" \
+ $*
+

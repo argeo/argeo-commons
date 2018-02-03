@@ -67,9 +67,10 @@ public class OsgiBoot implements OsgiBootConstants {
 	// public final static String EXCLUDES_SVN_PATTERN = "**/.svn/**";
 
 	// OSGi system properties
-	public final static String PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL = "osgi.bundles.defaultStartLevel";
-	public final static String PROP_OSGI_STARTLEVEL = "osgi.startLevel";
-	public final static String INSTANCE_AREA_PROP = "osgi.instance.area";
+	final static String PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL = "osgi.bundles.defaultStartLevel";
+	final static String PROP_OSGI_STARTLEVEL = "osgi.startLevel";
+	final static String INSTANCE_AREA_PROP = "osgi.instance.area";
+	final static String CONFIGURATION_AREA_PROP = "osgi.configuration.area";
 
 	// Symbolic names
 	public final static String SYMBOLIC_NAME_OSGI_BOOT = "org.argeo.osgi.boot";
@@ -277,7 +278,7 @@ public class OsgiBoot implements OsgiBootConstants {
 		});
 	}
 
-	public static void computeStartLevels(SortedMap<Integer, List<String>> startLevels, Properties properties,
+	private static void computeStartLevels(SortedMap<Integer, List<String>> startLevels, Properties properties,
 			Integer defaultStartLevel) {
 
 		// default (and previously, only behaviour)
@@ -431,12 +432,11 @@ public class OsgiBoot implements OsgiBootConstants {
 	 * BUNDLE PATTERNS INSTALLATION
 	 */
 	/**
-	 * Computes a list of URLs based on Ant-like include/exclude patterns
-	 * defined by ${argeo.osgi.bundles} with the following format:<br>
+	 * Computes a list of URLs based on Ant-like include/exclude patterns defined by
+	 * ${argeo.osgi.bundles} with the following format:<br>
 	 * <code>/base/directory;in=*.jar;in=**;ex=org.eclipse.osgi_*;jar</code><br>
 	 * WARNING: <code>/base/directory;in=*.jar,\</code> at the end of a file,
-	 * without a new line causes a '.' to be appended with unexpected side
-	 * effects.
+	 * without a new line causes a '.' to be appended with unexpected side effects.
 	 */
 	public List<String> getBundlesUrls() {
 		String bundlePatterns = getProperty(PROP_ARGEO_OSGI_BUNDLES);
@@ -444,7 +444,7 @@ public class OsgiBoot implements OsgiBootConstants {
 	}
 
 	/**
-	 * Compute alist of URLs to install based on the provided patterns, with
+	 * Compute a list of URLs to install based on the provided patterns, with
 	 * default base url
 	 */
 	public List<String> getBundlesUrls(String bundlePatterns) {
@@ -453,7 +453,7 @@ public class OsgiBoot implements OsgiBootConstants {
 	}
 
 	/** Implements the path matching logic */
-	List<String> getBundlesUrls(String baseUrl, String bundlePatterns) {
+	public List<String> getBundlesUrls(String baseUrl, String bundlePatterns) {
 		List<String> urls = new ArrayList<String>();
 		if (bundlePatterns == null)
 			return urls;
@@ -519,15 +519,44 @@ public class OsgiBoot implements OsgiBootConstants {
 			return urls;
 
 		DistributionBundle distributionBundle;
-		if (baseUrl != null && !(distributionUrl.startsWith("http") || distributionUrl.startsWith("file"))) {
-			// relative url
-			distributionBundle = new DistributionBundle(baseUrl, distributionUrl, localCache);
-		} else {
+		if (distributionUrl.startsWith("http") || distributionUrl.startsWith("file")) {
 			distributionBundle = new DistributionBundle(distributionUrl);
 			if (baseUrl != null)
 				distributionBundle.setBaseUrl(baseUrl);
+		} else {
+			// relative url
+			if (baseUrl == null) {
+				baseUrl = localCache;
+			}
 
+			if (distributionUrl.contains(":")) {
+				// TODO make it safer
+				String[] parts = distributionUrl.trim().split(":");
+				String[] categoryParts = parts[0].split("\\.");
+				String artifactId = parts[1];
+				String version = parts[2];
+				StringBuilder sb = new StringBuilder();
+				for (String categoryPart : categoryParts) {
+					sb.append(categoryPart).append('/');
+				}
+				sb.append(artifactId).append('/');
+				sb.append(version).append('/');
+				sb.append(artifactId).append('-').append(version).append(".jar");
+				distributionUrl = sb.toString();
+			}
+
+			distributionBundle = new DistributionBundle(baseUrl, distributionUrl, localCache);
 		}
+		// if (baseUrl != null && !(distributionUrl.startsWith("http") ||
+		// distributionUrl.startsWith("file"))) {
+		// // relative url
+		// distributionBundle = new DistributionBundle(baseUrl, distributionUrl,
+		// localCache);
+		// } else {
+		// distributionBundle = new DistributionBundle(distributionUrl);
+		// if (baseUrl != null)
+		// distributionBundle.setBaseUrl(baseUrl);
+		// }
 		distributionBundle.processUrl();
 		return distributionBundle.listUrls();
 	}
@@ -672,6 +701,10 @@ public class OsgiBoot implements OsgiBootConstants {
 
 	public BundleContext getBundleContext() {
 		return bundleContext;
+	}
+
+	public String getLocalCache() {
+		return localCache;
 	}
 
 	// public void setDefaultTimeout(long defaultTimeout) {

@@ -29,8 +29,8 @@ public class OsgiBootUtils {
 	/** ISO8601 (as per log4j) and difference to UTC */
 	private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS Z");
 
-	static boolean debug = Boolean.valueOf(System.getProperty(OsgiBoot.PROP_ARGEO_OSGI_BOOT_DEBUG, "false"))
-			.booleanValue();
+	static boolean debug = System.getProperty(OsgiBoot.PROP_ARGEO_OSGI_BOOT_DEBUG) == null ? false
+			: !System.getProperty(OsgiBoot.PROP_ARGEO_OSGI_BOOT_DEBUG).trim().equals("false");
 
 	public static void info(Object obj) {
 		System.out.println("# OSGiBOOT      # " + dateFormat.format(new Date()) + " # " + obj);
@@ -49,6 +49,10 @@ public class OsgiBootUtils {
 		System.err.println("# OSGiBOOT ERR  # " + dateFormat.format(new Date()) + " # " + obj);
 		if (e != null)
 			e.printStackTrace();
+	}
+
+	public static boolean isDebug() {
+		return debug;
 	}
 
 	public static String stateAsString(int state) {
