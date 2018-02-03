@@ -34,3 +34,11 @@ if (typeof app !== 'undefined') {
 	System.setProperty("log4j.configuration", "file://" + appConf
 			+ "/log4j.properties");
 }
+
+function openUi(){
+	osgi.spring("org.argeo.cms.ui.workbench.rap");
+	var appUrl = "http://localhost:" + osgi.httpPort + "/ui/node";
+	$EXEC("/usr/bin/chromium-browser --app=" + appUrl);
+	// shutdown when the window is closed
+	osgi.shutdown();
+}

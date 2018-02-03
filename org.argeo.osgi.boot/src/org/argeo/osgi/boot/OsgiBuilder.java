@@ -159,6 +159,12 @@ public class OsgiBuilder {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		try {
+			framework.waitForStop(10 * 60 * 1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 		System.exit(0);
 	}
 
