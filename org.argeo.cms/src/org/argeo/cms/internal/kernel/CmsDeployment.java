@@ -151,9 +151,17 @@ public class CmsDeployment implements NodeDeployment {
 
 	private void checkReadiness() {
 		if (nodeAvailable && userAdminAvailable && (httpExpected ? httpAvailable : true)) {
+			String data = KernelUtils.getFrameworkProp(KernelUtils.OSGI_INSTANCE_AREA);
+			String state = KernelUtils.getFrameworkProp(KernelUtils.OSGI_CONFIGURATION_AREA);
 			availableSince = System.currentTimeMillis();
 			long jvmUptime = ManagementFactory.getRuntimeMXBean().getUptime();
-			log.info("## ARGEO CMS AVAILABLE in " + (jvmUptime / 1000) + "." + (jvmUptime % 1000) + "s ##");
+			String jvmUptimeStr = " in " + (jvmUptime / 1000) + "." + (jvmUptime % 1000) + "s";
+			log.info("## ARGEO NODE AVAILABLE" + (log.isDebugEnabled() ? jvmUptimeStr : "") + " ##");
+			if (log.isDebugEnabled()) {
+				log.debug("## state: " + state);
+				if (data != null)
+					log.debug("## data: " + data);
+			}
 			long begin = bc.getService(bc.getServiceReference(NodeState.class)).getAvailableSince();
 			long initDuration = System.currentTimeMillis() - begin;
 			if (log.isTraceEnabled())
