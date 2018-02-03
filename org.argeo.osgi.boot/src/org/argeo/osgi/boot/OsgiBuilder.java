@@ -11,17 +11,26 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.eclipse.osgi.launch.EquinoxFactory;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
+import org.osgi.util.tracker.BundleTracker;
+import org.osgi.util.tracker.ServiceTracker;
 
+/** OSGi builder, focusing on ease of use for scripting. */
 public class OsgiBuilder {
 	private Map<Integer, StartLevel> startLevels = new TreeMap<>();
 	private List<String> distributionBundles = new ArrayList<>();
 
 	private Map<String, String> configuration = new HashMap<String, String>();
 	private Framework framework;
+	private String baseUrl = null;
 
 	public OsgiBuilder() {
 		// configuration.put("osgi.clean", "true");
@@ -49,7 +58,7 @@ public class OsgiBuilder {
 		OsgiBoot osgiBoot = new OsgiBoot(framework.getBundleContext());
 		// install bundles
 		for (String distributionBundle : distributionBundles) {
-			List<String> bundleUrls = osgiBoot.getDistributionUrls(distributionBundle, null);
+			List<String> bundleUrls = osgiBoot.getDistributionUrls(distributionBundle, baseUrl);
 			osgiBoot.installUrls(bundleUrls);
 		}
 
@@ -88,9 +97,107 @@ public class OsgiBuilder {
 		return this;
 	}
 
+	public OsgiBuilder waitForBundle(String bundles) {
+		List<String> lst = new ArrayList<>();
+		Collections.addAll(lst, bundles.split(","));
+		BundleTracker<Object> bt = new BundleTracker<Object>(getBc(), Bundle.ACTIVE, null) {
+
+			@Override
+			public Object addingBundle(Bundle bundle, BundleEvent event) {
+				if (lst.contains(bundle.getSymbolicName())) {
+					return bundle.getSymbolicName();
+				} else {
+					return null;
+				}
+			}
+		};
+		bt.open();
+		while (bt.getTrackingCount() != lst.size()) {
+			try {
+				Thread.sleep(500l);
+			} catch (InterruptedException e) {
+				break;
+			}
+		}
+		bt.close();
+		return this;
+
+	}
+
+	public Object service(String service) {
+		return service(service, 0);
+	}
+
+	public Object service(String service, long timeout) {
+		ServiceTracker<Object, Object> st;
+		if (service.contains("(")) {
+			try {
+				st = new ServiceTracker<>(getBc(), FrameworkUtil.createFilter(service), null);
+			} catch (InvalidSyntaxException e) {
+				throw new IllegalArgumentException("Badly formatted filter", e);
+			}
+		} else {
+			st = new ServiceTracker<>(getBc(), service, null);
+		}
+		st.open();
+		try {
+			return st.waitForService(timeout);
+		} catch (InterruptedException e) {
+			OsgiBootUtils.error("Interrupted", e);
+			return null;
+		} finally {
+			st.close();
+		}
+
+	}
+
+	public void shutdown() {
+		checkLaunched();
+		try {
+			framework.stop();
+		} catch (BundleException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		System.exit(0);
+	}
+
+	public Integer getHttpPort() {
+		ServiceReference<?> sr = getBc().getServiceReference("org.osgi.service.http.HttpService");
+		if (sr == null)
+			return -1;
+		Object port = sr.getProperty("http.port");
+		if (port == null)
+			return -1;
+		return Integer.parseInt(port.toString());
+	}
+
+	public Integer getHttpsPort() {
+		ServiceReference<?> sr = getBc().getServiceReference("org.osgi.service.http.HttpService");
+		if (sr == null)
+			return -1;
+		Object port = sr.getProperty("https.port");
+		if (port == null)
+			return -1;
+		return Integer.parseInt(port.toString());
+	}
+
+	public Object spring(String bundle) {
+		return service("(&(Bundle-SymbolicName=" + bundle + ")"
+				+ "(objectClass=org.springframework.context.ApplicationContext))");
+	}
+
+	//
+	// BEAN
+	//
+
 	public BundleContext getBc() {
 		checkLaunched();
 		return framework.getBundleContext();
+	}
+
+	public void setBaseUrl(String baseUrl) {
+		this.baseUrl = baseUrl;
 	}
 
 	//
