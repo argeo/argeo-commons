@@ -6,12 +6,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 
-class HttpUtils {
-	final static String HEADER_AUTHORIZATION = "Authorization";
-	final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
+public class HttpUtils {
+	public final static String HEADER_AUTHORIZATION = "Authorization";
+	public final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
-	final static String DEFAULT_PROTECTED_HANDLERS = "/org/argeo/cms/internal/http/protectedHandlers.xml";
-	final static String WEBDAV_CONFIG = "/org/argeo/cms/internal/http/webdav-config.xml";
+	public final static String DEFAULT_PROTECTED_HANDLERS = "/org/argeo/cms/internal/http/protectedHandlers.xml";
+	public final static String WEBDAV_CONFIG = "/org/argeo/cms/internal/http/webdav-config.xml";
 
 	static boolean isBrowser(String userAgent) {
 		return userAgent.contains("webkit") || userAgent.contains("gecko") || userAgent.contains("firefox")
@@ -19,7 +19,7 @@ class HttpUtils {
 				|| userAgent.contains("opera") || userAgent.contains("browser");
 	}
 
-	static void logRequestHeaders(Log log, HttpServletRequest request) {
+	public static void logRequestHeaders(Log log, HttpServletRequest request) {
 		if (!log.isDebugEnabled())
 			return;
 		for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
@@ -30,7 +30,7 @@ class HttpUtils {
 		log.debug(request.getRequestURI() + "\n");
 	}
 
-	static void logRequest(Log log,HttpServletRequest request) {
+	public static void logRequest(Log log,HttpServletRequest request) {
 		log.debug("contextPath=" + request.getContextPath());
 		log.debug("servletPath=" + request.getServletPath());
 		log.debug("requestURI=" + request.getRequestURI());

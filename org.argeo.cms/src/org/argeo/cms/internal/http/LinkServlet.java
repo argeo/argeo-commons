@@ -34,7 +34,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 
-class LinkServlet extends HttpServlet {
+public class LinkServlet extends HttpServlet {
 	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
 	private static final long serialVersionUID = 3749990143146845708L;

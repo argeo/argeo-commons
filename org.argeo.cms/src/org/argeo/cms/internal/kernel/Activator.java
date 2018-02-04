@@ -59,6 +59,7 @@ public class Activator implements BundleActivator {
 			initSecurity();
 			initArgeoLogger();
 			initNode();
+			log.debug("Kernel bundle started");
 		} catch (Exception e) {
 			log.error("## FATAL: CMS activator failed", e);
 		}

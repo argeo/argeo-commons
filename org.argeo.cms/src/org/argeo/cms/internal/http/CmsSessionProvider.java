@@ -19,7 +19,7 @@ import org.argeo.jcr.JcrUtils;
  * Implements an open session in view patter: a new JCR session is created for
  * each request
  */
-class CmsSessionProvider implements SessionProvider, Serializable {
+public class CmsSessionProvider implements SessionProvider, Serializable {
 	private static final long serialVersionUID = -1358136599534938466L;
 
 	private final static Log log = LogFactory.getLog(CmsSessionProvider.class);

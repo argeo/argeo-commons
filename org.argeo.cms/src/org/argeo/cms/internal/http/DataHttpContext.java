@@ -16,7 +16,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.http.HttpContext;
 
-class DataHttpContext implements HttpContext {
+public class DataHttpContext implements HttpContext {
 	private final static Log log = LogFactory.getLog(DataHttpContext.class);
 
 	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();

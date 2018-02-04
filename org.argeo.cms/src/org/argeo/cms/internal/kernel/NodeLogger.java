@@ -129,6 +129,10 @@ class NodeLogger implements ArgeoLogger, LogListener {
 	// this.layout = layout;
 	// }
 
+	public String toString() {
+		return "Node Logger";
+	}
+
 	//
 	// OSGi LOGGER
 	//

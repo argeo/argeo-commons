@@ -1,4 +1,4 @@
-package org.argeo.cms.internal.http;
+package org.argeo.cms.internal.kernel;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,7 +16,12 @@ import org.apache.jackrabbit.server.SessionProvider;
 import org.apache.jackrabbit.server.remoting.davex.JcrRemotingServlet;
 import org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.internal.kernel.KernelConstants;
+import org.argeo.cms.internal.http.CmsSessionProvider;
+import org.argeo.cms.internal.http.DataHttpContext;
+import org.argeo.cms.internal.http.HttpUtils;
+import org.argeo.cms.internal.http.LinkServlet;
+import org.argeo.cms.internal.http.PrivateHttpContext;
+import org.argeo.cms.internal.http.RobotServlet;
 import org.argeo.node.NodeConstants;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -39,11 +44,12 @@ public class NodeHttp implements KernelConstants {
 	private ServiceTracker<Repository, Repository> repositories;
 	private final ServiceTracker<HttpService, HttpService> httpServiceTracker;
 
-	private String httpRealm = "Argeo";
+	private static String httpRealm = "Argeo";
 
 	public NodeHttp() {
 		httpServiceTracker = new PrepareHttpStc();
-		httpServiceTracker.open();
+		// httpServiceTracker.open();
+		KernelUtils.asyncOpen(httpServiceTracker);
 	}
 
 	public void destroy() {
@@ -51,7 +57,7 @@ public class NodeHttp implements KernelConstants {
 			repositories.close();
 	}
 
-	void registerRepositoryServlets(HttpService httpService, String alias, Repository repository) {
+	public static void registerRepositoryServlets(HttpService httpService, String alias, Repository repository) {
 		if (httpService == null)
 			throw new CmsException("No HTTP service available");
 		try {
@@ -66,7 +72,7 @@ public class NodeHttp implements KernelConstants {
 		}
 	}
 
-	void unregisterRepositoryServlets(HttpService httpService, String alias) {
+	public static void unregisterRepositoryServlets(HttpService httpService, String alias) {
 		if (httpService == null)
 			return;
 		try {
@@ -81,7 +87,7 @@ public class NodeHttp implements KernelConstants {
 		}
 	}
 
-	void registerWebdavServlet(HttpService httpService, String alias, Repository repository)
+	static void registerWebdavServlet(HttpService httpService, String alias, Repository repository)
 			throws NamespaceException, ServletException {
 		// WebdavServlet webdavServlet = new WebdavServlet(repository, new
 		// OpenInViewSessionProvider(alias));
@@ -93,7 +99,7 @@ public class NodeHttp implements KernelConstants {
 		httpService.registerServlet(path, webdavServlet, ip, new DataHttpContext(httpRealm));
 	}
 
-	void registerFilesServlet(HttpService httpService, String alias, Repository repository)
+	static void registerFilesServlet(HttpService httpService, String alias, Repository repository)
 			throws NamespaceException, ServletException {
 		WebdavServlet filesServlet = new WebdavServlet(repository, new CmsSessionProvider(alias));
 		String path = filesPath(alias);
@@ -103,7 +109,7 @@ public class NodeHttp implements KernelConstants {
 		httpService.registerServlet(path, filesServlet, ip, new PrivateHttpContext(httpRealm, true));
 	}
 
-	void registerRemotingServlet(HttpService httpService, String alias, Repository repository)
+	static void registerRemotingServlet(HttpService httpService, String alias, Repository repository)
 			throws NamespaceException, ServletException {
 		RemotingServlet remotingServlet = new RemotingServlet(repository, new CmsSessionProvider(alias));
 		String path = remotingPath(alias);
@@ -125,15 +131,15 @@ public class NodeHttp implements KernelConstants {
 		httpService.registerServlet(path, remotingServlet, ip, new PrivateHttpContext(httpRealm));
 	}
 
-	private String webdavPath(String alias) {
+	static String webdavPath(String alias) {
 		return NodeConstants.PATH_DATA + "/" + alias;
 	}
 
-	private String remotingPath(String alias) {
+	static String remotingPath(String alias) {
 		return NodeConstants.PATH_JCR + "/" + alias;
 	}
 
-	private String filesPath(String alias) {
+	static String filesPath(String alias) {
 		return NodeConstants.PATH_FILES;
 	}
 
@@ -153,12 +159,15 @@ public class NodeHttp implements KernelConstants {
 	// }
 	// }
 
-	private class RepositoriesStc extends ServiceTracker<Repository, Repository> {
+	static class RepositoriesStc extends ServiceTracker<Repository, Repository> {
 		private final HttpService httpService;
 
-		public RepositoriesStc(HttpService httpService) {
+		private final BundleContext bc;
+
+		public RepositoriesStc(BundleContext bc, HttpService httpService) {
 			super(bc, Repository.class, null);
 			this.httpService = httpService;
+			this.bc = bc;
 		}
 
 		@Override
@@ -196,7 +205,10 @@ public class NodeHttp implements KernelConstants {
 
 		@Override
 		public HttpService addingService(ServiceReference<HttpService> reference) {
+			long begin = System.currentTimeMillis();
+			log.debug("HTTP prepare starts...");
 			HttpService httpService = addHttpService(reference);
+			log.debug("HTTP prepare duration: " + (System.currentTimeMillis() - begin) + "ms");
 			return httpService;
 		}
 
@@ -228,8 +240,9 @@ public class NodeHttp implements KernelConstants {
 			// track repositories
 			if (repositories != null)
 				throw new CmsException("An http service is already configured");
-			repositories = new RepositoriesStc(httpService);
-			repositories.open();
+			repositories = new RepositoriesStc(bc, httpService);
+			// repositories.open();
+			KernelUtils.asyncOpen(repositories);
 			log.info(httpPortsMsg(httpPort, httpsPort));
 			// httpAvailable = true;
 			// checkReadiness();
@@ -243,7 +256,7 @@ public class NodeHttp implements KernelConstants {
 		}
 	}
 
-	private class WebdavServlet extends SimpleWebdavServlet {
+	private static class WebdavServlet extends SimpleWebdavServlet {
 		private static final long serialVersionUID = -4687354117811443881L;
 		private final Repository repository;
 
@@ -284,7 +297,7 @@ public class NodeHttp implements KernelConstants {
 
 	}
 
-	private class RemotingServlet extends JcrRemotingServlet {
+	private static class RemotingServlet extends JcrRemotingServlet {
 		private final Log log = LogFactory.getLog(RemotingServlet.class);
 		private static final long serialVersionUID = 4605238259548058883L;
 		private final Repository repository;

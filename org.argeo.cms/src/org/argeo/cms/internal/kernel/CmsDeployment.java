@@ -21,7 +21,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.core.RepositoryContext;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.internal.http.NodeHttp;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.node.DataModelNamespace;
 import org.argeo.node.NodeConstants;
@@ -78,7 +77,7 @@ public class CmsDeployment implements NodeDeployment {
 	}
 
 	private void initTrackers() {
-		new ServiceTracker<NodeHttp, NodeHttp>(bc, NodeHttp.class, null) {
+		ServiceTracker<?, ?> httpSt = new ServiceTracker<NodeHttp, NodeHttp>(bc, NodeHttp.class, null) {
 
 			@Override
 			public NodeHttp addingService(ServiceReference<NodeHttp> reference) {
@@ -86,17 +85,27 @@ public class CmsDeployment implements NodeDeployment {
 				checkReadiness();
 				return super.addingService(reference);
 			}
-		}.open();
-		new RepositoryContextStc().open();
-		new ServiceTracker<UserAdmin, UserAdmin>(bc, UserAdmin.class, null) {
+		};
+//		httpSt.open();
+		KernelUtils.asyncOpen(httpSt);
+
+		ServiceTracker<?, ?> repoContextSt = new RepositoryContextStc();
+//		repoContextSt.open();
+		KernelUtils.asyncOpen(repoContextSt);
+
+		ServiceTracker<?, ?> userAdminSt = new ServiceTracker<UserAdmin, UserAdmin>(bc, UserAdmin.class, null) {
 			@Override
 			public UserAdmin addingService(ServiceReference<UserAdmin> reference) {
 				userAdminAvailable = true;
 				checkReadiness();
 				return super.addingService(reference);
 			}
-		}.open();
-		new ServiceTracker<ConfigurationAdmin, ConfigurationAdmin>(bc, ConfigurationAdmin.class, null) {
+		};
+//		userAdminSt.open();
+		KernelUtils.asyncOpen(userAdminSt);
+
+		ServiceTracker<?, ?> confAdminSt = new ServiceTracker<ConfigurationAdmin, ConfigurationAdmin>(bc,
+				ConfigurationAdmin.class, null) {
 			@Override
 			public ConfigurationAdmin addingService(ServiceReference<ConfigurationAdmin> reference) {
 				ConfigurationAdmin configurationAdmin = bc.getService(reference);
@@ -130,7 +139,9 @@ public class CmsDeployment implements NodeDeployment {
 				}
 				return super.addingService(reference);
 			}
-		}.open();
+		};
+//		confAdminSt.open();
+		KernelUtils.asyncOpen(confAdminSt);
 	}
 
 	private void loadIpaJaasConfiguration() {

@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /** Requests authorisation */
-class PrivateHttpContext extends DataHttpContext {
+public class PrivateHttpContext extends DataHttpContext {
 
 	public PrivateHttpContext(String httpAuthrealm, boolean forceBasic) {
 		super(httpAuthrealm, forceBasic);

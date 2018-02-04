@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-class RobotServlet extends HttpServlet {
+public class RobotServlet extends HttpServlet {
 	private static final long serialVersionUID = 7935661175336419089L;
 
 	@Override

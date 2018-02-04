@@ -29,6 +29,7 @@ import org.argeo.node.NodeConstants;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.util.tracker.ServiceTracker;
 
 /** Package utilities */
 class KernelUtils implements KernelConstants {
@@ -188,9 +189,20 @@ class KernelUtils implements KernelConstants {
 		});
 	}
 
+	static void asyncOpen(ServiceTracker<?, ?> st) {
+		Runnable run = new Runnable() {
+
+			@Override
+			public void run() {
+				st.open();
+			}
+		};
+		new Thread(run, "Open service tracker " + st).start();
+	}
+
 	/**
-	 * @return the {@link BundleContext} of the {@link Bundle} which provided
-	 *         this class, never null.
+	 * @return the {@link BundleContext} of the {@link Bundle} which provided this
+	 *         class, never null.
 	 * @throws CmsException
 	 *             if the related bundle is not active
 	 */
