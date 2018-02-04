@@ -215,16 +215,21 @@ public class OsgiBoot implements OsgiBootConstants {
 				}
 			}
 		} catch (BundleException e) {
+			final String ALREADY_INSTALLED = "is already installed";
 			String message = e.getMessage();
 			if ((message.contains("Bundle \"" + SYMBOLIC_NAME_OSGI_BOOT + "\"")
 					|| message.contains("Bundle \"" + SYMBOLIC_NAME_EQUINOX + "\""))
-					&& message.contains("is already installed")) {
+					&& message.contains(ALREADY_INSTALLED)) {
 				// silent, in order to avoid warnings: we know that both
 				// have already been installed...
 			} else {
-				OsgiBootUtils.warn("Could not install bundle from " + url + ": " + message);
+				if (message.contains(ALREADY_INSTALLED)) {
+					if (OsgiBootUtils.isDebug())
+						OsgiBootUtils.warn("Duplicate install from " + url + ": " + message);
+				} else
+					OsgiBootUtils.warn("Could not install bundle from " + url + ": " + message);
 			}
-			if (OsgiBootUtils.debug && !message.contains("is already installed"))
+			if (OsgiBootUtils.debug && !message.contains(ALREADY_INSTALLED))
 				e.printStackTrace();
 		}
 	}
