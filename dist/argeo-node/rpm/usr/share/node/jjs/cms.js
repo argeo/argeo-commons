@@ -37,7 +37,7 @@ if (typeof app !== 'undefined') {
 			+ "/log4j.properties");
 }
 
-function openUi() {
+function openWorkbench() {
 	osgi.spring("org.argeo.cms.ui.workbench.rap");
 	var appUrl = "http://localhost:" + osgi.httpPort + "/ui/node";
 	$EXEC("/usr/bin/chromium-browser --app=" + appUrl);

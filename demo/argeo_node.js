@@ -12,4 +12,4 @@ osgi.install("org.argeo.commons:org.argeo.dep.cms.platform:2.1.71-SNAPSHOT");
 osgi.httpPort = 0;
 //osgi.clean = true;
 osgi.launch();
-openUi();
+openWorkbench();
