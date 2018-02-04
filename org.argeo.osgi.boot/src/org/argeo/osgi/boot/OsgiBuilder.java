@@ -102,6 +102,11 @@ public class OsgiBuilder {
 		return this;
 	}
 
+	public OsgiBuilder waitForServlet(String base) {
+		service("(&(objectClass=javax.servlet.Servlet)(osgi.http.whiteboard.servlet.pattern=" + base + "))");
+		return this;
+	}
+
 	public OsgiBuilder waitForBundle(String bundles) {
 		List<String> lst = new ArrayList<>();
 		Collections.addAll(lst, bundles.split(","));
