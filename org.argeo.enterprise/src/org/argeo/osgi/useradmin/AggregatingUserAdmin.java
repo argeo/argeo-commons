@@ -90,9 +90,18 @@ public class AggregatingUserAdmin implements UserAdmin {
 			Authorization auth = systemRoles.getAuthorization((User) userAdmin.getRole(role));
 			sysRoles.addAll(Arrays.asList(auth.getRoles()));
 		}
+		addAbstractSystemRoles(rawAuthorization, sysRoles);
 		Authorization authorization = new AggregatingAuthorization(rawAuthorization.getName(),
 				rawAuthorization.toString(), sysRoles, rawAuthorization.getRoles());
 		return authorization;
+	}
+
+	/**
+	 * Enrich with application-specific roles which are strictly programmatic, such
+	 * as anonymous/user semantics.
+	 */
+	protected void addAbstractSystemRoles(Authorization rawAuthorization, Set<String> sysRoles) {
+
 	}
 
 	//
@@ -181,8 +190,8 @@ public class AggregatingUserAdmin implements UserAdmin {
 	}
 
 	/**
-	 * Called before each user directory is destroyed, so that additional
-	 * actions can be performed.
+	 * Called before each user directory is destroyed, so that additional actions
+	 * can be performed.
 	 */
 	protected void preDestroy(AbstractUserDirectory userDirectory) {
 	}

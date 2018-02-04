@@ -65,19 +65,21 @@ class CmsAuthUtils {
 				name = NodeSecurityUtils.ROLE_ANONYMOUS_NAME;
 				userPrincipal = new AnonymousPrincipal();
 				principals.add(userPrincipal);
-				// principals.add(new AnonymousPrincipal());
 			} else {
 				name = new LdapName(authName);
 				NodeSecurityUtils.checkUserName(name);
 				userPrincipal = new X500Principal(name.toString());
 				principals.add(userPrincipal);
-				principals.add(new ImpliedByPrincipal(NodeSecurityUtils.ROLE_USER_NAME, userPrincipal));
+				// principals.add(new ImpliedByPrincipal(NodeSecurityUtils.ROLE_USER_NAME,
+				// userPrincipal));
 			}
 
 			// Add roles provided by authorization
 			for (String role : authorization.getRoles()) {
 				LdapName roleName = new LdapName(role);
 				if (roleName.equals(name)) {
+					// skip
+				} else if (roleName.equals(NodeSecurityUtils.ROLE_ANONYMOUS_NAME)) {
 					// skip
 				} else {
 					NodeSecurityUtils.checkImpliedPrincipalName(roleName);

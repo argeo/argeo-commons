@@ -33,8 +33,8 @@ public class NodeSecurityUtils {
 	}
 
 	public static void checkImpliedPrincipalName(LdapName roleName) throws IllegalArgumentException {
-		if (ROLE_USER_NAME.equals(roleName) || ROLE_ANONYMOUS_NAME.equals(roleName))
-			throw new IllegalArgumentException(roleName + " cannot be listed as role");
+//		if (ROLE_USER_NAME.equals(roleName) || ROLE_ANONYMOUS_NAME.equals(roleName))
+//			throw new IllegalArgumentException(roleName + " cannot be listed as role");
 	}
 
 }

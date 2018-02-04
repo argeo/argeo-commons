@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
@@ -58,6 +59,7 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
+import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -160,6 +162,17 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 	@Override
 	public String getName() {
 		return "Node User Admin";
+	}
+	
+	
+
+	@Override
+	protected void addAbstractSystemRoles(Authorization rawAuthorization, Set<String> sysRoles) {
+		if(rawAuthorization.getName()==null) {
+			sysRoles.add(NodeConstants.ROLE_ANONYMOUS);
+		}else {
+			sysRoles.add(NodeConstants.ROLE_USER);
+		}
 	}
 
 	protected void postAdd(AbstractUserDirectory userDirectory) {
