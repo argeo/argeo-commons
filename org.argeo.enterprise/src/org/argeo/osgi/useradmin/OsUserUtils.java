@@ -12,7 +12,7 @@ import javax.security.auth.login.LoginException;
 
 public class OsUserUtils {
 	private static String LOGIN_CONTEXT_USER_NIX = "USER_NIX";
-	private static String LOGIN_CONTEXT_USER_WINDOWS = "USER_WINDOWS";
+	private static String LOGIN_CONTEXT_USER_NT = "USER_NT";
 
 	public static String getOsUsername() {
 		return System.getProperty("user.name");
@@ -24,12 +24,12 @@ public class OsUserUtils {
 					.getResource("org/argeo/osgi/useradmin/jaas-os.cfg");
 			URIParameter uriParameter = new URIParameter(jaasConfigurationUrl.toURI());
 			Configuration jaasConfiguration = Configuration.getInstance("JavaLoginConfig", uriParameter);
-			LoginContext lc = new LoginContext(isWindows() ? LOGIN_CONTEXT_USER_WINDOWS : LOGIN_CONTEXT_USER_NIX,
-					subject, null, jaasConfiguration);
+			LoginContext lc = new LoginContext(isWindows() ? LOGIN_CONTEXT_USER_NT : LOGIN_CONTEXT_USER_NIX, subject,
+					null, jaasConfiguration);
 			lc.login();
 			return lc;
 		} catch (URISyntaxException | NoSuchAlgorithmException | LoginException e) {
-			throw new RuntimeException("Cannot loging as system user", e);
+			throw new RuntimeException("Cannot login as system user", e);
 		}
 	}
 
