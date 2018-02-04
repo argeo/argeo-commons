@@ -19,6 +19,7 @@ import static org.argeo.osgi.boot.OsgiBootUtils.debug;
 import static org.argeo.osgi.boot.OsgiBootUtils.warn;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -95,8 +96,8 @@ public class OsgiBoot implements OsgiBootConstants {
 	/** Constructor */
 	public OsgiBoot(BundleContext bundleContext) {
 		this.bundleContext = bundleContext;
-		localCache = getProperty(PROP_ARGEO_OSGI_LOCAL_CACHE,
-				"file://" + System.getProperty("user.home") + "/.m2/repository/");
+		String homeUri = Paths.get(System.getProperty("user.home")).toUri().toString();
+		localCache = getProperty(PROP_ARGEO_OSGI_LOCAL_CACHE, homeUri + ".m2/repository/");
 	}
 
 	/*

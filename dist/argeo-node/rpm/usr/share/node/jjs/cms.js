@@ -1,4 +1,4 @@
-var System = Java.type("java.lang.System")
+var System = Java.type("java.lang.System");
 var OsgiBuilder = Java.type("org.argeo.osgi.boot.OsgiBuilder");
 
 var osgi = new OsgiBuilder();
@@ -18,12 +18,14 @@ osgi.conf("org.osgi.framework.bootdelegation", "com.sun.jndi.ldap,"
 		+ "com.sun.jndi.ldap.sasl," + "com.sun.security.jgss,"
 		+ "com.sun.jndi.dns," + "com.sun.nio.file," + "com.sun.nio.sctp");
 
+var homeUri = java.nio.file.Paths
+		.get(java.lang.System.getProperty("user.home")).toUri().toString();
 if (typeof app !== 'undefined') {
 	if (typeof appHome == 'undefined') {
-		var appHome = $ENV.HOME + "/.a2/var/lib/" + app;
+		var appHome = homeUri + "/.a2/var/lib/" + app;
 	}
 	if (typeof appConf == 'undefined') {
-		var appConf = $ENV.HOME + "/.a2/etc/" + app;
+		var appConf = homeUri + "/.a2/etc/" + app;
 	}
 	if (typeof policyFile == 'undefined') {
 		var policyFile = "node.policy";
@@ -31,10 +33,8 @@ if (typeof app !== 'undefined') {
 	osgi.conf("osgi.configuration.area", appHome + "/state");
 	osgi.conf("osgi.instance.area", appHome + "/data");
 	System.setProperty("java.security.manager", "");
-	System.setProperty("java.security.policy", "file://" + appConf + "/"
-			+ policyFile);
-	System.setProperty("log4j.configuration", "file://" + appConf
-			+ "/log4j.properties");
+	System.setProperty("java.security.policy", appConf + "/" + policyFile);
+	System.setProperty("log4j.configuration", appConf + "/log4j.properties");
 }
 
 function openWorkbench() {
