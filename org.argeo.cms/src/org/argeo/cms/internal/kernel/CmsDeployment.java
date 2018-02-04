@@ -2,6 +2,7 @@ package org.argeo.cms.internal.kernel;
 
 import static org.argeo.node.DataModelNamespace.CMS_DATA_MODEL_NAMESPACE;
 
+import java.io.File;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.management.ManagementFactory;
@@ -86,11 +87,11 @@ public class CmsDeployment implements NodeDeployment {
 				return super.addingService(reference);
 			}
 		};
-//		httpSt.open();
+		// httpSt.open();
 		KernelUtils.asyncOpen(httpSt);
 
 		ServiceTracker<?, ?> repoContextSt = new RepositoryContextStc();
-//		repoContextSt.open();
+		// repoContextSt.open();
 		KernelUtils.asyncOpen(repoContextSt);
 
 		ServiceTracker<?, ?> userAdminSt = new ServiceTracker<UserAdmin, UserAdmin>(bc, UserAdmin.class, null) {
@@ -101,7 +102,7 @@ public class CmsDeployment implements NodeDeployment {
 				return super.addingService(reference);
 			}
 		};
-//		userAdminSt.open();
+		// userAdminSt.open();
 		KernelUtils.asyncOpen(userAdminSt);
 
 		ServiceTracker<?, ?> confAdminSt = new ServiceTracker<ConfigurationAdmin, ConfigurationAdmin>(bc,
@@ -140,7 +141,7 @@ public class CmsDeployment implements NodeDeployment {
 				return super.addingService(reference);
 			}
 		};
-//		confAdminSt.open();
+		// confAdminSt.open();
 		KernelUtils.asyncOpen(confAdminSt);
 	}
 
@@ -270,16 +271,21 @@ public class CmsDeployment implements NodeDeployment {
 		// CND
 		String path = (String) attrs.get(DataModelNamespace.CAPABILITY_CND_ATTRIBUTE);
 		if (path != null) {
-			URL url = capability.getRevision().getBundle().getResource(path);
-			if (url == null)
-				throw new CmsException("No data model '" + name + "' found under path " + path);
-			try (Reader reader = new InputStreamReader(url.openStream())) {
-				CndImporter.registerNodeTypes(reader, adminSession, true);
-				processed.add(name);
-				if (log.isDebugEnabled())
-					log.debug("Registered CND " + url);
-			} catch (Exception e) {
-				throw new CmsException("Cannot import CND " + url, e);
+			File dataModel = bc.getBundle().getDataFile("dataModels/" + path);
+			if (!dataModel.exists()) {
+				URL url = capability.getRevision().getBundle().getResource(path);
+				if (url == null)
+					throw new CmsException("No data model '" + name + "' found under path " + path);
+				try (Reader reader = new InputStreamReader(url.openStream())) {
+					CndImporter.registerNodeTypes(reader, adminSession, true);
+					processed.add(name);
+					dataModel.getParentFile().mkdirs();
+					dataModel.createNewFile();
+					if (log.isDebugEnabled())
+						log.debug("Registered CND " + url);
+				} catch (Exception e) {
+					throw new CmsException("Cannot import CND " + url, e);
+				}
 			}
 		}
 
