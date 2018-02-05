@@ -35,7 +35,7 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.security.PasswordBasedEncryption;
+import org.argeo.util.PasswordEncryption;
 
 public class PasswordBasedEncryptionTest extends TestCase {
 	private final static Log log = LogFactory
@@ -43,7 +43,7 @@ public class PasswordBasedEncryptionTest extends TestCase {
 
 	public void testEncryptDecrypt() {
 		final String password = "test long password since they are safer";
-		PasswordBasedEncryption pbeEnc = new PasswordBasedEncryption(
+		PasswordEncryption pbeEnc = new PasswordEncryption(
 				password.toCharArray());
 		String message = "Hello World!";
 		log.info("Password:\t'" + password + "'");
@@ -51,7 +51,7 @@ public class PasswordBasedEncryptionTest extends TestCase {
 		byte[] encrypted = pbeEnc.encryptString(message);
 		log.info("Encrypted:\t'"
 				+ DatatypeConverter.printBase64Binary(encrypted) + "'");
-		PasswordBasedEncryption pbeDec = new PasswordBasedEncryption(
+		PasswordEncryption pbeDec = new PasswordEncryption(
 				password.toCharArray());
 		InputStream in = null;
 		in = new ByteArrayInputStream(encrypted);

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.cms.security;
+package org.argeo.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -33,11 +33,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.io.IOUtils;
-import org.argeo.cms.CmsException;
-
-/** Simple password based encryption / decryption */
-public class PasswordBasedEncryption {
+public class PasswordEncryption {
 	public final static Integer DEFAULT_ITERATION_COUNT = 1024;
 	/** Stronger with 256, but causes problem with Oracle JVM */
 	public final static Integer DEFAULT_SECRETE_KEY_LENGTH = 256;
@@ -53,13 +49,11 @@ public class PasswordBasedEncryption {
 	private String secreteKeyEncryption = DEFAULT_SECRETE_KEY_ENCRYPTION;
 	private String cipherName = DEFAULT_CIPHER_NAME;
 
-	private static byte[] DEFAULT_SALT_8 = { (byte) 0xA9, (byte) 0x9B,
-			(byte) 0xC8, (byte) 0x32, (byte) 0x56, (byte) 0x35, (byte) 0xE3,
-			(byte) 0x03 };
-	private static byte[] DEFAULT_IV_16 = { (byte) 0xA9, (byte) 0x9B,
-			(byte) 0xC8, (byte) 0x32, (byte) 0x56, (byte) 0x35, (byte) 0xE3,
-			(byte) 0x03, (byte) 0xA9, (byte) 0x9B, (byte) 0xC8, (byte) 0x32,
-			(byte) 0x56, (byte) 0x35, (byte) 0xE3, (byte) 0x03 };
+	private static byte[] DEFAULT_SALT_8 = { (byte) 0xA9, (byte) 0x9B, (byte) 0xC8, (byte) 0x32, (byte) 0x56,
+			(byte) 0x35, (byte) 0xE3, (byte) 0x03 };
+	private static byte[] DEFAULT_IV_16 = { (byte) 0xA9, (byte) 0x9B, (byte) 0xC8, (byte) 0x32, (byte) 0x56,
+			(byte) 0x35, (byte) 0xE3, (byte) 0x03, (byte) 0xA9, (byte) 0x9B, (byte) 0xC8, (byte) 0x32, (byte) 0x56,
+			(byte) 0x35, (byte) 0xE3, (byte) 0x03 };
 
 	private Key key;
 	private Cipher ecipher;
@@ -71,7 +65,7 @@ public class PasswordBasedEncryption {
 	 * This is up to the caller to clear the passed array. Neither copy of nor
 	 * reference to the passed array is kept
 	 */
-	public PasswordBasedEncryption(char[] password) {
+	public PasswordEncryption(char[] password) {
 		this(password, DEFAULT_SALT_8, DEFAULT_IV_16);
 	}
 
@@ -79,29 +73,26 @@ public class PasswordBasedEncryption {
 	 * This is up to the caller to clear the passed array. Neither copies of nor
 	 * references to the passed arrays are kept
 	 */
-	public PasswordBasedEncryption(char[] password, byte[] passwordSalt,
-			byte[] initializationVector) {
+	public PasswordEncryption(char[] password, byte[] passwordSalt, byte[] initializationVector) {
 		try {
 			initKeyAndCiphers(password, passwordSalt, initializationVector);
 		} catch (InvalidKeyException e) {
 			Integer previousSecreteKeyLength = secreteKeyLength;
 			secreteKeyLength = DEFAULT_SECRETE_KEY_LENGTH_RESTRICTED;
-			System.err.println("'" + e.getMessage() + "', will use "
-					+ secreteKeyLength + " secrete key length instead of "
-					+ previousSecreteKeyLength);
+			System.err.println("'" + e.getMessage() + "', will use " + secreteKeyLength
+					+ " secrete key length instead of " + previousSecreteKeyLength);
 			try {
 				initKeyAndCiphers(password, passwordSalt, initializationVector);
 			} catch (Exception e1) {
-				throw new CmsException(
-						"Cannot get secret key (with restricted length)", e1);
+				throw new UtilsException("Cannot get secret key (with restricted length)", e1);
 			}
 		} catch (Exception e) {
-			throw new CmsException("Cannot get secret key", e);
+			throw new UtilsException("Cannot get secret key", e);
 		}
 	}
 
-	protected void initKeyAndCiphers(char[] password, byte[] passwordSalt,
-			byte[] initializationVector) throws GeneralSecurityException {
+	protected void initKeyAndCiphers(char[] password, byte[] passwordSalt, byte[] initializationVector)
+			throws GeneralSecurityException {
 		byte[] salt = new byte[8];
 		System.arraycopy(passwordSalt, 0, salt, 0, salt.length);
 		// for (int i = 0; i < password.length && i < salt.length; i++)
@@ -109,10 +100,8 @@ public class PasswordBasedEncryption {
 		byte[] iv = new byte[16];
 		System.arraycopy(initializationVector, 0, iv, 0, iv.length);
 
-		SecretKeyFactory keyFac = SecretKeyFactory
-				.getInstance(getSecretKeyFactoryName());
-		PBEKeySpec keySpec = new PBEKeySpec(password, salt,
-				getIterationCount(), getKeyLength());
+		SecretKeyFactory keyFac = SecretKeyFactory.getInstance(getSecretKeyFactoryName());
+		PBEKeySpec keySpec = new PBEKeySpec(password, salt, getIterationCount(), getKeyLength());
 		String secKeyEncryption = getSecretKeyEncryption();
 		if (secKeyEncryption != null) {
 			SecretKey tmp = keyFac.generateSecret(keySpec);
@@ -129,34 +118,30 @@ public class PasswordBasedEncryption {
 		dcipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
 	}
 
-	public void encrypt(InputStream decryptedIn, OutputStream encryptedOut)
-			throws IOException {
+	public void encrypt(InputStream decryptedIn, OutputStream encryptedOut) throws IOException {
 		try {
-			CipherOutputStream out = new CipherOutputStream(encryptedOut,
-					ecipher);
-			IOUtils.copy(decryptedIn, out);
-			IOUtils.closeQuietly(out);
+			CipherOutputStream out = new CipherOutputStream(encryptedOut, ecipher);
+			StreamUtils.copy(decryptedIn, out);
+			StreamUtils.closeQuietly(out);
 		} catch (IOException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new CmsException("Cannot encrypt", e);
+			throw new UtilsException("Cannot encrypt", e);
 		} finally {
-			IOUtils.closeQuietly(decryptedIn);
+			StreamUtils.closeQuietly(decryptedIn);
 		}
 	}
 
-	public void decrypt(InputStream encryptedIn, OutputStream decryptedOut)
-			throws IOException {
+	public void decrypt(InputStream encryptedIn, OutputStream decryptedOut) throws IOException {
 		try {
-			CipherInputStream decryptedIn = new CipherInputStream(encryptedIn,
-					dcipher);
-			IOUtils.copy(decryptedIn, decryptedOut);
+			CipherInputStream decryptedIn = new CipherInputStream(encryptedIn, dcipher);
+			StreamUtils.copy(decryptedIn, decryptedOut);
 		} catch (IOException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new CmsException("Cannot decrypt", e);
+			throw new UtilsException("Cannot decrypt", e);
 		} finally {
-			IOUtils.closeQuietly(encryptedIn);
+			StreamUtils.closeQuietly(encryptedIn);
 		}
 	}
 
@@ -169,9 +154,9 @@ public class PasswordBasedEncryption {
 			encrypt(in, out);
 			return out.toByteArray();
 		} catch (Exception e) {
-			throw new CmsException("Cannot encrypt", e);
+			throw new UtilsException("Cannot encrypt", e);
 		} finally {
-			IOUtils.closeQuietly(out);
+			StreamUtils.closeQuietly(out);
 		}
 	}
 
@@ -183,9 +168,9 @@ public class PasswordBasedEncryption {
 			decrypt(in, out);
 			return new String(out.toByteArray(), DEFAULT_CHARSET);
 		} catch (Exception e) {
-			throw new CmsException("Cannot decrypt", e);
+			throw new UtilsException("Cannot decrypt", e);
 		} finally {
-			IOUtils.closeQuietly(out);
+			StreamUtils.closeQuietly(out);
 		}
 	}
 

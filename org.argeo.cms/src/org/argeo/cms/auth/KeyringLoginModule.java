@@ -30,8 +30,8 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.argeo.cms.security.PasswordBasedEncryption;
 import org.argeo.node.security.PBEKeySpecCallback;
+import org.argeo.util.PasswordEncryption;
 
 /** Adds a secret key to the private credentials */
 public class KeyringLoginModule implements LoginModule {
@@ -39,8 +39,8 @@ public class KeyringLoginModule implements LoginModule {
 	private CallbackHandler callbackHandler;
 	private SecretKey secretKey;
 
-	public void initialize(Subject subject, CallbackHandler callbackHandler,
-			Map<String, ?> sharedState, Map<String, ?> options) {
+	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,
+			Map<String, ?> options) {
 		this.subject = subject;
 		if (subject == null) {
 			subject = Subject.getSubject(AccessController.getContext());
@@ -49,9 +49,9 @@ public class KeyringLoginModule implements LoginModule {
 	}
 
 	public boolean login() throws LoginException {
-		Set<SecretKey> pbes = subject.getPrivateCredentials(SecretKey.class);
-		if (pbes.size() > 0)
-			return true;
+//		Set<SecretKey> pbes = subject.getPrivateCredentials(SecretKey.class);
+//		if (pbes.size() > 0)
+//			return true;
 		PasswordCallback pc = new PasswordCallback("Master password", false);
 		PBEKeySpecCallback pbeCb = new PBEKeySpecCallback();
 		Callback[] callbacks = { pc, pbeCb };
@@ -59,21 +59,17 @@ public class KeyringLoginModule implements LoginModule {
 			callbackHandler.handle(callbacks);
 			char[] password = pc.getPassword();
 
-			SecretKeyFactory keyFac = SecretKeyFactory.getInstance(pbeCb
-					.getSecretKeyFactory());
+			SecretKeyFactory keyFac = SecretKeyFactory.getInstance(pbeCb.getSecretKeyFactory());
 			PBEKeySpec keySpec;
 			if (pbeCb.getKeyLength() != null)
-				keySpec = new PBEKeySpec(password, pbeCb.getSalt(),
-						pbeCb.getIterationCount(), pbeCb.getKeyLength());
+				keySpec = new PBEKeySpec(password, pbeCb.getSalt(), pbeCb.getIterationCount(), pbeCb.getKeyLength());
 			else
-				keySpec = new PBEKeySpec(password, pbeCb.getSalt(),
-						pbeCb.getIterationCount());
+				keySpec = new PBEKeySpec(password, pbeCb.getSalt(), pbeCb.getIterationCount());
 
 			String secKeyEncryption = pbeCb.getSecretKeyEncryption();
 			if (secKeyEncryption != null) {
 				SecretKey tmp = keyFac.generateSecret(keySpec);
-				secretKey = new SecretKeySpec(tmp.getEncoded(),
-						secKeyEncryption);
+				secretKey = new SecretKeySpec(tmp.getEncoded(), secKeyEncryption);
 			} else {
 				secretKey = keyFac.generateSecret(keySpec);
 			}
@@ -86,8 +82,10 @@ public class KeyringLoginModule implements LoginModule {
 	}
 
 	public boolean commit() throws LoginException {
-		if (secretKey != null)
+		if (secretKey != null) {
+			subject.getPrivateCredentials().removeAll(subject.getPrivateCredentials(SecretKey.class));
 			subject.getPrivateCredentials().add(secretKey);
+		}
 		return true;
 	}
 
@@ -96,8 +94,7 @@ public class KeyringLoginModule implements LoginModule {
 	}
 
 	public boolean logout() throws LoginException {
-		Set<PasswordBasedEncryption> pbes = subject
-				.getPrivateCredentials(PasswordBasedEncryption.class);
+		Set<PasswordEncryption> pbes = subject.getPrivateCredentials(PasswordEncryption.class);
 		pbes.clear();
 		return true;
 	}

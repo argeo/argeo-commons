@@ -25,7 +25,6 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.security.AccessController;
-import java.security.MessageDigest;
 import java.security.Provider;
 import java.security.Security;
 import java.util.Arrays;
@@ -43,15 +42,16 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.commons.io.IOUtils;
 import org.argeo.cms.CmsException;
+import org.argeo.node.NodeConstants;
 import org.argeo.node.security.CryptoKeyring;
 import org.argeo.node.security.Keyring;
 import org.argeo.node.security.PBEKeySpecCallback;
 
 /** username / password based keyring. TODO internationalize */
 public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
-	public final static String DEFAULT_KEYRING_LOGIN_CONTEXT = "KEYRING";
+	// public final static String DEFAULT_KEYRING_LOGIN_CONTEXT = "KEYRING";
 
-	private String loginContextName = DEFAULT_KEYRING_LOGIN_CONTEXT;
+	// private String loginContextName = DEFAULT_KEYRING_LOGIN_CONTEXT;
 	private CallbackHandler defaultCallbackHandler;
 
 	private String charset = "UTF-8";
@@ -82,16 +82,18 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 	protected abstract InputStream decrypt(String path);
 
 	/** Triggers lazy initialization */
-	protected SecretKey getSecretKey() {
+	protected SecretKey getSecretKey(char[] password) {
 		Subject subject = Subject.getSubject(AccessController.getContext());
 		// we assume only one secrete key is available
 		Iterator<SecretKey> iterator = subject.getPrivateCredentials(SecretKey.class).iterator();
-		if (!iterator.hasNext()) {// not initialized
-			CallbackHandler callbackHandler = new KeyringCallbackHandler();
+		if (!iterator.hasNext() || password!=null) {// not initialized
+			CallbackHandler callbackHandler = password == null ? new KeyringCallbackHandler()
+					: new PasswordProvidedCallBackHandler(password);
 			ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
 			Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 			try {
-				LoginContext loginContext = new LoginContext(loginContextName, subject, callbackHandler);
+				LoginContext loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_KEYRING, subject,
+						callbackHandler);
 				loginContext.login();
 				// FIXME will login even if password is wrong
 				iterator = subject.getPrivateCredentials(SecretKey.class).iterator();
@@ -119,48 +121,55 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 	}
 
 	public char[] getAsChars(String path) {
-		InputStream in = getAsStream(path);
-		CharArrayWriter writer = null;
-		Reader reader = null;
-		try {
-			writer = new CharArrayWriter();
-			reader = new InputStreamReader(in, charset);
+		// InputStream in = getAsStream(path);
+		// CharArrayWriter writer = null;
+		// Reader reader = null;
+		try (InputStream in = getAsStream(path);
+				CharArrayWriter writer = new CharArrayWriter();
+				Reader reader = new InputStreamReader(in, charset);) {
 			IOUtils.copy(reader, writer);
 			return writer.toCharArray();
 		} catch (IOException e) {
 			throw new CmsException("Cannot decrypt to char array", e);
 		} finally {
-			IOUtils.closeQuietly(reader);
-			IOUtils.closeQuietly(in);
-			IOUtils.closeQuietly(writer);
+			// IOUtils.closeQuietly(reader);
+			// IOUtils.closeQuietly(in);
+			// IOUtils.closeQuietly(writer);
 		}
 	}
 
 	public void set(String path, char[] arr) {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ByteArrayInputStream in = null;
-		Writer writer = null;
-		try {
-			writer = new OutputStreamWriter(out, charset);
+		// ByteArrayOutputStream out = new ByteArrayOutputStream();
+		// ByteArrayInputStream in = null;
+		// Writer writer = null;
+		try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+				Writer writer = new OutputStreamWriter(out, charset);) {
+			// writer = new OutputStreamWriter(out, charset);
 			writer.write(arr);
 			writer.flush();
-			in = new ByteArrayInputStream(out.toByteArray());
-			set(path, in);
+			// in = new ByteArrayInputStream(out.toByteArray());
+			try (ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());) {
+				set(path, in);
+			}
 		} catch (IOException e) {
 			throw new CmsException("Cannot encrypt to char array", e);
 		} finally {
-			IOUtils.closeQuietly(writer);
-			IOUtils.closeQuietly(out);
-			IOUtils.closeQuietly(in);
+			// IOUtils.closeQuietly(writer);
+			// IOUtils.closeQuietly(out);
+			// IOUtils.closeQuietly(in);
 		}
+	}
+
+	public void unlock(char[] password) {
+		if (!isSetup())
+			setup(password);
+		SecretKey secretKey = getSecretKey(password);
+		if (secretKey == null)
+			throw new CmsException("Could not unlock keyring");
 	}
 
 	protected Provider getSecurityProvider() {
 		return Security.getProvider(securityProviderName);
-	}
-
-	public void setLoginContextName(String loginContextName) {
-		this.loginContextName = loginContextName;
 	}
 
 	public void setDefaultCallbackHandler(CallbackHandler defaultCallbackHandler) {
@@ -175,31 +184,32 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 		this.securityProviderName = securityProviderName;
 	}
 
-	@Deprecated
-	protected static byte[] hash(char[] password, byte[] salt, Integer iterationCount) {
-		ByteArrayOutputStream out = null;
-		OutputStreamWriter writer = null;
-		try {
-			out = new ByteArrayOutputStream();
-			writer = new OutputStreamWriter(out, "UTF-8");
-			writer.write(password);
-			MessageDigest pwDigest = MessageDigest.getInstance("SHA-256");
-			pwDigest.reset();
-			pwDigest.update(salt);
-			byte[] btPass = pwDigest.digest(out.toByteArray());
-			for (int i = 0; i < iterationCount; i++) {
-				pwDigest.reset();
-				btPass = pwDigest.digest(btPass);
-			}
-			return btPass;
-		} catch (Exception e) {
-			throw new CmsException("Cannot hash", e);
-		} finally {
-			IOUtils.closeQuietly(out);
-			IOUtils.closeQuietly(writer);
-		}
-
-	}
+	// @Deprecated
+	// protected static byte[] hash(char[] password, byte[] salt, Integer
+	// iterationCount) {
+	// ByteArrayOutputStream out = null;
+	// OutputStreamWriter writer = null;
+	// try {
+	// out = new ByteArrayOutputStream();
+	// writer = new OutputStreamWriter(out, "UTF-8");
+	// writer.write(password);
+	// MessageDigest pwDigest = MessageDigest.getInstance("SHA-256");
+	// pwDigest.reset();
+	// pwDigest.update(salt);
+	// byte[] btPass = pwDigest.digest(out.toByteArray());
+	// for (int i = 0; i < iterationCount; i++) {
+	// pwDigest.reset();
+	// btPass = pwDigest.digest(btPass);
+	// }
+	// return btPass;
+	// } catch (Exception e) {
+	// throw new CmsException("Cannot hash", e);
+	// } finally {
+	// IOUtils.closeQuietly(out);
+	// IOUtils.closeQuietly(writer);
+	// }
+	//
+	// }
 
 	/**
 	 * Convenience method using the underlying callback to ask for a password
@@ -223,7 +233,7 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 			// checks
 			if (callbacks.length != 2)
 				throw new IllegalArgumentException(
-						"Keyring required 2 and only 2 callbacks: {PasswordCallback,PBEKeySpecCallback}");
+						"Keyring requires 2 and only 2 callbacks: {PasswordCallback,PBEKeySpecCallback}");
 			if (!(callbacks[0] instanceof PasswordCallback))
 				throw new UnsupportedCallbackException(callbacks[0]);
 			if (!(callbacks[1] instanceof PBEKeySpecCallback))
@@ -263,6 +273,32 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 
 			if (passwordCb.getPassword() != null)
 				handleKeySpecCallback(pbeCb);
+		}
+
+	}
+
+	class PasswordProvidedCallBackHandler implements CallbackHandler {
+		private final char[] password;
+
+		public PasswordProvidedCallBackHandler(char[] password) {
+			this.password = password;
+		}
+
+		@Override
+		public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+			// checks
+			if (callbacks.length != 2)
+				throw new IllegalArgumentException(
+						"Keyring requires 2 and only 2 callbacks: {PasswordCallback,PBEKeySpecCallback}");
+			if (!(callbacks[0] instanceof PasswordCallback))
+				throw new UnsupportedCallbackException(callbacks[0]);
+			if (!(callbacks[1] instanceof PBEKeySpecCallback))
+				throw new UnsupportedCallbackException(callbacks[0]);
+
+			PasswordCallback passwordCb = (PasswordCallback) callbacks[0];
+			passwordCb.setPassword(password);
+			PBEKeySpecCallback pbeCb = (PBEKeySpecCallback) callbacks[1];
+			handleKeySpecCallback(pbeCb);
 		}
 
 	}

@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.crypto.SecretKey;
 import javax.jcr.Repository;
 import javax.jcr.Session;
 import javax.naming.InvalidNameException;
@@ -121,6 +122,10 @@ public class CmsSessionImpl implements CmsSession {
 
 	private Subject getSubject() {
 		return Subject.getSubject(initialContext);
+	}
+	
+	public Set<SecretKey> getSecretKeys() {
+		return getSubject().getPrivateCredentials(SecretKey.class);
 	}
 
 	public synchronized Session getDataSession(String cn, String workspace, Repository repository) {

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -119,7 +120,9 @@ public class HttpSessionLoginModule implements LoginModule {
 		}
 
 		if (authorization != null) {
-			CmsAuthUtils.addAuthorization(subject, authorization, request.getLocale(), request);
+			Locale locale = request.getLocale();
+			CmsAuthUtils.addAuthorization(subject, authorization,locale , request);
+			CmsAuthUtils.registerSessionAuthorization(request, subject, authorization, locale);
 			cleanUp();
 			return true;
 		} else {

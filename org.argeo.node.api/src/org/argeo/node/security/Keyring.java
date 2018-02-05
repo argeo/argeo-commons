@@ -23,8 +23,6 @@ import java.io.InputStream;
  * change.</b>
  */
 public interface Keyring {
-	public void changePassword(char[] oldPassword, char[] newPassword);
-
 	/**
 	 * Returns the confidential information as chars. Must ask for it if it is
 	 * not stored.

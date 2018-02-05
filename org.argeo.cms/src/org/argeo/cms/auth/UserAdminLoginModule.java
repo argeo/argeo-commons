@@ -29,11 +29,13 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.kernel.Activator;
 import org.argeo.naming.LdapAttrs;
+import org.argeo.node.security.CryptoKeyring;
 import org.argeo.osgi.useradmin.AuthenticatingUser;
 import org.argeo.osgi.useradmin.IpaUtils;
 import org.argeo.osgi.useradmin.OsUserUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
@@ -122,6 +124,8 @@ public class UserAdminLoginModule implements LoginModule {
 				password = passwordCallback.getPassword();
 			else
 				throw new CredentialNotFoundException("No credentials provided");
+			sharedState.put(CmsAuthUtils.SHARED_STATE_NAME, username);
+			sharedState.put(CmsAuthUtils.SHARED_STATE_PWD, password);
 		}
 		User user = searchForUser(userAdmin, username);
 		if (user == null)
@@ -204,9 +208,38 @@ public class UserAdminLoginModule implements LoginModule {
 				throw new LoginException(
 						"User admin found no authorization for authenticated user " + authenticatingUser.getName());
 		}
+
 		// Log and monitor new login
-		CmsAuthUtils.addAuthorization(subject, authorization, locale,
-				(HttpServletRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST));
+		HttpServletRequest request = (HttpServletRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
+		CmsAuthUtils.addAuthorization(subject, authorization, locale, request);
+
+		// Unlock keyring (underlying login to the JCR repository)
+		char[] password = (char[]) sharedState.get(CmsAuthUtils.SHARED_STATE_PWD);
+		if (password != null) {
+			ServiceReference<CryptoKeyring> keyringSr = bc.getServiceReference(CryptoKeyring.class);
+			if (keyringSr != null) {
+				CryptoKeyring keyring = bc.getService(keyringSr);
+				Subject.doAs(subject, new PrivilegedAction<Void>() {
+
+					@Override
+					public Void run() {
+						try {
+							keyring.unlock(password);
+						} catch (Exception e) {
+							e.printStackTrace();
+							log.warn("Could not unlock keyring with the password provided by " + authorization.getName()
+									+ ": " + e.getMessage());
+						}
+						return null;
+					}
+
+				});
+			}
+		}
+		
+		// Register CmsSession with initial subject
+		CmsAuthUtils.registerSessionAuthorization(request, subject, authorization, locale);
+
 		if (log.isDebugEnabled())
 			log.debug("Logged in to CMS: " + subject);
 		return true;

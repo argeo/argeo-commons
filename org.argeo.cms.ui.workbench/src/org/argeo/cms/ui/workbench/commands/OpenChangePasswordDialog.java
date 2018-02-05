@@ -35,6 +35,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
+import org.argeo.node.security.CryptoKeyring;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -59,6 +60,7 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 	private final static Log log = LogFactory.getLog(OpenChangePasswordDialog.class);
 	private UserAdmin userAdmin;
 	private UserTransaction userTransaction;
+	private CryptoKeyring keyring = null;
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ChangePasswordDialog dialog = new ChangePasswordDialog(HandlerUtil.getActiveShell(event), userAdmin);
@@ -87,6 +89,10 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 		try {
 			userTransaction.begin();
 			user.getCredentials().put(null, newPassword);
+			if (keyring != null) {
+				keyring.changePassword(oldPassword, newPassword);
+				// TODO change secret keys in the CMS session
+			}
 			userTransaction.commit();
 		} catch (Exception e) {
 			try {
@@ -162,4 +168,9 @@ public class OpenChangePasswordDialog extends AbstractHandler {
 	public void setUserTransaction(UserTransaction userTransaction) {
 		this.userTransaction = userTransaction;
 	}
+
+	public void setKeyring(CryptoKeyring keyring) {
+		this.keyring = keyring;
+	}
+
 }

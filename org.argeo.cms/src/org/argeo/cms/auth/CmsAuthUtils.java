@@ -93,7 +93,7 @@ class CmsAuthUtils {
 			throw new CmsException("Cannot commit", e);
 		}
 
-		registerSessionAuthorization(request, subject, authorization, locale);
+		// registerSessionAuthorization(request, subject, authorization, locale);
 	}
 
 	private static void checkSubjectEmpty(Subject subject) {
@@ -121,7 +121,7 @@ class CmsAuthUtils {
 		// subject.getPrincipals().removeAll(subject.getPrincipals(AnonymousPrincipal.class));
 	}
 
-	private synchronized static void registerSessionAuthorization(HttpServletRequest request, Subject subject,
+	synchronized static void registerSessionAuthorization(HttpServletRequest request, Subject subject,
 			Authorization authorization, Locale locale) {
 		// synchronized in order to avoid multiple registrations
 		// TODO move it to a service in order to avoid static synchronization
@@ -144,6 +144,8 @@ class CmsAuthUtils {
 						throw new CmsException("Inconsistent user " + authorization.getName()
 								+ " for existing CMS session " + cmsSession);
 					}
+					// keyring
+					subject.getPrivateCredentials().addAll(cmsSession.getSecretKeys());
 				} else {// anonymous
 					if (cmsSession.getAuthorization().getName() != null) {
 						cmsSession.close();
@@ -151,10 +153,9 @@ class CmsAuthUtils {
 						cmsSession = null;
 					}
 				}
-			}
-
-			if (cmsSession == null)
+			} else if (cmsSession == null) {
 				cmsSession = new WebCmsSessionImpl(subject, authorization, locale, request);
+			}
 			// request.setAttribute(CmsSession.class.getName(), cmsSession);
 			CmsSessionId nodeSessionId = new CmsSessionId(cmsSession.getUuid());
 			if (subject.getPrivateCredentials(CmsSessionId.class).size() == 0)
@@ -165,7 +166,9 @@ class CmsAuthUtils {
 				throw new CmsException(
 						"Subject already logged with session " + storedSessionId + " (not " + nodeSessionId + ")");
 			}
-		} else {
+		} else
+
+		{
 			// TODO desktop, CLI
 		}
 	}

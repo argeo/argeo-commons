@@ -10,4 +10,5 @@
 
 	<reference id="userAdmin" interface="org.osgi.service.useradmin.UserAdmin" />
 	<reference id="userTransaction" interface="javax.transaction.UserTransaction" />
+	<reference id="keyring" interface="org.argeo.node.security.CryptoKeyring" />
 </beans:beans>
