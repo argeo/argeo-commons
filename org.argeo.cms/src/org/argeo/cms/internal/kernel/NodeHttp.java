@@ -206,9 +206,11 @@ public class NodeHttp implements KernelConstants {
 		@Override
 		public HttpService addingService(ServiceReference<HttpService> reference) {
 			long begin = System.currentTimeMillis();
-			log.debug("HTTP prepare starts...");
+			if (log.isTraceEnabled())
+				log.trace("HTTP prepare starts...");
 			HttpService httpService = addHttpService(reference);
-			log.debug("HTTP prepare duration: " + (System.currentTimeMillis() - begin) + "ms");
+			if (log.isTraceEnabled())
+				log.trace("HTTP prepare duration: " + (System.currentTimeMillis() - begin) + "ms");
 			return httpService;
 		}
 
