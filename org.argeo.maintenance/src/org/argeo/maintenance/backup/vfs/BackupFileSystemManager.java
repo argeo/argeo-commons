@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.cms.internal.backup;
+package org.argeo.maintenance.backup.vfs;
 
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
@@ -24,7 +24,7 @@ import org.apache.commons.vfs2.provider.local.DefaultLocalFileProvider;
 import org.apache.commons.vfs2.provider.ram.RamFileProvider;
 import org.apache.commons.vfs2.provider.sftp.SftpFileProvider;
 import org.apache.commons.vfs2.provider.url.UrlFileProvider;
-import org.argeo.cms.CmsException;
+import org.argeo.maintenance.MaintenanceException;
 
 /**
  * Programatically configured VFS file system manager which can be declared as a
@@ -46,7 +46,7 @@ public class BackupFileSystemManager extends DefaultFileSystemManager {
 			addProvider("ram", new RamFileProvider());
 			setDefaultProvider(new UrlFileProvider());
 		} catch (FileSystemException e) {
-			throw new CmsException("Cannot configure backup file provider", e);
+			throw new MaintenanceException("Cannot configure backup file provider", e);
 		}
 	}
 }

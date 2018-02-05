@@ -5,9 +5,10 @@ org.h2;resolution:=optional,\
 org.postgresql;resolution:=optional,\
 org.apache.jackrabbit.webdav.server,\
 org.apache.jackrabbit.webdav.jcr,\
-org.eclipse.equinox.http.jetty,\
-org.springframework.context,\
-org.springframework.core.io,\
+org.springframework.context;resolution:=optional,\
+org.springframework.core.io;resolution:=optional,\
+org.springframework.*;resolution:=optional,\
+org.eclipse.gemini.blueprint.*;resolution:=optional\
 org.apache.commons.httpclient.cookie;resolution:=optional,\
 org.osgi.*;version=0.0.0,\
 *

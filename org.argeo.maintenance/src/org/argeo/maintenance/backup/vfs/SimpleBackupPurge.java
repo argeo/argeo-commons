@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.cms.internal.backup;
+package org.argeo.maintenance.backup.vfs;
 
 import java.text.DateFormat;
 import java.time.Period;
@@ -29,7 +29,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.Selectors;
-import org.argeo.cms.CmsException;
+import org.argeo.maintenance.MaintenanceException;
 
 /** Simple backup purge which keeps backups only for a given number of days */
 public class SimpleBackupPurge implements BackupPurge {
@@ -80,7 +80,7 @@ public class SimpleBackupPurge implements BackupPurge {
 					log.debug("Deleted backup " + backupFo);
 			}
 		} catch (Exception e) {
-			throw new CmsException("Could not purge previous backups", e);
+			throw new MaintenanceException("Could not purge previous backups", e);
 		}
 
 	}

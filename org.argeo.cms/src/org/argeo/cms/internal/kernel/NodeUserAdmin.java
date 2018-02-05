@@ -29,7 +29,6 @@ import javax.transaction.TransactionManager;
 
 import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.CredentialsProvider;
-import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.params.HttpParams;
@@ -162,14 +161,12 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 	public String getName() {
 		return "Node User Admin";
 	}
-	
-	
 
 	@Override
 	protected void addAbstractSystemRoles(Authorization rawAuthorization, Set<String> sysRoles) {
-		if(rawAuthorization.getName()==null) {
+		if (rawAuthorization.getName() == null) {
 			sysRoles.add(NodeConstants.ROLE_ANONYMOUS);
-		}else {
+		} else {
 			sysRoles.add(NodeConstants.ROLE_USER);
 		}
 	}
@@ -215,7 +212,7 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 			// schemes.add(AuthPolicy.BASIC);// incompatible with Basic
 			params.setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, schemes);
 			params.setParameter(CredentialsProvider.PROVIDER, new HttpCredentialProvider());
-			params.setParameter(HttpMethodParams.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
+			params.setParameter(HttpMethodParams.COOKIE_POLICY, KernelConstants.COOKIE_POLICY_BROWSER_COMPATIBILITY);
 			// params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 		}
 	}

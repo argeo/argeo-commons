@@ -22,10 +22,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.internal.http.HttpConstants;
 import org.argeo.cms.internal.jcr.RepoConf;
 import org.argeo.node.NodeConstants;
 import org.argeo.osgi.useradmin.UserAdminConf;
-import org.eclipse.equinox.http.jetty.JettyConstants;
 
 /**
  * Interprets framework properties in order to generate the initial deploy
@@ -56,35 +56,35 @@ class FirstInit {
 		String httpPort = getFrameworkProp("org.osgi.service.http.port");
 		String httpsPort = getFrameworkProp("org.osgi.service.http.port.secure");
 		/// TODO make it more generic
-		String httpHost = getFrameworkProp(JettyConstants.PROPERTY_PREFIX + JettyConstants.HTTP_HOST);
-		String httpsHost = getFrameworkProp(JettyConstants.PROPERTY_PREFIX + JettyConstants.HTTPS_HOST);
+		String httpHost = getFrameworkProp(HttpConstants.JETTY_PROPERTY_PREFIX + HttpConstants.HTTP_HOST);
+		String httpsHost = getFrameworkProp(HttpConstants.JETTY_PROPERTY_PREFIX + HttpConstants.HTTPS_HOST);
 
 		final Hashtable<String, Object> props = new Hashtable<String, Object>();
 		// try {
 		if (httpPort != null || httpsPort != null) {
 			if (httpPort != null) {
-				props.put(JettyConstants.HTTP_PORT, httpPort);
-				props.put(JettyConstants.HTTP_ENABLED, true);
+				props.put(HttpConstants.HTTP_PORT, httpPort);
+				props.put(HttpConstants.HTTP_ENABLED, true);
 			}
 			if (httpsPort != null) {
-				props.put(JettyConstants.HTTPS_PORT, httpsPort);
-				props.put(JettyConstants.HTTPS_ENABLED, true);
+				props.put(HttpConstants.HTTPS_PORT, httpsPort);
+				props.put(HttpConstants.HTTPS_ENABLED, true);
 				Path keyStorePath = KernelUtils.getOsgiInstancePath(KernelConstants.DEFAULT_KEYSTORE_PATH);
 				String keyStorePassword = getFrameworkProp(
-						JettyConstants.PROPERTY_PREFIX + JettyConstants.SSL_PASSWORD);
+						HttpConstants.JETTY_PROPERTY_PREFIX + HttpConstants.SSL_PASSWORD);
 				if (keyStorePassword == null)
 					keyStorePassword = "changeit";
 				if (!Files.exists(keyStorePath))
 					createSelfSignedKeyStore(keyStorePath, keyStorePassword);
-				props.put(JettyConstants.SSL_KEYSTORETYPE, "PKCS12");
-				props.put(JettyConstants.SSL_KEYSTORE, keyStorePath.toString());
-				props.put(JettyConstants.SSL_PASSWORD, keyStorePassword);
-				props.put(JettyConstants.SSL_WANTCLIENTAUTH, true);
+				props.put(HttpConstants.SSL_KEYSTORETYPE, "PKCS12");
+				props.put(HttpConstants.SSL_KEYSTORE, keyStorePath.toString());
+				props.put(HttpConstants.SSL_PASSWORD, keyStorePassword);
+				props.put(HttpConstants.SSL_WANTCLIENTAUTH, true);
 			}
 			if (httpHost != null)
-				props.put(JettyConstants.HTTP_HOST, httpHost);
+				props.put(HttpConstants.HTTP_HOST, httpHost);
 			if (httpsHost != null)
-				props.put(JettyConstants.HTTPS_HOST, httpHost);
+				props.put(HttpConstants.HTTPS_HOST, httpHost);
 
 			props.put(NodeConstants.CN, NodeConstants.DEFAULT);
 		}

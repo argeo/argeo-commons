@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.cms.internal.backup;
+package org.argeo.maintenance.backup.vfs;
 
 import org.apache.commons.vfs2.FileObject;
-import org.argeo.cms.CmsException;
+import org.argeo.maintenance.MaintenanceException;
 
 /** Backups an OpenLDAP server using slapcat */
 public class OpenLdapBackup extends OsCallBackup {
@@ -36,7 +36,7 @@ public class OpenLdapBackup extends OsCallBackup {
 	@Override
 	public void writeBackup(FileObject targetFo) {
 		if (baseDn == null)
-			throw new CmsException("Base DN must be set");
+			throw new MaintenanceException("Base DN must be set");
 
 		if (getCommand() == null)
 			setCommand(slapcatLocation

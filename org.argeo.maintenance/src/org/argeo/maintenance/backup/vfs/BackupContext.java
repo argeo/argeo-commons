@@ -13,24 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.cms.internal.backup;
+package org.argeo.maintenance.backup.vfs;
 
-import org.apache.commons.vfs2.FileObject;
+import java.text.DateFormat;
+import java.util.Date;
 
-/** Backup utilities */
-public class BackupUtils {
-	/** Close a file object quietly even if it is null or throws an exception. */
-	public static void closeFOQuietly(FileObject fo) {
-		if (fo != null) {
-			try {
-				fo.close();
-			} catch (Exception e) {
-				// silent
-			}
-		}
-	}
-	
-	/** Prevents instantiation */
-	private BackupUtils() {
-	}
+/**
+ * Transient information of a given backup, centralizing common information such
+ * as timestamp and location.
+ */
+public interface BackupContext {
+	/** Backup date */
+	public Date getTimestamp();
+
+	/** Formatted backup date */
+	public String getTimestampAsString();
+
+	/** System name */
+	public String getSystemName();
+
+	/** Local base */
+	public String getRelativeFolder();
+
+	/** Date format */
+	public DateFormat getDateFormat();
 }

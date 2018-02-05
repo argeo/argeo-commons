@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.cms.internal.backup;
+package org.argeo.maintenance.backup.vfs;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
@@ -30,7 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
-import org.argeo.cms.CmsException;
+import org.argeo.maintenance.MaintenanceException;
 
 /**
  * Runs an OS command and save its standard output as a file. Typically used for
@@ -87,11 +87,11 @@ public class OsCallBackup extends AbstractAtomicBackup {
 		} catch (ExecuteException e) {
 			byte[] err = errBos.toByteArray();
 			String errStr = new String(err);
-			throw new CmsException("Process " + commandLine + " failed (" + e.getExitValue() + "): " + errStr, e);
+			throw new MaintenanceException("Process " + commandLine + " failed (" + e.getExitValue() + "): " + errStr, e);
 		} catch (Exception e) {
 			byte[] err = errBos.toByteArray();
 			String errStr = new String(err);
-			throw new CmsException("Process " + commandLine + " failed: " + errStr, e);
+			throw new MaintenanceException("Process " + commandLine + " failed: " + errStr, e);
 		} finally {
 			IOUtils.closeQuietly(errBos);
 		}

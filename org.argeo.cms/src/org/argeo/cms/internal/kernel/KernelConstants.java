@@ -28,6 +28,9 @@ public interface KernelConstants {
 	String DEFAULT_USERS_BASE_PATH = "/users";
 	String DEFAULT_GROUPS_BASE_PATH = "/groups";
 
+	// HTTP client
+	String COOKIE_POLICY_BROWSER_COMPATIBILITY = "compatibility";
+
 	// RWT / RAP
 	// String PATH_WORKBENCH = "/ui";
 	// String PATH_WORKBENCH_PUBLIC = PATH_WORKBENCH + "/public";

@@ -30,6 +30,7 @@
 		<module>org.argeo.eclipse.ui.rap</module>
 		<!-- CMS -->
 		<module>org.argeo.node.api</module>
+		<module>org.argeo.maintenance</module>
 		<module>org.argeo.cms</module>
 		<module>org.argeo.cms.ui</module>
 		<!-- CMS Workbench -->

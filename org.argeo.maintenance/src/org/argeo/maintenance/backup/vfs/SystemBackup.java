@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.cms.internal.backup;
+package org.argeo.maintenance.backup.vfs;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +29,7 @@ import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.Selectors;
 import org.apache.commons.vfs2.UserAuthenticator;
 import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder;
-import org.argeo.cms.CmsException;
+import org.argeo.maintenance.MaintenanceException;
 import org.argeo.util.LangUtils;
 
 /**
@@ -53,7 +53,7 @@ public class SystemBackup implements Runnable {
 	@Override
 	public void run() {
 		if (atomicBackups.size() == 0)
-			throw new CmsException("No atomic backup listed");
+			throw new MaintenanceException("No atomic backup listed");
 		List<String> failures = new ArrayList<String>();
 
 		SimpleBackupContext backupContext = new SimpleBackupContext(fileSystemManager, backupsBase, systemName);
@@ -63,7 +63,7 @@ public class SystemBackup implements Runnable {
 		try {
 			DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(opts, userAuthenticator);
 		} catch (FileSystemException e) {
-			throw new CmsException("Cannot create authentication", e);
+			throw new MaintenanceException("Cannot create authentication", e);
 		}
 
 		try {
@@ -130,7 +130,7 @@ public class SystemBackup implements Runnable {
 				buf.append('\n').append(failureCount).append(" - ").append(failure);
 				failureCount++;
 			}
-			throw new CmsException(failureCount + " error(s) when running the backup,"
+			throw new MaintenanceException(failureCount + " error(s) when running the backup,"
 					+ " check the logs and the backups as soon as possible." + buf);
 		}
 	}

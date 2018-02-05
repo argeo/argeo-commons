@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.cms.internal.backup;
+package org.argeo.maintenance.backup.vfs;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
-import org.argeo.cms.CmsException;
+import org.argeo.maintenance.MaintenanceException;
 
 /**
  * Simplify atomic backups implementation, especially by managing VFS.
@@ -39,7 +39,7 @@ public abstract class AbstractAtomicBackup implements AtomicBackup {
 
 	public void init() {
 		if (name == null)
-			throw new CmsException("Atomic backup name must be set");
+			throw new MaintenanceException("Atomic backup name must be set");
 	}
 
 	public void destroy() {
@@ -51,7 +51,7 @@ public abstract class AbstractAtomicBackup implements AtomicBackup {
 			String backupsBase, BackupContext backupContext,
 			FileSystemOptions opts) {
 		if (name == null)
-			throw new CmsException("Atomic backup name must be set");
+			throw new MaintenanceException("Atomic backup name must be set");
 
 		FileObject targetFo = null;
 		try {
@@ -70,14 +70,14 @@ public abstract class AbstractAtomicBackup implements AtomicBackup {
 						+ '/' + backupContext.getRelativeFolder() + '/' + name
 						+ ".gz" + "!" + name, opts);
 			else
-				throw new CmsException("Unsupported compression "
+				throw new MaintenanceException("Unsupported compression "
 						+ compression);
 
 			writeBackup(targetFo);
 
 			return targetFo.toString();
 		} catch (Exception e) {
-			throw new CmsException("Cannot backup " + name + " to "
+			throw new MaintenanceException("Cannot backup " + name + " to "
 					+ targetFo, e);
 		} finally {
 			BackupUtils.closeFOQuietly(targetFo);

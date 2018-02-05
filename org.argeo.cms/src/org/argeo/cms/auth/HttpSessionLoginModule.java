@@ -2,6 +2,7 @@ package org.argeo.cms.auth;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -16,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
@@ -154,7 +154,8 @@ public class HttpSessionLoginModule implements LoginModule {
 				if (basic.equalsIgnoreCase("Basic")) {
 					try {
 						// TODO manipulate char[]
-						String credentials = new String(Base64.decodeBase64(st.nextToken()), "UTF-8");
+						Base64.Decoder decoder = Base64.getDecoder();
+						String credentials = new String(decoder.decode(st.nextToken()), "UTF-8");
 						// log.debug("Credentials: " + credentials);
 						int p = credentials.indexOf(":");
 						if (p != -1) {
@@ -170,7 +171,8 @@ public class HttpSessionLoginModule implements LoginModule {
 					}
 				} else if (basic.equalsIgnoreCase("Negotiate")) {
 					String spnegoToken = st.nextToken();
-					byte[] authToken = Base64.decodeBase64(spnegoToken);
+					Base64.Decoder decoder = Base64.getDecoder();
+					byte[] authToken = decoder.decode(spnegoToken);
 					sharedState.put(CmsAuthUtils.SHARED_STATE_SPNEGO_TOKEN, authToken);
 				}
 			}

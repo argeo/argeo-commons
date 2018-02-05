@@ -13,21 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.cms.internal.backup;
-
-import java.text.DateFormat;
+package org.argeo.maintenance.backup.vfs;
 
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.FileSystemOptions;
 
-/** Purges previous backups */
-public interface BackupPurge {
+/** Performs the backup of a single component, typically a database dump */
+public interface AtomicBackup {
+	/** Name identifiying this backup */
+	public String getName();
+
 	/**
-	 * Purge the backups identified by these arguments. Although these are the
-	 * same fields as a {@link BackupContext} we don't pass it as argument since
-	 * we want to use this interface to purge remote backups as well (that is,
-	 * with a different base), or outside the scope of a running backup.
+	 * Retrieves the data of the component in a format that allows to restore
+	 * the component
+	 * 
+	 * @param backupContext
+	 *            the context of this backup
+	 * @return the VFS URI of the generated file or directory
 	 */
-	public void purge(FileSystemManager fileSystemManager, String base,
-			String name, DateFormat dateFormat, FileSystemOptions opts);
+	public String backup(FileSystemManager fileSystemManager,
+			String backupsBase, BackupContext backupContext,
+			FileSystemOptions opts);
 }
