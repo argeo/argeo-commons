@@ -86,7 +86,7 @@ class DeployConfig implements ConfigurationListener {
 			if (NodeConstants.NODE.equals(dataModel.getName()))
 				continue dataModels;
 			Dictionary<String, Object> config = InitUtils.getRepositoryConfig(dataModel.getName(),
-					getProps(NodeConstants.NODE_REPOS_FACTORY_PID, NodeConstants.NODE));
+					getProps(NodeConstants.NODE_REPOS_FACTORY_PID, dataModel.getName()));
 			if (config.size() != 0)
 				putFactoryDeployConfig(NodeConstants.NODE_REPOS_FACTORY_PID, config);
 		}

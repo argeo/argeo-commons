@@ -60,9 +60,17 @@ class DataModels implements BundleListener {
 		if (providedDataModels.size() == 0)
 			return;
 		List<BundleWire> requiredDataModels = wiring.getRequiredWires(CMS_DATA_MODEL_NAMESPACE);
+		// process requirements first
+		for (BundleWire bundleWire : requiredDataModels) {
+			processBundle(bundleWire.getProvider().getBundle());
+		}
 		for (BundleCapability bundleCapability : providedDataModels) {
-			DataModel dataModel = new DataModel(bundleCapability, requiredDataModels);
-			dataModels.put(dataModel.getName(), dataModel);
+			String name = (String) bundleCapability.getAttributes().get(DataModelNamespace.NAME);
+			assert name != null;
+			if (!dataModels.containsKey(name)) {
+				DataModel dataModel = new DataModel(name, bundleCapability, requiredDataModels);
+				dataModels.put(dataModel.getName(), dataModel);
+			}
 		}
 	}
 
@@ -85,11 +93,10 @@ class DataModels implements BundleListener {
 		private final String cnd;
 		private final List<DataModel> required;
 
-		private DataModel(BundleCapability bundleCapability, List<BundleWire> requiredDataModels) {
+		private DataModel(String name, BundleCapability bundleCapability, List<BundleWire> requiredDataModels) {
 			assert CMS_DATA_MODEL_NAMESPACE.equals(bundleCapability.getNamespace());
+			this.name = name;
 			Map<String, Object> attrs = bundleCapability.getAttributes();
-			name = (String) attrs.get(DataModelNamespace.NAME);
-			assert name != null;
 			abstrct = KernelUtils.asBoolean((String) attrs.get(DataModelNamespace.ABSTRACT));
 			// standalone = KernelUtils.asBoolean((String)
 			// attrs.get(DataModelNamespace.CAPABILITY_STANDALONE_ATTRIBUTE));

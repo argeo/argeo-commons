@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.jcr;
+package org.argeo.cms.ui.workbench.internal.jcr;
 
 import java.util.Collections;
 import java.util.Map;
@@ -25,32 +25,25 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.node.NodeConstants;
 
-@Deprecated
-public class DefaultRepositoryRegister extends Observable implements
-		RepositoryRegister {
-	// FIXME factorize with node
+public class DefaultRepositoryRegister extends Observable implements RepositoryRegister {
 	/** Key for a JCR repository alias */
-	public final static String JCR_REPOSITORY_ALIAS = "argeo.jcr.repository.alias";
+	private final static String CN = NodeConstants.CN;
 	/** Key for a JCR repository URI */
-	public final static String JCR_REPOSITORY_URI = "argeo.jcr.repository.uri";
-	private final static Log log = LogFactory
-			.getLog(DefaultRepositoryRegister.class);
+	// public final static String JCR_REPOSITORY_URI = "argeo.jcr.repository.uri";
+	private final static Log log = LogFactory.getLog(DefaultRepositoryRegister.class);
 
 	/** Read only map which will be directly exposed. */
-	private Map<String, Repository> repositories = Collections
-			.unmodifiableMap(new TreeMap<String, Repository>());
+	private Map<String, Repository> repositories = Collections.unmodifiableMap(new TreeMap<String, Repository>());
 
 	@SuppressWarnings("rawtypes")
-	public synchronized Repository getRepository(Map parameters)
-			throws RepositoryException {
-		if (!parameters.containsKey(JCR_REPOSITORY_ALIAS))
-			throw new RepositoryException("Parameter " + JCR_REPOSITORY_ALIAS
-					+ " has to be defined.");
-		String alias = parameters.get(JCR_REPOSITORY_ALIAS).toString();
+	public synchronized Repository getRepository(Map parameters) throws RepositoryException {
+		if (!parameters.containsKey(CN))
+			throw new RepositoryException("Parameter " + CN + " has to be defined.");
+		String alias = parameters.get(CN).toString();
 		if (!repositories.containsKey(alias))
-			throw new RepositoryException(
-					"No repository registered with alias " + alias);
+			throw new RepositoryException("No repository registered with alias " + alias);
 
 		return repositories.get(alias);
 	}
@@ -64,14 +57,12 @@ public class DefaultRepositoryRegister extends Observable implements
 	@SuppressWarnings("rawtypes")
 	public synchronized void register(Repository repository, Map properties) {
 		String alias;
-		if (properties == null || !properties.containsKey(JCR_REPOSITORY_ALIAS)) {
-			log.warn("Cannot register a repository if no "
-					+ JCR_REPOSITORY_ALIAS + " property is specified.");
+		if (properties == null || !properties.containsKey(CN)) {
+			log.warn("Cannot register a repository if no " + CN + " property is specified.");
 			return;
 		}
-		alias = properties.get(JCR_REPOSITORY_ALIAS).toString();
-		Map<String, Repository> map = new TreeMap<String, Repository>(
-				repositories);
+		alias = properties.get(CN).toString();
+		Map<String, Repository> map = new TreeMap<String, Repository>(repositories);
 		map.put(alias, repository);
 		repositories = Collections.unmodifiableMap(map);
 		setChanged();
@@ -82,15 +73,13 @@ public class DefaultRepositoryRegister extends Observable implements
 	@SuppressWarnings("rawtypes")
 	public synchronized void unregister(Repository repository, Map properties) {
 		// TODO: also check bean name?
-		if (properties == null || !properties.containsKey(JCR_REPOSITORY_ALIAS)) {
-			log.warn("Cannot unregister a repository without property "
-					+ JCR_REPOSITORY_ALIAS);
+		if (properties == null || !properties.containsKey(CN)) {
+			log.warn("Cannot unregister a repository without property " + CN);
 			return;
 		}
 
-		String alias = properties.get(JCR_REPOSITORY_ALIAS).toString();
-		Map<String, Repository> map = new TreeMap<String, Repository>(
-				repositories);
+		String alias = properties.get(CN).toString();
+		Map<String, Repository> map = new TreeMap<String, Repository>(repositories);
 		if (map.remove(alias) == null) {
 			log.warn("No repository was registered with alias " + alias);
 			return;

@@ -29,17 +29,18 @@ import javax.jcr.observation.EventListener;
 import javax.jcr.observation.ObservationManager;
 
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
+import org.argeo.cms.ui.workbench.internal.jcr.DefaultRepositoryRegister;
 import org.argeo.cms.ui.workbench.internal.jcr.JcrBrowserUtils;
 import org.argeo.cms.ui.workbench.internal.jcr.JcrDClickListener;
 import org.argeo.cms.ui.workbench.internal.jcr.NodeContentProvider;
 import org.argeo.cms.ui.workbench.internal.jcr.NodeLabelProvider;
 import org.argeo.cms.ui.workbench.internal.jcr.PropertiesContentProvider;
+import org.argeo.cms.ui.workbench.internal.jcr.RepositoryRegister;
 import org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.jcr.AsyncUiEventListener;
 import org.argeo.eclipse.ui.jcr.utils.NodeViewerComparer;
-import org.argeo.jcr.RepositoryRegister;
 import org.argeo.node.security.Keyring;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -71,7 +72,7 @@ public class JcrBrowserView extends ViewPart {
 
 	/* DEPENDENCY INJECTION */
 	private Keyring keyring;
-	private RepositoryRegister repositoryRegister;
+	private RepositoryRegister repositoryRegister = new DefaultRepositoryRegister();
 	private RepositoryFactory repositoryFactory;
 	private Repository nodeRepository;
 

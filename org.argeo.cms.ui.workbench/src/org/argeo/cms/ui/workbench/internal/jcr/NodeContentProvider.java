@@ -29,7 +29,6 @@ import javax.jcr.nodetype.NodeType;
 import org.argeo.cms.ui.workbench.internal.jcr.model.RepositoriesElem;
 import org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
 import org.argeo.eclipse.ui.TreeParent;
-import org.argeo.jcr.RepositoryRegister;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeUtils;
 import org.argeo.node.security.Keyring;

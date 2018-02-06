@@ -16,6 +16,6 @@
 		<property name="userAdminServiceReference" ref="userAdmin" />
 	</bean>
 	
-	<bean id="repositoryRegister" class="org.argeo.jcr.DefaultRepositoryRegister" />
+	<bean id="repositoryRegister" class="org.argeo.cms.ui.workbench.internal.jcr.DefaultRepositoryRegister" />
 	
 </beans>
