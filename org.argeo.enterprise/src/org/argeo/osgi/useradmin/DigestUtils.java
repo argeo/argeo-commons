@@ -42,7 +42,28 @@ class DigestUtils {
 		return bytes;
 	}
 
-	private DigestUtils() {
+	static String sha1str(String str) {
+		byte[] hash = sha1(str.getBytes(StandardCharsets.UTF_8));
+		return encodeHexString(hash);
 	}
 
+	final private static char[] hexArray = "0123456789abcdef".toCharArray();
+
+	/**
+	 * From
+	 * http://stackoverflow.com/questions/9655181/how-to-convert-a-byte-array-to
+	 * -a-hex-string-in-java
+	 */
+	public static String encodeHexString(byte[] bytes) {
+		char[] hexChars = new char[bytes.length * 2];
+		for (int j = 0; j < bytes.length; j++) {
+			int v = bytes[j] & 0xFF;
+			hexChars[j * 2] = hexArray[v >>> 4];
+			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+		}
+		return new String(hexChars);
+	}
+
+	private DigestUtils() {
+	}
 }

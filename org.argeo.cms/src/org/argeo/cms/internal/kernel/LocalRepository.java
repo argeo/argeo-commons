@@ -15,7 +15,7 @@ class LocalRepository extends JcrRepositoryWrapper {
 	public LocalRepository(Repository repository, BundleCapability dataModelCapability) {
 		super(repository);
 		Map<String, Object> attrs = dataModelCapability.getAttributes();
-		cn = (String) attrs.get(DataModelNamespace.CAPABILITY_NAME_ATTRIBUTE);
+		cn = (String) attrs.get(DataModelNamespace.NAME);
 		putDescriptor(NodeConstants.CN, cn);
 	}
 

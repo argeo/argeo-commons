@@ -90,6 +90,8 @@ public interface NodeConstants {
 	// Node
 	/** Properties configuring the node repository */
 	String NODE_REPO_PROP_PREFIX = "argeo.node.repo.";
+	/** Additional standalone repositories, related to data models. */
+	String NODE_REPOS_PROP_PREFIX = "argeo.node.repos.";
 	// HTTP
 	String HTTP_PORT = "org.osgi.service.http.port";
 	String HTTP_PORT_SECURE = "org.osgi.service.http.port.secure";

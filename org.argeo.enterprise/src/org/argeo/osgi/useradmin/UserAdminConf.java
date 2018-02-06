@@ -13,6 +13,7 @@ import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.naming.ldap.LdapName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,6 +43,9 @@ public enum UserAdminConf {
 
 	/** Read-only source */
 	readOnly(null),
+
+	/** Disabled source */
+	disabled(null),
 
 	/** Authentication realm */
 	realm(null);
@@ -143,6 +147,9 @@ public enum UserAdminConf {
 
 			if (bDn.endsWith(".ldif"))
 				bDn = bDn.substring(0, bDn.length() - ".ldif".length());
+
+			// Normalize base DN as LDAP name
+			bDn = new LdapName(bDn).toString();
 
 			String principal = null;
 			String credentials = null;
@@ -253,5 +260,16 @@ public enum UserAdminConf {
 		} else {
 			return "dc=" + hostname;
 		}
+	}
+
+	/**
+	 * Hash the base DN in order to have a deterministic string to be used as a cn
+	 * for the underlying user directory.
+	 */
+	public static String baseDnHash(Dictionary<String, Object> properties) {
+		String bDn = (String) properties.get(baseDn.name());
+		if (bDn == null)
+			throw new UserDirectoryException("No baseDn in " + properties);
+		return DigestUtils.sha1str(bDn);
 	}
 }

@@ -31,15 +31,11 @@ import org.argeo.osgi.useradmin.UserAdminConf;
  * Interprets framework properties in order to generate the initial deploy
  * configuration.
  */
-class FirstInit {
-	private final static Log log = LogFactory.getLog(FirstInit.class);
-
-	public FirstInit() {
-		log.info("## FIRST INIT ##");
-	}
+class InitUtils {
+	private final static Log log = LogFactory.getLog(InitUtils.class);
 
 	/** Override the provided config with the framework properties */
-	Dictionary<String, Object> getNodeRepositoryConfig(Dictionary<String, Object> provided) {
+	static Dictionary<String, Object> getNodeRepositoryConfig(Dictionary<String, Object> provided) {
 		Dictionary<String, Object> props = provided != null ? provided : new Hashtable<String, Object>();
 		for (RepoConf repoConf : RepoConf.values()) {
 			Object value = getFrameworkProp(NodeConstants.NODE_REPO_PROP_PREFIX + repoConf.name());
@@ -47,12 +43,26 @@ class FirstInit {
 				props.put(repoConf.name(), value);
 		}
 		props.put(NodeConstants.CN, NodeConstants.NODE);
-		// props.put(NodeConstants.JCR_REPOSITORY_ALIAS, NodeConstants.NODE);
+		return props;
+	}
+
+	static Dictionary<String, Object> getRepositoryConfig(String dataModelName, Dictionary<String, Object> provided) {
+		if (dataModelName.equals(NodeConstants.NODE) || dataModelName.equals(NodeConstants.HOME))
+			throw new IllegalArgumentException("Data model '" + dataModelName + "' is reserved.");
+		Dictionary<String, Object> props = provided != null ? provided : new Hashtable<String, Object>();
+		for (RepoConf repoConf : RepoConf.values()) {
+			Object value = getFrameworkProp(
+					NodeConstants.NODE_REPOS_PROP_PREFIX + dataModelName + '.' + repoConf.name());
+			if (value != null)
+				props.put(repoConf.name(), value);
+		}
+		if (props.size() != 0)
+			props.put(NodeConstants.CN, dataModelName);
 		return props;
 	}
 
 	/** Override the provided config with the framework properties */
-	Dictionary<String, Object> getHttpServerConfig(Dictionary<String, Object> provided) {
+	static Dictionary<String, Object> getHttpServerConfig(Dictionary<String, Object> provided) {
 		String httpPort = getFrameworkProp("org.osgi.service.http.port");
 		String httpsPort = getFrameworkProp("org.osgi.service.http.port.secure");
 		/// TODO make it more generic
@@ -91,7 +101,7 @@ class FirstInit {
 		return props;
 	}
 
-	List<Dictionary<String, Object>> getUserDirectoryConfigs() {
+	static List<Dictionary<String, Object>> getUserDirectoryConfigs() {
 		List<Dictionary<String, Object>> res = new ArrayList<>();
 		File nodeBaseDir = KernelUtils.getOsgiInstancePath(KernelConstants.DIR_NODE).toFile();
 		List<String> uris = new ArrayList<>();
@@ -104,7 +114,7 @@ class FirstInit {
 			File nodeRolesFile = new File(nodeBaseDir, nodeRolesUri);
 			if (!nodeRolesFile.exists())
 				try {
-					FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(baseNodeRoleDn + ".ldif"),
+					FileUtils.copyInputStreamToFile(InitUtils.class.getResourceAsStream(baseNodeRoleDn + ".ldif"),
 							nodeRolesFile);
 				} catch (IOException e) {
 					throw new CmsException("Cannot copy demo resource", e);
@@ -121,7 +131,7 @@ class FirstInit {
 			File businessRolesFile = new File(nodeBaseDir, userAdminUris);
 			if (!businessRolesFile.exists())
 				try {
-					FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(demoBaseDn + ".ldif"),
+					FileUtils.copyInputStreamToFile(InitUtils.class.getResourceAsStream(demoBaseDn + ".ldif"),
 							businessRolesFile);
 				} catch (IOException e) {
 					throw new CmsException("Cannot copy demo resource", e);
@@ -165,7 +175,7 @@ class FirstInit {
 	 * Called before node initialisation, in order populate OSGi instance are with
 	 * some files (typically LDIF, etc).
 	 */
-	static void prepareInstanceArea() {
+	static void prepareFirstInitInstanceArea() {
 		String nodeInit = getFrameworkProp(NodeConstants.NODE_INIT);
 		if (nodeInit == null)
 			nodeInit = "../../init";
@@ -198,7 +208,7 @@ class FirstInit {
 			}
 	}
 
-	private void createSelfSignedKeyStore(Path keyStorePath, String keyStorePassword) {
+	private static void createSelfSignedKeyStore(Path keyStorePath, String keyStorePassword) {
 		// for (Provider provider : Security.getProviders())
 		// System.out.println(provider.getName());
 		File keyStoreFile = keyStorePath.toFile();

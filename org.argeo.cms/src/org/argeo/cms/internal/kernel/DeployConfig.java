@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.SortedMap;
@@ -23,6 +24,7 @@ import org.argeo.naming.AttributesDictionary;
 import org.argeo.naming.LdifParser;
 import org.argeo.naming.LdifWriter;
 import org.argeo.node.NodeConstants;
+import org.argeo.osgi.useradmin.UserAdminConf;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.Configuration;
@@ -36,15 +38,19 @@ class DeployConfig implements ConfigurationListener {
 
 	private static Path deployConfigPath = KernelUtils.getOsgiInstancePath(KernelConstants.DEPLOY_CONFIG_PATH);
 	private SortedMap<LdapName, Attributes> deployConfigs = new TreeMap<>();
+	private final DataModels dataModels;
 
-	public DeployConfig(ConfigurationAdmin configurationAdmin, boolean isClean) {
+	public DeployConfig(ConfigurationAdmin configurationAdmin, DataModels dataModels, boolean isClean) {
+		this.dataModels = dataModels;
 		// ConfigurationAdmin configurationAdmin =
 		// bc.getService(bc.getServiceReference(ConfigurationAdmin.class));
 		try {
+			boolean isFirstInit = false;
 			if (!isInitialized()) { // first init
+				isFirstInit = true;
 				firstInit();
 			}
-			init(configurationAdmin, isClean);
+			init(configurationAdmin, isClean, isFirstInit);
 		} catch (IOException e) {
 			throw new CmsException("Could not init deploy configs", e);
 		}
@@ -53,10 +59,11 @@ class DeployConfig implements ConfigurationListener {
 	}
 
 	private void firstInit() throws IOException {
+		log.info("## FIRST INIT ##");
 		Files.createDirectories(deployConfigPath.getParent());
 
-		FirstInit firstInit = new FirstInit();
-		FirstInit.prepareInstanceArea();
+		// FirstInit firstInit = new FirstInit();
+		InitUtils.prepareFirstInitInstanceArea();
 
 		if (!Files.exists(deployConfigPath))
 			deployConfigs = new TreeMap<>();
@@ -64,25 +71,56 @@ class DeployConfig implements ConfigurationListener {
 			try (InputStream in = Files.newInputStream(deployConfigPath)) {
 				deployConfigs = new LdifParser().read(in);
 			}
+		save();
+	}
 
+	private void setFromFrameworkProperties(boolean isFirstInit) {
 		// node repository
-		Dictionary<String, Object> nodeConfig = firstInit
+		Dictionary<String, Object> nodeConfig = InitUtils
 				.getNodeRepositoryConfig(getProps(NodeConstants.NODE_REPOS_FACTORY_PID, NodeConstants.NODE));
 		// node repository is mandatory
 		putFactoryDeployConfig(NodeConstants.NODE_REPOS_FACTORY_PID, nodeConfig);
 
-		// user admin
+		// additional repositories
+		dataModels: for (DataModels.DataModel dataModel : dataModels.getNonAbstractDataModels()) {
+			if (NodeConstants.NODE.equals(dataModel.getName()))
+				continue dataModels;
+			Dictionary<String, Object> config = InitUtils.getRepositoryConfig(dataModel.getName(),
+					getProps(NodeConstants.NODE_REPOS_FACTORY_PID, NodeConstants.NODE));
+			if (config.size() != 0)
+				putFactoryDeployConfig(NodeConstants.NODE_REPOS_FACTORY_PID, config);
+		}
 
-		List<Dictionary<String, Object>> userDirectoryConfigs = firstInit.getUserDirectoryConfigs();
-		for (int i = 0; i < userDirectoryConfigs.size(); i++) {
-			Dictionary<String, Object> userDirectoryConfig = userDirectoryConfigs.get(i);
-			String cn = Integer.toString(i);
-			userDirectoryConfig.put(NodeConstants.CN, cn);
-			putFactoryDeployConfig(NodeConstants.NODE_USER_ADMIN_PID, userDirectoryConfig);
+		// user admin
+		List<Dictionary<String, Object>> userDirectoryConfigs = InitUtils.getUserDirectoryConfigs();
+		if (userDirectoryConfigs.size() != 0) {
+			List<String> activeCns = new ArrayList<>();
+			for (int i = 0; i < userDirectoryConfigs.size(); i++) {
+				Dictionary<String, Object> userDirectoryConfig = userDirectoryConfigs.get(i);
+				String cn = UserAdminConf.baseDnHash(userDirectoryConfig);
+				activeCns.add(cn);
+				userDirectoryConfig.put(NodeConstants.CN, cn);
+				putFactoryDeployConfig(NodeConstants.NODE_USER_ADMIN_PID, userDirectoryConfig);
+			}
+			// disable others
+			LdapName userAdminFactoryName = serviceFactoryDn(NodeConstants.NODE_USER_ADMIN_PID);
+			for (LdapName name : deployConfigs.keySet()) {
+				if (name.startsWith(userAdminFactoryName) && !name.equals(userAdminFactoryName)) {
+					try {
+						Attributes attrs = deployConfigs.get(name);
+						String cn = name.getRdn(name.size() - 1).getValue().toString();
+						if (!activeCns.contains(cn)) {
+							attrs.put(UserAdminConf.disabled.name(), "true");
+						}
+					} catch (Exception e) {
+						throw new CmsException("Cannot disable user directory " + name, e);
+					}
+				}
+			}
 		}
 
 		// http server
-		Dictionary<String, Object> webServerConfig = firstInit
+		Dictionary<String, Object> webServerConfig = InitUtils
 				.getHttpServerConfig(getProps(KernelConstants.JETTY_FACTORY_PID, NodeConstants.DEFAULT));
 		if (!webServerConfig.isEmpty())
 			putFactoryDeployConfig(KernelConstants.JETTY_FACTORY_PID, webServerConfig);
@@ -90,12 +128,13 @@ class DeployConfig implements ConfigurationListener {
 		save();
 	}
 
-	private void init(ConfigurationAdmin configurationAdmin, boolean isClean) throws IOException {
+	private void init(ConfigurationAdmin configurationAdmin, boolean isClean, boolean isFirstInit) throws IOException {
 
 		try (InputStream in = Files.newInputStream(deployConfigPath)) {
 			deployConfigs = new LdifParser().read(in);
 		}
 		if (isClean) {
+			setFromFrameworkProperties(isFirstInit);
 			for (LdapName dn : deployConfigs.keySet()) {
 				Rdn lastRdn = dn.getRdn(dn.size() - 1);
 				LdapName prefix = (LdapName) dn.getPrefix(dn.size() - 1);
@@ -208,6 +247,10 @@ class DeployConfig implements ConfigurationListener {
 		} catch (IOException e) {
 			throw new CmsException("Cannot save deploy configs", e);
 		}
+	}
+
+	boolean isStandalone(String dataModelName) {
+		return getProps(NodeConstants.NODE_REPOS_FACTORY_PID, dataModelName) != null;
 	}
 
 	/*

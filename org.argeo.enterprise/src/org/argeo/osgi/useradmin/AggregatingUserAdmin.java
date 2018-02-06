@@ -139,8 +139,11 @@ public class AggregatingUserAdmin implements UserAdmin {
 			return systemRoles;
 		List<UserAdmin> res = new ArrayList<UserAdmin>(1);
 		for (LdapName baseDn : businessRoles.keySet()) {
-			if (name.startsWith(baseDn))
-				res.add(businessRoles.get(baseDn));
+			if (name.startsWith(baseDn)) {
+				AbstractUserDirectory ud = businessRoles.get(baseDn);
+				if (!ud.isDisabled())
+					res.add(ud);
+			}
 		}
 		if (res.size() == 0)
 			throw new UserDirectoryException("Cannot find user admin for " + name);

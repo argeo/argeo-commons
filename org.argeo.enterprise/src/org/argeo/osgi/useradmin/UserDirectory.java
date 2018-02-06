@@ -6,18 +6,20 @@ import javax.transaction.xa.XAResource;
 /** Information about a user directory. */
 public interface UserDirectory {
 	/** The base DN of all entries in this user directory */
-	public LdapName getBaseDn();
+	LdapName getBaseDn();
 
 	/** The related {@link XAResource} */
-	public XAResource getXaResource();
+	XAResource getXaResource();
 
-	public boolean isReadOnly();
+	boolean isReadOnly();
 
-	public String getUserObjectClass();
+	boolean isDisabled();
 
-	public String getUserBase();
+	String getUserObjectClass();
 
-	public String getGroupObjectClass();
+	String getUserBase();
 
-	public String getGroupBase();
+	String getGroupObjectClass();
+
+	String getGroupBase();
 }

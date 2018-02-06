@@ -54,6 +54,7 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 	private final String userObjectClass, userBase, groupObjectClass, groupBase;
 
 	private final boolean readOnly;
+	private final boolean disabled;
 	private final URI uri;
 
 	private UserAdmin externalRoles;
@@ -108,6 +109,11 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 			properties.put(UserAdminConf.readOnly.name(), Boolean.toString(readOnly));
 		} else
 			readOnly = new Boolean(readOnlyStr);
+		String disabledStr = UserAdminConf.disabled.getValue(properties);
+		if (disabledStr != null)
+			disabled = new Boolean(disabledStr);
+		else
+			disabled = false;
 	}
 
 	/** Returns the groups this user is a direct member of. */
@@ -436,6 +442,10 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 
 	public boolean isReadOnly() {
 		return readOnly;
+	}
+
+	public boolean isDisabled() {
+		return disabled;
 	}
 
 	protected UserAdmin getExternalRoles() {

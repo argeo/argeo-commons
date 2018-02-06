@@ -6,15 +6,10 @@ import org.osgi.resource.Namespace;
 public class DataModelNamespace extends Namespace {
 
 	public static final String CMS_DATA_MODEL_NAMESPACE = "cms.datamodel";
-	public static final String CAPABILITY_NAME_ATTRIBUTE = "name";
-	public static final String CAPABILITY_CND_ATTRIBUTE = "cnd";
+	public static final String NAME = "name";
+	public static final String CND = "cnd";
 	/** If 'true', indicates that no repository should be published */
-	public static final String CAPABILITY_ABSTRACT_ATTRIBUTE = "abstract";
-	/**
-	 * If 'true', indicates that code using this data model should be prepared
-	 * to have it stored in a different JCR repository than the node
-	 */
-	public static final String CAPABILITY_STANDALONE_ATTRIBUTE = "standalone";
+	public static final String ABSTRACT = "abstract";
 
 	private DataModelNamespace() {
 		// empty

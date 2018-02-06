@@ -45,11 +45,13 @@ import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
 public class CmsDeployment implements NodeDeployment {
-	private final static String LEGACY_JCR_REPOSITORY_ALIAS = "argeo.jcr.repository.alias";
+	// private final static String LEGACY_JCR_REPOSITORY_ALIAS =
+	// "argeo.jcr.repository.alias";
 
 	private final Log log = LogFactory.getLog(getClass());
 	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
+	private DataModels dataModels;
 	private DeployConfig deployConfig;
 	private HomeRepository homeRepository;
 
@@ -74,6 +76,7 @@ public class CmsDeployment implements NodeDeployment {
 		cleanState = nodeState.isClean();
 
 		nodeHttp = new NodeHttp();
+		dataModels = new DataModels(bc);
 		initTrackers();
 	}
 
@@ -110,7 +113,7 @@ public class CmsDeployment implements NodeDeployment {
 			@Override
 			public ConfigurationAdmin addingService(ServiceReference<ConfigurationAdmin> reference) {
 				ConfigurationAdmin configurationAdmin = bc.getService(reference);
-				deployConfig = new DeployConfig(configurationAdmin, cleanState);
+				deployConfig = new DeployConfig(configurationAdmin, dataModels, cleanState);
 				httpExpected = deployConfig.getProps(KernelConstants.JETTY_FACTORY_PID, "default") != null;
 				try {
 					// Configuration[] configs = configurationAdmin
@@ -205,13 +208,13 @@ public class CmsDeployment implements NodeDeployment {
 		}
 
 		// home
-		prepareDataModel(KernelUtils.openAdminSession(deployedNodeRepository));
+		prepareDataModel(NodeConstants.NODE, KernelUtils.openAdminSession(deployedNodeRepository));
 	}
 
 	private void prepareHomeRepository(Repository deployedRepository) {
 		Hashtable<String, String> regProps = new Hashtable<String, String>();
 		regProps.put(NodeConstants.CN, NodeConstants.HOME);
-		regProps.put(LEGACY_JCR_REPOSITORY_ALIAS, NodeConstants.HOME);
+		// regProps.put(LEGACY_JCR_REPOSITORY_ALIAS, NodeConstants.HOME);
 		homeRepository = new HomeRepository(deployedRepository);
 		// register
 		bc.registerService(Repository.class, homeRepository, regProps);
@@ -232,36 +235,45 @@ public class CmsDeployment implements NodeDeployment {
 	}
 
 	/** Session is logged out. */
-	private void prepareDataModel(Session adminSession) {
+	private void prepareDataModel(String cn, Session adminSession) {
 		try {
 			Set<String> processed = new HashSet<String>();
 			bundles: for (Bundle bundle : bc.getBundles()) {
 				BundleWiring wiring = bundle.adapt(BundleWiring.class);
 				if (wiring == null)
 					continue bundles;
-				processWiring(adminSession, wiring, processed);
+				if (NodeConstants.NODE.equals(cn))// process all data models
+					processWiring(cn, adminSession, wiring, processed);
+				else {
+					List<BundleCapability> capabilities = wiring.getCapabilities(CMS_DATA_MODEL_NAMESPACE);
+					for (BundleCapability capability : capabilities) {
+						String dataModelName = (String) capability.getAttributes().get(DataModelNamespace.NAME);
+						if (dataModelName.equals(cn))// process only own data model
+							processWiring(cn, adminSession, wiring, processed);
+					}
+				}
 			}
 		} finally {
 			JcrUtils.logoutQuietly(adminSession);
 		}
 	}
 
-	private void processWiring(Session adminSession, BundleWiring wiring, Set<String> processed) {
+	private void processWiring(String cn, Session adminSession, BundleWiring wiring, Set<String> processed) {
 		// recursively process requirements first
 		List<BundleWire> requiredWires = wiring.getRequiredWires(CMS_DATA_MODEL_NAMESPACE);
 		for (BundleWire wire : requiredWires) {
-			processWiring(adminSession, wire.getProviderWiring(), processed);
-			// registerCnd(adminSession, wire.getCapability(), processed);
+			processWiring(cn, adminSession, wire.getProviderWiring(), processed);
 		}
 		List<BundleCapability> capabilities = wiring.getCapabilities(CMS_DATA_MODEL_NAMESPACE);
 		for (BundleCapability capability : capabilities) {
-			registerDataModelCapability(adminSession, capability, processed);
+			registerDataModelCapability(cn, adminSession, capability, processed);
 		}
 	}
 
-	private void registerDataModelCapability(Session adminSession, BundleCapability capability, Set<String> processed) {
+	private void registerDataModelCapability(String cn, Session adminSession, BundleCapability capability,
+			Set<String> processed) {
 		Map<String, Object> attrs = capability.getAttributes();
-		String name = (String) attrs.get(DataModelNamespace.CAPABILITY_NAME_ATTRIBUTE);
+		String name = (String) attrs.get(DataModelNamespace.NAME);
 		if (processed.contains(name)) {
 			if (log.isTraceEnabled())
 				log.trace("Data model " + name + " has already been processed");
@@ -269,7 +281,7 @@ public class CmsDeployment implements NodeDeployment {
 		}
 
 		// CND
-		String path = (String) attrs.get(DataModelNamespace.CAPABILITY_CND_ATTRIBUTE);
+		String path = (String) attrs.get(DataModelNamespace.CND);
 		if (path != null) {
 			File dataModel = bc.getBundle().getDataFile("dataModels/" + path);
 			if (!dataModel.exists()) {
@@ -289,9 +301,21 @@ public class CmsDeployment implements NodeDeployment {
 			}
 		}
 
-		if (!asBoolean((String) attrs.get(DataModelNamespace.CAPABILITY_ABSTRACT_ATTRIBUTE))) {
+		if (KernelUtils.asBoolean((String) attrs.get(DataModelNamespace.ABSTRACT)))
+			return;
+		// Non abstract
+		boolean isStandalone = deployConfig.isStandalone(name);
+		boolean publishLocalRepo;
+		if (isStandalone && name.equals(cn))// includes the node itself
+			publishLocalRepo = true;
+		else if (!isStandalone && cn.equals(NodeConstants.NODE))
+			publishLocalRepo = true;
+		else
+			publishLocalRepo = false;
+
+		if (publishLocalRepo) {
 			Hashtable<String, Object> properties = new Hashtable<>();
-			properties.put(LEGACY_JCR_REPOSITORY_ALIAS, name);
+			// properties.put(LEGACY_JCR_REPOSITORY_ALIAS, name);
 			properties.put(NodeConstants.CN, name);
 			if (name.equals(NodeConstants.NODE))
 				properties.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
@@ -299,20 +323,6 @@ public class CmsDeployment implements NodeDeployment {
 			bc.registerService(Repository.class, localRepository, properties);
 			if (log.isDebugEnabled())
 				log.debug("Published data model " + name);
-		}
-	}
-
-	private boolean asBoolean(String value) {
-		if (value == null)
-			return false;
-		switch (value) {
-		case "true":
-			return true;
-		case "false":
-			return false;
-		default:
-			throw new CmsException("Unsupported value for attribute " + DataModelNamespace.CAPABILITY_ABSTRACT_ATTRIBUTE
-					+ ": " + value);
 		}
 	}
 
@@ -329,19 +339,20 @@ public class CmsDeployment implements NodeDeployment {
 
 		@Override
 		public RepositoryContext addingService(ServiceReference<RepositoryContext> reference) {
-			RepositoryContext nodeRepo = bc.getService(reference);
-			Object cn = reference.getProperty(NodeConstants.CN);
+			RepositoryContext repoContext = bc.getService(reference);
+			String cn = (String) reference.getProperty(NodeConstants.CN);
 			if (cn != null) {
 				if (cn.equals(NodeConstants.NODE)) {
-					prepareNodeRepository(nodeRepo.getRepository());
-					prepareHomeRepository(nodeRepo.getRepository());
+					prepareNodeRepository(repoContext.getRepository());
+					// TODO separate home repository
+					prepareHomeRepository(repoContext.getRepository());
 					nodeAvailable = true;
 					checkReadiness();
 				} else {
-					// TODO standalone
+					prepareDataModel(cn, KernelUtils.openAdminSession(repoContext.getRepository()));
 				}
 			}
-			return nodeRepo;
+			return repoContext;
 		}
 
 		@Override

@@ -25,6 +25,7 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
 import org.argeo.cms.CmsException;
+import org.argeo.node.DataModelNamespace;
 import org.argeo.node.NodeConstants;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -206,7 +207,7 @@ class KernelUtils implements KernelConstants {
 	 * @throws CmsException
 	 *             if the related bundle is not active
 	 */
-	public static BundleContext getBundleContext(Class<?> clzz) {
+	static BundleContext getBundleContext(Class<?> clzz) {
 		Bundle bundle = FrameworkUtil.getBundle(clzz);
 		BundleContext bc = bundle.getBundleContext();
 		if (bc == null)
@@ -214,8 +215,22 @@ class KernelUtils implements KernelConstants {
 		return bc;
 	}
 
-	private static BundleContext getBundleContext() {
+	static BundleContext getBundleContext() {
 		return getBundleContext(KernelUtils.class);
+	}
+
+	static boolean asBoolean(String value) {
+		if (value == null)
+			return false;
+		switch (value) {
+		case "true":
+			return true;
+		case "false":
+			return false;
+		default:
+			throw new CmsException("Unsupported value for attribute " + DataModelNamespace.ABSTRACT
+					+ ": " + value);
+		}
 	}
 
 	private static URI safeUri(String uri) {
