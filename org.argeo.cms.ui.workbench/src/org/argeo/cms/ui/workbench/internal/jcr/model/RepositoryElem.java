@@ -21,11 +21,13 @@ import javax.jcr.Session;
 
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
+import org.argeo.jcr.JcrUtils;
 
 /**
- * UI Tree component that wraps a JCR {@link Repository}. It also keeps a reference
- * to its parent Tree Ui component; typically the unique {@link RepositoriesElem}
- * object of the current view to enable bi-directionnal browsing in the tree.
+ * UI Tree component that wraps a JCR {@link Repository}. It also keeps a
+ * reference to its parent Tree Ui component; typically the unique
+ * {@link RepositoriesElem} object of the current view to enable bi-directionnal
+ * browsing in the tree.
  */
 
 public class RepositoryElem extends TreeParent {
@@ -44,8 +46,7 @@ public class RepositoryElem extends TreeParent {
 	public void login() {
 		try {
 			defaultSession = repositoryLogin("main");
-			String[] wkpNames = defaultSession.getWorkspace()
-					.getAccessibleWorkspaceNames();
+			String[] wkpNames = defaultSession.getWorkspace().getAccessibleWorkspaceNames();
 			for (String wkpName : wkpNames) {
 				if (wkpName.equals(defaultSession.getWorkspace().getName()))
 					addChild(new WorkspaceElem(this, wkpName, defaultSession));
@@ -57,13 +58,21 @@ public class RepositoryElem extends TreeParent {
 		}
 	}
 
+	public synchronized void logout() {
+		for (Object child : getChildren()) {
+			if (child instanceof WorkspaceElem)
+				((WorkspaceElem) child).logout();
+		}
+		clearChildren();
+		JcrUtils.logoutQuietly(defaultSession);
+		defaultSession = null;
+	}
+
 	/**
-	 * Actual call to the
-	 * {@link Repository#login(javax.jcr.Credentials, String)} method. To be
-	 * overridden.
+	 * Actual call to the {@link Repository#login(javax.jcr.Credentials, String)}
+	 * method. To be overridden.
 	 */
-	protected Session repositoryLogin(String workspaceName)
-			throws RepositoryException {
+	protected Session repositoryLogin(String workspaceName) throws RepositoryException {
 		return repository.login(workspaceName);
 	}
 

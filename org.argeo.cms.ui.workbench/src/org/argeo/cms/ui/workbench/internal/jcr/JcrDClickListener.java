@@ -44,6 +44,7 @@ import org.argeo.cms.ui.workbench.util.CommandUtils;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.specific.OpenFile;
 import org.argeo.eclipse.ui.specific.SingleSourcingException;
+import org.argeo.jcr.JcrUtils;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -74,10 +75,12 @@ public class JcrDClickListener implements IDoubleClickListener {
 		Object obj = ((IStructuredSelection) event.getSelection()).getFirstElement();
 		if (obj instanceof RepositoryElem) {
 			RepositoryElem rpNode = (RepositoryElem) obj;
-			if (!rpNode.isConnected()) {
+			if (rpNode.isConnected()) {
+				rpNode.logout();
+			} else {
 				rpNode.login();
-				nodeViewer.refresh(obj);
 			}
+			nodeViewer.refresh(obj);
 		} else if (obj instanceof WorkspaceElem) {
 			WorkspaceElem wn = (WorkspaceElem) obj;
 			if (wn.isConnected())
@@ -105,8 +108,8 @@ public class JcrDClickListener implements IDoubleClickListener {
 					// we copy the node to a tmp file to be opened as a dirty
 					// workaround
 					File tmpFile = null;
-					OutputStream os = null;
-					InputStream is = null;
+					// OutputStream os = null;
+					// InputStream is = null;
 					int i = name.lastIndexOf('.');
 					String prefix, suffix;
 					if (i == -1) {
@@ -116,18 +119,20 @@ public class JcrDClickListener implements IDoubleClickListener {
 						prefix = name.substring(0, i);
 						suffix = name.substring(i);
 					}
-					try {
+					Binary binary = null;
+					try (OutputStream os = new FileOutputStream(tmpFile)) {
 						tmpFile = File.createTempFile(prefix, suffix);
 						tmpFile.deleteOnExit();
-						os = new FileOutputStream(tmpFile);
-						Binary binary = node.getNode(JCR_CONTENT).getProperty(JCR_DATA).getBinary();
-						is = binary.getStream();
-						IOUtils.copy(is, os);
+						binary = node.getNode(JCR_CONTENT).getProperty(JCR_DATA).getBinary();
+						try (InputStream is = binary.getStream();) {
+							IOUtils.copy(is, os);
+						}
 					} catch (IOException e) {
 						throw new SingleSourcingException("Cannot open file " + prefix + "." + suffix, e);
 					} finally {
-						IOUtils.closeQuietly(is);
-						IOUtils.closeQuietly(os);
+						// IOUtils.closeQuietly(is);
+						// IOUtils.closeQuietly(os);
+						JcrUtils.closeQuietly(binary);
 					}
 					Path path = Paths.get(tmpFile.getAbsolutePath());
 					String uri = path.toUri().toString();

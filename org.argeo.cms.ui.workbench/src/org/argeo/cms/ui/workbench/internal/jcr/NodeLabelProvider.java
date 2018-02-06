@@ -15,6 +15,7 @@
  */
 package org.argeo.cms.ui.workbench.internal.jcr;
 
+import javax.jcr.NamespaceException;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
@@ -28,6 +29,7 @@ import org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
 import org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem;
 import org.argeo.cms.ui.workbench.jcr.JcrImages;
 import org.argeo.eclipse.ui.EclipseUiException;
+import org.argeo.naming.LdapAttrs;
 import org.argeo.node.NodeTypes;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.graphics.Image;
@@ -48,8 +50,7 @@ public class NodeLabelProvider extends ColumnLabelProvider {
 			} else
 				return super.getText(element);
 		} catch (RepositoryException e) {
-			throw new EclipseUiException(
-					"Unexpected JCR error while getting node name.");
+			throw new EclipseUiException("Unexpected JCR error while getting node name.");
 		}
 	}
 
@@ -59,8 +60,7 @@ public class NodeLabelProvider extends ColumnLabelProvider {
 		for (NodeType type : node.getMixinNodeTypes())
 			mixins.append(' ').append(type.getName());
 
-		return label + " [" + node.getPrimaryNodeType().getName() + mixins
-				+ "]";
+		return label + " [" + node.getPrimaryNodeType().getName() + mixins + "]";
 	}
 
 	@Override
@@ -110,13 +110,16 @@ public class NodeLabelProvider extends ColumnLabelProvider {
 				return JcrImages.FOLDER;
 			else if (node.getPrimaryNodeType().isNodeType(NodeType.NT_RESOURCE))
 				return JcrImages.BINARY;
-			else if (node.isNodeType(NodeTypes.NODE_USER_HOME))
-				return JcrImages.HOME;
-			else
-				return JcrImages.NODE;
+			try {
+				// optimizes
+				if (node.hasProperty(LdapAttrs.uid.property()) && node.isNodeType(NodeTypes.NODE_USER_HOME))
+					return JcrImages.HOME;
+			} catch (NamespaceException e) {
+				// node namespace is not registered in this repo
+			}
+			return JcrImages.NODE;
 		} catch (RepositoryException e) {
-			log.warn("Error while retrieving type for " + node
-					+ " in order to display corresponding image");
+			log.warn("Error while retrieving type for " + node + " in order to display corresponding image");
 			e.printStackTrace();
 			return null;
 		}
