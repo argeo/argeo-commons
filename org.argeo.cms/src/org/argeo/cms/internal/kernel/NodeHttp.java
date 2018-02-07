@@ -45,8 +45,10 @@ public class NodeHttp implements KernelConstants {
 	private final ServiceTracker<HttpService, HttpService> httpServiceTracker;
 
 	private static String httpRealm = "Argeo";
+	private final boolean cleanState;
 
-	public NodeHttp() {
+	public NodeHttp(boolean cleanState) {
+		this.cleanState = cleanState;
 		httpServiceTracker = new PrepareHttpStc();
 		// httpServiceTracker.open();
 		KernelUtils.asyncOpen(httpServiceTracker);
@@ -244,7 +246,8 @@ public class NodeHttp implements KernelConstants {
 				throw new CmsException("An http service is already configured");
 			repositories = new RepositoriesStc(bc, httpService);
 			// repositories.open();
-			KernelUtils.asyncOpen(repositories);
+			if (cleanState)
+				KernelUtils.asyncOpen(repositories);
 			log.info(httpPortsMsg(httpPort, httpsPort));
 			// httpAvailable = true;
 			// checkReadiness();

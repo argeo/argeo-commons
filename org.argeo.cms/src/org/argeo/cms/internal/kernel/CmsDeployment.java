@@ -75,7 +75,7 @@ public class CmsDeployment implements NodeDeployment {
 		NodeState nodeState = bc.getService(nodeStateSr);
 		cleanState = nodeState.isClean();
 
-		nodeHttp = new NodeHttp();
+		nodeHttp = new NodeHttp(cleanState);
 		dataModels = new DataModels(bc);
 		initTrackers();
 	}
