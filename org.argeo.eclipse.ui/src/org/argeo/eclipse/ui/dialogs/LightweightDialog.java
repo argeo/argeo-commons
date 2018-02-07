@@ -15,13 +15,10 @@
  */
 package org.argeo.eclipse.ui.dialogs;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Point;
@@ -31,13 +28,11 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 /** Generic lightweight dialog, not based on JFace. */
 public class LightweightDialog {
-	private final static Log log = LogFactory.getLog(LightweightDialog.class);
+	// private final static Log log = LogFactory.getLog(LightweightDialog.class);
 
 	private Shell parentShell;
 	private Shell backgroundShell;
@@ -63,7 +58,7 @@ public class LightweightDialog {
 	public void open() {
 		if (shell != null)
 			throw new EclipseUiException("There is already a shell");
-		backgroundShell = new Shell(parentShell,SWT.NO_TRIM | SWT.BORDER | SWT.ON_TOP);
+		backgroundShell = new Shell(parentShell, SWT.NO_TRIM | SWT.BORDER | SWT.ON_TOP);
 		backgroundShell.setMaximized(true);
 		backgroundShell.setAlpha(128);
 		backgroundShell.setBackground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
@@ -92,15 +87,32 @@ public class LightweightDialog {
 		});
 
 		shell.open();
+		// after the foreground shell has been opened
+		backgroundShell.addFocusListener(new FocusListener() {
+			private static final long serialVersionUID = 3137408447474661070L;
+
+			@Override
+			public void focusLost(FocusEvent event) {
+			}
+
+			@Override
+			public void focusGained(FocusEvent event) {
+				closeShell();
+			}
+		});
 	}
 
 	protected void closeShell() {
-		shell.close();
-		shell.dispose();
-		shell = null;
-		
-		backgroundShell.close();
-		backgroundShell.dispose();
+		if (shell != null) {
+			shell.close();
+			shell.dispose();
+			shell = null;
+		}
+
+		if (backgroundShell != null) {
+			backgroundShell.close();
+			backgroundShell.dispose();
+		}
 	}
 
 	protected Point getInitialSize() {
