@@ -129,7 +129,8 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 		} catch (NameNotFoundException e) {
 			throw e;
 		} catch (NamingException e) {
-			log.error("Cannot get role: " + name, e);
+			if (log.isTraceEnabled())
+				log.error("Cannot get role: " + name, e);
 			return null;
 		}
 	}
