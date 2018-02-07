@@ -145,7 +145,8 @@ class CmsAuthUtils {
 								+ " for existing CMS session " + cmsSession);
 					}
 					// keyring
-					subject.getPrivateCredentials().addAll(cmsSession.getSecretKeys());
+					if (cmsSession != null)
+						subject.getPrivateCredentials().addAll(cmsSession.getSecretKeys());
 				} else {// anonymous
 					if (cmsSession.getAuthorization().getName() != null) {
 						cmsSession.close();
