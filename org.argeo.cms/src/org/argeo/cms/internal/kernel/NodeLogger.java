@@ -15,6 +15,14 @@
  */
 package org.argeo.cms.internal.kernel;
 
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,6 +61,10 @@ import org.osgi.service.log.LogService;
 
 /** Not meant to be used directly in standard log4j config */
 class NodeLogger implements ArgeoLogger, LogListener {
+	/** Internal debug for development purposes. */
+	private static Boolean debug = false;
+
+	// private final static Log log = LogFactory.getLog(NodeLogger.class);
 
 	private Boolean disabled = false;
 
@@ -92,6 +104,24 @@ class NodeLogger implements ArgeoLogger, LogListener {
 		while (logEntries.hasMoreElements())
 			logged(logEntries.nextElement());
 		lrs.addLogListener(this);
+
+		// configure log4j watcher
+		String log4jConfiguration = KernelUtils.getFrameworkProp("log4j.configuration");
+		if (log4jConfiguration != null && log4jConfiguration.startsWith("file:")) {
+			if (log4jConfiguration.contains("..")) {
+				if (log4jConfiguration.startsWith("file://"))
+					log4jConfiguration = log4jConfiguration.substring("file://".length());
+				else if (log4jConfiguration.startsWith("file:"))
+					log4jConfiguration = log4jConfiguration.substring("file:".length());
+			}
+			try {
+				Path log4jconfigPath = Paths.get(log4jConfiguration);
+				Thread log4jConfWatcher = new Log4jConfWatcherThread(log4jconfigPath);
+				log4jConfWatcher.start();
+			} catch (Exception e) {
+				stdErr("Badly formatted log4j configuration URI " + log4jConfiguration + ": " + e.getMessage());
+			}
+		}
 	}
 
 	public void init() {
@@ -275,8 +305,21 @@ class NodeLogger implements ArgeoLogger, LogListener {
 	}
 
 	/** For development purpose, since using regular logging is not easy here */
-	static void stdOut(Object obj) {
+	private static void stdOut(Object obj) {
 		System.out.println(obj);
+	}
+
+	private static void stdErr(Object obj) {
+		System.err.println(obj);
+	}
+
+	private static void debug(Object obj) {
+		if (debug)
+			System.out.println(obj);
+	}
+
+	private static boolean isInternalDebugEnabled() {
+		return debug;
 	}
 
 	// public void setPattern(String pattern) {
@@ -462,5 +505,44 @@ class NodeLogger implements ArgeoLogger, LogListener {
 			return loggingEvent;
 		}
 
+	}
+
+	private class Log4jConfWatcherThread extends Thread {
+		private Path log4jConfigurationPath;
+
+		public Log4jConfWatcherThread(Path log4jConfigurationPath) {
+			super("Log4j Configuration Watcher");
+			try {
+				this.log4jConfigurationPath = log4jConfigurationPath.toRealPath();
+			} catch (IOException e) {
+				this.log4jConfigurationPath = log4jConfigurationPath.toAbsolutePath();
+				stdOut("Cannot determine real path for " + log4jConfigurationPath + ": " + e.getMessage());
+			}
+		}
+
+		public void run() {
+			Path parentDir = log4jConfigurationPath.getParent();
+			try (final WatchService watchService = FileSystems.getDefault().newWatchService()) {
+				parentDir.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+				WatchKey wk;
+				watching: while ((wk = watchService.take()) != null) {
+					for (WatchEvent<?> event : wk.pollEvents()) {
+						final Path changed = (Path) event.context();
+						if (log4jConfigurationPath.equals(parentDir.resolve(changed))) {
+							if (isInternalDebugEnabled())
+								debug(log4jConfigurationPath + " has changed, reloading.");
+							PropertyConfigurator.configure(log4jConfigurationPath.toUri().toURL());
+						}
+					}
+					// reset the key
+					boolean valid = wk.reset();
+					if (!valid) {
+						break watching;
+					}
+				}
+			} catch (IOException | InterruptedException e) {
+				stdErr("Log4j configuration watcher failed: " + e.getMessage());
+			}
+		}
 	}
 }
