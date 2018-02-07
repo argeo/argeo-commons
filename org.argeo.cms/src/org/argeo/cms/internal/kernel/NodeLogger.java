@@ -16,6 +16,7 @@
 package org.argeo.cms.internal.kernel;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -115,7 +116,11 @@ class NodeLogger implements ArgeoLogger, LogListener {
 					log4jConfiguration = log4jConfiguration.substring("file:".length());
 			}
 			try {
-				Path log4jconfigPath = Paths.get(log4jConfiguration);
+				Path log4jconfigPath;
+				if (log4jConfiguration.startsWith("file:"))
+					log4jconfigPath = Paths.get(new URI(log4jConfiguration));
+				else
+					log4jconfigPath = Paths.get(log4jConfiguration);
 				Thread log4jConfWatcher = new Log4jConfWatcherThread(log4jconfigPath);
 				log4jConfWatcher.start();
 			} catch (Exception e) {
