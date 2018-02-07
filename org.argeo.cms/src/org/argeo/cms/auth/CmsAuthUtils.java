@@ -158,18 +158,19 @@ class CmsAuthUtils {
 				cmsSession = new WebCmsSessionImpl(subject, authorization, locale, request);
 			}
 			// request.setAttribute(CmsSession.class.getName(), cmsSession);
-			CmsSessionId nodeSessionId = new CmsSessionId(cmsSession.getUuid());
-			if (subject.getPrivateCredentials(CmsSessionId.class).size() == 0)
-				subject.getPrivateCredentials().add(nodeSessionId);
-			else {
-				UUID storedSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next().getUuid();
-				// if (storedSessionId.equals(httpSessionId.getValue()))
-				throw new CmsException(
-						"Subject already logged with session " + storedSessionId + " (not " + nodeSessionId + ")");
+			if (cmsSession != null) {
+				CmsSessionId nodeSessionId = new CmsSessionId(cmsSession.getUuid());
+				if (subject.getPrivateCredentials(CmsSessionId.class).size() == 0)
+					subject.getPrivateCredentials().add(nodeSessionId);
+				else {
+					UUID storedSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next()
+							.getUuid();
+					// if (storedSessionId.equals(httpSessionId.getValue()))
+					throw new CmsException(
+							"Subject already logged with session " + storedSessionId + " (not " + nodeSessionId + ")");
+				}
 			}
-		} else
-
-		{
+		} else {
 			// TODO desktop, CLI
 		}
 	}
