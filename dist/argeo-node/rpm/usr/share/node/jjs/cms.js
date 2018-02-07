@@ -39,8 +39,8 @@ if (typeof app !== 'undefined') {
 
 function openWorkbench() {
 	osgi.spring("org.argeo.cms.ui.workbench.rap");
-	var appUrl = "http://localhost:" + osgi.httpPort + "/ui/node";
-	$EXEC("/usr/bin/chromium-browser --app=" + appUrl);
+	var appUrl = "http://127.0.0.1:" + osgi.httpPort + "/ui/node";
+	$EXEC("chrome --app=" + appUrl);
 	// shutdown when the window is closed
 	osgi.shutdown();
 }
