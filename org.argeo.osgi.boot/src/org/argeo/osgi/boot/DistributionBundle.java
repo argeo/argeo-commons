@@ -187,11 +187,13 @@ public class DistributionBundle {
 		try {
 			reader = new BufferedReader(new InputStreamReader(in));
 			String line = null;
-			while ((line = reader.readLine()) != null) {
+			lines: while ((line = reader.readLine()) != null) {
 				StringTokenizer st = new StringTokenizer(line, separator);
 				String moduleName = st.nextToken();
 				String moduleVersion = st.nextToken();
 				String relativeUrl = st.nextToken();
+				if (relativeUrl.endsWith(".pom"))
+					continue lines;
 				osgiArtifacts.add(new OsgiArtifact(moduleName, moduleVersion, relativeUrl));
 			}
 		} catch (Exception e) {
@@ -201,8 +203,8 @@ public class DistributionBundle {
 	}
 
 	/** Convenience method */
-	public static DistributionBundle processUrl(String baseUrl, String realtiveUrl, String localCache) {
-		DistributionBundle distributionBundle = new DistributionBundle(baseUrl, realtiveUrl, localCache);
+	public static DistributionBundle processUrl(String baseUrl, String relativeUrl, String localCache) {
+		DistributionBundle distributionBundle = new DistributionBundle(baseUrl, relativeUrl, localCache);
 		distributionBundle.processUrl();
 		return distributionBundle;
 	}
@@ -230,8 +232,8 @@ public class DistributionBundle {
 				localUri = null;
 			}
 			Version version = new Version(osgiArtifact.getVersion());
-			if (localUri != null && Files.exists(Paths.get(localUri))
-					&& version.getQualifier()!=null		&& version.getQualifier().startsWith("SNAPSHOT")) {
+			if (localUri != null && Files.exists(Paths.get(localUri)) && version.getQualifier() != null
+					&& version.getQualifier().startsWith("SNAPSHOT")) {
 				urls.add(localCache + osgiArtifact.getRelativeUrl());
 			} else {
 				urls.add(baseUrl + osgiArtifact.getRelativeUrl());
