@@ -78,7 +78,7 @@ public interface NodeConstants {
 	String NODE_SERVICE = NODE;
 
 	/*
-	 * FIRST INIT FRAMEWORK PROPERTIES
+	 * INIT FRAMEWORK PROPERTIES
 	 */
 	String NODE_INIT = "argeo.node.init";
 	String I18N_DEFAULT_LOCALE = "argeo.i18n.defaultLocale";
@@ -87,6 +87,10 @@ public interface NodeConstants {
 	String ROLES_URI = "argeo.node.roles.uri";
 	/** URI to an LDIF file or LDAP server used as initialization or backend */
 	String USERADMIN_URIS = "argeo.node.useradmin.uris";
+	// Transaction manager
+	String TRANSACTION_MANAGER = "argeo.node.transaction.manager";
+	String TRANSACTION_MANAGER_SIMPLE = "simple";
+	String TRANSACTION_MANAGER_BITRONIX = "bitronix";
 	// Node
 	/** Properties configuring the node repository */
 	String NODE_REPO_PROP_PREFIX = "argeo.node.repo.";

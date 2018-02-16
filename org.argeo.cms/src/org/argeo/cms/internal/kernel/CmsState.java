@@ -5,7 +5,6 @@ import static bitronix.tm.TransactionManagerServices.getTransactionSynchronizati
 import static java.util.Locale.ENGLISH;
 
 import java.io.File;
-import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.spi.FileSystemProvider;
@@ -21,9 +20,11 @@ import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.cms.CmsException;
 import org.argeo.cms.i18n.LocaleUtils;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeState;
+import org.argeo.transaction.simple.SimpleTransactionManager;
 import org.argeo.util.LangUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -37,7 +38,7 @@ import bitronix.tm.BitronixTransactionSynchronizationRegistry;
 import bitronix.tm.TransactionManagerServices;
 
 public class CmsState implements NodeState {
-	private final Log log = LogFactory.getLog(CmsState.class);
+	private final static Log log = LogFactory.getLog(CmsState.class);
 	private final BundleContext bc = FrameworkUtil.getBundle(CmsState.class).getBundleContext();
 
 	// REFERENCES
@@ -87,7 +88,14 @@ public class CmsState implements NodeState {
 
 	private void initServices() {
 		// JTA
-		initTransactionManager();
+		String tmType = KernelUtils.getFrameworkProp(NodeConstants.TRANSACTION_MANAGER, NodeConstants.TRANSACTION_MANAGER_SIMPLE);
+		if (NodeConstants.TRANSACTION_MANAGER_SIMPLE.equals(tmType)) {
+			initSimpleTransactionManager();
+		} else if (NodeConstants.TRANSACTION_MANAGER_BITRONIX.equals(tmType)) {
+			initBitronixTransactionManager();
+		} else {
+			throw new CmsException("Usupported transaction manager type " + tmType);
+		}
 
 		// JCR
 		RepositoryServiceFactory repositoryServiceFactory = new RepositoryServiceFactory();
@@ -110,7 +118,14 @@ public class CmsState implements NodeState {
 				LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_FS_PROVIDER_PID));
 	}
 
-	private void initTransactionManager() {
+	private void initSimpleTransactionManager() {
+		SimpleTransactionManager transactionManager = new SimpleTransactionManager();
+		bc.registerService(TransactionManager.class, transactionManager, null);
+		bc.registerService(UserTransaction.class, transactionManager, null);
+		// TODO TransactionSynchronizationRegistry
+	}
+
+	private void initBitronixTransactionManager() {
 		// TODO manage it in a managed service, as startup could be long
 		ServiceReference<TransactionManager> existingTm = bc.getServiceReference(TransactionManager.class);
 		if (existingTm != null) {
