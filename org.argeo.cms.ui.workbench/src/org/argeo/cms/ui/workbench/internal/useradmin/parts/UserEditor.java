@@ -89,7 +89,7 @@ public class UserEditor extends FormEditor {
 		List<User> groups = new ArrayList<User>();
 		for (String roleStr : roles) {
 			User currRole = (User) userAdmin.getRole(roleStr);
-			if (!groups.contains(currRole))
+			if (currRole != null && !groups.contains(currRole))
 				groups.add(currRole);
 		}
 		return groups;
