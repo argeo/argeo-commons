@@ -11,12 +11,14 @@
 	<name>CMS Platform</name>
 	<dependencies>
 
-		<!-- Argeo Commons -->
+		<!-- Parent dependencies -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.dep.cms.node</artifactId>
 			<version>2.1.72-SNAPSHOT</version>
 		</dependency>
+
+		<!-- Argeo Commons -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.cms.ui.workbench</artifactId>
@@ -280,6 +282,7 @@
 									<outputDirectory>${project.build.directory}/lib-argeo</outputDirectory>
 									<includeGroupIds>org.argeo.commons</includeGroupIds>
 									<excludeTransitive>true</excludeTransitive>
+									<excludeArtifactIds>org.argeo.dep.cms.node</excludeArtifactIds>
 									<includeTypes>jar</includeTypes>
 									<includeScope>runtime</includeScope>
 									<useRepositoryLayout>true</useRepositoryLayout>

@@ -11,12 +11,14 @@
 	<name>CMS Node</name>
 	<dependencies>
 
-		<!-- Argeo Commons -->
+		<!-- Parent dependencies -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.dep.cms.client</artifactId>
 			<version>2.1.72-SNAPSHOT</version>
 		</dependency>
+
+		<!-- Argeo Commons -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.node.api</artifactId>
@@ -304,6 +306,7 @@
 									<outputDirectory>${project.build.directory}/lib-argeo</outputDirectory>
 									<includeGroupIds>org.argeo.commons</includeGroupIds>
 									<excludeTransitive>true</excludeTransitive>
+									<excludeArtifactIds>org.argeo.dep.cms.client</excludeArtifactIds>
 									<includeTypes>jar</includeTypes>
 									<includeScope>runtime</includeScope>
 									<useRepositoryLayout>true</useRepositoryLayout>

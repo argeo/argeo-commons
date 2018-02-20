@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
@@ -10,6 +11,7 @@
 	<artifactId>org.argeo.dep.cms.sdk</artifactId>
 	<name>CMS SDK</name>
 	<dependencies>
+		<!-- Parent dependencies -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.dep.cms.platform</artifactId>
@@ -39,42 +41,42 @@
 			<groupId>org.argeo.tp.sdk</groupId>
 			<artifactId>org.dbunit</artifactId>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp.aether</groupId> -->
-<!-- 			<artifactId>org.eclipse.aether.api</artifactId> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp.aether</groupId> -->
-<!-- 			<artifactId>org.eclipse.aether.spi</artifactId> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp.aether</groupId> -->
-<!-- 			<artifactId>org.eclipse.aether.util</artifactId> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp.aether</groupId> -->
-<!-- 			<artifactId>org.eclipse.aether.impl</artifactId> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp.aether</groupId> -->
-<!-- 			<artifactId>org.eclipse.aether.connector.basic</artifactId> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp.aether</groupId> -->
-<!-- 			<artifactId>org.eclipse.aether.transport.classpath</artifactId> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp.aether</groupId> -->
-<!-- 			<artifactId>org.eclipse.aether.transport.file</artifactId> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.aether</groupId> -->
+		<!-- <artifactId>org.eclipse.aether.api</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.aether</groupId> -->
+		<!-- <artifactId>org.eclipse.aether.spi</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.aether</groupId> -->
+		<!-- <artifactId>org.eclipse.aether.util</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.aether</groupId> -->
+		<!-- <artifactId>org.eclipse.aether.impl</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.aether</groupId> -->
+		<!-- <artifactId>org.eclipse.aether.connector.basic</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.aether</groupId> -->
+		<!-- <artifactId>org.eclipse.aether.transport.classpath</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.aether</groupId> -->
+		<!-- <artifactId>org.eclipse.aether.transport.file</artifactId> -->
+		<!-- </dependency> -->
 		<dependency>
 			<groupId>org.argeo.tp.sdk</groupId>
 			<artifactId>org.redline-rpm</artifactId>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp.sdk</groupId> -->
-<!-- 			<artifactId>org.tmatesoft.svnkit</artifactId> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.sdk</groupId> -->
+		<!-- <artifactId>org.tmatesoft.svnkit</artifactId> -->
+		<!-- </dependency> -->
 		<dependency>
 			<groupId>org.argeo.tp.misc</groupId>
 			<artifactId>com.googlecode.javaewah.JavaEWAH</artifactId>
@@ -83,15 +85,15 @@
 			<groupId>org.argeo.tp.misc</groupId>
 			<artifactId>org.eclipse.jgit</artifactId>
 		</dependency>
-		
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp.misc</groupId> -->
-<!-- 			<artifactId>org.postgresql.postgresql</artifactId> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp.misc</groupId> -->
-<!-- 			<artifactId>org.h2</artifactId> -->
-<!-- 		</dependency> -->
+
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.misc</groupId> -->
+		<!-- <artifactId>org.postgresql.postgresql</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.misc</groupId> -->
+		<!-- <artifactId>org.h2</artifactId> -->
+		<!-- </dependency> -->
 	</dependencies>
 
 	<profiles>
@@ -114,6 +116,7 @@
 									<outputDirectory>${project.build.directory}/lib-tp</outputDirectory>
 									<excludeGroupIds>org.argeo.commons</excludeGroupIds>
 									<excludeTransitive>true</excludeTransitive>
+									<excludeArtifactIds>org.argeo.dep.cms.platform</excludeArtifactIds>
 									<includeTypes>jar</includeTypes>
 									<includeScope>runtime</includeScope>
 									<useRepositoryLayout>true</useRepositoryLayout>
