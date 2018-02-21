@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.node.DataModelNamespace;
 import org.osgi.framework.Bundle;
@@ -19,6 +21,8 @@ import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 
 class DataModels implements BundleListener {
+	private final static Log log = LogFactory.getLog(DataModels.class);
+
 	private Map<String, DataModel> dataModels = new TreeMap<>();
 
 	public DataModels(BundleContext bc) {
@@ -56,6 +60,11 @@ class DataModels implements BundleListener {
 
 	protected void processBundle(Bundle bundle) {
 		BundleWiring wiring = bundle.adapt(BundleWiring.class);
+		if (wiring == null) {
+			log.warn("Bundle " + bundle.getSymbolicName() + " #" + bundle.getBundleId() + " (" + bundle.getLocation()
+					+ ") cannot be adapted to a wiring");
+			return;
+		}
 		List<BundleCapability> providedDataModels = wiring.getCapabilities(CMS_DATA_MODEL_NAMESPACE);
 		if (providedDataModels.size() == 0)
 			return;
