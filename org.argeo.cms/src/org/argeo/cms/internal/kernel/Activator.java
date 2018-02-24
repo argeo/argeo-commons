@@ -37,9 +37,7 @@ public class Activator implements BundleActivator {
 	private static Activator instance;
 
 	private BundleContext bc;
-	// private CmsSecurity nodeSecurity;
 	private LogReaderService logReaderService;
-	// private ConfigurationAdmin configurationAdmin;
 
 	private NodeLogger logger;
 	private CmsState nodeState;
@@ -52,15 +50,13 @@ public class Activator implements BundleActivator {
 		instance = this;
 		this.bc = bundleContext;
 		this.logReaderService = getService(LogReaderService.class);
-		// this.configurationAdmin = getService(ConfigurationAdmin.class);
 
 		try {
-			// nodeSecurity = new CmsSecurity();
 			initSecurity();
 			initArgeoLogger();
 			initNode();
 			log.debug("Kernel bundle started");
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.error("## FATAL: CMS activator failed", e);
 		}
 	}
@@ -93,16 +89,6 @@ public class Activator implements BundleActivator {
 	}
 
 	private void initArgeoLogger() {
-		// Jetty
-		// disable integration of Jetty logging with SLF4J
-		// in order to avoid chicken and egg problems
-		// org.eclipse.jetty.util.log.Log.setLog(new StdErrLog());
-		// org.eclipse.jetty.util.log.Logger jettyLog =
-		// org.eclipse.jetty.util.log.Log.getLog();
-		// if (jettyLog != null) {
-		// jettyLog.warn("TEST JETTY LOG", new Object[0]);
-		// }
-
 		logger = new NodeLogger(logReaderService);
 		bc.registerService(ArgeoLogger.class, logger, null);
 	}
