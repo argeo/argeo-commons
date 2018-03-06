@@ -120,9 +120,13 @@ public class JcrDClickListener implements IDoubleClickListener {
 						suffix = name.substring(i);
 					}
 					Binary binary = null;
-					try (OutputStream os = new FileOutputStream(tmpFile)) {
+					try {
 						tmpFile = File.createTempFile(prefix, suffix);
 						tmpFile.deleteOnExit();
+					} catch (IOException e1) {
+						throw new EclipseUiException("Cannot create temp file", e1);
+					}
+					try (OutputStream os = new FileOutputStream(tmpFile)) {
 						binary = node.getNode(JCR_CONTENT).getProperty(JCR_DATA).getBinary();
 						try (InputStream is = binary.getStream();) {
 							IOUtils.copy(is, os);
