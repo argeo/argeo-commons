@@ -5,13 +5,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.jcr.Node;
+import javax.jcr.RepositoryException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.ui.CmsStyles;
 import org.argeo.cms.ui.CmsUiProvider;
+import org.argeo.node.NodeUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.ResourceManager;
 import org.eclipse.swt.SWT;
@@ -35,6 +38,9 @@ public class CmsLink implements CmsUiProvider {
 	private MouseListener mouseListener;
 
 	private int verticalAlignment = SWT.CENTER;
+
+	private String loggedInLabel = null;
+	private String loggedInTarget = null;
 
 	// internal
 	// private Boolean isUrl = false;
@@ -95,10 +101,22 @@ public class CmsLink implements CmsUiProvider {
 
 		// label
 		StringBuilder labelText = new StringBuilder();
-		if (target != null) {
+		if (loggedInTarget != null && isLoggedIn()) {
 			labelText.append("<a style='color:inherit;text-decoration:inherit;' href=\"");
-			// if (!isUrl)
-			// labelText.append('#');
+			if (loggedInTarget.equals("")) {
+				try {
+					Node homeNode = NodeUtils.getUserHome(context.getSession());
+					String homePath = homeNode.getPath();
+					labelText.append("/#" + homePath);
+				} catch (RepositoryException e) {
+					throw new CmsException("Cannot get home path", e);
+				}
+			} else {
+				labelText.append(loggedInTarget);
+			}
+			labelText.append("\">");
+		} else if (target != null) {
+			labelText.append("<a style='color:inherit;text-decoration:inherit;' href=\"");
 			labelText.append(target);
 			labelText.append("\">");
 		}
@@ -108,24 +126,19 @@ public class CmsLink implements CmsUiProvider {
 			labelText.append("<img width='").append(imageWidth).append("' height='").append(imageHeight)
 					.append("' src=\"").append(imageLocation).append("\"/>");
 
-			// final Image img = loadImage(parent.getDisplay());
-			// link.setImage(img);
-			// link.addDisposeListener(new DListener(img));
 		}
 
-		if (label != null) {
-			// link.setText(label);
+		if (loggedInLabel != null && isLoggedIn()) {
+			labelText.append(' ').append(loggedInLabel);
+		} else if (label != null) {
 			labelText.append(' ').append(label);
 		}
 
-		if (target != null)
+		if ((loggedInTarget != null && isLoggedIn()) || target != null)
 			labelText.append("</a>");
 
 		link.setText(labelText.toString());
 
-		// link.setCursor(link.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
-		// CmsSession cmsSession = (CmsSession) parent.getDisplay().getData(
-		// CmsSession.KEY);
 		if (mouseListener != null)
 			link.addMouseListener(mouseListener);
 
@@ -209,6 +222,14 @@ public class CmsLink implements CmsUiProvider {
 		this.image = image;
 	}
 
+	public void setLoggedInLabel(String loggedInLabel) {
+		this.loggedInLabel = loggedInLabel;
+	}
+
+	public void setLoggedInTarget(String loggedInTarget) {
+		this.loggedInTarget = loggedInTarget;
+	}
+
 	public void setMouseListener(MouseListener mouseListener) {
 		this.mouseListener = mouseListener;
 	}
@@ -224,4 +245,9 @@ public class CmsLink implements CmsUiProvider {
 			throw new CmsException("Unsupported vertical allignment " + vAlign + " (must be: top, bottom or center)");
 		}
 	}
+
+	protected boolean isLoggedIn() {
+		return !CurrentUser.isAnonymous();
+	}
+
 }
