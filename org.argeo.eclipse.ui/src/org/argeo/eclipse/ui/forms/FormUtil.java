@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.Text;
 //import org.eclipse.ui.forms.widgets.FormToolkit;
 //import org.eclipse.ui.forms.widgets.ILayoutExtension;
 //
-import com.ibm.icu.text.BreakIterator;
+//import com.ibm.icu.text.BreakIterator;
 
 public class FormUtil {
 	public static final String PLUGIN_ID = "org.eclipse.ui.forms"; //$NON-NLS-1$
@@ -89,27 +89,28 @@ public class FormUtil {
 	}
 
 	public static int computeMinimumWidth(GC gc, String text) {
-		BreakIterator wb = BreakIterator.getWordInstance();
-		wb.setText(text);
-		int last = 0;
-
-		int width = 0;
-
-		for (int loc = wb.first(); loc != BreakIterator.DONE; loc = wb.next()) {
-			String word = text.substring(last, loc);
-			Point extent = gc.textExtent(word);
-			width = Math.max(width, extent.x);
-			last = loc;
-		}
-		String lastWord = text.substring(last);
-		Point extent = gc.textExtent(lastWord);
-		width = Math.max(width, extent.x);
-		return width;
+//		BreakIterator wb = BreakIterator.getWordInstance();
+//		wb.setText(text);
+//		int last = 0;
+//
+//		int width = 0;
+//
+//		for (int loc = wb.first(); loc != BreakIterator.DONE; loc = wb.next()) {
+//			String word = text.substring(last, loc);
+//			Point extent = gc.textExtent(word);
+//			width = Math.max(width, extent.x);
+//			last = loc;
+//		}
+//		String lastWord = text.substring(last);
+//		Point extent = gc.textExtent(lastWord);
+//		width = Math.max(width, extent.x);
+//		return width;
+		return 0;
 	}
 	
 	public static Point computeWrapSize(GC gc, String text, int wHint) {	
-		BreakIterator wb = BreakIterator.getWordInstance();
-		wb.setText(text);
+//		BreakIterator wb = BreakIterator.getWordInstance();
+//		wb.setText(text);
 		FontMetrics fm = gc.getFontMetrics();
 		int lineHeight = fm.getHeight();
 		
@@ -117,20 +118,20 @@ public class FormUtil {
 		int last = 0;
 		int height = lineHeight;
 		int maxWidth = 0;
-		for (int loc = wb.first(); loc != BreakIterator.DONE; loc = wb.next()) {
-			String word = text.substring(saved, loc);
-			Point extent = gc.textExtent(word);
-			if (extent.x > wHint) {
-				// overflow
-				saved = last;
-				height += extent.y;
-				// switch to current word so maxWidth will accommodate very long single words
-				word = text.substring(last, loc);
-				extent = gc.textExtent(word);
-			}
-			maxWidth = Math.max(maxWidth, extent.x);
-			last = loc;
-		}
+//		for (int loc = wb.first(); loc != BreakIterator.DONE; loc = wb.next()) {
+//			String word = text.substring(saved, loc);
+//			Point extent = gc.textExtent(word);
+//			if (extent.x > wHint) {
+//				// overflow
+//				saved = last;
+//				height += extent.y;
+//				// switch to current word so maxWidth will accommodate very long single words
+//				word = text.substring(last, loc);
+//				extent = gc.textExtent(word);
+//			}
+//			maxWidth = Math.max(maxWidth, extent.x);
+//			last = loc;
+//		}
 		/*
 		 * Correct the height attribute in case it was calculated wrong due to wHint being less than maxWidth.
 		 * The recursive call proved to be the only thing that worked in all cases. Some attempts can be made
