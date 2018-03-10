@@ -193,9 +193,11 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 
 	@Override
 	protected synchronized void handleKeySpecCallback(PBEKeySpecCallback pbeCallback) {
+		Session session = null;
 		try {
-			session().refresh(true);
-			Node userHome = NodeUtils.getUserHome(session());
+			session = session();
+			session.refresh(true);
+			Node userHome = NodeUtils.getUserHome(session);
 			Node keyring;
 			if (userHome.hasNode(ARGEO_KEYRING))
 				keyring = userHome.getNode(ARGEO_KEYRING);
@@ -214,6 +216,8 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 			// notYetSavedKeyring.remove();
 		} catch (RepositoryException e) {
 			throw new ArgeoJcrException("Cannot handle key spec callback", e);
+		} finally {
+			JcrUtils.logoutQuietly(session);
 		}
 	}
 
