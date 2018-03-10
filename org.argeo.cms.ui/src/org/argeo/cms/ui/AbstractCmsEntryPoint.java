@@ -278,24 +278,6 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 			// auth
 			int colonIndex = prefix.indexOf('$');
 			if (colonIndex > 0) {
-				// String user = prefix.substring(0, colonIndex);
-				// // if (isAnonymous()) {
-				// String token = prefix.substring(colonIndex + 1);
-				// LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new
-				// CallbackHandler() {
-				//
-				// @Override
-				// public void handle(Callback[] callbacks) throws IOException,
-				// UnsupportedCallbackException {
-				// for (Callback callback : callbacks) {
-				// if (callback instanceof NameCallback)
-				// ((NameCallback) callback).setName(user);
-				// else if (callback instanceof PasswordCallback)
-				// ((PasswordCallback) callback).setPassword(token.toCharArray());
-				// }
-				//
-				// }
-				// });
 				SharedSecret token = new SharedSecret(new AuthPassword(X_SHARED_SECRET + '$' + prefix)) {
 
 					@Override
