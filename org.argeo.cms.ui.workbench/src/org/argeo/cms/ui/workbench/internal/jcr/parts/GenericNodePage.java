@@ -28,6 +28,7 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
+import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.ui.workbench.internal.WorkbenchConstants;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.jcr.JcrUtils;
@@ -59,7 +60,7 @@ public class GenericNodePage extends FormPage implements WorkbenchConstants {
 	private final static String JCR_PROPERTY_NAME = "jcr:name";
 
 	// Utils
-	protected DateFormat timeFormatter = new SimpleDateFormat(DATE_TIME_FORMAT);
+	protected DateFormat timeFormatter = new SimpleDateFormat(CmsConstants.DATE_TIME_FORMAT);
 
 	// Main business Objects
 	private Node currentNode;

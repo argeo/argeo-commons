@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.cms.ui.workbench.internal.jcr;
+package org.argeo.cms.ui.jcr;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -23,14 +23,14 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
-import org.argeo.cms.ui.workbench.internal.WorkbenchConstants;
+import org.argeo.cms.ui.CmsConstants;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ViewerCell;
 
 /** Default basic label provider for a given JCR Node's properties */
-public class PropertyLabelProvider extends ColumnLabelProvider implements WorkbenchConstants {
+public class PropertyLabelProvider extends ColumnLabelProvider {
 	private static final long serialVersionUID = -5405794508731390147L;
 
 	// To be able to change column order easily
@@ -40,7 +40,7 @@ public class PropertyLabelProvider extends ColumnLabelProvider implements Workbe
 	public static final int COLUMN_ATTRIBUTES = 3;
 
 	// Utils
-	protected DateFormat timeFormatter = new SimpleDateFormat(DATE_TIME_FORMAT);
+	protected DateFormat timeFormatter = new SimpleDateFormat(CmsConstants.DATE_TIME_FORMAT);
 
 	public void update(ViewerCell cell) {
 		Object element = cell.getElement();
@@ -92,7 +92,7 @@ public class PropertyLabelProvider extends ColumnLabelProvider implements Workbe
 				}
 			}
 		} catch (RepositoryException re) {
-			throw new EclipseUiException("Cannot retrieve prop value on "+element, re);
+			throw new EclipseUiException("Cannot retrieve prop value on " + element, re);
 		}
 		return null;
 	}

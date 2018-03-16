@@ -17,8 +17,8 @@ package org.argeo.cms.ui.workbench.internal.jcr.commands;
 
 import java.util.Arrays;
 
+import org.argeo.cms.ui.jcr.model.RepositoryElem;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
-import org.argeo.cms.ui.workbench.internal.jcr.model.RepositoryElem;
 import org.argeo.cms.ui.workbench.jcr.JcrBrowserView;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.eclipse.ui.dialogs.SingleValue;

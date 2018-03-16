@@ -27,9 +27,9 @@ import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.nodetype.NodeType;
 
+import org.argeo.cms.ui.jcr.model.SingleJcrNodeElem;
+import org.argeo.cms.ui.jcr.model.WorkspaceElem;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
-import org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
-import org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem;
 import org.argeo.cms.ui.workbench.jcr.JcrBrowserView;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.TreeParent;

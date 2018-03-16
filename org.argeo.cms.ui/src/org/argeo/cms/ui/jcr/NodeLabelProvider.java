@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.cms.ui.workbench.internal.jcr;
+package org.argeo.cms.ui.jcr;
 
 import javax.jcr.NamespaceException;
 import javax.jcr.Node;
@@ -22,12 +22,11 @@ import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.ui.workbench.internal.jcr.model.RemoteRepositoryElem;
-import org.argeo.cms.ui.workbench.internal.jcr.model.RepositoriesElem;
-import org.argeo.cms.ui.workbench.internal.jcr.model.RepositoryElem;
-import org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
-import org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem;
-import org.argeo.cms.ui.workbench.jcr.JcrImages;
+import org.argeo.cms.ui.jcr.model.RemoteRepositoryElem;
+import org.argeo.cms.ui.jcr.model.RepositoriesElem;
+import org.argeo.cms.ui.jcr.model.RepositoryElem;
+import org.argeo.cms.ui.jcr.model.SingleJcrNodeElem;
+import org.argeo.cms.ui.jcr.model.WorkspaceElem;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.naming.LdapAttrs;
 import org.argeo.node.NodeTypes;

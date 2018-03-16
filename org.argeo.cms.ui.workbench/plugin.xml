@@ -6,32 +6,32 @@
       <perspective
             id="org.argeo.cms.ui.workbench.adminSecurityPerspective"
             class="org.argeo.cms.ui.workbench.SecurityAdminPerspective"
-            icon="icons/group.png"
+            icon="platform:/plugin/org.argeo.cms.ui.theme/platform:/plugin/org.argeo.cms.ui.theme/icons/group.png"
             name="Security">
       </perspective>
       <perspective
             id="org.argeo.cms.ui.workbench.userHomePerspective"
             class="org.argeo.cms.ui.workbench.UserHomePerspective"
-            icon="icons/home.png"
+            icon="platform:/plugin/org.argeo.cms.ui.theme/platform:/plugin/org.argeo.cms.ui.theme/icons/home.png"
             name="Home">
       </perspective>
       <perspective
             id="org.argeo.cms.ui.workbench.adminMaintenancePerspective"
             class="org.argeo.cms.ui.workbench.MaintenancePerspective"
-            icon="icons/maintenance.gif"
+            icon="platform:/plugin/org.argeo.cms.ui.theme/platform:/plugin/org.argeo.cms.ui.theme/icons/maintenance.gif"
             name="Maintenance">
       </perspective>
       <perspective
             id="org.argeo.cms.ui.workbench.osgiPerspective"
             class="org.argeo.cms.ui.workbench.OsgiExplorerPerspective"
             name="Monitoring"
-            icon="icons/osgi_explorer.gif">
+            icon="platform:/plugin/org.argeo.cms.ui.theme/platform:/plugin/org.argeo.cms.ui.theme/icons/osgi_explorer.gif">
       </perspective>
       <perspective
             id="org.argeo.cms.ui.workbench.jcrBrowserPerspective"
             class="org.argeo.cms.ui.workbench.JcrBrowserPerspective"
             name="Data Explorer"
-            icon="icons/nodes.gif">
+            icon="platform:/plugin/org.argeo.cms.ui.theme/icons/nodes.gif">
       </perspective>
    </extension>
    
@@ -70,13 +70,13 @@
 		<view
 			id="org.argeo.cms.ui.workbench.usersView"
 			class="org.argeo.eclipse.spring.SpringExtensionFactory"
-			icon="icons/person.png"
+			icon="platform:/plugin/org.argeo.cms.ui.theme/icons/person.png"
 			name="Users"
 			restorable="true">
 		</view>
 		<view
 			class="org.argeo.eclipse.spring.SpringExtensionFactory"
-			icon="icons/group.png"
+			icon="platform:/plugin/org.argeo.cms.ui.theme/icons/group.png"
 			id="org.argeo.cms.ui.workbench.groupsView"
 			name="Groups"
 			restorable="false">
@@ -85,7 +85,7 @@
 		<view
 			id="org.argeo.cms.ui.workbench.userProfile"
 			class="org.argeo.cms.ui.workbench.useradmin.UserProfile"
-			icon="icons/person-logged-in.png"
+			icon="platform:/plugin/org.argeo.cms.ui.theme/icons/person-logged-in.png"
 			name="Profile"
 			restorable="true">
 		</view>
@@ -94,52 +94,52 @@
 			id="org.argeo.cms.ui.workbench.logView"
 			class="org.argeo.eclipse.spring.SpringExtensionFactory"
 			name="Log"
-			icon="icons/log.gif"
+			icon="platform:/plugin/org.argeo.cms.ui.theme/icons/log.gif"
 			restorable="true">
 		</view>
 		<view
             id="org.argeo.cms.ui.workbench.adminLogView"
             class="org.argeo.eclipse.spring.SpringExtensionFactory"
             name="Admin Log"
-            icon="icons/adminLog.gif"
+            icon="platform:/plugin/org.argeo.cms.ui.theme/icons/adminLog.gif"
             restorable="true">
 		</view>
 		<!-- OSGi Monitor -->
 		<view
       		name="Modules"
             id="org.argeo.cms.ui.workbench.modulesView"
-            icon="icons/service_published.gif"
+            icon="platform:/plugin/org.argeo.cms.ui.theme/icons/service_published.gif"
 			class="org.argeo.cms.ui.workbench.osgi.ModulesView">
 		</view>
 		<view
       		name="CMS Session"
             id="org.argeo.cms.ui.workbench.cmsSessionsView"
-            icon="icons/service_published.gif"
+            icon="platform:/plugin/org.argeo.cms.ui.theme/icons/service_published.gif"
 			class="org.argeo.cms.ui.workbench.osgi.CmsSessionsView">
 		</view>
 		<view
       		name="Bundles"
             id="org.argeo.cms.ui.workbench.bundlesView" 
-            icon="icons/bundles.gif"
+            icon="platform:/plugin/org.argeo.cms.ui.theme/icons/bundles.gif"
             class="org.argeo.cms.ui.workbench.osgi.BundlesView">
 		</view>
 		<view
       		name="Multiple Packages"
             id="org.argeo.cms.ui.workbench.multiplePackagesView" 
-            icon="icons/node.gif"
+            icon="platform:/plugin/org.argeo.cms.ui.theme/icons/node.gif"
             class="org.argeo.cms.ui.workbench.osgi.MultiplePackagesView">
 		</view>
 		<!-- Data Explorer -->
 		<view
           name="JCR"
           id="org.argeo.cms.ui.workbench.jcrBrowserView"
-          icon="icons/browser.gif"
+          icon="platform:/plugin/org.argeo.cms.ui.theme/icons/browser.gif"
           class="org.argeo.eclipse.spring.SpringExtensionFactory">
 	   </view>
 		<view
           name="Files"
           id="org.argeo.cms.ui.workbench.nodeFsBrowserView"
-          icon="icons/browser.gif"
+          icon="platform:/plugin/org.argeo.cms.ui.theme/icons/browser.gif"
           class="org.argeo.eclipse.spring.SpringExtensionFactory">
 	   </view>
     </extension> 
@@ -152,28 +152,28 @@
 			class="org.argeo.eclipse.spring.SpringExtensionFactory"
             id="org.argeo.cms.ui.workbench.userEditor"
             name="User"
-            icon="icons/person.png"
+            icon="platform:/plugin/org.argeo.cms.ui.theme/icons/person.png"
             default="false">
 		</editor>
 		<editor
 			class="org.argeo.eclipse.spring.SpringExtensionFactory"
             id="org.argeo.cms.ui.workbench.groupEditor"
             name="User"
-            icon="icons/group.png"
+            icon="platform:/plugin/org.argeo.cms.ui.theme/icons/group.png"
             default="false">
 		</editor>
 		<!-- Data Explorer -->
 		<editor
 			name="JCR Query"
 			id="org.argeo.cms.ui.workbench.genericJcrQueryEditor"
-			icon="icons/query.png"
+			icon="platform:/plugin/org.argeo.cms.ui.theme/icons/query.png"
 			class="org.argeo.eclipse.spring.SpringExtensionFactory"
 			default="false">
         </editor>
 		<editor
 			name="Node Editor"
             id="org.argeo.cms.ui.workbench.defaultNodeEditor"
-			icon="icons/query.png"
+			icon="platform:/plugin/org.argeo.cms.ui.theme/icons/query.png"
 			class="org.argeo.eclipse.spring.SpringExtensionFactory"
 			default="false">
 		</editor>
@@ -344,12 +344,12 @@
         	<toolbar id="org.argeo.cms.ui.workbench.userToolbar">
 				<command
 					commandId="org.argeo.cms.ui.workbench.rap.mainMenuCommand"
-					icon="icons/home.png"
+					icon="platform:/plugin/org.argeo.cms.ui.theme/icons/home.png"
 					id="org.argeo.cms.ui.workbench.rap.mainMenu"
 					style="pulldown">
 				</command>
-				<command commandId="org.eclipse.ui.file.save" icon="icons/save.png"/>
-				<command commandId="org.eclipse.ui.file.saveAll" icon="icons/save-all.png"/>
+				<command commandId="org.eclipse.ui.file.save" icon="platform:/plugin/org.argeo.cms.ui.theme/icons/save.png"/>
+				<command commandId="org.eclipse.ui.file.saveAll" icon="platform:/plugin/org.argeo.cms.ui.theme/icons/save-all.png"/>
 			</toolbar>
 		</menuContribution>
 		-->
@@ -358,7 +358,7 @@
 			<!-- Transaction management --> 
  			<command
 				commandId="org.argeo.cms.ui.workbench.userTransactionHandler"
-				icon="icons/commit.gif"
+				icon="platform:/plugin/org.argeo.cms.ui.theme/icons/commit.gif"
 				label="Commit Transaction"
 				style="push"
 				tooltip="Commit a user transaction">
@@ -371,7 +371,7 @@
 			</command>
  			<command
 				commandId="org.argeo.cms.ui.workbench.userTransactionHandler"
-				icon="icons/rollback.gif"
+				icon="platform:/plugin/org.argeo.cms.ui.theme/icons/rollback.gif"
 				label="Rollback Transaction"
 				style="push"
 				tooltip="Abandon current changes and rollback to the latest commited version">
@@ -389,25 +389,25 @@
             locationURI="toolbar:org.argeo.cms.ui.workbench.usersView">
             <command
                   commandId="org.argeo.cms.ui.workbench.deleteUsers"
-                  icon="icons/delete.png"
+                  icon="platform:/plugin/org.argeo.cms.ui.theme/icons/delete.png"
                   label="Delete"
                   tooltip="Delete selected users">
             </command>
             <command
                   commandId="org.argeo.cms.ui.workbench.forceRefresh"
-                  icon="icons/refresh.png"
+                  icon="platform:/plugin/org.argeo.cms.ui.theme/icons/refresh.png"
                   label="Refresh"
                   tooltip="Force the full refresh of the user list">
             </command>
             <command
                   commandId="org.argeo.cms.ui.workbench.newUser"
-                  icon="icons/add.png"
+                  icon="platform:/plugin/org.argeo.cms.ui.theme/icons/add.png"
                   label="Add"
                   tooltip="Create a new user">
             </command>
             <command
                   commandId="org.argeo.cms.ui.workbench.userBatchUpdate"
-                  icon="icons/batch.gif"
+                  icon="platform:/plugin/org.argeo.cms.ui.theme/icons/batch.gif"
                   label="Update users"
                   tooltip="Perform maintenance activities on a list of chosen users">
             </command>
@@ -418,19 +418,19 @@
             locationURI="toolbar:org.argeo.cms.ui.workbench.groupsView">
             <command
                   commandId="org.argeo.cms.ui.workbench.deleteGroups"
-                  icon="icons/delete.png"
+                  icon="platform:/plugin/org.argeo.cms.ui.theme/icons/delete.png"
                   label="Delete Group"
                   tooltip="Delete selected groups">
             </command>
             <command
                   commandId="org.argeo.cms.ui.workbench.forceRefresh"
-                  icon="icons/refresh.png"
+                  icon="platform:/plugin/org.argeo.cms.ui.theme/icons/refresh.png"
                   label="Refresh list"
                   tooltip="Force the full refresh of the group list">
             </command>
             <command
                   commandId="org.argeo.cms.ui.workbench.newGroup"
-                  icon="icons/add.png"
+                  icon="platform:/plugin/org.argeo.cms.ui.theme/icons/add.png"
                   label="Add Group"
                   tooltip="Create a new group">
             </command>
@@ -442,17 +442,17 @@
             <!-- See bug 149 --> 
             <!-- <command
             	commandId="org.argeo.cms.ui.workbench.openGenericJcrQueryEditor"
-                icon="icons/query.png"
+                icon="platform:/plugin/org.argeo.cms.ui.theme/icons/query.png"
                 style="push">
             </command> --> 
             <command
             	commandId="org.argeo.cms.ui.workbench.addRemoteRepository"
-                icon="icons/addRepo.gif"
+                icon="platform:/plugin/org.argeo.cms.ui.theme/icons/addRepo.gif"
                 style="push">
             </command>
              <command
             	commandId="org.argeo.cms.ui.workbench.sortChildNodes"
-                icon="icons/sort.gif"
+                icon="platform:/plugin/org.argeo.cms.ui.theme/icons/sort.gif"
                 style="toggle"
                 label="Sort child nodes"
                 tooltip="NOTE: displaying unsorted nodes will enhance overall performances">
@@ -463,12 +463,12 @@
 			locationURI="popup:org.argeo.cms.ui.workbench.jcrBrowserView">
 			<command
 				commandId="org.argeo.cms.ui.workbench.refresh"
-				icon="icons/refresh.png"
+				icon="platform:/plugin/org.argeo.cms.ui.theme/icons/refresh.png"
 				style="push">
 			</command>
 			<command
 		         commandId="org.argeo.cms.ui.workbench.addFolderNode"
-		         icon="icons/addFolder.gif"
+		         icon="platform:/plugin/org.argeo.cms.ui.theme/icons/addFolder.gif"
 		         label="Add Folder..."
 		         style="push">
 				<visibleWhen>
@@ -489,7 +489,7 @@
 			</command>
 			<command
 		         commandId="org.argeo.cms.ui.workbench.addPrivileges"
-		         icon="icons/addPrivileges.gif"
+		         icon="platform:/plugin/org.argeo.cms.ui.theme/icons/addPrivileges.gif"
 		         label="Add Privileges..."
 		         style="push">
 				<visibleWhen>
@@ -510,7 +510,7 @@
 			</command>
 			<command
 		         commandId="org.argeo.cms.ui.workbench.removePrivileges"
-		         icon="icons/removePrivileges.gif"
+		         icon="platform:/plugin/org.argeo.cms.ui.theme/icons/removePrivileges.gif"
 		         label="Remove Privileges..."
 		         style="push">
 				<visibleWhen>
@@ -531,7 +531,7 @@
 			</command>
 			<command
 		         commandId="org.argeo.cms.ui.workbench.createWorkspace"
-		         icon="icons/addWorkspace.png"
+		         icon="platform:/plugin/org.argeo.cms.ui.theme/icons/addWorkspace.png"
 		         label="Create Workspace..."
 		         style="push">
 				<visibleWhen>
@@ -549,7 +549,7 @@
 			</command>
 			<command
 				commandId="org.argeo.cms.ui.workbench.deleteNodes"
-				icon="icons/remove.gif"
+				icon="platform:/plugin/org.argeo.cms.ui.theme/icons/remove.gif"
 				label="Delete Nodes"
 				style="push">
 				<visibleWhen>
@@ -565,7 +565,7 @@
 			</command>
 			<command
 				commandId="org.argeo.cms.ui.workbench.uploadFiles"
-				icon="icons/import_fs.png"
+				icon="platform:/plugin/org.argeo.cms.ui.theme/icons/import_fs.png"
 				style="push"
 				tooltip="Upload files from the local file sytem">
 				<visibleWhen>
@@ -584,7 +584,7 @@
 			</command>
 			<command
 				commandId="org.argeo.cms.ui.workbench.addRemoteRepository"
-				icon="icons/addRepo.gif"
+				icon="platform:/plugin/org.argeo.cms.ui.theme/icons/addRepo.gif"
 				style="push">
 					<visibleWhen>
 						<iterate> 
@@ -599,7 +599,7 @@
 			</command>
 			<command
 				commandId="org.argeo.cms.ui.workbench.removeRemoteRepository"
-				icon="icons/remove.gif"
+				icon="platform:/plugin/org.argeo.cms.ui.theme/icons/remove.gif"
 				style="push">
 				<visibleWhen>
 					<iterate> 
@@ -612,7 +612,7 @@
 			</command>
 			<command
 				commandId="org.argeo.cms.ui.workbench.getNodeSize"
-				icon="icons/getSize.gif"
+				icon="platform:/plugin/org.argeo.cms.ui.theme/icons/getSize.gif"
 				style="push">
 					<visibleWhen>
 						<iterate>
@@ -627,7 +627,7 @@
 			</command>
 			<command
 		        commandId="org.argeo.cms.ui.workbench.dumpNode"
-		        icon="icons/dumpNode.gif"
+		        icon="platform:/plugin/org.argeo.cms.ui.theme/icons/dumpNode.gif"
 				label="Dump Node"
 				style="push">
 				<visibleWhen>
@@ -639,7 +639,7 @@
 			</command>
 			<command
 		        commandId="org.argeo.cms.ui.workbench.renameNode"
-		        icon="icons/rename.gif"
+		        icon="platform:/plugin/org.argeo.cms.ui.theme/icons/rename.gif"
 				label="Rename..."
 				style="push">
 				<visibleWhen>
@@ -651,7 +651,7 @@
 			</command>
 			<command
 		        commandId="org.argeo.cms.ui.workbench.nodeConfigurableDump"
-		        icon="icons/dumpNode.gif"
+		        icon="platform:/plugin/org.argeo.cms.ui.theme/icons/dumpNode.gif"
 				label="Configurable dump..."
 				style="push">
 				<visibleWhen>

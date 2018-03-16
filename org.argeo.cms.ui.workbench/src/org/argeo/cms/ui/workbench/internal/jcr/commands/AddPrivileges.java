@@ -18,9 +18,9 @@ package org.argeo.cms.ui.workbench.internal.jcr.commands;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
+import org.argeo.cms.ui.jcr.model.SingleJcrNodeElem;
+import org.argeo.cms.ui.jcr.model.WorkspaceElem;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
-import org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
-import org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem;
 import org.argeo.cms.ui.workbench.internal.jcr.parts.AddPrivilegeWizard;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;

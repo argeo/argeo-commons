@@ -33,11 +33,12 @@ import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
 
+import org.argeo.cms.ui.CmsConstants;
+import org.argeo.cms.ui.jcr.FullVersioningTreeContentProvider;
+import org.argeo.cms.ui.jcr.JcrDClickListener;
+import org.argeo.cms.ui.jcr.VersionLabelProvider;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.cms.ui.workbench.internal.WorkbenchConstants;
-import org.argeo.cms.ui.workbench.internal.jcr.FullVersioningTreeContentProvider;
-import org.argeo.cms.ui.workbench.internal.jcr.JcrDClickListener;
-import org.argeo.cms.ui.workbench.internal.jcr.VersionLabelProvider;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.PropertyDiff;
@@ -69,7 +70,7 @@ public class NodeVersionHistoryPage extends FormPage implements WorkbenchConstan
 	// .getLog(NodeVersionHistoryPage.class);
 
 	// Utils
-	protected DateFormat timeFormatter = new SimpleDateFormat(DATE_TIME_FORMAT);
+	protected DateFormat timeFormatter = new SimpleDateFormat(CmsConstants.DATE_TIME_FORMAT);
 
 	// business objects
 	private Node currentNode;

@@ -20,8 +20,8 @@ import java.util.Iterator;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
-import org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem;
+import org.argeo.cms.ui.jcr.model.SingleJcrNodeElem;
+import org.argeo.cms.ui.jcr.model.WorkspaceElem;
 import org.argeo.cms.ui.workbench.jcr.JcrBrowserView;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;

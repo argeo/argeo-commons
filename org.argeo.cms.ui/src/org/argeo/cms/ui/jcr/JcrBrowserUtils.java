@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.cms.ui.workbench.internal.jcr;
+package org.argeo.cms.ui.jcr;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.ui.workbench.internal.jcr.model.RepositoriesElem;
-import org.argeo.cms.ui.workbench.internal.jcr.model.RepositoryElem;
-import org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
-import org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem;
+import org.argeo.cms.ui.jcr.model.RepositoriesElem;
+import org.argeo.cms.ui.jcr.model.RepositoryElem;
+import org.argeo.cms.ui.jcr.model.SingleJcrNodeElem;
+import org.argeo.cms.ui.jcr.model.WorkspaceElem;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 

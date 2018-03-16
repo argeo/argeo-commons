@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.cms.ui.workbench.internal.jcr.model;
+package org.argeo.cms.ui.jcr.model;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.cms.ui.workbench.internal.jcr.model;
+package org.argeo.cms.ui.jcr.model;
 
 import java.util.Map;
 
@@ -25,7 +25,7 @@ import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 
 import org.argeo.cms.ArgeoNames;
-import org.argeo.cms.ui.workbench.internal.jcr.RepositoryRegister;
+import org.argeo.cms.ui.jcr.RepositoryRegister;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;

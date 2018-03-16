@@ -9,13 +9,14 @@
 		<property name="userTransaction" ref="userTransaction" />
 	</bean>
 
-	<bean id="userAdminWrapper" class="org.argeo.cms.ui.workbench.internal.useradmin.UserAdminWrapper"
+	<bean id="userAdminWrapper"
+		class="org.argeo.cms.ui.workbench.internal.useradmin.UserAdminWrapper"
 		scope="singleton" lazy-init="false">
 		<property name="userTransaction" ref="userTransaction" />
 		<property name="userAdmin" ref="userAdmin" />
 		<property name="userAdminServiceReference" ref="userAdmin" />
 	</bean>
-	
-	<bean id="repositoryRegister" class="org.argeo.cms.ui.workbench.internal.jcr.DefaultRepositoryRegister" />
-	
+
+	<bean id="repositoryRegister" class="org.argeo.cms.ui.jcr.DefaultRepositoryRegister" />
+
 </beans>

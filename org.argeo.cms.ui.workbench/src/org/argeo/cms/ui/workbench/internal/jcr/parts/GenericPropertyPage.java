@@ -23,9 +23,9 @@ import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 
+import org.argeo.cms.ui.jcr.PropertyLabelProvider;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
 import org.argeo.cms.ui.workbench.internal.WorkbenchConstants;
-import org.argeo.cms.ui.workbench.internal.jcr.PropertyLabelProvider;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.jface.layout.TreeColumnLayout;
 import org.eclipse.jface.viewers.ColumnWeightData;

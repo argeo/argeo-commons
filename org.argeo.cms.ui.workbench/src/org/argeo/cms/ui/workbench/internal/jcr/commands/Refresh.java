@@ -17,8 +17,8 @@ package org.argeo.cms.ui.workbench.internal.jcr.commands;
 
 import java.util.Iterator;
 
+import org.argeo.cms.ui.jcr.JcrBrowserUtils;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
-import org.argeo.cms.ui.workbench.internal.jcr.JcrBrowserUtils;
 import org.argeo.cms.ui.workbench.jcr.JcrBrowserView;
 import org.argeo.eclipse.ui.TreeParent;
 import org.eclipse.core.commands.AbstractHandler;

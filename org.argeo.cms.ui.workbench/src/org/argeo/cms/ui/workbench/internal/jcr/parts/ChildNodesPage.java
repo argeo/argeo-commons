@@ -17,9 +17,9 @@ package org.argeo.cms.ui.workbench.internal.jcr.parts;
 
 import javax.jcr.Node;
 
+import org.argeo.cms.ui.jcr.JcrTreeContentProvider;
+import org.argeo.cms.ui.jcr.NodeLabelProvider;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
-import org.argeo.cms.ui.workbench.internal.jcr.JcrTreeContentProvider;
-import org.argeo.cms.ui.workbench.internal.jcr.NodeLabelProvider;
 import org.argeo.cms.ui.workbench.jcr.DefaultNodeEditor;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.EclipseUiUtils;

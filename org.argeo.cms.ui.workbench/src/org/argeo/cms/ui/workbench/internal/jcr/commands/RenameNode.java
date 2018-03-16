@@ -21,8 +21,8 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
+import org.argeo.cms.ui.jcr.model.SingleJcrNodeElem;
 import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
-import org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem;
 import org.argeo.cms.ui.workbench.jcr.JcrBrowserView;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.dialogs.SingleValue;

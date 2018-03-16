@@ -1,4 +1,4 @@
-package org.argeo.cms.ui.workbench.internal.jcr.model;
+package org.argeo.cms.ui.jcr.model;
 
 import javax.jcr.Repository;
 
