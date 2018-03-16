@@ -6,13 +6,15 @@ import java.util.Map;
 import javax.jcr.Repository;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
 public class OsgiRepositoryRegister extends DefaultRepositoryRegister {
+	private final static BundleContext bc = FrameworkUtil.getBundle(OsgiRepositoryRegister.class).getBundleContext();
 	private final ServiceTracker<Repository, Repository> repositoryTracker;
 
-	public OsgiRepositoryRegister(BundleContext bc) {
+	public OsgiRepositoryRegister() {
 		repositoryTracker = new ServiceTracker<Repository, Repository>(bc, Repository.class, null) {
 
 			@Override

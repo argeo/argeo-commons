@@ -62,16 +62,12 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 
 /**
  * Basic View to display a sash form to browse a JCR compliant multiple
  * repository environment
  */
 public class JcrBrowserView {
-	private static BundleContext bc = FrameworkUtil.getBundle(JcrBrowserView.class).getBundleContext();
-
 	private boolean sortChildNodes = true;
 
 	/* DEPENDENCY INJECTION */
@@ -84,7 +80,7 @@ public class JcrBrowserView {
 	// Current user session on the "Argeo node" default workspace
 	private Session userSession;
 
-	private OsgiRepositoryRegister repositoryRegister = new OsgiRepositoryRegister(bc);
+	private OsgiRepositoryRegister repositoryRegister = new OsgiRepositoryRegister();
 
 	// This page widgets
 	private TreeViewer nodesViewer;

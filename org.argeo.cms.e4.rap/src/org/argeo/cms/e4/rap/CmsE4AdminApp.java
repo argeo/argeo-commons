@@ -30,8 +30,10 @@ public class CmsE4AdminApp implements ApplicationConfiguration {
 		properties.put(WebClient.PAGE_TITLE, pageTitle);
 		Bundle bundle = bc.getBundle();
 		String e4XmiUri = bundle.getSymbolicName() + e4Xmi;
-		E4ApplicationConfig config = E4ApplicationConfig.create(e4XmiUri,
-				"bundleclass://" + bundle.getSymbolicName() + "/" + CmsLoginLifecycle.class.getName());
+		E4ApplicationConfig config = new E4ApplicationConfig(e4XmiUri,
+				"bundleclass://" + bundle.getSymbolicName() + "/" + CmsLoginLifecycle.class.getName(), null, false,
+				true, true);
+		config.isClearPersistedState();
 		E4EntryPointFactory entryPointFactory = new E4EntryPointFactory(config) {
 
 			@Override

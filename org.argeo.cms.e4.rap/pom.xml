@@ -8,13 +8,13 @@
 		<version>2.1.73-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>org.argeo.cms.e4</artifactId>
-	<name>CMS E4</name>
+	<artifactId>org.argeo.cms.e4.rap</artifactId>
+	<name>CMS E4 RAP</name>
 	<packaging>jar</packaging>
 	<dependencies>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.cms.ui</artifactId>
+			<artifactId>org.argeo.cms.e4</artifactId>
 			<version>2.1.73-SNAPSHOT</version>
 		</dependency>
 
