@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.LanguageCallback;
@@ -56,6 +57,9 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 	private LocaleChoice localeChoice = null;
 
 	private final CmsView cmsView;
+
+	// optional subject to be set explicitly
+	private Subject subject = null;
 
 	public CmsLogin(CmsView cmsView) {
 		this.cmsView = cmsView;
@@ -187,7 +191,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 	}
 
 	/**
-	 * To be overridden in order to provide custome login button and other links.
+	 * To be overridden in order to provide custom login button and other links.
 	 */
 	protected void extendsCredentialsBlock(Composite credentialsBlock, Locale selectedLocale,
 			SelectionListener loginSelectionListener) {
@@ -242,6 +246,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 	}
 
 	protected boolean login() {
+		// TODO use CmsVie in order to retrieve subject?
 		// Subject subject = cmsView.getLoginContext().getSubject();
 		// LoginContext loginContext = cmsView.getLoginContext();
 		try {
@@ -249,7 +254,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 			// LOGIN
 			//
 			// loginContext.logout();
-			LoginContext loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, this);
+			LoginContext loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, subject, this);
 			loginContext.login();
 			cmsView.authChange(loginContext);
 			return true;
@@ -302,6 +307,10 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 
 			}
 		}
+	}
+
+	public void setSubject(Subject subject) {
+		this.subject = subject;
 	}
 
 }
