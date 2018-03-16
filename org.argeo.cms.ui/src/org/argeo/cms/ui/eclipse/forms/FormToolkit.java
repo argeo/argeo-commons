@@ -1,4 +1,4 @@
-package org.argeo.eclipse.ui.forms;
+package org.argeo.cms.ui.eclipse.forms;
 
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.window.Window;

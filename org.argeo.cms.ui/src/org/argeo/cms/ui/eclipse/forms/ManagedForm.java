@@ -1,4 +1,4 @@
-package org.argeo.eclipse.ui.forms;
+package org.argeo.cms.ui.eclipse.forms;
 
 import java.util.Vector;
 import org.eclipse.jface.viewers.ISelection;

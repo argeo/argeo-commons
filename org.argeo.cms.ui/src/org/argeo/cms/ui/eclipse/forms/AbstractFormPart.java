@@ -1,4 +1,4 @@
-package org.argeo.eclipse.ui.forms;
+package org.argeo.cms.ui.eclipse.forms;
 /**
  * AbstractFormPart implements IFormPart interface and can be used as a
  * convenient base class for concrete form parts. If a method contains

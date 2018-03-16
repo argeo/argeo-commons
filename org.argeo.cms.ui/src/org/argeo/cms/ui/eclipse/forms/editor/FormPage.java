@@ -1,6 +1,6 @@
-package org.argeo.eclipse.ui.forms.editor;
-import org.argeo.eclipse.ui.forms.IManagedForm;
-import org.argeo.eclipse.ui.forms.ManagedForm;
+package org.argeo.cms.ui.eclipse.forms.editor;
+import org.argeo.cms.ui.eclipse.forms.IManagedForm;
+import org.argeo.cms.ui.eclipse.forms.ManagedForm;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.custom.ScrolledComposite;

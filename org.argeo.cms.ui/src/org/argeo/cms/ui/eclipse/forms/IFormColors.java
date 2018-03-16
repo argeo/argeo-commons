@@ -1,4 +1,4 @@
-package org.argeo.eclipse.ui.forms;
+package org.argeo.cms.ui.eclipse.forms;
 
 /**
  * A place to hold all the color constants used in the forms package.

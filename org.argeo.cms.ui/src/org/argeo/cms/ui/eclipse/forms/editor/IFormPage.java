@@ -1,5 +1,5 @@
-package org.argeo.eclipse.ui.forms.editor;
-import org.argeo.eclipse.ui.forms.IManagedForm;
+package org.argeo.cms.ui.eclipse.forms.editor;
+import org.argeo.cms.ui.eclipse.forms.IManagedForm;
 import org.eclipse.swt.widgets.Control;
 /**
  * Interface that all GUI pages need to implement in order

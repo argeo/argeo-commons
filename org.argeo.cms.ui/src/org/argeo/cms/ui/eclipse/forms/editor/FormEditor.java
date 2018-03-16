@@ -1,6 +1,6 @@
-package org.argeo.eclipse.ui.forms.editor;
+package org.argeo.cms.ui.eclipse.forms.editor;
 
-import org.argeo.eclipse.ui.forms.FormToolkit;
+import org.argeo.cms.ui.eclipse.forms.FormToolkit;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.dialogs.IPageChangeProvider;
 import org.eclipse.jface.dialogs.IPageChangedListener;
