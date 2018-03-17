@@ -75,7 +75,7 @@ public class UserAdminLoginModule implements LoginModule {
 
 	@Override
 	public boolean login() throws LoginException {
-		UserAdmin userAdmin = bc.getService(bc.getServiceReference(UserAdmin.class));
+		UserAdmin userAdmin = Activator.getUserAdmin();
 		final String username;
 		final char[] password;
 		X509Certificate[] certificateChain = null;
@@ -170,7 +170,7 @@ public class UserAdminLoginModule implements LoginModule {
 		if (singleUser) {
 			OsUserUtils.loginAsSystemUser(subject);
 		}
-		UserAdmin userAdmin = bc.getService(bc.getServiceReference(UserAdmin.class));
+		UserAdmin userAdmin = Activator.getUserAdmin();
 		Authorization authorization;
 		if (callbackHandler == null) {// anonymous
 			authorization = userAdmin.getAuthorization(null);

@@ -26,6 +26,7 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogReaderService;
 import org.osgi.service.useradmin.UserAdmin;
+import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * Activates the kernel. Gives access to kernel information for the rest of the
@@ -37,12 +38,15 @@ public class Activator implements BundleActivator {
 	private static Activator instance;
 
 	private BundleContext bc;
+
 	private LogReaderService logReaderService;
 
 	private NodeLogger logger;
 	private CmsState nodeState;
 	private CmsDeployment nodeDeployment;
 	private CmsInstance nodeInstance;
+
+	private ServiceTracker<UserAdmin, NodeUserAdmin> userAdminSt;
 
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
@@ -55,6 +59,9 @@ public class Activator implements BundleActivator {
 			initSecurity();
 			initArgeoLogger();
 			initNode();
+
+			userAdminSt = new ServiceTracker<>(instance.bc, UserAdmin.class, null);
+			userAdminSt.open();
 			log.debug("Kernel bundle started");
 		} catch (Throwable e) {
 			log.error("## FATAL: CMS activator failed", e);
@@ -127,6 +134,9 @@ public class Activator implements BundleActivator {
 			if (nodeState != null)
 				nodeState.shutdown();
 
+			if (userAdminSt != null)
+				userAdminSt.close();
+
 			instance = null;
 			this.bc = null;
 			this.logReaderService = null;
@@ -155,10 +165,25 @@ public class Activator implements BundleActivator {
 		return getNodeUserAdmin().isSingleUser();
 	}
 
+	public static UserAdmin getUserAdmin() {
+		return (UserAdmin) getNodeUserAdmin();
+	}
+
 	private static NodeUserAdmin getNodeUserAdmin() {
-		ServiceReference<UserAdmin> sr = instance.bc.getServiceReference(UserAdmin.class);
-		NodeUserAdmin userAdmin = (NodeUserAdmin) instance.bc.getService(sr);
-		return userAdmin;
+		NodeUserAdmin res;
+		try {
+			res = instance.userAdminSt.waitForService(60000);
+		} catch (InterruptedException e) {
+			throw new CmsException("Cannot retrieve Node user admin", e);
+		}
+		if (res == null)
+			throw new CmsException("No Node user admin found");
+
+		return res;
+		// ServiceReference<UserAdmin> sr =
+		// instance.bc.getServiceReference(UserAdmin.class);
+		// NodeUserAdmin userAdmin = (NodeUserAdmin) instance.bc.getService(sr);
+		// return userAdmin;
 
 	}
 
