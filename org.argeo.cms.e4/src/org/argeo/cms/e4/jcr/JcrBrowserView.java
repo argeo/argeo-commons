@@ -45,6 +45,7 @@ import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.jcr.AsyncUiEventListener;
 import org.argeo.eclipse.ui.jcr.utils.NodeViewerComparer;
 import org.argeo.node.security.CryptoKeyring;
+import org.eclipse.e4.ui.services.EMenuService;
 import org.eclipse.e4.ui.workbench.modeling.ESelectionService;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
@@ -68,10 +69,8 @@ import org.eclipse.swt.widgets.Display;
  * repository environment
  */
 public class JcrBrowserView {
-	public final static String ID = "org.argeo.cms.e4.jcrbrowser";
-
-	@Inject
-	private ESelectionService selectionService;
+	final static String ID = "org.argeo.cms.e4.jcrbrowser";
+	final static String NODE_VIEWER_POPUP_MENU_ID = "org.argeo.cms.e4.popupmenu.nodeViewer";
 
 	private boolean sortChildNodes = true;
 
@@ -94,7 +93,7 @@ public class JcrBrowserView {
 	private EventListener resultsObserver;
 
 	@PostConstruct
-	public void createPartControl(Composite parent) {
+	public void createPartControl(Composite parent, ESelectionService selectionService, EMenuService menuService) {
 		repositoryRegister.init();
 
 		parent.setLayout(new FillLayout());
@@ -140,6 +139,7 @@ public class JcrBrowserView {
 				selectionService.setSelection(selection.toList());
 			}
 		});
+		menuService.registerContextMenu(nodesViewer.getControl(), NODE_VIEWER_POPUP_MENU_ID);
 		// getSite().registerContextMenu(menuManager, nodesViewer);
 		// getSite().setSelectionProvider(nodesViewer);
 	}

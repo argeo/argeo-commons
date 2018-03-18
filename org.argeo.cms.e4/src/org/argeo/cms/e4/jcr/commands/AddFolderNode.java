@@ -78,4 +78,5 @@ public class AddFolderNode {
 			ErrorFeedback.show("Invalid NT folder node type");
 		}
 	}
+
 }
