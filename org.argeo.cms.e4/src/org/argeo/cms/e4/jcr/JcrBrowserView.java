@@ -33,7 +33,6 @@ import javax.jcr.observation.ObservationManager;
 
 import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.jcr.JcrBrowserUtils;
-import org.argeo.cms.ui.jcr.JcrDClickListener;
 import org.argeo.cms.ui.jcr.NodeContentProvider;
 import org.argeo.cms.ui.jcr.NodeLabelProvider;
 import org.argeo.cms.ui.jcr.OsgiRepositoryRegister;
@@ -45,7 +44,9 @@ import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.jcr.AsyncUiEventListener;
 import org.argeo.eclipse.ui.jcr.utils.NodeViewerComparer;
 import org.argeo.node.security.CryptoKeyring;
+import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.ui.services.EMenuService;
+import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.e4.ui.workbench.modeling.ESelectionService;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
@@ -81,7 +82,7 @@ public class JcrBrowserView {
 	@Inject
 	private Repository nodeRepository;
 
-	// Current user session on the "Argeo node" default workspace
+	// Current user session on the home repository default workspace
 	private Session userSession;
 
 	private OsgiRepositoryRegister repositoryRegister = new OsgiRepositoryRegister();
@@ -93,7 +94,8 @@ public class JcrBrowserView {
 	private EventListener resultsObserver;
 
 	@PostConstruct
-	public void createPartControl(Composite parent, ESelectionService selectionService, EMenuService menuService) {
+	public void createPartControl(Composite parent, IEclipseContext context, EPartService partService,
+			ESelectionService selectionService, EMenuService menuService) {
 		repositoryRegister.init();
 
 		parent.setLayout(new FillLayout());
@@ -139,6 +141,7 @@ public class JcrBrowserView {
 				selectionService.setSelection(selection.toList());
 			}
 		});
+		nodesViewer.addDoubleClickListener(new JcrE4DClickListener(nodesViewer, partService));
 		menuService.registerContextMenu(nodesViewer.getControl(), NODE_VIEWER_POPUP_MENU_ID);
 		// getSite().registerContextMenu(menuManager, nodesViewer);
 		// getSite().setSelectionProvider(nodesViewer);
@@ -201,7 +204,7 @@ public class JcrBrowserView {
 				throw new EclipseUiException("Cannot register listeners", e);
 			}
 
-		tmpNodeViewer.addDoubleClickListener(new JcrDClickListener(tmpNodeViewer));
+		// tmpNodeViewer.addDoubleClickListener(new JcrDClickListener(tmpNodeViewer));
 		return tmpNodeViewer;
 	}
 

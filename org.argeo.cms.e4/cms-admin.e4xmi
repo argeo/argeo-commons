@@ -4,7 +4,7 @@
     <persistedState key="styleOverride" value="8"/>
     <tags>shellMaximized</tags>
     <children xsi:type="advanced:PerspectiveStack" xmi:id="_jXVqsCk4Eein5vuhpK-Dew" elementId="org.argeo.cms.e4.perspectivestack.0">
-      <children xsi:type="advanced:Perspective" xmi:id="_jvjWYCk4Eein5vuhpK-Dew" elementId="org.argeo.cms.e4.perspective.0">
+      <children xsi:type="advanced:Perspective" xmi:id="_jvjWYCk4Eein5vuhpK-Dew" elementId="org.argeo.cms.e4.perspective.data" label="Data" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/nodes.gif">
         <children xsi:type="basic:PartSashContainer" xmi:id="_h3tvMCkxEein5vuhpK-Dew" elementId="org.argeo.cms.e4.partsashcontainer.0" selectedElement="_0B9SECkxEein5vuhpK-Dew" horizontal="true">
           <children xsi:type="basic:PartStack" xmi:id="_0B9SECkxEein5vuhpK-Dew" elementId="org.argeo.cms.e4.partstack.0" containerData="4000" selectedElement="_WAjPkCkTEein5vuhpK-Dew">
             <children xsi:type="basic:Part" xmi:id="_WAjPkCkTEein5vuhpK-Dew" elementId="org.argeo.cms.e4.jcrbrowser" containerData="" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.jcr.JcrBrowserView" label="JCR" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/browser.gif">
@@ -23,7 +23,9 @@
               </menus>
             </children>
           </children>
-          <children xsi:type="basic:PartStack" xmi:id="_mHrEUCk4Eein5vuhpK-Dew" elementId="org.argeo.cms.e4.partstack.1" containerData="6000"/>
+          <children xsi:type="basic:PartStack" xmi:id="_mHrEUCk4Eein5vuhpK-Dew" elementId="org.argeo.cms.e4.partstack.1" containerData="6000">
+            <tags>dataExplorer</tags>
+          </children>
         </children>
       </children>
     </children>
@@ -40,6 +42,7 @@
   <handlers xmi:id="_jbnNwCqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handler.1" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.jcr.commands.DeleteNodes" command="_ChJ-4CqYEeidr6NYQH6GbQ"/>
   <handlers xmi:id="_loxB0CqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handler.2" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.jcr.commands.Refresh" command="_TOKHsCqYEeidr6NYQH6GbQ"/>
   <handlers xmi:id="_omPfkCqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handler.3" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.jcr.commands.RenameNode" command="_ZrcUMCqYEeidr6NYQH6GbQ"/>
+  <descriptors xmi:id="_XzfoMCqlEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.partdescriptor.nodeEditor" label="Node Editor" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/node.gif" allowMultiple="true" category="dataExplorer" closeable="true" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.jcr.JcrNodeEditor"/>
   <commands xmi:id="_RgE5cCqREeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.command.addFolderNode" commandName="Add folder node" category="_MDkwUCqYEeidr6NYQH6GbQ"/>
   <commands xmi:id="_ChJ-4CqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.command.deleteNodes" commandName="Delete nodes" category="_MDkwUCqYEeidr6NYQH6GbQ"/>
   <commands xmi:id="_TOKHsCqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.command.refreshNodes" commandName="Refresh nodes" category="_MDkwUCqYEeidr6NYQH6GbQ"/>
