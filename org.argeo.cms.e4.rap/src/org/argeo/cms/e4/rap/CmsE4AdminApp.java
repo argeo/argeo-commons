@@ -13,7 +13,6 @@ import org.eclipse.rap.rwt.application.Application.OperationMode;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.eclipse.rap.rwt.application.EntryPoint;
 import org.eclipse.rap.rwt.client.WebClient;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 
@@ -21,28 +20,21 @@ public class CmsE4AdminApp implements ApplicationConfiguration {
 	private final BundleContext bc = FrameworkUtil.getBundle(CmsE4AdminApp.class).getBundleContext();
 
 	String pageTitle = "CMS Admin";
-	String e4Xmi = "/cms-admin.e4xmi";
+	String e4Xmi = "org.argeo.cms.e4/cms-admin.e4xmi";
 	String path = "/admin";
+	String lifeCycleUri = "bundleclass://" + bc.getBundle().getSymbolicName() + "/" + CmsLoginLifecycle.class.getName();
 
 	public void configure(Application application) {
 
 		Map<String, String> properties = new HashMap<String, String>();
 		properties.put(WebClient.PAGE_TITLE, pageTitle);
-		Bundle bundle = bc.getBundle();
-		String e4XmiUri = bundle.getSymbolicName() + e4Xmi;
-		E4ApplicationConfig config = new E4ApplicationConfig(e4XmiUri,
-				"bundleclass://" + bundle.getSymbolicName() + "/" + CmsLoginLifecycle.class.getName(), null, false,
-				true, true);
+		E4ApplicationConfig config = new E4ApplicationConfig(e4Xmi, lifeCycleUri, null, false, true, true);
 		config.isClearPersistedState();
 		E4EntryPointFactory entryPointFactory = new E4EntryPointFactory(config) {
 
 			@Override
 			public EntryPoint create() {
 				Subject subject = new Subject();
-				// return Subject.doAs(subject, new PrivilegedAction<EntryPoint>() {
-				//
-				// @Override
-				// public EntryPoint run() {
 				EntryPoint ep = createEntryPoint();
 				EntryPoint authEp = new EntryPoint() {
 
@@ -58,10 +50,6 @@ public class CmsE4AdminApp implements ApplicationConfiguration {
 						});
 					}
 				};
-				// return authEp;
-				// }
-				//
-				// });
 				return authEp;
 			}
 

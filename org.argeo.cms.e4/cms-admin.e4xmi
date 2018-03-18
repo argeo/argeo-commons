@@ -7,7 +7,18 @@
       <children xsi:type="advanced:Perspective" xmi:id="_jvjWYCk4Eein5vuhpK-Dew" elementId="org.argeo.cms.e4.rap.perspective.0">
         <children xsi:type="basic:PartSashContainer" xmi:id="_h3tvMCkxEein5vuhpK-Dew" elementId="org.argeo.cms.e4.rap.partsashcontainer.0" selectedElement="_0B9SECkxEein5vuhpK-Dew" horizontal="true">
           <children xsi:type="basic:PartStack" xmi:id="_0B9SECkxEein5vuhpK-Dew" elementId="org.argeo.cms.e4.rap.partstack.0" containerData="4000" selectedElement="_WAjPkCkTEein5vuhpK-Dew">
-            <children xsi:type="basic:Part" xmi:id="_WAjPkCkTEein5vuhpK-Dew" elementId="org.argeo.cms.e4.jcrbrowser" containerData="" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.jcr.JcrBrowserView" label="JCR Browser"/>
+            <children xsi:type="basic:Part" xmi:id="_WAjPkCkTEein5vuhpK-Dew" elementId="org.argeo.cms.e4.jcrbrowser" containerData="" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.jcr.JcrBrowserView" label="JCR Browser">
+              <menus xsi:type="menu:PopupMenu" xmi:id="_eXiUECqREeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.rap.popupmenu.0">
+                <children xsi:type="menu:HandledMenuItem" xmi:id="_fU238CqREeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.rap.handledmenuitem.addfoldernode" label="Add folder" command="_RgE5cCqREeidr6NYQH6GbQ"/>
+              </menus>
+              <menus xmi:id="_oRg_ACqTEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.rap.menu.0">
+                <tags>ViewMenu</tags>
+                <children xsi:type="menu:HandledMenuItem" xmi:id="_yJR8ECqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.rap.handledmenuitem.refresh" label="Refresh" command="_TOKHsCqYEeidr6NYQH6GbQ"/>
+                <children xsi:type="menu:HandledMenuItem" xmi:id="_o6HQECqTEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.rap.handledmenuitem.addfoldernode" label="Add folder" command="_RgE5cCqREeidr6NYQH6GbQ"/>
+                <children xsi:type="menu:HandledMenuItem" xmi:id="_5D7aACqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.rap.handledmenuitem.rename" label="Rename" command="_ZrcUMCqYEeidr6NYQH6GbQ"/>
+                <children xsi:type="menu:HandledMenuItem" xmi:id="_7rR2wCqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.rap.handledmenuitem.delete" label="Delete" command="_ChJ-4CqYEeidr6NYQH6GbQ"/>
+              </menus>
+            </children>
           </children>
           <children xsi:type="basic:PartStack" xmi:id="_mHrEUCk4Eein5vuhpK-Dew" elementId="org.argeo.cms.e4.rap.partstack.1" containerData="6000"/>
         </children>
@@ -22,6 +33,14 @@
       </children>
     </trimBars>
   </children>
+  <handlers xmi:id="_Xp-P4CqREeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.rap.handler.0" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.jcr.commands.AddFolderNode" command="_RgE5cCqREeidr6NYQH6GbQ"/>
+  <handlers xmi:id="_jbnNwCqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.rap.handler.1" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.jcr.commands.DeleteNodes" command="_ChJ-4CqYEeidr6NYQH6GbQ"/>
+  <handlers xmi:id="_loxB0CqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.rap.handler.2" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.jcr.commands.Refresh" command="_TOKHsCqYEeidr6NYQH6GbQ"/>
+  <handlers xmi:id="_omPfkCqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.rap.handler.3" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.jcr.commands.RenameNode" command="_ZrcUMCqYEeidr6NYQH6GbQ"/>
+  <commands xmi:id="_RgE5cCqREeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.command.addFolderNode" commandName="Add folder node" category="_MDkwUCqYEeidr6NYQH6GbQ"/>
+  <commands xmi:id="_ChJ-4CqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.command.deleteNodes" commandName="Delete nodes" category="_MDkwUCqYEeidr6NYQH6GbQ"/>
+  <commands xmi:id="_TOKHsCqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.command.refreshNodes" commandName="Refresh nodes" category="_MDkwUCqYEeidr6NYQH6GbQ"/>
+  <commands xmi:id="_ZrcUMCqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.command.renameNode" commandName="Rename node" category="_MDkwUCqYEeidr6NYQH6GbQ"/>
   <addons xmi:id="_XqkCQaknEeObFrG_clJBYA" elementId="org.eclipse.e4.core.commands.service" contributionURI="bundleclass://org.eclipse.e4.core.commands/org.eclipse.e4.core.commands.CommandServiceAddon"/>
   <addons xmi:id="_XqkCQqknEeObFrG_clJBYA" elementId="org.eclipse.e4.ui.contexts.service" contributionURI="bundleclass://org.eclipse.e4.ui.services/org.eclipse.e4.ui.services.ContextServiceAddon"/>
   <addons xmi:id="_XqkCQ6knEeObFrG_clJBYA" elementId="org.eclipse.e4.ui.bindings.service" contributionURI="bundleclass://org.eclipse.e4.ui.bindings/org.eclipse.e4.ui.bindings.BindingServiceAddon"/>
@@ -29,4 +48,5 @@
   <addons xmi:id="_XqkCRaknEeObFrG_clJBYA" elementId="org.eclipse.e4.ui.workbench.contexts.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.ContextProcessingAddon"/>
   <addons xmi:id="_XqkCRqknEeObFrG_clJBYA" elementId="org.eclipse.e4.ui.workbench.bindings.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.swt/org.eclipse.e4.ui.workbench.swt.util.BindingProcessingAddon"/>
   <addons xmi:id="_XqkCR6knEeObFrG_clJBYA" elementId="org.eclipse.e4.ui.workbench.handler.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.HandlerProcessingAddon"/>
+  <categories xmi:id="_MDkwUCqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.category.jcrBrowser" name="JCR Browser"/>
 </application:Application>

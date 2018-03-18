@@ -39,13 +39,15 @@ import org.argeo.cms.ui.jcr.NodeLabelProvider;
 import org.argeo.cms.ui.jcr.OsgiRepositoryRegister;
 import org.argeo.cms.ui.jcr.PropertiesContentProvider;
 import org.argeo.cms.ui.jcr.model.SingleJcrNodeElem;
+import org.argeo.cms.util.CmsUtils;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.jcr.AsyncUiEventListener;
 import org.argeo.eclipse.ui.jcr.utils.NodeViewerComparer;
 import org.argeo.node.security.CryptoKeyring;
-import org.eclipse.jface.action.MenuManager;
+import org.eclipse.e4.ui.workbench.modeling.ESelectionService;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -58,16 +60,19 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Menu;
 
 /**
  * Basic View to display a sash form to browse a JCR compliant multiple
  * repository environment
  */
 public class JcrBrowserView {
+	public final static String ID = "org.argeo.cms.e4.jcrbrowser";
+
+	@Inject
+	private ESelectionService selectionService;
+
 	private boolean sortChildNodes = true;
 
 	/* DEPENDENCY INJECTION */
@@ -94,13 +99,13 @@ public class JcrBrowserView {
 
 		parent.setLayout(new FillLayout());
 		SashForm sashForm = new SashForm(parent, SWT.VERTICAL);
-		sashForm.setSashWidth(4);
-		sashForm.setLayout(new FillLayout());
+		// sashForm.setSashWidth(4);
+		// sashForm.setLayout(new FillLayout());
 
 		// Create the tree on top of the view
 		Composite top = new Composite(sashForm, SWT.NONE);
-		GridLayout gl = new GridLayout(1, false);
-		top.setLayout(gl);
+		// GridLayout gl = new GridLayout(1, false);
+		top.setLayout(CmsUtils.noSpaceGridLayout());
 
 		try {
 			this.userSession = this.nodeRepository.login();
@@ -115,21 +120,26 @@ public class JcrBrowserView {
 		nodesViewer = createNodeViewer(top, nodeContentProvider);
 
 		// context menu : it is completely defined in the plugin.xml file.
-		MenuManager menuManager = new MenuManager();
-		Menu menu = menuManager.createContextMenu(nodesViewer.getTree());
+		// MenuManager menuManager = new MenuManager();
+		// Menu menu = menuManager.createContextMenu(nodesViewer.getTree());
 
-		nodesViewer.getTree().setMenu(menu);
+		// nodesViewer.getTree().setMenu(menu);
 
 		nodesViewer.setInput("");
 
 		// Create the property viewer on the bottom
 		Composite bottom = new Composite(sashForm, SWT.NONE);
-		bottom.setLayout(new GridLayout(1, false));
+		bottom.setLayout(CmsUtils.noSpaceGridLayout());
 		propertiesViewer = createPropertiesViewer(bottom);
 
 		sashForm.setWeights(getWeights());
 		nodesViewer.setComparer(new NodeViewerComparer());
-
+		nodesViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			public void selectionChanged(SelectionChangedEvent event) {
+				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+				selectionService.setSelection(selection.toList());
+			}
+		});
 		// getSite().registerContextMenu(menuManager, nodesViewer);
 		// getSite().setSelectionProvider(nodesViewer);
 	}
@@ -167,7 +177,7 @@ public class JcrBrowserView {
 		tmpNodeViewer.getTree().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		tmpNodeViewer.setContentProvider(nodeContentProvider);
-		tmpNodeViewer.setLabelProvider(new NodeLabelProvider());
+		tmpNodeViewer.setLabelProvider((IBaseLabelProvider) new NodeLabelProvider());
 		tmpNodeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				if (!event.getSelection().isEmpty()) {
@@ -196,7 +206,7 @@ public class JcrBrowserView {
 	}
 
 	protected TableViewer createPropertiesViewer(Composite parent) {
-		propertiesViewer = new TableViewer(parent);
+		propertiesViewer = new TableViewer(parent, SWT.NONE);
 		propertiesViewer.getTable().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		propertiesViewer.getTable().setHeaderVisible(true);
 		propertiesViewer.setContentProvider(new PropertiesContentProvider());
