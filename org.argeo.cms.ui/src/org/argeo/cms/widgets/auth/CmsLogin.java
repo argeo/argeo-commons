@@ -254,7 +254,11 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 			// LOGIN
 			//
 			// loginContext.logout();
-			LoginContext loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, subject, this);
+			LoginContext loginContext;
+			if (subject == null)
+				loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, this);
+			else
+				loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, subject, this);
 			loginContext.login();
 			cmsView.authChange(loginContext);
 			return true;
