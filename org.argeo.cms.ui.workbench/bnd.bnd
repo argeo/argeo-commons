@@ -6,6 +6,7 @@ Require-Bundle:	org.eclipse.core.runtime,\
 org.eclipse.core.commands
 
 Import-Package:	org.argeo.cms.auth,\
+org.argeo.cms.ui,\
 org.argeo.eclipse.spring,\
 org.argeo.eclipse.ui.utils,\
 org.eclipse.core.runtime.jobs,\
