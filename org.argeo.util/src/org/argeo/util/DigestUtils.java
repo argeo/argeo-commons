@@ -29,13 +29,15 @@ import java.security.NoSuchAlgorithmException;
 
 /** Utilities around cryptographic digests */
 public class DigestUtils {
+	public final static String SHA1 = "SHA1";
+
 	private static Boolean debug = false;
 	// TODO: make it writable
 	private final static Integer byteBufferCapacity = 100 * 1024;// 100 KB
 
 	public static byte[] sha1(byte[] bytes) {
 		try {
-			MessageDigest digest = MessageDigest.getInstance("SHA1");
+			MessageDigest digest = MessageDigest.getInstance(SHA1);
 			digest.update(bytes);
 			byte[] checksum = digest.digest();
 			return checksum;
@@ -119,6 +121,15 @@ public class DigestUtils {
 		}
 	}
 
+	public static String sha1hex(Path path) {
+		return digest(SHA1, path, byteBufferCapacity);
+	}
+
+	public static String digest(String algorithm, Path path, long bufferSize) {
+		byte[] digest = digestRaw(algorithm, path, bufferSize);
+		return encodeHexString(digest);
+	}
+
 	public static byte[] digestRaw(String algorithm, Path file, long bufferSize) {
 		long begin = System.currentTimeMillis();
 		try {
@@ -137,7 +148,7 @@ public class DigestUtils {
 						bb = fc.map(MapMode.READ_ONLY, position, bufferSize);
 						position = position + bufferSize;
 					} else {
-						bb = fc.map(MapMode.READ_ONLY, position, fileSize - bufferSize);
+						bb = fc.map(MapMode.READ_ONLY, position, fileSize - position);
 						position = fileSize;
 					}
 					md.update(bb);
@@ -170,6 +181,7 @@ public class DigestUtils {
 			System.out.println(algorithm + ": " + digest(algorithm, file));
 			algorithm = "SHA";
 			System.out.println(algorithm + ": " + digest(algorithm, file));
+			System.out.println(algorithm + ": " + sha1hex(file.toPath()));
 			algorithm = "SHA-256";
 			System.out.println(algorithm + ": " + digest(algorithm, file));
 			algorithm = "SHA-512";
