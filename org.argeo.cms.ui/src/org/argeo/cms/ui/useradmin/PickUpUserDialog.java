@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.cms.ui.workbench.useradmin;
+package org.argeo.cms.ui.useradmin;
 
 import java.util.ArrayList;
 import java.util.List;

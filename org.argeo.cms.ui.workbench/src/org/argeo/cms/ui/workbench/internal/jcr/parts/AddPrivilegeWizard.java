@@ -23,7 +23,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.security.Privilege;
 
-import org.argeo.cms.ui.workbench.useradmin.PickUpUserDialog;
+import org.argeo.cms.ui.useradmin.PickUpUserDialog;
 import org.argeo.cms.util.UserAdminUtils;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.EclipseUiUtils;

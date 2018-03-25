@@ -13,21 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.argeo.cms.ui.workbench.internal.useradmin;
+package org.argeo.cms.ui.useradmin;
 
-import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
+import org.argeo.cms.ui.theme.CmsImages;
 import org.eclipse.swt.graphics.Image;
 
-/** Specific users icons. TODO centralize and use an image registry */
+/** Specific users icons. */
 public class UsersImages {
 	private final static String PREFIX = "icons/";
 
-	public final static Image ICON_USER = WorkbenchUiPlugin.getImageDescriptor(
-			PREFIX + "person.png").createImage();
-	public final static Image ICON_GROUP = WorkbenchUiPlugin.getImageDescriptor(
-			PREFIX + "group.png").createImage();
-	public final static Image ICON_ROLE = WorkbenchUiPlugin.getImageDescriptor(
-			PREFIX + "role.gif").createImage();
-	public final static Image ICON_CHANGE_PASSWORD = WorkbenchUiPlugin.getImageDescriptor(
-			PREFIX + "security.gif").createImage();
+	public final static Image ICON_USER = CmsImages.createImg(PREFIX + "person.png");
+	public final static Image ICON_GROUP = CmsImages.createImg(PREFIX + "group.png");
+	public final static Image ICON_ROLE = CmsImages.createImg(PREFIX + "role.gif");
+	public final static Image ICON_CHANGE_PASSWORD = CmsImages.createImg(PREFIX + "security.gif");
 }

@@ -1,6 +1,5 @@
-package org.argeo.cms.ui.workbench.useradmin;
+package org.argeo.cms.ui.useradmin;
 
-import org.argeo.cms.ui.workbench.internal.useradmin.UsersImages;
 import org.argeo.cms.util.UserAdminUtils;
 import org.argeo.node.NodeConstants;
 import org.eclipse.jface.resource.JFaceResources;
