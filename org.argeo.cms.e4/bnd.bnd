@@ -1,2 +1,5 @@
 Import-Package: org.eclipse.swt,\
+org.eclipse.e4.ui.model.application.ui,\
+org.eclipse.e4.ui.model.application,\
+javax.jcr.nodetype,\
 *
