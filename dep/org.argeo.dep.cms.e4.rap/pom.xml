@@ -7,7 +7,7 @@
 		<artifactId>dep</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>org.argeo.dep.cms.rap.e4</artifactId>
+	<artifactId>org.argeo.dep.cms.e4.rap</artifactId>
 	<name>CMS Platform RAP Eclipse 4</name>
 	<dependencies>
 
