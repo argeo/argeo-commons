@@ -1,6 +1,7 @@
 package org.argeo.cms.ui.eclipse.forms;
 
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.swt.custom.ScrolledComposite;
 //import org.eclipse.ui.forms.widgets.FormToolkit;
 //import org.eclipse.ui.forms.widgets.ScrolledForm;
 
@@ -40,7 +41,7 @@ public interface IManagedForm {
 	 * 
 	 * @return the form widget
 	 */
-//	public ScrolledForm getForm();
+	public ScrolledComposite getForm();
 
 	/**
 	 * Reflows the form as a result of the layout change.
