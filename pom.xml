@@ -45,6 +45,7 @@
 		<module>org.argeo.ext.rap.ui.workbench</module>
 		<!-- Distribution -->
 		<module>dep</module>
+		<module>demo</module>
 		<module>doc</module>
 		<module>dist</module>
 	</modules>
