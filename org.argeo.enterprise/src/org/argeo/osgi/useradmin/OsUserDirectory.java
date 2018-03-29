@@ -53,7 +53,7 @@ public class OsUserDirectory extends AbstractUserDirectory {
 	@Override
 	protected List<DirectoryUser> doGetRoles(Filter f) {
 		List<DirectoryUser> res = new ArrayList<>();
-		if (f.match(osUser.getProperties()))
+		if (f==null || f.match(osUser.getProperties()))
 			res.add(osUser);
 		return res;
 	}
