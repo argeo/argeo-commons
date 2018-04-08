@@ -23,7 +23,19 @@ public class CmsLoginLifecycle implements CmsView {
 	private LoginContext loginContext;
 
 	@PostContextCreate
-	boolean login(Display d) {
+	boolean login(Display d) {// , IEclipseContext eclipseContext) {
+		// RepositoryFactory repositoryFactory =
+		// eclipseContext.get(RepositoryFactory.class);
+		// Map<String, String> params = new HashMap<>();
+		// params.put("cn", "home");
+		// Repository homeRepository;
+		// try {
+		// homeRepository = repositoryFactory.getRepository(params);
+		// } catch (RepositoryException e1) {
+		// throw new CmsException("Cannot get home repository", e1);
+		// }
+		// eclipseContext.set("(cn=home)", homeRepository);
+
 		Subject subject = Subject.getSubject(AccessController.getContext());
 		Display display = Display.getCurrent();
 		CmsLoginShell loginShell = new CmsLoginShell(this);
@@ -63,12 +75,12 @@ public class CmsLoginLifecycle implements CmsView {
 		if (loginContext == null)
 			throw new CmsException("Login context cannot be null");
 		// logout previous login context
-//		if (this.loginContext != null)
-//			try {
-//				this.loginContext.logout();
-//			} catch (LoginException e1) {
-//				System.err.println("Could not log out: " + e1);
-//			}
+		// if (this.loginContext != null)
+		// try {
+		// this.loginContext.logout();
+		// } catch (LoginException e1) {
+		// System.err.println("Could not log out: " + e1);
+		// }
 		this.loginContext = loginContext;
 	}
 
