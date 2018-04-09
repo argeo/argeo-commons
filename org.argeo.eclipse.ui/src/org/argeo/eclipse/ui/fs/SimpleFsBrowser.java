@@ -167,29 +167,39 @@ public class SimpleFsBrowser extends Composite {
 			}
 		});
 
-		directoryDisplayViewer.addDoubleClickListener(new IDoubleClickListener() {
-			@Override
-			public void doubleClick(DoubleClickEvent event) {
-				IStructuredSelection selection = (IStructuredSelection) directoryDisplayViewer.getSelection();
-				Path selected = null;
-				if (!selection.isEmpty())
-					selected = ((Path) selection.getFirstElement());
-				if (selected != null) {
-					if (!Files.isDirectory(selected))
-						return;
-					currSelected = selected;
-					directoryDisplayViewer.setInput(currSelected, "*");
-				}
-			}
-		});
+//		directoryDisplayViewer.addDoubleClickListener(new IDoubleClickListener() {
+//			@Override
+//			public void doubleClick(DoubleClickEvent event) {
+//				IStructuredSelection selection = (IStructuredSelection) directoryDisplayViewer.getSelection();
+//				Path selected = null;
+//				if (!selection.isEmpty()) {
+//					Object obj = selection.getFirstElement();
+//					if (obj instanceof Path)
+//						selected = (Path) obj;
+//					else if (obj instanceof ParentDir)
+//						selected = ((ParentDir) obj).getPath();
+//				}
+//				if (selected != null) {
+//					if (!Files.isDirectory(selected))
+//						return;
+//					currSelected = selected;
+//					directoryDisplayViewer.setInput(currSelected, "*");
+//				}
+//			}
+//		});
 
 		directoryDisplayViewer.addDoubleClickListener(new IDoubleClickListener() {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				IStructuredSelection selection = (IStructuredSelection) directoryDisplayViewer.getSelection();
 				Path selected = null;
-				if (!selection.isEmpty())
-					selected = ((Path) selection.getFirstElement());
+				if (!selection.isEmpty()) {
+					Object obj = selection.getFirstElement();
+					if (obj instanceof Path)
+						selected = (Path) obj;
+					else if (obj instanceof ParentDir)
+						selected = ((ParentDir) obj).getPath();
+				}
 				if (selected != null) {
 					if (!Files.isDirectory(selected))
 						return;

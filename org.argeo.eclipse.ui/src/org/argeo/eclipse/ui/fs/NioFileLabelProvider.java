@@ -18,8 +18,19 @@ public class NioFileLabelProvider extends ColumnLabelProvider {
 
 	@Override
 	public String getText(Object element) {
-		Path path = (Path) element;
 		try {
+			if (element instanceof ParentDir) {
+				switch (propName) {
+				case FsUiConstants.PROPERTY_SIZE:
+					return "-";
+				case FsUiConstants.PROPERTY_LAST_MODIFIED:
+					return Files.getLastModifiedTime(((ParentDir) element).getPath()).toString();
+				case FsUiConstants.PROPERTY_TYPE:
+					return "Folder";
+				}
+			}
+
+			Path path = (Path) element;
 			switch (propName) {
 			case FsUiConstants.PROPERTY_SIZE:
 				if (Files.isDirectory(path))
@@ -42,7 +53,7 @@ public class NioFileLabelProvider extends ColumnLabelProvider {
 				throw new IllegalArgumentException("Unsupported property " + propName);
 			}
 		} catch (IOException ioe) {
-			throw new FsUiException("Cannot get property " + propName + " on " + path.toString());
+			throw new FsUiException("Cannot get property " + propName + " on " + element);
 		}
 	}
 }

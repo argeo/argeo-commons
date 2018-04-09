@@ -31,7 +31,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 
-
 /** Simple UI provider that populates a composite parent given a NIO path */
 public class AdvancedFsBrowser {
 	private final static Log log = LogFactory.getLog(AdvancedFsBrowser.class);
@@ -288,8 +287,8 @@ public class AdvancedFsBrowser {
 	}
 
 	/**
-	 * Recreates the content of the box that displays information about the
-	 * current selected node.
+	 * Recreates the content of the box that displays information about the current
+	 * selected node.
 	 */
 	private void populateCurrEditedDisplay(Composite parent, Path context) {
 		parent.setLayout(new GridLayout());
@@ -355,8 +354,8 @@ public class AdvancedFsBrowser {
 		}
 
 		/**
-		 * Enable highlighting the correct element in the table when externally
-		 * browsing (typically via the command-line-like Text field)
+		 * Enable highlighting the correct element in the table when externally browsing
+		 * (typically via the command-line-like Text field)
 		 */
 		void setSelected(Path selected) {
 			// to prevent change selection event to be thrown
@@ -399,13 +398,19 @@ public class AdvancedFsBrowser {
 					IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
 					if (selection.isEmpty())
 						return;
-					else {
-						Path newSelected = (Path) selection.getFirstElement();
-						if (newSelected.equals(currSelected))
-							return;
-						currSelected = newSelected;
-						setEdited(newSelected);
-					}
+					Object obj = selection.getFirstElement();
+					Path newSelected;
+					if (obj instanceof Path)
+						newSelected = (Path) obj;
+					else if (obj instanceof ParentDir)
+						newSelected = ((ParentDir) obj).getPath();
+					else
+						return;
+					if (newSelected.equals(currSelected))
+						return;
+					currSelected = newSelected;
+					setEdited(newSelected);
+
 				}
 			});
 
