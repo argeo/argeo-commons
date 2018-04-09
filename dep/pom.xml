@@ -49,6 +49,11 @@
 			<artifactId>org.eclipse.osgi</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.sdk</groupId>
+			<artifactId>org.junit</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>
