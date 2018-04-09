@@ -19,7 +19,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 
-import org.apache.commons.io.IOUtils;
 import org.argeo.jcr.JcrUtils;
 
 public class BinaryChannel implements SeekableByteChannel {
@@ -78,7 +77,10 @@ public class BinaryChannel implements SeekableByteChannel {
 				throw new JcrFsException("Cannot close " + file, e);
 			} finally {
 				JcrUtils.closeQuietly(newBinary);
-				IOUtils.closeQuietly(fc);
+				// IOUtils.closeQuietly(fc);
+				if (fc != null) {
+					fc.close();
+				}
 			}
 		} else {
 			clearReadState();

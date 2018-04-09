@@ -4,8 +4,8 @@ package org.argeo.jcr;
 public class ArgeoJcrException extends RuntimeException {
 	private static final long serialVersionUID = -1941940005390084331L;
 
-	public ArgeoJcrException(String message, Throwable cause) {
-		super(message, cause);
+	public ArgeoJcrException(String message, Throwable e) {
+		super(message, e);
 	}
 
 	public ArgeoJcrException(String message) {

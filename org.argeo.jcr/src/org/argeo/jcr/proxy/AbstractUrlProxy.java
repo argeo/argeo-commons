@@ -27,7 +27,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.jcr.ArgeoJcrException;
@@ -45,8 +44,7 @@ public abstract class AbstractUrlProxy implements ResourceProxy {
 
 	void init() {
 		try {
-			jcrAdminSession = JcrUtils.loginOrCreateWorkspace(jcrRepository,
-					proxyWorkspace);
+			jcrAdminSession = JcrUtils.loginOrCreateWorkspace(jcrRepository, proxyWorkspace);
 			beforeInitSessionSave(jcrAdminSession);
 			if (jcrAdminSession.hasPendingChanges())
 				jcrAdminSession.save();
@@ -57,11 +55,10 @@ public abstract class AbstractUrlProxy implements ResourceProxy {
 	}
 
 	/**
-	 * Called before the (admin) session is saved at the end of the
-	 * initialization. Does nothing by default, to be overridden.
+	 * Called before the (admin) session is saved at the end of the initialization.
+	 * Does nothing by default, to be overridden.
 	 */
-	protected void beforeInitSessionSave(Session session)
-			throws RepositoryException {
+	protected void beforeInitSessionSave(Session session) throws RepositoryException {
 	}
 
 	void destroy() {
@@ -69,8 +66,8 @@ public abstract class AbstractUrlProxy implements ResourceProxy {
 	}
 
 	/**
-	 * Called before the (admin) session is logged out when resources are
-	 * released. Does nothing by default, to be overridden.
+	 * Called before the (admin) session is logged out when resources are released.
+	 * Does nothing by default, to be overridden.
 	 */
 	protected void beforeDestroySessionLogout() throws RepositoryException {
 	}
@@ -83,8 +80,7 @@ public abstract class AbstractUrlProxy implements ResourceProxy {
 		Session clientSession = null;
 		try {
 			clientSession = jcrRepository.login(proxyWorkspace);
-			if (!clientSession.itemExists(path)
-					|| shouldUpdate(clientSession, path)) {
+			if (!clientSession.itemExists(path) || shouldUpdate(clientSession, path)) {
 				nodeAdmin = retrieveAndSave(path);
 				if (nodeAdmin != null)
 					nodeClient = clientSession.getNode(path);
@@ -115,39 +111,34 @@ public abstract class AbstractUrlProxy implements ResourceProxy {
 	}
 
 	/** Session is not saved */
-	protected synchronized Node proxyUrl(Session session, String remoteUrl,
-			String path) throws RepositoryException {
+	protected synchronized Node proxyUrl(Session session, String remoteUrl, String path) throws RepositoryException {
 		Node node = null;
 		if (session.itemExists(path)) {
 			// throw new ArgeoJcrException("Node " + path + " already exists");
 		}
-		InputStream in = null;
-		try {
-			URL u = new URL(remoteUrl);
-			in = u.openStream();
+		try (InputStream in = new URL(remoteUrl).openStream()) {
+			// URL u = new URL(remoteUrl);
+			// in = u.openStream();
 			node = importFile(session, path, in);
 		} catch (IOException e) {
 			if (log.isDebugEnabled()) {
-				log.debug("Cannot read " + remoteUrl + ", skipping... "
-						+ e.getMessage());
+				log.debug("Cannot read " + remoteUrl + ", skipping... " + e.getMessage());
 				// log.trace("Cannot read because of ", e);
 			}
 			JcrUtils.discardQuietly(session);
-		} finally {
-			IOUtils.closeQuietly(in);
+			// } finally {
+			// IOUtils.closeQuietly(in);
 		}
 		return node;
 	}
 
-	protected synchronized Node importFile(Session session, String path,
-			InputStream in) throws RepositoryException {
+	protected synchronized Node importFile(Session session, String path, InputStream in) throws RepositoryException {
 		Binary binary = null;
 		try {
 			Node content = null;
 			Node node = null;
 			if (!session.itemExists(path)) {
-				node = JcrUtils.mkdirs(session, path, NodeType.NT_FILE,
-						NodeType.NT_FOLDER, false);
+				node = JcrUtils.mkdirs(session, path, NodeType.NT_FILE, NodeType.NT_FOLDER, false);
 				content = node.addNode(Node.JCR_CONTENT, NodeType.NT_RESOURCE);
 			} else {
 				node = session.getNode(path);

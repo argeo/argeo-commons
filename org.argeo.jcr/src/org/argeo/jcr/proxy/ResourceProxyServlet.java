@@ -18,9 +18,7 @@ package org.argeo.jcr.proxy;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.jcr.Binary;
 import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.servlet.ServletException;
@@ -33,6 +31,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.jcr.ArgeoJcrException;
+import org.argeo.jcr.Bin;
 import org.argeo.jcr.JcrUtils;
 
 /** Wraps a proxy via HTTP */
@@ -82,9 +81,10 @@ public class ResourceProxyServlet extends HttpServlet {
 
 	/** Retrieve the content of the node. */
 	protected void processResponse(Node node, HttpServletResponse response) {
-		Binary binary = null;
-		InputStream in = null;
-		try {
+//		Binary binary = null;
+//		InputStream in = null;
+		try(Bin binary = new Bin( node.getNode(Property.JCR_CONTENT)
+				.getProperty(Property.JCR_DATA));InputStream in = binary.getStream()) {
 			String fileName = node.getName();
 			String ext = FilenameUtils.getExtension(fileName);
 
@@ -116,20 +116,20 @@ public class ResourceProxyServlet extends HttpServlet {
 
 			response.setContentType(contentType);
 
-			try {
-				binary = node.getNode(Property.JCR_CONTENT)
-						.getProperty(Property.JCR_DATA).getBinary();
-			} catch (PathNotFoundException e) {
-				log.error("Node " + node + " as no data under content");
-				throw e;
-			}
-			in = binary.getStream();
+//			try {
+//				binary = node.getNode(Property.JCR_CONTENT)
+//						.getProperty(Property.JCR_DATA).getBinary();
+//			} catch (PathNotFoundException e) {
+//				log.error("Node " + node + " as no data under content");
+//				throw e;
+//			}
+//			in = binary.getStream();
 			IOUtils.copy(in, response.getOutputStream());
 		} catch (Exception e) {
 			throw new ArgeoJcrException("Cannot download " + node, e);
-		} finally {
-			IOUtils.closeQuietly(in);
-			JcrUtils.closeQuietly(binary);
+//		} finally {
+//			IOUtils.closeQuietly(in);
+//			JcrUtils.closeQuietly(binary);
 		}
 	}
 

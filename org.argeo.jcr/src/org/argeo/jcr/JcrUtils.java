@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.MessageDigest;
 import java.security.Principal;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -63,7 +64,6 @@ import javax.jcr.security.Privilege;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.util.DigestUtils;
 
 /** Utility methods to simplify common JCR operations. */
 public class JcrUtils {
@@ -472,7 +472,7 @@ public class JcrUtils {
 	public static Node mkdirs(Session session, String path, String type, String intermediaryNodeType,
 			Boolean versioning) {
 		try {
-			if (path.equals('/'))
+			if (path.equals("/"))
 				return session.getRootNode();
 
 			if (session.itemExists(path)) {
@@ -947,15 +947,16 @@ public class JcrUtils {
 			return name;
 	}
 
-//	/**
-//	 * Removes forbidden characters from a path, replacing them with '_'
-//	 * 
-//	 * @deprecated use {@link #replaceInvalidChars(String)} instead
-//	 */
-//	public static String removeForbiddenCharacters(String str) {
-//		return str.replace('[', '_').replace(']', '_').replace('/', '_').replace('*', '_');
-//
-//	}
+	// /**
+	// * Removes forbidden characters from a path, replacing them with '_'
+	// *
+	// * @deprecated use {@link #replaceInvalidChars(String)} instead
+	// */
+	// public static String removeForbiddenCharacters(String str) {
+	// return str.replace('[', '_').replace(']', '_').replace('/', '_').replace('*',
+	// '_');
+	//
+	// }
 
 	/** Cleanly disposes a {@link Binary} even if it is null. */
 	public static void closeQuietly(Binary binary) {
@@ -966,35 +967,37 @@ public class JcrUtils {
 
 	/** Retrieve a {@link Binary} as a byte array */
 	public static byte[] getBinaryAsBytes(Property property) {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		InputStream in = null;
-		Binary binary = null;
-		try {
-			binary = property.getBinary();
-			in = binary.getStream();
+		// ByteArrayOutputStream out = new ByteArrayOutputStream();
+		// InputStream in = null;
+		// Binary binary = null;
+		try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+				Bin binary = new Bin(property);
+				InputStream in = binary.getStream()) {
+			// binary = property.getBinary();
+			// in = binary.getStream();
 			IOUtils.copy(in, out);
 			return out.toByteArray();
 		} catch (Exception e) {
 			throw new ArgeoJcrException("Cannot read binary " + property + " as bytes", e);
 		} finally {
-			IOUtils.closeQuietly(out);
-			IOUtils.closeQuietly(in);
-			closeQuietly(binary);
+			// IOUtils.closeQuietly(out);
+			// IOUtils.closeQuietly(in);
+			// closeQuietly(binary);
 		}
 	}
 
 	/** Writes a {@link Binary} from a byte array */
 	public static void setBinaryAsBytes(Node node, String property, byte[] bytes) {
-		InputStream in = null;
+		// InputStream in = null;
 		Binary binary = null;
-		try {
-			in = new ByteArrayInputStream(bytes);
+		try (InputStream in = new ByteArrayInputStream(bytes)) {
+			// in = new ByteArrayInputStream(bytes);
 			binary = node.getSession().getValueFactory().createBinary(in);
 			node.setProperty(property, binary);
 		} catch (Exception e) {
 			throw new ArgeoJcrException("Cannot read binary " + property + " as bytes", e);
 		} finally {
-			IOUtils.closeQuietly(in);
+			// IOUtils.closeQuietly(in);
 			closeQuietly(binary);
 		}
 	}
@@ -1351,8 +1354,8 @@ public class JcrUtils {
 	public static Long copyFiles(Node fromNode, Node toNode, Boolean recursive, JcrMonitor monitor, boolean onlyAdd) {
 		long count = 0l;
 
-		Binary binary = null;
-		InputStream in = null;
+		// Binary binary = null;
+		// InputStream in = null;
 		try {
 			NodeIterator fromChildren = fromNode.getNodes();
 			children: while (fromChildren.hasNext()) {
@@ -1369,11 +1372,12 @@ public class JcrUtils {
 
 					if (monitor != null)
 						monitor.subTask("Copy " + fileName);
-					binary = fromChild.getNode(Node.JCR_CONTENT).getProperty(Property.JCR_DATA).getBinary();
-					in = binary.getStream();
-					copyStreamAsFile(toNode, fileName, in);
-					IOUtils.closeQuietly(in);
-					closeQuietly(binary);
+					try (Bin binary = new Bin(fromChild.getNode(Node.JCR_CONTENT).getProperty(Property.JCR_DATA));
+							InputStream in = binary.getStream();) {
+						copyStreamAsFile(toNode, fileName, in);
+					}
+					// IOUtils.closeQuietly(in);
+					// closeQuietly(binary);
 
 					// save session
 					toNode.getSession().save();
@@ -1399,12 +1403,12 @@ public class JcrUtils {
 				}
 			}
 			return count;
-		} catch (RepositoryException e) {
+		} catch (RepositoryException | IOException e) {
 			throw new ArgeoJcrException("Cannot copy files between " + fromNode + " and " + toNode);
 		} finally {
 			// in case there was an exception
-			IOUtils.closeQuietly(in);
-			closeQuietly(binary);
+			// IOUtils.closeQuietly(in);
+			// closeQuietly(binary);
 		}
 	}
 
@@ -1435,27 +1439,27 @@ public class JcrUtils {
 	 * @return the created file node
 	 */
 	public static Node copyFile(Node folderNode, File file) {
-		InputStream in = null;
-		try {
-			in = new FileInputStream(file);
+		// InputStream in = null;
+		try (InputStream in = new FileInputStream(file)) {
+			// in = new FileInputStream(file);
 			return copyStreamAsFile(folderNode, file.getName(), in);
 		} catch (IOException e) {
 			throw new ArgeoJcrException("Cannot copy file " + file + " under " + folderNode, e);
-		} finally {
-			IOUtils.closeQuietly(in);
+			// } finally {
+			// IOUtils.closeQuietly(in);
 		}
 	}
 
 	/** Copy bytes as an nt:file */
 	public static Node copyBytesAsFile(Node folderNode, String fileName, byte[] bytes) {
-		InputStream in = null;
-		try {
-			in = new ByteArrayInputStream(bytes);
+		// InputStream in = null;
+		try (InputStream in = new ByteArrayInputStream(bytes)) {
+			// in = new ByteArrayInputStream(bytes);
 			return copyStreamAsFile(folderNode, fileName, in);
 		} catch (Exception e) {
 			throw new ArgeoJcrException("Cannot copy file " + fileName + " under " + folderNode, e);
-		} finally {
-			IOUtils.closeQuietly(in);
+			// } finally {
+			// IOUtils.closeQuietly(in);
 		}
 	}
 
@@ -1490,20 +1494,58 @@ public class JcrUtils {
 		}
 	}
 
-	/** Computes the checksum of an nt:file */
+	/**
+	 * Computes the checksum of an nt:file.
+	 * 
+	 * @deprecated use separate digest utilities
+	 */
+	@Deprecated
 	public static String checksumFile(Node fileNode, String algorithm) {
 		Binary data = null;
-		InputStream in = null;
-		try {
-			data = fileNode.getNode(Node.JCR_CONTENT).getProperty(Property.JCR_DATA).getBinary();
-			in = data.getStream();
-			return DigestUtils.digest(algorithm, in);
-		} catch (RepositoryException e) {
+		try (InputStream in = fileNode.getNode(Node.JCR_CONTENT).getProperty(Property.JCR_DATA).getBinary()
+				.getStream()) {
+			return digest(algorithm, in);
+		} catch (RepositoryException | IOException e) {
 			throw new ArgeoJcrException("Cannot checksum file " + fileNode, e);
 		} finally {
-			IOUtils.closeQuietly(in);
 			closeQuietly(data);
 		}
+	}
+
+	@Deprecated
+	private static String digest(String algorithm, InputStream in) {
+		final Integer byteBufferCapacity = 100 * 1024;// 100 KB
+		try {
+			MessageDigest digest = MessageDigest.getInstance(algorithm);
+			byte[] buffer = new byte[byteBufferCapacity];
+			int read = 0;
+			while ((read = in.read(buffer)) > 0) {
+				digest.update(buffer, 0, read);
+			}
+
+			byte[] checksum = digest.digest();
+			String res = encodeHexString(checksum);
+			return res;
+		} catch (Exception e) {
+			throw new ArgeoJcrException("Cannot digest with algorithm " + algorithm, e);
+		}
+	}
+
+	/**
+	 * From
+	 * http://stackoverflow.com/questions/9655181/how-to-convert-a-byte-array-to
+	 * -a-hex-string-in-java
+	 */
+	@Deprecated
+	private static String encodeHexString(byte[] bytes) {
+		final char[] hexArray = "0123456789abcdef".toCharArray();
+		char[] hexChars = new char[bytes.length * 2];
+		for (int j = 0; j < bytes.length; j++) {
+			int v = bytes[j] & 0xFF;
+			hexChars[j * 2] = hexArray[v >>> 4];
+			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+		}
+		return new String(hexChars);
 	}
 
 }
