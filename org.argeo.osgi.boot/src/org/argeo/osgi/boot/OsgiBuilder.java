@@ -1,5 +1,7 @@
 package org.argeo.osgi.boot;
 
+import java.lang.reflect.Method;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -132,6 +134,34 @@ public class OsgiBuilder {
 		bt.close();
 		return this;
 
+	}
+
+	public OsgiBuilder main(String clssUri, String[] args) {
+
+		// waitForBundle(bundleSymbolicName);
+		try {
+			URI uri = new URI(clssUri);
+			if (!"bundleclass".equals(uri.getScheme()))
+				throw new IllegalArgumentException("Unsupported scheme for " + clssUri);
+			String bundleSymbolicName = uri.getHost();
+			String clss = uri.getPath().substring(1);
+			Bundle bundle = null;
+			for (Bundle b : getBc().getBundles()) {
+				if (bundleSymbolicName.equals(b.getSymbolicName())) {
+					bundle = b;
+					break;
+				}
+			}
+			if (bundle == null)
+				throw new OsgiBootException("Bundle " + bundleSymbolicName + " not found");
+			Class<?> c = bundle.loadClass(clss);
+			Object[] mainArgs = { args };
+			Method mainMethod = c.getMethod("main", String[].class);
+			mainMethod.invoke(null, mainArgs);
+		} catch (Throwable e) {
+			throw new OsgiBootException("Cannot execute " + clssUri, e);
+		}
+		return this;
 	}
 
 	public Object service(String service) {
