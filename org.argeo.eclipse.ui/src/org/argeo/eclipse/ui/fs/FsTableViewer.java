@@ -1,5 +1,6 @@
 package org.argeo.eclipse.ui.fs;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -71,9 +72,25 @@ public class FsTableViewer extends TableViewer {
 	}
 
 	public void setInput(Path dir, String filter) {
-		Object[] rows = FsUiUtils.getChildren(dir, filter, showHiddenItems, folderFirst, orderProperty, reverseOrder);
-		this.setInput(rows);
-		int length = rows == null ? 0 : rows.length;
+		Path[] rows = FsUiUtils.getChildren(dir, filter, showHiddenItems, folderFirst, orderProperty, reverseOrder);
+		if (rows == null) {
+			this.setInput(null);
+			this.setItemCount(0);
+			return;
+		}
+		boolean isRoot = dir.getRoot().equals(dir);
+		final Object[] res;
+		if (isRoot)
+			res = rows;
+		else {
+			res = new Object[rows.length + 1];
+			res[0] = new ParentDir(dir.getParent());
+			for (int i = 1; i < res.length; i++) {
+				res[i] = rows[i - 1];
+			}
+		}
+		this.setInput(res);
+		int length = res.length;
 		this.setItemCount(length);
 		this.refresh();
 	}
@@ -100,7 +117,8 @@ public class FsTableViewer extends TableViewer {
 		}
 
 		public void updateElement(int index) {
-			FsTableViewer.this.replace(elements[index], index);
+			if (index < elements.length)
+				FsTableViewer.this.replace(elements[index], index);
 		}
 	}
 }

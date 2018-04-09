@@ -39,6 +39,8 @@ public class FileIconNameLabelProvider extends ColumnLabelProvider {
 				return "[No name]";
 			else
 				return name.toString();
+		} else if (element instanceof ParentDir) {
+			return "..";
 		}
 		return null;
 	}
@@ -58,7 +60,25 @@ public class FileIconNameLabelProvider extends ColumnLabelProvider {
 			// else
 			// return
 			// PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE);
+		} else if (element instanceof ParentDir) {
+			return folderIcon;
 		}
 		return null;
 	}
+
+	@Override
+	public String getToolTipText(Object element) {
+		if (element instanceof Path) {
+			Path curr = ((Path) element);
+			Path name = curr.getFileName();
+			if (name == null)
+				return "[No name]";
+			else
+				return name.toAbsolutePath().toString();
+		} else if (element instanceof ParentDir) {
+			return ((ParentDir) element).getPath().toAbsolutePath().toString();
+		}
+		return null;
+	}
+
 }

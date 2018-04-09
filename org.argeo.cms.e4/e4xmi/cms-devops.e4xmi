@@ -3,7 +3,7 @@
   <children xsi:type="basic:TrimmedWindow" xmi:id="_Zdy6cKknEeObFrG_clJBYA" elementId="org.argeo.cms.e4.apps.admin.trimmedwindow.0" label="" x="10" y="10" width="500" height="500">
     <persistedState key="styleOverride" value="8"/>
     <tags>shellMaximized</tags>
-    <children xsi:type="advanced:PerspectiveStack" xmi:id="_jXVqsCk4Eein5vuhpK-Dew" elementId="org.argeo.cms.e4.perspectivestack.0">
+    <children xsi:type="advanced:PerspectiveStack" xmi:id="_jXVqsCk4Eein5vuhpK-Dew" elementId="org.argeo.cms.e4.perspectivestack.0" selectedElement="_ABK2ADsNEeiUntFYWh-hFg">
       <children xsi:type="advanced:Perspective" xmi:id="_jvjWYCk4Eein5vuhpK-Dew" elementId="org.argeo.cms.e4.perspective.data" label="Data" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/nodes.gif">
         <children xsi:type="basic:PartSashContainer" xmi:id="_h3tvMCkxEein5vuhpK-Dew" elementId="org.argeo.cms.e4.partsashcontainer.0" selectedElement="_0B9SECkxEein5vuhpK-Dew" horizontal="true">
           <children xsi:type="basic:PartStack" xmi:id="_0B9SECkxEein5vuhpK-Dew" elementId="org.argeo.cms.e4.partstack.0" containerData="4000" selectedElement="_WAjPkCkTEein5vuhpK-Dew">
@@ -26,6 +26,14 @@
           <children xsi:type="basic:PartStack" xmi:id="_mHrEUCk4Eein5vuhpK-Dew" elementId="org.argeo.cms.e4.partstack.1" containerData="6000">
             <tags>dataExplorer</tags>
           </children>
+        </children>
+      </children>
+      <children xsi:type="advanced:Perspective" xmi:id="_ABK2ADsNEeiUntFYWh-hFg" elementId="org.argeo.cms.e4.perspective.files" label="Files" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/file.gif">
+        <children xsi:type="basic:PartSashContainer" xmi:id="_FPimEDsSEeiUntFYWh-hFg" elementId="org.argeo.cms.e4.partsashcontainer.1" horizontal="true">
+          <children xsi:type="basic:PartStack" xmi:id="_H93NgDsSEeiUntFYWh-hFg" elementId="org.argeo.cms.e4.partstack.2" containerData="4000">
+            <children xsi:type="basic:Part" xmi:id="_Izxh0DsSEeiUntFYWh-hFg" elementId="org.argeo.cms.e4.part.files" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.files.NodeFsBrowserView" label="Files" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/file.gif"/>
+          </children>
+          <children xsi:type="basic:Part" xmi:id="_TMqBMDsSEeiUntFYWh-hFg" elementId="org.argeo.cms.e4.part.0" containerData="6000"/>
         </children>
       </children>
     </children>
