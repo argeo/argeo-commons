@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.core.RepositoryContext;
+import org.apache.jackrabbit.core.RepositoryImpl;
 import org.argeo.cms.CmsException;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.node.DataModelNamespace;
@@ -211,11 +212,11 @@ public class CmsDeployment implements NodeDeployment {
 		prepareDataModel(NodeConstants.NODE, KernelUtils.openAdminSession(deployedNodeRepository));
 	}
 
-	private void prepareHomeRepository(Repository deployedRepository) {
+	private void prepareHomeRepository(RepositoryImpl deployedRepository) {
 		Hashtable<String, String> regProps = new Hashtable<String, String>();
 		regProps.put(NodeConstants.CN, NodeConstants.HOME);
 		// regProps.put(LEGACY_JCR_REPOSITORY_ALIAS, NodeConstants.HOME);
-		homeRepository = new HomeRepository(deployedRepository);
+		homeRepository = new HomeRepository(deployedRepository, false);
 		// register
 		bc.registerService(Repository.class, homeRepository, regProps);
 

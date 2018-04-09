@@ -52,6 +52,7 @@ import org.argeo.node.ArgeoLogListener;
 import org.argeo.node.ArgeoLogger;
 import org.argeo.node.NodeConstants;
 import org.argeo.osgi.useradmin.UserAdminConf;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -191,6 +192,10 @@ class NodeLogger implements ArgeoLogger, LogListener {
 	private String msg(LogEntry status) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(status.getMessage());
+		Bundle bundle = status.getBundle();
+		if (bundle != null) {
+			sb.append(" '" + bundle.getSymbolicName() + "'");
+		}
 		ServiceReference<?> sr = status.getServiceReference();
 		if (sr != null) {
 			sb.append(' ');

@@ -101,7 +101,14 @@ public class RepositoryBuilder {
 			}
 		} else {
 			try {
-				homePath = Paths.get(new URI(homeUri)).toAbsolutePath();
+				URI uri = new URI(homeUri);
+				String host = uri.getHost();
+				if (host == null || host.trim().equals("")) {
+					homePath = Paths.get(uri).toAbsolutePath();
+				} else {
+					// TODO remote at this stage?
+					throw new IllegalArgumentException("Cannot manage repository path for host " + host);
+				}
 			} catch (URISyntaxException e) {
 				throw new CmsException("Invalid repository home URI", e);
 			}

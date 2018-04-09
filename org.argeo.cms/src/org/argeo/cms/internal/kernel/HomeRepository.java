@@ -39,36 +39,41 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 
 	private SimpleDateFormat usersDatePath = new SimpleDateFormat("YYYY/MM");
 
-	public HomeRepository(Repository repository) {
+	private final boolean remote;
+
+	public HomeRepository(Repository repository, boolean remote) {
 		super(repository);
+		this.remote = remote;
 		putDescriptor(NodeConstants.CN, NodeConstants.HOME);
-		LoginContext lc;
-		try {
-			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_DATA_ADMIN);
-			lc.login();
-		} catch (javax.security.auth.login.LoginException e1) {
-			throw new CmsException("Cannot login as systrem", e1);
-		}
-		Subject.doAs(lc.getSubject(), new PrivilegedAction<Void>() {
-
-			@Override
-			public Void run() {
-				try {
-					Session adminSession = getRepository().login();
-					initJcr(adminSession);
-				} catch (RepositoryException e) {
-					throw new CmsException("Cannot init JCR home", e);
-				}
-				return null;
+		if (!remote) {
+			LoginContext lc;
+			try {
+				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_DATA_ADMIN);
+				lc.login();
+			} catch (javax.security.auth.login.LoginException e1) {
+				throw new CmsException("Cannot login as systrem", e1);
 			}
+			Subject.doAs(lc.getSubject(), new PrivilegedAction<Void>() {
 
-		});
+				@Override
+				public Void run() {
+					try {
+						Session adminSession = getRepository().login();
+						initJcr(adminSession);
+					} catch (RepositoryException e) {
+						throw new CmsException("Cannot init JCR home", e);
+					}
+					return null;
+				}
+
+			});
+		}
 	}
 
 	@Override
 	protected void processNewSession(Session session) {
 		String username = session.getUserID();
-		if (username == null)
+		if (username == null || username.toString().equals(""))
 			return;
 		if (session.getUserID().equals(NodeConstants.ROLE_ANONYMOUS))
 			return;
@@ -98,7 +103,7 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 			JcrUtils.addPrivilege(adminSession, groupsBasePath, NodeConstants.ROLE_USER_ADMIN, Privilege.JCR_READ);
 			adminSession.save();
 		} catch (RepositoryException e) {
-			throw new CmsException("Cannot initialize node user admin", e);
+			throw new CmsException("Cannot initialize home repository", e);
 		} finally {
 			JcrUtils.logoutQuietly(adminSession);
 		}

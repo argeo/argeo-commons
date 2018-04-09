@@ -10,11 +10,13 @@ import java.util.Map;
 
 import javax.jcr.Node;
 import javax.jcr.Repository;
+import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.jackrabbit.fs.AbstractJackrabbitFsProvider;
+import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.fs.JcrFileSystem;
 import org.argeo.jcr.fs.JcrFsException;
 import org.argeo.node.NodeConstants;
@@ -42,12 +44,23 @@ public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 			throw new FileSystemAlreadyExistsException("CMS file system already exists for user " + username);
 
 		try {
-			Repository repository = bc.getService(
-					bc.getServiceReferences(Repository.class, "(cn=" + NodeConstants.HOME + ")").iterator().next());
-			Session session = repository.login();
-			JcrFileSystem fileSystem = new JcrFileSystem(this, session);
-			fileSystems.put(username, fileSystem);
-			return fileSystem;
+			String host = uri.getHost();
+			if (host != null && !host.trim().equals("")) {
+				URI repoUri = new URI("http", uri.getUserInfo(), uri.getHost(), uri.getPort(), "/jcr/node", null, null);
+				RepositoryFactory repositoryFactory = bc.getService(bc.getServiceReference(RepositoryFactory.class));
+				Repository repository = NodeUtils.getRepositoryByUri(repositoryFactory, repoUri.toString());
+				Session session = repository.login("main");
+				JcrFileSystem fileSystem = new JcrFileSystem(this, session);
+				fileSystems.put(username, fileSystem);
+				return fileSystem;
+			} else {
+				Repository repository = bc.getService(
+						bc.getServiceReferences(Repository.class, "(cn=" + NodeConstants.HOME + ")").iterator().next());
+				Session session = repository.login();
+				JcrFileSystem fileSystem = new JcrFileSystem(this, session);
+				fileSystems.put(username, fileSystem);
+				return fileSystem;
+			}
 		} catch (Exception e) {
 			throw new CmsException("Cannot open file system " + uri + " for user " + username, e);
 		}

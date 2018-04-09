@@ -28,6 +28,7 @@ import javax.jcr.RepositoryFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.jcr2dav.Jcr2davRepositoryFactory;
+import org.argeo.cms.internal.jcr.RepoConf;
 import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.node.NodeConstants;
 import org.osgi.framework.BundleContext;
@@ -84,15 +85,16 @@ class NodeRepositoryFactory implements RepositoryFactory {
 		// check if remote
 		Repository repository;
 		String uri = null;
-		if (parameters.containsKey(NodeConstants.LABELED_URI))
+		if (parameters.containsKey(RepoConf.labeledUri.name()))
 			uri = parameters.get(NodeConstants.LABELED_URI).toString();
 		else if (parameters.containsKey(KernelConstants.JACKRABBIT_REPOSITORY_URI))
 			uri = parameters.get(KernelConstants.JACKRABBIT_REPOSITORY_URI).toString();
 
 		if (uri != null) {
-			if (uri.startsWith("http"))// http, https
-				repository = createRemoteRepository(uri);
-			else if (uri.startsWith("file"))// http, https
+			if (uri.startsWith("http")) {// http, https
+				Object defaultWorkspace = parameters.get(RepoConf.defaultWorkspace.name());
+				repository = createRemoteRepository(uri, defaultWorkspace != null ? defaultWorkspace.toString() : null);
+			} else if (uri.startsWith("file"))// http, https
 				repository = createFileRepository(uri, parameters);
 			else if (uri.startsWith("vm")) {
 				// log.warn("URI " + uri + " should have been managed by generic
@@ -120,9 +122,11 @@ class NodeRepositoryFactory implements RepositoryFactory {
 		return repository;
 	}
 
-	protected Repository createRemoteRepository(String uri) throws RepositoryException {
+	protected Repository createRemoteRepository(String uri, String defaultWorkspace) throws RepositoryException {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(KernelConstants.JACKRABBIT_REPOSITORY_URI, uri);
+		if (defaultWorkspace != null)
+			params.put(KernelConstants.JACKRABBIT_REMOTE_DEFAULT_WORKSPACE, defaultWorkspace);
 		Repository repository = new Jcr2davRepositoryFactory().getRepository(params);
 		if (repository == null)
 			throw new ArgeoJcrException("Remote Davex repository " + uri + " not found");
@@ -190,8 +194,7 @@ class NodeRepositoryFactory implements RepositoryFactory {
 	}
 
 	/**
-	 * Called after the repository has been initialised. Does nothing by
-	 * default.
+	 * Called after the repository has been initialised. Does nothing by default.
 	 */
 	@SuppressWarnings("rawtypes")
 	protected void postInitialization(Repository repository, Map parameters) {
@@ -199,7 +202,7 @@ class NodeRepositoryFactory implements RepositoryFactory {
 	}
 
 	public void setFileRepositoryConfiguration(Resource fileRepositoryConfiguration) {
-//		this.fileRepositoryConfiguration = fileRepositoryConfiguration;
+		// this.fileRepositoryConfiguration = fileRepositoryConfiguration;
 	}
 
 }

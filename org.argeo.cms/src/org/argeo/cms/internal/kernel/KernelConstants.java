@@ -41,4 +41,5 @@ public interface KernelConstants {
 	// avoid dependencies
 	String CONTEXT_NAME_PROP = "contextName";
 	String JACKRABBIT_REPOSITORY_URI = "org.apache.jackrabbit.repository.uri";
+	String JACKRABBIT_REMOTE_DEFAULT_WORKSPACE = "org.apache.jackrabbit.spi2davex.WorkspaceNameDefault";
 }

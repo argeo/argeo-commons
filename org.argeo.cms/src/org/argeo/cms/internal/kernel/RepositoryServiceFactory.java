@@ -1,13 +1,18 @@
 package org.argeo.cms.internal.kernel;
 
+import java.net.URI;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.jcr.Repository;
+import javax.jcr.RepositoryFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.RepositoryContext;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.internal.jcr.RepoConf;
 import org.argeo.cms.internal.jcr.RepositoryBuilder;
 import org.argeo.node.NodeConstants;
 import org.argeo.util.LangUtils;
@@ -43,19 +48,59 @@ class RepositoryServiceFactory implements ManagedServiceFactory {
 		}
 
 		try {
-			RepositoryBuilder repositoryBuilder = new RepositoryBuilder();
-			RepositoryContext repositoryContext = repositoryBuilder.createRepositoryContext(properties);
-			repositories.put(pid, repositoryContext);
-			Dictionary<String, Object> props = LangUtils.dico(Constants.SERVICE_PID, pid);
-			// props.put(ArgeoJcrConstants.JCR_REPOSITORY_URI,
-			// properties.get(RepoConf.labeledUri.name()));
-			Object cn = properties.get(NodeConstants.CN);
-			if (cn != null) {
-				props.put(NodeConstants.CN, cn);
-//				props.put(NodeConstants.JCR_REPOSITORY_ALIAS, cn);
-				pidToCn.put(pid, cn);
+			Object labeledUri = properties.get(RepoConf.labeledUri.name());
+			if (labeledUri == null) {
+				RepositoryBuilder repositoryBuilder = new RepositoryBuilder();
+				RepositoryContext repositoryContext = repositoryBuilder.createRepositoryContext(properties);
+				repositories.put(pid, repositoryContext);
+				Dictionary<String, Object> props = LangUtils.dico(Constants.SERVICE_PID, pid);
+				// props.put(ArgeoJcrConstants.JCR_REPOSITORY_URI,
+				// properties.get(RepoConf.labeledUri.name()));
+				Object cn = properties.get(NodeConstants.CN);
+				if (cn != null) {
+					props.put(NodeConstants.CN, cn);
+					// props.put(NodeConstants.JCR_REPOSITORY_ALIAS, cn);
+					pidToCn.put(pid, cn);
+				}
+				bc.registerService(RepositoryContext.class, repositoryContext, props);
+			} else {
+				try {
+					Object cn = properties.get(NodeConstants.CN);
+					Object defaultWorkspace = properties.get(RepoConf.defaultWorkspace.name());
+					if (defaultWorkspace == null)
+						defaultWorkspace = RepoConf.defaultWorkspace.getDefault();
+					URI uri = new URI(labeledUri.toString());
+					RepositoryFactory repositoryFactory = bc
+							.getService(bc.getServiceReference(RepositoryFactory.class));
+					Map<String, String> parameters = new HashMap<String, String>();
+					parameters.put(RepoConf.labeledUri.name(), uri.toString());
+					parameters.put(RepoConf.defaultWorkspace.name(), defaultWorkspace.toString());
+					Repository repository = repositoryFactory.getRepository(parameters);
+					// Repository repository = NodeUtils.getRepositoryByUri(repositoryFactory,
+					// uri.toString());
+					Dictionary<String, Object> props = LangUtils.dico(Constants.SERVICE_PID, pid);
+					props.put(RepoConf.labeledUri.name(),
+							new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath(), null, null)
+									.toString());
+					if (cn != null) {
+						props.put(NodeConstants.CN, cn);
+						// props.put(NodeConstants.JCR_REPOSITORY_ALIAS, cn);
+						pidToCn.put(pid, cn);
+					}
+					bc.registerService(Repository.class, repository, props);
+
+					// home
+					// TODO make a sperate home configurable
+					if (cn.equals(NodeConstants.NODE)) {
+						Dictionary<String, Object> homeProps = LangUtils.dico(NodeConstants.CN, NodeConstants.HOME);
+						HomeRepository homeRepository = new HomeRepository(repository, true);
+						bc.registerService(Repository.class, homeRepository, homeProps);
+					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
-			bc.registerService(RepositoryContext.class, repositoryContext, props);
 		} catch (Exception e) {
 			throw new CmsException("Cannot create Jackrabbit repository " + pid, e);
 		}

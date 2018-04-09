@@ -23,6 +23,10 @@
 			<param name="maxVolatileIndexSize" value="${maxVolatileIndexSize}" />
 			<FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem" />
 		</SearchIndex>
+		<WorkspaceSecurity>
+			<AccessControlProvider
+				class="org.argeo.security.jackrabbit.ArgeoAccessControlProvider" />
+		</WorkspaceSecurity>
 	</Workspace>
 
 	<!-- Versioning -->
