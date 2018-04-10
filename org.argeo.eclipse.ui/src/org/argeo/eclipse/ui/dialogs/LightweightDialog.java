@@ -32,11 +32,19 @@ import org.eclipse.swt.widgets.Shell;
 
 /** Generic lightweight dialog, not based on JFace. */
 public class LightweightDialog {
-	// private final static Log log = LogFactory.getLog(LightweightDialog.class);
+	// must be the same value as org.eclipse.jface.window.Window#OK
+	public final static int OK = 0;
+	// must be the same value as org.eclipse.jface.window.Window#CANCEL
+	public final static int CANCEL = 1;
 
 	private Shell parentShell;
 	private Shell backgroundShell;
-	private Shell shell;
+	private Shell foregoundShell;
+
+	private Integer returnCode = null;
+	private boolean block = true;
+
+	private String title;
 
 	/** Tries to find a display */
 	private static Display getDisplay() {
@@ -55,38 +63,47 @@ public class LightweightDialog {
 		this.parentShell = parentShell;
 	}
 
-	public void open() {
-		if (shell != null)
+	public int open() {
+		if (foregoundShell != null)
 			throw new EclipseUiException("There is already a shell");
-		backgroundShell = new Shell(parentShell, SWT.NO_TRIM | SWT.BORDER | SWT.ON_TOP);
-		backgroundShell.setMaximized(true);
+		backgroundShell = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.ON_TOP);
+		backgroundShell.setFullScreen(true);
+		// backgroundShell.setMaximized(true);
 		backgroundShell.setAlpha(128);
 		backgroundShell.setBackground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
 		backgroundShell.open();
-		shell = new Shell(backgroundShell, SWT.NO_TRIM | SWT.BORDER | SWT.ON_TOP);
-		shell.setLayout(new GridLayout());
-		// shell.setText("Error");
-		shell.setSize(getInitialSize());
-		createDialogArea(shell);
+		foregoundShell = new Shell(backgroundShell, SWT.NO_TRIM | SWT.ON_TOP);
+		if (title != null)
+			setTitle(title);
+		foregoundShell.setLayout(new GridLayout());
+		foregoundShell.setSize(getInitialSize());
+		createDialogArea(foregoundShell);
 		// shell.pack();
 		// shell.layout();
 
 		Rectangle shellBounds = Display.getCurrent().getBounds();// RAP
-		Point dialogSize = shell.getSize();
+		Point dialogSize = foregoundShell.getSize();
 		int x = shellBounds.x + (shellBounds.width - dialogSize.x) / 2;
 		int y = shellBounds.y + (shellBounds.height - dialogSize.y) / 2;
-		shell.setLocation(x, y);
+		foregoundShell.setLocation(x, y);
 
-		shell.addShellListener(new ShellAdapter() {
+		foregoundShell.addShellListener(new ShellAdapter() {
 			private static final long serialVersionUID = -2701270481953688763L;
 
 			@Override
 			public void shellDeactivated(ShellEvent e) {
-				closeShell();
+				if (returnCode == null)// not yet closed
+					closeShell(CANCEL);
 			}
+
+			@Override
+			public void shellClosed(ShellEvent e) {
+				notifyClose();
+			}
+
 		});
 
-		shell.open();
+		foregoundShell.open();
 		// after the foreground shell has been opened
 		backgroundShell.addFocusListener(new FocusListener() {
 			private static final long serialVersionUID = 3137408447474661070L;
@@ -97,19 +114,47 @@ public class LightweightDialog {
 
 			@Override
 			public void focusGained(FocusEvent event) {
-				closeShell();
+				if (returnCode == null)// not yet closed
+					closeShell(CANCEL);
 			}
 		});
+
+		if (block) {
+			runEventLoop(foregoundShell);
+		}
+		if (returnCode == null)
+			returnCode = OK;
+		return returnCode;
 	}
 
-	protected void closeShell() {
-		if (shell != null) {
-			shell.close();
-			shell.dispose();
-			shell = null;
+	// public synchronized int openAndWait() {
+	// open();
+	// while (returnCode == null)
+	// try {
+	// wait(100);
+	// } catch (InterruptedException e) {
+	// // silent
+	// }
+	// return returnCode;
+	// }
+
+	private synchronized void notifyClose() {
+		if (returnCode == null)
+			returnCode = CANCEL;
+		notifyAll();
+	}
+
+	protected void closeShell(int returnCode) {
+		this.returnCode = returnCode;
+		if (CANCEL == returnCode)
+			onCancel();
+		if (foregoundShell != null && !foregoundShell.isDisposed()) {
+			foregoundShell.close();
+			foregoundShell.dispose();
+			foregoundShell = null;
 		}
 
-		if (backgroundShell != null) {
+		if (backgroundShell != null && !backgroundShell.isDisposed()) {
 			backgroundShell.close();
 			backgroundShell.dispose();
 		}
@@ -119,7 +164,7 @@ public class LightweightDialog {
 		// if (exception != null)
 		// return new Point(800, 600);
 		// else
-		return new Point(400, 400);
+		return new Point(600, 400);
 	}
 
 	protected Control createDialogArea(Composite parent) {
@@ -128,4 +173,59 @@ public class LightweightDialog {
 		dialogarea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		return dialogarea;
 	}
+
+	protected Shell getBackgroundShell() {
+		return backgroundShell;
+	}
+
+	protected Shell getForegoundShell() {
+		return foregoundShell;
+	}
+
+	public void setBlockOnOpen(boolean shouldBlock) {
+		block = shouldBlock;
+	}
+
+	private void runEventLoop(Shell loopShell) {
+		Display display;
+		if (foregoundShell == null) {
+			display = Display.getCurrent();
+		} else {
+			display = loopShell.getDisplay();
+		}
+
+		while (loopShell != null && !loopShell.isDisposed()) {
+			try {
+				if (!display.readAndDispatch()) {
+					display.sleep();
+				}
+			} catch (Throwable e) {
+				handleException(e);
+			}
+		}
+		if (!display.isDisposed())
+			display.update();
+	}
+
+	protected void handleException(Throwable t) {
+		if (t instanceof ThreadDeath) {
+			// Don't catch ThreadDeath as this is a normal occurrence when
+			// the thread dies
+			throw (ThreadDeath) t;
+		}
+		// Try to keep running.
+		t.printStackTrace();
+	}
+
+	/** @return false, if the dialog should not be closed. */
+	protected boolean onCancel() {
+		return true;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+		if (getForegoundShell() != null)
+			getForegoundShell().setText(title);
+	}
+
 }

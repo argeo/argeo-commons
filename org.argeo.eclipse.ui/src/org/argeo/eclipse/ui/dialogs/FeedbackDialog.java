@@ -78,7 +78,7 @@ public class FeedbackDialog extends LightweightDialog {
 		log.error(message, e);
 	}
 
-	public void open() {
+	public int open() {
 		if (shell != null)
 			throw new EclipseUiException("There is already a shell");
 		shell = new Shell(getDisplay(), SWT.NO_TRIM | SWT.BORDER | SWT.ON_TOP);
@@ -105,6 +105,7 @@ public class FeedbackDialog extends LightweightDialog {
 		});
 
 		shell.open();
+		return OK;
 	}
 
 	protected void closeShell() {
