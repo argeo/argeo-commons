@@ -41,7 +41,8 @@ public class WorkbenchUiPlugin extends AbstractUIPlugin implements ILogListener 
 
 	// The plug-in ID
 	public final static String PLUGIN_ID = "org.argeo.cms.ui.workbench"; //$NON-NLS-1$
-	
+	public final static String THEME_PLUGIN_ID = "org.argeo.cms.ui.theme"; //$NON-NLS-1$
+
 	private ResourceBundle messages;
 	private static BundleContext bundleContext;
 
@@ -52,7 +53,6 @@ public class WorkbenchUiPlugin extends AbstractUIPlugin implements ILogListener 
 			return Display.getCurrent();
 		}
 	};
-
 
 	final static String CONTEXT_KEYRING = "KEYRING";
 
@@ -66,8 +66,7 @@ public class WorkbenchUiPlugin extends AbstractUIPlugin implements ILogListener 
 		super.start(context);
 		bundleContext = context;
 		defaultCallbackHandler = new DefaultCallbackHandler();
-		defaultCallbackHandlerReg = context.registerService(
-				CallbackHandler.class, defaultCallbackHandler, null);
+		defaultCallbackHandlerReg = context.registerService(CallbackHandler.class, defaultCallbackHandler, null);
 
 		plugin = this;
 		messages = ResourceBundle.getBundle(PLUGIN_ID + ".messages");
@@ -95,8 +94,7 @@ public class WorkbenchUiPlugin extends AbstractUIPlugin implements ILogListener 
 	}
 
 	protected class DefaultCallbackHandler implements CallbackHandler {
-		public void handle(final Callback[] callbacks) throws IOException,
-				UnsupportedCallbackException {
+		public void handle(final Callback[] callbacks) throws IOException, UnsupportedCallbackException {
 
 			// if (display != null) // RCP
 			Display displayToUse = display.get();
@@ -104,8 +102,7 @@ public class WorkbenchUiPlugin extends AbstractUIPlugin implements ILogListener 
 				displayToUse = Display.getDefault();
 			displayToUse.syncExec(new Runnable() {
 				public void run() {
-					DefaultLoginDialog dialog = new DefaultLoginDialog(display
-							.get().getActiveShell());
+					DefaultLoginDialog dialog = new DefaultLoginDialog(display.get().getActiveShell());
 					try {
 						dialog.handle(callbacks);
 					} catch (IOException e) {
@@ -122,7 +119,7 @@ public class WorkbenchUiPlugin extends AbstractUIPlugin implements ILogListener 
 	}
 
 	public static ImageDescriptor getImageDescriptor(String path) {
-		return imageDescriptorFromPlugin(PLUGIN_ID, path);
+		return imageDescriptorFromPlugin(THEME_PLUGIN_ID, path);
 	}
 
 	/** Returns the internationalized label for the given key */
@@ -136,8 +133,8 @@ public class WorkbenchUiPlugin extends AbstractUIPlugin implements ILogListener 
 	}
 
 	/**
-	 * Gives access to the internationalization message bundle. Returns null in
-	 * case this UiPlugin is not started (for JUnit tests, by instance)
+	 * Gives access to the internationalization message bundle. Returns null in case
+	 * this UiPlugin is not started (for JUnit tests, by instance)
 	 */
 	public static ResourceBundle getMessagesBundle() {
 		if (getDefault() != null)
