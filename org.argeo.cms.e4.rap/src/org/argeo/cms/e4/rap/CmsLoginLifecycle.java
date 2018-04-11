@@ -23,19 +23,7 @@ public class CmsLoginLifecycle implements CmsView {
 	private LoginContext loginContext;
 
 	@PostContextCreate
-	boolean login(Display d) {// , IEclipseContext eclipseContext) {
-		// RepositoryFactory repositoryFactory =
-		// eclipseContext.get(RepositoryFactory.class);
-		// Map<String, String> params = new HashMap<>();
-		// params.put("cn", "home");
-		// Repository homeRepository;
-		// try {
-		// homeRepository = repositoryFactory.getRepository(params);
-		// } catch (RepositoryException e1) {
-		// throw new CmsException("Cannot get home repository", e1);
-		// }
-		// eclipseContext.set("(cn=home)", homeRepository);
-
+	boolean login() {
 		Subject subject = Subject.getSubject(AccessController.getContext());
 		Display display = Display.getCurrent();
 		CmsLoginShell loginShell = new CmsLoginShell(this);
@@ -56,6 +44,8 @@ public class CmsLoginLifecycle implements CmsView {
 		if (CurrentUser.getUsername(getSubject()) == null)
 			return false;
 		uxContext = new SimpleUxContext();
+		
+		//lcs.changeApplicationLocale(Locale.FRENCH);
 		return true;
 	}
 

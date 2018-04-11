@@ -3,5 +3,6 @@ Service-Component: OSGI-INF/cms-admin-rap.xml
 
 Import-Package: org.argeo.node,\
 org.eclipse.swt,\
+org.eclipse.swt.graphics,\
 org.eclipse.rap.rwt.client,\
 *

@@ -167,6 +167,8 @@ public class UserAdminLoginModule implements LoginModule {
 
 	@Override
 	public boolean commit() throws LoginException {
+		subject.getPublicCredentials().add(locale);
+
 		if (singleUser) {
 			OsUserUtils.loginAsSystemUser(subject);
 		}
@@ -236,7 +238,7 @@ public class UserAdminLoginModule implements LoginModule {
 				});
 			}
 		}
-		
+
 		// Register CmsSession with initial subject
 		CmsAuthUtils.registerSessionAuthorization(request, subject, authorization, locale);
 

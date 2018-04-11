@@ -3,8 +3,6 @@ package org.argeo.cms.e4.rap;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.security.auth.Subject;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.ui.dialogs.CmsFeedback;
@@ -43,8 +41,7 @@ public abstract class AbstractRapE4App implements ApplicationConfiguration {
 		Map<String, String> properties = new HashMap<String, String>();
 		properties.put(WebClient.PAGE_TITLE, pageTitle);
 		E4ApplicationConfig config = new E4ApplicationConfig(e4Xmi, lifeCycleUri, null, false, true, true);
-		Subject subject = new Subject();
-		addEntryPoint(application, subject, config, properties);
+		addEntryPoint(application, config, properties);
 		// config.isClearPersistedState();
 		// E4EntryPointFactory entryPointFactory = new E4EntryPointFactory(config) {
 		//
@@ -76,9 +73,8 @@ public abstract class AbstractRapE4App implements ApplicationConfiguration {
 		// };
 	}
 
-	protected void addEntryPoint(Application application, Subject subject, E4ApplicationConfig config,
-			Map<String, String> properties) {
-		CmsE4EntryPointFactory entryPointFactory = new CmsE4EntryPointFactory(subject, config);
+	protected void addEntryPoint(Application application, E4ApplicationConfig config, Map<String, String> properties) {
+		CmsE4EntryPointFactory entryPointFactory = new CmsE4EntryPointFactory(config);
 		application.addEntryPoint(path, entryPointFactory, properties);
 		application.setOperationMode(OperationMode.SWT_COMPATIBILITY);
 	}
