@@ -167,7 +167,10 @@ public class UserAdminLoginModule implements LoginModule {
 
 	@Override
 	public boolean commit() throws LoginException {
-		subject.getPublicCredentials().add(locale);
+		if (locale == null)
+			subject.getPublicCredentials().add(Locale.getDefault());
+		else
+			subject.getPublicCredentials().add(locale);
 
 		if (singleUser) {
 			OsUserUtils.loginAsSystemUser(subject);
