@@ -75,6 +75,7 @@ public class CmsWizardDialog extends LightweightDialog implements IWizardContain
 		buttons.setLayoutData(new GridData(SWT.END, SWT.FILL, true, false));
 		{
 			boolean singlePage = wizard.getPageCount() == 1;
+			// singlePage = false;// dev
 			GridLayout layout = new GridLayout(singlePage ? 1 : 3, true);
 			layout.marginWidth = 0;
 			layout.marginHeight = 0;
