@@ -2,6 +2,7 @@ package org.argeo.cms.e4.handlers;
 
 import java.security.AccessController;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.security.auth.Subject;
@@ -13,8 +14,11 @@ public class LocaleAddon {
 	@PostConstruct
 	public void init(ILocaleChangeService localeChangeService) {
 		Subject subject = Subject.getSubject(AccessController.getContext());
-		Locale locale = subject.getPublicCredentials(Locale.class).iterator().next();
-		localeChangeService.changeApplicationLocale(locale);
-		UiContext.setLocale(locale);
+		Set<Locale> locales = subject.getPublicCredentials(Locale.class);
+		if (!locales.isEmpty()) {
+			Locale locale = locales.iterator().next();
+			localeChangeService.changeApplicationLocale(locale);
+			UiContext.setLocale(locale);
+		}
 	}
 }

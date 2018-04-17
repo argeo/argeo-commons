@@ -133,12 +133,14 @@ public class CmsWizardDialog extends LightweightDialog implements IWizardContain
 
 	@Override
 	public void updateMessage() {
-		message.setText(currentPage.getMessage());
+		if (currentPage.getMessage() != null)
+			message.setText(currentPage.getMessage());
 	}
 
 	@Override
 	public void updateTitleBar() {
-		titleBar.setText(currentPage.getTitle());
+		if (currentPage.getTitle() != null)
+			titleBar.setText(currentPage.getTitle());
 	}
 
 	@Override

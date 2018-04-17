@@ -224,7 +224,7 @@ public class LightweightDialog {
 
 	public void setTitle(String title) {
 		this.title = title;
-		if (getForegoundShell() != null)
+		if (title != null && getForegoundShell() != null)
 			getForegoundShell().setText(title);
 	}
 
