@@ -15,6 +15,7 @@
  */
 package org.argeo.eclipse.ui.utils;
 
+import org.argeo.cms.i18n.Localized;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -41,8 +42,8 @@ public class ViewerUtils {
 	}
 
 	/**
-	 * Creates a TableViewerColumn for the given viewer. For the time being, we
-	 * do not support movable columns.
+	 * Creates a TableViewerColumn for the given viewer. For the time being, we do
+	 * not support movable columns.
 	 */
 	public static TableViewerColumn createTableViewerColumn(TableViewer parent, String name, int style, int width) {
 		TableViewerColumn tvc = new TableViewerColumn(parent, style);
@@ -53,9 +54,13 @@ public class ViewerUtils {
 		return tvc;
 	}
 
+	public static TableViewerColumn createTableViewerColumn(TableViewer parent, Localized name, int style, int width) {
+		return createTableViewerColumn(parent, name.lead(), style, width);
+	}
+
 	/**
-	 * Creates a TreeViewerColumn for the given viewer. For the time being, we
-	 * do not support movable columns.
+	 * Creates a TreeViewerColumn for the given viewer. For the time being, we do
+	 * not support movable columns.
 	 */
 	public static TreeViewerColumn createTreeViewerColumn(TreeViewer parent, String name, int style, int width) {
 		TreeViewerColumn tvc = new TreeViewerColumn(parent, style);
