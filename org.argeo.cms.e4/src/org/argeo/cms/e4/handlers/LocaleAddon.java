@@ -6,6 +6,7 @@ import java.util.Locale;
 import javax.annotation.PostConstruct;
 import javax.security.auth.Subject;
 
+import org.argeo.eclipse.ui.specific.UiContext;
 import org.eclipse.e4.core.services.nls.ILocaleChangeService;
 
 public class LocaleAddon {
@@ -14,5 +15,6 @@ public class LocaleAddon {
 		Subject subject = Subject.getSubject(AccessController.getContext());
 		Locale locale = subject.getPublicCredentials(Locale.class).iterator().next();
 		localeChangeService.changeApplicationLocale(locale);
+		UiContext.setLocale(locale);
 	}
 }

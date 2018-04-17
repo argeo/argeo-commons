@@ -22,6 +22,7 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.security.acl.Group;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
@@ -30,6 +31,7 @@ import javax.security.auth.x500.X500Principal;
 
 import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
+import org.argeo.cms.internal.kernel.Activator;
 import org.argeo.node.NodeConstants;
 import org.osgi.service.useradmin.Authorization;
 
@@ -38,7 +40,7 @@ import org.osgi.service.useradmin.Authorization;
  * context.
  */
 public final class CurrentUser {
-//	private final static Log log = LogFactory.getLog(CurrentUser.class);
+	// private final static Log log = LogFactory.getLog(CurrentUser.class);
 	// private final static BundleContext bc =
 	// FrameworkUtil.getBundle(CurrentUser.class).getBundleContext();
 	/*
@@ -48,16 +50,15 @@ public final class CurrentUser {
 	/**
 	 * Technical username of the currently authenticated user.
 	 * 
-	 * @return the authenticated username or null if not authenticated /
-	 *         anonymous
+	 * @return the authenticated username or null if not authenticated / anonymous
 	 */
 	public static String getUsername() {
 		return getUsername(currentSubject());
 	}
 
 	/**
-	 * Human readable name of the currently authenticated user (typically first
-	 * name and last name).
+	 * Human readable name of the currently authenticated user (typically first name
+	 * and last name).
 	 */
 	public static String getDisplayName() {
 		return getDisplayName(currentSubject());
@@ -66,6 +67,11 @@ public final class CurrentUser {
 	/** Whether a user is currently authenticated. */
 	public static boolean isAnonymous() {
 		return isAnonymous(currentSubject());
+	}
+
+	/** Locale of the current user */
+	public final static Locale locale() {
+		return locale(currentSubject());
 	}
 
 	/** Roles of the currently logged-in user */
@@ -115,6 +121,15 @@ public final class CurrentUser {
 		return roles;
 	}
 
+	public final static Locale locale(Subject subject) {
+		Set<Locale> locales = subject.getPublicCredentials(Locale.class);
+		if (locales.isEmpty()) {
+			Locale defaultLocale = Activator.getNodeState().getDefaultLocale();
+			return defaultLocale;
+		} else
+			return locales.iterator().next();
+	}
+
 	/** Whether this user is currently authenticated. */
 	public static boolean isAnonymous(Subject subject) {
 		if (subject == null)
@@ -152,8 +167,8 @@ public final class CurrentUser {
 
 	/**
 	 * The node authenticated component (typically a CMS view) related to this
-	 * display, or null if none is available from this call. <b>Not API: Only
-	 * for low-level access.</b>
+	 * display, or null if none is available from this call. <b>Not API: Only for
+	 * low-level access.</b>
 	 */
 	// private static CmsAuthenticated getNodeAuthenticated() {
 	// return UiContext.getData(CmsAuthenticated.KEY);
@@ -171,8 +186,8 @@ public final class CurrentUser {
 			return false;
 		CmsSessionImpl cmsSession = CmsSessionImpl.getByUuid(nodeSessionId.toString());
 		cmsSession.close();
-//		if (log.isDebugEnabled())
-//			log.debug("Logged out CMS session " + cmsSession.getUuid());
+		// if (log.isDebugEnabled())
+		// log.debug("Logged out CMS session " + cmsSession.getUuid());
 		return true;
 	}
 

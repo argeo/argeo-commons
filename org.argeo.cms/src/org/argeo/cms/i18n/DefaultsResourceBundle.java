@@ -9,6 +9,7 @@ import java.util.Vector;
 import org.argeo.cms.CmsException;
 
 /** Expose the default values as a {@link ResourceBundle} */
+@Deprecated
 public class DefaultsResourceBundle extends ResourceBundle {
 
 	@Override

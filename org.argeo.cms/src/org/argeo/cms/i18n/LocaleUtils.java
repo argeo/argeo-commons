@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import org.argeo.cms.auth.CurrentUser;
+
 /** Utilities simplifying the development of localization enums. */
 public class LocaleUtils {
 	public static Object local(Enum<?> en) {
@@ -37,9 +39,10 @@ public class LocaleUtils {
 	}
 
 	static Locale getCurrentLocale() {
+		return CurrentUser.locale();
 		// return UiContext.getLocale();
 		// FIXME look into Subject or settings
-		return Locale.getDefault();
+		// return Locale.getDefault();
 	}
 
 	/** Returns null if argument is null. */
