@@ -41,6 +41,7 @@ public class HttpSessionLoginModule implements LoginModule {
 	private BundleContext bc;
 
 	private Authorization authorization;
+	private Locale locale;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -90,6 +91,7 @@ public class HttpSessionLoginModule implements LoginModule {
 			}
 			if (sr.size() == 1) {
 				CmsSession cmsSession = bc.getService(sr.iterator().next());
+				locale = cmsSession.getLocale();
 				authorization = cmsSession.getAuthorization();
 				if (authorization.getName() == null)
 					authorization = null;// anonymous is not sufficient
@@ -120,8 +122,11 @@ public class HttpSessionLoginModule implements LoginModule {
 		}
 
 		if (authorization != null) {
-			Locale locale = request.getLocale();
-			CmsAuthUtils.addAuthorization(subject, authorization,locale , request);
+			// Locale locale = request.getLocale();
+			if (locale == null)
+				locale = request.getLocale();
+			subject.getPublicCredentials().add(locale);
+			CmsAuthUtils.addAuthorization(subject, authorization, locale, request);
 			CmsAuthUtils.registerSessionAuthorization(request, subject, authorization, locale);
 			cleanUp();
 			return true;
