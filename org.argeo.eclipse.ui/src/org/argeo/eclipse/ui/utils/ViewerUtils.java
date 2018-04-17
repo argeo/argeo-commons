@@ -15,7 +15,6 @@
  */
 package org.argeo.eclipse.ui.utils;
 
-import org.argeo.cms.i18n.Localized;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -54,9 +53,10 @@ public class ViewerUtils {
 		return tvc;
 	}
 
-	public static TableViewerColumn createTableViewerColumn(TableViewer parent, Localized name, int style, int width) {
-		return createTableViewerColumn(parent, name.lead(), style, width);
-	}
+	// public static TableViewerColumn createTableViewerColumn(TableViewer parent,
+	// Localized name, int style, int width) {
+	// return createTableViewerColumn(parent, name.lead(), style, width);
+	// }
 
 	/**
 	 * Creates a TreeViewerColumn for the given viewer. For the time being, we do
