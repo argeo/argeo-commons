@@ -13,10 +13,10 @@ public class CloseAllParts {
 			if (part.isCloseable()) {
 				if (part.isDirty()) {
 					if (partService.savePart(part, true)) {
-						partService.hidePart(part);
+						partService.hidePart(part, true);
 					}
 				} else {
-					partService.hidePart(part);
+					partService.hidePart(part, true);
 				}
 			}
 		}
@@ -26,7 +26,7 @@ public class CloseAllParts {
 	boolean canExecute(EPartService partService) {
 		boolean atLeastOnePart = false;
 		for (MPart part : partService.getParts()) {
-			if (part.isVisible()) {
+			if (part.isVisible() && part.isCloseable()) {
 				atLeastOnePart = true;
 				break;
 			}
