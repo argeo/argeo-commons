@@ -61,13 +61,10 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.dnd.TransferData;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -118,12 +115,12 @@ public class UserEditor extends AbstractRoleEditor implements ArgeoNames {
 
 	@Override
 	protected void createUi(Composite body) {
-//		Composite body = new Composite(parent, SWT.BORDER);
+		// Composite body = new Composite(parent, SWT.BORDER);
 		GridLayout mainLayout = new GridLayout();
 		// mainLayout.marginRight = 10;
 		body.setLayout(mainLayout);
-//		body.getParent().setLayout(new GridLayout());
-//		body.setLayoutData(CmsUtils.fillAll());
+		// body.getParent().setLayout(new GridLayout());
+		// body.setLayoutData(CmsUtils.fillAll());
 		User user = getDisplayedUser();
 		appendOverviewPart(body, user);
 		// Remove to ability to force the password for his own user. The user
@@ -139,7 +136,7 @@ public class UserEditor extends AbstractRoleEditor implements ArgeoNames {
 		// GridData gd = EclipseUiUtils.fillWidth();
 		// // gd.verticalAlignment = PRE_TITLE_INDENT;
 		// section.setLayoutData(gd);
-		Composite body = new Composite(parent, SWT.BORDER);
+		Composite body = new Composite(parent, SWT.NONE);
 		body.setLayoutData(EclipseUiUtils.fillWidth());
 		// section.setClient(body);
 		// body.setLayout(new GridLayout(6, false));
@@ -295,8 +292,8 @@ public class UserEditor extends AbstractRoleEditor implements ArgeoNames {
 		// Section section = addSection(tk, parent, "Roles");
 		// Composite body = (Composite) section.getClient();
 		// Composite body= parent;
-		Composite body = new Composite(parent, SWT.NONE);
-		body.setLayout(EclipseUiUtils.noSpaceGridLayout());
+		Composite body = new Composite(parent, SWT.BORDER);
+		body.setLayout(new GridLayout());
 		body.setLayoutData(CmsUtils.fillAll());
 
 		// boolean isAdmin = CurrentUser.isInRole(NodeConstants.ROLE_ADMIN);
@@ -360,6 +357,14 @@ public class UserEditor extends AbstractRoleEditor implements ArgeoNames {
 		};
 		getManagedForm().addPart(part);
 		// addRemoveAbitily(body, userViewer, user);
+		// userViewerCmp.refresh();
+		String tooltip = "Remove " + UserAdminUtils.getUserLocalId(user.getName()) + " from the below selected groups";
+		Action action = new RemoveMembershipAction(userViewer, user, tooltip, SecurityAdminImages.ICON_REMOVE_DESC);
+		ToolBarManager toolBarManager = new ToolBarManager(SWT.FLAT);
+		ToolBar toolBar = toolBarManager.createControl(body);
+		toolBar.setLayoutData(CmsUtils.fillWidth());
+		toolBarManager.add(action);
+		toolBarManager.update(true);
 		return userViewerCmp;
 	}
 
@@ -409,28 +414,31 @@ public class UserEditor extends AbstractRoleEditor implements ArgeoNames {
 		}
 	}
 
-	private void addRemoveAbitily(Composite parent, TableViewer userViewer, User user) {
-		// Section section = sectionPart.getSection();
-		ToolBarManager toolBarManager = new ToolBarManager(SWT.FLAT);
-		ToolBar toolbar = toolBarManager.createControl(parent);
-		final Cursor handCursor = new Cursor(Display.getCurrent(), SWT.CURSOR_HAND);
-		toolbar.setCursor(handCursor);
-		toolbar.addDisposeListener(new DisposeListener() {
-			private static final long serialVersionUID = 3882131405820522925L;
-
-			public void widgetDisposed(DisposeEvent e) {
-				if ((handCursor != null) && (handCursor.isDisposed() == false)) {
-					handCursor.dispose();
-				}
-			}
-		});
-
-		String tooltip = "Remove " + UserAdminUtils.getUserLocalId(user.getName()) + " from the below selected groups";
-		Action action = new RemoveMembershipAction(userViewer, user, tooltip, SecurityAdminImages.ICON_REMOVE_DESC);
-		toolBarManager.add(action);
-		toolBarManager.update(true);
-		// section.setTextClient(toolbar);
-	}
+	// private void addRemoveAbility(Composite parent, TableViewer userViewer, User
+	// user) {
+	// // Section section = sectionPart.getSection();
+	// ToolBarManager toolBarManager = new ToolBarManager(SWT.FLAT);
+	// ToolBar toolbar = toolBarManager.createControl(parent);
+	// final Cursor handCursor = new Cursor(Display.getCurrent(), SWT.CURSOR_HAND);
+	// toolbar.setCursor(handCursor);
+	// toolbar.addDisposeListener(new DisposeListener() {
+	// private static final long serialVersionUID = 3882131405820522925L;
+	//
+	// public void widgetDisposed(DisposeEvent e) {
+	// if ((handCursor != null) && (handCursor.isDisposed() == false)) {
+	// handCursor.dispose();
+	// }
+	// }
+	// });
+	//
+	// String tooltip = "Remove " + UserAdminUtils.getUserLocalId(user.getName()) +
+	// " from the below selected groups";
+	// Action action = new RemoveMembershipAction(userViewer, user, tooltip,
+	// SecurityAdminImages.ICON_REMOVE_DESC);
+	// toolBarManager.add(action);
+	// toolBarManager.update(true);
+	// // section.setTextClient(toolbar);
+	// }
 
 	private class RemoveMembershipAction extends Action {
 		private static final long serialVersionUID = -1337713097184522588L;

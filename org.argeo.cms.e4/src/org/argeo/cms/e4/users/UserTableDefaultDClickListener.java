@@ -1,10 +1,8 @@
 package org.argeo.cms.e4.users;
 
-import org.argeo.cms.CmsException;
+import org.argeo.cms.e4.CmsE4Utils;
 import org.argeo.naming.LdapAttrs;
-import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
-import org.eclipse.e4.ui.workbench.modeling.EPartService.PartState;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -28,30 +26,8 @@ public class UserTableDefaultDClickListener implements IDoubleClickListener {
 		Object obj = ((IStructuredSelection) evt.getSelection()).getFirstElement();
 		User user = (User) obj;
 
-		String entityEditorId = getEditorId(user);
-		MPart part = partService.createPart(entityEditorId);
-		part.setLabel(user.toString());
-		part.getPersistedState().put(LdapAttrs.uid.name(), user.getName());
-
-		// the provided part is be shown
-		partService.showPart(part, PartState.ACTIVATE);
-
-		// IWorkbenchWindow iww = WorkbenchUiPlugin.getDefault().getWorkbench()
-		// .getActiveWorkbenchWindow();
-		// IWorkbenchPage iwp = iww.getActivePage();
-		// UserEditorInput uei = new UserEditorInput(user.getName());
-		// FIXME open editor
-
-		try {
-			// Works around the fact that dynamic setting of the editor icon
-			// causes NPE after a login/logout on RAP
-			// if (user instanceof Group)
-			// iwp.openEditor(uei, UserEditor.GROUP_EDITOR_ID);
-			// else
-			// iwp.openEditor(uei, UserEditor.USER_EDITOR_ID);
-		} catch (Exception pie) {
-			throw new CmsException("Unable to open UserEditor for " + user, pie);
-		}
+		String editorId = getEditorId(user);
+		CmsE4Utils.openEditor(partService, editorId, LdapAttrs.uid.name(), user.getName());
 	}
 
 	protected String getEditorId(User user) {

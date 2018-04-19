@@ -38,6 +38,10 @@ import org.argeo.naming.LdapObjs;
 import org.argeo.node.NodeConstants;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
+import org.eclipse.e4.ui.workbench.modeling.ESelectionService;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
@@ -70,7 +74,7 @@ public class UsersView implements ArgeoNames {
 	private UserAdminListener listener;
 
 	@PostConstruct
-	public void createPartControl(Composite parent) {
+	public void createPartControl(Composite parent, ESelectionService selectionService) {
 
 		parent.setLayout(EclipseUiUtils.noSpaceGridLayout());
 		// Define the displayed columns
@@ -90,6 +94,14 @@ public class UsersView implements ArgeoNames {
 		// Links
 		userViewer = userTableViewerCmp.getTableViewer();
 		userViewer.addDoubleClickListener(new UserTableDefaultDClickListener(partService));
+		userViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+
+			@Override
+			public void selectionChanged(SelectionChangedEvent event) {
+				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+				selectionService.setSelection(selection.toList());
+			}
+		});
 		// getViewSite().setSelectionProvider(userViewer);
 
 		// Really?

@@ -25,7 +25,6 @@ import javax.inject.Inject;
 import org.argeo.cms.ui.eclipse.forms.AbstractFormPart;
 import org.argeo.cms.ui.eclipse.forms.IManagedForm;
 import org.argeo.cms.ui.eclipse.forms.ManagedForm;
-import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.util.UserAdminUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.naming.LdapAttrs;
@@ -74,7 +73,7 @@ public abstract class AbstractRoleEditor {
 
 	private NameChangeListener listener;
 
-	private IManagedForm managedForm;
+	private ManagedForm managedForm;
 
 	// public void init(IEditorSite site, IEditorInput input) throws
 	// PartInitException {
@@ -88,11 +87,18 @@ public abstract class AbstractRoleEditor {
 		userAdminWrapper.addListener(listener);
 		updateEditorTitle(null);
 
-		managedForm = new ManagedForm(parent);
+		managedForm = new ManagedForm(parent) {
+
+			@Override
+			public void staleStateChanged() {
+				refresh();
+			}
+		};
 		ScrolledComposite scrolled = managedForm.getForm();
 		Composite body = new Composite(scrolled, SWT.NONE);
 		scrolled.setContent(body);
 		createUi(body);
+		managedForm.refresh();
 	}
 
 	abstract void createUi(Composite parent);
@@ -171,6 +177,7 @@ public abstract class AbstractRoleEditor {
 	@PreDestroy
 	public void dispose() {
 		userAdminWrapper.removeListener(listener);
+		managedForm.dispose();
 	}
 
 	// CONTROLERS FOR THIS EDITOR AND ITS PAGES
@@ -248,10 +255,10 @@ public abstract class AbstractRoleEditor {
 	Text createLMT(Composite parent, String label, String value) {
 		Label lbl = new Label(parent, SWT.NONE);
 		lbl.setText(label);
-		lbl.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false));
+		lbl.setLayoutData(new GridData(SWT.LEAD, SWT.CENTER, false, false));
 		Text text = new Text(parent, SWT.NONE);
 		text.setText(value);
-		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		text.setLayoutData(new GridData(SWT.LEAD, SWT.FILL, true, true));
 		return text;
 	}
 
@@ -259,10 +266,10 @@ public abstract class AbstractRoleEditor {
 	Text createLP(Composite parent, String label, String value) {
 		Label lbl = new Label(parent, SWT.NONE);
 		lbl.setText(label);
-		lbl.setLayoutData(new GridData(SWT.LEAD, SWT.FILL, false, false));
-		Text text = new Text(parent, SWT.PASSWORD);
+		lbl.setLayoutData(new GridData(SWT.LEAD, SWT.CENTER, false, false));
+		Text text = new Text(parent, SWT.PASSWORD | SWT.BORDER);
 		text.setText(value);
-		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		text.setLayoutData(new GridData(SWT.LEAD, SWT.FILL, true, false));
 		return text;
 	}
 
@@ -270,25 +277,25 @@ public abstract class AbstractRoleEditor {
 	Text createLT(Composite parent, String label, String value) {
 		Label lbl = new Label(parent, SWT.NONE);
 		lbl.setText(label);
-		lbl.setLayoutData(new GridData(SWT.LEAD, SWT.FILL, false, false));
+		lbl.setLayoutData(new GridData(SWT.LEAD, SWT.CENTER, false, false));
 		lbl.setFont(EclipseUiUtils.getBoldFont(parent));
-		Text text = new Text(parent, SWT.NONE);
+		Text text = new Text(parent, SWT.BORDER);
 		text.setText(value);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		CmsUtils.style(text, CmsWorkbenchStyles.WORKBENCH_FORM_TEXT);
+		// CmsUtils.style(text, CmsWorkbenchStyles.WORKBENCH_FORM_TEXT);
 		return text;
 	}
 
 	Text createReadOnlyLT(Composite parent, String label, String value) {
 		Label lbl = new Label(parent, SWT.NONE);
 		lbl.setText(label);
-		lbl.setLayoutData(new GridData(SWT.LEAD, SWT.FILL, false, false));
+		lbl.setLayoutData(new GridData(SWT.LEAD, SWT.CENTER, false, false));
 		lbl.setFont(EclipseUiUtils.getBoldFont(parent));
 		Text text = new Text(parent, SWT.NONE);
 		text.setText(value);
-		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		text.setLayoutData(new GridData(SWT.LEAD, SWT.FILL, true, false));
 		text.setEditable(false);
-		CmsUtils.style(text, CmsWorkbenchStyles.WORKBENCH_FORM_TEXT);
+		// CmsUtils.style(text, CmsWorkbenchStyles.WORKBENCH_FORM_TEXT);
 		return text;
 	}
 

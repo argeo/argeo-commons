@@ -15,18 +15,20 @@
  */
 package org.argeo.cms.e4.users.handlers;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.argeo.cms.e4.users.UserAdminWrapper;
+import org.argeo.cms.e4.users.UsersView;
 import org.argeo.cms.util.UserAdminUtils;
+import org.eclipse.e4.core.di.annotations.CanExecute;
 import org.eclipse.e4.core.di.annotations.Execute;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.e4.ui.services.IServiceConstants;
+import org.eclipse.e4.ui.workbench.modeling.ESelectionService;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Display;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
@@ -42,37 +44,41 @@ public class DeleteUsers {
 
 	@SuppressWarnings("unchecked")
 	@Execute
-	public Object execute() {
-		ISelection selection = null;// HandlerUtil.getCurrentSelection(event);
-		if (selection.isEmpty())
-			return null;
+	public void execute(@Named(IServiceConstants.ACTIVE_PART) MPart part, ESelectionService selectionService) {
+		// ISelection selection = null;// HandlerUtil.getCurrentSelection(event);
+		// if (selection.isEmpty())
+		// return null;
+		List<User> selection = (List<User>) selectionService.getSelection();
+		if (selection == null)
+			return;
 
-		Iterator<User> it = ((IStructuredSelection) selection).iterator();
-		List<User> users = new ArrayList<User>();
+//		Iterator<User> it = ((IStructuredSelection) selection).iterator();
+//		List<User> users = new ArrayList<User>();
 		StringBuilder builder = new StringBuilder();
 
-		while (it.hasNext()) {
-			User currUser = it.next();
+		for(User user:selection) {
+			User currUser = user;
+//			User currUser = it.next();
 			String userName = UserAdminUtils.getUserLocalId(currUser.getName());
 			if (UserAdminUtils.isCurrentUser(currUser)) {
 				MessageDialog.openError(Display.getCurrent().getActiveShell(), "Deletion forbidden",
 						"You cannot delete your own user this way.");
-				return null;
+				return;
 			}
 			builder.append(userName).append("; ");
-			users.add(currUser);
+//			users.add(currUser);
 		}
 
 		if (!MessageDialog.openQuestion(Display.getCurrent().getActiveShell(), "Delete Users",
 				"Are you sure that you want to delete these users?\n" + builder.substring(0, builder.length() - 2)))
-			return null;
+			return;
 
 		userAdminWrapper.beginTransactionIfNeeded();
 		UserAdmin userAdmin = userAdminWrapper.getUserAdmin();
 		// IWorkbenchPage iwp =
 		// HandlerUtil.getActiveWorkbenchWindow(event).getActivePage();
 
-		for (User user : users) {
+		for (User user : selection) {
 			String userName = user.getName();
 			// TODO find a way to close the editor cleanly if opened. Cannot be
 			// done through the UserAdminListeners, it causes a
@@ -85,14 +91,13 @@ public class DeleteUsers {
 		}
 		userAdminWrapper.commitOrNotifyTransactionStateChange();
 
-		for (User user : users) {
+		for (User user : selection) {
 			userAdminWrapper.notifyListeners(new UserAdminEvent(null, UserAdminEvent.ROLE_REMOVED, user));
 		}
-		return null;
 	}
 
-	/* DEPENDENCY INJECTION */
-	public void setUserAdminWrapper(UserAdminWrapper userAdminWrapper) {
-		this.userAdminWrapper = userAdminWrapper;
+	@CanExecute
+	public boolean canExecute(@Named(IServiceConstants.ACTIVE_PART) MPart part, ESelectionService selectionService) {
+		return part.getObject() instanceof UsersView && selectionService.getSelection() != null;
 	}
 }

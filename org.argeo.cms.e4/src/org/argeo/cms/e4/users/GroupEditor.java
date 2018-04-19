@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.jcr.Node;
 import javax.jcr.Repository;
@@ -41,6 +42,7 @@ import org.argeo.cms.e4.users.providers.RoleIconLP;
 import org.argeo.cms.e4.users.providers.UserFilter;
 import org.argeo.cms.ui.eclipse.forms.AbstractFormPart;
 import org.argeo.cms.ui.eclipse.forms.IManagedForm;
+import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.util.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
@@ -64,12 +66,9 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.dnd.TransferData;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -150,7 +149,7 @@ public class GroupEditor extends AbstractRoleEditor implements ArgeoNames {
 		appendMembersPart(body, group);
 	}
 
-	@Override
+	@PreDestroy
 	public void dispose() {
 		JcrUtils.logoutQuietly(session);
 		super.dispose();
@@ -158,14 +157,15 @@ public class GroupEditor extends AbstractRoleEditor implements ArgeoNames {
 
 	/** Creates the general section */
 	protected void appendOverviewPart(final Composite parent, final Group group) {
-		Composite body = new Composite(parent, SWT.BORDER);
+		Composite body = new Composite(parent, SWT.NONE);
 		// GridLayout layout = new GridLayout(5, false);
 		GridLayout layout = new GridLayout(2, false);
 		body.setLayout(layout);
+		body.setLayoutData(CmsUtils.fillWidth());
 
 		String cn = UserAdminUtils.getProperty(group, LdapAttrs.cn.name());
 		createReadOnlyLT(body, "Name", cn);
-		// Text dnTxt = createReadOnlyLT(body, "DN", group.getName());
+		createReadOnlyLT(body, "DN", group.getName());
 		createReadOnlyLT(body, "Domain", UserAdminUtils.getDomainName(group));
 
 		// Description
@@ -263,19 +263,10 @@ public class GroupEditor extends AbstractRoleEditor implements ArgeoNames {
 		// section.setText("Members");
 		// section.setLayoutData(EclipseUiUtils.fillAll());
 
-		Composite body = new Composite(parent, SWT.NO_FOCUS);
-		body.setLayout(EclipseUiUtils.noSpaceGridLayout());
+		Composite body = new Composite(parent, SWT.BORDER);
+		body.setLayout(new GridLayout());
 		// section.setClient(body);
 		body.setLayoutData(EclipseUiUtils.fillAll());
-
-		LdifUsersTable userTableViewerCmp = createMemberPart(body, group);
-
-		AbstractFormPart part = new GroupMembersPart(userTableViewerCmp);
-		getManagedForm().addPart(part);
-		addRemoveAbitily(body, userTableViewerCmp.getTableViewer(), group);
-	}
-
-	private LdifUsersTable createMemberPart(Composite parent, Group group) {
 
 		// Define the displayed columns
 		List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
@@ -286,7 +277,7 @@ public class GroupEditor extends AbstractRoleEditor implements ArgeoNames {
 		// 240));
 
 		// Create and configure the table
-		LdifUsersTable userViewerCmp = new MyUserTableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL,
+		LdifUsersTable userViewerCmp = new MyUserTableViewer(body, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL,
 				userAdminWrapper.getUserAdmin());
 
 		userViewerCmp.setColumnDefinitions(columnDefs);
@@ -301,8 +292,56 @@ public class GroupEditor extends AbstractRoleEditor implements ArgeoNames {
 		userViewer.addDropSupport(operations, tt,
 				new GroupDropListener(userAdminWrapper, userViewerCmp, (Group) getDisplayedUser()));
 
-		return userViewerCmp;
+		AbstractFormPart part = new GroupMembersPart(userViewerCmp);
+		getManagedForm().addPart(part);
+
+		// remove button
+		// addRemoveAbility(toolBarManager, userViewerCmp.getTableViewer(), group);
+		Action action = new RemoveMembershipAction(userViewer, group, "Remove selected items from this group",
+				SecurityAdminImages.ICON_REMOVE_DESC);
+
+		ToolBarManager toolBarManager = new ToolBarManager(SWT.FLAT);
+		ToolBar toolBar = toolBarManager.createControl(body);
+		toolBar.setLayoutData(CmsUtils.fillWidth());
+
+		toolBarManager.add(action);
+		toolBarManager.update(true);
+
 	}
+
+	// private LdifUsersTable createMemberPart(Composite parent, Group group) {
+	//
+	// // Define the displayed columns
+	// List<ColumnDefinition> columnDefs = new ArrayList<ColumnDefinition>();
+	// columnDefs.add(new ColumnDefinition(new RoleIconLP(), "", 0, 24));
+	// columnDefs.add(new ColumnDefinition(new CommonNameLP(), "Name", 150));
+	// columnDefs.add(new ColumnDefinition(new MailLP(), "Mail", 150));
+	// // columnDefs.add(new ColumnDefinition(new UserNameLP(), "Distinguished
+	// Name",
+	// // 240));
+	//
+	// // Create and configure the table
+	// LdifUsersTable userViewerCmp = new MyUserTableViewer(parent, SWT.MULTI |
+	// SWT.H_SCROLL | SWT.V_SCROLL,
+	// userAdminWrapper.getUserAdmin());
+	//
+	// userViewerCmp.setColumnDefinitions(columnDefs);
+	// userViewerCmp.populate(true, false);
+	// userViewerCmp.setLayoutData(EclipseUiUtils.fillAll());
+	//
+	// // Controllers
+	// TableViewer userViewer = userViewerCmp.getTableViewer();
+	// userViewer.addDoubleClickListener(new
+	// UserTableDefaultDClickListener(partService));
+	// int operations = DND.DROP_COPY | DND.DROP_MOVE;
+	// Transfer[] tt = new Transfer[] { TextTransfer.getInstance() };
+	// userViewer.addDropSupport(operations, tt,
+	// new GroupDropListener(userAdminWrapper, userViewerCmp, (Group)
+	// getDisplayedUser()));
+	//
+	// // userViewerCmp.refresh();
+	// return userViewerCmp;
+	// }
 
 	// Local viewers
 	private class MyUserTableViewer extends LdifUsersTable {
@@ -332,28 +371,32 @@ public class GroupEditor extends AbstractRoleEditor implements ArgeoNames {
 		}
 	}
 
-	private void addRemoveAbitily(Composite parent, TableViewer userViewer, Group group) {
-		// Section section = sectionPart.getSection();
-		ToolBarManager toolBarManager = new ToolBarManager(SWT.FLAT);
-		ToolBar toolbar = toolBarManager.createControl(parent);
-		final Cursor handCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_HAND);
-		toolbar.setCursor(handCursor);
-		toolbar.addDisposeListener(new DisposeListener() {
-			private static final long serialVersionUID = 3882131405820522925L;
-
-			public void widgetDisposed(DisposeEvent e) {
-				if ((handCursor != null) && (handCursor.isDisposed() == false)) {
-					handCursor.dispose();
-				}
-			}
-		});
-
-		Action action = new RemoveMembershipAction(userViewer, group, "Remove selected items from this group",
-				SecurityAdminImages.ICON_REMOVE_DESC);
-		toolBarManager.add(action);
-		toolBarManager.update(true);
-		// section.setTextClient(toolbar);
-	}
+	// private void addRemoveAbility(ToolBarManager toolBarManager, TableViewer
+	// userViewer, Group group) {
+	// // Section section = sectionPart.getSection();
+	// // ToolBarManager toolBarManager = new ToolBarManager(SWT.FLAT);
+	// // ToolBar toolbar = toolBarManager.createControl(parent);
+	// // ToolBar toolbar = toolBarManager.getControl();
+	// // final Cursor handCursor = new Cursor(toolbar.getDisplay(),
+	// SWT.CURSOR_HAND);
+	// // toolbar.setCursor(handCursor);
+	// // toolbar.addDisposeListener(new DisposeListener() {
+	// // private static final long serialVersionUID = 3882131405820522925L;
+	// //
+	// // public void widgetDisposed(DisposeEvent e) {
+	// // if ((handCursor != null) && (handCursor.isDisposed() == false)) {
+	// // handCursor.dispose();
+	// // }
+	// // }
+	// // });
+	//
+	// Action action = new RemoveMembershipAction(userViewer, group, "Remove
+	// selected items from this group",
+	// SecurityAdminImages.ICON_REMOVE_DESC);
+	// toolBarManager.add(action);
+	// toolBarManager.update(true);
+	// // section.setTextClient(toolbar);
+	// }
 
 	private class RemoveMembershipAction extends Action {
 		private static final long serialVersionUID = -1337713097184522588L;
