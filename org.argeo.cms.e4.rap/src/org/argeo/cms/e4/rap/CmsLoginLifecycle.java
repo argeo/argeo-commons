@@ -6,6 +6,8 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.ui.CmsImageManager;
@@ -15,10 +17,12 @@ import org.argeo.cms.util.SimpleUxContext;
 import org.argeo.cms.widgets.auth.CmsLoginShell;
 import org.argeo.node.NodeConstants;
 import org.eclipse.e4.ui.workbench.lifecycle.PostContextCreate;
+import org.eclipse.e4.ui.workbench.lifecycle.PreSave;
 import org.eclipse.swt.widgets.Display;
 
 @SuppressWarnings("restriction")
 public class CmsLoginLifecycle implements CmsView {
+	private final static Log log = LogFactory.getLog(CmsLoginLifecycle.class);
 	private UxContext uxContext;
 	private LoginContext loginContext;
 
@@ -44,9 +48,14 @@ public class CmsLoginLifecycle implements CmsView {
 		if (CurrentUser.getUsername(getSubject()) == null)
 			return false;
 		uxContext = new SimpleUxContext();
-		
-		//lcs.changeApplicationLocale(Locale.FRENCH);
+
+		// lcs.changeApplicationLocale(Locale.FRENCH);
 		return true;
+	}
+
+	@PreSave
+	void destroy() {
+		logout();
 	}
 
 	@Override
@@ -88,8 +97,7 @@ public class CmsLoginLifecycle implements CmsView {
 
 	@Override
 	public void exception(Throwable e) {
-		// TODO Auto-generated method stub
-
+		log.error("Unexpected exception in Eclipse 4 RAP", e);
 	}
 
 	@Override
