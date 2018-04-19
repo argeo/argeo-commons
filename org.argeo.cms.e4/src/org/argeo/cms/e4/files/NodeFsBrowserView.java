@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import org.argeo.cms.CmsException;
 import org.argeo.eclipse.ui.fs.AdvancedFsBrowser;
 import org.argeo.eclipse.ui.fs.SimpleFsBrowser;
+import org.argeo.node.NodeUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
@@ -46,7 +47,7 @@ public class NodeFsBrowserView {
 			FileSystem fileSystem = nodeFileSystemProvider.getFileSystem(uri);
 			if (fileSystem == null)
 				fileSystem = nodeFileSystemProvider.newFileSystem(uri, null);
-			Path nodePath = fileSystem.getPath("/");
+			Path nodePath = fileSystem.getPath("~");
 
 			Path localPath = Paths.get(System.getProperty("user.home"));
 

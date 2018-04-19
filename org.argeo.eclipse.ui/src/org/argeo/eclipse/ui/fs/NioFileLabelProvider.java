@@ -24,7 +24,8 @@ public class NioFileLabelProvider extends ColumnLabelProvider {
 				case FsUiConstants.PROPERTY_SIZE:
 					return "-";
 				case FsUiConstants.PROPERTY_LAST_MODIFIED:
-					return Files.getLastModifiedTime(((ParentDir) element).getPath()).toString();
+					return "-";
+				// return Files.getLastModifiedTime(((ParentDir) element).getPath()).toString();
 				case FsUiConstants.PROPERTY_TYPE:
 					return "Folder";
 				}

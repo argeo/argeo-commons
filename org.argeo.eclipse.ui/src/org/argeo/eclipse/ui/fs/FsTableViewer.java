@@ -78,7 +78,13 @@ public class FsTableViewer extends TableViewer {
 			this.setItemCount(0);
 			return;
 		}
-		boolean isRoot = dir.getRoot().equals(dir);
+		boolean isRoot;
+		try {
+			isRoot = dir.getRoot().equals(dir);
+		} catch (Exception e) {
+			// FIXME Workaround for JCR root node access
+			isRoot = dir.toString().equals("/");
+		}
 		final Object[] res;
 		if (isRoot)
 			res = rows;
