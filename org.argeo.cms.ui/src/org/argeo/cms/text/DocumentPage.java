@@ -37,7 +37,7 @@ public class DocumentPage implements CmsUiProvider {
 
 		if (context.isNodeType(DocBookTypes.ARTICLE)) {
 			new DocumentTextEditor(page, SWT.NONE, context, cmsEditable);
-		} else if (context.isNodeType(NodeType.NT_FOLDER) || context.getPath().equals("/")) {
+		} else {
 			parent.setBackgroundMode(SWT.INHERIT_NONE);
 			if (context.getSession().hasPermission(context.getPath(), Session.ACTION_ADD_NODE)) {
 				Node indexNode = JcrUtils.getOrAdd(context, CmsNames.CMS_INDEX, DocBookTypes.ARTICLE);
