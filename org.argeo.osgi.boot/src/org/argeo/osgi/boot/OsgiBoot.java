@@ -31,6 +31,7 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
+import org.argeo.osgi.boot.a2.ProvisioningManager;
 import org.argeo.osgi.boot.internal.springutil.AntPathMatcher;
 import org.argeo.osgi.boot.internal.springutil.PathMatcher;
 import org.argeo.osgi.boot.internal.springutil.SystemPropertyUtils;
@@ -50,6 +51,8 @@ import org.osgi.framework.wiring.FrameworkWiring;
  */
 public class OsgiBoot implements OsgiBootConstants {
 	public final static String PROP_ARGEO_OSGI_START = "argeo.osgi.start";
+	public final static String PROP_ARGEO_OSGI_SOURCES = "argeo.osgi.sources";
+	
 	public final static String PROP_ARGEO_OSGI_BUNDLES = "argeo.osgi.bundles";
 	public final static String PROP_ARGEO_OSGI_BASE_URL = "argeo.osgi.baseUrl";
 	public final static String PROP_ARGEO_OSGI_LOCAL_CACHE = "argeo.osgi.localCache";
@@ -90,6 +93,8 @@ public class OsgiBoot implements OsgiBootConstants {
 	private final BundleContext bundleContext;
 	private final String localCache;
 
+	private final ProvisioningManager provisioningManager;
+
 	/*
 	 * INITIALIZATION
 	 */
@@ -98,6 +103,16 @@ public class OsgiBoot implements OsgiBootConstants {
 		this.bundleContext = bundleContext;
 		String homeUri = Paths.get(System.getProperty("user.home")).toUri().toString();
 		localCache = getProperty(PROP_ARGEO_OSGI_LOCAL_CACHE, homeUri + ".m2/repository/");
+
+		provisioningManager = new ProvisioningManager(bundleContext);
+		String sources = getProperty(PROP_ARGEO_OSGI_SOURCES);
+		if (sources == null) {
+			provisioningManager.registerDefaultSource();
+		} else {
+			for (String source : sources.split(",")) {
+				provisioningManager.registerSource(source);
+			}
+		}
 	}
 
 	/*
@@ -113,6 +128,7 @@ public class OsgiBoot implements OsgiBootConstants {
 					.info("OSGi bootstrap starting" + (osgiInstancePath != null ? " (" + osgiInstancePath + ")" : ""));
 			installUrls(getBundlesUrls());
 			installUrls(getDistributionUrls());
+			provisioningManager.install(null);
 			startBundles();
 			long duration = System.currentTimeMillis() - begin;
 			OsgiBootUtils.info("OSGi bootstrap completed in " + Math.round(((double) duration) / 1000) + "s ("
@@ -143,6 +159,9 @@ public class OsgiBoot implements OsgiBootConstants {
 		System.out.println();
 	}
 
+	public void update() {
+		provisioningManager.update();
+	}
 	/*
 	 * INSTALLATION
 	 */

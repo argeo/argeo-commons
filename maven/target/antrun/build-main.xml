@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="maven-antrun-" default="main"  >
+<target name="main">
+  <copy todir="/srv/rpmfactory/argeo-osgi-2/el7" failonerror="false" quiet="true">
+    <fileset includes="*/RPMS/**/*.rpm" dir="/home/mbaudier/dev/git/apache2/argeo-commons/maven/target/rpm"/>
+    <flattenmapper/>
+  </copy>
+</target>
+</project>

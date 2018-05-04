@@ -1,0 +1,34 @@
+<assembly
+	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+	<id>dist</id>
+	<baseDirectory></baseDirectory>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<fileSets>
+		<fileSet>
+			<directory>base/bin</directory>
+			<outputDirectory>bin</outputDirectory>
+			<fileMode>0755</fileMode>
+			<includes>
+				<include>*</include>
+			</includes>
+			<excludes>
+				<exclude>offline.sh</exclude>
+			</excludes>
+		</fileSet>
+	</fileSets>
+	<dependencySets>
+		<dependencySet>
+			<unpack>false</unpack>
+			<outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
+			<outputDirectory>share/osgi/boot</outputDirectory>
+			<includes>
+				<include>org.argeo.tp.equinox:org.eclipse.osgi</include>
+				<include>org.argeo.commons:org.argeo.osgi.boot</include>
+			</includes>
+		</dependencySet>
+	</dependencySets>
+</assembly>
