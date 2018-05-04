@@ -35,8 +35,7 @@ public abstract class AbstractRapE4App implements ApplicationConfiguration {
 			}
 		});
 
-		String lifeCycleUri = "bundleclass://" + bc.getBundle().getSymbolicName() + "/"
-				+ CmsLoginLifecycle.class.getName();
+		String lifeCycleUri = "bundleclass://org.argeo.cms.e4.rap/org.argeo.cms.e4.rap.CmsLoginLifecycle";
 
 		Map<String, String> properties = new HashMap<String, String>();
 		properties.put(WebClient.PAGE_TITLE, pageTitle);
