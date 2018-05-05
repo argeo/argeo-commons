@@ -3,9 +3,9 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
 	<id>dist</id>
-	<baseDirectory>argeo-node</baseDirectory>
+	<baseDirectory></baseDirectory>
 	<formats>
-		<format>dir</format>
+		<format>zip</format>
 	</formats>
 	<fileSets>
 		<fileSet>
@@ -20,19 +20,19 @@
 			</excludes>
 		</fileSet>
 	</fileSets>
-	<dependencySets>
-		<dependencySet>
-			<unpack>false</unpack>
-			<outputFileNameMapping>${artifact.groupId}/${artifact.artifactId}-${artifact.version}.${artifact.extension}</outputFileNameMapping>
-			<outputDirectory>share/osgi</outputDirectory>
-		</dependencySet>
-		<dependencySet>
-			<useStrictFiltering>true</useStrictFiltering>
-			<unpack>true</unpack>
-			<outputDirectory></outputDirectory>
-			<includes>
-				<include>org.argeo.commons:osgi-boot:zip:*:*</include>
-			</includes>
-		</dependencySet>
-	</dependencySets>
+<!-- 	<dependencySets> -->
+<!-- 		<dependencySet> -->
+<!-- 			<unpack>false</unpack> -->
+<!-- 			<outputFileNameMapping>${artifact.groupId}/${artifact.artifactId}-${artifact.version}.${artifact.extension}</outputFileNameMapping> -->
+<!-- 			<outputDirectory>share/osgi</outputDirectory> -->
+<!-- 		</dependencySet> -->
+<!-- 		<dependencySet> -->
+<!-- 			<useStrictFiltering>true</useStrictFiltering> -->
+<!-- 			<unpack>true</unpack> -->
+<!-- 			<outputDirectory></outputDirectory> -->
+<!-- 			<includes> -->
+<!-- 				<include>org.argeo.commons:osgi-boot:zip:*:*</include> -->
+<!-- 			</includes> -->
+<!-- 		</dependencySet> -->
+<!-- 	</dependencySets> -->
 </assembly>
