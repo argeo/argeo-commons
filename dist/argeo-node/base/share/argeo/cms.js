@@ -10,8 +10,7 @@ osgi.start(2, "org.eclipse.equinox.cm");
 osgi.start(2, "org.eclipse.equinox.ds");
 osgi.start(2, "org.eclipse.rap.rwt.osgi");
 osgi.start(3, "org.argeo.cms");
-osgi.start(4, "org.eclipse.gemini.blueprint.extender");
-osgi.start(4, "org.eclipse.equinox.http.registry");
+osgi.start(4, "org.argeo.cms.e4.rap");
 // specific properties
 osgi.conf("org.eclipse.rap.workbenchAutostart", "false");
 osgi.conf("org.eclipse.equinox.http.jetty.autostart", "false");
@@ -33,15 +32,7 @@ if (typeof app !== 'undefined') {
 	}
 	osgi.conf("osgi.configuration.area", appHome + "/state");
 	osgi.conf("osgi.instance.area", appHome + "/data");
-	System.setProperty("java.security.manager", "");
-	System.setProperty("java.security.policy", appConf + "/" + policyFile);
+//	System.setProperty("java.security.manager", "");
+//	System.setProperty("java.security.policy", appConf + "/" + policyFile);
 	System.setProperty("log4j.configuration", appConf + "/log4j.properties");
-}
-
-function openWorkbench() {
-	osgi.spring("org.argeo.cms.ui.workbench.rap");
-	var appUrl = "http://127.0.0.1:" + osgi.httpPort + "/ui/node";
-	$EXEC("chrome --app=" + appUrl);
-	// shutdown when the window is closed
-	osgi.shutdown();
 }
