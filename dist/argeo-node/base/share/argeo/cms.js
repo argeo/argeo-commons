@@ -7,6 +7,7 @@ osgi.start(2, "org.eclipse.equinox.http.servlet");
 osgi.start(2, "org.eclipse.equinox.http.jetty");
 osgi.start(2, "org.eclipse.equinox.metatype");
 osgi.start(2, "org.eclipse.equinox.cm");
+osgi.start(2, "org.eclipse.equinox.ds");
 osgi.start(2, "org.eclipse.rap.rwt.osgi");
 osgi.start(3, "org.argeo.cms");
 osgi.start(4, "org.eclipse.gemini.blueprint.extender");
