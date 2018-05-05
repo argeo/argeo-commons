@@ -1,5 +1,5 @@
 #!/bin/sh
-APP=node
+APP=argeo
 
 JVM=java
 
