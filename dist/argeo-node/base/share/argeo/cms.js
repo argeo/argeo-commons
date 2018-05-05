@@ -20,6 +20,8 @@ osgi.conf("org.osgi.framework.bootdelegation", "com.sun.jndi.ldap,"
 
 var homeUri = java.nio.file.Paths
 		.get(java.lang.System.getProperty("user.home")).toUri().toString();
+var execDirUri = java.nio.file.Paths.get(
+		java.lang.System.getProperty("user.dir")).toUri().toString();
 if (typeof app !== 'undefined') {
 	if (typeof appHome == 'undefined') {
 		var appHome = homeUri + "/.a2/var/lib/" + app;
@@ -32,7 +34,11 @@ if (typeof app !== 'undefined') {
 	}
 	osgi.conf("osgi.configuration.area", appHome + "/state");
 	osgi.conf("osgi.instance.area", appHome + "/data");
-//	System.setProperty("java.security.manager", "");
-//	System.setProperty("java.security.policy", appConf + "/" + policyFile);
+	// System.setProperty("java.security.manager", "");
+	// System.setProperty("java.security.policy", appConf + "/" + policyFile);
 	System.setProperty("log4j.configuration", appConf + "/log4j.properties");
+} else {
+	osgi.conf("osgi.configuration.area", execDirUri + "/state");
+	osgi.conf("osgi.instance.area", execDirUri + "/data");
+	System.setProperty("log4j.configuration", execDirUri + "etc/argeo/log4j.properties");
 }

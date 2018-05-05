@@ -63,12 +63,15 @@ public class OsgiBuilder {
 			OsgiBootUtils.debug("OSGi starting - data: " + osgiData + " conf: " + osgiConf);
 
 		OsgiBoot osgiBoot = new OsgiBoot(framework.getBundleContext());
-		// install bundles
-		for (String distributionBundle : distributionBundles) {
-			List<String> bundleUrls = osgiBoot.getDistributionUrls(distributionBundle, baseUrl);
-			osgiBoot.installUrls(bundleUrls);
+		if (distributionBundles.isEmpty()) {
+			osgiBoot.getProvisioningManager().install(null);
+		} else {
+			// install bundles
+			for (String distributionBundle : distributionBundles) {
+				List<String> bundleUrls = osgiBoot.getDistributionUrls(distributionBundle, baseUrl);
+				osgiBoot.installUrls(bundleUrls);
+			}
 		}
-
 		// start bundles
 		osgiBoot.startBundles(startLevelsToProperties());
 

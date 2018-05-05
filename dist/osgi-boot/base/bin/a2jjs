@@ -1,13 +1,6 @@
 #!/bin/sh
-
-export A2_HOME=$HOME/.a2
-if [ -d "$A2_HOME/share/osgi/boot" ]; then
-	PREFIX=$A2_HOME
-else
-	PREFIX=/usr
-fi
-
-EQUINOX=$PREFIX/share/osgi/boot/org.eclipse.osgi.jar
-OSGI_BOOT=$PREFIX/share/osgi/boot/org.argeo.osgi.boot.jar
+BIN_DIR=`dirname $0`
+EQUINOX=$BIN_DIR/../share/osgi/boot/org.eclipse.osgi.jar
+OSGI_BOOT=$BIN_DIR/../share/osgi/boot/org.argeo.osgi.boot.jar
 
 /usr/bin/jjs -cp "$EQUINOX:$OSGI_BOOT" $*

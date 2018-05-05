@@ -52,7 +52,7 @@ import org.osgi.framework.wiring.FrameworkWiring;
 public class OsgiBoot implements OsgiBootConstants {
 	public final static String PROP_ARGEO_OSGI_START = "argeo.osgi.start";
 	public final static String PROP_ARGEO_OSGI_SOURCES = "argeo.osgi.sources";
-	
+
 	public final static String PROP_ARGEO_OSGI_BUNDLES = "argeo.osgi.bundles";
 	public final static String PROP_ARGEO_OSGI_BASE_URL = "argeo.osgi.baseUrl";
 	public final static String PROP_ARGEO_OSGI_LOCAL_CACHE = "argeo.osgi.localCache";
@@ -115,6 +115,10 @@ public class OsgiBoot implements OsgiBootConstants {
 		}
 	}
 
+	ProvisioningManager getProvisioningManager() {
+		return provisioningManager;
+	}
+
 	/*
 	 * HIGH-LEVEL METHODS
 	 */
@@ -162,6 +166,7 @@ public class OsgiBoot implements OsgiBootConstants {
 	public void update() {
 		provisioningManager.update();
 	}
+
 	/*
 	 * INSTALLATION
 	 */
