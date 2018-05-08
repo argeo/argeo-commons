@@ -7,6 +7,7 @@ org.eclipse.core.commands
 
 Import-Package:	org.argeo.cms.auth,\
 org.argeo.cms.ui,\
+org.argeo.cms.i18n,\
 org.argeo.eclipse.spring,\
 org.argeo.eclipse.ui.utils,\
 org.eclipse.core.runtime.jobs,\
