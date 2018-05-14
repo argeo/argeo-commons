@@ -23,6 +23,7 @@ public abstract class AbstractRapE4App implements ApplicationConfiguration {
 	private String pageTitle;
 	private String e4Xmi;
 	private String path;
+	private String lifeCycleUri = "bundleclass://org.argeo.cms.e4.rap/org.argeo.cms.e4.rap.CmsLoginLifecycle";
 
 	public void configure(Application application) {
 		application.setExceptionHandler(new ExceptionHandler() {
@@ -34,8 +35,6 @@ public abstract class AbstractRapE4App implements ApplicationConfiguration {
 
 			}
 		});
-
-		String lifeCycleUri = "bundleclass://org.argeo.cms.e4.rap/org.argeo.cms.e4.rap.CmsLoginLifecycle";
 
 		Map<String, String> properties = new HashMap<String, String>();
 		properties.put(WebClient.PAGE_TITLE, pageTitle);
@@ -88,6 +87,10 @@ public abstract class AbstractRapE4App implements ApplicationConfiguration {
 
 	public void setPath(String path) {
 		this.path = path;
+	}
+
+	public void setLifeCycleUri(String lifeCycleUri) {
+		this.lifeCycleUri = lifeCycleUri;
 	}
 
 }

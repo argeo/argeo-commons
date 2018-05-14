@@ -13,21 +13,49 @@ import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.ui.CmsImageManager;
 import org.argeo.cms.ui.CmsView;
 import org.argeo.cms.ui.UxContext;
+import org.argeo.cms.ui.dialogs.CmsFeedback;
 import org.argeo.cms.util.SimpleUxContext;
 import org.argeo.cms.widgets.auth.CmsLoginShell;
 import org.argeo.node.NodeConstants;
+import org.eclipse.e4.core.services.events.IEventBroker;
+import org.eclipse.e4.ui.workbench.UIEvents;
 import org.eclipse.e4.ui.workbench.lifecycle.PostContextCreate;
 import org.eclipse.e4.ui.workbench.lifecycle.PreSave;
+import org.eclipse.rap.rwt.RWT;
+import org.eclipse.rap.rwt.client.service.BrowserNavigation;
+import org.eclipse.rap.rwt.client.service.BrowserNavigationEvent;
+import org.eclipse.rap.rwt.client.service.BrowserNavigationListener;
 import org.eclipse.swt.widgets.Display;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
 
 @SuppressWarnings("restriction")
 public class CmsLoginLifecycle implements CmsView {
 	private final static Log log = LogFactory.getLog(CmsLoginLifecycle.class);
+
 	private UxContext uxContext;
+
 	private LoginContext loginContext;
+	private BrowserNavigation browserNavigation;
+
+	private String state = null;
 
 	@PostContextCreate
-	boolean login() {
+	boolean login(final IEventBroker eventBroker) {
+		browserNavigation = RWT.getClient().getService(BrowserNavigation.class);
+		if (browserNavigation != null)
+			browserNavigation.addBrowserNavigationListener(new BrowserNavigationListener() {
+				private static final long serialVersionUID = -3668136623771902865L;
+
+				@Override
+				public void navigated(BrowserNavigationEvent event) {
+					state = event.getState();
+					System.out.println("state=" + state);
+					if (uxContext != null)// is logged in
+						stateChanged();
+				}
+			});
+
 		Subject subject = Subject.getSubject(AccessController.getContext());
 		Display display = Display.getCurrent();
 		CmsLoginShell loginShell = new CmsLoginShell(this);
@@ -49,13 +77,21 @@ public class CmsLoginLifecycle implements CmsView {
 			return false;
 		uxContext = new SimpleUxContext();
 
+		eventBroker.subscribe(UIEvents.UILifeCycle.APP_STARTUP_COMPLETE, new EventHandler() {
+			@Override
+			public void handleEvent(Event event) {
+				startupComplete();
+				eventBroker.unsubscribe(this);
+			}
+		});
+
 		// lcs.changeApplicationLocale(Locale.FRENCH);
 		return true;
 	}
 
 	@PreSave
 	void destroy() {
-		//logout();
+		// logout();
 	}
 
 	@Override
@@ -65,8 +101,7 @@ public class CmsLoginLifecycle implements CmsView {
 
 	@Override
 	public void navigateTo(String state) {
-		// TODO Auto-generated method stub
-
+		browserNavigation.pushState(state, state);
 	}
 
 	@Override
@@ -97,13 +132,14 @@ public class CmsLoginLifecycle implements CmsView {
 
 	@Override
 	public void exception(Throwable e) {
-		log.error("Unexpected exception in Eclipse 4 RAP", e);
+		String msg = "Unexpected exception in Eclipse 4 RAP";
+		log.error(msg, e);
+		CmsFeedback.show(msg, e);
 	}
 
 	@Override
 	public CmsImageManager getImageManager() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	protected Subject getSubject() {
@@ -113,6 +149,23 @@ public class CmsLoginLifecycle implements CmsView {
 	@Override
 	public boolean isAnonymous() {
 		return CurrentUser.isAnonymous(getSubject());
+	}
+
+	// CALLBACKS
+	protected void startupComplete() {
+	}
+
+	protected void stateChanged() {
+
+	}
+
+	// GETTERS
+	protected BrowserNavigation getBrowserNavigation() {
+		return browserNavigation;
+	}
+
+	protected String getState() {
+		return state;
 	}
 
 }
