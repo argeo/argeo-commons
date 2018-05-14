@@ -55,7 +55,7 @@ public class CmsLoginLifecycle implements CmsView {
 
 	@PreSave
 	void destroy() {
-		logout();
+		//logout();
 	}
 
 	@Override
