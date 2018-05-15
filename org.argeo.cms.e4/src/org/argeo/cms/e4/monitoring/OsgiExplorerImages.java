@@ -26,4 +26,5 @@ public class OsgiExplorerImages extends CmsImages {
 	public final static Image ACTIVE = createIcon("active.gif");
 	public final static Image SERVICE_PUBLISHED = createIcon("service_published.gif");
 	public final static Image SERVICE_REFERENCED = createIcon("service_referenced.gif");
+	public final static Image CONFIGURATION = createIcon("node.gif");
 }
