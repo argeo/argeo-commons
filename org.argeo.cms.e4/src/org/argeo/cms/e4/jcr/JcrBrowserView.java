@@ -44,6 +44,7 @@ import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.jcr.AsyncUiEventListener;
 import org.argeo.eclipse.ui.jcr.utils.NodeViewerComparer;
 import org.argeo.node.security.CryptoKeyring;
+import org.argeo.node.security.Keyring;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.ui.services.EMenuService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
@@ -76,7 +77,8 @@ public class JcrBrowserView {
 	private boolean sortChildNodes = true;
 
 	/* DEPENDENCY INJECTION */
-	private CryptoKeyring keyring;
+	@Inject
+	private Keyring keyring;
 	@Inject
 	private RepositoryFactory repositoryFactory;
 	@Inject

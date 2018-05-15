@@ -1,5 +1,6 @@
 Service-Component: OSGI-INF/homeRepository.xml,\
-OSGI-INF/userAdminWrapper.xml
+OSGI-INF/userAdminWrapper.xml,\
+OSGI-INF/defaultCallbackHandler.xml
 Bundle-ActivationPolicy: lazy
 
 Import-Package: org.eclipse.swt,\
@@ -8,4 +9,5 @@ org.eclipse.e4.ui.model.application,\
 javax.jcr.nodetype,\
 org.eclipse.core.commands.common,\
 org.eclipse.jface.window,\
+org.argeo.cms.widgets.auth,\
 *

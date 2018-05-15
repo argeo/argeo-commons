@@ -29,6 +29,7 @@ import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeDeployment;
 import org.argeo.node.NodeState;
 import org.argeo.node.security.CryptoKeyring;
+import org.argeo.node.security.Keyring;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.util.LangUtils;
 import org.osgi.framework.Bundle;
@@ -227,8 +228,8 @@ public class CmsDeployment implements NodeDeployment {
 				NodeKeyRing nodeKeyring = new NodeKeyRing(homeRepository);
 				CallbackHandler callbackHandler = bc.getService(reference);
 				nodeKeyring.setDefaultCallbackHandler(callbackHandler);
-				bc.registerService(LangUtils.names(CryptoKeyring.class, ManagedService.class), nodeKeyring,
-						LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_KEYRING_PID));
+				bc.registerService(LangUtils.names(Keyring.class, CryptoKeyring.class, ManagedService.class),
+						nodeKeyring, LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_KEYRING_PID));
 				return callbackHandler;
 			}
 
