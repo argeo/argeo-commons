@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -266,20 +267,27 @@ public class CmsDeployment implements NodeDeployment {
 		for (BundleWire wire : requiredWires) {
 			processWiring(cn, adminSession, wire.getProviderWiring(), processed);
 		}
+
+		List<String> publishAsLocalRepo = new ArrayList<>();
 		List<BundleCapability> capabilities = wiring.getCapabilities(CMS_DATA_MODEL_NAMESPACE);
 		for (BundleCapability capability : capabilities) {
-			registerDataModelCapability(cn, adminSession, capability, processed);
+			boolean publish = registerDataModelCapability(cn, adminSession, capability, processed);
+			if (publish)
+				publishAsLocalRepo.add((String) capability.getAttributes().get(DataModelNamespace.NAME));
 		}
+		// Publish all at once, so that bundles with multiple CNDs are consistent
+		for (String dataModelName : publishAsLocalRepo)
+			publishLocalRepo(dataModelName, adminSession.getRepository());
 	}
 
-	private void registerDataModelCapability(String cn, Session adminSession, BundleCapability capability,
+	private boolean registerDataModelCapability(String cn, Session adminSession, BundleCapability capability,
 			Set<String> processed) {
 		Map<String, Object> attrs = capability.getAttributes();
 		String name = (String) attrs.get(DataModelNamespace.NAME);
 		if (processed.contains(name)) {
 			if (log.isTraceEnabled())
 				log.trace("Data model " + name + " has already been processed");
-			return;
+			return false;
 		}
 
 		// CND
@@ -304,7 +312,7 @@ public class CmsDeployment implements NodeDeployment {
 		}
 
 		if (KernelUtils.asBoolean((String) attrs.get(DataModelNamespace.ABSTRACT)))
-			return;
+			return false;
 		// Non abstract
 		boolean isStandalone = deployConfig.isStandalone(name);
 		boolean publishLocalRepo;
@@ -315,17 +323,19 @@ public class CmsDeployment implements NodeDeployment {
 		else
 			publishLocalRepo = false;
 
-		if (publishLocalRepo) {
-			Hashtable<String, Object> properties = new Hashtable<>();
-			// properties.put(LEGACY_JCR_REPOSITORY_ALIAS, name);
-			properties.put(NodeConstants.CN, name);
-			if (name.equals(NodeConstants.NODE))
-				properties.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
-			LocalRepository localRepository = new LocalRepository(adminSession.getRepository(), capability);
-			bc.registerService(Repository.class, localRepository, properties);
-			if (log.isDebugEnabled())
-				log.debug("Published data model " + name);
-		}
+		return publishLocalRepo;
+	}
+
+	private void publishLocalRepo(String dataModelName, Repository repository) {
+		Hashtable<String, Object> properties = new Hashtable<>();
+		// properties.put(LEGACY_JCR_REPOSITORY_ALIAS, name);
+		properties.put(NodeConstants.CN, dataModelName);
+		if (dataModelName.equals(NodeConstants.NODE))
+			properties.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
+		LocalRepository localRepository = new LocalRepository(repository, dataModelName);
+		bc.registerService(Repository.class, localRepository, properties);
+		if (log.isDebugEnabled())
+			log.debug("Published data model " + dataModelName);
 	}
 
 	@Override
