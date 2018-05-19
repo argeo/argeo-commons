@@ -71,7 +71,6 @@ public class LightweightDialog {
 		// backgroundShell.setMaximized(true);
 		backgroundShell.setAlpha(128);
 		backgroundShell.setBackground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
-		backgroundShell.open();
 		foregoundShell = new Shell(backgroundShell, SWT.NO_TRIM | SWT.ON_TOP);
 		if (title != null)
 			setTitle(title);
@@ -103,6 +102,7 @@ public class LightweightDialog {
 
 		});
 
+		backgroundShell.open();
 		foregoundShell.open();
 		// after the foreground shell has been opened
 		backgroundShell.addFocusListener(new FocusListener() {

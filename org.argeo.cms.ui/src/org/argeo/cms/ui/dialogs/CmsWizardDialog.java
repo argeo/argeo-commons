@@ -128,7 +128,8 @@ public class CmsWizardDialog extends LightweightDialog implements IWizardContain
 			back.setEnabled(wizard.getPreviousPage(currentPage) != null);
 		if (next != null)
 			next.setEnabled(wizard.getNextPage(currentPage) != null && currentPage.canFlipToNextPage());
-		finish.setEnabled(wizard.canFinish());
+		if (finish != null)
+			finish.setEnabled(wizard.canFinish());
 	}
 
 	@Override
