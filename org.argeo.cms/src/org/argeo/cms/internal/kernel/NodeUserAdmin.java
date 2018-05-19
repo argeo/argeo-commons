@@ -137,7 +137,7 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 			log.debug("User directory " + userDirectory.getBaseDn() + " [" + u.getScheme() + "] enabled."
 					+ (realm != null ? " " + realm + " realm." : ""));
 
-		if (!isSystemRolesBaseDn(baseDn)) {
+		if (isSystemRolesBaseDn(baseDn)) {
 			if (userAdminReg != null)
 				userAdminReg.unregister();
 			// register self as main user admin
