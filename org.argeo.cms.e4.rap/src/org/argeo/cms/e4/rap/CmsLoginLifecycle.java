@@ -121,7 +121,7 @@ public class CmsLoginLifecycle implements CmsView {
 	@Override
 	public void logout() {
 		if (loginContext == null)
-			throw new CmsException("Login context should not bet null");
+			throw new CmsException("Login context should not be null");
 		try {
 			CurrentUser.logoutCmsSession(loginContext.getSubject());
 			loginContext.logout();
