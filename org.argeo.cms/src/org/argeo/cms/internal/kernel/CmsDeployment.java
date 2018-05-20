@@ -17,6 +17,7 @@ import java.util.Set;
 import javax.jcr.Repository;
 import javax.jcr.Session;
 import javax.security.auth.callback.CallbackHandler;
+import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,6 +45,7 @@ import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -103,9 +105,11 @@ public class CmsDeployment implements NodeDeployment {
 		ServiceTracker<?, ?> userAdminSt = new ServiceTracker<UserAdmin, UserAdmin>(bc, UserAdmin.class, null) {
 			@Override
 			public UserAdmin addingService(ServiceReference<UserAdmin> reference) {
+				UserAdmin userAdmin = super.addingService(reference);
+				addStandardSystemRoles(userAdmin);
 				userAdminAvailable = true;
 				checkReadiness();
-				return super.addingService(reference);
+				return userAdmin;
 			}
 		};
 		// userAdminSt.open();
@@ -149,6 +153,26 @@ public class CmsDeployment implements NodeDeployment {
 		};
 		// confAdminSt.open();
 		KernelUtils.asyncOpen(confAdminSt);
+	}
+
+	private void addStandardSystemRoles(UserAdmin userAdmin) {
+		// we assume UserTransaction is already available (TODO make it more robust)
+		UserTransaction userTransaction = bc.getService(bc.getServiceReference(UserTransaction.class));
+		try {
+			userTransaction.begin();
+			if (userAdmin.getRole(NodeConstants.ROLE_ADMIN) == null)
+				userAdmin.createRole(NodeConstants.ROLE_ADMIN, Role.GROUP);
+			if (userAdmin.getRole(NodeConstants.ROLE_USER_ADMIN) == null)
+				userAdmin.createRole(NodeConstants.ROLE_USER_ADMIN, Role.GROUP);
+			userTransaction.commit();
+		} catch (Exception e) {
+			try {
+				userTransaction.rollback();
+			} catch (Exception e1) {
+				// silent
+			}
+			throw new CmsException("Cannot add standard system roles", e);
+		}
 	}
 
 	private void loadIpaJaasConfiguration() {

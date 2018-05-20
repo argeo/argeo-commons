@@ -7,21 +7,3 @@ dn: ou=roles,ou=node
 objectClass: organizationalUnit
 objectClass: top
 ou: roles
-
-dn: cn=admin,ou=roles,ou=node
-objectClass: groupOfNames
-objectClass: top
-cn: admin
-member: uid=root,ou=People,dc=example,dc=com
-
-dn: cn=userAdmin,ou=roles,ou=node
-objectClass: groupOfNames
-objectClass: top
-cn: userAdmin
-member: cn=admin,ou=roles,ou=node
-
-dn: cn=registering,ou=roles,ou=node
-objectClass: groupOfNames
-objectClass: top
-cn: registering
-
