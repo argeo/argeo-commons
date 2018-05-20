@@ -50,7 +50,6 @@ public class CmsLoginLifecycle implements CmsView {
 				@Override
 				public void navigated(BrowserNavigationEvent event) {
 					state = event.getState();
-					System.out.println("state=" + state);
 					if (uxContext != null)// is logged in
 						stateChanged();
 				}
