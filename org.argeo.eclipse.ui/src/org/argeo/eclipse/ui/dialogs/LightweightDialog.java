@@ -186,6 +186,10 @@ public class LightweightDialog {
 		block = shouldBlock;
 	}
 
+	public void pack() {
+		foregoundShell.pack();
+	}
+
 	private void runEventLoop(Shell loopShell) {
 		Display display;
 		if (foregoundShell == null) {

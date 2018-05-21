@@ -13,7 +13,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -37,25 +36,25 @@ public class CmsFeedback extends LightweightDialog {
 		if (e instanceof ThreadDeath)
 			throw (ThreadDeath) e;
 
-		new CmsFeedback(getDisplay().getActiveShell(), message, e).open();
+		new CmsFeedback(null, message, e).open();
 	}
 
 	public static void show(String message) {
-		new CmsFeedback(getDisplay().getActiveShell(), message, null).open();
+		new CmsFeedback(null, message, null).open();
 	}
 
 	/** Tries to find a display */
-	private static Display getDisplay() {
-		try {
-			Display display = Display.getCurrent();
-			if (display != null)
-				return display;
-			else
-				return Display.getDefault();
-		} catch (Exception e) {
-			return Display.getCurrent();
-		}
-	}
+//	private static Display getDisplay() {
+//		try {
+//			Display display = Display.getCurrent();
+//			if (display != null)
+//				return display;
+//			else
+//				return Display.getDefault();
+//		} catch (Exception e) {
+//			return Display.getCurrent();
+//		}
+//	}
 
 	protected Control createDialogArea(Composite parent) {
 		parent.setLayout(new GridLayout(2, false));

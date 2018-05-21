@@ -3,6 +3,7 @@ package org.argeo.cms.ui.dialogs;
 import java.lang.reflect.InvocationTargetException;
 
 import org.argeo.cms.CmsException;
+import org.argeo.cms.CmsMsg;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.Selected;
@@ -58,7 +59,7 @@ public class CmsWizardDialog extends LightweightDialog implements IWizardContain
 			titleBar.setLayoutData(new GridData(SWT.BEGINNING, SWT.FILL, true, false));
 			updateTitleBar();
 			Button cancelButton = new Button(messageArea, SWT.FLAT);
-			cancelButton.setText("Cancel");
+			cancelButton.setText(CmsMsg.cancel.lead());
 			cancelButton.setLayoutData(new GridData(SWT.END, SWT.TOP, false, false, 1, 3));
 			cancelButton.addSelectionListener((Selected) (e) -> closeShell(CANCEL));
 			message = new Label(messageArea, SWT.WRAP);
@@ -84,17 +85,17 @@ public class CmsWizardDialog extends LightweightDialog implements IWizardContain
 
 			if (!singlePage) {
 				back = new Button(buttons, SWT.PUSH);
-				back.setText("Back");
+				back.setText(CmsMsg.wizardBack.lead());
 				back.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
 				back.addSelectionListener((Selected) (e) -> backPressed());
 
 				next = new Button(buttons, SWT.PUSH);
-				next.setText("Next");
+				next.setText(CmsMsg.wizardNext.lead());
 				next.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
 				next.addSelectionListener((Selected) (e) -> nextPressed());
 			}
 			finish = new Button(buttons, SWT.PUSH);
-			finish.setText("Finish");
+			finish.setText(CmsMsg.wizardFinish.lead());
 			finish.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
 			finish.addSelectionListener((Selected) (e) -> finishPressed());
 

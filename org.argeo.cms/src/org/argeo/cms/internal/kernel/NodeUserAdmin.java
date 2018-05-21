@@ -137,15 +137,15 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 			log.debug("User directory " + userDirectory.getBaseDn() + " [" + u.getScheme() + "] enabled."
 					+ (realm != null ? " " + realm + " realm." : ""));
 
-		if (isSystemRolesBaseDn(baseDn)) {
-			if (userAdminReg != null)
-				userAdminReg.unregister();
-			// register self as main user admin
-			Dictionary<String, Object> userAdminregProps = currentState();
-			userAdminregProps.put(NodeConstants.CN, NodeConstants.DEFAULT);
-			userAdminregProps.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
-			userAdminReg = bc.registerService(UserAdmin.class, this, userAdminregProps);
-		}
+		// if (isSystemRolesBaseDn(baseDn)) {
+		if (userAdminReg != null)
+			userAdminReg.unregister();
+		// register self as main user admin
+		Dictionary<String, Object> userAdminregProps = currentState();
+		userAdminregProps.put(NodeConstants.CN, NodeConstants.DEFAULT);
+		userAdminregProps.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
+		userAdminReg = bc.registerService(UserAdmin.class, this, userAdminregProps);
+		// }
 	}
 
 	@Override
