@@ -15,6 +15,8 @@
  */
 package org.argeo.eclipse.ui.dialogs;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
@@ -32,6 +34,8 @@ import org.eclipse.swt.widgets.Shell;
 
 /** Generic lightweight dialog, not based on JFace. */
 public class LightweightDialog {
+	private final static Log log = LogFactory.getLog(LightweightDialog.class);
+
 	// must be the same value as org.eclipse.jface.window.Window#OK
 	public final static int OK = 0;
 	// must be the same value as org.eclipse.jface.window.Window#CANCEL
@@ -120,7 +124,11 @@ public class LightweightDialog {
 		});
 
 		if (block) {
-			runEventLoop(foregoundShell);
+			try {
+				runEventLoop(foregoundShell);
+			} catch (Throwable t) {
+				log.error("Cannot open blocking lightweight dialog", t);
+			}
 		}
 		if (returnCode == null)
 			returnCode = OK;

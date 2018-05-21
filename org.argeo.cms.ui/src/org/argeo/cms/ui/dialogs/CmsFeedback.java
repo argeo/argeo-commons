@@ -5,6 +5,7 @@ import java.io.StringWriter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.cms.CmsMsg;
 import org.argeo.eclipse.ui.Selected;
 import org.argeo.eclipse.ui.dialogs.LightweightDialog;
 import org.eclipse.swt.SWT;
@@ -36,7 +37,13 @@ public class CmsFeedback extends LightweightDialog {
 		if (e instanceof ThreadDeath)
 			throw (ThreadDeath) e;
 
-		new CmsFeedback(null, message, e).open();
+		try {
+			CmsFeedback cmsFeedback = new CmsFeedback(null, message, e);
+			cmsFeedback.setBlockOnOpen(false);
+			cmsFeedback.open();
+		} catch (Throwable e1) {
+			log.error("Cannot open error feedback (" + e.getMessage() + "), original error below", e);
+		}
 	}
 
 	public static void show(String message) {
@@ -44,17 +51,17 @@ public class CmsFeedback extends LightweightDialog {
 	}
 
 	/** Tries to find a display */
-//	private static Display getDisplay() {
-//		try {
-//			Display display = Display.getCurrent();
-//			if (display != null)
-//				return display;
-//			else
-//				return Display.getDefault();
-//		} catch (Exception e) {
-//			return Display.getCurrent();
-//		}
-//	}
+	// private static Display getDisplay() {
+	// try {
+	// Display display = Display.getCurrent();
+	// if (display != null)
+	// return display;
+	// else
+	// return Display.getDefault();
+	// } catch (Exception e) {
+	// return Display.getCurrent();
+	// }
+	// }
 
 	protected Control createDialogArea(Composite parent) {
 		parent.setLayout(new GridLayout(2, false));
@@ -66,7 +73,7 @@ public class CmsFeedback extends LightweightDialog {
 			messageLbl.setText(exception.getLocalizedMessage());
 
 		Button close = new Button(parent, SWT.FLAT);
-		close.setText("Close");
+		close.setText(CmsMsg.close.lead());
 		close.setLayoutData(new GridData(SWT.END, SWT.TOP, false, false));
 		close.addSelectionListener((Selected) (e) -> closeShell(OK));
 
