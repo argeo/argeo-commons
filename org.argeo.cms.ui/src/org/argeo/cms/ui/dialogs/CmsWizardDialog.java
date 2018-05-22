@@ -13,6 +13,9 @@ import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.IWizardContainer2;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -26,10 +29,11 @@ public class CmsWizardDialog extends LightweightDialog implements IWizardContain
 
 	private IWizard wizard;
 	private IWizardPage currentPage;
+	private int currentPageIndex;
 
 	private Label titleBar;
 	private Label message;
-	private Composite body;
+	private Composite[] pageBodies;
 	private Composite buttons;
 	private Button back;
 	private Button next;
@@ -67,9 +71,17 @@ public class CmsWizardDialog extends LightweightDialog implements IWizardContain
 			updateMessage();
 		}
 
-		body = new Composite(parent, SWT.BORDER);
-		body.setLayout(CmsUtils.noSpaceGridLayout());
+		Composite body = new Composite(parent, SWT.BORDER);
+		body.setLayout(new FormLayout());
 		body.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		pageBodies = new Composite[wizard.getPageCount()];
+		IWizardPage[] pages = wizard.getPages();
+		for (int i = 0; i < pages.length; i++) {
+			pageBodies[i] = new Composite(body, SWT.NONE);
+			pageBodies[i].setLayout(CmsUtils.noSpaceGridLayout());
+			setSwitchingFormData(pageBodies[i]);
+			pages[i].createControl(pageBodies[i]);
+		}
 		showPage(currentPage);
 
 		buttons = new Composite(parent, SWT.NONE);
@@ -116,10 +128,24 @@ public class CmsWizardDialog extends LightweightDialog implements IWizardContain
 
 	@Override
 	public void showPage(IWizardPage page) {
-		// clear
-		for (Control c : body.getChildren())
-			c.dispose();
-		page.createControl(body);
+		IWizardPage[] pages = wizard.getPages();
+		int index = -1;
+		for (int i = 0; i < pages.length; i++) {
+			if (page == pages[i]) {
+				index = i;
+				break;
+			}
+		}
+		if (index < 0)
+			throw new CmsException("Cannot find index of wizard page " + page);
+		pageBodies[index].moveAbove(pageBodies[currentPageIndex]);
+
+		// // clear
+		// for (Control c : body.getChildren())
+		// c.dispose();
+		// page.createControl(body);
+		// body.layout(true, true);
+		currentPageIndex = index;
 		currentPage = page;
 	}
 
@@ -129,8 +155,9 @@ public class CmsWizardDialog extends LightweightDialog implements IWizardContain
 			back.setEnabled(wizard.getPreviousPage(currentPage) != null);
 		if (next != null)
 			next.setEnabled(wizard.getNextPage(currentPage) != null && currentPage.canFlipToNextPage());
-		if (finish != null)
+		if (finish != null) {
 			finish.setEnabled(wizard.canFinish());
+		}
 	}
 
 	@Override
@@ -168,15 +195,27 @@ public class CmsWizardDialog extends LightweightDialog implements IWizardContain
 	protected void nextPressed() {
 		IWizardPage page = wizard.getNextPage(currentPage);
 		showPage(page);
+		updateButtons();
 	}
 
 	protected void backPressed() {
 		IWizardPage page = wizard.getPreviousPage(currentPage);
 		showPage(page);
+		updateButtons();
 	}
 
 	protected void finishPressed() {
 		if (wizard.performFinish())
 			closeShell(OK);
 	}
+
+	private static void setSwitchingFormData(Composite composite) {
+		FormData fdLabel = new FormData();
+		fdLabel.top = new FormAttachment(0, 0);
+		fdLabel.left = new FormAttachment(0, 0);
+		fdLabel.right = new FormAttachment(100, 0);
+		fdLabel.bottom = new FormAttachment(100, 0);
+		composite.setLayoutData(fdLabel);
+	}
+
 }
