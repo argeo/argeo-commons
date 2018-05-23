@@ -18,7 +18,7 @@ class AggregatingAuthorization implements Authorization {
 
 	public AggregatingAuthorization(String name, String displayName,
 			Collection<String> systemRoles, String[] roles) {
-		this.name = new X500Principal(name).getName();
+		this.name = name;
 		this.displayName = displayName;
 		this.systemRoles = Collections.unmodifiableList(new ArrayList<String>(
 				systemRoles));
