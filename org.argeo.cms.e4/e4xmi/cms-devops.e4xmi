@@ -11,8 +11,8 @@
               <menus xsi:type="menu:PopupMenu" xmi:id="_eXiUECqREeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.popupmenu.nodeViewer">
                 <children xsi:type="menu:HandledMenuItem" xmi:id="_GVeO8CqhEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.refresh" label="Refresh" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/refresh.png" command="_TOKHsCqYEeidr6NYQH6GbQ"/>
                 <children xsi:type="menu:HandledMenuItem" xmi:id="_fU238CqREeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.addfoldernode" label="Add folder" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/addFolder.gif" command="_RgE5cCqREeidr6NYQH6GbQ"/>
-                <children xsi:type="menu:HandledMenuItem" xmi:id="_U4o9cCqhEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.rename" label="Rename" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/rename.gif"/>
-                <children xsi:type="menu:HandledMenuItem" xmi:id="_Ncxo0CqhEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.remove" label="Remove" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/remove.gif"/>
+                <children xsi:type="menu:HandledMenuItem" xmi:id="_U4o9cCqhEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.rename" label="Rename" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/rename.gif" command="_ZrcUMCqYEeidr6NYQH6GbQ"/>
+                <children xsi:type="menu:HandledMenuItem" xmi:id="_Ncxo0CqhEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.remove" label="Remove" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/remove.gif" command="_ChJ-4CqYEeidr6NYQH6GbQ"/>
               </menus>
               <menus xmi:id="_oRg_ACqTEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.menu.0">
                 <tags>ViewMenu</tags>
