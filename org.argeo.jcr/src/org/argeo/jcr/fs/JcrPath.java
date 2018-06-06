@@ -259,9 +259,12 @@ public class JcrPath implements Path {
 		if (other.startsWith(this)) {
 			String p1 = toString();
 			String p2 = other.toString();
-			return new JcrPath(fs, p2.substring(p1.length(), p2.length()));
+			String relative =  p2.substring(p1.length(), p2.length());
+			if(relative.charAt(0)=='/')
+				relative = relative.substring(1);
+			return new JcrPath(fs,relative);
 		}
-		throw new IllegalArgumentException(other + " cannot be realtivized against " + this);
+		throw new IllegalArgumentException(other + " cannot be relativized against " + this);
 	}
 
 	@Override
