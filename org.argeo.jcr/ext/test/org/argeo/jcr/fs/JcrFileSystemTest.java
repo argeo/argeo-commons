@@ -66,6 +66,9 @@ public class JcrFileSystemTest extends TestCase {
 		log.debug("Created sub directories " + subsubdir);
 		Path copiedFile = testDir.resolve("copiedFile.txt");
 		log.debug("Resolved " + copiedFile);
+		Path relativeCopiedFile = testDir.relativize(copiedFile);
+		assertEquals(copiedFile.getFileName().toString(), relativeCopiedFile.toString());
+		log.debug("Relative copied file " + relativeCopiedFile);
 		try (OutputStream out = Files.newOutputStream(copiedFile); InputStream in = Files.newInputStream(testPath)) {
 			IOUtils.copy(in, out);
 		}

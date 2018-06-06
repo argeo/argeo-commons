@@ -47,7 +47,8 @@ public class DavexFsProvider extends AbstractJackrabbitFsProvider {
 		}
 	}
 
-	private JcrFileSystem tryGetRepo(RepositoryFactory repositoryFactory, URI repoUri, String workspace) {
+	private JcrFileSystem tryGetRepo(RepositoryFactory repositoryFactory, URI repoUri, String workspace)
+			throws IOException {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(JACKRABBIT_REPOSITORY_URI, repoUri.toString());
 		params.put(JACKRABBIT_REMOTE_DEFAULT_WORKSPACE, "main");

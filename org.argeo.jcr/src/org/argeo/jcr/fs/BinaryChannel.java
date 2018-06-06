@@ -74,7 +74,7 @@ public class BinaryChannel implements SeekableByteChannel {
 				session.save();
 				open = false;
 			} catch (RepositoryException e) {
-				throw new JcrFsException("Cannot close " + file, e);
+				throw new IOException("Cannot close " + file, e);
 			} finally {
 				JcrUtils.closeQuietly(newBinary);
 				// IOUtils.closeQuietly(fc);
@@ -114,7 +114,7 @@ public class BinaryChannel implements SeekableByteChannel {
 					position = position + read;
 				return read;
 			} catch (RepositoryException e) {
-				throw new JcrFsException("Cannot read into buffer", e);
+				throw new IOException("Cannot read into buffer", e);
 			}
 		}
 	}
@@ -160,7 +160,7 @@ public class BinaryChannel implements SeekableByteChannel {
 			try {
 				return binary.getSize();
 			} catch (RepositoryException e) {
-				throw new JcrFsException("Cannot get size", e);
+				throw new IOException("Cannot get size", e);
 			}
 		}
 	}
@@ -186,7 +186,7 @@ public class BinaryChannel implements SeekableByteChannel {
 			}
 			return fc;
 		} catch (RepositoryException e) {
-			throw new JcrFsException("Cannot get temp file channel", e);
+			throw new IOException("Cannot get temp file channel", e);
 		}
 	}
 

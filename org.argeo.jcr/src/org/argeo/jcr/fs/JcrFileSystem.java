@@ -22,7 +22,7 @@ public class JcrFileSystem extends FileSystem {
 	private final Session session;
 	private String userHomePath = null;
 
-	public JcrFileSystem(JcrFileSystemProvider provider, Session session) {
+	public JcrFileSystem(JcrFileSystemProvider provider, Session session) throws IOException {
 		super();
 		this.provider = provider;
 		this.session = session;
@@ -31,7 +31,7 @@ public class JcrFileSystem extends FileSystem {
 			try {
 				userHomePath = userHome.getPath();
 			} catch (RepositoryException e) {
-				throw new JcrFsException("Cannot retrieve user home path", e);
+				throw new IOException("Cannot retrieve user home path", e);
 			}
 	}
 

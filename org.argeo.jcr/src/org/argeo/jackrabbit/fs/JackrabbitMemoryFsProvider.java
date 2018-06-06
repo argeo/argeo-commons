@@ -2,6 +2,7 @@ package org.argeo.jackrabbit.fs;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -9,6 +10,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
@@ -37,8 +39,8 @@ public class JackrabbitMemoryFsProvider extends AbstractJackrabbitFsProvider {
 			Session session = repository.login(new SimpleCredentials(username, username.toCharArray()));
 			fileSystem = new JcrFileSystem(this, session);
 			return fileSystem;
-		} catch (Exception e) {
-			throw new JcrFsException("Cannot login to repository", e);
+		} catch (RepositoryException | URISyntaxException e) {
+			throw new IOException("Cannot login to repository", e);
 		}
 	}
 
@@ -50,11 +52,11 @@ public class JackrabbitMemoryFsProvider extends AbstractJackrabbitFsProvider {
 	@Override
 	public Path getPath(URI uri) {
 		String path = uri.getPath();
-		if(fileSystem==null)
+		if (fileSystem == null)
 			try {
 				newFileSystem(uri, new HashMap<String, Object>());
 			} catch (IOException e) {
-				throw new JcrFsException("Could not autocreate file system",e);
+				throw new JcrFsException("Could not autocreate file system", e);
 			}
 		return fileSystem.getPath(path);
 	}

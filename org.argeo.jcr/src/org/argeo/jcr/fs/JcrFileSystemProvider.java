@@ -42,10 +42,10 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 			if (node == null) {
 				Node parent = toNode(path.getParent());
 				if (parent == null)
-					throw new JcrFsException("No parent directory for " + path);
+					throw new IOException("No parent directory for " + path);
 				if (parent.getPrimaryNodeType().isNodeType(NodeType.NT_FILE)
 						|| parent.getPrimaryNodeType().isNodeType(NodeType.NT_LINKED_FILE))
-					throw new JcrFsException(path + " parent is a file");
+					throw new IOException(path + " parent is a file");
 
 				String fileName = path.getFileName().toString();
 				fileName = Text.escapeIllegalJcrChars(fileName);
@@ -57,7 +57,7 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 				throw new UnsupportedOperationException(node + " must be a file");
 			return new BinaryChannel(node);
 		} catch (RepositoryException e) {
-			throw new JcrFsException("Cannot read file", e);
+			throw new IOException("Cannot read file", e);
 		}
 	}
 
@@ -67,7 +67,7 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 			Node base = toNode(dir);
 			return new NodeDirectoryStream((JcrFileSystem) dir.getFileSystem(), base.getNodes(), filter);
 		} catch (RepositoryException e) {
-			throw new JcrFsException("Cannot list directory", e);
+			throw new IOException("Cannot list directory", e);
 		}
 	}
 
@@ -81,7 +81,7 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 					throw new IOException("Parent of " + dir + " does not exist");
 				if (parent.getPrimaryNodeType().isNodeType(NodeType.NT_FILE)
 						|| parent.getPrimaryNodeType().isNodeType(NodeType.NT_LINKED_FILE))
-					throw new JcrFsException(dir + " parent is a file");
+					throw new IOException(dir + " parent is a file");
 				String fileName = dir.getFileName().toString();
 				fileName = Text.escapeIllegalJcrChars(fileName);
 				node = parent.addNode(fileName, NodeType.NT_FOLDER);
@@ -93,7 +93,7 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 					throw new FileExistsException(dir + " exists and is not a directory");
 			}
 		} catch (RepositoryException e) {
-			throw new JcrFsException("Cannot create directory " + dir, e);
+			throw new IOException("Cannot create directory " + dir, e);
 		}
 
 	}
@@ -114,7 +114,7 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 			}
 			session.save();
 		} catch (RepositoryException e) {
-			throw new JcrFsException("Cannot delete " + path, e);
+			throw new IOException("Cannot delete " + path, e);
 		}
 
 	}
@@ -127,7 +127,7 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 			JcrUtils.copy(sourceNode, targetNode);
 			sourceNode.getSession().save();
 		} catch (RepositoryException e) {
-			throw new JcrFsException("Cannot copy from " + source + " to " + target, e);
+			throw new IOException("Cannot copy from " + source + " to " + target, e);
 		}
 	}
 
@@ -139,7 +139,7 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 			session.move(sourceNode.getPath(), target.toString());
 			session.save();
 		} catch (RepositoryException e) {
-			throw new JcrFsException("Cannot move from " + source + " to " + target, e);
+			throw new IOException("Cannot move from " + source + " to " + target, e);
 		}
 	}
 
@@ -156,7 +156,7 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 				Node node2 = toNode(path2);
 				return node.isSame(node2);
 			} catch (RepositoryException e) {
-				throw new JcrFsException("Cannot check whether " + path + " and " + path2 + " are same", e);
+				throw new IOException("Cannot check whether " + path + " and " + path2 + " are same", e);
 			}
 		}
 
@@ -181,7 +181,7 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 				throw new NoSuchFileException(path + " does not exist");
 			// TODO check access via JCR api
 		} catch (RepositoryException e) {
-			throw new JcrFsException("Cannot delete " + path, e);
+			throw new IOException("Cannot delete " + path, e);
 		}
 	}
 
@@ -197,12 +197,12 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 		try {
 			// TODO check if assignable
 			Node node = toNode(path);
-			if(node==null) {
-				throw new JcrFsException("JCR node not found for "+path);
+			if (node == null) {
+				throw new IOException("JCR node not found for " + path);
 			}
 			return (A) new JcrBasicfileAttributes(node);
 		} catch (RepositoryException e) {
-			throw new JcrFsException("Cannot read basic attributes of " + path, e);
+			throw new IOException("Cannot read basic attributes of " + path, e);
 		}
 	}
 
@@ -242,7 +242,7 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 			}
 			return res;
 		} catch (RepositoryException e) {
-			throw new JcrFsException("Cannot read attributes of " + path, e);
+			throw new IOException("Cannot read attributes of " + path, e);
 		}
 	}
 
@@ -259,7 +259,7 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 			}
 			node.getSession().save();
 		} catch (RepositoryException e) {
-			throw new JcrFsException("Cannot set attribute " + attribute + " on " + path, e);
+			throw new IOException("Cannot set attribute " + attribute + " on " + path, e);
 		}
 	}
 
