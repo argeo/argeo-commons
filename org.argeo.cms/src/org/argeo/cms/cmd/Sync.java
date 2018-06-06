@@ -1,20 +1,19 @@
 package org.argeo.cms.cmd;
 
+import java.net.URI;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.spi.FileSystemProvider;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.jackrabbit.jcr2dav.Jcr2davRepositoryFactory;
-import org.argeo.cms.internal.kernel.KernelConstants;
+import org.argeo.cms.CmsException;
 import org.argeo.jackrabbit.fs.DavexFsProvider;
-import org.argeo.jcr.ArgeoJcrException;
-import org.argeo.jcr.JcrUtils;
-import org.argeo.jcr.fs.JcrFileSystem;
+import org.argeo.util.LangUtils;
 
 public class Sync {
 	private final static Log log = LogFactory.getLog(Sync.class);
@@ -43,25 +42,32 @@ public class Sync {
 			}
 		}
 
-		log.debug("Hello world " + arguments);
-		String sourceUri = arguments.get("-i");
-		DavexFsProvider fsProvider = new DavexFsProvider();
-//		Map<String, String> params = new HashMap<String, String>();
-//		params.put(KernelConstants.JACKRABBIT_REPOSITORY_URI, sourceUri);
-//		params.put(KernelConstants.JACKRABBIT_REMOTE_DEFAULT_WORKSPACE, "main");
-//		Repository repository;
-//		try {
-//			repository = new Jcr2davRepositoryFactory().getRepository(params);
-//			if (repository == null)
-//				throw new ArgeoJcrException("Remote Davex repository " + sourceUri + " not found");
-//			Session session = repository.login();
-//			if (log.isDebugEnabled())
-//				log.debug("Opened JCR session to " + sourceUri);
-//			JcrUtils.logoutQuietly(session);
-//		} catch (RepositoryException e) {
-//			throw new ArgeoJcrException("Cannot load " + sourceUri, e);
-//		}
+		try {
+			URI sourceUri = new URI(arguments.get("-i"));
+			URI targetUri = new URI(arguments.get("-o"));
+			FileSystemProvider sourceFsProvider = createFsProvider(sourceUri);
+			FileSystemProvider targetFsProvider = createFsProvider(targetUri);
+			Path sourceBasePath = sourceFsProvider.getPath(sourceUri);
+			Path targetBasePath = targetFsProvider.getPath(targetUri);
+			SyncFileVisitor syncFileVisitor = new SyncFileVisitor(sourceBasePath, targetBasePath);
+			ZonedDateTime begin = ZonedDateTime.now();
+			Files.walkFileTree(sourceBasePath, syncFileVisitor);
+			if (log.isDebugEnabled())
+				log.debug("Sync from " + sourceBasePath + " to " + targetBasePath + " took " + LangUtils.since(begin));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
+	private static FileSystemProvider createFsProvider(URI uri) {
+		FileSystemProvider fsProvider;
+		if (uri.getScheme().equals("file"))
+			fsProvider = FileSystems.getDefault().provider();
+		else if (uri.getScheme().equals("davex"))
+			fsProvider = new DavexFsProvider();
+		else
+			throw new CmsException("URI scheme not supported for " + uri);
+		return fsProvider;
 	}
 
 	static enum Arg {
