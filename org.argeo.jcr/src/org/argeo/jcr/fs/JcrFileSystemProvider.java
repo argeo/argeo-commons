@@ -2,6 +2,7 @@ package org.argeo.jcr.fs;
 
 import java.io.IOException;
 import java.nio.channels.SeekableByteChannel;
+import java.nio.charset.Charset;
 import java.nio.file.AccessMode;
 import java.nio.file.CopyOption;
 import java.nio.file.DirectoryNotEmptyException;
@@ -34,11 +35,12 @@ import org.apache.commons.io.FileExistsException;
 import org.argeo.jcr.JcrUtils;
 
 public abstract class JcrFileSystemProvider extends FileSystemProvider {
+
 	@Override
 	public SeekableByteChannel newByteChannel(Path path, Set<? extends OpenOption> options, FileAttribute<?>... attrs)
 			throws IOException {
+		Node node = toNode(path);
 		try {
-			Node node = toNode(path);
 			if (node == null) {
 				Node parent = toNode(path.getParent());
 				if (parent == null)
@@ -48,7 +50,6 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 					throw new IOException(path + " parent is a file");
 
 				String fileName = path.getFileName().toString();
-				fileName = Text.escapeIllegalJcrChars(fileName);
 				node = parent.addNode(fileName, NodeType.NT_FILE);
 				node.addMixin(NodeType.MIX_CREATED);
 				node.addMixin(NodeType.MIX_LAST_MODIFIED);
@@ -57,6 +58,7 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 				throw new UnsupportedOperationException(node + " must be a file");
 			return new BinaryChannel(node);
 		} catch (RepositoryException e) {
+			discardChanges(node);
 			throw new IOException("Cannot read file", e);
 		}
 	}
@@ -73,8 +75,8 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 
 	@Override
 	public void createDirectory(Path dir, FileAttribute<?>... attrs) throws IOException {
+		Node node = toNode(dir);
 		try {
-			Node node = toNode(dir);
 			if (node == null) {
 				Node parent = toNode(dir.getParent());
 				if (parent == null)
@@ -83,7 +85,6 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 						|| parent.getPrimaryNodeType().isNodeType(NodeType.NT_LINKED_FILE))
 					throw new IOException(dir + " parent is a file");
 				String fileName = dir.getFileName().toString();
-				fileName = Text.escapeIllegalJcrChars(fileName);
 				node = parent.addNode(fileName, NodeType.NT_FOLDER);
 				node.addMixin(NodeType.MIX_CREATED);
 				node.addMixin(NodeType.MIX_LAST_MODIFIED);
@@ -93,15 +94,15 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 					throw new FileExistsException(dir + " exists and is not a directory");
 			}
 		} catch (RepositoryException e) {
+			discardChanges(node);
 			throw new IOException("Cannot create directory " + dir, e);
 		}
-
 	}
 
 	@Override
 	public void delete(Path path) throws IOException {
+		Node node = toNode(path);
 		try {
-			Node node = toNode(path);
 			if (node == null)
 				throw new NoSuchFileException(path + " does not exist");
 			Session session = node.getSession();
@@ -114,6 +115,7 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 			}
 			session.save();
 		} catch (RepositoryException e) {
+			discardChanges(node);
 			throw new IOException("Cannot delete " + path, e);
 		}
 
@@ -121,24 +123,27 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 
 	@Override
 	public void copy(Path source, Path target, CopyOption... options) throws IOException {
+		Node sourceNode = toNode(source);
+		Node targetNode = toNode(target);
 		try {
-			Node sourceNode = toNode(source);
-			Node targetNode = toNode(target);
 			JcrUtils.copy(sourceNode, targetNode);
 			sourceNode.getSession().save();
 		} catch (RepositoryException e) {
+			discardChanges(sourceNode);
+			discardChanges(targetNode);
 			throw new IOException("Cannot copy from " + source + " to " + target, e);
 		}
 	}
 
 	@Override
 	public void move(Path source, Path target, CopyOption... options) throws IOException {
+		Node sourceNode = toNode(source);
 		try {
-			Node sourceNode = toNode(source);
 			Session session = sourceNode.getSession();
 			session.move(sourceNode.getPath(), target.toString());
 			session.save();
 		} catch (RepositoryException e) {
+			discardChanges(sourceNode);
 			throw new IOException("Cannot move from " + source + " to " + target, e);
 		}
 	}
@@ -194,16 +199,12 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 	@Override
 	public <A extends BasicFileAttributes> A readAttributes(Path path, Class<A> type, LinkOption... options)
 			throws IOException {
-		try {
-			// TODO check if assignable
-			Node node = toNode(path);
-			if (node == null) {
-				throw new IOException("JCR node not found for " + path);
-			}
-			return (A) new JcrBasicfileAttributes(node);
-		} catch (RepositoryException e) {
-			throw new IOException("Cannot read basic attributes of " + path, e);
+		// TODO check if assignable
+		Node node = toNode(path);
+		if (node == null) {
+			throw new IOException("JCR node not found for " + path);
 		}
+		return (A) new JcrBasicfileAttributes(node);
 	}
 
 	@Override
@@ -248,8 +249,8 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 
 	@Override
 	public void setAttribute(Path path, String attribute, Object value, LinkOption... options) throws IOException {
+		Node node = toNode(path);
 		try {
-			Node node = toNode(path);
 			if (value instanceof byte[]) {
 				JcrUtils.setBinaryAsBytes(node, attribute, (byte[]) value);
 			} else if (value instanceof Calendar) {
@@ -259,12 +260,31 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 			}
 			node.getSession().save();
 		} catch (RepositoryException e) {
+			discardChanges(node);
 			throw new IOException("Cannot set attribute " + attribute + " on " + path, e);
 		}
 	}
 
-	protected Node toNode(Path path) throws RepositoryException {
-		return ((JcrPath) path).getNode();
+	protected Node toNode(Path path) {
+		try {
+			return ((JcrPath) path).getNode();
+		} catch (RepositoryException e) {
+			throw new JcrFsException("Cannot convert path " + path + " to JCR Node", e);
+		}
+	}
+
+	/** Discard changes in the underlying session */
+	protected void discardChanges(Node node) {
+		if (node == null)
+			return;
+		try {
+			// discard changes
+			node.getSession().refresh(false);
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+			// TODO log out session?
+			// TODO use Commons logging?
+		}
 	}
 
 	/**

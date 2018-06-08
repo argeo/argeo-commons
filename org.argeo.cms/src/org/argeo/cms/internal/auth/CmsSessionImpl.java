@@ -17,6 +17,7 @@ import java.util.UUID;
 
 import javax.crypto.SecretKey;
 import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
@@ -123,7 +124,7 @@ public class CmsSessionImpl implements CmsSession {
 	private Subject getSubject() {
 		return Subject.getSubject(initialContext);
 	}
-	
+
 	public Set<SecretKey> getSecretKeys() {
 		return getSubject().getPrivateCredentials(SecretKey.class);
 	}
@@ -178,6 +179,8 @@ public class CmsSessionImpl implements CmsSession {
 		if (additionalDataSessions.contains(session)) {
 			JcrUtils.logoutQuietly(session);
 			additionalDataSessions.remove(session);
+			if (log.isTraceEnabled())
+				log.trace("Remove additional data session " + session);
 			return;
 		}
 		String path = cn + '/' + session.getWorkspace().getName();
@@ -187,6 +190,8 @@ public class CmsSessionImpl implements CmsSession {
 		Session registeredSession = dataSessions.get(path);
 		if (session != registeredSession)
 			log.warn("Data session " + path + " not consistent for " + userDn);
+		if (log.isTraceEnabled())
+			log.trace("Released data session " + session + " for " + path);
 		notifyAll();
 	}
 
