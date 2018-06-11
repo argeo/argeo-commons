@@ -2,7 +2,6 @@ package org.argeo.jcr.fs;
 
 import java.io.IOException;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.charset.Charset;
 import java.nio.file.AccessMode;
 import java.nio.file.CopyOption;
 import java.nio.file.DirectoryNotEmptyException;
@@ -50,6 +49,7 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 					throw new IOException(path + " parent is a file");
 
 				String fileName = path.getFileName().toString();
+				fileName = Text.escapeIllegalJcrChars(fileName);
 				node = parent.addNode(fileName, NodeType.NT_FILE);
 				node.addMixin(NodeType.MIX_CREATED);
 				node.addMixin(NodeType.MIX_LAST_MODIFIED);
@@ -85,6 +85,7 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 						|| parent.getPrimaryNodeType().isNodeType(NodeType.NT_LINKED_FILE))
 					throw new IOException(dir + " parent is a file");
 				String fileName = dir.getFileName().toString();
+				fileName = Text.escapeIllegalJcrChars(fileName);
 				node = parent.addNode(fileName, NodeType.NT_FOLDER);
 				node.addMixin(NodeType.MIX_CREATED);
 				node.addMixin(NodeType.MIX_LAST_MODIFIED);
