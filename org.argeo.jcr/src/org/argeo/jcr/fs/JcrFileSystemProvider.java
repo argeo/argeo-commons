@@ -30,7 +30,6 @@ import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
 
-import org.apache.commons.io.FileExistsException;
 import org.argeo.jcr.JcrUtils;
 
 public abstract class JcrFileSystemProvider extends FileSystemProvider {
@@ -91,8 +90,8 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 				node.addMixin(NodeType.MIX_LAST_MODIFIED);
 				node.getSession().save();
 			} else {
-				if (!node.getPrimaryNodeType().isNodeType(NodeType.NT_FOLDER))
-					throw new FileExistsException(dir + " exists and is not a directory");
+				// if (!node.getPrimaryNodeType().isNodeType(NodeType.NT_FOLDER))
+				// throw new FileExistsException(dir + " exists and is not a directory");
 			}
 		} catch (RepositoryException e) {
 			discardChanges(node);
