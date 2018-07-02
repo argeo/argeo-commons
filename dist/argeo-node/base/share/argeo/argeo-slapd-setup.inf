@@ -1,0 +1,12 @@
+[General] 
+FullMachineName=localhost.localdomain 
+SuiteSpotUserID=nobody 
+SuiteSpotGroup=nobody 
+
+[slapd] 
+ServerPort=389 
+ServerIdentifier=argeo 
+Suffix= dc=example,dc=com  
+RootDN= cn=Directory Manager 
+RootDNPwd=argeoargeo
+AddSampleEntries=Yes
