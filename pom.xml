@@ -50,6 +50,7 @@
 		<module>demo</module>
 		<module>doc</module>
 		<module>dist</module>
+		<module>rcp</module>
 	</modules>
 	<scm>
 		<connection>scm:git:http://git.argeo.org/apache2/argeo-commons.git</connection>

@@ -1,0 +1,503 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.argeo.commons.rcp</groupId>
+		<artifactId>dep</artifactId>
+		<version>2.1.74-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>org.argeo.dep.cms.e4.rcp</artifactId>
+	<name>Node Eclipse RCP</name>
+	<dependencies>
+		<!-- SWT for ARM -->
+		<dependency>
+			<groupId>org.argeo.tp.rcp.e4</groupId>
+			<artifactId>org.eclipse.swt.gtk.linux.arm</artifactId>
+			<version>3.106.100.v20180305-0927</version>
+		</dependency>
+
+		<!-- RCP -->
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>argeo-tp-rcp-e4</artifactId>
+			<version>${version.argeo-tp}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.osgi</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.osgi.services</artifactId>
+				</exclusion>
+
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.osgi.compatibility.state</artifactId>
+				</exclusion>
+
+				<!-- Deprecated update configurator has side effect in PDE -->
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.update.configurator</artifactId>
+				</exclusion>
+				<!-- SWT -->
+				<!-- <exclusion> -->
+				<!-- <groupId>org.argeo.tp.rcp.e4</groupId> -->
+				<!-- <artifactId>org.eclipse.swt.win32.win32.x86_64</artifactId> -->
+				<!-- </exclusion> -->
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.swt.carbon.macosx</artifactId>
+				</exclusion>
+				<!-- <exclusion> -->
+				<!-- <groupId>org.argeo.tp.rcp.e4</groupId> -->
+				<!-- <artifactId>org.eclipse.swt.cocoa.macosx.x86_64</artifactId> -->
+				<!-- </exclusion> -->
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.swt.gtk.solaris.sparc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.swt.gtk.solaris.x86</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.swt.motif.solaris.sparc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.swt.gtk.linux.s390</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.swt.gtk.linux.s390x</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.swt.gtk.linux.ppc64</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.swt.motif.linux.x86</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.swt.gtk.linux.ppc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.swt.photon.qnx.x86</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.swt.motif.aix.ppc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.swt.motif.aix.ppc64</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.swt.motif.hpux.ia64_32</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.swt.gtk.aix.ppc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.swt.gtk.aix.ppc64</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.swt.gtk.hpux.ia64_32</artifactId>
+				</exclusion>
+
+				<!-- Equinox Launcher -->
+				<!-- <exclusion> -->
+				<!-- <groupId>org.argeo.tp.rcp.e4</groupId> -->
+				<!-- <artifactId>org.eclipse.equinox.launcher.win32.win32.x86_64</artifactId> -->
+				<!-- </exclusion> -->
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.equinox.launcher.carbon.macosx</artifactId>
+				</exclusion>
+				<!-- <exclusion> -->
+				<!-- <groupId>org.argeo.tp.rcp.e4</groupId> -->
+				<!-- <artifactId>org.eclipse.equinox.launcher.cocoa.macosx.x86_64</artifactId> -->
+				<!-- </exclusion> -->
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.equinox.launcher.gtk.solaris.sparc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.equinox.launcher.gtk.solaris.x86</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.equinox.launcher.motif.solaris.sparc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.equinox.launcher.gtk.linux.s390</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.equinox.launcher.gtk.linux.s390x</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.equinox.launcher.gtk.linux.ppc64</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.equinox.launcher.motif.linux.x86</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.equinox.launcher.gtk.linux.ppc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.equinox.launcher.photon.qnx.x86</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.equinox.launcher.motif.aix.ppc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.equinox.launcher.motif.aix.ppc64</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.equinox.launcher.motif.hpux.ia64_32</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.equinox.launcher.gtk.aix.ppc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.equinox.launcher.gtk.aix.ppc64</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.equinox.launcher.gtk.hpux.ia64_32</artifactId>
+				</exclusion>
+
+				<!-- Eclipse UI -->
+				<exclusion>
+					<groupId>org.argeo.tp.rcp.e4</groupId>
+					<artifactId>org.eclipse.ui.carbon</artifactId>
+				</exclusion>
+
+				<!-- Felix Gogo shell -->
+				<!-- <exclusion> -->
+				<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+				<!-- <artifactId>org.apache.felix.gogo.runtime</artifactId> -->
+				<!-- </exclusion> -->
+				<!-- <exclusion> -->
+				<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+				<!-- <artifactId>org.apache.felix.gogo.shell</artifactId> -->
+				<!-- </exclusion> -->
+				<!-- <exclusion> -->
+				<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+				<!-- <artifactId>org.apache.felix.gogo.command</artifactId> -->
+				<!-- </exclusion> -->
+				<!-- <exclusion> -->
+				<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
+				<!-- <artifactId>org.eclipse.equinox.console</artifactId> -->
+				<!-- </exclusion> -->
+			</exclusions>
+		</dependency>
+
+		<!-- From RAP -->
+		<dependency>
+			<groupId>org.argeo.tp.rap.e4</groupId>
+			<artifactId>org.eclipse.emf.common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.e4</groupId>
+			<artifactId>org.eclipse.emf.ecore</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.e4</groupId>
+			<artifactId>org.eclipse.emf.ecore.change</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.e4</groupId>
+			<artifactId>org.eclipse.emf.ecore.xmi</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.argeo.tp.rap.e4</groupId>
+			<artifactId>org.eclipse.e4.ui.di</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.e4</groupId>
+			<artifactId>org.eclipse.e4.core.di</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.e4</groupId>
+			<artifactId>org.eclipse.e4.core.di.extensions.supplier</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.e4</groupId>
+			<artifactId>org.eclipse.e4.ui.model.workbench</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.e4</groupId>
+			<artifactId>org.eclipse.e4.emf.xpath</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.e4</groupId>
+			<artifactId>org.eclipse.e4.core.contexts</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.e4</groupId>
+			<artifactId>org.eclipse.e4.core.services</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.e4</groupId>
+			<artifactId>org.eclipse.e4.core.di.annotations</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.e4</groupId>
+			<artifactId>org.eclipse.e4.ui.services</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.e4</groupId>
+			<artifactId>org.eclipse.e4.core.di.extensions</artifactId>
+		</dependency>
+
+
+		<!-- Eclipse -->
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.eclipse.ui</artifactId>
+			<version>2.1.74-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.rcp</groupId>
+			<artifactId>org.argeo.cms.e4.rcp</artifactId>
+			<version>2.1.74-SNAPSHOT</version>
+		</dependency>
+
+		<!-- RCP specific -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.commons.rcp</groupId> -->
+		<!-- <artifactId>org.argeo.cms.ui.workbench.rcp</artifactId> -->
+		<!-- <version>2.1.18-SNAPSHOT</version> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.commons</groupId> -->
+		<!-- <artifactId>org.argeo.cms.ui.workbench</artifactId> -->
+		<!-- <version>${version.argeo-commons}</version> -->
+		<!-- </dependency> -->
+
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.dep.cms.sdk</artifactId>
+			<version>2.1.74-SNAPSHOT</version>
+			<type>pom</type>
+			<exclusions>
+				<!-- Equinox base -->
+				<!-- <exclusion> -->
+				<!-- <groupId>org.argeo.tp.equinox</groupId> -->
+				<!-- <artifactId>org.eclipse.osgi</artifactId> -->
+				<!-- </exclusion> -->
+				<!-- <exclusion> -->
+				<!-- <groupId>org.argeo.tp.equinox</groupId> -->
+				<!-- <artifactId>org.eclipse.osgi.services</artifactId> -->
+				<!-- </exclusion> -->
+
+				<exclusion>
+					<groupId>org.argeo.commons</groupId>
+					<artifactId>org.argeo.cms.ui.workbench</artifactId>
+				</exclusion>
+				<!-- Argeo RAP -->
+				<exclusion>
+					<groupId>org.argeo.commons</groupId>
+					<artifactId>org.argeo.eclipse.ui.rap</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.commons</groupId>
+					<artifactId>org.argeo.cms.ui.workbench.rap</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.commons</groupId>
+					<artifactId>org.argeo.ext.rap.ui.workbench</artifactId>
+				</exclusion>
+
+				<!-- RAP minimal -->
+				<exclusion>
+					<groupId>org.argeo.tp.rap.e4</groupId>
+					<artifactId>org.eclipse.rap.rwt</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.e4</groupId>
+					<artifactId>org.eclipse.rap.jface</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.e4</groupId>
+					<artifactId>org.eclipse.rap.filedialog</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.e4</groupId>
+					<artifactId>org.eclipse.rap.fileupload</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.e4</groupId>
+					<artifactId>org.eclipse.core.commands</artifactId>
+				</exclusion>
+
+				<!-- RAP UI -->
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.ui.forms</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.rwt</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.jface</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.ui</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.ui.views</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.ui.workbench</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.rwt.osgi</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.jface.databinding</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.core.jobs</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.core.expressions</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.core.databinding.observable</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.help</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.core.databinding</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.core.databinding.beans</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.core.runtime</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.core.databinding.property</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>com.ibm.icu.base</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.core.contenttype</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.core.commands</artifactId>
+				</exclusion>
+
+				<!-- Addons -->
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.filedialog</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.rap.platform</groupId>
+					<artifactId>org.eclipse.rap.fileupload</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<!-- SDK -->
+		<dependency>
+			<groupId>org.argeo.tp.equinox</groupId>
+			<artifactId>org.eclipse.osgi</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+	<profiles>
+		<profile>
+			<id>rpmbuild</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>rpm-maven-plugin</artifactId>
+						<configuration>
+						</configuration>
+						<executions>
+							<execution>
+								<id>rpm-node-rcp</id>
+								<phase>package</phase>
+								<goals>
+									<goal>rpm</goal>
+								</goals>
+								<configuration>
+									<name>argeo-cms-e4-rcp</name>
+									<mappings>
+										<mapping>
+											<directory>/usr/share/osgi/rcp</directory>
+											<username>root</username>
+											<groupname>root</groupname>
+											<filemode>644</filemode>
+											<directoryIncluded>false</directoryIncluded>
+											<dependency>
+												<includes>
+													<include>org.argeo.commons.rcp:org.argeo.eclipse.ui.rcp</include>
+													<include>org.argeo.commons.rcp:org.argeo.cms.e4.rcp</include>
+												</includes>
+											</dependency>
+										</mapping>
+									</mappings>
+									<requires>
+										<!-- <require>argeo-node</require> -->
+									</requires>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>
