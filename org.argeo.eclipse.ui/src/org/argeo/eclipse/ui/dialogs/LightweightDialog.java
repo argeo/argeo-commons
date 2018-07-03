@@ -70,8 +70,11 @@ public class LightweightDialog {
 	public int open() {
 		if (foregoundShell != null)
 			throw new EclipseUiException("There is already a shell");
-		backgroundShell = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.ON_TOP);
+		backgroundShell = new Shell(parentShell, SWT.ON_TOP);
 		backgroundShell.setFullScreen(true);
+		// if (parentShell != null) {
+		// backgroundShell.setBounds(parentShell.getBounds());
+		// } else
 		// backgroundShell.setMaximized(true);
 		backgroundShell.setAlpha(128);
 		backgroundShell.setBackground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
@@ -84,7 +87,7 @@ public class LightweightDialog {
 		// shell.pack();
 		// shell.layout();
 
-		Rectangle shellBounds = Display.getCurrent().getBounds();// RAP
+		Rectangle shellBounds = parentShell != null ? parentShell.getBounds() : Display.getCurrent().getBounds();// RAP
 		Point dialogSize = foregoundShell.getSize();
 		int x = shellBounds.x + (shellBounds.width - dialogSize.x) / 2;
 		int y = shellBounds.y + (shellBounds.height - dialogSize.y) / 2;
