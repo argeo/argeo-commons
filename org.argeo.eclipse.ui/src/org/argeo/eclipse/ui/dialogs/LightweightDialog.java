@@ -95,6 +95,8 @@ public class LightweightDialog {
 
 			@Override
 			public void shellDeactivated(ShellEvent e) {
+				if (hasChildShells())
+					return;
 				if (returnCode == null)// not yet closed
 					closeShell(CANCEL);
 			}
@@ -118,6 +120,8 @@ public class LightweightDialog {
 
 			@Override
 			public void focusGained(FocusEvent event) {
+				if (hasChildShells())
+					return;
 				if (returnCode == null)// not yet closed
 					closeShell(CANCEL);
 			}
@@ -126,13 +130,24 @@ public class LightweightDialog {
 		if (block) {
 			try {
 				runEventLoop(foregoundShell);
+			} catch (ThreadDeath t) {
+				returnCode = CANCEL;
+				if (log.isTraceEnabled())
+					log.error("Thread death, canceling dialog", t);
 			} catch (Throwable t) {
+				returnCode = CANCEL;
 				log.error("Cannot open blocking lightweight dialog", t);
 			}
 		}
 		if (returnCode == null)
 			returnCode = OK;
 		return returnCode;
+	}
+
+	private boolean hasChildShells() {
+		if (foregoundShell == null)
+			return false;
+		return foregoundShell.getShells().length != 0;
 	}
 
 	// public synchronized int openAndWait() {
@@ -238,6 +253,10 @@ public class LightweightDialog {
 		this.title = title;
 		if (title != null && getForegoundShell() != null)
 			getForegoundShell().setText(title);
+	}
+
+	public Integer getReturnCode() {
+		return returnCode;
 	}
 
 }
