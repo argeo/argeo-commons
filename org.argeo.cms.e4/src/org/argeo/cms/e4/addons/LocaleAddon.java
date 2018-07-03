@@ -1,4 +1,4 @@
-package org.argeo.cms.e4.handlers;
+package org.argeo.cms.e4.addons;
 
 import java.security.AccessController;
 import java.util.List;
