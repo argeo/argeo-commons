@@ -225,11 +225,6 @@ limitations under the License.
 						<autoVersionSubmodules>true</autoVersionSubmodules>
 					</configuration>
 				</plugin>
-				<!-- <plugin> -->
-				<!-- <artifactId>maven-javadoc-plugin</artifactId> -->
-				<!-- <version>2.10.4</version> -->
-				<!-- </plugin> -->
-				<!-- Apache -->
 				<plugin>
 					<groupId>org.apache.felix</groupId>
 					<artifactId>maven-bundle-plugin</artifactId>
@@ -290,92 +285,31 @@ limitations under the License.
 				<plugin>
 					<artifactId>maven-javadoc-plugin</artifactId>
 					<version>3.0.0</version>
-					<configuration>
-						<encoding>UTF-8</encoding>
-						<detectLinks>true</detectLinks>
-						<!-- <sourcepath>src</sourcepath> -->
-						<links>
-							<!-- Java -->
-							<link>http://docs.oracle.com/javase/8/docs/api</link>
-							<!-- OSGi -->
-							<link>http://www.osgi.org/javadoc/r5/core</link>
-							<link>http://www.osgi.org/javadoc/r5/enterprise</link>
-							<!-- Spring -->
-							<link>http://docs.spring.io/spring/docs/3.2.x/javadoc-api</link>
-							<!-- JCR -->
-							<link>http://www.day.com/maven/javax.jcr/javadocs/jcr-2.0</link>
-							<!-- Eclipse -->
-							<link>http://help.eclipse.org/neon/topic/org.eclipse.platform.doc.isv/reference/api</link>
-						</links>
-					</configuration>
+<!-- 					<configuration> -->
+<!-- 						<failOnError>false</failOnError> -->
+<!-- 						<additionalJOption>-Xdoclint:none</additionalJOption> -->
+<!-- 						<excludePackageNames>*.internal.*,org.eclipse.*</excludePackageNames> -->
+<!-- 						<encoding>UTF-8</encoding> -->
+<!-- 						<detectLinks>true</detectLinks> -->
+<!-- 						<sourcepath>src</sourcepath> -->
+<!-- 						<links> -->
+<!-- 							Java -->
+<!-- 							<link>http://docs.oracle.com/javase/8/docs/api</link> -->
+<!-- 							OSGi -->
+<!-- 							<link>http://www.osgi.org/javadoc/r5/core</link> -->
+<!-- 							<link>http://www.osgi.org/javadoc/r5/enterprise</link> -->
+<!-- 							Spring -->
+<!-- 							<link>http://docs.spring.io/spring/docs/3.2.x/javadoc-api</link> -->
+<!-- 							JCR -->
+<!-- 							<link>http://www.day.com/maven/javax.jcr/javadocs/jcr-2.0</link> -->
+<!-- 							Eclipse -->
+<!-- 							<link>http://help.eclipse.org/neon/topic/org.eclipse.platform.doc.isv/reference/api</link> -->
+<!-- 						</links> -->
+<!-- 					</configuration> -->
 				</plugin>
 				<plugin>
 					<artifactId>maven-site-plugin</artifactId>
 					<version>3.7</version>
-					<!-- <configuration> -->
-					<!-- <siteDirectory>doc/site</siteDirectory> -->
-					<!-- <generateSitemap>true</generateSitemap> -->
-					<!-- <skip>false</skip> -->
-					<!-- <reportPlugins> -->
-					<!-- <plugin> -->
-					<!-- <groupId>org.apache.maven.plugins</groupId> -->
-					<!-- <artifactId>maven-project-info-reports-plugin</artifactId> -->
-					<!-- <version>2.8.1</version> -->
-					<!-- <reportSets> -->
-					<!-- <reportSet> -->
-					<!-- <reports> -->
-					<!-- <report>index</report> -->
-					<!-- <report>summary</report> -->
-					<!-- <report>license</report> -->
-					<!-- <report>scm</report> -->
-					<!-- </reports> -->
-					<!-- </reportSet> -->
-					<!-- </reportSets> -->
-					<!-- </plugin> -->
-					<!-- <plugin> -->
-					<!-- <artifactId>maven-javadoc-plugin</artifactId> -->
-					<!-- <version>3.0.0</version> -->
-					<!-- <configuration> -->
-					<!-- <encoding>UTF-8</encoding> -->
-					<!-- <detectLinks>true</detectLinks> -->
-					<!-- <sourcepath>src</sourcepath> -->
-					<!-- <links> -->
-					<!-- Java -->
-					<!-- <link>http://docs.oracle.com/javase/8/docs/api</link> -->
-					<!-- OSGi -->
-					<!-- <link>http://www.osgi.org/javadoc/r5/core</link> -->
-					<!-- <link>http://www.osgi.org/javadoc/r5/enterprise</link> -->
-					<!-- Spring -->
-					<!-- <link>http://docs.spring.io/spring/docs/3.2.x/javadoc-api</link> -->
-					<!-- JCR -->
-					<!-- <link>http://www.day.com/maven/javax.jcr/javadocs/jcr-2.0</link> -->
-					<!-- Eclipse -->
-					<!-- <link>http://help.eclipse.org/neon/topic/org.eclipse.platform.doc.isv/reference/api</link> -->
-					<!-- </links> -->
-					<!-- </configuration> -->
-					<!-- <reportSets> -->
-					<!-- <reportSet> -->
-					<!-- <id>aggregate</id> -->
-					<!-- <reports> -->
-					<!-- <report>aggregate</report> -->
-					<!-- </reports> -->
-					<!-- </reportSet> -->
-					<!-- </reportSets> -->
-					<!-- </plugin> -->
-					<!-- <plugin> -->
-					<!-- <artifactId>maven-jxr-plugin</artifactId> -->
-					<!-- <version>2.5</version> -->
-					<!-- <reportSets> -->
-					<!-- <reportSet> -->
-					<!-- <id>aggregate</id> -->
-					<!-- <reports> -->
-					<!-- <report>aggregate</report> -->
-					<!-- </reports> -->
-					<!-- </reportSet> -->
-					<!-- </reportSets> -->
-					<!-- </plugin> -->
-					<!-- </reportPlugins> -->
-					<!-- </configuration> -->
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -393,12 +327,6 @@ limitations under the License.
 					</filesets>
 				</configuration>
 			</plugin>
-			<!-- <plugin> -->
-			<!-- <artifactId>maven-javadoc-plugin</artifactId> -->
-			<!-- <configuration> -->
-			<!-- <skip>true</skip> -->
-			<!-- </configuration> -->
-			<!-- </plugin> -->
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<configuration>
@@ -454,24 +382,23 @@ limitations under the License.
 	<repositories>
 		<repository>
 			<id>argeo</id>
-			<url>http://forge.argeo.org/data/java/argeo-2.1/</url>
+			<url>http://repo.argeo.org/data/java/argeo-2.1/</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
 				<checksumPolicy>warn</checksumPolicy>
 			</releases>
 		</repository>
-		<!-- Disable Maven default repository -->
-		<repository>
-			<id>central</id>
-			<url>http://repo1.maven.org/maven2</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
+		<!-- Maven default repository -->
+<!-- 		<repository> -->
+<!-- 			<id>central</id> -->
+<!-- 			<url>http://repo1.maven.org/maven2</url> -->
+<!-- 			<releases> -->
+<!-- 				<enabled>true</enabled> -->
+<!-- 				<updatePolicy>daily</updatePolicy> -->
+<!-- 				<checksumPolicy>warn</checksumPolicy> -->
+<!-- 			</releases> -->
+<!-- 		</repository> -->
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
@@ -485,7 +412,7 @@ limitations under the License.
 		</pluginRepository>
 		<pluginRepository>
 			<id>argeo-maven-plugins</id>
-			<url>http://repo.argeo.org/data/public/java/argeo-maven-1.1</url>
+			<url>http://repo.argeo.org/data/java/argeo-2.1</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>daily</updatePolicy>
@@ -525,6 +452,9 @@ limitations under the License.
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>3.0.0</version>
 				<configuration>
+					<failOnError>false</failOnError>
+					<additionalJOption>-Xdoclint:none</additionalJOption>
+					<excludePackageNames>*.internal.*,org.eclipse.*</excludePackageNames>
 					<encoding>UTF-8</encoding>
 					<detectLinks>true</detectLinks>
 					<!-- <sourcepath>src</sourcepath> -->
