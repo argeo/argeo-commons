@@ -219,6 +219,10 @@ limitations under the License.
 					<version>2.9</version>
 				</plugin>
 				<plugin>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>3.7</version>
+				</plugin>
+				<plugin>
 					<artifactId>maven-release-plugin</artifactId>
 					<version>2.5.1</version>
 					<configuration>
@@ -238,7 +242,7 @@ limitations under the License.
 							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 							<Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
 							<_removeheaders>Bnd-LastModified,Build-Jdk,Built-By,Tool,Created-By</_removeheaders>
-							<!-- SLC specific instructions -->
+							<Automatic-Module-Name>${project.artifactId}</Automatic-Module-Name>
 							<SLC-Category>${project.groupId}</SLC-Category>
 						</instructions>
 					</configuration>
@@ -257,14 +261,12 @@ limitations under the License.
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>rpm-maven-plugin</artifactId>
 					<version>2.1.4</version>
-					<!-- <version>2.1-alpha-1</version> -->
 					<extensions>true</extensions>
 					<configuration>
 						<version>${project.version}</version>
 						<distribution>argeo${argeo.rpm.release}</distribution>
 						<group>Applications/System</group>
 						<prefix>/usr</prefix>
-						<!-- <copyTo>${argeo.rpm.stagingRepository}</copyTo> -->
 						<defaultDirMode>755</defaultDirMode>
 						<defaultFileMode>644</defaultFileMode>
 						<autoRequires>false</autoRequires>
@@ -280,36 +282,6 @@ limitations under the License.
 					<groupId>org.argeo.maven.plugins</groupId>
 					<artifactId>maven-argeo-osgi-plugin</artifactId>
 					<version>1.1.6</version>
-				</plugin>
-				<!-- Site -->
-				<plugin>
-					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.0.0</version>
-<!-- 					<configuration> -->
-<!-- 						<failOnError>false</failOnError> -->
-<!-- 						<additionalJOption>-Xdoclint:none</additionalJOption> -->
-<!-- 						<excludePackageNames>*.internal.*,org.eclipse.*</excludePackageNames> -->
-<!-- 						<encoding>UTF-8</encoding> -->
-<!-- 						<detectLinks>true</detectLinks> -->
-<!-- 						<sourcepath>src</sourcepath> -->
-<!-- 						<links> -->
-<!-- 							Java -->
-<!-- 							<link>http://docs.oracle.com/javase/8/docs/api</link> -->
-<!-- 							OSGi -->
-<!-- 							<link>http://www.osgi.org/javadoc/r5/core</link> -->
-<!-- 							<link>http://www.osgi.org/javadoc/r5/enterprise</link> -->
-<!-- 							Spring -->
-<!-- 							<link>http://docs.spring.io/spring/docs/3.2.x/javadoc-api</link> -->
-<!-- 							JCR -->
-<!-- 							<link>http://www.day.com/maven/javax.jcr/javadocs/jcr-2.0</link> -->
-<!-- 							Eclipse -->
-<!-- 							<link>http://help.eclipse.org/neon/topic/org.eclipse.platform.doc.isv/reference/api</link> -->
-<!-- 						</links> -->
-<!-- 					</configuration> -->
-				</plugin>
-				<plugin>
-					<artifactId>maven-site-plugin</artifactId>
-					<version>3.7</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -389,27 +361,8 @@ limitations under the License.
 				<checksumPolicy>warn</checksumPolicy>
 			</releases>
 		</repository>
-		<!-- Maven default repository -->
-<!-- 		<repository> -->
-<!-- 			<id>central</id> -->
-<!-- 			<url>http://repo1.maven.org/maven2</url> -->
-<!-- 			<releases> -->
-<!-- 				<enabled>true</enabled> -->
-<!-- 				<updatePolicy>daily</updatePolicy> -->
-<!-- 				<checksumPolicy>warn</checksumPolicy> -->
-<!-- 			</releases> -->
-<!-- 		</repository> -->
 	</repositories>
 	<pluginRepositories>
-		<pluginRepository>
-			<id>central</id>
-			<url>http://repo1.maven.org/maven2</url>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
-				<checksumPolicy>warn</checksumPolicy>
-			</releases>
-		</pluginRepository>
 		<pluginRepository>
 			<id>argeo-maven-plugins</id>
 			<url>http://repo.argeo.org/data/java/argeo-2.1</url>
@@ -434,7 +387,6 @@ limitations under the License.
 	<reporting>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
 				<version>2.9</version>
 				<reportSets>
@@ -457,19 +409,13 @@ limitations under the License.
 					<excludePackageNames>*.internal.*,org.eclipse.*</excludePackageNames>
 					<encoding>UTF-8</encoding>
 					<detectLinks>true</detectLinks>
-					<!-- <sourcepath>src</sourcepath> -->
 					<links>
-						<!-- Java -->
 						<link>http://docs.oracle.com/javase/8/docs/api</link>
-						<!-- OSGi -->
-						<link>http://www.osgi.org/javadoc/r5/core</link>
-						<link>http://www.osgi.org/javadoc/r5/enterprise</link>
-						<!-- Spring -->
+						<link>https://osgi.org/javadoc/r5/core</link>
+						<link>https://osgi.org/javadoc/r5/enterprise</link>
+						<link>https://docs.adobe.com/docs/en/spec/javax.jcr/javadocs/jcr-2.0</link>
+						<link>http://help.eclipse.org/oxygen/topic/org.eclipse.platform.doc.isv/reference/api</link>
 						<link>http://docs.spring.io/spring/docs/3.2.x/javadoc-api</link>
-						<!-- JCR -->
-						<link>http://www.day.com/maven/javax.jcr/javadocs/jcr-2.0</link>
-						<!-- Eclipse -->
-						<link>http://help.eclipse.org/neon/topic/org.eclipse.platform.doc.isv/reference/api</link>
 					</links>
 				</configuration>
 				<reportSets>
@@ -482,8 +428,7 @@ limitations under the License.
 					</reportSet>
 					<reportSet>
 						<id>javadoc</id>
-						<reports>
-						</reports>
+						<reports></reports>
 					</reportSet>
 				</reportSets>
 			</plugin>
@@ -500,39 +445,13 @@ limitations under the License.
 					</reportSet>
 					<reportSet>
 						<id>jxr</id>
-						<reports>
-						</reports>
+						<reports></reports>
 					</reportSet>
 				</reportSets>
 			</plugin>
 		</plugins>
 	</reporting>
 	<profiles>
-		<profile>
-			<id>localrepo</id>
-			<repositories>
-				<repository>
-					<id>argeo</id>
-					<url>http://localhost:7080/data/java/argeo-2.1</url>
-					<releases>
-						<enabled>true</enabled>
-						<updatePolicy>daily</updatePolicy>
-						<checksumPolicy>warn</checksumPolicy>
-					</releases>
-				</repository>
-			</repositories>
-			<distributionManagement>
-				<repository>
-					<id>staging</id>
-					<url>dav:http://localhost:7080/data/java/argeo-${developmentCycle.argeo-commons}</url>
-					<uniqueVersion>false</uniqueVersion>
-				</repository>
-				<site>
-					<id>staging</id>
-					<url>dav:http://localhost:7080/data/docs/argeo-${developmentCycle.argeo-commons}</url>
-				</site>
-			</distributionManagement>
-		</profile>
 		<profile>
 			<id>rpmbuild</id>
 			<build>
@@ -588,6 +507,32 @@ limitations under the License.
 					</plugin>
 				</plugins>
 			</build>
+		</profile>
+		<profile>
+			<id>localrepo</id>
+			<repositories>
+				<repository>
+					<id>argeo</id>
+					<url>http://localhost:7080/data/java/argeo-2.1</url>
+					<releases>
+						<enabled>true</enabled>
+						<updatePolicy>daily</updatePolicy>
+						<checksumPolicy>warn</checksumPolicy>
+					</releases>
+				</repository>
+			</repositories>
+			<distributionManagement>
+				<repository>
+					<id>staging</id>
+					<url>dav:http://localhost:7080/data/java/argeo-${developmentCycle.argeo-commons}</url>
+					<uniqueVersion>false</uniqueVersion>
+				</repository>
+				<site>
+					<id>staging</id>
+<!-- 					<url>dav:http://localhost:7080/data/docs/argeo-${developmentCycle.argeo-commons}</url> -->
+					<url>file:///home/mbaudier/tmp/site</url>
+				</site>
+			</distributionManagement>
 		</profile>
 	</profiles>
 </project>
