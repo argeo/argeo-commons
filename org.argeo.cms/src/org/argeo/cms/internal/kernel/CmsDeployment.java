@@ -45,6 +45,7 @@ import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
@@ -160,10 +161,14 @@ public class CmsDeployment implements NodeDeployment {
 		UserTransaction userTransaction = bc.getService(bc.getServiceReference(UserTransaction.class));
 		try {
 			userTransaction.begin();
-			if (userAdmin.getRole(NodeConstants.ROLE_ADMIN) == null)
-				userAdmin.createRole(NodeConstants.ROLE_ADMIN, Role.GROUP);
-			if (userAdmin.getRole(NodeConstants.ROLE_USER_ADMIN) == null)
-				userAdmin.createRole(NodeConstants.ROLE_USER_ADMIN, Role.GROUP);
+			Role adminRole = userAdmin.getRole(NodeConstants.ROLE_ADMIN);
+			if (adminRole == null) {
+				adminRole = userAdmin.createRole(NodeConstants.ROLE_ADMIN, Role.GROUP);
+			}
+			if (userAdmin.getRole(NodeConstants.ROLE_USER_ADMIN) == null) {
+				Group userAdminRole = (Group) userAdmin.createRole(NodeConstants.ROLE_USER_ADMIN, Role.GROUP);
+				userAdminRole.addMember(adminRole);
+			}
 			userTransaction.commit();
 		} catch (Exception e) {
 			try {
