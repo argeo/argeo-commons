@@ -459,7 +459,7 @@ limitations under the License.
 		</repository>
 		<site>
 			<id>staging</id>
-			<url>dav:https://forge.argeo.org/data/docs/argeo-2.1/site/argeo-commons/</url>
+			<url>file:///srv/docfactory/argeo-2.1/site/argeo-commons/</url>
 		</site>
 	</distributionManagement>
 	<profiles>
@@ -538,10 +538,6 @@ limitations under the License.
 					<url>dav:http://localhost:7080/data/java/argeo-2.1/</url>
 					<uniqueVersion>false</uniqueVersion>
 				</repository>
-				<site>
-					<id>staging</id>
-					<url>dav:http://localhost:7080/data/docs/argeo-2.1/site/argeo-commons/</url>
-				</site>
 			</distributionManagement>
 		</profile>
 	</profiles>
