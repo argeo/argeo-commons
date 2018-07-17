@@ -476,10 +476,10 @@
 				      <and>
 				         <or>
 				            <instanceof
-				                  value="org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem">
+				                  value="org.argeo.cms.ui.jcr.model.SingleJcrNodeElem">
 				            </instanceof>
 				            <instanceof
-				                  value="org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem">
+				                  value="org.argeo.cms.ui.jcr.model.WorkspaceElem">
 				            </instanceof>
 				         </or>
              			<with variable="activeMenuSelection"><count value="1"/></with>
@@ -497,10 +497,10 @@
 				      <and>
 				         <or>
 				            <instanceof
-				                  value="org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem">
+				                  value="org.argeo.cms.ui.jcr.model.SingleJcrNodeElem">
 				            </instanceof>
 				            <instanceof
-				                  value="org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem">
+				                  value="org.argeo.cms.ui.jcr.model.WorkspaceElem">
 				            </instanceof>
 				         </or>
              			<with variable="activeMenuSelection"><count value="1"/></with>
@@ -518,10 +518,10 @@
 				      <and>
 				         <or>
 				            <instanceof
-				                  value="org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem">
+				                  value="org.argeo.cms.ui.jcr.model.SingleJcrNodeElem">
 				            </instanceof>
 				            <instanceof
-				                  value="org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem">
+				                  value="org.argeo.cms.ui.jcr.model.WorkspaceElem">
 				            </instanceof>
 				         </or>
              			<with variable="activeMenuSelection"><count value="1"/></with>
@@ -539,7 +539,7 @@
 			      		<and>
 			         		<or>
 			            		<instanceof
-			                  		value="org.argeo.cms.ui.workbench.internal.jcr.model.RepositoryElem">
+			                  		value="org.argeo.cms.ui.jcr.model.RepositoryElem">
 			            		</instanceof>
 			         		</or>
              				<with variable="activeMenuSelection"><count value="1"/></with>
@@ -556,9 +556,9 @@
 					<iterate>
 						<or>
 							<instanceof
-								value="org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem" />
+								value="org.argeo.cms.ui.jcr.model.SingleJcrNodeElem" />
 							<instanceof
-								value="org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem" />
+								value="org.argeo.cms.ui.jcr.model.WorkspaceElem" />
 						</or>
 					</iterate>
 				</visibleWhen>
@@ -573,9 +573,9 @@
 						<and>
 							<or>
 								<instanceof
-									value="org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem" />
+									value="org.argeo.cms.ui.jcr.model.SingleJcrNodeElem" />
 								<instanceof
-                          			value="org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem" />
+                          			value="org.argeo.cms.ui.jcr.model.WorkspaceElem" />
                  			</or>
                  			<with variable="activeMenuSelection"><count value="1"/></with>
 						</and>
@@ -590,9 +590,9 @@
 						<iterate> 
 							<or>
 								<instanceof
-                    				value="org.argeo.cms.ui.workbench.internal.jcr.model.RepositoriesElem" />
+                    				value="org.argeo.cms.ui.jcr.model.RepositoriesElem" />
 								<instanceof
-									value="org.argeo.cms.ui.workbench.internal.jcr.model.RepositoryElem" />
+									value="org.argeo.cms.ui.jcr.model.RepositoryElem" />
 							</or> 
 						</iterate>
 					</visibleWhen>
@@ -605,7 +605,7 @@
 					<iterate> 
 						<or>
 							<instanceof
-								value="org.argeo.cms.ui.workbench.internal.jcr.model.RemoteRepositoryElem" />
+								value="org.argeo.cms.ui.jcr.model.RemoteRepositoryElem" />
 						</or> 
            			</iterate>
 				</visibleWhen>
@@ -618,9 +618,9 @@
 						<iterate>
 							<or>
 								<instanceof
-									value="org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem" />
+									value="org.argeo.cms.ui.jcr.model.SingleJcrNodeElem" />
 								<instanceof
-									value="org.argeo.cms.ui.workbench.internal.jcr.model.WorkspaceElem" />
+									value="org.argeo.cms.ui.jcr.model.WorkspaceElem" />
               				</or>
            				</iterate>
 					</visibleWhen>
@@ -632,7 +632,7 @@
 				style="push">
 				<visibleWhen>
 					<iterate> <and>
-						<instanceof value="org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem"></instanceof>
+						<instanceof value="org.argeo.cms.ui.jcr.model.SingleJcrNodeElem"></instanceof>
              			<with variable="activeMenuSelection"><count value="1"/></with>
 					</and> </iterate>
 				</visibleWhen>
@@ -644,7 +644,7 @@
 				style="push">
 				<visibleWhen>
 					<iterate> <and>
-						<instanceof value="org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem"></instanceof>
+						<instanceof value="org.argeo.cms.ui.jcr.model.SingleJcrNodeElem"></instanceof>
              			<with variable="activeMenuSelection"><count value="1"/></with>
 					</and> </iterate>
 				</visibleWhen>
@@ -657,7 +657,7 @@
 				<visibleWhen>
 					<iterate> 
 						<and>
-							<instanceof value="org.argeo.cms.ui.workbench.internal.jcr.model.SingleJcrNodeElem"></instanceof>
+							<instanceof value="org.argeo.cms.ui.jcr.model.SingleJcrNodeElem"></instanceof>
              				<with variable="activeMenuSelection"><count value="1"/></with>
 						</and> 
 					</iterate>
