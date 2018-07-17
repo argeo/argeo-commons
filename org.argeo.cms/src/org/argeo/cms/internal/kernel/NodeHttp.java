@@ -1,7 +1,6 @@
 package org.argeo.cms.internal.kernel;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
@@ -327,10 +326,6 @@ public class NodeHttp implements KernelConstants {
 		@Override
 		protected void service(final HttpServletRequest request, final HttpServletResponse response)
 				throws ServletException, IOException {
-			// request.setCharacterEncoding("US-ASCII");
-			System.out.println("## DEFAULT CHARSET: " + Charset.defaultCharset());
-			System.out.println("## Request CHARSET: " + request.getCharacterEncoding());
-
 			if (log.isTraceEnabled())
 				HttpUtils.logRequest(log, request);
 			RemotingServlet.super.service(request, response);
