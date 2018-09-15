@@ -34,7 +34,7 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 	private final CmsUiProvider uiProvider;
 
 	private CmsUiProvider header;
-	private Integer headerHeight = 40;
+	private Integer headerHeight = 0;
 
 	private CmsImageManager imageManager = new ImageManagerImpl();
 	private UxContext uxContext = null;
@@ -83,6 +83,9 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 	}
 
 	protected void refreshHeader() {
+		if (header == null)
+			return;
+
 		for (Control child : headerArea.getChildren())
 			child.dispose();
 		try {

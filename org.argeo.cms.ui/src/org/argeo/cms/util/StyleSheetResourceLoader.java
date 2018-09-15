@@ -14,7 +14,7 @@ import org.eclipse.rap.rwt.service.ResourceLoader;
 import org.osgi.framework.Bundle;
 
 /** {@link ResourceLoader} caching stylesheets. */
-class StyleSheetResourceLoader implements ResourceLoader {
+public class StyleSheetResourceLoader implements ResourceLoader {
 	private Bundle themeBundle;
 	private Map<String, StyleSheet> stylesheets = new LinkedHashMap<String, StyleSheet>();
 
@@ -43,10 +43,10 @@ class StyleSheetResourceLoader implements ResourceLoader {
 			// }
 			// }
 
-			URL res = themeBundle.getResource(resourceName);
+			URL res = themeBundle.getEntry(resourceName);
 			if (res == null)
 				throw new CmsException(
-						"Resource " + resourceName + " not found in bundle " + themeBundle.getSymbolicName());
+						"Entry " + resourceName + " not found in bundle " + themeBundle.getSymbolicName());
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			IOUtils.copy(res.openStream(), out);
 			stylesheets.put(resourceName, new StyleSheet(out.toByteArray()));
