@@ -4,6 +4,7 @@ OSGI-INF/defaultCallbackHandler.xml
 Bundle-ActivationPolicy: lazy
 
 Import-Package: org.eclipse.swt,\
+org.eclipse.swt.widgets;version="0.0.0",\
 org.eclipse.e4.ui.model.application.ui,\
 org.eclipse.e4.ui.model.application,\
 javax.jcr.nodetype,\
