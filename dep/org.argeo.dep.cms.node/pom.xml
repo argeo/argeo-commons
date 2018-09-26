@@ -65,10 +65,6 @@
 		</dependency>
 
 		<!-- CMS Dependencies -->
-		<dependency>
-			<groupId>org.argeo.tp.javax</groupId>
-			<artifactId>javax.transaction</artifactId>
-		</dependency>
 		<!-- TODO: not bitronix dependent -->
 		<dependency>
 			<groupId>org.argeo.tp.misc</groupId>

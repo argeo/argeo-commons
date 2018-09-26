@@ -108,7 +108,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp.rap.e4</groupId>
-			<artifactId>com.ibm.icu.base</artifactId>
+			<artifactId>com.ibm.icu</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp.rap.e4</groupId>

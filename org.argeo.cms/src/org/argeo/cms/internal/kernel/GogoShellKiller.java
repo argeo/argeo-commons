@@ -55,7 +55,7 @@ class GogoShellKiller extends Thread {
 		Thread[] threads = new Thread[rootThreadGroup.activeCount()];
 		rootThreadGroup.enumerate(threads, true);
 		for (Thread thread : threads) {
-			if (thread.getName().equals("Gogo shell"))
+			if (thread.getName().equals("pipe-gosh --login --noshutdown"))
 				return thread;
 		}
 		return null;

@@ -1,5 +1,6 @@
 package org.argeo.cms.internal.kernel;
 
+import java.awt.image.Kernel;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 
@@ -7,7 +8,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.stats.RepositoryStatistics;
 import org.apache.jackrabbit.stats.RepositoryStatisticsImpl;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 
 /**
@@ -15,6 +15,8 @@ import org.argeo.cms.internal.auth.CmsSessionImpl;
  * monitor/control other processes.
  */
 class KernelThread extends Thread {
+	private final static Log log = LogFactory.getLog(KernelThread.class);
+
 	private RepositoryStatisticsImpl repoStats;
 
 	/** The smallest period of operation, in ms */
@@ -110,11 +112,12 @@ class KernelThread extends Thread {
 	synchronized void destroyAndJoin() {
 		running = false;
 		notifyAll();
-		interrupt();
-		try {
-			join(PERIOD * 2);
-		} catch (InterruptedException e) {
-			throw new CmsException("Kernel thread destruction was interrupted");
-		}
+//		interrupt();
+//		try {
+//			join(PERIOD * 2);
+//		} catch (InterruptedException e) {
+//			// throw new CmsException("Kernel thread destruction was interrupted");
+//			log.error("Kernel thread destruction was interrupted", e);
+//		}
 	}
 }

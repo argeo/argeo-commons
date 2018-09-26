@@ -28,7 +28,7 @@ public abstract class AbstractRapE4App implements ApplicationConfiguration {
 
 		Map<String, String> properties = new HashMap<String, String>();
 		properties.put(WebClient.PAGE_TITLE, pageTitle);
-		E4ApplicationConfig config = new E4ApplicationConfig(e4Xmi, lifeCycleUri, null, false, true, true);
+		E4ApplicationConfig config = new E4ApplicationConfig(e4Xmi, lifeCycleUri, null, null, false, true, true);
 		addEntryPoint(application, config, properties);
 	}
 

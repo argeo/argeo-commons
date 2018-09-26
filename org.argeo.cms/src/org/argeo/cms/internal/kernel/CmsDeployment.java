@@ -192,8 +192,9 @@ public class CmsDeployment implements NodeDeployment {
 	public void shutdown() {
 		if (nodeHttp != null)
 			nodeHttp.destroy();
-		if (deployConfig != null)
-			deployConfig.save();
+		if (deployConfig != null) {
+			new Thread(() -> deployConfig.save(), "Save Argeo Deploy Config").start();
+		}
 	}
 
 	private void checkReadiness() {

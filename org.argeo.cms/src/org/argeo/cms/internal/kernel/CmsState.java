@@ -88,7 +88,8 @@ public class CmsState implements NodeState {
 
 	private void initServices() {
 		// JTA
-		String tmType = KernelUtils.getFrameworkProp(NodeConstants.TRANSACTION_MANAGER, NodeConstants.TRANSACTION_MANAGER_SIMPLE);
+		String tmType = KernelUtils.getFrameworkProp(NodeConstants.TRANSACTION_MANAGER,
+				NodeConstants.TRANSACTION_MANAGER_SIMPLE);
 		if (NodeConstants.TRANSACTION_MANAGER_SIMPLE.equals(tmType)) {
 			initSimpleTransactionManager();
 		} else if (NodeConstants.TRANSACTION_MANAGER_BITRONIX.equals(tmType)) {
@@ -164,7 +165,9 @@ public class CmsState implements NodeState {
 
 		if (kernelThread != null)
 			kernelThread.destroyAndJoin();
-		applyStopHooks();
+		// In a different state in order to avois interruptions
+		new Thread(() -> applyStopHooks(), "Apply Argeo Stop Hooks").start();
+		// applyStopHooks();
 
 		long duration = ((System.currentTimeMillis() - availableSince) / 1000) / 60;
 		log.info("## ARGEO CMS STOPPED after " + (duration / 60) + "h " + (duration % 60) + "min uptime ##");

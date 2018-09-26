@@ -39,6 +39,7 @@ public interface NodeConstants {
 	 * RESERVED ROLES
 	 */
 	String ROLES_BASEDN = "ou=roles,ou=node";
+	String TOKENS_BASEDN = "ou=tokens,ou=node";
 	String ROLE_ADMIN = "cn=admin," + ROLES_BASEDN;
 	String ROLE_USER_ADMIN = "cn=userAdmin," + ROLES_BASEDN;
 	String ROLE_DATA_ADMIN = "cn=dataAdmin," + ROLES_BASEDN;
@@ -85,6 +86,7 @@ public interface NodeConstants {
 	String I18N_LOCALES = "argeo.i18n.locales";
 	// Node Security
 	String ROLES_URI = "argeo.node.roles.uri";
+	String TOKENS_URI = "argeo.node.tokens.uri";
 	/** URI to an LDIF file or LDAP server used as initialization or backend */
 	String USERADMIN_URIS = "argeo.node.useradmin.uris";
 	// Transaction manager

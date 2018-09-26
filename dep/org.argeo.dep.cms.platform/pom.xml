@@ -122,7 +122,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp.rap.platform</groupId>
-			<artifactId>com.ibm.icu.base</artifactId>
+			<artifactId>com.ibm.icu</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp.rap.platform</groupId>
@@ -170,93 +170,6 @@
 			<groupId>org.argeo.tp.rap.platform</groupId>
 			<artifactId>org.eclipse.rap.ui.workbench</artifactId>
 		</dependency>
-
-		<!-- Eclipse 4 -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.rap.e4</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.emf.common</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.emf.ecore.change</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.emf.ecore.xmi</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.e4.ui.workbench.renderers.swt</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.e4.ui.di</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.e4.core.di</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.e4.ui.workbench.addons.swt</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.e4.core.commands</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.e4.ui.bindings</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.e4.ui.workbench.swt</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.e4.core.di.extensions.supplier</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.e4.ui.model.workbench</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.e4.emf.xpath</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.e4.core.contexts</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.e4.core.services</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.e4.core.di.annotations</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.e4.ui.services</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.rap.fileupload</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.e4.core.di.extensions</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.e4.ui.workbench</artifactId> -->
-		<!-- </dependency> -->
-
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
