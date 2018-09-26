@@ -245,7 +245,8 @@ class DeployConfig implements ConfigurationListener {
 		try (Writer writer = Files.newBufferedWriter(deployConfigPath)) {
 			new LdifWriter(writer).write(deployConfigs);
 		} catch (IOException e) {
-			throw new CmsException("Cannot save deploy configs", e);
+			// throw new CmsException("Cannot save deploy configs", e);
+			log.error("Cannot save deploy configs", e);
 		}
 	}
 

@@ -1,8 +1,12 @@
 package org.argeo.cms.auth;
 
+import static org.argeo.naming.LdapAttrs.cn;
+import static org.argeo.naming.LdapAttrs.description;
+
 import java.io.IOException;
 import java.security.PrivilegedAction;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +33,8 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.kernel.Activator;
 import org.argeo.naming.LdapAttrs;
+import org.argeo.naming.NamingUtils;
+import org.argeo.node.NodeConstants;
 import org.argeo.node.security.CryptoKeyring;
 import org.argeo.osgi.useradmin.AuthenticatingUser;
 import org.argeo.osgi.useradmin.IpaUtils;
@@ -37,6 +43,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.useradmin.Authorization;
+import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
@@ -128,6 +135,21 @@ public class UserAdminLoginModule implements LoginModule {
 			sharedState.put(CmsAuthUtils.SHARED_STATE_PWD, password);
 		}
 		User user = searchForUser(userAdmin, username);
+
+		// Tokens
+		if (user == null) {
+			String token = username;
+			Group tokenGroup = searchForToken(userAdmin, token);
+			if (tokenGroup != null) {
+				Authorization tokenAuthorization = getAuthorizationFromToken(userAdmin, tokenGroup);
+				if (tokenAuthorization != null) {
+					bindAuthorization = tokenAuthorization;
+					authenticatedUser = (User) userAdmin.getRole(bindAuthorization.getName());
+					return true;
+				}
+			}
+		}
+
 		if (user == null)
 			return true;// expect Kerberos
 
@@ -298,5 +320,25 @@ public class UserAdminLoginModule implements LoginModule {
 			return null;
 		}
 
+	}
+
+	protected Group searchForToken(UserAdmin userAdmin, String token) {
+		String dn = cn + "=" + token + "," + NodeConstants.TOKENS_BASEDN;
+		Group tokenGroup = (Group) userAdmin.getRole(dn);
+		return tokenGroup;
+	}
+
+	protected Authorization getAuthorizationFromToken(UserAdmin userAdmin, Group tokenGroup) {
+		String expiryDateStr = (String) tokenGroup.getProperties().get(description.name());
+		if (expiryDateStr != null) {
+			Instant expiryDate = NamingUtils.ldapDateToInstant(expiryDateStr);
+			if (expiryDate.isBefore(Instant.now())) {
+				if (log.isDebugEnabled())
+					log.debug("Token " + tokenGroup.getName() + " has expired.");
+				return null;
+			}
+		}
+		Authorization auth = userAdmin.getAuthorization(tokenGroup);
+		return auth;
 	}
 }

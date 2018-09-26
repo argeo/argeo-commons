@@ -13,8 +13,10 @@ import java.util.Set;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.naming.LdapAttrs;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
+import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
@@ -84,6 +86,23 @@ public class AggregatingUserAdmin implements UserAdmin {
 		}
 		UserAdmin userAdmin = findUserAdmin(user.getName());
 		Authorization rawAuthorization = userAdmin.getAuthorization(user);
+		String usernameToUse;
+		String displayNameToUse;
+		if (user instanceof Group) {// tokens
+			String ownerDn = (String) user.getProperties().get(LdapAttrs.owner.name());
+			if (ownerDn != null) {
+				UserAdmin ownerUserAdmin = findUserAdmin(ownerDn);
+				User ownerUser = (User) ownerUserAdmin.getRole(ownerDn);
+				usernameToUse = ownerDn;
+				displayNameToUse = LdifAuthorization.extractDisplayName(ownerUser);
+			} else {
+				throw new UserDirectoryException(
+						"Cannot get authorization for group " + user.getName() + " without owner");
+			}
+		} else {// regular users
+			usernameToUse = rawAuthorization.getName();
+			displayNameToUse = rawAuthorization.toString();
+		}
 		// gather system roles
 		Set<String> sysRoles = new HashSet<String>();
 		for (String role : rawAuthorization.getRoles()) {
@@ -91,8 +110,8 @@ public class AggregatingUserAdmin implements UserAdmin {
 			sysRoles.addAll(Arrays.asList(auth.getRoles()));
 		}
 		addAbstractSystemRoles(rawAuthorization, sysRoles);
-		Authorization authorization = new AggregatingAuthorization(rawAuthorization.getName(),
-				rawAuthorization.toString(), sysRoles, rawAuthorization.getRoles());
+		Authorization authorization = new AggregatingAuthorization(usernameToUse, displayNameToUse, sysRoles,
+				rawAuthorization.getRoles());
 		return authorization;
 	}
 

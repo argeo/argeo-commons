@@ -266,9 +266,9 @@ public enum LdapAttrs implements SpecifiedName {
 	userPKCS12("2.16.840.1.113730.3.1.216", "RFC 2798"),
 	/** */
 	displayName("2.16.840.1.113730.3.1.241", "RFC 2798"),
-	
+
 	// Sun memberOf
-	memberOf("1.2.840.113556.1.2.102","389 DS memberOf"),
+	memberOf("1.2.840.113556.1.2.102", "389 DS memberOf"),
 
 	// KERBEROS (partial)
 	krbPrincipalName("2.16.840.1.113719.1.301.6.8.1", "Novell Kerberos Schema Definitions"),
@@ -309,6 +309,12 @@ public enum LdapAttrs implements SpecifiedName {
 
 	public String property() {
 		return new StringBuilder(LDAP_).append(name()).toString();
+	}
+
+	@Override
+	public final String toString() {
+		// must return the name
+		return name();
 	}
 
 }

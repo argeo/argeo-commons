@@ -123,6 +123,23 @@ class InitUtils {
 		}
 		uris.add(nodeRolesUri);
 
+		// node tokens
+		String nodeTokensUri = getFrameworkProp(NodeConstants.TOKENS_URI);
+		String baseNodeTokensDn = NodeConstants.TOKENS_BASEDN;
+		if (nodeTokensUri == null) {
+			nodeTokensUri = baseNodeTokensDn + ".ldif";
+			File nodeRolesFile = new File(nodeBaseDir, nodeRolesUri);
+			if (!nodeRolesFile.exists())
+				try {
+					FileUtils.copyInputStreamToFile(InitUtils.class.getResourceAsStream(baseNodeTokensDn + ".ldif"),
+							nodeRolesFile);
+				} catch (IOException e) {
+					throw new CmsException("Cannot copy demo resource", e);
+				}
+			// nodeRolesUri = nodeRolesFile.toURI().toString();
+		}
+		uris.add(nodeTokensUri);
+
 		// Business roles
 		String userAdminUris = getFrameworkProp(NodeConstants.USERADMIN_URIS);
 		if (userAdminUris == null) {

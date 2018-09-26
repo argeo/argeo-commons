@@ -16,25 +16,13 @@ class LdifAuthorization implements Authorization {
 	private final String displayName;
 	private final List<String> allRoles;
 
-	@SuppressWarnings("unchecked")
 	public LdifAuthorization(User user, List<Role> allRoles) {
 		if (user == null) {
 			this.name = null;
 			this.displayName = "anonymous";
 		} else {
 			this.name = user.getName();
-			Dictionary<String, Object> props = user.getProperties();
-			Object displayName = props.get(LdapAttrs.displayName);
-			if (displayName == null)
-				displayName = props.get(LdapAttrs.cn);
-			if (displayName == null)
-				displayName = props.get(LdapAttrs.uid);
-			if (displayName == null)
-				displayName = user.getName();
-			if (displayName == null)
-				throw new UserDirectoryException("Cannot set display name for "
-						+ user);
-			this.displayName = displayName.toString();
+			this.displayName = extractDisplayName(user);
 		}
 		// roles
 		String[] roles = new String[allRoles.size()];
@@ -79,5 +67,19 @@ class LdifAuthorization implements Authorization {
 	@Override
 	public String toString() {
 		return displayName;
+	}
+
+	final static String extractDisplayName(User user) {
+		Dictionary<String, Object> props = user.getProperties();
+		Object displayName = props.get(LdapAttrs.displayName);
+		if (displayName == null)
+			displayName = props.get(LdapAttrs.cn);
+		if (displayName == null)
+			displayName = props.get(LdapAttrs.uid);
+		if (displayName == null)
+			displayName = user.getName();
+		if (displayName == null)
+			throw new UserDirectoryException("Cannot set display name for " + user);
+		return displayName.toString();
 	}
 }

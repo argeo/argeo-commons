@@ -22,8 +22,23 @@ function loadNode(node) {
 	return fromJson
 }
 
+function newArea(parent, style, layout) {
+	var control = new Composite(parent, SWT.NONE)
+	control.setLayout(layout)
+	CmsUtils.style(control, style)
+	return control
+}
+
 function newLabel(parent, style, text) {
 	var control = new Label(parent, SWT.NONE)
+	control.setText(text)
+	CmsUtils.style(control, style)
+	CmsUtils.markup(control)
+	return control
+}
+
+function newButton(parent, style, text) {
+	var control = new Button(parent, SWT.FLAT)
 	control.setText(text)
 	CmsUtils.style(control, style)
 	CmsUtils.markup(control)
