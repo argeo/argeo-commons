@@ -31,10 +31,6 @@
 
 		<!-- Misc Third Parties -->
 		<dependency>
-			<groupId>org.argeo.tp.apache</groupId>
-			<artifactId>org.apache.tika.parser</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.argeo.tp.bouncycastle</groupId>
 			<artifactId>bcmail</artifactId>
 		</dependency>

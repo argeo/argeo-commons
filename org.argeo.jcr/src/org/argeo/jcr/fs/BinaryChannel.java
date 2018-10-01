@@ -12,6 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
+import javax.activation.FileTypeMap;
+import javax.activation.MimetypesFileTypeMap;
 import javax.jcr.Binary;
 import javax.jcr.Node;
 import javax.jcr.Property;
@@ -31,6 +33,16 @@ public class BinaryChannel implements SeekableByteChannel {
 	// private ByteBuffer toWrite;
 	private FileChannel fc = null;
 
+	private static FileTypeMap fileTypeMap;
+
+	static {
+		try {
+			fileTypeMap = new MimetypesFileTypeMap("/etc/mime.types");
+		} catch (IOException e) {
+			fileTypeMap = FileTypeMap.getDefaultFileTypeMap();
+		}
+	}
+
 	public BinaryChannel(Node file) throws RepositoryException, IOException {
 		this.file = file;
 		// int capacity = 1024 * 1024;
@@ -45,6 +57,11 @@ public class BinaryChannel implements SeekableByteChannel {
 					this.binary = data.getSession().getValueFactory().createBinary(in);
 				}
 				data.setProperty(Property.JCR_DATA, this.binary);
+
+				// MIME type
+				String mime = fileTypeMap.getContentType(file.getName());
+				data.setProperty(Property.JCR_MIMETYPE, mime);
+
 				data.getSession().save();
 			}
 		} else {

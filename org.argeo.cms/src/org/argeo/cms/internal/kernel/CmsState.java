@@ -98,6 +98,21 @@ public class CmsState implements NodeState {
 			throw new CmsException("Usupported transaction manager type " + tmType);
 		}
 
+		
+		// POI
+//		POIXMLTypeLoader.setClassLoader(CTConnection.class.getClassLoader());
+		
+		// Tika
+//		OpenDocumentParser odfParser = new OpenDocumentParser();
+//		bc.registerService(Parser.class, odfParser, new Hashtable());
+//		PDFParser pdfParser = new PDFParser();
+//		bc.registerService(Parser.class, pdfParser, new Hashtable());
+//		OOXMLParser ooxmlParser = new OOXMLParser();
+//		bc.registerService(Parser.class, ooxmlParser, new Hashtable());
+//		TesseractOCRParser ocrParser = new TesseractOCRParser();
+//		ocrParser.setLanguage("ara");
+//		bc.registerService(Parser.class, ocrParser, new Hashtable());
+
 		// JCR
 		RepositoryServiceFactory repositoryServiceFactory = new RepositoryServiceFactory();
 		stopHooks.add(() -> repositoryServiceFactory.shutdown());

@@ -43,6 +43,8 @@
 			<param name="extractorPoolSize" value="${extractorPoolSize}" />
 			<param name="cacheSize" value="${searchCacheSize}" />
 			<param name="maxVolatileIndexSize" value="${maxVolatileIndexSize}" />
+<!-- 			<param name="tikaConfigPath" value="${indexesBase}/${cn}/tika-config.xml" /> -->
+			<param name="supportHighlighting" value="true" />
 		</SearchIndex>
 		<WorkspaceSecurity>
 			<AccessControlProvider
@@ -71,6 +73,8 @@
 		<param name="extractorPoolSize" value="${extractorPoolSize}" />
 		<param name="cacheSize" value="${searchCacheSize}" />
 		<param name="maxVolatileIndexSize" value="${maxVolatileIndexSize}" />
+<!-- 		<param name="tikaConfigPath" value="${indexesBase}/${cn}/tika-config.xml" /> -->
+		<param name="supportHighlighting" value="true" />
 	</SearchIndex>
 
 	<!-- Security -->
