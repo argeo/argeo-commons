@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ASCII"?>
+<application:Application xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_PjHLwMb4EeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.application">
+  <children xsi:type="basic:TrimmedWindow" xmi:id="_QnyU0Mb4EeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.trimmedwindow.0">
+    <children xsi:type="basic:PartStack" xmi:id="_V9EXcMb4EeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.partstack.0">
+      <children xsi:type="basic:Part" xmi:id="_RVKlIMctEeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.part.docbook" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.parts.CmsDocBookEditor" label="DocBook">
+        <toolbar xmi:id="_TANxsMctEeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.toolbar.1">
+          <children xsi:type="menu:HandledToolItem" xmi:id="_alIUoMctEeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.handledtoolitem.save" label="Save" command="_vsxg8McmEeiIG7Bq51Btuw"/>
+        </toolbar>
+      </children>
+      <children xsi:type="basic:Part" xmi:id="_fPCGgMcCEeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.part.texteditor" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.parts.CmsTextEditor" label="Text Editor">
+        <toolbar xmi:id="_jlPucMcmEeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.toolbar.0">
+          <children xsi:type="menu:HandledToolItem" xmi:id="_r3TEMMcmEeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.handledtoolitem.0" command="_vsxg8McmEeiIG7Bq51Btuw"/>
+        </toolbar>
+      </children>
+      <children xsi:type="basic:Part" xmi:id="_cIlegMb4EeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.part.htmleditor" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.parts.HtmlEditor" label="HTML Editor"/>
+    </children>
+  </children>
+  <handlers xmi:id="_zqabMMcmEeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.handler.0" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.handlers.SavePart" command="_vsxg8McmEeiIG7Bq51Btuw"/>
+  <commands xmi:id="_vsxg8McmEeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.command.save" commandName="Save"/>
+  <addons xmi:id="_PjHLwcb4EeiIG7Bq51Btuw" elementId="org.eclipse.e4.core.commands.service" contributionURI="bundleclass://org.eclipse.e4.core.commands/org.eclipse.e4.core.commands.CommandServiceAddon"/>
+  <addons xmi:id="_PjHLwsb4EeiIG7Bq51Btuw" elementId="org.eclipse.e4.ui.contexts.service" contributionURI="bundleclass://org.eclipse.e4.ui.services/org.eclipse.e4.ui.services.ContextServiceAddon"/>
+  <addons xmi:id="_PjHLw8b4EeiIG7Bq51Btuw" elementId="org.eclipse.e4.ui.bindings.service" contributionURI="bundleclass://org.eclipse.e4.ui.bindings/org.eclipse.e4.ui.bindings.BindingServiceAddon"/>
+  <addons xmi:id="_PjHLxMb4EeiIG7Bq51Btuw" elementId="org.eclipse.e4.ui.workbench.commands.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.CommandProcessingAddon"/>
+  <addons xmi:id="_PjHLxcb4EeiIG7Bq51Btuw" elementId="org.eclipse.e4.ui.workbench.contexts.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.ContextProcessingAddon"/>
+  <addons xmi:id="_PjHLxsb4EeiIG7Bq51Btuw" elementId="org.eclipse.e4.ui.workbench.bindings.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.swt/org.eclipse.e4.ui.workbench.swt.util.BindingProcessingAddon"/>
+  <addons xmi:id="_PjHLx8b4EeiIG7Bq51Btuw" elementId="org.eclipse.e4.ui.workbench.handler.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.HandlerProcessingAddon"/>
+</application:Application>

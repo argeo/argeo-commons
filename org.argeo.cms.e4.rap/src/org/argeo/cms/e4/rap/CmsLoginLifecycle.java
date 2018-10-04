@@ -14,8 +14,10 @@ import org.argeo.cms.ui.CmsImageManager;
 import org.argeo.cms.ui.CmsView;
 import org.argeo.cms.ui.UxContext;
 import org.argeo.cms.ui.dialogs.CmsFeedback;
+import org.argeo.cms.util.SimpleImageManager;
 import org.argeo.cms.util.SimpleUxContext;
 import org.argeo.cms.widgets.auth.CmsLoginShell;
+import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.node.NodeConstants;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.e4.ui.workbench.UIEvents;
@@ -34,6 +36,7 @@ public class CmsLoginLifecycle implements CmsView {
 	private final static Log log = LogFactory.getLog(CmsLoginLifecycle.class);
 
 	private UxContext uxContext;
+	private CmsImageManager imageManager;
 
 	private LoginContext loginContext;
 	private BrowserNavigation browserNavigation;
@@ -57,6 +60,7 @@ public class CmsLoginLifecycle implements CmsView {
 
 		Subject subject = Subject.getSubject(AccessController.getContext());
 		Display display = Display.getCurrent();
+		UiContext.setData(CmsView.KEY, this);
 		CmsLoginShell loginShell = new CmsLoginShell(this);
 		loginShell.setSubject(subject);
 		try {
@@ -75,6 +79,7 @@ public class CmsLoginLifecycle implements CmsView {
 		if (CurrentUser.getUsername(getSubject()) == null)
 			return false;
 		uxContext = new SimpleUxContext();
+		imageManager = new SimpleImageManager();
 
 		eventBroker.subscribe(UIEvents.UILifeCycle.APP_STARTUP_COMPLETE, new EventHandler() {
 			@Override
@@ -138,7 +143,7 @@ public class CmsLoginLifecycle implements CmsView {
 
 	@Override
 	public CmsImageManager getImageManager() {
-		throw new UnsupportedOperationException();
+		return imageManager;
 	}
 
 	protected Subject getSubject() {

@@ -514,6 +514,7 @@ public abstract class AbstractDbkViewer extends AbstractPageViewer implements Ke
 					return;
 				}
 				Node newSectionNode = sectionNode.addNode(DocBookNames.DBK_SECTION, DocBookTypes.SECTION);
+				newSectionNode.addMixin(NodeType.MIX_TITLE);
 				sectionNode.orderBefore(h(newSectionNode.getIndex()), h(1));
 
 				int paragraphIndex = paragraphNode.getIndex();

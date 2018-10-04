@@ -1,5 +1,6 @@
 Bundle-ActivationPolicy: lazy
-Service-Component: OSGI-INF/cms-admin-rap.xml
+Service-Component: OSGI-INF/cms-admin-rap.xml,\
+OSGI-INF/cms-demo-rap.xml
 
 Import-Package: org.argeo.node,\
 org.eclipse.swt,\

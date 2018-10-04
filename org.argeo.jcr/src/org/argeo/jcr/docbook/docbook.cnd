@@ -85,6 +85,7 @@ mixin
 
 [argeodbk:base]
 abstract
+orderable
  - dbk:annotations (String)
  - dbk:arch (String)
  - dbk:audience (String)
