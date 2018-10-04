@@ -37,6 +37,8 @@ public class AppUi implements CmsUiProvider, Branding {
 	private String script;
 	// private Branding branding = new Branding();
 
+	private EntryPointFactory factory;
+
 	// Branding
 	private String themeId;
 	private String additionalHeaders;
@@ -59,20 +61,36 @@ public class AppUi implements CmsUiProvider, Branding {
 		this.ui = uiProvider;
 	}
 
+	public AppUi(CmsScriptApp app, EntryPointFactory factory) {
+		this.app = app;
+		this.factory = factory;
+	}
+
 	public void apply(Repository repository, Application application, Branding appBranding, String path) {
 		Map<String, String> factoryProperties = new HashMap<>();
 		if (appBranding != null)
 			appBranding.applyBranding(factoryProperties);
 		applyBranding(factoryProperties);
-		EntryPointFactory entryPointFactory = new EntryPointFactory() {
-			@Override
-			public EntryPoint create() {
-				SimpleErgonomics ergonomics = new SimpleErgonomics(repository, "main", "/home/root/argeo:keyring",
-						AppUi.this, factoryProperties);
-				return ergonomics;
-			}
-		};
-		application.addEntryPoint("/" + path, entryPointFactory, factoryProperties);
+		if (factory != null) {
+			application.addEntryPoint("/" + path, factory, factoryProperties);
+		} else {
+			EntryPointFactory entryPointFactory = new EntryPointFactory() {
+				@Override
+				public EntryPoint create() {
+					SimpleErgonomics ergonomics = new SimpleErgonomics(repository, "main", "/home/root/argeo:keyring",
+							AppUi.this, factoryProperties);
+//					CmsUiProvider header = app.getHeader();
+//					if (header != null)
+//						ergonomics.setHeader(header);
+					app.applySides(ergonomics);
+					Integer headerHeight = app.getHeaderHeight();
+					if (headerHeight != null)
+						ergonomics.setHeaderHeight(headerHeight);
+					return ergonomics;
+				}
+			};
+			application.addEntryPoint("/" + path, entryPointFactory, factoryProperties);
+		}
 	}
 
 	public void setUi(CmsUiProvider uiProvider) {
@@ -101,31 +119,35 @@ public class AppUi implements CmsUiProvider, Branding {
 	@Override
 	public Control createUi(Composite parent, Node context) throws RepositoryException {
 		CmsPane cmsPane = new CmsPane(parent, SWT.NONE);
-		// QA
-		CmsUtils.style(cmsPane.getQaArea(), "qa");
-		Button reload = new Button(cmsPane.getQaArea(), SWT.FLAT);
-		CmsUtils.style(reload, "qa");
-		reload.setText("Reload");
-		reload.addSelectionListener(new Selected() {
-			private static final long serialVersionUID = 1L;
 
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				new Thread() {
-					@Override
-					public void run() {
-						app.reload();
-					}
-				}.start();
-				RWT.getClient().getService(JavaScriptExecutor.class).execute("setTimeout('location.reload()',1000)");
-			}
-		});
+		if (false) {
+			// QA
+			CmsUtils.style(cmsPane.getQaArea(), "qa");
+			Button reload = new Button(cmsPane.getQaArea(), SWT.FLAT);
+			CmsUtils.style(reload, "qa");
+			reload.setText("Reload");
+			reload.addSelectionListener(new Selected() {
+				private static final long serialVersionUID = 1L;
 
-		// Support
-		CmsUtils.style(cmsPane.getSupportArea(), "support");
-		Label msg = new Label(cmsPane.getSupportArea(), SWT.NONE);
-		CmsUtils.style(msg, "support");
-		msg.setText("UNSUPPORTED DEVELOPMENT VERSION");
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					new Thread() {
+						@Override
+						public void run() {
+							app.reload();
+						}
+					}.start();
+					RWT.getClient().getService(JavaScriptExecutor.class)
+							.execute("setTimeout('location.reload()',1000)");
+				}
+			});
+
+			// Support
+			CmsUtils.style(cmsPane.getSupportArea(), "support");
+			Label msg = new Label(cmsPane.getSupportArea(), SWT.NONE);
+			CmsUtils.style(msg, "support");
+			msg.setText("UNSUPPORTED DEVELOPMENT VERSION");
+		}
 
 		if (ui != null) {
 			ui.createUi(cmsPane.getMainArea(), context);

@@ -16,21 +16,21 @@ public class CmsPane {
 	public CmsPane(Composite parent, int style) {
 		parent.setLayout(CmsUtils.noSpaceGridLayout());
 
-		qaArea = new Composite(parent, SWT.NONE);
-		qaArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		RowLayout qaLayout = new RowLayout();
-		qaLayout.spacing = 0;
-		qaArea.setLayout(qaLayout);
+//		qaArea = new Composite(parent, SWT.NONE);
+//		qaArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+//		RowLayout qaLayout = new RowLayout();
+//		qaLayout.spacing = 0;
+//		qaArea.setLayout(qaLayout);
 
 		mainArea = new Composite(parent, SWT.NONE);
 		mainArea.setLayout(new GridLayout());
 		mainArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		supportArea = new Composite(parent, SWT.NONE);
-		supportArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		RowLayout supportLayout = new RowLayout();
-		supportLayout.spacing = 0;
-		supportArea.setLayout(supportLayout);
+//		supportArea = new Composite(parent, SWT.NONE);
+//		supportArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+//		RowLayout supportLayout = new RowLayout();
+//		supportLayout.spacing = 0;
+//		supportArea.setLayout(supportLayout);
 	}
 
 	public Composite getMainArea() {

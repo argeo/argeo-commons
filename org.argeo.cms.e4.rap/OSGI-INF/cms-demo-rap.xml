@@ -3,6 +3,6 @@
    <implementation class="org.argeo.cms.e4.rap.CmsE4DemoApp"/>
    <service>
       <provide interface="org.eclipse.rap.rwt.application.ApplicationConfiguration"/>
-      <property name="contextName" type="String" value="demo"/>
+      <property name="contextName" type="String" value="demoXXX"/>
    </service>
 </scr:component>

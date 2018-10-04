@@ -20,8 +20,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.CmsConstants;
+import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.util.BundleResourceLoader;
 import org.argeo.cms.util.CmsUtils;
+import org.argeo.cms.util.SimpleErgonomics;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.Application.OperationMode;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
@@ -49,6 +51,12 @@ public class CmsScriptApp implements Branding {
 	private List<String> resources = new ArrayList<>();
 
 	private Map<String, AppUi> ui = new HashMap<>();
+
+	private CmsUiProvider header;
+	private Integer headerHeight = null;
+	private CmsUiProvider lead;
+	private CmsUiProvider end;
+	private CmsUiProvider footer;
 
 	// Branding
 	private String themeId;
@@ -99,6 +107,13 @@ public class CmsScriptApp implements Branding {
 			appUi.apply(repository, application, this, appUiName);
 		}
 
+	}
+
+	public void applySides(SimpleErgonomics simpleErgonomics) {
+		simpleErgonomics.setHeader(header);
+		simpleErgonomics.setLead(lead);
+		simpleErgonomics.setEnd(end);
+		simpleErgonomics.setFooter(footer);
 	}
 
 	public void register(BundleContext bundleContext, ApplicationConfiguration appConfig) {
@@ -299,6 +314,46 @@ public class CmsScriptApp implements Branding {
 
 	public void setFavicon(String favicon) {
 		this.favicon = favicon;
+	}
+
+	public CmsUiProvider getHeader() {
+		return header;
+	}
+
+	public void setHeader(CmsUiProvider header) {
+		this.header = header;
+	}
+
+	public Integer getHeaderHeight() {
+		return headerHeight;
+	}
+
+	public void setHeaderHeight(Integer headerHeight) {
+		this.headerHeight = headerHeight;
+	}
+
+	public CmsUiProvider getLead() {
+		return lead;
+	}
+
+	public void setLead(CmsUiProvider lead) {
+		this.lead = lead;
+	}
+
+	public CmsUiProvider getEnd() {
+		return end;
+	}
+
+	public void setEnd(CmsUiProvider end) {
+		this.end = end;
+	}
+
+	public CmsUiProvider getFooter() {
+		return footer;
+	}
+
+	public void setFooter(CmsUiProvider footer) {
+		this.footer = footer;
 	}
 
 }

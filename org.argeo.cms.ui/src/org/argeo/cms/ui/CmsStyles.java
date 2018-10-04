@@ -11,6 +11,11 @@ public interface CmsStyles {
 	public final static String CMS_HEADER_LEAD = "cms_header-lead";
 	public final static String CMS_HEADER_CENTER = "cms_header-center";
 	public final static String CMS_HEADER_END = "cms_header-end";
+
+	public final static String CMS_LEAD = "cms_lead";
+	public final static String CMS_END = "cms_end";
+	public final static String CMS_FOOTER = "cms_footer";
+
 	public final static String CMS_USER_MENU = "cms_user_menu";
 	public final static String CMS_USER_MENU_LINK = "cms_user_menu-link";
 	public final static String CMS_USER_MENU_ITEM = "cms_user_menu-item";

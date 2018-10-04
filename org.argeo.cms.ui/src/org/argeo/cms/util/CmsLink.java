@@ -37,6 +37,7 @@ public class CmsLink implements CmsUiProvider {
 	private String image;
 	private MouseListener mouseListener;
 
+	private int horizontalAlignment = SWT.CENTER;
 	private int verticalAlignment = SWT.CENTER;
 
 	private String loggedInLabel = null;
@@ -65,29 +66,37 @@ public class CmsLink implements CmsUiProvider {
 	public void init() {
 		if (image != null) {
 			ImageData image = loadImage();
-			imageWidth = image.width;
-			imageHeight = image.height;
+			if (imageHeight == null && imageWidth == null) {
+				imageWidth = image.width;
+				imageHeight = image.height;
+			} else if (imageHeight == null) {
+				imageHeight = (imageWidth * image.height) / image.width;
+			} else if (imageWidth == null) {
+				imageWidth = (imageHeight * image.width) / image.height;
+			}
 		}
 	}
 
 	/** @return {@link Composite} with a single {@link Label} child. */
 	@Override
 	public Control createUi(final Composite parent, Node context) {
-		if (image != null && (imageWidth == null || imageHeight == null)) {
-			throw new CmsException("Image is not properly configured."
-					+ " Make sure bundleContext property is set and init() method has been called.");
-		}
+//		if (image != null && (imageWidth == null || imageHeight == null)) {
+//			throw new CmsException("Image is not properly configured."
+//					+ " Make sure bundleContext property is set and init() method has been called.");
+//		}
 
 		Composite comp = new Composite(parent, SWT.BOTTOM);
 		comp.setLayout(CmsUtils.noSpaceGridLayout());
 
 		Label link = new Label(comp, SWT.NONE);
 		link.setData(RWT.MARKUP_ENABLED, Boolean.TRUE);
-		GridData layoutData = new GridData(SWT.CENTER, verticalAlignment, true, true);
+		GridData layoutData = new GridData(horizontalAlignment, verticalAlignment, false, false);
 		if (image != null) {
-			layoutData.heightHint = imageHeight;
+			if (imageHeight != null)
+				layoutData.heightHint = imageHeight;
 			if (label == null)
-				layoutData.widthHint = imageWidth;
+				if (imageWidth != null)
+					layoutData.widthHint = imageWidth;
 		}
 
 		link.setLayoutData(layoutData);
@@ -123,8 +132,12 @@ public class CmsLink implements CmsUiProvider {
 		if (image != null) {
 			registerImageIfNeeded();
 			String imageLocation = RWT.getResourceManager().getLocation(image);
-			labelText.append("<img width='").append(imageWidth).append("' height='").append(imageHeight)
-					.append("' src=\"").append(imageLocation).append("\"/>");
+			labelText.append("<img");
+			if (imageWidth != null)
+				labelText.append(" width='").append(imageWidth).append('\'');
+			if (imageHeight != null)
+				labelText.append(" height='").append(imageHeight).append('\'');
+			labelText.append(" src=\"").append(imageLocation).append("\"/>");
 
 		}
 
@@ -248,6 +261,14 @@ public class CmsLink implements CmsUiProvider {
 
 	protected boolean isLoggedIn() {
 		return !CurrentUser.isAnonymous();
+	}
+
+	public void setImageWidth(Integer imageWidth) {
+		this.imageWidth = imageWidth;
+	}
+
+	public void setImageHeight(Integer imageHeight) {
+		this.imageHeight = imageHeight;
 	}
 
 }

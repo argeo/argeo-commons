@@ -118,7 +118,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		Locale locale = localeChoice == null ? this.defaultLocale : localeChoice.getSelectedLocale();
 		credentialsBlock = new Composite(parent, SWT.NONE);
 		credentialsBlock.setLayout(new GridLayout());
-		credentialsBlock.setLayoutData(CmsUtils.fillAll());
+		// credentialsBlock.setLayoutData(CmsUtils.fillAll());
 
 		specificUserUi(credentialsBlock);
 
@@ -149,10 +149,12 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		// We need a composite for the traversal
 		credentialsBlock = new Composite(parent, SWT.NONE);
 		credentialsBlock.setLayout(new GridLayout());
-		credentialsBlock.setLayoutData(CmsUtils.fillAll());
+		// credentialsBlock.setLayoutData(CmsUtils.fillAll());
+		CmsUtils.style(credentialsBlock, CMS_LOGIN_DIALOG);
 
 		Integer textWidth = 120;
-		CmsUtils.style(parent, CMS_USER_MENU);
+		if (parent instanceof Shell)
+			CmsUtils.style(parent, CMS_USER_MENU);
 		// new Label(this, SWT.NONE).setText(CmsMsg.username.lead());
 		usernameT = new Text(credentialsBlock, SWT.BORDER);
 		usernameT.setMessage(username.lead(locale));
@@ -216,6 +218,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 
 	protected Composite createLocalesBlock(final Composite parent) {
 		Composite c = new Composite(parent, SWT.NONE);
+		CmsUtils.style(c, CMS_USER_MENU_ITEM);
 		c.setLayout(CmsUtils.noSpaceGridLayout());
 		c.setLayoutData(CmsUtils.fillAll());
 
@@ -235,6 +238,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		for (Integer i = 0; i < locales.size(); i++) {
 			Locale locale = locales.get(i);
 			Button button = new Button(c, SWT.RADIO);
+			CmsUtils.style(button, CMS_USER_MENU_ITEM);
 			button.setData(i);
 			button.setText(LocaleUtils.lead(locale.getDisplayName(locale), locale) + " (" + locale + ")");
 			// button.addListener(SWT.Selection, listener);

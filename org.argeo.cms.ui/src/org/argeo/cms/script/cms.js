@@ -1,9 +1,13 @@
-//var CmsUiProvider = Java.type('org.argeo.cms.ui.CmsUiProvider');
+// CMS
 var CmsScriptApp = Java.type('org.argeo.cms.script.CmsScriptApp');
 var AppUi = Java.type('org.argeo.cms.script.AppUi');
 var Theme = Java.type('org.argeo.cms.script.Theme');
 var ScriptUi = Java.type('org.argeo.cms.script.ScriptUi');
 var CmsUtils = Java.type('org.argeo.cms.util.CmsUtils');
+var SimpleCmsHeader = Java.type('org.argeo.cms.util.SimpleCmsHeader');
+var CmsLink = Java.type('org.argeo.cms.util.CmsLink');
+var MenuLink = Java.type('org.argeo.cms.util.MenuLink');
+var UserMenuLink = Java.type('org.argeo.cms.util.UserMenuLink');
 
 // SWT
 var SWT = Java.type('org.eclipse.swt.SWT');

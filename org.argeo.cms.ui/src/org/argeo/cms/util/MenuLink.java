@@ -10,4 +10,13 @@ public class MenuLink extends CmsLink {
 	public MenuLink() {
 		setCustom(CmsStyles.CMS_MENU_LINK);
 	}
+
+	public MenuLink(String label, String target, String custom) {
+		super(label, target, custom);
+	}
+
+	public MenuLink(String label, String target) {
+		super(label, target, CmsStyles.CMS_MENU_LINK);
+	}
+
 }

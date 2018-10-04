@@ -302,8 +302,10 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 				Node newNode = null;
 				if (session.nodeExists(newNodePath))
 					newNode = session.getNode(newNodePath);
-				else
-					throw new CmsException("Data " + newNodePath + " does not exist");
+				else {
+//					throw new CmsException("Data " + newNodePath + " does not exist");
+					newNode = null;
+				}
 				setNode(newNode);
 			}
 			String title = publishMetaData(getNode());
@@ -326,7 +328,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 	private String publishMetaData(Node node) throws RepositoryException {
 		// Title
 		String title;
-		if (node.isNodeType(NodeType.MIX_TITLE) && node.hasProperty(Property.JCR_TITLE))
+		if (node!=null && node.isNodeType(NodeType.MIX_TITLE) && node.hasProperty(Property.JCR_TITLE))
 			title = node.getProperty(Property.JCR_TITLE).getString() + " - " + getBaseTitle();
 		else
 			title = getBaseTitle();

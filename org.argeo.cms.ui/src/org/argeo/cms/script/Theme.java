@@ -26,16 +26,32 @@ import org.osgi.framework.BundleContext;
 public class Theme {
 	private final static Log log = LogFactory.getLog(Theme.class);
 
-	private String themeId;
+	private final String themeId;
 	private Map<String, ResourceLoader> css = new HashMap<>();
 	private Map<String, ResourceLoader> resources = new HashMap<>();
 
 	private String headerCss;
 	private List<String> fonts = new ArrayList<>();
 
+	private String basePath;
+	private String cssPath;
+
+	public Theme(BundleContext bundleContext) {
+		this(bundleContext, null);
+	}
+
 	public Theme(BundleContext bundleContext, String symbolicName) {
-		this.themeId = symbolicName;
-		Bundle themeBundle = ThemeUtils.findThemeBundle(bundleContext, symbolicName);
+		Bundle themeBundle;
+		if (symbolicName == null) {
+			themeBundle = bundleContext.getBundle();
+			basePath = "/theme/internal/";
+			cssPath = basePath;
+		} else {
+			themeBundle = ThemeUtils.findThemeBundle(bundleContext, symbolicName);
+			basePath = "/";
+			cssPath = "/rap/";
+		}
+		this.themeId = themeBundle.getSymbolicName();
 		addStyleSheets(themeBundle, new BundleResourceLoader(themeBundle));
 		BundleResourceLoader themeBRL = new BundleResourceLoader(themeBundle);
 		addResources(themeBRL, "*.png");
@@ -46,13 +62,13 @@ public class Theme {
 		addResources(themeBRL, "*.ico");
 
 		// fonts
-		URL fontsUrl = themeBundle.getEntry("fonts.txt");
+		URL fontsUrl = themeBundle.getEntry(basePath + "fonts.txt");
 		if (fontsUrl != null) {
 			loadFontsUrl(fontsUrl);
 		}
 
 		// common CSS header (plain CSS)
-		URL headerCssUrl = themeBundle.getEntry("header.css");
+		URL headerCssUrl = themeBundle.getEntry(basePath + "header.css");
 		if (headerCssUrl != null) {
 			try (BufferedReader buffer = new BufferedReader(new InputStreamReader(headerCssUrl.openStream(), UTF_8))) {
 				headerCss = buffer.lines().collect(Collectors.joining("\n"));
@@ -91,7 +107,7 @@ public class Theme {
 	}
 
 	void addStyleSheets(Bundle themeBundle, ResourceLoader ssRL) {
-		Enumeration<URL> themeResources = themeBundle.findEntries("/rap", "*.css", true);
+		Enumeration<URL> themeResources = themeBundle.findEntries(cssPath, "*.css", true);
 		if (themeResources == null)
 			return;
 		while (themeResources.hasMoreElements()) {
@@ -124,7 +140,7 @@ public class Theme {
 
 	void addResources(BundleResourceLoader themeBRL, String pattern) {
 		Bundle themeBundle = themeBRL.getBundle();
-		Enumeration<URL> themeResources = themeBundle.findEntries("/", pattern, true);
+		Enumeration<URL> themeResources = themeBundle.findEntries(basePath, pattern, true);
 		if (themeResources == null)
 			return;
 		while (themeResources.hasMoreElements()) {
@@ -143,6 +159,22 @@ public class Theme {
 
 	public String getThemeId() {
 		return themeId;
+	}
+
+	public String getBasePath() {
+		return basePath;
+	}
+
+	public void setBasePath(String basePath) {
+		this.basePath = basePath;
+	}
+
+	public String getCssPath() {
+		return cssPath;
+	}
+
+	public void setCssPath(String cssPath) {
+		this.cssPath = cssPath;
 	}
 
 }

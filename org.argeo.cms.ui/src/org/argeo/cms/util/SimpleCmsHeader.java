@@ -25,8 +25,7 @@ public class SimpleCmsHeader implements CmsUiProvider {
 	private Boolean subPartsSameWidth = false;
 
 	@Override
-	public Control createUi(Composite parent, Node context)
-			throws RepositoryException {
+	public Control createUi(Composite parent, Node context) throws RepositoryException {
 		Composite header = new Composite(parent, SWT.NONE);
 		header.setData(RWT.CUSTOM_VARIANT, CmsStyles.CMS_HEADER);
 		header.setBackgroundMode(SWT.INHERIT_DEFAULT);
@@ -38,8 +37,8 @@ public class SimpleCmsHeader implements CmsUiProvider {
 		return header;
 	}
 
-	protected void configurePart(Node context, Composite parent,
-			List<CmsUiProvider> partProviders) throws RepositoryException {
+	protected void configurePart(Node context, Composite parent, List<CmsUiProvider> partProviders)
+			throws RepositoryException {
 		final int style;
 		final String custom;
 		if (lead == partProviders) {
@@ -52,20 +51,17 @@ public class SimpleCmsHeader implements CmsUiProvider {
 			style = SWT.END;
 			custom = CmsStyles.CMS_HEADER_END;
 		} else {
-			throw new CmsException("Unsupported part providers "
-					+ partProviders);
+			throw new CmsException("Unsupported part providers " + partProviders);
 		}
 
 		Composite part = new Composite(parent, SWT.NONE);
 		part.setData(RWT.CUSTOM_VARIANT, custom);
 		GridData gridData = new GridData(style, SWT.FILL, true, true);
 		part.setLayoutData(gridData);
-		part.setLayout(CmsUtils.noSpaceGridLayout(new GridLayout(partProviders
-				.size(), subPartsSameWidth)));
+		part.setLayout(CmsUtils.noSpaceGridLayout(new GridLayout(partProviders.size(), subPartsSameWidth)));
 		for (CmsUiProvider uiProvider : partProviders) {
 			Control subPart = uiProvider.createUi(part, context);
-			subPart.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-					true));
+			subPart.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		}
 	}
 
@@ -83,6 +79,18 @@ public class SimpleCmsHeader implements CmsUiProvider {
 
 	public void setSubPartsSameWidth(Boolean subPartsSameWidth) {
 		this.subPartsSameWidth = subPartsSameWidth;
+	}
+
+	public List<CmsUiProvider> getLead() {
+		return lead;
+	}
+
+	public List<CmsUiProvider> getCenter() {
+		return center;
+	}
+
+	public List<CmsUiProvider> getEnd() {
+		return end;
 	}
 
 }
