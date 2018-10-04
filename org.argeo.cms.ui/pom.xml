@@ -16,6 +16,7 @@
 			<artifactId>org.argeo.cms</artifactId>
 			<version>2.1.76-SNAPSHOT</version>
 		</dependency>
+		<!-- Specific -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.ui.rap</artifactId>
