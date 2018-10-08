@@ -39,6 +39,7 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 
 	private CmsUiProvider header;
 	private Integer headerHeight = 0;
+	private Integer footerHeight = 0;
 	private CmsUiProvider lead;
 	private CmsUiProvider end;
 	private CmsUiProvider footer;
@@ -84,7 +85,7 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 		footerArea = new Composite(parent, SWT.NONE);
 		// footerArea.setLayout(new FillLayout());
 		GridData footerData = new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1);
-		footerData.heightHint = headerHeight;
+		footerData.heightHint = footerHeight;
 		footerArea.setLayoutData(footerData);
 
 		uiInitialized = true;
@@ -220,6 +221,10 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 
 	public CmsUiProvider getHeader() {
 		return header;
+	}
+
+	public void setFooterHeight(Integer footerHeight) {
+		this.footerHeight = footerHeight;
 	}
 
 }

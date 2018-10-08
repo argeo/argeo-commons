@@ -19,8 +19,11 @@ public class BundleResourceLoader implements ResourceLoader {
 	@Override
 	public InputStream getResourceAsStream(String resourceName) throws IOException {
 		URL res = bundle.getEntry(resourceName);
-		if (res == null)
-			throw new CmsException("Resource " + resourceName + " not found in bundle " + bundle.getSymbolicName());
+		if (res == null) {
+			res = bundle.getResource(resourceName);
+			if (res == null)
+				throw new CmsException("Resource " + resourceName + " not found in bundle " + bundle.getSymbolicName());
+		}
 		return res.openStream();
 	}
 

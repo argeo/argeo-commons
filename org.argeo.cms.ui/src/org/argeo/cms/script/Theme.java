@@ -82,9 +82,13 @@ public class Theme {
 	public void apply(Application application) {
 		for (String name : resources.keySet()) {
 			application.addResource(name, resources.get(name));
+			if (log.isDebugEnabled())
+				log.debug("Added resource " + name);
 		}
 		for (String name : css.keySet()) {
 			application.addStyleSheet(themeId, name, css.get(name));
+			if (log.isDebugEnabled())
+				log.debug("Added RAP CSS " + name);
 		}
 	}
 

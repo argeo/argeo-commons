@@ -1,4 +1,6 @@
 // CMS
+var ScrolledPage = Java.type('org.argeo.cms.widgets.ScrolledPage');
+
 var CmsScriptApp = Java.type('org.argeo.cms.script.CmsScriptApp');
 var AppUi = Java.type('org.argeo.cms.script.AppUi');
 var Theme = Java.type('org.argeo.cms.script.Theme');
@@ -58,6 +60,17 @@ function newText(parent, style, msg) {
 	control.setMessage(msg)
 	CmsUtils.style(control, style)
 	return control
+}
+
+function newScrolledPage(parent) {
+	var scrolled = new ScrolledPage(parent, SWT.NONE)
+	scrolled.setLayoutData(CmsUtils.fillAll())
+	scrolled.setLayout(CmsUtils.noSpaceGridLayout())
+	var page = new Composite(scrolled, SWT.NONE)
+	page.setLayout(CmsUtils.noSpaceGridLayout())
+	page.setBackgroundMode(SWT.INHERIT_NONE)
+	
+	return page
 }
 
 // print(__FILE__, __LINE__, __DIR__)
