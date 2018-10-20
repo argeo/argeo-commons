@@ -36,8 +36,8 @@ public class CmsUtils implements CmsConstants {
 	// private final static Log log = LogFactory.getLog(CmsUtils.class);
 
 	/**
-	 * The CMS view related to this display, or null if none is available from
-	 * this call.
+	 * The CMS view related to this display, or null if none is available from this
+	 * call.
 	 */
 	public static CmsView getCmsView() {
 		return UiContext.getData(CmsView.KEY);
@@ -197,6 +197,18 @@ public class CmsUtils implements CmsConstants {
 			IOUtils.closeQuietly(in);
 		}
 	}
+
+	public final static String LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+			+ " Etiam eleifend hendrerit sem, ac ultricies massa ornare ac."
+			+ " Cras aliquam sodales risus, vitae varius lacus molestie quis."
+			+ " Vivamus consequat, leo id lacinia volutpat, eros diam efficitur urna, finibus interdum risus turpis at nisi."
+			+ " Curabitur vulputate nulla quis scelerisque fringilla. Integer consectetur turpis id lobortis accumsan."
+			+ " Pellentesque commodo turpis ac diam ultricies dignissim."
+			+ " Curabitur sit amet dolor volutpat lacus aliquam ornare quis sed velit."
+			+ " Integer varius quis est et tristique."
+			+ " Suspendisse pharetra porttitor purus, eget condimentum magna."
+			+ " Duis vitae turpis eros. Sed tincidunt lacinia rutrum."
+			+ " Aliquam velit velit, rutrum ut augue sed, condimentum lacinia augue.";
 
 	private CmsUtils() {
 	}
