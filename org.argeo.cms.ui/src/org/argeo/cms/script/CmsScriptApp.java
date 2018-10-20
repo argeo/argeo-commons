@@ -2,7 +2,9 @@ package org.argeo.cms.script;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -15,6 +17,8 @@ import javax.jcr.PropertyType;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.script.ScriptEngine;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,8 +34,12 @@ import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.eclipse.rap.rwt.application.ExceptionHandler;
 import org.eclipse.rap.rwt.client.WebClient;
 import org.eclipse.rap.rwt.service.ResourceLoader;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.http.HttpContext;
+import org.osgi.service.http.HttpService;
+import org.osgi.service.http.NamespaceException;
 
 public class CmsScriptApp implements Branding {
 	public final static String CONTEXT_NAME = "contextName";
@@ -102,9 +110,35 @@ public class CmsScriptApp implements Branding {
 			themeId = theme.getThemeId();
 		}
 
+		// client JavaScript
+		Bundle appBundle = bundleRL.getBundle();
+		BundleContext bc = appBundle.getBundleContext();
+		HttpService httpService = bc.getService(bc.getServiceReference(HttpService.class));
+		HttpContext httpContext = new BundleHttpContext(bc);
+		Enumeration<URL> themeResources = appBundle.findEntries("/js/", "*", true);
+		if (themeResources != null)
+			bundleResources: while (themeResources.hasMoreElements()) {
+				try {
+					String name = themeResources.nextElement().getPath();
+					if (name.endsWith("/"))
+						continue bundleResources;
+					String alias = "/" + getWebPath() + name;
+
+					httpService.registerResources(alias, name, httpContext);
+					if (log.isDebugEnabled())
+						log.debug("Mapped " + name + " to alias " + alias);
+
+				} catch (NamespaceException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+		// App UIs
 		for (String appUiName : ui.keySet()) {
 			AppUi appUi = ui.get(appUiName);
 			appUi.apply(repository, application, this, appUiName);
+
 		}
 
 	}
@@ -354,6 +388,33 @@ public class CmsScriptApp implements Branding {
 
 	public void setFooter(CmsUiProvider footer) {
 		this.footer = footer;
+	}
+
+	static class BundleHttpContext implements HttpContext {
+		private BundleContext bundleContext;
+
+		public BundleHttpContext(BundleContext bundleContext) {
+			super();
+			this.bundleContext = bundleContext;
+		}
+
+		@Override
+		public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
+			// TODO Auto-generated method stub
+			return true;
+		}
+
+		@Override
+		public URL getResource(String name) {
+
+			return bundleContext.getBundle().getEntry(name);
+		}
+
+		@Override
+		public String getMimeType(String name) {
+			return null;
+		}
+
 	}
 
 }

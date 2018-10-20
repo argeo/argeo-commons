@@ -9,8 +9,6 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
 public class ScriptAppActivator implements BundleActivator {
-//	ServiceRegistration<ApplicationConfiguration> appConfigReg;
-
 	@Override
 	public void start(BundleContext context) throws Exception {
 		CmsScriptRwtApplication appConfig = new CmsScriptRwtApplication();
@@ -25,10 +23,6 @@ public class ScriptAppActivator implements BundleActivator {
 				appConfig.setRepository(repository);
 				CmsScriptApp app = appConfig.getApp();
 				app.register(context, appConfig);
-//				Hashtable<String, String> props = new Hashtable<>();
-//				if (app.getWebPath() != null)
-//					props.put("contextName", app.getWebPath());
-//				appConfigReg = context.registerService(ApplicationConfiguration.class, appConfig, props);
 				return repository;
 			}
 
@@ -38,9 +32,6 @@ public class ScriptAppActivator implements BundleActivator {
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
-//		if (appConfigReg != null)
-//			appConfigReg.unregister();
-
 	}
 
 }
