@@ -17,9 +17,12 @@ var Composite = Java.type('org.eclipse.swt.widgets.Composite');
 var Label = Java.type('org.eclipse.swt.widgets.Label');
 var Button = Java.type('org.eclipse.swt.widgets.Button');
 var Text = Java.type('org.eclipse.swt.widgets.Text');
+var Browser = Java.type('org.eclipse.swt.browser.Browser');
 
 var FillLayout = Java.type('org.eclipse.swt.layout.FillLayout');
 var GridLayout = Java.type('org.eclipse.swt.layout.GridLayout');
+var RowLayout = Java.type('org.eclipse.swt.layout.RowLayout');
+var FormLayout = Java.type('org.eclipse.swt.layout.FormLayout');
 var GridData = Java.type('org.eclipse.swt.layout.GridData');
 
 function loadNode(node) {
@@ -36,7 +39,7 @@ function newArea(parent, style, layout) {
 }
 
 function newLabel(parent, style, text) {
-	var control = new Label(parent, SWT.NONE)
+	var control = new Label(parent, SWT.WRAP)
 	control.setText(text)
 	CmsUtils.style(control, style)
 	CmsUtils.markup(control)
