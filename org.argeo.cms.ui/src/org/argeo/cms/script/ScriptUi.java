@@ -51,11 +51,18 @@ public class ScriptUi implements CmsUiProvider {
 	}
 
 	private void load() {
-		try (Reader reader = new InputStreamReader(appUrl.openStream())) {
-			scriptEngine.eval(reader);
-		} catch (IOException | ScriptException e) {
+//		try (Reader reader = new InputStreamReader(appUrl.openStream())) {
+//			scriptEngine.eval(reader);
+//		} catch (IOException | ScriptException e) {
+//			log.warn("Cannot execute " + appUrl, e);
+//		}
+
+		try {
+			scriptEngine.eval("load('" + appUrl + "')");
+		} catch (ScriptException e) {
 			log.warn("Cannot execute " + appUrl, e);
 		}
+
 	}
 
 	// public ScriptUiProvider(ScriptEngine scriptEngine, String script) throws
