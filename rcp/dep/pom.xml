@@ -13,8 +13,6 @@
 	<modules>
 		<module>org.argeo.dep.cms.e4.rcp</module>
 	</modules>
-	<dependencies>
-	</dependencies>
 	<build>
 		<plugins>
 			<plugin>
@@ -39,8 +37,33 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<dependencies>
+					<dependency>
+						<groupId>org.argeo.commons</groupId>
+						<artifactId>assembly-descriptors</artifactId>
+						<version>2.1.76-SNAPSHOT</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<attach>false</attach>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.argeo.tp.equinox</groupId>
+			<artifactId>org.eclipse.osgi</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.sdk</groupId>
+			<artifactId>org.junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 	<profiles>
 		<profile>
 			<id>check-osgi</id>
