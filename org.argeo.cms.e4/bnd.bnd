@@ -12,5 +12,4 @@ org.argeo.jcr.docbook,\
 org.eclipse.core.commands.common,\
 org.eclipse.jface.window,\
 org.argeo.cms.widgets.auth,\
-org.eclipse.nebula.widgets.richtext;resolution:=optional,\
 *

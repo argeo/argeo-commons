@@ -10,4 +10,5 @@ org.eclipse.swt.graphics,\
 org.eclipse.e4.ui.workbench,\
 org.eclipse.rap.rwt.client,\
 org.argeo.cms.script,\
+org.eclipse.nebula.widgets.richtext;resolution:=optional,\
 *

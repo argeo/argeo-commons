@@ -1,4 +1,4 @@
-package org.argeo.cms.e4.parts;
+package org.argeo.cms.e4.rap.parts;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

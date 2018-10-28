@@ -12,7 +12,7 @@
           <children xsi:type="menu:HandledToolItem" xmi:id="_r3TEMMcmEeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.handledtoolitem.0" command="_vsxg8McmEeiIG7Bq51Btuw"/>
         </toolbar>
       </children>
-      <children xsi:type="basic:Part" xmi:id="_cIlegMb4EeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.part.htmleditor" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.parts.HtmlEditor" label="HTML Editor"/>
+      <children xsi:type="basic:Part" xmi:id="_cIlegMb4EeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.part.htmleditor" contributionURI="bundleclass://org.argeo.cms.e4.rap/org.argeo.cms.e4.rap.parts.HtmlEditor" label="HTML Editor"/>
     </children>
   </children>
   <handlers xmi:id="_zqabMMcmEeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.handler.0" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.handlers.SavePart" command="_vsxg8McmEeiIG7Bq51Btuw"/>
