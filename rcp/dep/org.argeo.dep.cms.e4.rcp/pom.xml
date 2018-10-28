@@ -15,7 +15,7 @@
 		<dependency>
 			<groupId>org.argeo.tp.rcp.e4</groupId>
 			<artifactId>org.eclipse.swt.gtk.linux.arm</artifactId>
-			<version>3.106.100.v20180305-0927</version>
+			<version>3.108.0.v20180905-1254</version>
 		</dependency>
 
 		<!-- Eclipse launcher -->
