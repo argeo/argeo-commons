@@ -141,6 +141,8 @@ public class UserAdminUtils {
 		String dn = user.getName();
 		if (dn.endsWith(NodeConstants.ROLES_BASEDN))
 			return "System roles";
+		if (dn.endsWith(NodeConstants.TOKENS_BASEDN))
+			return "Tokens";
 		try {
 			// FIXME deal with non-DC
 			LdapName name = new LdapName(dn);

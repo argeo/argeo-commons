@@ -100,6 +100,8 @@ public class UserAdminWrapper {
 				continue;
 			if (baseDn.equalsIgnoreCase(NodeConstants.ROLES_BASEDN))
 				continue;
+			if (baseDn.equalsIgnoreCase(NodeConstants.TOKENS_BASEDN))
+				continue;
 			dns.put(baseDn, uri);
 		}
 		return dns;
