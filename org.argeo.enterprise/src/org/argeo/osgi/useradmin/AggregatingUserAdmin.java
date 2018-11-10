@@ -88,16 +88,16 @@ public class AggregatingUserAdmin implements UserAdmin {
 		Authorization rawAuthorization = userAdmin.getAuthorization(user);
 		String usernameToUse;
 		String displayNameToUse;
-		if (user instanceof Group) {// tokens
+		if (user instanceof Group) {
 			String ownerDn = (String) user.getProperties().get(LdapAttrs.owner.name());
-			if (ownerDn != null) {
+			if (ownerDn != null) {// tokens
 				UserAdmin ownerUserAdmin = findUserAdmin(ownerDn);
 				User ownerUser = (User) ownerUserAdmin.getRole(ownerDn);
 				usernameToUse = ownerDn;
 				displayNameToUse = LdifAuthorization.extractDisplayName(ownerUser);
 			} else {
-				throw new UserDirectoryException(
-						"Cannot get authorization for group " + user.getName() + " without owner");
+				usernameToUse = rawAuthorization.getName();
+				displayNameToUse = rawAuthorization.toString();
 			}
 		} else {// regular users
 			usernameToUse = rawAuthorization.getName();
