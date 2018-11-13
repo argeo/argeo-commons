@@ -23,6 +23,9 @@ public class OpenPerspective {
 	public void execute(@Named("perspectiveId") String perspectiveId) {
 		List<MPerspective> perspectives = modelService.findElements(application, perspectiveId, MPerspective.class,
 				null);
-		partService.switchPerspective(perspectives.get(0));
+		if (perspectives.size() == 0)
+			return;
+		MPerspective perspective = perspectives.get(0);
+		partService.switchPerspective(perspective);
 	}
 }

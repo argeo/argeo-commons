@@ -3,6 +3,7 @@
   <children xsi:type="basic:TrimmedWindow" xmi:id="_Zdy6cKknEeObFrG_clJBYA" elementId="org.argeo.cms.e4.apps.admin.trimmedwindow.0" label="" x="10" y="10" width="500" height="500">
     <persistedState key="styleOverride" value="8"/>
     <tags>shellMaximized</tags>
+    <tags>auth.cn=admin,ou=roles,ou=node</tags>
     <children xsi:type="advanced:PerspectiveStack" xmi:id="_jXVqsCk4Eein5vuhpK-Dew" elementId="org.argeo.cms.e4.perspectivestack.0" selectedElement="_jvjWYCk4Eein5vuhpK-Dew">
       <children xsi:type="advanced:Perspective" xmi:id="_jvjWYCk4Eein5vuhpK-Dew" elementId="org.argeo.cms.e4.perspective.data" label="Data" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/nodes.gif">
         <children xsi:type="basic:PartSashContainer" xmi:id="_h3tvMCkxEein5vuhpK-Dew" elementId="org.argeo.cms.e4.partsashcontainer.0" selectedElement="_0B9SECkxEein5vuhpK-Dew" horizontal="true">
@@ -30,6 +31,7 @@
         </children>
       </children>
       <children xsi:type="advanced:Perspective" xmi:id="_xOVlsDvOEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.perspective.users" label="Users" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/group.png">
+        <tags>auth.cn=admin,ou=roles,ou=node</tags>
         <children xsi:type="basic:PartSashContainer" xmi:id="_1tQoEDvOEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.partsashcontainer.2" horizontal="true">
           <children xsi:type="basic:PartStack" xmi:id="_vtbKkDvkEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.partstack.4" containerData="4000" selectedElement="_9gukYDvOEeiF1foPJZSZkw">
             <children xsi:type="basic:Part" xmi:id="_9gukYDvOEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.part.users" containerData="" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.users.UsersView" label="Users" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/person.png">
@@ -83,6 +85,7 @@
           <parameters xmi:id="_fXvRYDvrEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.parameter.1" name="perspectiveId" value="org.argeo.cms.e4.perspective.files"/>
         </children>
         <children xsi:type="menu:HandledToolItem" xmi:id="_jCSQgDvrEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.handledtoolitem.users" label="Users" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/group.png" command="_AF1UsDvrEeiF1foPJZSZkw">
+          <tags>auth.cn=admin,ou=roles,ou=node</tags>
           <parameters xmi:id="_lu_uYDvrEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.parameter.2" name="perspectiveId" value="org.argeo.cms.e4.perspective.users"/>
         </children>
         <children xsi:type="menu:HandledToolItem" xmi:id="_dhv80FhKEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.handledtoolitem.monitoring" label="Monitoring" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/bundles.gif" command="_AF1UsDvrEeiF1foPJZSZkw">
@@ -120,5 +123,7 @@
   <addons xmi:id="_XqkCRaknEeObFrG_clJBYA" elementId="org.eclipse.e4.ui.workbench.contexts.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.ContextProcessingAddon"/>
   <addons xmi:id="_XqkCRqknEeObFrG_clJBYA" elementId="org.eclipse.e4.ui.workbench.bindings.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.swt/org.eclipse.e4.ui.workbench.swt.util.BindingProcessingAddon"/>
   <addons xmi:id="_XqkCR6knEeObFrG_clJBYA" elementId="org.eclipse.e4.ui.workbench.handler.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.HandlerProcessingAddon"/>
+  <addons xmi:id="_8VnK8OdKEeijEOqYKRSeoQ" elementId="org.argeo.cms.e4.addon.0" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.addons.LocaleAddon"/>
+  <addons xmi:id="_-xeJYOdKEeijEOqYKRSeoQ" elementId="org.argeo.cms.e4.addon.1" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.addons.AuthAddon"/>
   <categories xmi:id="_MDkwUCqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.category.jcrBrowser" name="JCR Browser"/>
 </application:Application>
