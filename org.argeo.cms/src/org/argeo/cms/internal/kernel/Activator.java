@@ -169,6 +169,10 @@ public class Activator implements BundleActivator {
 		return (UserAdmin) getNodeUserAdmin();
 	}
 
+	public static String getHttpProxySslHeader() {
+		return KernelUtils.getFrameworkProp(NodeConstants.HTTP_PROXY_SSL_DN);
+	}
+
 	private static NodeUserAdmin getNodeUserAdmin() {
 		NodeUserAdmin res;
 		try {

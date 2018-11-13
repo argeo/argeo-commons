@@ -21,6 +21,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.internal.kernel.Activator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -198,16 +199,18 @@ public class HttpSessionLoginModule implements LoginModule {
 
 	private void extractClientCertificate(HttpServletRequest req) {
 		X509Certificate[] certs = (X509Certificate[]) req.getAttribute("javax.servlet.request.X509Certificate");
-		if (null != certs && certs.length > 0) {
+		if (null != certs && certs.length > 0) {// Servlet container verified the client certificate
 			sharedState.put(CmsAuthUtils.SHARED_STATE_NAME, certs[0].getSubjectX500Principal().getName());
 			sharedState.put(CmsAuthUtils.SHARED_STATE_CERTIFICATE_CHAIN, certs);
-		} else {
-			// When client has been verified by reverse proxy
-			String certDn = req.getHeader("SSL_CLIENT_S_DN");
+		} // Reverse proxy verified the client certificate
+		String clientDnHttpHeader = Activator.getHttpProxySslHeader();
+		if (clientDnHttpHeader != null) {
+			String certDn = req.getHeader(clientDnHttpHeader);
+			// TODO retrieve more cf. https://httpd.apache.org/docs/current/mod/mod_ssl.html
+			// String issuerDn = req.getHeader("SSL_CLIENT_I_DN");
 			if (certDn != null) {
 				sharedState.put(CmsAuthUtils.SHARED_STATE_NAME, certDn);
-				String issuerDn = req.getHeader("SSL_CLIENT_I_DN");
-				sharedState.put(CmsAuthUtils.SHARED_STATE_CERTIFICATE_CHAIN, issuerDn);
+				sharedState.put(CmsAuthUtils.SHARED_STATE_CERTIFICATE_CHAIN, "");
 			}
 		}
 	}

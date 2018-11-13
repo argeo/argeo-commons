@@ -101,6 +101,11 @@ public interface NodeConstants {
 	// HTTP
 	String HTTP_PORT = "org.osgi.service.http.port";
 	String HTTP_PORT_SECURE = "org.osgi.service.http.port.secure";
+	/**
+	 * The HTTP header used to convey the DN of a client verified by a reverse
+	 * proxy. Typically SSL_CLIENT_S_DN for Apache.
+	 */
+	String HTTP_PROXY_SSL_DN = "argeo.http.proxy.ssl.dn";
 
 	/*
 	 * PIDs
