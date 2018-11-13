@@ -90,6 +90,11 @@ class InitUtils {
 				props.put(HttpConstants.SSL_KEYSTORE, keyStorePath.toString());
 				props.put(HttpConstants.SSL_PASSWORD, keyStorePassword);
 				props.put(HttpConstants.SSL_WANTCLIENTAUTH, true);
+				String needClientAuth = getFrameworkProp(
+						HttpConstants.JETTY_PROPERTY_PREFIX + HttpConstants.SSL_NEEDCLIENTAUTH);
+				if (needClientAuth != null) {
+					props.put(HttpConstants.SSL_NEEDCLIENTAUTH, Boolean.parseBoolean(needClientAuth));
+				}
 			}
 			if (httpHost != null)
 				props.put(HttpConstants.HTTP_HOST, httpHost);
