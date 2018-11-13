@@ -5,7 +5,6 @@ import static org.argeo.naming.LdapAttrs.description;
 
 import java.io.IOException;
 import java.security.PrivilegedAction;
-import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -86,7 +85,7 @@ public class UserAdminLoginModule implements LoginModule {
 		UserAdmin userAdmin = Activator.getUserAdmin();
 		final String username;
 		final char[] password;
-		X509Certificate[] certificateChain = null;
+		Object certificateChain = null;
 		if (sharedState.containsKey(CmsAuthUtils.SHARED_STATE_NAME)
 				&& sharedState.containsKey(CmsAuthUtils.SHARED_STATE_PWD)) {
 			// NB: required by Basic http auth
@@ -103,8 +102,8 @@ public class UserAdminLoginModule implements LoginModule {
 				e.printStackTrace();
 				return false;
 			}
-			username = ldapName.getRdn(ldapName.size()-1).getValue().toString();
-			certificateChain = (X509Certificate[]) sharedState.get(CmsAuthUtils.SHARED_STATE_CERTIFICATE_CHAIN);
+			username = ldapName.getRdn(ldapName.size() - 1).getValue().toString();
+			certificateChain = sharedState.get(CmsAuthUtils.SHARED_STATE_CERTIFICATE_CHAIN);
 			password = null;
 		} else if (singleUser) {
 			username = OsUserUtils.getOsUsername();

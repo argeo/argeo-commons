@@ -201,6 +201,14 @@ public class HttpSessionLoginModule implements LoginModule {
 		if (null != certs && certs.length > 0) {
 			sharedState.put(CmsAuthUtils.SHARED_STATE_NAME, certs[0].getSubjectX500Principal().getName());
 			sharedState.put(CmsAuthUtils.SHARED_STATE_CERTIFICATE_CHAIN, certs);
+		} else {
+			// When client has been verified by reverse proxy
+			String certDn = req.getHeader("SSL_CLIENT_S_DN");
+			if (certDn != null) {
+				sharedState.put(CmsAuthUtils.SHARED_STATE_NAME, certDn);
+				String issuerDn = req.getHeader("SSL_CLIENT_I_DN");
+				sharedState.put(CmsAuthUtils.SHARED_STATE_CERTIFICATE_CHAIN, issuerDn);
+			}
 		}
 	}
 
