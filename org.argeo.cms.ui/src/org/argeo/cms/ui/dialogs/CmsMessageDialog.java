@@ -68,15 +68,23 @@ public class CmsMessageDialog extends LightweightDialog {
 			Button cancel = new Button(buttons, SWT.FLAT);
 			cancel.setText(CmsMsg.cancel.lead());
 			cancel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
-			cancel.addSelectionListener((Selected) (e) -> closeShell(CANCEL));
+			cancel.addSelectionListener((Selected) (e) -> cancelPressed());
 
 			Button ok = new Button(buttons, SWT.FLAT);
 			ok.setText(CmsMsg.ok.lead());
 			ok.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
-			ok.addSelectionListener((Selected) (e) -> closeShell(OK));
+			ok.addSelectionListener((Selected) (e) -> okPressed());
 		}
 		// pack();
-		return messageLbl;
+		return body;
+	}
+
+	protected void okPressed() {
+		closeShell(OK);
+	}
+
+	protected void cancelPressed() {
+		closeShell(CANCEL);
 	}
 
 	protected Point getInitialSize() {
