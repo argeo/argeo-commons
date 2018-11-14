@@ -13,7 +13,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -94,15 +93,16 @@ public class UserAdminLoginModule implements LoginModule {
 			// // TODO locale?
 		} else if (sharedState.containsKey(CmsAuthUtils.SHARED_STATE_NAME)
 				&& sharedState.containsKey(CmsAuthUtils.SHARED_STATE_CERTIFICATE_CHAIN)) {
-			String certificateName = (String) sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
-			LdapName ldapName;
-			try {
-				ldapName = new LdapName(certificateName);
-			} catch (InvalidNameException e) {
-				e.printStackTrace();
-				return false;
-			}
-			username = ldapName.getRdn(ldapName.size() - 1).getValue().toString();
+			String certDn = (String) sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
+//			LdapName ldapName;
+//			try {
+//				ldapName = new LdapName(certificateName);
+//			} catch (InvalidNameException e) {
+//				e.printStackTrace();
+//				return false;
+//			}
+//			username = ldapName.getRdn(ldapName.size() - 1).getValue().toString();
+			username = certDn;
 			certificateChain = sharedState.get(CmsAuthUtils.SHARED_STATE_CERTIFICATE_CHAIN);
 			password = null;
 		} else if (singleUser) {
