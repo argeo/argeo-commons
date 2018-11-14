@@ -81,14 +81,8 @@ function gridData(control) {
 	return gridData
 }
 
-function gridData(control, hAlign, vAlign, grabHSpace, grabVSpace) {
-	var gridData = new GridData(hAlign, vAlign, grabHSpace, grabVSpace)
-	control.setLayoutData(gridData)
-	return gridData
-}
-
-function gridData(control, width, height) {
-	var gridData = new GridData(width, height)
+function gridData(control, hAlign, vAlign) {
+	var gridData = new GridData(hAlign, vAlign, false, false)
 	control.setLayoutData(gridData)
 	return gridData
 }
