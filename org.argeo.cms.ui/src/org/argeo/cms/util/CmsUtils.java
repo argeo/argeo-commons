@@ -84,6 +84,10 @@ public class CmsUtils implements CmsConstants {
 		return noSpaceGridLayout(new GridLayout());
 	}
 
+	public static GridLayout noSpaceGridLayout(int columns) {
+		return noSpaceGridLayout(new GridLayout(columns, false));
+	}
+
 	public static GridLayout noSpaceGridLayout(GridLayout layout) {
 		layout.horizontalSpacing = 0;
 		layout.verticalSpacing = 0;

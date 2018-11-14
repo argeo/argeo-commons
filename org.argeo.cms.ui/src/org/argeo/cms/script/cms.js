@@ -72,8 +72,25 @@ function newScrolledPage(parent) {
 	var page = new Composite(scrolled, SWT.NONE)
 	page.setLayout(CmsUtils.noSpaceGridLayout())
 	page.setBackgroundMode(SWT.INHERIT_NONE)
-	
 	return page
+}
+
+function gridData(control) {
+	var gridData = new GridData()
+	control.setLayoutData(gridData)
+	return gridData
+}
+
+function gridData(control, hAlign, vAlign, grabHSpace, grabVSpace) {
+	var gridData = new GridData(hAlign, vAlign, grabHSpace, grabVSpace)
+	control.setLayoutData(gridData)
+	return gridData
+}
+
+function gridData(control, width, height) {
+	var gridData = new GridData(width, height)
+	control.setLayoutData(gridData)
+	return gridData
 }
 
 // print(__FILE__, __LINE__, __DIR__)
