@@ -211,7 +211,7 @@ public class HttpSessionLoginModule implements LoginModule {
 			String certDn = req.getHeader(clientDnHttpHeader);
 			// TODO retrieve more cf. https://httpd.apache.org/docs/current/mod/mod_ssl.html
 			// String issuerDn = req.getHeader("SSL_CLIENT_I_DN");
-			if (certDn != null && !certDn.trim().equals("")) {
+			if (certDn != null && !certDn.trim().equals("(null)")) {
 				sharedState.put(CmsAuthUtils.SHARED_STATE_NAME, certDn);
 				sharedState.put(CmsAuthUtils.SHARED_STATE_CERTIFICATE_CHAIN, "");
 				if (log.isDebugEnabled())
