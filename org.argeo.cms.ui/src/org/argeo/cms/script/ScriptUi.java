@@ -1,8 +1,5 @@
 package org.argeo.cms.script;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.URL;
 
 import javax.jcr.Node;
@@ -110,8 +107,8 @@ public class ScriptUi implements CmsUiProvider {
 		}
 
 		long duration = System.currentTimeMillis() - begin;
-		if (log.isDebugEnabled())
-			log.debug(appUrl + " UI in " + duration + " ms");
+		if (log.isTraceEnabled())
+			log.trace(appUrl + " UI in " + duration + " ms");
 		return null;
 	}
 
