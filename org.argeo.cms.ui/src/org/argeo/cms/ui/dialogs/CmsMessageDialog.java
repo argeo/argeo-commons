@@ -45,6 +45,7 @@ public class CmsMessageDialog extends LightweightDialog {
 		messageLbl.setFont(EclipseUiUtils.getBoldFont(parent));
 		if (message != null)
 			messageLbl.setText(message);
+		createInputArea(body);
 
 		// buttons
 		Composite buttons = new Composite(parent, SWT.NONE);
@@ -77,6 +78,10 @@ public class CmsMessageDialog extends LightweightDialog {
 		}
 		// pack();
 		return body;
+	}
+
+	protected Control createInputArea(Composite parent) {
+		return null;
 	}
 
 	protected void okPressed() {
