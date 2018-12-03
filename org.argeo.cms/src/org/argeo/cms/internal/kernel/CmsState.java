@@ -98,10 +98,9 @@ public class CmsState implements NodeState {
 			throw new CmsException("Usupported transaction manager type " + tmType);
 		}
 
-		
 		// POI
 //		POIXMLTypeLoader.setClassLoader(CTConnection.class.getClassLoader());
-		
+
 		// Tika
 //		OpenDocumentParser odfParser = new OpenDocumentParser();
 //		bc.registerService(Parser.class, odfParser, new Hashtable());
@@ -130,6 +129,16 @@ public class CmsState implements NodeState {
 
 		// File System
 		CmsFsProvider cmsFsProvider = new CmsFsProvider();
+//		ServiceLoader<FileSystemProvider> fspSl = ServiceLoader.load(FileSystemProvider.class);
+//		for (FileSystemProvider fsp : fspSl) {
+//			log.debug("FileSystemProvider " + fsp);
+//			if (fsp instanceof CmsFsProvider) {
+//				cmsFsProvider = (CmsFsProvider) fsp;
+//			}
+//		}
+//		for (FileSystemProvider fsp : FileSystemProvider.installedProviders()) {
+//			log.debug("Installed FileSystemProvider " + fsp);
+//		}
 		bc.registerService(FileSystemProvider.class, cmsFsProvider,
 				LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_FS_PROVIDER_PID));
 	}

@@ -16,7 +16,6 @@ import javax.jcr.Session;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.jackrabbit.fs.AbstractJackrabbitFsProvider;
-import org.argeo.jcr.JcrUtils;
 import org.argeo.jcr.fs.JcrFileSystem;
 import org.argeo.jcr.fs.JcrFsException;
 import org.argeo.node.NodeConstants;
@@ -26,7 +25,6 @@ import org.osgi.framework.FrameworkUtil;
 
 public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 	private Map<String, JcrFileSystem> fileSystems = new HashMap<>();
-	private BundleContext bc = FrameworkUtil.getBundle(CmsFsProvider.class).getBundleContext();
 
 	@Override
 	public String getScheme() {
@@ -35,6 +33,7 @@ public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 
 	@Override
 	public FileSystem newFileSystem(URI uri, Map<String, ?> env) throws IOException {
+		BundleContext bc = FrameworkUtil.getBundle(CmsFsProvider.class).getBundleContext();
 		String username = CurrentUser.getUsername();
 		if (username == null) {
 			// TODO deal with anonymous
