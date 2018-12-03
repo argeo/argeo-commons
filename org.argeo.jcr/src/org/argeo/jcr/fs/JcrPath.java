@@ -259,10 +259,10 @@ public class JcrPath implements Path {
 		if (other.startsWith(this)) {
 			String p1 = toString();
 			String p2 = other.toString();
-			String relative =  p2.substring(p1.length(), p2.length());
-			if(relative.charAt(0)=='/')
+			String relative = p2.substring(p1.length(), p2.length());
+			if (relative.charAt(0) == '/')
 				relative = relative.substring(1);
-			return new JcrPath(fs,relative);
+			return new JcrPath(fs, relative);
 		}
 		throw new IllegalArgumentException(other + " cannot be relativized against " + this);
 	}
@@ -270,7 +270,7 @@ public class JcrPath implements Path {
 	@Override
 	public URI toUri() {
 		try {
-			return new URI("jcr", toString(), null);
+			return new URI(fs.provider().getScheme(), toString(), null);
 		} catch (URISyntaxException e) {
 			throw new JcrFsException("Cannot create URI for " + toString(), e);
 		}
