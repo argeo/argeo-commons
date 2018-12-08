@@ -66,6 +66,8 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 	public DirectoryStream<Path> newDirectoryStream(Path dir, Filter<? super Path> filter) throws IOException {
 		try {
 			Node base = toNode(dir);
+			if (base == null)
+				throw new IOException(dir + " is not a JCR node");
 			return new NodeDirectoryStream((JcrFileSystem) dir.getFileSystem(), base.getNodes(), filter);
 		} catch (RepositoryException e) {
 			throw new IOException("Cannot list directory", e);
