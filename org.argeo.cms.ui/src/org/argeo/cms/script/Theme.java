@@ -18,6 +18,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.util.BundleResourceLoader;
 import org.argeo.cms.util.ThemeUtils;
+import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.service.ResourceLoader;
 import org.osgi.framework.Bundle;
@@ -26,7 +27,7 @@ import org.osgi.framework.BundleContext;
 public class Theme {
 	private final static Log log = LogFactory.getLog(Theme.class);
 
-	private final String themeId;
+	private String themeId;
 	private Map<String, ResourceLoader> css = new HashMap<>();
 	private Map<String, ResourceLoader> resources = new HashMap<>();
 
@@ -44,14 +45,14 @@ public class Theme {
 		Bundle themeBundle;
 		if (symbolicName == null) {
 			themeBundle = bundleContext.getBundle();
-			basePath = "/theme/internal/";
-			cssPath = basePath;
+//			basePath = "/theme/";
+//			cssPath = basePath;
 		} else {
 			themeBundle = ThemeUtils.findThemeBundle(bundleContext, symbolicName);
-			basePath = "/";
-			cssPath = "/rap/";
 		}
-		this.themeId = themeBundle.getSymbolicName();
+		basePath = "/";
+		cssPath = "/rap/";
+		this.themeId = RWT.DEFAULT_THEME_ID;
 		addStyleSheets(themeBundle, new BundleResourceLoader(themeBundle));
 		BundleResourceLoader themeBRL = new BundleResourceLoader(themeBundle);
 		addResources(themeBRL, "*.png");
@@ -163,6 +164,10 @@ public class Theme {
 
 	public String getThemeId() {
 		return themeId;
+	}
+
+	public void setThemeId(String themeId) {
+		this.themeId = themeId;
 	}
 
 	public String getBasePath() {

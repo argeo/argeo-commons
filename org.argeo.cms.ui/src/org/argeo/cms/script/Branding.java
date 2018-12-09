@@ -2,8 +2,6 @@ package org.argeo.cms.script;
 
 import java.util.Map;
 
-import org.eclipse.rap.rwt.client.WebClient;
-
 public interface Branding {
 	public void applyBranding(Map<String, String> properties);
 
