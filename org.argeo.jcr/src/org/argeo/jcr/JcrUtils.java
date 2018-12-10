@@ -86,8 +86,7 @@ public class JcrUtils {
 	 * Queries one single node.
 	 * 
 	 * @return one single node or null if none was found
-	 * @throws ArgeoJcrException
-	 *             if more than one node was found
+	 * @throws ArgeoJcrException if more than one node was found
 	 */
 	public static Node querySingleNode(Query query) {
 		NodeIterator nodeIterator;
@@ -236,10 +235,8 @@ public class JcrUtils {
 	/**
 	 * The provided data as a path ('/' at the end, not the beginning)
 	 * 
-	 * @param cal
-	 *            the date
-	 * @param addHour
-	 *            whether to add hour as well
+	 * @param cal     the date
+	 * @param addHour whether to add hour as well
 	 */
 	public static String dateAsPath(Calendar cal, Boolean addHour) {
 		StringBuffer buf = new StringBuffer(14);
@@ -363,6 +360,15 @@ public class JcrUtils {
 		}
 	}
 
+	/** Concisely get the path of the given node. */
+	public static String getPath(Node node) {
+		try {
+			return node.getPath();
+		} catch (RepositoryException e) {
+			throw new ArgeoJcrException("Cannot get path of " + node, e);
+		}
+	}
+
 	/** Concisely get the boolean value of a property */
 	public static Boolean check(Node node, String propertyName) {
 		try {
@@ -395,8 +401,7 @@ public class JcrUtils {
 	/**
 	 * Create sub nodes relative to a parent node
 	 * 
-	 * @param nodeType
-	 *            the type of the leaf node
+	 * @param nodeType the type of the leaf node
 	 */
 	public static Node mkdirs(Node parentNode, String relativePath, String nodeType) {
 		return mkdirs(parentNode, relativePath, nodeType, null);
@@ -405,8 +410,7 @@ public class JcrUtils {
 	/**
 	 * Create sub nodes relative to a parent node
 	 * 
-	 * @param nodeType
-	 *            the type of the leaf node
+	 * @param nodeType the type of the leaf node
 	 */
 	public static Node mkdirs(Node parentNode, String relativePath, String nodeType, String intermediaryNodeType) {
 		List<String> tokens = tokenize(relativePath);
@@ -457,8 +461,7 @@ public class JcrUtils {
 	}
 
 	/**
-	 * @param type
-	 *            the type of the leaf node
+	 * @param type the type of the leaf node
 	 */
 	public static Node mkdirs(Session session, String path, String type) {
 		return mkdirs(session, path, type, null, false);
@@ -1157,10 +1160,8 @@ public class JcrUtils {
 	/**
 	 * Update lastModified recursively until this parent.
 	 * 
-	 * @param node
-	 *            the node
-	 * @param untilPath
-	 *            the base path, null is equivalent to "/"
+	 * @param node      the node
+	 * @param untilPath the base path, null is equivalent to "/"
 	 */
 	public static void updateLastModifiedAndParents(Node node, String untilPath) {
 		try {
@@ -1347,8 +1348,8 @@ public class JcrUtils {
 	 * Copy only nt:folder and nt:file, without their additional types and
 	 * properties.
 	 * 
-	 * @param recursive
-	 *            if true copies folders as well, otherwise only first level files
+	 * @param recursive if true copies folders as well, otherwise only first level
+	 *                  files
 	 * @return how many files were copied
 	 */
 	public static Long copyFiles(Node fromNode, Node toNode, Boolean recursive, JcrMonitor monitor, boolean onlyAdd) {
