@@ -123,7 +123,7 @@
   <addons xmi:id="_XqkCRaknEeObFrG_clJBYA" elementId="org.eclipse.e4.ui.workbench.contexts.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.ContextProcessingAddon"/>
   <addons xmi:id="_XqkCRqknEeObFrG_clJBYA" elementId="org.eclipse.e4.ui.workbench.bindings.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.swt/org.eclipse.e4.ui.workbench.swt.util.BindingProcessingAddon"/>
   <addons xmi:id="_XqkCR6knEeObFrG_clJBYA" elementId="org.eclipse.e4.ui.workbench.handler.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.HandlerProcessingAddon"/>
-  <addons xmi:id="_8VnK8OdKEeijEOqYKRSeoQ" elementId="org.argeo.cms.e4.addon.0" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.addons.LocaleAddon"/>
-  <addons xmi:id="_-xeJYOdKEeijEOqYKRSeoQ" elementId="org.argeo.cms.e4.addon.1" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.addons.AuthAddon"/>
+  <addons xmi:id="_8VnK8OdKEeijEOqYKRSeoQ" elementId="org.argeo.cms.e4.addon.locale" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.addons.LocaleAddon"/>
+  <addons xmi:id="_-xeJYOdKEeijEOqYKRSeoQ" elementId="org.argeo.cms.e4.addon.auth" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.addons.AuthAddon"/>
   <categories xmi:id="_MDkwUCqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.category.jcrBrowser" name="JCR Browser"/>
 </application:Application>
