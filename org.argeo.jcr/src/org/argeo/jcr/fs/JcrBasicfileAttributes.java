@@ -1,5 +1,8 @@
 package org.argeo.jcr.fs;
 
+import static javax.jcr.Property.JCR_CREATED;
+import static javax.jcr.Property.JCR_LAST_MODIFIED;
+
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 
@@ -14,7 +17,7 @@ import org.argeo.jcr.JcrUtils;
 public class JcrBasicfileAttributes implements NodeFileAttributes {
 	private final Node node;
 
-	private FileTime EPOCH = FileTime.fromMillis(0);
+	private final static FileTime EPOCH = FileTime.fromMillis(0);
 
 	public JcrBasicfileAttributes(Node node) {
 		if (node == null)
@@ -25,10 +28,17 @@ public class JcrBasicfileAttributes implements NodeFileAttributes {
 	@Override
 	public FileTime lastModifiedTime() {
 		try {
-			if (node.isNodeType(NodeType.MIX_LAST_MODIFIED)) {
-				Instant instant = node.getProperty(Property.JCR_LAST_MODIFIED).getDate().toInstant();
+			if (node.hasProperty(JCR_LAST_MODIFIED)) {
+				Instant instant = node.getProperty(JCR_LAST_MODIFIED).getDate().toInstant();
+				return FileTime.from(instant);
+			} else if (node.hasProperty(JCR_CREATED)) {
+				Instant instant = node.getProperty(JCR_CREATED).getDate().toInstant();
 				return FileTime.from(instant);
 			}
+//			if (node.isNodeType(NodeType.MIX_LAST_MODIFIED)) {
+//				Instant instant = node.getProperty(Property.JCR_LAST_MODIFIED).getDate().toInstant();
+//				return FileTime.from(instant);
+//			}
 			return EPOCH;
 		} catch (RepositoryException e) {
 			throw new JcrFsException("Cannot get last modified time", e);
@@ -43,10 +53,17 @@ public class JcrBasicfileAttributes implements NodeFileAttributes {
 	@Override
 	public FileTime creationTime() {
 		try {
-			if (node.isNodeType(NodeType.MIX_CREATED)) {
-				Instant instant = node.getProperty(Property.JCR_CREATED).getDate().toInstant();
+			if (node.hasProperty(JCR_CREATED)) {
+				Instant instant = node.getProperty(JCR_CREATED).getDate().toInstant();
+				return FileTime.from(instant);
+			} else if (node.hasProperty(JCR_LAST_MODIFIED)) {
+				Instant instant = node.getProperty(JCR_LAST_MODIFIED).getDate().toInstant();
 				return FileTime.from(instant);
 			}
+//			if (node.isNodeType(NodeType.MIX_CREATED)) {
+//				Instant instant = node.getProperty(JCR_CREATED).getDate().toInstant();
+//				return FileTime.from(instant);
+//			}
 			return EPOCH;
 		} catch (RepositoryException e) {
 			throw new JcrFsException("Cannot get creation time", e);

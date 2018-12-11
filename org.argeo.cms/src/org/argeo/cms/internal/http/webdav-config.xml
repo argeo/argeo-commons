@@ -173,6 +173,16 @@
         <namespaces>
             <prefix>rep</prefix>
             <prefix>jcr</prefix>
+            <!-- Argeo namespaces -->
+            <prefix>node</prefix>
+            <prefix>argeo</prefix>
+            <prefix>cms</prefix>
+            <prefix>slc</prefix>
+            <prefix>connect</prefix>
+            <prefix>activities</prefix>
+            <prefix>people</prefix>
+            <prefix>documents</prefix>
+            <prefix>tracker</prefix>
             <!--
             <uri>internal</uri>
             <uri>http://www.jcp.org/jcr/1.0</uri>

@@ -14,6 +14,7 @@ import java.util.Set;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.nodetype.NodeType;
 
 import org.argeo.jcr.JcrUtils;
 
@@ -33,6 +34,14 @@ public class JcrFileSystem extends FileSystem {
 			} catch (RepositoryException e) {
 				throw new IOException("Cannot retrieve user home path", e);
 			}
+	}
+
+	/** Whetehr this node should be skippe din directory listings */
+	public boolean skipNode(Node node) throws RepositoryException {
+		if (node.isNodeType(NodeType.NT_HIERARCHY_NODE) || node.isNodeType("node:userHome")
+				|| node.isNodeType("node:groupHome"))
+			return false;
+		return true;
 	}
 
 	public String getUserHomePath() {

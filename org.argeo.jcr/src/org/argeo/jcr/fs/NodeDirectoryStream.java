@@ -38,6 +38,8 @@ public class NodeDirectoryStream implements DirectoryStream<Path> {
 						String nodeName = node.getName();
 						if (nodeName.startsWith("rep:") || nodeName.startsWith("jcr:"))
 							continue nodes;
+						if (fs.skipNode(node))
+							continue nodes;
 						next = new JcrPath(fs, node);
 						if (filter != null) {
 							if (filter.accept(next))

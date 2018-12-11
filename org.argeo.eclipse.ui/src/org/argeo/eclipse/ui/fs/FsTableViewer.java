@@ -1,6 +1,5 @@
 package org.argeo.eclipse.ui.fs;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -27,6 +26,8 @@ public class FsTableViewer extends TableViewer {
 	private boolean folderFirst = true;
 	private boolean reverseOrder = false;
 	private String orderProperty = FsUiConstants.PROPERTY_NAME;
+
+	private Path initialPath = null;
 
 	public FsTableViewer(Composite parent, int style) {
 		super(parent, style | SWT.VIRTUAL);
@@ -88,6 +89,8 @@ public class FsTableViewer extends TableViewer {
 		final Object[] res;
 		if (isRoot)
 			res = rows;
+		else if (initialPath != null && initialPath.equals(dir))
+			res = rows;
 		else {
 			res = new Object[rows.length + 1];
 			res[0] = new ParentDir(dir.getParent());
@@ -106,6 +109,14 @@ public class FsTableViewer extends TableViewer {
 		this.setInput((Object[]) paths);
 		this.setItemCount(paths.length);
 		this.refresh();
+	}
+
+	/**
+	 * A path which is to be considered as root (and thus provide no link to a
+	 * parent directory)
+	 */
+	public void setInitialPath(Path initialPath) {
+		this.initialPath = initialPath;
 	}
 
 	private class MyLazyCP implements ILazyContentProvider {

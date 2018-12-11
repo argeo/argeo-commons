@@ -10,21 +10,25 @@ import java.util.Map;
 
 import javax.jcr.Node;
 import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
+import javax.jcr.nodetype.NodeType;
 
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.jackrabbit.fs.AbstractJackrabbitFsProvider;
 import org.argeo.jcr.fs.JcrFileSystem;
+import org.argeo.jcr.fs.JcrFileSystemProvider;
 import org.argeo.jcr.fs.JcrFsException;
 import org.argeo.node.NodeConstants;
+import org.argeo.node.NodeTypes;
 import org.argeo.node.NodeUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 
 public class CmsFsProvider extends AbstractJackrabbitFsProvider {
-	private Map<String, JcrFileSystem> fileSystems = new HashMap<>();
+	private Map<String, CmsFileSystem> fileSystems = new HashMap<>();
 
 	@Override
 	public String getScheme() {
@@ -49,14 +53,14 @@ public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 				RepositoryFactory repositoryFactory = bc.getService(bc.getServiceReference(RepositoryFactory.class));
 				Repository repository = NodeUtils.getRepositoryByUri(repositoryFactory, repoUri.toString());
 				Session session = repository.login("main");
-				JcrFileSystem fileSystem = new JcrFileSystem(this, session);
+				CmsFileSystem fileSystem = new CmsFileSystem(this, session);
 				fileSystems.put(username, fileSystem);
 				return fileSystem;
 			} else {
 				Repository repository = bc.getService(
 						bc.getServiceReferences(Repository.class, "(cn=" + NodeConstants.HOME + ")").iterator().next());
 				Session session = repository.login();
-				JcrFileSystem fileSystem = new JcrFileSystem(this, session);
+				CmsFileSystem fileSystem = new CmsFileSystem(this, session);
 				fileSystems.put(username, fileSystem);
 				return fileSystem;
 			}
@@ -90,5 +94,19 @@ public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 
 	public Node getUserHome(Session session) {
 		return NodeUtils.getUserHome(session);
+	}
+
+	static class CmsFileSystem extends JcrFileSystem {
+		public CmsFileSystem(JcrFileSystemProvider provider, Session session) throws IOException {
+			super(provider, session);
+		}
+
+		public boolean skipNode(Node node) throws RepositoryException {
+			if (node.isNodeType(NodeType.NT_HIERARCHY_NODE) || node.isNodeType(NodeTypes.NODE_USER_HOME)
+					|| node.isNodeType(NodeTypes.NODE_GROUP_HOME))
+				return false;
+			return true;
+		}
+
 	}
 }

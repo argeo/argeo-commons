@@ -171,7 +171,7 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 
 	@Override
 	public boolean isHidden(Path path) throws IOException {
-		return false;
+		return path.getFileName().toString().charAt(0) == '.';
 	}
 
 	@Override

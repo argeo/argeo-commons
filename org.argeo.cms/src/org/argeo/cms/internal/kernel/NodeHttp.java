@@ -44,7 +44,8 @@ public class NodeHttp implements KernelConstants {
 	private ServiceTracker<Repository, Repository> repositories;
 	private final ServiceTracker<HttpService, HttpService> httpServiceTracker;
 
-	private static String httpRealm = "Argeo";
+	private String httpRealm = "Argeo";
+	private String webDavConfig = HttpUtils.WEBDAV_CONFIG;
 	private final boolean cleanState;
 
 	public NodeHttp(boolean cleanState) {
@@ -59,7 +60,7 @@ public class NodeHttp implements KernelConstants {
 			repositories.close();
 	}
 
-	public static void registerRepositoryServlets(HttpService httpService, String alias, Repository repository) {
+	public void registerRepositoryServlets(HttpService httpService, String alias, Repository repository) {
 		if (httpService == null)
 			throw new CmsException("No HTTP service available");
 		try {
@@ -89,29 +90,29 @@ public class NodeHttp implements KernelConstants {
 		}
 	}
 
-	static void registerWebdavServlet(HttpService httpService, String alias, Repository repository)
+	void registerWebdavServlet(HttpService httpService, String alias, Repository repository)
 			throws NamespaceException, ServletException {
 		// WebdavServlet webdavServlet = new WebdavServlet(repository, new
 		// OpenInViewSessionProvider(alias));
 		WebdavServlet webdavServlet = new WebdavServlet(repository, new CmsSessionProvider(alias));
 		String path = webdavPath(alias);
 		Properties ip = new Properties();
-		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_CONFIG, HttpUtils.WEBDAV_CONFIG);
+		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_CONFIG, webDavConfig);
 		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
 		httpService.registerServlet(path, webdavServlet, ip, new DataHttpContext(httpRealm));
 	}
 
-	static void registerFilesServlet(HttpService httpService, String alias, Repository repository)
+	void registerFilesServlet(HttpService httpService, String alias, Repository repository)
 			throws NamespaceException, ServletException {
 		WebdavServlet filesServlet = new WebdavServlet(repository, new CmsSessionProvider(alias));
 		String path = filesPath(alias);
 		Properties ip = new Properties();
-		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_CONFIG, HttpUtils.WEBDAV_CONFIG);
+		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_CONFIG, webDavConfig);
 		ip.setProperty(WebdavServlet.INIT_PARAM_RESOURCE_PATH_PREFIX, path);
 		httpService.registerServlet(path, filesServlet, ip, new PrivateHttpContext(httpRealm, true));
 	}
 
-	static void registerRemotingServlet(HttpService httpService, String alias, Repository repository)
+	void registerRemotingServlet(HttpService httpService, String alias, Repository repository)
 			throws NamespaceException, ServletException {
 		RemotingServlet remotingServlet = new RemotingServlet(repository, new CmsSessionProvider(alias));
 		String path = remotingPath(alias);
@@ -145,23 +146,7 @@ public class NodeHttp implements KernelConstants {
 		return NodeConstants.PATH_FILES;
 	}
 
-	// private Subject subjectFromRequest(HttpServletRequest request,
-	// HttpServletResponse response) {
-	// Authorization authorization = (Authorization)
-	// request.getAttribute(HttpContext.AUTHORIZATION);
-	// if (authorization == null)
-	// throw new CmsException("Not authenticated");
-	// try {
-	// LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
-	// new HttpRequestCallbackHandler(request, response));
-	// lc.login();
-	// return lc.getSubject();
-	// } catch (LoginException e) {
-	// throw new CmsException("Cannot login", e);
-	// }
-	// }
-
-	static class RepositoriesStc extends ServiceTracker<Repository, Repository> {
+	class RepositoriesStc extends ServiceTracker<Repository, Repository> {
 		private final HttpService httpService;
 
 		private final BundleContext bc;
@@ -198,9 +183,6 @@ public class NodeHttp implements KernelConstants {
 	}
 
 	private class PrepareHttpStc extends ServiceTracker<HttpService, HttpService> {
-		// private DataHttp dataHttp;
-		// private NodeHttp nodeHttp;
-
 		public PrepareHttpStc() {
 			super(bc, HttpService.class, null);
 		}
@@ -218,13 +200,6 @@ public class NodeHttp implements KernelConstants {
 
 		@Override
 		public void removedService(ServiceReference<HttpService> reference, HttpService service) {
-			// if (dataHttp != null)
-			// dataHttp.destroy();
-			// dataHttp = null;
-			// if (nodeHttp != null)
-			// nodeHttp.destroy();
-			// nodeHttp = null;
-			// destroy();
 			repositories.close();
 			repositories = null;
 		}
