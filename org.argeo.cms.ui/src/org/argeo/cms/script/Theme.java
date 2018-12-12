@@ -81,7 +81,9 @@ public class Theme {
 	}
 
 	public void apply(Application application) {
-		for (String name : resources.keySet()) {
+		resources: for (String name : resources.keySet()) {
+			if (name.startsWith("target/"))
+				continue resources; // skip maven output
 			application.addResource(name, resources.get(name));
 			if (log.isDebugEnabled())
 				log.debug("Added resource " + name);
