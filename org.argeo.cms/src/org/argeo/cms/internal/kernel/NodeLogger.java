@@ -180,7 +180,8 @@ class NodeLogger implements ArgeoLogger, LogListener {
 			// FIXME Fix Argeo TP
 			if (status.getException() instanceof SignatureException)
 				return;
-			pluginLog.error(msg(status), status.getException());
+			// pluginLog.error(msg(status), status.getException());
+			pluginLog.error(msg(status));
 		} else if (severity == LogService.LOG_WARNING)
 			pluginLog.warn(msg(status), status.getException());
 		else if (severity == LogService.LOG_INFO && pluginLog.isDebugEnabled())
