@@ -120,6 +120,7 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 					userHome = JcrUtils.mkdirs(session, homePath);
 				// userHome = JcrUtils.mkfolders(session, homePath);
 				userHome.addMixin(NodeTypes.NODE_USER_HOME);
+				userHome.addMixin(NodeType.MIX_CREATED);
 				userHome.setProperty(NodeNames.LDAP_UID, username);
 				session.save();
 
@@ -174,6 +175,7 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 			String relPath = JcrUtils.replaceInvalidChars(cn);
 			newWorkgroup = JcrUtils.mkdirs(adminSession.getNode(groupsBasePath), relPath, NodeType.NT_UNSTRUCTURED);
 			newWorkgroup.addMixin(NodeTypes.NODE_GROUP_HOME);
+			newWorkgroup.addMixin(NodeType.MIX_CREATED);
 			newWorkgroup.setProperty(NodeNames.LDAP_CN, cn);
 			adminSession.save();
 			JcrUtils.addPrivilege(adminSession, newWorkgroup.getPath(), dn.toString(), Privilege.JCR_ALL);
