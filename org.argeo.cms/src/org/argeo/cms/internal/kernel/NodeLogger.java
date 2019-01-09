@@ -100,7 +100,6 @@ class NodeLogger implements ArgeoLogger, LogListener {
 		}
 	};
 
-	@SuppressWarnings("unchecked")
 	public NodeLogger(LogReaderService lrs) {
 		Enumeration<LogEntry> logEntries = lrs.getLog();
 		while (logEntries.hasMoreElements())
@@ -172,6 +171,7 @@ class NodeLogger implements ArgeoLogger, LogListener {
 	//
 	// OSGi LOGGER
 	//
+	@SuppressWarnings("deprecation")
 	@Override
 	public void logged(LogEntry status) {
 		Log pluginLog = LogFactory.getLog(status.getBundle().getSymbolicName());
@@ -181,7 +181,7 @@ class NodeLogger implements ArgeoLogger, LogListener {
 			if (status.getException() instanceof SignatureException)
 				return;
 			// pluginLog.error(msg(status), status.getException());
-			pluginLog.error(msg(status));
+			pluginLog.error(msg(status) + ": " + status.getException());
 		} else if (severity == LogService.LOG_WARNING)
 			pluginLog.warn(msg(status), status.getException());
 		else if (severity == LogService.LOG_INFO && pluginLog.isDebugEnabled())
