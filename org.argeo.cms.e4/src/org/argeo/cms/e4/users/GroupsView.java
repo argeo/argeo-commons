@@ -210,6 +210,10 @@ public class GroupsView implements ArgeoNames {
 				if (tmpBuilder.length() > 1) {
 					builder.append("(&(").append(LdapAttrs.objectClass.name()).append("=")
 							.append(LdapObjs.groupOfNames.name()).append(")");
+					// hide tokens
+					builder.append("(!(").append(LdapAttrs.DN).append("=*").append(NodeConstants.TOKENS_BASEDN)
+							.append("))");
+
 					if (!showSystemRoles)
 						builder.append("(!(").append(LdapAttrs.DN).append("=*").append(NodeConstants.ROLES_BASEDN)
 								.append("))");
@@ -220,10 +224,12 @@ public class GroupsView implements ArgeoNames {
 					if (!showSystemRoles)
 						builder.append("(&(").append(LdapAttrs.objectClass.name()).append("=")
 								.append(LdapObjs.groupOfNames.name()).append(")(!(").append(LdapAttrs.DN).append("=*")
-								.append(NodeConstants.ROLES_BASEDN).append(")))");
+								.append(NodeConstants.ROLES_BASEDN).append("))(!(").append(LdapAttrs.DN).append("=*")
+								.append(NodeConstants.TOKENS_BASEDN).append(")))");
 					else
-						builder.append("(").append(LdapAttrs.objectClass.name()).append("=")
-								.append(LdapObjs.groupOfNames.name()).append(")");
+						builder.append("(&(").append(LdapAttrs.objectClass.name()).append("=")
+						.append(LdapObjs.groupOfNames.name()).append(")(!(").append(LdapAttrs.DN).append("=*")
+						.append(NodeConstants.TOKENS_BASEDN).append(")))");
 
 				}
 				roles = userAdminWrapper.getUserAdmin().getRoles(builder.toString());

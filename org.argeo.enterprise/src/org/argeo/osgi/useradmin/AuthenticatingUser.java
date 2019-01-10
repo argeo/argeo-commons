@@ -48,13 +48,13 @@ public class AuthenticatingUser implements User {
 		return User.USER;
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Dictionary getProperties() {
 		throw new UnsupportedOperationException();
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Dictionary getCredentials() {
 		return credentials;

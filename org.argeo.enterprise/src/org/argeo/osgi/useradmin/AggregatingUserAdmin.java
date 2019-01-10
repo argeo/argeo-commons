@@ -13,7 +13,6 @@ import java.util.Set;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.naming.LdapAttrs;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
@@ -89,7 +88,7 @@ public class AggregatingUserAdmin implements UserAdmin {
 		String usernameToUse;
 		String displayNameToUse;
 		if (user instanceof Group) {
-			String ownerDn = (String) user.getProperties().get(LdapAttrs.owner.name());
+			String ownerDn = TokenUtils.userDn((Group) user);
 			if (ownerDn != null) {// tokens
 				UserAdmin ownerUserAdmin = findUserAdmin(ownerDn);
 				User ownerUser = (User) ownerUserAdmin.getRole(ownerDn);

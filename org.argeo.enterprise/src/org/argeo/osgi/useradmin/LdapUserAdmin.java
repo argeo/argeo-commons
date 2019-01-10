@@ -78,7 +78,6 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected AbstractUserDirectory scope(User user) {
 		Dictionary<String, Object> credentials = user.getCredentials();

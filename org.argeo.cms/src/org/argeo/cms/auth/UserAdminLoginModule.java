@@ -1,11 +1,9 @@
 package org.argeo.cms.auth;
 
 import static org.argeo.naming.LdapAttrs.cn;
-import static org.argeo.naming.LdapAttrs.description;
 
 import java.io.IOException;
 import java.security.PrivilegedAction;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -32,12 +30,12 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.kernel.Activator;
 import org.argeo.naming.LdapAttrs;
-import org.argeo.naming.NamingUtils;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.security.CryptoKeyring;
 import org.argeo.osgi.useradmin.AuthenticatingUser;
 import org.argeo.osgi.useradmin.IpaUtils;
 import org.argeo.osgi.useradmin.OsUserUtils;
+import org.argeo.osgi.useradmin.TokenUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -336,15 +334,17 @@ public class UserAdminLoginModule implements LoginModule {
 	}
 
 	protected Authorization getAuthorizationFromToken(UserAdmin userAdmin, Group tokenGroup) {
-		String expiryDateStr = (String) tokenGroup.getProperties().get(description.name());
-		if (expiryDateStr != null) {
-			Instant expiryDate = NamingUtils.ldapDateToInstant(expiryDateStr);
-			if (expiryDate.isBefore(Instant.now())) {
-				if (log.isDebugEnabled())
-					log.debug("Token " + tokenGroup.getName() + " has expired.");
-				return null;
-			}
-		}
+		if (TokenUtils.isExpired(tokenGroup))
+			return null;
+//		String expiryDateStr = (String) tokenGroup.getProperties().get(description.name());
+//		if (expiryDateStr != null) {
+//			Instant expiryDate = NamingUtils.ldapDateToInstant(expiryDateStr);
+//			if (expiryDate.isBefore(Instant.now())) {
+//				if (log.isDebugEnabled())
+//					log.debug("Token " + tokenGroup.getName() + " has expired.");
+//				return null;
+//			}
+//		}
 		Authorization auth = userAdmin.getAuthorization(tokenGroup);
 		return auth;
 	}

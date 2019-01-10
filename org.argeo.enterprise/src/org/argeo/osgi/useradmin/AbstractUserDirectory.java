@@ -232,7 +232,6 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 		return user;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Role[] getRoles(String filter) throws InvalidSyntaxException {
 		UserDirectoryWorkingCopy wc = getWorkingCopy();

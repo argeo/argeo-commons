@@ -6,8 +6,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.security.auth.x500.X500Principal;
-
 import org.osgi.service.useradmin.Authorization;
 
 class AggregatingAuthorization implements Authorization {

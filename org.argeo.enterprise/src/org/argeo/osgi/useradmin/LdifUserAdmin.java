@@ -51,7 +51,6 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 		super(uri, properties);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected AbstractUserDirectory scope(User user) {
 		Dictionary<String, Object> credentials = user.getCredentials();
@@ -180,7 +179,6 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 		return users.containsKey(dn) || groups.containsKey(dn);
 	}
 
-	@SuppressWarnings("unchecked")
 	protected List<DirectoryUser> doGetRoles(Filter f) {
 		ArrayList<DirectoryUser> res = new ArrayList<DirectoryUser>();
 		if (f == null) {
