@@ -104,6 +104,22 @@
 			<groupId>org.argeo.tp.apache</groupId>
 			<artifactId>org.apache.batik.css</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>org.jsoup</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>com.vladsch.flexmark</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>com.vladsch.flexmark.util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>com.vladsch.flexmark.formatter</artifactId>
+		</dependency>
 
 		<!-- Jackrabbit -->
 		<dependency>

@@ -82,6 +82,10 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp.apache.commons</groupId>
+			<artifactId>org.apache.commons.cli</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.commons</groupId>
 			<artifactId>org.apache.commons.httpclient</artifactId>
 		</dependency>
 		<dependency>
@@ -107,6 +111,10 @@
 		<dependency>
 			<groupId>org.argeo.tp.apache.commons</groupId>
 			<artifactId>org.apache.commons.compress</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.commons</groupId>
+			<artifactId>org.apache.commons.math3</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp.javax</groupId>
@@ -167,6 +175,30 @@
 		<dependency>
 			<groupId>org.argeo.tp.apache</groupId>
 			<artifactId>org.apache.sshd.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.sshd.common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.sshd.sftp</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.sshd.scp</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.sshd.cli</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.sshd.putty</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>net.i2p.crypto.eddsa</artifactId>
 		</dependency>
 
 		<!-- Console -->
