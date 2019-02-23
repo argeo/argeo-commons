@@ -15,6 +15,7 @@ public class RWT {
 	public final static String CUSTOM_ITEM_HEIGHT = "argeo-rcp:CUSTOM_ITEM_HEIGHT";
 	public final static String ACTIVE_KEYS = "argeo-rcp:ACTIVE_KEYS";
 	public final static String CANCEL_KEYS = "argeo-rcp:CANCEL_KEYS";
+	public final static String DEFAULT_THEME_ID  = "argeo-rcp:DEFAULT_THEME_ID";
 
 	public final static int HYPERLINK = 0;
 
