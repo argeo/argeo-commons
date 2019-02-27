@@ -80,9 +80,8 @@ public class HttpSessionLoginModule implements LoginModule {
 				httpSession = request.getSession(true);
 			}
 			String httpSessionId = httpSession.getId();
-			// authorization = (Authorization)
-			// request.getSession().getAttribute(HttpContext.AUTHORIZATION);
-			// if (authorization == null) {
+			if (log.isTraceEnabled())
+				log.trace("HTTP login: " + request.getPathInfo() + " #" + httpSessionId);
 			Collection<ServiceReference<CmsSession>> sr;
 			try {
 				sr = bc.getServiceReferences(CmsSession.class,
@@ -108,8 +107,12 @@ public class HttpSessionLoginModule implements LoginModule {
 		extractHttpAuth(request);
 		extractClientCertificate(request);
 		if (authorization == null) {
+			if (log.isTraceEnabled())
+				log.trace("HTTP login: " + false);
 			return false;
 		} else {
+			if (log.isTraceEnabled())
+				log.trace("HTTP login: " + true);
 			return true;
 		}
 	}
