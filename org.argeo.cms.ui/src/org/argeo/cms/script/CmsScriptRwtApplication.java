@@ -34,36 +34,42 @@ public class CmsScriptRwtApplication implements ApplicationConfiguration {
 		this.bundleContext = bundleContext;
 		// System.out.println("bundleContext=" + bundleContext);
 		// System.out.println("repository=" + repository);
-		ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
 		ClassLoader bundleCl = bundleContext.getBundle().adapt(BundleWiring.class).getClassLoader();
-		ClassLoader currentCcl = Thread.currentThread().getContextClassLoader();
+		ClassLoader originalCcl = Thread.currentThread().getContextClassLoader();
 		try {
-			Thread.currentThread().setContextClassLoader(bundleCl);
+			Thread.currentThread().setContextClassLoader(bundleCl);// GrallVM needs it to be before creating manager
+			ScriptEngineManager scriptEngineManager = new ScriptEngineManager(bundleCl);
 			engine = scriptEngineManager.getEngineByName("JavaScript");
+			if (engine == null) {// Nashorn
+				Thread.currentThread().setContextClassLoader(originalCcl);
+				scriptEngineManager = new ScriptEngineManager();
+				Thread.currentThread().setContextClassLoader(bundleCl);
+				engine = scriptEngineManager.getEngineByName("JavaScript");
+			}
+
+			// Load script
+			URL appUrl = bundleContext.getBundle().getEntry("cms/app.js");
+			// System.out.println("Loading " + appUrl);
+			// System.out.println("Loading " + appUrl.getHost());
+			// System.out.println("Loading " + appUrl.getPath());
+
+			CmsScriptApp app = new CmsScriptApp(engine);
+			engine.put(APP, app);
+			engine.put(BC, bundleContext);
+			try (Reader reader = new InputStreamReader(appUrl.openStream())) {
+				engine.eval(reader);
+			} catch (IOException | ScriptException e) {
+				throw new CmsException("Cannot execute " + appUrl, e);
+			}
+
+			if (log.isDebugEnabled())
+				log.debug("CMS script app initialized from " + appUrl);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			Thread.currentThread().setContextClassLoader(currentCcl);
+			Thread.currentThread().setContextClassLoader(originalCcl);
 		}
-
-		// Load script
-		URL appUrl = bundleContext.getBundle().getEntry("cms/app.js");
-		// System.out.println("Loading " + appUrl);
-		// System.out.println("Loading " + appUrl.getHost());
-		// System.out.println("Loading " + appUrl.getPath());
-
-		CmsScriptApp app = new CmsScriptApp(engine);
-		engine.put(APP, app);
-		engine.put(BC, bundleContext);
-		try (Reader reader = new InputStreamReader(appUrl.openStream())) {
-			engine.eval(reader);
-		} catch (IOException | ScriptException e) {
-			throw new CmsException("Cannot execute " + appUrl, e);
-		}
-
-		if (log.isDebugEnabled())
-			log.debug("CMS script app initialized from " + appUrl);
-
 	}
 
 	public void destroy(BundleContext bundleContext) {
