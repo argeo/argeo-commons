@@ -22,6 +22,7 @@
 		<module>org.argeo.util</module>
 		<module>org.argeo.enterprise</module>
 		<module>org.argeo.jcr</module>
+		<module>org.argeo.sync</module>
 		<module>org.argeo.osgi.boot</module>
 		<!-- Eclipse -->
 		<module>org.argeo.eclipse.ui</module>

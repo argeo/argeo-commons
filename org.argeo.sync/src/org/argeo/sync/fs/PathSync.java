@@ -1,54 +1,38 @@
-package org.argeo.cms.cmd;
+package org.argeo.sync.fs;
 
 import java.net.URI;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.CmsException;
 import org.argeo.jackrabbit.fs.DavexFsProvider;
+import org.argeo.sync.SyncException;
 import org.argeo.util.LangUtils;
 
-public class Sync {
-	private final static Log log = LogFactory.getLog(Sync.class);
+public class PathSync implements Runnable {
+	private final static Log log = LogFactory.getLog(PathSync.class);
 
-	public static void main(String args[]) {
-		Map<String, String> arguments = new HashMap<>();
-		boolean skipNext = false;
-		String currValue = null;
-		for (int i = 0; i < args.length; i++) {
-			if (skipNext) {
-				skipNext = false;
-				currValue = null;
-				continue;
-			}
-			String arg = args[i];
-			if (arg.startsWith("-")) {
-				if (i + 1 < args.length) {
-					if (!args[i + 1].startsWith("-")) {
-						currValue = args[i + 1];
-						skipNext = true;
-					}
-				}
-				arguments.put(arg, currValue);
-			} else {
-				// TODO add multiple?
-			}
-		}
+	private final URI sourceUri, targetUri;
 
+	public PathSync(URI sourceUri, URI targetUri) {
+		this.sourceUri = sourceUri;
+		this.targetUri = targetUri;
+	}
+
+	@Override
+	public void run() {
 		try {
-			URI sourceUri = new URI(arguments.get("-i"));
-			URI targetUri = new URI(arguments.get("-o"));
 			FileSystemProvider sourceFsProvider = createFsProvider(sourceUri);
 			FileSystemProvider targetFsProvider = createFsProvider(targetUri);
-			Path sourceBasePath = sourceFsProvider.getPath(sourceUri);
-			Path targetBasePath = targetFsProvider.getPath(targetUri);
+			Path sourceBasePath = sourceUri.getScheme() != null ? sourceFsProvider.getPath(sourceUri)
+					: Paths.get(sourceUri.getPath());
+			Path targetBasePath = targetUri.getScheme() != null ? targetFsProvider.getPath(targetUri)
+					: Paths.get(targetUri.getPath());
 			SyncFileVisitor syncFileVisitor = new SyncFileVisitor(sourceBasePath, targetBasePath);
 			ZonedDateTime begin = ZonedDateTime.now();
 			Files.walkFileTree(sourceBasePath, syncFileVisitor);
@@ -61,12 +45,12 @@ public class Sync {
 
 	private static FileSystemProvider createFsProvider(URI uri) {
 		FileSystemProvider fsProvider;
-		if (uri.getScheme().equals("file"))
+		if (uri.getScheme() == null || uri.getScheme().equals("file"))
 			fsProvider = FileSystems.getDefault().provider();
 		else if (uri.getScheme().equals("davex"))
 			fsProvider = new DavexFsProvider();
 		else
-			throw new CmsException("URI scheme not supported for " + uri);
+			throw new SyncException("URI scheme not supported for " + uri);
 		return fsProvider;
 	}
 

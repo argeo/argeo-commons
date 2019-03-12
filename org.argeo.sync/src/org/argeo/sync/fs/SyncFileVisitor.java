@@ -1,4 +1,4 @@
-package org.argeo.cms.cmd;
+package org.argeo.sync.fs;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;

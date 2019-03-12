@@ -1,15 +1,14 @@
-package org.argeo.maintenance.backup;
+package org.argeo.sync.fs;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
+import java.security.PublicKey;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -17,6 +16,8 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.sshd.agent.SshAgent;
+import org.apache.sshd.agent.unix.UnixAgentFactory;
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.channel.ClientChannel;
 import org.apache.sshd.client.channel.ClientChannelEvent;
@@ -29,17 +30,27 @@ import org.apache.sshd.common.util.io.NoCloseOutputStream;
 
 public class SshSync {
 	private final static Log log = LogFactory.getLog(SshSync.class);
-	
+
 	public static void main(String[] args) {
 
-		String login = System.getProperty("user.name");
-		Scanner s = new Scanner(System.in);
-		String password = s.next();
-		String host = "localhost";
-		int port = 22;
 
 		try (SshClient client = SshClient.setUpDefaultClient()) {
 			client.start();
+
+			UnixAgentFactory agentFactory = new UnixAgentFactory();
+			client.setAgentFactory(agentFactory);
+//			SshAgent sshAgent = agentFactory.createClient(client);
+//			List<? extends Map.Entry<PublicKey, String>> identities = sshAgent.getIdentities();
+//			for (Map.Entry<PublicKey, String> entry : identities) {
+//				System.out.println(entry.getValue() + " : " + entry.getKey());
+//			}
+
+			
+			String login = System.getProperty("user.name");
+//			Scanner s = new Scanner(System.in);
+//			String password = s.next();
+			String host = "localhost";
+			int port = 22;
 
 //			SimpleClient simpleClient= AbstractSimpleClientSessionCreator.wrap(client, null);
 //			simpleClient.sessionLogin(host, login, password);
@@ -50,7 +61,7 @@ public class SshSync {
 
 			try {
 
-				session.addPasswordIdentity(new String(password));
+//				session.addPasswordIdentity(new String(password));
 				session.auth().verify(1000l);
 
 				SftpFileSystemProvider fsProvider = new SftpFileSystemProvider(client);
@@ -68,7 +79,7 @@ public class SshSync {
 			e.printStackTrace();
 		}
 	}
-	
+
 	static void test(Path testBase) {
 		try {
 			Path testPath = testBase.resolve("ssh-test.txt");
@@ -93,7 +104,8 @@ public class SshSync {
 			log.debug("Resolved " + copiedFile);
 			Path relativeCopiedFile = testDir.relativize(copiedFile);
 			log.debug("Relative copied file " + relativeCopiedFile);
-			try (OutputStream out = Files.newOutputStream(copiedFile); InputStream in = Files.newInputStream(testPath)) {
+			try (OutputStream out = Files.newOutputStream(copiedFile);
+					InputStream in = Files.newInputStream(testPath)) {
 				IOUtils.copy(in, out);
 			}
 			log.debug("Copied " + testPath + " to " + copiedFile);
@@ -120,7 +132,7 @@ public class SshSync {
 		}
 
 	}
-	
+
 	static void openShell(ClientSession session) {
 		try (ClientChannel channel = session.createChannel(ClientChannel.CHANNEL_SHELL)) {
 			channel.setIn(new NoCloseInputStream(System.in));
