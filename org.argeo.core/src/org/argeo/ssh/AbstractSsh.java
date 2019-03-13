@@ -1,9 +1,12 @@
 package org.argeo.ssh;
 
+import java.io.Console;
 import java.io.IOException;
 import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
+import java.util.Arrays;
+import java.util.Scanner;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,9 +38,9 @@ abstract class AbstractSsh {
 		}
 		return sshClient;
 	}
-	
+
 	synchronized SftpFileSystemProvider getSftpFileSystemProvider() {
-		if(sftpFileSystemProvider==null) {
+		if (sftpFileSystemProvider == null) {
 			sftpFileSystemProvider = new SftpFileSystemProvider(sshClient);
 		}
 		return sftpFileSystemProvider;
@@ -45,6 +48,22 @@ abstract class AbstractSsh {
 
 	void authenticate() {
 		try {
+			if (!passwordSet) {
+				String password;
+				Console console = System.console();
+				if (console == null) {// IDE
+					System.out.print("Password: ");
+					Scanner s = new Scanner(System.in);
+					password = s.next();
+				} else {
+					console.printf("Password: ");
+					char[] pwd = console.readPassword();
+					password = new String(pwd);
+					Arrays.fill(pwd, ' ');
+				}
+				session.addPasswordIdentity(password);
+				passwordSet = true;
+			}
 			session.auth().verify(1000l);
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
@@ -107,7 +126,7 @@ abstract class AbstractSsh {
 	}
 
 	void closeSession() {
-		if (session != null)
+		if (session == null)
 			throw new IllegalStateException("No session is open");
 		try {
 			session.close();
