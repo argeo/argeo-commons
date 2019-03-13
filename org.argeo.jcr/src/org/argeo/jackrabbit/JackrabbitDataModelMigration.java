@@ -17,6 +17,7 @@ package org.argeo.jackrabbit;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URL;
 
 import javax.jcr.Session;
 
@@ -28,7 +29,6 @@ import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.jcr.JcrCallback;
 import org.argeo.jcr.JcrUtils;
-import org.springframework.core.io.Resource;
 
 /** Migrate the data in a Jackrabbit repository. */
 @Deprecated
@@ -39,7 +39,7 @@ public class JackrabbitDataModelMigration implements
 
 	private String dataModelNodePath;
 	private String targetVersion;
-	private Resource migrationCnd;
+	private URL migrationCnd;
 	private JcrCallback dataModification;
 
 	/**
@@ -72,7 +72,7 @@ public class JackrabbitDataModelMigration implements
 
 			// apply transitional CND
 			if (migrationCnd != null) {
-				reader = new InputStreamReader(migrationCnd.getInputStream());
+				reader = new InputStreamReader(migrationCnd.openStream());
 				CndImporter.registerNodeTypes(reader, session, true);
 				session.save();
 				log.info("Registered migration node types from " + migrationCnd);
@@ -163,7 +163,7 @@ public class JackrabbitDataModelMigration implements
 		this.targetVersion = targetVersion;
 	}
 
-	public void setMigrationCnd(Resource migrationCnd) {
+	public void setMigrationCnd(URL migrationCnd) {
 		this.migrationCnd = migrationCnd;
 	}
 

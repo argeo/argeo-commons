@@ -32,11 +32,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.enterprise</artifactId>
-			<version>2.1.77-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.ext.jackrabbit</artifactId>
 			<version>2.1.77-SNAPSHOT</version>
 		</dependency>
@@ -63,10 +58,6 @@
 		</dependency>
 
 		<!-- Database drivers -->
-		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>org.h2</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp.misc</groupId>
 			<artifactId>org.postgresql.jdbc42</artifactId>
@@ -121,39 +112,6 @@
 			<artifactId>com.vladsch.flexmark.formatter</artifactId>
 		</dependency>
 
-		<!-- Jackrabbit -->
-		<dependency>
-			<groupId>org.argeo.tp.apache.jackrabbit</groupId>
-			<artifactId>org.apache.jackrabbit.data</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.apache.jackrabbit</groupId>
-			<artifactId>org.apache.jackrabbit.core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.apache.jackrabbit</groupId>
-			<artifactId>org.apache.jackrabbit.server</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>EDU.oswego.cs.dl.util.concurrent</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.apache.commons</groupId>
-			<artifactId>org.apache.commons.fileupload</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.apache</groupId>
-			<artifactId>org.apache.tika.core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.apache</groupId>
-			<artifactId>org.apache.tika.parsers</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.apache</groupId>
-			<artifactId>org.apache.lucene</artifactId>
-		</dependency>
 
 		<!-- TODO: remove Spring dependency -->
 		<dependency>

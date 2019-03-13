@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.KeyPair;
 import java.security.PublicKey;
 import java.util.HashSet;
 import java.util.List;
@@ -17,14 +18,18 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.sshd.agent.SshAgent;
+import org.apache.sshd.agent.SshAgentFactory;
+import org.apache.sshd.agent.local.LocalAgentFactory;
 import org.apache.sshd.agent.unix.UnixAgentFactory;
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.channel.ClientChannel;
 import org.apache.sshd.client.channel.ClientChannelEvent;
+import org.apache.sshd.client.config.keys.ClientIdentityLoader;
 import org.apache.sshd.client.future.ConnectFuture;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.client.subsystem.sftp.SftpFileSystem;
 import org.apache.sshd.client.subsystem.sftp.SftpFileSystemProvider;
+import org.apache.sshd.common.config.keys.FilePasswordProvider;
 import org.apache.sshd.common.util.io.NoCloseInputStream;
 import org.apache.sshd.common.util.io.NoCloseOutputStream;
 
@@ -33,27 +38,32 @@ public class SshSync {
 
 	public static void main(String[] args) {
 
-
 		try (SshClient client = SshClient.setUpDefaultClient()) {
 			client.start();
-
-			UnixAgentFactory agentFactory = new UnixAgentFactory();
+			boolean osAgent = false;
+			SshAgentFactory agentFactory = osAgent ? new UnixAgentFactory() : new LocalAgentFactory();
+			// SshAgentFactory agentFactory = new LocalAgentFactory();
 			client.setAgentFactory(agentFactory);
-//			SshAgent sshAgent = agentFactory.createClient(client);
-//			List<? extends Map.Entry<PublicKey, String>> identities = sshAgent.getIdentities();
-//			for (Map.Entry<PublicKey, String> entry : identities) {
-//				System.out.println(entry.getValue() + " : " + entry.getKey());
-//			}
+			SshAgent sshAgent = agentFactory.createClient(client);
 
-			
 			String login = System.getProperty("user.name");
-//			Scanner s = new Scanner(System.in);
-//			String password = s.next();
 			String host = "localhost";
 			int port = 22;
 
-//			SimpleClient simpleClient= AbstractSimpleClientSessionCreator.wrap(client, null);
-//			simpleClient.sessionLogin(host, login, password);
+			if (!osAgent) {
+				String keyPath = "/home/" + login + "/.ssh/id_rsa";
+				System.out.print(keyPath + ": ");
+				Scanner s = new Scanner(System.in);
+				String password = s.next();
+				KeyPair keyPair = ClientIdentityLoader.DEFAULT.loadClientIdentity(keyPath,
+						FilePasswordProvider.of(password));
+				sshAgent.addIdentity(keyPair, "NO COMMENT");
+			}
+
+			List<? extends Map.Entry<PublicKey, String>> identities = sshAgent.getIdentities();
+			for (Map.Entry<PublicKey, String> entry : identities) {
+				System.out.println(entry.getValue() + " : " + entry.getKey());
+			}
 
 			ConnectFuture connectFuture = client.connect(login, host, port);
 			connectFuture.await();

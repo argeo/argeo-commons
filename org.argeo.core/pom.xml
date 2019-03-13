@@ -6,8 +6,8 @@
 		<version>2.1.77-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>org.argeo.sync</artifactId>
-	<name>Commons Sync Utility</name>
+	<artifactId>org.argeo.core</artifactId>
+	<name>Commons Third Parties Utilities</name>
 	<dependencies>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>

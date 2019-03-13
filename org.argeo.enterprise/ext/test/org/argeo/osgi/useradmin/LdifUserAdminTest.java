@@ -2,7 +2,6 @@ package org.argeo.osgi.useradmin;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -16,7 +15,6 @@ import java.util.Base64;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.UUID;
 
 import javax.transaction.TransactionManager;
 
@@ -27,9 +25,6 @@ import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
-import bitronix.tm.BitronixTransactionManager;
-import bitronix.tm.TransactionManagerServices;
-import bitronix.tm.resource.ehcache.EhCacheXAResourceProducer;
 import junit.framework.TestCase;
 
 public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
@@ -45,7 +40,6 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 	// public void testConcurrent() throws Exception {
 	// }
 
-	@SuppressWarnings("unchecked")
 	public void testEdition() throws Exception {
 		User demoUser = (User) userAdmin.getRole(DEMO_USER_DN);
 		assertNotNull(demoUser);
@@ -160,13 +154,14 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 		// Init transaction manager
 		if (TM_SIMPLE == tmType) {
 			tm = new SimpleTransactionManager();
-		} else if (TM_BITRONIX == tmType) {
-			bitronix.tm.Configuration tmConf = TransactionManagerServices.getConfiguration();
-			tmConf.setServerId(UUID.randomUUID().toString());
-			tmConf.setLogPart1Filename(new File(tempDir.toFile(), "btm1.tlog").getAbsolutePath());
-			tmConf.setLogPart2Filename(new File(tempDir.toFile(), "btm2.tlog").getAbsolutePath());
-			tm = TransactionManagerServices.getTransactionManager();
 		}
+//		else if (TM_BITRONIX == tmType) {
+//			bitronix.tm.Configuration tmConf = TransactionManagerServices.getConfiguration();
+//			tmConf.setServerId(UUID.randomUUID().toString());
+//			tmConf.setLogPart1Filename(new File(tempDir.toFile(), "btm1.tlog").getAbsolutePath());
+//			tmConf.setLogPart2Filename(new File(tempDir.toFile(), "btm2.tlog").getAbsolutePath());
+//			tm = TransactionManagerServices.getTransactionManager();
+//		}
 
 		userAdmin = initUserAdmin(uri, tm);
 	}
@@ -184,15 +179,15 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 			userAdmin = new LdifUserAdmin(props);
 		userAdmin.init();
 		// JTA
-		if (TM_BITRONIX == tmType)
-			EhCacheXAResourceProducer.registerXAResource(UserDirectory.class.getName(), userAdmin.getXaResource());
+//		if (TM_BITRONIX == tmType)
+//			EhCacheXAResourceProducer.registerXAResource(UserDirectory.class.getName(), userAdmin.getXaResource());
 		userAdmin.setTransactionManager(tm);
 		return userAdmin;
 	}
 
 	private void persistAndRestart() {
-		if (TM_BITRONIX == tmType)
-			EhCacheXAResourceProducer.unregisterXAResource(UserDirectory.class.getName(), userAdmin.getXaResource());
+//		if (TM_BITRONIX == tmType)
+//			EhCacheXAResourceProducer.unregisterXAResource(UserDirectory.class.getName(), userAdmin.getXaResource());
 		if (userAdmin instanceof LdifUserAdmin)
 			((LdifUserAdmin) userAdmin).save();
 		userAdmin.destroy();
@@ -201,10 +196,10 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 
 	@Override
 	protected void tearDown() throws Exception {
-		if (TM_BITRONIX == tmType) {
-			EhCacheXAResourceProducer.unregisterXAResource(UserDirectory.class.getName(), userAdmin.getXaResource());
-			((BitronixTransactionManager) tm).shutdown();
-		}
+//		if (TM_BITRONIX == tmType) {
+//			EhCacheXAResourceProducer.unregisterXAResource(UserDirectory.class.getName(), userAdmin.getXaResource());
+//			((BitronixTransactionManager) tm).shutdown();
+//		}
 		if (userAdmin != null)
 			userAdmin.destroy();
 		if (tempDir != null)
