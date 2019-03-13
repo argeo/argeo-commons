@@ -143,21 +143,4 @@ public class SshSync {
 
 	}
 
-	static void openShell(ClientSession session) {
-		try (ClientChannel channel = session.createChannel(ClientChannel.CHANNEL_SHELL)) {
-			channel.setIn(new NoCloseInputStream(System.in));
-			channel.setOut(new NoCloseOutputStream(System.out));
-			channel.setErr(new NoCloseOutputStream(System.err));
-			channel.open();
-
-			Set<ClientChannelEvent> events = new HashSet<>();
-			events.add(ClientChannelEvent.CLOSED);
-			channel.waitFor(events, 0);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			session.close(false);
-		}
-	}
 }

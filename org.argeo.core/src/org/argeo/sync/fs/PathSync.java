@@ -11,6 +11,7 @@ import java.time.ZonedDateTime;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.jackrabbit.fs.DavexFsProvider;
+import org.argeo.ssh.Sftp;
 import org.argeo.sync.SyncException;
 import org.argeo.util.LangUtils;
 
@@ -27,12 +28,8 @@ public class PathSync implements Runnable {
 	@Override
 	public void run() {
 		try {
-			FileSystemProvider sourceFsProvider = createFsProvider(sourceUri);
-			FileSystemProvider targetFsProvider = createFsProvider(targetUri);
-			Path sourceBasePath = sourceUri.getScheme() != null ? sourceFsProvider.getPath(sourceUri)
-					: Paths.get(sourceUri.getPath());
-			Path targetBasePath = targetUri.getScheme() != null ? targetFsProvider.getPath(targetUri)
-					: Paths.get(targetUri.getPath());
+			Path sourceBasePath = createPath(sourceUri);
+			Path targetBasePath = createPath(targetUri);
 			SyncFileVisitor syncFileVisitor = new SyncFileVisitor(sourceBasePath, targetBasePath);
 			ZonedDateTime begin = ZonedDateTime.now();
 			Files.walkFileTree(sourceBasePath, syncFileVisitor);
@@ -43,15 +40,22 @@ public class PathSync implements Runnable {
 		}
 	}
 
-	private static FileSystemProvider createFsProvider(URI uri) {
-		FileSystemProvider fsProvider;
-		if (uri.getScheme() == null || uri.getScheme().equals("file"))
-			fsProvider = FileSystems.getDefault().provider();
-		else if (uri.getScheme().equals("davex"))
-			fsProvider = new DavexFsProvider();
-		else
+	private static Path createPath(URI uri) {
+		Path path;
+		if (uri.getScheme() == null) {
+			path = Paths.get(uri.getPath());
+		} else if (uri.getScheme().equals("file")) {
+			FileSystemProvider fsProvider = FileSystems.getDefault().provider();
+			path = fsProvider.getPath(uri);
+		} else if (uri.getScheme().equals("davex")) {
+			FileSystemProvider fsProvider = new DavexFsProvider();
+			path = fsProvider.getPath(uri);
+		} else if (uri.getScheme().equals("sftp")) {
+			Sftp sftp = new Sftp(uri);
+			path = sftp.getBasePath();
+		} else
 			throw new SyncException("URI scheme not supported for " + uri);
-		return fsProvider;
+		return path;
 	}
 
 	static enum Arg {
