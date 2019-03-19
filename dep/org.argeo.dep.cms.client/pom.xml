@@ -64,6 +64,11 @@
 		</dependency>
 		
 		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>org.freemarker</artifactId>
+		</dependency>
+		
+		<dependency>
 			<groupId>org.argeo.tp.bouncycastle</groupId>
 			<artifactId>bcprov</artifactId>
 		</dependency>
@@ -193,6 +198,10 @@
 		<dependency>
 			<groupId>org.argeo.tp.apache</groupId>
 			<artifactId>org.apache.mina.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.tomcat.jni</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp.apache</groupId>

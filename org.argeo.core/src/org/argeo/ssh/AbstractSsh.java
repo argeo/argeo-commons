@@ -14,7 +14,7 @@ import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.config.keys.ClientIdentityLoader;
 import org.apache.sshd.client.future.ConnectFuture;
 import org.apache.sshd.client.session.ClientSession;
-import org.apache.sshd.client.subsystem.sftp.SftpFileSystemProvider;
+import org.apache.sshd.client.subsystem.sftp.fs.SftpFileSystemProvider;
 import org.apache.sshd.common.config.keys.FilePasswordProvider;
 
 abstract class AbstractSsh {
@@ -79,13 +79,13 @@ abstract class AbstractSsh {
 	}
 
 	void loadKey(String password, String keyPath) {
-		try {
-			KeyPair keyPair = ClientIdentityLoader.DEFAULT.loadClientIdentity(keyPath,
-					FilePasswordProvider.of(password));
-			session.addPublicKeyIdentity(keyPair);
-		} catch (IOException | GeneralSecurityException e) {
-			throw new IllegalStateException(e);
-		}
+//		try {
+//			KeyPair keyPair = ClientIdentityLoader.DEFAULT.loadClientIdentity(keyPath,
+//					FilePasswordProvider.of(password));
+//			session.addPublicKeyIdentity(keyPair);
+//		} catch (IOException | GeneralSecurityException e) {
+//			throw new IllegalStateException(e);
+//		}
 	}
 
 	void openSession(URI uri) {
