@@ -22,7 +22,7 @@ import java.util.Locale;
 import javax.security.auth.callback.LanguageCallback;
 
 import org.argeo.cms.CmsException;
-import org.argeo.cms.i18n.LocaleUtils;
+import org.argeo.cms.LocaleUtils;
 
 /** Choose in a list of locales. TODO: replace with {@link LanguageCallback} */
 public class LocaleChoice {

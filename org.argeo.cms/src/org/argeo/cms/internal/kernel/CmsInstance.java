@@ -31,8 +31,8 @@ public class CmsInstance implements NodeInstance {
 				Object cn = reference.getProperty(NodeConstants.CN);
 				if (cn != null && cn.equals(NodeConstants.HOME)) {
 					homeRepository = (HomeRepository) bc.getService(reference);
-					if (log.isDebugEnabled())
-						log.debug("Home repository is available");
+					if (log.isTraceEnabled())
+						log.trace("Home repository is available");
 				}
 				return super.addingService(reference);
 			}

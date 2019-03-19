@@ -188,4 +188,8 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 
 	}
 
+	public boolean isRemote() {
+		return remote;
+	}
+
 }

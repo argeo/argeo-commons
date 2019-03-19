@@ -200,8 +200,8 @@ public class RepositoryBuilder {
 			RepositoryContext repositoryContext = RepositoryContext.create(repositoryConfig);
 
 			double duration = ((double) (System.currentTimeMillis() - begin)) / 1000;
-			if (log.isTraceEnabled())
-				log.trace(
+			if (log.isDebugEnabled())
+				log.debug(
 						"Created Jackrabbit repository in " + duration + " s, home: " + repositoryConfig.getHomeDir());
 
 			return repositoryContext;

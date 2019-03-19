@@ -12,8 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-import javax.activation.FileTypeMap;
-import javax.activation.MimetypesFileTypeMap;
 import javax.jcr.Binary;
 import javax.jcr.Node;
 import javax.jcr.Property;
@@ -30,23 +28,10 @@ public class BinaryChannel implements SeekableByteChannel {
 
 	private long position = 0;
 
-	// private ByteBuffer toWrite;
 	private FileChannel fc = null;
 
-	private static FileTypeMap fileTypeMap;
-
-	static {
-		try {
-			fileTypeMap = new MimetypesFileTypeMap("/etc/mime.types");
-		} catch (IOException e) {
-			fileTypeMap = FileTypeMap.getDefaultFileTypeMap();
-		}
-	}
-
-	public BinaryChannel(Node file) throws RepositoryException, IOException {
+	public BinaryChannel(Node file, Path path) throws RepositoryException, IOException {
 		this.file = file;
-		// int capacity = 1024 * 1024;
-		// this.toWrite = ByteBuffer.allocate(capacity);
 		if (file.isNodeType(NodeType.NT_FILE)) {
 			if (file.hasNode(Property.JCR_CONTENT)) {
 				Node data = file.getNode(Property.JCR_CONTENT);
@@ -59,7 +44,8 @@ public class BinaryChannel implements SeekableByteChannel {
 				data.setProperty(Property.JCR_DATA, this.binary);
 
 				// MIME type
-				String mime = fileTypeMap.getContentType(file.getName());
+				String mime = Files.probeContentType(path);
+				// String mime = fileTypeMap.getContentType(file.getName());
 				data.setProperty(Property.JCR_MIMETYPE, mime);
 
 				data.getSession().save();
@@ -81,9 +67,6 @@ public class BinaryChannel implements SeekableByteChannel {
 			Binary newBinary = null;
 			try {
 				Session session = file.getSession();
-				// byte[] arr = new byte[(int) position];
-				// toWrite.flip();
-				// toWrite.get(arr);
 				fc.position(0);
 				InputStream in = Channels.newInputStream(fc);
 				newBinary = session.getValueFactory().createBinary(in);
@@ -113,20 +96,9 @@ public class BinaryChannel implements SeekableByteChannel {
 
 			try {
 				int read;
-				// int capacity = dst.capacity();
 				byte[] arr = dst.array();
 				read = binary.read(arr, position);
-				// dst.put(arr, 0, read);
 
-				// try {
-				// byte[] arr = dst.array();
-				// read = binary.read(arr, position);
-				// } catch (UnsupportedOperationException e) {
-				// int capacity = dst.capacity();
-				// byte[] arr = new byte[capacity];
-				// read = binary.read(arr, position);
-				// dst.put(arr);
-				// }
 				if (read != -1)
 					position = position + read;
 				return read;
@@ -140,15 +112,6 @@ public class BinaryChannel implements SeekableByteChannel {
 	public int write(ByteBuffer src) throws IOException {
 		int written = getFileChannel().write(src);
 		return written;
-		// int byteCount = src.remaining();
-		// if (toWrite.remaining() < byteCount)
-		// throw new JcrFsException("Write buffer is full");
-		// toWrite.put(src);
-		// if (position < binarySize)
-		// position = binarySize + byteCount;
-		// else
-		// position = position + byteCount;
-		// return byteCount;
 	}
 
 	@Override
@@ -185,9 +148,6 @@ public class BinaryChannel implements SeekableByteChannel {
 	@Override
 	public SeekableByteChannel truncate(long size) throws IOException {
 		getFileChannel().truncate(size);
-		// if (size != size())
-		// throw new UnsupportedOperationException("Cannot truncate JCR
-		// binary");
 		return this;
 	}
 

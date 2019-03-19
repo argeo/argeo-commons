@@ -35,7 +35,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
-import org.springframework.core.io.Resource;
 
 /**
  * OSGi-aware Jackrabbit repository factory which can retrieve/publish
@@ -200,9 +199,4 @@ class NodeRepositoryFactory implements RepositoryFactory {
 	protected void postInitialization(Repository repository, Map parameters) {
 
 	}
-
-	public void setFileRepositoryConfiguration(Resource fileRepositoryConfiguration) {
-		// this.fileRepositoryConfiguration = fileRepositoryConfiguration;
-	}
-
 }

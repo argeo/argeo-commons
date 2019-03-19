@@ -6,9 +6,6 @@ import java.net.SocketPermission;
 import java.security.AllPermission;
 import java.util.PropertyPermission;
 
-import javax.management.MBeanPermission;
-import javax.management.MBeanServerPermission;
-import javax.management.MBeanTrustPermission;
 import javax.security.auth.AuthPermission;
 
 import org.osgi.framework.AdminPermission;
@@ -23,8 +20,6 @@ import org.osgi.service.condpermadmin.ConditionalPermissionAdmin;
 import org.osgi.service.condpermadmin.ConditionalPermissionInfo;
 import org.osgi.service.condpermadmin.ConditionalPermissionUpdate;
 import org.osgi.service.permissionadmin.PermissionInfo;
-
-import bitronix.tm.BitronixTransactionManager;
 
 public interface SecurityProfile {
 	BundleContext bc = FrameworkUtil.getBundle(SecurityProfile.class).getBundleContext();
@@ -107,15 +102,15 @@ public interface SecurityProfile {
 //				ConditionalPermissionInfo.ALLOW));
 
 		// Bitronix
-		update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
-				new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
-						new String[] { locate(BitronixTransactionManager.class) }) },
-				new PermissionInfo[] { new PermissionInfo(PropertyPermission.class.getName(), "bitronix.tm.*", "read"),
-						new PermissionInfo(RuntimePermission.class.getName(), "getClassLoader", null),
-						new PermissionInfo(MBeanServerPermission.class.getName(), "createMBeanServer", null),
-						new PermissionInfo(MBeanPermission.class.getName(), "bitronix.tm.*", "registerMBean"),
-						new PermissionInfo(MBeanTrustPermission.class.getName(), "register", null) },
-				ConditionalPermissionInfo.ALLOW));
+//		update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
+//				new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+//						new String[] { locate(BitronixTransactionManager.class) }) },
+//				new PermissionInfo[] { new PermissionInfo(PropertyPermission.class.getName(), "bitronix.tm.*", "read"),
+//						new PermissionInfo(RuntimePermission.class.getName(), "getClassLoader", null),
+//						new PermissionInfo(MBeanServerPermission.class.getName(), "createMBeanServer", null),
+//						new PermissionInfo(MBeanPermission.class.getName(), "bitronix.tm.*", "registerMBean"),
+//						new PermissionInfo(MBeanTrustPermission.class.getName(), "register", null) },
+//				ConditionalPermissionInfo.ALLOW));
 
 		// DS
 		Bundle dsBundle = findBundle("org.eclipse.equinox.ds");
@@ -135,7 +130,7 @@ public interface SecurityProfile {
 				ConditionalPermissionInfo.ALLOW));
 
 		// Jetty
-		Bundle jettyUtilBundle = findBundle("org.eclipse.equinox.http.jetty");
+		// Bundle jettyUtilBundle = findBundle("org.eclipse.equinox.http.jetty");
 		update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
 				new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
 						new String[] { "*/org.eclipse.jetty.*" }) },
@@ -257,16 +252,14 @@ public interface SecurityProfile {
 								new PermissionInfo(AdminPermission.class.getName(), "*", "*") },
 						ConditionalPermissionInfo.ALLOW));
 		Bundle luceneBundle = findBundle("org.apache.lucene");
-		update.getConditionalPermissionInfos()
-				.add(permissionAdmin.newConditionalPermissionInfo(null,
-						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
-								new String[] { luceneBundle.getLocation() }) },
-						new PermissionInfo[] {
-								new PermissionInfo(FilePermission.class.getName(), "<<ALL FILES>>",
-										"read,write,delete"),
-								new PermissionInfo(PropertyPermission.class.getName(), "*", "read"),
-								new PermissionInfo(AdminPermission.class.getName(), "*", "*") },
-						ConditionalPermissionInfo.ALLOW));
+		update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
+				new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+						new String[] { luceneBundle.getLocation() }) },
+				new PermissionInfo[] {
+						new PermissionInfo(FilePermission.class.getName(), "<<ALL FILES>>", "read,write,delete"),
+						new PermissionInfo(PropertyPermission.class.getName(), "*", "read"),
+						new PermissionInfo(AdminPermission.class.getName(), "*", "*") },
+				ConditionalPermissionInfo.ALLOW));
 
 		// COMMIT
 		update.commit();

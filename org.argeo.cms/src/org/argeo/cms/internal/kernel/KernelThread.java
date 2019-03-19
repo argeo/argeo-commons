@@ -91,6 +91,8 @@ class KernelThread extends Thread {
 
 	@Override
 	public void run() {
+		if (log.isTraceEnabled())
+			log.trace("Kernel thread started.");
 		final long periodNs = PERIOD * m;
 		while (running) {
 			long beginNs = System.nanoTime();

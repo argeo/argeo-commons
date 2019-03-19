@@ -1,7 +1,5 @@
 Import-Package: org.apache.commons.io,\
 				org.eclipse.core.commands,\
-				org.springframework.beans.factory,\
-				org.springframework.core.io.support,\
 				org.argeo.eclipse.ui.utils,\
 				!org.eclipse.core.runtime,\
 				!org.eclipse.ui.plugin,\

@@ -1,4 +1,3 @@
 Fragment-Host: org.apache.jackrabbit.core
-Import-Package: org.springframework.core,\
-org.argeo.node,\
+Import-Package: org.argeo.node,\
 *

@@ -62,6 +62,7 @@
 			<groupId>org.argeo.tp.misc</groupId>
 			<artifactId>org.slf4j.commons.logging</artifactId>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.argeo.tp.bouncycastle</groupId>
 			<artifactId>bcprov</artifactId>
@@ -74,6 +75,7 @@
 			<groupId>org.argeo.tp.bouncycastle</groupId>
 			<artifactId>bcpg</artifactId>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.argeo.tp.apache</groupId>
 			<artifactId>org.apache.httpcomponents.httpcore</artifactId>

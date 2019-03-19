@@ -62,7 +62,8 @@ public class Activator implements BundleActivator {
 
 			userAdminSt = new ServiceTracker<>(instance.bc, UserAdmin.class, null);
 			userAdminSt.open();
-			log.debug("Kernel bundle started");
+			if (log.isTraceEnabled())
+				log.trace("Kernel bundle started");
 		} catch (Throwable e) {
 			log.error("## FATAL: CMS activator failed", e);
 		}

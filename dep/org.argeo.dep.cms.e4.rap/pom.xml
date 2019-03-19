@@ -76,14 +76,14 @@
 		</dependency>
 
 		<!-- Misc Third Parties -->
-		<dependency>
-			<groupId>org.argeo.tp.bouncycastle</groupId>
-			<artifactId>bcmail</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.bouncycastle</groupId>
-			<artifactId>bcpg</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.bouncycastle</groupId> -->
+<!-- 			<artifactId>bcmail</artifactId> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.bouncycastle</groupId> -->
+<!-- 			<artifactId>bcpg</artifactId> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.argeo.tp.apache.ant</groupId>
 			<artifactId>org.apache.ant</artifactId>
@@ -100,10 +100,10 @@
 		<!-- <groupId>org.argeo.tp.misc</groupId> -->
 		<!-- <artifactId>org.quartz-scheduler.quartz.jobs</artifactId> -->
 		<!-- </dependency> -->
-		<dependency>
-			<groupId>org.argeo.tp.javax</groupId>
-			<artifactId>javax.mail</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.javax</groupId> -->
+<!-- 			<artifactId>javax.mail</artifactId> -->
+<!-- 		</dependency> -->
 
 		<!-- Nebula -->
 		<dependency>
@@ -117,33 +117,6 @@
 		<dependency>
 			<groupId>org.argeo.tp.rap.e4</groupId>
 			<artifactId>org.eclipse.rap.nebula.jface.gridviewer</artifactId>
-		</dependency>
-
-
-		<!-- Spring -->
-		<dependency>
-			<groupId>org.argeo.tp.spring</groupId>
-			<artifactId>org.springframework.aspects</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.spring</groupId>
-			<artifactId>org.springframework.context.support</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.spring</groupId>
-			<artifactId>org.springframework.jdbc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.spring</groupId>
-			<artifactId>org.springframework.tx</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.spring</groupId>
-			<artifactId>org.springframework.web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.spring</groupId>
-			<artifactId>org.springframework.web.servlet</artifactId>
 		</dependency>
 
 		<!-- Eclipse Core -->

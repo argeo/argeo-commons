@@ -1,7 +1,5 @@
 package org.argeo.cms.security;
 
-import static javax.xml.bind.DatatypeConverter.printBase64Binary;
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.MappedByteBuffer;
@@ -13,6 +11,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
+import java.util.Base64;
 import java.util.zip.Checksum;
 
 import org.argeo.cms.CmsException;
@@ -29,8 +28,7 @@ public class ChecksumFactory {
 				Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
 
 					@Override
-					public FileVisitResult visitFile(Path file,
-							BasicFileAttributes attrs) throws IOException {
+					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 						if (!Files.isDirectory(file)) {
 							byte[] digest = digest(file, algo);
 							md.update(digest);
@@ -41,25 +39,20 @@ public class ChecksumFactory {
 				});
 				byte[] digest = md.digest();
 				long duration = System.currentTimeMillis() - begin;
-				System.out.println(printBase64Binary(digest) + " " + path
-						+ " (" + duration / 1000 + "s)");
+				System.out.println(printBase64Binary(digest) + " " + path + " (" + duration / 1000 + "s)");
 				return digest;
 			} else {
 				long begin = System.nanoTime();
 				long length = -1;
-				try (FileChannel channel = (FileChannel) Files
-						.newByteChannel(path);) {
+				try (FileChannel channel = (FileChannel) Files.newByteChannel(path);) {
 					length = channel.size();
 					long cursor = 0;
 					while (cursor < length) {
-						long effectiveSize = Math.min(regionSize, length
-								- cursor);
-						MappedByteBuffer mb = channel.map(
-								FileChannel.MapMode.READ_ONLY, cursor,
-								effectiveSize);
+						long effectiveSize = Math.min(regionSize, length - cursor);
+						MappedByteBuffer mb = channel.map(FileChannel.MapMode.READ_ONLY, cursor, effectiveSize);
 						// md.update(mb);
 						byte[] buffer = new byte[1024];
-						while (mb.hasRemaining()){
+						while (mb.hasRemaining()) {
 							mb.get(buffer);
 							md.update(buffer);
 						}
@@ -82,11 +75,9 @@ public class ChecksumFactory {
 					}
 					byte[] digest = md.digest();
 					long duration = System.nanoTime() - begin;
-					System.out.println(printBase64Binary(digest) + " "
-							+ path.getFileName() + " (" + duration / 1000000
-							+ "ms, " + (length / 1024) + "kB, "
-							+ (length / (duration / 1000000)) * 1000
-							/ (1024 * 1024) + " MB/s)");
+					System.out.println(printBase64Binary(digest) + " " + path.getFileName() + " (" + duration / 1000000
+							+ "ms, " + (length / 1024) + "kB, " + (length / (duration / 1000000)) * 1000 / (1024 * 1024)
+							+ " MB/s)");
 					return digest;
 				}
 			}
@@ -112,8 +103,7 @@ public class ChecksumFactory {
 			long cursor = 0;
 			while (cursor < length) {
 				long effectiveSize = Math.min(regionSize, length - cursor);
-				MappedByteBuffer mb = channel.map(
-						FileChannel.MapMode.READ_ONLY, cursor, effectiveSize);
+				MappedByteBuffer mb = channel.map(FileChannel.MapMode.READ_ONLY, cursor, effectiveSize);
 				int nGet;
 				while (mb.hasRemaining()) {
 					nGet = Math.min(mb.remaining(), bufferSize);
@@ -139,9 +129,8 @@ public class ChecksumFactory {
 		if (args.length > 0) {
 			path = Paths.get(args[0]);
 		} else {
-			path = Paths
-					.get("/home/mbaudier/Downloads/torrents/CentOS-7-x86_64-DVD-1503-01/"
-							+ "CentOS-7-x86_64-DVD-1503-01.iso");
+			path = Paths.get("/home/mbaudier/Downloads/torrents/CentOS-7-x86_64-DVD-1503-01/"
+					+ "CentOS-7-x86_64-DVD-1503-01.iso");
 		}
 		// long adler = cf.checksum(path, new Adler32());
 		// System.out.format("Adler=%d%n", adler);
@@ -153,5 +142,9 @@ public class ChecksumFactory {
 		System.out.println(algo + " " + new BigInteger(1, digest).toString(16));
 		// String sha1 = printBase64Binary(cf.digest(path, "SHA1"));
 		// System.out.format("SHA1=%s%n", sha1);
+	}
+
+	private static String printBase64Binary(byte[] arr) {
+		return Base64.getEncoder().encodeToString(arr);
 	}
 }

@@ -20,8 +20,8 @@ import javax.security.auth.login.LoginException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsMsg;
+import org.argeo.cms.LocaleUtils;
 import org.argeo.cms.auth.HttpRequestCallback;
-import org.argeo.cms.i18n.LocaleUtils;
 import org.argeo.cms.ui.CmsStyles;
 import org.argeo.cms.ui.CmsView;
 import org.argeo.cms.ui.internal.Activator;
@@ -184,7 +184,12 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		passwordT.addTraverseListener(tl);
 		parent.setTabList(new Control[] { credentialsBlock });
 		credentialsBlock.setTabList(new Control[] { usernameT, passwordT });
-		// credentialsBlock.setFocus();
+
+		// Button
+		Button loginButton = new Button(credentialsBlock, SWT.PUSH);
+		loginButton.setText(CmsMsg.login.lead(locale));
+		loginButton.setLayoutData(CmsUtils.fillWidth());
+		loginButton.addSelectionListener(loginSelectionListener);
 
 		extendsCredentialsBlock(credentialsBlock, locale, loginSelectionListener);
 		if (localeChoice != null)

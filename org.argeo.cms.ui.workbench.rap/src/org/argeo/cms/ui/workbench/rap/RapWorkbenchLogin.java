@@ -76,10 +76,10 @@ public class RapWorkbenchLogin extends LoginEntryPoint {
 	@Override
 	protected void extendsCredentialsBlock(Composite credentialsBlock, Locale selectedLocale,
 			SelectionListener loginSelectionListener) {
-		Button loginButton = new Button(credentialsBlock, SWT.PUSH);
-		loginButton.setText(CmsMsg.login.lead(selectedLocale));
-		loginButton.setLayoutData(CmsUtils.fillWidth());
-		loginButton.addSelectionListener(loginSelectionListener);
+//		Button loginButton = new Button(credentialsBlock, SWT.PUSH);
+//		loginButton.setText(CmsMsg.login.lead(selectedLocale));
+//		loginButton.setLayoutData(CmsUtils.fillWidth());
+//		loginButton.addSelectionListener(loginSelectionListener);
 	}
 
 	@Override

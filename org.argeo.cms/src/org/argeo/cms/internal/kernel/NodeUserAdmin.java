@@ -61,9 +61,6 @@ import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
-import bitronix.tm.BitronixTransactionManager;
-import bitronix.tm.resource.ehcache.EhCacheXAResourceProducer;
-
 /**
  * Aggregates multiple {@link UserDirectory} and integrates them with system
  * roles.
@@ -79,7 +76,7 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 
 	// JTA
 	private final ServiceTracker<TransactionManager, TransactionManager> tmTracker;
-	private final String cacheName = UserDirectory.class.getName();
+	// private final String cacheName = UserDirectory.class.getName();
 
 	// GSS API
 	private Path nodeKeyTab = KernelUtils.getOsgiInstancePath(KernelConstants.NODE_KEY_TAB_PATH);
@@ -184,8 +181,8 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 		if (tm == null)
 			throw new CmsException("A JTA transaction manager must be available.");
 		userDirectory.setTransactionManager(tm);
-		if (tmTracker.getService() instanceof BitronixTransactionManager)
-			EhCacheXAResourceProducer.registerXAResource(cacheName, userDirectory.getXaResource());
+//		if (tmTracker.getService() instanceof BitronixTransactionManager)
+//			EhCacheXAResourceProducer.registerXAResource(cacheName, userDirectory.getXaResource());
 
 		Object realm = userDirectory.getProperties().get(UserAdminConf.realm.name());
 		if (realm != null) {
@@ -225,8 +222,8 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 	}
 
 	protected void preDestroy(AbstractUserDirectory userDirectory) {
-		if (tmTracker.getService() instanceof BitronixTransactionManager)
-			EhCacheXAResourceProducer.unregisterXAResource(cacheName, userDirectory.getXaResource());
+//		if (tmTracker.getService() instanceof BitronixTransactionManager)
+//			EhCacheXAResourceProducer.unregisterXAResource(cacheName, userDirectory.getXaResource());
 
 		Object realm = userDirectory.getProperties().get(UserAdminConf.realm.name());
 		if (realm != null) {

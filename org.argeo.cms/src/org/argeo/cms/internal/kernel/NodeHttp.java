@@ -68,8 +68,8 @@ public class NodeHttp implements KernelConstants {
 			registerRemotingServlet(httpService, alias, repository);
 			if (NodeConstants.HOME.equals(alias))
 				registerFilesServlet(httpService, alias, repository);
-			if (log.isDebugEnabled())
-				log.debug("Registered servlets for repository '" + alias + "'");
+			if (log.isTraceEnabled())
+				log.trace("Registered servlets for repository '" + alias + "'");
 		} catch (Exception e) {
 			throw new CmsException("Could not register servlets for repository '" + alias + "'", e);
 		}
@@ -83,8 +83,8 @@ public class NodeHttp implements KernelConstants {
 			httpService.unregister(remotingPath(alias));
 			if (NodeConstants.HOME.equals(alias))
 				httpService.unregister(filesPath(alias));
-			if (log.isDebugEnabled())
-				log.debug("Unregistered servlets for repository '" + alias + "'");
+			if (log.isTraceEnabled())
+				log.trace("Unregistered servlets for repository '" + alias + "'");
 		} catch (Exception e) {
 			log.error("Could not unregister servlets for repository '" + alias + "'", e);
 		}

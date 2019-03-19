@@ -55,7 +55,7 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 			}
 			if (!node.isNodeType(NodeType.NT_FILE))
 				throw new UnsupportedOperationException(node + " must be a file");
-			return new BinaryChannel(node);
+			return new BinaryChannel(node, path);
 		} catch (RepositoryException e) {
 			discardChanges(node);
 			throw new IOException("Cannot read file", e);
