@@ -18,6 +18,7 @@ import org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.http.CmsSessionProvider;
 import org.argeo.cms.internal.http.DataHttpContext;
+import org.argeo.cms.internal.http.HtmlServlet;
 import org.argeo.cms.internal.http.HttpUtils;
 import org.argeo.cms.internal.http.LinkServlet;
 import org.argeo.cms.internal.http.PrivateHttpContext;
@@ -213,6 +214,7 @@ public class NodeHttp implements KernelConstants {
 			try {
 				httpService.registerServlet("/!", new LinkServlet(), null, null);
 				httpService.registerServlet("/robots.txt", new RobotServlet(), null, null);
+				httpService.registerServlet("/html", new HtmlServlet(), null, null);
 			} catch (Exception e) {
 				throw new CmsException("Cannot register filters", e);
 			}
