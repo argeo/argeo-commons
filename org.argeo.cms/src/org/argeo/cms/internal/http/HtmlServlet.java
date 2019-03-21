@@ -2,6 +2,8 @@ package org.argeo.cms.internal.http;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.security.PrivilegedExceptionAction;
 import java.util.HashMap;
 import java.util.Map;
@@ -80,16 +82,19 @@ public class HtmlServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		String path = req.getPathInfo();
+//		String path = req.getPathInfo();
+		String path = URLDecoder.decode(req.getPathInfo(), StandardCharsets.UTF_8.name());
 		String servletPath = req.getServletPath();
 		String[] p = path.split("/");
 
-		String basePath =servletPath+'/'+p[1];
+		String basePath = servletPath + '/' + p[1];
 		String template = p[1] + ".ftl";
 		StringBuilder sb = new StringBuilder();
 		for (int i = 2; i < p.length; i++)
 			sb.append('/').append(p[i]);
-
+		String nodePath = sb.toString();
+		if ("".equals(nodePath.trim()))
+			nodePath = "/"; // root node
 		Session session = null;
 		try {
 			LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
@@ -104,7 +109,7 @@ public class HtmlServlet extends HttpServlet {
 				}
 			});
 
-			Node node = session.getNode(sb.toString());
+			Node node = session.getNode(nodePath);
 
 			Template t = cfg.getTemplate(template);
 			Map<String, Object> root = new HashMap<>();
@@ -115,7 +120,7 @@ public class HtmlServlet extends HttpServlet {
 
 			resp.setContentType("text/html");
 		} catch (Exception e) {
-			throw new CmsException("Cannot log in", e);
+			throw new CmsException("Cannot process template", e);
 		} finally {
 			JcrUtils.logoutQuietly(session);
 		}

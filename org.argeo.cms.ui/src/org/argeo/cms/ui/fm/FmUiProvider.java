@@ -50,6 +50,7 @@ public class FmUiProvider implements CmsUiProvider {
 			Map<String, Object> root = new HashMap<>();
 			if (context != null)
 				root.put("node", new JcrModel(context));
+			root.put("basePath", "./");
 
 			Template temp = cfg.getTemplate(template);
 			StringWriter out = new StringWriter();

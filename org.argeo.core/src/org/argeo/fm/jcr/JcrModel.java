@@ -1,5 +1,8 @@
 package org.argeo.fm.jcr;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
@@ -80,12 +83,23 @@ public class JcrModel implements TemplateNodeModel, TemplateHashModel {
 			if ("jcr:properties".equals(key))
 				return new PropertiesModel();
 			if ("jcr:parent".equals(key))
-				return node.getParent() != null ? new JcrModel(node.getParent()) : null;
+				return !"/".equals(node.getPath()) ? new JcrModel(node.getParent()) : null;
 
-			Property property = node.getProperty(key);
-			if (property == null)
-				return null;
-			return new SimpleScalar(property.getString());
+			Property property;
+			if (!node.hasProperty(key)) {
+				List<Property> props = new ArrayList<>();
+				PropertyIterator pit = node.getProperties("*:" + key);
+				while (pit.hasNext())
+					props.add(pit.nextProperty());
+				if (props.size() == 0)
+					return null;
+				if (props.size() > 1)
+					throw new TemplateModelException(
+							"Too many properties match " + key + " (" + props + "), use prefix with \\: escape");
+				property = props.get(0);
+			} else
+				property = node.getProperty(key);
+			return propertyValues(property);
 		} catch (RepositoryException e) {
 			throw new TemplateModelException("Cannot get property " + key + " of " + node, e);
 		}
