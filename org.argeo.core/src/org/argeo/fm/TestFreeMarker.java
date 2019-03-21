@@ -43,6 +43,14 @@ public class TestFreeMarker {
 			latest.setName("green mouse");
 			root.put("latestProduct", latest);
 
+			root.put("message", "It's a test");
+
+			Map<String, Animal> animals = new HashMap<>();
+			animals.put("mouse", new Animal("small", 50));
+			animals.put("elephant", new Animal("big", 2000));
+			animals.put("dog", new Animal("medium", 150));
+			root.put("animals", animals);
+
 			/* Get the template (uses cache internally) */
 			Template temp = cfg.getTemplate(template);
 
