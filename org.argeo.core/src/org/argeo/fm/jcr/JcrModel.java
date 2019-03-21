@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
@@ -85,21 +86,39 @@ public class JcrModel implements TemplateNodeModel, TemplateHashModel {
 			if ("jcr:parent".equals(key))
 				return !"/".equals(node.getPath()) ? new JcrModel(node.getParent()) : null;
 
-			Property property;
+			Property property = null;
 			if (!node.hasProperty(key)) {
 				List<Property> props = new ArrayList<>();
 				PropertyIterator pit = node.getProperties("*:" + key);
 				while (pit.hasNext())
 					props.add(pit.nextProperty());
-				if (props.size() == 0)
-					return null;
 				if (props.size() > 1)
 					throw new TemplateModelException(
 							"Too many properties match " + key + " (" + props + "), use prefix with \\: escape");
-				property = props.get(0);
+				if (!props.isEmpty())
+					property = props.get(0);
 			} else
 				property = node.getProperty(key);
-			return propertyValues(property);
+			if (property != null)
+				return propertyValues(property);
+
+			Node child = null;
+			if (!node.hasNode(key)) {
+				List<Node> children = new ArrayList<>();
+				NodeIterator nit = node.getNodes("*:" + key);
+				while (nit.hasNext())
+					children.add(nit.nextNode());
+				if (children.size() > 1)
+					throw new TemplateModelException(
+							"Too many properties match " + key + " (" + children + "), use prefix with \\: escape");
+				if (!children.isEmpty())
+					child = children.get(0);
+			} else
+				child = node.getNode(key);
+			if (child != null)
+				return new JcrModel(child);
+			return null;
+
 		} catch (RepositoryException e) {
 			throw new TemplateModelException("Cannot get property " + key + " of " + node, e);
 		}
