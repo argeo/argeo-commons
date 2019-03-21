@@ -53,7 +53,7 @@ public class AppUi implements CmsUiProvider, Branding {
 
 	public AppUi(CmsScriptApp app, String scriptPath) {
 		this.app = app;
-		this.ui = new ScriptUi((BundleContext) app.getScriptEngine().get(CmsScriptRwtApplication.BC), scriptPath);
+		this.ui = new ScriptUi((BundleContext) app.getScriptEngine().get(CmsScriptRwtApplication.BC), app.getScriptEngine(), scriptPath);
 	}
 
 	public AppUi(CmsScriptApp app, CmsUiProvider uiProvider) {

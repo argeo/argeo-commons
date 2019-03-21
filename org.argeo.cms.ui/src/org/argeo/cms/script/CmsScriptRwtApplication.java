@@ -32,20 +32,19 @@ public class CmsScriptRwtApplication implements ApplicationConfiguration {
 
 	public void init(BundleContext bundleContext) {
 		this.bundleContext = bundleContext;
-		// System.out.println("bundleContext=" + bundleContext);
-		// System.out.println("repository=" + repository);
 		ClassLoader bundleCl = bundleContext.getBundle().adapt(BundleWiring.class).getClassLoader();
 		ClassLoader originalCcl = Thread.currentThread().getContextClassLoader();
 		try {
-			Thread.currentThread().setContextClassLoader(bundleCl);// GrallVM needs it to be before creating manager
-			ScriptEngineManager scriptEngineManager = new ScriptEngineManager(bundleCl);
-			engine = scriptEngineManager.getEngineByName("JavaScript");
-			if (engine == null) {// Nashorn
-				Thread.currentThread().setContextClassLoader(originalCcl);
-				scriptEngineManager = new ScriptEngineManager();
-				Thread.currentThread().setContextClassLoader(bundleCl);
-				engine = scriptEngineManager.getEngineByName("JavaScript");
-			}
+//			Thread.currentThread().setContextClassLoader(bundleCl);// GraalVM needs it to be before creating manager
+//			ScriptEngineManager scriptEngineManager = new ScriptEngineManager(bundleCl);
+//			engine = scriptEngineManager.getEngineByName("JavaScript");
+//			if (engine == null) {// Nashorn
+//				Thread.currentThread().setContextClassLoader(originalCcl);
+//				scriptEngineManager = new ScriptEngineManager();
+//				Thread.currentThread().setContextClassLoader(bundleCl);
+//				engine = scriptEngineManager.getEngineByName("JavaScript");
+//			}
+			engine = loadScriptEngine(originalCcl, bundleCl);
 
 			// Load script
 			URL appUrl = bundleContext.getBundle().getEntry("cms/app.js");
@@ -107,4 +106,16 @@ public class CmsScriptRwtApplication implements ApplicationConfiguration {
 		this.repository = repository;
 	}
 
+	private static ScriptEngine loadScriptEngine(ClassLoader originalCcl, ClassLoader bundleCl) {
+		Thread.currentThread().setContextClassLoader(bundleCl);// GraalVM needs it to be before creating manager
+		ScriptEngineManager scriptEngineManager = new ScriptEngineManager(bundleCl);
+		ScriptEngine engine = scriptEngineManager.getEngineByName("JavaScript");
+		if (engine == null) {// Nashorn
+			Thread.currentThread().setContextClassLoader(originalCcl);
+			scriptEngineManager = new ScriptEngineManager();
+			Thread.currentThread().setContextClassLoader(bundleCl);
+			engine = scriptEngineManager.getEngineByName("JavaScript");
+		}
+		return engine;
+	}
 }
