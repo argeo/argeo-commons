@@ -197,7 +197,13 @@ public class CmsDeployment implements NodeDeployment {
 		}
 	}
 
-	private void checkReadiness() {
+	/**
+	 * Checks whether the deployment is available according to expectations, and
+	 * mark it as available.
+	 */
+	private synchronized void checkReadiness() {
+		if (isAvailable())
+			return;
 		if (nodeAvailable && userAdminAvailable && (httpExpected ? httpAvailable : true)) {
 			String data = KernelUtils.getFrameworkProp(KernelUtils.OSGI_INSTANCE_AREA);
 			String state = KernelUtils.getFrameworkProp(KernelUtils.OSGI_CONFIGURATION_AREA);
@@ -369,8 +375,12 @@ public class CmsDeployment implements NodeDeployment {
 	}
 
 	@Override
-	public Long getAvailableSince() {
+	public synchronized Long getAvailableSince() {
 		return availableSince;
+	}
+
+	public synchronized boolean isAvailable() {
+		return availableSince != null;
 	}
 
 	private class RepositoryContextStc extends ServiceTracker<RepositoryContext, RepositoryContext> {
