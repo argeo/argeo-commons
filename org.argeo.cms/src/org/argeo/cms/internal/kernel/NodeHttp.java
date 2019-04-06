@@ -214,7 +214,7 @@ public class NodeHttp implements KernelConstants {
 			try {
 				httpService.registerServlet("/!", new LinkServlet(), null, null);
 				httpService.registerServlet("/robots.txt", new RobotServlet(), null, null);
-				httpService.registerServlet("/html", new HtmlServlet(), null, null);
+				// httpService.registerServlet("/html", new HtmlServlet(), null, null);
 			} catch (Exception e) {
 				throw new CmsException("Cannot register filters", e);
 			}
