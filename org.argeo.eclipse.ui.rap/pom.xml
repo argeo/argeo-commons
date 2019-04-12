@@ -38,5 +38,17 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<!-- File upload -->
+		<dependency>
+			<groupId>org.argeo.tp.rap.e4</groupId>
+			<artifactId>org.eclipse.rap.filedialog</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rap.e4</groupId>
+			<artifactId>org.eclipse.rap.fileupload</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
 	</dependencies>
 </project>
