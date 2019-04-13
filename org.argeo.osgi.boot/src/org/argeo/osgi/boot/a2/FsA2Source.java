@@ -71,7 +71,7 @@ public class FsA2Source extends ProvisioningSource {
 	public static void main(String[] args) {
 		try {
 			FsA2Source context = new FsA2Source(Paths.get(
-					"/home/mbaudier/dev/git/apache2/argeo-commons/dist/argeo-node/target/argeo-node-2.1.74-SNAPSHOT/argeo-node/share/osgi"));
+					"/home/mbaudier/dev/git/apache2/argeo-commons/dist/argeo-node/target/argeo-node-2.1.77-SNAPSHOT/share/osgi"));
 			context.load();
 			context.asTree();
 		} catch (Exception e) {

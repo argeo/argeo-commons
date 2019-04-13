@@ -5,7 +5,7 @@
 	<id>dist</id>
 	<baseDirectory></baseDirectory>
 	<formats>
-		<format>zip</format>
+		<format>dir</format>
 	</formats>
 	<fileSets>
 		<fileSet>
@@ -20,19 +20,25 @@
 			</excludes>
 		</fileSet>
 	</fileSets>
-<!-- 	<dependencySets> -->
-<!-- 		<dependencySet> -->
-<!-- 			<unpack>false</unpack> -->
-<!-- 			<outputFileNameMapping>${artifact.groupId}/${artifact.artifactId}-${artifact.version}.${artifact.extension}</outputFileNameMapping> -->
-<!-- 			<outputDirectory>share/osgi</outputDirectory> -->
-<!-- 		</dependencySet> -->
-<!-- 		<dependencySet> -->
-<!-- 			<useStrictFiltering>true</useStrictFiltering> -->
-<!-- 			<unpack>true</unpack> -->
-<!-- 			<outputDirectory></outputDirectory> -->
-<!-- 			<includes> -->
-<!-- 				<include>org.argeo.commons:osgi-boot:zip:*:*</include> -->
-<!-- 			</includes> -->
-<!-- 		</dependencySet> -->
-<!-- 	</dependencySets> -->
+	<dependencySets>
+		<dependencySet>
+			<unpack>false</unpack>
+			<outputFileNameMapping>${artifact.groupId}/${artifact.artifactId}-${artifact.version}.${artifact.extension}</outputFileNameMapping>
+			<outputDirectory>share/osgi</outputDirectory>
+			<useTransitiveDependencies>true</useTransitiveDependencies>
+			<useTransitiveFiltering>true</useTransitiveFiltering>
+			<scope>compile</scope>
+			<excludes>
+				<exclude>org.argeo.tp:argeo-tp</exclude>
+			</excludes>
+		</dependencySet>
+		<dependencySet>
+			<useStrictFiltering>true</useStrictFiltering>
+			<unpack>true</unpack>
+			<outputDirectory></outputDirectory>
+			<includes>
+				<include>org.argeo.commons:osgi-boot:zip:*:*</include>
+			</includes>
+		</dependencySet>
+	</dependencySets>
 </assembly>

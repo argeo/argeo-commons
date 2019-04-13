@@ -19,11 +19,14 @@ public class Main {
 		// osgi.conf("osgi.clean", "true");
 		// osgi.conf("osgi.console", "true");
 		osgi.launch();
-		osgi.main(mainClass, args);
 
-		long jvmUptime = ManagementFactory.getRuntimeMXBean().getUptime();
-		String jvmUptimeStr = (jvmUptime / 1000) + "." + (jvmUptime % 1000) + "s";
-		System.out.println("Command " + mainClass + " executed in " + jvmUptimeStr);
+		if (OsgiBootUtils.isDebug()) {
+			long jvmUptime = ManagementFactory.getRuntimeMXBean().getUptime();
+			String jvmUptimeStr = (jvmUptime / 1000) + "." + (jvmUptime % 1000) + "s";
+			OsgiBootUtils.debug("Ready to launch " + mainClass + " in " + jvmUptimeStr);
+		}
+
+		osgi.main(mainClass, args);
 
 		osgi.shutdown();
 
