@@ -9,6 +9,73 @@
 	<artifactId>org.argeo.dep.cms.e4.rcp</artifactId>
 	<name>Node Eclipse RCP</name>
 	<dependencies>
+		<!-- Argeo -->
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.eclipse.ui</artifactId>
+			<version>2.1.77-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.rcp</groupId>
+			<artifactId>org.argeo.eclipse.ui.rcp</artifactId>
+			<version>2.1.77-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.cms.ui</artifactId>
+			<version>2.1.77-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.cms.ui.theme</artifactId>
+			<version>2.1.77-SNAPSHOT</version>
+		</dependency>
+		
+		<!-- Desktop -->
+		<dependency>
+			<groupId>org.argeo.commons.rcp</groupId>
+			<artifactId>org.argeo.cms.desktop</artifactId>
+			<version>2.1.77-SNAPSHOT</version>
+		</dependency>
+
+		<!-- E4 specific -->
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.cms.e4</artifactId>
+			<version>2.1.77-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons.rcp</groupId>
+			<artifactId>org.argeo.cms.e4.rcp</artifactId>
+			<version>2.1.77-SNAPSHOT</version>
+		</dependency>
+
+		<!-- RCP specific -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.commons.rcp</groupId> -->
+		<!-- <artifactId>org.argeo.cms.ui.workbench.rcp</artifactId> -->
+		<!-- <version>2.1.18-SNAPSHOT</version> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.commons</groupId> -->
+		<!-- <artifactId>org.argeo.cms.ui.workbench</artifactId> -->
+		<!-- <version>${version.argeo-commons}</version> -->
+		<!-- </dependency> -->
+
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.dep.cms.node</artifactId>
+			<version>2.1.77-SNAPSHOT</version>
+			<type>pom</type>
+		</dependency>
+
+		<!-- SDK -->
+		<dependency>
+			<groupId>org.argeo.tp.equinox</groupId>
+			<artifactId>org.eclipse.osgi</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 		<!-- SWT for ARM -->
 		<dependency>
 			<groupId>org.argeo.tp.rcp.e4</groupId>
@@ -594,66 +661,6 @@
 			<artifactId>org.eclipse.e4.core.di.extensions</artifactId>
 		</dependency>
 
-
-		<!-- Eclipse -->
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.eclipse.ui</artifactId>
-			<version>2.1.77-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.rcp</groupId>
-			<artifactId>org.argeo.eclipse.ui.rcp</artifactId>
-			<version>2.1.77-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.cms.ui</artifactId>
-			<version>2.1.77-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.cms.ui.theme</artifactId>
-			<version>2.1.77-SNAPSHOT</version>
-		</dependency>
-
-		<!-- E4 specific -->
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.cms.e4</artifactId>
-			<version>2.1.77-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons.rcp</groupId>
-			<artifactId>org.argeo.cms.e4.rcp</artifactId>
-			<version>2.1.77-SNAPSHOT</version>
-		</dependency>
-
-		<!-- RCP specific -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.commons.rcp</groupId> -->
-		<!-- <artifactId>org.argeo.cms.ui.workbench.rcp</artifactId> -->
-		<!-- <version>2.1.18-SNAPSHOT</version> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.commons</groupId> -->
-		<!-- <artifactId>org.argeo.cms.ui.workbench</artifactId> -->
-		<!-- <version>${version.argeo-commons}</version> -->
-		<!-- </dependency> -->
-
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.dep.cms.node</artifactId>
-			<version>2.1.77-SNAPSHOT</version>
-			<type>pom</type>
-		</dependency>
-
-		<!-- SDK -->
-		<dependency>
-			<groupId>org.argeo.tp.equinox</groupId>
-			<artifactId>org.eclipse.osgi</artifactId>
-			<scope>test</scope>
-		</dependency>
 
 	</dependencies>
 	<dependencyManagement>
