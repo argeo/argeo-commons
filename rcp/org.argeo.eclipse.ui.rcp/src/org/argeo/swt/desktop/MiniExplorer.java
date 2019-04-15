@@ -1,4 +1,4 @@
-package org.argeo.cms.desktop.mini;
+package org.argeo.swt.desktop;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
