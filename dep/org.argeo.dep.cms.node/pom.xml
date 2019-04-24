@@ -247,12 +247,6 @@
 			<groupId>org.argeo.tp.jetty</groupId>
 			<artifactId>org.eclipse.jetty.websocket.javax.websocket.server</artifactId>
 		</dependency>
-		<!-- Atmosphere -->
-		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>org.atmosphere.runtime</artifactId>
-		</dependency>
-
 	</dependencies>
 
 	<profiles>
