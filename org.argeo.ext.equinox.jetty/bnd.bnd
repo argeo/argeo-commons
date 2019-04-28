@@ -1,0 +1,4 @@
+Fragment-Host: org.eclipse.equinox.http.jetty
+
+Import-Package: org.eclipse.jetty.websocket.jsr356,\
+*

@@ -37,6 +37,11 @@
 			<artifactId>org.argeo.ext.jackrabbit</artifactId>
 			<version>2.1.77-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.ext.equinox.jetty</artifactId>
+			<version>2.1.77-SNAPSHOT</version>
+		</dependency>
 
 		<!-- CMS Dependencies -->
 		<!-- TODO: not bitronix dependent -->

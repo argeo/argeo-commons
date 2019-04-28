@@ -41,6 +41,7 @@
 		<module>org.argeo.cms.ui.workbench.rap</module>
 		<!-- Third Parties Extensions -->
 		<module>org.argeo.ext.jackrabbit</module>
+		<module>org.argeo.ext.equinox.jetty</module>
 		<module>org.argeo.ext.rap.ui.workbench</module>
 		<!-- Distribution -->
 		<module>maven</module>
