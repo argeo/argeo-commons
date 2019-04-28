@@ -1,12 +1,18 @@
 package org.argeo.equinox.jetty;
 
+import java.net.HttpCookie;
 import java.util.Dictionary;
+import java.util.List;
 
 import javax.servlet.ServletException;
-import javax.websocket.server.ServerContainer;
+import javax.servlet.http.HttpSession;
 
 import org.eclipse.equinox.http.jetty.JettyCustomizer;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.websocket.api.UpgradeRequest;
+import org.eclipse.jetty.websocket.common.WebSocketSession;
+import org.eclipse.jetty.websocket.common.WebSocketSessionListener;
+import org.eclipse.jetty.websocket.jsr356.server.ServerContainer;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -35,10 +41,27 @@ public class WebSocketJettyCustomizer extends JettyCustomizer {
 			ServerContainer serverContainer;
 			try {
 				serverContainer = WebSocketServerContainerInitializer.configureContext(servletContextHandler);
+//				serverContainer.addSessionListener(new WebSocketSessionListener() {
+//
+//					@Override
+//					public void onSessionOpened(WebSocketSession session) {
+//						UpgradeRequest upgradeRequest = session.getUpgradeRequest();
+//						List<HttpCookie> cookies = upgradeRequest.getCookies();
+//						System.out.println("Upgrade request cookies : " + cookies);
+//						HttpSession httpSession = (HttpSession) upgradeRequest.getSession();
+//						System.out.println("Upgrade request session ID : " + httpSession.getId());
+//					}
+//
+//					@Override
+//					public void onSessionClosed(WebSocketSession session) {
+//						// TODO Auto-generated method stub
+//
+//					}
+//				});
 			} catch (ServletException e) {
 				throw new IllegalStateException("Cannot configure web sockets", e);
 			}
-			bc.registerService(ServerContainer.class, serverContainer, null);
+			bc.registerService(javax.websocket.server.ServerContainer.class, serverContainer, null);
 //			ServiceTracker<ServerEndpointConfig.Builder, ServerEndpointConfig.Builder> endpointsTracker = new ServiceTracker<ServerEndpointConfig.Builder, ServerEndpointConfig.Builder>(
 //					bc, ServerEndpointConfig.Builder.class, null) {
 //
