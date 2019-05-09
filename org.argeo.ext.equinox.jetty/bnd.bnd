@@ -3,4 +3,5 @@ Fragment-Host: org.eclipse.equinox.http.jetty
 Import-Package: org.eclipse.jetty.websocket.jsr356,\
 org.eclipse.jetty.websocket.api,\
 org.eclipse.jetty.websocket.common,\
+org.osgi.service.http,\
 *
