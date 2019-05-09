@@ -1,6 +1,7 @@
 package org.argeo.cms.auth;
 
 import java.security.Principal;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -25,6 +26,9 @@ import org.argeo.node.security.AnonymousPrincipal;
 import org.argeo.node.security.DataAdminPrincipal;
 import org.argeo.node.security.NodeSecurityUtils;
 import org.argeo.osgi.useradmin.AuthenticatingUser;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
 
@@ -41,8 +45,7 @@ class CmsAuthUtils {
 	final static String SHARED_STATE_SPNEGO_OUT_TOKEN = "org.argeo.cms.auth.spnegoOutToken";
 	final static String SHARED_STATE_CERTIFICATE_CHAIN = "org.argeo.cms.auth.certificateChain";
 
-	static void addAuthorization(Subject subject, Authorization authorization, Locale locale,
-			HttpServletRequest request) {
+	static void addAuthorization(Subject subject, Authorization authorization) {
 		assert subject != null;
 		checkSubjectEmpty(subject);
 		assert authorization != null;
@@ -173,6 +176,29 @@ class CmsAuthUtils {
 		} else {
 			// TODO desktop, CLI
 		}
+	}
+
+	public static CmsSession cmsSessionFromHttpSession(BundleContext bc, String httpSessionId) {
+		Authorization authorization = null;
+		Collection<ServiceReference<CmsSession>> sr;
+		try {
+			sr = bc.getServiceReferences(CmsSession.class,
+					"(" + CmsSession.SESSION_LOCAL_ID + "=" + httpSessionId + ")");
+		} catch (InvalidSyntaxException e) {
+			throw new CmsException("Cannot get CMS session for id " + httpSessionId, e);
+		}
+		CmsSession cmsSession;
+		if (sr.size() == 1) {
+			cmsSession = bc.getService(sr.iterator().next());
+//			locale = cmsSession.getLocale();
+			authorization = cmsSession.getAuthorization();
+			if (authorization.getName() == null)
+				return null;// anonymous is not sufficient
+		} else if (sr.size() == 0)
+			return null;
+		else
+			throw new CmsException(sr.size() + ">1 web sessions detected for http session " + httpSessionId);
+		return cmsSession;
 	}
 
 	public static <T extends Principal> T getSinglePrincipal(Subject subject, Class<T> clss) {

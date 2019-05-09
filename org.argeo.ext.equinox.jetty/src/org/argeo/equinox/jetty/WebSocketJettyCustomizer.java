@@ -119,8 +119,9 @@ public class WebSocketJettyCustomizer extends JettyCustomizer {
 
 						CmsSession cmsSession = getCmsSession(httpSessionId);
 						if (cmsSession == null) {
-							session.disconnect();
-							return;
+//							session.disconnect();
+//							return;
+
 //							try {
 //								session.getUpgradeResponse().sendForbidden("Web Sockets must always be authenticated.");
 //							} catch (IOException e) {

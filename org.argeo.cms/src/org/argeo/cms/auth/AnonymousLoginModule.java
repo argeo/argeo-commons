@@ -54,7 +54,7 @@ public class AnonymousLoginModule implements LoginModule {
 		Locale locale = Locale.getDefault();
 		if (request != null)
 			locale = request.getLocale();
-		CmsAuthUtils.addAuthorization(subject, authorization, locale, request);
+		CmsAuthUtils.addAuthorization(subject, authorization);
 		CmsAuthUtils.registerSessionAuthorization(request, subject, authorization, locale);
 		if (log.isTraceEnabled())
 			log.trace("Anonymous logged in to CMS: " + subject);

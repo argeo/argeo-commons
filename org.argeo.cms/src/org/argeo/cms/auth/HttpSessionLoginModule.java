@@ -3,7 +3,6 @@ package org.argeo.cms.auth;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -24,8 +23,6 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.kernel.Activator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
 
@@ -68,44 +65,46 @@ public class HttpSessionLoginModule implements LoginModule {
 			return false;
 		}
 		request = httpCallback.getRequest();
-		if (request == null)
-			return false;
-		authorization = (Authorization) request.getAttribute(HttpContext.AUTHORIZATION);
-		if (authorization == null) {// search by session ID
-			HttpSession httpSession = request.getSession(false);
-			if (httpSession == null) {
-				// TODO make sure this is always safe
-				if (log.isTraceEnabled())
-					log.trace("Create http session");
-				httpSession = request.getSession(true);
-			}
+		if (request == null) {
+			HttpSession httpSession = httpCallback.getHttpSession();
+			if (httpSession == null)
+				return false;
+			// TODO factorize with below
 			String httpSessionId = httpSession.getId();
 			if (log.isTraceEnabled())
 				log.trace("HTTP login: " + request.getPathInfo() + " #" + httpSessionId);
-			Collection<ServiceReference<CmsSession>> sr;
-			try {
-				sr = bc.getServiceReferences(CmsSession.class,
-						"(" + CmsSession.SESSION_LOCAL_ID + "=" + httpSessionId + ")");
-			} catch (InvalidSyntaxException e) {
-				throw new CmsException("Cannot get CMS session for id " + httpSessionId, e);
-			}
-			if (sr.size() == 1) {
-				CmsSession cmsSession = bc.getService(sr.iterator().next());
-				locale = cmsSession.getLocale();
+			CmsSession cmsSession = CmsAuthUtils.cmsSessionFromHttpSession(bc, httpSessionId);
+			if (cmsSession != null) {
 				authorization = cmsSession.getAuthorization();
-				if (authorization.getName() == null)
-					authorization = null;// anonymous is not sufficient
+				locale = cmsSession.getLocale();
 				if (log.isTraceEnabled())
 					log.trace("Retrieved authorization from " + cmsSession);
-			} else if (sr.size() == 0)
-				authorization = null;
-			else
-				throw new CmsException(sr.size() + ">1 web sessions detected for http session " + httpSessionId);
-
+			}
+		} else {
+			authorization = (Authorization) request.getAttribute(HttpContext.AUTHORIZATION);
+			if (authorization == null) {// search by session ID
+				HttpSession httpSession = request.getSession(false);
+				if (httpSession == null) {
+					// TODO make sure this is always safe
+					if (log.isTraceEnabled())
+						log.trace("Create http session");
+					httpSession = request.getSession(true);
+				}
+				String httpSessionId = httpSession.getId();
+				if (log.isTraceEnabled())
+					log.trace("HTTP login: " + request.getPathInfo() + " #" + httpSessionId);
+				CmsSession cmsSession = CmsAuthUtils.cmsSessionFromHttpSession(bc, httpSessionId);
+				if (cmsSession != null) {
+					authorization = cmsSession.getAuthorization();
+					locale = cmsSession.getLocale();
+					if (log.isTraceEnabled())
+						log.trace("Retrieved authorization from " + cmsSession);
+				}
+			}
+			sharedState.put(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST, request);
+			extractHttpAuth(request);
+			extractClientCertificate(request);
 		}
-		sharedState.put(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST, request);
-		extractHttpAuth(request);
-		extractClientCertificate(request);
 		if (authorization == null) {
 			if (log.isTraceEnabled())
 				log.trace("HTTP login: " + false);
@@ -127,10 +126,11 @@ public class HttpSessionLoginModule implements LoginModule {
 
 		if (authorization != null) {
 			// Locale locale = request.getLocale();
-			if (locale == null)
+			if (locale == null && request != null)
 				locale = request.getLocale();
-			subject.getPublicCredentials().add(locale);
-			CmsAuthUtils.addAuthorization(subject, authorization, locale, request);
+			if (locale != null)
+				subject.getPublicCredentials().add(locale);
+			CmsAuthUtils.addAuthorization(subject, authorization);
 			CmsAuthUtils.registerSessionAuthorization(request, subject, authorization, locale);
 			cleanUp();
 			return true;
@@ -159,6 +159,10 @@ public class HttpSessionLoginModule implements LoginModule {
 
 	private void extractHttpAuth(final HttpServletRequest httpRequest) {
 		String authHeader = httpRequest.getHeader(CmsAuthUtils.HEADER_AUTHORIZATION);
+		extractHttpAuth(authHeader);
+	}
+
+	private void extractHttpAuth(String authHeader) {
 		if (authHeader != null) {
 			StringTokenizer st = new StringTokenizer(authHeader);
 			if (st.hasMoreTokens()) {
