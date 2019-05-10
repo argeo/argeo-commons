@@ -1,29 +1,15 @@
 package org.argeo.equinox.jetty;
 
-import java.net.HttpCookie;
-import java.util.Collection;
 import java.util.Dictionary;
-import java.util.List;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpSession;
 
-import org.argeo.cms.auth.CmsSession;
 import org.eclipse.equinox.http.jetty.JettyCustomizer;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.websocket.api.UpgradeRequest;
-import org.eclipse.jetty.websocket.api.UpgradeResponse;
-import org.eclipse.jetty.websocket.common.WebSocketSession;
-import org.eclipse.jetty.websocket.common.WebSocketSessionListener;
-import org.eclipse.jetty.websocket.jsr356.JsrSession;
 import org.eclipse.jetty.websocket.jsr356.server.ServerContainer;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.http.HttpContext;
-import org.osgi.service.useradmin.Authorization;
 
 public class WebSocketJettyCustomizer extends JettyCustomizer {
 	private BundleContext bc = FrameworkUtil.getBundle(WebSocketJettyCustomizer.class).getBundleContext();
@@ -81,70 +67,70 @@ public class WebSocketJettyCustomizer extends JettyCustomizer {
 			ServerContainer serverContainer;
 			try {
 				serverContainer = WebSocketServerContainerInitializer.configureContext(servletContextHandler);
-				serverContainer.addSessionListener(new WebSocketSessionListener() {
-
-					@Override
-					public void onSessionOpened(WebSocketSession session) {
-						UpgradeRequest upgradeRequest = session.getUpgradeRequest();
-						UpgradeResponse upgradeResponse = session.getUpgradeResponse();
-						List<HttpCookie> cookies = upgradeRequest.getCookies();
-
-						System.out.println("Upgrade request cookies : " + cookies);
-						String httpSessionId = null;
-						if (cookies != null) {
-							for (HttpCookie cookie : cookies) {
-								if (cookie.getName().equals("JSESSIONID")) {
-									httpSessionId = cookie.getValue();
-								}
-							}
-						}
-
-						if (httpSessionId == null) {
-							HttpSession httpSession = (HttpSession) upgradeRequest.getSession();
-							if (httpSession == null) {
-//							session.disconnect();
-//							return;
-							} else {
-								httpSessionId = httpSession.getId();
-								System.out.println("Upgrade request session ID : " + httpSession.getId());
-							}
-						}
-
-						if (httpSessionId != null) {
-							int dotIdx = httpSessionId.lastIndexOf('.');
-							if (dotIdx > 0) {
-								httpSessionId = httpSessionId.substring(0, dotIdx);
-							}
-						}
-
-						CmsSession cmsSession = getCmsSession(httpSessionId);
-						if (cmsSession == null) {
-//							session.disconnect();
-//							return;
-
-//							try {
-//								session.getUpgradeResponse().sendForbidden("Web Sockets must always be authenticated.");
-//							} catch (IOException e) {
-//								e.printStackTrace();
+//				serverContainer.addSessionListener(new WebSocketSessionListener() {
+//
+//					@Override
+//					public void onSessionOpened(WebSocketSession session) {
+//						UpgradeRequest upgradeRequest = session.getUpgradeRequest();
+//						UpgradeResponse upgradeResponse = session.getUpgradeResponse();
+//						List<HttpCookie> cookies = upgradeRequest.getCookies();
+//
+//						System.out.println("Upgrade request cookies : " + cookies);
+//						String httpSessionId = null;
+//						if (cookies != null) {
+//							for (HttpCookie cookie : cookies) {
+//								if (cookie.getName().equals("JSESSIONID")) {
+//									httpSessionId = cookie.getValue();
+//								}
 //							}
-						} else {
-							JsrSession jsrSession = (JsrSession) session;
-							String jsrId = jsrSession.getId();
-							System.out.println("JSR ID: " + jsrId);
-							jsrSession.getUserProperties().put(CmsSession.SESSION_LOCAL_ID, cmsSession.getLocalId());
-							jsrSession.getUserProperties().put(CmsSession.SESSION_UUID, cmsSession.getUuid());
-							jsrSession.getUserProperties().put(HttpContext.REMOTE_USER, cmsSession.getUserDn());
-							// httpSession.setAttribute(HttpContext.AUTHORIZATION,
-							// cmsSession.getAuthorization());
-						}
-					}
-
-					@Override
-					public void onSessionClosed(WebSocketSession session) {
-						// TODO Auto-generated method stub
-
-					}
-				});
+//						}
+//
+//						if (httpSessionId == null) {
+//							HttpSession httpSession = (HttpSession) upgradeRequest.getSession();
+//							if (httpSession == null) {
+////							session.disconnect();
+////							return;
+//							} else {
+//								httpSessionId = httpSession.getId();
+//								System.out.println("Upgrade request session ID : " + httpSession.getId());
+//							}
+//						}
+//
+//						if (httpSessionId != null) {
+//							int dotIdx = httpSessionId.lastIndexOf('.');
+//							if (dotIdx > 0) {
+//								httpSessionId = httpSessionId.substring(0, dotIdx);
+//							}
+//						}
+//
+//						CmsSession cmsSession = getCmsSession(httpSessionId);
+//						if (cmsSession == null) {
+////							session.disconnect();
+////							return;
+//
+////							try {
+////								session.getUpgradeResponse().sendForbidden("Web Sockets must always be authenticated.");
+////							} catch (IOException e) {
+////								e.printStackTrace();
+////							}
+//						} else {
+//							JsrSession jsrSession = (JsrSession) session;
+//							String jsrId = jsrSession.getId();
+//							System.out.println("JSR ID: " + jsrId);
+//							jsrSession.getUserProperties().put(CmsSession.SESSION_LOCAL_ID, cmsSession.getLocalId());
+//							jsrSession.getUserProperties().put(CmsSession.SESSION_UUID, cmsSession.getUuid());
+//							jsrSession.getUserProperties().put(HttpContext.REMOTE_USER, cmsSession.getUserDn());
+//							// httpSession.setAttribute(HttpContext.AUTHORIZATION,
+//							// cmsSession.getAuthorization());
+//						}
+//					}
+//
+//					@Override
+//					public void onSessionClosed(WebSocketSession session) {
+//						// TODO Auto-generated method stub
+//
+//					}
+//				});
 			} catch (ServletException e) {
 				throw new IllegalStateException("Cannot configure web sockets", e);
 			}
@@ -172,26 +158,26 @@ public class WebSocketJettyCustomizer extends JettyCustomizer {
 
 	}
 
-	private CmsSession getCmsSession(String httpSessionId) {
-		if (httpSessionId == null)
-			return null;
-
-		Collection<ServiceReference<CmsSession>> sr;
-		try {
-			sr = bc.getServiceReferences(CmsSession.class,
-					"(" + CmsSession.SESSION_LOCAL_ID + "=" + httpSessionId + ")");
-		} catch (InvalidSyntaxException e) {
-			throw new IllegalStateException("Cannot get CMS session for id " + httpSessionId, e);
-		}
-		if (sr.size() == 1) {
-			CmsSession cmsSession = bc.getService(sr.iterator().next());
-			Authorization authorization = cmsSession.getAuthorization();
-			if (authorization.getName() == null)
-				return null;// anonymous is not sufficient
-			return cmsSession;
-		} else {
-			return null;
-		}
-	}
+//	private CmsSession getCmsSession(String httpSessionId) {
+//		if (httpSessionId == null)
+//			return null;
+//
+//		Collection<ServiceReference<CmsSession>> sr;
+//		try {
+//			sr = bc.getServiceReferences(CmsSession.class,
+//					"(" + CmsSession.SESSION_LOCAL_ID + "=" + httpSessionId + ")");
+//		} catch (InvalidSyntaxException e) {
+//			throw new IllegalStateException("Cannot get CMS session for id " + httpSessionId, e);
+//		}
+//		if (sr.size() == 1) {
+//			CmsSession cmsSession = bc.getService(sr.iterator().next());
+//			Authorization authorization = cmsSession.getAuthorization();
+//			if (authorization.getName() == null)
+//				return null;// anonymous is not sufficient
+//			return cmsSession;
+//		} else {
+//			return null;
+//		}
+//	}
 
 }
