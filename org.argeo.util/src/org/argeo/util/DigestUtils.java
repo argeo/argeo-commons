@@ -29,7 +29,10 @@ import java.security.NoSuchAlgorithmException;
 
 /** Utilities around cryptographic digests */
 public class DigestUtils {
+	public final static String MD5 = "MD5";
 	public final static String SHA1 = "SHA1";
+	public final static String SHA256 = "SHA-256";
+	public final static String SHA512 = "SHA-512";
 
 	private static Boolean debug = false;
 	// TODO: make it writable
