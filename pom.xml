@@ -290,7 +290,7 @@ limitations under the License.
 				<plugin>
 					<groupId>org.argeo.maven.plugins</groupId>
 					<artifactId>maven-argeo-osgi-plugin</artifactId>
-					<version>1.1.6</version>
+					<version>1.2.0</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
