@@ -83,6 +83,11 @@ public class HttpSessionLoginModule implements LoginModule {
 		} else {
 			authorization = (Authorization) request.getAttribute(HttpContext.AUTHORIZATION);
 			if (authorization == null) {// search by session ID
+				// TODO implement ident
+//				IdentClient identClient = new IdentClient(request.getRemoteAddr(), "changeit");
+//				String identUsername = identClient.getUsername(request.getLocalPort(), request.getRemotePort());
+//				log.debug("Ident username: " + identUsername);
+
 				HttpSession httpSession = request.getSession(false);
 				if (httpSession == null) {
 					// TODO make sure this is always safe
