@@ -13,6 +13,7 @@ import javax.security.auth.login.Configuration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
+import org.argeo.ident.IdentClient;
 import org.argeo.node.ArgeoLogger;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeDeployment;
@@ -172,6 +173,13 @@ public class Activator implements BundleActivator {
 
 	public static String getHttpProxySslHeader() {
 		return KernelUtils.getFrameworkProp(NodeConstants.HTTP_PROXY_SSL_DN);
+	}
+
+	public static IdentClient getIdentClient(String remoteAddr) {
+		if (!IdentClient.isDefaultAuthdPassphraseFileAvailable())
+			return null;
+		// TODO make passphrase more configurable
+		return new IdentClient(remoteAddr);
 	}
 
 	private static NodeUserAdmin getNodeUserAdmin() {

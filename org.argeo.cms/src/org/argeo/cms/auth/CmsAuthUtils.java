@@ -44,6 +44,8 @@ class CmsAuthUtils {
 	final static String SHARED_STATE_SPNEGO_TOKEN = "org.argeo.cms.auth.spnegoToken";
 	final static String SHARED_STATE_SPNEGO_OUT_TOKEN = "org.argeo.cms.auth.spnegoOutToken";
 	final static String SHARED_STATE_CERTIFICATE_CHAIN = "org.argeo.cms.auth.certificateChain";
+	final static String SHARED_STATE_REMOTE_ADDR = "org.argeo.cms.auth.remote.addr";
+	final static String SHARED_STATE_REMOTE_PORT = "org.argeo.cms.auth.remote.port";
 
 	static void addAuthorization(Subject subject, Authorization authorization) {
 		assert subject != null;

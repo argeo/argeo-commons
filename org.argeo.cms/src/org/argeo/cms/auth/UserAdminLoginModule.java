@@ -83,6 +83,7 @@ public class UserAdminLoginModule implements LoginModule {
 		final String username;
 		final char[] password;
 		Object certificateChain = null;
+		boolean preauth = false;
 		if (sharedState.containsKey(CmsAuthUtils.SHARED_STATE_NAME)
 				&& sharedState.containsKey(CmsAuthUtils.SHARED_STATE_PWD)) {
 			// NB: required by Basic http auth
@@ -103,6 +104,12 @@ public class UserAdminLoginModule implements LoginModule {
 			username = certDn;
 			certificateChain = sharedState.get(CmsAuthUtils.SHARED_STATE_CERTIFICATE_CHAIN);
 			password = null;
+		} else if (sharedState.containsKey(CmsAuthUtils.SHARED_STATE_NAME)
+				&& sharedState.containsKey(CmsAuthUtils.SHARED_STATE_REMOTE_ADDR)
+				&& sharedState.containsKey(CmsAuthUtils.SHARED_STATE_REMOTE_PORT)) {// ident
+			username = (String) sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
+			password = null;
+			preauth = true;
 		} else if (singleUser) {
 			username = OsUserUtils.getOsUsername();
 			password = null;
@@ -184,6 +191,8 @@ public class UserAdminLoginModule implements LoginModule {
 			// is provided
 		} else if (singleUser) {
 			// TODO verify IP address?
+		} else if (preauth) {
+			// ident
 		} else {
 			throw new CredentialNotFoundException("No credentials provided");
 		}
