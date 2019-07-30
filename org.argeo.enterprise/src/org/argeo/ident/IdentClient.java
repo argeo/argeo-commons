@@ -51,15 +51,15 @@ public class IdentClient {
 	public String getUsername(int serverPort, int clientPort) {
 		String answer;
 		try (Socket socket = new Socket(host, port)) {
-			String msg = serverPort + "," + clientPort + "\n";
+			String msg = clientPort + "," + serverPort + "\n";
 			OutputStream out = socket.getOutputStream();
 			out.write(msg.getBytes(StandardCharsets.US_ASCII));
 			out.flush();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			answer = reader.readLine();
 		} catch (ConnectException e) {
-			System.err
-					.println("Ident client is configured but no ident server available on " + host + " (port " + port + ")");
+			System.err.println(
+					"Ident client is configured but no ident server available on " + host + " (port " + port + ")");
 			return null;
 		} catch (Exception e) {
 			throw new RuntimeException("Cannot read from ident server on " + host + " (port " + port + ")", e);
