@@ -56,7 +56,8 @@ public class IdentLoginModule implements LoginModule {
 		}
 		if (identUsername != null) {
 			if (log.isDebugEnabled())
-				log.debug("Ident username: " + identUsername);
+				log.debug("Ident username: " + identUsername + " (local port: " + request.getLocalPort()
+						+ ", remote port: " + request.getRemotePort() + ")");
 			sharedState.put(CmsAuthUtils.SHARED_STATE_NAME, identUsername);
 			sharedState.put(CmsAuthUtils.SHARED_STATE_REMOTE_ADDR, request.getRemoteAddr());
 			sharedState.put(CmsAuthUtils.SHARED_STATE_REMOTE_PORT, request.getRemotePort());
