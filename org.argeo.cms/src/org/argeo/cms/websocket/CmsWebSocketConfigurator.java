@@ -1,6 +1,5 @@
 package org.argeo.cms.websocket;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.security.auth.login.LoginContext;
@@ -17,7 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.node.NodeConstants;
 
-public class CmsWebSocketConfigurator extends Configurator {
+public final class CmsWebSocketConfigurator extends Configurator {
 	private final static Log log = LogFactory.getLog(CmsWebSocketConfigurator.class);
 	final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
@@ -63,7 +62,6 @@ public class CmsWebSocketConfigurator extends Configurator {
 
 		if (httpSession == null) {
 			rejectResponse(response);
-			return;
 		}
 		try {
 			LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
@@ -74,17 +72,20 @@ public class CmsWebSocketConfigurator extends Configurator {
 			sec.getUserProperties().put("subject", lc.getSubject());
 		} catch (LoginException e) {
 			rejectResponse(response);
-			return;
 		}
+
+//		List<String> authHeaders = request.getHeaders().get(HEADER_WWW_AUTHENTICATE);
+//		String authHeader;
+//		if (authHeaders != null && authHeaders.size() == 1) {
+//			authHeader = authHeaders.get(0);
+//		} else {
+//			return;
+//		}
 	}
 
-	protected void rejectResponse(HandshakeResponse response) {
-		List<String> lst = new ArrayList<String>();
-		lst.add("no");
-		response.getHeaders().put(HandshakeResponse.SEC_WEBSOCKET_ACCEPT, lst);
-
+	private void rejectResponse(HandshakeResponse response) {
 		// violent implementation, as suggested in
 		// https://stackoverflow.com/questions/21763829/jsr-356-how-to-abort-a-websocket-connection-during-the-handshake
-		// throw new IllegalStateException("Web socket cannot be authenticated");
+		throw new IllegalStateException("Web socket cannot be authenticated");
 	}
 }
