@@ -261,9 +261,9 @@ limitations under the License.
 							<Automatic-Module-Name>${project.artifactId}</Automatic-Module-Name>
 							<SLC-Category>${project.groupId}</SLC-Category>
 							<!-- Git metadata -->
-							<SLC-Git-Commit-Id>${git.commit.id}</SLC-Git-Commit-Id>
-							<SLC-Git-Commit-Describe>${git.commit.id.describe}</SLC-Git-Commit-Describe>
-							<SLC-Git-Commit-Count>${git.closest.tag.commit.count}</SLC-Git-Commit-Count>
+							<!-- <SLC-Git-Commit-Id>${git.commit.id}</SLC-Git-Commit-Id> -->
+							<!-- <SLC-Git-Commit-Describe>${git.commit.id.describe}</SLC-Git-Commit-Describe> -->
+							<!-- <SLC-Git-Commit-Count>${git.closest.tag.commit.count}</SLC-Git-Commit-Count> -->
 						</instructions>
 					</configuration>
 					<executions>
@@ -319,19 +319,19 @@ limitations under the License.
 					</filesets>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>pl.project13.maven</groupId>
-				<artifactId>git-commit-id-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>get-the-git-infos</id>
-						<goals>
-							<goal>revision</goal>
-						</goals>
-						<phase>initialize</phase>
-					</execution>
-				</executions>
-			</plugin>
+			<!-- <plugin> -->
+			<!-- <groupId>pl.project13.maven</groupId> -->
+			<!-- <artifactId>git-commit-id-plugin</artifactId> -->
+			<!-- <executions> -->
+			<!-- <execution> -->
+			<!-- <id>get-the-git-infos</id> -->
+			<!-- <goals> -->
+			<!-- <goal>revision</goal> -->
+			<!-- </goals> -->
+			<!-- <phase>initialize</phase> -->
+			<!-- </execution> -->
+			<!-- </executions> -->
+			<!-- </plugin> -->
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<configuration>
