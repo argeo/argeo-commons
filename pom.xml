@@ -300,8 +300,8 @@ limitations under the License.
 				<!-- Argeo -->
 				<plugin>
 					<groupId>org.argeo.maven.plugins</groupId>
-					<artifactId>maven-argeo-osgi-plugin</artifactId>
-					<version>1.2.0</version>
+					<artifactId>argeo-osgi-plugin</artifactId>
+					<version>2.1.0-SNAPSHOT</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
