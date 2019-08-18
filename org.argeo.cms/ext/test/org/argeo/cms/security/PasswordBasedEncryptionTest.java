@@ -18,6 +18,7 @@ package org.argeo.cms.security;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.Base64;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -28,7 +29,6 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
 
 import junit.framework.TestCase;
 
@@ -38,21 +38,17 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.util.PasswordEncryption;
 
 public class PasswordBasedEncryptionTest extends TestCase {
-	private final static Log log = LogFactory
-			.getLog(PasswordBasedEncryptionTest.class);
+	private final static Log log = LogFactory.getLog(PasswordBasedEncryptionTest.class);
 
 	public void testEncryptDecrypt() {
 		final String password = "test long password since they are safer";
-		PasswordEncryption pbeEnc = new PasswordEncryption(
-				password.toCharArray());
+		PasswordEncryption pbeEnc = new PasswordEncryption(password.toCharArray());
 		String message = "Hello World!";
 		log.info("Password:\t'" + password + "'");
 		log.info("Message:\t'" + message + "'");
 		byte[] encrypted = pbeEnc.encryptString(message);
-		log.info("Encrypted:\t'"
-				+ DatatypeConverter.printBase64Binary(encrypted) + "'");
-		PasswordEncryption pbeDec = new PasswordEncryption(
-				password.toCharArray());
+		log.info("Encrypted:\t'" + Base64.getEncoder().encode(encrypted) + "'");
+		PasswordEncryption pbeDec = new PasswordEncryption(password.toCharArray());
 		InputStream in = null;
 		in = new ByteArrayInputStream(encrypted);
 		String decrypted = pbeDec.decryptAsString(in);
@@ -65,15 +61,14 @@ public class PasswordBasedEncryptionTest extends TestCase {
 		String password = "test";
 		String message = "Hello World!";
 
-		byte[] salt = { (byte) 0xc7, (byte) 0x73, (byte) 0x21, (byte) 0x8c,
-				(byte) 0x7e, (byte) 0xc8, (byte) 0xee, (byte) 0x99 };
+		byte[] salt = { (byte) 0xc7, (byte) 0x73, (byte) 0x21, (byte) 0x8c, (byte) 0x7e, (byte) 0xc8, (byte) 0xee,
+				(byte) 0x99 };
 
 		int count = 1024;
 
 		String cipherAlgorithm = "PBEWithMD5AndDES";
 		String secretKeyAlgorithm = "PBEWithMD5AndDES";
-		SecretKeyFactory keyFac = SecretKeyFactory
-				.getInstance(secretKeyAlgorithm);
+		SecretKeyFactory keyFac = SecretKeyFactory.getInstance(secretKeyAlgorithm);
 		PBEKeySpec pbeKeySpec = new PBEKeySpec(password.toCharArray());
 		PBEParameterSpec pbeParamSpec = new PBEParameterSpec(salt, count);
 		SecretKey pbeKey = keyFac.generateSecret(pbeKeySpec);
@@ -92,12 +87,11 @@ public class PasswordBasedEncryptionTest extends TestCase {
 		String password = "test";
 		String message = "Hello World!";
 
-		byte[] salt = { (byte) 0xc7, (byte) 0x73, (byte) 0x21, (byte) 0x8c,
-				(byte) 0x7e, (byte) 0xc8, (byte) 0xee, (byte) 0x99 };
-		byte[] iv = { (byte) 0xc7, (byte) 0x73, (byte) 0x21, (byte) 0x8c,
-				(byte) 0x7e, (byte) 0xc8, (byte) 0xee, (byte) 0x99,
-				(byte) 0xc7, (byte) 0x73, (byte) 0x21, (byte) 0x8c,
-				(byte) 0x7e, (byte) 0xc8, (byte) 0xee, (byte) 0x99 };
+		byte[] salt = { (byte) 0xc7, (byte) 0x73, (byte) 0x21, (byte) 0x8c, (byte) 0x7e, (byte) 0xc8, (byte) 0xee,
+				(byte) 0x99 };
+		byte[] iv = { (byte) 0xc7, (byte) 0x73, (byte) 0x21, (byte) 0x8c, (byte) 0x7e, (byte) 0xc8, (byte) 0xee,
+				(byte) 0x99, (byte) 0xc7, (byte) 0x73, (byte) 0x21, (byte) 0x8c, (byte) 0x7e, (byte) 0xc8, (byte) 0xee,
+				(byte) 0x99 };
 
 		int count = 1024;
 		// int keyLength = 256;
@@ -105,10 +99,8 @@ public class PasswordBasedEncryptionTest extends TestCase {
 
 		String cipherAlgorithm = "AES/CBC/PKCS5Padding";
 		String secretKeyAlgorithm = "PBKDF2WithHmacSHA1";
-		SecretKeyFactory keyFac = SecretKeyFactory
-				.getInstance(secretKeyAlgorithm);
-		PBEKeySpec pbeKeySpec = new PBEKeySpec(password.toCharArray(), salt,
-				count, keyLength);
+		SecretKeyFactory keyFac = SecretKeyFactory.getInstance(secretKeyAlgorithm);
+		PBEKeySpec pbeKeySpec = new PBEKeySpec(password.toCharArray(), salt, count, keyLength);
 		SecretKey tmp = keyFac.generateSecret(pbeKeySpec);
 		SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
 		Cipher ecipher = Cipher.getInstance(cipherAlgorithm);
@@ -116,8 +108,7 @@ public class PasswordBasedEncryptionTest extends TestCase {
 
 		// decrypt
 		keyFac = SecretKeyFactory.getInstance(secretKeyAlgorithm);
-		pbeKeySpec = new PBEKeySpec(password.toCharArray(), salt, count,
-				keyLength);
+		pbeKeySpec = new PBEKeySpec(password.toCharArray(), salt, count, keyLength);
 		tmp = keyFac.generateSecret(pbeKeySpec);
 		secret = new SecretKeySpec(tmp.getEncoded(), "AES");
 		// AlgorithmParameters params = ecipher.getParameters();
