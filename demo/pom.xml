@@ -30,7 +30,7 @@
 				<plugins>
 					<plugin>
 						<groupId>org.argeo.maven.plugins</groupId>
-						<artifactId>maven-argeo-osgi-plugin</artifactId>
+						<artifactId>argeo-osgi-plugin</artifactId>
 						<configuration>
 							<systemPropertiesFile>argeo_node_rap.properties</systemPropertiesFile>
 							<execDir>exec/argeo_node_rap</execDir>
@@ -52,7 +52,7 @@
 				<plugins>
 					<plugin>
 						<groupId>org.argeo.maven.plugins</groupId>
-						<artifactId>maven-argeo-osgi-plugin</artifactId>
+						<artifactId>argeo-osgi-plugin</artifactId>
 						<configuration>
 							<systemPropertiesFile>cms-e4-rap.properties</systemPropertiesFile>
 							<execDir>exec/cms-e4-rap</execDir>

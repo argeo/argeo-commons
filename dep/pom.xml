@@ -30,7 +30,7 @@
 			</plugin>
 			<plugin>
 				<groupId>org.argeo.maven.plugins</groupId>
-				<artifactId>maven-argeo-osgi-plugin</artifactId>
+				<artifactId>argeo-osgi-plugin</artifactId>
 				<executions>
 					<execution>
 						<id>generate-descriptors</id>
@@ -75,7 +75,7 @@
 				<plugins>
 					<plugin>
 						<groupId>org.argeo.maven.plugins</groupId>
-						<artifactId>maven-argeo-osgi-plugin</artifactId>
+						<artifactId>argeo-osgi-plugin</artifactId>
 						<executions>
 							<execution>
 								<id>check-osgi</id>
