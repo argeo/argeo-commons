@@ -3,7 +3,6 @@ package org.argeo.cms.websocket;
 import java.util.List;
 
 import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpSession;
 import javax.websocket.Extension;
 import javax.websocket.HandshakeResponse;
@@ -16,7 +15,10 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.node.NodeConstants;
 
-public final class CmsWebSocketConfigurator extends Configurator {
+/** Customises the initialisation of a new web socket. */
+public class CmsWebSocketConfigurator extends Configurator {
+	public final static String WEBSOCKET_SUBJECT = "org.argeo.cms.websocket.subject";
+
 	private final static Log log = LogFactory.getLog(CmsWebSocketConfigurator.class);
 	final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
@@ -61,7 +63,7 @@ public final class CmsWebSocketConfigurator extends Configurator {
 			log.debug("Web socket HTTP session id: " + httpSession.getId());
 
 		if (httpSession == null) {
-			rejectResponse(response);
+			rejectResponse(response, null);
 		}
 		try {
 			LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
@@ -69,21 +71,19 @@ public final class CmsWebSocketConfigurator extends Configurator {
 			lc.login();
 			if (log.isDebugEnabled())
 				log.debug("Web socket logged-in as " + lc.getSubject());
-			sec.getUserProperties().put("subject", lc.getSubject());
-		} catch (LoginException e) {
-			rejectResponse(response);
+			sec.getUserProperties().put(WEBSOCKET_SUBJECT, lc.getSubject());
+		} catch (Exception e) {
+			rejectResponse(response, e);
 		}
-
-//		List<String> authHeaders = request.getHeaders().get(HEADER_WWW_AUTHENTICATE);
-//		String authHeader;
-//		if (authHeaders != null && authHeaders.size() == 1) {
-//			authHeader = authHeaders.get(0);
-//		} else {
-//			return;
-//		}
 	}
 
-	private void rejectResponse(HandshakeResponse response) {
+	/**
+	 * Behaviour when the web socket could not be authenticated. Throws an
+	 * {@link IllegalStateException} by default.
+	 * 
+	 * @param e can be null
+	 */
+	protected void rejectResponse(HandshakeResponse response, Exception e) {
 		// violent implementation, as suggested in
 		// https://stackoverflow.com/questions/21763829/jsr-356-how-to-abort-a-websocket-connection-during-the-handshake
 		throw new IllegalStateException("Web socket cannot be authenticated");
