@@ -1,6 +1,8 @@
 # Argeo Commons lightweight integration framework
 
-Based on the OSGi and JCR standards.
+Based on the OSGi and JCR standards. Enterprise-grade since 2009.
+
+**The reference for Argeo code is http://git.argeo.org/ ** (the GitHub mirrors are updated from time to time, usually after releases)
 
 ## Development
 
