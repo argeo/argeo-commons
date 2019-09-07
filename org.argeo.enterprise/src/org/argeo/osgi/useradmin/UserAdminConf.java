@@ -15,8 +15,6 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.naming.DnsBrowser;
 import org.argeo.naming.NamingUtils;
 import org.osgi.framework.Constants;
@@ -51,7 +49,6 @@ public enum UserAdminConf {
 	realm(null);
 
 	public final static String FACTORY_PID = "org.argeo.osgi.useradmin.config";
-	private final static Log log = LogFactory.getLog(UserAdminConf.class);
 
 	public final static String SCHEME_LDAP = "ldap";
 	public final static String SCHEME_FILE = "file";
@@ -221,8 +218,6 @@ public enum UserAdminConf {
 			}
 			URI convertedUri = new URI(
 					SCHEME_LDAP + "://" + ldapHostsStr + "/" + IpaUtils.domainToUserDirectoryConfigPath(kerberosRealm));
-			if (log.isDebugEnabled())
-				log.debug("Converted " + uri + " to " + convertedUri);
 			return convertedUri;
 		} catch (NamingException | IOException | URISyntaxException e) {
 			throw new UserDirectoryException("cannot convert IPA uri " + uri, e);
@@ -248,7 +243,6 @@ public enum UserAdminConf {
 		try {
 			hostname = InetAddress.getLocalHost().getHostName();
 		} catch (UnknownHostException e) {
-			log.warn("Using localhost as hostname", e);
 			hostname = "localhost.localdomain";
 		}
 		int dotIdx = hostname.indexOf('.');

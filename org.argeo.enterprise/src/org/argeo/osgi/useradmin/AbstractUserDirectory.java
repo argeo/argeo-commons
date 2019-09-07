@@ -31,8 +31,6 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.naming.LdapAttrs;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
@@ -46,8 +44,6 @@ import org.osgi.service.useradmin.UserAdmin;
 public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	static final String SHARED_STATE_USERNAME = "javax.security.auth.login.name";
 	static final String SHARED_STATE_PASSWORD = "javax.security.auth.login.password";
-
-	private final static Log log = LogFactory.getLog(AbstractUserDirectory.class);
 
 	private final Hashtable<String, Object> properties;
 	private final LdapName baseDn, userBaseDn, groupBaseDn;
@@ -187,8 +183,6 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 					LdapName groupDn = new LdapName(value.toString());
 					DirectoryUser group = doGetRole(groupDn);
 					allRoles.add(group);
-					if (log.isTraceEnabled())
-						log.trace("Add memberOf " + groupDn);
 				}
 			} catch (Exception e) {
 				throw new UserDirectoryException("Cannot get memberOf groups for " + user, e);
@@ -198,8 +192,6 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 				// TODO check for loops
 				DirectoryUser group = doGetRole(groupDn);
 				allRoles.add(group);
-				if (log.isTraceEnabled())
-					log.trace("Add direct group " + groupDn);
 				collectRoles(group, allRoles);
 			}
 		}
@@ -262,23 +254,14 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 			doGetUser(key, value, collectedUsers);
 		} else {
 			throw new UserDirectoryException("Key cannot be null");
-			// // try dn
-			// DirectoryUser user = null;
-			// try {
-			// user = (DirectoryUser) getRole(value);
-			// if (user != null)
-			// collectedUsers.add(user);
-			// } catch (Exception e) {
-			// // silent
-			// }
-			// // try all indexes
-			// for (String attr : getIndexedUserProperties())
-			// doGetUser(attr, value, collectedUsers);
 		}
-		if (collectedUsers.size() == 1)
+
+		if (collectedUsers.size() == 1) {
 			return collectedUsers.get(0);
-		else if (collectedUsers.size() > 1)
-			log.warn(collectedUsers.size() + " users for " + (key != null ? key + "=" : "") + value);
+		} else if (collectedUsers.size() > 1) {
+			// log.warn(collectedUsers.size() + " users for " + (key != null ? key + "=" :
+			// "") + value);
+		}
 		return null;
 	}
 

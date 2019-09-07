@@ -7,13 +7,8 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /** {@link XAResource} for a user directory being edited. */
 class WcXaResource implements XAResource {
-	private final static Log log = LogFactory.getLog(WcXaResource.class);
-
 	private final AbstractUserDirectory userDirectory;
 
 	private Map<Xid, UserDirectoryWorkingCopy> workingCopies = new HashMap<Xid, UserDirectoryWorkingCopy>();
@@ -28,11 +23,9 @@ class WcXaResource implements XAResource {
 	public synchronized void start(Xid xid, int flags) throws XAException {
 		if (editingXid != null)
 			throw new UserDirectoryException("Already editing " + editingXid);
-		UserDirectoryWorkingCopy wc = workingCopies.put(xid,
-				new UserDirectoryWorkingCopy());
+		UserDirectoryWorkingCopy wc = workingCopies.put(xid, new UserDirectoryWorkingCopy());
 		if (wc != null)
-			throw new UserDirectoryException(
-					"There is already a working copy for " + xid);
+			throw new UserDirectoryException("There is already a working copy for " + xid);
 		this.editingXid = xid;
 	}
 
@@ -50,8 +43,7 @@ class WcXaResource implements XAResource {
 			return null;
 		UserDirectoryWorkingCopy wc = workingCopies.get(editingXid);
 		if (wc == null)
-			throw new UserDirectoryException("No working copy found for "
-					+ editingXid);
+			throw new UserDirectoryException("No working copy found for " + editingXid);
 		return wc;
 	}
 
@@ -70,7 +62,6 @@ class WcXaResource implements XAResource {
 		try {
 			userDirectory.prepare(wc);
 		} catch (Exception e) {
-			log.error("Cannot prepare " + xid, e);
 			throw new XAException(XAException.XAER_RMERR);
 		}
 		return XA_OK;
@@ -87,7 +78,6 @@ class WcXaResource implements XAResource {
 				userDirectory.prepare(wc);
 			userDirectory.commit(wc);
 		} catch (Exception e) {
-			log.error("Cannot commit " + xid, e);
 			throw new XAException(XAException.XAER_RMERR);
 		} finally {
 			cleanUp(xid);
@@ -100,7 +90,6 @@ class WcXaResource implements XAResource {
 			checkXid(xid);
 			userDirectory.rollback(wc(xid));
 		} catch (Exception e) {
-			log.error("Cannot rollback " + xid, e);
 			throw new XAException(XAException.XAER_RMERR);
 		} finally {
 			cleanUp(xid);

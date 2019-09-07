@@ -18,12 +18,11 @@ import javax.transaction.TransactionSynchronizationRegistry;
 import javax.transaction.UserTransaction;
 import javax.transaction.xa.Xid;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+/**
+ * Simple implementation of an XA {@link TransactionManager} and
+ * {@link UserTransaction}.
+ */
 public class SimpleTransactionManager implements TransactionManager, UserTransaction {
-	private final static Log log = LogFactory.getLog(SimpleTransactionManager.class);
-
 	private ThreadLocal<SimpleTransaction> current = new ThreadLocal<SimpleTransaction>();
 
 	private Map<Xid, SimpleTransaction> knownTransactions = Collections
@@ -37,8 +36,6 @@ public class SimpleTransactionManager implements TransactionManager, UserTransac
 		SimpleTransaction transaction = new SimpleTransaction(this);
 		knownTransactions.put(transaction.getXid(), transaction);
 		current.set(transaction);
-		if (log.isTraceEnabled())
-			log.trace("STARTED    " + transaction.getXid());
 	}
 
 	@Override
@@ -123,7 +120,7 @@ public class SimpleTransactionManager implements TransactionManager, UserTransac
 					return null;
 				return getCurrent().getXid();
 			} catch (SystemException e) {
-				throw new SimpleTransactionException("Cannot get transaction key", e);
+				throw new IllegalStateException("Cannot get transaction key", e);
 			}
 		}
 
@@ -147,7 +144,7 @@ public class SimpleTransactionManager implements TransactionManager, UserTransac
 			try {
 				return getStatus();
 			} catch (SystemException e) {
-				throw new SimpleTransactionException("Cannot get status", e);
+				throw new IllegalStateException("Cannot get status", e);
 			}
 		}
 
@@ -156,7 +153,7 @@ public class SimpleTransactionManager implements TransactionManager, UserTransac
 			try {
 				return getStatus() == Status.STATUS_MARKED_ROLLBACK;
 			} catch (SystemException e) {
-				throw new SimpleTransactionException("Cannot get status", e);
+				throw new IllegalStateException("Cannot get status", e);
 			}
 		}
 
@@ -165,7 +162,7 @@ public class SimpleTransactionManager implements TransactionManager, UserTransac
 			try {
 				getCurrent().setRollbackOnly();
 			} catch (Exception e) {
-				throw new SimpleTransactionException("Cannot set rollback only", e);
+				throw new IllegalStateException("Cannot set rollback only", e);
 			}
 		}
 

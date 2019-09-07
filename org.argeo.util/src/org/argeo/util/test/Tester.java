@@ -8,33 +8,66 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /** A generic tester based on Java assertions and functional programming. */
-public class Test {
-	private Map<String, TestStatus> results = Collections.synchronizedSortedMap(new TreeMap<>());
+public class Tester {
+	private Map<String, TesterStatus> results = Collections.synchronizedSortedMap(new TreeMap<>());
 
-	protected void execute(String className) throws Throwable {
-		ClassLoader classLoader = Test.class.getClassLoader();
-		Class<?> clss = classLoader.loadClass(className);
-		boolean assertionsEnabled = clss.desiredAssertionStatus();
-		if (!assertionsEnabled)
-			throw new IllegalStateException("Test runner " + getClass().getName()
-					+ " requires Java assertions to be enabled. Call the JVM with the -ea argument.");
-		Object obj = clss.getDeclaredConstructor().newInstance();
+	private ClassLoader classLoader;
+
+	/** Use {@link Thread#getContextClassLoader()} by default. */
+	public Tester() {
+		this(Thread.currentThread().getContextClassLoader());
+	}
+
+	public Tester(ClassLoader classLoader) {
+		this.classLoader = classLoader;
+	}
+
+	public void execute(String className) {
+		Class<?> clss;
+		try {
+			clss = classLoader.loadClass(className);
+			boolean assertionsEnabled = clss.desiredAssertionStatus();
+			if (!assertionsEnabled)
+				throw new IllegalStateException("Test runner " + getClass().getName()
+						+ " requires Java assertions to be enabled. Call the JVM with the -ea argument.");
+		} catch (Exception e1) {
+			throw new IllegalArgumentException("Cannot initalise test for " + className, e1);
+
+		}
 		List<Method> methods = findMethods(clss);
 		if (methods.size() == 0)
 			throw new IllegalArgumentException("No test method found in " + clss);
 		// TODO make order more predictable?
 		for (Method method : methods) {
 			String uid = method.getDeclaringClass().getName() + "#" + method.getName();
-			TestStatus testStatus = new TestStatus(uid);
+			TesterStatus testStatus = new TesterStatus(uid);
+			Object obj = null;
 			try {
+				beforeTest(uid, method);
+				obj = clss.getDeclaredConstructor().newInstance();
 				method.invoke(obj);
 				testStatus.setPassed();
+				afterTestPassed(uid, method, obj);
 			} catch (Exception e) {
 				testStatus.setFailed(e);
+				afterTestFailed(uid, method, obj, e);
 			} finally {
 				results.put(uid, testStatus);
 			}
 		}
+	}
+
+	protected void beforeTest(String uid, Method method) {
+		// System.out.println(uid + ": STARTING");
+	}
+
+	protected void afterTestPassed(String uid, Method method, Object obj) {
+		System.out.println(uid + ": PASSED");
+	}
+
+	protected void afterTestFailed(String uid, Method method, Object obj, Throwable e) {
+		System.out.println(uid + ": FAILED");
+		e.printStackTrace();
 	}
 
 	protected List<Method> findMethods(Class<?> clss) {
@@ -72,22 +105,22 @@ public class Test {
 			className = args[0];
 		}
 
-		Test test = new Test();
+		Tester test = new Tester();
 		try {
 			test.execute(className);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 
-		Map<String, TestStatus> r = test.results;
+		Map<String, TesterStatus> r = test.results;
 		for (String uid : r.keySet()) {
-			TestStatus testStatus = r.get(uid);
+			TesterStatus testStatus = r.get(uid);
 			System.out.println(testStatus);
 		}
 	}
 
 	public static String usage() {
-		return "java " + Test.class.getName() + " [test class name]";
+		return "java " + Tester.class.getName() + " [test class name]";
 
 	}
 }

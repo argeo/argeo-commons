@@ -22,13 +22,10 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.osgi.useradmin.UserDirectoryException;
 
 /** Basic LDIF parser. */
 public class LdifParser {
-	private final static Log log = LogFactory.getLog(LdifParser.class);
 	private final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
 	protected Attributes addAttributes(SortedMap<LdapName, Attributes> res, int lineNumber, LdapName currentDn,
@@ -43,8 +40,6 @@ public class LdifParser {
 						"Attribute " + nameAttr.getID() + "=" + nameAttr.get() + " not consistent with DN " + currentDn
 								+ " (shortly before line " + lineNumber + " in LDIF file)");
 			Attributes previous = res.put(currentDn, currentAttributes);
-			if (log.isTraceEnabled())
-				log.trace("Added " + currentDn);
 			return previous;
 		} catch (NamingException e) {
 			throw new UserDirectoryException("Cannot add " + currentDn, e);
@@ -59,8 +54,7 @@ public class LdifParser {
 			try {
 				in.close();
 			} catch (IOException e) {
-				if (log.isTraceEnabled())
-					log.error("Cannot close stream", e);
+				// silent
 			}
 		}
 	}
@@ -126,8 +120,8 @@ public class LdifParser {
 							//
 							Attributes previous = addAttributes(res, lineNumber, currentDn, currentAttributes);
 							if (previous != null) {
-								log.warn("There was already an entry with DN " + currentDn
-										+ ", which has been discarded by a subsequent one.");
+//								log.warn("There was already an entry with DN " + currentDn
+//										+ ", which has been discarded by a subsequent one.");
 							}
 						}
 
@@ -136,7 +130,7 @@ public class LdifParser {
 								currentDn = new LdapName(attributeValue.toString());
 								currentAttributes = new BasicAttributes(true);
 							} catch (InvalidNameException e) {
-								log.error(attributeValue + " not a valid DN, skipping the entry.");
+//								log.error(attributeValue + " not a valid DN, skipping the entry.");
 								currentDn = null;
 								currentAttributes = null;
 							}
@@ -159,8 +153,7 @@ public class LdifParser {
 			try {
 				reader.close();
 			} catch (IOException e) {
-				if (log.isTraceEnabled())
-					log.error("Cannot close stream", e);
+				// silent
 			}
 		}
 		return res;

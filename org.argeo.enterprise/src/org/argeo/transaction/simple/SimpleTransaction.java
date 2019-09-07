@@ -14,12 +14,8 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+/** Simple implementation of an XA {@link Transaction}. */
 class SimpleTransaction implements Transaction, Status {
-	private final static Log log = LogFactory.getLog(SimpleTransaction.class);
-
 	private final Xid xid;
 	private int status = Status.STATUS_ACTIVE;
 	private final List<XAResource> xaResources = new ArrayList<XAResource>();
@@ -32,8 +28,7 @@ class SimpleTransaction implements Transaction, Status {
 	}
 
 	@Override
-	public synchronized void commit() throws RollbackException,
-			HeuristicMixedException, HeuristicRollbackException,
+	public synchronized void commit() throws RollbackException, HeuristicMixedException, HeuristicRollbackException,
 			SecurityException, IllegalStateException, SystemException {
 		status = STATUS_PREPARING;
 		for (XAResource xaRes : xaResources) {
@@ -43,7 +38,7 @@ class SimpleTransaction implements Transaction, Status {
 				xaRes.prepare(xid);
 			} catch (XAException e) {
 				status = STATUS_MARKED_ROLLBACK;
-				log.error("Cannot prepare " + xaRes + " for " + xid, e);
+				error("Cannot prepare " + xaRes + " for " + xid, e);
 			}
 		}
 		if (status == STATUS_MARKED_ROLLBACK) {
@@ -60,7 +55,7 @@ class SimpleTransaction implements Transaction, Status {
 				xaRes.commit(xid, false);
 			} catch (XAException e) {
 				status = STATUS_MARKED_ROLLBACK;
-				log.error("Cannot prepare " + xaRes + " for " + xid, e);
+				error("Cannot prepare " + xaRes + " for " + xid, e);
 			}
 		}
 		if (status == STATUS_MARKED_ROLLBACK) {
@@ -70,28 +65,23 @@ class SimpleTransaction implements Transaction, Status {
 
 		// complete
 		status = STATUS_COMMITTED;
-		if (log.isTraceEnabled())
-			log.trace("COMMITTED  " + xid);
 		clearResources(XAResource.TMSUCCESS);
 		transactionManager.unregister(xid);
 	}
 
 	@Override
-	public synchronized void rollback() throws IllegalStateException,
-			SystemException {
+	public synchronized void rollback() throws IllegalStateException, SystemException {
 		status = STATUS_ROLLING_BACK;
 		for (XAResource xaRes : xaResources) {
 			try {
 				xaRes.rollback(xid);
 			} catch (XAException e) {
-				log.error("Cannot rollback " + xaRes + " for " + xid, e);
+				error("Cannot rollback " + xaRes + " for " + xid, e);
 			}
 		}
 
 		// complete
 		status = STATUS_ROLLEDBACK;
-		if (log.isTraceEnabled())
-			log.trace("ROLLEDBACK " + xid);
 		clearResources(XAResource.TMFAIL);
 		transactionManager.unregister(xid);
 	}
@@ -104,7 +94,7 @@ class SimpleTransaction implements Transaction, Status {
 				xaRes.start(getXid(), XAResource.TMNOFLAGS);
 				return true;
 			} catch (XAException e) {
-				log.error("Cannot enlist " + xaRes, e);
+				error("Cannot enlist " + xaRes, e);
 				return false;
 			}
 		} else
@@ -118,7 +108,7 @@ class SimpleTransaction implements Transaction, Status {
 			try {
 				xaRes.end(getXid(), flag);
 			} catch (XAException e) {
-				log.error("Cannot delist " + xaRes, e);
+				error("Cannot delist " + xaRes, e);
 				return false;
 			}
 			return true;
@@ -131,9 +121,14 @@ class SimpleTransaction implements Transaction, Status {
 			try {
 				xaRes.end(getXid(), flag);
 			} catch (XAException e) {
-				log.error("Cannot end " + xaRes, e);
+				error("Cannot end " + xaRes, e);
 			}
 		xaResources.clear();
+	}
+
+	protected void error(Object obj, Exception e) {
+		System.err.println(obj);
+		e.printStackTrace();
 	}
 
 	@Override

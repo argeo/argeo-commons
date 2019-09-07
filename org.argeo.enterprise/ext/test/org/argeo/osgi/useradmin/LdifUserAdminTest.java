@@ -27,7 +27,11 @@ import org.osgi.service.useradmin.User;
 
 import junit.framework.TestCase;
 
+/** {@link LdifUserAdmin} tests. */
 public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
+	// We have to keep using JUnit because of
+	// https://issues.apache.org/jira/browse/SUREFIRE-1669
+	
 	final static int TM_SIMPLE = 0;
 	final static int TM_BITRONIX = 1;
 
@@ -37,20 +41,52 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 	private AbstractUserDirectory userAdmin;
 	private Path tempDir;
 
-	// public void testConcurrent() throws Exception {
-	// }
+	public void setUp() {
+		System.out.println("Enter setUp()");
+		try {
+			tempDir = Files.createTempDirectory(getClass().getName());
+			tempDir.toFile().deleteOnExit();
+			String uriProp = System.getProperty("argeo.userdirectory.uri");
+			if (uriProp != null)
+				uri = new URI(uriProp);
+			else {
+				tempDir.toFile().deleteOnExit();
+				Path ldifPath = tempDir.resolve(BASE_DN + ".ldif");
+				try (InputStream in = getClass().getResource("basic.ldif").openStream()) {
+					Files.copy(in, ldifPath);
+				}
+				uri = ldifPath.toUri();
+			}
+
+			// Init transaction manager
+			if (TM_SIMPLE == tmType) {
+				tm = new SimpleTransactionManager();
+			}
+//		else if (TM_BITRONIX == tmType) {
+//			bitronix.tm.Configuration tmConf = TransactionManagerServices.getConfiguration();
+//			tmConf.setServerId(UUID.randomUUID().toString());
+//			tmConf.setLogPart1Filename(new File(tempDir.toFile(), "btm1.tlog").getAbsolutePath());
+//			tmConf.setLogPart2Filename(new File(tempDir.toFile(), "btm2.tlog").getAbsolutePath());
+//			tm = TransactionManagerServices.getTransactionManager();
+//		}
+
+			userAdmin = initUserAdmin(uri, tm);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	public void testEdition() throws Exception {
 		User demoUser = (User) userAdmin.getRole(DEMO_USER_DN);
-		assertNotNull(demoUser);
+		assert demoUser != null;
 
 		tm.begin();
 		String newName = "demo";
 		demoUser.getProperties().put("cn", newName);
-		assertEquals(newName, demoUser.getProperties().get("cn"));
+		assert newName.equals(demoUser.getProperties().get("cn"));
 		tm.commit();
 		persistAndRestart();
-		assertEquals(newName, demoUser.getProperties().get("cn"));
+		assert newName.equals(demoUser.getProperties().get("cn"));
 
 		tm.begin();
 		userAdmin.removeRole(DEMO_USER_DN);
@@ -59,59 +95,59 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 
 		// check data
 		Role[] search = userAdmin.getRoles("(objectclass=inetOrgPerson)");
-		assertEquals(1, search.length);
+		assert 1 == search.length;
 		Group editorGroup = (Group) userAdmin.getRole(EDITORS_GROUP_DN);
-		assertNotNull(editorGroup);
+		assert editorGroup != null;
 		Role[] members = editorGroup.getMembers();
-		assertEquals(1, members.length);
+		assert 1 == members.length;
 	}
 
 	public void testRetrieve() throws Exception {
 		// users
 		User rootUser = (User) userAdmin.getRole(ROOT_USER_DN);
-		assertNotNull(rootUser);
+		assert rootUser != null;
 		User demoUser = (User) userAdmin.getRole(DEMO_USER_DN);
-		assertNotNull(demoUser);
+		assert demoUser != null;
 
 		// groups
 		Group adminGroup = (Group) userAdmin.getRole(ADMIN_GROUP_DN);
-		assertNotNull(adminGroup);
+		assert adminGroup != null;
 		Role[] members = adminGroup.getMembers();
-		assertEquals(1, members.length);
-		assertEquals(rootUser, members[0]);
+		assert 1 == members.length;
+		assert rootUser.equals(members[0]);
 
 		Group editorGroup = (Group) userAdmin.getRole(EDITORS_GROUP_DN);
-		assertNotNull(editorGroup);
+		assert editorGroup != null;
 		members = editorGroup.getMembers();
-		assertEquals(2, members.length);
-		assertEquals(adminGroup, members[0]);
-		assertEquals(demoUser, members[1]);
+		assert 2 == members.length;
+		assert adminGroup.equals(members[0]);
+		assert demoUser.equals(members[1]);
 
 		Authorization rootAuth = userAdmin.getAuthorization(rootUser);
 		List<String> rootRoles = Arrays.asList(rootAuth.getRoles());
-		assertEquals(3, rootRoles.size());
-		assertTrue(rootRoles.contains(ROOT_USER_DN));
-		assertTrue(rootRoles.contains(ADMIN_GROUP_DN));
-		assertTrue(rootRoles.contains(EDITORS_GROUP_DN));
+		assert 3 == rootRoles.size();
+		assert rootRoles.contains(ROOT_USER_DN);
+		assert rootRoles.contains(ADMIN_GROUP_DN);
+		assert rootRoles.contains(EDITORS_GROUP_DN);
 
 		// properties
-		assertEquals("root@localhost", rootUser.getProperties().get("mail"));
+		assert "root@localhost".equals(rootUser.getProperties().get("mail"));
 
 		// credentials
 		byte[] hashedPassword = ("{SHA}" + Base64.getEncoder().encodeToString(DigestUtils.sha1("demo".getBytes())))
 				.getBytes();
-		assertTrue(rootUser.hasCredential(LdapAttrs.userPassword.name(), hashedPassword));
-		assertTrue(demoUser.hasCredential(LdapAttrs.userPassword.name(), hashedPassword));
+		assert rootUser.hasCredential(LdapAttrs.userPassword.name(), hashedPassword);
+		assert demoUser.hasCredential(LdapAttrs.userPassword.name(), hashedPassword);
 
 		// search
 		Role[] search = userAdmin.getRoles(null);
-		assertEquals(4, search.length);
+		assert 4 == search.length;
 		search = userAdmin.getRoles("(objectClass=groupOfNames)");
-		assertEquals(2, search.length);
+		assert 2 == search.length;
 		search = userAdmin.getRoles("(objectclass=inetOrgPerson)");
-		assertEquals(2, search.length);
+		assert 2 == search.length;
 		search = userAdmin.getRoles("(&(objectclass=inetOrgPerson)(uid=demo))");
-		assertEquals(1, search.length);
+		assert 1 == search.length;
 	}
 
 	public void testReadWriteRead() throws Exception {
@@ -129,41 +165,10 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 				((LdifUserAdmin) userAdmin).load(in);
 			}
 			Role[] search = userAdmin.getRoles(null);
-			assertEquals(4, search.length);
+			assert 4 == search.length;
 		} else {
 			// test not relevant for LDAP
 		}
-	}
-
-	@Override
-	protected void setUp() throws Exception {
-		tempDir = Files.createTempDirectory(getClass().getName());
-		tempDir.toFile().deleteOnExit();
-		String uriProp = System.getProperty("argeo.userdirectory.uri");
-		if (uriProp != null)
-			uri = new URI(uriProp);
-		else {
-			tempDir.toFile().deleteOnExit();
-			Path ldifPath = tempDir.resolve(BASE_DN + ".ldif");
-			try (InputStream in = getClass().getResource("basic.ldif").openStream()) {
-				Files.copy(in, ldifPath);
-			}
-			uri = ldifPath.toUri();
-		}
-
-		// Init transaction manager
-		if (TM_SIMPLE == tmType) {
-			tm = new SimpleTransactionManager();
-		}
-//		else if (TM_BITRONIX == tmType) {
-//			bitronix.tm.Configuration tmConf = TransactionManagerServices.getConfiguration();
-//			tmConf.setServerId(UUID.randomUUID().toString());
-//			tmConf.setLogPart1Filename(new File(tempDir.toFile(), "btm1.tlog").getAbsolutePath());
-//			tmConf.setLogPart2Filename(new File(tempDir.toFile(), "btm2.tlog").getAbsolutePath());
-//			tm = TransactionManagerServices.getTransactionManager();
-//		}
-
-		userAdmin = initUserAdmin(uri, tm);
 	}
 
 	private AbstractUserDirectory initUserAdmin(URI uri, TransactionManager tm) {
@@ -194,8 +199,7 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 		userAdmin = initUserAdmin(uri, tm);
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
+	public void tearDown() throws Exception {
 //		if (TM_BITRONIX == tmType) {
 //			EhCacheXAResourceProducer.unregisterXAResource(UserDirectory.class.getName(), userAdmin.getXaResource());
 //			((BitronixTransactionManager) tm).shutdown();

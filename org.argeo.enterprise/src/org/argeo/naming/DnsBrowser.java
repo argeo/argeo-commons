@@ -21,12 +21,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 public class DnsBrowser implements Closeable {
-	private final static Log log = LogFactory.getLog(DnsBrowser.class);
-
 	private final DirContext initialCtx;
 
 	public DnsBrowser() throws NamingException {
@@ -140,7 +135,7 @@ public class DnsBrowser implements Closeable {
 		try {
 			initialCtx.close();
 		} catch (NamingException e) {
-			log.error("Cannot close context", e);
+			// silent
 		}
 	}
 

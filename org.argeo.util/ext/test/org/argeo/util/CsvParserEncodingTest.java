@@ -19,31 +19,33 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
 
-import junit.framework.TestCase;
+/** Tests that {@link CsvParser} can deal properly with encodings. */
+public class CsvParserEncodingTest {
 
-public class CsvParserTestCase extends TestCase {
+	private String iso = "ISO-8859-1";
+	private String utf8 = "UTF-8";
+
 	public void testParse() throws Exception {
-		String toParse = "Header1,\"Header\n2\",Header3,\"Header4\"\n"
-				+ "Col1,\"Col\n2\",Col3,\"\"\"Col4\"\"\"\n"
-				+ "Col1,\"Col\n2\",Col3,\"\"\"Col4\"\"\"\n"
-				+ "Col1,\"Col\n2\",Col3,\"\"\"Col4\"\"\"\n";
 
-		InputStream in = new ByteArrayInputStream(toParse.getBytes());
+		String xml = new String("áéíóúñ,éééé");
+		byte[] utfBytes = xml.getBytes(utf8);
+		byte[] isoBytes = xml.getBytes(iso);
+
+		InputStream inUtf = new ByteArrayInputStream(utfBytes);
+		InputStream inIso = new ByteArrayInputStream(isoBytes);
 
 		CsvParser csvParser = new CsvParser() {
-			protected void processLine(Integer lineNumber, List<String> header,
-					List<String> tokens) {
-				assertEquals(header.size(), tokens.size());
-				assertEquals(4, tokens.size());
-				assertEquals("Col1", tokens.get(0));
-				assertEquals("Col\n2", tokens.get(1));
-				assertEquals("Col3", tokens.get(2));
-				assertEquals("\"Col4\"", tokens.get(3));
+			protected void processLine(Integer lineNumber, List<String> header, List<String> tokens) {
+				assert header.size() == tokens.size();
+				assert 2 == tokens.size();
+				assert "áéíóúñ".equals(tokens.get(0));
+				assert "éééé".equals(tokens.get(1));
 			}
 		};
 
-		csvParser.parse(in);
-		in.close();
+		csvParser.parse(inUtf, utf8);
+		inUtf.close();
+		csvParser.parse(inIso, iso);
+		inIso.close();
 	}
-
 }

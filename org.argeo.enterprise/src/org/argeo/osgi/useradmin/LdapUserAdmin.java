@@ -22,8 +22,6 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapName;
 import javax.transaction.TransactionManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.naming.LdapAttrs;
 import org.osgi.framework.Filter;
 import org.osgi.service.useradmin.Role;
@@ -34,8 +32,6 @@ import org.osgi.service.useradmin.User;
  * and an open transaction for write access.
  */
 public class LdapUserAdmin extends AbstractUserDirectory {
-	private final static Log log = LogFactory.getLog(LdapUserAdmin.class);
-
 	private InitialLdapContext initialLdapContext = null;
 
 	public LdapUserAdmin(Dictionary<String, ?> properties) {
@@ -74,7 +70,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			// tls.close();
 			initialLdapContext.close();
 		} catch (NamingException e) {
-			log.error("Cannot destroy LDAP user admin", e);
+			e.printStackTrace();
 		}
 	}
 
@@ -128,8 +124,6 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 		} catch (NameNotFoundException e) {
 			throw e;
 		} catch (NamingException e) {
-			if (log.isTraceEnabled())
-				log.error("Cannot get role: " + name, e);
 			return null;
 		}
 	}
@@ -160,7 +154,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 						|| objectClassAttr.contains(getUserObjectClass().toLowerCase()))
 					role = new LdifUser(this, dn, attrs);
 				else {
-					log.warn("Unsupported LDAP type for " + searchResult.getName());
+//					log.warn("Unsupported LDAP type for " + searchResult.getName());
 					continue results;
 				}
 				res.add(role);

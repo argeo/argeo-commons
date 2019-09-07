@@ -6,19 +6,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
-import java.time.ZonedDateTime;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.jackrabbit.fs.DavexFsProvider;
 import org.argeo.ssh.Sftp;
 import org.argeo.sync.SyncException;
-import org.argeo.util.LangUtils;
 
+/** Synchronises two paths. */
 public class PathSync implements Runnable {
-	private final static Log log = LogFactory.getLog(PathSync.class);
-
 	private final URI sourceUri, targetUri;
+	private boolean delete = false;
 
 	public PathSync(URI sourceUri, URI targetUri) {
 		this.sourceUri = sourceUri;
@@ -30,11 +26,8 @@ public class PathSync implements Runnable {
 		try {
 			Path sourceBasePath = createPath(sourceUri);
 			Path targetBasePath = createPath(targetUri);
-			SyncFileVisitor syncFileVisitor = new SyncFileVisitor(sourceBasePath, targetBasePath);
-			ZonedDateTime begin = ZonedDateTime.now();
+			SyncFileVisitor syncFileVisitor = new SyncFileVisitor(sourceBasePath, targetBasePath, delete);
 			Files.walkFileTree(sourceBasePath, syncFileVisitor);
-			if (log.isDebugEnabled())
-				log.debug("Sync from " + sourceBasePath + " to " + targetBasePath + " took " + LangUtils.since(begin));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -56,9 +49,5 @@ public class PathSync implements Runnable {
 		} else
 			throw new SyncException("URI scheme not supported for " + uri);
 		return path;
-	}
-
-	static enum Arg {
-		to, from;
 	}
 }

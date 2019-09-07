@@ -3,19 +3,19 @@ package org.argeo.util.test;
 import java.io.Serializable;
 
 /** The status of a test. */
-public class TestStatus implements Serializable {
+public class TesterStatus implements Serializable {
 	private static final long serialVersionUID = 6272975746885487000L;
 
 	private Boolean passed = null;
 	private final String uid;
 	private Throwable throwable = null;
 
-	public TestStatus(String uid) {
+	public TesterStatus(String uid) {
 		this.uid = uid;
 	}
 
 	/** For cloning. */
-	public TestStatus(String uid, Boolean passed, Throwable throwable) {
+	public TesterStatus(String uid, Boolean passed, Throwable throwable) {
 		this(uid);
 		this.passed = passed;
 		this.throwable = throwable;
@@ -76,8 +76,8 @@ public class TestStatus implements Serializable {
 
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof TestStatus) {
-			TestStatus other = (TestStatus) o;
+		if (o instanceof TesterStatus) {
+			TesterStatus other = (TesterStatus) o;
 			// we don't check consistency for performance purposes
 			// this equals() is supposed to be used in collections or for transfer
 			return other.uid.equals(uid);

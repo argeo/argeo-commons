@@ -19,17 +19,14 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
-public class CsvParserParseFileTest extends TestCase {
+/** Test that {@link CsvParser} can properly parse a CSV file. */
+public class CsvParserParseFileTest {
 	public void testParse() throws Exception {
 
 		final Map<Integer, Map<String, String>> lines = new HashMap<Integer, Map<String, String>>();
-		InputStream in = getClass().getResourceAsStream(
-				"/org/argeo/util/ReferenceFile.csv");
+		InputStream in = getClass().getResourceAsStream("/org/argeo/util/ReferenceFile.csv");
 		CsvParserWithLinesAsMap parser = new CsvParserWithLinesAsMap() {
-			protected void processLine(Integer lineNumber,
-					Map<String, String> line) {
+			protected void processLine(Integer lineNumber, Map<String, String> line) {
 				lines.put(lineNumber, line);
 			}
 		};
@@ -37,7 +34,7 @@ public class CsvParserParseFileTest extends TestCase {
 		parser.parse(in);
 		in.close();
 
-		assertEquals(5, lines.size());
+		assert 5 == lines.size();
 	}
 
 }
