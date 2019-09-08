@@ -26,6 +26,8 @@ abstract class AbstractSsh {
 	private boolean passwordSet = false;
 	private ClientSession session;
 
+	private SshKeyPair sshKeyPair;
+
 	synchronized SshClient getSshClient() {
 		if (sshClient == null) {
 			long begin = System.currentTimeMillis();
@@ -48,21 +50,26 @@ abstract class AbstractSsh {
 
 	void authenticate() {
 		try {
-			if (!passwordSet) {
-				String password;
-				Console console = System.console();
-				if (console == null) {// IDE
-					System.out.print("Password: ");
-					Scanner s = new Scanner(System.in);
-					password = s.next();
-				} else {
-					console.printf("Password: ");
-					char[] pwd = console.readPassword();
-					password = new String(pwd);
-					Arrays.fill(pwd, ' ');
+			if (sshKeyPair != null) {
+				session.addPublicKeyIdentity(sshKeyPair.asKeyPair());
+			} else {
+
+				if (!passwordSet) {
+					String password;
+					Console console = System.console();
+					if (console == null) {// IDE
+						System.out.print("Password: ");
+						Scanner s = new Scanner(System.in);
+						password = s.next();
+					} else {
+						console.printf("Password: ");
+						char[] pwd = console.readPassword();
+						password = new String(pwd);
+						Arrays.fill(pwd, ' ');
+					}
+					session.addPasswordIdentity(password);
+					passwordSet = true;
 				}
-				session.addPasswordIdentity(password);
-				passwordSet = true;
 			}
 			session.auth().verify(1000l);
 		} catch (IOException e) {
