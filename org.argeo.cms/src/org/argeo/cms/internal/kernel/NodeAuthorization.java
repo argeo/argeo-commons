@@ -10,6 +10,7 @@ import javax.security.auth.x500.X500Principal;
 
 import org.osgi.service.useradmin.Authorization;
 
+@Deprecated
 class NodeAuthorization implements Authorization {
 	private final String name;
 	private final String displayName;

@@ -15,6 +15,7 @@
  */
 package org.argeo.node;
 
+import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,13 +32,17 @@ import javax.jcr.query.qom.DynamicOperand;
 import javax.jcr.query.qom.QueryObjectModelFactory;
 import javax.jcr.query.qom.Selector;
 import javax.jcr.query.qom.StaticOperand;
+import javax.security.auth.AuthPermission;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 
 /** Utilities related to Argeo model in JCR */
 public class NodeUtils {
 	/**
 	 * Wraps the call to the repository factory based on parameter
-	 * {@link NodeConstants#CN} in order to simplify it and
-	 * protect against future API changes.
+	 * {@link NodeConstants#CN} in order to simplify it and protect against future
+	 * API changes.
 	 */
 	public static Repository getRepositoryByAlias(RepositoryFactory repositoryFactory, String alias) {
 		try {
@@ -52,8 +57,8 @@ public class NodeUtils {
 
 	/**
 	 * Wraps the call to the repository factory based on parameter
-	 * {@link NodeConstants#LABELED_URI} in order to simplify it and
-	 * protect against future API changes.
+	 * {@link NodeConstants#LABELED_URI} in order to simplify it and protect against
+	 * future API changes.
 	 */
 	public static Repository getRepositoryByUri(RepositoryFactory repositoryFactory, String uri) {
 		return getRepositoryByUri(repositoryFactory, uri, null);
@@ -61,8 +66,8 @@ public class NodeUtils {
 
 	/**
 	 * Wraps the call to the repository factory based on parameter
-	 * {@link NodeConstants#LABELED_URI} in order to simplify it and
-	 * protect against future API changes.
+	 * {@link NodeConstants#LABELED_URI} in order to simplify it and protect against
+	 * future API changes.
 	 */
 	public static Repository getRepositoryByUri(RepositoryFactory repositoryFactory, String uri, String alias) {
 		try {
@@ -76,18 +81,13 @@ public class NodeUtils {
 		}
 	}
 
-	private NodeUtils() {
-	}
-
 	/**
 	 * Returns the home node of the user or null if none was found.
 	 * 
-	 * @param session
-	 *            the session to use in order to perform the search, this can be
-	 *            a session with a different user ID than the one searched,
-	 *            typically when a system or admin session is used.
-	 * @param username
-	 *            the username of the user
+	 * @param session  the session to use in order to perform the search, this can
+	 *                 be a session with a different user ID than the one searched,
+	 *                 typically when a system or admin session is used.
+	 * @param username the username of the user
 	 */
 	public static Node getUserHome(Session session, String username) {
 		try {
@@ -106,12 +106,10 @@ public class NodeUtils {
 	/**
 	 * Returns the home node of the user or null if none was found.
 	 * 
-	 * @param session
-	 *            the session to use in order to perform the search, this can be
-	 *            a session with a different user ID than the one searched,
-	 *            typically when a system or admin session is used.
-	 * @param cn
-	 *            the name of the group
+	 * @param session the session to use in order to perform the search, this can be
+	 *                a session with a different user ID than the one searched,
+	 *                typically when a system or admin session is used.
+	 * @param cn      the name of the group
 	 */
 	public static Node getGroupHome(Session session, String cn) {
 		try {
@@ -131,8 +129,7 @@ public class NodeUtils {
 	 * Queries one single node.
 	 * 
 	 * @return one single node or null if none was found
-	 * @throws ArgeoJcrException
-	 *             if more than one node was found
+	 * @throws ArgeoJcrException if more than one node was found
 	 */
 	private static Node querySingleNode(Query query) {
 		NodeIterator nodeIterator;
@@ -159,10 +156,50 @@ public class NodeUtils {
 		return getUserHome(session, userID);
 	}
 
+	/**
+	 * Translate the path to this node into a path containing the name of the
+	 * repository and the name of the workspace.
+	 */
 	public static String getDataPath(String cn, Node node) throws RepositoryException {
 		assert node != null;
 		StringBuilder buf = new StringBuilder(NodeConstants.PATH_DATA);
 		return buf.append('/').append(cn).append('/').append(node.getSession().getWorkspace().getName())
 				.append(node.getPath()).toString();
 	}
+
+	/**
+	 * Open a JCR session with full read/write rights on the data, as
+	 * {@link NodeConstants#ROLE_USER_ADMIN}, using the
+	 * {@link NodeConstants#LOGIN_CONTEXT_DATA_ADMIN} login context. For security
+	 * hardened deployement, use {@link AuthPermission} on this login context.
+	 */
+	public static Session openDataAdminSession(Repository repository, String workspaceName) {
+		ClassLoader currentCl = Thread.currentThread().getContextClassLoader();
+		LoginContext loginContext;
+		try {
+			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_DATA_ADMIN);
+			loginContext.login();
+		} catch (LoginException e1) {
+			throw new RuntimeException("Could not login as data admin", e1);
+		} finally {
+			Thread.currentThread().setContextClassLoader(currentCl);
+		}
+		return Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Session>() {
+
+			@Override
+			public Session run() {
+				try {
+					return repository.login(workspaceName);
+				} catch (RepositoryException e) {
+					throw new RuntimeException("Cannot open data admin session", e);
+				}
+			}
+
+		});
+	}
+
+	/** Singleton. */
+	private NodeUtils() {
+	}
+
 }

@@ -106,7 +106,7 @@ public abstract class JcrRepositoryWrapper implements Repository {
 			else
 				throw e;
 		}
-		processNewSession(session);
+		processNewSession(session, workspaceName);
 		return session;
 	}
 
@@ -123,7 +123,7 @@ public abstract class JcrRepositoryWrapper implements Repository {
 	}
 
 	/** Called after a session has been created, does nothing by default. */
-	protected void processNewSession(Session session) {
+	protected void processNewSession(Session session, String workspaceName) {
 	}
 
 	/** Wraps access to the repository, making sure it is available. */
@@ -138,8 +138,8 @@ public abstract class JcrRepositoryWrapper implements Repository {
 	}
 
 	/**
-	 * Logs in to the default workspace, creates the required workspace, logs
-	 * out, logs in to the required workspace.
+	 * Logs in to the default workspace, creates the required workspace, logs out,
+	 * logs in to the required workspace.
 	 */
 	protected Session createWorkspaceAndLogsIn(Credentials credentials, String workspaceName)
 			throws RepositoryException {

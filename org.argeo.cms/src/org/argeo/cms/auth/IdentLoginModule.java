@@ -16,17 +16,17 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.internal.kernel.Activator;
 import org.argeo.ident.IdentClient;
 
+/** Use an ident service to identify. */
 public class IdentLoginModule implements LoginModule {
 	private final static Log log = LogFactory.getLog(IdentLoginModule.class);
 
-	private Subject subject = null;
 	private CallbackHandler callbackHandler = null;
 	private Map<String, Object> sharedState = null;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,
 			Map<String, ?> options) {
-		this.subject = subject;
 		this.callbackHandler = callbackHandler;
 		this.sharedState = (Map<String, Object>) sharedState;
 	}

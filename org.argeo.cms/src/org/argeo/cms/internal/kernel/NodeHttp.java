@@ -18,7 +18,6 @@ import org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.http.CmsSessionProvider;
 import org.argeo.cms.internal.http.DataHttpContext;
-import org.argeo.cms.internal.http.HtmlServlet;
 import org.argeo.cms.internal.http.HttpUtils;
 import org.argeo.cms.internal.http.LinkServlet;
 import org.argeo.cms.internal.http.PrivateHttpContext;

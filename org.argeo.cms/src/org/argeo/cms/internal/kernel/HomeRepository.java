@@ -71,7 +71,7 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 	}
 
 	@Override
-	protected void processNewSession(Session session) {
+	protected void processNewSession(Session session, String workspaceName) {
 		String username = session.getUserID();
 		if (username == null || username.toString().equals(""))
 			return;
@@ -82,7 +82,7 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 			return;
 		Session adminSession = KernelUtils.openAdminSession(getRepository(), session.getWorkspace().getName());
 		try {
-			syncJcr(adminSession, username);
+			syncJcr(adminSession, username, workspaceName);
 			checkedUsers.add(username);
 		} finally {
 			JcrUtils.logoutQuietly(adminSession);
@@ -109,28 +109,35 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 		}
 	}
 
-	private void syncJcr(Session session, String username) {
+	protected synchronized void syncJcr(Session adminSession, String username, String workspaceName) {
+		// only in the default workspace
+		if (workspaceName != null)
+			return;
+		// skip system users
+		if (username.endsWith(NodeConstants.ROLES_BASEDN))
+			return;
+
 		try {
-			Node userHome = NodeUtils.getUserHome(session, username);
+			Node userHome = NodeUtils.getUserHome(adminSession, username);
 			if (userHome == null) {
 				String homePath = generateUserPath(username);
-				if (session.itemExists(homePath))// duplicate user id
-					userHome = session.getNode(homePath).getParent().addNode(JcrUtils.lastPathElement(homePath));
+				if (adminSession.itemExists(homePath))// duplicate user id
+					userHome = adminSession.getNode(homePath).getParent().addNode(JcrUtils.lastPathElement(homePath));
 				else
-					userHome = JcrUtils.mkdirs(session, homePath);
+					userHome = JcrUtils.mkdirs(adminSession, homePath);
 				// userHome = JcrUtils.mkfolders(session, homePath);
 				userHome.addMixin(NodeTypes.NODE_USER_HOME);
 				userHome.addMixin(NodeType.MIX_CREATED);
 				userHome.setProperty(NodeNames.LDAP_UID, username);
-				session.save();
+				adminSession.save();
 
-				JcrUtils.clearAccessControList(session, homePath, username);
-				JcrUtils.addPrivilege(session, homePath, username, Privilege.JCR_ALL);
+				JcrUtils.clearAccessControList(adminSession, homePath, username);
+				JcrUtils.addPrivilege(adminSession, homePath, username, Privilege.JCR_ALL);
 			}
-			if (session.hasPendingChanges())
-				session.save();
+			if (adminSession.hasPendingChanges())
+				adminSession.save();
 		} catch (RepositoryException e) {
-			JcrUtils.discardQuietly(session);
+			JcrUtils.discardQuietly(adminSession);
 			throw new CmsException("Cannot sync node security model for " + username, e);
 		}
 	}

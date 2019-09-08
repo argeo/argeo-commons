@@ -1,7 +1,8 @@
-package org.argeo.cms.auth;
+package org.argeo.node;
 
 import java.util.Map;
 
+import javax.security.auth.AuthPermission;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
@@ -9,7 +10,11 @@ import javax.security.auth.spi.LoginModule;
 
 import org.argeo.node.security.DataAdminPrincipal;
 
-/** Logs a system process as data admin */
+/**
+ * Log-in a system process as data admin. Protection is via
+ * {@link AuthPermission} on this login module, so if it can be accessed it will
+ * always succeed.
+ */
 public class DataAdminLoginModule implements LoginModule {
 	private Subject subject;
 
@@ -21,7 +26,6 @@ public class DataAdminLoginModule implements LoginModule {
 
 	@Override
 	public boolean login() throws LoginException {
-		// TODO check permission?
 		return true;
 	}
 
