@@ -8,7 +8,7 @@ import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.scp.ScpCommandFactory;
 import org.apache.sshd.server.shell.ProcessShellFactory;
-import org.argeo.util.OS;
+import org.argeo.util.os.OS;
 
 /** A simple SSH server with some defaults. Supports SCP. */
 public class SimpleSshServer {

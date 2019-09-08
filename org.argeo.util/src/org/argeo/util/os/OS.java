@@ -1,4 +1,4 @@
-package org.argeo.util;
+package org.argeo.util.os;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
