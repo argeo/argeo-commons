@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.AllPermission;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.Locale;
@@ -25,7 +26,13 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.condpermadmin.BundleLocationCondition;
+import org.osgi.service.condpermadmin.ConditionInfo;
+import org.osgi.service.condpermadmin.ConditionalPermissionAdmin;
+import org.osgi.service.condpermadmin.ConditionalPermissionInfo;
+import org.osgi.service.condpermadmin.ConditionalPermissionUpdate;
 import org.osgi.service.log.LogReaderService;
+import org.osgi.service.permissionadmin.PermissionInfo;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -37,6 +44,9 @@ public class Activator implements BundleActivator {
 	private final static Log log = LogFactory.getLog(Activator.class);
 
 	private static Activator instance;
+
+	// TODO make it configurable
+	private boolean hardened = false;
 
 	private BundleContext bc;
 
@@ -81,20 +91,27 @@ public class Activator implements BundleActivator {
 		// explicitly load JAAS configuration
 		Configuration.getConfiguration();
 
-		// ConditionalPermissionAdmin permissionAdmin = bc
-		// .getService(bc.getServiceReference(ConditionalPermissionAdmin.class));
-		// ConditionalPermissionUpdate update =
-		// permissionAdmin.newConditionalPermissionUpdate();
-		// // Self
-		// update.getConditionalPermissionInfos()
-		// .add(permissionAdmin.newConditionalPermissionInfo(null,
-		// new ConditionInfo[] {
-		// new ConditionInfo(BundleLocationCondition.class.getName(), new
-		// String[] { "*" }) },
-		// new PermissionInfo[] { new
-		// PermissionInfo(AllPermission.class.getName(), null, null) },
-		// ConditionalPermissionInfo.ALLOW));
-		//
+		// code-level permissions
+		String osgiSecurity = KernelUtils.getFrameworkProp(Constants.FRAMEWORK_SECURITY);
+		if (osgiSecurity != null && Constants.FRAMEWORK_SECURITY_OSGI.equals(osgiSecurity)) {
+			// TODO rather use a tracker?
+			ConditionalPermissionAdmin permissionAdmin = bc
+					.getService(bc.getServiceReference(ConditionalPermissionAdmin.class));
+			if (!hardened) {
+				// All permissions to all bundles
+				ConditionalPermissionUpdate update = permissionAdmin.newConditionalPermissionUpdate();
+				update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
+						new ConditionInfo[] {
+								new ConditionInfo(BundleLocationCondition.class.getName(), new String[] { "*" }) },
+						new PermissionInfo[] { new PermissionInfo(AllPermission.class.getName(), null, null) },
+						ConditionalPermissionInfo.ALLOW));
+			} else {
+				SecurityProfile securityProfile = new SecurityProfile() {
+				};
+				securityProfile.applySystemPermissions(permissionAdmin);
+			}
+		}
+
 	}
 
 	private void initArgeoLogger() {

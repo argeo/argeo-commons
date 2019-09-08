@@ -19,8 +19,10 @@ import org.osgi.service.condpermadmin.ConditionInfo;
 import org.osgi.service.condpermadmin.ConditionalPermissionAdmin;
 import org.osgi.service.condpermadmin.ConditionalPermissionInfo;
 import org.osgi.service.condpermadmin.ConditionalPermissionUpdate;
+import org.osgi.service.permissionadmin.PermissionAdmin;
 import org.osgi.service.permissionadmin.PermissionInfo;
 
+/** Security profile based on OSGi {@link PermissionAdmin}. */
 public interface SecurityProfile {
 	BundleContext bc = FrameworkUtil.getBundle(SecurityProfile.class).getBundleContext();
 
@@ -139,42 +141,42 @@ public interface SecurityProfile {
 				ConditionalPermissionInfo.ALLOW));
 
 		// Blueprint
-		Bundle blueprintBundle = findBundle("org.eclipse.gemini.blueprint.core");
-		update.getConditionalPermissionInfos()
-				.add(permissionAdmin.newConditionalPermissionInfo(null,
-						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
-								new String[] { blueprintBundle.getLocation() }) },
-						new PermissionInfo[] { new PermissionInfo(RuntimePermission.class.getName(), "*", null),
-								new PermissionInfo(AdminPermission.class.getName(), "*", "*"), },
-						ConditionalPermissionInfo.ALLOW));
-		Bundle blueprintExtenderBundle = findBundle("org.eclipse.gemini.blueprint.extender");
-		update.getConditionalPermissionInfos()
-				.add(permissionAdmin
-						.newConditionalPermissionInfo(null,
-								new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
-										new String[] { blueprintExtenderBundle.getLocation() }) },
-								new PermissionInfo[] { new PermissionInfo(RuntimePermission.class.getName(), "*", null),
-										new PermissionInfo(PropertyPermission.class.getName(), "org.eclipse.gemini.*",
-												"read"),
-										new PermissionInfo(AdminPermission.class.getName(), "*", "*"),
-										new PermissionInfo(ServicePermission.class.getName(), "*", "register"), },
-								ConditionalPermissionInfo.ALLOW));
-		Bundle springCoreBundle = findBundle("org.springframework.core");
-		update.getConditionalPermissionInfos()
-				.add(permissionAdmin.newConditionalPermissionInfo(null,
-						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
-								new String[] { springCoreBundle.getLocation() }) },
-						new PermissionInfo[] { new PermissionInfo(RuntimePermission.class.getName(), "*", null),
-								new PermissionInfo(AdminPermission.class.getName(), "*", "*"), },
-						ConditionalPermissionInfo.ALLOW));
-		Bundle blueprintIoBundle = findBundle("org.eclipse.gemini.blueprint.io");
-		update.getConditionalPermissionInfos()
-				.add(permissionAdmin.newConditionalPermissionInfo(null,
-						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
-								new String[] { blueprintIoBundle.getLocation() }) },
-						new PermissionInfo[] { new PermissionInfo(RuntimePermission.class.getName(), "*", null),
-								new PermissionInfo(AdminPermission.class.getName(), "*", "*"), },
-						ConditionalPermissionInfo.ALLOW));
+//		Bundle blueprintBundle = findBundle("org.eclipse.gemini.blueprint.core");
+//		update.getConditionalPermissionInfos()
+//				.add(permissionAdmin.newConditionalPermissionInfo(null,
+//						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+//								new String[] { blueprintBundle.getLocation() }) },
+//						new PermissionInfo[] { new PermissionInfo(RuntimePermission.class.getName(), "*", null),
+//								new PermissionInfo(AdminPermission.class.getName(), "*", "*"), },
+//						ConditionalPermissionInfo.ALLOW));
+//		Bundle blueprintExtenderBundle = findBundle("org.eclipse.gemini.blueprint.extender");
+//		update.getConditionalPermissionInfos()
+//				.add(permissionAdmin
+//						.newConditionalPermissionInfo(null,
+//								new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+//										new String[] { blueprintExtenderBundle.getLocation() }) },
+//								new PermissionInfo[] { new PermissionInfo(RuntimePermission.class.getName(), "*", null),
+//										new PermissionInfo(PropertyPermission.class.getName(), "org.eclipse.gemini.*",
+//												"read"),
+//										new PermissionInfo(AdminPermission.class.getName(), "*", "*"),
+//										new PermissionInfo(ServicePermission.class.getName(), "*", "register"), },
+//								ConditionalPermissionInfo.ALLOW));
+//		Bundle springCoreBundle = findBundle("org.springframework.core");
+//		update.getConditionalPermissionInfos()
+//				.add(permissionAdmin.newConditionalPermissionInfo(null,
+//						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+//								new String[] { springCoreBundle.getLocation() }) },
+//						new PermissionInfo[] { new PermissionInfo(RuntimePermission.class.getName(), "*", null),
+//								new PermissionInfo(AdminPermission.class.getName(), "*", "*"), },
+//						ConditionalPermissionInfo.ALLOW));
+//		Bundle blueprintIoBundle = findBundle("org.eclipse.gemini.blueprint.io");
+//		update.getConditionalPermissionInfos()
+//				.add(permissionAdmin.newConditionalPermissionInfo(null,
+//						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+//								new String[] { blueprintIoBundle.getLocation() }) },
+//						new PermissionInfo[] { new PermissionInfo(RuntimePermission.class.getName(), "*", null),
+//								new PermissionInfo(AdminPermission.class.getName(), "*", "*"), },
+//						ConditionalPermissionInfo.ALLOW));
 
 		// Equinox
 		Bundle registryBundle = findBundle("org.eclipse.equinox.registry");
