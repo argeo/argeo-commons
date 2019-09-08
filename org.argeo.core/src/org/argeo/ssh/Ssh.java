@@ -1,11 +1,8 @@
 package org.argeo.ssh;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -13,37 +10,18 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.sshd.client.channel.ClientChannel;
-import org.apache.sshd.client.channel.ClientChannelEvent;
-import org.apache.sshd.client.session.ClientSession;
-import org.apache.sshd.common.util.io.NoCloseInputStream;
-import org.apache.sshd.common.util.io.NoCloseOutputStream;
 
-@SuppressWarnings("restriction")
+/** Create an SSH shell. */
 public class Ssh extends AbstractSsh {
 	private final URI uri;
+
+	public Ssh(String username, String host, int port) {
+		this(AbstractSsh.toUri(username, host, port));
+	}
 
 	public Ssh(URI uri) {
 		this.uri = uri;
 		openSession(uri);
-	}
-
-	static void openShell(ClientSession session) {
-		try (ClientChannel channel = session.createChannel(ClientChannel.CHANNEL_SHELL)) {
-			channel.setIn(new NoCloseInputStream(System.in));
-			channel.setOut(new NoCloseOutputStream(System.out));
-			channel.setErr(new NoCloseOutputStream(System.err));
-			channel.open();
-
-			Set<ClientChannelEvent> events = new HashSet<>();
-			events.add(ClientChannelEvent.CLOSED);
-			channel.waitFor(events, 0);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			session.close(false);
-		}
 	}
 
 	public static void main(String[] args) {
@@ -70,7 +48,7 @@ public class Ssh extends AbstractSsh {
 			ssh.authenticate();
 
 			if (command.size() == 0) {// shell
-				openShell(ssh.getSession());
+				AbstractSsh.openShell(ssh.getSession());
 			} else {// execute command
 
 			}

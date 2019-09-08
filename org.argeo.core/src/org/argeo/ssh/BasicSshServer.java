@@ -12,13 +12,13 @@ import org.argeo.util.os.OS;
 
 /** A simple SSH server with some defaults. Supports SCP. */
 @SuppressWarnings("restriction")
-public class SimpleSshServer {
+public class BasicSshServer {
 	private Integer port;
 	private Path hostKeyPath;
 
 	private SshServer sshd = null;
 
-	public SimpleSshServer(Integer port, Path hostKeyPath) {
+	public BasicSshServer(Integer port, Path hostKeyPath) {
 		this.port = port;
 		this.hostKeyPath = hostKeyPath;
 	}
@@ -77,7 +77,7 @@ public class SimpleSshServer {
 			printUsage();
 		}
 
-		SimpleSshServer sshServer = new SimpleSshServer(port, hostKeyPath);
+		BasicSshServer sshServer = new BasicSshServer(port, hostKeyPath);
 		sshServer.init();
 		Runtime.getRuntime().addShutdownHook(new Thread("Shutdown SSH server") {
 
@@ -97,7 +97,7 @@ public class SimpleSshServer {
 	}
 
 	public static void printUsage() {
-		System.out.println("java " + SimpleSshServer.class.getName() + " [port] [server key path]");
+		System.out.println("java " + BasicSshServer.class.getName() + " [port] [server key path]");
 	}
 
 }

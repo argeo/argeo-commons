@@ -3,16 +3,24 @@ package org.argeo.ssh;
 import java.io.Console;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.sshd.client.SshClient;
+import org.apache.sshd.client.channel.ClientChannel;
+import org.apache.sshd.client.channel.ClientChannelEvent;
 import org.apache.sshd.client.future.ConnectFuture;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.client.subsystem.sftp.fs.SftpFileSystemProvider;
+import org.apache.sshd.common.util.io.NoCloseInputStream;
+import org.apache.sshd.common.util.io.NoCloseOutputStream;
 
+@SuppressWarnings("restriction")
 abstract class AbstractSsh {
 	private final static Log log = LogFactory.getLog(AbstractSsh.class);
 
@@ -44,7 +52,6 @@ abstract class AbstractSsh {
 		return sftpFileSystemProvider;
 	}
 
-	@SuppressWarnings("restriction")
 	void authenticate() {
 		try {
 			if (sshKeyPair != null) {
@@ -97,7 +104,6 @@ abstract class AbstractSsh {
 		openSession(uri.getUserInfo(), uri.getHost(), uri.getPort() > 0 ? uri.getPort() : null);
 	}
 
-	@SuppressWarnings("restriction")
 	void openSession(String login, String host, Integer port) {
 		if (session != null)
 			throw new IllegalStateException("Session is already open");
@@ -131,7 +137,6 @@ abstract class AbstractSsh {
 		}
 	}
 
-	@SuppressWarnings("restriction")
 	void closeSession() {
 		if (session == null)
 			throw new IllegalStateException("No session is open");
@@ -146,6 +151,39 @@ abstract class AbstractSsh {
 
 	ClientSession getSession() {
 		return session;
+	}
+
+	public void setSshKeyPair(SshKeyPair sshKeyPair) {
+		this.sshKeyPair = sshKeyPair;
+	}
+
+	public static void openShell(ClientSession session) {
+		try (ClientChannel channel = session.createChannel(ClientChannel.CHANNEL_SHELL)) {
+			channel.setIn(new NoCloseInputStream(System.in));
+			channel.setOut(new NoCloseOutputStream(System.out));
+			channel.setErr(new NoCloseOutputStream(System.err));
+			channel.open();
+
+			Set<ClientChannelEvent> events = new HashSet<>();
+			events.add(ClientChannelEvent.CLOSED);
+			channel.waitFor(events, 0);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			session.close(false);
+		}
+	}
+
+	static URI toUri(String username, String host, int port) {
+		try {
+			if (username == null)
+				username = "root";
+			return new URI("ssh://" + username + "@" + host + ":" + port);
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException("Cannot generate SSH URI to " + host + ":" + port + " for " + username,
+					e);
+		}
 	}
 
 }
