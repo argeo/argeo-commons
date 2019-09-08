@@ -6,13 +6,8 @@ import java.io.OutputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.KeyPair;
-import java.security.PublicKey;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -22,16 +17,10 @@ import org.apache.sshd.agent.SshAgentFactory;
 import org.apache.sshd.agent.local.LocalAgentFactory;
 import org.apache.sshd.agent.unix.UnixAgentFactory;
 import org.apache.sshd.client.SshClient;
-import org.apache.sshd.client.channel.ClientChannel;
-import org.apache.sshd.client.channel.ClientChannelEvent;
-import org.apache.sshd.client.config.keys.ClientIdentityLoader;
 import org.apache.sshd.client.future.ConnectFuture;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.client.subsystem.sftp.fs.SftpFileSystem;
 import org.apache.sshd.client.subsystem.sftp.fs.SftpFileSystemProvider;
-import org.apache.sshd.common.config.keys.FilePasswordProvider;
-import org.apache.sshd.common.util.io.NoCloseInputStream;
-import org.apache.sshd.common.util.io.NoCloseOutputStream;
 
 public class SshSync {
 	private final static Log log = LogFactory.getLog(SshSync.class);

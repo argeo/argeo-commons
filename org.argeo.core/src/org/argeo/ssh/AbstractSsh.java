@@ -3,19 +3,15 @@ package org.argeo.ssh;
 import java.io.Console;
 import java.io.IOException;
 import java.net.URI;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
 import java.util.Arrays;
 import java.util.Scanner;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.sshd.client.SshClient;
-import org.apache.sshd.client.config.keys.ClientIdentityLoader;
 import org.apache.sshd.client.future.ConnectFuture;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.client.subsystem.sftp.fs.SftpFileSystemProvider;
-import org.apache.sshd.common.config.keys.FilePasswordProvider;
 
 abstract class AbstractSsh {
 	private final static Log log = LogFactory.getLog(AbstractSsh.class);
@@ -48,6 +44,7 @@ abstract class AbstractSsh {
 		return sftpFileSystemProvider;
 	}
 
+	@SuppressWarnings("restriction")
 	void authenticate() {
 		try {
 			if (sshKeyPair != null) {
@@ -59,8 +56,9 @@ abstract class AbstractSsh {
 					Console console = System.console();
 					if (console == null) {// IDE
 						System.out.print("Password: ");
-						Scanner s = new Scanner(System.in);
-						password = s.next();
+						try (Scanner s = new Scanner(System.in)) {
+							password = s.next();
+						}
 					} else {
 						console.printf("Password: ");
 						char[] pwd = console.readPassword();
@@ -99,6 +97,7 @@ abstract class AbstractSsh {
 		openSession(uri.getUserInfo(), uri.getHost(), uri.getPort() > 0 ? uri.getPort() : null);
 	}
 
+	@SuppressWarnings("restriction")
 	void openSession(String login, String host, Integer port) {
 		if (session != null)
 			throw new IllegalStateException("Session is already open");
@@ -132,6 +131,7 @@ abstract class AbstractSsh {
 		}
 	}
 
+	@SuppressWarnings("restriction")
 	void closeSession() {
 		if (session == null)
 			throw new IllegalStateException("No session is open");

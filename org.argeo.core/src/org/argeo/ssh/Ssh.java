@@ -19,6 +19,7 @@ import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.common.util.io.NoCloseInputStream;
 import org.apache.sshd.common.util.io.NoCloseOutputStream;
 
+@SuppressWarnings("restriction")
 public class Ssh extends AbstractSsh {
 	private final URI uri;
 
@@ -81,6 +82,10 @@ public class Ssh extends AbstractSsh {
 		} finally {
 
 		}
+	}
+
+	public URI getUri() {
+		return uri;
 	}
 
 	public static Options getOptions() {
