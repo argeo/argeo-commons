@@ -8,6 +8,7 @@ import java.util.PropertyPermission;
 
 import javax.security.auth.AuthPermission;
 
+import org.argeo.node.NodeUtils;
 import org.osgi.framework.AdminPermission;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -29,16 +30,25 @@ public interface SecurityProfile {
 	default void applySystemPermissions(ConditionalPermissionAdmin permissionAdmin) {
 		ConditionalPermissionUpdate update = permissionAdmin.newConditionalPermissionUpdate();
 		// Self
+		String nodeAPiBundleLocation = locate(NodeUtils.class);
 		update.getConditionalPermissionInfos()
 				.add(permissionAdmin.newConditionalPermissionInfo(null,
 						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
-								new String[] { locate(SecurityProfile.class) }) },
+								new String[] { nodeAPiBundleLocation }) },
 						new PermissionInfo[] { new PermissionInfo(AllPermission.class.getName(), null, null) },
 						ConditionalPermissionInfo.ALLOW));
+		String cmsBundleLocation = locate(SecurityProfile.class);
 		update.getConditionalPermissionInfos()
 				.add(permissionAdmin.newConditionalPermissionInfo(null,
 						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
-								new String[] { bc.getBundle(0).getLocation() }) },
+								new String[] { cmsBundleLocation }) },
+						new PermissionInfo[] { new PermissionInfo(AllPermission.class.getName(), null, null) },
+						ConditionalPermissionInfo.ALLOW));
+		String frameworkBundleLocation = bc.getBundle(0).getLocation();
+		update.getConditionalPermissionInfos()
+				.add(permissionAdmin.newConditionalPermissionInfo(null,
+						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+								new String[] { frameworkBundleLocation }) },
 						new PermissionInfo[] { new PermissionInfo(AllPermission.class.getName(), null, null) },
 						ConditionalPermissionInfo.ALLOW));
 		// All
@@ -139,6 +149,22 @@ public interface SecurityProfile {
 				new PermissionInfo[] {
 						new PermissionInfo(FilePermission.class.getName(), "<<ALL FILES>>", "read,write,delete"), },
 				ConditionalPermissionInfo.ALLOW));
+		Bundle servletBundle = findBundle("javax.servlet");
+		update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
+				new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+						new String[] { servletBundle.getLocation() }) },
+				new PermissionInfo[] { new PermissionInfo(PropertyPermission.class.getName(),
+						"org.glassfish.web.rfc2109_cookie_names_enforced", "read") },
+				ConditionalPermissionInfo.ALLOW));
+
+		// required to be able to get the BundleContext in the customizer
+		Bundle jettyCustomizerBundle = findBundle("org.argeo.ext.equinox.jetty");
+		update.getConditionalPermissionInfos()
+				.add(permissionAdmin.newConditionalPermissionInfo(null,
+						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+								new String[] { jettyCustomizerBundle.getLocation() }) },
+						new PermissionInfo[] { new PermissionInfo(AdminPermission.class.getName(), "*", "*"), },
+						ConditionalPermissionInfo.ALLOW));
 
 		// Blueprint
 //		Bundle blueprintBundle = findBundle("org.eclipse.gemini.blueprint.core");
@@ -235,24 +261,40 @@ public interface SecurityProfile {
 				new PermissionInfo[] {
 						new PermissionInfo(FilePermission.class.getName(), "<<ALL FILES>>", "read,write,delete"),
 						new PermissionInfo(PropertyPermission.class.getName(), "*", "read,write"),
+						new PermissionInfo(AuthPermission.class.getName(), "getSubject", null),
 						new PermissionInfo(AuthPermission.class.getName(), "getLoginConfiguration", null),
 						new PermissionInfo(AuthPermission.class.getName(), "createLoginContext.Jackrabbit", null), },
+				ConditionalPermissionInfo.ALLOW));
+		Bundle jackrabbitDataBundle = findBundle("org.apache.jackrabbit.data");
+		update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
+				new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+						new String[] { jackrabbitDataBundle.getLocation() }) },
+				new PermissionInfo[] { new PermissionInfo(PropertyPermission.class.getName(), "*", "read,write") },
 				ConditionalPermissionInfo.ALLOW));
 		Bundle jackrabbitCommonBundle = findBundle("org.apache.jackrabbit.jcr.commons");
 		update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
 				new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
 						new String[] { jackrabbitCommonBundle.getLocation() }) },
-				new PermissionInfo[] {
+				new PermissionInfo[] { new PermissionInfo(AuthPermission.class.getName(), "getSubject", null),
 						new PermissionInfo(AuthPermission.class.getName(), "createLoginContext.Jackrabbit", null), },
 				ConditionalPermissionInfo.ALLOW));
-		Bundle tikaCoreBundle = findBundle("org.apache.tika.core");
+
+		Bundle jackrabbitExtBundle = findBundle("org.argeo.ext.jackrabbit");
 		update.getConditionalPermissionInfos()
 				.add(permissionAdmin.newConditionalPermissionInfo(null,
 						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
-								new String[] { tikaCoreBundle.getLocation() }) },
-						new PermissionInfo[] { new PermissionInfo(PropertyPermission.class.getName(), "*", "read"),
-								new PermissionInfo(AdminPermission.class.getName(), "*", "*") },
+								new String[] { jackrabbitExtBundle.getLocation() }) },
+						new PermissionInfo[] { new PermissionInfo(AuthPermission.class.getName(), "*", "*"), },
 						ConditionalPermissionInfo.ALLOW));
+
+		// Tika
+		Bundle tikaCoreBundle = findBundle("org.apache.tika.core");
+		update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
+				new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+						new String[] { tikaCoreBundle.getLocation() }) },
+				new PermissionInfo[] { new PermissionInfo(PropertyPermission.class.getName(), "*", "read,write"),
+						new PermissionInfo(AdminPermission.class.getName(), "*", "*") },
+				ConditionalPermissionInfo.ALLOW));
 		Bundle luceneBundle = findBundle("org.apache.lucene");
 		update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
 				new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),

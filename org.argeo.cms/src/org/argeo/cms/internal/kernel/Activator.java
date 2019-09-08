@@ -105,6 +105,18 @@ public class Activator implements BundleActivator {
 								new ConditionInfo(BundleLocationCondition.class.getName(), new String[] { "*" }) },
 						new PermissionInfo[] { new PermissionInfo(AllPermission.class.getName(), null, null) },
 						ConditionalPermissionInfo.ALLOW));
+				// TODO data admin permission
+//				PermissionInfo dataAdminPerm = new PermissionInfo(AuthPermission.class.getName(),
+//						"createLoginContext." + NodeConstants.LOGIN_CONTEXT_DATA_ADMIN, null);
+//				update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
+//						new ConditionInfo[] {
+//								new ConditionInfo(BundleLocationCondition.class.getName(), new String[] { "*" }) },
+//						new PermissionInfo[] { dataAdminPerm }, ConditionalPermissionInfo.DENY));
+//				update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
+//						new ConditionInfo[] {
+//								new ConditionInfo(BundleSignerCondition.class.getName(), new String[] { "CN=\"Eclipse.org Foundation, Inc.\", OU=IT, O=\"Eclipse.org Foundation, Inc.\", L=Nepean, ST=Ontario, C=CA" }) },
+//						new PermissionInfo[] { dataAdminPerm }, ConditionalPermissionInfo.ALLOW));
+				update.commit();
 			} else {
 				SecurityProfile securityProfile = new SecurityProfile() {
 				};
