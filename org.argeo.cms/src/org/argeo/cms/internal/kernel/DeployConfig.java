@@ -123,7 +123,8 @@ class DeployConfig implements ConfigurationListener {
 		Dictionary<String, Object> webServerConfig = InitUtils
 				.getHttpServerConfig(getProps(KernelConstants.JETTY_FACTORY_PID, NodeConstants.DEFAULT));
 		if (!webServerConfig.isEmpty()) {
-			webServerConfig.put("customizer.class", "org.argeo.equinox.jetty.WebSocketJettyCustomizer");
+			// TODO chekc for other customizers
+			webServerConfig.put("customizer.class", "org.argeo.equinox.jetty.CmsJettyCustomizer");
 			putFactoryDeployConfig(KernelConstants.JETTY_FACTORY_PID, webServerConfig);
 		}
 		save();

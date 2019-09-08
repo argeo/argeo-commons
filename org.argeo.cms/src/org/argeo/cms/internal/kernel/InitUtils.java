@@ -68,6 +68,8 @@ class InitUtils {
 		/// TODO make it more generic
 		String httpHost = getFrameworkProp(HttpConstants.JETTY_PROPERTY_PREFIX + HttpConstants.HTTP_HOST);
 		String httpsHost = getFrameworkProp(HttpConstants.JETTY_PROPERTY_PREFIX + HttpConstants.HTTPS_HOST);
+		String webSocketEnabled = getFrameworkProp(
+				HttpConstants.JETTY_PROPERTY_PREFIX + HttpConstants.WEB_SOCKET_ENABLED);
 
 		final Hashtable<String, Object> props = new Hashtable<String, Object>();
 		// try {
@@ -100,6 +102,10 @@ class InitUtils {
 				props.put(HttpConstants.HTTP_HOST, httpHost);
 			if (httpsHost != null)
 				props.put(HttpConstants.HTTPS_HOST, httpHost);
+
+			if (webSocketEnabled != null)
+				if (webSocketEnabled.equals("true"))
+					props.put(HttpConstants.WEB_SOCKET_ENABLED, true);
 
 			props.put(NodeConstants.CN, NodeConstants.DEFAULT);
 		}
