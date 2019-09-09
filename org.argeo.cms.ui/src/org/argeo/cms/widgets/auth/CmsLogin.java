@@ -28,6 +28,7 @@ import org.argeo.cms.ui.internal.Activator;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.node.NodeConstants;
+import org.argeo.node.NodeState;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -63,10 +64,15 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 
 	public CmsLogin(CmsView cmsView) {
 		this.cmsView = cmsView;
-		defaultLocale = Activator.getNodeState().getDefaultLocale();
-		List<Locale> locales = Activator.getNodeState().getLocales();
-		if (locales != null)
-			localeChoice = new LocaleChoice(locales, defaultLocale);
+		NodeState nodeState = Activator.getNodeState();
+		if (nodeState != null) {
+			defaultLocale = nodeState.getDefaultLocale();
+			List<Locale> locales = nodeState.getLocales();
+			if (locales != null)
+				localeChoice = new LocaleChoice(locales, defaultLocale);
+		} else {
+			defaultLocale = Locale.getDefault();
+		}
 		loginSelectionListener = new SelectionListener() {
 			private static final long serialVersionUID = -8832133363830973578L;
 
