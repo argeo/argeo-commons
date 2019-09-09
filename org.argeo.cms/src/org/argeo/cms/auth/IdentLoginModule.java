@@ -44,6 +44,8 @@ public class IdentLoginModule implements LoginModule {
 			return false;
 		}
 		HttpServletRequest request = httpCallback.getRequest();
+		if (request == null)
+			return false;
 		IdentClient identClient = Activator.getIdentClient(request.getRemoteAddr());
 		if (identClient == null)
 			return false;
