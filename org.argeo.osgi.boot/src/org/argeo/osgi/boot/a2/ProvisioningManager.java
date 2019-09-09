@@ -1,5 +1,6 @@
 package org.argeo.osgi.boot.a2;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Path;
@@ -59,7 +60,11 @@ public class ProvisioningManager {
 			URI u = new URI(uri);
 			if ("a2".equals(u.getScheme())) {
 				if (u.getHost() == null || "".equals(u.getHost())) {
-					Path base = Paths.get(u.getPath());
+					String baseStr = u.getPath();
+					if (File.separatorChar == '\\') {// MS Windows
+						baseStr = baseStr.substring(1).replace('/', File.separatorChar);
+					}
+					Path base = Paths.get(baseStr);
 					FsA2Source source = new FsA2Source(base);
 					source.load();
 					addSource(source);
@@ -78,7 +83,10 @@ public class ProvisioningManager {
 				Path frameworkPath = Paths.get(frameworkLocationUri);
 				if (frameworkPath.getParent().getFileName().toString().equals(A2Contribution.BOOT)) {
 					Path base = frameworkPath.getParent().getParent();
-					URI baseUri = new URI("a2", null, null, 0, base.toString(), null, null);
+					String baseStr = base.toString();
+					if (File.separatorChar == '\\')// MS Windows
+						baseStr = '/' + baseStr.replace(File.separatorChar, '/');
+					URI baseUri = new URI("a2", null, null, 0, baseStr, null, null);
 					registerSource(baseUri.toString());
 					OsgiBootUtils.info("Registered " + baseUri + " as default source");
 					return true;
@@ -121,7 +129,7 @@ public class ProvisioningManager {
 				}
 			}
 		} catch (Exception e) {
-			OsgiBootUtils.error("Could not install module " + module, e);
+			OsgiBootUtils.error("Could not install module " + module + ": " + e.getMessage(), null);
 		}
 		return null;
 	}
