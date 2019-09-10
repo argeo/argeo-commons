@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.argeo.commons.rcp</groupId>
 		<artifactId>dep</artifactId>
-		<version>2.1.79</version>
+		<version>2.1.80-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.dep.cms.e4.rcp</artifactId>
@@ -13,41 +13,41 @@
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.ui</artifactId>
-			<version>2.1.79</version>
+			<version>2.1.80-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.rcp</groupId>
 			<artifactId>org.argeo.eclipse.ui.rcp</artifactId>
-			<version>2.1.79</version>
+			<version>2.1.80-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.cms.ui</artifactId>
-			<version>2.1.79</version>
+			<version>2.1.80-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.cms.ui.theme</artifactId>
-			<version>2.1.79</version>
+			<version>2.1.80-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Desktop -->
 		<dependency>
 			<groupId>org.argeo.commons.rcp</groupId>
 			<artifactId>org.argeo.cms.desktop</artifactId>
-			<version>2.1.79</version>
+			<version>2.1.80-SNAPSHOT</version>
 		</dependency>
 
 		<!-- E4 specific -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.cms.e4</artifactId>
-			<version>2.1.79</version>
+			<version>2.1.80-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.rcp</groupId>
 			<artifactId>org.argeo.cms.e4.rcp</artifactId>
-			<version>2.1.79</version>
+			<version>2.1.80-SNAPSHOT</version>
 		</dependency>
 
 		<!-- RCP specific -->
@@ -65,7 +65,7 @@
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.dep.cms.node</artifactId>
-			<version>2.1.79</version>
+			<version>2.1.80-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
 
