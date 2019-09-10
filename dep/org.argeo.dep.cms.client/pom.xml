@@ -324,6 +324,16 @@
 			<artifactId>com.google.guava</artifactId>
 		</dependency>
 
+		<!-- Git -->
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>org.eclipse.jgit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>com.googlecode.javaewah.JavaEWAH</artifactId>
+		</dependency>
+
 		<!-- Test only -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
