@@ -399,6 +399,7 @@
 								</goals>
 								<configuration>
 									<name>argeo-cms-client</name>
+									<release>2</release>
 									<mappings>
 										<mapping>
 											<directory>/usr/share/osgi</directory>
