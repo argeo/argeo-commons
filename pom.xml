@@ -8,7 +8,7 @@
 	<packaging>pom</packaging>
 	<!-- <url>http://repo.argeo.org/data/docs/argeo-2.1/site/argeo-commons/</url> -->
 	<properties>
-		<version.argeo-commons>2.1.79-SNAPSHOT</version.argeo-commons>
+		<version.argeo-commons>2.1.79</version.argeo-commons>
 		<version.argeo-tp>2.1.24</version.argeo-tp>
 		<!-- RPM -->
 		<argeo.rpm.release>7</argeo.rpm.release>
