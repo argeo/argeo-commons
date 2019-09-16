@@ -54,9 +54,12 @@ public class FsA2Source extends ProvisioningSource {
 						version = new Version(versionStr);
 					} catch (Exception e) {
 						versionStr = readVersionFromModule(modulePath);
-						version = new Version(versionStr);
-						// OsgiBootUtils.debug("Ignore " + modulePath + " (" + e.getMessage() + ")");
-						// continue modules;
+						if (versionStr != null) {
+							version = new Version(versionStr);
+						} else {
+							OsgiBootUtils.debug("Ignore " + modulePath + " (" + e.getMessage() + ")");
+							continue modules;
+						}
 					}
 					A2Component component = contribution.getOrAddComponent(componentName);
 					A2Module module = component.getOrAddModule(version, modulePath);
