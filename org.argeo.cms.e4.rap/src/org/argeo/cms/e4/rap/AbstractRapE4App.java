@@ -11,11 +11,13 @@ import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.eclipse.rap.rwt.application.ExceptionHandler;
 import org.eclipse.rap.rwt.client.WebClient;
 
+/** Base class for CMS RAP applications. */
 public abstract class AbstractRapE4App implements ApplicationConfiguration {
-	private String pageTitle;
 	private String e4Xmi;
 	private String path;
 	private String lifeCycleUri = "bundleclass://org.argeo.cms.e4.rap/org.argeo.cms.e4.rap.CmsLoginLifecycle";
+
+	Map<String, String> baseProperties = new HashMap<String, String>();
 
 	public void configure(Application application) {
 		application.setExceptionHandler(new ExceptionHandler() {
@@ -26,20 +28,41 @@ public abstract class AbstractRapE4App implements ApplicationConfiguration {
 			}
 		});
 
-		Map<String, String> properties = new HashMap<String, String>();
-		properties.put(WebClient.PAGE_TITLE, pageTitle);
-		E4ApplicationConfig config = new E4ApplicationConfig(e4Xmi, lifeCycleUri, null, null, false, true, true);
-		addEntryPoint(application, config, properties);
+		if (e4Xmi != null) {// backward compatibility
+			addE4EntryPoint(application, path, e4Xmi, getBaseProperties());
+		} else {
+			addEntryPoints(application);
+		}
 	}
 
-	protected void addEntryPoint(Application application, E4ApplicationConfig config, Map<String, String> properties) {
+	/**
+	 * To be overridden in order to add multiple entry points, directly or using
+	 * {@link #addE4EntryPoint(Application, String, String, Map)}.
+	 */
+	protected void addEntryPoints(Application application) {
+
+	}
+
+	protected Map<String, String> getBaseProperties() {
+		return baseProperties;
+	}
+
+//	protected void addEntryPoint(Application application, E4ApplicationConfig config, Map<String, String> properties) {
+//		CmsE4EntryPointFactory entryPointFactory = new CmsE4EntryPointFactory(config);
+//		application.addEntryPoint(path, entryPointFactory, properties);
+//		application.setOperationMode(OperationMode.SWT_COMPATIBILITY);
+//	}
+
+	protected void addE4EntryPoint(Application application, String path, String e4Xmi, Map<String, String> properties) {
+		E4ApplicationConfig config = new E4ApplicationConfig(e4Xmi, lifeCycleUri, null, null, false, true, true);
 		CmsE4EntryPointFactory entryPointFactory = new CmsE4EntryPointFactory(config);
 		application.addEntryPoint(path, entryPointFactory, properties);
 		application.setOperationMode(OperationMode.SWT_COMPATIBILITY);
 	}
 
 	public void setPageTitle(String pageTitle) {
-		this.pageTitle = pageTitle;
+		if (pageTitle != null)
+			baseProperties.put(WebClient.PAGE_TITLE, pageTitle);
 	}
 
 	public void setE4Xmi(String e4Xmi) {
@@ -54,4 +77,11 @@ public abstract class AbstractRapE4App implements ApplicationConfiguration {
 		this.lifeCycleUri = lifeCycleUri;
 	}
 
+	public void init(Map<String, Object> properties) {
+		for (String key : properties.keySet()) {
+			Object value = properties.get(key);
+			if (value != null)
+				baseProperties.put(key, value.toString());
+		}
+	}
 }
