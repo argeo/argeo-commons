@@ -1074,15 +1074,19 @@ public class JcrUtils {
 		}
 	}
 
-	/** Logs out the session, not throwing any exception, even if it is null. */
+	/**
+	 * Logs out the session, not throwing any exception, even if it is null.
+	 * {@link Jcr#logout(Session)} should rather be used.
+	 */
 	public static void logoutQuietly(Session session) {
-		try {
-			if (session != null)
-				if (session.isLive())
-					session.logout();
-		} catch (Exception e) {
-			// silent
-		}
+		Jcr.logout(session);
+//		try {
+//			if (session != null)
+//				if (session.isLive())
+//					session.logout();
+//		} catch (Exception e) {
+//			// silent
+//		}
 	}
 
 	/**
