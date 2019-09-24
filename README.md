@@ -13,7 +13,7 @@ Based on the OSGi and JCR standards. Enterprise-grade since 2009.
 
 ### First build, or after dependencies update
 ```bash
-mvn clean argeo-osgi:pde-sources install
+mvn clean install argeo-osgi:pde-sources
 ```
 
 This will download the sources of all third-party Java libraries in a format compatible with the Eclipse IDE, and will generate the Eclipse PDE target platform (Select ```org.argeo.dep.cms.e4.rap``` in Window > Preferences > Plug-in Development > Target Platform).
