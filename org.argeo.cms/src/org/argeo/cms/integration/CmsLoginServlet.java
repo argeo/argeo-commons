@@ -80,6 +80,9 @@ public class CmsLoginServlet extends HttpServlet {
 				jsonWriter.name("uuid").value(cmsSessionId.getUuid().toString());
 				jsonWriter.endObject();
 
+				// extensions
+				enrichJson(jsonWriter);
+
 				jsonWriter.endObject();
 
 				String redirectTo = redirectTo(request);
@@ -93,6 +96,14 @@ public class CmsLoginServlet extends HttpServlet {
 			response.setStatus(403);
 			return;
 		}
+	}
+
+	/**
+	 * To be overridden. The object will be ended by the caller. Does nothing by
+	 * default.
+	 */
+	protected void enrichJson(JsonWriter jsonWriter) {
+
 	}
 
 	/** Does nothing by default. */
