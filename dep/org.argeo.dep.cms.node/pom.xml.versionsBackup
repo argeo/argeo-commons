@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.argeo.commons</groupId>
+		<version>2.1.81-SNAPSHOT</version>
+		<artifactId>dep</artifactId>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>org.argeo.dep.cms.node</artifactId>
+	<name>CMS Node</name>
+	<dependencies>
+
+		<!-- Parent dependencies -->
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.dep.cms.client</artifactId>
+			<version>2.1.81-SNAPSHOT</version>
+			<type>pom</type>
+		</dependency>
+
+		<!-- Argeo Commons -->
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.node.api</artifactId>
+			<version>2.1.81-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.cms</artifactId>
+			<version>2.1.81-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.ext.jackrabbit</artifactId>
+			<version>2.1.81-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.ext.equinox.jetty</artifactId>
+			<version>2.1.81-SNAPSHOT</version>
+		</dependency>
+
+		<!-- CMS Dependencies -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.misc</groupId> -->
+		<!-- <artifactId>bitronix.tm</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.misc</groupId> -->
+		<!-- <artifactId>org.joda.time</artifactId> -->
+		<!-- </dependency> -->
+
+		<!-- Javax -->
+		<dependency>
+			<groupId>org.argeo.tp.javax</groupId>
+			<artifactId>javax.annotation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.javax</groupId>
+			<artifactId>javax.inject</artifactId>
+		</dependency>
+
+		<!-- Database drivers -->
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>org.postgresql.jdbc42</artifactId>
+		</dependency>
+
+		<!-- Third Parties -->
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>com.google.gson</artifactId>
+		</dependency>
+
+		<!-- Flexmark -->
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>com.vladsch.flexmark</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>com.vladsch.flexmark.util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>com.vladsch.flexmark.formatter</artifactId>
+		</dependency>
+
+		<!-- Aries -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.apache</groupId> -->
+		<!-- <artifactId>org.apache.aries.util</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.apache</groupId> -->
+		<!-- <artifactId>org.apache.aries.spifly.dynamic.bundle</artifactId> -->
+		<!-- </dependency> -->
+
+		<!-- HTTP Server -->
+		<dependency>
+			<groupId>org.argeo.tp.equinox</groupId>
+			<artifactId>org.eclipse.equinox.http.servlet</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.equinox</groupId>
+			<artifactId>org.eclipse.equinox.http.jetty</artifactId>
+		</dependency>
+
+		<!-- Jetty -->
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.continuation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.http</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.io</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.jmx</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.servlet</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.servlets</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.xml</artifactId>
+		</dependency>
+
+		<!-- HTTP2 -->
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.alpn.api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.alpn.client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.alpn.server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.http2.common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.http2.client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.http2.client.http</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.http2.server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.http2.hpack</artifactId>
+		</dependency>
+
+		<!-- Async -->
+		<dependency>
+			<groupId>org.argeo.tp.javax</groupId>
+			<artifactId>javax.websocket</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.websocket.api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.websocket.common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.websocket.client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.websocket.server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.websocket.servlet</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.websocket.javax.websocket</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jetty</groupId>
+			<artifactId>org.eclipse.jetty.websocket.javax.websocket.server</artifactId>
+		</dependency>
+	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>rpmbuild</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>prepare-source</id>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+								<configuration>
+									<descriptorRefs>
+										<descriptorRef>a2-source</descriptorRef>
+									</descriptorRefs>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!-- <plugin> -->
+					<!-- <groupId>org.apache.maven.plugins</groupId> -->
+					<!-- <artifactId>maven-dependency-plugin</artifactId> -->
+					<!-- <executions> -->
+					<!-- <execution> -->
+					<!-- <id>copy-argeo</id> -->
+					<!-- <phase>package</phase> -->
+					<!-- <goals> -->
+					<!-- <goal>copy-dependencies</goal> -->
+					<!-- </goals> -->
+					<!-- <configuration> -->
+					<!-- <includeTypes>jar</includeTypes> -->
+					<!-- <outputDirectory>${project.build.directory}/lib-argeo</outputDirectory> -->
+					<!-- <includeGroupIds>org.argeo.commons</includeGroupIds> -->
+					<!-- <excludeTransitive>true</excludeTransitive> -->
+					<!-- <excludeArtifactIds>org.argeo.dep.cms.client</excludeArtifactIds> -->
+					<!-- <includeTypes>jar</includeTypes> -->
+					<!-- <includeScope>runtime</includeScope> -->
+					<!-- <useRepositoryLayout>true</useRepositoryLayout> -->
+					<!-- </configuration> -->
+					<!-- </execution> -->
+					<!-- </executions> -->
+					<!-- </plugin> -->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>rpm-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>rpm-argeo</id>
+								<phase>package</phase>
+								<goals>
+									<goal>rpm</goal>
+								</goals>
+								<configuration>
+									<name>argeo-cms-node</name>
+									<mappings>
+										<mapping>
+											<directory>/usr/share/osgi</directory>
+											<username>root</username>
+											<groupname>root</groupname>
+											<filemode>644</filemode>
+											<directoryIncluded>false</directoryIncluded>
+											<sources>
+												<source>
+													<location>${project.build.directory}/${project.artifactId}-${project.version}-a2-source</location>
+													<includes>
+														<include>**/*.jar</include>
+													</includes>
+												</source>
+											</sources>
+										</mapping>
+										<!-- <mapping> -->
+										<!-- <directory>/usr/share/osgi/org/argeo/commons/${project.artifactId}/${project.version}</directory> -->
+										<!-- <username>root</username> -->
+										<!-- <groupname>root</groupname> -->
+										<!-- <directoryIncluded>false</directoryIncluded> -->
+										<!-- <artifact /> -->
+										<!-- </mapping> -->
+									</mappings>
+									<requires>
+										<require>argeo-cms-client</require>
+										<require>argeo-cms-node-tp</require>
+									</requires>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>rpmbuild-tp</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>prepare-source-tp</id>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+								<configuration>
+									<descriptorRefs>
+										<descriptorRef>a2-source-tp</descriptorRef>
+									</descriptorRefs>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<!-- <plugin> -->
+					<!-- <groupId>org.apache.maven.plugins</groupId> -->
+					<!-- <artifactId>maven-dependency-plugin</artifactId> -->
+					<!-- <executions> -->
+					<!-- <execution> -->
+					<!-- <id>copy-tp</id> -->
+					<!-- <phase>package</phase> -->
+					<!-- <goals> -->
+					<!-- <goal>copy-dependencies</goal> -->
+					<!-- </goals> -->
+					<!-- <configuration> -->
+					<!-- <includeTypes>jar</includeTypes> -->
+					<!-- <outputDirectory>${project.build.directory}/lib-tp</outputDirectory> -->
+					<!-- <excludeGroupIds>org.argeo.commons</excludeGroupIds> -->
+					<!-- <excludeTransitive>true</excludeTransitive> -->
+					<!-- <includeTypes>jar</includeTypes> -->
+					<!-- <includeScope>runtime</includeScope> -->
+					<!-- <useRepositoryLayout>true</useRepositoryLayout> -->
+					<!-- </configuration> -->
+					<!-- </execution> -->
+					<!-- </executions> -->
+					<!-- </plugin> -->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>rpm-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>rpm-tp</id>
+								<phase>package</phase>
+								<goals>
+									<goal>rpm</goal>
+								</goals>
+								<configuration>
+									<name>argeo-cms-node-tp</name>
+									<projversion>${version.argeo-tp}</projversion>
+									<mappings>
+										<mapping>
+											<directory>/usr/share/osgi</directory>
+											<username>root</username>
+											<groupname>root</groupname>
+											<filemode>644</filemode>
+											<directoryIncluded>false</directoryIncluded>
+											<sources>
+												<source>
+													<location>${project.build.directory}/${project.artifactId}-${project.version}-a2-source-tp</location>
+													<includes>
+														<include>**/*.jar</include>
+													</includes>
+												</source>
+											</sources>
+										</mapping>
+									</mappings>
+									<requires>
+										<require>argeo-cms-client-tp</require>
+									</requires>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>

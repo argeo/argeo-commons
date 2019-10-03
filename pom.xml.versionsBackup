@@ -1,0 +1,571 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.argeo.commons</groupId>
+	<artifactId>argeo-commons</artifactId>
+	<version>2.1.81-SNAPSHOT</version>
+	<name>Argeo Commons</name>
+	<packaging>pom</packaging>
+	<!-- <url>http://repo.argeo.org/data/docs/argeo-2.1/site/argeo-commons/</url> -->
+	<properties>
+		<version.argeo-commons>2.1.81-SNAPSHOT</version.argeo-commons>
+		<version.argeo-tp>2.1.24</version.argeo-tp>
+		<!-- RPM -->
+		<argeo.rpm.release>7</argeo.rpm.release>
+		<argeo.rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-2/el7</argeo.rpm.stagingRepository>
+		<!-- Encoding, see http://is.gd/mvn_source_encoding -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.scm.id>code.argeo.org</project.scm.id>
+	</properties>
+	<modules>
+		<!-- Base -->
+		<module>org.argeo.util</module>
+		<module>org.argeo.enterprise</module>
+		<module>org.argeo.jcr</module>
+		<module>org.argeo.osgi.boot</module>
+		<module>org.argeo.core</module>
+		<!-- Eclipse -->
+		<module>org.argeo.eclipse.ui</module>
+		<module>org.argeo.eclipse.ui.rap</module>
+		<!-- CMS -->
+		<module>org.argeo.node.api</module>
+		<module>org.argeo.maintenance</module>
+		<module>org.argeo.cms</module>
+		<module>org.argeo.cms.ui.theme</module>
+		<module>org.argeo.cms.ui</module>
+		<!-- CMS E4 -->
+		<module>org.argeo.cms.e4</module>
+		<module>org.argeo.cms.e4.rap</module>
+		<!-- CMS Workbench -->
+		<module>org.argeo.cms.ui.workbench</module>
+		<module>org.argeo.cms.ui.workbench.rap</module>
+		<!-- Third Parties Extensions -->
+		<module>org.argeo.ext.jackrabbit</module>
+		<module>org.argeo.ext.equinox.jetty</module>
+		<module>org.argeo.ext.rap.ui.workbench</module>
+		<!-- Distribution -->
+		<module>maven</module>
+		<module>dep</module>
+		<module>demo</module>
+		<module>doc</module>
+		<module>dist</module>
+		<module>rcp</module>
+	</modules>
+	<scm>
+		<connection>scm:git:http://git.argeo.org/apache2/argeo-commons.git</connection>
+		<url>http://git.argeo.org/?p=apache2/argeo-commons.git;a=summary</url>
+		<developerConnection>scm:git:https://code.argeo.org/git/apache2/argeo-commons.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+	<inceptionYear>2007</inceptionYear>
+	<licenses>
+		<license>
+			<name>Apache 2</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+			<comments><![CDATA[
+Argeo Commons Enterprise Framework
+			   
+Copyright (C) 2007-2016 Argeo GmbH
+
+Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+]]>
+			</comments>
+		</license>
+	</licenses>
+	<build>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-webdav-jackrabbit</artifactId>
+				<version>2.10</version>
+			</extension>
+		</extensions>
+		<sourceDirectory>src</sourceDirectory>
+		<testSourceDirectory>ext/test</testSourceDirectory>
+		<resources>
+			<resource>
+				<directory>src</directory>
+				<includes>
+					<include>**</include>
+				</includes>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>.</directory>
+				<includes>
+					<include>**</include>
+				</includes>
+				<excludes>
+					<exclude>.*</exclude>
+					<exclude>.*/**</exclude>
+					<exclude>src/**</exclude>
+					<exclude>ext/**</exclude>
+					<exclude>target/**</exclude>
+					<exclude>bin/**</exclude>
+					<exclude>pom.xml</exclude>
+					<exclude>build.properties</exclude>
+					<exclude>*.bnd</exclude>
+					<exclude>*.target</exclude>
+					<exclude>**/*.xcf</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>ext/test</directory>
+				<includes>
+					<include>**</include>
+				</includes>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</testResource>
+		</testResources>
+		<pluginManagement>
+			<plugins>
+				<!-- Maven -->
+				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.3</version>
+					<configuration>
+						<source>1.8</source>
+						<target>1.8</target>
+						<compilerId>eclipse</compilerId>
+						<!-- Required for compliance level, see http://jira.codehaus.org/browse/PLXCOMP-231 -->
+						<optimize>true</optimize>
+						<!-- Hack to work around issues with generated annotations : -->
+						<generatedSourcesDirectory>target/classes</generatedSourcesDirectory>
+						<generatedTestSourcesDirectory>target/test-classes</generatedTestSourcesDirectory>
+					</configuration>
+					<dependencies>
+						<dependency>
+							<groupId>org.codehaus.plexus</groupId>
+							<artifactId>plexus-compiler-eclipse</artifactId>
+							<version>2.6</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+				<plugin>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>2.6.1</version>
+					<configuration>
+						<filesets>
+							<fileset>
+								<directory>META-INF</directory>
+								<includes>
+									<include>MANIFEST.MF</include>
+								</includes>
+							</fileset>
+						</filesets>
+					</configuration>
+				</plugin>
+				<plugin>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.18</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>2.5</version>
+					<configuration>
+						<archive>
+							<manifestFile>META-INF/MANIFEST.MF</manifestFile>
+						</archive>
+					</configuration>
+				</plugin>
+				<plugin>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>3.1.0</version>
+					<configuration>
+						<excludes>
+							<exclude>**/*.class</exclude>
+							<!-- Prevents source jars to contain misleading data -->
+							<exclude>plugin.xml</exclude>
+							<exclude>META-INF/MANIFEST.MF</exclude>
+						</excludes>
+					</configuration>
+				</plugin>
+				<plugin>
+					<artifactId>maven-antrun-plugin</artifactId>
+					<version>1.8</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>2.7</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>2.9</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>3.7</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>3.0.0</version>
+					<configuration>
+						<failOnError>false</failOnError>
+						<additionalJOption>-Xdoclint:none</additionalJOption>
+						<excludePackageNames>*.internal.*,org.eclipse.*</excludePackageNames>
+						<encoding>UTF-8</encoding>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>pl.project13.maven</groupId>
+					<artifactId>git-commit-id-plugin</artifactId>
+					<version>3.0.0</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>2.5.1</version>
+					<configuration>
+						<autoVersionSubmodules>true</autoVersionSubmodules>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>3.0.1</version>
+					<extensions>true</extensions>
+					<configuration>
+						<manifestLocation>META-INF</manifestLocation>
+						<instructions>
+							<_include>bnd.bnd</_include>
+							<Bundle-Version>${project.version}-r${tstamp}</Bundle-Version>
+							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+							<Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
+							<_removeheaders>Bnd-LastModified,Build-Jdk,Built-By,Tool,Created-By</_removeheaders>
+							<Automatic-Module-Name>${project.artifactId}</Automatic-Module-Name>
+							<SLC-Category>${project.groupId}</SLC-Category>
+							<!-- Git metadata -->
+							<!-- <SLC-Git-Commit-Id>${git.commit.id}</SLC-Git-Commit-Id> -->
+							<!-- <SLC-Git-Commit-Describe>${git.commit.id.describe}</SLC-Git-Commit-Describe> -->
+							<!-- <SLC-Git-Commit-Count>${git.closest.tag.commit.count}</SLC-Git-Commit-Count> -->
+						</instructions>
+					</configuration>
+					<executions>
+						<execution>
+							<id>bundle-manifest</id>
+							<phase>process-classes</phase>
+							<goals>
+								<goal>manifest</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<!-- Codehaus -->
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>rpm-maven-plugin</artifactId>
+					<version>2.1.4</version>
+					<extensions>true</extensions>
+					<configuration>
+						<version>${project.version}</version>
+						<distribution>argeo${argeo.rpm.release}</distribution>
+						<group>Applications/System</group>
+						<prefix>/usr</prefix>
+						<defaultDirMode>755</defaultDirMode>
+						<defaultFileMode>644</defaultFileMode>
+						<autoRequires>false</autoRequires>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+					<version>1.3.2</version>
+				</plugin>
+				<!-- Argeo -->
+				<plugin>
+					<groupId>org.argeo.maven.plugins</groupId>
+					<artifactId>argeo-osgi-plugin</artifactId>
+					<version>2.1.1</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>META-INF</directory>
+							<includes>
+								<include>MANIFEST.MF</include>
+							</includes>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+			<!-- <plugin> -->
+			<!-- <groupId>pl.project13.maven</groupId> -->
+			<!-- <artifactId>git-commit-id-plugin</artifactId> -->
+			<!-- <executions> -->
+			<!-- <execution> -->
+			<!-- <id>get-the-git-infos</id> -->
+			<!-- <goals> -->
+			<!-- <goal>revision</goal> -->
+			<!-- </goals> -->
+			<!-- <phase>initialize</phase> -->
+			<!-- </execution> -->
+			<!-- </executions> -->
+			<!-- </plugin> -->
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<configuration>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-site-plugin</artifactId>
+				<inherited>false</inherited>
+				<configuration>
+					<skip>false</skip>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-release-plugin</artifactId>
+				<configuration>
+					<goals>deploy</goals>
+					<releaseProfiles>rpmbuild,rpmbuild-tp</releaseProfiles>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.argeo.tp</groupId>
+			<artifactId>argeo-tp</artifactId>
+			<version>${version.argeo-tp}</version>
+			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.argeo.tp.apache</groupId>
+					<artifactId>org.apache.xerces</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.argeo.tp</groupId>
+				<artifactId>argeo-tp</artifactId>
+				<version>${version.argeo-tp}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.argeo.tp</groupId>
+				<artifactId>argeo-tp-rap-e4</artifactId>
+				<version>${version.argeo-tp}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<repositories>
+		<repository>
+			<id>argeo</id>
+			<url>http://repo.argeo.org/data/java/argeo-2.1/</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</releases>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>argeo-maven-plugins</id>
+			<url>http://repo.argeo.org/data/java/argeo-2.1</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</releases>
+		</pluginRepository>
+	</pluginRepositories>
+	<reporting>
+		<plugins>
+			<plugin>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.9</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>index</report>
+							<report>summary</report>
+							<report>license</report>
+							<report>scm</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.0.0</version>
+				<configuration>
+					<failOnError>false</failOnError>
+					<additionalJOption>-Xdoclint:none</additionalJOption>
+					<excludePackageNames>*.internal.*,org.eclipse.*</excludePackageNames>
+					<encoding>UTF-8</encoding>
+					<detectLinks>true</detectLinks>
+					<links>
+						<link>http://docs.oracle.com/javase/8/docs/api</link>
+						<link>https://osgi.org/javadoc/r5/core</link>
+						<link>https://osgi.org/javadoc/r5/enterprise</link>
+						<link>https://docs.adobe.com/docs/en/spec/javax.jcr/javadocs/jcr-2.0</link>
+						<link>http://help.eclipse.org/oxygen/topic/org.eclipse.platform.doc.isv/reference/api</link>
+						<link>http://docs.spring.io/spring/docs/3.2.x/javadoc-api</link>
+					</links>
+				</configuration>
+				<reportSets>
+					<reportSet>
+						<id>aggregate-javadoc</id>
+						<inherited>false</inherited>
+						<reports>
+							<report>aggregate</report>
+						</reports>
+					</reportSet>
+					<reportSet>
+						<id>javadoc</id>
+						<reports />
+					</reportSet>
+				</reportSets>
+			</plugin>
+			<plugin>
+				<artifactId>maven-jxr-plugin</artifactId>
+				<version>2.5</version>
+				<reportSets>
+					<reportSet>
+						<id>aggregate-jxr</id>
+						<inherited>false</inherited>
+						<reports>
+							<report>aggregate</report>
+						</reports>
+					</reportSet>
+					<reportSet>
+						<id>jxr</id>
+						<reports />
+					</reportSet>
+				</reportSets>
+			</plugin>
+		</plugins>
+	</reporting>
+	<distributionManagement>
+		<repository>
+			<id>staging</id>
+			<url>dav:https://forge.argeo.org/data/java/argeo-2.1/</url>
+			<uniqueVersion>false</uniqueVersion>
+		</repository>
+		<site>
+			<id>staging</id>
+			<url>file:///srv/docfactory/argeo-2.1/site/argeo-commons/</url>
+		</site>
+	</distributionManagement>
+	<profiles>
+		<profile>
+			<id>rpmbuild</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>install</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<target>
+										<copy todir="${argeo.rpm.stagingRepository}" quiet="true" failonerror="false">
+											<fileset dir="${project.build.directory}/rpm" includes="*/RPMS/**/*.rpm" />
+											<flattenmapper />
+										</copy>
+									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>rpmbuild-tp</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>install</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<target>
+										<copy todir="${argeo.rpm.stagingRepository}" quiet="true" failonerror="false">
+											<fileset dir="${project.build.directory}/rpm" includes="*/RPMS/**/*.rpm" />
+											<flattenmapper />
+										</copy>
+									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>localrepo</id>
+			<repositories>
+				<repository>
+					<id>argeo</id>
+					<url>http://localhost:7080/data/java/argeo-2.1</url>
+					<releases>
+						<enabled>true</enabled>
+						<updatePolicy>daily</updatePolicy>
+						<checksumPolicy>warn</checksumPolicy>
+					</releases>
+				</repository>
+			</repositories>
+			<distributionManagement>
+				<repository>
+					<id>staging</id>
+					<url>dav:http://localhost:7080/data/java/argeo-2.1/</url>
+					<uniqueVersion>false</uniqueVersion>
+				</repository>
+			</distributionManagement>
+		</profile>
+	</profiles>
+</project>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.argeo.commons.rcp</groupId>
+		<artifactId>argeo-rcp</artifactId>
+		<version>2.1.81-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>org.argeo.cms.desktop</artifactId>
+	<name>CMS Desktop</name>
+	<packaging>jar</packaging>
+	<dependencies>
+		<!-- Base Argeo UI -->
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.cms.ui</artifactId>
+			<version>2.1.81-SNAPSHOT</version>
+		</dependency>
+		<!-- RCP specific -->
+		<dependency>
+			<groupId>org.argeo.commons.rcp</groupId>
+			<artifactId>org.argeo.eclipse.ui.rcp</artifactId>
+			<version>2.1.81-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+</project>
