@@ -28,7 +28,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-/** Command handler to set visible or open a Argeo user. */
+/** Launch a wizard that enables creation of a new user. */
 public class NewUser extends AbstractHandler {
 	private Repository repository;
 	private UserAdminService userAdminService;

@@ -179,6 +179,18 @@
   <extension
            point="org.eclipse.ui.activities">
         <activity
+              description="Anonymous"
+              id="org.argeo.security.ui.rap.anonymousActivity"
+              name="Anonymous">
+		  <enabledWhen>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="ROLE_ANONYMOUS" />
+		      </iterate>
+		    </with>
+		  </enabledWhen>
+        </activity>
+        <activity
               description="Not anonymous"
               id="org.argeo.security.ui.rap.notAnonymousActivity"
               name="NotAnonymous">

@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.server</groupId>
-		<version>1.2.0</version>
+		<version>1.2.4-SNAPSHOT</version>
 		<artifactId>modules</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -32,6 +32,7 @@
 							org.springframework.security.ui;resolution:=optional,
 							org.springframework.security.ui.savedrequest;resolution:=optional,
 							org.springframework.security.userdetails;resolution:=optional,
+							org.springframework.security.providers.preauth;resolution:=optional,
 							org.springframework.web.context.request;resolution:=optional
 						</Import-Package>
 					</instructions>

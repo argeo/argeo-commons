@@ -46,6 +46,8 @@ public class RemoteJcrAuthenticationProvider implements AuthenticationProvider,
 	private RepositoryFactory repositoryFactory;
 	private BundleContext bundleContext;
 
+	public final static String ROLE_REMOTE = "ROLE_REMOTE";
+
 	public Authentication authenticate(Authentication authentication)
 			throws AuthenticationException {
 		NodeAuthenticationToken siteAuth = (NodeAuthenticationToken) authentication;
@@ -95,17 +97,18 @@ public class RemoteJcrAuthenticationProvider implements AuthenticationProvider,
 		}
 
 		try {
-			Node userHome = UserJcrUtils.getUserHome(session);
+			// Node userHome = UserJcrUtils.getUserHome(session);
 			// retrieve remote roles
 			List<GrantedAuthority> authoritiesList = new ArrayList<GrantedAuthority>();
-			if (userHome != null
-					&& userHome.hasProperty(ArgeoNames.ARGEO_REMOTE_ROLES)) {
-				Value[] roles = userHome.getProperty(
+			if (userProfile != null
+					&& userProfile.hasProperty(ArgeoNames.ARGEO_REMOTE_ROLES)) {
+				Value[] roles = userProfile.getProperty(
 						ArgeoNames.ARGEO_REMOTE_ROLES).getValues();
 				for (int i = 0; i < roles.length; i++)
 					authoritiesList.add(new GrantedAuthorityImpl(roles[i]
 							.getString()));
 			}
+			authoritiesList.add(new GrantedAuthorityImpl(ROLE_REMOTE));
 
 			// create authenticated objects
 			GrantedAuthority[] authorities = authoritiesList

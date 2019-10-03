@@ -849,15 +849,15 @@ public class OsgiBoot {
 
 	/** Creates an URL from a location */
 	protected String locationToUrl(String baseUrl, String location) {
-		int extInd = location.lastIndexOf('.');
-		String ext = null;
-		if (extInd > 0)
-			ext = location.substring(extInd);
-
-		if (baseUrl.startsWith("reference:") && ".jar".equals(ext))
-			return "file:" + location;
-		else
-			return baseUrl + location;
+		// int extInd = location.lastIndexOf('.');
+		// String ext = null;
+		// if (extInd > 0)
+		// ext = location.substring(extInd);
+		//
+		// if (baseUrl.startsWith("reference:") && ".jar".equals(ext))
+		// return "file:" + location;
+		// else
+		return baseUrl + location;
 	}
 
 	/** Transforms a relative path in a full system path. */

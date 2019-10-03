@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
-	<version>1.2.0</version>
+	<version>1.2.4-SNAPSHOT</version>
 	<name>Argeo Commons</name>
 	<description>Generic layers integrating free / open source technologies in order to quickly develop custom enterprise systems: security, JCR, user interface, monitoring</description>
 	<packaging>pom</packaging>
@@ -11,7 +11,7 @@
 		<developmentCycle.argeo-commons>1.2</developmentCycle.argeo-commons>
 		<developmentCycle.argeo-commons.startDate>2012-12-18</developmentCycle.argeo-commons.startDate>
 		<version.argeo-distribution>1.4.0</version.argeo-distribution>
-		<version.argeo-commons>1.2.0</version.argeo-commons>
+		<version.argeo-commons>1.2.4-SNAPSHOT</version.argeo-commons>
 		<!-- RPM -->
 		<rpm.release>6</rpm.release>
 		<rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-1-staging/6/x86_64</rpm.stagingRepository>
@@ -29,9 +29,9 @@
 	</organization>
 	<url>http://projects.argeo.org/commons/</url>
 	<scm>
-		<connection>scm:svn:https://svn.argeo.org/commons/tags/argeo-commons-1.2.0</connection>
-		<developerConnection>scm:svn:https://svn.argeo.org/commons/tags/argeo-commons-1.2.0</developerConnection>
-		<url>https://svn.argeo.org/commons/tags/argeo-commons-1.2.0</url>
+		<connection>scm:svn:https://svn.argeo.org/commons/branches/1.x</connection>
+		<developerConnection>scm:svn:https://svn.argeo.org/commons/branches/1.x</developerConnection>
+		<url>https://svn.argeo.org/commons/branches/1.x</url>
 	</scm>
 	<inceptionYear>2007</inceptionYear>
 	<licenses>

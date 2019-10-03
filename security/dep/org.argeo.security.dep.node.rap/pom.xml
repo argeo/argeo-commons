@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons.security</groupId>
-		<version>1.2.0</version>
+		<version>1.2.4-SNAPSHOT</version>
 		<artifactId>dep</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -39,42 +39,42 @@
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.jcr.ui.explorer</artifactId>
-			<version>1.2.0</version>
+			<version>1.2.4-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.base</groupId>
 			<artifactId>org.argeo.osgi.ui.explorer</artifactId>
-			<version>1.2.0</version>
+			<version>1.2.4-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.ui.admin</artifactId>
-			<version>1.2.0</version>
+			<version>1.2.4-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.mvc</artifactId>
-			<version>1.2.0</version>
+			<version>1.2.4-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Basis -->
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.dep.node</artifactId>
-			<version>1.2.0</version>
+			<version>1.2.4-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons.security</groupId>
 			<artifactId>org.argeo.security.ui.rap</artifactId>
-			<version>1.2.0</version>
+			<version>1.2.4-SNAPSHOT</version>
 		</dependency>
 
 		<!-- For Tomcat deployment -->
 		<dependency>
 			<groupId>org.argeo.commons.server</groupId>
 			<artifactId>org.argeo.server.rap.webapp</artifactId>
-			<version>1.2.0</version>
+			<version>1.2.4-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<profiles>
@@ -105,7 +105,7 @@
 				<dependency>
 					<groupId>org.argeo.commons.base</groupId>
 					<artifactId>org.argeo.osgi.boot</artifactId>
-					<version>1.2.0</version>
+					<version>1.2.4-SNAPSHOT</version>
 					<scope>test</scope>
 				</dependency>
 			</dependencies>

@@ -444,7 +444,7 @@ public class JcrUtils implements ArgeoJcrConstants {
 		try {
 			for (int i = 0; i < tokens.size(); i++) {
 				String name = tokens.get(i);
-				if (parentNode.hasNode(name)) {
+				if (currParent.hasNode(name)) {
 					currParent = currParent.getNode(name);
 				} else {
 					if (i != (tokens.size() - 1)) {// intermediary
@@ -1207,14 +1207,26 @@ public class JcrUtils implements ArgeoJcrConstants {
 		}
 	}
 
-	/** Update lastModified recursively until this parent. */
+	/**
+	 * Update lastModified recursively until this parent.
+	 * 
+	 * @param node
+	 *            the node
+	 * @param untilPath
+	 *            the base path, null is equivalent to "/"
+	 */
 	public static void updateLastModifiedAndParents(Node node, String untilPath) {
 		try {
-			if (!node.getPath().startsWith(untilPath))
+			if (untilPath != null && !node.getPath().startsWith(untilPath))
 				throw new ArgeoException(node + " is not under " + untilPath);
 			updateLastModified(node);
-			if (!node.getPath().equals(untilPath))
-				updateLastModifiedAndParents(node.getParent(), untilPath);
+			if (untilPath == null) {
+				if (!node.getPath().equals("/"))
+					updateLastModifiedAndParents(node.getParent(), untilPath);
+			} else {
+				if (!node.getPath().equals(untilPath))
+					updateLastModifiedAndParents(node.getParent(), untilPath);
+			}
 		} catch (RepositoryException e) {
 			throw new ArgeoException("Cannot update lastModified from " + node
 					+ " until " + untilPath, e);
@@ -1403,6 +1415,7 @@ public class JcrUtils implements ArgeoJcrConstants {
 	 *            files
 	 * @return how many files were copied
 	 */
+	@SuppressWarnings("resource")
 	public static Long copyFiles(Node fromNode, Node toNode, Boolean recursive,
 			ArgeoMonitor monitor) {
 		long count = 0l;

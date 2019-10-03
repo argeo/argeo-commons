@@ -61,7 +61,7 @@
   <extension
            point="org.eclipse.ui.activities">
         <activity
-              description="Only for admins"
+              description="Admins"
               id="org.argeo.security.ui.adminActivity"
               name="Admin">
 		  <enabledWhen>
@@ -70,6 +70,34 @@
 		        <equals value="ROLE_ADMIN" />
 		      </iterate>
 		    </with>
+		  </enabledWhen>
+        </activity>
+        <activity
+              description="Non admins"
+              id="org.argeo.security.ui.notAdminActivity"
+              name="Not Admin">
+		  <enabledWhen>
+		  	<not>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="ROLE_ADMIN" />
+		      </iterate>
+		    </with>
+		  	</not>
+		  </enabledWhen>
+        </activity>
+        <activity
+              description="Non remote"
+              id="org.argeo.security.ui.notRemoteActivity"
+              name="NonRemote">
+		  <enabledWhen>
+		  	<not>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="ROLE_REMOTE" />
+		      </iterate>
+		    </with>
+		  	</not>
 		  </enabledWhen>
         </activity>
         <activityPatternBinding

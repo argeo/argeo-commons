@@ -114,13 +114,15 @@
             defaultHandler="org.argeo.jcr.ui.explorer.commands.SortChildNodes"
             id="org.argeo.jcr.ui.explorer.sortChildNodes"
             name="Sort node tree">
+            <!-- FIXME: default value does not work -->
             <state 
-				id="org.argeo.jcr.ui.explorer.sortChildNodes.toggleState">
-				<class class="org.eclipse.jface.commands.ToggleState"> 
+				id="org.argeo.jcr.ui.explorer.sortChildNodes.toggleState" 
+				class="org.eclipse.ui.handlers.RegistryToggleState:true" >
+				<!-- <class class="org.eclipse.jface.commands.ToggleState"> 
 					<parameter
 						name="default"
                			value="true" />
-				</class>
+				</class> -->
 			</state>
      </command>
     </extension>
@@ -130,11 +132,12 @@
 		<!-- Browser view specific menu --> 
 		<menuContribution
 			locationURI="menu:org.argeo.jcr.ui.explorer.browserView">
-            <command
+            <!-- See bug 149 --> 
+            <!-- <command
             	commandId="org.argeo.jcr.ui.explorer.openGenericJcrQueryEditor"
                 icon="icons/query.png"
                 style="push">
-            </command>
+            </command> --> 
             <command
             	commandId="org.argeo.jcr.ui.explorer.addRemoteRepository"
                 icon="icons/addRepo.gif"
@@ -143,7 +146,7 @@
              <command
             	commandId="org.argeo.jcr.ui.explorer.sortChildNodes"
                 icon="icons/sort.gif"
-                style="toggle" 
+                style="toggle"
                 label="Sort child nodes"
                 tooltip="Warning: stopping to sort children nodes might enhance overall performances">
             </command>

@@ -11,10 +11,10 @@
 		</property>
 	</bean>
 
-	<bean id="session" class="org.argeo.security.jcr.SecureThreadBoundSession">
-		<property name="repository" ref="nodeRepository" />
-	</bean>
-
+	<!-- FIXME Hard-coded dependency to Jackrabbit for user management -->
 	<bean name="jcrSecurityModel" class="org.argeo.security.jackrabbit.JackrabbitSecurityModel" />
 
+	<!-- Old deprecated way. -->
+	<!-- <bean id="session" class="org.argeo.security.jcr.SecureThreadBoundSession"> 
+		<property name="repository" ref="nodeRepository" /> </bean> -->
 </beans>

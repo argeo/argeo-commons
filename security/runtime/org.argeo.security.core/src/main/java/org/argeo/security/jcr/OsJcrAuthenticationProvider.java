@@ -58,7 +58,8 @@ public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 			throws AuthenticationException {
 		if (authentication instanceof UsernamePasswordAuthenticationToken) {
 			// deal with remote access to internal server
-			// FIXME very primitive and unsecure at this sSession adminSession =tage
+			// FIXME very primitive and unsecure at this sSession adminSession
+			// =tage
 			// consider using the keyring for username / password authentication
 			// or certificate
 			UsernamePasswordAuthenticationToken upat = (UsernamePasswordAuthenticationToken) authentication;
@@ -90,8 +91,6 @@ public class OsJcrAuthenticationProvider extends OsAuthenticationProvider {
 				throw new ArgeoException(
 						"Unexpected exception when synchronizing OS and JCR security ",
 						e);
-			} finally {
-				JcrUtils.logoutQuietly(nodeSession);
 			}
 		} else {
 			throw new ArgeoException("Unsupported authentication "

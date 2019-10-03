@@ -171,6 +171,8 @@ public class CommandUtils {
 			Command cmd = cmdService.getCommand(commandID);
 
 			ArrayList<Parameterization> parameters = null;
+			ParameterizedCommand pc;
+
 			if (paramMap != null) {
 				// Set parameters of the command to launch :
 				parameters = new ArrayList<Parameterization>();
@@ -181,15 +183,17 @@ public class CommandUtils {
 							cmd.getParameter(id), paramMap.get(id));
 					parameters.add(parameterization);
 				}
-			}
-			// build the parameterized command
-			ParameterizedCommand pc = new ParameterizedCommand(cmd,
-					parameters.toArray(new Parameterization[parameters.size()]));
+				pc = new ParameterizedCommand(cmd,
+						parameters.toArray(new Parameterization[parameters
+								.size()]));
+			} else
+				pc = new ParameterizedCommand(cmd, null);
+
 			// execute the command
 			handlerService.executeCommand(pc, null);
 		} catch (Exception e) {
-			throw new ArgeoException(
-					"Unexepected exception while opening node editor", e);
+			throw new ArgeoException("Unexpected error while"
+					+ " calling the command " + commandID, e);
 		}
 	}
 }
