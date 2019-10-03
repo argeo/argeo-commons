@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="org.argeo.cms.ui.workbench.rap.openChangePasswordDialog"
+		class="org.argeo.cms.ui.workbench.commands.OpenChangePasswordDialog"
+		scope="prototype">
+		<property name="userAdmin" ref="userAdmin" />
+		<property name="userTransaction" ref="userTransaction" />
+		<property name="keyring" ref="keyring" />
+	</bean>
+
+	<!-- RAP Specific command and corresponding service to enable open file -->
+	<bean id="org.argeo.cms.ui.workbench.openFile" class="org.argeo.eclipse.ui.specific.OpenFile"
+		scope="prototype">
+		<property name="openFileServiceId"
+			value="org.argeo.security.ui.specific.openFileService" />
+	</bean>
+</beans>

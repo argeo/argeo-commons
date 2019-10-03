@@ -1,0 +1,22 @@
+<ldap = 'http://www.argeo.org/ns/ldap'>
+<node = 'http://www.argeo.org/ns/node'>
+
+// DN (see https://tools.ietf.org/html/rfc4514)
+<cn = 'http://www.argeo.org/ns/rfc4514/cn'>
+<l = 'http://www.argeo.org/ns/rfc4514/l'>
+<st = 'http://www.argeo.org/ns/rfc4514/st'>
+<o = 'http://www.argeo.org/ns/rfc4514/o'>
+<ou = 'http://www.argeo.org/ns/rfc4514/ou'>
+<c = 'http://www.argeo.org/ns/rfc4514/c'>
+<street = 'http://www.argeo.org/ns/rfc4514/street'>
+<dc = 'http://www.argeo.org/ns/rfc4514/dc'>
+<uid = 'http://www.argeo.org/ns/rfc4514/uid'>
+
+
+[node:userHome]
+mixin
+- ldap:uid (STRING) m
+
+[node:groupHome]
+mixin
+- ldap:cn (STRING) m

@@ -1,0 +1,6 @@
+Bundle-Activator: org.argeo.osgi.internal.EnterpriseActivator
+Bundle-ActivationPolicy: lazy
+
+Import-Package:	org.osgi.*;version=0.0.0,\
+!org.apache.commons.logging,\
+*				

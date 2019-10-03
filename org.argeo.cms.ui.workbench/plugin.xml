@@ -1,0 +1,807 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            id="org.argeo.cms.ui.workbench.adminSecurityPerspective"
+            class="org.argeo.cms.ui.workbench.SecurityAdminPerspective"
+            icon="platform:/plugin/org.argeo.cms.ui.theme/platform:/plugin/org.argeo.cms.ui.theme/icons/group.png"
+            name="Security">
+      </perspective>
+      <perspective
+            id="org.argeo.cms.ui.workbench.userHomePerspective"
+            class="org.argeo.cms.ui.workbench.UserHomePerspective"
+            icon="platform:/plugin/org.argeo.cms.ui.theme/platform:/plugin/org.argeo.cms.ui.theme/icons/home.png"
+            name="Home">
+      </perspective>
+      <perspective
+            id="org.argeo.cms.ui.workbench.adminMaintenancePerspective"
+            class="org.argeo.cms.ui.workbench.MaintenancePerspective"
+            icon="platform:/plugin/org.argeo.cms.ui.theme/platform:/plugin/org.argeo.cms.ui.theme/icons/maintenance.gif"
+            name="Maintenance">
+      </perspective>
+      <perspective
+            id="org.argeo.cms.ui.workbench.osgiPerspective"
+            class="org.argeo.cms.ui.workbench.OsgiExplorerPerspective"
+            name="Monitoring"
+            icon="platform:/plugin/org.argeo.cms.ui.theme/platform:/plugin/org.argeo.cms.ui.theme/icons/osgi_explorer.gif">
+      </perspective>
+      <perspective
+            id="org.argeo.cms.ui.workbench.jcrBrowserPerspective"
+            class="org.argeo.cms.ui.workbench.JcrBrowserPerspective"
+            name="Data Explorer"
+            icon="platform:/plugin/org.argeo.cms.ui.theme/icons/nodes.gif">
+      </perspective>
+   </extension>
+   
+    <!-- Definition of the OSGI perspective -->
+    <extension point="org.eclipse.ui.perspectiveExtensions"> 
+        <perspectiveExtension targetID="org.argeo.cms.ui.workbench.osgiPerspective"> 
+            <view 
+            	id="org.argeo.cms.ui.workbench.cmsSessionsView" 
+            	minimized="false"
+             	ratio="0.5" 
+             	relationship="left" 
+             	relative="org.eclipse.ui.editorss"/> 
+            <view 
+            	id="org.argeo.cms.ui.workbench.modulesView" 
+            	minimized="false"
+             	relationship="stack"
+             	relative="org.argeo.cms.ui.workbench.cmsSessionsView"/> 
+             <view 
+            	id="org.argeo.cms.ui.workbench.bundlesView" 
+            	minimized="false"
+             	relationship="stack" 
+             	relative="org.argeo.cms.ui.workbench.modulesView"/> 
+             <view 
+            	id="org.argeo.cms.ui.workbench.multiplePackagesView" 
+            	minimized="false"
+             	relationship="stack" 
+             	relative="org.argeo.cms.ui.workbench.bundlesView"/> 
+        </perspectiveExtension> 
+    </extension> 
+   
+   
+   <!-- VIEWS -->
+   <extension
+		point="org.eclipse.ui.views">
+		<!-- Security -->
+		<view
+			id="org.argeo.cms.ui.workbench.usersView"
+			class="org.argeo.eclipse.spring.SpringExtensionFactory"
+			icon="platform:/plugin/org.argeo.cms.ui.theme/icons/person.png"
+			name="Users"
+			restorable="true">
+		</view>
+		<view
+			class="org.argeo.eclipse.spring.SpringExtensionFactory"
+			icon="platform:/plugin/org.argeo.cms.ui.theme/icons/group.png"
+			id="org.argeo.cms.ui.workbench.groupsView"
+			name="Groups"
+			restorable="false">
+		</view>
+		<!-- Home -->
+		<view
+			id="org.argeo.cms.ui.workbench.userProfile"
+			class="org.argeo.cms.ui.workbench.useradmin.UserProfile"
+			icon="platform:/plugin/org.argeo.cms.ui.theme/icons/person-logged-in.png"
+			name="Profile"
+			restorable="true">
+		</view>
+		<!-- Maintenance -->
+		<view
+			id="org.argeo.cms.ui.workbench.logView"
+			class="org.argeo.eclipse.spring.SpringExtensionFactory"
+			name="Log"
+			icon="platform:/plugin/org.argeo.cms.ui.theme/icons/log.gif"
+			restorable="true">
+		</view>
+		<view
+            id="org.argeo.cms.ui.workbench.adminLogView"
+            class="org.argeo.eclipse.spring.SpringExtensionFactory"
+            name="Admin Log"
+            icon="platform:/plugin/org.argeo.cms.ui.theme/icons/adminLog.gif"
+            restorable="true">
+		</view>
+		<!-- OSGi Monitor -->
+		<view
+      		name="Modules"
+            id="org.argeo.cms.ui.workbench.modulesView"
+            icon="platform:/plugin/org.argeo.cms.ui.theme/icons/service_published.gif"
+			class="org.argeo.cms.ui.workbench.osgi.ModulesView">
+		</view>
+		<view
+      		name="CMS Session"
+            id="org.argeo.cms.ui.workbench.cmsSessionsView"
+            icon="platform:/plugin/org.argeo.cms.ui.theme/icons/service_published.gif"
+			class="org.argeo.cms.ui.workbench.osgi.CmsSessionsView">
+		</view>
+		<view
+      		name="Bundles"
+            id="org.argeo.cms.ui.workbench.bundlesView" 
+            icon="platform:/plugin/org.argeo.cms.ui.theme/icons/bundles.gif"
+            class="org.argeo.cms.ui.workbench.osgi.BundlesView">
+		</view>
+		<view
+      		name="Multiple Packages"
+            id="org.argeo.cms.ui.workbench.multiplePackagesView" 
+            icon="platform:/plugin/org.argeo.cms.ui.theme/icons/node.gif"
+            class="org.argeo.cms.ui.workbench.osgi.MultiplePackagesView">
+		</view>
+		<!-- Data Explorer -->
+		<view
+          name="JCR"
+          id="org.argeo.cms.ui.workbench.jcrBrowserView"
+          icon="platform:/plugin/org.argeo.cms.ui.theme/icons/browser.gif"
+          class="org.argeo.eclipse.spring.SpringExtensionFactory">
+	   </view>
+		<view
+          name="Files"
+          id="org.argeo.cms.ui.workbench.nodeFsBrowserView"
+          icon="platform:/plugin/org.argeo.cms.ui.theme/icons/browser.gif"
+          class="org.argeo.eclipse.spring.SpringExtensionFactory">
+	   </view>
+    </extension> 
+	
+	<!-- EDITORS -->
+	<extension
+		point="org.eclipse.ui.editors">
+		<!-- Security -->
+		<editor
+			class="org.argeo.eclipse.spring.SpringExtensionFactory"
+            id="org.argeo.cms.ui.workbench.userEditor"
+            name="User"
+            icon="platform:/plugin/org.argeo.cms.ui.theme/icons/person.png"
+            default="false">
+		</editor>
+		<editor
+			class="org.argeo.eclipse.spring.SpringExtensionFactory"
+            id="org.argeo.cms.ui.workbench.groupEditor"
+            name="User"
+            icon="platform:/plugin/org.argeo.cms.ui.theme/icons/group.png"
+            default="false">
+		</editor>
+		<!-- Data Explorer -->
+		<editor
+			name="JCR Query"
+			id="org.argeo.cms.ui.workbench.genericJcrQueryEditor"
+			icon="platform:/plugin/org.argeo.cms.ui.theme/icons/query.png"
+			class="org.argeo.eclipse.spring.SpringExtensionFactory"
+			default="false">
+        </editor>
+		<editor
+			name="Node Editor"
+            id="org.argeo.cms.ui.workbench.defaultNodeEditor"
+			icon="platform:/plugin/org.argeo.cms.ui.theme/icons/query.png"
+			class="org.argeo.eclipse.spring.SpringExtensionFactory"
+			default="false">
+		</editor>
+	</extension>
+    
+    <extension
+         point="org.eclipse.ui.commands">
+		<!-- User CRUD -->
+		<command
+            id="org.argeo.cms.ui.workbench.newUser"
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            name="New User">
+      	</command>
+		<command
+			id="org.argeo.cms.ui.workbench.deleteUsers"
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+			name="Delete User">
+		</command>
+		<command
+	        id="org.argeo.cms.ui.workbench.userBatchUpdate"
+    		defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            name="User batch update">
+		</command>
+		<!-- Group CRUD -->
+		<command
+			id="org.argeo.cms.ui.workbench.newGroup"
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            name="New Group">
+		</command>
+		<command
+            id="org.argeo.cms.ui.workbench.deleteGroups"
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+            name="Delete Group">
+		</command>
+		<!-- Transaction -->
+		<command
+		    id="org.argeo.cms.ui.workbench.userTransactionHandler"
+            defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+        	name="Manage a user transaction">
+			<commandParameter
+					id="param.commandId"
+					name="begin, commit or rollback">
+ 			</commandParameter>
+  		</command>
+		<!-- Force the refresh when the various listener are not enough -->
+		<command
+            defaultHandler="org.argeo.cms.ui.workbench.internal.useradmin.commands.ForceRefresh"
+            id="org.argeo.cms.ui.workbench.forceRefresh"
+            name="Force Refresh">
+      	</command>
+		<!-- Data Explorer -->
+		<command
+			defaultHandler="org.argeo.cms.ui.workbench.commands.OpenEditor"
+            id="org.argeo.cms.ui.workbench.openEditor"
+            name="Open an editor given its ID">
+            <commandParameter
+				id="param.jcrNodePath"
+				name="Node path">
+  	 		</commandParameter>
+            <!-- The path to the corresponding node if needed. -->
+            <commandParameter
+				id="param.jcrNodePath"
+				name="Node path">
+  	 		</commandParameter>
+		</command>
+    	<command
+			defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.GetNodeSize"
+			id="org.argeo.cms.ui.workbench.getNodeSize"
+			name="Get node size">
+		</command>    
+    	<command
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+			id="org.argeo.cms.ui.workbench.addRemoteRepository"
+			name="Add remote JCR repository">
+			<!-- <commandParameter
+				id="param.repositoryUri"
+				name="Repository URI">
+  	 		</commandParameter> -->
+		</command>    
+    	<command
+			defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.RemoveRemoteRepository"
+			id="org.argeo.cms.ui.workbench.removeRemoteRepository"
+			name="Remove remote JCR repository">
+		</command>    
+		<command
+	        defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.AddFolderNode"
+	        id="org.argeo.cms.ui.workbench.addFolderNode"
+	        name="Create a new folder">
+		</command>
+		<command
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+			id="org.argeo.cms.ui.workbench.addPrivileges"
+			name="Add Privileges">
+		</command>
+		<command
+			defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+			id="org.argeo.cms.ui.workbench.removePrivileges"
+			name="Remove Privileges">
+		</command>
+		<command
+			defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.CreateWorkspace"
+			id="org.argeo.cms.ui.workbench.createWorkspace"
+			name="Create a new workspace">
+		</command>
+		<command
+			defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.Refresh"
+			id="org.argeo.cms.ui.workbench.refresh"
+			name="Refresh">
+		</command>
+		<command
+			defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.DeleteNodes"
+			id="org.argeo.cms.ui.workbench.deleteNodes"
+			name="Delete nodes">
+		</command>
+		<command
+	        defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.UploadFiles"
+	        id="org.argeo.cms.ui.workbench.uploadFiles"
+	        name="Upload files">
+		</command>
+		<!-- <command
+	        defaultHandler="org.argeo.eclipse.spring.SpringCommandHandler"
+	        id="org.argeo.cms.ui.workbench.openFile"
+	        name="Open current file">
+		</command> -->
+		<command
+	        defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.DumpNode"
+	        id="org.argeo.cms.ui.workbench.dumpNode"
+	        name="Dump Current Selected Node">
+		</command>
+		<command
+	        defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.RenameNode"
+	        id="org.argeo.cms.ui.workbench.renameNode"
+	        name="Rename Current Selected Node">
+		</command>
+		<command
+	        defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.ConfigurableNodeDump"
+	        id="org.argeo.cms.ui.workbench.nodeConfigurableDump"
+	        name="Configurable dump of the selected Node">
+		</command>
+		<command
+			defaultHandler="org.argeo.cms.ui.workbench.internal.jcr.commands.SortChildNodes"
+			id="org.argeo.cms.ui.workbench.sortChildNodes"
+			name="Sort node tree">
+            <!-- FIXME: default value does not work -->
+            <state 
+				id="org.argeo.cms.ui.workbench.sortChildNodes.toggleState" 
+				class="org.eclipse.ui.handlers.RegistryToggleState:true" >
+				<!-- <class class="org.eclipse.jface.commands.ToggleState"> 
+					<parameter
+						name="default"
+               			value="true" />
+				</class> -->
+			</state>
+		</command>
+		<!-- Utility to provide sub menues when we don't want to define a default command for this menu -->
+		<command
+			id="org.argeo.cms.ui.workbench.doNothing"
+			defaultHandler="org.argeo.cms.ui.workbench.commands.DoNothing"
+			name="Open menu">
+		</command>    
+	</extension>
+	
+	<!-- MENU CONTRIBUTIONS -->
+	<extension
+		point="org.eclipse.ui.menus">
+    	<!-- Main tool bar menu
+    	<menuContribution locationURI="toolbar:org.eclipse.ui.main.toolbar">
+        	<toolbar id="org.argeo.cms.ui.workbench.userToolbar">
+				<command
+					commandId="org.argeo.cms.ui.workbench.rap.mainMenuCommand"
+					icon="platform:/plugin/org.argeo.cms.ui.theme/icons/home.png"
+					id="org.argeo.cms.ui.workbench.rap.mainMenu"
+					style="pulldown">
+				</command>
+				<command commandId="org.eclipse.ui.file.save" icon="platform:/plugin/org.argeo.cms.ui.theme/icons/save.png"/>
+				<command commandId="org.eclipse.ui.file.saveAll" icon="platform:/plugin/org.argeo.cms.ui.theme/icons/save-all.png"/>
+			</toolbar>
+		</menuContribution>
+		-->
+		<menuContribution
+			locationURI="toolbar:org.argeo.cms.ui.workbench.userToolbar?after=org.eclipse.ui.file.saveAll"> 
+			<!-- Transaction management --> 
+ 			<command
+				commandId="org.argeo.cms.ui.workbench.userTransactionHandler"
+				icon="platform:/plugin/org.argeo.cms.ui.theme/icons/commit.gif"
+				label="Commit Transaction"
+				style="push"
+				tooltip="Commit a user transaction">
+				<parameter name="param.commandId" value="transaction.commit" />
+				<visibleWhen>
+					<with variable="org.argeo.cms.ui.workbench.userTransactionState">
+						<equals value="status.active" />
+					</with>
+				</visibleWhen>
+			</command>
+ 			<command
+				commandId="org.argeo.cms.ui.workbench.userTransactionHandler"
+				icon="platform:/plugin/org.argeo.cms.ui.theme/icons/rollback.gif"
+				label="Rollback Transaction"
+				style="push"
+				tooltip="Abandon current changes and rollback to the latest commited version">
+				<parameter name="param.commandId" value="transaction.rollback" />
+				<visibleWhen>
+					<with variable="org.argeo.cms.ui.workbench.userTransactionState">
+							<equals value="status.active" />
+					</with>
+				</visibleWhen>
+			</command>			
+		</menuContribution>
+    
+    	<!-- UsersView specific toolbar menu -->
+		<menuContribution
+            locationURI="toolbar:org.argeo.cms.ui.workbench.usersView">
+            <command
+                  commandId="org.argeo.cms.ui.workbench.deleteUsers"
+                  icon="platform:/plugin/org.argeo.cms.ui.theme/icons/delete.png"
+                  label="Delete"
+                  tooltip="Delete selected users">
+            </command>
+            <command
+                  commandId="org.argeo.cms.ui.workbench.forceRefresh"
+                  icon="platform:/plugin/org.argeo.cms.ui.theme/icons/refresh.png"
+                  label="Refresh"
+                  tooltip="Force the full refresh of the user list">
+            </command>
+            <command
+                  commandId="org.argeo.cms.ui.workbench.newUser"
+                  icon="platform:/plugin/org.argeo.cms.ui.theme/icons/add.png"
+                  label="Add"
+                  tooltip="Create a new user">
+            </command>
+            <command
+                  commandId="org.argeo.cms.ui.workbench.userBatchUpdate"
+                  icon="platform:/plugin/org.argeo.cms.ui.theme/icons/batch.gif"
+                  label="Update users"
+                  tooltip="Perform maintenance activities on a list of chosen users">
+            </command>
+        </menuContribution>
+
+    	<!-- GroupsView specific toolbar menu -->
+        <menuContribution
+            locationURI="toolbar:org.argeo.cms.ui.workbench.groupsView">
+            <command
+                  commandId="org.argeo.cms.ui.workbench.deleteGroups"
+                  icon="platform:/plugin/org.argeo.cms.ui.theme/icons/delete.png"
+                  label="Delete Group"
+                  tooltip="Delete selected groups">
+            </command>
+            <command
+                  commandId="org.argeo.cms.ui.workbench.forceRefresh"
+                  icon="platform:/plugin/org.argeo.cms.ui.theme/icons/refresh.png"
+                  label="Refresh list"
+                  tooltip="Force the full refresh of the group list">
+            </command>
+            <command
+                  commandId="org.argeo.cms.ui.workbench.newGroup"
+                  icon="platform:/plugin/org.argeo.cms.ui.theme/icons/add.png"
+                  label="Add Group"
+                  tooltip="Create a new group">
+            </command>
+        </menuContribution>
+
+        <!-- Browser view specific menu --> 
+		<menuContribution
+			locationURI="menu:org.argeo.cms.ui.workbench.jcrBrowserView">
+            <!-- See bug 149 --> 
+            <!-- <command
+            	commandId="org.argeo.cms.ui.workbench.openGenericJcrQueryEditor"
+                icon="platform:/plugin/org.argeo.cms.ui.theme/icons/query.png"
+                style="push">
+            </command> --> 
+            <command
+            	commandId="org.argeo.cms.ui.workbench.addRemoteRepository"
+                icon="platform:/plugin/org.argeo.cms.ui.theme/icons/addRepo.gif"
+                style="push">
+            </command>
+             <command
+            	commandId="org.argeo.cms.ui.workbench.sortChildNodes"
+                icon="platform:/plugin/org.argeo.cms.ui.theme/icons/sort.gif"
+                style="toggle"
+                label="Sort child nodes"
+                tooltip="NOTE: displaying unsorted nodes will enhance overall performances">
+            </command>
+		</menuContribution>
+		<!-- Browser view popup context menu --> 
+		<menuContribution
+			locationURI="popup:org.argeo.cms.ui.workbench.jcrBrowserView">
+			<command
+				commandId="org.argeo.cms.ui.workbench.refresh"
+				icon="platform:/plugin/org.argeo.cms.ui.theme/icons/refresh.png"
+				style="push">
+			</command>
+			<command
+		         commandId="org.argeo.cms.ui.workbench.addFolderNode"
+		         icon="platform:/plugin/org.argeo.cms.ui.theme/icons/addFolder.gif"
+		         label="Add Folder..."
+		         style="push">
+				<visibleWhen>
+					<iterate>
+				      <and>
+				         <or>
+				            <instanceof
+				                  value="org.argeo.cms.ui.jcr.model.SingleJcrNodeElem">
+				            </instanceof>
+				            <instanceof
+				                  value="org.argeo.cms.ui.jcr.model.WorkspaceElem">
+				            </instanceof>
+				         </or>
+             			<with variable="activeMenuSelection"><count value="1"/></with>
+				      </and>
+					</iterate>
+				</visibleWhen>
+			</command>
+			<command
+		         commandId="org.argeo.cms.ui.workbench.addPrivileges"
+		         icon="platform:/plugin/org.argeo.cms.ui.theme/icons/addPrivileges.gif"
+		         label="Add Privileges..."
+		         style="push">
+				<visibleWhen>
+					<iterate>
+				      <and>
+				         <or>
+				            <instanceof
+				                  value="org.argeo.cms.ui.jcr.model.SingleJcrNodeElem">
+				            </instanceof>
+				            <instanceof
+				                  value="org.argeo.cms.ui.jcr.model.WorkspaceElem">
+				            </instanceof>
+				         </or>
+             			<with variable="activeMenuSelection"><count value="1"/></with>
+				      </and>
+					</iterate>
+				</visibleWhen>
+			</command>
+			<command
+		         commandId="org.argeo.cms.ui.workbench.removePrivileges"
+		         icon="platform:/plugin/org.argeo.cms.ui.theme/icons/removePrivileges.gif"
+		         label="Remove Privileges..."
+		         style="push">
+				<visibleWhen>
+					<iterate>
+				      <and>
+				         <or>
+				            <instanceof
+				                  value="org.argeo.cms.ui.jcr.model.SingleJcrNodeElem">
+				            </instanceof>
+				            <instanceof
+				                  value="org.argeo.cms.ui.jcr.model.WorkspaceElem">
+				            </instanceof>
+				         </or>
+             			<with variable="activeMenuSelection"><count value="1"/></with>
+				      </and>
+					</iterate>
+				</visibleWhen>
+			</command>
+			<command
+		         commandId="org.argeo.cms.ui.workbench.createWorkspace"
+		         icon="platform:/plugin/org.argeo.cms.ui.theme/icons/addWorkspace.png"
+		         label="Create Workspace..."
+		         style="push">
+				<visibleWhen>
+					<iterate>
+			      		<and>
+			         		<or>
+			            		<instanceof
+			                  		value="org.argeo.cms.ui.jcr.model.RepositoryElem">
+			            		</instanceof>
+			         		</or>
+             				<with variable="activeMenuSelection"><count value="1"/></with>
+						</and>
+					</iterate>
+				</visibleWhen>
+			</command>
+			<command
+				commandId="org.argeo.cms.ui.workbench.deleteNodes"
+				icon="platform:/plugin/org.argeo.cms.ui.theme/icons/remove.gif"
+				label="Delete Nodes"
+				style="push">
+				<visibleWhen>
+					<iterate>
+						<or>
+							<instanceof
+								value="org.argeo.cms.ui.jcr.model.SingleJcrNodeElem" />
+							<instanceof
+								value="org.argeo.cms.ui.jcr.model.WorkspaceElem" />
+						</or>
+					</iterate>
+				</visibleWhen>
+			</command>
+			<command
+				commandId="org.argeo.cms.ui.workbench.uploadFiles"
+				icon="platform:/plugin/org.argeo.cms.ui.theme/icons/import_fs.png"
+				style="push"
+				tooltip="Upload files from the local file sytem">
+				<visibleWhen>
+					<iterate>
+						<and>
+							<or>
+								<instanceof
+									value="org.argeo.cms.ui.jcr.model.SingleJcrNodeElem" />
+								<instanceof
+                          			value="org.argeo.cms.ui.jcr.model.WorkspaceElem" />
+                 			</or>
+                 			<with variable="activeMenuSelection"><count value="1"/></with>
+						</and>
+					</iterate>
+				</visibleWhen>
+			</command>
+			<command
+				commandId="org.argeo.cms.ui.workbench.addRemoteRepository"
+				icon="platform:/plugin/org.argeo.cms.ui.theme/icons/addRepo.gif"
+				style="push">
+					<visibleWhen>
+						<iterate> 
+							<or>
+								<instanceof
+                    				value="org.argeo.cms.ui.jcr.model.RepositoriesElem" />
+								<instanceof
+									value="org.argeo.cms.ui.jcr.model.RepositoryElem" />
+							</or> 
+						</iterate>
+					</visibleWhen>
+			</command>
+			<command
+				commandId="org.argeo.cms.ui.workbench.removeRemoteRepository"
+				icon="platform:/plugin/org.argeo.cms.ui.theme/icons/remove.gif"
+				style="push">
+				<visibleWhen>
+					<iterate> 
+						<or>
+							<instanceof
+								value="org.argeo.cms.ui.jcr.model.RemoteRepositoryElem" />
+						</or> 
+           			</iterate>
+				</visibleWhen>
+			</command>
+			<command
+				commandId="org.argeo.cms.ui.workbench.getNodeSize"
+				icon="platform:/plugin/org.argeo.cms.ui.theme/icons/getSize.gif"
+				style="push">
+					<visibleWhen>
+						<iterate>
+							<or>
+								<instanceof
+									value="org.argeo.cms.ui.jcr.model.SingleJcrNodeElem" />
+								<instanceof
+									value="org.argeo.cms.ui.jcr.model.WorkspaceElem" />
+              				</or>
+           				</iterate>
+					</visibleWhen>
+			</command>
+			<command
+		        commandId="org.argeo.cms.ui.workbench.dumpNode"
+		        icon="platform:/plugin/org.argeo.cms.ui.theme/icons/dumpNode.gif"
+				label="Dump Node"
+				style="push">
+				<visibleWhen>
+					<iterate> <and>
+						<instanceof value="org.argeo.cms.ui.jcr.model.SingleJcrNodeElem"></instanceof>
+             			<with variable="activeMenuSelection"><count value="1"/></with>
+					</and> </iterate>
+				</visibleWhen>
+			</command>
+			<command
+		        commandId="org.argeo.cms.ui.workbench.renameNode"
+		        icon="platform:/plugin/org.argeo.cms.ui.theme/icons/rename.gif"
+				label="Rename..."
+				style="push">
+				<visibleWhen>
+					<iterate> <and>
+						<instanceof value="org.argeo.cms.ui.jcr.model.SingleJcrNodeElem"></instanceof>
+             			<with variable="activeMenuSelection"><count value="1"/></with>
+					</and> </iterate>
+				</visibleWhen>
+			</command>
+			<command
+		        commandId="org.argeo.cms.ui.workbench.nodeConfigurableDump"
+		        icon="platform:/plugin/org.argeo.cms.ui.theme/icons/dumpNode.gif"
+				label="Configurable dump..."
+				style="push">
+				<visibleWhen>
+					<iterate> 
+						<and>
+							<instanceof value="org.argeo.cms.ui.jcr.model.SingleJcrNodeElem"></instanceof>
+             				<with variable="activeMenuSelection"><count value="1"/></with>
+						</and> 
+					</iterate>
+				</visibleWhen>
+			</command>
+		</menuContribution>
+        
+	</extension>
+
+	<!-- SERVICES -->
+	<extension
+      	point="org.eclipse.ui.services">
+		<sourceProvider
+	        id="org.argeo.cms.ui.workbench.userTransactionProvider"
+            provider="org.argeo.eclipse.spring.SpringExtensionFactory" >
+	   		<variable
+	            name="org.argeo.cms.ui.workbench.userTransactionState"
+	            priorityLevel="workbench">
+	      	</variable>
+	   	</sourceProvider>
+	   	<sourceProvider
+              provider="org.argeo.cms.ui.workbench.util.RolesSourceProvider">
+           <variable
+                 name="org.argeo.cms.ui.workbench.rolesVariable"
+                 priorityLevel="workbench">
+           </variable>
+        </sourceProvider>
+	</extension>
+  
+  	<!-- ACTIVITIES -->
+	<extension
+		point="org.eclipse.ui.activities">
+
+		<!-- Admin -->
+		<activityPatternBinding
+			pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.osgiPerspective"
+			isEqualityPattern="true"
+			activityId="org.argeo.cms.ui.workbench.adminActivity">
+		</activityPatternBinding>
+		<activityPatternBinding
+			pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.jcrBrowserPerspective"
+			isEqualityPattern="true"
+			activityId="org.argeo.cms.ui.workbench.adminActivity">
+		</activityPatternBinding>
+        <activityPatternBinding
+              pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.adminMaintenancePerspective"
+              isEqualityPattern="true"
+              activityId="org.argeo.cms.ui.workbench.adminActivity">
+        </activityPatternBinding>
+        <activityPatternBinding
+              pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.adminLogView"
+              isEqualityPattern="true"
+              activityId="org.argeo.cms.ui.workbench.adminActivity">
+        </activityPatternBinding>
+		
+		<!-- UserAdmin -->
+		<activityPatternBinding
+			pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.adminSecurityPerspective"
+			activityId="org.argeo.cms.ui.workbench.userAdminActivity"
+			isEqualityPattern="true">
+		</activityPatternBinding>
+
+		<!-- Users -->
+        <activityPatternBinding
+              pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.userHomePerspective"
+              isEqualityPattern="true"
+              activityId="org.argeo.cms.ui.workbench.userActivity">
+        </activityPatternBinding>
+        <activityPatternBinding
+              pattern="org.argeo.cms.ui.workbench/org.argeo.cms.ui.workbench.userProfile"
+              isEqualityPattern="true"
+              activityId="org.argeo.cms.ui.workbench.userActivity">
+        </activityPatternBinding>
+
+
+		<!-- Activity declaration -->
+		<activity
+			description="Authenticated users"
+			id="org.argeo.cms.ui.workbench.userActivity"
+			name="User">
+			<enabledWhen>
+				<with variable="roles">
+					<iterate ifEmpty="false" operator="or">
+						<equals value="cn=user,ou=roles,ou=node" />
+					</iterate>
+				</with>
+			</enabledWhen>
+		</activity>
+        <activity
+              description="Admins"
+              id="org.argeo.cms.ui.workbench.adminActivity"
+              name="Admin">
+		  <enabledWhen>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="cn=admin,ou=roles,ou=node" />
+		      </iterate>
+		    </with>
+		  </enabledWhen>
+        </activity>
+        <activity
+              description="User Admins"
+              id="org.argeo.cms.ui.workbench.userAdminActivity"
+              name="User Admin">
+		  <enabledWhen>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="cn=userAdmin,ou=roles,ou=node" />
+		      </iterate>
+		    </with>
+		  </enabledWhen>
+        </activity>
+        <activity
+              description="Non admins"
+              id="org.argeo.cms.ui.workbench.notAdminActivity"
+              name="Not Admin">
+		  <enabledWhen>
+		  	<not>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="cn=admin,ou=roles,ou=node" />
+		      </iterate>
+		    </with>
+		  	</not>
+		  </enabledWhen>
+        </activity>
+        <activity
+              description="Non remote"
+              id="org.argeo.cms.ui.workbench.notRemoteActivity"
+              name="NonRemote">
+		  <enabledWhen>
+		  	<not>
+		    <with variable="roles">
+		      <iterate ifEmpty="false" operator="or">
+		        <equals value="ROLE_REMOTE" />
+		      </iterate>
+		    </with>
+		  	</not>
+		  </enabledWhen>
+        </activity>
+	</extension>
+	
+	<!-- STARTUP  --> 
+	<extension point="org.eclipse.ui.startup">
+   		<startup class="org.argeo.cms.ui.workbench.internal.useradmin.PartStateChanged"/>
+	</extension>
+</plugin>

@@ -1,0 +1,192 @@
+package org.argeo.util;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Properties;
+
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+
+public class LangUtils {
+	/*
+	 * NON-API OSGi
+	 */
+	/**
+	 * Returns an array with the names of the provided classes. Useful when
+	 * registering services with multiple interfaces in OSGi.
+	 */
+	public static String[] names(Class<?>... clzz) {
+		String[] res = new String[clzz.length];
+		for (int i = 0; i < clzz.length; i++)
+			res[i] = clzz[i].getName();
+		return res;
+	}
+
+	/*
+	 * DICTIONARY
+	 */
+
+	/**
+	 * Creates a new {@link Dictionary} with one key-value pair (neither key not
+	 * value should be null)
+	 */
+	public static Dictionary<String, Object> dico(String key, Object value) {
+		assert key != null;
+		assert value != null;
+		Hashtable<String, Object> props = new Hashtable<>();
+		props.put(key, value);
+		return props;
+	}
+
+	/**
+	 * Wraps the keys of the provided {@link Dictionary} as an {@link Iterable}.
+	 */
+	public static Iterable<String> keys(Dictionary<String, ?> props) {
+		assert props != null;
+		return new DictionaryKeys(props);
+	}
+
+	static String toJson(Dictionary<String, ?> props) {
+		return toJson(props, false);
+	}
+
+	static String toJson(Dictionary<String, ?> props, boolean pretty) {
+		StringBuilder sb = new StringBuilder();
+		sb.append('{');
+		if (pretty)
+			sb.append('\n');
+		Enumeration<String> keys = props.keys();
+		while (keys.hasMoreElements()) {
+			String key = keys.nextElement();
+			if (pretty)
+				sb.append(' ');
+			sb.append('\"').append(key).append('\"');
+			if (pretty)
+				sb.append(" : ");
+			else
+				sb.append(':');
+			sb.append('\"').append(props.get(key)).append('\"');
+			if (keys.hasMoreElements())
+				sb.append(", ");
+			if (pretty)
+				sb.append('\n');
+		}
+		sb.append('}');
+		return sb.toString();
+	}
+
+	static void storeAsProperties(Dictionary<String, Object> props, Path path) throws IOException {
+		if (props == null)
+			throw new IllegalArgumentException("Props cannot be null");
+		Properties toStore = new Properties();
+		for (Enumeration<String> keys = props.keys(); keys.hasMoreElements();) {
+			String key = keys.nextElement();
+			toStore.setProperty(key, props.get(key).toString());
+		}
+		try (OutputStream out = Files.newOutputStream(path)) {
+			toStore.store(out, null);
+		}
+	}
+
+	static void appendAsLdif(String dnBase, String dnKey, Dictionary<String, Object> props, Path path)
+			throws IOException {
+		if (props == null)
+			throw new IllegalArgumentException("Props cannot be null");
+		Object dnValue = props.get(dnKey);
+		String dnStr = dnKey + '=' + dnValue + ',' + dnBase;
+		LdapName dn;
+		try {
+			dn = new LdapName(dnStr);
+		} catch (InvalidNameException e) {
+			throw new IllegalArgumentException("Cannot interpret DN " + dnStr, e);
+		}
+		if (dnValue == null)
+			throw new IllegalArgumentException("DN key " + dnKey + " must have a value");
+		try (Writer writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND, StandardOpenOption.CREATE)) {
+			writer.append("\ndn: ");
+			writer.append(dn.toString());
+			writer.append('\n');
+			for (Enumeration<String> keys = props.keys(); keys.hasMoreElements();) {
+				String key = keys.nextElement();
+				Object value = props.get(key);
+				writer.append(key);
+				writer.append(": ");
+				// FIXME deal with binary and multiple values
+				writer.append(value.toString());
+				writer.append('\n');
+			}
+		}
+	}
+
+	static Dictionary<String, Object> loadFromProperties(Path path) throws IOException {
+		Properties toLoad = new Properties();
+		try (InputStream in = Files.newInputStream(path)) {
+			toLoad.load(in);
+		}
+		Dictionary<String, Object> res = new Hashtable<String, Object>();
+		for (Object key : toLoad.keySet())
+			res.put(key.toString(), toLoad.get(key));
+		return res;
+	}
+
+	/*
+	 * EXCEPTIONS
+	 */
+	/**
+	 * Chain the messages of all causes (one per line, <b>starts with a line
+	 * return</b>) without all the stack
+	 */
+	public static String chainCausesMessages(Throwable t) {
+		StringBuffer buf = new StringBuffer();
+		chainCauseMessage(buf, t);
+		return buf.toString();
+	}
+
+	/** Recursive chaining of messages */
+	private static void chainCauseMessage(StringBuffer buf, Throwable t) {
+		buf.append('\n').append(' ').append(t.getClass().getCanonicalName()).append(": ").append(t.getMessage());
+		if (t.getCause() != null)
+			chainCauseMessage(buf, t.getCause());
+	}
+
+	/*
+	 * TIME
+	 */
+	/** Formats time elapsed since start. */
+	public static String since(ZonedDateTime start) {
+		ZonedDateTime now = ZonedDateTime.now();
+		return duration(start, now);
+	}
+
+	/** Formats a duration. */
+	public static String duration(Temporal start, Temporal end) {
+		long count = ChronoUnit.DAYS.between(start, end);
+		if (count != 0)
+			return count > 1 ? count + " days" : count + " day";
+		count = ChronoUnit.HOURS.between(start, end);
+		if (count != 0)
+			return count > 1 ? count + " hours" : count + " hours";
+		count = ChronoUnit.MINUTES.between(start, end);
+		if (count != 0)
+			return count > 1 ? count + " minutes" : count + " minute";
+		count = ChronoUnit.SECONDS.between(start, end);
+		return count > 1 ? count + " seconds" : count + " second";
+	}
+
+	/** Singleton constructor. */
+	private LangUtils() {
+
+	}
+
+}

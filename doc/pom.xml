@@ -1,41 +1,77 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
-		<version>1.1.8-SNAPSHOT</version>
 		<artifactId>argeo-commons</artifactId>
+		<version>2.1.81-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>doc</artifactId>
-	<name>Commons Doc</name>
+	<name>Commons Documentation</name>
 	<packaging>pom</packaging>
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>com.agilejava.docbkx</groupId>
 				<artifactId>docbkx-maven-plugin</artifactId>
+				<version>2.0.15</version>
 				<configuration>
-					<htmlStylesheet>css/style.css</htmlStylesheet>
-					<postProcess>
-						<!-- See https://fisheye.springframework.org/rdiff/spring-ldap?csid=439&u&N -->
-						<copy todir="target/docbkx/html">
-							<fileset dir="src/docbkx">
-								<include name="*/*.css" />
-							</fileset>
-						</copy>
-					</postProcess>
+					<sourceDirectory>docbook</sourceDirectory>
+					<includes>argeo-commons.dbk.xml</includes>
+					<htmlStylesheet>argeo.css</htmlStylesheet>
+					<xincludeSupported>true</xincludeSupported>
+					<preProcess>
+						<copy todir="${project.build.directory}/docbkx/xhtml5" file="docbook/argeo.css" />
+					</preProcess>
 				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>net.sf.docbook</groupId>
+						<artifactId>docbook-xml</artifactId>
+						<version>5.0-all</version>
+						<classifier>resources</classifier>
+						<type>zip</type>
+						<scope>runtime</scope>
+					</dependency>
+				</dependencies>
 				<executions>
 					<execution>
 						<goals>
-							<goal>generate-html</goal>
-							<goal>generate-pdf</goal>
+							<goal>generate-xhtml5</goal>
 						</goals>
-						<phase>pre-site</phase>
+						<phase>package</phase>
 					</execution>
 				</executions>
 			</plugin>
 		</plugins>
 	</build>
+	<repositories>
+		<!-- <repository> -->
+		<!-- <id>jboss</id> -->
+		<!-- <url>http://repository.jboss.org/</url> -->
+		<!-- <releases> -->
+		<!-- <enabled>true</enabled> -->
+		<!-- </releases> -->
+		<!-- <snapshots> -->
+		<!-- <enabled>false</enabled> -->
+		<!-- </snapshots> -->
+		<!-- </repository> -->
+		<repository>
+			<id>central</id>
+			<url>http://repo1.maven.org/maven2</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<!-- <pluginRepository> -->
+		<!-- <id>jboss</id> -->
+		<!-- <url>http://repository.jboss.org/</url> -->
+		<!-- </pluginRepository> -->
+	</pluginRepositories>
 </project>

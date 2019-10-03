@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- SECURITY -->
+	<!-- Editors -->
+	<bean id="userEditor"
+		class="org.argeo.cms.ui.workbench.internal.useradmin.parts.UserEditor"
+		scope="prototype">
+		<property name="userAdminWrapper" ref="userAdminWrapper" />
+	</bean>
+
+	<bean id="groupEditor"
+		class="org.argeo.cms.ui.workbench.internal.useradmin.parts.UserEditor"
+		scope="prototype">
+		<property name="userAdminWrapper" ref="userAdminWrapper" />
+		<property name="repository" ref="nodeRepository" />
+		<property name="nodeInstance" ref="nodeInstance" />
+	</bean>
+	
+	<!-- Views -->
+	<bean id="usersView"
+		class="org.argeo.cms.ui.workbench.internal.useradmin.parts.UsersView"
+		scope="prototype">
+		<property name="userAdminWrapper" ref="userAdminWrapper" />
+	</bean>
+	<bean id="groupsView"
+		class="org.argeo.cms.ui.workbench.internal.useradmin.parts.GroupsView"
+		scope="prototype">
+		<property name="userAdminWrapper" ref="userAdminWrapper" />
+	</bean>
+
+
+	<!-- DATA EXPLORER -->
+	<!-- Editors -->
+	<bean id="genericJcrQueryEditor" class="org.argeo.cms.ui.workbench.jcr.GenericJcrQueryEditor"
+		scope="prototype">
+		<property name="nodeRepository" ref="nodeRepository" />
+	</bean>
+	<bean id="defaultNodeEditor" class="org.argeo.cms.ui.workbench.jcr.DefaultNodeEditor"
+		scope="prototype">
+	</bean>
+	<!-- Views -->
+	<bean id="jcrBrowserView" class="org.argeo.cms.ui.workbench.jcr.JcrBrowserView"
+		scope="prototype">
+		<property name="repositoryRegister" ref="repositoryRegister" />
+		<property name="repositoryFactory" ref="repositoryFactory" />
+		<property name="nodeRepository" ref="nodeRepository" />
+		<property name="keyring" ref="keyring" />
+	</bean>
+	<bean id="nodeFsBrowserView" class="org.argeo.cms.ui.workbench.jcr.NodeFsBrowserView"
+		scope="prototype">
+		<property name="nodeFileSystemProvider" ref="nodeFileSystemProvider" />
+		<!-- <property name="keyring" ref="keyring" /> -->
+	</bean>
+
+	<!-- LOGGERS -->
+	<bean id="logView" class="org.argeo.cms.ui.workbench.useradmin.LogView"
+		scope="prototype">
+		<property name="argeoLogger" ref="secureLogger" />
+	</bean>
+	<bean id="adminLogView" class="org.argeo.cms.ui.workbench.useradmin.AdminLogView"
+		scope="prototype">
+		<property name="argeoLogger" ref="secureLogger" />
+	</bean>
+</beans>

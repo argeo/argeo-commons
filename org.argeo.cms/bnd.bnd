@@ -1,0 +1,11 @@
+Bundle-SymbolicName: org.argeo.cms;singleton:=true
+Bundle-Activator: org.argeo.cms.internal.kernel.Activator
+Import-Package: javax.jcr.security,\
+org.h2;resolution:=optional,\
+org.postgresql;resolution:=optional,\
+org.apache.jackrabbit.webdav.server,\
+org.apache.jackrabbit.webdav.jcr,\
+org.apache.commons.httpclient.cookie;resolution:=optional,\
+org.osgi.*;version=0.0.0,\
+*
+Provide-Capability: cms.datamodel;name=cms;cnd=/org/argeo/cms/cms.cnd;abstract=true

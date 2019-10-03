@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="User Admin Wrapper">
+   <implementation class="org.argeo.cms.e4.users.UserAdminWrapper"/>
+   <reference bind="setUserTransaction" cardinality="1..1" interface="javax.transaction.UserTransaction" name="UserTransaction" policy="static"/>
+   <reference bind="setUserAdmin" cardinality="1..1" interface="org.osgi.service.useradmin.UserAdmin" name="UserAdmin" policy="static"/>
+   <service>
+      <provide interface="org.argeo.cms.e4.users.UserAdminWrapper"/>
+   </service>
+</scr:component>

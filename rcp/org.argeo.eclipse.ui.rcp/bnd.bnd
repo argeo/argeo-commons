@@ -1,0 +1,17 @@
+Import-Package: org.apache.commons.io,\
+				org.eclipse.core.commands,\
+				org.argeo.eclipse.ui.utils,\
+				!org.eclipse.core.runtime,\
+				!org.eclipse.ui.plugin,\
+				org.eclipse.swt,\
+				*
+
+Export-Package: org.argeo.*,\
+org.eclipse.rap.fileupload.*;version="3.4",\
+org.eclipse.rap.rwt.*;version="3.4"
+
+# Was !org.eclipse.core.commands,\ why ?
+
+#Bundle-Activator: org.argeo.eclipse.ui.ArgeoUiPlugin
+#Bundle-ActivationPolicy: lazy
+#Ignore-Package: org.eclipse.core.commands

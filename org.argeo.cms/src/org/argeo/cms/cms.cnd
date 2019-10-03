@@ -1,0 +1,56 @@
+<argeo = 'http://www.argeo.org/ns/argeo'>
+<cms = 'http://www.argeo.org/ns/cms'>
+
+// GENERIC TYPES
+[argeo:remoteRepository] > nt:unstructured
+- argeo:uri (STRING)
+- argeo:userID (STRING)
++ argeo:password (argeo:encrypted)
+
+// TABULAR CONTENT
+[argeo:table] > nt:file
++ * (argeo:column) *
+
+[argeo:column] > mix:title
+- jcr:requiredType (STRING) = 'STRING'
+
+[argeo:csv] > nt:resource
+
+// CRYPTO
+[argeo:encrypted] > nt:base
+mixin
+// initialization vector used by some algorithms
+- argeo:iv (BINARY)
+
+[argeo:pbeKeySpec] > nt:base
+mixin
+- argeo:secretKeyFactory (STRING)
+- argeo:salt (BINARY)
+- argeo:iterationCount (LONG)
+- argeo:keyLength (LONG)
+- argeo:secretKeyEncryption (STRING)
+
+[argeo:pbeSpec] > argeo:pbeKeySpec
+mixin
+- argeo:cipher (STRING)
+
+// TEXT
+[cms:styled]
+mixin
+- cms:style (STRING)
+- cms:content (STRING)
+- cms:data (BINARY)
+
+[cms:image] > mix:title, mix:mimeType
+mixin
+- cms:imageWidth (STRING)
+- cms:imageHeight (STRING)
+
+[cms:section] > nt:folder, mix:created, mix:lastModified, mix:title
+orderable
++ cms:p (nt:base) = nt:unstructured * 
++ cms:h (cms:section) *
++ cms:attached (nt:folder)
+
+[cms:text] > cms:section
++ cms:history (nt:folder)

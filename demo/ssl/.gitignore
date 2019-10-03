@@ -1,0 +1,7 @@
+/CA/
+/*.p12
+/*.jks
+/nssdb/
+/*.pem
+/old/
+/rootCA/

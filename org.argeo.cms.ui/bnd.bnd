@@ -1,0 +1,24 @@
+Bundle-Activator: org.argeo.cms.ui.internal.Activator
+Bundle-ActivationPolicy: lazy
+
+Import-Package: org.eclipse.swt,\
+org.eclipse.jface.window,\
+org.eclipse.core.commands,\
+javax.jcr.security,\
+org.argeo.eclipse.ui.dialogs,\
+org.eclipse.rap.fileupload;version="[2.1,4)",\
+org.eclipse.rap.rwt;version="[2.1,4)",\
+org.eclipse.rap.rwt.application;version="[2.1,4)",\
+org.eclipse.rap.rwt.client;version="[2.1,4)",\
+org.eclipse.rap.rwt.client.service;version="[2.1,4)",\
+org.eclipse.rap.rwt.service;version="[2.1,4)",\
+org.eclipse.rap.rwt.widgets;version="[2.1,4)",\
+org.osgi.*;version=0.0.0,\
+org.argeo.jcr.docbook,\
+*
+
+## TODO: in order to enable single sourcing, we have introduced dummy RAP packages 
+# in the RCP specific bundle org.argeo.eclipse.ui.rap.
+# this was working with RAP 2.x but since we upgrade Rap to 3.1.x, 
+# there is a version range issue cause org.argeo.eclipse.ui.rap bundle is still in 2.x
+# We enable large RAP version range as a workaround that must be fixed 

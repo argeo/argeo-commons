@@ -1,0 +1,4 @@
+Bundle-SymbolicName: org.argeo.ext.rap.ui.workbench;singleton:=true
+Bundle-ActivationPolicy: lazy
+
+Fragment-Host: org.eclipse.rap.ui.workbench

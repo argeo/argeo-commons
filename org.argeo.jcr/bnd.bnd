@@ -1,0 +1,11 @@
+#Provide-Capability: cms.datamodel;name=docbook;cnd="/org/argeo/jcr/docbook/docbook.cnd"
+
+Import-Package: junit.framework;resolution:=optional,\
+org.xml.sax;version="0.0.0",\
+org.apache.jackrabbit.*;resolution:=optional,\
+org.apache.jackrabbit.webdav.jcr;resolution:=optional,\
+org.apache.jackrabbit.webdav.server;resolution:=optional,\
+org.h2;resolution:=optional,\
+org.postgresql;resolution:=optional,\
+*
+Export-Package: org.argeo.jcr.*, org.argeo.jackrabbit.*

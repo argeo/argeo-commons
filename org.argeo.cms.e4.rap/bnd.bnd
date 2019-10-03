@@ -1,0 +1,13 @@
+Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/cms-admin-rap.xml
+#OSGI-INF/cms-demo-rap.xml
+
+#Bundle-Activator: org.argeo.cms.script.ScriptAppActivator
+
+Import-Package: org.argeo.node,\
+org.eclipse.swt,\
+org.eclipse.swt.graphics,\
+org.eclipse.e4.ui.workbench,\
+org.eclipse.rap.rwt.client,\
+org.eclipse.nebula.widgets.richtext;resolution:=optional,\
+*

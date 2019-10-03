@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V5.0/EN" "http://docbook.org/xml/5.0/dtd/docbook.dtd">
+<chapter xml:id="overview">
+	<title>Overview</title>
+	<para>Argeo Commons is an integration framework.</para>
+	<section>
+		<title>Argeo Commons within the Argeo software stack</title>
+		<para></para>
+	</section>
+</chapter>

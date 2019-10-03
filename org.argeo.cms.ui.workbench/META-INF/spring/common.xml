@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="userTransactionProvider"
+		class="org.argeo.cms.ui.workbench.internal.useradmin.providers.UserTransactionProvider"
+		scope="singleton" lazy-init="false">
+		<property name="userTransaction" ref="userTransaction" />
+	</bean>
+
+	<bean id="userAdminWrapper"
+		class="org.argeo.cms.ui.workbench.internal.useradmin.UserAdminWrapper"
+		scope="singleton" lazy-init="false">
+		<property name="userTransaction" ref="userTransaction" />
+		<property name="userAdmin" ref="userAdmin" />
+		<property name="userAdminServiceReference" ref="userAdmin" />
+	</bean>
+
+	<bean id="repositoryRegister" class="org.argeo.cms.ui.jcr.DefaultRepositoryRegister" />
+
+</beans>

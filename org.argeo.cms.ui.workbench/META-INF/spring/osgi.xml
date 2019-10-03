@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/osgi"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:osgi="http://www.springframework.org/schema/osgi"
+	xsi:schemaLocation="http://www.springframework.org/schema/osgi  
+       http://www.springframework.org/schema/osgi/spring-osgi-1.1.xsd
+       http://www.springframework.org/schema/beans   
+       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
+	osgi:default-timeout="30000">
+
+	<!-- JCR -->
+	<reference id="repositoryFactory" interface="javax.jcr.RepositoryFactory" />
+	<reference id="keyring" interface="org.argeo.node.security.CryptoKeyring" />
+	<list id="repositories" interface="javax.jcr.Repository"
+		cardinality="0..N">
+		<listener ref="repositoryRegister" bind-method="register"
+			unbind-method="unregister" />
+	</list>
+
+	<reference id="nodeRepository" interface="javax.jcr.Repository"
+		filter="(cn=home)" />
+		
+	<reference id="nodeInstance" interface="org.argeo.node.NodeInstance" />
+
+	<reference id="nodeFileSystemProvider" interface="java.nio.file.spi.FileSystemProvider"
+		filter="(service.pid=org.argeo.node.fsProvider)" />
+
+	<!-- UserAdmin -->
+	<reference id="userAdmin" interface="org.osgi.service.useradmin.UserAdmin" />
+	<reference id="userTransaction" interface="javax.transaction.UserTransaction" />
+
+
+	<reference id="secureLogger" interface="org.argeo.node.ArgeoLogger"
+		cardinality="0..1" />
+	<reference id="defaultCallbackHandler" interface="javax.security.auth.callback.CallbackHandler" />
+
+</beans:beans>
