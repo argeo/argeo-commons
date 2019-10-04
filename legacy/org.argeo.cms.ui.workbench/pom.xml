@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
+		<artifactId>legacy</artifactId>
 		<version>2.1.81-SNAPSHOT</version>
-		<artifactId>argeo-commons</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.cms.ui.workbench</artifactId>
@@ -16,7 +18,7 @@
 			<artifactId>org.argeo.cms.ui</artifactId>
 			<version>2.1.81-SNAPSHOT</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.ui.rap</artifactId>
@@ -24,6 +26,25 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<!-- Spring -->
+		<dependency>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.beans</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.spring</groupId>
+			<artifactId>org.springframework.context</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.gemini</groupId>
+			<artifactId>org.eclipse.gemini.blueprint.core</artifactId>
+		</dependency>
+
+		<!-- Eclipse 3 -->
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
 			<artifactId>argeo-tp-rap-e3</artifactId>

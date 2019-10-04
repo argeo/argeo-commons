@@ -4,11 +4,11 @@
 	<parent>
 		<groupId>org.argeo.commons</groupId>
 		<version>2.1.81-SNAPSHOT</version>
-		<artifactId>dep</artifactId>
+		<artifactId>legacy-dep</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.dep.cms.platform</artifactId>
-	<name>CMS Platform</name>
+	<name>CMS Platform (Legacy)</name>
 	<dependencies>
 
 		<!-- Parent dependencies -->

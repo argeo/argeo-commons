@@ -3,18 +3,15 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
-		<artifactId>argeo-commons</artifactId>
+		<artifactId>legacy</artifactId>
 		<version>2.1.81-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>dep</artifactId>
-	<name>Commons Modular Distributions</name>
+	<artifactId>legacy-dep</artifactId>
+	<name>Commons Modular Distributions (Legacy)</name>
 	<packaging>pom</packaging>
 	<modules>
-		<module>org.argeo.dep.cms.client</module>
-		<module>org.argeo.dep.cms.node</module>
-		<module>org.argeo.dep.cms.e4.rap</module>
-		<module>org.argeo.dep.cms.sdk</module>
+		<module>org.argeo.dep.cms.platform</module>
 	</modules>
 	<build>
 		<plugins>
