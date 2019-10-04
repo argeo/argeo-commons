@@ -9,7 +9,7 @@
 	<!-- <url>http://repo.argeo.org/data/docs/argeo-2.1/site/argeo-commons/</url> -->
 	<properties>
 		<version.argeo-commons>2.1.81-SNAPSHOT</version.argeo-commons>
-		<version.argeo-tp>2.1.24</version.argeo-tp>
+		<version.argeo-tp>2.1.25-SNAPSHOT</version.argeo-tp>
 		<!-- RPM -->
 		<argeo.rpm.release>7</argeo.rpm.release>
 		<argeo.rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-2/el7</argeo.rpm.stagingRepository>
