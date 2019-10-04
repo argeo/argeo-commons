@@ -39,10 +39,10 @@
 		</dependency>
 
 		<!-- SLC -->
-		<dependency>
-			<groupId>org.argeo.tp.sdk</groupId>
-			<artifactId>org.dbunit</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.sdk</groupId> -->
+<!-- 			<artifactId>org.dbunit</artifactId> -->
+<!-- 		</dependency> -->
 		<!-- <dependency> -->
 		<!-- <groupId>org.argeo.tp.aether</groupId> -->
 		<!-- <artifactId>org.eclipse.aether.api</artifactId> -->
