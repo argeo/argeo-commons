@@ -6,6 +6,7 @@ org.postgresql;resolution:=optional,\
 org.apache.jackrabbit.webdav.server,\
 org.apache.jackrabbit.webdav.jcr,\
 org.apache.commons.httpclient.cookie;resolution:=optional,\
+!com.sun.security.jgss,\
 org.osgi.*;version=0.0.0,\
 *
 Provide-Capability: cms.datamodel;name=cms;cnd=/org/argeo/cms/cms.cnd;abstract=true

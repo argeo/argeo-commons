@@ -238,7 +238,7 @@ limitations under the License.
 				<plugin>
 					<groupId>org.apache.felix</groupId>
 					<artifactId>maven-bundle-plugin</artifactId>
-					<version>3.0.1</version>
+					<version>4.2.1</version>
 					<extensions>true</extensions>
 					<configuration>
 						<manifestLocation>META-INF</manifestLocation>
@@ -371,6 +371,10 @@ limitations under the License.
 				<exclusion>
 					<groupId>org.argeo.tp.apache</groupId>
 					<artifactId>org.apache.xerces</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.argeo.tp.sdk</groupId>
+					<artifactId>biz.aQute.bnd</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
