@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
@@ -62,12 +64,12 @@
 			<groupId>org.argeo.tp.misc</groupId>
 			<artifactId>org.slf4j.commons.logging</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.argeo.tp.misc</groupId>
 			<artifactId>org.freemarker</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.argeo.tp.bouncycastle</groupId>
 			<artifactId>bcprov</artifactId>
@@ -80,7 +82,7 @@
 			<groupId>org.argeo.tp.bouncycastle</groupId>
 			<artifactId>bcpg</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.argeo.tp.apache</groupId>
 			<artifactId>org.apache.httpcomponents.httpcore</artifactId>
@@ -322,6 +324,12 @@
 		<dependency>
 			<groupId>org.argeo.tp.misc</groupId>
 			<artifactId>com.google.guava</artifactId>
+		</dependency>
+
+		<!-- Jackrabbit Vault -->
+		<dependency>
+			<groupId>org.argeo.tp.apache.jackrabbit</groupId>
+			<artifactId>org.apache.jackrabbit.vault</artifactId>
 		</dependency>
 
 		<!-- Git -->

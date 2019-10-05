@@ -15,7 +15,7 @@
 		<!-- Parent dependencies -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.dep.cms.platform</artifactId>
+			<artifactId>org.argeo.dep.cms.e4.rap</artifactId>
 			<version>2.1.81-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
@@ -29,9 +29,14 @@
 		<!-- <groupId>org.argeo.tp.apache.ant</groupId> -->
 		<!-- <artifactId>org.apache.ant.launch</artifactId> -->
 		<!-- </dependency> -->
+
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.sdk</groupId> -->
+<!-- 			<artifactId>org.osgi.annotation.bundle</artifactId> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.argeo.tp.sdk</groupId>
-			<artifactId>biz.aQute.bnd</artifactId>
+			<artifactId>biz.aQute.bndlib</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp.sdk</groupId>
