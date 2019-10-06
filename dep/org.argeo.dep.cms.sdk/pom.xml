@@ -30,10 +30,6 @@
 		<!-- <artifactId>org.apache.ant.launch</artifactId> -->
 		<!-- </dependency> -->
 
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp.sdk</groupId> -->
-<!-- 			<artifactId>org.osgi.annotation.bundle</artifactId> -->
-<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.argeo.tp.sdk</groupId>
 			<artifactId>biz.aQute.bndlib</artifactId>
@@ -42,48 +38,10 @@
 			<groupId>org.argeo.tp.sdk</groupId>
 			<artifactId>org.junit</artifactId>
 		</dependency>
-
-		<!-- SLC -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp.sdk</groupId> -->
-<!-- 			<artifactId>org.dbunit</artifactId> -->
-<!-- 		</dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.aether</groupId> -->
-		<!-- <artifactId>org.eclipse.aether.api</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.aether</groupId> -->
-		<!-- <artifactId>org.eclipse.aether.spi</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.aether</groupId> -->
-		<!-- <artifactId>org.eclipse.aether.util</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.aether</groupId> -->
-		<!-- <artifactId>org.eclipse.aether.impl</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.aether</groupId> -->
-		<!-- <artifactId>org.eclipse.aether.connector.basic</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.aether</groupId> -->
-		<!-- <artifactId>org.eclipse.aether.transport.classpath</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.aether</groupId> -->
-		<!-- <artifactId>org.eclipse.aether.transport.file</artifactId> -->
-		<!-- </dependency> -->
 		<dependency>
 			<groupId>org.argeo.tp.sdk</groupId>
 			<artifactId>org.redline-rpm</artifactId>
 		</dependency>
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.sdk</groupId> -->
-		<!-- <artifactId>org.tmatesoft.svnkit</artifactId> -->
-		<!-- </dependency> -->
 		<dependency>
 			<groupId>org.argeo.tp.misc</groupId>
 			<artifactId>com.googlecode.javaewah.JavaEWAH</artifactId>
@@ -92,15 +50,6 @@
 			<groupId>org.argeo.tp.misc</groupId>
 			<artifactId>org.eclipse.jgit</artifactId>
 		</dependency>
-
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.misc</groupId> -->
-		<!-- <artifactId>org.postgresql.postgresql</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.misc</groupId> -->
-		<!-- <artifactId>org.h2</artifactId> -->
-		<!-- </dependency> -->
 	</dependencies>
 
 	<profiles>
