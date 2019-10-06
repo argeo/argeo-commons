@@ -78,6 +78,23 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- SWT for ARM -->
+		<dependency>
+			<groupId>org.argeo.tp.rcp.e4</groupId>
+			<artifactId>org.eclipse.swt.gtk.linux.arm</artifactId>
+			<version>3.108.0.v20180905-1254</version>
+		</dependency>
+
+		<!-- Additional text components (not in RCP distribution) -->
+		<dependency>
+			<groupId>org.argeo.tp.rcp.e4</groupId>
+			<artifactId>org.eclipse.text</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.rcp.e4</groupId>
+			<artifactId>org.eclipse.jface.text</artifactId>
+		</dependency>
+
 		<!-- SWT and JFace -->
 		<dependency>
 			<groupId>org.argeo.tp.rcp.e4</groupId>
@@ -112,12 +129,6 @@
 		<!-- <artifactId>org.eclipse.swt.gtk.linux.ppc64le</artifactId> -->
 		<!-- </dependency> -->
 
-		<!-- SWT for ARM -->
-		<dependency>
-			<groupId>org.argeo.tp.rcp.e4</groupId>
-			<artifactId>org.eclipse.swt.gtk.linux.arm</artifactId>
-			<version>3.108.0.v20180905-1254</version>
-		</dependency>
 
 		<!-- Eclipse launcher -->
 		<dependency>
