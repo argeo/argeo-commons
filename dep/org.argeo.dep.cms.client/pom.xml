@@ -65,9 +65,24 @@
 			<artifactId>org.slf4j.commons.logging</artifactId>
 		</dependency>
 
+		<!-- Freemarker -->
 		<dependency>
 			<groupId>org.argeo.tp.misc</groupId>
 			<artifactId>org.freemarker</artifactId>
+		</dependency>
+
+		<!-- Jackson JSON processor -->
+		<dependency>
+			<groupId>org.argeo.tp.jackson</groupId>
+			<artifactId>com.fasterxml.jackson.core.jackson-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jackson</groupId>
+			<artifactId>com.fasterxml.jackson.core.jackson-databind</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jackson</groupId>
+			<artifactId>com.fasterxml.jackson.core.jackson-annotations</artifactId>
 		</dependency>
 
 		<dependency>
