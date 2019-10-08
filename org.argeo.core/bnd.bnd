@@ -1,3 +1,4 @@
-#Main-Class: org.argeo.sync.cli.Sync
-
-Import-Package: *;resolution:=optional
+Import-Package: com.fasterxml.jackson.annotation;resolution:=optional,\
+ com.fasterxml.jackson.core;resolution:=optional,\
+ com.fasterxml.jackson.databind;resolution:=optional,\
+ *;resolution:=optional
