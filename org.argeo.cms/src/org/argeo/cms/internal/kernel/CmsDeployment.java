@@ -34,6 +34,7 @@ import org.argeo.node.security.CryptoKeyring;
 import org.argeo.node.security.Keyring;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.util.LangUtils;
+import org.eclipse.equinox.http.jetty.JettyConfigurator;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -192,6 +193,13 @@ public class CmsDeployment implements NodeDeployment {
 	public void shutdown() {
 		if (nodeHttp != null)
 			nodeHttp.destroy();
+
+		try {
+			JettyConfigurator.stopServer(KernelConstants.DEFAULT_JETTY_SERVER);
+		} catch (Exception e) {
+			log.error("Cannot stop default Jetty server.", e);
+		}
+
 		if (deployConfig != null) {
 			new Thread(() -> deployConfig.save(), "Save Argeo Deploy Config").start();
 		}

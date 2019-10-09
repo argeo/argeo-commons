@@ -37,6 +37,9 @@ public interface KernelConstants {
 
 	String JETTY_FACTORY_PID = "org.eclipse.equinox.http.jetty.config";
 	String WHITEBOARD_PATTERN_PROP = "osgi.http.whiteboard.servlet.pattern";
+	// default Jetty server configured via JettyConfigurator
+	String DEFAULT_JETTY_SERVER = "default";
+	String CMS_JETTY_CUSTOMIZER_CLASS = "org.argeo.equinox.jetty.CmsJettyCustomizer";
 
 	// avoid dependencies
 	String CONTEXT_NAME_PROP = "contextName";

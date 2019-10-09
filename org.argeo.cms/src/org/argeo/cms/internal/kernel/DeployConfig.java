@@ -25,6 +25,7 @@ import org.argeo.naming.LdifParser;
 import org.argeo.naming.LdifWriter;
 import org.argeo.node.NodeConstants;
 import org.argeo.osgi.useradmin.UserAdminConf;
+import org.eclipse.equinox.http.jetty.JettyConfigurator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.Configuration;
@@ -120,14 +121,28 @@ class DeployConfig implements ConfigurationListener {
 		}
 
 		// http server
+//		Dictionary<String, Object> webServerConfig = InitUtils
+//				.getHttpServerConfig(getProps(KernelConstants.JETTY_FACTORY_PID, NodeConstants.DEFAULT));
+//		if (!webServerConfig.isEmpty()) {
+//			// TODO check for other customizers
+//			webServerConfig.put("customizer.class", "org.argeo.equinox.jetty.CmsJettyCustomizer");
+//			putFactoryDeployConfig(KernelConstants.JETTY_FACTORY_PID, webServerConfig);
+//		}
+		save();
+
+		// Explicitly configure Jetty so that the default server is not started by the
+		// activator of the Equinox Jetty bundle.
 		Dictionary<String, Object> webServerConfig = InitUtils
 				.getHttpServerConfig(getProps(KernelConstants.JETTY_FACTORY_PID, NodeConstants.DEFAULT));
 		if (!webServerConfig.isEmpty()) {
-			// TODO chekc for other customizers
-			webServerConfig.put("customizer.class", "org.argeo.equinox.jetty.CmsJettyCustomizer");
-			putFactoryDeployConfig(KernelConstants.JETTY_FACTORY_PID, webServerConfig);
+			webServerConfig.put("customizer.class", KernelConstants.CMS_JETTY_CUSTOMIZER_CLASS);
 		}
-		save();
+		try {
+			JettyConfigurator.startServer(KernelConstants.DEFAULT_JETTY_SERVER, webServerConfig);
+		} catch (Exception e) {
+			log.error("Cannot start default Jetty server with config " + webServerConfig, e);
+		}
+
 	}
 
 	private void init(ConfigurationAdmin configurationAdmin, boolean isClean, boolean isFirstInit) throws IOException {
