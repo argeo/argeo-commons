@@ -57,9 +57,9 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.log.LogEntry;
+import org.osgi.service.log.LogLevel;
 import org.osgi.service.log.LogListener;
 import org.osgi.service.log.LogReaderService;
-import org.osgi.service.log.LogService;
 
 /** Not meant to be used directly in standard log4j config */
 class NodeLogger implements ArgeoLogger, LogListener {
@@ -171,21 +171,25 @@ class NodeLogger implements ArgeoLogger, LogListener {
 	//
 	// OSGi LOGGER
 	//
-	@SuppressWarnings("deprecation")
 	@Override
 	public void logged(LogEntry status) {
 		Log pluginLog = LogFactory.getLog(status.getBundle().getSymbolicName());
-		Integer severity = status.getLevel();
-		if (severity == LogService.LOG_ERROR) {
+		LogLevel severity = status.getLogLevel();
+		if (severity.equals(LogLevel.ERROR) && pluginLog.isErrorEnabled()) {
 			// FIXME Fix Argeo TP
 			if (status.getException() instanceof SignatureException)
 				return;
 			pluginLog.error(msg(status), status.getException());
-		} else if (severity == LogService.LOG_WARNING)
-			pluginLog.warn(msg(status), status.getException());
-		else if (severity == LogService.LOG_INFO && pluginLog.isDebugEnabled())
+		} else if (severity.equals(LogLevel.WARN) && pluginLog.isWarnEnabled()) {
+			if (pluginLog.isTraceEnabled())
+				pluginLog.warn(msg(status), status.getException());
+			else
+				pluginLog.warn(msg(status));
+		} else if (severity.equals(LogLevel.INFO) && pluginLog.isDebugEnabled())
 			pluginLog.debug(msg(status), status.getException());
-		else if (severity == LogService.LOG_DEBUG && pluginLog.isTraceEnabled())
+		else if (severity.equals(LogLevel.DEBUG) && pluginLog.isTraceEnabled())
+			pluginLog.trace(msg(status), status.getException());
+		else if (severity.equals(LogLevel.TRACE) && pluginLog.isTraceEnabled())
 			pluginLog.trace(msg(status), status.getException());
 	}
 
