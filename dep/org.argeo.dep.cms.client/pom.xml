@@ -340,6 +340,10 @@
 			<groupId>org.argeo.tp.misc</groupId>
 			<artifactId>com.google.guava</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>com.google.guava.failureaccess</artifactId>
+		</dependency>
 
 		<!-- Jackrabbit Vault -->
 		<dependency>
