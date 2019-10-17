@@ -12,7 +12,7 @@ import java.nio.file.attribute.FileTime;
 /** Synchronises two directory structures. */
 public class BasicSyncFileVisitor extends SimpleFileVisitor<Path> {
 	// TODO make it configurable
-	private boolean debug = true;
+	private boolean debug = false;
 
 	private final Path sourceBasePath;
 	private final Path targetBasePath;
