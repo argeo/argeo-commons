@@ -13,7 +13,7 @@
 	<name>Commons Legacy</name>
 	<packaging>pom</packaging>
 	<properties>
-		<version.argeo-tp-extras>2.1.13-SNAPSHOT</version.argeo-tp-extras>
+		<version.argeo-tp-extras>2.1.13</version.argeo-tp-extras>
 	</properties>
 	<modules>
 		<module>org.argeo.cms.ui.workbench</module>
