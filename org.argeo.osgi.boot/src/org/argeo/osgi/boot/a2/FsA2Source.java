@@ -43,9 +43,11 @@ public class FsA2Source extends ProvisioningSource {
 					if (!"jar".equals(ext))
 						continue modules;
 					String moduleName = moduleFileName.substring(0, lastDot);
-					int firstDash = moduleName.indexOf('-');
-					String versionStr = moduleName.substring(firstDash + 1);
-					String componentName = moduleName.substring(0, firstDash);
+					if (moduleName.endsWith("-SNAPSHOT"))
+						moduleName = moduleName.substring(0, moduleName.length() - "-SNAPSHOT".length());
+					int lastDash = moduleName.lastIndexOf('-');
+					String versionStr = moduleName.substring(lastDash + 1);
+					String componentName = moduleName.substring(0, lastDash);
 					// if(versionStr.endsWith("-SNAPSHOT")) {
 					// versionStr = readVersionFromModule(modulePath);
 					// }
