@@ -128,9 +128,18 @@ class DeployConfig implements ConfigurationListener {
 //			webServerConfig.put("customizer.class", "org.argeo.equinox.jetty.CmsJettyCustomizer");
 //			putFactoryDeployConfig(KernelConstants.JETTY_FACTORY_PID, webServerConfig);
 //		}
-		save();
+		LdapName defaultHttpServiceDn = serviceDn(KernelConstants.JETTY_FACTORY_PID, NodeConstants.DEFAULT);
+		if (deployConfigs.containsKey(defaultHttpServiceDn)) {
+			// remove old default configs since we have now to start Jetty servlet bridge
+			// indirectly
+			deployConfigs.remove(defaultHttpServiceDn);
+		}
 
-		// Explicitly configure Jetty so that the default server is not started by the
+		// SAVE
+		save();
+		//
+
+		// Explicitly configures Jetty so that the default server is not started by the
 		// activator of the Equinox Jetty bundle.
 		Dictionary<String, Object> webServerConfig = InitUtils
 				.getHttpServerConfig(getProps(KernelConstants.JETTY_FACTORY_PID, NodeConstants.DEFAULT));
