@@ -1,5 +1,6 @@
 package org.argeo.cms.util;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -8,7 +9,6 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.io.IOUtils;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.ui.CmsView;
@@ -116,13 +116,15 @@ public class CmsUtils implements CmsConstants {
 	}
 
 	/** Style widget */
-	public static void style(Widget widget, String style) {
+	public static <T extends Widget> T style(T widget, String style) {
 		widget.setData(CmsConstants.STYLE, style);
+		return widget;
 	}
 
 	/** Enable markups on widget */
-	public static void markup(Widget widget) {
+	public static <T extends Widget> T markup(T widget) {
 		widget.setData(CmsConstants.MARKUP, true);
+		return widget;
 	}
 
 	public static void setItemHeight(Table table, int height) {
@@ -198,10 +200,15 @@ public class CmsUtils implements CmsConstants {
 			Image image = new Image(Display.getCurrent(), scaled);
 			return image;
 		} finally {
-			IOUtils.closeQuietly(in);
+			try {
+				in.close();
+			} catch (IOException e) {
+				// silent
+			}
 		}
 	}
 
+	/** Lorem ipsum text to be used during development. */
 	public final static String LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
 			+ " Etiam eleifend hendrerit sem, ac ultricies massa ornare ac."
 			+ " Cras aliquam sodales risus, vitae varius lacus molestie quis."
@@ -214,6 +221,7 @@ public class CmsUtils implements CmsConstants {
 			+ " Duis vitae turpis eros. Sed tincidunt lacinia rutrum."
 			+ " Aliquam velit velit, rutrum ut augue sed, condimentum lacinia augue.";
 
+	/** Singleton. */
 	private CmsUtils() {
 	}
 }
