@@ -1,6 +1,7 @@
 package org.argeo.jcr;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -13,6 +14,10 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
+import javax.jcr.version.Version;
+import javax.jcr.version.VersionHistory;
+import javax.jcr.version.VersionIterator;
+import javax.jcr.version.VersionManager;
 
 /**
  * Utility class whose purpose is to make using JCR less verbose by
@@ -290,6 +295,28 @@ public class Jcr {
 		}
 	}
 
+	/** Retrieves the {@link Session} related to this node. */
+	public static Session session(Node node) {
+		try {
+			return node.getSession();
+		} catch (RepositoryException e) {
+			throw new IllegalStateException("Cannot retrieve session related to " + node, e);
+		}
+	}
+
+	/**
+	 * Saves the {@link Session} related to this node. Note that all other unrelated
+	 * modifications in this session will also be saved.
+	 */
+	public static void save(Node node) {
+		try {
+			session(node).save();
+		} catch (RepositoryException e) {
+			throw new IllegalStateException("Cannot save session related to " + node + " in workspace "
+					+ session(node).getWorkspace().getName(), e);
+		}
+	}
+
 	/** Login to a JCR repository. */
 	public static Session login(Repository repository, String workspace) {
 		try {
@@ -307,6 +334,86 @@ public class Jcr {
 					session.logout();
 		} catch (Exception e) {
 			// silent
+		}
+	}
+
+	/*
+	 * VERSIONING
+	 */
+	/** Get checked out status. */
+	public static boolean isCheckedOut(Node node) {
+		try {
+			return node.isCheckedOut();
+		} catch (RepositoryException e) {
+			throw new IllegalStateException("Cannot retrieve checked out status of " + node, e);
+		}
+	}
+
+	/** Check in this node. */
+	public static void checkin(Node node) {
+		try {
+			versionManager(node).checkin(node.getPath());
+		} catch (RepositoryException e) {
+			throw new IllegalStateException("Cannot check in " + node, e);
+		}
+	}
+
+	/** Check out this node. */
+	public static void checkout(Node node) {
+		try {
+			versionManager(node).checkout(node.getPath());
+		} catch (RepositoryException e) {
+			throw new IllegalStateException("Cannot check out " + node, e);
+		}
+	}
+
+	/** Get the {@link VersionManager} related to this node. */
+	public static VersionManager versionManager(Node node) {
+		try {
+			return node.getSession().getWorkspace().getVersionManager();
+		} catch (RepositoryException e) {
+			throw new IllegalStateException("Cannot get version manager from " + node, e);
+		}
+	}
+
+	/** Get the {@link VersionHistory} related to this node. */
+	public static VersionHistory getVersionHistory(Node node) {
+		try {
+			return versionManager(node).getVersionHistory(node.getPath());
+		} catch (RepositoryException e) {
+			throw new IllegalStateException("Cannot get version history from " + node, e);
+		}
+	}
+
+	/** The linear versions of this version history in reverse order. */
+	public static List<Version> getLinearVersions(VersionHistory versionHistory) {
+		try {
+			List<Version> lst = new ArrayList<>();
+			VersionIterator vit = versionHistory.getAllLinearVersions();
+			while (vit.hasNext())
+				lst.add(vit.nextVersion());
+			Collections.reverse(lst);
+			return lst;
+		} catch (RepositoryException e) {
+			throw new IllegalStateException("Cannot get linear versions from " + versionHistory, e);
+		}
+	}
+
+	/** The frozen node related to this {@link Version}. */
+	public static Node getFrozenNode(Version version) {
+		try {
+			return version.getFrozenNode();
+		} catch (RepositoryException e) {
+			throw new IllegalStateException("Cannot get frozen node from " + version, e);
+		}
+	}
+
+	/** Get the base {@link Version} related to this node. */
+	public static Version getBaseVersion(Node node) {
+		try {
+			return versionManager(node).getBaseVersion(node.getPath());
+		} catch (RepositoryException e) {
+			throw new IllegalStateException("Cannot get base version from " + node, e);
 		}
 	}
 
