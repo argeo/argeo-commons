@@ -25,10 +25,13 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 
 /** Static utilities for the CMS framework. */
@@ -124,6 +127,24 @@ public class CmsUtils implements CmsConstants {
 	/** Enable markups on widget */
 	public static <T extends Widget> T markup(T widget) {
 		widget.setData(CmsConstants.MARKUP, true);
+		return widget;
+	}
+
+	/**
+	 * Apply markup and set text on {@link Label}, {@link Button}, {@link Text}.
+	 * 
+	 * @see #markup(Widget)
+	 */
+	public static <T extends Widget> T text(T widget, String txt) {
+		markup(widget);
+		if (widget instanceof Label)
+			((Label) widget).setText(txt);
+		else if (widget instanceof Button)
+			((Button) widget).setText(txt);
+		else if (widget instanceof Text)
+			((Text) widget).setText(txt);
+		else
+			throw new IllegalArgumentException("Unsupported widget type " + widget.getClass());
 		return widget;
 	}
 
