@@ -33,6 +33,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.cm.ConfigurationListener;
 
+/** Manages the LDIF-based deployment configuration. */
 class DeployConfig implements ConfigurationListener {
 	private final Log log = LogFactory.getLog(getClass());
 	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
@@ -146,8 +147,22 @@ class DeployConfig implements ConfigurationListener {
 		if (!webServerConfig.isEmpty()) {
 			webServerConfig.put("customizer.class", KernelConstants.CMS_JETTY_CUSTOMIZER_CLASS);
 		}
+
+		int tryCount = 60;
 		try {
-			JettyConfigurator.startServer(KernelConstants.DEFAULT_JETTY_SERVER, webServerConfig);
+			tryGettyJetty: while (tryCount > 0) {
+				try {
+					JettyConfigurator.startServer(KernelConstants.DEFAULT_JETTY_SERVER, webServerConfig);
+					break tryGettyJetty;
+				} catch (IllegalStateException e) {
+					// Jetty may not be ready
+					try {
+						Thread.sleep(1000);
+					} catch (Exception e1) {
+						// silent
+					}
+				}
+			}
 		} catch (Exception e) {
 			log.error("Cannot start default Jetty server with config " + webServerConfig, e);
 		}
