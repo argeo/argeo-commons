@@ -54,21 +54,41 @@ public abstract class AbstractRapE4App implements ApplicationConfiguration {
 //	}
 
 	protected void addE4EntryPoint(Application application, String path, String e4Xmi, Map<String, String> properties) {
-		E4ApplicationConfig config = new E4ApplicationConfig(e4Xmi, lifeCycleUri, null, null, false, true, true);
+		E4ApplicationConfig config = createE4ApplicationConfig(e4Xmi);
 		CmsE4EntryPointFactory entryPointFactory = new CmsE4EntryPointFactory(config);
 		application.addEntryPoint(path, entryPointFactory, properties);
 		application.setOperationMode(OperationMode.SWT_COMPATIBILITY);
 	}
 
+	/**
+	 * To be overridden for further configuration.
+	 * 
+	 * @see E4ApplicationConfig
+	 */
+	protected E4ApplicationConfig createE4ApplicationConfig(String e4Xmi) {
+		return new E4ApplicationConfig(e4Xmi, lifeCycleUri, null, null, false, true, true);
+	}
+
+	@Deprecated
 	public void setPageTitle(String pageTitle) {
 		if (pageTitle != null)
 			baseProperties.put(WebClient.PAGE_TITLE, pageTitle);
 	}
 
+	/** Returns a new map used to customise and entry point. */
+	public Map<String, String> customise(String pageTitle) {
+		Map<String, String> custom = new HashMap<>(getBaseProperties());
+		if (pageTitle != null)
+			custom.put(WebClient.PAGE_TITLE, pageTitle);
+		return custom;
+	}
+
+	@Deprecated
 	public void setE4Xmi(String e4Xmi) {
 		this.e4Xmi = e4Xmi;
 	}
 
+	@Deprecated
 	public void setPath(String path) {
 		this.path = path;
 	}
@@ -83,5 +103,9 @@ public abstract class AbstractRapE4App implements ApplicationConfiguration {
 			if (value != null)
 				baseProperties.put(key, value.toString());
 		}
+	}
+
+	public void destroy(Map<String, Object> properties) {
+
 	}
 }
