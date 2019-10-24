@@ -1,5 +1,6 @@
 package org.argeo.cms.ui.fs;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.logging.Log;
@@ -17,10 +18,10 @@ public class FileDrop {
 	public void createDropTarget(Control control) {
 		FileDropAdapter fileDropAdapter = new FileDropAdapter() {
 			@Override
-			protected void processUpload(InputStream in, String fileName, String contentType) {
+			protected void processUpload(InputStream in, String fileName, String contentType) throws IOException {
 				if (log.isDebugEnabled())
 					log.debug("Process upload of " + fileName + " (" + contentType + ")");
-				processUpload(in, fileName, contentType);
+				processFileUpload(in, fileName, contentType);
 			}
 		};
 		DropTarget dropTarget = new DropTarget(control, DND.DROP_MOVE | DND.DROP_COPY);
@@ -31,7 +32,7 @@ public class FileDrop {
 	}
 
 	/** Executed in UI thread */
-	protected void processUpload(InputStream in, String fileName, String contentType) {
+	protected void processFileUpload(InputStream in, String fileName, String contentType) throws IOException {
 
 	}
 }

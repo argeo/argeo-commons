@@ -17,6 +17,7 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Control;
 
+/** Configures a {@link Control} to receive files drop from the client OS. */
 public class FileDropAdapter {
 
 	public void prepareDropTarget(Control control, DropTarget dropTarget) {
@@ -46,8 +47,13 @@ public class FileDropAdapter {
 
 			@Override
 			public void receive(InputStream stream, FileDetails details) throws IOException {
-				control.getDisplay()
-						.syncExec(() -> processUpload(stream, details.getFileName(), details.getContentType()));
+				control.getDisplay().syncExec(() -> {
+					try {
+						processUpload(stream, details.getFileName(), details.getContentType());
+					} catch (IOException e) {
+						throw new IllegalStateException("Cannot process upload of " + details.getFileName(), e);
+					}
+				});
 			}
 		};
 		FileUploadHandler handler = new FileUploadHandler(receiver);
@@ -60,7 +66,7 @@ public class FileDropAdapter {
 	}
 
 	/** Executed in UI thread */
-	protected void processUpload(InputStream in, String fileName, String contentType) {
+	protected void processUpload(InputStream in, String fileName, String contentType) throws IOException {
 
 	}
 
