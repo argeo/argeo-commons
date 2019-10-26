@@ -15,8 +15,6 @@
 		<!-- RPM -->
 		<argeo.rpm.release>7</argeo.rpm.release>
 		<argeo.rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-2/el7</argeo.rpm.stagingRepository>
-		<!-- SNAPSHOTs -->
-		<argeo.java.snapshotRepository>file:///srv/javafactory/argeo-2.1</argeo.java.snapshotRepository>
 		<!-- Encoding, see http://is.gd/mvn_source_encoding -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.scm.id>code.argeo.org</project.scm.id>
@@ -421,7 +419,7 @@ limitations under the License.
 		</repository>
 		<repository>
 			<id>argeo-snapshots</id>
-			<url>${argeo.java.snapshotRepository}</url>
+			<url>file:///srv/javafactory/argeo-2.1</url>
 			<releases>
 				<enabled>false</enabled>
 				<updatePolicy>daily</updatePolicy>
