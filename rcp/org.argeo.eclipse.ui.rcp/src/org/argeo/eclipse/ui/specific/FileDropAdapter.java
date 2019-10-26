@@ -1,5 +1,6 @@
 package org.argeo.eclipse.ui.specific;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
@@ -40,7 +41,7 @@ public class FileDropAdapter {
 	}
 
 	/** Executed in UI thread */
-	protected void processUpload(InputStream in, String fileName, String contentType) {
+	protected void processUpload(InputStream in, String fileName, String contentType) throws IOException {
 
 	}
 

@@ -17,12 +17,21 @@ public class FileUpload extends Composite {
 	public void submit(String url) {
 
 	}
-	
-	 public void setImage( Image image ) {
-		 
-	 }
-	 
-	 public void setText(String text){
-		 
-	 }
+
+	public void setImage(Image image) {
+
+	}
+
+	public void setText(String text) {
+
+	}
+
+	public String getFileName() {
+		return null;
+	}
+
+	public String[] getFileNames() {
+		return null;
+	}
+
 }
