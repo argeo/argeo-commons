@@ -413,7 +413,7 @@ limitations under the License.
 			</releases>
 			<snapshots>
 				<enabled>false</enabled>
-				<updatePolicy>daily</updatePolicy>
+				<updatePolicy>always</updatePolicy>
 				<checksumPolicy>warn</checksumPolicy>
 			</snapshots>
 		</repository>
