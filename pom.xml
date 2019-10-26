@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
@@ -13,6 +15,8 @@
 		<!-- RPM -->
 		<argeo.rpm.release>7</argeo.rpm.release>
 		<argeo.rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-2/el7</argeo.rpm.stagingRepository>
+		<!-- SNAPSHOTs -->
+		<argeo.java.snapshotRepository>file:///srv/javafactory/argeo-2.1</argeo.java.snapshotRepository>
 		<!-- Encoding, see http://is.gd/mvn_source_encoding -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.scm.id>code.argeo.org</project.scm.id>
@@ -409,6 +413,25 @@ limitations under the License.
 				<updatePolicy>daily</updatePolicy>
 				<checksumPolicy>warn</checksumPolicy>
 			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+				<updatePolicy>daily</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>argeo-snapshots</id>
+			<url>${argeo.java.snapshotRepository}</url>
+			<releases>
+				<enabled>false</enabled>
+				<updatePolicy>daily</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</snapshots>
 		</repository>
 	</repositories>
 	<pluginRepositories>
@@ -422,6 +445,22 @@ limitations under the License.
 			</releases>
 		</pluginRepository>
 	</pluginRepositories>
+	<distributionManagement>
+		<repository>
+			<id>staging</id>
+			<url>dav:https://forge.argeo.org/data/java/argeo-2.1/</url>
+			<uniqueVersion>false</uniqueVersion>
+		</repository>
+		<snapshotRepository>
+			<id>staging</id>
+			<url>file:///srv/javafactory/argeo-2.1</url>
+			<uniqueVersion>true</uniqueVersion>
+		</snapshotRepository>
+		<site>
+			<id>staging</id>
+			<url>file:///srv/docfactory/argeo-2.1/site/argeo-commons/</url>
+		</site>
+	</distributionManagement>
 	<reporting>
 		<plugins>
 			<plugin>
@@ -489,17 +528,6 @@ limitations under the License.
 			</plugin>
 		</plugins>
 	</reporting>
-	<distributionManagement>
-		<repository>
-			<id>staging</id>
-			<url>dav:https://forge.argeo.org/data/java/argeo-2.1/</url>
-			<uniqueVersion>false</uniqueVersion>
-		</repository>
-		<site>
-			<id>staging</id>
-			<url>file:///srv/docfactory/argeo-2.1/site/argeo-commons/</url>
-		</site>
-	</distributionManagement>
 	<profiles>
 		<profile>
 			<id>rpmbuild</id>
@@ -515,8 +543,10 @@ limitations under the License.
 								</goals>
 								<configuration>
 									<target>
-										<copy todir="${argeo.rpm.stagingRepository}" quiet="true" failonerror="false">
-											<fileset dir="${project.build.directory}/rpm" includes="*/RPMS/**/*.rpm" />
+										<copy todir="${argeo.rpm.stagingRepository}" quiet="true"
+											failonerror="false">
+											<fileset dir="${project.build.directory}/rpm"
+												includes="*/RPMS/**/*.rpm" />
 											<flattenmapper />
 										</copy>
 									</target>
@@ -541,8 +571,10 @@ limitations under the License.
 								</goals>
 								<configuration>
 									<target>
-										<copy todir="${argeo.rpm.stagingRepository}" quiet="true" failonerror="false">
-											<fileset dir="${project.build.directory}/rpm" includes="*/RPMS/**/*.rpm" />
+										<copy todir="${argeo.rpm.stagingRepository}" quiet="true"
+											failonerror="false">
+											<fileset dir="${project.build.directory}/rpm"
+												includes="*/RPMS/**/*.rpm" />
 											<flattenmapper />
 										</copy>
 									</target>
