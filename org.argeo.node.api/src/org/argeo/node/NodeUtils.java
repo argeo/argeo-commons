@@ -19,6 +19,7 @@ import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Repository;
@@ -190,6 +191,8 @@ public class NodeUtils {
 			public Session run() {
 				try {
 					return repository.login(workspaceName);
+				} catch (NoSuchWorkspaceException e) {
+					throw new IllegalArgumentException("No workspace " + workspaceName + " available", e);
 				} catch (RepositoryException e) {
 					throw new RuntimeException("Cannot open data admin session", e);
 				}
