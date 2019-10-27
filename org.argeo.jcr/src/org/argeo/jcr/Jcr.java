@@ -14,6 +14,7 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
+import javax.jcr.security.Privilege;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
@@ -334,6 +335,23 @@ public class Jcr {
 					session.logout();
 		} catch (Exception e) {
 			// silent
+		}
+	}
+
+	/*
+	 * SECURITY
+	 */
+	/**
+	 * Add a single privilege to a node.
+	 * 
+	 * @see Privilege
+	 */
+	public static void addPrivilege(Node node, String principal, String privilege) {
+		try {
+			Session session = node.getSession();
+			JcrUtils.addPrivilege(session, node.getPath(), principal, privilege);
+		} catch (RepositoryException e) {
+			throw new IllegalStateException("Cannot add privilege " + privilege + " to " + node, e);
 		}
 	}
 
