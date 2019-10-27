@@ -1,5 +1,10 @@
 package org.argeo.naming;
 
+import static org.argeo.naming.LdapAttrs.DN;
+import static org.argeo.naming.LdapAttrs.member;
+import static org.argeo.naming.LdapAttrs.objectClass;
+import static org.argeo.naming.LdapAttrs.uniqueMember;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -8,6 +13,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -42,15 +49,23 @@ public class LdifWriter {
 				throw new UserDirectoryException(
 						"Attribute " + nameAttr.getID() + "=" + nameAttr.get() + " not consistent with DN " + name);
 
-			writer.append(LdapAttrs.DN + ": ").append(name.toString()).append('\n');
-			Attribute objectClassAttr = attributes.get("objectClass");
+			writer.append(DN + ": ").append(name.toString()).append('\n');
+			Attribute objectClassAttr = attributes.get(objectClass.name());
 			if (objectClassAttr != null)
 				writeAttribute(objectClassAttr);
+			attributes: for (NamingEnumeration<? extends Attribute> attrs = attributes.getAll(); attrs.hasMore();) {
+				Attribute attribute = attrs.next();
+				if (attribute.getID().equals(DN) || attribute.getID().equals(objectClass.name()))
+					continue attributes;// skip DN attribute
+				if (attribute.getID().equals(member.name()) || attribute.getID().equals(uniqueMember.name()))
+					continue attributes;// skip member and uniqueMember attributes, so that they are always written last
+				writeAttribute(attribute);
+			}
+			// write member and uniqueMember attributes last
 			for (NamingEnumeration<? extends Attribute> attrs = attributes.getAll(); attrs.hasMore();) {
 				Attribute attribute = attrs.next();
-				if (attribute.getID().equals(LdapAttrs.DN) || attribute.getID().equals("objectClass"))
-					continue;// skip DN attribute
-				writeAttribute(attribute);
+				if (attribute.getID().equals(member.name()) || attribute.getID().equals(uniqueMember.name()))
+					writeMemberAttribute(attribute);
 			}
 			writer.append('\n');
 			writer.flush();
@@ -73,6 +88,19 @@ public class LdifWriter {
 			} else {
 				writer.append(attribute.getID()).append(": ").append(value.toString()).append('\n');
 			}
+		}
+	}
+
+	protected void writeMemberAttribute(Attribute attribute) throws NamingException, IOException {
+		// Note: duplicate entries will be swallowed
+		SortedSet<String> values = new TreeSet<>();
+		for (NamingEnumeration<?> attrValues = attribute.getAll(); attrValues.hasMore();) {
+			String value = attrValues.next().toString();
+			values.add(value);
+		}
+
+		for (String value : values) {
+			writer.append(attribute.getID()).append(": ").append(value).append('\n');
 		}
 	}
 }
