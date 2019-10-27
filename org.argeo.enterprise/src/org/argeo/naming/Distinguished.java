@@ -1,5 +1,9 @@
 package org.argeo.naming;
 
+import java.util.EnumSet;
+import java.util.Set;
+import java.util.TreeSet;
+
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
@@ -19,5 +23,14 @@ public interface Distinguished {
 		} catch (InvalidNameException e) {
 			throw new IllegalArgumentException("Distinguished name " + dn() + " is not properly formatted.", e);
 		}
+	}
+
+	/** List all DNs of an enumeration as strings. */
+	static Set<String> enumToDns(EnumSet<? extends Distinguished> enumSet) {
+		Set<String> res = new TreeSet<>();
+		for (Enum<? extends Distinguished> enm : enumSet) {
+			res.add(((Distinguished) enm).dn());
+		}
+		return res;
 	}
 }
