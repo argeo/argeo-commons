@@ -32,6 +32,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.maintenance</artifactId>
+			<version>2.1.82-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.ext.jackrabbit</artifactId>
 			<version>2.1.82-SNAPSHOT</version>
 		</dependency>
