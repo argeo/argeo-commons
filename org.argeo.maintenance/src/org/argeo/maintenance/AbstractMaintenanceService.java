@@ -3,7 +3,6 @@ package org.argeo.maintenance;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.jcr.NoSuchWorkspaceException;
@@ -44,6 +43,7 @@ public abstract class AbstractMaintenanceService {
 		}
 	}
 
+	/** Configures a workspace. */
 	protected void configureJcr(Repository repository, String workspaceName) {
 		Session adminSession;
 		try {
@@ -79,10 +79,11 @@ public abstract class AbstractMaintenanceService {
 		return null;
 	}
 
+	/**
+	 * To be overridden in order to programmatically set relationships between
+	 * roles. Does nothing by default.
+	 */
 	protected void configureStandardRoles() {
-	}
-
-	protected void addManagersToGroup(String groupDn) {
 	}
 
 	/**
@@ -124,10 +125,12 @@ public abstract class AbstractMaintenanceService {
 	 * UTILITIES
 	 */
 
+	/** Create these roles as group if they don't exist. */
 	protected void makeSureRolesExists(EnumSet<? extends Distinguished> enumSet) {
 		makeSureRolesExists(Distinguished.enumToDns(enumSet));
 	}
 
+	/** Create these roles as group if they don't exist. */
 	protected void makeSureRolesExists(Set<String> requiredRoles) {
 		if (requiredRoles == null)
 			return;
@@ -155,30 +158,26 @@ public abstract class AbstractMaintenanceService {
 		}
 	}
 
-	protected void addManagersToGroups(List<String> groupDns) {
-		for (String groupDn : groupDns)
-			addManagersToGroup(groupDn);
-	}
-
-	protected void addToGroup(String officeGroup, String groupDn) {
-		if (officeGroup.contentEquals(groupDn)) {
+	/** Add a user or group to a group. */
+	protected void addToGroup(String roledDn, String groupDn) {
+		if (roledDn.contentEquals(groupDn)) {
 			if (log.isTraceEnabled())
 				log.trace("Ignore adding group " + groupDn + " to itself");
 			return;
 		}
 
 		if (getUserAdmin() == null) {
-			log.warn("No user admin service available, cannot add group " + officeGroup + " to " + groupDn);
+			log.warn("No user admin service available, cannot add group " + roledDn + " to " + groupDn);
 			return;
 		}
-		Group managerGroup = (Group) getUserAdmin().getRole(officeGroup);
+		Group managerGroup = (Group) getUserAdmin().getRole(roledDn);
 		Group group = (Group) getUserAdmin().getRole(groupDn);
 		if (group == null)
 			throw new IllegalArgumentException("Group " + groupDn + " not found");
 		try {
 			getUserTransaction().begin();
 			if (group.addMember(managerGroup))
-				log.info("Added " + officeGroup + " to " + group);
+				log.info("Added " + roledDn + " to " + group);
 			getUserTransaction().commit();
 		} catch (Exception e) {
 			try {
