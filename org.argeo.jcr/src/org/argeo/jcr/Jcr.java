@@ -1,10 +1,16 @@
 package org.argeo.jcr;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.jcr.Binary;
 import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -14,6 +20,7 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
+import javax.jcr.nodetype.NodeType;
 import javax.jcr.security.Privilege;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
@@ -207,6 +214,48 @@ public class Jcr {
 	}
 
 	/**
+	 * Set a property to the given value, or remove it if the value is
+	 * <code>null</code>.
+	 * 
+	 * @throws IllegalStateException caused by {@link RepositoryException}
+	 */
+	public static void set(Node node, String property, Object value) {
+		try {
+			if (!node.hasProperty(property))
+				throw new IllegalArgumentException("No property " + property + " in " + node);
+			Property prop = node.getProperty(property);
+			if (value == null) {
+				prop.remove();
+				return;
+			}
+
+			if (value instanceof String)
+				prop.setValue((String) value);
+			else if (value instanceof Long)
+				prop.setValue((Long) value);
+			else if (value instanceof Double)
+				prop.setValue((Double) value);
+			else if (value instanceof Calendar)
+				prop.setValue((Calendar) value);
+			else if (value instanceof BigDecimal)
+				prop.setValue((BigDecimal) value);
+			else if (value instanceof Boolean)
+				prop.setValue((Boolean) value);
+			else if (value instanceof byte[])
+				JcrUtils.setBinaryAsBytes(prop, (byte[]) value);
+			else if (value instanceof Instant) {
+				Instant instant = (Instant) value;
+				GregorianCalendar calendar = new GregorianCalendar();
+				calendar.setTime(Date.from(instant));
+				prop.setValue(calendar);
+			} else // try with toString()
+				prop.setValue(value.toString());
+		} catch (RepositoryException e) {
+			throw new IllegalStateException("Cannot set property " + property + " of " + node + " to " + value, e);
+		}
+	}
+
+	/**
 	 * Get property as {@link String}.
 	 * 
 	 * @return the value of
@@ -311,7 +360,12 @@ public class Jcr {
 	 */
 	public static void save(Node node) {
 		try {
-			session(node).save();
+			Session session = node.getSession();
+			if (node.isNodeType(NodeType.MIX_LAST_MODIFIED)) {
+				set(node, Property.JCR_LAST_MODIFIED, Instant.now());
+				set(node, Property.JCR_LAST_MODIFIED_BY, session.getUserID());
+			}
+			session.save();
 		} catch (RepositoryException e) {
 			throw new IllegalStateException("Cannot save session related to " + node + " in workspace "
 					+ session(node).getWorkspace().getName(), e);
@@ -403,13 +457,17 @@ public class Jcr {
 		}
 	}
 
-	/** The linear versions of this version history in reverse order. */
+	/**
+	 * The linear versions of this version history in reverse order and without the
+	 * root version.
+	 */
 	public static List<Version> getLinearVersions(VersionHistory versionHistory) {
 		try {
 			List<Version> lst = new ArrayList<>();
 			VersionIterator vit = versionHistory.getAllLinearVersions();
 			while (vit.hasNext())
 				lst.add(vit.nextVersion());
+			lst.remove(0);
 			Collections.reverse(lst);
 			return lst;
 		} catch (RepositoryException e) {
@@ -432,6 +490,35 @@ public class Jcr {
 			return versionManager(node).getBaseVersion(node.getPath());
 		} catch (RepositoryException e) {
 			throw new IllegalStateException("Cannot get base version from " + node, e);
+		}
+	}
+
+	/*
+	 * FILES
+	 */
+	/**
+	 * Returns the size of this file.
+	 * 
+	 * @see NodeType#NT_FILE
+	 */
+	public static long getFileSize(Node fileNode) {
+		try {
+			if (!fileNode.isNodeType(NodeType.NT_FILE))
+				throw new IllegalArgumentException(fileNode + " must be a file.");
+			return getBinarySize(fileNode.getNode(Node.JCR_CONTENT).getProperty(Property.JCR_DATA).getBinary());
+		} catch (RepositoryException e) {
+			throw new IllegalStateException("Cannot get file size of " + fileNode, e);
+		}
+	}
+
+	/** Returns the size of this {@link Binary}. */
+	public static long getBinarySize(Binary binaryArg) {
+		try {
+			try (Bin binary = new Bin(binaryArg)) {
+				return binary.getSize();
+			}
+		} catch (RepositoryException e) {
+			throw new IllegalStateException("Cannot get file size of binary " + binaryArg, e);
 		}
 	}
 

@@ -991,16 +991,26 @@ public class JcrUtils {
 
 	/** Writes a {@link Binary} from a byte array */
 	public static void setBinaryAsBytes(Node node, String property, byte[] bytes) {
-		// InputStream in = null;
 		Binary binary = null;
 		try (InputStream in = new ByteArrayInputStream(bytes)) {
-			// in = new ByteArrayInputStream(bytes);
 			binary = node.getSession().getValueFactory().createBinary(in);
 			node.setProperty(property, binary);
 		} catch (Exception e) {
-			throw new ArgeoJcrException("Cannot read binary " + property + " as bytes", e);
+			throw new ArgeoJcrException("Cannot set binary " + property + " as bytes", e);
 		} finally {
-			// IOUtils.closeQuietly(in);
+			closeQuietly(binary);
+		}
+	}
+
+	/** Writes a {@link Binary} from a byte array */
+	public static void setBinaryAsBytes(Property prop, byte[] bytes) {
+		Binary binary = null;
+		try (InputStream in = new ByteArrayInputStream(bytes)) {
+			binary = prop.getSession().getValueFactory().createBinary(in);
+			prop.setValue(binary);
+		} catch (RepositoryException | IOException e) {
+			throw new ArgeoJcrException("Cannot set binary " + prop + " as bytes", e);
+		} finally {
 			closeQuietly(binary);
 		}
 	}

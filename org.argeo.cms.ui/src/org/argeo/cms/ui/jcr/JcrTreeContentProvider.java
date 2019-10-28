@@ -38,20 +38,12 @@ public class JcrTreeContentProvider implements ITreeContentProvider {
 	private JcrItemsComparator itemComparator = new JcrItemsComparator();
 
 	/**
-	 * Sends back the first level of the Tree. input element must be a single
-	 * node object
+	 * Sends back the first level of the Tree. input element must be a single node
+	 * object
 	 */
 	public Object[] getElements(Object inputElement) {
-		try {
-			Node rootNode = (Node) inputElement;
-			List<Node> result = new ArrayList<Node>();
-			NodeIterator ni = rootNode.getNodes();
-			while (ni.hasNext())
-				result.add(ni.nextNode());
-			return result.toArray();
-		} catch (RepositoryException re) {
-			throw new EclipseUiException("Unable to retrieve elements for " + inputElement, re);
-		}
+		Node rootNode = (Node) inputElement;
+		return childrenNodes(rootNode);
 	}
 
 	public Object[] getChildren(Object parentElement) {
@@ -82,8 +74,13 @@ public class JcrTreeContentProvider implements ITreeContentProvider {
 		try {
 			List<Node> children = new ArrayList<Node>();
 			NodeIterator nit = parentNode.getNodes();
-			while (nit.hasNext())
-				children.add(nit.nextNode());
+			while (nit.hasNext()) {
+				Node node = nit.nextNode();
+//				if (node.getName().startsWith("rep:") || node.getName().startsWith("jcr:")
+//						|| node.getName().startsWith("nt:"))
+//					continue nodes;
+				children.add(node);
+			}
 			Node[] arr = children.toArray(new Node[0]);
 			Arrays.sort(arr, itemComparator);
 			return arr;
