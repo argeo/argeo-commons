@@ -423,7 +423,7 @@ limitations under the License.
 			</releases>
 			<snapshots>
 				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
+				<updatePolicy>never</updatePolicy>
 				<checksumPolicy>warn</checksumPolicy>
 			</snapshots>
 		</repository>
@@ -449,7 +449,7 @@ limitations under the License.
 			</releases>
 			<snapshots>
 				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
+				<updatePolicy>never</updatePolicy>
 				<checksumPolicy>warn</checksumPolicy>
 			</snapshots>
 		</pluginRepository>
