@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
@@ -40,8 +42,21 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp.javax</groupId>
-			<artifactId>javax.transaction</artifactId>
+			<artifactId>javax.el-api</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.javax</groupId>
+			<artifactId>javax.interceptor-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.javax</groupId>
+			<artifactId>javax.enterprise.cdi-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.javax</groupId>
+			<artifactId>javax.transaction-api</artifactId>
+		</dependency>
+		
 		<dependency>
 			<groupId>org.argeo.tp.apache</groupId>
 			<artifactId>org.apache.log4j</artifactId>
@@ -62,6 +77,20 @@
 			<groupId>org.argeo.tp.misc</groupId>
 			<artifactId>org.slf4j.commons.logging</artifactId>
 		</dependency>
+
+		<!-- OSGi annotations -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.sdk</groupId> -->
+<!-- 			<artifactId>osgi.annotation</artifactId> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.sdk</groupId> -->
+<!-- 			<artifactId>org.osgi.service.metatype.annotations</artifactId> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.tp.sdk</groupId> -->
+<!-- 			<artifactId>org.osgi.service.component.annotations</artifactId> -->
+<!-- 		</dependency> -->
 
 		<!-- Freemarker -->
 		<dependency>
