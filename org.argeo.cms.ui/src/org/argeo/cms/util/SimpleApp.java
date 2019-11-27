@@ -26,6 +26,7 @@ import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.ui.LifeCycleUiProvider;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.node.NodeConstants;
+import org.argeo.node.NodeUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.Application.OperationMode;
@@ -147,8 +148,8 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 					log.debug("Theme " + themeId);
 				for (String css : cssLst) {
 					application.addStyleSheet(themeId, css, styleSheetRL);
-					if (log.isTraceEnabled())
-						log.trace(" CSS " + css);
+					if (log.isDebugEnabled())
+						log.debug(" CSS " + css);
 				}
 
 			}
@@ -168,7 +169,8 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 	public void init() throws RepositoryException {
 		Session session = null;
 		try {
-			session = JcrUtils.loginOrCreateWorkspace(repository, workspace);
+			session = NodeUtils.openDataAdminSession(repository, workspace);
+			// session = JcrUtils.loginOrCreateWorkspace(repository, workspace);
 			VersionManager vm = session.getWorkspace().getVersionManager();
 			JcrUtils.mkdirs(session, jcrBasePath);
 			session.save();

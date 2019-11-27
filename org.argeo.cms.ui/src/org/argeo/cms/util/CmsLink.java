@@ -85,7 +85,7 @@ public class CmsLink implements CmsUiProvider {
 //					+ " Make sure bundleContext property is set and init() method has been called.");
 //		}
 
-		Composite comp = new Composite(parent, SWT.BOTTOM);
+		Composite comp = new Composite(parent, SWT.NONE);
 		comp.setLayout(CmsUtils.noSpaceGridLayout());
 
 		Label link = new Label(comp, SWT.NONE);
