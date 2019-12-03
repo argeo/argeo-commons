@@ -1,0 +1,10 @@
+#!/bin/sh
+
+## Log-in to Red Hat registry first
+# podman login registry.redhat.io
+
+# Metadata
+buildah config --label maintainer="Mathieu Baudier, mbaudier at argeo.org" $container
+buildah config --created-by "Mathieu Baudier, mbaudier at argeo.org" $container
+buildah config --author "Argeo GmbH, http://www.argeo.org, contact at argeo.org" $container
+buildah config --label vendor="Argeo GmbH" $container

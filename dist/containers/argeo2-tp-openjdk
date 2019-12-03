@@ -1,0 +1,29 @@
+#!/bin/sh
+
+container=$(buildah from ubi8/ubi-minimal)
+
+buildah config --label release="1" $container
+buildah config --label version="2.1.25" $container
+
+source "$(dirname "$0")/buildah-common"
+
+# Metadata
+buildah config --label name="argeo2-tp-openjdk11-ubi8" $container
+buildah config --label summary="Argeo 2 OSGi Third Parties based on OpenJDK 11 and Red Hat UBI 8" $container
+
+# Java 11
+buildah run $container -- microdnf install java-11-openjdk-headless
+
+# Argeo
+buildah run $container -- rpm -Uvh http://repo.argeo.org/rpm/argeo2-release-latest-7.noarch.rpm
+# Argeo Third Parties
+buildah run $container -- microdnf install argeo-cms-e4-rap-tp osgi-boot-equinox
+# Argeo OSGi Boot
+buildah run $container -- microdnf install osgi-boot
+
+# Configuration
+buildah config --entrypoint '["java","-Dosgi.bundles=org.argeo.osgi.boot.jar@start","-Dosgi.configuration=/var/lib/argeo/state","-Dosgi.data=/var/lib/argeo/data","-jar","/usr/share/osgi/boot/org.eclipse.osgi.jar","-console","2323"]' $container
+buildah config --workingdir /var/lib/argeo $container
+buildah config --volume /var/lib/argeo $container
+
+buildah commit $container argeo2-tp:latest
