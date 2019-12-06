@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V5.0/EN" "http://docbook.org/xml/5.0/dtd/docbook.dtd">
-<chapter xml:id="deploying">
+<chapter xml:id="deploying" version="5.0.1"
+	xmlns="http://docbook.org/ns/docbook"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://docbook.org/ns/docbook https://docbook.org/xml/5.0.1/xsd/docbook.xsd">
 	<title>Deploying</title>
 	<section>
 		<title>On CentOS or Red Hat Enterprise Linux</title>
