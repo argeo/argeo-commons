@@ -11,6 +11,7 @@ import java.util.TreeSet;
 import org.argeo.osgi.boot.OsgiBootUtils;
 import org.osgi.framework.Version;
 
+/** A file system {@link ProvisioningSource} in A2 format. */
 public class FsA2Source extends ProvisioningSource {
 	private final Path base;
 

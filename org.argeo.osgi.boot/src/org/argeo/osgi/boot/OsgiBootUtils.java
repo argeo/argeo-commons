@@ -20,9 +20,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.launch.Framework;
+import org.osgi.framework.launch.FrameworkFactory;
 
 /** Utilities, mostly related to logging. */
 public class OsgiBootUtils {
@@ -124,6 +128,18 @@ public class OsgiBootUtils {
 		}
 
 		return comp;
+	}
+
+	/** Launch an OSGi framework. */
+	public static Framework launch(FrameworkFactory frameworkFactory, Map<String, String> configuration) {
+		// start OSGi
+		Framework framework = frameworkFactory.newFramework(configuration);
+		try {
+			framework.start();
+		} catch (BundleException e) {
+			throw new OsgiBootException("Cannot start OSGi framework", e);
+		}
+		return framework;
 	}
 
 }

@@ -4,9 +4,14 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * A category grouping a set of {@link A2Component}, typically based on the
+ * provider of these components. This is the equivalent of Maven's group Id.
+ */
 class A2Contribution implements Comparable<A2Contribution> {
 	final static String BOOT = "boot";
 	final static String RUNTIME = "runtime";
+	final static String CLASSPATH = "classpath";
 
 	private final ProvisioningSource source;
 	private final String id;

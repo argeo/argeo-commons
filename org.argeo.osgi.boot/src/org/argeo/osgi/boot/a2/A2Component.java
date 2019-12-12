@@ -6,6 +6,11 @@ import java.util.TreeMap;
 
 import org.osgi.framework.Version;
 
+/**
+ * The logical name of a software package. In OSGi's case this is
+ * <code>Bundle-SymbolicName</code>. This is the equivalent of Maven's artifact
+ * id.
+ */
 class A2Component implements Comparable<A2Component> {
 	private final A2Contribution contribution;
 	private final String id;
@@ -71,7 +76,7 @@ class A2Component implements Comparable<A2Component> {
 		if (prefix == null)
 			prefix = "";
 		A2Branch lastBranch = last();
-		SortedMap<String, A2Branch> displayMap =  new TreeMap<>(Collections.reverseOrder());
+		SortedMap<String, A2Branch> displayMap = new TreeMap<>(Collections.reverseOrder());
 		displayMap.putAll(branches);
 		for (String branchId : displayMap.keySet()) {
 			A2Branch branch = displayMap.get(branchId);

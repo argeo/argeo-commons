@@ -1,21 +1,31 @@
 package org.argeo.osgi.boot.a2;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.jar.JarInputStream;
+import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
 
 import org.argeo.osgi.boot.OsgiBootException;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 
+/** Where components are retrieved from. */
 abstract class ProvisioningSource {
 	final Map<String, A2Contribution> contributions = Collections.synchronizedSortedMap(new TreeMap<>());
 
@@ -72,29 +82,108 @@ abstract class ProvisioningSource {
 	}
 
 	protected String readVersionFromModule(Path modulePath) {
-		try (JarInputStream in = new JarInputStream(newInputStream(modulePath))) {
-			Manifest manifest = in.getManifest();
-			String versionStr = manifest.getMainAttributes().getValue(Constants.BUNDLE_VERSION);
-			return versionStr;
-		} catch (IOException e) {
-			throw new OsgiBootException("Cannot read manifest from " + modulePath, e);
+		Manifest manifest;
+		if (Files.isDirectory(modulePath)) {
+			manifest = findManifest(modulePath);
+		} else {
+			try (JarInputStream in = new JarInputStream(newInputStream(modulePath))) {
+				manifest = in.getManifest();
+			} catch (IOException e) {
+				throw new OsgiBootException("Cannot read manifest from " + modulePath, e);
+			}
 		}
+		String versionStr = manifest.getMainAttributes().getValue(Constants.BUNDLE_VERSION);
+		return versionStr;
 	}
 
 	protected String readSymbolicNameFromModule(Path modulePath) {
-		try (JarInputStream in = new JarInputStream(newInputStream(modulePath))) {
-			Manifest manifest = in.getManifest();
-			String symbolicName = manifest.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
-			int semiColIndex = symbolicName.indexOf(';');
-			if (semiColIndex >= 0)
-				symbolicName = symbolicName.substring(0, semiColIndex);
-			return symbolicName;
-		} catch (IOException e) {
-			throw new OsgiBootException("Cannot read manifest from " + modulePath, e);
+		Manifest manifest;
+		if (Files.isDirectory(modulePath)) {
+			manifest = findManifest(modulePath);
+		} else {
+			try (JarInputStream in = new JarInputStream(newInputStream(modulePath))) {
+				manifest = in.getManifest();
+			} catch (IOException e) {
+				throw new OsgiBootException("Cannot read manifest from " + modulePath, e);
+			}
+		}
+		String symbolicName = manifest.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
+		int semiColIndex = symbolicName.indexOf(';');
+		if (semiColIndex >= 0)
+			symbolicName = symbolicName.substring(0, semiColIndex);
+		return symbolicName;
+	}
+
+	private static Manifest findManifest(Path currentPath) {
+		Path metaInfPath = currentPath.resolve("META-INF");
+		if (Files.exists(metaInfPath) && Files.isDirectory(metaInfPath)) {
+			Path manifestPath = metaInfPath.resolve("MANIFEST.MF");
+			try {
+				try (InputStream in = Files.newInputStream(manifestPath)) {
+					Manifest manifest = new Manifest(in);
+					return manifest;
+				}
+			} catch (IOException e) {
+				throw new OsgiBootException("Cannot read manifest from " + manifestPath, e);
+			}
+		} else {
+			Path parentPath = currentPath.getParent();
+			if (parentPath == null)
+				throw new OsgiBootException("MANIFEST.MF file not found.");
+			return findManifest(currentPath.getParent());
 		}
 	}
 
-	InputStream newInputStream(Object locator) throws IOException {
+	public Bundle install(BundleContext bc, A2Module module) throws IOException, BundleException {
+		Path tempJar = null;
+		if (module.getLocator() instanceof Path && Files.isDirectory((Path) module.getLocator()))
+			tempJar = toTempJar((Path) module.getLocator());
+		Bundle bundle;
+		try (InputStream in = newInputStream(tempJar != null ? tempJar : module.getLocator())) {
+			bundle = bc.installBundle(module.getBranch().getCoordinates(), in);
+		}
+		if (tempJar != null)
+			Files.deleteIfExists(tempJar);
+		return bundle;
+	}
+
+	public void update(Bundle bundle, A2Module module) throws IOException, BundleException {
+		Path tempJar = null;
+		if (module.getLocator() instanceof Path && Files.isDirectory((Path) module.getLocator()))
+			tempJar = toTempJar((Path) module.getLocator());
+		try (InputStream in = newInputStream(tempJar != null ? tempJar : module.getLocator())) {
+			bundle.update(in);
+		}
+		if (tempJar != null)
+			Files.deleteIfExists(tempJar);
+	}
+
+	static Path toTempJar(Path dir) {
+		try {
+			Manifest manifest = findManifest(dir);
+			Path jarPath = Files.createTempFile("a2Source", ".jar");
+			try (JarOutputStream zos = new JarOutputStream(new FileOutputStream(jarPath.toFile()), manifest)) {
+				Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
+					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+						Path relPath = dir.relativize(file);
+						// skip MANIFEST from folder
+						if (relPath.toString().contentEquals("META-INF/MANIFEST.MF"))
+							return FileVisitResult.CONTINUE;
+						zos.putNextEntry(new ZipEntry(relPath.toString()));
+						Files.copy(file, zos);
+						zos.closeEntry();
+						return FileVisitResult.CONTINUE;
+					}
+				});
+			}
+			return jarPath;
+		} catch (IOException e) {
+			throw new OsgiBootException("Cannot install OSGi bundle from " + dir, e);
+		}
+
+	}
+
+	private InputStream newInputStream(Object locator) throws IOException {
 		if (locator instanceof Path) {
 			return Files.newInputStream((Path) locator);
 		} else if (locator instanceof URL) {

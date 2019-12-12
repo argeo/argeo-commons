@@ -6,6 +6,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.Version;
 
+/** A running OSGi bundle context seen as a {@link ProvisioningSource}. */
 class OsgiContext extends ProvisioningSource {
 	private final BundleContext bc;
 

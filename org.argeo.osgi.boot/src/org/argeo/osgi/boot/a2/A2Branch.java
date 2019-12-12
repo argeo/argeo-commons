@@ -7,6 +7,11 @@ import java.util.TreeMap;
 import org.argeo.osgi.boot.OsgiBootUtils;
 import org.osgi.framework.Version;
 
+/**
+ * A logical linear sequence of versions of a given {@link A2Component}. This is
+ * typically a combination of major and minor version, indicating backward
+ * compatibility.
+ */
 class A2Branch implements Comparable<A2Branch> {
 	private final A2Component component;
 	private final String id;

@@ -2,6 +2,11 @@ package org.argeo.osgi.boot.a2;
 
 import org.osgi.framework.Version;
 
+/**
+ * An identified software package. In OSGi's case this is the combination of
+ * <code>Bundle-SymbolicName</code> and <code>Bundle-version</code>. This is the
+ * equivalent of the full coordinates of a Maven artifact version.
+ */
 class A2Module implements Comparable<A2Module> {
 	private final A2Branch branch;
 	private final Version version;
@@ -54,5 +59,4 @@ class A2Module implements Comparable<A2Module> {
 		return branch.getComponent() + ":" + version;
 	}
 
-	
 }

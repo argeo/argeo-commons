@@ -1,7 +1,6 @@
 package org.argeo.osgi.boot.a2;
 
 import java.io.File;
-import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,13 +18,12 @@ import org.argeo.osgi.boot.OsgiBootUtils;
 import org.eclipse.osgi.launch.EquinoxFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.osgi.framework.launch.Framework;
-import org.osgi.framework.launch.FrameworkFactory;
 import org.osgi.framework.wiring.FrameworkWiring;
 
+/** Loads provisioning sources into an OSGi context. */
 public class ProvisioningManager {
 	BundleContext bc;
 	OsgiContext osgiContext;
@@ -113,8 +111,9 @@ public class ProvisioningManager {
 			Version moduleVersion = module.getVersion();
 			A2Branch osgiBranch = osgiContext.findBranch(module.getBranch().getComponent().getId(), moduleVersion);
 			if (osgiBranch == null) {
-				Bundle bundle = bc.installBundle(module.getBranch().getCoordinates(),
-						moduleSource.newInputStream(module.getLocator()));
+//				Bundle bundle = bc.installBundle(module.getBranch().getCoordinates(),
+//						moduleSource.newInputStream(module.getLocator()));
+				Bundle bundle = moduleSource.install(bc, module);
 				if (OsgiBootUtils.isDebug())
 					OsgiBootUtils.debug("Installed bundle " + bundle.getLocation() + " with version " + moduleVersion);
 				return bundle;
@@ -123,13 +122,14 @@ public class ProvisioningManager {
 				int compare = moduleVersion.compareTo(lastOsgiModule.getVersion());
 				if (compare > 0) {// update
 					Bundle bundle = (Bundle) lastOsgiModule.getLocator();
-					bundle.update(moduleSource.newInputStream(module.getLocator()));
+//					bundle.update(moduleSource.newInputStream(module.getLocator()));
+					moduleSource.update(bundle, module);
 					OsgiBootUtils.info("Updated bundle " + bundle.getLocation() + " to version " + moduleVersion);
 					return bundle;
 				}
 			}
 		} catch (Exception e) {
-			OsgiBootUtils.error("Could not install module " + module + ": " + e.getMessage(), null);
+			OsgiBootUtils.error("Could not install module " + module + ": " + e.getMessage(), e);
 		}
 		return null;
 	}
@@ -148,8 +148,9 @@ public class ProvisioningManager {
 				Version moduleVersion = module.getVersion();
 				int compare = moduleVersion.compareTo(version);
 				if (compare > 0) {// update
-					try (InputStream in = source.newInputStream(module.getLocator())) {
-						bundle.update(in);
+					try {
+						source.update(bundle, module);
+//						bundle.update(in);
 						String fragmentHost = bundle.getHeaders().get(Constants.FRAGMENT_HOST);
 						if (fragmentHost != null)
 							fragmentsUpdated = true;
@@ -169,22 +170,10 @@ public class ProvisioningManager {
 		return updatedBundles;
 	}
 
-	private static Framework launch() {
-		// start OSGi
-		FrameworkFactory frameworkFactory = new EquinoxFactory();
+	public static void main(String[] args) {
 		Map<String, String> configuration = new HashMap<>();
 		configuration.put("osgi.console", "2323");
-		Framework framework = frameworkFactory.newFramework(configuration);
-		try {
-			framework.start();
-		} catch (BundleException e) {
-			throw new OsgiBootException("Cannot start OSGi framework", e);
-		}
-		return framework;
-	}
-
-	public static void main(String[] args) {
-		Framework framework = launch();
+		Framework framework = OsgiBootUtils.launch(new EquinoxFactory(), configuration);
 		try {
 			ProvisioningManager pm = new ProvisioningManager(framework.getBundleContext());
 			FsA2Source context = new FsA2Source(Paths.get(

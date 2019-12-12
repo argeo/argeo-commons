@@ -12,6 +12,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import org.argeo.osgi.boot.OsgiBootUtils;
 import org.osgi.framework.Version;
 
+/** A file system {@link ProvisioningSource} in Maven 2 format. */
 public class FsM2Source extends ProvisioningSource {
 	private final Path base;
 
