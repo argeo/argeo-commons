@@ -1,6 +1,6 @@
 #!/bin/sh
 
-container=$(buildah from argeo2-tp-openjdk)
+container=$(buildah from argeo2-tp)
 
 buildah config --label release="1" $container
 buildah config --label version="2.1.83,SNAPSHOT" $container
@@ -10,6 +10,9 @@ source "$(dirname "$0")/buildah-common"
 # Metadata
 buildah config --label name="argeo2-openjdk11-ubi8" $container
 buildah config --label summary="Argeo 2 Node based on OpenJDK 11 and Red Hat UBI 8" $container
+
+# Required as long as we declare an 'argeo' user
+buildah run $container -- microdnf install shadow-utils
 
 # Argeo Node
 buildah run $container -- microdnf install argeo-cms-e4-rap argeo-node
