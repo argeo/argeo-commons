@@ -9,6 +9,7 @@ import javax.naming.ldap.LdapName;
 import org.argeo.naming.LdapAttrs;
 import org.osgi.service.useradmin.Authorization;
 
+/** An authenticated user session. */
 public interface CmsSession {
 	final static String USER_DN = LdapAttrs.DN;
 	final static String SESSION_UUID = LdapAttrs.entryUUID.name();
@@ -27,8 +28,9 @@ public interface CmsSession {
 	boolean isAnonymous();
 
 	ZonedDateTime getCreationTime();
+
 	ZonedDateTime getEnd();
-	
+
 	Locale getLocale();
 
 	boolean isValid();

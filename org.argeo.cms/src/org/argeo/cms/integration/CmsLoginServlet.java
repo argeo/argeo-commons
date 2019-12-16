@@ -1,7 +1,10 @@
 package org.argeo.cms.integration;
 
 import java.io.IOException;
+import java.util.Locale;
+import java.util.Set;
 
+import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
@@ -19,14 +22,17 @@ import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.node.NodeConstants;
 import org.osgi.service.useradmin.Authorization;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.stream.JsonWriter;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /** Externally authenticate an http session. */
 public class CmsLoginServlet extends HttpServlet {
+	public final static String PARAM_USERNAME = "username";
+	public final static String PARAM_PASSWORD = "password";
+
 	private static final long serialVersionUID = 2478080654328751539L;
-	private Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//	private Gson gson = new GsonBuilder().setPrettyPrinting().create();
+	private ObjectMapper objectMapper = new ObjectMapper();
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -38,82 +44,85 @@ public class CmsLoginServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		LoginContext lc = null;
-		String username = request.getParameter("username");
-		String password = request.getParameter("password");
-		if (username != null && password != null) {
-			try {
-				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
-						new HttpRequestCallbackHandler(request, response) {
-							public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-								for (Callback callback : callbacks) {
-									if (callback instanceof NameCallback && username != null)
-										((NameCallback) callback).setName(username);
-									else if (callback instanceof PasswordCallback && password != null)
-										((PasswordCallback) callback).setPassword(password.toCharArray());
-									else if (callback instanceof HttpRequestCallback) {
-										((HttpRequestCallback) callback).setRequest(request);
-										((HttpRequestCallback) callback).setResponse(response);
-									}
-								}
-							}
-						});
-				lc.login();
+		String username = request.getParameter(PARAM_USERNAME);
+		String password = request.getParameter(PARAM_PASSWORD);
+		try {
+			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new HttpRequestCallbackHandler(request, response) {
+				public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+					for (Callback callback : callbacks) {
+						if (callback instanceof NameCallback && username != null)
+							((NameCallback) callback).setName(username);
+						else if (callback instanceof PasswordCallback && password != null)
+							((PasswordCallback) callback).setPassword(password.toCharArray());
+						else if (callback instanceof HttpRequestCallback) {
+							((HttpRequestCallback) callback).setRequest(request);
+							((HttpRequestCallback) callback).setResponse(response);
+						}
+					}
+				}
+			});
+			lc.login();
 
-				CmsSessionId cmsSessionId = (CmsSessionId) lc.getSubject().getPrivateCredentials(CmsSessionId.class)
-						.toArray()[0];
-				Authorization authorization = (Authorization) lc.getSubject().getPrivateCredentials(Authorization.class)
-						.toArray()[0];
-
-				JsonWriter jsonWriter = gson.newJsonWriter(response.getWriter());
-				jsonWriter.beginObject();
-				// Authorization
-				jsonWriter.name("username").value(authorization.getName());
-				jsonWriter.name("displayName").value(authorization.toString());
-				// Roles
-				jsonWriter.name("roles").beginArray();
-				for (String role : authorization.getRoles())
-					if (!role.equals(authorization.getName()))
-						jsonWriter.value(role);
-				jsonWriter.endArray();
-				// CMS session
-				jsonWriter.name("cmsSession").beginObject();
-				jsonWriter.name("uuid").value(cmsSessionId.getUuid().toString());
-				jsonWriter.endObject();
-
-				// extensions
-				enrichJson(jsonWriter);
-
-				jsonWriter.endObject();
-
-				String redirectTo = redirectTo(request);
-				if (redirectTo != null)
-					response.sendRedirect(redirectTo);
-			} catch (LoginException e) {
-				response.setStatus(403);
+			Subject subject = lc.getSubject();
+			CmsSessionId cmsSessionId = extractFrom(subject.getPrivateCredentials(CmsSessionId.class));
+			if (cmsSessionId == null) {
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 				return;
 			}
-		} else {
-			response.setStatus(403);
+			Authorization authorization = extractFrom(subject.getPrivateCredentials(Authorization.class));
+			Locale locale = extractFrom(subject.getPublicCredentials(Locale.class));
+
+			CmsSessionDescriptor cmsSessionDescriptor = new CmsSessionDescriptor(authorization.getName(),
+					cmsSessionId.getUuid().toString(), authorization.getRoles(), authorization.toString(),
+					locale != null ? locale.toString() : null);
+
+			response.setContentType("application/json");
+			JsonGenerator jg = objectMapper.getFactory().createGenerator(response.getWriter());
+			jg.writeObject(cmsSessionDescriptor);
+
+//				JsonWriter jsonWriter = gson.newJsonWriter(response.getWriter());
+//				jsonWriter.beginObject();
+//				// Authorization
+//				jsonWriter.name("username").value(authorization.getName());
+//				jsonWriter.name("displayName").value(authorization.toString());
+//				// Roles
+//				jsonWriter.name("roles").beginArray();
+//				for (String role : authorization.getRoles())
+//					if (!role.equals(authorization.getName()))
+//						jsonWriter.value(role);
+//				jsonWriter.endArray();
+//				// CMS session
+//				jsonWriter.name("cmsSession").beginObject();
+//				jsonWriter.name("uuid").value(cmsSessionId.getUuid().toString());
+//				jsonWriter.endObject();
+//
+//				// extensions
+//				enrichJson(jsonWriter);
+//
+//				jsonWriter.endObject();
+
+			String redirectTo = redirectTo(request);
+			if (redirectTo != null)
+				response.sendRedirect(redirectTo);
+		} catch (LoginException e) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
 	}
 
+	protected <T> T extractFrom(Set<T> creds) {
+		if (creds.size() > 0)
+			return creds.iterator().next();
+		else
+			return null;
+	}
+
 	/**
-	 * To be overridden. The object will be ended by the caller. Does nothing by
-	 * default.
+	 * To be overridden in order to return a richer {@link CmsSessionDescriptor} to
+	 * be serialized.
 	 */
-	protected void enrichJson(JsonWriter jsonWriter) {
-
-	}
-
-	/** Does nothing by default. */
-	protected void loginSucceeded(LoginContext lc, HttpServletRequest request, HttpServletResponse response) {
-
-	}
-
-	/** Send HTTP code 403 by default. */
-	protected void loginFailed(LoginContext lc, HttpServletRequest request, HttpServletResponse response) {
-
+	protected CmsSessionDescriptor enrichJson(CmsSessionDescriptor cmsSessionDescriptor) {
+		return cmsSessionDescriptor;
 	}
 
 	protected String redirectTo(HttpServletRequest request) {
