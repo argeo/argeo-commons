@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.argeo.commons</groupId>
 		<artifactId>argeo-commons</artifactId>
-		<version>2.1.84-SNAPSHOT</version>
+		<version>2.1.84</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.cms.ui</artifactId>
@@ -14,13 +14,13 @@
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.cms</artifactId>
-			<version>2.1.84-SNAPSHOT</version>
+			<version>2.1.84</version>
 		</dependency>
 		<!-- Specific -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.eclipse.ui.rap</artifactId>
-			<version>2.1.84-SNAPSHOT</version>
+			<version>2.1.84</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.cms.ui.theme</artifactId>
-			<version>2.1.84-SNAPSHOT</version>
+			<version>2.1.84</version>
 		</dependency>
 
 		<!-- UI -->
