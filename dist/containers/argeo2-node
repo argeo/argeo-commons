@@ -1,10 +1,12 @@
 #!/bin/sh
 
 source "$(dirname "$0")/buildah-metadata"
-container=$(buildah from argeo2-tp:v$VERSION_ARGEO_TP)
+container=$(buildah from argeo/argeo2-tp:$VERSION_ARGEO_TP)
 
 # Override version
 VERSION=2.1.83
+#buildah copy $container argeo2-rpmfactory.repo /etc/yum.repos.d/
+#buildah copy $container /srv/rpmfactory/argeo-osgi-2/el7/ /srv/rpmfactory/argeo-osgi-2/el7/
 
 source "$(dirname "$0")/buildah-common"
 
@@ -13,21 +15,23 @@ buildah config --label version="$VERSION" $container
 
 # Metadata
 buildah config --label name="argeo2-node" $container
-buildah config --label description="Argeo 2 Node based on OpenJDK 11 and Red Hat UBI 8" $container
+buildah config --label description="Argeo 2 Node" $container
 buildah config --label url=https://hub.docker.com/repository/docker/argeo/argeo2-node $container
 
 # Required as long as we declare an 'argeo' user
 buildah run $container -- microdnf install shadow-utils
 
-# Argeo OSGi Boot
-buildah run $container -- microdnf install osgi-boot
 # Argeo Node
-buildah run $container -- microdnf install argeo-cms-e4-rap argeo-node
+buildah run $container -- microdnf install osgi-boot argeo-cms-e4-rap argeo-node
+buildah run $container -- microdnf clean all
+
+#buildah run $container -- rm -rf /srv/rpmfactory/argeo-osgi-2
 
 # Configuration
 buildah config --entrypoint '["/usr/sbin/argeoctl","start"]' $container
 buildah config --port 8080 $container
 
-buildah commit --rm --format docker $container argeo2-node:v$VERSION
-buildah push argeo2-node:v$VERSION docker://argeo/argeo2-node:v$VERSION
-buildah push argeo2-node:v$VERSION docker://argeo/argeo2-node:latest
+buildah commit --rm --format docker $container argeo/argeo2-node:$VERSION
+buildah tag argeo/argeo2-node:$VERSION argeo/argeo2-node:latest
+buildah push argeo/argeo2-node:$VERSION docker://argeo/argeo2-node:$VERSION
+buildah push argeo/argeo2-node:$VERSION docker://argeo/argeo2-node:latest

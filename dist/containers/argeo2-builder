@@ -1,7 +1,7 @@
 #!/bin/sh
 
 source "$(dirname "$0")/buildah-metadata"
-container=$(buildah from argeo2-java:openjdk-v$VERSION_JAVA)
+container=$(buildah from argeo/argeo2-java:openjdk-v$VERSION_JAVA)
 
 source "$(dirname "$0")/buildah-common"
 
@@ -29,6 +29,8 @@ buildah run $container -- microdnf -y remove tar gzip
 buildah run $container -- ln -s /opt/apache-maven-$VERSION_MAVEN/bin/mvn /usr/local/bin/mvn
 # Maven script requires which
 buildah run $container -- microdnf -y install which
+# Clean microdnf
+buildah run $container -- microdnf clean all
 
 buildah run $container -- mkdir -p /srv/javafactory/
 
@@ -49,6 +51,7 @@ buildah run $container -- mkdir -p /root/build/
 # Configuration
 buildah config --entrypoint '["mvn","clean","install"]' $container
 
-buildah commit --rm --format docker $container argeo2-builder:maven-v$VERSION_MAVEN
-buildah push argeo2-builder:maven-v$VERSION_MAVEN docker://argeo/argeo2-builder:maven-v$VERSION_MAVEN
-buildah push argeo2-builder:maven-v$VERSION_MAVEN docker://argeo/argeo2-builder:latest
+buildah commit --rm --format docker $container argeo/argeo2-builder:maven-v$VERSION_MAVEN
+buildah tag argeo/argeo2-builder:maven-v$VERSION_MAVEN argeo/argeo2-builder:latest
+buildah push argeo/argeo2-builder:maven-v$VERSION_MAVEN docker://argeo/argeo2-builder:maven-v$VERSION_MAVEN
+buildah push argeo/argeo2-builder:maven-v$VERSION_MAVEN docker://argeo/argeo2-builder:latest

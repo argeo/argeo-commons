@@ -15,10 +15,12 @@ buildah config --label url=https://hub.docker.com/repository/docker/argeo/argeo2
 
 # Java 11
 buildah run $container -- microdnf install java-11-openjdk-headless
+buildah run $container -- microdnf clean all
 
 # Configuration
 buildah config --entrypoint '["java"]' $container
 
-buildah commit --rm --format docker $container argeo2-java:openjdk-v$VERSION_JAVA
-buildah push argeo2-java:openjdk-v$VERSION_JAVA docker://argeo/argeo2-java:openjdk-v$VERSION_JAVA
-buildah push argeo2-java:openjdk-v$VERSION_JAVA docker://argeo/argeo2-java:latest
+buildah commit --rm --format docker $container argeo/argeo2-java:openjdk-v$VERSION_JAVA
+buildah tag argeo/argeo2-java:openjdk-v$VERSION_JAVA argeo/argeo2-java:latest
+buildah push argeo/argeo2-java:openjdk-v$VERSION_JAVA docker://argeo/argeo2-java:openjdk-v$VERSION_JAVA
+buildah push argeo/argeo2-java:openjdk-v$VERSION_JAVA docker://argeo/argeo2-java:latest
