@@ -1,0 +1,2 @@
+VERSION=${project.version}
+VERSION_ARGEO_TP=${version.argeo-tp}

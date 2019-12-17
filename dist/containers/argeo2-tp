@@ -2,10 +2,10 @@
 
 container=$(buildah from ubi8/ubi-minimal)
 
-buildah config --label release="1" $container
-buildah config --label version="2.1.25" $container
-
 source "$(dirname "$0")/buildah-common"
+
+buildah config --label release="1" $container
+buildah config --label version="$VERSION_ARGEO_TP" $container
 
 # Metadata
 buildah config --label name="argeo2-tp-openjdk11-ubi8" $container

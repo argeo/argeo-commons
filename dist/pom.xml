@@ -13,5 +13,6 @@
 	<modules>
 		<module>osgi-boot</module>
 		<module>argeo-node</module>
+		<module>containers</module>
 	</modules>
 </project>

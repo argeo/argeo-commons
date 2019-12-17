@@ -2,10 +2,10 @@
 
 container=$(buildah from argeo2-tp)
 
-buildah config --label release="1" $container
-buildah config --label version="2.1.83,SNAPSHOT" $container
-
 source "$(dirname "$0")/buildah-common"
+
+buildah config --label release="1" $container
+buildah config --label version="$VERSION" $container
 
 # Metadata
 buildah config --label name="argeo2-openjdk11-ubi8" $container
