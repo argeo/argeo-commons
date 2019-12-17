@@ -3,10 +3,21 @@
 ## Log-in to Red Hat registry first
 # podman login registry.redhat.io
 
-source ./buildah-metadata
-
 # Metadata
 buildah config --label maintainer="Mathieu Baudier, mbaudier at argeo.org" $container
 buildah config --created-by "Mathieu Baudier, mbaudier at argeo.org" $container
 buildah config --author "Argeo GmbH, http://www.argeo.org, contact at argeo.org" $container
 buildah config --label vendor="Argeo GmbH" $container
+
+# Remove Red Hat labels
+buildah config --label authoritative-source-url= $container
+buildah config --label com.redhat.build-host= $container
+buildah config --label com.redhat.component= $container
+buildah config --label com.redhat.license_terms= $container
+buildah config --label io.k8s.description= $container
+buildah config --label io.k8s.display-name= $container
+buildah config --label io.openshift.expose-services= $container
+buildah config --label io.openshift.tags= $container
+buildah config --label vcs-ref= $container
+buildah config --label vcs-type= $container
+buildah config --label summary= $container

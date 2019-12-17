@@ -1,7 +1,7 @@
 #!/bin/sh
 
-container=$(buildah from ubi8/ubi-minimal)
-
+source "$(dirname "$0")/buildah-metadata"
+container=$(buildah from argeo2-java:openjdk-v$VERSION_JAVA)
 
 source "$(dirname "$0")/buildah-common"
 
@@ -9,37 +9,46 @@ buildah config --label release="1" $container
 buildah config --label version="$VERSION" $container
 
 # Metadata
-buildah config --label name="argeo2-builder-openjdk11-ubi8" $container
-buildah config --label summary="Argeo 2 Builder based on OpenJDK 11 and Red Hat UBI 8" $container
+buildah config --label name="argeo2-builder" $container
+buildah config --label description="Argeo 2 Builder" $container
 
 # Utilities
 #buildah run $container -- microdnf -y install git
-
 # Java 11
-buildah run $container -- microdnf -y install java-11-openjdk-devel
+#buildah run $container -- microdnf -y install java-11-openjdk-devel
 # Maven
-buildah run $container -- microdnf -y install maven
-buildah copy $container maven.conf /etc/java/maven.conf
+#buildah run $container -- microdnf -y install maven
+#buildah copy $container maven.conf /etc/java/maven.conf
+
+buildah run $container -- microdnf -y install tar gzip
+buildah copy $container https://archive.apache.org/dist/maven/maven-3/$VERSION_MAVEN/binaries/apache-maven-$VERSION_MAVEN-bin.tar.gz /opt
+buildah run $container -- tar -C /opt -xzf /opt/apache-maven-$VERSION_MAVEN-bin.tar.gz
+buildah run $container -- rm -f /opt/apache-maven-$VERSION_MAVEN-bin.tar.gz
+buildah run $container -- microdnf -y remove tar gzip
+
+buildah run $container -- ln -s /opt/apache-maven-$VERSION_MAVEN/bin/mvn /usr/local/bin/mvn
+# Maven script requires which
+buildah run $container -- microdnf -y install which
 
 buildah run $container -- mkdir -p /srv/javafactory/
 
 # Working dir
-buildah run $container -- mkdir -p /root/checkout/
-buildah config --workingdir /root/checkout/ $container
+buildah run $container -- mkdir -p /root/build/
+buildah config --workingdir /root/build/ $container
 
 # Perform a build of argeo-commons
-#buildah run $container -- /usr/bin/git clone http://git.argeo.org/apache2/argeo-commons.git .
-buildah copy $container ../.. /root/checkout
-buildah run $container -- /usr/bin/mvn clean install
-buildah run $container -- /usr/bin/mvn dependency:go-offline
+buildah copy $container ../.. /root/build
+buildah run $container -- mvn clean install
+#buildah run $container -- mvn dependency:go-offline
+
 # Clean up build directories
-buildah run $container -- /usr/bin/rm -rf /root/.m2/repository/org/argeo/commons
-buildah run $container -- /usr/bin/rm -rf /root/checkout
-buildah run $container -- mkdir -p /root/checkout/
+buildah run $container -- rm -rf /root/.m2/repository/org/argeo/commons
+buildah run $container -- rm -rf /root/build
+buildah run $container -- mkdir -p /root/build/
 
 # Configuration
-#buildah config --workingdir /root/checkout/ $container
-#buildah config --entrypoint '["/usr/bin/mvn","clean","deploy"]' $container
-buildah config --cmd '/usr/bin/mvn clean deploy' $container
+buildah config --entrypoint '["mvn","clean","install"]' $container
 
-buildah commit $container argeo2-builder:latest
+buildah commit --rm --format docker $container argeo2-builder:maven-v$VERSION_MAVEN
+buildah push argeo2-builder:maven-v$VERSION_MAVEN docker://argeo/argeo2-builder:maven-v$VERSION_MAVEN
+buildah push argeo2-builder:maven-v$VERSION_MAVEN docker://argeo/argeo2-builder:latest
