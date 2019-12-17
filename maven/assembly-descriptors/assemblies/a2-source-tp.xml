@@ -17,6 +17,9 @@
 			<includes>
 				<include>org.argeo.tp.*:*</include>
 			</includes>
+			<excludes>
+				<exclude>*:*:pom:*</exclude>
+			</excludes>
 		</dependencySet>
 	</dependencySets>
 </assembly>

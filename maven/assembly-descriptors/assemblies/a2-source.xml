@@ -16,6 +16,7 @@
 			<scope>runtime</scope>
 			<excludes>
 				<exclude>org.argeo.tp.*:*</exclude>
+				<exclude>*:*:pom:*</exclude>
 			</excludes>
 		</dependencySet>
 	</dependencySets>
