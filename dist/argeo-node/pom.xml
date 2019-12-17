@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
@@ -70,7 +72,7 @@
 										<mapping>
 											<directory>/etc/argeo</directory>
 											<username>root</username>
-											<groupname>argeo</groupname>
+											<groupname>wheel</groupname>
 											<filemode>640</filemode>
 											<configuration>noreplace</configuration>
 											<directoryIncluded>false</directoryIncluded>
@@ -83,7 +85,7 @@
 										<mapping>
 											<directory>/etc/argeo/conf.d</directory>
 											<username>root</username>
-											<groupname>argeo</groupname>
+											<groupname>wheel</groupname>
 											<filemode>640</filemode>
 											<configuration>noreplace</configuration>
 											<directoryIncluded>false</directoryIncluded>
@@ -143,9 +145,9 @@
 											</sources>
 										</mapping>
 									</mappings>
-									<preinstallScriptlet>
-										<scriptFile>rpm/scripts/preinstall</scriptFile>
-									</preinstallScriptlet>
+									<!-- <preinstallScriptlet> -->
+									<!-- <scriptFile>rpm/scripts/preinstall</scriptFile> -->
+									<!-- </preinstallScriptlet> -->
 									<requires>
 										<require>argeo-cms-node</require>
 										<require>osgi-boot</require>
