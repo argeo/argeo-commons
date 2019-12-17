@@ -157,12 +157,15 @@ class InitUtils {
 			String demoBaseDn = "dc=example,dc=com";
 			userAdminUris = demoBaseDn + ".ldif";
 			File businessRolesFile = new File(nodeBaseDir, userAdminUris);
+			File systemRolesFile = new File(nodeBaseDir, "ou=roles,ou=node.ldif");
 			if (!businessRolesFile.exists())
 				try {
 					FileUtils.copyInputStreamToFile(InitUtils.class.getResourceAsStream(demoBaseDn + ".ldif"),
 							businessRolesFile);
+					FileUtils.copyInputStreamToFile(
+							InitUtils.class.getResourceAsStream("example-ou=roles,ou=node.ldif"), systemRolesFile);
 				} catch (IOException e) {
-					throw new CmsException("Cannot copy demo resource", e);
+					throw new CmsException("Cannot copy demo resources", e);
 				}
 			// userAdminUris = businessRolesFile.toURI().toString();
 			log.warn("## DEV Using dummy base DN " + demoBaseDn);

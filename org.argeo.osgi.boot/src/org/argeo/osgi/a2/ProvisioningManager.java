@@ -2,6 +2,7 @@ package org.argeo.osgi.a2;
 
 import java.io.File;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -62,9 +63,12 @@ public class ProvisioningManager {
 						baseStr = baseStr.substring(1).replace('/', File.separatorChar);
 					}
 					Path base = Paths.get(baseStr);
-					FsA2Source source = new FsA2Source(base);
-					source.load();
-					addSource(source);
+					if (Files.exists(base)) {
+						FsA2Source source = new FsA2Source(base);
+						source.load();
+						addSource(source);
+						OsgiBootUtils.info("Registered " + uri + " as source");
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -85,7 +89,7 @@ public class ProvisioningManager {
 						baseStr = '/' + baseStr.replace(File.separatorChar, '/');
 					URI baseUri = new URI(A2Source.SCHEME_A2, null, null, 0, baseStr, null, null);
 					registerSource(baseUri.toString());
-					OsgiBootUtils.info("Registered " + baseUri + " as default source");
+					OsgiBootUtils.debug("Default source from framework location " + frameworkLocation);
 					return true;
 				}
 			}
