@@ -41,7 +41,7 @@ buildah config --workingdir /root/build/ $container
 # Perform a build of argeo-commons
 buildah copy $container ../.. /root/build
 buildah run $container -- mvn clean install
-#buildah run $container -- mvn dependency:go-offline
+buildah run $container -- mvn dependency:go-offline
 
 # Clean up build directories
 buildah run $container -- rm -rf /root/.m2/repository/org/argeo/commons
