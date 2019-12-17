@@ -1,7 +1,9 @@
-package org.argeo.osgi.boot.a2;
+package org.argeo.osgi.a2;
 
 import java.io.IOException;
 
+import org.argeo.osgi.a2.ClasspathSource;
+import org.argeo.osgi.a2.ProvisioningManager;
 import org.argeo.osgi.boot.equinox.EquinoxUtils;
 import org.junit.Test;
 import org.osgi.framework.Bundle;

@@ -1,4 +1,4 @@
-package org.argeo.osgi.boot.a2;
+package org.argeo.osgi.a2;
 
 import java.io.File;
 import java.io.IOException;

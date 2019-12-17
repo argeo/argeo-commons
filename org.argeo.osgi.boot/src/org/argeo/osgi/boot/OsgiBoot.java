@@ -32,8 +32,8 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import org.argeo.osgi.boot.a2.A2Source;
-import org.argeo.osgi.boot.a2.ProvisioningManager;
+import org.argeo.osgi.a2.A2Source;
+import org.argeo.osgi.a2.ProvisioningManager;
 import org.argeo.osgi.boot.internal.springutil.AntPathMatcher;
 import org.argeo.osgi.boot.internal.springutil.PathMatcher;
 import org.argeo.osgi.boot.internal.springutil.SystemPropertyUtils;

@@ -1,4 +1,4 @@
-package org.argeo.osgi.boot.a2;
+package org.argeo.osgi.a2;
 
 import org.argeo.osgi.boot.OsgiBootUtils;
 import org.osgi.framework.Bundle;

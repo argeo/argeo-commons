@@ -1,4 +1,4 @@
-package org.argeo.osgi.boot.a2;
+package org.argeo.osgi.a2;
 
 /** A provisioning source in A2 format. */
 public interface A2Source extends ProvisioningSource {
