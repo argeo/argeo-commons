@@ -14,9 +14,9 @@ import org.osgi.framework.Version;
  * A provisioning source based on the linear classpath with which the JCM has
  * been started.
  */
-public class ClasspathSource extends ProvisioningSource {
+public class ClasspathSource extends AbstractProvisioningSource {
 	void load() throws IOException {
-		A2Contribution classpathContribution = new A2Contribution(this, A2Contribution.CLASSPATH);
+		A2Contribution classpathContribution = getOrAddContribution( A2Contribution.CLASSPATH);
 		List<String> classpath = Arrays.asList(System.getProperty("java.class.path").split(File.pathSeparator));
 		parts: for (String part : classpath) {
 			Path file = Paths.get(part);

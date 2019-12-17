@@ -12,13 +12,13 @@ import org.osgi.framework.Version;
  * typically a combination of major and minor version, indicating backward
  * compatibility.
  */
-class A2Branch implements Comparable<A2Branch> {
+public class A2Branch implements Comparable<A2Branch> {
 	private final A2Component component;
 	private final String id;
 
 	final SortedMap<Version, A2Module> modules = Collections.synchronizedSortedMap(new TreeMap<>());
 
-	A2Branch(A2Component component, String id) {
+	public A2Branch(A2Component component, String id) {
 		this.component = component;
 		this.id = id;
 		component.branches.put(id, this);

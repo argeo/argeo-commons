@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.argeo.osgi.boot.OsgiBootException;
 import org.argeo.osgi.boot.OsgiBootUtils;
 import org.eclipse.osgi.launch.EquinoxFactory;
 import org.osgi.framework.Bundle;
@@ -35,13 +34,13 @@ public class ProvisioningManager {
 		osgiContext.load();
 	}
 
-	void addSource(ProvisioningSource context) {
-		sources.add(context);
+	protected void addSource(ProvisioningSource source) {
+		sources.add(source);
 	}
 
-	void installWholeSource(ProvisioningSource context) {
+	void installWholeSource(ProvisioningSource source) {
 		Set<Bundle> updatedBundles = new HashSet<>();
-		for (A2Contribution contribution : context.contributions.values()) {
+		for (A2Contribution contribution : source.listContributions(null)) {
 			for (A2Component component : contribution.components.values()) {
 				A2Module module = component.last().last();
 				Bundle bundle = installOrUpdate(module);
@@ -56,7 +55,7 @@ public class ProvisioningManager {
 	public void registerSource(String uri) {
 		try {
 			URI u = new URI(uri);
-			if ("a2".equals(u.getScheme())) {
+			if (A2Source.SCHEME_A2.equals(u.getScheme())) {
 				if (u.getHost() == null || "".equals(u.getHost())) {
 					String baseStr = u.getPath();
 					if (File.separatorChar == '\\') {// MS Windows
@@ -69,7 +68,7 @@ public class ProvisioningManager {
 				}
 			}
 		} catch (Exception e) {
-			throw new OsgiBootException("Cannot add source " + uri, e);
+			throw new A2Exception("Cannot add source " + uri, e);
 		}
 	}
 
@@ -84,7 +83,7 @@ public class ProvisioningManager {
 					String baseStr = base.toString();
 					if (File.separatorChar == '\\')// MS Windows
 						baseStr = '/' + baseStr.replace(File.separatorChar, '/');
-					URI baseUri = new URI("a2", null, null, 0, baseStr, null, null);
+					URI baseUri = new URI(A2Source.SCHEME_A2, null, null, 0, baseStr, null, null);
 					registerSource(baseUri.toString());
 					OsgiBootUtils.info("Registered " + baseUri + " as default source");
 					return true;
@@ -104,8 +103,8 @@ public class ProvisioningManager {
 		}
 	}
 
-	/** @return the new/updated bundle, or null if nothign was done. */
-	Bundle installOrUpdate(A2Module module) {
+	/** @return the new/updated bundle, or null if nothing was done. */
+	protected Bundle installOrUpdate(A2Module module) {
 		try {
 			ProvisioningSource moduleSource = module.getBranch().getComponent().getContribution().getSource();
 			Version moduleVersion = module.getVersion();

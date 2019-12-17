@@ -6,8 +6,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.Version;
 
-/** A running OSGi bundle context seen as a {@link ProvisioningSource}. */
-class OsgiContext extends ProvisioningSource {
+/** A running OSGi bundle context seen as a {@link AbstractProvisioningSource}. */
+class OsgiContext extends AbstractProvisioningSource {
 	private final BundleContext bc;
 
 	public OsgiContext(BundleContext bc) {
@@ -24,7 +24,7 @@ class OsgiContext extends ProvisioningSource {
 	}
 
 	void load() {
-		A2Contribution runtimeContribution = new A2Contribution(this, A2Contribution.RUNTIME);
+		A2Contribution runtimeContribution = getOrAddContribution( A2Contribution.RUNTIME);
 		for (Bundle bundle : bc.getBundles()) {
 			// OsgiBootUtils.debug(bundle.getDataFile("/"));
 			String componentId = bundle.getSymbolicName();

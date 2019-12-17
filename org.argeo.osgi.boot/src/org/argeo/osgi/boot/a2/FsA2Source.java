@@ -11,8 +11,8 @@ import java.util.TreeSet;
 import org.argeo.osgi.boot.OsgiBootUtils;
 import org.osgi.framework.Version;
 
-/** A file system {@link ProvisioningSource} in A2 format. */
-public class FsA2Source extends ProvisioningSource {
+/** A file system {@link AbstractProvisioningSource} in A2 format. */
+public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 	private final Path base;
 
 	public FsA2Source(Path base) {
@@ -28,7 +28,7 @@ public class FsA2Source extends ProvisioningSource {
 				String contributionId = contributionPath.getFileName().toString();
 				if (A2Contribution.BOOT.equals(contributionId))// skip boot
 					continue contributions;
-				A2Contribution contribution = new A2Contribution(this, contributionId);
+				A2Contribution contribution = getOrAddContribution(contributionId);
 				contributions.add(contribution);
 			}
 		}

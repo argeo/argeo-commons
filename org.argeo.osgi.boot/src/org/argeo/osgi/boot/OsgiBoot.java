@@ -19,6 +19,7 @@ import static org.argeo.osgi.boot.OsgiBootUtils.debug;
 import static org.argeo.osgi.boot.OsgiBootUtils.warn;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
+import org.argeo.osgi.boot.a2.A2Source;
 import org.argeo.osgi.boot.a2.ProvisioningManager;
 import org.argeo.osgi.boot.internal.springutil.AntPathMatcher;
 import org.argeo.osgi.boot.internal.springutil.PathMatcher;
@@ -101,7 +103,8 @@ public class OsgiBoot implements OsgiBootConstants {
 	/** Constructor */
 	public OsgiBoot(BundleContext bundleContext) {
 		this.bundleContext = bundleContext;
-		String homeUri = Paths.get(System.getProperty("user.home")).toUri().toString();
+		Path homePath = Paths.get(System.getProperty("user.home")).toAbsolutePath();
+		String homeUri = homePath.toUri().toString();
 		localCache = getProperty(PROP_ARGEO_OSGI_LOCAL_CACHE, homeUri + ".m2/repository/");
 
 		provisioningManager = new ProvisioningManager(bundleContext);
@@ -110,7 +113,14 @@ public class OsgiBoot implements OsgiBootConstants {
 			provisioningManager.registerDefaultSource();
 		} else {
 			for (String source : sources.split(",")) {
-				provisioningManager.registerSource(source);
+				if (source.trim().equals(A2Source.DEFAULT_A2_URI)) {
+					provisioningManager
+							.registerSource(A2Source.SCHEME_A2 + "://" + homePath.toString() + "/.local/share/osgi");
+					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/local/share/osgi");
+					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/share/osgi");
+				} else {
+					provisioningManager.registerSource(source);
+				}
 			}
 		}
 	}

@@ -11,7 +11,7 @@ import org.osgi.framework.Version;
  * <code>Bundle-SymbolicName</code>. This is the equivalent of Maven's artifact
  * id.
  */
-class A2Component implements Comparable<A2Component> {
+public class A2Component implements Comparable<A2Component> {
 	private final A2Contribution contribution;
 	private final String id;
 

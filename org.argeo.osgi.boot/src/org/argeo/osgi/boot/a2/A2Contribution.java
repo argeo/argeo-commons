@@ -8,7 +8,7 @@ import java.util.TreeMap;
  * A category grouping a set of {@link A2Component}, typically based on the
  * provider of these components. This is the equivalent of Maven's group Id.
  */
-class A2Contribution implements Comparable<A2Contribution> {
+public class A2Contribution implements Comparable<A2Contribution> {
 	final static String BOOT = "boot";
 	final static String RUNTIME = "runtime";
 	final static String CLASSPATH = "classpath";
@@ -18,11 +18,16 @@ class A2Contribution implements Comparable<A2Contribution> {
 
 	final Map<String, A2Component> components = Collections.synchronizedSortedMap(new TreeMap<>());
 
+	/**
+	 * The contribution must be added to the source. Rather use
+	 * {@link AbstractProvisioningSource#getOrAddContribution(String)} than this
+	 * contructor directly.
+	 */
 	public A2Contribution(ProvisioningSource context, String id) {
 		this.source = context;
 		this.id = id;
-		if (context != null)
-			context.contributions.put(id, this);
+//		if (context != null)
+//			context.contributions.put(id, this);
 	}
 
 	A2Component getOrAddComponent(String componentId) {
