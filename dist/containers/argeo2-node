@@ -4,7 +4,7 @@ source "$(dirname "$0")/buildah-metadata"
 container=$(buildah from argeo/argeo2-tp:$VERSION_ARGEO_TP)
 
 # Override version
-VERSION=2.1.83
+VERSION=2.1.84
 #buildah copy $container argeo2-rpmfactory.repo /etc/yum.repos.d/
 #buildah copy $container /srv/rpmfactory/argeo-osgi-2/el7/ /srv/rpmfactory/argeo-osgi-2/el7/
 
@@ -17,9 +17,6 @@ buildah config --label version="$VERSION" $container
 buildah config --label name="argeo2-node" $container
 buildah config --label description="Argeo 2 Node" $container
 buildah config --label url=https://hub.docker.com/repository/docker/argeo/argeo2-node $container
-
-# Required as long as we declare an 'argeo' user
-buildah run $container -- microdnf install shadow-utils
 
 # Argeo Node
 buildah run $container -- microdnf install osgi-boot argeo-cms-e4-rap argeo-node
