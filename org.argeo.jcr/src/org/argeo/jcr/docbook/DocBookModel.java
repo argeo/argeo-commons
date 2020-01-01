@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.jcr.ImportUUIDBehavior;
+import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
@@ -34,7 +35,7 @@ public class DocBookModel {
 			log.trace("Imported " + path + " in " + duration + " ms");
 
 	}
-
+	
 	public void exportXml(String path, OutputStream out)
 			throws RepositoryException, IOException {
 		session.exportDocumentView(path, out, true, false);

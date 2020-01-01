@@ -2,6 +2,7 @@ package org.argeo.jcr.docbook;
 
 public interface DocBookNames {
 	// ELEMENTS
+	public final static String DBK_ARTICLE = "dbk:article";
 	public final static String DBK_PARA = "dbk:para";
 	public final static String DBK_SECTION = "dbk:section";
 	public final static String DBK_MEDIAOBJECT = "dbk:mediaobject";

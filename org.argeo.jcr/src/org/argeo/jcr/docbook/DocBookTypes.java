@@ -1,6 +1,7 @@
 package org.argeo.jcr.docbook;
 
 public interface DocBookTypes {
+	public final static String BOOK = "dbk:book";
 	public final static String ARTICLE = "dbk:article";
 	public final static String SECTION = "dbk:section";
 	public final static String PARA = "dbk:para";
