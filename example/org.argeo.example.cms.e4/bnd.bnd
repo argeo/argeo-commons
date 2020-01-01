@@ -1,0 +1,4 @@
+
+Service-Component: OSGI-INF/cms-example-rap.xml
+
+Import-Package: org.argeo.cms.e4.rap,*

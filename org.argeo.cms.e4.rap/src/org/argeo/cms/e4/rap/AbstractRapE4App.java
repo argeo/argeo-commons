@@ -10,6 +10,7 @@ import org.eclipse.rap.rwt.application.Application.OperationMode;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.eclipse.rap.rwt.application.ExceptionHandler;
 import org.eclipse.rap.rwt.client.WebClient;
+import org.osgi.framework.BundleContext;
 
 /** Base class for CMS RAP applications. */
 public abstract class AbstractRapE4App implements ApplicationConfiguration {
@@ -17,7 +18,18 @@ public abstract class AbstractRapE4App implements ApplicationConfiguration {
 	private String path;
 	private String lifeCycleUri = "bundleclass://org.argeo.cms.e4.rap/org.argeo.cms.e4.rap.CmsLoginLifecycle";
 
-	Map<String, String> baseProperties = new HashMap<String, String>();
+	private Map<String, String> baseProperties = new HashMap<String, String>();
+
+	private BundleContext bundleContext;
+	private final static String CONTEXT_NAME_PROPERTY = "contextName";
+	private String contextName;
+
+	/**
+	 * To be overridden in order to add multiple entry points, directly or using
+	 * {@link #addE4EntryPoint(Application, String, String, Map)}.
+	 */
+	protected void addEntryPoints(Application application) {
+	}
 
 	public void configure(Application application) {
 		application.setExceptionHandler(new ExceptionHandler() {
@@ -33,14 +45,6 @@ public abstract class AbstractRapE4App implements ApplicationConfiguration {
 		} else {
 			addEntryPoints(application);
 		}
-	}
-
-	/**
-	 * To be overridden in order to add multiple entry points, directly or using
-	 * {@link #addE4EntryPoint(Application, String, String, Map)}.
-	 */
-	protected void addEntryPoints(Application application) {
-
 	}
 
 	protected Map<String, String> getBaseProperties() {
@@ -97,11 +101,27 @@ public abstract class AbstractRapE4App implements ApplicationConfiguration {
 		this.lifeCycleUri = lifeCycleUri;
 	}
 
-	public void init(Map<String, Object> properties) {
+	protected BundleContext getBundleContext() {
+		return bundleContext;
+	}
+
+	protected String getContextName() {
+		return contextName;
+	}
+
+	public void init(BundleContext bundleContext, Map<String, Object> properties) {
+		this.bundleContext = bundleContext;
 		for (String key : properties.keySet()) {
 			Object value = properties.get(key);
 			if (value != null)
 				baseProperties.put(key, value.toString());
+		}
+
+		if (properties.containsKey(CONTEXT_NAME_PROPERTY)) {
+			assert properties.get(CONTEXT_NAME_PROPERTY) != null;
+			contextName = properties.get(CONTEXT_NAME_PROPERTY).toString();
+		} else {
+			contextName = "<unknown context>";
 		}
 	}
 

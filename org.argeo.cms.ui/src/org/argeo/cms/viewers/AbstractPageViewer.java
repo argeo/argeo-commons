@@ -280,9 +280,9 @@ public abstract class AbstractPageViewer extends ContentViewer implements Observ
 		if (e instanceof IllegalArgumentException)
 			if (e.getCause() instanceof SAXParseException)
 				eToLog = e.getCause();
-		log.error(eToLog.getMessage());
-		if (log.isTraceEnabled())
-			log.trace("Full stack of " + eToLog.getMessage(), e);
+		log.error(eToLog.getMessage(), eToLog);
+//		if (log.isTraceEnabled())
+//			log.trace("Full stack of " + eToLog.getMessage(), e);
 		// TODO Light error notification popup
 	}
 

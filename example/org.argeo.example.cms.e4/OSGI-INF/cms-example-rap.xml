@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="init" deactivate="destroy">
+   <implementation class="org.argeo.cms.e4.rap.SimpleRapE4App"/>
+   <service>
+      <provide interface="org.eclipse.rap.rwt.application.ApplicationConfiguration"/>
+   </service>
+   <property name="contextName" type="String" value="cms/example"/>
+</scr:component>

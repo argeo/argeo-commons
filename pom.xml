@@ -41,6 +41,8 @@
 		<!-- Third Parties Extensions -->
 		<module>org.argeo.ext.jackrabbit</module>
 		<module>org.argeo.ext.equinox.jetty</module>
+		<!-- Example -->
+		<module>example</module>
 		<!-- Legacy -->
 		<module>legacy</module>
 		<!-- Distribution -->
