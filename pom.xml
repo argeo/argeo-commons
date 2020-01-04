@@ -43,8 +43,6 @@
 		<module>org.argeo.ext.equinox.jetty</module>
 		<!-- Example -->
 		<module>example</module>
-		<!-- Legacy -->
-		<module>legacy</module>
 		<!-- Distribution -->
 		<module>maven</module>
 		<module>dep</module>
