@@ -20,7 +20,7 @@ buildah run $container -- microdnf clean all
 # Configuration
 buildah config --entrypoint '["java"]' $container
 
-buildah commit --rm --format docker $container argeo/argeo2-java:openjdk-v$VERSION_JAVA
-buildah tag argeo/argeo2-java:openjdk-v$VERSION_JAVA argeo/argeo2-java:latest
-buildah push argeo/argeo2-java:openjdk-v$VERSION_JAVA docker://argeo/argeo2-java:openjdk-v$VERSION_JAVA
-buildah push argeo/argeo2-java:openjdk-v$VERSION_JAVA docker://argeo/argeo2-java:latest
+buildah commit --rm --format docker $container argeo/argeo2-java:openjdk-v$VERSION_JAVA-$ARCH
+buildah tag argeo/argeo2-java:openjdk-v$VERSION_JAVA argeo/argeo2-java:$ARCH
+buildah push argeo/argeo2-java:openjdk-v$VERSION_JAVA docker://argeo/argeo2-java:openjdk-v$VERSION_JAVA-$ARCH
+buildah push argeo/argeo2-java:openjdk-v$VERSION_JAVA docker://argeo/argeo2-java:$ARCH

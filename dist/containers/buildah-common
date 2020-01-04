@@ -3,6 +3,9 @@
 ## Log-in to Red Hat registry first
 # podman login registry.redhat.io
 
+ARCH=`arch`
+echo Building for architecture $ARCH
+
 # Metadata
 buildah config --label maintainer="Mathieu Baudier, mbaudier at argeo.org" $container
 buildah config --created-by "Mathieu Baudier, mbaudier at argeo.org" $container
