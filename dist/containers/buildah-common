@@ -24,3 +24,7 @@ buildah config --label io.openshift.tags= $container
 buildah config --label vcs-ref= $container
 buildah config --label vcs-type= $container
 buildah config --label summary= $container
+
+# To create a multi-arch manifest
+#buildah manifest create argeo/argeo2-java:latest docker://argeo/argeo2-java:x86_64 docker://argeo/argeo2-java:aarch64
+#buildah manifest push argeo/argeo2-java:latest docker://argeo/argeo2-java:latest
