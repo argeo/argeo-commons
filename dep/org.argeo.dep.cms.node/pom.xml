@@ -78,20 +78,6 @@
 			<artifactId>com.google.gson</artifactId>
 		</dependency>
 
-		<!-- Flexmark -->
-		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>com.vladsch.flexmark</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>com.vladsch.flexmark.util</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>com.vladsch.flexmark.formatter</artifactId>
-		</dependency>
-
 		<!-- Aries -->
 		<!-- <dependency> -->
 		<!-- <groupId>org.argeo.tp.apache</groupId> -->

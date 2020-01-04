@@ -90,12 +90,6 @@
 <!-- 			<artifactId>org.osgi.service.component.annotations</artifactId> -->
 <!-- 		</dependency> -->
 
-		<!-- Freemarker -->
-		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>org.freemarker</artifactId>
-		</dependency>
-
 		<!-- Jackson JSON processor -->
 		<dependency>
 			<groupId>org.argeo.tp.jackson</groupId>
