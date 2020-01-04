@@ -9,7 +9,6 @@ org.eclipse.e4.ui.model.application.ui,\
 org.eclipse.e4.ui.model.application,\
 javax.jcr.nodetype,\
 org.argeo.cms,\
-org.argeo.jcr.docbook,\
 org.eclipse.core.commands.common,\
 org.eclipse.jface.window,\
 org.argeo.cms.widgets.auth,\

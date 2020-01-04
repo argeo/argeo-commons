@@ -14,7 +14,6 @@ org.eclipse.rap.rwt.client.service;version="[2.1,4)",\
 org.eclipse.rap.rwt.service;version="[2.1,4)",\
 org.eclipse.rap.rwt.widgets;version="[2.1,4)",\
 org.osgi.*;version=0.0.0,\
-org.argeo.jcr.docbook,\
 *
 
 ## TODO: in order to enable single sourcing, we have introduced dummy RAP packages 

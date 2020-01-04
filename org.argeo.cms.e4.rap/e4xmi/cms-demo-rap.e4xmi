@@ -2,7 +2,7 @@
 <application:Application xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_PjHLwMb4EeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.application">
   <children xsi:type="basic:TrimmedWindow" xmi:id="_QnyU0Mb4EeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.trimmedwindow.0">
     <children xsi:type="basic:PartStack" xmi:id="_V9EXcMb4EeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.partstack.0">
-      <children xsi:type="basic:Part" xmi:id="_RVKlIMctEeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.part.docbook" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.parts.CmsDocBookEditor" label="DocBook">
+      <children xsi:type="basic:Part" xmi:id="_RVKlIMctEeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.part.docbook" contributionURI="bundleclass://org.argeo.connect.e4/org.argeo.connect.e4.parts.CmsDocBookEditorokEditor" label="DocBook">
         <toolbar xmi:id="_TANxsMctEeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.toolbar.1">
           <children xsi:type="menu:HandledToolItem" xmi:id="_alIUoMctEeiIG7Bq51Btuw" elementId="org.argeo.cms.e4.handledtoolitem.save" label="Save" command="_vsxg8McmEeiIG7Bq51Btuw"/>
         </toolbar>

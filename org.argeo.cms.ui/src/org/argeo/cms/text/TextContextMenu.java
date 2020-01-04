@@ -1,11 +1,9 @@
-package org.argeo.cms.ui.internal.text;
+package org.argeo.cms.text;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.argeo.cms.CmsNames;
-import org.argeo.cms.text.Paragraph;
-import org.argeo.cms.text.TextStyles;
 import org.argeo.cms.viewers.EditablePart;
 import org.argeo.cms.viewers.SectionPart;
 import org.eclipse.rap.rwt.RWT;
@@ -22,20 +20,20 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 /** Dialog to edit a text part. */
-class DbkContextMenu extends Shell implements CmsNames, TextStyles {
+class TextContextMenu extends Shell implements CmsNames, TextStyles {
 	private final static String[] DEFAULT_TEXT_STYLES = {
 			TextStyles.TEXT_DEFAULT, TextStyles.TEXT_PRE, TextStyles.TEXT_QUOTE };
 
-	private final AbstractDbkViewer textViewer;
+	private final AbstractTextViewer textViewer;
 
 	private static final long serialVersionUID = -3826246895162050331L;
-	private List<StyleButton> styleButtons = new ArrayList<DbkContextMenu.StyleButton>();
+	private List<StyleButton> styleButtons = new ArrayList<TextContextMenu.StyleButton>();
 
 	private Label deleteButton, publishButton, editButton;
 
 	private EditablePart currentTextPart;
 
-	public DbkContextMenu(AbstractDbkViewer textViewer, Display display) {
+	public TextContextMenu(AbstractTextViewer textViewer, Display display) {
 		super(display, SWT.NO_TRIM | SWT.BORDER | SWT.ON_TOP);
 		this.textViewer = textViewer;
 		setLayout(new GridLayout());

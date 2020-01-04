@@ -1,9 +1,7 @@
-package org.argeo.cms.ui.internal.text;
+package org.argeo.cms.text;
 
 import javax.jcr.Item;
 import javax.jcr.RepositoryException;
-
-import org.argeo.cms.text.IdentityTextInterpreter;
 
 /**
  * Text interpreter that sanitise and validates before saving, and support CMS

@@ -8,7 +8,6 @@ import javax.jcr.RepositoryException;
 
 import org.argeo.cms.CmsTypes;
 import org.argeo.cms.ui.CmsEditable;
-import org.argeo.cms.ui.internal.text.AbstractTextViewer;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.viewers.Section;
 import org.eclipse.swt.widgets.Composite;

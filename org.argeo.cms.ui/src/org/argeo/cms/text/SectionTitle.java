@@ -1,9 +1,8 @@
-package org.argeo.cms.ui.internal.text;
+package org.argeo.cms.text;
 
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.text.TextSection;
 import org.argeo.cms.viewers.EditablePart;
 import org.argeo.cms.viewers.PropertyPart;
 import org.argeo.cms.widgets.EditableText;

@@ -1,4 +1,4 @@
-package org.argeo.cms.ui.internal.text;
+package org.argeo.cms.text;
 
 import java.io.StringReader;
 import java.text.MessageFormat;
