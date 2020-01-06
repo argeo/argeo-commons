@@ -1,15 +1,19 @@
 #!/bin/sh
 
 # Multi-architecture manifests
+buildah rmi argeo/argeo2-java:latest
 buildah manifest create argeo/argeo2-java:latest docker://argeo/argeo2-java:x86_64 docker://argeo/argeo2-java:aarch64
 buildah manifest push argeo/argeo2-java:latest docker://argeo/argeo2-java:latest
 
+buildah rmi argeo/argeo2-tp:latest
 buildah manifest create argeo/argeo2-tp:latest docker://argeo/argeo2-tp:x86_64 docker://argeo/argeo2-tp:aarch64
 buildah manifest push argeo/argeo2-tp:latest docker://argeo/argeo2-tp:latest
 
+buildah rmi argeo/argeo2-node:latest
 buildah manifest create argeo/argeo2-node:latest docker://argeo/argeo2-node:x86_64 docker://argeo/argeo2-node:aarch64
 buildah manifest push argeo/argeo2-node:latest docker://argeo/argeo2-node:latest
 
+buildah rmi argeo/argeo2-builder:latest
 buildah manifest create argeo/argeo2-builder:latest docker://argeo/argeo2-builder:x86_64 docker://argeo/argeo2-builder:aarch64
 buildah manifest push argeo/argeo2-builder:latest docker://argeo/argeo2-builder:latest
 
