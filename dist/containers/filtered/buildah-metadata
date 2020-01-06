@@ -1,5 +1,8 @@
-VERSION=${project.version}
+VERSION_ARGEO_COMMONS=2.1.84
 VERSION_ARGEO_TP=${version.argeo-tp}
 
 VERSION_MAVEN=3.5.4
 VERSION_JAVA=11.0.5
+
+ARCH=`arch`
+echo Building for architecture $ARCH

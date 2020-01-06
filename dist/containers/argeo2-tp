@@ -1,7 +1,7 @@
 #!/bin/sh
 
 source "$(dirname "$0")/buildah-metadata"
-container=$(buildah from argeo/argeo2-java:openjdk-v$VERSION_JAVA)
+container=$(buildah from argeo/argeo2-java:$ARCH)
 
 source "$(dirname "$0")/buildah-common"
 
@@ -24,7 +24,8 @@ buildah config --entrypoint '["java","-Dosgi.bundles=org.argeo.osgi.boot.jar@sta
 buildah config --workingdir /var/lib/argeo $container
 buildah config --volume /var/lib/argeo $container
 
-buildah commit --rm --format docker $container argeo/argeo2-tp:$VERSION_ARGEO_TP
-buildah tag argeo/argeo2-tp:$VERSION_ARGEO_TP argeo/argeo2-tp:latest
-buildah push argeo/argeo2-tp:$VERSION_ARGEO_TP docker://argeo/argeo2-tp:$VERSION_ARGEO_TP
-buildah push argeo/argeo2-tp:$VERSION_ARGEO_TP docker://argeo/argeo2-tp:latest
+buildah commit --rm --format docker $container argeo/argeo2-tp:$VERSION_ARGEO_TP-$ARCH
+buildah tag argeo/argeo2-tp:$VERSION_ARGEO_TP-$ARCH argeo/argeo2-tp:$ARCH
+
+buildah push argeo/argeo2-tp:$VERSION_ARGEO_TP-$ARCH docker://argeo/argeo2-tp:$VERSION_ARGEO_TP-$ARCH
+buildah push argeo/argeo2-tp:$ARCH docker://argeo/argeo2-tp:$ARCH

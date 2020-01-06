@@ -1,10 +1,8 @@
 #!/bin/sh
 
-## Log-in to Red Hat registry first
+## Log-in to registries first
 # podman login registry.redhat.io
-
-ARCH=`arch`
-echo Building for architecture $ARCH
+# podman login docker.io
 
 # Metadata
 buildah config --label maintainer="Mathieu Baudier, mbaudier at argeo.org" $container
@@ -25,6 +23,3 @@ buildah config --label vcs-ref= $container
 buildah config --label vcs-type= $container
 buildah config --label summary= $container
 
-# To create a multi-arch manifest
-#buildah manifest create argeo/argeo2-java:latest docker://argeo/argeo2-java:x86_64 docker://argeo/argeo2-java:aarch64
-#buildah manifest push argeo/argeo2-java:latest docker://argeo/argeo2-java:latest

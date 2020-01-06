@@ -1,0 +1,6 @@
+#!/bin/sh
+
+./argeo2-java
+./argeo2-tp
+./argeo2-node
+./argeo2-builder
