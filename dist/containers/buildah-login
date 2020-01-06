@@ -1,0 +1,8 @@
+#!/bin/sh
+
+echo Login to Red Hat registry (registry.redhat.io)
+podman login registry.redhat.io
+
+echo Login to Docker Hub registry (docker.io)
+podman login docker.io
+

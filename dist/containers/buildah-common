@@ -1,9 +1,5 @@
 #!/bin/sh
 
-## Log-in to registries first
-# podman login registry.redhat.io
-# podman login docker.io
-
 # Metadata
 buildah config --label maintainer="Mathieu Baudier, mbaudier at argeo.org" $container
 buildah config --created-by "Mathieu Baudier, mbaudier at argeo.org" $container
