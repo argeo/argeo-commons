@@ -6,4 +6,3 @@ org.apache.jackrabbit.webdav.server;resolution:=optional,\
 org.h2;resolution:=optional,\
 org.postgresql;resolution:=optional,\
 *
-Export-Package: org.argeo.jcr.*, org.argeo.jackrabbit.*
