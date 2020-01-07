@@ -153,6 +153,9 @@ class DeployConfig implements ConfigurationListener {
 			tryGettyJetty: while (tryCount > 0) {
 				try {
 					JettyConfigurator.startServer(KernelConstants.DEFAULT_JETTY_SERVER, webServerConfig);
+					// Explicitly starts Jetty OSGi HTTP bundle, so that it gets triggered if OSGi
+					// configuration is not cleaned
+					FrameworkUtil.getBundle(JettyConfigurator.class).start();
 					break tryGettyJetty;
 				} catch (IllegalStateException e) {
 					// Jetty may not be ready
