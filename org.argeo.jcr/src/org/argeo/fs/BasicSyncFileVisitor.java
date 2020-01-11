@@ -9,23 +9,31 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 
+import org.argeo.sync.SyncResult;
+
 /** Synchronises two directory structures. */
 public class BasicSyncFileVisitor extends SimpleFileVisitor<Path> {
 	// TODO make it configurable
-	private boolean debug = false;
+	private boolean trace = false;
 
 	private final Path sourceBasePath;
 	private final Path targetBasePath;
 	private final boolean delete;
+	private final boolean recursive;
 
-	public BasicSyncFileVisitor(Path sourceBasePath, Path targetBasePath, boolean delete) {
+	private SyncResult<Path> syncResult = new SyncResult<>();
+
+	public BasicSyncFileVisitor(Path sourceBasePath, Path targetBasePath, boolean delete, boolean recursive) {
 		this.sourceBasePath = sourceBasePath;
 		this.targetBasePath = targetBasePath;
 		this.delete = delete;
+		this.recursive = recursive;
 	}
 
 	@Override
 	public FileVisitResult preVisitDirectory(Path sourceDir, BasicFileAttributes attrs) throws IOException {
+		if (!recursive && !sourceDir.equals(sourceBasePath))
+			return FileVisitResult.SKIP_SUBTREE;
 		Path targetDir = toTargetPath(sourceDir);
 		Files.createDirectories(targetDir);
 		return FileVisitResult.CONTINUE;
@@ -56,7 +64,7 @@ public class BasicSyncFileVisitor extends SimpleFileVisitor<Path> {
 		try {
 			if (!Files.exists(targetFile)) {
 				Files.copy(sourceFile, targetFile);
-				copied(sourceFile, targetFile);
+				added(sourceFile, targetFile);
 			} else {
 				if (shouldOverwrite(sourceFile, targetFile)) {
 					Files.copy(sourceFile, targetFile, StandardCopyOption.REPLACE_EXISTING);
@@ -105,22 +113,34 @@ public class BasicSyncFileVisitor extends SimpleFileVisitor<Path> {
 		return targetBasePath;
 	}
 
-	protected void copied(Path sourcePath, Path targetPath) {
-		if (isDebugEnabled())
-			debug("Copied " + sourcePath + " to " + targetPath);
+	protected void added(Path sourcePath, Path targetPath) {
+		syncResult.getAdded().add(targetPath);
+		if (isTraceEnabled())
+			trace("Added " + sourcePath + " as " + targetPath);
+	}
+
+	protected void modified(Path sourcePath, Path targetPath) {
+		syncResult.getModified().add(targetPath);
+		if (isTraceEnabled())
+			trace("Overwritten from " + sourcePath + " to " + targetPath);
 	}
 
 	protected void copyFailed(Path sourcePath, Path targetPath, Exception e) {
-		error("Cannot copy " + sourcePath + " to " + targetPath, e);
+		syncResult.addError(sourcePath, targetPath, e);
+		if (isTraceEnabled())
+			error("Cannot copy " + sourcePath + " to " + targetPath, e);
 	}
 
 	protected void deleted(Path targetPath) {
-		if (isDebugEnabled())
-			debug("Deleted " + targetPath);
+		syncResult.getDeleted().add(targetPath);
+		if (isTraceEnabled())
+			trace("Deleted " + targetPath);
 	}
 
 	protected void deleteFailed(Path targetPath, Exception e) {
-		error("Cannot delete " + targetPath, e);
+		syncResult.addError(null, targetPath, e);
+		if (isTraceEnabled())
+			error("Cannot delete " + targetPath, e);
 	}
 
 	/** Log error. */
@@ -129,11 +149,16 @@ public class BasicSyncFileVisitor extends SimpleFileVisitor<Path> {
 		e.printStackTrace();
 	}
 
-	protected boolean isDebugEnabled() {
-		return debug;
+	protected boolean isTraceEnabled() {
+		return trace;
 	}
 
-	protected void debug(Object obj) {
+	protected void trace(Object obj) {
 		System.out.println(obj);
 	}
+
+	public SyncResult<Path> getSyncResult() {
+		return syncResult;
+	}
+
 }

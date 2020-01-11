@@ -1,4 +1,4 @@
-package org.argeo.sync.fs;
+package org.argeo.cli.fs;
 
 import java.io.IOException;
 import java.io.InputStream;

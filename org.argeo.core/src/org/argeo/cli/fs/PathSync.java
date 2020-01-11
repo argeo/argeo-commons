@@ -1,4 +1,4 @@
-package org.argeo.sync.fs;
+package org.argeo.cli.fs;
 
 import java.net.URI;
 import java.nio.file.FileSystems;
@@ -6,30 +6,39 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
+import java.util.concurrent.Callable;
 
 import org.argeo.jackrabbit.fs.DavexFsProvider;
 import org.argeo.ssh.Sftp;
-import org.argeo.sync.SyncException;
+import org.argeo.sync.SyncResult;
 
 /** Synchronises two paths. */
-public class PathSync implements Runnable {
+public class PathSync implements Callable<SyncResult<Path>> {
 	private final URI sourceUri, targetUri;
-	private boolean delete = false;
+	private final boolean delete;
+	private final boolean recursive;
 
 	public PathSync(URI sourceUri, URI targetUri) {
+		this(sourceUri, targetUri, false, false);
+	}
+
+	public PathSync(URI sourceUri, URI targetUri, boolean delete, boolean recursive) {
 		this.sourceUri = sourceUri;
 		this.targetUri = targetUri;
+		this.delete = delete;
+		this.recursive = recursive;
 	}
 
 	@Override
-	public void run() {
+	public SyncResult<Path> call() {
 		try {
 			Path sourceBasePath = createPath(sourceUri);
 			Path targetBasePath = createPath(targetUri);
-			SyncFileVisitor syncFileVisitor = new SyncFileVisitor(sourceBasePath, targetBasePath, delete);
+			SyncFileVisitor syncFileVisitor = new SyncFileVisitor(sourceBasePath, targetBasePath, delete, recursive);
 			Files.walkFileTree(sourceBasePath, syncFileVisitor);
+			return syncFileVisitor.getSyncResult();
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new IllegalStateException("Cannot sync " + sourceUri + " to " + targetUri, e);
 		}
 	}
 
@@ -47,7 +56,7 @@ public class PathSync implements Runnable {
 			Sftp sftp = new Sftp(uri);
 			path = sftp.getBasePath();
 		} else
-			throw new SyncException("URI scheme not supported for " + uri);
+			throw new IllegalArgumentException("URI scheme not supported for " + uri);
 		return path;
 	}
 }

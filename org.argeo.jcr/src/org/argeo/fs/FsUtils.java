@@ -16,7 +16,7 @@ public class FsUtils {
 
 	/** Sync a source path with a target path. */
 	public static void sync(Path sourceBasePath, Path targetBasePath, boolean delete) {
-		sync(new BasicSyncFileVisitor(sourceBasePath, targetBasePath, delete));
+		sync(new BasicSyncFileVisitor(sourceBasePath, targetBasePath, delete, true));
 	}
 
 	public static void sync(BasicSyncFileVisitor syncFileVisitor) {
