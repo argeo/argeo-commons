@@ -92,8 +92,8 @@ public class CmsTheme {
 			if (name.startsWith("target/"))
 				continue resources; // skip maven output
 			application.addResource(name, resources.get(name));
-			if (log.isDebugEnabled())
-				log.debug("Added resource " + name);
+			if (log.isTraceEnabled())
+				log.trace("Added resource " + name);
 		}
 		for (String name : css.keySet()) {
 			application.addStyleSheet(themeId, name, css.get(name));

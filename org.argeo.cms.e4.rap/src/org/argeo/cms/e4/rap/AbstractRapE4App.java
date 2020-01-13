@@ -21,7 +21,7 @@ public abstract class AbstractRapE4App implements ApplicationConfiguration {
 	private Map<String, String> baseProperties = new HashMap<String, String>();
 
 	private BundleContext bundleContext;
-	private final static String CONTEXT_NAME_PROPERTY = "contextName";
+	public final static String CONTEXT_NAME_PROPERTY = "contextName";
 	private String contextName;
 
 	/**
@@ -105,8 +105,12 @@ public abstract class AbstractRapE4App implements ApplicationConfiguration {
 		return bundleContext;
 	}
 
-	protected String getContextName() {
+	public String getContextName() {
 		return contextName;
+	}
+
+	public void setContextName(String contextName) {
+		this.contextName = contextName;
 	}
 
 	public void init(BundleContext bundleContext, Map<String, Object> properties) {

@@ -61,8 +61,14 @@ class DataModels implements BundleListener {
 	protected void processBundle(Bundle bundle) {
 		BundleWiring wiring = bundle.adapt(BundleWiring.class);
 		if (wiring == null) {
-			log.warn("Bundle " + bundle.getSymbolicName() + " #" + bundle.getBundleId() + " (" + bundle.getLocation()
-					+ ") cannot be adapted to a wiring");
+			int bundleState = bundle.getState();
+			if (bundleState != Bundle.INSTALLED && bundleState != Bundle.UNINSTALLED) {// ignore unresolved bundles
+				log.warn("Bundle " + bundle.getSymbolicName() + " #" + bundle.getBundleId() + " ("
+						+ bundle.getLocation() + ") cannot be adapted to a wiring");
+			} else {
+				if (log.isTraceEnabled())
+					log.warn("Bundle " + bundle.getSymbolicName() + " is not resolved.");
+			}
 			return;
 		}
 		List<BundleCapability> providedDataModels = wiring.getCapabilities(CMS_DATA_MODEL_NAMESPACE);
