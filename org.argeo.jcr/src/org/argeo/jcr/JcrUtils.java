@@ -1509,6 +1509,11 @@ public class JcrUtils {
 		}
 	}
 
+	/** Read an an nt:file as an {@link InputStream}. */
+	public static InputStream getFileAsStream(Node fileNode) throws RepositoryException {
+		return fileNode.getNode(Node.JCR_CONTENT).getProperty(Property.JCR_DATA).getBinary().getStream();
+	}
+
 	/**
 	 * Computes the checksum of an nt:file.
 	 * 
@@ -1516,14 +1521,11 @@ public class JcrUtils {
 	 */
 	@Deprecated
 	public static String checksumFile(Node fileNode, String algorithm) {
-		Binary data = null;
 		try (InputStream in = fileNode.getNode(Node.JCR_CONTENT).getProperty(Property.JCR_DATA).getBinary()
 				.getStream()) {
 			return digest(algorithm, in);
 		} catch (RepositoryException | IOException e) {
 			throw new ArgeoJcrException("Cannot checksum file " + fileNode, e);
-		} finally {
-			closeQuietly(data);
 		}
 	}
 
