@@ -96,10 +96,11 @@ public class HelpCommand implements DescribedCommand<String> {
 	}
 
 	public static void printHelp(DescribedCommand<?> command, StringWriter out) {
-		String usage = "java " + command.getClass().getName() + (command.getUsage() != null ? " " + command.getUsage() : "");
+		String usage = "java " + command.getClass().getName()
+				+ (command.getUsage() != null ? " " + command.getUsage() : "");
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp(new PrintWriter(out), helpWidth, usage, command.getDescription(), command.getOptions(), helpLeftPad,
-				helpDescPad, command.getExamples(), false);
+		formatter.printHelp(new PrintWriter(out), helpWidth, usage, command.getDescription(), command.getOptions(),
+				helpLeftPad, helpDescPad, command.getExamples(), false);
 
 	}
 
@@ -107,23 +108,36 @@ public class HelpCommand implements DescribedCommand<String> {
 		DescribedCommand<?> command = (DescribedCommand<?>) commandsCli.getCommand(commandName);
 		String usage = commandsCli.getHelpCommand().getCommandUsage(commandName, command);
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp(new PrintWriter(out), helpWidth, usage, command.getDescription(), command.getOptions(), helpLeftPad,
-				helpDescPad, command.getExamples(), false);
+		formatter.printHelp(new PrintWriter(out), helpWidth, usage, command.getDescription(), command.getOptions(),
+				helpLeftPad, helpDescPad, command.getExamples(), false);
 
 	}
 
 	public static void printHelp(CommandsCli commandsCli, StringWriter out) {
 		out.append(commandsCli.getDescription()).append('\n');
-		String leftPad = " ".repeat(helpLeftPad);
+		String leftPad = spaces(helpLeftPad);
 		for (String cmd : commandsCli.getSubCommands()) {
 			Function<List<String>, ?> function = commandsCli.getCommand(cmd);
 			assert function != null;
 			out.append(leftPad);
 			out.append(cmd);
-			// FIXME deal with long commands
-			out.append(" ".repeat(helpDescPad - cmd.length()));
+			// TODO deal with long commands
+			out.append(spaces(helpDescPad - cmd.length()));
 			out.append(getShortDescription(function));
 			out.append('\n');
+		}
+	}
+
+	private static String spaces(int count) {
+		// Java 11
+		// return " ".repeat(count);
+		if (count <= 0)
+			return "";
+		else {
+			StringBuilder sb = new StringBuilder(count);
+			for (int i = 0; i < count; i++)
+				sb.append(' ');
+			return sb.toString();
 		}
 	}
 }
