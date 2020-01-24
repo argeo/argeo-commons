@@ -5,6 +5,8 @@ import java.io.Writer;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.util.ExceptionsChain;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -13,12 +15,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /** Serialisable wrapper of a {@link Throwable}. */
 public class CmsExceptionsChain extends ExceptionsChain {
+	public final static Log log = LogFactory.getLog(CmsExceptionsChain.class);
+
 	public CmsExceptionsChain() {
 		super();
 	}
 
 	public CmsExceptionsChain(Throwable exception) {
 		super(exception);
+		if (log.isDebugEnabled())
+			log.error("Exception chain", exception);
 	}
 
 	public String toJsonString(ObjectMapper objectMapper) {
