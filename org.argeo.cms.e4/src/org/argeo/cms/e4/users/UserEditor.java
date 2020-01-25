@@ -28,7 +28,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.e4.users.providers.CommonNameLP;
 import org.argeo.cms.e4.users.providers.DomainNameLP;
@@ -82,7 +81,7 @@ import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.service.useradmin.UserAdminEvent;
 
 /** Display/edit the properties of a given user */
-public class UserEditor extends AbstractRoleEditor implements ArgeoNames {
+public class UserEditor extends AbstractRoleEditor {
 	// final static String ID = "UserEditor.mainPage";
 
 	@Inject

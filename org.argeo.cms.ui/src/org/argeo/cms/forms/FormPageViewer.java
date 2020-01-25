@@ -17,7 +17,6 @@ import javax.jcr.ValueFormatException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.CmsNames;
 import org.argeo.cms.text.Img;
 import org.argeo.cms.text.MarkupValidatorCopy;
 import org.argeo.cms.ui.CmsEditable;
@@ -422,7 +421,7 @@ public class FormPageViewer extends AbstractPageViewer {
 		return body;
 	}
 
-	protected class FormFileUploadReceiver extends FileUploadReceiver implements CmsNames {
+	protected class FormFileUploadReceiver extends FileUploadReceiver {
 
 		private Node context;
 		private Section section;

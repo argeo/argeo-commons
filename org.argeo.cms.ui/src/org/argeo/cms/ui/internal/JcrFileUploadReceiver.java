@@ -12,21 +12,18 @@ import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.io.FilenameUtils;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.CmsNames;
 import org.argeo.cms.ui.CmsImageManager;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.fileupload.FileDetails;
 import org.eclipse.rap.fileupload.FileUploadReceiver;
 
-public class JcrFileUploadReceiver extends FileUploadReceiver implements
-		CmsNames {
+public class JcrFileUploadReceiver extends FileUploadReceiver {
 	private final Node parentNode;
 	private final String nodeName;
 	private final CmsImageManager imageManager;
 
 	/** If nodeName is null, use the uploaded file name */
-	public JcrFileUploadReceiver(Node parentNode, String nodeName,
-			CmsImageManager imageManager) {
+	public JcrFileUploadReceiver(Node parentNode, String nodeName, CmsImageManager imageManager) {
 		super();
 		this.parentNode = parentNode;
 		this.nodeName = nodeName;
@@ -34,11 +31,9 @@ public class JcrFileUploadReceiver extends FileUploadReceiver implements
 	}
 
 	@Override
-	public void receive(InputStream stream, FileDetails details)
-			throws IOException {
+	public void receive(InputStream stream, FileDetails details) throws IOException {
 		try {
-			String fileName = nodeName != null ? nodeName : details
-					.getFileName();
+			String fileName = nodeName != null ? nodeName : details.getFileName();
 			String contentType = details.getContentType();
 			if (isImage(details.getFileName(), contentType)) {
 				imageManager.uploadImage(parentNode, fileName, stream);
@@ -71,8 +66,7 @@ public class JcrFileUploadReceiver extends FileUploadReceiver implements
 
 	protected Boolean isImage(String fileName, String contentType) {
 		String ext = FilenameUtils.getExtension(fileName);
-		return ext != null
-				&& (ext.equals("png") || ext.equalsIgnoreCase("jpg"));
+		return ext != null && (ext.equals("png") || ext.equalsIgnoreCase("jpg"));
 	}
 
 	protected void processNewFile(Node node) {

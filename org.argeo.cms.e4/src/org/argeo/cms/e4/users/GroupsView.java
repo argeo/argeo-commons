@@ -24,7 +24,6 @@ import javax.inject.Inject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.e4.users.providers.CommonNameLP;
@@ -71,7 +70,7 @@ import org.osgi.service.useradmin.UserAdminEvent;
 import org.osgi.service.useradmin.UserAdminListener;
 
 /** List all groups with filter */
-public class GroupsView implements ArgeoNames {
+public class GroupsView {
 	private final static Log log = LogFactory.getLog(GroupsView.class);
 	// public final static String ID = WorkbenchUiPlugin.PLUGIN_ID + ".groupsView";
 
@@ -228,8 +227,8 @@ public class GroupsView implements ArgeoNames {
 								.append(NodeConstants.TOKENS_BASEDN).append(")))");
 					else
 						builder.append("(&(").append(LdapAttrs.objectClass.name()).append("=")
-						.append(LdapObjs.groupOfNames.name()).append(")(!(").append(LdapAttrs.DN).append("=*")
-						.append(NodeConstants.TOKENS_BASEDN).append(")))");
+								.append(LdapObjs.groupOfNames.name()).append(")(!(").append(LdapAttrs.DN).append("=*")
+								.append(NodeConstants.TOKENS_BASEDN).append(")))");
 
 				}
 				roles = userAdminWrapper.getUserAdmin().getRoles(builder.toString());

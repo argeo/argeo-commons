@@ -34,7 +34,6 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.transaction.UserTransaction;
 
-import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.e4.users.providers.CommonNameLP;
 import org.argeo.cms.e4.users.providers.MailLP;
@@ -92,7 +91,7 @@ import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.service.useradmin.UserAdminEvent;
 
 /** Display/edit main properties of a given group */
-public class GroupEditor extends AbstractRoleEditor implements ArgeoNames {
+public class GroupEditor extends AbstractRoleEditor {
 	// final static String ID = "GroupEditor.mainPage";
 
 	@Inject

@@ -25,7 +25,6 @@ import javax.jcr.PropertyType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
-import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.ArgeoTypes;
 import org.argeo.jackrabbit.unit.AbstractJackrabbitTestCase;
 import org.argeo.node.tabular.TabularColumn;
@@ -37,13 +36,11 @@ public class JcrTabularTest extends AbstractJackrabbitTestCase {
 	private final static Log log = LogFactory.getLog(JcrTabularTest.class);
 
 	public void testWriteReadCsv() throws Exception {
-		session().setNamespacePrefix("argeo", ArgeoNames.ARGEO_NAMESPACE);
-		InputStreamReader reader = new InputStreamReader(getClass()
-				.getResourceAsStream("/org/argeo/node/node.cnd"));
+		// session().setNamespacePrefix("argeo", ArgeoNames.ARGEO_NAMESPACE);
+		InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/argeo/node/node.cnd"));
 		CndImporter.registerNodeTypes(reader, session());
 		reader.close();
-		reader = new InputStreamReader(getClass()
-				.getResourceAsStream("/org/argeo/cms/cms.cnd"));
+		reader = new InputStreamReader(getClass().getResourceAsStream("/org/argeo/cms/cms.cnd"));
 		CndImporter.registerNodeTypes(reader, session());
 		reader.close();
 
@@ -56,10 +53,8 @@ public class JcrTabularTest extends AbstractJackrabbitTestCase {
 		for (int i = 0; i < columnCount; i++) {
 			header.add(new TabularColumn("col" + i, PropertyType.STRING));
 		}
-		Node tableNode = session().getRootNode().addNode("table",
-				ArgeoTypes.ARGEO_TABLE);
-		TabularWriter writer = new JcrTabularWriter(tableNode, header,
-				ArgeoTypes.ARGEO_CSV);
+		Node tableNode = session().getRootNode().addNode("table", ArgeoTypes.ARGEO_TABLE);
+		TabularWriter writer = new JcrTabularWriter(tableNode, header, ArgeoTypes.ARGEO_CSV);
 		for (int i = 0; i < rowCount; i++) {
 			List<Object> objs = new ArrayList<Object>();
 			for (int j = 0; j < columnCount; j++) {
@@ -71,8 +66,7 @@ public class JcrTabularTest extends AbstractJackrabbitTestCase {
 		session().save();
 
 		if (log.isDebugEnabled())
-			log.debug("Wrote tabular content " + rowCount + " rows, "
-					+ columnCount + " columns");
+			log.debug("Wrote tabular content " + rowCount + " rows, " + columnCount + " columns");
 		// read
 		TabularRowIterator rowIt = new JcrTabularRowIterator(tableNode);
 		Long count = 0l;
@@ -83,7 +77,6 @@ public class JcrTabularTest extends AbstractJackrabbitTestCase {
 		}
 		assertEquals(rowCount, count);
 		if (log.isDebugEnabled())
-			log.debug("Read tabular content " + rowCount + " rows, "
-					+ columnCount + " columns");
+			log.debug("Read tabular content " + rowCount + " rows, " + columnCount + " columns");
 	}
 }

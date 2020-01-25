@@ -20,7 +20,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.e4.users.UserAdminWrapper;
 import org.argeo.eclipse.ui.EclipseUiUtils;
@@ -103,7 +102,7 @@ public class NewGroup {
 			}
 		}
 
-		private class MainGroupInfoWizardPage extends WizardPage implements FocusListener, ArgeoNames {
+		private class MainGroupInfoWizardPage extends WizardPage implements FocusListener {
 			private static final long serialVersionUID = -3150193365151601807L;
 
 			public MainGroupInfoWizardPage() {

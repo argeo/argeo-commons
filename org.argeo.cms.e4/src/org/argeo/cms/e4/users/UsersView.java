@@ -22,7 +22,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
-import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.e4.users.providers.CommonNameLP;
@@ -56,7 +55,7 @@ import org.osgi.service.useradmin.UserAdminEvent;
 import org.osgi.service.useradmin.UserAdminListener;
 
 /** List all users with filter - based on Ldif userAdmin */
-public class UsersView implements ArgeoNames {
+public class UsersView {
 	// private final static Log log = LogFactory.getLog(UsersView.class);
 
 	// public final static String ID = WorkbenchUiPlugin.PLUGIN_ID + ".usersView";

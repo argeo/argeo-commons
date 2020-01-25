@@ -24,7 +24,6 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
-import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.e4.users.UiAdminUtils;
 import org.argeo.cms.e4.users.UserAdminWrapper;
@@ -131,7 +130,7 @@ public class NewUser {
 			}
 		}
 
-		private class MainUserInfoWizardPage extends WizardPage implements ModifyListener, ArgeoNames {
+		private class MainUserInfoWizardPage extends WizardPage implements ModifyListener {
 			private static final long serialVersionUID = -3150193365151601807L;
 
 			public MainUserInfoWizardPage() {

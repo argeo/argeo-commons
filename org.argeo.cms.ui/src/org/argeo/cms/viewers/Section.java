@@ -8,37 +8,32 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.argeo.cms.CmsException;
-import org.argeo.cms.CmsNames;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.widgets.JcrComposite;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
-public class Section extends JcrComposite implements CmsNames {
+public class Section extends JcrComposite {
 	private static final long serialVersionUID = -5933796173755739207L;
 
 	private final Section parentSection;
 	private Composite sectionHeader;
 	private final Integer relativeDepth;
 
-	public Section(Composite parent, int style, Node node)
-			throws RepositoryException {
+	public Section(Composite parent, int style, Node node) throws RepositoryException {
 		this(parent, findSection(parent), style, node);
 	}
 
-	public Section(Section section, int style, Node node)
-			throws RepositoryException {
+	public Section(Section section, int style, Node node) throws RepositoryException {
 		this(section, section, style, node);
 	}
 
-	protected Section(Composite parent, Section parentSection, int style,
-			Node node) throws RepositoryException {
+	protected Section(Composite parent, Section parentSection, int style, Node node) throws RepositoryException {
 		super(parent, style, node);
 		this.parentSection = parentSection;
 		if (parentSection != null) {
-			relativeDepth = getNode().getDepth()
-					- parentSection.getNode().getDepth();
+			relativeDepth = getNode().getDepth() - parentSection.getNode().getDepth();
 		} else {
 			relativeDepth = 0;
 		}
@@ -55,8 +50,7 @@ public class Section extends JcrComposite implements CmsNames {
 		return Collections.unmodifiableMap(result);
 	}
 
-	private void collectDirectSubSections(Composite composite,
-			LinkedHashMap<String, Section> subSections)
+	private void collectDirectSubSections(Composite composite, LinkedHashMap<String, Section> subSections)
 			throws RepositoryException {
 		if (composite == sectionHeader || composite instanceof EditablePart)
 			return;

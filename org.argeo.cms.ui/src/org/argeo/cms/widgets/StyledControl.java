@@ -13,8 +13,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 /** Editable text part displaying styled text. */
-public abstract class StyledControl extends JcrComposite implements
-		CmsConstants, CmsNames {
+public abstract class StyledControl extends JcrComposite implements CmsConstants {
 	private static final long serialVersionUID = -6372283442330912755L;
 	private Control control;
 
@@ -31,13 +30,11 @@ public abstract class StyledControl extends JcrComposite implements
 		setLayout(CmsUtils.noSpaceGridLayout());
 	}
 
-	public StyledControl(Composite parent, int style, Item item)
-			throws RepositoryException {
+	public StyledControl(Composite parent, int style, Item item) throws RepositoryException {
 		super(parent, style, item);
 	}
 
-	public StyledControl(Composite parent, int style, Item item,
-			boolean cacheImmediately) throws RepositoryException {
+	public StyledControl(Composite parent, int style, Item item, boolean cacheImmediately) throws RepositoryException {
 		super(parent, style, item, cacheImmediately);
 	}
 
