@@ -40,9 +40,12 @@ public class JcrTabularTest extends AbstractJackrabbitTestCase {
 		InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/argeo/node/node.cnd"));
 		CndImporter.registerNodeTypes(reader, session());
 		reader.close();
-		reader = new InputStreamReader(getClass().getResourceAsStream("/org/argeo/cms/cms.cnd"));
+		reader = new InputStreamReader(getClass().getResourceAsStream("/org/argeo/cms/argeo.cnd"));
 		CndImporter.registerNodeTypes(reader, session());
 		reader.close();
+//		reader = new InputStreamReader(getClass().getResourceAsStream("/org/argeo/cms/cms.cnd"));
+//		CndImporter.registerNodeTypes(reader, session());
+//		reader.close();
 
 		// write
 		Integer columnCount = 15;

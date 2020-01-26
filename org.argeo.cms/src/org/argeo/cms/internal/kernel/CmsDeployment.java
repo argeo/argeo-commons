@@ -8,6 +8,7 @@ import java.io.Reader;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.security.auth.callback.CallbackHandler;
 import javax.transaction.UserTransaction;
@@ -24,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.core.RepositoryContext;
 import org.apache.jackrabbit.core.RepositoryImpl;
+import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.CmsException;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.node.DataModelNamespace;
@@ -67,6 +70,8 @@ public class CmsDeployment implements NodeDeployment {
 	private final boolean cleanState;
 
 	private NodeHttp nodeHttp;
+
+	private boolean argeoDataModelExtensionsAvailable = false;
 
 	// Readiness
 	private boolean nodeAvailable = false;
@@ -255,10 +260,22 @@ public class CmsDeployment implements NodeDeployment {
 		}
 
 		// home
-		prepareDataModel(NodeConstants.NODE, KernelUtils.openAdminSession(deployedNodeRepository));
+		prepareDataModel(NodeConstants.NODE, deployedNodeRepository);
 	}
 
 	private void prepareHomeRepository(RepositoryImpl deployedRepository) {
+		Session adminSession = KernelUtils.openAdminSession(deployedRepository);
+		try {
+			argeoDataModelExtensionsAvailable = Arrays
+					.asList(adminSession.getWorkspace().getNamespaceRegistry().getURIs())
+					.contains(ArgeoNames.ARGEO_NAMESPACE);
+		} catch (RepositoryException e) {
+			log.warn("Cannot check whether Argeo namespace is registered assuming it isn't.", e);
+			argeoDataModelExtensionsAvailable = false;
+		} finally {
+			JcrUtils.logoutQuietly(adminSession);
+		}
+
 		Hashtable<String, String> regProps = new Hashtable<String, String>();
 		regProps.put(NodeConstants.CN, NodeConstants.HOME);
 		// regProps.put(LEGACY_JCR_REPOSITORY_ALIAS, NodeConstants.HOME);
@@ -266,23 +283,27 @@ public class CmsDeployment implements NodeDeployment {
 		// register
 		bc.registerService(Repository.class, homeRepository, regProps);
 
-		new ServiceTracker<CallbackHandler, CallbackHandler>(bc, CallbackHandler.class, null) {
+		// Keyring only if Argeo extensions are available
+		if (argeoDataModelExtensionsAvailable) {
+			new ServiceTracker<CallbackHandler, CallbackHandler>(bc, CallbackHandler.class, null) {
 
-			@Override
-			public CallbackHandler addingService(ServiceReference<CallbackHandler> reference) {
-				NodeKeyRing nodeKeyring = new NodeKeyRing(homeRepository);
-				CallbackHandler callbackHandler = bc.getService(reference);
-				nodeKeyring.setDefaultCallbackHandler(callbackHandler);
-				bc.registerService(LangUtils.names(Keyring.class, CryptoKeyring.class, ManagedService.class),
-						nodeKeyring, LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_KEYRING_PID));
-				return callbackHandler;
-			}
+				@Override
+				public CallbackHandler addingService(ServiceReference<CallbackHandler> reference) {
+					NodeKeyRing nodeKeyring = new NodeKeyRing(homeRepository);
+					CallbackHandler callbackHandler = bc.getService(reference);
+					nodeKeyring.setDefaultCallbackHandler(callbackHandler);
+					bc.registerService(LangUtils.names(Keyring.class, CryptoKeyring.class, ManagedService.class),
+							nodeKeyring, LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_KEYRING_PID));
+					return callbackHandler;
+				}
 
-		}.open();
+			}.open();
+		}
 	}
 
 	/** Session is logged out. */
-	private void prepareDataModel(String cn, Session adminSession) {
+	private void prepareDataModel(String cn, Repository repository) {
+		Session adminSession = KernelUtils.openAdminSession(repository);
 		try {
 			Set<String> processed = new HashSet<String>();
 			bundles: for (Bundle bundle : bc.getBundles()) {
@@ -290,13 +311,13 @@ public class CmsDeployment implements NodeDeployment {
 				if (wiring == null)
 					continue bundles;
 				if (NodeConstants.NODE.equals(cn))// process all data models
-					processWiring(cn, adminSession, wiring, processed);
+					processWiring(cn, adminSession, wiring, processed, false);
 				else {
 					List<BundleCapability> capabilities = wiring.getCapabilities(CMS_DATA_MODEL_NAMESPACE);
 					for (BundleCapability capability : capabilities) {
 						String dataModelName = (String) capability.getAttributes().get(DataModelNamespace.NAME);
 						if (dataModelName.equals(cn))// process only own data model
-							processWiring(cn, adminSession, wiring, processed);
+							processWiring(cn, adminSession, wiring, processed, false);
 					}
 				}
 			}
@@ -305,16 +326,21 @@ public class CmsDeployment implements NodeDeployment {
 		}
 	}
 
-	private void processWiring(String cn, Session adminSession, BundleWiring wiring, Set<String> processed) {
+	private void processWiring(String cn, Session adminSession, BundleWiring wiring, Set<String> processed,
+			boolean importListedAbstractModels) {
 		// recursively process requirements first
 		List<BundleWire> requiredWires = wiring.getRequiredWires(CMS_DATA_MODEL_NAMESPACE);
 		for (BundleWire wire : requiredWires) {
-			processWiring(cn, adminSession, wire.getProviderWiring(), processed);
+			processWiring(cn, adminSession, wire.getProviderWiring(), processed, true);
 		}
 
 		List<String> publishAsLocalRepo = new ArrayList<>();
 		List<BundleCapability> capabilities = wiring.getCapabilities(CMS_DATA_MODEL_NAMESPACE);
-		for (BundleCapability capability : capabilities) {
+		capabilities: for (BundleCapability capability : capabilities) {
+			if (!importListedAbstractModels
+					&& KernelUtils.asBoolean((String) capability.getAttributes().get(DataModelNamespace.ABSTRACT))) {
+				continue capabilities;
+			}
 			boolean publish = registerDataModelCapability(cn, adminSession, capability, processed);
 			if (publish)
 				publishAsLocalRepo.add((String) capability.getAttributes().get(DataModelNamespace.NAME));
@@ -409,7 +435,7 @@ public class CmsDeployment implements NodeDeployment {
 					nodeAvailable = true;
 					checkReadiness();
 				} else {
-					prepareDataModel(cn, KernelUtils.openAdminSession(repoContext.getRepository()));
+					prepareDataModel(cn, repoContext.getRepository());
 				}
 			}
 			return repoContext;

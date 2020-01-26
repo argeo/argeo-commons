@@ -17,7 +17,6 @@ import java.util.UUID;
 
 import javax.crypto.SecretKey;
 import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;

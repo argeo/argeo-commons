@@ -36,6 +36,7 @@ import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeUtils;
 import org.argeo.node.security.Keyring;
 import org.eclipse.e4.core.di.annotations.Execute;
+import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.jface.dialogs.Dialog;
@@ -67,6 +68,7 @@ public class AddRemoteRepository implements ArgeoNames {
 	@Inject
 	private Repository nodeRepository;
 	@Inject
+	@Optional
 	private Keyring keyring;
 
 	@Execute

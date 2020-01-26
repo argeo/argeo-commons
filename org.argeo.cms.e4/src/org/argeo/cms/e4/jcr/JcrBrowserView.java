@@ -46,6 +46,7 @@ import org.argeo.eclipse.ui.jcr.utils.NodeViewerComparer;
 import org.argeo.node.security.CryptoKeyring;
 import org.argeo.node.security.Keyring;
 import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.services.EMenuService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.e4.ui.workbench.modeling.ESelectionService;
@@ -78,6 +79,7 @@ public class JcrBrowserView {
 
 	/* DEPENDENCY INJECTION */
 	@Inject
+	@Optional
 	private Keyring keyring;
 	@Inject
 	private RepositoryFactory repositoryFactory;
