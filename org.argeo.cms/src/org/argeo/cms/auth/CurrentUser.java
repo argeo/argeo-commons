@@ -20,7 +20,6 @@ import java.security.Principal;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
-import java.security.acl.Group;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -31,6 +30,7 @@ import javax.security.auth.x500.X500Principal;
 
 import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
+import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.cms.internal.kernel.Activator;
 import org.argeo.node.NodeConstants;
 import org.osgi.service.useradmin.Authorization;
@@ -115,7 +115,7 @@ public final class CurrentUser {
 	public final static Set<String> roles(Subject subject) {
 		Set<String> roles = new HashSet<String>();
 		roles.add(getUsername(subject));
-		for (Principal group : subject.getPrincipals(Group.class)) {
+		for (Principal group : subject.getPrincipals(ImpliedByPrincipal.class)) {
 			roles.add(group.getName());
 		}
 		return roles;

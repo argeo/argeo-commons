@@ -1,7 +1,6 @@
 package org.argeo.cms.internal.auth;
 
 import java.security.Principal;
-import java.security.acl.Group;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -15,13 +14,13 @@ import org.osgi.service.useradmin.Authorization;
 
 /**
  * A {@link Principal} which has been implied by an {@link Authorization}. If it
- * is empty it meeans this is an additional identity, otherwise it lists the
+ * is empty it means this is an additional identity, otherwise it lists the
  * users (typically the logged in user but possibly empty
  * {@link ImpliedByPrincipal}s) which have implied it. When an additional
- * identityx is removed, the related {@link ImpliedByPrincipal}s can thus be
+ * identity is removed, the related {@link ImpliedByPrincipal}s can thus be
  * removed.
  */
-public final class ImpliedByPrincipal implements Group {
+public final class ImpliedByPrincipal implements Principal {
 	private final LdapName name;
 	private Set<Principal> causes = new HashSet<Principal>();
 
@@ -41,27 +40,22 @@ public final class ImpliedByPrincipal implements Group {
 			causes.add(userPrincipal);
 	}
 
-	@Override
 	public String getName() {
 		return name.toString();
 	}
 
-	@Override
 	public boolean addMember(Principal user) {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
 	public boolean removeMember(Principal user) {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
 	public boolean isMember(Principal member) {
 		return causes.contains(member);
 	}
 
-	@Override
 	public Enumeration<? extends Principal> members() {
 		return Collections.enumeration(causes);
 	}
