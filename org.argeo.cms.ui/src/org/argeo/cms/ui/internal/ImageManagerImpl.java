@@ -4,7 +4,8 @@ import static javax.jcr.Node.JCR_CONTENT;
 import static javax.jcr.Property.JCR_DATA;
 import static javax.jcr.nodetype.NodeType.NT_FILE;
 import static javax.jcr.nodetype.NodeType.NT_RESOURCE;
-import static org.argeo.cms.CmsTypes.CMS_STYLED;
+import static org.argeo.cms.CmsNames.CMS_IMAGE_HEIGHT;
+import static org.argeo.cms.CmsNames.CMS_IMAGE_WIDTH;
 import static org.argeo.cms.ui.CmsConstants.NO_IMAGE_SIZE;
 
 import java.io.ByteArrayInputStream;
@@ -38,7 +39,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 
 /** Manages only public images so far. */
-public class ImageManagerImpl implements CmsImageManager, CmsNames {
+public class ImageManagerImpl implements CmsImageManager {
 	private final static Log log = LogFactory.getLog(ImageManagerImpl.class);
 //	private MimetypesFileTypeMap fileTypeMap = new MimetypesFileTypeMap();
 
@@ -121,7 +122,7 @@ public class ImageManagerImpl implements CmsImageManager, CmsNames {
 
 	public Point getImageSize(Node node) throws RepositoryException {
 		return new Point(node.hasProperty(CMS_IMAGE_WIDTH) ? (int) node.getProperty(CMS_IMAGE_WIDTH).getLong() : 0,
-				node.hasProperty(CMS_IMAGE_WIDTH) ? (int) node.getProperty(CMS_IMAGE_HEIGHT).getLong() : 0);
+				node.hasProperty(CMS_IMAGE_HEIGHT) ? (int) node.getProperty(CMS_IMAGE_HEIGHT).getLong() : 0);
 	}
 
 	/** @return null if not available */
@@ -184,10 +185,10 @@ public class ImageManagerImpl implements CmsImageManager, CmsNames {
 	}
 
 	public Binary getImageBinary(Node node) throws RepositoryException {
-		if (node.isNodeType(NT_FILE))
+		if (node.isNodeType(NT_FILE)) {
 			return node.getNode(JCR_CONTENT).getProperty(JCR_DATA).getBinary();
-		else if (node.isNodeType(CMS_STYLED) && node.hasProperty(CMS_DATA)) {
-			return node.getProperty(CMS_DATA).getBinary();
+		} else if (node.isNodeType(CmsTypes.CMS_STYLED) && node.hasProperty(CmsNames.CMS_DATA)) {
+			return node.getProperty(CmsNames.CMS_DATA).getBinary();
 		} else {
 			return null;
 		}
