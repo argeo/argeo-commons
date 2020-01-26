@@ -402,7 +402,11 @@ public class CmsDeployment implements NodeDeployment {
 		properties.put(NodeConstants.CN, dataModelName);
 		if (dataModelName.equals(NodeConstants.NODE))
 			properties.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
-		LocalRepository localRepository = new LocalRepository(repository, dataModelName);
+		LocalRepository localRepository;
+		if (repository instanceof RepositoryImpl)
+			localRepository = new JackrabbitLocalRepository((RepositoryImpl) repository, dataModelName);
+		else
+			localRepository = new LocalRepository(repository, dataModelName);
 		bc.registerService(Repository.class, localRepository, properties);
 		if (log.isTraceEnabled())
 			log.trace("Published data model " + dataModelName);

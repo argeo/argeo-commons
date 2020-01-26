@@ -99,7 +99,7 @@ public abstract class JcrRepositoryWrapper implements Repository {
 			throws LoginException, NoSuchWorkspaceException, RepositoryException {
 		Session session;
 		try {
-			session = getRepository().login(credentials, workspaceName);
+			session = getRepository(workspaceName).login(credentials, workspaceName);
 		} catch (NoSuchWorkspaceException e) {
 			if (autocreateWorkspaces && workspaceName != null)
 				session = createWorkspaceAndLogsIn(credentials, workspaceName);
@@ -126,15 +126,22 @@ public abstract class JcrRepositoryWrapper implements Repository {
 	protected void processNewSession(Session session, String workspaceName) {
 	}
 
-	/** Wraps access to the repository, making sure it is available. */
+	/**
+	 * Wraps access to the repository, making sure it is available.
+	 * 
+	 * @deprecated Use {@link #getDefaultRepository()} instead.
+	 */
+	@Deprecated
 	protected synchronized Repository getRepository() {
-		// if (repository == null) {
-		// throw new ArgeoJcrException("No repository initialized."
-		// + " Was the init() method called?"
-		// + " The destroy() method should also"
-		// + " be called on shutdown.");
-		// }
+		return getDefaultRepository();
+	}
+
+	protected synchronized Repository getDefaultRepository() {
 		return repository;
+	}
+
+	protected synchronized Repository getRepository(String workspaceName) {
+		return getDefaultRepository();
 	}
 
 	/**
@@ -145,10 +152,10 @@ public abstract class JcrRepositoryWrapper implements Repository {
 			throws RepositoryException {
 		if (workspaceName == null)
 			throw new ArgeoJcrException("No workspace specified.");
-		Session session = getRepository().login(credentials);
+		Session session = getRepository(workspaceName).login(credentials);
 		session.getWorkspace().createWorkspace(workspaceName);
 		session.logout();
-		return getRepository().login(credentials, workspaceName);
+		return getRepository(workspaceName).login(credentials, workspaceName);
 	}
 
 	public boolean isStandardDescriptor(String key) {
