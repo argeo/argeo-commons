@@ -102,8 +102,9 @@ public class JcrReadServlet extends HttpServlet {
 					return;
 				}
 				if (!acceptHeader.isEmpty() && !acceptHeader.contains(JSON_CONTENT_TYPE)) {
-					log.warn("Content type " + acceptHeader + " in Accept header is not supported. Supported: "
-							+ JSON_CONTENT_TYPE + " (default), " + XML_CONTENT_TYPE);
+					if (log.isTraceEnabled())
+						log.warn("Content type " + acceptHeader + " in Accept header is not supported. Supported: "
+								+ JSON_CONTENT_TYPE + " (default), " + XML_CONTENT_TYPE);
 				}
 				resp.setContentType(JSON_CONTENT_TYPE);
 				JsonGenerator jsonGenerator = getObjectMapper().getFactory().createGenerator(resp.getWriter());
