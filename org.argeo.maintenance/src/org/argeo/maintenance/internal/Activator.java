@@ -19,7 +19,6 @@ public class Activator implements BundleActivator {
 			LogicalBackup backup = new LogicalBackup(context, repository, basePath);
 			backup.perform();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -27,8 +26,6 @@ public class Activator implements BundleActivator {
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
-		// TODO Auto-generated method stub
-
 	}
 
 }
