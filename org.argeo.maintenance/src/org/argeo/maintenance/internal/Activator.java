@@ -13,15 +13,11 @@ public class Activator implements BundleActivator {
 
 	@Override
 	public void start(BundleContext context) throws Exception {
-		try {
-			Repository repository = context.getService(context.getServiceReference(Repository.class));
-			Path basePath = Paths.get(System.getProperty("user.dir"), "backup");
-			LogicalBackup backup = new LogicalBackup(context, repository, basePath);
-			backup.perform();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
+		// Start backup
+		Repository repository = context.getService(context.getServiceReference(Repository.class));
+		Path basePath = Paths.get(System.getProperty("user.dir"), "backup");
+		LogicalBackup backup = new LogicalBackup(context, repository, basePath);
+		backup.run();
 	}
 
 	@Override

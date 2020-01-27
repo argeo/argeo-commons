@@ -37,7 +37,13 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.SAXException;
 
-public class LogicalBackup {
+/**
+ * Performs a backup of the data based only on programmatic interfaces. Useful
+ * for migration or live backup. Physical backups of the underlying file
+ * systems, databases, LDAP servers, etc. should be performed for disaster
+ * recovery.
+ */
+public class LogicalBackup implements Runnable {
 	private final static Log log = LogFactory.getLog(LogicalBackup.class);
 
 	public final static String WORKSPACES_BASE = "workspaces/";
@@ -48,18 +54,30 @@ public class LogicalBackup {
 	private final ZipOutputStream zout;
 	private final Path basePath;
 
-	public LogicalBackup(BundleContext bundleContext, Repository repository, ZipOutputStream zout) {
-		this.repository = repository;
-		this.zout = zout;
-		this.basePath = null;
-		this.bundleContext = bundleContext;
-	}
-
 	public LogicalBackup(BundleContext bundleContext, Repository repository, Path basePath) {
 		this.repository = repository;
 		this.zout = null;
 		this.basePath = basePath;
 		this.bundleContext = bundleContext;
+	}
+
+//	public LogicalBackup(BundleContext bundleContext, Repository repository, ZipOutputStream zout) {
+//	this.repository = repository;
+//	this.zout = zout;
+//	this.basePath = null;
+//	this.bundleContext = bundleContext;
+//}
+
+	@Override
+	public void run() {
+		try {
+			log.info("Start logical backup to " + basePath);
+			perform();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new IllegalStateException("Logical backup failed", e);
+		}
+
 	}
 
 	public void perform() throws RepositoryException, IOException {
