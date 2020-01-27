@@ -12,6 +12,7 @@ import javax.jcr.nodetype.NodeType;
 import javax.jcr.observation.Event;
 import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.EventListener;
+import javax.jcr.version.VersionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,15 +24,17 @@ import org.argeo.jcr.JcrUtils;
 class CmsWorkspaceIndexer implements EventListener {
 	private final static Log log = LogFactory.getLog(CmsWorkspaceIndexer.class);
 
-	private final static String MIX_ETAG = "mix:etag";
+//	private final static String MIX_ETAG = "mix:etag";
 	private final static String JCR_ETAG = "jcr:etag";
 	private final static String JCR_LAST_MODIFIED = "jcr:lastModified";
 	private final static String JCR_LAST_MODIFIED_BY = "jcr:lastModifiedBy";
 	private final static String JCR_DATA = "jcr:data";
-	String cn;
-	String workspaceName;
-	RepositoryImpl repositoryImpl;
-	Session session;
+
+	private String cn;
+	private String workspaceName;
+	private RepositoryImpl repositoryImpl;
+	private Session session;
+	private VersionManager versionManager;
 
 	public CmsWorkspaceIndexer(RepositoryImpl repositoryImpl, String cn, String workspaceName)
 			throws RepositoryException {
@@ -46,6 +49,7 @@ class CmsWorkspaceIndexer implements EventListener {
 			String[] nodeTypes = { NodeType.NT_FILE, NodeType.MIX_LAST_MODIFIED };
 			session.getWorkspace().getObservationManager().addEventListener(this,
 					Event.NODE_ADDED | Event.NODE_REMOVED | Event.PROPERTY_CHANGED, "/", true, null, nodeTypes, true);
+			versionManager = session.getWorkspace().getVersionManager();
 		} catch (RepositoryException e1) {
 			throw new IllegalStateException(e1);
 		}
@@ -55,7 +59,8 @@ class CmsWorkspaceIndexer implements EventListener {
 		try {
 			session.getWorkspace().getObservationManager().removeEventListener(this);
 		} catch (RepositoryException e) {
-			log.warn("Cannot unregistered JCR event listener", e);
+			if (log.isTraceEnabled())
+				log.warn("Cannot unregistered JCR event listener", e);
 		} finally {
 			JcrUtils.logoutQuietly(session);
 		}
@@ -72,6 +77,8 @@ class CmsWorkspaceIndexer implements EventListener {
 	protected synchronized void processEvent(Event event) {
 		try {
 			if (event.getType() == Event.NODE_ADDED) {
+				if (!versionManager.isCheckedOut(event.getPath()))
+					return;// ignore checked-in nodes
 				session.refresh(true);
 				Node node = session.getNode(event.getPath());
 				if (node.getParent().isNodeType(NodeType.NT_FILE)) {
@@ -82,22 +89,23 @@ class CmsWorkspaceIndexer implements EventListener {
 						String etag = toEtag(property.getValue());
 						node.setProperty(JCR_ETAG, etag);
 					} else if (node.isNodeType(NodeType.NT_RESOURCE)) {
-						if (!node.isNodeType(MIX_ETAG))
-							node.addMixin(MIX_ETAG);
-						session.save();
-						Property property = node.getProperty(Property.JCR_DATA);
-						String etag = toEtag(property.getValue());
-						node.setProperty(JCR_ETAG, etag);
-						session.save();
+//						if (!node.isNodeType(MIX_ETAG))
+//							node.addMixin(MIX_ETAG);
+//						session.save();
+//						Property property = node.getProperty(Property.JCR_DATA);
+//						String etag = toEtag(property.getValue());
+//						node.setProperty(JCR_ETAG, etag);
+//						session.save();
 					}
 					setLastModified(node.getParent(), event);
 					session.save();
-					if (log.isDebugEnabled())
-						log.debug("ETag and last modified added to new " + node);
+					if (log.isTraceEnabled())
+						log.trace("ETag and last modified added to new " + node);
 				}
 			} else if (event.getType() == Event.PROPERTY_CHANGED) {
 				if (!session.propertyExists(event.getPath()))
 					return;
+				session.refresh(true);
 				Property property = session.getProperty(event.getPath());
 				String propertyName = property.getName();
 				// skip if last modified properties are explicitly set
@@ -113,27 +121,30 @@ class CmsWorkspaceIndexer implements EventListener {
 				}
 				setLastModified(node, event);
 				session.save();
-				if (log.isDebugEnabled())
-					log.debug("ETag and last modified updated for " + node);
+				if (log.isTraceEnabled())
+					log.trace("ETag and last modified updated for " + node);
 			} else if (event.getType() == Event.NODE_REMOVED) {
 				String removeNodePath = event.getPath();
 				String parentPath = JcrUtils.parentPath(removeNodePath);
 				session.refresh(true);
-				setLastModified(session, parentPath, event);
+				setLastModified(parentPath, event);
 				session.save();
-				if (log.isDebugEnabled())
-					log.debug("Last modified updated for parents of removed " + removeNodePath);
+				if (log.isTraceEnabled())
+					log.trace("Last modified updated for parents of removed " + removeNodePath);
 			}
 		} catch (Exception e) {
-			log.warn("Cannot process event " + event, e);
+			if (log.isTraceEnabled())
+				log.warn("Cannot process event " + event, e);
 		} finally {
-			try {
-				if (session.hasPendingChanges())
-					session.save();
-//				session.refresh(false);
-			} catch (RepositoryException e) {
-				log.warn("Cannot refresh JCR session", e);
-			}
+//			try {
+//				session.refresh(true);
+//				if (session.hasPendingChanges())
+//					session.save();
+////				session.refresh(false);
+//			} catch (RepositoryException e) {
+//				if (log.isTraceEnabled())
+//					log.warn("Cannot refresh JCR session", e);
+//			}
 		}
 
 	}
@@ -161,21 +172,23 @@ class CmsWorkspaceIndexer implements EventListener {
 	}
 
 	/** Recursively set the last updated time on parents. */
-	static void setLastModified(Node node, Event event) throws RepositoryException {
-		GregorianCalendar calendar = new GregorianCalendar();
-		calendar.setTimeInMillis(event.getDate());
-		if (node.isNodeType(NodeType.MIX_LAST_MODIFIED)) {
-			node.setProperty(Property.JCR_LAST_MODIFIED, calendar);
-			node.setProperty(Property.JCR_LAST_MODIFIED_BY, event.getUserID());
-		}
-		if (node.isNodeType(NodeType.NT_FOLDER) && !node.isNodeType(NodeType.MIX_LAST_MODIFIED)) {
-			node.addMixin(NodeType.MIX_LAST_MODIFIED);
-		}
+	protected synchronized void setLastModified(Node node, Event event) throws RepositoryException {
+		if (versionManager.isCheckedOut(node.getPath())) {
+			GregorianCalendar calendar = new GregorianCalendar();
+			calendar.setTimeInMillis(event.getDate());
+			if (node.isNodeType(NodeType.MIX_LAST_MODIFIED)) {
+				node.setProperty(Property.JCR_LAST_MODIFIED, calendar);
+				node.setProperty(Property.JCR_LAST_MODIFIED_BY, event.getUserID());
+			}
+			if (node.isNodeType(NodeType.NT_FOLDER) && !node.isNodeType(NodeType.MIX_LAST_MODIFIED)) {
+				node.addMixin(NodeType.MIX_LAST_MODIFIED);
+			}
 
-		try {
-			node.getSession().save();
-		} catch (RepositoryException e) {
-			// fail silently and keep recursing
+			try {
+				node.getSession().save();
+			} catch (RepositoryException e) {
+				// fail silently and keep recursing
+			}
 		}
 		if (node.getDepth() == 0)
 			return;
@@ -187,19 +200,19 @@ class CmsWorkspaceIndexer implements EventListener {
 	 * Recursively set the last updated time on parents. Useful to use paths when
 	 * dealing with deletions.
 	 */
-	static void setLastModified(Session session, String path, Event event) throws RepositoryException {
+	protected synchronized void setLastModified(String path, Event event) throws RepositoryException {
 		// root node will always exist, so end condition is delegated to the other
 		// recursive setLastModified method
 		if (session.nodeExists(path)) {
 			setLastModified(session.getNode(path), event);
 		} else {
-			setLastModified(session, JcrUtils.parentPath(path), event);
+			setLastModified(JcrUtils.parentPath(path), event);
 		}
 	}
 
 	@Override
 	public String toString() {
-		return "Monitor workspace " + workspaceName + " of repository " + cn;
+		return "Indexer for workspace " + workspaceName + " of repository " + cn;
 	}
 
 }

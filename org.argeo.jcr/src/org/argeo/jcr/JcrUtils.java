@@ -1497,7 +1497,7 @@ public class JcrUtils {
 				contentNode = fileNode.getNode(Node.JCR_CONTENT);
 			} else {
 				fileNode = folderNode.addNode(fileName, NodeType.NT_FILE);
-				contentNode = fileNode.addNode(Node.JCR_CONTENT, NodeType.NT_RESOURCE);
+				contentNode = fileNode.addNode(Node.JCR_CONTENT, NodeType.NT_UNSTRUCTURED);
 			}
 			binary = contentNode.getSession().getValueFactory().createBinary(in);
 			contentNode.setProperty(Property.JCR_DATA, binary);

@@ -37,7 +37,7 @@ public class BinaryChannel implements SeekableByteChannel {
 				Node data = file.getNode(Property.JCR_CONTENT);
 				this.binary = data.getProperty(Property.JCR_DATA).getBinary();
 			} else {
-				Node data = file.addNode(Property.JCR_CONTENT, NodeType.NT_RESOURCE);
+				Node data = file.addNode(Property.JCR_CONTENT, NodeType.NT_UNSTRUCTURED);
 				try (InputStream in = new ByteArrayInputStream(new byte[0])) {
 					this.binary = data.getSession().getValueFactory().createBinary(in);
 				}

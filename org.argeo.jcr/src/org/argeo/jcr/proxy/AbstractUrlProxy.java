@@ -139,7 +139,7 @@ public abstract class AbstractUrlProxy implements ResourceProxy {
 			Node node = null;
 			if (!session.itemExists(path)) {
 				node = JcrUtils.mkdirs(session, path, NodeType.NT_FILE, NodeType.NT_FOLDER, false);
-				content = node.addNode(Node.JCR_CONTENT, NodeType.NT_RESOURCE);
+				content = node.addNode(Node.JCR_CONTENT, NodeType.NT_UNSTRUCTURED);
 			} else {
 				node = session.getNode(path);
 				content = node.getNode(Node.JCR_CONTENT);

@@ -361,11 +361,12 @@ public class Jcr {
 	public static void save(Node node) {
 		try {
 			Session session = node.getSession();
-			if (node.isNodeType(NodeType.MIX_LAST_MODIFIED)) {
-				set(node, Property.JCR_LAST_MODIFIED, Instant.now());
-				set(node, Property.JCR_LAST_MODIFIED_BY, session.getUserID());
-			}
-			session.save();
+//			if (node.isNodeType(NodeType.MIX_LAST_MODIFIED)) {
+//				set(node, Property.JCR_LAST_MODIFIED, Instant.now());
+//				set(node, Property.JCR_LAST_MODIFIED_BY, session.getUserID());
+//			}
+			if (session.hasPendingChanges())
+				session.save();
 		} catch (RepositoryException e) {
 			throw new IllegalStateException("Cannot save session related to " + node + " in workspace "
 					+ session(node).getWorkspace().getName(), e);
@@ -421,7 +422,16 @@ public class Jcr {
 		}
 	}
 
-	/** Check in this node. */
+	/** @see VersionManager#checkpoint(String) */
+	public static void checkpoint(Node node) {
+		try {
+			versionManager(node).checkpoint(node.getPath());
+		} catch (RepositoryException e) {
+			throw new IllegalStateException("Cannot check in " + node, e);
+		}
+	}
+
+	/** @see VersionManager#checkin(String) */
 	public static void checkin(Node node) {
 		try {
 			versionManager(node).checkin(node.getPath());
@@ -430,7 +440,7 @@ public class Jcr {
 		}
 	}
 
-	/** Check out this node. */
+	/** @see VersionManager#checkout(String) */
 	public static void checkout(Node node) {
 		try {
 			versionManager(node).checkout(node.getPath());
