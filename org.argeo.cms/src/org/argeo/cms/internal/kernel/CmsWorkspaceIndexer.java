@@ -1,6 +1,10 @@
 package org.argeo.cms.internal.kernel;
 
 import java.util.GregorianCalendar;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
@@ -158,7 +162,13 @@ class CmsWorkspaceIndexer implements EventListener {
 				processEvents(events);
 			}
 		};
-		Activator.getInternalExecutorService().execute(toRun);
+		Future<?> future = Activator.getInternalExecutorService().submit(toRun);
+		try {
+			// make the call synchronous
+			future.get(60, TimeUnit.SECONDS);
+		} catch (TimeoutException | ExecutionException | InterruptedException e) {
+			// silent
+		}
 	}
 
 	static String toEtag(Value v) {
