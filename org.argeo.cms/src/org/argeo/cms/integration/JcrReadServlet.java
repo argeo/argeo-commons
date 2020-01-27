@@ -1,7 +1,12 @@
 package org.argeo.cms.integration;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -35,18 +40,24 @@ public class JcrReadServlet extends HttpServlet {
 	private static final long serialVersionUID = 6536175260540484539L;
 	private final static Log log = LogFactory.getLog(JcrReadServlet.class);
 
+	protected final static String ACCEPT_HTTP_HEADER = "Accept";
+	protected final static String CONTENT_DISPOSITION_HTTP_HEADER = "Content-Disposition";
+
+	protected final static String OCTET_STREAM_CONTENT_TYPE = "application/octet-stream";
+	protected final static String XML_CONTENT_TYPE = "application/xml";
+	protected final static String JSON_CONTENT_TYPE = "application/json";
+
 	private final static String PARAM_VERBOSE = "verbose";
 	private final static String PARAM_DEPTH = "depth";
 
-	public final static String JCR_NODES = "jcr:nodes";
+	protected final static String JCR_NODES = "jcr:nodes";
 	// cf. javax.jcr.Property
-	public final static String JCR_PATH = "path";
-	public final static String JCR_NAME = "name";
-//	public final static String JCR_ID = "id";
+	protected final static String JCR_PATH = "path";
+	protected final static String JCR_NAME = "name";
 
-	final static String JCR_ = "jcr_";
-	final static String JCR_PREFIX = "jcr:";
-	final static String REP_PREFIX = "rep:";
+	protected final static String _JCR = "_jcr";
+	protected final static String JCR_PREFIX = "jcr:";
+	protected final static String REP_PREFIX = "rep:";
 
 	private Repository repository;
 	private Integer maxDepth = 8;
@@ -76,13 +87,25 @@ public class JcrReadServlet extends HttpServlet {
 			if (!session.itemExists(jcrPath))
 				throw new RuntimeException("JCR node " + jcrPath + " does not exist");
 			Node node = session.getNode(jcrPath);
-			if (node.isNodeType(NodeType.NT_FILE)) {
-				resp.setContentType("application/octet-stream");
-				resp.addHeader("Content-Disposition", "attachment; filename='" + node.getName() + "'");
+
+			List<String> acceptHeader = readAcceptHeader(req);
+			if (!acceptHeader.isEmpty() && node.isNodeType(NodeType.NT_FILE)) {
+				resp.setContentType(OCTET_STREAM_CONTENT_TYPE);
+				resp.addHeader(CONTENT_DISPOSITION_HTTP_HEADER, "attachment; filename='" + node.getName() + "'");
 				IOUtils.copy(JcrUtils.getFileAsStream(node), resp.getOutputStream());
 				resp.flushBuffer();
 			} else {
-				resp.setContentType("application/json");
+				if (!acceptHeader.isEmpty() && acceptHeader.get(0).equals(XML_CONTENT_TYPE)) {
+					// TODO Use req.startAsync(); ?
+					resp.setContentType(XML_CONTENT_TYPE);
+					session.exportSystemView(node.getPath(), resp.getOutputStream(), false, depth <= 1);
+					return;
+				}
+				if (!acceptHeader.isEmpty() && !acceptHeader.contains(JSON_CONTENT_TYPE)) {
+					log.warn("Content type " + acceptHeader + " in Accept header is not supported. Supported: "
+							+ JSON_CONTENT_TYPE + " (default), " + XML_CONTENT_TYPE);
+				}
+				resp.setContentType(JSON_CONTENT_TYPE);
 				JsonGenerator jsonGenerator = getObjectMapper().getFactory().createGenerator(resp.getWriter());
 				jsonGenerator.writeStartObject();
 				writeNodeChildren(node, jsonGenerator, depth, verbose);
@@ -102,29 +125,50 @@ public class JcrReadServlet extends HttpServlet {
 		return workspace != null ? repository.login(workspace) : repository.login();
 	}
 
-	/**
-	 * To be overridden.
-	 * 
-	 * @return the workspace to use, or <code>null</code> if default should be used.
-	 */
 	protected String getWorkspace(HttpServletRequest req) {
-		return null;
+		String path = req.getPathInfo();
+		try {
+			path = URLDecoder.decode(path, StandardCharsets.UTF_8.name());
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalArgumentException(e);
+		}
+		String[] pathTokens = path.split("/");
+		return pathTokens[1];
 	}
 
 	protected String getJcrPath(HttpServletRequest req) {
-		return req.getPathInfo();
+		String path = req.getPathInfo();
+		try {
+			path = URLDecoder.decode(path, StandardCharsets.UTF_8.name());
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalArgumentException(e);
+		}
+		String[] pathTokens = path.split("/");
+		String domain = pathTokens[1];
+		String jcrPath = path.substring(domain.length() + 1);
+		return jcrPath;
+	}
+
+	protected List<String> readAcceptHeader(HttpServletRequest req) {
+		List<String> lst = new ArrayList<>();
+		String acceptHeader = req.getHeader(ACCEPT_HTTP_HEADER);
+		if (acceptHeader == null)
+			return lst;
+//		Enumeration<String> acceptHeader = req.getHeaders(ACCEPT_HTTP_HEADER);
+//		while (acceptHeader.hasMoreElements()) {
+		String[] arr = acceptHeader.split("\\.");
+		for (int i = 0; i < arr.length; i++) {
+			String str = arr[i].trim();
+			if (!"".equals(str))
+				lst.add(str);
+		}
+//		}
+		return lst;
 	}
 
 	protected void writeNodeProperties(Node node, JsonGenerator jsonGenerator, boolean verbose)
 			throws RepositoryException, IOException {
 		String jcrPath = node.getPath();
-//		jsonGenerator.writeStringField(JCR_NAME, node.getName());
-//		jsonGenerator.writeStringField(JCR_PATH, jcrPath);
-//		// meta data
-//		if (verbose) {
-//			jsonGenerator.writeStringField(JCR_ID, node.getIdentifier());
-//		}
-
 		Map<String, Map<String, Property>> namespaces = new TreeMap<>();
 
 		PropertyIterator pit = node.getProperties();
@@ -134,7 +178,9 @@ public class JcrReadServlet extends HttpServlet {
 			final String propertyName = property.getName();
 			int columnIndex = propertyName.indexOf(':');
 			if (columnIndex > 0) {
-				String prefix = propertyName.substring(0, columnIndex) + "_";
+				// mark prefix with a '_' before the name of the object, according to JSON
+				// conventions to indicate a special value
+				String prefix = "_" + propertyName.substring(0, columnIndex);
 				String unqualifiedName = propertyName.substring(columnIndex + 1);
 				if (!namespaces.containsKey(prefix))
 					namespaces.put(prefix, new LinkedHashMap<String, Property>());
@@ -143,28 +189,6 @@ public class JcrReadServlet extends HttpServlet {
 				map.put(unqualifiedName, property);
 				continue properties;
 			}
-
-//			String fieldName = property.getName();
-//			switch (fieldName) {
-//			case "jcr:title":
-//			case "jcr:description":
-//			case "jcr:created":
-//			case "jcr:createdBy":
-//			case "jcr:lastModified":
-//			case "jcr:lastModifiedBy":
-//				fieldName = fieldName.substring(JCR_PREFIX.length());
-//			}
-//
-//			if (!verbose) {
-////				if (property.getName().equals("jcr:primaryType") || property.getName().equals("jcr:mixinTypes")
-////						|| property.getName().equals("jcr:created") || property.getName().equals("jcr:createdBy")
-////						|| property.getName().equals("jcr:lastModified")
-////						|| property.getName().equals("jcr:lastModifiedBy")) {
-////					continue properties;// skip
-////				}
-//				if (fieldName.startsWith(JCR_PREFIX))
-//					continue properties;
-//			}
 
 			if (property.getType() == PropertyType.BINARY) {
 				if (!(node instanceof JackrabbitNode)) {
@@ -179,10 +203,9 @@ public class JcrReadServlet extends HttpServlet {
 			Map<String, Property> map = namespaces.get(prefix);
 			jsonGenerator.writeFieldName(prefix);
 			jsonGenerator.writeStartObject();
-			if (JCR_.equals(prefix)) {
+			if (_JCR.equals(prefix)) {
 				jsonGenerator.writeStringField(JCR_NAME, node.getName());
 				jsonGenerator.writeStringField(JCR_PATH, jcrPath);
-//				jsonGenerator.writeStringField(JCR_ID, node.getIdentifier());
 			}
 			properties: for (String unqualifiedName : map.keySet()) {
 				Property property = map.get(unqualifiedName);
@@ -252,24 +275,6 @@ public class JcrReadServlet extends HttpServlet {
 			writeNodeProperties(child, jsonGenerator, verbose);
 			jsonGenerator.writeEndObject();
 		}
-
-		// old
-//		nit = node.getNodes();
-//		jsonGenerator.writeFieldName(JcrServlet.JCR_NODES);
-//		jsonGenerator.writeStartArray();
-//		children: while (nit.hasNext()) {
-//			Node child = nit.nextNode();
-//
-//			if (child.getName().startsWith(REP_PREFIX)) {
-//				continue children;// skip Jackrabbit auth metadata
-//			}
-//
-//			jsonGenerator.writeStartObject();
-//			writeNodeProperties(child, jsonGenerator, verbose);
-//			writeNodeChildren(child, jsonGenerator, depth - 1, verbose);
-//			jsonGenerator.writeEndObject();
-//		}
-//		jsonGenerator.writeEndArray();
 	}
 
 	public void setRepository(Repository repository) {

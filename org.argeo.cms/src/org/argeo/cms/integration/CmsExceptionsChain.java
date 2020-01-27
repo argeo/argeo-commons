@@ -29,7 +29,7 @@ public class CmsExceptionsChain extends ExceptionsChain {
 
 	public String toJsonString(ObjectMapper objectMapper) {
 		try {
-			return objectMapper.writeValueAsString(this);
+			return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
 		} catch (JsonProcessingException e) {
 			throw new IllegalStateException("Cannot write system exceptions " + toString(), e);
 		}
@@ -37,7 +37,7 @@ public class CmsExceptionsChain extends ExceptionsChain {
 
 	public void writeAsJson(ObjectMapper objectMapper, Writer writer) {
 		try {
-			JsonGenerator jg = objectMapper.getFactory().createGenerator(writer);
+			JsonGenerator jg = objectMapper.writerWithDefaultPrettyPrinter().getFactory().createGenerator(writer);
 			jg.writeObject(this);
 		} catch (IOException e) {
 			throw new IllegalStateException("Cannot write system exceptions " + toString(), e);
@@ -54,27 +54,27 @@ public class CmsExceptionsChain extends ExceptionsChain {
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
-		try {
-			try {
-				try {
-					testDeeper();
-				} catch (Exception e) {
-					throw new Exception("Less deep exception", e);
-				}
-			} catch (Exception e) {
-				throw new RuntimeException("Top exception", e);
-			}
-		} catch (Exception e) {
-			CmsExceptionsChain vjeSystemErrors = new CmsExceptionsChain(e);
-			ObjectMapper objectMapper = new ObjectMapper();
-			System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(vjeSystemErrors));
-			e.printStackTrace();
-		}
-	}
-
-	static void testDeeper() throws Exception {
-		throw new IllegalStateException("Deep exception");
-	}
+//	public static void main(String[] args) throws Exception {
+//		try {
+//			try {
+//				try {
+//					testDeeper();
+//				} catch (Exception e) {
+//					throw new Exception("Less deep exception", e);
+//				}
+//			} catch (Exception e) {
+//				throw new RuntimeException("Top exception", e);
+//			}
+//		} catch (Exception e) {
+//			CmsExceptionsChain vjeSystemErrors = new CmsExceptionsChain(e);
+//			ObjectMapper objectMapper = new ObjectMapper();
+//			System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(vjeSystemErrors));
+//			e.printStackTrace();
+//		}
+//	}
+//
+//	static void testDeeper() throws Exception {
+//		throw new IllegalStateException("Deep exception");
+//	}
 
 }

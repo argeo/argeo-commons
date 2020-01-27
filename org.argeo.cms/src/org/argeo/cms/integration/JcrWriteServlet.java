@@ -2,6 +2,7 @@ package org.argeo.cms.integration;
 
 import java.io.IOException;
 
+import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.Node;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
@@ -32,10 +33,18 @@ public class JcrWriteServlet extends JcrReadServlet {
 		try {
 			// authentication
 			session = openJcrSession(req, resp, getRepository(), dataWorkspace);
+
+			if (req.getContentType() != null && req.getContentType().equals(XML_CONTENT_TYPE)) {
+//				resp.setContentType(XML_CONTENT_TYPE);
+				session.getWorkspace().importXML(jcrPath, req.getInputStream(),
+						ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
+				return;
+			}
+
 			if (!session.itemExists(jcrPath)) {
 				String parentPath = FilenameUtils.getFullPathNoEndSeparator(jcrPath);
 				String fileName = FilenameUtils.getName(jcrPath);
-				Node folderNode = JcrUtils.mkdirs(session, parentPath);
+				Node folderNode = JcrUtils.mkfolders(session, parentPath);
 				byte[] bytes = IOUtils.toByteArray(req.getInputStream());
 				JcrUtils.copyBytesAsFile(folderNode, fileName, bytes);
 			} else {
