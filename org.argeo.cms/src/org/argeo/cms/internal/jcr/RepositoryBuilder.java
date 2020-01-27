@@ -14,7 +14,6 @@ import java.util.UUID;
 
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.RepositoryContext;
@@ -32,7 +31,8 @@ import org.xml.sax.InputSource;
 public class RepositoryBuilder {
 	private final static Log log = LogFactory.getLog(RepositoryBuilder.class);
 
-	public RepositoryContext createRepositoryContext(Dictionary<String, ?> properties) throws RepositoryException {
+	public RepositoryContext createRepositoryContext(Dictionary<String, ?> properties)
+			throws RepositoryException, IOException {
 		RepositoryConfig repositoryConfig = createRepositoryConfig(properties);
 		RepositoryContext repositoryContext = createJackrabbitRepository(repositoryConfig);
 		RepositoryImpl repository = repositoryContext.getRepository();
@@ -49,22 +49,17 @@ public class RepositoryBuilder {
 		return repositoryContext;
 	}
 
-	RepositoryConfig createRepositoryConfig(Dictionary<String, ?> properties) throws RepositoryException {
+	RepositoryConfig createRepositoryConfig(Dictionary<String, ?> properties) throws RepositoryException, IOException {
 		JackrabbitType type = JackrabbitType.valueOf(prop(properties, RepoConf.type).toString());
 		ClassLoader cl = getClass().getClassLoader();
-		InputStream in = null;
-		try {
-			final String base = "/org/argeo/cms/internal/jcr";
-			in = cl.getResourceAsStream(base + "/repository-" + type.name() + ".xml");
-
+		final String base = "/org/argeo/cms/internal/jcr";
+		try (InputStream in = cl.getResourceAsStream(base + "/repository-" + type.name() + ".xml")) {
 			if (in == null)
 				throw new ArgeoJcrException("Repository configuration not found");
 			InputSource config = new InputSource(in);
 			Properties jackrabbitVars = getConfigurationProperties(type, properties);
 			RepositoryConfig repositoryConfig = RepositoryConfig.create(config, jackrabbitVars);
 			return repositoryConfig;
-		} finally {
-			IOUtils.closeQuietly(in);
 		}
 	}
 
