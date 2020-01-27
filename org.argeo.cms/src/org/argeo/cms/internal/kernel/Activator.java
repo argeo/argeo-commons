@@ -8,6 +8,8 @@ import java.security.AllPermission;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.security.auth.login.Configuration;
 
@@ -58,6 +60,7 @@ public class Activator implements BundleActivator {
 	private CmsInstance nodeInstance;
 
 	private ServiceTracker<UserAdmin, NodeUserAdmin> userAdminSt;
+	private ExecutorService internalExecutorService;
 
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
@@ -65,6 +68,7 @@ public class Activator implements BundleActivator {
 		instance = this;
 		this.bc = bundleContext;
 		this.logReaderService = getService(LogReaderService.class);
+		this.internalExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
 		try {
 			initSecurity();
@@ -168,6 +172,7 @@ public class Activator implements BundleActivator {
 			if (userAdminSt != null)
 				userAdminSt.close();
 
+			internalExecutorService.shutdown();
 			instance = null;
 			this.bc = null;
 			this.logReaderService = null;
@@ -227,6 +232,10 @@ public class Activator implements BundleActivator {
 		// NodeUserAdmin userAdmin = (NodeUserAdmin) instance.bc.getService(sr);
 		// return userAdmin;
 
+	}
+
+	static ExecutorService getInternalExecutorService() {
+		return instance.internalExecutorService;
 	}
 
 	// static CmsSecurity getCmsSecurity() {

@@ -42,6 +42,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleWire;
@@ -198,6 +199,15 @@ public class CmsDeployment implements NodeDeployment {
 	public void shutdown() {
 		if (nodeHttp != null)
 			nodeHttp.destroy();
+
+		try {
+			for (ServiceReference<JackrabbitLocalRepository> sr : bc
+					.getServiceReferences(JackrabbitLocalRepository.class, null)) {
+				bc.getService(sr).destroy();
+			}
+		} catch (InvalidSyntaxException e1) {
+			log.error("Cannot sclean repsoitories", e1);
+		}
 
 		try {
 			JettyConfigurator.stopServer(KernelConstants.DEFAULT_JETTY_SERVER);
@@ -403,11 +413,16 @@ public class CmsDeployment implements NodeDeployment {
 		if (dataModelName.equals(NodeConstants.NODE))
 			properties.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
 		LocalRepository localRepository;
-		if (repository instanceof RepositoryImpl)
+		String[] classes;
+		if (repository instanceof RepositoryImpl) {
 			localRepository = new JackrabbitLocalRepository((RepositoryImpl) repository, dataModelName);
-		else
+			classes = new String[] { Repository.class.getName(), LocalRepository.class.getName(),
+					JackrabbitLocalRepository.class.getName() };
+		} else {
 			localRepository = new LocalRepository(repository, dataModelName);
-		bc.registerService(Repository.class, localRepository, properties);
+			classes = new String[] { Repository.class.getName(), LocalRepository.class.getName() };
+		}
+		bc.registerService(classes, localRepository, properties);
 		if (log.isTraceEnabled())
 			log.trace("Published data model " + dataModelName);
 	}

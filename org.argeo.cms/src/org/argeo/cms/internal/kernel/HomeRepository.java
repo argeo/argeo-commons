@@ -58,7 +58,7 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 				@Override
 				public Void run() {
 					try {
-						Session adminSession = getRepository().login();
+						Session adminSession = getDefaultRepository().login();
 						initJcr(adminSession);
 					} catch (RepositoryException e) {
 						throw new CmsException("Cannot init JCR home", e);
@@ -80,7 +80,7 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 
 		if (checkedUsers.contains(username))
 			return;
-		Session adminSession = KernelUtils.openAdminSession(getRepository(), session.getWorkspace().getName());
+		Session adminSession = KernelUtils.openAdminSession(getRepository(workspaceName), workspaceName);
 		try {
 			syncJcr(adminSession, username, workspaceName);
 			checkedUsers.add(username);

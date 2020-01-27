@@ -91,18 +91,6 @@ class KernelUtils implements KernelConstants {
 		return safeUri(osgiInstanceBaseUri + (relativePath != null ? relativePath : ""));
 	}
 
-	// static String getOsgiInstancePath(String relativePath) {
-	// try {
-	// if (relativePath == null)
-	// return getOsgiInstanceDir().getCanonicalPath();
-	// else
-	// return new File(getOsgiInstanceDir(), relativePath).getCanonicalPath();
-	// } catch (IOException e) {
-	// throw new CmsException("Cannot get instance path for " + relativePath,
-	// e);
-	// }
-	// }
-
 	static File getOsgiConfigurationFile(String relativePath) {
 		try {
 			return new File(new URI(getBundleContext().getProperty(OSGI_CONFIGURATION_AREA) + relativePath))
@@ -198,14 +186,14 @@ class KernelUtils implements KernelConstants {
 				st.open();
 			}
 		};
-		new Thread(run, "Open service tracker " + st).start();
+		Activator.getInternalExecutorService().execute(run);
+//		new Thread(run, "Open service tracker " + st).start();
 	}
 
 	/**
 	 * @return the {@link BundleContext} of the {@link Bundle} which provided this
 	 *         class, never null.
-	 * @throws CmsException
-	 *             if the related bundle is not active
+	 * @throws CmsException if the related bundle is not active
 	 */
 	static BundleContext getBundleContext(Class<?> clzz) {
 		Bundle bundle = FrameworkUtil.getBundle(clzz);
@@ -228,8 +216,7 @@ class KernelUtils implements KernelConstants {
 		case "false":
 			return false;
 		default:
-			throw new CmsException("Unsupported value for attribute " + DataModelNamespace.ABSTRACT
-					+ ": " + value);
+			throw new CmsException("Unsupported value for attribute " + DataModelNamespace.ABSTRACT + ": " + value);
 		}
 	}
 
