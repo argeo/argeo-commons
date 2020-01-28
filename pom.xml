@@ -411,7 +411,7 @@ limitations under the License.
 			<url>http://repo.argeo.org/data/java/argeo-2.1/</url>
 			<releases>
 				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
+				<updatePolicy>never</updatePolicy>
 				<checksumPolicy>warn</checksumPolicy>
 			</releases>
 			<snapshots>
@@ -420,13 +420,13 @@ limitations under the License.
 		</repository>
 		<repository>
 			<id>argeo-snapshots</id>
-			<url>file:///srv/javafactory/argeo-2.1</url>
+			<url>http://snapshots.argeo.org/data/java/argeo-2.1/</url>
 			<releases>
 				<enabled>false</enabled>
 			</releases>
 			<snapshots>
 				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
+				<updatePolicy>always</updatePolicy>
 				<checksumPolicy>warn</checksumPolicy>
 			</snapshots>
 		</repository>
@@ -437,7 +437,7 @@ limitations under the License.
 			<url>http://repo.argeo.org/data/java/argeo-2.1</url>
 			<releases>
 				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
+				<updatePolicy>never</updatePolicy>
 				<checksumPolicy>warn</checksumPolicy>
 			</releases>
 			<snapshots>
@@ -446,13 +446,13 @@ limitations under the License.
 		</pluginRepository>
 		<pluginRepository>
 			<id>argeo-maven-plugins-snapshots</id>
-			<url>file:///srv/javafactory/argeo-2.1</url>
+			<url>http://snapshots.argeo.org/data/java/argeo-2.1/</url>
 			<releases>
 				<enabled>false</enabled>
 			</releases>
 			<snapshots>
 				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
+				<updatePolicy>always</updatePolicy>
 				<checksumPolicy>warn</checksumPolicy>
 			</snapshots>
 		</pluginRepository>
