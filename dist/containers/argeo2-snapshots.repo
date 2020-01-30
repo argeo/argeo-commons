@@ -1,0 +1,4 @@
+[argeo-osgi-staging]
+name=Argeo 2 OSGi (staging)
+baseurl=http://snapshots.argeo.org/rpm/testing/argeo-osgi-2/el7/
+gpgcheck=no
