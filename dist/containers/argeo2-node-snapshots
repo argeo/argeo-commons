@@ -6,6 +6,9 @@ container=$(buildah from argeo/argeo2-tp:$VERSION_ARGEO_TP-$ARCH)
 # Override version
 buildah copy $container argeo2-snapshots.repo /etc/yum.repos.d/
 
+# Override settings
+buildah copy $container dev-settings.sh /etc/argeo/settings.sh
+
 source "$(dirname "$0")/buildah-common"
 
 #buildah config --label release="1" $container
