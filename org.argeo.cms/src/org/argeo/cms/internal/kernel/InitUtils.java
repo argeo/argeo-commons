@@ -162,8 +162,9 @@ class InitUtils {
 				try {
 					FileUtils.copyInputStreamToFile(InitUtils.class.getResourceAsStream(demoBaseDn + ".ldif"),
 							businessRolesFile);
-					FileUtils.copyInputStreamToFile(
-							InitUtils.class.getResourceAsStream("example-ou=roles,ou=node.ldif"), systemRolesFile);
+					if (!systemRolesFile.exists())
+						FileUtils.copyInputStreamToFile(
+								InitUtils.class.getResourceAsStream("example-ou=roles,ou=node.ldif"), systemRolesFile);
 				} catch (IOException e) {
 					throw new CmsException("Cannot copy demo resources", e);
 				}
