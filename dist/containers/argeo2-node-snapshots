@@ -6,9 +6,6 @@ container=$(buildah from argeo/argeo2-tp:$VERSION_ARGEO_TP-$ARCH)
 # Override version
 buildah copy $container argeo2-snapshots.repo /etc/yum.repos.d/
 
-# Override settings
-buildah copy $container dev-settings.sh /etc/argeo/settings.sh
-
 source "$(dirname "$0")/buildah-common"
 
 #buildah config --label release="1" $container
@@ -22,6 +19,9 @@ buildah config --label url=https://hub.docker.com/repository/docker/argeo/argeo2
 # Argeo Node
 buildah run $container -- microdnf install osgi-boot argeo-cms-e4-rap argeo-node
 buildah run $container -- microdnf clean all
+
+# Override settings
+buildah copy $container dev-settings.sh /etc/argeo/settings.sh
 
 # Configuration
 buildah config --entrypoint '["/usr/sbin/argeoctl","start"]' $container
