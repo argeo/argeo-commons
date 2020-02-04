@@ -249,7 +249,7 @@ limitations under the License.
 							<_include>bnd.bnd</_include>
 							<Bundle-Version>${project.version}-r${tstamp}</Bundle-Version>
 							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-							<Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
+							<Bundle-RequiredExecutionEnvironment>JavaSE-11,JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
 							<_removeheaders>Bnd-LastModified,Build-Jdk,Built-By,Tool,Created-By</_removeheaders>
 							<Automatic-Module-Name>${project.artifactId}</Automatic-Module-Name>
 							<SLC-Category>${project.groupId}</SLC-Category>
