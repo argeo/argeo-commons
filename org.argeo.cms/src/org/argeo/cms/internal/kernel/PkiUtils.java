@@ -61,7 +61,7 @@ class PkiUtils {
 
 	public static KeyStore getKeyStore(File keyStoreFile, char[] keyStorePassword) {
 		try {
-			KeyStore store = KeyStore.getInstance("JKS", SECURITY_PROVIDER);
+			KeyStore store = KeyStore.getInstance("PKCS12", SECURITY_PROVIDER);
 			if (keyStoreFile.exists()) {
 				try (FileInputStream fis = new FileInputStream(keyStoreFile)) {
 					store.load(fis, keyStorePassword);
