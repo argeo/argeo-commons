@@ -101,7 +101,7 @@ class InitUtils {
 			if (httpHost != null)
 				props.put(HttpConstants.HTTP_HOST, httpHost);
 			if (httpsHost != null)
-				props.put(HttpConstants.HTTPS_HOST, httpHost);
+				props.put(HttpConstants.HTTPS_HOST, httpsHost);
 
 			if (webSocketEnabled != null)
 				if (webSocketEnabled.equals("true"))
