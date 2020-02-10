@@ -61,7 +61,7 @@ import org.eclipse.swt.widgets.Text;
  * Connect to a remote repository and, if successful publish it as an OSGi
  * service.
  */
-public class AddRemoteRepository implements ArgeoNames {
+public class AddRemoteRepository {
 
 	@Inject
 	private RepositoryFactory repositoryFactory;
@@ -173,15 +173,16 @@ public class AddRemoteRepository implements ArgeoNames {
 				nodeSession = nodeRepository.login();
 				Node home = NodeUtils.getUserHome(nodeSession);
 
-				Node remote = home.hasNode(ARGEO_REMOTE) ? home.getNode(ARGEO_REMOTE) : home.addNode(ARGEO_REMOTE);
+				Node remote = home.hasNode(ArgeoNames.ARGEO_REMOTE) ? home.getNode(ArgeoNames.ARGEO_REMOTE)
+						: home.addNode(ArgeoNames.ARGEO_REMOTE);
 				if (remote.hasNode(name.getText()))
 					throw new EclipseUiException("There is already a remote repository named " + name.getText());
 				Node remoteRepository = remote.addNode(name.getText(), ArgeoTypes.ARGEO_REMOTE_REPOSITORY);
-				remoteRepository.setProperty(ARGEO_URI, uri.getText());
-				remoteRepository.setProperty(ARGEO_USER_ID, username.getText());
+				remoteRepository.setProperty(ArgeoNames.ARGEO_URI, uri.getText());
+				remoteRepository.setProperty(ArgeoNames.ARGEO_USER_ID, username.getText());
 				nodeSession.save();
 				if (saveInKeyring.getSelection()) {
-					String pwdPath = remoteRepository.getPath() + '/' + ARGEO_PASSWORD;
+					String pwdPath = remoteRepository.getPath() + '/' + ArgeoNames.ARGEO_PASSWORD;
 					keyring.set(pwdPath, password.getText().toCharArray());
 				}
 				nodeSession.save();
