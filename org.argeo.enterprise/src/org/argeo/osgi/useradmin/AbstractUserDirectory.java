@@ -104,10 +104,10 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 			readOnly = readOnlyDefault(uri);
 			properties.put(UserAdminConf.readOnly.name(), Boolean.toString(readOnly));
 		} else
-			readOnly = new Boolean(readOnlyStr);
+			readOnly = Boolean.parseBoolean(readOnlyStr);
 		String disabledStr = UserAdminConf.disabled.getValue(properties);
 		if (disabledStr != null)
-			disabled = new Boolean(disabledStr);
+			disabled = Boolean.parseBoolean(disabledStr);
 		else
 			disabled = false;
 	}
