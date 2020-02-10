@@ -3,6 +3,7 @@ package org.argeo.osgi.useradmin;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -14,14 +15,22 @@ import org.osgi.service.useradmin.Role;
 class LdifGroup extends LdifUser implements DirectoryGroup {
 	private final String memberAttributeId;
 
-	LdifGroup(AbstractUserDirectory userAdmin, LdapName dn,
-			Attributes attributes) {
+	LdifGroup(AbstractUserDirectory userAdmin, LdapName dn, Attributes attributes) {
 		super(userAdmin, dn, attributes);
 		memberAttributeId = userAdmin.getMemberAttributeId();
 	}
 
 	@Override
 	public boolean addMember(Role role) {
+		try {
+			Role foundRole = findRole(new LdapName(role.getName()));
+			if (foundRole == null)
+				throw new UnsupportedOperationException(
+						"Adding role " + role.getName() + " is unsupported within this context.");
+		} catch (InvalidNameException e) {
+			throw new IllegalArgumentException("Role name" + role.getName() + " is badly formatted");
+		}
+
 		getUserAdmin().checkEdit();
 		if (!isEditing())
 			startEditing();
@@ -62,18 +71,27 @@ class LdifGroup extends LdifUser implements DirectoryGroup {
 	public Role[] getMembers() {
 		List<Role> directMembers = new ArrayList<Role>();
 		for (LdapName ldapName : getMemberNames()) {
-			Role role = getUserAdmin().getRole(ldapName.toString());
+			Role role = findRole(ldapName);
 			if (role == null) {
-				if (getUserAdmin().getExternalRoles() != null)
-					role = getUserAdmin().getExternalRoles().getRole(
-							ldapName.toString());
+				throw new UserDirectoryException("Role " + ldapName + " cannot be added.");
 			}
-			if (role == null)
-				throw new UserDirectoryException("No role found for "
-						+ ldapName);
 			directMembers.add(role);
 		}
 		return directMembers.toArray(new Role[directMembers.size()]);
+	}
+
+	/**
+	 * Whether a role with this name can be found from this context.
+	 * 
+	 * @return The related {@link Role} or <code>null</code>.
+	 */
+	protected Role findRole(LdapName ldapName) {
+		Role role = getUserAdmin().getRole(ldapName.toString());
+		if (role == null) {
+			if (getUserAdmin().getExternalRoles() != null)
+				role = getUserAdmin().getExternalRoles().getRole(ldapName.toString());
+		}
+		return role;
 	}
 
 	@Override
