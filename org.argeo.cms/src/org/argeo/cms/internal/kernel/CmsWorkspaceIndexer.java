@@ -54,7 +54,7 @@ class CmsWorkspaceIndexer implements EventListener {
 		try {
 			String[] nodeTypes = { NodeType.NT_FILE, NodeType.MIX_LAST_MODIFIED };
 			session.getWorkspace().getObservationManager().addEventListener(this,
-					Event.NODE_ADDED | Event.NODE_REMOVED | Event.PROPERTY_CHANGED, "/", true, null, nodeTypes, true);
+					Event.NODE_ADDED | Event.PROPERTY_CHANGED, "/", true, null, nodeTypes, true);
 			versionManager = session.getWorkspace().getVersionManager();
 		} catch (RepositoryException e1) {
 			throw new IllegalStateException(e1);
@@ -95,6 +95,7 @@ class CmsWorkspaceIndexer implements EventListener {
 				if (log.isTraceEnabled())
 					log.trace("NODE_ADDED " + eventPath);
 //				session.refresh(true);
+				session.refresh(false);
 				Node node = session.getNode(eventPath);
 				Node parentNode = node.getParent();
 				if (parentNode.isNodeType(NodeType.NT_FILE)) {
@@ -103,7 +104,10 @@ class CmsWorkspaceIndexer implements EventListener {
 							node.addMixin(NodeType.MIX_LAST_MODIFIED);
 						Property property = node.getProperty(Property.JCR_DATA);
 						String etag = toEtag(property.getValue());
+						session.save();
 						node.setProperty(JCR_ETAG, etag);
+						if (log.isTraceEnabled())
+							log.trace("ETag and last modified added to new " + node);
 					} else if (node.isNodeType(NodeType.NT_RESOURCE)) {
 //						if (!node.isNodeType(MIX_ETAG))
 //							node.addMixin(MIX_ETAG);
@@ -113,47 +117,55 @@ class CmsWorkspaceIndexer implements EventListener {
 //						node.setProperty(JCR_ETAG, etag);
 //						session.save();
 					}
-					setLastModified(parentNode, event);
-					session.save();
-					if (log.isTraceEnabled())
-						log.trace("ETag and last modified added to new " + node);
+//					setLastModifiedRecursive(parentNode, event);
+//					session.save();
+//					if (log.isTraceEnabled())
+//						log.trace("ETag and last modified added to new " + node);
 				}
 
-				if (node.isNodeType(NodeType.NT_FOLDER)) {
-					setLastModified(node, event);
-					session.save();
-					if (log.isTraceEnabled())
-						log.trace("Last modified added to new " + node);
-				}
+//				if (node.isNodeType(NodeType.NT_FOLDER)) {
+//					setLastModifiedRecursive(node, event);
+//					session.save();
+//					if (log.isTraceEnabled())
+//						log.trace("Last modified added to new " + node);
+//				}
 			} else if (event.getType() == Event.PROPERTY_CHANGED) {
 				String propertyName = extractItemName(eventPath);
 				// skip if last modified properties are explicitly set
-				if (propertyName.equals(JCR_LAST_MODIFIED))
+				if (!propertyName.equals(JCR_DATA))
 					return;
-				if (propertyName.equals(JCR_LAST_MODIFIED_BY))
-					return;
-				if (propertyName.equals(JCR_MIXIN_TYPES))
-					return;
-				if (propertyName.equals(JCR_ETAG))
-					return;
+//				if (propertyName.equals(JCR_LAST_MODIFIED))
+//					return;
+//				if (propertyName.equals(JCR_LAST_MODIFIED_BY))
+//					return;
+//				if (propertyName.equals(JCR_MIXIN_TYPES))
+//					return;
+//				if (propertyName.equals(JCR_ETAG))
+//					return;
 
 				if (log.isTraceEnabled())
 					log.trace("PROPERTY_CHANGED " + eventPath);
 
 				if (!session.propertyExists(eventPath))
 					return;
-//				session.refresh(true);
+				session.refresh(false);
 				Property property = session.getProperty(eventPath);
 				Node node = property.getParent();
 				if (property.getType() == PropertyType.BINARY && propertyName.equals(JCR_DATA)
 						&& node.isNodeType(NodeType.NT_UNSTRUCTURED)) {
 					String etag = toEtag(property.getValue());
 					node.setProperty(JCR_ETAG, etag);
+					Node parentNode = node.getParent();
+					if (parentNode.isNodeType(NodeType.MIX_LAST_MODIFIED)) {
+						setLastModified(parentNode, event);
+					}
+					if (log.isTraceEnabled())
+						log.trace("ETag and last modified updated for " + node);
 				}
-				setLastModified(node, event);
-				session.save();
-				if (log.isTraceEnabled())
-					log.trace("ETag and last modified updated for " + node);
+//				setLastModified(node, event);
+//				session.save();
+//				if (log.isTraceEnabled())
+//					log.trace("ETag and last modified updated for " + node);
 			} else if (event.getType() == Event.NODE_REMOVED) {
 				String removeNodePath = eventPath;
 				String nodeName = extractItemName(eventPath);
@@ -224,16 +236,20 @@ class CmsWorkspaceIndexer implements EventListener {
 
 	}
 
-	/** Recursively set the last updated time on parents. */
 	protected synchronized void setLastModified(Node node, Event event) throws RepositoryException {
+		GregorianCalendar calendar = new GregorianCalendar();
+		calendar.setTimeInMillis(event.getDate());
+		node.setProperty(Property.JCR_LAST_MODIFIED, calendar);
+		node.setProperty(Property.JCR_LAST_MODIFIED_BY, event.getUserID());
+		if (log.isTraceEnabled())
+			log.trace("Last modified set on " + node);
+	}
+
+	/** Recursively set the last updated time on parents. */
+	protected synchronized void setLastModifiedRecursive(Node node, Event event) throws RepositoryException {
 		if (versionManager.isCheckedOut(node.getPath())) {
 			if (node.isNodeType(NodeType.MIX_LAST_MODIFIED)) {
-				GregorianCalendar calendar = new GregorianCalendar();
-				calendar.setTimeInMillis(event.getDate());
-				node.setProperty(Property.JCR_LAST_MODIFIED, calendar);
-				node.setProperty(Property.JCR_LAST_MODIFIED_BY, event.getUserID());
-				if (log.isTraceEnabled())
-					log.trace("Last modified set on " + node);
+				setLastModified(node, event);
 			}
 			if (node.isNodeType(NodeType.NT_FOLDER) && !node.isNodeType(NodeType.MIX_LAST_MODIFIED)) {
 				node.addMixin(NodeType.MIX_LAST_MODIFIED);
@@ -253,7 +269,7 @@ class CmsWorkspaceIndexer implements EventListener {
 			return;
 		} else {
 			Node parent = node.getParent();
-			setLastModified(parent, event);
+			setLastModifiedRecursive(parent, event);
 		}
 	}
 
@@ -261,13 +277,13 @@ class CmsWorkspaceIndexer implements EventListener {
 	 * Recursively set the last updated time on parents. Useful to use paths when
 	 * dealing with deletions.
 	 */
-	protected synchronized void setLastModified(String path, Event event) throws RepositoryException {
+	protected synchronized void setLastModifiedRecursive(String path, Event event) throws RepositoryException {
 		// root node will always exist, so end condition is delegated to the other
 		// recursive setLastModified method
 		if (session.nodeExists(path)) {
-			setLastModified(session.getNode(path), event);
+			setLastModifiedRecursive(session.getNode(path), event);
 		} else {
-			setLastModified(JcrUtils.parentPath(path), event);
+			setLastModifiedRecursive(JcrUtils.parentPath(path), event);
 		}
 	}
 
