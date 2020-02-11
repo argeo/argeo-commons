@@ -16,7 +16,7 @@ public class NioFileLabelProvider extends ColumnLabelProvider {
 	private final static FileTime EPOCH = FileTime.fromMillis(0);
 	private static final long serialVersionUID = 2160026425187796930L;
 	private final String propName;
-	private DateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd hh:mm");
+	private DateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd HH:mm");
 
 	// TODO use new formatting
 	// DateTimeFormatter formatter =

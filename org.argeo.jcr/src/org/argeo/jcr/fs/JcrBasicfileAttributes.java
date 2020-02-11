@@ -123,7 +123,11 @@ public class JcrBasicfileAttributes implements NodeFileAttributes {
 
 	@Override
 	public Object fileKey() {
-		return null;
+		try {
+			return node.getIdentifier();
+		} catch (RepositoryException e) {
+			throw new JcrFsException("Cannot get identifier", e);
+		}
 	}
 
 	@Override
