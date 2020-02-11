@@ -32,7 +32,9 @@ class CmsWorkspaceIndexer implements EventListener {
 	private final static String JCR_ETAG = "jcr:etag";
 	private final static String JCR_LAST_MODIFIED = "jcr:lastModified";
 	private final static String JCR_LAST_MODIFIED_BY = "jcr:lastModifiedBy";
+	private final static String JCR_MIXIN_TYPES = "jcr:mixinTypes";
 	private final static String JCR_DATA = "jcr:data";
+	private final static String JCR_CONTENT = "jcr:data";
 
 	private String cn;
 	private String workspaceName;
@@ -71,21 +73,31 @@ class CmsWorkspaceIndexer implements EventListener {
 	}
 
 	private synchronized void processEvents(EventIterator events) {
+		long begin = System.currentTimeMillis();
+		long count = 0;
 		while (events.hasNext()) {
 			Event event = events.nextEvent();
 			processEvent(event);
+			count++;
 		}
+		long duration = System.currentTimeMillis() - begin;
+		if (log.isTraceEnabled())
+			log.trace("Processed " + count + " events in " + duration + " ms");
 		notifyAll();
 	}
 
 	protected synchronized void processEvent(Event event) {
 		try {
+			String eventPath = event.getPath();
 			if (event.getType() == Event.NODE_ADDED) {
-				if (!versionManager.isCheckedOut(event.getPath()))
+				if (!versionManager.isCheckedOut(eventPath))
 					return;// ignore checked-in nodes
-				session.refresh(true);
-				Node node = session.getNode(event.getPath());
-				if (node.getParent().isNodeType(NodeType.NT_FILE)) {
+				if (log.isTraceEnabled())
+					log.trace("NODE_ADDED " + eventPath);
+//				session.refresh(true);
+				Node node = session.getNode(eventPath);
+				Node parentNode = node.getParent();
+				if (parentNode.isNodeType(NodeType.NT_FILE)) {
 					if (node.isNodeType(NodeType.NT_UNSTRUCTURED)) {
 						if (!node.isNodeType(NodeType.MIX_LAST_MODIFIED))
 							node.addMixin(NodeType.MIX_LAST_MODIFIED);
@@ -101,22 +113,37 @@ class CmsWorkspaceIndexer implements EventListener {
 //						node.setProperty(JCR_ETAG, etag);
 //						session.save();
 					}
-					setLastModified(node.getParent(), event);
+					setLastModified(parentNode, event);
 					session.save();
 					if (log.isTraceEnabled())
 						log.trace("ETag and last modified added to new " + node);
 				}
+
+				if (node.isNodeType(NodeType.NT_FOLDER)) {
+					setLastModified(node, event);
+					session.save();
+					if (log.isTraceEnabled())
+						log.trace("Last modified added to new " + node);
+				}
 			} else if (event.getType() == Event.PROPERTY_CHANGED) {
-				if (!session.propertyExists(event.getPath()))
-					return;
-				session.refresh(true);
-				Property property = session.getProperty(event.getPath());
-				String propertyName = property.getName();
+				String propertyName = extractItemName(eventPath);
 				// skip if last modified properties are explicitly set
 				if (propertyName.equals(JCR_LAST_MODIFIED))
 					return;
 				if (propertyName.equals(JCR_LAST_MODIFIED_BY))
 					return;
+				if (propertyName.equals(JCR_MIXIN_TYPES))
+					return;
+				if (propertyName.equals(JCR_ETAG))
+					return;
+
+				if (log.isTraceEnabled())
+					log.trace("PROPERTY_CHANGED " + eventPath);
+
+				if (!session.propertyExists(eventPath))
+					return;
+//				session.refresh(true);
+				Property property = session.getProperty(eventPath);
 				Node node = property.getParent();
 				if (property.getType() == PropertyType.BINARY && propertyName.equals(JCR_DATA)
 						&& node.isNodeType(NodeType.NT_UNSTRUCTURED)) {
@@ -128,11 +155,16 @@ class CmsWorkspaceIndexer implements EventListener {
 				if (log.isTraceEnabled())
 					log.trace("ETag and last modified updated for " + node);
 			} else if (event.getType() == Event.NODE_REMOVED) {
-				String removeNodePath = event.getPath();
+				String removeNodePath = eventPath;
+				String nodeName = extractItemName(eventPath);
+				if (JCR_CONTENT.equals(nodeName)) // parent is a file, deleted anyhow
+					return;
+				if (log.isTraceEnabled())
+					log.trace("NODE_REMOVED " + eventPath);
 				String parentPath = JcrUtils.parentPath(removeNodePath);
-				session.refresh(true);
-				setLastModified(parentPath, event);
-				session.save();
+//				session.refresh(true);
+//				setLastModified(parentPath, event);
+//				session.save();
 				if (log.isTraceEnabled())
 					log.trace("Last modified updated for parents of removed " + removeNodePath);
 			}
@@ -151,6 +183,17 @@ class CmsWorkspaceIndexer implements EventListener {
 //			}
 		}
 
+	}
+
+	private String extractItemName(String path) {
+		if (path == null || path.length() <= 1)
+			return null;
+		int lastIndex = path.lastIndexOf('/');
+		if (lastIndex >= 0) {
+			return path.substring(lastIndex + 1);
+		} else {
+			return path;
+		}
 	}
 
 	@Override
@@ -184,26 +227,34 @@ class CmsWorkspaceIndexer implements EventListener {
 	/** Recursively set the last updated time on parents. */
 	protected synchronized void setLastModified(Node node, Event event) throws RepositoryException {
 		if (versionManager.isCheckedOut(node.getPath())) {
-			GregorianCalendar calendar = new GregorianCalendar();
-			calendar.setTimeInMillis(event.getDate());
 			if (node.isNodeType(NodeType.MIX_LAST_MODIFIED)) {
+				GregorianCalendar calendar = new GregorianCalendar();
+				calendar.setTimeInMillis(event.getDate());
 				node.setProperty(Property.JCR_LAST_MODIFIED, calendar);
 				node.setProperty(Property.JCR_LAST_MODIFIED_BY, event.getUserID());
+				if (log.isTraceEnabled())
+					log.trace("Last modified set on " + node);
 			}
 			if (node.isNodeType(NodeType.NT_FOLDER) && !node.isNodeType(NodeType.MIX_LAST_MODIFIED)) {
 				node.addMixin(NodeType.MIX_LAST_MODIFIED);
+				if (log.isTraceEnabled())
+					log.trace("Last modified mix-in added to " + node);
 			}
 
-			try {
-				node.getSession().save();
-			} catch (RepositoryException e) {
-				// fail silently and keep recursing
-			}
 		}
-		if (node.getDepth() == 0)
+
+		// end condition
+		if (node.getDepth() == 0) {
+//			try {
+//				node.getSession().save();
+//			} catch (RepositoryException e) {
+//				log.warn("Cannot index workspace", e);
+//			}
 			return;
-		Node parent = node.getParent();
-		setLastModified(parent, event);
+		} else {
+			Node parent = node.getParent();
+			setLastModified(parent, event);
+		}
 	}
 
 	/**

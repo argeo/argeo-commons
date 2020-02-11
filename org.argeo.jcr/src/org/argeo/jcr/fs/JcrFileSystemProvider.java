@@ -32,6 +32,7 @@ import javax.jcr.nodetype.PropertyDefinition;
 
 import org.argeo.jcr.JcrUtils;
 
+/** Operations on a {@link JcrFileSystem}. */
 public abstract class JcrFileSystemProvider extends FileSystemProvider {
 
 	@Override
@@ -51,7 +52,7 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 				fileName = Text.escapeIllegalJcrChars(fileName);
 				node = parent.addNode(fileName, NodeType.NT_FILE);
 				node.addMixin(NodeType.MIX_CREATED);
-				node.addMixin(NodeType.MIX_LAST_MODIFIED);
+//				node.addMixin(NodeType.MIX_LAST_MODIFIED);
 			}
 			if (!node.isNodeType(NodeType.NT_FILE))
 				throw new UnsupportedOperationException(node + " must be a file");
@@ -82,15 +83,18 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 				Node parent = toNode(dir.getParent());
 				if (parent == null)
 					throw new IOException("Parent of " + dir + " does not exist");
-				if (parent.getPrimaryNodeType().isNodeType(NodeType.NT_FILE)
-						|| parent.getPrimaryNodeType().isNodeType(NodeType.NT_LINKED_FILE))
-					throw new IOException(dir + " parent is a file");
-				String fileName = dir.getFileName().toString();
-				fileName = Text.escapeIllegalJcrChars(fileName);
-				node = parent.addNode(fileName, NodeType.NT_FOLDER);
-				node.addMixin(NodeType.MIX_CREATED);
-				node.addMixin(NodeType.MIX_LAST_MODIFIED);
-				node.getSession().save();
+				Session session = parent.getSession();
+				synchronized (session) {
+					if (parent.getPrimaryNodeType().isNodeType(NodeType.NT_FILE)
+							|| parent.getPrimaryNodeType().isNodeType(NodeType.NT_LINKED_FILE))
+						throw new IOException(dir + " parent is a file");
+					String fileName = dir.getFileName().toString();
+					fileName = Text.escapeIllegalJcrChars(fileName);
+					node = parent.addNode(fileName, NodeType.NT_FOLDER);
+					node.addMixin(NodeType.MIX_CREATED);
+					node.addMixin(NodeType.MIX_LAST_MODIFIED);
+					save(session);
+				}
 			} else {
 				// if (!node.getPrimaryNodeType().isNodeType(NodeType.NT_FOLDER))
 				// throw new FileExistsException(dir + " exists and is not a directory");
@@ -108,14 +112,17 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 			if (node == null)
 				throw new NoSuchFileException(path + " does not exist");
 			Session session = node.getSession();
-			if (node.getPrimaryNodeType().isNodeType(NodeType.NT_FILE))
-				node.remove();
-			else if (node.getPrimaryNodeType().isNodeType(NodeType.NT_FOLDER)) {
-				if (node.hasNodes())// TODO check only files
-					throw new DirectoryNotEmptyException(path.toString());
-				node.remove();
+			synchronized (session) {
+				session.refresh(false);
+				if (node.getPrimaryNodeType().isNodeType(NodeType.NT_FILE))
+					node.remove();
+				else if (node.getPrimaryNodeType().isNodeType(NodeType.NT_FOLDER)) {
+					if (node.hasNodes())// TODO check only files
+						throw new DirectoryNotEmptyException(path.toString());
+					node.remove();
+				}
+				save(session);
 			}
-			session.save();
 		} catch (RepositoryException e) {
 			discardChanges(node);
 			throw new IOException("Cannot delete " + path, e);
@@ -128,8 +135,11 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 		Node sourceNode = toNode(source);
 		Node targetNode = toNode(target);
 		try {
-			JcrUtils.copy(sourceNode, targetNode);
-			sourceNode.getSession().save();
+			Session targetSession = targetNode.getSession();
+			synchronized (targetSession) {
+				JcrUtils.copy(sourceNode, targetNode);
+				save(targetSession);
+			}
 		} catch (RepositoryException e) {
 			discardChanges(sourceNode);
 			discardChanges(targetNode);
@@ -142,8 +152,10 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 		Node sourceNode = toNode(source);
 		try {
 			Session session = sourceNode.getSession();
-			session.move(sourceNode.getPath(), target.toString());
-			session.save();
+			synchronized (session) {
+				session.move(sourceNode.getPath(), target.toString());
+				save(session);
+			}
 		} catch (RepositoryException e) {
 			discardChanges(sourceNode);
 			throw new IOException("Cannot move from " + source + " to " + target, e);
@@ -253,14 +265,17 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 	public void setAttribute(Path path, String attribute, Object value, LinkOption... options) throws IOException {
 		Node node = toNode(path);
 		try {
-			if (value instanceof byte[]) {
-				JcrUtils.setBinaryAsBytes(node, attribute, (byte[]) value);
-			} else if (value instanceof Calendar) {
-				node.setProperty(attribute, (Calendar) value);
-			} else {
-				node.setProperty(attribute, value.toString());
+			Session session = node.getSession();
+			synchronized (session) {
+				if (value instanceof byte[]) {
+					JcrUtils.setBinaryAsBytes(node, attribute, (byte[]) value);
+				} else if (value instanceof Calendar) {
+					node.setProperty(attribute, (Calendar) value);
+				} else {
+					node.setProperty(attribute, value.toString());
+				}
+				save(session);
 			}
-			node.getSession().save();
 		} catch (RepositoryException e) {
 			discardChanges(node);
 			throw new IOException("Cannot set attribute " + attribute + " on " + path, e);
@@ -287,6 +302,13 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 			// TODO log out session?
 			// TODO use Commons logging?
 		}
+	}
+
+	/** Make sure save is robust. */
+	protected void save(Session session) throws RepositoryException {
+		session.refresh(true);
+		session.save();
+		session.notifyAll();
 	}
 
 	/**

@@ -19,6 +19,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
+/** A {@link Path} which contains a reference to a JCR {@link Node}. */
 public class JcrPath implements Path {
 	private final static String delimStr = "/";
 	private final static char delimChar = '/';

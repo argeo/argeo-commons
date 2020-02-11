@@ -10,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.node.NodeConstants;
 
 class JackrabbitLocalRepository extends LocalRepository {
 	private final static Log log = LogFactory.getLog(JackrabbitLocalRepository.class);
@@ -21,9 +22,10 @@ class JackrabbitLocalRepository extends LocalRepository {
 		super(repository, cn);
 		Session session = KernelUtils.openAdminSession(repository);
 		try {
-			for (String workspaceName : session.getWorkspace().getAccessibleWorkspaceNames()) {
-				addMonitor(workspaceName);
-			}
+			if (NodeConstants.NODE.equals(cn))
+				for (String workspaceName : session.getWorkspace().getAccessibleWorkspaceNames()) {
+					addMonitor(workspaceName);
+				}
 		} catch (RepositoryException e) {
 			throw new IllegalStateException(e);
 		} finally {
@@ -44,6 +46,9 @@ class JackrabbitLocalRepository extends LocalRepository {
 	private void addMonitor(String realWorkspaceName) {
 		if (realWorkspaceName.equals(SECURITY_WORKSPACE))
 			return;
+		if (!NodeConstants.NODE.equals(getCn()))
+			return;
+
 		if (!workspaceMonitors.containsKey(realWorkspaceName)) {
 			try {
 				CmsWorkspaceIndexer workspaceMonitor = new CmsWorkspaceIndexer(

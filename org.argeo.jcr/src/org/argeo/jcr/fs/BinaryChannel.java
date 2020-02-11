@@ -21,6 +21,7 @@ import javax.jcr.nodetype.NodeType;
 
 import org.argeo.jcr.JcrUtils;
 
+/** A read/write {@link SeekableByteChannel} based on a {@link Binary}. */
 public class BinaryChannel implements SeekableByteChannel {
 	private final Node file;
 	private Binary binary;
@@ -32,27 +33,33 @@ public class BinaryChannel implements SeekableByteChannel {
 
 	public BinaryChannel(Node file, Path path) throws RepositoryException, IOException {
 		this.file = file;
-		if (file.isNodeType(NodeType.NT_FILE)) {
-			if (file.hasNode(Property.JCR_CONTENT)) {
-				Node data = file.getNode(Property.JCR_CONTENT);
-				this.binary = data.getProperty(Property.JCR_DATA).getBinary();
-			} else {
-				Node data = file.addNode(Property.JCR_CONTENT, NodeType.NT_UNSTRUCTURED);
-				try (InputStream in = new ByteArrayInputStream(new byte[0])) {
-					this.binary = data.getSession().getValueFactory().createBinary(in);
+		Session session = file.getSession();
+		synchronized (session) {
+			if (file.isNodeType(NodeType.NT_FILE)) {
+				if (file.hasNode(Node.JCR_CONTENT)) {
+					Node data = file.getNode(Property.JCR_CONTENT);
+					this.binary = data.getProperty(Property.JCR_DATA).getBinary();
+				} else {
+					Node data = file.addNode(Node.JCR_CONTENT, NodeType.NT_UNSTRUCTURED);
+					data.addMixin(NodeType.MIX_LAST_MODIFIED);
+					try (InputStream in = new ByteArrayInputStream(new byte[0])) {
+						this.binary = data.getSession().getValueFactory().createBinary(in);
+					}
+					data.setProperty(Property.JCR_DATA, this.binary);
+
+					// MIME type
+					String mime = Files.probeContentType(path);
+					// String mime = fileTypeMap.getContentType(file.getName());
+					data.setProperty(Property.JCR_MIMETYPE, mime);
+
+					session.refresh(true);
+					session.save();
+					session.notifyAll();
 				}
-				data.setProperty(Property.JCR_DATA, this.binary);
-
-				// MIME type
-				String mime = Files.probeContentType(path);
-				// String mime = fileTypeMap.getContentType(file.getName());
-				data.setProperty(Property.JCR_MIMETYPE, mime);
-
-				data.getSession().save();
+			} else {
+				throw new IllegalArgumentException(
+						"Unsupported file node " + file + " (" + file.getPrimaryNodeType() + ")");
 			}
-		} else {
-			throw new IllegalArgumentException(
-					"Unsupported file node " + file + " (" + file.getPrimaryNodeType() + ")");
 		}
 	}
 
@@ -67,12 +74,16 @@ public class BinaryChannel implements SeekableByteChannel {
 			Binary newBinary = null;
 			try {
 				Session session = file.getSession();
-				fc.position(0);
-				InputStream in = Channels.newInputStream(fc);
-				newBinary = session.getValueFactory().createBinary(in);
-				file.getNode(Property.JCR_CONTENT).setProperty(Property.JCR_DATA, newBinary);
-				session.save();
-				open = false;
+				synchronized (session) {
+					fc.position(0);
+					InputStream in = Channels.newInputStream(fc);
+					newBinary = session.getValueFactory().createBinary(in);
+					file.getNode(Property.JCR_CONTENT).setProperty(Property.JCR_DATA, newBinary);
+					session.refresh(true);
+					session.save();
+					open = false;
+					session.notifyAll();
+				}
 			} catch (RepositoryException e) {
 				throw new IOException("Cannot close " + file, e);
 			} finally {
