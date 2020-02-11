@@ -93,7 +93,7 @@ public class JcrFileSystemTest extends TestCase {
 		log.debug("Listed " + testDir);
 		// Generic attributes
 		Map<String, Object> attrs = Files.readAttributes(copiedFile, "*");
-		assertEquals(5, attrs.size());
+		assertEquals(3, attrs.size());
 		log.debug("Read attributes of " + copiedFile + ": " + attrs.keySet());
 		// Direct node access
 		NodeFileAttributes nfa = Files.readAttributes(copiedFile, NodeFileAttributes.class);
@@ -103,7 +103,7 @@ public class JcrFileSystemTest extends TestCase {
 		Files.setAttribute(copiedFile, Property.JCR_LANGUAGE, "fr");
 		log.debug("Set language");
 		attrs = Files.readAttributes(copiedFile, "*");
-		assertEquals(6, attrs.size());
+		assertEquals(4, attrs.size());
 		log.debug("Read attributes of " + copiedFile + ": " + attrs.keySet());
 	}
 
