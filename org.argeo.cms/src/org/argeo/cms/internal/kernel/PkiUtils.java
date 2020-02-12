@@ -28,6 +28,8 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
  * implementations.
  */
 class PkiUtils {
+	final static String PKCS12 = "PKCS12";
+
 	private final static String SECURITY_PROVIDER;
 	static {
 		Security.addProvider(new BouncyCastleProvider());
@@ -59,9 +61,9 @@ class PkiUtils {
 		}
 	}
 
-	public static KeyStore getKeyStore(File keyStoreFile, char[] keyStorePassword) {
+	public static KeyStore getKeyStore(File keyStoreFile, char[] keyStorePassword, String keyStoreType) {
 		try {
-			KeyStore store = KeyStore.getInstance("PKCS12", SECURITY_PROVIDER);
+			KeyStore store = KeyStore.getInstance(keyStoreType, SECURITY_PROVIDER);
 			if (keyStoreFile.exists()) {
 				try (FileInputStream fis = new FileInputStream(keyStoreFile)) {
 					store.load(fis, keyStorePassword);

@@ -233,7 +233,8 @@ public class NodeHttp implements KernelConstants {
 		}
 
 		private String httpPortsMsg(Object httpPort, Object httpsPort) {
-			return "HTTP " + httpPort + (httpsPort != null ? " - HTTPS " + httpsPort : "");
+			return (httpPort != null ? "HTTP " + httpPort + " " : " ")
+					+ (httpsPort != null ? "HTTPS " + httpsPort : "");
 		}
 	}
 

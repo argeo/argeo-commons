@@ -74,38 +74,48 @@ class InitUtils {
 		final Hashtable<String, Object> props = new Hashtable<String, Object>();
 		// try {
 		if (httpPort != null || httpsPort != null) {
-			if (httpPort != null) {
+			boolean httpEnabled = httpPort != null;
+			props.put(HttpConstants.HTTP_ENABLED, httpEnabled);
+			boolean httpsEnabled = httpsPort != null;
+			props.put(HttpConstants.HTTPS_ENABLED, httpsEnabled);
+
+			if (httpEnabled) {
 				props.put(HttpConstants.HTTP_PORT, httpPort);
-				props.put(HttpConstants.HTTP_ENABLED, true);
+				if (httpHost != null)
+					props.put(HttpConstants.HTTP_HOST, httpHost);
 			}
-			if (httpsPort != null) {
+
+			if (httpsEnabled) {
 				props.put(HttpConstants.HTTPS_PORT, httpsPort);
-				props.put(HttpConstants.HTTPS_ENABLED, true);
+				if (httpsHost != null)
+					props.put(HttpConstants.HTTPS_HOST, httpsHost);
+
+				// server certificate
 				Path keyStorePath = KernelUtils.getOsgiInstancePath(KernelConstants.DEFAULT_KEYSTORE_PATH);
 				String keyStorePassword = getFrameworkProp(
 						HttpConstants.JETTY_PROPERTY_PREFIX + HttpConstants.SSL_PASSWORD);
 				if (keyStorePassword == null)
 					keyStorePassword = "changeit";
 				if (!Files.exists(keyStorePath))
-					createSelfSignedKeyStore(keyStorePath, keyStorePassword);
-				props.put(HttpConstants.SSL_KEYSTORETYPE, "PKCS12");
+					createSelfSignedKeyStore(keyStorePath, keyStorePassword, PkiUtils.PKCS12);
+				props.put(HttpConstants.SSL_KEYSTORETYPE, PkiUtils.PKCS12);
 				props.put(HttpConstants.SSL_KEYSTORE, keyStorePath.toString());
 				props.put(HttpConstants.SSL_PASSWORD, keyStorePassword);
-				props.put(HttpConstants.SSL_WANTCLIENTAUTH, true);
+
+				// client certificate authentication
+				String wantClientAuth = getFrameworkProp(
+						HttpConstants.JETTY_PROPERTY_PREFIX + HttpConstants.SSL_WANTCLIENTAUTH);
+				if (wantClientAuth != null)
+					props.put(HttpConstants.SSL_NEEDCLIENTAUTH, Boolean.parseBoolean(wantClientAuth));
 				String needClientAuth = getFrameworkProp(
 						HttpConstants.JETTY_PROPERTY_PREFIX + HttpConstants.SSL_NEEDCLIENTAUTH);
-				if (needClientAuth != null) {
+				if (needClientAuth != null)
 					props.put(HttpConstants.SSL_NEEDCLIENTAUTH, Boolean.parseBoolean(needClientAuth));
-				}
 			}
-			if (httpHost != null)
-				props.put(HttpConstants.HTTP_HOST, httpHost);
-			if (httpsHost != null)
-				props.put(HttpConstants.HTTPS_HOST, httpsHost);
 
-			if (webSocketEnabled != null)
-				if (webSocketEnabled.equals("true"))
-					props.put(HttpConstants.WEB_SOCKET_ENABLED, true);
+			// web socket
+			if (webSocketEnabled != null && webSocketEnabled.equals("true"))
+				props.put(HttpConstants.WEB_SOCKET_ENABLED, true);
 
 			props.put(NodeConstants.CN, NodeConstants.DEFAULT);
 		}
@@ -240,7 +250,7 @@ class InitUtils {
 			}
 	}
 
-	private static void createSelfSignedKeyStore(Path keyStorePath, String keyStorePassword) {
+	private static void createSelfSignedKeyStore(Path keyStorePath, String keyStorePassword, String keyStoreType) {
 		// for (Provider provider : Security.getProviders())
 		// System.out.println(provider.getName());
 		File keyStoreFile = keyStorePath.toFile();
@@ -249,7 +259,7 @@ class InitUtils {
 		if (!keyStoreFile.exists()) {
 			try {
 				keyStoreFile.getParentFile().mkdirs();
-				KeyStore keyStore = PkiUtils.getKeyStore(keyStoreFile, ksPwd);
+				KeyStore keyStore = PkiUtils.getKeyStore(keyStoreFile, ksPwd, keyStoreType);
 				PkiUtils.generateSelfSignedCertificate(keyStore,
 						new X500Principal("CN=" + InetAddress.getLocalHost().getHostName() + ",OU=UNSECURE,O=UNSECURE"),
 						1024, keyPwd);
