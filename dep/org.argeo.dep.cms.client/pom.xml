@@ -411,28 +411,6 @@
 							</execution>
 						</executions>
 					</plugin>
-					<!-- <plugin> -->
-					<!-- <groupId>org.apache.maven.plugins</groupId> -->
-					<!-- <artifactId>maven-dependency-plugin</artifactId> -->
-					<!-- <executions> -->
-					<!-- <execution> -->
-					<!-- <id>copy-argeo</id> -->
-					<!-- <phase>package</phase> -->
-					<!-- <goals> -->
-					<!-- <goal>copy-dependencies</goal> -->
-					<!-- </goals> -->
-					<!-- <configuration> -->
-					<!-- <includeTypes>jar</includeTypes> -->
-					<!-- <outputDirectory>${project.build.directory}/lib-argeo</outputDirectory> -->
-					<!-- <includeGroupIds>org.argeo.commons</includeGroupIds> -->
-					<!-- <excludeTransitive>true</excludeTransitive> -->
-					<!-- <includeTypes>jar</includeTypes> -->
-					<!-- <includeScope>runtime</includeScope> -->
-					<!-- <useRepositoryLayout>true</useRepositoryLayout> -->
-					<!-- </configuration> -->
-					<!-- </execution> -->
-					<!-- </executions> -->
-					<!-- </plugin> -->
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>rpm-maven-plugin</artifactId>
@@ -461,13 +439,6 @@
 												</source>
 											</sources>
 										</mapping>
-										<!-- <mapping> -->
-										<!-- <directory>/usr/share/osgi/org/argeo/commons/${project.artifactId}/${project.version}</directory> -->
-										<!-- <username>root</username> -->
-										<!-- <groupname>root</groupname> -->
-										<!-- <directoryIncluded>false</directoryIncluded> -->
-										<!-- <artifact /> -->
-										<!-- </mapping> -->
 									</mappings>
 									<requires>
 										<require>argeo-cms-client-tp</require>
@@ -501,28 +472,6 @@
 							</execution>
 						</executions>
 					</plugin>
-					<!-- <plugin> -->
-					<!-- <groupId>org.apache.maven.plugins</groupId> -->
-					<!-- <artifactId>maven-dependency-plugin</artifactId> -->
-					<!-- <executions> -->
-					<!-- <execution> -->
-					<!-- <id>copy-tp</id> -->
-					<!-- <phase>package</phase> -->
-					<!-- <goals> -->
-					<!-- <goal>copy-dependencies</goal> -->
-					<!-- </goals> -->
-					<!-- <configuration> -->
-					<!-- <includeTypes>jar</includeTypes> -->
-					<!-- <outputDirectory>${project.build.directory}/lib-tp</outputDirectory> -->
-					<!-- <excludeGroupIds>org.argeo.commons</excludeGroupIds> -->
-					<!-- <excludeTransitive>true</excludeTransitive> -->
-					<!-- <includeTypes>jar</includeTypes> -->
-					<!-- <includeScope>runtime</includeScope> -->
-					<!-- <useRepositoryLayout>true</useRepositoryLayout> -->
-					<!-- </configuration> -->
-					<!-- </execution> -->
-					<!-- </executions> -->
-					<!-- </plugin> -->
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>rpm-maven-plugin</artifactId>
