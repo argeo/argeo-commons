@@ -20,6 +20,15 @@
 			<type>pom</type>
 		</dependency>
 
+		<!-- OSGi Boot for platform generation only, as it could be used by regular 
+			Java applications to launch an OSGi runtime. -->
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.osgi.boot</artifactId>
+			<version>2.1.86-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+
 		<!-- ALM Third Parties -->
 		<!-- <dependency> -->
 		<!-- <groupId>org.argeo.tp.apache.ant</groupId> -->
@@ -37,6 +46,10 @@
 		<dependency>
 			<groupId>org.argeo.tp.sdk</groupId>
 			<artifactId>org.junit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.sdk</groupId>
+			<artifactId>org.hamcrest</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp.sdk</groupId>
