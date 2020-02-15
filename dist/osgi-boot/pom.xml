@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
@@ -9,9 +11,9 @@
 	<artifactId>osgi-boot</artifactId>
 	<packaging>pom</packaging>
 	<name>Commons Deployable OSGi Boot</name>
-	<properties>
-		<version.equinox>3.10.1.v20140909-1633</version.equinox>
-	</properties>
+	<!-- <properties> -->
+	<!-- <version.equinox>3.10.1.v20140909-1633</version.equinox> -->
+	<!-- </properties> -->
 	<dependencies>
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
@@ -145,14 +147,6 @@
 													<include>org.argeo.commons:org.argeo.osgi.boot</include>
 												</includes>
 											</dependency>
-											<!-- <sources> -->
-											<!-- <source> -->
-											<!-- <location>${project.build.directory}/lib</location> -->
-											<!-- <includes> -->
-											<!-- <include>org.argeo.osgi.boot.jar</include> -->
-											<!-- </includes> -->
-											<!-- </source> -->
-											<!-- </sources> -->
 										</mapping>
 									</mappings>
 									<requires>
@@ -182,6 +176,7 @@
 								<configuration>
 									<name>osgi-boot-equinox</name>
 									<projversion>${version.argeo-tp}</projversion>
+									<release>${maven.build.timestamp}</release>
 									<mappings>
 										<mapping>
 											<directory>/usr/share/osgi/boot</directory>
@@ -195,14 +190,6 @@
 													<include>org.argeo.tp.equinox:org.eclipse.osgi</include>
 												</includes>
 											</dependency>
-											<!-- <sources> -->
-											<!-- <source> -->
-											<!-- <location>${project.build.directory}/lib</location> -->
-											<!-- <includes> -->
-											<!-- <include>org.eclipse.osgi.jar</include> -->
-											<!-- </includes> -->
-											<!-- </source> -->
-											<!-- </sources> -->
 										</mapping>
 									</mappings>
 								</configuration>

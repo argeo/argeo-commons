@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
@@ -15,6 +17,8 @@
 		<argeo.rpm.stagingRepository>/srv/rpmfactory/argeo-osgi-2/el7</argeo.rpm.stagingRepository>
 		<!-- Encoding, see http://is.gd/mvn_source_encoding -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<!-- Timestamp -->
+		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 		<project.scm.id>code.argeo.org</project.scm.id>
 	</properties>
 	<modules>
@@ -245,12 +249,13 @@ limitations under the License.
 						<manifestLocation>META-INF</manifestLocation>
 						<instructions>
 							<_include>bnd.bnd</_include>
-							<Bundle-Version>${project.version}-r${tstamp}</Bundle-Version>
+							<Bundle-Version>${project.version}-r${maven.build.timestamp}</Bundle-Version>
 							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 							<Bundle-RequiredExecutionEnvironment>JavaSE-11,JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
 							<_removeheaders>Bnd-LastModified,Build-Jdk,Built-By,Tool,Created-By</_removeheaders>
 							<Automatic-Module-Name>${project.artifactId}</Automatic-Module-Name>
 							<SLC-Category>${project.groupId}</SLC-Category>
+							<SLC-BuildTimestamp>${maven.build.timestamp}</SLC-BuildTimestamp>
 							<!-- Git metadata -->
 							<!-- <SLC-Git-Commit-Id>${git.commit.id}</SLC-Git-Commit-Id> -->
 							<!-- <SLC-Git-Commit-Describe>${git.commit.id.describe}</SLC-Git-Commit-Describe> -->
@@ -271,7 +276,7 @@ limitations under the License.
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>rpm-maven-plugin</artifactId>
-					<version>2.1.4</version>
+					<version>2.2.0</version>
 					<extensions>true</extensions>
 					<configuration>
 						<version>${project.version}</version>
@@ -553,8 +558,10 @@ limitations under the License.
 								</goals>
 								<configuration>
 									<target>
-										<copy todir="${argeo.rpm.stagingRepository}" quiet="true" failonerror="false">
-											<fileset dir="${project.build.directory}/rpm" includes="*/RPMS/**/*.rpm" />
+										<copy todir="${argeo.rpm.stagingRepository}" quiet="true"
+											failonerror="false">
+											<fileset dir="${project.build.directory}/rpm"
+												includes="*/RPMS/**/*.rpm" />
 											<flattenmapper />
 										</copy>
 									</target>
@@ -579,8 +586,10 @@ limitations under the License.
 								</goals>
 								<configuration>
 									<target>
-										<copy todir="${argeo.rpm.stagingRepository}" quiet="true" failonerror="false">
-											<fileset dir="${project.build.directory}/rpm" includes="*/RPMS/**/*.rpm" />
+										<copy todir="${argeo.rpm.stagingRepository}" quiet="true"
+											failonerror="false">
+											<fileset dir="${project.build.directory}/rpm"
+												includes="*/RPMS/**/*.rpm" />
 											<flattenmapper />
 										</copy>
 									</target>
