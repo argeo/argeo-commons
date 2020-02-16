@@ -110,8 +110,8 @@ limitations under the License.
 				<excludes>
 					<exclude>.*</exclude>
 					<exclude>.*/**</exclude>
-					<!-- It is set explicitely in the jar plugin configuration. We don't 
-						copy it in order to avoid side-effects with BND -->
+					<!-- MANIFEST is set explicitly in the jar plugin configuration. We 
+						don't copy it in order to avoid side-effects with BND -->
 					<exclude>META-INF/MANIFEST.MF</exclude>
 					<exclude>src/**</exclude>
 					<exclude>ext/**</exclude>
@@ -143,12 +143,9 @@ limitations under the License.
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.8.1</version>
 					<configuration>
-						<!-- <source>1.8</source> -->
 						<source>11</source>
 						<target>1.8</target>
 						<compilerId>eclipse</compilerId>
-						<!-- Required for compliance level, see http://jira.codehaus.org/browse/PLXCOMP-231 -->
-						<!-- <optimize>true</optimize> -->
 						<!-- Hack to work around issues with generated annotations : -->
 						<generatedSourcesDirectory>target/classes</generatedSourcesDirectory>
 						<generatedTestSourcesDirectory>target/test-classes</generatedTestSourcesDirectory>
@@ -169,16 +166,6 @@ limitations under the License.
 				<plugin>
 					<artifactId>maven-clean-plugin</artifactId>
 					<version>2.6.1</version>
-					<!-- <configuration> -->
-					<!-- <filesets> -->
-					<!-- <fileset> -->
-					<!-- <directory>META-INF</directory> -->
-					<!-- <includes> -->
-					<!-- <include>MANIFEST.MF</include> -->
-					<!-- </includes> -->
-					<!-- </fileset> -->
-					<!-- </filesets> -->
-					<!-- </configuration> -->
 				</plugin>
 				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
@@ -263,10 +250,6 @@ limitations under the License.
 							<Automatic-Module-Name>${project.artifactId}</Automatic-Module-Name>
 							<SLC-Category>${project.groupId}</SLC-Category>
 							<SLC-Build-Timestamp>${maven.build.timestamp}</SLC-Build-Timestamp>
-							<!-- Git metadata -->
-							<!-- <SLC-Git-Commit-Id>${git.commit.id}</SLC-Git-Commit-Id> -->
-							<!-- <SLC-Git-Commit-Describe>${git.commit.id.describe}</SLC-Git-Commit-Describe> -->
-							<!-- <SLC-Git-Commit-Count>${git.closest.tag.commit.count}</SLC-Git-Commit-Count> -->
 						</instructions>
 					</configuration>
 				</plugin>
@@ -300,19 +283,6 @@ limitations under the License.
 			</plugins>
 		</pluginManagement>
 		<plugins>
-			<!-- <plugin> -->
-			<!-- <groupId>pl.project13.maven</groupId> -->
-			<!-- <artifactId>git-commit-id-plugin</artifactId> -->
-			<!-- <executions> -->
-			<!-- <execution> -->
-			<!-- <id>get-the-git-infos</id> -->
-			<!-- <goals> -->
-			<!-- <goal>revision</goal> -->
-			<!-- </goals> -->
-			<!-- <phase>initialize</phase> -->
-			<!-- </execution> -->
-			<!-- </executions> -->
-			<!-- </plugin> -->
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<configuration>
@@ -340,29 +310,6 @@ limitations under the License.
 				</executions>
 			</plugin>
 			<!-- MANIFEST generation by BND -->
-			<!-- <plugin> -->
-			<!-- <artifactId>maven-clean-plugin</artifactId> -->
-			<!-- <executions> -->
-			<!-- <execution> -->
-			<!-- <id>bundle-manifest-clean</id> -->
-			<!-- <phase>process-classes</phase> -->
-			<!-- <goals> -->
-			<!-- <goal>clean</goal> -->
-			<!-- </goals> -->
-			<!-- <configuration> -->
-			<!-- <excludeDefaultDirectories>true</excludeDefaultDirectories> -->
-			<!-- <filesets> -->
-			<!-- <fileset> -->
-			<!-- <directory>META-INF</directory> -->
-			<!-- <includes> -->
-			<!-- <include>MANIFEST.MF</include> -->
-			<!-- </includes> -->
-			<!-- </fileset> -->
-			<!-- </filesets> -->
-			<!-- </configuration> -->
-			<!-- </execution> -->
-			<!-- </executions> -->
-			<!-- </plugin> -->
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
