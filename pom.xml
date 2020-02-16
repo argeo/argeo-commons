@@ -110,6 +110,9 @@ limitations under the License.
 				<excludes>
 					<exclude>.*</exclude>
 					<exclude>.*/**</exclude>
+					<!-- It is set explicitely in the jar plugin configuration. We don't 
+						copy it in order to avoid side-effects with BND -->
+					<exclude>META-INF/MANIFEST.MF</exclude>
 					<exclude>src/**</exclude>
 					<exclude>ext/**</exclude>
 					<exclude>target/**</exclude>
@@ -247,6 +250,10 @@ limitations under the License.
 					<extensions>true</extensions>
 					<configuration>
 						<manifestLocation>META-INF</manifestLocation>
+						<niceManifest>true</niceManifest>
+						<noWarningProjectTypes>
+							<noWarningProjectType>pom</noWarningProjectType>
+						</noWarningProjectTypes>
 						<instructions>
 							<_include>bnd.bnd</_include>
 							<Bundle-Version>${project.version}-r${maven.build.timestamp}</Bundle-Version>
@@ -262,15 +269,6 @@ limitations under the License.
 							<!-- <SLC-Git-Commit-Count>${git.closest.tag.commit.count}</SLC-Git-Commit-Count> -->
 						</instructions>
 					</configuration>
-					<executions>
-						<execution>
-							<id>bundle-manifest</id>
-							<phase>process-classes</phase>
-							<goals>
-								<goal>manifest</goal>
-							</goals>
-						</execution>
-					</executions>
 				</plugin>
 				<!-- Codehaus -->
 				<plugin>
@@ -302,19 +300,6 @@ limitations under the License.
 			</plugins>
 		</pluginManagement>
 		<plugins>
-			<!-- <plugin> -->
-			<!-- <artifactId>maven-clean-plugin</artifactId> -->
-			<!-- <configuration> -->
-			<!-- <filesets> -->
-			<!-- <fileset> -->
-			<!-- <directory>META-INF</directory> -->
-			<!-- <includes> -->
-			<!-- <include>MANIFEST.MF</include> -->
-			<!-- </includes> -->
-			<!-- </fileset> -->
-			<!-- </filesets> -->
-			<!-- </configuration> -->
-			<!-- </plugin> -->
 			<!-- <plugin> -->
 			<!-- <groupId>pl.project13.maven</groupId> -->
 			<!-- <artifactId>git-commit-id-plugin</artifactId> -->
@@ -354,16 +339,50 @@ limitations under the License.
 					</execution>
 				</executions>
 			</plugin>
+			<!-- MANIFEST generation by BND -->
+			<!-- <plugin> -->
+			<!-- <artifactId>maven-clean-plugin</artifactId> -->
+			<!-- <executions> -->
+			<!-- <execution> -->
+			<!-- <id>bundle-manifest-clean</id> -->
+			<!-- <phase>process-classes</phase> -->
+			<!-- <goals> -->
+			<!-- <goal>clean</goal> -->
+			<!-- </goals> -->
+			<!-- <configuration> -->
+			<!-- <excludeDefaultDirectories>true</excludeDefaultDirectories> -->
+			<!-- <filesets> -->
+			<!-- <fileset> -->
+			<!-- <directory>META-INF</directory> -->
+			<!-- <includes> -->
+			<!-- <include>MANIFEST.MF</include> -->
+			<!-- </includes> -->
+			<!-- </fileset> -->
+			<!-- </filesets> -->
+			<!-- </configuration> -->
+			<!-- </execution> -->
+			<!-- </executions> -->
+			<!-- </plugin> -->
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>bundle-manifest</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>manifest</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Releases -->
 			<plugin>
 				<artifactId>maven-release-plugin</artifactId>
 				<configuration>
 					<goals>deploy</goals>
 					<releaseProfiles>rpmbuild</releaseProfiles>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>
