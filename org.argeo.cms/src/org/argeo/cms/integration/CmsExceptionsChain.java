@@ -69,6 +69,7 @@ public class CmsExceptionsChain extends ExceptionsChain {
 //			CmsExceptionsChain vjeSystemErrors = new CmsExceptionsChain(e);
 //			ObjectMapper objectMapper = new ObjectMapper();
 //			System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(vjeSystemErrors));
+//			System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(e));
 //			e.printStackTrace();
 //		}
 //	}

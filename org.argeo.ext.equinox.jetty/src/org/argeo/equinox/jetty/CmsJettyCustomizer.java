@@ -17,13 +17,12 @@ import org.osgi.framework.FrameworkUtil;
 public class CmsJettyCustomizer extends JettyCustomizer {
 	private BundleContext bc = FrameworkUtil.getBundle(CmsJettyCustomizer.class).getBundleContext();
 
+	public final static String WEBSOCKET_ENABLED = "websocket.enabled";
+
 	@Override
 	public Object customizeContext(Object context, Dictionary<String, ?> settings) {
 		// WebSocket
-		Object webSocketEnabled = settings.get("websocket.enabled");
-		if (webSocketEnabled == null) {
-			webSocketEnabled = bc.getProperty("org.eclipse.equinox.http.jetty.websocket.enabled");
-		}
+		Object webSocketEnabled = settings.get(WEBSOCKET_ENABLED);
 		if (webSocketEnabled != null && webSocketEnabled.toString().equals("true")) {
 			ServletContextHandler servletContextHandler = (ServletContextHandler) context;
 			WebSocketServerContainerInitializer.configure(servletContextHandler, new Configurator() {

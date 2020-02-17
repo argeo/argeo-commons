@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.security.AccessControlContext;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,6 +23,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.nodetype.NodeType;
+import javax.security.auth.Subject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -31,6 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.JackrabbitNode;
 import org.apache.jackrabbit.api.JackrabbitValue;
 import org.argeo.jcr.JcrUtils;
+import org.osgi.service.http.context.ServletContextHelper;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -123,7 +128,24 @@ public class JcrReadServlet extends HttpServlet {
 
 	protected Session openJcrSession(HttpServletRequest req, HttpServletResponse resp, Repository repository,
 			String workspace) throws RepositoryException {
-		return workspace != null ? repository.login(workspace) : repository.login();
+		AccessControlContext acc = (AccessControlContext) req.getAttribute(ServletContextHelper.REMOTE_USER);
+		Subject subject = Subject.getSubject(acc);
+		try {
+			return Subject.doAs(subject, new PrivilegedExceptionAction<Session>() {
+
+				@Override
+				public Session run() throws RepositoryException {
+					return repository.login(workspace);
+				}
+
+			});
+		} catch (PrivilegedActionException e) {
+			if (e.getException() instanceof RepositoryException)
+				throw (RepositoryException) e.getException();
+			else
+				throw new RuntimeException(e.getException());
+		}
+//		return workspace != null ? repository.login(workspace) : repository.login();
 	}
 
 	protected String getWorkspace(HttpServletRequest req) {

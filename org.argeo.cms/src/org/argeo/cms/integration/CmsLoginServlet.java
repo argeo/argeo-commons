@@ -31,7 +31,6 @@ public class CmsLoginServlet extends HttpServlet {
 	public final static String PARAM_PASSWORD = "password";
 
 	private static final long serialVersionUID = 2478080654328751539L;
-//	private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 	private ObjectMapper objectMapper = new ObjectMapper();
 
 	@Override
@@ -79,27 +78,6 @@ public class CmsLoginServlet extends HttpServlet {
 			response.setContentType("application/json");
 			JsonGenerator jg = objectMapper.getFactory().createGenerator(response.getWriter());
 			jg.writeObject(cmsSessionDescriptor);
-
-//				JsonWriter jsonWriter = gson.newJsonWriter(response.getWriter());
-//				jsonWriter.beginObject();
-//				// Authorization
-//				jsonWriter.name("username").value(authorization.getName());
-//				jsonWriter.name("displayName").value(authorization.toString());
-//				// Roles
-//				jsonWriter.name("roles").beginArray();
-//				for (String role : authorization.getRoles())
-//					if (!role.equals(authorization.getName()))
-//						jsonWriter.value(role);
-//				jsonWriter.endArray();
-//				// CMS session
-//				jsonWriter.name("cmsSession").beginObject();
-//				jsonWriter.name("uuid").value(cmsSessionId.getUuid().toString());
-//				jsonWriter.endObject();
-//
-//				// extensions
-//				enrichJson(jsonWriter);
-//
-//				jsonWriter.endObject();
 
 			String redirectTo = redirectTo(request);
 			if (redirectTo != null)

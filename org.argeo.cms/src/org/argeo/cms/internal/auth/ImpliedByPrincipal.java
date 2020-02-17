@@ -2,6 +2,7 @@ package org.argeo.cms.internal.auth;
 
 import java.security.Principal;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,6 +12,7 @@ import javax.naming.ldap.LdapName;
 
 import org.argeo.cms.CmsException;
 import org.osgi.service.useradmin.Authorization;
+import org.osgi.service.useradmin.Role;
 
 /**
  * A {@link Principal} which has been implied by an {@link Authorization}. If it
@@ -20,9 +22,11 @@ import org.osgi.service.useradmin.Authorization;
  * identity is removed, the related {@link ImpliedByPrincipal}s can thus be
  * removed.
  */
-public final class ImpliedByPrincipal implements Principal {
+public final class ImpliedByPrincipal implements Principal, Role {
 	private final LdapName name;
 	private Set<Principal> causes = new HashSet<Principal>();
+
+	private int type = Role.ROLE;
 
 	public ImpliedByPrincipal(String name, Principal userPrincipal) {
 		try {
@@ -59,6 +63,26 @@ public final class ImpliedByPrincipal implements Principal {
 	public Enumeration<? extends Principal> members() {
 		return Collections.enumeration(causes);
 	}
+
+	/*
+	 * USER ADMIN
+	 */
+
+	@Override
+	/** Type of {@link Role}, if known. */
+	public int getType() {
+		return type;
+	}
+
+	@Override
+	/** Not supported for the time being. */
+	public Dictionary<String, Object> getProperties() {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * OBJECT
+	 */
 
 	@Override
 	public int hashCode() {

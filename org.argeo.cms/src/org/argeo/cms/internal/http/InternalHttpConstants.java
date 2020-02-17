@@ -1,7 +1,7 @@
 package org.argeo.cms.internal.http;
 
 /** Compatible with Jetty. */
-public interface HttpConstants {
+public interface InternalHttpConstants {
 	static final String HTTP_ENABLED = "http.enabled";
 	static final String HTTP_PORT = "http.port";
 	static final String HTTP_HOST = "http.host";
@@ -18,6 +18,6 @@ public interface HttpConstants {
 	static final String SSL_KEYSTORETYPE = "ssl.keystoretype";
 	static final String JETTY_PROPERTY_PREFIX = "org.eclipse.equinox.http.jetty.";
 	// Argeo specific
-	static final String WEB_SOCKET_ENABLED = "websocket.enabled";
+	static final String WEBSOCKET_ENABLED = "websocket.enabled";
 
 }

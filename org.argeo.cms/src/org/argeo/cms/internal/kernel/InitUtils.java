@@ -22,7 +22,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.internal.http.HttpConstants;
+import org.argeo.cms.internal.http.InternalHttpConstants;
 import org.argeo.cms.internal.jcr.RepoConf;
 import org.argeo.node.NodeConstants;
 import org.argeo.osgi.useradmin.UserAdminConf;
@@ -66,56 +66,56 @@ class InitUtils {
 		String httpPort = getFrameworkProp("org.osgi.service.http.port");
 		String httpsPort = getFrameworkProp("org.osgi.service.http.port.secure");
 		/// TODO make it more generic
-		String httpHost = getFrameworkProp(HttpConstants.JETTY_PROPERTY_PREFIX + HttpConstants.HTTP_HOST);
-		String httpsHost = getFrameworkProp(HttpConstants.JETTY_PROPERTY_PREFIX + HttpConstants.HTTPS_HOST);
+		String httpHost = getFrameworkProp(InternalHttpConstants.JETTY_PROPERTY_PREFIX + InternalHttpConstants.HTTP_HOST);
+		String httpsHost = getFrameworkProp(InternalHttpConstants.JETTY_PROPERTY_PREFIX + InternalHttpConstants.HTTPS_HOST);
 		String webSocketEnabled = getFrameworkProp(
-				HttpConstants.JETTY_PROPERTY_PREFIX + HttpConstants.WEB_SOCKET_ENABLED);
+				InternalHttpConstants.JETTY_PROPERTY_PREFIX + InternalHttpConstants.WEBSOCKET_ENABLED);
 
 		final Hashtable<String, Object> props = new Hashtable<String, Object>();
 		// try {
 		if (httpPort != null || httpsPort != null) {
 			boolean httpEnabled = httpPort != null;
-			props.put(HttpConstants.HTTP_ENABLED, httpEnabled);
+			props.put(InternalHttpConstants.HTTP_ENABLED, httpEnabled);
 			boolean httpsEnabled = httpsPort != null;
-			props.put(HttpConstants.HTTPS_ENABLED, httpsEnabled);
+			props.put(InternalHttpConstants.HTTPS_ENABLED, httpsEnabled);
 
 			if (httpEnabled) {
-				props.put(HttpConstants.HTTP_PORT, httpPort);
+				props.put(InternalHttpConstants.HTTP_PORT, httpPort);
 				if (httpHost != null)
-					props.put(HttpConstants.HTTP_HOST, httpHost);
+					props.put(InternalHttpConstants.HTTP_HOST, httpHost);
 			}
 
 			if (httpsEnabled) {
-				props.put(HttpConstants.HTTPS_PORT, httpsPort);
+				props.put(InternalHttpConstants.HTTPS_PORT, httpsPort);
 				if (httpsHost != null)
-					props.put(HttpConstants.HTTPS_HOST, httpsHost);
+					props.put(InternalHttpConstants.HTTPS_HOST, httpsHost);
 
 				// server certificate
 				Path keyStorePath = KernelUtils.getOsgiInstancePath(KernelConstants.DEFAULT_KEYSTORE_PATH);
 				String keyStorePassword = getFrameworkProp(
-						HttpConstants.JETTY_PROPERTY_PREFIX + HttpConstants.SSL_PASSWORD);
+						InternalHttpConstants.JETTY_PROPERTY_PREFIX + InternalHttpConstants.SSL_PASSWORD);
 				if (keyStorePassword == null)
 					keyStorePassword = "changeit";
 				if (!Files.exists(keyStorePath))
 					createSelfSignedKeyStore(keyStorePath, keyStorePassword, PkiUtils.PKCS12);
-				props.put(HttpConstants.SSL_KEYSTORETYPE, PkiUtils.PKCS12);
-				props.put(HttpConstants.SSL_KEYSTORE, keyStorePath.toString());
-				props.put(HttpConstants.SSL_PASSWORD, keyStorePassword);
+				props.put(InternalHttpConstants.SSL_KEYSTORETYPE, PkiUtils.PKCS12);
+				props.put(InternalHttpConstants.SSL_KEYSTORE, keyStorePath.toString());
+				props.put(InternalHttpConstants.SSL_PASSWORD, keyStorePassword);
 
 				// client certificate authentication
 				String wantClientAuth = getFrameworkProp(
-						HttpConstants.JETTY_PROPERTY_PREFIX + HttpConstants.SSL_WANTCLIENTAUTH);
+						InternalHttpConstants.JETTY_PROPERTY_PREFIX + InternalHttpConstants.SSL_WANTCLIENTAUTH);
 				if (wantClientAuth != null)
-					props.put(HttpConstants.SSL_NEEDCLIENTAUTH, Boolean.parseBoolean(wantClientAuth));
+					props.put(InternalHttpConstants.SSL_NEEDCLIENTAUTH, Boolean.parseBoolean(wantClientAuth));
 				String needClientAuth = getFrameworkProp(
-						HttpConstants.JETTY_PROPERTY_PREFIX + HttpConstants.SSL_NEEDCLIENTAUTH);
+						InternalHttpConstants.JETTY_PROPERTY_PREFIX + InternalHttpConstants.SSL_NEEDCLIENTAUTH);
 				if (needClientAuth != null)
-					props.put(HttpConstants.SSL_NEEDCLIENTAUTH, Boolean.parseBoolean(needClientAuth));
+					props.put(InternalHttpConstants.SSL_NEEDCLIENTAUTH, Boolean.parseBoolean(needClientAuth));
 			}
 
 			// web socket
 			if (webSocketEnabled != null && webSocketEnabled.equals("true"))
-				props.put(HttpConstants.WEB_SOCKET_ENABLED, true);
+				props.put(InternalHttpConstants.WEBSOCKET_ENABLED, true);
 
 			props.put(NodeConstants.CN, NodeConstants.DEFAULT);
 		}

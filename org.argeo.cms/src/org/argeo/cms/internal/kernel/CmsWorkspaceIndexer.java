@@ -30,9 +30,9 @@ class CmsWorkspaceIndexer implements EventListener {
 
 //	private final static String MIX_ETAG = "mix:etag";
 	private final static String JCR_ETAG = "jcr:etag";
-	private final static String JCR_LAST_MODIFIED = "jcr:lastModified";
-	private final static String JCR_LAST_MODIFIED_BY = "jcr:lastModifiedBy";
-	private final static String JCR_MIXIN_TYPES = "jcr:mixinTypes";
+//	private final static String JCR_LAST_MODIFIED = "jcr:lastModified";
+//	private final static String JCR_LAST_MODIFIED_BY = "jcr:lastModifiedBy";
+//	private final static String JCR_MIXIN_TYPES = "jcr:mixinTypes";
 	private final static String JCR_DATA = "jcr:data";
 	private final static String JCR_CONTENT = "jcr:data";
 
@@ -173,7 +173,7 @@ class CmsWorkspaceIndexer implements EventListener {
 					return;
 				if (log.isTraceEnabled())
 					log.trace("NODE_REMOVED " + eventPath);
-				String parentPath = JcrUtils.parentPath(removeNodePath);
+//				String parentPath = JcrUtils.parentPath(removeNodePath);
 //				session.refresh(true);
 //				setLastModified(parentPath, event);
 //				session.save();

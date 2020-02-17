@@ -1,7 +1,10 @@
 package org.argeo.cms.websocket;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.List;
 
+import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.servlet.http.HttpSession;
 import javax.websocket.Extension;
@@ -14,6 +17,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.node.NodeConstants;
+import org.osgi.service.http.context.ServletContextHelper;
 
 /** Customises the initialisation of a new web socket. */
 public class CmsWebSocketConfigurator extends Configurator {
@@ -71,7 +75,15 @@ public class CmsWebSocketConfigurator extends Configurator {
 			lc.login();
 			if (log.isDebugEnabled())
 				log.debug("Web socket logged-in as " + lc.getSubject());
-			sec.getUserProperties().put(WEBSOCKET_SUBJECT, lc.getSubject());
+			Subject.doAs(lc.getSubject(), new PrivilegedAction<Void>() {
+
+				@Override
+				public Void run() {
+					sec.getUserProperties().put(ServletContextHelper.REMOTE_USER, AccessController.getContext());
+					return null;
+				}
+
+			});
 		} catch (Exception e) {
 			rejectResponse(response, e);
 		}
@@ -86,6 +98,6 @@ public class CmsWebSocketConfigurator extends Configurator {
 	protected void rejectResponse(HandshakeResponse response, Exception e) {
 		// violent implementation, as suggested in
 		// https://stackoverflow.com/questions/21763829/jsr-356-how-to-abort-a-websocket-connection-during-the-handshake
-		throw new IllegalStateException("Web socket cannot be authenticated");
+//		throw new IllegalStateException("Web socket cannot be authenticated");
 	}
 }
