@@ -9,7 +9,6 @@ import javax.jcr.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.RepositoryImpl;
-import org.argeo.jcr.JcrUtils;
 import org.argeo.node.NodeConstants;
 
 class JackrabbitLocalRepository extends LocalRepository {
@@ -20,17 +19,17 @@ class JackrabbitLocalRepository extends LocalRepository {
 
 	public JackrabbitLocalRepository(RepositoryImpl repository, String cn) {
 		super(repository, cn);
-		Session session = KernelUtils.openAdminSession(repository);
-		try {
-			if (NodeConstants.NODE.equals(cn))
-				for (String workspaceName : session.getWorkspace().getAccessibleWorkspaceNames()) {
-					addMonitor(workspaceName);
-				}
-		} catch (RepositoryException e) {
-			throw new IllegalStateException(e);
-		} finally {
-			JcrUtils.logoutQuietly(session);
-		}
+//		Session session = KernelUtils.openAdminSession(repository);
+//		try {
+//			if (NodeConstants.NODE.equals(cn))
+//				for (String workspaceName : session.getWorkspace().getAccessibleWorkspaceNames()) {
+//					addMonitor(workspaceName);
+//				}
+//		} catch (RepositoryException e) {
+//			throw new IllegalStateException(e);
+//		} finally {
+//			JcrUtils.logoutQuietly(session);
+//		}
 	}
 
 	protected RepositoryImpl getJackrabbitrepository(String workspaceName) {
@@ -39,8 +38,8 @@ class JackrabbitLocalRepository extends LocalRepository {
 
 	@Override
 	protected synchronized void processNewSession(Session session, String workspaceName) {
-		String realWorkspaceName = session.getWorkspace().getName();
-		addMonitor(realWorkspaceName);
+//		String realWorkspaceName = session.getWorkspace().getName();
+//		addMonitor(realWorkspaceName);
 	}
 
 	private void addMonitor(String realWorkspaceName) {
