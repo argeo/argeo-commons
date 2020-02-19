@@ -55,10 +55,8 @@ import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
+/** Implementation of a CMS deployment. */
 public class CmsDeployment implements NodeDeployment {
-	// private final static String LEGACY_JCR_REPOSITORY_ALIAS =
-	// "argeo.jcr.repository.alias";
-
 	private final Log log = LogFactory.getLog(getClass());
 	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
@@ -286,11 +284,11 @@ public class CmsDeployment implements NodeDeployment {
 			JcrUtils.logoutQuietly(adminSession);
 		}
 
-		Hashtable<String, String> regProps = new Hashtable<String, String>();
+		// Publish home with the highest service ranking
+		Hashtable<String, Object> regProps = new Hashtable<>();
 		regProps.put(NodeConstants.CN, NodeConstants.HOME);
-		// regProps.put(LEGACY_JCR_REPOSITORY_ALIAS, NodeConstants.HOME);
+		regProps.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
 		homeRepository = new HomeRepository(deployedRepository, false);
-		// register
 		bc.registerService(Repository.class, homeRepository, regProps);
 
 		// Keyring only if Argeo extensions are available
@@ -408,10 +406,7 @@ public class CmsDeployment implements NodeDeployment {
 
 	private void publishLocalRepo(String dataModelName, Repository repository) {
 		Hashtable<String, Object> properties = new Hashtable<>();
-		// properties.put(LEGACY_JCR_REPOSITORY_ALIAS, name);
 		properties.put(NodeConstants.CN, dataModelName);
-		if (dataModelName.equals(NodeConstants.NODE))
-			properties.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
 		LocalRepository localRepository;
 		String[] classes;
 		if (repository instanceof RepositoryImpl) {

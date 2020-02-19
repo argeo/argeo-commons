@@ -43,6 +43,7 @@ import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.jcr.AsyncUiEventListener;
 import org.argeo.eclipse.ui.jcr.utils.NodeViewerComparer;
+import org.argeo.jcr.JcrUtils;
 import org.argeo.node.security.CryptoKeyring;
 import org.argeo.node.security.Keyring;
 import org.eclipse.e4.core.contexts.IEclipseContext;
@@ -153,6 +154,7 @@ public class JcrBrowserView {
 
 	@PreDestroy
 	public void dispose() {
+		JcrUtils.logoutQuietly(userSession);
 		repositoryRegister.destroy();
 	}
 
@@ -280,9 +282,8 @@ public class JcrBrowserView {
 	/**
 	 * Resets the tree content provider
 	 * 
-	 * @param sortChildNodes
-	 *            if true the content provider will use a comparer to sort nodes
-	 *            that might slow down the display
+	 * @param sortChildNodes if true the content provider will use a comparer to
+	 *                       sort nodes that might slow down the display
 	 */
 	public void setSortChildNodes(boolean sortChildNodes) {
 		this.sortChildNodes = sortChildNodes;

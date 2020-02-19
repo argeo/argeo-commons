@@ -2,10 +2,12 @@ package org.argeo.cms.internal.kernel;
 
 import java.security.PrivilegedAction;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.jcr.Credentials;
+import javax.jcr.LoginException;
+import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -39,6 +41,7 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 
 	private SimpleDateFormat usersDatePath = new SimpleDateFormat("YYYY/MM");
 
+	private String defaultHomeWorkspace = NodeConstants.HOME;
 	private final boolean remote;
 
 	public HomeRepository(Repository repository, boolean remote) {
@@ -57,17 +60,36 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 
 				@Override
 				public Void run() {
+					Session adminSession = null;
 					try {
-						Session adminSession = getDefaultRepository().login();
+						adminSession = JcrUtils.loginOrCreateWorkspace(getRepository(defaultHomeWorkspace),
+								defaultHomeWorkspace);
 						initJcr(adminSession);
 					} catch (RepositoryException e) {
 						throw new CmsException("Cannot init JCR home", e);
+					} finally {
+						JcrUtils.logoutQuietly(adminSession);
 					}
 					return null;
 				}
 
 			});
 		}
+	}
+
+	@Override
+	public Session login(Credentials credentials, String workspaceName)
+			throws LoginException, NoSuchWorkspaceException, RepositoryException {
+		if (workspaceName == null) {
+			return super.login(credentials, getUserHomeWorkspace());
+		} else {
+			return super.login(credentials, workspaceName);
+		}
+	}
+
+	protected String getUserHomeWorkspace() {
+		// TODO base on JAAS Subject metadata
+		return defaultHomeWorkspace;
 	}
 
 	@Override
@@ -78,11 +100,15 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 		if (session.getUserID().equals(NodeConstants.ROLE_ANONYMOUS))
 			return;
 
+		String userHomeWorkspace = getUserHomeWorkspace();
+		if (workspaceName != null && !workspaceName.equals(userHomeWorkspace))
+			return;
+
 		if (checkedUsers.contains(username))
 			return;
 		Session adminSession = KernelUtils.openAdminSession(getRepository(workspaceName), workspaceName);
 		try {
-			syncJcr(adminSession, username, workspaceName);
+			syncJcr(adminSession, username);
 			checkedUsers.add(username);
 		} finally {
 			JcrUtils.logoutQuietly(adminSession);
@@ -95,12 +121,12 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 	/** Session is logged out. */
 	private void initJcr(Session adminSession) {
 		try {
-			JcrUtils.mkdirs(adminSession, homeBasePath);
+//			JcrUtils.mkdirs(adminSession, homeBasePath);
 			JcrUtils.mkdirs(adminSession, groupsBasePath);
 			adminSession.save();
 
-			JcrUtils.addPrivilege(adminSession, homeBasePath, NodeConstants.ROLE_USER_ADMIN, Privilege.JCR_READ);
-			JcrUtils.addPrivilege(adminSession, groupsBasePath, NodeConstants.ROLE_USER_ADMIN, Privilege.JCR_READ);
+//			JcrUtils.addPrivilege(adminSession, homeBasePath, NodeConstants.ROLE_USER_ADMIN, Privilege.JCR_READ);
+//			JcrUtils.addPrivilege(adminSession, groupsBasePath, NodeConstants.ROLE_USER_ADMIN, Privilege.JCR_READ);
 			adminSession.save();
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot initialize home repository", e);
@@ -109,10 +135,10 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 		}
 	}
 
-	protected synchronized void syncJcr(Session adminSession, String username, String workspaceName) {
+	protected synchronized void syncJcr(Session adminSession, String username) {
 		// only in the default workspace
-		if (workspaceName != null)
-			return;
+//		if (workspaceName != null)
+//			return;
 		// skip system users
 		if (username.endsWith(NodeConstants.ROLES_BASEDN))
 			return;
@@ -151,21 +177,13 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 			throw new CmsException("Invalid name " + username, e);
 		}
 		String userId = dn.getRdn(dn.size() - 1).getValue().toString();
-		int atIndex = userId.indexOf('@');
-		if (atIndex < 0) {
-			return homeBasePath + '/' + userId;
-		} else {
-			return usersBasePath + '/' + usersDatePath.format(new Date()) + '/' + userId;
-		}
-		// if (atIndex > 0) {
-		// String domain = userId.substring(0, atIndex);
-		// String name = userId.substring(atIndex + 1);
-		// return base + '/' + domain + '/' + name;
-		// } else if (atIndex == 0 || atIndex == (userId.length() - 1)) {
-		// throw new CmsException("Unsupported username " + userId);
-		// } else {
-		// return base + '/' + userId;
-		// }
+		return '/' + userId;
+//		int atIndex = userId.indexOf('@');
+//		if (atIndex < 0) {
+//			return homeBasePath+'/' + userId;
+//		} else {
+//			return usersBasePath + '/' + usersDatePath.format(new Date()) + '/' + userId;
+//		}
 	}
 
 	public void createWorkgroup(LdapName dn) {
