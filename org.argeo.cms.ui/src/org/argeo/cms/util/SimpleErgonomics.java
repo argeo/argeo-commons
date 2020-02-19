@@ -14,7 +14,6 @@ import org.argeo.cms.ui.CmsImageManager;
 import org.argeo.cms.ui.CmsStyles;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.ui.UxContext;
-import org.argeo.cms.ui.internal.ImageManagerImpl;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -44,7 +43,7 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 	private CmsUiProvider end;
 	private CmsUiProvider footer;
 
-	private CmsImageManager imageManager = new ImageManagerImpl();
+	private CmsImageManager imageManager = new DefaultImageManager();
 	private UxContext uxContext = null;
 
 	public SimpleErgonomics(Repository repository, String workspace, String defaultPath, CmsUiProvider uiProvider,

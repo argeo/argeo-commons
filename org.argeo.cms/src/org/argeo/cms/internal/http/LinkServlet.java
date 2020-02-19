@@ -3,7 +3,6 @@ package org.argeo.cms.internal.http;
 import static javax.jcr.Property.JCR_DESCRIPTION;
 import static javax.jcr.Property.JCR_LAST_MODIFIED;
 import static javax.jcr.Property.JCR_TITLE;
-import static org.argeo.cms.CmsTypes.CMS_IMAGE;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -102,14 +101,15 @@ public class LinkServlet extends HttpServlet {
 					: null;
 			String url = getCanonicalUrl(node, request);
 			String imgUrl = null;
-			loop: for (NodeIterator it = node.getNodes(); it.hasNext();) {
-				// Takes the first found cms:image
-				Node child = it.nextNode();
-				if (child.isNodeType(CMS_IMAGE)) {
-					imgUrl = getDataUrl(child, request);
-					break loop;
-				}
-			}
+			// TODO support images
+//			loop: for (NodeIterator it = node.getNodes(); it.hasNext();) {
+//				// Takes the first found cms:image
+//				Node child = it.nextNode();
+//				if (child.isNodeType(CMS_IMAGE)) {
+//					imgUrl = getDataUrl(child, request);
+//					break loop;
+//				}
+//			}
 			StringBuilder buf = new StringBuilder();
 			buf.append("<html>");
 			buf.append("<head>");

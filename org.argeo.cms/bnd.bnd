@@ -10,6 +10,4 @@ org.apache.commons.httpclient.cookie;resolution:=optional,\
 org.osgi.*;version=0.0.0,\
 *
 
-Provide-Capability: cms.datamodel;name=argeo;cnd=/org/argeo/cms/argeo.cnd;abstract=true,\
-cms.datamodel;name=cms;cnd=/org/argeo/cms/cms.cnd;abstract=true,\
-cms.datamodel;name=dn;cnd=/org/argeo/cms/dn.cnd;abstract=true
+Provide-Capability: cms.datamodel;name=argeo;cnd=/org/argeo/cms/argeo.cnd;abstract=true

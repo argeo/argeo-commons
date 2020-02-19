@@ -1,4 +1,4 @@
-package org.argeo.cms.text;
+package org.argeo.cms.forms;
 
 import java.io.StringReader;
 import java.text.MessageFormat;
@@ -10,7 +10,6 @@ import java.util.Map;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.argeo.cms.forms.FormPageViewer;
 import org.eclipse.rap.rwt.SingletonUtil;
 import org.eclipse.swt.widgets.Widget;
 import org.xml.sax.Attributes;
@@ -19,10 +18,8 @@ import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * Copy of RAP v2.3 since it is in an internal package.
- * 
- * FIXME made public to enable validation from the {@link FormPageViewer}
  */
-public class MarkupValidatorCopy {
+class MarkupValidatorCopy {
 
 	// Used by Eclipse Scout project
 	public static final String MARKUP_VALIDATION_DISABLED = "org.eclipse.rap.rwt.markupValidationDisabled";
@@ -45,15 +42,13 @@ public class MarkupValidatorCopy {
 		markup.append("<html>");
 		markup.append(text);
 		markup.append("</html>");
-		InputSource inputSource = new InputSource(new StringReader(
-				markup.toString()));
+		InputSource inputSource = new InputSource(new StringReader(markup.toString()));
 		try {
 			saxParser.parse(inputSource, new MarkupHandler());
 		} catch (RuntimeException exception) {
 			throw exception;
 		} catch (Exception exception) {
-			throw new IllegalArgumentException("Failed to parse markup text",
-					exception);
+			throw new IllegalArgumentException("Failed to parse markup text", exception);
 		}
 	}
 
@@ -112,8 +107,7 @@ public class MarkupValidatorCopy {
 		result.put("q", new String[] { "style" });
 		result.put("abbr", new String[] { "style", "title" });
 		result.put("span", new String[] { "style" });
-		result.put("img", new String[] { "style", "src", "width", "height",
-				"title", "alt" });
+		result.put("img", new String[] { "style", "src", "width", "height", "title", "alt" });
 		result.put("a", new String[] { "style", "href", "target", "title" });
 		return result;
 	}
@@ -121,33 +115,27 @@ public class MarkupValidatorCopy {
 	private static class MarkupHandler extends DefaultHandler {
 
 		@Override
-		public void startElement(String uri, String localName, String name,
-				Attributes attributes) {
+		public void startElement(String uri, String localName, String name, Attributes attributes) {
 			checkSupportedElements(name, attributes);
 			checkSupportedAttributes(name, attributes);
 			checkMandatoryAttributes(name, attributes);
 		}
 
-		private static void checkSupportedElements(String elementName,
-				Attributes attributes) {
+		private static void checkSupportedElements(String elementName, Attributes attributes) {
 			if (!SUPPORTED_ELEMENTS.containsKey(elementName)) {
-				throw new IllegalArgumentException(
-						"Unsupported element in markup text: " + elementName);
+				throw new IllegalArgumentException("Unsupported element in markup text: " + elementName);
 			}
 		}
 
-		private static void checkSupportedAttributes(String elementName,
-				Attributes attributes) {
+		private static void checkSupportedAttributes(String elementName, Attributes attributes) {
 			if (attributes.getLength() > 0) {
-				List<String> supportedAttributes = Arrays
-						.asList(SUPPORTED_ELEMENTS.get(elementName));
+				List<String> supportedAttributes = Arrays.asList(SUPPORTED_ELEMENTS.get(elementName));
 				int index = 0;
 				String attributeName = attributes.getQName(index);
 				while (attributeName != null) {
 					if (!supportedAttributes.contains(attributeName)) {
 						String message = "Unsupported attribute \"{0}\" for element \"{1}\" in markup text";
-						message = MessageFormat.format(message, new Object[] {
-								attributeName, elementName });
+						message = MessageFormat.format(message, new Object[] { attributeName, elementName });
 						throw new IllegalArgumentException(message);
 					}
 					index++;
@@ -156,14 +144,12 @@ public class MarkupValidatorCopy {
 			}
 		}
 
-		private static void checkMandatoryAttributes(String elementName,
-				Attributes attributes) {
+		private static void checkMandatoryAttributes(String elementName, Attributes attributes) {
 			checkIntAttribute(elementName, attributes, "img", "width");
 			checkIntAttribute(elementName, attributes, "img", "height");
 		}
 
-		private static void checkIntAttribute(String elementName,
-				Attributes attributes, String checkedElementName,
+		private static void checkIntAttribute(String elementName, Attributes attributes, String checkedElementName,
 				String checkedAttributeName) {
 			if (checkedElementName.equals(elementName)) {
 				String attribute = attributes.getValue(checkedAttributeName);
@@ -171,8 +157,7 @@ public class MarkupValidatorCopy {
 					Integer.parseInt(attribute);
 				} catch (NumberFormatException exception) {
 					String message = "Mandatory attribute \"{0}\" for element \"{1}\" is missing or not a valid integer";
-					Object[] arguments = new Object[] { checkedAttributeName,
-							checkedElementName };
+					Object[] arguments = new Object[] { checkedAttributeName, checkedElementName };
 					message = MessageFormat.format(message, arguments);
 					throw new IllegalArgumentException(message);
 				}

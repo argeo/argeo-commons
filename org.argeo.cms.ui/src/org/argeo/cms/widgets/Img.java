@@ -1,4 +1,4 @@
-package org.argeo.cms.text;
+package org.argeo.cms.widgets;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -10,7 +10,6 @@ import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.viewers.NodePart;
 import org.argeo.cms.viewers.Section;
 import org.argeo.cms.viewers.SectionPart;
-import org.argeo.cms.widgets.EditableImage;
 import org.eclipse.rap.fileupload.FileUploadHandler;
 import org.eclipse.rap.fileupload.FileUploadListener;
 import org.eclipse.rap.fileupload.FileUploadReceiver;

@@ -3,7 +3,6 @@ package org.argeo.cms.widgets;
 import javax.jcr.Item;
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.CmsNames;
 import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.util.CmsUtils;
 import org.eclipse.swt.SWT;

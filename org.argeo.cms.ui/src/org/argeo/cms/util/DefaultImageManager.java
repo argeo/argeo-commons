@@ -1,11 +1,9 @@
-package org.argeo.cms.ui.internal;
+package org.argeo.cms.util;
 
 import static javax.jcr.Node.JCR_CONTENT;
 import static javax.jcr.Property.JCR_DATA;
 import static javax.jcr.nodetype.NodeType.NT_FILE;
 import static javax.jcr.nodetype.NodeType.NT_RESOURCE;
-import static org.argeo.cms.CmsNames.CMS_IMAGE_HEIGHT;
-import static org.argeo.cms.CmsNames.CMS_IMAGE_WIDTH;
 import static org.argeo.cms.ui.CmsConstants.NO_IMAGE_SIZE;
 
 import java.io.ByteArrayInputStream;
@@ -23,10 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.CmsNames;
-import org.argeo.cms.CmsTypes;
 import org.argeo.cms.ui.CmsImageManager;
-import org.argeo.cms.util.CmsUtils;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.ResourceManager;
@@ -39,8 +34,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 
 /** Manages only public images so far. */
-public class ImageManagerImpl implements CmsImageManager {
-	private final static Log log = LogFactory.getLog(ImageManagerImpl.class);
+public class DefaultImageManager implements CmsImageManager {
+	private final static Log log = LogFactory.getLog(DefaultImageManager.class);
 //	private MimetypesFileTypeMap fileTypeMap = new MimetypesFileTypeMap();
 
 	public Boolean load(Node node, Control control, Point preferredSize) throws RepositoryException {
@@ -121,8 +116,8 @@ public class ImageManagerImpl implements CmsImageManager {
 	}
 
 	public Point getImageSize(Node node) throws RepositoryException {
-		return new Point(node.hasProperty(CMS_IMAGE_WIDTH) ? (int) node.getProperty(CMS_IMAGE_WIDTH).getLong() : 0,
-				node.hasProperty(CMS_IMAGE_HEIGHT) ? (int) node.getProperty(CMS_IMAGE_HEIGHT).getLong() : 0);
+		// TODO load the SWT image ?
+		return new Point(0, 0);
 	}
 
 	/** @return null if not available */
@@ -187,8 +182,6 @@ public class ImageManagerImpl implements CmsImageManager {
 	public Binary getImageBinary(Node node) throws RepositoryException {
 		if (node.isNodeType(NT_FILE)) {
 			return node.getNode(JCR_CONTENT).getProperty(JCR_DATA).getBinary();
-		} else if (node.isNodeType(CmsTypes.CMS_STYLED) && node.hasProperty(CmsNames.CMS_DATA)) {
-			return node.getProperty(CmsNames.CMS_DATA).getBinary();
 		} else {
 			return null;
 		}
@@ -224,12 +217,10 @@ public class ImageManagerImpl implements CmsImageManager {
 
 			byte[] arr = IOUtils.toByteArray(in);
 			Node fileNode = JcrUtils.copyBytesAsFile(parentNode, fileName, arr);
-			fileNode.addMixin(CmsTypes.CMS_IMAGE);
-
 			inputStream = new ByteArrayInputStream(arr);
 			ImageData id = new ImageData(inputStream);
-			fileNode.setProperty(CMS_IMAGE_WIDTH, id.width);
-			fileNode.setProperty(CMS_IMAGE_HEIGHT, id.height);
+			processNewImageFile(fileNode, id);
+
 			String mime = Files.probeContentType(Paths.get(fileName));
 			fileNode.setProperty(Property.JCR_MIMETYPE, mime);
 			fileNode.getSession().save();
@@ -247,5 +238,9 @@ public class ImageManagerImpl implements CmsImageManager {
 		} finally {
 			IOUtils.closeQuietly(inputStream);
 		}
+	}
+
+	/** Does nothign by default. */
+	protected void processNewImageFile(Node fileNode, ImageData id) throws RepositoryException, IOException {
 	}
 }

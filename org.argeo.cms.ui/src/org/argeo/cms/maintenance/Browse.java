@@ -1,6 +1,5 @@
 package org.argeo.cms.maintenance;
 
-import static javax.jcr.Node.JCR_CONTENT;
 import static org.eclipse.swt.SWT.RIGHT;
 
 import java.text.DateFormat;
@@ -17,12 +16,11 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
 import org.argeo.cms.CmsException;
-import org.argeo.cms.CmsTypes;
-import org.argeo.cms.text.Img;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.util.CmsLink;
 import org.argeo.cms.util.CmsUtils;
 import org.argeo.cms.widgets.EditableImage;
+import org.argeo.cms.widgets.Img;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ILazyContentProvider;
@@ -59,8 +57,7 @@ public class Browse implements CmsUiProvider {
 	private final static String BROWSE_PREFIX = "browse#";
 	private final static int THUMBNAIL_WIDTH = 400;
 	private final static int COLUMN_WIDTH = 160;
-	private DateFormat timeFormatter = new SimpleDateFormat(
-			"dd-MM-yyyy', 'HH:mm");
+	private DateFormat timeFormatter = new SimpleDateFormat("dd-MM-yyyy', 'HH:mm");
 
 	// keep a cache of the opened nodes
 	// Key is the path
@@ -75,8 +72,7 @@ public class Browse implements CmsUiProvider {
 	private String initialPath;
 
 	@Override
-	public Control createUi(Composite parent, Node context)
-			throws RepositoryException {
+	public Control createUi(Composite parent, Node context) throws RepositoryException {
 		if (context == null)
 			// return null;
 			throw new CmsException("Context cannot be null");
@@ -106,8 +102,7 @@ public class Browse implements CmsUiProvider {
 		return null;
 	}
 
-	private void createBrowserPart(Composite parent, Node context)
-			throws RepositoryException {
+	private void createBrowserPart(Composite parent, Node context) throws RepositoryException {
 		GridLayout layout = CmsUtils.noSpaceGridLayout();
 		parent.setLayout(layout);
 		Composite filterCmp = new Composite(parent, SWT.NO_FOCUS);
@@ -117,8 +112,7 @@ public class Browse implements CmsUiProvider {
 		addFilterPanel(filterCmp);
 
 		// scrolled composite
-		scrolledCmp = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.BORDER
-				| SWT.NO_FOCUS);
+		scrolledCmp = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.BORDER | SWT.NO_FOCUS);
 		scrolledCmp.setLayoutData(CmsUtils.fillAll());
 		scrolledCmp.setExpandVertical(true);
 		scrolledCmp.setExpandHorizontal(true);
@@ -132,25 +126,21 @@ public class Browse implements CmsUiProvider {
 			@Override
 			public void controlResized(ControlEvent e) {
 				Rectangle r = scrolledCmp.getClientArea();
-				scrolledCmp.setMinSize(colViewer.computeSize(SWT.DEFAULT,
-						r.height));
+				scrolledCmp.setMinSize(colViewer.computeSize(SWT.DEFAULT, r.height));
 			}
 		});
 		initExplorer(colViewer, context);
 	}
 
-	private Control initExplorer(Composite parent, Node context)
-			throws RepositoryException {
+	private Control initExplorer(Composite parent, Node context) throws RepositoryException {
 		parent.setLayout(CmsUtils.noSpaceGridLayout());
 		createBrowserColumn(parent, context);
 		return null;
 	}
 
-	private Control createBrowserColumn(Composite parent, Node context)
-			throws RepositoryException {
+	private Control createBrowserColumn(Composite parent, Node context) throws RepositoryException {
 		// TODO style is not correctly managed.
-		FilterEntitiesVirtualTable table = new FilterEntitiesVirtualTable(
-				parent, SWT.BORDER | SWT.NO_FOCUS, context);
+		FilterEntitiesVirtualTable table = new FilterEntitiesVirtualTable(parent, SWT.BORDER | SWT.NO_FOCUS, context);
 		// CmsUtils.style(table, ArgeoOrgStyle.browserColumn.style());
 		table.filterList("*");
 		table.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, true));
@@ -189,8 +179,7 @@ public class Browse implements CmsUiProvider {
 				// boolean altPressed = (e.stateMask & SWT.ALT) != 0;
 				FilterEntitiesVirtualTable currTable = null;
 				if (currEdited != null) {
-					FilterEntitiesVirtualTable table = browserCols
-							.get(getPath(currEdited));
+					FilterEntitiesVirtualTable table = browserCols.get(getPath(currEdited));
 					if (table != null && !table.isDisposed())
 						currTable = table;
 				}
@@ -200,26 +189,21 @@ public class Browse implements CmsUiProvider {
 						currTable.setFocus();
 					else if (e.keyCode == SWT.BS) {
 						if (filterTxt.getText().equals("")
-								&& !(getPath(currEdited).equals("/") || getPath(
-										currEdited).equals(initialPath))) {
+								&& !(getPath(currEdited).equals("/") || getPath(currEdited).equals(initialPath))) {
 							setEdited(currEdited.getParent());
 							e.doit = false;
 							filterTxt.setFocus();
 						}
 					} else if (e.keyCode == SWT.TAB && !shiftPressed) {
-						if (currEdited.getNodes(filterTxt.getText() + "*")
-								.getSize() == 1) {
-							setEdited(currEdited.getNodes(
-									filterTxt.getText() + "*").nextNode());
+						if (currEdited.getNodes(filterTxt.getText() + "*").getSize() == 1) {
+							setEdited(currEdited.getNodes(filterTxt.getText() + "*").nextNode());
 						}
 						filterTxt.setFocus();
 						e.doit = false;
 					}
 				} catch (RepositoryException e1) {
-					throw new CmsException(
-							"Unexpected error in key management for "
-									+ currEdited + "with filter "
-									+ filterTxt.getText(), e1);
+					throw new CmsException("Unexpected error in key management for " + currEdited + "with filter "
+							+ filterTxt.getText(), e1);
 				}
 
 			}
@@ -255,9 +239,6 @@ public class Browse implements CmsUiProvider {
 			currParPath = JcrUtils.parentPath(currNodePath);
 		if ("".equals(currParPath))
 			currParPath = "/";
-		
-		
-		
 
 		Object[][] colMatrix = new Object[browserCols.size()][2];
 
@@ -271,13 +252,9 @@ public class Browse implements CmsUiProvider {
 				// workaround for same name siblings
 				// fix me weird side effect when we go left or click on anb
 				// already selected, unfocused node
-				if (leaveOpened
-						&& (path.lastIndexOf("/") == 0
-								&& currNodePath.lastIndexOf("/") == 0 || JcrUtils
-								.parentPath(path).equals(
-										JcrUtils.parentPath(currNodePath))))
-					leaveOpened = JcrUtils.lastPathElement(path).equals(
-							JcrUtils.lastPathElement(currNodePath));
+				if (leaveOpened && (path.lastIndexOf("/") == 0 && currNodePath.lastIndexOf("/") == 0
+						|| JcrUtils.parentPath(path).equals(JcrUtils.parentPath(currNodePath))))
+					leaveOpened = JcrUtils.lastPathElement(path).equals(JcrUtils.lastPathElement(currNodePath));
 
 				if (!leaveOpened)
 					k = i;
@@ -306,8 +283,7 @@ public class Browse implements CmsUiProvider {
 		if (!browserCols.containsKey(currNodePath))
 			createBrowserColumn(colViewer, node);
 
-		colViewer.setLayout(CmsUtils.noSpaceGridLayout(new GridLayout(
-				browserCols.size(), false)));
+		colViewer.setLayout(CmsUtils.noSpaceGridLayout(new GridLayout(browserCols.size(), false)));
 		// colViewer.pack();
 		colViewer.layout();
 		// also resize the scrolled composite
@@ -323,8 +299,7 @@ public class Browse implements CmsUiProvider {
 		if (!fromOutside)
 			if (currEdited != null) {
 				String filter = filterTxt.getText() + "*";
-				FilterEntitiesVirtualTable table = browserCols
-						.get(getPath(currEdited));
+				FilterEntitiesVirtualTable table = browserCols.get(getPath(currEdited));
 				if (table != null && !table.isDisposed())
 					table.filterList(filter);
 			}
@@ -342,34 +317,29 @@ public class Browse implements CmsUiProvider {
 	private Point imageWidth = new Point(250, 0);
 
 	/**
-	 * Recreates the content of the box that displays information about the
-	 * current selected node.
+	 * Recreates the content of the box that displays information about the current
+	 * selected node.
 	 */
-	private Control createNodeView(Composite parent, Node context)
-			throws RepositoryException {
+	private Control createNodeView(Composite parent, Node context) throws RepositoryException {
 
 		parent.setLayout(new GridLayout(2, false));
 
 		if (isImg(context)) {
 			EditableImage image = new Img(parent, RIGHT, context, imageWidth);
-			image.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true,
-					false, 2, 1));
+			image.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 2, 1));
 		}
 
 		// Name and primary type
 		Label contextL = new Label(parent, SWT.NONE);
 		contextL.setData(RWT.MARKUP_ENABLED, true);
 		contextL.setText("<b>" + context.getName() + "</b>");
-		new Label(parent, SWT.NONE).setText(context.getPrimaryNodeType()
-				.getName());
+		new Label(parent, SWT.NONE).setText(context.getPrimaryNodeType().getName());
 
 		// Children
 		for (NodeIterator nIt = context.getNodes(); nIt.hasNext();) {
 			Node child = nIt.nextNode();
-			new CmsLink(child.getName(), BROWSE_PREFIX + child.getPath())
-					.createUi(parent, context);
-			new Label(parent, SWT.NONE).setText(child.getPrimaryNodeType()
-					.getName());
+			new CmsLink(child.getName(), BROWSE_PREFIX + child.getPath()).createUi(parent, context);
+			new Label(parent, SWT.NONE).setText(child.getPrimaryNodeType().getName());
 		}
 
 		// Properties
@@ -377,8 +347,7 @@ public class Browse implements CmsUiProvider {
 			Property property = pIt.nextProperty();
 			Label label = new Label(parent, SWT.NONE);
 			label.setText(property.getName());
-			label.setToolTipText(JcrUtils
-					.getPropertyDefinitionAsString(property));
+			label.setToolTipText(JcrUtils.getPropertyDefinitionAsString(property));
 			new Label(parent, SWT.NONE).setText(getPropAsString(property));
 		}
 
@@ -386,11 +355,12 @@ public class Browse implements CmsUiProvider {
 	}
 
 	private boolean isImg(Node node) throws RepositoryException {
-		return node.hasNode(JCR_CONTENT) && node.isNodeType(CmsTypes.CMS_IMAGE);
+		// TODO support images
+		return false;
+//		return node.hasNode(JCR_CONTENT) && node.isNodeType(CmsTypes.CMS_IMAGE);
 	}
 
-	private String getPropAsString(Property property)
-			throws RepositoryException {
+	private String getPropAsString(Property property) throws RepositoryException {
 		String result = "";
 		if (property.isMultiple()) {
 			result = getMultiAsString(property, ", ");
@@ -406,8 +376,7 @@ public class Browse implements CmsUiProvider {
 		return result;
 	}
 
-	private String getMultiAsString(Property property, String separator)
-			throws RepositoryException {
+	private String getMultiAsString(Property property, String separator) throws RepositoryException {
 		if (separator == null)
 			separator = "; ";
 		Value[] values = property.getValues();
@@ -445,8 +414,7 @@ public class Browse implements CmsUiProvider {
 			if (entityViewer.getSelection().isEmpty()) {
 				Object first = entityViewer.getElementAt(0);
 				if (first != null) {
-					entityViewer.setSelection(new StructuredSelection(first),
-							true);
+					entityViewer.setSelection(new StructuredSelection(first), true);
 				}
 			}
 			return entityViewer.getTable().setFocus();
@@ -457,14 +425,12 @@ public class Browse implements CmsUiProvider {
 				NodeIterator nit = context.getNodes(filter);
 				refreshFilteredList(nit);
 			} catch (RepositoryException e) {
-				throw new CmsException("Unable to filter " + getNode()
-						+ " children with filter " + filter, e);
+				throw new CmsException("Unable to filter " + getNode() + " children with filter " + filter, e);
 			}
 
 		}
 
-		public FilterEntitiesVirtualTable(Composite parent, int style,
-				Node context) {
+		public FilterEntitiesVirtualTable(Composite parent, int style, Node context) {
 			super(parent, SWT.NO_FOCUS);
 			this.context = context;
 			populate();
@@ -500,28 +466,25 @@ public class Browse implements CmsUiProvider {
 			CmsUtils.style(table, MaintenanceStyles.BROWSER_COLUMN);
 
 			// first column
-			TableViewerColumn column = new TableViewerColumn(entityViewer,
-					SWT.NONE);
+			TableViewerColumn column = new TableViewerColumn(entityViewer, SWT.NONE);
 			TableColumn tcol = column.getColumn();
 			tcol.setWidth(COLUMN_WIDTH);
 			tcol.setResizable(true);
 			column.setLabelProvider(new SimpleNameLP());
 
 			entityViewer.setContentProvider(new MyLazyCP(entityViewer));
-			entityViewer
-					.addSelectionChangedListener(new ISelectionChangedListener() {
+			entityViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
-						@Override
-						public void selectionChanged(SelectionChangedEvent event) {
-							IStructuredSelection selection = (IStructuredSelection) entityViewer
-									.getSelection();
-							if (selection.isEmpty())
-								return;
-							else
-								setEdited((Node) selection.getFirstElement());
+				@Override
+				public void selectionChanged(SelectionChangedEvent event) {
+					IStructuredSelection selection = (IStructuredSelection) entityViewer.getSelection();
+					if (selection.isEmpty())
+						return;
+					else
+						setEdited((Node) selection.getFirstElement());
 
-						}
-					});
+				}
+			});
 
 			table.addKeyListener(new KeyListener() {
 				private static final long serialVersionUID = -330694313896036230L;
@@ -533,8 +496,7 @@ public class Browse implements CmsUiProvider {
 				@Override
 				public void keyPressed(KeyEvent e) {
 
-					IStructuredSelection selection = (IStructuredSelection) entityViewer
-							.getSelection();
+					IStructuredSelection selection = (IStructuredSelection) entityViewer.getSelection();
 					Node selected = null;
 					if (!selection.isEmpty())
 						selected = ((Node) selection.getFirstElement());
@@ -556,8 +518,8 @@ public class Browse implements CmsUiProvider {
 							}
 						}
 					} catch (RepositoryException ie) {
-						throw new CmsException("Error while managing arrow "
-								+ "events in the browser for " + selected, ie);
+						throw new CmsException("Error while managing arrow " + "events in the browser for " + selected,
+								ie);
 					}
 				}
 			});
@@ -575,8 +537,7 @@ public class Browse implements CmsUiProvider {
 			public void dispose() {
 			}
 
-			public void inputChanged(Viewer viewer, Object oldInput,
-					Object newInput) {
+			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 				// IMPORTANT: don't forget this: an exception will be thrown if
 				// a selected object is not part of the results anymore.
 				viewer.setSelection(null);
@@ -605,8 +566,7 @@ public class Browse implements CmsUiProvider {
 					try {
 						return curr.getName();
 					} catch (RepositoryException e) {
-						throw new CmsException("Unable to get name for"
-								+ curr);
+						throw new CmsException("Unable to get name for" + curr);
 					}
 				}
 				return super.getText(element);
