@@ -24,6 +24,9 @@ public interface NodeConstants {
 	 */
 	String NODE = "node";
 	String HOME = "home";
+	String GROUPS = "groups";
+	String GUESTS = "guests";
+	String PUBLIC = "public";
 
 	/*
 	 * BASE DNs

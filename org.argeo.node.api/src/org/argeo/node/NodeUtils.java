@@ -28,11 +28,8 @@ import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
-import javax.jcr.query.qom.Constraint;
-import javax.jcr.query.qom.DynamicOperand;
-import javax.jcr.query.qom.QueryObjectModelFactory;
-import javax.jcr.query.qom.Selector;
-import javax.jcr.query.qom.StaticOperand;
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
 import javax.security.auth.AuthPermission;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
@@ -91,39 +88,102 @@ public class NodeUtils {
 	 * @param username the username of the user
 	 */
 	public static Node getUserHome(Session session, String username) {
+//		try {
+//			QueryObjectModelFactory qomf = session.getWorkspace().getQueryManager().getQOMFactory();
+//			Selector sel = qomf.selector(NodeTypes.NODE_USER_HOME, "sel");
+//			DynamicOperand dop = qomf.propertyValue(sel.getSelectorName(), NodeNames.LDAP_UID);
+//			StaticOperand sop = qomf.literal(session.getValueFactory().createValue(username));
+//			Constraint constraint = qomf.comparison(dop, QueryObjectModelFactory.JCR_OPERATOR_EQUAL_TO, sop);
+//			Query query = qomf.createQuery(sel, constraint, null, null);
+//			return querySingleNode(query);
+//		} catch (RepositoryException e) {
+//			throw new RuntimeException("Cannot find home for user " + username, e);
+//		}
+
 		try {
-			QueryObjectModelFactory qomf = session.getWorkspace().getQueryManager().getQOMFactory();
-			Selector sel = qomf.selector(NodeTypes.NODE_USER_HOME, "sel");
-			DynamicOperand dop = qomf.propertyValue(sel.getSelectorName(), NodeNames.LDAP_UID);
-			StaticOperand sop = qomf.literal(session.getValueFactory().createValue(username));
-			Constraint constraint = qomf.comparison(dop, QueryObjectModelFactory.JCR_OPERATOR_EQUAL_TO, sop);
-			Query query = qomf.createQuery(sel, constraint, null, null);
-			return querySingleNode(query);
+			checkUserWorkspace(session, username);
+			String homePath = getHomePath(username);
+			if (session.itemExists(homePath))
+				return session.getNode(homePath);
+			// legacy
+			homePath = "/home/" + username;
+			if (session.itemExists(homePath))
+				return session.getNode(homePath);
+			return null;
 		} catch (RepositoryException e) {
 			throw new RuntimeException("Cannot find home for user " + username, e);
 		}
 	}
 
+	private static String getHomePath(String username) {
+		LdapName dn;
+		try {
+			dn = new LdapName(username);
+		} catch (InvalidNameException e) {
+			throw new IllegalArgumentException("Invalid name " + username, e);
+		}
+		String userId = dn.getRdn(dn.size() - 1).getValue().toString();
+		return '/' + userId;
+	}
+
+	private static void checkUserWorkspace(Session session, String username) {
+		String workspaceName = session.getWorkspace().getName();
+		if (!NodeConstants.HOME.equals(workspaceName))
+			throw new IllegalArgumentException(workspaceName + " is not the home workspace for user " + username);
+	}
+
 	/**
 	 * Returns the home node of the user or null if none was found.
 	 * 
-	 * @param session the session to use in order to perform the search, this can be
-	 *                a session with a different user ID than the one searched,
-	 *                typically when a system or admin session is used.
-	 * @param cn      the name of the group
+	 * @param session   the session to use in order to perform the search, this can
+	 *                  be a session with a different user ID than the one searched,
+	 *                  typically when a system or admin session is used.
+	 * @param groupname the name of the group
 	 */
-	public static Node getGroupHome(Session session, String cn) {
+	public static Node getGroupHome(Session session, String groupname) {
+//		try {
+//			QueryObjectModelFactory qomf = session.getWorkspace().getQueryManager().getQOMFactory();
+//			Selector sel = qomf.selector(NodeTypes.NODE_GROUP_HOME, "sel");
+//			DynamicOperand dop = qomf.propertyValue(sel.getSelectorName(), NodeNames.LDAP_CN);
+//			StaticOperand sop = qomf.literal(session.getValueFactory().createValue(cn));
+//			Constraint constraint = qomf.comparison(dop, QueryObjectModelFactory.JCR_OPERATOR_EQUAL_TO, sop);
+//			Query query = qomf.createQuery(sel, constraint, null, null);
+//			return querySingleNode(query);
+//		} catch (RepositoryException e) {
+//			throw new RuntimeException("Cannot find home for group " + cn, e);
+//		}
+
 		try {
-			QueryObjectModelFactory qomf = session.getWorkspace().getQueryManager().getQOMFactory();
-			Selector sel = qomf.selector(NodeTypes.NODE_GROUP_HOME, "sel");
-			DynamicOperand dop = qomf.propertyValue(sel.getSelectorName(), NodeNames.LDAP_CN);
-			StaticOperand sop = qomf.literal(session.getValueFactory().createValue(cn));
-			Constraint constraint = qomf.comparison(dop, QueryObjectModelFactory.JCR_OPERATOR_EQUAL_TO, sop);
-			Query query = qomf.createQuery(sel, constraint, null, null);
-			return querySingleNode(query);
+			checkGroupWorkspace(session, groupname);
+			String homePath = getGroupPath(groupname);
+			if (session.itemExists(homePath))
+				return session.getNode(homePath);
+			// legacy
+			homePath = "/groups/" + groupname;
+			if (session.itemExists(homePath))
+				return session.getNode(homePath);
+			return null;
 		} catch (RepositoryException e) {
-			throw new RuntimeException("Cannot find home for user " + cn, e);
+			throw new RuntimeException("Cannot find home for group " + groupname, e);
 		}
+
+	}
+
+	private static String getGroupPath(String groupname) {
+		String cn;
+		try {
+			LdapName dn = new LdapName(groupname);
+			cn = dn.getRdn(dn.size() - 1).getValue().toString();
+		} catch (InvalidNameException e) {
+			cn = groupname;
+		}
+		return '/' + cn;
+	}
+
+	private static void checkGroupWorkspace(Session session, String groupname) {
+		String workspaceName = session.getWorkspace().getName();
+		if (!NodeConstants.GROUPS.equals(workspaceName))
+			throw new IllegalArgumentException(workspaceName + " is not the group workspace for group " + groupname);
 	}
 
 	/**

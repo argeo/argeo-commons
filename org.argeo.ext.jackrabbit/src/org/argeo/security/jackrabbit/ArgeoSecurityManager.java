@@ -16,13 +16,18 @@
 package org.argeo.security.jackrabbit;
 
 import java.security.Principal;
+import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.core.DefaultSecurityManager;
 import org.apache.jackrabbit.core.security.AMContext;
@@ -31,12 +36,26 @@ import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.SystemPrincipal;
 import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
 import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
+import org.apache.jackrabbit.core.security.principal.PrincipalProvider;
+import org.argeo.cms.auth.CmsSession;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.security.AnonymousPrincipal;
 import org.argeo.node.security.DataAdminPrincipal;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 
 /** Customises Jackrabbit security. */
 public class ArgeoSecurityManager extends DefaultSecurityManager {
+	private final static Log log = LogFactory.getLog(ArgeoSecurityManager.class);
+
+	private BundleContext cmsBundleContext = null;
+
+	public ArgeoSecurityManager() {
+		if (FrameworkUtil.getBundle(CmsSession.class) != null) {
+			cmsBundleContext = FrameworkUtil.getBundle(CmsSession.class).getBundleContext();
+		}
+	}
+
 	@Override
 	public AccessManager getAccessManager(Session session, AMContext amContext) throws RepositoryException {
 		synchronized (getSystemSession()) {
@@ -51,6 +70,11 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		}
 	}
 
+	@Override
+	protected PrincipalProvider createDefaultPrincipalProvider(Properties[] moduleConfig) throws RepositoryException {
+		return super.createDefaultPrincipalProvider(moduleConfig);
+	}
+
 	/** Called once when the session is created */
 	@Override
 	public String getUserID(Subject subject, String workspaceName) throws RepositoryException {
@@ -59,6 +83,13 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		boolean isJackrabbitSystem = !subject.getPrincipals(SystemPrincipal.class).isEmpty();
 		Set<X500Principal> userPrincipal = subject.getPrincipals(X500Principal.class);
 		boolean isRegularUser = !userPrincipal.isEmpty();
+		CmsSession cmsSession = null;
+		if (cmsBundleContext != null) {
+			cmsSession = CmsSession.getCmsSession(cmsBundleContext, subject);
+			if (log.isTraceEnabled())
+				log.trace("Opening JCR session for CMS session " + cmsSession);
+		}
+
 		if (isAnonymous) {
 			if (isDataAdmin || isJackrabbitSystem || isRegularUser)
 				throw new IllegalStateException("Inconsistent " + subject);
@@ -96,7 +127,10 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 	@Override
 	protected WorkspaceAccessManager createDefaultWorkspaceAccessManager() {
 		WorkspaceAccessManager wam = super.createDefaultWorkspaceAccessManager();
-		return new ArgeoWorkspaceAccessManagerImpl(wam);
+		ArgeoWorkspaceAccessManagerImpl workspaceAccessManager = new ArgeoWorkspaceAccessManagerImpl(wam);
+		if (log.isTraceEnabled())
+			log.trace("Created workspace access manager");
+		return workspaceAccessManager;
 	}
 
 	private class ArgeoWorkspaceAccessManagerImpl implements SecurityConstants, WorkspaceAccessManager {
@@ -109,6 +143,10 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 
 		public void init(Session systemSession) throws RepositoryException {
 			wam.init(systemSession);
+			Repository repository = systemSession.getRepository();
+			if (log.isTraceEnabled())
+				log.trace("Initialised workspace access manager on repository " + repository
+						+ ", systemSession workspace: " + systemSession.getWorkspace().getName());
 		}
 
 		public void close() throws RepositoryException {
@@ -116,7 +154,10 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 
 		public boolean grants(Set<Principal> principals, String workspaceName) throws RepositoryException {
 			// TODO: implements finer access to workspaces
+			if (log.isTraceEnabled())
+				log.trace("Grants " + new HashSet<>(principals) + " access to workspace '" + workspaceName + "'");
 			return true;
+			// return wam.grants(principals, workspaceName);
 		}
 	}
 

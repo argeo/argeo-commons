@@ -128,6 +128,10 @@ public class CmsSessionImpl implements CmsSession {
 		return getSubject().getPrivateCredentials(SecretKey.class);
 	}
 
+	public Session newDataSession(String cn, String workspace, Repository repository) {
+		return login(repository, workspace);
+	}
+
 	public synchronized Session getDataSession(String cn, String workspace, Repository repository) {
 		// FIXME make it more robust
 		if (workspace == null)

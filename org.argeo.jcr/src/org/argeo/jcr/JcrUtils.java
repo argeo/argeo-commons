@@ -1308,23 +1308,30 @@ public class JcrUtils {
 		return true;
 	}
 
-	/** Gets access control list for this path, throws exception if not found */
+	/**
+	 * Gets the first available access control list for this path, throws exception
+	 * if not found
+	 */
 	public synchronized static AccessControlList getAccessControlList(AccessControlManager acm, String path)
 			throws RepositoryException {
 		// search for an access control list
 		AccessControlList acl = null;
 		AccessControlPolicyIterator policyIterator = acm.getApplicablePolicies(path);
-		if (policyIterator.hasNext()) {
+		applicablePolicies: if (policyIterator.hasNext()) {
 			while (policyIterator.hasNext()) {
 				AccessControlPolicy acp = policyIterator.nextAccessControlPolicy();
-				if (acp instanceof AccessControlList)
+				if (acp instanceof AccessControlList) {
 					acl = ((AccessControlList) acp);
+					break applicablePolicies;
+				}
 			}
 		} else {
 			AccessControlPolicy[] existingPolicies = acm.getPolicies(path);
-			for (AccessControlPolicy acp : existingPolicies) {
-				if (acp instanceof AccessControlList)
+			existingPolicies: for (AccessControlPolicy acp : existingPolicies) {
+				if (acp instanceof AccessControlList) {
 					acl = ((AccessControlList) acp);
+					break existingPolicies;
+				}
 			}
 		}
 		if (acl != null)

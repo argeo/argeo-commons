@@ -37,7 +37,7 @@ public class JcrTabularTest extends AbstractJackrabbitTestCase {
 
 	public void testWriteReadCsv() throws Exception {
 		// session().setNamespacePrefix("argeo", ArgeoNames.ARGEO_NAMESPACE);
-		InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/argeo/node/node.cnd"));
+		InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/argeo/node/ldap.cnd"));
 		CndImporter.registerNodeTypes(reader, session());
 		reader.close();
 		reader = new InputStreamReader(getClass().getResourceAsStream("/org/argeo/cms/argeo.cnd"));

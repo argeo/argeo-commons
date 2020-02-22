@@ -1,4 +1,3 @@
-<ldap = 'http://www.argeo.org/ns/ldap'>
 <node = 'http://www.argeo.org/ns/node'>
 
 [node:userHome]

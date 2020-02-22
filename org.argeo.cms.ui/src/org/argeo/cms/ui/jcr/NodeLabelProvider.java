@@ -17,6 +17,7 @@ package org.argeo.cms.ui.jcr;
 
 import javax.jcr.NamespaceException;
 import javax.jcr.Node;
+import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
 
@@ -28,8 +29,6 @@ import org.argeo.cms.ui.jcr.model.RepositoryElem;
 import org.argeo.cms.ui.jcr.model.SingleJcrNodeElem;
 import org.argeo.cms.ui.jcr.model.WorkspaceElem;
 import org.argeo.eclipse.ui.EclipseUiException;
-import org.argeo.naming.LdapAttrs;
-import org.argeo.node.NodeTypes;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.graphics.Image;
 
@@ -110,9 +109,13 @@ public class NodeLabelProvider extends ColumnLabelProvider {
 			else if (node.getPrimaryNodeType().isNodeType(NodeType.NT_RESOURCE))
 				return JcrImages.BINARY;
 			try {
-				// optimizes
-				if (node.hasProperty(LdapAttrs.uid.property()) && node.isNodeType(NodeTypes.NODE_USER_HOME))
+				// TODO check workspace type?
+				if (node.getDepth() == 1 && node.hasProperty(Property.JCR_ID))
 					return JcrImages.HOME;
+
+				// optimizes
+//				if (node.hasProperty(LdapAttrs.uid.property()) && node.isNodeType(NodeTypes.NODE_USER_HOME))
+//					return JcrImages.HOME;
 			} catch (NamespaceException e) {
 				// node namespace is not registered in this repo
 			}

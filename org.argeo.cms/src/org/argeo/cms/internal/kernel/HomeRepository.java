@@ -9,6 +9,7 @@ import javax.jcr.Credentials;
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
+import javax.jcr.Property;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -20,11 +21,10 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
 import org.argeo.cms.CmsException;
+import org.argeo.jackrabbit.security.JackrabbitSecurityUtils;
 import org.argeo.jcr.JcrRepositoryWrapper;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.node.NodeConstants;
-import org.argeo.node.NodeNames;
-import org.argeo.node.NodeTypes;
 import org.argeo.node.NodeUtils;
 
 /**
@@ -33,15 +33,17 @@ import org.argeo.node.NodeUtils;
 class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 
 	/** The home base path. */
-	private String homeBasePath = KernelConstants.DEFAULT_HOME_BASE_PATH;
-	private String usersBasePath = KernelConstants.DEFAULT_USERS_BASE_PATH;
-	private String groupsBasePath = KernelConstants.DEFAULT_GROUPS_BASE_PATH;
+//	private String homeBasePath = KernelConstants.DEFAULT_HOME_BASE_PATH;
+//	private String usersBasePath = KernelConstants.DEFAULT_USERS_BASE_PATH;
+//	private String groupsBasePath = KernelConstants.DEFAULT_GROUPS_BASE_PATH;
 
 	private Set<String> checkedUsers = new HashSet<String>();
 
 	private SimpleDateFormat usersDatePath = new SimpleDateFormat("YYYY/MM");
 
 	private String defaultHomeWorkspace = NodeConstants.HOME;
+	private String defaultGroupsWorkspace = NodeConstants.GROUPS;
+	private String defaultGuestsWorkspace = NodeConstants.GUESTS;
 	private final boolean remote;
 
 	public HomeRepository(Repository repository, boolean remote) {
@@ -60,20 +62,26 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 
 				@Override
 				public Void run() {
-					Session adminSession = null;
-					try {
-						adminSession = JcrUtils.loginOrCreateWorkspace(getRepository(defaultHomeWorkspace),
-								defaultHomeWorkspace);
-						initJcr(adminSession);
-					} catch (RepositoryException e) {
-						throw new CmsException("Cannot init JCR home", e);
-					} finally {
-						JcrUtils.logoutQuietly(adminSession);
-					}
+					loginOrCreateWorkspace(defaultHomeWorkspace);
+					loginOrCreateWorkspace(defaultGroupsWorkspace);
 					return null;
 				}
 
 			});
+		}
+	}
+
+	private void loginOrCreateWorkspace(String workspace) {
+		Session adminSession = null;
+		try {
+			adminSession = JcrUtils.loginOrCreateWorkspace(getRepository(workspace), workspace);
+//			JcrUtils.addPrivilege(adminSession, "/", NodeConstants.ROLE_USER, Privilege.JCR_READ);
+
+//			initJcr(adminSession);
+		} catch (RepositoryException e) {
+			throw new CmsException("Cannot init JCR home", e);
+		} finally {
+			JcrUtils.logoutQuietly(adminSession);
 		}
 	}
 
@@ -90,6 +98,16 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 	protected String getUserHomeWorkspace() {
 		// TODO base on JAAS Subject metadata
 		return defaultHomeWorkspace;
+	}
+
+	protected String getGroupsWorkspace() {
+		// TODO base on JAAS Subject metadata
+		return defaultGroupsWorkspace;
+	}
+
+	protected String getGuestsWorkspace() {
+		// TODO base on JAAS Subject metadata
+		return defaultGuestsWorkspace;
 	}
 
 	@Override
@@ -122,7 +140,7 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 	private void initJcr(Session adminSession) {
 		try {
 //			JcrUtils.mkdirs(adminSession, homeBasePath);
-			JcrUtils.mkdirs(adminSession, groupsBasePath);
+//			JcrUtils.mkdirs(adminSession, groupsBasePath);
 			adminSession.save();
 
 //			JcrUtils.addPrivilege(adminSession, homeBasePath, NodeConstants.ROLE_USER_ADMIN, Privilege.JCR_READ);
@@ -146,19 +164,23 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 		try {
 			Node userHome = NodeUtils.getUserHome(adminSession, username);
 			if (userHome == null) {
-				String homePath = generateUserPath(username);
-				if (adminSession.itemExists(homePath))// duplicate user id
-					userHome = adminSession.getNode(homePath).getParent().addNode(JcrUtils.lastPathElement(homePath));
-				else
-					userHome = JcrUtils.mkdirs(adminSession, homePath);
-				// userHome = JcrUtils.mkfolders(session, homePath);
-				userHome.addMixin(NodeTypes.NODE_USER_HOME);
+//				String homePath = generateUserPath(username);
+				String userId = extractUserId(username);
+//				if (adminSession.itemExists(homePath))// duplicate user id
+//					userHome = adminSession.getNode(homePath).getParent().addNode(JcrUtils.lastPathElement(homePath));
+//				else
+//					userHome = JcrUtils.mkdirs(adminSession, homePath);
+				userHome = adminSession.getRootNode().addNode(userId);
+//				userHome.addMixin(NodeTypes.NODE_USER_HOME);
 				userHome.addMixin(NodeType.MIX_CREATED);
-				userHome.setProperty(NodeNames.LDAP_UID, username);
+				userHome.setProperty(Property.JCR_ID, username);
+//				userHome.setProperty(NodeNames.LDAP_UID, username);
 				adminSession.save();
 
-				JcrUtils.clearAccessControList(adminSession, homePath, username);
-				JcrUtils.addPrivilege(adminSession, homePath, username, Privilege.JCR_ALL);
+				JcrUtils.clearAccessControList(adminSession, userHome.getPath(), username);
+				JcrUtils.addPrivilege(adminSession, userHome.getPath(), username, Privilege.JCR_ALL);
+//				JackrabbitSecurityUtils.denyPrivilege(adminSession, userHome.getPath(), NodeConstants.ROLE_USER,
+//						Privilege.JCR_READ);
 			}
 			if (adminSession.hasPendingChanges())
 				adminSession.save();
@@ -186,8 +208,26 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 //		}
 	}
 
+	private String extractUserId(String username) {
+		LdapName dn;
+		try {
+			dn = new LdapName(username);
+		} catch (InvalidNameException e) {
+			throw new CmsException("Invalid name " + username, e);
+		}
+		String userId = dn.getRdn(dn.size() - 1).getValue().toString();
+		return userId;
+//		int atIndex = userId.indexOf('@');
+//		if (atIndex < 0) {
+//			return homeBasePath+'/' + userId;
+//		} else {
+//			return usersBasePath + '/' + usersDatePath.format(new Date()) + '/' + userId;
+//		}
+	}
+
 	public void createWorkgroup(LdapName dn) {
-		Session adminSession = KernelUtils.openAdminSession(this);
+		String groupsWorkspace = getGroupsWorkspace();
+		Session adminSession = KernelUtils.openAdminSession(getRepository(groupsWorkspace), groupsWorkspace);
 		String cn = dn.getRdn(dn.size() - 1).getValue().toString();
 		Node newWorkgroup = NodeUtils.getGroupHome(adminSession, cn);
 		if (newWorkgroup != null) {
@@ -198,10 +238,12 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 			// TODO enhance transformation of cn to a valid node name
 			// String relPath = cn.replaceAll("[^a-zA-Z0-9]", "_");
 			String relPath = JcrUtils.replaceInvalidChars(cn);
-			newWorkgroup = JcrUtils.mkdirs(adminSession.getNode(groupsBasePath), relPath, NodeType.NT_UNSTRUCTURED);
-			newWorkgroup.addMixin(NodeTypes.NODE_GROUP_HOME);
+			newWorkgroup = adminSession.getRootNode().addNode(relPath, NodeType.NT_UNSTRUCTURED);
+//			newWorkgroup = JcrUtils.mkdirs(adminSession.getNode(groupsBasePath), relPath, NodeType.NT_UNSTRUCTURED);
+//			newWorkgroup.addMixin(NodeTypes.NODE_GROUP_HOME);
 			newWorkgroup.addMixin(NodeType.MIX_CREATED);
-			newWorkgroup.setProperty(NodeNames.LDAP_CN, cn);
+			newWorkgroup.setProperty(Property.JCR_ID, dn.toString());
+//			newWorkgroup.setProperty(NodeNames.LDAP_CN, cn);
 			adminSession.save();
 			JcrUtils.addPrivilege(adminSession, newWorkgroup.getPath(), dn.toString(), Privilege.JCR_ALL);
 			adminSession.save();
