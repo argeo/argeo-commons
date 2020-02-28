@@ -36,10 +36,9 @@ public class JcrFileSystem extends FileSystem {
 			}
 	}
 
-	/** Whetehr this node should be skippe din directory listings */
+	/** Whether this node should be skipped in directory listings */
 	public boolean skipNode(Node node) throws RepositoryException {
-		if (node.isNodeType(NodeType.NT_HIERARCHY_NODE) || node.isNodeType("node:userHome")
-				|| node.isNodeType("node:groupHome"))
+		if (node.isNodeType(NodeType.NT_HIERARCHY_NODE))
 			return false;
 		return true;
 	}
