@@ -21,7 +21,6 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
 import org.argeo.cms.CmsException;
-import org.argeo.jackrabbit.security.JackrabbitSecurityUtils;
 import org.argeo.jcr.JcrRepositoryWrapper;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.node.NodeConstants;
@@ -42,8 +41,8 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 	private SimpleDateFormat usersDatePath = new SimpleDateFormat("YYYY/MM");
 
 	private String defaultHomeWorkspace = NodeConstants.HOME;
-	private String defaultGroupsWorkspace = NodeConstants.GROUPS;
-	private String defaultGuestsWorkspace = NodeConstants.GUESTS;
+	private String defaultGroupsWorkspace = NodeConstants.SRV;
+//	private String defaultGuestsWorkspace = NodeConstants.GUESTS;
 	private final boolean remote;
 
 	public HomeRepository(Repository repository, boolean remote) {
@@ -85,15 +84,15 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 		}
 	}
 
-	@Override
-	public Session login(Credentials credentials, String workspaceName)
-			throws LoginException, NoSuchWorkspaceException, RepositoryException {
-		if (workspaceName == null) {
-			return super.login(credentials, getUserHomeWorkspace());
-		} else {
-			return super.login(credentials, workspaceName);
-		}
-	}
+//	@Override
+//	public Session login(Credentials credentials, String workspaceName)
+//			throws LoginException, NoSuchWorkspaceException, RepositoryException {
+//		if (workspaceName == null) {
+//			return super.login(credentials, getUserHomeWorkspace());
+//		} else {
+//			return super.login(credentials, workspaceName);
+//		}
+//	}
 
 	protected String getUserHomeWorkspace() {
 		// TODO base on JAAS Subject metadata
@@ -105,10 +104,10 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 		return defaultGroupsWorkspace;
 	}
 
-	protected String getGuestsWorkspace() {
-		// TODO base on JAAS Subject metadata
-		return defaultGuestsWorkspace;
-	}
+//	protected String getGuestsWorkspace() {
+//		// TODO base on JAAS Subject metadata
+//		return defaultGuestsWorkspace;
+//	}
 
 	@Override
 	protected void processNewSession(Session session, String workspaceName) {
@@ -119,7 +118,7 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 			return;
 
 		String userHomeWorkspace = getUserHomeWorkspace();
-		if (workspaceName != null && !workspaceName.equals(userHomeWorkspace))
+		if (workspaceName == null || !workspaceName.equals(userHomeWorkspace))
 			return;
 
 		if (checkedUsers.contains(username))
@@ -173,7 +172,10 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 				userHome = adminSession.getRootNode().addNode(userId);
 //				userHome.addMixin(NodeTypes.NODE_USER_HOME);
 				userHome.addMixin(NodeType.MIX_CREATED);
+				userHome.addMixin(NodeType.MIX_TITLE);
 				userHome.setProperty(Property.JCR_ID, username);
+				// TODO use display name
+				userHome.setProperty(Property.JCR_TITLE, userId);
 //				userHome.setProperty(NodeNames.LDAP_UID, username);
 				adminSession.save();
 
@@ -242,7 +244,9 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 //			newWorkgroup = JcrUtils.mkdirs(adminSession.getNode(groupsBasePath), relPath, NodeType.NT_UNSTRUCTURED);
 //			newWorkgroup.addMixin(NodeTypes.NODE_GROUP_HOME);
 			newWorkgroup.addMixin(NodeType.MIX_CREATED);
+			newWorkgroup.addMixin(NodeType.MIX_TITLE);
 			newWorkgroup.setProperty(Property.JCR_ID, dn.toString());
+			newWorkgroup.setProperty(Property.JCR_TITLE, cn);
 //			newWorkgroup.setProperty(NodeNames.LDAP_CN, cn);
 			adminSession.save();
 			JcrUtils.addPrivilege(adminSession, newWorkgroup.getPath(), dn.toString(), Privilege.JCR_ALL);

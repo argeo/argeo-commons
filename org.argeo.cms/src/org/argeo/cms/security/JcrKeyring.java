@@ -46,6 +46,7 @@ import org.argeo.cms.ArgeoTypes;
 import org.argeo.cms.CmsException;
 import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeUtils;
 import org.argeo.node.security.PBEKeySpecCallback;
 
@@ -108,7 +109,7 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 
 	private Session login() {
 		try {
-			return repository.login();
+			return repository.login(NodeConstants.HOME);
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot login key ring session", e);
 		}

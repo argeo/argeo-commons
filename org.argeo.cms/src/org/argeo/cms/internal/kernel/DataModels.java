@@ -27,7 +27,7 @@ class DataModels implements BundleListener {
 
 	public DataModels(BundleContext bc) {
 		for (Bundle bundle : bc.getBundles())
-			processBundle(bundle);
+			processBundle(bundle, null);
 		bc.addBundleListener(this);
 	}
 
@@ -45,7 +45,7 @@ class DataModels implements BundleListener {
 	@Override
 	public void bundleChanged(BundleEvent event) {
 		if (event.getType() == Bundle.RESOLVED) {
-			processBundle(event.getBundle());
+			processBundle(event.getBundle(), null);
 		} else if (event.getType() == Bundle.UNINSTALLED) {
 			BundleWiring wiring = event.getBundle().adapt(BundleWiring.class);
 			List<BundleCapability> providedDataModels = wiring.getCapabilities(CMS_DATA_MODEL_NAMESPACE);
@@ -58,7 +58,9 @@ class DataModels implements BundleListener {
 
 	}
 
-	protected void processBundle(Bundle bundle) {
+	protected void processBundle(Bundle bundle, List<Bundle> scannedBundles) {
+		if (scannedBundles != null && scannedBundles.contains(bundle))
+			throw new IllegalStateException("Cycle in CMS data model requirements for " + bundle);
 		BundleWiring wiring = bundle.adapt(BundleWiring.class);
 		if (wiring == null) {
 			int bundleState = bundle.getState();
@@ -77,7 +79,12 @@ class DataModels implements BundleListener {
 		List<BundleWire> requiredDataModels = wiring.getRequiredWires(CMS_DATA_MODEL_NAMESPACE);
 		// process requirements first
 		for (BundleWire bundleWire : requiredDataModels) {
-			processBundle(bundleWire.getProvider().getBundle());
+			List<Bundle> nextScannedBundles = new ArrayList<>();
+			if (scannedBundles != null)
+				nextScannedBundles.addAll(scannedBundles);
+			nextScannedBundles.add(bundle);
+			Bundle providerBundle = bundleWire.getProvider().getBundle();
+			processBundle(providerBundle, nextScannedBundles);
 		}
 		for (BundleCapability bundleCapability : providedDataModels) {
 			String name = (String) bundleCapability.getAttributes().get(DataModelNamespace.NAME);

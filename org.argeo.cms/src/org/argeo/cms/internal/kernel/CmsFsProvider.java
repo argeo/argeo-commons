@@ -102,8 +102,9 @@ public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 		}
 
 		public boolean skipNode(Node node) throws RepositoryException {
-			if (node.isNodeType(NodeType.NT_HIERARCHY_NODE) || node.isNodeType(NodeTypes.NODE_USER_HOME)
-					|| node.isNodeType(NodeTypes.NODE_GROUP_HOME))
+//			if (node.isNodeType(NodeType.NT_HIERARCHY_NODE) || node.isNodeType(NodeTypes.NODE_USER_HOME)
+//					|| node.isNodeType(NodeTypes.NODE_GROUP_HOME))
+			if (node.isNodeType(NodeType.NT_HIERARCHY_NODE))
 				return false;
 			return true;
 		}

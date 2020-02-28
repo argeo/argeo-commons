@@ -182,7 +182,7 @@ public class NodeUtils {
 
 	private static void checkGroupWorkspace(Session session, String groupname) {
 		String workspaceName = session.getWorkspace().getName();
-		if (!NodeConstants.GROUPS.equals(workspaceName))
+		if (!NodeConstants.SRV.equals(workspaceName))
 			throw new IllegalArgumentException(workspaceName + " is not the group workspace for group " + groupname);
 	}
 
