@@ -48,6 +48,7 @@ import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.naming.LdapAttrs;
+import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeInstance;
 import org.argeo.node.NodeUtils;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
@@ -103,7 +104,7 @@ public class GroupEditor extends AbstractRoleEditor {
 	@Inject
 	private NodeInstance nodeInstance;
 	// private final UserAdminWrapper userAdminWrapper;
-	private Session session;
+	private Session groupsSession;
 
 	// public GroupMainPage(FormEditor editor, UserAdminWrapper userAdminWrapper,
 	// Repository repository,
@@ -133,7 +134,7 @@ public class GroupEditor extends AbstractRoleEditor {
 	@Override
 	protected void createUi(Composite parent) {
 		try {
-			session = repository.login();
+			groupsSession = repository.login(NodeConstants.SRV);
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot retrieve session", e);
 		}
@@ -150,7 +151,7 @@ public class GroupEditor extends AbstractRoleEditor {
 
 	@PreDestroy
 	public void dispose() {
-		JcrUtils.logoutQuietly(session);
+		JcrUtils.logoutQuietly(groupsSession);
 		super.dispose();
 	}
 
@@ -211,7 +212,7 @@ public class GroupEditor extends AbstractRoleEditor {
 				// dnTxt.setText(group.getName());
 				// cnTxt.setText(UserAdminUtils.getProperty(group, LdapAttrs.cn.name()));
 				descTxt.setText(UserAdminUtils.getProperty(group, LdapAttrs.description.name()));
-				Node workgroupHome = NodeUtils.getGroupHome(session, cn);
+				Node workgroupHome = NodeUtils.getGroupHome(groupsSession, cn);
 				if (workgroupHome == null)
 					markAsWorkgroupLk.setText("<a>Mark as workgroup</a>");
 				else
@@ -230,7 +231,7 @@ public class GroupEditor extends AbstractRoleEditor {
 				boolean confirmed = MessageDialog.openConfirm(parent.getShell(), "Mark as workgroup",
 						"Are you sure you want to mark " + cn + " as being a workgroup? ");
 				if (confirmed) {
-					Node workgroupHome = NodeUtils.getGroupHome(session, cn);
+					Node workgroupHome = NodeUtils.getGroupHome(groupsSession, cn);
 					if (workgroupHome != null)
 						return; // already marked as workgroup, do nothing
 					else
