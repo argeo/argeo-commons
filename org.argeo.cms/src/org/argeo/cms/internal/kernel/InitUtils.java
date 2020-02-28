@@ -106,7 +106,7 @@ class InitUtils {
 				String wantClientAuth = getFrameworkProp(
 						InternalHttpConstants.JETTY_PROPERTY_PREFIX + InternalHttpConstants.SSL_WANTCLIENTAUTH);
 				if (wantClientAuth != null)
-					props.put(InternalHttpConstants.SSL_NEEDCLIENTAUTH, Boolean.parseBoolean(wantClientAuth));
+					props.put(InternalHttpConstants.SSL_WANTCLIENTAUTH, Boolean.parseBoolean(wantClientAuth));
 				String needClientAuth = getFrameworkProp(
 						InternalHttpConstants.JETTY_PROPERTY_PREFIX + InternalHttpConstants.SSL_NEEDCLIENTAUTH);
 				if (needClientAuth != null)
