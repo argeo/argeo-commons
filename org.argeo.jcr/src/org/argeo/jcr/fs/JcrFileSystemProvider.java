@@ -25,6 +25,7 @@ import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
@@ -69,7 +70,8 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 			Node base = toNode(dir);
 			if (base == null)
 				throw new IOException(dir + " is not a JCR node");
-			return new NodeDirectoryStream((JcrFileSystem) dir.getFileSystem(), base.getNodes(), filter);
+			JcrFileSystem fileSystem = (JcrFileSystem) dir.getFileSystem();
+			return new NodeDirectoryStream(fileSystem, base.getNodes(), fileSystem.listDirectMounts(dir), filter);
 		} catch (RepositoryException e) {
 			throw new IOException("Cannot list directory", e);
 		}
@@ -194,14 +196,10 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 
 	@Override
 	public void checkAccess(Path path, AccessMode... modes) throws IOException {
-		try {
-			Session session = ((JcrFileSystem) path.getFileSystem()).getSession();
-			if (!session.itemExists(path.toString()))
-				throw new NoSuchFileException(path + " does not exist");
-			// TODO check access via JCR api
-		} catch (RepositoryException e) {
-			throw new IOException("Cannot delete " + path, e);
-		}
+		Node node = toNode(path);
+		if (node == null)
+			throw new NoSuchFileException(path + " does not exist");
+		// TODO check access via JCR api
 	}
 
 	@Override
@@ -317,7 +315,7 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 	 * 
 	 * @return null by default
 	 */
-	public Node getUserHome(Session session) {
+	public Node getUserHome(Repository session) {
 		return null;
 	}
 

@@ -42,6 +42,8 @@ public class JcrFileSystemTest extends TestCase {
 
 		Path rootPath = fsProvider.getPath(new URI("jcr+memory:/"));
 		log.debug("Got root " + rootPath);
+		Path testDir = rootPath.resolve("testDir");
+		Files.createDirectory(testDir);
 
 		Path testMount = fsProvider.getPath(new URI("jcr+memory:/test"));
 		log.debug("Test path");
@@ -58,6 +60,31 @@ public class JcrFileSystemTest extends TestCase {
 		log.debug("Created " + testPath + " (" + ft + ")");
 		Files.delete(testPath);
 		log.debug("Deleted " + testPath);
+
+		// Browse directories from root
+		DirectoryStream<Path> files = Files.newDirectoryStream(rootPath);
+		int directoryCount = 0;
+		for (Path file : files) {
+			if (Files.isDirectory(file)) {
+				directoryCount++;
+			}
+		}
+		assertEquals(2, directoryCount);
+
+		// Browse directories from mount
+		Path mountSubDir = testMount.resolve("mountSubDir");
+		Files.createDirectory(mountSubDir);
+		Path otherSubDir = testMount.resolve("otherSubDir");
+		Files.createDirectory(otherSubDir);
+		testPath = testMount.resolve("test.txt");
+		Files.createFile(testPath);
+		files = Files.newDirectoryStream(testMount);
+		int fileCount = 0;
+		for (Path file : files) {
+			fileCount++;
+		}
+		assertEquals(3, fileCount);
+
 	}
 
 	public void testSimple() throws Exception {

@@ -47,7 +47,7 @@ public class NodeFsBrowserView {
 			FileSystem fileSystem = nodeFileSystemProvider.getFileSystem(uri);
 			if (fileSystem == null)
 				fileSystem = nodeFileSystemProvider.newFileSystem(uri, null);
-			Path nodePath = fileSystem.getPath("~");
+			Path nodePath = fileSystem.getPath("/");
 
 			Path localPath = Paths.get(System.getProperty("user.home"));
 

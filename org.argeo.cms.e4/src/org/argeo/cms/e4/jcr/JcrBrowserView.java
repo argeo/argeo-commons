@@ -44,6 +44,7 @@ import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.jcr.AsyncUiEventListener;
 import org.argeo.eclipse.ui.jcr.utils.NodeViewerComparer;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.node.NodeConstants;
 import org.argeo.node.security.CryptoKeyring;
 import org.argeo.node.security.Keyring;
 import org.eclipse.e4.core.contexts.IEclipseContext;
@@ -114,7 +115,7 @@ public class JcrBrowserView {
 		top.setLayout(CmsUtils.noSpaceGridLayout());
 
 		try {
-			this.userSession = this.nodeRepository.login();
+			this.userSession = this.nodeRepository.login(NodeConstants.HOME);
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot open user session", e);
 		}

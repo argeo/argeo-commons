@@ -78,7 +78,7 @@ public class DavexFsProvider extends AbstractJackrabbitFsProvider {
 			}
 			return tryGetRepo(repositoryFactory, nextUri, nextWorkspace);
 		} else {
-			JcrFileSystem fileSystem = new JcrFileSystem(this, session);
+			JcrFileSystem fileSystem = new JcrFileSystem(this, repository);
 			fileSystems.put(repoUri.toString() + "/" + workspace, fileSystem);
 			return fileSystem;
 		}

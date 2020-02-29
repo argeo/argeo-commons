@@ -62,7 +62,6 @@ public class CmsDeployment implements NodeDeployment {
 
 	private DataModels dataModels;
 	private DeployConfig deployConfig;
-	private HomeRepository homeRepository;
 
 	private Long availableSince;
 
@@ -286,10 +285,10 @@ public class CmsDeployment implements NodeDeployment {
 
 		// Publish home with the highest service ranking
 		Hashtable<String, Object> regProps = new Hashtable<>();
-		regProps.put(NodeConstants.CN, NodeConstants.HOME);
+		regProps.put(NodeConstants.CN, NodeConstants.EGO);
 		regProps.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
-		homeRepository = new HomeRepository(deployedRepository, false);
-		bc.registerService(Repository.class, homeRepository, regProps);
+		Repository egoRepository = new EgoRepository(deployedRepository, false);
+		bc.registerService(Repository.class, egoRepository, regProps);
 
 		// Keyring only if Argeo extensions are available
 		if (argeoDataModelExtensionsAvailable) {
@@ -297,7 +296,7 @@ public class CmsDeployment implements NodeDeployment {
 
 				@Override
 				public CallbackHandler addingService(ServiceReference<CallbackHandler> reference) {
-					NodeKeyRing nodeKeyring = new NodeKeyRing(homeRepository);
+					NodeKeyRing nodeKeyring = new NodeKeyRing(egoRepository);
 					CallbackHandler callbackHandler = bc.getService(reference);
 					nodeKeyring.setDefaultCallbackHandler(callbackHandler);
 					bc.registerService(LangUtils.names(Keyring.class, CryptoKeyring.class, ManagedService.class),

@@ -17,7 +17,7 @@ public class CmsInstance implements NodeInstance {
 	private final Log log = LogFactory.getLog(getClass());
 	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
-	private HomeRepository homeRepository;
+	private EgoRepository egoRepository;
 
 	public CmsInstance() {
 		initTrackers();
@@ -29,8 +29,8 @@ public class CmsInstance implements NodeInstance {
 			@Override
 			public Repository addingService(ServiceReference<Repository> reference) {
 				Object cn = reference.getProperty(NodeConstants.CN);
-				if (cn != null && cn.equals(NodeConstants.HOME)) {
-					homeRepository = (HomeRepository) bc.getService(reference);
+				if (cn != null && cn.equals(NodeConstants.EGO)) {
+					egoRepository = (EgoRepository) bc.getService(reference);
 					if (log.isTraceEnabled())
 						log.trace("Home repository is available");
 				}
@@ -40,7 +40,7 @@ public class CmsInstance implements NodeInstance {
 			@Override
 			public void removedService(ServiceReference<Repository> reference, Repository service) {
 				super.removedService(reference, service);
-				homeRepository = null;
+				egoRepository = null;
 			}
 
 		}.open();
@@ -52,10 +52,10 @@ public class CmsInstance implements NodeInstance {
 
 	@Override
 	public void createWorkgroup(LdapName dn) {
-		if (homeRepository == null)
-			throw new CmsException("Home repository is not available");
+		if (egoRepository == null)
+			throw new CmsException("Ego repository is not available");
 		// TODO add check that the group exists
-		homeRepository.createWorkgroup(dn);
+		egoRepository.createWorkgroup(dn);
 	}
 
 }

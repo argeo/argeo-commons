@@ -23,8 +23,9 @@ public interface NodeConstants {
 	 * COMMON NAMES
 	 */
 	String NODE = "node";
+	String EGO = "ego";
 	String HOME = "home";
-	String SRV = "groups";
+	String SRV = "srv";
 	String GUESTS = "guests";
 	String PUBLIC = "public";
 

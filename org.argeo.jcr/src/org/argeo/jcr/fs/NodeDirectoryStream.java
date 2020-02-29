@@ -11,11 +11,14 @@ import javax.jcr.NodeIterator;
 public class NodeDirectoryStream implements DirectoryStream<Path> {
 	private final JcrFileSystem fs;
 	private final NodeIterator nodeIterator;
+	private final Iterator<JcrPath> additionalPaths;
 	private final Filter<? super Path> filter;
 
-	public NodeDirectoryStream(JcrFileSystem fs, NodeIterator nodeIterator, Filter<? super Path> filter) {
+	public NodeDirectoryStream(JcrFileSystem fs, NodeIterator nodeIterator, Iterator<JcrPath> additionalPaths,
+			Filter<? super Path> filter) {
 		this.fs = fs;
 		this.nodeIterator = nodeIterator;
+		this.additionalPaths = additionalPaths;
 		this.filter = filter;
 	}
 
@@ -50,6 +53,12 @@ public class NodeDirectoryStream implements DirectoryStream<Path> {
 						throw new JcrFsException("Could not get next path", e);
 					}
 				}
+
+				if (next == null) {
+					if (additionalPaths.hasNext())
+						next = additionalPaths.next();
+				}
+
 				return next != null;
 			}
 

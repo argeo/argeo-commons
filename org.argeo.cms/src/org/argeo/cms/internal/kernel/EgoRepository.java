@@ -5,9 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.jcr.Credentials;
-import javax.jcr.LoginException;
-import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.Repository;
@@ -27,9 +24,9 @@ import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeUtils;
 
 /**
- * Make sure each user has a home directory available in the default workspace.
+ * Make sure each user has a home directory available.
  */
-class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
+class EgoRepository extends JcrRepositoryWrapper implements KernelConstants {
 
 	/** The home base path. */
 //	private String homeBasePath = KernelConstants.DEFAULT_HOME_BASE_PATH;
@@ -45,10 +42,10 @@ class HomeRepository extends JcrRepositoryWrapper implements KernelConstants {
 //	private String defaultGuestsWorkspace = NodeConstants.GUESTS;
 	private final boolean remote;
 
-	public HomeRepository(Repository repository, boolean remote) {
+	public EgoRepository(Repository repository, boolean remote) {
 		super(repository);
 		this.remote = remote;
-		putDescriptor(NodeConstants.CN, NodeConstants.HOME);
+		putDescriptor(NodeConstants.CN, NodeConstants.EGO);
 		if (!remote) {
 			LoginContext lc;
 			try {

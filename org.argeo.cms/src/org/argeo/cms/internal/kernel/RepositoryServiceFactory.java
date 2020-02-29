@@ -90,10 +90,9 @@ class RepositoryServiceFactory implements ManagedServiceFactory {
 					bc.registerService(Repository.class, repository, props);
 
 					// home
-					// TODO make a sperate home configurable
 					if (cn.equals(NodeConstants.NODE)) {
-						Dictionary<String, Object> homeProps = LangUtils.dico(NodeConstants.CN, NodeConstants.HOME);
-						HomeRepository homeRepository = new HomeRepository(repository, true);
+						Dictionary<String, Object> homeProps = LangUtils.dico(NodeConstants.CN, NodeConstants.EGO);
+						EgoRepository homeRepository = new EgoRepository(repository, true);
 						bc.registerService(Repository.class, homeRepository, homeProps);
 					}
 				} catch (Exception e) {

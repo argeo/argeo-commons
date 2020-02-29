@@ -47,7 +47,7 @@ class InitUtils {
 	}
 
 	static Dictionary<String, Object> getRepositoryConfig(String dataModelName, Dictionary<String, Object> provided) {
-		if (dataModelName.equals(NodeConstants.NODE) || dataModelName.equals(NodeConstants.HOME))
+		if (dataModelName.equals(NodeConstants.NODE) || dataModelName.equals(NodeConstants.EGO))
 			throw new IllegalArgumentException("Data model '" + dataModelName + "' is reserved.");
 		Dictionary<String, Object> props = provided != null ? provided : new Hashtable<String, Object>();
 		for (RepoConf repoConf : RepoConf.values()) {
