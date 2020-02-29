@@ -13,17 +13,52 @@ import java.util.Arrays;
 import java.util.Map;
 
 import javax.jcr.Property;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.jackrabbit.core.RepositoryImpl;
 import org.argeo.jackrabbit.fs.JackrabbitMemoryFsProvider;
 
 import junit.framework.TestCase;
 
 public class JcrFileSystemTest extends TestCase {
 	private final static Log log = LogFactory.getLog(JcrFileSystemTest.class);
+
+	public void testMounts() throws Exception {
+		JackrabbitMemoryFsProvider fsProvider = new JackrabbitMemoryFsProvider() {
+
+			@Override
+			protected void postRepositoryCreation(RepositoryImpl repositoryImpl) throws RepositoryException {
+				// create workspace
+				Session session = login();
+				session.getWorkspace().createWorkspace("test");
+			}
+
+		};
+
+		Path rootPath = fsProvider.getPath(new URI("jcr+memory:/"));
+		log.debug("Got root " + rootPath);
+
+		Path testMount = fsProvider.getPath(new URI("jcr+memory:/test"));
+		log.debug("Test path");
+		assertEquals(rootPath, testMount.getParent());
+		assertEquals(testMount.getFileName(), rootPath.relativize(testMount));
+
+		Path testPath = testMount.resolve("test.txt");
+		log.debug("Create file " + testPath);
+		Files.createFile(testPath);
+		BasicFileAttributes bfa = Files.readAttributes(testPath, BasicFileAttributes.class);
+		FileTime ft = bfa.creationTime();
+		assertNotNull(ft);
+		assertTrue(bfa.isRegularFile());
+		log.debug("Created " + testPath + " (" + ft + ")");
+		Files.delete(testPath);
+		log.debug("Deleted " + testPath);
+	}
 
 	public void testSimple() throws Exception {
 		FileSystemProvider fsProvider = new JackrabbitMemoryFsProvider();

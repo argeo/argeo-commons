@@ -17,14 +17,15 @@ import java.util.NoSuchElementException;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
-import javax.jcr.Session;
 
 /** A {@link Path} which contains a reference to a JCR {@link Node}. */
 public class JcrPath implements Path {
-	private final static String delimStr = "/";
-	private final static char delimChar = '/';
+	final static String separator = "/";
+	final static char separatorChar = '/';
 
 	private final JcrFileSystem fs;
+	/** null for non absolute paths */
+	private final WorkspaceFileStore fileStore;
 	private final String[] path;// null means root
 	private final boolean absolute;
 
@@ -35,14 +36,16 @@ public class JcrPath implements Path {
 		this.fs = filesSystem;
 		if (path == null)
 			throw new JcrFsException("Path cannot be null");
-		if (path.equals(delimStr)) {// root
+		if (path.equals(separator)) {// root
 			this.path = null;
 			this.absolute = true;
 			this.hashCode = 0;
+			this.fileStore = fs.getBaseFileStore();
 			return;
 		} else if (path.equals("")) {// empty path
 			this.path = new String[] { "" };
 			this.absolute = false;
+			this.fileStore = null;
 			this.hashCode = "".hashCode();
 			return;
 		}
@@ -53,26 +56,36 @@ public class JcrPath implements Path {
 				throw new JcrFsException("No home directory available");
 		}
 
-		this.absolute = path.charAt(0) == delimChar ? true : false;
+		this.absolute = path.charAt(0) == separatorChar ? true : false;
+
+		this.fileStore = absolute ? fs.getFileStore(path) : null;
+
 		String trimmedPath = path.substring(absolute ? 1 : 0,
-				path.charAt(path.length() - 1) == delimChar ? path.length() - 1 : path.length());
-		this.path = trimmedPath.split(delimStr);
+				path.charAt(path.length() - 1) == separatorChar ? path.length() - 1 : path.length());
+		this.path = trimmedPath.split(separator);
 		for (int i = 0; i < this.path.length; i++) {
 			this.path[i] = Text.unescapeIllegalJcrChars(this.path[i]);
 		}
 		this.hashCode = this.path[this.path.length - 1].hashCode();
+		assert !(absolute && fileStore == null);
 	}
 
 	public JcrPath(JcrFileSystem filesSystem, Node node) throws RepositoryException {
-		this(filesSystem, node.getPath());
+		this(filesSystem, filesSystem.getFileStore(node).toFsPath(node));
 	}
 
 	/** Internal optimisation */
-	private JcrPath(JcrFileSystem filesSystem, String[] path, boolean absolute) {
+	private JcrPath(JcrFileSystem filesSystem, WorkspaceFileStore fileStore, String[] path, boolean absolute) {
 		this.fs = filesSystem;
 		this.path = path;
 		this.absolute = path == null ? true : absolute;
+		if (this.absolute && fileStore == null)
+			throw new IllegalArgumentException("Absolute path requires a file store");
+		if (!this.absolute && fileStore != null)
+			throw new IllegalArgumentException("A file store should not be provided for a relative path");
+		this.fileStore = fileStore;
 		this.hashCode = path == null ? 0 : path[path.length - 1].hashCode();
+		assert !(absolute && fileStore == null);
 	}
 
 	@Override
@@ -87,17 +100,17 @@ public class JcrPath implements Path {
 
 	@Override
 	public Path getRoot() {
-		try {
-			if (path == null)
-				return this;
-			return new JcrPath(fs, fs.getSession().getRootNode());
-		} catch (RepositoryException e) {
-			throw new JcrFsException("Cannot get root", e);
-		}
+		if (path == null)
+			return this;
+		return new JcrPath(fs, separator);
 	}
 
 	@Override
 	public String toString() {
+		return toFsPath(path);
+	}
+
+	private String toFsPath(String[] path) {
 		if (path == null)
 			return "/";
 		StringBuilder sb = new StringBuilder();
@@ -111,19 +124,25 @@ public class JcrPath implements Path {
 		return sb.toString();
 	}
 
-	public String toJcrPath() {
-		if (path == null)
-			return "/";
-		StringBuilder sb = new StringBuilder();
-		if (isAbsolute())
-			sb.append('/');
-		for (int i = 0; i < path.length; i++) {
-			if (i != 0)
-				sb.append('/');
-			sb.append(Text.escapeIllegalJcrChars(path[i]));
-		}
-		return sb.toString();
-	}
+//	@Deprecated
+//	private String toJcrPath() {
+//		return toJcrPath(path);
+//	}
+//
+//	@Deprecated
+//	private String toJcrPath(String[] path) {
+//		if (path == null)
+//			return "/";
+//		StringBuilder sb = new StringBuilder();
+//		if (isAbsolute())
+//			sb.append('/');
+//		for (int i = 0; i < path.length; i++) {
+//			if (i != 0)
+//				sb.append('/');
+//			sb.append(Text.escapeIllegalJcrChars(path[i]));
+//		}
+//		return sb.toString();
+//	}
 
 	@Override
 	public Path getFileName() {
@@ -137,9 +156,12 @@ public class JcrPath implements Path {
 		if (path == null)
 			return null;
 		if (path.length == 1)// root
-			return new JcrPath(fs, delimStr);
+			return new JcrPath(fs, separator);
 		String[] parentPath = Arrays.copyOfRange(path, 0, path.length - 1);
-		return new JcrPath(fs, parentPath, absolute);
+		if (!absolute)
+			return new JcrPath(fs, null, parentPath, absolute);
+		else
+			return new JcrPath(fs, toFsPath(parentPath));
 	}
 
 	@Override
@@ -161,7 +183,7 @@ public class JcrPath implements Path {
 		if (path == null)
 			return null;
 		String[] parentPath = Arrays.copyOfRange(path, beginIndex, endIndex);
-		return new JcrPath(fs, parentPath, false);
+		return new JcrPath(fs, null, parentPath, false);
 	}
 
 	@Override
@@ -204,7 +226,11 @@ public class JcrPath implements Path {
 			System.arraycopy(path, 0, newPath, 0, path.length);
 			System.arraycopy(otherPath.path, 0, newPath, path.length, otherPath.path.length);
 		}
-		return new JcrPath(fs, newPath, absolute);
+		if (!absolute)
+			return new JcrPath(fs, null, newPath, absolute);
+		else {
+			return new JcrPath(fs, toFsPath(newPath));
+		}
 	}
 
 	@Override
@@ -281,7 +307,7 @@ public class JcrPath implements Path {
 	public Path toAbsolutePath() {
 		if (isAbsolute())
 			return this;
-		return new JcrPath(fs, path, true);
+		return new JcrPath(fs, fileStore, path, true);
 	}
 
 	@Override
@@ -313,13 +339,15 @@ public class JcrPath implements Path {
 
 	public Node getNode() throws RepositoryException {
 		if (!isAbsolute())// TODO default dir
-			throw new JcrFsException("Cannot get node from relative path");
-		String pathStr = toJcrPath();
-		Session session = fs.getSession();
-		// TODO synchronize on the session ?
-		if (!session.itemExists(pathStr))
-			return null;
-		return session.getNode(pathStr);
+			throw new JcrFsException("Cannot get a JCR node from a relative path");
+		assert fileStore != null;
+		return fileStore.toNode(path);
+//		String pathStr = toJcrPath();
+//		Session session = fs.getSession();
+//		// TODO synchronize on the session ?
+//		if (!session.itemExists(pathStr))
+//			return null;
+//		return session.getNode(pathStr);
 	}
 
 	@Override

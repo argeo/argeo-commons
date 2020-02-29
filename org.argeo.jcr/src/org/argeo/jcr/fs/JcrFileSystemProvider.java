@@ -188,8 +188,8 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 
 	@Override
 	public FileStore getFileStore(Path path) throws IOException {
-		Session session = ((JcrFileSystem) path.getFileSystem()).getSession();
-		return new WorkSpaceFileStore(session.getWorkspace());
+		JcrFileSystem fileSystem = (JcrFileSystem) path.getFileSystem();
+		return fileSystem.getFileStore(path.toString());
 	}
 
 	@Override
@@ -320,4 +320,5 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 	public Node getUserHome(Session session) {
 		return null;
 	}
+
 }

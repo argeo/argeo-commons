@@ -8,10 +8,16 @@ import java.nio.file.PathMatcher;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.UserPrincipalLookupService;
 import java.nio.file.spi.FileSystemProvider;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
+import javax.jcr.Credentials;
 import javax.jcr.Node;
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
@@ -20,13 +26,52 @@ import org.argeo.jcr.JcrUtils;
 
 public class JcrFileSystem extends FileSystem {
 	private final JcrFileSystemProvider provider;
+
 	private final Session session;
+	private WorkspaceFileStore baseFileStore;
+
+	private Map<String, WorkspaceFileStore> mounts = new TreeMap<>();
+
 	private String userHomePath = null;
 
+	@Deprecated
 	public JcrFileSystem(JcrFileSystemProvider provider, Session session) throws IOException {
 		super();
 		this.provider = provider;
+		baseFileStore = new WorkspaceFileStore(null, session.getWorkspace());
 		this.session = session;
+		Node userHome = provider.getUserHome(session);
+		if (userHome != null)
+			try {
+				userHomePath = userHome.getPath();
+			} catch (RepositoryException e) {
+				throw new IOException("Cannot retrieve user home path", e);
+			}
+	}
+
+	public JcrFileSystem(JcrFileSystemProvider provider, Repository repository) throws IOException {
+		this(provider, repository, null);
+	}
+
+	public JcrFileSystem(JcrFileSystemProvider provider, Repository repository, Credentials credentials)
+			throws IOException {
+		super();
+		this.provider = provider;
+		try {
+			this.session = credentials == null ? repository.login() : repository.login(credentials);
+			baseFileStore = new WorkspaceFileStore(null, session.getWorkspace());
+			workspaces: for (String workspaceName : baseFileStore.getWorkspace().getAccessibleWorkspaceNames()) {
+				if (workspaceName.equals(baseFileStore.getWorkspace().getName()))
+					continue workspaces;// do not mount base
+				Session mountSession = credentials == null ? repository.login(workspaceName)
+						: repository.login(credentials, workspaceName);
+				String mountPath = JcrPath.separator + workspaceName;
+				mounts.put(mountPath, new WorkspaceFileStore(mountPath, mountSession.getWorkspace()));
+			}
+		} catch (RepositoryException e) {
+			throw new IOException("Cannot initialise file system", e);
+		}
+
 		Node userHome = provider.getUserHome(session);
 		if (userHome != null)
 			try {
@@ -47,6 +92,34 @@ public class JcrFileSystem extends FileSystem {
 		return userHomePath;
 	}
 
+	public WorkspaceFileStore getFileStore(String path) {
+		WorkspaceFileStore res = baseFileStore;
+		for (String mountPath : mounts.keySet()) {
+			if (path.startsWith(mountPath)) {
+				res = mounts.get(mountPath);
+				// we keep the last one
+			}
+		}
+		assert res != null;
+		return res;
+	}
+
+	public WorkspaceFileStore getFileStore(Node node) throws RepositoryException {
+		String workspaceName = node.getSession().getWorkspace().getName();
+		if (workspaceName.equals(baseFileStore.getWorkspace().getName()))
+			return baseFileStore;
+		for (String mountPath : mounts.keySet()) {
+			WorkspaceFileStore fileStore = mounts.get(mountPath);
+			if (workspaceName.equals(fileStore.getWorkspace().getName()))
+				return fileStore;
+		}
+		throw new IllegalStateException("No workspace mount found for " + node + " in workspace " + workspaceName);
+	}
+
+	public WorkspaceFileStore getBaseFileStore() {
+		return baseFileStore;
+	}
+
 	@Override
 	public FileSystemProvider provider() {
 		return provider;
@@ -55,6 +128,14 @@ public class JcrFileSystem extends FileSystem {
 	@Override
 	public void close() throws IOException {
 		JcrUtils.logoutQuietly(session);
+		for (String mountPath : mounts.keySet()) {
+			WorkspaceFileStore fileStore = mounts.get(mountPath);
+			try {
+				fileStore.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	@Override
@@ -69,23 +150,22 @@ public class JcrFileSystem extends FileSystem {
 
 	@Override
 	public String getSeparator() {
-		return "/";
+		return JcrPath.separator;
 	}
 
 	@Override
 	public Iterable<Path> getRootDirectories() {
-		try {
-			Set<Path> single = new HashSet<>();
-			single.add(new JcrPath(this, session.getRootNode()));
-			return single;
-		} catch (RepositoryException e) {
-			throw new JcrFsException("Cannot get root path", e);
-		}
+		Set<Path> single = new HashSet<>();
+		single.add(new JcrPath(this, JcrPath.separator));
+		return single;
 	}
 
 	@Override
 	public Iterable<FileStore> getFileStores() {
-		throw new UnsupportedOperationException();
+		List<FileStore> stores = new ArrayList<>();
+		stores.add(baseFileStore);
+		stores.addAll(mounts.values());
+		return stores;
 	}
 
 	@Override
