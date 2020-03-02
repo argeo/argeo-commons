@@ -1,4 +1,4 @@
-package org.argeo.cms.util;
+package org.argeo.cms.auth;
 
 import java.util.List;
 
@@ -7,8 +7,6 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
 import org.argeo.cms.CmsException;
-import org.argeo.cms.auth.CurrentUser;
-import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.naming.LdapAttrs;
 import org.argeo.node.NodeConstants;
 import org.osgi.service.useradmin.Role;
@@ -75,9 +73,9 @@ public class UserAdminUtils {
 			dName = getUserLocalId(dn);
 		else {
 			dName = getProperty(user, LdapAttrs.displayName.name());
-			if (EclipseUiUtils.isEmpty(dName))
+			if (isEmpty(dName))
 				dName = getProperty(user, LdapAttrs.cn.name());
-			if (EclipseUiUtils.isEmpty(dName))
+			if (isEmpty(dName))
 				dName = getUserLocalId(dn);
 		}
 		return dName;
@@ -116,7 +114,6 @@ public class UserAdminUtils {
 			return "";
 	}
 
-	@SuppressWarnings("unchecked")
 	public final static void setProperty(Role role, String key, String value) {
 		role.getProperties().put(key, value);
 	}
@@ -169,4 +166,10 @@ public class UserAdminUtils {
 	public final static String buildDefaultCn(String firstName, String lastName) {
 		return (firstName.trim() + " " + lastName.trim() + " ").trim();
 	}
+
+	/** Simply checks if a string is null or empty */
+	private static boolean isEmpty(String stringToTest) {
+		return stringToTest == null || "".equals(stringToTest.trim());
+	}
+
 }

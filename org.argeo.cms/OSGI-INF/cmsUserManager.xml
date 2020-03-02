@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="User Admin Service">
+   <implementation class="org.argeo.cms.internal.auth.CmsUserManagerImpl"/>
+   <service>
+      <provide interface="org.argeo.cms.CmsUserManager"/>
+   </service>
+   <reference bind="setUserAdmin" cardinality="1..1" interface="org.osgi.service.useradmin.UserAdmin" name="UserAdmin" policy="static"/>
+   <reference bind="setUserTransaction" cardinality="1..1" interface="javax.transaction.UserTransaction" name="UserTransaction" policy="static"/>
+</scr:component>

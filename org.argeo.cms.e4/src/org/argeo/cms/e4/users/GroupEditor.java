@@ -15,7 +15,7 @@
  */
 package org.argeo.cms.e4.users;
 
-import static org.argeo.cms.util.UserAdminUtils.setProperty;
+import static org.argeo.cms.auth.UserAdminUtils.setProperty;
 import static org.argeo.naming.LdapAttrs.businessCategory;
 import static org.argeo.naming.LdapAttrs.description;
 import static org.argeo.node.NodeInstance.WORKGROUP;
@@ -35,6 +35,7 @@ import javax.naming.ldap.LdapName;
 import javax.transaction.UserTransaction;
 
 import org.argeo.cms.CmsException;
+import org.argeo.cms.auth.UserAdminUtils;
 import org.argeo.cms.e4.users.providers.CommonNameLP;
 import org.argeo.cms.e4.users.providers.MailLP;
 import org.argeo.cms.e4.users.providers.RoleIconLP;
@@ -42,7 +43,6 @@ import org.argeo.cms.e4.users.providers.UserFilter;
 import org.argeo.cms.ui.eclipse.forms.AbstractFormPart;
 import org.argeo.cms.ui.eclipse.forms.IManagedForm;
 import org.argeo.cms.util.CmsUtils;
-import org.argeo.cms.util.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;

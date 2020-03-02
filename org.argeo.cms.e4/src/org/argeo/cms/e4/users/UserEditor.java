@@ -15,7 +15,7 @@
  */
 package org.argeo.cms.e4.users;
 
-import static org.argeo.cms.util.UserAdminUtils.getProperty;
+import static org.argeo.cms.auth.UserAdminUtils.getProperty;
 import static org.argeo.naming.LdapAttrs.cn;
 import static org.argeo.naming.LdapAttrs.givenName;
 import static org.argeo.naming.LdapAttrs.mail;
@@ -29,6 +29,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.auth.UserAdminUtils;
 import org.argeo.cms.e4.users.providers.CommonNameLP;
 import org.argeo.cms.e4.users.providers.DomainNameLP;
 import org.argeo.cms.e4.users.providers.RoleIconLP;
@@ -37,7 +38,6 @@ import org.argeo.cms.ui.eclipse.forms.AbstractFormPart;
 //import org.argeo.cms.ui.eclipse.forms.FormToolkit;
 import org.argeo.cms.ui.eclipse.forms.IManagedForm;
 import org.argeo.cms.util.CmsUtils;
-import org.argeo.cms.util.UserAdminUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;

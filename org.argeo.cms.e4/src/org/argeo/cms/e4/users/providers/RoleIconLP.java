@@ -1,7 +1,7 @@
 package org.argeo.cms.e4.users.providers;
 
+import org.argeo.cms.auth.UserAdminUtils;
 import org.argeo.cms.e4.users.SecurityAdminImages;
-import org.argeo.cms.util.UserAdminUtils;
 import org.argeo.naming.LdapAttrs;
 import org.argeo.node.NodeConstants;
 import org.argeo.node.NodeInstance;
