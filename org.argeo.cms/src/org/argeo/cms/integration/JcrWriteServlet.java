@@ -23,8 +23,8 @@ public class JcrWriteServlet extends JcrReadServlet {
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		if (log.isTraceEnabled())
-			log.trace("Data service: " + req.getPathInfo());
+		if (log.isDebugEnabled())
+			log.debug("Data service POST: " + req.getPathInfo());
 
 		String dataWorkspace = getWorkspace(req);
 		String jcrPath = getJcrPath(req);
@@ -54,10 +54,39 @@ public class JcrWriteServlet extends JcrReadServlet {
 				byte[] bytes = IOUtils.toByteArray(req.getInputStream());
 				JcrUtils.copyBytesAsFile(node.getParent(), node.getName(), bytes);
 			}
+			session.save();
 		} catch (Exception e) {
 			new CmsExceptionsChain(e).writeAsJson(getObjectMapper(), resp);
 		} finally {
 			JcrUtils.logoutQuietly(session);
 		}
 	}
+
+	@Override
+	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		if (log.isDebugEnabled())
+			log.debug("Data service DELETE: " + req.getPathInfo());
+
+		String dataWorkspace = getWorkspace(req);
+		String jcrPath = getJcrPath(req);
+
+		Session session = null;
+		try {
+			// authentication
+			session = openJcrSession(req, resp, getRepository(), dataWorkspace);
+			if (!session.itemExists(jcrPath)) {
+				// ignore
+				return;
+			} else {
+				Node node = session.getNode(jcrPath);
+				node.remove();
+			}
+			session.save();
+		} catch (Exception e) {
+			new CmsExceptionsChain(e).writeAsJson(getObjectMapper(), resp);
+		} finally {
+			JcrUtils.logoutQuietly(session);
+		}
+	}
+
 }
