@@ -7,9 +7,9 @@ Based on the OSGi and JCR standards. Enterprise-grade since 2009.
 ## Development
 
 ### Pre-requisite
-- Java 8 OpenJDK (with HotSpot or OpenJ9 JVM https://adoptopenjdk.net/)
+- Java 11 OpenJDK (https://adoptopenjdk.net/)
 - Maven 3 (https://maven.apache.org/download.cgi)
-- Eclipse 2019-06 for RCP and RAP Developers (https://www.eclipse.org/downloads/packages/release/2019-06/r/eclipse-ide-rcp-and-rap-developers)
+- Eclipse 2019-12 for RCP and RAP Developers (https://www.eclipse.org/downloads/packages/release/2019-12/r/eclipse-ide-rcp-and-rap-developers-includes-incubating-components)
 
 ### First build, or after dependencies update
 ```bash
@@ -47,7 +47,7 @@ createrepo /srv/rpmfactory/argeo-osgi-2/el7/
 ## Deployment
 
 ### Pre-requisite
-- CentOS 7
+- CentOS/RHEL 7 or 8
 
 ### Install
 Please refer to the appropriate documentation for more complex deployments (e.g. LDAP server, PostgreSQL backend, etc.).
