@@ -36,7 +36,6 @@ import org.argeo.node.NodeConstants;
 import org.argeo.osgi.useradmin.TokenUtils;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
@@ -59,8 +58,6 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	private final static Log log = LogFactory.getLog(CmsUserManagerImpl.class);
 
 	private UserAdmin userAdmin;
-	@Deprecated
-	private ServiceReference<UserAdmin> userAdminServiceReference;
 	private Map<String, String> serviceProperties;
 	private UserTransaction userTransaction;
 
@@ -206,8 +203,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 
 	public Map<String, String> getKnownBaseDns(boolean onlyWritable) {
 		Map<String, String> dns = new HashMap<String, String>();
-		String[] propertyKeys = userAdminServiceReference != null ? userAdminServiceReference.getPropertyKeys()
-				: serviceProperties.keySet().toArray(new String[serviceProperties.size()]);
+		String[] propertyKeys = serviceProperties.keySet().toArray(new String[serviceProperties.size()]);
 		for (String uri : propertyKeys) {
 			if (!uri.startsWith("/"))
 				continue;
@@ -374,25 +370,31 @@ public class CmsUserManagerImpl implements CmsUserManager {
 
 	@Override
 	public void addAuthToken(String userDn, String token, Integer hours, String... roles) {
+		addAuthToken(userDn, token, ZonedDateTime.now().plusHours(hours), roles);
+	}
+
+	@Override
+	public void addAuthToken(String userDn, String token, ZonedDateTime expiryDate, String... roles) {
 		try {
 			userTransaction.begin();
 			User user = (User) userAdmin.getRole(userDn);
 			String tokenDn = cn + "=" + token + "," + NodeConstants.TOKENS_BASEDN;
 			Group tokenGroup = (Group) userAdmin.createRole(tokenDn, Role.GROUP);
-			for (String role : roles) {
-				Role r = userAdmin.getRole(role);
-				if (r != null)
-					tokenGroup.addMember(r);
-				else {
-					if (!role.equals(NodeConstants.ROLE_USER)) {
-						throw new IllegalStateException(
-								"Cannot add role " + role + " to token " + token + " for " + userDn);
+			if (roles != null)
+				for (String role : roles) {
+					Role r = userAdmin.getRole(role);
+					if (r != null)
+						tokenGroup.addMember(r);
+					else {
+						if (!role.equals(NodeConstants.ROLE_USER)) {
+							throw new IllegalStateException(
+									"Cannot add role " + role + " to token " + token + " for " + userDn);
+						}
 					}
 				}
-			}
 			tokenGroup.getProperties().put(owner.name(), user.getName());
-			if (hours != null) {
-				String ldapDate = NamingUtils.instantToLdapDate(ZonedDateTime.now().plusHours(hours));
+			if (expiryDate != null) {
+				String ldapDate = NamingUtils.instantToLdapDate(expiryDate);
 				tokenGroup.getProperties().put(description.name(), ldapDate);
 			}
 			userTransaction.commit();

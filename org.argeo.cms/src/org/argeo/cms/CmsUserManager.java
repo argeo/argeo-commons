@@ -1,5 +1,6 @@
 package org.argeo.cms;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -72,6 +73,8 @@ public interface CmsUserManager {
 //	String addSharedSecret(String username, String authInfo, String authToken);
 
 	void addAuthToken(String userDn, String token, Integer hours, String... roles);
+
+	void addAuthToken(String userDn, String token, ZonedDateTime expiryDate, String... roles);
 
 	void expireAuthToken(String token);
 

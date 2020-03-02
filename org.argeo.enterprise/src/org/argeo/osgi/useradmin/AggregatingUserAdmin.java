@@ -26,14 +26,20 @@ import org.osgi.service.useradmin.UserAdmin;
  */
 public class AggregatingUserAdmin implements UserAdmin {
 	private final LdapName systemRolesBaseDn;
+	private final LdapName tokensBaseDn;
 
 	// DAOs
 	private AbstractUserDirectory systemRoles = null;
+	private AbstractUserDirectory tokens = null;
 	private Map<LdapName, AbstractUserDirectory> businessRoles = new HashMap<LdapName, AbstractUserDirectory>();
 
-	public AggregatingUserAdmin(String systemRolesBaseDn) {
+	public AggregatingUserAdmin(String systemRolesBaseDn, String tokensBaseDn) {
 		try {
 			this.systemRolesBaseDn = new LdapName(systemRolesBaseDn);
+			if (tokensBaseDn != null)
+				this.tokensBaseDn = new LdapName(tokensBaseDn);
+			else
+				this.tokensBaseDn = null;
 		} catch (InvalidNameException e) {
 			throw new UserDirectoryException("Cannot initialize " + AggregatingUserAdmin.class, e);
 		}
@@ -130,6 +136,9 @@ public class AggregatingUserAdmin implements UserAdmin {
 		if (isSystemRolesBaseDn(baseDn)) {
 			this.systemRoles = userDirectory;
 			systemRoles.setExternalRoles(this);
+		} else if (isTokensBaseDn(baseDn)) {
+			this.tokens = userDirectory;
+			tokens.setExternalRoles(this);
 		} else {
 			if (businessRoles.containsKey(baseDn))
 				throw new UserDirectoryException("There is already a user admin for " + baseDn);
@@ -155,6 +164,8 @@ public class AggregatingUserAdmin implements UserAdmin {
 	private UserAdmin findUserAdmin(LdapName name) {
 		if (name.startsWith(systemRolesBaseDn))
 			return systemRoles;
+		if (tokensBaseDn != null && name.startsWith(tokensBaseDn))
+			return tokens;
 		List<UserAdmin> res = new ArrayList<UserAdmin>(1);
 		for (LdapName baseDn : businessRoles.keySet()) {
 			if (name.startsWith(baseDn)) {
@@ -172,6 +183,10 @@ public class AggregatingUserAdmin implements UserAdmin {
 
 	protected boolean isSystemRolesBaseDn(LdapName baseDn) {
 		return baseDn.equals(systemRolesBaseDn);
+	}
+
+	protected boolean isTokensBaseDn(LdapName baseDn) {
+		return tokensBaseDn != null && baseDn.equals(tokensBaseDn);
 	}
 
 	protected Dictionary<String, Object> currentState() {

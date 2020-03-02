@@ -113,7 +113,7 @@ public class CmsState implements NodeState {
 		bc.registerService(RepositoryFactory.class, repositoryFactory, null);
 
 		// Security
-		NodeUserAdmin userAdmin = new NodeUserAdmin(NodeConstants.ROLES_BASEDN);
+		NodeUserAdmin userAdmin = new NodeUserAdmin(NodeConstants.ROLES_BASEDN, NodeConstants.TOKENS_BASEDN);
 		stopHooks.add(() -> userAdmin.destroy());
 		bc.registerService(ManagedServiceFactory.class, userAdmin,
 				LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_USER_ADMIN_PID));

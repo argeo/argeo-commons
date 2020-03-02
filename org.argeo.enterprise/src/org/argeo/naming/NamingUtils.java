@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 public class NamingUtils {
+	/** As per https://tools.ietf.org/html/rfc4517#section-3.3.13 */
 	private final static DateTimeFormatter utcLdapDate = DateTimeFormatter.ofPattern("uuuuMMddHHmmssX")
 			.withZone(ZoneOffset.UTC);
 
@@ -26,6 +27,15 @@ public class NamingUtils {
 	public static Instant ldapDateToInstant(String ldapDate) {
 		try {
 			return OffsetDateTime.parse(ldapDate, utcLdapDate).toInstant();
+		} catch (DateTimeParseException e) {
+			return null;
+		}
+	}
+
+	/** @return null if not parseable */
+	public static ZonedDateTime ldapDateToZonedDateTime(String ldapDate) {
+		try {
+			return OffsetDateTime.parse(ldapDate, utcLdapDate).toZonedDateTime();
 		} catch (DateTimeParseException e) {
 			return null;
 		}

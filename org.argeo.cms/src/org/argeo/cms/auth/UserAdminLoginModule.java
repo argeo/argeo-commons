@@ -354,7 +354,9 @@ public class UserAdminLoginModule implements LoginModule {
 //				return null;
 //			}
 //		}
-		Authorization auth = userAdmin.getAuthorization(tokenGroup);
+		String userDn = TokenUtils.userDn(tokenGroup);
+		User user = (User) userAdmin.getRole(userDn);
+		Authorization auth = userAdmin.getAuthorization(user);
 		return auth;
 	}
 }

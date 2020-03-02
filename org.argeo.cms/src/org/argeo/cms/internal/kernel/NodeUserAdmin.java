@@ -85,8 +85,8 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 	private boolean singleUser = false;
 	private boolean systemRolesAvailable = false;
 
-	public NodeUserAdmin(String systemRolesBaseDn) {
-		super(systemRolesBaseDn);
+	public NodeUserAdmin(String systemRolesBaseDn, String tokensBaseDn) {
+		super(systemRolesBaseDn, tokensBaseDn);
 		tmTracker = new ServiceTracker<>(bc, TransactionManager.class, null);
 		tmTracker.open();
 	}
