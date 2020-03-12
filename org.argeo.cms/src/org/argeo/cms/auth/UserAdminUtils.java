@@ -6,9 +6,9 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
+import org.argeo.api.NodeConstants;
 import org.argeo.cms.CmsException;
 import org.argeo.naming.LdapAttrs;
-import org.argeo.node.NodeConstants;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;

@@ -21,10 +21,10 @@ import javax.security.auth.x500.X500Principal;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.api.NodeConstants;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.http.InternalHttpConstants;
 import org.argeo.cms.internal.jcr.RepoConf;
-import org.argeo.node.NodeConstants;
 import org.argeo.osgi.useradmin.UserAdminConf;
 
 /**

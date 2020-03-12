@@ -2,8 +2,8 @@ package org.argeo.cms.ui.internal;
 
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.util.CmsUtils;
-import org.argeo.cms.widgets.EditableImage;
+import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.cms.ui.widgets.EditableImage;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -41,16 +41,16 @@ public class SimpleEditableImage extends EditableImage {
 	protected String createImgTag() throws RepositoryException {
 		String imgTag;
 		if (src != null)
-			imgTag = CmsUtils.img(src, imageSize);
+			imgTag = CmsUiUtils.img(src, imageSize);
 		else
-			imgTag = CmsUtils.noImg(imageSize != null ? imageSize
+			imgTag = CmsUiUtils.noImg(imageSize != null ? imageSize
 					: NO_IMAGE_SIZE);
 		return imgTag;
 	}
 
 	protected Text createText(Composite box, String style) {
 		Text text = new Text(box, getStyle());
-		CmsUtils.style(text, style);
+		CmsUiUtils.style(text, style);
 		return text;
 	}
 

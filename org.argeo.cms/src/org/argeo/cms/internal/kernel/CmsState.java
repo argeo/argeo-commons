@@ -15,10 +15,10 @@ import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.api.NodeConstants;
+import org.argeo.api.NodeState;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.LocaleUtils;
-import org.argeo.node.NodeConstants;
-import org.argeo.node.NodeState;
 import org.argeo.transaction.simple.SimpleTransactionManager;
 import org.argeo.util.LangUtils;
 import org.osgi.framework.BundleContext;

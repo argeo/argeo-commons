@@ -18,7 +18,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.util.CmsUtils;
+import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.dialogs.SingleValue;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -70,7 +70,7 @@ public class FsContextMenu extends Shell {
 
 		Composite boxCmp = new Composite(this, SWT.NO_FOCUS | SWT.BORDER);
 		boxCmp.setLayout(EclipseUiUtils.noSpaceGridLayout());
-		CmsUtils.style(boxCmp, FsStyles.CONTEXT_MENU_BOX);
+		CmsUiUtils.style(boxCmp, FsStyles.CONTEXT_MENU_BOX);
 		createContextMenu(boxCmp);
 
 		addShellListener(new ActionsShellListener());
@@ -82,8 +82,8 @@ public class FsContextMenu extends Shell {
 			Button btn = new Button(boxCmp, SWT.FLAT | SWT.PUSH | SWT.LEAD);
 			btn.setText(getLabel(actionId));
 			btn.setLayoutData(EclipseUiUtils.fillWidth());
-			CmsUtils.markup(btn);
-			CmsUtils.style(btn, actionId + FsStyles.BUTTON_SUFFIX);
+			CmsUiUtils.markup(btn);
+			CmsUiUtils.style(btn, actionId + FsStyles.BUTTON_SUFFIX);
 			btn.setData(KEY_ACTION_ID, actionId);
 			btn.addSelectionListener(asl);
 			actionButtons.put(actionId, btn);

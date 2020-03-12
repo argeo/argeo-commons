@@ -25,19 +25,19 @@ import javax.jcr.PropertyType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
+import org.argeo.api.tabular.TabularColumn;
+import org.argeo.api.tabular.TabularRow;
+import org.argeo.api.tabular.TabularRowIterator;
+import org.argeo.api.tabular.TabularWriter;
 import org.argeo.cms.ArgeoTypes;
 import org.argeo.jackrabbit.unit.AbstractJackrabbitTestCase;
-import org.argeo.node.tabular.TabularColumn;
-import org.argeo.node.tabular.TabularRow;
-import org.argeo.node.tabular.TabularRowIterator;
-import org.argeo.node.tabular.TabularWriter;
 
 public class JcrTabularTest extends AbstractJackrabbitTestCase {
 	private final static Log log = LogFactory.getLog(JcrTabularTest.class);
 
 	public void testWriteReadCsv() throws Exception {
 		// session().setNamespacePrefix("argeo", ArgeoNames.ARGEO_NAMESPACE);
-		InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/argeo/node/ldap.cnd"));
+		InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/argeo/api/ldap.cnd"));
 		CndImporter.registerNodeTypes(reader, session());
 		reader.close();
 		reader = new InputStreamReader(getClass().getResourceAsStream("/org/argeo/cms/argeo.cnd"));

@@ -1,6 +1,6 @@
 package org.argeo.cms.ui.internal.rwt;
 
-import org.argeo.cms.util.LoginEntryPoint;
+import org.argeo.cms.ui.util.LoginEntryPoint;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.Application.OperationMode;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;

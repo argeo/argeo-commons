@@ -9,7 +9,7 @@ import javax.jcr.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.RepositoryImpl;
-import org.argeo.node.NodeConstants;
+import org.argeo.api.NodeConstants;
 
 class JackrabbitLocalRepository extends LocalRepository {
 	private final static Log log = LogFactory.getLog(JackrabbitLocalRepository.class);

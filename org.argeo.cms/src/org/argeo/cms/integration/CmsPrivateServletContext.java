@@ -1,6 +1,6 @@
 package org.argeo.cms.integration;
 
-import static org.argeo.node.NodeConstants.LOGIN_CONTEXT_USER;
+import static org.argeo.api.NodeConstants.LOGIN_CONTEXT_USER;
 
 import java.io.IOException;
 import java.security.AccessControlContext;

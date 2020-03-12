@@ -28,12 +28,12 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.io.IOUtils;
+import org.argeo.api.tabular.ArrayTabularRow;
+import org.argeo.api.tabular.TabularColumn;
+import org.argeo.api.tabular.TabularRow;
+import org.argeo.api.tabular.TabularRowIterator;
 import org.argeo.cms.ArgeoTypes;
 import org.argeo.jcr.ArgeoJcrException;
-import org.argeo.node.tabular.ArrayTabularRow;
-import org.argeo.node.tabular.TabularColumn;
-import org.argeo.node.tabular.TabularRow;
-import org.argeo.node.tabular.TabularRowIterator;
 import org.argeo.util.CsvParser;
 
 /** Iterates over the rows of a {@link ArgeoTypes#ARGEO_TABLE} node. */

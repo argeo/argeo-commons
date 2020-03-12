@@ -2,8 +2,8 @@ package org.argeo.cms.internal.kernel;
 
 import javax.jcr.Repository;
 
+import org.argeo.api.NodeConstants;
 import org.argeo.jcr.JcrRepositoryWrapper;
-import org.argeo.node.NodeConstants;
 
 class LocalRepository extends JcrRepositoryWrapper {
 	private final String cn;

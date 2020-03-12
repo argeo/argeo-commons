@@ -15,8 +15,8 @@
  */
 package org.argeo.eclipse.ui.specific;
 
-import static org.argeo.eclipse.ui.utils.SingleSourcingConstants.FILE_SCHEME;
-import static org.argeo.eclipse.ui.utils.SingleSourcingConstants.SCHEME_HOST_SEPARATOR;
+import static org.argeo.eclipse.ui.util.SingleSourcingConstants.FILE_SCHEME;
+import static org.argeo.eclipse.ui.util.SingleSourcingConstants.SCHEME_HOST_SEPARATOR;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.argeo.eclipse.ui.EclipseUiUtils;
-import org.argeo.eclipse.ui.utils.SingleSourcingConstants;
+import org.argeo.eclipse.ui.util.SingleSourcingConstants;
 import org.eclipse.rap.rwt.service.ServiceHandler;
 
 /**

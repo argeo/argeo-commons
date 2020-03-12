@@ -26,12 +26,12 @@ import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 
+import org.argeo.api.NodeConstants;
+import org.argeo.api.NodeUtils;
+import org.argeo.api.security.Keyring;
 import org.argeo.cms.ui.jcr.model.RepositoriesElem;
 import org.argeo.cms.ui.jcr.model.SingleJcrNodeElem;
 import org.argeo.eclipse.ui.TreeParent;
-import org.argeo.node.NodeConstants;
-import org.argeo.node.NodeUtils;
-import org.argeo.node.security.Keyring;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 

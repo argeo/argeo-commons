@@ -15,10 +15,10 @@
  */
 package org.argeo.cms.e4.users;
 
+import static org.argeo.api.NodeInstance.WORKGROUP;
 import static org.argeo.cms.auth.UserAdminUtils.setProperty;
 import static org.argeo.naming.LdapAttrs.businessCategory;
 import static org.argeo.naming.LdapAttrs.description;
-import static org.argeo.node.NodeInstance.WORKGROUP;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -34,6 +34,9 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.transaction.UserTransaction;
 
+import org.argeo.api.NodeConstants;
+import org.argeo.api.NodeInstance;
+import org.argeo.api.NodeUtils;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.UserAdminUtils;
 import org.argeo.cms.e4.users.providers.CommonNameLP;
@@ -42,15 +45,12 @@ import org.argeo.cms.e4.users.providers.RoleIconLP;
 import org.argeo.cms.e4.users.providers.UserFilter;
 import org.argeo.cms.ui.eclipse.forms.AbstractFormPart;
 import org.argeo.cms.ui.eclipse.forms.IManagedForm;
-import org.argeo.cms.util.CmsUtils;
+import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.naming.LdapAttrs;
-import org.argeo.node.NodeConstants;
-import org.argeo.node.NodeInstance;
-import org.argeo.node.NodeUtils;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
@@ -161,7 +161,7 @@ public class GroupEditor extends AbstractRoleEditor {
 		// GridLayout layout = new GridLayout(5, false);
 		GridLayout layout = new GridLayout(2, false);
 		body.setLayout(layout);
-		body.setLayoutData(CmsUtils.fillWidth());
+		body.setLayoutData(CmsUiUtils.fillWidth());
 
 		String cn = UserAdminUtils.getProperty(group, LdapAttrs.cn.name());
 		createReadOnlyLT(body, "Name", cn);
@@ -302,7 +302,7 @@ public class GroupEditor extends AbstractRoleEditor {
 
 		ToolBarManager toolBarManager = new ToolBarManager(SWT.FLAT);
 		ToolBar toolBar = toolBarManager.createControl(body);
-		toolBar.setLayoutData(CmsUtils.fillWidth());
+		toolBar.setLayoutData(CmsUiUtils.fillWidth());
 
 		toolBarManager.add(action);
 		toolBarManager.update(true);
@@ -568,7 +568,7 @@ public class GroupEditor extends AbstractRoleEditor {
 	// lbl.setFont(EclipseUiUtils.getBoldFont(parent));
 	// Text text = toolkit.createText(parent, value, SWT.BORDER);
 	// text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-	// CmsUtils.style(text, CmsWorkbenchStyles.WORKBENCH_FORM_TEXT);
+	// CmsUiUtils.style(text, CmsWorkbenchStyles.WORKBENCH_FORM_TEXT);
 	// return text;
 	// }
 	//
@@ -580,7 +580,7 @@ public class GroupEditor extends AbstractRoleEditor {
 	// Text text = toolkit.createText(parent, value, SWT.NONE);
 	// text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 	// text.setEditable(false);
-	// CmsUtils.style(text, CmsWorkbenchStyles.WORKBENCH_FORM_TEXT);
+	// CmsUiUtils.style(text, CmsWorkbenchStyles.WORKBENCH_FORM_TEXT);
 	// return text;
 	// }
 

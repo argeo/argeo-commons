@@ -28,11 +28,11 @@ import java.util.UUID;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
+import org.argeo.api.NodeConstants;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.cms.internal.kernel.Activator;
-import org.argeo.node.NodeConstants;
 import org.osgi.service.useradmin.Authorization;
 
 /**

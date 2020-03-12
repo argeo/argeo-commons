@@ -22,7 +22,7 @@
 		<!-- Argeo Commons -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.node.api</artifactId>
+			<artifactId>org.argeo.api</artifactId>
 			<version>2.1.88-SNAPSHOT</version>
 		</dependency>
 		<dependency>

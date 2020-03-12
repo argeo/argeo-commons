@@ -16,10 +16,10 @@ import javax.security.auth.x500.X500Principal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.api.NodeConstants;
+import org.argeo.api.security.DataAdminPrincipal;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.naming.LdapAttrs;
-import org.argeo.node.NodeConstants;
-import org.argeo.node.security.DataAdminPrincipal;
 import org.argeo.osgi.useradmin.IpaUtils;
 
 public class SingleUserLoginModule implements LoginModule {

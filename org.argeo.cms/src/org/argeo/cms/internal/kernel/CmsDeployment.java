@@ -1,6 +1,6 @@
 package org.argeo.cms.internal.kernel;
 
-import static org.argeo.node.DataModelNamespace.CMS_DATA_MODEL_NAMESPACE;
+import static org.argeo.api.DataModelNamespace.CMS_DATA_MODEL_NAMESPACE;
 
 import java.io.File;
 import java.io.InputStreamReader;
@@ -26,15 +26,15 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.core.RepositoryContext;
 import org.apache.jackrabbit.core.RepositoryImpl;
+import org.argeo.api.DataModelNamespace;
+import org.argeo.api.NodeConstants;
+import org.argeo.api.NodeDeployment;
+import org.argeo.api.NodeState;
+import org.argeo.api.security.CryptoKeyring;
+import org.argeo.api.security.Keyring;
 import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.CmsException;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.node.DataModelNamespace;
-import org.argeo.node.NodeConstants;
-import org.argeo.node.NodeDeployment;
-import org.argeo.node.NodeState;
-import org.argeo.node.security.CryptoKeyring;
-import org.argeo.node.security.Keyring;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.util.LangUtils;
 import org.eclipse.equinox.http.jetty.JettyConfigurator;

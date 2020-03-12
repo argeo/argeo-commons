@@ -16,10 +16,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.argeo.api.NodeConstants;
 import org.argeo.cms.auth.CmsSessionId;
 import org.argeo.cms.auth.HttpRequestCallback;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
-import org.argeo.node.NodeConstants;
 import org.osgi.service.useradmin.Authorization;
 
 import com.fasterxml.jackson.core.JsonGenerator;

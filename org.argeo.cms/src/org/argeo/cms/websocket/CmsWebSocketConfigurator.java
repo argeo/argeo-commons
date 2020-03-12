@@ -15,8 +15,8 @@ import javax.websocket.server.ServerEndpointConfig.Configurator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.api.NodeConstants;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
-import org.argeo.node.NodeConstants;
 import org.osgi.service.http.context.ServletContextHelper;
 
 /** Customises the initialisation of a new web socket. */

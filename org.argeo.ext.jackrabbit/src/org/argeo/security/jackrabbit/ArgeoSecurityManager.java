@@ -37,10 +37,10 @@ import org.apache.jackrabbit.core.security.SystemPrincipal;
 import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
 import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.apache.jackrabbit.core.security.principal.PrincipalProvider;
+import org.argeo.api.NodeConstants;
+import org.argeo.api.security.AnonymousPrincipal;
+import org.argeo.api.security.DataAdminPrincipal;
 import org.argeo.cms.auth.CmsSession;
-import org.argeo.node.NodeConstants;
-import org.argeo.node.security.AnonymousPrincipal;
-import org.argeo.node.security.DataAdminPrincipal;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 

@@ -18,9 +18,10 @@ import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.Session;
 
+import org.argeo.api.NodeUtils;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
-import org.argeo.cms.util.CmsUtils;
+import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.fs.FileIconNameLabelProvider;
@@ -29,7 +30,6 @@ import org.argeo.eclipse.ui.fs.FsUiConstants;
 import org.argeo.eclipse.ui.fs.FsUiUtils;
 import org.argeo.eclipse.ui.fs.NioFileLabelProvider;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.node.NodeUtils;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -277,7 +277,7 @@ public class CmsFsBrowser extends Composite {
 		else
 			nameStr = path.getFileName().toString();
 		elemBtn.setText(nameStr + " >> ");
-		CmsUtils.style(elemBtn, FsStyles.BREAD_CRUMB_BTN);
+		CmsUiUtils.style(elemBtn, FsStyles.BREAD_CRUMB_BTN);
 		elemBtn.addSelectionListener(new SelectionAdapter() {
 			private static final long serialVersionUID = -4103695476023480651L;
 
@@ -323,7 +323,7 @@ public class CmsFsBrowser extends Composite {
 	}
 
 	private void populateBookmarks(Composite parent) {
-		CmsUtils.clear(parent);
+		CmsUiUtils.clear(parent);
 		parent.setLayout(new GridLayout());
 		ISelectionChangedListener selList = new BookmarksSelChangeListener();
 

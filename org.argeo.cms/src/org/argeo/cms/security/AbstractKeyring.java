@@ -41,11 +41,11 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.apache.commons.io.IOUtils;
+import org.argeo.api.NodeConstants;
+import org.argeo.api.security.CryptoKeyring;
+import org.argeo.api.security.Keyring;
+import org.argeo.api.security.PBEKeySpecCallback;
 import org.argeo.cms.CmsException;
-import org.argeo.node.NodeConstants;
-import org.argeo.node.security.CryptoKeyring;
-import org.argeo.node.security.Keyring;
-import org.argeo.node.security.PBEKeySpecCallback;
 
 /** username / password based keyring. TODO internationalize */
 public abstract class AbstractKeyring implements Keyring, CryptoKeyring {

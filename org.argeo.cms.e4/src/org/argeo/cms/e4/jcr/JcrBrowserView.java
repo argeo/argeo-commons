@@ -31,6 +31,9 @@ import javax.jcr.observation.Event;
 import javax.jcr.observation.EventListener;
 import javax.jcr.observation.ObservationManager;
 
+import org.argeo.api.NodeConstants;
+import org.argeo.api.security.CryptoKeyring;
+import org.argeo.api.security.Keyring;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.jcr.JcrBrowserUtils;
 import org.argeo.cms.ui.jcr.NodeContentProvider;
@@ -38,15 +41,12 @@ import org.argeo.cms.ui.jcr.NodeLabelProvider;
 import org.argeo.cms.ui.jcr.OsgiRepositoryRegister;
 import org.argeo.cms.ui.jcr.PropertiesContentProvider;
 import org.argeo.cms.ui.jcr.model.SingleJcrNodeElem;
-import org.argeo.cms.util.CmsUtils;
+import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.jcr.AsyncUiEventListener;
-import org.argeo.eclipse.ui.jcr.utils.NodeViewerComparer;
+import org.argeo.eclipse.ui.jcr.util.NodeViewerComparer;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.node.NodeConstants;
-import org.argeo.node.security.CryptoKeyring;
-import org.argeo.node.security.Keyring;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.services.EMenuService;
@@ -112,7 +112,7 @@ public class JcrBrowserView {
 		// Create the tree on top of the view
 		Composite top = new Composite(sashForm, SWT.NONE);
 		// GridLayout gl = new GridLayout(1, false);
-		top.setLayout(CmsUtils.noSpaceGridLayout());
+		top.setLayout(CmsUiUtils.noSpaceGridLayout());
 
 		try {
 			this.userSession = this.nodeRepository.login(NodeConstants.HOME);
@@ -136,7 +136,7 @@ public class JcrBrowserView {
 
 		// Create the property viewer on the bottom
 		Composite bottom = new Composite(sashForm, SWT.NONE);
-		bottom.setLayout(CmsUtils.noSpaceGridLayout());
+		bottom.setLayout(CmsUiUtils.noSpaceGridLayout());
 		propertiesViewer = createPropertiesViewer(bottom);
 
 		sashForm.setWeights(getWeights());

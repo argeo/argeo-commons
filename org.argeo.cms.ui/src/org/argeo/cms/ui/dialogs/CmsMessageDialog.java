@@ -1,7 +1,7 @@
 package org.argeo.cms.ui.dialogs;
 
 import org.argeo.cms.CmsMsg;
-import org.argeo.cms.util.CmsUtils;
+import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.Selected;
 import org.argeo.eclipse.ui.dialogs.LightweightDialog;
@@ -57,7 +57,7 @@ public class CmsMessageDialog extends LightweightDialog {
 		body.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		Label messageLbl = new Label(body, SWT.WRAP);
-		CmsUtils.markup(messageLbl);
+		CmsUiUtils.markup(messageLbl);
 		messageLbl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		messageLbl.setFont(EclipseUiUtils.getBoldFont(parent));
 		if (message != null)

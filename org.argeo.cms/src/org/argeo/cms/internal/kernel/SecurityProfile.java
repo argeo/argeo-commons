@@ -8,7 +8,7 @@ import java.util.PropertyPermission;
 
 import javax.security.auth.AuthPermission;
 
-import org.argeo.node.NodeUtils;
+import org.argeo.api.NodeUtils;
 import org.osgi.framework.AdminPermission;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;

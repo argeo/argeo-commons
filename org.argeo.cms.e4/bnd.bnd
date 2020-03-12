@@ -11,5 +11,5 @@ javax.jcr.nodetype,\
 org.argeo.cms,\
 org.eclipse.core.commands.common,\
 org.eclipse.jface.window,\
-org.argeo.cms.widgets.auth,\
+org.argeo.cms.ui.widgets.auth,\
 *

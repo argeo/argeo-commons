@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" configuration-policy="optional" name="CMS Demo RAP">
-   <implementation class="org.argeo.cms.e4.rap.CmsE4DemoApp"/>
-   <service>
-      <provide interface="org.eclipse.rap.rwt.application.ApplicationConfiguration"/>
-      <property name="contextName" type="String" value="demoXXX"/>
-   </service>
-</scr:component>

@@ -20,13 +20,13 @@ import javax.websocket.server.ServerEndpointConfig;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.api.NodeConstants;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.http.InternalHttpConstants;
 import org.argeo.cms.websocket.CmsWebSocketConfigurator;
 import org.argeo.naming.AttributesDictionary;
 import org.argeo.naming.LdifParser;
 import org.argeo.naming.LdifWriter;
-import org.argeo.node.NodeConstants;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.eclipse.equinox.http.jetty.JettyConfigurator;
 import org.osgi.framework.BundleContext;

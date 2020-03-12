@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="Default CallbackHandler">
-   <implementation class="org.argeo.cms.widgets.auth.DynamicCallbackHandler"/>
+   <implementation class="org.argeo.cms.ui.widgets.auth.DynamicCallbackHandler"/>
    <service>
       <provide interface="javax.security.auth.callback.CallbackHandler"/>
    </service>

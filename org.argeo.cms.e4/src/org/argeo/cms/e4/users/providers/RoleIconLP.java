@@ -1,10 +1,10 @@
 package org.argeo.cms.e4.users.providers;
 
+import org.argeo.api.NodeConstants;
+import org.argeo.api.NodeInstance;
 import org.argeo.cms.auth.UserAdminUtils;
 import org.argeo.cms.e4.users.SecurityAdminImages;
 import org.argeo.naming.LdapAttrs;
-import org.argeo.node.NodeConstants;
-import org.argeo.node.NodeInstance;
 import org.eclipse.swt.graphics.Image;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;

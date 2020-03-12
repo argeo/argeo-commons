@@ -1,6 +1,6 @@
 package org.argeo.cms.ui.internal;
 
-import org.argeo.node.NodeState;
+import org.argeo.api.NodeState;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;

@@ -17,11 +17,11 @@ import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
+import org.argeo.api.NodeConstants;
+import org.argeo.api.NodeUtils;
 import org.argeo.cms.CmsException;
 import org.argeo.jcr.JcrRepositoryWrapper;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.node.NodeConstants;
-import org.argeo.node.NodeUtils;
 
 /**
  * Make sure each user has a home directory available.

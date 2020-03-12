@@ -27,11 +27,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.api.NodeConstants;
+import org.argeo.api.security.CryptoKeyring;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.kernel.Activator;
 import org.argeo.naming.LdapAttrs;
-import org.argeo.node.NodeConstants;
-import org.argeo.node.security.CryptoKeyring;
 import org.argeo.osgi.useradmin.AuthenticatingUser;
 import org.argeo.osgi.useradmin.IpaUtils;
 import org.argeo.osgi.useradmin.OsUserUtils;

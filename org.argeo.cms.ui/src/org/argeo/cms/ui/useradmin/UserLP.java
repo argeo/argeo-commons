@@ -1,7 +1,7 @@
 package org.argeo.cms.ui.useradmin;
 
+import org.argeo.api.NodeConstants;
 import org.argeo.cms.auth.UserAdminUtils;
-import org.argeo.node.NodeConstants;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.SWT;

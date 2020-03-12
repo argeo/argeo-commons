@@ -13,11 +13,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.argeo.api.NodeConstants;
 import org.argeo.cms.auth.CmsSessionId;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallback;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
-import org.argeo.node.NodeConstants;
 
 /** Externally authenticate an http session. */
 public class CmsLogoutServlet extends HttpServlet {

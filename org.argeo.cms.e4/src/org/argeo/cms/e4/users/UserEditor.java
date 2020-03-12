@@ -28,6 +28,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.argeo.api.NodeConstants;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.UserAdminUtils;
 import org.argeo.cms.e4.users.providers.CommonNameLP;
@@ -37,12 +38,11 @@ import org.argeo.cms.e4.users.providers.UserFilter;
 import org.argeo.cms.ui.eclipse.forms.AbstractFormPart;
 //import org.argeo.cms.ui.eclipse.forms.FormToolkit;
 import org.argeo.cms.ui.eclipse.forms.IManagedForm;
-import org.argeo.cms.util.CmsUtils;
+import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.naming.LdapAttrs;
-import org.argeo.node.NodeConstants;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
@@ -119,7 +119,7 @@ public class UserEditor extends AbstractRoleEditor {
 		// mainLayout.marginRight = 10;
 		body.setLayout(mainLayout);
 		// body.getParent().setLayout(new GridLayout());
-		// body.setLayoutData(CmsUtils.fillAll());
+		// body.setLayoutData(CmsUiUtils.fillAll());
 		User user = getDisplayedUser();
 		appendOverviewPart(body, user);
 		// Remove to ability to force the password for his own user. The user
@@ -293,7 +293,7 @@ public class UserEditor extends AbstractRoleEditor {
 		// Composite body= parent;
 		Composite body = new Composite(parent, SWT.BORDER);
 		body.setLayout(new GridLayout());
-		body.setLayoutData(CmsUtils.fillAll());
+		body.setLayoutData(CmsUiUtils.fillAll());
 
 		// boolean isAdmin = CurrentUser.isInRole(NodeConstants.ROLE_ADMIN);
 
@@ -361,7 +361,7 @@ public class UserEditor extends AbstractRoleEditor {
 		Action action = new RemoveMembershipAction(userViewer, user, tooltip, SecurityAdminImages.ICON_REMOVE_DESC);
 		ToolBarManager toolBarManager = new ToolBarManager(SWT.FLAT);
 		ToolBar toolBar = toolBarManager.createControl(body);
-		toolBar.setLayoutData(CmsUtils.fillWidth());
+		toolBar.setLayoutData(CmsUiUtils.fillWidth());
 		toolBarManager.add(action);
 		toolBarManager.update(true);
 		return userViewerCmp;

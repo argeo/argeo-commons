@@ -25,7 +25,7 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.node.NodeConstants;
+import org.argeo.api.NodeConstants;
 
 public class DefaultRepositoryRegister extends Observable implements RepositoryRegister {
 	/** Key for a JCR repository alias */

@@ -24,13 +24,13 @@ import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 
+import org.argeo.api.NodeUtils;
+import org.argeo.api.security.Keyring;
 import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.ui.jcr.RepositoryRegister;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
-import org.argeo.node.NodeUtils;
-import org.argeo.node.security.Keyring;
 
 /**
  * UI Tree component that implements the Argeo abstraction of a

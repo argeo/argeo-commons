@@ -41,14 +41,14 @@ import javax.jcr.query.Query;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.api.NodeConstants;
+import org.argeo.api.NodeUtils;
+import org.argeo.api.security.PBEKeySpecCallback;
 import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.ArgeoTypes;
 import org.argeo.cms.CmsException;
 import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.node.NodeConstants;
-import org.argeo.node.NodeUtils;
-import org.argeo.node.security.PBEKeySpecCallback;
 
 /** JCR based implementation of a keyring */
 public class JcrKeyring extends AbstractKeyring implements ArgeoNames {

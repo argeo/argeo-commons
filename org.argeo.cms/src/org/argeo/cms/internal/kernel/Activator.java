@@ -15,13 +15,13 @@ import javax.security.auth.login.Configuration;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.api.ArgeoLogger;
+import org.argeo.api.NodeConstants;
+import org.argeo.api.NodeDeployment;
+import org.argeo.api.NodeInstance;
+import org.argeo.api.NodeState;
 import org.argeo.cms.CmsException;
 import org.argeo.ident.IdentClient;
-import org.argeo.node.ArgeoLogger;
-import org.argeo.node.NodeConstants;
-import org.argeo.node.NodeDeployment;
-import org.argeo.node.NodeInstance;
-import org.argeo.node.NodeState;
 import org.argeo.util.LangUtils;
 import org.ietf.jgss.GSSCredential;
 import org.osgi.framework.BundleActivator;

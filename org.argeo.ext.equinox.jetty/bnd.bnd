@@ -5,5 +5,5 @@ org.eclipse.jetty.websocket.api,\
 org.eclipse.jetty.websocket.common,\
 org.osgi.service.http,\
 org.argeo.cms.auth,\
-org.argeo.node,\
+org.argeo.api,\
 *

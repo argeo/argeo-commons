@@ -24,7 +24,7 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 
 import org.argeo.eclipse.ui.EclipseUiException;
-import org.argeo.eclipse.ui.jcr.utils.JcrItemsComparator;
+import org.argeo.eclipse.ui.jcr.util.JcrItemsComparator;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 

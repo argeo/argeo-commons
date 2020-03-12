@@ -26,11 +26,11 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.api.NodeConstants;
+import org.argeo.api.security.NodeSecurityUtils;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CmsSession;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.node.NodeConstants;
-import org.argeo.node.security.NodeSecurityUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;

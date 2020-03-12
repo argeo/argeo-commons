@@ -282,7 +282,7 @@ public abstract class AbstractRoleEditor {
 		Text text = new Text(parent, SWT.BORDER);
 		text.setText(value);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		// CmsUtils.style(text, CmsWorkbenchStyles.WORKBENCH_FORM_TEXT);
+		// CmsUiUtils.style(text, CmsWorkbenchStyles.WORKBENCH_FORM_TEXT);
 		return text;
 	}
 
@@ -295,7 +295,7 @@ public abstract class AbstractRoleEditor {
 		text.setText(value);
 		text.setLayoutData(new GridData(SWT.LEAD, SWT.FILL, true, false));
 		text.setEditable(false);
-		// CmsUtils.style(text, CmsWorkbenchStyles.WORKBENCH_FORM_TEXT);
+		// CmsUiUtils.style(text, CmsWorkbenchStyles.WORKBENCH_FORM_TEXT);
 		return text;
 	}
 

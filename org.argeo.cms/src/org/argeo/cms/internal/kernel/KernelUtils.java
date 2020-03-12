@@ -24,9 +24,9 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
+import org.argeo.api.DataModelNamespace;
+import org.argeo.api.NodeConstants;
 import org.argeo.cms.CmsException;
-import org.argeo.node.DataModelNamespace;
-import org.argeo.node.NodeConstants;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;

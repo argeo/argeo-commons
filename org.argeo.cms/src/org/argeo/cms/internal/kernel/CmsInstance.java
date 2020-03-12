@@ -5,9 +5,9 @@ import javax.naming.ldap.LdapName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.api.NodeConstants;
+import org.argeo.api.NodeInstance;
 import org.argeo.cms.CmsException;
-import org.argeo.node.NodeConstants;
-import org.argeo.node.NodeInstance;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;

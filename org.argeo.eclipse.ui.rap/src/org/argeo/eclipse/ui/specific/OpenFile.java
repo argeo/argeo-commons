@@ -18,7 +18,7 @@ package org.argeo.eclipse.ui.specific;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.eclipse.ui.EclipseUiUtils;
-import org.argeo.eclipse.ui.utils.SingleSourcingConstants;
+import org.argeo.eclipse.ui.util.SingleSourcingConstants;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.rap.rwt.RWT;

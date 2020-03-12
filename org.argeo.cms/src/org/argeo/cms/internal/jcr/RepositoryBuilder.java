@@ -21,10 +21,10 @@ import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.cache.CacheManager;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
+import org.argeo.api.NodeConstants;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.kernel.CmsPaths;
 import org.argeo.jcr.ArgeoJcrException;
-import org.argeo.node.NodeConstants;
 import org.xml.sax.InputSource;
 
 /** Can interpret properties in order to create an actual JCR repository. */

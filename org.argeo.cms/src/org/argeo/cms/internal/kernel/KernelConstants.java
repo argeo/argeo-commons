@@ -1,6 +1,6 @@
 package org.argeo.cms.internal.kernel;
 
-import org.argeo.node.NodeConstants;
+import org.argeo.api.NodeConstants;
 
 public interface KernelConstants {
 	String[] DEFAULT_CNDS = { "/org/argeo/jcr/argeo.cnd", "/org/argeo/cms/cms.cnd" };

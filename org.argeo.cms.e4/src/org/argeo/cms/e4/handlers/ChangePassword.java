@@ -16,10 +16,10 @@ import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 import javax.transaction.UserTransaction;
 
+import org.argeo.api.security.CryptoKeyring;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.dialogs.CmsMessageDialog;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
-import org.argeo.node.security.CryptoKeyring;
 import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;

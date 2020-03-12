@@ -18,13 +18,13 @@ package org.argeo.cms.ui.useradmin;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.argeo.api.NodeConstants;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.naming.LdapAttrs;
 import org.argeo.naming.LdapObjs;
-import org.argeo.node.NodeConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;

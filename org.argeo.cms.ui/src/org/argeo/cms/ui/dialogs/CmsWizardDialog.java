@@ -4,7 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsMsg;
-import org.argeo.cms.util.CmsUtils;
+import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.Selected;
 import org.argeo.eclipse.ui.dialogs.LightweightDialog;
@@ -57,7 +57,7 @@ public class CmsWizardDialog extends LightweightDialog implements IWizardContain
 		Composite messageArea = new Composite(parent, SWT.NONE);
 		messageArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		{
-			messageArea.setLayout(CmsUtils.noSpaceGridLayout(new GridLayout(2, false)));
+			messageArea.setLayout(CmsUiUtils.noSpaceGridLayout(new GridLayout(2, false)));
 			titleBar = new Label(messageArea, SWT.WRAP);
 			titleBar.setFont(EclipseUiUtils.getBoldFont(parent));
 			titleBar.setLayoutData(new GridData(SWT.BEGINNING, SWT.FILL, true, false));
@@ -78,7 +78,7 @@ public class CmsWizardDialog extends LightweightDialog implements IWizardContain
 		IWizardPage[] pages = wizard.getPages();
 		for (int i = 0; i < pages.length; i++) {
 			pageBodies[i] = new Composite(body, SWT.NONE);
-			pageBodies[i].setLayout(CmsUtils.noSpaceGridLayout());
+			pageBodies[i].setLayout(CmsUiUtils.noSpaceGridLayout());
 			setSwitchingFormData(pageBodies[i]);
 			pages[i].createControl(pageBodies[i]);
 		}

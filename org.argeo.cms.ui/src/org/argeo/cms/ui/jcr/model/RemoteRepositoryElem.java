@@ -24,11 +24,11 @@ import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
+import org.argeo.api.NodeUtils;
+import org.argeo.api.security.Keyring;
 import org.argeo.cms.ArgeoNames;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
-import org.argeo.node.NodeUtils;
-import org.argeo.node.security.Keyring;
 
 /** Root of a remote repository */
 public class RemoteRepositoryElem extends RepositoryElem {

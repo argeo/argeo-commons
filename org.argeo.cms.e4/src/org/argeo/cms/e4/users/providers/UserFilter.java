@@ -2,9 +2,9 @@ package org.argeo.cms.e4.users.providers;
 
 import static org.argeo.eclipse.ui.EclipseUiUtils.notEmpty;
 
+import org.argeo.api.NodeConstants;
 import org.argeo.cms.auth.UserAdminUtils;
 import org.argeo.naming.LdapAttrs;
-import org.argeo.node.NodeConstants;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.osgi.service.useradmin.User;

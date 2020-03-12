@@ -12,7 +12,7 @@ import javax.security.auth.x500.X500Principal;
 import org.apache.jackrabbit.core.security.AnonymousPrincipal;
 import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
-import org.argeo.node.security.DataAdminPrincipal;
+import org.argeo.api.security.DataAdminPrincipal;
 
 public class SystemJackrabbitLoginModule implements LoginModule {
 	private Subject subject;
@@ -30,7 +30,7 @@ public class SystemJackrabbitLoginModule implements LoginModule {
 
 	@Override
 	public boolean commit() throws LoginException {
-		Set<org.argeo.node.security.AnonymousPrincipal> anonPrincipal = subject.getPrincipals(org.argeo.node.security.AnonymousPrincipal.class);
+		Set<org.argeo.api.security.AnonymousPrincipal> anonPrincipal = subject.getPrincipals(org.argeo.api.security.AnonymousPrincipal.class);
 		if (!anonPrincipal.isEmpty()) {
 			subject.getPrincipals().add(new AnonymousPrincipal());
 			return true;
