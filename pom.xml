@@ -195,7 +195,7 @@ limitations under the License.
 				<configuration>
 					<failOnError>false</failOnError>
 					<additionalJOption>-Xdoclint:none</additionalJOption>
-					<excludePackageNames>*.internal.*,org.eclipse.*,org.argeo.cms.ui.eclipse.forms.*</excludePackageNames>
+					<excludePackageNames>*.internal.*,org.eclipse.*,org.argeo.cms.ui.eclipse.*</excludePackageNames>
 					<encoding>UTF-8</encoding>
 					<detectLinks>true</detectLinks>
 					<links>
