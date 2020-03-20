@@ -109,7 +109,7 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 
 	private Session login() {
 		try {
-			return repository.login(NodeConstants.HOME);
+			return repository.login(NodeConstants.HOME_WORKSPACE);
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot login key ring session", e);
 		}

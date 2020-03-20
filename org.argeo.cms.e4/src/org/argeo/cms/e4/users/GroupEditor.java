@@ -134,7 +134,7 @@ public class GroupEditor extends AbstractRoleEditor {
 	@Override
 	protected void createUi(Composite parent) {
 		try {
-			groupsSession = repository.login(NodeConstants.SRV);
+			groupsSession = repository.login(NodeConstants.SRV_WORKSPACE);
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot retrieve session", e);
 		}

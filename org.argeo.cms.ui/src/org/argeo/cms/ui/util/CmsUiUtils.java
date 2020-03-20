@@ -72,7 +72,7 @@ public class CmsUiUtils implements CmsConstants {
 
 	/** A path in the node repository */
 	public static String getDataPath(Node node) throws RepositoryException {
-		return getDataPath(NodeConstants.NODE, node);
+		return getDataPath(NodeConstants.EGO_REPOSITORY, node);
 	}
 
 	public static String getDataPath(String cn, Node node) throws RepositoryException {

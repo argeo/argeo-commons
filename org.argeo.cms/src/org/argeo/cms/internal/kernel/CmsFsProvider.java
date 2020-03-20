@@ -58,7 +58,7 @@ public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 				return fileSystem;
 			} else {
 				Repository repository = bc.getService(
-						bc.getServiceReferences(Repository.class, "(cn=" + NodeConstants.EGO + ")").iterator().next());
+						bc.getServiceReferences(Repository.class, "(cn=" + NodeConstants.EGO_REPOSITORY + ")").iterator().next());
 //				Session session = repository.login();
 				CmsFileSystem fileSystem = new CmsFileSystem(this, repository);
 				fileSystems.put(username, fileSystem);
@@ -94,7 +94,7 @@ public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 
 	public Node getUserHome(Repository repository) {
 		try {
-			Session session = repository.login(NodeConstants.HOME);
+			Session session = repository.login(NodeConstants.HOME_WORKSPACE);
 			return NodeUtils.getUserHome(session);
 		} catch (RepositoryException e) {
 			throw new IllegalStateException("Cannot get user home", e);

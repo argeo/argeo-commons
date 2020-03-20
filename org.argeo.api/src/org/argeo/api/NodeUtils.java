@@ -128,7 +128,7 @@ public class NodeUtils {
 
 	private static void checkUserWorkspace(Session session, String username) {
 		String workspaceName = session.getWorkspace().getName();
-		if (!NodeConstants.HOME.equals(workspaceName))
+		if (!NodeConstants.HOME_WORKSPACE.equals(workspaceName))
 			throw new IllegalArgumentException(workspaceName + " is not the home workspace for user " + username);
 	}
 
@@ -182,7 +182,7 @@ public class NodeUtils {
 
 	private static void checkGroupWorkspace(Session session, String groupname) {
 		String workspaceName = session.getWorkspace().getName();
-		if (!NodeConstants.SRV.equals(workspaceName))
+		if (!NodeConstants.SRV_WORKSPACE.equals(workspaceName))
 			throw new IllegalArgumentException(workspaceName + " is not the group workspace for group " + groupname);
 	}
 

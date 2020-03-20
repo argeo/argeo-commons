@@ -267,7 +267,7 @@ public class CmsDeployment implements NodeDeployment {
 		}
 
 		// home
-		prepareDataModel(NodeConstants.NODE, deployedNodeRepository);
+		prepareDataModel(NodeConstants.NODE_REPOSITORY, deployedNodeRepository);
 	}
 
 	private void prepareHomeRepository(RepositoryImpl deployedRepository) {
@@ -285,7 +285,7 @@ public class CmsDeployment implements NodeDeployment {
 
 		// Publish home with the highest service ranking
 		Hashtable<String, Object> regProps = new Hashtable<>();
-		regProps.put(NodeConstants.CN, NodeConstants.EGO);
+		regProps.put(NodeConstants.CN, NodeConstants.EGO_REPOSITORY);
 		regProps.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
 		Repository egoRepository = new EgoRepository(deployedRepository, false);
 		bc.registerService(Repository.class, egoRepository, regProps);
@@ -317,7 +317,7 @@ public class CmsDeployment implements NodeDeployment {
 				BundleWiring wiring = bundle.adapt(BundleWiring.class);
 				if (wiring == null)
 					continue bundles;
-				if (NodeConstants.NODE.equals(cn))// process all data models
+				if (NodeConstants.NODE_REPOSITORY.equals(cn))// process all data models
 					processWiring(cn, adminSession, wiring, processed, false);
 				else {
 					List<BundleCapability> capabilities = wiring.getCapabilities(CMS_DATA_MODEL_NAMESPACE);
@@ -395,7 +395,7 @@ public class CmsDeployment implements NodeDeployment {
 		boolean publishLocalRepo;
 		if (isStandalone && name.equals(cn))// includes the node itself
 			publishLocalRepo = true;
-		else if (!isStandalone && cn.equals(NodeConstants.NODE))
+		else if (!isStandalone && cn.equals(NodeConstants.NODE_REPOSITORY))
 			publishLocalRepo = true;
 		else
 			publishLocalRepo = false;
@@ -441,7 +441,7 @@ public class CmsDeployment implements NodeDeployment {
 			RepositoryContext repoContext = bc.getService(reference);
 			String cn = (String) reference.getProperty(NodeConstants.CN);
 			if (cn != null) {
-				if (cn.equals(NodeConstants.NODE)) {
+				if (cn.equals(NodeConstants.NODE_REPOSITORY)) {
 					prepareNodeRepository(repoContext.getRepository());
 					// TODO separate home repository
 					prepareHomeRepository(repoContext.getRepository());

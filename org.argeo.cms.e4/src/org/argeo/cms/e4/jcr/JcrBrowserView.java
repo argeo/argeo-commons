@@ -115,7 +115,7 @@ public class JcrBrowserView {
 		top.setLayout(CmsUiUtils.noSpaceGridLayout());
 
 		try {
-			this.userSession = this.nodeRepository.login(NodeConstants.HOME);
+			this.userSession = this.nodeRepository.login(NodeConstants.HOME_WORKSPACE);
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot open user session", e);
 		}

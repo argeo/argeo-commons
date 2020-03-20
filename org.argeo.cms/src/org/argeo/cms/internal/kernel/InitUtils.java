@@ -42,12 +42,12 @@ class InitUtils {
 			if (value != null)
 				props.put(repoConf.name(), value);
 		}
-		props.put(NodeConstants.CN, NodeConstants.NODE);
+		props.put(NodeConstants.CN, NodeConstants.NODE_REPOSITORY);
 		return props;
 	}
 
 	static Dictionary<String, Object> getRepositoryConfig(String dataModelName, Dictionary<String, Object> provided) {
-		if (dataModelName.equals(NodeConstants.NODE) || dataModelName.equals(NodeConstants.EGO))
+		if (dataModelName.equals(NodeConstants.NODE_REPOSITORY) || dataModelName.equals(NodeConstants.EGO_REPOSITORY))
 			throw new IllegalArgumentException("Data model '" + dataModelName + "' is reserved.");
 		Dictionary<String, Object> props = provided != null ? provided : new Hashtable<String, Object>();
 		for (RepoConf repoConf : RepoConf.values()) {

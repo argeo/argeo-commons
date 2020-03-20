@@ -23,11 +23,16 @@ public interface NodeConstants {
 	 * COMMON NAMES
 	 */
 	String NODE = "node";
-	String EGO = "ego";
-	String HOME = "home";
-	String SRV = "srv";
-	String GUESTS = "guests";
-	String PUBLIC = "public";
+
+	/*
+	 * JCR CONVENTIONS
+	 */
+	String NODE_REPOSITORY = NODE;
+	String EGO_REPOSITORY = "ego";
+	String HOME_WORKSPACE = "home";
+	String SRV_WORKSPACE = "srv";
+	String GUESTS_WORKSPACE = "guests";
+	String PUBLIC_WORKSPACE = "public";
 
 	/*
 	 * BASE DNs

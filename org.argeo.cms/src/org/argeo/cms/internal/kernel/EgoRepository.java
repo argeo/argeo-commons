@@ -37,15 +37,15 @@ class EgoRepository extends JcrRepositoryWrapper implements KernelConstants {
 
 	private SimpleDateFormat usersDatePath = new SimpleDateFormat("YYYY/MM");
 
-	private String defaultHomeWorkspace = NodeConstants.HOME;
-	private String defaultGroupsWorkspace = NodeConstants.SRV;
-//	private String defaultGuestsWorkspace = NodeConstants.GUESTS;
+	private String defaultHomeWorkspace = NodeConstants.HOME_WORKSPACE;
+	private String defaultGroupsWorkspace = NodeConstants.SRV_WORKSPACE;
+//	private String defaultGuestsWorkspace = NodeConstants.GUESTS_WORKSPACE;
 	private final boolean remote;
 
 	public EgoRepository(Repository repository, boolean remote) {
 		super(repository);
 		this.remote = remote;
-		putDescriptor(NodeConstants.CN, NodeConstants.EGO);
+		putDescriptor(NodeConstants.CN, NodeConstants.EGO_REPOSITORY);
 		if (!remote) {
 			LoginContext lc;
 			try {

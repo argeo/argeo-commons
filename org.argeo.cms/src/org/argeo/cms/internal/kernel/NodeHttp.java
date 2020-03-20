@@ -66,7 +66,7 @@ public class NodeHttp implements KernelConstants {
 		try {
 			registerWebdavServlet(httpService, alias, repository);
 			registerRemotingServlet(httpService, alias, repository);
-			if (NodeConstants.EGO.equals(alias))
+			if (NodeConstants.EGO_REPOSITORY.equals(alias))
 				registerFilesServlet(httpService, alias, repository);
 			if (log.isTraceEnabled())
 				log.trace("Registered servlets for repository '" + alias + "'");
@@ -81,7 +81,7 @@ public class NodeHttp implements KernelConstants {
 		try {
 			httpService.unregister(webdavPath(alias));
 			httpService.unregister(remotingPath(alias));
-			if (NodeConstants.EGO.equals(alias))
+			if (NodeConstants.EGO_REPOSITORY.equals(alias))
 				httpService.unregister(filesPath(alias));
 			if (log.isTraceEnabled())
 				log.trace("Unregistered servlets for repository '" + alias + "'");

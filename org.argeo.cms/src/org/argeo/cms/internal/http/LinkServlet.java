@@ -88,7 +88,7 @@ public class LinkServlet extends HttpServlet {
 				@Override
 				public Session run() throws Exception {
 					Collection<ServiceReference<Repository>> srs = bc.getServiceReferences(Repository.class,
-							"(" + NodeConstants.CN + "=" + NodeConstants.NODE + ")");
+							"(" + NodeConstants.CN + "=" + NodeConstants.EGO_REPOSITORY + ")");
 					Repository repository = bc.getService(srs.iterator().next());
 					return repository.login();
 				}
@@ -196,7 +196,7 @@ public class LinkServlet extends HttpServlet {
 	private String getDataUrl(Node node, HttpServletRequest request) throws RepositoryException {
 		try {
 			StringBuilder buf = getServerBaseUrl(request);
-			buf.append(NodeUtils.getDataPath(NodeConstants.NODE, node));
+			buf.append(NodeUtils.getDataPath(NodeConstants.EGO_REPOSITORY, node));
 			return new URL(buf.toString()).toString();
 		} catch (MalformedURLException e) {
 			throw new CmsException("Cannot build data URL for " + node, e);

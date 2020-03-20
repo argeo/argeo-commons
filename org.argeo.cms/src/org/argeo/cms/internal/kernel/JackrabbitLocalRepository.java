@@ -45,7 +45,7 @@ class JackrabbitLocalRepository extends LocalRepository {
 	private void addMonitor(String realWorkspaceName) {
 		if (realWorkspaceName.equals(SECURITY_WORKSPACE))
 			return;
-		if (!NodeConstants.NODE.equals(getCn()))
+		if (!NodeConstants.NODE_REPOSITORY.equals(getCn()))
 			return;
 
 		if (!workspaceMonitors.containsKey(realWorkspaceName)) {

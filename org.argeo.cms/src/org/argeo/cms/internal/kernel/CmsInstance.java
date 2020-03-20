@@ -29,7 +29,7 @@ public class CmsInstance implements NodeInstance {
 			@Override
 			public Repository addingService(ServiceReference<Repository> reference) {
 				Object cn = reference.getProperty(NodeConstants.CN);
-				if (cn != null && cn.equals(NodeConstants.EGO)) {
+				if (cn != null && cn.equals(NodeConstants.EGO_REPOSITORY)) {
 					egoRepository = (EgoRepository) bc.getService(reference);
 					if (log.isTraceEnabled())
 						log.trace("Home repository is available");
