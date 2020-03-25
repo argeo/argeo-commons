@@ -2,9 +2,8 @@ package org.argeo.cms.internal.kernel;
 
 import org.argeo.api.NodeConstants;
 
+/** Internal CMS constants. */
 public interface KernelConstants {
-	String[] DEFAULT_CNDS = { "/org/argeo/jcr/argeo.cnd", "/org/argeo/cms/cms.cnd" };
-
 	// Directories
 	String DIR_NODE = "node";
 	String DIR_REPOS = "repos";
