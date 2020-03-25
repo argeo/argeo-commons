@@ -77,6 +77,10 @@ class CmsAuthUtils {
 				principals.add(userPrincipal);
 				// principals.add(new ImpliedByPrincipal(NodeSecurityUtils.ROLE_USER_NAME,
 				// userPrincipal));
+
+				if (Activator.isSingleUser()) {
+					principals.add(new ImpliedByPrincipal(NodeSecurityUtils.ROLE_ADMIN_NAME, userPrincipal));
+				}
 			}
 
 			// Add roles provided by authorization
