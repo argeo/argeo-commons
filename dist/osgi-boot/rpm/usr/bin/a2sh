@@ -10,4 +10,4 @@ fi
 EQUINOX=$PREFIX/share/osgi/boot/org.eclipse.osgi.jar
 OSGI_BOOT=$PREFIX/share/osgi/boot/org.argeo.osgi.boot.jar
 
-/usr/bin/jjs -cp "$EQUINOX:$OSGI_BOOT" $*
+/usr/bin/jshell --class-path "$EQUINOX:$OSGI_BOOT" $*

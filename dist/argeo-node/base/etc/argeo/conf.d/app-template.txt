@@ -4,4 +4,4 @@
 #argeo.osgi.start.5.apps=org.argeo.suite.apps
 
 # UI
-#argeo.osgi.start.6.apps=org.argeo.suite.apps.web,org.argeo.suite.workbench.rap
+#argeo.osgi.start.6.apps=org.argeo.suite.apps.web,org.argeo.suite.e4.rap

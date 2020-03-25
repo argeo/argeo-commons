@@ -15,7 +15,22 @@
 			<dependencies>
 				<dependency>
 					<groupId>org.argeo.commons</groupId>
+					<artifactId>org.argeo.dep.cms.client</artifactId>
+					<version>2.1.88-SNAPSHOT</version>
+				</dependency>
+				<dependency>
+					<groupId>org.argeo.commons</groupId>
+					<artifactId>org.argeo.dep.cms.node</artifactId>
+					<version>2.1.88-SNAPSHOT</version>
+				</dependency>
+				<dependency>
+					<groupId>org.argeo.commons</groupId>
 					<artifactId>org.argeo.dep.cms.e4.rap</artifactId>
+					<version>2.1.88-SNAPSHOT</version>
+				</dependency>
+				<dependency>
+					<groupId>org.argeo.commons</groupId>
+					<artifactId>org.argeo.dep.cms.sdk</artifactId>
 					<version>2.1.88-SNAPSHOT</version>
 				</dependency>
 				<dependency>
@@ -143,9 +158,6 @@
 											</sources>
 										</mapping>
 									</mappings>
-									<!-- <preinstallScriptlet> -->
-									<!-- <scriptFile>rpm/scripts/preinstall</scriptFile> -->
-									<!-- </preinstallScriptlet> -->
 									<requires>
 										<require>argeo-cms-node</require>
 										<require>osgi-boot</require>
