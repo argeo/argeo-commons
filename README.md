@@ -29,14 +29,6 @@ mvn clean install -Prpmbuild-tp,rpmbuild
 createrepo /srv/rpmfactory/argeo-osgi-2/el7/
 ```
 
-### Usage in Eclipse
-The project can be run as a standard PDE OSGi runtime, but the Argeo SLC Eclipse plug-in greatly simplifies the configuration of an Eclipse PDE running configuration:
-- Install the Argeo SLC plug-in from this Eclipse update site https://projects.argeo.org/slc/update/ide/
-- In the demo/ directory, right-click on cms-e4-rap.properties, ```Run As > OSGi Boot (Equinox, RAP)```
-- The execution directory will be sdk/exec/cms-e4-rap
-- The standard OSGi data area will be sdk/exec/cms-e4-rap/data (contains mostly the Jackrabbit JCR repository)
-- Open http://localhost:7070/cms/devops with the username ```root``` and the password ```demo```
-
 ### Release
 ```bash
 mvn release:prepare
