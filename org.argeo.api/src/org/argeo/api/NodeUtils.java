@@ -21,13 +21,10 @@ import java.util.Map;
 
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
-import javax.jcr.query.Query;
-import javax.jcr.query.QueryResult;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.security.auth.AuthPermission;
@@ -192,24 +189,24 @@ public class NodeUtils {
 	 * @return one single node or null if none was found
 	 * @throws ArgeoJcrException if more than one node was found
 	 */
-	private static Node querySingleNode(Query query) {
-		NodeIterator nodeIterator;
-		try {
-			QueryResult queryResult = query.execute();
-			nodeIterator = queryResult.getNodes();
-		} catch (RepositoryException e) {
-			throw new RuntimeException("Cannot execute query " + query, e);
-		}
-		Node node;
-		if (nodeIterator.hasNext())
-			node = nodeIterator.nextNode();
-		else
-			return null;
-
-		if (nodeIterator.hasNext())
-			throw new RuntimeException("Query returned more than one node.");
-		return node;
-	}
+//	private static Node querySingleNode(Query query) {
+//		NodeIterator nodeIterator;
+//		try {
+//			QueryResult queryResult = query.execute();
+//			nodeIterator = queryResult.getNodes();
+//		} catch (RepositoryException e) {
+//			throw new RuntimeException("Cannot execute query " + query, e);
+//		}
+//		Node node;
+//		if (nodeIterator.hasNext())
+//			node = nodeIterator.nextNode();
+//		else
+//			return null;
+//
+//		if (nodeIterator.hasNext())
+//			throw new RuntimeException("Query returned more than one node.");
+//		return node;
+//	}
 
 	/** Returns the home node of the session user or null if none was found. */
 	public static Node getUserHome(Session session) {
