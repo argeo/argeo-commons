@@ -4,7 +4,8 @@ APP=argeo
 JVM=java
 
 BIN_DIR=`dirname "$0"`
-BASE_DIR=$BIN_DIR/..
+BASE_DIR="$(cd "$(dirname "$0")/.."; pwd -P)"
+#BASE_DIR=$BIN_DIR/..
 
 # Directories and files
 CONF_DIR=$BASE_DIR/etc/$APP
@@ -16,6 +17,7 @@ DATA_DIR=$EXEC_DIR/data
 CONF_RW=$EXEC_DIR/state
 CONFIG_INI=$CONF_RW/config.ini
 
+A2_SOURCES=a2://$BASE_DIR/share/osgi
 OSGI_INSTALL_AREA=$BASE_DIR/share/osgi/boot
 OSGI_FRAMEWORK=$OSGI_INSTALL_AREA/org.eclipse.osgi.jar
 
@@ -44,6 +46,7 @@ start() {
 	$JVM \
 		-Dlog4j.configuration="file:$CONF_DIR/log4j.properties" \
 		$JAVA_OPTS -jar $OSGI_FRAMEWORK \
+		-Dargeo.osgi.sources=$A2_SOURCES \
 		-configuration "$CONF_RW" \
 		-data "$DATA_DIR"
 }

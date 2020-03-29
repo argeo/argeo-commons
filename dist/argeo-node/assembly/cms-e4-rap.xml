@@ -9,15 +9,28 @@
 	</formats>
 	<fileSets>
 		<fileSet>
-			<directory>base</directory>
-			<outputDirectory></outputDirectory>
+			<directory>base/bin</directory>
+			<outputDirectory>bin</outputDirectory>
+			<fileMode>0755</fileMode>
+			<includes>
+				<include>**</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>base/etc</directory>
+			<outputDirectory>etc</outputDirectory>
 			<fileMode>0644</fileMode>
 			<includes>
 				<include>**</include>
 			</includes>
-			<excludes>
-				<exclude>offline.bat</exclude>
-			</excludes>
+		</fileSet>
+		<fileSet>
+			<directory>base/share</directory>
+			<outputDirectory>share</outputDirectory>
+			<fileMode>0644</fileMode>
+			<includes>
+				<include>**</include>
+			</includes>
 		</fileSet>
 	</fileSets>
 	<dependencySets>
