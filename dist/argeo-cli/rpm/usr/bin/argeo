@@ -1,0 +1,29 @@
+#!/bin/sh
+JVM=java
+
+APP=argeo-cli
+CONF_DIR=/etc/$APP
+
+# Overwrite variables
+if [ -f $CONF_DIR/settings.sh ];then
+	. $CONF_DIR/settings.sh
+fi
+
+CLASSPATH=
+for i in /usr/local/share/osgi/*/; do
+	CLASSPATH=$CLASSPATH:"$i*";
+done;
+for i in /usr/local/lib/osgi/*/; do
+	CLASSPATH=$CLASSPATH:"$i*";
+done;
+for i in /usr/share/osgi/*/; do
+	CLASSPATH=$CLASSPATH:"$i*";
+done;
+for i in /usr/lib/osgi/*/; do
+	CLASSPATH=$CLASSPATH:"$i*";
+done;
+
+$JVM \
+	-Dlog4j.configuration="file:$CONF_DIR/log4j.properties" \
+	$JAVA_OPTS -cp $CLASSPATH \
+	org.argeo.cms.cli.ArgeoCli $*
