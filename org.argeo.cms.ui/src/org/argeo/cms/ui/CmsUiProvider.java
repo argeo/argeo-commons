@@ -16,10 +16,10 @@ public interface CmsUiProvider extends MvcProvider<Composite, Node, Control> {
 	 * @param parent  the parent composite
 	 * @param context a context node (holding the JCR underlying session), or null
 	 */
-	public Control createUi(Composite parent, Node context) throws RepositoryException;
+	Control createUi(Composite parent, Node context) throws RepositoryException;
 
 	@Override
-	public default Control apply(Composite parent, Node context) {
+	default Control createUiPart(Composite parent, Node context) {
 		try {
 			return createUi(parent, context);
 		} catch (RepositoryException e) {

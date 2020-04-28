@@ -10,6 +10,8 @@ import java.util.function.BiFunction;
  */
 @FunctionalInterface
 public interface MvcProvider<V, M, W> extends BiFunction<V, M, W> {
+	W createUiPart(V parent, M context);
+	
 	/**
 	 * Whether this parent view is supported.
 	 * 
@@ -28,11 +30,15 @@ public interface MvcProvider<V, M, W> extends BiFunction<V, M, W> {
 		return true;
 	}
 
-	default W createUiPart(V parent, M context) {
+	default W apply(V parent, M context) {
 		if (!isViewSupported(parent))
 			throw new IllegalArgumentException("Parent view " + parent + "is not supported.");
 		if (!isModelSupported(context))
 			throw new IllegalArgumentException("Model context " + context + "is not supported.");
-		return apply(parent, context);
+		return createUiPart(parent, context);
+	}
+
+	default W createUiPart(V parent) {
+		return createUiPart(parent, null);
 	}
 }
