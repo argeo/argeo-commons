@@ -1,0 +1,12 @@
+[Unit]
+Description=Argeo Node %I
+
+[Service]
+Type=simple
+PIDFile=/var/run/user/%U/%i.pid
+ExecStart=/usr/sbin/argeoctl start %I
+ExecReload=/usr/sbin/argeoctl reload %I
+SuccessExitStatus=143
+StateDirectory=argeo.d/%I
+LogsDirectory=argeo.d/%I
+ConfigurationDirectory=argeo.d/%I

@@ -9,13 +9,13 @@ else
 # Instance
 INSTANCE=$2
 	if [ -z "$STATE_DIRECTORY" ]; then
-	INSTANCE_DIR=/var/lib/$APP.d/$INSTANCE
+	INSTANCE_DIR=$HOME/.local/share/$APP.d/$INSTANCE
 	else
 	# systemd StateDirectory=
 	INSTANCE_DIR=$STATE_DIRECTORY
 	fi
 	if [ -z "$CONFIGURATION_DIRECTORY" ]; then
-	CONF_DIR=/etc/$APP.d/$INSTANCE
+	CONF_DIR=$HOME/.config/$APP.d/$INSTANCE
 	else
 	# systemd ConfigurationDirectory=
 	CONF_DIR=$CONFIGURATION_DIRECTORY

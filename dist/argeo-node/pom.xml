@@ -143,6 +143,21 @@
 											</sources>
 										</mapping>
 										<mapping>
+											<directory>/usr/lib/systemd/user</directory>
+											<username>root</username>
+											<groupname>root</groupname>
+											<filemode>644</filemode>
+											<directoryIncluded>false</directoryIncluded>
+											<sources>
+												<source>
+													<location>rpm/usr/lib/systemd/user</location>
+													<includes>
+														<include>*.service</include>
+													</includes>
+												</source>
+											</sources>
+										</mapping>
+										<mapping>
 											<directory>/usr/sbin</directory>
 											<username>root</username>
 											<groupname>root</groupname>
