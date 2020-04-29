@@ -1,18 +1,21 @@
 [Unit]
-Description=Argeo Node %I
+Description=Argeo node %I
 After=network.target
 Wants=postgresql.service
 
 [Service]
 Type=simple
-PIDFile=/var/run/argeo/%i.pid
 ExecStart=/usr/sbin/argeoctl start %I
 ExecReload=/usr/sbin/argeoctl reload %I
-SuccessExitStatus=143
 DynamicUser=true
 StateDirectory=argeo.d/%I
 LogsDirectory=argeo.d/%I
 ConfigurationDirectory=argeo.d/%I
+
+# Workaround to pass locations for systemd with version < 240
+Environment=INSTANCE_DIR=/var/lib/argeo.d/%I CONF_DIR=/etc/argeo.d/%I
+#Environment="INSTANCE_DIR=$STATE_DIRECTORY" "CONF_DIR=$CONFIGURATION_DIRECTORY"
+PassEnvironment=INSTANCE_DIR CONF_DIR
 
 [Install]
 WantedBy=multi-user.target

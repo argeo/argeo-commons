@@ -1,14 +1,12 @@
 [Unit]
-Description=Argeo Node
+Description=Argeo default node
 After=network.target
 Wants=postgresql.service
 
 [Service]
 Type=simple
-PIDFile=/var/run/argeo/argeo.pid
 ExecStart=/usr/sbin/argeoctl start
 ExecReload=/usr/sbin/argeoctl reload
-SuccessExitStatus=143
 
 [Install]
 WantedBy=multi-user.target
