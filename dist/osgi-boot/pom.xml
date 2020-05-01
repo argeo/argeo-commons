@@ -99,6 +99,22 @@
 												</includes>
 											</dependency>
 										</mapping>
+										<mapping>
+											<directory>/usr/share/osgi/boot</directory>
+											<username>root</username>
+											<groupname>root</groupname>
+											<filemode>644</filemode>
+											<configuration>noreplace</configuration>
+											<directoryIncluded>false</directoryIncluded>
+											<sources>
+												<source>
+													<location>rpm/usr/share/osgi/boot</location>
+													<includes>
+														<include>*.args</include>
+													</includes>
+												</source>
+											</sources>
+										</mapping>
 									</mappings>
 									<requires>
 										<require>osgi-boot-equinox</require>

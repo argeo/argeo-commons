@@ -19,6 +19,7 @@ import static org.argeo.osgi.boot.OsgiBootUtils.debug;
 import static org.argeo.osgi.boot.OsgiBootUtils.warn;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -114,8 +115,9 @@ public class OsgiBoot implements OsgiBootConstants {
 		} else {
 			for (String source : sources.split(",")) {
 				if (source.trim().equals(A2Source.DEFAULT_A2_URI)) {
-					provisioningManager
-							.registerSource(A2Source.SCHEME_A2 + "://" + homePath.toString() + "/.local/share/osgi");
+					if (Files.exists(homePath))
+						provisioningManager.registerSource(
+								A2Source.SCHEME_A2 + "://" + homePath.toString() + "/.local/share/osgi");
 					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/local/share/osgi");
 					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/share/osgi");
 				} else {

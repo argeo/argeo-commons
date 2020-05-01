@@ -7,6 +7,7 @@ Wants=postgresql.service
 Type=simple
 ExecStart=/usr/sbin/argeoctl start
 ExecReload=/usr/sbin/argeoctl reload
+SuccessExitStatus=143
 
 [Install]
 WantedBy=multi-user.target

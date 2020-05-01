@@ -5,17 +5,22 @@ Wants=postgresql.service
 
 [Service]
 Type=simple
-ExecStart=/usr/sbin/argeoctl start %I
-ExecReload=/usr/sbin/argeoctl reload %I
 DynamicUser=true
 StateDirectory=argeo.d/%I
 LogsDirectory=argeo.d/%I
 ConfigurationDirectory=argeo.d/%I
+WorkingDirectory=/var/lib/argeo.d/%I
 
-# Workaround to pass locations for systemd with version < 240
-Environment=INSTANCE_DIR=/var/lib/argeo.d/%I CONF_DIR=/etc/argeo.d/%I
-#Environment="INSTANCE_DIR=$STATE_DIRECTORY" "CONF_DIR=$CONFIGURATION_DIRECTORY"
-PassEnvironment=INSTANCE_DIR CONF_DIR
+ExecStart=/usr/lib/jvm/jre-11/bin/java \
+  -Dlog4j.configuration="file:/etc/argeo.d/%I/log4j.properties" \
+  @/etc/argeo.d/%I/jvm.args \
+  @/usr/share/osgi/boot/framework.args \
+  -configuration /var/lib/argeo.d/%I/state \
+  -data /var/lib/argeo.d/%I/data
+#ExecReload=/usr/sbin/argeoctl reload %I
+# Exit codes of the JVM when SIGTERM or SIGINT have been caught:
+SuccessExitStatus=143 130
+#ExecStopPost=/usr/bin/cat "$EXIT_STATUS" > /var/lib/argeo.d/%I/state/EXIT_STATUS
 
 [Install]
 WantedBy=multi-user.target
