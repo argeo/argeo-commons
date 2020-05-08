@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.jcr.Binary;
+import javax.jcr.Credentials;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
@@ -1067,16 +1068,25 @@ public class JcrUtils {
 	 */
 	public static Session loginOrCreateWorkspace(Repository repository, String workspaceName)
 			throws RepositoryException {
+		return loginOrCreateWorkspace(repository, workspaceName, null);
+	}
+
+	/**
+	 * Login to a workspace with implicit credentials, creates the workspace with
+	 * these credentials if it does not already exist.
+	 */
+	public static Session loginOrCreateWorkspace(Repository repository, String workspaceName, Credentials credentials)
+			throws RepositoryException {
 		Session workspaceSession = null;
 		Session defaultSession = null;
 		try {
 			try {
-				workspaceSession = repository.login(workspaceName);
+				workspaceSession = repository.login(credentials, workspaceName);
 			} catch (NoSuchWorkspaceException e) {
 				// try to create workspace
-				defaultSession = repository.login();
+				defaultSession = repository.login(credentials);
 				defaultSession.getWorkspace().createWorkspace(workspaceName);
-				workspaceSession = repository.login(workspaceName);
+				workspaceSession = repository.login(credentials, workspaceName);
 			}
 			return workspaceSession;
 		} finally {

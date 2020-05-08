@@ -15,14 +15,19 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 
-import org.apache.jackrabbit.jcr2dav.Jcr2davRepositoryFactory;
+import org.apache.jackrabbit.core.security.authentication.LocalAuthContext;
+import org.argeo.jackrabbit.client.ClientDavexRepositoryFactory;
 import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.jcr.fs.JcrFileSystem;
 import org.argeo.jcr.fs.JcrFsException;
 
+/**
+ * A file system provider based on a JCR repository remotely accessed via the
+ * DAVEX protocol.
+ */
 public class DavexFsProvider extends AbstractJackrabbitFsProvider {
-	final static String JACKRABBIT_REPOSITORY_URI = "org.apache.jackrabbit.repository.uri";
-	final static String JACKRABBIT_REMOTE_DEFAULT_WORKSPACE = "org.apache.jackrabbit.spi2davex.WorkspaceNameDefault";
+//	final static String JACKRABBIT_REPOSITORY_URI = "org.apache.jackrabbit.repository.uri";
+//	final static String JACKRABBIT_REMOTE_DEFAULT_WORKSPACE = "org.apache.jackrabbit.spi2davex.WorkspaceNameDefault";
 
 	private Map<String, JcrFileSystem> fileSystems = new HashMap<>();
 
@@ -40,8 +45,8 @@ public class DavexFsProvider extends AbstractJackrabbitFsProvider {
 			String repoKey = repoUri.toString();
 			if (fileSystems.containsKey(repoKey))
 				throw new FileSystemAlreadyExistsException("CMS file system already exists for " + repoKey);
-			RepositoryFactory repositoryFactory = new Jcr2davRepositoryFactory();
-			return tryGetRepo(repositoryFactory, repoUri, "main");
+			RepositoryFactory repositoryFactory = new ClientDavexRepositoryFactory();
+			return tryGetRepo(repositoryFactory, repoUri, "home");
 		} catch (Exception e) {
 			throw new ArgeoJcrException("Cannot open file system " + uri, e);
 		}
@@ -50,8 +55,8 @@ public class DavexFsProvider extends AbstractJackrabbitFsProvider {
 	private JcrFileSystem tryGetRepo(RepositoryFactory repositoryFactory, URI repoUri, String workspace)
 			throws IOException {
 		Map<String, String> params = new HashMap<String, String>();
-		params.put(JACKRABBIT_REPOSITORY_URI, repoUri.toString());
-		params.put(JACKRABBIT_REMOTE_DEFAULT_WORKSPACE, "main");
+		params.put(ClientDavexRepositoryFactory.JACKRABBIT_DAVEX_URI, repoUri.toString());
+		params.put(ClientDavexRepositoryFactory.JACKRABBIT_REMOTE_DEFAULT_WORKSPACE, "main");
 		Repository repository = null;
 		Session session = null;
 		try {
@@ -102,8 +107,7 @@ public class DavexFsProvider extends AbstractJackrabbitFsProvider {
 		try {
 			repoUri = new URI("http", uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), null, null);
 		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new IllegalArgumentException(e);
 		}
 		String uriStr = repoUri.toString();
 		String localPath = null;
@@ -112,6 +116,8 @@ public class DavexFsProvider extends AbstractJackrabbitFsProvider {
 				localPath = uriStr.toString().substring(key.length());
 			}
 		}
+		if ("".equals(localPath))
+			localPath = "/";
 		return fileSystem.getPath(localPath);
 	}
 
@@ -126,7 +132,7 @@ public class DavexFsProvider extends AbstractJackrabbitFsProvider {
 	public static void main(String args[]) {
 		try {
 			DavexFsProvider fsProvider = new DavexFsProvider();
-			Path path = fsProvider.getPath(new URI("davex://root:demo@localhost:7070/jcr/node/main/home/"));
+			Path path = fsProvider.getPath(new URI("davex://root:demo@localhost:7070/jcr/ego/"));
 			System.out.println(path);
 			DirectoryStream<Path> ds = Files.newDirectoryStream(path);
 			for (Path p : ds) {

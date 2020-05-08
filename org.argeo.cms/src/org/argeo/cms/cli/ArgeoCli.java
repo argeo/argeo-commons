@@ -3,6 +3,7 @@ package org.argeo.cms.cli;
 import org.apache.commons.cli.Option;
 import org.argeo.cli.CommandsCli;
 import org.argeo.cli.fs.FsCommands;
+import org.argeo.cli.jcr.JcrCommands;
 import org.argeo.cli.posix.PosixCommands;
 
 /** Argeo command line tools. */
@@ -17,6 +18,7 @@ public class ArgeoCli extends CommandsCli {
 
 		addCommandsCli(new PosixCommands("posix"));
 		addCommandsCli(new FsCommands("fs"));
+		addCommandsCli(new JcrCommands("jcr"));
 	}
 
 	@Override

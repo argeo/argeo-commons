@@ -1,6 +1,7 @@
 package org.argeo.cms.internal.http;
 
 import java.io.Serializable;
+import java.util.LinkedHashMap;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -25,7 +26,7 @@ public class CmsSessionProvider implements SessionProvider, Serializable {
 
 	private final String alias;
 
-//	private LinkedHashMap<Session, CmsSessionImpl> cmsSessions = new LinkedHashMap<>();
+	private LinkedHashMap<Session, CmsSessionImpl> cmsSessions = new LinkedHashMap<>();
 
 	public CmsSessionProvider(String alias) {
 		this.alias = alias;
@@ -35,26 +36,26 @@ public class CmsSessionProvider implements SessionProvider, Serializable {
 			throws javax.jcr.LoginException, ServletException, RepositoryException {
 
 		// a client is scanning parent URLs.
-		if (workspace == null)
-			return null;
+//		if (workspace == null)
+//			return null;
 
 		CmsSessionImpl cmsSession = WebCmsSessionImpl.getCmsSession(request);
 		if (log.isTraceEnabled()) {
 			log.trace("Get JCR session from " + cmsSession);
 		}
 		Session session = cmsSession.newDataSession(alias, workspace, rep);
-//		cmsSessions.put(session, cmsSession);
+		cmsSessions.put(session, cmsSession);
 		return session;
 	}
 
 	public void releaseSession(Session session) {
-		JcrUtils.logoutQuietly(session);
-//		if (cmsSessions.containsKey(session)) {
-//			CmsSessionImpl cmsSession = cmsSessions.get(session);
-//			cmsSession.releaseDataSession(alias, session);
-//		} else {
-//			log.warn("JCR session " + session + " not found in CMS session list. Logging it out...");
-//			JcrUtils.logoutQuietly(session);
-//		}
+//		JcrUtils.logoutQuietly(session);
+		if (cmsSessions.containsKey(session)) {
+			CmsSessionImpl cmsSession = cmsSessions.get(session);
+			cmsSession.releaseDataSession(alias, session);
+		} else {
+			log.warn("JCR session " + session + " not found in CMS session list. Logging it out...");
+			JcrUtils.logoutQuietly(session);
+		}
 	}
 }
