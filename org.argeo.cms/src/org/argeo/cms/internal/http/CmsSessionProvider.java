@@ -43,7 +43,7 @@ public class CmsSessionProvider implements SessionProvider, Serializable {
 		if (log.isTraceEnabled()) {
 			log.trace("Get JCR session from " + cmsSession);
 		}
-		Session session = cmsSession.newDataSession(alias, workspace, rep);
+		Session session = cmsSession.getDataSession(alias, workspace, rep);
 		cmsSessions.put(session, cmsSession);
 		return session;
 	}
