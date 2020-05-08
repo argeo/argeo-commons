@@ -1,0 +1,22 @@
+{
+  "resources":[
+    {"pattern":"\\QMETA-INF/services/org.apache.tika.detect.Detector\\E"}, 
+    {"pattern":"\\QMETA-INF/services/org.apache.tika.detect.EncodingDetector\\E"}, 
+    {"pattern":"\\QMETA-INF/services/org.apache.tika.parser.Parser\\E"}, 
+    {"pattern":"\\Qlog4j.properties\\E"}, 
+    {"pattern":"\\Qmozilla/public-suffix-list.txt\\E"}, 
+    {"pattern":"\\Qorg/apache/http/client/version.properties\\E"}, 
+    {"pattern":"\\Qorg/apache/jackrabbit/core/config/deprecated-classes.properties\\E"}, 
+    {"pattern":"\\Qorg/apache/jackrabbit/core/config/repository-1.6.dtd\\E"}, 
+    {"pattern":"\\Qorg/apache/jackrabbit/core/nodetype/builtin_nodetypes.cnd\\E"}, 
+    {"pattern":"\\Qorg/apache/jackrabbit/core/query/lucene/tika-config.xml\\E"}, 
+    {"pattern":"\\Qorg/apache/jackrabbit/core/repository.properties\\E"}, 
+    {"pattern":"\\Qorg/apache/jackrabbit/webdav/statuscode.properties\\E"}, 
+    {"pattern":"\\Qorg/apache/tika/mime/tika-mimetypes.xml\\E"}, 
+    {"pattern":"\\Qorg/apache/tika/parser/external/tika-external-parsers.xml\\E"}, 
+    {"pattern":"\\Qorg/apache/tika/parser/geo/topic/GeoTopicConfig.properties\\E"}, 
+    {"pattern":"\\Qorg/argeo/cli/jcr/repository-localfs.xml\\E"}, 
+    {"pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"}
+  ],
+  "bundles":[]
+}

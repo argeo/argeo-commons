@@ -1,0 +1,414 @@
+[
+{
+  "name":"com.sun.management.HotSpotDiagnosticMXBean",
+  "methods":[{"name":"getVMOption","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"com.sun.management.VMOption",
+  "methods":[{"name":"getValue","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.String",
+  "methods":[{"name":"isEmpty","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.Thread",
+  "methods":[{"name":"getContextClassLoader","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.Throwable",
+  "methods":[
+    {"name":"addSuppressed","parameterTypes":["java.lang.Throwable"] }, 
+    {"name":"getSuppressed","parameterTypes":[] }
+  ]
+},
+{
+  "name":"org.apache.jackrabbit.core.data.FileDataStore",
+  "allPublicMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.jackrabbit.core.fs.local.LocalFileSystem",
+  "allPublicMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.jackrabbit.core.persistence.bundle.BundleFsPersistenceManager",
+  "allPublicMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.jackrabbit.core.query.lucene.DefaultRedoLogFactory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.jackrabbit.core.query.lucene.SearchIndex",
+  "allPublicMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.jackrabbit.core.query.lucene.directory.FSDirectoryManager",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.jackrabbit.core.security.simple.SimpleAccessManager",
+  "allPublicMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.jackrabbit.core.security.simple.SimpleLoginModule",
+  "allPublicMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.jackrabbit.core.security.simple.SimpleSecurityManager",
+  "allPublicMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.log4j.Appender"
+},
+{
+  "name":"org.apache.log4j.Category"
+},
+{
+  "name":"org.apache.log4j.CategoryKey"
+},
+{
+  "name":"org.apache.log4j.ConsoleAppender",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.log4j.Layout"
+},
+{
+  "name":"org.apache.log4j.Logger"
+},
+{
+  "name":"org.apache.log4j.PatternLayout",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.log4j.helpers.Loader"
+},
+{
+  "name":"org.apache.log4j.spi.OptionHandler"
+},
+{
+  "name":"org.apache.lucene.analysis.tokenattributes.CharTermAttributeImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.lucene.analysis.tokenattributes.OffsetAttributeImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.lucene.analysis.tokenattributes.PayloadAttributeImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.lucene.analysis.tokenattributes.PositionIncrementAttributeImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.lucene.analysis.tokenattributes.TypeAttributeImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.lucene.index.DirectoryReader",
+  "methods":[
+    {"name":"doOpenIfChanged","parameterTypes":[] }, 
+    {"name":"doOpenIfChanged","parameterTypes":["org.apache.lucene.index.IndexCommit"] }, 
+    {"name":"doOpenIfChanged","parameterTypes":["org.apache.lucene.index.IndexWriter","boolean"] }, 
+    {"name":"doOpenIfChanged","parameterTypes":["boolean"] }
+  ]
+},
+{
+  "name":"org.apache.lucene.index.IndexReader",
+  "methods":[
+    {"name":"doOpenIfChanged","parameterTypes":[] }, 
+    {"name":"doOpenIfChanged","parameterTypes":["org.apache.lucene.index.IndexCommit"] }, 
+    {"name":"doOpenIfChanged","parameterTypes":["org.apache.lucene.index.IndexWriter","boolean"] }, 
+    {"name":"doOpenIfChanged","parameterTypes":["boolean"] }, 
+    {"name":"reopen","parameterTypes":[] }, 
+    {"name":"reopen","parameterTypes":["org.apache.lucene.index.IndexCommit"] }, 
+    {"name":"reopen","parameterTypes":["org.apache.lucene.index.IndexWriter","boolean"] }, 
+    {"name":"reopen","parameterTypes":["boolean"] }
+  ]
+},
+{
+  "name":"org.apache.lucene.index.MultiReader",
+  "methods":[
+    {"name":"doOpenIfChanged","parameterTypes":[] }, 
+    {"name":"doOpenIfChanged","parameterTypes":["boolean"] }
+  ]
+},
+{
+  "name":"org.apache.lucene.index.SegmentReader",
+  "methods":[
+    {"name":"doOpenIfChanged","parameterTypes":[] }, 
+    {"name":"doOpenIfChanged","parameterTypes":["boolean"] }
+  ]
+},
+{
+  "name":"org.apache.lucene.search.Similarity",
+  "methods":[
+    {"name":"idfExplain","parameterTypes":["org.apache.lucene.index.Term","org.apache.lucene.search.Searcher"] }, 
+    {"name":"idfExplain","parameterTypes":["org.apache.lucene.index.Term","org.apache.lucene.search.Searcher","int"] }
+  ]
+},
+{
+  "name":"org.apache.lucene.util.RamUsageEstimator$DummyOneFieldObject",
+  "fields":[{"name":"base"}]
+},
+{
+  "name":"org.apache.lucene.util.RamUsageEstimator$DummyTwoLongObject",
+  "fields":[
+    {"name":"dummy1"}, 
+    {"name":"dummy2"}
+  ]
+},
+{
+  "name":"org.apache.tika.detect.CompositeDetector",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true
+},
+{
+  "name":"org.apache.tika.detect.DefaultDetector",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":["org.apache.tika.mime.MimeTypes","org.apache.tika.config.ServiceLoader","java.util.Collection"] }]
+},
+{
+  "name":"org.apache.tika.detect.OverrideDetector",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.AbstractParser",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true
+},
+{
+  "name":"org.apache.tika.parser.CompositeParser",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true
+},
+{
+  "name":"org.apache.tika.parser.DefaultParser",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":["org.apache.tika.mime.MediaTypeRegistry","org.apache.tika.config.ServiceLoader","java.util.Collection","org.apache.tika.detect.EncodingDetector"] }]
+},
+{
+  "name":"org.apache.tika.parser.EmptyParser",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.apple.AppleSingleFileParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.asm.ClassParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.audio.AudioParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.audio.MidiParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.chm.ChmParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.crypto.Pkcs7Parser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.crypto.TSDParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.csv.TextAndCSVParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.dbf.DBFParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.dif.DIFParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.executable.ExecutableParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.external.CompositeExternalParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.font.AdobeFontMetricParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.font.TrueTypeParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.gdal.GDALParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.geo.topic.GeoParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.grib.GribParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.hdf.HDFParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.html.HtmlEncodingDetector",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.hwp.HwpV5Parser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.image.BPGParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.image.ICNSParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.image.ImageParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.image.PSDParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.image.TiffParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.image.WebPParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.iptc.IptcAnpaParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.isatab.ISArchiveParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.jdbc.SQLite3Parser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.journal.JournalParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.jpeg.JpegParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.mbox.MboxParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.microsoft.MSOwnerFileParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.microsoft.OldExcelParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.microsoft.TNEFParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.microsoft.ooxml.xwpf.ml2006.Word2006MLParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.microsoft.xml.SpreadsheetMLParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.microsoft.xml.WordMLParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.mp3.Mp3Parser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.netcdf.NetCDFParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.odf.OpenDocumentParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.rtf.RTFParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.txt.Icu4jEncodingDetector",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.txt.UniversalEncodingDetector",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.video.FLVParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.wordperfect.QuattroProParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.wordperfect.WordPerfectParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.xml.DcXMLParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tika.parser.xml.FictionBookParser",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.misc.Unsafe",
+  "fields":[{"name":"theUnsafe"}],
+  "methods":[
+    {"name":"addressSize","parameterTypes":[] }, 
+    {"name":"arrayBaseOffset","parameterTypes":["java.lang.Class"] }, 
+    {"name":"arrayIndexScale","parameterTypes":["java.lang.Class"] }, 
+    {"name":"objectFieldOffset","parameterTypes":["java.lang.reflect.Field"] }
+  ]
+}
+]
