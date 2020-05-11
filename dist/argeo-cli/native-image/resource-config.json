@@ -12,6 +12,7 @@
     {"pattern":"\\Qorg/apache/jackrabbit/core/query/lucene/tika-config.xml\\E"}, 
     {"pattern":"\\Qorg/apache/jackrabbit/core/repository.properties\\E"}, 
     {"pattern":"\\Qorg/apache/jackrabbit/webdav/statuscode.properties\\E"}, 
+    {"pattern":"\\Qorg/apache/sshd/sshd-version.properties\\E"}, 
     {"pattern":"\\Qorg/apache/tika/mime/tika-mimetypes.xml\\E"}, 
     {"pattern":"\\Qorg/apache/tika/parser/external/tika-external-parsers.xml\\E"}, 
     {"pattern":"\\Qorg/apache/tika/parser/geo/topic/GeoTopicConfig.properties\\E"}, 

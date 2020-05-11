@@ -131,15 +131,17 @@
 							<imageName>argeo</imageName>
 							<mainClass>org.argeo.cms.cli.ArgeoCli</mainClass>
 							<buildArgs>
+								--initialize-at-build-time=org.apache.lucene.util.AttributeImpl,org.apache.lucene.util.VirtualMethod,org.apache.lucene.util.WeakIdentityMap
+								-H:IncludeResourceBundles=sun.security.util.Resources
 								--no-fallback
 								--allow-incomplete-classpath
-								--initialize-at-build-time=org.apache.lucene.util.AttributeImpl,org.apache.lucene.util.VirtualMethod,org.apache.lucene.util.WeakIdentityMap
+								--enable-all-security-services
 								-H:EnableURLProtocols=http,https
-								-H:IncludeResourceBundles=sun.security.util.Resources
 								-H:ConfigurationFileDirectories=${basedir}/native-image
 								-H:ReflectionConfigurationFiles=${basedir}/native-image/reflect-config.json
 								-H:ResourceConfigurationFiles=${basedir}/native-image/resource-config.json
 								-H:JNIConfigurationFiles=${basedir}/native-image/jni-config.json
+								-H:DynamicProxyConfigurationFiles=${basedir}/native-image/proxy-config.json
 							</buildArgs>
 							<skip>false</skip>
 						</configuration>

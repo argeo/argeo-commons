@@ -42,7 +42,7 @@ public class PathSync implements Callable<SyncResult<Path>> {
 		}
 	}
 
-	private static Path createPath(URI uri) {
+	private Path createPath(URI uri) {
 		Path path;
 		if (uri.getScheme() == null) {
 			path = Paths.get(uri.getPath());
