@@ -134,6 +134,7 @@
 								--initialize-at-build-time=org.apache.lucene.util.AttributeImpl,org.apache.lucene.util.VirtualMethod,org.apache.lucene.util.WeakIdentityMap
 								-H:IncludeResourceBundles=sun.security.util.Resources
 								--no-fallback
+								--no-server
 								--allow-incomplete-classpath
 								--enable-all-security-services
 								-H:EnableURLProtocols=http,https
