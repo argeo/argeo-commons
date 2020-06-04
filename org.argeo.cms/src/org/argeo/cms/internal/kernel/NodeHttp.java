@@ -46,10 +46,10 @@ public class NodeHttp implements KernelConstants {
 
 	private String httpRealm = "Argeo";
 	private String webDavConfig = HttpUtils.WEBDAV_CONFIG;
-	private final boolean cleanState;
+//	private final boolean cleanState;
 
-	public NodeHttp(boolean cleanState) {
-		this.cleanState = cleanState;
+	public NodeHttp() {
+//		this.cleanState = cleanState;
 		httpServiceTracker = new PrepareHttpStc();
 		// httpServiceTracker.open();
 		KernelUtils.asyncOpen(httpServiceTracker);
@@ -222,8 +222,11 @@ public class NodeHttp implements KernelConstants {
 				throw new CmsException("An http service is already configured");
 			repositories = new RepositoriesStc(bc, httpService);
 			// repositories.open();
-			if (cleanState)
-				KernelUtils.asyncOpen(repositories);
+
+			///if (cleanState)
+			// FIXME properly publish servlets
+			//KernelUtils.asyncOpen(repositories);
+
 			log.info(httpPortsMsg(httpPort, httpsPort));
 			// httpAvailable = true;
 			// checkReadiness();

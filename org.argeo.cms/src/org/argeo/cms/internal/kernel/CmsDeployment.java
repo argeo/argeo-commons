@@ -3,6 +3,7 @@ package org.argeo.cms.internal.kernel;
 import static org.argeo.api.DataModelNamespace.CMS_DATA_MODEL_NAMESPACE;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.management.ManagementFactory;
@@ -65,7 +66,7 @@ public class CmsDeployment implements NodeDeployment {
 
 	private Long availableSince;
 
-	private final boolean cleanState;
+//	private final boolean cleanState;
 
 	private NodeHttp nodeHttp;
 
@@ -78,14 +79,14 @@ public class CmsDeployment implements NodeDeployment {
 	private boolean httpAvailable = false;
 
 	public CmsDeployment() {
-		ServiceReference<NodeState> nodeStateSr = bc.getServiceReference(NodeState.class);
-		if (nodeStateSr == null)
-			throw new CmsException("No node state available");
+//		ServiceReference<NodeState> nodeStateSr = bc.getServiceReference(NodeState.class);
+//		if (nodeStateSr == null)
+//			throw new CmsException("No node state available");
 
-		NodeState nodeState = bc.getService(nodeStateSr);
-		cleanState = nodeState.isClean();
+//		NodeState nodeState = bc.getService(nodeStateSr);
+//		cleanState = nodeState.isClean();
 
-		nodeHttp = new NodeHttp(cleanState);
+		nodeHttp = new NodeHttp();
 		dataModels = new DataModels(bc);
 		initTrackers();
 	}
@@ -125,17 +126,17 @@ public class CmsDeployment implements NodeDeployment {
 			@Override
 			public ConfigurationAdmin addingService(ServiceReference<ConfigurationAdmin> reference) {
 				ConfigurationAdmin configurationAdmin = bc.getService(reference);
-				deployConfig = new DeployConfig(configurationAdmin, dataModels, cleanState);
+				boolean isClean;
+				try {
+					Configuration[] confs = configurationAdmin
+							.listConfigurations("(service.factoryPid=" + NodeConstants.NODE_USER_ADMIN_PID + ")");
+					isClean = confs == null || confs.length == 0;
+				} catch (Exception e) {
+					throw new CmsException("Cannot analize clean state", e);
+				}
+				deployConfig = new DeployConfig(configurationAdmin, dataModels, isClean);
 				httpExpected = deployConfig.getProps(KernelConstants.JETTY_FACTORY_PID, "default") != null;
 				try {
-					// Configuration[] configs = configurationAdmin
-					// .listConfigurations("(service.factoryPid=" +
-					// NodeConstants.NODE_REPOS_FACTORY_PID + ")");
-					// for (Configuration config : configs) {
-					// Object cn = config.getProperties().get(NodeConstants.CN);
-					// if (log.isDebugEnabled())
-					// log.debug("Standalone repo cn: " + cn);
-					// }
 					Configuration[] configs = configurationAdmin
 							.listConfigurations("(service.factoryPid=" + NodeConstants.NODE_USER_ADMIN_PID + ")");
 

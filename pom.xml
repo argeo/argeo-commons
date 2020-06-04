@@ -39,7 +39,7 @@
 		<module>org.argeo.cms.e4</module>
 		<module>org.argeo.cms.e4.rap</module>
 		<!-- Third Parties Extensions -->
-		<module>org.argeo.ext.jackrabbit</module>
+<!-- 		<module>org.argeo.ext.jackrabbit</module> -->
 		<module>org.argeo.ext.equinox.jetty</module>
 		<!-- Distribution -->
 		<module>dep</module>

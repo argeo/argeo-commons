@@ -58,7 +58,21 @@ public class RepositoryBuilder {
 				throw new ArgeoJcrException("Repository configuration not found");
 			InputSource config = new InputSource(in);
 			Properties jackrabbitVars = getConfigurationProperties(type, properties);
-			RepositoryConfig repositoryConfig = RepositoryConfig.create(config, jackrabbitVars);
+			// RepositoryConfig repositoryConfig = RepositoryConfig.create(config,
+			// jackrabbitVars);
+
+			// custom configuration parser
+			CustomRepositoryConfigurationParser parser = new CustomRepositoryConfigurationParser(jackrabbitVars);
+			parser.setAccessControlProviderClassLoader(cl);
+			RepositoryConfig repositoryConfig = parser.parseRepositoryConfig(config);
+			repositoryConfig.init();
+
+			// set the proper classloaders
+			repositoryConfig.getSecurityConfig().getSecurityManagerConfig().setClassLoader(cl);
+			repositoryConfig.getSecurityConfig().getAccessManagerConfig().setClassLoader(cl);
+//			for (WorkspaceConfig workspaceConfig : repositoryConfig.getWorkspaceConfigs()) {
+//				workspaceConfig.getSecurityConfig().getAccessControlProviderConfig().setClassLoader(cl);
+//			}
 			return repositoryConfig;
 		}
 	}

@@ -20,10 +20,12 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.jcr.Credentials;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.x500.X500Principal;
 
 import org.apache.commons.logging.Log;
@@ -34,6 +36,8 @@ import org.apache.jackrabbit.core.security.AMContext;
 import org.apache.jackrabbit.core.security.AccessManager;
 import org.apache.jackrabbit.core.security.SecurityConstants;
 import org.apache.jackrabbit.core.security.SystemPrincipal;
+import org.apache.jackrabbit.core.security.authentication.AuthContext;
+import org.apache.jackrabbit.core.security.authentication.CallbackHandlerImpl;
 import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
 import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.apache.jackrabbit.core.security.principal.PrincipalProvider;
@@ -54,6 +58,16 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		if (FrameworkUtil.getBundle(CmsSession.class) != null) {
 			cmsBundleContext = FrameworkUtil.getBundle(CmsSession.class).getBundleContext();
 		}
+	}
+
+	public AuthContext getAuthContext(Credentials creds, Subject subject, String workspaceName)
+			throws RepositoryException {
+		checkInitialized();
+
+		CallbackHandler cbHandler = new CallbackHandlerImpl(creds, getSystemSession(), getPrincipalProviderRegistry(),
+				adminId, anonymousId);
+		String appName = "Jackrabbit";
+		return new ArgeoAuthContext(appName, subject, cbHandler);
 	}
 
 	@Override

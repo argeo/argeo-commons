@@ -174,6 +174,7 @@ class DeployConfig implements ConfigurationListener {
 					} catch (Exception e1) {
 						// silent
 					}
+					tryCount--;
 				}
 			}
 		} catch (Exception e) {
@@ -188,6 +189,8 @@ class DeployConfig implements ConfigurationListener {
 			deployConfigs = new LdifParser().read(in);
 		}
 		if (isClean) {
+			if(log.isDebugEnabled())
+				log.debug("Clean state, loading from framework properties...");
 			setFromFrameworkProperties(isFirstInit);
 			for (LdapName dn : deployConfigs.keySet()) {
 				Rdn lastRdn = dn.getRdn(dn.size() - 1);

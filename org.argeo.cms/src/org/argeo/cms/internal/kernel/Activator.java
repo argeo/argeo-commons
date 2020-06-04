@@ -2,10 +2,7 @@ package org.argeo.cms.internal.kernel;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.AllPermission;
-import java.util.Dictionary;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -22,7 +19,6 @@ import org.argeo.api.NodeInstance;
 import org.argeo.api.NodeState;
 import org.argeo.cms.CmsException;
 import org.argeo.ident.IdentClient;
-import org.argeo.util.LangUtils;
 import org.ietf.jgss.GSSCredential;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -137,18 +133,18 @@ public class Activator implements BundleActivator {
 
 	private void initNode() throws IOException {
 		// Node state
-		Path stateUuidPath = bc.getDataFile("stateUuid").toPath();
-		String stateUuid;
-		if (Files.exists(stateUuidPath)) {
-			stateUuid = Files.readAllLines(stateUuidPath).get(0);
-		} else {
-			stateUuid = bc.getProperty(Constants.FRAMEWORK_UUID);
-			Files.write(stateUuidPath, stateUuid.getBytes());
-		}
-		nodeState = new CmsState(stateUuid);
-		Dictionary<String, Object> regProps = LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_STATE_PID);
-		regProps.put(NodeConstants.CN, stateUuid);
-		bc.registerService(NodeState.class, nodeState, regProps);
+//		Path stateUuidPath = bc.getDataFile("stateUuid").toPath();
+//		String stateUuid;
+//		if (Files.exists(stateUuidPath)) {
+//			stateUuid = Files.readAllLines(stateUuidPath).get(0);
+//		} else {
+//			stateUuid = bc.getProperty(Constants.FRAMEWORK_UUID);
+//			Files.write(stateUuidPath, stateUuid.getBytes());
+//		}
+		nodeState = new CmsState();
+//		Dictionary<String, Object> regProps = LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_STATE_PID);
+//		regProps.put(NodeConstants.CN, stateUuid);
+		bc.registerService(NodeState.class, nodeState, null);
 
 		// Node deployment
 		nodeDeployment = new CmsDeployment();

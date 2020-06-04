@@ -42,13 +42,13 @@ public class CmsState implements NodeState {
 	private List<Runnable> stopHooks = new ArrayList<>();
 
 	private final String stateUuid;
-	private final boolean cleanState;
+//	private final boolean cleanState;
 	private String hostname;
 
-	public CmsState(String stateUuid) {
-		this.stateUuid = stateUuid;
-		String frameworkUuid = KernelUtils.getFrameworkProp(Constants.FRAMEWORK_UUID);
-		this.cleanState = stateUuid.equals(frameworkUuid);
+	public CmsState() {
+//		this.stateUuid = stateUuid;
+		this.stateUuid = KernelUtils.getFrameworkProp(Constants.FRAMEWORK_UUID);
+//		this.cleanState = stateUuid.equals(frameworkUuid);
 		try {
 			this.hostname = InetAddress.getLocalHost().getHostName();
 		} catch (UnknownHostException e) {
@@ -57,7 +57,9 @@ public class CmsState implements NodeState {
 
 		availableSince = System.currentTimeMillis();
 		if (log.isDebugEnabled())
-			log.debug("## CMS starting... stateUuid=" + this.stateUuid + (cleanState ? " (clean state) " : " "));
+			// log.debug("## CMS starting... stateUuid=" + this.stateUuid + (cleanState ? "
+			// (clean state) " : " "));
+			log.debug("## CMS starting... (" + stateUuid + ")");
 
 		initI18n();
 		initServices();
@@ -176,13 +178,18 @@ public class CmsState implements NodeState {
 
 	void shutdown() {
 		if (log.isDebugEnabled())
-			log.debug("CMS stopping...  stateUuid=" + this.stateUuid + (cleanState ? " (clean state) " : " "));
+			log.debug("CMS stopping...  (" + this.stateUuid + ")");
 
 		if (kernelThread != null)
 			kernelThread.destroyAndJoin();
-		// In a different state in order to avois interruptions
-		new Thread(() -> applyStopHooks(), "Apply Argeo Stop Hooks").start();
-		// applyStopHooks();
+		// In a different thread in order to avoid interruptions
+		Thread stopHookThread = new Thread(() -> applyStopHooks(), "Apply Argeo Stop Hooks");
+		stopHookThread.start();
+		try {
+			stopHookThread.join(10 * 60 * 1000);
+		} catch (InterruptedException e) {
+			// silent
+		}
 
 		long duration = ((System.currentTimeMillis() - availableSince) / 1000) / 60;
 		log.info("## ARGEO CMS STOPPED after " + (duration / 60) + "h " + (duration % 60) + "min uptime ##");
@@ -201,10 +208,10 @@ public class CmsState implements NodeState {
 		new GogoShellKiller().start();
 	}
 
-	@Override
-	public boolean isClean() {
-		return cleanState;
-	}
+//	@Override
+//	public boolean isClean() {
+//		return cleanState;
+//	}
 
 	@Override
 	public Long getAvailableSince() {
