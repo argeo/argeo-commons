@@ -10,6 +10,8 @@ org.apache.commons.httpclient.cookie;resolution:=optional,\
 org.osgi.*;version=0.0.0,\
 *
 
-Service-Component: OSGI-INF/cmsUserManager.xml
+Service-Component: OSGI-INF/cmsUserManager.xml,\
+OSGI-INF/filesServletContext.xml,\
+OSGI-INF/filesServlet.xml
 
 Provide-Capability: cms.datamodel;name=argeo;cnd=/org/argeo/cms/argeo.cnd;abstract=true
