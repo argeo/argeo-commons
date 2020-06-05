@@ -16,6 +16,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.http.HttpContext;
 
+@Deprecated
 public class DataHttpContext implements HttpContext {
 	private final static Log log = LogFactory.getLog(DataHttpContext.class);
 

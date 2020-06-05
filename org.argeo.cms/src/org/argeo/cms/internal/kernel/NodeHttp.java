@@ -34,6 +34,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * Intercepts and enriches http access, mainly focusing on security and
  * transactionality.
  */
+@Deprecated
 public class NodeHttp implements KernelConstants {
 	private final static Log log = LogFactory.getLog(NodeHttp.class);
 

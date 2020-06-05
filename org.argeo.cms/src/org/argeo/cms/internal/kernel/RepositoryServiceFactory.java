@@ -1,18 +1,29 @@
 package org.argeo.cms.internal.kernel;
 
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX;
+
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryFactory;
+import javax.servlet.Servlet;
+import javax.servlet.ServletException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.RepositoryContext;
+import org.apache.jackrabbit.server.remoting.davex.JcrRemotingServlet;
 import org.argeo.api.NodeConstants;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.internal.http.CmsRemotingServlet;
+import org.argeo.cms.internal.http.HttpUtils;
 import org.argeo.cms.internal.jcr.RepoConf;
 import org.argeo.cms.internal.jcr.RepositoryBuilder;
 import org.argeo.util.LangUtils;
@@ -21,7 +32,10 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
+import org.osgi.service.http.NamespaceException;
+import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
 
+/** A {@link ManagedServiceFactory} creating or referencing JCR repositories. */
 class RepositoryServiceFactory implements ManagedServiceFactory {
 	private final static Log log = LogFactory.getLog(RepositoryServiceFactory.class);
 	private final BundleContext bc = FrameworkUtil.getBundle(RepositoryServiceFactory.class).getBundleContext();
@@ -91,7 +105,8 @@ class RepositoryServiceFactory implements ManagedServiceFactory {
 
 					// home
 					if (cn.equals(NodeConstants.NODE_REPOSITORY)) {
-						Dictionary<String, Object> homeProps = LangUtils.dico(NodeConstants.CN, NodeConstants.EGO_REPOSITORY);
+						Dictionary<String, Object> homeProps = LangUtils.dico(NodeConstants.CN,
+								NodeConstants.EGO_REPOSITORY);
 						EgoRepository homeRepository = new EgoRepository(repository, true);
 						bc.registerService(Repository.class, homeRepository, homeProps);
 					}
@@ -126,4 +141,5 @@ class RepositoryServiceFactory implements ManagedServiceFactory {
 			}
 		}
 	}
+
 }

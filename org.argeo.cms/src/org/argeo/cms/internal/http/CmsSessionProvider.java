@@ -43,6 +43,8 @@ public class CmsSessionProvider implements SessionProvider, Serializable {
 		if (log.isTraceEnabled()) {
 			log.trace("Get JCR session from " + cmsSession);
 		}
+		if (cmsSession == null)
+			throw new IllegalStateException("Cannot find a session for request " + request.getRequestURI());
 		Session session = cmsSession.getDataSession(alias, workspace, rep);
 		cmsSessions.put(session, cmsSession);
 		return session;

@@ -1,6 +1,7 @@
 package org.argeo.cms.internal.kernel;
 
 import static org.argeo.api.DataModelNamespace.CMS_DATA_MODEL_NAMESPACE;
+import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,6 +9,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -20,6 +23,7 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.security.auth.callback.CallbackHandler;
+import javax.servlet.Servlet;
 import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
@@ -35,6 +39,9 @@ import org.argeo.api.security.CryptoKeyring;
 import org.argeo.api.security.Keyring;
 import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.internal.http.CmsRemotingServlet;
+import org.argeo.cms.internal.http.CmsWebDavServlet;
+import org.argeo.cms.internal.http.HttpUtils;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.util.LangUtils;
@@ -51,6 +58,8 @@ import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.http.HttpService;
+import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.UserAdmin;
@@ -68,7 +77,8 @@ public class CmsDeployment implements NodeDeployment {
 
 //	private final boolean cleanState;
 
-	private NodeHttp nodeHttp;
+//	private NodeHttp nodeHttp;
+	private String webDavConfig = HttpUtils.WEBDAV_CONFIG;
 
 	private boolean argeoDataModelExtensionsAvailable = false;
 
@@ -86,19 +96,22 @@ public class CmsDeployment implements NodeDeployment {
 //		NodeState nodeState = bc.getService(nodeStateSr);
 //		cleanState = nodeState.isClean();
 
-		nodeHttp = new NodeHttp();
+//		nodeHttp = new NodeHttp();
 		dataModels = new DataModels(bc);
 		initTrackers();
 	}
 
 	private void initTrackers() {
-		ServiceTracker<?, ?> httpSt = new ServiceTracker<NodeHttp, NodeHttp>(bc, NodeHttp.class, null) {
+		ServiceTracker<?, ?> httpSt = new ServiceTracker<HttpService, HttpService>(bc, HttpService.class, null) {
 
 			@Override
-			public NodeHttp addingService(ServiceReference<NodeHttp> reference) {
+			public HttpService addingService(ServiceReference<HttpService> sr) {
 				httpAvailable = true;
+				Object httpPort = sr.getProperty("http.port");
+				Object httpsPort = sr.getProperty("https.port");
+				log.info(httpPortsMsg(httpPort, httpsPort));
 				checkReadiness();
-				return super.addingService(reference);
+				return super.addingService(sr);
 			}
 		};
 		// httpSt.open();
@@ -161,6 +174,10 @@ public class CmsDeployment implements NodeDeployment {
 		KernelUtils.asyncOpen(confAdminSt);
 	}
 
+	private String httpPortsMsg(Object httpPort, Object httpsPort) {
+		return (httpPort != null ? "HTTP " + httpPort + " " : " ") + (httpsPort != null ? "HTTPS " + httpsPort : "");
+	}
+
 	private void addStandardSystemRoles(UserAdmin userAdmin) {
 		// we assume UserTransaction is already available (TODO make it more robust)
 		UserTransaction userTransaction = bc.getService(bc.getServiceReference(UserTransaction.class));
@@ -195,8 +212,8 @@ public class CmsDeployment implements NodeDeployment {
 	}
 
 	public void shutdown() {
-		if (nodeHttp != null)
-			nodeHttp.destroy();
+//		if (nodeHttp != null)
+//			nodeHttp.destroy();
 
 		try {
 			for (ServiceReference<JackrabbitLocalRepository> sr : bc
@@ -418,6 +435,9 @@ public class CmsDeployment implements NodeDeployment {
 			classes = new String[] { Repository.class.getName(), LocalRepository.class.getName() };
 		}
 		bc.registerService(classes, localRepository, properties);
+
+		// TODO make it configurable
+		registerRepositoryServlets(dataModelName, localRepository);
 		if (log.isTraceEnabled())
 			log.trace("Published data model " + dataModelName);
 	}
@@ -429,6 +449,54 @@ public class CmsDeployment implements NodeDeployment {
 
 	public synchronized boolean isAvailable() {
 		return availableSince != null;
+	}
+
+	protected void registerRepositoryServlets(String alias, Repository repository) {
+		registerRemotingServlet(alias, repository);
+		registerWebdavServlet(alias, repository);
+	}
+
+	protected void registerWebdavServlet(String alias, Repository repository) {
+		CmsWebDavServlet webdavServlet = new CmsWebDavServlet(alias, repository);
+		Hashtable<String, String> ip = new Hashtable<>();
+		ip.put(HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX + CmsWebDavServlet.INIT_PARAM_RESOURCE_CONFIG, webDavConfig);
+		ip.put(HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX + CmsWebDavServlet.INIT_PARAM_RESOURCE_PATH_PREFIX,
+				"/" + alias);
+
+		ip.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/" + alias + "/*");
+		ip.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_SELECT,
+				"(" + HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_PATH + "=" + NodeConstants.PATH_DATA + ")");
+		bc.registerService(Servlet.class, webdavServlet, ip);
+	}
+
+	protected void registerRemotingServlet(String alias, Repository repository) {
+		CmsRemotingServlet remotingServlet = new CmsRemotingServlet(alias, repository);
+		Hashtable<String, String> ip = new Hashtable<>();
+		ip.put(NodeConstants.CN, alias);
+		// Properties ip = new Properties();
+		ip.put(HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX + CmsRemotingServlet.INIT_PARAM_RESOURCE_PATH_PREFIX,
+				"/" + alias);
+		ip.put(HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX + CmsRemotingServlet.INIT_PARAM_AUTHENTICATE_HEADER,
+				"Negotiate");
+
+		// Looks like a bug in Jackrabbit remoting init
+		Path tmpDir;
+		try {
+			tmpDir = Files.createTempDirectory("remoting_" + alias);
+		} catch (IOException e) {
+			throw new CmsException("Cannot create temp directory for remoting servlet", e);
+		}
+		ip.put(HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX + CmsRemotingServlet.INIT_PARAM_HOME, tmpDir.toString());
+		ip.put(HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX + CmsRemotingServlet.INIT_PARAM_TMP_DIRECTORY,
+				"remoting_" + alias);
+		ip.put(HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX + CmsRemotingServlet.INIT_PARAM_PROTECTED_HANDLERS_CONFIG,
+				HttpUtils.DEFAULT_PROTECTED_HANDLERS);
+		ip.put(HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX + CmsRemotingServlet.INIT_PARAM_CREATE_ABSOLUTE_URI, "false");
+
+		ip.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/" + alias + "/*");
+		ip.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_SELECT,
+				"(" + HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_PATH + "=" + NodeConstants.PATH_JCR + ")");
+		bc.registerService(Servlet.class, remotingServlet, ip);
 	}
 
 	private class RepositoryContextStc extends ServiceTracker<RepositoryContext, RepositoryContext> {
@@ -446,6 +514,7 @@ public class CmsDeployment implements NodeDeployment {
 					prepareNodeRepository(repoContext.getRepository());
 					// TODO separate home repository
 					prepareHomeRepository(repoContext.getRepository());
+					registerRepositoryServlets(cn, repoContext.getRepository());
 					nodeAvailable = true;
 					checkReadiness();
 				} else {

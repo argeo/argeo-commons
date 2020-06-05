@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /** Requests authorisation */
+@Deprecated
 public class PrivateHttpContext extends DataHttpContext {
 
 	public PrivateHttpContext(String httpAuthrealm, boolean forceBasic) {
