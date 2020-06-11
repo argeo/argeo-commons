@@ -20,7 +20,7 @@ import org.apache.commons.httpclient.auth.MalformedChallengeException;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpParams;
-import org.argeo.cms.internal.kernel.NodeHttp;
+import org.argeo.cms.internal.kernel.KernelConstants;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
@@ -100,7 +100,7 @@ public class SpnegoAuthScheme implements AuthScheme {
 		} catch (URIException e1) {
 			throw new IllegalStateException("Cannot authenticate", e1);
 		}
-		String serverPrinc = NodeHttp.DEFAULT_SERVICE + "@" + hostname;
+		String serverPrinc = KernelConstants.DEFAULT_KERBEROS_SERVICE + "@" + hostname;
 
 		try {
 			// Get service's principal name

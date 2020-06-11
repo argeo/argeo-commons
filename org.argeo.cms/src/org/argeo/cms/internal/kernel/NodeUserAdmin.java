@@ -72,7 +72,7 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 	// OSGi
 	private Map<String, LdapName> pidToBaseDn = new HashMap<>();
 	private Map<String, ServiceRegistration<UserDirectory>> pidToServiceRegs = new HashMap<>();
-	private ServiceRegistration<UserAdmin> userAdminReg;
+//	private ServiceRegistration<UserAdmin> userAdminReg;
 
 	// JTA
 	private final ServiceTracker<TransactionManager, TransactionManager> tmTracker;
@@ -83,7 +83,7 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 	private GSSCredential acceptorCredentials;
 
 	private boolean singleUser = false;
-	private boolean systemRolesAvailable = false;
+//	private boolean systemRolesAvailable = false;
 
 	public NodeUserAdmin(String systemRolesBaseDn, String tokensBaseDn) {
 		super(systemRolesBaseDn, tokensBaseDn);
@@ -135,21 +135,29 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 			log.debug("User directory " + userDirectory.getBaseDn() + " [" + u.getScheme() + "] enabled."
 					+ (realm != null ? " " + realm + " realm." : ""));
 
-		if (isSystemRolesBaseDn(baseDn))
-			systemRolesAvailable = true;
-
-		// start publishing only when system roles are available
-		if (systemRolesAvailable) {
-			// The list of baseDns is published as properties
-			// TODO clients should rather reference USerDirectory services
-			if (userAdminReg != null)
-				userAdminReg.unregister();
-			// register self as main user admin
-			Dictionary<String, Object> userAdminregProps = currentState();
+		if (isSystemRolesBaseDn(baseDn)) {
+			// publishes only when system roles are available
+			Dictionary<String, Object> userAdminregProps = new Hashtable<>();
 			userAdminregProps.put(NodeConstants.CN, NodeConstants.DEFAULT);
 			userAdminregProps.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
-			userAdminReg = bc.registerService(UserAdmin.class, this, userAdminregProps);
+			bc.registerService(UserAdmin.class, this, userAdminregProps);
 		}
+
+//		if (isSystemRolesBaseDn(baseDn))
+//			systemRolesAvailable = true;
+//
+//		// start publishing only when system roles are available
+//		if (systemRolesAvailable) {
+//			// The list of baseDns is published as properties
+//			// TODO clients should rather reference USerDirectory services
+//			if (userAdminReg != null)
+//				userAdminReg.unregister();
+//			// register self as main user admin
+//			Dictionary<String, Object> userAdminregProps = currentState();
+//			userAdminregProps.put(NodeConstants.CN, NodeConstants.DEFAULT);
+//			userAdminregProps.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
+//			userAdminReg = bc.registerService(UserAdmin.class, this, userAdminregProps);
+//		}
 	}
 
 	@Override
@@ -248,7 +256,7 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 			boolean consistentIp = localhost.getHostAddress().equals(ipfromDns);
 			String kerberosDomain = dnsBrowser.getRecord("_kerberos." + dnsZone, "TXT");
 			if (consistentIp && kerberosDomain != null && kerberosDomain.equals(realm) && Files.exists(nodeKeyTab)) {
-				return NodeHttp.DEFAULT_SERVICE + "/" + hostname + "@" + kerberosDomain;
+				return KernelConstants.DEFAULT_KERBEROS_SERVICE + "/" + hostname + "@" + kerberosDomain;
 			} else
 				return null;
 		} catch (Exception e) {

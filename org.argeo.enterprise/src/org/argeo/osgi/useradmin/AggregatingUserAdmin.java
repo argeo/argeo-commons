@@ -2,10 +2,8 @@ package org.argeo.osgi.useradmin;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -189,16 +187,16 @@ public class AggregatingUserAdmin implements UserAdmin {
 		return tokensBaseDn != null && baseDn.equals(tokensBaseDn);
 	}
 
-	protected Dictionary<String, Object> currentState() {
-		Dictionary<String, Object> res = new Hashtable<String, Object>();
-		// res.put(NodeConstants.CN, NodeConstants.DEFAULT);
-		for (LdapName name : businessRoles.keySet()) {
-			AbstractUserDirectory userDirectory = businessRoles.get(name);
-			String uri = UserAdminConf.propertiesAsUri(userDirectory.getProperties()).toString();
-			res.put(uri, "");
-		}
-		return res;
-	}
+//	protected Dictionary<String, Object> currentState() {
+//		Dictionary<String, Object> res = new Hashtable<String, Object>();
+//		// res.put(NodeConstants.CN, NodeConstants.DEFAULT);
+//		for (LdapName name : businessRoles.keySet()) {
+//			AbstractUserDirectory userDirectory = businessRoles.get(name);
+//			String uri = UserAdminConf.propertiesAsUri(userDirectory.getProperties()).toString();
+//			res.put(uri, "");
+//		}
+//		return res;
+//	}
 
 	public void destroy() {
 		for (LdapName name : businessRoles.keySet()) {

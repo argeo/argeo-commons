@@ -26,6 +26,9 @@ public interface KernelConstants {
 	String DEFAULT_HOME_BASE_PATH = "/home";
 	String DEFAULT_USERS_BASE_PATH = "/users";
 	String DEFAULT_GROUPS_BASE_PATH = "/groups";
+	
+	// KERBEROS
+	String DEFAULT_KERBEROS_SERVICE = "HTTP";
 
 	// HTTP client
 	String COOKIE_POLICY_BROWSER_COMPATIBILITY = "compatibility";

@@ -6,4 +6,5 @@
    <service>
       <provide interface="org.argeo.cms.e4.users.UserAdminWrapper"/>
    </service>
+   <reference bind="addUserDirectory" cardinality="0..n" interface="org.argeo.osgi.useradmin.UserDirectory" name="UserDirectory" policy="static" unbind="removeUserDirectory"/>
 </scr:component>

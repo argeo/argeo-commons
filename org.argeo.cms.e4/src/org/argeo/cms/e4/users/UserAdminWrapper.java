@@ -2,12 +2,11 @@ package org.argeo.cms.e4.users;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
@@ -15,6 +14,7 @@ import javax.transaction.UserTransaction;
 import org.argeo.api.NodeConstants;
 import org.argeo.cms.CmsException;
 import org.argeo.osgi.useradmin.UserAdminConf;
+import org.argeo.osgi.useradmin.UserDirectory;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.service.useradmin.UserAdminEvent;
 import org.osgi.service.useradmin.UserAdminListener;
@@ -24,7 +24,9 @@ public class UserAdminWrapper {
 
 	private UserAdmin userAdmin;
 	// private ServiceReference<UserAdmin> userAdminServiceReference;
-	private Set<String> uris;
+//	private Set<String> uris;
+	private Map<UserDirectory, Hashtable<String, String>> userDirectories = Collections
+			.synchronizedMap(new LinkedHashMap<>());
 	private UserTransaction userTransaction;
 
 	// First effort to simplify UX while managing users and groups
@@ -89,21 +91,34 @@ public class UserAdminWrapper {
 
 	public Map<String, String> getKnownBaseDns(boolean onlyWritable) {
 		Map<String, String> dns = new HashMap<String, String>();
-		for (String uri : uris) {
-			if (!uri.startsWith("/"))
-				continue;
-			Dictionary<String, ?> props = UserAdminConf.uriAsProperties(uri);
-			String readOnly = UserAdminConf.readOnly.getValue(props);
-			String baseDn = UserAdminConf.baseDn.getValue(props);
+		for (UserDirectory userDirectory : userDirectories.keySet()) {
+			Boolean readOnly = userDirectory.isReadOnly();
+			String baseDn = userDirectory.getBaseDn().toString();
 
-			if (onlyWritable && "true".equals(readOnly))
+			if (onlyWritable && readOnly)
 				continue;
 			if (baseDn.equalsIgnoreCase(NodeConstants.ROLES_BASEDN))
 				continue;
 			if (baseDn.equalsIgnoreCase(NodeConstants.TOKENS_BASEDN))
 				continue;
-			dns.put(baseDn, uri);
+			dns.put(baseDn, UserAdminConf.propertiesAsUri(userDirectories.get(userDirectory)).toString());
+
 		}
+//		for (String uri : uris) {
+//			if (!uri.startsWith("/"))
+//				continue;
+//			Dictionary<String, ?> props = UserAdminConf.uriAsProperties(uri);
+//			String readOnly = UserAdminConf.readOnly.getValue(props);
+//			String baseDn = UserAdminConf.baseDn.getValue(props);
+//
+//			if (onlyWritable && "true".equals(readOnly))
+//				continue;
+//			if (baseDn.equalsIgnoreCase(NodeConstants.ROLES_BASEDN))
+//				continue;
+//			if (baseDn.equalsIgnoreCase(NodeConstants.TOKENS_BASEDN))
+//				continue;
+//			dns.put(baseDn, uri);
+//		}
 		return dns;
 	}
 
@@ -118,11 +133,19 @@ public class UserAdminWrapper {
 	/* DEPENDENCY INJECTION */
 	public void setUserAdmin(UserAdmin userAdmin, Map<String, String> properties) {
 		this.userAdmin = userAdmin;
-		this.uris = Collections.unmodifiableSortedSet(new TreeSet<>(properties.keySet()));
+//		this.uris = Collections.unmodifiableSortedSet(new TreeSet<>(properties.keySet()));
 	}
 
 	public void setUserTransaction(UserTransaction userTransaction) {
 		this.userTransaction = userTransaction;
+	}
+
+	public void addUserDirectory(UserDirectory userDirectory, Map<String, String> properties) {
+		userDirectories.put(userDirectory, new Hashtable<>(properties));
+	}
+
+	public void removeUserDirectory(UserDirectory userDirectory, Map<String, String> properties) {
+		userDirectories.remove(userDirectory);
 	}
 
 	// public void setUserAdminServiceReference(

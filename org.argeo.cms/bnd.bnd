@@ -16,4 +16,5 @@ OSGI-INF/dataServletContext.xml,\
 OSGI-INF/filesServletContext.xml,\
 OSGI-INF/filesServlet.xml
 
-Provide-Capability: cms.datamodel;name=argeo;cnd=/org/argeo/cms/argeo.cnd;abstract=true
+Provide-Capability: cms.datamodel;name=argeo;cnd=/org/argeo/cms/argeo.cnd;abstract=true,\
+osgi.service;objectClass="javax.jcr.Repository"

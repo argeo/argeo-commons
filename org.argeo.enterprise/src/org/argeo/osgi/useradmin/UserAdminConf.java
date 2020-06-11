@@ -6,7 +6,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +16,6 @@ import javax.naming.ldap.LdapName;
 
 import org.argeo.naming.DnsBrowser;
 import org.argeo.naming.NamingUtils;
-import org.osgi.framework.Constants;
 
 /** Properties used to configure user admins. */
 public enum UserAdminConf {
@@ -102,22 +100,39 @@ public enum UserAdminConf {
 		StringBuilder query = new StringBuilder();
 
 		boolean first = true;
-		for (Enumeration<String> keys = properties.keys(); keys.hasMoreElements();) {
-			String key = keys.nextElement();
-			// TODO clarify which keys are relevant (list only the enum?)
-			if (!key.equals("service.factoryPid") && !key.equals("cn") && !key.equals("dn")
-					&& !key.equals(Constants.SERVICE_PID) && !key.startsWith("java") && !key.equals(baseDn.name())
-					&& !key.equals(uri.name())) {
-				if (first)
-					first = false;
-				else
-					query.append('&');
-				query.append(valueOf(key).name());
-				query.append('=').append(properties.get(key).toString());
-			}
+//		for (Enumeration<String> keys = properties.keys(); keys.hasMoreElements();) {
+//			String key = keys.nextElement();
+//			// TODO clarify which keys are relevant (list only the enum?)
+//			if (!key.equals("service.factoryPid") && !key.equals("cn") && !key.equals("dn")
+//					&& !key.equals(Constants.SERVICE_PID) && !key.startsWith("java") && !key.equals(baseDn.name())
+//					&& !key.equals(uri.name()) && !key.equals(Constants.OBJECTCLASS)
+//					&& !key.equals(Constants.SERVICE_ID) && !key.equals("bundle.id")) {
+//				if (first)
+//					first = false;
+//				else
+//					query.append('&');
+//				query.append(valueOf(key).name());
+//				query.append('=').append(properties.get(key).toString());
+//			}
+//		}
+
+		keys: for (UserAdminConf key : UserAdminConf.values()) {
+			if (key.equals(baseDn))
+				continue keys;
+			Object value = properties.get(key.name());
+			if (value == null)
+				continue keys;
+			if (first)
+				first = false;
+			else
+				query.append('&');
+			query.append(key.name());
+			query.append('=').append(value.toString());
+
 		}
 
-		String bDn = (String) properties.get(baseDn.name());
+		Object bDnObj = properties.get(baseDn.name());
+		String bDn = bDnObj != null ? bDnObj.toString() : null;
 		try {
 			return new URI(null, null, bDn != null ? '/' + bDn : null, query.length() != 0 ? query.toString() : null,
 					null);

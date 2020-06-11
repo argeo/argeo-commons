@@ -38,8 +38,6 @@ import org.osgi.util.tracker.ServiceTracker;
 public class NodeHttp implements KernelConstants {
 	private final static Log log = LogFactory.getLog(NodeHttp.class);
 
-	public final static String DEFAULT_SERVICE = "HTTP";
-
 	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
 	private ServiceTracker<Repository, Repository> repositories;
