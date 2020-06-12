@@ -45,9 +45,9 @@ createrepo /srv/rpmfactory/argeo-osgi-2/el7/
 Please refer to the appropriate documentation for more complex deployments (e.g. LDAP server, PostgreSQL backend, etc.).
 
 ```bash
-sudo yum install java-1.8.0-openjdk-headless
+sudo yum install java-11-openjdk-headless
 sudo yum install argeo-node argeo-cms-e4-rap
-# required only for local access to the OSGi console (telnet localhost 2323):
+# Required only for local access to the OSGi console (telnet localhost 2323):
 sudo yum install telnet
 ```
 
@@ -59,7 +59,7 @@ sudo firewall-cmd --add-port 8080/tcp
 ### Running with systemd
 ```bash
 systemctl [start|stop|restart] argeo
-# make sure that it started after a server restart:
+# Make sure that the service is started after a server restart:
 systemctl enable argeo
 ```
 
