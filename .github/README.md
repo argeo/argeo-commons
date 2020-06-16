@@ -2,7 +2,7 @@
 
 Based on the OSGi and JCR standards. Enterprise-grade since 2009.
 
-**The reference for Argeo code is http://git.argeo.org/ ** and this GitHub repository is just a read-only mirror.
+**The reference for Argeo code is http://git.argeo.org/ and this GitHub repository is a read-only mirror.**
 
 ## Development
 
