@@ -117,7 +117,7 @@ public enum UserAdminConf {
 //		}
 
 		keys: for (UserAdminConf key : UserAdminConf.values()) {
-			if (key.equals(baseDn))
+			if (key.equals(baseDn) || key.equals(uri))
 				continue keys;
 			Object value = properties.get(key.name());
 			if (value == null)
