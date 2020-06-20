@@ -12,7 +12,7 @@
 	<packaging>pom</packaging>
 	<name>Argeo Command Line</name>
 	<properties>
-		<graalvm.version>20.0.0</graalvm.version>
+		<graalvm.version>20.1.0</graalvm.version>
 	</properties>
 	<dependencies>
 		<dependency>
