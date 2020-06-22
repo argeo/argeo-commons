@@ -1,12 +1,8 @@
-[General] 
-FullMachineName=localhost.localdomain 
-SuiteSpotUserID=nobody 
-SuiteSpotGroup=nobody 
+[general]
+[slapd]
+instance_name = argeo
+root_dn = cn=Directory Manager
+root_password = argeoargeo
 
-[slapd] 
-ServerPort=389 
-ServerIdentifier=argeo 
-Suffix= dc=example,dc=com  
-RootDN= cn=Directory Manager 
-RootDNPwd=argeoargeo
-AddSampleEntries=Yes
+[backend-userroot]
+suffix = dc=example,dc=com
