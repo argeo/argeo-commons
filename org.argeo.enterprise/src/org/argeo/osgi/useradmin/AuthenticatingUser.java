@@ -21,6 +21,8 @@ public class AuthenticatingUser implements User {
 	private final Dictionary<String, Object> credentials;
 
 	public AuthenticatingUser(LdapName name) {
+		if (name == null)
+			throw new NullPointerException("Provided name cannot be null.");
 		this.name = name.toString();
 		this.credentials = new Hashtable<>();
 	}
@@ -31,6 +33,8 @@ public class AuthenticatingUser implements User {
 	}
 
 	public AuthenticatingUser(String name, char[] password) {
+		if (name == null)
+			throw new NullPointerException("Provided name cannot be null.");
 		this.name = name;
 		credentials = new Hashtable<>();
 		credentials.put(SHARED_STATE_NAME, name);
@@ -63,6 +67,16 @@ public class AuthenticatingUser implements User {
 	@Override
 	public boolean hasCredential(String key, Object value) {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
+
+	@Override
+	public String toString() {
+		return "Authenticating user " + name;
 	}
 
 }

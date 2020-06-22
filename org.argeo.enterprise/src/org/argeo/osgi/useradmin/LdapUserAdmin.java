@@ -34,6 +34,9 @@ import org.osgi.service.useradmin.User;
 public class LdapUserAdmin extends AbstractUserDirectory {
 	private InitialLdapContext initialLdapContext = null;
 
+//	private LdapName adminUserDn = null;
+//	private LdifUser adminUser = null;
+
 	public LdapUserAdmin(Dictionary<String, ?> properties) {
 		super(null, properties);
 		try {
@@ -54,11 +57,15 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			Object principal = properties.get(Context.SECURITY_PRINCIPAL);
 			if (principal != null) {
 				initialLdapContext.addToEnvironment(Context.SECURITY_PRINCIPAL, principal.toString());
+//				adminUserDn = new LdapName(principal.toString());
+//				BasicAttributes adminUserAttrs = new BasicAttributes();
+//				adminUser = new LdifUser(this, adminUserDn, adminUserAttrs);
 				Object creds = properties.get(Context.SECURITY_CREDENTIALS);
 				if (creds != null) {
 					initialLdapContext.addToEnvironment(Context.SECURITY_CREDENTIALS, creds.toString());
-
+//					adminUserAttrs.put(LdapAttrs.userPassword.name(), adminUser.hash(creds.toString().toCharArray()));
 				}
+//				adminUserAttrs.put(LdapAttrs.memberOf.name(), "cn=admin,ou=roles,ou=node");
 			}
 		} catch (Exception e) {
 			throw new UserDirectoryException("Cannot connect to LDAP", e);
@@ -122,6 +129,9 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 				throw new UserDirectoryException("Unsupported LDAP type for " + name);
 			return res;
 		} catch (NameNotFoundException e) {
+//			if (adminUserDn != null && adminUserDn.equals(name)) {
+//				return adminUser;
+//			}
 			throw e;
 		} catch (NamingException e) {
 			return null;
@@ -130,6 +140,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 
 	@Override
 	protected List<DirectoryUser> doGetRoles(Filter f) {
+		ArrayList<DirectoryUser> res = new ArrayList<DirectoryUser>();
 		try {
 			String searchFilter = f != null ? f.toString()
 					: "(|(" + objectClass + "=" + getUserObjectClass() + ")(" + objectClass + "="
@@ -140,7 +151,6 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			LdapName searchBase = getBaseDn();
 			NamingEnumeration<SearchResult> results = getLdapContext().search(searchBase, searchFilter, searchControls);
 
-			ArrayList<DirectoryUser> res = new ArrayList<DirectoryUser>();
 			results: while (results.hasMoreElements()) {
 				SearchResult searchResult = results.next();
 				Attributes attrs = searchResult.getAttributes();
@@ -160,6 +170,8 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 				res.add(role);
 			}
 			return res;
+//		} catch (NameNotFoundException e) {
+//			return res;
 		} catch (Exception e) {
 			throw new UserDirectoryException("Cannot get roles for filter " + f, e);
 		}

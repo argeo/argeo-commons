@@ -15,7 +15,6 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 
-import org.apache.jackrabbit.core.security.authentication.LocalAuthContext;
 import org.argeo.jackrabbit.client.ClientDavexRepositoryFactory;
 import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.jcr.fs.JcrFileSystem;

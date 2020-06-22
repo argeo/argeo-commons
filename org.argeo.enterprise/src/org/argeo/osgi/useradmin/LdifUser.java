@@ -1,5 +1,8 @@
 package org.argeo.osgi.useradmin;
 
+import static java.nio.charset.StandardCharsets.US_ASCII;
+
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -95,48 +98,11 @@ class LdifUser implements DirectoryUser {
 			}
 
 			// Regular password
-			byte[] hashedPassword = hash(password);
-			if (hasCredential(LdapAttrs.userPassword.name(), hashedPassword))
+//			byte[] hashedPassword = hash(password, DigestUtils.PASSWORD_SCHEME_PBKDF2_SHA256);
+			if (hasCredential(LdapAttrs.userPassword.name(), DigestUtils.charsToBytes(password)))
 				return true;
-			// if (hasCredential(LdapAttrs.authPassword.name(), pwd))
-			// return true;
 			return false;
 		}
-
-		// authPassword (RFC 3112 https://tools.ietf.org/html/rfc3112)
-		// if (key.startsWith(ClientToken.X_CLIENT_TOKEN)) {
-		// return ClientToken.checkAttribute(getAttributes(), key, value);
-		// } else if (key.startsWith(OnceToken.X_ONCE_TOKEN)) {
-		// return OnceToken.checkAttribute(getAttributes(), key, value);
-		// }
-		// StringTokenizer st = new StringTokenizer((String) storedValue, "$ ");
-		// // TODO make it more robust, deal with bad formatting
-		// String authScheme = st.nextToken();
-		// String authInfo = st.nextToken();
-		// String authValue = st.nextToken();
-		// if (authScheme.equals(UriToken.X_URI_TOKEN)) {
-		// UriToken token = new UriToken((String)storedValue);
-		// try {
-		// URI uri = new URI(authInfo);
-		// Map<String, List<String>> query = NamingUtils.queryToMap(uri);
-		// String expiryTimestamp = NamingUtils.getQueryValue(query,
-		// LdapAttrs.modifyTimestamp.name());
-		// if (expiryTimestamp != null) {
-		// Instant expiryOdt = NamingUtils.ldapDateToInstant(expiryTimestamp);
-		// if (expiryOdt.isBefore(Instant.now()))
-		// return false;
-		// } else {
-		// throw new UnsupportedOperationException("An expiry timestamp "
-		// + LdapAttrs.modifyTimestamp.name() + " must be set in the URI query");
-		// }
-		// byte[] hash = Base64.getDecoder().decode(authValue);
-		// byte[] hashedInput = DigestUtils.sha1((authInfo +
-		// value).getBytes(StandardCharsets.US_ASCII));
-		// return Arrays.equals(hash, hashedInput);
-		// } catch (URISyntaxException e) {
-		// throw new UserDirectoryException("Badly formatted " + authInfo, e);
-		// }
-		// }
 
 		Object storedValue = getCredentials().get(key);
 		if (storedValue == null || value == null)
@@ -145,45 +111,60 @@ class LdifUser implements DirectoryUser {
 			return false;
 		if (storedValue instanceof String && value instanceof String)
 			return storedValue.equals(value);
-		if (storedValue instanceof byte[] && value instanceof byte[])
-			return Arrays.equals((byte[]) storedValue, (byte[]) value);
+		if (storedValue instanceof byte[] && value instanceof byte[]) {
+			String storedBase64 = new String((byte[]) storedValue, US_ASCII);
+			String passwordScheme = null;
+			if (storedBase64.charAt(0) == '{') {
+				int index = storedBase64.indexOf('}');
+				if (index > 0) {
+					passwordScheme = storedBase64.substring(1, index);
+					byte[] storedValueBytes = Base64.getDecoder().decode(storedBase64.substring(index + 1));
+					char[] passwordValue = DigestUtils.bytesToChars((byte[]) value);
+					byte[] valueBytes;
+					if (DigestUtils.PASSWORD_SCHEME_SHA.equals(passwordScheme)) {
+						valueBytes = DigestUtils.toPasswordScheme(passwordScheme, passwordValue, null, null,
+								null);
+					} else if (DigestUtils.PASSWORD_SCHEME_PBKDF2_SHA256.equals(passwordScheme)) {
+						// see https://www.thesubtlety.com/post/a-389-ds-pbkdf2-password-checker/
+						byte[] iterationsArr = Arrays.copyOfRange(storedValueBytes, 0, 4);
+						BigInteger iterations = new BigInteger(iterationsArr);
+						byte[] salt = Arrays.copyOfRange(storedValueBytes, iterationsArr.length,
+								iterationsArr.length + 64);
+						byte[] keyArr = Arrays.copyOfRange(storedValueBytes, iterationsArr.length + salt.length,
+								storedValueBytes.length);
+						int keyLengthBits = keyArr.length * 8;
+						valueBytes = DigestUtils.toPasswordScheme(passwordScheme, passwordValue, salt,
+								iterations.intValue(), keyLengthBits);
+					} else {
+						throw new UnsupportedOperationException("Unknown password scheme " + passwordScheme);
+					}
+					return Arrays.equals(storedValueBytes, valueBytes);
+				}
+			}
+		}
+//		if (storedValue instanceof byte[] && value instanceof byte[]) {
+//			return Arrays.equals((byte[]) storedValue, (byte[]) value);
+//		}
 		return false;
 	}
 
-	/** Hash and clear the password */
-	private byte[] hash(char[] password) {
+	/** Hash the password */
+	byte[] sha1hash(char[] password) {
 		byte[] hashedPassword = ("{SHA}"
 				+ Base64.getEncoder().encodeToString(DigestUtils.sha1(DigestUtils.charsToBytes(password))))
 						.getBytes(StandardCharsets.UTF_8);
-		// Arrays.fill(password, '\u0000');
 		return hashedPassword;
 	}
 
-	// private byte[] toBytes(char[] chars) {
-	// CharBuffer charBuffer = CharBuffer.wrap(chars);
-	// ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(charBuffer);
-	// byte[] bytes = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(),
-	// byteBuffer.limit());
-	// // Arrays.fill(charBuffer.array(), '\u0000'); // clear sensitive data
-	// Arrays.fill(byteBuffer.array(), (byte) 0); // clear sensitive data
-	// return bytes;
-	// }
-	//
-	// private char[] toChars(Object obj) {
-	// if (obj instanceof char[])
-	// return (char[]) obj;
-	// if (!(obj instanceof byte[]))
-	// throw new IllegalArgumentException(obj.getClass() + " is not a byte array");
-	// ByteBuffer fromBuffer = ByteBuffer.wrap((byte[]) obj);
-	// CharBuffer toBuffer = StandardCharsets.UTF_8.decode(fromBuffer);
-	// char[] res = Arrays.copyOfRange(toBuffer.array(), toBuffer.position(),
-	// toBuffer.limit());
-	// Arrays.fill(fromBuffer.array(), (byte) 0); // clear sensitive data
-	// Arrays.fill((byte[]) obj, (byte) 0); // clear sensitive data
-	// Arrays.fill(toBuffer.array(), '\u0000'); // clear sensitive data
-	// return res;
-	// }
-	//
+//	byte[] hash(char[] password, String passwordScheme) {
+//		if (passwordScheme == null)
+//			passwordScheme = DigestUtils.PASSWORD_SCHEME_SHA;
+//		byte[] hashedPassword = ("{" + passwordScheme + "}"
+//				+ Base64.getEncoder().encodeToString(DigestUtils.toPasswordScheme(passwordScheme, password)))
+//						.getBytes(US_ASCII);
+//		return hashedPassword;
+//	}
+
 	@Override
 	public LdapName getDn() {
 		return dn;
@@ -348,7 +329,7 @@ class LdifUser implements DirectoryUser {
 			if (key == null) {
 				// TODO persist to other sources (like PKCS12)
 				char[] password = DigestUtils.bytesToChars(value);
-				byte[] hashedPassword = hash(password);
+				byte[] hashedPassword = sha1hash(password);
 				return put(LdapAttrs.userPassword.name(), hashedPassword);
 			}
 			if (key.startsWith("X-")) {
