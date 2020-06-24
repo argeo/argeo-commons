@@ -5,13 +5,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -31,7 +31,7 @@ import junit.framework.TestCase;
 public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 	// We have to keep using JUnit because of
 	// https://issues.apache.org/jira/browse/SUREFIRE-1669
-	
+
 	final static int TM_SIMPLE = 0;
 	final static int TM_BITRONIX = 1;
 
@@ -134,10 +134,10 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 		assert "root@localhost".equals(rootUser.getProperties().get("mail"));
 
 		// credentials
-		byte[] hashedPassword = ("{SHA}" + Base64.getEncoder().encodeToString(DigestUtils.sha1("demo".getBytes())))
-				.getBytes();
-		assert rootUser.hasCredential(LdapAttrs.userPassword.name(), hashedPassword);
-		assert demoUser.hasCredential(LdapAttrs.userPassword.name(), hashedPassword);
+		// {SHA}
+		assert rootUser.hasCredential(LdapAttrs.userPassword.name(), "demo".getBytes(StandardCharsets.UTF_8));
+		// {PBKDF2_SHA256}
+		assert demoUser.hasCredential(LdapAttrs.userPassword.name(), "demo".getBytes(StandardCharsets.UTF_8));
 
 		// search
 		Role[] search = userAdmin.getRoles(null);

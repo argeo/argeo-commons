@@ -118,12 +118,12 @@ class LdifUser implements DirectoryUser {
 				int index = storedBase64.indexOf('}');
 				if (index > 0) {
 					passwordScheme = storedBase64.substring(1, index);
-					byte[] storedValueBytes = Base64.getDecoder().decode(storedBase64.substring(index + 1));
+					String storedValueBase64 = storedBase64.substring(index + 1);
+					byte[] storedValueBytes = Base64.getDecoder().decode(storedValueBase64);
 					char[] passwordValue = DigestUtils.bytesToChars((byte[]) value);
 					byte[] valueBytes;
 					if (DigestUtils.PASSWORD_SCHEME_SHA.equals(passwordScheme)) {
-						valueBytes = DigestUtils.toPasswordScheme(passwordScheme, passwordValue, null, null,
-								null);
+						valueBytes = DigestUtils.toPasswordScheme(passwordScheme, passwordValue, null, null, null);
 					} else if (DigestUtils.PASSWORD_SCHEME_PBKDF2_SHA256.equals(passwordScheme)) {
 						// see https://www.thesubtlety.com/post/a-389-ds-pbkdf2-password-checker/
 						byte[] iterationsArr = Arrays.copyOfRange(storedValueBytes, 0, 4);
