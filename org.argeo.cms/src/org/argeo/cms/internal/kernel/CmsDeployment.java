@@ -307,6 +307,7 @@ public class CmsDeployment implements NodeDeployment {
 		regProps.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
 		Repository egoRepository = new EgoRepository(deployedRepository, false);
 		bc.registerService(Repository.class, egoRepository, regProps);
+		registerRepositoryServlets(NodeConstants.EGO_REPOSITORY, egoRepository);
 
 		// Keyring only if Argeo extensions are available
 		if (argeoDataModelExtensionsAvailable) {
