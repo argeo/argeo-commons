@@ -1,5 +1,6 @@
 Bundle-SymbolicName: org.argeo.cms;singleton:=true
 Bundle-Activator: org.argeo.cms.internal.kernel.Activator
+
 Import-Package: javax.jcr.security,\
 org.h2;resolution:=optional,\
 org.postgresql;resolution:=optional,\
@@ -8,6 +9,7 @@ org.apache.jackrabbit.webdav.jcr,\
 org.apache.commons.httpclient.cookie;resolution:=optional,\
 !com.sun.security.jgss,\
 org.osgi.*;version=0.0.0,\
+org.osgi.service.http.whiteboard,\
 *
 
 Service-Component: OSGI-INF/cmsUserManager.xml,\
