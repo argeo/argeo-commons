@@ -1,3 +1,0 @@
-Fragment-Host: org.apache.jackrabbit.core
-Import-Package: org.argeo.api,\
-*
