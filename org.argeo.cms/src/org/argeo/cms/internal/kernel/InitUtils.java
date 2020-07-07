@@ -39,8 +39,11 @@ class InitUtils {
 		Dictionary<String, Object> props = provided != null ? provided : new Hashtable<String, Object>();
 		for (RepoConf repoConf : RepoConf.values()) {
 			Object value = getFrameworkProp(NodeConstants.NODE_REPO_PROP_PREFIX + repoConf.name());
-			if (value != null)
+			if (value != null) {
 				props.put(repoConf.name(), value);
+				if (log.isDebugEnabled())
+					log.debug("Set node repo configuration " + repoConf.name() + " to " + value);
+			}
 		}
 		props.put(NodeConstants.CN, NodeConstants.NODE_REPOSITORY);
 		return props;
@@ -53,8 +56,11 @@ class InitUtils {
 		for (RepoConf repoConf : RepoConf.values()) {
 			Object value = getFrameworkProp(
 					NodeConstants.NODE_REPOS_PROP_PREFIX + dataModelName + '.' + repoConf.name());
-			if (value != null)
+			if (value != null) {
 				props.put(repoConf.name(), value);
+				if (log.isDebugEnabled())
+					log.debug("Set " + dataModelName + " repo configuration " + repoConf.name() + " to " + value);
+			}
 		}
 		if (props.size() != 0)
 			props.put(NodeConstants.CN, dataModelName);
@@ -66,8 +72,10 @@ class InitUtils {
 		String httpPort = getFrameworkProp("org.osgi.service.http.port");
 		String httpsPort = getFrameworkProp("org.osgi.service.http.port.secure");
 		/// TODO make it more generic
-		String httpHost = getFrameworkProp(InternalHttpConstants.JETTY_PROPERTY_PREFIX + InternalHttpConstants.HTTP_HOST);
-		String httpsHost = getFrameworkProp(InternalHttpConstants.JETTY_PROPERTY_PREFIX + InternalHttpConstants.HTTPS_HOST);
+		String httpHost = getFrameworkProp(
+				InternalHttpConstants.JETTY_PROPERTY_PREFIX + InternalHttpConstants.HTTP_HOST);
+		String httpsHost = getFrameworkProp(
+				InternalHttpConstants.JETTY_PROPERTY_PREFIX + InternalHttpConstants.HTTPS_HOST);
 		String webSocketEnabled = getFrameworkProp(
 				InternalHttpConstants.JETTY_PROPERTY_PREFIX + InternalHttpConstants.WEBSOCKET_ENABLED);
 
