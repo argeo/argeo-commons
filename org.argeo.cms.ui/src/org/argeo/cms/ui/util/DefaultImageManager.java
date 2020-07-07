@@ -116,8 +116,9 @@ public class DefaultImageManager implements CmsImageManager {
 	}
 
 	public Point getImageSize(Node node) throws RepositoryException {
-		// TODO load the SWT image ?
-		return new Point(0, 0);
+		// TODO optimise
+		Image image = getSwtImage(node);
+		return new Point(image.getBounds().width,image.getBounds().height);
 	}
 
 	/** @return null if not available */
