@@ -5,59 +5,92 @@
 # all *.p12 passwords are 'demo'
 # all *.jks passwords are 'changeit'
 
+# Fail if any error
+set -e
+
+ROOT_CA_DN="/C=DE/O=Example/OU=Certificate Authorities/CN=Root CA/"
 INTERMEDIATE_CA_DN="/C=DE/O=Example/OU=Certificate Authorities/CN=Intermediate CA/"
 SERVER_DN=/C=DE/O=Example/OU=Systems/CN=$HOSTNAME/
 USERS_BASE_DN=/DC=com/DC=example/OU=People
 
-echo ## Init directory structure
-# Root
-export OPENSSL_CONF=./openssl_root.cnf
-export CATOP=./rootCA
-/etc/pki/tls/misc/CA -newca
-# Intermediate
+echo -- Init directory structures
+mkdir -p ./rootCA/{certs,crl,csr,newcerts,private}
 mkdir -p ./CA/{certs,crl,csr,newcerts,private}
 
-echo ## Create intermediate certificate
+#
+# Root CA
+#
+export OPENSSL_CONF=./openssl_root.cnf
+export CATOP=./rootCA
+echo -- Create root CA in $CATOP
+touch $CATOP/index.txt
+openssl req -new -newkey rsa:4096 -extensions v3_ca \
+ -subj "$ROOT_CA_DN" \
+ -keyout $CATOP/private/cakey.pem -passout pass:demo -out ca_csr.pem \
+ 2>/dev/null # quiet
+openssl ca -create_serial -selfsign -batch -passin pass:demo -in ca_csr.pem -out $CATOP/cacert.pem \
+ 2>/dev/null # quiet
+
+echo -- Create intermediate CA in ./CA
 openssl req -new -newkey rsa:4096 -extensions v3_intermediate_ca \
  -subj "$INTERMEDIATE_CA_DN" \
- -keyout ./CA/private/cakey.pem -passout pass:demo -out ica_csr.pem
-openssl ca -batch -passin pass:demo -in ica_csr.pem -out ./CA/cacert.pem
+ -keyout ./CA/private/cakey.pem -passout pass:demo -out ica_csr.pem \
+ 2>/dev/null # quiet
+openssl ca -batch -passin pass:demo -in ica_csr.pem -out ./CA/cacert.pem \
+ 2>/dev/null # quiet
 
-# create index and serial
-touch ./CA/index.txt
-# (below is from openssl CA script)
-openssl x509 -in ./CA/cacert.pem -noout -next_serial -out ./CA/serial
-
-# Switch to intermediate CA		      
+#
+# Intermediate CA
+#      
 export OPENSSL_CONF=./openssl.cnf
 export CATOP=./CA
 
-echo ## Create server key and certificate
+# create index and serial
+touch $CATOP/index.txt
+openssl x509 -in $CATOP/cacert.pem -noout -next_serial -out $CATOP/serial \
+ 2>/dev/null # quiet
+
+echo -- Create server key and certificate
 openssl req -new -newkey rsa:4096 -extensions server_ext \
  -subj $SERVER_DN \
- -keyout node_key.pem -passout pass:demo -out node_csr.pem
-openssl ca -batch -passin pass:demo -in node_csr.pem -out node_crt.pem
+ -keyout node_key.pem -passout pass:demo -out node_csr.pem \
+ 2>/dev/null # quiet
+openssl ca -batch -passin pass:demo -in node_csr.pem -out node_crt.pem \
+ 2>/dev/null # quiet
+
+# create CA chain
 cat node_crt.pem ./CA/cacert.pem ./rootCA/cacert.pem > chain.pem
+
+# convert to p12
 openssl pkcs12 -export -passin pass:demo -passout pass:changeit \
  -name "$HOSTNAME" -inkey node_key.pem -in chain.pem \
- -out node.p12
+ -out node.p12 \
+ 2>/dev/null # quiet
 
-echo ## Import Certificate Authority into keystore
+echo -- Import Certificate Authority into keystore
 keytool -importcert -noprompt -keystore node.p12 -storepass changeit \
  -alias "rootCA" -file ./rootCA/cacert.pem
 keytool -importcert -noprompt -keystore node.p12 -storepass changeit \
  -alias "CA" -file ./CA/cacert.pem
+
+echo -- Copy node.p12 to ../init/node
 cp node.p12 ../init/node/
 
-echo ## Create 'root' user client certificate
+echo -- Create 'root' user client certificate root.p12
 openssl req -new -newkey rsa:4096 -extensions user_ext \
  -subj $USERS_BASE_DN/UID=root/ \
- -keyout newkey.pem -passout pass:demo -out newcsr.pem
-openssl ca -preserveDN -batch -passin pass:demo -in newcsr.pem -out newcrt.pem
-cat newcrt.pem ./CA/cacert.pem ./rootCA/cacert.pem > newchain.pem
+ -keyout newkey.pem -passout pass:demo -out newcsr.pem \
+ 2>/dev/null # quiet
+
+openssl ca -preserveDN -batch -passin pass:demo -in newcsr.pem -out newcrt.pem \
+ 2>/dev/null # quiet
+
+# create new CA chain
+#cat newcrt.pem ./CA/cacert.pem ./rootCA/cacert.pem > newchain.pem
 openssl pkcs12 -export -passin pass:demo -passout pass:demo \
- -name "root" -inkey newkey.pem -in newchain.pem \
- -out root.p12
+ -name "root" -inkey newkey.pem -in chain.pem \
+ -out root.p12 \
+ 2>/dev/null # quiet
 
 # demo user
 #openssl req -new -newkey rsa:4096 -extensions user_ext -days 365 \
