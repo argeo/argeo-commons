@@ -26,6 +26,7 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
 
+/** Use the HTTP session as the basis for authentication. */
 public class HttpSessionLoginModule implements LoginModule {
 	private final static Log log = LogFactory.getLog(HttpSessionLoginModule.class);
 

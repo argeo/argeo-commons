@@ -44,6 +44,7 @@ import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
+/** Use the {@link UserAdmin} in the OSGi registry as the basis for authentication.*/
 public class UserAdminLoginModule implements LoginModule {
 	private final static Log log = LogFactory.getLog(UserAdminLoginModule.class);
 
