@@ -44,7 +44,6 @@
 		<!-- Distribution -->
 		<module>dep</module>
 		<module>demo</module>
-		<module>doc</module>
 		<module>dist</module>
 	</modules>
 	<scm>
