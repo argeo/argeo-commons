@@ -24,7 +24,7 @@ public class JcrImages {
 	public final static Image FOLDER = CmsImages.createIcon("folder.gif");
 	public final static Image FILE = CmsImages.createIcon("file.gif");
 	public final static Image BINARY = CmsImages.createIcon("binary.png");
-	public final static Image HOME = CmsImages.createIcon("home.gif");
+	public final static Image HOME = CmsImages.createIcon("person-logged-in.png");
 	public final static Image SORT = CmsImages.createIcon("sort.gif");
 	public final static Image REMOVE = CmsImages.createIcon("remove.gif");
 

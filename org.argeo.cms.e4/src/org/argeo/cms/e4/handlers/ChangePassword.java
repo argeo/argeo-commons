@@ -6,24 +6,22 @@ import static org.argeo.cms.CmsMsg.newPassword;
 import static org.argeo.cms.CmsMsg.passwordChanged;
 import static org.argeo.cms.CmsMsg.repeatNewPassword;
 
-import java.security.AccessController;
 import java.util.Arrays;
 
 import javax.inject.Inject;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
-import javax.security.auth.Subject;
-import javax.security.auth.x500.X500Principal;
 import javax.transaction.UserTransaction;
 
 import org.argeo.api.security.CryptoKeyring;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.ui.dialogs.CmsMessageDialog;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.eclipse.e4.core.di.annotations.Execute;
+import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -35,12 +33,14 @@ import org.eclipse.swt.widgets.Text;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
+/** Change the password of the logged-in user. */
 public class ChangePassword {
 	@Inject
 	private UserAdmin userAdmin;
 	@Inject
 	private UserTransaction userTransaction;
 	@Inject
+	@Optional
 	private CryptoKeyring keyring = null;
 
 	@Execute
@@ -53,8 +53,7 @@ public class ChangePassword {
 	}
 
 	protected void changePassword(char[] oldPassword, char[] newPassword) {
-		Subject subject = Subject.getSubject(AccessController.getContext());
-		String name = subject.getPrincipals(X500Principal.class).iterator().next().toString();
+		String name = CurrentUser.getUsername();
 		LdapName dn;
 		try {
 			dn = new LdapName(name);
@@ -94,9 +93,9 @@ public class ChangePassword {
 			super(parentShell, changePassword.lead(), CONFIRM);
 		}
 
-		protected Point getInitialSize() {
-			return new Point(400, 450);
-		}
+//		protected Point getInitialSize() {
+//			return new Point(400, 450);
+//		}
 
 		protected Control createDialogArea(Composite parent) {
 			Composite dialogarea = (Composite) super.createDialogArea(parent);
@@ -108,7 +107,7 @@ public class ChangePassword {
 			newPassword1 = createLP(composite, newPassword.lead());
 			newPassword2 = createLP(composite, repeatNewPassword.lead());
 
-			parent.pack();
+//			parent.pack();
 			oldPassword.setFocus();
 			return composite;
 		}

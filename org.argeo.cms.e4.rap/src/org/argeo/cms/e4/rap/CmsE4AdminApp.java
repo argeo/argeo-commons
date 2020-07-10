@@ -1,10 +1,17 @@
 package org.argeo.cms.e4.rap;
 
+import org.eclipse.rap.rwt.application.Application;
+
+/**
+ * Access to canonical views of the core CMS concepts, useful for devleopers and
+ * operators.
+ */
 public class CmsE4AdminApp extends AbstractRapE4App {
-	public CmsE4AdminApp() {
-		setPageTitle("Argeo CMS DevOps");
-		setE4Xmi("org.argeo.cms.e4/e4xmi/cms-devops.e4xmi");
-		setPath("/devops");
+	@Override
+	protected void addEntryPoints(Application application) {
+		addE4EntryPoint(application, "/devops", "org.argeo.cms.e4/e4xmi/cms-devops.e4xmi",
+				customise("Argeo CMS DevOps"));
+		addE4EntryPoint(application, "/ego", "org.argeo.cms.e4/e4xmi/cms-ego.e4xmi", customise("Argeo CMS Ego"));
 	}
 
 }

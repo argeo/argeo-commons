@@ -133,19 +133,37 @@ public class CmsUiUtils implements CmsConstants {
 	/**
 	 * Apply markup and set text on {@link Label}, {@link Button}, {@link Text}.
 	 * 
+	 * @param widget the widget to style and to use in order to display text
+	 * @param txt    the object to display via its <code>toString()</code> method.
+	 *               This argument should not be null, but if it is null and
+	 *               assertions are disabled "<null>" is displayed instead; if
+	 *               assertions are enabled the call will fail.
+	 * 
 	 * @see #markup(Widget)
 	 */
-	public static <T extends Widget> T text(T widget, String txt) {
+	public static <T extends Widget> T text(T widget, Object txt) {
+		assert txt != null;
+		String str = txt != null ? txt.toString() : "<null>";
 		markup(widget);
 		if (widget instanceof Label)
-			((Label) widget).setText(txt);
+			((Label) widget).setText(str);
 		else if (widget instanceof Button)
-			((Button) widget).setText(txt);
+			((Button) widget).setText(str);
 		else if (widget instanceof Text)
-			((Text) widget).setText(txt);
+			((Text) widget).setText(str);
 		else
 			throw new IllegalArgumentException("Unsupported widget type " + widget.getClass());
 		return widget;
+	}
+
+	/** A {@link Label} with markup activated. */
+	public static Label lbl(Composite parent, Object txt) {
+		return text(new Label(parent, SWT.NONE), txt);
+	}
+
+	/** A read-only {@link Text} whose content can be copy/pasted. */
+	public static Text txt(Composite parent, Object txt) {
+		return text(new Text(parent, SWT.NONE), txt);
 	}
 
 	public static void setItemHeight(Table table, int height) {

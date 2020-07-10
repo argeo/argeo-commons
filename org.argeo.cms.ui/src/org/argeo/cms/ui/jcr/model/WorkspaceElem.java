@@ -15,6 +15,7 @@
  */
 package org.argeo.cms.ui.jcr.model;
 
+import javax.jcr.AccessDeniedException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
@@ -55,8 +56,7 @@ public class WorkspaceElem extends TreeParent {
 			else
 				return null;
 		} catch (RepositoryException e) {
-			throw new EclipseUiException("Cannot get root node of workspace "
-					+ getName(), e);
+			throw new EclipseUiException("Cannot get root node of workspace " + getName(), e);
 		}
 	}
 
@@ -64,8 +64,7 @@ public class WorkspaceElem extends TreeParent {
 		try {
 			session = ((RepositoryElem) getParent()).repositoryLogin(getName());
 		} catch (RepositoryException e) {
-			throw new EclipseUiException("Cannot connect to repository "
-					+ getName(), e);
+			throw new EclipseUiException("Cannot connect to repository " + getName(), e);
 		}
 	}
 
@@ -93,13 +92,16 @@ public class WorkspaceElem extends TreeParent {
 	public synchronized boolean hasChildren() {
 		try {
 			if (isConnected())
-				return session.getRootNode().hasNodes();
+				try {
+					return session.getRootNode().hasNodes();
+				} catch (AccessDeniedException e) {
+					// current user may not have access to the root node
+					return false;
+				}
 			else
 				return false;
 		} catch (RepositoryException re) {
-			throw new EclipseUiException(
-					"Unexpected error while checking children node existence",
-					re);
+			throw new EclipseUiException("Unexpected error while checking children node existence", re);
 		}
 	}
 
@@ -123,9 +125,7 @@ public class WorkspaceElem extends TreeParent {
 				}
 				return super.getChildren();
 			} catch (RepositoryException e) {
-				throw new EclipseUiException(
-						"Cannot initialize WorkspaceNode UI object."
-								+ getName(), e);
+				throw new EclipseUiException("Cannot initialize WorkspaceNode UI object." + getName(), e);
 			}
 		}
 	}

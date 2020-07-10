@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
+/** Base class for dialogs displaying messages or small forms. */
 public class CmsMessageDialog extends LightweightDialog {
 	public final static int INFORMATION = 2;
 	public final static int QUESTION = 3;
