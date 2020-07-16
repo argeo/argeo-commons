@@ -20,6 +20,7 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
+import javax.jcr.Workspace;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.security.Privilege;
 import javax.jcr.version.Version;
@@ -95,6 +96,15 @@ public class Jcr {
 		} catch (RepositoryException e) {
 			throw new IllegalStateException("Cannot get path of " + node, e);
 		}
+	}
+
+	/**
+	 * @see Node#getSession()
+	 * @see Session#getWorkspace()
+	 * @see Workspace#getName()
+	 */
+	public static String getWorkspaceName(Node node) {
+		return session(node).getWorkspace().getName();
 	}
 
 	/**
