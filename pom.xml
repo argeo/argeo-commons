@@ -65,6 +65,23 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>2.0.0</version>
+				<configuration>
+					<projectName>Argeo Commons</projectName>
+					<licenseName>lgpl_v3</licenseName>
+					<excludes>
+						<exclude>**/springutil/*</exclude>
+						<exclude>**/org/argeo/jcr/fs/Text.java</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 	<dependencies>
 		<dependency>
 			<groupId>org.argeo.tp</groupId>
