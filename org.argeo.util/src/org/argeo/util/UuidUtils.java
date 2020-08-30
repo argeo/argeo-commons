@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class UuidUtils {
 	/** Nil UUID (00000000-0000-0000-0000-000000000000). */
 	public final static UUID NIL_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+	public final static LocalDateTime GREGORIAN_START = LocalDateTime.of(1582, 10, 15, 0, 0, 0);
 
 	private final static SecureRandom RANDOM;
 	private final static AtomicInteger CLOCK_SEQUENCE;
@@ -77,8 +78,7 @@ public class UuidUtils {
 
 	public static UUID timeBasedUUID(LocalDateTime time, BitSet node) {
 		// most significant
-		LocalDateTime start = LocalDateTime.of(1582, 10, 15, 0, 0, 0);
-		Duration duration = Duration.between(start, time);
+		Duration duration = Duration.between(GREGORIAN_START, time);
 
 		// Number of 100 ns intervals in one second: 1000000000 / 100 = 10000000
 		long timeNanos = duration.getSeconds() * 10000000 + duration.getNano() / 100;
@@ -240,33 +240,29 @@ public class UuidUtils {
 	public final static void main(String[] args) {
 		UUID uuid;
 
-		uuid= compactToUuid("996b1f5122de4b2f94e49168d32f22d1");
+		uuid = compactToUuid("996b1f5122de4b2f94e49168d32f22d1");
 		System.out.println(uuid.toString() + ", isRandom=" + isRandom(uuid));
 
 		// warm up
-		UUID.randomUUID();
-		timeBasedRandomUUID();
-		timeBasedUUID();
-		UUID.randomUUID();
-		timeBasedRandomUUID();
-		timeBasedUUID();
-		UUID.randomUUID();
-		timeBasedRandomUUID();
-		timeBasedUUID();
-		
+		for (int i = 0; i < 10; i++) {
+			UUID.randomUUID();
+			timeBasedRandomUUID();
+			timeBasedUUID();
+		}
+
 		long begin;
 		long duration;
-		
+
 		begin = System.nanoTime();
 		uuid = UUID.randomUUID();
 		duration = System.nanoTime() - begin;
 		System.out.println(uuid.toString() + " in " + duration + " ns, isRandom=" + isRandom(uuid));
-		
+
 		begin = System.nanoTime();
 		uuid = timeBasedUUID();
 		duration = System.nanoTime() - begin;
 		System.out.println(uuid.toString() + " in " + duration + " ns, isTimeBasedRandom=" + isTimeBasedRandom(uuid));
-		
+
 		begin = System.nanoTime();
 		uuid = timeBasedRandomUUID();
 		duration = System.nanoTime() - begin;
