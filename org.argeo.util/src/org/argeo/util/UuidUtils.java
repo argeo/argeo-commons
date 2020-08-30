@@ -240,24 +240,38 @@ public class UuidUtils {
 	public final static void main(String[] args) {
 		UUID uuid;
 
-//		uuid= compactToUuid("996b1f5122de4b2f94e49168d32f22d1");
-//		System.out.println(uuid.toString() + ", isRandom=" + isRandom(uuid));
+		uuid= compactToUuid("996b1f5122de4b2f94e49168d32f22d1");
+		System.out.println(uuid.toString() + ", isRandom=" + isRandom(uuid));
 
+		// warm up
+		UUID.randomUUID();
+		timeBasedRandomUUID();
+		timeBasedUUID();
+		UUID.randomUUID();
+		timeBasedRandomUUID();
+		timeBasedUUID();
+		UUID.randomUUID();
+		timeBasedRandomUUID();
+		timeBasedUUID();
+		
 		long begin;
 		long duration;
+		
 		begin = System.nanoTime();
 		uuid = UUID.randomUUID();
 		duration = System.nanoTime() - begin;
 		System.out.println(uuid.toString() + " in " + duration + " ns, isRandom=" + isRandom(uuid));
+		
+		begin = System.nanoTime();
+		uuid = timeBasedUUID();
+		duration = System.nanoTime() - begin;
+		System.out.println(uuid.toString() + " in " + duration + " ns, isTimeBasedRandom=" + isTimeBasedRandom(uuid));
+		
 		begin = System.nanoTime();
 		uuid = timeBasedRandomUUID();
 		duration = System.nanoTime() - begin;
 		System.out.println(uuid.toString() + " in " + duration + " ns, isTimeBasedRandom=" + isTimeBasedRandom(uuid));
 //		System.out.println(toBinaryString(uuid, 8, ' '));
 //		System.out.println(toBinaryString(uuid, 16, '\n'));
-		begin = System.nanoTime();
-		uuid = timeBasedUUID();
-		duration = System.nanoTime() - begin;
-		System.out.println(uuid.toString() + " in " + duration + " ns, isTimeBasedRandom=" + isTimeBasedRandom(uuid));
 	}
 }
