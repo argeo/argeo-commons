@@ -14,21 +14,30 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Utilities to simplify and extends usage of {@link UUID}. Only variant 1 is
- * supported. Focus is clarity of implementation rather than optimisation.
+ * Utilities to simplify and extends usage of {@link UUID}. Only the RFC 4122
+ * variant (also known as Leach–Salz variant) is supported.
  */
 public class UuidUtils {
 	/** Nil UUID (00000000-0000-0000-0000-000000000000). */
 	public final static UUID NIL_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 	public final static LocalDateTime GREGORIAN_START = LocalDateTime.of(1582, 10, 15, 0, 0, 0);
 
+	private final static long MOST_SIG_VERSION1 = (1l << 12);
+	private final static long LEAST_SIG_RFC4122_VARIANT = (1l << 63);
+
 	private final static SecureRandom RANDOM;
 	private final static AtomicInteger CLOCK_SEQUENCE;
 	private final static byte[] HARDWARE_ADDRESS;
+	/** A start timestamp to which {@link System#nanoTime()}/100 can be added. */
+	private final static long START_TIMESTAMP;
 	static {
 		RANDOM = new SecureRandom();
 		CLOCK_SEQUENCE = new AtomicInteger(RANDOM.nextInt(16384));
 		HARDWARE_ADDRESS = getHardwareAddress();
+
+		long nowVm = System.nanoTime() / 100;
+		Duration duration = Duration.between(GREGORIAN_START, LocalDateTime.now(ZoneOffset.UTC));
+		START_TIMESTAMP = (duration.getSeconds() * 10000000 + duration.getNano() / 100) - nowVm;
 	}
 
 	private static byte[] getHardwareAddress() {
@@ -47,26 +56,105 @@ public class UuidUtils {
 
 	}
 
+	public static UUID timeUUIDwithRandomNode() {
+		long timestamp = START_TIMESTAMP + System.nanoTime() / 100;
+		return timeUUID(timestamp, RANDOM);
+	}
+
+	public static UUID timeUUID(long timestamp, Random random) {
+		byte[] node = new byte[6];
+		random.nextBytes(node);
+		node[0] = (byte) (node[0] | 1);
+		long clockSequence = CLOCK_SEQUENCE.incrementAndGet();
+		return timeUUID(timestamp, clockSequence, node);
+	}
+
+	public static UUID timeUUID() {
+		long timestamp = START_TIMESTAMP + System.nanoTime() / 100;
+		return timeUUID(timestamp);
+	}
+
+	public static UUID timeUUID(long timestamp) {
+		if (HARDWARE_ADDRESS == null)
+			return timeUUID(timestamp, RANDOM);
+		long clockSequence = CLOCK_SEQUENCE.incrementAndGet();
+		return timeUUID(timestamp, clockSequence, HARDWARE_ADDRESS);
+	}
+
+	public static UUID timeUUID(long timestamp, NetworkInterface nic) {
+		byte[] node;
+		try {
+			node = nic.getHardwareAddress();
+		} catch (SocketException e) {
+			throw new IllegalStateException("Cannot get hardware address", e);
+		}
+		long clockSequence = CLOCK_SEQUENCE.incrementAndGet();
+		return timeUUID(timestamp, clockSequence, node);
+	}
+
+	public static UUID timeUUID(LocalDateTime time, long clockSequence, byte[] node) {
+		Duration duration = Duration.between(GREGORIAN_START, time);
+		// Number of 100 ns intervals in one second: 1000000000 / 100 = 10000000
+		long timestamp = duration.getSeconds() * 10000000 + duration.getNano() / 100;
+		return timeUUID(timestamp, clockSequence, node);
+	}
+
+	public static UUID timeUUID(long timestamp, long clockSequence, byte[] node) {
+		assert node.length >= 6;
+
+		long mostSig = MOST_SIG_VERSION1 // base for version 1 UUID
+				| ((timestamp & 0xFFFFFFFFL) << 32) // time_low
+				| (((timestamp >> 32) & 0xFFFFL) << 16) // time_mid
+				| ((timestamp >> 48) & 0x0FFFL);// time_hi_and_version
+
+		long leastSig = LEAST_SIG_RFC4122_VARIANT // base for Leach–Salz UUID
+				| (((clockSequence & 0x3F00) >> 8) << 56) // clk_seq_hi_res
+				| ((clockSequence & 0xFF) << 48) // clk_seq_low
+				| (node[0] & 0xFFL) //
+				| ((node[1] & 0xFFL) << 8) //
+				| ((node[2] & 0xFFL) << 16) //
+				| ((node[3] & 0xFFL) << 24) //
+				| ((node[4] & 0xFFL) << 32) //
+				| ((node[5] & 0xFFL) << 40); //
+//		for (int i = 0; i < 6; i++) {
+//			leastSig = leastSig | ((node[i] & 0xFFL) << (8 * i));
+//		}
+		UUID uuid = new UUID(mostSig, leastSig);
+
+		// tests
+		assert uuid.node() == BitSet.valueOf(node).toLongArray()[0];
+		assert uuid.timestamp() == timestamp;
+		assert uuid.clockSequence() == clockSequence;
+		assert uuid.version() == 1;
+		assert uuid.variant() == 2;
+		return uuid;
+	}
+
+	@Deprecated
 	public static UUID timeBasedUUID() {
 		return timeBasedUUID(LocalDateTime.now(ZoneOffset.UTC));
 	}
 
+	@Deprecated
 	public static UUID timeBasedRandomUUID() {
 		return timeBasedRandomUUID(LocalDateTime.now(ZoneOffset.UTC), RANDOM);
 	}
 
+	@Deprecated
 	public static UUID timeBasedUUID(LocalDateTime time) {
 		if (HARDWARE_ADDRESS == null)
 			return timeBasedRandomUUID(time, RANDOM);
 		return timeBasedUUID(time, BitSet.valueOf(HARDWARE_ADDRESS));
 	}
 
+	@Deprecated
 	public static UUID timeBasedAddressUUID(LocalDateTime time, NetworkInterface nic) throws SocketException {
 		byte[] nodeBytes = nic.getHardwareAddress();
 		BitSet node = BitSet.valueOf(nodeBytes);
 		return timeBasedUUID(time, node);
 	}
 
+	@Deprecated
 	public static UUID timeBasedRandomUUID(LocalDateTime time, Random random) {
 		byte[] nodeBytes = new byte[6];
 		random.nextBytes(nodeBytes);
@@ -76,6 +164,7 @@ public class UuidUtils {
 		return timeBasedUUID(time, node);
 	}
 
+	@Deprecated
 	public static UUID timeBasedUUID(LocalDateTime time, BitSet node) {
 		// most significant
 		Duration duration = Duration.between(GREGORIAN_START, time);
@@ -237,15 +326,17 @@ public class UuidUtils {
 	private UuidUtils() {
 	}
 
-	public final static void main(String[] args) {
+	public final static void main(String[] args) throws Exception {
 		UUID uuid;
 
-		uuid = compactToUuid("996b1f5122de4b2f94e49168d32f22d1");
-		System.out.println(uuid.toString() + ", isRandom=" + isRandom(uuid));
+//		uuid = compactToUuid("996b1f5122de4b2f94e49168d32f22d1");
+//		System.out.println(uuid.toString() + ", isRandom=" + isRandom(uuid));
 
-		// warm up
+		// warm up before measuring perf
 		for (int i = 0; i < 10; i++) {
 			UUID.randomUUID();
+			timeUUID();
+			timeUUIDwithRandomNode();
 			timeBasedRandomUUID();
 			timeBasedUUID();
 		}
@@ -257,6 +348,16 @@ public class UuidUtils {
 		uuid = UUID.randomUUID();
 		duration = System.nanoTime() - begin;
 		System.out.println(uuid.toString() + " in " + duration + " ns, isRandom=" + isRandom(uuid));
+
+		begin = System.nanoTime();
+		uuid = timeUUID();
+		duration = System.nanoTime() - begin;
+		System.out.println(uuid.toString() + " in " + duration + " ns, isTimeBasedRandom=" + isTimeBasedRandom(uuid));
+
+		begin = System.nanoTime();
+		uuid = timeUUIDwithRandomNode();
+		duration = System.nanoTime() - begin;
+		System.out.println(uuid.toString() + " in " + duration + " ns, isTimeBasedRandom=" + isTimeBasedRandom(uuid));
 
 		begin = System.nanoTime();
 		uuid = timeBasedUUID();
