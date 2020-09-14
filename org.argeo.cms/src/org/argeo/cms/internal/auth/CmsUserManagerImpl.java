@@ -8,9 +8,12 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +38,7 @@ import org.argeo.naming.NamingUtils;
 import org.argeo.naming.SharedSecret;
 import org.argeo.osgi.useradmin.TokenUtils;
 import org.argeo.osgi.useradmin.UserAdminConf;
+import org.argeo.osgi.useradmin.UserDirectory;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
@@ -58,8 +62,11 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	private final static Log log = LogFactory.getLog(CmsUserManagerImpl.class);
 
 	private UserAdmin userAdmin;
-	private Map<String, String> serviceProperties;
+//	private Map<String, String> serviceProperties;
 	private UserTransaction userTransaction;
+
+	private Map<UserDirectory, Hashtable<String, String>> userDirectories = Collections
+			.synchronizedMap(new LinkedHashMap<>());
 
 	@Override
 	public String getMyMail() {
@@ -201,23 +208,41 @@ public class CmsUserManagerImpl implements CmsUserManager {
 					+ dns.keySet().toString() + ". Unable to chose a default one.");
 	}
 
+//	public Map<String, String> getKnownBaseDns(boolean onlyWritable) {
+//		Map<String, String> dns = new HashMap<String, String>();
+//		String[] propertyKeys = serviceProperties.keySet().toArray(new String[serviceProperties.size()]);
+//		for (String uri : propertyKeys) {
+//			if (!uri.startsWith("/"))
+//				continue;
+//			Dictionary<String, ?> props = UserAdminConf.uriAsProperties(uri);
+//			String readOnly = UserAdminConf.readOnly.getValue(props);
+//			String baseDn = UserAdminConf.baseDn.getValue(props);
+//
+//			if (onlyWritable && "true".equals(readOnly))
+//				continue;
+//			if (baseDn.equalsIgnoreCase(NodeConstants.ROLES_BASEDN))
+//				continue;
+//			if (baseDn.equalsIgnoreCase(NodeConstants.TOKENS_BASEDN))
+//				continue;
+//			dns.put(baseDn, uri);
+//		}
+//		return dns;
+//	}
+
 	public Map<String, String> getKnownBaseDns(boolean onlyWritable) {
 		Map<String, String> dns = new HashMap<String, String>();
-		String[] propertyKeys = serviceProperties.keySet().toArray(new String[serviceProperties.size()]);
-		for (String uri : propertyKeys) {
-			if (!uri.startsWith("/"))
-				continue;
-			Dictionary<String, ?> props = UserAdminConf.uriAsProperties(uri);
-			String readOnly = UserAdminConf.readOnly.getValue(props);
-			String baseDn = UserAdminConf.baseDn.getValue(props);
+		for (UserDirectory userDirectory : userDirectories.keySet()) {
+			Boolean readOnly = userDirectory.isReadOnly();
+			String baseDn = userDirectory.getBaseDn().toString();
 
-			if (onlyWritable && "true".equals(readOnly))
+			if (onlyWritable && readOnly)
 				continue;
 			if (baseDn.equalsIgnoreCase(NodeConstants.ROLES_BASEDN))
 				continue;
 			if (baseDn.equalsIgnoreCase(NodeConstants.TOKENS_BASEDN))
 				continue;
-			dns.put(baseDn, uri);
+			dns.put(baseDn, UserAdminConf.propertiesAsUri(userDirectories.get(userDirectory)).toString());
+
 		}
 		return dns;
 	}
@@ -450,12 +475,21 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	}
 
 	/* DEPENDENCY INJECTION */
-	public void setUserAdmin(UserAdmin userAdmin, Map<String, String> serviceProperties) {
+	public void setUserAdmin(UserAdmin userAdmin) {
 		this.userAdmin = userAdmin;
-		this.serviceProperties = serviceProperties;
+//		this.serviceProperties = serviceProperties;
 	}
 
 	public void setUserTransaction(UserTransaction userTransaction) {
 		this.userTransaction = userTransaction;
 	}
+	
+	public void addUserDirectory(UserDirectory userDirectory, Map<String, String> properties) {
+		userDirectories.put(userDirectory, new Hashtable<>(properties));
+	}
+
+	public void removeUserDirectory(UserDirectory userDirectory, Map<String, String> properties) {
+		userDirectories.remove(userDirectory);
+	}
+
 }
