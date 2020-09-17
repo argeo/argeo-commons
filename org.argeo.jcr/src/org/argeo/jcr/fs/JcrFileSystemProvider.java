@@ -151,17 +151,32 @@ public abstract class JcrFileSystemProvider extends FileSystemProvider {
 
 	@Override
 	public void move(Path source, Path target, CopyOption... options) throws IOException {
-		Node sourceNode = toNode(source);
+		JcrFileSystem sourceFileSystem = (JcrFileSystem) source.getFileSystem();
+		WorkspaceFileStore sourceStore = sourceFileSystem.getFileStore(source.toString());
+		WorkspaceFileStore targetStore = sourceFileSystem.getFileStore(target.toString());
 		try {
-			Session session = sourceNode.getSession();
-			synchronized (session) {
-				session.move(sourceNode.getPath(), target.toString());
-				save(session);
+			if (sourceStore.equals(targetStore)) {
+				sourceStore.getWorkspace().move(sourceStore.toJcrPath(source.toString()),
+						targetStore.toJcrPath(target.toString()));
+			} else {
+				// TODO implement it
+				throw new UnsupportedOperationException("Can only move paths within the same workspace.");
 			}
 		} catch (RepositoryException e) {
-			discardChanges(sourceNode);
 			throw new IOException("Cannot move from " + source + " to " + target, e);
 		}
+
+//		Node sourceNode = toNode(source);
+//		try {
+//			Session session = sourceNode.getSession();
+//			synchronized (session) {
+//				session.move(sourceNode.getPath(), target.toString());
+//				save(session);
+//			}
+//		} catch (RepositoryException e) {
+//			discardChanges(sourceNode);
+//			throw new IOException("Cannot move from " + source + " to " + target, e);
+//		}
 	}
 
 	@Override

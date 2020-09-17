@@ -17,6 +17,7 @@ import org.argeo.jcr.JcrUtils;
 public class WorkspaceFileStore extends FileStore {
 	private final String mountPath;
 	private final Workspace workspace;
+	private final String workspaceName;
 	private final int mountDepth;
 
 	public WorkspaceFileStore(String mountPath, Workspace workspace) {
@@ -34,6 +35,7 @@ public class WorkspaceFileStore extends FileStore {
 			mountDepth = mountPath.split(JcrPath.separator).length - 1;
 		}
 		this.workspace = workspace;
+		this.workspaceName = workspace.getName();
 	}
 
 	public void close() {
@@ -115,6 +117,16 @@ public class WorkspaceFileStore extends FileStore {
 		return node;
 	}
 
+	String toJcrPath(String fsPath) {
+		if (fsPath.length() == 1)
+			return toJcrPath((String[]) null);// root
+		String[] arr = fsPath.substring(1).split("/");
+//		if (arr.length == 0 || (arr.length == 1 && arr[0].equals("")))
+//			return toJcrPath((String[]) null);// root
+//		else
+		return toJcrPath(arr);
+	}
+
 	private String toJcrPath(String[] path) {
 		if (path == null)
 			return "/";
@@ -144,6 +156,36 @@ public class WorkspaceFileStore extends FileStore {
 			sb.append(Text.escapeIllegalJcrChars(path[i]));
 		}
 		return sb.toString();
+	}
+
+	public String getMountPath() {
+		return mountPath;
+	}
+
+	public String getWorkspaceName() {
+		return workspaceName;
+	}
+
+	public int getMountDepth() {
+		return mountDepth;
+	}
+
+	@Override
+	public int hashCode() {
+		return workspaceName.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof WorkspaceFileStore))
+			return false;
+		WorkspaceFileStore other = (WorkspaceFileStore) obj;
+		return workspaceName.equals(other.workspaceName);
+	}
+
+	@Override
+	public String toString() {
+		return "WorkspaceFileStore " + workspaceName;
 	}
 
 }
