@@ -85,7 +85,7 @@
 										<mapping>
 											<directory>/etc/argeo</directory>
 											<username>root</username>
-											<groupname>wheel</groupname>
+											<groupname>root</groupname>
 											<filemode>640</filemode>
 											<configuration>noreplace</configuration>
 											<directoryIncluded>false</directoryIncluded>
@@ -96,9 +96,22 @@
 											</sources>
 										</mapping>
 										<mapping>
+											<directory>/etc/argeo.d</directory>
+											<username>root</username>
+											<groupname>root</groupname>
+											<filemode>644</filemode>
+											<configuration>noreplace</configuration>
+											<directoryIncluded>false</directoryIncluded>
+											<sources>
+												<source>
+													<location>base/etc/argeo.d</location>
+												</source>
+											</sources>
+										</mapping>
+										<mapping>
 											<directory>/etc/argeo/conf.d</directory>
 											<username>root</username>
-											<groupname>wheel</groupname>
+											<groupname>root</groupname>
 											<filemode>640</filemode>
 											<configuration>noreplace</configuration>
 											<directoryIncluded>false</directoryIncluded>
