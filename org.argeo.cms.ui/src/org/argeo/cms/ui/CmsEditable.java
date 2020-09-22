@@ -1,6 +1,6 @@
 package org.argeo.cms.ui;
 
-/** API NOT STABLE (yet). */
+/** Abstraction of a simple edition life cycle. */
 public interface CmsEditable {
 
 	/** Whether the calling thread can edit, the value is immutable */
