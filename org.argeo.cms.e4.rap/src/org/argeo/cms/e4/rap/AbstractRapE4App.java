@@ -105,6 +105,10 @@ public abstract class AbstractRapE4App implements ApplicationConfiguration {
 		return bundleContext;
 	}
 
+	protected void setBundleContext(BundleContext bundleContext) {
+		this.bundleContext = bundleContext;
+	}
+
 	public String getContextName() {
 		return contextName;
 	}
