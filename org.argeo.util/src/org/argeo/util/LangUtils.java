@@ -12,7 +12,9 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.naming.InvalidNameException;
@@ -41,12 +43,32 @@ public class LangUtils {
 	 * Creates a new {@link Dictionary} with one key-value pair (neither key not
 	 * value should be null)
 	 */
-	public static Dictionary<String, Object> dico(String key, Object value) {
+	public static Dictionary<String, Object> dict(String key, Object value) {
 		assert key != null;
 		assert value != null;
 		Hashtable<String, Object> props = new Hashtable<>();
 		props.put(key, value);
 		return props;
+	}
+
+	/**@deprecated Use {@link #dict(String, Object)} instead.*/
+	@Deprecated
+	public static Dictionary<String, Object> dico(String key, Object value) {
+		return dict(key, value);
+	}
+	
+	/** Converts a {@link Dictionary} to a {@link Map} of strings. */
+	public static Map<String, String> dictToStringMap(Dictionary<String, ?> properties) {
+		if (properties == null) {
+			return null;
+		}
+		Map<String, String> res = new HashMap<>(properties.size());
+		Enumeration<String> keys = properties.keys();
+		while (keys.hasMoreElements()) {
+			String key = keys.nextElement();
+			res.put(key, properties.get(key).toString());
+		}
+		return res;
 	}
 
 	/**
