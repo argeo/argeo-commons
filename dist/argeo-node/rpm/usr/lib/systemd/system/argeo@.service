@@ -8,20 +8,23 @@ Type=simple
 StateDirectory=argeo.d/%I
 LogsDirectory=argeo.d/%I
 ConfigurationDirectory=argeo.d/%I
+CacheDirectory=argeo.d/%I
 WorkingDirectory=/var/lib/argeo.d/%I
-#User=%I
 
 ExecStart=/usr/lib/jvm/jre-11/bin/java \
-  -Dlog4j.configuration="file:/etc/argeo.d/%I/log4j.properties" \
+  -Dlog4j.configuration="file:/etc/argeo.d/log4j.properties" \
+  -Dosgi.configuration.cascaded=true \
+  -Dosgi.sharedConfiguration.area=/usr/share/argeo \
+  -Dosgi.sharedConfiguration.area.readOnly=true \
+  -Dargeo.node.repo.indexesBase=/var/cache/argeo.d/%I/indexes \
+  @/usr/share/osgi/boot/framework.args \
   @/etc/argeo.d/jvm.args \
   @/etc/argeo.d/%I/jvm.args \
-  @/usr/share/osgi/boot/framework.args \
   -configuration /var/lib/argeo.d/%I/state \
   -data /var/lib/argeo.d/%I/data
 #ExecReload=/usr/sbin/argeoctl reload %I
 # Exit codes of the JVM when SIGTERM or SIGINT have been caught:
 SuccessExitStatus=143 130
-#ExecStopPost=/usr/bin/cat "$EXIT_STATUS" > /var/lib/argeo.d/%I/state/EXIT_STATUS
 
 [Install]
 WantedBy=multi-user.target

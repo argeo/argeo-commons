@@ -1,3 +1,0 @@
--Dosgi.configuration.cascaded=true
--Dosgi.sharedConfiguration.area=/usr/share/argeo
--Dosgi.sharedConfiguration.area.readOnly=true
