@@ -12,7 +12,7 @@ import javax.script.ScriptException;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.ui.util.CmsPane;
 import org.argeo.cms.ui.util.CmsUiUtils;
-import org.argeo.cms.ui.util.SimpleErgonomics;
+import org.argeo.cms.web.SimpleErgonomics;
 import org.argeo.eclipse.ui.Selected;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.Application;

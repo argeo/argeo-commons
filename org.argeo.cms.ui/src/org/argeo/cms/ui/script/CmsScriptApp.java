@@ -27,7 +27,7 @@ import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.ui.util.BundleResourceLoader;
 import org.argeo.cms.ui.util.CmsUiUtils;
-import org.argeo.cms.ui.util.SimpleErgonomics;
+import org.argeo.cms.web.SimpleErgonomics;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.Application.OperationMode;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;

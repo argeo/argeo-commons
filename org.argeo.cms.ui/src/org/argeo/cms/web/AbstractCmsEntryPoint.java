@@ -1,4 +1,4 @@
-package org.argeo.cms.ui;
+package org.argeo.cms.web;
 
 import static org.argeo.naming.SharedSecret.X_SHARED_SECRET;
 
@@ -28,6 +28,8 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallback;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
+import org.argeo.cms.ui.CmsStyles;
+import org.argeo.cms.ui.CmsView;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.naming.AuthPassword;

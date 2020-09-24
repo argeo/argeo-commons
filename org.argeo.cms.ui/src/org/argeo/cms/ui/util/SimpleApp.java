@@ -26,6 +26,7 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.ui.LifeCycleUiProvider;
+import org.argeo.cms.web.SimpleErgonomics;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.Application;

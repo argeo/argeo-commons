@@ -1,4 +1,4 @@
-package org.argeo.cms.ui.util;
+package org.argeo.cms.web;
 
 import java.util.Map;
 
@@ -9,11 +9,14 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.ui.AbstractCmsEntryPoint;
 import org.argeo.cms.ui.CmsImageManager;
 import org.argeo.cms.ui.CmsStyles;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.ui.UxContext;
+import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.cms.ui.util.DefaultImageManager;
+import org.argeo.cms.ui.util.SimpleUxContext;
+import org.argeo.cms.ui.util.SystemNotifications;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
