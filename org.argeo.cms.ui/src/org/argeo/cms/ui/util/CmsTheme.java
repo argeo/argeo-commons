@@ -32,6 +32,10 @@ import org.osgi.framework.BundleContext;
  * <code>/ ** /*.{png,gif,jpeg,...}</code>.<br>
  */
 public class CmsTheme {
+	public final static String DEFAULT_CMS_THEME_BUNDLE = "org.argeo.theme.argeo2";
+
+	public final static String CMS_THEME_BUNDLE_PROPERTY = "argeo.cms.theme.bundle";
+
 	private final static Log log = LogFactory.getLog(CmsTheme.class);
 
 	private String themeId;
@@ -43,13 +47,13 @@ public class CmsTheme {
 
 	private String basePath;
 	private String cssPath;
+	private final Bundle themeBundle;
 
 	public CmsTheme(BundleContext bundleContext) {
 		this(bundleContext, null);
 	}
 
 	public CmsTheme(BundleContext bundleContext, String symbolicName) {
-		Bundle themeBundle;
 		if (symbolicName == null) {
 			themeBundle = bundleContext.getBundle();
 //			basePath = "/theme/";
@@ -93,12 +97,12 @@ public class CmsTheme {
 				continue resources; // skip maven output
 			application.addResource(name, resources.get(name));
 			if (log.isTraceEnabled())
-				log.trace("Added resource " + name);
+				log.trace("Theme " + themeBundle + ": added resource " + name);
 		}
 		for (String name : css.keySet()) {
 			application.addStyleSheet(themeId, name, css.get(name));
 			if (log.isDebugEnabled())
-				log.debug("Added RAP CSS " + name);
+				log.debug("Theme " + themeBundle + ": added RAP CSS " + name);
 		}
 	}
 
