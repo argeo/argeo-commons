@@ -102,16 +102,24 @@ public class CmsUiUtils implements CmsConstants {
 	//
 	// GRID DATA
 	//
-	public static GridData fillWidth() {
-		return grabWidth(SWT.FILL, SWT.FILL);
-	}
-
 	public static GridData fillAll() {
 		return new GridData(SWT.FILL, SWT.FILL, true, true);
 	}
 
+	public static GridData fillWidth() {
+		return grabWidth(SWT.FILL, SWT.FILL);
+	}
+
 	public static GridData grabWidth(int horizontalAlignment, int verticalAlignment) {
 		return new GridData(horizontalAlignment, horizontalAlignment, true, false);
+	}
+
+	public static GridData fillHeight() {
+		return grabWidth(SWT.FILL, SWT.FILL);
+	}
+
+	public static GridData grabHeight(int horizontalAlignment, int verticalAlignment) {
+		return new GridData(horizontalAlignment, horizontalAlignment, false, true);
 	}
 
 	public static RowData rowData16px() {
