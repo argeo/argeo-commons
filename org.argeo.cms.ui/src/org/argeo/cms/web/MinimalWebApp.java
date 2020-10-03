@@ -1,7 +1,6 @@
 package org.argeo.cms.web;
 
 import static org.argeo.cms.ui.util.CmsTheme.CMS_THEME_BUNDLE_PROPERTY;
-import static org.argeo.cms.ui.util.CmsTheme.DEFAULT_CMS_THEME_BUNDLE;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,8 +21,6 @@ public class MinimalWebApp implements ApplicationConfiguration {
 		if (properties.containsKey(CMS_THEME_BUNDLE_PROPERTY)) {
 			String cmsThemeBundle = properties.get(CMS_THEME_BUNDLE_PROPERTY).toString();
 			theme = new CmsTheme(bundleContext, cmsThemeBundle);
-		} else {
-			theme = new CmsTheme(bundleContext, DEFAULT_CMS_THEME_BUNDLE);
 		}
 	}
 
@@ -38,11 +35,16 @@ public class MinimalWebApp implements ApplicationConfiguration {
 
 	@Override
 	public void configure(Application application) {
-		theme.apply(application);
+		if (theme != null)
+			theme.apply(application);
 
 		Map<String, String> properties = new HashMap<>();
-		properties.put(WebClient.THEME_ID, RWT.DEFAULT_THEME_ID);
-		properties.put(WebClient.HEAD_HTML, theme.getAdditionalHeaders());
+		if (theme != null) {
+			properties.put(WebClient.THEME_ID, theme.getThemeId());
+			properties.put(WebClient.HEAD_HTML, theme.getAdditionalHeaders());
+		} else {
+			properties.put(WebClient.THEME_ID, RWT.DEFAULT_THEME_ID);
+		}
 		addEntryPoints(application, properties);
 
 	}

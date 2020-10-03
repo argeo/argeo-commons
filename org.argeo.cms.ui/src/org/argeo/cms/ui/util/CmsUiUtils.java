@@ -115,7 +115,7 @@ public class CmsUiUtils implements CmsConstants {
 	}
 
 	public static GridData fillHeight() {
-		return grabWidth(SWT.FILL, SWT.FILL);
+		return grabHeight(SWT.FILL, SWT.FILL);
 	}
 
 	public static GridData grabHeight(int horizontalAlignment, int verticalAlignment) {
@@ -129,6 +129,12 @@ public class CmsUiUtils implements CmsConstants {
 	/** Style widget */
 	public static <T extends Widget> T style(T widget, String style) {
 		widget.setData(CmsConstants.STYLE, style);
+		return widget;
+	}
+
+	/** Style widget */
+	public static <T extends Widget> T style(T widget, CmsStyle style) {
+		widget.setData(CmsConstants.STYLE, style.toStyleClass());
 		return widget;
 	}
 
