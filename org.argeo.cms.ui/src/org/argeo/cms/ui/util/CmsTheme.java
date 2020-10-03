@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
-import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.service.ResourceLoader;
 import org.osgi.framework.Bundle;
@@ -63,7 +62,8 @@ public class CmsTheme {
 		}
 		basePath = "/";
 		cssPath = "/rap/";
-		this.themeId = RWT.DEFAULT_THEME_ID;
+//		this.themeId = RWT.DEFAULT_THEME_ID;
+		this.themeId = themeBundle.getSymbolicName();
 		addStyleSheets(themeBundle, new BundleResourceLoader(themeBundle));
 		BundleResourceLoader themeBRL = new BundleResourceLoader(themeBundle);
 		addResources(themeBRL, "*.png");
