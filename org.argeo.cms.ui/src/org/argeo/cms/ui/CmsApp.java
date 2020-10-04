@@ -9,4 +9,10 @@ public interface CmsApp {
 	Set<String> getUiNames();
 
 	void initUi(String uiName, Composite parent);
+
+	CmsTheme getTheme(String uiName);
+
+	void addCmsAppListener(CmsAppListener listener);
+
+	void removeCmsAppListener(CmsAppListener listener);
 }

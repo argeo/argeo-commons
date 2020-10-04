@@ -118,7 +118,8 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 
 	@Override
 	protected final void createContents(final Composite parent) {
-		UiContext.setData(CmsView.KEY, this);
+		// UiContext.setData(CmsView.KEY, this);
+		CmsView.registerCmsView(parent.getShell(), this);
 		Subject.doAs(getSubject(), new PrivilegedAction<Void>() {
 			@Override
 			public Void run() {

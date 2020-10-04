@@ -14,7 +14,6 @@ import org.argeo.api.NodeUtils;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.ui.CmsView;
-import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.ResourceManager;
@@ -41,9 +40,13 @@ public class CmsUiUtils implements CmsConstants {
 	/**
 	 * The CMS view related to this display, or null if none is available from this
 	 * call.
+	 * 
+	 * @deprecated Use {@link CmsView#getCmsView(Composite)} instead.
 	 */
+	@Deprecated
 	public static CmsView getCmsView() {
-		return UiContext.getData(CmsView.KEY);
+//		return UiContext.getData(CmsView.class.getName());
+		return CmsView.getCmsView(Display.getCurrent().getActiveShell());
 	}
 
 	public static StringBuilder getServerBaseUrl(HttpServletRequest request) {

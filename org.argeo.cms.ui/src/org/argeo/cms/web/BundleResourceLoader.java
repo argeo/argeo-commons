@@ -1,4 +1,4 @@
-package org.argeo.cms.ui.util;
+package org.argeo.cms.web;
 
 import java.io.IOException;
 import java.io.InputStream;

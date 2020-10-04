@@ -40,23 +40,23 @@ public class LangUtils {
 	 */
 
 	/**
-	 * Creates a new {@link Dictionary} with one key-value pair (neither key not
-	 * value should be null)
+	 * Creates a new {@link Dictionary} with one key-value pair. Key should not be
+	 * null, but if the value is null, it returns an empty {@link Dictionary}.
 	 */
 	public static Dictionary<String, Object> dict(String key, Object value) {
 		assert key != null;
-		assert value != null;
 		Hashtable<String, Object> props = new Hashtable<>();
-		props.put(key, value);
+		if (value != null)
+			props.put(key, value);
 		return props;
 	}
 
-	/**@deprecated Use {@link #dict(String, Object)} instead.*/
+	/** @deprecated Use {@link #dict(String, Object)} instead. */
 	@Deprecated
 	public static Dictionary<String, Object> dico(String key, Object value) {
 		return dict(key, value);
 	}
-	
+
 	/** Converts a {@link Dictionary} to a {@link Map} of strings. */
 	public static Map<String, String> dictToStringMap(Dictionary<String, ?> properties) {
 		if (properties == null) {

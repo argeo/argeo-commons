@@ -18,7 +18,6 @@ import org.argeo.cms.ui.dialogs.CmsFeedback;
 import org.argeo.cms.ui.util.SimpleImageManager;
 import org.argeo.cms.ui.util.SimpleUxContext;
 import org.argeo.cms.ui.widgets.auth.CmsLoginShell;
-import org.argeo.eclipse.ui.specific.UiContext;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.e4.ui.workbench.UIEvents;
 import org.eclipse.e4.ui.workbench.lifecycle.PostContextCreate;
@@ -60,8 +59,9 @@ public class CmsLoginLifecycle implements CmsView {
 
 		Subject subject = Subject.getSubject(AccessController.getContext());
 		Display display = Display.getCurrent();
-		UiContext.setData(CmsView.KEY, this);
+//		UiContext.setData(CmsView.KEY, this);
 		CmsLoginShell loginShell = new CmsLoginShell(this);
+		CmsView.registerCmsView(loginShell.getShell(), this);
 		loginShell.setSubject(subject);
 		try {
 			// try pre-auth

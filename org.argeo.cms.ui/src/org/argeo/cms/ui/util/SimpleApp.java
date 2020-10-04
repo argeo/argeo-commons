@@ -2,8 +2,10 @@ package org.argeo.cms.ui.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -26,6 +28,7 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.ui.LifeCycleUiProvider;
+import org.argeo.cms.web.BundleResourceLoader;
 import org.argeo.cms.web.SimpleErgonomics;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
@@ -97,7 +100,7 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 			Map<String, String> defaultBranding = null;
 			if (branding.containsKey("*"))
 				defaultBranding = branding.get("*");
-			String defaultTheme = defaultBranding.get(WebClient.THEME_ID);
+			// String defaultTheme = defaultBranding.get(WebClient.THEME_ID);
 
 			// entry points
 			for (String page : pages.keySet()) {
@@ -109,7 +112,7 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 				// favicon
 				if (properties.containsKey(WebClient.FAVICON)) {
 					String themeId = defaultBranding.get(WebClient.THEME_ID);
-					Bundle themeBundle = ThemeUtils.findThemeBundle(bundleContext, themeId);
+					Bundle themeBundle = findThemeBundle(bundleContext, themeId);
 					String faviconRelPath = properties.get(WebClient.FAVICON);
 					application.addResource(faviconRelPath,
 							new BundleResourceLoader(themeBundle != null ? themeBundle : bundleContext.getBundle()));
@@ -139,7 +142,7 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 			// stylesheets and themes
 			Set<Bundle> themeBundles = new HashSet<>();
 			for (String themeId : styleSheets.keySet()) {
-				Bundle themeBundle = ThemeUtils.findThemeBundle(bundleContext, themeId);
+				Bundle themeBundle = findThemeBundle(bundleContext, themeId);
 				StyleSheetResourceLoader styleSheetRL = new StyleSheetResourceLoader(
 						themeBundle != null ? themeBundle : bundleContext.getBundle());
 				if (themeBundle != null)
@@ -156,9 +159,9 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 			}
 			for (Bundle themeBundle : themeBundles) {
 				BundleResourceLoader themeBRL = new BundleResourceLoader(themeBundle);
-				ThemeUtils.addThemeResources(application, themeBundle, themeBRL, "*.png");
-				ThemeUtils.addThemeResources(application, themeBundle, themeBRL, "*.gif");
-				ThemeUtils.addThemeResources(application, themeBundle, themeBRL, "*.jpg");
+				SimpleApp.addThemeResources(application, themeBundle, themeBRL, "*.png");
+				SimpleApp.addThemeResources(application, themeBundle, themeBRL, "*.gif");
+				SimpleApp.addThemeResources(application, themeBundle, themeBRL, "*.jpg");
 			}
 		} catch (RuntimeException e) {
 			// Easier access to initialisation errors
@@ -281,6 +284,41 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 
 	public void setContextName(String contextName) {
 		this.contextName = contextName;
+	}
+
+	private static void addThemeResources(Application application, Bundle themeBundle, BundleResourceLoader themeBRL,
+			String pattern) {
+		Enumeration<URL> themeResources = themeBundle.findEntries("/", pattern, true);
+		if (themeResources == null)
+			return;
+		while (themeResources.hasMoreElements()) {
+			String resource = themeResources.nextElement().getPath();
+			// remove first '/' so that RWT registers it
+			resource = resource.substring(1);
+			if (!resource.endsWith("/")) {
+				application.addResource(resource, themeBRL);
+				if (log.isTraceEnabled())
+					log.trace("Registered " + resource + " from theme " + themeBundle);
+			}
+
+		}
+
+	}
+
+	private static Bundle findThemeBundle(BundleContext bundleContext, String themeId) {
+		if (themeId == null)
+			return null;
+		// TODO optimize
+		// TODO deal with multiple versions
+		Bundle themeBundle = null;
+		if (themeId != null) {
+			for (Bundle bundle : bundleContext.getBundles())
+				if (themeId.equals(bundle.getSymbolicName())) {
+					themeBundle = bundle;
+					break;
+				}
+		}
+		return themeBundle;
 	}
 
 	class CmsExceptionHandler implements ExceptionHandler {

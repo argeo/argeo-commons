@@ -24,10 +24,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.CmsConstants;
+import org.argeo.cms.ui.CmsTheme;
 import org.argeo.cms.ui.CmsUiProvider;
-import org.argeo.cms.ui.util.BundleResourceLoader;
 import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.cms.web.BundleResourceLoader;
 import org.argeo.cms.web.SimpleErgonomics;
+import org.argeo.cms.web.WebThemeUtils;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.Application.OperationMode;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
@@ -54,7 +56,7 @@ public class CmsScriptApp implements Branding {
 	private String repo = "(cn=node)";
 
 	// private Branding branding = new Branding();
-	private Theme theme;
+	private CmsTheme theme;
 
 	private List<String> resources = new ArrayList<>();
 
@@ -99,8 +101,8 @@ public class CmsScriptApp implements Branding {
 		}
 
 		if (theme != null) {
-			theme.apply(application);
-			String themeHeaders = theme.getAdditionalHeaders();
+			WebThemeUtils.apply(application, theme);
+			String themeHeaders = theme.getHtmlHeaders();
 			if (themeHeaders != null) {
 				if (additionalHeaders == null)
 					additionalHeaders = themeHeaders;
@@ -269,11 +271,11 @@ public class CmsScriptApp implements Branding {
 		// TODO
 	}
 
-	public Theme getTheme() {
+	public CmsTheme getTheme() {
 		return theme;
 	}
 
-	public void setTheme(Theme theme) {
+	public void setTheme(CmsTheme theme) {
 		this.theme = theme;
 	}
 

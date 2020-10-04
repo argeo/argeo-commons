@@ -34,8 +34,10 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 	@Override
 	public int createUI() {
 		final Display display = createDisplay();
-		UiContext.setData(CmsView.KEY, this);
+//		UiContext.setData(CmsView.KEY, this);
+
 		CmsLoginShell loginShell = createCmsLoginShell();
+		CmsView.registerCmsView(loginShell.getShell(), this);
 		try {
 			// try pre-auth
 			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, loginShell);
