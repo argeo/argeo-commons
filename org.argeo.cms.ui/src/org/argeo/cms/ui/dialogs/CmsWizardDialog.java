@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
+/** A wizard dialog based on {@link LightweightDialog}. */
 public class CmsWizardDialog extends LightweightDialog implements IWizardContainer2 {
 	private static final long serialVersionUID = -2123153353654812154L;
 

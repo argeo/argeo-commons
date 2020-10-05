@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+/** A dialog feedback based on a {@link LightweightDialog}. */
 public class CmsFeedback extends LightweightDialog {
 	private final static Log log = LogFactory.getLog(CmsFeedback.class);
 

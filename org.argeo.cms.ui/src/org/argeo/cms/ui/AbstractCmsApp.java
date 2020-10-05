@@ -2,17 +2,22 @@ package org.argeo.cms.ui;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
+
+import javax.jcr.Repository;
 
 import org.eclipse.rap.rwt.RWT;
 
+/** Base class for {@link CmsApp}s. */
 public abstract class AbstractCmsApp implements CmsApp {
-	private Map<String, CmsTheme> themes = Collections.synchronizedSortedMap(new TreeMap<>());
+	private Map<String, CmsTheme> themes = Collections.synchronizedMap(new HashMap<>());
 
 	private List<CmsAppListener> cmsAppListeners = new ArrayList<>();
+
+	private Repository repository;
 
 	@Override
 	public Set<String> getUiNames() {
@@ -65,6 +70,14 @@ public abstract class AbstractCmsApp implements CmsApp {
 	@Override
 	public void removeCmsAppListener(CmsAppListener listener) {
 		cmsAppListeners.remove(listener);
+	}
+
+	protected Repository getRepository() {
+		return repository;
+	}
+
+	public void setRepository(Repository repository) {
+		this.repository = repository;
 	}
 
 }

@@ -45,11 +45,16 @@ public interface CmsTheme {
 	Image getIcon(String name, Integer preferredSize);
 
 	static CmsTheme getCmsTheme(Composite parent) {
-		// find parent shell
-		Shell topShell = parent.getShell();
-		while (topShell.getParent() != null)
-			topShell = (Shell) topShell.getParent();
-		return (CmsTheme) topShell.getData(CmsTheme.class.getName());
+		CmsTheme theme = (CmsTheme) parent.getData(CmsTheme.class.getName());
+		if (theme == null) {
+			// find parent shell
+			Shell topShell = parent.getShell();
+			while (topShell.getParent() != null)
+				topShell = (Shell) topShell.getParent();
+			theme = (CmsTheme) topShell.getData(CmsTheme.class.getName());
+			parent.setData(CmsTheme.class.getName(), theme);
+		}
+		return theme;
 	}
 
 	static void registerCmsTheme(Shell shell, CmsTheme theme) {

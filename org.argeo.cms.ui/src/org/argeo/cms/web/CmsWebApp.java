@@ -11,11 +11,9 @@ import org.argeo.cms.ui.CmsAppListener;
 import org.argeo.cms.ui.CmsTheme;
 import org.argeo.util.LangUtils;
 import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.eclipse.rap.rwt.client.WebClient;
-import org.eclipse.swt.widgets.Composite;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
@@ -69,17 +67,12 @@ public class CmsWebApp implements ApplicationConfiguration, CmsAppListener {
 //					log.warn("Theme id " + themeId + " was specified but it was not found, using default RWT theme.");
 			}
 			application.addEntryPoint("/" + uiName, () -> {
-				return new AbstractEntryPoint() {
-					private static final long serialVersionUID = -9153259126766694485L;
-
-					@Override
-					protected void createContents(Composite parent) {
-						cmsApp.initUi(uiName, parent);
-
-					}
-				};
+				return new CmsWebEntryPoint(this, uiName);
 			}, properties);
+			if (log.isDebugEnabled())
+				log.info("Added web entry point /" + (contextName != null ? contextName : "") + "/" + uiName);
 		}
+		log.debug("Published CMS web app /" + (contextName != null ? contextName : ""));
 	}
 
 //	private void registerIfAllThemesAvailable() {
@@ -102,7 +95,7 @@ public class CmsWebApp implements ApplicationConfiguration, CmsAppListener {
 //		}
 //	}
 
-	public CmsApp getCmsApp() {
+	CmsApp getCmsApp() {
 		return cmsApp;
 	}
 
@@ -125,7 +118,8 @@ public class CmsWebApp implements ApplicationConfiguration, CmsAppListener {
 			rwtAppReg.unregister();
 		if (bundleContext != null) {
 			rwtAppReg = bundleContext.registerService(ApplicationConfiguration.class, this, regProps);
-			log.info("Published CMS web app /" + (contextName != null ? contextName : ""));
+			if (log.isDebugEnabled())
+				log.debug("Publishing CMS web app /" + (contextName != null ? contextName : "") + " ...");
 		}
 	}
 

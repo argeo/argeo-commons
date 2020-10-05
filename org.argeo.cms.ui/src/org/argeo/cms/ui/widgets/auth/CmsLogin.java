@@ -116,7 +116,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		}
 	}
 
-	protected Composite getCredentialsBlock() {
+	public Composite getCredentialsBlock() {
 		return credentialsBlock;
 	}
 
