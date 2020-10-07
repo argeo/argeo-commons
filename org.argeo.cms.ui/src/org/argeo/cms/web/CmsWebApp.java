@@ -32,11 +32,14 @@ public class CmsWebApp implements ApplicationConfiguration, CmsAppListener {
 	public void init(BundleContext bundleContext, Map<String, String> properties) {
 		this.bundleContext = bundleContext;
 		contextName = properties.get(CONTEXT_NAME);
+		if (cmsApp != null)
+			themingUpdated();
 //		registerIfAllThemesAvailable();
 	}
 
 	public void destroy(BundleContext bundleContext, Map<String, String> properties) {
-
+		if (cmsApp != null)
+			cmsApp.removeCmsAppListener(this);
 	}
 
 	@Override
