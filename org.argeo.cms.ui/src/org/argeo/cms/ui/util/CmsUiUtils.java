@@ -136,6 +136,15 @@ public class CmsUiUtils implements CmsConstants {
 		return layout;
 	}
 
+	public static GridLayout standardSpaceGridLayout(GridLayout layout) {
+		layout.horizontalSpacing = 16;
+		layout.verticalSpacing = 16;
+		layout.marginWidth = 16;
+		layout.marginHeight = 16;
+		return layout;
+	}
+
+	
 	public static GridData fillAll() {
 		return new GridData(SWT.FILL, SWT.FILL, true, true);
 	}
