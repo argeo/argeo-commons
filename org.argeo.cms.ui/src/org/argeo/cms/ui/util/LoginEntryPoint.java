@@ -1,6 +1,7 @@
 package org.argeo.cms.ui.util;
 
 import java.util.Locale;
+import java.util.UUID;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
@@ -30,9 +31,11 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 	private final static Log log = LogFactory.getLog(LoginEntryPoint.class);
 	private LoginContext loginContext;
 	private UxContext uxContext = null;
+	private String uid;
 
 	@Override
 	public int createUI() {
+		uid = UUID.randomUUID().toString();
 		final Display display = createDisplay();
 //		UiContext.setData(CmsView.KEY, this);
 
@@ -104,9 +107,9 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 	}
 
 	/**
-	 * To be overridden. CmsLogin#createCredentialsBlock() should be called at
-	 * some point in order to create the credentials composite. In order to use
-	 * the default layout, call CmsLogin#defaultCreateContents() but <b>not</b>
+	 * To be overridden. CmsLogin#createCredentialsBlock() should be called at some
+	 * point in order to create the credentials composite. In order to use the
+	 * default layout, call CmsLogin#defaultCreateContents() but <b>not</b>
 	 * CmsLogin#createContent(), since it would lead to a stack overflow.
 	 */
 	protected void createLoginPage(Composite parent, CmsLogin login) {
@@ -116,6 +119,11 @@ public class LoginEntryPoint implements EntryPoint, CmsView {
 	protected void extendsCredentialsBlock(Composite credentialsBlock, Locale selectedLocale,
 			SelectionListener loginSelectionListener) {
 
+	}
+
+	@Override
+	public String getUid() {
+		return uid;
 	}
 
 	@Override

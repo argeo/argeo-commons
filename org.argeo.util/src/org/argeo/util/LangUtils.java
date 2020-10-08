@@ -72,6 +72,29 @@ public class LangUtils {
 	}
 
 	/**
+	 * Get a string property from this map, expecting to find it, or
+	 * <code>null</code> if not found.
+	 */
+	public static String get(Map<String, ?> map, String key) {
+		Object res = map.get(key);
+		if (res == null)
+			return null;
+		return res.toString();
+	}
+
+	/**
+	 * Get a string property from this map, expecting to find it.
+	 * 
+	 * @throws IllegalArgumentException if the key was not found
+	 */
+	public static String getNotNull(Map<String, ?> map, String key) {
+		Object res = map.get(key);
+		if (res == null)
+			throw new IllegalArgumentException("Map " + map + " should contain key " + key);
+		return res.toString();
+	}
+
+	/**
 	 * Wraps the keys of the provided {@link Dictionary} as an {@link Iterable}.
 	 */
 	public static Iterable<String> keys(Dictionary<String, ?> props) {

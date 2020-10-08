@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -14,13 +16,17 @@ import org.argeo.api.NodeUtils;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.ui.CmsView;
+import org.argeo.eclipse.ui.Selected;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.ResourceManager;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowData;
@@ -36,6 +42,31 @@ import org.eclipse.swt.widgets.Widget;
 /** Static utilities for the CMS framework. */
 public class CmsUiUtils implements CmsConstants {
 	// private final static Log log = LogFactory.getLog(CmsUiUtils.class);
+
+	/*
+	 * CMS VIEW
+	 */
+
+	/** Sends an event via {@link CmsView#sendEvent(String, Map)}. */
+	public static void sendEventOnSelect(Control control, String topic, Map<String, Object> properties) {
+		SelectionListener listener = (Selected) (e) -> {
+			CmsView.getCmsView(control.getParent()).sendEvent(topic, properties);
+		};
+		if (control instanceof Button) {
+			((Button) control).addSelectionListener(listener);
+		} else
+			throw new UnsupportedOperationException("Control type " + control.getClass() + " is not supported.");
+	}
+
+	/**
+	 * Convenience method to sends an event via
+	 * {@link CmsView#sendEvent(String, Map)}.
+	 */
+	public static void sendEventOnSelect(Control control, String topic, String key, Object value) {
+		Map<String, Object> properties = new HashMap<>();
+		properties.put(key, value);
+		sendEventOnSelect(control, topic, properties);
+	}
 
 	/**
 	 * The CMS view related to this display, or null if none is available from this
@@ -86,6 +117,9 @@ public class CmsUiUtils implements CmsConstants {
 	@Deprecated
 	public static RowData ROW_DATA_16px = new RowData(16, 16);
 
+	/*
+	 * GRID LAYOUT
+	 */
 	public static GridLayout noSpaceGridLayout() {
 		return noSpaceGridLayout(new GridLayout());
 	}
@@ -102,9 +136,6 @@ public class CmsUiUtils implements CmsConstants {
 		return layout;
 	}
 
-	//
-	// GRID DATA
-	//
 	public static GridData fillAll() {
 		return new GridData(SWT.FILL, SWT.FILL, true, true);
 	}
@@ -128,6 +159,23 @@ public class CmsUiUtils implements CmsConstants {
 	public static RowData rowData16px() {
 		return new RowData(16, 16);
 	}
+
+	/*
+	 * FORM LAYOUT
+	 */
+
+	public static FormData coversAll() {
+		FormData fdLabel = new FormData();
+		fdLabel.top = new FormAttachment(0, 0);
+		fdLabel.left = new FormAttachment(0, 0);
+		fdLabel.right = new FormAttachment(100, 0);
+		fdLabel.bottom = new FormAttachment(100, 0);
+		return fdLabel;
+	}
+
+	/*
+	 * STYLING
+	 */
 
 	/** Style widget */
 	public static <T extends Widget> T style(T widget, String style) {

@@ -16,6 +16,7 @@ import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.eclipse.rap.rwt.client.WebClient;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.event.EventAdmin;
 
 /** An RWT web app integrating with a {@link CmsApp}. */
 public class CmsWebApp implements ApplicationConfiguration, CmsAppListener {
@@ -23,6 +24,7 @@ public class CmsWebApp implements ApplicationConfiguration, CmsAppListener {
 
 	private BundleContext bundleContext;
 	private CmsApp cmsApp;
+	private EventAdmin eventAdmin;
 
 	private ServiceRegistration<ApplicationConfiguration> rwtAppReg;
 
@@ -70,7 +72,9 @@ public class CmsWebApp implements ApplicationConfiguration, CmsAppListener {
 //					log.warn("Theme id " + themeId + " was specified but it was not found, using default RWT theme.");
 			}
 			application.addEntryPoint("/" + uiName, () -> {
-				return new CmsWebEntryPoint(this, uiName);
+				CmsWebEntryPoint entryPoint = new CmsWebEntryPoint(this, uiName);
+				entryPoint.setEventAdmin(eventAdmin);
+				return entryPoint;
 			}, properties);
 			if (log.isDebugEnabled())
 				log.info("Added web entry point /" + (contextName != null ? contextName : "") + "/" + uiName);
@@ -124,6 +128,10 @@ public class CmsWebApp implements ApplicationConfiguration, CmsAppListener {
 			if (log.isDebugEnabled())
 				log.debug("Publishing CMS web app /" + (contextName != null ? contextName : "") + " ...");
 		}
+	}
+
+	public void setEventAdmin(EventAdmin eventAdmin) {
+		this.eventAdmin = eventAdmin;
 	}
 
 }

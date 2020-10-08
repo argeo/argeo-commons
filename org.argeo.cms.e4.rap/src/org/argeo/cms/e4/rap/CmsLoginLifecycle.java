@@ -1,6 +1,7 @@
 package org.argeo.cms.e4.rap;
 
 import java.security.AccessController;
+import java.util.UUID;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
@@ -41,9 +42,11 @@ public class CmsLoginLifecycle implements CmsView {
 	private BrowserNavigation browserNavigation;
 
 	private String state = null;
+	private String uid;
 
 	@PostContextCreate
 	boolean login(final IEventBroker eventBroker) {
+		uid = UUID.randomUUID().toString();
 		browserNavigation = RWT.getClient().getService(BrowserNavigation.class);
 		if (browserNavigation != null)
 			browserNavigation.addBrowserNavigationListener(new BrowserNavigationListener() {
@@ -153,6 +156,11 @@ public class CmsLoginLifecycle implements CmsView {
 	@Override
 	public boolean isAnonymous() {
 		return CurrentUser.isAnonymous(getSubject());
+	}
+
+	@Override
+	public String getUid() {
+		return uid;
 	}
 
 	// CALLBACKS

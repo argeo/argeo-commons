@@ -3,6 +3,8 @@ package org.argeo.cms.web;
 import static org.eclipse.rap.rwt.internal.service.ContextProvider.getApplicationContext;
 
 import java.security.PrivilegedAction;
+import java.util.Map;
+import java.util.UUID;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
@@ -19,6 +21,8 @@ import org.argeo.cms.ui.CmsView;
 import org.argeo.cms.ui.UxContext;
 import org.argeo.cms.ui.dialogs.CmsFeedback;
 import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.cms.ui.util.DefaultImageManager;
+import org.argeo.cms.ui.util.SimpleUxContext;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.EntryPoint;
@@ -30,11 +34,15 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 
 /** The {@link CmsView} for a {@link CmsWebApp}. */
 public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationListener {
 	private static final long serialVersionUID = 7733510691684570402L;
 	private final static Log log = LogFactory.getLog(CmsWebEntryPoint.class);
+
+	private EventAdmin eventAdmin;
 
 	private final CmsWebApp cmsWebApp;
 	private final String uiName;
@@ -42,8 +50,12 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 	private LoginContext loginContext;
 	private String state;
 	private Throwable exception;
+	private UxContext uxContext;
+	private CmsImageManager imageManager;
 
 	private Composite ui;
+
+	private String uid;
 
 	// Client services
 	// private final JavaScriptExecutor jsExecutor;
@@ -57,6 +69,7 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 		assert uiName != null;
 		this.cmsWebApp = cmsWebApp;
 		this.uiName = uiName;
+		uid = UUID.randomUUID().toString();
 
 		// Initial login
 		LoginContext lc;
@@ -85,6 +98,8 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 			@Override
 			public Void run() {
 				try {
+					uxContext = new SimpleUxContext();
+					imageManager = new DefaultImageManager();
 					ui = cmsWebApp.getCmsApp().initUi(parent);
 					ui.setData(CmsApp.UI_NAME_PROPERTY, uiName);
 					ui.setLayoutData(CmsUiUtils.fillAll());
@@ -168,8 +183,12 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 
 	@Override
 	public UxContext getUxContext() {
-		// TODO Auto-generated method stub
-		return null;
+		return uxContext;
+	}
+
+	@Override
+	public String getUid() {
+		return uid;
 	}
 
 	@Override
@@ -183,14 +202,22 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 
 	@Override
 	public CmsImageManager getImageManager() {
-		// TODO Auto-generated method stub
-		return null;
+		return imageManager;
 	}
 
 	@Override
 	public void navigated(BrowserNavigationEvent event) {
 		setState(event.getState());
 		doRefresh();
+	}
+
+	@Override
+	public void sendEvent(String topic, Map<String, Object> properties) {
+		if (properties.containsKey(CMS_VIEW_UID_PROPERTY) && !properties.get(CMS_VIEW_UID_PROPERTY).equals(uid))
+			throw new IllegalArgumentException("Property " + CMS_VIEW_UID_PROPERTY + " is set to another CMS view uid ("
+					+ properties.get(CMS_VIEW_UID_PROPERTY) + ") then " + uid);
+		properties.put(CMS_VIEW_UID_PROPERTY, uid);
+		eventAdmin.sendEvent(new Event(topic, properties));
 	}
 
 	/*
@@ -232,6 +259,10 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 			shell.setSize(800, 600);
 		}
 		return shell;
+	}
+
+	public void setEventAdmin(EventAdmin eventAdmin) {
+		this.eventAdmin = eventAdmin;
 	}
 
 }

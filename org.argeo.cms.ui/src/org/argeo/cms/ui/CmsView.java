@@ -1,5 +1,7 @@
 package org.argeo.cms.ui;
 
+import java.util.Map;
+
 import javax.security.auth.login.LoginContext;
 
 import org.eclipse.swt.widgets.Composite;
@@ -7,7 +9,10 @@ import org.eclipse.swt.widgets.Shell;
 
 /** Provides interaction with the CMS system. */
 public interface CmsView {
-	//String KEY = "org.argeo.cms.ui.view";
+	final static String CMS_VIEW_UID_PROPERTY = "argeo.cms.view.uid";
+	// String KEY = "org.argeo.cms.ui.view";
+
+	String getUid();
 
 	UxContext getUxContext();
 
@@ -28,6 +33,14 @@ public interface CmsView {
 
 	boolean isAnonymous();
 
+	/**
+	 * Send an event to this topic. Does noothing by default., but if implemented it
+	 * MUST set the {@link #CMS_VIEW_UID_PROPERTY} in the properties.
+	 */
+	default void sendEvent(String topic, Map<String, Object> properties) {
+
+	}
+
 	static CmsView getCmsView(Composite parent) {
 		// find parent shell
 		Shell topShell = parent.getShell();
@@ -44,8 +57,7 @@ public interface CmsView {
 		// check if already set
 		if (topShell.getData(CmsView.class.getName()) != null) {
 			CmsView registeredView = (CmsView) topShell.getData(CmsView.class.getName());
-			throw new IllegalArgumentException(
-					"Cms view " + registeredView + " already registered in this shell");
+			throw new IllegalArgumentException("Cms view " + registeredView + " already registered in this shell");
 		}
 		shell.setData(CmsView.class.getName(), view);
 	}

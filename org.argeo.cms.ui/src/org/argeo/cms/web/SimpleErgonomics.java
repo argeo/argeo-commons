@@ -1,6 +1,7 @@
 package org.argeo.cms.web;
 
 import java.util.Map;
+import java.util.UUID;
 
 import javax.jcr.Node;
 import javax.jcr.Repository;
@@ -48,6 +49,7 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 
 	private CmsImageManager imageManager = new DefaultImageManager();
 	private UxContext uxContext = null;
+	private String uid;
 
 	public SimpleErgonomics(Repository repository, String workspace, String defaultPath, CmsUiProvider uiProvider,
 			Map<String, String> factoryProperties) {
@@ -57,6 +59,7 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 
 	@Override
 	protected void initUi(Composite parent) {
+		uid = UUID.randomUUID().toString();
 		parent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		parent.setLayout(CmsUiUtils.noSpaceGridLayout(new GridLayout(3, false)));
 
@@ -178,6 +181,10 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 	@Override
 	public UxContext getUxContext() {
 		return uxContext;
+	}
+	@Override
+	public String getUid() {
+		return uid;
 	}
 
 	@Override
