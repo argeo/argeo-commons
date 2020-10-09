@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
+/** Manages {@link Section} in a tab-like structure.*/
 public class TabbedArea extends Composite {
 	private static final long serialVersionUID = 8659669229482033444L;
 
@@ -156,6 +157,7 @@ public class TabbedArea extends Composite {
 	public void showTab(int index) {
 		Section sectionToShow = sections.get(index);
 		sectionToShow.moveAbove(null);
+		refreshTabHeaders();
 		layout(true, true);
 	}
 
