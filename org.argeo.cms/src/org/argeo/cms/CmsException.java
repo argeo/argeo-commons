@@ -1,6 +1,7 @@
 package org.argeo.cms;
 
-/** CMS specific exceptions. */
+/** @deprecated Use standard Java {@link RuntimeException} instead. */
+@Deprecated
 public class CmsException extends RuntimeException {
 	private static final long serialVersionUID = -5341764743356771313L;
 
