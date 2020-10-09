@@ -178,6 +178,8 @@ public class CmsUiUtils implements CmsConstants {
 
 	/** Style widget */
 	public static <T extends Widget> T style(T widget, String style) {
+		if (style == null)
+			return widget;// does nothing
 		widget.setData(CmsConstants.STYLE, style);
 		return widget;
 	}

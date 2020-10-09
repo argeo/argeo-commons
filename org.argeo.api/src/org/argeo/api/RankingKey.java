@@ -13,7 +13,7 @@ public class RankingKey implements Comparable<RankingKey> {
 
 	private String pid;
 	private Integer ranking = 0;
-	private Long id;
+	private Long id = 0l;
 	private String dataType;
 	private String dataPath;
 
@@ -32,6 +32,11 @@ public class RankingKey implements Comparable<RankingKey> {
 				? Integer.parseInt(properties.get(SERVICE_RANKING).toString())
 				: 0;
 		this.id = properties.containsKey(SERVICE_ID) ? (Long) properties.get(SERVICE_ID) : null;
+
+		// Argeo specific
+		this.dataType = properties.containsKey(NodeConstants.DATA_TYPE)
+				? properties.get(NodeConstants.DATA_TYPE).toString()
+				: null;
 	}
 
 	@Override
@@ -41,6 +46,8 @@ public class RankingKey implements Comparable<RankingKey> {
 			result = +pid.hashCode();
 		if (ranking != null)
 			result = +ranking;
+		if (dataType != null)
+			result = +dataType.hashCode();
 		return result;
 	}
 
@@ -56,6 +63,8 @@ public class RankingKey implements Comparable<RankingKey> {
 			sb.append(pid);
 		if (ranking != null && ranking != 0)
 			sb.append(' ').append(ranking);
+		if (dataType != null)
+			sb.append(' ').append(dataType);
 		return sb.toString();
 	}
 
@@ -85,9 +94,22 @@ public class RankingKey implements Comparable<RankingKey> {
 			}
 
 		} else {
-
+			if (dataType != null && o.dataType != null) {
+				if (dataType.equals(o.dataType)) {
+					// TODO factorise
+					if (ranking.equals(o.ranking))
+						if (id != null && o.id != null)
+							return id.compareTo(o.id);
+						else
+							return 0;
+					else
+						return ranking.compareTo(o.ranking);
+				} else {
+					return dataPath.compareTo(o.dataType);
+				}
+			}
 		}
-		return 0;
+		return -1;
 	}
 
 	public String getPid() {
@@ -116,6 +138,14 @@ public class RankingKey implements Comparable<RankingKey> {
 
 	public static RankingKey maxPid(String pid) {
 		return new RankingKey(pid, Integer.MAX_VALUE, null, null, null);
+	}
+
+	public static RankingKey minDataType(String dataType) {
+		return new RankingKey(null, Integer.MIN_VALUE, null, dataType, null);
+	}
+
+	public static RankingKey maxDataType(String dataType) {
+		return new RankingKey(null, Integer.MAX_VALUE, null, dataType, null);
 	}
 
 	private static boolean equalsOrBothNull(Object o1, Object o2) {

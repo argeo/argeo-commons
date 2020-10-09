@@ -7,7 +7,6 @@ import java.util.Map;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.cms.ui.widgets.JcrComposite;
 import org.eclipse.swt.SWT;
@@ -21,23 +20,27 @@ public class Section extends JcrComposite {
 	private Composite sectionHeader;
 	private final Integer relativeDepth;
 
-	public Section(Composite parent, int style, Node node) throws RepositoryException {
+	public Section(Composite parent, int style, Node node) {
 		this(parent, findSection(parent), style, node);
 	}
 
-	public Section(Section section, int style, Node node) throws RepositoryException {
+	public Section(Section section, int style, Node node) {
 		this(section, section, style, node);
 	}
 
-	protected Section(Composite parent, Section parentSection, int style, Node node) throws RepositoryException {
+	protected Section(Composite parent, Section parentSection, int style, Node node) {
 		super(parent, style, node);
-		this.parentSection = parentSection;
-		if (parentSection != null) {
-			relativeDepth = getNode().getDepth() - parentSection.getNode().getDepth();
-		} else {
-			relativeDepth = 0;
+		try {
+			this.parentSection = parentSection;
+			if (parentSection != null) {
+				relativeDepth = getNode().getDepth() - parentSection.getNode().getDepth();
+			} else {
+				relativeDepth = 0;
+			}
+			setLayout(CmsUiUtils.noSpaceGridLayout());
+		} catch (RepositoryException e) {
+			throw new IllegalStateException("Cannot create section from " + node, e);
 		}
-		setLayout(CmsUiUtils.noSpaceGridLayout());
 	}
 
 	public Map<String, Section> getSubSections() throws RepositoryException {
@@ -65,15 +68,20 @@ public class Section extends JcrComposite {
 				collectDirectSubSections((Composite) child, subSections);
 	}
 
-	public void createHeader() {
-		if (sectionHeader != null)
-			throw new CmsException("Section header was already created");
+	public Composite createHeader() {
+		return createHeader(this);
+	}
 
-		sectionHeader = new Composite(this, SWT.NONE);
+	public Composite createHeader(Composite parent) {
+		if (sectionHeader != null)
+			sectionHeader.dispose();
+
+		sectionHeader = new Composite(parent, SWT.NONE);
 		sectionHeader.setLayoutData(CmsUiUtils.fillWidth());
 		sectionHeader.setLayout(CmsUiUtils.noSpaceGridLayout());
 		// sectionHeader.moveAbove(null);
 		// layout();
+		return sectionHeader;
 	}
 
 	public Composite getHeader() {

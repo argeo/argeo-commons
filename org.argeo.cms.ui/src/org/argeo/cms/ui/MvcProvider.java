@@ -1,4 +1,4 @@
-package org.argeo.api;
+package org.argeo.cms.ui;
 
 import java.util.function.BiFunction;
 

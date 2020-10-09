@@ -15,7 +15,7 @@ import org.eclipse.swt.widgets.Composite;
 public class JcrComposite extends Composite {
 	private static final long serialVersionUID = -1447009015451153367L;
 
-	private final Session session;
+	private Session session;
 
 	private String nodeId;
 	private String property = null;
@@ -28,37 +28,39 @@ public class JcrComposite extends Composite {
 		nodeId = null;
 	}
 
-	public JcrComposite(Composite parent, int style, Item item)
-			throws RepositoryException {
+	public JcrComposite(Composite parent, int style, Item item) {
 		this(parent, style, item, false);
 	}
 
-	public JcrComposite(Composite parent, int style, Item item,
-			boolean cacheImmediately) throws RepositoryException {
+	public JcrComposite(Composite parent, int style, Item item, boolean cacheImmediately) {
 		super(parent, style);
-		this.session = item.getSession();
-		if (!cacheImmediately && (SWT.READ_ONLY == (style & SWT.READ_ONLY))) {
-			// (useless?) optimization: we only save a pointer to the session,
-			// not even a reference to the item
-			this.nodeId = null;
-		} else {
-			Node node;
-			Property property = null;
-			if (item instanceof Node) {
-				node = (Node) item;
-			} else {// Property
-				property = (Property) item;
-				if (property.isMultiple())// TODO manage property index
-					throw new CmsException(
-							"Multiple properties not supported yet.");
-				this.property = property.getName();
-				node = property.getParent();
+		if (item != null)
+			try {
+				this.session = item.getSession();
+				if (!cacheImmediately && (SWT.READ_ONLY == (style & SWT.READ_ONLY))) {
+					// (useless?) optimization: we only save a pointer to the session,
+					// not even a reference to the item
+					this.nodeId = null;
+				} else {
+					Node node;
+					Property property = null;
+					if (item instanceof Node) {
+						node = (Node) item;
+					} else {// Property
+						property = (Property) item;
+						if (property.isMultiple())// TODO manage property index
+							throw new CmsException("Multiple properties not supported yet.");
+						this.property = property.getName();
+						node = property.getParent();
+					}
+					this.nodeId = node.getIdentifier();
+					if (cacheImmediately)
+						this.cache = node;
+				}
+				setLayout(CmsUiUtils.noSpaceGridLayout());
+			} catch (RepositoryException e) {
+				throw new IllegalStateException("Cannot create composite from " + item, e);
 			}
-			this.nodeId = node.getIdentifier();
-			if (cacheImmediately)
-				this.cache = node;
-		}
-		setLayout(CmsUiUtils.noSpaceGridLayout());
 	}
 
 	public synchronized Node getNode() {
@@ -89,12 +91,10 @@ public class JcrComposite extends Composite {
 				throw new CmsException("Item is not a Property");
 			Node node = getNodeInternal();
 			if (!node.hasProperty(property))
-				throw new CmsException("Property " + property
-						+ " is not set on " + node);
+				throw new CmsException("Property " + property + " is not set on " + node);
 			return node.getProperty(property);
 		} catch (RepositoryException e) {
-			throw new CmsException("Cannot get property " + property
-					+ " from node " + nodeId, e);
+			throw new CmsException("Cannot get property " + property + " from node " + nodeId, e);
 		}
 	}
 
@@ -103,7 +103,7 @@ public class JcrComposite extends Composite {
 	}
 
 	/** Set/update the cache or change the node */
-	public synchronized void setNode(Node node) throws RepositoryException {
+	public synchronized void setNode(Node node) {
 		if (!itemIsNode())
 			throw new CmsException("Cannot set a Node on a Property");
 
@@ -112,21 +112,25 @@ public class JcrComposite extends Composite {
 			return;
 		}
 
-		if (session == null || session != node.getSession())// check session
-			throw new CmsException("Uncompatible session");
-
-		if (nodeId == null || !nodeId.equals(node.getIdentifier())) {
-			nodeId = node.getIdentifier();
-			cache = node;
-			itemUpdated();
-		} else {
-			cache = node;// set/update cache
+		try {
+//			if (session != null || session != node.getSession())// check session
+//				throw new IllegalArgumentException("Uncompatible session");
+//			if (session == null)
+				session = node.getSession();
+			if (nodeId == null || !nodeId.equals(node.getIdentifier())) {
+				nodeId = node.getIdentifier();
+				cache = node;
+				itemUpdated();
+			} else {
+				cache = node;// set/update cache
+			}
+		} catch (RepositoryException e) {
+			throw new IllegalStateException(e);
 		}
 	}
 
 	/** Set/update the cache or change the property */
-	public synchronized void setProperty(Property prop)
-			throws RepositoryException {
+	public synchronized void setProperty(Property prop) {
 		if (itemIsNode())
 			throw new CmsException("Cannot set a Property on a Node");
 
@@ -135,18 +139,21 @@ public class JcrComposite extends Composite {
 			return;
 		}
 
-		if (session == null || session != prop.getSession())// check session
-			throw new CmsException("Uncompatible session");
+		try {
+			if (session == null || session != prop.getSession())// check session
+				throw new IllegalArgumentException("Uncompatible session");
 
-		Node node = prop.getNode();
-		if (nodeId == null || !nodeId.equals(node.getIdentifier())
-				|| !property.equals(prop.getName())) {
-			nodeId = node.getIdentifier();
-			property = prop.getName();
-			cache = node;
-			itemUpdated();
-		} else {
-			cache = node;// set/update cache
+			Node node = prop.getNode();
+			if (nodeId == null || !nodeId.equals(node.getIdentifier()) || !property.equals(prop.getName())) {
+				nodeId = node.getIdentifier();
+				property = prop.getName();
+				cache = node;
+				itemUpdated();
+			} else {
+				cache = node;// set/update cache
+			}
+		} catch (RepositoryException e) {
+			throw new IllegalStateException(e);
 		}
 	}
 
@@ -155,8 +162,7 @@ public class JcrComposite extends Composite {
 	}
 
 	/** Change the node, does nothing if same. */
-	public synchronized void setNodeId(String nodeId)
-			throws RepositoryException {
+	public synchronized void setNodeId(String nodeId) throws RepositoryException {
 		if (this.nodeId != null && this.nodeId.equals(nodeId))
 			return;
 		this.nodeId = nodeId;

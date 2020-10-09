@@ -3,6 +3,7 @@ package org.argeo.cms.web;
 import static org.eclipse.rap.rwt.internal.service.ContextProvider.getApplicationContext;
 
 import java.security.PrivilegedAction;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -213,6 +214,8 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 
 	@Override
 	public void sendEvent(String topic, Map<String, Object> properties) {
+		if (properties == null)
+			properties = new HashMap<>();
 		if (properties.containsKey(CMS_VIEW_UID_PROPERTY) && !properties.get(CMS_VIEW_UID_PROPERTY).equals(uid))
 			throw new IllegalArgumentException("Property " + CMS_VIEW_UID_PROPERTY + " is set to another CMS view uid ("
 					+ properties.get(CMS_VIEW_UID_PROPERTY) + ") then " + uid);

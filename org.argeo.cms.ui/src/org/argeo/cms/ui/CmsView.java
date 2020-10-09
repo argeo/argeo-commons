@@ -1,5 +1,6 @@
 package org.argeo.cms.ui;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.security.auth.login.LoginContext;
@@ -39,6 +40,16 @@ public interface CmsView {
 	 */
 	default void sendEvent(String topic, Map<String, Object> properties) {
 
+	}
+
+	/**
+	 * Convenience methods for when {@link #sendEvent(String, Map)} only requires
+	 * one single parameter.
+	 */
+	default void sendEvent(String topic, String param, Object value) {
+		Map<String, Object> properties = new HashMap<>();
+		properties.put(param, value);
+		sendEvent(topic, properties);
 	}
 
 	static CmsView getCmsView(Composite parent) {

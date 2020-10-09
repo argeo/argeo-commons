@@ -131,4 +131,9 @@ public interface NodeConstants {
 	 */
 	String NODE_REPOS_FACTORY_PID = "org.argeo.api.repos";
 	String NODE_USER_ADMIN_PID = "org.argeo.api.userAdmin";
+
+	/*
+	 * ENTITIES
+	 */
+	String DATA_TYPE = "argeo.data.type";
 }

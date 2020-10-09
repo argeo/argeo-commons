@@ -131,6 +131,17 @@ public class Jcr {
 		}
 	}
 
+	/**
+	 * If node has mixin {@link NodeType#MIX_TITLE}, return
+	 * {@link Property#JCR_TITLE}, otherwise return {@link #getName(Node)}.
+	 */
+	public static String getTitle(Node node) {
+		if (Jcr.isNodeType(node, NodeType.MIX_TITLE))
+			return get(node, Property.JCR_TITLE);
+		else
+			return Jcr.getName(node);
+	}
+
 	/** Accesses a {@link NodeIterator} as an {@link Iterable}. */
 	@SuppressWarnings("unchecked")
 	public static Iterable<Node> iterate(NodeIterator nodeIterator) {

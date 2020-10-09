@@ -29,11 +29,11 @@ public abstract class StyledControl extends JcrComposite implements CmsConstants
 		setLayout(CmsUiUtils.noSpaceGridLayout());
 	}
 
-	public StyledControl(Composite parent, int style, Item item) throws RepositoryException {
+	public StyledControl(Composite parent, int style, Item item) {
 		super(parent, style, item);
 	}
 
-	public StyledControl(Composite parent, int style, Item item, boolean cacheImmediately) throws RepositoryException {
+	public StyledControl(Composite parent, int style, Item item, boolean cacheImmediately) {
 		super(parent, style, item, cacheImmediately);
 	}
 
