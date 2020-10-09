@@ -37,27 +37,37 @@ public class TabbedArea extends Composite {
 
 	private String tabStyle;
 	private String tabSelectedStyle;
+	private String bodyStyle;
 	private Image closeIcon;
 
 	public TabbedArea(Composite parent, int style) {
 		super(parent, style);
+		CmsUiUtils.style(parent, bodyStyle);
 
 		setLayout(CmsUiUtils.noSpaceGridLayout());
 
 		// TODO manage tabs at bottom or sides
 		headers = new Composite(this, SWT.NONE);
 		headers.setLayoutData(CmsUiUtils.fillWidth());
+		// CmsUiUtils.style(headers, bodyStyle);
 		body = new Composite(this, SWT.NONE);
 		body.setLayoutData(CmsUiUtils.fillAll());
-
 		body.setLayout(new FormLayout());
 		emptyState();
 	}
 
 	protected void refreshTabHeaders() {
+		// TODO deal with initialisation better
+//		CmsUiUtils.style(body, bodyStyle);
+
+//		int tabCount = sections.size() > 0 ?(sections.size()>1?sections.size()+1:1)  : 1;
 		int tabCount = sections.size() > 0 ? sections.size() : 1;
 		for (Control tab : headers.getChildren())
 			tab.dispose();
+
+//		GridLayout headersGridLayout = new GridLayout(tabCount, true);
+//		headersGridLayout.marginHeight=0;
+//		headers.setLayout(headersGridLayout);
 		headers.setLayout(CmsUiUtils.noSpaceGridLayout(new GridLayout(tabCount, true)));
 
 		if (sections.size() == 0) {
@@ -77,6 +87,7 @@ public class TabbedArea extends Composite {
 			CmsUiUtils.style(sectionHeader, selected ? tabSelectedStyle : tabStyle);
 			int headerColumns = 2;
 			sectionHeader.setLayout(new GridLayout(headerColumns, false));
+			sectionHeader.setLayout(CmsUiUtils.noSpaceGridLayout(headerColumns));
 			Button title = new Button(sectionHeader, SWT.FLAT);
 			CmsUiUtils.style(title, selected ? tabSelectedStyle : tabStyle);
 			title.setLayoutData(CmsUiUtils.fillWidth());
@@ -84,14 +95,23 @@ public class TabbedArea extends Composite {
 			Node node = section.getNode();
 			title.setText(Jcr.getTitle(node));
 			ToolBar toolBar = new ToolBar(sectionHeader, SWT.NONE);
-			CmsUiUtils.style(toolBar, selected ? tabSelectedStyle : tabStyle);
+//			CmsUiUtils.style(toolBar, selected ? tabSelectedStyle : tabStyle);
 			ToolItem closeItem = new ToolItem(toolBar, SWT.FLAT);
 			if (closeIcon != null)
 				closeItem.setImage(closeIcon);
 			else
 				closeItem.setText("X");
+			CmsUiUtils.style(closeItem, selected ? tabSelectedStyle : tabStyle);
 			closeItem.addSelectionListener((Selected) (e) -> closeTab(section));
 		}
+
+//		if(sections.size()>1)
+//		{
+//			ToolBar toolBar = new ToolBar(headers, SWT.NONE);
+//			CmsUiUtils.style(toolBar, tabStyle);
+//			ToolItem closeAllItem = new ToolItem(toolBar, SWT.FLAT);
+//			closeAllItem.setText("X");
+//		}
 	}
 
 	public void view(CmsUiProvider uiProvider, Node context) {
@@ -161,6 +181,7 @@ public class TabbedArea extends Composite {
 	protected void build(Section section, CmsUiProvider uiProvider, Node context) {
 		for (Control child : section.getChildren())
 			child.dispose();
+		CmsUiUtils.style(section, bodyStyle);
 		section.setNode(context);
 		uiProvider.createUiPart(section, context);
 
@@ -209,6 +230,10 @@ public class TabbedArea extends Composite {
 
 	public void setTabSelectedStyle(String tabSelectedStyle) {
 		this.tabSelectedStyle = tabSelectedStyle;
+	}
+
+	public void setBodyStyle(String bodyStyle) {
+		this.bodyStyle = bodyStyle;
 	}
 
 	public void setCloseIcon(Image closeIcon) {

@@ -18,13 +18,23 @@ public class ScrolledPage extends Composite {
 	private ScrolledComposite scrolledComposite;
 
 	public ScrolledPage(Composite parent, int style) {
-		super(new ScrolledComposite(parent, SWT.V_SCROLL), style);
+		this(parent, style, false);
+	}
+
+	public ScrolledPage(Composite parent, int style, boolean alwaysShowScroll) {
+		super(createScrolledComposite(parent, alwaysShowScroll), style);
 		scrolledComposite = (ScrolledComposite) getParent();
 		scrolledComposite.setContent(this);
 
 		scrolledComposite.setExpandVertical(true);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.addControlListener(new ScrollControlListener());
+	}
+
+	private static ScrolledComposite createScrolledComposite(Composite parent, boolean alwaysShowScroll) {
+		ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.V_SCROLL);
+		scrolledComposite.setAlwaysShowScrollBars(alwaysShowScroll);
+		return scrolledComposite;
 	}
 
 	@Override
@@ -49,8 +59,7 @@ public class ScrolledPage extends Composite {
 		scrolledComposite.setLayoutData(layoutData);
 	}
 
-	private class ScrollControlListener extends
-			org.eclipse.swt.events.ControlAdapter {
+	private class ScrollControlListener extends org.eclipse.swt.events.ControlAdapter {
 		private static final long serialVersionUID = -3586986238567483316L;
 
 		public void controlResized(ControlEvent e) {
