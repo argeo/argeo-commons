@@ -82,7 +82,7 @@ public class TabbedArea extends Composite {
 			Button title = new Button(sectionHeader, SWT.FLAT);
 			CmsUiUtils.style(title, selected ? tabSelectedStyle : tabStyle);
 			title.setLayoutData(CmsUiUtils.fillWidth());
-			title.addSelectionListener((Selected) (e) -> section.moveAbove(null));
+			title.addSelectionListener((Selected) (e) -> showTab(tabIndex(section.getNode())));
 			Node node = section.getNode();
 			title.setText(Jcr.getTitle(node));
 			ToolBar toolBar = new ToolBar(sectionHeader, SWT.NONE);
