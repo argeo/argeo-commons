@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.argeo.api.NodeConstants;
 import org.argeo.api.NodeUtils;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.ui.CmsView;
 import org.argeo.eclipse.ui.Selected;
@@ -89,7 +88,7 @@ public class CmsUiUtils implements CmsConstants {
 				buf.append(':').append(url.getPort());
 			return buf;
 		} catch (MalformedURLException e) {
-			throw new CmsException("Cannot extract server base URL from " + request.getRequestURL(), e);
+			throw new IllegalArgumentException("Cannot extract server base URL from " + request.getRequestURL(), e);
 		}
 	}
 
@@ -100,7 +99,7 @@ public class CmsUiUtils implements CmsConstants {
 			buf.append(getDataPath(node));
 			return new URL(buf.toString()).toString();
 		} catch (MalformedURLException e) {
-			throw new CmsException("Cannot build data URL for " + node, e);
+			throw new IllegalArgumentException("Cannot build data URL for " + node, e);
 		}
 	}
 
@@ -136,15 +135,6 @@ public class CmsUiUtils implements CmsConstants {
 		return layout;
 	}
 
-	public static GridLayout standardSpaceGridLayout(GridLayout layout) {
-		layout.horizontalSpacing = 16;
-		layout.verticalSpacing = 16;
-		layout.marginWidth = 16;
-		layout.marginHeight = 16;
-		return layout;
-	}
-
-	
 	public static GridData fillAll() {
 		return new GridData(SWT.FILL, SWT.FILL, true, true);
 	}
