@@ -22,7 +22,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
-/** Manages {@link Section} in a tab-like structure.*/
+/** Manages {@link Section} in a tab-like structure. */
 public class TabbedArea extends Composite {
 	private static final long serialVersionUID = 8659669229482033444L;
 
@@ -38,8 +38,6 @@ public class TabbedArea extends Composite {
 	private String tabStyle;
 	private String tabSelectedStyle;
 	private Image closeIcon;
-
-	private long openingTimer = 500;
 
 	public TabbedArea(Composite parent, int style) {
 		super(parent, style);
@@ -67,7 +65,7 @@ public class TabbedArea extends Composite {
 			emptyHeader.setLayoutData(CmsUiUtils.fillAll());
 			emptyHeader.setLayout(new GridLayout());
 			Label lbl = new Label(emptyHeader, SWT.NONE);
-			lbl.setText("-");
+			lbl.setText("");
 			lbl.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
 
 		}
@@ -115,9 +113,7 @@ public class TabbedArea extends Composite {
 		currentUiProvider = uiProvider;
 		section.setNode(context);
 		section.setLayoutData(CmsUiUtils.coversAll());
-		for (Control child : section.getChildren())
-			child.dispose();
-		uiProvider.createUiPart(section, context);
+		build(section, uiProvider, context);
 		if (sections.size() == 0)
 			sections.add(section);
 		refreshTabHeaders();
@@ -125,12 +121,12 @@ public class TabbedArea extends Composite {
 	}
 
 	public void open(CmsUiProvider uiProvider, Node context) {
-		try {
-			if (openingTimer > 0)
-				Thread.sleep(openingTimer);
-		} catch (InterruptedException e) {
-			// silent
-		}
+//		try {
+//			if (openingTimer > 0)
+//				Thread.sleep(openingTimer);
+//		} catch (InterruptedException e) {
+//			// silent
+//		}
 
 		// int index = tabIndex(context);
 		if (previousNode != null && Jcr.getIdentifier(previousNode).equals(Jcr.getIdentifier(context))) {
@@ -141,15 +137,16 @@ public class TabbedArea extends Composite {
 			CmsUiUtils.clear(body);
 		Section currentSection = getCurrentSection();
 		int currentIndex = sections.indexOf(currentSection);
-		Section nextCurrentSection = new Section(body, SWT.NONE, context);
-		nextCurrentSection.setLayoutData(CmsUiUtils.coversAll());
-		sections.remove(currentSection);
-		sections.add(currentIndex, nextCurrentSection);
-		sections.add(currentSection);
-		nextCurrentSection.moveAbove(null);
-		if (previousNode != null) {
-			view(previousUiProvider, previousNode);
-		}
+		Section previousSection = new Section(body, SWT.NONE, context);
+		build(previousSection, previousUiProvider, previousNode);
+		previousSection.setLayoutData(CmsUiUtils.coversAll());
+//		sections.remove(currentSection);
+		sections.add(currentIndex + 1, previousSection);
+//		sections.add(currentSection);
+//		nextCurrentSection.moveAbove(null);
+//		if (previousNode != null) {
+//			view(previousUiProvider, previousNode);
+//		}
 		refreshTabHeaders();
 		layout(true, true);
 	}
@@ -159,6 +156,14 @@ public class TabbedArea extends Composite {
 		sectionToShow.moveAbove(null);
 		refreshTabHeaders();
 		layout(true, true);
+	}
+
+	protected void build(Section section, CmsUiProvider uiProvider, Node context) {
+		for (Control child : section.getChildren())
+			child.dispose();
+		section.setNode(context);
+		uiProvider.createUiPart(section, context);
+
 	}
 
 	private int tabIndex(Node node) {
@@ -209,9 +214,4 @@ public class TabbedArea extends Composite {
 	public void setCloseIcon(Image closeIcon) {
 		this.closeIcon = closeIcon;
 	}
-
-	public void setOpeningTimer(long openingTimer) {
-		this.openingTimer = openingTimer;
-	}
-
 }
