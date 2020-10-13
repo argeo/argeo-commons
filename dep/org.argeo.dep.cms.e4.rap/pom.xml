@@ -14,53 +14,9 @@
 		<!-- Argeo Commons -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.dep.cms.node</artifactId>
+			<artifactId>org.argeo.dep.cms.ui.rap</artifactId>
 			<version>2.1.89-SNAPSHOT</version>
 			<type>pom</type>
-		</dependency>
-
-		<!-- RWT -->
-		<dependency>
-			<groupId>org.argeo.tp.rap.e4</groupId>
-			<artifactId>org.eclipse.rap.rwt</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.rap.e4</groupId>
-			<artifactId>org.eclipse.core.commands</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.rap.e4</groupId>
-			<artifactId>org.eclipse.rap.jface</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.rap.e4</groupId>
-			<artifactId>org.eclipse.rap.filedialog</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.rap.e4</groupId>
-			<artifactId>org.eclipse.rap.fileupload</artifactId>
-		</dependency>
-
-		<!-- Argeo Commons UI -->
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.eclipse.ui</artifactId>
-			<version>2.1.89-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.eclipse.ui.rap</artifactId>
-			<version>2.1.89-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.cms.ui</artifactId>
-			<version>2.1.89-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.cms.ui.theme</artifactId>
-			<version>2.1.89-SNAPSHOT</version>
 		</dependency>
 
 		<!-- E4 Specific -->
@@ -180,10 +136,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp.rap.e4</groupId>
-			<artifactId>org.eclipse.rap.rwt.osgi</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.rap.e4</groupId>
 			<artifactId>org.eclipse.rap.jface.databinding</artifactId>
 		</dependency>
 		<dependency>
@@ -202,25 +154,6 @@
 			<groupId>org.argeo.tp.rap.e4</groupId>
 			<artifactId>org.eclipse.help</artifactId>
 		</dependency>
-
-		<!-- RAP Workbench -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.rap.ui</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.rap.ui.forms</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.rap.ui.views</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.rap.platform</groupId> -->
-		<!-- <artifactId>org.eclipse.rap.ui.workbench</artifactId> -->
-		<!-- </dependency> -->
-
 
 		<!-- Dependencies required / provided by Eclipse 4 -->
 		<dependency>
@@ -315,13 +248,6 @@
 			<artifactId>org.eclipse.e4.ui.workbench</artifactId>
 		</dependency>
 
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp</groupId> -->
-		<!-- <artifactId>argeo-tp-rap-e4</artifactId> -->
-		<!-- <version>${version.argeo-tp}</version> -->
-		<!-- <scope>provided</scope> -->
-		<!-- </dependency> -->
-
 		<!-- SDK -->
 		<dependency>
 			<groupId>org.argeo.tp.sdk</groupId>
@@ -389,7 +315,7 @@
 										</mapping>
 									</mappings>
 									<requires>
-										<require>argeo-cms-node</require>
+										<require>argeo-cms-ui-rap</require>
 										<require>argeo-cms-e4-rap-tp</require>
 									</requires>
 								</configuration>
@@ -452,7 +378,7 @@
 										</mapping>
 									</mappings>
 									<requires>
-										<require>argeo-cms-node-tp</require>
+										<require>argeo-cms-ui-rap-tp</require>
 									</requires>
 								</configuration>
 							</execution>
