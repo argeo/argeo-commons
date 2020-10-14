@@ -1,4 +1,4 @@
-package org.argeo.cms.ui.util;
+package org.argeo.cms.web;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,8 +28,8 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.ui.LifeCycleUiProvider;
-import org.argeo.cms.web.BundleResourceLoader;
-import org.argeo.cms.web.SimpleErgonomics;
+import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.cms.ui.util.StyleSheetResourceLoader;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.Application;

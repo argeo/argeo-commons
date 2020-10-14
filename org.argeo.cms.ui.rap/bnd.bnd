@@ -1,0 +1,7 @@
+Import-Package:\
+org.eclipse.swt,\
+org.argeo.eclipse.ui,\
+javax.jcr.nodetype,\
+javax.jcr.security,\
+org.eclipse.swt.graphics,\
+*

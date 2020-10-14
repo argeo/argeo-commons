@@ -37,6 +37,7 @@
 		<module>org.argeo.cms</module>
 		<module>org.argeo.cms.ui.theme</module>
 		<module>org.argeo.cms.ui</module>
+		<module>org.argeo.cms.ui.rap</module>
 		<!-- CMS E4 -->
 		<module>org.argeo.cms.e4</module>
 		<module>org.argeo.cms.e4.rap</module>
