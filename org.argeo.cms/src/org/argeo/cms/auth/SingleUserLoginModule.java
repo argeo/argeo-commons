@@ -21,6 +21,7 @@ import org.argeo.api.security.DataAdminPrincipal;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.naming.LdapAttrs;
 import org.argeo.osgi.useradmin.IpaUtils;
+import org.osgi.service.useradmin.Authorization;
 
 public class SingleUserLoginModule implements LoginModule {
 	private final static Log log = LogFactory.getLog(SingleUserLoginModule.class);
@@ -69,6 +70,10 @@ public class SingleUserLoginModule implements LoginModule {
 		principals.add(principal);
 		principals.add(new ImpliedByPrincipal(NodeConstants.ROLE_ADMIN, principal));
 		principals.add(new DataAdminPrincipal());
+		
+		Authorization authorization = new SingleUserAuthorization();
+		subject.getPrivateCredentials().add(authorization);
+
 		return true;
 	}
 
