@@ -1,17 +1,21 @@
 package org.argeo.cms.ui;
 
-import org.eclipse.rap.rwt.RWT;
+import org.argeo.eclipse.ui.specific.EclipseUiConstants;
 import org.eclipse.swt.graphics.Point;
 
 /** Commons constants */
 public interface CmsConstants {
 	// DATAKEYS
-	public final static String STYLE = RWT.CUSTOM_VARIANT;
-	public final static String MARKUP = RWT.MARKUP_ENABLED;
-	public final static String ITEM_HEIGHT = RWT.CUSTOM_ITEM_HEIGHT;
+	public final static String STYLE = EclipseUiConstants.CSS_CLASS;
+	public final static String MARKUP = EclipseUiConstants.MARKUP_SUPPORT;
+	@Deprecated
+	/* RWT.CUSTOM_ITEM_HEIGHT */
+	public final static String ITEM_HEIGHT = "org.eclipse.rap.rwt.customItemHeight";
 
 	// EVENT DETAILS
-	public final static int HYPERLINK = RWT.HYPERLINK;
+	@Deprecated
+	/* RWT.HYPERLINK */
+	public final static int HYPERLINK = 1 << 26;
 
 	// STANDARD RESOURCES
 	public final static String LOADING_IMAGE = "icons/loading.gif";

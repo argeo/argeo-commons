@@ -51,6 +51,10 @@ public interface CmsView {
 		properties.put(param, value);
 		sendEvent(topic, properties);
 	}
+	
+	default void applyStyles(Object widget) {
+		
+	}
 
 	static CmsView getCmsView(Composite parent) {
 		// find parent shell

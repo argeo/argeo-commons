@@ -181,18 +181,20 @@ public class CmsUiUtils implements CmsConstants {
 		if (style == null)
 			return widget;// does nothing
 		widget.setData(CmsConstants.STYLE, style);
+		if (widget instanceof Control)
+			CmsView.getCmsView(((Control) widget).getParent()).applyStyles(widget);
 		return widget;
 	}
 
 	/** Style widget */
 	public static <T extends Widget> T style(T widget, CmsStyle style) {
-		widget.setData(CmsConstants.STYLE, style.toStyleClass());
-		return widget;
+		return style(widget, style.toStyleClass());
 	}
 
 	/** Enable markups on widget */
 	public static <T extends Widget> T markup(T widget) {
-		widget.setData(CmsConstants.MARKUP, true);
+		if (CmsConstants.MARKUP != null)
+			widget.setData(CmsConstants.MARKUP, true);
 		return widget;
 	}
 
@@ -232,6 +234,7 @@ public class CmsUiUtils implements CmsConstants {
 		return text(new Text(parent, SWT.NONE), txt);
 	}
 
+	@Deprecated
 	public static void setItemHeight(Table table, int height) {
 		table.setData(CmsConstants.ITEM_HEIGHT, height);
 	}
