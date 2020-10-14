@@ -19,8 +19,14 @@ public interface CmsTheme {
 	 */
 	InputStream getResourceAsStream(String resourceName) throws IOException;
 
+	/** Relative paths to standard web CSS. */
+	Set<String> getWebCssPaths();
+
 	/** Relative paths to RAP specific CSS. */
 	Set<String> getRapCssPaths();
+
+	/** Relative paths to SWT specific CSS. */
+	Set<String> getSwtCssPaths();
 
 	/** Relative paths to images such as icons. */
 	Set<String> getImagesPaths();
@@ -33,6 +39,9 @@ public interface CmsTheme {
 
 	/** The default icon size (typically the smallest). */
 	Integer getDefaultIconSize();
+
+	/** Loads one of the relative path provided by the other methods. */
+	InputStream loadPath(String path) throws IOException;
 
 	/**
 	 * And icon with this file name (without the extension), with a best effort to

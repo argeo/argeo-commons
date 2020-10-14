@@ -15,8 +15,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import org.argeo.cms.ui.CmsTheme;
-import org.eclipse.swt.graphics.Image;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
@@ -38,14 +36,19 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 //	private final static Log log = LogFactory.getLog(BundleCmsTheme.class);
 
 	private String themeId;
+	private Set<String> webCssPaths = new TreeSet<>();
 	private Set<String> rapCssPaths = new TreeSet<>();
+	private Set<String> swtCssPaths = new TreeSet<>();
 	private Set<String> imagesPaths = new TreeSet<>();
 
 	private String headerCss;
 	private List<String> fonts = new ArrayList<>();
 
 	private String basePath;
-	private String rapCssPath;
+	private String styleCssPath;
+//	private String webCssPath;
+//	private String rapCssPath;
+//	private String swtCssPath;
 	private Bundle themeBundle;
 
 	public BundleCmsTheme() {
@@ -79,10 +82,15 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 			themeBundle = findThemeBundle(bundleContext, symbolicName);
 		}
 		basePath = "/";
-		rapCssPath = "/rap/";
+		styleCssPath = "/style/";
+//		webCssPath = "/css/";
+//		rapCssPath = "/rap/";
+//		swtCssPath = "/swt/";
 //		this.themeId = RWT.DEFAULT_THEME_ID;
 		this.themeId = themeBundle.getSymbolicName();
-		addRapStyleSheets(themeBundle);
+		webCssPaths = addCss(themeBundle, "/css/");
+		rapCssPaths = addCss(themeBundle, "/rap/");
+		swtCssPaths = addCss(themeBundle, "/swt/");
 		addResources("*.png");
 		addResources("*.gif");
 		addResources("*.jpg");
@@ -125,23 +133,33 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 			return sb.toString();
 	}
 
-	void addRapStyleSheets(Bundle themeBundle) {
-		Enumeration<URL> themeResources = themeBundle.findEntries(rapCssPath, "*.css", true);
+	Set<String> addCss(Bundle themeBundle, String path) {
+		Set<String> paths = new TreeSet<>();
+		Enumeration<URL> themeResources = themeBundle.findEntries(path, "*.css", true);
 		if (themeResources == null)
-			return;
+			return paths;
 		while (themeResources.hasMoreElements()) {
 			String resource = themeResources.nextElement().getPath();
 			// remove first '/' so that RWT registers it
 			resource = resource.substring(1);
 			if (!resource.endsWith("/")) {
-//				if (rapCss.containsKey(resource))
-//					log.warn("Overriding " + resource + " from " + themeBundle.getSymbolicName());
-//				rapCss.put(resource, ssRL);
-				rapCssPaths.add(resource);
+				paths.add(resource);
 			}
-
 		}
 
+		// common CSS
+		Enumeration<URL> commonResources = themeBundle.findEntries(styleCssPath, "*.css", true);
+		if (commonResources == null)
+			return paths;
+		while (commonResources.hasMoreElements()) {
+			String resource = commonResources.nextElement().getPath();
+			// remove first '/' so that RWT registers it
+			resource = resource.substring(1);
+			if (!resource.endsWith("/")) {
+				paths.add(resource);
+			}
+		}
+		return paths;
 	}
 
 	void loadFontsUrl(URL url) {
@@ -193,7 +211,6 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 	public String getThemeId() {
 		return themeId;
 	}
-	
 
 //	public void setThemeId(String themeId) {
 //		this.themeId = themeId;
@@ -216,13 +233,32 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 //	}
 
 	@Override
+	public Set<String> getWebCssPaths() {
+		return webCssPaths;
+	}
+
+	@Override
 	public Set<String> getRapCssPaths() {
 		return rapCssPaths;
 	}
 
 	@Override
+	public Set<String> getSwtCssPaths() {
+		return swtCssPaths;
+	}
+
+	@Override
 	public Set<String> getImagesPaths() {
 		return imagesPaths;
+	}
+
+	@Override
+	public InputStream loadPath(String path) throws IOException {
+		URL url = themeBundle.getResource(path);
+		if (url == null)
+			throw new IllegalArgumentException(
+					"Path " + path + " not found in bundle " + themeBundle.getSymbolicName());
+		return url.openStream();
 	}
 
 	private static Bundle findThemeBundle(BundleContext bundleContext, String themeId) {
