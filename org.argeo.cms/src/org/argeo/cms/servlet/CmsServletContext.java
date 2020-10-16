@@ -1,4 +1,4 @@
-package org.argeo.cms.internal.http;
+package org.argeo.cms.servlet;
 
 import java.io.IOException;
 import java.net.URL;
@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
+import org.argeo.cms.internal.http.HttpUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.http.context.ServletContextHelper;
@@ -21,8 +22,8 @@ import org.osgi.service.http.context.ServletContextHelper;
  * Default servlet context degrading to anonymous if the the sesison is not
  * pre-authenticated.
  */
-public class CmsServletContextHelper extends ServletContextHelper {
-	private final static Log log = LogFactory.getLog(CmsServletContextHelper.class);
+public class CmsServletContext extends ServletContextHelper {
+	private final static Log log = LogFactory.getLog(CmsServletContext.class);
 	// use CMS bundle for resources
 	private Bundle bundle = FrameworkUtil.getBundle(getClass());
 
@@ -44,6 +45,8 @@ public class CmsServletContextHelper extends ServletContextHelper {
 			lc.login();
 		} catch (LoginException e) {
 			lc = processUnauthorized(request, response);
+			if (log.isTraceEnabled())
+				HttpUtils.logResponseHeaders(log, response);
 			if (lc == null)
 				return false;
 		}

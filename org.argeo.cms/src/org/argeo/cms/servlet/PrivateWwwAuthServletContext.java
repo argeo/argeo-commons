@@ -1,11 +1,13 @@
-package org.argeo.cms.internal.http;
+package org.argeo.cms.servlet;
 
 import javax.security.auth.login.LoginContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.argeo.cms.internal.http.HttpUtils;
+
 /** Servlet context forcing authentication. */
-public class PrivateServletContextHelper extends CmsServletContextHelper {
+public class PrivateWwwAuthServletContext extends CmsServletContext {
 	// TODO make it configurable
 	private final String httpAuthRealm = "Argeo";
 	private final boolean forceBasic = false;
@@ -17,7 +19,6 @@ public class PrivateServletContextHelper extends CmsServletContextHelper {
 	}
 
 	protected void askForWwwAuth(HttpServletRequest request, HttpServletResponse response) {
-		response.setStatus(401);
 		// response.setHeader(HttpUtils.HEADER_WWW_AUTHENTICATE, "basic
 		// realm=\"" + httpAuthRealm + "\"");
 		if (org.argeo.cms.internal.kernel.Activator.getAcceptorCredentials() != null && !forceBasic)// SPNEGO
@@ -31,7 +32,7 @@ public class PrivateServletContextHelper extends CmsServletContextHelper {
 		// response.setHeader("Accept-Ranges", "bytes");
 		// response.setHeader("Connection", "Keep-Alive");
 		// response.setHeader("Keep-Alive", "timeout=5, max=97");
-		// response.setContentType("text/html; charset=UTF-8");
-
+		// response.setContentType("text/html; charset=UTF-8");		
+		response.setStatus(401);
 	}
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="init" deactivate="destroy" name="org.argeo.cms.jcrServletContext">
-   <implementation class="org.argeo.cms.internal.http.PrivateServletContextHelper"/>
+   <implementation class="org.argeo.cms.servlet.PrivateWwwAuthServletContext"/>
    <service>
       <provide interface="org.osgi.service.http.context.ServletContextHelper"/>
    </service>

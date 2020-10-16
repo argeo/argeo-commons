@@ -3,6 +3,7 @@ package org.argeo.cms.internal.http;
 import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 
@@ -19,6 +20,15 @@ public class HttpUtils {
 				|| userAgent.contains("opera") || userAgent.contains("browser");
 	}
 
+	public static void logResponseHeaders(Log log, HttpServletResponse response) {
+		if (!log.isDebugEnabled())
+			return;
+		for (String headerName : response.getHeaderNames()) {
+			Object headerValue = response.getHeader(headerName);
+			log.debug(headerName + ": " + headerValue);
+		}
+	}
+
 	public static void logRequestHeaders(Log log, HttpServletRequest request) {
 		if (!log.isDebugEnabled())
 			return;
@@ -30,7 +40,7 @@ public class HttpUtils {
 		log.debug(request.getRequestURI() + "\n");
 	}
 
-	public static void logRequest(Log log,HttpServletRequest request) {
+	public static void logRequest(Log log, HttpServletRequest request) {
 		log.debug("contextPath=" + request.getContextPath());
 		log.debug("servletPath=" + request.getServletPath());
 		log.debug("requestURI=" + request.getRequestURI());
@@ -56,7 +66,6 @@ public class HttpUtils {
 		}
 		log.debug("\n" + buf);
 	}
-
 
 	private HttpUtils() {
 
