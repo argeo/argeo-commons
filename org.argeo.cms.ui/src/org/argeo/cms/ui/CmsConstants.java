@@ -1,13 +1,12 @@
 package org.argeo.cms.ui;
 
-import org.argeo.eclipse.ui.specific.EclipseUiConstants;
 import org.eclipse.swt.graphics.Point;
 
 /** Commons constants */
 public interface CmsConstants {
 	// DATAKEYS
-	public final static String STYLE = EclipseUiConstants.CSS_CLASS;
-	public final static String MARKUP = EclipseUiConstants.MARKUP_SUPPORT;
+//	public final static String STYLE = EclipseUiConstants.CSS_CLASS;
+//	public final static String MARKUP = EclipseUiConstants.MARKUP_SUPPORT;
 	@Deprecated
 	/* RWT.CUSTOM_ITEM_HEIGHT */
 	public final static String ITEM_HEIGHT = "org.eclipse.rap.rwt.customItemHeight";

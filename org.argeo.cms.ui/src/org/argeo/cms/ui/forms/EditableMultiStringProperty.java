@@ -30,7 +30,7 @@ public class EditableMultiStringProperty extends StyledControl implements Editab
 	private String propertyName;
 	private String message;
 	// TODO implement the ability to provide a list of possible values
-	private String[] possibleValues;
+//	private String[] possibleValues;
 	private boolean canEdit;
 	private SelectionListener removeValueSL;
 	private List<String> values;
@@ -50,7 +50,7 @@ public class EditableMultiStringProperty extends StyledControl implements Editab
 
 		this.propertyName = propertyName;
 		this.values = values;
-		this.possibleValues = new String[]{"Un", "Deux", "Trois"};
+//		this.possibleValues = new String[] { "Un", "Deux", "Trois" };
 		this.message = addValueMsg;
 		this.canEdit = removeValueSelectionListener != null;
 		this.removeValueSL = removeValueSelectionListener;
@@ -107,10 +107,10 @@ public class EditableMultiStringProperty extends StyledControl implements Editab
 	}
 
 	/**
-	 * Override to provide specific layout for the existing values, typically
-	 * adding a pound (#) char for tags or anchor info for browsable links. We
-	 * assume the parent composite already has a layout and it is the caller
-	 * responsibility to apply corresponding layout data
+	 * Override to provide specific layout for the existing values, typically adding
+	 * a pound (#) char for tags or anchor info for browsable links. We assume the
+	 * parent composite already has a layout and it is the caller responsibility to
+	 * apply corresponding layout data
 	 */
 	protected Label createValueLabel(Composite parent, int style, String value) {
 		Label label = new Label(parent, style);
@@ -244,12 +244,14 @@ public class EditableMultiStringProperty extends StyledControl implements Editab
 	}
 
 	public synchronized void startEditing() {
-		getControl().setData(STYLE, FormStyle.propertyText.style());
+		CmsUiUtils.style(getControl(), FormStyle.propertyText.style());
+//		getControl().setData(STYLE, FormStyle.propertyText.style());
 		super.startEditing();
 	}
 
 	public synchronized void stopEditing() {
-		getControl().setData(STYLE, FormStyle.propertyMessage.style());
+		CmsUiUtils.style(getControl(), FormStyle.propertyMessage.style());
+//		getControl().setData(STYLE, FormStyle.propertyMessage.style());
 		super.stopEditing();
 	}
 

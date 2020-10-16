@@ -1,7 +1,9 @@
 package org.argeo.cms.ui.forms;
 
+import org.argeo.cms.ui.util.CmsStyle;
+
 /** Syles used */
-public enum FormStyle {
+public enum FormStyle implements CmsStyle {
 	// Main
 	form, title,
 	// main part

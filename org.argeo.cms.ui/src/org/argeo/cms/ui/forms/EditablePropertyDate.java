@@ -51,14 +51,12 @@ public class EditablePropertyDate extends StyledControl implements EditablePart 
 	 * @param node
 	 * @param propertyName
 	 * @param message
-	 * @param dateFormat
-	 *            provide a {@link DateFormat} as contract to be able to
-	 *            read/write dates as strings
+	 * @param dateFormat   provide a {@link DateFormat} as contract to be able to
+	 *                     read/write dates as strings
 	 * @throws RepositoryException
 	 */
-	public EditablePropertyDate(Composite parent, int style, Node node,
-			String propertyName, String message, DateFormat dateFormat)
-			throws RepositoryException {
+	public EditablePropertyDate(Composite parent, int style, Node node, String propertyName, String message,
+			DateFormat dateFormat) throws RepositoryException {
 		super(parent, style, node, false);
 
 		this.propertyName = propertyName;
@@ -67,8 +65,7 @@ public class EditablePropertyDate extends StyledControl implements EditablePart 
 
 		if (node.hasProperty(propertyName)) {
 			this.setStyle(FormStyle.propertyText.style());
-			this.setText(dateFormat.format(node.getProperty(propertyName)
-					.getDate().getTime()));
+			this.setText(dateFormat.format(node.getProperty(propertyName).getDate().getTime()));
 		} else {
 			this.setStyle(FormStyle.propertyMessage.style());
 			this.setText(message);
@@ -94,15 +91,18 @@ public class EditablePropertyDate extends StyledControl implements EditablePart 
 
 	public synchronized void startEditing() {
 		// if (dateTxt != null && !dateTxt.isDisposed())
-		getControl().setData(STYLE, FormStyle.propertyText.style());
+		CmsUiUtils.style(getControl(), FormStyle.propertyText);
+//		getControl().setData(STYLE, FormStyle.propertyText.style());
 		super.startEditing();
 	}
 
 	public synchronized void stopEditing() {
 		if (EclipseUiUtils.isEmpty(dateTxt.getText()))
-			getControl().setData(STYLE, FormStyle.propertyMessage.style());
+			CmsUiUtils.style(getControl(), FormStyle.propertyMessage);
+//			getControl().setData(STYLE, FormStyle.propertyMessage.style());
 		else
-			getControl().setData(STYLE, FormStyle.propertyText.style());
+			CmsUiUtils.style(getControl(), FormStyle.propertyText);
+//		getControl().setData(STYLE, FormStyle.propertyText.style());
 		super.stopEditing();
 	}
 
@@ -131,19 +131,16 @@ public class EditablePropertyDate extends StyledControl implements EditablePart 
 	private Control createCustomEditableControl(Composite box, String style) {
 		box.setLayoutData(CmsUiUtils.fillWidth());
 		Composite dateComposite = new Composite(box, SWT.NONE);
-		GridLayout gl = EclipseUiUtils.noSpaceGridLayout(new GridLayout(2,
-				false));
+		GridLayout gl = EclipseUiUtils.noSpaceGridLayout(new GridLayout(2, false));
 		gl.horizontalSpacing = fieldBtnSpacing;
 		dateComposite.setLayout(gl);
 		dateTxt = new Text(dateComposite, SWT.BORDER);
 		CmsUiUtils.style(dateTxt, style);
 		dateTxt.setLayoutData(new GridData(120, SWT.DEFAULT));
-		dateTxt.setToolTipText("Enter a date with form \""
-				+ FormUtils.DEFAULT_SHORT_DATE_FORMAT
-				+ "\" or use the calendar");
+		dateTxt.setToolTipText(
+				"Enter a date with form \"" + FormUtils.DEFAULT_SHORT_DATE_FORMAT + "\" or use the calendar");
 		openCalBtn = new Button(dateComposite, SWT.FLAT);
-		CmsUiUtils.style(openCalBtn, FormStyle.calendar.style()
-				+ FormStyle.BUTTON_SUFFIX);
+		CmsUiUtils.style(openCalBtn, FormStyle.calendar.style() + FormStyle.BUTTON_SUFFIX);
 		GridData gd = new GridData(SWT.CENTER, SWT.CENTER, false, false);
 		gd.heightHint = 17;
 		openCalBtn.setLayoutData(gd);
@@ -231,8 +228,7 @@ public class EditablePropertyDate extends StyledControl implements EditablePart 
 			CmsUiUtils.style(CalendarPopup.this, FormStyle.popupCalendar.style());
 			pack();
 			layout();
-			setLocation(source.toDisplay((source.getLocation().x - 2),
-					(source.getSize().y) + 3));
+			setLocation(source.toDisplay((source.getLocation().x - 2), (source.getSize().y) + 3));
 
 			addShellListener(new ShellAdapter() {
 				private static final long serialVersionUID = 5178980294808435833L;
@@ -264,12 +260,10 @@ public class EditablePropertyDate extends StyledControl implements EditablePart 
 			dateTimeCtl = new DateTime(this, SWT.CALENDAR);
 			dateTimeCtl.setLayoutData(EclipseUiUtils.fillAll());
 
-			Calendar calendar = FormUtils.parseDate(dateFormat,
-					dateTxt.getText());
+			Calendar calendar = FormUtils.parseDate(dateFormat, dateTxt.getText());
 
 			if (calendar != null)
-				dateTimeCtl.setDate(calendar.get(Calendar.YEAR),
-						calendar.get(Calendar.MONTH),
+				dateTimeCtl.setDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
 						calendar.get(Calendar.DAY_OF_MONTH));
 
 			dateTimeCtl.addSelectionListener(new SelectionAdapter() {

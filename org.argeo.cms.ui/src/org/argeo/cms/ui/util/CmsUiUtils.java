@@ -16,6 +16,7 @@ import org.argeo.api.NodeUtils;
 import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.ui.CmsView;
 import org.argeo.eclipse.ui.Selected;
+import org.argeo.eclipse.ui.specific.EclipseUiSpecificUtils;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.ResourceManager;
@@ -180,7 +181,7 @@ public class CmsUiUtils implements CmsConstants {
 	public static <T extends Widget> T style(T widget, String style) {
 		if (style == null)
 			return widget;// does nothing
-		widget.setData(CmsConstants.STYLE, style);
+		EclipseUiSpecificUtils.setStyleData(widget, style);
 		if (widget instanceof Control)
 			CmsView.getCmsView(((Control) widget).getParent()).applyStyles(widget);
 		return widget;
@@ -193,8 +194,7 @@ public class CmsUiUtils implements CmsConstants {
 
 	/** Enable markups on widget */
 	public static <T extends Widget> T markup(T widget) {
-		if (CmsConstants.MARKUP != null)
-			widget.setData(CmsConstants.MARKUP, true);
+		EclipseUiSpecificUtils.setMarkupData(widget);
 		return widget;
 	}
 

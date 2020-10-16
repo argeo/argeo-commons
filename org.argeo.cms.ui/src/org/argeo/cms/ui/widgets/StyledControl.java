@@ -1,10 +1,10 @@
 package org.argeo.cms.ui.widgets;
 
 import javax.jcr.Item;
-import javax.jcr.RepositoryException;
 
 import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.eclipse.ui.specific.EclipseUiSpecificUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseListener;
@@ -59,7 +59,7 @@ public abstract class StyledControl extends JcrComposite implements CmsConstants
 		assert !isEditing();
 		editing = true;
 		// int height = control.getSize().y;
-		String style = (String) control.getData(STYLE);
+		String style = (String) EclipseUiSpecificUtils.getStyleData(control);
 		clear(false);
 		control = createControl(box, style);
 		setControlLayoutData(control);
@@ -72,7 +72,7 @@ public abstract class StyledControl extends JcrComposite implements CmsConstants
 	public synchronized void stopEditing() {
 		assert isEditing();
 		editing = false;
-		String style = (String) control.getData(STYLE);
+		String style = (String) EclipseUiSpecificUtils.getStyleData(control);
 		clear(false);
 		control = createControl(box, style);
 		setControlLayoutData(control);
@@ -81,7 +81,7 @@ public abstract class StyledControl extends JcrComposite implements CmsConstants
 	public void setStyle(String style) {
 		Object currentStyle = null;
 		if (control != null)
-			currentStyle = control.getData(STYLE);
+			currentStyle = EclipseUiSpecificUtils.getStyleData(control);
 		if (currentStyle != null && currentStyle.equals(style))
 			return;
 
@@ -91,8 +91,10 @@ public abstract class StyledControl extends JcrComposite implements CmsConstants
 		control = createControl(box, style);
 		setControlLayoutData(control);
 
-		control.getParent().setData(STYLE, style + "_box");
-		control.getParent().getParent().setData(STYLE, style + "_container");
+//		control.getParent().setData(STYLE, style + "_box");
+		EclipseUiSpecificUtils.setStyleData(control.getParent(), style + "_box");
+//		control.getParent().getParent().setData(STYLE, style + "_container");
+		EclipseUiSpecificUtils.setStyleData(control.getParent().getParent(), style + "_container");
 	}
 
 	/** To be overridden */

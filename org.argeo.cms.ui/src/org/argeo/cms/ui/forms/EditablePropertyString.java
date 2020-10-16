@@ -6,6 +6,7 @@ import static org.argeo.cms.ui.forms.FormStyle.propertyText;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
+import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.cms.ui.viewers.EditablePart;
 import org.argeo.cms.ui.widgets.EditableText;
 import org.argeo.eclipse.ui.EclipseUiUtils;
@@ -15,8 +16,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 /** Editable String in a CMS context */
-public class EditablePropertyString extends EditableText implements
-		EditablePart {
+public class EditablePropertyString extends EditableText implements EditablePart {
 	private static final long serialVersionUID = 5055000749992803591L;
 
 	private String propertyName;
@@ -26,8 +26,8 @@ public class EditablePropertyString extends EditableText implements
 	private final static String AMPERSAND = "&#38;";
 	private final static String AMPERSAND_REGEX = "&(?![#a-zA-Z0-9]+;)";
 
-	public EditablePropertyString(Composite parent, int style, Node node,
-			String propertyName, String message) throws RepositoryException {
+	public EditablePropertyString(Composite parent, int style, Node node, String propertyName, String message)
+			throws RepositoryException {
 		super(parent, style, node, true);
 
 		this.propertyName = propertyName;
@@ -62,15 +62,18 @@ public class EditablePropertyString extends EditableText implements
 	}
 
 	public synchronized void startEditing() {
-		getControl().setData(STYLE, propertyText.style());
+		CmsUiUtils.style(getControl(), FormStyle.propertyText);
+//		getControl().setData(STYLE, propertyText.style());
 		super.startEditing();
 	}
 
 	public synchronized void stopEditing() {
 		if (EclipseUiUtils.isEmpty(((Text) getControl()).getText()))
-			getControl().setData(STYLE, propertyMessage.style());
+			CmsUiUtils.style(getControl(), FormStyle.propertyMessage);
+//			getControl().setData(STYLE, propertyMessage.style());
 		else
-			getControl().setData(STYLE, propertyText.style());
+			CmsUiUtils.style(getControl(), FormStyle.propertyText);
+//			getControl().setData(STYLE, propertyText.style());
 		super.stopEditing();
 	}
 
