@@ -14,7 +14,6 @@ public class CmsLoginShell extends CmsLogin {
 	public CmsLoginShell(CmsView cmsView) {
 		super(cmsView);
 		shell = createShell();
-		CmsUiUtils.style(shell, CMS_USER_MENU);
 //		createUi(shell);
 	}
 
@@ -27,6 +26,7 @@ public class CmsLoginShell extends CmsLogin {
 
 	/** To be overridden. */
 	public void open() {
+		CmsUiUtils.style(shell, CMS_USER_MENU);
 		shell.open();
 	}
 
