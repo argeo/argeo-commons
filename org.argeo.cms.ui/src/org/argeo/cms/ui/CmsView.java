@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.security.auth.login.LoginContext;
 
-import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
 /** Provides interaction with the CMS system. */
@@ -56,7 +56,7 @@ public interface CmsView {
 		
 	}
 
-	static CmsView getCmsView(Composite parent) {
+	static CmsView getCmsView(Control parent) {
 		// find parent shell
 		Shell topShell = parent.getShell();
 		while (topShell.getParent() != null)

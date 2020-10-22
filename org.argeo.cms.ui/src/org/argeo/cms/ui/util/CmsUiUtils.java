@@ -182,8 +182,9 @@ public class CmsUiUtils implements CmsConstants {
 		if (style == null)
 			return widget;// does nothing
 		EclipseUiSpecificUtils.setStyleData(widget, style);
-		if (widget instanceof Control)
-			CmsView.getCmsView(((Control) widget).getParent()).applyStyles(widget);
+		if (widget instanceof Control) {
+			CmsView.getCmsView((Control) widget).applyStyles(widget);
+		}
 		return widget;
 	}
 
