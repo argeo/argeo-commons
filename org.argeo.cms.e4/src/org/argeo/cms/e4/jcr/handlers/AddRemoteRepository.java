@@ -134,7 +134,7 @@ public class AddRemoteRepository {
 				Repository repository = repositoryFactory.getRepository(params);
 				if (username.getText().trim().equals("")) {// anonymous
 					// FIXME make it more generic
-					session = repository.login("main");
+					session = repository.login(NodeConstants.SYS_WORKSPACE);
 				} else {
 					// FIXME use getTextChars() when upgrading to 3.7
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=297412

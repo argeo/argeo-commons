@@ -29,10 +29,12 @@ public interface NodeConstants {
 	 */
 	String NODE_REPOSITORY = NODE;
 	String EGO_REPOSITORY = "ego";
+	String SYS_WORKSPACE = "sys";
 	String HOME_WORKSPACE = "home";
 	String SRV_WORKSPACE = "srv";
 	String GUESTS_WORKSPACE = "guests";
 	String PUBLIC_WORKSPACE = "public";
+	String SECURITY_WORKSPACE = "security";
 
 	/*
 	 * BASE DNs

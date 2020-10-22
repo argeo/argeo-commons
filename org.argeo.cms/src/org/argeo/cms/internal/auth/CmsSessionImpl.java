@@ -3,6 +3,7 @@ package org.argeo.cms.internal.auth;
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.time.ZonedDateTime;
 import java.util.Collection;
@@ -28,7 +29,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
 import org.argeo.api.security.NodeSecurityUtils;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CmsSession;
 import org.argeo.jcr.JcrUtils;
 import org.osgi.framework.BundleContext;
@@ -79,7 +79,7 @@ public class CmsSessionImpl implements CmsSession {
 				this.userDn = new LdapName(authorization.getName());
 				this.anonymous = false;
 			} catch (InvalidNameException e) {
-				throw new CmsException("Invalid user name " + authorization.getName(), e);
+				throw new IllegalArgumentException("Invalid user name " + authorization.getName(), e);
 			}
 		else {
 			this.userDn = NodeSecurityUtils.ROLE_ANONYMOUS_NAME;
@@ -135,7 +135,7 @@ public class CmsSessionImpl implements CmsSession {
 	public synchronized Session getDataSession(String cn, String workspace, Repository repository) {
 		// FIXME make it more robust
 		if (workspace == null)
-			workspace = "main";
+			workspace = NodeConstants.SYS_WORKSPACE;
 		String path = cn + '/' + workspace;
 		if (dataSessionsInUse.contains(path)) {
 			try {
@@ -173,8 +173,8 @@ public class CmsSessionImpl implements CmsSession {
 					return repository.login(workspace);
 				}
 			});
-		} catch (Exception e) {
-			throw new CmsException("Cannot log in " + userDn + " to JCR", e);
+		} catch (PrivilegedActionException e) {
+			throw new IllegalStateException("Cannot log in " + userDn + " to JCR", e);
 		}
 	}
 
@@ -256,7 +256,7 @@ public class CmsSessionImpl implements CmsSession {
 		try {
 			sr = bc.getServiceReferences(CmsSession.class, "(" + CmsSession.SESSION_LOCAL_ID + "=" + localId + ")");
 		} catch (InvalidSyntaxException e) {
-			throw new CmsException("Cannot get CMS session for id " + localId, e);
+			throw new IllegalArgumentException("Cannot get CMS session for id " + localId, e);
 		}
 		ServiceReference<CmsSession> cmsSessionRef;
 		if (sr.size() == 1) {
@@ -265,7 +265,7 @@ public class CmsSessionImpl implements CmsSession {
 		} else if (sr.size() == 0) {
 			return null;
 		} else
-			throw new CmsException(sr.size() + " CMS sessions registered for " + localId);
+			throw new IllegalStateException(sr.size() + " CMS sessions registered for " + localId);
 
 	}
 
@@ -274,7 +274,7 @@ public class CmsSessionImpl implements CmsSession {
 		try {
 			sr = bc.getServiceReferences(CmsSession.class, "(" + CmsSession.SESSION_UUID + "=" + uuid + ")");
 		} catch (InvalidSyntaxException e) {
-			throw new CmsException("Cannot get CMS session for uuid " + uuid, e);
+			throw new IllegalArgumentException("Cannot get CMS session for uuid " + uuid, e);
 		}
 		ServiceReference<CmsSession> cmsSessionRef;
 		if (sr.size() == 1) {
@@ -283,7 +283,7 @@ public class CmsSessionImpl implements CmsSession {
 		} else if (sr.size() == 0) {
 			return null;
 		} else
-			throw new CmsException(sr.size() + " CMS sessions registered for " + uuid);
+			throw new IllegalStateException(sr.size() + " CMS sessions registered for " + uuid);
 
 	}
 
@@ -300,7 +300,7 @@ public class CmsSessionImpl implements CmsSession {
 				}
 			}
 		} catch (InvalidSyntaxException e) {
-			throw new CmsException("Cannot get CMS sessions", e);
+			throw new IllegalArgumentException("Cannot get CMS sessions", e);
 		}
 	}
 }

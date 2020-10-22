@@ -9,6 +9,7 @@ import javax.jcr.RepositoryException;
 import javax.script.Invocable;
 import javax.script.ScriptException;
 
+import org.argeo.api.NodeConstants;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.ui.util.CmsPane;
 import org.argeo.cms.ui.util.CmsUiUtils;
@@ -53,7 +54,8 @@ public class AppUi implements CmsUiProvider, Branding {
 
 	public AppUi(CmsScriptApp app, String scriptPath) {
 		this.app = app;
-		this.ui = new ScriptUi((BundleContext) app.getScriptEngine().get(CmsScriptRwtApplication.BC), app.getScriptEngine(), scriptPath);
+		this.ui = new ScriptUi((BundleContext) app.getScriptEngine().get(CmsScriptRwtApplication.BC),
+				app.getScriptEngine(), scriptPath);
 	}
 
 	public AppUi(CmsScriptApp app, CmsUiProvider uiProvider) {
@@ -77,8 +79,8 @@ public class AppUi implements CmsUiProvider, Branding {
 			EntryPointFactory entryPointFactory = new EntryPointFactory() {
 				@Override
 				public EntryPoint create() {
-					SimpleErgonomics ergonomics = new SimpleErgonomics(repository, "main", "/home/root/argeo:keyring",
-							AppUi.this, factoryProperties);
+					SimpleErgonomics ergonomics = new SimpleErgonomics(repository, NodeConstants.SYS_WORKSPACE,
+							"/home/root/argeo:keyring", AppUi.this, factoryProperties);
 //					CmsUiProvider header = app.getHeader();
 //					if (header != null)
 //						ergonomics.setHeader(header);

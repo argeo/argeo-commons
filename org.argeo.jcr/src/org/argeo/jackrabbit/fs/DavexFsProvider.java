@@ -55,7 +55,8 @@ public class DavexFsProvider extends AbstractJackrabbitFsProvider {
 			throws IOException {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(ClientDavexRepositoryFactory.JACKRABBIT_DAVEX_URI, repoUri.toString());
-		params.put(ClientDavexRepositoryFactory.JACKRABBIT_REMOTE_DEFAULT_WORKSPACE, "main");
+		// FIXME make it configurable
+		params.put(ClientDavexRepositoryFactory.JACKRABBIT_REMOTE_DEFAULT_WORKSPACE, "sys");
 		Repository repository = null;
 		Session session = null;
 		try {

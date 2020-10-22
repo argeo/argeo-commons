@@ -102,7 +102,8 @@ public class JcrSync implements DescribedCommand<SyncResult<Node>> {
 		RepositoryFactory repositoryFactory = new ClientDavexRepositoryFactory();
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(ClientDavexRepositoryFactory.JACKRABBIT_DAVEX_URI, uri.toString());
-		params.put(ClientDavexRepositoryFactory.JACKRABBIT_REMOTE_DEFAULT_WORKSPACE, "main");
+		// FIXME make it configurable
+		params.put(ClientDavexRepositoryFactory.JACKRABBIT_REMOTE_DEFAULT_WORKSPACE, "sys");
 		return repositoryFactory.getRepository(params);
 	}
 

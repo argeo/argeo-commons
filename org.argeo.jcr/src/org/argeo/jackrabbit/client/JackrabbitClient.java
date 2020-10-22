@@ -83,7 +83,8 @@ public class JackrabbitClient {
 			};
 			Map<String, String> params = new HashMap<String, String>();
 			params.put(JACKRABBIT_DAVEX_URI, repoUri.toString());
-			params.put(JACKRABBIT_REMOTE_DEFAULT_WORKSPACE, "main");
+			// FIXME make it configurable
+			params.put(JACKRABBIT_REMOTE_DEFAULT_WORKSPACE, "sys");
 
 			try {
 				repository = repositoryFactory.getRepository(params);

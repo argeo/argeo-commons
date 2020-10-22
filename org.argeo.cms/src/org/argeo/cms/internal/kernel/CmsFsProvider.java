@@ -2,6 +2,7 @@ package org.argeo.cms.internal.kernel;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.Path;
@@ -18,7 +19,6 @@ import javax.jcr.nodetype.NodeType;
 
 import org.argeo.api.NodeConstants;
 import org.argeo.api.NodeUtils;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.jackrabbit.fs.AbstractJackrabbitFsProvider;
 import org.argeo.jcr.fs.JcrFileSystem;
@@ -26,6 +26,7 @@ import org.argeo.jcr.fs.JcrFileSystemProvider;
 import org.argeo.jcr.fs.JcrFsException;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
 
 public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 	private Map<String, CmsFileSystem> fileSystems = new HashMap<>();
@@ -52,20 +53,20 @@ public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 				URI repoUri = new URI("http", uri.getUserInfo(), uri.getHost(), uri.getPort(), "/jcr/node", null, null);
 				RepositoryFactory repositoryFactory = bc.getService(bc.getServiceReference(RepositoryFactory.class));
 				Repository repository = NodeUtils.getRepositoryByUri(repositoryFactory, repoUri.toString());
-//				Session session = repository.login("main");
 				CmsFileSystem fileSystem = new CmsFileSystem(this, repository);
 				fileSystems.put(username, fileSystem);
 				return fileSystem;
 			} else {
 				Repository repository = bc.getService(
-						bc.getServiceReferences(Repository.class, "(cn=" + NodeConstants.EGO_REPOSITORY + ")").iterator().next());
+						bc.getServiceReferences(Repository.class, "(cn=" + NodeConstants.EGO_REPOSITORY + ")")
+								.iterator().next());
 //				Session session = repository.login();
 				CmsFileSystem fileSystem = new CmsFileSystem(this, repository);
 				fileSystems.put(username, fileSystem);
 				return fileSystem;
 			}
-		} catch (Exception e) {
-			throw new CmsException("Cannot open file system " + uri + " for user " + username, e);
+		} catch (InvalidSyntaxException | URISyntaxException e) {
+			throw new IllegalArgumentException("Cannot open file system " + uri + " for user " + username, e);
 		}
 	}
 
