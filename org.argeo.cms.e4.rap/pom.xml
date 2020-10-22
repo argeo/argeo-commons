@@ -13,6 +13,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.cms.ui.rap</artifactId>
+			<version>2.1.89-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.cms.e4</artifactId>
 			<version>2.1.89-SNAPSHOT</version>
 		</dependency>
