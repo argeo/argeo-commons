@@ -17,7 +17,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-/** Generic error dialog to be used in try/catch blocks */
+/**
+ * Generic error dialog to be used in try/catch blocks.
+ * 
+ * @deprecated Use CMS dialogs instead.
+ */
+@Deprecated
 public class ErrorFeedback extends TitleAreaDialog {
 	private static final long serialVersionUID = -8918084784628179044L;
 

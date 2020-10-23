@@ -15,7 +15,12 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-/** Dialog to retrieve a single value. */
+/**
+ * Dialog to retrieve a single value.
+ * 
+ * @deprecated Use CMS dialogs instead.
+ */
+@Deprecated
 public class SingleValue extends TitleAreaDialog {
 	private static final long serialVersionUID = 2843538207460082349L;
 
@@ -49,12 +54,10 @@ public class SingleValue extends TitleAreaDialog {
 	}
 
 	public SingleValue(String label, String message) {
-		this(Display.getDefault().getActiveShell(), label, message, label,
-				false);
+		this(Display.getDefault().getActiveShell(), label, message, label, false);
 	}
 
-	public SingleValue(Shell parentShell, String title, String message,
-			String label, Boolean multiline) {
+	public SingleValue(Shell parentShell, String title, String message, String label, Boolean multiline) {
 		super(parentShell);
 		this.title = title;
 		this.message = message;

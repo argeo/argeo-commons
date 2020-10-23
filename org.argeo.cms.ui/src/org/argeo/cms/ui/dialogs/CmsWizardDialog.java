@@ -2,7 +2,6 @@ package org.argeo.cms.ui.dialogs;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.argeo.cms.CmsException;
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
@@ -48,7 +47,7 @@ public class CmsWizardDialog extends LightweightDialog implements IWizardContain
 		wizard.addPages();
 		currentPage = wizard.getStartingPage();
 		if (currentPage == null)
-			throw new CmsException("At least one wizard page is required");
+			throw new IllegalArgumentException("At least one wizard page is required");
 	}
 
 	@Override
@@ -138,7 +137,7 @@ public class CmsWizardDialog extends LightweightDialog implements IWizardContain
 			}
 		}
 		if (index < 0)
-			throw new CmsException("Cannot find index of wizard page " + page);
+			throw new IllegalArgumentException("Cannot find index of wizard page " + page);
 		pageBodies[index].moveAbove(pageBodies[currentPageIndex]);
 
 		// // clear

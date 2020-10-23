@@ -20,10 +20,13 @@ import org.eclipse.swt.widgets.Shell;
 
 /** Base class for dialogs displaying messages or small forms. */
 public class CmsMessageDialog extends LightweightDialog {
+	public final static int NONE = 0;
+	public final static int ERROR = 1;
 	public final static int INFORMATION = 2;
 	public final static int QUESTION = 3;
 	public final static int WARNING = 4;
 	public final static int CONFIRM = 5;
+	public final static int QUESTION_WITH_CANCEL = 6;
 
 	private int kind;
 	private String message;
@@ -68,7 +71,7 @@ public class CmsMessageDialog extends LightweightDialog {
 		Composite buttons = new Composite(parent, SWT.NONE);
 		buttons.addTraverseListener(traverseListener);
 		buttons.setLayoutData(new GridData(SWT.END, SWT.FILL, true, false));
-		if (kind == INFORMATION || kind == WARNING) {
+		if (kind == INFORMATION || kind == WARNING || kind == ERROR || kind == ERROR) {
 			GridLayout layout = new GridLayout(1, true);
 			layout.marginWidth = 0;
 			layout.marginHeight = 0;
@@ -82,7 +85,7 @@ public class CmsMessageDialog extends LightweightDialog {
 			close.addTraverseListener(traverseListener);
 
 			buttons.setTabList(new Control[] { close });
-		} else if (kind == CONFIRM || kind == QUESTION) {
+		} else if (kind == CONFIRM || kind == QUESTION || kind == QUESTION_WITH_CANCEL) {
 			Control input = createInputArea(body);
 			if (input != null) {
 				input.addTraverseListener(traverseListener);
@@ -151,6 +154,10 @@ public class CmsMessageDialog extends LightweightDialog {
 
 	public static void openWarning(String message) {
 		open(WARNING, Display.getCurrent().getActiveShell(), message);
+	}
+
+	public static void openError(String message) {
+		open(ERROR, Display.getCurrent().getActiveShell(), message);
 	}
 
 }

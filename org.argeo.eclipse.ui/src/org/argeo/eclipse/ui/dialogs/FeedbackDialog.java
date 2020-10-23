@@ -20,14 +20,19 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-/** Generic lightweight dialog, not based on JFace. */
+/**
+ * Generic lightweight dialog, not based on JFace.
+ * 
+ * @deprecated Use CMS dialogs instead.
+ */
+@Deprecated
 public class FeedbackDialog extends LightweightDialog {
 	private final static Log log = LogFactory.getLog(FeedbackDialog.class);
 
 	private String message;
 	private Throwable exception;
 
-	private Shell parentShell;
+//	private Shell parentShell;
 	private Shell shell;
 
 	public static void show(String message, Throwable e) {
