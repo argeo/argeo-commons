@@ -132,7 +132,7 @@ public class TabbedArea extends Composite {
 		}
 		currentUiProvider = uiProvider;
 		section.setNode(context);
-		section.setLayoutData(CmsUiUtils.coversAll());
+		section.setLayoutData(CmsUiUtils.coverAll());
 		build(section, uiProvider, context);
 		if (sections.size() == 0)
 			sections.add(section);
@@ -159,7 +159,7 @@ public class TabbedArea extends Composite {
 		int currentIndex = sections.indexOf(currentSection);
 		Section previousSection = new Section(body, SWT.NONE, context);
 		build(previousSection, previousUiProvider, previousNode);
-		previousSection.setLayoutData(CmsUiUtils.coversAll());
+		previousSection.setLayoutData(CmsUiUtils.coverAll());
 //		sections.remove(currentSection);
 		sections.add(currentIndex + 1, previousSection);
 //		sections.add(currentSection);

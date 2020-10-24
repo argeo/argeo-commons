@@ -17,7 +17,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
 import org.argeo.api.NodeState;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.LocaleUtils;
 import org.argeo.transaction.simple.SimpleTransactionManager;
 import org.argeo.util.LangUtils;
@@ -26,6 +25,9 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.ManagedServiceFactory;
 
+/**
+ * Implementation of a {@link NodeState}, initialising the required services.
+ */
 public class CmsState implements NodeState {
 	private final static Log log = LogFactory.getLog(CmsState.class);
 	private final BundleContext bc = FrameworkUtil.getBundle(CmsState.class).getBundleContext();
@@ -88,7 +90,7 @@ public class CmsState implements NodeState {
 			throw new UnsupportedOperationException(
 					"Bitronix is not supported anymore, but could be again if there is enough interest.");
 		} else {
-			throw new CmsException("Usupported transaction manager type " + tmType);
+			throw new IllegalArgumentException("Usupported transaction manager type " + tmType);
 		}
 
 		// POI
@@ -109,7 +111,7 @@ public class CmsState implements NodeState {
 		RepositoryServiceFactory repositoryServiceFactory = new RepositoryServiceFactory();
 		stopHooks.add(() -> repositoryServiceFactory.shutdown());
 		bc.registerService(ManagedServiceFactory.class, repositoryServiceFactory,
-				LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_REPOS_FACTORY_PID));
+				LangUtils.dict(Constants.SERVICE_PID, NodeConstants.NODE_REPOS_FACTORY_PID));
 
 		NodeRepositoryFactory repositoryFactory = new NodeRepositoryFactory();
 		bc.registerService(RepositoryFactory.class, repositoryFactory, null);
@@ -118,7 +120,7 @@ public class CmsState implements NodeState {
 		NodeUserAdmin userAdmin = new NodeUserAdmin(NodeConstants.ROLES_BASEDN, NodeConstants.TOKENS_BASEDN);
 		stopHooks.add(() -> userAdmin.destroy());
 		bc.registerService(ManagedServiceFactory.class, userAdmin,
-				LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_USER_ADMIN_PID));
+				LangUtils.dict(Constants.SERVICE_PID, NodeConstants.NODE_USER_ADMIN_PID));
 
 		// File System
 		CmsFsProvider cmsFsProvider = new CmsFsProvider();
@@ -133,7 +135,7 @@ public class CmsState implements NodeState {
 //			log.debug("Installed FileSystemProvider " + fsp);
 //		}
 		bc.registerService(FileSystemProvider.class, cmsFsProvider,
-				LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_FS_PROVIDER_PID));
+				LangUtils.dict(Constants.SERVICE_PID, NodeConstants.NODE_FS_PROVIDER_PID));
 	}
 
 	private void initSimpleTransactionManager() {

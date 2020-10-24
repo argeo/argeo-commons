@@ -39,6 +39,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
 /** The {@link CmsView} for a {@link CmsWebApp}. */
+@SuppressWarnings("restriction")
 public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationListener {
 	private static final long serialVersionUID = 7733510691684570402L;
 	private final static Log log = LogFactory.getLog(CmsWebEntryPoint.class);
@@ -114,6 +115,10 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 
 	protected Subject getSubject() {
 		return loginContext.getSubject();
+	}
+
+	public <T> T doAs(PrivilegedAction<T> action) {
+		return Subject.doAs(getSubject(), action);
 	}
 
 	@Override

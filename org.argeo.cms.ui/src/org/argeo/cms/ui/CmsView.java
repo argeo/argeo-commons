@@ -1,5 +1,6 @@
 package org.argeo.cms.ui;
 
+import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,9 +52,13 @@ public interface CmsView {
 		properties.put(param, value);
 		sendEvent(topic, properties);
 	}
-	
+
 	default void applyStyles(Object widget) {
-		
+
+	}
+
+	default <T> T doAs(PrivilegedAction<T> action) {
+		throw new UnsupportedOperationException();
 	}
 
 	static CmsView getCmsView(Control parent) {

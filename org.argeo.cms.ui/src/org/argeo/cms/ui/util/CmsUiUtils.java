@@ -164,7 +164,7 @@ public class CmsUiUtils implements CmsConstants {
 	 * FORM LAYOUT
 	 */
 
-	public static FormData coversAll() {
+	public static FormData coverAll() {
 		FormData fdLabel = new FormData();
 		fdLabel.top = new FormAttachment(0, 0);
 		fdLabel.left = new FormAttachment(0, 0);

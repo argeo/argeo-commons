@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.Path;
+import java.nio.file.spi.FileSystemProvider;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 
+/** Implementation of an {@link FileSystemProvider} based on Jackrabbit. */
 public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 	private Map<String, CmsFileSystem> fileSystems = new HashMap<>();
 
