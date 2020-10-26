@@ -385,6 +385,15 @@ public class Jcr {
 		}
 	}
 
+	/** Retrieves the root node related to this session. */
+	public static Node getRootNode(Session session) {
+		try {
+			return session.getRootNode();
+		} catch (RepositoryException e) {
+			throw new IllegalStateException("Cannot get root node for " + session, e);
+		}
+	}
+
 	/**
 	 * Saves the {@link Session} related to this node. Note that all other unrelated
 	 * modifications in this session will also be saved.
