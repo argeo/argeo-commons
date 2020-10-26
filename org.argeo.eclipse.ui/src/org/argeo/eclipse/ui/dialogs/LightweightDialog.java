@@ -116,20 +116,24 @@ public class LightweightDialog {
 		});
 
 		if (block) {
-			try {
-				runEventLoop(foregoundShell);
-			} catch (ThreadDeath t) {
-				returnCode = CANCEL;
-				if (log.isTraceEnabled())
-					log.error("Thread death, canceling dialog", t);
-			} catch (Throwable t) {
-				returnCode = CANCEL;
-				log.error("Cannot open blocking lightweight dialog", t);
-			}
+			block();
 		}
 		if (returnCode == null)
 			returnCode = OK;
 		return returnCode;
+	}
+
+	public void block() {
+		try {
+			runEventLoop(foregoundShell);
+		} catch (ThreadDeath t) {
+			returnCode = CANCEL;
+			if (log.isTraceEnabled())
+				log.error("Thread death, canceling dialog", t);
+		} catch (Throwable t) {
+			returnCode = CANCEL;
+			log.error("Cannot open blocking lightweight dialog", t);
+		}
 	}
 
 	private boolean hasChildShells() {

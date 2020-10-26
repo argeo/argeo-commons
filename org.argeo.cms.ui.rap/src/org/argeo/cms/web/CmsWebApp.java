@@ -9,17 +9,20 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.ui.CmsApp;
 import org.argeo.cms.ui.CmsAppListener;
 import org.argeo.cms.ui.CmsTheme;
+import org.argeo.cms.ui.CmsView;
 import org.argeo.util.LangUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
+import org.eclipse.rap.rwt.application.ExceptionHandler;
 import org.eclipse.rap.rwt.client.WebClient;
+import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.event.EventAdmin;
 
 /** An RWT web app integrating with a {@link CmsApp}. */
-public class CmsWebApp implements ApplicationConfiguration, CmsAppListener {
+public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, CmsAppListener {
 	private final static Log log = LogFactory.getLog(CmsWebApp.class);
 
 	private BundleContext bundleContext;
@@ -56,6 +59,18 @@ public class CmsWebApp implements ApplicationConfiguration, CmsAppListener {
 
 		Map<String, String> properties = new HashMap<>();
 		addEntryPoints(application, properties);
+
+	}
+
+	@Override
+	public void handleException(Throwable throwable) {
+		Display display = Display.getCurrent();
+		if (display != null && !display.isDisposed()) {
+			CmsView cmsView = CmsView.getCmsView(display.getActiveShell());
+			cmsView.exception(throwable);
+		} else {
+			log.error("Unexpected exception outside an UI thread", throwable);
+		}
 
 	}
 

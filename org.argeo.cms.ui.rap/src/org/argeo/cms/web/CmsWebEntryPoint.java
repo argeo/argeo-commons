@@ -158,8 +158,9 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 
 	@Override
 	public void exception(final Throwable e) {
+		CmsFeedback.show("Unexpected exception in CMS", e).block();
 		exception = e;
-		log.error("Unexpected exception in CMS", e);
+//		log.error("Unexpected exception in CMS", e);
 		doRefresh();
 	}
 

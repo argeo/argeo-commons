@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
+import javax.jcr.Property;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
@@ -197,6 +198,16 @@ public class NodeUtils {
 	public static Node getUserHome(Session session) {
 		String userID = session.getUserID();
 		return getUserHome(session, userID);
+	}
+
+	/** Whether this node is the home of the user of the underlying session. */
+	public static boolean isUserHome(Node node) {
+		try {
+			String userID = node.getSession().getUserID();
+			return node.hasProperty(Property.JCR_ID) && node.getProperty(Property.JCR_ID).getString().equals(userID);
+		} catch (RepositoryException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	/**

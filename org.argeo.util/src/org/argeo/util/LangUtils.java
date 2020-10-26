@@ -36,6 +36,21 @@ public class LangUtils {
 	}
 
 	/*
+	 * MAP
+	 */
+	/**
+	 * Creates a new {@link Dictionary} with one key-value pair. Key should not be
+	 * null, but if the value is null, it returns an empty {@link Dictionary}.
+	 */
+	public static Map<String, Object> map(String key, Object value) {
+		assert key != null;
+		HashMap<String, Object> props = new HashMap<>();
+		if (value != null)
+			props.put(key, value);
+		return props;
+	}
+
+	/*
 	 * DICTIONARY
 	 */
 

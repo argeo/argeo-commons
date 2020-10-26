@@ -32,7 +32,7 @@ public class CmsFeedback extends LightweightDialog {
 		log.error(message, e);
 	}
 
-	public static void show(String message, Throwable e) {
+	public static CmsFeedback show(String message, Throwable e) {
 		// rethrow ThreaDeath in order to make sure that RAP will properly clean
 		// up the UI thread
 		if (e instanceof ThreadDeath)
@@ -42,13 +42,17 @@ public class CmsFeedback extends LightweightDialog {
 			CmsFeedback cmsFeedback = new CmsFeedback(null, message, e);
 			cmsFeedback.setBlockOnOpen(false);
 			cmsFeedback.open();
+			return cmsFeedback;
 		} catch (Throwable e1) {
 			log.error("Cannot open error feedback (" + e.getMessage() + "), original error below", e);
+			return null;
 		}
 	}
 
-	public static void show(String message) {
-		new CmsFeedback(null, message, null).open();
+	public static CmsFeedback show(String message) {
+		CmsFeedback cmsFeedback = new CmsFeedback(null, message, null);
+		cmsFeedback.open();
+		return cmsFeedback;
 	}
 
 	/** Tries to find a display */

@@ -366,8 +366,18 @@ public class Jcr {
 		}
 	}
 
-	/** Retrieves the {@link Session} related to this node. */
+	/**
+	 * Retrieves the {@link Session} related to this node.
+	 * 
+	 * @deprecated Use {@link #getSession(Node)} instead.
+	 */
+	@Deprecated
 	public static Session session(Node node) {
+		return getSession(node);
+	}
+
+	/** Retrieves the {@link Session} related to this node. */
+	public static Session getSession(Node node) {
 		try {
 			return node.getSession();
 		} catch (RepositoryException e) {
@@ -412,6 +422,11 @@ public class Jcr {
 		} catch (Exception e) {
 			// silent
 		}
+	}
+
+	/** Safely and silently logs out the underlying session. */
+	public static void logout(Node node) {
+		Jcr.logout(session(node));
 	}
 
 	/*

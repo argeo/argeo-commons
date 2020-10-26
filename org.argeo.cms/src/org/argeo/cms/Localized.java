@@ -24,4 +24,18 @@ public interface Localized {
 		return LocaleUtils.lead(local(locale).toString(), locale);
 	}
 
+	static class Untranslated implements Localized {
+		private String msg;
+
+		public Untranslated(String msg) {
+			super();
+			this.msg = msg;
+		}
+
+		@Override
+		public Object local(Locale locale) {
+			return msg;
+		}
+
+	}
 }
