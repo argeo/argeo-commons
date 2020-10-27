@@ -135,28 +135,30 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 
 	Set<String> addCss(Bundle themeBundle, String path) {
 		Set<String> paths = new TreeSet<>();
-		Enumeration<URL> themeResources = themeBundle.findEntries(path, "*.css", true);
-		if (themeResources == null)
-			return paths;
-		while (themeResources.hasMoreElements()) {
-			String resource = themeResources.nextElement().getPath();
-			// remove first '/' so that RWT registers it
-			resource = resource.substring(1);
-			if (!resource.endsWith("/")) {
-				paths.add(resource);
-			}
-		}
 
 		// common CSS
 		Enumeration<URL> commonResources = themeBundle.findEntries(styleCssPath, "*.css", true);
-		if (commonResources == null)
-			return paths;
-		while (commonResources.hasMoreElements()) {
-			String resource = commonResources.nextElement().getPath();
-			// remove first '/' so that RWT registers it
-			resource = resource.substring(1);
-			if (!resource.endsWith("/")) {
-				paths.add(resource);
+		if (commonResources != null) {
+			while (commonResources.hasMoreElements()) {
+				String resource = commonResources.nextElement().getPath();
+				// remove first '/' so that RWT registers it
+				resource = resource.substring(1);
+				if (!resource.endsWith("/")) {
+					paths.add(resource);
+				}
+			}
+		}
+
+		// specific CSS
+		Enumeration<URL> themeResources = themeBundle.findEntries(path, "*.css", true);
+		if (themeResources != null) {
+			while (themeResources.hasMoreElements()) {
+				String resource = themeResources.nextElement().getPath();
+				// remove first '/' so that RWT registers it
+				resource = resource.substring(1);
+				if (!resource.endsWith("/")) {
+					paths.add(resource);
+				}
 			}
 		}
 		return paths;
@@ -275,6 +277,16 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 				}
 		}
 		return themeBundle;
+	}
+
+	@Override
+	public int hashCode() {
+		return themeId.hashCode();
+	}
+
+	@Override
+	public String toString() {
+		return "Bundle CMS Theme " + themeId;
 	}
 
 }

@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.jcr.Repository;
 
@@ -18,12 +17,6 @@ public abstract class AbstractCmsApp implements CmsApp {
 	private List<CmsAppListener> cmsAppListeners = new ArrayList<>();
 
 	private Repository repository;
-
-	@Override
-	public Set<String> getUiNames() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	protected abstract String getThemeId(String uiName);
 

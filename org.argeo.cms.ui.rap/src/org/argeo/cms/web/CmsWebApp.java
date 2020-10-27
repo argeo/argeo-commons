@@ -86,15 +86,17 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 //				if (themeId != null)
 //					log.warn("Theme id " + themeId + " was specified but it was not found, using default RWT theme.");
 			}
-			application.addEntryPoint("/" + uiName, () -> {
+			String entryPointName = !uiName.equals("") ? "/" + uiName : "/";
+			application.addEntryPoint(entryPointName, () -> {
 				CmsWebEntryPoint entryPoint = new CmsWebEntryPoint(this, uiName);
 				entryPoint.setEventAdmin(eventAdmin);
 				return entryPoint;
 			}, properties);
 			if (log.isDebugEnabled())
-				log.info("Added web entry point /" + (contextName != null ? contextName : "") + "/" + uiName);
+				log.info("Added web entry point " + (contextName != null ? "/" + contextName : "") + entryPointName);
 		}
-		log.debug("Published CMS web app /" + (contextName != null ? contextName : ""));
+		if (log.isDebugEnabled())
+			log.debug("Published CMS web app /" + (contextName != null ? contextName : ""));
 	}
 
 //	private void registerIfAllThemesAvailable() {
