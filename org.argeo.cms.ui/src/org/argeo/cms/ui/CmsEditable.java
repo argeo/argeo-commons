@@ -33,4 +33,25 @@ public interface CmsEditable {
 		}
 	};
 
+	public static CmsEditable ALWAYS_EDITING = new CmsEditable() {
+
+		@Override
+		public void stopEditing() {
+		}
+
+		@Override
+		public void startEditing() {
+		}
+
+		@Override
+		public Boolean isEditing() {
+			return true;
+		}
+
+		@Override
+		public Boolean canEdit() {
+			return true;
+		}
+	};
+
 }
