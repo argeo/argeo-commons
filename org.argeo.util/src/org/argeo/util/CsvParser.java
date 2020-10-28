@@ -38,14 +38,25 @@ public abstract class CsvParser {
 
 	/**
 	 * Parses the CSV file (stream is closed at the end)
+	 * 
+	 * @param in the stream to parse
+	 * 
+	 * @deprecated Use {@link #parse(InputStream, Charset)} instead.
 	 */
+	@Deprecated
 	public synchronized void parse(InputStream in) {
 		parse(in, (Charset) null);
 	}
 
 	/**
 	 * Parses the CSV file (stream is closed at the end)
+	 * 
+	 * @param in       the stream to parse
+	 * @param encoding the encoding to use.
+	 * 
+	 * @deprecated Use {@link #parse(InputStream, Charset)} instead.
 	 */
+	@Deprecated
 	public synchronized void parse(InputStream in, String encoding) {
 		Reader reader;
 		if (encoding == null)
@@ -61,6 +72,9 @@ public abstract class CsvParser {
 
 	/**
 	 * Parses the CSV file (stream is closed at the end)
+	 * 
+	 * @param in      the stream to parse
+	 * @param charset the charset to use
 	 */
 	public synchronized void parse(InputStream in, Charset charset) {
 		Reader reader;
@@ -73,10 +87,12 @@ public abstract class CsvParser {
 
 	/**
 	 * Parses the CSV file (stream is closed at the end)
+	 * 
+	 * @param reader the reader to use (it will be buffered)
 	 */
-	public synchronized void parse(Reader r) {
+	public synchronized void parse(Reader reader) {
 		Integer lineCount = 0;
-		try (BufferedReader bufferedReader = new BufferedReader(r)) {
+		try (BufferedReader bufferedReader = new BufferedReader(reader)) {
 			List<String> header = null;
 			if (!noHeader) {
 				String headerStr = bufferedReader.readLine();
@@ -145,23 +161,19 @@ public abstract class CsvParser {
 	 * @return whether to continue parsing this line
 	 */
 	protected Boolean parseLine(String str, List<String> tokens, StringBuffer currStr, Boolean wasInquote) {
-		// List<String> tokens = new ArrayList<String>();
-
-		// System.out.println("#LINE: " + str);
-
 		if (wasInquote)
 			currStr.append('\n');
 
 		char[] arr = str.toCharArray();
 		boolean inQuote = wasInquote;
-		// StringBuffer currStr = new StringBuffer("");
 		for (int i = 0; i < arr.length; i++) {
 			char c = arr[i];
 			if (c == separator) {
 				if (!inQuote) {
 					tokens.add(currStr.toString());
-					// System.out.println("# TOKEN: " + currStr);
-					currStr.delete(0, currStr.length());
+//					currStr.delete(0, currStr.length());
+					currStr.setLength(0);
+					currStr.trimToSize();
 				} else {
 					// we don't remove separator that are in a quoted substring
 					// System.out

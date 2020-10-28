@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
 
@@ -19,7 +20,11 @@ public class CsvWriter {
 	 * Creates a CSV writer.
 	 * 
 	 * @param out the stream to write to. Caller is responsible for closing it.
+	 * 
+	 * @deprecated Use {@link #CsvWriter(OutputStream, Charset)} instead.
+	 * 
 	 */
+	@Deprecated
 	public CsvWriter(OutputStream out) {
 		this.out = new OutputStreamWriter(out);
 	}
@@ -27,14 +32,28 @@ public class CsvWriter {
 	/**
 	 * Creates a CSV writer.
 	 * 
-	 * @param out the stream to write to. Caller is responsible for closing it.
+	 * @param out      the stream to write to. Caller is responsible for closing it.
+	 * @param encoding the encoding to use.
+	 * 
+	 * @deprecated Use {@link #CsvWriter(OutputStream, Charset)} instead.
 	 */
+	@Deprecated
 	public CsvWriter(OutputStream out, String encoding) {
 		try {
 			this.out = new OutputStreamWriter(out, encoding);
 		} catch (UnsupportedEncodingException e) {
 			throw new IllegalArgumentException(e);
 		}
+	}
+
+	/**
+	 * Creates a CSV writer.
+	 * 
+	 * @param out     the stream to write to. Caller is responsible for closing it.
+	 * @param charset the charset to use
+	 */
+	public CsvWriter(OutputStream out, Charset charset) {
+		this.out = new OutputStreamWriter(out, charset);
 	}
 
 	/**
