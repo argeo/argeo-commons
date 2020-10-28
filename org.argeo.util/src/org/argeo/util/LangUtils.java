@@ -20,6 +20,7 @@ import java.util.Properties;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
+/** Utilities around Java basic features. */
 public class LangUtils {
 	/*
 	 * NON-API OSGi

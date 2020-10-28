@@ -18,8 +18,7 @@ public class CsvWriter {
 	/**
 	 * Creates a CSV writer.
 	 * 
-	 * @param out
-	 *            the stream to write to. Caller is responsible for closing it.
+	 * @param out the stream to write to. Caller is responsible for closing it.
 	 */
 	public CsvWriter(OutputStream out) {
 		this.out = new OutputStreamWriter(out);
@@ -28,21 +27,19 @@ public class CsvWriter {
 	/**
 	 * Creates a CSV writer.
 	 * 
-	 * @param out
-	 *            the stream to write to. Caller is responsible for closing it.
+	 * @param out the stream to write to. Caller is responsible for closing it.
 	 */
 	public CsvWriter(OutputStream out, String encoding) {
 		try {
 			this.out = new OutputStreamWriter(out, encoding);
 		} catch (UnsupportedEncodingException e) {
-			throw new UtilsException("Cannot initialize CSV writer", e);
+			throw new IllegalArgumentException(e);
 		}
 	}
 
 	/**
-	 * Write a CSV line. Also used to write a header if needed (this is
-	 * transparent for the CSV writer): simply call it first, before writing the
-	 * lines.
+	 * Write a CSV line. Also used to write a header if needed (this is transparent
+	 * for the CSV writer): simply call it first, before writing the lines.
 	 */
 	public void writeLine(List<?> tokens) {
 		try {
@@ -55,14 +52,13 @@ public class CsvWriter {
 			out.write('\n');
 			out.flush();
 		} catch (IOException e) {
-			throw new UtilsException("Could not write " + tokens, e);
+			throw new RuntimeException("Could not write " + tokens, e);
 		}
 	}
 
 	/**
-	 * Write a CSV line. Also used to write a header if needed (this is
-	 * transparent for the CSV writer): simply call it first, before writing the
-	 * lines.
+	 * Write a CSV line. Also used to write a header if needed (this is transparent
+	 * for the CSV writer): simply call it first, before writing the lines.
 	 */
 	public void writeLine(Object[] tokens) {
 		try {
@@ -79,7 +75,7 @@ public class CsvWriter {
 			out.write('\n');
 			out.flush();
 		} catch (IOException e) {
-			throw new UtilsException("Could not write " + tokens, e);
+			throw new RuntimeException("Could not write " + tokens, e);
 		}
 	}
 

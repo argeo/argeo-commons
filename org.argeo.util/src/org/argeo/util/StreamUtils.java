@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 
-/** Utilities to be used when APache COmmons IO is not available. */
+/** Utilities to be used when Apache Commons IO is not available. */
 class StreamUtils {
 	private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 

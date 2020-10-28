@@ -20,7 +20,7 @@ public class DigestUtils {
 	public final static String SHA512 = "SHA-512";
 
 	private static Boolean debug = false;
-	// TODO: make it writable
+	// TODO: make it configurable
 	private final static Integer byteBufferCapacity = 100 * 1024;// 100 KB
 
 	public static byte[] sha1(byte[] bytes) {
@@ -29,8 +29,8 @@ public class DigestUtils {
 			digest.update(bytes);
 			byte[] checksum = digest.digest();
 			return checksum;
-		} catch (Exception e) {
-			throw new UtilsException("Cannot SHA1 digest", e);
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalArgumentException(e);
 		}
 	}
 
@@ -41,8 +41,8 @@ public class DigestUtils {
 			byte[] checksum = digest.digest();
 			String res = encodeHexString(checksum);
 			return res;
-		} catch (Exception e) {
-			throw new UtilsException("Cannot digest with algorithm " + algorithm, e);
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalArgumentException("Cannot digest with algorithm " + algorithm, e);
 		}
 	}
 
@@ -62,8 +62,10 @@ public class DigestUtils {
 			byte[] checksum = digest.digest();
 			String res = encodeHexString(checksum);
 			return res;
-		} catch (Exception e) {
-			throw new UtilsException("Cannot digest with algorithm " + algorithm, e);
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalArgumentException("Cannot digest with algorithm " + algorithm, e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		} finally {
 			StreamUtils.closeQuietly(in);
 		}
@@ -81,7 +83,7 @@ public class DigestUtils {
 			ByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, sz);
 			return digest(algorithm, bb);
 		} catch (IOException e) {
-			throw new UtilsException("Cannot digest " + file + " with algorithm " + algorithm, e);
+			throw new IllegalArgumentException("Cannot digest " + file + " with algorithm " + algorithm, e);
 		} finally {
 			StreamUtils.closeQuietly(fis);
 			if (fc.isOpen())
@@ -105,7 +107,7 @@ public class DigestUtils {
 				System.out.println((end - begin) + " ms / " + ((end - begin) / 1000) + " s");
 			return res;
 		} catch (NoSuchAlgorithmException e) {
-			throw new UtilsException("Cannot digest with algorithm " + algorithm, e);
+			throw new IllegalArgumentException("Cannot digest with algorithm " + algorithm, e);
 		}
 	}
 
@@ -146,8 +148,10 @@ public class DigestUtils {
 			if (debug)
 				System.out.println((end - begin) + " ms / " + ((end - begin) / 1000) + " s");
 			return md.digest();
-		} catch (Exception e) {
-			throw new UtilsException("Cannot digest " + file + "  with algorithm " + algorithm, e);
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalArgumentException("Cannot digest " + file + "  with algorithm " + algorithm, e);
+		} catch (IOException e) {
+			throw new RuntimeException("Cannot digest " + file + "  with algorithm " + algorithm, e);
 		}
 	}
 

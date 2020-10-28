@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,42 +25,61 @@ public abstract class CsvParser {
 
 	/**
 	 * Actually process a parsed line. If
-	 * {@link #setStrictLineAsLongAsHeader(Boolean)} is true (default) the
-	 * header and the tokens are guaranteed to have the same size.
+	 * {@link #setStrictLineAsLongAsHeader(Boolean)} is true (default) the header
+	 * and the tokens are guaranteed to have the same size.
 	 * 
-	 * @param lineNumber
-	 *            the current line number, starts at 1 (the header, if header
-	 *            processing is enabled, the first line otherwise)
-	 * @param header
-	 *            the read-only header or null if {@link #setNoHeader(Boolean)}
-	 *            is true (default is false)
-	 * @param tokens
-	 *            the parsed tokens
+	 * @param lineNumber the current line number, starts at 1 (the header, if header
+	 *                   processing is enabled, the first line otherwise)
+	 * @param header     the read-only header or null if
+	 *                   {@link #setNoHeader(Boolean)} is true (default is false)
+	 * @param tokens     the parsed tokens
 	 */
-	protected abstract void processLine(Integer lineNumber,
-			List<String> header, List<String> tokens);
+	protected abstract void processLine(Integer lineNumber, List<String> header, List<String> tokens);
 
 	/**
 	 * Parses the CSV file (stream is closed at the end)
 	 */
 	public synchronized void parse(InputStream in) {
-		parse(in, null);
+		parse(in, (Charset) null);
 	}
 
 	/**
 	 * Parses the CSV file (stream is closed at the end)
 	 */
 	public synchronized void parse(InputStream in, String encoding) {
-		BufferedReader reader = null;
+		Reader reader;
+		if (encoding == null)
+			reader = new InputStreamReader(in);
+		else
+			try {
+				reader = new InputStreamReader(in, encoding);
+			} catch (UnsupportedEncodingException e) {
+				throw new IllegalArgumentException(e);
+			}
+		parse(reader);
+	}
+
+	/**
+	 * Parses the CSV file (stream is closed at the end)
+	 */
+	public synchronized void parse(InputStream in, Charset charset) {
+		Reader reader;
+		if (charset == null)
+			reader = new InputStreamReader(in);
+		else
+			reader = new InputStreamReader(in, charset);
+		parse(reader);
+	}
+
+	/**
+	 * Parses the CSV file (stream is closed at the end)
+	 */
+	public synchronized void parse(Reader r) {
 		Integer lineCount = 0;
-		try {
-			if (encoding == null)
-				reader = new BufferedReader(new InputStreamReader(in));
-			else
-				reader = new BufferedReader(new InputStreamReader(in, encoding));
+		try (BufferedReader bufferedReader = new BufferedReader(r)) {
 			List<String> header = null;
 			if (!noHeader) {
-				String headerStr = reader.readLine();
+				String headerStr = bufferedReader.readLine();
 				if (headerStr == null)// empty file
 					return;
 				lineCount++;
@@ -65,7 +87,7 @@ public abstract class CsvParser {
 				StringBuffer currStr = new StringBuffer("");
 				Boolean wasInquote = false;
 				while (parseLine(headerStr, header, currStr, wasInquote)) {
-					headerStr = reader.readLine();
+					headerStr = bufferedReader.readLine();
 					if (headerStr == null)
 						break;
 					wasInquote = true;
@@ -74,7 +96,7 @@ public abstract class CsvParser {
 			}
 
 			String line = null;
-			lines: while ((line = reader.readLine()) != null) {
+			lines: while ((line = bufferedReader.readLine()) != null) {
 				line = preProcessLine(line);
 				if (line == null) {
 					// skip line
@@ -85,7 +107,7 @@ public abstract class CsvParser {
 				StringBuffer currStr = new StringBuffer("");
 				Boolean wasInquote = false;
 				sublines: while (parseLine(line, tokens, currStr, wasInquote)) {
-					line = reader.readLine();
+					line = bufferedReader.readLine();
 					if (line == null)
 						break sublines;
 					wasInquote = true;
@@ -96,29 +118,22 @@ public abstract class CsvParser {
 					if (tokenSize == 1 && line.trim().equals(""))
 						continue lines;// empty line
 					if (headerSize != tokenSize) {
-						throw new UtilsException("Token size " + tokenSize
-								+ " is different from header size "
-								+ headerSize + " at line " + lineCount
-								+ ", line: " + line + ", header: " + header
+						throw new IllegalStateException("Token size " + tokenSize + " is different from header size "
+								+ headerSize + " at line " + lineCount + ", line: " + line + ", header: " + header
 								+ ", tokens: " + tokens);
 					}
 				}
 				processLine(lineCount, header, tokens);
 			}
-		} catch (UtilsException e) {
-			throw e;
 		} catch (IOException e) {
-			throw new UtilsException("Cannot parse CSV file (line: "
-					+ lineCount + ")", e);
-		} finally {
-			StreamUtils.closeQuietly(reader);
+			throw new RuntimeException("Cannot parse CSV file (line: " + lineCount + ")", e);
 		}
 	}
 
 	/**
-	 * Called before each (logical) line is processed, giving a change to modify
-	 * it (typically for cleaning dirty files). To be overridden, return the
-	 * line unchanged by default. Skip the line if 'null' is returned.
+	 * Called before each (logical) line is processed, giving a change to modify it
+	 * (typically for cleaning dirty files). To be overridden, return the line
+	 * unchanged by default. Skip the line if 'null' is returned.
 	 */
 	protected String preProcessLine(String line) {
 		return line;
@@ -129,8 +144,7 @@ public abstract class CsvParser {
 	 * 
 	 * @return whether to continue parsing this line
 	 */
-	protected Boolean parseLine(String str, List<String> tokens,
-			StringBuffer currStr, Boolean wasInquote) {
+	protected Boolean parseLine(String str, List<String> tokens, StringBuffer currStr, Boolean wasInquote) {
 		// List<String> tokens = new ArrayList<String>();
 
 		// System.out.println("#LINE: " + str);
@@ -209,8 +223,7 @@ public abstract class CsvParser {
 		return strictLineAsLongAsHeader;
 	}
 
-	public synchronized void setStrictLineAsLongAsHeader(
-			Boolean strictLineAsLongAsHeader) {
+	public synchronized void setStrictLineAsLongAsHeader(Boolean strictLineAsLongAsHeader) {
 		this.strictLineAsLongAsHeader = strictLineAsLongAsHeader;
 	}
 

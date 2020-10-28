@@ -1,5 +1,6 @@
 package org.argeo.util;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/** Hashes the hashes of the files in a directory.*/
+/** Hashes the hashes of the files in a directory. */
 public class DirH {
 
 	private final static Charset charset = Charset.forName("UTF-16");
@@ -30,12 +31,11 @@ public class DirH {
 	private final byte[] dirName;
 
 	/**
-	 * @param dirName
-	 *            can be null or empty
+	 * @param dirName can be null or empty
 	 */
 	private DirH(byte[][] hashes, byte[][] fileNames, byte[] dirName) {
 		if (hashes.length != fileNames.length)
-			throw new UtilsException(hashes.length + " hashes and " + fileNames.length + " file names");
+			throw new IllegalArgumentException(hashes.length + " hashes and " + fileNames.length + " file names");
 		this.hashes = hashes;
 		this.fileNames = fileNames;
 		this.dirName = dirName == null ? new byte[0] : dirName;
@@ -49,7 +49,7 @@ public class DirH {
 		hashSize = hashes[0].length;
 		for (int i = 0; i < hashes.length; i++) {
 			if (hashes[i].length != hashSize)
-				throw new UtilsException(
+				throw new IllegalArgumentException(
 						"Hash size for " + new String(fileNames[i], charset) + " is " + hashes[i].length);
 		}
 
@@ -63,7 +63,7 @@ public class DirH {
 			}
 			digest = md.digest();
 		} catch (NoSuchAlgorithmException e) {
-			throw new UtilsException("Cannot digest", e);
+			throw new IllegalArgumentException("Cannot digest", e);
 		}
 	}
 
@@ -100,8 +100,8 @@ public class DirH {
 			}
 			byte[][] hashes = hs.toArray(new byte[hs.size()][]);
 			return new DirH(hashes, fileNames, dir.toString().getBytes(charset));
-		} catch (Exception e) {
-			throw new UtilsException("Cannot digest " + dir, e);
+		} catch (IOException e) {
+			throw new RuntimeException("Cannot digest " + dir, e);
 		}
 	}
 

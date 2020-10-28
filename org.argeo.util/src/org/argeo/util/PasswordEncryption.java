@@ -5,6 +5,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -26,7 +28,8 @@ public class PasswordEncryption {
 	public final static String DEFAULT_SECRETE_KEY_FACTORY = "PBKDF2WithHmacSHA1";
 	public final static String DEFAULT_SECRETE_KEY_ENCRYPTION = "AES";
 	public final static String DEFAULT_CIPHER_NAME = "AES/CBC/PKCS5Padding";
-	public final static String DEFAULT_CHARSET = "UTF-8";
+//	public final static String DEFAULT_CHARSET = "UTF-8";
+	public final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
 	private Integer iterationCount = DEFAULT_ITERATION_COUNT;
 	private Integer secreteKeyLength = DEFAULT_SECRETE_KEY_LENGTH;
@@ -68,11 +71,11 @@ public class PasswordEncryption {
 					+ " secrete key length instead of " + previousSecreteKeyLength);
 			try {
 				initKeyAndCiphers(password, passwordSalt, initializationVector);
-			} catch (Exception e1) {
-				throw new UtilsException("Cannot get secret key (with restricted length)", e1);
+			} catch (GeneralSecurityException e1) {
+				throw new IllegalStateException("Cannot get secret key (with restricted length)", e1);
 			}
-		} catch (Exception e) {
-			throw new UtilsException("Cannot get secret key", e);
+		} catch (GeneralSecurityException e) {
+			throw new IllegalStateException("Cannot get secret key", e);
 		}
 	}
 
@@ -110,8 +113,6 @@ public class PasswordEncryption {
 			StreamUtils.closeQuietly(out);
 		} catch (IOException e) {
 			throw e;
-		} catch (Exception e) {
-			throw new UtilsException("Cannot encrypt", e);
 		} finally {
 			StreamUtils.closeQuietly(decryptedIn);
 		}
@@ -123,8 +124,6 @@ public class PasswordEncryption {
 			StreamUtils.copy(decryptedIn, decryptedOut);
 		} catch (IOException e) {
 			throw e;
-		} catch (Exception e) {
-			throw new UtilsException("Cannot decrypt", e);
 		} finally {
 			StreamUtils.closeQuietly(encryptedIn);
 		}
@@ -138,8 +137,8 @@ public class PasswordEncryption {
 			in = new ByteArrayInputStream(str.getBytes(DEFAULT_CHARSET));
 			encrypt(in, out);
 			return out.toByteArray();
-		} catch (Exception e) {
-			throw new UtilsException("Cannot encrypt", e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		} finally {
 			StreamUtils.closeQuietly(out);
 		}
@@ -152,8 +151,8 @@ public class PasswordEncryption {
 			out = new ByteArrayOutputStream();
 			decrypt(in, out);
 			return new String(out.toByteArray(), DEFAULT_CHARSET);
-		} catch (Exception e) {
-			throw new UtilsException("Cannot decrypt", e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		} finally {
 			StreamUtils.closeQuietly(out);
 		}
