@@ -7,7 +7,7 @@ package org.argeo.naming;
  * "https://github.com/krb5/krb5/blob/master/src/plugins/kdb/ldap/libkdb_ldap/kerberos.schema">Kerberos
  * LDAP (partial)</a>
  */
-public enum LdapAttrs implements SpecifiedName {
+public enum LdapAttrs implements SpecifiedName, QualifiedName {
 	/** */
 	uid("0.9.2342.19200300.100.1.1", "RFC 4519"),
 	/** */
@@ -288,7 +288,7 @@ public enum LdapAttrs implements SpecifiedName {
 
 	public final static String DN = "dn";
 
-	private final static String LDAP_ = "ldap:";
+//	private final static String LDAP_ = "ldap:";
 
 	private final String oid, spec;
 
@@ -307,8 +307,22 @@ public enum LdapAttrs implements SpecifiedName {
 		return spec;
 	}
 
-	public String property() {
-		return new StringBuilder(LDAP_).append(name()).toString();
+	@Override
+	public String getPrefix() {
+		return prefix();
+	}
+
+	public static String prefix() {
+		return "ldap";
+	}
+
+	@Override
+	public String getNamespace() {
+		return namespace();
+	}
+
+	public static String namespace() {
+		return "http://www.argeo.org/ns/ldap";
 	}
 
 	@Override
