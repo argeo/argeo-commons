@@ -1,26 +1,25 @@
 package org.argeo.jackrabbit;
 
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
+import org.apache.jackrabbit.commons.cnd.ParseException;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
-import org.argeo.jcr.ArgeoJcrException;
+import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrCallback;
 import org.argeo.jcr.JcrUtils;
 
 /** Migrate the data in a Jackrabbit repository. */
 @Deprecated
-public class JackrabbitDataModelMigration implements
-		Comparable<JackrabbitDataModelMigration> {
-	private final static Log log = LogFactory
-			.getLog(JackrabbitDataModelMigration.class);
+public class JackrabbitDataModelMigration implements Comparable<JackrabbitDataModelMigration> {
+//	private final static Log log = LogFactory.getLog(JackrabbitDataModelMigration.class);
 
 	private String dataModelNodePath;
 	private String targetVersion;
@@ -40,8 +39,7 @@ public class JackrabbitDataModelMigration implements
 		try {
 			// check if already migrated
 			if (!session.itemExists(dataModelNodePath)) {
-				log.warn("Node " + dataModelNodePath
-						+ " does not exist: nothing to migrate.");
+//				log.warn("Node " + dataModelNodePath + " does not exist: nothing to migrate.");
 				return false;
 			}
 //			Node dataModelNode = session.getNode(dataModelNodePath);
@@ -60,7 +58,7 @@ public class JackrabbitDataModelMigration implements
 				reader = new InputStreamReader(migrationCnd.openStream());
 				CndImporter.registerNodeTypes(reader, session, true);
 				session.save();
-				log.info("Registered migration node types from " + migrationCnd);
+//				log.info("Registered migration node types from " + migrationCnd);
 			}
 
 			// modify data
@@ -70,14 +68,17 @@ public class JackrabbitDataModelMigration implements
 			session.save();
 
 			long duration = System.currentTimeMillis() - begin;
-			log.info("Migration of data model " + dataModelNodePath + " to "
-					+ targetVersion + " performed in " + duration + "ms");
+//			log.info("Migration of data model " + dataModelNodePath + " to " + targetVersion + " performed in "
+//					+ duration + "ms");
 			return true;
-		} catch (Exception e) {
+		} catch (RepositoryException e) {
 			JcrUtils.discardQuietly(session);
-			throw new ArgeoJcrException("Migration of data model "
-					+ dataModelNodePath + " to " + targetVersion + " failed.",
-					e);
+			throw new JcrException(
+					"Migration of data model " + dataModelNodePath + " to " + targetVersion + " failed.", e);
+		} catch (ParseException | IOException e) {
+			JcrUtils.discardQuietly(session);
+			throw new RuntimeException(
+					"Migration of data model " + dataModelNodePath + " to " + targetVersion + " failed.", e);
 		} finally {
 			JcrUtils.logoutQuietly(session);
 			IOUtils.closeQuietly(reader);
@@ -94,11 +95,11 @@ public class JackrabbitDataModelMigration implements
 		try {
 			String customeNodeTypesPath = "/nodetypes/custom_nodetypes.xml";
 			// FIXME causes weird error in Eclipse
-			//repositoryConfig.getFileSystem().deleteFile(customeNodeTypesPath);
-			if (log.isDebugEnabled())
-				log.debug("Cleared " + customeNodeTypesPath);
-		} catch (Exception e) {
-			throw new ArgeoJcrException("Cannot clear caches", e);
+//			 repositoryConfig.getFileSystem().deleteFile(customeNodeTypesPath);
+//			if (log.isDebugEnabled())
+//				log.debug("Cleared " + customeNodeTypesPath);
+		} catch (RuntimeException e) {
+			throw e;
 		}
 
 		// File customNodeTypes = new File(home.getPath()
@@ -119,11 +120,9 @@ public class JackrabbitDataModelMigration implements
 	public int compareTo(JackrabbitDataModelMigration dataModelMigration) {
 		// TODO make ordering smarter
 		if (dataModelNodePath.equals(dataModelMigration.dataModelNodePath))
-			return compareVersions(targetVersion,
-					dataModelMigration.targetVersion);
+			return compareVersions(targetVersion, dataModelMigration.targetVersion);
 		else
-			return dataModelNodePath
-					.compareTo(dataModelMigration.dataModelNodePath);
+			return dataModelNodePath.compareTo(dataModelMigration.dataModelNodePath);
 	}
 
 	@Override

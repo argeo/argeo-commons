@@ -15,7 +15,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.jcr.ArgeoJcrException;
+import org.argeo.jcr.JcrException;
 import org.argeo.jcr.Bin;
 import org.argeo.jcr.JcrUtils;
 
@@ -101,20 +101,11 @@ public class ResourceProxyServlet extends HttpServlet {
 
 			response.setContentType(contentType);
 
-//			try {
-//				binary = node.getNode(Property.JCR_CONTENT)
-//						.getProperty(Property.JCR_DATA).getBinary();
-//			} catch (PathNotFoundException e) {
-//				log.error("Node " + node + " as no data under content");
-//				throw e;
-//			}
-//			in = binary.getStream();
 			IOUtils.copy(in, response.getOutputStream());
-		} catch (Exception e) {
-			throw new ArgeoJcrException("Cannot download " + node, e);
-//		} finally {
-//			IOUtils.closeQuietly(in);
-//			JcrUtils.closeQuietly(binary);
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot download " + node, e);
+		} catch (IOException e) {
+			throw new RuntimeException("Cannot download " + node, e);
 		}
 	}
 

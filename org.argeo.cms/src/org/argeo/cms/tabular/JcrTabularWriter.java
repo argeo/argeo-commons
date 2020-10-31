@@ -15,7 +15,7 @@ import org.apache.commons.io.IOUtils;
 import org.argeo.api.tabular.TabularColumn;
 import org.argeo.api.tabular.TabularWriter;
 import org.argeo.cms.ArgeoTypes;
-import org.argeo.jcr.ArgeoJcrException;
+import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.util.CsvWriter;
 
@@ -55,7 +55,7 @@ public class JcrTabularWriter implements TabularWriter {
 				csvWriter = new CsvWriter(out);
 			}
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot create table node " + tableNode, e);
+			throw new JcrException("Cannot create table node " + tableNode, e);
 		}
 	}
 
@@ -73,7 +73,7 @@ public class JcrTabularWriter implements TabularWriter {
 					.createBinary(in);
 			contentNode.setProperty(Property.JCR_DATA, binary);
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot store data in " + contentNode, e);
+			throw new JcrException("Cannot store data in " + contentNode, e);
 		} finally {
 			IOUtils.closeQuietly(in);
 			JcrUtils.closeQuietly(binary);

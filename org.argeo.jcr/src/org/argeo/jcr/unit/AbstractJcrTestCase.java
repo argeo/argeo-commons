@@ -5,6 +5,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import javax.security.auth.Subject;
@@ -14,10 +15,11 @@ import javax.security.auth.login.LoginException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.jcr.ArgeoJcrException;
+import org.argeo.jcr.JcrException;
 
 import junit.framework.TestCase;
 
+/** Base for unit tests with a JCR repository. */
 public abstract class AbstractJcrTestCase extends TestCase {
 	private final static Log log = LogFactory.getLog(AbstractJcrTestCase.class);
 
@@ -30,8 +32,7 @@ public abstract class AbstractJcrTestCase extends TestCase {
 
 	protected abstract Repository createRepository() throws Exception;
 
-	protected abstract void clearRepository(Repository repository)
-			throws Exception;
+	protected abstract void clearRepository(Repository repository) throws Exception;
 
 	@Override
 	protected void setUp() throws Exception {
@@ -60,17 +61,16 @@ public abstract class AbstractJcrTestCase extends TestCase {
 				lc = new LoginContext(getLoginContext());
 				lc.login();
 			} catch (LoginException e) {
-				throw new ArgeoJcrException("JAAS login failed", e);
+				throw new IllegalStateException("JAAS login failed", e);
 			}
-			session = Subject.doAs(lc.getSubject(),
-					new PrivilegedAction<Session>() {
+			session = Subject.doAs(lc.getSubject(), new PrivilegedAction<Session>() {
 
-						@Override
-						public Session run() {
-							return login();
-						}
+				@Override
+				public Session run() {
+					return login();
+				}
 
-					});
+			});
 		} else
 			session = login();
 		this.session = session;
@@ -89,10 +89,9 @@ public abstract class AbstractJcrTestCase extends TestCase {
 			if (subject != null)
 				return getRepository().login();
 			else
-				return getRepository().login(
-						new SimpleCredentials("demo", "demo".toCharArray()));
-		} catch (Exception e) {
-			throw new ArgeoJcrException("Cannot login to repository", e);
+				return getRepository().login(new SimpleCredentials("demo", "demo".toCharArray()));
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot login to repository", e);
 		}
 	}
 
@@ -110,8 +109,7 @@ public abstract class AbstractJcrTestCase extends TestCase {
 
 	protected File getHomeDir() {
 		File homeDir = new File(System.getProperty("java.io.tmpdir"),
-				AbstractJcrTestCase.class.getSimpleName() + "-"
-						+ System.getProperty("user.name"));
+				AbstractJcrTestCase.class.getSimpleName() + "-" + System.getProperty("user.name"));
 		return homeDir;
 	}
 

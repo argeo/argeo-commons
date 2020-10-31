@@ -22,8 +22,8 @@ public class DefaultJcrListener implements EventListener {
 			addEventListener(session().getWorkspace().getObservationManager());
 			if (log.isDebugEnabled())
 				log.debug("Registered JCR event listener on " + path);
-		} catch (Exception e) {
-			throw new ArgeoJcrException("Cannot register event listener", e);
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot register event listener", e);
 		}
 	}
 
@@ -33,8 +33,8 @@ public class DefaultJcrListener implements EventListener {
 					.removeEventListener(this);
 			if (log.isDebugEnabled())
 				log.debug("Unregistered JCR event listener on " + path);
-		} catch (Exception e) {
-			throw new ArgeoJcrException("Cannot unregister event listener", e);
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot unregister event listener", e);
 		}
 	}
 

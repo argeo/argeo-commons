@@ -18,7 +18,7 @@ import org.argeo.api.tabular.TabularColumn;
 import org.argeo.api.tabular.TabularRow;
 import org.argeo.api.tabular.TabularRowIterator;
 import org.argeo.cms.ArgeoTypes;
-import org.argeo.jcr.ArgeoJcrException;
+import org.argeo.jcr.JcrException;
 import org.argeo.util.CsvParser;
 
 /** Iterates over the rows of a {@link ArgeoTypes#ARGEO_TABLE} node. */
@@ -86,7 +86,7 @@ public class JcrTabularRowIterator implements TabularRowIterator {
 				thread.start();
 			}
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot read table " + tableNode, e);
+			throw new JcrException("Cannot read table " + tableNode, e);
 		}
 	}
 

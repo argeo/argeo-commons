@@ -50,9 +50,9 @@ public class JcrAuthorizations implements Runnable {
 				session = repository.login(workspace);
 				initAuthorizations(session);
 			}
-		} catch (Exception e) {
+		} catch (RepositoryException e) {
 			JcrUtils.discardQuietly(session);
-			throw new ArgeoJcrException(
+			throw new JcrException(
 					"Cannot set authorizations " + principalPrivileges + " on workspace " + currentWorkspace, e);
 		} finally {
 			JcrUtils.logoutQuietly(session);
@@ -64,9 +64,9 @@ public class JcrAuthorizations implements Runnable {
 		try {
 			session = repository.login(workspace);
 			initAuthorizations(session);
-		} catch (Exception e) {
+		} catch (RepositoryException e) {
 			JcrUtils.discardQuietly(session);
-			throw new ArgeoJcrException(
+			throw new JcrException(
 					"Cannot set authorizations " + principalPrivileges + " on repository " + repository, e);
 		} finally {
 			JcrUtils.logoutQuietly(session);
@@ -86,7 +86,7 @@ public class JcrAuthorizations implements Runnable {
 			String path = null;
 			int slashIndex = privileges.indexOf('/');
 			if (slashIndex == 0) {
-				throw new ArgeoJcrException("Privilege " + privileges + " badly formatted it starts with /");
+				throw new IllegalArgumentException("Privilege " + privileges + " badly formatted it starts with /");
 			} else if (slashIndex > 0) {
 				path = privileges.substring(slashIndex);
 				privileges = privileges.substring(0, slashIndex);

@@ -13,7 +13,7 @@ public interface SpecifiedName {
 		return null;
 	}
 
-	/** Typicall an OID */
+	/** Typically an OID */
 	default String getID() {
 		return getClass().getName() + "." + name();
 	}

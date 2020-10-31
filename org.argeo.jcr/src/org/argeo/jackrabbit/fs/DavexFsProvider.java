@@ -16,7 +16,6 @@ import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 
 import org.argeo.jackrabbit.client.ClientDavexRepositoryFactory;
-import org.argeo.jcr.ArgeoJcrException;
 import org.argeo.jcr.fs.JcrFileSystem;
 import org.argeo.jcr.fs.JcrFsException;
 
@@ -38,7 +37,7 @@ public class DavexFsProvider extends AbstractJackrabbitFsProvider {
 	@Override
 	public FileSystem newFileSystem(URI uri, Map<String, ?> env) throws IOException {
 		if (uri.getHost() == null)
-			throw new ArgeoJcrException("An host should be provided");
+			throw new IllegalArgumentException("An host should be provided");
 		try {
 			URI repoUri = new URI("http", uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), null, null);
 			String repoKey = repoUri.toString();
@@ -46,8 +45,8 @@ public class DavexFsProvider extends AbstractJackrabbitFsProvider {
 				throw new FileSystemAlreadyExistsException("CMS file system already exists for " + repoKey);
 			RepositoryFactory repositoryFactory = new ClientDavexRepositoryFactory();
 			return tryGetRepo(repositoryFactory, repoUri, "home");
-		} catch (Exception e) {
-			throw new ArgeoJcrException("Cannot open file system " + uri, e);
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException("Cannot open file system " + uri, e);
 		}
 	}
 
@@ -79,7 +78,7 @@ public class DavexFsProvider extends AbstractJackrabbitFsProvider {
 			try {
 				nextUri = new URI(nextRepoUriStr);
 			} catch (URISyntaxException e) {
-				throw new ArgeoJcrException("Badly formatted URI", e);
+				throw new IllegalArgumentException("Badly formatted URI", e);
 			}
 			return tryGetRepo(repositoryFactory, nextUri, nextWorkspace);
 		} else {

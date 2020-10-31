@@ -15,7 +15,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.jcr2dav.Jcr2davRepositoryFactory;
 import org.argeo.api.NodeConstants;
 import org.argeo.cms.internal.jcr.RepoConf;
-import org.argeo.jcr.ArgeoJcrException;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -37,13 +36,13 @@ class NodeRepositoryFactory implements RepositoryFactory {
 			Collection<ServiceReference<Repository>> srs = bundleContext.getServiceReferences(Repository.class,
 					"(" + NodeConstants.CN + "=" + alias + ")");
 			if (srs.size() == 0)
-				throw new ArgeoJcrException("No repository with alias " + alias + " found in OSGi registry");
+				throw new IllegalArgumentException("No repository with alias " + alias + " found in OSGi registry");
 			else if (srs.size() > 1)
-				throw new ArgeoJcrException(
+				throw new IllegalArgumentException(
 						srs.size() + " repositories with alias " + alias + " found in OSGi registry");
 			return bundleContext.getService(srs.iterator().next());
 		} catch (InvalidSyntaxException e) {
-			throw new ArgeoJcrException("Cannot find repository with alias " + alias, e);
+			throw new IllegalArgumentException("Cannot find repository with alias " + alias, e);
 		}
 	}
 
@@ -85,7 +84,7 @@ class NodeRepositoryFactory implements RepositoryFactory {
 				// JCR repository factory");
 				repository = getRepositoryByAlias(getAliasFromURI(uri));
 			} else
-				throw new ArgeoJcrException("Unrecognized URI format " + uri);
+				throw new IllegalArgumentException("Unrecognized URI format " + uri);
 
 		}
 
@@ -98,10 +97,10 @@ class NodeRepositoryFactory implements RepositoryFactory {
 			// with properties " + properties);
 			repository = getRepositoryByAlias(alias);
 		} else
-			throw new ArgeoJcrException("Not enough information in " + parameters);
+			throw new IllegalArgumentException("Not enough information in " + parameters);
 
 		if (repository == null)
-			throw new ArgeoJcrException("Repository not found " + parameters);
+			throw new IllegalArgumentException("Repository not found " + parameters);
 
 		return repository;
 	}
@@ -113,7 +112,7 @@ class NodeRepositoryFactory implements RepositoryFactory {
 			params.put(KernelConstants.JACKRABBIT_REMOTE_DEFAULT_WORKSPACE, defaultWorkspace);
 		Repository repository = new Jcr2davRepositoryFactory().getRepository(params);
 		if (repository == null)
-			throw new ArgeoJcrException("Remote Davex repository " + uri + " not found");
+			throw new IllegalArgumentException("Remote Davex repository " + uri + " not found");
 		log.info("Initialized remote Jackrabbit repository from uri " + uri);
 		return repository;
 	}
@@ -173,7 +172,7 @@ class NodeRepositoryFactory implements RepositoryFactory {
 				alias = alias.substring(0, alias.length() - 1);
 			return alias;
 		} catch (URISyntaxException e) {
-			throw new ArgeoJcrException("Cannot interpret URI " + uri, e);
+			throw new IllegalArgumentException("Cannot interpret URI " + uri, e);
 		}
 	}
 

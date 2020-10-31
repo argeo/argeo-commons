@@ -136,7 +136,7 @@ public abstract class JcrRepositoryWrapper implements Repository {
 	protected Session createWorkspaceAndLogsIn(Credentials credentials, String workspaceName)
 			throws RepositoryException {
 		if (workspaceName == null)
-			throw new ArgeoJcrException("No workspace specified.");
+			throw new IllegalArgumentException("No workspace specified.");
 		Session session = getRepository(workspaceName).login(credentials);
 		session.getWorkspace().createWorkspace(workspaceName);
 		session.logout();

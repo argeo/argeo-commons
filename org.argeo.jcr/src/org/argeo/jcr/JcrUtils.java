@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -72,7 +73,7 @@ public class JcrUtils {
 	 * Queries one single node.
 	 * 
 	 * @return one single node or null if none was found
-	 * @throws ArgeoJcrException if more than one node was found
+	 * @throws JcrException if more than one node was found
 	 */
 	public static Node querySingleNode(Query query) {
 		NodeIterator nodeIterator;
@@ -80,7 +81,7 @@ public class JcrUtils {
 			QueryResult queryResult = query.execute();
 			nodeIterator = queryResult.getNodes();
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot execute query " + query, e);
+			throw new JcrException("Cannot execute query " + query, e);
 		}
 		Node node;
 		if (nodeIterator.hasNext())
@@ -89,7 +90,7 @@ public class JcrUtils {
 			return null;
 
 		if (nodeIterator.hasNext())
-			throw new ArgeoJcrException("Query returned more than one node.");
+			throw new IllegalArgumentException("Query returned more than one node.");
 		return node;
 	}
 
@@ -98,7 +99,7 @@ public class JcrUtils {
 		if (path.equals("/"))
 			return "";
 		if (path.charAt(0) != '/')
-			throw new ArgeoJcrException("Path " + path + " must start with a '/'");
+			throw new IllegalArgumentException("Path " + path + " must start with a '/'");
 		String pathT = path;
 		if (pathT.charAt(pathT.length() - 1) == '/')
 			pathT = pathT.substring(0, pathT.length() - 2);
@@ -110,9 +111,9 @@ public class JcrUtils {
 	/** Retrieves the parent path of the provided path */
 	public static String parentPath(String path) {
 		if (path.equals("/"))
-			throw new ArgeoJcrException("Root path '/' has no parent path");
+			throw new IllegalArgumentException("Root path '/' has no parent path");
 		if (path.charAt(0) != '/')
-			throw new ArgeoJcrException("Path " + path + " must start with a '/'");
+			throw new IllegalArgumentException("Path " + path + " must start with a '/'");
 		String pathT = path;
 		if (pathT.charAt(pathT.length() - 1) == '/')
 			pathT = pathT.substring(0, pathT.length() - 2);
@@ -141,7 +142,7 @@ public class JcrUtils {
 			path.append(u.getPath());
 			return path.toString();
 		} catch (MalformedURLException e) {
-			throw new ArgeoJcrException("Cannot generate URL path for " + url, e);
+			throw new IllegalArgumentException("Cannot generate URL path for " + url, e);
 		}
 	}
 
@@ -153,8 +154,10 @@ public class JcrUtils {
 			node.setProperty(Property.JCR_HOST, u.getHost());
 			node.setProperty(Property.JCR_PORT, Integer.toString(u.getPort()));
 			node.setProperty(Property.JCR_PATH, normalizePath(u.getPath()));
-		} catch (Exception e) {
-			throw new ArgeoJcrException("Cannot set URL " + url + " as nt:address properties", e);
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot set URL " + url + " as nt:address properties", e);
+		} catch (MalformedURLException e) {
+			throw new IllegalArgumentException("Cannot set URL " + url + " as nt:address properties", e);
 		}
 	}
 
@@ -166,8 +169,10 @@ public class JcrUtils {
 					(int) node.getProperty(Property.JCR_PORT).getLong(),
 					node.getProperty(Property.JCR_PATH).getString());
 			return u.toString();
-		} catch (Exception e) {
-			throw new ArgeoJcrException("Cannot get URL from nt:address properties of " + node, e);
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot get URL from nt:address properties of " + node, e);
+		} catch (MalformedURLException e) {
+			throw new IllegalArgumentException("Cannot get URL from nt:address properties of " + node, e);
 		}
 	}
 
@@ -264,7 +269,7 @@ public class JcrUtils {
 			calendar.setTime(date);
 			return calendar;
 		} catch (ParseException e) {
-			throw new ArgeoJcrException("Cannot parse " + value + " with date format " + dateFormat, e);
+			throw new IllegalArgumentException("Cannot parse " + value + " with date format " + dateFormat, e);
 		}
 
 	}
@@ -272,7 +277,7 @@ public class JcrUtils {
 	/** The last element of a path. */
 	public static String lastPathElement(String path) {
 		if (path.charAt(path.length() - 1) == '/')
-			throw new ArgeoJcrException("Path " + path + " cannot end with '/'");
+			throw new IllegalArgumentException("Path " + path + " cannot end with '/'");
 		int index = path.lastIndexOf('/');
 		if (index < 0)
 			return path;
@@ -287,7 +292,7 @@ public class JcrUtils {
 		try {
 			return node.getName();
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot get name from " + node, e);
+			throw new JcrException("Cannot get name from " + node, e);
 		}
 	}
 
@@ -299,7 +304,7 @@ public class JcrUtils {
 		try {
 			return node.getProperty(propertyName).getString();
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot get name from " + node, e);
+			throw new JcrException("Cannot get name from " + node, e);
 		}
 	}
 
@@ -342,7 +347,7 @@ public class JcrUtils {
 				return null;
 			return node.getProperty(propertyName).getString();
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot get property " + propertyName + " of " + node, e);
+			throw new JcrException("Cannot get property " + propertyName + " of " + node, e);
 		}
 	}
 
@@ -351,7 +356,7 @@ public class JcrUtils {
 		try {
 			return node.getPath();
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot get path of " + node, e);
+			throw new JcrException("Cannot get path of " + node, e);
 		}
 	}
 
@@ -360,7 +365,7 @@ public class JcrUtils {
 		try {
 			return node.getProperty(propertyName).getBoolean();
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot get property " + propertyName + " of " + node, e);
+			throw new JcrException("Cannot get property " + propertyName + " of " + node, e);
 		}
 	}
 
@@ -369,7 +374,7 @@ public class JcrUtils {
 		try {
 			return getBinaryAsBytes(node.getProperty(propertyName));
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot get property " + propertyName + " of " + node, e);
+			throw new JcrException("Cannot get property " + propertyName + " of " + node, e);
 		}
 	}
 
@@ -416,7 +421,7 @@ public class JcrUtils {
 			}
 			return currParent;
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot mkdirs relative path " + relativePath + " from " + parentNode, e);
+			throw new JcrException("Cannot mkdirs relative path " + relativePath + " from " + parentNode, e);
 		}
 	}
 
@@ -427,13 +432,13 @@ public class JcrUtils {
 	public synchronized static Node mkdirsSafe(Session session, String path, String type) {
 		try {
 			if (session.hasPendingChanges())
-				throw new ArgeoJcrException("Session has pending changes, save them first.");
+				throw new IllegalStateException("Session has pending changes, save them first.");
 			Node node = mkdirs(session, path, type);
 			session.save();
 			return node;
 		} catch (RepositoryException e) {
 			discardQuietly(session);
-			throw new ArgeoJcrException("Cannot safely make directories", e);
+			throw new JcrException("Cannot safely make directories", e);
 		}
 	}
 
@@ -468,7 +473,7 @@ public class JcrUtils {
 				Node node = session.getNode(path);
 				// check type
 				if (type != null && !node.isNodeType(type) && !node.getPath().equals("/"))
-					throw new ArgeoJcrException("Node " + node + " exists but is of type "
+					throw new IllegalArgumentException("Node " + node + " exists but is of type "
 							+ node.getPrimaryNodeType().getName() + " not of type " + type);
 				// TODO: check versioning
 				return node;
@@ -504,7 +509,7 @@ public class JcrUtils {
 			return currentNode;
 		} catch (RepositoryException e) {
 			discardQuietly(session);
-			throw new ArgeoJcrException("Cannot mkdirs " + path, e);
+			throw new JcrException("Cannot mkdirs " + path, e);
 		} finally {
 		}
 	}
@@ -571,7 +576,7 @@ public class JcrUtils {
 		try {
 			registerNamespaceSafely(session.getWorkspace().getNamespaceRegistry(), prefix, uri);
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot find namespace registry", e);
+			throw new JcrException("Cannot find namespace registry", e);
 		}
 	}
 
@@ -585,14 +590,14 @@ public class JcrUtils {
 				if (pref.equals(prefix)) {
 					String registeredUri = nr.getURI(pref);
 					if (!registeredUri.equals(uri))
-						throw new ArgeoJcrException("Prefix " + pref + " already registered for URI " + registeredUri
-								+ " which is different from provided URI " + uri);
+						throw new IllegalArgumentException("Prefix " + pref + " already registered for URI "
+								+ registeredUri + " which is different from provided URI " + uri);
 					else
 						return;// skip
 				}
 			nr.registerNamespace(prefix, uri);
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot register namespace " + uri + " under prefix " + prefix, e);
+			throw new JcrException("Cannot register namespace " + uri + " under prefix " + prefix, e);
 		}
 	}
 
@@ -685,7 +690,7 @@ public class JcrUtils {
 			}
 			return buf.toString();
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot write summary of " + acl, e);
+			throw new JcrException("Cannot write summary of " + acl, e);
 		}
 	}
 
@@ -747,7 +752,7 @@ public class JcrUtils {
 				copy(fromChild, toChild);
 			}
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot copy " + fromNode + " to " + toNode, e);
+			throw new JcrException("Cannot copy " + fromNode + " to " + toNode, e);
 		}
 	}
 
@@ -775,7 +780,7 @@ public class JcrUtils {
 			}
 			return true;
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot check all properties equals of " + reference + " and " + observed, e);
+			throw new JcrException("Cannot check all properties equals of " + reference + " and " + observed, e);
 		}
 	}
 
@@ -837,7 +842,7 @@ public class JcrUtils {
 				}
 			}
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot diff " + reference + " and " + observed, e);
+			throw new JcrException("Cannot diff " + reference + " and " + observed, e);
 		}
 	}
 
@@ -879,7 +884,7 @@ public class JcrUtils {
 				}
 			}
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot diff " + reference + " and " + observed, e);
+			throw new JcrException("Cannot diff " + reference + " and " + observed, e);
 		}
 		return diffs;
 	}
@@ -956,22 +961,15 @@ public class JcrUtils {
 
 	/** Retrieve a {@link Binary} as a byte array */
 	public static byte[] getBinaryAsBytes(Property property) {
-		// ByteArrayOutputStream out = new ByteArrayOutputStream();
-		// InputStream in = null;
-		// Binary binary = null;
 		try (ByteArrayOutputStream out = new ByteArrayOutputStream();
 				Bin binary = new Bin(property);
 				InputStream in = binary.getStream()) {
-			// binary = property.getBinary();
-			// in = binary.getStream();
 			IOUtils.copy(in, out);
 			return out.toByteArray();
-		} catch (Exception e) {
-			throw new ArgeoJcrException("Cannot read binary " + property + " as bytes", e);
-		} finally {
-			// IOUtils.closeQuietly(out);
-			// IOUtils.closeQuietly(in);
-			// closeQuietly(binary);
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot read binary " + property + " as bytes", e);
+		} catch (IOException e) {
+			throw new RuntimeException("Cannot read binary " + property + " as bytes", e);
 		}
 	}
 
@@ -981,8 +979,10 @@ public class JcrUtils {
 		try (InputStream in = new ByteArrayInputStream(bytes)) {
 			binary = node.getSession().getValueFactory().createBinary(in);
 			node.setProperty(property, binary);
-		} catch (Exception e) {
-			throw new ArgeoJcrException("Cannot set binary " + property + " as bytes", e);
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot set binary " + property + " as bytes", e);
+		} catch (IOException e) {
+			throw new RuntimeException("Cannot set binary " + property + " as bytes", e);
 		} finally {
 			closeQuietly(binary);
 		}
@@ -994,8 +994,10 @@ public class JcrUtils {
 		try (InputStream in = new ByteArrayInputStream(bytes)) {
 			binary = prop.getSession().getValueFactory().createBinary(in);
 			prop.setValue(binary);
-		} catch (RepositoryException | IOException e) {
-			throw new ArgeoJcrException("Cannot set binary " + prop + " as bytes", e);
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot set binary " + prop + " as bytes", e);
+		} catch (IOException e) {
+			throw new RuntimeException("Cannot set binary " + prop + " as bytes", e);
 		} finally {
 			closeQuietly(binary);
 		}
@@ -1007,7 +1009,7 @@ public class JcrUtils {
 	 */
 	public static String firstCharsToPath(String str, Integer nbrOfChars) {
 		if (str.length() < nbrOfChars)
-			throw new ArgeoJcrException("String " + str + " length must be greater or equal than " + nbrOfChars);
+			throw new IllegalArgumentException("String " + str + " length must be greater or equal than " + nbrOfChars);
 		StringBuffer path = new StringBuffer("");
 		StringBuffer curr = new StringBuffer("");
 		for (int i = 0; i < nbrOfChars; i++) {
@@ -1104,7 +1106,7 @@ public class JcrUtils {
 			session.getWorkspace().getObservationManager().addEventListener(listener, eventTypes, basePath, true, null,
 					nodeType == null ? null : new String[] { nodeType }, true);
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot add JCR listener " + listener + " to session " + session, e);
+			throw new JcrException("Cannot add JCR listener " + listener + " to session " + session, e);
 		}
 	}
 
@@ -1162,7 +1164,7 @@ public class JcrUtils {
 			node.setProperty(Property.JCR_LAST_MODIFIED, new GregorianCalendar());
 			node.setProperty(Property.JCR_LAST_MODIFIED_BY, node.getSession().getUserID());
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot update last modified on " + node, e);
+			throw new JcrException("Cannot update last modified on " + node, e);
 		}
 	}
 
@@ -1175,7 +1177,7 @@ public class JcrUtils {
 	public static void updateLastModifiedAndParents(Node node, String untilPath) {
 		try {
 			if (untilPath != null && !node.getPath().startsWith(untilPath))
-				throw new ArgeoJcrException(node + " is not under " + untilPath);
+				throw new IllegalArgumentException(node + " is not under " + untilPath);
 			updateLastModified(node);
 			if (untilPath == null) {
 				if (!node.getPath().equals("/"))
@@ -1185,7 +1187,7 @@ public class JcrUtils {
 					updateLastModifiedAndParents(node.getParent(), untilPath);
 			}
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot update lastModified from " + node + " until " + untilPath, e);
+			throw new JcrException("Cannot update lastModified from " + node + " until " + untilPath, e);
 		}
 	}
 
@@ -1209,7 +1211,7 @@ public class JcrUtils {
 			if (prop.getDefinition().isMultiple())
 				sbuf.append("*");
 		} catch (RepositoryException re) {
-			throw new ArgeoJcrException("unexpected error while getting property definition as String", re);
+			throw new JcrException("unexpected error while getting property definition as String", re);
 		}
 		return sbuf.toString();
 	}
@@ -1240,7 +1242,7 @@ public class JcrUtils {
 				curNodeSize += getNodeApproxSize(ni.nextNode());
 			return curNodeSize;
 		} catch (RepositoryException re) {
-			throw new ArgeoJcrException("Unexpected error while recursively determining node size.", re);
+			throw new JcrException("Unexpected error while recursively determining node size.", re);
 		}
 	}
 
@@ -1332,7 +1334,7 @@ public class JcrUtils {
 		if (acl != null)
 			return acl;
 		else
-			throw new ArgeoJcrException("ACL not found at " + path);
+			throw new IllegalArgumentException("ACL not found at " + path);
 	}
 
 	/** Clear authorizations for a user at this path */
@@ -1377,7 +1379,7 @@ public class JcrUtils {
 			NodeIterator fromChildren = fromNode.getNodes();
 			children: while (fromChildren.hasNext()) {
 				if (monitor != null && monitor.isCanceled())
-					throw new ArgeoJcrException("Copy cancelled before it was completed");
+					throw new IllegalStateException("Copy cancelled before it was completed");
 
 				Node fromChild = fromChildren.nextNode();
 				String fileName = fromChild.getName();
@@ -1392,9 +1394,9 @@ public class JcrUtils {
 					try (Bin binary = new Bin(fromChild.getNode(Node.JCR_CONTENT).getProperty(Property.JCR_DATA));
 							InputStream in = binary.getStream();) {
 						copyStreamAsFile(toNode, fileName, in);
+					} catch (IOException e) {
+						throw new RuntimeException("Cannot copy " + fileName + " to " + toNode, e);
 					}
-					// IOUtils.closeQuietly(in);
-					// closeQuietly(binary);
 
 					// save session
 					toNode.getSession().save();
@@ -1409,7 +1411,7 @@ public class JcrUtils {
 					if (toNode.hasNode(fileName)) {
 						toChildFolder = toNode.getNode(fileName);
 						if (!toChildFolder.isNodeType(NodeType.NT_FOLDER))
-							throw new ArgeoJcrException(toChildFolder + " is not of type nt:folder");
+							throw new IllegalArgumentException(toChildFolder + " is not of type nt:folder");
 					} else {
 						toChildFolder = toNode.addNode(fileName, NodeType.NT_FOLDER);
 
@@ -1420,8 +1422,8 @@ public class JcrUtils {
 				}
 			}
 			return count;
-		} catch (RepositoryException | IOException e) {
-			throw new ArgeoJcrException("Cannot copy files between " + fromNode + " and " + toNode);
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot copy files between " + fromNode + " and " + toNode, e);
 		} finally {
 			// in case there was an exception
 			// IOUtils.closeQuietly(in);
@@ -1444,7 +1446,7 @@ public class JcrUtils {
 					localCount = localCount + 1;
 			}
 		} catch (RepositoryException e) {
-			throw new ArgeoJcrException("Cannot count all children of " + node);
+			throw new JcrException("Cannot count all children of " + node, e);
 		}
 		return localCount;
 	}
@@ -1456,14 +1458,10 @@ public class JcrUtils {
 	 * @return the created file node
 	 */
 	public static Node copyFile(Node folderNode, File file) {
-		// InputStream in = null;
 		try (InputStream in = new FileInputStream(file)) {
-			// in = new FileInputStream(file);
 			return copyStreamAsFile(folderNode, file.getName(), in);
 		} catch (IOException e) {
-			throw new ArgeoJcrException("Cannot copy file " + file + " under " + folderNode, e);
-			// } finally {
-			// IOUtils.closeQuietly(in);
+			throw new RuntimeException("Cannot copy file " + file + " under " + folderNode, e);
 		}
 	}
 
@@ -1473,8 +1471,8 @@ public class JcrUtils {
 		try (InputStream in = new ByteArrayInputStream(bytes)) {
 			// in = new ByteArrayInputStream(bytes);
 			return copyStreamAsFile(folderNode, fileName, in);
-		} catch (Exception e) {
-			throw new ArgeoJcrException("Cannot copy file " + fileName + " under " + folderNode, e);
+		} catch (IOException e) {
+			throw new RuntimeException("Cannot copy file " + fileName + " under " + folderNode, e);
 			// } finally {
 			// IOUtils.closeQuietly(in);
 		}
@@ -1494,7 +1492,7 @@ public class JcrUtils {
 			if (folderNode.hasNode(fileName)) {
 				fileNode = folderNode.getNode(fileName);
 				if (!fileNode.isNodeType(NodeType.NT_FILE))
-					throw new ArgeoJcrException(fileNode + " is not of type nt:file");
+					throw new IllegalArgumentException(fileNode + " is not of type nt:file");
 				// we assume that the content node is already there
 				contentNode = fileNode.getNode(Node.JCR_CONTENT);
 			} else {
@@ -1504,8 +1502,8 @@ public class JcrUtils {
 			binary = contentNode.getSession().getValueFactory().createBinary(in);
 			contentNode.setProperty(Property.JCR_DATA, binary);
 			return fileNode;
-		} catch (Exception e) {
-			throw new ArgeoJcrException("Cannot create file node " + fileName + " under " + folderNode, e);
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot create file node " + fileName + " under " + folderNode, e);
 		} finally {
 			closeQuietly(binary);
 		}
@@ -1526,8 +1524,10 @@ public class JcrUtils {
 		try (InputStream in = fileNode.getNode(Node.JCR_CONTENT).getProperty(Property.JCR_DATA).getBinary()
 				.getStream()) {
 			return digest(algorithm, in);
-		} catch (RepositoryException | IOException e) {
-			throw new ArgeoJcrException("Cannot checksum file " + fileNode, e);
+		} catch (IOException e) {
+			throw new RuntimeException("Cannot checksum file " + fileNode + " with algorithm " + algorithm, e);
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot checksum file " + fileNode + " with algorithm " + algorithm, e);
 		}
 	}
 
@@ -1545,8 +1545,10 @@ public class JcrUtils {
 			byte[] checksum = digest.digest();
 			String res = encodeHexString(checksum);
 			return res;
-		} catch (Exception e) {
-			throw new ArgeoJcrException("Cannot digest with algorithm " + algorithm, e);
+		} catch (IOException e) {
+			throw new RuntimeException("Cannot digest with algorithm " + algorithm, e);
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalArgumentException("Cannot digest with algorithm " + algorithm, e);
 		}
 	}
 

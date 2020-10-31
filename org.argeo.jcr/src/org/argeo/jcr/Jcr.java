@@ -36,7 +36,6 @@ import javax.jcr.version.VersionManager;
  * exceptions. Loosely inspired by Java's <code>Files</code> singleton.
  */
 public class Jcr {
-
 	/**
 	 * @see Node#isNodeType(String)
 	 * @throws IllegalStateException caused by {@link RepositoryException}

@@ -22,9 +22,7 @@ import org.apache.jackrabbit.core.cache.CacheManager;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
 import org.argeo.api.NodeConstants;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.kernel.CmsPaths;
-import org.argeo.jcr.ArgeoJcrException;
 import org.xml.sax.InputSource;
 
 /** Can interpret properties in order to create an actual JCR repository. */
@@ -55,7 +53,7 @@ public class RepositoryBuilder {
 		final String base = "/org/argeo/cms/internal/jcr";
 		try (InputStream in = cl.getResourceAsStream(base + "/repository-" + type.name() + ".xml")) {
 			if (in == null)
-				throw new ArgeoJcrException("Repository configuration not found");
+				throw new IllegalArgumentException("Repository configuration not found");
 			InputSource config = new InputSource(in);
 			Properties jackrabbitVars = getConfigurationProperties(type, properties);
 			// RepositoryConfig repositoryConfig = RepositoryConfig.create(config,
@@ -91,7 +89,7 @@ public class RepositoryBuilder {
 		String clusterIdProp = props.getProperty(RepoConf.clusterId.name());
 		if (clusterId != null) {
 			if (clusterIdProp != null)
-				throw new CmsException("Cluster id defined as System properties and in deploy config");
+				throw new IllegalArgumentException("Cluster id defined as System properties and in deploy config");
 			props.put(RepoConf.clusterId.name(), clusterId);
 		} else {
 			clusterId = clusterIdProp;
@@ -119,7 +117,7 @@ public class RepositoryBuilder {
 					throw new IllegalArgumentException("Cannot manage repository path for host " + host);
 				}
 			} catch (URISyntaxException e) {
-				throw new CmsException("Invalid repository home URI", e);
+				throw new IllegalArgumentException("Invalid repository home URI", e);
 			}
 		}
 		// TODO use Jackrabbit API (?)
@@ -132,7 +130,7 @@ public class RepositoryBuilder {
 			// File homeDir = homePath.toFile();
 			// homeDir.mkdirs();
 		} catch (IOException e) {
-			throw new CmsException("Cannot set up repository  home " + homePath, e);
+			throw new RuntimeException("Cannot set up repository  home " + homePath, e);
 		}
 		// home cannot be overridden
 		props.put(RepositoryConfigurationParser.REPOSITORY_HOME_VARIABLE, homePath.toString());
@@ -171,7 +169,7 @@ public class RepositoryBuilder {
 		case localfs:
 			break;
 		default:
-			throw new ArgeoJcrException("Unsupported node type " + type);
+			throw new IllegalArgumentException("Unsupported node type " + type);
 		}
 		return props;
 	}

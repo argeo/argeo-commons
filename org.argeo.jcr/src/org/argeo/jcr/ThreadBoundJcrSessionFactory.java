@@ -54,7 +54,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 	/** Logs in to the repository using various strategies. */
 	protected synchronized Session login() {
 		if (!isActive())
-			throw new ArgeoJcrException("Thread bound session factory inactive");
+			throw new IllegalStateException("Thread bound session factory inactive");
 
 		// discard session previously attached to this thread
 		Thread thread = Thread.currentThread();
@@ -76,7 +76,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 				// invalid credentials, go to the next step
 			} catch (RepositoryException e1) {
 				// other kind of exception, fail
-				throw new ArgeoJcrException("Cannot log in to repository", e1);
+				throw new JcrException("Cannot log in to repository", e1);
 			}
 
 		// log using default username / password (useful for testing purposes)
@@ -85,7 +85,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 				SimpleCredentials sc = new SimpleCredentials(defaultUsername, defaultPassword.toCharArray());
 				newSession = repository().login(sc, workspace);
 			} catch (RepositoryException e) {
-				throw new ArgeoJcrException("Cannot log in to repository", e);
+				throw new JcrException("Cannot log in to repository", e);
 			}
 
 		session.set(newSession);
@@ -173,9 +173,9 @@ public abstract class ThreadBoundJcrSessionFactory {
 	}
 
 	/**
-	 * Called before a method is actually called, allowing to check the session
-	 * or re-login it (e.g. if authentication has changed). The default
-	 * implementation returns the session.
+	 * Called before a method is actually called, allowing to check the session or
+	 * re-login it (e.g. if authentication has changed). The default implementation
+	 * returns the session.
 	 */
 	protected Session preCall(Session session) {
 		return session;
@@ -190,7 +190,7 @@ public abstract class ThreadBoundJcrSessionFactory {
 			if (it.hasNext())
 				return it.next();
 		}
-		throw new ArgeoJcrException("No repository injected");
+		throw new IllegalStateException("No repository injected");
 	}
 
 	// /** Useful for declarative registration of OSGi services (blueprint) */
