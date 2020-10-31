@@ -36,6 +36,55 @@ import javax.jcr.version.VersionManager;
  * exceptions. Loosely inspired by Java's <code>Files</code> singleton.
  */
 public class Jcr {
+
+	/**
+	 * <code>jcr:name</code>, when used in another context than
+	 * {@link Property#JCR_NAME}, typically to name a node rather than a property.
+	 */
+	public final static String JCR_NAME = "jcr:name";
+
+	/**
+	 * <code>jcr:path</code>, when used in another context than
+	 * {@link Property#JCR_PATH}, typically to name a node rather than a property.
+	 */
+	public final static String JCR_PATH = "jcr:path";
+
+	/**
+	 * <code>jcr:primaryType</code> with prefix instead of namespace (as in
+	 * {@link Property#JCR_PRIMARY_TYPE}.
+	 */
+	public final static String JCR_PRIMARY_TYPE = "jcr:primaryType";
+	/**
+	 * <code>jcr:mixinTypes</code> with prefix instead of namespace (as in
+	 * {@link Property#JCR_MIXIN_TYPES}.
+	 */
+	public final static String JCR_MIXIN_TYPES = "jcr:mixinTypes";
+	/**
+	 * <code>jcr:uuid</code> with prefix instead of namespace (as in
+	 * {@link Property#JCR_UUID}.
+	 */
+	public final static String JCR_UUID = "jcr:uuid";
+	/**
+	 * <code>jcr:created</code> with prefix instead of namespace (as in
+	 * {@link Property#JCR_CREATED}.
+	 */
+	public final static String JCR_CREATED = "jcr:created";
+	/**
+	 * <code>jcr:createdBy</code> with prefix instead of namespace (as in
+	 * {@link Property#JCR_CREATED_BY}.
+	 */
+	public final static String JCR_CREATED_BY = "jcr:createdBy";
+	/**
+	 * <code>jcr:lastModified</code> with prefix instead of namespace (as in
+	 * {@link Property#JCR_LAST_MODIFIED}.
+	 */
+	public final static String JCR_LAST_MODIFIED = "jcr:lastModified";
+	/**
+	 * <code>jcr:lastModifiedBy</code> with prefix instead of namespace (as in
+	 * {@link Property#JCR_LAST_MODIFIED_BY}.
+	 */
+	public final static String JCR_LAST_MODIFIED_BY = "jcr:lastModifiedBy";
+
 	/**
 	 * @see Node#isNodeType(String)
 	 * @throws IllegalStateException caused by {@link RepositoryException}

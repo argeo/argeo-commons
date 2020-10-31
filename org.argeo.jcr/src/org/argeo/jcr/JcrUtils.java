@@ -31,7 +31,6 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
-import javax.jcr.PropertyType;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -49,13 +48,11 @@ import javax.jcr.security.AccessControlPolicyIterator;
 import javax.jcr.security.Privilege;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /** Utility methods to simplify common JCR operations. */
 public class JcrUtils {
 
-	final private static Log log = LogFactory.getLog(JcrUtils.class);
+//	final private static Log log = LogFactory.getLog(JcrUtils.class);
 
 	/**
 	 * Not complete yet. See
@@ -500,8 +497,8 @@ public class JcrUtils {
 						currentNode = currentNode.addNode(part);
 					if (versioning)
 						currentNode.addMixin(NodeType.MIX_VERSIONABLE);
-					if (log.isTraceEnabled())
-						log.debug("Added folder " + part + " as " + current);
+//					if (log.isTraceEnabled())
+//						log.debug("Added folder " + part + " as " + current);
 				} else {
 					currentNode = (Node) session.getItem(current.toString());
 				}
@@ -601,83 +598,83 @@ public class JcrUtils {
 		}
 	}
 
-	/** Recursively outputs the contents of the given node. */
-	public static void debug(Node node) {
-		debug(node, log);
-	}
+//	/** Recursively outputs the contents of the given node. */
+//	public static void debug(Node node) {
+//		debug(node, log);
+//	}
+//
+//	/** Recursively outputs the contents of the given node. */
+//	public static void debug(Node node, Log log) {
+//		try {
+//			// First output the node path
+//			log.debug(node.getPath());
+//			// Skip the virtual (and large!) jcr:system subtree
+//			if (node.getName().equals("jcr:system")) {
+//				return;
+//			}
+//
+//			// Then the children nodes (recursive)
+//			NodeIterator it = node.getNodes();
+//			while (it.hasNext()) {
+//				Node childNode = it.nextNode();
+//				debug(childNode, log);
+//			}
+//
+//			// Then output the properties
+//			PropertyIterator properties = node.getProperties();
+//			// log.debug("Property are : ");
+//
+//			properties: while (properties.hasNext()) {
+//				Property property = properties.nextProperty();
+//				if (property.getType() == PropertyType.BINARY)
+//					continue properties;// skip
+//				if (property.getDefinition().isMultiple()) {
+//					// A multi-valued property, print all values
+//					Value[] values = property.getValues();
+//					for (int i = 0; i < values.length; i++) {
+//						log.debug(property.getPath() + "=" + values[i].getString());
+//					}
+//				} else {
+//					// A single-valued property
+//					log.debug(property.getPath() + "=" + property.getString());
+//				}
+//			}
+//		} catch (Exception e) {
+//			log.error("Could not debug " + node, e);
+//		}
+//
+//	}
 
-	/** Recursively outputs the contents of the given node. */
-	public static void debug(Node node, Log log) {
-		try {
-			// First output the node path
-			log.debug(node.getPath());
-			// Skip the virtual (and large!) jcr:system subtree
-			if (node.getName().equals("jcr:system")) {
-				return;
-			}
-
-			// Then the children nodes (recursive)
-			NodeIterator it = node.getNodes();
-			while (it.hasNext()) {
-				Node childNode = it.nextNode();
-				debug(childNode, log);
-			}
-
-			// Then output the properties
-			PropertyIterator properties = node.getProperties();
-			// log.debug("Property are : ");
-
-			properties: while (properties.hasNext()) {
-				Property property = properties.nextProperty();
-				if (property.getType() == PropertyType.BINARY)
-					continue properties;// skip
-				if (property.getDefinition().isMultiple()) {
-					// A multi-valued property, print all values
-					Value[] values = property.getValues();
-					for (int i = 0; i < values.length; i++) {
-						log.debug(property.getPath() + "=" + values[i].getString());
-					}
-				} else {
-					// A single-valued property
-					log.debug(property.getPath() + "=" + property.getString());
-				}
-			}
-		} catch (Exception e) {
-			log.error("Could not debug " + node, e);
-		}
-
-	}
-
-	/** Logs the effective access control policies */
-	public static void logEffectiveAccessPolicies(Node node) {
-		try {
-			logEffectiveAccessPolicies(node.getSession(), node.getPath());
-		} catch (RepositoryException e) {
-			log.error("Cannot log effective access policies of " + node, e);
-		}
-	}
-
-	/** Logs the effective access control policies */
-	public static void logEffectiveAccessPolicies(Session session, String path) {
-		if (!log.isDebugEnabled())
-			return;
-
-		try {
-			AccessControlPolicy[] effectivePolicies = session.getAccessControlManager().getEffectivePolicies(path);
-			if (effectivePolicies.length > 0) {
-				for (AccessControlPolicy policy : effectivePolicies) {
-					if (policy instanceof AccessControlList) {
-						AccessControlList acl = (AccessControlList) policy;
-						log.debug("Access control list for " + path + "\n" + accessControlListSummary(acl));
-					}
-				}
-			} else {
-				log.debug("No effective access control policy for " + path);
-			}
-		} catch (RepositoryException e) {
-			log.error("Cannot log effective access policies of " + path, e);
-		}
-	}
+//	/** Logs the effective access control policies */
+//	public static void logEffectiveAccessPolicies(Node node) {
+//		try {
+//			logEffectiveAccessPolicies(node.getSession(), node.getPath());
+//		} catch (RepositoryException e) {
+//			log.error("Cannot log effective access policies of " + node, e);
+//		}
+//	}
+//
+//	/** Logs the effective access control policies */
+//	public static void logEffectiveAccessPolicies(Session session, String path) {
+//		if (!log.isDebugEnabled())
+//			return;
+//
+//		try {
+//			AccessControlPolicy[] effectivePolicies = session.getAccessControlManager().getEffectivePolicies(path);
+//			if (effectivePolicies.length > 0) {
+//				for (AccessControlPolicy policy : effectivePolicies) {
+//					if (policy instanceof AccessControlList) {
+//						AccessControlList acl = (AccessControlList) policy;
+//						log.debug("Access control list for " + path + "\n" + accessControlListSummary(acl));
+//					}
+//				}
+//			} else {
+//				log.debug("No effective access control policy for " + path);
+//			}
+//		} catch (RepositoryException e) {
+//			log.error("Cannot log effective access policies of " + path, e);
+//		}
+//	}
 
 	/** Returns a human-readable summary of this access control list. */
 	public static String accessControlListSummary(AccessControlList acl) {
@@ -1031,7 +1028,7 @@ public class JcrUtils {
 		try {
 			discardQuietly(node.getSession());
 		} catch (RepositoryException e) {
-			log.warn("Cannot quietly discard session of node " + node + ": " + e.getMessage());
+			// silent
 		}
 	}
 
@@ -1045,7 +1042,7 @@ public class JcrUtils {
 			if (session != null)
 				session.refresh(false);
 		} catch (RepositoryException e) {
-			log.warn("Cannot quietly discard session " + session + ": " + e.getMessage());
+			// silent
 		}
 	}
 
@@ -1130,8 +1127,6 @@ public class JcrUtils {
 			unregisterQuietly(node.getSession().getWorkspace(), eventListener);
 		} catch (RepositoryException e) {
 			// silent
-			if (log.isTraceEnabled())
-				log.trace("Could not unregister event listener " + eventListener);
 		}
 	}
 
@@ -1143,8 +1138,6 @@ public class JcrUtils {
 			workspace.getObservationManager().removeEventListener(eventListener);
 		} catch (RepositoryException e) {
 			// silent
-			if (log.isTraceEnabled())
-				log.trace("Could not unregister event listener " + eventListener);
 		}
 	}
 
@@ -1293,13 +1286,13 @@ public class JcrUtils {
 		Privilege[] privileges = privs.toArray(new Privilege[privs.size()]);
 		acl.addAccessControlEntry(principal, privileges);
 		acm.setPolicy(path, acl);
-		if (log.isDebugEnabled()) {
-			StringBuffer privBuf = new StringBuffer();
-			for (Privilege priv : privs)
-				privBuf.append(priv.getName());
-			log.debug("Added privileges " + privBuf + " to " + principal.getName() + " on " + path + " in '"
-					+ session.getWorkspace().getName() + "'");
-		}
+//		if (log.isDebugEnabled()) {
+//			StringBuffer privBuf = new StringBuffer();
+//			for (Privilege priv : privs)
+//				privBuf.append(priv.getName());
+//			log.debug("Added privileges " + privBuf + " to " + principal.getName() + " on " + path + " in '"
+//					+ session.getWorkspace().getName() + "'");
+//		}
 		session.refresh(true);
 		session.save();
 		return true;
@@ -1402,8 +1395,8 @@ public class JcrUtils {
 					toNode.getSession().save();
 					count++;
 
-					if (log.isDebugEnabled())
-						log.debug("Copied file " + fromChild.getPath());
+//					if (log.isDebugEnabled())
+//						log.debug("Copied file " + fromChild.getPath());
 					if (monitor != null)
 						monitor.worked(1);
 				} else if (fromChild.isNodeType(NodeType.NT_FOLDER) && recursive) {
