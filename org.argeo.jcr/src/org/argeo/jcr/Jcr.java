@@ -36,19 +36,26 @@ import javax.jcr.version.VersionManager;
  * exceptions. Loosely inspired by Java's <code>Files</code> singleton.
  */
 public class Jcr {
-
+	/**
+	 * The name of a node which will be serialized as XML text, as per section 7.3.1
+	 * of the JCR 2.0 specifications.
+	 */
+	public final static String JCR_XMLTEXT = "jcr:xmltext";
+	/**
+	 * The name of a property which will be serialized as XML text, as per section
+	 * 7.3.1 of the JCR 2.0 specifications.
+	 */
+	public final static String JCR_XMLCHARACTERS = "jcr:xmlcharacters";
 	/**
 	 * <code>jcr:name</code>, when used in another context than
 	 * {@link Property#JCR_NAME}, typically to name a node rather than a property.
 	 */
 	public final static String JCR_NAME = "jcr:name";
-
 	/**
 	 * <code>jcr:path</code>, when used in another context than
 	 * {@link Property#JCR_PATH}, typically to name a node rather than a property.
 	 */
 	public final static String JCR_PATH = "jcr:path";
-
 	/**
 	 * <code>jcr:primaryType</code> with prefix instead of namespace (as in
 	 * {@link Property#JCR_PRIMARY_TYPE}.
