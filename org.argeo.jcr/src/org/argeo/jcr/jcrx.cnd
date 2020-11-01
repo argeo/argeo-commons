@@ -1,0 +1,11 @@
+//
+// JCR EXTENSIONS
+//
+<jcrx = "http://www.argeo.org/ns/jcrx">
+
+[jcrx:xmlvalue]
+- *
++ jcr:xmltext (jcrx:xmltext) = jcrx:xmltext
+
+[jcrx:xmltext]
+ - jcr:xmlcharacters (STRING) mandatory

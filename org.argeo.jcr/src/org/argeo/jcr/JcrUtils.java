@@ -305,20 +305,46 @@ public class JcrUtils {
 		}
 	}
 
+//	/**
+//	 * Routine that get the child with this name, adding it if it does not already
+//	 * exist
+//	 */
+//	public static Node getOrAdd(Node parent, String name, String primaryNodeType) throws RepositoryException {
+//		return parent.hasNode(name) ? parent.getNode(name) : parent.addNode(name, primaryNodeType);
+//	}
+
 	/**
-	 * Routine that get the child with this name, adding id it does not already
+	 * Routine that get the child with this name, adding it if it does not already
 	 * exist
 	 */
-	public static Node getOrAdd(Node parent, String childName, String childPrimaryNodeType) throws RepositoryException {
-		return parent.hasNode(childName) ? parent.getNode(childName) : parent.addNode(childName, childPrimaryNodeType);
+	public static Node getOrAdd(Node parent, String name, String primaryNodeType, String... mixinNodeTypes)
+			throws RepositoryException {
+		Node node;
+		if (parent.hasNode(name)) {
+			node = parent.getNode(name);
+			if (primaryNodeType != null && !node.isNodeType(primaryNodeType))
+				throw new IllegalArgumentException("Node " + node + " exists but is of primary node type "
+						+ node.getPrimaryNodeType().getName() + ", not " + primaryNodeType);
+			for (String mixin : mixinNodeTypes) {
+				if (!node.isNodeType(mixin))
+					node.addMixin(mixin);
+			}
+			return node;
+		} else {
+			node = primaryNodeType != null ? parent.addNode(name, primaryNodeType) : parent.addNode(name);
+			for (String mixin : mixinNodeTypes) {
+				node.addMixin(mixin);
+			}
+			return node;
+		}
 	}
 
 	/**
-	 * Routine that get the child with this name, adding id it does not already
+	 * Routine that get the child with this name, adding it if it does not already
 	 * exist
 	 */
-	public static Node getOrAdd(Node parent, String childName) throws RepositoryException {
-		return parent.hasNode(childName) ? parent.getNode(childName) : parent.addNode(childName);
+	public static Node getOrAdd(Node parent, String name) throws RepositoryException {
+		return parent.hasNode(name) ? parent.getNode(name) : parent.addNode(name);
 	}
 
 	/** Convert a {@link NodeIterator} to a list of {@link Node} */
