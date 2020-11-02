@@ -1,4 +1,4 @@
-package org.argeo.naming;
+package org.argeo.jcr;
 
 /** Can be applied to {@link Enum}s in order to generate prefixed names. */
 public interface QualifiedName {
@@ -10,10 +10,6 @@ public interface QualifiedName {
 
 	default String getNamespace() {
 		return null;
-	}
-
-	default String property() {
-		return qualified();
 	}
 
 	default String qualified() {
