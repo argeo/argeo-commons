@@ -142,7 +142,7 @@ public class FormPageViewer extends AbstractPageViewer {
 		// TODO: make this configurable, sometimes we do not want to save the
 		// current session at this stage
 		if (node != null && node.getSession().hasPendingChanges()) {
-			JcrUtils.updateLastModified(node);
+			JcrUtils.updateLastModified(node, true);
 			node.getSession().save();
 		}
 	}

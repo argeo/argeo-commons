@@ -13,6 +13,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -754,7 +755,7 @@ public class JcrUtils {
 
 			// update jcr:lastModified and jcr:lastModifiedBy in toNode in case
 			// they existed, before adding the mixins
-			updateLastModified(toNode);
+			updateLastModified(toNode, true);
 
 			// add mixins
 			for (NodeType mixinType : fromNode.getMixinNodeTypes()) {
@@ -1168,17 +1169,62 @@ public class JcrUtils {
 	}
 
 	/**
-	 * If this node is has the {@link NodeType#MIX_LAST_MODIFIED} mixin, it updates
-	 * the {@link Property#JCR_LAST_MODIFIED} property with the current time and the
-	 * {@link Property#JCR_LAST_MODIFIED_BY} property with the underlying session
-	 * user id. In Jackrabbit 2.x,
+	 * Checks whether {@link Property#JCR_LAST_MODIFIED} or (afterwards)
+	 * {@link Property#JCR_CREATED} are set and returns it as an {@link Instant}.
+	 */
+	public static Instant getModified(Node node) {
+		Calendar calendar = null;
+		try {
+			if (node.hasProperty(Property.JCR_LAST_MODIFIED))
+				calendar = node.getProperty(Property.JCR_LAST_MODIFIED).getDate();
+			else if (node.hasProperty(Property.JCR_CREATED))
+				calendar = node.getProperty(Property.JCR_CREATED).getDate();
+			else
+				throw new IllegalArgumentException("No modification time found in " + node);
+			return calendar.toInstant();
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot get modification time for " + node, e);
+		}
+
+	}
+
+	/**
+	 * Get {@link Property#JCR_CREATED} as an {@link Instant}, if it is set.
+	 */
+	public static Instant getCreated(Node node) {
+		Calendar calendar = null;
+		try {
+			if (node.hasProperty(Property.JCR_CREATED))
+				calendar = node.getProperty(Property.JCR_CREATED).getDate();
+			else
+				throw new IllegalArgumentException("No created time found in " + node);
+			return calendar.toInstant();
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot get created time for " + node, e);
+		}
+
+	}
+
+	/**
+	 * Updates the {@link Property#JCR_LAST_MODIFIED} property with the current time
+	 * and the {@link Property#JCR_LAST_MODIFIED_BY} property with the underlying
+	 * session user id.
+	 */
+	public static void updateLastModified(Node node) {
+		updateLastModified(node, false);
+	}
+
+	/**
+	 * Updates the {@link Property#JCR_LAST_MODIFIED} property with the current time
+	 * and the {@link Property#JCR_LAST_MODIFIED_BY} property with the underlying
+	 * session user id. In Jackrabbit 2.x,
 	 * <a href="https://issues.apache.org/jira/browse/JCR-2233">these properties are
 	 * not automatically updated</a>, hence the need for manual update. The session
 	 * is not saved.
 	 */
-	public static void updateLastModified(Node node) {
+	public static void updateLastModified(Node node, boolean addMixin) {
 		try {
-			if (!node.isNodeType(NodeType.MIX_LAST_MODIFIED))
+			if (addMixin && !node.isNodeType(NodeType.MIX_LAST_MODIFIED))
 				node.addMixin(NodeType.MIX_LAST_MODIFIED);
 			node.setProperty(Property.JCR_LAST_MODIFIED, new GregorianCalendar());
 			node.setProperty(Property.JCR_LAST_MODIFIED_BY, node.getSession().getUserID());
@@ -1193,17 +1239,17 @@ public class JcrUtils {
 	 * @param node      the node
 	 * @param untilPath the base path, null is equivalent to "/"
 	 */
-	public static void updateLastModifiedAndParents(Node node, String untilPath) {
+	public static void updateLastModifiedAndParents(Node node, String untilPath, boolean addMixin) {
 		try {
 			if (untilPath != null && !node.getPath().startsWith(untilPath))
 				throw new IllegalArgumentException(node + " is not under " + untilPath);
-			updateLastModified(node);
+			updateLastModified(node, addMixin);
 			if (untilPath == null) {
 				if (!node.getPath().equals("/"))
-					updateLastModifiedAndParents(node.getParent(), untilPath);
+					updateLastModifiedAndParents(node.getParent(), untilPath, addMixin);
 			} else {
 				if (!node.getPath().equals(untilPath))
-					updateLastModifiedAndParents(node.getParent(), untilPath);
+					updateLastModifiedAndParents(node.getParent(), untilPath, addMixin);
 			}
 		} catch (RepositoryException e) {
 			throw new JcrException("Cannot update lastModified from " + node + " until " + untilPath, e);

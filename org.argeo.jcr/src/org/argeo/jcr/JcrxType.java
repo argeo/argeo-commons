@@ -11,4 +11,7 @@ public interface JcrxType {
 	/** Node type for the node containing the text. */
 	public final static String JCRX_XMLTEXT = "{http://www.argeo.org/ns/jcrx}xmltext";
 
+	/** Mixin node type for a set of checksums. */
+	public final static String JCRX_CSUM = "{http://www.argeo.org/ns/jcrx}csum";
+
 }

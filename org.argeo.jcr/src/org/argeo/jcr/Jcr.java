@@ -344,7 +344,8 @@ public class Jcr {
 	}
 
 	/**
-	 * Get property as a {@link String}.
+	 * Get property as a {@link String}. If the property is multiple it returns the
+	 * first value.
 	 * 
 	 * @return the value of
 	 *         {@link Node#getProperty(String)}.{@link Property#getString()} or
@@ -353,9 +354,18 @@ public class Jcr {
 	 */
 	public static String get(Node node, String property, String defaultValue) {
 		try {
-			if (node.hasProperty(property))
-				return node.getProperty(property).getString();
-			else
+			if (node.hasProperty(property)) {
+				Property p = node.getProperty(property);
+				if (!p.isMultiple())
+					return p.getString();
+				else {
+					Value[] values = p.getValues();
+					if (values.length == 0)
+						return defaultValue;
+					else
+						return values[0].getString();
+				}
+			} else
 				return defaultValue;
 		} catch (RepositoryException e) {
 			throw new IllegalStateException("Cannot retrieve property " + property + " from " + node);
@@ -392,6 +402,7 @@ public class Jcr {
 	@SuppressWarnings("unchecked")
 	public static <T> T getAs(Node node, String property, T defaultValue) {
 		try {
+			// TODO deal with multiple
 			if (node.hasProperty(property)) {
 				Property p = node.getProperty(property);
 				try {

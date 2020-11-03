@@ -131,7 +131,7 @@ public abstract class AbstractUrlProxy implements ResourceProxy {
 			}
 			binary = session.getValueFactory().createBinary(in);
 			content.setProperty(Property.JCR_DATA, binary);
-			JcrUtils.updateLastModifiedAndParents(node, null);
+			JcrUtils.updateLastModifiedAndParents(node, null, true);
 			return node;
 		} finally {
 			JcrUtils.closeQuietly(binary);
