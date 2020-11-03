@@ -44,7 +44,10 @@ import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
-/** Use the {@link UserAdmin} in the OSGi registry as the basis for authentication.*/
+/**
+ * Use the {@link UserAdmin} in the OSGi registry as the basis for
+ * authentication.
+ */
 public class UserAdminLoginModule implements LoginModule {
 	private final static Log log = LogFactory.getLog(UserAdminLoginModule.class);
 
@@ -225,7 +228,7 @@ public class UserAdminLoginModule implements LoginModule {
 				if (authenticatedUser == null) {
 					if (log.isTraceEnabled())
 						log.trace("Neither kerberos nor user admin login succeeded. Login failed.");
-					return false;
+					throw new CredentialNotFoundException("Bad credentials.");
 				} else {
 					authenticatingUser = authenticatedUser;
 				}

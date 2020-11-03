@@ -2,8 +2,10 @@ package org.argeo.cms.servlet;
 
 import java.io.IOException;
 import java.net.URL;
+import java.security.PrivilegedAction;
 import java.util.Map;
 
+import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
@@ -13,6 +15,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
+import org.argeo.cms.auth.ServletAuthUtils;
 import org.argeo.cms.internal.http.HttpUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
@@ -50,7 +53,25 @@ public class CmsServletContext extends ServletContextHelper {
 			if (lc == null)
 				return false;
 		}
+		
+		Subject subject = lc.getSubject();
+		//log.debug("SERVLET CONTEXT: "+subject);
+		Subject.doAs(subject, new PrivilegedAction<Void>() {
+
+			@Override
+			public Void run() {
+				// TODO also set login context in order to log out ?
+				ServletAuthUtils.configureRequestSecurity(request);
+				return null;
+			}
+
+		});
 		return true;
+	}
+
+	@Override
+	public void finishSecurity(HttpServletRequest request, HttpServletResponse response) {
+		ServletAuthUtils.clearRequestSecurity(request);
 	}
 
 	protected LoginContext processUnauthorized(HttpServletRequest request, HttpServletResponse response) {

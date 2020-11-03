@@ -113,6 +113,7 @@ public class HttpSessionLoginModule implements LoginModule {
 		} else {
 			if (log.isTraceEnabled())
 				log.trace("HTTP login: " + true);
+			request.setAttribute(HttpContext.AUTHORIZATION, authorization);
 			return true;
 		}
 	}

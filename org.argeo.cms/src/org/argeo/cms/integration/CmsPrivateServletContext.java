@@ -4,7 +4,6 @@ import static org.argeo.api.NodeConstants.LOGIN_CONTEXT_USER;
 
 import java.io.IOException;
 import java.security.AccessControlContext;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Map;
 
@@ -15,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
+import org.argeo.cms.auth.ServletAuthUtils;
 import org.osgi.service.http.context.ServletContextHelper;
 
 /** Manages security access to servlets. */
@@ -53,13 +53,19 @@ public class CmsPrivateServletContext extends ServletContextHelper {
 
 			@Override
 			public Void run() {
-				request.setAttribute(REMOTE_USER, AccessController.getContext());
+				// TODO also set login context in order to log out ?
+				ServletAuthUtils.configureRequestSecurity(request);
 				return null;
 			}
 
 		});
 
 		return true;
+	}
+
+	@Override
+	public void finishSecurity(HttpServletRequest request, HttpServletResponse response) {
+		ServletAuthUtils.clearRequestSecurity(request);
 	}
 
 	protected LoginContext processUnauthorized(HttpServletRequest request, HttpServletResponse response) {
