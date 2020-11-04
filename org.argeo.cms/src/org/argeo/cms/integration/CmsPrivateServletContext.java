@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
-import org.argeo.cms.auth.ServletAuthUtils;
+import org.argeo.cms.servlet.ServletAuthUtils;
 import org.osgi.service.http.context.ServletContextHelper;
 
 /** Manages security access to servlets. */

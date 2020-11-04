@@ -15,7 +15,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
-import org.argeo.cms.auth.ServletAuthUtils;
 import org.argeo.cms.internal.http.HttpUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
