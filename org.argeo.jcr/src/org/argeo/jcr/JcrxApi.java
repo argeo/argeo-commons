@@ -37,7 +37,7 @@ public class JcrxApi {
 			if (!node.hasNode(name))
 				return null;
 			Node child = node.getNode(name);
-			if (child.hasNode(Jcr.JCR_XMLTEXT))
+			if (!child.hasNode(Jcr.JCR_XMLTEXT))
 				return null;
 			Node xmlText = child.getNode(Jcr.JCR_XMLTEXT);
 			if (!xmlText.hasProperty(Jcr.JCR_XMLCHARACTERS))
