@@ -35,8 +35,15 @@ public class JcrxApi {
 	public static String getXmlValue(Node node, String name) {
 		try {
 			if (!node.hasNode(name))
-				throw new IllegalArgumentException("No XML text named " + name);
-			return node.getNode(name).getNode(Jcr.JCR_XMLTEXT).getProperty(Jcr.JCR_XMLCHARACTERS).getString();
+				return null;
+			Node child = node.getNode(name);
+			if (child.hasNode(Jcr.JCR_XMLTEXT))
+				return null;
+			Node xmlText = child.getNode(Jcr.JCR_XMLTEXT);
+			if (!xmlText.hasProperty(Jcr.JCR_XMLCHARACTERS))
+				throw new IllegalArgumentException(
+						"Node " + xmlText + " has no " + Jcr.JCR_XMLCHARACTERS + " property");
+			return xmlText.getProperty(Jcr.JCR_XMLCHARACTERS).getString();
 		} catch (RepositoryException e) {
 			throw new IllegalStateException("Cannot get " + name + " as XML text", e);
 		}
