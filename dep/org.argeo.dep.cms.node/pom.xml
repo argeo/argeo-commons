@@ -35,16 +35,6 @@
 			<artifactId>org.argeo.maintenance</artifactId>
 			<version>2.1.89-SNAPSHOT</version>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.commons</groupId> -->
-<!-- 			<artifactId>org.argeo.ext.jackrabbit</artifactId> -->
-<!-- 			<version>2.1.89-SNAPSHOT</version> -->
-<!-- 		</dependency> -->
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.ext.equinox.jetty</artifactId>
-			<version>2.1.89-SNAPSHOT</version>
-		</dependency>
 
 		<!-- CMS Dependencies -->
 		<!-- <dependency> -->
@@ -144,73 +134,7 @@
 			<artifactId>org.eclipse.jetty.xml</artifactId>
 		</dependency>
 
-		<!-- HTTP2 -->
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.alpn.api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.alpn.client</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.alpn.server</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.http2.common</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.http2.client</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.http2.client.http</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.http2.server</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.http2.hpack</artifactId>
-		</dependency>
 
-		<!-- Async -->
-		<dependency>
-			<groupId>org.argeo.tp.javax</groupId>
-			<artifactId>javax.websocket</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.websocket.api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.websocket.common</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.websocket.client</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.websocket.server</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.websocket.servlet</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.websocket.javax.websocket</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.websocket.javax.websocket.server</artifactId>
-		</dependency>
 	</dependencies>
 
 	<profiles>

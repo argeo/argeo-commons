@@ -16,14 +16,11 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
-import javax.websocket.server.ServerEndpointConfig;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.internal.http.InternalHttpConstants;
-import org.argeo.cms.websocket.CmsWebSocketConfigurator;
 import org.argeo.naming.AttributesDictionary;
 import org.argeo.naming.LdifParser;
 import org.argeo.naming.LdifWriter;
@@ -147,16 +144,16 @@ class DeployConfig implements ConfigurationListener {
 		// activator of the Equinox Jetty bundle.
 		Dictionary<String, Object> webServerConfig = InitUtils
 				.getHttpServerConfig(getProps(KernelConstants.JETTY_FACTORY_PID, NodeConstants.DEFAULT));
-		if (!webServerConfig.isEmpty()) {
-			webServerConfig.put("customizer.class", KernelConstants.CMS_JETTY_CUSTOMIZER_CLASS);
-
-			// TODO centralise with Jetty extender
-			Object webSocketEnabled = webServerConfig.get(InternalHttpConstants.WEBSOCKET_ENABLED);
-			if (webSocketEnabled != null && webSocketEnabled.toString().equals("true")) {
-				bc.registerService(ServerEndpointConfig.Configurator.class, new CmsWebSocketConfigurator(), null);
-				webServerConfig.put(InternalHttpConstants.WEBSOCKET_ENABLED, "true");
-			}
-		}
+//		if (!webServerConfig.isEmpty()) {
+//			webServerConfig.put("customizer.class", KernelConstants.CMS_JETTY_CUSTOMIZER_CLASS);
+//
+//			// TODO centralise with Jetty extender
+//			Object webSocketEnabled = webServerConfig.get(InternalHttpConstants.WEBSOCKET_ENABLED);
+//			if (webSocketEnabled != null && webSocketEnabled.toString().equals("true")) {
+//				bc.registerService(ServerEndpointConfig.Configurator.class, new CmsWebSocketConfigurator(), null);
+//				webServerConfig.put(InternalHttpConstants.WEBSOCKET_ENABLED, "true");
+//			}
+//		}
 
 		int tryCount = 60;
 		try {

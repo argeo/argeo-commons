@@ -90,19 +90,6 @@
 <!-- 			<artifactId>org.osgi.service.component.annotations</artifactId> -->
 <!-- 		</dependency> -->
 
-		<!-- Jackson JSON processor -->
-		<dependency>
-			<groupId>org.argeo.tp.jackson</groupId>
-			<artifactId>com.fasterxml.jackson.core.jackson-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jackson</groupId>
-			<artifactId>com.fasterxml.jackson.core.jackson-databind</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jackson</groupId>
-			<artifactId>com.fasterxml.jackson.core.jackson-annotations</artifactId>
-		</dependency>
 
 		<dependency>
 			<groupId>org.argeo.tp.bouncycastle</groupId>
@@ -144,10 +131,6 @@
 		<dependency>
 			<groupId>org.argeo.tp.apache.commons</groupId>
 			<artifactId>org.apache.commons.httpclient</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.apache.commons</groupId>
-			<artifactId>org.apache.commons.vfs</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp.apache.commons</groupId>
@@ -228,44 +211,6 @@
 		<dependency>
 			<groupId>org.argeo.tp.equinox</groupId>
 			<artifactId>org.eclipse.equinox.metatype</artifactId>
-		</dependency>
-
-		<!-- SSH -->
-		<dependency>
-			<groupId>org.argeo.tp.apache</groupId>
-			<artifactId>org.apache.mina.core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.apache</groupId>
-			<artifactId>org.apache.tomcat.jni</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.apache</groupId>
-			<artifactId>org.apache.sshd.core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.apache</groupId>
-			<artifactId>org.apache.sshd.common</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.apache</groupId>
-			<artifactId>org.apache.sshd.sftp</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.apache</groupId>
-			<artifactId>org.apache.sshd.scp</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.apache</groupId>
-			<artifactId>org.apache.sshd.cli</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.apache</groupId>
-			<artifactId>org.apache.sshd.putty</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>net.i2p.crypto.eddsa</artifactId>
 		</dependency>
 
 		<!-- Console -->

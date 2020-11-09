@@ -1,6 +1,4 @@
-Import-Package: com.fasterxml.jackson.annotation;resolution:=optional,\
- com.fasterxml.jackson.core;resolution:=optional,\
- com.fasterxml.jackson.databind;resolution:=optional,\
- org.apache.jackrabbit.api;resolution:=optional,\
- org.apache.jackrabbit.commons;resolution:=optional,\
- *;resolution:=optional
+Import-Package:\
+org.apache.jackrabbit.api,\
+org.apache.jackrabbit.commons,\
+*

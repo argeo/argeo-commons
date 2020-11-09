@@ -9,7 +9,6 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.concurrent.Callable;
 
 import org.argeo.jackrabbit.fs.DavexFsProvider;
-import org.argeo.ssh.Sftp;
 import org.argeo.sync.SyncResult;
 
 /** Synchronises two paths. */
@@ -52,9 +51,9 @@ public class PathSync implements Callable<SyncResult<Path>> {
 		} else if (uri.getScheme().equals("davex")) {
 			FileSystemProvider fsProvider = new DavexFsProvider();
 			path = fsProvider.getPath(uri);
-		} else if (uri.getScheme().equals("sftp")) {
-			Sftp sftp = new Sftp(uri);
-			path = sftp.getBasePath();
+//		} else if (uri.getScheme().equals("sftp")) {
+//			Sftp sftp = new Sftp(uri);
+//			path = sftp.getBasePath();
 		} else
 			throw new IllegalArgumentException("URI scheme not supported for " + uri);
 		return path;
