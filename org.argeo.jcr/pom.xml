@@ -8,11 +8,4 @@
 	</parent>
 	<artifactId>org.argeo.jcr</artifactId>
 	<name>Commons JCR</name>
-	<dependencies>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.util</artifactId>
-			<version>2.1.89-SNAPSHOT</version>
-		</dependency>
-	</dependencies>
 </project>

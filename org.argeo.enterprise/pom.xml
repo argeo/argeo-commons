@@ -9,12 +9,4 @@
 	</parent>
 	<artifactId>org.argeo.enterprise</artifactId>
 	<name>Commons Enterprise</name>
-	<dependencies>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.util</artifactId>
-			<version>2.1.89-SNAPSHOT</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
 </project>
