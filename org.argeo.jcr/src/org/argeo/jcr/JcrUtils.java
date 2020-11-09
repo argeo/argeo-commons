@@ -1239,6 +1239,16 @@ public class JcrUtils {
 	 * @param node      the node
 	 * @param untilPath the base path, null is equivalent to "/"
 	 */
+	public static void updateLastModifiedAndParents(Node node, String untilPath) {
+		updateLastModifiedAndParents(node, untilPath, true);
+	}
+
+	/**
+	 * Update lastModified recursively until this parent.
+	 * 
+	 * @param node      the node
+	 * @param untilPath the base path, null is equivalent to "/"
+	 */
 	public static void updateLastModifiedAndParents(Node node, String untilPath, boolean addMixin) {
 		try {
 			if (untilPath != null && !node.getPath().startsWith(untilPath))
