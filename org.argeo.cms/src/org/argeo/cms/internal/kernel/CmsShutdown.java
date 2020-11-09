@@ -24,38 +24,42 @@ class CmsShutdown extends Thread {
 
 	public CmsShutdown() {
 		super("CMS Shutdown Hook");
-		framework = (Framework) FrameworkUtil.getBundle(CmsShutdown.class).getBundleContext().getBundle(0);
+		framework = FrameworkUtil.getBundle(CmsShutdown.class) != null
+				? (Framework) FrameworkUtil.getBundle(CmsShutdown.class).getBundleContext().getBundle(0)
+				: null;
 	}
 
 	@Override
 	public void run() {
-		if (framework.getState() != Bundle.ACTIVE) {
+		if (framework != null && framework.getState() != Bundle.ACTIVE) {
 			return;
 		}
-		
+
 		if (log.isDebugEnabled())
 			log.debug("Shutting down OSGi framework...");
 		try {
-			// shutdown framework
-			framework.stop();
-			// wait for shutdown
-			FrameworkEvent shutdownEvent = framework.waitForStop(timeout);
-			int stoppedType = shutdownEvent.getType();
-			Runtime runtime = Runtime.getRuntime();
-			if (stoppedType == FrameworkEvent.STOPPED) {
-				// close VM
-				//System.exit(EXIT_OK);
-			} else if (stoppedType == FrameworkEvent.ERROR) {
-				log.error("The OSGi framework stopped with an error");
-				runtime.halt(EXIT_ERROR);
-			} else if (stoppedType == FrameworkEvent.WAIT_TIMEDOUT) {
-				log.error("The OSGi framework hasn't stopped after " + timeout + "ms."
-						+ " Forcibly terminating the JVM...");
-				runtime.halt(EXIT_TIMEOUT);
-			} else {
-				log.error("Unknown state of OSGi framework after " + timeout + "ms."
-						+ " Forcibly terminating the JVM... (" + shutdownEvent + ")");
-				runtime.halt(EXIT_UNKNOWN);
+			if (framework != null) {
+				// shutdown framework
+				framework.stop();
+				// wait for shutdown
+				FrameworkEvent shutdownEvent = framework.waitForStop(timeout);
+				int stoppedType = shutdownEvent.getType();
+				Runtime runtime = Runtime.getRuntime();
+				if (stoppedType == FrameworkEvent.STOPPED) {
+					// close VM
+					// System.exit(EXIT_OK);
+				} else if (stoppedType == FrameworkEvent.ERROR) {
+					log.error("The OSGi framework stopped with an error");
+					runtime.halt(EXIT_ERROR);
+				} else if (stoppedType == FrameworkEvent.WAIT_TIMEDOUT) {
+					log.error("The OSGi framework hasn't stopped after " + timeout + "ms."
+							+ " Forcibly terminating the JVM...");
+					runtime.halt(EXIT_TIMEOUT);
+				} else {
+					log.error("Unknown state of OSGi framework after " + timeout + "ms."
+							+ " Forcibly terminating the JVM... (" + shutdownEvent + ")");
+					runtime.halt(EXIT_UNKNOWN);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

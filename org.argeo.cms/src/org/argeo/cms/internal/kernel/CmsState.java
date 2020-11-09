@@ -20,9 +20,7 @@ import org.argeo.api.NodeState;
 import org.argeo.cms.LocaleUtils;
 import org.argeo.transaction.simple.SimpleTransactionManager;
 import org.argeo.util.LangUtils;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.ManagedServiceFactory;
 
 /**
@@ -30,7 +28,7 @@ import org.osgi.service.cm.ManagedServiceFactory;
  */
 public class CmsState implements NodeState {
 	private final static Log log = LogFactory.getLog(CmsState.class);
-	private final BundleContext bc = FrameworkUtil.getBundle(CmsState.class).getBundleContext();
+//	private final BundleContext bc = FrameworkUtil.getBundle(CmsState.class).getBundleContext();
 
 	// REFERENCES
 	private Long availableSince;
@@ -110,16 +108,16 @@ public class CmsState implements NodeState {
 		// JCR
 		RepositoryServiceFactory repositoryServiceFactory = new RepositoryServiceFactory();
 		stopHooks.add(() -> repositoryServiceFactory.shutdown());
-		bc.registerService(ManagedServiceFactory.class, repositoryServiceFactory,
+		Activator.registerService(ManagedServiceFactory.class, repositoryServiceFactory,
 				LangUtils.dict(Constants.SERVICE_PID, NodeConstants.NODE_REPOS_FACTORY_PID));
 
 		NodeRepositoryFactory repositoryFactory = new NodeRepositoryFactory();
-		bc.registerService(RepositoryFactory.class, repositoryFactory, null);
+		Activator.registerService(RepositoryFactory.class, repositoryFactory, null);
 
 		// Security
 		NodeUserAdmin userAdmin = new NodeUserAdmin(NodeConstants.ROLES_BASEDN, NodeConstants.TOKENS_BASEDN);
 		stopHooks.add(() -> userAdmin.destroy());
-		bc.registerService(ManagedServiceFactory.class, userAdmin,
+		Activator.registerService(ManagedServiceFactory.class, userAdmin,
 				LangUtils.dict(Constants.SERVICE_PID, NodeConstants.NODE_USER_ADMIN_PID));
 
 		// File System
@@ -134,14 +132,14 @@ public class CmsState implements NodeState {
 //		for (FileSystemProvider fsp : FileSystemProvider.installedProviders()) {
 //			log.debug("Installed FileSystemProvider " + fsp);
 //		}
-		bc.registerService(FileSystemProvider.class, cmsFsProvider,
+		Activator.registerService(FileSystemProvider.class, cmsFsProvider,
 				LangUtils.dict(Constants.SERVICE_PID, NodeConstants.NODE_FS_PROVIDER_PID));
 	}
 
 	private void initSimpleTransactionManager() {
 		SimpleTransactionManager transactionManager = new SimpleTransactionManager();
-		bc.registerService(TransactionManager.class, transactionManager, null);
-		bc.registerService(UserTransaction.class, transactionManager, null);
+		Activator.registerService(TransactionManager.class, transactionManager, null);
+		Activator.registerService(UserTransaction.class, transactionManager, null);
 		// TODO TransactionSynchronizationRegistry
 	}
 

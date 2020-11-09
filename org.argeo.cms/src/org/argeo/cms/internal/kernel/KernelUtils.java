@@ -29,7 +29,6 @@ import org.argeo.api.NodeConstants;
 import org.argeo.cms.CmsException;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
 
 /** Package utilities */
@@ -44,7 +43,7 @@ class KernelUtils implements KernelConstants {
 					.getInstance("JavaLoginConfig", uriParameter);
 			javax.security.auth.login.Configuration.setConfiguration(jaasConfiguration);
 		} catch (Exception e) {
-			throw new CmsException("Cannot set configuration " + jaasConfigurationUrl, e);
+			throw new IllegalArgumentException("Cannot set configuration " + jaasConfigurationUrl, e);
 		}
 	}
 
@@ -61,7 +60,7 @@ class KernelUtils implements KernelConstants {
 		try {
 			props.load(cl.getResourceAsStream(resource));
 		} catch (IOException e) {
-			throw new CmsException("Cannot load " + resource + " from classpath", e);
+			throw new IllegalArgumentException("Cannot load " + resource + " from classpath", e);
 		}
 		return asDictionary(props);
 	}
@@ -73,7 +72,7 @@ class KernelUtils implements KernelConstants {
 		try {
 			return new File(executionDir, relativePath).getCanonicalFile();
 		} catch (IOException e) {
-			throw new CmsException("Cannot get canonical file", e);
+			throw new IllegalArgumentException("Cannot get canonical file", e);
 		}
 	}
 
@@ -88,7 +87,10 @@ class KernelUtils implements KernelConstants {
 
 	static URI getOsgiInstanceUri(String relativePath) {
 		String osgiInstanceBaseUri = getFrameworkProp(OSGI_INSTANCE_AREA);
-		return safeUri(osgiInstanceBaseUri + (relativePath != null ? relativePath : ""));
+		if (osgiInstanceBaseUri != null)
+			return safeUri(osgiInstanceBaseUri + (relativePath != null ? relativePath : ""));
+		else
+			return Paths.get(System.getProperty("user.dir")).toUri();
 	}
 
 	static File getOsgiConfigurationFile(String relativePath) {
@@ -96,12 +98,17 @@ class KernelUtils implements KernelConstants {
 			return new File(new URI(getBundleContext().getProperty(OSGI_CONFIGURATION_AREA) + relativePath))
 					.getCanonicalFile();
 		} catch (Exception e) {
-			throw new CmsException("Cannot get configuration file for " + relativePath, e);
+			throw new IllegalArgumentException("Cannot get configuration file for " + relativePath, e);
 		}
 	}
 
 	static String getFrameworkProp(String key, String def) {
-		String value = getBundleContext().getProperty(key);
+		BundleContext bundleContext = Activator.getBundleContext();
+		String value;
+		if (bundleContext != null)
+			value = bundleContext.getProperty(key);
+		else
+			value = System.getProperty(key);
 		if (value == null)
 			return def;
 		return value;
@@ -160,7 +167,7 @@ class KernelUtils implements KernelConstants {
 			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_DATA_ADMIN);
 			loginContext.login();
 		} catch (LoginException e1) {
-			throw new CmsException("Could not login as data admin", e1);
+			throw new IllegalStateException("Could not login as data admin", e1);
 		} finally {
 			Thread.currentThread().setContextClassLoader(currentCl);
 		}
@@ -171,7 +178,7 @@ class KernelUtils implements KernelConstants {
 				try {
 					return repository.login(workspaceName);
 				} catch (RepositoryException e) {
-					throw new CmsException("Cannot open admin session", e);
+					throw new IllegalStateException("Cannot open admin session", e);
 				}
 			}
 
@@ -195,16 +202,16 @@ class KernelUtils implements KernelConstants {
 	 *         class, never null.
 	 * @throws CmsException if the related bundle is not active
 	 */
-	static BundleContext getBundleContext(Class<?> clzz) {
-		Bundle bundle = FrameworkUtil.getBundle(clzz);
-		BundleContext bc = bundle.getBundleContext();
-		if (bc == null)
-			throw new CmsException("Bundle " + bundle.getSymbolicName() + " is not active");
-		return bc;
-	}
+//	static BundleContext getBundleContext(Class<?> clzz) {
+////		Bundle bundle = FrameworkUtil.getBundle(clzz);
+//		BundleContext bc = Activator.getBundleContext();
+//		if (bc == null)
+//			throw new CmsException("Bundle " + bundle.getSymbolicName() + " is not active");
+//		return bc;
+//	}
 
 	static BundleContext getBundleContext() {
-		return getBundleContext(KernelUtils.class);
+		return Activator.getBundleContext();
 	}
 
 	static boolean asBoolean(String value) {
@@ -216,17 +223,18 @@ class KernelUtils implements KernelConstants {
 		case "false":
 			return false;
 		default:
-			throw new CmsException("Unsupported value for attribute " + DataModelNamespace.ABSTRACT + ": " + value);
+			throw new IllegalArgumentException(
+					"Unsupported value for attribute " + DataModelNamespace.ABSTRACT + ": " + value);
 		}
 	}
 
 	private static URI safeUri(String uri) {
 		if (uri == null)
-			throw new CmsException("URI cannot be null");
+			throw new IllegalArgumentException("URI cannot be null");
 		try {
 			return new URI(uri);
 		} catch (URISyntaxException e) {
-			throw new CmsException("Dadly formatted URI " + uri, e);
+			throw new IllegalArgumentException("Badly formatted URI " + uri, e);
 		}
 	}
 

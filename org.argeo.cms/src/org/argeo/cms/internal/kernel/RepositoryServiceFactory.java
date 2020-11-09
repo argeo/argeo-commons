@@ -1,44 +1,28 @@
 package org.argeo.cms.internal.kernel;
 
-import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX;
-
-import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryFactory;
-import javax.servlet.Servlet;
-import javax.servlet.ServletException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.RepositoryContext;
-import org.apache.jackrabbit.server.remoting.davex.JcrRemotingServlet;
 import org.argeo.api.NodeConstants;
-import org.argeo.cms.CmsException;
-import org.argeo.cms.internal.http.CmsRemotingServlet;
-import org.argeo.cms.internal.http.HttpUtils;
 import org.argeo.cms.internal.jcr.RepoConf;
 import org.argeo.cms.internal.jcr.RepositoryBuilder;
 import org.argeo.util.LangUtils;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
-import org.osgi.service.http.NamespaceException;
-import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
 
 /** A {@link ManagedServiceFactory} creating or referencing JCR repositories. */
 class RepositoryServiceFactory implements ManagedServiceFactory {
 	private final static Log log = LogFactory.getLog(RepositoryServiceFactory.class);
-	private final BundleContext bc = FrameworkUtil.getBundle(RepositoryServiceFactory.class).getBundleContext();
+//	private final BundleContext bc = FrameworkUtil.getBundle(RepositoryServiceFactory.class).getBundleContext();
 
 	private Map<String, RepositoryContext> repositories = new HashMap<String, RepositoryContext>();
 	private Map<String, Object> pidToCn = new HashMap<String, Object>();
@@ -51,7 +35,7 @@ class RepositoryServiceFactory implements ManagedServiceFactory {
 	@Override
 	public void updated(String pid, Dictionary<String, ?> properties) throws ConfigurationException {
 		if (repositories.containsKey(pid))
-			throw new CmsException("Already a repository registered for " + pid);
+			throw new IllegalArgumentException("Already a repository registered for " + pid);
 
 		if (properties == null)
 			return;
@@ -67,7 +51,7 @@ class RepositoryServiceFactory implements ManagedServiceFactory {
 				RepositoryBuilder repositoryBuilder = new RepositoryBuilder();
 				RepositoryContext repositoryContext = repositoryBuilder.createRepositoryContext(properties);
 				repositories.put(pid, repositoryContext);
-				Dictionary<String, Object> props = LangUtils.dico(Constants.SERVICE_PID, pid);
+				Dictionary<String, Object> props = LangUtils.dict(Constants.SERVICE_PID, pid);
 				// props.put(ArgeoJcrConstants.JCR_REPOSITORY_URI,
 				// properties.get(RepoConf.labeledUri.name()));
 				Object cn = properties.get(NodeConstants.CN);
@@ -76,7 +60,7 @@ class RepositoryServiceFactory implements ManagedServiceFactory {
 					// props.put(NodeConstants.JCR_REPOSITORY_ALIAS, cn);
 					pidToCn.put(pid, cn);
 				}
-				bc.registerService(RepositoryContext.class, repositoryContext, props);
+				Activator.registerService(RepositoryContext.class, repositoryContext, props);
 			} else {
 				try {
 					Object cn = properties.get(NodeConstants.CN);
@@ -84,15 +68,16 @@ class RepositoryServiceFactory implements ManagedServiceFactory {
 					if (defaultWorkspace == null)
 						defaultWorkspace = RepoConf.defaultWorkspace.getDefault();
 					URI uri = new URI(labeledUri.toString());
-					RepositoryFactory repositoryFactory = bc
-							.getService(bc.getServiceReference(RepositoryFactory.class));
+//					RepositoryFactory repositoryFactory = bc
+//							.getService(bc.getServiceReference(RepositoryFactory.class));
+					RepositoryFactory repositoryFactory = Activator.getService(RepositoryFactory.class);
 					Map<String, String> parameters = new HashMap<String, String>();
 					parameters.put(RepoConf.labeledUri.name(), uri.toString());
 					parameters.put(RepoConf.defaultWorkspace.name(), defaultWorkspace.toString());
 					Repository repository = repositoryFactory.getRepository(parameters);
 					// Repository repository = NodeUtils.getRepositoryByUri(repositoryFactory,
 					// uri.toString());
-					Dictionary<String, Object> props = LangUtils.dico(Constants.SERVICE_PID, pid);
+					Dictionary<String, Object> props = LangUtils.dict(Constants.SERVICE_PID, pid);
 					props.put(RepoConf.labeledUri.name(),
 							new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath(), null, null)
 									.toString());
@@ -101,14 +86,14 @@ class RepositoryServiceFactory implements ManagedServiceFactory {
 						// props.put(NodeConstants.JCR_REPOSITORY_ALIAS, cn);
 						pidToCn.put(pid, cn);
 					}
-					bc.registerService(Repository.class, repository, props);
+					Activator.registerService(Repository.class, repository, props);
 
 					// home
 					if (cn.equals(NodeConstants.NODE_REPOSITORY)) {
-						Dictionary<String, Object> homeProps = LangUtils.dico(NodeConstants.CN,
+						Dictionary<String, Object> homeProps = LangUtils.dict(NodeConstants.CN,
 								NodeConstants.EGO_REPOSITORY);
 						EgoRepository homeRepository = new EgoRepository(repository, true);
-						bc.registerService(Repository.class, homeRepository, homeProps);
+						Activator.registerService(Repository.class, homeRepository, homeProps);
 					}
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -116,7 +101,7 @@ class RepositoryServiceFactory implements ManagedServiceFactory {
 				}
 			}
 		} catch (Exception e) {
-			throw new CmsException("Cannot create Jackrabbit repository " + pid, e);
+			throw new IllegalStateException("Cannot create Jackrabbit repository " + pid, e);
 		}
 
 	}

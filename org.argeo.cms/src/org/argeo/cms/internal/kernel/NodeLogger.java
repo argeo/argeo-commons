@@ -86,30 +86,32 @@ class NodeLogger implements ArgeoLogger, LogListener {
 	};
 
 	public NodeLogger(LogReaderService lrs) {
-		Enumeration<LogEntry> logEntries = lrs.getLog();
-		while (logEntries.hasMoreElements())
-			logged(logEntries.nextElement());
-		lrs.addLogListener(this);
+		if (lrs != null) {
+			Enumeration<LogEntry> logEntries = lrs.getLog();
+			while (logEntries.hasMoreElements())
+				logged(logEntries.nextElement());
+			lrs.addLogListener(this);
 
-		// configure log4j watcher
-		String log4jConfiguration = KernelUtils.getFrameworkProp("log4j.configuration");
-		if (log4jConfiguration != null && log4jConfiguration.startsWith("file:")) {
-			if (log4jConfiguration.contains("..")) {
-				if (log4jConfiguration.startsWith("file://"))
-					log4jConfiguration = log4jConfiguration.substring("file://".length());
-				else if (log4jConfiguration.startsWith("file:"))
-					log4jConfiguration = log4jConfiguration.substring("file:".length());
-			}
-			try {
-				Path log4jconfigPath;
-				if (log4jConfiguration.startsWith("file:"))
-					log4jconfigPath = Paths.get(new URI(log4jConfiguration));
-				else
-					log4jconfigPath = Paths.get(log4jConfiguration);
-				Thread log4jConfWatcher = new Log4jConfWatcherThread(log4jconfigPath);
-				log4jConfWatcher.start();
-			} catch (Exception e) {
-				stdErr("Badly formatted log4j configuration URI " + log4jConfiguration + ": " + e.getMessage());
+			// configure log4j watcher
+			String log4jConfiguration = KernelUtils.getFrameworkProp("log4j.configuration");
+			if (log4jConfiguration != null && log4jConfiguration.startsWith("file:")) {
+				if (log4jConfiguration.contains("..")) {
+					if (log4jConfiguration.startsWith("file://"))
+						log4jConfiguration = log4jConfiguration.substring("file://".length());
+					else if (log4jConfiguration.startsWith("file:"))
+						log4jConfiguration = log4jConfiguration.substring("file:".length());
+				}
+				try {
+					Path log4jconfigPath;
+					if (log4jConfiguration.startsWith("file:"))
+						log4jconfigPath = Paths.get(new URI(log4jConfiguration));
+					else
+						log4jconfigPath = Paths.get(log4jConfiguration);
+					Thread log4jConfWatcher = new Log4jConfWatcherThread(log4jconfigPath);
+					log4jConfWatcher.start();
+				} catch (Exception e) {
+					stdErr("Badly formatted log4j configuration URI " + log4jConfiguration + ": " + e.getMessage());
+				}
 			}
 		}
 	}

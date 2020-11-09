@@ -26,23 +26,29 @@ import org.osgi.framework.ServiceReference;
  */
 class NodeRepositoryFactory implements RepositoryFactory {
 	private final Log log = LogFactory.getLog(getClass());
-	private final BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
+//	private final BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
 	// private Resource fileRepositoryConfiguration = new ClassPathResource(
 	// "/org/argeo/cms/internal/kernel/repository-localfs.xml");
 
 	protected Repository getRepositoryByAlias(String alias) {
-		try {
-			Collection<ServiceReference<Repository>> srs = bundleContext.getServiceReferences(Repository.class,
-					"(" + NodeConstants.CN + "=" + alias + ")");
-			if (srs.size() == 0)
-				throw new IllegalArgumentException("No repository with alias " + alias + " found in OSGi registry");
-			else if (srs.size() > 1)
-				throw new IllegalArgumentException(
-						srs.size() + " repositories with alias " + alias + " found in OSGi registry");
-			return bundleContext.getService(srs.iterator().next());
-		} catch (InvalidSyntaxException e) {
-			throw new IllegalArgumentException("Cannot find repository with alias " + alias, e);
+		BundleContext bundleContext = Activator.getBundleContext();
+		if (bundleContext != null) {
+			try {
+				Collection<ServiceReference<Repository>> srs = bundleContext.getServiceReferences(Repository.class,
+						"(" + NodeConstants.CN + "=" + alias + ")");
+				if (srs.size() == 0)
+					throw new IllegalArgumentException("No repository with alias " + alias + " found in OSGi registry");
+				else if (srs.size() > 1)
+					throw new IllegalArgumentException(
+							srs.size() + " repositories with alias " + alias + " found in OSGi registry");
+				return bundleContext.getService(srs.iterator().next());
+			} catch (InvalidSyntaxException e) {
+				throw new IllegalArgumentException("Cannot find repository with alias " + alias, e);
+			}
+		} else {
+			// TODO ability to filter static services
+			return null;
 		}
 	}
 

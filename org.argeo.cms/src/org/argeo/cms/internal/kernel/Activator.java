@@ -3,6 +3,7 @@ package org.argeo.cms.internal.kernel;
 import java.io.IOException;
 import java.net.URL;
 import java.security.AllPermission;
+import java.util.Dictionary;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -17,13 +18,13 @@ import org.argeo.api.NodeConstants;
 import org.argeo.api.NodeDeployment;
 import org.argeo.api.NodeInstance;
 import org.argeo.api.NodeState;
-import org.argeo.cms.CmsException;
 import org.argeo.ident.IdentClient;
 import org.ietf.jgss.GSSCredential;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.condpermadmin.BundleLocationCondition;
 import org.osgi.service.condpermadmin.ConditionInfo;
 import org.osgi.service.condpermadmin.ConditionalPermissionAdmin;
@@ -46,7 +47,7 @@ public class Activator implements BundleActivator {
 	// TODO make it configurable
 	private boolean hardened = false;
 
-	private BundleContext bc;
+	private static BundleContext bundleContext;
 
 	private LogReaderService logReaderService;
 
@@ -58,12 +59,19 @@ public class Activator implements BundleActivator {
 	private ServiceTracker<UserAdmin, NodeUserAdmin> userAdminSt;
 	private ExecutorService internalExecutorService;
 
-	@Override
-	public void start(BundleContext bundleContext) throws Exception {
+	static {
+		Bundle bundle = FrameworkUtil.getBundle(Activator.class);
+		if (bundle != null) {
+			bundleContext = bundle.getBundleContext();
+		}
+	}
+
+	void init() {
 		Runtime.getRuntime().addShutdownHook(new CmsShutdown());
 		instance = this;
-		this.bc = bundleContext;
-		this.logReaderService = getService(LogReaderService.class);
+//		this.bc = bundleContext;
+		if (bundleContext != null)
+			this.logReaderService = getService(LogReaderService.class);
 		this.internalExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
 		try {
@@ -71,8 +79,6 @@ public class Activator implements BundleActivator {
 			initArgeoLogger();
 			initNode();
 
-			userAdminSt = new ServiceTracker<>(instance.bc, UserAdmin.class, null);
-			userAdminSt.open();
 			if (log.isTraceEnabled())
 				log.trace("Kernel bundle started");
 		} catch (Throwable e) {
@@ -80,10 +86,32 @@ public class Activator implements BundleActivator {
 		}
 	}
 
+	void destroy() {
+		try {
+			if (nodeInstance != null)
+				nodeInstance.shutdown();
+			if (nodeDeployment != null)
+				nodeDeployment.shutdown();
+			if (nodeState != null)
+				nodeState.shutdown();
+
+			if (userAdminSt != null)
+				userAdminSt.close();
+
+			internalExecutorService.shutdown();
+			instance = null;
+			bundleContext = null;
+			this.logReaderService = null;
+			// this.configurationAdmin = null;
+		} catch (Exception e) {
+			log.error("CMS activator shutdown failed", e);
+		}
+	}
+
 	private void initSecurity() {
 		if (System.getProperty(KernelConstants.JAAS_CONFIG_PROP) == null) {
 			String jaasConfig = KernelConstants.JAAS_CONFIG;
-			URL url = getClass().getClassLoader().getResource(jaasConfig);
+			URL url = getClass().getResource(jaasConfig);
 			// System.setProperty(KernelConstants.JAAS_CONFIG_PROP,
 			// url.toExternalForm());
 			KernelUtils.setJaasConfiguration(url);
@@ -95,8 +123,8 @@ public class Activator implements BundleActivator {
 		String osgiSecurity = KernelUtils.getFrameworkProp(Constants.FRAMEWORK_SECURITY);
 		if (osgiSecurity != null && Constants.FRAMEWORK_SECURITY_OSGI.equals(osgiSecurity)) {
 			// TODO rather use a tracker?
-			ConditionalPermissionAdmin permissionAdmin = bc
-					.getService(bc.getServiceReference(ConditionalPermissionAdmin.class));
+			ConditionalPermissionAdmin permissionAdmin = bundleContext
+					.getService(bundleContext.getServiceReference(ConditionalPermissionAdmin.class));
 			if (!hardened) {
 				// All permissions to all bundles
 				ConditionalPermissionUpdate update = permissionAdmin.newConditionalPermissionUpdate();
@@ -128,7 +156,8 @@ public class Activator implements BundleActivator {
 
 	private void initArgeoLogger() {
 		logger = new NodeLogger(logReaderService);
-		bc.registerService(ArgeoLogger.class, logger, null);
+		if (bundleContext != null)
+			bundleContext.registerService(ArgeoLogger.class, logger, null);
 	}
 
 	private void initNode() throws IOException {
@@ -144,46 +173,60 @@ public class Activator implements BundleActivator {
 		nodeState = new CmsState();
 //		Dictionary<String, Object> regProps = LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_STATE_PID);
 //		regProps.put(NodeConstants.CN, stateUuid);
-		bc.registerService(NodeState.class, nodeState, null);
+		registerService(NodeState.class, nodeState, null);
 
 		// Node deployment
 		nodeDeployment = new CmsDeployment();
-		bc.registerService(NodeDeployment.class, nodeDeployment, null);
+		registerService(NodeDeployment.class, nodeDeployment, null);
 
 		// Node instance
 		nodeInstance = new CmsInstance();
-		bc.registerService(NodeInstance.class, nodeInstance, null);
+		registerService(NodeInstance.class, nodeInstance, null);
 	}
 
-	@Override
-	public void stop(BundleContext bundleContext) throws Exception {
-		try {
-			if (nodeInstance != null)
-				nodeInstance.shutdown();
-			if (nodeDeployment != null)
-				nodeDeployment.shutdown();
-			if (nodeState != null)
-				nodeState.shutdown();
+	public static <T> void registerService(Class<T> clss, T service, Dictionary<String, ?> properties) {
+		if (bundleContext != null) {
+			bundleContext.registerService(clss, service, properties);
+		}
 
-			if (userAdminSt != null)
-				userAdminSt.close();
+	}
 
-			internalExecutorService.shutdown();
-			instance = null;
-			this.bc = null;
-			this.logReaderService = null;
-			// this.configurationAdmin = null;
-		} catch (Exception e) {
-			log.error("CMS activator shutdown failed", e);
+	public static <T> T getService(Class<T> clss) {
+		if (bundleContext != null) {
+			return bundleContext.getService(bundleContext.getServiceReference(clss));
+		} else {
+			return null;
 		}
 	}
 
-	private <T> T getService(Class<T> clazz) {
-		ServiceReference<T> sr = bc.getServiceReference(clazz);
-		if (sr == null)
-			throw new CmsException("No service available for " + clazz);
-		return bc.getService(sr);
+	/*
+	 * OSGi
+	 */
+
+	@Override
+	public void start(BundleContext bc) throws Exception {
+		if (!bc.getBundle().equals(bundleContext.getBundle()))
+			throw new IllegalStateException(
+					"Bundle " + bc.getBundle() + " is not consistent with " + bundleContext.getBundle());
+		init();
+		userAdminSt = new ServiceTracker<>(bundleContext, UserAdmin.class, null);
+		userAdminSt.open();
 	}
+
+	@Override
+	public void stop(BundleContext bc) throws Exception {
+		if (!bc.getBundle().equals(bundleContext.getBundle()))
+			throw new IllegalStateException(
+					"Bundle " + bc.getBundle() + " is not consistent with " + bundleContext.getBundle());
+		destroy();
+	}
+
+//	private <T> T getService(Class<T> clazz) {
+//		ServiceReference<T> sr = bundleContext.getServiceReference(clazz);
+//		if (sr == null)
+//			throw new IllegalStateException("No service available for " + clazz);
+//		return bundleContext.getService(sr);
+//	}
 
 	public static NodeState getNodeState() {
 		return instance.nodeState;
@@ -217,10 +260,10 @@ public class Activator implements BundleActivator {
 		try {
 			res = instance.userAdminSt.waitForService(60000);
 		} catch (InterruptedException e) {
-			throw new CmsException("Cannot retrieve Node user admin", e);
+			throw new IllegalStateException("Cannot retrieve Node user admin", e);
 		}
 		if (res == null)
-			throw new CmsException("No Node user admin found");
+			throw new IllegalStateException("No Node user admin found");
 
 		return res;
 		// ServiceReference<UserAdmin> sr =
@@ -245,6 +288,15 @@ public class Activator implements BundleActivator {
 		for (int i = 0; i < locales.size(); i++)
 			res[i] = locales.get(i).toString();
 		return res;
+	}
+
+	static BundleContext getBundleContext() {
+		return bundleContext;
+	}
+
+	public static void main(String[] args) {
+		instance = new Activator();
+		instance.init();
 	}
 
 }

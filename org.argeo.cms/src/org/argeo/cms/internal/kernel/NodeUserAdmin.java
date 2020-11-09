@@ -35,7 +35,6 @@ import org.apache.commons.httpclient.params.HttpParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.http.client.HttpCredentialProvider;
 import org.argeo.cms.internal.http.client.SpnegoAuthScheme;
 import org.argeo.naming.DnsBrowser;
@@ -53,8 +52,6 @@ import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.useradmin.Authorization;
@@ -67,11 +64,11 @@ import org.osgi.util.tracker.ServiceTracker;
  */
 class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactory, KernelConstants {
 	private final static Log log = LogFactory.getLog(NodeUserAdmin.class);
-	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
+//	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
 	// OSGi
 	private Map<String, LdapName> pidToBaseDn = new HashMap<>();
-	private Map<String, ServiceRegistration<UserDirectory>> pidToServiceRegs = new HashMap<>();
+//	private Map<String, ServiceRegistration<UserDirectory>> pidToServiceRegs = new HashMap<>();
 //	private ServiceRegistration<UserAdmin> userAdminReg;
 
 	// JTA
@@ -87,8 +84,13 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 
 	public NodeUserAdmin(String systemRolesBaseDn, String tokensBaseDn) {
 		super(systemRolesBaseDn, tokensBaseDn);
-		tmTracker = new ServiceTracker<>(bc, TransactionManager.class, null);
-		tmTracker.open();
+		BundleContext bc = Activator.getBundleContext();
+		if (bc != null) {
+			tmTracker = new ServiceTracker<>(bc, TransactionManager.class, null);
+			tmTracker.open();
+		} else {
+			tmTracker = null;
+		}
 	}
 
 	@Override
@@ -102,7 +104,7 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 			} else
 				u = new URI(uri);
 		} catch (URISyntaxException e) {
-			throw new CmsException("Badly formatted URI " + uri, e);
+			throw new IllegalArgumentException("Badly formatted URI " + uri, e);
 		}
 
 		// Create
@@ -115,7 +117,7 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 			userDirectory = new OsUserDirectory(u, properties);
 			singleUser = true;
 		} else {
-			throw new CmsException("Unsupported scheme " + u.getScheme());
+			throw new IllegalArgumentException("Unsupported scheme " + u.getScheme());
 		}
 		Object realm = userDirectory.getProperties().get(UserAdminConf.realm.name());
 		addUserDirectory(userDirectory);
@@ -127,9 +129,11 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 		if (isSystemRolesBaseDn(baseDn))
 			regProps.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
 		regProps.put(UserAdminConf.baseDn.name(), baseDn);
-		ServiceRegistration<UserDirectory> reg = bc.registerService(UserDirectory.class, userDirectory, regProps);
+		// ServiceRegistration<UserDirectory> reg =
+		// bc.registerService(UserDirectory.class, userDirectory, regProps);
+		Activator.registerService(UserDirectory.class, userDirectory, regProps);
 		pidToBaseDn.put(pid, baseDn);
-		pidToServiceRegs.put(pid, reg);
+		// pidToServiceRegs.put(pid, reg);
 
 		if (log.isDebugEnabled())
 			log.debug("User directory " + userDirectory.getBaseDn() + " [" + u.getScheme() + "] enabled."
@@ -140,7 +144,7 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 			Dictionary<String, Object> userAdminregProps = new Hashtable<>();
 			userAdminregProps.put(NodeConstants.CN, NodeConstants.DEFAULT);
 			userAdminregProps.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
-			bc.registerService(UserAdmin.class, this, userAdminregProps);
+			Activator.registerService(UserAdmin.class, this, userAdminregProps);
 		}
 
 //		if (isSystemRolesBaseDn(baseDn))
@@ -162,9 +166,9 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 
 	@Override
 	public void deleted(String pid) {
-		assert pidToServiceRegs.get(pid) != null;
+		// assert pidToServiceRegs.get(pid) != null;
 		assert pidToBaseDn.get(pid) != null;
-		pidToServiceRegs.remove(pid).unregister();
+		// pidToServiceRegs.remove(pid).unregister();
 		LdapName baseDn = pidToBaseDn.remove(pid);
 		removeUserDirectory(baseDn);
 	}
@@ -185,9 +189,9 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 
 	protected void postAdd(AbstractUserDirectory userDirectory) {
 		// JTA
-		TransactionManager tm = tmTracker.getService();
+		TransactionManager tm = tmTracker != null ? tmTracker.getService() : null;
 		if (tm == null)
-			throw new CmsException("A JTA transaction manager must be available.");
+			throw new IllegalStateException("A JTA transaction manager must be available.");
 		userDirectory.setTransactionManager(tm);
 //		if (tmTracker.getService() instanceof BitronixTransactionManager)
 //			EhCacheXAResourceProducer.registerXAResource(cacheName, userDirectory.getXaResource());
@@ -211,7 +215,7 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 						nodeLc.login();
 						acceptorCredentials = logInAsAcceptor(nodeLc.getSubject(), servicePrincipal);
 					} catch (LoginException e) {
-						throw new CmsException("Cannot log in kernel", e);
+						throw new IllegalStateException("Cannot log in kernel", e);
 					}
 				}
 			}
@@ -297,7 +301,7 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 				log.debug("GSS acceptor configured for " + krb5Principal);
 			return serverCredentials;
 		} catch (Exception gsse) {
-			throw new CmsException("Cannot create acceptor credentials for " + krb5Principal, gsse);
+			throw new IllegalStateException("Cannot create acceptor credentials for " + krb5Principal, gsse);
 		}
 	}
 
