@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="CMS Instance">
+   <implementation class="org.argeo.cms.internal.kernel.CmsInstance"/>
+   <service>
+      <provide interface="org.argeo.api.NodeInstance"/>
+   </service>
+</scr:component>

@@ -162,17 +162,7 @@ public class Activator implements BundleActivator {
 
 	private void initNode() throws IOException {
 		// Node state
-//		Path stateUuidPath = bc.getDataFile("stateUuid").toPath();
-//		String stateUuid;
-//		if (Files.exists(stateUuidPath)) {
-//			stateUuid = Files.readAllLines(stateUuidPath).get(0);
-//		} else {
-//			stateUuid = bc.getProperty(Constants.FRAMEWORK_UUID);
-//			Files.write(stateUuidPath, stateUuid.getBytes());
-//		}
 		nodeState = new CmsState();
-//		Dictionary<String, Object> regProps = LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_STATE_PID);
-//		regProps.put(NodeConstants.CN, stateUuid);
 		registerService(NodeState.class, nodeState, null);
 
 		// Node deployment
