@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
@@ -46,6 +48,22 @@
 		<!-- <artifactId>org.joda.time</artifactId> -->
 		<!-- </dependency> -->
 
+		<!-- Misc -->
+		<dependency>
+			<groupId>org.argeo.tp.bouncycastle</groupId>
+			<artifactId>bcprov</artifactId>
+		</dependency>
+
+		<!-- Apache Commons -->
+		<dependency>
+			<groupId>org.argeo.tp.apache.commons</groupId>
+			<artifactId>org.apache.commons.dbcp</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.commons</groupId>
+			<artifactId>org.apache.commons.pool</artifactId>
+		</dependency>
+
 		<!-- Javax -->
 		<dependency>
 			<groupId>org.argeo.tp.javax</groupId>
@@ -56,7 +74,55 @@
 			<artifactId>javax.inject</artifactId>
 		</dependency>
 
+		<!-- Jackrabbit Repository -->
+		<dependency>
+			<groupId>org.argeo.tp.apache.jackrabbit</groupId>
+			<artifactId>org.apache.jackrabbit.data</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.jackrabbit</groupId>
+			<artifactId>org.apache.jackrabbit.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.jackrabbit</groupId>
+			<artifactId>org.apache.jackrabbit.server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>EDU.oswego.cs.dl.util.concurrent</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.commons</groupId>
+			<artifactId>org.apache.commons.fileupload</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.tika.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.tika.parsers</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.lucene</artifactId>
+		</dependency>
+
+		<!-- Required by Jackrabbit 2.12 -->
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>com.google.guava</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>com.google.guava.failureaccess</artifactId>
+		</dependency>
+
 		<!-- Database drivers -->
+		<dependency>
+			<groupId>org.argeo.tp.misc</groupId>
+			<artifactId>org.h2</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp.misc</groupId>
 			<artifactId>org.postgresql.jdbc42</artifactId>
@@ -77,6 +143,12 @@
 		<!-- <groupId>org.argeo.tp.apache</groupId> -->
 		<!-- <artifactId>org.apache.aries.spifly.dynamic.bundle</artifactId> -->
 		<!-- </dependency> -->
+
+		<!-- Servlet -->
+		<dependency>
+			<groupId>org.argeo.tp.javax</groupId>
+			<artifactId>javax.servlet</artifactId>
+		</dependency>
 
 		<!-- HTTP Server -->
 		<dependency>
