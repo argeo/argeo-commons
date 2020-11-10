@@ -214,11 +214,23 @@ public class NodeUtils {
 	 * Translate the path to this node into a path containing the name of the
 	 * repository and the name of the workspace.
 	 */
-	public static String getDataPath(String cn, Node node) throws RepositoryException {
+	public static String getDataPath(String cn, Node node) {
 		assert node != null;
 		StringBuilder buf = new StringBuilder(NodeConstants.PATH_DATA);
-		return buf.append('/').append(cn).append('/').append(node.getSession().getWorkspace().getName())
-				.append(node.getPath()).toString();
+		try {
+			return buf.append('/').append(cn).append('/').append(node.getSession().getWorkspace().getName())
+					.append(node.getPath()).toString();
+		} catch (RepositoryException e) {
+			throw new IllegalStateException("Cannot get data path for " + node + " in repository " + cn, e);
+		}
+	}
+
+	/**
+	 * Translate the path to this node into a path containing the name of the
+	 * repository and the name of the workspace.
+	 */
+	public static String getDataPath(Node node) {
+		return getDataPath(NodeConstants.NODE, node);
 	}
 
 	/**
