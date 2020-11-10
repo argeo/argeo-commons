@@ -218,6 +218,8 @@ public class LightweightDialog {
 				if (!display.readAndDispatch()) {
 					display.sleep();
 				}
+			} catch (UnsupportedOperationException e) {
+				throw e;
 			} catch (Throwable e) {
 				handleException(e);
 			}
