@@ -188,7 +188,7 @@
 									</mappings>
 									<requires>
 										<require>argeo-cms-node</require>
-										<require>osgi-boot</require>
+										<require>argeo-osgi-boot</require>
 										<!-- do not explicitely require java -->
 									</requires>
 								</configuration>

@@ -292,7 +292,7 @@
 									</mappings>
 									<requires>
 										<require>argeo-cms-client-tp</require>
-										<require>osgi-boot</require>
+										<require>argeo-osgi-boot</require>
 									</requires>
 								</configuration>
 							</execution>

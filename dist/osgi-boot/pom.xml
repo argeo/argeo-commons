@@ -69,7 +69,7 @@
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>osgi-boot</name>
+									<name>argeo-osgi-boot</name>
 									<mappings>
 										<mapping>
 											<directory>/usr/bin</directory>
@@ -117,7 +117,7 @@
 										</mapping>
 									</mappings>
 									<requires>
-										<require>osgi-boot-equinox</require>
+										<require>argeo-osgi-boot-equinox</require>
 									</requires>
 								</configuration>
 							</execution>
@@ -141,7 +141,7 @@
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>osgi-boot-equinox</name>
+									<name>argeo-osgi-boot-equinox</name>
 									<projversion>${version.argeo-tp}</projversion>
 									<release>${maven.build.timestamp}</release>
 									<mappings>

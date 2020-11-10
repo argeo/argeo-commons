@@ -12,17 +12,21 @@ CacheDirectory=argeo.d/%I
 WorkingDirectory=/var/lib/argeo.d/%I
 
 ExecStart=/usr/lib/jvm/jre-11/bin/java \
-  -Dlog4j.configuration="file:/etc/argeo.d/log4j.properties" \
-  -Dosgi.configuration.cascaded=true \
-  -Dosgi.sharedConfiguration.area=/usr/share/argeo \
-  -Dosgi.sharedConfiguration.area.readOnly=true \
-  -Dargeo.node.repo.indexesBase=/var/cache/argeo.d/%I/indexes \
-  @/usr/share/osgi/boot/framework.args \
-  @/etc/argeo.d/jvm.args \
-  @/etc/argeo.d/%I/jvm.args \
-  -configuration /var/lib/argeo.d/%I/state \
-  -data /var/lib/argeo.d/%I/data
-#ExecReload=/usr/sbin/argeoctl reload %I
+-Dosgi.configuration.cascaded=true \
+-Dosgi.sharedConfiguration.area=/etc/argeo.d/%I \
+-Dosgi.sharedConfiguration.area.readOnly=true \
+-Dargeo.node.repo.indexesBase=/var/cache/argeo.d/%I/indexes \
+-Dorg.osgi.framework.bootdelegation=com.sun.jndi.ldap,com.sun.jndi.ldap.sasl,com.sun.security.jgss,com.sun.jndi.dns,com.sun.nio.file,com.sun.nio.sctp \
+-Declipse.ignoreApp=true \
+-Dosgi.noShutdown=true \
+-Dorg.eclipse.equinox.http.jetty.autostart=false \
+-Dosgi.bundles=org.argeo.osgi.boot@start \
+@/usr/share/osgi/boot/framework.args \
+@/usr/share/argeo/jvm.args \
+@/etc/argeo.d/jvm.args \
+@/etc/argeo.d/%I/jvm.args \
+-configuration /var/lib/argeo.d/%I/state \
+-data /var/lib/argeo.d/%I/data
 # Exit codes of the JVM when SIGTERM or SIGINT have been caught:
 SuccessExitStatus=143 130
 
