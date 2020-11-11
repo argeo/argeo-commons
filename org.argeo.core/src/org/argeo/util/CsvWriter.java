@@ -57,6 +57,15 @@ public class CsvWriter {
 	}
 
 	/**
+	 * Creates a CSV writer.
+	 * 
+	 * @param out     the stream to write to. Caller is responsible for closing it.
+	 */
+	public CsvWriter(Writer writer) {
+		this.out = writer;
+	}
+
+	/**
 	 * Write a CSV line. Also used to write a header if needed (this is transparent
 	 * for the CSV writer): simply call it first, before writing the lines.
 	 */
