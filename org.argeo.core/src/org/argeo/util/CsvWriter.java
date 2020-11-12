@@ -59,7 +59,7 @@ public class CsvWriter {
 	/**
 	 * Creates a CSV writer.
 	 * 
-	 * @param out     the stream to write to. Caller is responsible for closing it.
+	 * @param out the stream to write to. Caller is responsible for closing it.
 	 */
 	public CsvWriter(Writer writer) {
 		this.out = writer;
@@ -73,7 +73,8 @@ public class CsvWriter {
 		try {
 			Iterator<?> it = tokens.iterator();
 			while (it.hasNext()) {
-				writeToken(it.next().toString());
+				Object obj = it.next();
+				writeToken(obj != null ? obj.toString() : null);
 				if (it.hasNext())
 					out.write(separator);
 			}
@@ -92,8 +93,7 @@ public class CsvWriter {
 		try {
 			for (int i = 0; i < tokens.length; i++) {
 				if (tokens[i] == null) {
-					// TODO configure how to deal with null
-					writeToken("");
+					writeToken(null);
 				} else {
 					writeToken(tokens[i].toString());
 				}
@@ -108,6 +108,11 @@ public class CsvWriter {
 	}
 
 	protected void writeToken(String token) throws IOException {
+		if (token == null) {
+			// TODO configure how to deal with null
+			out.write("");
+			return;
+		}
 		// +2 for possible quotes, another +2 assuming there would be an already
 		// quoted string where quotes needs to be duplicated
 		// another +2 for safety
