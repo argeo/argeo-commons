@@ -301,6 +301,10 @@ public class UuidUtils {
 	public static UUID compactToUuid(String compact) {
 		return UUID.fromString(compactToStd(compact));
 	}
+	
+	public static String firstBlock(UUID uuid) {
+		return uuid.toString().substring(0, 8);
+	}
 
 	public static boolean isRandom(UUID uuid) {
 		return uuid.version() == 4;
