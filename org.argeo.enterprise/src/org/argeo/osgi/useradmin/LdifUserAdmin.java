@@ -144,10 +144,10 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 				objectClasses: while (objectClasses.hasMore()) {
 					String objectClass = objectClasses.next().toString();
 					// System.out.println(" " + objectClass);
-					if (objectClass.equals(inetOrgPerson.name())) {
+					if (objectClass.toLowerCase().equals(inetOrgPerson.name().toLowerCase())) {
 						users.put(key, new LdifUser(this, key, attributes));
 						break objectClasses;
-					} else if (objectClass.equals(getGroupObjectClass())) {
+					} else if (objectClass.toLowerCase().equals(getGroupObjectClass().toLowerCase())) {
 						groups.put(key, new LdifGroup(this, key, attributes));
 						break objectClasses;
 					}
