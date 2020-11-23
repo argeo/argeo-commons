@@ -1,10 +1,9 @@
 package org.argeo.osgi.useradmin;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.osgi.service.useradmin.Authorization;
 
@@ -14,13 +13,16 @@ class AggregatingAuthorization implements Authorization {
 	private final List<String> systemRoles;
 	private final List<String> roles;
 
-	public AggregatingAuthorization(String name, String displayName,
-			Collection<String> systemRoles, String[] roles) {
+	public AggregatingAuthorization(String name, String displayName, Set<String> systemRoles, String[] roles) {
 		this.name = name;
 		this.displayName = displayName;
-		this.systemRoles = Collections.unmodifiableList(new ArrayList<String>(
-				systemRoles));
-		this.roles = Collections.unmodifiableList(Arrays.asList(roles));
+		this.systemRoles = Collections.unmodifiableList(new ArrayList<String>(systemRoles));
+		List<String> temp = new ArrayList<>();
+		for (String role : roles) {
+			if (!temp.contains(role))
+				temp.add(role);
+		}
+		this.roles = Collections.unmodifiableList(temp);
 	}
 
 	@Override
