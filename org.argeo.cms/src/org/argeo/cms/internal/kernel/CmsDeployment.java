@@ -13,8 +13,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,14 +37,17 @@ import org.argeo.api.DataModelNamespace;
 import org.argeo.api.NodeConstants;
 import org.argeo.api.NodeDeployment;
 import org.argeo.api.NodeState;
+import org.argeo.api.NodeUtils;
 import org.argeo.api.security.CryptoKeyring;
 import org.argeo.api.security.Keyring;
 import org.argeo.cms.ArgeoNames;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.http.CmsRemotingServlet;
 import org.argeo.cms.internal.http.CmsWebDavServlet;
 import org.argeo.cms.internal.http.HttpUtils;
+import org.argeo.jcr.Jcr;
+import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.naming.LdapAttrs;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.util.LangUtils;
 import org.eclipse.equinox.http.jetty.JettyConfigurator;
@@ -145,7 +150,7 @@ public class CmsDeployment implements NodeDeployment {
 							.listConfigurations("(service.factoryPid=" + NodeConstants.NODE_USER_ADMIN_PID + ")");
 					isClean = confs == null || confs.length == 0;
 				} catch (Exception e) {
-					throw new CmsException("Cannot analize clean state", e);
+					throw new IllegalStateException("Cannot analyse clean state", e);
 				}
 				deployConfig = new DeployConfig(configurationAdmin, dataModels, isClean);
 				httpExpected = deployConfig.getProps(KernelConstants.JETTY_FACTORY_PID, "default") != null;
@@ -165,7 +170,7 @@ public class CmsDeployment implements NodeDeployment {
 						loadIpaJaasConfiguration();
 					}
 				} catch (Exception e) {
-					throw new CmsException("Cannot initialize config", e);
+					throw new IllegalStateException("Cannot initialize config", e);
 				}
 				return super.addingService(reference);
 			}
@@ -198,7 +203,7 @@ public class CmsDeployment implements NodeDeployment {
 			} catch (Exception e1) {
 				// silent
 			}
-			throw new CmsException("Cannot add standard system roles", e);
+			throw new IllegalStateException("Cannot add standard system roles", e);
 		}
 	}
 
@@ -279,13 +284,69 @@ public class CmsDeployment implements NodeDeployment {
 		}
 	}
 
-	private void prepareNodeRepository(Repository deployedNodeRepository) {
+	private void prepareNodeRepository(Repository deployedNodeRepository, List<String> publishAsLocalRepo) {
 		if (availableSince != null) {
-			throw new CmsException("Deployment is already available");
+			throw new IllegalStateException("Deployment is already available");
 		}
 
 		// home
-		prepareDataModel(NodeConstants.NODE_REPOSITORY, deployedNodeRepository);
+		prepareDataModel(NodeConstants.NODE_REPOSITORY, deployedNodeRepository, publishAsLocalRepo);
+
+		// init from repository
+		Collection<ServiceReference<Repository>> initRepositorySr;
+		try {
+			initRepositorySr = bc.getServiceReferences(Repository.class,
+					"(" + NodeConstants.CN + "=" + NodeConstants.NODE_INIT + ")");
+		} catch (InvalidSyntaxException e1) {
+			throw new IllegalArgumentException(e1);
+		}
+		Iterator<ServiceReference<Repository>> it = initRepositorySr.iterator();
+		while (it.hasNext()) {
+			ServiceReference<Repository> sr = it.next();
+			Object labeledUri = sr.getProperties().get(LdapAttrs.labeledURI.name());
+			Repository initRepository = bc.getService(sr);
+			if (log.isDebugEnabled())
+				log.debug("Found init repository " + labeledUri + ", copying it...");
+			initFromRepository(deployedNodeRepository, initRepository);
+			log.info("Node repository initialised from " + labeledUri);
+		}
+	}
+
+	/** Init from a (typically remote) repository. */
+	private void initFromRepository(Repository deployedNodeRepository, Repository initRepository) {
+		Session initSession = null;
+		try {
+			initSession = initRepository.login();
+			workspaces: for (String workspaceName : initSession.getWorkspace().getAccessibleWorkspaceNames()) {
+				if ("security".equals(workspaceName))
+					continue workspaces;
+				Session targetSession = null;
+				Session sourceSession = null;
+				try {
+					try {
+						targetSession = NodeUtils.openDataAdminSession(deployedNodeRepository, workspaceName);
+					} catch (IllegalArgumentException e) {// no such workspace
+						Session adminSession = NodeUtils.openDataAdminSession(deployedNodeRepository, null);
+						try {
+							adminSession.getWorkspace().createWorkspace(workspaceName);
+						} finally {
+							Jcr.logout(adminSession);
+						}
+						targetSession = NodeUtils.openDataAdminSession(deployedNodeRepository, workspaceName);
+					}
+					sourceSession = initRepository.login(workspaceName);
+					JcrUtils.copy(sourceSession.getRootNode(), targetSession.getRootNode());
+					targetSession.save();
+				} finally {
+					Jcr.logout(sourceSession);
+					Jcr.logout(targetSession);
+				}
+			}
+		} catch (RepositoryException e) {
+			throw new JcrException(e);
+		} finally {
+			Jcr.logout(initSession);
+		}
 	}
 
 	private void prepareHomeRepository(RepositoryImpl deployedRepository) {
@@ -319,7 +380,7 @@ public class CmsDeployment implements NodeDeployment {
 					CallbackHandler callbackHandler = bc.getService(reference);
 					nodeKeyring.setDefaultCallbackHandler(callbackHandler);
 					bc.registerService(LangUtils.names(Keyring.class, CryptoKeyring.class, ManagedService.class),
-							nodeKeyring, LangUtils.dico(Constants.SERVICE_PID, NodeConstants.NODE_KEYRING_PID));
+							nodeKeyring, LangUtils.dict(Constants.SERVICE_PID, NodeConstants.NODE_KEYRING_PID));
 					return callbackHandler;
 				}
 
@@ -328,7 +389,7 @@ public class CmsDeployment implements NodeDeployment {
 	}
 
 	/** Session is logged out. */
-	private void prepareDataModel(String cn, Repository repository) {
+	private void prepareDataModel(String cn, Repository repository, List<String> publishAsLocalRepo) {
 		Session adminSession = KernelUtils.openAdminSession(repository);
 		try {
 			Set<String> processed = new HashSet<String>();
@@ -337,13 +398,13 @@ public class CmsDeployment implements NodeDeployment {
 				if (wiring == null)
 					continue bundles;
 				if (NodeConstants.NODE_REPOSITORY.equals(cn))// process all data models
-					processWiring(cn, adminSession, wiring, processed, false);
+					processWiring(cn, adminSession, wiring, processed, false, publishAsLocalRepo);
 				else {
 					List<BundleCapability> capabilities = wiring.getCapabilities(CMS_DATA_MODEL_NAMESPACE);
 					for (BundleCapability capability : capabilities) {
 						String dataModelName = (String) capability.getAttributes().get(DataModelNamespace.NAME);
 						if (dataModelName.equals(cn))// process only own data model
-							processWiring(cn, adminSession, wiring, processed, false);
+							processWiring(cn, adminSession, wiring, processed, false, publishAsLocalRepo);
 					}
 				}
 			}
@@ -353,14 +414,13 @@ public class CmsDeployment implements NodeDeployment {
 	}
 
 	private void processWiring(String cn, Session adminSession, BundleWiring wiring, Set<String> processed,
-			boolean importListedAbstractModels) {
+			boolean importListedAbstractModels, List<String> publishAsLocalRepo) {
 		// recursively process requirements first
 		List<BundleWire> requiredWires = wiring.getRequiredWires(CMS_DATA_MODEL_NAMESPACE);
 		for (BundleWire wire : requiredWires) {
-			processWiring(cn, adminSession, wire.getProviderWiring(), processed, true);
+			processWiring(cn, adminSession, wire.getProviderWiring(), processed, true, publishAsLocalRepo);
 		}
 
-		List<String> publishAsLocalRepo = new ArrayList<>();
 		List<BundleCapability> capabilities = wiring.getCapabilities(CMS_DATA_MODEL_NAMESPACE);
 		capabilities: for (BundleCapability capability : capabilities) {
 			if (!importListedAbstractModels
@@ -371,9 +431,6 @@ public class CmsDeployment implements NodeDeployment {
 			if (publish)
 				publishAsLocalRepo.add((String) capability.getAttributes().get(DataModelNamespace.NAME));
 		}
-		// Publish all at once, so that bundles with multiple CNDs are consistent
-		for (String dataModelName : publishAsLocalRepo)
-			publishLocalRepo(dataModelName, adminSession.getRepository());
 	}
 
 	private boolean registerDataModelCapability(String cn, Session adminSession, BundleCapability capability,
@@ -393,7 +450,7 @@ public class CmsDeployment implements NodeDeployment {
 			if (!dataModel.exists()) {
 				URL url = capability.getRevision().getBundle().getResource(path);
 				if (url == null)
-					throw new CmsException("No data model '" + name + "' found under path " + path);
+					throw new IllegalArgumentException("No data model '" + name + "' found under path " + path);
 				try (Reader reader = new InputStreamReader(url.openStream())) {
 					CndImporter.registerNodeTypes(reader, adminSession, true);
 					processed.add(name);
@@ -402,7 +459,7 @@ public class CmsDeployment implements NodeDeployment {
 					if (log.isDebugEnabled())
 						log.debug("Registered CND " + url);
 				} catch (Exception e) {
-					throw new CmsException("Cannot import CND " + url, e);
+					log.error("Cannot import CND " + url, e);
 				}
 			}
 		}
@@ -485,7 +542,7 @@ public class CmsDeployment implements NodeDeployment {
 		try {
 			tmpDir = Files.createTempDirectory("remoting_" + alias);
 		} catch (IOException e) {
-			throw new CmsException("Cannot create temp directory for remoting servlet", e);
+			throw new RuntimeException("Cannot create temp directory for remoting servlet", e);
 		}
 		ip.put(HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX + CmsRemotingServlet.INIT_PARAM_HOME, tmpDir.toString());
 		ip.put(HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX + CmsRemotingServlet.INIT_PARAM_TMP_DIRECTORY,
@@ -511,16 +568,20 @@ public class CmsDeployment implements NodeDeployment {
 			RepositoryContext repoContext = bc.getService(reference);
 			String cn = (String) reference.getProperty(NodeConstants.CN);
 			if (cn != null) {
+				List<String> publishAsLocalRepo = new ArrayList<>();
 				if (cn.equals(NodeConstants.NODE_REPOSITORY)) {
-					prepareNodeRepository(repoContext.getRepository());
+					prepareNodeRepository(repoContext.getRepository(), publishAsLocalRepo);
 					// TODO separate home repository
 					prepareHomeRepository(repoContext.getRepository());
 					registerRepositoryServlets(cn, repoContext.getRepository());
 					nodeAvailable = true;
 					checkReadiness();
 				} else {
-					prepareDataModel(cn, repoContext.getRepository());
+					prepareDataModel(cn, repoContext.getRepository(), publishAsLocalRepo);
 				}
+				// Publish all at once, so that bundles with multiple CNDs are consistent
+				for (String dataModelName : publishAsLocalRepo)
+					publishLocalRepo(dataModelName, repoContext.getRepository());
 			}
 			return repoContext;
 		}

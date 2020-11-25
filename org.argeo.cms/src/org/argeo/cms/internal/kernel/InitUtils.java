@@ -7,25 +7,35 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.RepositoryFactory;
 import javax.security.auth.x500.X500Principal;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.http.InternalHttpConstants;
 import org.argeo.cms.internal.jcr.RepoConf;
+import org.argeo.jackrabbit.client.ClientDavexRepositoryFactory;
+import org.argeo.jcr.JcrException;
+import org.argeo.naming.LdapAttrs;
 import org.argeo.osgi.useradmin.UserAdminConf;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 
 /**
  * Interprets framework properties in order to generate the initial deploy
@@ -146,7 +156,7 @@ class InitUtils {
 					FileUtils.copyInputStreamToFile(InitUtils.class.getResourceAsStream(baseNodeRoleDn + ".ldif"),
 							nodeRolesFile);
 				} catch (IOException e) {
-					throw new CmsException("Cannot copy demo resource", e);
+					throw new RuntimeException("Cannot copy demo resource", e);
 				}
 			// nodeRolesUri = nodeRolesFile.toURI().toString();
 		}
@@ -163,7 +173,7 @@ class InitUtils {
 					FileUtils.copyInputStreamToFile(InitUtils.class.getResourceAsStream(baseNodeTokensDn + ".ldif"),
 							nodeRolesFile);
 				} catch (IOException e) {
-					throw new CmsException("Cannot copy demo resource", e);
+					throw new RuntimeException("Cannot copy demo resource", e);
 				}
 			// nodeRolesUri = nodeRolesFile.toURI().toString();
 		}
@@ -184,7 +194,7 @@ class InitUtils {
 						FileUtils.copyInputStreamToFile(
 								InitUtils.class.getResourceAsStream("example-ou=roles,ou=node.ldif"), systemRolesFile);
 				} catch (IOException e) {
-					throw new CmsException("Cannot copy demo resources", e);
+					throw new RuntimeException("Cannot copy demo resources", e);
 				}
 			// userAdminUris = businessRolesFile.toURI().toString();
 			log.warn("## DEV Using dummy base DN " + demoBaseDn);
@@ -199,7 +209,8 @@ class InitUtils {
 			try {
 				u = new URI(uri);
 				if (u.getPath() == null)
-					throw new CmsException("URI " + uri + " must have a path in order to determine base DN");
+					throw new IllegalArgumentException(
+							"URI " + uri + " must have a path in order to determine base DN");
 				if (u.getScheme() == null) {
 					if (uri.startsWith("/") || uri.startsWith("./") || uri.startsWith("../"))
 						u = new File(uri).getCanonicalFile().toURI();
@@ -207,12 +218,12 @@ class InitUtils {
 						// u = KernelUtils.getOsgiInstanceUri(KernelConstants.DIR_NODE + '/' + uri);
 						u = new URI(uri);
 					} else
-						throw new CmsException("Cannot interpret " + uri + " as an uri");
+						throw new IllegalArgumentException("Cannot interpret " + uri + " as an uri");
 				} else if (u.getScheme().equals(UserAdminConf.SCHEME_FILE)) {
 					u = new File(u).getCanonicalFile().toURI();
 				}
 			} catch (Exception e) {
-				throw new CmsException("Cannot interpret " + uri + " as an uri", e);
+				throw new RuntimeException("Cannot interpret " + uri + " as an uri", e);
 			}
 			Dictionary<String, Object> properties = UserAdminConf.uriAsProperties(u.toString());
 			res.add(properties);
@@ -226,36 +237,65 @@ class InitUtils {
 	 * some files (typically LDIF, etc).
 	 */
 	static void prepareFirstInitInstanceArea() {
-		String nodeInit = getFrameworkProp(NodeConstants.NODE_INIT);
-		if (nodeInit == null)
-			nodeInit = "../../init";
-		if (nodeInit.startsWith("http")) {
-			// remoteFirstInit(nodeInit);
-			return;
-		}
+		String nodeInits = getFrameworkProp(NodeConstants.NODE_INIT);
+		if (nodeInits == null)
+			nodeInits = "../../init";
 
-		// TODO use java.nio.file
-		File initDir;
-		if (nodeInit.startsWith("."))
-			initDir = KernelUtils.getExecutionDir(nodeInit);
-		else
-			initDir = new File(nodeInit);
-		// TODO also uncompress archives
-		if (initDir.exists())
-			try {
-				FileUtils.copyDirectory(initDir, KernelUtils.getOsgiInstanceDir(), new FileFilter() {
+		for (String nodeInit : nodeInits.split(",")) {
 
-					@Override
-					public boolean accept(File pathname) {
-						if (pathname.getName().equals(".svn") || pathname.getName().equals(".git"))
-							return false;
-						return true;
+			if (nodeInit.startsWith("http")) {
+				registerRemoteInit(nodeInit);
+			} else {
+
+				// TODO use java.nio.file
+				File initDir;
+				if (nodeInit.startsWith("."))
+					initDir = KernelUtils.getExecutionDir(nodeInit);
+				else
+					initDir = new File(nodeInit);
+				// TODO also uncompress archives
+				if (initDir.exists())
+					try {
+						FileUtils.copyDirectory(initDir, KernelUtils.getOsgiInstanceDir(), new FileFilter() {
+
+							@Override
+							public boolean accept(File pathname) {
+								if (pathname.getName().equals(".svn") || pathname.getName().equals(".git"))
+									return false;
+								return true;
+							}
+						});
+						log.info("CMS initialized from " + initDir.getCanonicalPath());
+					} catch (IOException e) {
+						throw new RuntimeException("Cannot initialize from " + initDir, e);
 					}
-				});
-				log.info("CMS initialized from " + initDir.getCanonicalPath());
-			} catch (IOException e) {
-				throw new CmsException("Cannot initialize from " + initDir, e);
 			}
+		}
+	}
+
+	private static void registerRemoteInit(String uri) {
+		try {
+			BundleContext bundleContext = KernelUtils.getBundleContext();
+			Repository repository = createRemoteRepository(new URI(uri));
+			Hashtable<String, Object> properties = new Hashtable<>();
+			properties.put(NodeConstants.CN, NodeConstants.NODE_INIT);
+			properties.put(LdapAttrs.labeledURI.name(), uri);
+			properties.put(Constants.SERVICE_RANKING, -1000);
+			bundleContext.registerService(Repository.class, repository, properties);
+		} catch (RepositoryException e) {
+			throw new JcrException(e);
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+
+	private static Repository createRemoteRepository(URI uri) throws RepositoryException {
+		RepositoryFactory repositoryFactory = new ClientDavexRepositoryFactory();
+		Map<String, String> params = new HashMap<String, String>();
+		params.put(ClientDavexRepositoryFactory.JACKRABBIT_DAVEX_URI, uri.toString());
+		// TODO make it configurable
+		params.put(ClientDavexRepositoryFactory.JACKRABBIT_REMOTE_DEFAULT_WORKSPACE, NodeConstants.SYS_WORKSPACE);
+		return repositoryFactory.getRepository(params);
 	}
 
 	private static void createSelfSignedKeyStore(Path keyStorePath, String keyStorePassword, String keyStoreType) {
@@ -280,7 +320,7 @@ class InitUtils {
 				log.error("Cannot create keystore " + keyStoreFile, e);
 			}
 		} else {
-			throw new CmsException("Keystore " + keyStorePath + " already exists");
+			throw new IllegalStateException("Keystore " + keyStorePath + " already exists");
 		}
 	}
 
