@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -14,6 +15,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -26,12 +29,16 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
+import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.api.NodeConstants;
 import org.argeo.api.NodeUtils;
+import org.argeo.jackrabbit.client.ClientDavexRepositoryFactory;
+import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -81,6 +88,26 @@ public class LogicalBackup implements Runnable {
 	}
 
 	public void perform() throws RepositoryException, IOException {
+		// software backup
+		if (bundleContext != null)
+			performSoftwareBackup();
+
+		// data backup
+		Session defaultSession = login(null);
+		try {
+			String[] workspaceNames = defaultSession.getWorkspace().getAccessibleWorkspaceNames();
+			workspaces: for (String workspaceName : workspaceNames) {
+				if ("security".equals(workspaceName))
+					continue workspaces;
+				perform(workspaceName);
+			}
+		} finally {
+			JcrUtils.logoutQuietly(defaultSession);
+		}
+
+	}
+
+	public void performSoftwareBackup() throws IOException {
 		for (Bundle bundle : bundleContext.getBundles()) {
 			String relativePath = OSGI_BASE + "boot/" + bundle.getSymbolicName() + ".jar";
 			Dictionary<String, String> headers = bundle.getHeaders();
@@ -145,18 +172,6 @@ public class LogicalBackup implements Runnable {
 					}
 				}
 			}
-		}
-
-		Session defaultSession = login(null);
-		try {
-			String[] workspaceNames = defaultSession.getWorkspace().getAccessibleWorkspaceNames();
-			workspaces: for (String workspaceName : workspaceNames) {
-				if ("security".equals(workspaceName))
-					continue workspaces;
-				perform(workspaceName);
-			}
-		} finally {
-			JcrUtils.logoutQuietly(defaultSession);
 		}
 
 	}
@@ -236,6 +251,45 @@ public class LogicalBackup implements Runnable {
 	}
 
 	protected Session login(String workspaceName) {
-		return NodeUtils.openDataAdminSession(repository, workspaceName);
+		if (bundleContext != null) {// local
+			return NodeUtils.openDataAdminSession(repository, workspaceName);
+		} else {// remote
+			try {
+				return repository.login(workspaceName);
+			} catch (RepositoryException e) {
+				throw new JcrException(e);
+			}
+		}
 	}
+
+	public final static void main(String[] args) throws Exception {
+		if (args.length == 0) {
+			printUsage("No argument");
+			System.exit(1);
+		}
+		URI uri = new URI(args[0]);
+		Repository repository = createRemoteRepository(uri);
+		Path basePath = args.length > 1 ? Paths.get(args[1]) : Paths.get(System.getProperty("user.dir"));
+		if (!Files.exists(basePath))
+			Files.createDirectories(basePath);
+		LogicalBackup backup = new LogicalBackup(null, repository, basePath);
+		backup.run();
+	}
+
+	private static void printUsage(String errorMessage) {
+		if (errorMessage != null)
+			System.err.println(errorMessage);
+		System.out.println("Usage: LogicalBackup <remote URL> [<target directory>]");
+
+	}
+
+	protected static Repository createRemoteRepository(URI uri) throws RepositoryException {
+		RepositoryFactory repositoryFactory = new ClientDavexRepositoryFactory();
+		Map<String, String> params = new HashMap<String, String>();
+		params.put(ClientDavexRepositoryFactory.JACKRABBIT_DAVEX_URI, uri.toString());
+		// TODO make it configurable
+		params.put(ClientDavexRepositoryFactory.JACKRABBIT_REMOTE_DEFAULT_WORKSPACE, NodeConstants.SYS_WORKSPACE);
+		return repositoryFactory.getRepository(params);
+	}
+
 }
