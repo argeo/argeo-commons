@@ -731,6 +731,11 @@ public class JcrUtils {
 			if (toNode.getDefinition().isProtected())
 				return;
 
+			// add mixins
+			for (NodeType mixinType : fromNode.getMixinNodeTypes()) {
+				toNode.addMixin(mixinType.getName());
+			}
+
 			// process properties
 			PropertyIterator pit = fromNode.getProperties();
 			properties: while (pit.hasNext()) {
@@ -756,11 +761,6 @@ public class JcrUtils {
 			// update jcr:lastModified and jcr:lastModifiedBy in toNode in case
 			// they existed, before adding the mixins
 			updateLastModified(toNode, true);
-
-			// add mixins
-			for (NodeType mixinType : fromNode.getMixinNodeTypes()) {
-				toNode.addMixin(mixinType.getName());
-			}
 
 			// process children nodes
 			NodeIterator nit = fromNode.getNodes();
