@@ -231,6 +231,11 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 		eventAdmin.sendEvent(new Event(topic, properties));
 	}
 
+	@Override
+	public void stateChanged(String state, String title) {
+		browserNavigation.pushState(state, title);
+	}
+
 	/*
 	 * EntryPoint IMPLEMENTATION
 	 */

@@ -60,6 +60,9 @@ public interface CmsView {
 	default <T> T doAs(PrivilegedAction<T> action) {
 		throw new UnsupportedOperationException();
 	}
+	
+	default void stateChanged(String state, String title) {
+	}
 
 	static CmsView getCmsView(Control parent) {
 		// find parent shell
