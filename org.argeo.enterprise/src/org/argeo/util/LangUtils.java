@@ -10,10 +10,12 @@ import java.nio.file.StandardOpenOption;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -199,6 +201,35 @@ public class LangUtils {
 		for (Object key : toLoad.keySet())
 			res.put(key.toString(), toLoad.get(key));
 		return res;
+	}
+
+	/*
+	 * COLLECTIONS
+	 */
+	/**
+	 * Convert a comma-separated or carrirer-return sperated {@link String} or a
+	 * {@link String} array to a {@link List} of {@link String}, trimming them.
+	 * Useful to quickly interpret OSGi services properties.
+	 * 
+	 * @return a {@link List} containing the trimmed {@link String}s, or an empty
+	 *         {@link List} if the argument was <code>null</code>.
+	 */
+	public static List<String> toStringList(Object value) {
+		List<String> values = new ArrayList<>();
+		if (value == null)
+			return values;
+		String[] arr;
+		if (value instanceof String) {
+			arr = ((String) value).split(",\n");
+		} else if (value instanceof String[]) {
+			arr = (String[]) value;
+		} else {
+			throw new IllegalArgumentException("Unsupported value type " + value.getClass());
+		}
+		for (String str : arr) {
+			values.add(str.trim());
+		}
+		return values;
 	}
 
 	/*
