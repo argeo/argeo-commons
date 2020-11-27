@@ -217,7 +217,7 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 	@Override
 	public void navigated(BrowserNavigationEvent event) {
 		setState(event.getState());
-		doRefresh();
+		//doRefresh();
 	}
 
 	@Override
