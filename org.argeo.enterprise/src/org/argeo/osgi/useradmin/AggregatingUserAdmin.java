@@ -110,7 +110,12 @@ public class AggregatingUserAdmin implements UserAdmin {
 		Set<String> sysRoles = new HashSet<String>();
 		for (String role : rawAuthorization.getRoles()) {
 			Authorization auth = systemRoles.getAuthorization((User) userAdmin.getRole(role));
-			sysRoles.addAll(Arrays.asList(auth.getRoles()));
+			systemRoles:for(String systemRole:auth.getRoles()) {
+				if(role.equals(systemRole))
+					continue systemRoles;
+				sysRoles.add(systemRole);
+			}
+//			sysRoles.addAll(Arrays.asList(auth.getRoles()));
 		}
 		addAbstractSystemRoles(rawAuthorization, sysRoles);
 		Authorization authorization = new AggregatingAuthorization(usernameToUse, displayNameToUse, sysRoles,

@@ -2,27 +2,29 @@ package org.argeo.osgi.useradmin;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.osgi.service.useradmin.Authorization;
 
+/** An {@link Authorization} which combines roles form various auth sources. */
 class AggregatingAuthorization implements Authorization {
 	private final String name;
 	private final String displayName;
-	private final List<String> systemRoles;
-	private final List<String> roles;
+	private final Set<String> systemRoles;
+	private final Set<String> roles;
 
 	public AggregatingAuthorization(String name, String displayName, Set<String> systemRoles, String[] roles) {
 		this.name = name;
 		this.displayName = displayName;
-		this.systemRoles = Collections.unmodifiableList(new ArrayList<String>(systemRoles));
-		List<String> temp = new ArrayList<>();
+		this.systemRoles = Collections.unmodifiableSet(new HashSet<>(systemRoles));
+		Set<String> temp = new HashSet<>();
 		for (String role : roles) {
 			if (!temp.contains(role))
 				temp.add(role);
 		}
-		this.roles = Collections.unmodifiableList(temp);
+		this.roles = Collections.unmodifiableSet(temp);
 	}
 
 	@Override
