@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.security.auth.login.LoginContext;
 
+import org.argeo.cms.auth.CmsSession;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
@@ -62,6 +63,10 @@ public interface CmsView {
 	}
 	
 	default void stateChanged(String state, String title) {
+	}
+	
+	default CmsSession getCmsSession() {
+		throw new UnsupportedOperationException();
 	}
 
 	static CmsView getCmsView(Control parent) {

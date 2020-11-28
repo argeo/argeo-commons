@@ -52,6 +52,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 /** A basic generic app based on {@link SimpleErgonomics}. */
+@Deprecated
 public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 	private final static Log log = LogFactory.getLog(SimpleApp.class);
 

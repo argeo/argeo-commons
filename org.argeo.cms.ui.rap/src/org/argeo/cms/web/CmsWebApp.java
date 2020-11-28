@@ -39,7 +39,6 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 		contextName = properties.get(CONTEXT_NAME);
 		if (cmsApp != null)
 			themingUpdated();
-//		registerIfAllThemesAvailable();
 	}
 
 	public void destroy(BundleContext bundleContext, Map<String, String> properties) {
@@ -54,12 +53,10 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 			if (theme != null)
 				WebThemeUtils.apply(application, theme);
 		}
-//		for (CmsTheme theme : themes.values())
-//			WebThemeUtils.apply(application, theme);
 
 		Map<String, String> properties = new HashMap<>();
 		addEntryPoints(application, properties);
-
+		application.setExceptionHandler(this);
 	}
 
 	@Override
@@ -83,8 +80,6 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 				properties.put(WebClient.HEAD_HTML, theme.getHtmlHeaders());
 			} else {
 				properties.put(WebClient.THEME_ID, RWT.DEFAULT_THEME_ID);
-//				if (themeId != null)
-//					log.warn("Theme id " + themeId + " was specified but it was not found, using default RWT theme.");
 			}
 			String entryPointName = !uiName.equals("") ? "/" + uiName : "/";
 			application.addEntryPoint(entryPointName, () -> {
@@ -99,34 +94,17 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 			log.debug("Published CMS web app /" + (contextName != null ? contextName : ""));
 	}
 
-//	private void registerIfAllThemesAvailable() {
-//		boolean themeMissing = false;
-//		uiNames: for (String uiName : cmsApp.getUiNames()) {
-//			String themeId = cmsApp.getThemeId(uiName);
-//			if (RWT.DEFAULT_THEME_ID.equals(themeId))
-//				continue uiNames;
-//			if (!themes.containsKey(themeId)) {
-//				themeMissing = true;
-//				break uiNames;
-//			}
-//		}
-//		if (!themeMissing) {
-//			Dictionary<String, Object> regProps = LangUtils.dict(CONTEXT_NAME, contextName);
-//			if (bundleContext != null) {
-//				rwtAppReg = bundleContext.registerService(ApplicationConfiguration.class, this, regProps);
-//				log.info("Published CMS web app /" + (contextName != null ? contextName : ""));
-//			}
-//		}
-//	}
-
 	CmsApp getCmsApp() {
 		return cmsApp;
+	}
+
+	BundleContext getBundleContext() {
+		return bundleContext;
 	}
 
 	public void setCmsApp(CmsApp cmsApp, Map<String, String> properties) {
 		this.cmsApp = cmsApp;
 		this.cmsApp.addCmsAppListener(this);
-//		registerIfAllThemesAvailable();
 	}
 
 	public void unsetCmsApp(CmsApp cmsApp, Map<String, String> properties) {

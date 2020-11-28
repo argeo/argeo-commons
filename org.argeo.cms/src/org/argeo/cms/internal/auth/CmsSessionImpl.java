@@ -60,6 +60,8 @@ public class CmsSessionImpl implements CmsSession {
 	private Set<String> dataSessionsInUse = new HashSet<>();
 	private LinkedHashSet<Session> additionalDataSessions = new LinkedHashSet<>();
 
+	private Map<String, Object> views = new HashMap<>();
+
 	public CmsSessionImpl(Subject initialSubject, Authorization authorization, Locale locale, String localSessionId) {
 		this.creationTime = ZonedDateTime.now();
 		this.locale = locale;
@@ -245,6 +247,13 @@ public class CmsSessionImpl implements CmsSession {
 	@Override
 	public ZonedDateTime getEnd() {
 		return end;
+	}
+
+	@Override
+	public void registerView(String uid, Object view) {
+		if (views.containsKey(uid))
+			throw new IllegalArgumentException("View " + uid + " is already registered.");
+		views.put(uid, view);
 	}
 
 	public String toString() {

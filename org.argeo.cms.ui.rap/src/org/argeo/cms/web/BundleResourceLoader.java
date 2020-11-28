@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import org.argeo.cms.CmsException;
 import org.eclipse.rap.rwt.service.ResourceLoader;
 import org.osgi.framework.Bundle;
 
@@ -22,7 +21,8 @@ public class BundleResourceLoader implements ResourceLoader {
 		if (res == null) {
 			res = bundle.getResource(resourceName);
 			if (res == null)
-				throw new CmsException("Resource " + resourceName + " not found in bundle " + bundle.getSymbolicName());
+				throw new IllegalArgumentException(
+						"Resource " + resourceName + " not found in bundle " + bundle.getSymbolicName());
 		}
 		return res.openStream();
 	}

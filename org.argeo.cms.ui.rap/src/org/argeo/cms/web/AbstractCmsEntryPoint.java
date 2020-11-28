@@ -46,6 +46,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 /** Manages history and navigation */
+@Deprecated
 public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements CmsView {
 	private static final long serialVersionUID = 906558779562569784L;
 

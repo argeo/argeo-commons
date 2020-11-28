@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 /** Simple header/body ergonomics. */
+@Deprecated
 public class SimpleErgonomics extends AbstractCmsEntryPoint {
 	private static final long serialVersionUID = 8743413921359548523L;
 

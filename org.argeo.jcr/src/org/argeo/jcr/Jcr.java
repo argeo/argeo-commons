@@ -94,62 +94,62 @@ public class Jcr {
 
 	/**
 	 * @see Node#isNodeType(String)
-	 * @throws IllegalStateException caused by {@link RepositoryException}
+	 * @throws JcrException caused by {@link RepositoryException}
 	 */
 	public static boolean isNodeType(Node node, String nodeTypeName) {
 		try {
 			return node.isNodeType(nodeTypeName);
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get whether " + node + " is of type " + nodeTypeName, e);
+			throw new JcrException("Cannot get whether " + node + " is of type " + nodeTypeName, e);
 		}
 	}
 
 	/**
 	 * @see Node#hasNodes()
-	 * @throws IllegalStateException caused by {@link RepositoryException}
+	 * @throws JcrException caused by {@link RepositoryException}
 	 */
 	public static boolean hasNodes(Node node) {
 		try {
 			return node.hasNodes();
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get whether " + node + " has children.", e);
+			throw new JcrException("Cannot get whether " + node + " has children.", e);
 		}
 	}
 
 	/**
 	 * @see Node#getParent()
-	 * @throws IllegalStateException caused by {@link RepositoryException}
+	 * @throws JcrException caused by {@link RepositoryException}
 	 */
 	public static Node getParent(Node node) {
 		try {
 			return isRoot(node) ? null : node.getParent();
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get parent of " + node, e);
+			throw new JcrException("Cannot get parent of " + node, e);
 		}
 	}
 
 	/**
 	 * Whether this node is the root node.
 	 * 
-	 * @throws IllegalStateException caused by {@link RepositoryException}
+	 * @throws JcrException caused by {@link RepositoryException}
 	 */
 	public static boolean isRoot(Node node) {
 		try {
 			return node.getDepth() == 0;
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get depth of " + node, e);
+			throw new JcrException("Cannot get depth of " + node, e);
 		}
 	}
 
 	/**
 	 * @see Node#getPath()
-	 * @throws IllegalStateException caused by {@link RepositoryException}
+	 * @throws JcrException caused by {@link RepositoryException}
 	 */
 	public static String getPath(Node node) {
 		try {
 			return node.getPath();
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get path of " + node, e);
+			throw new JcrException("Cannot get path of " + node, e);
 		}
 	}
 
@@ -164,25 +164,25 @@ public class Jcr {
 
 	/**
 	 * @see Node#getIdentifier()
-	 * @throws IllegalStateException caused by {@link RepositoryException}
+	 * @throws JcrException caused by {@link RepositoryException}
 	 */
 	public static String getIdentifier(Node node) {
 		try {
 			return node.getIdentifier();
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get identifier of " + node, e);
+			throw new JcrException("Cannot get identifier of " + node, e);
 		}
 	}
 
 	/**
 	 * @see Node#getName()
-	 * @throws IllegalStateException caused by {@link RepositoryException}
+	 * @throws JcrException caused by {@link RepositoryException}
 	 */
 	public static String getName(Node node) {
 		try {
 			return node.getName();
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get name of " + node, e);
+			throw new JcrException("Cannot get name of " + node, e);
 		}
 	}
 
@@ -212,20 +212,20 @@ public class Jcr {
 	/**
 	 * @return the children as an {@link Iterable} for use in for-each llops.
 	 * @see Node#getNodes()
-	 * @throws IllegalStateException caused by {@link RepositoryException}
+	 * @throws JcrException caused by {@link RepositoryException}
 	 */
 	public static Iterable<Node> nodes(Node node) {
 		try {
 			return iterate(node.getNodes());
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get children of " + node, e);
+			throw new JcrException("Cannot get children of " + node, e);
 		}
 	}
 
 	/**
 	 * @return the children as a (possibly empty) {@link List}.
 	 * @see Node#getNodes()
-	 * @throws IllegalStateException caused by {@link RepositoryException}
+	 * @throws JcrException caused by {@link RepositoryException}
 	 */
 	public static List<Node> getNodes(Node node) {
 		List<Node> nodes = new ArrayList<>();
@@ -238,14 +238,14 @@ public class Jcr {
 			} else
 				return nodes;
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get children of " + node, e);
+			throw new JcrException("Cannot get children of " + node, e);
 		}
 	}
 
 	/**
 	 * @return the child or <code>null</node> if not found
 	 * @see Node#getNode(String)
-	 * @throws IllegalStateException caused by {@link RepositoryException}
+	 * @throws JcrException caused by {@link RepositoryException}
 	 */
 	public static Node getNode(Node node, String child) {
 		try {
@@ -254,14 +254,14 @@ public class Jcr {
 			else
 				return null;
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get child of " + node, e);
+			throw new JcrException("Cannot get child of " + node, e);
 		}
 	}
 
 	/**
 	 * @return the node at this path or <code>null</node> if not found
 	 * @see Session#getNode(String)
-	 * @throws IllegalStateException caused by {@link RepositoryException}
+	 * @throws JcrException caused by {@link RepositoryException}
 	 */
 	public static Node getNode(Session session, String path) {
 		try {
@@ -270,14 +270,14 @@ public class Jcr {
 			else
 				return null;
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get node " + path, e);
+			throw new JcrException("Cannot get node " + path, e);
 		}
 	}
 
 	/**
 	 * @return the node with htis id or <code>null</node> if not found
 	 * @see Session#getNodeByIdentifier(String)
-	 * @throws IllegalStateException caused by {@link RepositoryException}
+	 * @throws JcrException caused by {@link RepositoryException}
 	 */
 	public static Node getNodeById(Session session, String id) {
 		try {
@@ -285,7 +285,7 @@ public class Jcr {
 		} catch (ItemNotFoundException e) {
 			return null;
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get node with id " + id, e);
+			throw new JcrException("Cannot get node with id " + id, e);
 		}
 	}
 
@@ -293,7 +293,7 @@ public class Jcr {
 	 * Set a property to the given value, or remove it if the value is
 	 * <code>null</code>.
 	 * 
-	 * @throws IllegalStateException caused by {@link RepositoryException}
+	 * @throws JcrException caused by {@link RepositoryException}
 	 */
 	public static void set(Node node, String property, Object value) {
 		try {
@@ -327,7 +327,7 @@ public class Jcr {
 			} else // try with toString()
 				prop.setValue(value.toString());
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot set property " + property + " of " + node + " to " + value, e);
+			throw new JcrException("Cannot set property " + property + " of " + node + " to " + value, e);
 		}
 	}
 
@@ -337,7 +337,7 @@ public class Jcr {
 	 * @return the value of
 	 *         {@link Node#getProperty(String)}.{@link Property#getString()} or
 	 *         <code>null</code> if the property does not exist.
-	 * @throws IllegalStateException caused by {@link RepositoryException}
+	 * @throws JcrException caused by {@link RepositoryException}
 	 */
 	public static String get(Node node, String property) {
 		return get(node, property, null);
@@ -350,7 +350,7 @@ public class Jcr {
 	 * @return the value of
 	 *         {@link Node#getProperty(String)}.{@link Property#getString()} or
 	 *         <code>defaultValue</code> if the property does not exist.
-	 * @throws IllegalStateException caused by {@link RepositoryException}
+	 * @throws JcrException caused by {@link RepositoryException}
 	 */
 	public static String get(Node node, String property, String defaultValue) {
 		try {
@@ -368,7 +368,7 @@ public class Jcr {
 			} else
 				return defaultValue;
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot retrieve property " + property + " from " + node);
+			throw new JcrException("Cannot retrieve property " + property + " from " + node, e);
 		}
 	}
 
@@ -377,7 +377,7 @@ public class Jcr {
 	 * 
 	 * @return {@link Node#getProperty(String)} or <code>null</code> if the property
 	 *         does not exist.
-	 * @throws IllegalStateException caused by {@link RepositoryException}
+	 * @throws JcrException caused by {@link RepositoryException}
 	 */
 	public static Value getValue(Node node, String property) {
 		try {
@@ -386,7 +386,7 @@ public class Jcr {
 			else
 				return null;
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot retrieve property " + property + " from " + node);
+			throw new JcrException("Cannot retrieve property " + property + " from " + node, e);
 		}
 	}
 
@@ -396,7 +396,7 @@ public class Jcr {
 	 * @return the value of {@link Node#getProperty(String)} or
 	 *         <code>defaultValue</code> if the property does not exist.
 	 * @throws IllegalArgumentException if the value could not be cast
-	 * @throws IllegalStateException    in case of unexpected
+	 * @throws JcrException             in case of unexpected
 	 *                                  {@link RepositoryException}
 	 */
 	@SuppressWarnings("unchecked")
@@ -428,7 +428,7 @@ public class Jcr {
 				return defaultValue;
 			}
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot retrieve property " + property + " from " + node);
+			throw new JcrException("Cannot retrieve property " + property + " from " + node, e);
 		}
 	}
 
@@ -447,7 +447,7 @@ public class Jcr {
 		try {
 			return node.getSession();
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot retrieve session related to " + node, e);
+			throw new JcrException("Cannot retrieve session related to " + node, e);
 		}
 	}
 
@@ -456,7 +456,16 @@ public class Jcr {
 		try {
 			return session.getRootNode();
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get root node for " + session, e);
+			throw new JcrException("Cannot get root node for " + session, e);
+		}
+	}
+
+	/** Whether this item exists. */
+	public static boolean itemExists(Session session, String path) {
+		try {
+			return session.itemExists(path);
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot check whether " + path + " exists", e);
 		}
 	}
 
@@ -474,7 +483,7 @@ public class Jcr {
 			if (session.hasPendingChanges())
 				session.save();
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot save session related to " + node + " in workspace "
+			throw new JcrException("Cannot save session related to " + node + " in workspace "
 					+ session(node).getWorkspace().getName(), e);
 		}
 	}
@@ -517,7 +526,7 @@ public class Jcr {
 			Session session = node.getSession();
 			JcrUtils.addPrivilege(session, node.getPath(), principal, privilege);
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot add privilege " + privilege + " to " + node, e);
+			throw new JcrException("Cannot add privilege " + privilege + " to " + node, e);
 		}
 	}
 
@@ -529,7 +538,7 @@ public class Jcr {
 		try {
 			return node.isCheckedOut();
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot retrieve checked out status of " + node, e);
+			throw new JcrException("Cannot retrieve checked out status of " + node, e);
 		}
 	}
 
@@ -538,7 +547,7 @@ public class Jcr {
 		try {
 			versionManager(node).checkpoint(node.getPath());
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot check in " + node, e);
+			throw new JcrException("Cannot check in " + node, e);
 		}
 	}
 
@@ -547,7 +556,7 @@ public class Jcr {
 		try {
 			versionManager(node).checkin(node.getPath());
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot check in " + node, e);
+			throw new JcrException("Cannot check in " + node, e);
 		}
 	}
 
@@ -556,7 +565,7 @@ public class Jcr {
 		try {
 			versionManager(node).checkout(node.getPath());
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot check out " + node, e);
+			throw new JcrException("Cannot check out " + node, e);
 		}
 	}
 
@@ -565,7 +574,7 @@ public class Jcr {
 		try {
 			return node.getSession().getWorkspace().getVersionManager();
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get version manager from " + node, e);
+			throw new JcrException("Cannot get version manager from " + node, e);
 		}
 	}
 
@@ -574,7 +583,7 @@ public class Jcr {
 		try {
 			return versionManager(node).getVersionHistory(node.getPath());
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get version history from " + node, e);
+			throw new JcrException("Cannot get version history from " + node, e);
 		}
 	}
 
@@ -592,7 +601,7 @@ public class Jcr {
 			Collections.reverse(lst);
 			return lst;
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get linear versions from " + versionHistory, e);
+			throw new JcrException("Cannot get linear versions from " + versionHistory, e);
 		}
 	}
 
@@ -601,7 +610,7 @@ public class Jcr {
 		try {
 			return version.getFrozenNode();
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get frozen node from " + version, e);
+			throw new JcrException("Cannot get frozen node from " + version, e);
 		}
 	}
 
@@ -610,7 +619,7 @@ public class Jcr {
 		try {
 			return versionManager(node).getBaseVersion(node.getPath());
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get base version from " + node, e);
+			throw new JcrException("Cannot get base version from " + node, e);
 		}
 	}
 
@@ -628,7 +637,7 @@ public class Jcr {
 				throw new IllegalArgumentException(fileNode + " must be a file.");
 			return getBinarySize(fileNode.getNode(Node.JCR_CONTENT).getProperty(Property.JCR_DATA).getBinary());
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get file size of " + fileNode, e);
+			throw new JcrException("Cannot get file size of " + fileNode, e);
 		}
 	}
 
@@ -639,7 +648,7 @@ public class Jcr {
 				return binary.getSize();
 			}
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get file size of binary " + binaryArg, e);
+			throw new JcrException("Cannot get file size of binary " + binaryArg, e);
 		}
 	}
 

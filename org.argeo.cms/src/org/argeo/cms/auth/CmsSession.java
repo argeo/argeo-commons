@@ -38,6 +38,8 @@ public interface CmsSession {
 
 	boolean isValid();
 
+	void registerView(String uid, Object view);
+
 	/** @return The {@link CmsSession} for this {@link Subject} or null. */
 	static CmsSession getCmsSession(BundleContext bc, Subject subject) {
 		if (subject.getPrivateCredentials(CmsSessionId.class).isEmpty())

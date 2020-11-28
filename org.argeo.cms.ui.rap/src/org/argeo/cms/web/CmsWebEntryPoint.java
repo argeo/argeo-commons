@@ -14,6 +14,7 @@ import javax.security.auth.login.LoginException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
+import org.argeo.cms.auth.CmsSession;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.cms.ui.CmsApp;
@@ -217,7 +218,7 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 	@Override
 	public void navigated(BrowserNavigationEvent event) {
 		setState(event.getState());
-		//doRefresh();
+		// doRefresh();
 	}
 
 	@Override
@@ -234,6 +235,12 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 	@Override
 	public void stateChanged(String state, String title) {
 		browserNavigation.pushState(state, title);
+	}
+
+	@Override
+	public CmsSession getCmsSession() {
+		CmsSession cmsSession = CmsSession.getCmsSession(cmsWebApp.getBundleContext(), getSubject());
+		return cmsSession;
 	}
 
 	/*

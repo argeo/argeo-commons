@@ -20,6 +20,7 @@ import javax.security.auth.login.LoginContext;
 import org.argeo.api.NodeConstants;
 import org.argeo.api.NodeUtils;
 import org.argeo.cms.CmsException;
+import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrRepositoryWrapper;
 import org.argeo.jcr.JcrUtils;
 
@@ -52,7 +53,7 @@ class EgoRepository extends JcrRepositoryWrapper implements KernelConstants {
 				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_DATA_ADMIN);
 				lc.login();
 			} catch (javax.security.auth.login.LoginException e1) {
-				throw new CmsException("Cannot login as systrem", e1);
+				throw new IllegalStateException("Cannot login as system", e1);
 			}
 			Subject.doAs(lc.getSubject(), new PrivilegedAction<Void>() {
 
@@ -75,7 +76,7 @@ class EgoRepository extends JcrRepositoryWrapper implements KernelConstants {
 
 //			initJcr(adminSession);
 		} catch (RepositoryException e) {
-			throw new CmsException("Cannot init JCR home", e);
+			throw new JcrException("Cannot init JCR home", e);
 		} finally {
 			JcrUtils.logoutQuietly(adminSession);
 		}
@@ -185,7 +186,7 @@ class EgoRepository extends JcrRepositoryWrapper implements KernelConstants {
 				adminSession.save();
 		} catch (RepositoryException e) {
 			JcrUtils.discardQuietly(adminSession);
-			throw new CmsException("Cannot sync node security model for " + username, e);
+			throw new JcrException("Cannot sync node security model for " + username, e);
 		}
 	}
 
