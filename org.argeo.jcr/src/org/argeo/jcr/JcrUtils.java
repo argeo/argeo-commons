@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
@@ -26,6 +28,7 @@ import java.util.TreeMap;
 
 import javax.jcr.Binary;
 import javax.jcr.Credentials;
+import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
@@ -37,6 +40,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.Workspace;
+import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.observation.EventListener;
 import javax.jcr.query.Query;
@@ -718,6 +722,33 @@ public class JcrUtils {
 		}
 	}
 
+	/** Copy the whole workspace via a system view XML. */
+	public static void copyWorkspaceXml(Session fromSession, Session toSession) {
+		Workspace fromWorkspace = fromSession.getWorkspace();
+		Workspace toWorkspace = toSession.getWorkspace();
+		String errorMsg = "Cannot copy workspace " + fromWorkspace + " to " + toWorkspace + " via XML.";
+		
+		try (PipedInputStream in = new PipedInputStream(1024 * 1024);) {
+			new Thread(() -> {
+				try (PipedOutputStream out = new PipedOutputStream(in)) {
+					fromSession.exportSystemView("/", out, false, false);
+					out.flush();
+				} catch (IOException e) {
+					throw new RuntimeException(errorMsg, e);
+				} catch (RepositoryException e) {
+					throw new JcrException(errorMsg, e);
+				}
+			}, "Copy workspace" + fromWorkspace + " to " + toWorkspace).start();
+
+			toSession.importXML("/", in, ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING);
+			toSession.save();
+		} catch (IOException e) {
+			throw new RuntimeException(errorMsg, e);
+		} catch (RepositoryException e) {
+			throw new JcrException(errorMsg, e);
+		}
+	}
+
 	/**
 	 * Copies recursively the content of a node to another one. Do NOT copy the
 	 * property values of {@link NodeType#MIX_CREATED} and
@@ -733,7 +764,12 @@ public class JcrUtils {
 
 			// add mixins
 			for (NodeType mixinType : fromNode.getMixinNodeTypes()) {
-				toNode.addMixin(mixinType.getName());
+				try {
+					toNode.addMixin(mixinType.getName());
+				} catch (NoSuchNodeTypeException e) {
+					// ignore unknown mixins
+					// TODO log it
+				}
 			}
 
 			// process properties
@@ -771,8 +807,15 @@ public class JcrUtils {
 				Node toChild;
 				if (toNode.hasNode(nodeRelPath))
 					toChild = toNode.getNode(nodeRelPath);
-				else
-					toChild = toNode.addNode(fromChild.getName(), fromChild.getPrimaryNodeType().getName());
+				else {
+					try {
+						toChild = toNode.addNode(fromChild.getName(), fromChild.getPrimaryNodeType().getName());
+					} catch (NoSuchNodeTypeException e) {
+						// ignore unknown primary types
+						// TODO log it
+						return;
+					}
+				}
 				copy(fromChild, toChild);
 			}
 		} catch (RepositoryException e) {

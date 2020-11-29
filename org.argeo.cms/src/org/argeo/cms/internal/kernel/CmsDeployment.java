@@ -320,6 +320,9 @@ public class CmsDeployment implements NodeDeployment {
 			workspaces: for (String workspaceName : initSession.getWorkspace().getAccessibleWorkspaceNames()) {
 				if ("security".equals(workspaceName))
 					continue workspaces;
+				if (log.isDebugEnabled())
+					log.debug("Copying workspace " + workspaceName + " from init repository...");
+				long begin = System.currentTimeMillis();
 				Session targetSession = null;
 				Session sourceSession = null;
 				try {
@@ -335,8 +338,16 @@ public class CmsDeployment implements NodeDeployment {
 						targetSession = NodeUtils.openDataAdminSession(deployedNodeRepository, workspaceName);
 					}
 					sourceSession = initRepository.login(workspaceName);
+//					JcrUtils.copyWorkspaceXml(sourceSession, targetSession);
+					// TODO deal with referenceable nodes
 					JcrUtils.copy(sourceSession.getRootNode(), targetSession.getRootNode());
 					targetSession.save();
+					long duration = System.currentTimeMillis() - begin;
+					if (log.isDebugEnabled())
+						log.debug("Copied workspace " + workspaceName + " from init repository in " + (duration / 1000)
+								+ " s");
+				} catch (Exception e) {
+					log.error("Cannot copy workspace " + workspaceName + " from init repository.", e);
 				} finally {
 					Jcr.logout(sourceSession);
 					Jcr.logout(targetSession);
