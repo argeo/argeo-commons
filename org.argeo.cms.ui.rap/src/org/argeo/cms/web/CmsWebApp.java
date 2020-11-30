@@ -15,6 +15,7 @@ import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.eclipse.rap.rwt.application.ExceptionHandler;
+import org.eclipse.rap.rwt.application.Application.OperationMode;
 import org.eclipse.rap.rwt.client.WebClient;
 import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.BundleContext;
@@ -48,6 +49,11 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 
 	@Override
 	public void configure(Application application) {
+		// TODO make it configurable?
+		// SWT compatibility is required for:
+		// - Browser.execute()
+		// - blocking dialogs
+		application.setOperationMode(OperationMode.SWT_COMPATIBILITY);
 		for (String uiName : cmsApp.getUiNames()) {
 			CmsTheme theme = cmsApp.getTheme(uiName);
 			if (theme != null)
