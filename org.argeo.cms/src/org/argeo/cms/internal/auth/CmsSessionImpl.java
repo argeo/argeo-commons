@@ -24,6 +24,7 @@ import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.x500.X500Principal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -222,6 +223,11 @@ public class CmsSessionImpl implements CmsSession {
 	@Override
 	public LdapName getUserDn() {
 		return userDn;
+	}
+
+	@Override
+	public String getUserRole() {
+		return new X500Principal(authorization.getName()).getName();
 	}
 
 	@Override

@@ -8,11 +8,16 @@ import java.util.function.Supplier;
 import javax.security.auth.Subject;
 import javax.servlet.http.HttpServletRequest;
 
+import org.argeo.cms.auth.CmsSession;
 import org.argeo.cms.auth.CurrentUser;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.http.HttpContext;
 
 /** Authentications utilities when using servlets. */
 public class ServletAuthUtils {
+	private static BundleContext bundleContext = FrameworkUtil.getBundle(ServletAuthUtils.class).getBundleContext();
+
 	/**
 	 * Execute this supplier, using the CMS class loader as context classloader.
 	 * Useful to log in to JCR.
@@ -49,5 +54,12 @@ public class ServletAuthUtils {
 			throw new IllegalStateException("Cannot clear non-authenticated request.");
 		req.setAttribute(HttpContext.REMOTE_USER, null);
 		req.setAttribute(AccessControlContext.class.getName(), null);
+	}
+
+	public static CmsSession getCmsSession(HttpServletRequest req) {
+		Subject subject = Subject
+				.getSubject((AccessControlContext) req.getAttribute(AccessControlContext.class.getName()));
+		CmsSession cmsSession = CmsSession.getCmsSession(bundleContext, subject);
+		return cmsSession;
 	}
 }

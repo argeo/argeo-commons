@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.security.auth.x500.X500Principal;
+
 import org.osgi.service.useradmin.Authorization;
 
 /** An {@link Authorization} which combines roles form various auth sources. */
@@ -16,7 +18,7 @@ class AggregatingAuthorization implements Authorization {
 	private final Set<String> roles;
 
 	public AggregatingAuthorization(String name, String displayName, Set<String> systemRoles, String[] roles) {
-		this.name = name;
+		this.name = new X500Principal(name).getName();
 		this.displayName = displayName;
 		this.systemRoles = Collections.unmodifiableSet(new HashSet<>(systemRoles));
 		Set<String> temp = new HashSet<>();

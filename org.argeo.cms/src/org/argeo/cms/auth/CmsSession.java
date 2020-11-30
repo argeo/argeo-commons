@@ -22,6 +22,8 @@ public interface CmsSession {
 
 	UUID getUuid();
 
+	String getUserRole();
+	
 	LdapName getUserDn();
 
 	String getLocalId();
