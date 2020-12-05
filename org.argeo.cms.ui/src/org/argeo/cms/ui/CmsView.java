@@ -61,10 +61,22 @@ public interface CmsView {
 	default <T> T doAs(PrivilegedAction<T> action) {
 		throw new UnsupportedOperationException();
 	}
-	
+
+	default Void runAs(Runnable runnable) {
+		return doAs(new PrivilegedAction<Void>() {
+
+			@Override
+			public Void run() {
+				if (runnable != null)
+					runnable.run();
+				return null;
+			}
+		});
+	}
+
 	default void stateChanged(String state, String title) {
 	}
-	
+
 	default CmsSession getCmsSession() {
 		throw new UnsupportedOperationException();
 	}

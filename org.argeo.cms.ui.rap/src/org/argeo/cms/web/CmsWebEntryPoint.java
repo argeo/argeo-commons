@@ -205,7 +205,8 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 	public void navigateTo(String state) {
 		exception = null;
 		String title = setState(state);
-		doRefresh();
+		if (title != null)
+			doRefresh();
 		if (browserNavigation != null)
 			browserNavigation.pushState(state, title);
 	}
