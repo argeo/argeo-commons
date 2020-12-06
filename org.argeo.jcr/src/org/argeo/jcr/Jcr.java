@@ -309,8 +309,12 @@ public class Jcr {
 				prop.setValue((String) value);
 			else if (value instanceof Long)
 				prop.setValue((Long) value);
+			else if (value instanceof Integer)
+				prop.setValue(((Integer) value).longValue());
 			else if (value instanceof Double)
 				prop.setValue((Double) value);
+			else if (value instanceof Float)
+				prop.setValue(((Float) value).doubleValue());
 			else if (value instanceof Calendar)
 				prop.setValue((Calendar) value);
 			else if (value instanceof BigDecimal)
