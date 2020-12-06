@@ -220,7 +220,7 @@ public class LangUtils {
 			return values;
 		String[] arr;
 		if (value instanceof String) {
-			arr = ((String) value).split(",\n");
+			arr = ((String) value).split(",");
 		} else if (value instanceof String[]) {
 			arr = (String[]) value;
 		} else {
