@@ -297,8 +297,13 @@ public class Jcr {
 	 */
 	public static void set(Node node, String property, Object value) {
 		try {
-			if (!node.hasProperty(property))
-				throw new IllegalArgumentException("No property " + property + " in " + node);
+			if (!node.hasProperty(property)) {
+				if (value != null)
+					node.setProperty(property, value.toString());
+				return;
+				// throw new IllegalArgumentException("No property " + property + " in " +
+				// node);
+			}
 			Property prop = node.getProperty(property);
 			if (value == null) {
 				prop.remove();
