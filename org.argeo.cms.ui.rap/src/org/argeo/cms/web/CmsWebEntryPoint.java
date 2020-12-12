@@ -103,6 +103,9 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 				try {
 					uxContext = new SimpleUxContext();
 					imageManager = new DefaultImageManager();
+					CmsSession cmsSession = getCmsSession();
+					if (cmsSession != null)
+						RWT.setLocale(cmsSession.getLocale());
 					ui = cmsWebApp.getCmsApp().initUi(parent);
 					ui.setData(CmsApp.UI_NAME_PROPERTY, uiName);
 					ui.setLayoutData(CmsUiUtils.fillAll());
