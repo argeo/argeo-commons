@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
-		<version>2.1.89-SNAPSHOT</version>
+		<version>2.1.89</version>
 		<artifactId>dep</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -15,17 +15,17 @@
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.enterprise</artifactId>
-			<version>2.1.89-SNAPSHOT</version>
+			<version>2.1.89</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.jcr</artifactId>
-			<version>2.1.89-SNAPSHOT</version>
+			<version>2.1.89</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.core</artifactId>
-			<version>2.1.89-SNAPSHOT</version>
+			<version>2.1.89</version>
 		</dependency>
 
 		<!-- Third Parties -->
@@ -234,7 +234,7 @@
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.osgi.boot</artifactId>
-			<version>2.1.89-SNAPSHOT</version>
+			<version>2.1.89</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
