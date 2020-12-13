@@ -8,7 +8,7 @@
 	</parent>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
-	<version>2.1.89</version>
+	<version>2.1.90-SNAPSHOT</version>
 	<name>Argeo Commons</name>
 	<packaging>pom</packaging>
 	<!-- <url>http://repo.argeo.org/data/docs/argeo-2.1/site/argeo-commons/</url> -->
@@ -47,7 +47,7 @@
 		<connection>scm:git:http://git.argeo.org/lgpl/argeo-commons.git</connection>
 		<url>http://git.argeo.org/?p=lgpl/argeo-commons.git;a=summary</url>
 		<developerConnection>scm:git:https://code.argeo.org/git/lgpl/argeo-commons.git</developerConnection>
-		<tag>argeo-commons-2.1.89</tag>
+		<tag>HEAD</tag>
 	</scm>
 	<organization>
 		<name>Argeo GmbH</name>
