@@ -155,6 +155,12 @@ public class RepositoryBuilder {
 			setProp(props, RepoConf.dbuser, "sa");
 			setProp(props, RepoConf.dbpassword, "");
 			break;
+		case h2_postgresql:
+			dburl = "jdbc:h2:" + homePath.toAbsolutePath() + "/h2/repository;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE";
+			setProp(props, RepoConf.dburl, dburl);
+			setProp(props, RepoConf.dbuser, "sa");
+			setProp(props, RepoConf.dbpassword, "");
+			break;
 		case postgresql:
 		case postgresql_ds:
 		case postgresql_cluster:

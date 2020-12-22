@@ -6,6 +6,8 @@ enum JackrabbitType {
 	localfs,
 	/** Embedded Java H2 database */
 	h2,
+	/** Embedded Java H2 database in PostgreSQL compatibility mode */
+	h2_postgresql,
 	/** PostgreSQL */
 	postgresql,
 	/** PostgreSQL with datastore */
