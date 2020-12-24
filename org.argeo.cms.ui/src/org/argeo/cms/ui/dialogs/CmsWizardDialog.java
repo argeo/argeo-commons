@@ -6,7 +6,6 @@ import org.argeo.cms.CmsMsg;
 import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.Selected;
-import org.argeo.eclipse.ui.dialogs.LightweightDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.IWizardContainer2;

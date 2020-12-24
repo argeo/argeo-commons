@@ -4,7 +4,6 @@ import org.argeo.cms.CmsMsg;
 import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.Selected;
-import org.argeo.eclipse.ui.dialogs.LightweightDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
@@ -60,12 +59,13 @@ public class CmsMessageDialog extends LightweightDialog {
 		body.setLayout(bodyGridLayout);
 		body.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		Label messageLbl = new Label(body, SWT.WRAP);
-		CmsUiUtils.markup(messageLbl);
-		messageLbl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		messageLbl.setFont(EclipseUiUtils.getBoldFont(parent));
-		if (message != null)
+		if (message != null) {
+			Label messageLbl = new Label(body, SWT.WRAP);
+			CmsUiUtils.markup(messageLbl);
+			messageLbl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+			messageLbl.setFont(EclipseUiUtils.getBoldFont(parent));
 			messageLbl.setText(message);
+		}
 
 		// buttons
 		Composite buttons = new Composite(parent, SWT.NONE);
@@ -128,6 +128,10 @@ public class CmsMessageDialog extends LightweightDialog {
 	}
 
 	protected void cancelPressed() {
+		closeShell(CANCEL);
+	}
+
+	protected void cancel() {
 		closeShell(CANCEL);
 	}
 

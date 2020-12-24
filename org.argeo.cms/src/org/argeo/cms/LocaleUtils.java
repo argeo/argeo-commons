@@ -8,10 +8,20 @@ import java.util.ResourceBundle;
 
 import javax.security.auth.Subject;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.auth.CurrentUser;
 
 /** Utilities simplifying the development of localization enums. */
 public class LocaleUtils {
+	private final static Log log = LogFactory.getLog(LocaleUtils.class);
+
+	private final static ThreadLocal<Locale> threadLocale = new ThreadLocal<>();
+
+	public static void setThreadLocale(Locale locale) {
+		threadLocale.set(locale);
+	}
+
 	public static String local(Enum<?> en) {
 		return local(en, getCurrentLocale(), "/OSGI-INF/l10n/bundle");
 	}
@@ -64,10 +74,18 @@ public class LocaleUtils {
 	}
 
 	static Locale getCurrentLocale() {
+		Locale currentLocale = null;
 		if (Subject.getSubject(AccessController.getContext()) != null)
-			return CurrentUser.locale();
-		else
-			return Locale.getDefault();
+			currentLocale = CurrentUser.locale();
+		else if (threadLocale.get() != null) {
+			currentLocale = threadLocale.get();
+		}
+		if (log.isDebugEnabled())
+			log.debug("Thread #" + Thread.currentThread().getId() + " " + Thread.currentThread().getName() + " locale: "
+					+ currentLocale);
+		if (currentLocale == null)
+			throw new IllegalStateException("No locale found");
+		return currentLocale;
 		// return UiContext.getLocale();
 		// FIXME look into Subject or settings
 		// return Locale.getDefault();

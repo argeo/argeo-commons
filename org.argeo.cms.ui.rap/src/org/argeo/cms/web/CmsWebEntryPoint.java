@@ -4,6 +4,7 @@ import static org.eclipse.rap.rwt.internal.service.ContextProvider.getApplicatio
 
 import java.security.PrivilegedAction;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -14,6 +15,7 @@ import javax.security.auth.login.LoginException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
+import org.argeo.cms.LocaleUtils;
 import org.argeo.cms.auth.CmsSession;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
@@ -104,8 +106,13 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 					uxContext = new SimpleUxContext();
 					imageManager = new DefaultImageManager();
 					CmsSession cmsSession = getCmsSession();
-					if (cmsSession != null)
-						RWT.setLocale(cmsSession.getLocale());
+					if (cmsSession != null) {
+						UiContext.setLocale(cmsSession.getLocale());
+						LocaleUtils.setThreadLocale(cmsSession.getLocale());
+					} else {
+						Locale rwtLocale = RWT.getUISession().getLocale();
+						LocaleUtils.setThreadLocale(rwtLocale);
+					}
 					ui = cmsWebApp.getCmsApp().initUi(parent);
 					ui.setData(CmsApp.UI_NAME_PROPERTY, uiName);
 					ui.setLayoutData(CmsUiUtils.fillAll());

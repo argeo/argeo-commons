@@ -1,4 +1,4 @@
-package org.argeo.eclipse.ui.dialogs;
+package org.argeo.cms.ui.dialogs;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,7 +18,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 /** Generic lightweight dialog, not based on JFace. */
-@Deprecated
 public class LightweightDialog {
 	private final static Log log = LogFactory.getLog(LightweightDialog.class);
 
