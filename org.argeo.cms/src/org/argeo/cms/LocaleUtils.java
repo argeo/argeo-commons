@@ -80,8 +80,8 @@ public class LocaleUtils {
 		else if (threadLocale.get() != null) {
 			currentLocale = threadLocale.get();
 		}
-		if (log.isDebugEnabled())
-			log.debug("Thread #" + Thread.currentThread().getId() + " " + Thread.currentThread().getName() + " locale: "
+		if (log.isTraceEnabled())
+			log.trace("Thread #" + Thread.currentThread().getId() + " " + Thread.currentThread().getName() + " locale: "
 					+ currentLocale);
 		if (currentLocale == null)
 			throw new IllegalStateException("No locale found");
