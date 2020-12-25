@@ -3,6 +3,8 @@ package org.argeo.cms.ui.dialogs;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.ui.CmsView;
@@ -16,6 +18,8 @@ import org.eclipse.swt.widgets.Text;
 
 /** Dialog to change a password. */
 public class ChangePasswordDialog extends CmsMessageDialog {
+	private final static Log log = LogFactory.getLog(ChangePasswordDialog.class);
+
 	private CmsUserManager cmsUserManager;
 	private CmsView cmsView;
 
@@ -45,6 +49,7 @@ public class ChangePasswordDialog extends CmsMessageDialog {
 					cmsUserManager.changeOwnPassword(previousPassword.getTextChars(), newPassword.getTextChars());
 					return OK;
 				} catch (Exception e1) {
+					log.error("Could not change password", e1);
 					cancel();
 					CmsMessageDialog.openError(CmsMsg.invalidPassword.lead());
 					return CANCEL;
