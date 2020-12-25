@@ -1468,6 +1468,8 @@ public class JcrUtils {
 		// the new access control list must be applied otherwise this call:
 		// acl.removeAccessControlEntry(ace); has no effect
 		acm.setPolicy(path, acl);
+		session.refresh(true);
+		session.save();
 	}
 
 	/*
