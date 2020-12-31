@@ -35,6 +35,7 @@ import org.eclipse.rap.rwt.client.service.BrowserNavigationEvent;
 import org.eclipse.rap.rwt.client.service.BrowserNavigationListener;
 import org.eclipse.rap.rwt.internal.lifecycle.RWTLifeCycle;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTError;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -169,8 +170,13 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 
 	@Override
 	public void exception(final Throwable e) {
+		if (e instanceof SWTError) {
+			SWTError swtError = (SWTError) e;
+			if (swtError.code == SWT.ERROR_FUNCTION_DISPOSED)
+				return;
+		}
 		ui.getDisplay().syncExec(() -> {
-			CmsFeedback.show("Unexpected exception in CMS", e);
+//			CmsFeedback.show("Unexpected exception in CMS", e);
 			exception = e;
 //		log.error("Unexpected exception in CMS", e);
 			doRefresh();
@@ -273,12 +279,34 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 //		}
 		shell.open();
 		if (getApplicationContext().getLifeCycleFactory().getLifeCycle() instanceof RWTLifeCycle) {
-			while (!shell.isDisposed()) {
-				if (!display.readAndDispatch()) {
-					display.sleep();
+			eventLoop: while (!shell.isDisposed()) {
+				try {
+					if (!display.readAndDispatch()) {
+						display.sleep();
+					}
+				} catch (Throwable e) {
+					if (e instanceof SWTError) {
+						SWTError swtError = (SWTError) e;
+						if (swtError.code == SWT.ERROR_FUNCTION_DISPOSED) {
+							log.error("Unexpected SWT error in event loop, ignoring it. " + e.getMessage());
+							continue eventLoop;
+						} else {
+							log.error("Unexpected SWT error in event loop, shutting down...", e);
+							break eventLoop;
+						}
+					} else if (e instanceof ThreadDeath) {
+						throw (ThreadDeath) e;
+					} else if (e instanceof Error) {
+						log.error("Unexpected error in event loop, shutting down...", e);
+						break eventLoop;
+					} else {
+						log.error("Unexpected exception in event loop, ignoring it. " + e.getMessage());
+						continue eventLoop;
+					}
 				}
 			}
-			display.dispose();
+			if (!display.isDisposed())
+				display.dispose();
 		}
 		return 0;
 	}
