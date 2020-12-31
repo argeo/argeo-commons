@@ -115,6 +115,8 @@ public class TabbedArea extends Composite {
 	}
 
 	public void view(CmsUiProvider uiProvider, Node context) {
+		if (body.isDisposed())
+			return;
 		int index = tabIndex(context);
 		if (index >= 0) {
 			showTab(index);
