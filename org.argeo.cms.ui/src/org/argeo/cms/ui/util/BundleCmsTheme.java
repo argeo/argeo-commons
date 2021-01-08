@@ -97,6 +97,8 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 		addResources("*.jpeg");
 		addResources("*.svg");
 		addResources("*.ico");
+		addResources("*.woff");
+		addResources("*.woff2");
 
 		// fonts
 		URL fontsUrl = themeBundle.getEntry(basePath + "fonts.txt");
