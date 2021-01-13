@@ -31,5 +31,10 @@
 			<artifactId>org.argeo.core</artifactId>
 			<version>2.1.91-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.maintenance</artifactId>
+			<version>2.1.91-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 </project>
