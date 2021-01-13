@@ -31,6 +31,9 @@ public interface CmsTheme {
 	/** Relative paths to images such as icons. */
 	Set<String> getImagesPaths();
 
+	/** Relative paths to fonts. */
+	Set<String> getFontsPaths();
+
 	/** Tags to be added to the header section of the HTML page. */
 	String getHtmlHeaders();
 

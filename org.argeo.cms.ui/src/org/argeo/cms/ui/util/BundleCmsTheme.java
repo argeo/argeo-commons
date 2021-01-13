@@ -40,6 +40,7 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 	private Set<String> rapCssPaths = new TreeSet<>();
 	private Set<String> swtCssPaths = new TreeSet<>();
 	private Set<String> imagesPaths = new TreeSet<>();
+	private Set<String> fontsPaths = new TreeSet<>();
 
 	private String headerCss;
 	private List<String> fonts = new ArrayList<>();
@@ -91,14 +92,15 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 		webCssPaths = addCss(themeBundle, "/css/");
 		rapCssPaths = addCss(themeBundle, "/rap/");
 		swtCssPaths = addCss(themeBundle, "/swt/");
-		addResources("*.png");
-		addResources("*.gif");
-		addResources("*.jpg");
-		addResources("*.jpeg");
-		addResources("*.svg");
-		addResources("*.ico");
-		addResources("*.woff");
-		addResources("*.woff2");
+		addImages("*.png");
+		addImages("*.gif");
+		addImages("*.jpg");
+		addImages("*.jpeg");
+		addImages("*.svg");
+		addImages("*.ico");
+
+		addFonts("*.woff");
+		addFonts("*.woff2");
 
 		// fonts
 		URL fontsUrl = themeBundle.getEntry(basePath + "fonts.txt");
@@ -180,7 +182,7 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 		}
 	}
 
-	void addResources(String pattern) {
+	void addImages(String pattern) {
 		Enumeration<URL> themeResources = themeBundle.findEntries(basePath, pattern, true);
 		if (themeResources == null)
 			return;
@@ -193,6 +195,25 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 //					log.warn("Overriding " + resource + " from " + themeBundle.getSymbolicName());
 //				resources.put(resource, themeBRL);
 				imagesPaths.add(resource);
+			}
+
+		}
+
+	}
+
+	void addFonts(String pattern) {
+		Enumeration<URL> themeResources = themeBundle.findEntries(basePath, pattern, true);
+		if (themeResources == null)
+			return;
+		while (themeResources.hasMoreElements()) {
+			String resource = themeResources.nextElement().getPath();
+			// remove first '/' so that RWT registers it
+			resource = resource.substring(1);
+			if (!resource.endsWith("/")) {
+//				if (resources.containsKey(resource))
+//					log.warn("Overriding " + resource + " from " + themeBundle.getSymbolicName());
+//				resources.put(resource, themeBRL);
+				fontsPaths.add(resource);
 			}
 
 		}
@@ -254,6 +275,11 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 	@Override
 	public Set<String> getImagesPaths() {
 		return imagesPaths;
+	}
+
+	@Override
+	public Set<String> getFontsPaths() {
+		return fontsPaths;
 	}
 
 	@Override
