@@ -12,13 +12,16 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.apache.commons.io.IOUtils;
+import org.argeo.jcr.JcrException;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+/** XML handler serialising a JCR system view. */
 public class BackupContentHandler extends DefaultHandler {
 	final static int MAX_DEPTH = 1024;
 	final static String SV_NAMESPACE_URI = "http://www.jcp.org/jcr/sv/1.0";
+	final static String SV_PREFIX = "sv";
 	// elements
 	final static String NODE = "node";
 	final static String PROPERTY = "property";
@@ -35,6 +38,8 @@ public class BackupContentHandler extends DefaultHandler {
 	private Writer out;
 	private Session session;
 	private Set<String> contentPaths = new TreeSet<>();
+
+	private boolean inSystem = false;
 
 	public BackupContentHandler(Writer out, Session session) {
 		super();
@@ -73,12 +78,17 @@ public class BackupContentHandler extends DefaultHandler {
 			if (currentDepth > 0)
 				currentPath[currentDepth - 1] = nodeName;
 //			System.out.println(getCurrentPath() + " , depth=" + currentDepth);
+			if ("jcr:system".equals(nodeName)) {
+				inSystem = true;
+			}
 		}
+		if (inSystem)
+			return;
 
 		if (SV_NAMESPACE_URI.equals(uri))
 			try {
 				out.write("<");
-				out.write(localName);
+				out.write(SV_PREFIX + ":" + localName);
 				if (isProperty)
 					currentPropertyIsMultiple = false; // always reset
 				for (int i = 0; i < attributes.getLength(); i++) {
@@ -87,7 +97,7 @@ public class BackupContentHandler extends DefaultHandler {
 						String attrName = attributes.getLocalName(i);
 						String attrValue = attributes.getValue(i);
 						out.write(" ");
-						out.write(attrName);
+						out.write(SV_PREFIX + ":" + attrName);
 						out.write("=");
 						out.write("\"");
 						out.write(attrValue);
@@ -113,17 +123,19 @@ public class BackupContentHandler extends DefaultHandler {
 						}
 					}
 				}
-				if (currentDepth == 0) {
-					out.write(" xmlns=\"" + SV_NAMESPACE_URI + "\"");
+				if (isNode && currentDepth == 0) {
+					// out.write(" xmlns=\"" + SV_NAMESPACE_URI + "\"");
+					out.write(" xmlns:" + SV_PREFIX + "=\"" + SV_NAMESPACE_URI + "\"");
 				}
 				out.write(">");
 				if (isNode)
 					out.write("\n");
 				else if (isProperty && currentPropertyIsMultiple)
 					out.write("\n");
-			} catch (IOException | RepositoryException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			} catch (RepositoryException e) {
+				throw new JcrException(e);
 			}
 	}
 
@@ -134,7 +146,17 @@ public class BackupContentHandler extends DefaultHandler {
 			if (currentDepth > 0)
 				currentPath[currentDepth - 1] = null;
 			currentDepth = currentDepth - 1;
+			if (inSystem) {
+				// System.out.println("Skip " + getCurrentPath()+" ,
+				// currentDepth="+currentDepth);
+				if (currentDepth == 0) {
+					inSystem = false;
+					return;
+				}
+			}
 		}
+		if (inSystem)
+			return;
 		boolean isValue = localName.equals(VALUE);
 		if (SV_NAMESPACE_URI.equals(uri))
 			try {
@@ -143,7 +165,7 @@ public class BackupContentHandler extends DefaultHandler {
 				}
 				currentEncoded = null;
 				out.write("</");
-				out.write(localName);
+				out.write(SV_PREFIX + ":" + localName);
 				out.write(">");
 				if (!isValue)
 					out.write("\n");
@@ -152,18 +174,18 @@ public class BackupContentHandler extends DefaultHandler {
 						out.write("\n");
 				}
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 	}
 
 	@Override
 	public void characters(char[] ch, int start, int length) throws SAXException {
+		if (inSystem)
+			return;
 		try {
 			out.write(ch, start, length);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -190,6 +212,4 @@ public class BackupContentHandler extends DefaultHandler {
 		return contentPaths;
 	}
 
-	
-	
 }

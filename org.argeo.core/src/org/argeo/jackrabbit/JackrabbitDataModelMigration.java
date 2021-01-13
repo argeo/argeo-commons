@@ -1,5 +1,6 @@
 package org.argeo.jackrabbit;
 
+import java.awt.geom.CubicCurve2D;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -9,17 +10,20 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.commons.cnd.ParseException;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
-import org.argeo.jcr.JcrException;
+import org.apache.jackrabbit.core.fs.FileSystemException;
 import org.argeo.jcr.JcrCallback;
+import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
 
 /** Migrate the data in a Jackrabbit repository. */
 @Deprecated
 public class JackrabbitDataModelMigration implements Comparable<JackrabbitDataModelMigration> {
-//	private final static Log log = LogFactory.getLog(JackrabbitDataModelMigration.class);
+	private final static Log log = LogFactory.getLog(JackrabbitDataModelMigration.class);
 
 	private String dataModelNodePath;
 	private String targetVersion;
@@ -73,8 +77,8 @@ public class JackrabbitDataModelMigration implements Comparable<JackrabbitDataMo
 			return true;
 		} catch (RepositoryException e) {
 			JcrUtils.discardQuietly(session);
-			throw new JcrException(
-					"Migration of data model " + dataModelNodePath + " to " + targetVersion + " failed.", e);
+			throw new JcrException("Migration of data model " + dataModelNodePath + " to " + targetVersion + " failed.",
+					e);
 		} catch (ParseException | IOException e) {
 			JcrUtils.discardQuietly(session);
 			throw new RuntimeException(
@@ -95,11 +99,15 @@ public class JackrabbitDataModelMigration implements Comparable<JackrabbitDataMo
 		try {
 			String customeNodeTypesPath = "/nodetypes/custom_nodetypes.xml";
 			// FIXME causes weird error in Eclipse
-//			 repositoryConfig.getFileSystem().deleteFile(customeNodeTypesPath);
-//			if (log.isDebugEnabled())
-//				log.debug("Cleared " + customeNodeTypesPath);
+			repositoryConfig.getFileSystem().deleteFile(customeNodeTypesPath);
+			if (log.isDebugEnabled())
+				log.debug("Cleared " + customeNodeTypesPath);
 		} catch (RuntimeException e) {
 			throw e;
+		} catch (RepositoryException e) {
+			throw new JcrException(e);
+		} catch (FileSystemException e) {
+			throw new RuntimeException("Cannot clear node types cache.",e);
 		}
 
 		// File customNodeTypes = new File(home.getPath()

@@ -11,6 +11,7 @@ import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,6 +48,7 @@ import org.argeo.cms.internal.http.HttpUtils;
 import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.maintenance.backup.LogicalRestore;
 import org.argeo.naming.LdapAttrs;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.util.LangUtils;
@@ -291,6 +293,16 @@ public class CmsDeployment implements NodeDeployment {
 
 		// home
 		prepareDataModel(NodeConstants.NODE_REPOSITORY, deployedNodeRepository, publishAsLocalRepo);
+
+		// init from backup
+		Path restorePath = Paths.get(System.getProperty("user.dir"), "restore");
+		if (Files.exists(restorePath)) {
+			if (log.isDebugEnabled())
+				log.debug("Found backup " + restorePath + ", restoring it...");
+			LogicalRestore logicalRestore = new LogicalRestore(bc, deployedNodeRepository, restorePath);
+			KernelUtils.doAsDataAdmin(logicalRestore);
+			log.info("Restored backup from " + restorePath);
+		}
 
 		// init from repository
 		Collection<ServiceReference<Repository>> initRepositorySr;
@@ -581,6 +593,7 @@ public class CmsDeployment implements NodeDeployment {
 			if (cn != null) {
 				List<String> publishAsLocalRepo = new ArrayList<>();
 				if (cn.equals(NodeConstants.NODE_REPOSITORY)) {
+//					JackrabbitDataModelMigration.clearRepositoryCaches(repoContext.getRepositoryConfig());
 					prepareNodeRepository(repoContext.getRepository(), publishAsLocalRepo);
 					// TODO separate home repository
 					prepareHomeRepository(repoContext.getRepository());

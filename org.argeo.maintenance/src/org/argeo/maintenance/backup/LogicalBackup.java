@@ -25,7 +25,6 @@ import java.util.zip.ZipOutputStream;
 
 import javax.jcr.Binary;
 import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -188,15 +187,10 @@ public class LogicalBackup implements Runnable {
 					session.exportSystemView("/", contentHandler, true, false);
 					if (log.isDebugEnabled())
 						log.debug("Workspace " + workspaceName + ": metadata exported to " + relativePath);
-				} catch (PathNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				} catch (SAXException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					throw new RuntimeException("Cannot perform backup of workspace " + workspaceName, e);
 				} catch (RepositoryException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					throw new JcrException("Cannot perform backup of workspace " + workspaceName, e);
 				}
 			}
 			for (String path : contentHandler.getContentPaths()) {
@@ -205,8 +199,8 @@ public class LogicalBackup implements Runnable {
 				String fileRelativePath = WORKSPACES_BASE + workspaceName + contentNode.getParent().getPath();
 				try (InputStream in = binary.getStream(); OutputStream out = openOutputStream(fileRelativePath)) {
 					IOUtils.copy(in, out);
-					if (log.isDebugEnabled())
-						log.debug("Workspace " + workspaceName + ": file content exported to " + fileRelativePath);
+					if (log.isTraceEnabled())
+						log.trace("Workspace " + workspaceName + ": file content exported to " + fileRelativePath);
 				} finally {
 
 				}

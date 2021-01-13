@@ -26,8 +26,6 @@ import javax.security.auth.login.LoginException;
 import org.apache.commons.logging.Log;
 import org.argeo.api.DataModelNamespace;
 import org.argeo.api.NodeConstants;
-import org.argeo.cms.CmsException;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -160,6 +158,28 @@ class KernelUtils implements KernelConstants {
 	}
 
 	static Session openAdminSession(final Repository repository, final String workspaceName) {
+		LoginContext loginContext = loginAsDataAdmin();
+		return Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Session>() {
+
+			@Override
+			public Session run() {
+				try {
+					return repository.login(workspaceName);
+				} catch (RepositoryException e) {
+					throw new IllegalStateException("Cannot open admin session", e);
+				} finally {
+					try {
+						loginContext.logout();
+					} catch (LoginException e) {
+						throw new IllegalStateException(e);
+					}
+				}
+			}
+
+		});
+	}
+
+	static LoginContext loginAsDataAdmin() {
 		ClassLoader currentCl = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(KernelUtils.class.getClassLoader());
 		LoginContext loginContext;
@@ -171,14 +191,24 @@ class KernelUtils implements KernelConstants {
 		} finally {
 			Thread.currentThread().setContextClassLoader(currentCl);
 		}
-		return Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Session>() {
+		return loginContext;
+	}
+
+	static void doAsDataAdmin(Runnable action) {
+		LoginContext loginContext = loginAsDataAdmin();
+		Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Void>() {
 
 			@Override
-			public Session run() {
+			public Void run() {
 				try {
-					return repository.login(workspaceName);
-				} catch (RepositoryException e) {
-					throw new IllegalStateException("Cannot open admin session", e);
+					action.run();
+					return null;
+				} finally {
+					try {
+						loginContext.logout();
+					} catch (LoginException e) {
+						throw new IllegalStateException(e);
+					}
 				}
 			}
 
@@ -196,19 +226,6 @@ class KernelUtils implements KernelConstants {
 		Activator.getInternalExecutorService().execute(run);
 //		new Thread(run, "Open service tracker " + st).start();
 	}
-
-	/**
-	 * @return the {@link BundleContext} of the {@link Bundle} which provided this
-	 *         class, never null.
-	 * @throws CmsException if the related bundle is not active
-	 */
-//	static BundleContext getBundleContext(Class<?> clzz) {
-////		Bundle bundle = FrameworkUtil.getBundle(clzz);
-//		BundleContext bc = Activator.getBundleContext();
-//		if (bc == null)
-//			throw new CmsException("Bundle " + bundle.getSymbolicName() + " is not active");
-//		return bc;
-//	}
 
 	static BundleContext getBundleContext() {
 		return Activator.getBundleContext();
