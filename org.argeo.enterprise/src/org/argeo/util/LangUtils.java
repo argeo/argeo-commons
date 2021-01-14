@@ -207,9 +207,9 @@ public class LangUtils {
 	 * COLLECTIONS
 	 */
 	/**
-	 * Convert a comma-separated or carrirer-return sperated {@link String} or a
-	 * {@link String} array to a {@link List} of {@link String}, trimming them.
-	 * Useful to quickly interpret OSGi services properties.
+	 * Convert a comma-separated separated {@link String} or a {@link String} array
+	 * to a {@link List} of {@link String}, trimming them. Useful to quickly
+	 * interpret OSGi services properties.
 	 * 
 	 * @return a {@link List} containing the trimmed {@link String}s, or an empty
 	 *         {@link List} if the argument was <code>null</code>.
