@@ -13,6 +13,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
+/** A structured UI related to a JCR context. */
 public class Section extends JcrComposite {
 	private static final long serialVersionUID = -5933796173755739207L;
 
@@ -94,9 +95,9 @@ public class Section extends JcrComposite {
 	public SectionPart getSectionPart(String partId) {
 		for (Control child : getChildren()) {
 			if (child instanceof SectionPart) {
-				SectionPart paragraph = (SectionPart) child;
-				if (paragraph.getPartId().equals(partId))
-					return paragraph;
+				SectionPart sectionPart = (SectionPart) child;
+				if (sectionPart.getPartId().equals(partId))
+					return sectionPart;
 			}
 		}
 		return null;
