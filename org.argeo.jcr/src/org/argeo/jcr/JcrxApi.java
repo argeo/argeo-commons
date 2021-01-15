@@ -54,9 +54,12 @@ public class JcrxApi {
 	 */
 	public static void setXmlValue(Node node, String name, String value) {
 		try {
-			if (node.hasNode(name))
-				node.getNode(name).getNode(Jcr.JCR_XMLTEXT).setProperty(Jcr.JCR_XMLCHARACTERS, value);
-			else
+			if (node.hasNode(name)) {
+				Node child = node.getNode(name);
+				if (!child.hasNode(Jcr.JCR_XMLTEXT))
+					child.addNode(Jcr.JCR_XMLTEXT, JcrxType.JCRX_XMLTEXT);
+				child.getNode(Jcr.JCR_XMLTEXT).setProperty(Jcr.JCR_XMLCHARACTERS, value);
+			} else
 				node.addNode(name, JcrxType.JCRX_XMLVALUE).addNode(Jcr.JCR_XMLTEXT, JcrxType.JCRX_XMLTEXT)
 						.setProperty(Jcr.JCR_XMLCHARACTERS, value);
 		} catch (RepositoryException e) {
