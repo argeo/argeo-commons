@@ -19,8 +19,9 @@ public enum FormStyle implements CmsStyle {
 	// Social Media
 	facebook, twitter, linkedIn, instagram;
 
-	public String style() {
-		return form.name() + '_' + name();
+	@Override
+	public String getClassPrefix() {
+		return "argeo-form";
 	}
 
 	// TODO clean button style management

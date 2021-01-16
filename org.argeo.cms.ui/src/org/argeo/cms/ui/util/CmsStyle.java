@@ -4,7 +4,12 @@ package org.argeo.cms.ui.util;
 public interface CmsStyle {
 	String name();
 
+	@Deprecated
 	default String toStyleClass() {
+		return getClassPrefix() + "-" + name();
+	}
+
+	default String style() {
 		return getClassPrefix() + "-" + name();
 	}
 

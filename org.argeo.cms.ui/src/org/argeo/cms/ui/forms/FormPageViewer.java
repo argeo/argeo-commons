@@ -16,9 +16,9 @@ import javax.jcr.ValueFormatException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.CmsEditable;
 import org.argeo.cms.ui.CmsImageManager;
+import org.argeo.cms.ui.CmsView;
 import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.cms.ui.viewers.AbstractPageViewer;
 import org.argeo.cms.ui.viewers.EditablePart;
@@ -28,6 +28,7 @@ import org.argeo.cms.ui.widgets.EditableImage;
 import org.argeo.cms.ui.widgets.Img;
 import org.argeo.cms.ui.widgets.StyledControl;
 import org.argeo.eclipse.ui.EclipseUiUtils;
+import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.rap.fileupload.FileDetails;
@@ -67,7 +68,7 @@ public class FormPageViewer extends AbstractPageViewer {
 	private final Section mainSection;
 
 	// TODO manage within the CSS
-	private int labelColWidth = 150;
+	private Integer labelColWidth = null;
 	private int rowLayoutHSpacing = 8;
 
 	// Context cached in the viewer
@@ -204,7 +205,7 @@ public class FormPageViewer extends AbstractPageViewer {
 		}
 
 		public void uploadFailed(FileUploadEvent event) {
-			throw new CmsException("Upload failed " + event, event.getException());
+			throw new IllegalStateException("Upload failed " + event, event.getException());
 		}
 
 		public void uploadFinished(FileUploadEvent event) {
@@ -305,7 +306,7 @@ public class FormPageViewer extends AbstractPageViewer {
 
 	protected CmsImageManager imageManager() {
 		if (imageManager == null)
-			imageManager = CmsUiUtils.getCmsView().getImageManager();
+			imageManager = CmsView.getCmsView(mainSection).getImageManager();
 		return imageManager;
 	}
 
@@ -357,16 +358,17 @@ public class FormPageViewer extends AbstractPageViewer {
 	}
 
 	protected Label createPropertyLbl(Composite parent, String value) {
-		return createPropertyLbl(parent, value, SWT.TOP);
+		return createPropertyLbl(parent, value, SWT.NONE);
 	}
 
 	protected Label createPropertyLbl(Composite parent, String value, int vAlign) {
-		boolean isSmall = CmsUiUtils.getCmsView().getUxContext().isSmall();
-		Label label = new Label(parent, isSmall ? SWT.LEFT : SWT.RIGHT | SWT.WRAP);
+		// boolean isSmall = CmsView.getCmsView(parent).getUxContext().isSmall();
+		Label label = new Label(parent, SWT.LEAD | SWT.WRAP);
 		label.setText(value + " ");
 		CmsUiUtils.style(label, FormStyle.propertyLabel.style());
-		GridData gd = new GridData(isSmall ? SWT.LEFT : SWT.RIGHT, vAlign, false, false);
-		gd.widthHint = labelColWidth;
+		GridData gd = new GridData(SWT.LEAD, vAlign, false, false);
+		if (labelColWidth != null)
+			gd.widthHint = labelColWidth;
 		label.setLayoutData(gd);
 		return label;
 	}
@@ -457,12 +459,12 @@ public class FormPageViewer extends AbstractPageViewer {
 							section.layout();
 							section.getParent().layout();
 						} catch (RepositoryException re) {
-							throw new CmsException("unable to refresh " + "image section for " + context);
+							throw new JcrException("Unable to refresh " + "image section for " + context, re);
 						}
 					}
 				});
 			} catch (RepositoryException re) {
-				throw new CmsException("unable to upload image " + name + " at " + context);
+				throw new JcrException("unable to upload image " + name + " at " + context, re);
 			}
 		}
 	}
@@ -529,7 +531,7 @@ public class FormPageViewer extends AbstractPageViewer {
 							refresh(parSection);
 							layout(parSection);
 						} catch (RepositoryException re) {
-							throw new CmsException("Unable to delete " + sessionNode, re);
+							throw new JcrException("Unable to delete " + sessionNode, re);
 						}
 
 					}
@@ -577,7 +579,7 @@ public class FormPageViewer extends AbstractPageViewer {
 								edit(emsp, 0);
 								cancelEdit();
 							} catch (RepositoryException e1) {
-								throw new CmsException("Unable to remove value " + obj, e1);
+								throw new JcrException("Unable to remove value " + obj, e1);
 							}
 							layout(emsp);
 						}
