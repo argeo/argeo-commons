@@ -1,8 +1,10 @@
 package org.argeo.jcr;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -22,6 +24,8 @@ import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.Workspace;
 import javax.jcr.nodetype.NodeType;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryManager;
 import javax.jcr.security.Privilege;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
@@ -659,6 +663,73 @@ public class Jcr {
 		} catch (RepositoryException e) {
 			throw new JcrException("Cannot get file size of binary " + binaryArg, e);
 		}
+	}
+
+	// QUERY
+	/** Creates a JCR-SQL2 query using {@link MessageFormat}. */
+	public static Query createQuery(QueryManager qm, String sql, Object... args) {
+		String query = MessageFormat.format(sql, args);
+		try {
+			return qm.createQuery(query, Query.JCR_SQL2);
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot create JCR-SQL2 query from " + query, e);
+		}
+	}
+
+	/** Executes a JCR-SQL2 query using {@link MessageFormat}. */
+	public static NodeIterator executeQuery(QueryManager qm, String sql, Object... args) {
+		Query query = createQuery(qm, sql, args);
+		try {
+			return query.execute().getNodes();
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot execute query " + sql + " with arguments " + Arrays.asList(args), e);
+		}
+	}
+
+	/** Executes a JCR-SQL2 query using {@link MessageFormat}. */
+	public static NodeIterator executeQuery(Session session, String sql, Object... args) {
+		QueryManager queryManager;
+		try {
+			queryManager = session.getWorkspace().getQueryManager();
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot get query manager from session " + session, e);
+		}
+		return executeQuery(queryManager, sql, args);
+	}
+
+	/**
+	 * Executes a JCR-SQL2 query using {@link MessageFormat}, which must return a
+	 * single node at most.
+	 * 
+	 * @return the node or <code>null</code> if not found.
+	 */
+	public static Node getNode(QueryManager qm, String sql, Object... args) {
+		NodeIterator nit = executeQuery(qm, sql, args);
+		if (nit.hasNext()) {
+			Node node = nit.nextNode();
+			if (nit.hasNext())
+				throw new IllegalStateException(
+						"Query " + sql + " with arguments " + Arrays.asList(args) + " returned more than one node.");
+			return node;
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Executes a JCR-SQL2 query using {@link MessageFormat}, which must return a
+	 * single node at most.
+	 * 
+	 * @return the node or <code>null</code> if not found.
+	 */
+	public static Node getNode(Session session, String sql, Object... args) {
+		QueryManager queryManager;
+		try {
+			queryManager = session.getWorkspace().getQueryManager();
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot get query manager from session " + session, e);
+		}
+		return getNode(queryManager, sql, args);
 	}
 
 	/** Singleton. */
