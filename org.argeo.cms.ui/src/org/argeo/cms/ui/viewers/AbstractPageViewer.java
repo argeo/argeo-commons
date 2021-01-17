@@ -16,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.CmsEditable;
 import org.argeo.cms.ui.widgets.ScrolledPage;
+import org.argeo.jcr.JcrException;
 import org.eclipse.jface.viewers.ContentViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -190,13 +191,25 @@ public abstract class AbstractPageViewer extends ContentViewer implements Observ
 			updateContent(part);
 			prepare(part, caretPosition);
 			edited = part;
+			edited.getControl().addFocusListener(new FocusListener() {
+
+				@Override
+				public void focusLost(FocusEvent event) {
+					stopEditing(true);
+				}
+
+				@Override
+				public void focusGained(FocusEvent event) {
+				}
+			});
+
 			layout(part.getControl());
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot edit " + part, e);
 		}
 	}
 
-	private void stopEditing(Boolean save) throws RepositoryException {
+	protected void stopEditing(Boolean save) {
 		if (edited instanceof Widget && ((Widget) edited).isDisposed()) {
 			edited = null;
 			return;
@@ -209,32 +222,29 @@ public abstract class AbstractPageViewer extends ContentViewer implements Observ
 			return;
 		}
 
-		if (save)
-			save(edited);
+		try {
+			if (save)
+				save(edited);
 
-		edited.stopEditing();
-		updateContent(edited);
-		layout(((EditablePart) edited).getControl());
-		edited = null;
+			edited.stopEditing();
+			updateContent(edited);
+			layout(((EditablePart) edited).getControl());
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot stop editing", e);
+		} finally {
+			edited = null;
+		}
 	}
 
 	// METHODS AVAILABLE TO EXTENDING CLASSES
 	protected void saveEdit() {
-		try {
-			if (edited != null)
-				stopEditing(true);
-		} catch (RepositoryException e) {
-			throw new CmsException("Cannot stop editing", e);
-		}
+		if (edited != null)
+			stopEditing(true);
 	}
 
 	protected void cancelEdit() {
-		try {
-			if (edited != null)
-				stopEditing(false);
-		} catch (RepositoryException e) {
-			throw new CmsException("Cannot cancel editing", e);
-		}
+		if (edited != null)
+			stopEditing(false);
 	}
 
 	/** Layout this controls from the related base page. */

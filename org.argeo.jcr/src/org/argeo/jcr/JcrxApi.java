@@ -56,14 +56,22 @@ public class JcrxApi {
 		try {
 			if (node.hasNode(name)) {
 				Node child = node.getNode(name);
-				if (!child.hasNode(Jcr.JCR_XMLTEXT))
-					child.addNode(Jcr.JCR_XMLTEXT, JcrxType.JCRX_XMLTEXT);
-				child.getNode(Jcr.JCR_XMLTEXT).setProperty(Jcr.JCR_XMLCHARACTERS, value);
+				setXmlValue(node, child, value);
 			} else
 				node.addNode(name, JcrxType.JCRX_XMLVALUE).addNode(Jcr.JCR_XMLTEXT, JcrxType.JCRX_XMLTEXT)
 						.setProperty(Jcr.JCR_XMLCHARACTERS, value);
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot set " + name + " as XML text", e);
+			throw new JcrException("Cannot set " + name + " as XML text", e);
+		}
+	}
+
+	public static void setXmlValue(Node node, Node child, String value) {
+		try {
+			if (!child.hasNode(Jcr.JCR_XMLTEXT))
+				child.addNode(Jcr.JCR_XMLTEXT, JcrxType.JCRX_XMLTEXT);
+			child.getNode(Jcr.JCR_XMLTEXT).setProperty(Jcr.JCR_XMLCHARACTERS, value);
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot set " + child + " as XML text", e);
 		}
 	}
 

@@ -37,11 +37,11 @@ public class JcrComposite extends Composite {
 		if (item != null)
 			try {
 				this.session = item.getSession();
-				if (!cacheImmediately && (SWT.READ_ONLY == (style & SWT.READ_ONLY))) {
-					// (useless?) optimization: we only save a pointer to the session,
-					// not even a reference to the item
-					this.nodeId = null;
-				} else {
+//				if (!cacheImmediately && (SWT.READ_ONLY == (style & SWT.READ_ONLY))) {
+//					// (useless?) optimization: we only save a pointer to the session,
+//					// not even a reference to the item
+//					this.nodeId = null;
+//				} else {
 					Node node;
 					Property property = null;
 					if (item instanceof Node) {
@@ -56,7 +56,7 @@ public class JcrComposite extends Composite {
 					this.nodeId = node.getIdentifier();
 					if (cacheImmediately)
 						this.cache = node;
-				}
+//				}
 				setLayout(CmsUiUtils.noSpaceGridLayout());
 			} catch (RepositoryException e) {
 				throw new IllegalStateException("Cannot create composite from " + item, e);

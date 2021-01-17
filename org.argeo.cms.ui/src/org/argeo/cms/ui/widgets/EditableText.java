@@ -5,6 +5,8 @@ import javax.jcr.RepositoryException;
 
 import org.argeo.cms.ui.util.CmsUiUtils;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -15,26 +17,30 @@ import org.eclipse.swt.widgets.Text;
 public class EditableText extends StyledControl {
 	private static final long serialVersionUID = -6372283442330912755L;
 
-	public EditableText(Composite parent, int swtStyle) {
-		super(parent, swtStyle);
+	private boolean editable = true;
+
+	public EditableText(Composite parent, int style) {
+		super(parent, style);
+		editable = !(SWT.READ_ONLY == (style & SWT.READ_ONLY));
 	}
 
-	public EditableText(Composite parent, int style, Item item)
-			throws RepositoryException {
+	public EditableText(Composite parent, int style, Item item) throws RepositoryException {
 		this(parent, style, item, false);
 	}
 
-	public EditableText(Composite parent, int style, Item item,
-			boolean cacheImmediately) throws RepositoryException {
+	public EditableText(Composite parent, int style, Item item, boolean cacheImmediately) throws RepositoryException {
 		super(parent, style, item, cacheImmediately);
+		editable = !(SWT.READ_ONLY == (style & SWT.READ_ONLY));
 	}
 
 	@Override
 	protected Control createControl(Composite box, String style) {
-		if (isEditing())
-			return createText(box, style);
-		else
+		if (isEditing() && getEditable()) {
+			return createText(box, style, true);
+		} else {
+//			return createText(box, style, false);
 			return createLabel(box, style);
+		}
 	}
 
 	protected Label createLabel(Composite box, String style) {
@@ -47,8 +53,9 @@ public class EditableText extends StyledControl {
 		return lbl;
 	}
 
-	protected Text createText(Composite box, String style) {
+	protected Text createText(Composite box, String style, boolean editable) {
 		final Text text = new Text(box, getStyle() | SWT.MULTI | SWT.WRAP);
+		text.setEditable(editable);
 		GridData textLayoutData = CmsUiUtils.fillWidth();
 		// textLayoutData.heightHint = preferredHeight;
 		text.setLayoutData(textLayoutData);
@@ -71,6 +78,21 @@ public class EditableText extends StyledControl {
 
 	public Label getAsLabel() {
 		return (Label) getControl();
+	}
+
+	public String getText() {
+		Control child = getControl();
+		
+		if (child instanceof Label)
+			return ((Label) child).getText();
+		else if (child instanceof Text)
+			return ((Text) child).getText();
+		else
+			throw new IllegalStateException("Unsupported control " + child.getClass());
+	}
+
+	public boolean getEditable() {
+		return editable;
 	}
 
 }

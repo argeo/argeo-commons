@@ -63,17 +63,14 @@ public class EditablePropertyString extends EditableText implements EditablePart
 
 	public synchronized void startEditing() {
 		CmsUiUtils.style(getControl(), FormStyle.propertyText);
-//		getControl().setData(STYLE, propertyText.style());
 		super.startEditing();
 	}
 
 	public synchronized void stopEditing() {
 		if (EclipseUiUtils.isEmpty(((Text) getControl()).getText()))
 			CmsUiUtils.style(getControl(), FormStyle.propertyMessage);
-//			getControl().setData(STYLE, propertyMessage.style());
 		else
 			CmsUiUtils.style(getControl(), FormStyle.propertyText);
-//			getControl().setData(STYLE, propertyText.style());
 		super.stopEditing();
 	}
 
