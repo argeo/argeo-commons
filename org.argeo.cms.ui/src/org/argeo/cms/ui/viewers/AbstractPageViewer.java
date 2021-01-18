@@ -13,7 +13,6 @@ import javax.security.auth.Subject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.CmsEditable;
 import org.argeo.cms.ui.widgets.ScrolledPage;
 import org.argeo.jcr.JcrException;
@@ -75,8 +74,8 @@ public abstract class AbstractPageViewer extends ContentViewer implements Observ
 					initModel(node);
 					node.getSession().save();
 				}
-		} catch (Exception e) {
-			throw new CmsException("Cannot initialize model", e);
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot initialize model", e);
 		}
 	}
 
@@ -121,6 +120,16 @@ public abstract class AbstractPageViewer extends ContentViewer implements Observ
 		}
 	}
 
+	protected void layoutPage() {
+		if (page != null)
+			page.layout(true, true);
+	}
+
+	protected void showControl(Control control) {
+		if (page != null && (page instanceof ScrolledPage))
+			((ScrolledPage) page).showControl(control);
+	}
+
 	@Override
 	public void update(Observable o, Object arg) {
 		if (o == cmsEditable)
@@ -154,9 +163,10 @@ public abstract class AbstractPageViewer extends ContentViewer implements Observ
 				else
 					mouseListener = null;
 				refresh(getControl());
-				layout(getControl());
+				// layout(getControl());
+				layoutPage();
 			} catch (RepositoryException e) {
-				throw new CmsException("Cannot refresh", e);
+				throw new JcrException("Cannot refresh", e);
 			}
 			return null;
 		});
@@ -192,6 +202,7 @@ public abstract class AbstractPageViewer extends ContentViewer implements Observ
 			prepare(part, caretPosition);
 			edited = part;
 			edited.getControl().addFocusListener(new FocusListener() {
+				private static final long serialVersionUID = 6883521812717097017L;
 
 				@Override
 				public void focusLost(FocusEvent event) {
@@ -204,8 +215,9 @@ public abstract class AbstractPageViewer extends ContentViewer implements Observ
 			});
 
 			layout(part.getControl());
+			showControl(part.getControl());
 		} catch (RepositoryException e) {
-			throw new CmsException("Cannot edit " + part, e);
+			throw new JcrException("Cannot edit " + part, e);
 		}
 	}
 
@@ -262,14 +274,14 @@ public abstract class AbstractPageViewer extends ContentViewer implements Observ
 		if (parent.getParent() != null)
 			return findDataParent(parent.getParent());
 		else
-			throw new CmsException("No data parent found");
+			throw new IllegalStateException("No data parent found");
 	}
 
 	// UTILITIES
 	/** Check whether the edited part is in a proper state */
 	protected void checkEdited() {
 		if (edited == null || (edited instanceof Widget) && ((Widget) edited).isDisposed())
-			throw new CmsException("Edited should not be null or disposed at this stage");
+			throw new IllegalStateException("Edited should not be null or disposed at this stage");
 	}
 
 	/** Persist all changes. */
@@ -302,7 +314,7 @@ public abstract class AbstractPageViewer extends ContentViewer implements Observ
 			res = Subject.getSubject(accessControlContext);
 		}
 		if (res == null)
-			throw new CmsException("No subject associated with this viewer");
+			throw new IllegalStateException("No subject associated with this viewer");
 		return res;
 	}
 

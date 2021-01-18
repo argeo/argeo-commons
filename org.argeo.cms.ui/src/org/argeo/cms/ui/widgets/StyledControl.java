@@ -39,11 +39,17 @@ public abstract class StyledControl extends JcrComposite implements CmsConstants
 
 	protected abstract Control createControl(Composite box, String style);
 
-	protected Composite createBox(Composite parent) {
-		Composite box = new Composite(parent, SWT.INHERIT_DEFAULT);
+	protected Composite createBox() {
+		Composite box = new Composite(container, SWT.INHERIT_DEFAULT);
+		setContainerLayoutData(box);
+		box.setLayout(CmsUiUtils.noSpaceGridLayout(3));
+		return box;
+	}
+
+	protected Composite createContainer() {
+		Composite box = new Composite(this, SWT.INHERIT_DEFAULT);
 		setContainerLayoutData(box);
 		box.setLayout(CmsUiUtils.noSpaceGridLayout());
-		// new Label(box, SWT.NONE).setText("BOX");
 		return box;
 	}
 
@@ -91,10 +97,10 @@ public abstract class StyledControl extends JcrComposite implements CmsConstants
 		control = createControl(box, style);
 		setControlLayoutData(control);
 
-//		control.getParent().setData(STYLE, style + "_box");
-		EclipseUiSpecificUtils.setStyleData(control.getParent(), style + "_box");
-//		control.getParent().getParent().setData(STYLE, style + "_container");
-		EclipseUiSpecificUtils.setStyleData(control.getParent().getParent(), style + "_container");
+		if (style != null) {
+			CmsUiUtils.style(box, style + "_box");
+			CmsUiUtils.style(container, style + "_container");
+		}
 	}
 
 	/** To be overridden */
@@ -111,8 +117,8 @@ public abstract class StyledControl extends JcrComposite implements CmsConstants
 		if (deep) {
 			for (Control control : getChildren())
 				control.dispose();
-			container = createBox(this);
-			box = createBox(container);
+			container = createContainer();
+			box = createBox();
 		} else {
 			control.dispose();
 		}

@@ -5,8 +5,7 @@ import javax.jcr.RepositoryException;
 
 import org.argeo.cms.ui.util.CmsUiUtils;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -19,9 +18,13 @@ public class EditableText extends StyledControl {
 
 	private boolean editable = true;
 
+	private Color highlightColor;
+	private Composite highlight;
+
 	public EditableText(Composite parent, int style) {
 		super(parent, style);
 		editable = !(SWT.READ_ONLY == (style & SWT.READ_ONLY));
+		highlightColor = parent.getDisplay().getSystemColor(SWT.COLOR_GRAY);
 	}
 
 	public EditableText(Composite parent, int style, Item item) throws RepositoryException {
@@ -31,6 +34,7 @@ public class EditableText extends StyledControl {
 	public EditableText(Composite parent, int style, Item item, boolean cacheImmediately) throws RepositoryException {
 		super(parent, style, item, cacheImmediately);
 		editable = !(SWT.READ_ONLY == (style & SWT.READ_ONLY));
+		highlightColor = parent.getDisplay().getSystemColor(SWT.COLOR_GRAY);
 	}
 
 	@Override
@@ -46,7 +50,8 @@ public class EditableText extends StyledControl {
 	protected Label createLabel(Composite box, String style) {
 		Label lbl = new Label(box, getStyle() | SWT.WRAP);
 		lbl.setLayoutData(CmsUiUtils.fillWidth());
-		CmsUiUtils.style(lbl, style);
+		if (style != null)
+			CmsUiUtils.style(lbl, style);
 		CmsUiUtils.markup(lbl);
 		if (mouseListener != null)
 			lbl.addMouseListener(mouseListener);
@@ -54,14 +59,29 @@ public class EditableText extends StyledControl {
 	}
 
 	protected Text createText(Composite box, String style, boolean editable) {
+		highlight = new Composite(box, SWT.NONE);
+		highlight.setBackground(highlightColor);
+		GridData highlightGd = new GridData(SWT.FILL, SWT.FILL, false, false);
+		highlightGd.widthHint = 5;
+		highlightGd.heightHint = 3;
+		highlight.setLayoutData(highlightGd);
+
 		final Text text = new Text(box, getStyle() | SWT.MULTI | SWT.WRAP);
 		text.setEditable(editable);
 		GridData textLayoutData = CmsUiUtils.fillWidth();
 		// textLayoutData.heightHint = preferredHeight;
 		text.setLayoutData(textLayoutData);
-		CmsUiUtils.style(text, style);
+		if (style != null)
+			CmsUiUtils.style(text, style);
 		text.setFocus();
 		return text;
+	}
+
+	@Override
+	protected void clear(boolean deep) {
+		if (highlight != null)
+			highlight.dispose();
+		super.clear(deep);
 	}
 
 	public void setText(String text) {
@@ -82,7 +102,7 @@ public class EditableText extends StyledControl {
 
 	public String getText() {
 		Control child = getControl();
-		
+
 		if (child instanceof Label)
 			return ((Label) child).getText();
 		else if (child instanceof Text)
