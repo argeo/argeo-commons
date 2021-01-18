@@ -6,6 +6,7 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 
 /**
  * A composite that can be scrolled vertically. It wraps a
@@ -41,6 +42,10 @@ public class ScrolledPage extends Composite {
 	public void layout(boolean changed, boolean all) {
 		updateScroll();
 		super.layout(changed, all);
+	}
+
+	public void showControl(Control control) {
+		scrolledComposite.showControl(control);
 	}
 
 	protected void updateScroll() {

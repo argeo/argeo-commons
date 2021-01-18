@@ -1,14 +1,14 @@
 package org.argeo.cms.ui.widgets;
 
 import javax.jcr.Item;
+import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.util.CmsUiUtils;
-import org.eclipse.swt.SWT;
+import org.argeo.jcr.JcrException;
 import org.eclipse.swt.widgets.Composite;
 
 /** A composite which can (optionally) manage a JCR Item. */
@@ -42,20 +42,20 @@ public class JcrComposite extends Composite {
 //					// not even a reference to the item
 //					this.nodeId = null;
 //				} else {
-					Node node;
-					Property property = null;
-					if (item instanceof Node) {
-						node = (Node) item;
-					} else {// Property
-						property = (Property) item;
-						if (property.isMultiple())// TODO manage property index
-							throw new CmsException("Multiple properties not supported yet.");
-						this.property = property.getName();
-						node = property.getParent();
-					}
-					this.nodeId = node.getIdentifier();
-					if (cacheImmediately)
-						this.cache = node;
+				Node node;
+				Property property = null;
+				if (item instanceof Node) {
+					node = (Node) item;
+				} else {// Property
+					property = (Property) item;
+					if (property.isMultiple())// TODO manage property index
+						throw new UnsupportedOperationException("Multiple properties not supported yet.");
+					this.property = property.getName();
+					node = property.getParent();
+				}
+				this.nodeId = node.getIdentifier();
+				if (cacheImmediately)
+					this.cache = node;
 //				}
 				setLayout(CmsUiUtils.noSpaceGridLayout());
 			} catch (RepositoryException e) {
@@ -66,10 +66,10 @@ public class JcrComposite extends Composite {
 	public synchronized Node getNode() {
 		try {
 			if (!itemIsNode())
-				throw new CmsException("Item is not a Node");
+				throw new IllegalStateException("Item is not a Node");
 			return getNodeInternal();
 		} catch (RepositoryException e) {
-			throw new CmsException("Cannot get node " + nodeId, e);
+			throw new JcrException("Cannot get node " + nodeId, e);
 		}
 	}
 
@@ -88,24 +88,40 @@ public class JcrComposite extends Composite {
 	public synchronized Property getProperty() {
 		try {
 			if (itemIsNode())
-				throw new CmsException("Item is not a Property");
+				throw new IllegalStateException("Item is not a Property");
 			Node node = getNodeInternal();
 			if (!node.hasProperty(property))
-				throw new CmsException("Property " + property + " is not set on " + node);
+				throw new IllegalStateException("Property " + property + " is not set on " + node);
 			return node.getProperty(property);
 		} catch (RepositoryException e) {
-			throw new CmsException("Cannot get property " + property + " from node " + nodeId, e);
+			throw new JcrException("Cannot get property " + property + " from node " + nodeId, e);
 		}
 	}
 
-	public synchronized Boolean itemIsNode() {
+	public synchronized boolean itemIsNode() {
 		return property == null;
+	}
+
+	public synchronized boolean itemExists() {
+		if (session == null)
+			return false;
+		try {
+			Node n = session.getNodeByIdentifier(nodeId);
+			if (!itemIsNode())
+				return n.hasProperty(property);
+			else
+				return true;
+		} catch (ItemNotFoundException e) {
+			return false;
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot check whether node exists", e);
+		}
 	}
 
 	/** Set/update the cache or change the node */
 	public synchronized void setNode(Node node) {
 		if (!itemIsNode())
-			throw new CmsException("Cannot set a Node on a Property");
+			throw new IllegalArgumentException("Cannot set a Node on a Property");
 
 		if (node == null) {// clear cache
 			this.cache = null;
@@ -116,7 +132,7 @@ public class JcrComposite extends Composite {
 //			if (session != null || session != node.getSession())// check session
 //				throw new IllegalArgumentException("Uncompatible session");
 //			if (session == null)
-				session = node.getSession();
+			session = node.getSession();
 			if (nodeId == null || !nodeId.equals(node.getIdentifier())) {
 				nodeId = node.getIdentifier();
 				cache = node;
@@ -132,7 +148,7 @@ public class JcrComposite extends Composite {
 	/** Set/update the cache or change the property */
 	public synchronized void setProperty(Property prop) {
 		if (itemIsNode())
-			throw new CmsException("Cannot set a Property on a Node");
+			throw new IllegalArgumentException("Cannot set a Property on a Node");
 
 		if (prop == null) {// clear cache
 			this.cache = null;

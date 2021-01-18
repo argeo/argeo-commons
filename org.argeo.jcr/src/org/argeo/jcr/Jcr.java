@@ -279,6 +279,85 @@ public class Jcr {
 	}
 
 	/**
+	 * Add a node to this parent, setting its primary type and its mixins.
+	 * 
+	 * @param parent      the parent node
+	 * @param name        the name of the node, if <code>null</code>, the primary
+	 *                    type will be used (typically for XML structures)
+	 * @param primaryType the primary type, if <code>null</code>
+	 *                    {@link NodeType#NT_UNSTRUCTURED} will be used.
+	 * @param mixins      the mixins
+	 * @return the created node
+	 * @see Node#addNode(String, String)
+	 * @see Node#addMixin(String)
+	 */
+	public static Node addNode(Node parent, String name, String primaryType, String... mixins) {
+		if (name == null && primaryType == null)
+			throw new IllegalArgumentException("Both node name and primary type cannot be null");
+		try {
+			Node newNode = parent.addNode(name == null ? primaryType : name,
+					primaryType == null ? NodeType.NT_UNSTRUCTURED : primaryType);
+			for (String mixin : mixins) {
+				newNode.addMixin(mixin);
+			}
+			return newNode;
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot add node " + name + " to " + parent, e);
+		}
+	}
+
+	/**
+	 * Add an {@link NodeType#NT_BASE} node to this parent.
+	 * 
+	 * @param parent the parent node
+	 * @param name   the name of the node, cannot be <code>null</code>
+	 * @return the created node
+	 * 
+	 * @see Node#addNode(String)
+	 */
+	public static Node addNode(Node parent, String name) {
+		if (name == null)
+			throw new IllegalArgumentException("Node name cannot be null");
+		try {
+			Node newNode = parent.addNode(name);
+			return newNode;
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot add node " + name + " to " + parent, e);
+		}
+	}
+
+	/**
+	 * Add mixins to a node.
+	 * 
+	 * @param node   the node
+	 * @param mixins the mixins
+	 * @return the created node
+	 * @see Node#addMixin(String)
+	 */
+	public static void addMixin(Node node, String... mixins) {
+		try {
+			for (String mixin : mixins) {
+				node.addMixin(mixin);
+			}
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot add mixins " + Arrays.asList(mixins) + " to " + node, e);
+		}
+	}
+
+	/**
+	 * Removes this node.
+	 * 
+	 * @see Node#remove()
+	 */
+	public static void remove(Node node) {
+		try {
+			node.remove();
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot remove node " + node, e);
+		}
+	}
+
+	/**
 	 * @return the node with htis id or <code>null</node> if not found
 	 * @see Session#getNodeByIdentifier(String)
 	 * @throws JcrException caused by {@link RepositoryException}
