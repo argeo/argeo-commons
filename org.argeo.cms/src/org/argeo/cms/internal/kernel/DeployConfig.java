@@ -20,7 +20,6 @@ import javax.naming.ldap.Rdn;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
-import org.argeo.cms.CmsException;
 import org.argeo.naming.AttributesDictionary;
 import org.argeo.naming.LdifParser;
 import org.argeo.naming.LdifWriter;
@@ -42,19 +41,20 @@ class DeployConfig implements ConfigurationListener {
 	private SortedMap<LdapName, Attributes> deployConfigs = new TreeMap<>();
 	private final DataModels dataModels;
 
+	private boolean isFirstInit = false;
+
 	public DeployConfig(ConfigurationAdmin configurationAdmin, DataModels dataModels, boolean isClean) {
 		this.dataModels = dataModels;
 		// ConfigurationAdmin configurationAdmin =
 		// bc.getService(bc.getServiceReference(ConfigurationAdmin.class));
 		try {
-			boolean isFirstInit = false;
 			if (!isInitialized()) { // first init
 				isFirstInit = true;
 				firstInit();
 			}
 			init(configurationAdmin, isClean, isFirstInit);
 		} catch (IOException e) {
-			throw new CmsException("Could not init deploy configs", e);
+			throw new RuntimeException("Could not init deploy configs", e);
 		}
 		// FIXME check race conditions during initialization
 		// bc.registerService(ConfigurationListener.class, this, null);
@@ -108,15 +108,15 @@ class DeployConfig implements ConfigurationListener {
 			LdapName userAdminFactoryName = serviceFactoryDn(NodeConstants.NODE_USER_ADMIN_PID);
 			for (LdapName name : deployConfigs.keySet()) {
 				if (name.startsWith(userAdminFactoryName) && !name.equals(userAdminFactoryName)) {
-					try {
-						Attributes attrs = deployConfigs.get(name);
-						String cn = name.getRdn(name.size() - 1).getValue().toString();
-						if (!activeCns.contains(cn)) {
-							attrs.put(UserAdminConf.disabled.name(), "true");
-						}
-					} catch (Exception e) {
-						throw new CmsException("Cannot disable user directory " + name, e);
+//					try {
+					Attributes attrs = deployConfigs.get(name);
+					String cn = name.getRdn(name.size() - 1).getValue().toString();
+					if (!activeCns.contains(cn)) {
+						attrs.put(UserAdminConf.disabled.name(), "true");
 					}
+//					} catch (Exception e) {
+//						throw new CmsException("Cannot disable user directory " + name, e);
+//					}
 				}
 			}
 		}
@@ -186,7 +186,7 @@ class DeployConfig implements ConfigurationListener {
 			deployConfigs = new LdifParser().read(in);
 		}
 		if (isClean) {
-			if(log.isDebugEnabled())
+			if (log.isDebugEnabled())
 				log.debug("Clean state, loading from framework properties...");
 			setFromFrameworkProperties(isFirstInit);
 			for (LdapName dn : deployConfigs.keySet()) {
@@ -343,8 +343,12 @@ class DeployConfig implements ConfigurationListener {
 			return null;
 	}
 
-	static boolean isInitialized() {
+	private static boolean isInitialized() {
 		return Files.exists(deployConfigPath);
+	}
+
+	public boolean isFirstInit() {
+		return isFirstInit;
 	}
 
 }

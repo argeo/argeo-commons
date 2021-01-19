@@ -295,13 +295,15 @@ public class CmsDeployment implements NodeDeployment {
 		prepareDataModel(NodeConstants.NODE_REPOSITORY, deployedNodeRepository, publishAsLocalRepo);
 
 		// init from backup
-		Path restorePath = Paths.get(System.getProperty("user.dir"), "restore");
-		if (Files.exists(restorePath)) {
-			if (log.isDebugEnabled())
-				log.debug("Found backup " + restorePath + ", restoring it...");
-			LogicalRestore logicalRestore = new LogicalRestore(bc, deployedNodeRepository, restorePath);
-			KernelUtils.doAsDataAdmin(logicalRestore);
-			log.info("Restored backup from " + restorePath);
+		if (deployConfig.isFirstInit()) {
+			Path restorePath = Paths.get(System.getProperty("user.dir"), "restore");
+			if (Files.exists(restorePath)) {
+				if (log.isDebugEnabled())
+					log.debug("Found backup " + restorePath + ", restoring it...");
+				LogicalRestore logicalRestore = new LogicalRestore(bc, deployedNodeRepository, restorePath);
+				KernelUtils.doAsDataAdmin(logicalRestore);
+				log.info("Restored backup from " + restorePath);
+			}
 		}
 
 		// init from repository

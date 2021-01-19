@@ -39,7 +39,7 @@ public class BackupContentHandler extends DefaultHandler {
 	private Session session;
 	private Set<String> contentPaths = new TreeSet<>();
 
-	private boolean inSystem = false;
+//	private boolean inSystem = false;
 
 	public BackupContentHandler(Writer out, Session session) {
 		super();
@@ -75,15 +75,15 @@ public class BackupContentHandler extends DefaultHandler {
 		if (isNode) {
 			String nodeName = attributes.getValue(SV_NAMESPACE_URI, NAME);
 			currentDepth = currentDepth + 1;
-			if (currentDepth > 0)
-				currentPath[currentDepth - 1] = nodeName;
+//			if (currentDepth >= 0)
+			currentPath[currentDepth] = nodeName;
 //			System.out.println(getCurrentPath() + " , depth=" + currentDepth);
-			if ("jcr:system".equals(nodeName)) {
-				inSystem = true;
-			}
+//			if ("jcr:system".equals(nodeName)) {
+//				inSystem = true;
+//			}
 		}
-		if (inSystem)
-			return;
+//		if (inSystem)
+//			return;
 
 		if (SV_NAMESPACE_URI.equals(uri))
 			try {
@@ -143,20 +143,21 @@ public class BackupContentHandler extends DefaultHandler {
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		if (localName.equals(NODE)) {
 //			System.out.println("endElement " + getCurrentPath() + " , depth=" + currentDepth);
-			if (currentDepth > 0)
-				currentPath[currentDepth - 1] = null;
+//			if (currentDepth > 0)
+			currentPath[currentDepth] = null;
 			currentDepth = currentDepth - 1;
-			if (inSystem) {
-				// System.out.println("Skip " + getCurrentPath()+" ,
-				// currentDepth="+currentDepth);
-				if (currentDepth == 0) {
-					inSystem = false;
-					return;
-				}
-			}
+			assert currentDepth >= 0;
+//			if (inSystem) {
+//				// System.out.println("Skip " + getCurrentPath()+" ,
+//				// currentDepth="+currentDepth);
+//				if (currentDepth == 0) {
+//					inSystem = false;
+//					return;
+//				}
+//			}
 		}
-		if (inSystem)
-			return;
+//		if (inSystem)
+//			return;
 		boolean isValue = localName.equals(VALUE);
 		if (SV_NAMESPACE_URI.equals(uri))
 			try {
@@ -180,8 +181,8 @@ public class BackupContentHandler extends DefaultHandler {
 
 	@Override
 	public void characters(char[] ch, int start, int length) throws SAXException {
-		if (inSystem)
-			return;
+//		if (inSystem)
+//			return;
 		try {
 			out.write(ch, start, length);
 		} catch (IOException e) {
@@ -191,17 +192,17 @@ public class BackupContentHandler extends DefaultHandler {
 
 	protected String getCurrentName() {
 		assert currentDepth >= 0;
-		if (currentDepth == 0)
-			return "jcr:root";
-		return currentPath[currentDepth - 1];
+//		if (currentDepth == 0)
+//			return "jcr:root";
+		return currentPath[currentDepth];
 	}
 
 	protected String getCurrentPath() {
-		if (currentDepth == 0)
-			return "/";
-		StringBuilder sb = new StringBuilder("/");
-		for (int i = 0; i < currentDepth; i++) {
-			if (i != 0)
+//		if (currentDepth == 0)
+//			return "/";
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i <= currentDepth; i++) {
+//			if (i != 0)
 				sb.append('/');
 			sb.append(currentPath[i]);
 		}
