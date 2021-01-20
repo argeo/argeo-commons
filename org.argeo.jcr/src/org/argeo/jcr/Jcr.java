@@ -133,6 +133,14 @@ public class Jcr {
 	}
 
 	/**
+	 * @see Node#getParent()
+	 * @throws JcrException caused by {@link RepositoryException}
+	 */
+	public static String getParentPath(Node node) {
+		return getPath(getParent(node));
+	}
+
+	/**
 	 * Whether this node is the root node.
 	 * 
 	 * @throws JcrException caused by {@link RepositoryException}

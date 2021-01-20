@@ -3,15 +3,18 @@ package org.argeo.maintenance.backup;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Set;
 import java.util.TreeSet;
 
 import javax.jcr.Binary;
+import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.apache.commons.io.IOUtils;
+import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrException;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -39,12 +42,17 @@ public class BackupContentHandler extends DefaultHandler {
 	private Session session;
 	private Set<String> contentPaths = new TreeSet<>();
 
+	boolean prettyPrint = true;
+
+	private final String parentPath;
+
 //	private boolean inSystem = false;
 
-	public BackupContentHandler(Writer out, Session session) {
+	public BackupContentHandler(Writer out, Node node) {
 		super();
 		this.out = out;
-		this.session = session;
+		this.session = Jcr.getSession(node);
+		parentPath = Jcr.getParentPath(node);
 	}
 
 	private int currentDepth = -1;
@@ -87,6 +95,19 @@ public class BackupContentHandler extends DefaultHandler {
 
 		if (SV_NAMESPACE_URI.equals(uri))
 			try {
+				if (prettyPrint) {
+					if (isNode) {
+						out.write(spaces());
+						out.write("<!-- ");
+						out.write(getCurrentJcrPath());
+						out.write(" -->\n");
+						out.write(spaces());
+					} else if (isProperty)
+						out.write(spaces());
+					else if (currentPropertyIsMultiple)
+						out.write(spaces());
+				}
+
 				out.write("<");
 				out.write(SV_PREFIX + ":" + localName);
 				if (isProperty)
@@ -108,9 +129,9 @@ public class BackupContentHandler extends DefaultHandler {
 							else if (TYPE.equals(attrName)) {
 								if (BINARY.equals(attrValue)) {
 									if (JCR_CONTENT.equals(getCurrentName())) {
-										contentPaths.add(getCurrentPath());
+										contentPaths.add(getCurrentJcrPath());
 									} else {
-										Binary binary = session.getNode(getCurrentPath()).getProperty(attrName)
+										Binary binary = session.getNode(getCurrentJcrPath()).getProperty(attrName)
 												.getBinary();
 										try (InputStream in = binary.getStream()) {
 											currentEncoded = base64encore.encodeToString(IOUtils.toByteArray(in));
@@ -128,10 +149,12 @@ public class BackupContentHandler extends DefaultHandler {
 					out.write(" xmlns:" + SV_PREFIX + "=\"" + SV_NAMESPACE_URI + "\"");
 				}
 				out.write(">");
-				if (isNode)
-					out.write("\n");
-				else if (isProperty && currentPropertyIsMultiple)
-					out.write("\n");
+
+				if (prettyPrint)
+					if (isNode)
+						out.write("\n");
+					else if (isProperty && currentPropertyIsMultiple)
+						out.write("\n");
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			} catch (RepositoryException e) {
@@ -141,12 +164,21 @@ public class BackupContentHandler extends DefaultHandler {
 
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
-		if (localName.equals(NODE)) {
+		boolean isNode = localName.equals(NODE);
+		boolean isValue = localName.equals(VALUE);
+		if (prettyPrint)
+			if (!isValue)
+				try {
+					if (isNode || currentPropertyIsMultiple)
+						out.write(spaces());
+				} catch (IOException e1) {
+					throw new RuntimeException(e1);
+				}
+		if (isNode) {
 //			System.out.println("endElement " + getCurrentPath() + " , depth=" + currentDepth);
 //			if (currentDepth > 0)
 			currentPath[currentDepth] = null;
 			currentDepth = currentDepth - 1;
-			assert currentDepth >= 0;
 //			if (inSystem) {
 //				// System.out.println("Skip " + getCurrentPath()+" ,
 //				// currentDepth="+currentDepth);
@@ -158,7 +190,6 @@ public class BackupContentHandler extends DefaultHandler {
 		}
 //		if (inSystem)
 //			return;
-		boolean isValue = localName.equals(VALUE);
 		if (SV_NAMESPACE_URI.equals(uri))
 			try {
 				if (isValue && currentEncoded != null) {
@@ -168,15 +199,25 @@ public class BackupContentHandler extends DefaultHandler {
 				out.write("</");
 				out.write(SV_PREFIX + ":" + localName);
 				out.write(">");
-				if (!isValue)
-					out.write("\n");
-				else {
-					if (currentPropertyIsMultiple)
+				if (prettyPrint)
+					if (!isValue)
 						out.write("\n");
-				}
+					else {
+						if (currentPropertyIsMultiple)
+							out.write("\n");
+					}
+				if (currentDepth == 0)
+					out.flush();
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
+
+	}
+
+	private char[] spaces() {
+		char[] arr = new char[currentDepth];
+		Arrays.fill(arr, ' ');
+		return arr;
 	}
 
 	@Override
@@ -197,13 +238,13 @@ public class BackupContentHandler extends DefaultHandler {
 		return currentPath[currentDepth];
 	}
 
-	protected String getCurrentPath() {
+	protected String getCurrentJcrPath() {
 //		if (currentDepth == 0)
 //			return "/";
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(parentPath.equals("/") ? "" : parentPath);
 		for (int i = 0; i <= currentDepth; i++) {
 //			if (i != 0)
-				sb.append('/');
+			sb.append('/');
 			sb.append(currentPath[i]);
 		}
 		return sb.toString();

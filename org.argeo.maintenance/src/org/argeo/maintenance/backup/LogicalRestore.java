@@ -13,6 +13,8 @@ import javax.jcr.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.api.NodeConstants;
+import org.argeo.api.NodeUtils;
 import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
@@ -37,27 +39,22 @@ public class LogicalRestore implements Runnable {
 		Path workspaces = basePath.resolve(LogicalBackup.WORKSPACES_BASE);
 		try {
 			// import jcr:system first
-			try (DirectoryStream<Path> workspaceDirs = Files.newDirectoryStream(workspaces)) {
-				dirs: for (Path workspacePath : workspaceDirs) {
-					String workspaceName = workspacePath.getFileName().toString();
-					try (DirectoryStream<Path> xmls = Files.newDirectoryStream(workspacePath, "*.xml")) {
-						for (Path xml : xmls) {
-							if (xml.getFileName().toString().equals("jcr:system.xml")) {
-								Session session = JcrUtils.loginOrCreateWorkspace(repository, workspaceName);
-								try (InputStream in = Files.newInputStream(xml)) {
-									session.getWorkspace().importXML("/", in,
-											ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING);
-									if (log.isDebugEnabled())
-										log.debug("Restored " + xml + " to workspace " + workspaceName);
-									break dirs;
-								} finally {
-									Jcr.logout(session);
-								}
-							}
-						}
-					}
-				}
-			}
+//			Session defaultSession = NodeUtils.openDataAdminSession(repository, null);
+//			try (DirectoryStream<Path> xmls = Files.newDirectoryStream(
+//					workspaces.resolve(NodeConstants.SYS_WORKSPACE + LogicalBackup.JCR_VERSION_STORAGE_PATH),
+//					"*.xml")) {
+//				for (Path xml : xmls) {
+//					try (InputStream in = Files.newInputStream(xml)) {
+//						defaultSession.getWorkspace().importXML(LogicalBackup.JCR_VERSION_STORAGE_PATH, in,
+//								ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING);
+//						if (log.isDebugEnabled())
+//							log.debug("Restored " + xml + " to " + defaultSession.getWorkspace().getName() + ":");
+//					}
+//				}
+//			} finally {
+//				Jcr.logout(defaultSession);
+//			}
+
 			// non-system content
 			try (DirectoryStream<Path> workspaceDirs = Files.newDirectoryStream(workspaces)) {
 				for (Path workspacePath : workspaceDirs) {
@@ -65,7 +62,7 @@ public class LogicalRestore implements Runnable {
 					Session session = JcrUtils.loginOrCreateWorkspace(repository, workspaceName);
 					try (DirectoryStream<Path> xmls = Files.newDirectoryStream(workspacePath, "*.xml")) {
 						xmls: for (Path xml : xmls) {
-							if (xml.getFileName().toString().equals("jcr:system.xml"))
+							if (xml.getFileName().toString().startsWith("rep:"))
 								continue xmls;
 							try (InputStream in = Files.newInputStream(xml)) {
 								session.getWorkspace().importXML("/", in,
