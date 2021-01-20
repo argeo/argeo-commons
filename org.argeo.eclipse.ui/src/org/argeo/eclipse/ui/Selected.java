@@ -4,8 +4,8 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 
 /**
- * {@link SelectionListener} as a functional interface in order to use lambda
- * expression in UI code.
+ * {@link SelectionListener} as a functional interface in order to use as a
+ * short lambda expression in UI code.
  * {@link SelectionListener#widgetDefaultSelected(SelectionEvent)} does nothing
  * by default.
  */
