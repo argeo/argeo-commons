@@ -36,7 +36,7 @@ public class JcrFileUploadReceiver extends FileUploadReceiver {
 			String fileName = nodeName != null ? nodeName : details.getFileName();
 			String contentType = details.getContentType();
 			if (isImage(details.getFileName(), contentType)) {
-				imageManager.uploadImage(parentNode, fileName, stream);
+				imageManager.uploadImage(parentNode, fileName, stream, contentType);
 				return;
 				// InputStream inputStream = new ByteArrayInputStream(arr);
 				// ImageData id = new ImageData(inputStream);

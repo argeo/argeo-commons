@@ -118,7 +118,7 @@ public class DefaultImageManager implements CmsImageManager {
 	public Point getImageSize(Node node) throws RepositoryException {
 		// TODO optimise
 		Image image = getSwtImage(node);
-		return new Point(image.getBounds().width,image.getBounds().height);
+		return new Point(image.getBounds().width, image.getBounds().height);
 	}
 
 	/** @return null if not available */
@@ -203,7 +203,8 @@ public class DefaultImageManager implements CmsImageManager {
 	}
 
 	@Override
-	public String uploadImage(Node parentNode, String fileName, InputStream in) throws RepositoryException {
+	public String uploadImage(Node parentNode, String fileName, InputStream in, String contentType)
+			throws RepositoryException {
 		InputStream inputStream = null;
 		try {
 			String previousResourceName = null;
@@ -222,8 +223,9 @@ public class DefaultImageManager implements CmsImageManager {
 			ImageData id = new ImageData(inputStream);
 			processNewImageFile(fileNode, id);
 
-			String mime = Files.probeContentType(Paths.get(fileName));
-			fileNode.setProperty(Property.JCR_MIMETYPE, mime);
+			String mime = contentType != null ? contentType : Files.probeContentType(Paths.get(fileName));
+			if (mime != null)
+				fileNode.setProperty(Property.JCR_MIMETYPE, mime);
 			fileNode.getSession().save();
 
 			// reset resource manager
@@ -241,7 +243,7 @@ public class DefaultImageManager implements CmsImageManager {
 		}
 	}
 
-	/** Does nothign by default. */
+	/** Does nothing by default. */
 	protected void processNewImageFile(Node fileNode, ImageData id) throws RepositoryException, IOException {
 	}
 }

@@ -3,13 +3,14 @@ package org.argeo.cms.ui.widgets;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.CmsImageManager;
+import org.argeo.cms.ui.CmsView;
 import org.argeo.cms.ui.internal.JcrFileUploadReceiver;
 import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.cms.ui.viewers.NodePart;
 import org.argeo.cms.ui.viewers.Section;
 import org.argeo.cms.ui.viewers.SectionPart;
+import org.argeo.jcr.JcrException;
 import org.eclipse.rap.fileupload.FileUploadHandler;
 import org.eclipse.rap.fileupload.FileUploadListener;
 import org.eclipse.rap.fileupload.FileUploadReceiver;
@@ -32,24 +33,26 @@ public class Img extends EditableImage implements SectionPart, NodePart {
 	private FileUploadHandler currentUploadHandler = null;
 	private FileUploadListener fileUploadListener;
 
-	public Img(Composite parent, int swtStyle, Node imgNode,
-			Point preferredImageSize) throws RepositoryException {
-		this(Section.findSection(parent), parent, swtStyle, imgNode,
-				preferredImageSize);
+	public Img(Composite parent, int swtStyle, Node imgNode, Point preferredImageSize) throws RepositoryException {
+		this(Section.findSection(parent), parent, swtStyle, imgNode, preferredImageSize, null);
 		setStyle(TextStyles.TEXT_IMAGE);
 	}
 
-	public Img(Composite parent, int swtStyle, Node imgNode)
-			throws RepositoryException {
-		this(Section.findSection(parent), parent, swtStyle, imgNode, null);
+	public Img(Composite parent, int swtStyle, Node imgNode) throws RepositoryException {
+		this(Section.findSection(parent), parent, swtStyle, imgNode, null, null);
 		setStyle(TextStyles.TEXT_IMAGE);
 	}
 
-	Img(Section section, Composite parent, int swtStyle, Node imgNode,
-			Point preferredImageSize) throws RepositoryException {
+	public Img(Composite parent, int swtStyle, Node imgNode, CmsImageManager imageManager) throws RepositoryException {
+		this(Section.findSection(parent), parent, swtStyle, imgNode, null, imageManager);
+		setStyle(TextStyles.TEXT_IMAGE);
+	}
+
+	Img(Section section, Composite parent, int swtStyle, Node imgNode, Point preferredImageSize,
+			CmsImageManager imageManager) throws RepositoryException {
 		super(parent, swtStyle, imgNode, false, preferredImageSize);
 		this.section = section;
-		imageManager = CmsUiUtils.getCmsView().getImageManager();
+		this.imageManager = imageManager != null ? imageManager : CmsView.getCmsView(section).getImageManager();
 		CmsUiUtils.style(this, TextStyles.TEXT_IMG);
 	}
 
@@ -59,7 +62,7 @@ public class Img extends EditableImage implements SectionPart, NodePart {
 			try {
 				return createImageChooser(box, style);
 			} catch (RepositoryException e) {
-				throw new CmsException("Cannot create image chooser", e);
+				throw new JcrException("Cannot create image chooser", e);
 			}
 		} else {
 			return createLabel(box, style);
@@ -76,26 +79,18 @@ public class Img extends EditableImage implements SectionPart, NodePart {
 	protected synchronized Boolean load(Control lbl) {
 		try {
 			Node imgNode = getNode();
-			boolean loaded = imageManager.load(imgNode, lbl,
-					getPreferredImageSize());
+			boolean loaded = imageManager.load(imgNode, lbl, getPreferredImageSize());
 			// getParent().layout();
 			return loaded;
 		} catch (RepositoryException e) {
-			throw new CmsException("Cannot load " + getNodeId()
-					+ " from image manager", e);
+			throw new JcrException("Cannot load " + getNodeId() + " from image manager", e);
 		}
 	}
 
-	protected Control createImageChooser(Composite box, String style)
-			throws RepositoryException {
-		// FileDialog fileDialog = new FileDialog(getShell());
-		// fileDialog.open();
-		// String fileName = fileDialog.getFileName();
-		CmsImageManager imageManager = CmsUiUtils.getCmsView().getImageManager();
+	protected Control createImageChooser(Composite box, String style) throws RepositoryException {
 		Node node = getNode();
-		JcrFileUploadReceiver receiver = new JcrFileUploadReceiver(
-				node.getParent(), node.getName() + '[' + node.getIndex() + ']',
-				imageManager);
+		JcrFileUploadReceiver receiver = new JcrFileUploadReceiver(node.getParent(),
+				node.getName() + '[' + node.getIndex() + ']', imageManager);
 		if (currentUploadHandler != null)
 			currentUploadHandler.dispose();
 		currentUploadHandler = prepareUpload(receiver);

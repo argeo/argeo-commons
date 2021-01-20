@@ -20,7 +20,7 @@ public interface CmsConstants {
 	public final static String LOADING_IMAGE = "icons/loading.gif";
 
 	public final static String NO_IMAGE = "icons/noPic-square-640px.png";
-	public final static Point NO_IMAGE_SIZE = new Point(640, 640);
+	public final static Point NO_IMAGE_SIZE = new Point(320, 320);
 	public final static Float NO_IMAGE_RATIO = 1f;
 	// MISCEALLENEOUS
 	String DATE_TIME_FORMAT = "dd/MM/yyyy, HH:mm";

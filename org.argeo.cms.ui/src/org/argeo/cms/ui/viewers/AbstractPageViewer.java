@@ -120,7 +120,7 @@ public abstract class AbstractPageViewer extends ContentViewer implements Observ
 		}
 	}
 
-	protected void layoutPage() {
+	public void layoutPage() {
 		if (page != null)
 			page.layout(true, true);
 	}
