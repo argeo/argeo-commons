@@ -12,17 +12,14 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.TextOutputCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
-import org.argeo.cms.CmsException;
-
 /** Callback handler to be used with a command line UI. */
 public class ConsoleCallbackHandler implements CallbackHandler {
 
 	@Override
-	public void handle(Callback[] callbacks) throws IOException,
-			UnsupportedCallbackException {
+	public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
 		Console console = System.console();
 		if (console == null)
-			throw new CmsException("No console available");
+			throw new IllegalStateException("No console available");
 
 		PrintWriter writer = console.writer();
 		for (int i = 0; i < callbacks.length; i++) {
@@ -36,8 +33,7 @@ public class ConsoleCallbackHandler implements CallbackHandler {
 					writer.write(" (" + callback.getDefaultName() + ")");
 				writer.write(" : ");
 				String answer = console.readLine();
-				if (callback.getDefaultName() != null
-						&& answer.trim().equals(""))
+				if (callback.getDefaultName() != null && answer.trim().equals(""))
 					callback.setName(callback.getDefaultName());
 				else
 					callback.setName(answer);

@@ -7,7 +7,6 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
 import org.argeo.api.NodeConstants;
-import org.argeo.cms.CmsException;
 import org.argeo.naming.LdapAttrs;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
@@ -59,7 +58,7 @@ public class UserAdminUtils {
 				|| last.getType().toLowerCase().equals(LdapAttrs.cn.name()))
 			return (String) last.getValue();
 		else
-			throw new CmsException("Cannot retrieve user local id, non valid dn: " + dn);
+			throw new IllegalArgumentException("Cannot retrieve user local id, non valid dn: " + dn);
 	}
 
 	/**
@@ -129,7 +128,7 @@ public class UserAdminUtils {
 		try {
 			return new LdapName(dn);
 		} catch (InvalidNameException e) {
-			throw new CmsException("Cannot parse LDAP name " + dn, e);
+			throw new IllegalArgumentException("Cannot parse LDAP name " + dn, e);
 		}
 	}
 
@@ -158,7 +157,7 @@ public class UserAdminUtils {
 			}
 			return dname;
 		} catch (InvalidNameException e) {
-			throw new CmsException("Unable to get domain name for " + dn, e);
+			throw new IllegalArgumentException("Unable to get domain name for " + dn, e);
 		}
 	}
 

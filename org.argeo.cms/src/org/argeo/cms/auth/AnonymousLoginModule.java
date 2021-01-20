@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.CmsException;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.useradmin.Authorization;
@@ -37,7 +36,7 @@ public class AnonymousLoginModule implements LoginModule {
 			bc = FrameworkUtil.getBundle(AnonymousLoginModule.class).getBundleContext();
 			assert bc != null;
 		} catch (Exception e) {
-			throw new CmsException("Cannot initialize login module", e);
+			throw new IllegalStateException("Cannot initialize login module", e);
 		}
 	}
 
@@ -63,7 +62,6 @@ public class AnonymousLoginModule implements LoginModule {
 
 	@Override
 	public boolean abort() throws LoginException {
-		// authorization = null;
 		return true;
 	}
 

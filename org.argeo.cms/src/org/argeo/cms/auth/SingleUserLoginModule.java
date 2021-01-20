@@ -3,6 +3,7 @@ package org.argeo.cms.auth;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.Principal;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,6 +14,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.security.auth.x500.X500Principal;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,6 +25,7 @@ import org.argeo.naming.LdapAttrs;
 import org.argeo.osgi.useradmin.IpaUtils;
 import org.osgi.service.useradmin.Authorization;
 
+/** Login module for when the system is owned by a single user. */
 public class SingleUserLoginModule implements LoginModule {
 	private final static Log log = LogFactory.getLog(SingleUserLoginModule.class);
 
@@ -70,9 +73,16 @@ public class SingleUserLoginModule implements LoginModule {
 		principals.add(principal);
 		principals.add(new ImpliedByPrincipal(NodeConstants.ROLE_ADMIN, principal));
 		principals.add(new DataAdminPrincipal());
-		
+
+		HttpServletRequest request = (HttpServletRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
+		Locale locale = Locale.getDefault();
+		if (request != null)
+			locale = request.getLocale();
+		if (locale == null)
+			locale = Locale.getDefault();
 		Authorization authorization = new SingleUserAuthorization();
-		subject.getPrivateCredentials().add(authorization);
+		CmsAuthUtils.addAuthorization(subject, authorization);
+		CmsAuthUtils.registerSessionAuthorization(request, subject, authorization, locale);
 
 		return true;
 	}
@@ -84,7 +94,7 @@ public class SingleUserLoginModule implements LoginModule {
 
 	@Override
 	public boolean logout() throws LoginException {
-		// TODO Auto-generated method stub
+		CmsAuthUtils.cleanUp(subject);
 		return true;
 	}
 

@@ -4,8 +4,6 @@ import java.util.UUID;
 
 import javax.security.auth.Subject;
 
-import org.argeo.cms.CmsException;
-
 /**
  * The ID of a {@link CmsSession}, which must be available in the private
  * credentials of an authenticated {@link Subject}.
@@ -15,7 +13,7 @@ public class CmsSessionId {
 
 	public CmsSessionId(UUID value) {
 		if (value == null)
-			throw new CmsException("value cannot be null");
+			throw new IllegalArgumentException("Value cannot be null");
 		this.uuid = value;
 	}
 

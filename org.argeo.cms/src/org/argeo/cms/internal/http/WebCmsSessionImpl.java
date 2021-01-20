@@ -9,14 +9,16 @@ import javax.servlet.http.HttpSession;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.osgi.service.useradmin.Authorization;
 
+/** CMS session implementation in a web context. */
 public class WebCmsSessionImpl extends CmsSessionImpl {
 	// private final static Log log =
 	// LogFactory.getLog(WebCmsSessionImpl.class);
 
 	private HttpSession httpSession;
 
-	public WebCmsSessionImpl(Subject initialSubject, Authorization authorization, Locale locale, HttpServletRequest request) {
-		super(initialSubject, authorization, locale,request.getSession(false).getId());
+	public WebCmsSessionImpl(Subject initialSubject, Authorization authorization, Locale locale,
+			HttpServletRequest request) {
+		super(initialSubject, authorization, locale, request.getSession(false).getId());
 		httpSession = request.getSession(false);
 	}
 

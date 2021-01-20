@@ -17,10 +17,6 @@ import org.argeo.api.NodeConstants;
 import org.argeo.api.security.AnonymousPrincipal;
 import org.argeo.api.security.DataAdminPrincipal;
 import org.argeo.api.security.NodeSecurityUtils;
-//import org.apache.jackrabbit.core.security.AnonymousPrincipal;
-//import org.apache.jackrabbit.core.security.SecurityConstants;
-//import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.cms.internal.http.WebCmsSessionImpl;
@@ -32,6 +28,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
 
+/** Centrlaises security related registrations. */
 class CmsAuthUtils {
 	// Standard
 	final static String SHARED_STATE_NAME = AuthenticatingUser.SHARED_STATE_NAME;
@@ -75,8 +72,6 @@ class CmsAuthUtils {
 				NodeSecurityUtils.checkUserName(name);
 				userPrincipal = new X500Principal(name.toString());
 				principals.add(userPrincipal);
-				// principals.add(new ImpliedByPrincipal(NodeSecurityUtils.ROLE_USER_NAME,
-				// userPrincipal));
 
 				if (Activator.isSingleUser()) {
 					principals.add(new ImpliedByPrincipal(NodeSecurityUtils.ROLE_ADMIN_NAME, userPrincipal));
@@ -99,10 +94,8 @@ class CmsAuthUtils {
 			}
 
 		} catch (InvalidNameException e) {
-			throw new CmsException("Cannot commit", e);
+			throw new IllegalArgumentException("Cannot commit", e);
 		}
-
-		// registerSessionAuthorization(request, subject, authorization, locale);
 	}
 
 	private static void checkSubjectEmpty(Subject subject) {
@@ -150,7 +143,7 @@ class CmsAuthUtils {
 						cmsSession.close();
 						cmsSession = null;
 					} else if (!authorization.getName().equals(cmsSession.getAuthorization().getName())) {
-						throw new CmsException("Inconsistent user " + authorization.getName()
+						throw new IllegalStateException("Inconsistent user " + authorization.getName()
 								+ " for existing CMS session " + cmsSession);
 					}
 					// keyring
@@ -175,7 +168,7 @@ class CmsAuthUtils {
 					UUID storedSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next()
 							.getUuid();
 					// if (storedSessionId.equals(httpSessionId.getValue()))
-					throw new CmsException(
+					throw new IllegalStateException(
 							"Subject already logged with session " + storedSessionId + " (not " + nodeSessionId + ")");
 				}
 			}
@@ -191,7 +184,7 @@ class CmsAuthUtils {
 			sr = bc.getServiceReferences(CmsSession.class,
 					"(" + CmsSession.SESSION_LOCAL_ID + "=" + httpSessionId + ")");
 		} catch (InvalidSyntaxException e) {
-			throw new CmsException("Cannot get CMS session for id " + httpSessionId, e);
+			throw new IllegalArgumentException("Cannot get CMS session for id " + httpSessionId, e);
 		}
 		CmsSession cmsSession;
 		if (sr.size() == 1) {
@@ -203,7 +196,7 @@ class CmsAuthUtils {
 		} else if (sr.size() == 0)
 			return null;
 		else
-			throw new CmsException(sr.size() + ">1 web sessions detected for http session " + httpSessionId);
+			throw new IllegalStateException(sr.size() + ">1 web sessions detected for http session " + httpSessionId);
 		return cmsSession;
 	}
 

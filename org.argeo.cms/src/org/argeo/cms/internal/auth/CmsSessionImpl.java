@@ -39,6 +39,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.useradmin.Authorization;
 
+/** Default CMS session implementation. */
 public class CmsSessionImpl implements CmsSession {
 	private final static BundleContext bc = FrameworkUtil.getBundle(CmsSessionImpl.class).getBundleContext();
 	private final static Log log = LogFactory.getLog(CmsSessionImpl.class);

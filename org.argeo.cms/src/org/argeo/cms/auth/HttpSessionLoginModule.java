@@ -19,7 +19,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.kernel.Activator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -182,10 +181,10 @@ public class HttpSessionLoginModule implements LoginModule {
 							sharedState.put(CmsAuthUtils.SHARED_STATE_NAME, login);
 							sharedState.put(CmsAuthUtils.SHARED_STATE_PWD, password);
 						} else {
-							throw new CmsException("Invalid authentication token");
+							throw new IllegalStateException("Invalid authentication token");
 						}
 					} catch (Exception e) {
-						throw new CmsException("Couldn't retrieve authentication", e);
+						throw new IllegalStateException("Couldn't retrieve authentication", e);
 					}
 				} else if (basic.equalsIgnoreCase("Negotiate")) {
 					String spnegoToken = st.nextToken();

@@ -14,7 +14,6 @@ import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
 import org.argeo.api.NodeConstants;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.cms.internal.kernel.Activator;
@@ -25,9 +24,6 @@ import org.osgi.service.useradmin.Authorization;
  * context.
  */
 public final class CurrentUser {
-	// private final static Log log = LogFactory.getLog(CurrentUser.class);
-	// private final static BundleContext bc =
-	// FrameworkUtil.getBundle(CurrentUser.class).getBundleContext();
 	/*
 	 * CURRENT USER API
 	 */
@@ -86,7 +82,7 @@ public final class CurrentUser {
 
 	public final static String getUsername(Subject subject) {
 		if (subject == null)
-			throw new CmsException("Subject cannot be null");
+			throw new IllegalArgumentException("Subject cannot be null");
 		if (subject.getPrincipals(X500Principal.class).size() != 1)
 			return NodeConstants.ROLE_ANONYMOUS;
 		Principal principal = subject.getPrincipals(X500Principal.class).iterator().next();
@@ -133,31 +129,15 @@ public final class CurrentUser {
 	 * HELPERS
 	 */
 	private static Subject currentSubject() {
-		// CmsAuthenticated cmsView = getNodeAuthenticated();
-		// if (cmsView != null)
-		// return cmsView.getSubject();
 		Subject subject = getAccessControllerSubject();
 		if (subject != null)
 			return subject;
-		throw new CmsException("Cannot find related subject");
+		throw new IllegalStateException("Cannot find related subject");
 	}
 
 	private static Subject getAccessControllerSubject() {
 		return Subject.getSubject(AccessController.getContext());
 	}
-
-	// public static boolean isAuthenticated() {
-	// return getAccessControllerSubject() != null;
-	// }
-
-	/**
-	 * The node authenticated component (typically a CMS view) related to this
-	 * display, or null if none is available from this call. <b>Not API: Only for
-	 * low-level access.</b>
-	 */
-	// private static CmsAuthenticated getNodeAuthenticated() {
-	// return UiContext.getData(CmsAuthenticated.KEY);
-	// }
 
 	private static Authorization getAuthorization(Subject subject) {
 		return subject.getPrivateCredentials(Authorization.class).iterator().next();

@@ -29,7 +29,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
 import org.argeo.api.security.CryptoKeyring;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.internal.kernel.Activator;
 import org.argeo.naming.LdapAttrs;
 import org.argeo.osgi.useradmin.AuthenticatingUser;
@@ -77,7 +76,7 @@ public class UserAdminLoginModule implements LoginModule {
 			this.callbackHandler = callbackHandler;
 			this.sharedState = (Map<String, Object>) sharedState;
 		} catch (Exception e) {
-			throw new CmsException("Cannot initialize login module", e);
+			throw new IllegalStateException("Cannot initialize login module", e);
 		}
 	}
 
@@ -117,6 +116,8 @@ public class UserAdminLoginModule implements LoginModule {
 		} else if (singleUser) {
 			username = OsUserUtils.getOsUsername();
 			password = null;
+			// TODO retrieve from http session
+			locale = Locale.getDefault();
 		} else {
 
 			// ask for username and password
@@ -207,9 +208,7 @@ public class UserAdminLoginModule implements LoginModule {
 
 	@Override
 	public boolean commit() throws LoginException {
-		if (locale == null)
-			subject.getPublicCredentials().add(Locale.getDefault());
-		else
+		if (locale != null)
 			subject.getPublicCredentials().add(locale);
 
 		if (singleUser) {
@@ -299,8 +298,6 @@ public class UserAdminLoginModule implements LoginModule {
 	public boolean logout() throws LoginException {
 		if (log.isTraceEnabled())
 			log.trace("Logging out from CMS... " + subject);
-		// boolean httpSessionLogoutOk = CmsAuthUtils.logoutSession(bc,
-		// subject);
 		CmsAuthUtils.cleanUp(subject);
 		return true;
 	}

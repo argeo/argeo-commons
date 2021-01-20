@@ -10,7 +10,6 @@ import java.util.Set;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.cms.CmsException;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Role;
 
@@ -32,7 +31,7 @@ public final class ImpliedByPrincipal implements Principal, Role {
 		try {
 			this.name = new LdapName(name);
 		} catch (InvalidNameException e) {
-			throw new CmsException("Badly formatted role name", e);
+			throw new IllegalArgumentException("Badly formatted role name", e);
 		}
 		if (userPrincipal != null)
 			causes.add(userPrincipal);
