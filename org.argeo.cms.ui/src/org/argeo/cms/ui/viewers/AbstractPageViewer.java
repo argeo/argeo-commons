@@ -198,9 +198,9 @@ public abstract class AbstractPageViewer extends ContentViewer implements Observ
 			}
 
 			part.startEditing();
+			edited = part;
 			updateContent(part);
 			prepare(part, caretPosition);
-			edited = part;
 			edited.getControl().addFocusListener(new FocusListener() {
 				private static final long serialVersionUID = 6883521812717097017L;
 
@@ -239,8 +239,12 @@ public abstract class AbstractPageViewer extends ContentViewer implements Observ
 				save(edited);
 
 			edited.stopEditing();
-			updateContent(edited);
-			layout(((EditablePart) edited).getControl());
+			EditablePart editablePart = edited;
+			Control control = ((EditablePart) edited).getControl();
+			edited = null;
+			// TODO make edited state management more robust
+			updateContent(editablePart);
+			layout(control);
 		} catch (RepositoryException e) {
 			throw new JcrException("Cannot stop editing", e);
 		} finally {
