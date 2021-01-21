@@ -156,6 +156,9 @@ public class CmsUiUtils implements CmsConstants {
 		return new GridData(horizontalAlignment, horizontalAlignment, false, true);
 	}
 
+	/*
+	 * ROW LAYOUT
+	 */
 	public static RowData rowData16px() {
 		return new RowData(16, 16);
 	}

@@ -29,7 +29,7 @@ public class EditablePropertyString extends EditableText implements EditablePart
 	public EditablePropertyString(Composite parent, int style, Node node, String propertyName, String message)
 			throws RepositoryException {
 		super(parent, style, node, true);
-
+		//setUseTextAsLabel(true);
 		this.propertyName = propertyName;
 		this.message = message;
 

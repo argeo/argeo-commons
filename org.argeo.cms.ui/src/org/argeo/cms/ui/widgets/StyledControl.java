@@ -47,10 +47,10 @@ public abstract class StyledControl extends JcrComposite implements CmsConstants
 	}
 
 	protected Composite createContainer() {
-		Composite box = new Composite(this, SWT.INHERIT_DEFAULT);
-		setContainerLayoutData(box);
-		box.setLayout(CmsUiUtils.noSpaceGridLayout());
-		return box;
+		Composite container = new Composite(this, SWT.INHERIT_DEFAULT);
+		setContainerLayoutData(container);
+		container.setLayout(CmsUiUtils.noSpaceGridLayout());
+		return container;
 	}
 
 	public Control getControl() {
@@ -67,8 +67,7 @@ public abstract class StyledControl extends JcrComposite implements CmsConstants
 		// int height = control.getSize().y;
 		String style = (String) EclipseUiSpecificUtils.getStyleData(control);
 		clear(false);
-		control = createControl(box, style);
-		setControlLayoutData(control);
+		refreshControl(style);
 
 		// add the focus listener to the newly created edition control
 		if (focusListener != null)
@@ -80,8 +79,13 @@ public abstract class StyledControl extends JcrComposite implements CmsConstants
 		editing = false;
 		String style = (String) EclipseUiSpecificUtils.getStyleData(control);
 		clear(false);
+		refreshControl(style);
+	}
+	
+	protected void refreshControl(String style) {
 		control = createControl(box, style);
 		setControlLayoutData(control);
+		getParent().layout(true, true);
 	}
 
 	public void setStyle(String style) {
@@ -91,11 +95,8 @@ public abstract class StyledControl extends JcrComposite implements CmsConstants
 		if (currentStyle != null && currentStyle.equals(style))
 			return;
 
-		// Integer preferredHeight = control != null ? control.getSize().y :
-		// null;
 		clear(true);
-		control = createControl(box, style);
-		setControlLayoutData(control);
+		refreshControl(style);
 
 		if (style != null) {
 			CmsUiUtils.style(box, style + "_box");
