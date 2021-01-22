@@ -1,5 +1,8 @@
 package org.argeo.jcr;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.Instant;
@@ -31,6 +34,8 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 import javax.jcr.version.VersionManager;
+
+import org.apache.commons.io.IOUtils;
 
 /**
  * Utility class whose purpose is to make using JCR less verbose by
@@ -389,15 +394,44 @@ public class Jcr {
 	public static void set(Node node, String property, Object value) {
 		try {
 			if (!node.hasProperty(property)) {
-				if (value != null)
-					node.setProperty(property, value.toString());
+				if (value != null) {
+					if (value instanceof List) {// multiple
+						List<?> lst = (List<?>) value;
+						String[] values = new String[lst.size()];
+						for (int i = 0; i < lst.size(); i++) {
+							values[i] = lst.get(i).toString();
+						}
+						node.setProperty(property, values);
+					} else {
+						node.setProperty(property, value.toString());
+					}
+				}
 				return;
-				// throw new IllegalArgumentException("No property " + property + " in " +
-				// node);
 			}
 			Property prop = node.getProperty(property);
 			if (value == null) {
 				prop.remove();
+				return;
+			}
+
+			// multiple
+			if (value instanceof List) {
+				List<?> lst = (List<?>) value;
+				String[] values = new String[lst.size()];
+				// TODO better cast?
+				for (int i = 0; i < lst.size(); i++) {
+					values[i] = lst.get(i).toString();
+				}
+				if (!prop.isMultiple())
+					prop.remove();
+				node.setProperty(property, values);
+				return;
+			}
+
+			// single
+			if (prop.isMultiple()) {
+				prop.remove();
+				node.setProperty(property, value.toString());
 				return;
 			}
 
@@ -506,20 +540,11 @@ public class Jcr {
 			if (node.hasProperty(property)) {
 				Property p = node.getProperty(property);
 				try {
-					switch (p.getType()) {
-					case PropertyType.STRING:
-						return (T) node.getProperty(property).getString();
-					case PropertyType.DOUBLE:
-						return (T) (Double) node.getProperty(property).getDouble();
-					case PropertyType.LONG:
-						return (T) (Long) node.getProperty(property).getLong();
-					case PropertyType.BOOLEAN:
-						return (T) (Boolean) node.getProperty(property).getBoolean();
-					case PropertyType.DATE:
-						return (T) node.getProperty(property).getDate();
-					default:
-						return (T) node.getProperty(property).getString();
+					if (p.isMultiple()) {
+						throw new UnsupportedOperationException("Multiple values properties are not supported");
 					}
+					Value value = p.getValue();
+					return (T) get(value);
 				} catch (ClassCastException e) {
 					throw new IllegalArgumentException(
 							"Cannot cast property of type " + PropertyType.nameFromValue(p.getType()), e);
@@ -529,6 +554,79 @@ public class Jcr {
 			}
 		} catch (RepositoryException e) {
 			throw new JcrException("Cannot retrieve property " + property + " from " + node, e);
+		}
+	}
+
+	/**
+	 * Get a multiple property as a list, doing a best effort to cast it as the
+	 * target list.
+	 * 
+	 * @return the value of {@link Node#getProperty(String)}.
+	 * @throws IllegalArgumentException if the value could not be cast
+	 * @throws JcrException             in case of unexpected
+	 *                                  {@link RepositoryException}
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> getMultiple(Node node, String property) {
+		try {
+			if (node.hasProperty(property)) {
+				Property p = node.getProperty(property);
+				try {
+					List<T> res = new ArrayList<>();
+					if (!p.isMultiple()) {
+						res.add((T) get(p.getValue()));
+						return res;
+					}
+					Value[] values = p.getValues();
+					for (Value value : values) {
+						res.add((T) get(value));
+					}
+					return res;
+				} catch (ClassCastException e) {
+					throw new IllegalArgumentException(
+							"Cannot cast property of type " + PropertyType.nameFromValue(p.getType()), e);
+				}
+			} else {
+				return null;
+			}
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot retrieve multiple values property " + property + " from " + node, e);
+		}
+	}
+
+	/** Cast a {@link Value} to a standard Java object. */
+	public static Object get(Value value) {
+		Binary binary = null;
+		try {
+			switch (value.getType()) {
+			case PropertyType.STRING:
+				return value.getString();
+			case PropertyType.DOUBLE:
+				return (Double) value.getDouble();
+			case PropertyType.LONG:
+				return (Long) value.getLong();
+			case PropertyType.BOOLEAN:
+				return (Boolean) value.getBoolean();
+			case PropertyType.DATE:
+				return value.getDate();
+			case PropertyType.BINARY:
+				binary = value.getBinary();
+				byte[] arr = null;
+				try (InputStream in = binary.getStream(); ByteArrayOutputStream out = new ByteArrayOutputStream();) {
+					IOUtils.copy(in, out);
+					arr = out.toByteArray();
+				} catch (IOException e) {
+					throw new RuntimeException("Cannot read binary from " + value, e);
+				}
+				return arr;
+			default:
+				return value.getString();
+			}
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot cast value from " + value, e);
+		} finally {
+			if (binary != null)
+				binary.dispose();
 		}
 	}
 
