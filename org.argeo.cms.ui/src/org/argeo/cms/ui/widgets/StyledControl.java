@@ -24,6 +24,8 @@ public abstract class StyledControl extends JcrComposite implements CmsConstants
 
 	private Boolean editing = Boolean.FALSE;
 
+	private Composite ancestorToLayout;
+
 	public StyledControl(Composite parent, int swtStyle) {
 		super(parent, swtStyle);
 		setLayout(CmsUiUtils.noSpaceGridLayout());
@@ -81,11 +83,14 @@ public abstract class StyledControl extends JcrComposite implements CmsConstants
 		clear(false);
 		refreshControl(style);
 	}
-	
+
 	protected void refreshControl(String style) {
 		control = createControl(box, style);
 		setControlLayoutData(control);
-		getParent().layout(true, true);
+		if (ancestorToLayout != null)
+			ancestorToLayout.layout(true, true);
+		else
+			getParent().layout(true, true);
 	}
 
 	public void setStyle(String style) {
@@ -140,4 +145,9 @@ public abstract class StyledControl extends JcrComposite implements CmsConstants
 		if (control != null && this.focusListener != null)
 			control.addFocusListener(focusListener);
 	}
+
+	public void setAncestorToLayout(Composite ancestorToLayout) {
+		this.ancestorToLayout = ancestorToLayout;
+	}
+
 }
