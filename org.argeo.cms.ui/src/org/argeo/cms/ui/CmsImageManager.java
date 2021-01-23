@@ -44,5 +44,5 @@ public interface CmsImageManager {
 	public Image getSwtImage(Node node) throws RepositoryException;
 
 	/** @return URL */
-	public String uploadImage(Node parentNode, String fileName, InputStream in, String contentType) throws RepositoryException;
+	public String uploadImage(Node context,Node uploadFolder, String fileName, InputStream in, String contentType) throws RepositoryException;
 }

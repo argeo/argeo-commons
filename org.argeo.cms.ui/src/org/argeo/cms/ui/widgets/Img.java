@@ -10,6 +10,7 @@ import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.cms.ui.viewers.NodePart;
 import org.argeo.cms.ui.viewers.Section;
 import org.argeo.cms.ui.viewers.SectionPart;
+import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrException;
 import org.eclipse.rap.fileupload.FileUploadHandler;
 import org.eclipse.rap.fileupload.FileUploadListener;
@@ -87,10 +88,22 @@ public class Img extends EditableImage implements SectionPart, NodePart {
 		}
 	}
 
-	protected Control createImageChooser(Composite box, String style) throws RepositoryException {
+	protected Node getUploadFolder() {
+		return Jcr.getParent(getNode());
+	}
+
+	protected String getUploadName() {
 		Node node = getNode();
-		JcrFileUploadReceiver receiver = new JcrFileUploadReceiver(node.getParent(),
-				node.getName() + '[' + node.getIndex() + ']', imageManager);
+		return Jcr.getName(node) + '[' + Jcr.getIndex(node) + ']';
+	}
+
+	protected CmsImageManager getImageManager() {
+		return imageManager;
+	}
+
+	protected Control createImageChooser(Composite box, String style) throws RepositoryException {
+		JcrFileUploadReceiver receiver = new JcrFileUploadReceiver(this, getUploadFolder(), getUploadName(),
+				imageManager);
 		if (currentUploadHandler != null)
 			currentUploadHandler.dispose();
 		currentUploadHandler = prepareUpload(receiver);

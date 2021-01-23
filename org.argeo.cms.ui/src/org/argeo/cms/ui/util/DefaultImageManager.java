@@ -152,24 +152,6 @@ public class DefaultImageManager implements CmsImageManager {
 	@Override
 	public String getImageUrl(Node node) throws RepositoryException {
 		return CmsUiUtils.getDataPath(node);
-		// String name = getResourceName(node);
-		// ResourceManager resourceManager = RWT.getResourceManager();
-		// if (!resourceManager.isRegistered(name)) {
-		// InputStream inputStream = null;
-		// Binary binary = getImageBinary(node);
-		// if (binary == null)
-		// return null;
-		// try {
-		// inputStream = binary.getStream();
-		// resourceManager.register(name, inputStream);
-		// } finally {
-		// IOUtils.closeQuietly(inputStream);
-		// JcrUtils.closeQuietly(binary);
-		// }
-		// if (log.isTraceEnabled())
-		// log.trace("Registered image " + name);
-		// }
-		// return resourceManager.getLocation(name);
 	}
 
 	protected String getResourceName(Node node) throws RepositoryException {
@@ -203,7 +185,7 @@ public class DefaultImageManager implements CmsImageManager {
 	}
 
 	@Override
-	public String uploadImage(Node parentNode, String fileName, InputStream in, String contentType)
+	public String uploadImage(Node context, Node parentNode, String fileName, InputStream in, String contentType)
 			throws RepositoryException {
 		InputStream inputStream = null;
 		try {
@@ -221,11 +203,12 @@ public class DefaultImageManager implements CmsImageManager {
 			Node fileNode = JcrUtils.copyBytesAsFile(parentNode, fileName, arr);
 			inputStream = new ByteArrayInputStream(arr);
 			ImageData id = new ImageData(inputStream);
-			processNewImageFile(fileNode, id);
+			processNewImageFile(context, fileNode, id);
 
 			String mime = contentType != null ? contentType : Files.probeContentType(Paths.get(fileName));
-			if (mime != null)
-				fileNode.setProperty(Property.JCR_MIMETYPE, mime);
+			if (mime != null) {
+				fileNode.getNode(JCR_CONTENT).setProperty(Property.JCR_MIMETYPE, mime);
+			}
 			fileNode.getSession().save();
 
 			// reset resource manager
@@ -244,6 +227,7 @@ public class DefaultImageManager implements CmsImageManager {
 	}
 
 	/** Does nothing by default. */
-	protected void processNewImageFile(Node fileNode, ImageData id) throws RepositoryException, IOException {
+	protected void processNewImageFile(Node context, Node fileNode, ImageData id)
+			throws RepositoryException, IOException {
 	}
 }

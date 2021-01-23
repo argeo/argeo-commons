@@ -11,20 +11,23 @@ import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.io.FilenameUtils;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.CmsImageManager;
+import org.argeo.cms.ui.widgets.Img;
+import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.fileupload.FileDetails;
 import org.eclipse.rap.fileupload.FileUploadReceiver;
 
 public class JcrFileUploadReceiver extends FileUploadReceiver {
+	private Img img;
 	private final Node parentNode;
 	private final String nodeName;
 	private final CmsImageManager imageManager;
 
 	/** If nodeName is null, use the uploaded file name */
-	public JcrFileUploadReceiver(Node parentNode, String nodeName, CmsImageManager imageManager) {
+	public JcrFileUploadReceiver(Img img, Node parentNode, String nodeName, CmsImageManager imageManager) {
 		super();
+		this.img = img;
 		this.parentNode = parentNode;
 		this.nodeName = nodeName;
 		this.imageManager = imageManager;
@@ -36,13 +39,8 @@ public class JcrFileUploadReceiver extends FileUploadReceiver {
 			String fileName = nodeName != null ? nodeName : details.getFileName();
 			String contentType = details.getContentType();
 			if (isImage(details.getFileName(), contentType)) {
-				imageManager.uploadImage(parentNode, fileName, stream, contentType);
+				imageManager.uploadImage(img.getNode(),parentNode, fileName, stream, contentType);
 				return;
-				// InputStream inputStream = new ByteArrayInputStream(arr);
-				// ImageData id = new ImageData(inputStream);
-				// fileNode.addMixin(CmsTypes.CMS_IMAGE);
-				// fileNode.setProperty(CMS_IMAGE_WIDTH, id.width);
-				// fileNode.setProperty(CMS_IMAGE_HEIGHT, id.height);
 			}
 
 			Node fileNode;
@@ -60,7 +58,7 @@ public class JcrFileUploadReceiver extends FileUploadReceiver {
 			processNewFile(fileNode);
 			fileNode.getSession().save();
 		} catch (RepositoryException e) {
-			throw new CmsException("cannot receive " + details, e);
+			throw new JcrException("Cannot receive " + details, e);
 		}
 	}
 

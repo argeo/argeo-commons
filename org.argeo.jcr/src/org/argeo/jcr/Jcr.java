@@ -204,6 +204,18 @@ public class Jcr {
 	}
 
 	/**
+	 * @see Node#getIndex()
+	 * @throws JcrException caused by {@link RepositoryException}
+	 */
+	public static int getIndex(Node node) {
+		try {
+			return node.getIndex();
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot get index of " + node, e);
+		}
+	}
+
+	/**
 	 * If node has mixin {@link NodeType#MIX_TITLE}, return
 	 * {@link Property#JCR_TITLE}, otherwise return {@link #getName(Node)}.
 	 */

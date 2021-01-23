@@ -449,7 +449,7 @@ public class FormPageViewer extends AbstractPageViewer {
 			cleanedName = System.currentTimeMillis() % 100000 + "_" + cleanedName;
 
 			try {
-				imageManager().uploadImage(context, cleanedName, stream, details.getContentType());
+				imageManager().uploadImage(context, context, cleanedName, stream, details.getContentType());
 				// TODO clean refresh strategy
 				section.getDisplay().asyncExec(new Runnable() {
 					@Override
