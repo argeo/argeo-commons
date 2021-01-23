@@ -727,7 +727,7 @@ public class JcrUtils {
 		Workspace fromWorkspace = fromSession.getWorkspace();
 		Workspace toWorkspace = toSession.getWorkspace();
 		String errorMsg = "Cannot copy workspace " + fromWorkspace + " to " + toWorkspace + " via XML.";
-		
+
 		try (PipedInputStream in = new PipedInputStream(1024 * 1024);) {
 			new Thread(() -> {
 				try (PipedOutputStream out = new PipedOutputStream(in)) {
@@ -1621,6 +1621,7 @@ public class JcrUtils {
 			}
 			binary = contentNode.getSession().getValueFactory().createBinary(in);
 			contentNode.setProperty(Property.JCR_DATA, binary);
+			updateLastModified(contentNode);
 			return fileNode;
 		} catch (RepositoryException e) {
 			throw new JcrException("Cannot create file node " + fileName + " under " + folderNode, e);
@@ -1632,6 +1633,19 @@ public class JcrUtils {
 	/** Read an an nt:file as an {@link InputStream}. */
 	public static InputStream getFileAsStream(Node fileNode) throws RepositoryException {
 		return fileNode.getNode(Node.JCR_CONTENT).getProperty(Property.JCR_DATA).getBinary().getStream();
+	}
+
+	/**
+	 * Set the properties of {@link NodeType#MIX_MIMETYPE} on the content of this
+	 * file node.
+	 */
+	public static void setFileMimeType(Node fileNode, String mimeType, String encoding) throws RepositoryException {
+		Node contentNode = fileNode.getNode(Node.JCR_CONTENT);
+		if (mimeType != null)
+			contentNode.setProperty(Property.JCR_MIMETYPE, mimeType);
+		if (encoding != null)
+			contentNode.setProperty(Property.JCR_ENCODING, encoding);
+		// TODO remove properties if args are null?
 	}
 
 	/**
