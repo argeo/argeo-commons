@@ -281,7 +281,11 @@ public class CmsUiUtils implements CmsConstants {
 
 	// IMAGES
 	public static String img(Node fileNode, String width, String height) {
-		String src = NodeUtils.getDataPath(fileNode);
+		return img(null, fileNode, width, height);
+	}
+
+	public static String img(String serverBase, Node fileNode, String width, String height) {
+		String src = (serverBase != null ? serverBase : "") + NodeUtils.getDataPath(fileNode);
 		return imgBuilder(src, width, height).append("/>").toString();
 	}
 
