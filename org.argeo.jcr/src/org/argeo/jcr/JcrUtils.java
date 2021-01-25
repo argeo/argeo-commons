@@ -6,10 +6,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
@@ -1577,6 +1580,7 @@ public class JcrUtils {
 	 * 
 	 * @return the created file node
 	 */
+	@Deprecated
 	public static Node copyFile(Node folderNode, File file) {
 		try (InputStream in = new FileInputStream(file)) {
 			return copyStreamAsFile(folderNode, file.getName(), in);
@@ -1646,6 +1650,28 @@ public class JcrUtils {
 		if (encoding != null)
 			contentNode.setProperty(Property.JCR_ENCODING, encoding);
 		// TODO remove properties if args are null?
+	}
+
+	public static void copyFilesToFs(Node baseNode, Path targetDir, boolean recursive) {
+		try {
+			Files.createDirectories(targetDir);
+			for (NodeIterator nit = baseNode.getNodes(); nit.hasNext();) {
+				Node node = nit.nextNode();
+				if (node.isNodeType(NodeType.NT_FILE)) {
+					Path filePath = targetDir.resolve(node.getName());
+					try (OutputStream out = Files.newOutputStream(filePath); InputStream in = getFileAsStream(node)) {
+						IOUtils.copy(in, out);
+					}
+				} else if (recursive && node.isNodeType(NodeType.NT_FOLDER)) {
+					Path dirPath = targetDir.resolve(node.getName());
+					copyFilesToFs(node, dirPath, true);
+				}
+			}
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot copy " + baseNode + " to " + targetDir, e);
+		} catch (IOException e) {
+			throw new RuntimeException("Cannot copy " + baseNode + " to " + targetDir, e);
+		}
 	}
 
 	/**
