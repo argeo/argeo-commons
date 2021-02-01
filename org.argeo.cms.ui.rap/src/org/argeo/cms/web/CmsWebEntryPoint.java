@@ -117,6 +117,9 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 					ui = cmsWebApp.getCmsApp().initUi(parent);
 					ui.setData(CmsApp.UI_NAME_PROPERTY, uiName);
 					ui.setLayoutData(CmsUiUtils.fillAll());
+					// we need ui to be set before refresh so that CmsView can store UI context data
+					// in it.
+					cmsWebApp.getCmsApp().refreshUi(ui, null);
 				} catch (Exception e) {
 					throw new IllegalStateException("Cannot create entrypoint contents", e);
 				}
@@ -258,6 +261,24 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 	public CmsSession getCmsSession() {
 		CmsSession cmsSession = CmsSession.getCmsSession(cmsWebApp.getBundleContext(), getSubject());
 		return cmsSession;
+	}
+
+	@Override
+	public Object getData(String key) {
+		if (ui != null) {
+			return ui.getData(key);
+		} else {
+			throw new IllegalStateException("UI is not initialized");
+		}
+	}
+
+	@Override
+	public void setData(String key, Object value) {
+		if (ui != null) {
+			ui.setData(key, value);
+		} else {
+			throw new IllegalStateException("UI is not initialized");
+		}
 	}
 
 	/*

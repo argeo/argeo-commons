@@ -37,7 +37,7 @@ public interface CmsView {
 	boolean isAnonymous();
 
 	/**
-	 * Send an event to this topic. Does noothing by default., but if implemented it
+	 * Send an event to this topic. Does nothing by default., but if implemented it
 	 * MUST set the {@link #CMS_VIEW_UID_PROPERTY} in the properties.
 	 */
 	default void sendEvent(String topic, Map<String, Object> properties) {
@@ -78,6 +78,14 @@ public interface CmsView {
 	}
 
 	default CmsSession getCmsSession() {
+		throw new UnsupportedOperationException();
+	}
+
+	default Object getData(String key) {
+		throw new UnsupportedOperationException();
+	}
+
+	default void setData(String key, Object value) {
 		throw new UnsupportedOperationException();
 	}
 
