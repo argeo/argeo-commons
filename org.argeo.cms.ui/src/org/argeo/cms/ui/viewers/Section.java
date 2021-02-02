@@ -106,13 +106,20 @@ public class Section extends JcrComposite {
 	public SectionPart nextSectionPart(SectionPart sectionPart) {
 		Control[] children = getChildren();
 		for (int i = 0; i < children.length; i++) {
-			if (sectionPart == children[i])
-				if (i + 1 < children.length) {
-					Composite next = (Composite) children[i + 1];
-					return (SectionPart) next;
-				} else {
-					// next section
+			if (sectionPart == children[i]) {
+				for (int j = i + 1; j < children.length; j++) {
+					if (children[i + 1] instanceof SectionPart) {
+						return (SectionPart) children[i + 1];
+					}
 				}
+
+//				if (i + 1 < children.length) {
+//					Composite next = (Composite) children[i + 1];
+//					return (SectionPart) next;
+//				} else {
+//					// next section
+//				}
+			}
 		}
 		return null;
 	}
