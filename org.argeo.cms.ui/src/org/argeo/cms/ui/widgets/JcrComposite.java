@@ -85,6 +85,22 @@ public class JcrComposite extends Composite {
 			return null;
 	}
 
+	public synchronized String getPropertyName() {
+		try {
+			return getProperty().getName();
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot get property name", e);
+		}
+	}
+
+	public synchronized Node getPropertyNode() {
+		try {
+			return getProperty().getNode();
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot get property name", e);
+		}
+	}
+
 	public synchronized Property getProperty() {
 		try {
 			if (itemIsNode())

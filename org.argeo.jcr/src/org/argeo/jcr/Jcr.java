@@ -204,6 +204,21 @@ public class Jcr {
 	}
 
 	/**
+	 * @see Node#getProperty(String)
+	 * @throws JcrException caused by {@link RepositoryException}
+	 */
+	public static Property getProperty(Node node, String property) {
+		try {
+			if (node.hasProperty(property))
+				return node.getProperty(property);
+			else
+				return null;
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot get property " + property + " of " + node, e);
+		}
+	}
+
+	/**
 	 * @see Node#getIndex()
 	 * @throws JcrException caused by {@link RepositoryException}
 	 */
@@ -578,31 +593,38 @@ public class Jcr {
 	 * @throws JcrException             in case of unexpected
 	 *                                  {@link RepositoryException}
 	 */
-	@SuppressWarnings("unchecked")
 	public static <T> List<T> getMultiple(Node node, String property) {
 		try {
 			if (node.hasProperty(property)) {
 				Property p = node.getProperty(property);
-				try {
-					List<T> res = new ArrayList<>();
-					if (!p.isMultiple()) {
-						res.add((T) get(p.getValue()));
-						return res;
-					}
-					Value[] values = p.getValues();
-					for (Value value : values) {
-						res.add((T) get(value));
-					}
-					return res;
-				} catch (ClassCastException e) {
-					throw new IllegalArgumentException(
-							"Cannot cast property of type " + PropertyType.nameFromValue(p.getType()), e);
-				}
+				return getMultiple(p);
 			} else {
 				return null;
 			}
 		} catch (RepositoryException e) {
 			throw new JcrException("Cannot retrieve multiple values property " + property + " from " + node, e);
+		}
+	}
+
+	/**
+	 * Get a multiple property as a list, doing a best effort to cast it as the
+	 * target list.
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> getMultiple(Property p) {
+		try {
+			List<T> res = new ArrayList<>();
+			if (!p.isMultiple()) {
+				res.add((T) get(p.getValue()));
+				return res;
+			}
+			Value[] values = p.getValues();
+			for (Value value : values) {
+				res.add((T) get(value));
+			}
+			return res;
+		} catch (ClassCastException | RepositoryException e) {
+			throw new IllegalArgumentException("Cannot get property " + p, e);
 		}
 	}
 
