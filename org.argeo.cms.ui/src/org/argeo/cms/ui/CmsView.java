@@ -85,6 +85,15 @@ public interface CmsView {
 		throw new UnsupportedOperationException();
 	}
 
+	@SuppressWarnings("unchecked")
+	default <T> T getUiContext(Class<T> clss) {
+		return (T) getData(clss.getName());
+	}
+
+	default <T> void setUiContext(Class<T> clss, T instance) {
+		setData(clss.getName(), instance);
+	}
+
 	default void setData(String key, Object value) {
 		throw new UnsupportedOperationException();
 	}
