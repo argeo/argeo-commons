@@ -218,7 +218,7 @@ public class DefaultImageManager implements CmsImageManager {
 				if (log.isDebugEnabled())
 					log.debug("Unregistered image " + previousResourceName);
 			}
-			return getImageUrl(fileNode);
+			return CmsUiUtils.getDataPath(fileNode);
 		} catch (IOException e) {
 			throw new CmsException("Cannot upload image " + fileName + " in " + parentNode, e);
 		} finally {
