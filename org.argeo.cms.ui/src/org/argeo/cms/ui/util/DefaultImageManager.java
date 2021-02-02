@@ -20,7 +20,6 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.CmsImageManager;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
@@ -104,7 +103,7 @@ public class DefaultImageManager implements CmsImageManager {
 		} else if (constraints.x == 0) {// force height
 			return new Point(scale(orig.x, orig.y, constraints.y), constraints.y);
 		}
-		throw new CmsException("Cannot resize " + orig + " to " + constraints);
+		throw new IllegalArgumentException("Cannot resize " + orig + " to " + constraints);
 	}
 
 	private int scale(int origDimension, int otherDimension, int otherConstraint) {
@@ -220,7 +219,7 @@ public class DefaultImageManager implements CmsImageManager {
 			}
 			return CmsUiUtils.getDataPath(fileNode);
 		} catch (IOException e) {
-			throw new CmsException("Cannot upload image " + fileName + " in " + parentNode, e);
+			throw new RuntimeException("Cannot upload image " + fileName + " in " + parentNode, e);
 		} finally {
 			IOUtils.closeQuietly(inputStream);
 		}
