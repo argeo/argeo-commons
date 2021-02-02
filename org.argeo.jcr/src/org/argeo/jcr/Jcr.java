@@ -204,6 +204,21 @@ public class Jcr {
 	}
 
 	/**
+	 * Returns the node name with its current index (useful for re-ordering).
+	 * 
+	 * @see Node#getName()
+	 * @see Node#getIndex()
+	 * @throws JcrException caused by {@link RepositoryException}
+	 */
+	public static String getIndexedName(Node node) {
+		try {
+			return node.getName() + "[" + node.getIndex() + "]";
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot get name of " + node, e);
+		}
+	}
+
+	/**
 	 * @see Node#getProperty(String)
 	 * @throws JcrException caused by {@link RepositoryException}
 	 */
