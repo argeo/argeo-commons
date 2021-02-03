@@ -44,5 +44,12 @@ public interface CmsImageManager {
 	public Image getSwtImage(Node node) throws RepositoryException;
 
 	/** @return URL */
-	public String uploadImage(Node context,Node uploadFolder, String fileName, InputStream in, String contentType) throws RepositoryException;
+	public String uploadImage(Node context, Node uploadFolder, String fileName, InputStream in, String contentType)
+			throws RepositoryException;
+
+	@Deprecated
+	default String uploadImage(Node uploadFolder, String fileName, InputStream in) throws RepositoryException {
+		System.err.println("Context must be provided to " + CmsImageManager.class.getName());
+		return uploadImage(null, uploadFolder, fileName, in, null);
+	}
 }
