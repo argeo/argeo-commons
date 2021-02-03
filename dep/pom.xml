@@ -43,13 +43,6 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<dependencies>
-					<dependency>
-						<groupId>org.argeo.commons</groupId>
-						<artifactId>assembly-descriptors</artifactId>
-						<version>2.1.86-SNAPSHOT</version>
-					</dependency>
-				</dependencies>
 				<configuration>
 					<attach>false</attach>
 				</configuration>
