@@ -145,6 +145,18 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
+		<repository>
+			<id>argeo-unstable</id>
+			<url>http://forge.argeo.org/data/java/argeo-2.3/</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
 		<!-- Disable Maven default repository -->
 		<repository>
 			<id>central</id>
