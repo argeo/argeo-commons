@@ -24,8 +24,7 @@ import org.argeo.jcr.fs.JcrFsException;
  * DAVEX protocol.
  */
 public class DavexFsProvider extends AbstractJackrabbitFsProvider {
-//	final static String JACKRABBIT_REPOSITORY_URI = "org.apache.jackrabbit.repository.uri";
-//	final static String JACKRABBIT_REMOTE_DEFAULT_WORKSPACE = "org.apache.jackrabbit.spi2davex.WorkspaceNameDefault";
+	final static String DEFAULT_JACKRABBIT_REMOTE_DEFAULT_WORKSPACE = "sys";
 
 	private Map<String, JcrFileSystem> fileSystems = new HashMap<>();
 
@@ -54,8 +53,12 @@ public class DavexFsProvider extends AbstractJackrabbitFsProvider {
 			throws IOException {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(ClientDavexRepositoryFactory.JACKRABBIT_DAVEX_URI, repoUri.toString());
-		// FIXME make it configurable
-		params.put(ClientDavexRepositoryFactory.JACKRABBIT_REMOTE_DEFAULT_WORKSPACE, "sys");
+		// TODO better integrate with OSGi or other configuration than system
+		// properties.
+		String remoteDefaultWorkspace = System.getProperty(
+				ClientDavexRepositoryFactory.JACKRABBIT_REMOTE_DEFAULT_WORKSPACE,
+				DEFAULT_JACKRABBIT_REMOTE_DEFAULT_WORKSPACE);
+		params.put(ClientDavexRepositoryFactory.JACKRABBIT_REMOTE_DEFAULT_WORKSPACE, remoteDefaultWorkspace);
 		Repository repository = null;
 		Session session = null;
 		try {
@@ -99,8 +102,8 @@ public class DavexFsProvider extends AbstractJackrabbitFsProvider {
 		if (fileSystem == null)
 			try {
 				fileSystem = (JcrFileSystem) newFileSystem(uri, new HashMap<String, Object>());
-				if(fileSystem==null)
-					throw new IllegalArgumentException("No file system found for "+uri);
+				if (fileSystem == null)
+					throw new IllegalArgumentException("No file system found for " + uri);
 			} catch (IOException e) {
 				throw new JcrFsException("Could not autocreate file system", e);
 			}
