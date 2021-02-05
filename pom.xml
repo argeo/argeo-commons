@@ -122,11 +122,6 @@
 			<url>dav:https://forge.argeo.org/data/java/argeo-2.1/</url>
 			<uniqueVersion>false</uniqueVersion>
 		</repository>
-		<snapshotRepository>
-			<id>staging</id>
-			<url>file:///srv/javafactory/argeo-2.1</url>
-			<uniqueVersion>true</uniqueVersion>
-		</snapshotRepository>
 		<site>
 			<id>staging</id>
 			<url>file:///srv/docfactory/argeo-2.1/site/argeo-commons/</url>
