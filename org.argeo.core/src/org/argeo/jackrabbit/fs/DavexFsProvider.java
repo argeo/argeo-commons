@@ -99,6 +99,8 @@ public class DavexFsProvider extends AbstractJackrabbitFsProvider {
 		if (fileSystem == null)
 			try {
 				fileSystem = (JcrFileSystem) newFileSystem(uri, new HashMap<String, Object>());
+				if(fileSystem==null)
+					throw new IllegalArgumentException("No file system found for "+uri);
 			} catch (IOException e) {
 				throw new JcrFsException("Could not autocreate file system", e);
 			}
