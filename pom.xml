@@ -11,6 +11,7 @@
 	<version>2.1.101-SNAPSHOT</version>
 	<name>Argeo Commons</name>
 	<packaging>pom</packaging>
+	<url>http://www.argeo.org/</url>
 	<properties>
 		<version.argeo-tp>2.1.27</version.argeo-tp>
 		<!-- RPM -->
