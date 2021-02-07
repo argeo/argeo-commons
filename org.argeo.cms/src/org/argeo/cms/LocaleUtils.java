@@ -14,6 +14,8 @@ import org.argeo.cms.auth.CurrentUser;
 
 /** Utilities simplifying the development of localization enums. */
 public class LocaleUtils {
+	final static String DEFAULT_OSGI_l10N_BUNDLE = "/OSGI-INF/l10n/bundle";
+
 	private final static Log log = LogFactory.getLog(LocaleUtils.class);
 
 	private final static ThreadLocal<Locale> threadLocale = new ThreadLocal<>();
@@ -22,36 +24,54 @@ public class LocaleUtils {
 		threadLocale.set(locale);
 	}
 
+	public static String local(Localized localized) {
+		return local(localized.name(), localized.getClass().getClassLoader());
+	}
+
+	public static String local(Localized localized, Locale locale) {
+		if (localized.name() == null) // untranslated
+			return localized.local(locale);
+		return local(localized.name(), locale, localized.getClass().getClassLoader());
+	}
+
+	@Deprecated
 	public static String local(Enum<?> en) {
-		return local(en, getCurrentLocale(), "/OSGI-INF/l10n/bundle");
+		return local(en, getCurrentLocale(), DEFAULT_OSGI_l10N_BUNDLE);
 	}
 
+	@Deprecated
 	public static String local(Enum<?> en, Locale locale) {
-		return local(en, locale, "/OSGI-INF/l10n/bundle");
+		return local(en, locale, DEFAULT_OSGI_l10N_BUNDLE);
 	}
 
+	@Deprecated
 	public static String local(Enum<?> en, Locale locale, String resource) {
 		return local(en, locale, resource, en.getClass().getClassLoader());
 	}
 
+	@Deprecated
 	public static String local(Enum<?> en, Locale locale, String resource, ClassLoader classLoader) {
 		return local(en.name(), locale, resource, classLoader);
 	}
 
 	public static String local(String key, ClassLoader classLoader) {
-		return local(key, getCurrentLocale(), "/OSGI-INF/l10n/bundle", classLoader);
+		return local(key, getCurrentLocale(), DEFAULT_OSGI_l10N_BUNDLE, classLoader);
 	}
 
 	public static String local(String key, Locale locale, ClassLoader classLoader) {
-		return local(key, locale, "/OSGI-INF/l10n/bundle", classLoader);
+		return local(key, locale, DEFAULT_OSGI_l10N_BUNDLE, classLoader);
 	}
 
+	/** Where the search for a message is actually performed. */
 	public static String local(String key, Locale locale, String resource, ClassLoader classLoader) {
 		ResourceBundle rb = ResourceBundle.getBundle(resource, locale, classLoader);
 		assert key.length() > 2;
 		if (isLocaleKey(key))
 			key = key.substring(1);
-		return rb.getString(key);
+		if (rb.containsKey(key))
+			return rb.getString(key);
+		else // for simple cases, the key will actually be the English word
+			return key;
 	}
 
 	public static boolean isLocaleKey(String str) {
@@ -61,8 +81,16 @@ public class LocaleUtils {
 			return false;
 	}
 
-	public static String lead(String raw, Locale locale) {
+	/** Lead transformation on the translated string. */
+	public static String toLead(String raw, Locale locale) {
 		return raw.substring(0, 1).toUpperCase(locale) + raw.substring(1);
+	}
+
+	public static String lead(Localized localized, ClassLoader classLoader) {
+		Locale locale = getCurrentLocale();
+		if (localized.name() == null)// untranslated
+			return toLead(localized.local(locale), locale);
+		return toLead(local(localized.name(), getCurrentLocale(), DEFAULT_OSGI_l10N_BUNDLE, classLoader), locale);
 	}
 
 	public static String lead(Localized localized) {
@@ -70,7 +98,7 @@ public class LocaleUtils {
 	}
 
 	public static String lead(Localized localized, Locale locale) {
-		return lead(localized.local(locale).toString(), locale);
+		return toLead(local(localized, locale), locale);
 	}
 
 	static Locale getCurrentLocale() {

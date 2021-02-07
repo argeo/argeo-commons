@@ -4,15 +4,21 @@ import java.text.MessageFormat;
 import java.util.Locale;
 
 /** Localized object. */
+@FunctionalInterface
 public interface Localized {
+	String name();
 
 	/** Default assumes that this is an {@link Enum} */
-	default Object local(Locale locale) {
-		return LocaleUtils.local((Enum<?>) this, locale);
+	default String local(Locale locale) {
+		return LocaleUtils.local(this, locale);
 	}
 
 	default String lead() {
 		return LocaleUtils.lead(this);
+	}
+
+	default String local() {
+		return LocaleUtils.local(this);
 	}
 
 	default String format(Object[] args) {
@@ -22,9 +28,9 @@ public interface Localized {
 	}
 
 	default String lead(Locale locale) {
-		return LocaleUtils.lead(local(locale).toString(), locale);
+		return LocaleUtils.toLead(local(locale).toString(), locale);
 	}
-
+	
 	static class Untranslated implements Localized {
 		private String msg;
 
@@ -34,8 +40,13 @@ public interface Localized {
 		}
 
 		@Override
-		public Object local(Locale locale) {
+		public String local(Locale locale) {
 			return msg;
+		}
+
+		@Override
+		public String name() {
+			return null;
 		}
 
 	}
