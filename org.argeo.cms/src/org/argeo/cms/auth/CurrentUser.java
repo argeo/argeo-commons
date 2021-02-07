@@ -150,7 +150,11 @@ public final class CurrentUser {
 		else
 			return false;
 		CmsSessionImpl cmsSession = CmsSessionImpl.getByUuid(nodeSessionId.toString());
-		cmsSession.close();
+		
+		// FIXME logout all views
+		// TODO check why it is sometimes null
+		if (cmsSession != null)
+			cmsSession.close();
 		// if (log.isDebugEnabled())
 		// log.debug("Logged out CMS session " + cmsSession.getUuid());
 		return true;
