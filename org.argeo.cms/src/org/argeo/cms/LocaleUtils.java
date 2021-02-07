@@ -94,7 +94,7 @@ public class LocaleUtils {
 	}
 
 	public static String lead(Localized localized) {
-		return lead(localized, getCurrentLocale());
+		return lead(localized, localized.getL10nClassLoader());
 	}
 
 	public static String lead(Localized localized, Locale locale) {

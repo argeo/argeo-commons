@@ -8,6 +8,10 @@ import java.util.Locale;
 public interface Localized {
 	String name();
 
+	default ClassLoader getL10nClassLoader() {
+		return getClass().getClassLoader();
+	}
+
 	/** Default assumes that this is an {@link Enum} */
 	default String local(Locale locale) {
 		return LocaleUtils.local(this, locale);
@@ -30,7 +34,7 @@ public interface Localized {
 	default String lead(Locale locale) {
 		return LocaleUtils.toLead(local(locale).toString(), locale);
 	}
-	
+
 	static class Untranslated implements Localized {
 		private String msg;
 
