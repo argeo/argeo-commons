@@ -251,7 +251,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 			Button button = new Button(c, SWT.RADIO);
 			CmsUiUtils.style(button, CMS_USER_MENU_ITEM);
 			button.setData(i);
-			button.setText(LocaleUtils.lead(locale.getDisplayName(locale), locale) + " (" + locale + ")");
+			button.setText(LocaleUtils.toLead(locale.getDisplayName(locale), locale) + " (" + locale + ")");
 			// button.addListener(SWT.Selection, listener);
 			button.addSelectionListener(selectionListener);
 			if (i == localeChoice.getSelectedIndex())
