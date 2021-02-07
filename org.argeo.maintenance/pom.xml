@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.argeo.commons</groupId>
 		<artifactId>argeo-commons</artifactId>
-		<version>2.1.101</version>
+		<version>2.1.102-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.maintenance</artifactId>
@@ -14,22 +14,22 @@
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.jcr</artifactId>
-			<version>2.1.101</version>
+			<version>2.1.102-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.enterprise</artifactId>
-			<version>2.1.101</version>
+			<version>2.1.102-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.core</artifactId>
-			<version>2.1.101</version>
+			<version>2.1.102-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.api</artifactId>
-			<version>2.1.101</version>
+			<version>2.1.102-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>
