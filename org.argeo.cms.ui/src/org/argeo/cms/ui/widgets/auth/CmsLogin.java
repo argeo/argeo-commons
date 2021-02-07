@@ -220,7 +220,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 			child.dispose();
 		createContents(parent);
 		if (parent.getParent() != null)
-			parent.getParent().layout();
+			parent.getParent().layout(true, true);
 		else
 			parent.layout();
 		usernameT.setText(usernameStr);
