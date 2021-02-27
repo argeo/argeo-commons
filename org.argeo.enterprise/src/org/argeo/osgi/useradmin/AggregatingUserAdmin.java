@@ -110,8 +110,8 @@ public class AggregatingUserAdmin implements UserAdmin {
 		Set<String> sysRoles = new HashSet<String>();
 		for (String role : rawAuthorization.getRoles()) {
 			Authorization auth = systemRoles.getAuthorization((User) userAdmin.getRole(role));
-			systemRoles:for(String systemRole:auth.getRoles()) {
-				if(role.equals(systemRole))
+			systemRoles: for (String systemRole : auth.getRoles()) {
+				if (role.equals(systemRole))
 					continue systemRoles;
 				sysRoles.add(systemRole);
 			}
@@ -169,23 +169,23 @@ public class AggregatingUserAdmin implements UserAdmin {
 			return systemRoles;
 		if (tokensBaseDn != null && name.startsWith(tokensBaseDn))
 			return tokens;
-		List<UserAdmin> res = new ArrayList<UserAdmin>(1);
-		for (LdapName baseDn : businessRoles.keySet()) {
-			AbstractUserDirectory ud = businessRoles.get(baseDn);
+		List<AbstractUserDirectory> res = new ArrayList<>(1);
+		userDirectories: for (LdapName baseDn : businessRoles.keySet()) {
+			AbstractUserDirectory userDirectory = businessRoles.get(baseDn);
 			if (name.startsWith(baseDn)) {
-				if (!ud.isDisabled())
-					res.add(ud);
-			}
-//			Object principal = ud.getProperties().get(Context.SECURITY_PRINCIPAL);
-//			if (principal != null) {
-//				try {
-//					LdapName principalLdapName = new LdapName(principal.toString());
-//					if (principalLdapName.equals(name))
-//						res.add(ud);
-//				} catch (InvalidNameException e) {
-//					// silent
+				if (userDirectory.isDisabled())
+					continue userDirectories;
+//				if (res.isEmpty()) {
+				res.add(userDirectory);
+//				} else {
+//					for (AbstractUserDirectory ud : res) {
+//						LdapName bd = ud.getBaseDn();
+//						if (userDirectory.getBaseDn().startsWith(bd)) {
+//							// child user directory
+//						}
+//					}
 //				}
-//			}
+			}
 		}
 		if (res.size() == 0)
 			throw new UserDirectoryException("Cannot find user admin for " + name);

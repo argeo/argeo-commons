@@ -147,7 +147,8 @@ public class UserAdminUtils {
 			int i = 0;
 			loop: while (i < rdns.size()) {
 				Rdn currrRdn = rdns.get(i);
-				if (!LdapAttrs.dc.name().equals(currrRdn.getType()))
+				if (LdapAttrs.uid.name().equals(currrRdn.getType()) || LdapAttrs.cn.name().equals(currrRdn.getType())
+						|| LdapAttrs.ou.name().equals(currrRdn.getType()))
 					break loop;
 				else {
 					String currVal = (String) currrRdn.getValue();

@@ -12,6 +12,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.naming.InvalidNameException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
@@ -42,6 +43,8 @@ class DeployConfig implements ConfigurationListener {
 	private final DataModels dataModels;
 
 	private boolean isFirstInit = false;
+
+	private final static String ROLES = "roles";
 
 	public DeployConfig(ConfigurationAdmin configurationAdmin, DataModels dataModels, boolean isClean) {
 		this.dataModels = dataModels;
@@ -99,7 +102,12 @@ class DeployConfig implements ConfigurationListener {
 			List<String> activeCns = new ArrayList<>();
 			for (int i = 0; i < userDirectoryConfigs.size(); i++) {
 				Dictionary<String, Object> userDirectoryConfig = userDirectoryConfigs.get(i);
-				String cn = UserAdminConf.baseDnHash(userDirectoryConfig);
+				String baseDn = (String) userDirectoryConfig.get(UserAdminConf.baseDn.name());
+				String cn;
+				if (NodeConstants.ROLES_BASEDN.equals(baseDn))
+					cn = ROLES;
+				else
+					cn = UserAdminConf.baseDnHash(userDirectoryConfig);
 				activeCns.add(cn);
 				userDirectoryConfig.put(NodeConstants.CN, cn);
 				putFactoryDeployConfig(NodeConstants.NODE_USER_ADMIN_PID, userDirectoryConfig);
@@ -189,7 +197,17 @@ class DeployConfig implements ConfigurationListener {
 			if (log.isDebugEnabled())
 				log.debug("Clean state, loading from framework properties...");
 			setFromFrameworkProperties(isFirstInit);
-			for (LdapName dn : deployConfigs.keySet()) {
+
+			// FIXME make it more robust
+			Configuration systemRolesConf = null;
+			LdapName systemRolesDn;
+			try {
+				// FIXME make it more robust
+				systemRolesDn = new LdapName("cn=roles,ou=org.argeo.api.userAdmin,ou=deploy,ou=node");
+			} catch (InvalidNameException e) {
+				throw new IllegalArgumentException(e);
+			}
+			deployConfigs: for (LdapName dn : deployConfigs.keySet()) {
 				Rdn lastRdn = dn.getRdn(dn.size() - 1);
 				LdapName prefix = (LdapName) dn.getPrefix(dn.size() - 1);
 				if (prefix.toString().equals(NodeConstants.DEPLOY_BASEDN)) {
@@ -203,15 +221,28 @@ class DeployConfig implements ConfigurationListener {
 						// service factory definition
 					}
 				} else {
+					Attributes config = deployConfigs.get(dn);
+					Attribute disabled = config.get(UserAdminConf.disabled.name());
+					if (disabled != null)
+						continue deployConfigs;
 					// service factory service
 					Rdn beforeLastRdn = dn.getRdn(dn.size() - 2);
 					assert beforeLastRdn.getType().equals(NodeConstants.OU);
 					String factoryPid = beforeLastRdn.getValue().toString();
 					Configuration conf = configurationAdmin.createFactoryConfiguration(factoryPid.toString(), null);
-					AttributesDictionary dico = new AttributesDictionary(deployConfigs.get(dn));
-					conf.update(dico);
+					if (systemRolesDn.equals(dn)) {
+						systemRolesConf = configurationAdmin.createFactoryConfiguration(factoryPid.toString(), null);
+					} else {
+						AttributesDictionary dico = new AttributesDictionary(config);
+						conf.update(dico);
+					}
 				}
 			}
+
+			// system roles must be last since it triggers node user admin publication
+			if (systemRolesConf == null)
+				throw new IllegalStateException("System roles are not configured.");
+			systemRolesConf.update(new AttributesDictionary(deployConfigs.get(systemRolesDn)));
 		}
 		// TODO check consistency if not clean
 	}

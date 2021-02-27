@@ -167,11 +167,11 @@ class InitUtils {
 		String baseNodeTokensDn = NodeConstants.TOKENS_BASEDN;
 		if (nodeTokensUri == null) {
 			nodeTokensUri = baseNodeTokensDn + ".ldif";
-			File nodeRolesFile = new File(nodeBaseDir, nodeRolesUri);
-			if (!nodeRolesFile.exists())
+			File nodeTokensFile = new File(nodeBaseDir, nodeTokensUri);
+			if (!nodeTokensFile.exists())
 				try {
 					FileUtils.copyInputStreamToFile(InitUtils.class.getResourceAsStream(baseNodeTokensDn + ".ldif"),
-							nodeRolesFile);
+							nodeTokensFile);
 				} catch (IOException e) {
 					throw new RuntimeException("Cannot copy demo resource", e);
 				}
