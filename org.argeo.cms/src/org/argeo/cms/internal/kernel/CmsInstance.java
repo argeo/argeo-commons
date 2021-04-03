@@ -30,7 +30,7 @@ public class CmsInstance implements NodeInstance {
 			public Repository addingService(ServiceReference<Repository> reference) {
 				Object cn = reference.getProperty(NodeConstants.CN);
 				if (cn != null && cn.equals(NodeConstants.EGO_REPOSITORY)) {
-					egoRepository = (EgoRepository) bc.getService(reference);
+//					egoRepository = (EgoRepository) bc.getService(reference);
 					if (log.isTraceEnabled())
 						log.trace("Home repository is available");
 				}
@@ -40,7 +40,7 @@ public class CmsInstance implements NodeInstance {
 			@Override
 			public void removedService(ServiceReference<Repository> reference, Repository service) {
 				super.removedService(reference, service);
-				egoRepository = null;
+//				egoRepository = null;
 			}
 
 		}.open();
