@@ -1,4 +1,3 @@
-Bundle-SymbolicName: org.argeo.cms;singleton:=true
 Bundle-Activator: org.argeo.cms.internal.kernel.Activator
 
 Import-Package: javax.jcr.security,\
