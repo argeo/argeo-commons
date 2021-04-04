@@ -1,27 +1,42 @@
 package org.argeo.cms.internal.kernel;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
 import javax.security.auth.x500.X500Principal;
 
-import org.argeo.cms.CmsException;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.bouncycastle.openssl.jcajce.JceOpenSSLPKCS8DecryptorProviderBuilder;
 import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.InputDecryptorProvider;
+import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
+import org.bouncycastle.pkcs.PKCSException;
 
 /**
  * Utilities around private keys and certificate, mostly wrapping BouncyCastle
@@ -56,38 +71,117 @@ class PkiUtils {
 
 			keyStore.setKeyEntry(x500Principal.getName(), pair.getPrivate(), keyPassword, new Certificate[] { cert });
 			return cert;
-		} catch (Exception e) {
-			throw new CmsException("Cannot generate self-signed certificate", e);
+		} catch (GeneralSecurityException | OperatorCreationException e) {
+			throw new RuntimeException("Cannot generate self-signed certificate", e);
 		}
 	}
 
-	public static KeyStore getKeyStore(File keyStoreFile, char[] keyStorePassword, String keyStoreType) {
+	public static KeyStore getKeyStore(Path keyStoreFile, char[] keyStorePassword, String keyStoreType) {
 		try {
 			KeyStore store = KeyStore.getInstance(keyStoreType, SECURITY_PROVIDER);
-			if (keyStoreFile.exists()) {
-				try (FileInputStream fis = new FileInputStream(keyStoreFile)) {
+			if (Files.exists(keyStoreFile)) {
+				try (InputStream fis = Files.newInputStream(keyStoreFile)) {
 					store.load(fis, keyStorePassword);
 				}
 			} else {
 				store.load(null);
 			}
 			return store;
-		} catch (Exception e) {
-			throw new CmsException("Cannot load keystore " + keyStoreFile, e);
+		} catch (GeneralSecurityException | IOException e) {
+			throw new RuntimeException("Cannot load keystore " + keyStoreFile, e);
 		}
 	}
 
-	public static void saveKeyStore(File keyStoreFile, char[] keyStorePassword, KeyStore keyStore) {
+	public static void saveKeyStore(Path keyStoreFile, char[] keyStorePassword, KeyStore keyStore) {
 		try {
-			try (FileOutputStream fis = new FileOutputStream(keyStoreFile)) {
+			try (OutputStream fis = Files.newOutputStream(keyStoreFile)) {
 				keyStore.store(fis, keyStorePassword);
 			}
-		} catch (Exception e) {
-			throw new CmsException("Cannot save keystore " + keyStoreFile, e);
+		} catch (GeneralSecurityException | IOException e) {
+			throw new RuntimeException("Cannot save keystore " + keyStoreFile, e);
 		}
 	}
 
-	public static void main(String[] args) {
+//	public static byte[] pemToPKCS12(final String keyFile, final String cerFile, final String password)
+//			throws Exception {
+//		// Get the private key
+//		FileReader reader = new FileReader(keyFile);
+//
+//		PEMReader pem = new PemReader(reader, new PasswordFinder() {
+//			@Override
+//			public char[] getPassword() {
+//				return password.toCharArray();
+//			}
+//		});
+//
+//		PrivateKey key = ((KeyPair) pem.readObject()).getPrivate();
+//
+//		pem.close();
+//		reader.close();
+//
+//		// Get the certificate
+//		reader = new FileReader(cerFile);
+//		pem = new PEMReader(reader);
+//
+//		X509Certificate cert = (X509Certificate) pem.readObject();
+//
+//		pem.close();
+//		reader.close();
+//
+//		// Put them into a PKCS12 keystore and write it to a byte[]
+//		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//		KeyStore ks = KeyStore.getInstance("PKCS12");
+//		ks.load(null);
+//		ks.setKeyEntry("alias", (Key) key, password.toCharArray(), new java.security.cert.Certificate[] { cert });
+//		ks.store(bos, password.toCharArray());
+//		bos.close();
+//		return bos.toByteArray();
+//	}
+
+	public static void loadPem(KeyStore keyStore, Reader key, char[] keyPassword, Reader cert) {
+		PrivateKey privateKey = loadPemPrivateKey(key, keyPassword);
+		X509Certificate certificate = loadPemCertificate(cert);
+		try {
+			keyStore.setKeyEntry(certificate.getSubjectX500Principal().getName(), privateKey, keyPassword,
+					new java.security.cert.Certificate[] { certificate });
+		} catch (KeyStoreException e) {
+			throw new RuntimeException("Cannot store PEM certificate", e);
+		}
+	}
+
+	public static PrivateKey loadPemPrivateKey(Reader reader, char[] keyPassword) {
+		try (PEMParser pemParser = new PEMParser(reader)) {
+			JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
+			Object object = pemParser.readObject();
+			PrivateKeyInfo privateKeyInfo;
+			if (object instanceof PKCS8EncryptedPrivateKeyInfo) {
+				if (keyPassword == null)
+					throw new IllegalArgumentException("A key password is required");
+				InputDecryptorProvider decProv = new JceOpenSSLPKCS8DecryptorProviderBuilder().build(keyPassword);
+				privateKeyInfo = ((PKCS8EncryptedPrivateKeyInfo) object).decryptPrivateKeyInfo(decProv);
+			} else if (object instanceof PrivateKeyInfo) {
+				privateKeyInfo = (PrivateKeyInfo) object;
+			} else {
+				throw new IllegalArgumentException("Unsupported format for private key");
+			}
+			return converter.getPrivateKey(privateKeyInfo);
+		} catch (IOException | OperatorCreationException | PKCSException e) {
+			throw new RuntimeException("Cannot read private key", e);
+		}
+	}
+
+	public static X509Certificate loadPemCertificate(Reader reader) {
+		try (PEMParser pemParser = new PEMParser(reader)) {
+			X509CertificateHolder certHolder = (X509CertificateHolder) pemParser.readObject();
+			X509Certificate cert = new JcaX509CertificateConverter().setProvider(SECURITY_PROVIDER)
+					.getCertificate(certHolder);
+			return cert;
+		} catch (IOException | CertificateException e) {
+			throw new RuntimeException("Cannot read private key", e);
+		}
+	}
+
+	public static void main(String[] args) throws Exception {
 		final String ALGORITHM = "RSA";
 		final String provider = "BC";
 		SecureRandom secureRandom = new SecureRandom();

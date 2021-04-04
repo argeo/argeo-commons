@@ -5,9 +5,11 @@ import static org.argeo.cms.internal.kernel.KernelUtils.getFrameworkProp;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.Reader;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyStore;
@@ -110,15 +112,40 @@ class InitUtils {
 
 				// server certificate
 				Path keyStorePath = KernelUtils.getOsgiInstancePath(KernelConstants.DEFAULT_KEYSTORE_PATH);
-				String keyStorePassword = getFrameworkProp(
+				Path pemKeyPath = KernelUtils.getOsgiInstancePath(KernelConstants.DEFAULT_PEM_KEY_PATH);
+				Path pemCertPath = KernelUtils.getOsgiInstancePath(KernelConstants.DEFAULT_PEM_CERT_PATH);
+				String keyStorePasswordStr = getFrameworkProp(
 						InternalHttpConstants.JETTY_PROPERTY_PREFIX + InternalHttpConstants.SSL_PASSWORD);
-				if (keyStorePassword == null)
-					keyStorePassword = "changeit";
+				char[] keyStorePassword;
+				if (keyStorePasswordStr == null)
+					keyStorePassword = "changeit".toCharArray();
+				else
+					keyStorePassword = keyStorePasswordStr.toCharArray();
+
+				// if PEM files both exists, update the PKCS12 file
+				if (Files.exists(pemCertPath) && Files.exists(pemKeyPath)) {
+					// TODO check certificate update time? monitor changes?
+					KeyStore keyStore = PkiUtils.getKeyStore(keyStorePath, keyStorePassword, PkiUtils.PKCS12);
+					try (Reader key = Files.newBufferedReader(pemKeyPath, StandardCharsets.US_ASCII);
+							Reader cert = Files.newBufferedReader(pemCertPath, StandardCharsets.US_ASCII);) {
+						PkiUtils.loadPem(keyStore, key, keyStorePassword, cert);
+						PkiUtils.saveKeyStore(keyStorePath, keyStorePassword, keyStore);
+						if (log.isDebugEnabled())
+							log.debug("PEM certificate stored in " + keyStorePath);
+					} catch (IOException e) {
+						log.error("Cannot read PEM files " + pemKeyPath + " and " + pemCertPath, e);
+					}
+				}
+
 				if (!Files.exists(keyStorePath))
 					createSelfSignedKeyStore(keyStorePath, keyStorePassword, PkiUtils.PKCS12);
 				props.put(InternalHttpConstants.SSL_KEYSTORETYPE, PkiUtils.PKCS12);
 				props.put(InternalHttpConstants.SSL_KEYSTORE, keyStorePath.toString());
-				props.put(InternalHttpConstants.SSL_PASSWORD, keyStorePassword);
+				props.put(InternalHttpConstants.SSL_PASSWORD, new String(keyStorePassword));
+
+//				props.put(InternalHttpConstants.SSL_KEYSTORETYPE, "PKCS11");
+//				props.put(InternalHttpConstants.SSL_KEYSTORE, "../../nssdb");
+//				props.put(InternalHttpConstants.SSL_PASSWORD, keyStorePassword);
 
 				// client certificate authentication
 				String wantClientAuth = getFrameworkProp(
@@ -298,26 +325,29 @@ class InitUtils {
 		return repositoryFactory.getRepository(params);
 	}
 
-	private static void createSelfSignedKeyStore(Path keyStorePath, String keyStorePassword, String keyStoreType) {
+	private static void createSelfSignedKeyStore(Path keyStorePath, char[] keyStorePassword, String keyStoreType) {
 		// for (Provider provider : Security.getProviders())
 		// System.out.println(provider.getName());
-		File keyStoreFile = keyStorePath.toFile();
-		char[] ksPwd = keyStorePassword.toCharArray();
-		char[] keyPwd = Arrays.copyOf(ksPwd, ksPwd.length);
-		if (!keyStoreFile.exists()) {
+//		File keyStoreFile = keyStorePath.toFile();
+		char[] keyPwd = Arrays.copyOf(keyStorePassword, keyStorePassword.length);
+		if (!Files.exists(keyStorePath)) {
 			try {
-				keyStoreFile.getParentFile().mkdirs();
-				KeyStore keyStore = PkiUtils.getKeyStore(keyStoreFile, ksPwd, keyStoreType);
+				Files.createDirectories(keyStorePath.getParent());
+				KeyStore keyStore = PkiUtils.getKeyStore(keyStorePath, keyStorePassword, keyStoreType);
 				PkiUtils.generateSelfSignedCertificate(keyStore,
 						new X500Principal("CN=" + InetAddress.getLocalHost().getHostName() + ",OU=UNSECURE,O=UNSECURE"),
 						1024, keyPwd);
-				PkiUtils.saveKeyStore(keyStoreFile, ksPwd, keyStore);
+				PkiUtils.saveKeyStore(keyStorePath, keyStorePassword, keyStore);
 				if (log.isDebugEnabled())
-					log.debug("Created self-signed unsecure keystore " + keyStoreFile);
+					log.debug("Created self-signed unsecure keystore " + keyStorePath);
 			} catch (Exception e) {
-				if (keyStoreFile.length() == 0)
-					keyStoreFile.delete();
-				log.error("Cannot create keystore " + keyStoreFile, e);
+				try {
+					if (Files.size(keyStorePath) == 0)
+						Files.delete(keyStorePath);
+				} catch (IOException e1) {
+					// silent
+				}
+				log.error("Cannot create keystore " + keyStorePath, e);
 			}
 		} else {
 			throw new IllegalStateException("Keystore " + keyStorePath + " already exists");
