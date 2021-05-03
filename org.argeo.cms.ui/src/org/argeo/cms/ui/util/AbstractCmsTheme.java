@@ -12,7 +12,7 @@ import org.eclipse.swt.widgets.Display;
 
 /** Centralises some generic {@link CmsTheme} patterns. */
 public abstract class AbstractCmsTheme implements CmsTheme {
-	private Map<String, Image> imageCache = new HashMap<>();
+	private Map<String, ImageData> imageCache = new HashMap<>();
 
 	private Map<String, Map<Integer, String>> iconPaths = new HashMap<>();
 
@@ -24,13 +24,14 @@ public abstract class AbstractCmsTheme implements CmsTheme {
 				if (in == null)
 					return null;
 				ImageData imageData = new ImageData(in);
-				Image image = new Image(Display.getDefault(), imageData);
-				imageCache.put(path, image);
+				imageCache.put(path, imageData);
 			} catch (IOException e) {
 				throw new IllegalStateException(e);
 			}
 		}
-		return imageCache.get(path);
+		ImageData imageData = imageCache.get(path);
+		Image image = new Image(Display.getCurrent(), imageData);
+		return image;
 	}
 
 	@Override
