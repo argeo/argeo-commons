@@ -96,8 +96,8 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 			if (log.isDebugEnabled())
 				log.info("Added web entry point " + (contextName != null ? "/" + contextName : "") + entryPointName);
 		}
-		if (log.isDebugEnabled())
-			log.debug("Published CMS web app /" + (contextName != null ? contextName : ""));
+//		if (log.isDebugEnabled())
+//			log.debug("Published CMS web app /" + (contextName != null ? contextName : ""));
 	}
 
 	CmsApp getCmsApp() {
