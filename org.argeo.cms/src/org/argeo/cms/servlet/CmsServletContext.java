@@ -21,7 +21,7 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.http.context.ServletContextHelper;
 
 /**
- * Default servlet context degrading to anonymous if the the sesison is not
+ * Default servlet context degrading to anonymous if the the session is not
  * pre-authenticated.
  */
 public class CmsServletContext extends ServletContextHelper {
