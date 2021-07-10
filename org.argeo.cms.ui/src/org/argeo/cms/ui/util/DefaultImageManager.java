@@ -9,8 +9,13 @@ import static org.argeo.cms.ui.CmsConstants.NO_IMAGE_SIZE;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.StringTokenizer;
 
 import javax.jcr.Binary;
 import javax.jcr.Node;
@@ -150,7 +155,19 @@ public class DefaultImageManager implements CmsImageManager {
 	/** @return null if not available */
 	@Override
 	public String getImageUrl(Node node) throws RepositoryException {
-		return CmsUiUtils.getDataPath(node);
+		return getCleanDataPath(node);
+	}
+
+	/** Clean special character from the URL. */
+	protected String getCleanDataPath(Node node) throws RepositoryException {
+		String path = CmsUiUtils.getDataPath(node);
+		StringTokenizer st = new StringTokenizer(path, "/");
+		StringBuilder sb = new StringBuilder();
+		while (st.hasMoreElements()) {
+			sb.append('/');
+			sb.append(URLEncoder.encode(st.nextToken(), StandardCharsets.UTF_8));
+		}
+		return sb.toString();
 	}
 
 	protected String getResourceName(Node node) throws RepositoryException {
