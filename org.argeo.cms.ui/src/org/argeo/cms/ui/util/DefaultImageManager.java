@@ -165,7 +165,10 @@ public class DefaultImageManager implements CmsImageManager {
 		StringBuilder sb = new StringBuilder();
 		while (st.hasMoreElements()) {
 			sb.append('/');
-			sb.append(URLEncoder.encode(st.nextToken(), StandardCharsets.UTF_8));
+			String encoded = URLEncoder.encode(st.nextToken(), StandardCharsets.UTF_8);
+			encoded = encoded.replace("+", "%20");
+			sb.append(encoded);
+
 		}
 		return sb.toString();
 	}
