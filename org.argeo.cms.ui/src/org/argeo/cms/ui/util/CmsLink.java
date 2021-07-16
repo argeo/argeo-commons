@@ -1,5 +1,6 @@
 package org.argeo.cms.ui.util;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -7,14 +8,12 @@ import java.net.URL;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeUtils;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
-import org.argeo.cms.ui.CmsStyles;
 import org.argeo.cms.ui.CmsUiProvider;
+import org.argeo.jcr.JcrException;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.ResourceManager;
 import org.eclipse.swt.SWT;
@@ -32,9 +31,10 @@ public class CmsLink implements CmsUiProvider {
 	private BundleContext bundleContext;
 
 	private String label;
-	private String custom;
+	private String style;
 	private String target;
 	private String image;
+	private boolean openNew = false;
 	private MouseListener mouseListener;
 
 	private int horizontalAlignment = SWT.CENTER;
@@ -52,14 +52,18 @@ public class CmsLink implements CmsUiProvider {
 	}
 
 	public CmsLink(String label, String target) {
-		this(label, target, null);
+		this(label, target, (String) null);
 	}
 
-	public CmsLink(String label, String target, String custom) {
+	public CmsLink(String label, String target, CmsStyle style) {
+		this(label, target, style != null ? style.style() : null);
+	}
+
+	public CmsLink(String label, String target, String style) {
 		super();
 		this.label = label;
 		this.target = target;
-		this.custom = custom;
+		this.style = style;
 		init();
 	}
 
@@ -89,7 +93,7 @@ public class CmsLink implements CmsUiProvider {
 		comp.setLayout(CmsUiUtils.noSpaceGridLayout());
 
 		Label link = new Label(comp, SWT.NONE);
-		link.setData(RWT.MARKUP_ENABLED, Boolean.TRUE);
+		CmsUiUtils.markup(link);
 		GridData layoutData = new GridData(horizontalAlignment, verticalAlignment, false, false);
 		if (image != null) {
 			if (imageHeight != null)
@@ -100,13 +104,8 @@ public class CmsLink implements CmsUiProvider {
 		}
 
 		link.setLayoutData(layoutData);
-		if (custom != null) {
-			comp.setData(RWT.CUSTOM_VARIANT, custom);
-			link.setData(RWT.CUSTOM_VARIANT, custom);
-		} else {
-			comp.setData(RWT.CUSTOM_VARIANT, CmsStyles.CMS_LINK);
-			link.setData(RWT.CUSTOM_VARIANT, CmsStyles.CMS_LINK);
-		}
+		CmsUiUtils.style(comp, style != null ? style : getDefaultStyle());
+		CmsUiUtils.style(link, style != null ? style : getDefaultStyle());
 
 		// label
 		StringBuilder labelText = new StringBuilder();
@@ -118,16 +117,19 @@ public class CmsLink implements CmsUiProvider {
 					String homePath = homeNode.getPath();
 					labelText.append("/#" + homePath);
 				} catch (RepositoryException e) {
-					throw new CmsException("Cannot get home path", e);
+					throw new JcrException("Cannot get home path", e);
 				}
 			} else {
 				labelText.append(loggedInTarget);
 			}
 			labelText.append("\">");
 		} else if (target != null) {
-			labelText.append("<a style='color:inherit;text-decoration:inherit;' href=\"");
-			labelText.append(target);
-			labelText.append("\">");
+			labelText.append("<a style='color:inherit;text-decoration:inherit;' href='");
+			labelText.append(target).append("'");
+			if (openNew) {
+				labelText.append(" target='_blank'");
+			}
+			labelText.append(">");
 		}
 		if (image != null) {
 			registerImageIfNeeded();
@@ -162,17 +164,12 @@ public class CmsLink implements CmsUiProvider {
 		ResourceManager resourceManager = RWT.getResourceManager();
 		if (!resourceManager.isRegistered(image)) {
 			URL res = getImageUrl();
-			InputStream inputStream = null;
-			try {
-				IOUtils.closeQuietly(inputStream);
-				inputStream = res.openStream();
+			try (InputStream inputStream = res.openStream()) {
 				resourceManager.register(image, inputStream);
 				if (log.isTraceEnabled())
 					log.trace("Registered image " + image);
-			} catch (Exception e) {
-				throw new CmsException("Cannot load image " + image, e);
-			} finally {
-				IOUtils.closeQuietly(inputStream);
+			} catch (IOException e) {
+				throw new RuntimeException("Cannot load image " + image, e);
 			}
 		}
 	}
@@ -180,16 +177,12 @@ public class CmsLink implements CmsUiProvider {
 	private ImageData loadImage() {
 		URL url = getImageUrl();
 		ImageData result = null;
-		InputStream inputStream = null;
-		try {
-			inputStream = url.openStream();
+		try (InputStream inputStream = url.openStream()) {
 			result = new ImageData(inputStream);
 			if (log.isTraceEnabled())
 				log.trace("Loaded image " + image);
-		} catch (Exception e) {
-			throw new CmsException("Cannot load image " + image, e);
-		} finally {
-			IOUtils.closeQuietly(inputStream);
+		} catch (IOException e) {
+			throw new RuntimeException("Cannot load image " + image, e);
 		}
 		return result;
 	}
@@ -204,7 +197,7 @@ public class CmsLink implements CmsUiProvider {
 		}
 
 		if (url == null)
-			throw new CmsException("No image " + image + " available.");
+			throw new IllegalStateException("No image " + image + " available.");
 
 		return url;
 	}
@@ -217,8 +210,14 @@ public class CmsLink implements CmsUiProvider {
 		this.label = label;
 	}
 
+	public void setStyle(String style) {
+		this.style = style;
+	}
+
+	/** @deprecated Use {@link #setStyle(String)} instead. */
+	@Deprecated
 	public void setCustom(String custom) {
-		this.custom = custom;
+		this.style = custom;
 	}
 
 	public void setTarget(String target) {
@@ -255,7 +254,8 @@ public class CmsLink implements CmsUiProvider {
 		} else if ("center".equals(vAlign)) {
 			verticalAlignment = SWT.CENTER;
 		} else {
-			throw new CmsException("Unsupported vertical allignment " + vAlign + " (must be: top, bottom or center)");
+			throw new IllegalArgumentException(
+					"Unsupported vertical alignment " + vAlign + " (must be: top, bottom or center)");
 		}
 	}
 
@@ -271,4 +271,11 @@ public class CmsLink implements CmsUiProvider {
 		this.imageHeight = imageHeight;
 	}
 
+	public void setOpenNew(boolean openNew) {
+		this.openNew = openNew;
+	}
+
+	protected String getDefaultStyle() {
+		return SimpleStyle.link.name();
+	}
 }

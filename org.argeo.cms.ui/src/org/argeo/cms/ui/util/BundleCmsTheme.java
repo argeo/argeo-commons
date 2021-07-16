@@ -33,6 +33,9 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 	public final static String CMS_THEME_PROPERTY = "argeo.cms.theme";
 	public final static String CMS_THEME_BUNDLE_PROPERTY = "argeo.cms.theme.bundle";
 
+	private final static String HEADER_CSS = "header.css";
+	private final static String FONTS_TXT = "fonts.txt";
+
 //	private final static Log log = LogFactory.getLog(BundleCmsTheme.class);
 
 	private String themeId;
@@ -103,14 +106,17 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 		addFonts("*.woff2");
 
 		// fonts
-		URL fontsUrl = themeBundle.getEntry(basePath + "fonts.txt");
+		URL fontsUrl = themeBundle.getEntry(basePath + FONTS_TXT);
 		if (fontsUrl != null) {
 			loadFontsUrl(fontsUrl);
 		}
 
 		// common CSS header (plain CSS)
-		URL headerCssUrl = themeBundle.getEntry(basePath + "header.css");
+		URL headerCssUrl = themeBundle.getEntry(basePath + HEADER_CSS);
 		if (headerCssUrl != null) {
+			// added to plain Web CSS
+			webCssPaths.add(basePath + HEADER_CSS);
+			// and it will also be used by RAP:
 			try (BufferedReader buffer = new BufferedReader(new InputStreamReader(headerCssUrl.openStream(), UTF_8))) {
 				headerCss = buffer.lines().collect(Collectors.joining("\n"));
 			} catch (IOException e) {

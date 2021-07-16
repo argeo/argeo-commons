@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -111,6 +114,25 @@ public class CmsUiUtils implements CmsConstants {
 
 	public static String getDataPath(String cn, Node node) throws RepositoryException {
 		return NodeUtils.getDataPath(cn, node);
+	}
+
+	/** Clean reserved URL characters for use in HTTP links. */
+	public static String getDataPathForUrl(Node node) throws RepositoryException {
+		return cleanPathForUrl(getDataPath(node));
+	}
+
+	/** Clean reserved URL characters for use in HTTP links. */
+	public static String cleanPathForUrl(String path) throws RepositoryException {
+		StringTokenizer st = new StringTokenizer(path, "/");
+		StringBuilder sb = new StringBuilder();
+		while (st.hasMoreElements()) {
+			sb.append('/');
+			String encoded = URLEncoder.encode(st.nextToken(), StandardCharsets.UTF_8);
+			encoded = encoded.replace("+", "%20");
+			sb.append(encoded);
+
+		}
+		return sb.toString();
 	}
 
 	/** @deprecated Use rowData16px() instead. GridData should not be reused. */
@@ -245,6 +267,8 @@ public class CmsUiUtils implements CmsConstants {
 
 	/** Dispose all children of a Composite */
 	public static void clear(Composite composite) {
+		if (composite.isDisposed())
+			return;
 		for (Control child : composite.getChildren())
 			child.dispose();
 	}
@@ -345,4 +369,5 @@ public class CmsUiUtils implements CmsConstants {
 	/** Singleton. */
 	private CmsUiUtils() {
 	}
+
 }

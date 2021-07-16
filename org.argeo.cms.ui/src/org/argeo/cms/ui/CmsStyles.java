@@ -1,6 +1,7 @@
 package org.argeo.cms.ui;
 
 /** Styles references in the CSS. */
+@Deprecated
 public interface CmsStyles {
 	// General
 	public final static String CMS_SHELL = "cms_shell";
