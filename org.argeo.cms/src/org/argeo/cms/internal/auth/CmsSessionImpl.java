@@ -1,5 +1,6 @@
 package org.argeo.cms.internal.auth;
 
+import java.io.Serializable;
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -39,15 +40,16 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.useradmin.Authorization;
 
 /** Default CMS session implementation. */
-public class CmsSessionImpl implements CmsSession {
+public class CmsSessionImpl implements CmsSession, Serializable {
+	private static final long serialVersionUID = 1867719354246307225L;
 	private final static BundleContext bc = FrameworkUtil.getBundle(CmsSessionImpl.class).getBundleContext();
 	private final static Log log = LogFactory.getLog(CmsSessionImpl.class);
 
 	// private final Subject initialSubject;
-	private final AccessControlContext initialContext;
+	private transient AccessControlContext accessControlContext;
 	private final UUID uuid;
 	private final String localSessionId;
-	private final Authorization authorization;
+	private Authorization authorization;
 	private final LdapName userDn;
 	private final boolean anonymous;
 
@@ -66,7 +68,7 @@ public class CmsSessionImpl implements CmsSession {
 	public CmsSessionImpl(Subject initialSubject, Authorization authorization, Locale locale, String localSessionId) {
 		this.creationTime = ZonedDateTime.now();
 		this.locale = locale;
-		this.initialContext = Subject.doAs(initialSubject, new PrivilegedAction<AccessControlContext>() {
+		this.accessControlContext = Subject.doAs(initialSubject, new PrivilegedAction<AccessControlContext>() {
 
 			@Override
 			public AccessControlContext run() {
@@ -119,12 +121,14 @@ public class CmsSessionImpl implements CmsSession {
 			lc.logout();
 		} catch (LoginException e) {
 			log.warn("Could not logout " + getSubject() + ": " + e);
+		} finally {
+			accessControlContext = null;
 		}
 		log.debug("Closed " + this);
 	}
 
 	private Subject getSubject() {
-		return Subject.getSubject(initialContext);
+		return Subject.getSubject(accessControlContext);
 	}
 
 	public Set<SecretKey> getSecretKeys() {
