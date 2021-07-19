@@ -30,7 +30,8 @@ public abstract class AbstractCmsApp implements CmsApp {
 		return themes.get(themeId);
 	}
 
-	protected boolean allThemesAvailable() {
+	@Override
+	public boolean allThemesAvailable() {
 		boolean themeMissing = false;
 		uiNames: for (String uiName : getUiNames()) {
 			String themeId = getThemeId(uiName);

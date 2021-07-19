@@ -19,6 +19,7 @@ import org.eclipse.rap.rwt.application.Application.OperationMode;
 import org.eclipse.rap.rwt.client.WebClient;
 import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.event.EventAdmin;
 
@@ -28,6 +29,7 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 
 	private BundleContext bundleContext;
 	private CmsApp cmsApp;
+	private String cmsAppId;
 	private EventAdmin eventAdmin;
 
 	private ServiceRegistration<ApplicationConfiguration> rwtAppReg;
@@ -38,13 +40,17 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 	public void init(BundleContext bundleContext, Map<String, String> properties) {
 		this.bundleContext = bundleContext;
 		contextName = properties.get(CONTEXT_NAME);
-		if (cmsApp != null)
-			themingUpdated();
+		if (cmsApp != null) {
+			if (cmsApp.allThemesAvailable())
+				publishWebApp();
+		}
 	}
 
 	public void destroy(BundleContext bundleContext, Map<String, String> properties) {
-		if (cmsApp != null)
+		if (cmsApp != null) {
 			cmsApp.removeCmsAppListener(this);
+			cmsApp = null;
+		}
 	}
 
 	@Override
@@ -110,10 +116,17 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 
 	public void setCmsApp(CmsApp cmsApp, Map<String, String> properties) {
 		this.cmsApp = cmsApp;
+		this.cmsAppId = properties.get(Constants.SERVICE_PID);
 		this.cmsApp.addCmsAppListener(this);
 	}
 
 	public void unsetCmsApp(CmsApp cmsApp, Map<String, String> properties) {
+		String cmsAppId = properties.get(Constants.SERVICE_PID);
+		if (!cmsAppId.equals(this.cmsAppId))
+			return;
+		if (this.cmsApp != null) {
+			this.cmsApp.removeCmsAppListener(this);
+		}
 		if (rwtAppReg != null)
 			rwtAppReg.unregister();
 		this.cmsApp = null;
@@ -121,6 +134,11 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 
 	@Override
 	public void themingUpdated() {
+		if (cmsApp != null && cmsApp.allThemesAvailable())
+			publishWebApp();
+	}
+
+	protected void publishWebApp() {
 		Dictionary<String, Object> regProps = LangUtils.dict(CONTEXT_NAME, contextName);
 		if (rwtAppReg != null)
 			rwtAppReg.unregister();
