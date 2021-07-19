@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -60,7 +59,7 @@ public class CmsSessionImpl implements CmsSession {
 
 	private Map<String, Session> dataSessions = new HashMap<>();
 	private Set<String> dataSessionsInUse = new HashSet<>();
-	private LinkedHashSet<Session> additionalDataSessions = new LinkedHashSet<>();
+	private Set<Session> additionalDataSessions = new HashSet<>();
 
 	private Map<String, Object> views = new HashMap<>();
 
@@ -129,14 +128,17 @@ public class CmsSessionImpl implements CmsSession {
 	}
 
 	public Set<SecretKey> getSecretKeys() {
+		checkValid();
 		return getSubject().getPrivateCredentials(SecretKey.class);
 	}
 
 	public Session newDataSession(String cn, String workspace, Repository repository) {
+		checkValid();
 		return login(repository, workspace);
 	}
 
 	public synchronized Session getDataSession(String cn, String workspace, Repository repository) {
+		checkValid();
 		// FIXME make it more robust
 		if (workspace == null)
 			workspace = NodeConstants.SYS_WORKSPACE;
@@ -207,12 +209,18 @@ public class CmsSessionImpl implements CmsSession {
 		return !isClosed();
 	}
 
-	protected boolean isClosed() {
+	private void checkValid() {
+		if (!isValid())
+			throw new IllegalStateException("CMS session " + uuid + " is not valid since " + end);
+	}
+
+	final protected boolean isClosed() {
 		return getEnd() != null;
 	}
 
 	@Override
 	public Authorization getAuthorization() {
+		checkValid();
 		return authorization;
 	}
 
@@ -258,6 +266,7 @@ public class CmsSessionImpl implements CmsSession {
 
 	@Override
 	public void registerView(String uid, Object view) {
+		checkValid();
 		if (views.containsKey(uid))
 			throw new IllegalArgumentException("View " + uid + " is already registered.");
 		views.put(uid, view);
