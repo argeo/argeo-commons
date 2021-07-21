@@ -22,6 +22,10 @@ public class EclipseUiSpecificUtils {
 		widget.setData(RWT.MARKUP_ENABLED, true);
 	}
 
+	public static void setMarkupValidationDisabledData(Widget widget) {
+		widget.setData("org.eclipse.rap.rwt.markupValidationDisabled", Boolean.TRUE);
+	}
+
 	/**
 	 * TootlTip support is supported only for {@link AbstractTableViewer} in RAP
 	 */

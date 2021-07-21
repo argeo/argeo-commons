@@ -224,6 +224,12 @@ public class CmsUiUtils implements CmsConstants {
 		return widget;
 	}
 
+	/** Disable markup validation. */
+	public static <T extends Widget> T disableMarkupValidation(T widget) {
+		EclipseUiSpecificUtils.setMarkupValidationDisabledData(widget);
+		return widget;
+	}
+
 	/**
 	 * Apply markup and set text on {@link Label}, {@link Button}, {@link Text}.
 	 * 
