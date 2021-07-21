@@ -3,6 +3,7 @@ package org.argeo.cms.web;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,9 +14,9 @@ import org.argeo.cms.ui.CmsView;
 import org.argeo.util.LangUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.Application;
+import org.eclipse.rap.rwt.application.Application.OperationMode;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.eclipse.rap.rwt.application.ExceptionHandler;
-import org.eclipse.rap.rwt.application.Application.OperationMode;
 import org.eclipse.rap.rwt.client.WebClient;
 import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.BundleContext;
@@ -36,6 +37,8 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 
 	private final static String CONTEXT_NAME = "contextName";
 	private String contextName;
+
+	private final static String FAVICON_PNG = "favicon.png";
 
 	public void init(BundleContext bundleContext, Map<String, String> properties) {
 		this.bundleContext = bundleContext;
@@ -91,6 +94,10 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 				properties.put(WebClient.THEME_ID, theme.getThemeId());
 				properties.put(WebClient.HEAD_HTML, theme.getHtmlHeaders());
 				properties.put(WebClient.BODY_HTML, theme.getBodyHtml());
+				Set<String> imagePaths = theme.getImagesPaths();
+				if (imagePaths.contains(FAVICON_PNG)) {
+					properties.put(WebClient.FAVICON, FAVICON_PNG);
+				}
 			} else {
 				properties.put(WebClient.THEME_ID, RWT.DEFAULT_THEME_ID);
 			}
