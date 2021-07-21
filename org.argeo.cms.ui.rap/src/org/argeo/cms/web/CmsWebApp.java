@@ -90,6 +90,7 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 			if (theme != null) {
 				properties.put(WebClient.THEME_ID, theme.getThemeId());
 				properties.put(WebClient.HEAD_HTML, theme.getHtmlHeaders());
+				properties.put(WebClient.BODY_HTML, theme.getBodyHtml());
 			} else {
 				properties.put(WebClient.THEME_ID, RWT.DEFAULT_THEME_ID);
 			}

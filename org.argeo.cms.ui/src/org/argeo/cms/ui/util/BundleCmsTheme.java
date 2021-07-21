@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
@@ -35,6 +37,7 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 
 	private final static String HEADER_CSS = "header.css";
 	private final static String FONTS_TXT = "fonts.txt";
+	private final static String BODY_HTML = "body.html";
 
 //	private final static Log log = LogFactory.getLog(BundleCmsTheme.class);
 
@@ -47,6 +50,8 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 
 	private String headerCss;
 	private List<String> fonts = new ArrayList<>();
+
+	private String bodyHtml="<body></body>";
 
 	private String basePath;
 	private String styleCssPath;
@@ -123,7 +128,13 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 				throw new IllegalArgumentException("Cannot read " + headerCssUrl, e);
 			}
 		}
-	}
+
+		// body
+		URL bodyUrl = themeBundle.getEntry(basePath + BODY_HTML);
+		if (bodyUrl != null) {
+			loadBodyHtml(bodyUrl);
+		}
+}
 
 	public String getHtmlHeaders() {
 		StringBuilder sb = new StringBuilder();
@@ -141,6 +152,13 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 			return null;
 		else
 			return sb.toString();
+	}
+	
+	
+
+	@Override
+	public String getBodyHtml() {
+		return bodyHtml;
 	}
 
 	Set<String> addCss(Bundle themeBundle, String path) {
@@ -183,6 +201,14 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 					fonts.add(line);
 				}
 			}
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Cannot load URL " + url, e);
+		}
+	}
+
+	void loadBodyHtml(URL url) {
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream(), UTF_8))) {
+		bodyHtml=	IOUtils.toString(url,StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			throw new IllegalArgumentException("Cannot load URL " + url, e);
 		}
