@@ -33,6 +33,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowData;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -150,6 +151,7 @@ public class CmsUiUtils implements CmsConstants {
 		return noSpaceGridLayout(new GridLayout(columns, false));
 	}
 
+	/** @return the same layout, with spaces removed. */
 	public static GridLayout noSpaceGridLayout(GridLayout layout) {
 		layout.horizontalSpacing = 0;
 		layout.verticalSpacing = 0;
@@ -181,6 +183,20 @@ public class CmsUiUtils implements CmsConstants {
 	/*
 	 * ROW LAYOUT
 	 */
+	/** @return the same layout, with space and margins removed. */
+	public static RowLayout noSpaceRowLayout(RowLayout rowLayout) {
+		rowLayout.marginTop = 0;
+		rowLayout.marginBottom = 0;
+		rowLayout.marginLeft = 0;
+		rowLayout.marginRight = 0;
+		rowLayout.spacing = 0;
+		return rowLayout;
+	}
+
+	public static RowLayout noSpaceRowLayout(int type) {
+		return noSpaceRowLayout(new RowLayout(type));
+	}
+
 	public static RowData rowData16px() {
 		return new RowData(16, 16);
 	}
