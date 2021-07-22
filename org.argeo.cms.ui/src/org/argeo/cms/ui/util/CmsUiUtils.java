@@ -183,18 +183,17 @@ public class CmsUiUtils implements CmsConstants {
 	/*
 	 * ROW LAYOUT
 	 */
-	/** @return the same layout, with space and margins removed. */
-	public static RowLayout noSpaceRowLayout(RowLayout rowLayout) {
+	/** @return the same layout, with margins removed. */
+	public static RowLayout noMarginsRowLayout(RowLayout rowLayout) {
 		rowLayout.marginTop = 0;
 		rowLayout.marginBottom = 0;
 		rowLayout.marginLeft = 0;
 		rowLayout.marginRight = 0;
-		rowLayout.spacing = 0;
 		return rowLayout;
 	}
 
-	public static RowLayout noSpaceRowLayout(int type) {
-		return noSpaceRowLayout(new RowLayout(type));
+	public static RowLayout noMarginsRowLayout(int type) {
+		return noMarginsRowLayout(new RowLayout(type));
 	}
 
 	public static RowData rowData16px() {
