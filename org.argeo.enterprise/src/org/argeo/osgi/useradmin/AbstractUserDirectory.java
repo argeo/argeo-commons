@@ -51,12 +51,14 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 
 	private final boolean readOnly;
 	private final boolean disabled;
-	private final URI uri;
+	private final String uri;
 
 	private UserAdmin externalRoles;
 	// private List<String> indexedUserProperties = Arrays
 	// .asList(new String[] { LdapAttrs.uid.name(), LdapAttrs.mail.name(),
 	// LdapAttrs.cn.name() });
+
+	private final boolean scoped;
 
 	private String memberAttributeId = "member";
 	private List<String> credentialAttributeIds = Arrays
@@ -66,7 +68,8 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 	private TransactionManager transactionManager;
 	private WcXaResource xaResource = new WcXaResource(this);
 
-	public AbstractUserDirectory(URI uriArg, Dictionary<String, ?> props) {
+	AbstractUserDirectory(URI uriArg, Dictionary<String, ?> props, boolean scoped) {
+		this.scoped = scoped;
 		properties = new Hashtable<String, Object>();
 		for (Enumeration<String> keys = props.keys(); keys.hasMoreElements();) {
 			String key = keys.nextElement();
@@ -74,18 +77,14 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 		}
 
 		if (uriArg != null) {
-			uri = uriArg;
+			uri = uriArg.toString();
 			// uri from properties is ignored
 		} else {
 			String uriStr = UserAdminConf.uri.getValue(properties);
 			if (uriStr == null)
 				uri = null;
 			else
-				try {
-					uri = new URI(uriStr);
-				} catch (URISyntaxException e) {
-					throw new UserDirectoryException("Badly formatted URI " + uriStr, e);
-				}
+				uri = uriStr;
 		}
 
 		userObjectClass = UserAdminConf.userObjectClass.getValue(properties);
@@ -175,14 +174,16 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 		Attributes attrs = user.getAttributes();
 		// TODO centralize attribute name
 		Attribute memberOf = attrs.get(LdapAttrs.memberOf.name());
-		if (memberOf != null) {
+		// if user belongs to this directory, we only check meberOf
+		if (memberOf != null && user.getDn().startsWith(getBaseDn())) {
 			try {
 				NamingEnumeration<?> values = memberOf.getAll();
 				while (values.hasMore()) {
 					Object value = values.next();
 					LdapName groupDn = new LdapName(value.toString());
 					DirectoryUser group = doGetRole(groupDn);
-					allRoles.add(group);
+					if (group != null)
+						allRoles.add(group);
 				}
 			} catch (Exception e) {
 				throw new UserDirectoryException("Cannot get memberOf groups for " + user, e);
@@ -191,8 +192,10 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 			for (LdapName groupDn : getDirectGroups(user.getDn())) {
 				// TODO check for loops
 				DirectoryUser group = doGetRole(groupDn);
-				allRoles.add(group);
-				collectRoles(group, allRoles);
+				if (group != null) {
+					allRoles.add(group);
+					collectRoles(group, allRoles);
+				}
 			}
 		}
 	}
@@ -398,13 +401,20 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 		return credentialAttributeIds;
 	}
 
-	protected URI getUri() {
+	protected String getUri() {
 		return uri;
 	}
 
-	private static boolean readOnlyDefault(URI uri) {
-		if (uri == null)
+	private static boolean readOnlyDefault(String uriStr) {
+		if (uriStr == null)
 			return true;
+		/// TODO make it more generic
+		URI uri;
+		try {
+			uri = new URI(uriStr.split(" ")[0]);
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException(e);
+		}
 		if (uri.getScheme() == null)
 			return false;// assume relative file to be writable
 		if (uri.getScheme().equals(UserAdminConf.SCHEME_FILE)) {
@@ -486,6 +496,10 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 
 	public WcXaResource getXaResource() {
 		return xaResource;
+	}
+
+	public boolean isScoped() {
+		return scoped;
 	}
 
 }

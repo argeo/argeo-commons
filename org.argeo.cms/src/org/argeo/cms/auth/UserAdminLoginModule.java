@@ -308,6 +308,7 @@ public class UserAdminLoginModule implements LoginModule {
 			Set<User> collectedUsers = new HashSet<>();
 			// try dn
 			User user = null;
+			user = null;
 			// try all indexes
 			for (String attr : indexedUserProperties) {
 				user = userAdmin.getUser(attr, providedUsername);

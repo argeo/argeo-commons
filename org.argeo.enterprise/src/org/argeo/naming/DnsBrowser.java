@@ -79,7 +79,7 @@ public class DnsBrowser implements Closeable {
 	}
 
 	/** Ordered, with preferred first. */
-	public List<String> getSrvRecordsAsHosts(String name) throws NamingException {
+	public List<String> getSrvRecordsAsHosts(String name, boolean withPort) throws NamingException {
 		List<String> raw = getRecords(name, "SRV");
 		if (raw.size() == 0)
 			return null;
@@ -96,7 +96,7 @@ public class DnsBrowser implements Closeable {
 		}
 		List<String> lst = new ArrayList<>();
 		for (SrvRecord order : res) {
-			lst.add(order.toHost());
+			lst.add(order.toHost(withPort));
 		}
 		return Collections.unmodifiableList(lst);
 	}

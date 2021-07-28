@@ -4,9 +4,9 @@ import static org.argeo.naming.LdapAttrs.objectClass;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.List;
 
+import javax.naming.AuthenticationNotSupportedException;
 import javax.naming.Binding;
 import javax.naming.Context;
 import javax.naming.InvalidNameException;
@@ -15,14 +15,11 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapName;
 import javax.transaction.TransactionManager;
 
-import org.argeo.naming.LdapAttrs;
 import org.osgi.framework.Filter;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
@@ -32,53 +29,19 @@ import org.osgi.service.useradmin.User;
  * and an open transaction for write access.
  */
 public class LdapUserAdmin extends AbstractUserDirectory {
-	private InitialLdapContext initialLdapContext = null;
-
-//	private LdapName adminUserDn = null;
-//	private LdifUser adminUser = null;
+	private LdapConnection ldapConnection;
 
 	public LdapUserAdmin(Dictionary<String, ?> properties) {
-		super(null, properties);
-		try {
-			Hashtable<String, Object> connEnv = new Hashtable<String, Object>();
-			connEnv.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-			connEnv.put(Context.PROVIDER_URL, getUri().toString());
-			connEnv.put("java.naming.ldap.attributes.binary", LdapAttrs.userPassword.name());
+		this(properties, false);
+	}
 
-			initialLdapContext = new InitialLdapContext(connEnv, null);
-			// StartTlsResponse tls = (StartTlsResponse) ctx
-			// .extendedOperation(new StartTlsRequest());
-			// tls.negotiate();
-			Object securityAuthentication = properties.get(Context.SECURITY_AUTHENTICATION);
-			if (securityAuthentication != null)
-				initialLdapContext.addToEnvironment(Context.SECURITY_AUTHENTICATION, securityAuthentication);
-			else
-				initialLdapContext.addToEnvironment(Context.SECURITY_AUTHENTICATION, "simple");
-			Object principal = properties.get(Context.SECURITY_PRINCIPAL);
-			if (principal != null) {
-				initialLdapContext.addToEnvironment(Context.SECURITY_PRINCIPAL, principal.toString());
-//				adminUserDn = new LdapName(principal.toString());
-//				BasicAttributes adminUserAttrs = new BasicAttributes();
-//				adminUser = new LdifUser(this, adminUserDn, adminUserAttrs);
-				Object creds = properties.get(Context.SECURITY_CREDENTIALS);
-				if (creds != null) {
-					initialLdapContext.addToEnvironment(Context.SECURITY_CREDENTIALS, creds.toString());
-//					adminUserAttrs.put(LdapAttrs.userPassword.name(), adminUser.hash(creds.toString().toCharArray()));
-				}
-//				adminUserAttrs.put(LdapAttrs.memberOf.name(), "cn=admin,ou=roles,ou=node");
-			}
-		} catch (Exception e) {
-			throw new UserDirectoryException("Cannot connect to LDAP", e);
-		}
+	public LdapUserAdmin(Dictionary<String, ?> properties, boolean scoped) {
+		super(null, properties, scoped);
+		ldapConnection = new LdapConnection(getUri().toString(), properties);
 	}
 
 	public void destroy() {
-		try {
-			// tls.close();
-			initialLdapContext.close();
-		} catch (NamingException e) {
-			e.printStackTrace();
-		}
+		ldapConnection.destroy();
 	}
 
 	@Override
@@ -97,12 +60,12 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 		} else {
 			properties.put(Context.SECURITY_AUTHENTICATION, "GSSAPI");
 		}
-		return new LdapUserAdmin(properties);
+		return new LdapUserAdmin(properties, true);
 	}
 
-	protected InitialLdapContext getLdapContext() {
-		return initialLdapContext;
-	}
+//	protected InitialLdapContext getLdapContext() {
+//		return initialLdapContext;
+//	}
 
 	@Override
 	protected Boolean daoHasRole(LdapName dn) {
@@ -116,7 +79,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	@Override
 	protected DirectoryUser daoGetRole(LdapName name) throws NameNotFoundException {
 		try {
-			Attributes attrs = getLdapContext().getAttributes(name);
+			Attributes attrs = ldapConnection.getAttributes(name);
 			if (attrs.size() == 0)
 				return null;
 			int roleType = roleType(name);
@@ -129,9 +92,6 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 				throw new UserDirectoryException("Unsupported LDAP type for " + name);
 			return res;
 		} catch (NameNotFoundException e) {
-//			if (adminUserDn != null && adminUserDn.equals(name)) {
-//				return adminUser;
-//			}
 			throw e;
 		} catch (NamingException e) {
 			return null;
@@ -149,7 +109,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
 			LdapName searchBase = getBaseDn();
-			NamingEnumeration<SearchResult> results = getLdapContext().search(searchBase, searchFilter, searchControls);
+			NamingEnumeration<SearchResult> results = ldapConnection.search(searchBase, searchFilter, searchControls);
 
 			results: while (results.hasMoreElements()) {
 				SearchResult searchResult = results.next();
@@ -170,9 +130,12 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 				res.add(role);
 			}
 			return res;
-//		} catch (NameNotFoundException e) {
-//			return res;
+		} catch (AuthenticationNotSupportedException e) {
+			// ignore (typically an unsupported anonymous bind)
+			// TODO better logging
+			return res;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new UserDirectoryException("Cannot get roles for filter " + f, e);
 		}
 	}
@@ -192,7 +155,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
 			LdapName searchBase = getBaseDn();
-			NamingEnumeration<SearchResult> results = getLdapContext().search(searchBase, searchFilter, searchControls);
+			NamingEnumeration<SearchResult> results = ldapConnection.search(searchBase, searchFilter, searchControls);
 
 			while (results.hasMoreElements()) {
 				SearchResult searchResult = (SearchResult) results.nextElement();
@@ -207,52 +170,16 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	@Override
 	protected void prepare(UserDirectoryWorkingCopy wc) {
 		try {
-			getLdapContext().reconnect(getLdapContext().getConnectControls());
-			// delete
-			for (LdapName dn : wc.getDeletedUsers().keySet()) {
-				if (!entryExists(dn))
-					throw new UserDirectoryException("User to delete no found " + dn);
-			}
-			// add
-			for (LdapName dn : wc.getNewUsers().keySet()) {
-				if (entryExists(dn))
-					throw new UserDirectoryException("User to create found " + dn);
-			}
-			// modify
-			for (LdapName dn : wc.getModifiedUsers().keySet()) {
-				if (!wc.getNewUsers().containsKey(dn) && !entryExists(dn))
-					throw new UserDirectoryException("User to modify not found " + dn);
-			}
+			ldapConnection.prepareChanges(wc);
 		} catch (NamingException e) {
 			throw new UserDirectoryException("Cannot prepare LDAP", e);
-		}
-	}
-
-	private boolean entryExists(LdapName dn) throws NamingException {
-		try {
-			return getLdapContext().getAttributes(dn).size() != 0;
-		} catch (NameNotFoundException e) {
-			return false;
 		}
 	}
 
 	@Override
 	protected void commit(UserDirectoryWorkingCopy wc) {
 		try {
-			// delete
-			for (LdapName dn : wc.getDeletedUsers().keySet()) {
-				getLdapContext().destroySubcontext(dn);
-			}
-			// add
-			for (LdapName dn : wc.getNewUsers().keySet()) {
-				DirectoryUser user = wc.getNewUsers().get(dn);
-				getLdapContext().createSubcontext(dn, user.getAttributes());
-			}
-			// modify
-			for (LdapName dn : wc.getModifiedUsers().keySet()) {
-				Attributes modifiedAttrs = wc.getModifiedUsers().get(dn);
-				getLdapContext().modifyAttributes(dn, DirContext.REPLACE_ATTRIBUTE, modifiedAttrs);
-			}
+			ldapConnection.commitChanges(wc);
 		} catch (NamingException e) {
 			throw new UserDirectoryException("Cannot commit LDAP", e);
 		}

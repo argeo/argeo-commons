@@ -40,15 +40,19 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	private SortedMap<LdapName, DirectoryGroup> groups = new TreeMap<LdapName, DirectoryGroup>();
 
 	public LdifUserAdmin(String uri, String baseDn) {
-		this(fromUri(uri, baseDn));
+		this(fromUri(uri, baseDn), false);
 	}
 
 	public LdifUserAdmin(Dictionary<String, ?> properties) {
-		super(null, properties);
+		this(properties, false);
+	}
+
+	protected LdifUserAdmin(Dictionary<String, ?> properties, boolean scoped) {
+		super(null, properties, scoped);
 	}
 
 	public LdifUserAdmin(URI uri, Dictionary<String, ?> properties) {
-		super(uri, properties);
+		super(uri, properties, false);
 	}
 
 	@Override
@@ -69,7 +73,7 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 		}
 		Dictionary<String, Object> properties = cloneProperties();
 		properties.put(UserAdminConf.readOnly.name(), "true");
-		LdifUserAdmin scopedUserAdmin = new LdifUserAdmin(properties);
+		LdifUserAdmin scopedUserAdmin = new LdifUserAdmin(properties, true);
 		scopedUserAdmin.groups = Collections.unmodifiableSortedMap(groups);
 		scopedUserAdmin.users = Collections.unmodifiableSortedMap(users);
 		return scopedUserAdmin;
@@ -83,13 +87,15 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	}
 
 	public void init() {
+
 		try {
-			if (getUri().getScheme().equals("file")) {
-				File file = new File(getUri());
+			URI u = new URI(getUri());
+			if (u.getScheme().equals("file")) {
+				File file = new File(u);
 				if (!file.exists())
 					return;
 			}
-			load(getUri().toURL().openStream());
+			load(u.toURL().openStream());
 		} catch (Exception e) {
 			throw new UserDirectoryException("Cannot open URL " + getUri(), e);
 		}
