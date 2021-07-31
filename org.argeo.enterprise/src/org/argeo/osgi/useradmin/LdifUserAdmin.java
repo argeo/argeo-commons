@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -106,9 +107,9 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 			throw new UserDirectoryException("Cannot save LDIF user admin: no URI is set");
 		if (isReadOnly())
 			throw new UserDirectoryException("Cannot save LDIF user admin: " + getUri() + " is read-only");
-		try (FileOutputStream out = new FileOutputStream(new File(getUri()))) {
+		try (FileOutputStream out = new FileOutputStream(new File(new URI(getUri())))) {
 			save(out);
-		} catch (IOException e) {
+		} catch (IOException | URISyntaxException e) {
 			throw new UserDirectoryException("Cannot save user admin to " + getUri(), e);
 		}
 	}
