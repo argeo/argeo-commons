@@ -20,6 +20,7 @@ import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.ui.CmsView;
 import org.argeo.eclipse.ui.Selected;
 import org.argeo.eclipse.ui.specific.EclipseUiSpecificUtils;
+import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.ResourceManager;
@@ -330,7 +331,13 @@ public class CmsUiUtils implements CmsConstants {
 	}
 
 	public static String img(String serverBase, Node fileNode, String width, String height) {
-		String src = (serverBase != null ? serverBase : "") + NodeUtils.getDataPath(fileNode);
+//		String src = (serverBase != null ? serverBase : "") + NodeUtils.getDataPath(fileNode);
+		String src;
+		try {
+			src = (serverBase != null ? serverBase : "") + getDataPathForUrl(fileNode);
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot get URL data path for " + fileNode, e);
+		}
 		return imgBuilder(src, width, height).append("/>").toString();
 	}
 
