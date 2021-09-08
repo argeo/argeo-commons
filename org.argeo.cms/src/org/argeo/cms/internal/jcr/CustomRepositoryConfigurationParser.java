@@ -2,6 +2,7 @@ package org.argeo.cms.internal.jcr;
 
 import java.util.Properties;
 
+import org.apache.jackrabbit.core.config.BeanConfig;
 import org.apache.jackrabbit.core.config.ConfigurationException;
 import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
 import org.apache.jackrabbit.core.config.WorkspaceSecurityConfig;
@@ -14,7 +15,7 @@ import org.w3c.dom.Element;
  */
 @SuppressWarnings("restriction")
 class CustomRepositoryConfigurationParser extends RepositoryConfigurationParser {
-	private ClassLoader accessControlProviderClassLoader = null;
+	private ClassLoader classLoader = null;
 
 	public CustomRepositoryConfigurationParser(Properties variables) {
 		super(variables);
@@ -30,19 +31,28 @@ class CustomRepositoryConfigurationParser extends RepositoryConfigurationParser 
 		props.putAll(variables);
 		CustomRepositoryConfigurationParser subParser = new CustomRepositoryConfigurationParser(props,
 				connectionFactory);
-		subParser.setAccessControlProviderClassLoader(accessControlProviderClassLoader);
+		subParser.setClassLoader(classLoader);
 		return subParser;
 	}
 
 	@Override
 	public WorkspaceSecurityConfig parseWorkspaceSecurityConfig(Element parent) throws ConfigurationException {
 		WorkspaceSecurityConfig workspaceSecurityConfig = super.parseWorkspaceSecurityConfig(parent);
-		workspaceSecurityConfig.getAccessControlProviderConfig().setClassLoader(accessControlProviderClassLoader);
+		workspaceSecurityConfig.getAccessControlProviderConfig().setClassLoader(classLoader);
 		return workspaceSecurityConfig;
 	}
 
-	public void setAccessControlProviderClassLoader(ClassLoader accessControlProviderClassLoader) {
-		this.accessControlProviderClassLoader = accessControlProviderClassLoader;
+	@Override
+	protected BeanConfig parseBeanConfig(Element parent, String name) throws ConfigurationException {
+		BeanConfig beanConfig = super.parseBeanConfig(parent, name);
+		if (beanConfig.getClassName().startsWith("org.argeo")) {
+			beanConfig.setClassLoader(classLoader);
+		}
+		return beanConfig;
+	}
+
+	public void setClassLoader(ClassLoader classLoader) {
+		this.classLoader = classLoader;
 	}
 
 }

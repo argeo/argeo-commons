@@ -61,7 +61,7 @@ public class RepositoryBuilder {
 
 			// custom configuration parser
 			CustomRepositoryConfigurationParser parser = new CustomRepositoryConfigurationParser(jackrabbitVars);
-			parser.setAccessControlProviderClassLoader(cl);
+			parser.setClassLoader(cl);
 			RepositoryConfig repositoryConfig = parser.parseRepositoryConfig(config);
 			repositoryConfig.init();
 
