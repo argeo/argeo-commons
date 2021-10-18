@@ -38,6 +38,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
+import javax.jcr.PropertyType;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -1727,6 +1728,51 @@ public class JcrUtils {
 			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
 		}
 		return new String(hexChars);
+	}
+
+	/** Export a subtree as a compact XML without namespaces. */
+	public static void toSimpleXml(Node node, StringBuilder sb) throws RepositoryException {
+		sb.append('<');
+		String nodeName = node.getName();
+		int colIndex = nodeName.indexOf(':');
+		if (colIndex > 0) {
+			nodeName = nodeName.substring(colIndex + 1);
+		}
+		sb.append(nodeName);
+		PropertyIterator pit = node.getProperties();
+		properties: while (pit.hasNext()) {
+			Property p = pit.nextProperty();
+			// skip multiple properties
+			if (p.isMultiple())
+				continue properties;
+			String propertyName = p.getName();
+			int pcolIndex = propertyName.indexOf(':');
+			// skip properties with namespaces
+			if (pcolIndex > 0)
+				continue properties;
+			// skip binaries
+			if (p.getType() == PropertyType.BINARY) {
+				continue properties;
+				// TODO retrieve identifier?
+			}
+			sb.append(' ');
+			sb.append(propertyName);
+			sb.append('=');
+			sb.append('\"').append(p.getString()).append('\"');
+		}
+
+		if (node.hasNodes()) {
+			sb.append('>');
+			NodeIterator children = node.getNodes();
+			while (children.hasNext()) {
+				toSimpleXml(children.nextNode(), sb);
+			}
+			sb.append("</");
+			sb.append(nodeName);
+			sb.append('>');
+		} else {
+			sb.append("/>");
+		}
 	}
 
 }
