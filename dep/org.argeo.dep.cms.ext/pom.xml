@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
@@ -7,60 +9,74 @@
 		<artifactId>dep</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>org.argeo.dep.cms.sdk</artifactId>
-	<name>CMS SDK</name>
+	<artifactId>org.argeo.dep.cms.ext</artifactId>
+	<name>CMS Optional Third Parties</name>
+	<description>Bulky generic third parties which are not required by the CMS, but necessary for upper layers.</description>
 	<dependencies>
-		<!-- Parent dependencies -->
+		<!-- Additional Third Parties -->
 		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.dep.cms.ui.rap</artifactId>
-			<version>2.1.104-SNAPSHOT</version>
-			<type>pom</type>
+			<groupId>org.argeo.tp.javax</groupId>
+			<artifactId>javax.xml.bind</artifactId>
 		</dependency>
 
-		<!-- OSGi Boot for platform generation only, as it could be used by regular 
-			Java applications to launch an OSGi runtime. -->
+		<!-- Jackson JSON processor -->
 		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.osgi.boot</artifactId>
-			<version>2.1.104-SNAPSHOT</version>
-			<scope>test</scope>
+			<groupId>org.argeo.tp.jackson</groupId>
+			<artifactId>com.fasterxml.jackson.core.jackson-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jackson</groupId>
+			<artifactId>com.fasterxml.jackson.core.jackson-databind</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.jackson</groupId>
+			<artifactId>com.fasterxml.jackson.core.jackson-annotations</artifactId>
 		</dependency>
 
-		<!-- ALM Third Parties -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.apache.ant</groupId> -->
-		<!-- <artifactId>org.apache.ant</artifactId> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.tp.apache.ant</groupId> -->
-		<!-- <artifactId>org.apache.ant.launch</artifactId> -->
-		<!-- </dependency> -->
+		<!-- Mail -->
+		<dependency>
+			<groupId>org.argeo.tp.javax</groupId>
+			<artifactId>javax.activation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.javax</groupId>
+			<artifactId>javax.mail</artifactId>
+		</dependency>
 
+		<!-- POI requirements -->
 		<dependency>
-			<groupId>org.argeo.tp.sdk</groupId>
-			<artifactId>biz.aQute.bndlib</artifactId>
+			<groupId>org.argeo.tp.apache.commons</groupId>
+			<artifactId>org.apache.commons.math3</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.tp.sdk</groupId>
-			<artifactId>org.junit</artifactId>
+			<groupId>org.argeo.tp.apache.commons</groupId>
+			<artifactId>org.apache.commons.collections4</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.tp.sdk</groupId>
-			<artifactId>org.hamcrest</artifactId>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.xml.security</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.tp.sdk</groupId>
-			<artifactId>org.redline-rpm</artifactId>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.xmlbeans</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>com.googlecode.javaewah.JavaEWAH</artifactId>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.xalan</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>org.eclipse.jgit</artifactId>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.xalan.serializer</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.xml.resolver</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.xerces</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<profiles>
@@ -96,7 +112,7 @@
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>argeo-cms-sdk-tp</name>
+									<name>argeo-cms-ext-tp</name>
 									<projversion>${version.argeo-tp}</projversion>
 									<release>${maven.build.timestamp}</release>
 									<mappings>
@@ -117,6 +133,7 @@
 										</mapping>
 									</mappings>
 									<requires>
+										<require>argeo-cms-node-tp</require>
 									</requires>
 								</configuration>
 							</execution>

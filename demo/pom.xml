@@ -41,7 +41,7 @@
 			<dependencies>
 				<dependency>
 					<groupId>org.argeo.commons</groupId>
-					<artifactId>org.argeo.dep.cms.sdk</artifactId>
+					<artifactId>org.argeo.dep.cms.e4.rap</artifactId>
 					<version>2.1.104-SNAPSHOT</version>
 				</dependency>
 			</dependencies>
