@@ -2,10 +2,8 @@ package org.argeo.cms.auth;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.security.Principal;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
@@ -18,11 +16,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeConstants;
-import org.argeo.api.security.DataAdminPrincipal;
-import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.naming.LdapAttrs;
 import org.argeo.osgi.useradmin.IpaUtils;
+import org.argeo.osgi.useradmin.OsUserUtils;
 import org.osgi.service.useradmin.Authorization;
 
 /** Login module for when the system is owned by a single user. */
@@ -50,11 +46,12 @@ public class SingleUserLoginModule implements LoginModule {
 
 	@Override
 	public boolean commit() throws LoginException {
-		X500Principal principal;
+		String authorizationName;
 		KerberosPrincipal kerberosPrincipal = CmsAuthUtils.getSinglePrincipal(subject, KerberosPrincipal.class);
 		if (kerberosPrincipal != null) {
 			LdapName userDn = IpaUtils.kerberosToDn(kerberosPrincipal.getName());
-			principal = new X500Principal(userDn.toString());
+			X500Principal principal = new X500Principal(userDn.toString());
+			authorizationName = principal.getName();
 		} else {
 			Object username = sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
 			if (username == null)
@@ -67,12 +64,9 @@ public class SingleUserLoginModule implements LoginModule {
 				hostname = "localhost";
 			}
 			String baseDn = ("." + hostname).replaceAll("\\.", ",dc=");
-			principal = new X500Principal(LdapAttrs.uid + "=" + username + baseDn);
+			X500Principal principal = new X500Principal(LdapAttrs.uid + "=" + username + baseDn);
+			authorizationName = principal.getName();
 		}
-		Set<Principal> principals = subject.getPrincipals();
-		principals.add(principal);
-		principals.add(new ImpliedByPrincipal(NodeConstants.ROLE_ADMIN, principal));
-		principals.add(new DataAdminPrincipal());
 
 		HttpServletRequest request = (HttpServletRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
 		Locale locale = Locale.getDefault();
@@ -80,8 +74,18 @@ public class SingleUserLoginModule implements LoginModule {
 			locale = request.getLocale();
 		if (locale == null)
 			locale = Locale.getDefault();
-		Authorization authorization = new SingleUserAuthorization();
+		Authorization authorization = new SingleUserAuthorization(authorizationName);
 		CmsAuthUtils.addAuthorization(subject, authorization);
+		
+		// Add standard Java OS login 
+		OsUserUtils.loginAsSystemUser(subject);
+
+		// additional principals (must be after Authorization registration)
+//		Set<Principal> principals = subject.getPrincipals();
+//		principals.add(principal);
+//		principals.add(new ImpliedByPrincipal(NodeConstants.ROLE_ADMIN, principal));
+//		principals.add(new DataAdminPrincipal());
+
 		CmsAuthUtils.registerSessionAuthorization(request, subject, authorization, locale);
 
 		return true;

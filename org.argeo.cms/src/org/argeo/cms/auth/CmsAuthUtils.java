@@ -20,7 +20,6 @@ import org.argeo.api.security.NodeSecurityUtils;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.cms.internal.http.WebCmsSessionImpl;
-import org.argeo.cms.internal.kernel.Activator;
 import org.argeo.osgi.useradmin.AuthenticatingUser;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -28,7 +27,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
 
-/** Centrlaises security related registrations. */
+/** Centralises security related registrations. */
 class CmsAuthUtils {
 	// Standard
 	final static String SHARED_STATE_NAME = AuthenticatingUser.SHARED_STATE_NAME;
@@ -52,9 +51,7 @@ class CmsAuthUtils {
 		// required for display name:
 		subject.getPrivateCredentials().add(authorization);
 
-		if (Activator.isSingleUser()) {
-			subject.getPrincipals().add(new DataAdminPrincipal());
-		}
+		boolean singleUser = authorization instanceof SingleUserAuthorization;
 
 		Set<Principal> principals = subject.getPrincipals();
 		try {
@@ -73,8 +70,9 @@ class CmsAuthUtils {
 				userPrincipal = new X500Principal(name.toString());
 				principals.add(userPrincipal);
 
-				if (Activator.isSingleUser()) {
+				if (singleUser) {
 					principals.add(new ImpliedByPrincipal(NodeSecurityUtils.ROLE_ADMIN_NAME, userPrincipal));
+					principals.add(new DataAdminPrincipal());
 				}
 			}
 
@@ -182,7 +180,9 @@ class CmsAuthUtils {
 						"Subject already logged with session " + storedSessionId + " (not " + nodeSessionId + ")");
 			}
 		} else {
-			// TODO desktop, CLI
+			CmsSessionImpl cmsSession = new CmsSessionImpl(subject, authorization, locale, "desktop");
+			CmsSessionId nodeSessionId = new CmsSessionId(cmsSession.getUuid());
+			subject.getPrivateCredentials().add(nodeSessionId);
 		}
 	}
 

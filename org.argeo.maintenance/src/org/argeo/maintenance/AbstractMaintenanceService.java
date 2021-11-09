@@ -159,25 +159,27 @@ public abstract class AbstractMaintenanceService {
 	}
 
 	/** Add a user or group to a group. */
-	protected void addToGroup(String roledDn, String groupDn) {
-		if (roledDn.contentEquals(groupDn)) {
+	protected void addToGroup(String groupToAddDn, String groupDn) {
+		if (groupToAddDn.contentEquals(groupDn)) {
 			if (log.isTraceEnabled())
 				log.trace("Ignore adding group " + groupDn + " to itself");
 			return;
 		}
 
 		if (getUserAdmin() == null) {
-			log.warn("No user admin service available, cannot add group " + roledDn + " to " + groupDn);
+			log.warn("No user admin service available, cannot add group " + groupToAddDn + " to " + groupDn);
 			return;
 		}
-		Group managerGroup = (Group) getUserAdmin().getRole(roledDn);
+		Group groupToAdd = (Group) getUserAdmin().getRole(groupToAddDn);
+		if (groupToAdd == null)
+			throw new IllegalArgumentException("Group " + groupToAddDn + " not found");
 		Group group = (Group) getUserAdmin().getRole(groupDn);
 		if (group == null)
 			throw new IllegalArgumentException("Group " + groupDn + " not found");
 		try {
 			getUserTransaction().begin();
-			if (group.addMember(managerGroup))
-				log.info("Added " + roledDn + " to " + group);
+			if (group.addMember(groupToAdd))
+				log.info("Added " + groupToAddDn + " to " + group);
 			getUserTransaction().commit();
 		} catch (Exception e) {
 			try {
@@ -185,7 +187,7 @@ public abstract class AbstractMaintenanceService {
 			} catch (Exception e1) {
 				// silent
 			}
-			throw new IllegalStateException("Cannot add " + managerGroup + " to " + group);
+			throw new IllegalStateException("Cannot add " + groupToAddDn + " to " + groupDn);
 		}
 	}
 

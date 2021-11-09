@@ -226,6 +226,7 @@ public class Activator implements BundleActivator {
 		return getNodeUserAdmin().getAcceptorCredentials();
 	}
 
+	@Deprecated
 	public static boolean isSingleUser() {
 		return getNodeUserAdmin().isSingleUser();
 	}
